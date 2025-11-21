@@ -1,7 +1,6 @@
 "use strict";
 
 (function ($, window, document, undefined) {
-
     var PayPalButton = window.PayPalButton = (function () {
         function PayPalButton(buttonContainerSelector, funding) {
             this.buttonContainer = $(buttonContainerSelector);
@@ -415,96 +414,149 @@
             constructor() {
                 buttonContainer = $("#paypal-apple-pay-container");
 
-                if (buttonContainer && buttonContainer.html().trim() == '') {
-                    window.ApplePayPayPalButton.onApplePayLoaded();
+                if (buttonContainer && buttonContainer.html().trim() === '') {
+                    ApplePayPayPalButton.onApplePayLoaded();
                 }
             }
 
             async onApplePayLoaded() {
-                if (!buttonContainer.length) {
+                if (!buttonContainer || !buttonContainer.length) {
                     return;
                 }
 
                 await ensureLibraryLoaded('paypal');
-                
-                if (!window.ApplePaySession || !ApplePaySession.canMakePayments()) {
+
+                // Check if Apple Pay is available on this device
+                if (!window.ApplePaySession) {
                     return;
                 }
 
-                await addApplePayButton();
+                if (!ApplePaySession.canMakePayments()) {
+                    return;
+                }
+
+                const applepay = paypal.Applepay();
+
+                let applepayConfig;
+                try {
+                    // Fetch merchant eligibility and base Apple Pay config from PayPal
+                    applepayConfig = await applepay.config();
+                } catch (e) {
+                    return;
+                }
+
+                if (!applepayConfig.isEligible) {
+                    ApplePayPayPalButton.logClientMessage("Apple Pay wasn't unlocked. Please contact PayPal for more information.", "Info");
+                    return;
+                }
+
+                buttonContainer.html('<apple-pay-button id="btn-appl" buttonstyle="black" type="buy" locale="de-DE"></apple-pay-button>');
+
+                const button = document.getElementById("btn-appl");
+                if (!button) {
+                    return;
+                }
+
+                button.addEventListener("click", () => onApplePayButtonClicked(applepay, applepayConfig));
             }
         }
 
-        async function addApplePayButton() {
-            const paymentRequest = await getApplePayPaymentRequest();
-
-            if (!paymentRequest) {
-                return;
-            }
-
-            if (typeof paypal.Applepay !== 'function') {
-                return;
-            }
-
-            const applepay = paypal.Applepay();
-            const button = applepay.Button({
-                onClick: () => onApplePayButtonClicked(applepay, paymentRequest)
-            });
-
-            buttonContainer.append(button);
-        }
-
-        async function onApplePayButtonClicked(applepay, paymentRequest) {
+        async function onApplePayButtonClicked(applepay, applepayConfig) {
             try {
-                const orderId = createOrder(buttonContainer.data("create-order-url"), buttonContainer.attr("id"), buttonContainer.data("route-ident"));
-
-                if (!orderId) {
+                if (!buttonContainer || !buttonContainer.length) {
                     return;
                 }
 
-                const applePayment = await applepay.start({
-                    countryCode: paymentRequest.countryCode,
-                    currencyCode: paymentRequest.currencyCode,
-                    total: {
-                        label: paymentRequest.totalLabel,
-                        amount: paymentRequest.totalAmount
-                    },
-                    requiredBillingContactFields: ["postalAddress", "name", "phone"],
-                    requiredShippingContactFields: paymentRequest.requiresShipping ? ["postalAddress", "name", "phone"] : []
-                });
+                // Get totals and other dynamic info from your backend
+                const paymentRequestData = await getApplePayPaymentRequest();
+                if (!paymentRequestData) {
+                    return;
+                }
 
-                await confirmApplePayOrder(orderId, applePayment.token);
-            }
-            catch (err) {
-                console.error(err);
+                const paymentRequest = {
+                    countryCode: applepayConfig.countryCode,
+                    merchantCapabilities: applepayConfig.merchantCapabilities,
+                    supportedNetworks: applepayConfig.supportedNetworks,
+                    currencyCode: paymentRequestData.currencyCode,
+                    requiredShippingContactFields: paymentRequestData.requiresShipping
+                        ? ["name", "phone", "email", "postalAddress"]
+                        : [],
+                    requiredBillingContactFields: ["postalAddress", "name", "phone"],
+                    total: {
+                        label: paymentRequestData.totalLabel,
+                        type: "final",
+                        amount: paymentRequestData.totalAmount
+                    }
+                };
+
+                const session = new ApplePaySession(4, paymentRequest);
+
+                // Validate merchant with PayPal
+                session.onvalidatemerchant = (event) => {
+                    applepay
+                        .validateMerchant({
+                            validationUrl: event.validationURL,
+                            displayName: paymentRequestData.displayName || document.title
+                        })
+                        .then((validateResult) => {
+                            session.completeMerchantValidation(validateResult.merchantSession);
+                        })
+                        .catch((err) => {
+                            ApplePayPayPalButton.logClientMessage("Validate merchant error: " + err, "Error");
+                            session.abort();
+                        });
+                };
+
+                // Handle payment authorization
+                session.onpaymentauthorized = (event) => {
+                    handlePaymentAuthorized(applepay, event, session);
+                };
+
+                session.oncancel = () => {
+                    //ApplePayPayPalButton.logClientMessage("Transaction cancelled", "Error");
+                };
+
+                session.begin();
+            } catch (err) {
+                ApplePayPayPalButton.logClientMessage(err, "Error");
                 displayNotification(buttonContainer.data("transaction-error"), "error");
             }
         }
 
-        async function confirmApplePayOrder(orderId, token) {
+        async function handlePaymentAuthorized(applepay, event, session) {
             try {
-                const { status } = await paypal.Applepay().confirmOrder({
+                const orderId = createOrder(
+                    buttonContainer.data("create-order-url"),
+                    buttonContainer.attr("id"),
+                    buttonContainer.data("route-ident")
+                );
+
+                if (!orderId) {
+                    session.completePayment(ApplePaySession.STATUS_FAILURE);
+                    ApplePayPayPalButton.logClientMessage("No orderId in handlePaymentAuthorized", "Error");
+                    return;
+                }
+
+                let confirmResult = await applepay.confirmOrder({
                     orderId: orderId,
-                    token: token
+                    token: event.payment.token,
+                    billingContact: event.payment.billingContact
                 });
 
-                if (status === "APPROVED" || status === "COMPLETED") {
-                    initTransaction({ orderID: orderId }, buttonContainer);
-                }
-                else if (status === "PAYER_ACTION_REQUIRED") {
-                    paypal
-                        .Applepay()
-                        .initiatePayerAction({ orderId: orderId })
-                        .then(async () => {
-                            initTransaction({ orderID: orderId }, buttonContainer);
-                        });
-                }
-                else {
-                    displayNotification(buttonContainer.data("transaction-error"), "error");
-                }
-            }
-            catch (err) {
-                console.error(err);
+                confirmResult.orderID = orderId;
+                confirmResult.approveApplePayPayment.ShippingAddress = event.payment.shippingContact;
+                confirmResult.approveApplePayPayment.BillingAddress = event.payment.billingContact;
+
+                // Uncomment for detailed research information.
+                //ApplePayPayPalButton.logClientMessage("confirmOrder result: " + JSON.stringify(confirmResult), "Information");
+
+                session.completePayment(ApplePaySession.STATUS_SUCCESS);
+                initTransaction(confirmResult, buttonContainer);
+            } catch (err) {
+                const msg = err && err.message ? err.message : String(err);
+                ApplePayPayPalButton.logClientMessage("Exception in handlePaymentAuthorized: " + msg, "Error");
+
+                session.completePayment(ApplePaySession.STATUS_FAILURE);
                 displayNotification(buttonContainer.data("transaction-error"), "error");
             }
         }
@@ -520,22 +572,41 @@
                     cache: false
                 });
 
-                if (response && response.success === false) {
-                    displayNotification(response.message, "error");
+                if (!response || response.success === false) {
+                    // Show backend error message if available
+                    if (response && response.message) {
+                        displayNotification(response.message, "error");
+                    } else {
+                        displayNotification(buttonContainer.data("transaction-error"), "error");
+                    }
                     return null;
                 }
 
-                return response;
-            }
-            catch (err) {
-                console.error(err);
+                // Normalize shape for onApplePayButtonClicked
+                return {
+                    currencyCode: response.CurrencyCode || "EUR",
+                    totalLabel: response.TotalLabel || document.title,
+                    totalAmount: response.TotalAmount,
+                    requiresShipping: !!response.RequiresShipping
+                };
+            } catch (err) {
+                ApplePayPayPalButton.logClientMessage(err, "Error");
                 displayNotification(buttonContainer.data("transaction-error"), "error");
+                return null;
             }
+        }
 
-            return null;
+        function logClientMessage(msg, type) {
+            $.ajax({
+                type: "POST",
+                url: buttonContainer.data("log-client-message-url"),
+                data: { msg: msg, level: type },
+                cache: false
+            });
         }
 
         ApplePayPayPalButton.onApplePayLoaded = ApplePayPayPalButton.prototype.onApplePayLoaded;
+        ApplePayPayPalButton.logClientMessage = logClientMessage;
 
         return ApplePayPayPalButton;
     })();
@@ -568,7 +639,9 @@
             url: container.data("init-transaction-url"),
             data: {
                 orderId: data.orderID,
-                routeIdent: container.data("route-ident")
+                routeIdent: container.data("route-ident"),
+                // Only used by Apple Pay to pass addresses.
+                additionalData: JSON.stringify(data.approveApplePayPayment)
             },
             cache: false,
             success: function (resp) {

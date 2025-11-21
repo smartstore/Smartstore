@@ -46,6 +46,7 @@
 {
     <div id="paypal-apple-pay-container"
          data-get-payment-request-url="@Url.Action("GetApplePayPaymentRequest", "PayPal")"
+         data-log-client-message-url="@Url.Action("LogClientMessage", "PayPal")"
          data-transaction-error="@T("Plugins.Smartstore.PayPal.Error.ApplePayTranactionError")"
          attrs="walletBaseAttributes">
     </div>

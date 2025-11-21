@@ -9,7 +9,6 @@ using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Client.Messages;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
-using static Smartstore.PayPal.Module;
 
 namespace Smartstore.PayPal.Controllers
 {
@@ -55,19 +54,13 @@ namespace Smartstore.PayPal.Controllers
             }
 
             // Convert FundingOptions from settings to Array<int> so the corresponding taghelper in configure view can work with it.
-            // TODO: (mh) This is not int[], it is string[]. Why not just split without conversion?!
-            // RE: Because we used GetLocalizedEnumSelectList in the view which returns values of type int    
-            // Also if we would change this now we would have to write a migration to convert existing settings in the database.
-            model.FundingsCart = settings.FundingsCart
+            model.FundingsCart = [.. settings.FundingsCart
                 .SplitSafe(',')
-                .Select(x => ((int)x.Convert<FundingOptions>()).ToString())
-                .ToArray();
+                .Select(x => ((int)x.Convert<FundingOptions>()).ToString())];
 
-            // TODO: (mh) This is not int[], it is string[]. Why not just split without conversion?!
-            model.FundingsOffCanvasCart = settings.FundingsOffCanvasCart
+            model.FundingsOffCanvasCart = [.. settings.FundingsOffCanvasCart
                 .SplitSafe(',')
-                .Select(x => ((int)x.Convert<FundingOptions>()).ToString())
-                .ToArray();
+                .Select(x => ((int)x.Convert<FundingOptions>()).ToString())];
 
             model.DisplayOnboarding = !settings.ClientId.HasValue() && !settings.Secret.HasValue();
 

@@ -22,7 +22,6 @@ using Smartstore.PayPal.Client.Messages;
 using Smartstore.PayPal.Services;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Controllers;
-using Smartstore.Web.Models.Cart;
 
 namespace Smartstore.PayPal.Controllers
 {
@@ -78,7 +77,7 @@ namespace Smartstore.PayPal.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> InitTransaction(string orderId, string routeIdent)
+        public async Task<IActionResult> InitTransaction(string orderId, string routeIdent, string additionalData = null)
         {
             var success = false;
             var message = string.Empty;
@@ -124,7 +123,12 @@ namespace Smartstore.PayPal.Controllers
 
             session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
 
-            if (customer.BillingAddress == null && _settings.UseTransmittedAddresses)
+            if (additionalData.HasValue() && _settings.UseTransmittedAddresses)
+            {
+                var applePayConfirmResult = JsonConvert.DeserializeObject<ApplePayConfirmResult>(additionalData);
+                await AddAppleAddressesAsync(applePayConfirmResult);
+            }
+            else if (customer.BillingAddress == null && _settings.UseTransmittedAddresses)
             {
                 // If adding shipping address fails, just log it and continue.
                 try
@@ -342,6 +346,69 @@ namespace Smartstore.PayPal.Controllers
             customer.ShippingAddress = address;
 
             await _db.SaveChangesAsync();
+        }
+
+        private async Task AddAppleAddressesAsync(ApplePayConfirmResult applePayConfirmResult)
+        {
+            // INFO: If shipping address has no email we skip adding addresses because we can't create valid addresses.
+            if (!applePayConfirmResult.ShippingAddress.EmailAddress.HasValue())
+            {
+                return;
+            }
+
+            var customer = Services.WorkContext.CurrentCustomer;
+            var billingAddress = await ConvertAppleAddress(applePayConfirmResult.BillingAddress);
+            var shippingAddress = await ConvertAppleAddress(applePayConfirmResult.ShippingAddress);
+
+            // INFO: Billing Address has no e-mail address in most cases
+            if (!billingAddress.Email.HasValue())
+            {
+                billingAddress.Email = shippingAddress.Email;
+            }
+
+            if (customer.Addresses.FindAddress(billingAddress) == null)
+            {
+                customer.Addresses.Add(billingAddress);
+            }
+
+            customer.BillingAddress ??= billingAddress;
+
+            if (customer.Addresses.FindAddress(shippingAddress) == null)
+            {
+                customer.Addresses.Add(shippingAddress);
+            }
+
+            customer.ShippingAddress ??= shippingAddress;
+
+            await _db.SaveChangesAsync();
+        }
+
+        private async Task<Address> ConvertAppleAddress(ApplePayAddress applePayAddress)
+        {
+            var country = await _db.Countries
+                .Where(x => x.TwoLetterIsoCode == applePayAddress.CountryCode)
+                .FirstOrDefaultAsync();
+
+            var stateProvince = country != null
+                ? await _db.StateProvinces
+                    .Where(x => x.CountryId == country.Id && x.Abbreviation == applePayAddress.AdministrativeArea)
+                    .FirstOrDefaultAsync()
+                : null;
+
+            var address = new Address
+            {
+                Email = applePayAddress?.EmailAddress,
+                Address1 = applePayAddress?.AddressLines != null && applePayAddress.AddressLines.Count > 0 ? applePayAddress.AddressLines[0] : string.Empty,
+                Address2 = applePayAddress?.AddressLines != null && applePayAddress.AddressLines.Count > 1 ? applePayAddress.AddressLines[1] : string.Empty,
+                City = applePayAddress?.Locality,
+                ZipPostalCode = applePayAddress?.PostalCode,
+                CountryId = country?.Id,
+                StateProvinceId = stateProvince?.Id,
+                FirstName = applePayAddress?.GivenName,
+                LastName = applePayAddress?.FamilyName
+            };
+
+            return address;
         }
 
         private static (string FirstName, string LastName) SplitFullName(string fullName)
@@ -564,7 +631,7 @@ namespace Smartstore.PayPal.Controllers
         [HttpPost]
         public async Task<IActionResult> GetGooglePayTransactionInfo(ProductVariantQuery query, bool? useRewardPoints, string paymentSource, string routeIdent = "")
         {
-            var (transactionInfo, errorResult, _) = await BuildGooglePayTransactionInfoAsync(query, useRewardPoints, routeIdent);
+            var (transactionInfo, errorResult, _) = await BuildTransactionInfoAsync(query, useRewardPoints, routeIdent);
 
             if (errorResult != null)
             {
@@ -574,7 +641,7 @@ namespace Smartstore.PayPal.Controllers
             return Json(transactionInfo);
         }
 
-        private async Task<(GoogleTransactionInfo Info, object ErrorResult, bool RequiresShipping)> BuildGooglePayTransactionInfoAsync(ProductVariantQuery query, bool? useRewardPoints, string routeIdent)
+        private async Task<(GoogleTransactionInfo Info, object ErrorResult, bool RequiresShipping)> BuildTransactionInfoAsync(ProductVariantQuery query, bool? useRewardPoints, string routeIdent)
         {
             var store = Services.StoreContext.CurrentStore;
             var customer = Services.WorkContext.CurrentCustomer;
@@ -683,11 +750,12 @@ namespace Smartstore.PayPal.Controllers
 
         #endregion
 
+        #region Apple Pay
+
         [HttpPost]
         public async Task<IActionResult> GetApplePayPaymentRequest(ProductVariantQuery query, bool? useRewardPoints, string paymentSource, string routeIdent = "")
         {
-            // TODO: WTF?!
-            var (transactionInfo, errorResult, requiresShipping) = await BuildGooglePayTransactionInfoAsync(query, useRewardPoints, routeIdent);
+            var (transactionInfo, errorResult, requiresShipping) = await BuildTransactionInfoAsync(query, useRewardPoints, routeIdent);
 
             if (errorResult != null)
             {
@@ -727,6 +795,19 @@ namespace Smartstore.PayPal.Controllers
 
             return countryCode?.ToUpperInvariant() ?? "US";
         }
+
+        /// <summary>
+        /// Logs a client message. Is needed for Apple Pay where we can't use Chrome devtools because apple pay only works on IOS devices.
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> LogClientMessage(string msg, LogLevel level)
+        {
+            Logger.Log(level, msg);
+
+            return Ok();
+        }
+
+        #endregion
 
         [HttpPost]
         [Route("paypal/webhookhandler"), WebhookEndpoint]

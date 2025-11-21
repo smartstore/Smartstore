@@ -5,6 +5,7 @@
      data-get-payment-request-url="@Url.Action("GetApplePayPaymentRequest", "PayPal")"
      data-create-order-url="@Url.Action("CreateOrder", "PayPal")"
      data-forward-url="@Url.Action("BillingAddress", "Checkout")"
+     data-log-client-message-url="@Url.Action("LogClientMessage", "PayPal")"
      data-is-sandbox="@(Model.IsSandbox ? "true" : "false")"
      data-route-ident="@Model.RouteIdent"
      data-transaction-error="@T("Plugins.Smartstore.PayPal.Error.ApplePayTranactionError")">
@@ -12,7 +13,7 @@
 
 @*INFO: No target zone here as can also be rendered via AJAX*@
 <script data-origin="paypal-apple-pay-button">
-    $(function () {
+    $(function () {    
         const ppApplePayButton = new ApplePayPayPalButton();
     });
 </script>
