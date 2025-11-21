@@ -105,6 +105,7 @@ $img-margin-right: 10px;
     position: relative;
     overflow: hidden;
     background: #f5f5f5;
+    background: var(--gray-400);
 }
 
 
@@ -121,6 +122,7 @@ $img-margin-right: 10px;
     display: block;
     margin-inline: auto;
     will-change: width;
+    box-shadow: 0px 0px 5px 1px rgba(50,50,93, 0.15), 0 0 1rem 0px rgba($black, 0.1);
     // Reset
     font-weight: normal;
     font-style: normal;
@@ -1013,86 +1015,42 @@ $img-margin-right: 10px;
     }
 }
 
-// Horizontal resize handle (EditorResizer)
-.note-editor .note-hresize-handle {
-    position: absolute;
-    width: 6px;
-    cursor: col-resize;
-    background: rgba(0,0,0,.10);
-    z-index: 20;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.note-editor .note-hresize-handle:hover {
-    background: rgba(0,0,0,.30);
-}
-
-.note-editor .note-hresize-handle::before {
-    content: '';
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 2px;
-    height: 9px;
-    transform: translate(-50%, -50%);
-    background: linear-gradient(#666 0 0) 0 0/100% 1px no-repeat, linear-gradient(#666 0 0) 0 50%/100% 1px no-repeat, linear-gradient(#666 0 0) 0 100%/100% 1px no-repeat;
-    opacity: .9;
-    pointer-events: none;
-}
-
-// Cursor and selection state during resize
-.note-editor.resizing {
-    user-select: none;
-}
-
-body.note-hresize-cursor, body.note-hresize-cursor * {
-    cursor: col-resize !important;
-}
-
-
 // Horizontal resize handle
-.note-editor .note-hresize-handle {
+.note-hresize-handle {
     position: absolute;
     // top/left/height set dynamically to follow .note-editable
-    width: 6px;
+    width: 5px;
     cursor: col-resize;
-    background: rgba(0,0,0,.10);
-    transition: background .15s;
+    background: rgba($black, .1);
+    background: $note-bg;
     z-index: 20;
     display: flex;
     align-items: center;
     justify-content: center;
-}
 
-.note-editor .note-hresize-handle:hover {
-    background: rgba(0,0,0,.30);
-}
-// Three subtle horizontal lines as gripper
-.note-editor .note-hresize-handle::before {
-    content: '';
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 4px;
-    height: 60%;
-    transform: translate(-50%, -50%);
-    background: linear-gradient(#666 0 0) 0 0/100% 1px no-repeat, linear-gradient(#666 0 0) 0 50%/100% 1px no-repeat, linear-gradient(#666 0 0) 0 100%/100% 1px no-repeat;
-    opacity: .9;
-    pointer-events: none;
-}
-// Pseudo gripper handled inline; legacy gripper rules removed.
+    &:hover {
+        background: rgba($black, .12);
+    }
 
-.note-editor .note-editing-area {
-    position: relative;
-    background: #f5f5f5;
-}
+    &:before,
+    &:after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        width: 1px;
+        height: 20px;
+        transform: translate(0, -50%);
+        background: rgba($black, 0.2);
+        pointer-events: none;
+    }
 
-.note-editor .note-editable {
-    background: #fff;
-    margin-inline: auto;
-    will-change: width;
+    &:before {
+        left: 1px;
+    }
+
+    &:after {
+        left: 3px;
+    }
 }
 
 // Cursor and selection state during resize
@@ -1103,3 +1061,4 @@ body.note-hresize-cursor, body.note-hresize-cursor * {
 body.note-hresize-cursor, body.note-hresize-cursor * {
     cursor: col-resize !important;
 }
+// Pseudo gripper handled inline; legacy gripper rules removed.
