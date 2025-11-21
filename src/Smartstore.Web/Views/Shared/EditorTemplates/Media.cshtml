@@ -76,7 +76,7 @@
         {
             // Single file uploads have preview images.
             <div class="fu-thumb fu-filename rounded" data-current-filename="@(currentFile?.Name)">
-                <media-thumbnail sm-file="currentFile" sm-size="MediaSettings.ThumbnailSizeMd"></media-thumbnail>
+                <media-thumbnail sm-file="currentFile" sm-size="MediaSettings.ThumbnailSizeMd" />
             </div>
             <input asp-for="@Model"
                    type="hidden" 

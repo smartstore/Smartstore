@@ -21,6 +21,7 @@ $file-thumbnail-max-width:          calc(#{$file-thumbnail-min-size} / 9 * 16);
 
     .fu-message {
         cursor: pointer;
+        margin-top: -2px;
     }
 
     // Xl display.
@@ -39,10 +40,6 @@ $file-thumbnail-max-width:          calc(#{$file-thumbnail-min-size} / 9 * 16);
     &:not(.xl) {
         .dropzone-target {
             padding: 10px;
-        }
-
-        .fu-buttons .btn {
-            @extend .btn-sm;
         }
     }
 
@@ -84,6 +81,7 @@ $file-thumbnail-max-width:          calc(#{$file-thumbnail-min-size} / 9 * 16);
     .empty {
         font-weight: $font-weight-normal !important;
         color: $gray-600 !important;
+        font-size: 1rem;
     }
 }
 
@@ -124,9 +122,9 @@ $file-thumbnail-max-width:          calc(#{$file-thumbnail-min-size} / 9 * 16);
 
     .fu-fileupload,
     .fu-message {
-        font-size: $font-size-lg;
         align-self: center;
         color: var(--primary-dark);
+        font-weight: $font-weight-medium;
 
         &.empty {
             //font-size: $font-size-lg;
@@ -175,8 +173,9 @@ $file-thumbnail-max-width:          calc(#{$file-thumbnail-min-size} / 9 * 16);
         .file-img {
             max-width: 100%;
             max-height: 100%;
-            border: 1px solid rgba($black, 0.1);
-            box-shadow: $box-shadow-sm;
+            border: 1px solid rgba($black, 0.15);
+            box-shadow: $box-shadow-xs;
+            border-radius: var(--border-radius-md);
         }
     }
 
