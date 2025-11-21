@@ -11,6 +11,8 @@
 
 # Secrets
 *.secrets
+*.csr
+*.pem
 
 # Build results
 [Dd]ebug/
