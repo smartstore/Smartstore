@@ -26,13 +26,15 @@
   - Edit images in the Media Manager using a text prompt and selected images.
   - File-based provider metadata used to store and organize information about LLM models.
   - **Gemini**: Support image generation using `gemini-2.5-flash-image`.
+- **Payment**
+  - PayPal: Added support for **Apple Pay**.
+  - #1370 Add a payment provider for **easyCredit purchase on account**.
 - **CAPTCHA**
   - Modular CAPTCHA architecture with a pluggable provider interface.
   - Replaced hard-wired reCAPTCHA logic with a provider model.
   - **CaptchaFox** integration (commercial module)
   - **Friendly Captcha** integration (commercial module).
 - #112 Visually group specification attributes on product detail page.
-- #1370 Add a payment provider for **easyCredit purchase on account**.
 - #1381 Add a compare price to attribute combinations.
 - #1386 Customer roles: Extend the permission tree so that nodes with descendants show whether descendant permissions have been granted.
 - #934 Add cart rules property to PageBuilder stories to dynamically toggle their visibility.
@@ -51,7 +53,6 @@
   - Export more shipping data (handling time, length, width and height of a product).
 - EmailReminder: Added Google Reviews to the review reminder.
 - #1411 **Pixlr**: The user should decide on a session basis whether to open the express or full editor.
-- PayPal: Added support for Apple Pay.
 
 ### Improvements
 
