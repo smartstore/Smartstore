@@ -327,7 +327,7 @@ $img-margin-right: 10px;
     padding-top: 1px;
     height: 9px;
     width: 100%;
-    cursor: ns-resize;
+    cursor: row-resize;
 
     > .note-icon-bar {
         width: 20px;
@@ -1057,8 +1057,3 @@ $img-margin-right: 10px;
 .note-editor.resizing {
     user-select: none;
 }
-
-body.note-hresize-cursor, body.note-hresize-cursor * {
-    cursor: col-resize !important;
-}
-// Pseudo gripper handled inline; legacy gripper rules removed.
