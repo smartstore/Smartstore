@@ -59,6 +59,7 @@
 * Bumped all `jquery.validate` libraries
 * Asset Bundling: Replaced `DouglasCrockford.JsMin` with `NUglify`.
 * **Summernote**
+  * Horizontal editor resizer
   * Activated file browser (MediaManager)
   * Responsive video embed
 * **Blog**
