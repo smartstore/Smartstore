@@ -89,6 +89,7 @@
 - #1156 The last items added to the basket must be instantly visible in offcanvas cart.
 - #208 Linkbuilder: Added possibility to define a link target.
 - #1404 FileManager must not render tab content via AJAX, as search engines must be able to read the content in its entirety.
+- PostFinance: Migrated to Wallee REST API v2.
 
 ### Bugfixes
 
@@ -114,6 +115,7 @@
 - **PostFinance**
   - Fixed an issue where the amount paid sometimes differs from the order total.
   - #1423 Avoid "The provided security token is invalid" error due to security token expiration.
+  - Occasionally, orders were not automatically marked as "paid".
 - **Wallet**
   - Fixed formatting of currency amounts in message template.
   - Save the order ID when editing a wallet entry in the wallet grid on the customer edit page.
