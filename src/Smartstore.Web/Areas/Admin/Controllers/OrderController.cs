@@ -221,7 +221,25 @@ namespace Smartstore.Admin.Controllers
             }
             if (model.OrderNumber.HasValue())
             {
-                orderQuery = orderQuery.ApplySearchFilterFor(x => x.OrderNumber, model.OrderNumber);
+                var filters = new List<FilterExpression>();
+                if (int.TryParse(model.OrderNumber, out _) && FilterExpressionParser.TryParse<Order, int>(x => x.Id, model.OrderNumber, out var f1))
+                {
+                    filters.Add(f1);
+                }
+                if (FilterExpressionParser.TryParse<Order, string>(x => x.OrderNumber, model.OrderNumber, out var f2))
+                {
+                    filters.Add(f2);
+                }
+
+                if (filters.Count > 0)
+                {
+                    var compositeFilter = new FilterExpressionGroup(typeof(Order), [.. filters])
+                    {
+                        LogicalOperator = LogicalRuleOperator.Or
+                    };
+
+                    orderQuery = orderQuery.Where(compositeFilter).Cast<Order>();
+                }
             }
             if (model.PaymentId.HasValue())
             {
