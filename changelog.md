@@ -127,7 +127,9 @@
 - Do not display the default date value when adding reward points via backend grid.
 - Avoid HTTP error 500, which can be caused by an attribute alias that is too long.
 - When filtering products without category assignment, deleted categories must not be included.
-- AI: Fixed streaming problem if the original HTML contains comments. 
+- AI
+	- Fixed streaming problem if the original HTML contains comments.
+	- Fixed streaming problem with HTML entities (e.g. &amp;) 
 
 
 ## Smartstore 6.2.0
