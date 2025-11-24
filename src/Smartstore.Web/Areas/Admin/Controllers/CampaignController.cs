@@ -29,18 +29,6 @@ namespace Smartstore.Admin.Controllers
             _aclService = aclService;
         }
 
-        private async Task PrepareCampaignModelAsync(CampaignModel model, Campaign campaign)
-        {
-            if (campaign != null)
-            {
-                model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(campaign.CreatedOnUtc, DateTimeKind.Utc);
-                model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(campaign);
-                model.SelectedCustomerRoleIds = await _aclService.GetAuthorizedCustomerRoleIdsAsync(campaign);
-            }
-
-            model.LastModelTree = await _messageModelProvider.GetLastModelTreeAsync(MessageTemplateNames.SystemCampaign);
-        }
-
         public IActionResult Index()
         {
             return RedirectToAction(nameof(List));
@@ -220,6 +208,25 @@ namespace Smartstore.Admin.Controllers
 
             NotifySuccess(T("Admin.Promotions.Campaigns.Deleted"));
             return RedirectToAction(nameof(List));
+        }
+
+        private async Task PrepareCampaignModelAsync(CampaignModel model, Campaign campaign)
+        {
+            if (campaign != null)
+            {
+                model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(campaign.CreatedOnUtc, DateTimeKind.Utc);
+                model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(campaign);
+                model.SelectedCustomerRoleIds = await _aclService.GetAuthorizedCustomerRoleIdsAsync(campaign);
+
+                var id = await _db.MessageTemplates
+                    .Where(x => x.Name == MessageTemplateNames.SystemCampaign)
+                    .Select(x => x.Id)
+                    .FirstOrDefaultAsync();
+
+                ViewBag.CampaignMessageTemplateUrl = Url.Action("Edit", "MessageTemplate", new { id, area = "Admin" });
+            }
+
+            model.LastModelTree = await _messageModelProvider.GetLastModelTreeAsync(MessageTemplateNames.SystemCampaign);
         }
     }
 }

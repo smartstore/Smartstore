@@ -6,7 +6,7 @@
 <input asp-for="Id" type="hidden" />
 
 <div sm-if="Model.Id > 0" class="alert alert-warning">
-    @T("Admin.Promotions.Campaigns.Warning")
+    @Html.Raw(T("Admin.Promotions.Campaigns.Warning", ViewBag.CampaignMessageTemplateUrl))
 </div>
 
 <tabstrip id="campaign-edit" sm-nav-style="Material" sm-nav-position="Top">

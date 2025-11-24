@@ -244,6 +244,14 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Admin.Common.Configured", "Configured", "Konfiguriert");
             builder.AddOrUpdate("Admin.Common.NotConfigured", "Not configured", "Nicht konfiguriert");
+
+            builder.AddOrUpdate("Admin.Promotions.Campaigns.Warning",
+                "Save the campaign and use the preview button to test it before sending it to many customers."
+                + " You can set additional settings, such as the email account to be used, in the"
+                + " <a href=\"{0}\" class=\"alert-link\">System.Campaign</a>",
+                "Speichern Sie die Kampagne und benutzen Sie den Vorschau-Button, um sie zu testen, bevor Sie sie an viele Kunden versenden."
+                + " Weitere Einstellungen, wie beispielsweise das bei der Kampagne zu verwendende E-Mail-Konto, können bei der Nachrichtenvorlage"
+                + " <a href=\"{0}\" class=\"alert-link\">System.Campaign</a> vorgenommen werden.");
         }
     }
 }
