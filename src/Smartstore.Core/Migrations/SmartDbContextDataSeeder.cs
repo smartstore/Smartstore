@@ -252,6 +252,14 @@ namespace Smartstore.Core.Data.Migrations
                 "Speichern Sie die Kampagne und benutzen Sie den Vorschau-Button, um sie zu testen, bevor Sie sie an viele Kunden versenden."
                 + " Weitere Einstellungen, wie beispielsweise das bei der Kampagne zu verwendende E-Mail-Konto, können bei der Nachrichtenvorlage"
                 + " <a href=\"{0}\" class=\"alert-link\">System.Campaign</a> vorgenommen werden.");
+
+            builder.AddOrUpdate("Admin.Promotions.Discounts.Fields.CouponCode")
+                .Value("de", "Rabattcode");
+            builder.AddOrUpdate("Admin.Promotions.Discounts.Fields.RequiresCouponCode")
+                .Value("de", "Rabattcode erforderlich");
+            builder.AddOrUpdate("Admin.Promotions.Discounts.Fields.RequiresCouponCode.Hint")
+                .Value("de", "Legt fest, dass der Rabatt erst nach Eingabe des Rabattcodes auf der Warenkorbseite angewendet wird.");
+            builder.Delete("Admin.Promotions.Discounts.Fields.CouponCode.Hint");
         }
     }
 }
