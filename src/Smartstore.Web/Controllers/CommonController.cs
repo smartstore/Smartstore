@@ -155,13 +155,36 @@ namespace Smartstore.Web.Controllers
         /// <param name="allow">Specifies whether new lines are Allows or Disallows.</param>
         private static void AddRobotsLines(StringBuilder sb, IEnumerable<string> lines, bool allow)
         {
-            // Append all lowercase variants (at least Google is case sensitive).
-            lines = lines.Union(lines.Select(x => x.ToLower()));
+            if (lines == null)
+            {
+                return;
+            }
+
+            var directive = allow ? "Allow" : "Disallow";
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var line in lines)
             {
-                sb.AppendFormat($"{(allow ? "Allow" : "Disallow")}: {line}");
-                sb.AppendLine();
+                var normalized = line?.Trim();
+
+                if (!normalized.HasValue() || !seen.Add(normalized))
+                {
+                    continue;
+                }
+
+                sb.Append(directive);
+                sb.Append(": ");
+                sb.AppendLine(normalized);
+
+                // Append lowercase variant (at least Google is case sensitive)
+                var lowerNormalized = normalized.ToLowerInvariant();
+
+                if (lowerNormalized != normalized && seen.Add(lowerNormalized))
+                {
+                    sb.Append(directive);
+                    sb.Append(": ");
+                    sb.AppendLine(lowerNormalized);
+                }
             }
         }
 
