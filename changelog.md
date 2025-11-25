@@ -22,10 +22,16 @@
 ### New Features
 
 - **AI**
-  - Added **Anthropic Claude** AI provider.
   - Edit images in the Media Manager using a text prompt and selected images.
   - File-based provider metadata used to store and organize information about LLM models.
-  - **Gemini**: Support image generation using `gemini-2.5-flash-image`.
+  - Added **Anthropic Claude** AI provider.
+  - Added **Ollama** AI provider.
+  - **ChatGPT:**
+    - Support text and image generation using `GPT 5.1`
+  - **Gemini**: 
+    - Support text generation using `Gemini 3.0 Pro`
+    - Support image generation and editing using `Nano Banana Pro` (gemini-3-pro-image-preview).
+    - Support image generation and editing using `Nano Banana` (gemini-2.5-flash-image).
 - **Payment**
   - PayPal: Added support for **Apple Pay**.
   - #1370 Add a payment provider for **easyCredit purchase on account**.
