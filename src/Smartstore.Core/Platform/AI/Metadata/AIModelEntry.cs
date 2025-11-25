@@ -87,7 +87,7 @@ namespace Smartstore.Core.AI.Metadata
         /// </summary>
         [DefaultValue(AIModelPerformanceLevel.Balanced)]
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
-        public AIModelPerformanceLevel Level { get; set; }
+        public AIModelPerformanceLevel Level { get; set; } = AIModelPerformanceLevel.Balanced;
 
         /// <summary>
         /// Gets or sets the tools supported by this model.
@@ -100,7 +100,7 @@ namespace Smartstore.Core.AI.Metadata
         /// </summary>
         [DefaultValue(true)]
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
-        public bool Stream { get; set; }
+        public bool Stream { get; set; } = true;
 
         /// <summary>
         /// User-defined custom model (not provided by metadata.json).
