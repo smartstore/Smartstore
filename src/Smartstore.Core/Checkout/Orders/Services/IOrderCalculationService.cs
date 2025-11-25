@@ -114,7 +114,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <returns>
         /// <c>true</c> if <paramref name="couponCode"/> was applied to <see cref="ShoppingCart.Customer"/>, otherwise <c>false</c>.
         /// Also returns the discount to which <paramref name="couponCode"/> belongs.
-        /// <c>null</c> if either the discount or the <paramref name="couponCode"/> is invalid.
+        /// <c>null</c> if the discount cannot be applied (for example, if the order total cannot yet be calculated).
         /// </returns>
         /// <exception cref="InvalidOperationException">
         /// Thrown if <paramref name="couponCode"/> is currently being processed by another request from the cart holder.

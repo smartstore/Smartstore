@@ -503,57 +503,78 @@ namespace Smartstore.Core.Checkout.Orders
 
             couponCode = couponCode.Trim();
 
-            var discount = await _db.Discounts.FirstOrDefaultAsync(x => x.CouponCode == couponCode);
-            if (discount == null || !discount.RequiresCouponCode)
+            // Support multiple discounts with the same coupon code (e.g. those that must meet certain rules).
+            var applicableDiscounts = await _db.Discounts
+                .AsNoTracking()
+                .Where(x => x.RequiresCouponCode && x.CouponCode == couponCode)
+                .ToListAsync();
+            if (applicableDiscounts.Count == 0)
             {
                 return (false, null);
             }
 
-            var apply = true;
             var keyLock = _lockProvider.GetLock($"ordercalculation.applydiscountcoupon:{customer.Id}-{couponCode}");
             if (await keyLock.IsHeldAsync())
             {
                 throw new InvalidOperationException($"Discount coupon code {couponCode} is currently being processed by another request of customer #{customer.Id}.");
             }
 
+            var apply = false;
+            Discount appliedDiscount = null;
+            ShoppingCartTotal cartTotal = null;
+            ShoppingCartSubtotal cartSubtotal = null;
+            ShoppingCartShippingTotal cartShipping = null;
+            var oldCouponCode = customer.GenericAttributes.DiscountCouponCode.NullEmpty();
+
             using (await keyLock.AcquireAsync())
             {
-                if (!await _discountService.IsDiscountValidAsync(discount, customer, couponCode))
-                {
-                    return (false, null);
-                }
-
-                var oldCouponCode = customer.GenericAttributes.DiscountCouponCode.NullEmpty();
                 customer.GenericAttributes.DiscountCouponCode = couponCode;
 
                 try
                 {
-                    switch (discount.DiscountType)
+                    foreach (var discount in applicableDiscounts)
                     {
-                        case DiscountType.AssignedToOrderTotal:
-                            var cartTotal = await GetShoppingCartTotalAsync(cart);
-                            apply = !cartTotal.Total.HasValue || discount.Id == cartTotal.AppliedDiscount?.Id;
-                            break;
-                        case DiscountType.AssignedToShipping:
-                            var cartShipping = await GetShoppingCartShippingTotalAsync(cart);
-                            apply = !cartShipping.ShippingTotal.HasValue || discount.Id == cartShipping.AppliedDiscount?.Id;
-                            break;
-                        default:
-                            var cartSubtotal = await GetShoppingCartSubtotalAsync(cart);
+                        switch (discount.DiscountType)
+                        {
+                            case DiscountType.AssignedToOrderTotal:
+                                cartTotal ??= await GetShoppingCartTotalAsync(cart);
+                                appliedDiscount = cartTotal.AppliedDiscount;
+                                apply = cartTotal.Total == null || appliedDiscount?.Id == discount.Id;
+                                break;
 
-                            if (discount.DiscountType == DiscountType.AssignedToOrderSubTotal)
-                            {
-                                apply = discount.Id == cartSubtotal.AppliedDiscount?.Id;
-                            }
-                            else
-                            {
-                                var appliedDiscountIds = cartSubtotal.LineItems
-                                    .SelectMany(x => x.Subtotal.AppliedDiscounts.Select(d => d.Id))
-                                    .ToArray();
+                            case DiscountType.AssignedToShipping:
+                                cartShipping ??= await GetShoppingCartShippingTotalAsync(cart);
+                                appliedDiscount = cartShipping.AppliedDiscount;
+                                apply = cartShipping.ShippingTotal == null || appliedDiscount?.Id == discount.Id;
+                                break;
 
-                                apply = appliedDiscountIds.Contains(discount.Id);
-                            }
+                            default:
+                                cartSubtotal ??= await GetShoppingCartSubtotalAsync(cart);
+
+                                if (discount.DiscountType == DiscountType.AssignedToOrderSubTotal)
+                                {
+                                    if (cartSubtotal.AppliedDiscount?.Id == discount.Id)
+                                    {
+                                        appliedDiscount = cartSubtotal.AppliedDiscount;
+                                        apply = true;
+                                    }
+                                }
+                                else
+                                {
+                                    // Check discounts applied to line items.
+                                    appliedDiscount = cartSubtotal.LineItems
+                                        .SelectMany(x => x.Subtotal.AppliedDiscounts)
+                                        .FirstOrDefault(x => x.Id == discount.Id);
+
+                                    apply = appliedDiscount != null;
+                                }
+                                break;
+                        }
+
+                        if (apply)
+                        {
                             break;
+                        }
                     }
                 }
                 finally
@@ -565,7 +586,7 @@ namespace Smartstore.Core.Checkout.Orders
                 }
             }
 
-            return (apply, discount);
+            return (apply, appliedDiscount);
         }
 
         public virtual async Task<(Money Amount, Discount AppliedDiscount)> GetDiscountAmountAsync(Money amount, DiscountType discountType, Customer customer)
