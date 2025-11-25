@@ -96,6 +96,7 @@
 - #208 Linkbuilder: Added possibility to define a link target.
 - #1404 FileManager must not render tab content via AJAX, as search engines must be able to read the content in its entirety.
 - PostFinance: Migrated to Wallee REST API v2.
+- Support of multiple discounts with the same coupon code.
 
 ### Bugfixes
 
