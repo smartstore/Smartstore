@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Core.AI.Prompting
+﻿using Smartstore.Imaging;
+
+namespace Smartstore.Core.AI.Prompting
 {
     /// <summary>
     /// Represents a model for AI image generation.
@@ -20,16 +22,11 @@
         string ModelName { get; }
 
         /// <summary>
-        /// Specifies the image creation format.
-        /// </summary>
-        AIImageFormat Format { get; }
-
-        /// <summary>
         /// Specifies an image style.
         /// </summary>
         string Style { get; }
 
-        #region Image creation prompt engineering
+        #region Prompt engineering
 
         /// <summary>
         /// E.g. photo, painting, illustration
@@ -70,6 +67,32 @@
         /// Gets the IDs of the source files used for image editing.
         /// </summary>
         int[] SourceFileIds { get; }
+
+        #endregion
+
+        #region Image response/output
+
+        /// <summary>
+        /// Specifies the image orientation.
+        /// </summary>
+        AIImageOrientation Orientation { get; }
+
+        /// <summary>
+        /// Gets the aspect ratio of the image, if specified.
+        /// </summary>
+        ImageAspectRatio? AspectRatio { get; }
+
+        /// <summary>
+        /// Gets the resolution setting used for generating the AI image, if specified.
+        /// </summary>
+        AIImageResolution? Resolution { get; }
+
+        /// <summary>
+        /// Gets the format to use for image output.
+        /// </summary>
+        /// <remarks>If not set, the default output format will be used. The selected format may affect
+        /// image quality, file size, and compatibility with downstream consumers.</remarks>
+        AIImageOutputFormat? OutputFormat { get; }
 
         #endregion
     }

@@ -10,14 +10,14 @@ namespace Smartstore.Web.TagHelpers.Admin
     [HtmlTargetElement("ai-image", Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
     public class AIImageTagHelper() : AITagHelperBase()
     {
-        const string FormatAttributeName = "format";
+        const string OrientationAttributeName = "format";
         const string MediaFolderAttributeName = "media-folder";
 
         /// <summary>
-        /// Used to be passed to AI provider to define the format of the picture about to be created.
+        /// Passed to AI provider to define the orientation of the picture about to be created.
         /// </summary>
-        [HtmlAttributeName(FormatAttributeName)]
-        public AIImageFormat Format { get; set; }
+        [HtmlAttributeName(OrientationAttributeName)]
+        public AIImageOrientation Orientation { get; set; }
 
         /// <summary>
         /// Used to define the MediaFolderName for the picture about to be created.
@@ -49,7 +49,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         {
             var attrs = base.GetTagHelperAttributes();
 
-            attrs["data-format"] = Format.ToString();
+            attrs["data-orientation"] = Orientation.ToString();
             attrs["data-media-folder"] = MediaFolder;
 
             return attrs;

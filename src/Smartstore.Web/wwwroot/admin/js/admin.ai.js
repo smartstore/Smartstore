@@ -19,7 +19,7 @@
                 entityName: tool.data('entity-name'),
                 type: tool.data('entity-type'),
                 modalTitle: title,
-                format: tool.data('format'),
+                orientation: tool.data('orientation'),
                 mediaFolder: tool.data('media-folder')
             };
 

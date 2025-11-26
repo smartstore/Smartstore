@@ -68,9 +68,9 @@
     }
 
     /// <summary>
-    /// Represents the AI image creation type.
+    /// Represents the AI image orientation.
     /// </summary>
-    public enum AIImageFormat
+    public enum AIImageOrientation
     {
         Horizontal,
         Vertical,

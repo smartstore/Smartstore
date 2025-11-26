@@ -13,8 +13,8 @@ namespace Smartstore.Core.AI
         public required int[] SourceFileIds { get; set; }
 
         /// <summary>
-        /// The image format of the generated AI image.
+        /// The image orientation of the generated AI image.
         /// </summary>
-        public AIImageFormat ImageFormat { get; set; }
+        public AIImageOrientation ImageOrientation { get; set; }
     }
 }
