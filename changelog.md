@@ -1,6 +1,6 @@
 # Release Notes
 
-## Smartstore 6.2.1
+## Smartstore 6.3.0
 
 ### Breaking Changes
 
