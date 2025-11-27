@@ -616,8 +616,8 @@ namespace Smartstore.Web.Controllers
             }
 
             // Sign in the user with this external login provider if the user already has a login.
-            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false);
-            if (result.Succeeded)
+            var signinResult = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false);
+            if (signinResult.Succeeded)
             {
                 var customer = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
                 if (customer != null)
@@ -650,10 +650,11 @@ namespace Smartstore.Web.Controllers
                         identityResult = await _userManager.AddLoginAsync(customer, info);
                         if (identityResult.Succeeded)
                         {
-                            return await FinalizeCustomerRegistrationAsync(customer, returnUrl);
-                        }
+                            var result = await FinalizeCustomerRegistrationAsync(customer, returnUrl);
+                            await FinalizeLoginAsync(Services.WorkContext.CurrentCustomer, customer, logActivity: true);
 
-                        await FinalizeLoginAsync(Services.WorkContext.CurrentCustomer, customer, logActivity: true);
+                            return result;
+                        }
                     }
 
                     // Display errors to user.
