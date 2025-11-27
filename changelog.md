@@ -100,6 +100,7 @@
 
 ### Bugfixes
 
+- #1433 The shopping cart is not migrated when a new customer account is created using external authentication.
 - ChatGPT: Fixed image creation errors "Invalid value".
 - Attribute combination image could not be selected on product edit page.
 - #1361 Add a migration to consolidate duplicate `ActivityLogType` entries.
