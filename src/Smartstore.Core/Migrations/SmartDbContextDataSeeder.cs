@@ -260,6 +260,192 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Promotions.Discounts.Fields.RequiresCouponCode.Hint")
                 .Value("de", "Legt fest, dass der Rabatt erst nach Eingabe des Rabattcodes auf der Warenkorbseite angewendet wird.");
             builder.Delete("Admin.Promotions.Discounts.Fields.CouponCode.Hint");
+
+
+            // MOSAIC
+            // M (Motiv) =>  we already got these resources.
+            // O (Optics)
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Optic", 
+                "The visual style is {0} with a {1} color palette.", 
+                "Die Optik ist {0} und die Farbgestaltung ist {1}.");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Optic.Fallback", 
+                "The visual style is focused on {0} and uses a color palette described as {1}.", 
+                "Die Optik ist auf {0} fokussiert und verwendet eine Farbgestaltung, die als {1} beschrieben wird.");
+
+            // Optics: Medium only
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Optic.MediumOnly", 
+                "The visual style is {0}.", 
+                "Die Optik ist {0}.");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Optic.MediumOnly.Fallback", 
+                "The visual style is focused on {0}.", 
+                "Die Optik ist auf {0} fokussiert.");
+
+            // Optics: Color only
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Optic.ColorOnly", 
+                "The visual style uses a {0} color palette.", 
+                "Die Optik verwendet eine Farbgestaltung, die {0} ist.");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Optic.ColorOnly.Fallback", 
+                "The visual style uses a color palette focused on {0}.", 
+                "Die Optik verwendet eine Farbgestaltung mit Fokus auf {0}.");
+
+            // S (Scene)
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Scene", 
+                "The scene takes place {0}.", 
+                "Die Szene spielt {0}.");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Scene.Fallback", 
+                "The scene takes place in an environment with a focus on {0}.", 
+                "Die Szene spielt in einer Umgebung mit Fokus auf {0}.");
+
+            // A (Atmosphere)
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Atmosphere", 
+                "The atmosphere feels {1} and is shaped by {0}.", 
+                "Die Atmosphäre wirkt {1} und wird durch {0} geprägt.");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Atmosphere.Fallback", 
+                "The atmosphere is intended to feel {1} and is shaped by lighting that is {0}.", 
+                "Die Atmosphäre soll {1} wirken und wird durch eine Beleuchtung geprägt, die {0} ist.");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Atmosphere.LightingOnly", 
+                "The atmosphere is shaped by {0}.", 
+                "Die Atmosphäre wird durch {0} geprägt.");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Atmosphere.LightingOnly.Fallback", 
+                "The atmosphere is shaped by lighting that is {0}.", 
+                "Die Atmosphäre wird durch eine Beleuchtung geprägt, die {0} ist.");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Atmosphere.MoodOnly", 
+                "The atmosphere feels {0}.", 
+                "Die Atmosphäre wirkt {0}.");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Atmosphere.MoodOnly.Fallback", 
+                "The atmosphere is intended to feel {0}.", 
+                "Die Atmosphäre soll {0} wirken.");
+
+            // I (Inszenierung)
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Staging", 
+                "The staging follows {0}.", 
+                "Die Inszenierung folgt {0}.");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Staging.Fallback", 
+                "The staging is arranged with a focus on {0}.", 
+                "Die Inszenierung ist mit Fokus auf {0} angelegt.");
+
+            // K (Kontext) is handled by PromptGenerators because they know their context.
+
+            // O => Medium params
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Photo", "photo", "Foto");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Photo", "that of a photograph", "die einer Fotografie");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Painting", "painting", "Gemälde");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Painting", "that of a painting", "die eines Gemäldes");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Illustration", "illustration", "Illustration");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Illustration", "that of an illustration", "die einer Illustration");
+
+            // O => Colors params
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Colorful", "colorful", "bunt");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Colorful", "colorful", "bunt");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Monochromatic", "monochromatic", "einfarbig");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Monochromatic", "monochromatic", "einfarbig");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Muted", "muted", "gedämpft");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Muted", "muted", "gedämpft");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Bright", "bright", "hell");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Bright", "bright", "hell");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Vibrant", "vibrant", "lebhaft");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Vibrant", "vibrant", "lebhaft");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Pastel", "pastel", "pastellfarben");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Pastel", "pastel", "pastellfarben");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.BlackAndWhite", "black and white", "schwarz-weiß");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.BlackAndWhite", "black and white", "schwarz-weiß");
+
+
+            // S => Environment params
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Outdoors", "outdoors", "draußen");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Outdoors", "outdoors in an open environment", "draußen im Freien");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Inside", "indoors", "drinnen");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Inside", "indoors in an interior space", "in einem Innenraum");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Shop", "shop", "Geschäft");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Shop", "inside a shop interior", "in einem Geschäft / Laden");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Kitchen", "kitchen", "Küche");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Kitchen", "in a kitchen interior", "in einer Küche");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.City", "city", "Stadt");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.City", "in an urban city environment", "in einer städtischen Umgebung");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Beach", "beach", "Strand");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Beach", "at a beach", "an einem Strand");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Forest", "forest", "Wald");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Forest", "in a forest", "in einem Wald");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.LivingRoom", "living room", "Wohnzimmer");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.LivingRoom", "in a living room interior", "in einem Wohnzimmer");
+
+            // A => Lighting params
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Ambient", "ambient", "ambient");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Ambient", "soft ambient lighting", "weiches Umgebungslicht");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Overcast", "overcast", "bewölkt");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Overcast", "overcast daylight", "bewölktes Tageslicht");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Neon", "neon", "neon");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Neon", "neon lighting", "Neonlicht");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Studio", "studio lights", "Studiobeleuchtung");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Studio", "professional studio lighting", "professionelle Studiobeleuchtung");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Soft", "soft", "weich");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Soft", "soft, diffused light", "weiches, diffuses Licht");
+
+            // A => Mood params
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Cosy", "cosy", "gemütlich");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Cosy", "cosy and inviting", "gemütlich und einladend");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Futuristic", "futuristic", "futuristisch");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Futuristic", "futuristic and high-tech", "futuristisch und technologisch");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Hectic", "hectic", "hektisch");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Hectic", "busy and hectic", "hektisch und geschäftig");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Nostalgic", "nostalgic", "nostalgisch");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Nostalgic", "nostalgic and sentimental", "nostalgisch und sentimental");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Mysterious", "mysterious", "geheimnisvoll");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Mysterious", "mysterious and slightly enigmatic", "geheimnisvoll und rätselhaft");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Relaxing", "relaxing", "entspannend");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Relaxing", "calm and relaxing", "ruhig und entspannend");
+
+            // I => Staging params
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Asymmetrical", "asymmetrical", "asymmetrisch");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Asymmetrical", "an asymmetrical composition", "einer asymmetrischen Komposition");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.RuleOfThirds", "Rule of thirds", "Drittel-Regel");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.RuleOfThirds", "the rule of thirds", "der Drittel-Regel");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.GoldenRatio", "Golden ratio", "Goldener Schnitt");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.GoldenRatio", "the golden ratio", "dem Goldenen Schnitt");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Closeup", "Closeup", "Nahaufnahme");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Closeup", "a close-up composition", "einer Nahaufnahme-Komposition");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Portrait", "Portrait", "Porträt");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Portrait", "a classic portrait composition", "einer klassischen Porträtkomposition");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Headshot", "Headshot", "Kopf-und-Schultern-Porträt");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Headshot", "a headshot composition", "einer Kopf-und-Schultern-Porträtkomposition");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.Symmetrical", "symmetrical", "symmetrisch");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.Symmetrical", "a symmetrical composition", "einer symmetrischen Komposition");
+
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Param.BirdsEye", "Birds-eye view", "Vogelperspektive");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.BirdsEye", "a bird's-eye view composition", "einer Komposition aus der Vogelperspektive");
+
         }
     }
 }

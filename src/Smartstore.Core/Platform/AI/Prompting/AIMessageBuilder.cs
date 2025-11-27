@@ -8,16 +8,19 @@ namespace Smartstore.Core.AI.Prompting
     {
         private readonly SmartDbContext _db;
         private readonly IStoreContext _storeContext;
+        private readonly IWorkContext _workContext;
         private readonly ILinkResolver _linkResolver;
 
         public AIMessageBuilder(
             SmartDbContext db,
             IStoreContext storeContext,
+            IWorkContext workContext,
             ILinkResolver linkResolver,
             AIMessageResources promptResources)
         {
             _db = db;
             _storeContext = storeContext;
+            _workContext = workContext;
             _linkResolver = linkResolver;
             Resources = promptResources;
         }
@@ -186,39 +189,95 @@ namespace Smartstore.Core.AI.Prompting
         /// <param name="chat">The <see cref="AIChat" /> containing a <see cref="List{AIChatMessage}"/> to which the generated message will be added.</param>
         public virtual AIChat BuildImagePrompt(IAIImageModel model, AIChat chat)
         {
-            var message = string.Empty;
+            const string icResRoot = "Admin.AI.ImageCreation.";
+            const string pfResRoot = "Admin.AI.ImageCreation.PromptFragment.";
 
-            if (model.Medium.HasValue())
+            // Attempts to load a resource fragment. Returns null if no ID exists.
+            string TryGetFragment(string value)
             {
-                message += model.Medium + ", ";
+                if (!value.HasValue()) 
+                    return null;
+
+                var id = GetResourceIdentifier(value);
+                return id.HasValue() ? Resources.GetResource(pfResRoot + id) : null;
             }
 
-            if (model.Environment.HasValue())
+            void AddMsg(string keySuffix, params object[] args)
             {
-                message += model.Environment + ", ";
+                chat.User(Resources.GetResource(icResRoot + keySuffix, args));
             }
 
-            if (model.Lighting.HasValue())
+            // Processes single property prompts (e.g. Environment, Composition)
+            void ProcessSingle(string value, string keyRoot)
             {
-                message += model.Lighting + ", ";
+                if (!value.HasValue()) 
+                    return;
+
+                var fragment = TryGetFragment(value);
+
+                if (fragment != null)
+                {
+                    AddMsg(keyRoot, fragment);
+                }
+                else
+                {
+                    AddMsg($"{keyRoot}.Fallback", value);
+                }
             }
 
-            if (model.Color.HasValue())
+            // Processes paired property prompts (e.g. Medium/Color, Lighting/Mood)
+            void ProcessPair(string val1, string val2, string root, string suffix1, string suffix2)
             {
-                message += model.Color + ", ";
+                bool has1 = val1.HasValue();
+                bool has2 = val2.HasValue();
+
+                if (!has1 && !has2) 
+                    return;
+
+                var frag1 = TryGetFragment(val1);
+                var frag2 = TryGetFragment(val2);
+
+                if (has1 && has2)
+                {
+                    if (frag1 != null && frag2 != null)
+                    {
+                        AddMsg(root, frag1, frag2);
+                    }
+                    else
+                    {
+                        AddMsg($"{root}.Fallback", val1, val2);
+                    }
+                }
+                else if (has1)
+                {
+                    if (frag1 != null)
+                    {
+                        AddMsg($"{root}.{suffix1}", frag1);
+                    }
+                    else
+                    {
+                        AddMsg($"{root}.{suffix1}.Fallback", val1);
+                    }
+                }
+                else
+                {
+                    if (frag2 != null)
+                    {
+                        AddMsg($"{root}.{suffix2}", frag2);
+                    }
+                    else
+                    {
+                        AddMsg($"{root}.{suffix2}.Fallback", val2);
+                    }
+                }
             }
 
-            if (model.Mood.HasValue())
-            {
-                message += model.Mood + ", ";
-            }
+            ProcessPair(model.Medium, model.Color, "Optic", "MediumOnly", "ColorOnly");
+            ProcessSingle(model.Environment, "Scene");
+            ProcessPair(model.Lighting, model.Mood, "Atmosphere", "LightingOnly", "MoodOnly");
+            ProcessSingle(model.Composition, "Staging");
 
-            if (model.Composition.HasValue())
-            {
-                message += model.Composition;
-            }
-
-            return chat.User(message);
+            return chat;
         }
 
         /// <summary>
@@ -480,6 +539,26 @@ namespace Smartstore.Core.AI.Prompting
             }
 
             return chat;
+        }
+
+        /// <summary>
+        /// Should return a partial ID of resource used to get a prompt fragement from resources.
+        /// </summary>
+        /// <param name="res">Localized setting e.g. draußen</param>
+        public string GetResourceIdentifier(string res)
+        {
+            var localRes = _db.LocaleStringResources
+                .AsNoTracking()
+                .Where(x => 
+                    x.ResourceValue == res 
+                    && EF.Functions.Like(x.ResourceName, "%ImageCreation.Param%") 
+                    && x.LanguageId == _workContext.WorkingLanguage.Id)
+                .Select(x => x.ResourceName)
+                .FirstOrDefault();
+
+            var id = localRes?.Split('.').LastOrDefault();
+
+            return id;
         }
 
         #endregion
