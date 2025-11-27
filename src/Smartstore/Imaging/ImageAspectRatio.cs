@@ -19,6 +19,11 @@ namespace Smartstore.Imaging
         }
 
         /// <summary>
+        /// Gets the string value represented by this instance.
+        /// </summary>
+        public string Value => _value;
+
+        /// <summary>
         /// Represents the 21:9 image aspect ratio.
         /// </summary>
         public static readonly ImageAspectRatio Ratio21x9 = new("21:9");

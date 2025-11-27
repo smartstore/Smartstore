@@ -20,6 +20,11 @@ namespace Smartstore.Core.AI
         }
 
         /// <summary>
+        /// Gets the string value represented by this instance.
+        /// </summary>
+        public string Value => _value;
+
+        /// <summary>
         /// Represents the HD (1K) image resolution preset for AI image generation.
         /// </summary>
         public static readonly AIImageResolution HD = new("1K");

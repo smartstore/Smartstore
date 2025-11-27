@@ -19,6 +19,11 @@ namespace Smartstore.Core.AI
         }
 
         /// <summary>
+        /// Gets the string value represented by this instance.
+        /// </summary>
+        public string Value => _value;
+
+        /// <summary>
         /// Represents the PNG image output format for AI image generation.
         /// </summary>
         public static readonly AIImageOutputFormat Png = new("png");

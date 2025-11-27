@@ -24,9 +24,14 @@ namespace Smartstore.Core.AI
         AIMetadata Metadata { get; }
 
         /// <summary>
-        /// Gets the AI models available for the specified topic.
+        /// Gets the local AI models available for the specified topic.
         /// </summary>
         AIModelCollection GetModels(AIChatTopic topic);
+
+        /// <summary>
+        /// Retrieves a collection of live AI models that are currently available for use.
+        /// </summary>
+        Task<AIModelCollection> GetLiveModelsAsync(CancellationToken cancelToken = default);
 
         /// <summary>
         /// Starts or continues an AI conversation.

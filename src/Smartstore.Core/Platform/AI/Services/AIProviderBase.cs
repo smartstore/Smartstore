@@ -40,6 +40,9 @@ namespace Smartstore.Core.AI
             return Metadata?.MergeModels(outputType, GetPreferredModelNames(outputType));
         }
 
+        public virtual Task<AIModelCollection> GetLiveModelsAsync(CancellationToken cancelToken = default)
+            => throw new NotSupportedException();
+
         protected virtual string[] GetPreferredModelNames(AIOutputType outputType)
             => [];
 
