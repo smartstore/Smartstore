@@ -446,6 +446,7 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.AI.ImageCreation.Param.BirdsEye", "Birds-eye view", "Vogelperspektive");
             builder.AddOrUpdate("Admin.AI.ImageCreation.PromptFragment.BirdsEye", "a bird's-eye view composition", "einer Komposition aus der Vogelperspektive");
 
+            builder.AddOrUpdate("Admin.AI.ImageCreation.Describe", "Add picture description", "Bildbeschreibung hinzufügen");
         }
     }
 }
