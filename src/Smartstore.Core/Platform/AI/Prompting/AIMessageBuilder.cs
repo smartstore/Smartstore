@@ -192,36 +192,41 @@ namespace Smartstore.Core.AI.Prompting
             const string icResRoot = "Admin.AI.ImageCreation.";
             const string pfResRoot = "Admin.AI.ImageCreation.PromptFragment.";
 
-            // Attempts to load a resource fragment. Returns null if no ID exists.
-            string TryGetFragment(string value)
+            // Attempts to load a resource fragment. Returns false if no ID exists.
+            bool TryGetFragment(string value, out string fragment)
             {
-                if (!value.HasValue()) 
-                    return null;
+                fragment = null;
+
+                if (!value.HasValue())
+                    return false;
 
                 var id = GetResourceIdentifier(value);
-                return id.HasValue() ? Resources.GetResource(pfResRoot + id) : null;
+                if (id.HasValue())
+                {
+                    fragment = Resources.GetResource(pfResRoot + id).NullEmpty();
+                }
+
+                return fragment.HasValue();
             }
 
-            void AddMsg(string keySuffix, params object[] args)
+            void AddMessage(string keySuffix, params object[] args)
             {
                 chat.User(Resources.GetResource(icResRoot + keySuffix, args));
             }
-
+            
             // Processes single property prompts (e.g. Environment, Composition)
             void ProcessSingle(string value, string keyRoot)
             {
                 if (!value.HasValue()) 
                     return;
 
-                var fragment = TryGetFragment(value);
-
-                if (fragment != null)
+                if (TryGetFragment(value, out var fragment))
                 {
-                    AddMsg(keyRoot, fragment);
+                    AddMessage(keyRoot, fragment);
                 }
                 else
                 {
-                    AddMsg($"{keyRoot}.Fallback", value);
+                    AddMessage($"{keyRoot}.Fallback", value);
                 }
             }
 
@@ -234,40 +239,40 @@ namespace Smartstore.Core.AI.Prompting
                 if (!has1 && !has2) 
                     return;
 
-                var frag1 = TryGetFragment(val1);
-                var frag2 = TryGetFragment(val2);
+                TryGetFragment(val1, out var frag1);
+                TryGetFragment(val2, out var frag2);
 
                 if (has1 && has2)
                 {
                     if (frag1 != null && frag2 != null)
                     {
-                        AddMsg(root, frag1, frag2);
+                        AddMessage(root, frag1, frag2);
                     }
                     else
                     {
-                        AddMsg($"{root}.Fallback", val1, val2);
+                        AddMessage($"{root}.Fallback", val1, val2);
                     }
                 }
                 else if (has1)
                 {
                     if (frag1 != null)
                     {
-                        AddMsg($"{root}.{suffix1}", frag1);
+                        AddMessage($"{root}.{suffix1}", frag1);
                     }
                     else
                     {
-                        AddMsg($"{root}.{suffix1}.Fallback", val1);
+                        AddMessage($"{root}.{suffix1}.Fallback", val1);
                     }
                 }
                 else
                 {
                     if (frag2 != null)
                     {
-                        AddMsg($"{root}.{suffix2}", frag2);
+                        AddMessage($"{root}.{suffix2}", frag2);
                     }
                     else
                     {
-                        AddMsg($"{root}.{suffix2}.Fallback", val2);
+                        AddMessage($"{root}.{suffix2}.Fallback", val2);
                     }
                 }
             }
@@ -549,9 +554,10 @@ namespace Smartstore.Core.AI.Prompting
         {
             var localRes = _db.LocaleStringResources
                 .AsNoTracking()
-                .Where(x => 
-                    x.ResourceValue == res 
-                    && EF.Functions.Like(x.ResourceName, "%ImageCreation.Param%") 
+                .Where(x =>
+                    // INFO: StartsWith is much faster than LIKE('%Value%')
+                    x.ResourceName.StartsWith("Admin.AI.ImageCreation.Param.")
+                    && x.ResourceValue == res 
                     && x.LanguageId == _workContext.WorkingLanguage.Id)
                 .Select(x => x.ResourceName)
                 .FirstOrDefault();
