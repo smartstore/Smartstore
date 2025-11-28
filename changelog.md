@@ -120,6 +120,7 @@
 	- Orders were created after the 3D Secure check, even though the payment was declined.
 	- Set selected payment method on customer level was missing when using *Link* cart button. 
 	- Restored setting of correct payment status.
+	- Better handling of web hook messages. 
 - **PostFinance**
   - Fixed an issue where the amount paid sometimes differs from the order total.
   - #1423 Avoid "The provided security token is invalid" error due to security token expiration.
