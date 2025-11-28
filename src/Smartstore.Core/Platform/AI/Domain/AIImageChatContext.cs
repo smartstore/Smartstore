@@ -14,7 +14,7 @@ namespace Smartstore.Core.AI
         /// </summary>
         public required int[] SourceFileIds { get; init; }
 
-        public AIImageOrientation Orientation { get; init; }
+        public ImageOrientation Orientation { get; init; }
         public ImageAspectRatio? AspectRatio { get; init; }
         public AIImageResolution? Resolution { get; init; }
     }

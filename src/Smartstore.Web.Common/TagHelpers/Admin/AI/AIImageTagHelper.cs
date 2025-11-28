@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Core.AI;
+using Smartstore.Imaging;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
@@ -10,14 +10,14 @@ namespace Smartstore.Web.TagHelpers.Admin
     [HtmlTargetElement("ai-image", Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
     public class AIImageTagHelper() : AITagHelperBase()
     {
-        const string OrientationAttributeName = "format";
+        const string OrientationAttributeName = "orientation";
         const string MediaFolderAttributeName = "media-folder";
 
         /// <summary>
         /// Passed to AI provider to define the orientation of the picture about to be created.
         /// </summary>
         [HtmlAttributeName(OrientationAttributeName)]
-        public AIImageOrientation Orientation { get; set; }
+        public ImageOrientation Orientation { get; set; }
 
         /// <summary>
         /// Used to define the MediaFolderName for the picture about to be created.

@@ -68,16 +68,6 @@
     }
 
     /// <summary>
-    /// Represents the AI image orientation.
-    /// </summary>
-    public enum AIImageOrientation
-    {
-        Horizontal,
-        Vertical,
-        Square
-    }
-
-    /// <summary>
     /// Represents the AI role.
     /// </summary>
     public enum AIRole

@@ -75,7 +75,7 @@ namespace Smartstore.Core.AI.Prompting
         /// <summary>
         /// Specifies the image orientation.
         /// </summary>
-        AIImageOrientation Orientation { get; }
+        ImageOrientation Orientation { get; }
 
         /// <summary>
         /// Gets the aspect ratio of the image, if specified.
