@@ -16,12 +16,25 @@ namespace Smartstore.Imaging
         internal ImageAspectRatio(string value) 
         {
             _value = value ?? throw new ArgumentNullException(nameof(value));
+
+            var sides = value.Split(':').Select(x => x.ToInt()).ToArray();
+            Orientation = sides[0] switch
+            {
+                var w when w > sides[1] => ImageOrientation.Landscape,
+                var w when w < sides[1] => ImageOrientation.Portrait,
+                _ => ImageOrientation.Square,
+            };
         }
 
         /// <summary>
         /// Gets the string value represented by this instance.
         /// </summary>
         public string Value => _value;
+
+        /// <summary>
+        /// Gets the orientation, e.g. landscape (16:9), portrait (9:16), or square (1:1), of the aspect ratio.
+        /// </summary>
+        public ImageOrientation Orientation { get; }
 
         /// <summary>
         /// Represents the 21:9 image aspect ratio.
