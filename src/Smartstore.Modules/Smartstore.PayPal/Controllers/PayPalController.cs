@@ -798,7 +798,7 @@ namespace Smartstore.PayPal.Controllers
         /// Logs a client message. Is needed for Apple Pay where we can't use Chrome DevTools on mobile devices.
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> LogClientMessage(string msg, LogLevel level)
+        public IActionResult LogClientMessage(string msg, LogLevel level)
         {
             Logger.Log(level, msg);
             return Ok();
