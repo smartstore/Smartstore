@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Net.Mime;
 
 namespace Smartstore.Core.AI
 {
@@ -13,9 +14,10 @@ namespace Smartstore.Core.AI
     {
         private readonly string _value;
         
-        internal AIImageOutputFormat(string value) 
+        internal AIImageOutputFormat(string value, string mimeType) 
         {
             _value = value ?? throw new ArgumentNullException(nameof(value));
+            MimeType = mimeType ?? throw new ArgumentNullException(nameof(mimeType));
         }
 
         /// <summary>
@@ -24,21 +26,26 @@ namespace Smartstore.Core.AI
         public string Value => _value;
 
         /// <summary>
+        /// Gets the MIME type associated with the content.
+        /// </summary>
+        public string MimeType { get; }
+
+        /// <summary>
         /// Represents the PNG image output format for AI image generation.
         /// </summary>
-        public static readonly AIImageOutputFormat Png = new("png");
+        public static readonly AIImageOutputFormat Png = new("png", MediaTypeNames.Image.Png);
 
 
         /// <summary>
         /// Represents the JPEG image output format for AI image generation.
         /// </summary>
-        public static readonly AIImageOutputFormat Jpeg = new("jpeg");
+        public static readonly AIImageOutputFormat Jpeg = new("jpeg", MediaTypeNames.Image.Jpeg);
 
 
         /// <summary>
         /// Represents the WEBP image output format for AI image generation.
         /// </summary>
-        public static readonly AIImageOutputFormat WebP = new("webp");
+        public static readonly AIImageOutputFormat WebP = new("webp", MediaTypeNames.Image.Webp);
 
         public static implicit operator string(AIImageOutputFormat obj)
             => obj._value;

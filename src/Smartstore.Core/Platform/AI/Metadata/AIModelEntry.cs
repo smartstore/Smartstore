@@ -2,6 +2,7 @@
 
 using System.ComponentModel;
 using Newtonsoft.Json;
+using Smartstore.Imaging;
 
 namespace Smartstore.Core.AI.Metadata
 {
@@ -37,33 +38,11 @@ namespace Smartstore.Core.AI.Metadata
         FileSearch = 1 << 3
     }
 
-    public record AIImageOutput
-    {
-        /// <summary>
-        /// Gets an array of supported aspect ratios. Default: 1:1.
-        /// </summary>
-        public string[]? AspectRatios { get; set; }
-
-        /// <summary>
-        /// Gets an array of supported resolutions. Default: 1K.
-        /// </summary>
-        public string[]? Resolutions { get; set; }
-
-        /// <summary>
-        /// Gets an array of supported image formats. Default: png.
-        /// </summary>
-        public string[]? Formats { get; set; }
-    }
-
     /// <summary>
     /// Represents a single LLM model entry in the catalog.
     /// </summary>
     public class AIModelEntry : ICloneable<AIModelEntry>, IEquatable<AIModelEntry>
     {
-        static string[] DefaultAspectRatios = ["1:1"];
-        static string[] DefaultResolutions = ["1K"];
-        static string[] DefaultFormats = ["png"];
-
         /// <summary>
         /// Model identifier (e.g. "gpt-5", "gemini-2.5-pro").
         /// </summary>
@@ -134,19 +113,19 @@ namespace Smartstore.Core.AI.Metadata
         /// Retrieves the list of supported aspect ratios for image output.
         /// </summary>
         public string[] GetSupportedAspectRatios()
-            => ImageOutputCapabilities?.AspectRatios ?? DefaultAspectRatios;
+            => ImageOutputCapabilities?.AspectRatios ?? AIImageOutput.Default.AspectRatios!;
 
         /// <summary>
         /// Retrieves the list of supported resolutions for image output.
         /// </summary>
         public string[] GetSupportedImageResolutions()
-            => ImageOutputCapabilities?.Resolutions ?? DefaultResolutions;
+            => ImageOutputCapabilities?.Resolutions ?? AIImageOutput.Default.Resolutions!;
 
         /// <summary>
         /// Retrieves the list of supported formats for image output.
         /// </summary>
         public string[] GetSupportedImageFormats()
-            => ImageOutputCapabilities?.Formats ?? DefaultFormats;
+            => ImageOutputCapabilities?.Formats ?? AIImageOutput.Default.Formats!;
 
         /// <summary>
         /// User-defined custom model (not provided by metadata.json).

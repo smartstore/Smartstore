@@ -32,7 +32,7 @@ namespace Smartstore.Imaging
         public string Value => _value;
 
         /// <summary>
-        /// Gets the orientation, e.g. landscape (16:9), portrait (9:16), or square (1:1), of the aspect ratio.
+        /// Gets the computed orientation, e.g. landscape (16:9), portrait (9:16), or square (1:1), of the aspect ratio.
         /// </summary>
         public ImageOrientation Orientation { get; }
 
@@ -85,6 +85,21 @@ namespace Smartstore.Imaging
         /// Represents the 9:16 image aspect ratio.
         /// </summary>
         public static readonly ImageAspectRatio Ratio9x16 = new("9:16");
+
+        /// <summary>
+        /// Represents a collection of predefined image aspect ratios commonly used for landscape-oriented images.
+        /// </summary>
+        /// <remarks>The collection includes aspect ratios such as 21:9, 16:9, 3:2, 4:3, and 5:4, which
+        /// are frequently used in photography, video, and display standards.</remarks>
+        public static readonly ImageAspectRatio[] Landscapes = [Ratio21x9, Ratio16x9, Ratio3x2, Ratio4x3, Ratio5x4];
+
+        /// <summary>
+        /// Represents a collection of predefined image aspect ratios commonly used for portrait-oriented images.
+        /// </summary>
+        /// <remarks>The collection includes aspect ratios such as 4:5, 3:4, 2:3, and 9:16, which are typically used
+        /// in applications such as photography, social media, and graphic design where portrait-oriented images are
+        /// required.</remarks>
+        public static readonly ImageAspectRatio[] Portraits = [Ratio4x5, Ratio3x4, Ratio2x3, Ratio9x16];
 
         public static implicit operator string(ImageAspectRatio obj)
             => obj._value;
