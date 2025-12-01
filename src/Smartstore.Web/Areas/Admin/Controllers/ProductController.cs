@@ -482,56 +482,57 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> GoToProduct(ProductListModel model)
         {
             var productCode = model.ProductCode;
-
-            if (productCode.HasValue())
+            if (productCode.IsEmpty())
             {
-                var products = await _db.Products
-                    .IgnoreQueryFilters()
-                    .ApplyProductCodeFilter(productCode)
-                    .Select(x => new { x.Id, x.Deleted })
-                    .ToListAsync();
+                return RedirectToAction(nameof(List));
+            }
 
-                if (products.Count > 0)
+            string warning = null;
+            var products = await _db.Products
+                .IgnoreQueryFilters()
+                .ApplyProductCodeFilter(productCode)
+                .Select(x => new { x.Id, x.Deleted })
+                .ToListAsync();
+
+            if (products.Count > 0)
+            {
+                var notDeletedProduct = products.FirstOrDefault(x => !x.Deleted);
+                if (notDeletedProduct != null)
                 {
-                    var notDeleted = products.FirstOrDefault(x => !x.Deleted);
-                    if (notDeleted != null)
+                    return RedirectToAction(nameof(Edit), new { id = notDeletedProduct.Id });
+                }
+
+                warning = T("Products.Deleted", products[0].Id);
+            }
+            else
+            {
+                var query =
+                    from ac in _db.ProductVariantAttributeCombinations.ApplyProductCodeFilter(productCode)
+                    join p in _db.Products.AsNoTracking().IgnoreQueryFilters() on ac.ProductId equals p.Id into acp
+                    from p in acp.DefaultIfEmpty()
+                    select new { Combination = ac, Product = p };
+
+                var pvac = await query.FirstOrDefaultAsync();
+
+                if (pvac?.Combination != null)
+                {
+                    if (pvac.Product == null)
                     {
-                        return RedirectToAction(nameof(Edit), new { id = notDeleted.Id });
+                        warning = T("Products.NotFound", pvac.Combination.ProductId);
+                    }
+                    else if (pvac.Product.Deleted)
+                    {
+                        warning = T("Products.Deleted", pvac.Combination.ProductId);
                     }
                     else
                     {
-                        NotifyWarning(T("Products.Deleted", products[0].Id));
-                    }
-                }
-                else
-                {
-                    var query =
-                        from ac in _db.ProductVariantAttributeCombinations.ApplyProductCodeFilter(productCode)
-                        join p in _db.Products.AsNoTracking().IgnoreQueryFilters() on ac.ProductId equals p.Id into acp
-                        from p in acp.DefaultIfEmpty()
-                        select new { Combination = ac, Product = p };
-
-                    var pvac = await query.FirstOrDefaultAsync();
-
-                    if (pvac?.Combination != null)
-                    {
-                        if (pvac.Product == null)
-                        {
-                            NotifyWarning(T("Products.NotFound", pvac.Combination.ProductId));
-                        }
-                        else if (pvac.Product.Deleted)
-                        {
-                            NotifyWarning(T("Products.Deleted", pvac.Combination.ProductId));
-                        }
-                        else
-                        {
-                            return RedirectToAction(nameof(Edit), new { id = pvac.Combination.ProductId });
-                        }
+                        return RedirectToAction(nameof(Edit), new { id = pvac.Combination.ProductId });
                     }
                 }
             }
 
-            // Not found.
+            NotifyWarning(warning ?? T("Products.ProductCodeNotFound", productCode));
+
             return RedirectToAction(nameof(List));
         }
 

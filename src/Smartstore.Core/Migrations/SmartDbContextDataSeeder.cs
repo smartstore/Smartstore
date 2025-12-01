@@ -261,6 +261,10 @@ namespace Smartstore.Core.Data.Migrations
                 .Value("de", "Legt fest, dass der Rabatt erst nach Eingabe des Rabattcodes auf der Warenkorbseite angewendet wird.");
             builder.Delete("Admin.Promotions.Discounts.Fields.CouponCode.Hint");
 
+            builder.AddOrUpdate("Products.ProductCodeNotFound",
+                "The product with the code <b>{0}</b> could not be found.",
+                "Es wurde kein Produkt mit dem Produktcode <b>{0}</b> gefunden.");
+
 
             // MOSAIC
             // M (Motiv) =>  we already got these resources.
