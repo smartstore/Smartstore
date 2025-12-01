@@ -101,24 +101,22 @@ namespace Smartstore.Imaging
         /// required.</remarks>
         public static readonly ImageAspectRatio[] Portraits = [Ratio4x5, Ratio3x4, Ratio2x3, Ratio9x16];
 
+        /// <summary>
+        /// Represents a collection of all supported image aspect ratios.
+        /// </summary>
+        public static readonly ImageAspectRatio[] All = [.. Landscapes, Ratio1x1, .. Portraits];
+
         public static implicit operator string(ImageAspectRatio obj)
             => obj._value;
 
         public static implicit operator ImageAspectRatio(string value)
-            => value switch
+        {
+            foreach (var ratio in All)
             {
-                "21:9" => Ratio21x9,
-                "16:9" => Ratio16x9,
-                "3:2"  => Ratio3x2,
-                "4:3"  => Ratio4x3,
-                "5:4"  => Ratio5x4,
-                "1:1"  => Ratio1x1,
-                "4:5"  => Ratio4x5,
-                "3:4"  => Ratio3x4,
-                "2:3"  => Ratio2x3,
-                "9:16" => Ratio9x16,
-                _ => throw new InvalidCastException($"Unknown image aspect ratio '{value}'."),
-            };
+                if (ratio._value == value) return ratio;
+            }
+            throw new InvalidCastException($"Unknown image aspect ratio '{value}'.");
+        }
 
         public static bool operator ==(ImageAspectRatio left, ImageAspectRatio right) 
             => left.Equals(right);

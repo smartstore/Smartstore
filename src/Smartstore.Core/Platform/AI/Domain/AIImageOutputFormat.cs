@@ -47,6 +47,11 @@ namespace Smartstore.Core.AI
         /// </summary>
         public static readonly AIImageOutputFormat WebP = new("webp", MediaTypeNames.Image.Webp);
 
+        /// <summary>
+        /// Represents a collection of all supported image resolutions.
+        /// </summary>
+        public static readonly AIImageOutputFormat[] All = [Png, Jpeg, WebP];
+
         public static implicit operator string(AIImageOutputFormat obj)
             => obj._value;
 

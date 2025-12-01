@@ -39,6 +39,11 @@ namespace Smartstore.Core.AI
         /// </summary>
         public static readonly AIImageResolution UHD = new("4K");
 
+        /// <summary>
+        /// Represents a collection of all supported image resolutions.
+        /// </summary>
+        public static readonly AIImageResolution[] All = [HD, QHD, UHD];
+
         public static implicit operator string(AIImageResolution obj)
             => obj._value;
 
