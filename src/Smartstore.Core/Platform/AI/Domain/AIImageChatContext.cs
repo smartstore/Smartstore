@@ -16,7 +16,6 @@ namespace Smartstore.Core.AI
 
         public ImageOrientation Orientation { get; init; }
 
-        // TODO: (mg) Is this JSON serializable? Check.
         public ImageAspectRatio? AspectRatio { get; init; }
         public AIImageResolution? Resolution { get; init; }
         public AIImageOutputFormat? OutputFormat { get; init; }

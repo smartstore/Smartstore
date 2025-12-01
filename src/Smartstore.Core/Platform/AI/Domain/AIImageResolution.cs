@@ -14,7 +14,7 @@ namespace Smartstore.Core.AI
     {
         private readonly string _value;
         
-        internal AIImageResolution(string value) 
+        public AIImageResolution(string value) 
         {
             _value = value ?? throw new ArgumentNullException(nameof(value));
         }

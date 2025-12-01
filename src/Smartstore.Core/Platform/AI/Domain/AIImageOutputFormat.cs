@@ -14,7 +14,7 @@ namespace Smartstore.Core.AI
     {
         private readonly string _value;
         
-        internal AIImageOutputFormat(string value, string mimeType) 
+        public AIImageOutputFormat(string value, string mimeType) 
         {
             _value = value ?? throw new ArgumentNullException(nameof(value));
             MimeType = mimeType ?? throw new ArgumentNullException(nameof(mimeType));

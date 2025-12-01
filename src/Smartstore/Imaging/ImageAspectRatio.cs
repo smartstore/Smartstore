@@ -12,8 +12,8 @@ namespace Smartstore.Imaging
     public readonly partial struct ImageAspectRatio : IEquatable<ImageAspectRatio>
     {
         private readonly string _value;
-        
-        internal ImageAspectRatio(string value) 
+
+        public ImageAspectRatio(string value) 
         {
             _value = value ?? throw new ArgumentNullException(nameof(value));
 

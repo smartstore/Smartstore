@@ -1,7 +1,9 @@
 ﻿using System.Linq;
+using System.Net.Mime;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Smartstore.Core.AI;
+using Smartstore.Imaging;
 
 namespace Smartstore.Core.Tests.AI
 {
@@ -20,8 +22,20 @@ namespace Smartstore.Core.Tests.AI
                 .UserTopic(initialMessage.Content)
                 .AddMessages([assistantMessage, userMessage]);
 
+            chat.SetMetaData("SomeKey", 12345);
+
+            chat.SetMetaData(KnownAIChatMetadataKeys.ImageChatContext, new AIImageChatContext
+            {
+                SourceFileIds = [101, 102, 103],
+                Orientation = ImageOrientation.Landscape,
+                AspectRatio = ImageAspectRatio.Ratio16x9,
+                Resolution = AIImageResolution.QHD,
+                OutputFormat = AIImageOutputFormat.Png
+            });            
+
             var serializedChat = JsonConvert.SerializeObject(chat);
             var obj = JsonConvert.DeserializeObject<AIChat>(serializedChat);
+            serializedChat.Dump();
 
             Assert.Multiple(() =>
             {
@@ -37,6 +51,19 @@ namespace Smartstore.Core.Tests.AI
 
                 Assert.That(obj.InitialUserMessage, Is.EqualTo(initialMessage));
                 Assert.That(obj.InitialUserMessage.GetHashCode(), Is.EqualTo(initialMessage.GetHashCode()));
+
+                // INFO: Internally converted into int64, so TryGetValueAs<int> would fail.
+                obj.Metadata.TryGetAndConvertValue<int>("SomeKey", out var someKeyValue);
+                Assert.That(someKeyValue, Is.EqualTo(12345));
+
+                obj.Metadata.TryGetAndConvertValue<AIImageChatContext>(KnownAIChatMetadataKeys.ImageChatContext, out var ctx);
+                Assert.That(ctx, Is.Not.EqualTo(null));
+                Assert.That(ctx.SourceFileIds, Is.EquivalentTo([101, 102, 103]));
+                Assert.That(ctx.Orientation, Is.EqualTo(ImageOrientation.Landscape));
+                Assert.That(ctx.AspectRatio, Is.EqualTo(ImageAspectRatio.Ratio16x9));
+                Assert.That(ctx.Resolution, Is.EqualTo(AIImageResolution.QHD));
+                Assert.That(ctx.OutputFormat, Is.EqualTo(AIImageOutputFormat.Png));
+                Assert.That(ctx.OutputFormat.Value.MimeType, Is.EqualTo(MediaTypeNames.Image.Png));
             });
         }
     }
