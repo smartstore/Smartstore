@@ -31,10 +31,11 @@ namespace Smartstore.Core.Tests.AI
                 AspectRatio = ImageAspectRatio.Ratio16x9,
                 Resolution = AIImageResolution.QHD,
                 OutputFormat = AIImageOutputFormat.Png
-            });            
+            });
 
-            var serializedChat = JsonConvert.SerializeObject(chat);
-            var obj = JsonConvert.DeserializeObject<AIChat>(serializedChat);
+            var serializerSettings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Objects };
+            var serializedChat = JsonConvert.SerializeObject(chat, serializerSettings);
+            var obj = JsonConvert.DeserializeObject<AIChat>(serializedChat, serializerSettings);
             serializedChat.Dump();
 
             Assert.Multiple(() =>

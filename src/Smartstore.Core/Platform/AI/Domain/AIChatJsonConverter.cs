@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Smartstore.Core.AI
 {
@@ -39,7 +38,7 @@ namespace Smartstore.Core.AI
                 else if (string.Equals(name, nameof(AIChat.Metadata), StringComparison.OrdinalIgnoreCase))
                 {
                     reader.Read();
-                    metadata = ReadMetadata(reader, serializer);
+                    metadata = serializer.Deserialize<Dictionary<string, object>>(reader);
                 }
                 else if (string.Equals(name, nameof(AIChat.InitialUserMessage) + "Hash", StringComparison.OrdinalIgnoreCase))
                 {
@@ -91,7 +90,7 @@ namespace Smartstore.Core.AI
                 if (GetPropValue(nameof(AIChat.Metadata), value) is IDictionary<string, object> dict && dict.Count > 0)
                 {
                     writer.WritePropertyName(nameof(AIChat.Metadata));
-                    serializer.Serialize(writer, dict);
+                    serializer.SerializeObjectDictionary(writer, dict);
                 }
             }
             writer.WriteEndObject();
@@ -99,41 +98,5 @@ namespace Smartstore.Core.AI
 
         private static object GetPropValue(string name, object instance)
             => instance.GetType().GetProperty(name).GetValue(instance);
-
-        private static Dictionary<string, object> ReadMetadata(JsonReader reader, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null)
-            {
-                return null;
-            }
-
-            var token = JToken.ReadFrom(reader);
-            if (token is not JObject obj)
-            {
-                return null;
-            }
-
-            var dict = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var prop in obj.Properties())
-            {
-                dict[prop.Name] = ConvertMetadataToken(prop.Name, prop.Value, serializer);
-            }
-
-            return dict;
-        }
-
-        private static object ConvertMetadataToken(string key, JToken token, JsonSerializer serializer)
-        {
-            // Special case: known complex type.
-            if (string.Equals(key, KnownAIChatMetadataKeys.ImageChatContext, StringComparison.Ordinal))
-            {
-                // Deserialize directly into AIImageChatContext so consumers get the real type.
-                return token.ToObject<AIImageChatContext>(serializer);
-            }
-
-            // Fallback. Let Newtonsoft.Json decide the best CLR type.
-            return token.ToObject<object>(serializer);
-        }
     }
 }
