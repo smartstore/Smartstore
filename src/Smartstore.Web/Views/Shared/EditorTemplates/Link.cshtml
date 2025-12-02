@@ -60,7 +60,6 @@
                 ? (link.EntityId.HasValue ? link.EntityId.Value.ToStringInvariant() : expression.Target.EmptyNull())
                 : string.Empty;
 
-            @* TODO: (mg) select2 width must not exceed the remaining space (it does when the label is too wide). Find a way to fix it. *@
             <div class="link-control col" attr-class='(expression.Schema != schema, "hide")' data-type="@schema">
                 @if (info.Widget != null)
                 {
