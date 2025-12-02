@@ -138,7 +138,8 @@
 - When filtering products without category assignment, deleted categories must not be included.
 - AI
 	- Fixed streaming problem if the original HTML contains comments.
-	- Fixed streaming problem with HTML entities (e.g. &amp;) 
+	- Fixed streaming problem with HTML entities (e.g. &amp;)
+- Link builder: The editor displayed an URL with an attached link target.
 
 
 ## Smartstore 6.2.0
