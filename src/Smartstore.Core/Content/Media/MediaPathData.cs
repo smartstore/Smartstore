@@ -13,6 +13,7 @@ namespace Smartstore.Core.Content.Media
         public MediaPathData(TreeNode<MediaFolderNode> node, string fileName, bool normalizeFileName = false)
         {
             Guard.NotNull(node);
+            Guard.NotNull(fileName);
 
             Node = node;
             _name = normalizeFileName
