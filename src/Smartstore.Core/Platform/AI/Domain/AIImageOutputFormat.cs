@@ -1,4 +1,7 @@
-﻿using System.ComponentModel;
+﻿#nullable enable
+
+using System.ComponentModel;
+using System.Globalization;
 using System.Net.Mime;
 
 namespace Smartstore.Core.AI
@@ -10,11 +13,12 @@ namespace Smartstore.Core.AI
     /// This type provides implicit conversions to and from string values representing the format name. Only the formats
     /// defined by the static fields are supported; attempting to convert an unknown string will result in an exception.
     /// AIImageOutputFormat is intended for use as a type-safe alternative to raw string format identifiers.</remarks>
+    [TypeConverter(typeof(AIImageOutputFormatConverter))]
     public readonly partial struct AIImageOutputFormat : IEquatable<AIImageOutputFormat>
     {
         private readonly string _value;
         
-        public AIImageOutputFormat(string value, string mimeType) 
+        internal AIImageOutputFormat(string value, string mimeType) 
         {
             _value = value ?? throw new ArgumentNullException(nameof(value));
             MimeType = mimeType ?? throw new ArgumentNullException(nameof(mimeType));
@@ -52,17 +56,20 @@ namespace Smartstore.Core.AI
         /// </summary>
         public static readonly AIImageOutputFormat[] All = [Png, Jpeg, WebP];
 
-        public static implicit operator string(AIImageOutputFormat obj)
+        public static implicit operator string?(AIImageOutputFormat obj)
             => obj._value;
 
-        public static implicit operator AIImageOutputFormat(string value)
-            => value switch
+        public static implicit operator AIImageOutputFormat?(string? value)
+        {
+            if (value == null) return null;
+            return value switch
             {
                 "png" => Png,
                 "jpeg" => Jpeg,
                 "webp" => WebP,
                 _ => throw new InvalidCastException($"Unknown image output format '{value}'."),
             };
+        }
 
         public static bool operator ==(AIImageOutputFormat left, AIImageOutputFormat right) 
             => left.Equals(right);
@@ -71,17 +78,41 @@ namespace Smartstore.Core.AI
             => !left.Equals(right);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) 
+        public override bool Equals(object? obj) 
             => obj is AIImageOutputFormat other && Equals(other);
 
         public bool Equals(AIImageOutputFormat other) 
-            => _value.EqualsNoCase(other._value);
+            => _value?.EqualsNoCase(other._value) ?? false;
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode() 
-            => _value.GetHashCode();
+            => _value?.GetHashCode() ?? 0;
 
-        public override string ToString() 
+        public override string? ToString() 
             => _value;
+    }
+
+    internal class AIImageOutputFormatConverter : TypeConverter
+    {
+        public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType)
+            => sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
+
+        public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)
+        {
+            if (value is string str) return (AIImageOutputFormat?)str;
+            return base.ConvertFrom(context, culture, value);
+        }
+        public override bool CanConvertTo(ITypeDescriptorContext? context, Type? destinationType)
+            => destinationType == typeof(string) || base.CanConvertTo(context, destinationType);
+
+        public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType)
+        {
+            if (destinationType == typeof(string) && value is AIImageOutputFormat format)
+            {
+                return (string?)format;
+            }
+
+            return base.ConvertTo(context, culture, value, destinationType);
+        }
     }
 }

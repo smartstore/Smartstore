@@ -35,7 +35,7 @@ namespace Smartstore.Core.AI.Metadata
 
         public ImageAspectRatio FindSupportedAspectRatio(ImageAspectRatio? attemptedRatio, ImageOrientation defaultOrientation)
         {
-            var supportedRatios = AspectRatios.IsNullOrEmpty() ? Default.AspectRatios! : AspectRatios!;
+            string[] supportedRatios = AspectRatios.IsNullOrEmpty() ? Default.AspectRatios! : AspectRatios!;
 
             // Check if the attempted ratio is supported
             if (attemptedRatio.HasValue)
@@ -50,14 +50,14 @@ namespace Smartstore.Core.AI.Metadata
             // Find a ratio that matches the default orientation
             foreach (var ratioStr in supportedRatios)
             {
-                ImageAspectRatio ratio = ratioStr;
-                if (ratio.Orientation == defaultOrientation)
+                ImageAspectRatio? ratio = ratioStr;
+                if (ratio?.Orientation == defaultOrientation)
                 {
-                    return ratio;
+                    return ratio.Value;
                 }
             }
 
-            return supportedRatios[0];
+            return (ImageAspectRatio)supportedRatios[0]!;
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace Smartstore.Core.AI.Metadata
         /// supported, the first format in the supported formats list is returned.</returns>
         public AIImageOutputFormat FindSupportedFormat(AIImageOutputFormat? attemptedFormat)
         {
-            var supportedFormats = Formats.IsNullOrEmpty() ? Default.Formats! : Formats!;
+            string[] supportedFormats = Formats.IsNullOrEmpty() ? Default.Formats! : Formats!;
 
             if (attemptedFormat.HasValue)
             {
@@ -82,7 +82,7 @@ namespace Smartstore.Core.AI.Metadata
                 }
             }
 
-            return supportedFormats[0];
+            return (AIImageOutputFormat)supportedFormats[0]!;
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace Smartstore.Core.AI.Metadata
         /// resolution.</returns>
         public AIImageResolution FindSupportedResolution(AIImageResolution? attemptedResolution)
         {
-            var supportedResolutions = Resolutions.IsNullOrEmpty() ? Default.Resolutions! : Resolutions!;
+            string[] supportedResolutions = Resolutions.IsNullOrEmpty() ? Default.Resolutions! : Resolutions!;
 
             if (attemptedResolution.HasValue)
             {
@@ -108,7 +108,7 @@ namespace Smartstore.Core.AI.Metadata
                 }
             }
 
-            return supportedResolutions[0];
+            return (AIImageResolution)supportedResolutions[0]!;
         }
     }
 }
