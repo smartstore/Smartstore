@@ -65,7 +65,7 @@ namespace Smartstore.Core.Content.Menus
                 expression.Schema = expression.RawExpression[..colonIndex].ToLower();
                 if (_knownSchemas.Any(x => x.EqualsNoCase(expression.Schema)))
                 {
-                    expression.Schema = null;
+                    expression.Schema = "url";
                     colonIndex = -1;
                 }
             }
