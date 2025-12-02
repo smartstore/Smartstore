@@ -152,8 +152,7 @@
                     </div>
                 </div>
 
-                @* TODO: (mg) Focus the text input on dropdown shown *@
-                <div sm-if="!hideQueryString" class="btn-group">
+                <div sm-if="!hideQueryString" class="btn-group dropdown-container dropdown-focus">
                     <button type="button"
                             class="btn btn-secondary btn-icon btn-query-string dropdown-toggle@(size.HasValue() ? " btn-" + size : "")"
                             attr-class='(expression.Schema == "url", "hide")'

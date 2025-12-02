@@ -288,6 +288,10 @@
             container.toggleClass('active', e.type === 'shown');
         });
 
+        $(document).on('shown.bs.dropdown', '.dropdown-container.dropdown-focus', (e) => {
+            $(e.currentTarget).find('.dropdown-menu :input:visible:enabled:first')[0].focus();
+        });
+
         $(window).on('load', function () {
             // swap classes onload and domready
             html.removeClass("loading").addClass("loaded");
