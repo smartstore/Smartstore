@@ -1,4 +1,7 @@
-﻿using System.ComponentModel;
+﻿#nullable enable
+
+using System.ComponentModel;
+using System.Globalization;
 
 namespace Smartstore.Core.AI
 {
@@ -10,11 +13,12 @@ namespace Smartstore.Core.AI
     /// APIs. This struct provides value-based equality and can be compared using the equality operators. The string
     /// representation of the resolution can be obtained using the ToString method.
     /// </remarks>
+    [TypeConverter(typeof(AIImageResolutionConverter))]
     public readonly partial struct AIImageResolution : IEquatable<AIImageResolution>
     {
         private readonly string _value;
         
-        public AIImageResolution(string value) 
+        internal AIImageResolution(string value) 
         {
             _value = value ?? throw new ArgumentNullException(nameof(value));
         }
@@ -44,17 +48,20 @@ namespace Smartstore.Core.AI
         /// </summary>
         public static readonly AIImageResolution[] All = [HD, QHD, UHD];
 
-        public static implicit operator string(AIImageResolution obj)
+        public static implicit operator string?(AIImageResolution obj)
             => obj._value;
 
-        public static implicit operator AIImageResolution(string value)
-            => value switch
+        public static implicit operator AIImageResolution?(string? value)
+        {
+            if (value == null) return null;
+            return value switch
             {
                 "1K" => HD,
                 "2K" => QHD,
                 "4K" => UHD,
                 _ => throw new InvalidCastException($"Unknown image resolution '{value}'."),
             };
+        }
 
         public static bool operator ==(AIImageResolution left, AIImageResolution right) 
             => left.Equals(right);
@@ -63,17 +70,41 @@ namespace Smartstore.Core.AI
             => !left.Equals(right);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) 
+        public override bool Equals(object? obj) 
             => obj is AIImageResolution other && Equals(other);
 
         public bool Equals(AIImageResolution other) 
-            => _value.EqualsNoCase(other._value);
+            => _value?.EqualsNoCase(other._value) ?? false;
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode() 
-            => _value.GetHashCode();
+            => _value?.GetHashCode() ?? 0;
 
-        public override string ToString() 
+        public override string? ToString() 
             => _value;
+    }
+
+    internal class AIImageResolutionConverter : TypeConverter
+    {
+        public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType)
+            => sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
+
+        public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)
+        {
+            if (value is string str) return (AIImageResolution?)str;
+            return base.ConvertFrom(context, culture, value);
+        }
+        public override bool CanConvertTo(ITypeDescriptorContext? context, Type? destinationType)
+            => destinationType == typeof(string) || base.CanConvertTo(context, destinationType);
+
+        public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType)
+        {
+            if (destinationType == typeof(string) && value is AIImageResolution resolution)
+            {
+                return (string?)resolution;
+            }
+
+            return base.ConvertTo(context, culture, value, destinationType);
+        }
     }
 }
