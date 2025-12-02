@@ -1,4 +1,7 @@
-﻿using System.ComponentModel;
+﻿#nullable enable
+
+using System.ComponentModel;
+using System.Globalization;
 
 namespace Smartstore.Imaging
 {
@@ -9,11 +12,12 @@ namespace Smartstore.Imaging
     /// from a string to create an instance for supported ratios. The struct supports equality comparison and can be
     /// implicitly converted to and from its string representation. Only the listed aspect ratios are supported;
     /// attempting to convert an unsupported string will result in an exception.</remarks>
+    [TypeConverter(typeof(ImageAspectRatioConverter))]
     public readonly partial struct ImageAspectRatio : IEquatable<ImageAspectRatio>
     {
         private readonly string _value;
 
-        public ImageAspectRatio(string value) 
+        internal ImageAspectRatio(string value) 
         {
             _value = value ?? throw new ArgumentNullException(nameof(value));
 
@@ -106,15 +110,26 @@ namespace Smartstore.Imaging
         /// </summary>
         public static readonly ImageAspectRatio[] All = [.. Landscapes, Ratio1x1, .. Portraits];
 
-        public static implicit operator string(ImageAspectRatio obj)
+        /// <summary>
+        /// Converts an <see cref="ImageAspectRatio"/> instance to a string.
+        /// Returns null if the instance has no value.
+        /// </summary>
+        public static implicit operator string?(ImageAspectRatio obj)
             => obj._value;
 
-        public static implicit operator ImageAspectRatio(string value)
+        /// <summary>
+        /// Converts a string to an <see cref="ImageAspectRatio"/> instance.
+        /// Returns null if the input string is null.
+        /// </summary>
+        public static implicit operator ImageAspectRatio?(string? value)
         {
+            if (value == null) return null;
+
             foreach (var ratio in All)
             {
                 if (ratio._value == value) return ratio;
             }
+
             throw new InvalidCastException($"Unknown image aspect ratio '{value}'.");
         }
 
@@ -125,17 +140,41 @@ namespace Smartstore.Imaging
             => !left.Equals(right);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) 
+        public override bool Equals(object? obj) 
             => obj is ImageAspectRatio other && Equals(other);
 
         public bool Equals(ImageAspectRatio other) 
-            => _value.Equals(other._value);
+            => _value?.Equals(other._value) ?? false;
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode() 
-            => _value.GetHashCode();
+            => _value?.GetHashCode() ?? 0;
 
-        public override string ToString() 
+        public override string? ToString() 
             => _value;
+    }
+
+    internal class ImageAspectRatioConverter : TypeConverter
+    {
+        public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType)
+            => sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
+
+        public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)
+        {
+            if (value is string str) return (ImageAspectRatio?)str;
+            return base.ConvertFrom(context, culture, value);
+        }
+        public override bool CanConvertTo(ITypeDescriptorContext? context, Type? destinationType)
+            => destinationType == typeof(string) || base.CanConvertTo(context, destinationType);
+
+        public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType)
+        {
+            if (destinationType == typeof(string) && value is ImageAspectRatio ratio)
+            {
+                return (string?)ratio;
+            }
+
+            return base.ConvertTo(context, culture, value, destinationType);
+        }
     }
 }
