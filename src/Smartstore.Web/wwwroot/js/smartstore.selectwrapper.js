@@ -268,13 +268,6 @@
                 }
             }
 
-            function attr(name, value) {
-                if (value && value.length > 0) {
-                    return ' ' + name + '="' + $('<div/>').text(value.trim()).html() + '"';
-                }
-                return '';
-            }
-
             function normalizeText(value) {
                 if (value && value.length > 0) {
                     value = value.trim();
