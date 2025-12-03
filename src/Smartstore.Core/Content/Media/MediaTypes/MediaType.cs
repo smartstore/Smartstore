@@ -1,8 +1,14 @@
-﻿namespace Smartstore.Core.Content.Media
+﻿#nullable enable
+
+using System.ComponentModel;
+using Smartstore.ComponentModel;
+
+namespace Smartstore.Core.Content.Media
 {
-    public class MediaType : IEquatable<MediaType>
+    [TypeConverter(typeof(StringBackedTypeConverter<MediaType>))]
+    public readonly partial struct MediaType : IStringBacked<MediaType>, IEquatable<MediaType>
     {
-        private readonly static IDictionary<string, string[]> _defaultExtensionsMap = new Dictionary<string, string[]>
+        private readonly static Dictionary<string, string[]> _defaultExtensionsMap = new()
         {
             ["image"] = ["png", "jpg", "jpeg", "jfif", "gif", "webp", "bmp", "avif", "svg", "ico"],
             ["video"] = ["mp4", "m4v", "mkv", "wmv", "avi", "asf", "mpg", "mpeg", "webm", "flv", "ogv", "mov", "3gp"],
@@ -12,7 +18,7 @@
             ["bin"] = []
         };
 
-        private readonly static IDictionary<string, MediaType> _map = new Dictionary<string, MediaType>(StringComparer.OrdinalIgnoreCase);
+        private readonly static Dictionary<string, MediaType> _map = new(StringComparer.OrdinalIgnoreCase);
 
         public readonly static MediaType Image = new("image", _defaultExtensionsMap["image"]);
         public readonly static MediaType Video = new("video", _defaultExtensionsMap["video"]);
@@ -21,7 +27,7 @@
         public readonly static MediaType Text = new("text", _defaultExtensionsMap["text"]);
         public readonly static MediaType Binary = new("bin", _defaultExtensionsMap["bin"]);
 
-        protected MediaType(string name, params string[] defaultExtensions)
+        internal MediaType(string name, params string[] defaultExtensions)
         {
             Guard.NotEmpty(name);
 
@@ -31,25 +37,25 @@
             _map[name] = this;
         }
 
-        public string Name { get; private set; }
+        public string Name { get; }
 
-        public string[] DefaultExtensions { get; private set; }
+        public string[] DefaultExtensions { get; }
 
         public static IEnumerable<string> AllExtensions
             => _defaultExtensionsMap.SelectMany(x => x.Value);
 
-        public override string ToString()
+        public override string? ToString()
             => Name;
 
-        public static implicit operator string(MediaType obj)
-            => obj?.Name;
+        public static implicit operator string?(MediaType obj)
+            => obj.Name;
 
-        public static implicit operator MediaType(string obj)
-            => GetMediaType(obj);
+        public static implicit operator MediaType?(string? obj)
+            => FromString(obj);
 
-        internal static MediaType GetMediaType(string name)
+        public static MediaType? FromString(string? name)
         {
-            if (name.IsEmpty())
+            if (string.IsNullOrEmpty(name))
             {
                 return null;
             }
@@ -62,20 +68,14 @@
             return null;
         }
 
-        public override bool Equals(object obj)
-        {
-            if (obj is null)
-                return false;
-
-            if (ReferenceEquals(this, obj))
-                return true;
-
-            return obj.GetType() == GetType() && Equals((MediaType)obj);
-        }
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool Equals(object? obj)
+            => obj is MediaType other && Equals(other);
 
         public bool Equals(MediaType other)
-            => string.Equals(Name, other.Name);
+            => Name?.Equals(other.Name) ?? false;
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode()
             => Name?.GetHashCode() ?? 0;
     }

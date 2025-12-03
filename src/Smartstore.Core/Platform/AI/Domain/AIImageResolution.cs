@@ -1,7 +1,7 @@
 ﻿#nullable enable
 
 using System.ComponentModel;
-using System.Globalization;
+using Smartstore.ComponentModel;
 
 namespace Smartstore.Core.AI
 {
@@ -13,8 +13,8 @@ namespace Smartstore.Core.AI
     /// APIs. This struct provides value-based equality and can be compared using the equality operators. The string
     /// representation of the resolution can be obtained using the ToString method.
     /// </remarks>
-    [TypeConverter(typeof(AIImageResolutionConverter))]
-    public readonly partial struct AIImageResolution : IEquatable<AIImageResolution>
+    [TypeConverter(typeof(StringBackedTypeConverter<AIImageResolution>))]
+    public readonly partial struct AIImageResolution : IStringBacked<AIImageResolution>, IEquatable<AIImageResolution>
     {
         private readonly string _value;
         
@@ -52,6 +52,9 @@ namespace Smartstore.Core.AI
             => obj._value;
 
         public static implicit operator AIImageResolution?(string? value)
+            => FromString(value);
+
+        public static AIImageResolution? FromString(string? value)
         {
             if (value == null) return null;
             return value switch
@@ -82,29 +85,5 @@ namespace Smartstore.Core.AI
 
         public override string? ToString() 
             => _value;
-    }
-
-    internal class AIImageResolutionConverter : TypeConverter
-    {
-        public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType)
-            => sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
-
-        public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)
-        {
-            if (value is string str) return (AIImageResolution?)str;
-            return base.ConvertFrom(context, culture, value);
-        }
-        public override bool CanConvertTo(ITypeDescriptorContext? context, Type? destinationType)
-            => destinationType == typeof(string) || base.CanConvertTo(context, destinationType);
-
-        public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType)
-        {
-            if (destinationType == typeof(string) && value is AIImageResolution resolution)
-            {
-                return (string?)resolution;
-            }
-
-            return base.ConvertTo(context, culture, value, destinationType);
-        }
     }
 }

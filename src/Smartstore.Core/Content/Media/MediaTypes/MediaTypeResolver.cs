@@ -59,17 +59,17 @@ namespace Smartstore.Core.Content.Media
             string mediaType = null;
             if (extension.HasValue() && map.TryGetValue(extension.TrimStart('.').ToLower(), out mediaType))
             {
-                return mediaType;
+                return (MediaType)mediaType;
             }
 
             if (mimeType.HasValue())
             {
                 // Get first mime token (e.g. IMAGE/png, VIDEO/mp4 etc.)
                 var mimeGroup = mimeType.Split('/')[0];
-                mediaType = MediaType.GetMediaType(mimeGroup);
+                mediaType = MediaType.FromString(mimeGroup);
             }
 
-            return (MediaType)mediaType ?? MediaType.Binary;
+            return (MediaType?)mediaType ?? MediaType.Binary;
         }
 
         public virtual IEnumerable<string> ParseTypeFilter(string typeFilter)

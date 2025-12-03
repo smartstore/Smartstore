@@ -224,7 +224,7 @@ namespace Smartstore.Core.Catalog.Search
 
         /// <summary>
         /// Checks whether the given alias already exists in the database. 
-        /// An error message is created if so. mThis is relevant for the "Added" and "Modified" states.
+        /// An error message is created if so. This is relevant for the "Added" and "Modified" states.
         /// </summary>
         private async Task<bool> CheckAliasDuplicate<TEntity>(
             IHookedEntity entry,

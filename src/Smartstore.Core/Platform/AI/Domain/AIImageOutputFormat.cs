@@ -1,8 +1,8 @@
 ﻿#nullable enable
 
 using System.ComponentModel;
-using System.Globalization;
 using System.Net.Mime;
+using Smartstore.ComponentModel;
 
 namespace Smartstore.Core.AI
 {
@@ -13,8 +13,8 @@ namespace Smartstore.Core.AI
     /// This type provides implicit conversions to and from string values representing the format name. Only the formats
     /// defined by the static fields are supported; attempting to convert an unknown string will result in an exception.
     /// AIImageOutputFormat is intended for use as a type-safe alternative to raw string format identifiers.</remarks>
-    [TypeConverter(typeof(AIImageOutputFormatConverter))]
-    public readonly partial struct AIImageOutputFormat : IEquatable<AIImageOutputFormat>
+    [TypeConverter(typeof(StringBackedTypeConverter<AIImageOutputFormat>))]
+    public readonly partial struct AIImageOutputFormat : IStringBacked<AIImageOutputFormat>, IEquatable<AIImageOutputFormat>
     {
         private readonly string _value;
         
@@ -39,7 +39,6 @@ namespace Smartstore.Core.AI
         /// </summary>
         public static readonly AIImageOutputFormat Png = new("png", MediaTypeNames.Image.Png);
 
-
         /// <summary>
         /// Represents the JPEG image output format for AI image generation.
         /// </summary>
@@ -60,6 +59,9 @@ namespace Smartstore.Core.AI
             => obj._value;
 
         public static implicit operator AIImageOutputFormat?(string? value)
+            => FromString(value);
+
+        public static AIImageOutputFormat? FromString(string? value)
         {
             if (value == null) return null;
             return value switch
@@ -90,29 +92,5 @@ namespace Smartstore.Core.AI
 
         public override string? ToString() 
             => _value;
-    }
-
-    internal class AIImageOutputFormatConverter : TypeConverter
-    {
-        public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType)
-            => sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
-
-        public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)
-        {
-            if (value is string str) return (AIImageOutputFormat?)str;
-            return base.ConvertFrom(context, culture, value);
-        }
-        public override bool CanConvertTo(ITypeDescriptorContext? context, Type? destinationType)
-            => destinationType == typeof(string) || base.CanConvertTo(context, destinationType);
-
-        public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType)
-        {
-            if (destinationType == typeof(string) && value is AIImageOutputFormat format)
-            {
-                return (string?)format;
-            }
-
-            return base.ConvertTo(context, culture, value, destinationType);
-        }
     }
 }

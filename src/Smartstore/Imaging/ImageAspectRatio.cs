@@ -1,7 +1,7 @@
 ﻿#nullable enable
 
 using System.ComponentModel;
-using System.Globalization;
+using Smartstore.ComponentModel;
 
 namespace Smartstore.Imaging
 {
@@ -12,8 +12,8 @@ namespace Smartstore.Imaging
     /// from a string to create an instance for supported ratios. The struct supports equality comparison and can be
     /// implicitly converted to and from its string representation. Only the listed aspect ratios are supported;
     /// attempting to convert an unsupported string will result in an exception.</remarks>
-    [TypeConverter(typeof(ImageAspectRatioConverter))]
-    public readonly partial struct ImageAspectRatio : IEquatable<ImageAspectRatio>
+    [TypeConverter(typeof(StringBackedTypeConverter<ImageAspectRatio>))]
+    public readonly partial struct ImageAspectRatio : IStringBacked<ImageAspectRatio>, IEquatable<ImageAspectRatio>
     {
         private readonly string _value;
 
@@ -122,6 +122,9 @@ namespace Smartstore.Imaging
         /// Returns null if the input string is null.
         /// </summary>
         public static implicit operator ImageAspectRatio?(string? value)
+            => FromString(value);
+
+        public static ImageAspectRatio? FromString(string? value)
         {
             if (value == null) return null;
 
@@ -152,29 +155,5 @@ namespace Smartstore.Imaging
 
         public override string? ToString() 
             => _value;
-    }
-
-    internal class ImageAspectRatioConverter : TypeConverter
-    {
-        public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType)
-            => sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
-
-        public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)
-        {
-            if (value is string str) return (ImageAspectRatio?)str;
-            return base.ConvertFrom(context, culture, value);
-        }
-        public override bool CanConvertTo(ITypeDescriptorContext? context, Type? destinationType)
-            => destinationType == typeof(string) || base.CanConvertTo(context, destinationType);
-
-        public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType)
-        {
-            if (destinationType == typeof(string) && value is ImageAspectRatio ratio)
-            {
-                return (string?)ratio;
-            }
-
-            return base.ConvertTo(context, culture, value, destinationType);
-        }
     }
 }
