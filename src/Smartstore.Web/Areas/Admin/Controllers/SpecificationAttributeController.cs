@@ -243,22 +243,29 @@ namespace Smartstore.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                var mapper = MapperFactory.GetMapper<SpecificationAttributeModel, SpecificationAttribute>();
-                var attribute = await mapper.MapAsync(model);
-                _db.SpecificationAttributes.Add(attribute);
+                try
+                {
+                    var mapper = MapperFactory.GetMapper<SpecificationAttributeModel, SpecificationAttribute>();
+                    var attribute = await mapper.MapAsync(model);
+                    _db.SpecificationAttributes.Add(attribute);
 
-                await _db.SaveChangesAsync();
+                    await _db.SaveChangesAsync();
 
-                await _collectionGroupService.ApplyCollectionGroupNameAsync(attribute, model.CollectionGroupName);
-                await ApplyLocales(model, attribute);
-                await _db.SaveChangesAsync();
+                    await _collectionGroupService.ApplyCollectionGroupNameAsync(attribute, model.CollectionGroupName);
+                    await ApplyLocales(model, attribute);
+                    await _db.SaveChangesAsync();
 
-                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.AddNewSpecAttribute, T("ActivityLog.AddNewSpecAttribute"), attribute.Name);
-                NotifySuccess(T("Admin.Catalog.Attributes.SpecificationAttributes.Added"));
+                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.AddNewSpecAttribute, T("ActivityLog.AddNewSpecAttribute"), attribute.Name);
+                    NotifySuccess(T("Admin.Catalog.Attributes.SpecificationAttributes.Added"));
 
-                return continueEditing
-                    ? RedirectToAction(nameof(Edit), new { id = attribute.Id })
-                    : RedirectToAction(nameof(List));
+                    return continueEditing
+                        ? RedirectToAction(nameof(Edit), new { id = attribute.Id })
+                        : RedirectToAction(nameof(List));
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
             }
 
             return View(model);
@@ -303,20 +310,27 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                var mapper = MapperFactory.GetMapper<SpecificationAttributeModel, SpecificationAttribute>();
-                await mapper.MapAsync(model, attribute);
+                try
+                {
+                    var mapper = MapperFactory.GetMapper<SpecificationAttributeModel, SpecificationAttribute>();
+                    await mapper.MapAsync(model, attribute);
 
-                await _collectionGroupService.ApplyCollectionGroupNameAsync(attribute, model.CollectionGroupName);
-                await ApplyLocales(model, attribute);
+                    await _collectionGroupService.ApplyCollectionGroupNameAsync(attribute, model.CollectionGroupName);
+                    await ApplyLocales(model, attribute);
 
-                await _db.SaveChangesAsync();
+                    await _db.SaveChangesAsync();
 
-                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditSpecAttribute, T("ActivityLog.EditSpecAttribute"), attribute.Name);
-                NotifySuccess(T("Admin.Catalog.Attributes.SpecificationAttributes.Updated"));
+                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditSpecAttribute, T("ActivityLog.EditSpecAttribute"), attribute.Name);
+                    NotifySuccess(T("Admin.Catalog.Attributes.SpecificationAttributes.Updated"));
 
-                return continueEditing
-                    ? RedirectToAction(nameof(Edit), attribute.Id)
-                    : RedirectToAction(nameof(List));
+                    return continueEditing
+                        ? RedirectToAction(nameof(Edit), attribute.Id)
+                        : RedirectToAction(nameof(List));
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
             }
 
             return View(model);

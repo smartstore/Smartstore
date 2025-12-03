@@ -188,21 +188,28 @@ namespace Smartstore.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                var mapper = MapperFactory.GetMapper<ProductAttributeModel, ProductAttribute>();
-                var attribute = await mapper.MapAsync(model);
-                _db.ProductAttributes.Add(attribute);
+                try
+                {
+                    var mapper = MapperFactory.GetMapper<ProductAttributeModel, ProductAttribute>();
+                    var attribute = await mapper.MapAsync(model);
+                    _db.ProductAttributes.Add(attribute);
 
-                await _db.SaveChangesAsync();
+                    await _db.SaveChangesAsync();
 
-                await ApplyLocales(model, attribute);
-                await _db.SaveChangesAsync();
+                    await ApplyLocales(model, attribute);
+                    await _db.SaveChangesAsync();
 
-                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.AddNewProductAttribute, T("ActivityLog.AddNewProductAttribute"), attribute.Name);
-                NotifySuccess(T("Admin.Catalog.Attributes.ProductAttributes.Added"));
+                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.AddNewProductAttribute, T("ActivityLog.AddNewProductAttribute"), attribute.Name);
+                    NotifySuccess(T("Admin.Catalog.Attributes.ProductAttributes.Added"));
 
-                return continueEditing
-                    ? RedirectToAction(nameof(Edit), new { id = attribute.Id })
-                    : RedirectToAction(nameof(List));
+                    return continueEditing
+                        ? RedirectToAction(nameof(Edit), new { id = attribute.Id })
+                        : RedirectToAction(nameof(List));
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
             }
 
             return View(model);
@@ -242,19 +249,26 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                var mapper = MapperFactory.GetMapper<ProductAttributeModel, ProductAttribute>();
-                await mapper.MapAsync(model, attribute);
+                try
+                {
+                    var mapper = MapperFactory.GetMapper<ProductAttributeModel, ProductAttribute>();
+                    await mapper.MapAsync(model, attribute);
 
-                await ApplyLocales(model, attribute);
+                    await ApplyLocales(model, attribute);
 
-                await _db.SaveChangesAsync();
+                    await _db.SaveChangesAsync();
 
-                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditProductAttribute, T("ActivityLog.EditProductAttribute"), attribute.Name);
-                NotifySuccess(T("Admin.Catalog.Attributes.ProductAttributes.Updated"));
+                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditProductAttribute, T("ActivityLog.EditProductAttribute"), attribute.Name);
+                    NotifySuccess(T("Admin.Catalog.Attributes.ProductAttributes.Updated"));
 
-                return continueEditing
-                    ? RedirectToAction(nameof(Edit), attribute.Id)
-                    : RedirectToAction(nameof(List));
+                    return continueEditing
+                        ? RedirectToAction(nameof(Edit), attribute.Id)
+                        : RedirectToAction(nameof(List));
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
             }
 
             return View(model);

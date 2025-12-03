@@ -175,9 +175,16 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            _db.EmailAccounts.Remove(emailAccount);
-            await _db.SaveChangesAsync();
-            NotifySuccess(T("Admin.Configuration.EmailAccounts.Deleted"));
+            try
+            {
+                _db.EmailAccounts.Remove(emailAccount);
+                await _db.SaveChangesAsync();
+                NotifySuccess(T("Admin.Configuration.EmailAccounts.Deleted"));
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex);
+            }
 
             return RedirectToAction(nameof(List));
         }

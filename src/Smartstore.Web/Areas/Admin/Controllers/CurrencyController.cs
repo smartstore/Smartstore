@@ -92,9 +92,16 @@ namespace Smartstore.Admin.Controllers
 
             if (currency != null)
             {
-                await MapperFactory.MapAsync(model, currency);
-                await _db.SaveChangesAsync();
-                success = true;
+                try
+                {
+                    await MapperFactory.MapAsync(model, currency);
+                    await _db.SaveChangesAsync();
+                    success = true;
+                }
+                catch (Exception ex)
+                {
+                    NotifyError(ex);
+                }
             }
 
             return Json(new { success });
@@ -269,19 +276,26 @@ namespace Smartstore.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                var currency = await MapperFactory.MapAsync<CurrencyModel, Currency>(model);
-                _db.Currencies.Add(currency);
-                await _db.SaveChangesAsync();
+                try
+                {
+                    var currency = await MapperFactory.MapAsync<CurrencyModel, Currency>(model);
+                    _db.Currencies.Add(currency);
+                    await _db.SaveChangesAsync();
 
-                await UpdateLocalesAsync(currency, model);
-                await _storeMappingService.ApplyStoreMappingsAsync(currency, model.SelectedStoreIds);
-                await _db.SaveChangesAsync();
+                    await UpdateLocalesAsync(currency, model);
+                    await _storeMappingService.ApplyStoreMappingsAsync(currency, model.SelectedStoreIds);
+                    await _db.SaveChangesAsync();
 
-                NotifySuccess(T("Admin.Configuration.Currencies.Added"));
+                    NotifySuccess(T("Admin.Configuration.Currencies.Added"));
 
-                return continueEditing
-                    ? RedirectToAction(nameof(Edit), new { id = currency.Id })
-                    : RedirectToAction(nameof(List));
+                    return continueEditing
+                        ? RedirectToAction(nameof(Edit), new { id = currency.Id })
+                        : RedirectToAction(nameof(List));
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
             }
 
             await PrepareCurrencyModelAsync(model, null, true);
@@ -326,7 +340,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     await MapperFactory.MapAsync(model, currency);
 
-                    currency.DomainEndings = string.Join(",", model.DomainEndingsArray ?? Array.Empty<string>());
+                    currency.DomainEndings = string.Join(',', model.DomainEndingsArray ?? []);
 
                     await UpdateLocalesAsync(currency, model);
                     await _storeMappingService.ApplyStoreMappingsAsync(currency, model.SelectedStoreIds);
@@ -340,7 +354,7 @@ namespace Smartstore.Admin.Controllers
                 }
                 catch (Exception ex)
                 {
-                    NotifyError(ex);
+                    ModelState.AddModelError(string.Empty, ex.Message);
                 }
             }
 

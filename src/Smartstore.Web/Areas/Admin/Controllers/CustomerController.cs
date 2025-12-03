@@ -939,7 +939,7 @@ namespace Smartstore.Admin.Controllers
             }
             catch (Exception ex)
             {
-                NotifyError(ex.Message);
+                NotifyError(ex);
                 return RedirectToAction(nameof(Edit), new { id });
             }
         }
@@ -948,10 +948,18 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Customer.Delete)]
         public async Task<IActionResult> CustomerDelete(GridSelection selection)
         {
-            var result = await _customerService.DeleteCustomersAsync([.. selection.GetEntityIds()]);
-            ProcessDeletionResult(result);
+            try
+            {
+                var result = await _customerService.DeleteCustomersAsync([.. selection.GetEntityIds()]);
+                ProcessDeletionResult(result);
 
-            return Json(new { Success = true, Count = result.NumDeleted });
+                return Json(new { Success = true, Count = result.NumDeleted });
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex);
+                return Json(new { Success = false });
+            }
         }
 
         private void ProcessDeletionResult(CustomerDeletionResult result)
