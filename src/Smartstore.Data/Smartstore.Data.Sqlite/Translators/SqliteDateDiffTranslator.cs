@@ -80,7 +80,7 @@ namespace Smartstore.Data.Sqlite.Translators
                 "JULIANDAY",
                 new[] { argument },
                 nullable: true,
-                argumentsPropagateNullability: new[] { false, true },
+                argumentsPropagateNullability: new[] { true },
                 typeof(double?),
                 _typeMappingSource.FindMapping(typeof(double?)));
         }
