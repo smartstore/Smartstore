@@ -140,6 +140,7 @@
 	- Fixed streaming problem if the original HTML contains comments.
 	- Fixed streaming problem with HTML entities (e.g. &amp;)
 - Link builder: The editor displayed an URL with an attached link target.
+- #1444 SQLite throws "'JULIANDAY' was constructed with 1 arguments, but the nullability was defined for 2 arguments"
 
 
 ## Smartstore 6.2.0
