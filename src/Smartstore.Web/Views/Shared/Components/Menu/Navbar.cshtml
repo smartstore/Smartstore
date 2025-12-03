@@ -120,7 +120,7 @@
                 </a>
                 @if (item.BadgeText.HasValue())
                 {
-                    <span class="badge badge-@(((BadgeStyle)item.BadgeStyle).ToString().ToLower())" attrs="item.BadgeHtmlAttributes">
+                    <span class="badge badge-@(((BadgeStyle)item.BadgeStyle).ToString().ToLower())" attrs="item.BadgeHtmlAttributes" style="--badge-content-shift: 0px">
                         @item.BadgeText
                     </span>
                 }
