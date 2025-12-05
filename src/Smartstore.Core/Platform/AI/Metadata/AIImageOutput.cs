@@ -33,8 +33,33 @@ namespace Smartstore.Core.AI.Metadata
         /// </summary>
         public string[]? Formats { get; set; }
 
-        public ImageAspectRatio FindSupportedAspectRatio(ImageAspectRatio? attemptedRatio, ImageOrientation defaultOrientation)
+        /// <summary>
+        /// Gets the default aspect ratio for this model instance.
+        /// </summary>
+        public string? DefaultAspectRatio { get; set; }
+
+        /// <summary>
+        /// Gets the default resolution for this model instance.
+        /// </summary>
+        public string? DefaultResolution { get; set; }
+
+        /// <summary>
+        /// Gets the default image format for this model instance.
+        /// </summary>
+        public string? DefaultFormat { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether default values should be omitted during API calls.
+        /// </summary>
+        public bool OmitDefault { get; set; }
+
+        public ImageAspectRatio FindSupportedAspectRatio(
+            ImageAspectRatio? attemptedRatio, 
+            ImageOrientation defaultOrientation, 
+            out bool isDefault)
         {
+            isDefault = false;
+
             string[] supportedRatios = AspectRatios.IsNullOrEmpty() ? Default.AspectRatios! : AspectRatios!;
 
             // Check if the attempted ratio is supported
@@ -43,8 +68,16 @@ namespace Smartstore.Core.AI.Metadata
                 var ratio = attemptedRatio.Value;
                 if (supportedRatios.Contains(ratio.Value))
                 {
+                    isDefault = ratio.Value == DefaultAspectRatio || supportedRatios.Length == 1;
                     return ratio;
                 }
+            }
+
+            // First check if DefaultAspectRatio meets Orientation
+            if (DefaultAspectRatio != null && ((ImageAspectRatio)DefaultAspectRatio!).Orientation == defaultOrientation)
+            {
+                isDefault = true;
+                return (ImageAspectRatio)DefaultAspectRatio!;
             }
 
             // Find a ratio that matches the default orientation
@@ -53,11 +86,15 @@ namespace Smartstore.Core.AI.Metadata
                 ImageAspectRatio? ratio = ratioStr;
                 if (ratio?.Orientation == defaultOrientation)
                 {
+                    isDefault = ratio.Value == DefaultAspectRatio || supportedRatios.Length == 1;
                     return ratio.Value;
                 }
             }
 
-            return (ImageAspectRatio)supportedRatios[0]!;
+            isDefault = true;
+            var defaultRatio = DefaultAspectRatio ?? supportedRatios[0];
+
+            return (ImageAspectRatio)defaultRatio!;
         }
 
         /// <summary>
@@ -69,8 +106,9 @@ namespace Smartstore.Core.AI.Metadata
         /// supported format is returned.</param>
         /// <returns>The supported image output format. If <paramref name="attemptedFormat"/> is not specified or is not
         /// supported, the first format in the supported formats list is returned.</returns>
-        public AIImageOutputFormat FindSupportedFormat(AIImageOutputFormat? attemptedFormat)
+        public AIImageOutputFormat FindSupportedFormat(AIImageOutputFormat? attemptedFormat, out bool isDefault)
         {
+            isDefault = false;
             string[] supportedFormats = Formats.IsNullOrEmpty() ? Default.Formats! : Formats!;
 
             if (attemptedFormat.HasValue)
@@ -78,11 +116,15 @@ namespace Smartstore.Core.AI.Metadata
                 var format = attemptedFormat.Value;
                 if (supportedFormats.Contains(format.Value))
                 {
+                    isDefault = format.Value == DefaultFormat || supportedFormats.Length == 1;
                     return format;
                 }
             }
 
-            return (AIImageOutputFormat)supportedFormats[0]!;
+            isDefault = true;
+            var defaultFormat = DefaultFormat ?? supportedFormats[0];
+
+            return (AIImageOutputFormat)defaultFormat!;
         }
 
         /// <summary>
@@ -95,8 +137,9 @@ namespace Smartstore.Core.AI.Metadata
         /// <param name="attemptedResolution">The resolution to attempt, or <see langword="null"/> to use the default resolution.</param>
         /// <returns>The supported resolution that matches the attempted resolution, if found;  otherwise, the default
         /// resolution.</returns>
-        public AIImageResolution FindSupportedResolution(AIImageResolution? attemptedResolution)
+        public AIImageResolution FindSupportedResolution(AIImageResolution? attemptedResolution, out bool isDefault)
         {
+            isDefault = false;
             string[] supportedResolutions = Resolutions.IsNullOrEmpty() ? Default.Resolutions! : Resolutions!;
 
             if (attemptedResolution.HasValue)
@@ -104,11 +147,15 @@ namespace Smartstore.Core.AI.Metadata
                 var resolution = attemptedResolution.Value;
                 if (supportedResolutions.Contains(resolution.Value))
                 {
+                    isDefault = resolution.Value == DefaultResolution || supportedResolutions.Length == 1;
                     return resolution;
                 }
             }
 
-            return (AIImageResolution)supportedResolutions[0]!;
+            isDefault = true;
+            var defaultResolution = DefaultResolution ?? supportedResolutions[0];
+
+            return (AIImageResolution)defaultResolution!;
         }
     }
 }
