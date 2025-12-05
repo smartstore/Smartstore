@@ -16,7 +16,7 @@ namespace Smartstore.Core.AI.Metadata
         /// <summary>
         /// Gets the default configuration for AI image output.
         /// </summary>
-        public static AIImageOutput Default => new() { AspectRatios = ["1:1"], Resolutions = ["1K"], Formats = ["png"] };
+        public static AIImageOutput Default => new() { AspectRatios = ["1:1"], Resolutions = ["1K"], Formats = ["jpeg"] };
 
         /// <summary>
         /// Gets an array of supported aspect ratios. Default: 1:1.
