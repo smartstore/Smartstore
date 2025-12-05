@@ -271,7 +271,7 @@ namespace Smartstore.Scheduling
             else if ((int)statusCode < 500)
             {
                 // Any internal server error (>= 500) already handled by middleware
-                msg += " HTTP {0}, {1}".FormatInvariant((int)statusCode, statusCode.Humanize());
+                msg += " HTTP {0}, {1}".FormatInvariant((int)statusCode, statusCode.Value.Humanize());
                 Logger.Error(msg);
             }
         }

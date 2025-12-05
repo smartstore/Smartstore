@@ -23,8 +23,8 @@
         <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
         <PackageReference Include="HtmlSanitizer" Version="8.2.871-beta" />
         <PackageReference Include="LumenWorksCsvReader" Version="4.0.0" />
-        <PackageReference Include="MaxMind.Db" Version="4.2.0" />
-        <PackageReference Include="MaxMind.GeoIP2" Version="5.3.0" />
+        <PackageReference Include="MaxMind.Db" Version="4.3.4" />
+        <PackageReference Include="MaxMind.GeoIP2" Version="5.4.1" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.11" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.11" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.11" />

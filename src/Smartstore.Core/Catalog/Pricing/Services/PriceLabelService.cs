@@ -1,5 +1,4 @@
 ﻿using Humanizer;
-using Humanizer.Localisation;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -64,7 +63,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
         public virtual PriceLabel GetComparePriceLabel(Product product)
         {
-            Guard.NotNull(product, nameof(product));
+            Guard.NotNull(product);
 
             var labelId = product.ComparePriceLabelId.GetValueOrDefault();
             if (labelId == 0)
@@ -87,7 +86,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
         public virtual (LocalizedValue<string>, string) GetPricePromoBadge(CalculatedPrice price)
         {
-            Guard.NotNull(price, nameof(price));
+            Guard.NotNull(price);
             
             if (!price.Saving.HasSaving || price.RegularPrice == null)
             {
