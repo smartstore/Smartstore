@@ -37,6 +37,9 @@
     <div class="canvas-blocker canvas-slidable"></div>
 
     <div class="page-main canvas-slidable">
+        <zone name="page-start"></zone>
+
+        <zone name="topbar"></zone>
 
         <header id="header" zone-name="header" replace-content="true">
             <div class="menubar-section d-none d-lg-block @(Display.GetThemeVariable<bool>("inverse-menubar") ? "menubar-inverse" : "menubar-light")">
