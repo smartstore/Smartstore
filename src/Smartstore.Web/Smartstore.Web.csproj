@@ -17,15 +17,15 @@
 		<PackageReference Include="Azure.Core" Version="1.50.0" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.11" />
-		<PackageReference Include="Microsoft.Build.Tasks.Core" Version="17.14.28" />
+		<PackageReference Include="Microsoft.Build.Tasks.Core" Version="18.0.2" />
 		<PackageReference Include="Microsoft.ClearScript.V8" Version="7.5.0" />
 		<PackageReference Include="Microsoft.ClearScript.V8.Native.linux-x64" Version="7.5.0" />
 		<PackageReference Include="Microsoft.ClearScript.V8.Native.osx-x64" Version="7.5.0" />
 		<PackageReference Include="Microsoft.ClearScript.V8.Native.win-x64" Version="7.5.0" />
 		<PackageReference Include="Microsoft.ClearScript.V8.Native.win-x86" Version="7.5.0" />
-		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.14.0" />
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.14.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="5.0.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.0.0" />
         <PackageReference Include="Microsoft.CodeAnalysis.Razor" Version="6.0.36" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.Extensions" Version="6.0.36" />
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.3" />
@@ -33,8 +33,8 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-        <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.14.0" />
-        <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.14.0">
+        <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="5.0.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="5.0.0">
             <!-- Prevents BuildHost folders from being copied into the project -->
             <ExcludeAssets>contentFiles</ExcludeAssets>
         </PackageReference>
