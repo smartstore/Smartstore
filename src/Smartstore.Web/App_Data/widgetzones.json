@@ -19,6 +19,7 @@
       "name": "Admin.Common.Global",
       "zones": [
         "start",
+        "header_before",
         "main_column_before",
         "main_column_after",
         "content_before",
