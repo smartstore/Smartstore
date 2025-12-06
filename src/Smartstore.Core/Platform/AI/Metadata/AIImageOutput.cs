@@ -108,7 +108,6 @@ namespace Smartstore.Core.AI.Metadata
         /// supported, the first format in the supported formats list is returned.</returns>
         public AIImageOutputFormat FindSupportedFormat(AIImageOutputFormat? attemptedFormat, out bool isDefault)
         {
-            isDefault = false;
             string[] supportedFormats = Formats.IsNullOrEmpty() ? Default.Formats! : Formats!;
 
             if (attemptedFormat.HasValue)
@@ -139,7 +138,6 @@ namespace Smartstore.Core.AI.Metadata
         /// resolution.</returns>
         public AIImageResolution FindSupportedResolution(AIImageResolution? attemptedResolution, out bool isDefault)
         {
-            isDefault = false;
             string[] supportedResolutions = Resolutions.IsNullOrEmpty() ? Default.Resolutions! : Resolutions!;
 
             if (attemptedResolution.HasValue)
