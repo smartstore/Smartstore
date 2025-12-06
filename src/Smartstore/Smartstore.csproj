@@ -48,7 +48,6 @@
         <PackageReference Include="System.Linq.Async" Version="6.0.3" />
         <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.1" />
         <PackageReference Include="System.Memory.Data" Version="9.0.11" />
-        <PackageReference Include="System.Private.Uri" Version="4.3.2" />
         <PackageReference Include="System.ServiceModel.Syndication" Version="9.0.11" />
     </ItemGroup>
 

@@ -41,7 +41,6 @@
         <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.1" />
         <PackageReference Include="System.Memory.Data" Version="9.0.11" />
         <PackageReference Include="System.ServiceModel.Http" Version="8.1.2" />
-        <PackageReference Include="System.Threading.RateLimiting" Version="9.0.11" />
     </ItemGroup>
 
     <ItemGroup>
