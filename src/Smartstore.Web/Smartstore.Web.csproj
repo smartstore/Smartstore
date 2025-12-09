@@ -94,6 +94,7 @@
         <Content Remove="wwwroot\lib\bi\bootstrap-icons-all.svg" CopyToPublishDirectory="Never" />
         <Content Remove="wwwroot\lib\fontastic\icomoon\**" CopyToPublishDirectory="Never" />
         <Content Remove="wwwroot\exchange\**" CopyToPublishDirectory="Never" />
+        <Content Remove="wwwroot\.well-known\**" CopyToPublishDirectory="Never" />
         <!-- Don't publish README files in wwwroot -->
         <None Include="wwwroot\**\README.md" CopyToPublishDirectory="Never" />
 	</ItemGroup>
