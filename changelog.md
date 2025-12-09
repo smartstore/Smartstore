@@ -1,5 +1,16 @@
 # Release Notes
 
+## Smartstore 6.4.0
+
+### New Features
+
+### Improvements
+
+### Bugfixes
+
+- PostFinance: Fixed issue with TWINT payments regarding environment selection strategy.
+
+
 ## Smartstore 6.3.0
 
 ### Breaking Changes
