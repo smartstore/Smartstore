@@ -8,7 +8,7 @@ REM Script location: /build
 REM Compatible with Windows PowerShell 5.1
 REM ============================================================
 
-set "APP_VERSION=6.2.0"
+set "APP_VERSION=6.3.0"
 set "APP_EDITION=Community"
 
 set "ROOT_DIR=%~dp0.."
