@@ -248,7 +248,7 @@ namespace Smartstore.Web.Controllers
                 break;
             }
 
-            if (!product.Deleted)
+            if (!product.Deleted && !product.IsSystemProduct)
             {
                 model.ProductUrl = await _productUrlHelper.GetProductPathAsync(orderItem.ProductId, model.ProductSeName, orderItem.AttributeSelection);
             }

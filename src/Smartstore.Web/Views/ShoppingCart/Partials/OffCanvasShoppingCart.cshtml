@@ -57,13 +57,20 @@
                             </a>
                         </div>
                         <div class="col col-data">
-                            <a id="cart-item-link-@(item.Id)"
-                               class="name fwm link-body link-dnu" 
-                               href="@item.ProductUrl" 
-                               title="@item.ProductName" 
-                               sm-language-attributes-for="item.ProductName">
-                                @item.ProductName
-                            </a>
+                            @if (item.ProductUrl.HasValue())
+                            {
+                                <a id="cart-item-link-@(item.Id)"
+                                   class="name fwm link-body link-dnu" 
+                                   href="@item.ProductUrl" 
+                                   title="@item.ProductName" 
+                                   sm-language-attributes-for="item.ProductName">
+                                    @item.ProductName
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="name fwm" sm-language-attributes-for="item.ProductName">@item.ProductName</span>
+                            }
 
                             <div class="short-desc text-muted" sm-language-attributes-for="item.ShortDesc">
                                 @Html.Raw(item.ShortDesc.Value.Truncate(descMaxLength, "…"))

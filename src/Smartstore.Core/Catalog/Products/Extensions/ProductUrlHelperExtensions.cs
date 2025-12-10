@@ -64,6 +64,11 @@ namespace Smartstore.Core.Catalog.Products
             Guard.NotNull(helper);
             Guard.NotNull(product);
 
+            if (product.IsSystemProduct)
+            {
+                return null;
+            }
+
             return helper.GetProductUrl(product.Id, await product.GetActiveSlugAsync(), 0, variantValues);
         }
 
@@ -79,8 +84,13 @@ namespace Smartstore.Core.Catalog.Products
             Guard.NotNull(helper);
             Guard.NotNull(cartItem);
 
-            var query = new ProductVariantQuery();
             var product = cartItem.Item.Product;
+            if (product.IsSystemProduct)
+            {
+                return null;
+            }
+
+            var query = new ProductVariantQuery();
 
             if (product.ProductType != ProductType.BundledProduct)
             {
@@ -108,6 +118,12 @@ namespace Smartstore.Core.Catalog.Products
         {
             Guard.NotNull(helper);
             Guard.NotNull(orderItem);
+            Guard.NotNull(orderItem.Product);
+
+            if (orderItem.Product.IsSystemProduct)
+            {
+                return null;
+            }
 
             var query = new ProductVariantQuery();
 

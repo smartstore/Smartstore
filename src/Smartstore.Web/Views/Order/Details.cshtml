@@ -126,7 +126,7 @@
                                 @(item.Quantity)&nbsp;&#215;
                             </span>
 
-                            @if (item.VisibleIndividually)
+                            @if (item.VisibleIndividually && item.ProductUrl.HasValue())
                             {
                                 <a class="cart-item-link" href="@item.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="item.ProductName">
                                     @item.ProductName
@@ -134,7 +134,7 @@
                             }
                             else
                             {
-                                <span sm-language-attributes-for="item.ProductName">@item.ProductName</span>
+                                <span class="product-name" sm-language-attributes-for="item.ProductName">@item.ProductName</span>
                             }
                         </div>
                     </div>

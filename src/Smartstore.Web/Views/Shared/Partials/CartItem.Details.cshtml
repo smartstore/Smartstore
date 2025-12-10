@@ -38,7 +38,14 @@
     </div>
 
     <div class="cart-item-title">
-        <a id="cart-item-link-@(Model.Id)" class="cart-item-link" href="@Model.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="Model.ProductName">@Model.ProductName</a>
+        @if (Model.ProductUrl.HasValue())
+        {
+            <a id="cart-item-link-@(Model.Id)" class="cart-item-link" href="@Model.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="Model.ProductName">@Model.ProductName</a>
+        }
+        else
+        {
+            <span class="product-name" sm-language-attributes-for="Model.ProductName">@Model.ProductName</span>
+        }
     </div>
 
     @if (Model.ShowShortDesc)
