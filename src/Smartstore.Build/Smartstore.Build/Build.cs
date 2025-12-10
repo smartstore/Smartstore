@@ -205,7 +205,7 @@ class Build : NukeBuild
 
     void EnsureSbomTool()
     {
-        FileSystemTasks.EnsureExistingDirectory(ToolsDirectory);
+        ToolsDirectory.CreateDirectory();
 
         if (File.Exists(SbomToolPath))
         {
