@@ -144,7 +144,8 @@ class Build : NukeBuild
                 throw new Exception($"Published output for {publishName} not found in {ArtifactsDirectory}.");
             }
 
-            AbsolutePath manifestDirectory = publishDirectory / "_manifest";
+            AbsolutePath manifestRootDirectory = publishDirectory;
+            AbsolutePath manifestDirectory = manifestRootDirectory / "_manifest";
             AbsolutePath generatedManifest = manifestDirectory / "spdx_2.2" / "manifest.spdx.json";
             AbsolutePath sbomDirectory = publishDirectory / "sbom";
             AbsolutePath sbomFile = sbomDirectory / "manifest.spdx.json";
@@ -153,7 +154,7 @@ class Build : NukeBuild
 
             manifestDirectory.CreateOrCleanDirectory();
 
-            var arguments = string.Join(" ", new[]
+            var arguments = string.Join(" ", new string[]
             {
                 "generate",
                 "-b", publishDirectory,
@@ -162,7 +163,7 @@ class Build : NukeBuild
                 "-nsb", "https://smartstore.com",
                 "-pn", "Smartstore",
                 "-pv", Version,
-                "-m", manifestDirectory
+                "-m", manifestRootDirectory
             }.Select(x => $"\"{x}\""));
 
             ProcessTasks.StartProcess(SbomToolPath, arguments)
