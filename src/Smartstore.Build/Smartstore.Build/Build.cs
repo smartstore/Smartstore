@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.IO.Compression;
-using System.Text.Json;
 using System.Linq;
 using Nuke.Common;
 using Nuke.Common.CI;
@@ -145,8 +144,9 @@ class Build : NukeBuild
             }
 
             AbsolutePath manifestDirectory = publishDirectory / "_manifest";
-            AbsolutePath generatedManifest = manifestDirectory / "manifest.spdx.json";
-            AbsolutePath sbomFile = publishDirectory / $"Smartstore.{publishName}.sbom.json";
+            AbsolutePath generatedManifest = manifestDirectory / "spdx_2.2" / "manifest.spdx.json";
+            AbsolutePath sbomDirectory = publishDirectory / "sbom";
+            AbsolutePath sbomFile = sbomDirectory / "manifest.spdx.json";
 
             Log.Information($"Generating SBOM for {publishName} using Microsoft SBOM Tool...");
 
@@ -172,8 +172,8 @@ class Build : NukeBuild
                 throw new Exception($"SBOM manifest not found at {generatedManifest}.");
             }
 
+            sbomDirectory.CreateOrCleanDirectory();
             File.Copy(generatedManifest, sbomFile, overwrite: true);
-            PrettifyJson(sbomFile);
         });
 
     Target Zip => _ => _
@@ -216,22 +216,6 @@ class Build : NukeBuild
 
         Log.Information("Installing Microsoft SBOM Tool dotnet tool...");
         DotNet($"tool install --tool-path \"{ToolsDirectory}\" {SbomToolPackage} --version {SbomToolVersion}");
-    }
-
-    void PrettifyJson(AbsolutePath file)
-    {
-        if (!File.Exists(file))
-        {
-            throw new Exception($"SBOM file not found: {file}");
-        }
-
-        Log.Information("Prettifying SBOM JSON output...");
-
-        var content = File.ReadAllText(file);
-        using var document = JsonDocument.Parse(content);
-        var formatted = JsonSerializer.Serialize(document.RootElement, new JsonSerializerOptions { WriteIndented = true });
-
-        File.WriteAllText(file, formatted);
     }
 
 }
