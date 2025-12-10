@@ -1,1 +1,6 @@
-# dev-docs
+---
+icon: bolt-lightning
+---
+
+# Getting Started
+

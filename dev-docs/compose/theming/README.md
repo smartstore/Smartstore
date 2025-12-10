@@ -1,2 +1,6 @@
+---
+icon: palette
+---
+
 # Theming
 
