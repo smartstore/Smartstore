@@ -1,11 +1,13 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using Nuke.Common;
 using Nuke.Common.CI;
 using Nuke.Common.Git;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
+using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
 using Serilog;
@@ -45,6 +47,10 @@ class Build : NukeBuild
     AbsolutePath SourceDirectory => RootDirectory / "src";
     AbsolutePath TestsDirectory => RootDirectory / "test";
     AbsolutePath ArtifactsDirectory => RootDirectory / "build" / "artifacts";
+    AbsolutePath ToolsDirectory => RootDirectory / "build" / ".tools";
+    AbsolutePath SbomToolPath => ToolsDirectory / (EnvironmentInfo.Platform == PlatformFamily.Windows ? "sbom-tool.exe" : "sbom-tool");
+    const string SbomToolPackage = "Microsoft.Sbom.DotNetTool";
+    const string SbomToolVersion = "4.1.4";
 
     string GetPublishName()
     {
@@ -97,7 +103,7 @@ class Build : NukeBuild
 
     Target Deploy => _ => _
         .DependsOn(Compile)
-        .Triggers(Zip)
+        .Triggers(Zip, GenerateSbom)
         .Executes(() =>
         {
             var publishName = GetPublishName();
@@ -121,6 +127,72 @@ class Build : NukeBuild
                 //.SetPublishSingleFile(true)
                 //.SetNoBuild(true)
                 .SetOutput(outputDir));
+        });
+
+    Target GenerateSbom => _ => _
+        .DependsOn(Deploy)
+        .Executes(() =>
+        {
+            EnsureSbomTool();
+
+            var publishName = GetPublishName();
+            AbsolutePath publishDirectory = ArtifactsDirectory / publishName;
+            AbsolutePath buildComponentDirectory = SourceDirectory;
+
+            if (!publishDirectory.DirectoryExists())
+            {
+                throw new Exception($"Published output for {publishName} not found in {ArtifactsDirectory}.");
+            }
+
+            AbsolutePath manifestRootDirectory = publishDirectory;
+            AbsolutePath manifestDirectory = manifestRootDirectory / "_manifest";
+            AbsolutePath generatedManifestDirectory = manifestDirectory / "spdx_2.2";
+            AbsolutePath generatedManifest = generatedManifestDirectory / "manifest.spdx.json";
+            AbsolutePath sbomDirectory = publishDirectory / "sbom";
+            AbsolutePath sbomFile = sbomDirectory / "manifest.spdx.json";
+
+            Log.Information($"Generating SBOM for {publishName} using Microsoft SBOM Tool...");
+
+            manifestDirectory.CreateOrCleanDirectory();
+
+            var exclusions = string.Join(';', new string[]
+            {
+                "*.cshtml",
+                "*.scss",
+                "*.css",
+                "*.png",
+                "*.gif",
+                "*.jpg"
+            });
+
+            var arguments = string.Join(" ", new string[]
+            {
+                "generate",
+                "-b", publishDirectory,
+                "-bc", buildComponentDirectory,
+                "-ps", "Smartstore",
+                "-nsb", "https://smartstore.com",
+                "-pn", "Smartstore",
+                "-pv", Version,
+                "-m", manifestRootDirectory,
+                "-e", exclusions
+            }.Select(x => $"\"{x}\""));
+
+            ProcessTasks.StartProcess(SbomToolPath, arguments)
+                .AssertZeroExitCode();
+
+            if (!File.Exists(generatedManifest))
+            {
+                throw new Exception($"SBOM manifest not found at {generatedManifest}.");
+            }
+
+            sbomDirectory.CreateOrCleanDirectory();
+            File.Copy(generatedManifest, sbomFile, overwrite: true);
+
+            if (Directory.Exists(generatedManifestDirectory))
+            {
+                Directory.Delete(generatedManifestDirectory, recursive: true);
+            }
         });
 
     Target Zip => _ => _
@@ -151,5 +223,18 @@ class Build : NukeBuild
                 .SetProjectFile(Solution)
                 .SetConfiguration(Configuration));
         });
+
+    void EnsureSbomTool()
+    {
+        ToolsDirectory.CreateDirectory();
+
+        if (File.Exists(SbomToolPath))
+        {
+            return;
+        }
+
+        Log.Information("Installing Microsoft SBOM Tool dotnet tool...");
+        DotNet($"tool install --tool-path \"{ToolsDirectory}\" {SbomToolPackage} --version {SbomToolVersion}");
+    }
 
 }
