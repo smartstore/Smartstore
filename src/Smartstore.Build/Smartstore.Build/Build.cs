@@ -50,6 +50,8 @@ class Build : NukeBuild
     AbsolutePath ArtifactsDirectory => RootDirectory / "build" / "artifacts";
     AbsolutePath ToolsDirectory => RootDirectory / "build" / ".tools";
     AbsolutePath SbomToolPath => ToolsDirectory / (EnvironmentInfo.Platform == PlatformFamily.Windows ? "sbom-tool.exe" : "sbom-tool");
+    const string SbomToolPackage = "microsoft.sbom.tool";
+    const string SbomToolVersion = "1.2.0";
 
     string GetPublishName()
     {
@@ -213,7 +215,7 @@ class Build : NukeBuild
         }
 
         Log.Information("Installing Microsoft SBOM Tool dotnet tool...");
-        DotNet($"tool install --tool-path \"{ToolsDirectory}\" Microsoft.Sbom.Tool");
+        DotNet($"tool install --tool-path \"{ToolsDirectory}\" {SbomToolPackage} --version {SbomToolVersion}");
     }
 
     void PrettifyJson(AbsolutePath file)
