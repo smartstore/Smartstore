@@ -155,6 +155,16 @@ class Build : NukeBuild
 
             manifestDirectory.CreateOrCleanDirectory();
 
+            var exclusions = string.Join(';', new string[]
+            {
+                "*.cshtml",
+                "*.scss",
+                "*.css",
+                "*.png",
+                "*.gif",
+                "*.jpg"
+            });
+
             var arguments = string.Join(" ", new string[]
             {
                 "generate",
@@ -165,12 +175,7 @@ class Build : NukeBuild
                 "-pn", "Smartstore",
                 "-pv", Version,
                 "-m", manifestRootDirectory,
-                "-e", "*.cshtml",
-                "-e", "*.scss",
-                "-e", "*.css",
-                "-e", "*.png",
-                "-e", "*.gif",
-                "-e", "*.jpg"
+                "-e", exclusions
             }.Select(x => $"\"{x}\""));
 
             ProcessTasks.StartProcess(SbomToolPath, arguments)
