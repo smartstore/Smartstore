@@ -27,6 +27,7 @@
         "Clean",
         "Compile",
         "Deploy",
+        "GenerateSbom",
         "Restore",
         "Test",
         "Zip"
