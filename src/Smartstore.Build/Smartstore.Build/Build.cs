@@ -137,6 +137,7 @@ class Build : NukeBuild
 
             var publishName = GetPublishName();
             AbsolutePath publishDirectory = ArtifactsDirectory / publishName;
+            AbsolutePath buildComponentDirectory = SourceDirectory;
 
             if (!publishDirectory.DirectoryExists())
             {
@@ -156,7 +157,7 @@ class Build : NukeBuild
             {
                 "generate",
                 "-b", publishDirectory,
-                "-bc", publishDirectory,
+                "-bc", buildComponentDirectory,
                 "-ps", "Smartstore",
                 "-nsb", "https://smartstore.com",
                 "-pn", "Smartstore",
