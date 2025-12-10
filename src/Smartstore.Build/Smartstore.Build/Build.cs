@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.IO.Compression;
 using System.Text.Json;
+using System.Linq;
 using Nuke.Common;
 using Nuke.Common.CI;
 using Nuke.Common.Git;
@@ -48,7 +49,7 @@ class Build : NukeBuild
     AbsolutePath TestsDirectory => RootDirectory / "test";
     AbsolutePath ArtifactsDirectory => RootDirectory / "build" / "artifacts";
     AbsolutePath ToolsDirectory => RootDirectory / "build" / ".tools";
-    AbsolutePath CycloneDxToolPath => ToolsDirectory / (EnvironmentInfo.Platform == PlatformFamily.Windows ? "dotnet-CycloneDX.exe" : "dotnet-CycloneDX");
+    AbsolutePath SbomToolPath => ToolsDirectory / (EnvironmentInfo.Platform == PlatformFamily.Windows ? "sbom-tool.exe" : "sbom-tool");
 
     string GetPublishName()
     {
@@ -131,7 +132,7 @@ class Build : NukeBuild
         .DependsOn(Deploy)
         .Executes(() =>
         {
-            EnsureCycloneDxTool();
+            EnsureSbomTool();
 
             var publishName = GetPublishName();
             AbsolutePath publishDirectory = ArtifactsDirectory / publishName;
@@ -141,12 +142,35 @@ class Build : NukeBuild
                 throw new Exception($"Published output for {publishName} not found in {ArtifactsDirectory}.");
             }
 
-            AbsolutePath sbomFile = publishDirectory / $"Smartstore.{publishName}.sbom.cyclone.json";
-            Log.Information($"Generating CycloneDX SBOM at {sbomFile}...");
+            AbsolutePath manifestDirectory = publishDirectory / "_manifest";
+            AbsolutePath generatedManifest = manifestDirectory / "manifest.spdx.json";
+            AbsolutePath sbomFile = publishDirectory / $"Smartstore.{publishName}.sbom.json";
 
-            ProcessTasks.StartProcess(CycloneDxToolPath, $"\"{Solution.Path}\" --output \"{sbomFile}\" --json")
+            Log.Information($"Generating SBOM for {publishName} using Microsoft SBOM Tool...");
+
+            manifestDirectory.CreateOrCleanDirectory();
+
+            var arguments = string.Join(" ", new[]
+            {
+                "generate",
+                "-b", publishDirectory,
+                "-bc", publishDirectory,
+                "-ps", "Smartstore",
+                "-nsb", "https://smartstore.com",
+                "-pn", "Smartstore",
+                "-pv", Version,
+                "-m", manifestDirectory
+            }.Select(x => $"\"{x}\""));
+
+            ProcessTasks.StartProcess(SbomToolPath, arguments)
                 .AssertZeroExitCode();
 
+            if (!File.Exists(generatedManifest))
+            {
+                throw new Exception($"SBOM manifest not found at {generatedManifest}.");
+            }
+
+            File.Copy(generatedManifest, sbomFile, overwrite: true);
             PrettifyJson(sbomFile);
         });
 
@@ -179,17 +203,17 @@ class Build : NukeBuild
                 .SetConfiguration(Configuration));
         });
 
-    void EnsureCycloneDxTool()
+    void EnsureSbomTool()
     {
         FileSystemTasks.EnsureExistingDirectory(ToolsDirectory);
 
-        if (File.Exists(CycloneDxToolPath))
+        if (File.Exists(SbomToolPath))
         {
             return;
         }
 
-        Log.Information("Installing CycloneDX dotnet tool...");
-        DotNet($"tool install --tool-path \"{ToolsDirectory}\" CycloneDX");
+        Log.Information("Installing Microsoft SBOM Tool dotnet tool...");
+        DotNet($"tool install --tool-path \"{ToolsDirectory}\" Microsoft.Sbom.Tool");
     }
 
     void PrettifyJson(AbsolutePath file)
