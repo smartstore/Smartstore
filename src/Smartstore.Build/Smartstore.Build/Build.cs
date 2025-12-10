@@ -1,11 +1,13 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Text.Json;
 using Nuke.Common;
 using Nuke.Common.CI;
 using Nuke.Common.Git;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
+using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
 using Serilog;
@@ -45,6 +47,8 @@ class Build : NukeBuild
     AbsolutePath SourceDirectory => RootDirectory / "src";
     AbsolutePath TestsDirectory => RootDirectory / "test";
     AbsolutePath ArtifactsDirectory => RootDirectory / "build" / "artifacts";
+    AbsolutePath ToolsDirectory => RootDirectory / "build" / ".tools";
+    AbsolutePath CycloneDxToolPath => ToolsDirectory / (EnvironmentInfo.Platform == PlatformFamily.Windows ? "dotnet-CycloneDX.exe" : "dotnet-CycloneDX");
 
     string GetPublishName()
     {
@@ -97,7 +101,7 @@ class Build : NukeBuild
 
     Target Deploy => _ => _
         .DependsOn(Compile)
-        .Triggers(Zip)
+        .Triggers(Zip, GenerateSbom)
         .Executes(() =>
         {
             var publishName = GetPublishName();
@@ -121,6 +125,29 @@ class Build : NukeBuild
                 //.SetPublishSingleFile(true)
                 //.SetNoBuild(true)
                 .SetOutput(outputDir));
+        });
+
+    Target GenerateSbom => _ => _
+        .DependsOn(Deploy)
+        .Executes(() =>
+        {
+            EnsureCycloneDxTool();
+
+            var publishName = GetPublishName();
+            AbsolutePath publishDirectory = ArtifactsDirectory / publishName;
+
+            if (!publishDirectory.DirectoryExists())
+            {
+                throw new Exception($"Published output for {publishName} not found in {ArtifactsDirectory}.");
+            }
+
+            AbsolutePath sbomFile = publishDirectory / $"Smartstore.{publishName}.sbom.cyclone.json";
+            Log.Information($"Generating CycloneDX SBOM at {sbomFile}...");
+
+            ProcessTasks.StartProcess(CycloneDxToolPath, $"\"{Solution.Path}\" --output \"{sbomFile}\" --json")
+                .AssertZeroExitCode();
+
+            PrettifyJson(sbomFile);
         });
 
     Target Zip => _ => _
@@ -151,5 +178,34 @@ class Build : NukeBuild
                 .SetProjectFile(Solution)
                 .SetConfiguration(Configuration));
         });
+
+    void EnsureCycloneDxTool()
+    {
+        FileSystemTasks.EnsureExistingDirectory(ToolsDirectory);
+
+        if (File.Exists(CycloneDxToolPath))
+        {
+            return;
+        }
+
+        Log.Information("Installing CycloneDX dotnet tool...");
+        DotNet($"tool install --tool-path \"{ToolsDirectory}\" CycloneDX");
+    }
+
+    void PrettifyJson(AbsolutePath file)
+    {
+        if (!File.Exists(file))
+        {
+            throw new Exception($"SBOM file not found: {file}");
+        }
+
+        Log.Information("Prettifying SBOM JSON output...");
+
+        var content = File.ReadAllText(file);
+        using var document = JsonDocument.Parse(content);
+        var formatted = JsonSerializer.Serialize(document.RootElement, new JsonSerializerOptions { WriteIndented = true });
+
+        File.WriteAllText(file, formatted);
+    }
 
 }
