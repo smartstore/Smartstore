@@ -50,7 +50,7 @@ class Build : NukeBuild
     AbsolutePath ArtifactsDirectory => RootDirectory / "build" / "artifacts";
     AbsolutePath ToolsDirectory => RootDirectory / "build" / ".tools";
     AbsolutePath SbomToolPath => ToolsDirectory / (EnvironmentInfo.Platform == PlatformFamily.Windows ? "sbom-tool.exe" : "sbom-tool");
-    const string SbomToolPackage = "microsoft.sbom.tool";
+    const string SbomToolPackage = "Microsoft.Sbom.DotNetTool";
     const string SbomToolVersion = "1.2.0";
 
     string GetPublishName()
