@@ -1,4 +1,4 @@
-# ✔️ Web API in detail
+# Web API in detail
 
 You can consume API services in a RESTful manner via HTTPS calls by using HTTPS methods:
 
@@ -12,7 +12,7 @@ OData query options (such a `$expand`, `$filter`, `$top`, `$select`, etc.) and A
 
 Paging is required if you want to query multiple records. You can do this with the OData query options `$skip` and `$top`. The maximum value for `$top` is returned in the `Smartstore-Api-MaxTop` header field. This value is configurable by the store owner.
 
-Due to [Basic Authentication](https://app.gitbook.com/o/jug3iI9jtm3q3KRxHi73/s/DOZxBBKmB9QIuwBDsOtV/framework/web-api/authentication), it is mandatory to send requests via HTTPS. HTTP will return a `421 Misdirected Request` status code. The only exception is that developers can send requests via HTTP to their local development environment.
+Due to [Basic Authentication](authentication.md), it is mandatory to send requests via HTTPS. HTTP will return a `421 Misdirected Request` status code. The only exception is that developers can send requests via HTTP to their local development environment.
 
 A request body must be _UTF-8_ encoded.
 
@@ -46,7 +46,7 @@ The API can fulfill the following properties:
 
 ## Web API and modules
 
-If a module extends the domain model with its own entities, these can also be integrated into the Web API using [ODataModelProviderBase](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Web.Common/Api/ODataModelProviderBase.cs) or [IODataModelProvider](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Web.Common/Api/IODataModelProvider.cs). This allows the module developer to make their entities externally accessible without having to create their own Web API.
+If a module extends the domain model with its own entities, these can also be integrated into the Web API using [ODataModelProviderBase](../../../src/Smartstore.Web.Common/Api/ODataModelProviderBase.cs) or [IODataModelProvider](../../../src/Smartstore.Web.Common/Api/IODataModelProvider.cs). This allows the module developer to make their entities externally accessible without having to create their own Web API.
 
 The _Smartstore.Blog_ module registers two entities `BlogComment` and `BlogPost` through the `ODataModelBuilder` using the following `BlogODataModelProvider`.
 
@@ -68,7 +68,7 @@ internal class BlogODataModelProvider : ODataModelProviderBase
 Use plural for the name of the entity set. For example, _BlogComments_, not _BlogComment_.
 {% endhint %}
 
-Next, you need to add an API controller for each entity. It is recommended that you create a subfolder called _Api_ in the controller folder of the module. Inherit your controller from [WebApiController](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Web.Common/Api/WebApiController.cs), as shown in the example.
+Next, you need to add an API controller for each entity. It is recommended that you create a subfolder called _Api_ in the controller folder of the module. Inherit your controller from [WebApiController](../../../src/Smartstore.Web.Common/Api/WebApiController.cs), as shown in the example.
 
 ```csharp
 /// <summary>

@@ -2,7 +2,7 @@
 description: Special pub/sub system for database save operations
 ---
 
-# ✔️ Hooks
+# Hooks
 
 ## Overview
 
@@ -33,7 +33,7 @@ Some examples of what hooks are good for:
 
 ## Concept
 
-A hook is a specialized pub / sub system without the _publishing_ part. This means that you can only subscribe to database events, but not publish them. Publishing is done implicitly during a database save operation (such as `DbContext.SaveChanges()`). This is always the case when the main application context `SmartDbContext` commits data, because it derives from [HookingDbContext](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Data/HookingDbContext.cs), which contains all the hooking logic.
+A hook is a specialized pub / sub system without the _publishing_ part. This means that you can only subscribe to database events, but not publish them. Publishing is done implicitly during a database save operation (such as `DbContext.SaveChanges()`). This is always the case when the main application context `SmartDbContext` commits data, because it derives from [HookingDbContext](../../../src/Smartstore/Data/HookingDbContext.cs), which contains all the hooking logic.
 
 {% hint style="warning" %}
 Bypassing EF and accessing the database directly with raw SQL means: no events and no hooking!
@@ -58,10 +58,10 @@ Snapshot comparisons aren’t possible in the **PostSave** stage.
 
 Create a concrete class that either:
 
-* implements [IDbSaveHook](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Data/Hooks/IDbSaveHook.cs)
+* implements [IDbSaveHook](../../../src/Smartstore/Data/Hooks/IDbSaveHook.cs)
 * implements `IDbSaveHook<TContext>` to bind it to a particular `DbContext` type.
 * derives from `Smartstore.Core.Data.AsyncDbSaveHook<TEntity>` to bind it to the main `SmartDbContext` type and given `TEntity` type.
-* derives from [Smartstore.Data.Hooks.AsyncDbSaveHook\<TContext, TEntity>](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Data/Hooks/AsyncDbSaveHook.cs) to bind it to a particular `DbContext` and given `TEntity` type.
+* derives from [Smartstore.Data.Hooks.AsyncDbSaveHook\<TContext, TEntity>](../../../src/Smartstore/Data/Hooks/AsyncDbSaveHook.cs) to bind it to a particular `DbContext` and given `TEntity` type.
 
 {% hint style="info" %}
 The abstract base classes are nothing special, they just implement `IDbSaveHook` to make your life easier. There are sync counterparts for the base classes with sync method signatures also.
@@ -240,12 +240,12 @@ Here are some `IHookedEntity` methods that deal with property checking.
 
 ### Abstract base class
 
-For more convenience the abstract base class [DbSaveHook](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Data/Hooks/DbSaveHook.cs) provides six overridable methods:
+For more convenience the abstract base class [DbSaveHook](../../../src/Smartstore/Data/Hooks/DbSaveHook.cs) provides six overridable methods:
 
 * **PreSave**: `OnInserting`, `OnUpdating`, `OnDeleting`
 * **PostSave**: `OnInserted`, `OnUpdated`, `OnDeleted`
 
-They all return `HookResult.Void` by default and just need to be overridden to opt-in. The following excerpt from [PriceLabelHook.cs](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Catalog/Pricing/Hooks/PriceLabelHook.cs) shows the usage:
+They all return `HookResult.Void` by default and just need to be overridden to opt-in. The following excerpt from [PriceLabelHook.cs](../../../src/Smartstore.Core/Catalog/Pricing/Hooks/PriceLabelHook.cs) shows the usage:
 
 ```csharp
 protected override Task<HookResult> OnDeletingAsync(PriceLabel entity, IHookedEntity entry, CancellationToken cancelToken)
@@ -275,7 +275,7 @@ You have an import process that always saves product entities in batches of 100 
 All entities that were handled with `HookResult.Void` in `OnAfterSaveAsync` are excluded from the entries collection, because they are _not of interest_.
 {% endhint %}
 
-[ProductAttributeHook.cs](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Catalog/Attributes/Hooks/ProductAttributeHook.cs) shows an example of using `OnAfterSaveCompletedAsync`.
+[ProductAttributeHook.cs](../../../src/Smartstore.Core/Catalog/Attributes/Hooks/ProductAttributeHook.cs) shows an example of using `OnAfterSaveCompletedAsync`.
 
 ```csharp
 private HashSet<int> _deletedAttributeOptionIds = new();
@@ -332,11 +332,11 @@ This is done by wrapping a `DbContextScope` around a unit of work. To customize 
 
 ### Specify execution order
 
-The `Order` attribute of a hook determines the order in which hooks appear in the calling queue. Hooks with lower order values are called before hooks with higher ones. To set the order value, decorate your hook class with [OrderAttribute](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Modularity/OrderAttribute.cs) and pass an integer value, the default being `0`.
+The `Order` attribute of a hook determines the order in which hooks appear in the calling queue. Hooks with lower order values are called before hooks with higher ones. To set the order value, decorate your hook class with [OrderAttribute](../../../src/Smartstore.Core/Platform/Modularity/OrderAttribute.cs) and pass an integer value, the default being `0`.
 
 ### Mark entities as _unhookable_
 
-Some entity types should not be hooked at all, like the [Log](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Logging/Domain/Log.cs) entity. To make sure that the hooking framework will never pass these entities to any hook, decorate your entity class with `HookableAttribute` and pass `false`.
+Some entity types should not be hooked at all, like the [Log](../../../src/Smartstore.Core/Platform/Logging/Domain/Log.cs) entity. To make sure that the hooking framework will never pass these entities to any hook, decorate your entity class with `HookableAttribute` and pass `false`.
 
 ## Some Tipps
 
@@ -370,8 +370,8 @@ public class MyService : AsyncDbSaveHook<Product>, IMyService
 {% hint style="info" %}
 For Smartstore types that follow this pattern, check out, among others:
 
-* [DiscountService](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Catalog/Discounts/Services/DiscountService.cs)
-* [ProductTagService](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Catalog/Products/Services/ProductTagService.cs)
-* [CurrencyService](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Common/Services/CurrencyService.cs)
-* [DeliveryTimeService](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Common/Services/DeliveryTimeService.cs)
+* [DiscountService](../../../src/Smartstore.Core/Catalog/Discounts/Services/DiscountService.cs)
+* [ProductTagService](../../../src/Smartstore.Core/Catalog/Products/Services/ProductTagService.cs)
+* [CurrencyService](../../../src/Smartstore.Core/Common/Services/CurrencyService.cs)
+* [DeliveryTimeService](../../../src/Smartstore.Core/Common/Services/DeliveryTimeService.cs)
 {% endhint %}

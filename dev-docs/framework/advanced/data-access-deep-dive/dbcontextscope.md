@@ -1,4 +1,4 @@
-# ✔️ DbContextScope
+# DbContextScope
 
 An instance of `SmartDbContext` has a short lifetime. It is retrieved from the pool when an HTTP request begins and is returned to the pool at the end of the request. To change the configuration of the request scoped context you can...:
 
@@ -12,7 +12,7 @@ The context’s original state, as it was when you created the scope, is automat
 * Speed up write access by disabling hook invocation, as both hook resolution and hook invocation take some time to process.
 * Force the scope to be atomic, which saves all changes when the scope ends or is explicitly committed.
 
-To create a scope where a `DbContext` instance behaves differently, use [DbContextScope](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Data/DbContextScope.cs). The following code shows an excerpt from [MediaService.Folder.cs](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Content/Media/MediaService.Folder.cs).
+To create a scope where a `DbContext` instance behaves differently, use [DbContextScope](../../../../src/Smartstore/Data/DbContextScope.cs). The following code shows an excerpt from [MediaService.Folder.cs](../../../../src/Smartstore.Core/Content/Media/MediaService.Folder.cs).
 
 {% code overflow="wrap" %}
 ```csharp

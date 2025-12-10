@@ -1,30 +1,30 @@
-# ✔ Import
+# Import
 
 ## Overview
 
-The [DataImporter](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/DataExchange/Import/DataImporter.cs) provides batches of data that are imported by an [IEntityImporter](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/DataExchange/Import/IDataImporter.cs) implementation. [Import profiles](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/DataExchange/Domain/ImportProfile.cs) are entities that bind the import to an [ImportEntityType](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/DataExchange/Domain/ImportEnums.cs) and combine and store all aspects of an import, such as import field mappings and settings. It makes them configurable by the user.
+The [DataImporter](../../../src/Smartstore.Core/Platform/DataExchange/Import/DataImporter.cs) provides batches of data that are imported by an [IEntityImporter](../../../src/Smartstore.Core/Platform/DataExchange/Import/IDataImporter.cs) implementation. [Import profiles](../../../src/Smartstore.Core/Platform/DataExchange/Domain/ImportProfile.cs) are entities that bind the import to an [ImportEntityType](../../../src/Smartstore.Core/Platform/DataExchange/Domain/ImportEnums.cs) and combine and store all aspects of an import, such as import field mappings and settings. It makes them configurable by the user.
 
 When an import is executed, a task associated with the import profile is started, to perform the actual import via the `DataImporter` and the `IEntityImporter`. The task can be scheduled using cron expressions or triggered manually.
 
 ## Data importer
 
-The DataImporter is an [IDataImporter](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/DataExchange/Import/IDataImporter.cs) implementation designed to provide batches of import data to `IEntityImporter` implementations in a high-performance way.
+The DataImporter is an [IDataImporter](../../../src/Smartstore.Core/Platform/DataExchange/Import/IDataImporter.cs) implementation designed to provide batches of import data to `IEntityImporter` implementations in a high-performance way.
 
 ### Events
 
 The three published events surrounding the data import are:
 
-* [ImportExecutingEvent](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/DataExchange/Events/ImportExecutingEvent.cs): published before a data import. It can be used to load custom data into the context object, that must be available throughout the import.
-* [ImportBatchExecutedEvent](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/DataExchange/Events/ImportBatchExecutedEvent.cs): published by the `IEntityImporter` after it has imported a batch of data. It can be used to import the data of newly attached columns, data the `IEntityImporter` does not know about.
-* [ImportExecutedEvent](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/DataExchange/Events/ImportExecutedEvent.cs): published after a data import. It can be used, for example, to remove data from the cache so that the next time it is accessed the imported data is considered.
+* [ImportExecutingEvent](../../../src/Smartstore.Core/Platform/DataExchange/Events/ImportExecutingEvent.cs): published before a data import. It can be used to load custom data into the context object, that must be available throughout the import.
+* [ImportBatchExecutedEvent](../../../src/Smartstore.Core/Platform/DataExchange/Events/ImportBatchExecutedEvent.cs): published by the `IEntityImporter` after it has imported a batch of data. It can be used to import the data of newly attached columns, data the `IEntityImporter` does not know about.
+* [ImportExecutedEvent](../../../src/Smartstore.Core/Platform/DataExchange/Events/ImportExecutedEvent.cs): published after a data import. It can be used, for example, to remove data from the cache so that the next time it is accessed the imported data is considered.
 
 ## Import profile
 
-Import profiles combine all aspects of an import to make it configurable by the user: import file(s), key fields to identify existing records, CSV configuration, and import field mappings. You can use the [IImportProfileService](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/DataExchange/Import/IImportProfileService.cs) to manage import profiles, for example to get a list of import files associated with a profile.
+Import profiles combine all aspects of an import to make it configurable by the user: import file(s), key fields to identify existing records, CSV configuration, and import field mappings. You can use the [IImportProfileService](../../../src/Smartstore.Core/Platform/DataExchange/Import/IImportProfileService.cs) to manage import profiles, for example to get a list of import files associated with a profile.
 
 ## Entity importer
 
-An import is achieved via an [IEntityImporter](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/DataExchange/Import/IDataImporter.cs) implementation or can inherit from [EntityImporterBase](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/DataExchange/Import/EntityImporterBase.cs). This provides helper methods that can be used by all importers, like importing localized properties.&#x20;
+An import is achieved via an [IEntityImporter](../../../src/Smartstore.Core/Platform/DataExchange/Import/IDataImporter.cs) implementation or can inherit from [EntityImporterBase](../../../src/Smartstore.Core/Platform/DataExchange/Import/EntityImporterBase.cs). This provides helper methods that can be used by all importers, like importing localized properties.
 
 {% hint style="info" %}
 This documentation refers to an importer that inherits from `EntityImporterBase`.
@@ -113,7 +113,7 @@ Often there is data that can only be imported after all others have been importe
 The media importer `IMediaImporter` is a helper for importing media files like images. It can and should be used by any importer. Its purpose is to download files if required and to avoid importing duplicate files by comparing their binary contents. It also uses `IMediaService.BatchSaveFilesAsync` to save files in an efficient way.
 
 {% hint style="info" %}
-To see how to use `IMediaImporter`, check out built-in importers like [ProductImporter](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Catalog/Products/Import/ProductImporter.cs), [CategoryImporter](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Catalog/Categories/Import/CategoryImporter.cs) etc.
+To see how to use `IMediaImporter`, check out built-in importers like [ProductImporter](../../../src/Smartstore.Core/Catalog/Products/Import/ProductImporter.cs), [CategoryImporter](../../../src/Smartstore.Core/Catalog/Categories/Import/CategoryImporter.cs) etc.
 {% endhint %}
 
 {% hint style="warning" %}

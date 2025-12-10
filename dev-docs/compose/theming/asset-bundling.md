@@ -1,4 +1,4 @@
-# 🐥 Asset bundling
+# Asset bundling
 
 ## Overview
 

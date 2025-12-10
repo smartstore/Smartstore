@@ -1,10 +1,10 @@
-# ✔️ Modularity & Providers
+# Modularity & Providers
 
 ## Providers
 
-A provider is a design pattern to integrate and swap a code extension more easily and flexibly. A good example are payment methods. If a developer wants to implement multiple payment methods of one payment company, he can create a single module (representing the payment company), which contains a provider for each payment method. Besides [IPaymentMethod](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Checkout/Payment/Service/IPaymentMethod.cs), there are other providers like [IExportProvider](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/DataExchange/Export/IExportProvider.cs), [IShippingRateComputationMethod](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Checkout/Shipping/Services/IShippingRateComputationMethod.cs), [IExchangeRateProvider](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Common/Services/IExchangeRateProvider.cs), [IExternalAuthenticationMethod](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Identity/Services/IExternalAuthenticationMethod.cs) etc.
+A provider is a design pattern to integrate and swap a code extension more easily and flexibly. A good example are payment methods. If a developer wants to implement multiple payment methods of one payment company, he can create a single module (representing the payment company), which contains a provider for each payment method. Besides [IPaymentMethod](../../../src/Smartstore.Core/Checkout/Payment/Service/IPaymentMethod.cs), there are other providers like [IExportProvider](../../../src/Smartstore.Core/Platform/DataExchange/Export/IExportProvider.cs), [IShippingRateComputationMethod](../../../src/Smartstore.Core/Checkout/Shipping/Services/IShippingRateComputationMethod.cs), [IExchangeRateProvider](../../../src/Smartstore.Core/Common/Services/IExchangeRateProvider.cs), [IExternalAuthenticationMethod](../../../src/Smartstore.Core/Platform/Identity/Services/IExternalAuthenticationMethod.cs) etc.
 
-Each of these provider interfaces is derived from the marker interface [IProvider](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Engine/Modularity/IProvider.cs) in order to be able to identify it uniformly as a provider. The [generic provider class](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Modularity/Provider.cs) encapsulates the respective interface and enriches it with general properties like [ProviderMetadata](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Modularity/ProviderMetadata.cs). As a result you get an abstract, handy and API friendly construct such as `Provider<IPaymentMethod>`.
+Each of these provider interfaces is derived from the marker interface [IProvider](../../../src/Smartstore/Engine/Modularity/IProvider.cs) in order to be able to identify it uniformly as a provider. The [generic provider class](../../../src/Smartstore.Core/Platform/Modularity/Provider.cs) encapsulates the respective interface and enriches it with general properties like [ProviderMetadata](../../../src/Smartstore.Core/Platform/Modularity/ProviderMetadata.cs). As a result you get an abstract, handy and API friendly construct such as `Provider<IPaymentMethod>`.
 
 ### Metadata
 
@@ -39,7 +39,7 @@ public IActionResult Configure(MyProviderSettings settings)
 }
 ```
 
-Use [IProviderManager](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Modularity/IProviderManager.cs) to load any provider (including its metadata) or all providers of a certain type. Since we are configuring settings inherited from `ISetting`, we can use the `LoadSettingAttribute` to load an instance of our settings as an action parameter. The `HttpPost` method for saving may look like this:
+Use [IProviderManager](../../../src/Smartstore.Core/Platform/Modularity/IProviderManager.cs) to load any provider (including its metadata) or all providers of a certain type. Since we are configuring settings inherited from `ISetting`, we can use the `LoadSettingAttribute` to load an instance of our settings as an action parameter. The `HttpPost` method for saving may look like this:
 
 ```csharp
 [HttpPost, SaveSetting]

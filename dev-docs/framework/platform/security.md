@@ -1,4 +1,4 @@
-# ✔️ Security
+# Security
 
 ## Overview
 
@@ -6,7 +6,7 @@ Web security is a very important topic for anyone who wants to keep their data s
 
 * An extensible, hierarchically organized permissions system, where permissions are assigned to customer roles, which are then assigned to customers.
 * Customer roles (including assigned permissions) can automatically be assigned to customers by rule sets.
-* [IAclRestricted](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Security/Domain/IAclRestricted.cs) marks an entity with restricted access rights. Only customers assigned to specific customer groups can see or access it.
+* [IAclRestricted](../../../src/Smartstore.Core/Platform/Security/Domain/IAclRestricted.cs) marks an entity with restricted access rights. Only customers assigned to specific customer groups can see or access it.
 
 Further security tools available are:
 
@@ -29,13 +29,13 @@ Permissions are organized hierarchically in the form of a tree. A permission is 
 
 ## Authorization
 
-Use the [IPermissionService](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Security/Services/IPermissionService.cs) to check whether a given permission is granted to a customer. It expects strings as the name of the permission to be checked. Several constants are provided through the `Permissions` class for this purpose.
+Use the [IPermissionService](../../../src/Smartstore.Core/Platform/Security/Services/IPermissionService.cs) to check whether a given permission is granted to a customer. It expects strings as the name of the permission to be checked. Several constants are provided through the `Permissions` class for this purpose.
 
 ```csharp
 await _permissionService.AuthorizeAsync(Permissions.System.ScheduleTask.Execute);
 ```
 
-Action methods use the `PermissionAttribute` instead of [IPermissionService](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Security/Services/IPermissionService.cs).
+Action methods use the `PermissionAttribute` instead of [IPermissionService](../../../src/Smartstore.Core/Platform/Security/Services/IPermissionService.cs).
 
 ```csharp
 [Permission(Permissions.Catalog.Product.Read)]
@@ -51,7 +51,7 @@ An `AccessDeniedException` is thrown when the permission is not granted. In case
 
 ## Add custom permissions
 
-The permission system can be extended to include custom permissions using the [IPermissionProvider](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Security/Services/IPermissionProvider.cs). See the [DevToolsPermissionProvider](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Modules/Smartstore.DevTools/Permissions.cs) example. It is recommended to use singular for permission names and define a root permission _Self_ that doesn't contain any dots by convention:
+The permission system can be extended to include custom permissions using the [IPermissionProvider](../../../src/Smartstore.Core/Platform/Security/Services/IPermissionProvider.cs). See the [DevToolsPermissionProvider](../../../src/Smartstore.Modules/Smartstore.DevTools/Permissions.cs) example. It is recommended to use singular for permission names and define a root permission _Self_ that doesn't contain any dots by convention:
 
 {% code title="MegaSearch root permission" %}
 ```csharp
@@ -64,14 +64,14 @@ The localization is done via string resources and by convention. The string reso
 {% hint style="info" %}
 Module permissions are automatically added when the module is installed and removed when uninstalling the module. Module developers do not need to do anything else here.
 
-**TIP:** For an [IMenuProvider](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Content/Menus/Services/MenuProviders/IMenuProvider.cs) such as the `AdminMenuProvider`, one or more permissions can be applied via `MenuItemBuilder.PermissionNames`. The related link in the admin menu is only displayed if the admin has been granted permission.
+**TIP:** For an [IMenuProvider](../../../src/Smartstore.Core/Content/Menus/Services/MenuProviders/IMenuProvider.cs) such as the `AdminMenuProvider`, one or more permissions can be applied via `MenuItemBuilder.PermissionNames`. The related link in the admin menu is only displayed if the admin has been granted permission.
 {% endhint %}
 
 ## Access control list (ACL)
 
-An entity supports restricted access rights when it implements [IAclRestricted](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Security/Domain/IAclRestricted.cs). It allows limiting an entity to certain customer roles. Only customers who are assigned to one of the associated customer roles can see the product, the category, the menu item, etc.
+An entity supports restricted access rights when it implements [IAclRestricted](../../../src/Smartstore.Core/Platform/Security/Domain/IAclRestricted.cs). It allows limiting an entity to certain customer roles. Only customers who are assigned to one of the associated customer roles can see the product, the category, the menu item, etc.
 
-Use [IAclService](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Security/Services/IAclService.cs) to check whether the customer has the right to access an entity. If you only want to load those entities from the database the customer has access to, use the `ApplyAclFilter` extension method.
+Use [IAclService](../../../src/Smartstore.Core/Platform/Security/Services/IAclService.cs) to check whether the customer has the right to access an entity. If you only want to load those entities from the database the customer has access to, use the `ApplyAclFilter` extension method.
 
 Use `IAclService.ApplyAclMappingsAsync` when you want to modify the access rights of a customer to an entity. This is typically done when the entity is updated on its edit page.
 

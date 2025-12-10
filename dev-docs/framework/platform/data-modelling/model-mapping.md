@@ -2,17 +2,17 @@
 description: Object mapping made easy
 ---
 
-# ✔ Model mapping
+# Model mapping
 
 ## Overview
 
 Automatic object mapping is useful whenever you need to convert from type A to type B. Instead of manually assigning each member one at a time, an object mapper does this in a very generic way using reflection. For example, you can convert an entity type (such as `Product`) to a view model type (such as `ProductModel`) or vice-versa. Smartstore comes with object mapping utilities that are ultra-lightweight and fast.
 
-<table><thead><tr><th width="166.33333333333331">Utility</th><th width="194">Description</th><th>Call</th></tr></thead><tbody><tr><td><a href="https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/ComponentModel/MiniMapper.cs">MiniMapper</a></td><td>Very simple object mapper</td><td><code>MiniMapper.Map(From, To)</code></td></tr><tr><td><a href="https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/ComponentModel/MapperFactory.cs">MapperFactory</a></td><td>Advanced, customizable and flexible mapper</td><td><code>MapperFactory.MapAsync(From, To)</code></td></tr></tbody></table>
+<table><thead><tr><th width="166.33333333333331">Utility</th><th width="194">Description</th><th>Call</th></tr></thead><tbody><tr><td><a href="../../../../src/Smartstore/ComponentModel/MiniMapper.cs">MiniMapper</a></td><td>Very simple object mapper</td><td><code>MiniMapper.Map(From, To)</code></td></tr><tr><td><a href="../../../../src/Smartstore/ComponentModel/MapperFactory.cs">MapperFactory</a></td><td>Advanced, customizable and flexible mapper</td><td><code>MapperFactory.MapAsync(From, To)</code></td></tr></tbody></table>
 
 ## MiniMapper
 
-The `MiniMapper` is a lightweight and simple object mapping utility that attempts to map properties **of the same name** between two objects. It uses reflection under the hood to query and access properties. If matched properties have different types, the mapper tries to convert them using the [type conversion system](../../advanced/type-conversion.md). If this fails, the property is simply skipped and no exception is thrown.&#x20;
+The `MiniMapper` is a lightweight and simple object mapping utility that attempts to map properties **of the same name** between two objects. It uses reflection under the hood to query and access properties. If matched properties have different types, the mapper tries to convert them using the [type conversion system](../../advanced/type-conversion.md). If this fails, the property is simply skipped and no exception is thrown.
 
 {% hint style="success" %}
 Use `MiniMapper` when:
@@ -41,7 +41,7 @@ MiniMapper.Map(settings, model);
 
 ## MapperFactory
 
-The `MapperFactory` is a static factory that can create custom type mapper instances ([`IMapper<TFrom, TTo>`](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/ComponentModel/IMapper.cs)).
+The `MapperFactory` is a static factory that can create custom type mapper instances ([`IMapper<TFrom, TTo>`](../../../../src/Smartstore/ComponentModel/IMapper.cs)).
 
 {% hint style="success" %}
 Use `MapperFactory` when:

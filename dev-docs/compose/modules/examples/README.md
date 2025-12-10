@@ -2,7 +2,7 @@
 description: Learn how to write a module and extend its functionality.
 ---
 
-# 🐥 Tutorials
+# Tutorials
 
 ## How to use
 

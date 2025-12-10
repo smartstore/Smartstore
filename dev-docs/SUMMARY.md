@@ -110,12 +110,10 @@
   * [Asset bundling](compose/theming/asset-bundling.md)
   * [Tag Helpers](compose/theming/tag-helpers.md)
 
-## TIPS & TRICKS
-
-* [Tenants](tips-and-tricks/tenants.md)
-
 ## Appendix
 
+* [Tips & Tricks](appendix/tips-and-tricks/README.md)
+  * [Tenants](appendix/tips-and-tricks/tenants.md)
 * [Glossary](appendix/glossary.md)
 * [Coding standards](readme/coding-standards.md)
 * [Cheat Sheet](appendix/cheat-sheet.md)

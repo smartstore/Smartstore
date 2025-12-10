@@ -1,4 +1,4 @@
-# 🐥 Localizing modules
+# Localizing modules
 
 ## Overview
 

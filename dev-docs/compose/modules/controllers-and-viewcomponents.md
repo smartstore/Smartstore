@@ -1,4 +1,4 @@
-# 🐥 Controllers & ViewComponents
+# Controllers & ViewComponents
 
 Smartstore modules are pure MVC projects. This means that normal controller classes can be implemented using the MVC pattern. Since varying fields of application often require repetitive tasks, we have created base controllers following the [DRY principle](https://en.wikipedia.org/wiki/Don't_repeat_yourself). These take care of many tasks and can of course be used to implement your own controllers.
 
@@ -48,7 +48,7 @@ Provides the `ICommonServices` service collection using the `Services` shortcut.
 var customer = Services.WorkContext.CurrentCustomer;
 ```
 
-For more information, see [ICommonServices](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Common/ICommonServices.cs).
+For more information, see [ICommonServices](../../../src/Smartstore.Core/Platform/Common/ICommonServices.cs).
 
 </details>
 
@@ -217,7 +217,7 @@ The `AdminController` adds the following attributes:
 
 The `PublicController` implements the `SmartController` and adds the following attributes:
 
-<table><thead><tr><th width="260">Attribute</th><th>Description</th></tr></thead><tbody><tr><td>CookieConsent</td><td>Checks if the visitor has already allowed the use of cookies and opens the <code>CookieManager</code> if not.</td></tr><tr><td>PreviewMode</td><td>Enables the use of preview mode in the public store as long as preview mode is enabled in the backend.</td></tr><tr><td>CheckStoreClosed</td><td>Checks if the store has been closed by the admin and returns a redirect result to the <code>StoreClosed</code> action.</td></tr><tr><td>AuthorizeShopAccess</td><td>Checks whether the current user has permission to access the shop.</td></tr><tr><td>TrackActivity(Order = 100)</td><td>Saves current user activity information including the date, IP address and the visited page, in the database.</td></tr><tr><td>CheckAffiliate(Order = 100)</td><td>Checks if a visiting customer was referred to the shop by an affiliate by analyzing the request query.</td></tr><tr><td><p>SaveChanges(</p><p>    typeof(SmartDbContext),</p><p>    Order = int.MaxValue)</p></td><td>Saves all pending changes in a <code>DbContext</code> instance to the database after an action method has been executed.</td></tr></tbody></table>
+<table><thead><tr><th width="260">Attribute</th><th>Description</th></tr></thead><tbody><tr><td>CookieConsent</td><td>Checks if the visitor has already allowed the use of cookies and opens the <code>CookieManager</code> if not.</td></tr><tr><td>PreviewMode</td><td>Enables the use of preview mode in the public store as long as preview mode is enabled in the backend.</td></tr><tr><td>CheckStoreClosed</td><td>Checks if the store has been closed by the admin and returns a redirect result to the <code>StoreClosed</code> action.</td></tr><tr><td>AuthorizeShopAccess</td><td>Checks whether the current user has permission to access the shop.</td></tr><tr><td>TrackActivity(Order = 100)</td><td>Saves current user activity information including the date, IP address and the visited page, in the database.</td></tr><tr><td>CheckAffiliate(Order = 100)</td><td>Checks if a visiting customer was referred to the shop by an affiliate by analyzing the request query.</td></tr><tr><td><p>SaveChanges(</p><p>typeof(SmartDbContext),</p><p>Order = int.MaxValue)</p></td><td>Saves all pending changes in a <code>DbContext</code> instance to the database after an action method has been executed.</td></tr></tbody></table>
 
 ## ViewComponents
 
@@ -263,7 +263,7 @@ Provides the `ICommonServices` service collection using the `Services` shortcut.
 var customer = Services.WorkContext.CurrentCustomer;
 ```
 
-For more information, see [ICommonServices](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Common/ICommonServices.cs).
+For more information, see [ICommonServices](../../../src/Smartstore.Core/Platform/Common/ICommonServices.cs).
 
 </details>
 

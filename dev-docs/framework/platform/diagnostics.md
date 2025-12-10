@@ -2,13 +2,13 @@
 description: Profiling your shop’s performance
 ---
 
-# ✔ Profiling
+# Profiling
 
 ## Overview
 
 Speed is important for every website. If a website takes a long time to load, it can have a negative impact on user experience, site traffic, and SEO. Sites that are optimized for performance have big advantages over slow sites. This is why it is important to _speed test_ your store before you launch it.
 
-Smartstore includes a tool to measure the time from the initial request to the first byte sent to the browser ([Time to First Byte](https://en.wikipedia.org/wiki/Time\_to\_first\_byte) or **TTFB**): _MiniProfiler_.
+Smartstore includes a tool to measure the time from the initial request to the first byte sent to the browser ([Time to First Byte](https://en.wikipedia.org/wiki/Time_to_first_byte) or **TTFB**): _MiniProfiler_.
 
 ## MiniProfiler
 

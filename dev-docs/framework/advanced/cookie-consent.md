@@ -1,4 +1,4 @@
-# 🐣 Cookie Consent
+# Cookie Consent
 
 In e-commerce, cookies are critical for tracking user sessions, maintaining shopping carts, and personalizing the user experience. They enable persistent state management across pages and sessions, enabling features such as user authentication, preference storage, and targeted marketing. Developers must handle cookies securely, implementing consent controls, proper encryption, and adhering to privacy regulations such as GDPR to protect user data and ensure compliance.
 

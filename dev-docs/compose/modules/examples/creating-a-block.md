@@ -1,4 +1,4 @@
-# 🐥 Creating a Block
+# Creating a Block
 
 A `Block` is used to quickly create content within the Page Builder. Smartstore has already implemented several blocks such as HTML output, images, iframes, product lists and many more. The possibilities for new blocks are endless.
 

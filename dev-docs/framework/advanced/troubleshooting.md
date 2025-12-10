@@ -1,4 +1,4 @@
-# 🐣 Troubleshooting
+# Troubleshooting
 
 When the database contains long texts, especially those obtained by copying content from the Web with embedded Base64 images, Smartstore may behave unpredictably and become unresponsive. The following solutions can help identify and resolve a variety of issues.
 

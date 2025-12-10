@@ -1,4 +1,4 @@
-# ✔ Creating an Export provider
+# Creating an Export provider
 
 Export providers allow you to export your store data in many different formats. Smartstore mainly uses CSV and XML. In this tutorial you will write an export provider for the product catalog.
 

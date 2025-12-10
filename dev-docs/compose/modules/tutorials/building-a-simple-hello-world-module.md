@@ -1,4 +1,4 @@
-# ✔️ Building a simple "Hello World" module
+# Building a simple "Hello World" module
 
 Before we start, please look at the introduction to [creating modules](../getting-started-with-modules.md). The basic files needed to create a module are already described there.
 
@@ -38,7 +38,7 @@ Add module.json next. For more information, refer to [the manifest](../getting-s
 | Build Action             | Content       |
 | Copy to Output Directory | Copy if newer |
 
-&#x20;  5\. Add the following content
+5\. Add the following content
 
 {% code title="module.json" %}
 ```json
@@ -329,7 +329,7 @@ The resource values are added using `resource.*.xml` XML files, where \* represe
 1. Right click on the project in the Solution Explorer.
 2. Add a new folder. The folder must be called _Localization_.
 3. Place a new XML file called `resources.en-us.xml` in this folder.
-4. Make another right click, select the **Properties** context item and change&#x20;
+4. Make another right click, select the **Properties** context item and change
 
 | Property                 | Value         |
 | ------------------------ | ------------- |
@@ -365,7 +365,7 @@ After building the module you can press the button **Update resources** to updat
 Now that you can configure the name of the person to be greeted, add another controller, a model and a view for the public action.
 
 1. Right click on the _Controllers_ directory in the Solution Explorer.
-2. Add a new class called `HelloWorldController.cs`&#x20;
+2. Add a new class called `HelloWorldController.cs`
 
 {% code title="Controllers/HelloWorldController.cs" %}
 ```csharp
@@ -392,7 +392,7 @@ namespace MyOrg.HelloWorld.Controllers
 {% endcode %}
 
 1. Right click on the _Models_ directory in the Solution Explorer.
-2. Add a new class called `PublicInfoModel.cs`&#x20;
+2. Add a new class called `PublicInfoModel.cs`
 
 {% code title="Models/PublicInfoModel.cs" %}
 ```csharp
@@ -410,7 +410,7 @@ namespace MyOrg.HelloWorld.Models
 
 1. Right click on the _Views_ directory in the Solution Explorer.
 2. Add a new folder named _HelloWorld_
-3. Add a new Razor View called `PublicInfo.cshtml`&#x20;
+3. Add a new Razor View called `PublicInfo.cshtml`
 
 {% code title="Views\HelloWorld\PublicInfo.cshtml" %}
 ```html
@@ -426,7 +426,7 @@ namespace MyOrg.HelloWorld.Models
 ```
 {% endcode %}
 
-The public view will be displayed when opening the URL: [http://localhost:59318/helloworld/publicInfo](http://localhost:59318/helloworld/publicInfo)&#x20;
+The public view will be displayed when opening the URL: [http://localhost:59318/helloworld/publicInfo](http://localhost:59318/helloworld/publicInfo)
 
 {% hint style="success" %}
 Feeling overwhelmed? Don't know why values are suddenly appearing all over the place? 😵

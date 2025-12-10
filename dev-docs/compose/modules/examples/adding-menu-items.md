@@ -1,4 +1,4 @@
-# ✔ Adding menu items
+# Adding menu items
 
 Menus are UI components that make it easy for users to find and navigate to specific or even undiscovered content and features in the store. Building on the previous tutorial, you will add a menu item to the Admin menu.
 

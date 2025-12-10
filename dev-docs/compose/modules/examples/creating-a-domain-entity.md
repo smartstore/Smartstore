@@ -1,4 +1,4 @@
-# 🐥 Creating a Domain entity
+# Creating a Domain entity
 
 Domain entities provide a way to add your own tables to the Smartstore database. In this tutorial, you will add a simple notification system to your [Hello World](../tutorials/building-a-simple-hello-world-module.md) module.
 

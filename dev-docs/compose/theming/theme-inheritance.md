@@ -1,4 +1,4 @@
-# 🐥 Theme inheritance
+# Theme inheritance
 
 ## Overview
 
@@ -66,25 +66,16 @@ Partials & Layouts:
 14. {Base Themes}/Views/Shared/Partials/{ActionName}.cshtml
 15. SmartStore.Web/Views/{ControllerName}/Partials/{ActionName}.cshtml
 16. SmartStore.Web/Views/Shared/Partials/{ActionName}.cshtml
-
-
-
 17. {Own Theme}/Modules/MyModulePath/Views/{ControllerName}/Partials/{ActionName}.cshtml
 18. {Own Theme}/Modules/MyModulePath/Views/Shared/Partials/{ActionName}.cshtml
 19. Modules/MyModulePath/Views/{ControllerName}/Partials/{ActionName}.cshtml
 20. Modules/MyModulePath/Views/Shared/Partials/{ActionName}.cshtml
-
-
-
 21. {Own Theme}/Views/{ControllerName}/Layouts/{ActionName}.cshtml
 22. {Own Theme}/Views/Shared/Layouts/{ActionName}.cshtml
 23. {Base Themes}/Views/{ControllerName}/Layouts/{ActionName}.cshtml
 24. {Base Themes}/Views/Shared/Layouts/{ActionName}.cshtml
 25. SmartStore.Web/Views/{ControllerName}/Layouts/{ActionName}.cshtml
 26. SmartStore.Web/Views/Shared/Layouts/{ActionName}.cshtml
-
-
-
 27. {Own Theme}/Modules/MyModulePath/Views/{ControllerName}/Layouts/{ActionName}.cshtml
 28. {Own Theme}/Modules/MyModulePath/Views/Shared/Layouts/{ActionName}.cshtml
 29. Modules/MyModulePath/Views/{ControllerName}/Layouts/{ActionName}.cshtml

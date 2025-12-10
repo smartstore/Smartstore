@@ -1,4 +1,4 @@
-# ✔️ Licensable modules
+# Licensable modules
 
 ## Overview
 

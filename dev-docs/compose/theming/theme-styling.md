@@ -1,4 +1,4 @@
-# 🐥 Theme styling
+# Theme styling
 
 ## Overview
 

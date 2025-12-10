@@ -1,4 +1,4 @@
-# ✔️ Products
+# Products
 
 ### **Get a product with name "iPhone"**
 

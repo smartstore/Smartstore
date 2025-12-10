@@ -1,4 +1,4 @@
-# ✔ Database Migrations
+# Database Migrations
 
 ## Overview
 
@@ -6,7 +6,7 @@ Migrations are a structured way to alter a database schema and are required when
 
 Smartstore uses [Fluent Migrator](https://fluentmigrator.github.io/) as a database migrations framework. Fluent Migrator supports many database systems such as SQL Server, MySQL or PostgreSQL, where migrations are described in C# classes that can be checked into the Fluent Migrator version control system.
 
-Fluent Migrator can also write data to the database or update existing data, but this is more convenient using [IDataSeeder](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Data/Migrations/IDataSeeder.cs) or its abstract implementation [DataSeeder](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Data/Migrations/DataSeeder%60T.cs).
+Fluent Migrator can also write data to the database or update existing data, but this is more convenient using [IDataSeeder](../../../src/Smartstore/Data/Migrations/IDataSeeder.cs) or its abstract implementation [DataSeeder](../../../src/Smartstore.Core/Data/Migrations/DataSeeder%60T.cs).
 
 {% hint style="info" %}
 Smartstore prefers Fluent Migrator over EF Core Migrations, because EF Migrations does not support database provider agnostic tooling and schema definition.
@@ -14,7 +14,7 @@ Smartstore prefers Fluent Migrator over EF Core Migrations, because EF Migration
 
 ## Database Migrator
 
-[DbMigrator](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Data/Migrations/DbMigrator%60T.cs) is responsible for performing migrations. `MigrateAsync` is used to migrate the database to a specified version, or to the latest, if none is specified.
+[DbMigrator](../../../src/Smartstore.Core/Data/Migrations/DbMigrator%60T.cs) is responsible for performing migrations. `MigrateAsync` is used to migrate the database to a specified version, or to the latest, if none is specified.
 
 {% hint style="warning" %}
 `MigrateAsync` has an assembly parameter to perform only those migrations of a specific module. This should always be set. If it is `null`, the migrations of _all_ modules are executed!
@@ -44,13 +44,13 @@ internal class Module : ModuleBase
 
 A migration is an internal class inherited from the Fluent Migrator's abstract `Migration` class. The migration files should be named using the pattern `YYYYMMDDHHMMSS_<migration name>.cs`, so that they are ordered by date in ascending order.
 
-The migration class must be decorated with the [MigrationVersionAttribute](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Data/Migrations/MigrationVersionAttribute.cs) to specify a version and a short description. The version is determined by a timestamp, that typically represents the date when the migration was created. The timestamp can have one of the following formats:
+The migration class must be decorated with the [MigrationVersionAttribute](../../../src/Smartstore.Core/Data/Migrations/MigrationVersionAttribute.cs) to specify a version and a short description. The version is determined by a timestamp, that typically represents the date when the migration was created. The timestamp can have one of the following formats:
 
 * yyyy-MM-dd HH:mm:ss (recommended)
 * yyyy/MM/dd HH:mm:ss
 * yyyy.MM.dd HH:mm:ss
 
-To make the short description more uniform, we recommend the format `<module name>:<migration name>`, e.g. _Core: ProductComparePriceLabel_. The very first migration is usually named _Initial_, e.g. _MegaSearch: Initial_. A good example of a typical migration is [ProductComparePriceLabel](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Migrations/20221103091500\_ProductComparePriceLabel.cs).
+To make the short description more uniform, we recommend the format `<module name>:<migration name>`, e.g. _Core: ProductComparePriceLabel_. The very first migration is usually named _Initial_, e.g. _MegaSearch: Initial_. A good example of a typical migration is [ProductComparePriceLabel](../../../src/Smartstore.Core/Migrations/20221103091500_ProductComparePriceLabel.cs).
 
 {% code title="20221103091500_ProductComparePriceLabel.cs" %}
 ```csharp

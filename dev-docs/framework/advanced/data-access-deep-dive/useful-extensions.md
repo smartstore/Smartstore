@@ -2,7 +2,7 @@
 description: For (SmartDb)Context and DbSet
 ---
 
-# ✔ Useful extensions
+# Useful extensions
 
 ### DbContext extensions
 
@@ -117,8 +117,6 @@ Loads entities referenced by a collection navigation property from database, unl
 Loads an entity referenced by a navigation property from database, unless data is already loaded.
 
 </details>
-
-
 
 ### DbSet extensions
 

@@ -2,18 +2,18 @@
 description: Application configuration framework
 ---
 
-# ✔ Configuration
+# Configuration
 
 ## Overview
 
-Configuring an application is usually done by the user via the **Configuration / Settings** UI in the backend. The optional forms are provided by each module to ensure data validity and prevent unwanted changes. At the lowest level, each individual setting is just a record in the database represented by the [Setting](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Configuration/Domain/Setting.cs) entity. The value of which is stored as plain text in the `Value` field.
+Configuring an application is usually done by the user via the **Configuration / Settings** UI in the backend. The optional forms are provided by each module to ensure data validity and prevent unwanted changes. At the lowest level, each individual setting is just a record in the database represented by the [Setting](../../../src/Smartstore.Core/Platform/Configuration/Domain/Setting.cs) entity. The value of which is stored as plain text in the `Value` field.
 
 To make things easy to work with, settings are grouped and combined into POCO classes. Here are some examples:
 
-* [TaxSettings](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Checkout/Tax/Settings/TaxSettings.cs)
-* [ThemeSettings](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Theming/Settings/ThemeSettings.cs)
-* [MediaSettings](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Content/Media/Configuration/MediaSettings.cs)
-* [CatalogSettings](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Catalog/CatalogSettings.cs)
+* [TaxSettings](../../../src/Smartstore.Core/Checkout/Tax/Settings/TaxSettings.cs)
+* [ThemeSettings](../../../src/Smartstore.Core/Platform/Theming/Settings/ThemeSettings.cs)
+* [MediaSettings](../../../src/Smartstore.Core/Content/Media/Configuration/MediaSettings.cs)
+* [CatalogSettings](../../../src/Smartstore.Core/Catalog/CatalogSettings.cs)
 
 ## Technical concept
 
@@ -58,7 +58,7 @@ Because setting classes are singletons, your changes will persist as long as the
 
 ### By `ISettingFactory`
 
-The singleton [ISettingFactory](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Configuration/Services/ISettingFactory.cs) is responsible for activating and populating setting class instances that implement `ISettings`.
+The singleton [ISettingFactory](../../../src/Smartstore.Core/Platform/Configuration/Services/ISettingFactory.cs) is responsible for activating and populating setting class instances that implement `ISettings`.
 
 The method for loading settings is `LoadSettingsAsync<TSettings>()`. It tries to load `TSettings` for a given store from cache or from database, if it’s not yet cached. Similarly the method for saving settings is `SaveSettingsAsync<TSettings>()`. It saves a settings instance for a given store in the database.
 
@@ -73,7 +73,7 @@ public void UpdateSettings(string name, int storeId)
 
 ### Accessing individual setting entries
 
-You can also access individual entries by using the [ISettingService](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Configuration/Services/ISettingService.cs). Updating individual entries automatically invalidates the classes cache. For example, all `ThemeSettings` instances are removed from the cache when the `ThemeSettings.DefaultTheme` entry is updated or deleted.
+You can also access individual entries by using the [ISettingService](../../../src/Smartstore.Core/Platform/Configuration/Services/ISettingService.cs). Updating individual entries automatically invalidates the classes cache. For example, all `ThemeSettings` instances are removed from the cache when the `ThemeSettings.DefaultTheme` entry is updated or deleted.
 
 {% hint style="info" %}
 You are not restricted to setting classes. Any setting entry can be created and accessed, without being part of a setting class.
@@ -282,7 +282,7 @@ public class BlogAdminController : AdminController
 Refer to:
 
 * [security.md](security.md "mention") to learn more about `PermissionAttribute` and how to secure your actions.
-* [model-mapping.md](data-modelling/model-mapping.md "mention") to learn more about the tiny and cute [MiniMapper](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/ComponentModel/MiniMapper.cs).
+* [model-mapping.md](data-modelling/model-mapping.md "mention") to learn more about the tiny and cute [MiniMapper](../../../src/Smartstore/ComponentModel/MiniMapper.cs).
 {% endhint %}
 
 ### Create menu item

@@ -1,4 +1,4 @@
-# ✔️ Getting started with modules
+# Getting started with modules
 
 ## Overview
 
@@ -143,7 +143,7 @@ The following table explains the schema.
 Every module needs an entry class containing the bare minimum of the un- and install methods. To be recognized as such the class must implement the `IModule` interface.
 
 {% hint style="info" %}
-It is also recommended to derive from the abstract [ModuleBase](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Modularity/ModuleBase.cs) instead of implementing `IModule`, because it contains some common implementations.
+It is also recommended to derive from the abstract [ModuleBase](../../../src/Smartstore.Core/Platform/Modularity/ModuleBase.cs) instead of implementing `IModule`, because it contains some common implementations.
 {% endhint %}
 
 The installation method `IModule.InstallAsync()` is called every time the module is installed. Respectively the same goes for the uninstall method `IModule.UninstallAsync()`.

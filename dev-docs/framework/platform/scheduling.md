@@ -2,34 +2,34 @@
 description: Schedules automated tasks to be executed periodically
 ---
 
-# ✔ Scheduling
+# Scheduling
 
 ## Overview
 
 Smartstore has a scheduling module that allows automated tasks, such as cleaning files, sending emails, and importing or exporting data, to be executed at specific times. Scheduling is particularly useful for handling long-running or resource-intensive tasks. The scheduling system uses a timer to check for overdue tasks every minute and runs them as part of an HTTP request, helping to ensure that the dependency scope is always up and running.
 
-Unless otherwise specified, the task context virtualizer ([ITaskContextVirtualizer](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Scheduling/Services/ITaskContextVirtualizer.cs) interface) virtualizes some environment parameters during task execution:
+Unless otherwise specified, the task context virtualizer ([ITaskContextVirtualizer](../../../src/Smartstore/Scheduling/Services/ITaskContextVirtualizer.cs) interface) virtualizes some environment parameters during task execution:
 
 * `IWorkContext.CurrentCustomer` for the BackgroundTask system customer
 * `IStoreContext.CurrentStore` for the primary (first) store
 
 ## Task descriptor
 
-The [TaskDescriptor](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Scheduling/Domain/TaskDescriptor.cs) domain entity defines metadata for tasks, including the task name, [cron expression](https://crontab.cronhub.io/), enabled status, priority, and task type to run. Some of these values, such as the cron expression and enabled status, can be edited by the user in the backend.&#x20;
+The [TaskDescriptor](../../../src/Smartstore/Scheduling/Domain/TaskDescriptor.cs) domain entity defines metadata for tasks, including the task name, [cron expression](https://crontab.cronhub.io/), enabled status, priority, and task type to run. Some of these values, such as the cron expression and enabled status, can be edited by the user in the backend.
 
-The cron expression determines the next time a task will run, and after a task has run, a history entry is created with information about the execution time, duration, machine name, and any errors that may have occurred.&#x20;
+The cron expression determines the next time a task will run, and after a task has run, a history entry is created with information about the execution time, duration, machine name, and any errors that may have occurred.
 
 Users also have the option to manually trigger a task in the backend, and any running task can be manually cancelled in the backend as well.
 
 ## Implementing a task
 
-To implement a task, create a concrete class that implements the [ITask](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Scheduling/Services/ITask.cs) interface. It does not need to be registered in the DI, but is automatically detected and registered as a _scoped service_ when the application starts. This allows task types to have dependencies.
+To implement a task, create a concrete class that implements the [ITask](../../../src/Smartstore/Scheduling/Services/ITask.cs) interface. It does not need to be registered in the DI, but is automatically detected and registered as a _scoped service_ when the application starts. This allows task types to have dependencies.
 
 The `Run` method is the task handler. There is **no synchronous** counterpart! The task executor calls this method asynchronously and waits for it to complete.
 
 If an exception occurs during task execution (either unhandled or thrown explicitly), the task execution stops and the error is logged. If the `StopOnError` property of the task descriptor is set to `true`, the task is disabled and will not be executed again unless the user re-enables it.
 
-By default, the name of the task type (without namespace) is `TaskDescriptor.Type`. You can decorate your class with the [TaskNameAttribute](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Scheduling/Services/TaskNameAttribute.cs) to specify a different name for the task, which can be useful to avoid potential name conflicts with other tasks.
+By default, the name of the task type (without namespace) is `TaskDescriptor.Type`. You can decorate your class with the [TaskNameAttribute](../../../src/Smartstore/Scheduling/Services/TaskNameAttribute.cs) to specify a different name for the task, which can be useful to avoid potential name conflicts with other tasks.
 
 {% hint style="info" %}
 If the task resolver detects that there is more than one overdue task during a single poll, these tasks are executed **one after the other**, rather than in parallel. If a task has not completed execution by the time the next poll occurs (one minute later), the task executor will skip it.
@@ -39,7 +39,7 @@ If the task resolver detects that there is more than one overdue task during a s
 Because the scheduling system checks for overdue tasks on a minute-by-minute basis, it is not useful to define a cron expression with a frequency less than a minute, such as "every 30 seconds."
 {% endhint %}
 
-The following is an example of how to implement a task. The [DeleteGuestsTask](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Identity/Tasks/DeleteGuestsTask.cs) task periodically deletes guest customers. It implements the `ITask` interface, which contains the `Run` method. The method accepts the `TaskExecutionContext` and the `CancellationToken` (see below) as parameters. In this example, the task retrieves the last date guest customers were required to be registered, and then calls the `DeleteGuestCustomersAsync` method.
+The following is an example of how to implement a task. The [DeleteGuestsTask](../../../src/Smartstore.Core/Platform/Identity/Tasks/DeleteGuestsTask.cs) task periodically deletes guest customers. It implements the `ITask` interface, which contains the `Run` method. The method accepts the `TaskExecutionContext` and the `CancellationToken` (see below) as parameters. In this example, the task retrieves the last date guest customers were required to be registered, and then calls the `DeleteGuestCustomersAsync` method.
 
 ```csharp
 public class DeleteGuestsTask : ITask
@@ -71,11 +71,11 @@ public class DeleteGuestsTask : ITask
 
 ## Task cancellation
 
-It is important that tasks can be cancelled, particularly those that take a long time to complete. The `CancellationToken` parameter is used to allow cancellation via the user through the backend.&#x20;
+It is important that tasks can be cancelled, particularly those that take a long time to complete. The `CancellationToken` parameter is used to allow cancellation via the user through the backend.
 
 The `CancellationToken` combines the application shutdown token and the user cancellation token, and periodically checks if cancellation has been requested to try to gracefully terminate the task. It is not necessary to check for this on every iteration, but it can be checked after completing a batch of work.
 
-The following example shows the `Run` task in the [DataImportTask ](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/DataExchange/Import/DataImportTask.cs)class, where the `CancellationToken` is passed to the `ImportAsync` method, which terminates the import after 100 processed entities.&#x20;
+The following example shows the `Run` task in the [DataImportTask ](../../../src/Smartstore.Core/Platform/DataExchange/Import/DataImportTask.cs)class, where the `CancellationToken` is passed to the `ImportAsync` method, which terminates the import after 100 processed entities.
 
 <pre class="language-csharp" data-overflow="wrap"><code class="lang-csharp">public async Task Run(
     TaskExecutionContext ctx, 
@@ -95,7 +95,7 @@ The following example shows the `Run` task in the [DataImportTask ](https://gith
 }
 </code></pre>
 
-You can also throw an exception if the cancellation request was sent. The extension shows the `ImportAsync` method, which is part of the [DataImporter ](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/DataExchange/Import/DataImporter.cs)class and is called by the `Run` task in the previous example. The code has been shortened to show the essentials.
+You can also throw an exception if the cancellation request was sent. The extension shows the `ImportAsync` method, which is part of the [DataImporter ](../../../src/Smartstore.Core/Platform/DataExchange/Import/DataImporter.cs)class and is called by the `Run` task in the previous example. The code has been shortened to show the essentials.
 
 <pre class="language-csharp" data-overflow="wrap"><code class="lang-csharp">public async Task ImportAsync(
     DataImportRequest request, 
@@ -123,7 +123,7 @@ You can also throw an exception if the cancellation request was sent. The extens
 
 The Task Scheduler UI in the backend can display task progress (either as a message, as a percentage, or both).
 
-To show the progress, you need to pass the [TaskExecutionContext](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Scheduling/Services/TaskExecutionContext.cs) class as a parameter to the `Run` method, which contains the `SetProgress` method (with various overloads and sync/async variants). You can call it to propagate progress. It is immediately stored in the database. The UI then fetches updated progress information every second and can display it.
+To show the progress, you need to pass the [TaskExecutionContext](../../../src/Smartstore/Scheduling/Services/TaskExecutionContext.cs) class as a parameter to the `Run` method, which contains the `SetProgress` method (with various overloads and sync/async variants). You can call it to propagate progress. It is immediately stored in the database. The UI then fetches updated progress information every second and can display it.
 
 ## Adding or removing tasks programmatically
 
@@ -188,7 +188,7 @@ The image shows the component when the task has not yet been run. It provides bu
 
 To run a single task programmatically, you can call the `ITaskScheduler.RunSingleTaskAsync()` method and provide the unique identifier of the task you want to run (`TaskDescriptor.Id`) as an argument. You can also pass optional parameters (dictionaries), which will be converted to a URL query string and can be accessed through the `TaskExecutionContext.Parameters` property. To virtualize the current customer during task execution, you can pass the **CurrentCustomerId** as a parameter. Virtualizing the current store needs the **CurrentStoreId** as parameter.
 
-In the next example the `ApplyRules` method of the [CategoryController ](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Web/Areas/Admin/Controllers/CategoryController.cs)executes a single task. The method receives the `TaskDescriptor.Id` as a parameter as well as additional data as dictionaries (in this case, `CategoryIds`).
+In the next example the `ApplyRules` method of the [CategoryController ](../../../src/Smartstore.Web/Areas/Admin/Controllers/CategoryController.cs)executes a single task. The method receives the `TaskDescriptor.Id` as a parameter as well as additional data as dictionaries (in this case, `CategoryIds`).
 
 ```csharp
 [HttpPost]
@@ -232,7 +232,7 @@ The user cannot edit the `RunPerMachine` setting in the backend.
 
 ## Implementing a custom Task Store provider
 
-To create a custom task store provider, you will need to create a class that implements the [ITaskStore](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Scheduling/Services/ITaskStore.cs) interface. The default implementation stores task information and progress in the database. We cannot think of any scenario where it makes sense to override this 😊, but for the sake of completeness, the necessary steps are as follows:
+To create a custom task store provider, you will need to create a class that implements the [ITaskStore](../../../src/Smartstore/Scheduling/Services/ITaskStore.cs) interface. The default implementation stores task information and progress in the database. We cannot think of any scenario where it makes sense to override this 😊, but for the sake of completeness, the necessary steps are as follows:
 
 * Create a class that implements the `ITaskStore` interface
 * Follow the contract and implement all members

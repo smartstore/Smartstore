@@ -1,4 +1,4 @@
-# 🐥 Filters
+# Filters
 
 Smartstore modules are pure MVC projects. This means that normal action filters, provided by the ASP.NET Core framework, can be implemented. Implementing filters in modules is the best way to extend, intercept and modify existing functionality in Smartstore.
 
@@ -71,7 +71,7 @@ Now the filter will be applied to every `Action` in the entire project.
 
 The `Add` method assigns filters to all endpoints, enabling them to run on all controllers and actions, and adds the filters to the global list. Therefore, each filter must decide whether to run on a controller or an action. Since all filters are evaluated at runtime, performance worsens as more filters are added.
 
-To avoid cluttering the global filter list and evaluating each filter at runtime, it is better to use endpoint filters. Assigned to controllers and actions at startup, these filters are then removed from the global filter list via [EndpointFilterModelConvention](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Web.Common/Filters/EndpointFilterModelConvention.cs). This improves performance and makes the code more manageable.
+To avoid cluttering the global filter list and evaluating each filter at runtime, it is better to use endpoint filters. Assigned to controllers and actions at startup, these filters are then removed from the global filter list via [EndpointFilterModelConvention](../../../src/Smartstore.Web.Common/Filters/EndpointFilterModelConvention.cs). This improves performance and makes the code more manageable.
 
 ```csharp
 // Add a filter that is assigned to the PublicController.

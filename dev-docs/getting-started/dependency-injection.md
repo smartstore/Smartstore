@@ -1,4 +1,4 @@
-# ✔️ Dependency injection
+# Dependency injection
 
 ## Overview
 
@@ -11,7 +11,7 @@ A simple output writer example in the [Autofac](https://autofac.readthedocs.io/e
 
 ## Registering services
 
-In order for the dependencies to be resolved, the corresponding service must be registered. The registration is done via a startup class inheriting from [StarterBase](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Engine/Builders/StarterBase.cs). It should be declared as _internal_. In the Smartstore core, the startup classes are located in a bootstrapping folder of the related code section (for instance _DataExchange_). Override the `ConfigureContainer` method to add services using Autofac's `ContainerBuilder` or override the `ConfigureServices` method to add services using Microsoft's `IServiceCollection`. Either way, the resolved services end up in the same DI container.
+In order for the dependencies to be resolved, the corresponding service must be registered. The registration is done via a startup class inheriting from [StarterBase](../../src/Smartstore/Engine/Builders/StarterBase.cs). It should be declared as _internal_. In the Smartstore core, the startup classes are located in a bootstrapping folder of the related code section (for instance _DataExchange_). Override the `ConfigureContainer` method to add services using Autofac's `ContainerBuilder` or override the `ConfigureServices` method to add services using Microsoft's `IServiceCollection`. Either way, the resolved services end up in the same DI container.
 
 ```csharp
 internal class DataExchangeStarter : StarterBase
@@ -67,7 +67,7 @@ The most common dependency scopes are:
 
 ### Special registrations
 
-Use Autofac's `ContainerBuilder` for special service registrations. For example, an [IIndexScopeManager](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Search/Indexing/DefaultIndexScopeManager.cs) uses named metadata to support registrations of search index scopes like this:
+Use Autofac's `ContainerBuilder` for special service registrations. For example, an [IIndexScopeManager](../../src/Smartstore.Core/Platform/Search/Indexing/DefaultIndexScopeManager.cs) uses named metadata to support registrations of search index scopes like this:
 
 ```csharp
 public override void ConfigureContainer(
@@ -273,7 +273,7 @@ It is recommended to avoid property injection if possible and to use it only for
 
 ### "Work\<T>" dependency
 
-Sometimes a dependency needs to be resolved when it is accessed for the first time, rather than when the component's constructor is called (e.g. when it is called at a very early stage, before the DI container can resolve services). A solution for this is the [Work](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Engine/Work.cs) class. The dependency is resolved from `ILifetimeScope` whenever its `Value` property is accessed.
+Sometimes a dependency needs to be resolved when it is accessed for the first time, rather than when the component's constructor is called (e.g. when it is called at a very early stage, before the DI container can resolve services). A solution for this is the [Work](../../src/Smartstore/Engine/Work.cs) class. The dependency is resolved from `ILifetimeScope` whenever its `Value` property is accessed.
 
 ```csharp
 public class MyComponent
@@ -296,7 +296,7 @@ public class MyComponent
 
 ### Custom dependency scopes
 
-Use the [ILifetimeScopeAccessor](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Engine/ILifetimeScopeAccessor.cs) to create custom dependency scopes. The `DataImporter` uses this possibility to separate the dependencies of the respective importer from its own.
+Use the [ILifetimeScopeAccessor](../../src/Smartstore/Engine/ILifetimeScopeAccessor.cs) to create custom dependency scopes. The `DataImporter` uses this possibility to separate the dependencies of the respective importer from its own.
 
 ```csharp
 while (context.Abort == DataExchangeAbortion.None && segmenter.ReadNextBatch())

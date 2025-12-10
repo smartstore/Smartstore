@@ -1,4 +1,4 @@
-# ✔ Appendix
+# Appendix
 
 ## Errors
 

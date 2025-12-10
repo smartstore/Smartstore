@@ -1,4 +1,4 @@
-# ✔️ Validation
+# Validation
 
 ## FluentValidation
 
@@ -189,7 +189,7 @@ In the case of an invalid model state, the `GET` Configure method must be called
 
 Data annotation attributes let you specify validation rules for model properties. The most common built-in validation attributes are:
 
-<table><thead><tr><th width="252"> Attribute</th><th>Description</th></tr></thead><tbody><tr><td>Compare</td><td>Validates that two properties in a model match.</td></tr><tr><td>EmailAddress</td><td>Validates that the property has an email format.</td></tr><tr><td>Range</td><td>Validates that the property value falls within a specified range.</td></tr><tr><td>RegularExpression</td><td>Validates that the property value matches a specified regular expression.</td></tr><tr><td>Required</td><td>Validates that the field is not null, is not an empty string and does not only contain white-space characters.</td></tr><tr><td>StringLength</td><td>Validates that a string property value does not exceed a specified length limit.</td></tr><tr><td>Url</td><td>Validates that the property has a URL format.</td></tr><tr><td>ValidateNever</td><td>Indicates that a property or parameter should be excluded from validation.</td></tr></tbody></table>
+<table><thead><tr><th width="252">Attribute</th><th>Description</th></tr></thead><tbody><tr><td>Compare</td><td>Validates that two properties in a model match.</td></tr><tr><td>EmailAddress</td><td>Validates that the property has an email format.</td></tr><tr><td>Range</td><td>Validates that the property value falls within a specified range.</td></tr><tr><td>RegularExpression</td><td>Validates that the property value matches a specified regular expression.</td></tr><tr><td>Required</td><td>Validates that the field is not null, is not an empty string and does not only contain white-space characters.</td></tr><tr><td>StringLength</td><td>Validates that a string property value does not exceed a specified length limit.</td></tr><tr><td>Url</td><td>Validates that the property has a URL format.</td></tr><tr><td>ValidateNever</td><td>Indicates that a property or parameter should be excluded from validation.</td></tr></tbody></table>
 
 Custom validation can be added to action methods.
 

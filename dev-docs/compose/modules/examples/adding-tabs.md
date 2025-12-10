@@ -1,4 +1,4 @@
-# 🐥 Adding tabs
+# Adding tabs
 
 _Smartstore_ uses tabs in different places in the backend and frontend. The `TabTagHelper` is used for this exact purpose.
 

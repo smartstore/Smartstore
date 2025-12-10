@@ -1,10 +1,10 @@
-# ✔️ Payment
+# Payment
 
 ## Overview
 
 A payment provider represents a payment method with which an order can be paid in the frontend. Furthermore, it contains other optional methods, e.g. capturing the payment amount later, when the goods are shipped or to perform a refund. It is recommended to learn about the general functioning of a [provider](../platform/modularity-and-providers.md#providers) before going on.
 
-If no SDK is provided for a payment gateway or you do not want to use it for whatever reason, it is recommended to write your own HTTP client to communicate with the gateway. See the [PayPal HTTP client](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Modules/Smartstore.PayPal/Client/PayPalHttpClient.cs) as an example.
+If no SDK is provided for a payment gateway or you do not want to use it for whatever reason, it is recommended to write your own HTTP client to communicate with the gateway. See the [PayPal HTTP client](../../../src/Smartstore.Modules/Smartstore.PayPal/Client/PayPalHttpClient.cs) as an example.
 
 ## Payment provider
 
@@ -59,7 +59,7 @@ For details about `SystemName` etc. see [providers](../platform/modularity-and-p
 
 ### Properties of PaymentMethodBase
 
-<table><thead><tr><th width="233">Property</th><th>Description</th></tr></thead><tbody><tr><td><strong>IsActive</strong></td><td>A value indicating whether the payment method is active and should be offered to customers. Typically used for license checks. See <a href="creating-a-payment-provider.md#payment-method-filter">payment method filter</a>.</td></tr><tr><td><strong>PaymentMethodType</strong></td><td>See the <a href="creating-a-payment-provider.md#payment-method-types">table</a> below for available values. Choose a type that suits your payment method best.</td></tr><tr><td><strong>RequiresInteraction</strong></td><td>A value indicating whether the payment method requires user input in checkout before proceeding, e.g. credit card or direct debit payment.</td></tr><tr><td><strong>SupportCapture</strong></td><td>A value indicating whether capturing the payment amount later is supported, for instance when the goods are shipped. If <code>true</code>, you must override the <code>CaptureAsync</code> method.</td></tr><tr><td><strong>SupportPartiallyRefund</strong></td><td>A value indicating whether a partial refund is supported.  If <code>true</code>, you must override the <code>RefundAsync</code> method.</td></tr><tr><td><strong>SupportRefund</strong></td><td>A value indicating whether a full refund is supported. If <code>true</code>, you must override the <code>RefundAsync</code> method.</td></tr><tr><td><strong>SupportVoid</strong></td><td>A value indicating whether cancellation of the payment (transaction) is supported. If <code>true</code>, you must override the <code>VoidAsync</code> method.</td></tr><tr><td><strong>RecurringPaymentType</strong></td><td><p>The type of recurring payment. Available values are:</p><ul><li><em>NotSupported</em>: Recurring payment is not supported.</li><li><em>Manual</em>: Recurring payment is completed manually by the admin.</li><li>A<em>utomatic</em>: Recurring payment is processed on the payment gateway site.</li></ul></td></tr></tbody></table>
+<table><thead><tr><th width="233">Property</th><th>Description</th></tr></thead><tbody><tr><td><strong>IsActive</strong></td><td>A value indicating whether the payment method is active and should be offered to customers. Typically used for license checks. See <a href="creating-a-payment-provider.md#payment-method-filter">payment method filter</a>.</td></tr><tr><td><strong>PaymentMethodType</strong></td><td>See the <a href="creating-a-payment-provider.md#payment-method-types">table</a> below for available values. Choose a type that suits your payment method best.</td></tr><tr><td><strong>RequiresInteraction</strong></td><td>A value indicating whether the payment method requires user input in checkout before proceeding, e.g. credit card or direct debit payment.</td></tr><tr><td><strong>SupportCapture</strong></td><td>A value indicating whether capturing the payment amount later is supported, for instance when the goods are shipped. If <code>true</code>, you must override the <code>CaptureAsync</code> method.</td></tr><tr><td><strong>SupportPartiallyRefund</strong></td><td>A value indicating whether a partial refund is supported. If <code>true</code>, you must override the <code>RefundAsync</code> method.</td></tr><tr><td><strong>SupportRefund</strong></td><td>A value indicating whether a full refund is supported. If <code>true</code>, you must override the <code>RefundAsync</code> method.</td></tr><tr><td><strong>SupportVoid</strong></td><td>A value indicating whether cancellation of the payment (transaction) is supported. If <code>true</code>, you must override the <code>VoidAsync</code> method.</td></tr><tr><td><strong>RecurringPaymentType</strong></td><td><p>The type of recurring payment. Available values are:</p><ul><li><em>NotSupported</em>: Recurring payment is not supported.</li><li><em>Manual</em>: Recurring payment is completed manually by the admin.</li><li>A<em>utomatic</em>: Recurring payment is processed on the payment gateway site.</li></ul></td></tr></tbody></table>
 
 ### Methods of PaymentMethodBase
 
@@ -67,7 +67,7 @@ For details about `SystemName` etc. see [providers](../platform/modularity-and-p
 
 ## Payment method filter
 
-Payment methods can be filtered using [IPaymentMethodFilter](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Checkout/Payment/Service/IPaymentMethodFilter.cs). Such an implementation can be useful when a payment method should only be offered if a certain shopping cart amount is exceeded.
+Payment methods can be filtered using [IPaymentMethodFilter](../../../src/Smartstore.Core/Checkout/Payment/Service/IPaymentMethodFilter.cs). Such an implementation can be useful when a payment method should only be offered if a certain shopping cart amount is exceeded.
 
 {% code title="Example of a payment filter" %}
 ```csharp
@@ -146,7 +146,7 @@ public partial class MyCustomPaymentFilter : IPaymentMethodFilter
 
 ## Custom checkout state
 
-In most cases, session-based data must be stored during checkout in order to communicate with the payment provider's API. This includes the ID of the payment transaction or session. Use the `CheckoutState` property of [ICheckoutStateAccessor](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Checkout/Orders/Services/ICheckoutStateAccessor.cs) to store any custom session data during checkout. Your state object must inherit from `ObservableObject`.
+In most cases, session-based data must be stored during checkout in order to communicate with the payment provider's API. This includes the ID of the payment transaction or session. Use the `CheckoutState` property of [ICheckoutStateAccessor](../../../src/Smartstore.Core/Checkout/Orders/Services/ICheckoutStateAccessor.cs) to store any custom session data during checkout. Your state object must inherit from `ObservableObject`.
 
 {% code title="Custom checkout state object example" %}
 ```csharp

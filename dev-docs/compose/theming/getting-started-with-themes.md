@@ -1,4 +1,4 @@
-# 🐥 Getting started with themes
+# Getting started with themes
 
 ## Overview
 
@@ -9,7 +9,7 @@ A lot of effort has gone into the development of the Theming Engine to make crea
 * Multi-level theme inheritance
 * An integrated Sass compiler, that automatically translates all changes made to Sass files into CSS at runtime in an intelligent and highly performant way.
 * CSS _Autoprefixer_
-* Modern CSS and icon libraries&#x20;
+* Modern CSS and icon libraries
 * And many more
 
 Thanks to **multi-level theme inheritance**, it is possible to inherit from a base theme or from a theme that has inherited from another theme. This way, there is no need to start from scratch when developing a theme. Just use the existing components and change only what needs to be changed as you build the theme.
@@ -88,7 +88,7 @@ By using CSS Autoprefixer, developers can rest assured that all CSS styles will 
 
 Generated assets are cached in RAM and on disk. This keeps the whole process highly performant and delays page rendering by only a few milliseconds when regenerating CSS files. The cache is automatically invalidated when an included file changes, which is done using `DiskCache`. This caching method preserves the generated assets, so they don't need to be regenerated when the application is restarted. Without it, the Sass parser would have to run on each restart, which would delay the startup process.
 
-The cached files are located in the _App\_Data/Tenants/Default/BundleCache_ directory. `DiskCache` can be disabled programmatically by setting the `AssetCachingEnabled` property in [ThemeSettings](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Theming/Settings/ThemeSettings.cs) to `1`, or via the backend by disabling **Enable asset caching** in **Configuration / Themes / Settings**.
+The cached files are located in the _App\_Data/Tenants/Default/BundleCache_ directory. `DiskCache` can be disabled programmatically by setting the `AssetCachingEnabled` property in [ThemeSettings](../../../src/Smartstore.Core/Platform/Theming/Settings/ThemeSettings.cs) to `1`, or via the backend by disabling **Enable asset caching** in **Configuration / Themes / Settings**.
 
 ## Libraries
 
@@ -167,5 +167,5 @@ For more information, see [Bootstrap Icons](https://icons.getbootstrap.com/).
 We’ve used Fontastic to integrate a special selection of icons that are relevant to e-commerce.
 
 {% hint style="info" %}
-A full list of all available icons can be found in [fontastic.css](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Web/wwwroot/lib/fontastic/fontastic.css).
+A full list of all available icons can be found in [fontastic.css](../../../src/Smartstore.Web/wwwroot/lib/fontastic/fontastic.css).
 {% endhint %}

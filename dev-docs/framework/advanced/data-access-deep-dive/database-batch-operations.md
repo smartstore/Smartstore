@@ -1,4 +1,4 @@
-# ✔ Database bulk operations
+# Database bulk operations
 
 By default, Smartstore (which uses Entity Framework for data access) tracks changes to entities, and then sends updates to the database when one of the `SaveChanges` methods is called. Changes are only sent for properties and relationships that have actually changed. Also, the tracked entities remain in sync with the changes sent to the database. This mechanism is an efficient and convenient way to send general-purpose inserts, updates, and deletes to the database. These changes are also batched to reduce the number of database round-trips.
 
@@ -30,4 +30,4 @@ await _db.Products
         x => x.SetProperty(p => p.Name, p => p.Name + " (old)"));
 ```
 
-To learn more about bulk operations, please refer to the [EF Core 7 documentation](https://learn.microsoft.com/en-us/ef/core/what-is-new/ef-core-7.0/whatsnew#executeupdate-and-executedelete-bulk-updates).&#x20;
+To learn more about bulk operations, please refer to the [EF Core 7 documentation](https://learn.microsoft.com/en-us/ef/core/what-is-new/ef-core-7.0/whatsnew#executeupdate-and-executedelete-bulk-updates).

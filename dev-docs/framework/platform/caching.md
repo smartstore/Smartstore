@@ -1,4 +1,4 @@
-# ✔️ Caching
+# Caching
 
 ## Overview
 
@@ -6,19 +6,19 @@ Cache is used to store application data for faster performance. This is a critic
 
 ### Static cache
 
-The static or singleton cache is used for persistent objects that should live as long as the application runs or for a specified period of time. It can be utilized with the [ICacheManager](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Caching/ICacheManager.cs), which is a composite multi-level cache manager. Although it uses `IMemoryCache` under the hood by default, it provides a unified API for both memory and distributed cache.
+The static or singleton cache is used for persistent objects that should live as long as the application runs or for a specified period of time. It can be utilized with the [ICacheManager](../../../src/Smartstore/Caching/ICacheManager.cs), which is a composite multi-level cache manager. Although it uses `IMemoryCache` under the hood by default, it provides a unified API for both memory and distributed cache.
 
 If a distributed cache provider (such as [REDIS](https://redis.io/)) is installed, it is accessed in the same way as the memory cache. This is different from how _.NET Core_ handles cache access because it exposes two different APIs: `IMemoryCache` and `IDistributedCache`. Smartstore unifies the two to take advantage of the multi-level character (see below).
 
 ### Request cache
 
-The request cache is used to store items that you want to be removed when the request is complete. To access the request cache, use [IRequestCache](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Caching/IRequestCache.cs), which accesses the `HttpContext.Items` dictionary under the hood. If no `HttpContext` exists, a local dictionary is created instead.
+The request cache is used to store items that you want to be removed when the request is complete. To access the request cache, use [IRequestCache](../../../src/Smartstore/Caching/IRequestCache.cs), which accesses the `HttpContext.Items` dictionary under the hood. If no `HttpContext` exists, a local dictionary is created instead.
 
 ## Application cache
 
 ### Multi-level cache
 
-`ICacheManager` is a container for multiple cache stores represented by [ICacheStore](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Caching/ICacheStore.cs). Each CRUD method traverses all registered stores to find, update or delete items. Memory stores are prioritized, distributed stores follow. The default store used by `ICacheManager` is [MemoryCacheStore](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Caching/MemoryCacheStore.cs), but modules can provide new stores, such as the REDIS module which provides the `RedisCacheStore`.
+`ICacheManager` is a container for multiple cache stores represented by [ICacheStore](../../../src/Smartstore/Caching/ICacheStore.cs). Each CRUD method traverses all registered stores to find, update or delete items. Memory stores are prioritized, distributed stores follow. The default store used by `ICacheManager` is [MemoryCacheStore](../../../src/Smartstore/Caching/MemoryCacheStore.cs), but modules can provide new stores, such as the REDIS module which provides the `RedisCacheStore`.
 
 The multi-level cache design guarantees:
 
@@ -36,7 +36,7 @@ Because of the unified API, you must be careful with object types. Your cached o
 * Is **not** an entity type deriving from `BaseEntity`. <mark style="color:red;">Never do that, really... it is dangerous 😀</mark>
 {% endhint %}
 
-To resolve the primary memory or distributed store explicitly, without relying on the composite multi-level manager, use the [ICacheFactory](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Caching/ICacheFactory.cs) service. There are two methods that resolve an instance of `ICacheManager`.
+To resolve the primary memory or distributed store explicitly, without relying on the composite multi-level manager, use the [ICacheFactory](../../../src/Smartstore/Caching/ICacheFactory.cs) service. There are two methods that resolve an instance of `ICacheManager`.
 
 <table><thead><tr><th width="264">Method</th><th>Description</th></tr></thead><tbody><tr><td><code>GetMemoryCache()</code></td><td>The instance only interacts with the current implementation of <code>IMemoryCacheStore</code>.</td></tr><tr><td><code>GetDistributedCache()</code></td><td>The instance only interacts with the current <code>IDistributedCacheStore</code> implementation. If no distributed store exists, a memory store manager is returned instead.</td></tr></tbody></table>
 
@@ -44,7 +44,7 @@ To resolve the primary memory or distributed store explicitly, without relying o
 
 If you want to implement a custom cache store, you must do the following:
 
-1. Create a class that implements [ICacheStore](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Caching/ICacheStore.cs).
+1. Create a class that implements [ICacheStore](../../../src/Smartstore/Caching/ICacheStore.cs).
 2. Follow the interface contract and implement all members.
 3. Register your store implementation in a service container.
 

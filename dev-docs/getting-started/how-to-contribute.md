@@ -1,4 +1,4 @@
-# 🥚 How to contribute
+# How to contribute
 
 One of the easiest ways to contribute is to participate in discussions on [GitHub issues](https://github.com/smartstore/Smartstore/issues). You can also contribute by submitting pull requests with code changes.
 
@@ -42,4 +42,4 @@ Your pull request will now go through extensive checks by the subject matter exp
 
 ## Code of conduct
 
-See [Code of Conduct](https://github.com/smartstore/Smartstore/blob/main/CODE\_OF\_CONDUCT.md)
+See [Code of Conduct](../../CODE_OF_CONDUCT.md)

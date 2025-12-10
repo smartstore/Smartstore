@@ -2,7 +2,7 @@
 description: Improve performance and scalability
 ---
 
-# 🐥 Output Cache
+# Output Cache
 
 ## Concept
 
@@ -71,7 +71,7 @@ Backend pages are **never** cached, only the frontend pages.
 
 ### Apply cacheable routes
 
-To specify cacheable routes for your module, simply add an `internal` class that implements the [ICacheableRouteProvider](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/OutputCache/ICacheableRouteProvider.cs). By convention, the class is called `CacheableRoutes`. No DI registration is required.
+To specify cacheable routes for your module, simply add an `internal` class that implements the [ICacheableRouteProvider](../../../src/Smartstore.Core/Platform/OutputCache/ICacheableRouteProvider.cs). By convention, the class is called `CacheableRoutes`. No DI registration is required.
 
 Here is an example of a module’s cacheable routes:
 
@@ -105,7 +105,7 @@ The most complicated issue with output caching is determining when cached conten
 
 By **announcing** the display of entities, Output Cache can automate this invalidation. The best point to make this announcement is when you are preparing a view model to be rendered by a view.
 
-The [IDisplayControl](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/OutputCache/IDisplayControl.cs) service collects these announcements. You simply pass it to the constructor of your controller. After that, you call its `Announce` method wherever you need it, passing the entity instance you want to display as a parameter.
+The [IDisplayControl](../../../src/Smartstore.Core/Platform/OutputCache/IDisplayControl.cs) service collects these announcements. You simply pass it to the constructor of your controller. After that, you call its `Announce` method wherever you need it, passing the entity instance you want to display as a parameter.
 
 ```csharp
 private readonly IDisplayControl _displayControl;
@@ -160,7 +160,7 @@ The invalidation observer provides handler registration for custom output cache 
 
 ### IOutputCacheInvalidationObserver
 
-[IOutputCacheInvalidationObserver](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/OutputCache/IOutputCacheInvalidationObserver.cs) is the required singleton service, which has two methods for registering observers.
+[IOutputCacheInvalidationObserver](../../../src/Smartstore.Core/Platform/OutputCache/IOutputCacheInvalidationObserver.cs) is the required singleton service, which has two methods for registering observers.
 
 `ObserveEntity(Func<ObserveEntityContext, Task>)` registers an observer for an **entity type**. The passed observer is responsible for invalidating the cache by calling an invalidation method on the `IOutputCacheProvider` instance. The observer must set the `ObserveEntityContext.Handled` property to `true` to signal the framework to skip execution of subsequent observers.
 

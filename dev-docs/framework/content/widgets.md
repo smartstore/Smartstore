@@ -2,7 +2,7 @@
 description: Inject content into zones
 ---
 
-# ✔️ Widgets
+# Widgets
 
 ## Overview
 
@@ -16,14 +16,14 @@ Widgets are pieces/snippets of HTML content that can be injected into the [widge
   * product listings and details
   * the shopping cart
 
-Smartstore has a widget abstraction called [Widget](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Widgets/Widget.cs). This is because ASP.NET Core _view components_ and _partial views_ are technically two different things, though they behave very similarly to widgets in Smartstore. In order to use them in Smartstore, they need to be unified so that widgets can be fed from different content sources.
+Smartstore has a widget abstraction called [Widget](../../../src/Smartstore.Core/Platform/Widgets/Widget.cs). This is because ASP.NET Core _view components_ and _partial views_ are technically two different things, though they behave very similarly to widgets in Smartstore. In order to use them in Smartstore, they need to be unified so that widgets can be fed from different content sources.
 
 * `HtmlWidget`: Renders any `IHTMLContent` instance
 * `ComponentWidget`: Invokes and renders an ASP.NET Core view component
 * `PartialViewWidget`: Invokes and renders an ASP.NET Core partial view
 
 {% hint style="info" %}
-By deriving from `Widget` and overriding the `InvokeAsync` method, you can implement a custom widget class. You can just return your content directly if the output is simple enough. Otherwise, implement the rendering portion as an [`IWidgetInvoker<TWidget>`](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Widgets/Services/IWidgetInvoker.cs). Then the `Widget.InvokeAsync` method should resolve and call the invoker.
+By deriving from `Widget` and overriding the `InvokeAsync` method, you can implement a custom widget class. You can just return your content directly if the output is simple enough. Otherwise, implement the rendering portion as an [`IWidgetInvoker<TWidget>`](../../../src/Smartstore.Core/Platform/Widgets/Services/IWidgetInvoker.cs). Then the `Widget.InvokeAsync` method should resolve and call the invoker.
 {% endhint %}
 
 In addition, the [widget](widgets.md#widget-tag-helper) Tag Helper allows you to compose HTML content in any view template and inject it into any zone, much like the _section_ directive in ASP.NET.
@@ -146,7 +146,7 @@ The difference between a _widgetized_ HTML tag and a `widget` is, that it is mov
 
 ## Widget class
 
-The [widget](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Widgets/Widget.cs) class unifies _view components_, _partial views_ and the `IHtmlContent` interface, so that widgets can be instantiated using each. Before injecting or rendering a widget an instance needs to be created.
+The [widget](../../../src/Smartstore.Core/Platform/Widgets/Widget.cs) class unifies _view components_, _partial views_ and the `IHtmlContent` interface, so that widgets can be instantiated using each. Before injecting or rendering a widget an instance needs to be created.
 
 ```csharp
 // From view component: by type.
@@ -187,7 +187,7 @@ tag.InnerHtml.SetContent("Lorem ipsum");
 var widget = new HtmlWidget(tag);
 ```
 
-Using the [IWidgetProvider](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Widgets/Services/IWidgetProvider.cs) Interface is the most common way to inject a widget into a zone. It’s a request scoped registrar for widget instances.
+Using the [IWidgetProvider](../../../src/Smartstore.Core/Platform/Widgets/Services/IWidgetProvider.cs) Interface is the most common way to inject a widget into a zone. It’s a request scoped registrar for widget instances.
 
 ```csharp
 internal class CookieConsentFilter : IResultFilter
@@ -217,9 +217,9 @@ internal class CookieConsentFilter : IResultFilter
 
 ## Static widgets (aka widget providers)
 
-You can also handle widgets implementing a widget provider, although this is the legacy way of doing so. Implementing the [IActivatableWidget](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Widgets/IActivatableWidget.cs) interface turns an application feature provider into a widget (see [Modularity & Providers](../platform/modularity-and-providers.md) for more information about providers).
+You can also handle widgets implementing a widget provider, although this is the legacy way of doing so. Implementing the [IActivatableWidget](../../../src/Smartstore.Core/Platform/Widgets/IActivatableWidget.cs) interface turns an application feature provider into a widget (see [Modularity & Providers](../platform/modularity-and-providers.md) for more information about providers).
 
-The provider class defines what to render (`GetDisplayWidget`), and where to render it (`GetWidgetZones`). Here's an excerpt from the [Google Analytics Module](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Modules/Smartstore.Google.Analytics/Module.cs) that injects script content into the head zone using those methods.
+The provider class defines what to render (`GetDisplayWidget`), and where to render it (`GetWidgetZones`). Here's an excerpt from the [Google Analytics Module](../../../src/Smartstore.Modules/Smartstore.Google.Analytics/Module.cs) that injects script content into the head zone using those methods.
 
 ```csharp
 internal class Module : ModuleBase, IConfigurable, IActivatableWidget, ICookiePublisher
@@ -237,7 +237,7 @@ internal class Module : ModuleBase, IConfigurable, IActivatableWidget, ICookiePu
 ```
 
 {% hint style="info" %}
-Static widgets need to be explicitly enabled by the user in the backend (**CMS / Widgets**), otherwise they will not be rendered. However, by decorating a non-widget provider with the [DependentWidgetsAttribute](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Widgets/DependentWidgetsAttribute.cs), you can specify widget providers, that should be automatically (de)activated when the provider is. This is useful in scenarios where separate widgets are responsible for displaying provider data.
+Static widgets need to be explicitly enabled by the user in the backend (**CMS / Widgets**), otherwise they will not be rendered. However, by decorating a non-widget provider with the [DependentWidgetsAttribute](../../../src/Smartstore.Core/Platform/Widgets/DependentWidgetsAttribute.cs), you can specify widget providers, that should be automatically (de)activated when the provider is. This is useful in scenarios where separate widgets are responsible for displaying provider data.
 {% endhint %}
 
 ## List of all core widget zone names

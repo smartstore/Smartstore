@@ -1,4 +1,4 @@
-# ✔️ Export
+# Export
 
 ## Overview
 
@@ -15,15 +15,15 @@ When an export is executed, a task associated with the export profile is started
 
 ## Data exporter
 
-The data exporter is an [IDataExporter](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/DataExchange/Export/IDataExporter.cs) implementation and the main core component of the export infrastructure. Its purpose is to provide the [export providers](export.md#export-provider) with the export data in a high-performance way and to manage general tasks such as file management and data preview.
+The data exporter is an [IDataExporter](../../../src/Smartstore.Core/Platform/DataExchange/Export/IDataExporter.cs) implementation and the main core component of the export infrastructure. Its purpose is to provide the [export providers](export.md#export-provider) with the export data in a high-performance way and to manage general tasks such as file management and data preview.
 
 ### Events
 
-The [RowExportingEvent](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/DataExchange/Events/RowExportingEvent.cs) is fired before an entity is exported. It can be used to attach and export additional data.
+The [RowExportingEvent](../../../src/Smartstore.Core/Platform/DataExchange/Events/RowExportingEvent.cs) is fired before an entity is exported. It can be used to attach and export additional data.
 
 ## Export provider
 
-The provider implements [IExportProvider](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/DataExchange/Export/IExportProvider.cs) or it inherits from [ExportProviderBase](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/DataExchange/Export/ExportProviderBase.cs).
+The provider implements [IExportProvider](../../../src/Smartstore.Core/Platform/DataExchange/Export/IExportProvider.cs) or it inherits from [ExportProviderBase](../../../src/Smartstore.Core/Platform/DataExchange/Export/ExportProviderBase.cs).
 
 {% hint style="info" %}
 This documentation refers to a provider that inherits from `ExportProviderBase`.
@@ -32,7 +32,7 @@ This documentation refers to a provider that inherits from `ExportProviderBase`.
 The provider declares `SystemName`, `FriendlyName` and `Order` using attributes. It also specifies the file data format (e.g. CSV or XML).
 
 {% hint style="info" %}
-Set the property `FileExtension` to `null` if you do not want to export to files (_on-the-fly in-memory_ export).&#x20;
+Set the property `FileExtension` to `null` if you do not want to export to files (_on-the-fly in-memory_ export).
 {% endhint %}
 
 It is recommended to give your provider a friendly localized name and description using string resources and the localization XML files of your module:
@@ -96,9 +96,7 @@ public class MyCompanyProductExportProvider : ExportProviderBase
 }
 ```
 
-If done correctly, your provider will be displayed in the provider select box when adding a new export profile. See the [Google Merchant Center export provider](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Modules/Smartstore.Google.MerchantCenter/Providers/GmcXmlExportProvider.cs) as another example.
-
-
+If done correctly, your provider will be displayed in the provider select box when adding a new export profile. See the [Google Merchant Center export provider](../../../src/Smartstore.Modules/Smartstore.Google.MerchantCenter/Providers/GmcXmlExportProvider.cs) as another example.
 
 ### Provider specific configuration
 
@@ -137,7 +135,7 @@ Your configuration will be displayed in the **Configuration** tab on the export 
 
 ### Export data
 
-The export data is provided in segments by the data exporter. A data item is a dynamic object of type [DynamicEntity](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/DataExchange/Export/Internal/DynamicEntity.cs) which wraps the actual entity and has extra properties attached to it. The entity is accessible via `dynamicObject.Entity`. Additional data is generally prefixed with an underscore, e.g. `dynamicObject._BasePriceInfo`. See the [appendix](export.md#properties-of-dynamicentity) for a complete list.
+The export data is provided in segments by the data exporter. A data item is a dynamic object of type [DynamicEntity](../../../src/Smartstore.Core/Platform/DataExchange/Export/Internal/DynamicEntity.cs) which wraps the actual entity and has extra properties attached to it. The entity is accessible via `dynamicObject.Entity`. Additional data is generally prefixed with an underscore, e.g. `dynamicObject._BasePriceInfo`. See the [appendix](export.md#properties-of-dynamicentity) for a complete list.
 
 Projection and configuration of the export profile is applied to the `DynamicEntity`. If a certain language is selected in the profile's projection tab, the `DynamicEntity` would contain the localized property values (e.g. a localized product name) instead of the actual property value of the entity.
 
@@ -172,7 +170,7 @@ There are two types of profiles used in Smartstore:
 An export provider can be assigned to several profiles with different configurations and settings.
 {% endhint %}
 
-To manage the export profiles use [IExportProfileService](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/DataExchange/Export/IExportProfileService.cs). For instance, if you want to delete all profiles that your export provider is assigned to, when your module is uninstalled. Use the `ExportProfileInfoViewComponent` to display a list of all profiles your provider is assigned to. It renders a link to the profile and task, information about the last execution and a button to start the export:
+To manage the export profiles use [IExportProfileService](../../../src/Smartstore.Core/Platform/DataExchange/Export/IExportProfileService.cs). For instance, if you want to delete all profiles that your export provider is assigned to, when your module is uninstalled. Use the `ExportProfileInfoViewComponent` to display a list of all profiles your provider is assigned to. It renders a link to the profile and task, information about the last execution and a button to start the export:
 
 ```csharp
 @await Component.InvokeAsync("ExportProfileInfo",
@@ -181,7 +179,7 @@ To manage the export profiles use [IExportProfileService](https://github.com/sma
 
 ### Deployment
 
-_Publishing profiles_ are implementations of [IFilePublisher](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/DataExchange/Export/Deployment/IFilePublisher.cs) and define how to process the export files. The built-in profiles publish via:
+_Publishing profiles_ are implementations of [IFilePublisher](../../../src/Smartstore.Core/Platform/DataExchange/Export/Deployment/IFilePublisher.cs) and define how to process the export files. The built-in profiles publish via:
 
 * File system
 * Email
@@ -193,7 +191,7 @@ _Publishing profiles_ are implementations of [IFilePublisher](https://github.com
 Any number of publishing profiles can be assigned to an export profile.
 {% endhint %}
 
-After a successful export the data exporter instantiates every publisher associated with the export profile and calls its `PublishAsync` method together with the [ExportDeployment](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/DataExchange/Domain/ExportDeployment.cs) entity containing all details of the deployment.
+After a successful export the data exporter instantiates every publisher associated with the export profile and calls its `PublishAsync` method together with the [ExportDeployment](../../../src/Smartstore.Core/Platform/DataExchange/Domain/ExportDeployment.cs) entity containing all details of the deployment.
 
 ## Data grid and exports
 

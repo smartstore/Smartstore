@@ -1,4 +1,4 @@
-# ✔️ Authentication
+# Authentication
 
 Smartstore Web API uses _Basic Authentication_ over _HTTPS authentication_ method to protect data from unauthorized access. It is recommended by the _OData protocol version 4.0_ for the highest level of interoperability with generic clients.
 

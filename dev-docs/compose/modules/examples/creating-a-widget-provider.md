@@ -1,4 +1,4 @@
-# ✔️ Creating a Widget provider
+# Creating a Widget provider
 
 {% hint style="info" %}
 For a more in-depth view on widgets, zones and invokers, please refer to [widgets.md](../../../framework/content/widgets.md "mention").

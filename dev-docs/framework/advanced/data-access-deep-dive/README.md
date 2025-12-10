@@ -1,2 +1,2 @@
-# 🥚 Data access (Deep Dive)
+# Data access (Deep Dive)
 

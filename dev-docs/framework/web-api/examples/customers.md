@@ -1,4 +1,4 @@
-# ✔ Customers
+# Customers
 
 ### **Get return requests**
 
@@ -10,7 +10,7 @@ GET http://localhost:59318/odata/v1/Customers(1)/ReturnRequests
 `Customer(1)` refers to the customer with the ID `1`.
 {% endhint %}
 
-### **Get email address**&#x20;
+### **Get email address**
 
 ```
 GET http://localhost:59318/odata/v1/Customers(1)?$select=Email

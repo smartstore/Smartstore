@@ -1,4 +1,4 @@
-# ✔ Import Profiles
+# Import Profiles
 
 ### Upload import files and start import
 
