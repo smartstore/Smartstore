@@ -50,7 +50,7 @@ class Build : NukeBuild
     AbsolutePath ToolsDirectory => RootDirectory / "build" / ".tools";
     AbsolutePath SbomToolPath => ToolsDirectory / (EnvironmentInfo.Platform == PlatformFamily.Windows ? "sbom-tool.exe" : "sbom-tool");
     const string SbomToolPackage = "Microsoft.Sbom.DotNetTool";
-    const string SbomToolVersion = "1.2.0";
+    const string SbomToolVersion = "4.1.4";
 
     string GetPublishName()
     {
@@ -146,7 +146,8 @@ class Build : NukeBuild
 
             AbsolutePath manifestRootDirectory = publishDirectory;
             AbsolutePath manifestDirectory = manifestRootDirectory / "_manifest";
-            AbsolutePath generatedManifest = manifestDirectory / "spdx_2.2" / "manifest.spdx.json";
+            AbsolutePath generatedManifestDirectory = manifestDirectory / "spdx_2.2";
+            AbsolutePath generatedManifest = generatedManifestDirectory / "manifest.spdx.json";
             AbsolutePath sbomDirectory = publishDirectory / "sbom";
             AbsolutePath sbomFile = sbomDirectory / "manifest.spdx.json";
 
@@ -163,7 +164,13 @@ class Build : NukeBuild
                 "-nsb", "https://smartstore.com",
                 "-pn", "Smartstore",
                 "-pv", Version,
-                "-m", manifestRootDirectory
+                "-m", manifestRootDirectory,
+                "-e", "*.cshtml",
+                "-e", "*.scss",
+                "-e", "*.css",
+                "-e", "*.png",
+                "-e", "*.gif",
+                "-e", "*.jpg"
             }.Select(x => $"\"{x}\""));
 
             ProcessTasks.StartProcess(SbomToolPath, arguments)
@@ -176,6 +183,11 @@ class Build : NukeBuild
 
             sbomDirectory.CreateOrCleanDirectory();
             File.Copy(generatedManifest, sbomFile, overwrite: true);
+
+            if (Directory.Exists(generatedManifestDirectory))
+            {
+                Directory.Delete(generatedManifestDirectory, recursive: true);
+            }
         });
 
     Target Zip => _ => _
