@@ -103,7 +103,7 @@ class Build : NukeBuild
 
     Target Deploy => _ => _
         .DependsOn(Compile)
-        .Triggers(/*GenerateSbom, */Zip)
+        .Triggers(Zip, GenerateSbom)
         .Executes(() =>
         {
             var publishName = GetPublishName();
@@ -130,7 +130,6 @@ class Build : NukeBuild
         });
 
     Target GenerateSbom => _ => _
-        .DependsOn(Deploy)
         .Executes(() =>
         {
             EnsureSbomTool();
@@ -144,44 +143,25 @@ class Build : NukeBuild
                 throw new Exception($"Published output for {publishName} not found in {ArtifactsDirectory}.");
             }
 
-            AbsolutePath manifestRootDirectory = publishDirectory;
-            AbsolutePath manifestDirectory = manifestRootDirectory / "_manifest";
-            AbsolutePath generatedManifestDirectory = manifestDirectory / "spdx_2.2";
+            // Build root == ArtifactsDirectory / publishName
+            AbsolutePath buildRootDirectory = publishDirectory;
+
+            // Manifest directory "sbom" under publish directory (temp)
+            AbsolutePath manifestDirectory = publishDirectory / "sbom";
+
+            // sbom-tool will write to: <manifestDirectory>/_manifest/spdx_2.2/manifest.spdx.json
+            AbsolutePath generatedManifestDirectory = manifestDirectory / "_manifest" / "spdx_2.2";
             AbsolutePath generatedManifest = generatedManifestDirectory / "manifest.spdx.json";
-            AbsolutePath sbomDirectory = publishDirectory / "sbom";
-            AbsolutePath sbomFile = sbomDirectory / "manifest.spdx.json";
-            AbsolutePath fileListPath = manifestDirectory / "filelist.txt";
+
+            // Final SBOM location in build root
+            AbsolutePath finalSbomFile = buildRootDirectory / "manifest.spdx.json";
 
             Log.Information($"Generating SBOM for {publishName} using Microsoft SBOM Tool...");
 
-            // Ensure manifest directory exists and is clean
             manifestDirectory.CreateOrCleanDirectory();
 
-            // Extensions to include in the files section
-            var includedExtensions = new[]
-            {
-                ".dll",
-                ".exe",
-                ".js"
-            };
-
-            // Build whitelist of files to include
-            var filesToInclude = Directory
-                .GetFiles(publishDirectory, "*", SearchOption.AllDirectories)
-                .Where(f =>
-                {
-                    var ext = Path.GetExtension(f);
-                    return includedExtensions.Contains(ext, StringComparer.OrdinalIgnoreCase);
-                })
-                .ToList();
-
-            if (filesToInclude.Count == 0)
-            {
-                throw new Exception($"No files found to include for SBOM in '{publishDirectory}'.");
-            }
-
-            // Write file list for -bl (one file per line, absolute paths)
-            File.WriteAllLines(fileListPath, filesToInclude);
+            // Create file list according to include/exclude rules
+            var fileListPath = CreateSbomFileList(publishDirectory, manifestDirectory);
 
             var arguments = string.Join(" ", new string[]
             {
@@ -192,11 +172,13 @@ class Build : NukeBuild
                 "-nsb", "https://smartstore.com",
                 "-pn", "Smartstore",
                 "-pv", Version,
-                "-m", manifestRootDirectory,
+                "-m", manifestDirectory,
                 "-bl", fileListPath
             }.Select(x => $"\"{x}\""));
 
-            ProcessTasks.StartProcess(SbomToolPath, arguments)
+            var sbomToolExecutable = GetSbomToolExecutable();
+
+            ProcessTasks.StartProcess(sbomToolExecutable, arguments)
                 .AssertZeroExitCode();
 
             if (!File.Exists(generatedManifest))
@@ -204,17 +186,18 @@ class Build : NukeBuild
                 throw new Exception($"SBOM manifest not found at {generatedManifest}.");
             }
 
-            sbomDirectory.CreateOrCleanDirectory();
-            File.Copy(generatedManifest, sbomFile, overwrite: true);
+            // Copy SBOM to build root (ArtifactsDirectory/{publishName})
+            File.Copy(generatedManifest, finalSbomFile, overwrite: true);
 
-            if (Directory.Exists(generatedManifestDirectory))
+            // Clean up temp manifest directory ("sbom")
+            if (Directory.Exists(manifestDirectory))
             {
-                Directory.Delete(generatedManifestDirectory, recursive: true);
+                Directory.Delete(manifestDirectory, recursive: true);
             }
         });
 
-
     Target Zip => _ => _
+        .After(GenerateSbom)
         .Executes(() =>
         {
             var publishName = GetPublishName();
@@ -249,11 +232,101 @@ class Build : NukeBuild
 
         if (File.Exists(SbomToolPath))
         {
+            // Local sbom-tool already available
             return;
         }
 
-        Log.Information("Installing Microsoft SBOM Tool dotnet tool...");
-        DotNet($"tool install --tool-path \"{ToolsDirectory}\" {SbomToolPackage} --version {SbomToolVersion}");
+        Log.Information("Ensuring Microsoft SBOM Tool dotnet tool is installed locally...");
+
+        try
+        {
+            DotNet(
+                $"tool install --tool-path \"{ToolsDirectory}\" {SbomToolPackage} --version {SbomToolVersion}");
+        }
+        catch (Exception ex)
+        {
+            // Most likely already installed globally or some permission issue.
+            // We will try to use a global installation as fallback.
+            Log.Warning(ex, "Local SBOM tool install failed, will try to use a globally installed tool.");
+        }
     }
 
+    string GetSbomToolExecutable()
+    {
+        // 1. Local tool in .tools
+        if (File.Exists(SbomToolPath))
+        {
+            return SbomToolPath;
+        }
+
+        // 2. Global dotnet tool in %USERPROFILE%\.dotnet\tools\sbom-tool.exe
+        var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var globalToolPath = Path.Combine(userProfile, ".dotnet", "tools",
+            EnvironmentInfo.Platform == PlatformFamily.Windows ? "sbom-tool.exe" : "sbom-tool");
+
+        if (File.Exists(globalToolPath))
+        {
+            return globalToolPath;
+        }
+
+        throw new Exception(
+            "Could not locate sbom-tool. " +
+            "Tried local tools directory and the global dotnet tools path (%USERPROFILE%/.dotnet/tools). " +
+            "Please install with either:\n" +
+            "  dotnet tool install --tool-path \"build/.tools\" Microsoft.Sbom.DotNetTool --version 4.1.4\n" +
+            "or\n" +
+            "  dotnet tool install -g Microsoft.Sbom.DotNetTool --version 4.1.4");
+    }
+
+    AbsolutePath CreateSbomFileList(AbsolutePath publishDirectory, AbsolutePath manifestDirectory)
+    {
+        var fileListPath = manifestDirectory / "filelist.txt";
+
+        // Allowed file extensions
+        var includedExtensions = new[] { ".dll", ".exe", ".js" };
+
+        var filesToInclude = Directory
+            .GetFiles(publishDirectory, "*", SearchOption.AllDirectories)
+            .Where(f =>
+            {
+                // Normalize to forward slashes for easier matching
+                var relative = Path.GetRelativePath(publishDirectory, f)
+                    .Replace(Path.DirectorySeparatorChar, '/');
+
+                // Exclude folders: refs/*, i18n/*, lang/*
+                if (relative.StartsWith("refs/", StringComparison.OrdinalIgnoreCase) ||
+                    relative.StartsWith("i18n/", StringComparison.OrdinalIgnoreCase) ||
+                    relative.StartsWith("lang/", StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+
+                var ext = Path.GetExtension(f);
+
+                // Include only the desired extensions
+                if (!includedExtensions.Contains(ext, StringComparer.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+
+                // Exclude *.resources.dll
+                if (ext.Equals(".dll", StringComparison.OrdinalIgnoreCase) &&
+                    relative.EndsWith(".resources.dll", StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+
+                return true;
+            })
+            .ToList();
+
+        if (filesToInclude.Count == 0)
+        {
+            throw new Exception($"No files found to include for SBOM in '{publishDirectory}'.");
+        }
+
+        File.WriteAllLines(fileListPath, filesToInclude);
+
+        return fileListPath;
+    }
 }
