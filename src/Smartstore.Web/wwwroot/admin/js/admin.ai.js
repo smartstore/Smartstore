@@ -1,10 +1,10 @@
 (function ($, window, document, undefined) {
     $(function () {
         // Images
-        $(document).on('click', '.ai-provider-tool .ai-image-composer', function (e) {
+        $(document).on('click', '.ai-image-composer', (e) => {
             e.preventDefault();
 
-            let el = $(this);
+            const el = $(e.target);
             let tool = el.closest(".ai-provider-tool");
             if (tool.length === 0) {
                 return;
@@ -12,15 +12,15 @@
 
             // Set the title used for the modal dialog title. 
             // For direct openers the title is set else we take the text of the dropdown item.
-            let title = this.getAttribute("title") || el.html();
+            let title = e.target.getAttribute("title") || el.html();
             
             let params = {
-                targetProperty: tool.data('target-property'),
-                entityName: tool.data('entity-name'),
-                type: tool.data('entity-type'),
+                targetProperty: tool.data('target-property') || '',
+                entityName: tool.data('entity-name') || '',
+                type: tool.data('entity-type') || '',
                 modalTitle: title,
-                orientation: tool.data('orientation'),
-                mediaFolder: tool.data('media-folder')
+                orientation: tool.data('orientation') || '',
+                mediaFolder: tool.data('media-folder') || ''
             };
 
             openDialog(tool, params, true);
