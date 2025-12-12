@@ -83,7 +83,7 @@ LIMIT {take} OFFSET {skip}";
         {
             FormattableString sql = $@"SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'";
             return async
-                ? Database.ExecuteQueryInterpolatedAsync<string>(sql).AsyncToArray()
+                ? Database.ExecuteQueryInterpolatedAsync<string>(sql).ToArrayAsync()
                 : ValueTask.FromResult(Database.ExecuteQueryInterpolated<string>(sql).ToArray());
         }
 

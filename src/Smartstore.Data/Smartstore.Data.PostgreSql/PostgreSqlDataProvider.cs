@@ -102,7 +102,7 @@ LIMIT {take} OFFSET {skip}";
         {
             FormattableString sql = $@"SELECT table_name FROM INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE' AND table_schema = 'public' AND table_catalog = {DatabaseName}";
             return async
-                ? Database.ExecuteQueryInterpolatedAsync<string>(sql).AsyncToArray()
+                ? Database.ExecuteQueryInterpolatedAsync<string>(sql).ToArrayAsync()
                 : ValueTask.FromResult(Database.ExecuteQueryInterpolated<string>(sql).ToArray());
         }
 

@@ -216,7 +216,7 @@ namespace Smartstore.Core.Messaging
                     UsedAmount = _helper.FormatPrice(-x.UsedValue, order, messageContext),
                     RemainingAmount = _helper.FormatPrice(remainingAmount.Amount, order, messageContext)
                 };
-            }).AsyncToArray();
+            }).ToArrayAsync();
 
             // Reward Points
             m.RedeemedRewardPoints = order.RedeemedRewardPointsEntry == null ? null : new

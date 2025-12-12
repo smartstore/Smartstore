@@ -107,7 +107,7 @@ namespace Smartstore.Core.Rules
             var expressions = await ruleSet.Rules
                 .SelectAwait(x => CreateExpression(x, visitor))
                 .Where(x => x != null)
-                .AsyncToArray();
+                .ToArrayAsync();
 
             group.AddExpressions(expressions);
 
@@ -232,7 +232,7 @@ namespace Smartstore.Core.Rules
         //    var expressions = await ruleSet.Rules
         //        .SelectAwait(x => CreateExpression(x, visitor))
         //        .Where(x => x != null)
-        //        .AsyncToArray();
+        //        .ToArrayAsync();
 
         //    group.AddExpressions(expressions);
 

@@ -81,7 +81,7 @@ namespace Smartstore.IO
                 ? await GetDirectoryAsync(file.Directory)
                 : GetDirectory(file.Directory);
             var names = async
-                ? await dir.EnumerateFilesAsync(pattern, false).Select(x => x.Name).AsyncToArray()
+                ? await dir.EnumerateFilesAsync(pattern, false).Select(x => x.Name).ToArrayAsync()
                 : dir.EnumerateFiles(pattern, false).Select(x => x.Name);
 
             var files = new HashSet<string>(names, StringComparer.OrdinalIgnoreCase);

@@ -108,7 +108,7 @@ namespace Smartstore.Core.Content.Media.Imaging
 
             var filter = string.Format("{0}*.*", mediaFile.Id.ToString(IdFormatString));
 
-            foreach (var file in await _fileSystem.EnumerateFilesAsync(_thumbsRootDir, filter, deep: true).AsyncToArray())
+            foreach (var file in await _fileSystem.EnumerateFilesAsync(_thumbsRootDir, filter, deep: true).ToArrayAsync())
             {
                 await file.DeleteAsync();
             }

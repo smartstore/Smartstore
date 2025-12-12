@@ -208,7 +208,7 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
         {
             var sql = $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE' and table_catalog = '{DatabaseName}'";
             return async
-                ? Database.ExecuteQueryRawAsync<string>(sql).AsyncToArray()
+                ? Database.ExecuteQueryRawAsync<string>(sql).ToArrayAsync()
                 : ValueTask.FromResult(Database.ExecuteQueryRaw<string>(sql).ToArray());
         }
 
