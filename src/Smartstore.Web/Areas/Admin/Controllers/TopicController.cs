@@ -110,7 +110,7 @@ namespace Smartstore.Admin.Controllers
 
                     return model;
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             var gridModel = new GridModel<TopicModel>
             {

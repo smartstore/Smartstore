@@ -129,7 +129,7 @@ namespace Smartstore.Admin.Controllers
                 .AsNoTracking()
                 .AsNoCaching()
                 .SelectAwait(async x => await mapper.MapAsync(x))
-                .AsyncToList();
+                .ToListAsync();
         }
 
         #endregion
@@ -179,7 +179,7 @@ namespace Smartstore.Admin.Controllers
 
                     return model;
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             var gridModel = new GridModel<MessageTemplateModel>
             {

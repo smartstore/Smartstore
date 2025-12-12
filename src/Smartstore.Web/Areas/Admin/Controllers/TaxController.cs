@@ -58,7 +58,7 @@ namespace Smartstore.Admin.Controllers
 
                     return model;
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             return View(taxProviderModels);
         }
@@ -104,7 +104,7 @@ namespace Smartstore.Admin.Controllers
 
             var categoriesModels = await categories
                 .SelectAwait(x => MapperFactory.MapAsync<TaxCategory, TaxCategoryModel>(x))
-                .AsyncToList();
+                .ToListAsync();
 
             var gridModel = new GridModel<TaxCategoryModel>
             {

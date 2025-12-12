@@ -272,14 +272,14 @@ namespace Smartstore.Admin.Controllers
                 .ThenByDescending(p => p.IsInstalled())
                 .ThenBy(p => p.Order)
                 .SelectAwait(x => PrepareModuleModelAsync(x))
-                .AsyncToList();
+                .ToListAsync();
 
             var model = new LocalModulesModel
             {
                 AvailableStores = await Services.StoreContext
                     .GetAllStores()
                     .SelectAwait(s => MapperFactory.MapAsync<Store, StoreModel>(s, parameters: null))
-                    .AsyncToList()
+                    .ToListAsync()
             };
 
             var groupedModules = from p in modules

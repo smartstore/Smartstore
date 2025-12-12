@@ -75,7 +75,7 @@ namespace Smartstore.Web.Components
             products = await products
                 .WhereAwait(async c => (await _aclService.AuthorizeAsync(c)) && (await _storeMappingService.AuthorizeAsync(c)))
                 .Take(_catalogSettings.NumberOfBestsellersOnHomepage)
-                .AsyncToList();
+                .ToListAsync();
 
             var viewMode = _catalogSettings.UseSmallProductBoxOnHomePage ? ProductSummaryViewMode.Mini : ProductSummaryViewMode.Grid;
 

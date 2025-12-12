@@ -50,7 +50,7 @@ namespace Smartstore.Shipping.Controllers
                 ShippingMethodId = x.Id,
                 ShippingMethodName = x.Name,
                 Rate = await Services.Settings.GetSettingByKeyAsync<decimal>($"ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{x.Id}")
-            }).AsyncToList();
+            }).ToListAsync();
 
             var gridModel = new GridModel<FixedRateModel>
             {

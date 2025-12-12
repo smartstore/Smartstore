@@ -268,7 +268,7 @@ namespace Smartstore.Admin.Controllers
                 await infoMapper.MapAsync(x, infoModel);
                 return infoModel;
             })
-            .AsyncToList();
+            .ToListAsync();
 
             return Json(new GridModel<TaskExecutionInfoModel>
             {

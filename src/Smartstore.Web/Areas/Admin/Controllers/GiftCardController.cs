@@ -89,7 +89,7 @@ namespace Smartstore.Admin.Controllers
                     await PrepareGiftCardModel(model, x);
                     return model;
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             return Json(new GridModel<GiftCardModel>
             {

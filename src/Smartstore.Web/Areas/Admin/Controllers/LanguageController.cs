@@ -80,7 +80,7 @@ namespace Smartstore.Admin.Controllers
 
                 return m;
             })
-            .AsyncToList();
+            .ToListAsync();
 
             return View(models);
         }

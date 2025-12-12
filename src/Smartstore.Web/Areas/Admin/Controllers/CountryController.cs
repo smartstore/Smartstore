@@ -131,7 +131,7 @@ namespace Smartstore.Admin.Controllers
 
                     return model;
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             var gridModel = new GridModel<CountryModel>
             {
@@ -339,7 +339,7 @@ namespace Smartstore.Admin.Controllers
             var mapper = MapperFactory.GetMapper<StateProvince, StateProvinceModel>();
             var stateProvinceModels = await stateProvinces
                 .SelectAwait(async x => await mapper.MapAsync(x))
-                .AsyncToList();
+                .ToListAsync();
 
             var gridModel = new GridModel<StateProvinceModel>
             {

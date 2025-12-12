@@ -92,7 +92,7 @@ namespace Smartstore.Admin.Controllers
             });
 
             // Call AsyncToList() to avoid upcoming conflicts with EF.
-            var mainList = await query.AsyncToList();
+            var mainList = await query.ToListAsync();
 
             var mruList = new TrimmedBuffer<string>(
                 Services.WorkContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedCategories,
@@ -197,7 +197,7 @@ namespace Smartstore.Admin.Controllers
 
                 return model;
             })
-            .AsyncToList();
+            .ToListAsync();
 
             return Json(new GridModel<CategoryModel>
             {
@@ -494,7 +494,7 @@ namespace Smartstore.Admin.Controllers
 
                     return model;
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             return Json(new GridModel<CategoryProductModel>
             {

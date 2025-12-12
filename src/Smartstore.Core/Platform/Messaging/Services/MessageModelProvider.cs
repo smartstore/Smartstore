@@ -624,7 +624,7 @@ namespace Smartstore.Core.Messaging
                 ["RewardPointsAmount"] = rewardPointsAmount.Amount,
                 ["RewardPointsBalance"] = _helper.FormatPrice(rewardPointsAmount.Amount, messageContext),
                 ["RewardPointsHistory"] = part.RewardPointsHistory.Count > 0 
-                    ? await part.RewardPointsHistory.SelectAwait(async x => await CreateModelPartAsync(x, messageContext)).AsyncToList()
+                    ? await part.RewardPointsHistory.SelectAwait(async x => await CreateModelPartAsync(x, messageContext)).ToListAsync()
                     : null,
             };
 

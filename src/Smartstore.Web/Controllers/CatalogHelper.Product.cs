@@ -499,7 +499,7 @@ namespace Smartstore.Web.Controllers
                     ParentProduct = product,
                     ProductBundleItem = null
                 }))
-                .AsyncToList();
+                .ToListAsync();
 
             return new()
             {

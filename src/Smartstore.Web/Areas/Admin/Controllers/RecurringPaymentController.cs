@@ -83,7 +83,7 @@ namespace Smartstore.Admin.Controllers
 
             var rows = await recurringPayments
                 .SelectAwait(async x => await CreateRecurringPaymentModel(x, true))
-                .AsyncToList();
+                .ToListAsync();
 
             return Json(new GridModel<RecurringPaymentModel>
             {

@@ -96,7 +96,7 @@ namespace Smartstore.Web.Api.Controllers
                         await mapper.MapAsync(x, model, parameters);
                         return model;
                     })
-                    .AsyncToList();
+                    .ToListAsync();
 
                 return Ok(infos);
             }

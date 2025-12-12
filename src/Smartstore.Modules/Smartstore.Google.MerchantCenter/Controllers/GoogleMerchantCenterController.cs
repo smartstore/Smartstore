@@ -197,7 +197,7 @@ namespace Smartstore.Google.MerchantCenter.Controllers
 
                     return model;
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             var gridModel = new GridModel<GoogleProductModel>
             {

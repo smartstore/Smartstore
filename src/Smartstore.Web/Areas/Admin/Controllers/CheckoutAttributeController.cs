@@ -90,7 +90,7 @@ namespace Smartstore.Admin.Controllers
 
                     return model;
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             var gridModel = new GridModel<CheckoutAttributeModel>
             {
@@ -272,7 +272,7 @@ namespace Smartstore.Admin.Controllers
 
                     return model;
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             var gridModel = new GridModel<CheckoutAttributeValueModel>
             {

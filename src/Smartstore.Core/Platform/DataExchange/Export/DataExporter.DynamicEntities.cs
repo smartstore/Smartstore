@@ -87,7 +87,7 @@ namespace Smartstore.Core.DataExchange.Export
 
             dynObject.OrderItems = await orderItems
                 .SelectAwait(async x => await ToDynamic(x, ctx))
-                .AsyncToList();
+                .ToListAsync();
 
             dynObject.Shipments = shipments
                 .Select(x => ToDynamic(x, ctx))

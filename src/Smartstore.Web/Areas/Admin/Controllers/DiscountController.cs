@@ -109,7 +109,7 @@ namespace Smartstore.Admin.Controllers
             var mapper = MapperFactory.GetMapper<Discount, DiscountModel>();
             var rows = await discounts
                 .SelectAwait(async x => await mapper.MapAsync(x))
-                .AsyncToList();
+                .ToListAsync();
 
             return Json(new GridModel<DiscountModel>
             {

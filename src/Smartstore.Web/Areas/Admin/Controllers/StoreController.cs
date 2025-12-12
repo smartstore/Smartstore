@@ -89,7 +89,7 @@ namespace Smartstore.Admin.Controllers
 
                     return model;
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             return Json(new GridModel<StoreModel>
             {

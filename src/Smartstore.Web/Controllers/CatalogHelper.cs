@@ -438,7 +438,7 @@ namespace Smartstore.Web.Controllers
 
                     return model;
                 })
-                .AsyncToList();
+                .ToListAsync();
         }
 
         public async Task<IEnumerable<int>> GetChildCategoryIdsAsync(int parentCategoryId, bool deep = true)

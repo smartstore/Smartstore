@@ -111,7 +111,7 @@ namespace Smartstore.Admin.Controllers
                 await PrepareShipmentModel(m, x, false);
                 return m;
             })
-            .AsyncToList();
+            .ToListAsync();
 
             return Json(new GridModel<ShipmentModel>
             {
@@ -407,7 +407,7 @@ namespace Smartstore.Admin.Controllers
                     await PrepareShipmentModel(m, x, true);
                     return m;
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             // TODO: (mc) this is bad for multi-document processing, where orders can originate from different stores.
             var storeId = models[0].StoreId;
@@ -499,7 +499,7 @@ namespace Smartstore.Admin.Controllers
                     model.Items = await shipment.ShipmentItems
                         .SelectAwait(async x => await CreateShipmentItemModel(x, orderItems.Get(x.OrderItemId), baseDimension, baseWeight))
                         .Where(x => x != null)
-                        .AsyncToList();
+                        .ToListAsync();
                 }
             }
         }

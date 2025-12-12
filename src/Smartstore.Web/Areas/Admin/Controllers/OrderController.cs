@@ -269,7 +269,7 @@ namespace Smartstore.Admin.Controllers
                 .Select(x => x.PaymentMethodSystemName)
                 .Distinct()
                 .SelectAwait(async x => await _paymentService.LoadPaymentProviderBySystemNameAsync(x))
-                .AsyncToList();
+                .ToListAsync();
 
             var paymentMethodsDic = paymentMethods
                 .Where(x => x != null)
@@ -304,7 +304,7 @@ namespace Smartstore.Admin.Controllers
 
                     return m;
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             var summaryQuery =
                 from q in orderQuery

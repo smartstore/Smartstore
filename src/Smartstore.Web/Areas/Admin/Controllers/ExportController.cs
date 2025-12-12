@@ -591,7 +591,7 @@ namespace Smartstore.Admin.Controllers
                             LimitedToStores = category.LimitedToStores
                         };
                     })
-                    .AsyncToList();
+                    .ToListAsync();
 
                 gridModel = new GridModel<ExportPreviewCategoryModel> { Rows = rows, Total = normalizedTotal };
             }
@@ -942,7 +942,7 @@ namespace Smartstore.Admin.Controllers
 
                 return deploymentModel;
             })
-            .AsyncToList();
+            .ToListAsync();
 
             // Provider.
             if (provider != null)

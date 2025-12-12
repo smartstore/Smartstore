@@ -141,7 +141,7 @@ namespace Smartstore.Admin.Controllers
 
                     return model;
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             return Json(new GridModel<ProductAttributeModel>
             {
@@ -316,7 +316,7 @@ namespace Smartstore.Admin.Controllers
                     model.Expanded = x.Id == expandAttributeOptionsSetId;
                     return model;
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             return Json(new GridModel<ProductAttributeOptionsSetModel>
             {
@@ -408,7 +408,7 @@ namespace Smartstore.Admin.Controllers
                     await PrepareProductAttributeOptionModel(m, x, linkedProducts);
                     return m;
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             return Json(new GridModel<ProductAttributeOptionModel>
             {

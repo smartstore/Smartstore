@@ -132,7 +132,7 @@ namespace Smartstore.Core.Seo
                     return result;
                 });
 
-            return await validatedBatch.AsyncToList(cancelToken);
+            return await validatedBatch.ToListAsync(cancelToken);
         }
 
         protected override void OnDispose(bool disposing)

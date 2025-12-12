@@ -43,7 +43,7 @@ namespace Smartstore.Admin.Controllers
             // INFO: Will fail if DbCache is disabled and entities are not materialized beforehand.
             var models = await entities
                 .SelectAwait(async x => await mapper.MapAsync(x))
-                .AsyncToList();
+                .ToListAsync();
 
             var gridModel = new GridModel<ActivityLogTypeModel>
             {
@@ -169,7 +169,7 @@ namespace Smartstore.Admin.Controllers
 
                 return model;
             })
-            .AsyncToList();
+            .ToListAsync();
 
             var gridModel = new GridModel<ActivityLogModel>
             {

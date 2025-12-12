@@ -29,10 +29,10 @@ namespace Smartstore.Web.Models.Common
 
                     return x.Id;
                 })
-                .AsyncToList();
+                .ToListAsync();
             }
 
-            return await models.OrderByDescending(x => x.Id).AsyncToList();
+            return await models.OrderByDescending(x => x.Id).ToListAsync();
         }
 
         /// <summary>

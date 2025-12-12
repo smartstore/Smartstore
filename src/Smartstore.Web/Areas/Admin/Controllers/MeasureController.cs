@@ -49,7 +49,7 @@ namespace Smartstore.Admin.Controllers
 
                     return model;
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             var gridModel = new GridModel<MeasureWeightModel>
             {
@@ -276,7 +276,7 @@ namespace Smartstore.Admin.Controllers
 
                 return model;
             })
-            .AsyncToList();
+            .ToListAsync();
 
             var gridModel = new GridModel<MeasureDimensionModel>
             {

@@ -291,7 +291,7 @@ namespace Smartstore.Web.Controllers
                             item.ImageUrl = _mediaService.GetUrl(file, _mediaSettings.ProductThumbPictureSizeOnProductDetailsPage, null, !_catalogSettings.HideProductDefaultPictures);
 
                             return item;
-                        }).AsyncToList();
+                        }).ToListAsync();
                 }
                 else if (model.EntityType.EqualsNoCase("manufacturer"))
                 {

@@ -38,7 +38,7 @@ namespace Smartstore.Admin.Models.Catalog
                     await mapper.MapAsync(x, model, parameters);
                     return model;
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             return models;
         }

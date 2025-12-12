@@ -708,7 +708,7 @@ namespace Smartstore.Admin.Controllers
                         EditUrl = Url.Action("Edit", "Category", new { id = x.CategoryId })
                     };
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             return Json(new GridModel<ProductModel.ProductCategoryModel>
             {
@@ -1470,7 +1470,7 @@ namespace Smartstore.Admin.Controllers
                     Published = x.Published,
                     ProductCount = await _productTagService.CountProductsByTagIdAsync(x.Id)
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             return Json(new GridModel<ProductTagModel>
             {

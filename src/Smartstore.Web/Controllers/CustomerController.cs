@@ -1161,7 +1161,7 @@ namespace Smartstore.Web.Controllers
 
                     return orderModel;
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             model.Orders = orderModels.ToPagedList(orders.PageIndex, orders.PageSize, orders.TotalCount);
 
@@ -1196,7 +1196,7 @@ namespace Smartstore.Web.Controllers
                         CanCancel = await _orderProcessingService.CanCancelRecurringPaymentAsync(x, customer)
                     };
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             model.RecurringPayments = rpModels.ToPagedList(recurringPayments.PageIndex, recurringPayments.PageSize, recurringPayments.TotalCount);
 

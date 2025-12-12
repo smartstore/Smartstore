@@ -51,7 +51,7 @@ namespace Smartstore.Polls.Controllers
                 TaxCategoryName = x.Name,
                 Rate = await Services.Settings.GetSettingByKeyAsync<decimal>($"Tax.TaxProvider.FixedRate.TaxCategoryId{x.Id}")
             })
-                .AsyncToList();
+                .ToListAsync();
 
             var gridModel = new GridModel<FixedTaxRateModel>
             {

@@ -83,7 +83,7 @@ namespace Smartstore.Admin.Controllers
                     EditUrl = Url.Action(nameof(Edit), new { id = x.Id }),
                     Address = await addressMapper.MapAsync(x.Address)
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             return Json(new GridModel<AffiliateModel>
             {

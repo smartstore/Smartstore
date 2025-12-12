@@ -30,7 +30,7 @@ namespace Smartstore.Admin.Models.Common
                     await mapper.MapAsync(x, model, parameters);
                     return model;
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             return models;
         }

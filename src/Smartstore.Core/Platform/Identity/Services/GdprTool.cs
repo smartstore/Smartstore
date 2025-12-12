@@ -73,28 +73,28 @@ namespace Smartstore.Core.Identity
                         "Billing.NameLine", "Billing.StreetLine", "Billing.CityLine", "Billing.CountryLine",
                         "Shipping.NameLine", "Shipping.StreetLine", "Shipping.CityLine", "Shipping.CountryLine"
                     };
-                    model["Orders"] = await orders.SelectAwait(x => _messageModelProvider.CreateModelPartAsync(x, true, ignoreMemberNames)).AsyncToList();
+                    model["Orders"] = await orders.SelectAwait(x => _messageModelProvider.CreateModelPartAsync(x, true, ignoreMemberNames)).ToListAsync();
                 }
 
                 // Return Request
                 var returnRequests = customer.ReturnRequests;
                 if (returnRequests.Any())
                 {
-                    model["ReturnRequests"] = await returnRequests.SelectAwait(x => _messageModelProvider.CreateModelPartAsync(x, true, "Url")).AsyncToList();
+                    model["ReturnRequests"] = await returnRequests.SelectAwait(x => _messageModelProvider.CreateModelPartAsync(x, true, "Url")).ToListAsync();
                 }
 
                 // Wallet
                 var walletHistory = customer.WalletHistory;
                 if (walletHistory.Any())
                 {
-                    model["WalletHistory"] = await walletHistory.SelectAwait(x => _messageModelProvider.CreateModelPartAsync(x, true, "WalletUrl")).AsyncToList();
+                    model["WalletHistory"] = await walletHistory.SelectAwait(x => _messageModelProvider.CreateModelPartAsync(x, true, "WalletUrl")).ToListAsync();
                 }
 
                 // Product reviews
                 var productReviews = customer.CustomerContent.OfType<ProductReview>();
                 if (productReviews.Any())
                 {
-                    model["ProductReviews"] = await productReviews.SelectAwait(x => _messageModelProvider.CreateModelPartAsync(x, true)).AsyncToList();
+                    model["ProductReviews"] = await productReviews.SelectAwait(x => _messageModelProvider.CreateModelPartAsync(x, true)).ToListAsync();
                 }
 
                 // Product review helpfulness
@@ -102,7 +102,7 @@ namespace Smartstore.Core.Identity
                 if (helpfulness.Any())
                 {
                     ignoreMemberNames = new string[] { "CustomerId", "UpdatedOn" };
-                    model["ProductReviewHelpfulness"] = await helpfulness.SelectAwait(x => _messageModelProvider.CreateModelPartAsync(x, true, ignoreMemberNames)).AsyncToList();
+                    model["ProductReviewHelpfulness"] = await helpfulness.SelectAwait(x => _messageModelProvider.CreateModelPartAsync(x, true, ignoreMemberNames)).ToListAsync();
                 }
 
                 // BackInStock subscriptions
@@ -113,7 +113,7 @@ namespace Smartstore.Core.Identity
 
                 if (backInStockSubscriptions.Any())
                 {
-                    model["BackInStockSubscriptions"] = await backInStockSubscriptions.SelectAwait(x => _messageModelProvider.CreateModelPartAsync(x, true, "CustomerId")).AsyncToList();
+                    model["BackInStockSubscriptions"] = await backInStockSubscriptions.SelectAwait(x => _messageModelProvider.CreateModelPartAsync(x, true, "CustomerId")).ToListAsync();
                 }
 
                 // INFO: we're not going to export: 

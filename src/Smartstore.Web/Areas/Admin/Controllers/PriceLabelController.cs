@@ -44,7 +44,7 @@ namespace Smartstore.Admin.Controllers
             var mapper = MapperFactory.GetMapper<PriceLabel, PriceLabelModel>();
             var priceLabelModels = await priceLabels
                 .SelectAwait(async x => await mapper.MapAsync(x))
-                .AsyncToList();
+                .ToListAsync();
 
             var gridModel = new GridModel<PriceLabelModel>
             {

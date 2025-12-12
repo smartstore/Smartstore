@@ -140,7 +140,7 @@ namespace Smartstore.ComponentModel
 
             return await from
                 .SelectAwait<TFrom, TTo>(async x => await MapAsync<TFrom, TTo>(mapper, x, parameters))
-                .AsyncToList();
+                .ToListAsync();
         }
 
         /// <summary>

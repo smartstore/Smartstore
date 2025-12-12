@@ -114,7 +114,7 @@ namespace Smartstore.Core.Checkout.Shipping
 
                 return await shippingMethods
                     .WhereAwait(async x => await _cartRuleProvider.RuleMatchesAsync(x, contextAction: contextAction))
-                    .AsyncToList();
+                    .ToListAsync();
             }
 
             return shippingMethods;

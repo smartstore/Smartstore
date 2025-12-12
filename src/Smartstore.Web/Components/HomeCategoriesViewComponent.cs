@@ -39,7 +39,7 @@ namespace Smartstore.Web.Components
             // ACL and store mapping
             categories = await categories
                 .WhereAwait(async c => (await _aclService.AuthorizeAsync(c)) && (await _storeMappingService.AuthorizeAsync(c)))
-                .AsyncToList();
+                .ToListAsync();
 
             var model = await _catalogHelper.MapCategorySummaryModelAsync(categories, _mediaSettings.CategoryThumbPictureSize);
             if (model.Count == 0)

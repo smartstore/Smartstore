@@ -198,7 +198,7 @@ namespace Smartstore.Web.Controllers
 
                     return tierPriceModel;
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             if (tierPriceModels.Count > 0)
             {

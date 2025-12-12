@@ -199,7 +199,7 @@ namespace Smartstore.Admin.Controllers
 
                     return model;
                 })
-                .AsyncToList();
+                .ToListAsync();
 
             return Json(new GridModel<SpecificationAttributeModel>
             {
@@ -382,7 +382,7 @@ namespace Smartstore.Admin.Controllers
 
             var rows = await options
                 .SelectAwait(async x => await mapper.MapAsync(x))
-                .AsyncToList();
+                .ToListAsync();
 
             return Json(new GridModel<SpecificationAttributeOptionModel>
             {

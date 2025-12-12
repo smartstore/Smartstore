@@ -840,7 +840,7 @@ namespace Smartstore.Admin.Controllers
 
             var backups = await root
                 .EnumerateFilesAsync(BackupDir)
-                .AsyncToList();
+                .ToListAsync();
 
             var dataProvider = _db.DataProvider;
 

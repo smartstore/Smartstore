@@ -49,7 +49,7 @@ namespace Smartstore.Web.Components
             // ACL and store mapping
             products = await products
                 .WhereAwait(async c => (await _aclService.AuthorizeAsync(c)) && (await _storeMappingService.AuthorizeAsync(c)))
-                .AsyncToList();
+                .ToListAsync();
 
             var viewMode = _catalogSettings.UseSmallProductBoxOnHomePage ? ProductSummaryViewMode.Mini : ProductSummaryViewMode.Grid;
 

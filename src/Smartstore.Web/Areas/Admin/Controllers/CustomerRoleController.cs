@@ -130,7 +130,7 @@ namespace Smartstore.Admin.Controllers
                 model.EditUrl = Url.Action(nameof(Edit), "CustomerRole", new { id = x.Id, area = "Admin" });
                 return model;
             })
-            .AsyncToList();
+            .ToListAsync();
 
             return Json(new GridModel<CustomerRoleModel>
             {

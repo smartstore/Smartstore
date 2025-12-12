@@ -767,7 +767,7 @@ namespace Smartstore.Admin.Controllers
 
                 return pvacModel;
             })
-            .AsyncToList();
+            .ToListAsync();
 
             return Json(new GridModel<ProductVariantAttributeCombinationModel>
             {

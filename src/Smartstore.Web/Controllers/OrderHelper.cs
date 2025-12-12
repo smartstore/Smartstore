@@ -285,7 +285,7 @@ namespace Smartstore.Web.Controllers
 
             var models = await orders
                 .SelectAwait(o => PrepareOrderDetailsModelInternal(o, context))
-                .AsyncToList();
+                .ToListAsync();
 
             return models;
         }
