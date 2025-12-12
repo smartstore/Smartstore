@@ -130,7 +130,7 @@ namespace Smartstore.IO
         /// <param name="deep">Whether to sum up length in all subdirectories also.</param>
         /// <returns>Total length of all files.</returns>
         async ValueTask<long> GetDirectorySizeAsync(string? pattern = "*", bool deep = true, CancellationToken cancelToken = default)
-            => await EnumerateFilesAsync(pattern, deep, cancelToken).SumAsync(x => x.Length, cancellationToken: cancelToken);
+            => await EnumerateFilesAsync(pattern, deep, cancelToken).Select(x => x.Length).SumAsync(cancelToken);
 
         /// <summary>
         /// Retrieves the count of files within the directory.

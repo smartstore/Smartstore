@@ -1,29 +1,30 @@
 ﻿using System.Globalization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace Smartstore.Web.Rendering
-{
-    public static class TagBuilderExtensions
+namespace Smartstore.Web.Rendering;
+
+public static class TagBuilderExtensions {
+    extension(TagBuilder builder)
     {
-        public static TagBuilder AppendCssClass(this TagBuilder builder, Func<string> cssClass)
+        public TagBuilder AppendCssClass(Func<string> cssClass)
         {
             builder.Attributes.AddInValue("class", ' ', cssClass(), false);
             return builder;
         }
 
-        public static TagBuilder PrependCssClass(this TagBuilder builder, Func<string> cssClass)
+        public TagBuilder PrependCssClass(Func<string> cssClass)
         {
             builder.Attributes.AddInValue("class", ' ', cssClass(), true);
             return builder;
         }
 
-        public static TagBuilder AppendCssClass(this TagBuilder builder, string cssClass)
+        public TagBuilder AppendCssClass(string cssClass)
         {
             builder.Attributes.AddInValue("class", ' ', cssClass, false);
             return builder;
         }
 
-        public static TagBuilder PrependCssClass(this TagBuilder builder, string cssClass)
+        public TagBuilder PrependCssClass(string cssClass)
         {
             builder.Attributes.AddInValue("class", ' ', cssClass, true);
             return builder;
@@ -33,12 +34,12 @@ namespace Smartstore.Web.Rendering
         /// Creates a DOM-like CSS class list object. Call 'Dispose()' to flush
         /// the result back to <paramref name="builder"/>.
         /// </summary>
-        public static CssClassList GetClassList(this TagBuilder builder)
+        public CssClassList GetClassList()
         {
             return new CssClassList(builder.Attributes);
         }
 
-        public static void AddCssStyle(this TagBuilder builder, string expression, object value)
+        public void AddCssStyle(string expression, object value)
         {
             Guard.NotEmpty(expression);
             Guard.NotNull(value);
@@ -55,7 +56,7 @@ namespace Smartstore.Web.Rendering
             }
         }
 
-        public static void AddCssStyles(this TagBuilder builder, string styles)
+        public void AddCssStyles(string styles)
         {
             Guard.NotEmpty(styles);
 
@@ -69,7 +70,7 @@ namespace Smartstore.Web.Rendering
             }
         }
 
-        public static bool MergeAttribute(this TagBuilder builder, string key, string value, bool replaceExisting, bool ignoreNull)
+        public bool MergeAttribute(string key, string value, bool replaceExisting, bool ignoreNull)
         {
             if (value == null && ignoreNull)
             {
@@ -80,7 +81,7 @@ namespace Smartstore.Web.Rendering
             return true;
         }
 
-        public static bool MergeAttribute(this TagBuilder builder, string key, Func<string> valueAccessor, bool replaceExisting, bool ignoreNull)
+        public bool MergeAttribute(string key, Func<string> valueAccessor, bool replaceExisting, bool ignoreNull)
         {
             Guard.NotEmpty(key);
             Guard.NotNull(valueAccessor);

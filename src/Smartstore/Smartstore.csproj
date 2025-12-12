@@ -27,28 +27,27 @@
         <PackageReference Include="AngleSharp" Version="1.4.0" />
         <PackageReference Include="AngleSharp.Css" Version="1.0.0-beta.164" />
         <PackageReference Include="AsyncKeyedLock" Version="7.1.8" />
-        <PackageReference Include="Autofac" Version="8.4.0" />
+        <PackageReference Include="Autofac" Version="9.0.0" />
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="10.0.0" />
         <PackageReference Include="Barcoder" Version="3.0.0" />
         <PackageReference Include="CronExpressionDescriptor" Version="2.44.0" />
         <PackageReference Include="HtmlSanitizer" Version="9.1.891-beta" />
         <PackageReference Include="Humanizer" Version="3.0.1" />
         <PackageReference Include="MailKit" Version="4.14.1" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.11" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.11" />
-        <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.11" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.1" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.1" />
+        <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="10.0.1" />
         <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.15.0" />
         <PackageReference Include="NCrontab.Signed" Version="3.4.0" />
         <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.3" />
-        <PackageReference Include="NuGet.Protocol" Version="6.14.0" />
+        <PackageReference Include="NuGet.Protocol" Version="7.0.1" />
         <PackageReference Include="PreMailer.Net" Version="2.7.2" />
         <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
         <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />
-        <PackageReference Include="System.IO.Hashing" Version="9.0.11" />
-        <PackageReference Include="System.Linq.Async" Version="6.0.3" />
+        <PackageReference Include="System.IO.Hashing" Version="10.0.1" />
         <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.1" />
-        <PackageReference Include="System.Memory.Data" Version="9.0.11" />
-        <PackageReference Include="System.ServiceModel.Syndication" Version="9.0.11" />
+        <PackageReference Include="System.Memory.Data" Version="10.0.1" />
+        <PackageReference Include="System.ServiceModel.Syndication" Version="10.0.1" />
     </ItemGroup>
 
     <ItemGroup>

@@ -5,6 +5,6 @@
         <OutDir>$(OutputPath)</OutDir>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.11" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="10.0.1" />
     </ItemGroup>
 </Project>

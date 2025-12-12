@@ -576,7 +576,7 @@ namespace Smartstore
         /// <param name="predicate">Optional. Files not matching the predicate are ignored.</param>
         /// <param name="deep">Whether to sum up length in all subdirectories also.</param>
         /// <returns>Total length of all files.</returns>
-        public static async Task<long> GetDirectorySizeAsync(
+        public static async ValueTask<long> GetDirectorySizeAsync(
             this IFileSystem fs,
             string subpath,
             string pattern = "*",
@@ -595,7 +595,8 @@ namespace Smartstore
             {
                 return await dir.EnumerateFilesAsync(pattern, deep)
                     .Where(x => predicate(x.SubPath))
-                    .SumAsync(x => x.Length);
+                    .Select(x => x.Length)
+                    .SumAsync();
             }
         }
 

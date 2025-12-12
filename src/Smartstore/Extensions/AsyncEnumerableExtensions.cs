@@ -48,7 +48,7 @@ namespace Smartstore
             Func<TSource, TKey> keySelector,
             CancellationToken cancellationToken = default)
         {
-            return source.ToDictionaryAsync(keySelector, cancellationToken);
+            return source.ToDictionaryAsync(keySelector, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace Smartstore
             Func<TSource, TElement> elementSelector,
             CancellationToken cancellationToken = default)
         {
-            return source.ToDictionaryAsync(keySelector, elementSelector, cancellationToken);
+            return source.ToDictionaryAsync(keySelector, elementSelector, cancellationToken: cancellationToken);
         }
 
         /// <summary>

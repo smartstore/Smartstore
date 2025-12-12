@@ -345,7 +345,7 @@ namespace Smartstore
         /// <returns>An <see cref="IAsyncEnumerable{T}"/> that contains elements from the input sequence that satisfy the condition.</returns>
         public static IAsyncEnumerable<T> WhereAwait<T>(this IEnumerable<T> source, Func<T, Task<bool>> predicate)
         {
-            return source.ToAsyncEnumerable().WhereAwait(x => new ValueTask<bool>(predicate(x)));
+            return source.ToAsyncEnumerable().Where((x, ct) => new ValueTask<bool>(predicate(x)));
         }
 
         /// <summary>
@@ -365,7 +365,7 @@ namespace Smartstore
         /// <param name="selector">A transform function to apply to each source element.</param>
         public static IAsyncEnumerable<TResult> SelectAwait<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, Task<TResult>> selector)
         {
-            return source.ToAsyncEnumerable().SelectAwait(x => new ValueTask<TResult>(selector(x)));
+            return source.ToAsyncEnumerable().Select((x, i, ct) => new ValueTask<TResult>(selector(x)));
         }
 
         /// <summary>
