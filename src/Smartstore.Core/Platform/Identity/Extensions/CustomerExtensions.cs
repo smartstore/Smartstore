@@ -5,7 +5,7 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 
 namespace Smartstore
-{
+{   
     public static class CustomerExtensions
     {
         #region Roles
