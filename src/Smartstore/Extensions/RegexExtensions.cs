@@ -10,44 +10,19 @@ public static class RegexExtensions
     {
         public string ReplaceGroup(string input, string groupName, string replacement)
         {
-            return ReplaceGroupInternal(input, replacement, m => m.Groups[groupName]);
+            return ReplaceGroupInternal(regex, input, replacement, m => m.Groups[groupName]);
         }
 
         public string ReplaceGroup(string input, int groupNum, string replacement)
         {
-            return ReplaceGroupInternal(input, replacement, m => m.Groups[groupNum]);
-        }
-
-        private string ReplaceGroupInternal(string input, string replacement, Func<Match, Group> groupSelector)
-        {
-            return regex.Replace(input, match =>
-            {
-                var group = groupSelector(match);
-                var sb = new StringBuilder(input.Length);
-                var previousCaptureEnd = 0;
-
-                foreach (var capture in group.Captures.Cast<Capture>())
-                {
-                    var currentCaptureEnd = capture.Index + capture.Length - match.Index;
-                    var currentCaptureLength = capture.Index - match.Index - previousCaptureEnd;
-
-                    sb.Append(match.Value.AsSpan(previousCaptureEnd, currentCaptureLength));
-                    sb.Append(replacement);
-
-                    previousCaptureEnd = currentCaptureEnd;
-                }
-
-                sb.Append(match.Value.AsSpan(previousCaptureEnd));
-
-                return sb.ToString();
-            });
+            return ReplaceGroupInternal(regex, input, replacement, m => m.Groups[groupNum]);
         }
 
         public async Task<string> ReplaceAsync(string input, Func<Match, Task<string>> evaluator)
         {
-            Guard.NotNull(regex, nameof(regex));
-            Guard.NotNull(input, nameof(input));
-            Guard.NotNull(evaluator, nameof(evaluator));
+            Guard.NotNull(regex);
+            Guard.NotNull(input);
+            Guard.NotNull(evaluator);
 
             using var psb = StringBuilderPool.Instance.Get(out var sb);
             var lastIndex = 0;
@@ -69,5 +44,30 @@ public static class RegexExtensions
             sb.Append(input, lastIndex, input.Length - lastIndex);
             return sb.ToString();
         }
+    }
+
+    private static string ReplaceGroupInternal(Regex regex, string input, string replacement, Func<Match, Group> groupSelector)
+    {
+        return regex.Replace(input, match =>
+        {
+            var group = groupSelector(match);
+            var sb = new StringBuilder(input.Length);
+            var previousCaptureEnd = 0;
+
+            foreach (var capture in group.Captures.Cast<Capture>())
+            {
+                var currentCaptureEnd = capture.Index + capture.Length - match.Index;
+                var currentCaptureLength = capture.Index - match.Index - previousCaptureEnd;
+
+                sb.Append(match.Value.AsSpan(previousCaptureEnd, currentCaptureLength));
+                sb.Append(replacement);
+
+                previousCaptureEnd = currentCaptureEnd;
+            }
+
+            sb.Append(match.Value.AsSpan(previousCaptureEnd));
+
+            return sb.ToString();
+        });
     }
 }
