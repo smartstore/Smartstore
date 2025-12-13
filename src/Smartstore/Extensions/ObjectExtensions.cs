@@ -4,12 +4,14 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using Smartstore.Utilities;
 
-namespace Smartstore
+namespace Smartstore;
+
+public static class ObjectExtensions
 {
-    public static class ObjectExtensions
+    extension(object? value)
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T? Convert<T>(this object? value)
+        public T? Convert<T>()
         {
             if (ConvertUtility.TryConvert(value, typeof(T), CultureInfo.InvariantCulture, out object? result))
             {
@@ -20,7 +22,7 @@ namespace Smartstore
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T? Convert<T>(this object? value, T? defaultValue)
+        public T? Convert<T>(T? defaultValue)
         {
             if (ConvertUtility.TryConvert(value, typeof(T), CultureInfo.InvariantCulture, out object? result))
             {
@@ -31,7 +33,7 @@ namespace Smartstore
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T? Convert<T>(this object? value, CultureInfo? culture)
+        public T? Convert<T>(CultureInfo? culture)
         {
             if (ConvertUtility.TryConvert(value, typeof(T), culture, out object? result))
             {
@@ -42,7 +44,7 @@ namespace Smartstore
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T? Convert<T>(this object? value, T? defaultValue, CultureInfo? culture)
+        public T? Convert<T>(T? defaultValue, CultureInfo? culture)
         {
             if (ConvertUtility.TryConvert(value, typeof(T), culture, out object? result))
             {
@@ -53,7 +55,7 @@ namespace Smartstore
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object? Convert(this object? value, Type to)
+        public object? Convert(Type to)
         {
             if (ConvertUtility.TryConvert(value, to, CultureInfo.InvariantCulture, out object? result))
             {
@@ -65,7 +67,7 @@ namespace Smartstore
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object? Convert(this object? value, Type to, CultureInfo? culture)
+        public object? Convert(Type to, CultureInfo? culture)
         {
             if (ConvertUtility.TryConvert(value, to, culture, out object? result))
             {

@@ -1,20 +1,24 @@
-﻿using System.Globalization;
+﻿#nullable enable
+
+using System.Globalization;
 using System.Xml;
 
-namespace Smartstore
+namespace Smartstore;
+
+public static class XmlNodeExtensions
 {
-    public static class XmlNodeExtensions
+    extension(XmlNode node)
     {
         /// <summary>
         /// Safe way to get inner text of an attribute.
         /// </summary>
-        public static T GetAttributeText<T>(this XmlNode node, string attributeName, T defaultValue = default)
+        public T? GetAttributeText<T>(string? attributeName, T? defaultValue = default)
         {
             try
             {
-                if (node != null && attributeName.HasValue())
+                if (node != null && !string.IsNullOrEmpty(attributeName))
                 {
-                    XmlAttribute attr = node.Attributes[attributeName];
+                    var attr = node.Attributes?[attributeName];
                     if (attr != null)
                     {
                         return attr.InnerText.Convert<T>();
@@ -32,7 +36,7 @@ namespace Smartstore
         /// <summary>
         /// Safe way to get inner text of an attribute.
         /// </summary>
-        public static string GetAttributeText(this XmlNode node, string attributeName)
+        public string? GetAttributeText(string? attributeName)
         {
             return node.GetAttributeText<string>(attributeName, null);
         }
@@ -40,13 +44,13 @@ namespace Smartstore
         /// <summary>
         /// Safe way to get inner text of a node.
         /// </summary>
-        public static T GetText<T>(this XmlNode node, string xpath = null, T defaultValue = default, CultureInfo culture = null)
+        public T? GetText<T>(string? xpath = null, T? defaultValue = default, CultureInfo? culture = null)
         {
             try
             {
                 if (node != null)
                 {
-                    if (xpath.IsEmpty())
+                    if (string.IsNullOrEmpty(xpath))
                     {
                         return node.InnerText.Convert<T>();
                     }
@@ -70,7 +74,7 @@ namespace Smartstore
         /// <summary>
         /// Safe way to get inner text of a node.
         /// </summary>
-        public static string GetText(this XmlNode node, string xpath = null, string defaultValue = default)
+        public string? GetText(string? xpath = null, string? defaultValue = default)
         {
             return node.GetText<string>(xpath, defaultValue);
         }

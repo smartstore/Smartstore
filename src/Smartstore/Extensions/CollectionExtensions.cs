@@ -1,17 +1,17 @@
 ﻿using Smartstore.Collections;
 
-namespace Smartstore
-{
-    public static class CollectionExtensions
-    {
-        #region Collection
+namespace Smartstore;
 
-        public static void AddRange<T>(this ICollection<T> initial, IEnumerable<T> other)
+public static class CollectionExtensions
+{
+    extension<T>(ICollection<T> source)
+    {
+        public void AddRange(IEnumerable<T> other)
         {
             if (other == null)
                 return;
 
-            if (initial is List<T> list)
+            if (source is List<T> list)
             {
                 list.AddRange(other);
                 return;
@@ -19,11 +19,11 @@ namespace Smartstore
 
             foreach (var local in other)
             {
-                initial.Add(local);
+                source.Add(local);
             }
         }
 
-        public static SyncedCollection<T> AsSynchronized<T>(this ICollection<T> source)
+        public SyncedCollection<T> AsSynchronized()
         {
             if (source is SyncedCollection<T> sc)
             {
@@ -32,20 +32,18 @@ namespace Smartstore
 
             return new SyncedCollection<T>(source);
         }
+    }
 
-        #endregion
-
-        #region List
-
+    extension<T>(IList<T> list)
+    {
         /// <summary>
         /// Safe way to remove selected entries from a list.
         /// </summary>
         /// <remarks>To be used for materialized lists only, not IEnumerable or similar.</remarks>
         /// <typeparam name="T">Object type.</typeparam>
-        /// <param name="list">List.</param>
         /// <param name="selector">Selector for the entries to be removed.</param>
         /// <returns>Number of removed entries.</returns>
-        public static int Remove<T>(this IList<T> list, Func<T, bool> selector)
+        public int Remove(Func<T, bool> selector)
         {
             Guard.NotNull(list);
             Guard.NotNull(selector);
@@ -62,12 +60,11 @@ namespace Smartstore
 
             return count;
         }
+    }
 
-        #endregion
-
-        #region Stack
-
-        public static bool TryPeek<T>(this Stack<T> stack, out T value)
+    extension<T>(Stack<T> stack)
+    {
+        public bool TryPeek(out T value)
         {
             value = default;
 
@@ -80,7 +77,7 @@ namespace Smartstore
             return false;
         }
 
-        public static bool TryPop<T>(this Stack<T> stack, out T value)
+        public bool TryPop(out T value)
         {
             value = default;
 
@@ -92,7 +89,5 @@ namespace Smartstore
 
             return false;
         }
-
-        #endregion
     }
 }

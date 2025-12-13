@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -131,7 +132,7 @@ namespace Smartstore
         /// </summary>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsEmpty(this string? value)
+        public static bool IsEmpty([NotNullWhen(false)] this string? value)
         {
             return string.IsNullOrWhiteSpace(value);
         }
@@ -144,7 +145,7 @@ namespace Smartstore
         /// 	<c>true</c> if the string is all white space; otherwise, <c>false</c>.
         /// </returns>
         [DebuggerStepThrough]
-        public static bool IsWhiteSpace(this string value)
+        public static bool IsWhiteSpace([NotNullWhen(false)] this string value)
         {
             if (value == null)
             {
@@ -170,7 +171,7 @@ namespace Smartstore
         /// </summary>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasValue(this string? value)
+        public static bool HasValue([NotNullWhen(true)] this string? value)
         {
             return !string.IsNullOrWhiteSpace(value);
         }

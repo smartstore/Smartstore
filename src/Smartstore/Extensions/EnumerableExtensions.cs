@@ -7,17 +7,16 @@ using Microsoft.Extensions.Primitives;
 using Smartstore.ComponentModel;
 using Smartstore.Domain;
 
-namespace Smartstore
-{
-    public static class EnumerableExtensions
-    {
-        #region Array
+namespace Smartstore;
 
+public static class EnumerableExtensions
+{
+    extension<T>(T[]? source)
+    {
         /// <summary>
-        /// Checks whether given <paramref name="source"/> array is either
-        /// <c>null</c> or empty.
+        /// Checks whether given <paramref name="source"/> array is either <c>null</c> or empty.
         /// </summary>
-        public static bool IsNullOrEmpty<T>(this T[]? source)
+        public bool IsNullOrEmpty()
         {
             if (source == null)
             {
@@ -26,16 +25,14 @@ namespace Smartstore
 
             return source.Length == 0;
         }
+    }
 
-        #endregion
-
-        #region IEnumerable
-
+    extension<T>(IEnumerable<T>? source)
+    {
         /// <summary>
-        /// Checks whether given <paramref name="source"/> collection is either
-        /// <c>null</c> or empty.
+        /// Checks whether given <paramref name="source"/> collection is either <c>null</c> or empty.
         /// </summary>
-        public static bool IsNullOrEmpty<T>(this IEnumerable<T>? source)
+        public bool IsNullOrEmpty()
         {
             if (source == null)
             {
@@ -50,16 +47,66 @@ namespace Smartstore
             return !source.Any();
         }
 
+        public ReadOnlyCollection<T> AsReadOnly()
+        {
+            if (source == null)
+            {
+                return [];
+            }
+            else if (source is ReadOnlyCollection<T> readOnly)
+            {
+                return readOnly;
+            }
+
+            if (source.TryGetNonEnumeratedCount(out var count) && count == 0)
+            {
+                return [];
+            }
+
+            if (!source.Any())
+            {
+                return [];
+            }
+
+            if (source is List<T> list)
+            {
+                return list.AsReadOnly();
+            }
+            else if (source is IList<T> list2)
+            {
+                return new ReadOnlyCollection<T>(list2);
+            }
+
+            return new ReadOnlyCollection<T>([.. source]);
+        }
+    }
+
+    extension<T>(ISet<T> source)
+    {
         /// <summary>
-        /// Performs an action on each item while iterating through a list. 
-        /// This is a handy shortcut for <c>foreach(item in list) { ... }</c>
+        /// Converts a set to a read-only set.
         /// </summary>
-        /// <typeparam name="T">The type of the items.</typeparam>
-        /// <param name="source">The list, which holds the objects.</param>
-        /// <param name="action">The action delegate which is called on each item while iterating.</param>
+        public ReadOnlySet<T> AsReadOnly()
+        {
+            Guard.NotNull(source);
+
+            if (source.Count == 0)
+            {
+                return [];
+            }
+
+            return new ReadOnlySet<T>(source);
+        }
+    }
+
+    extension<T>(IEnumerable<T> source)
+    {
+        /// <summary>
+        /// Performs an action on each item while iterating through a list.
+        /// </summary>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Each<T>(this IEnumerable<T> source, Action<T> action)
+        public void Each(Action<T> action)
         {
             if (source is List<T> list)
             {
@@ -74,15 +121,11 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Performs an action on each item while iterating through a list. 
-        /// This is a handy shortcut for <c>foreach(item in list) { ... }</c>
+        /// Performs an action on each item while iterating through a list with the index.
         /// </summary>
-        /// <typeparam name="T">The type of the items.</typeparam>
-        /// <param name="source">The list, which holds the objects.</param>
-        /// <param name="action">The action delegate which is called on each item while iterating.</param>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Each<T>(this IEnumerable<T> source, Action<T, int> action)
+        public void Each(Action<T, int> action)
         {
             int i = 0;
             foreach (T t in source)
@@ -91,116 +134,28 @@ namespace Smartstore
             }
         }
 
-        public static ReadOnlyCollection<T> AsReadOnly<T>(this IEnumerable<T>? source)
-        {
-            if (source == null)
-            {
-                return ReadOnlyCollection<T>.Empty;
-            }
-            else if (source is ReadOnlyCollection<T> readOnly)
-            {
-                return readOnly;
-            }
-
-            if (source.TryGetNonEnumeratedCount(out var count) && count == 0)
-            {
-                return ReadOnlyCollection<T>.Empty;
-            }
-
-            if (!source.Any())
-            {
-                return ReadOnlyCollection<T>.Empty;
-            }
-
-            if (source is List<T> list)
-            {
-                return list.AsReadOnly();
-            }
-            else if (source is IList<T> list2)
-            {
-                return new ReadOnlyCollection<T>(list2);
-            }
-
-            return new ReadOnlyCollection<T>(source.ToList());
-        }
-
-        /// <summary>
-        /// Converts a set to a read-only set.
-        /// </summary>
-        public static ReadOnlySet<T> AsReadOnly<T>(this ISet<T> source)
-        {
-            Guard.NotNull(source);
-
-            if (source.Count == 0)
-            {
-                return ReadOnlySet<T>.Empty;
-            }
-
-            return new ReadOnlySet<T>(source);
-        }
-
-        /// <summary>
-        /// Converts an enumerable to a dictionary while tolerating duplicate entries (last wins)
-        /// </summary>
-        /// <param name="source">source</param>
-        /// <param name="keySelector">keySelector</param>
-        /// <returns>Result as dictionary</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Dictionary<TKey, TSource> ToDictionarySafe<TSource, TKey>(
-            this IEnumerable<TSource> source,
-             Func<TSource, TKey> keySelector)
+        public Dictionary<TKey, T> ToDictionarySafe<TKey>(Func<T, TKey> keySelector)
             where TKey : notnull
         {
-            return source.ToDictionarySafe(keySelector, new Func<TSource, TSource>(src => src), null);
+            return source.ToDictionarySafe(keySelector, new Func<T, T>(src => src), null);
         }
 
-        /// <summary>
-        /// Converts an enumerable to a dictionary while tolerating duplicate entries (last wins)
-        /// </summary>
-        /// <param name="source">source</param>
-        /// <param name="keySelector">keySelector</param>
-        /// <param name="comparer">comparer</param>
-        /// <returns>Result as dictionary</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Dictionary<TKey, TSource> ToDictionarySafe<TSource, TKey>(
-            this IEnumerable<TSource> source,
-             Func<TSource, TKey> keySelector,
-             IEqualityComparer<TKey>? comparer)
+        public Dictionary<TKey, T> ToDictionarySafe<TKey>(Func<T, TKey> keySelector, IEqualityComparer<TKey>? comparer)
             where TKey : notnull
         {
-            return source.ToDictionarySafe(keySelector, new Func<TSource, TSource>(src => src), comparer);
+            return source.ToDictionarySafe(keySelector, new Func<T, T>(src => src), comparer);
         }
 
-        /// <summary>
-        /// Converts an enumerable to a dictionary while tolerating duplicate entries (last wins)
-        /// </summary>
-        /// <param name="source">source</param>
-        /// <param name="keySelector">keySelector</param>
-        /// <param name="elementSelector">elementSelector</param>
-        /// <returns>Result as dictionary</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Dictionary<TKey, TElement> ToDictionarySafe<TSource, TKey, TElement>(
-            this IEnumerable<TSource> source,
-             Func<TSource, TKey> keySelector,
-             Func<TSource, TElement> elementSelector)
+        public Dictionary<TKey, TElement> ToDictionarySafe<TKey, TElement>(Func<T, TKey> keySelector, Func<T, TElement> elementSelector)
             where TKey : notnull
         {
             return source.ToDictionarySafe(keySelector, elementSelector, null);
         }
 
-        /// <summary>
-        /// Converts an enumerable to a dictionary while tolerating duplicate entries (last wins)
-        /// </summary>
-        /// <param name="source">source</param>
-        /// <param name="keySelector">keySelector</param>
-        /// <param name="elementSelector">elementSelector</param>
-        /// <param name="comparer">comparer</param>
-        /// <returns>Result as dictionary</returns>
-        public static Dictionary<TKey, TElement> ToDictionarySafe<TSource, TKey, TElement>(
-            this IEnumerable<TSource> source,
-             Func<TSource, TKey> keySelector,
-             Func<TSource, TElement> elementSelector,
-             IEqualityComparer<TKey>? comparer)
+        public Dictionary<TKey, TElement> ToDictionarySafe<TKey, TElement>(Func<T, TKey> keySelector, Func<T, TElement> elementSelector, IEqualityComparer<TKey>? comparer)
             where TKey : notnull
         {
             if (source == null)
@@ -231,10 +186,7 @@ namespace Smartstore
         /// <summary>
         /// Selects elements of an enumerable and converts them into an array of distinct elements.
         /// </summary>
-        /// <param name="source">Source enumerable.</param>
-        /// <param name="elementSelector">Element selector.</param>
-        /// <returns>Array of distinct elements.</returns>
-        public static TKey[] ToDistinctArray<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> elementSelector)
+        public TKey[] ToDistinctArray<TKey>(Func<T, TKey> elementSelector)
         {
             Guard.NotNull(source);
             Guard.NotNull(elementSelector);
@@ -242,27 +194,124 @@ namespace Smartstore
             return source.Select(elementSelector).Distinct().ToArray();
         }
 
-        /// <summary>The distinct by.</summary>
-        /// <param name="source">The source.</param>
-        /// <param name="keySelector">The key selector.</param>
-        /// <typeparam name="TSource">Source type</typeparam>
-        /// <typeparam name="TKey">Key type</typeparam>
-        /// <returns>the unique list</returns>
-        public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
+        /// <summary>
+        /// Returns distinct elements by a key selector.
+        /// </summary>
+        public IEnumerable<T> DistinctBy<TKey>(Func<T, TKey> keySelector)
             where TKey : IEquatable<TKey>
         {
-            return source.Distinct(GenericEqualityComparer<TSource>.CompareMember(keySelector));
+            return source.Distinct(GenericEqualityComparer<T>.CompareMember(keySelector));
+        }
+
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public async Task EachAsync(Func<T, Task> action)
+        {
+            foreach (T t in source)
+            {
+                await action(t);
+            }
+        }
+
+        public async Task EachAsync(Func<T, int, Task> action)
+        {
+            int i = 0;
+            foreach (T t in source)
+            {
+                await action(t, i++);
+            }
         }
 
         /// <summary>
-        /// Orders a collection of entities by a specific ID sequence
+        /// Filters a sequence of values based on an async predicate.
         /// </summary>
-        /// <typeparam name="TEntity">Entity type</typeparam>
-        /// <param name="source">The entity collection to sort</param>
-        /// <param name="ids">The IDs to order by</param>
-        /// <returns>The sorted entity collection</returns>
-        public static IEnumerable<TEntity> OrderBySequence<TEntity>(this IEnumerable<TEntity> source, IEnumerable<int> ids)
-            where TEntity : BaseEntity
+        public IAsyncEnumerable<T> WhereAwait(Func<T, Task<bool>> predicate)
+        {
+            return source.ToAsyncEnumerable().Where((x, ct) => new ValueTask<bool>(predicate(x)));
+        }
+
+        /// <summary>
+        /// Projects each element of a sequence into a new form in parallel.
+        /// </summary>
+        public async Task<IEnumerable<TResult>> SelectAsyncParallel<TResult>(Func<T, Task<TResult>> selector)
+        {
+            return await Task.WhenAll(source.Select(async x => await selector(x)));
+        }
+
+        /// <summary>
+        /// Projects each element of a sequence into a new form asynchronously.
+        /// </summary>
+        public IAsyncEnumerable<TResult> SelectAwait<TResult>(Func<T, Task<TResult>> selector)
+        {
+            return source.ToAsyncEnumerable().Select((x, i, ct) => new ValueTask<TResult>(selector(x)));
+        }
+
+        /// <summary>
+        /// Projects each element of a sequence into a new form and flattens the resulting sequences into one sequence asynchronously.
+        /// </summary>
+        public async IAsyncEnumerable<TResult> SelectManyAwait<TResult>(Func<T, Task<IEnumerable<TResult>>> selector)
+        {
+            await foreach (var item in source.ToAsyncEnumerable())
+            {
+                var manyItems = await selector(item);
+                foreach (var subItem in manyItems)
+                {
+                    yield return subItem;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determines whether any element of a sequence satisfies a condition asynchronously.
+        /// </summary>
+        public async Task<bool> AnyAsync(Func<T, Task<bool>> predicate)
+        {
+            foreach (T t in source)
+            {
+                if (await predicate(t))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
+    extension(IEnumerable<string?> source)
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public string StrJoin(string? separator)
+        {
+            return string.Join(separator, source);
+        }
+    }
+
+    extension(IEnumerable<string> source)
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public string StrJoin(char separator)
+        {
+            return string.Join(separator, source);
+        }
+    }
+
+    extension(IEnumerable<StringSegment> source)
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public string[] ToStringArray()
+        {
+            return source.Select(x => x.ToString()).ToArray();
+        }
+    }
+
+    extension<TEntity>(IEnumerable<TEntity> source) 
+        where TEntity : BaseEntity
+    {
+        /// <summary>
+        /// Orders a collection of entities by a specific ID sequence.
+        /// </summary>
+        public IEnumerable<TEntity> OrderBySequence(IEnumerable<int> ids)
         {
             if (source == null)
             {
@@ -280,130 +329,5 @@ namespace Smartstore
 
             return sorted;
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string StrJoin(this IEnumerable<string?> source, string? separator)
-        {
-            return string.Join(separator, source);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string StrJoin(this IEnumerable<string> source, char separator)
-        {
-            return string.Join(separator, source);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string[] ToStringArray(this IEnumerable<StringSegment> source)
-        {
-            return source.Select(x => x.ToString()).ToArray();
-        }
-
-        #endregion
-
-        #region Async
-
-        /// <summary>
-        /// Performs an action on each item while iterating through a list. 
-        /// This is a handy shortcut for <c>foreach(item in list) { await ... }</c>
-        /// </summary>
-        /// <typeparam name="T">The type of the items.</typeparam>
-        /// <param name="source">The list, which holds the objects.</param>
-        /// <param name="action">The action delegate which is called on each item while iterating.</param>
-        [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static async Task EachAsync<T>(this IEnumerable<T> source, Func<T, Task> action)
-        {
-            foreach (T t in source)
-            {
-                await action(t);
-            }
-        }
-
-        /// <summary>
-        /// Performs an action on each item while iterating through a list. 
-        /// This is a handy shortcut for <c>foreach(item in list) { ... }</c>
-        /// </summary>
-        /// <typeparam name="T">The type of the items.</typeparam>
-        /// <param name="source">The list, which holds the objects.</param>
-        /// <param name="action">The action delegate which is called on each item while iterating.</param>
-        public static async Task EachAsync<T>(this IEnumerable<T> source, Func<T, int, Task> action)
-        {
-            int i = 0;
-            foreach (T t in source)
-            {
-                await action(t, i++);
-            }
-        }
-
-        /// <summary>
-        /// Filters a sequence of values based on an async predicate.
-        /// </summary>
-        /// <typeparam name="T">The type of the elements of source.</typeparam>
-        /// <param name="source">A sequence to filter.</param>
-        /// <param name="predicate">An async task function to test each element for a condition.</param>
-        /// <returns>An <see cref="IAsyncEnumerable{T}"/> that contains elements from the input sequence that satisfy the condition.</returns>
-        public static IAsyncEnumerable<T> WhereAwait<T>(this IEnumerable<T> source, Func<T, Task<bool>> predicate)
-        {
-            return source.ToAsyncEnumerable().Where((x, ct) => new ValueTask<bool>(predicate(x)));
-        }
-
-        /// <summary>
-        /// Projects each element of a sequence into a new form in parallel.
-        /// </summary>
-        /// <param name="source">A sequence of values to invoke a transform function on.</param>
-        /// <param name="selector">A transform function to apply to each source element.</param>
-        public static async Task<IEnumerable<TResult>> SelectAsyncParallel<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, Task<TResult>> selector)
-        {
-            return await Task.WhenAll(source.Select(async x => await selector(x)));
-        }
-
-        /// <summary>
-        /// Projects each element of a sequence into a new form asynchronously.
-        /// </summary>
-        /// <param name="source">A sequence of values to invoke a transform function on.</param>
-        /// <param name="selector">A transform function to apply to each source element.</param>
-        public static IAsyncEnumerable<TResult> SelectAwait<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, Task<TResult>> selector)
-        {
-            return source.ToAsyncEnumerable().Select((x, i, ct) => new ValueTask<TResult>(selector(x)));
-        }
-
-        /// <summary>
-        /// Projects each element of a sequence into a new form and flattens the resulting sequences into one sequence asynchronously.
-        /// </summary>
-        /// <param name="source">A sequence of values to project.</param>
-        /// <param name="selector">A transform function to apply to each source element.</param>
-        public static async IAsyncEnumerable<TResult> SelectManyAwait<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, Task<IEnumerable<TResult>>> selector)
-        {
-            await foreach (var item in source.ToAsyncEnumerable())
-            {
-                var manyItems = await selector(item);
-                foreach (var subItem in manyItems)
-                {
-                    yield return subItem;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Determines whether any element of a sequence satisfies a condition asynchronously. 
-        /// </summary>
-        /// <typeparam name="T">The type of the elements of source.</typeparam>
-        /// <param name="source">The source sequence whose elements to apply the predicate to.</param>
-        /// <param name="predicate">A function to test each element for a condition.</param>
-        public static async Task<bool> AnyAsync<T>(this IEnumerable<T> source, Func<T, Task<bool>> predicate)
-        {
-            foreach (T t in source)
-            {
-                if (await predicate(t))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        #endregion
     }
 }

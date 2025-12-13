@@ -6,20 +6,16 @@ using System.Dynamic;
 using System.Runtime.CompilerServices;
 using Smartstore.Utilities;
 
-namespace Smartstore
+namespace Smartstore;
+
+public static class DictionaryExtensions
 {
-    public static class DictionaryExtensions
+    extension<TKey, TValue>(IDictionary<TKey, TValue?> source) where TKey : notnull
     {
         /// <summary>
-        /// Adds a key/value pair to the <paramref name="source"/> dictionary 
-        /// if the key does not already exist.
+        /// Adds a key/value pair to the <paramref name="source"/> dictionary if the key does not already exist.
         /// </summary>
-        /// <param name="key">The key of the element to add.</param>
-        /// <param name="valueFactory">The function used to generate a value for the key</param>
-        /// <returns>The value for the key. This will be either the existing value for the key if the
-        /// key is already in the dictionary, or the new value for the key as returned by <paramref name="valueFactory"/>
-        /// if the key was not in the dictionary.</returns>
-        public static TValue? GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue?> source, TKey key, Func<TKey, TValue> valueFactory) where TKey : notnull
+        public TValue? GetOrAdd(TKey key, Func<TKey, TValue> valueFactory)
         {
             Guard.NotNull(source);
             Guard.NotNull(key);
@@ -39,14 +35,9 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Tries to add the specified key and value to the <paramref name="source"/> dictionary.
+        /// Tries to add the specified key and value to the dictionary.
         /// </summary>
-        /// <param name="key">The key of the element to add.</param>
-        /// <param name="value">The value of the element to add. The value can be a null reference for reference types.</param>
-        /// <returns>
-        /// true if the key/value pair was added to the dictionary successfully; otherwise, false.
-        /// </returns>
-        public static bool TryAdd<TKey, TValue>(this IDictionary<TKey, TValue?> source, TKey key, TValue value, bool updateIfExists) where TKey : notnull
+        public bool TryAdd(TKey key, TValue value, bool updateIfExists)
         {
             if (source == null || key == null)
             {
@@ -65,22 +56,34 @@ namespace Smartstore
                 source[key] = value;
                 return true;
             }
-            else
-            {
-                return source.TryAdd(key, value);
-            }
+
+            return source.TryAdd(key, value);
         }
 
+        public void AddRange(IEnumerable<KeyValuePair<TKey, TValue?>> other)
+        {
+            Guard.NotNull(source);
+            Guard.NotNull(other);
+
+            foreach (var kvp in other)
+            {
+                if (source.ContainsKey(kvp.Key))
+                {
+                    throw new ArgumentException("An item with the same key has already been added.");
+                }
+
+                source.Add(kvp);
+            }
+        }
+    }
+
+    extension<TKey, TValue>(IDictionary<TKey, TValue> source)
+        where TKey : notnull
+    {
         /// <summary>
-        /// Attempts to remove and return the value with the specified key from the <paramref name="source"/> dictionary.
+        /// Attempts to remove and return the value with the specified key from the dictionary.
         /// </summary>
-        /// <param name="key">The key of the element to remove and return.</param>
-        /// <param name="value">
-        /// When this method returns, <paramref name="value"/> contains the object removed from the
-        /// dictionary or the default value of <typeparamref name="TValue"/> if the operation failed.
-        /// </param>
-        /// <returns>true if an object was removed successfully; otherwise, false.</returns>
-        public static bool TryRemove<TKey, TValue>(this IDictionary<TKey, TValue> source, TKey key, [MaybeNullWhen(false)] out TValue? value) where TKey : notnull
+        public bool TryRemove(TKey key, [MaybeNullWhen(false)] out TValue? value)
         {
             value = default;
 
@@ -105,23 +108,59 @@ namespace Smartstore
             return false;
         }
 
-        public static void AddRange<TKey, TValue>(this IDictionary<TKey, TValue?> values, IEnumerable<KeyValuePair<TKey, TValue?>> other) where TKey : notnull
+        public IDictionary<TKey, TValue> Merge(IDictionary<TKey, TValue> from, bool replaceExisting = true)
         {
-            Guard.NotNull(values);
-            Guard.NotNull(other);
+            Guard.NotNull(source);
+            Guard.NotNull(from);
 
-            foreach (var kvp in other)
+            foreach (var kvp in from)
             {
-                if (values.ContainsKey(kvp.Key))
+                if (replaceExisting || !source.ContainsKey(kvp.Key))
                 {
-                    throw new ArgumentException("An item with the same key has already been added.");
+                    source[kvp.Key] = kvp.Value;
                 }
-
-                values.Add(kvp);
             }
+
+            return source;
         }
 
-        public static IDictionary<string, object?> Merge(this IDictionary<string, object?> source, string key, object? value, bool replaceExisting = true)
+        public IDictionary<TKey, TValue> Merge(TKey key, TValue value, bool replaceExisting = true)
+        {
+            Guard.NotNull(source);
+            Guard.NotNull(key);
+
+            if (replaceExisting || !source.ContainsKey(key))
+            {
+                source[key] = value;
+            }
+
+            return source;
+        }
+
+        public IDictionary<TKey, TValue> Merge(TKey key, Func<TValue> valueAccessor, bool replaceExisting = true)
+        {
+            Guard.NotNull(source);
+            Guard.NotNull(key);
+            Guard.NotNull(valueAccessor);
+
+            if (replaceExisting || !source.ContainsKey(key))
+            {
+                source[key] = valueAccessor();
+            }
+
+            return source;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public TValue? Get(TKey key)
+        {
+            return Guard.NotNull(source).TryGetValue(key, out var val) ? val : default;
+        }
+    }
+
+    extension(IDictionary<string, object?> source)
+    {
+        public IDictionary<string, object?> Merge(string key, object? value, bool replaceExisting = true)
         {
             Guard.NotNull(source);
 
@@ -134,67 +173,12 @@ namespace Smartstore
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IDictionary<string, object?> Merge(this IDictionary<string, object?> source, object? values, bool replaceExisting = true)
+        public IDictionary<string, object?> Merge(object? values, bool replaceExisting = true)
         {
             return source.Merge(ConvertUtility.ObjectToDictionary(values), replaceExisting);
         }
 
-        public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> instance, IDictionary<TKey, TValue> from, bool replaceExisting = true) where TKey : notnull
-        {
-            Guard.NotNull(instance);
-            Guard.NotNull(from);
-
-            foreach (var kvp in from)
-            {
-                if (replaceExisting || !instance.ContainsKey(kvp.Key))
-                {
-                    instance[kvp.Key] = kvp.Value;
-                }
-            }
-
-            return instance;
-        }
-
-        public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> instance, TKey key, TValue value, bool replaceExisting = true) where TKey : notnull
-        {
-            Guard.NotNull(instance);
-            Guard.NotNull(key);
-
-            if (replaceExisting || !instance.ContainsKey(key))
-            {
-                instance[key] = value;
-            }
-
-            return instance;
-        }
-
-        public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> instance, TKey key, Func<TValue> valueAccessor, bool replaceExisting = true) where TKey : notnull
-        {
-            Guard.NotNull(instance);
-            Guard.NotNull(key);
-            Guard.NotNull(valueAccessor);
-
-            if (replaceExisting || !instance.ContainsKey(key))
-            {
-                instance[key] = valueAccessor();
-            }
-
-            return instance;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static TValue? Get<TKey, TValue>(this IDictionary<TKey, TValue> instance, TKey key) where TKey : notnull
-        {
-            return Guard.NotNull(instance).TryGetValue(key, out var val) ? val : default;
-        }
-
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //public static TValue? Get<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> instance, TKey key) where TKey : notnull
-        //{
-        //    return Guard.NotNull(instance).TryGetValue(key, out var val) ? val : default;
-        //}
-
-        public static bool TryGetValueAs<TValue>(this IDictionary<string, object?> source, string key, [MaybeNullWhen(false)] out TValue? value)
+        public bool TryGetValueAs<TValue>(string key, [MaybeNullWhen(false)] out TValue? value)
         {
             Guard.NotNull(source);
 
@@ -208,7 +192,7 @@ namespace Smartstore
             return false;
         }
 
-        public static bool TryGetAndConvertValue<TValue>(this IDictionary<string, object?> source, string key, [MaybeNullWhen(false)] out TValue? value)
+        public bool TryGetAndConvertValue<TValue>(string key, [MaybeNullWhen(false)] out TValue? value)
         {
             Guard.NotNull(source);
 
@@ -221,7 +205,7 @@ namespace Smartstore
             return false;
         }
 
-        public static ExpandoObject ToExpandoObject(this IDictionary<string, object?> source, bool castIfPossible = false)
+        public ExpandoObject ToExpandoObject(bool castIfPossible = false)
         {
             Guard.NotNull(source);
 
@@ -235,20 +219,23 @@ namespace Smartstore
 
             return result;
         }
+    }
 
+    extension(IDictionary<string, string?> instance)
+    {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IDictionary<string, string?> AppendInValue(this IDictionary<string, string?> instance, string key, char separator, string value)
+        public IDictionary<string, string?> AppendInValue(string key, char separator, string value)
         {
-            return AddInValue(instance, key, separator, value, false);
+            return instance.AddInValue(key, separator, value, false);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IDictionary<string, string?> PrependInValue(this IDictionary<string, string?> instance, string key, char separator, string value)
+        public IDictionary<string, string?> PrependInValue(string key, char separator, string value)
         {
-            return AddInValue(instance, key, separator, value, true);
+            return instance.AddInValue(key, separator, value, true);
         }
 
-        internal static IDictionary<string, string?> AddInValue(this IDictionary<string, string?> instance, string key, char separator, string value, bool prepend = false)
+        internal IDictionary<string, string?> AddInValue(string key, char separator, string value, bool prepend = false)
         {
             Guard.NotNull(instance);
             Guard.NotNull(value);
@@ -265,89 +252,85 @@ namespace Smartstore
             {
                 instance[key] = value;
             }
-            else
+            else if (TryAddInValue(value, currentValue, separator, prepend, out var mergedValue))
             {
-                if (TryAddInValue(value, currentValue, separator, prepend, out var mergedValue))
-                {
-                    instance[key] = mergedValue;
-                }
+                instance[key] = mergedValue;
             }
 
             return instance;
         }
+    }
 
-        internal static bool TryAddInValue(string value, string? currentValue, char separator, bool prepend, [MaybeNullWhen(false)] out string? mergedValue)
+    internal static bool TryAddInValue(string value, string? currentValue, char separator, bool prepend, [MaybeNullWhen(false)] out string? mergedValue)
+    {
+        mergedValue = null;
+
+        if (string.IsNullOrWhiteSpace(currentValue))
         {
-            mergedValue = null;
+            // Quick check to handle empty or identical values
+            mergedValue = value;
+        }
+        else
+        {
+            currentValue = currentValue.Trim(separator);
 
-            if (string.IsNullOrWhiteSpace(currentValue))
+            var hasManyCurrentValues = currentValue.Contains(separator);
+            var hasManyAttemptedValues = value.Contains(separator);
+
+            if (!hasManyCurrentValues && !hasManyAttemptedValues)
             {
-                // Quick check to handle empty or identical values
-                mergedValue = value;
+                // Quick check to handle single values on both sides
+                if (!string.Equals(value, currentValue, StringComparison.Ordinal))
+                {
+                    mergedValue = prepend
+                        ? value + separator + currentValue
+                        : currentValue + separator + value;
+                }
             }
             else
             {
-                currentValue = currentValue.Trim(separator);
+                // Split the current values
+                var currentValues = hasManyCurrentValues
+                    ? currentValue.Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    : [currentValue];
 
-                var hasManyCurrentValues = currentValue.Contains(separator);
-                var hasManyAttemptedValues = value.Contains(separator);
+                // Split the new values
+                var attemptedValues = hasManyAttemptedValues
+                    ? value.Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    : [value];
 
-                if (!hasManyCurrentValues && !hasManyAttemptedValues)
+                var isDirty = false;
+
+                for (var i = 0; i < attemptedValues.Length; i++)
                 {
-                    // Quick check to handle single values on both sides
-                    if (!string.Equals(value, currentValue, StringComparison.Ordinal))
+                    var attemptedValue = attemptedValues[i];
+
+                    if (!currentValues.Contains(attemptedValue))
                     {
-                        mergedValue = prepend
-                            ? value + separator + currentValue
-                            : currentValue + separator + value;
+                        if (prepend)
+                        {
+                            var newCurrentValues = new string[currentValues.Length + 1];
+                            newCurrentValues[0] = attemptedValue;
+                            Array.Copy(currentValues, 0, newCurrentValues, 1, currentValues.Length);
+                            currentValues = newCurrentValues;
+                        }
+                        else
+                        {
+                            Array.Resize(ref currentValues, currentValues.Length + 1);
+                            currentValues[^1] = attemptedValue;
+                        }
+
+                        isDirty = true;
                     }
                 }
-                else
+
+                if (isDirty)
                 {
-                    // Split the current values
-                    var currentValues = hasManyCurrentValues
-                        ? currentValue.Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                        : [currentValue];
-
-                    // Split the new values
-                    var attemptedValues = hasManyAttemptedValues
-                        ? value.Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                        : [value];
-
-                    var isDirty = false;
-
-                    for (var i = 0; i < attemptedValues.Length; i++)
-                    {
-                        var attemptedValue = attemptedValues[i];
-
-                        if (!currentValues.Contains(attemptedValue))
-                        {
-                            if (prepend)
-                            {
-                                var newCurrentValues = new string[currentValues.Length + 1];
-                                newCurrentValues[0] = attemptedValue;
-                                Array.Copy(currentValues, 0, newCurrentValues, 1, currentValues.Length);
-                                currentValues = newCurrentValues;
-                            }
-                            else
-                            {
-                                Array.Resize(ref currentValues, currentValues.Length + 1);
-                                currentValues[^1] = attemptedValue;
-                            }
-
-                            isDirty = true;
-                        }
-                    }
-
-                    if (isDirty)
-                    {
-                        mergedValue = string.Join(separator, currentValues);
-                    }
+                    mergedValue = string.Join(separator, currentValues);
                 }
             }
-
-            return mergedValue != null;
         }
-    }
 
+        return mergedValue != null;
+    }
 }

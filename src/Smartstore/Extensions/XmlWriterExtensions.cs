@@ -1,10 +1,14 @@
-﻿using System.Xml;
+﻿#nullable enable
 
-namespace Smartstore
+using System.Xml;
+
+namespace Smartstore;
+
+public static class XmlWriterExtensions
 {
-    public static class XmlWriterExtensions
+    extension (XmlWriter writer)
     {
-        public static void WriteCData(this XmlWriter writer, string name, string value, string prefix = null, string ns = null)
+        public void WriteCData(string? name, string? value, string? prefix = null, string? ns = null)
         {
             if (name.HasValue() && value != null)
             {
@@ -27,7 +31,7 @@ namespace Smartstore
         /// <param name="value">Node value</param>
         /// <param name="cultureCode">The language culture code. Always converted to lowercase!</param>
         /// <param name="asCData">Whether to create simple or CData node</param>
-        public static void Write(this XmlWriter writer, string name, string value, string cultureCode = null, bool asCData = false)
+        public void Write(string? name, string? value, string? cultureCode = null, bool asCData = false)
         {
             if (name.HasValue() && value != null)
             {
