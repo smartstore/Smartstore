@@ -1,22 +1,24 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace Smartstore
+namespace Smartstore;
+
+public static class CharExtensions
 {
-    public static class CharExtensions
+    private const int _size = 256;
+    private static readonly string[] _table = new string[_size];
+
+    static CharExtensions()
     {
-        private const int _size = 256;
-        private static readonly string[] _table = new string[_size];
-
-        static CharExtensions()
+        for (int i = 0; i < _size; i++)
         {
-            for (int i = 0; i < _size; i++)
-            {
-                _table[i] = ((char)i).ToString();
-            }
+            _table[i] = ((char)i).ToString();
         }
+    }
 
-        public static int ToInt(this char ch)
+    extension(char ch)
+    {
+        public int ToInt()
         {
             if (ch >= '0' && ch <= '9')
             {
@@ -34,7 +36,7 @@ namespace Smartstore
             return -1;
         }
 
-        public static string ToUnicode(this char ch)
+        public string ToUnicode()
         {
             var chars = new[]
             {
@@ -49,7 +51,7 @@ namespace Smartstore
             return new string(chars);
         }
 
-        public static char RemoveDiacritic(this char ch)
+        public char RemoveDiacritic()
         {
             var normalized = ch.AsString().Normalize(NormalizationForm.FormD);
             if (normalized.Length > 1)
@@ -60,7 +62,7 @@ namespace Smartstore
             return ch;
         }
 
-        public static bool TryRemoveDiacritic(this char ch, out char normalized)
+        public bool TryRemoveDiacritic(out char normalized)
         {
             normalized = default;
 
@@ -74,14 +76,14 @@ namespace Smartstore
             return false;
         }
 
-        public static bool IsInRange(this char ch, char a, char b)
+        public bool IsInRange(char a, char b)
             => ch >= a && ch <= b;
 
         /// <summary>
         /// Maps a char to a string while reducing memory allocations.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string AsString(this char ch)
+        public string AsString()
         {
             string[] table = _table;
             if (ch < (uint)table.Length)
@@ -100,7 +102,7 @@ namespace Smartstore
         /// <param name="c">The character to examine.</param>
         /// <returns>The result of the test.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsLineBreak(this char c) 
-            => c == '\n' || c == '\r';
+        public bool IsLineBreak()
+            => ch == '\n' || ch == '\r';
     }
 }
