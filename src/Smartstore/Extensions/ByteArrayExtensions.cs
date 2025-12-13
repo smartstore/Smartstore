@@ -1,10 +1,12 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Text;
 
-namespace Smartstore
+namespace Smartstore;
+
+public static class ByteArrayExtensions
 {
-    public static class ByteArrayExtensions
+    extension(byte[] value)
     {
         /// <summary>
         /// Converts bytes into hex characters.
@@ -15,7 +17,7 @@ namespace Smartstore
         /// ToHexString(true) produces the same result as <see cref="Convert.ToHexString(byte[])"/>.
         /// </remarks>
         [DebuggerStepThrough]
-        public static string ToHexString(this byte[] value, bool toUpperCase = false, int? maxLength = null)
+        public string ToHexString(bool toUpperCase = false, int? maxLength = null)
         {
             if (value == null || value.Length <= 0)
             {
@@ -26,7 +28,7 @@ namespace Smartstore
             {
                 throw new ArgumentOutOfRangeException(nameof(maxLength), "maxLength must be greater than 1.");
             }
-            
+
             var sb = new StringBuilder(value.Length * 2);
             var format = toUpperCase ? "X2" : "x2";
 
@@ -48,17 +50,17 @@ namespace Smartstore
         /// </summary>
         /// <param name="buffer">Decompressed input</param>
         /// <returns>The compressed result</returns>
-        public static byte[] Zip(this byte[] buffer)
+        public byte[] Zip()
         {
-            if (buffer == null)
+            if (value == null)
             {
-                throw new ArgumentNullException(nameof(buffer));
+                throw new ArgumentNullException(nameof(value));
             }
 
             using (var compressedStream = new MemoryStream())
             using (var zipStream = new GZipStream(compressedStream, CompressionMode.Compress))
             {
-                zipStream.Write(buffer, 0, buffer.Length);
+                zipStream.Write(value, 0, value.Length);
                 zipStream.Close();
                 return compressedStream.ToArray();
             }
@@ -69,17 +71,17 @@ namespace Smartstore
         /// </summary>
         /// <param name="buffer">Decompressed input</param>
         /// <returns>The compressed result</returns>
-        public static async Task<byte[]> ZipAsync(this byte[] buffer)
+        public async Task<byte[]> ZipAsync()
         {
-            if (buffer == null)
+            if (value == null)
             {
-                throw new ArgumentNullException(nameof(buffer));
+                throw new ArgumentNullException(nameof(value));
             }
 
             using (var compressedStream = new MemoryStream())
             using (var zipStream = new GZipStream(compressedStream, CompressionMode.Compress))
             {
-                await zipStream.WriteAsync(buffer);
+                await zipStream.WriteAsync(value);
                 zipStream.Close();
                 return compressedStream.ToArray();
             }
@@ -90,14 +92,14 @@ namespace Smartstore
         /// </summary>
         /// <param name="buffer">Compressed input</param>
         /// <returns>The decompressed result</returns>
-        public static byte[] Unzip(this byte[] buffer)
+        public byte[] Unzip()
         {
-            if (buffer == null)
+            if (value == null)
             {
-                throw new ArgumentNullException(nameof(buffer));
+                throw new ArgumentNullException(nameof(value));
             }
 
-            using (var compressedStream = new MemoryStream(buffer))
+            using (var compressedStream = new MemoryStream(value))
             using (var zipStream = new GZipStream(compressedStream, CompressionMode.Decompress))
             using (var resultStream = new MemoryStream())
             {
@@ -111,14 +113,14 @@ namespace Smartstore
         /// </summary>
         /// <param name="buffer">Compressed input</param>
         /// <returns>The decompressed result</returns>
-        public static async Task<byte[]> UnzipAsync(this byte[] buffer)
+        public async Task<byte[]> UnzipAsync()
         {
-            if (buffer == null)
+            if (value == null)
             {
-                throw new ArgumentNullException(nameof(buffer));
+                throw new ArgumentNullException(nameof(value));
             }
 
-            using (var compressedStream = new MemoryStream(buffer))
+            using (var compressedStream = new MemoryStream(value))
             using (var zipStream = new GZipStream(compressedStream, CompressionMode.Decompress))
             using (var resultStream = new MemoryStream())
             {
