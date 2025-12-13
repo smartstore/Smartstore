@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-DOTNET_VERSION="9.0"
+DOTNET_VERSION="10.0"
 APP_DIR="/app"
 GLOBAL_TOOLS=(
     "dotnet-ef"
