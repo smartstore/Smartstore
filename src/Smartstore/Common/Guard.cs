@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Smartstore
@@ -43,26 +44,29 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T NotNull<T>(T? arg, [CallerArgumentExpression(nameof(arg))] string? argName = null)
+        public static T NotNull<T>([NotNull] T? arg, [CallerArgumentExpression(nameof(arg))] string? argName = null)
         {
             return arg ?? throw new ArgumentNullException(argName);
         }
 
         [DebuggerStepThrough]
-        public static void NotEmpty(string? arg, [CallerArgumentExpression(nameof(arg))] string? argName = null)
+        public static void NotEmpty([NotNull] string? arg, [CallerArgumentExpression(nameof(arg))] string? argName = null)
         {
-            if (arg is null)
+            if (string.IsNullOrWhiteSpace(arg))
             {
-                throw new ArgumentNullException(argName);
-            }
-            else if (arg.Trim().Length == 0)
-            {
-                throw new ArgumentException(string.Format(NotEmptyStringMessage, argName), argName);
+                if (arg is null)
+                {
+                    throw new ArgumentNullException(argName);
+                }
+                else
+                {
+                    throw new ArgumentException(string.Format(NotEmptyStringMessage, argName), argName);
+                }
             }
         }
 
         [DebuggerStepThrough]
-        public static void NotOutOfLength(string? arg, int maxLength, [CallerArgumentExpression(nameof(arg))] string? argName = null)
+        public static void NotOutOfLength([NotNull] string? arg, int maxLength, [CallerArgumentExpression(nameof(arg))] string? argName = null)
         {
             if (arg is null)
             {
@@ -76,7 +80,7 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ICollection<T> NotEmpty<T>(ICollection<T>? arg, [CallerArgumentExpression(nameof(arg))] string? argName = null)
+        public static ICollection<T> NotEmpty<T>([NotNull] ICollection<T>? arg, [CallerArgumentExpression(nameof(arg))] string? argName = null)
         {
             if (arg == null || arg.Count == 0)
             {
@@ -204,7 +208,7 @@ namespace Smartstore
         }
 
         [DebuggerStepThrough]
-        public static void PagingArgsValid(int indexArg, int sizeArg, [CallerArgumentExpression("indexArg")] string? indexArgName = null, [CallerArgumentExpression("sizeArg")] string? sizeArgName = null)
+        public static void PagingArgsValid(int indexArg, int sizeArg, [CallerArgumentExpression(nameof(indexArg))] string? indexArgName = null, [CallerArgumentExpression(nameof(sizeArg))] string? sizeArgName = null)
         {
             NotNegative(indexArg, indexArgName, "PageIndex cannot be below 0");
 

@@ -6,7 +6,7 @@
     var paymentButtons = Model.Items.Any()
         ? (await Model.ButtonPaymentMethods.Items
             .SelectAwait(x => x.InvokeAsync(ViewContext))
-            .AsyncToList())
+            .ToListAsync())
             .Where(x => x.HasContent())
         : Enumerable.Empty<IHtmlContent>();
 }
