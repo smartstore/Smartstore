@@ -49,9 +49,6 @@ namespace Smartstore.Web
 
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
-            // Add action context accessor
-            services.AddTransient<IActionContextAccessor, ActionContextAccessor>();
-
             services.TryAddEnumerable(
                 ServiceDescriptor.Singleton<IFilterProvider, ConditionalFilterProvider>());
 
@@ -257,28 +254,18 @@ namespace Smartstore.Web
                 return urlHelper;
             }
 
-            var actionContext = c.Resolve<IActionContextAccessor>().ActionContext;
-            if (actionContext != null)
-            {
-                // ActionContext is available (also Endpoint). Resolve EndpointRoutingUrlHelper.
-                return c.Resolve<IUrlHelperFactory>().GetUrlHelper(actionContext);
-            }
-
             // No ActionContext. Create an IUrlHelper that can work outside of routing endpoints (e.g. in middlewares)
-            var routeData = httpContext.GetRouteData();
-            if (routeData == null)
-            {
-                routeData = new RouteData();
-            }
+            var endpoint = httpContext.GetEndpoint();
+            var routeData = httpContext.GetRouteData() ?? new RouteData();
+            var actionDescriptor = endpoint?.Metadata.GetMetadata<ActionDescriptor>() ?? new ActionDescriptor();
 
-            urlHelper = new SmartUrlHelper(
-                new ActionContext(httpContext, routeData, new ActionDescriptor()),
-                c.Resolve<LinkGenerator>());
+            var linkGenerator = c.Resolve<LinkGenerator>();
+            var actionContext = new ActionContext(httpContext, routeData, actionDescriptor);
 
             // Better not to interfere with UrlHelperFactory, so don't save in Items.
-            // httpContext.Items[typeof(IUrlHelper)] = urlHelper;
+            // httpContext.Items[typeof(IUrlHelper)] = new SmartUrlHelper(actionContext, linkGenerator);
 
-            return urlHelper;
+            return new SmartUrlHelper(actionContext, linkGenerator);
         }
 
         internal sealed class RouteOptionsConfigurer : IConfigureOptions<RouteOptions>

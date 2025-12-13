@@ -15,18 +15,15 @@ namespace Smartstore.Core.Widgets
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IViewDataAccessor _viewDataAccessor;
-        private readonly IActionContextAccessor _actionContextAccessor;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public DefaultViewInvoker(
             IServiceProvider serviceProvider,
             IViewDataAccessor viewDataAccessor,
-            IActionContextAccessor actionContextAccessor,
             IHttpContextAccessor httpContextAccessor)
         {
             _serviceProvider = serviceProvider;
             _viewDataAccessor = viewDataAccessor;
-            _actionContextAccessor = actionContextAccessor;
             _httpContextAccessor = httpContextAccessor;
         }
 
@@ -39,16 +36,11 @@ namespace Smartstore.Core.Widgets
         {
             if (context == null)
             {
-                context = _actionContextAccessor.ActionContext;
-            }
-
-            if (context == null)
-            {
                 var httpContext = _httpContextAccessor.HttpContext ?? new DefaultHttpContext { RequestServices = _serviceProvider };
-                context = new ActionContext(
-                    httpContext,
-                    httpContext.GetRouteData() ?? new RouteData(),
-                    new ActionDescriptor());
+                var routeData = httpContext.GetRouteData() ?? new RouteData();
+                var actionDescriptor = httpContext.GetEndpoint()?.Metadata?.GetMetadata<ActionDescriptor>() ?? new ActionDescriptor();
+
+                context = new ActionContext(httpContext, routeData, actionDescriptor);
             }
 
             if (module.HasValue())

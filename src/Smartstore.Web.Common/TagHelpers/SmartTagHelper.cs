@@ -11,7 +11,6 @@ namespace Smartstore.Web.TagHelpers
 {
     public abstract class SmartTagHelper : TagHelper
     {
-        private IActionContextAccessor _actionContextAccessor;
         private IHtmlHelper _htmlHelper;
         private IUrlHelper _urlHelper;
         private IHtmlGenerator _htmlGenerator;
@@ -22,16 +21,9 @@ namespace Smartstore.Web.TagHelpers
         public ViewContext ViewContext { get; set; }
 
         [HtmlAttributeNotBound]
-        protected internal IActionContextAccessor ActionContextAccessor
-        {
-            get => _actionContextAccessor ??= ViewContext.HttpContext.GetServiceScope().Resolve<IActionContextAccessor>();
-        }
-
-
-        [HtmlAttributeNotBound]
         protected internal IUrlHelper UrlHelper
         {
-            get => _urlHelper ??= ViewContext.HttpContext.GetServiceScope().Resolve<IUrlHelperFactory>().GetUrlHelper(ActionContextAccessor.ActionContext);
+            get => _urlHelper ??= ViewContext.HttpContext.GetServiceScope().Resolve<IUrlHelperFactory>().GetUrlHelper(ViewContext);
         }
 
         [HtmlAttributeNotBound]

@@ -21,13 +21,13 @@ namespace Smartstore.Web.Routing
         public SmartUrlHelper(ActionContext actionContext, LinkGenerator linkGenerator)
             : base(actionContext)
         {
-            _linkGenerator = Guard.NotNull(linkGenerator, nameof(linkGenerator));
+            _linkGenerator = Guard.NotNull(linkGenerator);
         }
 
         /// <inheritdoc />
         public override string Action(UrlActionContext urlActionContext)
         {
-            Guard.NotNull(urlActionContext, nameof(urlActionContext));
+            Guard.NotNull(urlActionContext);
 
             var values = GetValuesDictionary(urlActionContext.Values);
 
@@ -68,7 +68,7 @@ namespace Smartstore.Web.Routing
         /// <inheritdoc />
         public override string RouteUrl(UrlRouteContext routeContext)
         {
-            Guard.NotNull(routeContext, nameof(routeContext));
+            Guard.NotNull(routeContext);
 
             var path = _linkGenerator.GetPathByRouteValues(
                 ActionContext.HttpContext,
