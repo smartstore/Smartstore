@@ -1,22 +1,24 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.RegularExpressions;
 using Smartstore.Utilities;
 
-namespace Smartstore
+namespace Smartstore;
+
+public static class RegexExtensions
 {
-    public static class RegexExtensions
+    extension(Regex regex)
     {
-        public static string ReplaceGroup(this Regex regex, string input, string groupName, string replacement)
+        public string ReplaceGroup(string input, string groupName, string replacement)
         {
-            return ReplaceGroupInternal(regex, input, replacement, m => m.Groups[groupName]);
+            return ReplaceGroupInternal(input, replacement, m => m.Groups[groupName]);
         }
 
-        public static string ReplaceGroup(this Regex regex, string input, int groupNum, string replacement)
+        public string ReplaceGroup(string input, int groupNum, string replacement)
         {
-            return ReplaceGroupInternal(regex, input, replacement, m => m.Groups[groupNum]);
+            return ReplaceGroupInternal(input, replacement, m => m.Groups[groupNum]);
         }
 
-        private static string ReplaceGroupInternal(this Regex regex, string input, string replacement, Func<Match, Group> groupSelector)
+        private string ReplaceGroupInternal(string input, string replacement, Func<Match, Group> groupSelector)
         {
             return regex.Replace(input, match =>
             {
@@ -41,7 +43,7 @@ namespace Smartstore
             });
         }
 
-        public static async Task<string> ReplaceAsync(this Regex regex, string input, Func<Match, Task<string>> evaluator)
+        public async Task<string> ReplaceAsync(string input, Func<Match, Task<string>> evaluator)
         {
             Guard.NotNull(regex, nameof(regex));
             Guard.NotNull(input, nameof(input));
