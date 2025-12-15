@@ -7,6 +7,7 @@
 - **Wallet**
   - Wallet credits can be added to the shopping cart anywhere using a PageBuilder block.
   - An option has been added to display wallet credit amounts as buttons when purchasing credit.
+- #1445 AI: Create a new image using the Media Manager.
 
 ### Improvements
 
