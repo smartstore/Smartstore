@@ -18,7 +18,7 @@ namespace Smartstore.Core.Security
         /// <summary>
         /// v2 | v3
         /// </summary>
-        public string Version { get; set; } = "v2";
+        public string Version { get; set; } = "v3";
 
         public bool UseDarkTheme { get; set; }
 
