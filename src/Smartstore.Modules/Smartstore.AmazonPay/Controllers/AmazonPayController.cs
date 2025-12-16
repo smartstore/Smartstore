@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Smartstore.AmazonPay.Services;
 using Smartstore.Core.Catalog.Attributes;
-using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
@@ -19,6 +18,7 @@ using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Stores;
 using Smartstore.Http;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Controllers;
@@ -30,8 +30,6 @@ namespace Smartstore.AmazonPay.Controllers
         private readonly SmartDbContext _db;
         private readonly IAmazonPayService _amazonPayService;
         private readonly IShoppingCartService _shoppingCartService;
-        private readonly IShoppingCartValidator _shoppingCartValidator;
-        private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IOrderCalculationService _orderCalculationService;
@@ -46,8 +44,6 @@ namespace Smartstore.AmazonPay.Controllers
             SmartDbContext db,
             IAmazonPayService amazonPayService,
             IShoppingCartService shoppingCartService,
-            IShoppingCartValidator shoppingCartValidator,
-            ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
             ICheckoutStateAccessor checkoutStateAccessor,
             IOrderProcessingService orderProcessingService,
             IOrderCalculationService orderCalculationService,
@@ -61,8 +57,6 @@ namespace Smartstore.AmazonPay.Controllers
             _db = db;
             _amazonPayService = amazonPayService;
             _shoppingCartService = shoppingCartService;
-            _shoppingCartValidator = shoppingCartValidator;
-            _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
             _checkoutStateAccessor = checkoutStateAccessor;
             _orderProcessingService = orderProcessingService;
             _orderCalculationService = orderCalculationService;
@@ -331,7 +325,7 @@ namespace Smartstore.AmazonPay.Controllers
         /// Validates order placement and updates AmazonPay checkout session to set payment info.
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> ConfirmOrder(string formData)
+        public async Task<IActionResult> ConfirmOrder(IFormCollection form)
         {
             string redirectUrl = null;
             var messages = new List<string>();
@@ -341,26 +335,18 @@ namespace Smartstore.AmazonPay.Controllers
             {
                 var store = Services.StoreContext.CurrentStore;
                 var customer = Services.WorkContext.CurrentCustomer;
-                var state = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
+                var state = _checkoutStateAccessor.CheckoutState;
+                var amazonState = state.GetCustomState<AmazonPayCheckoutState>();
+                var paymentRequest = GetPaymentRequest(customer, store);
 
-                if (state.SessionId.IsEmpty())
+                if (amazonState.SessionId.IsEmpty())
                 {
-                    throw new AmazonPayException(T("Payment.MissingCheckoutState", "AmazonPayCheckoutState." + nameof(state.SessionId)));
+                    throw new AmazonPayException(T("Payment.MissingCheckoutState", "AmazonPayCheckoutState." + nameof(amazonState.SessionId)));
                 }
-
-                if (!HttpContext.Session.TryGetObject<ProcessPaymentRequest>(CheckoutState.OrderPaymentInfoName, out var paymentRequest) || paymentRequest == null)
-                {
-                    paymentRequest = new ProcessPaymentRequest();
-                }
-
-                paymentRequest.StoreId = store.Id;
-                paymentRequest.CustomerId = customer.Id;
-                paymentRequest.PaymentMethodSystemName = AmazonPayProvider.SystemName;
 
                 // We must check here if an order can be placed to avoid creating unauthorized Amazon payment objects.
                 var (warnings, cart) = await _orderProcessingService.ValidateOrderPlacementAsync(paymentRequest);
-
-                if (!warnings.Any())
+                if (warnings.Count == 0)
                 {
                     if (await _orderProcessingService.IsMinimumOrderPlacementIntervalValidAsync(customer, store))
                     {
@@ -384,29 +370,20 @@ namespace Smartstore.AmazonPay.Controllers
                             request.MerchantMetadata.MerchantReferenceId = paymentRequest.OrderGuid.ToString();
                         }
 
+                        // INFO: Unlike in v1, the constraints can be ignored. They are only returned if mandatory parameters are missing.
                         var client = HttpContext.GetAmazonPayApiClient(store.Id);
-                        var response = client.UpdateCheckoutSession(state.SessionId, request);
+                        var response = client.UpdateCheckoutSession(amazonState.SessionId, request);
+                        redirectUrl = response?.WebCheckoutDetails?.AmazonPayRedirectUrl;
 
-                        if (response.Success)
-                        {
-                            // INFO: unlike in v1, the constraints can be ignored. They are only returned if mandatory parameters are missing.
-                            redirectUrl = response.WebCheckoutDetails.AmazonPayRedirectUrl;
-
-                            if (redirectUrl.HasValue())
-                            {
-                                success = true;
-                                state.IsConfirmed = true;
-                                state.FormData = formData.EmptyNull();
-                            }
-                            else
-                            {
-                                throw new AmazonPayException(T("Payment.PaymentFailure"), response);
-                            }
-                        }
-                        else
+                        if (!response.Success || redirectUrl.IsEmpty())
                         {
                             throw new AmazonPayException(T("Payment.PaymentFailure"), response);
                         }
+
+                        success = true;
+                        state.CustomerComment = GetFormValue("customercommenthidden");
+                        state.SubscribeToNewsletter = GetFormValue("SubscribeToNewsletter");
+                        state.AcceptThirdPartyEmailHandOver = GetFormValue("AcceptThirdPartyEmailHandOver");
                     }
                     else
                     {
@@ -415,7 +392,7 @@ namespace Smartstore.AmazonPay.Controllers
                 }
                 else
                 {
-                    messages.AddRange(warnings.Select(x => HtmlUtility.ConvertPlainTextToHtml(x)));
+                    messages.AddRange(warnings.Select(HtmlUtility.ConvertPlainTextToHtml));
                 }
             }
             catch (Exception ex)
@@ -425,45 +402,62 @@ namespace Smartstore.AmazonPay.Controllers
             }
 
             return Json(new { success, redirectUrl, messages });
+
+            string GetFormValue(string key)
+            {
+                return form.TryGetValue(key, out var val) ? val.ToString() : null;
+            }
         }
 
         /// <summary>
         /// The buyer is redirected to this action method after checkout is completed on the AmazonPay hosted page.
         /// </summary>
-        public IActionResult ConfirmationResult()
+        public async Task<IActionResult> ConfirmationResult()
         {
-            // INFO: we have been redirected to AmazonPay via browser (JavaScript "window.location").
+            // INFO: amazonCheckoutSessionId query parameter is provided here too but it is more secure to use the state object.
+            // INFO: We have been redirected to AmazonPay via browser (JavaScript "window.location").
             // Cookies are thereby preserved. The customer and the checkout state object are the same as before the redirection.
             // Without cookies we would get a new guest customer and an empty checkout state object here. In this case, CheckoutState could not be used.
             // We would have to either cache AmazonPayCheckoutState for x minutes or store it in the database.
-            var state = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
-            state.SubmitForm = false;
+            var orderPlaced = false;
 
             try
             {
-                // INFO: amazonCheckoutSessionId query parameter is provided here too but it is more secure to use the state object.
-                if (state.SessionId.IsEmpty())
-                {
-                    throw new AmazonPayException(T("Payment.MissingCheckoutState", "AmazonPayCheckoutState." + nameof(state.SessionId)));
-                }
+                var store = Services.StoreContext.CurrentStore;
+                var customer = Services.WorkContext.CurrentCustomer;
+                var state = _checkoutStateAccessor.CheckoutState;
+                var paymentRequest = GetPaymentRequest(customer, store);
 
-                var client = HttpContext.GetAmazonPayApiClient(Services.StoreContext.CurrentStore.Id);
-                var response = client.GetCheckoutSession(state.SessionId);
-
-                if (response.Success)
+                var result = await _orderProcessingService.PlaceOrderAsync(paymentRequest, new()
                 {
-                    if (!response.StatusDetails.State.EqualsNoCase("Canceled"))
-                    {
-                        state.SubmitForm = true;
-                    }
-                    else
-                    {
-                        NotifyError(T("Plugins.Payments.AmazonPay.AuthenticationStatusFailureMessage"));
-                    }
+                    ["CustomerComment"] = state.CustomerComment,
+                    ["SubscribeToNewsletter"] = state.SubscribeToNewsletter,
+                    ["AcceptThirdPartyEmailHandOver"] = state.AcceptThirdPartyEmailHandOver
+                });
+                //$"AmazonPay transaction. {state}. success:{result.Success} orderId:{result.PlacedOrder?.Id} customer:{customer.Email}.".Dump();
+
+                if (result.Success)
+                {
+                    orderPlaced = true;
                 }
                 else
                 {
-                    throw new AmazonPayException(T("Plugins.Payments.AmazonPay.AuthenticationStatusFailureMessage"), response);
+                    var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+                    if (cart.HasItems)
+                    {
+                        // We should never get here. Payment without an order!
+                        var details = new List<string>
+                        {
+                            string.Empty,
+                            "Order GUID: " + paymentRequest.OrderGuid.ToString(),
+                            "Customer ID: " + customer.Id,
+                            "Customer email: " + customer.FindEmail() ?? StringExtensions.NotAvailable
+                        };
+                        details.AddRange(result.Errors.Select(x => $"Error: {x}"));
+
+                        throw new AmazonPayException($"The payment with {paymentRequest.PaymentMethodSystemName} succeeded but the order placement failed!", 
+                            new Exception(string.Join(Environment.NewLine, details)));
+                    }
                 }
             }
             catch (Exception ex)
@@ -471,13 +465,32 @@ namespace Smartstore.AmazonPay.Controllers
                 Logger.Error(ex);
                 NotifyError(ex.Message);
             }
-
-            if (state.SubmitForm)
+            finally
             {
-                return RedirectToAction(nameof(CheckoutController.Confirm), "Checkout");
+                HttpContext.Session.TrySetObject<ProcessPaymentRequest>(CheckoutState.OrderPaymentInfoName, null);
+                _checkoutStateAccessor.Abandon();
             }
 
-            return RedirectToRoute("ShoppingCart");
+            if (!orderPlaced)
+            {
+                return RedirectToRoute("ShoppingCart");
+            }
+
+            return RedirectToAction(nameof(CheckoutController.Completed), "Checkout");
+        }
+
+        private ProcessPaymentRequest GetPaymentRequest(Customer customer, Store store)
+        {
+            if (!HttpContext.Session.TryGetObject<ProcessPaymentRequest>(CheckoutState.OrderPaymentInfoName, out var paymentRequest) || paymentRequest == null)
+            {
+                paymentRequest = new ProcessPaymentRequest();
+            }
+
+            paymentRequest.StoreId = store.Id;
+            paymentRequest.CustomerId = customer.Id;
+            paymentRequest.PaymentMethodSystemName = customer.GenericAttributes.SelectedPaymentMethod;
+
+            return paymentRequest;
         }
 
         /// <summary>

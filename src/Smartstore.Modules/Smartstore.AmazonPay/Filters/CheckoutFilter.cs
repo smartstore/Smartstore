@@ -5,6 +5,7 @@ using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Logging;
+using Smartstore.Core.Stores;
 using Smartstore.Core.Widgets;
 using Smartstore.Web.Controllers;
 
@@ -12,27 +13,36 @@ namespace Smartstore.AmazonPay.Filters
 {
     public class CheckoutFilter : IAsyncActionFilter
     {
-        private readonly ICommonServices _services;
+        private readonly IStoreContext _storeContext;
+        private readonly IWorkContext _workContext;
+        private readonly INotifier _notifier;
         private readonly Lazy<IPaymentService> _paymentService;
         private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly Lazy<IWidgetProvider> _widgetProvider;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly OrderSettings _orderSettings;
+        private readonly Localizer T;
 
         public CheckoutFilter(
-            ICommonServices services,
+            IStoreContext storeContext,
+            IWorkContext workContext,
+            INotifier notifier,
             Lazy<IPaymentService> paymentService,
             Lazy<IUrlHelper> urlHelper,
             Lazy<IWidgetProvider> widgetProvider,
             ICheckoutStateAccessor checkoutStateAccessor,
-            OrderSettings orderSettings)
+            OrderSettings orderSettings,
+            Localizer localizer)
         {
-            _services = services;
+            _storeContext = storeContext;
+            _workContext = workContext;
+            _notifier = notifier;
             _paymentService = paymentService;
             _urlHelper = urlHelper;
             _widgetProvider = widgetProvider;
             _checkoutStateAccessor = checkoutStateAccessor;
             _orderSettings = orderSettings;
+            T = localizer;
         }
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -48,8 +58,8 @@ namespace Smartstore.AmazonPay.Filters
                     if (await IsAmazonPayActive())
                     {
                         // 202 (Accepted): authorization is pending.
-                        var completedNote = responseStatus == "202"
-                            ? _services.Localization.GetResource("Plugins.Payments.AmazonPay.AsyncPaymentAuthorizationNote")
+                        string completedNote = responseStatus == "202"
+                            ? T("Plugins.Payments.AmazonPay.AsyncPaymentAuthorizationNote")
                             : string.Empty;
 
                         if (!_orderSettings.DisableOrderCompletedPage)
@@ -59,7 +69,7 @@ namespace Smartstore.AmazonPay.Filters
                         }
                         else if (completedNote.HasValue())
                         {
-                            _services.Notifier.Information(completedNote);
+                            _notifier.Information(completedNote);
                         }
                     }
 
@@ -95,9 +105,9 @@ namespace Smartstore.AmazonPay.Filters
         }
 
         private bool IsAmazonPaySelected()
-            => _services.WorkContext.CurrentCustomer.GenericAttributes.SelectedPaymentMethod.EqualsNoCase(AmazonPayProvider.SystemName);
+            => _workContext.CurrentCustomer.GenericAttributes.SelectedPaymentMethod.EqualsNoCase(AmazonPayProvider.SystemName);
 
         private Task<bool> IsAmazonPayActive()
-            => _paymentService.Value.IsPaymentProviderActiveAsync(AmazonPayProvider.SystemName, null, _services.StoreContext.CurrentStore.Id);
+            => _paymentService.Value.IsPaymentProviderActiveAsync(AmazonPayProvider.SystemName, null, _storeContext.CurrentStore.Id);
     }
 }
