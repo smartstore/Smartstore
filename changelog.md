@@ -11,6 +11,8 @@
 
 ### Improvements
 
+- Moved AI command tools from Media Manager toolbar to folder dropwdown menu.
+
 ### Bugfixes
 
 - Fixed the payment widget not displaying when payment methods are selected via radio buttons in checkout (the behaviour of icons and radio buttons needs to be equal).
