@@ -13,6 +13,7 @@
 
 ### Bugfixes
 
+- Fixed the payment widget not displaying when payment methods are selected via radio buttons in checkout (the behaviour of icons and radio buttons needs to be equal).
 - PostFinance: Fixed issue with TWINT payments regarding environment selection strategy.
 
 
