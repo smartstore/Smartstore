@@ -502,6 +502,7 @@
                                         .addClass("dz-success dz-complete")
                                         .removeClass("d-none dz-processing");
 
+                                    elPreview.find(".file-figure").attr("data-type", file.type);
                                     elPreview.find(".fu-file-info-name").html(value.Name);
 
                                     elPreview
