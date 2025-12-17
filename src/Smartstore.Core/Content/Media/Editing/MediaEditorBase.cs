@@ -4,16 +4,12 @@ using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Content.Media.Editing
 {
-    /// <summary>
-    /// Represents a media editor menu.
-    /// </summary>
-    public enum MediaEditorMenu
+    public enum MediaEditorToolLocation
     {
         Toolbar = 0,
-        Folder,
-        File
+        FolderMenu,
+        FileMenu
     }
-
 
     /// <summary>
     /// Represents an editor for editing media files.
@@ -38,8 +34,8 @@ namespace Smartstore.Core.Content.Media.Editing
         /// <summary>
         /// Gets a list of commands to be added to the Media Manager.
         /// </summary>
-        /// <param name="menu">Specifies the menu for which to get the commands.</param>
-        Task<IEnumerable<MediaEditorCommand>> GetCommandsAsync(MediaEditorMenu menu);
+        /// <param name="location">Specifies the menu for which to get the commands.</param>
+        Task<IEnumerable<MediaEditorCommand>> GetCommandsAsync(MediaEditorToolLocation location);
     }
 
     /// <inheritdoc />
@@ -57,6 +53,6 @@ namespace Smartstore.Core.Content.Media.Editing
         public abstract bool IsActive();
 
         /// <inheritdoc />
-        public abstract Task<IEnumerable<MediaEditorCommand>> GetCommandsAsync(MediaEditorMenu menu);
+        public abstract Task<IEnumerable<MediaEditorCommand>> GetCommandsAsync(MediaEditorToolLocation location);
     }
 }
