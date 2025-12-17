@@ -27,11 +27,19 @@ namespace Smartstore.Core.AI.Metadata
             };
         }
 
+        protected string BuildCacheKey(string moduleSystemName)
+            => "aimetadata:" + moduleSystemName;
+
+        protected IMemoryCache Cache
+        {
+            get => _cache;
+        }
+
         public AIMetadata LoadMetadata(string moduleSystemName)
         {
             Guard.NotEmpty(moduleSystemName);
 
-            var cacheKey = "aimetadata:" + moduleSystemName;
+            var cacheKey = BuildCacheKey(moduleSystemName);
 
             var result = _cache.GetOrCreate(cacheKey, entry =>
             {
@@ -47,6 +55,30 @@ namespace Smartstore.Core.AI.Metadata
 
             return result!;
         }
+
+        public async Task<AIMetadata> LoadMetadataAsync(string moduleSystemName)
+        {
+            Guard.NotEmpty(moduleSystemName);
+
+            var cacheKey = BuildCacheKey(moduleSystemName);
+
+            var result = await _cache.GetOrCreateAsync(cacheKey, async entry =>
+            {
+                var (metadata, changeToken) = await LoadMetadataCoreAsync(moduleSystemName);
+                if (changeToken != null)
+                {
+                    // Register the change token to invalidate the cache entry when the file changes.
+                    entry.AddExpirationToken(changeToken);
+                }
+
+                return metadata;
+            });
+
+            return result!;
+        }
+
+        protected virtual Task<(AIMetadata, IChangeToken?)> LoadMetadataCoreAsync(string moduleSystemName)
+            => Task.FromResult(LoadMetadataCore(moduleSystemName));
 
         protected virtual (AIMetadata, IChangeToken?) LoadMetadataCore(string moduleSystemName)
         {
@@ -77,7 +109,7 @@ namespace Smartstore.Core.AI.Metadata
 
         public void Invalidate(string moduleSystemName)
         {
-            _cache.Remove("aimetadata:" + moduleSystemName);
+            _cache.Remove(BuildCacheKey(moduleSystemName));
         }
     }
 }
