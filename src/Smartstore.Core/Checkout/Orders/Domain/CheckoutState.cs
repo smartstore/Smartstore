@@ -59,23 +59,21 @@ namespace Smartstore.Core.Checkout.Orders
             set => SetProperty(value);
         }
 
-        // TODO: (mg) Should be boolean
         /// <summary>
         /// Gets or sets a value indicating whether the customer wants to subscribe to the newsletter.
         /// </summary>
-        public string SubscribeToNewsletter
+        public bool SubscribeToNewsletter
         {
-            get => GetProperty<string>();
+            get => GetProperty<bool>();
             set => SetProperty(value);
         }
 
-        // TODO: (mg) Should be boolean
         /// <summary>
         /// Gets or sets a value indicating whether the customer accepts third-party email handover.
         /// </summary>
-        public string AcceptThirdPartyEmailHandOver
+        public bool AcceptThirdPartyEmailHandOver
         {
-            get => GetProperty<string>();
+            get => GetProperty<bool>();
             set => SetProperty(value);
         }
 

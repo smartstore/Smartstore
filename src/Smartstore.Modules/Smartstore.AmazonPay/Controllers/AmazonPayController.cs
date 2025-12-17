@@ -381,9 +381,9 @@ namespace Smartstore.AmazonPay.Controllers
                         }
 
                         success = true;
-                        state.CustomerComment = GetFormValue("customercommenthidden");
-                        state.SubscribeToNewsletter = GetFormValue("SubscribeToNewsletter");
-                        state.AcceptThirdPartyEmailHandOver = GetFormValue("AcceptThirdPartyEmailHandOver");
+                        state.CustomerComment = GetFormValue<string>("customercommenthidden");
+                        state.SubscribeToNewsletter = GetFormValue<bool>("SubscribeToNewsletter");
+                        state.AcceptThirdPartyEmailHandOver = GetFormValue<bool>("AcceptThirdPartyEmailHandOver");
                     }
                     else
                     {
@@ -403,9 +403,9 @@ namespace Smartstore.AmazonPay.Controllers
 
             return Json(new { success, redirectUrl, messages });
 
-            string GetFormValue(string key)
+            T GetFormValue<T>(string key)
             {
-                return form.TryGetValue(key, out var val) ? val.ToString() : null;
+                return form.TryGetValue(key, out var val) ? val.ToString().Convert<T>() : default;
             }
         }
 
@@ -431,8 +431,8 @@ namespace Smartstore.AmazonPay.Controllers
                 var result = await _orderProcessingService.PlaceOrderAsync(paymentRequest, new()
                 {
                     ["CustomerComment"] = state.CustomerComment,
-                    ["SubscribeToNewsletter"] = state.SubscribeToNewsletter,
-                    ["AcceptThirdPartyEmailHandOver"] = state.AcceptThirdPartyEmailHandOver
+                    ["SubscribeToNewsletter"] = state.SubscribeToNewsletter.ToString().ToLower(),
+                    ["AcceptThirdPartyEmailHandOver"] = state.AcceptThirdPartyEmailHandOver.ToString().ToLower()
                 });
                 //$"AmazonPay transaction. {state}. success:{result.Success} orderId:{result.PlacedOrder?.Id} customer:{customer.Email}.".Dump();
 
