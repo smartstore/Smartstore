@@ -210,7 +210,7 @@ namespace Smartstore.Web.Models.Common
                 RuleFor(x => x.FaxNumber).NotEmpty();
             }
 
-            When(x => x.EmailEnabled, () =>
+            When(x => x.EmailEnabled && x.ValidateEmailAddress, () =>
             {
                 RuleFor(x => x.Email).EmailAddressStrict();
 
