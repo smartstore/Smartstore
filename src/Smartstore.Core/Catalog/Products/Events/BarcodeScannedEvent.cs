@@ -1,6 +1,8 @@
-﻿namespace Smartstore.Core.Catalog.Products
+﻿using Smartstore.Events;
+
+namespace Smartstore.Core.Catalog.Products
 {
-    public class BarcodeScannedEvent
+    public class BarcodeScannedEvent : IEventMessage
     {
         public BarcodeScannedEvent(int productId, string action)
         {
