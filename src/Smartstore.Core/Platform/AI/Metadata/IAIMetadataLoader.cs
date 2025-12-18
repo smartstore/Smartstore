@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Core.AI.Metadata
+﻿#nullable enable
+
+namespace Smartstore.Core.AI.Metadata
 {
     /// <summary>
     /// Loads and caches AI metadata.
@@ -13,10 +15,15 @@
         AIMetadata LoadMetadata(string moduleSystemName);
 
         /// <summary>
-        /// Asynchronously loads and caches metadata for the given <paramref name="moduleSystemName"/>.
+        /// Performs post-processing operations asynchronously using the specified AI metadata.
         /// </summary>
-        /// <param name="moduleSystemName">The system name of the AI module for which to load metadata. Cannot be null or empty.</param>
-        /// <remarks>By default, this method delegates to <see cref="LoadMetadata(string)"/></remarks>
-        Task<AIMetadata> LoadMetadataAsync(string moduleSystemName);
+        /// <param name="localMetadata">The metadata object containing information required for post-processing. Cannot be null.</param>
+        /// <returns>Return null if no post-processing was performed. Return an <see cref="AIMetadata"/> instance to update the metadata cache deferredly.</returns>
+        Task<AIMetadata?> PostProcessAsync(AIMetadata localMetadata);
+
+        /// <summary>
+        /// Replaces the cached metadata for the given <paramref name="moduleSystemName"/> with the given <paramref name="metadata"/> instance.
+        /// </summary>
+        void ReplaceMetadata(string moduleSystemName, AIMetadata metadata);
     }
 }

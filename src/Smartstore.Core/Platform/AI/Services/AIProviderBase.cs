@@ -3,6 +3,7 @@ using Smartstore.Core.AI.Prompting;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.IO;
+using Smartstore.Threading;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.AI
@@ -28,11 +29,85 @@ namespace Smartstore.Core.AI
         /// </summary>
         protected const string ContinueReason = "length";
 
+        private readonly IAIMetadataLoader _metadataLoader;
+        private readonly string _moduleSystemName;
+        private AIMetadata _metadata;
+
+        public AIProviderBase(IAIMetadataLoader metadataLoader, string moduleSystemName)
+        {
+            _metadataLoader = metadataLoader;
+            _moduleSystemName = moduleSystemName;
+        }
+
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
         public abstract bool IsActive();
 
-        public virtual AIMetadata Metadata { get; protected set; }
+        public AIMetadata Metadata 
+        {
+            get
+            {
+                if (_metadata == null)
+                {
+                    _metadata = _metadataLoader.LoadMetadata(_moduleSystemName);
+
+                    // Ensure that metadata is post-processed only once.
+                    if (!_metadata.PostProcessed)
+                    {
+                        // Post-process metadata asynchronously (fire-and-forget).
+                        var lockHandle = AsyncLock.Keyed("aimetadatalock:" + _metadata.ProviderId);
+                        // Reload from cache
+                        var metadata = _metadataLoader.LoadMetadata(_moduleSystemName);
+                        if (!metadata.PostProcessed)
+                        {
+                            PostProcessMetadataInBackground(metadata, lockHandle);
+                        }
+                        else
+                        {
+                            lockHandle.Release();
+                        }
+                    }
+                }
+
+                return _metadata;
+            }
+            protected set => _metadata = value;
+        }
+
+        private void PostProcessMetadataInBackground(AIMetadata metadata, ILockHandle lockHandle)
+        {
+            var task = _metadataLoader.PostProcessAsync(metadata);
+
+            if (task.IsCompleted)
+            {
+                // If already completed, update metadata immediately.
+                if (task.Status == TaskStatus.RanToCompletion && task.Result != null)
+                {
+                    _metadata = task.Result;
+                }
+
+                _metadata.PostProcessed = true;
+                lockHandle.Release();
+            }
+            else
+            {
+                // Update cached metadata when post-processing is done.
+                task.ContinueWith(t =>
+                {
+                    if (t.Result != null)
+                    {
+                        t.Result.PostProcessed = true;
+                        _metadataLoader.ReplaceMetadata(_moduleSystemName, t.Result);
+                    }
+                    else
+                    {
+                        _metadata.PostProcessed = true;
+                    }
+
+                    lockHandle.Release();
+                });
+            }
+        }
 
         public virtual AIModelCollection GetModels(AIChatTopic topic)
         {
