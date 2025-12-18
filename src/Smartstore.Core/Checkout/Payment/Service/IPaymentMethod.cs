@@ -121,12 +121,10 @@ namespace Smartstore.Core.Checkout.Payment
         Task<ProcessPaymentRequest> CreateProcessPaymentRequestAsync(ShoppingCart cart);
 
         /// <summary>
-        /// Confirms the payment before placing the order. Called immediately after the customer clicks the buy-now button.
+        /// Gets the URL to which the user should be redirected for payment confirmation
+        /// (immediately after the customer clicks the buy-now button).
         /// </summary>
-        /// <param name="confirmed">
-        /// <c>true</c> the payment is confirmed, otherwise <c>false</c>.
-        /// </param>
-        Task<PaymentConfirmationResult> ConfirmPaymentAsync(bool confirmed, ProcessPaymentRequest request, CheckoutContext context);
+        Task<string> GetConfirmationUrlAsync(ProcessPaymentRequest request, CheckoutContext context);
 
         /// <summary>
         /// Pre-process a payment. Called immediately before <see cref="ProcessPaymentAsync(ProcessPaymentRequest)"/>.

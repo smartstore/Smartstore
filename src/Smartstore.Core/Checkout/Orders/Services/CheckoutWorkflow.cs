@@ -290,8 +290,8 @@ namespace Smartstore.Core.Checkout.Orders
                     return CreateResult(new(T("Payment.CouldNotLoadMethod"), innerEx, paymentMethod), context);
                 }
 
-                var result = await provider.Value.ConfirmPaymentAsync(false, paymentRequest, context);
-                if (result.RedirectUrl.IsEmpty())
+                var url = await provider.Value.GetConfirmationUrlAsync(paymentRequest, context);
+                if (url.IsEmpty())
                 {
                     var innerEx = new Exception($"The payment provider {paymentMethod} did not provide a redirect URL when confirming the payment.");
                     return CreateResult(new(T("Payment.PaymentFailure"), innerEx, paymentMethod), context);
@@ -304,11 +304,11 @@ namespace Smartstore.Core.Checkout.Orders
                 state.SubscribeToNewsletter = context.GetFormValue<bool>(SubscribeToNewsletterKey);
                 state.AcceptThirdPartyEmailHandOver = context.GetFormValue<bool>(AcceptThirdPartyEmailHandOverKey);
 
-                return new(new RedirectResult(result.RedirectUrl), confirmStep.ViewPath, true);
+                return new(new RedirectResult(url), confirmStep.ViewPath, true);
             }
             catch (PaymentException ex)
             {
-                // TODO: (mg) Test notifier. Probably to not work here. TempData approach required.
+                // TODO: (mg) Test notifier. Probably do not work here. TempData approach required.
                 return CreateResult(ex, context);
             }
             catch (Exception ex)

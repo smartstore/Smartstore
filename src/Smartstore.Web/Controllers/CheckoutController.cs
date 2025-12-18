@@ -298,7 +298,7 @@ namespace Smartstore.Web.Controllers
 
             if (redirectUrl == null && result.ActionResult != null)
             {
-                // Expected case: A payment error occurs, redirecting the user back to the payment selection page.
+                // Expected case: A payment error occurs -> redirect the user back to the payment selection page.
                 return result.ActionResult;
             }
 
@@ -314,10 +314,11 @@ namespace Smartstore.Web.Controllers
         /// After completing the payment, the payment provider redirects the customer 
         /// to this action method to process the payment result.
         /// </summary>
-        public async Task<IActionResult> PaymentConfirmationResult()
+        public async Task<IActionResult> PaymentConfirmed()
         {
-            await Task.CompletedTask;
-            throw new NotImplementedException();
+            var result = await _checkoutWorkflow.ConfirmPaymentAsync(true, await CreateCheckoutContext());
+
+            return result.ActionResult ?? RedirectToAction(nameof(Completed));
         }
 
         public async Task<IActionResult> Confirm()
