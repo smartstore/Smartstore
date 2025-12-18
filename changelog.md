@@ -19,6 +19,7 @@
 - PostFinance: Fixed issue with TWINT payments regarding environment selection strategy.
 - #1454 After being assigned to an entity, an image below the dropzone is not displayed.
 - Adding new addresses wasn't possible because model state wasn't valid due to missing email fields for registered customers
+- #1455 "Duplicate keys detected: `row-undefined`" in currency grid.
 
 
 ## Smartstore 6.3.0
