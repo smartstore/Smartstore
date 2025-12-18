@@ -3,6 +3,10 @@ using Smartstore.ComponentModel;
 
 namespace Smartstore.Core.Checkout.Orders
 {
+    /// <summary>
+    /// Represents data on a per-session basis during the checkout process.
+    /// Typically used by payment providers to semlessly integrate into the checkout flow.
+    /// </summary>
     public partial class CheckoutState : ObservableObject
     {
         public static string CheckoutStateSessionKey => ".Smart.CheckoutState";
@@ -41,6 +45,33 @@ namespace Smartstore.Core.Checkout.Orders
         /// Set on the payment selection page, if not skipped by a payment module.
         /// </summary>
         public bool IsPaymentSelectionSkipped
+        {
+            get => GetProperty<bool>();
+            set => SetProperty(value);
+        }
+
+        /// <summary>
+        /// Gets or sets the customer comment entered on checkout confirmation page.
+        /// </summary>
+        public string CustomerComment
+        {
+            get => GetProperty<string>();
+            set => SetProperty(value);
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the customer wants to subscribe to the newsletter.
+        /// </summary>
+        public bool SubscribeToNewsletter
+        {
+            get => GetProperty<bool>();
+            set => SetProperty(value);
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the customer accepts third-party email handover.
+        /// </summary>
+        public bool AcceptThirdPartyEmailHandOver
         {
             get => GetProperty<bool>();
             set => SetProperty(value);
@@ -86,11 +117,11 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Use this dictionary for any custom data required along checkout flow
         /// </summary>
-        public ObservableDictionary<string, object> CustomProperties { get; set; } = new();
+        public ObservableDictionary<string, object> CustomProperties { get; set; } = [];
 
         /// <summary>
         /// The payment data entered on payment method selection page
         /// </summary>
-        public ObservableDictionary<string, object> PaymentData { get; set; } = new();
+        public ObservableDictionary<string, object> PaymentData { get; set; } = [];
     }
 }

@@ -41,7 +41,18 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets a request form value.
         /// </summary>
-        public string? GetFormValue(string key)
-            => HttpContext.Request.Form.TryGetValue(key, out var val) ? val.ToString() : null;
+        public T? GetFormValue<T>(string key, T? defaultVal = default)
+        {
+            if (HttpContext.Request.Form.TryGetValue(key, out var val))
+            {
+                var valStr = val.ToString();
+                if (valStr != null)
+                {
+                    return valStr.Convert<T>() ?? defaultVal;
+                }
+            }
+
+            return defaultVal;
+        }
     }
 }

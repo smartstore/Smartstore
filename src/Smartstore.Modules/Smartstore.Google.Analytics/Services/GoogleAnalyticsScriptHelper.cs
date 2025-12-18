@@ -258,7 +258,11 @@ namespace Smartstore.Google.Analytics.Services
         /// </returns
         private string GetCategoryPath()
         {
-            // INFO: (mh) GetCategoryTreeAsync() was fast enough. You didn't have to refactor here.
+            if (_breadcrumb.Trail.IsNullOrEmpty())
+            {
+                return string.Empty;
+            }
+
             var i = 0;
             var catScript = string.Empty;
             

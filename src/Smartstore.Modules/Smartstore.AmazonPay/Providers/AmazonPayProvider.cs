@@ -9,12 +9,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.AmazonPay.Components;
 using Smartstore.AmazonPay.Services;
-using Smartstore.Core;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common.Services;
+using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
+using Smartstore.Core.Stores;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
@@ -27,7 +28,9 @@ namespace Smartstore.AmazonPay.Providers
     public class AmazonPayProvider : PaymentMethodBase, IConfigurable
     {
         private readonly SmartDbContext _db;
-        private readonly ICommonServices _services;
+        private readonly IStoreContext _storeContext;
+        private readonly ICurrencyService _currencyService;
+        private readonly ISettingFactory _settingFactory;
         private readonly IAmazonPayService _amazonPayService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
@@ -35,14 +38,18 @@ namespace Smartstore.AmazonPay.Providers
 
         public AmazonPayProvider(
             SmartDbContext db,
-            ICommonServices services,
+            IStoreContext storeContext,
+            ICurrencyService currencyService,
+            ISettingFactory settingFactory,
             IAmazonPayService amazonPayService,
             IHttpContextAccessor httpContextAccessor,
             ICheckoutStateAccessor checkoutStateAccessor,
             IRoundingHelper roundingHelper)
         {
             _db = db;
-            _services = services;
+            _storeContext = storeContext;
+            _currencyService = currencyService;
+            _settingFactory = settingFactory;
             _amazonPayService = amazonPayService;
             _httpContextAccessor = httpContextAccessor;
             _checkoutStateAccessor = checkoutStateAccessor;
@@ -56,6 +63,8 @@ namespace Smartstore.AmazonPay.Providers
         internal static string LeadCode => "SPEXDEAPA-SmartStore.Net-CP-DP";
 
         public static string SystemName => "Payments.AmazonPay";
+
+        //public override bool RequiresConfirmation => true;
 
         public override bool SupportCapture => true;
 
@@ -80,72 +89,65 @@ namespace Smartstore.AmazonPay.Providers
             var httpContext = _httpContextAccessor.HttpContext;
             httpContext.Session.TryRemove("AmazonPayResponseStatus");
 
-            try
+            if (state.SessionId.IsEmpty())
             {
-                if (state.SessionId.IsEmpty())
+                throw new AmazonPayException(T("Payment.MissingCheckoutState", "AmazonPayCheckoutState." + nameof(state.SessionId)));
+            }
+
+            var client = GetClient(processPaymentRequest.StoreId);
+            var session = client.GetCheckoutSession(state.SessionId);
+            if (!session.Success || session.StatusDetails.State.EqualsNoCase("Canceled"))
+            {
+                throw new AmazonPayException(T("Plugins.Payments.AmazonPay.AuthenticationStatusFailureMessage"), session);
+            }
+
+            var orderTotal = _roundingHelper.Round(processPaymentRequest.OrderTotal, _currencyService.PrimaryCurrency);
+            var completeRequest = new CompleteCheckoutSessionRequest(orderTotal, _amazonPayService.GetAmazonPayCurrency());
+            var completeResponse = client.CompleteCheckoutSession(state.SessionId, completeRequest);
+            if (completeResponse.Success)
+            {
+                // A Charge represents a single payment transaction.
+                // Can either be created using a valid Charge Permission, or as a result of a successful Checkout Session.
+                result.AuthorizationTransactionId = completeResponse.ChargeId;
+
+                // A Charge Permission represents buyer consent to be charged.
+                // Can either be requested for a one-time or recurring payment scenario.
+                result.AuthorizationTransactionCode = completeResponse.ChargePermissionId;
+                result.AuthorizationTransactionResult = completeResponse.StatusDetails.State.Grow(completeResponse.StatusDetails.ReasonCode);
+
+                if (completeResponse.Status == 200)
                 {
-                    throw new AmazonPayException(T("Payment.MissingCheckoutState", "AmazonPayCheckoutState." + nameof(state.SessionId)));
+                    // 200 (OK): authorization succeeded.
+                    var settings = await _settingFactory.LoadSettingsAsync<AmazonPaySettings>(processPaymentRequest.StoreId);
+
+                    result.NewPaymentStatus = settings.TransactionType == AmazonPayTransactionType.AuthorizeAndCapture
+                        ? PaymentStatus.Paid
+                        : PaymentStatus.Authorized;
                 }
 
-                var client = GetClient(processPaymentRequest.StoreId);
-                var orderTotal = _roundingHelper.Round(processPaymentRequest.OrderTotal, _services.CurrencyService.PrimaryCurrency);
-                var request = new CompleteCheckoutSessionRequest(orderTotal, _amazonPayService.GetAmazonPayCurrency());
-                var response = client.CompleteCheckoutSession(state.SessionId, request);
+                httpContext.Session.SetString("AmazonPayResponseStatus", completeResponse.Status.ToString());
+            }
+            else
+            {
+                // 4xx/5xx: authorization failed.
+                // Canceled by buyer or by AmazonPay, declined or expired.
+                var reason = completeResponse?.StatusDetails?.ReasonCode;
+                var message = string.Empty;
 
-                if (response.Success)
+                if (reason.EqualsNoCase("AmazonRejected"))
                 {
-                    // A Charge represents a single payment transaction.
-                    // Can either be created using a valid Charge Permission, or as a result of a successful Checkout Session.
-                    result.AuthorizationTransactionId = response.ChargeId;
-
-                    // A Charge Permission represents buyer consent to be charged.
-                    // Can either be requested for a one-time or recurring payment scenario.
-                    result.AuthorizationTransactionCode = response.ChargePermissionId;
-
-                    result.AuthorizationTransactionResult = response.StatusDetails.State.Grow(response.StatusDetails.ReasonCode);
-
-                    if (response.Status == 200)
-                    {
-                        // 200 (OK): authorization succeeded.
-                        var settings = await _services.SettingFactory.LoadSettingsAsync<AmazonPaySettings>(processPaymentRequest.StoreId);
-
-                        result.NewPaymentStatus = settings.TransactionType == AmazonPayTransactionType.AuthorizeAndCapture
-                            ? PaymentStatus.Paid
-                            : PaymentStatus.Authorized;
-                    }
-
-                    httpContext.Session.SetString("AmazonPayResponseStatus", response.Status.ToString());
+                    message = T("Plugins.Payments.AmazonPay.AuthorizationSoftDeclineMessage");
+                }
+                else if (reason.EqualsNoCase("HardDeclined"))
+                {
+                    message = T("Plugins.Payments.AmazonPay.AuthorizationHardDeclineMessage");
                 }
                 else
                 {
-                    // 4xx/5xx: authorization failed.
-                    // Canceled by buyer or by AmazonPay, declined or expired.
-                    var reason = response?.StatusDetails?.ReasonCode;
-                    var message = string.Empty;
-
-                    if (reason.EqualsNoCase("AmazonRejected"))
-                    {
-                        message = T("Plugins.Payments.AmazonPay.AuthorizationSoftDeclineMessage");
-                    }
-                    else if (reason.EqualsNoCase("HardDeclined"))
-                    {
-                        message = T("Plugins.Payments.AmazonPay.AuthorizationHardDeclineMessage");
-                    }
-                    else
-                    {
-                        message = T("Plugins.Payments.AmazonPay.AuthenticationStatusFailureMessage");
-                    }
-
-                    throw new AmazonPayException(message, response);
+                    message = T("Plugins.Payments.AmazonPay.AuthenticationStatusFailureMessage");
                 }
-            }
-            finally
-            {
-                if (state.SubmitForm)
-                {
-                    // Avoid infinite loop where the confirm-form is automatically submitted over and over again.
-                    state.SubmitForm = false;
-                }
+
+                throw new AmazonPayException(message, completeResponse);
             }
 
             return result;
@@ -272,7 +274,7 @@ namespace Smartstore.AmazonPay.Providers
 
         public override async Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart)
         {
-            var settings = await _services.SettingFactory.LoadSettingsAsync<AmazonPaySettings>(_services.StoreContext.CurrentStore.Id);
+            var settings = await _settingFactory.LoadSettingsAsync<AmazonPaySettings>(_storeContext.CurrentStore.Id);
 
             return (settings.AdditionalFee, settings.AdditionalFeePercentage);
         }

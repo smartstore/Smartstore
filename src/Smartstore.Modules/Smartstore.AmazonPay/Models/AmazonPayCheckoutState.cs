@@ -14,34 +14,9 @@ namespace Smartstore.AmazonPay.Models
             set => SetProperty(value);
         }
 
-        #region Confirmation flow
-
-        public bool IsConfirmed
-        {
-            get => GetProperty<bool>();
-            set => SetProperty(value);
-        }
-
-        public string FormData
-        {
-            get => GetProperty<string>();
-            set => SetProperty(value);
-        }
-
-        /// <summary>
-        /// Order is confimed by buyer and AmazonPay -> automatically submit confirm form.
-        /// </summary>
-        public bool SubmitForm
-        {
-            get => GetProperty<bool>();
-            set => SetProperty(value);
-        }
-
-        #endregion
-
         public override string ToString()
         {
-            return $"SessionId:{SessionId}, IsConfirmed:{IsConfirmed}, SubmitForm:{SubmitForm}";
+            return $"SessionId:{SessionId}";
         }
     }
 }

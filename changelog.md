@@ -11,9 +11,15 @@
 
 ### Improvements
 
+- Moved AI command tools from Media Manager toolbar to folder dropwdown menu.
+
 ### Bugfixes
 
+- Fixed the payment widget not displaying when payment methods are selected via radio buttons in checkout (the behaviour of icons and radio buttons needs to be equal).
 - PostFinance: Fixed issue with TWINT payments regarding environment selection strategy.
+- #1454 After being assigned to an entity, an image below the dropzone is not displayed.
+- #1455 "Duplicate keys detected: `row-undefined`" in currency grid.
+- Adding new addresses wasn't possible because model state was invalid due to missing email fields for registered customers.
 
 
 ## Smartstore 6.3.0

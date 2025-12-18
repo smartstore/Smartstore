@@ -84,7 +84,7 @@ namespace Smartstore.Web.Models.Checkout
                 to.ThirdPartyEmailHandOverLabel = _shoppingCartSettings.GetLocalizedSetting(
                     x => x.ThirdPartyEmailHandOverLabel,
                     _workContext.WorkingLanguage,
-                    _storeContext.CurrentStore.Id,
+                    storeId,
                     true,
                     false);
 
@@ -101,6 +101,8 @@ namespace Smartstore.Web.Models.Checkout
                 var state = _checkoutStateAccessor.CheckoutState;
                 var pm = await _paymentService.LoadPaymentProviderBySystemNameAsync(customer.GenericAttributes.SelectedPaymentMethod);
                 var paymentMethod = pm != null ? _moduleManager.GetLocalizedFriendlyName(pm.Metadata).NullEmpty() : null;
+
+                to.ConfirmPayment = pm?.Value.RequiresConfirmation ?? false;
 
                 state.CustomProperties.TryGetValueAs("HasOnlyOneActivePaymentMethod", out bool singlePaymentMethod);
 

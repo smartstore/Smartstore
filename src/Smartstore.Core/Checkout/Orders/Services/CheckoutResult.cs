@@ -19,8 +19,14 @@ namespace Smartstore.Core.Checkout.Orders
             ViewPath = viewPath;
         }
 
-        public CheckoutResult(IActionResult actionResult, string? viewPath = null)
-            : this(false)
+        public CheckoutResult(string error, string? viewPath = null, bool success = false)
+            : this(success, [new(string.Empty, error)])
+        {
+            ViewPath = viewPath;
+        }
+
+        public CheckoutResult(IActionResult actionResult, string? viewPath = null, bool success = false)
+            : this(success)
         {
             ActionResult = Guard.NotNull(actionResult);
             ViewPath = viewPath;

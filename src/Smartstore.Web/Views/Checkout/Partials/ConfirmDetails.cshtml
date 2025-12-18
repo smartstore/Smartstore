@@ -21,13 +21,13 @@
     <fieldset>
         <legend class="sr-only">
             <span sm-if="subscribeToNewsletter">@T("Checkout.SubscribeToNewsletter")</span>
-            <span sm-if=emailHandOver> @Model.ThirdPartyEmailHandOverLabel</span>
+            <span sm-if=emailHandOver>@Model.ThirdPartyEmailHandOverLabel</span>
         </legend>
         <div class="card-body">
             <div sm-if="subscribeToNewsletter" class="form-check">
                 <input attr-checked='(Model.NewsletterSubscription == CheckoutNewsletterSubscription.Activated, "checked")'
                        type="checkbox" id="SubscribeToNewsletter" name="SubscribeToNewsletter" class="form-check-input" />
-                <label class="form-check-label" for="SubscribeToNewsLetter">
+                <label class="form-check-label" for="SubscribeToNewsletter">
                     <span>@T("Checkout.SubscribeToNewsletter")</span>
                 </label>
             </div>

@@ -2,19 +2,8 @@
 
 	<PropertyGroup>
 		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-		<MvcRazorCompileOnBuild>false</MvcRazorCompileOnBuild>
-		<MvcRazorCompileOnPublish>true</MvcRazorCompileOnPublish>
 		<RazorCompileOnBuild>true</RazorCompileOnBuild>
 		<RazorCompileOnPublish>true</RazorCompileOnPublish>
-
-        <!-- Suppresses the generation of the BuildHost processes -->
-        <UseRazorBuildServer>false</UseRazorBuildServer>
-	
-		<!-- TODO: (core) Think about Razor precompilation strategy and implement decently -->
-		<!--
-			<CopyRazorGenerateFilesToPublishDirectory>true</CopyRazorGenerateFilesToPublishDirectory>
-			<CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
-		-->
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -27,12 +16,12 @@
 	
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<RazorCompileOnBuild>true</RazorCompileOnBuild>
+        <StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>
+        <StaticWebAssetFingerprintingEnabled>false</StaticWebAssetFingerprintingEnabled>
 	</PropertyGroup>
 
     <PropertyGroup>
         <CompressionEnabled>false</CompressionEnabled>
-        <StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>
-        <StaticWebAssetFingerprintingEnabled>false</StaticWebAssetFingerprintingEnabled>
         <DisableBuildCompression>true</DisableBuildCompression>
     </PropertyGroup>
 

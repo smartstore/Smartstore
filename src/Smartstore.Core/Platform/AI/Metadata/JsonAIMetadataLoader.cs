@@ -4,6 +4,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Smartstore.Caching;
 using Smartstore.ComponentModel;
 
 namespace Smartstore.Core.AI.Metadata
@@ -27,11 +28,19 @@ namespace Smartstore.Core.AI.Metadata
             };
         }
 
+        protected static string BuildCacheKey(string moduleSystemName)
+            => "aimetadata:" + moduleSystemName;
+
+        protected IMemoryCache Cache
+        {
+            get => _cache;
+        }
+
         public AIMetadata LoadMetadata(string moduleSystemName)
         {
             Guard.NotEmpty(moduleSystemName);
 
-            var cacheKey = "aimetadata:" + moduleSystemName;
+            var cacheKey = BuildCacheKey(moduleSystemName);
 
             var result = _cache.GetOrCreate(cacheKey, entry =>
             {
@@ -42,10 +51,27 @@ namespace Smartstore.Core.AI.Metadata
                     entry.AddExpirationToken(changeToken);
                 }
 
-                return metadata;
+                return new CacheEntry { Key = cacheKey, Value = metadata, ValueType = typeof(AIMetadata) };
             });
 
-            return result!;
+            return (AIMetadata)result!.Value;
+        }
+
+        public virtual Task<AIMetadata?> PostProcessAsync(AIMetadata localMetadata)
+        {
+            localMetadata.PostProcessed = true;
+            return Task.FromResult<AIMetadata?>(null);
+        }
+
+        public void ReplaceMetadata(string moduleSystemName, AIMetadata metadata)
+        {
+            Guard.NotEmpty(moduleSystemName);
+            Guard.NotNull(metadata);
+
+            if (_cache.TryGetValue(BuildCacheKey(moduleSystemName), out CacheEntry? entry))
+            {
+                entry!.Value = metadata;
+            }
         }
 
         protected virtual (AIMetadata, IChangeToken?) LoadMetadataCore(string moduleSystemName)
@@ -77,7 +103,7 @@ namespace Smartstore.Core.AI.Metadata
 
         public void Invalidate(string moduleSystemName)
         {
-            _cache.Remove("aimetadata:" + moduleSystemName);
+            _cache.Remove(BuildCacheKey(moduleSystemName));
         }
     }
 }

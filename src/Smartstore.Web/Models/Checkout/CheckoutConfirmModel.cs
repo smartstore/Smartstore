@@ -10,6 +10,7 @@ namespace Smartstore.Web.Models.Checkout
         public bool ShowEsdRevocationWaiverBox { get; set; }
         public bool? SubscribeToNewsletter { get; set; }
         public bool? AcceptThirdPartyEmailHandOver { get; set; }
+        public bool ConfirmPayment { get; set; }
         public string ThirdPartyEmailHandOverLabel { get; set; }
         public string TermsOfService { get; set; }
         public CheckoutNewsletterSubscription NewsletterSubscription { get; set; }

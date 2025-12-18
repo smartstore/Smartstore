@@ -101,15 +101,14 @@
                                 @{ await RenderPaymentMethod(); }
                             </div>
                         </div>
-
-                        if (payWith.Selected && widgetInvoker != null && !infoRendered)
-                        {
-                            await RenderPaymentWidget(true);
-                        }
                     }
                     else
                     {
                         await RenderPaymentMethod();
+                    }
+                    @if (payWith.Selected && widgetInvoker != null && !infoRendered)
+                    {
+                        await RenderPaymentWidget(true);
                     }
                 </li>
             }

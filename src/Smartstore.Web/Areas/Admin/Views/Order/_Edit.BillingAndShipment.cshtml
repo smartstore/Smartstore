@@ -24,13 +24,13 @@
                 <div class="mb-2">
                     @Html.Raw(billTo.FormattedAddress)
                 </div>
-                <div sm-if="billTo.EmailEnabled && billTo.Email.HasValue()" class="email">
+                <div sm-if="billTo.Email.HasValue()" class="email">
                     @T("Order.Email"): @billTo.Email
                 </div>
-                <div sm-if="billTo.PhoneEnabled && billTo.PhoneNumber.HasValue()" class="phone">
+                <div sm-if="billTo.PhoneNumber.HasValue()" class="phone">
                     @T("Order.Phone"): @billTo.PhoneNumber
                 </div>
-                <div sm-if="billTo.FaxEnabled && billTo.FaxNumber.HasValue()" class="fax">
+                <div sm-if="billTo.FaxNumber.HasValue()" class="fax">
                     @T("Order.Fax"): @billTo.FaxNumber
                 </div>
             </div>
@@ -52,13 +52,13 @@
                     <div class="mb-2">
                         @Html.Raw(shipTo.FormattedAddress)
                     </div>
-                    <div sm-if="shipTo.EmailEnabled && shipTo.Email.HasValue()" class="email">
+                    <div sm-if="shipTo.Email.HasValue()" class="email">
                         @T("Order.Email"): @shipTo.Email
                     </div>
-                    <div sm-if="shipTo.PhoneEnabled && shipTo.PhoneNumber.HasValue()" class="phone">
+                    <div sm-if="shipTo.PhoneNumber.HasValue()" class="phone">
                         @T("Order.Phone"): @shipTo.PhoneNumber
                     </div>
-                    <div sm-if="shipTo.FaxEnabled && shipTo.FaxNumber.HasValue()" class="fax">
+                    <div sm-if="shipTo.FaxNumber.HasValue()" class="fax">
                         @T("Order.Fax"): @shipTo.FaxNumber
                     </div>
                 </div>
