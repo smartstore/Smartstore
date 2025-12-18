@@ -1,6 +1,8 @@
 ﻿@model Smartstore.Core.Common.ExchangeRate
 
-<datagrid id="live-rates-grid" class="h-100"
+<datagrid id="live-rates-grid" 
+          class="h-100"
+          key-member="CurrencyCode"
           allow-resize="true"
           allow-row-selection="false"
           allow-column-reordering="true"
@@ -17,6 +19,7 @@
     <row-commands>
         <a datarow-action="DataRowAction.Custom"
            class="grid-apply-rate"
+           :data-key="item.row.CurrencyCode"
            :data-currency="item.row.CurrencyCode"
            :data-rate="item.row.Rate"
            v-bind:class="{ disabled: !item.row.IsStoreCurrency }">
