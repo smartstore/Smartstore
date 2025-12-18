@@ -258,7 +258,7 @@ namespace Smartstore.Google.Analytics.Services
         /// </returns
         private string GetCategoryPath()
         {
-            if (_breadcrumb.Trail == null || !_breadcrumb.Trail.Any())
+            if (_breadcrumb.Trail.IsNullOrEmpty())
             {
                 return string.Empty;
             }
