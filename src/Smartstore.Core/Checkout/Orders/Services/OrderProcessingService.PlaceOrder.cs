@@ -127,6 +127,7 @@ namespace Smartstore.Core.Checkout.Orders
             }
             catch (Exception ex)
             {
+                Logger.LogError(ex, "Order processing failed");
                 await transaction.RollbackAsync(cancelToken);
                 ex.ReThrow();
             }
