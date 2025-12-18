@@ -4,6 +4,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Smartstore.Caching;
 using Smartstore.ComponentModel;
 
 namespace Smartstore.Core.AI.Metadata
@@ -27,7 +28,7 @@ namespace Smartstore.Core.AI.Metadata
             };
         }
 
-        protected string BuildCacheKey(string moduleSystemName)
+        protected static string BuildCacheKey(string moduleSystemName)
             => "aimetadata:" + moduleSystemName;
 
         protected IMemoryCache Cache
@@ -50,35 +51,28 @@ namespace Smartstore.Core.AI.Metadata
                     entry.AddExpirationToken(changeToken);
                 }
 
-                return metadata;
+                return new CacheEntry { Key = cacheKey, Value = metadata, ValueType = typeof(AIMetadata) };
             });
 
-            return result!;
+            return (AIMetadata)result!.Value;
         }
 
-        public async Task<AIMetadata> LoadMetadataAsync(string moduleSystemName)
+        public virtual Task<AIMetadata?> PostProcessAsync(AIMetadata localMetadata)
+        {
+            localMetadata.PostProcessed = true;
+            return Task.FromResult<AIMetadata?>(null);
+        }
+
+        public void ReplaceMetadata(string moduleSystemName, AIMetadata metadata)
         {
             Guard.NotEmpty(moduleSystemName);
+            Guard.NotNull(metadata);
 
-            var cacheKey = BuildCacheKey(moduleSystemName);
-
-            var result = await _cache.GetOrCreateAsync(cacheKey, async entry =>
+            if (_cache.TryGetValue(BuildCacheKey(moduleSystemName), out CacheEntry? entry))
             {
-                var (metadata, changeToken) = await LoadMetadataCoreAsync(moduleSystemName);
-                if (changeToken != null)
-                {
-                    // Register the change token to invalidate the cache entry when the file changes.
-                    entry.AddExpirationToken(changeToken);
-                }
-
-                return metadata;
-            });
-
-            return result!;
+                entry!.Value = metadata;
+            }
         }
-
-        protected virtual Task<(AIMetadata, IChangeToken?)> LoadMetadataCoreAsync(string moduleSystemName)
-            => Task.FromResult(LoadMetadataCore(moduleSystemName));
 
         protected virtual (AIMetadata, IChangeToken?) LoadMetadataCore(string moduleSystemName)
         {
