@@ -2,6 +2,7 @@
 
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Primitives;
 using Smartstore.ComponentModel;
@@ -11,23 +12,70 @@ namespace Smartstore;
 
 public static class EnumerableExtensions
 {
-    extension<T>(T[]? source)
+    /// <summary>
+    /// Checks whether given <paramref name="source"/> array is either <c>null</c> or empty.
+    /// </summary>
+    public static bool IsNullOrEmpty<T>([NotNullWhen(false)] this T[]? source)
     {
-        /// <summary>
-        /// Checks whether given <paramref name="source"/> array is either <c>null</c> or empty.
-        /// </summary>
-        public bool IsNullOrEmpty()
+        if (source == null)
         {
-            if (source == null)
-            {
-                return true;
-            }
-
-            return source.Length == 0;
+            return true;
         }
+
+        return source.Length == 0;
     }
 
-    extension<T>(IEnumerable<T>? source)
+    /// <summary>
+    /// Converts a set to a read-only set.
+    /// </summary>
+    public static ReadOnlySet<T> AsReadOnly<T>(this ISet<T> source)
+    {
+        Guard.NotNull(source);
+
+        if (source.Count == 0)
+        {
+            return [];
+        }
+
+        return new ReadOnlySet<T>(source);
+    }
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static string StrJoin(this IEnumerable<string?> source, string? separator)
+    {
+        return string.Join(separator, source);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static string StrJoin(this IEnumerable<string> source, char separator)
+    {
+        return string.Join(separator, source);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static string[] ToStringArray(this IEnumerable<StringSegment> source)
+    {
+        return [.. source.Select(x => x.ToString())];
+    }
+
+    /// <summary>
+    /// Orders a collection of entities by a specific ID sequence.
+    /// </summary>
+    public static IEnumerable<TEntity> OrderBySequence<TEntity>(this IEnumerable<TEntity> source, IEnumerable<int> ids)
+        where TEntity : BaseEntity
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(ids);
+
+        var sorted = from id in ids
+                     join entity in source on id equals entity.Id
+                     select entity;
+
+        return sorted;
+    }
+
+    extension<T>([NotNullWhen(false)] IEnumerable<T>? source)
     {
         /// <summary>
         /// Checks whether given <paramref name="source"/> collection is either <c>null</c> or empty.
@@ -78,24 +126,6 @@ public static class EnumerableExtensions
             }
 
             return new ReadOnlyCollection<T>([.. source]);
-        }
-    }
-
-    extension<T>(ISet<T> source)
-    {
-        /// <summary>
-        /// Converts a set to a read-only set.
-        /// </summary>
-        public ReadOnlySet<T> AsReadOnly()
-        {
-            Guard.NotNull(source);
-
-            if (source.Count == 0)
-            {
-                return [];
-            }
-
-            return new ReadOnlySet<T>(source);
         }
     }
 
@@ -275,59 +305,6 @@ public static class EnumerableExtensions
             }
 
             return false;
-        }
-    }
-
-    extension(IEnumerable<string?> source)
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public string StrJoin(string? separator)
-        {
-            return string.Join(separator, source);
-        }
-    }
-
-    extension(IEnumerable<string> source)
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public string StrJoin(char separator)
-        {
-            return string.Join(separator, source);
-        }
-    }
-
-    extension(IEnumerable<StringSegment> source)
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public string[] ToStringArray()
-        {
-            return source.Select(x => x.ToString()).ToArray();
-        }
-    }
-
-    extension<TEntity>(IEnumerable<TEntity> source) 
-        where TEntity : BaseEntity
-    {
-        /// <summary>
-        /// Orders a collection of entities by a specific ID sequence.
-        /// </summary>
-        public IEnumerable<TEntity> OrderBySequence(IEnumerable<int> ids)
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException(nameof(source));
-            }
-
-            if (ids == null)
-            {
-                throw new ArgumentNullException(nameof(ids));
-            }
-
-            var sorted = from id in ids
-                         join entity in source on id equals entity.Id
-                         select entity;
-
-            return sorted;
         }
     }
 }

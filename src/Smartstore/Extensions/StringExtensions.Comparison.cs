@@ -188,7 +188,7 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsWebUrl(this string? value, bool schemeIsOptional = false)
+        public static bool IsWebUrl([NotNullWhen(true)] this string? value, bool schemeIsOptional = false)
         {
             return IsWebUrlInternal(value, schemeIsOptional);
         }
@@ -260,7 +260,7 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsEnclosedIn(this string? value, string? enclosedIn, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
+        public static bool IsEnclosedIn([NotNullWhen(true)] this string? value, string? enclosedIn, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
         {
             return IsEnclosedIn(value.AsSpan(), enclosedIn.AsSpan(), comparison);
         }
