@@ -64,6 +64,8 @@ namespace Smartstore.AmazonPay.Providers
 
         public static string SystemName => "Payments.AmazonPay";
 
+        //public override bool RequiresConfirmation => true;
+
         public override bool SupportCapture => true;
 
         public override bool SupportPartiallyRefund => true;

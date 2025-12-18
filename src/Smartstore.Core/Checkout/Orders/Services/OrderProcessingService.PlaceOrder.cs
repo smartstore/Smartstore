@@ -490,8 +490,8 @@ namespace Smartstore.Core.Checkout.Orders
                 order.CustomerOrderComment = customerComment;
             }
 
-            if (_shoppingCartSettings.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None &&
-                ctx.ExtraData.TryGetValue("AcceptThirdPartyEmailHandOver", out var acceptEmailHandOver))
+            if (_shoppingCartSettings.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None
+                && ctx.ExtraData.TryGetValue(CheckoutWorkflow.AcceptThirdPartyEmailHandOverKey, out var acceptEmailHandOver))
             {
                 order.AcceptThirdPartyEmailHandOver = acceptEmailHandOver.ToBool();
             }
@@ -1052,7 +1052,8 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             // Newsletter subscription.
-            if (_shoppingCartSettings.NewsletterSubscription != CheckoutNewsletterSubscription.None && ctx.ExtraData.TryGetValue("SubscribeToNewsletter", out var addSubscription))
+            if (_shoppingCartSettings.NewsletterSubscription != CheckoutNewsletterSubscription.None 
+                && ctx.ExtraData.TryGetValue(CheckoutWorkflow.SubscribeToNewsletterKey, out var addSubscription))
             {
                 var email = ctx.Customer.Email ?? ctx.Customer.Addresses.FirstOrDefault().Email;
                 var subscriptionResult = await _newsletterSubscriptionService.ApplySubscriptionAsync(addSubscription.ToBool(), email, order.StoreId);

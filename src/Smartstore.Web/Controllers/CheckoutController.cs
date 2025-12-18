@@ -286,6 +286,40 @@ namespace Smartstore.Web.Controllers
             }
         }
 
+        /// <summary>
+        /// AJAX. Starts the payment confirmation process. The URL of the third-party payment page is obtained 
+        /// from the payment provider and is used to confirm and fulfil the payment. Redirection is performed on the client side.
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> ConfirmPayment()
+        {
+            var result = await _checkoutWorkflow.ConfirmPaymentAsync(false, await CreateCheckoutContext());
+            var redirectUrl = result.Success && result.ActionResult is RedirectResult rs ? rs?.Url.NullEmpty() : null;
+
+            if (redirectUrl == null && result.ActionResult != null)
+            {
+                // Expected case: A payment error occurs, redirecting the user back to the payment selection page.
+                return result.ActionResult;
+            }
+
+            return Json(new 
+            { 
+                success = result.Success, 
+                redirectUrl, 
+                messages = result.Errors.Select(e => e.ErrorMessage).ToList()
+            });
+        }
+
+        /// <summary>
+        /// After completing the payment, the payment provider redirects the customer 
+        /// to this action method to process the payment result.
+        /// </summary>
+        public async Task<IActionResult> PaymentConfirmationResult()
+        {
+            await Task.CompletedTask;
+            throw new NotImplementedException();
+        }
+
         public async Task<IActionResult> Confirm()
         {
             var context = await CreateCheckoutContext();

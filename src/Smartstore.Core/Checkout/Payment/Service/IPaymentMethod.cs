@@ -28,6 +28,12 @@ namespace Smartstore.Core.Checkout.Payment
         bool RequiresPaymentSelection { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the payment needs to be confirmed.
+        /// If <c>true</c>, then the customer is redirected to the payment provider's confirmation page after clicking the buy-now button.
+        /// </summary>
+        bool RequiresConfirmation { get; }
+
+        /// <summary>
         /// Gets a value indicating whether (later) capturing of the payment amount is supported,
         /// for instance when the goods are shipped.
         /// </summary>
@@ -113,6 +119,14 @@ namespace Smartstore.Core.Checkout.Payment
         /// In this case, the customer will be directed to the payment selection page.
         /// </returns>
         Task<ProcessPaymentRequest> CreateProcessPaymentRequestAsync(ShoppingCart cart);
+
+        /// <summary>
+        /// Confirms the payment before placing the order. Called immediately after the customer clicks the buy-now button.
+        /// </summary>
+        /// <param name="confirmed">
+        /// <c>true</c> the payment is confirmed, otherwise <c>false</c>.
+        /// </param>
+        Task<PaymentConfirmationResult> ConfirmPaymentAsync(bool confirmed, ProcessPaymentRequest request, CheckoutContext context);
 
         /// <summary>
         /// Pre-process a payment. Called immediately before <see cref="ProcessPaymentAsync(ProcessPaymentRequest)"/>.

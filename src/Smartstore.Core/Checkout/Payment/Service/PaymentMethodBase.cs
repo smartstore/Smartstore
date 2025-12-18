@@ -19,6 +19,8 @@ namespace Smartstore.Core.Checkout.Payment
 
         public virtual bool RequiresPaymentSelection => true;
 
+        public virtual bool RequiresConfirmation => false;
+
         public virtual bool SupportCapture => false;
 
         public virtual bool SupportPartiallyRefund => false;
@@ -53,6 +55,9 @@ namespace Smartstore.Core.Checkout.Payment
 
         public virtual Task<ProcessPaymentRequest> CreateProcessPaymentRequestAsync(ShoppingCart cart)
             => Task.FromResult(new ProcessPaymentRequest { OrderGuid = Guid.NewGuid() });
+
+        public virtual Task<PaymentConfirmationResult> ConfirmPaymentAsync(bool confirmed, ProcessPaymentRequest request, CheckoutContext context)
+            => Task.FromResult(new PaymentConfirmationResult());
 
         public virtual Task<PreProcessPaymentResult> PreProcessPaymentAsync(ProcessPaymentRequest request)
             => Task.FromResult(new PreProcessPaymentResult());

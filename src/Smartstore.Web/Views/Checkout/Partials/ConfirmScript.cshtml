@@ -22,16 +22,16 @@
         });
 
         // Report error.
-        $(document).on('reportError', function (e) {
-            if (!_.isEmpty(e.message)) {
+        function reportError(message) {
+            if (!_.isEmpty(message)) {
                 var str = '<div class="alert alert-danger mb-3"><ul>';
-                if (_.isArray(e.message)) {
-                    $.each(e.message, function (index, value) {
+                if (_.isArray(message)) {
+                    $.each(message, function (i, value) {
                         str += '<li>' + value + '</li>';
                     });
                 }
                 else {
-                    str += '<li>' + e.message + '</li>';
+                    str += '<li>' + message + '</li>';
                 }
                 str += '</ul></div>';
 
@@ -45,6 +45,10 @@
                 }
                 catch (e) { }
             }
+        }
+
+        $(document).on('reportError', (e) => {
+            reportError(e.message);
         });
 
         $('.terms-trigger').on('click', function (e) {
@@ -83,6 +87,7 @@
             let userAgreementsOk = true;
             let esdRevocationWaiverOk = true;
             let cartItems = $('#cart-items');
+            const confirmPayment = @(Model.ConfirmPayment.ToString().ToLower());
 
             if (_.isTrue(customerAgreed)) {
                 // Reverse apply. We do that just to indicate that no entered data is lost.
@@ -121,29 +126,58 @@
                 });
             </text>}
 
-            if (userAgreementsOk && esdRevocationWaiverOk) {
-                const submitOrderEvent = jQuery.Event('submitOrder');
-                submitOrderEvent.isOrderValid = true;
-                submitOrderEvent.isMobile = false;
-                submitOrderEvent.disableBuyButton = false;
+            if (!userAgreementsOk || !esdRevocationWaiverOk) {
+                return;
+            }
 
-                $(document).trigger(submitOrderEvent);
+            const submitOrderEvent = jQuery.Event('submitOrder');
+            submitOrderEvent.isOrderValid = !confirmPayment;
+            submitOrderEvent.disableBuyButton = confirmPayment;
+            submitOrderEvent.isMobile = false;
 
-                if (true === submitOrderEvent.isOrderValid) {
-                    try {
-                        setBuyButtonState(true);
+            $(document).trigger(submitOrderEvent);
 
-                        if (_.isTrue(showThrobber)) {
-                            $.throbber.show({ white: true, small: false, speed: 0, message: @T("Checkout.OrderCompletes").JsValue});
+            if (true === submitOrderEvent.isOrderValid) {
+                try {
+                    setBuyButtonState(true);
+
+                    if (_.isTrue(showThrobber)) {
+                        $.throbber.show({ white: true, small: false, speed: 0, message: @T("Checkout.OrderCompletes").JsValue});
+                    }
+                }
+                catch (e) { }
+
+                $('#confirm-order-form').submit();
+            }
+            else if (true === submitOrderEvent.disableBuyButton) {
+                setBuyButtonState(true);
+            }
+
+            if (confirmPayment) {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("ConfirmPayment", "Checkout")',
+                    data: $('#confirm-order-form').serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            // Redirect to a payment provider page to confirm the payment.
+                            if (!_.isEmpty(response.redirectUrl)) {
+                                window.location = response.redirectUrl;
+                            }
+                        }
+                        else {
+                            // Stay on comfirmation page and report an error.
+                            if (!_.isEmpty(response.messages)) {
+                                reportError(response.messages);
+                            }
+                        }
+                    },
+                    error: function (objXml) {
+                        if (objXml != null && objXml.responseText != null && objXml.responseText !== '') {
+                            displayNotification(objXml.responseText, 'error');
                         }
                     }
-                    catch (e) { }
-
-                    $('#confirm-order-form').submit();
-                }
-                else if (true === submitOrderEvent.disableBuyButton) {
-                    setBuyButtonState(true);
-                }
+                });
             }
         }
     });

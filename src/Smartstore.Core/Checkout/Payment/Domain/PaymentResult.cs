@@ -1,5 +1,13 @@
 ﻿namespace Smartstore.Core.Checkout.Payment
 {
+    public partial class PaymentConfirmationResult
+    {
+        /// <summary>
+        /// Gets or sets the URL to which the user should be redirected for payment confirmation.
+        /// </summary>
+        public string RedirectUrl { get; init; }
+    }
+
     /// <summary>
     /// Represents a default payment result.
     /// </summary>
