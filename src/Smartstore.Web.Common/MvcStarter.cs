@@ -1,4 +1,5 @@
-﻿using Autofac;
+﻿using System.Text.Json.Serialization;
+using Autofac;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using FluentValidation.Resources;
@@ -122,6 +123,19 @@ namespace Smartstore.Web
                         o.ViewLocationExpanders.Add(new LanguageViewLocationExpander(LanguageViewLocationExpanderFormat.Suffix));
                     }
                 })
+                //.AddJsonOptions(o =>
+                //{
+                //    var settings = o.JsonSerializerOptions;
+                //    //settings.Converters.Add(new JsonStringEnumConverter());
+                //    //settings.Converters.Add(new UTCDateTimeConverter());
+                //    settings.PropertyNamingPolicy = null;
+                //    settings.AllowTrailingCommas = true;
+                //    settings.DictionaryKeyPolicy = null;
+                //    settings.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                //    settings.UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip;
+                //    settings.MaxDepth = 32;
+                //    settings.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+                //})
                 .AddNewtonsoftJson(o =>
                 {
                     var settings = o.SerializerSettings;
