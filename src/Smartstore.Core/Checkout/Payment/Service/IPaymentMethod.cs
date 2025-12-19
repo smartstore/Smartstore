@@ -11,27 +11,7 @@ namespace Smartstore.Core.Checkout.Payment
     /// </summary>
     public partial interface IPaymentMethod : IProvider, IUserEditable
     {
-        #region Properties
-
-        /// <summary>
-        /// Gets a value indicating whether the payment method requires user input in checkout
-        /// before proceeding, e.g. credit card or direct debit payment. Default is <c>false</c>.
-        /// </summary>
-        bool RequiresInteraction { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether the payment method requires the payment selection page in checkout
-        /// before proceeding. For example, to create a payment transaction at this stage.
-        /// Default is <c>true</c>. If <c>false</c>, then the payment method is qualified for Quick Checkout and 
-        /// <see cref="CreateProcessPaymentRequestAsync"/> must be implemented.
-        /// </summary>
-        bool RequiresPaymentSelection { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether the payment needs to be confirmed.
-        /// If <c>true</c>, then the customer is redirected to the payment provider's confirmation page after clicking the buy-now button.
-        /// </summary>
-        bool RequiresConfirmation { get; }
+        #region Provider capabilities
 
         /// <summary>
         /// Gets a value indicating whether (later) capturing of the payment amount is supported,
@@ -69,21 +49,36 @@ namespace Smartstore.Core.Checkout.Payment
         /// <remarks>Choose a type that best suits your payment method.</remarks>
         PaymentMethodType PaymentMethodType { get; }
 
+        /// <summary>
+        /// Gets the additional handling fee for a payment.
+        /// </summary>
+        /// <returns>The fixed fee or a percentage value. If <c>UsePercentage</c> is <c>true</c>, the fee is calculated as a percentage of the order total.</returns>
+        Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart);
+
         #endregion
 
-        #region Methods
+
+        #region Checkout integration
+
+        /// <summary>
+        /// Gets a value indicating whether the payment method requires user input in checkout
+        /// before proceeding, e.g. credit card or direct debit payment. Default is <c>false</c>.
+        /// </summary>
+        bool RequiresInteraction { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the payment method requires the payment selection page in checkout
+        /// before proceeding. For example, to create a payment transaction at this stage.
+        /// Default is <c>true</c>. If <c>false</c>, then the payment method is qualified for Quick Checkout and 
+        /// <see cref="CreateProcessPaymentRequestAsync"/> must be implemented.
+        /// </summary>
+        bool RequiresPaymentSelection { get; }
 
         /// <summary>
         /// Gets the widget invoker for payment info. The payment info is displayed on checkout's payment page.
         /// Return <c>null</c> when there is nothing to render.
         /// </summary>
         Widget GetPaymentInfoWidget();
-
-        /// <summary>
-        /// Gets the additional handling fee for a payment.
-        /// </summary>
-        /// <returns>The fixed fee or a percentage value. If <c>UsePercentage</c> is <c>true</c>, the fee is calculated as a percentage of the order total.</returns>
-        Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart);
 
         /// <summary>
         /// Gets a <see cref="ProcessPaymentRequest"/>. Called after the customer selected a payment method on checkout's payment page.
@@ -120,11 +115,36 @@ namespace Smartstore.Core.Checkout.Payment
         /// </returns>
         Task<ProcessPaymentRequest> CreateProcessPaymentRequestAsync(ShoppingCart cart);
 
+        #endregion
+
+
+        #region Payment confirmation (called after "buy now" button click, before order placement)
+
         /// <summary>
-        /// Gets the URL to which the user should be redirected for payment confirmation
-        /// (immediately after the customer clicks the buy-now button).
+        /// Gets a value indicating whether the payment needs to be confirmed.
+        /// If <c>true</c>, then the customer is redirected to the payment provider's confirmation page after clicking the "buy now" button.
+        /// </summary>
+        bool RequiresConfirmation { get; }
+
+        /// <summary>
+        /// Gets the URL to which the user should be redirected for payment confirmation.
+        /// This occurs immediately after the customer clicks the "buy now" button.
+        /// Only applicable if <see cref="RequiresConfirmation"/> is <c>true</c>.
         /// </summary>
         Task<string> GetConfirmationUrlAsync(ProcessPaymentRequest request, CheckoutContext context);
+
+        /// <summary>
+        /// Optional processing to complete the payment confirmation. Called when the customer is redirected back from 
+        /// the payment provider's confirmation page.
+        /// The order is placed immediately after this method returns. Unless an exception is thrown.
+        /// Only applicable if <see cref="RequiresConfirmation"/> is <c>true</c>.
+        /// </summary>
+        Task CompletePaymentAsync(ProcessPaymentRequest request, CheckoutContext context);
+
+        #endregion
+
+
+        #region Payment processing (called during order placement)
 
         /// <summary>
         /// Pre-process a payment. Called immediately before <see cref="ProcessPaymentAsync(ProcessPaymentRequest)"/>.
@@ -158,6 +178,11 @@ namespace Smartstore.Core.Checkout.Payment
         /// Throw <see cref="PaymentException"/> if a payment error occurs.
         /// </remarks>
         Task PostProcessPaymentAsync(PostProcessPaymentRequest request);
+
+        #endregion
+
+
+        #region After-sales operations (called after order has been placed)
 
         /// <summary>
         /// Gets a value indicating whether customers can complete a payment after order

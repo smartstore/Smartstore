@@ -10,7 +10,7 @@
             <![CDATA[
 				<p>So richten Sie die Facebook Authentifizierungen ein:</p>
 				<ul>
-					<li>Erstellen Sie bei <a href="https://developers.facebook.com/apps/create/">Facebook</a> eine neue App vom Typ <b>Konsument</b>.</li>
+					<li>Erstellen Sie bei <a href="https://developers.facebook.com/apps/create/" target="_blank">Facebook</a> eine neue App vom Typ <b>Konsument</b>.</li>
 					<li>Tragen Sie die Zugangsdaten unten in das Formular ein.</li>
 					<li>Unter <b>Meine App &gt; Facebook Login &gt; Einstellungen &gt; Gültige OAuth Redirect URIs</b> wird die unten aufgeführte URL eingetragen.</li>
 					<li>Tragen Sie Ihre Domain in den erweiterten Einstellungen der erstellten APP in den Domainmanager ein.</li>

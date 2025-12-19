@@ -45,14 +45,17 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Confirms the payment with the payment provider.
         /// </summary>
-        /// <param name="confirmed">A value indicating whether the payment is confirmed.</param>
         /// <returns>
         /// <see cref="CheckoutResult.ActionResult"/> with the URL of the payment provider's confirmation page.
         /// </returns>
-        /// <remarks>
-        /// Typically called immediately after clicking the buy-now button.
-        /// </remarks>
-        Task<CheckoutResult> ConfirmPaymentAsync(bool confirmed, CheckoutContext context);
+        /// <remarks>Called immediately after clicking the "buy now" button.</remarks>
+        Task<CheckoutResult> ConfirmPaymentAsync(CheckoutContext context);
+
+        /// <summary>
+        /// Processes the result of the payment confirmation.
+        /// </summary>
+        /// <remarks>Called when the payment has been completed and the user is redirected back from the payment provider's confirmation page.</remarks>
+        Task<CheckoutResult> CompletePaymentAsync(CheckoutContext context);
 
         /// <summary>
         /// Completes the checkout and places a new order.

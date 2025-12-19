@@ -13,13 +13,7 @@ namespace Smartstore.Core.Checkout.Payment
     {
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        #region Properties
-
-        public virtual bool RequiresInteraction => false;
-
-        public virtual bool RequiresPaymentSelection => true;
-
-        public virtual bool RequiresConfirmation => false;
+        #region Provider capabilities
 
         public virtual bool SupportCapture => false;
 
@@ -35,14 +29,19 @@ namespace Smartstore.Core.Checkout.Payment
         public virtual PaymentMethodType PaymentMethodType
             => PaymentMethodType.Unknown;
 
-        #endregion
-
-        #region Methods
-
-        public abstract Widget GetPaymentInfoWidget();
-
         public virtual Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart)
             => Task.FromResult((decimal.Zero, false));
+
+        #endregion
+
+
+        #region Checkout integration
+
+        public virtual bool RequiresInteraction => false;
+
+        public virtual bool RequiresPaymentSelection => true;
+
+        public abstract Widget GetPaymentInfoWidget();
 
         public virtual Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
             => Task.FromResult(new ProcessPaymentRequest());
@@ -56,8 +55,23 @@ namespace Smartstore.Core.Checkout.Payment
         public virtual Task<ProcessPaymentRequest> CreateProcessPaymentRequestAsync(ShoppingCart cart)
             => Task.FromResult(new ProcessPaymentRequest { OrderGuid = Guid.NewGuid() });
 
+        #endregion
+
+
+        #region Payment confirmation (called after "buy now" button click, before order placement)
+
+        public virtual bool RequiresConfirmation => false;
+
         public virtual Task<string> GetConfirmationUrlAsync(ProcessPaymentRequest request, CheckoutContext context)
             => Task.FromResult<string>(null);
+
+        public virtual Task CompletePaymentAsync(ProcessPaymentRequest request, CheckoutContext context)
+            => Task.CompletedTask;
+
+        #endregion
+
+
+        #region Payment processing (called during order placement)
 
         public virtual Task<PreProcessPaymentResult> PreProcessPaymentAsync(ProcessPaymentRequest request)
             => Task.FromResult(new PreProcessPaymentResult());
@@ -66,6 +80,11 @@ namespace Smartstore.Core.Checkout.Payment
 
         public virtual Task PostProcessPaymentAsync(PostProcessPaymentRequest postProcessPaymentRequest)
             => Task.CompletedTask;
+
+        #endregion
+
+
+        #region After-sales operations (called after order has been placed)
 
         public virtual Task<bool> CanRePostProcessPaymentAsync(Order order)
             => Task.FromResult(false);
@@ -82,7 +101,6 @@ namespace Smartstore.Core.Checkout.Payment
         public virtual Task<ProcessPaymentResult> ProcessRecurringPaymentAsync(ProcessPaymentRequest processPaymentRequest)
             => throw new PaymentException(T("Common.Payment.NoRecurringPaymentSupport"));
 
-        /// <inheritdoc/>
         public virtual Task<CancelRecurringPaymentResult> CancelRecurringPaymentAsync(CancelRecurringPaymentRequest cancelPaymentRequest)
             => throw new PaymentException(T("Common.Payment.NoRecurringPaymentSupport"));
 
