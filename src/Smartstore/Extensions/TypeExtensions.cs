@@ -1,5 +1,8 @@
+#nullable enable
+
 using System.Collections;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Razor.Hosting;
@@ -11,7 +14,7 @@ public static class TypeExtensions
 {
     extension(Type type)
     {
-        public string AssemblyQualifiedNameWithoutVersion()
+        public string? AssemblyQualifiedNameWithoutVersion()
         {
             return type.AssemblyQualifiedName != null
                 ? type.FullName + ", " + type.Assembly.GetName().Name
@@ -314,7 +317,7 @@ public static class TypeExtensions
                 type == typeof(Array);
         }
 
-        public bool IsSequenceType(out Type elementType)
+        public bool IsSequenceType([NotNullWhen(true)] out Type? elementType)
         {
             elementType = null;
 
@@ -339,7 +342,7 @@ public static class TypeExtensions
             return elementType != null;
         }
 
-        public bool IsEnumerableType(out Type elementType)
+        public bool IsEnumerableType([NotNullWhen(true)] out Type? elementType)
         {
             elementType = null;
 
@@ -356,7 +359,7 @@ public static class TypeExtensions
             return elementType != null;
         }
 
-        public bool IsCollectionType(out Type elementType)
+        public bool IsCollectionType([NotNullWhen(true)] out Type? elementType)
         {
             elementType = null;
 
@@ -379,7 +382,7 @@ public static class TypeExtensions
             return type.IsClosedGenericTypeOf(typeof(IDictionary<,>));
         }
 
-        public bool IsDictionaryType(out Type keyType, out Type valueType)
+        public bool IsDictionaryType([NotNullWhen(true)] out Type? keyType, [NotNullWhen(true)] out Type? valueType)
         {
             keyType = null;
             valueType = null;
@@ -415,7 +418,7 @@ public static class TypeExtensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsClosedGenericTypeOf(Type openGeneric, out Type closedGeneric)
+        public bool IsClosedGenericTypeOf(Type openGeneric, [NotNullWhen(true)] out Type? closedGeneric)
         {
             closedGeneric = type.GetClosedGenericTypesOf(openGeneric).FirstOrDefault();
             return closedGeneric != null;
@@ -425,7 +428,7 @@ public static class TypeExtensions
         {
             if (!openGeneric.IsOpenGeneric())
             {
-                return Enumerable.Empty<Type>();
+                return [];
             }
 
             return type.GetTypesAssignableFrom()
@@ -438,11 +441,11 @@ public static class TypeExtensions
         public MethodInvoker CreateInvoker()
             => MethodInvoker.Create(method);
 
-        public PropertyInfo GetPropertyFromMethod()
+        public PropertyInfo? GetPropertyFromMethod()
         {
             Guard.NotNull(method);
 
-            PropertyInfo property = null;
+            PropertyInfo? property = null;
 
             if (method.IsSpecialName)
             {
@@ -465,26 +468,21 @@ public static class TypeExtensions
     extension(ICustomAttributeProvider target)
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool TryGetAttribute<TAttribute>(bool inherits, out TAttribute attribute) where TAttribute : Attribute
+        public bool TryGetAttribute<TAttribute>(bool inherits, [NotNullWhen(true)] out TAttribute? attribute) where TAttribute : Attribute
         {
             attribute = target.GetAttribute<TAttribute>(inherits);
             return attribute != null;
         }
 
-        public TAttribute GetAttribute<TAttribute>(bool inherits) where TAttribute : Attribute
+        public TAttribute? GetAttribute<TAttribute>(bool inherits) where TAttribute : Attribute
         {
-            if (target.IsDefined(typeof(TAttribute), inherits))
+            var attributes = target.GetCustomAttributes(typeof(TAttribute), inherits);
+            if (attributes.Length > 1)
             {
-                var attributes = target.GetCustomAttributes(typeof(TAttribute), inherits);
-                if (attributes.Length > 1)
-                {
-                    throw Error.MoreThanOneElement();
-                }
-
-                return (TAttribute)attributes[0];
+                throw Error.MoreThanOneElement();
             }
 
-            return null;
+            return attributes.Length == 0 ? null : (TAttribute)attributes[0];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -493,18 +491,21 @@ public static class TypeExtensions
             return target.IsDefined(typeof(TAttribute), inherits);
         }
 
-        public TAttribute[] GetAttributes<TAttribute>(bool inherits) where TAttribute : Attribute
+        public IEnumerable<TAttribute> GetAttributes<TAttribute>(bool inherits) where TAttribute : Attribute
         {
-            if (target.IsDefined(typeof(TAttribute), inherits))
+            var attributes = (IEnumerable<TAttribute>)target.GetCustomAttributes(typeof(TAttribute), inherits);
+
+            if (typeof(IOrdered).IsAssignableFrom(typeof(TAttribute)))
             {
-                var attributes = target
-                    .GetCustomAttributes(typeof(TAttribute), inherits)
+                return attributes
+                    .Cast<IOrdered>()
+                    .OrderBy(x => x.Ordinal)
                     .Cast<TAttribute>();
-
-                return SortAttributesIfPossible(attributes).ToArray();
             }
-
-            return Array.Empty<TAttribute>();
+            else
+            {
+                return attributes;
+            }
         }
     }
 
@@ -513,38 +514,24 @@ public static class TypeExtensions
         public TAttribute[] GetAllAttributes<TAttribute>(bool inherits)
             where TAttribute : Attribute
         {
-            List<TAttribute> attributes = new();
+            List<TAttribute> attributes = [];
 
             if (member.DeclaringType != null)
             {
-                attributes.AddRange(member.DeclaringType.GetAttributes<TAttribute>(inherits));
+                attributes.AddRange(member.DeclaringType.GetCustomAttributes<TAttribute>(inherits));
 
                 if (member is MethodBase methodBase)
                 {
                     var prop = methodBase.GetPropertyFromMethod();
                     if (prop != null)
                     {
-                        attributes.AddRange(prop.GetAttributes<TAttribute>(inherits));
+                        attributes.AddRange(prop.GetCustomAttributes<TAttribute>(inherits));
                     }
                 }
             }
 
-            attributes.AddRange(member.GetAttributes<TAttribute>(inherits));
+            attributes.AddRange(member.GetCustomAttributes<TAttribute>(inherits));
             return attributes.ToArray();
         }
-    }
-
-    internal static IEnumerable<TAttribute> SortAttributesIfPossible<TAttribute>(IEnumerable<TAttribute> attributes)
-        where TAttribute : Attribute
-    {
-        if (typeof(IOrdered).IsAssignableFrom(typeof(TAttribute)))
-        {
-            return attributes
-                .Cast<IOrdered>()
-                .OrderBy(x => x.Ordinal)
-                .Cast<TAttribute>();
-        }
-
-        return attributes;
     }
 }
