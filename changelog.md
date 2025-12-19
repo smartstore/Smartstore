@@ -2,8 +2,14 @@
 
 ## Smartstore 6.4.0
 
+### Breaking Changes
+
+- (DEV) Removed `AsyncTo*()` extension methods. Use `To*Async()` instead.
+
 ### New Features
 
+- Updated to **.NET 10**
+  - Increased overall performance
 - **Wallet**
   - Wallet credits can be added to the shopping cart anywhere using a PageBuilder block.
   - An option has been added to display wallet credit amounts as buttons when purchasing credit.
