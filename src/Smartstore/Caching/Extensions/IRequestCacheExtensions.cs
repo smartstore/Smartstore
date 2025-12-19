@@ -1,16 +1,18 @@
 ﻿using System.Text.RegularExpressions;
 using Smartstore.Utilities;
 
-namespace Smartstore.Caching
+namespace Smartstore.Caching;
+
+public static class IRequestCacheExtensions
 {
-    public static class IRequestCacheExtensions
+    extension(IRequestCache cache)
     {
         /// <summary>
         /// Removes all items whose keys match the given <paramref name="predicate"/>.
         /// </summary>
         /// <param name="predicate">The predicate to match.</param>
         /// <returns>The number of removed cache items.</returns>
-        public static int RemoveMany(this IRequestCache cache, Func<object, bool> predicate)
+        public int RemoveMany(Func<object, bool> predicate)
         {
             var items = cache.Items;
             var keysToRemove = cache.SelectKeys(predicate).ToArray();
@@ -38,7 +40,7 @@ namespace Smartstore.Caching
         ///     </para>
         /// </param>
         /// <returns>The number of removed cache items.</returns>
-        public static int RemoveByPattern(this IRequestCache cache, string pattern)
+        public int RemoveByPattern(string pattern)
         {
             var items = cache.Items;
             var keysToRemove = cache.SelectKeys(pattern).ToArray();
@@ -66,7 +68,7 @@ namespace Smartstore.Caching
         ///     </para>
         /// </param>
         /// <returns>List of matching keys.</returns>
-        public static IEnumerable<object> SelectKeys(this IRequestCache cache, string pattern)
+        public IEnumerable<object> SelectKeys(string pattern)
         {
             var wildcard = pattern.IsEmpty() || pattern == "*"
                 ? null
@@ -90,7 +92,7 @@ namespace Smartstore.Caching
         /// </summary>
         /// <param name="selector">The predicate to match.</param>
         /// <returns>List of matching keys.</returns>
-        public static IEnumerable<object> SelectKeys(this IRequestCache cache, Func<object, bool> predicate)
+        public IEnumerable<object> SelectKeys(Func<object, bool> predicate)
         {
             Guard.NotNull(cache);
             Guard.NotNull(predicate);

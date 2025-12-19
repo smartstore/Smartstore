@@ -4,102 +4,101 @@ using System.Text.RegularExpressions;
 using Microsoft.Extensions.Caching.Memory;
 using Smartstore.Utilities;
 
-namespace Smartstore
+namespace Smartstore;
+
+public static class IMemoryCacheExtensions
 {
-    public static class IMemoryCacheExtensions
+    const string CacheRegionName = "Smartstore:";
+
+    private static FieldInfo _coherentStateFieldInfo;
+    private static FieldInfo _entriesFieldInfo;
+
+    /// <summary>
+    /// Build a scoped memory cache key by simply prepending "Smartstore:" to the given key.
+    /// </summary>
+    public static string BuildScopedKey(this IMemoryCache _, string key)
     {
-        const string CacheRegionName = "Smartstore:";
+        return key.HasValue() ? CacheRegionName + key : null;
+    }
 
-        private static FieldInfo _coherentStateFieldInfo;
-        private static FieldInfo _entriesFieldInfo;
+    /// <summary>
+    /// Scans for all keys matching the input pattern.
+    /// <para>
+    ///     Supported glob-style patterns:
+    ///     - h?llo matches hello, hallo and hxllo
+    ///     - h*llo matches hllo and heeeello
+    ///     - h[ae]llo matches hello and hallo, but not hillo
+    ///     - h[^e]llo matches hallo, hbllo, ... but not hello
+    ///     - h[a-b]llo matches hallo and hbllo
+    /// </para>
+    /// </summary>
+    /// <param name="pattern">A key pattern. Can be <c>null</c>.</param>
+    /// <returns>A list of matching key names</returns>
+    public static IEnumerable<object> EnumerateKeys(this IMemoryCache cache, string pattern = "*")
+    {
+        Guard.NotNull(cache);
 
-        /// <summary>
-        /// Build a scoped memory cache key by simply prepending "Smartstore:" to the given key.
-        /// </summary>
-        public static string BuildScopedKey(this IMemoryCache _, string key)
+        var allKeys = GetInternalEntries(cache).Keys
+            .Cast<object>()
+            .AsParallel();
+
+        if (pattern.IsEmpty() || pattern == "*")
         {
-            return key.HasValue() ? CacheRegionName + key : null;
+            return allKeys;
         }
 
-        /// <summary>
-        /// Scans for all keys matching the input pattern.
-        /// <para>
-        ///     Supported glob-style patterns:
-        ///     - h?llo matches hello, hallo and hxllo
-        ///     - h*llo matches hllo and heeeello
-        ///     - h[ae]llo matches hello and hallo, but not hillo
-        ///     - h[^e]llo matches hallo, hbllo, ... but not hello
-        ///     - h[a-b]llo matches hallo and hbllo
-        /// </para>
-        /// </summary>
-        /// <param name="pattern">A key pattern. Can be <c>null</c>.</param>
-        /// <returns>A list of matching key names</returns>
-        public static IEnumerable<object> EnumerateKeys(this IMemoryCache cache, string pattern = "*")
+        var wildcard = new Wildcard(pattern, RegexOptions.IgnoreCase);
+        return allKeys.OfType<string>().Where(x => wildcard.IsMatch(x));
+    }
+
+    /// <summary>
+    /// Removes all entries with keys matching the input pattern.
+    /// <para>
+    ///     Supported glob-style patterns:
+    ///     - h?llo matches hello, hallo and hxllo
+    ///     - h*llo matches hllo and heeeello
+    ///     - h[ae]llo matches hello and hallo, but not hillo
+    ///     - h[^e]llo matches hallo, hbllo, ... but not hello
+    ///     - h[a-b]llo matches hallo and hbllo
+    /// </para>
+    /// </summary>
+    /// <param name="pattern">Glob pattern</param>
+    /// <returns>Number of removed cache items</returns>
+    public static int RemoveByPattern(this IMemoryCache cache, string pattern = "*")
+    {
+        Guard.NotNull(cache);
+
+        var keysToRemove = EnumerateKeys(cache, pattern).ToArray();
+        int numRemoved = 0;
+
+        foreach (var key in keysToRemove.Cast<string>())
         {
-            Guard.NotNull(cache);
-
-            var allKeys = GetInternalEntries(cache).Keys
-                .Cast<object>()
-                .AsParallel();
-
-            if (pattern.IsEmpty() || pattern == "*")
-            {
-                return allKeys;
-            }
-
-            var wildcard = new Wildcard(pattern, RegexOptions.IgnoreCase);
-            return allKeys.OfType<string>().Where(x => wildcard.IsMatch(x));
+            cache.Remove(key);
+            numRemoved++;
         }
 
-        /// <summary>
-        /// Removes all entries with keys matching the input pattern.
-        /// <para>
-        ///     Supported glob-style patterns:
-        ///     - h?llo matches hello, hallo and hxllo
-        ///     - h*llo matches hllo and heeeello
-        ///     - h[ae]llo matches hello and hallo, but not hillo
-        ///     - h[^e]llo matches hallo, hbllo, ... but not hello
-        ///     - h[a-b]llo matches hallo and hbllo
-        /// </para>
-        /// </summary>
-        /// <param name="pattern">Glob pattern</param>
-        /// <returns>Number of removed cache items</returns>
-        public static int RemoveByPattern(this IMemoryCache cache, string pattern = "*")
+        return numRemoved;
+    }
+
+    private static IDictionary GetInternalEntries(IMemoryCache cache)
+    {
+        _entriesFieldInfo = LazyInitializer.EnsureInitialized(ref _entriesFieldInfo, () =>
         {
-            Guard.NotNull(cache);
+            _coherentStateFieldInfo = typeof(MemoryCache).GetField("_coherentState", BindingFlags.NonPublic | BindingFlags.Instance);
 
-            var keysToRemove = EnumerateKeys(cache, pattern).ToArray();
-            int numRemoved = 0;
+            var coherentStateType = _coherentStateFieldInfo.GetValue(cache).GetType();
+            _entriesFieldInfo = GetEntriesField(coherentStateType, "_stringEntries") ?? GetEntriesField(coherentStateType, "_entries");
 
-            foreach (var key in keysToRemove.Cast<string>())
-            {
-                cache.Remove(key);
-                numRemoved++;
-            }
+            return _entriesFieldInfo;
+        });
 
-            return numRemoved;
-        }
+        var coherentState = _coherentStateFieldInfo.GetValue(cache);
 
-        private static IDictionary GetInternalEntries(IMemoryCache cache)
-        {
-            _entriesFieldInfo = LazyInitializer.EnsureInitialized(ref _entriesFieldInfo, () =>
-            {
-                _coherentStateFieldInfo = typeof(MemoryCache).GetField("_coherentState", BindingFlags.NonPublic | BindingFlags.Instance);
+        return _entriesFieldInfo.GetValue(coherentState) as IDictionary;
+    }
 
-                var coherentStateType = _coherentStateFieldInfo.GetValue(cache).GetType();
-                _entriesFieldInfo = GetEntriesField(coherentStateType, "_stringEntries") ?? GetEntriesField(coherentStateType, "_entries");
-
-                return _entriesFieldInfo;
-            });
-
-            var coherentState = _coherentStateFieldInfo.GetValue(cache);
-
-            return _entriesFieldInfo.GetValue(coherentState) as IDictionary;
-        }
-
-        private static FieldInfo GetEntriesField(Type coherentStateType, string entriesFieldName)
-        {
-            return coherentStateType.GetField(entriesFieldName, BindingFlags.NonPublic | BindingFlags.Instance);
-        }
+    private static FieldInfo GetEntriesField(Type coherentStateType, string entriesFieldName)
+    {
+        return coherentStateType.GetField(entriesFieldName, BindingFlags.NonPublic | BindingFlags.Instance);
     }
 }

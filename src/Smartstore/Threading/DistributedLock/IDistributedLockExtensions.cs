@@ -1,9 +1,11 @@
-﻿namespace Smartstore.Threading
-{
-    public static class IDistributedLockExtensions
-    {
-        static readonly TimeSpan NoTimeout = TimeSpan.FromMilliseconds(0);
+﻿namespace Smartstore.Threading;
 
+public static class IDistributedLockExtensions
+{
+    static readonly TimeSpan NoTimeout = TimeSpan.FromMilliseconds(0);
+
+    extension (IDistributedLock @lock)
+    {
         /// <inheritdoc cref="IDistributedLock.Acquire(TimeSpan, CancellationToken)"/>
         /// <summary>
         /// Acquires the lock synchronously with infinite timeout. Usage: 
@@ -15,7 +17,7 @@
         ///     // releases the lock
         /// </code>
         /// </summary>
-        public static ILockHandle Acquire(this IDistributedLock @lock, CancellationToken cancelToken = default)
+        public ILockHandle Acquire(CancellationToken cancelToken = default)
         {
             return @lock.Acquire(Timeout.InfiniteTimeSpan, cancelToken);
         }
@@ -34,7 +36,7 @@
         ///     }
         /// </code>
         /// </summary>
-        public static bool TryAcquire(this IDistributedLock @lock, out ILockHandle lockHandle)
+        public bool TryAcquire(out ILockHandle lockHandle)
         {
             return TryAcquire(@lock, NoTimeout, out lockHandle);
         }
@@ -52,7 +54,7 @@
         /// <param name="timeout">How long to wait before giving up on the acquisition attempt.</param>
         /// <param name="lockHandle">An <see cref="ILockHandle"/> which can be used to release the lock.</param>
         /// <returns><c>true</c> if the lock was acquired, <c>false</c> otherwise.</returns>
-        public static bool TryAcquire(this IDistributedLock @lock, TimeSpan timeout, out ILockHandle lockHandle)
+        public bool TryAcquire(TimeSpan timeout, out ILockHandle lockHandle)
         {
             lockHandle = null;
 
@@ -79,7 +81,7 @@
         ///     // releases the lock
         /// </code>
         /// </summary>
-        public static Task<ILockHandle> AcquireAsync(this IDistributedLock @lock, CancellationToken cancelToken = default)
+        public Task<ILockHandle> AcquireAsync(CancellationToken cancelToken = default)
         {
             return @lock.AcquireAsync(Timeout.InfiniteTimeSpan, cancelToken);
         }
@@ -98,7 +100,7 @@
         ///     }
         /// </code>
         /// </summary>
-        public static Task<AsyncOut<ILockHandle>> TryAcquireAsync(this IDistributedLock @lock, CancellationToken cancelToken = default)
+        public Task<AsyncOut<ILockHandle>> TryAcquireAsync(CancellationToken cancelToken = default)
         {
             return TryAcquireAsync(@lock, NoTimeout, cancelToken);
         }
@@ -115,7 +117,7 @@
         /// </summary>
         /// <param name="timeout">How long to wait before giving up on the acquisition attempt.</param>
         /// <param name="cancelToken">Specifies a token by which the wait can be canceled.</param>
-        public static async Task<AsyncOut<ILockHandle>> TryAcquireAsync(this IDistributedLock @lock, TimeSpan timeout, CancellationToken cancelToken = default)
+        public async Task<AsyncOut<ILockHandle>> TryAcquireAsync(TimeSpan timeout, CancellationToken cancelToken = default)
         {
             try
             {

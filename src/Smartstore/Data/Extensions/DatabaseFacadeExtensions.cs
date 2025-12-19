@@ -8,12 +8,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Smartstore.ComponentModel;
 using Smartstore.Utilities;
 
-namespace Smartstore
-{
-    public static class DatabaseFacadeExtensions
-    {
-        #region Database creation
+namespace Smartstore;
 
+public static class DatabaseFacadeExtensions
+{
+    #region Database creation
+
+    extension (DatabaseFacade databaseFacade)
+    {
         /// <summary>
         /// Ensures that the database for the context exists. If it exists, no action is taken. If it does not
         /// exist then the database is created WITHOUT populating the schema.
@@ -22,7 +24,7 @@ namespace Smartstore
         /// <returns>
         /// <see langword="true" /> if the database is created, <see langword="false" /> if it already existed.
         /// </returns>
-        public static bool EnsureCreatedSchemaless(this DatabaseFacade databaseFacade)
+        public bool EnsureCreatedSchemaless()
         {
             Guard.NotNull(databaseFacade);
 
@@ -49,7 +51,7 @@ namespace Smartstore
         /// <returns>
         /// <see langword="true" /> if the database is created, <see langword="false" /> if it already existed.
         /// </returns>
-        public static async Task<bool> EnsureCreatedSchemalessAsync(this DatabaseFacade databaseFacade, CancellationToken cancelToken = default)
+        public async Task<bool> EnsureCreatedSchemalessAsync(CancellationToken cancelToken = default)
         {
             Guard.NotNull(databaseFacade);
 
@@ -68,21 +70,24 @@ namespace Smartstore
 
             return false;
         }
+    }
 
-        #endregion
+    #endregion
 
-        #region ExecuteScalar
+    #region ExecuteScalar
 
-        public static T ExecuteScalarInterpolated<T>(this DatabaseFacade databaseFacade, FormattableString sql)
+    extension (DatabaseFacade databaseFacade)
+    {
+        public T ExecuteScalarInterpolated<T>(FormattableString sql)
             => ExecuteScalarRaw<T>(databaseFacade, sql.Format, sql.GetArguments());
 
-        public static Task<T> ExecuteScalarInterpolatedAsync<T>(this DatabaseFacade databaseFacade, FormattableString sql, CancellationToken cancelToken = default)
+        public Task<T> ExecuteScalarInterpolatedAsync<T>(FormattableString sql, CancellationToken cancelToken = default)
             => ExecuteScalarRawAsync<T>(databaseFacade, sql.Format, sql.GetArguments(), cancelToken);
 
-        public static T ExecuteScalarRaw<T>(this DatabaseFacade databaseFacade, string sql, params object[] parameters)
+        public T ExecuteScalarRaw<T>(string sql, params object[] parameters)
             => ExecuteScalarRaw<T>(databaseFacade, sql, parameters.AsEnumerable());
 
-        public static T ExecuteScalarRaw<T>(this DatabaseFacade databaseFacade, string sql, IEnumerable<object> parameters)
+        public T ExecuteScalarRaw<T>(string sql, IEnumerable<object> parameters)
         {
             Guard.NotNull(databaseFacade);
             Guard.NotEmpty(sql);
@@ -111,17 +116,13 @@ namespace Smartstore
             }
         }
 
-        public static Task<T> ExecuteScalarRawAsync<T>(this DatabaseFacade databaseFacade, string sql, CancellationToken cancelToken)
-            => ExecuteScalarRawAsync<T>(databaseFacade, sql, Enumerable.Empty<object>(), cancelToken);
+        public Task<T> ExecuteScalarRawAsync<T>(string sql, CancellationToken cancelToken)
+            => ExecuteScalarRawAsync<T>(databaseFacade, sql, [], cancelToken);
 
-        public static Task<T> ExecuteScalarRawAsync<T>(this DatabaseFacade databaseFacade, string sql, params object[] parameters)
+        public Task<T> ExecuteScalarRawAsync<T>(string sql, params object[] parameters)
             => ExecuteScalarRawAsync<T>(databaseFacade, sql, parameters.AsEnumerable());
 
-        public static async Task<T> ExecuteScalarRawAsync<T>(
-            this DatabaseFacade databaseFacade,
-            string sql,
-            IEnumerable<object> parameters,
-            CancellationToken cancelToken = default)
+        public async Task<T> ExecuteScalarRawAsync<T>(string sql, IEnumerable<object> parameters, CancellationToken cancelToken = default)
         {
             Guard.NotNull(databaseFacade);
             Guard.NotEmpty(sql);
@@ -150,21 +151,24 @@ namespace Smartstore
                 return scalarValue.Convert<T>();
             }
         }
+    }
 
-        #endregion
+    #endregion
 
-        #region ExecuteReader
+    #region ExecuteReader
 
-        public static RelationalDataReader ExecuteReaderInterpolated(this DatabaseFacade databaseFacade, FormattableString sql)
+    extension(DatabaseFacade databaseFacade)
+    {
+        public RelationalDataReader ExecuteReaderInterpolated(FormattableString sql)
             => ExecuteReaderRaw(databaseFacade, sql.Format, sql.GetArguments());
 
-        public static Task<RelationalDataReader> ExecuteReaderInterpolatedAsync(this DatabaseFacade databaseFacade, FormattableString sql, CancellationToken cancelToken = default)
+        public Task<RelationalDataReader> ExecuteReaderInterpolatedAsync(FormattableString sql, CancellationToken cancelToken = default)
             => ExecuteReaderRawAsync(databaseFacade, sql.Format, sql.GetArguments(), cancelToken);
 
-        public static RelationalDataReader ExecuteReaderRaw(this DatabaseFacade databaseFacade, string sql, params object[] parameters)
+        public RelationalDataReader ExecuteReaderRaw(string sql, params object[] parameters)
             => ExecuteReaderRaw(databaseFacade, sql, parameters.AsEnumerable());
 
-        public static RelationalDataReader ExecuteReaderRaw(this DatabaseFacade databaseFacade, string sql, IEnumerable<object> parameters)
+        public RelationalDataReader ExecuteReaderRaw(string sql, IEnumerable<object> parameters)
         {
             Guard.NotNull(databaseFacade);
             Guard.NotEmpty(sql);
@@ -191,14 +195,13 @@ namespace Smartstore
             }
         }
 
-        public static Task<RelationalDataReader> ExecuteReaderRawAsync(this DatabaseFacade databaseFacade, string sql, CancellationToken cancelToken)
-            => ExecuteReaderRawAsync(databaseFacade, sql, Enumerable.Empty<object>(), cancelToken);
+        public Task<RelationalDataReader> ExecuteReaderRawAsync(string sql, CancellationToken cancelToken)
+            => ExecuteReaderRawAsync(databaseFacade, sql, [], cancelToken);
 
-        public static Task<RelationalDataReader> ExecuteReaderRawAsync(this DatabaseFacade databaseFacade, string sql, params object[] parameters)
+        public Task<RelationalDataReader> ExecuteReaderRawAsync(string sql, params object[] parameters)
             => ExecuteReaderRawAsync(databaseFacade, sql, parameters.AsEnumerable());
 
-        public static async Task<RelationalDataReader> ExecuteReaderRawAsync(
-            this DatabaseFacade databaseFacade,
+        public  async Task<RelationalDataReader> ExecuteReaderRawAsync(
             string sql,
             IEnumerable<object> parameters,
             CancellationToken cancelToken = default)
@@ -228,21 +231,24 @@ namespace Smartstore
                     .ConfigureAwait(false);
             }
         }
+    }
 
-        #endregion
+    #endregion
 
-        #region ExecuteQuery
+    #region ExecuteQuery
 
-        public static IEnumerable<T> ExecuteQueryInterpolated<T>(this DatabaseFacade databaseFacade, FormattableString sql)
+    extension (DatabaseFacade databaseFacade)
+    {
+        public IEnumerable<T> ExecuteQueryInterpolated<T>(FormattableString sql)
             => ExecuteQueryRaw<T>(databaseFacade, sql.Format, sql.GetArguments());
 
-        public static IAsyncEnumerable<T> ExecuteQueryInterpolatedAsync<T>(this DatabaseFacade databaseFacade, FormattableString sql, CancellationToken cancelToken = default)
+        public IAsyncEnumerable<T> ExecuteQueryInterpolatedAsync<T>(FormattableString sql, CancellationToken cancelToken = default)
             => ExecuteQueryRawAsync<T>(databaseFacade, sql.Format, sql.GetArguments(), cancelToken);
 
-        public static IEnumerable<T> ExecuteQueryRaw<T>(this DatabaseFacade databaseFacade, string sql, params object[] parameters)
+        public IEnumerable<T> ExecuteQueryRaw<T>(string sql, params object[] parameters)
             => ExecuteQueryRaw<T>(databaseFacade, sql, parameters.AsEnumerable());
 
-        public static IEnumerable<T> ExecuteQueryRaw<T>(this DatabaseFacade databaseFacade, string sql, IEnumerable<object> parameters)
+        public IEnumerable<T> ExecuteQueryRaw<T>(string sql, IEnumerable<object> parameters)
         {
             var isComplexType = typeof(T).IsPlainObjectType();
             if (isComplexType)
@@ -262,14 +268,13 @@ namespace Smartstore
             }
         }
 
-        public static IAsyncEnumerable<T> ExecuteQueryRawAsync<T>(this DatabaseFacade databaseFacade, string sql, CancellationToken cancelToken)
-            => ExecuteQueryRawAsync<T>(databaseFacade, sql, Enumerable.Empty<object>(), cancelToken);
+        public IAsyncEnumerable<T> ExecuteQueryRawAsync<T>(string sql, CancellationToken cancelToken)
+            => ExecuteQueryRawAsync<T>(databaseFacade, sql, [], cancelToken);
 
-        public static IAsyncEnumerable<T> ExecuteQueryRawAsync<T>(this DatabaseFacade databaseFacade, string sql, params object[] parameters)
+        public IAsyncEnumerable<T> ExecuteQueryRawAsync<T>(string sql, params object[] parameters)
             => ExecuteQueryRawAsync<T>(databaseFacade, sql, parameters.AsEnumerable());
 
-        public static async IAsyncEnumerable<T> ExecuteQueryRawAsync<T>(
-            this DatabaseFacade databaseFacade,
+        public async IAsyncEnumerable<T> ExecuteQueryRawAsync<T>(
             string sql,
             IEnumerable<object> parameters,
             [EnumeratorCancellation] CancellationToken cancelToken = default)
@@ -316,26 +321,26 @@ namespace Smartstore
 
             return obj;
         }
+    }
 
-        #endregion
+    #endregion
 
-        internal static IRelationalDatabaseFacadeDependencies GetFacadeDependencies(this DatabaseFacade databaseFacade)
+    internal static IRelationalDatabaseFacadeDependencies GetFacadeDependencies(this DatabaseFacade databaseFacade)
+    {
+        var dependencies = ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies;
+        if (dependencies is IRelationalDatabaseFacadeDependencies relationalDependencies)
         {
-            var dependencies = ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies;
-            if (dependencies is IRelationalDatabaseFacadeDependencies relationalDependencies)
-            {
-                return relationalDependencies;
-            }
-
-            throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
+            return relationalDependencies;
         }
 
-        internal static TService GetRelationalService<TService>(this IInfrastructure<IServiceProvider> databaseFacade)
-        {
-            Guard.NotNull(databaseFacade);
+        throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
+    }
 
-            var service = databaseFacade.Instance.GetService<TService>() ?? throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
-            return service;
-        }
+    internal static TService GetRelationalService<TService>(this IInfrastructure<IServiceProvider> databaseFacade)
+    {
+        Guard.NotNull(databaseFacade);
+
+        var service = databaseFacade.Instance.GetService<TService>() ?? throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
+        return service;
     }
 }

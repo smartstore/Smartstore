@@ -1,16 +1,18 @@
 ﻿using System.Diagnostics;
 using Smartstore.Utilities;
 
-namespace Smartstore.Threading
+namespace Smartstore.Threading;
+
+public static class LockExtensions
 {
-    public static class LockExtensions
+    extension (ReaderWriterLockSlim rwLock)
     {
         /// <summary>
         /// Acquires a disposable reader lock that can be used with a using statement.
         /// </summary>
         /// <param name="timeout">The time to wait, or null to wait indefinitely.</param>
         [DebuggerStepThrough]
-        public static IDisposable GetReadLock(this ReaderWriterLockSlim rwLock, TimeSpan? timeout = null)
+        public IDisposable GetReadLock(TimeSpan? timeout = null)
         {
             bool acquire = rwLock.IsReadLockHeld == false ||
                            rwLock.RecursionPolicy == LockRecursionPolicy.SupportsRecursion;
@@ -31,7 +33,7 @@ namespace Smartstore.Threading
         /// </summary>
         /// <param name="timeout">The time to wait, or null to wait indefinitely.</param>
         [DebuggerStepThrough]
-        public static IDisposable GetUpgradeableReadLock(this ReaderWriterLockSlim rwLock, TimeSpan? timeout = null)
+        public IDisposable GetUpgradeableReadLock(TimeSpan? timeout = null)
         {
             bool acquire = rwLock.IsUpgradeableReadLockHeld == false ||
                            rwLock.RecursionPolicy == LockRecursionPolicy.SupportsRecursion;
@@ -52,7 +54,7 @@ namespace Smartstore.Threading
         /// </summary>
         /// <param name="timeout">The time to wait, or null to wait indefinitely.</param>
         [DebuggerStepThrough]
-        public static IDisposable GetWriteLock(this ReaderWriterLockSlim rwLock, TimeSpan? timeout = null)
+        public IDisposable GetWriteLock(TimeSpan? timeout = null)
         {
             bool acquire = rwLock.IsWriteLockHeld == false ||
                            rwLock.RecursionPolicy == LockRecursionPolicy.SupportsRecursion;

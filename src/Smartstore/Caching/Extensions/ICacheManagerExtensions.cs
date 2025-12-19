@@ -1,8 +1,10 @@
 ﻿using Smartstore.Caching;
 
-namespace Smartstore
+namespace Smartstore;
+
+public static class ICacheManagerExtensions
 {
-    public static class ICacheManagerExtensions
+    extension (ICacheManager cache)
     {
         /// <summary>
         /// Gets a cache item associated with the specified key or adds the item
@@ -14,7 +16,7 @@ namespace Smartstore
         /// <param name="independent">When <c>true</c>, no attemp will be made to invalidate depending/parent cache entries.</param>
         /// <param name="allowRecursion">When <c>false</c>, an exception will be thrown when the acquirer tries to acces the same cache item.</param>
         /// <returns>Cached item value</returns>
-        public static T Get<T>(this ICacheManager cache, string key, Func<T> acquirer, bool independent = false, bool allowRecursion = false)
+        public T Get<T>(string key, Func<T> acquirer, bool independent = false, bool allowRecursion = false)
         {
             return cache.Get<T>(key, o => acquirer(), independent, allowRecursion);
         }
@@ -29,7 +31,7 @@ namespace Smartstore
         /// <param name="independent">When <c>true</c>, no attemp will be made to invalidate depending/parent cache entries.</param>
         /// <param name="allowRecursion">When <c>false</c>, an exception will be thrown when the acquirer tries to acces the same cache item.</param>
         /// <returns>Cached item value</returns>
-        public static Task<T> GetAsync<T>(this ICacheManager cache, string key, Func<CacheEntryOptions, T> acquirer, bool independent = false, bool allowRecursion = false)
+        public Task<T> GetAsync<T>(string key, Func<CacheEntryOptions, T> acquirer, bool independent = false, bool allowRecursion = false)
         {
             return cache.GetAsync<T>(key, o => Task.FromResult(acquirer(o)), independent, allowRecursion);
         }
@@ -44,7 +46,7 @@ namespace Smartstore
         /// <param name="independent">When <c>true</c>, no attemp will be made to invalidate depending/parent cache entries.</param>
         /// <param name="allowRecursion">When <c>false</c>, an exception will be thrown when the acquirer tries to acces the same cache item.</param>
         /// <returns>Cached item value</returns>
-        public static Task<T> GetAsync<T>(this ICacheManager cache, string key, Func<T> acquirer, bool independent = false, bool allowRecursion = false)
+        public Task<T> GetAsync<T>(string key, Func<T> acquirer, bool independent = false, bool allowRecursion = false)
         {
             return cache.GetAsync<T>(key, o => Task.FromResult(acquirer()), independent, allowRecursion);
         }
@@ -59,7 +61,7 @@ namespace Smartstore
         /// <param name="independent">When <c>true</c>, no attemp will be made to invalidate depending/parent cache entries.</param>
         /// <param name="allowRecursion">When <c>false</c>, an exception will be thrown when the acquirer tries to acces the same cache item.</param>
         /// <returns>Cached item value</returns>
-        public static Task<T> GetAsync<T>(this ICacheManager cache, string key, Func<Task<T>> acquirer, bool independent = false, bool allowRecursion = false)
+        public Task<T> GetAsync<T>(string key, Func<Task<T>> acquirer, bool independent = false, bool allowRecursion = false)
         {
             return cache.GetAsync<T>(key, o => acquirer(), independent, allowRecursion);
         }
