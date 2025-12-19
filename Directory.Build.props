@@ -1,6 +1,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
-        <NoWarn>$(NoWarn);CA1510;IDE0130;IDE0305</NoWarn>
+        <NoWarn>$(NoWarn);CA1510;IDE0130;IDE0290;IDE0305</NoWarn>
     </PropertyGroup>
 </Project>
