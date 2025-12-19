@@ -330,7 +330,7 @@ public static class TypeExtensions
             {
                 elementType = type.GetElementType();
             }
-            else if (type.IsClosedGenericTypeOf(typeof(IEnumerable<>), out var closedType))
+            else if (type.TryGetClosedGenericTypeOf(typeof(IEnumerable<>), out var closedType))
             {
                 elementType = closedType.GetGenericArguments()[0];
             }
@@ -351,7 +351,7 @@ public static class TypeExtensions
                 return false;
             }
 
-            if (type.IsClosedGenericTypeOf(typeof(IEnumerable<>), out var closedType))
+            if (type.TryGetClosedGenericTypeOf(typeof(IEnumerable<>), out var closedType))
             {
                 elementType = closedType.GetGenericArguments()[0];
             }
@@ -368,7 +368,7 @@ public static class TypeExtensions
                 return false;
             }
 
-            if (type.IsClosedGenericTypeOf(typeof(ICollection<>), out var closedType))
+            if (type.TryGetClosedGenericTypeOf(typeof(ICollection<>), out var closedType))
             {
                 elementType = closedType.GetGenericArguments()[0];
             }
@@ -379,7 +379,7 @@ public static class TypeExtensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsDictionaryType()
         {
-            return type.IsClosedGenericTypeOf(typeof(IDictionary<,>));
+            return type.TryGetClosedGenericTypeOf(typeof(IDictionary<,>), out _);
         }
 
         public bool IsDictionaryType([NotNullWhen(true)] out Type? keyType, [NotNullWhen(true)] out Type? valueType)
@@ -387,7 +387,7 @@ public static class TypeExtensions
             keyType = null;
             valueType = null;
 
-            if (type.IsClosedGenericTypeOf(typeof(IDictionary<,>), out var closedType))
+            if (type.TryGetClosedGenericTypeOf(typeof(IDictionary<,>), out var closedType))
             {
                 var args = closedType.GetGenericArguments();
                 keyType = args[0];
@@ -414,14 +414,13 @@ public static class TypeExtensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsClosedGenericTypeOf(Type openGeneric)
         {
-            return type.GetClosedGenericTypesOf(openGeneric).Any();
+            return type.TryGetClosedGenericTypeOf(openGeneric, out _);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsClosedGenericTypeOf(Type openGeneric, [NotNullWhen(true)] out Type? closedGeneric)
         {
-            closedGeneric = type.GetClosedGenericTypesOf(openGeneric).FirstOrDefault();
-            return closedGeneric != null;
+            return type.TryGetClosedGenericTypeOf(openGeneric, out closedGeneric);
         }
 
         public IEnumerable<Type> GetClosedGenericTypesOf(Type openGeneric)
@@ -431,8 +430,39 @@ public static class TypeExtensions
                 return [];
             }
 
-            return type.GetTypesAssignableFrom()
-                .Where(t => !t.ContainsGenericParameters && t.IsGenericType && t.GetGenericTypeDefinition() == openGeneric);
+            return type.GetClosedGenericTypesOfCore(openGeneric);
+        }
+
+        private IEnumerable<Type> GetClosedGenericTypesOfCore(Type openGeneric)
+        {
+            foreach (var t in type.GetTypesAssignableFrom())
+            {
+                if (!t.ContainsGenericParameters && t.IsGenericType && t.GetGenericTypeDefinition() == openGeneric)
+                {
+                    yield return t;
+                }
+            }
+        }
+
+        private bool TryGetClosedGenericTypeOf(Type openGeneric, [NotNullWhen(true)] out Type? closedGeneric)
+        {
+            closedGeneric = null;
+
+            if (!openGeneric.IsOpenGeneric())
+            {
+                return false;
+            }
+
+            foreach (var t in type.GetTypesAssignableFrom())
+            {
+                if (!t.ContainsGenericParameters && t.IsGenericType && t.GetGenericTypeDefinition() == openGeneric)
+                {
+                    closedGeneric = t;
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 
@@ -452,8 +482,8 @@ public static class TypeExtensions
                 var containingType = method.DeclaringType;
                 if (containingType != null)
                 {
-                    if (method.Name.StartsWith("get_", StringComparison.InvariantCulture) ||
-                        method.Name.StartsWith("set_", StringComparison.InvariantCulture))
+                    if (method.Name.StartsWith("get_", StringComparison.Ordinal) ||
+                        method.Name.StartsWith("set_", StringComparison.Ordinal))
                     {
                         var propertyName = method.Name[4..];
                         property = containingType.GetProperty(propertyName);
