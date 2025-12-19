@@ -575,7 +575,7 @@ namespace Smartstore
                 return input;
             }
 
-            var pattern = string.Join('|', keywords.Tokenize(new[] { ' ', '-' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            var pattern = string.Join('|', keywords.Tokenize([' ', '-'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .Select(Regex.Escape)
                 .Distinct());
 

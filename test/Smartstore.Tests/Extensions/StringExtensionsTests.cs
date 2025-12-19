@@ -521,12 +521,14 @@ namespace Smartstore.Tests.Extensions
         {
             string input = "123-abc";
             string pattern = @"\d{3}-\w{3}";
-            Assert.That(input.IsMatch(pattern), Is.True);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(input.IsMatch(pattern), Is.True);
 
-            Match match;
-            Assert.That(input.IsMatch(pattern, out match), Is.True);
-            Assert.That(match.Success, Is.True);
-            Assert.That(match.Value, Is.EqualTo(input));
+                Assert.That(input.IsMatch(pattern, out Match match), Is.True);
+                Assert.That(match.Success, Is.True);
+                Assert.That(match.Value, Is.EqualTo(input));
+            }
         }
 
         [Test]
@@ -534,11 +536,12 @@ namespace Smartstore.Tests.Extensions
         {
             string input = "123-abc";
             string pattern = @"\d{3}-\d{3}"; // Expects digits after hyphen
-            Assert.That(input.IsMatch(pattern), Is.False);
-
-            Match match;
-            Assert.That(input.IsMatch(pattern, out match), Is.False);
-            Assert.That(match.Success, Is.False);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(input.IsMatch(pattern), Is.False);
+                Assert.That(input.IsMatch(pattern, out Match match), Is.False);
+                Assert.That(match.Success, Is.False);
+            }
         }
 
         [Test]
@@ -547,8 +550,7 @@ namespace Smartstore.Tests.Extensions
             string pattern = @"\d{3}";
             Assert.Throws<ArgumentNullException>(() => ((string)null!).IsMatch(pattern));
 
-            Match match;
-            Assert.Throws<ArgumentNullException>(() => ((string)null!).IsMatch(pattern, out match));
+            Assert.Throws<ArgumentNullException>(() => ((string)null!).IsMatch(pattern, out Match match));
         }
 
         [Test]
@@ -556,9 +558,7 @@ namespace Smartstore.Tests.Extensions
         {
             string input = "abc";
             Assert.Throws<ArgumentNullException>(() => input.IsMatch(null!));
-
-            Match match;
-            Assert.Throws<ArgumentNullException>(() => input.IsMatch(null!, out match));
+            Assert.Throws<ArgumentNullException>(() => input.IsMatch(null!, out Match match));
         }
 
         #endregion // End of ComparisonTests (implicitly, or add explicit region if needed)
@@ -756,9 +756,12 @@ namespace Smartstore.Tests.Extensions
             string hash1 = input.XxHash32(0);
             Assert.That(hash1, Is.Not.Empty.And.Match("^[0-9A-F]+$"));
             string hash2 = input.XxHash32(123);
-            Assert.That(hash2, Is.Not.EqualTo(hash1));
-            Assert.That("".XxHash32(), Is.EqualTo(""));
-            Assert.That(((string?)null).XxHash32(), Is.Null);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(hash2, Is.Not.EqualTo(hash1));
+                Assert.That("".XxHash32(), Is.EqualTo(""));
+                Assert.That(((string?)null).XxHash32(), Is.Null);
+            }
         }
 
         [Test]
@@ -768,9 +771,12 @@ namespace Smartstore.Tests.Extensions
             string hash1 = input.XxHash3(0);
             Assert.That(hash1, Is.Not.Empty.And.Match("^[0-9A-F]+$"));
             string hash2 = input.XxHash3(123);
-            Assert.That(hash2, Is.Not.EqualTo(hash1));
-            Assert.That("".XxHash3(), Is.EqualTo(""));
-            Assert.That(((string?)null).XxHash3(), Is.Null);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(hash2, Is.Not.EqualTo(hash1));
+                Assert.That("".XxHash3(), Is.EqualTo(""));
+                Assert.That(((string?)null).XxHash3(), Is.Null);
+            }
         }
 
         [Test]
@@ -780,17 +786,23 @@ namespace Smartstore.Tests.Extensions
             string hash1 = input.XxHash64(0);
             Assert.That(hash1, Is.Not.Empty.And.Match("^[0-9A-F]+$"));
             string hash2 = input.XxHash64(123);
-            Assert.That(hash2, Is.Not.EqualTo(hash1));
-            Assert.That("".XxHash64(), Is.EqualTo(""));
-            Assert.That(((string?)null).XxHash64(), Is.Null);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(hash2, Is.Not.EqualTo(hash1));
+                Assert.That("".XxHash64(), Is.EqualTo(""));
+                Assert.That(((string?)null).XxHash64(), Is.Null);
+            }
         }
 
         [Test]
         public void XxHash_DifferentAlgorithms_ProduceDifferentHashes()
         {
             string input = "hello";
-            Assert.That(input.XxHash3(), Is.Not.EqualTo(input.XxHash64()));
-            Assert.That(input.XxHash32()?.Length ?? 0, Is.LessThanOrEqualTo(input.XxHash3()?.Length ?? 0));
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(input.XxHash3(), Is.Not.EqualTo(input.XxHash64()));
+                Assert.That(input.XxHash32()?.Length ?? 0, Is.LessThanOrEqualTo(input.XxHash3()?.Length ?? 0));
+            }
         }
 
         // MD5 Hash Tests
@@ -866,16 +878,22 @@ namespace Smartstore.Tests.Extensions
         [Test]
         public void AttributeEncode_CustomEncoder_ReplacesChars()
         {
-            Assert.That("val<\"'&>".AttributeEncode(false), Is.EqualTo("val’/+>"));
-            Assert.That("test".AttributeEncode(false), Is.EqualTo("test"));
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That("val<\"'&>".AttributeEncode(false), Is.EqualTo("val’/+>"));
+                Assert.That("test".AttributeEncode(false), Is.EqualTo("test"));
+            }
         }
 
         [TestCase(null, null)]
         [TestCase("", "")]
         public void AttributeEncode_NullOrEmpty_ReturnsInput(string? input, string? expected)
         {
-            Assert.That(input.AttributeEncode(true), Is.EqualTo(expected));
-            Assert.That(input.AttributeEncode(false), Is.EqualTo(expected));
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(input.AttributeEncode(true), Is.EqualTo(expected));
+                Assert.That(input.AttributeEncode(false), Is.EqualTo(expected));
+            }
         }
 
         // HtmlEncode / HtmlDecode Tests
@@ -942,8 +960,11 @@ namespace Smartstore.Tests.Extensions
         [TestCase("", "")]
         public void EncodeJsString_NullOrEmpty_ReturnsEmpty(string? input, string expected)
         {
-            Assert.That(input.EncodeJsString(), Is.EqualTo(expected));
-            Assert.That(input.EncodeJsStringUnquoted(), Is.EqualTo(expected));
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(input.EncodeJsString(), Is.EqualTo(expected));
+                Assert.That(input.EncodeJsStringUnquoted(), Is.EqualTo(expected));
+            }
         }
 
         // SanitizeHtmlId Tests
@@ -1530,7 +1551,7 @@ namespace Smartstore.Tests.Extensions
         [Test]
         public void SplitSafe_StringSeparator_AutoDetectLineBreak()
         {
-             Assert.That("line1\r\nline2".SplitSafe(null).ToList(), Is.EqualTo(new[] {"line1", "line2"}));
+             Assert.That("line1\r\nline2".SplitSafe(null).ToList(), Is.EqualTo(["line1", "line2"]));
         }
 
 
@@ -1561,10 +1582,13 @@ namespace Smartstore.Tests.Extensions
         [TestCase("", "=", false, "", "", false)]
         public void SplitToPair_VariousInputs(string? input, string? delimiter, bool splitAfterLast, string? expectedLeft, string expectedRight, bool expectedResult)
         {
-            bool result = input.SplitToPair(out string? left, out string right, delimiter, splitAfterLast);
-            Assert.That(result, Is.EqualTo(expectedResult));
-            Assert.That(left, Is.EqualTo(expectedLeft));
-            Assert.That(right, Is.EqualTo(expectedRight));
+            bool result = input.SplitToPair(out string? left, out string? right, delimiter, splitAfterLast);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result, Is.EqualTo(expectedResult));
+                Assert.That(left, Is.EqualTo(expectedLeft));
+                Assert.That(right, Is.EqualTo(expectedRight));
+            }
         }
 
         // Tokenize (char separator, StringSplitOptions options) Tests
@@ -1592,8 +1616,11 @@ namespace Smartstore.Tests.Extensions
         [Test]
         public void Tokenize_DefaultSeparators()
         {
-            Assert.That("a,b".Tokenize(','), Is.EqualTo(new[] {"a", "b"}));
-            Assert.That("a,b".Tokenize(',', ';'), Is.EqualTo(new[] {"a", "b"}));
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That("a,b".Tokenize(','), Is.EqualTo(["a", "b"]));
+                Assert.That("a,b".Tokenize(',', ';'), Is.EqualTo(["a", "b"]));
+            }
         }
         #endregion
     }

@@ -188,20 +188,9 @@ public static class EnumerableExtensions
         public Dictionary<TKey, TElement> ToDictionarySafe<TKey, TElement>(Func<T, TKey> keySelector, Func<T, TElement> elementSelector, IEqualityComparer<TKey>? comparer)
             where TKey : notnull
         {
-            if (source == null)
-            {
-                throw new ArgumentNullException(nameof(source));
-            }
-
-            if (keySelector == null)
-            {
-                throw new ArgumentNullException(nameof(keySelector));
-            }
-
-            if (elementSelector == null)
-            {
-                throw new ArgumentNullException(nameof(elementSelector));
-            }
+            Guard.NotNull(source);
+            Guard.NotNull(keySelector);
+            Guard.NotNull(elementSelector);
 
             var dictionary = new Dictionary<TKey, TElement>(comparer);
 

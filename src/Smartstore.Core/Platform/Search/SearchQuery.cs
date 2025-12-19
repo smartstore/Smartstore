@@ -22,7 +22,7 @@ namespace Smartstore.Core.Search
             SearchMode mode = SearchMode.Contains, 
             bool escape = false, 
             bool isFuzzySearch = false)
-            : base(field.HasValue() ? new[] { field! } : null, term, mode, escape, isFuzzySearch)
+            : base(field.HasValue() ? [field!] : null, term, mode, escape, isFuzzySearch)
         {
         }
 
