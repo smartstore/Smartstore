@@ -293,7 +293,7 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> ConfirmPayment()
         {
-            var result = await _checkoutWorkflow.ConfirmPaymentAsync(false, await CreateCheckoutContext());
+            var result = await _checkoutWorkflow.ConfirmPaymentAsync(await CreateCheckoutContext());
             var redirectUrl = result.Success && result.ActionResult is RedirectResult rs ? rs?.Url.NullEmpty() : null;
 
             if (redirectUrl == null && result.ActionResult != null)
@@ -311,12 +311,11 @@ namespace Smartstore.Web.Controllers
         }
 
         /// <summary>
-        /// After completing the payment, the payment provider redirects the customer 
-        /// to this action method to process the payment result.
+        /// After completing the payment, the payment provider redirects the customer to this action method.
         /// </summary>
-        public async Task<IActionResult> PaymentConfirmed()
+        public async Task<IActionResult> PaymentCompleted()
         {
-            var result = await _checkoutWorkflow.ConfirmPaymentAsync(true, await CreateCheckoutContext());
+            var result = await _checkoutWorkflow.CompletePaymentAsync(await CreateCheckoutContext());
 
             return result.ActionResult ?? RedirectToAction(nameof(Completed));
         }

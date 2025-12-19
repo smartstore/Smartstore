@@ -485,7 +485,7 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             // Apply extra data.
-            if (ctx.ExtraData.TryGetValue("CustomerComment", out var customerComment))
+            if (ctx.ExtraData.TryGetValue(CheckoutWorkflow.CustomerCommentKey, out var customerComment))
             {
                 order.CustomerOrderComment = customerComment;
             }
