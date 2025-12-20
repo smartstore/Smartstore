@@ -11,10 +11,13 @@ namespace Smartstore.Core.Content.Media
 
         private static IPageable<MediaFileInfo> ConvertPageable(IPageable<MediaFile> pageable, Func<MediaFile, MediaFileInfo> converter)
         {
-            Guard.NotNull(pageable, nameof(pageable));
-            Guard.NotNull(converter, nameof(converter));
+            Guard.NotNull(pageable);
+            Guard.NotNull(converter);
 
-            return pageable.Select(converter).AsQueryable().ToPagedList(pageable.PageIndex, pageable.PageSize, pageable.TotalCount);
+            return pageable
+                .Select(converter)
+                .AsQueryable()
+                .ToPagedList(pageable.PageIndex, pageable.PageSize, pageable.TotalCount);
         }
     }
 }

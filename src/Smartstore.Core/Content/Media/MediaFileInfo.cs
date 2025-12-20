@@ -1,13 +1,13 @@
-﻿using System.ComponentModel;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileProviders;
-using Newtonsoft.Json;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.IO;
+using NSJ = Newtonsoft.Json;
 
 namespace Smartstore.Core.Content.Media
 {
@@ -72,38 +72,37 @@ namespace Smartstore.Core.Content.Media
         [IgnoreDataMember]
         public MediaFile File { get; private set; }
 
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public int Id => File.Id;
 
-        [JsonProperty("folderId", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("folderId")]
         public int? FolderId => File.FolderId;
 
-        [JsonProperty("mime", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("mime")]
         public string MimeType => File.MimeType;
 
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("type")]
         public string MediaType => File.MediaType;
 
-        [JsonProperty("isTransient", DefaultValueHandling = DefaultValueHandling.Ignore), DefaultValue(false)]
+        [JsonPropertyName("isTransient"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool IsTransient => File.IsTransient;
 
-        [JsonProperty("deleted", DefaultValueHandling = DefaultValueHandling.Ignore), DefaultValue(false)]
+        [JsonPropertyName("deleted"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool Deleted => File.Deleted;
 
-        [JsonProperty("hidden", DefaultValueHandling = DefaultValueHandling.Ignore), DefaultValue(false)]
+        [JsonPropertyName("hidden"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool Hidden => File.Hidden;
 
-        [JsonProperty("createdOn")]
         public DateTimeOffset CreatedOn => File.CreatedOnUtc;
 
-        [JsonProperty("alt", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("alt")]
         public string Alt
         {
             get => _alt ?? File.Alt;
             set => _alt = value;
         }
 
-        [JsonProperty("titleAttr", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("titleAttr"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string TitleAttribute
         {
             get => _title ?? File.Title;
@@ -117,16 +116,16 @@ namespace Smartstore.Core.Content.Media
         /// Gets the file path.
         /// </summary>
         /// <example>catalog/my-picture.jpg</example>
-        [JsonProperty("path", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("path")]
         public string Path { get; private set; }
 
-        [JsonProperty("comment", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("comment")]
         public string AdminComment => File.AdminComment;
 
         /// <summary>
         /// Gets <see cref="LastModified"/> as Unix time for cache busting purposes.
         /// </summary>
-        [JsonProperty("version")]
+        [JsonPropertyName("version")]
         public long Version => File.UpdatedOnUtc.ToUnixTime();
 
         #region Url
@@ -137,14 +136,16 @@ namespace Smartstore.Core.Content.Media
         /// Gets the relative file URL.
         /// </summary>
         /// <example>/media/6/catalog/my-picture.jpg</example>
-        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
+        [NSJ.JsonProperty("url", NullValueHandling = NSJ.NullValueHandling.Ignore)]
+        [JsonInclude, JsonPropertyName("url")]
         internal string Url => GetUrl(0, string.Empty);
 
         /// <summary>
         /// Gets the relative thumbnail URL.
         /// </summary>
         /// <example>/media/6/catalog/my-picture.jpg?size=256</example>
-        [JsonProperty("thumbUrl", NullValueHandling = NullValueHandling.Ignore)]
+        [NSJ.JsonProperty("thumbUrl", NullValueHandling = NSJ.NullValueHandling.Ignore)]
+        [JsonInclude, JsonPropertyName("thumbUrl")]
         internal string ThumbUrl => GetUrl(ThumbSize, string.Empty);
 
         [IgnoreDataMember]
@@ -184,15 +185,15 @@ namespace Smartstore.Core.Content.Media
         bool IFileInfo.IsDirectory => false;
 
         /// <inheritdoc/>
-        [JsonProperty("lastUpdated")]
+        [JsonPropertyName("lastUpdated")]
         public DateTimeOffset LastModified => File.UpdatedOnUtc;
 
         /// <inheritdoc/>
-        [JsonProperty("size")]
+        [JsonPropertyName("size")]
         public long Length => File.Size;
 
         /// <inheritdoc/>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("name")]
         public string Name => File.Name;
 
         /// <inheritdoc/>
@@ -222,18 +223,18 @@ namespace Smartstore.Core.Content.Media
 
 
         /// <inheritdoc/>
-        [JsonProperty("dir")]
+        [JsonPropertyName("dir")]
         public string Directory { get; private set; }
 
-        [JsonProperty("title")]
+        [JsonPropertyName("title")]
         public string NameWithoutExtension
             => System.IO.Path.GetFileNameWithoutExtension(Name);
 
-        [JsonProperty("ext")]
+        [JsonPropertyName("ext")]
         public string Extension
             => File.Extension != null ? "." + File.Extension : null;
 
-        [JsonProperty("dimensions")]
+        [JsonPropertyName("dimensions")]
         public Size Size
         {
             get => _size;

@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using Autofac;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -123,23 +124,43 @@ namespace Smartstore.Web
                         o.ViewLocationExpanders.Add(new LanguageViewLocationExpander(LanguageViewLocationExpanderFormat.Suffix));
                     }
                 })
-                //.AddJsonOptions(o =>
-                //{
-                //    var settings = o.JsonSerializerOptions;
-                //    //settings.Converters.Add(new JsonStringEnumConverter());
-                //    //settings.Converters.Add(new UTCDateTimeConverter());
-                //    settings.PropertyNamingPolicy = null;
-                //    settings.AllowTrailingCommas = true;
-                //    settings.DictionaryKeyPolicy = null;
-                //    settings.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-                //    settings.UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip;
-                //    settings.MaxDepth = 32;
-                //    settings.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-                //})
+                .AddJsonOptions(o =>
+                {
+                    var options = o.JsonSerializerOptions;
+                    
+                    // Apply NSJ default policy (which does nothing)
+                    options.PropertyNamingPolicy = null;
+
+                    // Cycles become null'd instead of throwing.
+                    // NSJ: ReferenceLoopHandling.Ignore
+                    options.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+
+                    // STJ supports a global preference (net8+ / net10 docs shown here).
+                    // Replace is the closest equivalent to "create new instance instead of populating existing".
+                    // NSJ: ObjectCreationHandling.Replace
+                    options.PreferredObjectCreationHandling = JsonObjectCreationHandling.Replace;
+
+                    // NSJ: NullValueHandling.Ignore
+                    options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+
+                    // NSJ: MaxDepth
+                    options.MaxDepth = 32;
+
+                    // Add support for DataContract attributes
+                    options.TypeInfoResolver.WithAddedModifier(DataContractModifiers.ApplyIgnoreDataMember);
+                    options.TypeInfoResolver.WithAddedModifier(DataContractModifiers.ApplyDataMemberNameAndOrder);
+
+                    // Serialize enums as strings, not as ints.
+                    options.Converters.Add(new JsonStringEnumConverter(
+                        namingPolicy: null,
+                        allowIntegerValues: true));
+
+                    options.Converters.Add(new UtcDateTimeJsonConverter());
+                })
                 .AddNewtonsoftJson(o =>
                 {
                     var settings = o.SerializerSettings;
-                    settings.ContractResolver = SmartContractResolver.Instance;
+                    settings.ContractResolver = SmartContractResolver.Default;
                     settings.TypeNameHandling = TypeNameHandling.None;
                     settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                     settings.ObjectCreationHandling = ObjectCreationHandling.Replace;

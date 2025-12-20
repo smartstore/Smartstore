@@ -1,18 +1,135 @@
-﻿using System.Reflection;
+﻿#nullable enable
+
+using System.Reflection;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using STJ = System.Text.Json.Serialization;
 
 namespace Smartstore.ComponentModel
 {
     public class SmartContractResolver : DefaultContractResolver
     {
+        public static SmartContractResolver Default { get; } = new SmartContractResolver(false);
+        public static SmartContractResolver CamelCased { get; } = new SmartContractResolver(true);
+
+        public SmartContractResolver(bool camelCased = false)
+        {
+            if (camelCased)
+            {
+                NamingStrategy = new CamelCaseNamingStrategy
+                {
+                    OverrideSpecifiedNames = false
+                };
+            }
+        }
+
         protected override IValueProvider CreateMemberValueProvider(MemberInfo member)
         {
-            // .NET 7 native reflection is ultra-fast, even faster than
+            // .NET 7+ native reflection is ultra-fast, even faster than
             // Newtonsoft's ExpressionValueProvider. As long as the devs
             // does not refactor their code, we gonna return ReflectionValueProvider here.
             return new ReflectionValueProvider(member);
         }
 
-        public static SmartContractResolver Instance { get; } = new SmartContractResolver();
+        protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+        {
+            var property = base.CreateProperty(member, memberSerialization);
+
+            // Apply System.Text.Json attributes if any
+            ApplySystemTextJsonAttributes(member, property);
+
+            return property;
+        }
+
+        /// <summary>
+        /// Applies System.Text.Json-compatible attributes found on the specified member to the given JsonProperty,
+        /// updating its serialization behavior accordingly.
+        /// </summary>
+        /// <remarks>This method inspects the provided member for System.Text.Json attributes, including
+        /// JsonPropertyNameAttribute, JsonPropertyOrderAttribute, JsonIgnoreAttribute, JsonIncludeAttribute, and
+        /// JsonRequiredAttribute. If present, these attributes are used to update the corresponding settings on the
+        /// JsonProperty instance, such as property name, order, ignore conditions, inclusion of non-public members, and
+        /// required status. Existing Newtonsoft.Json attributes on the member take precedence and are not overridden.
+        /// This method is intended for scenarios where interoperability between Newtonsoft.Json and System.Text.Json
+        /// attributes is required.</remarks>
+        private static void ApplySystemTextJsonAttributes(MemberInfo member, JsonProperty property)
+        {
+            var nsjProp = member.GetCustomAttribute<JsonPropertyAttribute>(inherit: true);
+
+            // If Newtonsoft already treated this as "explicitly configured" (e.g. [JsonProperty]),
+            // do not override the name. This keeps the hybrid phase predictable.
+            if (nsjProp == null || nsjProp.PropertyName.IsEmpty())
+            {
+                // [JsonPropertyName] -> force exact name (wins over NamingStrategy because we assign last)
+                if (member.TryGetAttribute<STJ.JsonPropertyNameAttribute>(true, out var attr) && attr.Name.HasValue())
+                {
+                    property.PropertyName = attr.Name;
+                    property.HasMemberAttribute = true;
+                }
+            }
+
+            // [JsonPropertyOrder] -> force order (wins over NamingStrategy because we assign last)
+            if (nsjProp == null || property.Order == null)
+            {
+                if (member.TryGetAttribute<STJ.JsonPropertyOrderAttribute>(true, out var attr))
+                {
+                    property.Order = attr.Order;
+                    property.HasMemberAttribute = true;
+                }
+            }
+
+            // [JsonIgnore] --> prefer over [IgnoreDataMember]
+            if (member.TryGetAttribute<STJ.JsonIgnoreAttribute>(true, out var stjIgnore))
+            {
+                // In STJ default is "Always".
+                switch (stjIgnore.Condition)
+                {
+                    case STJ.JsonIgnoreCondition.Always:
+                        property.Ignored = true;
+                        break;
+
+                    case STJ.JsonIgnoreCondition.WhenWritingNull:
+                        property.NullValueHandling ??= NullValueHandling.Ignore;
+                        break;
+
+                    case STJ.JsonIgnoreCondition.WhenWritingDefault:
+                        property.DefaultValueHandling ??= DefaultValueHandling.Ignore;
+                        break;
+
+                    case STJ.JsonIgnoreCondition.WhenWriting:
+                        property.ShouldSerialize = _ => false;
+                        break;
+
+                    case STJ.JsonIgnoreCondition.WhenReading:
+                        property.ShouldDeserialize = _ => false;
+                        break;
+
+                    case STJ.JsonIgnoreCondition.Never:
+                    default:
+                        break;
+                }
+            }
+
+            // [JsonInclude] -> allow non-public getter/setter/field
+            if (member.IsDefined(typeof(STJ.JsonIncludeAttribute), inherit: true))
+            {
+                if (member is PropertyInfo pi)
+                {
+                    if (pi.GetGetMethod(nonPublic: true) != null) property.Readable = true;
+                    if (pi.GetSetMethod(nonPublic: true) != null) property.Writable = true;
+                }
+                else if (member is FieldInfo)
+                {
+                    property.Readable = true;
+                    property.Writable = true;
+                }
+            }
+
+            // [JsonRequired] (STJ, .NET 7+)
+            if (member.IsDefined(typeof(STJ.JsonRequiredAttribute), inherit: true))
+            {
+                property.Required = Required.Always;
+            }
+        }
     }
 }
