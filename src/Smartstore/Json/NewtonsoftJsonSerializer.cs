@@ -2,9 +2,10 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
+using Smartstore.ComponentModel;
 using Smartstore.Utilities;
 
-namespace Smartstore.ComponentModel
+namespace Smartstore.Json
 {
     public class NewtonsoftJsonSerializer : IJsonSerializer
     {

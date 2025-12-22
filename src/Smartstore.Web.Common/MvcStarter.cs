@@ -29,6 +29,7 @@ using Smartstore.Core.Web;
 using Smartstore.Engine.Builders;
 using Smartstore.Engine.Modularity;
 using Smartstore.Engine.Modularity.ApplicationParts;
+using Smartstore.Json;
 using Smartstore.Net;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Filters;

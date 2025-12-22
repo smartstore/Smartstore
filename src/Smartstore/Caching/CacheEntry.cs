@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using Smartstore.ComponentModel;
-using Smartstore.ComponentModel.JsonConverters;
+using Smartstore.Json.Converters;
 
 namespace Smartstore.Caching
 {

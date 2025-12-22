@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Smartstore.ComponentModel;
-using Smartstore.ComponentModel.JsonConverters;
+using Smartstore.Json.Converters;
 
 namespace Smartstore.Data.Caching
 {

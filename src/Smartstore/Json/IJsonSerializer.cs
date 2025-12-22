@@ -2,7 +2,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-namespace Smartstore.ComponentModel
+namespace Smartstore.Json
 {
     /// <summary>
     /// Responsible for converting objects from and to JSON.

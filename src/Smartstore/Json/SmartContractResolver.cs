@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using STJ = System.Text.Json.Serialization;
 
-namespace Smartstore.ComponentModel
+namespace Smartstore.Json
 {
     public class SmartContractResolver : DefaultContractResolver
     {

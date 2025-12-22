@@ -4,8 +4,8 @@ using System.Diagnostics.CodeAnalysis;
 using Autofac;
 using Autofac.Core;
 using Microsoft.AspNetCore.Http;
-using Smartstore.ComponentModel;
 using Smartstore.Engine;
+using Smartstore.Json;
 
 namespace Smartstore
 {

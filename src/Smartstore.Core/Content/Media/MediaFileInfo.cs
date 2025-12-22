@@ -136,16 +136,16 @@ namespace Smartstore.Core.Content.Media
         /// Gets the relative file URL.
         /// </summary>
         /// <example>/media/6/catalog/my-picture.jpg</example>
-        [NSJ.JsonProperty("url", NullValueHandling = NSJ.NullValueHandling.Ignore)]
-        [JsonInclude, JsonPropertyName("url")]
+        //[NSJ.JsonProperty("url", NullValueHandling = NSJ.NullValueHandling.Ignore)]
+        [JsonInclude, JsonPropertyName("url"), NSJ.JsonRequired]
         internal string Url => GetUrl(0, string.Empty);
 
         /// <summary>
         /// Gets the relative thumbnail URL.
         /// </summary>
         /// <example>/media/6/catalog/my-picture.jpg?size=256</example>
-        [NSJ.JsonProperty("thumbUrl", NullValueHandling = NSJ.NullValueHandling.Ignore)]
-        [JsonInclude, JsonPropertyName("thumbUrl")]
+        //[NSJ.JsonProperty("thumbUrl", NullValueHandling = NSJ.NullValueHandling.Ignore)]
+        [JsonInclude, JsonPropertyName("thumbUrl"), NSJ.JsonRequired]
         internal string ThumbUrl => GetUrl(ThumbSize, string.Empty);
 
         [IgnoreDataMember]

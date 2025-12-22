@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
-using Smartstore.ComponentModel;
+using Smartstore.Json;
 
 namespace Smartstore.Web.Modelling
 {

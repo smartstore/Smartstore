@@ -1,8 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Smartstore.ComponentModel;
 using Smartstore.Utilities;
 
-namespace Smartstore.ComponentModel.JsonConverters
+namespace Smartstore.Json.Converters
 {
     public class ObjectContainerJsonConverter : JsonConverter<IObjectContainer>
     {

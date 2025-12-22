@@ -5,7 +5,7 @@ using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Smartstore.Caching;
-using Smartstore.ComponentModel;
+using Smartstore.Json;
 
 namespace Smartstore.Core.AI.Metadata
 {

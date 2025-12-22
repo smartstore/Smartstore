@@ -32,6 +32,7 @@ using Smartstore.Data.Providers;
 using Smartstore.Engine.Builders;
 using Smartstore.Templating;
 using Smartstore.Templating.Liquid;
+using Smartstore.Json;
 
 namespace Smartstore.Core.Bootstrapping
 {
