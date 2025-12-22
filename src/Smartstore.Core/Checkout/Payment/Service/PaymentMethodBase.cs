@@ -26,9 +26,6 @@ namespace Smartstore.Core.Checkout.Payment
         public virtual RecurringPaymentType RecurringPaymentType
             => RecurringPaymentType.NotSupported;
 
-        public virtual PaymentMethodType PaymentMethodType
-            => PaymentMethodType.Unknown;
-
         public virtual Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart)
             => Task.FromResult((decimal.Zero, false));
 
@@ -40,6 +37,9 @@ namespace Smartstore.Core.Checkout.Payment
         public virtual bool RequiresInteraction => false;
 
         public virtual bool RequiresPaymentSelection => true;
+
+        public virtual PaymentMethodType PaymentMethodType
+            => PaymentMethodType.Unknown;
 
         public abstract Widget GetPaymentInfoWidget();
 

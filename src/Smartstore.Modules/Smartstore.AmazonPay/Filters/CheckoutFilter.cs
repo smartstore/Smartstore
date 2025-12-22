@@ -89,11 +89,6 @@ namespace Smartstore.AmazonPay.Filters
                     context.Result = new RedirectResult(_urlHelper.Value.Action(nameof(CheckoutController.Confirm), "Checkout"));
                     return;
                 }
-                else if (action.EqualsNoCase(nameof(CheckoutController.Confirm)))
-                {
-                    _widgetProvider.Value.RegisterWidget("end",
-                        new PartialViewWidget("_CheckoutConfirm", state, "Smartstore.AmazonPay"));
-                }
                 else
                 {
                     _widgetProvider.Value.RegisterWidget("end",

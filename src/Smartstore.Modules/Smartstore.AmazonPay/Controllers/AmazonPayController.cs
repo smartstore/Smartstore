@@ -14,13 +14,9 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
-using Smartstore.Core.Common;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
-using Smartstore.Core.Stores;
 using Smartstore.Http;
-using Smartstore.Utilities.Html;
 using Smartstore.Web.Controllers;
 
 namespace Smartstore.AmazonPay.Controllers
@@ -32,10 +28,8 @@ namespace Smartstore.AmazonPay.Controllers
         private readonly IShoppingCartService _shoppingCartService;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly IOrderProcessingService _orderProcessingService;
-        private readonly IOrderCalculationService _orderCalculationService;
         private readonly ICheckoutWorkflow _checkoutWorkflow;
         private readonly IPaymentService _paymentService;
-        private readonly IRoundingHelper _roundingHelper;
         private readonly AmazonPaySettings _settings;
         private readonly OrderSettings _orderSettings;
         private readonly ShoppingCartSettings _shoppingCartSettings;
@@ -46,10 +40,8 @@ namespace Smartstore.AmazonPay.Controllers
             IShoppingCartService shoppingCartService,
             ICheckoutStateAccessor checkoutStateAccessor,
             IOrderProcessingService orderProcessingService,
-            IOrderCalculationService orderCalculationService,
             ICheckoutWorkflow checkoutWorkflow,
             IPaymentService paymentService,
-            IRoundingHelper roundingHelper,
             AmazonPaySettings amazonPaySettings,
             OrderSettings orderSettings,
             ShoppingCartSettings shoppingCartSettings)
@@ -59,10 +51,8 @@ namespace Smartstore.AmazonPay.Controllers
             _shoppingCartService = shoppingCartService;
             _checkoutStateAccessor = checkoutStateAccessor;
             _orderProcessingService = orderProcessingService;
-            _orderCalculationService = orderCalculationService;
             _checkoutWorkflow = checkoutWorkflow;
             _paymentService = paymentService;
-            _roundingHelper = roundingHelper;
             _settings = amazonPaySettings;
             _orderSettings = orderSettings;
             _shoppingCartSettings = shoppingCartSettings;
@@ -318,179 +308,6 @@ namespace Smartstore.AmazonPay.Controllers
             }
 
             return result;
-        }
-
-        /// <summary>
-        /// AJAX. Called after buyer clicked buy-now-button but before the order was created.
-        /// Validates order placement and updates AmazonPay checkout session to set payment info.
-        /// </summary>
-        [HttpPost]
-        public async Task<IActionResult> ConfirmOrder(IFormCollection form)
-        {
-            string redirectUrl = null;
-            var messages = new List<string>();
-            var success = false;
-
-            try
-            {
-                var store = Services.StoreContext.CurrentStore;
-                var customer = Services.WorkContext.CurrentCustomer;
-                var state = _checkoutStateAccessor.CheckoutState;
-                var amazonState = state.GetCustomState<AmazonPayCheckoutState>();
-                var paymentRequest = GetPaymentRequest(customer, store);
-
-                if (amazonState.SessionId.IsEmpty())
-                {
-                    throw new AmazonPayException(T("Payment.MissingCheckoutState", "AmazonPayCheckoutState." + nameof(amazonState.SessionId)));
-                }
-
-                // We must check here if an order can be placed to avoid creating unauthorized Amazon payment objects.
-                var (warnings, cart) = await _orderProcessingService.ValidateOrderPlacementAsync(paymentRequest);
-                if (warnings.Count == 0)
-                {
-                    if (await _orderProcessingService.IsMinimumOrderPlacementIntervalValidAsync(customer, store))
-                    {
-                        var currentScheme = Services.WebHelper.IsCurrentConnectionSecured() ? "https" : "http";
-                        var cartTotal = (Money?)await _orderCalculationService.GetShoppingCartTotalAsync(cart);
-                        var request = new UpdateCheckoutSessionRequest();
-
-                        request.PaymentDetails.ChargeAmount.Amount = _roundingHelper.Round(cartTotal.Value);
-                        request.PaymentDetails.ChargeAmount.CurrencyCode = _amazonPayService.GetAmazonPayCurrency();
-                        // INFO: cannot be 'true' if transaction type is 'AuthorizeWithCapture'.
-                        request.PaymentDetails.CanHandlePendingAuthorization = _settings.TransactionType == AmazonPayTransactionType.Authorize;
-                        request.PaymentDetails.PaymentIntent = _settings.TransactionType == AmazonPayTransactionType.AuthorizeAndCapture
-                            ? PaymentIntent.AuthorizeWithCapture
-                            : PaymentIntent.Authorize;
-
-                        request.WebCheckoutDetails.CheckoutResultReturnUrl = Url.Action(nameof(ConfirmationResult), "AmazonPay", null, currentScheme);
-                        request.MerchantMetadata.MerchantStoreName = store.Name.Truncate(50);
-
-                        if (paymentRequest.OrderGuid != Guid.Empty)
-                        {
-                            request.MerchantMetadata.MerchantReferenceId = paymentRequest.OrderGuid.ToString();
-                        }
-
-                        // INFO: Unlike in v1, the constraints can be ignored. They are only returned if mandatory parameters are missing.
-                        var client = HttpContext.GetAmazonPayApiClient(store.Id);
-                        var response = client.UpdateCheckoutSession(amazonState.SessionId, request);
-                        redirectUrl = response?.WebCheckoutDetails?.AmazonPayRedirectUrl;
-
-                        if (!response.Success || redirectUrl.IsEmpty())
-                        {
-                            throw new AmazonPayException(T("Payment.PaymentFailure"), response);
-                        }
-
-                        success = true;
-                        state.CustomerComment = GetFormValue<string>("customercommenthidden");
-                        state.SubscribeToNewsletter = GetFormValue<bool>("SubscribeToNewsletter");
-                        state.AcceptThirdPartyEmailHandOver = GetFormValue<bool>("AcceptThirdPartyEmailHandOver");
-                    }
-                    else
-                    {
-                        messages.Add(T("Checkout.MinOrderPlacementInterval"));
-                    }
-                }
-                else
-                {
-                    messages.AddRange(warnings.Select(HtmlUtility.ConvertPlainTextToHtml));
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                messages.Add(ex.Message);
-            }
-
-            return Json(new { success, redirectUrl, messages });
-
-            T GetFormValue<T>(string key)
-            {
-                return form.TryGetValue(key, out var val) ? val.ToString().Convert<T>() : default;
-            }
-        }
-
-        /// <summary>
-        /// The buyer is redirected to this action method after checkout is completed on the AmazonPay hosted page.
-        /// </summary>
-        public async Task<IActionResult> ConfirmationResult()
-        {
-            // INFO: amazonCheckoutSessionId query parameter is provided here too but it is more secure to use the state object.
-            // INFO: We have been redirected to AmazonPay via browser (JavaScript "window.location").
-            // Cookies are thereby preserved. The customer and the checkout state object are the same as before the redirection.
-            // Without cookies we would get a new guest customer and an empty checkout state object here. In this case, CheckoutState could not be used.
-            // We would have to either cache AmazonPayCheckoutState for x minutes or store it in the database.
-            var orderPlaced = false;
-
-            try
-            {
-                var store = Services.StoreContext.CurrentStore;
-                var customer = Services.WorkContext.CurrentCustomer;
-                var state = _checkoutStateAccessor.CheckoutState;
-                var paymentRequest = GetPaymentRequest(customer, store);
-
-                var result = await _orderProcessingService.PlaceOrderAsync(paymentRequest, new()
-                {
-                    ["CustomerComment"] = state.CustomerComment,
-                    ["SubscribeToNewsletter"] = state.SubscribeToNewsletter.ToString().ToLower(),
-                    ["AcceptThirdPartyEmailHandOver"] = state.AcceptThirdPartyEmailHandOver.ToString().ToLower()
-                });
-                //$"AmazonPay transaction. {state}. success:{result.Success} orderId:{result.PlacedOrder?.Id} customer:{customer.Email}.".Dump();
-
-                if (result.Success)
-                {
-                    orderPlaced = true;
-                }
-                else
-                {
-                    var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
-                    if (cart.HasItems)
-                    {
-                        // We should never get here. Payment without an order!
-                        var details = new List<string>
-                        {
-                            string.Empty,
-                            "Order GUID: " + paymentRequest.OrderGuid.ToString(),
-                            "Customer ID: " + customer.Id,
-                            "Customer email: " + customer.FindEmail() ?? StringExtensions.NotAvailable
-                        };
-                        details.AddRange(result.Errors.Select(x => $"Error: {x}"));
-
-                        throw new AmazonPayException($"The payment with {paymentRequest.PaymentMethodSystemName} succeeded but the order placement failed!", 
-                            new Exception(string.Join(Environment.NewLine, details)));
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                NotifyError(ex.Message);
-            }
-            finally
-            {
-                HttpContext.Session.TrySetObject<ProcessPaymentRequest>(CheckoutState.OrderPaymentInfoName, null);
-                _checkoutStateAccessor.Abandon();
-            }
-
-            if (!orderPlaced)
-            {
-                return RedirectToRoute("ShoppingCart");
-            }
-
-            return RedirectToAction(nameof(CheckoutController.Completed), "Checkout");
-        }
-
-        private ProcessPaymentRequest GetPaymentRequest(Customer customer, Store store)
-        {
-            if (!HttpContext.Session.TryGetObject<ProcessPaymentRequest>(CheckoutState.OrderPaymentInfoName, out var paymentRequest) || paymentRequest == null)
-            {
-                paymentRequest = new ProcessPaymentRequest();
-            }
-
-            paymentRequest.StoreId = store.Id;
-            paymentRequest.CustomerId = customer.Id;
-            paymentRequest.PaymentMethodSystemName = customer.GenericAttributes.SelectedPaymentMethod;
-
-            return paymentRequest;
         }
 
         /// <summary>

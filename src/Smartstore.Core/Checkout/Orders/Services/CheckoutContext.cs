@@ -54,5 +54,13 @@ namespace Smartstore.Core.Checkout.Orders
 
             return defaultVal;
         }
+
+        /// <summary>
+        /// Generates a URL with a path for an action method, which contains the specified
+        /// <paramref name="action"/> name, <paramref name="controller"/> name, route <paramref name="values"/>, and
+        /// <paramref name="protocol"/> to use.
+        /// </summary>
+        public string? Action(string? action, string? controller = "Checkout", object? values = null, string? protocol = null)
+            => UrlHelper.Action(action, controller, values, protocol);
     }
 }

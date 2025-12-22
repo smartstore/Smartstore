@@ -44,12 +44,6 @@ namespace Smartstore.Core.Checkout.Payment
         RecurringPaymentType RecurringPaymentType { get; }
 
         /// <summary>
-        /// Gets the payment method type.
-        /// </summary>
-        /// <remarks>Choose a type that best suits your payment method.</remarks>
-        PaymentMethodType PaymentMethodType { get; }
-
-        /// <summary>
         /// Gets the additional handling fee for a payment.
         /// </summary>
         /// <returns>The fixed fee or a percentage value. If <c>UsePercentage</c> is <c>true</c>, the fee is calculated as a percentage of the order total.</returns>
@@ -73,6 +67,12 @@ namespace Smartstore.Core.Checkout.Payment
         /// <see cref="CreateProcessPaymentRequestAsync"/> must be implemented.
         /// </summary>
         bool RequiresPaymentSelection { get; }
+
+        /// <summary>
+        /// Gets the payment method type.
+        /// </summary>
+        /// <remarks>Choose a type that best suits your payment method.</remarks>
+        PaymentMethodType PaymentMethodType { get; }
 
         /// <summary>
         /// Gets the widget invoker for payment info. The payment info is displayed on checkout's payment page.

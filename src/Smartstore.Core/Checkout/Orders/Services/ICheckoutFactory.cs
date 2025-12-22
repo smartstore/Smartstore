@@ -17,6 +17,7 @@ namespace Smartstore.Core.Checkout.Orders
         public const string SelectShippingAddress = "SelectShippingAddress";
         public const string ShippingMethod = "ShippingMethod";
         public const string PaymentMethod = "PaymentMethod";
+        public const string PaymentCompleted = "PaymentCompleted";
         public const string Confirm = "Confirm";
         public const string Completed = "Completed";
     }

@@ -313,6 +313,12 @@ namespace Smartstore.Web.Controllers
         /// <summary>
         /// After completing the payment, the payment provider redirects the customer to this action method.
         /// </summary>
+        /// <remarks>
+        /// We have been redirected to third-party payment page via browser (JavaScript "window.location").
+        /// Cookies are thereby preserved. The customer and the checkout state object are the same as before the redirection.
+        /// Without cookies we would get a new guest customer and an empty checkout state object here. In this case, CheckoutState could not be used.
+        /// We would have to either cache state obejct for x minutes or store it in the database.
+        /// </remarks>
         public async Task<IActionResult> PaymentCompleted()
         {
             var result = await _checkoutWorkflow.CompletePaymentAsync(await CreateCheckoutContext());
