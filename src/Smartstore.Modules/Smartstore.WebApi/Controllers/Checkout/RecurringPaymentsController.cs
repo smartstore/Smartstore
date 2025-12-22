@@ -79,7 +79,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </summary>
         [HttpPost("RecurringPayments({key})/ProcessNextRecurringPayment"), ApiQueryable]
         [Permission(Permissions.Order.EditRecurringPayment)]
-        [Produces(Json)]
+        [Produces(MediaType.Json)]
         [ProducesResponseType(typeof(RecurringPayment), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
@@ -106,7 +106,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </summary>
         [HttpPost("RecurringPayments({key})/CancelRecurringPayment"), ApiQueryable]
         [Permission(Permissions.Order.EditRecurringPayment)]
-        [Produces(Json)]
+        [Produces(MediaType.Json)]
         [ProducesResponseType(typeof(RecurringPayment), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]

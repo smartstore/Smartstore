@@ -111,7 +111,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="notifyCustomer">A value indicating whether to send a notification message to the customer.</param>
         [HttpPost("Shipments({key})/Ship"), ApiQueryable]
         [Permission(Permissions.Order.EditShipment)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(Shipment), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
@@ -140,7 +140,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="notifyCustomer">A value indicating whether to send a notification message to the customer.</param>
         [HttpPost("Shipments({key})/Deliver"), ApiQueryable]
         [Permission(Permissions.Order.EditShipment)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(Shipment), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]

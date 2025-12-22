@@ -77,7 +77,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="languageId">The ID of the language in which localizable information is returned. Obtained form working language if 0.</param>
         [HttpGet("PaymentMethods/GetAllPaymentMethods(active={active},storeId={storeId},languageId={languageId})")]
         [Permission(Permissions.Configuration.PaymentMethod.Read)]
-        [Produces(Json)]
+        [Produces(MediaType.Json)]
         [ProducesResponseType(typeof(IEnumerable<ProviderInfo<PaymentMethodInfo>>), Status200OK)]
         [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> GetAllPaymentMethods(bool active, int storeId = 0, int languageId = 0)

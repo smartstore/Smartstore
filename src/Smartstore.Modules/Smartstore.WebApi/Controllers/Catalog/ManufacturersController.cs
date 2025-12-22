@@ -97,7 +97,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="discountIds">List of discount identifiers to apply.</param>
         [HttpPost("Manufacturers({key})/ApplyDiscounts"), ApiQueryable]
         [Permission(Permissions.Catalog.Manufacturer.Update)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(IQueryable<Discount>), Status200OK)]
         [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> ApplyDiscounts(int key,

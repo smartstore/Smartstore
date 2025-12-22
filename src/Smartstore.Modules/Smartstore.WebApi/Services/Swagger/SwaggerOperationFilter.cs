@@ -91,7 +91,7 @@ namespace Smartstore.Web.Api.Swagger
             // Add responses that can theoretically occur on any endpoint.
             helper.AddResponse(Status400BadRequest, Status500InternalServerError);
 
-            if (mi.DeclaringType.HasAttribute<AuthorizeAttribute>(true) || mi.HasAttribute<AuthorizeAttribute>(true))
+            if (mi.DeclaringType?.HasAttribute<AuthorizeAttribute>(true) == true || mi.HasAttribute<AuthorizeAttribute>(true))
             {
                 helper.AddResponse(Status401Unauthorized);
             }
@@ -459,7 +459,7 @@ namespace Smartstore.Web.Api.Swagger
             var consumesJson = helper.ActionDescriptor.FilterDescriptors
                 .Where(x => x.Filter is ConsumesAttribute)
                 .Select(x => (ConsumesAttribute)x.Filter)
-                .FirstOrDefault(x => x.ContentTypes.Any(type => type.EqualsNoCase(Json)));
+                .FirstOrDefault(x => x.ContentTypes.Any(type => type.EqualsNoCase(MediaType.Json)));
 
             if (consumesJson == null)
             {
@@ -526,7 +526,7 @@ namespace Smartstore.Web.Api.Swagger
                 //Description = string.Join("<br><br>", body.Schema.Properties.Select(p => $"**{p.Key}**: {FirstCharToLower(p.Value.Description)}")),
                 Content = new Dictionary<string, OpenApiMediaType>
                 {
-                    { Json, body }
+                    { MediaType.Json, body }
                 }
             };
 

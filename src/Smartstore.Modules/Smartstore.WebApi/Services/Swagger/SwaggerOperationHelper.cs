@@ -126,7 +126,7 @@ namespace Smartstore.Web.Api.Swagger
                 Required = required,
                 Content = new Dictionary<string, OpenApiMediaType>
                 {
-                    [Json] = new OpenApiMediaType
+                    [MediaType.Json] = new OpenApiMediaType
                     {
                         Schema = GenerateSchema(EntityType)
                     }
@@ -155,7 +155,7 @@ namespace Smartstore.Web.Api.Swagger
                 Description = description,
                 Content = new Dictionary<string, OpenApiMediaType>
                 {
-                    [Json] = new OpenApiMediaType
+                    [MediaType.Json] = new OpenApiMediaType
                     {
                         Schema = GenerateSchema(modelType)
                     }

@@ -124,7 +124,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="extraData">Optional extra data to apply, e.g. product attributes.</param>
         [HttpPost("ShoppingCartItems/AddToCart")]
         [Permission(Permissions.Cart.Read)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(IQueryable<ShoppingCartItem>), Status200OK)]
         public async Task<IActionResult> AddToCart(
             [FromODataBody, Required] int customerId,
@@ -313,7 +313,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="enabled" example="true">A value indicating whether to enable or disable the cart item.</param>
         [HttpPost("ShoppingCartItems({key})/UpdateItem")]
         [Permission(Permissions.Cart.Read)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(ShoppingCartItem), Status200OK)]
         public async Task<IActionResult> UpdateItem(int key,
             [FromODataBody] int? quantity = null,
@@ -364,7 +364,7 @@ namespace Smartstore.Web.Api.Controllers
         /// A value indicating whether to remove checkout attributes that require shipping, if the cart does not require shipping at all.
         /// </param>
         [HttpPost("ShoppingCartItems({key})/DeleteItem")]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(Status204NoContent)]
         public async Task<IActionResult> DeleteItem(int key,
             [FromODataBody] bool resetCheckoutData = false,
@@ -404,7 +404,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="storeId" example="0">Identifier to filter cart items by store. 0 to delete all items.</param>
         /// <response code="200">Number of deleted shopping cart items.</response>
         [HttpPost("ShoppingCartItems/DeleteCart")]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(int), Status200OK)]
         public async Task<IActionResult> DeleteCart(
             [FromODataBody, Required] int customerId,

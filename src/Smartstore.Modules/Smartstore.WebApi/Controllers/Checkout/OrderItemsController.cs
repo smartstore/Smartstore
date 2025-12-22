@@ -88,7 +88,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </summary>
         [HttpGet("OrderItems/GetShipmentInfo(id={id})")]
         [Permission(Permissions.Order.Read)]
-        [Produces(Json)]
+        [Produces(MediaType.Json)]
         [ProducesResponseType(typeof(OrderItemShipmentInfo), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         public async Task<IActionResult> GetShipmentInfo(int id)

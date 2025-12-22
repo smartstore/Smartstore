@@ -76,7 +76,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </param>
         [HttpPost("SpecificationAttributes({key})/ApplyCollectionGroupName"), ApiQueryable]
         [Permission(Permissions.Catalog.Attribute.Update)]
-        [Produces(Json)]
+        [Produces(MediaType.Json)]
         [ProducesResponseType(typeof(SpecificationAttribute), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]

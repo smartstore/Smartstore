@@ -166,7 +166,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </summary>
         [HttpGet("Orders/GetDetails(id={id})")]
         [Permission(Permissions.Order.Read)]
-        [Produces(Json)]
+        [Produces(MediaType.Json)]
         [ProducesResponseType(typeof(OrderDetails), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
@@ -249,7 +249,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </summary>
         [HttpGet("Orders/GetShipmentInfo(id={id})")]
         [Permission(Permissions.Order.Read)]
-        [Produces(Json)]
+        [Produces(MediaType.Json)]
         [ProducesResponseType(typeof(OrderShipmentInfo), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
@@ -320,7 +320,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </summary>
         [HttpPost("Orders({key})/PaymentPending"), ApiQueryable]
         [Permission(Permissions.Order.Update)]
-        [Produces(Json)]
+        [Produces(MediaType.Json)]
         [ProducesResponseType(typeof(Order), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
@@ -350,7 +350,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="paymentMethodName" example="Payments.PayPalStandard">The system name of a payment methid to be set.</param>
         [HttpPost("Orders({key})/PaymentPaid"), ApiQueryable]
         [Permission(Permissions.Order.Update)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(Order), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
@@ -385,7 +385,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </summary>
         [HttpPost("Orders({key})/PaymentCapture"), ApiQueryable]
         [Permission(Permissions.Order.Update)]
-        [Produces(Json)]
+        [Produces(MediaType.Json)]
         [ProducesResponseType(typeof(Order), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
@@ -413,7 +413,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </summary>
         [HttpPost("Orders({key})/PaymentRefund"), ApiQueryable]
         [Permission(Permissions.Order.Update)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(Order), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
@@ -476,7 +476,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="notifyCustomer">A value indicating whether to send a notification message to the customer about the cancelation.</param>
         [HttpPost("Orders({key})/Cancel"), ApiQueryable]
         [Permission(Permissions.Order.Update)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(Order), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
@@ -504,7 +504,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </summary>
         [HttpPost("Orders({key})/CompleteOrder"), ApiQueryable]
         [Permission(Permissions.Order.Update)]
-        [Produces(Json)]
+        [Produces(MediaType.Json)]
         [ProducesResponseType(typeof(Order), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
@@ -531,7 +531,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </summary>
         [HttpPost("Orders({key})/ReOrder"), ApiQueryable]
         [Permission(Permissions.Order.Update)]
-        [Produces(Json)]
+        [Produces(MediaType.Json)]
         [ProducesResponseType(typeof(Order), Status200OK)]
         [ProducesResponseType(Status403Forbidden)]
         [ProducesResponseType(Status404NotFound)]
@@ -569,7 +569,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <returns>New shipment or null if no shipment was added.</returns>
         [HttpPost("Orders({key})/AddShipment"), ApiQueryable]
         [Permission(Permissions.Order.EditShipment)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(Shipment), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]

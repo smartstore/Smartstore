@@ -11,7 +11,7 @@ global using Microsoft.EntityFrameworkCore;
 global using Smartstore.Core.Common;
 global using Smartstore.Core.Data;
 global using Smartstore.Core.Security;
-global using static System.Net.Mime.MediaTypeNames.Application;
+global using MediaType = System.Net.Mime.MediaTypeNames.Application;
 global using static Microsoft.AspNetCore.Http.StatusCodes;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;

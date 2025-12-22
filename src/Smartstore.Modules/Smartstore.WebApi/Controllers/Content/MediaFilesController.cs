@@ -108,7 +108,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </summary>
         /// <param name="path" example="content/my-file.jpg">The path of the file.</param>
         [HttpPost("MediaFiles/GetFileByPath")]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(FileItemInfo), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         public async Task<IActionResult> GetFileByPath([FromODataBody, Required] string path)
@@ -134,7 +134,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </summary>
         /// <param name="ids" example="[1,2,3]">Comma separated list of MediaFile identifiers.</param>
         [HttpGet("MediaFiles/GetFilesByIds(ids={ids})")]
-        [Produces(Json)]
+        [Produces(MediaType.Json)]
         [ProducesResponseType(typeof(IEnumerable<FileItemInfo>), Status200OK)]
         public async Task<IActionResult> GetFilesByIds([FromODataUri, Required] int[] ids)
         {
@@ -186,7 +186,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </summary>
         /// <param name="query">The query that defines the search criteria.</param>
         [HttpPost("MediaFiles/SearchFiles")]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(IEnumerable<FileItemInfo>), Status200OK)]
         public async Task<IActionResult> SearchFiles([FromODataBody] MediaSearchQuery query)
         {
@@ -212,7 +212,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </summary>
         /// <param name="query">The query that defines the filter criteria.</param>
         [HttpPost("MediaFiles/CountFiles")]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(int), Status200OK)]
         public async Task<IActionResult> CountFiles([FromODataBody] MediaSearchQuery query)
         {
@@ -233,7 +233,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </summary>
         /// <param name="filter">Filter criteria.</param>
         [HttpPost("MediaFiles/CountFilesGrouped")]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(MediaCountResult), Status200OK)]
         public async Task<IActionResult> CountFilesGrouped([FromODataBody] MediaFilesFilter filter)
         {
@@ -270,7 +270,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </summary>
         /// <param name="path" example="content/my-file.jpg">The path of the file.</param>
         [HttpPost("MediaFiles/FileExists")]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(bool), Status200OK)]
         public async Task<IActionResult> FileExists([FromODataBody, Required] string path)
         {
@@ -291,7 +291,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </summary>
         /// <param name="path" example="content/my-file.jpg">The path of the file.</param>
         [HttpPost("MediaFiles/CheckUniqueFileName")]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(CheckUniquenessResult), Status200OK)]
         public async Task<IActionResult> CheckUniqueFileName([FromODataBody, Required] string path)
         {
@@ -318,7 +318,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="duplicateFileHandling" example="0">A value indicating how to proceed if the destination file already exists.</param>
         [HttpPost("MediaFiles({key})/MoveFile")]
         [Permission(Permissions.Media.Update)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(FileItemInfo), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         public async Task<IActionResult> MoveFile(int key,
@@ -350,7 +350,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="duplicateFileHandling" example="0">A value indicating how to proceed if the destination file already exists.</param>
         [HttpPost("MediaFiles({key})/CopyFile")]
         [Permission(Permissions.Media.Update)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(MediaFileOperationResult), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         public async Task<IActionResult> CopyFile(int key,
@@ -390,7 +390,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="force" example="false">A value indicating whether to delete the file if it is referenced by another entity.</param>
         [HttpPost("MediaFiles({key})/DeleteFile")]
         [Permission(Permissions.Media.Delete)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(Status204NoContent)]
         [ProducesResponseType(Status404NotFound)]
         public async Task<IActionResult> DeleteFile(int key,
@@ -427,7 +427,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="duplicateFileHandling">A value of indicating how to proceed if the uploaded file already exists.</param>
         [HttpPost("MediaFiles/SaveFile")]
         [Permission(Permissions.Media.Upload)]
-        [Consumes("multipart/form-data"), Produces(Json)]
+        [Consumes("multipart/form-data"), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(FileItemInfo), Status200OK)]
         [ProducesResponseType(Status415UnsupportedMediaType)]
         public async Task<IActionResult> SaveFile(

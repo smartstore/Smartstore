@@ -212,7 +212,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="relatedkey">The Address identifier.</param>
         [HttpPost("Customers({key})/Addresses({relatedkey})")]
         [Permission(Permissions.Customer.EditAddress)]
-        [Produces(Json)]
+        [Produces(MediaType.Json)]
         [ProducesResponseType(typeof(Address), Status200OK)]
         [ProducesResponseType(typeof(Address), Status201Created)]
         [ProducesResponseType(Status404NotFound)]

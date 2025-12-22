@@ -224,7 +224,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="relatedkey" example="123">The category identifier.</param>
         [HttpPost("Products({key})/ProductCategories({relatedkey})")]
         [Permission(Permissions.Catalog.Product.EditCategory)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(ProductCategory), Status200OK)]
         [ProducesResponseType(typeof(ProductCategory), Status201Created)]
         [ProducesResponseType(Status404NotFound)]
@@ -264,7 +264,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="relatedkey" example="234">The manufacturer identifier.</param>
         [HttpPost("Products({key})/ProductManufacturers({relatedkey})")]
         [Permission(Permissions.Catalog.Product.EditManufacturer)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(ProductManufacturer), Status200OK)]
         [ProducesResponseType(typeof(ProductManufacturer), Status201Created)]
         [ProducesResponseType(Status404NotFound)]
@@ -304,7 +304,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="relatedkey" example="345">The media file identifier.</param>
         [HttpPost("Products({key})/ProductMediaFiles({relatedkey})")]
         [Permission(Permissions.Catalog.Product.EditPicture)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(ProductMediaFile), Status200OK)]
         [ProducesResponseType(typeof(ProductMediaFile), Status201Created)]
         [ProducesResponseType(Status404NotFound)]
@@ -350,7 +350,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="tagNames">List of tag names to apply.</param>
         [HttpPost("Products({key})/UpdateProductTags"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Update)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(IQueryable<ProductTag>), Status200OK)]
         [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> UpdateProductTags(int key,
@@ -379,7 +379,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="discountIds">List of discount identifiers to apply.</param>
         [HttpPost("Products({key})/ApplyDiscounts"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Update)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(IQueryable<Discount>), Status200OK)]
         [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> ApplyDiscounts(int key,
@@ -413,7 +413,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="targetCurrencyId">The target currency to use for money conversion. Obtained from IWorkContext.WorkingCurrency if 0.</param>
         [HttpPost("Products({key})/CalculatePrice")]
         [Permission(Permissions.Catalog.Product.Read)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(CalculatedProductPrice), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         public async Task<IActionResult> CalculatePrice(int key,
@@ -467,7 +467,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </summary>
         [HttpPost("Products({key})/CreateAttributeCombinations"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.EditVariant)]
-        [Produces(Json)]
+        [Produces(MediaType.Json)]
         [ProducesResponseType(typeof(IQueryable<ProductVariantAttributeCombination>), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         public async Task<IActionResult> CreateAttributeCombinations(int key)
@@ -496,7 +496,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </param>
         [HttpPost("Products({key})/ManageAttributes"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.EditVariant)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(IQueryable<ProductVariantAttribute>), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         public async Task<IActionResult> ManageAttributes(int key,
@@ -667,7 +667,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </remarks>
         [HttpPost("Products({key})/SaveFiles"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.EditPicture)]
-        [Consumes("multipart/form-data"), Produces(Json)]
+        [Consumes("multipart/form-data"), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(IQueryable<ProductMediaFile>), Status200OK)]
         [ProducesResponseType(Status415UnsupportedMediaType)]
         public async Task<IActionResult> SaveFiles(int key,
@@ -766,7 +766,7 @@ namespace Smartstore.Web.Api.Controllers
         [HttpPost("Products/Search")]
         [ApiQueryable(AllowedQueryOptions = AllowedQueryOptions.Expand | AllowedQueryOptions.Count | AllowedQueryOptions.Select, EnsureStableOrdering = false)]
         [Permission(Permissions.Catalog.Product.Read)]
-        [Produces(Json)]
+        [Produces(MediaType.Json)]
         [ProducesResponseType(typeof(IQueryable<Product>), Status200OK)]
         [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> Search([FromQuery] CatalogSearchQueryModel model)
@@ -812,7 +812,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </remarks>
         [HttpGet("Products/RecycleBin"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
-        [Produces(Json)]
+        [Produces(MediaType.Json)]
         [ProducesResponseType(typeof(IQueryable<Product>), Status200OK)]
         public IQueryable<Product> RecycleBin()
         {
@@ -831,7 +831,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </param>
         [HttpPost("Products/DeletePermanent")]
         [Permission(Permissions.Catalog.Product.Delete)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(DeletionResult), Status200OK)]
         [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> DeletePermanent([FromODataBody, Required] IEnumerable<int> productIds)
@@ -864,7 +864,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <returns>Number of restored products.</returns>
         [HttpPost("Products/Restore")]
         [Permission(Permissions.Catalog.Product.Create)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(int), Status200OK)]
         [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> Restore(

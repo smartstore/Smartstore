@@ -90,7 +90,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="startImport">A value indicating whether the import should be started.</param>
         [HttpPost("ImportProfiles({key})/SaveFiles"), ApiQueryable]
         [Permission(Permissions.Configuration.Import.Execute)]
-        [Consumes("multipart/form-data"), Produces(Json)]
+        [Consumes("multipart/form-data"), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(ImportProfile), Status200OK)]
         [ProducesResponseType(Status415UnsupportedMediaType)]
         [ProducesResponseType(Status422UnprocessableEntity)]

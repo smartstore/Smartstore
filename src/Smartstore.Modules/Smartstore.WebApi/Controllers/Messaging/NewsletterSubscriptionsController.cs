@@ -71,7 +71,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </summary>
         /// <remarks>Also sends an activation message to the related email address.</remarks>
         [HttpPost("NewsletterSubscriptions({key})/Subscribe")]
-        [Produces(Json)]
+        [Produces(MediaType.Json)]
         [ProducesResponseType(typeof(NewsletterSubscription), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
@@ -85,7 +85,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </summary>
         /// <remarks>Also sends a deactivation message to the related email address.</remarks>
         [HttpPost("NewsletterSubscriptions({key})/Unsubscribe")]
-        [Produces(Json)]
+        [Produces(MediaType.Json)]
         [ProducesResponseType(typeof(NewsletterSubscription), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]

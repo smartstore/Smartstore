@@ -100,7 +100,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </summary>
         /// <param name="path" example="content/my-folder">The path of the folder.</param>
         [HttpPost("MediaFolders/FolderExists")]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(bool), Status200OK)]
         public IActionResult FolderExists([FromODataBody, Required] string path)
         {
@@ -121,7 +121,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </summary>
         /// <param name="path" example="content/my-folder">The path of the folder.</param>
         [HttpPost("MediaFolders/CheckUniqueFolderName")]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(CheckUniquenessResult), Status200OK)]
         public IActionResult CheckUniqueFolderName([FromODataBody, Required] string path)
         {
@@ -145,7 +145,7 @@ namespace Smartstore.Web.Api.Controllers
         /// Gets the root folder node.
         /// </summary>
         [HttpGet("MediaFolders/GetRootNode")]
-        [Produces(Json)]
+        [Produces(MediaType.Json)]
         [ProducesResponseType(typeof(FolderNodeInfo), Status200OK)]
         public IActionResult GetRootNode()
         {
@@ -170,7 +170,7 @@ namespace Smartstore.Web.Api.Controllers
         /// </summary>
         /// <param name="path" example="content/my-folder">The path of the folder.</param>
         [HttpPost("MediaFolders/GetNodeByPath")]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(FolderNodeInfo), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         public IActionResult GetNodeByPath([FromODataBody, Required] string path)
@@ -197,7 +197,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="path" example="content/my-folder">The path of the folder.</param>
         [HttpPost("MediaFolders/CreateFolder")]
         [Permission(Permissions.Media.Update)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(FolderNodeInfo), Status201Created)]
         public async Task<IActionResult> CreateFolder([FromODataBody, Required] string path)
         {
@@ -221,7 +221,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="destinationPath" example="content/my-renamed-folder">The destination folder path.</param>
         [HttpPost("MediaFolders/MoveFolder")]
         [Permission(Permissions.Media.Update)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(FolderNodeInfo), Status200OK)]
         public async Task<IActionResult> MoveFolder(
             [FromODataBody, Required] string path,
@@ -247,7 +247,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="duplicateEntryHandling" example="0">A value indicating how to proceed if the destination folder already exists.</param>
         [HttpPost("MediaFolders/CopyFolder")]
         [Permission(Permissions.Media.Update)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(MediaFolderOperationResult), Status200OK)]
         public async Task<IActionResult> CopyFolder(
             [FromODataBody, Required] string path,
@@ -289,7 +289,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="fileHandling" example="0">A value indicating how to proceed with the files of the deleted folder.</param>
         [HttpPost("MediaFolders/DeleteFolder")]
         [Permission(Permissions.Media.Delete)]
-        [Consumes(Json), Produces(Json)]
+        [Consumes(MediaType.Json), Produces(MediaType.Json)]
         [ProducesResponseType(typeof(MediaFolderDeleteResult), Status200OK)]
         public async Task<IActionResult> DeleteFolder(
             [FromODataBody, Required] string path,
