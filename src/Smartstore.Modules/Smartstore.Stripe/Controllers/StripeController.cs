@@ -423,7 +423,7 @@ namespace Smartstore.StripeElements.Controllers
                         // Check if full order amount was captured.
                         if (order.OrderTotal == convertedAmount)
                         {
-                            if (settings.CaptureMethod == "automatic" && order.CanMarkOrderAsAuthorized())
+                            if (settings.CaptureMethod == "automatic" && order.CanMarkOrderAsPaid())
                             {
                                 await _orderProcessingService.MarkOrderAsPaidAsync(order);
                             }
