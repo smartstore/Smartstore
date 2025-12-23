@@ -41,292 +41,265 @@ using Smartstore.Web.Razor;
 using Smartstore.Web.Rendering;
 using Smartstore.Web.Routing;
 
-namespace Smartstore.Web
+namespace Smartstore.Web;
+
+internal class MvcStarter : StarterBase
 {
-    internal class MvcStarter : StarterBase
+    public MvcStarter()
     {
-        public MvcStarter()
-        {
-            RunAfter<WebStarter>();
-        }
+        RunAfter<WebStarter>();
+    }
 
-        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
-        {
-            services.TryAddEnumerable(
-                ServiceDescriptor.Singleton<IFilterProvider, ConditionalFilterProvider>());
+    public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
+    {
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IFilterProvider, ConditionalFilterProvider>());
 
-            services.TryAddEnumerable(
-                ServiceDescriptor.Singleton<IConfigureOptions<RouteOptions>, RouteOptionsConfigurer>());
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IConfigureOptions<RouteOptions>, RouteOptionsConfigurer>());
 
-            services.AddRouting();
+        services.AddRouting();
 
-            // Replace BsonTempDataSerializer that was registered by AddNewtonsoftJson()
-            // with our own serializer which is capable of serializing more stuff.
-            services.AddSingleton<TempDataSerializer, SmartTempDataSerializer>();
+        // Replace BsonTempDataSerializer that was registered by AddNewtonsoftJson()
+        // with our own serializer which is capable of serializing more stuff.
+        services.AddSingleton<TempDataSerializer, SmartTempDataSerializer>();
 
-            // Replaces inbuilt IHtmlGenerator with SmartHtmlGenerator
-            // that is capable of applying custom Bootstrap classes to generated html.
-            services.AddSingleton<IHtmlGenerator, SmartHtmlGenerator>();
+        // Replaces inbuilt IHtmlGenerator with SmartHtmlGenerator
+        // that is capable of applying custom Bootstrap classes to generated html.
+        services.AddSingleton<IHtmlGenerator, SmartHtmlGenerator>();
 
-            // Replaces inbuilt IFileVersionProvider with SmartFileVersionProvider
-            // that uses IAssetFileProvider and creates fast & simple hash codes utilizing ETagUtility.
-            services.AddSingleton<IFileVersionProvider, SmartFileVersionProvider>();
+        // Replaces inbuilt IFileVersionProvider with SmartFileVersionProvider
+        // that uses IAssetFileProvider and creates fast & simple hash codes utilizing ETagUtility.
+        services.AddSingleton<IFileVersionProvider, SmartFileVersionProvider>();
 
-            // ActionResult executor for LazyFileContentResult
-            services.AddSingleton<IActionResultExecutor<LazyFileContentResult>, LazyFileContentResultExecutor>();
-        }
+        // ActionResult executor for LazyFileContentResult
+        services.AddSingleton<IActionResultExecutor<LazyFileContentResult>, LazyFileContentResultExecutor>();
+    }
 
-        public override void ConfigureMvc(IMvcBuilder mvcBuilder, IServiceCollection services, IApplicationContext appContext)
-        {
-            // Populate application parts with modules
-            mvcBuilder.PartManager.PopulateModules(appContext);
+    public override void ConfigureMvc(IMvcBuilder mvcBuilder, IServiceCollection services, IApplicationContext appContext)
+    {
+        // Populate application parts with modules
+        mvcBuilder.PartManager.PopulateModules(appContext);
 
-            var validatorLanguageManager = new ValidatorLanguageManager(appContext);
+        var validatorLanguageManager = new ValidatorLanguageManager(appContext);
 
-            mvcBuilder
-                .AddMvcOptions(o =>
+        mvcBuilder
+            .AddMvcOptions(o =>
+            {
+                o.Conventions.Add(new EndpointFilterModelConvention());
+
+                o.Filters.Add<ModulePopulatorFilter>(int.MinValue);
+                o.Filters.AddService<IViewDataAccessor>(int.MinValue);
+                
+                o.ModelBinderProviders.Insert(0, new InvariantFloatingPointTypeModelBinderProvider());
+
+                // Register custom metadata provider
+                o.ModelMetadataDetailsProviders.Add(new AdditionalMetadataProvider());
+
+                if (appContext.IsInstalled)
                 {
-                    o.Conventions.Add(new EndpointFilterModelConvention());
+                    o.ModelMetadataDetailsProviders.Add(new SmartDisplayMetadataProvider());
 
-                    o.Filters.Add<ModulePopulatorFilter>(int.MinValue);
-                    o.Filters.AddService<IViewDataAccessor>(int.MinValue);
-                    
-                    o.ModelBinderProviders.Insert(0, new InvariantFloatingPointTypeModelBinderProvider());
-
-                    // Register custom metadata provider
-                    o.ModelMetadataDetailsProviders.Add(new AdditionalMetadataProvider());
-
-                    if (appContext.IsInstalled)
+                    // Localized messages
+                    o.ModelBindingMessageProvider.SetValueMustBeANumberAccessor(x =>
                     {
-                        o.ModelMetadataDetailsProviders.Add(new SmartDisplayMetadataProvider());
-
-                        // Localized messages
-                        o.ModelBindingMessageProvider.SetValueMustBeANumberAccessor(x =>
-                        {
-                            return validatorLanguageManager.GetErrorMessage("MustBeANumber", x);
-                        });
-                        o.ModelBindingMessageProvider.SetNonPropertyValueMustBeANumberAccessor(() =>
-                        {
-                            return validatorLanguageManager.GetString("NonPropertyMustBeANumber");
-                        });
-                    }
-                })
-                .AddRazorOptions(o =>
-                {
-                    if (appContext.IsInstalled)
+                        return validatorLanguageManager.GetErrorMessage("MustBeANumber", x);
+                    });
+                    o.ModelBindingMessageProvider.SetNonPropertyValueMustBeANumberAccessor(() =>
                     {
-                        o.ViewLocationExpanders.Add(new ThemeViewLocationExpander());
-                        o.ViewLocationExpanders.Add(new ModuleViewLocationExpander(appContext.ModuleCatalog));
-                        o.ViewLocationExpanders.Add(new PartialViewLocationExpander());
-                    }
-                    
-                    if (appContext.AppConfiguration.EnableLocalizedViews)
-                    {
-                        o.ViewLocationExpanders.Add(new LanguageViewLocationExpander(LanguageViewLocationExpanderFormat.Suffix));
-                    }
-                })
-                .AddJsonOptions(o =>
-                {
-                    var options = o.JsonSerializerOptions;
-                    
-                    // Apply NSJ default policy (which does nothing)
-                    options.PropertyNamingPolicy = null;
-
-                    // Cycles become null'd instead of throwing.
-                    // NSJ: ReferenceLoopHandling.Ignore
-                    options.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-
-                    // STJ supports a global preference (net8+ / net10 docs shown here).
-                    // Replace is the closest equivalent to "create new instance instead of populating existing".
-                    // NSJ: ObjectCreationHandling.Replace
-                    options.PreferredObjectCreationHandling = JsonObjectCreationHandling.Replace;
-
-                    // NSJ: NullValueHandling.Ignore
-                    options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-
-                    // NSJ: MaxDepth
-                    options.MaxDepth = 32;
-
-                    // Add support for DataContract attributes
-                    options.TypeInfoResolver.WithAddedModifier(DataContractModifiers.ApplyIgnoreDataMember);
-                    options.TypeInfoResolver.WithAddedModifier(DataContractModifiers.ApplyDataMemberNameAndOrder);
-
-                    // Serialize enums as strings, not as ints.
-                    options.Converters.Add(new JsonStringEnumConverter(
-                        namingPolicy: null,
-                        allowIntegerValues: true));
-
-                    options.Converters.Add(new UtcDateTimeJsonConverter());
-                })
-                .AddNewtonsoftJson(o =>
-                {
-                    var settings = o.SerializerSettings;
-                    settings.ContractResolver = SmartContractResolver.Default;
-                    settings.TypeNameHandling = TypeNameHandling.None;
-                    settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                    settings.ObjectCreationHandling = ObjectCreationHandling.Replace;
-                    settings.NullValueHandling = NullValueHandling.Ignore;
-                    settings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
-                    settings.MaxDepth = 32;
-                    settings.Converters.Add(new UTCDateTimeConverter(new IsoDateTimeConverter()));
-                    settings.Converters.Add(new StringEnumConverter());
-                })
-                .AddControllersAsServices()
-                .AddViewOptions(o =>
-                {
-                    o.HtmlHelperOptions.CheckBoxHiddenInputRenderMode = CheckBoxHiddenInputRenderMode.Inline;
-
-                    // Client validation (must come last - after "FluentValidationClientModelValidatorProvider")
-                    o.ClientModelValidatorProviders.Add(new SmartClientModelValidatorProvider(appContext, validatorLanguageManager));
-                });
-
-            // Add and configure FluentValidator
-            AddFluentValidator(services, appContext, validatorLanguageManager);
-
-            // Add Razor runtime compilation if enabled
-            if (appContext.AppConfiguration.EnableRazorRuntimeCompilation)
+                        return validatorLanguageManager.GetString("NonPropertyMustBeANumber");
+                    });
+                }
+            })
+            .AddRazorOptions(o =>
             {
-                mvcBuilder.AddRazorRuntimeCompilation(o =>
+                if (appContext.IsInstalled)
                 {
-                    o.FileProviders.Clear();
-                    o.FileProviders.Add(new RazorRuntimeFileProvider(appContext, false));
-                });
-            }
-
-            // Add TempData feature
-            if (appContext.AppConfiguration.UseCookieTempDataProvider)
-            {
-                mvcBuilder.AddCookieTempDataProvider(o =>
+                    o.ViewLocationExpanders.Add(new ThemeViewLocationExpander());
+                    o.ViewLocationExpanders.Add(new ModuleViewLocationExpander(appContext.ModuleCatalog));
+                    o.ViewLocationExpanders.Add(new PartialViewLocationExpander());
+                }
+                
+                if (appContext.AppConfiguration.EnableLocalizedViews)
                 {
-                    o.Cookie.Name = CookieNames.TempData;
-                    o.Cookie.IsEssential = true;
-                });
-            }
-            else
+                    o.ViewLocationExpanders.Add(new LanguageViewLocationExpander(LanguageViewLocationExpanderFormat.Suffix));
+                }
+            })
+            .AddJsonOptions(o =>
             {
-                mvcBuilder.AddSessionStateTempDataProvider();
-            }
-        }
+                var options = o.JsonSerializerOptions;
+                options.ApplyFrom(SmartJsonOptions.Default);
+                options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
+                options.Converters.Add(new UtcDateTimeJsonConverter());
+            })
+            .AddNewtonsoftJson(o =>
+            {
+                var settings = o.SerializerSettings;
+                settings.ContractResolver = SmartContractResolver.Default;
+                settings.TypeNameHandling = TypeNameHandling.None;
+                settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                settings.ObjectCreationHandling = ObjectCreationHandling.Replace;
+                settings.NullValueHandling = NullValueHandling.Ignore;
+                settings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
+                settings.MaxDepth = 32;
+                settings.Converters.Add(new UTCDateTimeConverter(new IsoDateTimeConverter()));
+                settings.Converters.Add(new StringEnumConverter());
+            })
+            .AddControllersAsServices()
+            .AddViewOptions(o =>
+            {
+                o.HtmlHelperOptions.CheckBoxHiddenInputRenderMode = CheckBoxHiddenInputRenderMode.Inline;
 
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
+                // Client validation (must come last - after "FluentValidationClientModelValidatorProvider")
+                o.ClientModelValidatorProviders.Add(new SmartClientModelValidatorProvider(appContext, validatorLanguageManager));
+            });
+
+        // Add and configure FluentValidator
+        AddFluentValidator(services, appContext, validatorLanguageManager);
+
+        // Add Razor runtime compilation if enabled
+        if (appContext.AppConfiguration.EnableRazorRuntimeCompilation)
         {
-            // Register all module entry types in service container
-            builder.RegisterModule(new ModularityModule(appContext));
-
-            builder.RegisterType<DefaultViewDataAccessor>().As<IViewDataAccessor>().InstancePerLifetimeScope();
-            builder.RegisterType<GridCommandStateStore>().As<IGridCommandStateStore>().InstancePerLifetimeScope();
-            builder.RegisterType<MultiStoreSettingHelper>().AsSelf().InstancePerLifetimeScope();
-
-            // Convenience: Register IUrlHelper as transient dependency.
-            builder.Register<IUrlHelper>(ResolveUrlHelper).InstancePerDependency();
-
-            if (appContext.IsInstalled)
+            mvcBuilder.AddRazorRuntimeCompilation(o =>
             {
-                builder.RegisterDecorator<SmartLinkGenerator, LinkGenerator>();
-                builder.RegisterType<DefaultAIToolHtmlGenerator>().As<IAIToolHtmlGenerator>().InstancePerDependency();
-            }
-        }
-
-        public override void MapRoutes(EndpointRoutingBuilder builder)
-        {
-            builder.MapRoutes(StarterOrdering.DefaultRoute, routes =>
-            {
-                routes.MapControllerRoute(
-                    name: "areas",
-                    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
-
-                routes.MapXmlSitemap();
-
-                routes.MapLocalizedControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                o.FileProviders.Clear();
+                o.FileProviders.Add(new RazorRuntimeFileProvider(appContext, false));
             });
         }
 
-        private static void AddFluentValidator(IServiceCollection services, IApplicationContext appContext, ILanguageManager languageManager)
+        // Add TempData feature
+        if (appContext.AppConfiguration.UseCookieTempDataProvider)
         {
-            services
-                .AddFluentValidationAutoValidation()
-                .AddFluentValidationClientsideAdapters()
-                .AddValidatorsFromAssemblies(appContext.TypeScanner.Assemblies);
-
-            var opts = ValidatorOptions.Global;
-
-            // It sais 'not recommended', but who cares: SAVE RAM!
-            opts.DisableAccessorCache = true;
-
-            // Language Manager
-            opts.LanguageManager = languageManager;
-
-            // Display name resolver
-            var originalDisplayNameResolver = opts.DisplayNameResolver;
-            opts.DisplayNameResolver = (type, member, expression) =>
+            mvcBuilder.AddCookieTempDataProvider(o =>
             {
-                string name = null;
+                o.Cookie.Name = CookieNames.TempData;
+                o.Cookie.IsEssential = true;
+            });
+        }
+        else
+        {
+            mvcBuilder.AddSessionStateTempDataProvider();
+        }
+    }
 
-                if (expression != null && member != null)
-                {
-                    var metadataProvider = EngineContext.Current.Application.Services.Resolve<IModelMetadataProvider>();
-                    var metadata = metadataProvider.GetMetadataForProperty(member.DeclaringType, member.Name);
-                    name = metadata.DisplayName;
-                }
+    public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
+    {
+        // Register all module entry types in service container
+        builder.RegisterModule(new ModularityModule(appContext));
 
-                return name ?? originalDisplayNameResolver.Invoke(type, member, expression);
-            };
+        builder.RegisterType<DefaultViewDataAccessor>().As<IViewDataAccessor>().InstancePerLifetimeScope();
+        builder.RegisterType<GridCommandStateStore>().As<IGridCommandStateStore>().InstancePerLifetimeScope();
+        builder.RegisterType<MultiStoreSettingHelper>().AsSelf().InstancePerLifetimeScope();
+
+        // Convenience: Register IUrlHelper as transient dependency.
+        builder.Register<IUrlHelper>(ResolveUrlHelper).InstancePerDependency();
+
+        if (appContext.IsInstalled)
+        {
+            builder.RegisterDecorator<SmartLinkGenerator, LinkGenerator>();
+            builder.RegisterType<DefaultAIToolHtmlGenerator>().As<IAIToolHtmlGenerator>().InstancePerDependency();
+        }
+    }
+
+    public override void MapRoutes(EndpointRoutingBuilder builder)
+    {
+        builder.MapRoutes(StarterOrdering.DefaultRoute, routes =>
+        {
+            routes.MapControllerRoute(
+                name: "areas",
+                pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
+            routes.MapXmlSitemap();
+
+            routes.MapLocalizedControllerRoute(
+                name: "default",
+                pattern: "{controller=Home}/{action=Index}/{id?}");
+        });
+    }
+
+    private static void AddFluentValidator(IServiceCollection services, IApplicationContext appContext, ILanguageManager languageManager)
+    {
+        services
+            .AddFluentValidationAutoValidation()
+            .AddFluentValidationClientsideAdapters()
+            .AddValidatorsFromAssemblies(appContext.TypeScanner.Assemblies);
+
+        var opts = ValidatorOptions.Global;
+
+        // It sais 'not recommended', but who cares: SAVE RAM!
+        opts.DisableAccessorCache = true;
+
+        // Language Manager
+        opts.LanguageManager = languageManager;
+
+        // Display name resolver
+        var originalDisplayNameResolver = opts.DisplayNameResolver;
+        opts.DisplayNameResolver = (type, member, expression) =>
+        {
+            string name = null;
+
+            if (expression != null && member != null)
+            {
+                var metadataProvider = EngineContext.Current.Application.Services.Resolve<IModelMetadataProvider>();
+                var metadata = metadataProvider.GetMetadataForProperty(member.DeclaringType, member.Name);
+                name = metadata.DisplayName;
+            }
+
+            return name ?? originalDisplayNameResolver.Invoke(type, member, expression);
+        };
+    }
+
+    private static IUrlHelper ResolveUrlHelper(IComponentContext c)
+    {
+        var httpContext = c.Resolve<IHttpContextAccessor>().HttpContext;
+
+        if (httpContext?.Items == null)
+        {
+            throw new InvalidOperationException($"Cannot resolve '{nameof(IUrlHelper)}' because '{nameof(HttpContext)}.{nameof(HttpContext.Items)}' was null. Pass '{typeof(Lazy<IUrlHelper>).Name}' or '{typeof(IUrlHelperFactory).Name}' to the constructor instead.");
         }
 
-        private static IUrlHelper ResolveUrlHelper(IComponentContext c)
+        if (httpContext.Items.TryGetValue(typeof(IUrlHelper), out var value) && value is IUrlHelper urlHelper)
         {
-            var httpContext = c.Resolve<IHttpContextAccessor>().HttpContext;
-
-            if (httpContext?.Items == null)
-            {
-                throw new InvalidOperationException($"Cannot resolve '{nameof(IUrlHelper)}' because '{nameof(HttpContext)}.{nameof(HttpContext.Items)}' was null. Pass '{typeof(Lazy<IUrlHelper>).Name}' or '{typeof(IUrlHelperFactory).Name}' to the constructor instead.");
-            }
-
-            if (httpContext.Items.TryGetValue(typeof(IUrlHelper), out var value) && value is IUrlHelper urlHelper)
-            {
-                // We know for sure that IUrlHelper is saved in HttpContext.Items
-                return urlHelper;
-            }
-
-            // No ActionContext. Create an IUrlHelper that can work outside of routing endpoints (e.g. in middlewares)
-            var endpoint = httpContext.GetEndpoint();
-            var routeData = httpContext.GetRouteData() ?? new RouteData();
-            var actionDescriptor = endpoint?.Metadata.GetMetadata<ActionDescriptor>() ?? new ActionDescriptor();
-
-            var linkGenerator = c.Resolve<LinkGenerator>();
-            var actionContext = new ActionContext(httpContext, routeData, actionDescriptor);
-
-            // Better not to interfere with UrlHelperFactory, so don't save in Items.
-            // httpContext.Items[typeof(IUrlHelper)] = new SmartUrlHelper(actionContext, linkGenerator);
-
-            return new SmartUrlHelper(actionContext, linkGenerator);
+            // We know for sure that IUrlHelper is saved in HttpContext.Items
+            return urlHelper;
         }
 
-        internal sealed class RouteOptionsConfigurer : IConfigureOptions<RouteOptions>
+        // No ActionContext. Create an IUrlHelper that can work outside of routing endpoints (e.g. in middlewares)
+        var endpoint = httpContext.GetEndpoint();
+        var routeData = httpContext.GetRouteData() ?? new RouteData();
+        var actionDescriptor = endpoint?.Metadata.GetMetadata<ActionDescriptor>() ?? new ActionDescriptor();
+
+        var linkGenerator = c.Resolve<LinkGenerator>();
+        var actionContext = new ActionContext(httpContext, routeData, actionDescriptor);
+
+        // Better not to interfere with UrlHelperFactory, so don't save in Items.
+        // httpContext.Items[typeof(IUrlHelper)] = new SmartUrlHelper(actionContext, linkGenerator);
+
+        return new SmartUrlHelper(actionContext, linkGenerator);
+    }
+
+    internal sealed class RouteOptionsConfigurer : IConfigureOptions<RouteOptions>
+    {
+        private readonly IApplicationContext _appContext;
+
+        public RouteOptionsConfigurer(IApplicationContext appContext)
         {
-            private readonly IApplicationContext _appContext;
+            _appContext = appContext;
+        }
 
-            public RouteOptionsConfigurer(IApplicationContext appContext)
+        public void Configure(RouteOptions options)
+        {
+            if (_appContext.IsInstalled)
             {
-                _appContext = appContext;
+                var seoSettings = _appContext.Services.Resolve<SeoSettings>();
+                options.AppendTrailingSlash = seoSettings.AppendTrailingSlashToUrls;
+                options.LowercaseUrls = true; // seoSettings.LowercaseUrls;
+                options.LowercaseQueryStrings = false; // seoSettings.LowercaseQueryStrings;
             }
-
-            public void Configure(RouteOptions options)
+            else
             {
-                if (_appContext.IsInstalled)
-                {
-                    var seoSettings = _appContext.Services.Resolve<SeoSettings>();
-                    options.AppendTrailingSlash = seoSettings.AppendTrailingSlashToUrls;
-                    options.LowercaseUrls = true; // seoSettings.LowercaseUrls;
-                    options.LowercaseQueryStrings = false; // seoSettings.LowercaseQueryStrings;
-                }
-                else
-                {
-                    options.AppendTrailingSlash = true;
-                    options.LowercaseUrls = true;
-                }
+                options.AppendTrailingSlash = true;
+                options.LowercaseUrls = true;
             }
         }
     }

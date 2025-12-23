@@ -1,5 +1,7 @@
 ﻿#nullable enable
 
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
@@ -14,6 +16,7 @@ namespace Smartstore.Core.AI.Metadata
         private readonly IMemoryCache _cache;
         private readonly IApplicationContext _appContext;
         private readonly JsonSerializerSettings _serializerSettings;
+        private readonly JsonSerializerOptions _jsonOptions;
 
         public JsonAIMetadataLoader(IMemoryCache cache, IApplicationContext appContext)
         {
@@ -26,6 +29,11 @@ namespace Smartstore.Core.AI.Metadata
             {
                 NamingStrategy = new CamelCaseNamingStrategy()
             };
+
+            _jsonOptions = SmartJsonOptions.CamelCased.Create(o =>
+            {
+                o.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
+            });
         }
 
         protected static string BuildCacheKey(string moduleSystemName)

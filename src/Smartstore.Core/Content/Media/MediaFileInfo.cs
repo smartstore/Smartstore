@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileProviders;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.IO;
+using Smartstore.Json.Converters;
 using NSJ = Newtonsoft.Json;
 
 namespace Smartstore.Core.Content.Media
@@ -136,7 +137,6 @@ namespace Smartstore.Core.Content.Media
         /// Gets the relative file URL.
         /// </summary>
         /// <example>/media/6/catalog/my-picture.jpg</example>
-        //[NSJ.JsonProperty("url", NullValueHandling = NSJ.NullValueHandling.Ignore)]
         [JsonInclude, JsonPropertyName("url"), NSJ.JsonRequired]
         internal string Url => GetUrl(0, string.Empty);
 
@@ -144,7 +144,6 @@ namespace Smartstore.Core.Content.Media
         /// Gets the relative thumbnail URL.
         /// </summary>
         /// <example>/media/6/catalog/my-picture.jpg?size=256</example>
-        //[NSJ.JsonProperty("thumbUrl", NullValueHandling = NSJ.NullValueHandling.Ignore)]
         [JsonInclude, JsonPropertyName("thumbUrl"), NSJ.JsonRequired]
         internal string ThumbUrl => GetUrl(ThumbSize, string.Empty);
 
@@ -235,6 +234,7 @@ namespace Smartstore.Core.Content.Media
             => File.Extension != null ? "." + File.Extension : null;
 
         [JsonPropertyName("dimensions")]
+        [JsonConverter(typeof(TypeConverterJsonConverter<Size>))]
         public Size Size
         {
             get => _size;

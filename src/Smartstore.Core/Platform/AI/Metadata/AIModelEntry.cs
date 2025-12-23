@@ -2,7 +2,6 @@
 
 using System.ComponentModel;
 using Newtonsoft.Json;
-using Smartstore.Imaging;
 
 namespace Smartstore.Core.AI.Metadata
 {
