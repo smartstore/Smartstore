@@ -162,7 +162,15 @@
                         if (response.success) {
                             // Redirect to a payment provider page to confirm the payment.
                             if (!_.isEmpty(response.redirectUrl)) {
-                                window.location = response.redirectUrl;
+                                const paymentConfirmedEvent = jQuery.Event('paymentConfirmed');
+                                paymentConfirmedEvent.redirectUrl = response.redirectUrl;
+                                paymentConfirmedEvent.redirect = true;
+
+                                $(document).trigger(paymentConfirmedEvent);
+
+                                if (true === paymentConfirmedEvent.redirect) {
+                                    window.location = response.redirectUrl;
+                                }
                             }
                         }
                         else {
