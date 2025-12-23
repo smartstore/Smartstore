@@ -94,6 +94,7 @@
     --badge-padding-x: 0.125rem !important;
     --badge-padding-y: 0.125rem !important;
     --badge-font-size: 0.6875rem;
+    --badge-content-shift: 0px;
     font-size: var(--badge-font-size);
     line-height: var(--badge-line-height);
     min-width: var(--badge-height);
