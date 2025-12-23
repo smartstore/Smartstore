@@ -1,27 +1,26 @@
-﻿namespace Smartstore.PayPal.Client.Messages
+﻿namespace Smartstore.PayPal.Client.Messages;
+
+public class AccessToken
 {
-    public class AccessToken
+    private readonly DateTime _createDate;
+
+    public AccessToken()
     {
-        private readonly DateTime _createDate;
+        _createDate = DateTime.Now;
+    }
 
-        public AccessToken()
-        {
-            _createDate = DateTime.Now;
-        }
+    [JsonPropertyName("access_token"), JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+    public string Token;
 
-        [JsonProperty("access_token", DefaultValueHandling = DefaultValueHandling.Include)]
-        public string Token;
+    [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+    public string TokenType;
 
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
-        public string TokenType;
+    [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+    public int ExpiresIn;
 
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
-        public int ExpiresIn;
-
-        public bool IsExpired()
-        {
-            var expireDate = _createDate.Add(TimeSpan.FromSeconds(ExpiresIn));
-            return DateTime.Now.CompareTo(expireDate) > 0;
-        }
+    public bool IsExpired()
+    {
+        var expireDate = _createDate.Add(TimeSpan.FromSeconds(ExpiresIn));
+        return DateTime.Now.CompareTo(expireDate) > 0;
     }
 }

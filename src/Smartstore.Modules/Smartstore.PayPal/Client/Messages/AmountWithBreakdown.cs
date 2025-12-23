@@ -1,34 +1,33 @@
-﻿namespace Smartstore.PayPal.Client.Messages
+﻿namespace Smartstore.PayPal.Client.Messages;
+
+/// <summary>
+/// The total order amount with an optional breakdown that provides details
+/// such as the total item amount, total tax amount, shipping, handling, insurance, and discounts, if any.
+/// If you specify `amount.breakdown`, 
+/// the amount equals `item_total` plus `tax_total` plus `shipping` plus `handling` plus `insurance` minus `shipping_discount` minus discount.
+/// </summary>
+public class AmountWithBreakdown
 {
     /// <summary>
-    /// The total order amount with an optional breakdown that provides details
-    /// such as the total item amount, total tax amount, shipping, handling, insurance, and discounts, if any.
-    /// If you specify `amount.breakdown`, 
-    /// the amount equals `item_total` plus `tax_total` plus `shipping` plus `handling` plus `insurance` minus `shipping_discount` minus discount.
+    /// The breakdown of the amount. Breakdown provides details such as 
+    /// total item amount, total tax amount, shipping, handling, insurance and discounts, if any.
     /// </summary>
-    public class AmountWithBreakdown
-    {
-        /// <summary>
-        /// The breakdown of the amount. Breakdown provides details such as 
-        /// total item amount, total tax amount, shipping, handling, insurance and discounts, if any.
-        /// </summary>
-        [JsonProperty("breakdown", DefaultValueHandling = DefaultValueHandling.Include)]
-        public AmountBreakdown AmountBreakdown;
+    [JsonPropertyName("breakdown"), JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+    public AmountBreakdown AmountBreakdown;
 
-        /// <summary>
-        /// REQUIRED.
-        /// The three-character ISO-4217 currency code that identifies the currency.
-        /// </summary>
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
-        public string CurrencyCode;
+    /// <summary>
+    /// REQUIRED.
+    /// The three-character ISO-4217 currency code that identifies the currency.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+    public string CurrencyCode;
 
-        /// <summary>
-        /// REQUIRED.
-        /// The value, which might be
-        /// an integer for currencies like `JPY` that are not typically fractional. 
-        /// Or a decimal fraction for currencies like `TND` that are subdivided into thousandths.
-        /// </summary>
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
-        public string Value;
-    }
+    /// <summary>
+    /// REQUIRED.
+    /// The value, which might be
+    /// an integer for currencies like `JPY` that are not typically fractional. 
+    /// Or a decimal fraction for currencies like `TND` that are subdivided into thousandths.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+    public string Value;
 }

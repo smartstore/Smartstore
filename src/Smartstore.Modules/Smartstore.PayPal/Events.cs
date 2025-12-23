@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using Smartstore.Core;
+﻿using Smartstore.Core;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Cart.Events;
 using Smartstore.Core.Checkout.Orders;
@@ -124,10 +123,10 @@ namespace Smartstore.PayPal
         {
             // Make API call to PayPal to add the tracking number.
             var response = await _client.AddTrackingNumberAsync(shipment);
-            var rawResponse = response.Body<object>().ToString();
-            dynamic jResponse = JObject.Parse(rawResponse);
+            var j = response.BodyAsJsonNode();
 
-            var trackingId = (string)jResponse.purchase_units[0].shipping.trackers[0].id;
+            var trackingId = 
+                j["purchase_units"]?[0]?["shipping"]?["trackers"]?[0]?["id"]?.GetValue<string>();
 
             // Store tracking id as generic attribute in shipment.
             shipment.GenericAttributes.Set("PayPalTrackingId", trackingId);

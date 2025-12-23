@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Newtonsoft.Json.Linq;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Identity;
@@ -245,9 +244,9 @@ namespace Smartstore.PayPal.Filters
             {
                 // Get client token from PayPal REST API.
                 var response = await _client.ExecuteRequestAsync(_client.RequestFactory.GenerateClientToken());
-                dynamic jResponse = JObject.Parse(response.Body<object>().ToString());
+                var j = response.BodyAsJsonNode();
 
-                clientToken = (string)jResponse.client_token;
+                clientToken = j["client_token"]?.GetValue<string>();
 
                 session.SetString("PayPalClientToken", clientToken);
                 session.Remove("PayPalTokenFailedDate");

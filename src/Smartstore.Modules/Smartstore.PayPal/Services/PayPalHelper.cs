@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json.Serialization;
-using Smartstore.ComponentModel;
-using Smartstore.Core.Checkout.Payment;
+﻿using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 using Smartstore.Http;
@@ -12,21 +10,20 @@ namespace Smartstore.PayPal.Services
 {
     public class PayPalHelper : ICookiePublisher
     {
-        private static JsonSerializerSettings _serializerSettings;
-        
+        private readonly static JsonSerializerOptions _serializerOptions;
+
         static PayPalHelper()
         {
-            _serializerSettings = JsonConvert.DefaultSettings();
-            _serializerSettings.DefaultValueHandling = DefaultValueHandling.Ignore;
-            _serializerSettings.ContractResolver = new SmartContractResolver
+            _serializerOptions = SmartJsonOptions.Default.Create(o =>
             {
-                NamingStrategy = new SnakeCaseNamingStrategy()
-            };
+                o.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
+                o.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
+            });
         }
 
-        public static JsonSerializerSettings SerializerSettings 
+        public static JsonSerializerOptions SerializerOptions
         {
-            get => _serializerSettings;
+            get => _serializerOptions;
         }
 
         private readonly IStoreContext _storeContext;
@@ -84,8 +81,9 @@ namespace Smartstore.PayPal.Services
 
         public static void HandleException(Exception ex, Localizer T = null)
         {
-            var exceptionMessage = JsonConvert.DeserializeObject<ExceptionMessage>(ex.Message, SerializerSettings);
-
+            //var exceptionMessage = JsonConvert.DeserializeObject<ExceptionMessage>(ex.Message, SerializerSettings);
+            var exceptionMessage = Deserialize<ExceptionMessage>(ex.Message);
+            
             foreach (var detail in exceptionMessage.Details)
             {
                 switch (detail.Issue)
@@ -124,5 +122,14 @@ namespace Smartstore.PayPal.Services
         {
             return routeIdent == "ShoppingCart.Cart" || routeIdent == "ShoppingCart.UpdateCartItem";
         }
+
+        public static string Serialize(object value, bool useLocalOptions = true)
+            => JsonSerializer.Serialize(value, useLocalOptions ? _serializerOptions : null);
+
+        public static T Deserialize<T>(string json, bool useLocalOptions = true) 
+            => JsonSerializer.Deserialize<T>(json, useLocalOptions ? _serializerOptions : null);
+
+        public static object Deserialize(string json, Type returnType, bool useLocalOptions = true)
+            => JsonSerializer.Deserialize(json, returnType, useLocalOptions ? _serializerOptions : null);
     }
 }

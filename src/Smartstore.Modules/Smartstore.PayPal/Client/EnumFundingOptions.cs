@@ -1,11 +1,10 @@
-﻿namespace Smartstore.PayPal
+﻿namespace Smartstore.PayPal;
+
+public enum FundingOptions
 {
-    public enum FundingOptions
-    {
-        paypal,
-        sepa,
-        paylater,
-        googlepay,
-        applepay
-    }
+    paypal,
+    sepa,
+    paylater,
+    googlepay,
+    applepay
 }

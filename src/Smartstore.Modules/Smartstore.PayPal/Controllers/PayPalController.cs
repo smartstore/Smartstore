@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
@@ -125,7 +124,7 @@ namespace Smartstore.PayPal.Controllers
 
             if (additionalData.HasValue() && _settings.UseTransmittedAddresses)
             {
-                var applePayConfirmResult = JsonConvert.DeserializeObject<ApplePayConfirmResult>(additionalData);
+                var applePayConfirmResult = PayPalHelper.Deserialize<ApplePayConfirmResult>(additionalData, false);
                 await AddAppleAddressesAsync(applePayConfirmResult);
             }
             else if (customer.BillingAddress == null && _settings.UseTransmittedAddresses)
@@ -277,10 +276,9 @@ namespace Smartstore.PayPal.Controllers
             orderMessage.PaymentSource = orderMessagePaymentSource;
 
             var response = await _client.CreateOrderAsync(orderMessage);
-            var rawResponse = response.Body<object>().ToString();
-            dynamic jResponse = JObject.Parse(rawResponse);
+            var j = response.BodyAsJsonNode();
 
-            return Json(new { success = true, data = jResponse });
+            return Json(new { success = true, data = j });
         }
 
         private async Task AddAddressesAsync(string payPalOrderId) 
@@ -535,17 +533,18 @@ namespace Smartstore.PayPal.Controllers
             orderMessage.AppContext.CancelUrl = store.GetAbsoluteUrl(Url.Action(nameof(RedirectionCancel), "PayPal"));
 
             var response = await _client.CreateOrderAsync(orderMessage);
-            var rawResponse = response.Body<object>().ToString();
-            dynamic jResponse = JObject.Parse(rawResponse);
+            var j = response.BodyAsJsonNode();
 
             // Save redirect url in CheckoutState.
-            var status = (string)jResponse.status;
-            checkoutState.PayPalOrderId = (string)jResponse.id;
+            var status = j["status"]?.GetValue<string>();
+            checkoutState.PayPalOrderId = j["id"]?.GetValue<string>();
             if (status == "PAYER_ACTION_REQUIRED")
             {
-                var link = ((JObject)jResponse).SelectToken("links")
-                            .Where(t => t["rel"].Value<string>() == "payer-action")
-                            .First()["href"].Value<string>();
+                var link = j["links"]?
+                    .AsArray()
+                    .Select(n => n.AsObject())
+                    .FirstOrDefault(o => o["rel"]?.GetValue<string>() == "payer-action")?["href"]?
+                    .GetValue<string>();
 
                 checkoutState.ApmRedirectActionUrl = link;
             }
@@ -821,7 +820,7 @@ namespace Smartstore.PayPal.Controllers
 
                 if (rawRequest.HasValue())
                 {
-                    var webhookEvent = JsonConvert.DeserializeObject<WebhookEvent<WebhookResource>>(rawRequest, PayPalHelper.SerializerSettings);
+                    var webhookEvent = PayPalHelper.Deserialize<WebhookEvent<WebhookResource>>(rawRequest);
                     var response = await VerifyWebhookRequest(Request, webhookEvent);
                     var resource = webhookEvent.Resource;
 

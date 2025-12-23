@@ -1,23 +1,22 @@
-﻿namespace Smartstore.PayPal.Client.Messages
+﻿namespace Smartstore.PayPal.Client.Messages;
+
+/// <summary>
+/// Seller credentials.
+/// </summary>
+public class SellerCredentials
 {
     /// <summary>
-    /// Seller credentials.
+    /// The client id of the merchant.
     /// </summary>
-    public class SellerCredentials
-    {
-        /// <summary>
-        /// The client id of the merchant.
-        /// </summary>
-        public string ClientId;
+    public string ClientId;
 
-        /// <summary>
-        /// The client secret of the merchant.
-        /// </summary>
-        public string ClientSecret;
+    /// <summary>
+    /// The client secret of the merchant.
+    /// </summary>
+    public string ClientSecret;
 
-        /// <summary>
-        /// The payer id of the merchant.
-        /// </summary>
-        public string PayerId;
-    }
+    /// <summary>
+    /// The payer id of the merchant.
+    /// </summary>
+    public string PayerId;
 }
