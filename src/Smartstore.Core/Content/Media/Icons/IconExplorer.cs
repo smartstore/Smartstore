@@ -1,8 +1,7 @@
-﻿using System.IO.Hashing;
-using System.Text;
-using Newtonsoft.Json;
+﻿using System.Text.Json;
 using Smartstore.Collections;
 using Smartstore.IO;
+using Smartstore.Json;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Media.Icons
@@ -95,23 +94,16 @@ namespace Smartstore.Core.Content.Media.Icons
             // (Perf) look up minified version of metadata file
             var hashCode = HashCodeCombiner.Start().Add(mapFile, false).CombinedHashString;
             var mapFileMin = fs.GetFile(PathUtility.Join(_appContext.GetTempDirectory().SubPath, $"icons.{hashCode}.json"));
-            //var path = mapFileMin.Exists ? mapFileMin.SubPath : mapFile.SubPath;
             var file = mapFileMin.Exists ? mapFileMin : mapFile;
 
-            var json = file.ReadAllText(Encoding.GetEncoding(1252));
-            var icons = JsonConvert.DeserializeObject<Dictionary<string, IconDescription>>(json);
+            using var fileStream = file.OpenRead();
+            var icons = JsonSerializer.Deserialize<Dictionary<string, IconDescription>>(fileStream, SmartJsonOptions.CamelCasedIgnoreDefaultValue);
 
             if (!mapFileMin.Exists && mapFileMin.SubPath.HasValue())
             {
                 // minified file did not exist: save it.
-                var settings = new JsonSerializerSettings
-                {
-                    DefaultValueHandling = DefaultValueHandling.Ignore,
-                    Formatting = Formatting.None
-                };
-
-                json = JsonConvert.SerializeObject(icons, settings);
-                fs.WriteAllText(mapFileMin.SubPath, json, Encoding.GetEncoding(1252));
+                using var minFileStream = mapFileMin.OpenWrite();
+                JsonSerializer.Serialize(minFileStream, icons, SmartJsonOptions.CamelCasedIgnoreDefaultValue);
             }
 
             return icons;

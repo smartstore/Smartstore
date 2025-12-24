@@ -77,6 +77,15 @@ public static class SmartJsonOptions
         o.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     });
 
+    /// <summary>
+    /// Provides a preconfigured <see cref="JsonSerializerOptions"/> instance that uses camel case property naming and
+    /// ignores properties with default values during serialization.
+    /// </summary>
+    public static readonly JsonSerializerOptions CamelCasedIgnoreDefaultValue = CamelCased.Create(o =>
+    {
+        o.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
+    });
+
     #region DataContract support modifiers
 
     /// <summary>
@@ -233,8 +242,10 @@ public static class SmartJsonOptions
             target.UnmappedMemberHandling = options.UnmappedMemberHandling;
             target.WriteIndented = options.WriteIndented;
 
-            // Set TypeInfoResolver ONLY if not already created on target
-            target.TypeInfoResolver ??= options.TypeInfoResolver;
+            if (options.TypeInfoResolver != null)
+            {
+                target.TypeInfoResolver = options.TypeInfoResolver;
+            }
 
             foreach (var converter in options.Converters)
             {

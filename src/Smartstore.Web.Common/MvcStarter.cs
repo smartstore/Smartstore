@@ -129,7 +129,7 @@ internal class MvcStarter : StarterBase
             {
                 var options = o.JsonSerializerOptions;
                 options.ApplyFrom(SmartJsonOptions.Default);
-                options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
+                //options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
                 options.Converters.Add(new UtcDateTimeJsonConverter());
             })
             .AddNewtonsoftJson(o =>

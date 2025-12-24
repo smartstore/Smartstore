@@ -1,5 +1,5 @@
 ﻿using System.Runtime.Serialization;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Media.Icons
@@ -9,16 +9,13 @@ namespace Smartstore.Core.Content.Media.Icons
         [IgnoreDataMember]
         public string Name { get; set; }
 
-        [JsonProperty("label")]
         public string Label { get; set; }
 
-        [JsonProperty("unicode")]
         public string Unicode { get; set; }
 
-        [JsonProperty("styles")]
         public string[] Styles { get; set; }
 
-        [JsonProperty("search")]
+        [JsonPropertyName("search")]
         public Search SearchInfo { get; set; }
 
         [IgnoreDataMember]
@@ -99,7 +96,6 @@ namespace Smartstore.Core.Content.Media.Icons
 
         public class Search
         {
-            [JsonProperty("terms")]
             public string[] Terms { get; set; }
         }
     }
