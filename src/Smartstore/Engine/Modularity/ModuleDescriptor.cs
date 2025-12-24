@@ -44,7 +44,7 @@ namespace Smartstore.Engine.Modularity
                 return null;
             }
 
-            var descriptor = ParseManifest(manifestFile.ReadAllText());
+            var descriptor = ParseManifest(manifestFile);
 
             if (descriptor.SystemName != directory.Name)
             {
@@ -88,6 +88,13 @@ namespace Smartstore.Engine.Modularity
                 : new ExpandedFileSystem(directory.Name, root);
 
             return descriptor;
+        }
+
+        public static ModuleDescriptor ParseManifest(IFile manifestFile)
+        {
+            Guard.NotNull(manifestFile);
+            using var stream = manifestFile.OpenRead();
+            return JsonSerializer.Deserialize<ModuleDescriptor>(stream, SmartJsonOptions.Default);
         }
 
         public static ModuleDescriptor ParseManifest(string manifestJson)

@@ -4,6 +4,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Primitives;
 using Smartstore.Caching;
+using Smartstore.IO;
 using Smartstore.Json;
 
 namespace Smartstore.Core.AI.Metadata
@@ -77,8 +78,7 @@ namespace Smartstore.Core.AI.Metadata
                 throw new InvalidOperationException($"Metadata file for {moduleSystemName} not found.");
             }
 
-            var json = file.ReadAllText();
-            if (Deserialize(json) is not AIMetadata metadata)
+            if (Deserialize(file) is not AIMetadata metadata)
             {
                 throw new InvalidOperationException("Failed to deserialize AIMetadata.");
             }
@@ -90,9 +90,10 @@ namespace Smartstore.Core.AI.Metadata
             return (metadata, changeToken);
         }
 
-        protected virtual AIMetadata? Deserialize(string json)
+        protected virtual AIMetadata? Deserialize(IFile file)
         {
-            return JsonSerializer.Deserialize<AIMetadata>(json, _jsonOptions);
+            using var stream = file.OpenRead();
+            return JsonSerializer.Deserialize<AIMetadata>(stream, _jsonOptions);
         }
 
         public void Invalidate(string moduleSystemName)
