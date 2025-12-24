@@ -1,7 +1,7 @@
 ﻿#nullable enable
 
 using System.Runtime.Serialization;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Smartstore.Core.AI.Metadata
 {

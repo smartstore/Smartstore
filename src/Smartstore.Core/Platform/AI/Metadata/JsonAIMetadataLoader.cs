@@ -1,11 +1,8 @@
 ﻿#nullable enable
 
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Primitives;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using Smartstore.Caching;
 using Smartstore.Json;
 
@@ -15,7 +12,6 @@ namespace Smartstore.Core.AI.Metadata
     {
         private readonly IMemoryCache _cache;
         private readonly IApplicationContext _appContext;
-        private readonly JsonSerializerSettings _serializerSettings;
         private readonly JsonSerializerOptions _jsonOptions;
 
         public JsonAIMetadataLoader(IMemoryCache cache, IApplicationContext appContext)
@@ -23,17 +19,7 @@ namespace Smartstore.Core.AI.Metadata
             _cache = cache;
             _appContext = appContext;
 
-            _serializerSettings = JsonConvert.DefaultSettings!();
-            _serializerSettings.DefaultValueHandling = DefaultValueHandling.Ignore;
-            _serializerSettings.ContractResolver = new SmartContractResolver
-            {
-                NamingStrategy = new CamelCaseNamingStrategy()
-            };
-
-            _jsonOptions = SmartJsonOptions.CamelCased.Create(o =>
-            {
-                o.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
-            });
+            _jsonOptions = SmartJsonOptions.CamelCased;
         }
 
         protected static string BuildCacheKey(string moduleSystemName)
@@ -106,7 +92,7 @@ namespace Smartstore.Core.AI.Metadata
 
         protected virtual AIMetadata? Deserialize(string json)
         {
-            return JsonConvert.DeserializeObject<AIMetadata>(json, _serializerSettings);
+            return JsonSerializer.Deserialize<AIMetadata>(json, _jsonOptions);
         }
 
         public void Invalidate(string moduleSystemName)

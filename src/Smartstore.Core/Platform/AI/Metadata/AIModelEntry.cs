@@ -1,7 +1,6 @@
 ﻿#nullable enable
 
-using System.ComponentModel;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Smartstore.Core.AI.Metadata
 {
@@ -85,8 +84,6 @@ namespace Smartstore.Core.AI.Metadata
         /// <summary>
         /// The performance level of the model.
         /// </summary>
-        [DefaultValue(AIModelPerformanceLevel.Balanced)]
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
         public AIModelPerformanceLevel Level { get; set; } = AIModelPerformanceLevel.Balanced;
 
         /// <summary>
@@ -98,14 +95,12 @@ namespace Smartstore.Core.AI.Metadata
         /// <summary>
         /// Indicates whether the model supports streaming responses.
         /// </summary>
-        [DefaultValue(true)]
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
         public bool Stream { get; set; } = true;
 
         /// <summary>
         /// Gets the output capabilities of the AI image generation process.
         /// </summary>
-        [JsonProperty("output")]
+        [JsonPropertyName("output")]
         public AIImageOutput? ImageOutputCapabilities { get; set; }
 
         /// <summary>
