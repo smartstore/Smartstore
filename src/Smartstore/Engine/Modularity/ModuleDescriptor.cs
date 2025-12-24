@@ -1,11 +1,14 @@
 ﻿using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Xml;
 using Microsoft.Extensions.FileProviders;
-using Newtonsoft.Json;
 using Smartstore.Collections;
 using Smartstore.IO;
+using Smartstore.Json;
 using Smartstore.Utilities;
 using IOPath = System.IO.Path;
+using NSJ = Newtonsoft.Json;
 
 namespace Smartstore.Engine.Modularity
 {
@@ -27,7 +30,7 @@ namespace Smartstore.Engine.Modularity
         /// <returns>The descriptor instance or <c>null</c> if directory does not exist or does not contain a 'module.json' file.</returns>
         public static ModuleDescriptor Create(IDirectory directory, IFileSystem root)
         {
-            Guard.NotNull(directory, nameof(directory));
+            Guard.NotNull(directory);
 
             if (!directory.Exists)
             {
@@ -89,8 +92,8 @@ namespace Smartstore.Engine.Modularity
 
         public static ModuleDescriptor ParseManifest(string manifestJson)
         {
-            Guard.NotEmpty(manifestJson, nameof(manifestJson));
-            return JsonConvert.DeserializeObject<ModuleDescriptor>(manifestJson);
+            Guard.NotEmpty(manifestJson);
+            return JsonSerializer.Deserialize<ModuleDescriptor>(manifestJson, SmartJsonOptions.Default);
         }
 
         #endregion
@@ -153,35 +156,35 @@ namespace Smartstore.Engine.Modularity
             => SystemName;
 
         /// <inheritdoc/>
-        [JsonProperty]
+        [JsonInclude, NSJ.JsonRequired]
         public string FriendlyName { get; internal set; }
 
         /// <inheritdoc/>
-        [JsonProperty]
+        [JsonInclude, NSJ.JsonRequired]
         public string Description { get; internal set; }
 
         /// <inheritdoc/>
-        [JsonProperty]
+        [JsonInclude, NSJ.JsonRequired]
         public string Group { get; internal set; }
 
         /// <inheritdoc/>
-        [JsonProperty]
+        [JsonInclude, NSJ.JsonRequired]
         public string Author { get; internal set; }
 
         /// <inheritdoc/>
-        [JsonProperty]
+        [JsonInclude, NSJ.JsonRequired]
         public string ProjectUrl { get; internal set; }
 
         /// <inheritdoc/>
-        [JsonProperty]
+        [JsonInclude, NSJ.JsonRequired]
         public string Tags { get; internal set; }
 
         /// <inheritdoc/>
-        [JsonProperty]
+        [JsonInclude, NSJ.JsonRequired]
         public Version Version { get; internal set; }
 
         /// <inheritdoc/>
-        [JsonProperty]
+        [JsonInclude, NSJ.JsonRequired]
         public Version MinAppVersion { get; internal set; }
 
         #endregion
@@ -204,13 +207,13 @@ namespace Smartstore.Engine.Modularity
         public IFileProvider WebRoot
         {
             get => _webFileProvider ??= new ExpandedFileSystem("wwwroot", ContentRoot);
-            internal set => _webFileProvider = Guard.NotNull(value, nameof(value));
+            internal set => _webFileProvider = Guard.NotNull(value);
         }
 
         #endregion
 
         /// <inheritdoc/>
-        [JsonProperty]
+        [JsonInclude, NSJ.JsonRequired]
         public string SystemName { get; internal set; }
 
         string ITopologicSortable<string>.Key
@@ -218,11 +221,11 @@ namespace Smartstore.Engine.Modularity
 
 
         /// <inheritdoc/>
-        [JsonProperty]
+        [JsonInclude, NSJ.JsonRequired]
         public string[] DependsOn { get; internal set; }
 
         /// <inheritdoc/>
-        [JsonProperty]
+        [JsonInclude, NSJ.JsonRequired]
         public int Order { get; internal set; }
 
         /// <inheritdoc/>
@@ -239,14 +242,14 @@ namespace Smartstore.Engine.Modularity
         public string SourcePhysicalPath { get; internal set; }
 
         /// <inheritdoc/>
-        [JsonProperty]
+        [JsonInclude, NSJ.JsonRequired]
         public string Theme { get; internal set; }
 
         /// <inheritdoc/>
         public ModuleAssemblyInfo Module { get; internal set; }
 
         /// <inheritdoc/>
-        [JsonProperty]
+        [JsonInclude, NSJ.JsonRequired]
         public string ResourceRootKey
         {
             get => _resourceRootKey ??= DiscoverResourceRootKey();
@@ -289,7 +292,7 @@ namespace Smartstore.Engine.Modularity
         }
 
         /// <inheritdoc/>
-        [JsonProperty]
+        [JsonInclude, NSJ.JsonRequired]
         public string BrandImageFileName
         {
             get => _brandImageFileName ??= DiscoverBrandImageFileName();
