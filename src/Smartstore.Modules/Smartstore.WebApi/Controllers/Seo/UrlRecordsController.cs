@@ -1,47 +1,46 @@
 ﻿using Smartstore.Core.Seo;
 
-namespace Smartstore.Web.Api.Controllers
+namespace Smartstore.Web.Api.Controllers;
+
+/// <summary>
+/// The endpoint for operations on UrlRecord entity.
+/// </summary>
+[WebApiGroup(WebApiGroupNames.Platform)]
+public class UrlRecordsController : WebApiController<UrlRecord>
 {
-    /// <summary>
-    /// The endpoint for operations on UrlRecord entity.
-    /// </summary>
-    [WebApiGroup(WebApiGroupNames.Platform)]
-    public class UrlRecordsController : WebApiController<UrlRecord>
+    [HttpGet("UrlRecords"), ApiQueryable]
+    public IQueryable<UrlRecord> Get()
     {
-        [HttpGet("UrlRecords"), ApiQueryable]
-        public IQueryable<UrlRecord> Get()
-        {
-            return Entities.AsNoTracking();
-        }
+        return Entities.AsNoTracking();
+    }
 
-        [HttpGet("UrlRecords({key})"), ApiQueryable]
-        public SingleResult<UrlRecord> Get(int key)
-        {
-            return GetById(key);
-        }
+    [HttpGet("UrlRecords({key})"), ApiQueryable]
+    public SingleResult<UrlRecord> Get(int key)
+    {
+        return GetById(key);
+    }
 
-        [HttpPost, ApiExplorerSettings(IgnoreApi = true)]
-        public IActionResult Post()
-        {
-            return Forbidden();
-        }
+    [HttpPost, ApiExplorerSettings(IgnoreApi = true)]
+    public IActionResult Post()
+    {
+        return Forbidden();
+    }
 
-        [HttpPut, ApiExplorerSettings(IgnoreApi = true)]
-        public IActionResult Put()
-        {
-            return Forbidden();
-        }
+    [HttpPut, ApiExplorerSettings(IgnoreApi = true)]
+    public IActionResult Put()
+    {
+        return Forbidden();
+    }
 
-        [HttpPatch, ApiExplorerSettings(IgnoreApi = true)]
-        public IActionResult Patch()
-        {
-            return Forbidden();
-        }
+    [HttpPatch, ApiExplorerSettings(IgnoreApi = true)]
+    public IActionResult Patch()
+    {
+        return Forbidden();
+    }
 
-        [HttpDelete, ApiExplorerSettings(IgnoreApi = true)]
-        public IActionResult Delete()
-        {
-            return Forbidden();
-        }
+    [HttpDelete, ApiExplorerSettings(IgnoreApi = true)]
+    public IActionResult Delete()
+    {
+        return Forbidden();
     }
 }

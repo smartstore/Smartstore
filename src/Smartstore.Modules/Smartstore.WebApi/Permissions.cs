@@ -1,39 +1,38 @@
 ﻿using Smartstore.Core.Identity;
 
-namespace Smartstore.Web.Api
+namespace Smartstore.Web.Api;
+
+internal static class WebApiPermissions
 {
-    internal static class WebApiPermissions
+    public const string Self = "webapi";
+    public const string Read = "webapi.read";
+    public const string Update = "webapi.update";
+    public const string Create = "webapi.create";
+    public const string Delete = "webapi.delete";
+}
+
+internal class WebApiPermissionProvider : IPermissionProvider
+{
+    public IEnumerable<PermissionRecord> GetPermissions()
     {
-        public const string Self = "webapi";
-        public const string Read = "webapi.read";
-        public const string Update = "webapi.update";
-        public const string Create = "webapi.create";
-        public const string Delete = "webapi.delete";
+        var permissionSystemNames = PermissionHelper.GetPermissions(typeof(WebApiPermissions));
+        var permissions = permissionSystemNames.Select(x => new PermissionRecord { SystemName = x });
+
+        return permissions;
     }
 
-    internal class WebApiPermissionProvider : IPermissionProvider
+    public IEnumerable<DefaultPermissionRecord> GetDefaultPermissions()
     {
-        public IEnumerable<PermissionRecord> GetPermissions()
+        return new[]
         {
-            var permissionSystemNames = PermissionHelper.GetPermissions(typeof(WebApiPermissions));
-            var permissions = permissionSystemNames.Select(x => new PermissionRecord { SystemName = x });
-
-            return permissions;
-        }
-
-        public IEnumerable<DefaultPermissionRecord> GetDefaultPermissions()
-        {
-            return new[]
+            new DefaultPermissionRecord
             {
-                new DefaultPermissionRecord
+                CustomerRoleSystemName = SystemCustomerRoleNames.Administrators,
+                PermissionRecords = new[]
                 {
-                    CustomerRoleSystemName = SystemCustomerRoleNames.Administrators,
-                    PermissionRecords = new[]
-                    {
-                        new PermissionRecord { SystemName = WebApiPermissions.Self }
-                    }
+                    new PermissionRecord { SystemName = WebApiPermissions.Self }
                 }
-            };
-        }
+            }
+        };
     }
 }
