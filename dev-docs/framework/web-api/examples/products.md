@@ -73,17 +73,6 @@ POST http://localhost:59318/odata/v1/Products(1)/ProductManufacturers(12)
 DELETE http://localhost:59318/odata/v1/Products(1)/ProductMediaFiles(66)
 ```
 
-### **Update display order of image assignment 66 at product 1**
-
-```
-PATCH http://localhost:59318/odata/v1/Products(1)/ProductMediaFiles(66)
-{ "DisplayOrder": 5 }
-```
-
-{% hint style="info" %}
-66 is the ID of the _ProductMediaFile_, not the ID of the _MediaFile_. _ProductMediaFile_ is a mapping between a product and a media file (image).
-{% endhint %}
-
 ### Upload product images
 
 Multiple images can be uploaded for a product by a single multipart form data POST request. The product ID can be `0` and the product can be identified by query string parameter _sku_, _gtin_ or _mpn_.
