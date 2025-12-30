@@ -138,6 +138,7 @@ internal class Startup : StarterBase
     public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
     {
         builder.RegisterType<ODataOptionsConfigurer>().As<IConfigureOptions<ODataOptions>>().SingleInstance();
+        //builder.RegisterDecorator<SmartSerializerDataContractResolver, ISerializerDataContractResolver>();
     }
 
     public override void ConfigureMvc(IMvcBuilder mvcBuilder, IServiceCollection services, IApplicationContext appContext)
