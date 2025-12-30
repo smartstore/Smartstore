@@ -18,6 +18,7 @@
 ### Improvements
 
 - Moved AI command tools from Media Manager toolbar to folder dropwdown menu.
+- #1459 Cart sorting: The selected items must always come before the unselected ones.
 
 ### Bugfixes
 
