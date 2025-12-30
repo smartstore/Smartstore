@@ -19,10 +19,10 @@ internal sealed class SwaggerExamplesOperationFilter : IOperationFilter
         var requestType = TryGetRequestBodyType(context.ApiDescription);
         if (operation.RequestBody?.Content != null)
         {
-            foreach (var kv in operation.RequestBody.Content)
+            foreach (var kvp in operation.RequestBody.Content)
             {
-                if (IsJsonMediaType(kv.Key))
-                    TrySetExample(kv.Value, context, requestType);
+                if (IsJsonMediaType(kvp.Key))
+                    TrySetExample(kvp.Value, context, requestType);
             }
         }
 
@@ -39,10 +39,10 @@ internal sealed class SwaggerExamplesOperationFilter : IOperationFilter
             if (resp?.Content == null)
                 continue;
 
-            foreach (var kv in resp.Content)
+            foreach (var kvp in resp.Content)
             {
-                if (IsJsonMediaType(kv.Key))
-                    TrySetExample(kv.Value, context, responseType);
+                if (IsJsonMediaType(kvp.Key))
+                    TrySetExample(kvp.Value, context, responseType);
             }
         }
     }
@@ -52,12 +52,12 @@ internal sealed class SwaggerExamplesOperationFilter : IOperationFilter
         if (string.IsNullOrWhiteSpace(mediaType))
             return false;
 
-        return mediaType.IndexOf("json", StringComparison.OrdinalIgnoreCase) >= 0;
+        return mediaType.Contains("json", StringComparison.OrdinalIgnoreCase);
     }
 
     private static void TrySetExample(OpenApiMediaType mediaType, OperationFilterContext context, Type clrTypeHint)
     {
-        if (mediaType == null || mediaType.Schema == null)
+        if (mediaType?.Schema == null)
             return;
 
         // Keep explicit examples
@@ -70,16 +70,13 @@ internal sealed class SwaggerExamplesOperationFilter : IOperationFilter
 
     private static int ParseStatusCode(string key)
     {
-        if (string.IsNullOrWhiteSpace(key))
+        if (key.IsEmpty())
             return 0;
 
-        if (string.Equals(key, "default", StringComparison.OrdinalIgnoreCase))
+        if (key.EqualsNoCase("default"))
             return 0;
 
-        if (int.TryParse(key, out var n))
-            return n;
-
-        return 0;
+        return key.Convert<int>();
     }
 
     private static Type TryGetRequestBodyType(ApiDescription api)

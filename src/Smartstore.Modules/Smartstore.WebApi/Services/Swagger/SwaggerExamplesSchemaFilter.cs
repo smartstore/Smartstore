@@ -1,9 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Smartstore.Web.Api.Swagger;
@@ -40,14 +41,14 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
     internal static IOpenApiAny BuildExample(OpenApiSchema rootSchema, SchemaRepository repo, Type rootClrType)
     {
         var visitedTypes = new HashSet<Type>();
-        return BuildAny(rootSchema, repo, MaxDepth, UnwrapNullable(rootClrType) ?? typeof(object), visitedTypes);
+        return BuildAny(rootSchema, repo, MaxDepth, (rootClrType ?? typeof(object)).GetNonNullableType(), visitedTypes);
     }
 
     private static IOpenApiAny BuildAny(OpenApiSchema schema, SchemaRepository repo, int depthRemaining, Type typeHint, HashSet<Type> visitedTypes)
     {
         schema = ResolveRef(schema, repo);
 
-        var clrType = UnwrapNullable(typeHint) ?? typeof(object);
+        var clrType = (typeHint ?? typeof(object)).GetNonNullableType();
 
         if (depthRemaining < 0)
             return CompactPlaceholder(schema, repo, clrType);
@@ -73,12 +74,11 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
 
     private static IOpenApiAny BuildAnyCore(OpenApiSchema schema, SchemaRepository repo, int depthRemaining, Type clrType, HashSet<Type> visitedTypes)
     {
-        if (schema != null && schema.Enum != null && schema.Enum.Count > 0)
+        if (schema?.Enum != null && schema.Enum.Count > 0)
             return schema.Enum[0];
 
         // Arrays/collections ALWAYS render as arrays (prevents Count/IsReadOnly/Length etc.)
-        Type elementType;
-        if (IsEnumerableLike(clrType, out elementType) || (schema != null && (schema.Type == "array" || schema.Items != null)))
+        if (clrType.IsSequenceType(out var elementType) || (schema != null && (schema.Type == "array" || schema.Items != null)))
         {
             var itemSchema = (schema != null && schema.Items != null) ? schema.Items : new OpenApiSchema { Type = "string" };
             var et = elementType ?? typeof(object);
@@ -93,11 +93,13 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
         }
 
         // Dictionary-like
-        if (IsDictionaryLike(clrType) || (schema != null && schema.AdditionalProperties != null && (schema.Properties == null || schema.Properties.Count == 0)))
+        if (clrType.IsDictionaryType() || (schema != null && schema.AdditionalProperties != null && (schema.Properties == null || schema.Properties.Count == 0)))
         {
-            var obj = new OpenApiObject();
-            obj["additionalProp1"] = new OpenApiString("string");
-            obj["additionalProp2"] = new OpenApiString("string");
+            var obj = new OpenApiObject
+            {
+                ["additionalProp1"] = new OpenApiString("string"),
+                ["additionalProp2"] = new OpenApiString("string")
+            };
             return obj;
         }
 
@@ -120,8 +122,10 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
             (schema.Properties == null || schema.Properties.Count == 0) &&
             (schema.AllOf == null || schema.AllOf.Count == 0))
         {
-            var dict = new OpenApiObject();
-            dict["additionalProp1"] = BuildAny(schema.AdditionalProperties, repo, depthRemaining - 1, typeof(object), visitedTypes);
+            var dict = new OpenApiObject
+            {
+                ["additionalProp1"] = BuildAny(schema.AdditionalProperties, repo, depthRemaining - 1, typeof(object), visitedTypes)
+            };
             dict["additionalProp2"] = dict["additionalProp1"];
             return dict;
         }
@@ -137,19 +141,19 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
 
         var obj = new OpenApiObject();
 
-        foreach (var kv in props.Take(MaxPropsPerObject))
+        foreach (var kvp in props.Take(MaxPropsPerObject))
         {
-            var name = kv.Key;
+            var name = kvp.Key;
 
             if (ShouldExcludeByName(name))
                 continue;
 
-            if (IsIgnoredByIgnoreDataMember(name, memberMap))
+            if (IsIgnoredMember(name, memberMap))
                 continue;
 
             var memberType = GetMemberTypeHint(name, memberMap) ?? typeof(object);
 
-            obj[name] = BuildAny(kv.Value, repo, depthRemaining - 1, memberType, visitedTypes);
+            obj[name] = BuildAny(kvp.Value, repo, depthRemaining - 1, memberType, visitedTypes);
         }
 
         return obj;
@@ -157,10 +161,9 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
 
     private static OpenApiObject BuildObjectFromReflection(Type clrType, SchemaRepository repo, int depthRemaining, HashSet<Type> visitedTypes)
     {
-        clrType = UnwrapNullable(clrType) ?? typeof(object);
+        clrType = (clrType ?? typeof(object)).GetNonNullableType();
 
-        Type _;
-        if (IsEnumerableLike(clrType, out _) || IsDictionaryLike(clrType))
+        if (clrType.IsSequenceType() || clrType.IsDictionaryType())
             return new OpenApiObject();
 
         if (depthRemaining < 0)
@@ -195,8 +198,7 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
 
     private static IOpenApiAny CompactPlaceholder(OpenApiSchema schema, SchemaRepository repo, Type clrType)
     {
-        Type elementType;
-        if (IsEnumerableLike(clrType, out elementType) || (schema != null && (schema.Type == "array" || schema.Items != null)))
+        if (clrType.IsSequenceType(out var elementType) || (schema != null && (schema.Type == "array" || schema.Items != null)))
         {
             var arr = new OpenApiArray();
             if (MaxArrayItems > 0)
@@ -224,7 +226,7 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
     private static OpenApiObject BuildCompactObjectFromClr(Type clrType)
     {
         var obj = new OpenApiObject();
-        clrType = UnwrapNullable(clrType) ?? typeof(object);
+        clrType = (clrType ?? typeof(object)).GetNonNullableType();
 
         var flags = BindingFlags.Instance | BindingFlags.Public;
 
@@ -241,18 +243,17 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
 
     private static void PruneSchemaProperties(OpenApiSchema schema, Type clrType)
     {
-        if (schema == null)
+        if (schema == null || clrType == null)
             return;
 
         if (schema.Properties == null || schema.Properties.Count == 0)
             return;
 
-        clrType = UnwrapNullable(clrType) ?? typeof(object);
-
         // If the schema is actually a collection, don't treat it as object properties
-        Type _;
-        if (IsEnumerableLike(clrType, out _) || IsDictionaryLike(clrType))
+        if (clrType.IsSequenceType() || clrType.IsDictionaryType())
             return;
+
+        clrType = clrType.GetNonNullableType();
 
         var memberMap = GetMemberMap(clrType);
 
@@ -268,7 +269,7 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
                 continue;
             }
 
-            if (IsIgnoredByIgnoreDataMember(name, memberMap))
+            if (IsIgnoredMember(name, memberMap))
             {
                 toRemove.Add(name);
                 continue;
@@ -281,17 +282,16 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
         for (var i = 0; i < toRemove.Count; i++)
         {
             schema.Properties.Remove(toRemove[i]);
-            if (schema.Required != null)
-                schema.Required.Remove(toRemove[i]);
+            schema.Required?.Remove(toRemove[i]);
         }
     }
 
     private static OpenApiSchema ResolveRef(OpenApiSchema schema, SchemaRepository repo)
     {
-        if (schema == null || schema.Reference == null || string.IsNullOrWhiteSpace(schema.Reference.Id))
+        if (schema?.Reference == null || schema.Reference.Id.IsEmpty())
             return schema;
 
-        if (repo != null && repo.Schemas != null && repo.Schemas.TryGetValue(schema.Reference.Id, out var resolved) && resolved != null)
+        if (repo?.Schemas != null && repo.Schemas.TryGetValue(schema.Reference.Id, out var resolved) && resolved != null)
             return resolved;
 
         return schema;
@@ -316,14 +316,12 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
             if (s?.Properties == null)
                 continue;
 
-            foreach (var kv in s.Properties)
-                merged[kv.Key] = kv.Value;
+            merged.Merge(s.Properties);
         }
 
         if (schema.Properties != null)
         {
-            foreach (var kv in schema.Properties)
-                merged[kv.Key] = kv.Value;
+            merged.Merge(schema.Properties);
         }
 
         return merged.Count > 0 ? merged : null;
@@ -365,12 +363,12 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
 
     private static IOpenApiAny CreatePrimitiveExampleFromClr(Type t, OpenApiSchema schema)
     {
-        t = UnwrapNullable(t) ?? typeof(string);
+        t = (t ?? typeof(string)).GetNonNullableType();
 
         if (t.IsEnum)
         {
             var names = Enum.GetNames(t);
-            return new OpenApiString((names != null && names.Length > 0) ? names[0] : "Value");
+            return new OpenApiString(names.FirstOrDefault() ?? "Value");
         }
 
         if (t == typeof(bool))
@@ -397,81 +395,17 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
         return new OpenApiString("string");
     }
 
-    private static bool IsEnumerableLike(Type t, out Type elementType)
-    {
-        elementType = null;
-        if (t == null)
-            return false;
-
-        t = UnwrapNullable(t) ?? t;
-
-        if (t == typeof(string))
-            return false;
-
-        if (IsDictionaryLike(t))
-            return false;
-
-        if (t.IsArray)
-        {
-            elementType = t.GetElementType() ?? typeof(object);
-            return true;
-        }
-
-        foreach (var it in t.GetInterfaces())
-        {
-            if (it.IsGenericType && it.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-            {
-                elementType = it.GetGenericArguments()[0];
-                return true;
-            }
-        }
-
-        if (typeof(IEnumerable).IsAssignableFrom(t))
-        {
-            elementType = typeof(object);
-            return true;
-        }
-
-        return false;
-    }
-
-    private static bool IsDictionaryLike(Type t)
-    {
-        if (t == null)
-            return false;
-
-        t = UnwrapNullable(t) ?? t;
-
-        if (typeof(IDictionary).IsAssignableFrom(t))
-            return true;
-
-        if (!t.IsGenericType)
-            return false;
-
-        var def = t.GetGenericTypeDefinition();
-        return def == typeof(IDictionary<,>) || def == typeof(Dictionary<,>) || def == typeof(IReadOnlyDictionary<,>);
-    }
-
     private static bool IsSimpleClr(Type t)
     {
         if (t == null)
             return false;
 
-        t = UnwrapNullable(t) ?? t;
+        t = t.GetNonNullableType();
 
-        if (t.IsEnum)
+        if (t == typeof(Uri))
             return true;
 
-        if (t.IsPrimitive)
-            return true;
-
-        return t == typeof(string)
-               || t == typeof(decimal)
-               || t == typeof(DateTime)
-               || t == typeof(DateTimeOffset)
-               || t == typeof(Guid)
-               || t == typeof(Uri)
-               || t == typeof(TimeSpan);
+        return t.IsBasicType() && t != typeof(byte[]);
     }
 
     private static bool ShouldGuardType(Type t)
@@ -482,22 +416,10 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
         if (IsSimpleClr(t))
             return false;
 
-        Type _;
-        if (IsEnumerableLike(t, out _) || IsDictionaryLike(t))
+        if (t.IsSequenceType() || t.IsDictionaryType())
             return false;
 
         return t.IsClass;
-    }
-
-    private static Type UnwrapNullable(Type t)
-    {
-        if (t == null)
-            return null;
-
-        if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>))
-            return t.GetGenericArguments()[0];
-
-        return t;
     }
 
     private static bool ShouldExcludeByName(string propertyName)
@@ -508,18 +430,18 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
         for (var i = 0; i < ExcludedPropertyNamePatterns.Length; i++)
         {
             var p = ExcludedPropertyNamePatterns[i];
-            if (string.IsNullOrWhiteSpace(p))
+            if (p.IsEmpty())
                 continue;
 
-            if (p.EndsWith("*", StringComparison.Ordinal))
+            if (p.EndsWith('*'))
             {
-                var prefix = p.Substring(0, p.Length - 1);
-                if (propertyName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                var prefix = p[..^1];
+                if (propertyName.StartsWithNoCase(prefix))
                     return true;
             }
             else
             {
-                if (string.Equals(propertyName, p, StringComparison.OrdinalIgnoreCase))
+                if (propertyName.EqualsNoCase(p))
                     return true;
             }
         }
@@ -527,11 +449,14 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
         return false;
     }
 
-    // ---- IgnoreDataMember support (robust name mapping) ----
-
     private static Dictionary<string, MemberInfo> GetMemberMap(Type clrType)
     {
-        clrType = UnwrapNullable(clrType) ?? typeof(object);
+        clrType = (clrType ?? typeof(object)).GetNonNullableType();
+
+        //var jsonOptions = EngineContext.Current.Application.Services.Resolve<IOptions<JsonOptions>>().Value.JsonSerializerOptions;
+        //var typeInfo = jsonOptions.GetTypeInfo(clrType);
+        //var props = typeInfo.Properties;
+        //var propMap = props.ToDictionary(p => p.Name, p => p, StringComparer.OrdinalIgnoreCase);
 
         return TypeMemberMapCache.GetOrAdd(clrType, static t =>
         {
@@ -558,32 +483,18 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
     private static void AddMemberNames(Dictionary<string, MemberInfo> map, Type rootType, MemberInfo member, string clrName)
     {
         AddOrReplaceMostDerived(map, rootType, clrName, member);
-
-        // System.Text.Json: [JsonPropertyName("...")]
-        var stj = member.GetCustomAttributes(inherit: true)
-            .FirstOrDefault(a => a.GetType().FullName == "System.Text.Json.Serialization.JsonPropertyNameAttribute");
-        if (stj != null)
+        
+        if (member.TryGetAttribute<JsonPropertyNameAttribute>(true, out var propName) && propName.Name.HasValue())
         {
-            var nameProp = stj.GetType().GetProperty("Name", BindingFlags.Instance | BindingFlags.Public);
-            var n = nameProp?.GetValue(stj) as string;
-            if (!string.IsNullOrWhiteSpace(n))
-                AddOrReplaceMostDerived(map, rootType, n, member);
+            AddOrReplaceMostDerived(map, rootType, propName.Name, member);
         }
-
-        // DataContract: [DataMember(Name="...")]
-        var dm = member.GetCustomAttribute<DataMemberAttribute>(inherit: true);
-        if (!string.IsNullOrWhiteSpace(dm?.Name))
-            AddOrReplaceMostDerived(map, rootType, dm.Name, member);
-
-        // Newtonsoft (optional): [JsonProperty(PropertyName="...")]
-        var nsj = member.GetCustomAttributes(inherit: true)
-            .FirstOrDefault(a => a.GetType().FullName == "Newtonsoft.Json.JsonPropertyAttribute");
-        if (nsj != null)
+        else if (member.TryGetAttribute<DataMemberAttribute>(true, out var dataMember) && dataMember.Name.HasValue())
         {
-            var pn = nsj.GetType().GetProperty("PropertyName", BindingFlags.Instance | BindingFlags.Public);
-            var n = pn?.GetValue(nsj) as string;
-            if (!string.IsNullOrWhiteSpace(n))
-                AddOrReplaceMostDerived(map, rootType, n, member);
+            AddOrReplaceMostDerived(map, rootType, dataMember.Name, member);
+        }
+        else if (member.TryGetAttribute<JsonPropertyAttribute>(true, out var prop) && prop.PropertyName.HasValue())
+        {
+            AddOrReplaceMostDerived(map, rootType, prop.PropertyName, member);
         }
     }
 
@@ -624,7 +535,7 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
         return int.MaxValue;
     }
 
-    private static bool IsIgnoredByIgnoreDataMember(string schemaPropertyName, Dictionary<string, MemberInfo> memberMap)
+    private static bool IsIgnoredMember(string schemaPropertyName, Dictionary<string, MemberInfo> memberMap)
     {
         if (memberMap == null)
             return false;
@@ -632,7 +543,22 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
         if (!memberMap.TryGetValue(schemaPropertyName, out var mi) || mi == null)
             return false;
 
-        return mi.IsDefined(typeof(IgnoreDataMemberAttribute), true);
+        if (mi.IsDefined(typeof(IgnoreDataMemberAttribute), true)) 
+        {
+            return true;
+        }
+
+        if (mi.TryGetAttribute<System.Text.Json.Serialization.JsonIgnoreAttribute>(true, out var attr))
+        {
+            return attr.Condition is (JsonIgnoreCondition.Always or JsonIgnoreCondition.WhenWriting);
+        }
+
+        if (mi.HasAttribute<Newtonsoft.Json.JsonIgnoreAttribute>(true))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private static Type GetMemberTypeHint(string schemaPropertyName, Dictionary<string, MemberInfo> memberMap)
