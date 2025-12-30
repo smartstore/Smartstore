@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 using Microsoft.OpenApi.Any;
@@ -49,8 +50,8 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
     // Extend as needed ("Foo*" supported)
     internal static readonly string[] ExcludedPropertyNamePatterns = ["UnderlyingEntities"];
 
-    // Cache: CLR Type -> serializedName -> MemberInfo (Property/Field)
-    private static readonly ConcurrentDictionary<Type, Dictionary<string, MemberInfo>> TypeMemberMapCache = new();
+    // Cache: CLR Type -> ignored serialized names (small & sufficient)
+    private static readonly ConcurrentDictionary<Type, HashSet<string>> IgnoredMembersCache = new();
 
     public void Apply(OpenApiSchema schema, SchemaFilterContext context)
     {
@@ -63,7 +64,7 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
         schema.Example = null;
 
         // 2) Schema properties: remove ignored stuff (so it disappears from "Schema" property list)
-        PruneSchemaProperties(schema, context.Type);
+        PruneSchemaProperties(schema, context.SchemaRepository, context.Type);
     }
 
     internal static IOpenApiAny BuildExample(OpenApiSchema rootSchema, SchemaRepository repo, Type rootClrType)
@@ -123,12 +124,7 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
         // Dictionary-like
         if (clrType.IsDictionaryType() || (schema != null && schema.AdditionalProperties != null && (schema.Properties == null || schema.Properties.Count == 0)))
         {
-            var obj = new OpenApiObject
-            {
-                ["additionalProp1"] = new OpenApiString("string"),
-                ["additionalProp2"] = new OpenApiString("string")
-            };
-            return obj;
+            return CreateAdditionalProps(new OpenApiString("string"));
         }
 
         // primitives
@@ -150,16 +146,11 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
             (schema.Properties == null || schema.Properties.Count == 0) &&
             (schema.AllOf == null || schema.AllOf.Count == 0))
         {
-            var dict = new OpenApiObject
-            {
-                ["additionalProp1"] = BuildAny(schema.AdditionalProperties, repo, depthRemaining - 1, typeof(object), visitedTypes)
-            };
-            dict["additionalProp2"] = dict["additionalProp1"];
-            return dict;
+            return CreateAdditionalProps(BuildAny(schema.AdditionalProperties, repo, depthRemaining - 1, typeof(object), visitedTypes));
         }
 
         var props = GetEffectiveProperties(schema, repo);
-        var memberMap = GetMemberMap(clrType);
+        var ignored = GetIgnoredMembers(clrType);
 
         if (props == null || props.Count == 0)
         {
@@ -173,14 +164,10 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
         {
             var name = kvp.Key;
 
-            if (ShouldExcludeByName(name))
+            if (ShouldExcludeByName(name) || ignored.Contains(name))
                 continue;
 
-            if (IsIgnoredMember(name, memberMap))
-                continue;
-
-            var memberType = GetMemberTypeHint(name, memberMap) ?? typeof(object);
-
+            var memberType = GetMostDerivedProperty(clrType, name)?.PropertyType ?? typeof(object);
             obj[name] = BuildAny(kvp.Value, repo, depthRemaining - 1, memberType, visitedTypes);
         }
 
@@ -192,7 +179,7 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
         clrType = (clrType ?? typeof(object)).GetNonNullableType();
 
         if (clrType.IsSequenceType() || clrType.IsDictionaryType())
-            return new OpenApiObject();
+            return [];
 
         if (depthRemaining < 0)
             return BuildCompactObjectFromClr(clrType);
@@ -256,62 +243,85 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
         var obj = new OpenApiObject();
         clrType = (clrType ?? typeof(object)).GetNonNullableType();
 
-        var flags = BindingFlags.Instance | BindingFlags.Public;
+        var ignored = GetIgnoredMembers(clrType);
 
-        var id = clrType.GetProperty("Id", flags);
-        if (id != null && !id.IsDefined(typeof(IgnoreDataMemberAttribute), true) && !ShouldExcludeByName("Id"))
+        var id = GetMostDerivedProperty(clrType, "Id");
+        if (id != null && !ignored.Contains("Id") && !ShouldExcludeByName("Id") && !id.IsDefined(typeof(IgnoreDataMemberAttribute), true))
             obj["Id"] = CreatePrimitiveExampleFromClr(id.PropertyType, null);
 
-        var name = clrType.GetProperty("Name", flags);
-        if (name != null && !name.IsDefined(typeof(IgnoreDataMemberAttribute), true) && !ShouldExcludeByName("Name"))
+        var name = GetMostDerivedProperty(clrType, "Name");
+        if (name != null && !ignored.Contains("Name") && !ShouldExcludeByName("Name") && !name.IsDefined(typeof(IgnoreDataMemberAttribute), true))
             obj["Name"] = CreatePrimitiveExampleFromClr(name.PropertyType, null);
 
         return obj;
     }
 
-    private static void PruneSchemaProperties(OpenApiSchema schema, Type clrType)
+    private static void PruneSchemaProperties(OpenApiSchema schema, SchemaRepository repo, Type clrType)
     {
         if (schema == null || clrType == null)
-            return;
-
-        if (schema.Properties == null || schema.Properties.Count == 0)
             return;
 
         // If the schema is actually a collection, don't treat it as object properties
         if (clrType.IsSequenceType() || clrType.IsDictionaryType())
             return;
 
-        clrType = clrType.GetNonNullableType();
+        var ignored = GetIgnoredMembers(clrType);
 
-        var memberMap = GetMemberMap(clrType);
+        // Walk schema + inline allOf/oneOf/anyOf parts; also follow $ref
+        var visited = new HashSet<OpenApiSchema>(ReferenceEqualityComparer.Instance);
+        var stack = new Stack<OpenApiSchema>();
+        stack.Push(schema);
 
-        var toRemove = new List<string>();
-
-        foreach (var kv in schema.Properties)
+        while (stack.Count > 0)
         {
-            var name = kv.Key;
-
-            if (ShouldExcludeByName(name))
-            {
-                toRemove.Add(name);
+            var current = stack.Pop();
+            if (current == null)
                 continue;
+
+            current = ResolveRef(current, repo);
+            if (current == null || !visited.Add(current))
+                continue;
+
+            // Schema tab should never show any example anywhere
+            current.Example = null;
+
+            if (current.Properties != null && current.Properties.Count > 0)
+            {
+                var toRemove = new List<string>();
+
+                foreach (var kv in current.Properties)
+                {
+                    var name = kv.Key;
+
+                    if (ShouldExcludeByName(name) || ignored.Contains(name))
+                        toRemove.Add(name);
+                }
+
+                for (var i = 0; i < toRemove.Count; i++)
+                {
+                    var n = toRemove[i];
+                    current.Properties.Remove(n);
+                    current.Required?.Remove(n);
+                }
             }
 
-            if (IsIgnoredMember(name, memberMap))
-            {
-                toRemove.Add(name);
-                continue;
-            }
-        }
+            if (current.AllOf != null)
+                foreach (var s in current.AllOf) stack.Push(s);
 
-        if (toRemove.Count == 0)
-            return;
+            if (current.OneOf != null)
+                foreach (var s in current.OneOf) stack.Push(s);
 
-        for (var i = 0; i < toRemove.Count; i++)
-        {
-            schema.Properties.Remove(toRemove[i]);
-            schema.Required?.Remove(toRemove[i]);
+            if (current.AnyOf != null)
+                foreach (var s in current.AnyOf) stack.Push(s);
         }
+    }
+
+    private sealed class ReferenceEqualityComparer : IEqualityComparer<OpenApiSchema>
+    {
+        public static readonly ReferenceEqualityComparer Instance = new();
+
+        public bool Equals(OpenApiSchema x, OpenApiSchema y) => ReferenceEquals(x, y);
+        public int GetHashCode(OpenApiSchema obj) => RuntimeHelpers.GetHashCode(obj);
     }
 
     private static OpenApiSchema ResolveRef(OpenApiSchema schema, SchemaRepository repo)
@@ -419,7 +429,7 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
             return new OpenApiDouble(0);
 
         if (t == typeof(DateTime) || t == typeof(DateTimeOffset))
-            return new OpenApiString("2025-01-01T00:00:00Z");
+            return new OpenApiString("2026-01-01T00:00:00Z");
 
         if (t == typeof(Guid))
             return new OpenApiString("3fa85f64-5717-4562-b3fc-2c963f66afa6");
@@ -431,6 +441,15 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
             return CreatePrimitiveExampleFromSchema(schema);
 
         return new OpenApiString("string");
+    }
+
+    private static OpenApiObject CreateAdditionalProps(IOpenApiAny value)
+    {
+        return new()
+        {
+            ["additionalProp1"] = value,
+            ["additionalProp2"] = value
+        };
     }
 
     private static bool IsSimpleClr(Type t)
@@ -448,13 +467,7 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
 
     private static bool ShouldGuardType(Type t)
     {
-        if (t == null || t == typeof(object))
-            return false;
-
-        if (IsSimpleClr(t))
-            return false;
-
-        if (t.IsSequenceType() || t.IsDictionaryType())
+        if (t == null || t == typeof(object) || IsSimpleClr(t) || t.IsSequenceType() || t.IsDictionaryType())
             return false;
 
         return t.IsClass;
@@ -487,81 +500,6 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
         return false;
     }
 
-    private static Dictionary<string, MemberInfo> GetMemberMap(Type clrType)
-    {
-        clrType = (clrType ?? typeof(object)).GetNonNullableType();
-
-        //var jsonOptions = EngineContext.Current.Application.Services.Resolve<IOptions<JsonOptions>>().Value.JsonSerializerOptions;
-        //var typeInfo = jsonOptions.GetTypeInfo(clrType);
-        //var props = typeInfo.Properties;
-        //var propMap = props.ToDictionary(p => p.Name, p => p, StringComparer.OrdinalIgnoreCase);
-
-        return TypeMemberMapCache.GetOrAdd(clrType, static t =>
-        {
-            var map = new Dictionary<string, MemberInfo>(StringComparer.OrdinalIgnoreCase);
-            var flags = BindingFlags.Instance | BindingFlags.Public;
-
-            foreach (var p in t.GetProperties(flags))
-            {
-                if (p.GetIndexParameters().Length > 0)
-                    continue;
-
-                AddMemberNames(map, t, p, p.Name);
-            }
-
-            foreach (var f in t.GetFields(flags))
-            {
-                AddMemberNames(map, t, f, f.Name);
-            }
-
-            return map;
-        });
-    }
-
-    private static void AddMemberNames(Dictionary<string, MemberInfo> map, Type rootType, MemberInfo member, string clrName)
-    {
-        AddOrReplaceMostDerived(map, rootType, clrName, member);
-
-        if (member.TryGetAttribute<JsonPropertyNameAttribute>(true, out var propName) && propName.Name.HasValue())
-        {
-            AddOrReplaceMostDerived(map, rootType, propName.Name, member);
-        }
-        else if (member.TryGetAttribute<DataMemberAttribute>(true, out var dataMember) && dataMember.Name.HasValue())
-        {
-            AddOrReplaceMostDerived(map, rootType, dataMember.Name, member);
-        }
-        else if (member.TryGetAttribute<JsonPropertyAttribute>(true, out var prop) && prop.PropertyName.HasValue())
-        {
-            AddOrReplaceMostDerived(map, rootType, prop.PropertyName, member);
-        }
-    }
-
-    private static void AddOrReplaceMostDerived(Dictionary<string, MemberInfo> map, Type rootType, string key, MemberInfo candidate)
-    {
-        if (!map.TryGetValue(key, out var existing) || existing == null)
-        {
-            map[key] = candidate;
-            return;
-        }
-
-        var candDecl = candidate.DeclaringType;
-        var existDecl = existing.DeclaringType;
-
-        if (candDecl == null || existDecl == null)
-            return;
-
-        if (existDecl.IsAssignableFrom(candDecl))
-        {
-            map[key] = candidate;
-            return;
-        }
-
-        var dc = DistanceTo(rootType, candDecl);
-        var de = DistanceTo(rootType, existDecl);
-        if (dc < de)
-            map[key] = candidate;
-    }
-
     private static int DistanceTo(Type rootType, Type declaringType)
     {
         var d = 0;
@@ -573,47 +511,89 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
         return int.MaxValue;
     }
 
-    private static bool IsIgnoredMember(string schemaPropertyName, Dictionary<string, MemberInfo> memberMap)
+    private static HashSet<string> GetIgnoredMembers(Type clrType)
     {
-        if (memberMap == null)
-            return false;
+        clrType = (clrType ?? typeof(object)).GetNonNullableType();
 
-        if (!memberMap.TryGetValue(schemaPropertyName, out var mi) || mi == null)
-            return false;
-
-        if (mi.IsDefined(typeof(IgnoreDataMemberAttribute), true))
+        return IgnoredMembersCache.GetOrAdd(clrType, static t =>
         {
-            return true;
-        }
+            var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var flags = BindingFlags.Instance | BindingFlags.Public;
 
-        if (mi.TryGetAttribute<System.Text.Json.Serialization.JsonIgnoreAttribute>(true, out var attr))
-        {
-            return attr.Condition is (JsonIgnoreCondition.Always or JsonIgnoreCondition.WhenWriting);
-        }
+            foreach (var p in t.GetProperties(flags))
+            {
+                if (p.GetIndexParameters().Length > 0)
+                    continue;
 
-        if (mi.HasAttribute<Newtonsoft.Json.JsonIgnoreAttribute>(true))
-        {
-            return true;
-        }
+                if (!p.IsDefined(typeof(IgnoreDataMemberAttribute), true))
+                    continue;
 
-        return false;
+                set.Add(p.Name);
+
+                // Also add renamed serialized names for ignored members (minimal, not a full map)
+                if (p.TryGetAttribute<JsonPropertyNameAttribute>(true, out var stj) && stj.Name.HasValue())
+                    set.Add(stj.Name);
+
+                if (p.TryGetAttribute<DataMemberAttribute>(true, out var dm) && dm.Name.HasValue())
+                    set.Add(dm.Name);
+
+                if (p.TryGetAttribute<JsonPropertyAttribute>(true, out var nsj) && nsj.PropertyName.HasValue())
+                    set.Add(nsj.PropertyName);
+            }
+
+            foreach (var f in t.GetFields(flags))
+            {
+                if (!f.IsDefined(typeof(IgnoreDataMemberAttribute), true))
+                    continue;
+
+                set.Add(f.Name);
+
+                if (f.TryGetAttribute<JsonPropertyNameAttribute>(true, out var stj) && stj.Name.HasValue())
+                    set.Add(stj.Name);
+
+                if (f.TryGetAttribute<DataMemberAttribute>(true, out var dm) && dm.Name.HasValue())
+                    set.Add(dm.Name);
+
+                if (f.TryGetAttribute<JsonPropertyAttribute>(true, out var nsj) && nsj.PropertyName.HasValue())
+                    set.Add(nsj.PropertyName);
+            }
+
+            return set;
+        });
     }
 
-    private static Type GetMemberTypeHint(string schemaPropertyName, Dictionary<string, MemberInfo> memberMap)
+    private static PropertyInfo GetMostDerivedProperty(Type rootType, string propertyName)
     {
-        if (memberMap == null)
-            return null;
+        rootType = (rootType ?? typeof(object)).GetNonNullableType();
 
-        if (!memberMap.TryGetValue(schemaPropertyName, out var mi) || mi == null)
-            return null;
+        var flags = BindingFlags.Instance | BindingFlags.Public;
 
-        if (mi is PropertyInfo pi)
-            return pi.PropertyType;
+        PropertyInfo best = null;
+        var bestDistance = int.MaxValue;
 
-        if (mi is FieldInfo fi)
-            return fi.FieldType;
+        foreach (var p in rootType.GetProperties(flags))
+        {
+            if (p.GetIndexParameters().Length > 0)
+                continue;
 
-        return null;
+            // Do not pick interface-declared members
+            if (p.DeclaringType != null && p.DeclaringType.IsInterface)
+                continue;
+
+            if (!string.Equals(p.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            var decl = p.DeclaringType;
+            var dist = DistanceTo(rootType, decl);
+
+            if (dist < bestDistance)
+            {
+                best = p;
+                bestDistance = dist;
+            }
+        }
+
+        return best;
     }
 }
 

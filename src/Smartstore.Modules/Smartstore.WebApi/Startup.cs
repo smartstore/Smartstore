@@ -123,7 +123,6 @@ internal class Startup : StarterBase
 
             // Example filters.
             o.SchemaFilter<SwaggerExamplesSchemaFilter>();
-            o.OperationFilter<SwaggerExamplesOperationFilter>();
 
             //o.MapType<decimal>(() => new OpenApiSchema
             //{
