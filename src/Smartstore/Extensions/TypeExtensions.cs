@@ -317,7 +317,8 @@ public static class TypeExtensions
             return
                 type.IsArray ||
                 typeof(IEnumerable).IsAssignableFrom(type) ||
-                type == typeof(Array);
+                type == typeof(Array) ||
+                type.IsClosedGenericTypeOf(typeof(IAsyncEnumerable<>));
         }
 
         public bool IsSequenceType([NotNullWhen(true)] out Type? elementType)
@@ -333,7 +334,9 @@ public static class TypeExtensions
             {
                 elementType = type.GetElementType();
             }
-            else if (type.TryGetClosedGenericTypeOf(typeof(IEnumerable<>), out var closedType))
+            else if (
+                type.TryGetClosedGenericTypeOf(typeof(IEnumerable<>), out var closedType) ||
+                type.TryGetClosedGenericTypeOf(typeof(IAsyncEnumerable<>), out closedType))
             {
                 elementType = closedType.GetGenericArguments()[0];
             }
@@ -354,7 +357,9 @@ public static class TypeExtensions
                 return false;
             }
 
-            if (type.TryGetClosedGenericTypeOf(typeof(IEnumerable<>), out var closedType))
+            if (
+                type.TryGetClosedGenericTypeOf(typeof(IEnumerable<>), out var closedType) ||
+                type.TryGetClosedGenericTypeOf(typeof(IAsyncEnumerable<>), out closedType))
             {
                 elementType = closedType.GetGenericArguments()[0];
             }
