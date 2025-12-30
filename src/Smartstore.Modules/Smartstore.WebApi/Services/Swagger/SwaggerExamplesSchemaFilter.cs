@@ -366,26 +366,36 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
 
     private static IOpenApiAny CreatePrimitiveExampleFromSchema(OpenApiSchema schema)
     {
-        var type = schema?.Type ?? "string";
-        var format = schema?.Format ?? string.Empty;
-
-        if (type == "boolean")
-            return new OpenApiBoolean(true);
-
-        if (type == "integer")
-            return new OpenApiInteger(0);
-
-        if (type == "number")
-            return new OpenApiDouble(0);
-
-        switch (format)
+        switch (schema?.Type ?? string.Empty)
         {
-            case "date-time": return new OpenApiString("2025-01-01T00:00:00Z");
-            case "date": return new OpenApiString("2025-01-01");
-            case "uuid": return new OpenApiString("3fa85f64-5717-4562-b3fc-2c963f66afa6");
-            case "email": return new OpenApiString("user@example.com");
-            case "uri": return new OpenApiString("https://example.com");
-            default: return new OpenApiString("string");
+            case "boolean":
+                return new OpenApiBoolean(true);
+            case "integer":
+                return new OpenApiInteger(0);
+            case "number":
+                return new OpenApiDouble(0);
+            case "array":
+                return new OpenApiArray();
+            case "object":
+                return new OpenApiObject();
+        }
+
+        switch (schema?.Format ?? string.Empty)
+        {
+            case "date-time":
+                return new OpenApiString("2026-01-01T00:00:00Z");
+            case "date":
+                return new OpenApiString("2026-01-01");
+            case "uuid":
+                return new OpenApiString("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+            case "email":
+                return new OpenApiString("user@example.com");
+            case "uri":
+                return new OpenApiString("https://example.com");
+            case "byte":
+                return new OpenApiByte(0);
+            default:
+                return new OpenApiString("string");
         }
     }
 
@@ -618,27 +628,25 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
 
 //internal class SwaggerExamplesSchemaFilter : ISchemaFilter
 //{
-//    const int MaxProperties = 1000;
+//    const int MaxProperties = 500;
 
 //    public void Apply(OpenApiSchema schema, SchemaFilterContext context)
 //    {
-//        // Only for object schemas with properties
-//        if (schema?.Properties == null || schema.Properties.Count == 0)
+//        // Only for object schemas with properties and for our domain models.
+//        // If an explicit example already exists, do not overwrite it.
+//        if (schema?.Properties == null
+//            || schema.Properties.Count == 0
+//            || context.Type?.Namespace == null
+//            || !context.Type.Namespace.StartsWith("Smartstore.", StringComparison.Ordinal)
+//            || schema.Example != null)
+//        {
 //            return;
-
-//        // Keep it conservative: only attach examples for your domain models
-//        // (adjust namespace prefix to your solution)
-//        if (context.Type?.Namespace == null || !context.Type.Namespace.StartsWith("Smartstore.", StringComparison.Ordinal))
-//            return;
-
-//        // If an explicit example already exists, don't overwrite it
-//        if (schema.Example != null)
-//            return;
+//        }
 
 //        var example = new OpenApiObject();
 //        foreach (var (name, propSchema) in schema.Properties)
 //        {
-//            if (example.Count >= MaxProperties)
+//            if (example.Count > MaxProperties)
 //                break;
 
 //            // Only primitive-ish properties
@@ -657,26 +665,36 @@ internal sealed class SwaggerExamplesSchemaFilter : ISchemaFilter
 
 //    private static IOpenApiAny CreatePrimitiveSample(OpenApiSchema schema)
 //    {
-//        var type = schema?.Type ?? "string";
-//        var format = schema?.Format ?? string.Empty;
-
-//        if (type == "boolean")
-//            return new OpenApiBoolean(true);
-
-//        if (type == "integer")
-//            return new OpenApiInteger(0);
-
-//        if (type == "number")
-//            return new OpenApiDouble(0);
-
-//        switch (format)
+//        switch (schema?.Type ?? string.Empty)
 //        {
-//            case "date-time": return new OpenApiString("2025-01-01T00:00:00Z");
-//            case "date": return new OpenApiString("2025-01-01");
-//            case "uuid": return new OpenApiString("3fa85f64-5717-4562-b3fc-2c963f66afa6");
-//            case "email": return new OpenApiString("user@example.com");
-//            case "uri": return new OpenApiString("https://example.com");
-//            default: return new OpenApiString("string");
+//            case "boolean":
+//                return new OpenApiBoolean(true);
+//            case "integer":
+//                return new OpenApiInteger(0);
+//            case "number":
+//                return new OpenApiDouble(0);
+//            case "array":
+//                return new OpenApiArray();
+//            case "object":
+//                return new OpenApiObject();
+//        }
+
+//        switch (schema?.Format ?? string.Empty)
+//        {
+//            case "date-time": 
+//                return new OpenApiString("2026-01-01T00:00:00Z");
+//            case "date": 
+//                return new OpenApiString("2026-01-01");
+//            case "uuid": 
+//                return new OpenApiString("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+//            case "email": 
+//                return new OpenApiString("user@example.com");
+//            case "uri": 
+//                return new OpenApiString("https://example.com");
+//            case "byte": 
+//                return new OpenApiByte(0);
+//            default:
+//                return new OpenApiString("string");
 //        }
 //    }
 //}
