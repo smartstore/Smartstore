@@ -673,8 +673,12 @@ public partial class ShoppingCartService : IShoppingCartService
         // Bundle items that require merging of attribute combinations.
         var mergeRequiringItems = new List<ShoppingCartItem>();
         var childItemsMap = items.ToMultimap(x => x.ParentItemId ?? 0, x => x);
+        var parentItems = items
+            .Where(x => x.ParentItemId == null)
+            .OrderByDescending(x => x.Active)
+            .ThenBy(x => x.Id);
 
-        foreach (var parent in items.Where(x => x.ParentItemId == null).OrderBy(x => x.Id))
+        foreach (var parent in parentItems)
         {
             var parentItem = CreateOrganizedCartItem(parent);
 

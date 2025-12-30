@@ -41,6 +41,8 @@ public static class ShoppingCartItemExtensions
                 : items.Where(x => x.ParentItemId == null);
         }
 
-        return items.OrderBy(x => x.Id);
+        return items
+            .OrderByDescending(x => x.Active)
+            .ThenBy(x => x.Id);
     }
 }
