@@ -132,12 +132,18 @@ internal class Startup : StarterBase
 
             IncludeXmlComments(o, appContext);
         });
+
+        //services.AddSingleton<ISerializerDataContractResolver, SmartSerializerDataContractResolver>();
+        //services.AddTransient<ISerializerDataContractResolver>(sp =>
+        //{
+        //    var options = sp.GetRequiredService<IOptions<JsonOptions>>();
+        //    return new SmartSerializerDataContractResolver(options);
+        //});
     }
 
     public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
     {
         builder.RegisterType<ODataOptionsConfigurer>().As<IConfigureOptions<ODataOptions>>().SingleInstance();
-        //builder.RegisterDecorator<SmartSerializerDataContractResolver, ISerializerDataContractResolver>();
     }
 
     public override void ConfigureMvc(IMvcBuilder mvcBuilder, IServiceCollection services, IApplicationContext appContext)
