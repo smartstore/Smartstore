@@ -188,6 +188,9 @@ public static class TypeExtensions
                 type == typeof(string) ||
                 type == typeof(decimal) ||
                 type == typeof(DateTime) ||
+                type == typeof(DateTimeOffset) ||
+                type == typeof(DateOnly) ||
+                type == typeof(TimeOnly) ||
                 type == typeof(TimeSpan) ||
                 type == typeof(Guid) ||
                 type == typeof(byte[]);
@@ -379,7 +382,9 @@ public static class TypeExtensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsDictionaryType()
         {
-            return type.TryGetClosedGenericTypeOf(typeof(IDictionary<,>), out _);
+            return typeof(IDictionary).IsAssignableFrom(type) || 
+                type.TryGetClosedGenericTypeOf(typeof(IDictionary<,>), out _) ||
+                type.TryGetClosedGenericTypeOf(typeof(IReadOnlyDictionary<,>), out _);
         }
 
         public bool IsDictionaryType([NotNullWhen(true)] out Type? keyType, [NotNullWhen(true)] out Type? valueType)
@@ -387,7 +392,9 @@ public static class TypeExtensions
             keyType = null;
             valueType = null;
 
-            if (type.TryGetClosedGenericTypeOf(typeof(IDictionary<,>), out var closedType))
+            if (
+                type.TryGetClosedGenericTypeOf(typeof(IDictionary<,>), out var closedType) || 
+                type.TryGetClosedGenericTypeOf(typeof(IReadOnlyDictionary<,>), out closedType))
             {
                 var args = closedType.GetGenericArguments();
                 keyType = args[0];
