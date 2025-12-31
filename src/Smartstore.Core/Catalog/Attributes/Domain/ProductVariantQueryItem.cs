@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Media;
@@ -9,7 +10,6 @@ namespace Smartstore.Core.Catalog.Attributes
     /// <summary>
     /// Represents a product variant query item.
     /// </summary>
-    [DataContract]
     public class ProductVariantQueryItem
     {
         /// <summary>
@@ -27,24 +27,21 @@ namespace Smartstore.Core.Catalog.Attributes
         /// The <see cref="Product"/> identifier.
         /// </summary>
         [Required]
-        [JsonProperty("productId")]
-        [DataMember(Name = "productId")]
+        [JsonPropertyName("productId")]
         public int ProductId { get; set; }
 
         /// <summary>
         /// The <see cref="ProductBundleItem"/> identifier. 0 if this item is not a bundle item.
         /// </summary>
         [Required]
-        [JsonProperty("bundleItemId")]
-        [DataMember(Name = "bundleItemId")]
+        [JsonPropertyName("bundleItemId")]
         public int BundleItemId { get; set; }
 
         /// <summary>
         /// The <see cref="ProductAttribute"/> identifier.
         /// </summary>
         [Required]
-        [JsonProperty("attributeId")]
-        [DataMember(Name = "attributeId")]
+        [JsonPropertyName("attributeId")]
         public int AttributeId { get; set; }
 
         /// <summary>
@@ -52,8 +49,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// It is the identifier of the mapping between a product and a product attribute.
         /// </summary>
         [Required]
-        [JsonProperty("variantAttributeId")]
-        [DataMember(Name = "variantAttributeId")]
+        [JsonPropertyName("variantAttributeId")]
         public int VariantAttributeId { get; set; }
 
         /// <summary>
@@ -63,23 +59,26 @@ namespace Smartstore.Core.Catalog.Attributes
         /// For a file, this must be a <see cref="Download.DownloadGuid"/>.
         /// </summary>
         /// <example>1234</example>
-        [JsonProperty("value")]
-        [DataMember(Name = "value")]
+        [JsonPropertyName("value")]
         public string Value { get; set; } = string.Empty;
 
         /// <summary>
         /// The date if the control type is a datepicker. The value property is ignored in this case.
         /// </summary>
-        [JsonProperty("date")]
-        [DataMember(Name = "date")]
+        [JsonPropertyName("date")]
         public DateTime? Date { get; set; }
 
+        [IgnoreDataMember]
         public bool IsFile { get; set; }
 
+        [IgnoreDataMember]
         public bool IsText { get; set; }
+        [IgnoreDataMember]
         public bool IsTextArea { get; set; }
 
-        public string Alias { get; set; }        
+        [IgnoreDataMember]
+        public string Alias { get; set; }
+        [IgnoreDataMember]
         public string ValueAlias { get; set; }
 
         public override string ToString()

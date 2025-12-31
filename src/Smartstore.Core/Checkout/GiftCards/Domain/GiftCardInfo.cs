@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Runtime.Serialization;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Smartstore.Core.Checkout.GiftCards
 {
@@ -35,34 +34,28 @@ namespace Smartstore.Core.Checkout.GiftCards
     // INFO: use lower case names when accessing properties of deserialized dynamic GiftCardInfo objects!
     // See ProductVariantAttributeSelection.ToCustomAttributeValue.
 
-    [DataContract]
     public class GiftCardInfo : IGiftCardInfo
     {
         /// <inheritdoc/>
         [Required]
-        [JsonProperty("recipientName")]
-        [DataMember(Name = "recipientName")]
+        [JsonPropertyName("recipientName")]
         public string RecipientName { get; set; }
 
         /// <inheritdoc/>
         [Required]
-        [JsonProperty("recipientEmail")]
-        [DataMember(Name = "recipientEmail")]
+        [JsonPropertyName("recipientEmail")]
         public string RecipientEmail { get; set; }
 
         /// <inheritdoc/>
-        [JsonProperty("senderName")]
-        [DataMember(Name = "senderName")]
+        [JsonPropertyName("senderName")]
         public string SenderName { get; set; }
 
         /// <inheritdoc/>
-        [JsonProperty("senderEmail")]
-        [DataMember(Name = "senderEmail")]
+        [JsonPropertyName("senderEmail")]
         public string SenderEmail { get; set; }
 
         /// <inheritdoc/>
-        [JsonProperty("message")]
-        [DataMember(Name = "message")]
+        [JsonPropertyName("message")]
         public string Message { get; set; }
 
         public static bool operator ==(GiftCardInfo left, GiftCardInfo right)

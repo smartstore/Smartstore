@@ -1,4 +1,4 @@
-﻿using System.Runtime.Serialization;
+﻿using System.Text.Json.Serialization;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.GiftCards;
@@ -8,7 +8,6 @@ namespace Smartstore.Web.Api.Models.Checkout;
 /// <summary>
 /// Represents optional extra data when adding an item to shopping cart or wishlist.
 /// </summary>
-[DataContract]
 public partial class AddToCartExtraData
 {
     /// <summary>
@@ -18,7 +17,7 @@ public partial class AddToCartExtraData
     /// Use **attributes** or **searchAttributes**, but not both together.
     /// Both do the same thing (applying attributes), just in different ways.
     /// </summary>
-    [DataMember(Name = "attributes")]
+    [JsonPropertyName("attributes")]
     public List<ProductVariantQueryItem> Attributes { get; set; }
 
     /// <summary>
@@ -28,7 +27,7 @@ public partial class AddToCartExtraData
     /// Use **attributes** or **searchAttributes**, but not both together.
     /// Both do the same thing (applying attributes), just in different ways.
     /// </summary>
-    [DataMember(Name = "searchAttributes")]
+    [JsonPropertyName("searchAttributes")]
     public List<SearchAttribute> SearchAttributes { get; set; }
 
     /// <summary>
@@ -38,7 +37,7 @@ public partial class AddToCartExtraData
     /// Use **checkoutAttributes** or **searchCheckoutAttributes**, but not both together.
     /// Both do the same thing (applying checkout attributes), just in different ways.
     /// </summary>
-    [DataMember(Name = "checkoutAttributes")]
+    [JsonPropertyName("checkoutAttributes")]
     public List<CheckoutAttributeQueryItem> CheckoutAttributes { get; set; }
 
     /// <summary>
@@ -47,32 +46,31 @@ public partial class AddToCartExtraData
     /// Use **checkoutAttributes** or **searchCheckoutAttributes**, but not both together.
     /// Both do the same thing (applying checkout attributes), just in different ways.
     /// </summary>
-    [DataMember(Name = "searchCheckoutAttributes")]
+    [JsonPropertyName("searchCheckoutAttributes")]
     public List<SearchAttribute> SearchCheckoutAttributes { get; set; }
 
     /// <summary>
     /// Gift card properties to apply. Only applicable if the product is a gift card.
     /// </summary>
-    [DataMember(Name = "giftCard")]
+    [JsonPropertyName("giftCard")]
     public GiftCardInfo GiftCard { get; set; }
 
     /// <summary>
     /// A price entered by customer. Only applicable if the product supports it.
     /// </summary>
-    [DataMember(Name = "customerEnteredPrice")]
+    [JsonPropertyName("customerEnteredPrice")]
     public AddToCartPrice CustomerEnteredPrice { get; set; }
 
     /// <summary>
     /// Represents a price entered by customer.
     /// </summary>
-    [DataContract]
     public class AddToCartPrice
     {
         /// <summary>
         /// Customer entered price. Only applicable if the product supports it.
         /// </summary>
         /// <example>9.89</example>
-        [DataMember(Name = "price")]
+        [JsonPropertyName("price")]
         public decimal Price { get; set; }
 
         /// <summary>
@@ -80,28 +78,27 @@ public partial class AddToCartExtraData
         /// If empty, then **price** must be in the primary currency of the store.
         /// </summary>
         /// <example>EUR</example>
-        [DataMember(Name = "currencyCode")]
+        [JsonPropertyName("currencyCode")]
         public string CurrencyCode { get; set; }
     }
 
     /// <summary>
     /// Represents a product or checkout attribute to search for.
     /// </summary>
-    [DataContract]
     public class SearchAttribute
     {
         /// <summary>
         /// The name of the attribute.
         /// </summary>
         /// <example>Color</example>
-        [DataMember(Name = "name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; }
 
         /// <summary>
         /// The value of the attribute.
         /// </summary>
         /// <example>Green</example>
-        [DataMember(Name = "value")]
+        [JsonPropertyName("value")]
         public string Value { get; set; }
     }
 }

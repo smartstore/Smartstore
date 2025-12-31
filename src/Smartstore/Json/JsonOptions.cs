@@ -101,8 +101,7 @@ public static class SmartJsonOptions
         Guard.NotNull(typeInfoResolver);
 
         return typeInfoResolver
-            .WithAddedModifier(ApplyIgnoreDataMember)
-            .WithAddedModifier(ApplyDataMemberNameAndOrder);
+            .WithAddedModifier(ApplyIgnoreDataMember);
     }
 
     /// <summary>
@@ -141,43 +140,43 @@ public static class SmartJsonOptions
         }
     }
 
-    /// <summary>
-    /// Applies the DataMemberAttribute name and order values to the properties of the specified JsonTypeInfo object if
-    /// it represents an object type.
-    /// </summary>
-    /// <remarks>This method sets the Name and Order of each property in the JsonTypeInfo to match the
-    /// corresponding values from the DataMemberAttribute, if present. Only properties backed by a MemberInfo and
-    /// decorated with DataMemberAttribute are affected. Properties without DataMemberAttribute or with negative Order
-    /// values are left unchanged.</remarks>
-    /// <param name="typeInfo">The JsonTypeInfo instance whose properties will be updated based on DataMemberAttribute metadata. Must represent
-    /// an object type; otherwise, no changes are made.</param>
-    internal static void ApplyDataMemberNameAndOrder(JsonTypeInfo typeInfo)
-    {
-        if (typeInfo.Kind != JsonTypeInfoKind.Object)
-            return;
+    ///// <summary>
+    ///// Applies the DataMemberAttribute name and order values to the properties of the specified JsonTypeInfo object if
+    ///// it represents an object type.
+    ///// </summary>
+    ///// <remarks>This method sets the Name and Order of each property in the JsonTypeInfo to match the
+    ///// corresponding values from the DataMemberAttribute, if present. Only properties backed by a MemberInfo and
+    ///// decorated with DataMemberAttribute are affected. Properties without DataMemberAttribute or with negative Order
+    ///// values are left unchanged.</remarks>
+    ///// <param name="typeInfo">The JsonTypeInfo instance whose properties will be updated based on DataMemberAttribute metadata. Must represent
+    ///// an object type; otherwise, no changes are made.</param>
+    //internal static void ApplyDataMemberNameAndOrder(JsonTypeInfo typeInfo)
+    //{
+    //    if (typeInfo.Kind != JsonTypeInfoKind.Object)
+    //        return;
 
-        foreach (var prop in typeInfo.Properties)
-        {
-            if (prop.AttributeProvider is not MemberInfo mi)
-                continue;
+    //    foreach (var prop in typeInfo.Properties)
+    //    {
+    //        if (prop.AttributeProvider is not MemberInfo mi)
+    //            continue;
 
-            var dm = mi.GetCustomAttribute<DataMemberAttribute>(inherit: true);
-            if (dm is null)
-                continue;
+    //        var dm = mi.GetCustomAttribute<DataMemberAttribute>(inherit: true);
+    //        if (dm is null)
+    //            continue;
 
-            if (!string.IsNullOrWhiteSpace(dm.Name))
-            {
-                // JsonPropertyInfo.Name is settable
-                prop.Name = dm.Name;
-            }
+    //        if (!string.IsNullOrWhiteSpace(dm.Name))
+    //        {
+    //            // JsonPropertyInfo.Name is settable
+    //            prop.Name = dm.Name;
+    //        }
 
-            if (dm.Order >= 0)
-            {
-                // JsonPropertyInfo.Order is settable
-                prop.Order = dm.Order;
-            }
-        }
-    }
+    //        if (dm.Order >= 0)
+    //        {
+    //            // JsonPropertyInfo.Order is settable
+    //            prop.Order = dm.Order;
+    //        }
+    //    }
+    //}
 
     #endregion
 

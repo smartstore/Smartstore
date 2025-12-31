@@ -1,5 +1,4 @@
-﻿using System.Runtime.Serialization;
-using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Smartstore.Core.Content.Media
 {
@@ -12,76 +11,58 @@ namespace Smartstore.Core.Content.Media
         VeryLarge = 4
     }
 
-    [DataContract]
     public partial class MediaFilesFilter
     {
-        [JsonProperty("mediaTypes")]
-        [DataMember(Name = "mediaTypes")]
+        [JsonPropertyName("mediaTypes")]
         public string[] MediaTypes { get; set; }
 
-        [JsonProperty("mimeTypes")]
-        [DataMember(Name = "mimeTypes")]
+        [JsonPropertyName("mimeTypes")]
         public string[] MimeTypes { get; set; }
 
-        [JsonProperty("extensions")]
-        [DataMember(Name = "extensions")]
+        [JsonPropertyName("extensions")]
         public string[] Extensions { get; set; }
 
-        [JsonProperty("dimensions")]
-        [DataMember(Name = "dimensions")]
+        [JsonPropertyName("dimensions")]
         public ImageDimension[] Dimensions { get; set; }
 
-        [JsonProperty("tags")]
-        [DataMember(Name = "tags")]
+        [JsonPropertyName("tags")]
         public int[] Tags { get; set; }
 
-        [JsonProperty("hidden")]
-        [DataMember(Name = "hidden")]
+        [JsonPropertyName("hidden")]
         public bool? Hidden { get; set; }
 
-        [JsonProperty("deleted")]
-        [DataMember(Name = "deleted")]
+        [JsonPropertyName("deleted")]
         public bool? Deleted { get; set; }
 
-        [JsonProperty("term")]
-        [DataMember(Name = "term")]
+        [JsonPropertyName("term")]
         public string Term { get; set; }
 
-        [JsonProperty("exact")]
-        [DataMember(Name = "exact")]
+        [JsonPropertyName("exact")]
         public bool ExactMatch { get; set; }
 
-        [JsonProperty("includeAlt")]
-        [DataMember(Name = "includeAlt")]
+        [JsonPropertyName("includeAlt")]
         public bool IncludeAltForTerm { get; set; }
     }
 
-    [DataContract]
     public partial class MediaSearchQuery : MediaFilesFilter
     {
-        [JsonProperty("folderId")]
-        [DataMember(Name = "folderId")]
+        [JsonPropertyName("folderId")]
         public int? FolderId { get; set; }
 
-        [JsonProperty("deep")]
-        [DataMember(Name = "deep")]
+        [JsonPropertyName("deep")]
         public bool DeepSearch { get; set; }
 
 
-        [JsonProperty("page")]
-        [DataMember(Name = "page")]
+        [JsonPropertyName("page")]
         public int PageIndex { get; set; }
 
-        [JsonProperty("pageSize")]
-        [DataMember(Name = "pageSize")]
+        [JsonPropertyName("pageSize")]
         public int PageSize { get; set; } = int.MaxValue;
 
-        [JsonProperty("sortBy")]
-        [DataMember(Name = "sortBy")]
+        [JsonPropertyName("sortBy")]
         public string SortBy { get; set; } = nameof(MediaFile.Id);
 
-        [JsonProperty("sortDesc")]
-        [DataMember(Name = "sortDesc")]
+        [JsonPropertyName("sortDesc")]
         public bool SortDesc { get; set; }
     }
 }

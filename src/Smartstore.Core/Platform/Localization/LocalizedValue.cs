@@ -3,9 +3,9 @@
 using System.Globalization;
 using System.Runtime.Serialization;
 using System.Text.Encodings.Web;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Html;
-using Newtonsoft.Json;
 
 namespace Smartstore.Core.Localization
 {
@@ -35,10 +35,10 @@ namespace Smartstore.Core.Localization
             return new LanguageInfo(language);
         }
 
-        [DataMember, JsonProperty]
+        [JsonInclude]
         public LanguageInfo? RequestLanguage { get; private set; }
 
-        [DataMember, JsonProperty]
+        [JsonInclude]
         public LanguageInfo? CurrentLanguage { get; private set; }
 
         [IgnoreDataMember]
@@ -89,7 +89,7 @@ namespace Smartstore.Core.Localization
             Value = value;
         }
 
-        [DataMember, JsonProperty]
+        [JsonInclude]
         public T? Value { get; private set; }
 
         public void ChangeValue(T? value)

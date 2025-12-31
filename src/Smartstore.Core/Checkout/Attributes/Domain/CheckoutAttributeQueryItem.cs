@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using Smartstore.Core.Content.Media;
 
 namespace Smartstore.Core.Checkout.Attributes
@@ -8,7 +8,6 @@ namespace Smartstore.Core.Checkout.Attributes
     /// <summary>
     /// Represents a checkout attribute query item.
     /// </summary>
-    [DataContract]
     public class CheckoutAttributeQueryItem
     {
         /// <summary>
@@ -23,8 +22,7 @@ namespace Smartstore.Core.Checkout.Attributes
         /// The <see cref="CheckoutAttribute"/> identifier.
         /// </summary>
         [Required]
-        [JsonProperty("attributeId")]
-        [DataMember(Name = "attributeId")]
+        [JsonPropertyName("attributeId")]
         public int AttributeId { get; set; }
 
         /// <summary>
@@ -34,23 +32,24 @@ namespace Smartstore.Core.Checkout.Attributes
         /// For a file, this must be a <see cref="Download.DownloadGuid"/>.
         /// </summary>
         /// <example>1234</example>
-        [JsonProperty("value")]
-        [DataMember(Name = "value")]
+        [JsonPropertyName("value")]
         public string Value { get; set; }
 
         /// <summary>
         /// The date if the control type is a datepicker. The value property is ignored in this case.
         /// </summary>
-        [JsonProperty("date")]
-        [DataMember(Name = "date")]
+        [JsonPropertyName("date")]
         public DateTime? Date { get; set; }
 
         /// <summary>
         /// Gets or sets a Value indicating whether the attribute is a file.
         /// </summary>
+        [IgnoreDataMember]
         public bool IsFile { get; set; }
 
+        [IgnoreDataMember]
         public bool IsText { get; set; }
+        [IgnoreDataMember]
         public bool IsTextArea { get; set; }
 
         public override string ToString()
