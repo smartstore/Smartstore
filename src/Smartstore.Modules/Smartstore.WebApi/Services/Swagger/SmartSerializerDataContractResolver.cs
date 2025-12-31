@@ -62,10 +62,6 @@ internal sealed class SmartSerializerDataContractResolver : ISerializerDataContr
                             isReadOnly: isReadOnly,
                             isWriteOnly: isWriteOnly));
                     }
-                    else
-                    {
-                        Debug.WriteLine($"Property '{prop.Name}' not found in JsonTypeInfo for type '{contract.UnderlyingType.Name}'. It will be removed from the contract.");
-                    }
                 }
 
                 contract = DataContract.ForObject(
