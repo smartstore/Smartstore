@@ -132,19 +132,19 @@ internal class MvcStarter : StarterBase
                 //options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
                 options.Converters.Add(new UtcDateTimeJsonConverter());
             })
-            //.AddNewtonsoftJson(o =>
-            //{
-            //    var settings = o.SerializerSettings;
-            //    settings.ContractResolver = SmartContractResolver.Default;
-            //    settings.TypeNameHandling = TypeNameHandling.None;
-            //    settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            //    settings.ObjectCreationHandling = ObjectCreationHandling.Replace;
-            //    settings.NullValueHandling = NullValueHandling.Ignore;
-            //    settings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
-            //    settings.MaxDepth = 32;
-            //    settings.Converters.Add(new UTCDateTimeConverter(new IsoDateTimeConverter()));
-            //    settings.Converters.Add(new StringEnumConverter());
-            //})
+            .AddNewtonsoftJson(o =>
+            {
+                var settings = o.SerializerSettings;
+                settings.ContractResolver = SmartContractResolver.Default;
+                settings.TypeNameHandling = TypeNameHandling.None;
+                settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                settings.ObjectCreationHandling = ObjectCreationHandling.Replace;
+                settings.NullValueHandling = NullValueHandling.Ignore;
+                settings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
+                settings.MaxDepth = 32;
+                settings.Converters.Add(new UTCDateTimeConverter(new IsoDateTimeConverter()));
+                settings.Converters.Add(new StringEnumConverter());
+            })
             .AddControllersAsServices()
             .AddViewOptions(o =>
             {
