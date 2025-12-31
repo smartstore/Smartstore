@@ -31,6 +31,27 @@ public class SmartContractResolver : DefaultContractResolver
         return new ReflectionValueProvider(member);
     }
 
+    protected override JsonObjectContract CreateObjectContract(Type objectType)
+    {
+        var contract = base.CreateObjectContract(objectType);
+
+        // NSJ already supports [Newtonsoft.Json.JsonConstructor] via base implementation.
+        // Only add STJ support if NSJ didn't already pick an override creator.
+        if (contract.OverrideCreator != null)
+            return contract;
+
+        var ctor = FindSystemTextJsonConstructor(objectType);
+        if (ctor == null)
+            return contract;
+
+        contract.OverrideCreator = args => ctor.Invoke(args);
+        contract.CreatorParameters.Clear();
+        foreach (var p in CreateConstructorParameters(ctor, contract.Properties))
+            contract.CreatorParameters.Add(p);
+
+        return contract;
+    }
+
     protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
     {
         var property = base.CreateProperty(member, memberSerialization);
@@ -39,6 +60,22 @@ public class SmartContractResolver : DefaultContractResolver
         ApplySystemTextJsonAttributes(member, property);
 
         return property;
+    }
+
+    private static ConstructorInfo? FindSystemTextJsonConstructor(Type t)
+    {
+        var ctors = t.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+        // Prefer explicit annotation on ctor
+        var marked = ctors.Where(c => c.IsDefined(typeof(STJ.JsonConstructorAttribute), inherit: true)).ToArray();
+        if (marked.Length == 0)
+            return null;
+
+        if (marked.Length > 1)
+            throw new JsonSerializationException(
+                $"Multiple constructors on '{t.FullName}' are marked with [{nameof(STJ.JsonConstructorAttribute)}].");
+
+        return marked[0];
     }
 
     /// <summary>
