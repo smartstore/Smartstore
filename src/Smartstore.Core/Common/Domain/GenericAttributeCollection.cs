@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using Smartstore.Collections;
 using Smartstore.Core.Data;
 
@@ -102,6 +103,7 @@ namespace Smartstore.Core.Common
         /// <summary>
         /// Gets all entities that were loaded from the database
         /// </summary>
+        [IgnoreDataMember]
         public IEnumerable<GenericAttribute> UnderlyingEntities
         {
             get

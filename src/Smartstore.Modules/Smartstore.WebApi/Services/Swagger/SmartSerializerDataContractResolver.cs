@@ -1,30 +1,83 @@
-﻿//using System.Text.Json;
-//using System.Text.Json.Serialization.Metadata;
-//using Microsoft.Extensions.Options;
-//using Smartstore.Json;
-//using Swashbuckle.AspNetCore.SwaggerGen;
+﻿#nullable enable
 
-//namespace Smartstore.Web.Api.Swagger;
+using System.Diagnostics;
+using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
+using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
-//internal sealed class SmartSerializerDataContractResolver(IOptions<JsonOptions> mvcJsonOptions) : ISerializerDataContractResolver
-//{
-//    private readonly IOptions<JsonOptions> _mvcJsonOptions = mvcJsonOptions ?? throw new ArgumentNullException(nameof(mvcJsonOptions));
+namespace Smartstore.Web.Api.Swagger;
 
-//    public DataContract GetDataContractForType(Type type)
-//    {
-//        ArgumentNullException.ThrowIfNull(type);
+internal sealed class SmartSerializerDataContractResolver : ISerializerDataContractResolver
+{
+    private readonly JsonSerializerOptions _jsonOptions;
+    private readonly JsonSerializerDataContractResolver _innerResolver;
 
-//        // Clone MVC serializer options (includes ApplyFrom(SmartJsonOptions.Default), converters, etc.)
-//        var options = new JsonSerializerOptions(_mvcJsonOptions.Value.JsonSerializerOptions);
-//        options.ApplyFrom(SmartJsonOptions.Default);
+    public SmartSerializerDataContractResolver(IOptions<JsonOptions> jsonOptions)
+    {
+        _jsonOptions = jsonOptions.Value.JsonSerializerOptions;
+        _innerResolver = new JsonSerializerDataContractResolver(_jsonOptions);
+    }
 
-//        options.TypeInfoResolver =
-//            (options.TypeInfoResolver ?? new DefaultJsonTypeInfoResolver())
-//            .WithDataContractModifiers();
+    public DataContract GetDataContractForType(Type type)
+    {
+        var contract = _innerResolver.GetDataContractForType(type);
 
-//        var inner = new JsonSerializerDataContractResolver(options);
+        if (contract.DataType is DataType.Object)
+        {
+            JsonTypeInfo? typeInfo = null;
+            try
+            {
+                typeInfo = _jsonOptions.GetTypeInfo(contract.UnderlyingType);
+            }
+            catch
+            {
+            }
 
-//        //var inner = new JsonSerializerDataContractResolver(_mvcJsonOptions.Value.JsonSerializerOptions);
-//        return inner.GetDataContractForType(Nullable.GetUnderlyingType(type) ?? type);
-//    }
-//}
+            // Only take over object contracts; everything else stays with Swashbuckle.
+            if (typeInfo != null && typeInfo.Kind == JsonTypeInfoKind.Object)
+            {
+                var jsonProps = typeInfo.Properties.ToDictionary(p => p.Name, p => p, StringComparer.OrdinalIgnoreCase);
+                var actualProps = new List<DataProperty>();
+
+                foreach (var prop in contract.ObjectProperties)
+                {
+                    if (jsonProps.TryGetValue(prop.Name, out var jp))
+                    {
+                        var isIgnored = jp.Get is null && jp.Set is null;
+                        if (isIgnored) continue;
+                        
+                        var isRequired = jp.IsRequired;
+                        var isNullable = !jp.PropertyType.IsValueType || jp.IsGetNullable;
+                        var isReadOnly = jp.Get is not null && jp.Set is null;
+                        var isWriteOnly = jp.Get is null && jp.Set is not null;
+                        var name = prop.Name;
+
+                        actualProps.Add(new DataProperty(
+                            name: prop.Name,
+                            memberType: prop.MemberType,
+                            memberInfo: prop.MemberInfo,
+                            isRequired: isRequired,
+                            isNullable: isNullable,
+                            isReadOnly: isReadOnly,
+                            isWriteOnly: isWriteOnly));
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"Property '{prop.Name}' not found in JsonTypeInfo for type '{contract.UnderlyingType.Name}'. It will be removed from the contract.");
+                    }
+                }
+
+                contract = DataContract.ForObject(
+                    underlyingType: contract.UnderlyingType,
+                    properties: actualProps,
+                    extensionDataType: contract.ObjectExtensionDataType,
+                    typeNameProperty: contract.ObjectTypeNameProperty,
+                    typeNameValue: contract.ObjectTypeNameValue,
+                    jsonConverter: contract.JsonConverter);
+            }
+        }
+
+        return contract;
+    }
+}

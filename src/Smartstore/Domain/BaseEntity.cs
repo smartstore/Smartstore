@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Data;
 
@@ -26,6 +27,7 @@ namespace Smartstore.Domain
         /// Gets or sets the entity identifier
         /// </summary>
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [JsonPropertyOrder(-100)]
         public int Id { get; set; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

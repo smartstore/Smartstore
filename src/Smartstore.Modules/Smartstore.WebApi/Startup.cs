@@ -82,9 +82,6 @@ internal class Startup : StarterBase
             // Alternative: set-up a path template for each (!) OData action method.
             o.ResolveConflictingActions(descriptions => descriptions.First());
 
-            //o.IgnoreObsoleteActions();
-            //o.IgnoreObsoleteProperties();
-
             o.CustomSchemaIds(type => OpenApiUtility.GetSchemaId(type, true));
 
             o.AddSecurityDefinition("Basic", new OpenApiSecurityScheme
@@ -121,9 +118,6 @@ internal class Startup : StarterBase
             o.OperationFilter<SwaggerOperationFilter>();
             o.SchemaFilter<SwaggerSchemaFilter>();
 
-            // Example filters.
-            o.SchemaFilter<SwaggerExamplesSchemaFilter>();
-
             //o.MapType<decimal>(() => new OpenApiSchema
             //{
             //    Type = "number($double)",
@@ -133,12 +127,7 @@ internal class Startup : StarterBase
             IncludeXmlComments(o, appContext);
         });
 
-        //services.AddSingleton<ISerializerDataContractResolver, SmartSerializerDataContractResolver>();
-        //services.AddTransient<ISerializerDataContractResolver>(sp =>
-        //{
-        //    var options = sp.GetRequiredService<IOptions<JsonOptions>>();
-        //    return new SmartSerializerDataContractResolver(options);
-        //});
+        services.AddSingleton<ISerializerDataContractResolver, SmartSerializerDataContractResolver>();
     }
 
     public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)

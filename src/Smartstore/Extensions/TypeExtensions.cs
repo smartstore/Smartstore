@@ -26,6 +26,11 @@ public static class TypeExtensions
             return type.IsValueType || type.GetConstructor(Type.EmptyTypes) != null;
         }
 
+        public bool IsAny(params Type[] checkTypes)
+        {
+            return checkTypes.Any(possibleType => possibleType == type);
+        }
+
         public bool IsCompatibleWith(Type target)
         {
             if (type == target)
