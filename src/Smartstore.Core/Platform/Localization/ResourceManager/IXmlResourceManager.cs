@@ -5,7 +5,6 @@ using Smartstore.IO;
 
 namespace Smartstore.Core.Localization
 {
-    [Serializable]
     public record ResourceSetImportInfo
     {
         public decimal TranslatedPercentage { get; set; }

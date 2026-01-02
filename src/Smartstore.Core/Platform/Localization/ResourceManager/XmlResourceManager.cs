@@ -3,10 +3,11 @@ using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Net.Mime;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml;
-using Newtonsoft.Json;
 using Smartstore.Caching;
 using Smartstore.Core.Data;
 using Smartstore.Core.DataExchange;
@@ -564,7 +565,7 @@ namespace Smartstore.Core.Localization
                     .Where(x => x.Key == LastResourcesImportInfoKey && x.KeyGroup == nameof(Language))
                     .ToListAsync();
 
-                result = attributes.ToDictionarySafe(x => x.EntityId, x => JsonConvert.DeserializeObject<ResourceSetImportInfo>(x.Value));
+                result = attributes.ToDictionarySafe(x => x.EntityId, x => JsonSerializer.Deserialize<ResourceSetImportInfo>(x.Value));
             }
             catch (Exception ex)
             {
@@ -585,16 +586,15 @@ namespace Smartstore.Core.Localization
             var url = _appContext.AppConfiguration.TranslateCheckUrl.FormatInvariant(SmartstoreVersion.CurrentFullVersion);
             var response = await client.GetAsync(url, cancelToken);
 
-            if (response.StatusCode == HttpStatusCode.OK)
+            try
             {
-                var jsonString = await response.Content.ReadAsStringAsync(cancelToken);
-                if (jsonString.HasValue())
-                {
-                    return JsonConvert.DeserializeObject<ResourceSetsResponse>(jsonString);
-                }
+                var result = await client.GetFromJsonAsync<ResourceSetsResponse>(url, cancelToken);
+                return result;
             }
-
-            return null;
+            catch
+            {
+                return null;
+            }
         }
 
         public async Task<bool> DownloadResourceSetAsync(int setId, ResourceSetsResponse response, CancellationToken cancelToken = default)
@@ -690,12 +690,12 @@ namespace Smartstore.Core.Localization
                         KeyGroup = nameof(Language),
                         EntityId = language.Id,
                         StoreId = 0,
-                        Value = JsonConvert.SerializeObject(result)
+                        Value = JsonSerializer.Serialize(result)
                     });
                 }
                 else
                 {
-                    attribute.Value = JsonConvert.SerializeObject(result);
+                    attribute.Value = JsonSerializer.Serialize(result);
                 }
 
                 await dbScope.CommitAsync(cancelToken);
