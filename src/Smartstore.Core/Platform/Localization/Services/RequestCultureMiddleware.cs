@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
+using System.Text.Json;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
 using Smartstore.Caching;
 using Smartstore.Core.Widgets;
 using Smartstore.Utilities;
@@ -150,11 +150,7 @@ namespace Smartstore.Core.Localization
                 } }
             };
 
-            var json = JsonConvert.SerializeObject(dict, new JsonSerializerSettings
-            {
-                Formatting = Formatting.None
-            });
-
+            var json = JsonSerializer.Serialize(dict);
             return json;
         }
     }
