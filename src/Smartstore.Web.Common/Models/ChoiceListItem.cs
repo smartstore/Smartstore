@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Smartstore.Web.Models
 {
@@ -11,61 +11,61 @@ namespace Smartstore.Web.Models
         /// <summary>
         /// The ID value, e.g. an entity ID.
         /// </summary>
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public string Id { get; set; }
 
         /// <summary>
         /// Displayed text.
         /// </summary>
-        [JsonProperty("text")]
+        [JsonPropertyName("text")]
         public string Text { get; set; }
 
         /// <summary>
         /// A value indicating whether the item is selected.
         /// </summary>
-        [JsonProperty("selected")]
+        [JsonPropertyName("selected")]
         public bool Selected { get; set; }
 
         /// <summary>
         /// A value indicating whether the item is disabled.
         /// </summary>
-        [JsonProperty("disabled")]
+        [JsonPropertyName("disabled")]
         public bool Disabled { get; set; }
 
         /// <summary>
         /// Optional description.
         /// </summary>
-        [JsonProperty(PropertyName = "description", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("description")]
         public string Description { get; set; }
 
         /// <summary>
         /// Optional item hint, e.g. the product SKU.
         /// </summary>
-        [JsonProperty(PropertyName = "hint", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("hint")]
         public string Hint { get; set; }
 
         /// <summary>
         /// Optional item title (applied as HTML attribute).
         /// </summary>
-        [JsonProperty(PropertyName = "title", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("title")]
         public string Title { get; set; }
 
         /// <summary>
         /// URL to add a link to the list item.
         /// </summary>
-        [JsonProperty(PropertyName = "url", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("url")]
         public string Url { get; set; }
 
         /// <summary>
         /// Optional item link title (applied as HTML attribute).
         /// </summary>
-        [JsonProperty(PropertyName = "urlTitle", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("urlTitle")]
         public string UrlTitle { get; set; }
 
         /// <summary>
         /// Optional CSS classes for the choice options.
         /// </summary>
-        [JsonProperty(PropertyName = "cssClass", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("cssClass")]
         public string CssClass { get; set; }
     }
 }
