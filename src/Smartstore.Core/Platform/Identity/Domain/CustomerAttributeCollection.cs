@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Payment;
@@ -237,11 +237,11 @@ namespace Smartstore.Core.Identity
             get
             {
                 var json = Get<string>(SystemCustomerAttributeNames.CookieConsent);
-                return json.HasValue() ? JsonConvert.DeserializeObject<ConsentCookie>(json) : null;
+                return json.HasValue() ? JsonSerializer.Deserialize<ConsentCookie>(json) : null;
             }
             set
             {
-                var json = value != null ? JsonConvert.SerializeObject(value) : null;
+                var json = value != null ? JsonSerializer.Serialize(value) : null;
                 Set(SystemCustomerAttributeNames.CookieConsent, json);
             }
         }
@@ -317,7 +317,7 @@ namespace Smartstore.Core.Identity
             get
             {
                 var rawOption = Get<string>(SystemCustomerAttributeNames.PreferredShippingOption, CurrentStoreId);
-                return rawOption.HasValue() ? JsonConvert.DeserializeObject<ShippingOption>(rawOption) : null;
+                return rawOption.HasValue() ? JsonSerializer.Deserialize<ShippingOption>(rawOption) : null;
             }
             set
             {
@@ -326,7 +326,7 @@ namespace Smartstore.Core.Identity
 
                 if (methodId != 0)
                 {
-                    rawOption = JsonConvert.SerializeObject(new ShippingOption
+                    rawOption = JsonSerializer.Serialize(new ShippingOption
                     {
                         ShippingMethodId = methodId,
                         ShippingRateComputationMethodSystemName = value?.ShippingRateComputationMethodSystemName

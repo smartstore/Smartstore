@@ -1,8 +1,7 @@
-﻿using System.ComponentModel;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
 using Smartstore.ComponentModel;
 using Smartstore.ComponentModel.TypeConverters;
 
@@ -16,37 +15,37 @@ namespace Smartstore.Core.Checkout.Shipping
         /// <summary>
         /// Shipping method identifier
         /// </summary>
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public int ShippingMethodId { get; set; }
 
         /// <summary>
         /// Gets or sets the display order.
         /// </summary>
-        [JsonProperty("order")]
+        [JsonPropertyName("order")]
         public int DisplayOrder { get; set; }
 
         /// <summary>
         /// Gets or sets the system name of shipping rate computation method
         /// </summary>
-        [JsonProperty("systemName")]
+        [JsonPropertyName("systemName")]
         public string ShippingRateComputationMethodSystemName { get; set; }
 
         /// <summary>
         /// Gets or sets a shipping rate (without discounts, additional shipping charges, etc)
         /// </summary>
-        [JsonProperty("rate", DefaultValueHandling = DefaultValueHandling.Ignore), DefaultValue(typeof(decimal), "0.0")]
+        [JsonPropertyName("rate"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public decimal Rate { get; set; }
 
         /// <summary>
         /// Gets or sets a shipping option name
         /// </summary>
-        [JsonProperty("name", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonPropertyName("name"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets a shipping option description
         /// </summary>
-        [JsonProperty("description", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonPropertyName("description"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string Description { get; set; }
     }
 
