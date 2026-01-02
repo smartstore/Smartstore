@@ -1,8 +1,8 @@
 ﻿using System.Globalization;
+using System.Text.Json;
 using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Newtonsoft.Json;
 using Smartstore.Admin.Models.Localization;
 using Smartstore.ComponentModel;
 using Smartstore.Core.DataExchange;
@@ -610,7 +610,7 @@ namespace Smartstore.Admin.Controllers
                     result = await _resourceManager.GetOnlineResourceSetsAsync();
                     if (result != null)
                     {
-                        jsonString = JsonConvert.SerializeObject(result);
+                        jsonString = JsonSerializer.Serialize(result);
                         HttpContext.Session.SetString(cacheKey, jsonString);
                     }
                 }
@@ -622,7 +622,7 @@ namespace Smartstore.Admin.Controllers
 
             if (result == null && jsonString.HasValue())
             {
-                result = JsonConvert.DeserializeObject<ResourceSetsResponse>(jsonString);
+                result = JsonSerializer.Deserialize<ResourceSetsResponse>(jsonString);
             }
 
             result?.Resources

@@ -1,8 +1,8 @@
 ﻿using System.Net;
+using System.Text.Json;
 using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Newtonsoft.Json;
 using Smartstore.Caching;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
@@ -118,7 +118,7 @@ namespace Smartstore.Core.Identity
         {
             if (_privacySettings.CookieInfos.HasValue())
             {
-                var cookieInfos = JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos);
+                var cookieInfos = JsonSerializer.Deserialize<List<CookieInfo>>(_privacySettings.CookieInfos);
 
                 if (cookieInfos != null && cookieInfos.Count > 0)
                 {
@@ -154,7 +154,7 @@ namespace Smartstore.Core.Identity
                 {
                     try
                     {
-                        var consentCookie = JsonConvert.DeserializeObject<ConsentCookie>(value);
+                        var consentCookie = JsonSerializer.Deserialize<ConsentCookie>(value);
 
                         // INFO: With the release of 6.0.0 we convert the existing cookie to our current ConsentCookie data structure. 
                         // Unfortunatelly we have not set AllowRequired to true to which was implicitly consented pre 6.0.0
@@ -232,7 +232,7 @@ namespace Smartstore.Core.Identity
                 {
                     try
                     {
-                        var cookieData = JsonConvert.DeserializeObject<ConsentCookie>(value);
+                        var cookieData = JsonSerializer.Deserialize<ConsentCookie>(value);
                         context.Items[cookieName] = cookieData;
 
                         return cookieData;
@@ -321,7 +321,7 @@ namespace Smartstore.Core.Identity
                 Secure = _webHelper.IsCurrentConnectionSecured()
             };
 
-            var serializedData = JsonConvert.SerializeObject(cookieData);
+            var serializedData = JsonSerializer.Serialize(cookieData);
 
             cookies.Delete(cookieName, options);
             cookies.Append(cookieName, serializedData, options);
