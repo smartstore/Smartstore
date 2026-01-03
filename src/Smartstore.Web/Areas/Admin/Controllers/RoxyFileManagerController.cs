@@ -1,10 +1,9 @@
 ﻿using System.IO.Compression;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
-
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
@@ -510,7 +509,7 @@ namespace Smartstore.Admin.Controllers
 
         private static string GetResultString(string message = null, string type = "ok")
         {
-            return JsonConvert.SerializeObject(GetResultMessage(message, type));
+            return JsonSerializer.Serialize(GetResultMessage(message, type));
         }
 
         private static object GetResultMessage(string message = null, string type = "ok")
@@ -530,12 +529,12 @@ namespace Smartstore.Admin.Controllers
                 var objStart = js.IndexOf('{');
                 var json = js[objStart..];
 
-                return JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+                return JsonSerializer.Deserialize<Dictionary<string, string>>(json);
             }
             catch (Exception ex)
             {
                 ex.Dump();
-                return new Dictionary<string, string>();
+                return [];
             }
         }
 
