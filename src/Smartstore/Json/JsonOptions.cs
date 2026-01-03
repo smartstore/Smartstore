@@ -50,7 +50,7 @@ public static class SmartJsonOptions
 
         // NSJ: MaxDepth
         MaxDepth = 32,
-
+        
         // NSJ default
         ReadCommentHandling = JsonCommentHandling.Skip,
 

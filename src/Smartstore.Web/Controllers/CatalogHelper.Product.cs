@@ -1,5 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
-using Newtonsoft.Json;
+﻿using System.Text.Json;
+using Microsoft.CodeAnalysis;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
@@ -17,6 +17,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Diagnostics;
+using Smartstore.Json;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Catalog.Mappers;
@@ -623,7 +624,7 @@ namespace Smartstore.Web.Controllers
 
                                     var mediaFileInfo = _mediaService.ConvertMediaFile(mediaFile);
 
-                                    attributeModel.CustomProperties["UploadedFileInfo"] = JsonConvert.SerializeObject(mediaFileInfo); 
+                                    attributeModel.CustomProperties["UploadedFileInfo"] = JsonSerializer.Serialize(mediaFileInfo, SmartJsonOptions.Default); 
                                 }
                                 break;
                             case AttributeControlType.TextBox:
