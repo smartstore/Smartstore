@@ -39,12 +39,12 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets the URL to the associated action method of this checkout step.
         /// </summary>
-        public string? GetUrl(CheckoutContext context)
+        public string? GetUrl(CheckoutContext context, string? protocol = null)
         {
             Guard.NotNull(context);
 
             var md = Handler.Metadata;
-            return context.UrlHelper.Action(md.DefaultAction, md.Controller, md.Area.HasValue() ? new { area = md.Area } : null);
+            return context.UrlHelper.Action(md.DefaultAction, md.Controller, md.Area.HasValue() ? new { area = md.Area } : protocol);
         }
     }
 }

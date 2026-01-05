@@ -159,9 +159,9 @@
                     url: '@Url.Action("ConfirmPayment", "Checkout")',
                     data: $('#confirm-order-form').serialize(),
                     success: function (response) {
-                        if (response.success) {
-                            // Redirect to a payment provider page to confirm the payment.
-                            if (!_.isEmpty(response.redirectUrl)) {
+                        if (!_.isEmpty(response.redirectUrl)) {
+                            if (response.success) {
+                                // Redirect to a third-party payment page to confirm the payment.
                                 const paymentConfirmedEvent = jQuery.Event('paymentConfirmed');
                                 paymentConfirmedEvent.redirectUrl = response.redirectUrl;
                                 paymentConfirmedEvent.redirect = true;
@@ -172,9 +172,13 @@
                                     window.location = response.redirectUrl;
                                 }
                             }
+                            else {
+                                // Redirect to payment selection page and display notification (default case of a payment error).
+                                window.location = response.redirectUrl;
+                            }
                         }
                         else {
-                            // Stay on comfirmation page and report an error.
+                            // Stay on comfirmation page and display error messages.
                             if (!_.isEmpty(response.messages)) {
                                 reportError(response.messages);
                             }

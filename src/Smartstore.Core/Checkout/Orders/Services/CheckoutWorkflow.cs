@@ -9,6 +9,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
+using Smartstore.Engine.Modularity;
 using Smartstore.Events;
 using Smartstore.Http;
 using Smartstore.Utilities.Html;
@@ -34,6 +35,7 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly IPaymentService _paymentService;
         private readonly ICheckoutFactory _checkoutFactory;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+        private readonly Lazy<ModuleManager> _moduleManager;
         private readonly OrderSettings _orderSettings;
         private readonly ShoppingCartSettings _shoppingCartSettings;
 
@@ -50,6 +52,7 @@ namespace Smartstore.Core.Checkout.Orders
             IPaymentService paymentService,
             ICheckoutFactory checkoutFactory,
             ICheckoutStateAccessor checkoutStateAccessor,
+            Lazy<ModuleManager> moduleManager,
             OrderSettings orderSettings,
             ShoppingCartSettings shoppingCartSettings)
         {
@@ -65,6 +68,7 @@ namespace Smartstore.Core.Checkout.Orders
             _paymentService = paymentService;
             _checkoutFactory = checkoutFactory;
             _checkoutStateAccessor = checkoutStateAccessor;
+            _moduleManager = moduleManager;
             _orderSettings = orderSettings;
             _shoppingCartSettings = shoppingCartSettings;
         }
@@ -246,9 +250,6 @@ namespace Smartstore.Core.Checkout.Orders
 
             var confirmStep = Guard.NotNull(_checkoutFactory.GetCheckoutStep(CheckoutActionNames.Confirm));
 
-            // INFO: Two cases of error handling here.
-            // 1. Generic checkout error -> Stay on confirmation page and display error in alert box on top.
-            // 2. Payment error -> Redirect to payment selection and display error notification.
             try
             {
                 var store = _storeContext.CurrentStore;
@@ -264,8 +265,7 @@ namespace Smartstore.Core.Checkout.Orders
                 var provider = await _paymentService.LoadPaymentProviderBySystemNameAsync(paymentMethod);
                 if (provider == null || !provider.Value.RequiresConfirmation)
                 {
-                    var innerEx = new Exception($"The payment provider {paymentMethod} could not be loaded or does not support payment confirmation.");
-                    return CreateResult(new(T("Payment.CouldNotLoadMethod"), innerEx, paymentMethod), context);
+                    return new(T("Payment.CouldNotLoadMethod"), confirmStep.ViewPath);
                 }
 
                 var (warnings, _) = await _orderProcessingService.ValidateOrderPlacementAsync(paymentRequest);
@@ -285,8 +285,9 @@ namespace Smartstore.Core.Checkout.Orders
                 var url = await provider.Value.GetConfirmationUrlAsync(paymentRequest, context);
                 if (url.IsEmpty())
                 {
-                    var innerEx = new Exception($"Cannot confirm the payment. The payment provider {paymentMethod} did not provide a redirect URL when confirming the payment.");
-                    return CreateResult(new(T("Payment.PaymentFailure"), innerEx, paymentMethod), context);
+                    var md = provider.Metadata;
+                    var localizedName = _moduleManager.Value.GetLocalizedFriendlyName(md).NullEmpty() ?? md.FriendlyName.NullEmpty() ?? md.SystemName;
+                    return new(T("Payment.MissingConfirmationUrl", localizedName), confirmStep.ViewPath);
                 }
 
                 // Keep the form values in the checkout state so that they are not lost when the user is redirected to the payment provider's page.
@@ -297,15 +298,18 @@ namespace Smartstore.Core.Checkout.Orders
 
                 return new(new RedirectResult(url), confirmStep.ViewPath, true);
             }
-            catch (PaymentException ex)
-            {
-                // TODO: (mg) Test notifier. Probably do not work here. TempData approach required.
-                return CreateResult(ex, context);
-            }
             catch (Exception ex)
             {
                 _logger.Error(ex);
-                return new(ex.Message, confirmStep.ViewPath);
+
+                // We expect a payment error here.
+                var paymentStep = _checkoutFactory.GetCheckoutStep(CheckoutActionNames.PaymentMethod);
+                var protocol = _webHelper.IsCurrentConnectionSecured() ? "https" : "http";
+
+                return new(ex.Message)
+                {
+                    ActionResult = new RedirectResult(paymentStep.GetUrl(context, protocol))
+                };
             }
         }
 
@@ -582,7 +586,7 @@ namespace Smartstore.Core.Checkout.Orders
         {
             if (ex.RedirectRoute is not string)
             {
-                _logger.Error(ex);
+                _logger.ErrorsAll(ex);
                 _notifier.Error(ex.Message);
             }
 

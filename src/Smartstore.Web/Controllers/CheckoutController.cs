@@ -13,6 +13,8 @@ namespace Smartstore.Web.Controllers
 {
     public class CheckoutController : PublicController
     {
+        const string ErrorMessageKey = "CheckoutErrorMessage";
+
         private readonly SmartDbContext _db;
         private readonly IStoreContext _storeContext;
         private readonly IWorkContext _workContext;
@@ -232,6 +234,11 @@ namespace Smartstore.Web.Controllers
 
             var model = await MapperFactory.MapAsync<CheckoutContext, CheckoutPaymentMethodModel>(context);
 
+            if (TempData.TryGetValueAs<string>(ErrorMessageKey, out var msg) && msg.HasValue())
+            {
+                NotifyError(msg);
+            }
+
             return View(result.ViewPath, model);
         }
 
@@ -294,19 +301,23 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> ConfirmPayment()
         {
             var result = await _checkoutWorkflow.ConfirmPaymentAsync(await CreateCheckoutContext());
-            var redirectUrl = result.Success && result.ActionResult is RedirectResult rs ? rs?.Url.NullEmpty() : null;
+            var redirectUrl = result.ActionResult is RedirectResult rs ? rs?.Url.NullEmpty() : null;
+            var errors = result.Errors.Select(e => e.ErrorMessage).ToList();
 
-            if (redirectUrl == null && result.ActionResult != null)
+            if (redirectUrl != null && errors.Count > 0)
             {
-                // Expected case: A payment error occurs -> redirect the user back to the payment selection page.
-                return result.ActionResult;
+                // INFO: Display error after client-side redirection.
+                TempData[ErrorMessageKey] = string.Join(' ', errors);
             }
 
-            return Json(new 
-            { 
-                success = result.Success, 
-                redirectUrl, 
-                messages = result.Errors.Select(e => e.ErrorMessage).ToList()
+            // Success: Redirect to a third-party payment page to confirm the payment.
+            // Failure: Stay on confirmation page and display error messages.
+            // Exception: Redirect to payment selection page and display notification (default case of a payment error).
+            return Json(new
+            {
+                success = result.Success,
+                redirectUrl,
+                messages = errors
             });
         }
 
