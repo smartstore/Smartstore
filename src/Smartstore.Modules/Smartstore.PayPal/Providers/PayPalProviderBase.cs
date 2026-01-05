@@ -56,7 +56,10 @@ namespace Smartstore.PayPal.Providers
                 // INFO: In some cases the PayPalOrderId is lost in the ProcessPaymentRequest. Lets check the checkout state and log some infos.
                 var paypalCheckoutState = checkoutState.GetCustomState<PayPalCheckoutState>();
 
-                var orderId = paypalCheckoutState.PayPalOrderId.HasValue() ? paypalCheckoutState.PayPalOrderId : checkoutState.CustomProperties["PayPalOrderId"].ToString();
+                var orderId = paypalCheckoutState.PayPalOrderId.HasValue()
+                    ? paypalCheckoutState.PayPalOrderId
+                    : checkoutState.CustomProperties.GetValueOrDefault("PayPalOrderId")?.ToString();
+
                 if (!orderId.HasValue())
                 {
                     throw new PayPalException(T("Payment.MissingCheckoutState", "PayPalCheckoutState." + nameof(request.PayPalOrderId)));
