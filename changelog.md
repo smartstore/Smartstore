@@ -19,6 +19,8 @@
 
 - Moved AI command tools from Media Manager toolbar to folder dropwdown menu.
 - #1459 Cart sorting: The selected items must always come before the unselected ones.
+- Checkout: After payment confirmation on the third-party site, you will be redirected directly to the completed page if successful.
+The intermediate step via the confirmation page is omitted.
 
 ### Bugfixes
 
