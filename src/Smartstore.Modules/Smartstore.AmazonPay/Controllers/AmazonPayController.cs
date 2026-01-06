@@ -327,27 +327,41 @@ public class AmazonPayController : PublicController
 
         try
         {
-            using (var reader = new StreamReader(Request.Body))
+            Request.EnableBuffering();
+
+            // TODO: (mh) Untested. This is the way to go if a stream is available. Please test.
+            var ipnEnvelope = await JsonNode.ParseAsync(Request.Body);
+            Request.Body.Position = 0;
+
+            if (ipnEnvelope == null)
             {
-                json = await reader.ReadToEndAsync();
+                return Ok();
             }
 
-            if (json.HasValue())
+            var messageJson = (string)ipnEnvelope["Message"];
+            if (messageJson.IsEmpty())
             {
-                var ipnEnvelope = JsonNode.Parse(json);
-                var messageJson = (string)ipnEnvelope["Message"];
-                if (messageJson.HasValue())
-                {
-                    var message = JsonSerializer.Deserialize<IpnMessage>(messageJson);
-                    if (message != null)
-                    {
-                        await ProcessIpn(message, (string)ipnEnvelope["MessageId"]);
-                    }
-                }
+                return Ok();
+            }
+
+            var messageId = (string)ipnEnvelope["MessageId"];
+            var message = JsonSerializer.Deserialize<IpnMessage>(messageJson);
+
+            if (message != null)
+            {
+                await ProcessIpn(message, messageId);
             }
         }
         catch (Exception ex)
         {
+            if (Request.Body.CanSeek)
+            {
+                Request.Body.Position = 0;
+            }
+
+            using var reader = new StreamReader(Request.Body);
+            json = await reader.ReadToEndAsync();
+
             Logger.Error(ex, json);
         }
 
