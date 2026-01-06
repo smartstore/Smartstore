@@ -11,78 +11,77 @@ using Smartstore.Core.Identity;
 using Smartstore.Engine.Modularity;
 using Smartstore.Scheduling;
 
-namespace Smartstore.AmazonPay
+namespace Smartstore.AmazonPay;
+
+internal class Module : ModuleBase, ICookiePublisher
 {
-    internal class Module : ModuleBase, ICookiePublisher
+    private readonly ITaskStore _taskStore;
+    private readonly IPaymentService _paymentService;
+    private readonly IProviderManager _providerManager;
+    private readonly ExternalAuthenticationSettings _externalAuthenticationSettings;
+
+    public Module(
+        ITaskStore taskStore,
+        IPaymentService paymentService,
+        IProviderManager providerManager,
+        ExternalAuthenticationSettings externalAuthenticationSettings)
     {
-        private readonly ITaskStore _taskStore;
-        private readonly IPaymentService _paymentService;
-        private readonly IProviderManager _providerManager;
-        private readonly ExternalAuthenticationSettings _externalAuthenticationSettings;
+        _taskStore = taskStore;
+        _paymentService = paymentService;
+        _providerManager = providerManager;
+        _externalAuthenticationSettings = externalAuthenticationSettings;
+    }
 
-        public Module(
-            ITaskStore taskStore,
-            IPaymentService paymentService,
-            IProviderManager providerManager,
-            ExternalAuthenticationSettings externalAuthenticationSettings)
+    public Localizer T { get; set; } = NullLocalizer.Instance;
+
+    public async Task<IEnumerable<CookieInfo>> GetCookieInfosAsync()
+    {
+        var store = Services.StoreContext.CurrentStore;
+        var cookieInfoRequired = await _paymentService.IsPaymentProviderActiveAsync(AmazonPayProvider.SystemName, null, store.Id);
+
+        if (!cookieInfoRequired)
         {
-            _taskStore = taskStore;
-            _paymentService = paymentService;
-            _providerManager = providerManager;
-            _externalAuthenticationSettings = externalAuthenticationSettings;
+            var signInProvider = _providerManager.GetProvider<IExternalAuthenticationMethod>(AmazonPaySignInProvider.SystemName);
+            cookieInfoRequired = signInProvider?.IsMethodActive(_externalAuthenticationSettings) ?? false;
         }
 
-        public Localizer T { get; set; } = NullLocalizer.Instance;
-
-        public async Task<IEnumerable<CookieInfo>> GetCookieInfosAsync()
+        if (cookieInfoRequired)
         {
-            var store = Services.StoreContext.CurrentStore;
-            var cookieInfoRequired = await _paymentService.IsPaymentProviderActiveAsync(AmazonPayProvider.SystemName, null, store.Id);
-
-            if (!cookieInfoRequired)
+            var cookieInfo = new CookieInfo
             {
-                var signInProvider = _providerManager.GetProvider<IExternalAuthenticationMethod>(AmazonPaySignInProvider.SystemName);
-                cookieInfoRequired = signInProvider?.IsMethodActive(_externalAuthenticationSettings) ?? false;
-            }
+                Name = T("Plugins.FriendlyName.Authentications.AmazonPay"),
+                Description = T("Plugins.Payments.AmazonPay.CookieInfo"),
+                CookieType = CookieType.Required
+            };
 
-            if (cookieInfoRequired)
-            {
-                var cookieInfo = new CookieInfo
-                {
-                    Name = T("Plugins.FriendlyName.Authentications.AmazonPay"),
-                    Description = T("Plugins.Payments.AmazonPay.CookieInfo"),
-                    CookieType = CookieType.Required
-                };
-
-                return new List<CookieInfo> { cookieInfo }.AsEnumerable();
-            }
-
-            return null;
+            return new List<CookieInfo> { cookieInfo }.AsEnumerable();
         }
 
-        public override async Task InstallAsync(ModuleInstallationContext context)
+        return null;
+    }
+
+    public override async Task InstallAsync(ModuleInstallationContext context)
+    {
+        await TrySaveSettingsAsync<AmazonPaySettings>();
+        await ImportLanguageResourcesAsync();
+
+        // INFO: DataPollingTask has been removed. Its work was redundant.
+        // It was intended for stores without SSL to update the payment status.
+        // Payment status is updated by IPN, which requires SSL but SSL is required anyway.
+        var pollingTask = await _taskStore.GetTaskByTypeAsync("SmartStore.AmazonPay.DataPollingTask, SmartStore.AmazonPay");
+        if (pollingTask != null)
         {
-            await TrySaveSettingsAsync<AmazonPaySettings>();
-            await ImportLanguageResourcesAsync();
-
-            // INFO: DataPollingTask has been removed. Its work was redundant.
-            // It was intended for stores without SSL to update the payment status.
-            // Payment status is updated by IPN, which requires SSL but SSL is required anyway.
-            var pollingTask = await _taskStore.GetTaskByTypeAsync("SmartStore.AmazonPay.DataPollingTask, SmartStore.AmazonPay");
-            if (pollingTask != null)
-            {
-                await _taskStore.DeleteTaskAsync(pollingTask);
-            }
-
-            await base.InstallAsync(context);
+            await _taskStore.DeleteTaskAsync(pollingTask);
         }
 
-        public override async Task UninstallAsync()
-        {
-            await DeleteSettingsAsync<AmazonPaySettings>();
-            await DeleteLanguageResourcesAsync();
+        await base.InstallAsync(context);
+    }
 
-            await base.UninstallAsync();
-        }
+    public override async Task UninstallAsync()
+    {
+        await DeleteSettingsAsync<AmazonPaySettings>();
+        await DeleteLanguageResourcesAsync();
+
+        await base.UninstallAsync();
     }
 }
