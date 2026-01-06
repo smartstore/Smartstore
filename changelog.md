@@ -31,6 +31,7 @@ The intermediate step via the confirmation page is omitted.
 - Adding new addresses wasn't possible because model state was invalid due to missing email fields for registered customers.
 - #1457 UI: "Show All" brand link content (ellipsis) is not centered in manufacturer carousel.
 - Gemini: Fixed `ArgumentNullException` when creating embedded images in rich text.
+- #1452 The off-canvas menu is called infinitely often if the permission for shop access is not granted.
 
 
 ## Smartstore 6.3.0
