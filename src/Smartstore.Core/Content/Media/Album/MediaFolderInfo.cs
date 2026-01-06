@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.FileProviders;
-using Newtonsoft.Json;
 using Smartstore.Collections;
 using Smartstore.IO;
 using Smartstore.Utilities;
@@ -34,7 +34,7 @@ namespace Smartstore.Core.Content.Media
         [IgnoreDataMember]
         public TreeNode<MediaFolderNode> Node { get; }
 
-        [JsonProperty("filesCount")]
+        [JsonPropertyName("filesCount")]
         public int FilesCount => Node.Value.FilesCount;
 
         public static implicit operator TreeNode<MediaFolderNode>(MediaFolderInfo folderInfo)
@@ -42,16 +42,16 @@ namespace Smartstore.Core.Content.Media
             return folderInfo.Node;
         }
 
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public int Id => Node.Value.Id;
 
-        [JsonProperty("parentId")]
+        [JsonPropertyName("parentId")]
         public int? ParentId => Node.Value.ParentId;
 
-        [JsonProperty("hasChildren")]
+        [JsonPropertyName("hasChildren")]
         public bool HasChildren => Node.HasChildren;
 
-        [JsonProperty("path", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("path")]
         public string Path => Node.Value.Path;
 
         #region IDirectory
@@ -77,7 +77,7 @@ namespace Smartstore.Core.Content.Media
         long IFileInfo.Length => -1;
 
         /// <inheritdoc/>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("name")]
         public string Name => Node.Value.Name;
 
         /// <inheritdoc/>

@@ -1,5 +1,5 @@
 ﻿using System.Runtime.Serialization;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Smartstore.Core.Content.Media
 {
@@ -8,22 +8,22 @@ namespace Smartstore.Core.Content.Media
         [IgnoreDataMember]
         public MediaFilesFilter Filter { get; set; }
 
-        [JsonProperty("total")]
+        [JsonPropertyName("total")]
         public int Total { get; set; }
 
-        [JsonProperty("trash")]
+        [JsonPropertyName("trash")]
         public int Trash { get; set; }
 
-        [JsonProperty("unassigned")]
+        [JsonPropertyName("unassigned")]
         public int Unassigned { get; set; }
 
-        [JsonProperty("transient")]
+        [JsonPropertyName("transient")]
         public int Transient { get; set; }
 
-        [JsonProperty("orphan")]
+        [JsonPropertyName("orphan")]
         public int Orphan { get; set; }
 
-        [JsonProperty("folders")]
+        [JsonPropertyName("folders")]
         public IDictionary<int, int> Folders { get; set; }
     }
 }
