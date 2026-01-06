@@ -31,17 +31,17 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> OffCanvas(string currentNodeId, string targetNodeId)
         {
-            bool allowNavigation = await Services.Permissions.AuthorizeAsync(Permissions.System.AccessShop);
+            var allowNavigation = await Services.Permissions.AuthorizeAsync(Permissions.System.AccessShop);
 
             ViewBag.AllowNavigation = allowNavigation;
             ViewBag.ShowNodes = allowNavigation;
             ViewBag.ShowBrands = allowNavigation
-                && _catalogSettings.ShowManufacturersInOffCanvas == true
+                && _catalogSettings.ShowManufacturersInOffCanvas
                 && _catalogSettings.ManufacturerItemsToDisplayInOffcanvasMenu > 0;
 
             if (!allowNavigation)
             {
-                return View("OffCanvas.Home", null);
+                return PartialView("OffCanvas.Home", null);
             }
 
             var model = await PrepareMenuModelAsync(currentNodeId, targetNodeId);
