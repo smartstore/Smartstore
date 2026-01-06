@@ -6,81 +6,80 @@ using Microsoft.Extensions.Logging;
 using Smartstore.Clickatell.Client.Messages;
 using Smartstore.Clickatell.Settings;
 
-namespace Smartstore.Clickatell.Services
-{
-    public class ClickatellHttpClient
-    {
-        private readonly HttpClient _client;
-        private readonly ILogger _logger;
+namespace Smartstore.Clickatell.Services;
 
-        public ClickatellHttpClient(HttpClient client, ILogger logger)
+public class ClickatellHttpClient
+{
+    private readonly HttpClient _client;
+    private readonly ILogger _logger;
+
+    public ClickatellHttpClient(HttpClient client, ILogger logger)
+    {
+        _client = client;
+        _logger = logger;
+    }
+
+    public async Task SendSmsAsync(string text, ClickatellSettings settings, CancellationToken cancelToken = default)
+    {
+        if (text.IsEmpty())
         {
-            _client = client;
-            _logger = logger;
+            return;
         }
 
-        public async Task SendSmsAsync(string text, ClickatellSettings settings, CancellationToken cancelToken = default)
+        var data = new Dictionary<string, object>
         {
-            if (text.IsEmpty())
+            ["content"] = text,
+            ["to"] = settings.PhoneNumber.SplitSafe(';')
+        };
+        
+        var errorMessage = string.Empty;
+
+        try
+        {
+            _client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", settings.ApiId);
+
+            using var responseMessage = await _client.PostAsJsonAsync(string.Empty, data, cancelToken);
+
+            if (responseMessage.StatusCode == HttpStatusCode.OK || responseMessage.StatusCode == HttpStatusCode.Accepted)
             {
-                return;
-            }
+                var response = await responseMessage.Content.ReadFromJsonAsync<ClickatellResponse>(cancelToken);
 
-            var data = new Dictionary<string, object>
-            {
-                ["content"] = text,
-                ["to"] = settings.PhoneNumber.SplitSafe(';')
-            };
-            
-            var errorMessage = string.Empty;
-
-            try
-            {
-                _client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", settings.ApiId);
-
-                using var responseMessage = await _client.PostAsJsonAsync(string.Empty, data, cancelToken);
-
-                if (responseMessage.StatusCode == HttpStatusCode.OK || responseMessage.StatusCode == HttpStatusCode.Accepted)
+                if (response == null)
                 {
-                    var response = await responseMessage.Content.ReadFromJsonAsync<ClickatellResponse>(cancelToken);
+                    errorMessage = "Clickatell returned empty response";
+                }
+                else if (response.Error.HasValue())
+                {
+                    errorMessage = $"Clickatell API error: {response.Error} (Code: {response.ErrorCode}, Description: {response.ErrorDescription})";
+                }
+                else if (response.Messages?.Any() == true)
+                {
+                    var messageErrors = response.Messages
+                        .Where(m => m.Error.HasValue())
+                        .Select(m => $"{m.To}: {m.Error} (Code: {m.ErrorCode})")
+                        .ToList();
 
-                    if (response == null)
+                    if (messageErrors.Count != 0)
                     {
-                        errorMessage = "Clickatell returned empty response";
-                    }
-                    else if (response.Error.HasValue())
-                    {
-                        errorMessage = $"Clickatell API error: {response.Error} (Code: {response.ErrorCode}, Description: {response.ErrorDescription})";
-                    }
-                    else if (response.Messages?.Any() == true)
-                    {
-                        var messageErrors = response.Messages
-                            .Where(m => m.Error.HasValue())
-                            .Select(m => $"{m.To}: {m.Error} (Code: {m.ErrorCode})")
-                            .ToList();
-
-                        if (messageErrors.Count != 0)
-                        {
-                            errorMessage = $"Clickatell message errors: {string.Join("; ", messageErrors)}";
-                        }
+                        errorMessage = $"Clickatell message errors: {string.Join("; ", messageErrors)}";
                     }
                 }
-                else
-                {
-                    var rawResponse = await responseMessage.Content.ReadAsStringAsync(cancelToken);
-                    errorMessage = $"Clickatell HTTP {(int)responseMessage.StatusCode}: {rawResponse}";
-                }
             }
-            catch (Exception ex)
+            else
             {
-                _logger.Error(ex, "Unexpected error sending SMS via Clickatell");
+                var rawResponse = await responseMessage.Content.ReadAsStringAsync(cancelToken);
+                errorMessage = $"Clickatell HTTP {(int)responseMessage.StatusCode}: {rawResponse}";
             }
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Unexpected error sending SMS via Clickatell");
+        }
 
-            if (errorMessage.HasValue())
-            {
-                _logger.Error(errorMessage);
-                throw new InvalidOperationException(errorMessage);
-            }
+        if (errorMessage.HasValue())
+        {
+            _logger.Error(errorMessage);
+            throw new InvalidOperationException(errorMessage);
         }
     }
 }
