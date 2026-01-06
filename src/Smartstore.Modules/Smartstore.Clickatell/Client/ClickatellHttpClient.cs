@@ -40,8 +40,9 @@ public class ClickatellHttpClient
 
             using var responseMessage = await _client.PostAsJsonAsync(string.Empty, data, cancelToken);
 
-            if (responseMessage.StatusCode == HttpStatusCode.OK || responseMessage.StatusCode == HttpStatusCode.Accepted)
+            if (responseMessage.IsSuccessStatusCode)
             {
+                // TODO: (mh) Casing? Check model policy.
                 var response = await responseMessage.Content.ReadFromJsonAsync<ClickatellResponse>(cancelToken);
 
                 if (response == null)
@@ -52,7 +53,7 @@ public class ClickatellHttpClient
                 {
                     errorMessage = $"Clickatell API error: {response.Error} (Code: {response.ErrorCode}, Description: {response.ErrorDescription})";
                 }
-                else if (response.Messages?.Any() == true)
+                else if (response.Messages?.Count > 0)
                 {
                     var messageErrors = response.Messages
                         .Where(m => m.Error.HasValue())
