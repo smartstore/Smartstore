@@ -1,9 +1,10 @@
 ﻿using System.Linq;
+using System.Text.Json.Nodes;
 using Amazon.Pay.API.WebStore.CheckoutSession;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
-using Smartstore.Core;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Services;
+using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using AmazonPayTypes = Amazon.Pay.API.Types;
@@ -15,12 +16,17 @@ public class AmazonPayService : IAmazonPayService
     private static readonly string[] _supportedLedgerCurrencies = ["USD", "EUR", "GBP", "JPY"];
 
     private readonly SmartDbContext _db;
-    private readonly ICommonServices _services;
+    private readonly ISettingFactory _settingFactory;
+    private readonly ICurrencyService _currencyService;
 
-    public AmazonPayService(SmartDbContext db, ICommonServices services)
+    public AmazonPayService(
+        SmartDbContext db,
+        ISettingFactory settingFactory,
+        ICurrencyService currencyService)
     {
         _db = db;
-        _services = services;
+        _settingFactory = settingFactory;
+        _currencyService = currencyService;
     }
 
     public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -32,20 +38,20 @@ public class AmazonPayService : IAmazonPayService
             throw new InvalidOperationException(T("Plugins.Payments.AmazonPay.MissingPayloadParameter"));
         }
 
-        dynamic jsonData = JObject.Parse(json);
-        var settings = await _services.SettingFactory.LoadSettingsAsync<AmazonPaySettings>(storeId);
+        var settings = await _settingFactory.LoadSettingsAsync<AmazonPaySettings>(storeId);
+        var jsonData = JsonNode.Parse(json);
 
-        var encryptedPayload = (string)jsonData.encryptedPayload;
+        var encryptedPayload = (string)jsonData["encryptedPayload"];
         if (encryptedPayload.HasValue())
         {
             throw new InvalidOperationException(T("Plugins.Payments.AmazonPay.EncryptionNotSupported"));
         }
 
-        settings.SellerId = (string)jsonData.merchant_id;
-        settings.PublicKeyId = (string)jsonData.public_key_id;
-        settings.ClientId = (string)jsonData.store_id;
+        settings.SellerId = (string)jsonData["merchant_id"];
+        settings.PublicKeyId = (string)jsonData["public_key_id"];
+        settings.ClientId = (string)jsonData["store_id"];
 
-        return await _services.SettingFactory.SaveSettingsAsync(settings, storeId);
+        return await _settingFactory.SaveSettingsAsync(settings, storeId);
     }
 
     public async Task<CheckoutAdressResult> CreateAddressAsync(CheckoutSessionResponse session, Customer customer, bool createBillingAddress)
@@ -121,7 +127,7 @@ public class AmazonPayService : IAmazonPayService
 
     public AmazonPayTypes.Currency GetAmazonPayCurrency(string currencyCode = null)
     {
-        currencyCode ??= _services.CurrencyService.PrimaryCurrency.CurrencyCode;
+        currencyCode ??= _currencyService.PrimaryCurrency.CurrencyCode;
 
         return currencyCode.EmptyNull().ToLower() switch
         {

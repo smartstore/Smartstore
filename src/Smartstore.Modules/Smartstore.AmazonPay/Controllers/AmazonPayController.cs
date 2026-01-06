@@ -1,5 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Amazon.Pay.API.WebStore.Buyer;
 using Amazon.Pay.API.WebStore.CheckoutSession;
 using Amazon.Pay.API.WebStore.Types;
@@ -8,7 +10,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Smartstore.AmazonPay.Services;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Cart;
@@ -333,12 +334,15 @@ public class AmazonPayController : PublicController
 
             if (json.HasValue())
             {
-                dynamic ipnEnvelope = JsonConvert.DeserializeObject(json);
-                var message = JsonConvert.DeserializeObject<IpnMessage>((string)ipnEnvelope.Message);
-
-                if (message != null)
+                var ipnEnvelope = JsonNode.Parse(json);
+                var messageJson = (string)ipnEnvelope["Message"];
+                if (messageJson.HasValue())
                 {
-                    await ProcessIpn(message, (string)ipnEnvelope.MessageId);
+                    var message = JsonSerializer.Deserialize<IpnMessage>(messageJson);
+                    if (message != null)
+                    {
+                        await ProcessIpn(message, (string)ipnEnvelope["MessageId"]);
+                    }
                 }
             }
         }
