@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
 using Smartstore.Data.Caching;
 
 namespace Smartstore.Core.Catalog.Brands
