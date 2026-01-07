@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using Smartstore.Web.Modelling;
+﻿using Smartstore.Web.Modelling;
 
 namespace Smartstore.StripeElements.Models
 {
@@ -52,13 +51,11 @@ namespace Smartstore.StripeElements.Models
         /// <summary>
         /// The two-letter country code of your Stripe account (e.g., US).
         /// </summary>
-        [JsonProperty("country")]
         public string Country { get; set; }
 
         /// <summary>
         /// Three character currency code (e.g., usd).
         /// </summary>
-        [JsonProperty("currency")]
         public string Currency { get; set; }
 
         /// <summary>
@@ -69,26 +66,22 @@ namespace Smartstore.StripeElements.Models
         /// The billing address can be used to perform address verification and block fraudulent payments.
         /// For all other payment methods, the billing address is automatically collected when available.
         /// </summary>
-        [JsonProperty("requestPayerName", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public bool RequestPayerName { get; set; } = true;
 
         /// <summary>
         /// Same as RequestPayerName.
         /// </summary>
-        [JsonProperty("requestPayerEmail", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public bool RequestPayerEmail { get; set; } = true;
 
         /// <summary>
         /// This PaymentItem is shown to the customer in the browser’s payment interface.
         /// </summary>
-        [JsonProperty("total")]
         public StripePaymentItem Total { get; set; }
 
         /// <summary>
         /// These objects are shown as line items in the browser’s payment interface. 
         /// Note that the sum of the line item amounts does not need to add up to the total amount above.
         /// </summary>
-        [JsonProperty("displayItems")]
         public List<StripePaymentItem> DisplayItems { get; set; } = new();
     }
 
@@ -97,13 +90,11 @@ namespace Smartstore.StripeElements.Models
         /// <summary>
         /// A name that the browser shows the customer in the payment interface.
         /// </summary>
-        [JsonProperty("label")]
         public string Label { get; set; }
 
         /// <summary>
         /// The amount in the currency's subunit (e.g. cents, yen, etc.)
         /// </summary>
-        [JsonProperty("amount")]
         public int Amount { get; set; }
 
         /// <summary>
@@ -111,7 +102,6 @@ namespace Smartstore.StripeElements.Models
         /// Should always be true in our usecase as the StripePaymentRequest will be created upon button usage.
         /// At this time we don't have the final amount and might update it later.
         /// </summary>
-        [JsonProperty("pending")]
         public bool Pending { get; set; } = true;
     }
 }

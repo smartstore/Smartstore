@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.StripeElements.Models
@@ -25,7 +25,7 @@ namespace Smartstore.StripeElements.Models
     {
         public string Id { get; set; }
 
-        [JsonProperty("billing_details")]
+        [JsonPropertyName("billing_details")]
         public ChargeBillingDetails BillingDetails { get; set; }
         public StripeCard Card { get; set; }
         public string Created { get; set; }

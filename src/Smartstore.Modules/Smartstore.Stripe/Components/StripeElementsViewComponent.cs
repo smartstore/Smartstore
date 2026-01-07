@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+﻿using System.Text.Json;
+using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common.Services;
+using Smartstore.Json;
 using Smartstore.StripeElements.Models;
 using Smartstore.StripeElements.Services;
 using Smartstore.StripeElements.Settings;
@@ -76,7 +77,7 @@ namespace Smartstore.StripeElements.Components
 
             var stripePaymentRequest = await _stripeHelper.GetStripePaymentRequestAsync();
 
-            model.PaymentRequest = JsonConvert.SerializeObject(stripePaymentRequest);
+            model.PaymentRequest = JsonSerializer.Serialize(stripePaymentRequest, SmartJsonOptions.CamelCasedIgnoreDefaultValue);
 
             return View(model);
         }

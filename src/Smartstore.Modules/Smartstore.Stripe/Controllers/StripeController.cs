@@ -1,8 +1,8 @@
 ﻿using System.IO;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
@@ -15,6 +15,7 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
+using Smartstore.Json;
 using Smartstore.StripeElements.Models;
 using Smartstore.StripeElements.Providers;
 using Smartstore.StripeElements.Services;
@@ -101,7 +102,7 @@ namespace Smartstore.StripeElements.Controllers
 
             try
             {
-                var returnedData = JsonConvert.DeserializeObject<PublicStripeEventModel>(eventData);
+                var returnedData = JsonSerializer.Deserialize<PublicStripeEventModel>(eventData, SmartJsonOptions.CamelCasedIgnoreDefaultValue);
 
                 // Create PaymentIntent.
                 var options = new PaymentIntentCreateOptions
@@ -193,7 +194,7 @@ namespace Smartstore.StripeElements.Controllers
                 stripePaymentRequest.RequestPayerName = false;
                 stripePaymentRequest.RequestPayerEmail = false;
 
-                var paymentRequest = JsonConvert.SerializeObject(stripePaymentRequest);
+                var paymentRequest = JsonSerializer.Serialize(stripePaymentRequest, SmartJsonOptions.CamelCasedIgnoreDefaultValue);
 
                 return Json(new { success = true, paymentRequest });
             }
