@@ -1,7 +1,8 @@
 ﻿#nullable enable
 
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Newtonsoft.Json;
+using Smartstore.Json;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Catalog.Products
@@ -25,31 +26,26 @@ namespace Smartstore.Core.Catalog.Products
         /// The localized title for the associated products list.
         /// The key is the language culture and the value is the localized title.
         /// </summary>
-        [JsonProperty("titles", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public Dictionary<string, string>? Titles { get; set; }
 
         /// <summary>
         /// The number of associated products per page.
         /// </summary>
-        [JsonProperty("pageSize", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public int? PageSize { get; set; }
 
         /// <summary>
         /// Minimum number of associated products from which the search box is displayed.
         /// </summary>
-        [JsonProperty("searchMinAssociatedCount", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public int? SearchMinAssociatedCount { get; set; }
 
         /// <summary>
         /// A value indicating whether the associated products are collapsible.
         /// </summary>
-        [JsonProperty("collapsible", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public bool? Collapsible { get; set; }
 
         /// <summary>
         /// Gets or sets name of fields to display in the collapse header.
         /// </summary>
-        [JsonProperty("headerFields", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string[]? HeaderFields { get; set; }
 
         public virtual string? ToJson()
@@ -71,7 +67,7 @@ namespace Smartstore.Core.Catalog.Products
                 Titles = null;
             }
 
-            return JsonConvert.SerializeObject(this);
+            return JsonSerializer.Serialize(this, SmartJsonOptions.CamelCasedIgnoreDefaultValue);
         }
 
         private bool IsDefault()
@@ -102,7 +98,7 @@ namespace Smartstore.Core.Catalog.Products
 
         private static GroupedProductConfiguration Deserialize(string json)
         {
-            return CommonHelper.TryAction(() => JsonConvert.DeserializeObject<GroupedProductConfiguration>(json));
+            return CommonHelper.TryAction(() => JsonSerializer.Deserialize<GroupedProductConfiguration>(json, SmartJsonOptions.CamelCasedIgnoreDefaultValue));
         }
     }
 }
