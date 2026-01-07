@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Smartstore.Core.Rules.Rendering
 {
@@ -7,16 +7,16 @@ namespace Smartstore.Core.Rules.Rendering
     /// </summary>
     public class RuleEditItem
     {
-        [JsonProperty("ruleId")]
+        [JsonPropertyName("ruleId")]
         public int RuleId { get; set; }
 
-        [JsonProperty("op")]
+        [JsonPropertyName("op")]
         public string Op { get; set; }
 
-        [JsonProperty("value")]
+        [JsonPropertyName("value")]
         public string Value { get; set; }
 
-        [JsonProperty("error")]
+        [JsonPropertyName("error")]
         public string Error { get; set; }
     }
 }
