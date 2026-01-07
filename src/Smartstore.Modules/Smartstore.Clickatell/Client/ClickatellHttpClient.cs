@@ -42,7 +42,6 @@ public class ClickatellHttpClient
 
             if (responseMessage.IsSuccessStatusCode)
             {
-                // TODO: (mh) Casing? Check model policy.
                 var response = await responseMessage.Content.ReadFromJsonAsync<ClickatellResponse>(cancelToken);
 
                 if (response == null)
