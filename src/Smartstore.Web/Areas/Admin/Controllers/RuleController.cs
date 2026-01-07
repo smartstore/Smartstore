@@ -1,5 +1,5 @@
 ﻿using System.Globalization;
-using Newtonsoft.Json;
+using System.Text.Json;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.Admin.Models.Customers;
 using Smartstore.Admin.Models.Rules;
@@ -20,6 +20,7 @@ using Smartstore.Core.Rules.Rendering;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
+using Smartstore.Json;
 using Smartstore.Web.Models;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
@@ -264,7 +265,7 @@ namespace Smartstore.Admin.Controllers
             {
                 try
                 {
-                    var ruleData = JsonConvert.DeserializeObject<RuleEditItem[]>(model.RawRuleData);
+                    var ruleData = JsonSerializer.Deserialize<RuleEditItem[]>(model.RawRuleData, SmartJsonOptions.CamelCasedIgnoreDefaultValue);
                     var provider = await GetProvider(ruleSet);
 
                     await _ruleService.ApplyRuleDataAsync(ruleData, provider);
