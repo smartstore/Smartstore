@@ -323,13 +323,10 @@ public class AmazonPayController : PublicController
     [HttpPost, WebhookEndpoint]
     public async Task<IActionResult> IPNHandler()
     {
-        string json = null;
-
         try
         {
             Request.EnableBuffering();
 
-            // TODO: (mh) Untested. This is the way to go if a stream is available. Please test.
             var ipnEnvelope = await JsonNode.ParseAsync(Request.Body);
             Request.Body.Position = 0;
 
@@ -360,7 +357,7 @@ public class AmazonPayController : PublicController
             }
 
             using var reader = new StreamReader(Request.Body);
-            json = await reader.ReadToEndAsync();
+            var json = await reader.ReadToEndAsync();
 
             Logger.Error(ex, json);
         }
