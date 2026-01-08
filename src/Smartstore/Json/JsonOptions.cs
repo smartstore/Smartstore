@@ -59,7 +59,8 @@ public static class SmartJsonOptions
 
         // Create a resolver early to allow adding modifiers
         TypeInfoResolver = (JsonSerializer.IsReflectionEnabledByDefault ? new DefaultJsonTypeInfoResolver() : JsonTypeInfoResolver.Combine())
-            .WithDataContractModifiers(),
+            .WithDataContractModifiers()
+            .WithPolymorphyModifiers(),
 
         Converters =
         {
@@ -86,7 +87,21 @@ public static class SmartJsonOptions
         o.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
     });
 
-    #region DataContract support modifiers
+    #region DataContract & polymorphy support modifiers
+
+    /// <summary>
+    /// Returns a JSON type info resolver that applies polymorphic serialization and deserialization modifiers to
+    /// types and members that opt into polymorphy support by using the <see cref="PolymorphicAttribute"/>.
+    /// </summary>
+    /// <remarks>Use this method to enable polymorphic type handling in System.Text.Json serialization
+    /// like Newtonsoft.Json does with the $type discriminator.</remarks>
+    public static IJsonTypeInfoResolver WithPolymorphyModifiers(this IJsonTypeInfoResolver typeInfoResolver)
+    {
+        Guard.NotNull(typeInfoResolver);
+
+        return typeInfoResolver
+            .WithAddedModifier(PolymorphyModifier.ApplyPolymorphyModifier);
+    }
 
     /// <summary>
     /// Returns a JSON type info resolver that applies DataContract-related modifiers, enabling support for DataContract
