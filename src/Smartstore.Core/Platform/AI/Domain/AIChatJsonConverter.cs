@@ -1,13 +1,14 @@
-﻿using Newtonsoft.Json;
+﻿using NSJ = Newtonsoft.Json;
+using STJ = System.Text.Json;
 
 namespace Smartstore.Core.AI
 {
-    internal sealed class AIChatJsonConverter : JsonConverter
+    internal sealed class AIChatJsonConverter : NSJ.JsonConverter
     {
         public override bool CanConvert(Type objectType)
             => objectType == typeof(AIChat);
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object ReadJson(NSJ.JsonReader reader, Type objectType, object existingValue, NSJ.JsonSerializer serializer)
         {
             IReadOnlyList<AIChatMessage> messages = null;
             var topic = AIChatTopic.Text;
@@ -16,7 +17,7 @@ namespace Smartstore.Core.AI
             var initialUserMessageHash = 0;
 
             reader.Read();
-            while (reader.TokenType == JsonToken.PropertyName)
+            while (reader.TokenType == NSJ.JsonToken.PropertyName)
             {
                 var name = reader.Value.ToString();
 
@@ -70,7 +71,7 @@ namespace Smartstore.Core.AI
             return chat;
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(NSJ.JsonWriter writer, object value, NSJ.JsonSerializer serializer)
         {
             writer.WriteStartObject();
             {
@@ -98,5 +99,106 @@ namespace Smartstore.Core.AI
 
         private static object GetPropValue(string name, object instance)
             => instance.GetType().GetProperty(name).GetValue(instance);
+    }
+
+    internal sealed class AIChatSystemJsonConverter : STJ.Serialization.JsonConverter<AIChat>
+    {
+        public override AIChat Read(ref STJ.Utf8JsonReader reader, Type typeToConvert, STJ.JsonSerializerOptions options)
+        {
+            IReadOnlyList<AIChatMessage> messages = null;
+            var topic = AIChatTopic.Text;
+            string modelName = null;
+
+            // TODO: (json) Test after polymorphic deserialization is supported!!!
+            Dictionary<string, object> metadata = null;
+            var initialUserMessageHash = 0;
+
+            if (reader.TokenType != STJ.JsonTokenType.StartObject)
+            {
+                throw new STJ.JsonException();
+            }
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == STJ.JsonTokenType.EndObject)
+                {
+                    break;
+                }
+
+                if (reader.TokenType != STJ.JsonTokenType.PropertyName)
+                {
+                    throw new STJ.JsonException();
+                }
+
+                var propertyName = reader.GetString();
+                reader.Read();
+
+                if (string.Equals(propertyName, nameof(AIChat.Topic), StringComparison.OrdinalIgnoreCase))
+                {
+                    topic = STJ.JsonSerializer.Deserialize<AIChatTopic>(ref reader, options);
+                }
+                else if (string.Equals(propertyName, nameof(AIChat.ModelName), StringComparison.OrdinalIgnoreCase))
+                {
+                    modelName = reader.GetString();
+                }
+                else if (string.Equals(propertyName, nameof(AIChat.Messages), StringComparison.OrdinalIgnoreCase))
+                {
+                    messages = STJ.JsonSerializer.Deserialize<IReadOnlyList<AIChatMessage>>(ref reader, options);
+                }
+                else if (string.Equals(propertyName, nameof(AIChat.Metadata), StringComparison.OrdinalIgnoreCase))
+                {
+                    metadata = STJ.JsonSerializer.Deserialize<Dictionary<string, object>>(ref reader, options);
+                }
+                else if (string.Equals(propertyName, nameof(AIChat.InitialUserMessage) + "Hash", StringComparison.OrdinalIgnoreCase))
+                {
+                    initialUserMessageHash = reader.GetInt32();
+                }
+                else
+                {
+                    reader.Skip();
+                }
+            }
+
+            var chat = (AIChat)Activator.CreateInstance(typeToConvert, topic);
+            chat.UseModel(modelName)
+                .AddMessages([.. messages]);
+
+            if (metadata != null && metadata.Count > 0)
+            {
+                chat.Metadata = metadata;
+            }
+
+            if (initialUserMessageHash != 0)
+            {
+                chat.InitialUserMessage = messages.FirstOrDefault(x => x.GetHashCode() == initialUserMessageHash);
+            }
+
+            return chat;
+        }
+
+        public override void Write(STJ.Utf8JsonWriter writer, AIChat value, STJ.JsonSerializerOptions options)
+        {
+            writer.WriteStartObject();
+
+            writer.WritePropertyName(nameof(AIChat.Topic));
+            STJ.JsonSerializer.Serialize(writer, value.Topic, options);
+
+            writer.WritePropertyName(nameof(AIChat.ModelName));
+            STJ.JsonSerializer.Serialize(writer, value.ModelName, options);
+
+            writer.WritePropertyName(nameof(AIChat.Messages));
+            STJ.JsonSerializer.Serialize(writer, value.Messages, options);
+
+            writer.WritePropertyName(nameof(AIChat.InitialUserMessage) + "Hash");
+            writer.WriteNumberValue(value.InitialUserMessage?.GetHashCode() ?? 0);
+
+            if (value.Metadata is IDictionary<string, object> dict && dict.Count > 0)
+            {
+                writer.WritePropertyName(nameof(AIChat.Metadata));
+                STJ.JsonSerializer.Serialize(writer, dict, options);
+            }
+
+            writer.WriteEndObject();
+        }
     }
 }
