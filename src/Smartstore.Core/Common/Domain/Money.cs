@@ -4,12 +4,14 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Html;
-using Newtonsoft.Json;
+using NSJ = Newtonsoft.Json;
+using STJ = System.Text.Json;
 using Sys = System;
 
 namespace Smartstore.Core.Common
 {
-    [JsonConverter(typeof(MoneyJsonConverter))]
+    [NSJ.JsonConverter(typeof(MoneyJsonConverter))]
+    //[STJ.Serialization.JsonConverter(typeof(MoneyJsonConverter))]
     public readonly struct Money : IHtmlContent, IConvertible, IFormattable, IComparable, IComparable<Money>, IEquatable<Money>
     {
         public readonly static Money Zero;
@@ -582,7 +584,7 @@ namespace Smartstore.Core.Common
         #endregion
     }
 
-    internal sealed class MoneyJsonConverter : JsonConverter<Money>
+    internal sealed class MoneyJsonConverter : NSJ.JsonConverter<Money>
     {
         public override bool CanRead
             => false;
@@ -590,12 +592,23 @@ namespace Smartstore.Core.Common
         public override bool CanWrite
             => true;
 
-        public override Money ReadJson(JsonReader reader, Type objectType, Money existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override Money ReadJson(NSJ.JsonReader reader, Type objectType, Money existingValue, bool hasExistingValue, NSJ.JsonSerializer serializer)
             => throw new NotSupportedException();
 
-        public override void WriteJson(JsonWriter writer, Money value, JsonSerializer serializer)
+        public override void WriteJson(NSJ.JsonWriter writer, Money value, NSJ.JsonSerializer serializer)
         {
             serializer.Serialize(writer, value.ToString());
+        }
+    }
+
+    internal sealed class MoneySystemTextJsonConverter : STJ.Serialization.JsonConverter<Money>
+    {
+        public override Money Read(ref STJ.Utf8JsonReader reader, Type typeToConvert, STJ.JsonSerializerOptions options)
+            => throw new NotSupportedException();
+
+        public override void Write(STJ.Utf8JsonWriter writer, Money value, STJ.JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(value.ToString());
         }
     }
 }
