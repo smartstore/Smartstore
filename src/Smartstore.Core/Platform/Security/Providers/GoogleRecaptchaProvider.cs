@@ -255,7 +255,7 @@ namespace Smartstore.Core.Security
 
             CaptchaValidationResult LogFailOpenAndReturn(string code, string message)
             {
-                Logger.Error(verifyException, $"reCAPTCHA verification failed: ${message}. Allowing request to pass (fail-open).");
+                Logger.Error(verifyException, $"reCAPTCHA verification failed: {message}. Allowing request to pass (fail-open).");
                 result.Success = true;
                 result.Messages.Add(new CaptchaValidationMessage(code, CaptchaValidationMessageLevel.Warning));
                 return result;
