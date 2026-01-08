@@ -266,6 +266,19 @@ namespace Smartstore.Engine
             /// </list>
             /// </remarks>
             public string[]? AllowedHosts { get; set; }
+
+            /// <summary>
+            /// Limits the number of entries processed from forwarded headers.
+            /// If not set, Smartstore defaults to 2 (historical IIS reverse-proxy behavior).
+            /// Set to null (omit) to allow auto-disable when KnownProxies/KnownNetworks are configured.
+            /// </summary>
+            public int? ForwardLimit { get; set; }
+
+            /// <summary>
+            /// Require all forwarded headers to have the same number of values.
+            /// Default is false (recommended for multi-hop proxy chains).
+            /// </summary>
+            public bool? RequireHeaderSymmetry { get; set; }
         }
 
         /// <summary>

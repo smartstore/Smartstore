@@ -263,10 +263,14 @@ namespace Smartstore.Web
             var options = new ForwardedHeadersOptions
             {
                 ForwardedHeaders = forwardedHeaders,
-                // IIS already serves as a reverse proxy and will add X-Forwarded headers to all requests,
-                // so we need to increase this limit, otherwise, passed forwarding headers will be ignored.
-                ForwardLimit = 2
+
+                // Default stays 2 for historical IIS reverse-proxy behavior.
+                // The framework default is 1. Increase if multiple proxies append values.
+                ForwardLimit = config.ForwardLimit ?? 2
             };
+
+            if (config.RequireHeaderSymmetry.HasValue)
+                options.RequireHeaderSymmetry = config.RequireHeaderSymmetry.Value;
 
             if (config.ForwardedForHeaderName.HasValue())
                 options.ForwardedForHeaderName = config.ForwardedForHeaderName;
@@ -283,30 +287,21 @@ namespace Smartstore.Web
             if (config.KnownProxies != null)
             {
                 var addresses = config.KnownProxies
-                    .Select(x =>
-                    {
-                        if (IPAddress.TryParse(x, out var ip))
-                        {
-                            return ip;
-                        }
-
-                        return null;
-                    })
+                    .Select(x => IPAddress.TryParse(x, out var ip) ? ip : null)
                     .Where(x => x != null)
                     .ToArray();
-                
+
                 options.KnownProxies.AddRange(addresses);
-                if (addresses.Length > 0)
+
+                if (addresses.Length > 0 && !config.ForwardLimit.HasValue)
                 {
-                    // Disable limit, because at least one KnownProxy is configured.
+                    // Disable limit, because at least one KnownProxy is configured (unless explicitly set in config).
                     options.ForwardLimit = null;
                 }
             }
 
             if (config.AllowedHosts != null)
-            {
                 options.AllowedHosts.AddRange(config.AllowedHosts);
-            }
 
             return options;
         }
