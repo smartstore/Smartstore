@@ -13,8 +13,8 @@ namespace Smartstore
     /// A hybrid implementation of SemVer that supports semantic versioning as described at http://semver.org while not strictly enforcing it to 
     /// allow older 4-digit versioning schemes to continue working.
     /// </summary>
-    //[NSJ.JsonConverter(typeof(SemanticVersionJsonConverter))]
-    [STJ.Serialization.JsonConverter(typeof(SemanticVersionSystemTextJsonConverter))]
+    [NSJ.JsonConverter(typeof(SemanticVersionJsonConverter))]
+    //[STJ.Serialization.JsonConverter(typeof(SemanticVersionSystemTextJsonConverter))]
 
     [TypeConverter(typeof(SemanticVersionConverter))]
     public sealed partial class SemanticVersion : IComparable, IComparable<SemanticVersion>, IEquatable<SemanticVersion>
