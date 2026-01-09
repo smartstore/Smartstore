@@ -22,7 +22,7 @@ namespace Smartstore.Core.Tests.Common
         Currency _currencyUSD, _currencyRUR, _currencyEUR;
 
         // JSON Serialization vars
-        MoneySystemTextJsonConverter _converter;
+        MoneyStjConverter _converter;
         JsonSerializerOptions _jsonOptions;
 
         [SetUp]
@@ -85,7 +85,7 @@ namespace Smartstore.Core.Tests.Common
             };
 
             // JSON Serialization setup
-            _converter = new MoneySystemTextJsonConverter();
+            _converter = new MoneyStjConverter();
             _jsonOptions = new JsonSerializerOptions
             {
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
@@ -182,7 +182,7 @@ namespace Smartstore.Core.Tests.Common
         [Test]
         public void ST_JsonConverter_Read_Should_Throw_NotSupportedException()
         {
-            _jsonOptions.Converters.Add(new MoneySystemTextJsonConverter());
+            _jsonOptions.Converters.Add(new MoneyStjConverter());
 
             var json = "\"$123.45\"";
 

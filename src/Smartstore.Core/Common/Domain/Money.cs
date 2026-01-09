@@ -3,15 +3,16 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Text.Encodings.Web;
+using System.Text.Json;
 using Microsoft.AspNetCore.Html;
 using NSJ = Newtonsoft.Json;
-using STJ = System.Text.Json;
+using STJ = System.Text.Json.Serialization;
 using Sys = System;
 
 namespace Smartstore.Core.Common
 {
     [NSJ.JsonConverter(typeof(MoneyJsonConverter))]
-    //[STJ.Serialization.JsonConverter(typeof(MoneyJsonConverter))]
+    [STJ.JsonConverter(typeof(MoneyStjConverter))]
     public readonly struct Money : IHtmlContent, IConvertible, IFormattable, IComparable, IComparable<Money>, IEquatable<Money>
     {
         public readonly static Money Zero;
@@ -601,12 +602,12 @@ namespace Smartstore.Core.Common
         }
     }
 
-    internal sealed class MoneySystemTextJsonConverter : STJ.Serialization.JsonConverter<Money>
+    internal sealed class MoneyStjConverter : STJ.JsonConverter<Money>
     {
-        public override Money Read(ref STJ.Utf8JsonReader reader, Type typeToConvert, STJ.JsonSerializerOptions options)
+        public override Money Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             => throw new NotSupportedException();
 
-        public override void Write(STJ.Utf8JsonWriter writer, Money value, STJ.JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, Money value, JsonSerializerOptions options)
         {
             writer.WriteStringValue(value.ToString());
         }

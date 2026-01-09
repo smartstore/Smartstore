@@ -1,5 +1,6 @@
-﻿using NSJ = Newtonsoft.Json;
-using STJ = System.Text.Json;
+﻿using System.Text.Json;
+using NSJ = Newtonsoft.Json;
+using STJ = System.Text.Json.Serialization;
 
 namespace Smartstore.Core.AI
 {
@@ -101,9 +102,9 @@ namespace Smartstore.Core.AI
             => instance.GetType().GetProperty(name).GetValue(instance);
     }
 
-    internal sealed class AIChatSystemJsonConverter : STJ.Serialization.JsonConverter<AIChat>
+    internal sealed class AIChatStjConverter : STJ.JsonConverter<AIChat>
     {
-        public override AIChat Read(ref STJ.Utf8JsonReader reader, Type typeToConvert, STJ.JsonSerializerOptions options)
+        public override AIChat Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             IReadOnlyList<AIChatMessage> messages = null;
             var topic = AIChatTopic.Text;
@@ -113,21 +114,21 @@ namespace Smartstore.Core.AI
             Dictionary<string, object> metadata = null;
             var initialUserMessageHash = 0;
 
-            if (reader.TokenType != STJ.JsonTokenType.StartObject)
+            if (reader.TokenType != JsonTokenType.StartObject)
             {
-                throw new STJ.JsonException();
+                throw new JsonException();
             }
 
             while (reader.Read())
             {
-                if (reader.TokenType == STJ.JsonTokenType.EndObject)
+                if (reader.TokenType == JsonTokenType.EndObject)
                 {
                     break;
                 }
 
-                if (reader.TokenType != STJ.JsonTokenType.PropertyName)
+                if (reader.TokenType != JsonTokenType.PropertyName)
                 {
-                    throw new STJ.JsonException();
+                    throw new JsonException();
                 }
 
                 var propertyName = reader.GetString();
@@ -135,7 +136,7 @@ namespace Smartstore.Core.AI
 
                 if (string.Equals(propertyName, nameof(AIChat.Topic), StringComparison.OrdinalIgnoreCase))
                 {
-                    topic = STJ.JsonSerializer.Deserialize<AIChatTopic>(ref reader, options);
+                    topic = JsonSerializer.Deserialize<AIChatTopic>(ref reader, options);
                 }
                 else if (string.Equals(propertyName, nameof(AIChat.ModelName), StringComparison.OrdinalIgnoreCase))
                 {
@@ -143,11 +144,11 @@ namespace Smartstore.Core.AI
                 }
                 else if (string.Equals(propertyName, nameof(AIChat.Messages), StringComparison.OrdinalIgnoreCase))
                 {
-                    messages = STJ.JsonSerializer.Deserialize<IReadOnlyList<AIChatMessage>>(ref reader, options);
+                    messages = JsonSerializer.Deserialize<IReadOnlyList<AIChatMessage>>(ref reader, options);
                 }
                 else if (string.Equals(propertyName, nameof(AIChat.Metadata), StringComparison.OrdinalIgnoreCase))
                 {
-                    metadata = STJ.JsonSerializer.Deserialize<Dictionary<string, object>>(ref reader, options);
+                    metadata = JsonSerializer.Deserialize<Dictionary<string, object>>(ref reader, options);
                 }
                 else if (string.Equals(propertyName, nameof(AIChat.InitialUserMessage) + "Hash", StringComparison.OrdinalIgnoreCase))
                 {
@@ -176,26 +177,28 @@ namespace Smartstore.Core.AI
             return chat;
         }
 
-        public override void Write(STJ.Utf8JsonWriter writer, AIChat value, STJ.JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, AIChat value, JsonSerializerOptions options)
         {
             writer.WriteStartObject();
-
-            writer.WritePropertyName(nameof(AIChat.Topic));
-            STJ.JsonSerializer.Serialize(writer, value.Topic, options);
-
-            writer.WritePropertyName(nameof(AIChat.ModelName));
-            STJ.JsonSerializer.Serialize(writer, value.ModelName, options);
-
-            writer.WritePropertyName(nameof(AIChat.Messages));
-            STJ.JsonSerializer.Serialize(writer, value.Messages, options);
-
-            writer.WritePropertyName(nameof(AIChat.InitialUserMessage) + "Hash");
-            writer.WriteNumberValue(value.InitialUserMessage?.GetHashCode() ?? 0);
-
-            if (value.Metadata is IDictionary<string, object> dict && dict.Count > 0)
             {
-                writer.WritePropertyName(nameof(AIChat.Metadata));
-                STJ.JsonSerializer.Serialize(writer, dict, options);
+                writer.WritePropertyName(nameof(AIChat.Topic));
+                JsonSerializer.Serialize(writer, value.Topic, options);
+
+                // TODO: (mh) I think writer.WriteString(propName, value) is sufficient for primitive types. Check and fix.
+                writer.WritePropertyName(nameof(AIChat.ModelName));
+                JsonSerializer.Serialize(writer, value.ModelName, options);
+
+                writer.WritePropertyName(nameof(AIChat.Messages));
+                JsonSerializer.Serialize(writer, value.Messages, options);
+
+                writer.WritePropertyName(nameof(AIChat.InitialUserMessage) + "Hash");
+                writer.WriteNumberValue(value.InitialUserMessage?.GetHashCode() ?? 0);
+
+                if (value.Metadata is IDictionary<string, object> dict && dict.Count > 0)
+                {
+                    writer.WritePropertyName(nameof(AIChat.Metadata));
+                    JsonSerializer.Serialize(writer, dict, options);
+                }
             }
 
             writer.WriteEndObject();

@@ -16,7 +16,7 @@ namespace Smartstore.Core.Tests.Platform.AI
         {
             _jsonOptions = new JsonSerializerOptions
             {
-                Converters = { new AIChatSystemJsonConverter() }
+                Converters = { new AIChatStjConverter() }
             };
         }
 

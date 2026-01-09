@@ -3,15 +3,15 @@
 using System.Runtime.CompilerServices;
 
 using NSJ = Newtonsoft.Json;
-using STJ = System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Smartstore.Core.AI
 {
     /// <summary>
     /// Represents an AI conversation consisting of a sequence of messages.
     /// </summary>
-    //[NSJ.JsonConverter(typeof(AIChatJsonConverter))]
-    [STJ.Serialization.JsonConverter(typeof(AIChatSystemJsonConverter))]
+    [NSJ.JsonConverter(typeof(AIChatJsonConverter))]
+    [JsonConverter(typeof(AIChatStjConverter))]
     public class AIChat(AIChatTopic topic)
     {
         private IDictionary<string, object?>? _metadata;

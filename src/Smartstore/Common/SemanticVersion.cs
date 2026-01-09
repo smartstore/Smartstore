@@ -2,10 +2,11 @@
 using System.ComponentModel;
 using System.Globalization;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Smartstore.ComponentModel.TypeConverters;
 using NSJ = Newtonsoft.Json;
-using STJ = System.Text.Json;
+using STJ = System.Text.Json.Serialization;
 
 namespace Smartstore
 {
@@ -14,8 +15,7 @@ namespace Smartstore
     /// allow older 4-digit versioning schemes to continue working.
     /// </summary>
     [NSJ.JsonConverter(typeof(SemanticVersionJsonConverter))]
-    //[STJ.Serialization.JsonConverter(typeof(SemanticVersionSystemTextJsonConverter))]
-
+    [STJ.JsonConverter(typeof(SemanticVersionStjConverter))]
     [TypeConverter(typeof(SemanticVersionConverter))]
     public sealed partial class SemanticVersion : IComparable, IComparable<SemanticVersion>, IEquatable<SemanticVersion>
     {
@@ -623,11 +623,11 @@ namespace Smartstore
         }
     }
 
-    internal sealed class SemanticVersionSystemTextJsonConverter : STJ.Serialization.JsonConverter<SemanticVersion>
+    internal sealed class SemanticVersionStjConverter : STJ.JsonConverter<SemanticVersion>
     {
-        public override SemanticVersion Read(ref STJ.Utf8JsonReader reader, Type typeToConvert, STJ.JsonSerializerOptions options)
+        public override SemanticVersion Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TokenType == STJ.JsonTokenType.String)
+            if (reader.TokenType == JsonTokenType.String)
             {
                 var str = reader.GetString();
                 if (str.HasValue() && SemanticVersion.TryParse(str, out var semVer))
@@ -639,7 +639,7 @@ namespace Smartstore
             return null;
         }
 
-        public override void Write(STJ.Utf8JsonWriter writer, SemanticVersion value, STJ.JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, SemanticVersion value, JsonSerializerOptions options)
         {
             if (value != null)
             {
