@@ -335,7 +335,7 @@ namespace Smartstore.Core.Rules.Filters
 
             if (hasAnyWildcard)
             {
-                if (op is (null or "~" or "=" or "=="))
+                if (op.NullEmpty() is (null or "~" or "=" or "=="))
                 {
                     return RuleOperator.Like;
                 }
