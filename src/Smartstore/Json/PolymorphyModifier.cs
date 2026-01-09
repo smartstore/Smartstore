@@ -3,6 +3,7 @@
 using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
+using Smartstore.Json.Converters;
 
 namespace Smartstore.Json;
 
@@ -13,7 +14,7 @@ internal static class PolymorphyModifier
     {
         ObjectConverter = new PolymorphicObjectConverterFactory(PolymorphyOptions.Default),
         ListConverter = null!,
-        DictionaryConverter = null!
+        DictionaryConverter = new PolymorphicDictionaryConverterFactory(PolymorphyOptions.Default)
     };
 
     /// <summary>

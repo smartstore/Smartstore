@@ -12,6 +12,10 @@ internal sealed class PolymorphyOptions
     public static PolymorphyOptions Default => new();
 
     public string TypePropertyName { get; init; } = "$type";
+
+
+    // STJ-ish wrapper for non-object payloads (arrays/scalars) when WRITING.
+    // Legacy NSJ "Objects" won't use this, but our reader supports it.
     public string ValuePropertyName { get; init; } = "$value";
 
     public Func<Type, string?> GetTypeId { get; init; } = static t => t.AssemblyQualifiedName;
