@@ -87,7 +87,6 @@ namespace Smartstore.Core.Content.Media
 
         public async Task<FileCountResult> CountFilesGroupedAsync(MediaFilesFilter filter)
         {
-            // TODO: (core) Throws
             Guard.NotNull(filter);
 
             // Base db query
