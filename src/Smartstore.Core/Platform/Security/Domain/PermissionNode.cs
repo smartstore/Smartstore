@@ -46,13 +46,9 @@ namespace Smartstore.Core.Security
     internal class IPermissionNodeStjConverter : STJ.JsonConverter<IPermissionNode>
     {
         public override IPermissionNode Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            return JsonSerializer.Deserialize<PermissionNode>(ref reader, options);
-        }
+            => JsonSerializer.Deserialize<PermissionNode>(ref reader, options);
 
         public override void Write(Utf8JsonWriter writer, IPermissionNode value, JsonSerializerOptions options)
-        {
-            JsonSerializer.Serialize(writer, value, value.GetType(), options);
-        }
+            => JsonSerializer.Serialize(writer, value, value.GetType(), options);
     }
 }
