@@ -3,6 +3,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using Smartstore.Json;
 using Smartstore.Threading;
 
 namespace Smartstore.Collections
@@ -180,6 +181,7 @@ namespace Smartstore.Collections
 
         #region Metadata
 
+        [Polymorphic(WrapDictionaryArrays = true)]
         public IDictionary<string, object?> Metadata
         {
             get => _metadata ??= new Dictionary<string, object?>();

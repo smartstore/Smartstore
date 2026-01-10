@@ -13,10 +13,14 @@ internal sealed class PolymorphyOptions
 
     public string TypePropertyName { get; init; } = "$type";
 
-
     // STJ-ish wrapper for non-object payloads (arrays/scalars) when WRITING.
     // Legacy NSJ "Objects" won't use this, but our reader supports it.
-    public string ValuePropertyName { get; init; } = "$value";
+    public string ScalarValuePropertyName { get; init; } = "$value";
+
+    // Array wrapper name (legacy NSJ TypeNameHandling.All/Arrays)
+    public string ArrayValuePropertyName { get; init; } = "$values";
+
+    public bool WrapDictionaryArrays { get; set; }
 
     public Func<Type, string?> GetTypeId { get; init; } = static t => t.AssemblyQualifiedName;
 

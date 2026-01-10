@@ -27,9 +27,23 @@ internal static class PolymorphyCodec
         }
 
         var runtimeType = value.GetType();
-        var typeId = o.GetRequiredTypeId(runtimeType);
+        JsonElement payload = JsonSerializer.SerializeToElement(value, runtimeType, options);
 
-        var payload = JsonSerializer.SerializeToElement(value, runtimeType, options);
+        // NSJ-ish: primitives are written raw (no $type/$value wrapper)
+        if (payload.ValueKind is not JsonValueKind.Object and not JsonValueKind.Array)
+        {
+            payload.WriteTo(writer);
+            return;
+        }
+
+        // If requested, arrays can be written raw as well (dictionary-values scenario)
+        if (payload.ValueKind == JsonValueKind.Array && !o.WrapDictionaryArrays)
+        {
+            payload.WriteTo(writer);
+            return;
+        }
+
+        var typeId = o.GetRequiredTypeId(runtimeType);
 
         writer.WriteStartObject();
         writer.WriteString(o.TypePropertyName, typeId);
@@ -46,7 +60,8 @@ internal static class PolymorphyCodec
         }
         else
         {
-            writer.WritePropertyName(o.ValuePropertyName);
+            // NSJ-ish: arrays => $values wrapper
+            writer.WritePropertyName(o.ArrayValuePropertyName);
             payload.WriteTo(writer);
         }
 
@@ -75,7 +90,7 @@ internal static class PolymorphyCodec
             if (declaredBaseType != typeof(object) && !declaredBaseType.IsAssignableFrom(runtimeType))
                 throw new JsonException($"Resolved runtime type '{runtimeType}' is not assignable to '{declaredBaseType}'.");
 
-            if (el.TryGetProperty(o.ValuePropertyName, out var vp))
+            if (TryGetWrappedPayload(el, o, out var vp))
                 return JsonSerializer.Deserialize(vp.GetRawText(), runtimeType, options);
 
             var json = SerializeObjectWithoutType(el, o.TypePropertyName);
@@ -86,6 +101,20 @@ internal static class PolymorphyCodec
             return ReadUntyped(el, options, o);
 
         throw new JsonException($"Missing '{o.TypePropertyName}' discriminator for polymorphic slot '{declaredBaseType}'.");
+    }
+
+    private static bool TryGetWrappedPayload(JsonElement wrapper, PolymorphyOptions o, out JsonElement payload)
+    {
+        // Array wrapper first (NSJ uses $values for arrays)
+        if (wrapper.TryGetProperty(o.ArrayValuePropertyName, out payload))
+            return true;
+
+        // Scalar wrapper ($value)
+        if (wrapper.TryGetProperty(o.ScalarValuePropertyName, out payload))
+            return true;
+
+        payload = default;
+        return false;
     }
 
     private static object? ReadUntyped(JsonElement el, JsonSerializerOptions options, PolymorphyOptions o)
@@ -106,8 +135,9 @@ internal static class PolymorphyCodec
                 return el.GetString();
 
             case JsonValueKind.Number:
-                if (el.TryGetInt64(out var l)) return l;
-                if (el.TryGetDecimal(out var d)) return d;
+                if (el.TryGetInt64(out var l))
+                    return l;
+
                 return el.GetDouble();
 
             case JsonValueKind.Array:
@@ -120,7 +150,7 @@ internal static class PolymorphyCodec
 
             case JsonValueKind.Object:
             {
-                // IMPORTANT: nested objects may carry $type (legacy NSJ Objects).
+                // IMPORTANT: nested objects may carry $type (legacy NSJ Objects/All).
                 if (el.TryGetProperty(o.TypePropertyName, out var tp) && tp.ValueKind == JsonValueKind.String)
                     return Read(el, typeof(object), options, o);
 

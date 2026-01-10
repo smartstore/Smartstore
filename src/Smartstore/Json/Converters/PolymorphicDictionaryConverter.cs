@@ -16,7 +16,9 @@ internal sealed class PolymorphicDictionaryConverterFactory : JsonConverterFacto
     private readonly PolymorphyOptions _options;
 
     public PolymorphicDictionaryConverterFactory(PolymorphyOptions options)
-        => _options = Guard.NotNull(options);
+    {
+        _options = Guard.NotNull(options);
+    }
 
     public override bool CanConvert(Type typeToConvert)
     {

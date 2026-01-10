@@ -14,7 +14,8 @@ internal static class PolymorphyModifier
     {
         ObjectConverter = new PolymorphicObjectConverterFactory(PolymorphyOptions.Default),
         ListConverter = null!,
-        DictionaryConverter = new PolymorphicDictionaryConverterFactory(PolymorphyOptions.Default)
+        DictionaryConverter = new PolymorphicDictionaryConverterFactory(PolymorphyOptions.Default),
+        DictionaryWithArraysConverter = new PolymorphicDictionaryConverterFactory(new PolymorphyOptions { WrapDictionaryArrays = true })
     };
 
     /// <summary>
@@ -36,7 +37,7 @@ internal static class PolymorphyModifier
             var rawPropType = prop.PropertyType;
             var propType = rawPropType.GetNonNullableType();
 
-            if (!IsPolymorphyOptIn(member, propType))
+            if (!TryGetPolymorphicAttribute(member, propType, out var attr))
                 continue;
 
             // Select converter based on property type
@@ -49,7 +50,9 @@ internal static class PolymorphyModifier
                     break;
 
                 case PolymorphyKind.DictionarySlot:
-                    prop.CustomConverter = _converterSet.DictionaryConverter;
+                    prop.CustomConverter = (attr?.WrapDictionaryArrays ?? false)
+                        ? _converterSet.DictionaryWithArraysConverter
+                        : _converterSet.DictionaryConverter;
                     break;
 
                 case PolymorphyKind.ListSlot:
@@ -62,17 +65,16 @@ internal static class PolymorphyModifier
         }
     }
 
-    private static bool IsPolymorphyOptIn(MemberInfo? member, Type propertyType)
+    private static bool TryGetPolymorphicAttribute(MemberInfo? member, Type propertyType, out PolymorphicAttribute? attr)
     {
-        // Member-level opt-in
-        if (member?.HasAttribute<PolymorphicAttribute>(true) == true)
+        // Prefer member-level attribute
+        if (member?.TryGetAttribute<PolymorphicAttribute>(true, out attr) == true) 
+        {
             return true;
+        }
 
         // Type-level opt-in: "this type itself"
-        if (propertyType.HasAttribute<PolymorphicAttribute>(true))
-            return true;
-
-        return false;
+        return propertyType.TryGetAttribute<PolymorphicAttribute>(true, out attr) == true;
     }
 
     private static PolymorphyKind Classify(Type t)
@@ -120,6 +122,7 @@ internal static class PolymorphyModifier
         public required JsonConverter ObjectConverter { get; init; }
         public required JsonConverter ListConverter { get; init; }
         public required JsonConverter DictionaryConverter { get; init; }
+        public required JsonConverter DictionaryWithArraysConverter { get; init; }
     }
 
     enum PolymorphyKind
