@@ -10,6 +10,7 @@ using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Data;
 using Smartstore.Core.Rules.Filters;
+using Smartstore.Core.Security;
 using Smartstore.Engine.Modularity;
 using Smartstore.Google.MerchantCenter.Domain;
 using Smartstore.Google.MerchantCenter.Models;
@@ -209,6 +210,7 @@ public class GoogleMerchantCenterController : AdminController
     }
 
     [HttpPost]
+    [Permission(Permissions.Catalog.Product.Update)]
     public async Task<IActionResult> GoogleProductUpsert(GoogleProductModel model)
     {
         var googleProducts = _db.GoogleProducts();

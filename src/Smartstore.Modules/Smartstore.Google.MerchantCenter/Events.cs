@@ -4,6 +4,7 @@ using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
 using Smartstore.Core.Data;
+using Smartstore.Core.Security;
 using Smartstore.Events;
 using Smartstore.Google.MerchantCenter.Domain;
 using Smartstore.Google.MerchantCenter.Models;
@@ -36,10 +37,12 @@ internal class Events : IConsumer
         }
     }
 
-    public async Task HandleEventAsync(ModelBoundEvent message)
+    public async Task HandleEventAsync(ModelBoundEvent message,
+        IPermissionService permissionService)
     {
-        if (!message.BoundModel.CustomProperties.TryGetValue("GMC", out object value)
-            || value is not GoogleProductModel model)
+        if (!message.BoundModel.CustomProperties.TryGetValue("GMC", out object value) 
+            || value is not GoogleProductModel model
+            || !await permissionService.AuthorizeAsync(Permissions.Catalog.Product.Update))
         {
             return;
         }
