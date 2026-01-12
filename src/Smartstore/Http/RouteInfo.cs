@@ -5,177 +5,176 @@ using NSJ = Newtonsoft.Json;
 using STJ = System.Text.Json.Serialization;
 using System.Text.Json;
 
-namespace Smartstore.Http
+namespace Smartstore.Http;
+
+[NSJ.JsonConverter(typeof(RouteInfoConverter))]
+[STJ.JsonConverter(typeof(RouteInfoJsonConverter))]
+public class RouteInfo
 {
-    [NSJ.JsonConverter(typeof(RouteInfoConverter))]
-    [STJ.JsonConverter(typeof(RouteInfoJsonConverter))]
-    public class RouteInfo
+    public RouteInfo(RouteInfo cloneFrom)
+        : this(cloneFrom.Action, cloneFrom.Controller, new RouteValueDictionary(cloneFrom.RouteValues))
     {
-        public RouteInfo(RouteInfo cloneFrom)
-            : this(cloneFrom.Action, cloneFrom.Controller, new RouteValueDictionary(cloneFrom.RouteValues))
-        {
-        }
-
-        public RouteInfo(string action, object routeValues)
-            : this(action, null, routeValues)
-        {
-        }
-
-        public RouteInfo(string action, string? controller, object? routeValues)
-            : this(action, controller, new RouteValueDictionary(routeValues))
-        {
-        }
-
-        public RouteInfo(string action, IDictionary<string, object?> routeValues)
-            : this(action, null, routeValues)
-        {
-        }
-
-        public RouteInfo(string action, string? controller, IDictionary<string, object?> routeValues)
-            : this(action, controller, new RouteValueDictionary(routeValues))
-        {
-            Guard.NotNull(routeValues);
-        }
-
-        public RouteInfo(string action, RouteValueDictionary routeValues)
-            : this(action, null, routeValues)
-        {
-        }
-
-        [NSJ.JsonConstructor]
-        public RouteInfo(string action, string? controller, RouteValueDictionary routeValues)
-        {
-            Guard.NotEmpty(action);
-            Guard.NotNull(routeValues);
-
-            Action = action;
-            Controller = controller;
-            RouteValues = routeValues;
-        }
-
-        public string Action { get; }
-        public string? Controller { get; }
-        public RouteValueDictionary RouteValues { get; }
     }
 
-    #region Newtonsoft.Json Converter
-
-    internal class RouteInfoConverter : NSJ.JsonConverter<RouteInfo>
+    public RouteInfo(string action, object routeValues)
+        : this(action, null, routeValues)
     {
-        public override bool CanWrite
-            => false;
+    }
 
-        public override RouteInfo? ReadJson(NSJ.JsonReader reader, Type objectType, RouteInfo? existingValue, bool hasExistingValue, NSJ.JsonSerializer serializer)
+    public RouteInfo(string action, string? controller, object? routeValues)
+        : this(action, controller, new RouteValueDictionary(routeValues))
+    {
+    }
+
+    public RouteInfo(string action, IDictionary<string, object?> routeValues)
+        : this(action, null, routeValues)
+    {
+    }
+
+    public RouteInfo(string action, string? controller, IDictionary<string, object?> routeValues)
+        : this(action, controller, new RouteValueDictionary(routeValues))
+    {
+        Guard.NotNull(routeValues);
+    }
+
+    public RouteInfo(string action, RouteValueDictionary routeValues)
+        : this(action, null, routeValues)
+    {
+    }
+
+    [NSJ.JsonConstructor]
+    public RouteInfo(string action, string? controller, RouteValueDictionary routeValues)
+    {
+        Guard.NotEmpty(action);
+        Guard.NotNull(routeValues);
+
+        Action = action;
+        Controller = controller;
+        RouteValues = routeValues;
+    }
+
+    public string Action { get; }
+    public string? Controller { get; }
+    public RouteValueDictionary RouteValues { get; }
+}
+
+#region Newtonsoft.Json Converter
+
+internal class RouteInfoConverter : NSJ.JsonConverter<RouteInfo>
+{
+    public override bool CanWrite
+        => false;
+
+    public override RouteInfo? ReadJson(NSJ.JsonReader reader, Type objectType, RouteInfo? existingValue, bool hasExistingValue, NSJ.JsonSerializer serializer)
+    {
+        string? action = null;
+        string? controller = null;
+        RouteValueDictionary? routeValues = null;
+
+        reader.Read();
+        while (reader.TokenType == NSJ.JsonToken.PropertyName)
         {
-            string? action = null;
-            string? controller = null;
-            RouteValueDictionary? routeValues = null;
+            string? a = reader.Value?.ToString();
+            if (string.Equals(a, "Action", StringComparison.OrdinalIgnoreCase))
+            {
+                reader.Read();
+                action = serializer.Deserialize<string>(reader);
+            }
+            else if (string.Equals(a, "Controller", StringComparison.OrdinalIgnoreCase))
+            {
+                reader.Read();
+                controller = serializer.Deserialize<string>(reader);
+            }
+            else if (string.Equals(a, "RouteValues", StringComparison.OrdinalIgnoreCase))
+            {
+                reader.Read();
+                routeValues = serializer.Deserialize<RouteValueDictionary>(reader);
+            }
+            else
+            {
+                reader.Skip();
+            }
 
             reader.Read();
-            while (reader.TokenType == NSJ.JsonToken.PropertyName)
-            {
-                string? a = reader.Value?.ToString();
-                if (string.Equals(a, "Action", StringComparison.OrdinalIgnoreCase))
-                {
-                    reader.Read();
-                    action = serializer.Deserialize<string>(reader);
-                }
-                else if (string.Equals(a, "Controller", StringComparison.OrdinalIgnoreCase))
-                {
-                    reader.Read();
-                    controller = serializer.Deserialize<string>(reader);
-                }
-                else if (string.Equals(a, "RouteValues", StringComparison.OrdinalIgnoreCase))
-                {
-                    reader.Read();
-                    routeValues = serializer.Deserialize<RouteValueDictionary>(reader);
-                }
-                else
-                {
-                    reader.Skip();
-                }
-
-                reader.Read();
-            }
-
-            var routeInfo = Activator.CreateInstance(objectType, [action, controller, routeValues]);
-
-            return (RouteInfo?)routeInfo;
         }
 
-        public override void WriteJson(NSJ.JsonWriter writer, RouteInfo? value, NSJ.JsonSerializer serializer)
-        {
-            throw new NotImplementedException();
-        }
+        var routeInfo = Activator.CreateInstance(objectType, [action, controller, routeValues]);
+
+        return (RouteInfo?)routeInfo;
     }
 
-    #endregion
-
-    #region System.Text.Json Converter
-
-    internal sealed class RouteInfoJsonConverter : STJ.JsonConverter<RouteInfo>
+    public override void WriteJson(NSJ.JsonWriter writer, RouteInfo? value, NSJ.JsonSerializer serializer)
     {
-        public override bool HandleNull => true;
+        throw new NotImplementedException();
+    }
+}
 
-        public override RouteInfo? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+#endregion
+
+#region System.Text.Json Converter
+
+internal sealed class RouteInfoJsonConverter : STJ.JsonConverter<RouteInfo>
+{
+    public override bool HandleNull => true;
+
+    public override RouteInfo? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        if (reader.TokenType == JsonTokenType.Null)
         {
-            if (reader.TokenType == JsonTokenType.Null)
-            {
-                return null;
-            }
-
-            string? action = null;
-            string? controller = null;
-            RouteValueDictionary? routeValues = null;
-
-            while (reader.Read())
-            {
-                if (reader.TokenType == JsonTokenType.EndObject)
-                {
-                    break;
-                }
-
-                if (reader.TokenType == JsonTokenType.PropertyName)
-                {
-                    string? propertyName = reader.GetString();
-                    reader.Read();
-
-                    if (string.Equals(propertyName, "Action", StringComparison.OrdinalIgnoreCase))
-                    {
-                        action = reader.GetString();
-                    }
-                    else if (string.Equals(propertyName, "Controller", StringComparison.OrdinalIgnoreCase))
-                    {
-                        controller = reader.GetString();
-                    }
-                    else if (string.Equals(propertyName, "RouteValues", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // TODO: (json) (mc) Polymorphic serialization support for RouteValueDictionary?!
-                        routeValues = JsonSerializer.Deserialize<RouteValueDictionary>(ref reader, options);
-                    }
-                }
-            }
-
-            return new RouteInfo(action!, controller, routeValues ?? []);
+            return null;
         }
 
-        public override void Write(Utf8JsonWriter writer, RouteInfo value, JsonSerializerOptions options)
+        string? action = null;
+        string? controller = null;
+        RouteValueDictionary? routeValues = null;
+
+        while (reader.Read())
         {
-            writer.WriteStartObject();
-            writer.WriteString("Action", value.Action);
-            
-            if (value.Controller != null)
+            if (reader.TokenType == JsonTokenType.EndObject)
             {
-                writer.WriteString("Controller", value.Controller);
+                break;
             }
-            
-            writer.WritePropertyName("RouteValues");
-            // TODO: (json) (mc) Polymorphic serialization support for RouteValueDictionary?!
-            JsonSerializer.Serialize(writer, value.RouteValues, options);
-            
-            writer.WriteEndObject();
+
+            if (reader.TokenType == JsonTokenType.PropertyName)
+            {
+                string? propertyName = reader.GetString();
+                reader.Read();
+
+                if (string.Equals(propertyName, "Action", StringComparison.OrdinalIgnoreCase))
+                {
+                    action = reader.GetString();
+                }
+                else if (string.Equals(propertyName, "Controller", StringComparison.OrdinalIgnoreCase))
+                {
+                    controller = reader.GetString();
+                }
+                else if (string.Equals(propertyName, "RouteValues", StringComparison.OrdinalIgnoreCase))
+                {
+                    // TODO: (json) (mc) Polymorphic serialization support for RouteValueDictionary?!
+                    routeValues = JsonSerializer.Deserialize<RouteValueDictionary>(ref reader, options);
+                }
+            }
         }
+
+        return new RouteInfo(action!, controller, routeValues ?? []);
     }
 
-    #endregion
+    public override void Write(Utf8JsonWriter writer, RouteInfo value, JsonSerializerOptions options)
+    {
+        writer.WriteStartObject();
+        writer.WriteString("Action", value.Action);
+        
+        if (value.Controller != null)
+        {
+            writer.WriteString("Controller", value.Controller);
+        }
+        
+        writer.WritePropertyName("RouteValues");
+        // TODO: (json) (mc) Polymorphic serialization support for RouteValueDictionary?!
+        JsonSerializer.Serialize(writer, value.RouteValues, options);
+        
+        writer.WriteEndObject();
+    }
 }
+
+#endregion
