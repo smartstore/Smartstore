@@ -1,25 +1,29 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using NUnit.Framework;
 using Smartstore.Collections;
 using Smartstore.Collections.JsonConverters;
+using Smartstore.Json;
 using Smartstore.Test.Common;
 
 namespace Smartstore.Tests.Collections
 {
     [TestFixture]
-    public class TreeNodeStjConverterTests
+    public class TreeNodeConverterTests
     {
+        private TreeNodeJsonConverterFactory _converterFactory;
         private JsonSerializerOptions _options;
 
         [SetUp]
         public void Setup()
         {
-            _options = new JsonSerializerOptions
+            _converterFactory = new TreeNodeJsonConverterFactory();
+            _options = SmartJsonOptions.Default.Create(o =>
             {
-                Converters = { new TreeNodeStjConverter<string>() }
-            };
+                o.Converters.Add(_converterFactory);
+            });
         }
 
         [Test]
@@ -78,12 +82,7 @@ namespace Smartstore.Tests.Collections
         {
             var json = """{"Value":"Test","Id":[1,2,3]}""";
 
-            var options = new JsonSerializerOptions
-            {
-                Converters = { new TreeNodeStjConverter<string>() }
-            };
-
-            var node = JsonSerializer.Deserialize<TreeNode<string>>(json, options);
+            var node = JsonSerializer.Deserialize<TreeNode<string>>(json, _options);
 
             node.ShouldNotBeNull();
             node.Value.ShouldEqual("Test");
@@ -311,12 +310,7 @@ namespace Smartstore.Tests.Collections
         {
             var json = """{"Value":42}""";
 
-            var options = new JsonSerializerOptions
-            {
-                Converters = { new TreeNodeStjConverter<int>() }
-            };
-
-            var node = JsonSerializer.Deserialize<TreeNode<int>>(json, options);
+            var node = JsonSerializer.Deserialize<TreeNode<int>>(json, _options);
 
             node.ShouldNotBeNull();
             node.Value.ShouldEqual(42);
@@ -325,18 +319,13 @@ namespace Smartstore.Tests.Collections
         [Test]
         public void Can_serialize_and_deserialize_treenode_with_complex_type()
         {
-            var options = new JsonSerializerOptions
-            {
-                Converters = { new TreeNodeStjConverter<TestData>() }
-            };
-
             var original = new TreeNode<TestData>(new TestData { Name = "Test", Count = 10 })
             {
                 Id = "test-1"
             };
 
-            var json = JsonSerializer.Serialize(original, options);
-            var deserialized = JsonSerializer.Deserialize<TreeNode<TestData>>(json, options);
+            var json = JsonSerializer.Serialize(original, _options);
+            var deserialized = JsonSerializer.Deserialize<TreeNode<TestData>>(json, _options);
 
             deserialized.ShouldNotBeNull();
             deserialized.Value.ShouldNotBeNull();

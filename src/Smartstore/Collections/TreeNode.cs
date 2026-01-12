@@ -10,7 +10,7 @@ namespace Smartstore.Collections
 {
     [DebuggerDisplay("TreeNode, Value = {Value}, Id = {Id}")]
     [NSJ.JsonConverter(typeof(TreeNodeJsonConverter))]
-    [STJ.JsonConverter(typeof(TreeNodeConverterFactory))]
+    [STJ.JsonConverter(typeof(TreeNodeJsonConverterFactory))]
     public class TreeNode<TValue> : TreeNodeBase<TreeNode<TValue>>
     {
         public TreeNode(TValue value)

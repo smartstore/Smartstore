@@ -2,7 +2,6 @@
 using System.Text.Json.Serialization;
 using NSJ = Newtonsoft.Json;
 using NSJL = Newtonsoft.Json.Linq;
-using STJ = System.Text.Json.Serialization;
 
 namespace Smartstore.Collections.JsonConverters
 {
@@ -127,28 +126,23 @@ namespace Smartstore.Collections.JsonConverters
             => instance.GetType().GetProperty(name).GetValue(instance);
     }
 
-    internal sealed class TreeNodeConverterFactory : JsonConverterFactory
+    internal sealed class TreeNodeJsonConverterFactory : JsonConverterFactory
     {
         public override bool CanConvert(Type typeToConvert)
         {
-            if (!typeToConvert.IsGenericType)
-            {
-                return false;
-            }
-
-            return typeToConvert.GetGenericTypeDefinition() == typeof(TreeNode<>);
+            return typeToConvert.IsGenericType && typeToConvert.GetGenericTypeDefinition() == typeof(TreeNode<>);
         }
 
         public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
         {
             Type wrappedType = typeToConvert.GetGenericArguments()[0];
-            Type converterType = typeof(TreeNodeStjConverter<>).MakeGenericType(wrappedType);
+            Type converterType = typeof(TreeNodeJsonConverter<>).MakeGenericType(wrappedType);
 
             return (JsonConverter)Activator.CreateInstance(converterType);
         }
     }
 
-    internal sealed class TreeNodeStjConverter<T> : JsonConverter<TreeNode<T>>
+    internal sealed class TreeNodeJsonConverter<T> : JsonConverter<TreeNode<T>>
     {
         public override TreeNode<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
@@ -183,6 +177,7 @@ namespace Smartstore.Collections.JsonConverters
                 }
                 else if (string.Equals(propertyName, "Metadata", StringComparison.OrdinalIgnoreCase))
                 {
+                    // TODO: (json) (mc) Polymorphy!
                     metadata = JsonSerializer.Deserialize<Dictionary<string, object>>(ref reader, options);
                 }
                 else if (string.Equals(propertyName, "Children", StringComparison.OrdinalIgnoreCase))
@@ -223,10 +218,13 @@ namespace Smartstore.Collections.JsonConverters
 
             if (metadata != null && metadata.Count > 0)
             {
-                foreach (var kvp in metadata)
-                {
-                    treeNode.Metadata[kvp.Key] = kvp.Value;
-                }
+                treeNode.Metadata = metadata;
+
+                // TODO: (mh) Is there any reason to do it this way instead of just assigning the dictionary above?
+                //foreach (var kvp in metadata)
+                //{
+                //    treeNode.Metadata[kvp.Key] = kvp.Value;
+                //}
             }
 
             if (id != null)
@@ -256,6 +254,7 @@ namespace Smartstore.Collections.JsonConverters
             if (value.Metadata != null && value.Metadata.Count > 0)
             {
                 writer.WritePropertyName("Metadata");
+                // TODO: (json) (mc) Polymorphy!
                 JsonSerializer.Serialize(writer, value.Metadata, options);
             }
 
