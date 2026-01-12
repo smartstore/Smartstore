@@ -6,24 +6,23 @@ using Smartstore.Data.Providers;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 
-namespace Smartstore.Google.MerchantCenter
-{
-    internal class Startup : StarterBase
-    {
-        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
-        {
-            services.AddTransient<IDbContextConfigurationSource<SmartDbContext>, SmartDbContextConfigurer>();
-        }
+namespace Smartstore.Google.MerchantCenter;
 
-        class SmartDbContextConfigurer : IDbContextConfigurationSource<SmartDbContext>
+internal class Startup : StarterBase
+{
+    public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
+    {
+        services.AddTransient<IDbContextConfigurationSource<SmartDbContext>, SmartDbContextConfigurer>();
+    }
+
+    class SmartDbContextConfigurer : IDbContextConfigurationSource<SmartDbContext>
+    {
+        public void Configure(IServiceProvider services, DbContextOptionsBuilder builder)
         {
-            public void Configure(IServiceProvider services, DbContextOptionsBuilder builder)
+            builder.UseDbFactory(b =>
             {
-                builder.UseDbFactory(b =>
-                {
-                    b.AddModelAssembly(GetType().Assembly);
-                });
-            }
+                b.AddModelAssembly(GetType().Assembly);
+            });
         }
     }
 }
