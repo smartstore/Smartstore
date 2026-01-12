@@ -8,7 +8,7 @@ using System.Text.Json;
 namespace Smartstore.Http
 {
     [NSJ.JsonConverter(typeof(RouteInfoConverter))]
-    [STJ.JsonConverter(typeof(StjRouteInfoConverter))]
+    [STJ.JsonConverter(typeof(RouteInfoJsonConverter))]
     public class RouteInfo
     {
         public RouteInfo(RouteInfo cloneFrom)
@@ -113,7 +113,7 @@ namespace Smartstore.Http
 
     #region System.Text.Json Converter
 
-    internal class StjRouteInfoConverter : STJ.JsonConverter<RouteInfo>
+    internal sealed class RouteInfoJsonConverter : STJ.JsonConverter<RouteInfo>
     {
         public override bool HandleNull => true;
 
@@ -150,12 +150,13 @@ namespace Smartstore.Http
                     }
                     else if (string.Equals(propertyName, "RouteValues", StringComparison.OrdinalIgnoreCase))
                     {
+                        // TODO: (json) (mc) Polymorphic serialization support for RouteValueDictionary?!
                         routeValues = JsonSerializer.Deserialize<RouteValueDictionary>(ref reader, options);
                     }
                 }
             }
 
-            return new RouteInfo(action!, controller, routeValues ?? new RouteValueDictionary());
+            return new RouteInfo(action!, controller, routeValues ?? []);
         }
 
         public override void Write(Utf8JsonWriter writer, RouteInfo value, JsonSerializerOptions options)
@@ -169,6 +170,7 @@ namespace Smartstore.Http
             }
             
             writer.WritePropertyName("RouteValues");
+            // TODO: (json) (mc) Polymorphic serialization support for RouteValueDictionary?!
             JsonSerializer.Serialize(writer, value.RouteValues, options);
             
             writer.WriteEndObject();
