@@ -37,7 +37,17 @@
         <Value>Standardwerte</Value>
     </LocaleResource>
     <LocaleResource Name="DefaultValueSettingsNote">
-        <Value>Standardwerte werden exportiert, wenn die entsprechende Information für das jeweilge Produkt nicht gepflegt wurde. Für einzelne Produkte können diese Werte sowohl in der Plugin-Konfiguration als auch direkt auf der Bearbeitungsseite des Produktes eingegeben werden.</Value>
+        <Value>
+            <![CDATA[Standardwerte werden exportiert, wenn die entsprechende Information für das jeweilge Produkt nicht gepflegt wurde. Für einzelne Produkte können diese Werte
+sowohl in der Plugin-Konfiguration als auch direkt auf der Bearbeitungsseite des Produktes eingegeben werden.
+Für <strong>{0}</strong> von <strong>{1}</strong> Produkten sind GMC-Daten festgelegt.]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="ExportAllProducts">
+        <Value>Alle Produkte exportieren</Value>
+    </LocaleResource>
+    <LocaleResource Name="ExportAllProducts.Hint">
+        <Value>Legt fest, ob alle Produkte exportiert werden (Standard). Falls deaktiviert, werden nur die Produkte exportiert, für die GMC-Daten festgelegt sind.</Value>
     </LocaleResource>
     <LocaleResource Name="MissingDefaultCategory">
         <Value>Standard-Google-Kategorie fehlt</Value>

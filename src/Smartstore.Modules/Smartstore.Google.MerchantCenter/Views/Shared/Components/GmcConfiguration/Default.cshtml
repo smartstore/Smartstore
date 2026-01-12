@@ -49,6 +49,15 @@
     </div>
     <div class="adminRow">
         <div class="adminTitle">
+            <smart-label asp-for="ExportAllProducts" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="ExportAllProducts"></editor>
+            <span asp-validation-for="ExportAllProducts"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
             <smart-label asp-for="ExportShipping" />
         </div>
         <div class="adminData">
@@ -96,7 +105,7 @@
         <div class="admin-config-group">
             <div class="title">@T("Plugins.Feed.Froogle.DefaultValueSettings")</div>
             <div class="alert alert-info alert-dismissible">
-                @T("Plugins.Feed.Froogle.DefaultValueSettingsNote")
+                @Html.Raw(ViewBag.DefaultValueSettingsNote)
                 <button type="button" class="btn-close" data-dismiss="alert"></button>
             </div>
         </div>

@@ -2,50 +2,54 @@
 
 [CustomModelPart]
 [Serializable]
+[LocalizedDisplay("Plugins.Feed.Froogle.")]
 public class ProfileConfigurationModel
 {
-    [LocalizedDisplay("Plugins.Feed.Froogle.DefaultGoogleCategory")]
+    [LocalizedDisplay("*DefaultGoogleCategory")]
     public string DefaultGoogleCategory { get; set; }
 
-    [LocalizedDisplay("Plugins.Feed.Froogle.AdditionalImages")]
+    [LocalizedDisplay("*ExportAllProducts")]
+    public bool ExportAllProducts { get; set; } = true;
+
+    [LocalizedDisplay("*AdditionalImages")]
     public bool AdditionalImages { get; set; } = true;
 
-    [LocalizedDisplay("Plugins.Feed.Froogle.Availability")]
+    [LocalizedDisplay("*Availability")]
     public string Availability { get; set; }
 
-    [LocalizedDisplay("Plugins.Feed.Froogle.SpecialPrice")]
+    [LocalizedDisplay("*SpecialPrice")]
     public bool SpecialPrice { get; set; } = true;
 
     [UIHint("Gender")]
-    [LocalizedDisplay("Plugins.Feed.Froogle.Gender")]
+    [LocalizedDisplay("*Gender")]
     public string Gender { get; set; }
 
     [UIHint("AgeGroup")]
-    [LocalizedDisplay("Plugins.Feed.Froogle.AgeGroup")]
+    [LocalizedDisplay("*AgeGroup")]
     public string AgeGroup { get; set; }
 
-    [LocalizedDisplay("Plugins.Feed.Froogle.Color")]
+    [LocalizedDisplay("*Color")]
     public string Color { get; set; }
 
-    [LocalizedDisplay("Plugins.Feed.Froogle.Size")]
+    [LocalizedDisplay("*Size")]
     public string Size { get; set; }
 
-    [LocalizedDisplay("Plugins.Feed.Froogle.Material")]
+    [LocalizedDisplay("*Material")]
     public string Material { get; set; }
 
-    [LocalizedDisplay("Plugins.Feed.Froogle.Pattern")]
+    [LocalizedDisplay("*Pattern")]
     public string Pattern { get; set; }
 
-    [LocalizedDisplay("Plugins.Feed.Froogle.ExpirationDays")]
+    [LocalizedDisplay("*ExpirationDays")]
     public int ExpirationDays { get; set; }
 
-    [LocalizedDisplay("Plugins.Feed.Froogle.ExportShipping")]
+    [LocalizedDisplay("*ExportShipping")]
     public bool ExportShipping { get; set; }
 
-    [LocalizedDisplay("Plugins.Feed.Froogle.ExportShippingTime")]
+    [LocalizedDisplay("*ExportShippingTime")]
     public bool ExportShippingTime { get; set; }
 
-    [LocalizedDisplay("Plugins.Feed.Froogle.ExportBasePrice")]
+    [LocalizedDisplay("*ExportBasePrice")]
     public bool ExportBasePrice { get; set; }
 }
 
