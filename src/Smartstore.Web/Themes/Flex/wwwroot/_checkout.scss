@@ -268,14 +268,14 @@
     flex-direction: row;
     align-items: center;
     flex-wrap: wrap;
+}
 
-    .payment-brand-thumb {
-        min-height: 40px;
-        height: 40px;
-        margin-inline-end: 5px;
-        border: 1px solid rgba(0, 0, 0, 0.3);
-        border-radius: 10px;
-    }
+.payment-brand-thumb {
+    min-height: 40px;
+    height: 40px;
+    margin-inline-end: 5px;
+    border: 1px solid rgba($black, 0.3);
+    border-radius: 10px;
 }
 
 .payment-method-page .opt-list-icons {
