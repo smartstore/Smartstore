@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using System.Runtime.CompilerServices;
-using Newtonsoft.Json;
 using Smartstore.Collections.JsonConverters;
+using NSJ = Newtonsoft.Json;
+using STJ = System.Text.Json.Serialization;
 
 namespace Smartstore.Collections
 {
@@ -10,7 +11,8 @@ namespace Smartstore.Collections
     /// </summary>
     /// <typeparam name="TKey">The type of key.</typeparam>
     /// <typeparam name="TValue">The type of value.</typeparam>
-    [JsonConverter(typeof(MultiMapJsonConverter))]
+    [NSJ.JsonConverter(typeof(MultiMapJsonConverter))]
+    [STJ.JsonConverter(typeof(MultiMapStjConverterFactory))]
     public class Multimap<TKey, TValue> : IEnumerable<KeyValuePair<TKey, ICollection<TValue>>>
     {
         private readonly IDictionary<TKey, ICollection<TValue>> _dict;
@@ -18,7 +20,7 @@ namespace Smartstore.Collections
         private readonly bool _isReadonly = false;
 
         internal readonly static Func<IEnumerable<TValue>, ICollection<TValue>> DefaultCollectionCreator =
-            x => new List<TValue>(x ?? []);
+            x => [.. x ?? []];
 
         public Multimap()
             : this(EqualityComparer<TKey>.Default)
