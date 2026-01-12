@@ -12,7 +12,7 @@ namespace Smartstore.Collections
     /// <typeparam name="TKey">The type of key.</typeparam>
     /// <typeparam name="TValue">The type of value.</typeparam>
     [NSJ.JsonConverter(typeof(MultiMapJsonConverter))]
-    [STJ.JsonConverter(typeof(MultiMapStjConverterFactory))]
+    [STJ.JsonConverter(typeof(MultiMapConverterFactory))]
     public class Multimap<TKey, TValue> : IEnumerable<KeyValuePair<TKey, ICollection<TValue>>>
     {
         private readonly IDictionary<TKey, ICollection<TValue>> _dict;
@@ -93,7 +93,7 @@ namespace Smartstore.Collections
 
         protected virtual ICollection<TValue> CreateCollection(IEnumerable<TValue> values)
         {
-            return (_collectionCreator ?? DefaultCollectionCreator)(values ?? Enumerable.Empty<TValue>());
+            return (_collectionCreator ?? DefaultCollectionCreator)(values ?? []);
         }
 
         /// <summary>

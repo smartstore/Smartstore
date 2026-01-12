@@ -2,29 +2,40 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using NUnit.Framework;
 using Smartstore.Collections;
 using Smartstore.Collections.JsonConverters;
+using Smartstore.Json;
 using Smartstore.Test.Common;
 
 namespace Smartstore.Tests.Collections
 {
     [TestFixture]
-    public class MultiMapSTJConverterTests
+    public class MultiMapConverterTests
     {
+        private MultiMapConverterFactory _converterFactory;
         private JsonSerializerOptions _options;
+
+        private JsonConverter CreateConverter(Type converterType)
+        {
+            return _converterFactory.CreateConverter(converterType, _options);
+        }
 
         [SetUp]
         public void Setup()
         {
-            _options = new JsonSerializerOptions();
-            _options.Converters.Add(new MultiMapStjConverterFactory());
+            _converterFactory = new MultiMapConverterFactory();
+            _options = SmartJsonOptions.Default.Create(o =>
+            {
+                o.Converters.Add(_converterFactory);
+            });
         }
 
         [Test]
         public void CanConvert_Should_Return_False_For_ConcurrentMultimap()
         {
-            var converter = new MultiMapStjConverter();
+            var converter = CreateConverter(typeof(Multimap<string, int>));
             var result = converter.CanConvert(typeof(ConcurrentMultimap<string, int>));
             result.ShouldBeFalse();
         }
@@ -32,7 +43,7 @@ namespace Smartstore.Tests.Collections
         [Test]
         public void CanConvert_Should_Return_False_For_Other_Types()
         {
-            var converter = new MultiMapStjConverter();
+            var converter = CreateConverter(typeof(Multimap<string, int>));
             converter.CanConvert(typeof(Dictionary<string, int>)).ShouldBeFalse();
             converter.CanConvert(typeof(List<string>)).ShouldBeFalse();
             converter.CanConvert(typeof(string)).ShouldBeFalse();
@@ -42,11 +53,11 @@ namespace Smartstore.Tests.Collections
         public void Write_Should_Serialize_Multimap_With_String_Keys()
         {
             var multimap = new Multimap<string, int>
-            {
-                { "Key1", 1 },
-                { "Key1", 2 },
-                { "Key2", 3 }
-            };
+        {
+            { "Key1", 1 },
+            { "Key1", 2 },
+            { "Key2", 3 }
+        };
 
             var json = JsonSerializer.Serialize(multimap, _options);
             json.ShouldNotBeNull();
@@ -59,11 +70,11 @@ namespace Smartstore.Tests.Collections
         public void Read_Should_Deserialize_Multimap_With_String_Keys()
         {
             var original = new Multimap<string, int>
-            {
-                { "Key1", 1 },
-                { "Key1", 2 },
-                { "Key2", 3 }
-            };
+        {
+            { "Key1", 1 },
+            { "Key1", 2 },
+            { "Key2", 3 }
+        };
 
             // Act - Serialize dann Deserialize
             var json = JsonSerializer.Serialize(original, _options);
@@ -71,6 +82,7 @@ namespace Smartstore.Tests.Collections
 
             multimap.ShouldNotBeNull();
             multimap.Count.ShouldEqual(2);
+
             Assert.That(multimap["Key1"].Count(), Is.EqualTo(2));
             Assert.That(multimap["Key1"], Does.Contain(1));
             Assert.That(multimap["Key1"], Does.Contain(2));
@@ -82,11 +94,11 @@ namespace Smartstore.Tests.Collections
         public void Read_Should_Use_Case_Insensitive_Comparer_For_String_Keys()
         {
             var original = new Multimap<string, int>
-            {
-                { "Key1", 1 },
-                { "Key1", 2 },
-                { "key1", 3 }
-            };
+        {
+            { "Key1", 1 },
+            { "Key1", 2 },
+            { "key1", 3 }
+        };
 
             var json = JsonSerializer.Serialize(original, _options);
             var multimap = JsonSerializer.Deserialize<Multimap<string, int>>(json, _options);
@@ -101,11 +113,11 @@ namespace Smartstore.Tests.Collections
         public void Write_Should_Serialize_Multimap_With_Int_Keys()
         {
             var multimap = new Multimap<int, string>
-            {
-                { 1, "Value1" },
-                { 1, "Value2" },
-                { 2, "Value3" }
-            };
+        {
+            { 1, "Value1" },
+            { 1, "Value2" },
+            { 2, "Value3" }
+        };
 
             var json = JsonSerializer.Serialize(multimap, _options);
 
@@ -119,11 +131,11 @@ namespace Smartstore.Tests.Collections
         public void Read_Should_Deserialize_Multimap_With_Int_Keys()
         {
             var original = new Multimap<int, string>
-            {
-                { 1, "Value1" },
-                { 1, "Value2" },
-                { 2, "Value3" }
-            };
+        {
+            { 1, "Value1" },
+            { 1, "Value2" },
+            { 2, "Value3" }
+        };
 
             var json = JsonSerializer.Serialize(original, _options);
             var multimap = JsonSerializer.Deserialize<Multimap<int, string>>(json, _options);
@@ -141,14 +153,14 @@ namespace Smartstore.Tests.Collections
         public void RoundTrip_Should_Preserve_Data_With_String_Keys()
         {
             var original = new Multimap<string, int>
-            {
-                { "Alpha", 1 },
-                { "Alpha", 2 },
-                { "Beta", 3 },
-                { "Gamma", 4 },
-                { "Gamma", 5 },
-                { "Gamma", 6 }
-            };
+        {
+            { "Alpha", 1 },
+            { "Alpha", 2 },
+            { "Beta", 3 },
+            { "Gamma", 4 },
+            { "Gamma", 5 },
+            { "Gamma", 6 }
+        };
 
             var json = JsonSerializer.Serialize(original, _options);
             var deserialized = JsonSerializer.Deserialize<Multimap<string, int>>(json, _options);
@@ -163,12 +175,14 @@ namespace Smartstore.Tests.Collections
         [Test]
         public void RoundTrip_Should_Preserve_Data_With_Int_Keys()
         {
-            var original = new Multimap<int, string>();
-            original.Add(1, "A");
-            original.Add(1, "B");
-            original.Add(2, "C");
-            original.Add(3, "D");
-            original.Add(3, "E");
+            var original = new Multimap<int, string>
+        {
+            { 1, "A" },
+            { 1, "B" },
+            { 2, "C" },
+            { 3, "D" },
+            { 3, "E" }
+        };
 
             var json = JsonSerializer.Serialize(original, _options);
             var deserialized = JsonSerializer.Deserialize<Multimap<int, string>>(json, _options);
@@ -205,10 +219,12 @@ namespace Smartstore.Tests.Collections
         [Test]
         public void RoundTrip_Should_Handle_Complex_Value_Types()
         {
-            var original = new Multimap<string, DateTime>();
-            original.Add("Dates1", new DateTime(2025, 1, 1));
-            original.Add("Dates1", new DateTime(2025, 1, 2));
-            original.Add("Dates2", new DateTime(2025, 12, 31));
+            var original = new Multimap<string, DateTime>
+        {
+            { "Dates1", new DateTime(2025, 1, 1) },
+            { "Dates1", new DateTime(2025, 1, 2) },
+            { "Dates2", new DateTime(2025, 12, 31) }
+        };
 
             var json = JsonSerializer.Serialize(original, _options);
             var deserialized = JsonSerializer.Deserialize<Multimap<string, DateTime>>(json, _options);

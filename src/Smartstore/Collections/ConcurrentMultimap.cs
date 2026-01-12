@@ -12,7 +12,7 @@ namespace Smartstore.Collections
     /// <typeparam name="TKey">The type of key.</typeparam>
     /// <typeparam name="TValue">The type of value.</typeparam>
     [NSJ.JsonConverter(typeof(ConcurrentMultiMapConverter))]
-    [STJ.JsonConverter(typeof(ConcurrentMultiMapSTJConverter))]
+    [STJ.JsonConverter(typeof(MultiMapConverterFactory))]
     [Serializable]
     public class ConcurrentMultimap<TKey, TValue> : IEnumerable<KeyValuePair<TKey, SyncedCollection<TValue>>>
     {

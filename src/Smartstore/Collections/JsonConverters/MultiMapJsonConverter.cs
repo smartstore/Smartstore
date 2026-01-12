@@ -5,22 +5,7 @@ using STJ = System.Text.Json.Serialization;
 
 namespace Smartstore.Collections.JsonConverters
 {
-    internal sealed class ConcurrentMultiMapConverter : MultiMapJsonConverter
-    {
-        public override bool CanConvert(Type objectType)
-        {
-            var canConvert = objectType.IsGenericType && objectType.GetGenericTypeDefinition() == typeof(ConcurrentMultimap<,>);
-            return canConvert;
-        }
-    }
-
-    internal sealed class ConcurrentMultiMapSTJConverter : MultiMapStjConverter
-    {
-        public override bool CanConvert(Type typeToConvert)
-        {
-            return typeToConvert.IsGenericType && typeToConvert.GetGenericTypeDefinition() == typeof(ConcurrentMultimap<,>);
-        }
-    }
+    #region NSJ
 
     internal class MultiMapJsonConverter : NSJ.JsonConverter
     {
@@ -75,51 +60,20 @@ namespace Smartstore.Collections.JsonConverters
         }
     }
 
-    internal class MultiMapStjConverter : STJ.JsonConverter<object>
+    internal sealed class ConcurrentMultiMapConverter : MultiMapJsonConverter
     {
-        public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override bool CanConvert(Type objectType)
         {
-            // typeof TKey
-            var keyType = typeToConvert.GetGenericArguments()[0];
-
-            // typeof TValue
-            var valueType = typeToConvert.GetGenericArguments()[1];
-
-            // typeof IEnumerable<KeyValuePair<TKey, ICollection<TValue>>
-            var kvpType = typeof(KeyValuePair<,>).MakeGenericType(keyType, typeof(IEnumerable<>).MakeGenericType(valueType));
-            var sequenceType = typeof(List<>).MakeGenericType(kvpType);
-
-            // Deserialize the array
-            var list = JsonSerializer.Deserialize(ref reader, sequenceType, options);
-
-            if (keyType == typeof(string))
-            {
-                // call constructor Multimap(IEnumerable<KeyValuePair<TKey, ICollection<TValue>>> items, IEqualityComparer<TKey> comparer)
-                // TBD: we always assume string keys to be case insensitive. Serialize it somehow and fetch here!
-                return Activator.CreateInstance(typeToConvert, [list, StringComparer.OrdinalIgnoreCase]);
-            }
-            else
-            {
-                // call constructor Multimap(IEnumerable<KeyValuePair<TKey, ICollection<TValue>>> items)
-                return Activator.CreateInstance(typeToConvert, [list]);
-            }
-        }
-
-        public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
-        {
-            writer.WriteStartArray();
-            {
-                var enumerable = value as IEnumerable;
-                foreach (var item in enumerable)
-                {
-                    JsonSerializer.Serialize(writer, item, item.GetType(), options);
-                }
-            }
-            writer.WriteEndArray();
+            var canConvert = objectType.IsGenericType && objectType.GetGenericTypeDefinition() == typeof(ConcurrentMultimap<,>);
+            return canConvert;
         }
     }
 
-    internal class MultiMapStjConverterFactory : STJ.JsonConverterFactory
+    #endregion
+
+    #region STJ
+
+    internal class MultiMapConverterFactory : STJ.JsonConverterFactory
     {
         public override bool CanConvert(Type typeToConvert)
         {
@@ -141,82 +95,65 @@ namespace Smartstore.Collections.JsonConverters
             Type converterType;
             if (genericType == typeof(ConcurrentMultimap<,>))
             {
-                converterType = typeof(ConcurrentMultiMapStjConverterInner<,>)
+                converterType = typeof(ConcurrentMultimapConverter<,>)
                     .MakeGenericType(keyType, valueType);
             }
             else
             {
-                converterType = typeof(MultiMapStjConverterInner<,>)
+                converterType = typeof(MultimapConverter<,>)
                     .MakeGenericType(keyType, valueType);
             }
 
             return (STJ.JsonConverter)Activator.CreateInstance(converterType);
         }
+    }
 
-        private class MultiMapStjConverterInner<TKey, TValue> : STJ.JsonConverter<Multimap<TKey, TValue>>
+    internal class MultimapConverter<TKey, TValue> : STJ.JsonConverter<Multimap<TKey, TValue>>
+    {
+        public override Multimap<TKey, TValue> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            public override Multimap<TKey, TValue> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            {
-                var keyType = typeof(TKey);
-                var valueType = typeof(TValue);
+            // TODO: (json) (mc) Polymorphy?
+            var list = JsonSerializer.Deserialize<IEnumerable<KeyValuePair<TKey, IEnumerable<TValue>>>>(ref reader, options);
 
-                var kvpType = typeof(KeyValuePair<,>).MakeGenericType(keyType, typeof(IEnumerable<>).MakeGenericType(valueType));
-                var sequenceType = typeof(List<>).MakeGenericType(kvpType);
-
-                var list = JsonSerializer.Deserialize(ref reader, sequenceType, options);
-
-                if (keyType == typeof(string))
-                {
-                    return (Multimap<TKey, TValue>)Activator.CreateInstance(typeToConvert, new object[] { list, StringComparer.OrdinalIgnoreCase });
-                }
-                else
-                {
-                    return (Multimap<TKey, TValue>)Activator.CreateInstance(typeToConvert, new object[] { list });
-                }
-            }
-
-            public override void Write(Utf8JsonWriter writer, Multimap<TKey, TValue> value, JsonSerializerOptions options)
-            {
-                writer.WriteStartArray();
-                foreach (var item in value)
-                {
-                    JsonSerializer.Serialize(writer, item, item.GetType(), options);
-                }
-                writer.WriteEndArray();
-            }
+            return typeof(TKey) == typeof(string)
+                ? new Multimap<TKey, TValue>(list, (IEqualityComparer<TKey>)StringComparer.OrdinalIgnoreCase)
+                : new Multimap<TKey, TValue>(list);
         }
 
-        private class ConcurrentMultiMapStjConverterInner<TKey, TValue> : STJ.JsonConverter<ConcurrentMultimap<TKey, TValue>>
+        public override void Write(Utf8JsonWriter writer, Multimap<TKey, TValue> value, JsonSerializerOptions options)
         {
-            public override ConcurrentMultimap<TKey, TValue> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            writer.WriteStartArray();
+            foreach (var item in value)
             {
-                var keyType = typeof(TKey);
-                var valueType = typeof(TValue);
-
-                var kvpType = typeof(KeyValuePair<,>).MakeGenericType(keyType, typeof(IEnumerable<>).MakeGenericType(valueType));
-                var sequenceType = typeof(List<>).MakeGenericType(kvpType);
-
-                var list = JsonSerializer.Deserialize(ref reader, sequenceType, options);
-
-                if (keyType == typeof(string))
-                {
-                    return (ConcurrentMultimap<TKey, TValue>)Activator.CreateInstance(typeToConvert, new object[] { list, StringComparer.OrdinalIgnoreCase });
-                }
-                else
-                {
-                    return (ConcurrentMultimap<TKey, TValue>)Activator.CreateInstance(typeToConvert, new object[] { list });
-                }
+                JsonSerializer.Serialize(writer, item, item.GetType(), options);
             }
-
-            public override void Write(Utf8JsonWriter writer, ConcurrentMultimap<TKey, TValue> value, JsonSerializerOptions options)
-            {
-                writer.WriteStartArray();
-                foreach (var item in value)
-                {
-                    JsonSerializer.Serialize(writer, item, item.GetType(), options);
-                }
-                writer.WriteEndArray();
-            }
+            writer.WriteEndArray();
         }
     }
+
+    internal class ConcurrentMultimapConverter<TKey, TValue> : STJ.JsonConverter<ConcurrentMultimap<TKey, TValue>>
+    {
+        public override ConcurrentMultimap<TKey, TValue> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            // TODO: (json) (mc) Polymorphy?
+            var list = JsonSerializer.Deserialize<IEnumerable<KeyValuePair<TKey, ICollection<TValue>>>>(ref reader, options);
+
+            return typeof(TKey) == typeof(string)
+                ? new ConcurrentMultimap<TKey, TValue>(list, (IEqualityComparer<TKey>)StringComparer.OrdinalIgnoreCase)
+                : new ConcurrentMultimap<TKey, TValue>(list);
+        }
+
+        public override void Write(Utf8JsonWriter writer, ConcurrentMultimap<TKey, TValue> value, JsonSerializerOptions options)
+        {
+            // TODO: (json) (mh) Will SyncedCollection be handled correctly?
+            writer.WriteStartArray();
+            foreach (var item in value)
+            {
+                JsonSerializer.Serialize(writer, item, item.GetType(), options);
+            }
+            writer.WriteEndArray();
+        }
+    }
+
+    #endregion
 }
