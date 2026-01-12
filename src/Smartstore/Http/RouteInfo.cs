@@ -1,11 +1,14 @@
 ﻿#nullable enable
 
 using Microsoft.AspNetCore.Routing;
-using Newtonsoft.Json;
+using NSJ = Newtonsoft.Json;
+using STJ = System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace Smartstore.Http
 {
-    [JsonConverter(typeof(RouteInfoConverter))]
+    [NSJ.JsonConverter(typeof(RouteInfoConverter))]
+    [STJ.JsonConverter(typeof(StjRouteInfoConverter))]
     public class RouteInfo
     {
         public RouteInfo(RouteInfo cloneFrom)
@@ -39,7 +42,7 @@ namespace Smartstore.Http
         {
         }
 
-        [JsonConstructor]
+        [NSJ.JsonConstructor]
         public RouteInfo(string action, string? controller, RouteValueDictionary routeValues)
         {
             Guard.NotEmpty(action);
@@ -55,21 +58,21 @@ namespace Smartstore.Http
         public RouteValueDictionary RouteValues { get; }
     }
 
-    #region JsonConverter
+    #region Newtonsoft.Json Converter
 
-    internal class RouteInfoConverter : JsonConverter<RouteInfo>
+    internal class RouteInfoConverter : NSJ.JsonConverter<RouteInfo>
     {
         public override bool CanWrite
             => false;
 
-        public override RouteInfo? ReadJson(JsonReader reader, Type objectType, RouteInfo? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override RouteInfo? ReadJson(NSJ.JsonReader reader, Type objectType, RouteInfo? existingValue, bool hasExistingValue, NSJ.JsonSerializer serializer)
         {
             string? action = null;
             string? controller = null;
             RouteValueDictionary? routeValues = null;
 
             reader.Read();
-            while (reader.TokenType == JsonToken.PropertyName)
+            while (reader.TokenType == NSJ.JsonToken.PropertyName)
             {
                 string? a = reader.Value?.ToString();
                 if (string.Equals(a, "Action", StringComparison.OrdinalIgnoreCase))
@@ -100,9 +103,75 @@ namespace Smartstore.Http
             return (RouteInfo?)routeInfo;
         }
 
-        public override void WriteJson(JsonWriter writer, RouteInfo? value, JsonSerializer serializer)
+        public override void WriteJson(NSJ.JsonWriter writer, RouteInfo? value, NSJ.JsonSerializer serializer)
         {
             throw new NotImplementedException();
+        }
+    }
+
+    #endregion
+
+    #region System.Text.Json Converter
+
+    internal class StjRouteInfoConverter : STJ.JsonConverter<RouteInfo>
+    {
+        public override bool HandleNull => true;
+
+        public override RouteInfo? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.Null)
+            {
+                return null;
+            }
+
+            string? action = null;
+            string? controller = null;
+            RouteValueDictionary? routeValues = null;
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                {
+                    break;
+                }
+
+                if (reader.TokenType == JsonTokenType.PropertyName)
+                {
+                    string? propertyName = reader.GetString();
+                    reader.Read();
+
+                    if (string.Equals(propertyName, "Action", StringComparison.OrdinalIgnoreCase))
+                    {
+                        action = reader.GetString();
+                    }
+                    else if (string.Equals(propertyName, "Controller", StringComparison.OrdinalIgnoreCase))
+                    {
+                        controller = reader.GetString();
+                    }
+                    else if (string.Equals(propertyName, "RouteValues", StringComparison.OrdinalIgnoreCase))
+                    {
+                        routeValues = JsonSerializer.Deserialize<RouteValueDictionary>(ref reader, options);
+                    }
+                }
+            }
+
+            return new RouteInfo(action!, controller, routeValues ?? new RouteValueDictionary());
+        }
+
+        public override void Write(Utf8JsonWriter writer, RouteInfo value, JsonSerializerOptions options)
+        {
+            writer.WriteStartObject();
+            writer.WriteString("Action", value.Action);
+            
+            if (value.Controller != null)
+            {
+                writer.WriteString("Controller", value.Controller);
+            }
+            
+            writer.WritePropertyName("RouteValues");
+            JsonSerializer.Serialize(writer, value.RouteValues, options);
+            
+            writer.WriteEndObject();
         }
     }
 
