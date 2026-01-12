@@ -1,9 +1,12 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using NSJ = Newtonsoft.Json;
+using NSJL = Newtonsoft.Json.Linq;
+using STJ = System.Text.Json.Serialization;
 
 namespace Smartstore.Collections.JsonConverters
 {
-    internal sealed class TreeNodeJsonConverter : JsonConverter
+    internal sealed class TreeNodeJsonConverter : NSJ.JsonConverter
     {
         public override bool CanConvert(Type objectType)
         {
@@ -11,7 +14,7 @@ namespace Smartstore.Collections.JsonConverters
             return canConvert;
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object ReadJson(NSJ.JsonReader reader, Type objectType, object existingValue, NSJ.JsonSerializer serializer)
         {
             var valueType = objectType.GetGenericArguments()[0];
             var sequenceType = typeof(List<>).MakeGenericType(objectType);
@@ -22,7 +25,7 @@ namespace Smartstore.Collections.JsonConverters
             Dictionary<string, object> metadata = null;
 
             reader.Read();
-            while (reader.TokenType == JsonToken.PropertyName)
+            while (reader.TokenType == NSJ.JsonToken.PropertyName)
             {
                 string a = reader.Value.ToString();
                 if (string.Equals(a, "Value", StringComparison.OrdinalIgnoreCase))
@@ -45,12 +48,12 @@ namespace Smartstore.Collections.JsonConverters
                     reader.Read();
                     id = serializer.Deserialize<object>(reader);
 
-                    if (id is JArray jarr)
+                    if (id is NSJL.JArray jarr)
                     {
                         id = jarr.Select(token =>
                         {
                             // Newtonsoft holds ints as Int64, but we need Int32 here.
-                            return token.Type == JTokenType.Integer
+                            return token.Type == NSJL.JTokenType.Integer
                                 ? token.ToObject<int>()
                                 : token.ToObject<object>();
                         })
@@ -88,7 +91,7 @@ namespace Smartstore.Collections.JsonConverters
             return treeNode;
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(NSJ.JsonWriter writer, object value, NSJ.JsonSerializer serializer)
         {
             writer.WriteStartObject();
             {
@@ -122,5 +125,148 @@ namespace Smartstore.Collections.JsonConverters
 
         private static object GetPropValue(string name, object instance)
             => instance.GetType().GetProperty(name).GetValue(instance);
+    }
+
+    internal sealed class TreeNodeConverterFactory : JsonConverterFactory
+    {
+        public override bool CanConvert(Type typeToConvert)
+        {
+            if (!typeToConvert.IsGenericType)
+            {
+                return false;
+            }
+
+            return typeToConvert.GetGenericTypeDefinition() == typeof(TreeNode<>);
+        }
+
+        public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
+        {
+            Type wrappedType = typeToConvert.GetGenericArguments()[0];
+            Type converterType = typeof(TreeNodeStjConverter<>).MakeGenericType(wrappedType);
+
+            return (JsonConverter)Activator.CreateInstance(converterType);
+        }
+    }
+
+    internal sealed class TreeNodeStjConverter<T> : JsonConverter<TreeNode<T>>
+    {
+        public override TreeNode<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType != JsonTokenType.StartObject)
+            {
+                throw new JsonException();
+            }
+
+            T value = default;
+            List<TreeNode<T>> children = null;
+            object id = null;
+            Dictionary<string, object> metadata = null;
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                {
+                    break;
+                }
+
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                {
+                    throw new JsonException();
+                }
+
+                string propertyName = reader.GetString();
+                reader.Read();
+
+                if (string.Equals(propertyName, "Value", StringComparison.OrdinalIgnoreCase))
+                {
+                    value = JsonSerializer.Deserialize<T>(ref reader, options);
+                }
+                else if (string.Equals(propertyName, "Metadata", StringComparison.OrdinalIgnoreCase))
+                {
+                    metadata = JsonSerializer.Deserialize<Dictionary<string, object>>(ref reader, options);
+                }
+                else if (string.Equals(propertyName, "Children", StringComparison.OrdinalIgnoreCase))
+                {
+                    children = JsonSerializer.Deserialize<List<TreeNode<T>>>(ref reader, options);
+                }
+                else if (string.Equals(propertyName, "Id", StringComparison.OrdinalIgnoreCase))
+                {
+                    using var doc = JsonDocument.ParseValue(ref reader);
+                    var element = doc.RootElement;
+
+                    if (element.ValueKind == JsonValueKind.Array)
+                    {
+                        var idList = new List<object>();
+                        foreach (var item in element.EnumerateArray())
+                        {
+                            if (item.ValueKind == JsonValueKind.Number && item.TryGetInt32(out int intValue))
+                            {
+                                idList.Add(intValue);
+                            }
+                            else
+                            {
+                                idList.Add(item.Deserialize<object>(options));
+                            }
+                        }
+                        id = idList.ToArray();
+                    }
+                    else
+                    {
+                        id = element.Deserialize<object>(options);
+                    }
+                }
+            }
+
+            var treeNode = children != null
+                ? new TreeNode<T>(value, children)
+                : new TreeNode<T>(value);
+
+            if (metadata != null && metadata.Count > 0)
+            {
+                foreach (var kvp in metadata)
+                {
+                    treeNode.Metadata[kvp.Key] = kvp.Value;
+                }
+            }
+
+            if (id != null)
+            {
+                treeNode.Id = id;
+            }
+
+            return treeNode;
+        }
+
+        public override void Write(Utf8JsonWriter writer, TreeNode<T> value, JsonSerializerOptions options)
+        {
+            writer.WriteStartObject();
+
+            // Id
+            if (value.Id != null)
+            {
+                writer.WritePropertyName("Id");
+                JsonSerializer.Serialize(writer, value.Id, options);
+            }
+
+            // Value
+            writer.WritePropertyName("Value");
+            JsonSerializer.Serialize(writer, value.Value, options);
+
+            // Metadata
+            if (value.Metadata != null && value.Metadata.Count > 0)
+            {
+                writer.WritePropertyName("Metadata");
+                JsonSerializer.Serialize(writer, value.Metadata, options);
+            }
+
+            // Children
+            if (value.HasChildren)
+            {
+                writer.WritePropertyName("Children");
+                JsonSerializer.Serialize(writer, value.Children, options);
+            }
+
+            writer.WriteEndObject();
+        }
     }
 }
