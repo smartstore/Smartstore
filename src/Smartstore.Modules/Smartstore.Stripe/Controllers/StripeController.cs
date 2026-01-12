@@ -247,7 +247,9 @@ public class StripeController : ModuleController
                     PaymentIntent paymentIntent = null;
 
                     var shippingOption = customer.GenericAttributes.Get<ShippingOption>(SystemCustomerAttributeNames.SelectedShippingOption, store.Id);
-                    var shipping = await GetShippingAddressAsync(customer, shippingOption.Name);
+                    var shipping = shippingOption != null
+                        ? await GetShippingAddressAsync(customer, shippingOption.Name) 
+                        : null;
 
                     if (state.PaymentIntent == null)
                     {
