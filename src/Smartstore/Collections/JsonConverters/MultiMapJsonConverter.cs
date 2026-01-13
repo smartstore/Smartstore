@@ -145,7 +145,6 @@ internal class ConcurrentMultimapConverter<TKey, TValue> : STJ.JsonConverter<Con
 
     public override void Write(Utf8JsonWriter writer, ConcurrentMultimap<TKey, TValue> value, JsonSerializerOptions options)
     {
-        // TODO: (json) (mh) Will SyncedCollection be handled correctly?
         writer.WriteStartArray();
         foreach (var item in value)
         {
