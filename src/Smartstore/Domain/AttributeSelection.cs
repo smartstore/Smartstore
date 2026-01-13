@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
-using Newtonsoft.Json;
 using Smartstore.Collections;
 using Smartstore.Utilities;
 
@@ -169,7 +169,7 @@ namespace Smartstore.Domain
 
             try
             {
-                var json = JsonConvert.SerializeObject(_attributes);
+                var json = JsonSerializer.Serialize(_attributes);
 
                 _isJson = true;
                 _dirty = false;
@@ -179,7 +179,7 @@ namespace Smartstore.Domain
             }
             catch (Exception ex)
             {
-                throw new JsonSerializationException("Failed to serialize JSON string from: " + nameof(_attributes), ex);
+                throw new JsonException("Failed to serialize JSON string from: " + nameof(_attributes), ex);
             }
         }
 
@@ -282,7 +282,7 @@ namespace Smartstore.Domain
                 }
                 else
                 {
-                    var attributes = JsonConvert.DeserializeObject<AllAttributes>(_rawAttributes);
+                    var attributes = JsonSerializer.Deserialize<AllAttributes>(_rawAttributes);
 
                     if (attributes.CustomAttributes.Count > 0)
                     {
@@ -312,7 +312,7 @@ namespace Smartstore.Domain
             {
                 Exception exception = isXml
                     ? new XmlException("Failed to deserialize attributes from XML: " + _rawAttributes, ex)
-                    : new JsonSerializationException("Failed to deserialize attributes from JSON: " + _rawAttributes, ex);
+                    : new JsonException("Failed to deserialize attributes from JSON: " + _rawAttributes, ex);
 
                 throw exception;
             }
@@ -505,8 +505,8 @@ namespace Smartstore.Domain
 
         protected class AllAttributes
         {
-            public Multimap<int, object> Attributes { get; set; } = new();
-            public Multimap<string, object> CustomAttributes { get; set; } = new();
+            public Multimap<int, object> Attributes { get; set; } = [];
+            public Multimap<string, object> CustomAttributes { get; set; } = [];
 
             // INFO: Json.NET conditional property serialization convention:
             // prevents CustomAttributes from being serialized if empty.
@@ -524,8 +524,6 @@ namespace Smartstore.Domain
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsNullOrEmpty(this AttributeSelection selection)
-        {
-            return selection == null || !selection.HasAttributes;
-        }
+            => selection == null || !selection.HasAttributes;
     }
 }

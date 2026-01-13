@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel;
+using System.Text.Json;
 using System.Xml.Linq;
-using Newtonsoft.Json.Linq;
 using Smartstore.Core.Checkout.GiftCards;
+using Smartstore.Json;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
@@ -79,18 +80,9 @@ namespace Smartstore.Core.Catalog.Attributes
 
                     return giftCardInfo;
                 }
-                else if (value is JObject jObj)
+                else if (value is JsonElement el)
                 {
-                    dynamic o = jObj;
-
-                    return new GiftCardInfo
-                    {
-                        RecipientEmail = o.recipientEmail,
-                        RecipientName = o.recipientName,
-                        SenderName = o.senderName,
-                        SenderEmail = o.senderEmail,
-                        Message = o.message
-                    };
+                    return JsonSerializer.Deserialize<GiftCardInfo>(el.GetRawText(), SmartJsonOptions.CamelCased);
                 }
             }
 
