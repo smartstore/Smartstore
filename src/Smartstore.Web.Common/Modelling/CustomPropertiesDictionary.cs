@@ -1,9 +1,11 @@
 ﻿using System.Security;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Smartstore.Json;
 
 namespace Smartstore.Web.Modelling
 {
     [ModelBinder(typeof(CustomPropertiesDictionaryModelBinder))]
+    [Polymorphic]
     public sealed class CustomPropertiesDictionary : Dictionary<string, object>
     {
     }
@@ -26,7 +28,7 @@ namespace Smartstore.Web.Modelling
 
         private async Task<CustomPropertiesDictionary> BindCore(ModelBindingContext bindingContext)
         {
-            var model = bindingContext.Model as CustomPropertiesDictionary ?? new CustomPropertiesDictionary();
+            var model = bindingContext.Model as CustomPropertiesDictionary ?? [];
 
             var keys = GetValueProviderKeys(bindingContext.ActionContext, bindingContext.ModelName + "[");
             if (keys.Count == 0)

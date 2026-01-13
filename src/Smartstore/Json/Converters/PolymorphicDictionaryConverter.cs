@@ -105,7 +105,7 @@ internal sealed class PolymorphicDictionaryConverterFactory : JsonConverterFacto
                 writer.WritePropertyName(k);
 
                 // Delegate polymorphic value handling (including legacy $type reads elsewhere) to the shared codec.
-                PolymorphyCodec.Write(writer, v, typeof(TValue), options, _options);
+                PolymorphyCodec.Write(writer, v, options, _options);
             }
 
             writer.WriteEndObject();
@@ -249,10 +249,10 @@ internal sealed class PolymorphicDictionaryConverterFactory : JsonConverterFacto
 
             writer.WriteStartObject();
 
-            foreach (DictionaryEntry de in dict)
+            foreach (DictionaryEntry entry in dict)
             {
-                writer.WritePropertyName(Convert.ToString(de.Key) ?? string.Empty);
-                PolymorphyCodec.Write(writer, de.Value, typeof(object), options, _options);
+                writer.WritePropertyName(Convert.ToString(entry.Key) ?? string.Empty);
+                PolymorphyCodec.Write(writer, entry.Value, options, _options);
             }
 
             writer.WriteEndObject();

@@ -60,7 +60,7 @@ internal sealed class PolymorphicObjectConverterFactory : JsonConverterFactory
         public override void Write(Utf8JsonWriter writer, T? value, JsonSerializerOptions options)
         {
             // PolymorphyCodec writes wrapper object with $type first (or null).
-            PolymorphyCodec.Write(writer, value, typeof(T), options, _options);
+            PolymorphyCodec.Write(writer, value, options, _options);
         }
     }
 }

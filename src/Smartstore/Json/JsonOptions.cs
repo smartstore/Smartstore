@@ -26,9 +26,12 @@ public static class SmartJsonOptions
     {
         // NSJ default
         AllowTrailingCommas = true,
-        
+
         // Include public fields (default NSJ behaviour)
         IncludeFields = true,
+
+        // NSJ default
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
 
         // NSJ default
         PropertyNameCaseInsensitive = true,

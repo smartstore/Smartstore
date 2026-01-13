@@ -41,7 +41,7 @@ namespace Smartstore.Web.Modelling
         /// Use this property to store any custom value for your models. 
         /// </summary>
         [ValidateNever]
-        public CustomPropertiesDictionary CustomProperties { get; set; } = new();
+        public CustomPropertiesDictionary CustomProperties { get; set; } = [];
 
         /// <summary>
         /// A data bag for custom model properties which only
