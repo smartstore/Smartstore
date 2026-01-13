@@ -121,8 +121,6 @@ public class GoogleMerchantCenterController : AdminController
     public async Task<IActionResult> GoogleProductList(GridCommand command, ConfigurationModel model)
     {
         var textInfo = CultureInfo.InvariantCulture.TextInfo;
-        var yes = T("Admin.Common.Yes").Value;
-        var no = T("Admin.Common.No").Value;
 
         var query = 
             from p in _db.Products
@@ -161,6 +159,7 @@ public class GoogleMerchantCenterController : AdminController
             .ToPagedList(command)
             .LoadAsync();
 
+        var resourceMap = new Dictionary<string, string>();
         var mapper = MapperFactory.GetMapper<GoogleProduct, GoogleProductModel>();
         var googleProductModels = await googleProducts
             .SelectAwait(async x =>
@@ -173,16 +172,16 @@ public class GoogleMerchantCenterController : AdminController
                 {
                     if (model.Gender.HasValue())
                     {
-                        model.GenderLocalized = T("Plugins.Feed.Froogle.Gender" + textInfo.ToTitleCase(model.Gender));
+                        model.GenderLocalized = GetResource("Plugins.Feed.Froogle.Gender" + textInfo.ToTitleCase(model.Gender));
                     }
 
                     if (model.AgeGroup.HasValue())
                     {
-                        model.AgeGroupLocalized = T("Plugins.Feed.Froogle.AgeGroup" + textInfo.ToTitleCase(model.AgeGroup));
+                        model.AgeGroupLocalized = GetResource("Plugins.Feed.Froogle.AgeGroup" + textInfo.ToTitleCase(model.AgeGroup));
                     }
 
-                    model.IsBundleLocalized = model.IsBundle.HasValue ? (model.IsBundle.Value ? yes : no) : null;
-                    model.IsAdultLocalized = model.IsAdult.HasValue ? (model.IsAdult.Value ? yes : no) : null;
+                    model.IsBundleLocalized = model.IsBundle.HasValue ? GetResource(model.IsBundle.Value ? "Admin.Common.Yes" : "Admin.Common.No") : null;
+                    model.IsAdultLocalized = model.IsAdult.HasValue ? GetResource(model.IsAdult.Value ? "Admin.Common.Yes" : "Admin.Common.No") : null;
                 }
 
                 model.ProductId = x.ProductId;
@@ -193,7 +192,7 @@ public class GoogleMerchantCenterController : AdminController
 
                 if (model.ProductType != ProductType.SimpleProduct)
                 {
-                    model.ProductTypeName = T($"Admin.Catalog.Products.ProductType.{model.ProductType}.Label");
+                    model.ProductTypeName = GetResource($"Admin.Catalog.Products.ProductType.{model.ProductType}.Label");
                 }
 
                 return model;
@@ -207,6 +206,16 @@ public class GoogleMerchantCenterController : AdminController
         };
 
         return Json(gridModel);
+
+        string GetResource(string key)
+        {
+            if (!resourceMap.TryGetValue(key, out string value))
+            {
+                value = T(key);
+                resourceMap[key] = value;
+            }
+            return value;
+        }
     }
 
     [HttpPost]
@@ -245,6 +254,29 @@ public class GoogleMerchantCenterController : AdminController
         success = true;
 
         return Json(new { success });
+    }
+
+    [HttpPost]
+    [Permission(Permissions.Catalog.Product.Update)]
+    public async Task<IActionResult> GoogleProductDelete(GridSelection selection)
+    {
+        var numDeleted = 0;
+        var productIds = selection.GetEntityIds().ToArray();
+        if (productIds.Length > 0)
+        {
+            var entities = await _db.GoogleProducts()
+                .Where(x => productIds.Contains(x.ProductId))
+                .ToListAsync();
+
+            if (entities.Count > 0)
+            {
+                numDeleted = entities.Count;
+                _db.GoogleProducts().RemoveRange(entities);
+                await _db.SaveChangesAsync();
+            }
+        }
+
+        return Json(new { Success = true, Count = numDeleted });
     }
 
     public async Task<IActionResult> GetGoogleCategories(string search, int? page)

@@ -29,7 +29,9 @@
     <LocaleResource Name="TabTitleProfiles">
         <Value>Export-Profile</Value>
     </LocaleResource>
-
+    <LocaleResource Name="DeleteGmcData">
+        <Value>Löscht die dem Produkt zugeordneten Google-Daten.</Value>
+    </LocaleResource>
     <LocaleResource Name="GeneralSettings">
         <Value>Allgemeine Einstellungen</Value>
     </LocaleResource>
@@ -40,14 +42,14 @@
         <Value>
             <![CDATA[Standardwerte werden exportiert, wenn die entsprechende Information für das jeweilge Produkt nicht gepflegt wurde. Für einzelne Produkte können diese Werte
 sowohl in der Plugin-Konfiguration als auch direkt auf der Bearbeitungsseite des Produktes eingegeben werden.
-Für <strong>{0}</strong> von <strong>{1}</strong> Produkten sind GMC-Daten festgelegt.]]>
+Für <strong>{0}</strong> von <strong>{1}</strong> Produkten sind Google-Daten festgelegt.]]>
         </Value>
     </LocaleResource>
     <LocaleResource Name="ExportAllProducts">
         <Value>Alle Produkte exportieren</Value>
     </LocaleResource>
     <LocaleResource Name="ExportAllProducts.Hint">
-        <Value>Legt fest, ob alle Produkte exportiert werden (Standard). Falls deaktiviert, werden nur die Produkte exportiert, für die GMC-Daten festgelegt sind.</Value>
+        <Value>Legt fest, ob alle Produkte exportiert werden (Standard). Falls deaktiviert, werden nur die Produkte exportiert, für die Google-Daten festgelegt sind.</Value>
     </LocaleResource>
     <LocaleResource Name="MissingDefaultCategory">
         <Value>Standard-Google-Kategorie fehlt</Value>
@@ -158,10 +160,10 @@ Für <strong>{0}</strong> von <strong>{1}</strong> Produkten sind GMC-Daten fest
         <Value>SKU</Value>
     </LocaleResource>
     <LocaleResource Name="SearchIsTouched">
-        <Value>Bearbeitet</Value>
+        <Value>Mit Google-Daten</Value>
     </LocaleResource>
     <LocaleResource Name="SearchIsTouched.Hint">
-        <Value>Sucht nach Datensätzen, die bearbeitet oder noch nicht bearbeitet wurden.</Value>
+        <Value>Filtert Produkte, für die Google-Daten hinterlegt sind.</Value>
     </LocaleResource>
     <LocaleResource Name="ExpirationDays">
         <Value>Verfällt in</Value>

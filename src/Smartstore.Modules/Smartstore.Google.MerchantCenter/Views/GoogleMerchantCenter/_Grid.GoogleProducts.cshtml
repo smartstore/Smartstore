@@ -17,13 +17,17 @@
     <script src="~/Modules/Smartstore.Google.MerchantCenter/js/taxonomy.js"></script>
 </widget>
 
+@* INFO: "Id" may be 0 here, so it cannot be the key, because a key must be unique. *@
 <datagrid id="gmc-products-grid"
-          allow-resize="true"
+          version="2"
           key-member="ProductId"
+          allow-resize="true"
+          allow-row-selection="true"
           allow-column-reordering="true"
           allow-edit="true">
     <datasource read="@Url.Action("GoogleProductList", "GoogleMerchantCenter")"
-                update="@Url.Action("GoogleProductUpsert", "GoogleMerchantCenter")" />
+                update="@Url.Action("GoogleProductUpsert", "GoogleMerchantCenter")"
+                delete="@Url.Action("GoogleProductDelete", "GoogleMerchantCenter")" />
     <paging position="Both" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
         <sort by="Name" />
@@ -43,12 +47,25 @@
                 <span>@T("Common.Cancel")</span>
             </button>
         </toolbar-group>
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" 
+                    type="button" 
+                    class="btn btn-danger no-anims btn-flat"
+                    title="@T("Plugins.Feed.Froogle.DeleteGmcData")">
+                <i class="far fa-trash-can"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
     </toolbar>
     <search-panel>
         <partial name="_Grid.GoogleProducts.Search" model="parentModel" />
     </search-panel>
     <columns>
-        <column for="ProductId" readonly visible="false" type="string" />
+        <column for="Id" readonly halign="center" visible="false" type="string" />
+        <column for="ProductId" readonly halign="center" visible="false" type="string" />
         <column for="Name" width="1.5fr" hideable="false" readonly>
             <display-template>
                 @Html.LabeledProductName()
@@ -192,6 +209,7 @@
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete" v-bind:class="{ disabled: item.row.Id == 0 }" title="@T("Plugins.Feed.Froogle.DeleteGmcData")">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>
 
