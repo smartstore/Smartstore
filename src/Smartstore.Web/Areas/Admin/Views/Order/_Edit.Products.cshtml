@@ -11,6 +11,7 @@
         .Where(x => x.DiscountType == DiscountType.AssignedToSkus || x.DiscountType == DiscountType.AssignedToCategories || x.DiscountType == DiscountType.AssignedToManufacturers)
         .Select(x => Html.ActionLink(x.Name, "Edit", "Discount", new { id = x.Id, area = "Admin" }, new { @class = "alert-link" }).ToHtmlString())
         .ToList();
+    var hasDiscountLinks = discountLinks.Count > 0;
 }
 
 <style>
@@ -23,21 +24,28 @@
     }
 </style>
 
-<div sm-if="Model.UpdateOrderItemInfo.HasValue()" class="alert alert-info alert-dismissible">
+<div sm-if="Model.UpdateOrderItemInfo.HasValue() || hasDiscountLinks" class="alert alert-info fade show alert-dismissible">
     <button type="button" class="btn-close" data-dismiss="alert"></button>
-    <div class="w-25">
-        @Html.Raw(Model.UpdateOrderItemInfo)
+    <div sm-if="Model.UpdateOrderItemInfo.HasValue()" class="w-25">
+        @Html.Raw(Model.UpdateOrderItemInfo) 
     </div>
-</div>
-<div sm-if="discountLinks.Count > 0" class="alert alert-info alert-dismissible">
-    <button type="button" class="btn-close" data-dismiss="alert"></button>
-    @Html.Raw(T("Admin.Orders.Products.AppliedDiscounts", string.Join(", ", discountLinks)))
+
+    <hr sm-if="Model.UpdateOrderItemInfo.HasValue() && hasDiscountLinks" />
+
+    <div sm-if="hasDiscountLinks" class="hstack">
+        <span class="badge badge-danger badge-shift-0 mr-2">
+            <bootstrap-icon name="percent" font-scale="0.8f" />
+        </span>
+        <span>
+            @Html.Raw(T("Admin.Orders.Products.AppliedDiscounts", string.Join(", ", discountLinks)))
+        </span>
+    </div>
 </div>
 
 <div>
     <div class="table-responsive">
         <table id="orderitem-table" class="table admin-table">
-            <caption class="table-toolbar">
+            <caption class="table-toolbar rounded-top">
                 <a id="btn-add-product-to-order" asp-action="AddProductToOrder" asp-controller="Order" asp-route-orderId="@Model.Id" class="btn btn-flat btn-primary">
                     <i class="fa fa-plus"></i>
                     <span>@T("Admin.Orders.Products.AddNew")</span>

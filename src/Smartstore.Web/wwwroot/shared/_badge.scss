@@ -178,3 +178,12 @@
         transform: translate(calc(-100% - var(--edge-offset-x)), calc(-100% - var(--edge-offset-y)));
     }
 }
+
+
+//
+// Misc
+// -----------------------------------------------------
+
+.badge-shift-0 {
+    --badge-content-shift: 0px;
+}
