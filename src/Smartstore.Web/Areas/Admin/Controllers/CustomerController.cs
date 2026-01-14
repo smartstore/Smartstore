@@ -1,9 +1,9 @@
 ﻿using System.Text.Encodings.Web;
+using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using Smartstore.Admin.Models.Cart;
 using Smartstore.Admin.Models.Customers;
 using Smartstore.Admin.Models.Scheduling;
@@ -1629,7 +1629,7 @@ namespace Smartstore.Admin.Controllers
 
             if (_privacySettings.CookieInfos.HasValue())
             {
-                data.AddRange(JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos)
+                data.AddRange(JsonSerializer.Deserialize<List<CookieInfo>>(_privacySettings.CookieInfos)
                     .OrderBy(x => x.CookieType)
                     .ThenBy(x => x.Name));
             }
@@ -1660,7 +1660,7 @@ namespace Smartstore.Admin.Controllers
             var numDeleted = 0;
 
             // First deserialize setting.
-            var ciList = JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos);
+            var ciList = JsonSerializer.Deserialize<List<CookieInfo>>(_privacySettings.CookieInfos);
             foreach (var name in selection.SelectedKeys)
             {
                 ciList.Remove(x => x.Name.EqualsNoCase(name));
@@ -1668,7 +1668,9 @@ namespace Smartstore.Admin.Controllers
             }
 
             // Now serialize again.
-            _privacySettings.CookieInfos = JsonConvert.SerializeObject(ciList, Formatting.None);
+            // INFO: (json) With NewtonSoft this was serialized UnsafeRelaxed. With System.Text.Json it's now the default behavior. 
+            // This doesn't seem to be an issue when displaying the data in the browser neither in the backend nor in the frontend.
+            _privacySettings.CookieInfos = JsonSerializer.Serialize(ciList, SmartJsonOptions.Default); 
 
             // Save setting.
             await Services.Settings.ApplySettingAsync(_privacySettings, x => x.CookieInfos);
@@ -1693,7 +1695,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             // Deserialize
-            var ciList = JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos) ?? [];
+            var ciList = JsonSerializer.Deserialize<List<CookieInfo>>(_privacySettings.CookieInfos) ?? [];
 
             var cookieInfo = ciList
                 .Select(x => x)
@@ -1717,7 +1719,7 @@ namespace Smartstore.Admin.Controllers
             ciList.Add(cookieInfo);
 
             // Serialize
-            _privacySettings.CookieInfos = JsonConvert.SerializeObject(ciList, Formatting.None);
+            _privacySettings.CookieInfos = JsonSerializer.Serialize(ciList, SmartJsonOptions.Default);
 
             // Now apply & save again.
             await Services.Settings.ApplySettingAsync(_privacySettings, x => x.CookieInfos);
@@ -1739,7 +1741,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult CookieInfoEditPopup(string name)
         {
-            var ciList = JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos);
+            var ciList = JsonSerializer.Deserialize<List<CookieInfo>>(_privacySettings.CookieInfos);
             var cookieInfo = ciList
                 .Where(x => x.Name.EqualsNoCase(name))
                 .FirstOrDefault();
@@ -1774,7 +1776,7 @@ namespace Smartstore.Admin.Controllers
             ViewBag.btnId = btnId;
             ViewBag.formId = formId;
 
-            var ciList = JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos);
+            var ciList = JsonSerializer.Deserialize<List<CookieInfo>>(_privacySettings.CookieInfos);
             var cookieInfo = ciList
                 .Where(x => x.Name.EqualsNoCase(model.Name))
                 .FirstOrDefault();
@@ -1795,7 +1797,7 @@ namespace Smartstore.Admin.Controllers
                 ciList.Remove(x => x.Name.EqualsNoCase(cookieInfo.Name));
                 ciList.Add(cookieInfo);
 
-                _privacySettings.CookieInfos = JsonConvert.SerializeObject(ciList, Formatting.None);
+                _privacySettings.CookieInfos = JsonSerializer.Serialize(ciList, SmartJsonOptions.Default);
 
                 await Services.Settings.ApplySettingAsync(_privacySettings, x => x.CookieInfos);
 

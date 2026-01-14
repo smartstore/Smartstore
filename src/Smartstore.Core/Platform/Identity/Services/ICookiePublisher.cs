@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Localization;
+﻿using System.Text.Json.Serialization;
+using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Identity
 {
@@ -48,6 +49,7 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Type of the cookie.
         /// </summary>
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public CookieType CookieType { get; set; }
     }
 
