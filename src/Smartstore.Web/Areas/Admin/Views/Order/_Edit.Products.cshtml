@@ -1,11 +1,16 @@
 ﻿@using Smartstore.Core.Catalog.Products
 @using Smartstore.Core.Checkout.Tax
+@using Smartstore.Core.Catalog.Discounts
 
 @model OrderModel
 
 @{
     var taxTypeSelectable = (bool)ViewBag.AllowCustomersToSelectTaxDisplayType;
     var taxType = (TaxDisplayType)ViewBag.TaxDisplayType;
+    var discountLinks = Model.AppliedDiscounts
+        .Where(x => x.DiscountType == DiscountType.AssignedToSkus || x.DiscountType == DiscountType.AssignedToCategories || x.DiscountType == DiscountType.AssignedToManufacturers)
+        .Select(x => Html.ActionLink(x.Name, "Edit", "Discount", new { id = x.Id, area = "Admin" }, new { @class = "alert-link" }).ToHtmlString())
+        .ToList();
 }
 
 <style>
@@ -23,6 +28,10 @@
     <div class="w-25">
         @Html.Raw(Model.UpdateOrderItemInfo)
     </div>
+</div>
+<div sm-if="discountLinks.Count > 0" class="alert alert-info alert-dismissible">
+    <button type="button" class="btn-close" data-dismiss="alert"></button>
+    @Html.Raw(T("Admin.Orders.Products.AppliedDiscounts", string.Join(", ", discountLinks)))
 </div>
 
 <div>

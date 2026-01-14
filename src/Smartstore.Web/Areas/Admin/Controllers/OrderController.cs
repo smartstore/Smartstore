@@ -1962,11 +1962,11 @@ public class OrderController : AdminController
 
         if (order.OrderSubTotalDiscountInclTax > decimal.Zero)
         {
-            model.OrderSubTotalDiscountInclTaxString = Format(order.OrderSubTotalDiscountInclTax, true);
+            model.OrderSubTotalDiscountInclTaxString = Format(-order.OrderSubTotalDiscountInclTax, true);
         }
         if (order.OrderSubTotalDiscountExclTax > decimal.Zero)
         {
-            model.OrderSubTotalDiscountExclTaxString = Format(order.OrderSubTotalDiscountExclTax, false);
+            model.OrderSubTotalDiscountExclTaxString = Format(-order.OrderSubTotalDiscountExclTax, false);
         }
 
         model.OrderShippingInclTaxString = Format(order.OrderShippingInclTax, true, null, PricingTarget.ShippingCharge);
@@ -2129,6 +2129,17 @@ public class OrderController : AdminController
         };
 
         model.Items = await CreateOrderItemsModels(order);
+
+        // INFO: We do not load via Order navigation property, as there are already too many includes there.
+        model.AppliedDiscounts = await _db.DiscountUsageHistory
+            .Where(x => x.OrderId == order.Id && x.Discount != null)
+            .Select(x => new OrderModel.DiscountInfoModel
+            {
+                Id = x.Discount.Id,
+                Name = x.Discount.Name,
+                DiscountType = x.Discount.DiscountType
+            })
+            .ToListAsync();
 
         ViewBag.DisplayPdfInvoice = _pdfSettings.Enabled;
         ViewBag.AllowCustomersToSelectTaxDisplayType = _taxSettings.AllowCustomersToSelectTaxDisplayType;
@@ -2307,8 +2318,8 @@ public class OrderController : AdminController
             model.UnitPriceExclTaxString = Format(item.UnitPriceExclTax, false, true);
             model.PriceInclTaxString = Format(item.PriceInclTax, true, true);
             model.PriceExclTaxString = Format(item.PriceExclTax, false, true);
-            model.DiscountAmountInclTaxString = Format(item.DiscountAmountInclTax, true, true);
-            model.DiscountAmountExclTaxString = Format(item.DiscountAmountExclTax, false, true);
+            model.DiscountAmountInclTaxString = Format(-item.DiscountAmountInclTax, true, true);
+            model.DiscountAmountExclTaxString = Format(-item.DiscountAmountExclTax, false, true);
 
             if (product.IsRecurring)
             {

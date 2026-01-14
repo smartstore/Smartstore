@@ -1,8 +1,10 @@
 ﻿@using Smartstore.Core.Checkout.Tax
+@using Smartstore.Core.Catalog.Discounts
 
 @model OrderModel
 
 @{
+    var rtl = WorkContext.WorkingLanguage.Rtl;
     var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
     var taxTypeSelectable = (bool)ViewBag.AllowCustomersToSelectTaxDisplayType;
     var displayTaxRates = (bool)ViewBag.DisplayTaxRates;
@@ -10,6 +12,19 @@
     var showExclTax = taxTypeSelectable || taxType == TaxDisplayType.ExcludingTax;
     var showInclTax = taxTypeSelectable || taxType == TaxDisplayType.IncludingTax;
     var askToProceed = T("Admin.Common.AskToProceed").Value;
+
+    async Task DiscountInfo(string amountStr, DiscountType discountType)
+    {
+        var discountLink = Model.AppliedDiscounts
+            .Where(x => x.DiscountType == discountType)
+            .Select(x => Html.ActionLink(x.Name, "Edit", "Discount", new { id = x.Id, area = "Admin" }, null))
+            .FirstOrDefault();
+
+        <div class="form-control-plaintext">
+            <span attr-dir='(rtl, "rtl")'>@amountStr</span>
+            <span sm-if="discountLink != null">(@discountLink)</span>
+        </div>
+    }
 }
 
 <zone name="order_edit_top" />
@@ -147,7 +162,9 @@
             <smart-label asp-for="OrderSubTotalDiscountInclTaxString" />
         </div>
         <div class="adminData">
-            <input asp-for="OrderSubTotalDiscountInclTaxString" sm-plaintext="true" readonly />
+            @{
+                await DiscountInfo(Model.OrderSubTotalDiscountInclTaxString, DiscountType.AssignedToOrderSubTotal);
+            }
         </div>
     </div>
     <div sm-if="showExclTax && Model.OrderSubTotalDiscountExclTaxString.HasValue()" class="adminRow">
@@ -155,7 +172,9 @@
             <smart-label asp-for="OrderSubTotalDiscountExclTaxString" />
         </div>
         <div class="adminData">
-            <input asp-for="OrderSubTotalDiscountExclTaxString" sm-plaintext="true" readonly />
+            @{
+                await DiscountInfo(Model.OrderSubTotalDiscountExclTaxString, DiscountType.AssignedToOrderSubTotal);
+            }
         </div>
     </div>
     <div sm-if="showInclTax" class="adminRow">
@@ -163,7 +182,9 @@
             <smart-label asp-for="OrderShippingInclTaxString" />
         </div>
         <div class="adminData">
-            <input asp-for="OrderShippingInclTaxString" sm-plaintext="true" readonly />
+            @{
+                await DiscountInfo(Model.OrderShippingInclTaxString, DiscountType.AssignedToShipping);
+            }
         </div>
     </div>
     <div sm-if="showExclTax" class="adminRow">
@@ -171,7 +192,9 @@
             <smart-label asp-for="OrderShippingExclTaxString" />
         </div>
         <div class="adminData">
-            <input asp-for="OrderShippingExclTaxString" sm-plaintext="true" readonly />
+            @{
+                await DiscountInfo(Model.OrderShippingExclTaxString, DiscountType.AssignedToShipping);
+            }
         </div>
     </div>
     <div sm-if="showInclTax && Model.PaymentMethodAdditionalFeeInclTaxString.HasValue()" class="adminRow">
@@ -217,7 +240,9 @@
             <smart-label asp-for="OrderDiscountString" />
         </div>
         <div class="adminData">
-            <input asp-for="OrderDiscountString" sm-plaintext="true" readonly />
+            @{
+                await DiscountInfo(Model.OrderDiscountString, DiscountType.AssignedToOrderTotal);
+            }
         </div>
     </div>
     @foreach (var gc in Model.GiftCards)

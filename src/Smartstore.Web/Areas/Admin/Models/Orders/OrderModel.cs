@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Web.Models.Common;
@@ -121,6 +122,7 @@ public partial class OrderModel : EditOrderModel
 
     public List<GiftCard> GiftCards { get; set; }
     public List<OrderItemModel> Items { get; set; }
+    public List<DiscountInfoModel> AppliedDiscounts { get; set; }
 
     public string UpdateOrderItemInfo { get; set; }
     public UpdateOrderItemModel UpdateOrderItem { get; set; }
@@ -264,6 +266,12 @@ public partial class OrderModel : EditOrderModel
 
         public bool IsReturnRequestPossible
             => ReturnRequests.IsNullOrEmpty() || ReturnRequests.Sum(x => x.Quantity) < Quantity;
+    }
+
+    public class DiscountInfoModel : EntityModelBase
+    {
+        public string Name { get; set; }
+        public DiscountType DiscountType { get; set; }
     }
 
     #endregion

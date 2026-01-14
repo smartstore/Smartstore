@@ -23,6 +23,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Payment.MissingConfirmationUrl",
                 "The payment could not be confirmed. The payment method you selected <strong>{0}</strong> did not provide the redirect URL required for confirmation.",
                 "Die Zahlung konnte nicht bestätigt werden. Die von Ihnen gewählte Zahlungsmethode <strong>{0}</strong> hat keine für die Bestätigung erforderliche Weiterleitungs-URL geliefert.");
+
+            builder.AddOrUpdate("Admin.Orders.Products.AppliedDiscounts",
+                "The following discounts were applied to the products: {0}.",
+                "Auf die Produkte wurden die folgenden Rabatte gewährt: {0}.");
         }
     }
 }
