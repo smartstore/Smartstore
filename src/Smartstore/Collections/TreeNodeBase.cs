@@ -181,7 +181,7 @@ namespace Smartstore.Collections
 
         #region Metadata
 
-        [Polymorphic(WrapDictionaryArrays = true)]
+        [Polymorphic(WrapArrays = true)]
         public IDictionary<string, object?> Metadata
         {
             get => _metadata ??= new Dictionary<string, object?>();

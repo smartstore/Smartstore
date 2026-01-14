@@ -15,9 +15,9 @@
 public sealed class PolymorphicAttribute : Attribute
 {
     /// <summary>
-    /// If true, arrays in dictionary values are written as {"$type":"...","$values":[...]}.
-    /// If false, arrays in dictionary values are written raw: [...].
+    /// If true, array/list values are written as {"$type":"...","$values":[...]}.
+    /// If false, array/list values are written raw: [...].
     /// Default is false.
     /// </summary>
-    public bool WrapDictionaryArrays { get; set; }
+    public bool WrapArrays { get; set; }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using NUnit.Framework;
 using Smartstore.ComponentModel;
 
@@ -108,8 +109,10 @@ namespace Smartstore.Tests
 
     public class MapClass1
     {
-        public string Prop1 { get; set; }
-        public string Prop2 { get; set; }
+        [DefaultValue("Value1")]
+        public string Prop1 { get; set; } = "Value1";
+        [DefaultValue("Value2")]
+        public string Prop2 { get; set; } = "Value2";
         public string Prop3 { get; set; }
         public float? Prop4 { get; set; }
         public ConsoleKey[] Prop5 { get; set; }
@@ -129,8 +132,11 @@ namespace Smartstore.Tests
 
     public class MapNestedClass
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public int Age { get; set; }
+        [DefaultValue("John")]
+        public string FirstName { get; set; } = "John";
+        [DefaultValue("Doe")]
+        public string LastName { get; set; } = "Doe";
+        [DefaultValue(18)]
+        public int Age { get; set; } = 18;
     }
 }

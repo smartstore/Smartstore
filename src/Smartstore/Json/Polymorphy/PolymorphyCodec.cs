@@ -7,7 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
-namespace Smartstore.Json;
+namespace Smartstore.Json.Polymorphy;
 
 /// <summary>
 /// Shared polymorphic read/write logic used by Object/List/Dictionary converters.
@@ -43,15 +43,13 @@ internal static class PolymorphyCodec
 
             var readOptions = GetEffectiveReadOptions(options);
 
-            // Wrapped scalar/array payloads: {"$type":"...","$value":...} / {"$type":"...","$values":[...]}
-            if (TryGetWrappedPayload(el, o, out var payload))
+            // Wrapped array payload: {"$type":"...","$values":[...]}
+            if (el.TryGetProperty(o.ArrayValuePropertyName, out var valuesEl))
             {
-                // Deserialize directly from JsonElement to avoid GetRawText() allocations.
-                return JsonSerializer.Deserialize(payload, runtimeType, readOptions);
+                return JsonSerializer.Deserialize(valuesEl, runtimeType, readOptions);
             }
 
-            // Object payload: remove only the discriminator at this level.
-            // Nested $type are intentionally kept; lenient options ensure typed POCOs ignore them.
+            // Object payload: strip discriminator at this level; nested $type remain.
             var jsonBytes = SerializeObjectWithoutType(el, o.TypePropertyName);
             return JsonSerializer.Deserialize(jsonBytes, runtimeType, readOptions);
         }
@@ -77,20 +75,6 @@ internal static class PolymorphyCodec
 
             return clone;
         });
-    }
-
-    private static bool TryGetWrappedPayload(JsonElement wrapper, PolymorphyOptions o, out JsonElement payload)
-    {
-        // Array wrapper first (NSJ uses $values for arrays)
-        if (wrapper.TryGetProperty(o.ArrayValuePropertyName, out payload))
-            return true;
-
-        // Scalar wrapper ($value)
-        if (wrapper.TryGetProperty(o.ScalarValuePropertyName, out payload))
-            return true;
-
-        payload = default;
-        return false;
     }
 
     private static object? ReadUntyped(JsonElement el, JsonSerializerOptions options, PolymorphyOptions o)
@@ -126,11 +110,10 @@ internal static class PolymorphyCodec
 
             case JsonValueKind.Object:
             {
-                // Critical: any nested object may be a polymorphic wrapper (including ones you now write everywhere).
+                // Nested wrapper support.
                 if (el.TryGetProperty(o.TypePropertyName, out var tp) && tp.ValueKind == JsonValueKind.String)
                     return Read(el, typeof(object), options, o);
 
-                // Plain JSON object -> untyped dictionary
                 var dict = new Dictionary<string, object?>(StringComparer.Ordinal);
                 foreach (var p in el.EnumerateObject())
                     dict[p.Name] = ReadUntyped(p.Value, options, o);
@@ -168,22 +151,62 @@ internal static class PolymorphyCodec
 
     #region Write
 
+    /// <summary>
+    /// Writes a polymorphic value in a "NSJ-ish" form.
+    /// Slot rules:
+    /// - WrapArrays == false: arrays/lists are always written raw ([...]) everywhere.
+    /// - Object slot: if the object itself is an array/list and WrapArrays == true => wrap ONLY this root array/list.
+    /// - List slot: if WrapArrays == true => wrap the list AND any nested lists recursively.
+    /// - Dictionary slot: dictionary itself is always wrapped as an object; if WrapArrays == true => nested lists under its values are wrapped recursively.
+    /// </summary>
+    internal static void WriteObjectSlot(
+        Utf8JsonWriter writer,
+        object? value,
+        JsonSerializerOptions options,
+        PolymorphyOptions o)
+    {
+        WriteCore(writer, value, options, o, PolymorphyKind.ObjectSlot, wrapArraysScope: false);
+    }
+
+    internal static void WriteListSlot(
+        Utf8JsonWriter writer,
+        object? value,
+        JsonSerializerOptions options,
+        PolymorphyOptions o)
+    {
+        // List slot enables recursive wrapping of nested lists when WrapArrays is enabled.
+        WriteCore(writer, value, options, o, PolymorphyKind.ListSlot, wrapArraysScope: o.WrapArrays);
+    }
+
+    internal static void WriteDictionarySlot(
+        Utf8JsonWriter writer,
+        object? value,
+        JsonSerializerOptions options,
+        PolymorphyOptions o)
+    {
+        // Dictionary slot enables recursive wrapping of nested lists under its values when WrapArrays is enabled.
+        WriteCore(writer, value, options, o, PolymorphyKind.DictionarySlot, wrapArraysScope: o.WrapArrays);
+    }
+
+    /// <summary>
+    /// Backward-compatible entry point. Treat as "object slot".
+    /// </summary>
     public static void Write(
         Utf8JsonWriter writer,
         object? value,
         JsonSerializerOptions options,
         PolymorphyOptions o)
     {
-        WriteCore(writer, value, options, o);
+        WriteObjectSlot(writer, value, options, o);
     }
 
-    // Writes {"$type":"..."} + payload properties for objects,
-    // and {"$type":"...","$value":...} for non-object payloads.
     private static void WriteCore(
         Utf8JsonWriter writer,
         object? value,
         JsonSerializerOptions options,
-        PolymorphyOptions o)
+        PolymorphyOptions o,
+        PolymorphyKind slotKind,
+        bool wrapArraysScope)
     {
         if (value is null)
         {
@@ -200,7 +223,7 @@ internal static class PolymorphyCodec
             return;
         }
 
-        // Dictionaries are treated as complex objects and always wrapped
+        // Dictionaries are treated as complex objects and always wrapped at the dictionary slot root.
         if (TryGetStringKeyDictionary(value, out var dict))
         {
             WriteWrappedObjectStart(writer, runtimeType, o);
@@ -208,49 +231,94 @@ internal static class PolymorphyCodec
             foreach (var (key, val) in dict)
             {
                 writer.WritePropertyName(key);
-                WriteCore(writer, val, options, o);
+
+                // Dictionary value recursion:
+                // - Keep wrapArraysScope (enables nested list wrapping when WrapArrays==true).
+                // - Values behave like object-slot items (we don't want "list slot" behavior for every value).
+                WriteCore(writer, val, options, o, PolymorphyKind.ObjectSlot, wrapArraysScope);
             }
 
             writer.WriteEndObject();
             return;
         }
 
-        // Enumerables (arrays/lists) are treated as arrays
+        // Enumerables (arrays/lists) are treated as arrays.
         if (TryGetEnumerable(value, out var enumerable))
         {
-            if (o.WrapDictionaryArrays)
+            // Wrap decision:
+            // - WrapArrays must be true at all.
+            // - Object slot: wrap ONLY the root array/list (do not enable scope for nested lists).
+            // - List slot: always wrap root list and keep scope for nested lists.
+            // - Dictionary slot: this branch is mostly for dictionary *values* that are lists; scope decides recursion.
+            var shouldWrapArray =
+                o.WrapArrays &&
+                (slotKind == PolymorphyKind.ListSlot
+                 || slotKind == PolymorphyKind.ObjectSlot
+                 || wrapArraysScope);
+
+            if (shouldWrapArray)
             {
                 // Wrapped array: {"$type":"...","$values":[ ... ]}
-                writer.WriteStartObject();
-                writer.WriteString(o.TypePropertyName, o.GetRequiredTypeId(runtimeType));
+                WriteWrappedObjectStart(writer, runtimeType, o);
                 writer.WritePropertyName(o.ArrayValuePropertyName);
 
                 writer.WriteStartArray();
-                foreach (var item in enumerable)
-                    WriteCore(writer, item, options, o);
-                writer.WriteEndArray();
 
+                foreach (var item in enumerable)
+                {
+                    // Important:
+                    // - Object slot root wrapping must NOT propagate scope.
+                    // - List/dict scopes propagate wrapArraysScope so nested lists get wrapped.
+                    var nextScope = (slotKind == PolymorphyKind.ObjectSlot) ? false : wrapArraysScope;
+                    WriteCore(writer, item, options, o, PolymorphyKind.ObjectSlot, nextScope);
+                }
+
+                writer.WriteEndArray();
                 writer.WriteEndObject();
             }
             else
             {
                 // Raw array: [ ... ] BUT elements are still recursively written
                 writer.WriteStartArray();
+
                 foreach (var item in enumerable)
-                    WriteCore(writer, item, options, o);
+                {
+                    // If scope is enabled (list/dict), nested lists may still be wrapped.
+                    WriteCore(writer, item, options, o, PolymorphyKind.ObjectSlot, wrapArraysScope);
+                }
+
                 writer.WriteEndArray();
             }
 
             return;
         }
 
-        // POCO / complex object: always wrapped and properties recursively written
+        // POCO / complex object:
+        // Let STJ decide *which* properties to write by serializing to an element first.
+        // Then write only those properties, but recurse using CLR values so nested complex objects get wrapped.
+        var payload = JsonSerializer.SerializeToElement(value, runtimeType, options);
+
+        if (payload.ValueKind != JsonValueKind.Object)
+        {
+            // Defensive fallback: should not happen for POCOs, but keep behavior predictable.
+            JsonSerializer.Serialize(writer, value, runtimeType, options);
+            return;
+        }
+
         WriteWrappedObjectStart(writer, runtimeType, o);
 
-        foreach (var (jsonName, propValue) in EnumerateSerializableMembers(value, runtimeType, options, o))
+        foreach (var p in payload.EnumerateObject())
         {
-            writer.WritePropertyName(jsonName);
-            WriteCore(writer, propValue, options, o);
+            if (p.NameEquals(o.TypePropertyName))
+                continue;
+
+            writer.WritePropertyName(p.Name);
+
+            // IMPORTANT:
+            // Do NOT recurse into POCO properties here.
+            // STJ already serialized those properties correctly (including any custom converters
+            // on nested polymorphic slots), and strongly typed properties must stay unwrapped.
+            p.Value.WriteTo(writer);
         }
 
         writer.WriteEndObject();
@@ -262,7 +330,7 @@ internal static class PolymorphyCodec
         writer.WriteString(o.TypePropertyName, o.GetRequiredTypeId(runtimeType));
     }
 
-    private static bool IsScalarLike(Type t)
+    internal static bool IsScalarLike(Type t)
     {
         return t.IsBasicType()
             || t == typeof(Uri)
@@ -337,43 +405,6 @@ internal static class PolymorphyCodec
             var k = (string?)keyProp.GetValue(item) ?? string.Empty;
             var v = valProp.GetValue(item);
             yield return (k, v);
-        }
-    }
-
-    private static IEnumerable<(string JsonName, object? Value)> EnumerateSerializableMembers(
-        object instance,
-        Type runtimeType,
-        JsonSerializerOptions options,
-        PolymorphyOptions o)
-    {
-        var ti = options.GetTypeInfo(runtimeType);
-
-        if (ti.Kind != JsonTypeInfoKind.Object)
-            yield break;
-
-        foreach (var p in ti.Properties)
-        {
-            if (p.IsExtensionData)
-                continue;
-
-            // Avoid collisions with our discriminator
-            if (string.Equals(p.Name, o.TypePropertyName, StringComparison.Ordinal))
-                continue;
-
-            // If Get is null, STJ treats it as "skip on serialization"
-            var getter = p.Get;
-            if (getter is null)
-                continue;
-
-            var value = getter(instance);
-
-            if (value is null && options.DefaultIgnoreCondition == JsonIgnoreCondition.WhenWritingNull)
-                continue;
-
-            var shouldSerialize = p.ShouldSerialize;
-            if (shouldSerialize != null && !shouldSerialize(instance, value)) continue;
-
-            yield return (p.Name, value);
         }
     }
 

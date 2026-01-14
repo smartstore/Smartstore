@@ -3,7 +3,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Smartstore.Json.Converters;
+namespace Smartstore.Json.Polymorphy;
 
 /// <summary>
 /// Polymorphic "slot" converter factory: object, interfaces, and abstract base types.
@@ -28,10 +28,10 @@ internal sealed class PolymorphicObjectConverterFactory : JsonConverterFactory
 
     private sealed class PolymorphicObjectConverter<T> : JsonConverter<T?>
     {
-        private readonly PolymorphyOptions _options;
+        private readonly PolymorphyOptions _polyOptions;
 
         public PolymorphicObjectConverter(PolymorphyOptions options) 
-            => _options = options;
+            => _polyOptions = options;
 
         public override T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
@@ -39,28 +39,14 @@ internal sealed class PolymorphicObjectConverterFactory : JsonConverterFactory
                 return default;
 
             using var doc = JsonDocument.ParseValue(ref reader);
-            object? obj = PolymorphyCodec.Read(doc.RootElement, typeof(T), options, _options);
-
-            // PolymorphyCodec returns object?; ensure it matches the slot.
-            if (obj is null)
-                return default;
-
-            if (obj is T typed)
-                return typed;
-
-            // This should only happen for object slots (where any type is OK).
-            if (typeof(T) == typeof(object))
-                return (T)(object)obj;
-
-            throw new JsonException(
-                $"Polymorphic deserialization produced '{obj.GetType()}' which is not assignable to '{typeof(T)}'.");
-
+            object? obj = PolymorphyCodec.Read(doc.RootElement, typeof(T), options, _polyOptions);
+            return (T?)obj;
         }
 
         public override void Write(Utf8JsonWriter writer, T? value, JsonSerializerOptions options)
         {
             // PolymorphyCodec writes wrapper object with $type first (or null).
-            PolymorphyCodec.Write(writer, value, options, _options);
+            PolymorphyCodec.Write(writer, value, options, _polyOptions);
         }
     }
 }

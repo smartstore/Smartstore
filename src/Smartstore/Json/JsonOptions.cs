@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
+using Smartstore.Json.Polymorphy;
 
 namespace Smartstore.Json;
 
@@ -63,9 +64,9 @@ public static class SmartJsonOptions
 
         // Create a resolver early to allow adding modifiers
         TypeInfoResolver = (JsonSerializer.IsReflectionEnabledByDefault ? new DefaultJsonTypeInfoResolver() : JsonTypeInfoResolver.Combine())
-            .WithDataContractModifier()
+            .WithPolymorphyModifier()
             .WithDefaultValueModifier()
-            .WithPolymorphyModifier(),
+            .WithDataContractModifier(),
 
         Converters =
         {

@@ -4,7 +4,7 @@ using System.Collections;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Smartstore.Json.Converters;
+namespace Smartstore.Json.Polymorphy;
 
 /// <summary>
 /// Polymorphic dictionary converter factory for "dictionary slots".
@@ -13,17 +13,13 @@ namespace Smartstore.Json.Converters;
 /// </summary>
 internal sealed class PolymorphicDictionaryConverterFactory : JsonConverterFactory
 {
-    private readonly PolymorphyOptions _options;
+    private readonly PolymorphyOptions _poly;
 
     public PolymorphicDictionaryConverterFactory(PolymorphyOptions options)
-    {
-        _options = Guard.NotNull(options);
-    }
+        => _poly = Guard.NotNull(options);
 
     public override bool CanConvert(Type typeToConvert)
-    {
-        return typeToConvert.IsDictionaryType();
-    }
+        => typeToConvert.IsDictionaryType();
 
     public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
     {
@@ -32,7 +28,7 @@ internal sealed class PolymorphicDictionaryConverterFactory : JsonConverterFacto
         // Non-generic IDictionary: handle as string->object dictionary
         if (!isGenericType)
         {
-            return new NonGenericStringKeyDictionaryConverter(_options, typeToConvert);
+            return new NonGenericStringKeyDictionaryConverter(_poly, typeToConvert);
         }
 
         if (keyType != typeof(string))
@@ -43,51 +39,56 @@ internal sealed class PolymorphicDictionaryConverterFactory : JsonConverterFacto
         }
 
         var convType = typeof(GenericDictionaryConverter<,>).MakeGenericType(typeToConvert, valueType!);
-        return (JsonConverter)Activator.CreateInstance(convType, _options)!;
+        return (JsonConverter)Activator.CreateInstance(convType, _poly)!;
     }
 
     private sealed class GenericDictionaryConverter<TDict, TValue> : JsonConverter<TDict>
     {
-        private readonly PolymorphyOptions _options;
+        private readonly PolymorphyOptions _poly;
 
         public GenericDictionaryConverter(PolymorphyOptions options) 
-            => _options = options;
+            => _poly = options;
 
         public override TDict? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonTokenType.Null)
                 return default;
 
-            if (reader.TokenType != JsonTokenType.StartObject)
-                throw new JsonException($"Expected JSON object for '{typeToConvert}'.");
+            using var doc = JsonDocument.ParseValue(ref reader);
+            var el = doc.RootElement;
 
-            // Create instance:
-            // - If property type is interface/abstract (e.g. IReadOnlyDictionary<,>), materialize Dictionary<string, TValue?>.
-            // - If it's a concrete derived dictionary type, try to instantiate it.
-            object instance = CreateInstance(typeToConvert);
+            // Accept both:
+            // - wrapped dict: {"$type":"...","k":...}
+            // - raw object: {"k":...}  (treated as declared type)
+            Type runtimeType = typeToConvert;
 
-            while (reader.Read())
+            if (el.ValueKind == JsonValueKind.Object &&
+                el.TryGetProperty(_poly.TypePropertyName, out var tp) &&
+                tp.ValueKind == JsonValueKind.String)
             {
-                if (reader.TokenType == JsonTokenType.EndObject)
-                    return (TDict)instance;
+                var resolved = _poly.ResolveRequiredType(tp.GetString()!);
+                if (!typeToConvert.IsAssignableFrom(resolved))
+                    throw new JsonException($"Resolved runtime type '{resolved}' is not assignable to '{typeToConvert}'.");
 
-                if (reader.TokenType != JsonTokenType.PropertyName)
-                    throw new JsonException("Expected property name.");
-
-                var key = reader.GetString() ?? string.Empty;
-
-                reader.Read(); // move to value token
-
-                // Buffer the value so we can inspect $type anywhere within nested objects.
-                using var doc = JsonDocument.ParseValue(ref reader);
-                var el = doc.RootElement;
-
-                object? value = PolymorphyCodec.Read(el, typeof(TValue), options, _options);
-
-                AddEntry(instance, key, value);
+                runtimeType = resolved;
+            }
+            else if (el.ValueKind != JsonValueKind.Object)
+            {
+                throw new JsonException($"Expected JSON object for '{typeToConvert}'.");
             }
 
-            throw new JsonException("Incomplete JSON object.");
+            object instance = CreateInstance(runtimeType);
+
+            foreach (var p in el.EnumerateObject())
+            {
+                if (p.NameEquals(_poly.TypePropertyName))
+                    continue;
+
+                var value = PolymorphyCodec.Read(p.Value, typeof(TValue), options, _poly);
+                AddEntry(instance, p.Name, value);
+            }
+
+            return (TDict)instance;
         }
 
         public override void Write(Utf8JsonWriter writer, TDict value, JsonSerializerOptions options)
@@ -98,14 +99,17 @@ internal sealed class PolymorphicDictionaryConverterFactory : JsonConverterFacto
                 return;
             }
 
+            // Dictionary slot itself is always wrapped (NSJ-ish).
             writer.WriteStartObject();
+            writer.WriteString(_poly.TypePropertyName, _poly.GetRequiredTypeId(value.GetType()));
 
             foreach (var (k, v) in EnumeratePairs(value))
             {
                 writer.WritePropertyName(k);
 
-                // Delegate polymorphic value handling (including legacy $type reads elsewhere) to the shared codec.
-                PolymorphyCodec.Write(writer, v, options, _options);
+                // Values flow through codec so nested dicts/arrays/objects get wrapped recursively.
+                // Arrays in dict-values use PolymorphyOptions.WrapDictionaryArrays.
+                PolymorphyCodec.Write(writer, v, options, _poly);
             }
 
             writer.WriteEndObject();
@@ -113,7 +117,6 @@ internal sealed class PolymorphicDictionaryConverterFactory : JsonConverterFacto
 
         private static IEnumerable<(string Key, object? Value)> EnumeratePairs(TDict dict)
         {
-            // Covers Dictionary<string,TValue>, Custom derived dictionaries, and most interface-based dictionaries.
             if (dict is IEnumerable<KeyValuePair<string, TValue>> strong)
             {
                 foreach (var kv in strong)
@@ -121,7 +124,6 @@ internal sealed class PolymorphicDictionaryConverterFactory : JsonConverterFacto
                 yield break;
             }
 
-            // Covers IDictionary (non-generic) in case a concrete type implements only that.
             if (dict is IDictionary nongeneric)
             {
                 foreach (DictionaryEntry de in nongeneric)
@@ -129,8 +131,7 @@ internal sealed class PolymorphicDictionaryConverterFactory : JsonConverterFacto
                 yield break;
             }
 
-            throw new NotSupportedException(
-                $"Type '{typeof(TDict)}' is not enumerable as KeyValuePair<string, {typeof(TValue)}>, nor as IDictionary.");
+            throw new NotSupportedException($"Type '{typeof(TDict)}' is not enumerable as KeyValuePair<string, {typeof(TValue)}>, nor as IDictionary.");
         }
 
         private static object CreateInstance(Type targetType)
@@ -184,12 +185,12 @@ internal sealed class PolymorphicDictionaryConverterFactory : JsonConverterFacto
 
     private sealed class NonGenericStringKeyDictionaryConverter : JsonConverter<object>
     {
-        private readonly PolymorphyOptions _options;
+        private readonly PolymorphyOptions _poly;
         private readonly Type _targetType;
 
         public NonGenericStringKeyDictionaryConverter(PolymorphyOptions options, Type targetType)
         {
-            _options = options;
+            _poly = options;
             _targetType = targetType;
         }
 
@@ -201,13 +202,28 @@ internal sealed class PolymorphicDictionaryConverterFactory : JsonConverterFacto
             if (reader.TokenType == JsonTokenType.Null)
                 return null;
 
-            if (reader.TokenType != JsonTokenType.StartObject)
+            using var doc = JsonDocument.ParseValue(ref reader);
+            var el = doc.RootElement;
+
+            if (el.ValueKind != JsonValueKind.Object)
                 throw new JsonException($"Expected JSON object for '{typeToConvert}'.");
+
+            // Same rule: accept wrapped or raw object.
+            Type runtimeType = typeToConvert;
+
+            if (el.TryGetProperty(_poly.TypePropertyName, out var tp) && tp.ValueKind == JsonValueKind.String)
+            {
+                var resolved = _poly.ResolveRequiredType(tp.GetString()!);
+                if (!typeToConvert.IsAssignableFrom(resolved))
+                    throw new JsonException($"Resolved runtime type '{resolved}' is not assignable to '{typeToConvert}'.");
+
+                runtimeType = resolved;
+            }
 
             object instance;
             try
             {
-                instance = Activator.CreateInstance(typeToConvert) ?? new Dictionary<string, object?>(StringComparer.Ordinal);
+                instance = Activator.CreateInstance(runtimeType) ?? new Dictionary<string, object?>(StringComparer.Ordinal);
             }
             catch
             {
@@ -216,24 +232,15 @@ internal sealed class PolymorphicDictionaryConverterFactory : JsonConverterFacto
 
             var dict = instance as IDictionary ?? (IDictionary)new Dictionary<string, object?>(StringComparer.Ordinal);
 
-            while (reader.Read())
+            foreach (var p in el.EnumerateObject())
             {
-                if (reader.TokenType == JsonTokenType.EndObject)
-                    return instance;
+                if (p.NameEquals(_poly.TypePropertyName))
+                    continue;
 
-                if (reader.TokenType != JsonTokenType.PropertyName)
-                    throw new JsonException("Expected property name.");
-
-                var key = reader.GetString() ?? string.Empty;
-                reader.Read();
-
-                using var doc = JsonDocument.ParseValue(ref reader);
-                var el = doc.RootElement;
-
-                dict[key] = PolymorphyCodec.Read(el, typeof(object), options, _options);
+                dict[p.Name] = PolymorphyCodec.Read(p.Value, typeof(object), options, _poly);
             }
 
-            throw new JsonException("Incomplete JSON object.");
+            return instance;
         }
 
         public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
@@ -248,11 +255,12 @@ internal sealed class PolymorphicDictionaryConverterFactory : JsonConverterFacto
                 throw new JsonException($"Expected IDictionary, got '{value.GetType()}'.");
 
             writer.WriteStartObject();
+            writer.WriteString(_poly.TypePropertyName, _poly.GetRequiredTypeId(value.GetType()));
 
-            foreach (DictionaryEntry entry in dict)
+            foreach (DictionaryEntry de in dict)
             {
-                writer.WritePropertyName(Convert.ToString(entry.Key) ?? string.Empty);
-                PolymorphyCodec.Write(writer, entry.Value, options, _options);
+                writer.WritePropertyName(Convert.ToString(de.Key) ?? string.Empty);
+                PolymorphyCodec.Write(writer, de.Value, options, _poly);
             }
 
             writer.WriteEndObject();

@@ -34,7 +34,13 @@ public class JsonTests
         var root = CreateTestRootObject();
         var settings = new Newtonsoft.Json.JsonSerializerSettings
         {
-            TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Arrays
+            TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Arrays,
+            DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.Ignore
+        };
+
+        root.Data = new List<MapClass1>
+        {
+            CreateTestObject()
         };
 
         var json = Newtonsoft.Json.JsonConvert.SerializeObject(root, settings);
@@ -73,11 +79,11 @@ public class JsonTests
         {
             Prop1 = "Value1",
             Prop2 = "Value2",
-            //Prop3 = "Value3",
+            Prop3 = "Value3",
             //Prop4 = 4.5f,
             Prop4 = 0f,
-            //Prop5 = [ConsoleKey.A, ConsoleKey.B],
-            Prop6 = false,
+            Prop5 = [ConsoleKey.A, ConsoleKey.B],
+            Prop6 = true,
             Address = new MapNestedClass { FirstName = "John", LastName = "Doe", Age = 18 }
         };
     }
@@ -95,13 +101,13 @@ public class JsonTests
         [DefaultValue(true)]
         public bool Prop3 { get; set; } = true;
 
-        [Polymorphic]
+        [Polymorphic(WrapArrays = false)]
         public object? Data { get; set; }
 
         public CustomProps? Properties { get; set; }
     }
 
-    [Polymorphic(WrapDictionaryArrays = true)]
+    [Polymorphic(WrapArrays = true)]
     class CustomProps : Dictionary<string, object>
     {
     }

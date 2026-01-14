@@ -3,19 +3,37 @@
 using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
-using Smartstore.Json.Converters;
 
-namespace Smartstore.Json;
+namespace Smartstore.Json.Polymorphy;
+
+internal enum PolymorphyKind
+{
+    None,
+    ObjectSlot,
+    ListSlot,
+    DictionarySlot
+}
 
 internal static class PolymorphyModifier
 {
-    
+    readonly struct PolymorphyConverterSet
+    {
+        public required JsonConverter ObjectConverter { get; init; }
+        public required JsonConverter ObjectWithArraysConverter { get; init; }
+        public required JsonConverter ListConverter { get; init; }
+        public required JsonConverter ListWithArraysConverter { get; init; }
+        public required JsonConverter DictionaryConverter { get; init; }
+        public required JsonConverter DictionaryWithArraysConverter { get; init; }
+    }
+
     private readonly static PolymorphyConverterSet _converterSet = new()
     {
         ObjectConverter = new PolymorphicObjectConverterFactory(PolymorphyOptions.Default),
-        ListConverter = null!,
+        ObjectWithArraysConverter = new PolymorphicObjectConverterFactory(PolymorphyOptions.DefaultWithArrays),
+        ListConverter = new PolymorphicListConverterFactory(PolymorphyOptions.Default),
+        ListWithArraysConverter = new PolymorphicListConverterFactory(PolymorphyOptions.DefaultWithArrays),
         DictionaryConverter = new PolymorphicDictionaryConverterFactory(PolymorphyOptions.Default),
-        DictionaryWithArraysConverter = new PolymorphicDictionaryConverterFactory(new PolymorphyOptions { WrapDictionaryArrays = true })
+        DictionaryWithArraysConverter = new PolymorphicDictionaryConverterFactory(PolymorphyOptions.DefaultWithArrays)
     };
 
     /// <summary>
@@ -42,21 +60,26 @@ internal static class PolymorphyModifier
 
             // Select converter based on property type
             var kind = Classify(propType);
+            var wrapArrays = attr?.WrapArrays ?? false;
 
             switch (kind)
             {
                 case PolymorphyKind.ObjectSlot:
-                    prop.CustomConverter = _converterSet.ObjectConverter;
+                    prop.CustomConverter = wrapArrays
+                        ? _converterSet.ObjectWithArraysConverter
+                        : _converterSet.ObjectConverter;
                     break;
 
                 case PolymorphyKind.DictionarySlot:
-                    prop.CustomConverter = (attr?.WrapDictionaryArrays ?? false)
+                    prop.CustomConverter = wrapArrays
                         ? _converterSet.DictionaryWithArraysConverter
                         : _converterSet.DictionaryConverter;
                     break;
 
                 case PolymorphyKind.ListSlot:
-                    prop.CustomConverter = _converterSet.ListConverter;
+                    prop.CustomConverter = wrapArrays
+                        ? _converterSet.ListWithArraysConverter
+                        : _converterSet.ListConverter;
                     break;
 
                 default:
@@ -82,54 +105,27 @@ internal static class PolymorphyModifier
         if (t.IsDictionaryType(out var keyType, out var valueType))
         {
             if (keyType == typeof(string) && IsCandidateType(valueType))
-            {
                 return PolymorphyKind.DictionarySlot;
-            }
-            else
-            {
-                throw new InvalidOperationException("Polymorphic dictionaries must have string keys and object/interface/abstract value types.");
-            }
+
+            throw new InvalidOperationException("Polymorphic dictionaries must have string keys and object/interface/abstract value types.");
+
         }
         else if (t.IsSequenceType(out var elementType))
         {
             if (IsCandidateType(elementType))
-            {
                 return PolymorphyKind.ListSlot;
-            }
-            else
-            {
-                throw new InvalidOperationException("Polymorphic lists must have object/interface/abstract element types.");
-            }
+
+            throw new InvalidOperationException("Polymorphic lists must have object/interface/abstract element types.");
         }
         else
         {
             if (IsCandidateType(t))
-            {
                 return PolymorphyKind.ObjectSlot;
-            }
-            else
-            {
-                throw new InvalidOperationException("Polymorphic properties must be of type object, interface, abstract class, dictionary with string keys, or list/array.");
-            }
+
+            throw new InvalidOperationException("Polymorphic properties must be of type object, interface, abstract class, dictionary with string keys, or list/array.");
         }
     }
 
     private static bool IsCandidateType(Type t)
         => t == typeof(object) || t.IsInterface || t.IsAbstract;
-
-    readonly struct PolymorphyConverterSet
-    {
-        public required JsonConverter ObjectConverter { get; init; }
-        public required JsonConverter ListConverter { get; init; }
-        public required JsonConverter DictionaryConverter { get; init; }
-        public required JsonConverter DictionaryWithArraysConverter { get; init; }
-    }
-
-    enum PolymorphyKind
-    {
-        None,
-        ObjectSlot,
-        ListSlot,
-        DictionarySlot
-    }
 }

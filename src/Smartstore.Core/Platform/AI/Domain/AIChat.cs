@@ -108,7 +108,7 @@ namespace Smartstore.Core.AI
         /// <summary>
         /// Gets or sets the metadata associated with the AIChat.
         /// </summary>
-        [Polymorphic(WrapDictionaryArrays = true)]
+        [Polymorphic(WrapArrays = true)]
         public IDictionary<string, object?> Metadata
         {
             get => _metadata ??= new Dictionary<string, object?>();

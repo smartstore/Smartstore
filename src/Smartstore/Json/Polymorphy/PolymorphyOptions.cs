@@ -2,7 +2,7 @@
 
 using System.Text.Json;
 
-namespace Smartstore.Json;
+namespace Smartstore.Json.Polymorphy;
 
 /// <summary>
 /// Configuration for NSJ-ish polymorphic serialization using a "$type" discriminator (and optional "$value" wrapper).
@@ -10,6 +10,7 @@ namespace Smartstore.Json;
 internal sealed class PolymorphyOptions
 {
     public static PolymorphyOptions Default => new();
+    public static PolymorphyOptions DefaultWithArrays => new() { WrapArrays = true };
 
     public string TypePropertyName { get; init; } = "$type";
 
@@ -20,7 +21,7 @@ internal sealed class PolymorphyOptions
     // Array wrapper name (legacy NSJ TypeNameHandling.All/Arrays)
     public string ArrayValuePropertyName { get; init; } = "$values";
 
-    public bool WrapDictionaryArrays { get; set; }
+    public bool WrapArrays { get; set; }
 
     public Func<Type, string?> GetTypeId { get; init; } = static t => t.AssemblyQualifiedNameWithoutVersion();
 
