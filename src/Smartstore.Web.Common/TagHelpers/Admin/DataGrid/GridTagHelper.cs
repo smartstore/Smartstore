@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Antiforgery;
+﻿using System.Text.Encodings.Web;
+using System.Text.Json;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Newtonsoft.Json;
+using Smartstore.Json;
 using Smartstore.Utilities;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
@@ -28,7 +30,6 @@ public class GridTagHelper : SmartTagHelper
     const string BorderAttributeName = "border-style";
     const string StripedAttributeName = "striped";
     const string HoverAttributeName = "hover";
-    const string CondensedAttributeName = "condensed";
     const string AllowResizeAttributeName = "allow-resize";
     const string AllowRowSelectionAttributeName = "allow-row-selection";
     const string AllowColumnReorderingAttributeName = "allow-column-reordering";
@@ -47,6 +48,8 @@ public class GridTagHelper : SmartTagHelper
     const string OnRowClassAttributeName = "onrowclass";
     const string OnCellClassAttributeName = "oncellclass";
 
+    private readonly JsonSerializerOptions _serializerOptions;
+
     private readonly IGridCommandStateStore _gridCommandStateStore;
     private readonly IAntiforgery _antiforgery;
 
@@ -54,6 +57,11 @@ public class GridTagHelper : SmartTagHelper
     {
         _gridCommandStateStore = gridCommandStateStore;
         _antiforgery = antiforgery;
+
+        _serializerOptions = SmartJsonOptions.Default.Create(o =>
+        {
+            o.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+        });
     }
 
     public override void Init(TagHelperContext context)
@@ -417,11 +425,8 @@ public class GridTagHelper : SmartTagHelper
         return json;
     }
 
-    private static string SerializeObject(object obj)
+    private string SerializeObject(object obj)
     {
-        return JsonConvert.SerializeObject(obj, new JsonSerializerSettings
-        {
-            Formatting = CommonHelper.IsDevEnvironment ? Formatting.Indented : Formatting.None
-        });
+        return CommonHelper.IsDevEnvironment ? _serializerOptions.SerializeIndented(obj) : JsonSerializer.Serialize(obj);
     }
 }
