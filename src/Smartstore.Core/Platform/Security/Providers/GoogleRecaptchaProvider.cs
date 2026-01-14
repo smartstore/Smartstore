@@ -1,7 +1,8 @@
 ﻿using System.Net.Http;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Newtonsoft.Json;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Web;
 using Smartstore.Core.Widgets;
@@ -106,7 +107,7 @@ namespace Smartstore.Core.Security
                     theme,
                     elementId
                 };
-                content.AppendHtmlLine($"<script type='application/json' class='captcha-config'>{JsonConvert.SerializeObject(config)}</script>");
+                content.AppendHtmlLine($"<script type='application/json' class='captcha-config'>{JsonSerializer.Serialize(config)}</script>");
 
                 if (isHiddenBadge)
                 {
@@ -133,7 +134,7 @@ namespace Smartstore.Core.Security
                     scoreThreshold = _settings.ScoreThreshold,
                     hideBadge = _settings.HideBadgeV3,
                 };
-                content.AppendHtmlLine($"<script type='application/json' class='captcha-config'>{JsonConvert.SerializeObject(cfg)}</script>");
+                content.AppendHtmlLine($"<script type='application/json' class='captcha-config'>{JsonSerializer.Serialize(cfg)}</script>");
             }
 
             if (isHiddenBadge)
@@ -188,7 +189,7 @@ namespace Smartstore.Core.Security
                 using var content = new FormUrlEncodedContent(postData);
                 using var response = await client.PostAsync(verifyUrl, content, cancelToken);
                 var json = await response.Content.ReadAsStringAsync(cancelToken);
-                payload = JsonConvert.DeserializeObject<GoogleRecaptchaApiResponse>(json);
+                payload = JsonSerializer.Deserialize<GoogleRecaptchaApiResponse>(json);
             }
             catch (Exception ex)
             {
@@ -268,22 +269,22 @@ namespace Smartstore.Core.Security
 
     internal sealed class GoogleRecaptchaApiResponse
     {
-        [JsonProperty("success")] 
+        [JsonPropertyName("success")] 
         public bool Success { get; set; }
 
-        [JsonProperty("score")] 
+        [JsonPropertyName("score")] 
         public float? Score { get; set; } // v3
 
-        [JsonProperty("action")] 
+        [JsonPropertyName("action")] 
         public string Action { get; set; } // v3
 
-        [JsonProperty("challenge_ts")] 
+        [JsonPropertyName("challenge_ts")] 
         public DateTime? ChallengeTs { get; set; } // v2/v3
 
-        [JsonProperty("hostname")] 
+        [JsonPropertyName("hostname")] 
         public string Hostname { get; set; } // v2/v3
 
-        [JsonProperty("error-codes")] 
+        [JsonPropertyName("error-codes")] 
         public List<string> ErrorCodes { get; set; }
     }
 }
