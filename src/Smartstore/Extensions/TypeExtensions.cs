@@ -319,7 +319,7 @@ public static class TypeExtensions
                 return false;
             }
 
-            return
+            return (
                 type.IsArray ||
                 typeof(IEnumerable).IsAssignableFrom(type) ||
                 type == typeof(Array));
