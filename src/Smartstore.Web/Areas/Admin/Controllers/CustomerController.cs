@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Text.Encodings.Web;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Options;
@@ -23,6 +24,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Engine.Modularity;
+using Smartstore.Json;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.DataGrid;
@@ -1466,13 +1468,20 @@ namespace Smartstore.Admin.Controllers
             }
 
             var data = await _gdprTool.Value.ExportCustomerAsync(customer);
-            var json = JsonConvert.SerializeObject(data, new JsonSerializerSettings
+
+            Response.ContentType = "application/json";
+            Response.Headers.ContentDisposition = $"attachment; filename=customer-{customer.Id}.json";
+
+            // TODO: (json) (mc) (mh) Maybe we need some "UnsafeRelaxed"-ExtensionMethod ??? 
+            // TODO: (json) (mh) Customer export via GDPR-Tool should also be "UnsafeRelaxed";
+            var options = SmartJsonOptions.CamelCasedIgnoreDefaultValue.Create(o =>
             {
-                Formatting = Formatting.Indented,
-                TypeNameHandling = TypeNameHandling.Objects
+                o.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
             });
 
-            return File(json.GetBytes(), "application/json", "customer-{0}.json".FormatInvariant(customer.Id));
+            await options.SerializeIndentedAsync(Response.BodyWriter, data);
+
+            return new EmptyResult();
         }
 
         #endregion
