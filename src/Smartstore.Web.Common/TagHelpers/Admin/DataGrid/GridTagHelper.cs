@@ -48,7 +48,10 @@ public class GridTagHelper : SmartTagHelper
     const string OnRowClassAttributeName = "onrowclass";
     const string OnCellClassAttributeName = "oncellclass";
 
-    private readonly JsonSerializerOptions _serializerOptions;
+    private readonly static JsonSerializerOptions _serializerOptions = SmartJsonOptions.Default.Create(o =>
+    {
+        o.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+    });
 
     private readonly IGridCommandStateStore _gridCommandStateStore;
     private readonly IAntiforgery _antiforgery;
@@ -57,11 +60,6 @@ public class GridTagHelper : SmartTagHelper
     {
         _gridCommandStateStore = gridCommandStateStore;
         _antiforgery = antiforgery;
-
-        _serializerOptions = SmartJsonOptions.Default.Create(o =>
-        {
-            o.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
-        });
     }
 
     public override void Init(TagHelperContext context)
@@ -425,8 +423,10 @@ public class GridTagHelper : SmartTagHelper
         return json;
     }
 
-    private string SerializeObject(object obj)
+    private static string SerializeObject(object obj)
     {
-        return CommonHelper.IsDevEnvironment ? _serializerOptions.SerializeIndented(obj) : JsonSerializer.Serialize(obj);
+        return CommonHelper.IsDevEnvironment 
+            ? _serializerOptions.SerializeIndented(obj) 
+            : JsonSerializer.Serialize(obj);
     }
 }
