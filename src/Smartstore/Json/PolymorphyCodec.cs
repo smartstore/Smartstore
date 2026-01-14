@@ -371,7 +371,7 @@ internal static class PolymorphyCodec
                 continue;
 
             var shouldSerialize = p.ShouldSerialize;
-            if (shouldSerialize is not null && !shouldSerialize(instance, value)) continue;
+            if (shouldSerialize != null && !shouldSerialize(instance, value)) continue;
 
             yield return (p.Name, value);
         }

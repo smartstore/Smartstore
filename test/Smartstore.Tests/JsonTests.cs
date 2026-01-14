@@ -2,8 +2,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using NUnit.Framework;
 using Smartstore.Json;
 
@@ -12,14 +14,18 @@ namespace Smartstore.Tests;
 [TestFixture]
 public class JsonTests
 {
+    private readonly JsonSerializerOptions _jsonOptions = SmartJsonOptions.Default.Create(o =>
+    {
+        o.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
+    });
+
     [Test]
     public void CanSerialize()
     {
-        var jsonOptions = SmartJsonOptions.Default;
         var obj = CreateTestObject();
 
-        var json = JsonSerializer.Serialize(obj, jsonOptions);
-        var node = JsonSerializer.Deserialize<JsonNode>(json, jsonOptions);
+        var json = JsonSerializer.Serialize(obj, _jsonOptions);
+        var node = JsonSerializer.Deserialize<JsonNode>(json, _jsonOptions);
     }
 
     [Test]
@@ -39,10 +45,9 @@ public class JsonTests
     public void StjPolymorphyTest()
     {
         var root = CreateTestRootObject();
-        var options = SmartJsonOptions.Default;
 
-        var json = JsonSerializer.Serialize(root, options);
-        var root2 = JsonSerializer.Deserialize<RootClass>(json, options);
+        var json = JsonSerializer.Serialize(root, _jsonOptions);
+        var root2 = JsonSerializer.Deserialize<RootClass>(json, _jsonOptions);
     }
 
     private RootClass CreateTestRootObject()
@@ -68,9 +73,11 @@ public class JsonTests
         {
             Prop1 = "Value1",
             Prop2 = "Value2",
-            Prop3 = "Value3",
-            Prop4 = 4.5f,
+            //Prop3 = "Value3",
+            //Prop4 = 4.5f,
+            Prop4 = 0f,
             //Prop5 = [ConsoleKey.A, ConsoleKey.B],
+            Prop6 = false,
             Address = new MapNestedClass { FirstName = "John", LastName = "Doe", Age = 18 }
         };
     }
@@ -78,6 +85,15 @@ public class JsonTests
     class RootClass
     {
         public string? Name { get; set; }
+
+        [DefaultValue("hello")]
+        public string? Prop1 { get; set; } = "hello";
+
+        [DefaultValue(0.5f)]
+        public float Prop2 { get; set; } = 0.5f;
+
+        [DefaultValue(true)]
+        public bool Prop3 { get; set; } = true;
 
         [Polymorphic]
         public object? Data { get; set; }

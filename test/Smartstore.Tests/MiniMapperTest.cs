@@ -113,6 +113,7 @@ namespace Smartstore.Tests
         public string Prop3 { get; set; }
         public float? Prop4 { get; set; }
         public ConsoleKey[] Prop5 { get; set; }
+        public bool Prop6 { get; set; }
         public MapNestedClass Address { get; set; } = new MapNestedClass();
     }
 

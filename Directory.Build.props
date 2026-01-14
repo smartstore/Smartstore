@@ -2,5 +2,6 @@
     <PropertyGroup>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
         <NoWarn>$(NoWarn);CA1510;IDE0130;IDE0290;IDE0305</NoWarn>
+        <HotReloadAutoRestart>true</HotReloadAutoRestart>
     </PropertyGroup>
 </Project>

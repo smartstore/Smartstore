@@ -22,7 +22,7 @@ internal sealed class PolymorphyOptions
 
     public bool WrapDictionaryArrays { get; set; }
 
-    public Func<Type, string?> GetTypeId { get; init; } = static t => t.AssemblyQualifiedName;
+    public Func<Type, string?> GetTypeId { get; init; } = static t => t.AssemblyQualifiedNameWithoutVersion();
 
     public Func<string, Type?> ResolveTypeId { get; init; } = static id =>
         Type.GetType(id, throwOnError: false, ignoreCase: false);

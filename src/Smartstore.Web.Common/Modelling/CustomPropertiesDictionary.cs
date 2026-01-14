@@ -4,8 +4,8 @@ using Smartstore.Json;
 
 namespace Smartstore.Web.Modelling
 {
-    [ModelBinder(typeof(CustomPropertiesDictionaryModelBinder))]
     [Polymorphic]
+    [ModelBinder(typeof(CustomPropertiesDictionaryModelBinder))]
     public sealed class CustomPropertiesDictionary : Dictionary<string, object>
     {
     }

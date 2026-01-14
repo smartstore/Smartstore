@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text.Json;
@@ -62,8 +63,9 @@ public static class SmartJsonOptions
 
         // Create a resolver early to allow adding modifiers
         TypeInfoResolver = (JsonSerializer.IsReflectionEnabledByDefault ? new DefaultJsonTypeInfoResolver() : JsonTypeInfoResolver.Combine())
-            .WithDataContractModifiers()
-            .WithPolymorphyModifiers(),
+            .WithDataContractModifier()
+            .WithDefaultValueModifier()
+            .WithPolymorphyModifier(),
 
         Converters =
         {
@@ -98,7 +100,7 @@ public static class SmartJsonOptions
     /// </summary>
     /// <remarks>Use this method to enable polymorphic type handling in System.Text.Json serialization
     /// like Newtonsoft.Json does with the $type discriminator.</remarks>
-    public static IJsonTypeInfoResolver WithPolymorphyModifiers(this IJsonTypeInfoResolver typeInfoResolver)
+    public static IJsonTypeInfoResolver WithPolymorphyModifier(this IJsonTypeInfoResolver typeInfoResolver)
     {
         Guard.NotNull(typeInfoResolver);
 
@@ -111,27 +113,30 @@ public static class SmartJsonOptions
     /// attributes during serialization and deserialization.
     /// </summary>
     /// <remarks>The returned resolver will honor <see
-    /// cref="System.Runtime.Serialization.IgnoreDataMemberAttribute"/> and <see
-    /// cref="System.Runtime.Serialization.DataMemberAttribute"/> annotations, allowing for customized property naming,
-    /// ordering, and member inclusion based on these attributes.</remarks>
-    public static IJsonTypeInfoResolver WithDataContractModifiers(this IJsonTypeInfoResolver typeInfoResolver)
+    /// cref="System.Runtime.Serialization.IgnoreDataMemberAttribute"/> and ignore the member completely.</remarks>
+    public static IJsonTypeInfoResolver WithDataContractModifier(this IJsonTypeInfoResolver typeInfoResolver)
     {
         Guard.NotNull(typeInfoResolver);
 
         return typeInfoResolver
-            .WithAddedModifier(ApplyIgnoreDataMember);
+            .WithAddedModifier(ApplyIgnoreDataMemberModifier);
     }
 
     /// <summary>
-    /// Configures the specified type to ignore properties marked with the IgnoreDataMemberAttribute during JSON
-    /// serialization and deserialization.
+    /// Returns a new JSON type info resolver that applies a modifier to handle default values from the [DefaultValue] 
+    /// attribute during serialization.
     /// </summary>
-    /// <remarks>This method disables both reading and writing for properties decorated with
-    /// IgnoreDataMemberAttribute, ensuring they are not included in JSON output or processed during deserialization.
-    /// Properties marked as required will also be unset to prevent errors when setters are removed.</remarks>
-    /// <param name="typeInfo">The type metadata to apply ignore rules to. Must represent an object type; properties with the
-    /// IgnoreDataMemberAttribute will be excluded from serialization and deserialization.</param>
-    internal static void ApplyIgnoreDataMember(JsonTypeInfo typeInfo)
+    /// <remarks>The returned resolver will honor the <see cref="DefaultValueAttribute"/> annotation, allowing for customized
+    /// default values during serialization.</remarks>
+    public static IJsonTypeInfoResolver WithDefaultValueModifier(this IJsonTypeInfoResolver typeInfoResolver)
+    {
+        Guard.NotNull(typeInfoResolver);
+
+        return typeInfoResolver
+            .WithAddedModifier(ApplyDefaultValueModifier);
+    }
+
+    internal static void ApplyIgnoreDataMemberModifier(JsonTypeInfo typeInfo)
     {
         if (typeInfo.Kind != JsonTypeInfoKind.Object)
             return;
@@ -158,43 +163,22 @@ public static class SmartJsonOptions
         }
     }
 
-    ///// <summary>
-    ///// Applies the DataMemberAttribute name and order values to the properties of the specified JsonTypeInfo object if
-    ///// it represents an object type.
-    ///// </summary>
-    ///// <remarks>This method sets the Name and Order of each property in the JsonTypeInfo to match the
-    ///// corresponding values from the DataMemberAttribute, if present. Only properties backed by a MemberInfo and
-    ///// decorated with DataMemberAttribute are affected. Properties without DataMemberAttribute or with negative Order
-    ///// values are left unchanged.</remarks>
-    ///// <param name="typeInfo">The JsonTypeInfo instance whose properties will be updated based on DataMemberAttribute metadata. Must represent
-    ///// an object type; otherwise, no changes are made.</param>
-    //internal static void ApplyDataMemberNameAndOrder(JsonTypeInfo typeInfo)
-    //{
-    //    if (typeInfo.Kind != JsonTypeInfoKind.Object)
-    //        return;
+    internal static void ApplyDefaultValueModifier(JsonTypeInfo typeInfo)
+    {
+        if (typeInfo.Kind != JsonTypeInfoKind.Object)
+            return;
 
-    //    foreach (var prop in typeInfo.Properties)
-    //    {
-    //        if (prop.AttributeProvider is not MemberInfo mi)
-    //            continue;
+        foreach (var p in typeInfo.Properties)
+        {
+            if (p.AttributeProvider?.TryGetAttribute<DefaultValueAttribute>(true, out var attr) ?? false)
+            {
+                var defaultValue = attr.Value.Convert(p.PropertyType);
 
-    //        var dm = mi.GetCustomAttribute<DataMemberAttribute>(inherit: true);
-    //        if (dm is null)
-    //            continue;
-
-    //        if (!string.IsNullOrWhiteSpace(dm.Name))
-    //        {
-    //            // JsonPropertyInfo.Name is settable
-    //            prop.Name = dm.Name;
-    //        }
-
-    //        if (dm.Order >= 0)
-    //        {
-    //            // JsonPropertyInfo.Order is settable
-    //            prop.Order = dm.Order;
-    //        }
-    //    }
-    //}
+                var dv = defaultValue;
+                p.ShouldSerialize = (obj, value) => !Equals(value, dv);
+            }
+        }
+    }
 
     #endregion
 
