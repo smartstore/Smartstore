@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Html;
@@ -188,8 +189,7 @@ namespace Smartstore.Core.Security
             {
                 using var content = new FormUrlEncodedContent(postData);
                 using var response = await client.PostAsync(verifyUrl, content, cancelToken);
-                var json = await response.Content.ReadAsStringAsync(cancelToken);
-                payload = JsonSerializer.Deserialize<GoogleRecaptchaApiResponse>(json);
+                payload = await response.Content.ReadFromJsonAsync<GoogleRecaptchaApiResponse>(cancelToken);
             }
             catch (Exception ex)
             {
