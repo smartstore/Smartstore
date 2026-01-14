@@ -1,12 +1,15 @@
 ﻿#nullable enable
 
+using System.Collections;
 using System.ComponentModel;
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using Smartstore.Json.Polymorphy;
+using Smartstore.Utilities;
 
 namespace Smartstore.Json;
 
@@ -103,9 +106,7 @@ public static class SmartJsonOptions
     /// like Newtonsoft.Json does with the $type discriminator.</remarks>
     public static IJsonTypeInfoResolver WithPolymorphyModifier(this IJsonTypeInfoResolver typeInfoResolver)
     {
-        Guard.NotNull(typeInfoResolver);
-
-        return typeInfoResolver
+        return Guard.NotNull(typeInfoResolver)
             .WithAddedModifier(PolymorphyModifier.ApplyPolymorphyModifier);
     }
 
@@ -117,9 +118,7 @@ public static class SmartJsonOptions
     /// cref="System.Runtime.Serialization.IgnoreDataMemberAttribute"/> and ignore the member completely.</remarks>
     public static IJsonTypeInfoResolver WithDataContractModifier(this IJsonTypeInfoResolver typeInfoResolver)
     {
-        Guard.NotNull(typeInfoResolver);
-
-        return typeInfoResolver
+        return Guard.NotNull(typeInfoResolver)
             .WithAddedModifier(ApplyIgnoreDataMemberModifier);
     }
 
@@ -131,9 +130,7 @@ public static class SmartJsonOptions
     /// default values during serialization.</remarks>
     public static IJsonTypeInfoResolver WithDefaultValueModifier(this IJsonTypeInfoResolver typeInfoResolver)
     {
-        Guard.NotNull(typeInfoResolver);
-
-        return typeInfoResolver
+        return Guard.NotNull(typeInfoResolver)
             .WithAddedModifier(ApplyDefaultValueModifier);
     }
 
@@ -173,12 +170,32 @@ public static class SmartJsonOptions
         {
             if (p.AttributeProvider?.TryGetAttribute<DefaultValueAttribute>(true, out var attr) ?? false)
             {
-                var defaultValue = attr.Value.Convert(p.PropertyType);
-
-                var dv = defaultValue;
-                p.ShouldSerialize = (obj, value) => !Equals(value, dv);
+                if (typeof(IEnumerable).IsAssignableFrom(p.PropertyType))
+                {
+                    if (Equals(attr.Value, "[]"))
+                    {
+                        // Ignore empty lists/arrays/dictionaries when default is "[]"
+                        p.ShouldSerialize = (o, value) => !ShouldIgnoreEmptySequence(value as IEnumerable);
+                    }
+                }
+                else
+                {
+                    var defaultValue = attr.Value.Convert(p.PropertyType);
+                    var dv = defaultValue;
+                    p.ShouldSerialize = (o, value) => !ShouldIgnoreDefaultValue(value, dv);
+                }
             }
         }
+    }
+
+    private static bool ShouldIgnoreDefaultValue(object? value, object? defaultValue)
+    {
+        return Equals(value, defaultValue);
+    }
+
+    private static bool ShouldIgnoreEmptySequence(IEnumerable? value)
+    {
+        return value == null || !value.GetEnumerator().MoveNext();
     }
 
     #endregion

@@ -101,6 +101,9 @@ public class JsonTests
         [DefaultValue(true)]
         public bool Prop3 { get; set; } = true;
 
+        [DefaultValue("[]")]
+        public int[] ArrayProp { get; set; } = [];
+
         [Polymorphic(WrapArrays = false)]
         public object? Data { get; set; }
 

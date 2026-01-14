@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using Smartstore.Core.Content.Media;
+using Smartstore.Json.Converters;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Rendering;
 
@@ -61,7 +62,7 @@ namespace Smartstore.Web.Models.Media
             ThumbUrl = info.GetUrl(ThumbSize ?? info.ThumbSize, Host);
         }
 
-        [JsonProperty("file")]
+        [JsonPropertyName("file")]
         public MediaFile File { get; set; }
 
         public override int Id
@@ -70,31 +71,32 @@ namespace Smartstore.Web.Models.Media
             set => base.Id = value;
         }
 
-        [JsonProperty("alt", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("alt")]
         public string Alt { get; set; }
 
-        [JsonProperty("title", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("title")]
         public string Title { get; set; }
 
-        [JsonProperty("path", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("path")]
         public string Path { get; set; }
 
-        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("url")]
         public string Url { get; set; }
 
-        [JsonProperty("thumbUrl", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("thumbUrl")]
         public string ThumbUrl { get; set; }
 
-        [JsonProperty("thumbSize", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("thumbSize")]
         public int? ThumbSize { get; set; }
 
-        [JsonProperty("noFallback")]
+        [JsonPropertyName("noFallback")]
         public bool NoFallback { get; set; }
 
-        [JsonProperty("host", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("host")]
         public string Host { get; set; }
 
-        [JsonProperty("dimensions")]
+        [JsonPropertyName("dimensions")]
+        [JsonConverter(typeof(TypeConverterJsonConverter<Size>))]
         public Size PixelSize
         {
             get => new(File?.Width ?? 0, File?.Height ?? 0);

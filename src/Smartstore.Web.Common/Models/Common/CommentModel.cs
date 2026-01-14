@@ -1,4 +1,5 @@
-﻿using Smartstore.Web.Modelling;
+﻿using System.ComponentModel;
+using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Customers;
 
 namespace Smartstore.Web.Models.Common
@@ -7,7 +8,8 @@ namespace Smartstore.Web.Models.Common
     {
         public bool AllowComments { get; set; }
         public int NumberOfComments { get; set; }
-        public List<CommentModel> Comments { get; set; } = new();
+        [DefaultValue("[]")]
+        public List<CommentModel> Comments { get; set; } = [];
         public bool AllowCustomersToUploadAvatars { get; set; }
     }
 

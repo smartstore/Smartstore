@@ -339,9 +339,7 @@ public static class TypeExtensions
             {
                 elementType = type.GetElementType();
             }
-            else if (
-                type.TryGetClosedGenericTypeOf(typeof(IEnumerable<>), out var closedType) ||
-                type.TryGetClosedGenericTypeOf(typeof(IAsyncEnumerable<>), out closedType))
+            else if (type.TryGetClosedGenericTypeOf(typeof(IEnumerable<>), out var closedType))
             {
                 elementType = closedType.GetGenericArguments()[0];
             }
@@ -362,9 +360,24 @@ public static class TypeExtensions
                 return false;
             }
 
-            if (
-                type.TryGetClosedGenericTypeOf(typeof(IEnumerable<>), out var closedType) ||
-                type.TryGetClosedGenericTypeOf(typeof(IAsyncEnumerable<>), out closedType))
+            if (type.TryGetClosedGenericTypeOf(typeof(IEnumerable<>), out var closedType))
+            {
+                elementType = closedType.GetGenericArguments()[0];
+            }
+
+            return elementType != null;
+        }
+
+        public bool IsAsyncEnumerableType([NotNullWhen(true)] out Type? elementType)
+        {
+            elementType = null;
+
+            if (type.IsBasicOrNullableType())
+            {
+                return false;
+            }
+
+            if (type.TryGetClosedGenericTypeOf(typeof(IAsyncEnumerable<>), out var closedType))
             {
                 elementType = closedType.GetGenericArguments()[0];
             }

@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System.ComponentModel;
+using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
@@ -41,7 +42,7 @@ namespace Smartstore.Web.Modelling
         /// <summary>
         /// Use this property to store any custom value for your models. 
         /// </summary>
-        [ValidateNever]
+        [ValidateNever, DefaultValue("[]")]
         public CustomPropertiesDictionary CustomProperties { get; set; } = [];
 
         /// <summary>
