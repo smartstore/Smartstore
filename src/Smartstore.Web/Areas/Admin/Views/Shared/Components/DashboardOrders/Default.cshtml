@@ -1,10 +1,10 @@
 ﻿@using Smartstore.Admin.Models.Orders
-@using Newtonsoft.Json
+@using System.Text.Json
 
 @model List<DashboardChartReportModel>
 
 @{
-    var jsonData = JsonConvert.SerializeObject(Model);
+    var jsonData = JsonSerializer.Serialize(Model);
 }
 
 <script src="~/bundle/js/chart.js" sm-target-zone="scripts" sm-key="charting"></script>

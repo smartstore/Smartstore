@@ -1,10 +1,10 @@
 ﻿@using Smartstore.Admin.Models.Orders
-@using Newtonsoft.Json
+@using System.Text.Json
 
 @model List<DashboardIncompleteOrdersModel>
 
 @{
-    var jsonData = JsonConvert.SerializeObject(Model);
+    var jsonData = JsonSerializer.Serialize(Model);
     var labels = new string[]
     {
         T("Admin.Report.Today"),
