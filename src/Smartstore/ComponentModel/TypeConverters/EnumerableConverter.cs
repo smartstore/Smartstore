@@ -76,7 +76,7 @@ namespace Smartstore.ComponentModel.TypeConverters
             }
             else if (t.IsAssignableFrom(typeof(SyncedCollection<T>)))
             {
-                activator = (x) => new SyncedCollection<T>(new List<T>(x));
+                activator = (x) => new SyncedCollection<T>([.. x]);
             }
             else if (t.IsAssignableFrom(typeof(ArraySegment<T>)))
             {

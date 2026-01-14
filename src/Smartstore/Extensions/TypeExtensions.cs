@@ -322,8 +322,7 @@ public static class TypeExtensions
             return
                 type.IsArray ||
                 typeof(IEnumerable).IsAssignableFrom(type) ||
-                type == typeof(Array) ||
-                type.IsClosedGenericTypeOf(typeof(IAsyncEnumerable<>));
+                type == typeof(Array));
         }
 
         public bool IsSequenceType([NotNullWhen(true)] out Type? elementType)
