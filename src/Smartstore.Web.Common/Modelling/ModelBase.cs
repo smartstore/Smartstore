@@ -1,7 +1,8 @@
 ﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using Newtonsoft.Json;
+
 using Smartstore.Threading;
 
 namespace Smartstore.Web.Modelling
@@ -100,7 +101,7 @@ namespace Smartstore.Web.Modelling
         /// Without a lower case Id property in JSON results its AJAX operations do not work correctly.
         /// Occurs since RouteCollection.LowercaseUrls was set to true in Global.asax.
         /// </remarks>
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         internal int EntityId => Id;
     }
 

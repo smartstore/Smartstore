@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Smartstore.Web.Models.DataGrid
 {
     public class GridSelection
     {
-        [JsonProperty("selectedKeys")]
+        [JsonPropertyName("selectedKeys")]
         public string[] SelectedKeys { get; set; }
 
         public IEnumerable<int> GetEntityIds()

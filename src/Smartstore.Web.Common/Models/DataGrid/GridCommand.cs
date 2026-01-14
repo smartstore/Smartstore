@@ -1,16 +1,16 @@
 ﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Newtonsoft.Json;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Models.DataGrid
 {
     public class SortDescriptor
     {
-        [JsonProperty("member")]
+        [JsonPropertyName("member")]
         public string Member { get; set; }
 
-        [JsonProperty("descending")]
+        [JsonPropertyName("descending")]
         public bool Descending { get; set; }
     }
 
@@ -26,25 +26,25 @@ namespace Smartstore.Web.Models.DataGrid
         /// <summary>
         /// Required for state preservation.
         /// </summary>
-        [JsonProperty("path")]
+        [JsonPropertyName("path")]
         public string Path { get; set; }
 
-        [JsonProperty("page")]
+        [JsonPropertyName("page")]
         public int Page { get; set; } = 1;
 
-        [JsonProperty("pageSize")]
+        [JsonPropertyName("pageSize")]
         public int PageSize { get; set; } = 25;
 
-        [JsonProperty("sorting")]
+        [JsonPropertyName("sorting")]
         public List<SortDescriptor> Sorting { get; } = new();
 
-        [JsonProperty("filters")]
+        [JsonPropertyName("filters")]
         public List<object> Filters { get; } = new();
 
-        [JsonProperty("groups")]
+        [JsonPropertyName("groups")]
         public List<object> Groups { get; } = new();
 
-        [JsonProperty("aggregates")]
+        [JsonPropertyName("aggregates")]
         public List<object> Aggregates { get; } = new();
     }
 

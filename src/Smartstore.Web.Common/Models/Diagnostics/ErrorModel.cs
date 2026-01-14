@@ -1,8 +1,8 @@
 using System.Net;
 using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
-using Newtonsoft.Json;
 
 namespace Smartstore.Web.Models.Diagnostics
 {
@@ -17,22 +17,22 @@ namespace Smartstore.Web.Models.Diagnostics
         [IgnoreDataMember]
         public ControllerActionDescriptor ActionDescriptor { get; set; }
 
-        [JsonProperty("requestId")]
+        [JsonPropertyName("requestId")]
         public string RequestId { get; set; }
 
-        [JsonProperty("path")]
+        [JsonPropertyName("path")]
         public string Path { get; set; }
 
-        [JsonProperty("statusCode")]
+        [JsonPropertyName("statusCode")]
         public HttpStatusCode StatusCode { get; set; }
 
-        [JsonProperty("message")]
+        [JsonPropertyName("message")]
         public string ErrorMessage => Exception?.Message;
 
-        [JsonProperty("controller")]
+        [JsonPropertyName("controller")]
         public string ControllerName => ActionDescriptor?.ControllerName;
 
-        [JsonProperty("action")]
+        [JsonPropertyName("action")]
         public string ActionName => ActionDescriptor?.ActionName;
     }
 }

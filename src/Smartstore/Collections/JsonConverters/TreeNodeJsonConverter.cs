@@ -219,12 +219,6 @@ internal sealed class TreeNodeJsonConverter<T> : JsonConverter<TreeNode<T>>
         if (metadata != null && metadata.Count > 0)
         {
             treeNode.Metadata = metadata;
-
-            // TODO: (mh) Is there any reason to do it this way instead of just assigning the dictionary above?
-            //foreach (var kvp in metadata)
-            //{
-            //    treeNode.Metadata[kvp.Key] = kvp.Value;
-            //}
         }
 
         if (id != null)
