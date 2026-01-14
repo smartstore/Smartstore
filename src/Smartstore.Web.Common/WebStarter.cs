@@ -284,6 +284,8 @@ namespace Smartstore.Web
             if (config.ForwardedPrefixHeaderName.HasValue())
                 options.ForwardedPrefixHeaderName = config.ForwardedPrefixHeaderName;
 
+            var hasKnownProxyConfig = false;
+
             if (config.KnownProxies != null)
             {
                 var addresses = config.KnownProxies
@@ -293,11 +295,27 @@ namespace Smartstore.Web
 
                 options.KnownProxies.AddRange(addresses);
 
-                if (addresses.Length > 0 && !config.ForwardLimit.HasValue)
-                {
-                    // Disable limit, because at least one KnownProxy is configured (unless explicitly set in config).
-                    options.ForwardLimit = null;
-                }
+                hasKnownProxyConfig = addresses.Length > 0;
+            }
+
+            if (config.KnownNetworks != null)
+            {
+                // Values are expected as CIDR strings (e.g. "10.0.0.0/24").
+                var networks = config.KnownNetworks
+                    .Select(x => System.Net.IPNetwork.TryParse(x, out var n) ? n : (System.Net.IPNetwork?)null)
+                    .Where(x => x.HasValue)
+                    .Select(x => x!.Value)
+                    .ToArray();
+
+                options.KnownIPNetworks.AddRange(networks);
+
+                hasKnownProxyConfig = hasKnownProxyConfig || networks.Length > 0;
+            }
+
+            if (hasKnownProxyConfig && !config.ForwardLimit.HasValue)
+            {
+                // Disable limit, because at least one KnownProxy/KnownNetwork is configured (unless explicitly set in config).
+                options.ForwardLimit = null;
             }
 
             if (config.AllowedHosts != null)
