@@ -101,7 +101,7 @@ namespace Smartstore.Web.Modelling
         /// Without a lower case Id property in JSON results its AJAX operations do not work correctly.
         /// Occurs since RouteCollection.LowercaseUrls was set to true in Global.asax.
         /// </remarks>
-        [JsonPropertyName("id")]
+        [JsonPropertyName("id"), JsonInclude]
         internal int EntityId => Id;
     }
 

@@ -1,4 +1,5 @@
 ﻿@using Smartstore.Admin.Models.Modularity
+@using Smartstore.Json
 @using System.Text.Json;
 
 @model LocalModulesModel
@@ -7,7 +8,9 @@
     ViewBag.Title = T("Admin.Configuration.Plugins").Value;
 
     var allModulesSelectList = Model.AllModules.Select(x => new SelectListItem { Value = x.SystemName, Text = x.FriendlyName });
-    var availableStores = JsonSerializer.Serialize(Model.AvailableStores.Select(x => new { value = x.Id, text = x.Name }).ToArray());
+    var availableStores = JsonSerializer.Serialize(
+        Model.AvailableStores.Select(x => new { value = x.Id, text = x.Name }).ToArray(), 
+        SmartJsonOptions.Default);
 }
 
 <form id="modules-form" method="post" asp-action="ExecuteTasks">
