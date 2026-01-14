@@ -146,7 +146,7 @@ public static class JsonSerializerOptionsExtensions
         return new JsonWriterOptions
         {
             Indented = true,
-            Encoder = options.Encoder ?? JavaScriptEncoder.Default,
+            Encoder = options.Encoder ?? JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
             SkipValidation = false
         };
     }

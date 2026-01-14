@@ -48,11 +48,6 @@ public class GridTagHelper : SmartTagHelper
     const string OnRowClassAttributeName = "onrowclass";
     const string OnCellClassAttributeName = "oncellclass";
 
-    private readonly static JsonSerializerOptions _serializerOptions = SmartJsonOptions.Default.Create(o =>
-    {
-        o.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
-    });
-
     private readonly IGridCommandStateStore _gridCommandStateStore;
     private readonly IAntiforgery _antiforgery;
 
@@ -426,7 +421,7 @@ public class GridTagHelper : SmartTagHelper
     private static string SerializeObject(object obj)
     {
         return CommonHelper.IsDevEnvironment 
-            ? _serializerOptions.SerializeIndented(obj) 
+            ? SmartJsonOptions.Default.SerializeIndented(obj) 
             : JsonSerializer.Serialize(obj);
     }
 }

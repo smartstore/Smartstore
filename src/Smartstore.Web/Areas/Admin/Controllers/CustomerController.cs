@@ -1472,14 +1472,7 @@ namespace Smartstore.Admin.Controllers
             Response.ContentType = "application/json";
             Response.Headers.ContentDisposition = $"attachment; filename=customer-{customer.Id}.json";
 
-            // TODO: (json) (mc) (mh) Maybe we need some "UnsafeRelaxed"-ExtensionMethod ??? 
-            // TODO: (json) (mh) Customer export via GDPR-Tool should also be "UnsafeRelaxed";
-            var options = SmartJsonOptions.CamelCasedIgnoreDefaultValue.Create(o =>
-            {
-                o.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
-            });
-
-            await options.SerializeIndentedAsync(Response.BodyWriter, data);
+            await SmartJsonOptions.CamelCasedIgnoreDefaultValue.SerializeIndentedAsync(Response.BodyWriter, data);
 
             return new EmptyResult();
         }
