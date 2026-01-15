@@ -87,7 +87,7 @@ namespace Smartstore.Core.Security
                     {
                         foreach (var message in result.Messages)
                         {
-                            var text = T("Common.CaptchaCheckFailed", message.Code).Value;
+                            var text = T("Common.CaptchaCheckFailed", message.Code);
                             if (message.Level == CaptchaValidationMessageLevel.Warning)
                             {
                                 Logger.Warn(text);
