@@ -85,6 +85,7 @@ public static class SmartJsonOptions
     public static readonly JsonSerializerOptions CamelCased = Default.Create(o =>
     {
         o.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        o.PropertyNameCaseInsensitive = true;
     });
 
     /// <summary>

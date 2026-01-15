@@ -18,6 +18,7 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Http;
+using Smartstore.Json;
 using Smartstore.Web.Controllers;
 
 namespace Smartstore.AmazonPay.Controllers;
@@ -327,21 +328,23 @@ public class AmazonPayController : PublicController
         {
             Request.EnableBuffering();
 
-            var ipnEnvelope = await JsonNode.ParseAsync(Request.Body);
+            var node = await JsonNode.ParseAsync(Request.Body);
             Request.Body.Position = 0;
 
-            if (ipnEnvelope == null)
+            if (node == null)
             {
                 return Ok();
             }
 
-            var messageJson = (string)ipnEnvelope["Message"];
+            var ipnEnvelope = node.ToDynamic();
+
+            var messageJson = (string)ipnEnvelope.Message;
             if (messageJson.IsEmpty())
             {
                 return Ok();
             }
 
-            var messageId = (string)ipnEnvelope["MessageId"];
+            var messageId = (string)ipnEnvelope.MessageId;
             var message = JsonSerializer.Deserialize<IpnMessage>(messageJson);
 
             if (message != null)
