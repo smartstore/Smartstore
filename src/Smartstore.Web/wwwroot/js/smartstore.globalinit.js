@@ -80,13 +80,18 @@ jQuery(function () {
     });
 
     // Prevent (button) multiclick
-    $(document).on('click', '.btn-prevent-multiclick', function () {
+    $(document).on('click', '.btn-prevent-multiclick', function (e) {
         let el = $(this);
         let containingForm = el.closest("form");
 
         if (containingForm.length) {
             el.prop('disabled', true);
-            containingForm.trigger('submit');
+
+            const submitEvent = new Event('submit', {
+                bubbles: true,
+                cancelable: true
+            });
+            containingForm[0].dispatchEvent(submitEvent);
 
             if (!containingForm.valid()) {
                 el.prop('disabled', false);
