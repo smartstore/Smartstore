@@ -80,6 +80,15 @@
             // Let native validity run first; do nothing if invalid
             if (typeof form.checkValidity === 'function' && !form.checkValidity()) return;
 
+            // jQuery unobtrusive validation
+            const validator = $(form).data('validator');
+            if (validator) {
+                form.validate();
+                if (!form.valid()) {
+                    return;
+                }
+            }
+
             e.preventDefault();
             disableSubmitTemporarily(form);
 
