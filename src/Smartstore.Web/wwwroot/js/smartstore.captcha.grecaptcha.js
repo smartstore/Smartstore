@@ -81,10 +81,11 @@
             if (typeof form.checkValidity === 'function' && !form.checkValidity()) return;
 
             // jQuery unobtrusive validation
-            const validator = $(form).data('validator');
+            const $form = $(form);
+            const validator = $form.data('validator');
             if (validator) {
-                form.validate();
-                if (!form.valid()) {
+                $form.validate();
+                if (!$form.valid()) {
                     return;
                 }
             }
