@@ -39,7 +39,7 @@ public static class SmartJsonOptions
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
 
         // NSJ default
-        PropertyNameCaseInsensitive = true,
+        PropertyNameCaseInsensitive = false,
 
         // Our previous NSJ naming policy was member-casing (which does nothing)
         PropertyNamingPolicy = null,
