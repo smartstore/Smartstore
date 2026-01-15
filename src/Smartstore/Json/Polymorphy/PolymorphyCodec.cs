@@ -363,25 +363,18 @@ internal static class PolymorphyCodec
         }
 
         // Dictionaries are treated as complex objects and always wrapped at the dictionary slot root.
-        if (TryGetStringKeyDictionary(value, out _))
+        if (TryGetStringKeyDictionary(value, out var dict))
         {
-            // Let STJ serialize the dictionary entries (so modifiers/default ignore apply).
-            var dictPayload = JsonSerializer.SerializeToElement(value, runtimeType, options);
-            if (dictPayload.ValueKind != JsonValueKind.Object)
-            {
-                JsonSerializer.Serialize(writer, value, runtimeType, options);
-                return;
-            }
-
+            // Dictionary root is always wrapped (NSJ-ish).
             WriteWrappedObjectStart(writer, runtimeType, o);
 
-            foreach (var p in dictPayload.EnumerateObject())
+            foreach (var (key, val) in dict)
             {
-                if (p.NameEquals(o.TypePropertyName))
-                    continue;
+                writer.WritePropertyName(key);
 
-                writer.WritePropertyName(p.Name);
-                p.Value.WriteTo(writer);
+                // Dictionary values behave like object-slot values, but inherit wrapArraysScope
+                // so nested lists can be wrapped when WrapArrays is enabled for the dictionary slot.
+                WriteCore(writer, val, options, o, PolymorphyKind.ObjectSlot, wrapArraysScope);
             }
 
             writer.WriteEndObject();

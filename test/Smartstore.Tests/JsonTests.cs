@@ -8,6 +8,7 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using NUnit.Framework;
 using Smartstore.Json;
+using Smartstore.Json.Polymorphy;
 
 namespace Smartstore.Tests;
 
@@ -54,6 +55,9 @@ public class JsonTests
 
         var json = JsonSerializer.Serialize(root, _jsonOptions);
         var root2 = JsonSerializer.Deserialize<RootClass>(json, _jsonOptions);
+
+        //json = _jsonOptions.SerializePolymorphicDictionary(root.Properties, wrapArrays: true);
+        //var dict = _jsonOptions.DeserializePolymorphicDictionary(json, wrapArrays: true);
     }
 
     private RootClass CreateTestRootObject()
@@ -111,7 +115,7 @@ public class JsonTests
     }
 
     [Polymorphic(WrapArrays = true)]
-    class CustomProps : Dictionary<string, object>
+    class CustomProps : Dictionary<string, object?>
     {
     }
 }

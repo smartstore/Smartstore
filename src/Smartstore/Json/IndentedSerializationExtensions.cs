@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace Smartstore.Json;
 
-public static class JsonSerializerOptionsExtensions
+public static partial class IndentedSerializationExtensions
 {
     extension (JsonSerializerOptions options)
     {

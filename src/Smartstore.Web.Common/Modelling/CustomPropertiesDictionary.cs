@@ -1,4 +1,6 @@
-﻿using System.Security;
+﻿#nullable enable
+
+using System.Security;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Smartstore.Json;
 
@@ -6,7 +8,7 @@ namespace Smartstore.Web.Modelling
 {
     [Polymorphic]
     [ModelBinder(typeof(CustomPropertiesDictionaryModelBinder))]
-    public sealed class CustomPropertiesDictionary : Dictionary<string, object>
+    public sealed class CustomPropertiesDictionary : Dictionary<string, object?>
     {
     }
 
@@ -116,7 +118,7 @@ namespace Smartstore.Web.Modelling
             return new HashSet<string>(keys, StringComparer.InvariantCultureIgnoreCase);
         }
 
-        private static string GetKeyName(string key)
+        private static string? GetKeyName(string key)
         {
             int startBracket = key.IndexOf('[');
             int endBracket = key.IndexOf(']', startBracket);
@@ -127,7 +129,7 @@ namespace Smartstore.Web.Modelling
             return key.Substring(startBracket + 1, endBracket - startBracket - 1);
         }
 
-        private static string GetSubPropertyName(string key)
+        private static string? GetSubPropertyName(string key)
         {
             var parts = key.Split('.');
             if (parts.Length > 1)
@@ -143,8 +145,8 @@ namespace Smartstore.Web.Modelling
             var typeKey = prefix + ".__Type__";
             if (keys.Contains(typeKey))
             {
-                var type = Type.GetType(valueProvider.GetValue(typeKey).FirstValue, true);
-                return type;
+                var type = Type.GetType(valueProvider.GetValue(typeKey).FirstValue!, true);
+                return type!;
             }
 
             return typeof(string);
