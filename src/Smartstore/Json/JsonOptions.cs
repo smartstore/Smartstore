@@ -8,6 +8,7 @@ using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
+using Smartstore.Domain;
 using Smartstore.Json.Polymorphy;
 using Smartstore.Utilities;
 
@@ -172,12 +173,17 @@ public static class SmartJsonOptions
             if (p.AttributeProvider?.TryGetAttribute<DefaultValueAttribute>(true, out var attr) ?? false)
             {
                 var isSequenceType = p.PropertyType.IsSequenceType();
-                if (isSequenceType)
+                var isDefaultable = typeof(IDefaultable).IsAssignableFrom(p.PropertyType);
+                if (isSequenceType || isDefaultable)
                 {
                     if (Equals(attr.Value, "[]"))
                     {
-                        // Ignore empty lists/arrays/dictionaries when default is "[]"
-                        p.ShouldSerialize = (o, value) => !ShouldIgnoreEmptySequence(value as IEnumerable);
+                        if (isSequenceType)
+                            // Ignore empty lists/arrays/dictionaries when default is "[]"
+                            p.ShouldSerialize = (o, value) => !ShouldIgnoreEmptySequence(value as IEnumerable);
+                        else
+                            // Ignore objects in default/initial state when default is "[]"
+                            p.ShouldSerialize = (o, value) => !ShouldIgnoreDefaultState(value as IDefaultable);
                     }
                 }
                 else
@@ -191,14 +197,13 @@ public static class SmartJsonOptions
     }
 
     private static bool ShouldIgnoreDefaultValue(object? value, object? defaultValue)
-    {
-        return Equals(value, defaultValue);
-    }
+        => Equals(value, defaultValue);
 
     private static bool ShouldIgnoreEmptySequence(IEnumerable? value)
-    {
-        return value == null || !value.GetEnumerator().MoveNext();
-    }
+        => value == null || !value.GetEnumerator().MoveNext();
+
+    private static bool ShouldIgnoreDefaultState(IDefaultable? value)
+        => value == null || value.IsDefaultState;
 
     #endregion
 
