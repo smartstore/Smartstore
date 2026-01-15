@@ -61,7 +61,7 @@ namespace Smartstore.Admin.Models.Import
         public ExtraDataModel ExtraData { get; set; } = new();
 
         [LocalizedDisplay("Admin.DataExchange.Import.")]
-        public class ExtraDataModel
+        public class ExtraDataModel : IDefaultable
         {
             [LocalizedDisplay("*NumberOfPictures")]
             public int? NumberOfPictures { get; set; }
@@ -69,8 +69,10 @@ namespace Smartstore.Admin.Models.Import
             [LocalizedDisplay("*UpdateAllKeyFieldMatches")]
             public bool UpdateAllKeyFieldMatches { get; set; }
 
-            public bool IsDefault()
-                => NumberOfPictures == null && !UpdateAllKeyFieldMatches;
+            public bool IsDefaultState
+            {
+                get => NumberOfPictures == null && !UpdateAllKeyFieldMatches;
+            }   
         }
     }
 

@@ -239,7 +239,7 @@ public class GoogleMerchantCenterController : AdminController
         await MapperFactory.MapAsync(model, googleProduct);
 
         googleProduct.UpdatedOnUtc = utcNow;
-        googleProduct.IsTouched = !googleProduct.IsDefault();
+        googleProduct.IsTouched = !googleProduct.IsDefaultState;
 
         if (insert)
         {

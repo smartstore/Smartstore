@@ -261,7 +261,7 @@ namespace Smartstore.Admin.Controllers
 
                 if (model.ExtraData != null)
                 {
-                    var extraData = model.ExtraData.IsDefault()
+                    var extraData = model.ExtraData.IsDefaultState
                         ? null
                         : await MapperFactory.MapAsync<ImportProfileModel.ExtraDataModel, ImportExtraData>(model.ExtraData);
 

@@ -8,13 +8,13 @@ namespace Smartstore.Web.Models.Media;
 /// <summary>
 /// Represents commands to edit a media file such as an image or video.
 /// </summary>
-public partial class MediaEditModel
+public partial class MediaEditModel : IDefaultable
 {
     public required List<MediaEditCommand> Commands { get; set; }
 
     public virtual string? ToJson()
     {
-        if (IsDefault())
+        if (IsDefaultState)
         {
             return null;
         }
@@ -22,9 +22,9 @@ public partial class MediaEditModel
         return JsonSerializer.Serialize(this, SmartJsonOptions.CamelCased);
     }
 
-    private bool IsDefault()
+    public bool IsDefaultState
     {
-        return Commands.IsNullOrEmpty();
+        get => Commands.IsNullOrEmpty();
     }
 }
 

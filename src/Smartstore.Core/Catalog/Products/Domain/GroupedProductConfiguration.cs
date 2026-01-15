@@ -20,7 +20,7 @@ namespace Smartstore.Core.Catalog.Products
     /// <summary>
     /// Represents the configuration of a grouped product and its associated products.
     /// </summary>
-    public partial class GroupedProductConfiguration
+    public partial class GroupedProductConfiguration : IDefaultable
     {
         /// <summary>
         /// The localized title for the associated products list.
@@ -50,7 +50,7 @@ namespace Smartstore.Core.Catalog.Products
 
         public virtual string? ToJson()
         {
-            if (IsDefault())
+            if (IsDefaultState)
             {
                 return null;
             }
@@ -70,9 +70,9 @@ namespace Smartstore.Core.Catalog.Products
             return JsonSerializer.Serialize(this, SmartJsonOptions.CamelCasedIgnoreDefaultValue);
         }
 
-        private bool IsDefault()
+        public bool IsDefaultState
         {
-            return PageSize == null
+            get => PageSize == null
                 && SearchMinAssociatedCount == null
                 && Collapsible == null
                 && HeaderFields.IsNullOrEmpty()

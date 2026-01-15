@@ -27,6 +27,7 @@ namespace Smartstore.Core.Checkout.Rules.Impl
                 if (rawValue.HasValue())
                 {
                     dynamic json = JObject.Parse(rawValue);
+
                     categoryId = ((string)json.EntityId).ToInt();
 
                     var str = (string)json.MinQuantity;

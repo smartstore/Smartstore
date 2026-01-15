@@ -8,7 +8,7 @@ namespace Smartstore.Google.MerchantCenter.Domain;
 [Index(nameof(ProductId))]
 [Index(nameof(IsTouched))]
 [Index(nameof(Export))]
-public class GoogleProduct : BaseEntity
+public class GoogleProduct : BaseEntity, IDefaultable
 {
     public int ProductId { get; set; }
 
@@ -64,9 +64,9 @@ public class GoogleProduct : BaseEntity
     [StringLength(100)]
     public string CustomLabel4 { get; set; }
 
-    public bool IsDefault()
+    public bool IsDefaultState
     {
-        return string.IsNullOrEmpty(Taxonomy)
+        get => string.IsNullOrEmpty(Taxonomy)
             && string.IsNullOrEmpty(Gender)
             && string.IsNullOrEmpty(AgeGroup)
             && string.IsNullOrEmpty(Color)

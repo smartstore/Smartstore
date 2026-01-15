@@ -65,7 +65,7 @@ internal class Events : IConsumer
         googleProduct.MediaFileIds = string.Join(',', model.AssignedFileIds ?? []).NullEmpty();
 
         // INFO: Must be the last property set.
-        googleProduct.IsTouched = !googleProduct.IsDefault();
+        googleProduct.IsTouched = !googleProduct.IsDefaultState;
 
         if (!add && !googleProduct.IsTouched)
         {
