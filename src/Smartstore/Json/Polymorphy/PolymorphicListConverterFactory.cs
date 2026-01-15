@@ -64,7 +64,7 @@ internal sealed class PolymorphicListConverterFactory : JsonConverterFactory
 
             foreach (var item in arrayEl.EnumerateArray())
             {
-                var obj = PolymorphyCodec.Read(item, typeof(TElement), options, _poly);
+                var obj = PolymorphyCodec.ReadValue(item, typeof(TElement), options, _poly);
                 tmp.Add((TElement?)obj);
             }
 
@@ -84,7 +84,7 @@ internal sealed class PolymorphicListConverterFactory : JsonConverterFactory
 
             // List slot itself is treated as complex and thus wrapped (NSJ-ish).
             // Elements are written recursively by the codec (objects wrapped, scalars raw).
-            PolymorphyCodec.Write(writer, value, options, _poly);
+            PolymorphyCodec.WriteListSlot(writer, value, options, _poly);
         }
     }
 }

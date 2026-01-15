@@ -84,7 +84,7 @@ internal sealed class PolymorphicDictionaryConverterFactory : JsonConverterFacto
                 if (p.NameEquals(_poly.TypePropertyName))
                     continue;
 
-                var value = PolymorphyCodec.Read(p.Value, typeof(TValue), options, _poly);
+                var value = PolymorphyCodec.ReadValue(p.Value, typeof(TValue), options, _poly);
                 AddEntry(instance, p.Name, value);
             }
 
@@ -109,7 +109,7 @@ internal sealed class PolymorphicDictionaryConverterFactory : JsonConverterFacto
 
                 // Values flow through codec so nested dicts/arrays/objects get wrapped recursively.
                 // Arrays in dict-values use PolymorphyOptions.WrapDictionaryArrays.
-                PolymorphyCodec.Write(writer, v, options, _poly);
+                PolymorphyCodec.WriteObjectSlot(writer, v, options, _poly);
             }
 
             writer.WriteEndObject();
@@ -260,7 +260,7 @@ internal sealed class PolymorphicDictionaryConverterFactory : JsonConverterFacto
             foreach (DictionaryEntry de in dict)
             {
                 writer.WritePropertyName(Convert.ToString(de.Key) ?? string.Empty);
-                PolymorphyCodec.Write(writer, de.Value, options, _poly);
+                PolymorphyCodec.WriteObjectSlot(writer, de.Value, options, _poly);
             }
 
             writer.WriteEndObject();

@@ -170,7 +170,8 @@ public static class SmartJsonOptions
         {
             if (p.AttributeProvider?.TryGetAttribute<DefaultValueAttribute>(true, out var attr) ?? false)
             {
-                if (typeof(IEnumerable).IsAssignableFrom(p.PropertyType))
+                var isSequenceType = p.PropertyType.IsSequenceType();
+                if (isSequenceType)
                 {
                     if (Equals(attr.Value, "[]"))
                     {

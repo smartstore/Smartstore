@@ -136,7 +136,7 @@ namespace Smartstore.Tests
         public string FirstName { get; set; } = "John";
         [DefaultValue("Doe")]
         public string LastName { get; set; } = "Doe";
-        [DefaultValue(18)]
+        [DefaultValue(20)]
         public int Age { get; set; } = 18;
     }
 }

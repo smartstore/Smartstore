@@ -127,5 +127,5 @@ internal static class PolymorphyModifier
     }
 
     private static bool IsCandidateType(Type t)
-        => t == typeof(object) || t.IsInterface || t.IsAbstract;
+        => PolymorphyCodec.IsPolymorphType(t);
 }

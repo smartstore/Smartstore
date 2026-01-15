@@ -59,7 +59,7 @@ public class JsonTests
     private RootClass CreateTestRootObject()
     {
         var list = new List<MapClass1> { CreateTestObject() };
-        var list2 = new List<object> { CreateTestObject() };
+        var list2 = new HashSet<object> { CreateTestObject() };
 
         var dict = new CustomProps
         {
@@ -70,7 +70,7 @@ public class JsonTests
             ["untyped_list"] = list2
         };
 
-        return new RootClass { Name = "MyName", Properties = dict, Data = list };
+        return new RootClass { Name = "MyName", Properties = dict, Data = CreateTestObject() };
     }
 
     private MapClass1 CreateTestObject()
@@ -104,7 +104,7 @@ public class JsonTests
         [DefaultValue("[]")]
         public int[] ArrayProp { get; set; } = [];
 
-        [Polymorphic(WrapArrays = false)]
+        [Polymorphic(WrapArrays = true)]
         public object? Data { get; set; }
 
         public CustomProps? Properties { get; set; }

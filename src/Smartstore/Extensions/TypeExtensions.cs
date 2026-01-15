@@ -401,6 +401,25 @@ public static class TypeExtensions
             return elementType != null;
         }
 
+        public bool IsSetType([NotNullWhen(true)] out Type? elementType)
+        {
+            elementType = null;
+
+            if (type.IsBasicOrNullableType())
+            {
+                return false;
+            }
+
+            if (
+                type.TryGetClosedGenericTypeOf(typeof(ISet<>), out var closedType) ||
+                type.TryGetClosedGenericTypeOf(typeof(IReadOnlySet<>), out closedType))
+            {
+                elementType = closedType.GetGenericArguments()[0];
+            }
+
+            return elementType != null;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsDictionaryType()
         {

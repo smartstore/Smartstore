@@ -5,7 +5,6 @@ using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
 
 namespace Smartstore.Json.Polymorphy;
 
@@ -18,6 +17,17 @@ internal static class PolymorphyCodec
     private static readonly ConditionalWeakTable<JsonSerializerOptions, JsonSerializerOptions> _lenientOptionsCache = [];
 
     #region Read
+
+    public static object? ReadValue(
+        JsonElement el, 
+        Type declaredType, 
+        JsonSerializerOptions options, 
+        PolymorphyOptions poly)
+    {
+        return IsPolymorphType(declaredType)
+            ? Read(el, declaredType, options, poly)
+            : JsonSerializer.Deserialize(el, declaredType, options);
+    }
 
     // Reads:
     // - legacy NSJ Objects: {"$type":"...","Prop":...}
@@ -46,6 +56,15 @@ internal static class PolymorphyCodec
             // Wrapped array payload: {"$type":"...","$values":[...]}
             if (el.TryGetProperty(o.ArrayValuePropertyName, out var valuesEl))
             {
+                // If the target is a sequence with polymorphic element type, we must read elements
+                // via our codec so nested $type gets honored (otherwise STJ yields JsonNode/JsonElement).
+                if (runtimeType.IsSequenceType(out var elementType) &&
+                    IsPolymorphType(elementType) &&
+                    valuesEl.ValueKind == JsonValueKind.Array)
+                {
+                    return ReadPolymorphArray(valuesEl, runtimeType, elementType, readOptions, o);
+                }
+
                 return JsonSerializer.Deserialize(valuesEl, runtimeType, readOptions);
             }
 
@@ -104,7 +123,7 @@ internal static class PolymorphyCodec
             {
                 var list = new List<object?>();
                 foreach (var item in el.EnumerateArray())
-                    list.Add(ReadUntyped(item, options, o));
+                    list.Add(Read(item, typeof(object), options, o)); // <- Use $type if available
                 return list;
             }
 
@@ -123,6 +142,113 @@ internal static class PolymorphyCodec
             default:
                 throw new JsonException($"Unsupported JsonValueKind: {el.ValueKind}");
         }
+    }
+
+    private static object? ReadPolymorphArray(
+        JsonElement arrayEl,
+        Type targetSequenceType,
+        Type elementType,
+        JsonSerializerOptions options,
+        PolymorphyOptions o)
+    {
+        // 1) Build List<TElement> with correctly typed runtime instances (via $type).
+        var listType = typeof(List<>).MakeGenericType(elementType);
+        var typedList = (IList)Activator.CreateInstance(listType)!;
+
+        foreach (var item in arrayEl.EnumerateArray())
+        {
+            var elem = Read(item, elementType, options, o);
+            typedList.Add(elem);
+        }
+
+        // 2) Arrays: create directly.
+        if (targetSequenceType.IsArray)
+        {
+            var arr = Array.CreateInstance(elementType, typedList.Count);
+            for (int i = 0; i < typedList.Count; i++)
+                arr.SetValue(typedList[i], i);
+
+            return arr;
+        }
+
+        // 3) If the requested target type can accept List<T> as-is (e.g. IReadOnlyList<T>, IEnumerable<T>, IList<T>, ICollection<T>).
+        if (targetSequenceType.IsAssignableFrom(listType))
+            return typedList;
+
+        // 4) Create a suitable collection instance (e.g. HashSet<T> for ISet<T>) and populate it without JSON.
+        var instance = CreateCollectionInstance(targetSequenceType, elementType, typedList);
+
+        // Try non-generic IList (rare but cheap)
+        if (instance is IList ilist)
+        {
+            foreach (var it in typedList)
+                ilist.Add(it);
+            return instance;
+        }
+
+        // Try ICollection<T>.Add(T)
+        var add = instance.GetType().GetMethod("Add", [elementType]);
+        if (add is not null)
+        {
+            foreach (var it in typedList)
+                add.Invoke(instance, [it]);
+            return instance;
+        }
+
+        // Last resort: if we cannot add, fall back to List<T> for interface/abstract targets.
+        if (targetSequenceType.IsInterface || targetSequenceType.IsAbstract)
+            return typedList;
+
+        throw new JsonException($"Cannot populate collection type '{targetSequenceType}' for element type '{elementType}'.");
+    }
+
+    private static object CreateCollectionInstance(Type targetType, Type elementType, IList typedList)
+    {
+        // Determine a concrete type to instantiate.
+        var concreteType = ResolveConcreteCollectionType(targetType, elementType);
+
+        // Prefer ctor(IEnumerable<T>) so types like HashSet<T> can build efficiently.
+        var enumerableOfT = typeof(IEnumerable<>).MakeGenericType(elementType);
+        var ctor = concreteType.GetConstructor([enumerableOfT]);
+        if (ctor is not null)
+        {
+            // typedList is actually List<T>, which implements IEnumerable<T>.
+            return ctor.Invoke([typedList]);
+        }
+
+        // Parameterless ctor.
+        try
+        {
+            var obj = Activator.CreateInstance(concreteType);
+            if (obj is not null)
+                return obj;
+        }
+        catch
+        {
+            // ignore and fall back below
+        }
+
+        // Fallback based on "shape".
+        var fallback = ResolveConcreteCollectionType(targetType, elementType, forceFallback: true);
+        return Activator.CreateInstance(fallback)!;
+    }
+
+    private static Type ResolveConcreteCollectionType(Type targetType, Type elementType, bool forceFallback = false)
+    {
+        // Interfaces/abstracts (and forced fallback) => choose a sensible concrete type.
+        if (forceFallback || targetType.IsInterface || targetType.IsAbstract)
+        {
+            // Set-like => HashSet<T>
+            if (targetType.IsSetType(out var t) && t == elementType)
+                return typeof(HashSet<>).MakeGenericType(elementType);
+
+            // Everything else => List<T> (covers IReadOnlyList/IReadOnlyCollection/IEnumerable/ICollection/IList)
+            return typeof(List<>).MakeGenericType(elementType);
+        }
+
+        // Concrete types:
+        // If it's a ReadOnlyCollection<T> or similar without parameterless ctor, we handle via IEnumerable<T> ctor above.
+        return targetType;
     }
 
     private static byte[] SerializeObjectWithoutType(JsonElement el, string typePropName)
@@ -159,16 +285,29 @@ internal static class PolymorphyCodec
     /// - List slot: if WrapArrays == true => wrap the list AND any nested lists recursively.
     /// - Dictionary slot: dictionary itself is always wrapped as an object; if WrapArrays == true => nested lists under its values are wrapped recursively.
     /// </summary>
-    internal static void WriteObjectSlot(
+    public static void WriteObjectSlot(
         Utf8JsonWriter writer,
         object? value,
         JsonSerializerOptions options,
         PolymorphyOptions o)
     {
+        if (value is null)
+        {
+            writer.WriteNullValue();
+            return;
+        }
+
+        // Root special-case: object-slot containing an array/list.
+        if (o.WrapArrays && TryGetEnumerable(value, out _))
+        {
+            WriteCore(writer, value, options, o, PolymorphyKind.ListSlot, wrapArraysScope: false);
+            return;
+        }
+
         WriteCore(writer, value, options, o, PolymorphyKind.ObjectSlot, wrapArraysScope: false);
     }
 
-    internal static void WriteListSlot(
+    public static void WriteListSlot(
         Utf8JsonWriter writer,
         object? value,
         JsonSerializerOptions options,
@@ -178,7 +317,7 @@ internal static class PolymorphyCodec
         WriteCore(writer, value, options, o, PolymorphyKind.ListSlot, wrapArraysScope: o.WrapArrays);
     }
 
-    internal static void WriteDictionarySlot(
+    public static void WriteDictionarySlot(
         Utf8JsonWriter writer,
         object? value,
         JsonSerializerOptions options,
@@ -224,18 +363,25 @@ internal static class PolymorphyCodec
         }
 
         // Dictionaries are treated as complex objects and always wrapped at the dictionary slot root.
-        if (TryGetStringKeyDictionary(value, out var dict))
+        if (TryGetStringKeyDictionary(value, out _))
         {
+            // Let STJ serialize the dictionary entries (so modifiers/default ignore apply).
+            var dictPayload = JsonSerializer.SerializeToElement(value, runtimeType, options);
+            if (dictPayload.ValueKind != JsonValueKind.Object)
+            {
+                JsonSerializer.Serialize(writer, value, runtimeType, options);
+                return;
+            }
+
             WriteWrappedObjectStart(writer, runtimeType, o);
 
-            foreach (var (key, val) in dict)
+            foreach (var p in dictPayload.EnumerateObject())
             {
-                writer.WritePropertyName(key);
+                if (p.NameEquals(o.TypePropertyName))
+                    continue;
 
-                // Dictionary value recursion:
-                // - Keep wrapArraysScope (enables nested list wrapping when WrapArrays==true).
-                // - Values behave like object-slot items (we don't want "list slot" behavior for every value).
-                WriteCore(writer, val, options, o, PolymorphyKind.ObjectSlot, wrapArraysScope);
+                writer.WritePropertyName(p.Name);
+                p.Value.WriteTo(writer);
             }
 
             writer.WriteEndObject();
@@ -245,49 +391,52 @@ internal static class PolymorphyCodec
         // Enumerables (arrays/lists) are treated as arrays.
         if (TryGetEnumerable(value, out var enumerable))
         {
-            // Wrap decision:
-            // - WrapArrays must be true at all.
-            // - Object slot: wrap ONLY the root array/list (do not enable scope for nested lists).
-            // - List slot: always wrap root list and keep scope for nested lists.
-            // - Dictionary slot: this branch is mostly for dictionary *values* that are lists; scope decides recursion.
             var shouldWrapArray =
                 o.WrapArrays &&
-                (slotKind == PolymorphyKind.ListSlot
-                 || slotKind == PolymorphyKind.ObjectSlot
-                 || wrapArraysScope);
+                (slotKind == PolymorphyKind.ListSlot || wrapArraysScope);
 
+            // Special-case: sequences with polymorphic element types need per-element wrapping,
+            // otherwise STJ cannot roundtrip concrete runtime types (e.g. List<object>, List<IBase>, List<IInterface>).
+            var isPolymorphElement = runtimeType.IsSequenceType(out var elementType) && IsPolymorphType(elementType);
+
+            if (isPolymorphElement)
+            {
+                if (shouldWrapArray)
+                {
+                    // Wrapped array: {"$type":"...","$values":[...]}
+                    WriteWrappedObjectStart(writer, runtimeType, o);
+                    writer.WritePropertyName(o.ArrayValuePropertyName);
+                }
+
+                writer.WriteStartArray();
+                foreach (var item in enumerable)
+                {
+                    // Each element behaves like an object-slot.
+                    WriteObjectSlot(writer, item, options, o);
+                }
+                writer.WriteEndArray();
+
+                if (shouldWrapArray)
+                    writer.WriteEndObject();
+
+                return;
+            }
+
+            // Default path: delegate payload to STJ so modifiers/default ignore apply.
             if (shouldWrapArray)
             {
-                // Wrapped array: {"$type":"...","$values":[ ... ]}
                 WriteWrappedObjectStart(writer, runtimeType, o);
                 writer.WritePropertyName(o.ArrayValuePropertyName);
 
-                writer.WriteStartArray();
+                // Let STJ write the array payload (so nested converters/modifiers kick in).
+                JsonSerializer.Serialize(writer, value, runtimeType, options);
 
-                foreach (var item in enumerable)
-                {
-                    // Important:
-                    // - Object slot root wrapping must NOT propagate scope.
-                    // - List/dict scopes propagate wrapArraysScope so nested lists get wrapped.
-                    var nextScope = (slotKind == PolymorphyKind.ObjectSlot) ? false : wrapArraysScope;
-                    WriteCore(writer, item, options, o, PolymorphyKind.ObjectSlot, nextScope);
-                }
-
-                writer.WriteEndArray();
                 writer.WriteEndObject();
             }
             else
             {
-                // Raw array: [ ... ] BUT elements are still recursively written
-                writer.WriteStartArray();
-
-                foreach (var item in enumerable)
-                {
-                    // If scope is enabled (list/dict), nested lists may still be wrapped.
-                    WriteCore(writer, item, options, o, PolymorphyKind.ObjectSlot, wrapArraysScope);
-                }
-
-                writer.WriteEndArray();
+                // Raw array payload written by STJ.
+                JsonSerializer.Serialize(writer, value, runtimeType, options);
             }
 
             return;
@@ -330,12 +479,17 @@ internal static class PolymorphyCodec
         writer.WriteString(o.TypePropertyName, o.GetRequiredTypeId(runtimeType));
     }
 
-    internal static bool IsScalarLike(Type t)
+    public static bool IsScalarLike(Type t)
     {
         return t.IsBasicType()
             || t == typeof(Uri)
             || t == typeof(JsonElement)
             || t == typeof(JsonDocument);
+    }
+
+    public static bool IsPolymorphType(Type t)
+    {
+        return t == typeof(object) || t.IsAbstract || t.IsInterface;
     }
 
     private static bool TryGetEnumerable(object value, out IEnumerable enumerable)
