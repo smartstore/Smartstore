@@ -8,6 +8,7 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Web;
+using Smartstore.Json;
 using Smartstore.Net;
 
 namespace Smartstore.Core.Identity
@@ -118,7 +119,7 @@ namespace Smartstore.Core.Identity
         {
             if (_privacySettings.CookieInfos.HasValue())
             {
-                var cookieInfos = JsonSerializer.Deserialize<List<CookieInfo>>(_privacySettings.CookieInfos);
+                var cookieInfos = JsonSerializer.Deserialize<List<CookieInfo>>(_privacySettings.CookieInfos, SmartJsonOptions.Default);
 
                 if (cookieInfos != null && cookieInfos.Count > 0)
                 {

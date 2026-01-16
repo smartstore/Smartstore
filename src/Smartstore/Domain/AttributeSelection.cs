@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
 using Smartstore.Collections;
+using Smartstore.Json;
 using Smartstore.Utilities;
 
 namespace Smartstore.Domain
@@ -169,7 +170,7 @@ namespace Smartstore.Domain
 
             try
             {
-                var json = JsonSerializer.Serialize(_attributes);
+                var json = JsonSerializer.Serialize(_attributes, SmartJsonOptions.Default);
 
                 _isJson = true;
                 _dirty = false;
@@ -282,7 +283,7 @@ namespace Smartstore.Domain
                 }
                 else
                 {
-                    var attributes = JsonSerializer.Deserialize<AllAttributes>(_rawAttributes);
+                    var attributes = JsonSerializer.Deserialize<AllAttributes>(_rawAttributes, SmartJsonOptions.Default);
 
                     if (attributes.CustomAttributes.Count > 0)
                     {

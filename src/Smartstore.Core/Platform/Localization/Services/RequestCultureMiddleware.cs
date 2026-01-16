@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Caching;
 using Smartstore.Core.Widgets;
+using Smartstore.Json;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Localization
@@ -150,7 +151,7 @@ namespace Smartstore.Core.Localization
                 } }
             };
 
-            var json = JsonSerializer.Serialize(dict);
+            var json = JsonSerializer.Serialize(dict, SmartJsonOptions.Default);
             return json;
         }
     }

@@ -8,6 +8,7 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.IO;
+using Smartstore.Json;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -529,7 +530,7 @@ namespace Smartstore.Admin.Controllers
                 var objStart = js.IndexOf('{');
                 var json = js[objStart..];
 
-                return JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+                return JsonSerializer.Deserialize<Dictionary<string, string>>(json, SmartJsonOptions.Default);
             }
             catch (Exception ex)
             {

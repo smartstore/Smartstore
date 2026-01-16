@@ -12,6 +12,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Engine.Modularity;
+using Smartstore.Json;
 using Smartstore.Threading;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
@@ -622,7 +623,7 @@ namespace Smartstore.Admin.Controllers
 
             if (result == null && jsonString.HasValue())
             {
-                result = JsonSerializer.Deserialize<ResourceSetsResponse>(jsonString);
+                result = JsonSerializer.Deserialize<ResourceSetsResponse>(jsonString, SmartJsonOptions.Default);
             }
 
             result?.Resources

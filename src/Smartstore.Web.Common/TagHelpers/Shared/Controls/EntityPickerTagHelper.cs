@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Json;
 using Smartstore.Utilities;
 
 namespace Smartstore.Web.TagHelpers.Shared;
@@ -185,7 +186,7 @@ public class EntityPickerTagHelper : BaseFormTagHelper
             output.Content.AppendHtml($"<span>{Caption}</span>");
         }
 
-        var json = JsonSerializer.Serialize(options);
+        var json = JsonSerializer.Serialize(options, SmartJsonOptions.Default);
 
         output.PreElement.AppendHtmlLine(@$"<script data-origin='EntityPicker'>$(function() {{ $('#{buttonId}').entityPicker({json}); }})</script>");
     }

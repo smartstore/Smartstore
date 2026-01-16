@@ -49,7 +49,6 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Type of the cookie.
         /// </summary>
-        [JsonConverter(typeof(JsonStringEnumConverter))] // TODO: (mh) Why? We already register JsonStringEnumConverter globally. Does it fail without this?
         public CookieType CookieType { get; set; }
     }
 

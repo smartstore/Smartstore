@@ -1622,7 +1622,7 @@ namespace Smartstore.Admin.Controllers
 
             if (_privacySettings.CookieInfos.HasValue())
             {
-                data.AddRange(JsonSerializer.Deserialize<List<CookieInfo>>(_privacySettings.CookieInfos)
+                data.AddRange(JsonSerializer.Deserialize<List<CookieInfo>>(_privacySettings.CookieInfos, SmartJsonOptions.Default)
                     .OrderBy(x => x.CookieType)
                     .ThenBy(x => x.Name));
             }
@@ -1653,7 +1653,7 @@ namespace Smartstore.Admin.Controllers
             var numDeleted = 0;
 
             // First deserialize setting.
-            var ciList = JsonSerializer.Deserialize<List<CookieInfo>>(_privacySettings.CookieInfos);
+            var ciList = JsonSerializer.Deserialize<List<CookieInfo>>(_privacySettings.CookieInfos, SmartJsonOptions.Default);
             foreach (var name in selection.SelectedKeys)
             {
                 ciList.Remove(x => x.Name.EqualsNoCase(name));
@@ -1688,7 +1688,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             // Deserialize
-            var ciList = JsonSerializer.Deserialize<List<CookieInfo>>(_privacySettings.CookieInfos) ?? [];
+            var ciList = JsonSerializer.Deserialize<List<CookieInfo>>(_privacySettings.CookieInfos, SmartJsonOptions.Default) ?? [];
 
             var cookieInfo = ciList
                 .Select(x => x)
@@ -1734,7 +1734,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult CookieInfoEditPopup(string name)
         {
-            var ciList = JsonSerializer.Deserialize<List<CookieInfo>>(_privacySettings.CookieInfos);
+            var ciList = JsonSerializer.Deserialize<List<CookieInfo>>(_privacySettings.CookieInfos, SmartJsonOptions.Default);
             var cookieInfo = ciList
                 .Where(x => x.Name.EqualsNoCase(name))
                 .FirstOrDefault();
@@ -1769,7 +1769,7 @@ namespace Smartstore.Admin.Controllers
             ViewBag.btnId = btnId;
             ViewBag.formId = formId;
 
-            var ciList = JsonSerializer.Deserialize<List<CookieInfo>>(_privacySettings.CookieInfos);
+            var ciList = JsonSerializer.Deserialize<List<CookieInfo>>(_privacySettings.CookieInfos, SmartJsonOptions.Default);
             var cookieInfo = ciList
                 .Where(x => x.Name.EqualsNoCase(model.Name))
                 .FirstOrDefault();

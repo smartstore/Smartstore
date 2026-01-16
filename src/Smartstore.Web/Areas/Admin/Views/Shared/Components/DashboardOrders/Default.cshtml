@@ -1,10 +1,11 @@
 ﻿@using Smartstore.Admin.Models.Orders
 @using System.Text.Json
+@using Smartstore.Json;
 
 @model List<DashboardChartReportModel>
 
 @{
-    var jsonData = JsonSerializer.Serialize(Model);
+    var jsonData = JsonSerializer.Serialize(Model, SmartJsonOptions.Default);
 }
 
 <script src="~/bundle/js/chart.js" sm-target-zone="scripts" sm-key="charting"></script>
