@@ -554,41 +554,94 @@ public static class TypeExtensions
 
         public TAttribute? GetAttribute<TAttribute>(bool inherits) where TAttribute : Attribute
         {
-            var attributes = target.GetCustomAttributes(typeof(TAttribute), inherits);
-            if (attributes.Length > 1)
+            // 1. Fast Path: Direct check (IsDefined is cheaper than GetCustomAttributes)
+            var attrs = target.GetCustomAttributes(typeof(TAttribute), inherits);
+
+            if (attrs.Length == 0 && inherits && target is MemberInfo mi)
             {
-                throw Error.MoreThanOneElement();
+                // 2. Slow Path: Manual hierarchy crawl for overrides/shadows
+                return GetAttributeFromHierarchy<TAttribute>(mi);
             }
 
-            return attributes.Length == 0 ? null : (TAttribute)attributes[0];
+            if (attrs.Length == 0) return null;
+            if (attrs.Length > 1) throw new InvalidOperationException("More than one attribute found.");
+
+            return (TAttribute)attrs[0];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool HasAttribute<TAttribute>(bool inherits) where TAttribute : Attribute
         {
-            return target.IsDefined(typeof(TAttribute), inherits);
+            // Best performance: IsDefined uses internal CLR metadata pointers
+            if (target.IsDefined(typeof(TAttribute), inherits)) return true;
+
+            if (inherits && target is MemberInfo mi)
+            {
+                // Fallback for shadowed/overridden members
+                return GetAttributeFromHierarchy<TAttribute>(mi) != null;
+            }
+
+            return false;
         }
 
         public IEnumerable<TAttribute> GetAttributes<TAttribute>(bool inherits) where TAttribute : Attribute
         {
-            var attributes = (IEnumerable<TAttribute>)target.GetCustomAttributes(typeof(TAttribute), inherits);
+            var attrs = target.GetCustomAttributes(typeof(TAttribute), inherits);
 
+            // If nothing found but inheritance requested, check base members
+            if (attrs.Length == 0 && inherits && target is MemberInfo mi)
+            {
+                var fromBase = GetAttributeFromHierarchy<TAttribute>(mi);
+                if (fromBase != null) return [fromBase];
+                return [];
+            }
+
+            if (attrs.Length == 0) return [];
+
+            // Optimized sort for IOrdered
             if (typeof(IOrdered).IsAssignableFrom(typeof(TAttribute)))
             {
-                return attributes
-                    .Cast<IOrdered>()
-                    .OrderBy(x => x.Ordinal)
-                    .Cast<TAttribute>();
+                var list = new List<TAttribute>(attrs.Length);
+                for (int i = 0; i < attrs.Length; i++) list.Add((TAttribute)attrs[i]);
+                list.Sort((x, y) => ((IOrdered)x!).Ordinal.CompareTo(((IOrdered)y!).Ordinal));
+                return list;
             }
-            else
-            {
-                return attributes;
-            }
+
+            // Avoid IEnumerable overhead by returning a typed array
+            var result = new TAttribute[attrs.Length];
+            Array.Copy(attrs, result, attrs.Length);
+            return result;
         }
     }
 
     extension(MemberInfo member)
     {
+        /// <summary>
+        /// Determines if the member overrides a definition from a base class.
+        /// </summary>
+        /// <returns>True if the member is an override; otherwise, false.</returns>
+        public bool IsOverride()
+        {
+            if (member is PropertyInfo pi)
+            {
+                // Properties are overridden via their accessor methods (get/set).
+                var accessor = pi.GetMethod ?? pi.SetMethod;
+                if (accessor == null) return false;
+
+                // GetBaseDefinition returns the method where the implementation was first declared.
+                // If the declaring type differs from the base definition's type, it's an override.
+                return accessor.GetBaseDefinition().DeclaringType != accessor.DeclaringType;
+            }
+
+            if (member is MethodInfo method)
+            {
+                return method.GetBaseDefinition().DeclaringType != method.DeclaringType;
+            }
+
+            // Fields, Events, or Types cannot be "overridden" in the classical IL sense.
+            return false;
+        }
+
         public TAttribute[] GetAllAttributes<TAttribute>(bool inherits)
             where TAttribute : Attribute
         {
@@ -611,5 +664,48 @@ public static class TypeExtensions
             attributes.AddRange(member.GetCustomAttributes<TAttribute>(inherits));
             return attributes.ToArray();
         }
+    }
+
+    /// <summary>
+    /// Crawls up the inheritance chain to find attributes on overridden or shadowed members.
+    /// This is only called if the standard provider fails.
+    /// </summary>
+    private static TAttribute? GetAttributeFromHierarchy<TAttribute>(MemberInfo mi) where TAttribute : Attribute
+    {
+        // GUARD: Check if the member is actually an override.
+        // If the base definition is declared in the same type, it's NOT an override.
+        if (!mi.IsOverride())
+        {
+            return null;
+        }
+
+        // Only proceed to expensive hierarchy crawl if it's an actual override.
+        var currentType = mi.DeclaringType?.BaseType;
+        var memberName = mi.Name;
+        var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+
+        while (currentType != null && currentType != typeof(object))
+        {
+            MemberInfo? baseMember = (mi is PropertyInfo)
+                ? currentType.GetProperty(memberName, flags)
+                : (MemberInfo?)currentType.GetMethod(memberName, flags);
+
+            if (baseMember != null)
+            {
+                // We check with inherits:false because we are already iterating through the types.
+                var attr = baseMember.GetCustomAttributes(typeof(TAttribute), false);
+                if (attr.Length > 0) return (TAttribute)attr[0];
+
+                // Optimization: Stop if we reached the root definition of the override chain.
+                if (baseMember is MethodInfo mb && mb.GetBaseDefinition() == mb) break;
+                if (baseMember is PropertyInfo pb)
+                {
+                    var acc = pb.GetMethod ?? pb.SetMethod;
+                    if (acc != null && acc.GetBaseDefinition() == acc) break;
+                }
+            }
+            currentType = currentType.BaseType;
+        }
+        return null;
     }
 }
