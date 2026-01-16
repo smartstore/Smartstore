@@ -448,7 +448,7 @@
     };
 
     window.disableSubmitTemporarily = function (form) {
-        const btn = form && form.querySelector('[type="submit"]');
+        const btn = form?.querySelector('[type="submit"]');
         if (btn) {
             btn.disabled = true;
             setTimeout(function () {

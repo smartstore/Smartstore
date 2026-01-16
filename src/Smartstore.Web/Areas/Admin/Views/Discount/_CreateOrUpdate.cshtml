@@ -9,7 +9,7 @@
     {
         if (models.Count > 0)
         {
-            <collapsed-content class="mb-0">
+            <collapsed-content sm-max-height="100" class="mb-0">
                 @Html.Raw(string.Join(" · ", models.Select(x => $"<a href='{Url.Action("Edit", controller, new { id = x.Id })}'>{x.Name.HtmlEncode()}</a>")))
             </collapsed-content>
         }
