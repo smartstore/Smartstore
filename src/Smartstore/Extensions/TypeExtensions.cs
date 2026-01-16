@@ -14,11 +14,38 @@ public static class TypeExtensions
 {
     extension(Type type)
     {
+        /// <summary>
+        /// Returns the assembly-qualified name of the type without including version, culture, or public key token
+        /// information.
+        /// </summary>
+        /// <remarks>For generic types, the returned string includes the generic type definition and
+        /// recursively omits version, culture, and public key token information from all generic type arguments. This
+        /// format is useful for scenarios where type identity is required without binding to a specific assembly
+        /// version.</remarks>
+        /// <returns>A string containing the assembly-qualified name of the type, omitting version, culture, and public key token
+        /// details; or null if the type information is unavailable.</returns>
         public string? AssemblyQualifiedNameWithoutVersion()
         {
-            return type.AssemblyQualifiedName != null
-                ? type.FullName + ", " + type.Assembly.GetName().Name
-                : null;
+            // Get the assembly name without version, culture, and public key token
+            var assemblyName = type.Assembly.GetName().Name!;
+
+            if (type.IsGenericType)
+            {
+                // Get the generic type definition (e.g., System.Collections.Generic.List`1)
+                var genericDefinition = type.GetGenericTypeDefinition().FullName!;
+
+                // Recursively clean all generic type arguments
+                var genericArguments = type.GetGenericArguments()
+                    .Select(t => $"[{t.AssemblyQualifiedNameWithoutVersion()}]");
+
+                var args = string.Join(",", genericArguments);
+
+                // Construct the cleaned generic string format
+                return $"{genericDefinition}[{args}], {assemblyName}";
+            }
+
+            // Return the simple name for non-generic types
+            return $"{type.FullName}, {assemblyName}";
         }
 
         public bool HasDefaultConstructor()
@@ -31,6 +58,13 @@ public static class TypeExtensions
             return checkTypes.Any(possibleType => possibleType == type);
         }
 
+        /// <summary>
+        /// Determines whether the current type is compatible with the specified target type for assignment or
+        /// conversion.
+        /// </summary>
+        /// <remarks>This method checks for compatibility based on standard .NET assignment rules,
+        /// including reference type assignability and implicit numeric conversions for value types. For nullable types,
+        /// compatibility is determined using their underlying non-nullable types.</remarks>
         public bool IsCompatibleWith(Type target)
         {
             if (type == target)
@@ -167,6 +201,13 @@ public static class TypeExtensions
             return false;
         }
 
+        /// <summary>
+        /// Returns a sequence of types that the current type implements or derives from, including all implemented
+        /// interfaces and base types up to but not including System.Object.
+        /// </summary>
+        /// <remarks>The returned sequence includes all interfaces implemented by the type, followed by
+        /// the type itself and its base types, in order from most derived to least derived. System.Object is not
+        /// included in the result.</remarks>
         public IEnumerable<Type> GetTypesAssignableFrom()
         {
             var interfaces = type.GetInterfaces();
@@ -184,6 +225,15 @@ public static class TypeExtensions
             }
         }
 
+        /// <summary>
+        /// Determines whether the current type is considered a basic .NET type, such as a primitive, string, or common
+        /// value type.
+        /// </summary>
+        /// <remarks>Basic types are commonly used for serialization, data transfer, and value
+        /// representation. This method can be used to identify types that are typically handled as simple values rather
+        /// than complex objects.</remarks>
+        /// <returns>true if the type is a primitive, enumeration, string, decimal, DateTime, DateTimeOffset, DateOnly, TimeOnly,
+        /// TimeSpan, Guid, or byte array; otherwise, false.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsBasicType()
         {
@@ -201,17 +251,28 @@ public static class TypeExtensions
                 type == typeof(byte[]);
         }
 
+        /// <summary>
+        /// Determines whether the current type is a basic type or a nullable basic type.
+        /// </summary>
         public bool IsBasicOrNullableType()
         {
             return type.IsBasicType() || Nullable.GetUnderlyingType(type) != null;
         }
 
+        /// <summary>
+        /// Determines whether the current type is a nullable value type.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsNullableType()
         {
             return Nullable.GetUnderlyingType(type) != null;
         }
 
+        /// <summary>
+        /// Determines whether the current type is a nullable value type and retrieves its underlying type.
+        /// </summary>
+        /// <param name="underlyingType">When this method returns, contains the underlying type if the current type is a nullable value type;
+        /// otherwise, contains the current type. This parameter is passed uninitialized.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsNullableType(out Type underlyingType)
         {
@@ -219,6 +280,13 @@ public static class TypeExtensions
             return underlyingType != type;
         }
 
+        /// <summary>
+        /// Determines whether the current type represents a numeric value, including integer and floating-point types.
+        /// </summary>
+        /// <remarks>This method considers both standard numeric types and their nullable counterparts as
+        /// numeric. Types such as enums, booleans, and non-numeric objects are not considered numeric.</remarks>
+        /// <returns>true if the type is a numeric type such as an integer, decimal, double, or single, or a nullable numeric
+        /// type; otherwise, false.</returns>
         public bool IsNumericType()
         {
             if (type.IsIntegerType())
@@ -239,6 +307,12 @@ public static class TypeExtensions
             }
         }
 
+        /// <summary>
+        /// Determines whether the underlying type is a built-in integer type.
+        /// </summary>
+        /// <remarks>This method considers the following types as integer types: SByte, Byte, Int16,
+        /// UInt16, Int32, UInt32, Int64, and UInt64. Other numeric types, such as Decimal, Single, Double, and
+        /// BigInteger, are not considered integer types by this method.</remarks>
         public bool IsIntegerType()
         {
             switch (Type.GetTypeCode(type))
@@ -267,11 +341,21 @@ public static class TypeExtensions
             return type.IsValueType && !type.IsBasicType();
         }
 
+        /// <summary>
+        /// Determines whether the current type represents a plain object type, excluding sequences and basic or
+        /// nullable types.
+        /// </summary>
         public bool IsPlainObjectType()
         {
             return type.IsClass && !type.IsSequenceType() && !type.IsBasicOrNullableType();
         }
 
+        /// <summary>
+        /// Determines whether the represented type is marked with the <see cref="CompilerGeneratedAttribute"/>.
+        /// </summary>
+        /// <remarks>This method can be used to identify types that are generated by the compiler, such as
+        /// anonymous types, iterator state machines, or closure classes. Compiler-generated types are typically not
+        /// intended for direct use in application code.</remarks>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsCompilerGenerated()
@@ -312,6 +396,15 @@ public static class TypeExtensions
             return false;
         }
 
+        /// <summary>
+        /// Determines whether the current type represents a sequence type, such as an array or a type that implements
+        /// <see cref="IEnumerable"/>.
+        /// </summary>
+        /// <remarks>A sequence type is any type that can be enumerated, including arrays and types that
+        /// implement <see cref="IEnumerable"/>. Basic types and nullable types are not considered sequence
+        /// types.</remarks>
+        /// <returns>true if the type is an array, implements <see cref="IEnumerable"/>, or is <see cref="Array"/>; otherwise,
+        /// false.</returns>
         public bool IsSequenceType()
         {
             if (type.IsBasicOrNullableType())
@@ -325,6 +418,9 @@ public static class TypeExtensions
                 type == typeof(Array));
         }
 
+        /// <inheritdoc cref="IsSequenceType(Type)" />
+        /// <param name="elementType">When this method returns <see langword="true"/>, contains the type of the elements in the sequence;
+        /// otherwise, <see langword="null"/>.</param>
         public bool IsSequenceType([NotNullWhen(true)] out Type? elementType)
         {
             elementType = null;
@@ -350,6 +446,15 @@ public static class TypeExtensions
             return elementType != null;
         }
 
+        /// <summary>
+        /// Determines whether the current type implements a closed generic IEnumerable<T> interface and retrieves the
+        /// element type if it does.
+        /// </summary>
+        /// <remarks>This method excludes basic and nullable types from being considered enumerable. If
+        /// the type implements multiple IEnumerable<T> interfaces, the first matching generic argument is
+        /// returned.</remarks>
+        /// <param name="elementType">When this method returns <see langword="true"/>, contains the element type of the IEnumerable; otherwise,
+        /// <see langword="null"/>.</param>
         public bool IsEnumerableType([NotNullWhen(true)] out Type? elementType)
         {
             elementType = null;
@@ -367,6 +472,10 @@ public static class TypeExtensions
             return elementType != null;
         }
 
+        /// <summary>
+        /// Determines whether the current type implements the IAsyncEnumerable<T> interface and retrieves the element
+        /// type if it does.
+        /// </summary>
         public bool IsAsyncEnumerableType([NotNullWhen(true)] out Type? elementType)
         {
             elementType = null;
@@ -384,6 +493,13 @@ public static class TypeExtensions
             return elementType != null;
         }
 
+        /// <summary>
+        /// Determines whether the current type represents a collection type and retrieves its element type if
+        /// applicable.
+        /// </summary>
+        /// <remarks>This method does not consider basic or nullable types as collections. If the type is
+        /// a closed generic implementation of <see cref="ICollection{T}"/> or <see cref="IReadOnlyCollection{T}"/>, the
+        /// element type is provided via the <paramref name="elementType"/> parameter.</remarks>
         public bool IsCollectionType([NotNullWhen(true)] out Type? elementType)
         {
             elementType = null;
@@ -393,7 +509,9 @@ public static class TypeExtensions
                 return false;
             }
 
-            if (type.TryGetClosedGenericTypeOf(typeof(ICollection<>), out var closedType))
+            if (
+                type.TryGetClosedGenericTypeOf(typeof(ICollection<>), out var closedType) ||
+                type.TryGetClosedGenericTypeOf(typeof(IReadOnlyCollection<>), out closedType))
             {
                 elementType = closedType.GetGenericArguments()[0];
             }
@@ -401,6 +519,11 @@ public static class TypeExtensions
             return elementType != null;
         }
 
+        /// <summary>
+        /// Determines whether the current type represents a set type and retrieves its element type if applicable.
+        /// </summary>
+        /// <remarks>This method considers both <see cref="ISet{T}"/> and <see cref="IReadOnlySet{T}"/> as
+        /// valid set types. Basic types and nullable types are not considered set types.</remarks>
         public bool IsSetType([NotNullWhen(true)] out Type? elementType)
         {
             elementType = null;
@@ -420,6 +543,7 @@ public static class TypeExtensions
             return elementType != null;
         }
 
+        /// <inheritdoc cref="IsDictionaryType(Type, out Type?, out Type?)" />
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsDictionaryType()
         {
@@ -428,6 +552,13 @@ public static class TypeExtensions
                 type.TryGetClosedGenericTypeOf(typeof(IReadOnlyDictionary<,>), out _);
         }
 
+        /// <summary>
+        /// Determines whether the current type is a dictionary type and retrieves its key and value types if
+        /// applicable.
+        /// </summary>
+        /// <remarks>This method supports both mutable and read-only generic dictionary interfaces. If the
+        /// type implements either interface, the corresponding generic type arguments are provided in <paramref
+        /// name="keyType"/> and <paramref name="valueType"/>.</remarks>
         public bool IsDictionaryType([NotNullWhen(true)] out Type? keyType, [NotNullWhen(true)] out Type? valueType)
         {
             keyType = null;
@@ -447,30 +578,52 @@ public static class TypeExtensions
             return false;
         }
 
+        /// <summary>
+        /// Returns the underlying non-nullable type if the current type is a nullable value type; otherwise, returns
+        /// the current type.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Type GetNonNullableType()
         {
             return Nullable.GetUnderlyingType(type) ?? type;
         }
 
+        /// <summary>
+        /// Determines whether the current type represents an open generic type.
+        /// </summary>
+        /// <returns>true if the type is a generic type definition or contains unassigned generic parameters; otherwise, false.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsOpenGeneric()
         {
             return type.IsGenericTypeDefinition || type.ContainsGenericParameters;
         }
 
+        /// <inheritdoc cref="IsClosedGenericTypeOf(Type, Type, out Type?)" />
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsClosedGenericTypeOf(Type openGeneric)
         {
             return type.TryGetClosedGenericTypeOf(openGeneric, out _);
         }
 
+        /// <summary>
+        /// Determines whether the current type is a closed constructed type of the specified open generic type.
+        /// </summary>
+        /// <param name="openGeneric">The open generic type definition to compare with. Must be a generic type definition; for example,
+        /// typeof(List<>).</param>
+        /// <param name="closedGeneric">When this method returns, contains the closed constructed type if the current type is a closed generic type
+        /// of the specified open generic; otherwise, null. This parameter is passed uninitialized.</param>
+        /// <returns>true if the current type is a closed constructed type of the specified open generic type; otherwise, false.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsClosedGenericTypeOf(Type openGeneric, [NotNullWhen(true)] out Type? closedGeneric)
         {
             return type.TryGetClosedGenericTypeOf(openGeneric, out closedGeneric);
         }
 
+        /// <summary>
+        /// Returns all closed generic types that are constructed from the specified open generic type.
+        /// </summary>
+        /// <param name="openGeneric">The open generic type definition to search for. Must be an open generic type; otherwise, an empty collection
+        /// is returned.</param>
         public IEnumerable<Type> GetClosedGenericTypesOf(Type openGeneric)
         {
             if (!openGeneric.IsOpenGeneric())
@@ -552,6 +705,16 @@ public static class TypeExtensions
             return attribute != null;
         }
 
+        /// <summary>
+        /// Retrieves a custom attribute of type <typeparamref name="TAttribute"/> that is applied to the target
+        /// element, optionally searching the inheritance chain.
+        /// </summary>
+        /// <remarks>If multiple attributes of the specified type are applied to the target element, an
+        /// exception is thrown. If no such attribute is found, the method returns null. When <paramref
+        /// name="inherits"/> is true, the method searches base classes or interfaces as appropriate for inherited
+        /// attributes.</remarks>
+        /// <param name="inherits">true to search the inheritance chain for the attribute; otherwise, false.</param>
+        /// <exception cref="InvalidOperationException">Thrown if more than one attribute of type <typeparamref name="TAttribute"/> is found on the target element.</exception>
         public TAttribute? GetAttribute<TAttribute>(bool inherits) where TAttribute : Attribute
         {
             // 1. Fast Path: Direct check (IsDefined is cheaper than GetCustomAttributes)
