@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Smartstore.Json.Polymorphy;
 using NSJ = Newtonsoft.Json;
 using STJ = System.Text.Json.Serialization;
 
@@ -111,7 +112,7 @@ namespace Smartstore.Core.AI
             string modelName = null;
 
             // TODO: (json) Test after polymorphic deserialization is supported!!!
-            Dictionary<string, object> metadata = null;
+            IDictionary<string, object> metadata = null;
             var initialUserMessageHash = 0;
 
             if (reader.TokenType != JsonTokenType.StartObject)
@@ -148,7 +149,8 @@ namespace Smartstore.Core.AI
                 }
                 else if (string.Equals(propertyName, nameof(AIChat.Metadata), StringComparison.OrdinalIgnoreCase))
                 {
-                    metadata = JsonSerializer.Deserialize<Dictionary<string, object>>(ref reader, options);
+                    //metadata = JsonSerializer.Deserialize<Dictionary<string, object>>(ref reader, options);
+                    metadata = options.ReadPolymorphicDictionary(ref reader);
                 }
                 else if (string.Equals(propertyName, nameof(AIChat.InitialUserMessage) + "Hash", StringComparison.OrdinalIgnoreCase))
                 {
@@ -197,7 +199,8 @@ namespace Smartstore.Core.AI
                 if (value.Metadata is IDictionary<string, object> dict && dict.Count > 0)
                 {
                     writer.WritePropertyName(nameof(AIChat.Metadata));
-                    JsonSerializer.Serialize(writer, dict, options);
+                    //JsonSerializer.Serialize(writer, dict, options);
+                    options.WritePolymorphicDictionary(writer, dict);
                 }
             }
 

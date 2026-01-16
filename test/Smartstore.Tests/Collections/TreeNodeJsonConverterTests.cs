@@ -214,13 +214,17 @@ public class TreeNodeJsonConverterTests
         var node = new TreeNode<string>("Test");
         node.Metadata["key1"] = "value1";
         node.Metadata["key2"] = 123;
+        node.Metadata["key3"] = new MapClass1 { Prop1 = "John", Prop2 = "Doe" };
 
         var json = JsonSerializer.Serialize(node, _options);
+        node = JsonSerializer.Deserialize<TreeNode<string>>(json, _options);
 
         json.ShouldNotBeNull();
+
         Assert.That(json, Does.Contain(@"""Value"":""Test"""));
         Assert.That(json, Does.Contain("Metadata"));
         Assert.That(json, Does.Contain(@"""key1"":""value1"""));
+        Assert.That(node.Metadata["key3"], Is.AssignableTo<MapClass1>());
     }
 
     [Test]

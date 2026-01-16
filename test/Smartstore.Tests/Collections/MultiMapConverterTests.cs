@@ -53,11 +53,11 @@ public class MultiMapConverterTests
     public void Write_Should_Serialize_Multimap_With_String_Keys()
     {
         var multimap = new Multimap<string, int>
-    {
-        { "Key1", 1 },
-        { "Key1", 2 },
-        { "Key2", 3 }
-    };
+        {
+            { "Key1", 1 },
+            { "Key1", 2 },
+            { "Key2", 3 }
+        };
 
         var json = JsonSerializer.Serialize(multimap, _options);
         json.ShouldNotBeNull();
@@ -76,7 +76,7 @@ public class MultiMapConverterTests
         { "Key2", 3 }
     };
 
-        // Act - Serialize dann Deserialize
+        // Act - Serialize then Deserialize
         var json = JsonSerializer.Serialize(original, _options);
         var multimap = JsonSerializer.Deserialize<Multimap<string, int>>(json, _options);
 
@@ -176,13 +176,13 @@ public class MultiMapConverterTests
     public void RoundTrip_Should_Preserve_Data_With_Int_Keys()
     {
         var original = new Multimap<int, string>
-    {
-        { 1, "A" },
-        { 1, "B" },
-        { 2, "C" },
-        { 3, "D" },
-        { 3, "E" }
-    };
+        {
+            { 1, "A" },
+            { 1, "B" },
+            { 2, "C" },
+            { 3, "D" },
+            { 3, "E" }
+        };
 
         var json = JsonSerializer.Serialize(original, _options);
         var deserialized = JsonSerializer.Deserialize<Multimap<int, string>>(json, _options);
@@ -220,11 +220,11 @@ public class MultiMapConverterTests
     public void RoundTrip_Should_Handle_Complex_Value_Types()
     {
         var original = new Multimap<string, DateTime>
-    {
-        { "Dates1", new DateTime(2025, 1, 1) },
-        { "Dates1", new DateTime(2025, 1, 2) },
-        { "Dates2", new DateTime(2025, 12, 31) }
-    };
+        {
+            { "Dates1", new DateTime(2025, 1, 1) },
+            { "Dates1", new DateTime(2025, 1, 2) },
+            { "Dates2", new DateTime(2025, 12, 31) }
+        };
 
         var json = JsonSerializer.Serialize(original, _options);
         var deserialized = JsonSerializer.Deserialize<Multimap<string, DateTime>>(json, _options);
@@ -233,5 +233,21 @@ public class MultiMapConverterTests
         deserialized.Count.ShouldEqual(2);
         deserialized["Dates1"].Count().ShouldEqual(2);
         deserialized["Dates2"].Count().ShouldEqual(1);
+    }
+
+    [Test]
+    public void Write_Should_Serialize_Polymorph_Types()
+    {
+        var multimap = new Multimap<int, object>();
+        multimap.Add(1, new MapClass1 { Prop1 = "Doe" });
+        multimap.Add(1, new MapClass1 { Prop1 = "Doe" });
+        multimap.Add(2, new MapClass1 { Prop1 = "Doe" });
+        multimap.Add(2, new MapClass1 { Prop1 = "Doe" });
+
+        var json = JsonSerializer.Serialize(multimap, _options);
+        multimap = JsonSerializer.Deserialize<Multimap<int, object>>(json, _options);
+
+        json.ShouldNotBeNull();
+        json.ShouldEqual("[]");
     }
 }

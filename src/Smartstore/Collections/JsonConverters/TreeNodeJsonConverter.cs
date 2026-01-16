@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using Smartstore.Json.Polymorphy;
 using NSJ = Newtonsoft.Json;
 using NSJL = Newtonsoft.Json.Linq;
 
@@ -154,7 +155,7 @@ internal sealed class TreeNodeJsonConverter<T> : JsonConverter<TreeNode<T>>
         T value = default;
         List<TreeNode<T>> children = null;
         object id = null;
-        Dictionary<string, object> metadata = null;
+        IDictionary<string, object> metadata = null;
 
         while (reader.Read())
         {
@@ -177,8 +178,7 @@ internal sealed class TreeNodeJsonConverter<T> : JsonConverter<TreeNode<T>>
             }
             else if (string.Equals(propertyName, "Metadata", StringComparison.OrdinalIgnoreCase))
             {
-                // TODO: (json) (mc) Polymorphy!
-                metadata = JsonSerializer.Deserialize<Dictionary<string, object>>(ref reader, options);
+                metadata = options.ReadPolymorphicDictionary(ref reader);
             }
             else if (string.Equals(propertyName, "Children", StringComparison.OrdinalIgnoreCase))
             {
@@ -248,8 +248,7 @@ internal sealed class TreeNodeJsonConverter<T> : JsonConverter<TreeNode<T>>
         if (value.Metadata != null && value.Metadata.Count > 0)
         {
             writer.WritePropertyName("Metadata");
-            // TODO: (json) (mc) Polymorphy!
-            JsonSerializer.Serialize(writer, value.Metadata, options);
+            options.WritePolymorphicDictionary(writer, value.Metadata, wrapArrays: true);
         }
 
         // Children

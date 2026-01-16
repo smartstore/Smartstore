@@ -56,8 +56,8 @@ public class JsonTests
         var json = JsonSerializer.Serialize(root, _jsonOptions);
         var root2 = JsonSerializer.Deserialize<RootClass>(json, _jsonOptions);
 
-        //json = _jsonOptions.SerializePolymorphicDictionary(root.Properties, wrapArrays: true);
-        //var dict = _jsonOptions.DeserializePolymorphicDictionary(json, wrapArrays: true);
+        json = _jsonOptions.SerializePolymorphicDictionary(root.Properties, wrapArrays: true);
+        var dict = _jsonOptions.DeserializePolymorphicDictionary(json) as Dictionary<string, object?>;
     }
 
     private RootClass CreateTestRootObject()

@@ -4,6 +4,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Routing;
 using NUnit.Framework;
 using Smartstore.Http;
+using Smartstore.Json;
 using Smartstore.Test.Common;
 
 namespace Smartstore.Tests.Http
@@ -16,7 +17,7 @@ namespace Smartstore.Tests.Http
         [SetUp]
         public void Setup()
         {
-            _options = new JsonSerializerOptions();
+            _options = SmartJsonOptions.Default;
         }
 
         #region StjRouteInfoConverter Read Tests
@@ -50,7 +51,7 @@ namespace Smartstore.Tests.Http
             result.Controller.ShouldEqual("Product");
             result.RouteValues.ShouldNotBeNull();
             result.RouteValues.Count.ShouldEqual(2);
-            ((JsonElement)result.RouteValues["id"]).GetInt32().ShouldEqual(123);
+            result.RouteValues["id"].Convert<int>().ShouldEqual(123);
             result.RouteValues["area"].ToString().ShouldEqual("Admin");
         }
 
@@ -73,7 +74,7 @@ namespace Smartstore.Tests.Http
             result.Controller.ShouldBeNull();
             result.RouteValues.ShouldNotBeNull();
             result.RouteValues.Count.ShouldEqual(1);
-            ((JsonElement)result.RouteValues["page"]).GetInt32().ShouldEqual(1);
+            result.RouteValues["page"].Convert<int>().ShouldEqual(1);
         }
 
         [Test]
@@ -134,7 +135,7 @@ namespace Smartstore.Tests.Http
             result.Action.ShouldEqual("Delete");
             result.Controller.ShouldEqual("Category");
             result.RouteValues.ShouldNotBeNull();
-            ((JsonElement)result.RouteValues["id"]).GetInt32().ShouldEqual(456);
+            result.RouteValues["id"].Convert<int>().ShouldEqual(456);
         }
 
         [Test]
@@ -161,9 +162,9 @@ namespace Smartstore.Tests.Http
             result.RouteValues.ShouldNotBeNull();
             result.RouteValues.Count.ShouldEqual(4);
             result.RouteValues["query"].ToString().ShouldEqual("test");
-            ((JsonElement)result.RouteValues["categoryId"]).GetInt32().ShouldEqual(10);
-            result.RouteValues["priceMin"].ToString().ShouldEqual("99.99");
-            ((JsonElement)result.RouteValues["inStock"]).GetBoolean().ShouldEqual(true);
+            result.RouteValues["categoryId"].Convert<int>().ShouldEqual(10);
+            result.RouteValues["priceMin"].Convert<double>().ShouldEqual(99.99);
+            result.RouteValues["inStock"].Convert<bool>().ShouldEqual(true);
         }
 
         #endregion
@@ -208,15 +209,14 @@ namespace Smartstore.Tests.Http
         [Test]
         public void Can_serialize_routeinfo_with_empty_routevalues()
         {
-            var routeInfo = new RouteInfo("List", "Customer", new RouteValueDictionary());
+            var routeInfo = new RouteInfo("List", "Customer", []);
 
             var json = JsonSerializer.Serialize(routeInfo, _options);
-            var doc = JsonDocument.Parse(json);
-            var root = doc.RootElement;
+            routeInfo = JsonSerializer.Deserialize<RouteInfo>(json, _options);
 
-            root.GetProperty("Action").GetString().ShouldEqual("List");
-            root.GetProperty("Controller").GetString().ShouldEqual("Customer");
-            root.GetProperty("RouteValues").EnumerateObject().MoveNext().ShouldBeFalse();
+            routeInfo.Action.ShouldEqual("List");
+            routeInfo.Controller.ShouldEqual("Customer");
+            Assert.That(routeInfo.RouteValues, Is.Empty);
         }
 
         [Test]
@@ -237,9 +237,9 @@ namespace Smartstore.Tests.Http
             deserialized.Action.ShouldEqual(original.Action);
             deserialized.Controller.ShouldEqual(original.Controller);
             deserialized.RouteValues.Count.ShouldEqual(original.RouteValues.Count);
-            ((JsonElement)deserialized.RouteValues["id"]).GetInt32().ShouldEqual(789);
+            deserialized.RouteValues["id"].Convert<int>().ShouldEqual(789);
             deserialized.RouteValues["name"].ToString().ShouldEqual("TestProduct");
-            deserialized.RouteValues["price"].ToString().ShouldEqual("49.99");
+            deserialized.RouteValues["price"].Convert<double>().ShouldEqual(49.99);
         }
 
         #endregion

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Text.Json;
+using Smartstore.Json.Polymorphy;
 using NSJ = Newtonsoft.Json;
 using STJ = System.Text.Json.Serialization;
 
@@ -112,7 +113,11 @@ internal class MultimapConverter<TKey, TValue> : STJ.JsonConverter<Multimap<TKey
 {
     public override Multimap<TKey, TValue> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        // TODO: (json) (mc) Polymorphy?
+        //// TODO: (json) (mc) Polymorphy?
+        //var isPolymorph = PolymorphyCodec.IsPolymorphType(typeof(TValue));
+        //var list = isPolymorph 
+        //    ? JsonSerializer.Deserialize<IEnumerable<KeyValuePair<TKey, IEnumerable<TValue>>>>(ref reader, options)
+        //    : options.DeserializePolymorphicList<KeyValuePair<TKey, IEnumerable<TValue>>>(ref reader);
         var list = JsonSerializer.Deserialize<IEnumerable<KeyValuePair<TKey, IEnumerable<TValue>>>>(ref reader, options);
 
         return typeof(TKey) == typeof(string)

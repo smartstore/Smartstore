@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Routing;
 using NSJ = Newtonsoft.Json;
 using STJ = System.Text.Json.Serialization;
 using System.Text.Json;
+using Smartstore.Json.Polymorphy;
+using System.ComponentModel;
 
 namespace Smartstore.Http;
 
@@ -55,6 +57,8 @@ public class RouteInfo
 
     public string Action { get; }
     public string? Controller { get; }
+
+    [DefaultValue("[]")]
     public RouteValueDictionary RouteValues { get; }
 }
 
@@ -150,8 +154,8 @@ internal sealed class RouteInfoJsonConverter : STJ.JsonConverter<RouteInfo>
                 }
                 else if (string.Equals(propertyName, "RouteValues", StringComparison.OrdinalIgnoreCase))
                 {
-                    // TODO: (json) (mc) Polymorphic serialization support for RouteValueDictionary?!
-                    routeValues = JsonSerializer.Deserialize<RouteValueDictionary>(ref reader, options);
+                    var raw = options.ReadPolymorphicDictionary(ref reader);
+                    routeValues = new RouteValueDictionary(raw);
                 }
             }
         }
@@ -170,9 +174,9 @@ internal sealed class RouteInfoJsonConverter : STJ.JsonConverter<RouteInfo>
         }
         
         writer.WritePropertyName("RouteValues");
-        // TODO: (json) (mc) Polymorphic serialization support for RouteValueDictionary?!
-        JsonSerializer.Serialize(writer, value.RouteValues, options);
-        
+        //JsonSerializer.Serialize(writer, value.RouteValues, options);
+        options.WritePolymorphicDictionary(writer, value.RouteValues.ToDictionary());
+
         writer.WriteEndObject();
     }
 }

@@ -2,6 +2,7 @@ using System.Linq;
 using System.Text.Json;
 using NUnit.Framework;
 using Smartstore.Core.AI;
+using Smartstore.Json;
 using Smartstore.Test.Common;
 
 namespace Smartstore.Core.Tests.Platform.AI
@@ -14,10 +15,10 @@ namespace Smartstore.Core.Tests.Platform.AI
         [SetUp]
         public void SetUp()
         {
-            _jsonOptions = new JsonSerializerOptions
+            _jsonOptions = SmartJsonOptions.Default.Create(o =>
             {
-                Converters = { new AIChatStjConverter() }
-            };
+                o.Converters.Add(new AIChatStjConverter());
+            });
         }
 
         [Test]
@@ -35,17 +36,15 @@ namespace Smartstore.Core.Tests.Platform.AI
 
             // Act
             var json = JsonSerializer.Serialize(chat, _jsonOptions);
-            var doc = JsonDocument.Parse(json);
-            var root = doc.RootElement;
+            chat = JsonSerializer.Deserialize<AIChat>(json, _jsonOptions);
 
             // Assert
-            root.GetProperty("Topic").GetInt32().ShouldEqual((int)AIChatTopic.RichText);
-            root.GetProperty("ModelName").GetString().ShouldEqual("gpt-4");
-            root.GetProperty("Messages").GetArrayLength().ShouldEqual(3);
-            root.GetProperty("InitialUserMessageHash").GetInt32().ShouldEqual(0);
-            root.TryGetProperty("Metadata", out var metadata).ShouldBeTrue();
-            metadata.GetProperty("key1").GetString().ShouldEqual("value1");
-            metadata.GetProperty("key2").GetInt32().ShouldEqual(123);
+            chat.Topic.ShouldEqual(AIChatTopic.RichText);
+            chat.ModelName.ShouldEqual("gpt-4");
+            chat.Messages.Count.ShouldEqual(3);
+            chat.InitialUserMessage.ShouldBeNull();
+            chat.Metadata["key1"].ShouldEqual("value1");
+            chat.Metadata["key2"].ShouldEqual(123);
         }
 
         [Test]
@@ -152,7 +151,7 @@ namespace Smartstore.Core.Tests.Platform.AI
             var json = @"{
                 ""Topic"": 1,
                 ""ModelName"": ""gpt-3.5-turbo"",
-                ""Messages"": [{""Role"": 1, ""Content"": ""Test""}],
+                ""Messages"": [{""Role"": ""user"", ""Content"": ""Test""}],
                 ""InitialUserMessageHash"": 0
             }";
 
@@ -289,9 +288,9 @@ namespace Smartstore.Core.Tests.Platform.AI
         {
             // Arrange
             var json = @"{
-                ""topic"": 1,
+                ""topic"": 2,
                 ""modelname"": ""gpt-3.5"",
-                ""messages"": [{""Role"": 1, ""Content"": ""Test""}],
+                ""messages"": [{""Role"": ""user"", ""Content"": ""Test""}],
                 ""initialusermessagehash"": 0
             }";
 
@@ -330,7 +329,7 @@ namespace Smartstore.Core.Tests.Platform.AI
             var json = @"{
                 ""Topic"": 0,
                 ""ModelName"": null,
-                ""Messages"": [{""Role"": 1, ""Content"": ""Test""}],
+                ""Messages"": [{""Role"": ""user"", ""Content"": ""Test""}],
                 ""InitialUserMessageHash"": 0
             }";
 

@@ -85,6 +85,21 @@ internal static class PolymorphyModifier
                 default:
                     break;
             }
+
+#if DEBUG
+            // Sanity check: if a [Polymorphic] attribute was found, a converter must be assigned.
+            // This catches cases where AttributeProvider is missing (e.g. stub/private types) or classification mismatches.
+            if (prop.CustomConverter is null)
+            {
+                var declaring = typeInfo.Type;
+                var propName = prop.Name;
+                var memberInfo = member?.DeclaringType?.FullName + "." + member?.Name;
+
+                throw new InvalidOperationException(
+                    $"[Polymorphic] was detected but no CustomConverter was assigned. " +
+                    $"Type='{declaring}', Property='{propName}', PropertyType='{rawPropType}', Member='{memberInfo ?? "<no member info>"}'.");
+            }
+#endif
         }
     }
 

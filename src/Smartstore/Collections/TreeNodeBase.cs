@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
@@ -181,7 +182,7 @@ namespace Smartstore.Collections
 
         #region Metadata
 
-        [Polymorphic(WrapArrays = true)]
+        [Polymorphic(WrapArrays = true), DefaultValue("[]")]
         public IDictionary<string, object?> Metadata
         {
             get => _metadata ??= new Dictionary<string, object?>();
@@ -324,9 +325,12 @@ namespace Smartstore.Collections
             get => _children?[i];
         }
 
+        [DefaultValue("[]")]
         public IReadOnlyList<T> Children
         {
-            get => (IReadOnlyList<T>)_children ?? ArraySegment<T>.Empty;
+            get => (IReadOnlyList<T>)_children ?? [];
+            // For STJ
+            internal set => _children = (List<T>)value;
         }
 
         [IgnoreDataMember]
