@@ -24,7 +24,7 @@ namespace Smartstore.Core.Checkout.Tax
                 VatNumber = vatNumber
             };
 
-            var jsonOptions = SmartJsonOptions.CamelCasedIgnoreDefaultValue;
+            var jsonOptions = SmartJsonOptions.CamelCased;
             var response = await _httpClient.PostAsJsonAsync(url, request, jsonOptions, cancelToken);
 
             if (response.IsSuccessStatusCode)

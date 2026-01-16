@@ -1472,7 +1472,7 @@ namespace Smartstore.Admin.Controllers
             Response.ContentType = "application/json";
             Response.Headers.ContentDisposition = $"attachment; filename=customer-{customer.Id}.json";
 
-            await SmartJsonOptions.CamelCasedIgnoreDefaultValue.SerializeIndentedAsync(Response.BodyWriter, data);
+            await SmartJsonOptions.CamelCased.SerializeIndentedAsync(Response.BodyWriter, data);
 
             return new EmptyResult();
         }

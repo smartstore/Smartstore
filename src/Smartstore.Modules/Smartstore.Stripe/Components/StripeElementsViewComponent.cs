@@ -77,7 +77,7 @@ public class StripeElementsViewComponent : SmartViewComponent
 
         var stripePaymentRequest = await _stripeHelper.GetStripePaymentRequestAsync();
 
-        model.PaymentRequest = JsonSerializer.Serialize(stripePaymentRequest, SmartJsonOptions.CamelCasedIgnoreDefaultValue);
+        model.PaymentRequest = JsonSerializer.Serialize(stripePaymentRequest, SmartJsonOptions.CamelCased);
 
         return View(model);
     }

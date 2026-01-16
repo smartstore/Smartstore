@@ -67,7 +67,7 @@ namespace Smartstore.Core.Catalog.Products
                 Titles = null;
             }
 
-            return JsonSerializer.Serialize(this, SmartJsonOptions.CamelCasedIgnoreDefaultValue);
+            return JsonSerializer.Serialize(this, SmartJsonOptions.CamelCased);
         }
 
         public bool IsDefaultState
@@ -98,7 +98,7 @@ namespace Smartstore.Core.Catalog.Products
 
         private static GroupedProductConfiguration Deserialize(string json)
         {
-            return CommonHelper.TryAction(() => JsonSerializer.Deserialize<GroupedProductConfiguration>(json, SmartJsonOptions.CamelCasedIgnoreDefaultValue));
+            return CommonHelper.TryAction(() => JsonSerializer.Deserialize<GroupedProductConfiguration>(json, SmartJsonOptions.CamelCased));
         }
     }
 }

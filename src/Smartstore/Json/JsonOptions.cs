@@ -2,7 +2,6 @@
 
 using System.Collections;
 using System.ComponentModel;
-using System.Globalization;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text.Json;
@@ -10,7 +9,6 @@ using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using Smartstore.Domain;
 using Smartstore.Json.Polymorphy;
-using Smartstore.Utilities;
 
 namespace Smartstore.Json;
 
@@ -54,8 +52,9 @@ public static class SmartJsonOptions
         // NSJ: ObjectCreationHandling.Replace
         PreferredObjectCreationHandling = JsonObjectCreationHandling.Replace,
 
-        // NSJ: NullValueHandling.Ignore
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        // NSJ: DefaultValueHandling.Ignore
+        // This actually differs from NSJ default behavoiour, but it's more useful this way.
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
 
         // NSJ: MaxDepth
         MaxDepth = 32,
@@ -93,7 +92,7 @@ public static class SmartJsonOptions
     /// Provides a preconfigured <see cref="JsonSerializerOptions"/> instance that uses camel case property naming and
     /// ignores properties with default values during serialization.
     /// </summary>
-    public static readonly JsonSerializerOptions CamelCasedIgnoreDefaultValue = CamelCased.Create(o =>
+    public static readonly JsonSerializerOptions CamelCasedIgnoreDefaults = CamelCased.Create(o =>
     {
         o.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
     });
@@ -146,7 +145,7 @@ public static class SmartJsonOptions
             if (prop.AttributeProvider is not MemberInfo mi)
                 continue;
 
-            if (!mi.IsDefined(typeof(IgnoreDataMemberAttribute), inherit: true))
+            if (!mi.HasAttribute<IgnoreDataMemberAttribute>(true))
                 continue;
 
             // Ignore on write
@@ -157,9 +156,6 @@ public static class SmartJsonOptions
 
             // Safety: if it was marked required somewhere, required+no-setter can explode.
             prop.IsRequired = false;
-
-            //prop.ShouldSerialize = (_, __) => false;
-            //prop.ShouldDeserialize = (_, __) => false;
         }
     }
 
