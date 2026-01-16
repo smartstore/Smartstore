@@ -111,6 +111,11 @@ internal static class PolymorphyCodec
                 return false;
 
             case JsonValueKind.String:
+                if (el.TryGetGuid(out var guid))
+                    return guid;
+                else if (el.TryGetDateTime(out var dateTime))
+                    return dateTime;
+
                 return el.GetString();
 
             case JsonValueKind.Number:
@@ -365,8 +370,12 @@ internal static class PolymorphyCodec
         // Dictionaries are treated as complex objects and always wrapped at the dictionary slot root.
         if (TryGetStringKeyDictionary(value, out var dict))
         {
-            // Dictionary root is always wrapped (NSJ-ish).
-            WriteWrappedObjectStart(writer, runtimeType, o);
+            // Don't wrap dictionary root if it's Dictionary<string, object?> (the most common polymorphic case).
+            writer.WriteStartObject();
+            if (dict.GetType() != typeof(Dictionary<string, object?>))
+            {
+                writer.WriteString(o.TypePropertyName, o.GetRequiredTypeId(runtimeType));
+            }
 
             foreach (var (key, val) in dict)
             {
@@ -466,7 +475,7 @@ internal static class PolymorphyCodec
         writer.WriteEndObject();
     }
 
-    private static void WriteWrappedObjectStart(Utf8JsonWriter writer, Type runtimeType, PolymorphyOptions o)
+    internal static void WriteWrappedObjectStart(Utf8JsonWriter writer, Type runtimeType, PolymorphyOptions o)
     {
         writer.WriteStartObject();
         writer.WriteString(o.TypePropertyName, o.GetRequiredTypeId(runtimeType));

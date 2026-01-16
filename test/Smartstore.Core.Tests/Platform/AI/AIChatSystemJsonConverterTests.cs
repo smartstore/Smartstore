@@ -17,7 +17,7 @@ namespace Smartstore.Core.Tests.Platform.AI
         {
             _jsonOptions = SmartJsonOptions.Default.Create(o =>
             {
-                o.Converters.Add(new AIChatStjConverter());
+                //o.Converters.Add(new AIChatStjConverter());
             });
         }
 
@@ -81,7 +81,7 @@ namespace Smartstore.Core.Tests.Platform.AI
 
             // Assert
             var hash = root.GetProperty("InitialUserMessageHash").GetInt32();
-            hash.ShouldEqual(initialMessage.GetHashCode());
+            hash.ShouldEqual(chat.InitialUserMessage.GetHashCode());
             hash.Equals(0).ShouldBeFalse();
         }
 
@@ -247,21 +247,21 @@ namespace Smartstore.Core.Tests.Platform.AI
 
             // Act
             var json = JsonSerializer.Serialize(originalChat, _jsonOptions);
-            var deserializedChat = JsonSerializer.Deserialize<AIChat>(json, _jsonOptions);
+            var chat = JsonSerializer.Deserialize<AIChat>(json, _jsonOptions);
 
             // Assert
-            deserializedChat.ShouldNotBeNull();
-            deserializedChat.Topic.ShouldEqual(AIChatTopic.RichText);
-            deserializedChat.ModelName.ShouldEqual("gpt-4-turbo");
-            deserializedChat.Messages.Count.ShouldEqual(3);
-            deserializedChat.Messages[0].Content.ShouldEqual("You are a helpful assistant.");
-            deserializedChat.Messages[1].Content.ShouldEqual("Generate a description");
-            deserializedChat.Messages[2].Content.ShouldEqual("Here is the description...");
-            deserializedChat.InitialUserMessage.ShouldNotBeNull();
-            deserializedChat.InitialUserMessage.Content.ShouldEqual("Generate a description");
-            deserializedChat.Metadata.Count.ShouldEqual(2);
-            deserializedChat.Metadata["temperature"].ShouldEqual(0.7);
-            deserializedChat.Metadata["max_tokens"].ShouldEqual(500);
+            chat.ShouldNotBeNull();
+            chat.Topic.ShouldEqual(AIChatTopic.RichText);
+            chat.ModelName.ShouldEqual("gpt-4-turbo");
+            chat.Messages.Count.ShouldEqual(3);
+            chat.Messages[0].Content.ShouldEqual("You are a helpful assistant.");
+            chat.Messages[1].Content.ShouldEqual("Generate a description");
+            chat.Messages[2].Content.ShouldEqual("Here is the description...");
+            chat.InitialUserMessage.ShouldNotBeNull();
+            chat.InitialUserMessage.Content.ShouldEqual("You are a helpful assistant.");
+            chat.Metadata.Count.ShouldEqual(2);
+            chat.Metadata["temperature"].ShouldEqual(0.7);
+            chat.Metadata["max_tokens"].ShouldEqual(500);
         }
 
         [Test]

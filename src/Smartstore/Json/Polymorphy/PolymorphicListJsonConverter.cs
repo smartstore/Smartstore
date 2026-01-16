@@ -5,11 +5,11 @@ using System.Text.Json.Serialization;
 
 namespace Smartstore.Json.Polymorphy;
 
-internal sealed class PolymorphicListConverterFactory : JsonConverterFactory
+internal sealed class PolymorphicListJsonConverterFactory : JsonConverterFactory
 {
     private readonly PolymorphyOptions _poly;
 
-    public PolymorphicListConverterFactory(PolymorphyOptions poly)
+    public PolymorphicListJsonConverterFactory(PolymorphyOptions poly)
         => _poly = Guard.NotNull(poly);
 
     public override bool CanConvert(Type typeToConvert)

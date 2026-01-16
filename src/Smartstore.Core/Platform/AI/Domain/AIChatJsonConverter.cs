@@ -186,15 +186,20 @@ namespace Smartstore.Core.AI
                 writer.WritePropertyName(nameof(AIChat.Topic));
                 JsonSerializer.Serialize(writer, value.Topic, options);
 
-                // TODO: (mh) I think writer.WriteString(propName, value) is sufficient for primitive types. Check and fix.
-                writer.WritePropertyName(nameof(AIChat.ModelName));
-                JsonSerializer.Serialize(writer, value.ModelName, options);
+                writer.WriteString(
+                    nameof(AIChat.ModelName), 
+                    value.ModelName);
 
                 writer.WritePropertyName(nameof(AIChat.Messages));
                 JsonSerializer.Serialize(writer, value.Messages, options);
 
-                writer.WritePropertyName(nameof(AIChat.InitialUserMessage) + "Hash");
-                writer.WriteNumberValue(value.InitialUserMessage?.GetHashCode() ?? 0);
+                var initialMessageHash = value.InitialUserMessage?.GetHashCode() ?? 0;
+                if (initialMessageHash != 0)
+                {
+                    writer.WriteNumber(
+                        nameof(AIChat.InitialUserMessage) + "Hash",
+                        initialMessageHash);
+                }
 
                 if (value.Metadata is IDictionary<string, object> dict && dict.Count > 0)
                 {

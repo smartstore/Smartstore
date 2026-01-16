@@ -28,12 +28,12 @@ internal static class PolymorphyModifier
 
     private readonly static PolymorphyConverterSet _converterSet = new()
     {
-        ObjectConverter = new PolymorphicObjectConverterFactory(PolymorphyOptions.Default),
-        ObjectWithArraysConverter = new PolymorphicObjectConverterFactory(PolymorphyOptions.DefaultWithArrays),
-        ListConverter = new PolymorphicListConverterFactory(PolymorphyOptions.Default),
-        ListWithArraysConverter = new PolymorphicListConverterFactory(PolymorphyOptions.DefaultWithArrays),
-        DictionaryConverter = new PolymorphicDictionaryConverterFactory(PolymorphyOptions.Default),
-        DictionaryWithArraysConverter = new PolymorphicDictionaryConverterFactory(PolymorphyOptions.DefaultWithArrays)
+        ObjectConverter = new PolymorphicObjectJsonConverterFactory(PolymorphyOptions.Default),
+        ObjectWithArraysConverter = new PolymorphicObjectJsonConverterFactory(PolymorphyOptions.DefaultWithArrays),
+        ListConverter = new PolymorphicListJsonConverterFactory(PolymorphyOptions.Default),
+        ListWithArraysConverter = new PolymorphicListJsonConverterFactory(PolymorphyOptions.DefaultWithArrays),
+        DictionaryConverter = new PolymorphicDictionaryJsonConverterFactory(PolymorphyOptions.Default),
+        DictionaryWithArraysConverter = new PolymorphicDictionaryJsonConverterFactory(PolymorphyOptions.DefaultWithArrays)
     };
 
     /// <summary>

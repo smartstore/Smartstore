@@ -11,11 +11,11 @@ namespace Smartstore.Json.Polymorphy;
 /// Supports IDictionary<string, TValue>, Dictionary<string, TValue>, Custom derived dictionaries,
 /// and IReadOnlyDictionary<string, TValue> (materializes as Dictionary<string, TValue> on read).
 /// </summary>
-internal sealed class PolymorphicDictionaryConverterFactory : JsonConverterFactory
+internal sealed class PolymorphicDictionaryJsonConverterFactory : JsonConverterFactory
 {
     private readonly PolymorphyOptions _poly;
 
-    public PolymorphicDictionaryConverterFactory(PolymorphyOptions options)
+    public PolymorphicDictionaryJsonConverterFactory(PolymorphyOptions options)
         => _poly = Guard.NotNull(options);
 
     public override bool CanConvert(Type typeToConvert)
@@ -99,9 +99,14 @@ internal sealed class PolymorphicDictionaryConverterFactory : JsonConverterFacto
                 return;
             }
 
-            // Dictionary slot itself is always wrapped (NSJ-ish).
             writer.WriteStartObject();
-            writer.WriteString(_poly.TypePropertyName, _poly.GetRequiredTypeId(value.GetType()));
+
+            // Don't wrap dictionary root if it's Dictionary<string, object?> (the most common polymorphic case).
+            var dictType = value.GetType();
+            if (dictType != typeof(Dictionary<string, object?>))
+            {
+                writer.WriteString(_poly.TypePropertyName, _poly.GetRequiredTypeId(value.GetType()));
+            }
 
             foreach (var (k, v) in EnumeratePairs(value))
             {

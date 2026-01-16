@@ -23,13 +23,14 @@ internal sealed class PolymorphyOptions
 
     public bool WrapArrays { get; set; }
 
-    public Func<Type, string?> GetTypeId { get; init; } = static t => t.AssemblyQualifiedNameWithoutVersion();
+    public Func<Type, string?> GetTypeId { get; init; } = static t 
+        => t.AssemblyQualifiedNameWithoutVersion();
 
-    public Func<string, Type?> ResolveTypeId { get; init; } = static id =>
-        Type.GetType(id, throwOnError: false, ignoreCase: false);
+    public Func<string, Type?> ResolveTypeId { get; init; } = static id
+        => Type.GetType(id, throwOnError: false, ignoreCase: false);
 
-    public Func<Type, bool> IsAllowedType { get; init; } = static t =>
-        !t.IsAbstract && !t.IsInterface && !t.ContainsGenericParameters;
+    public Func<Type, bool> IsAllowedType { get; init; } = static t
+        => !t.IsAbstract && !t.IsInterface && !t.ContainsGenericParameters;
 
     public string GetRequiredTypeId(Type runtimeType)
         => GetTypeId(runtimeType) ?? throw new JsonException($"Cannot create discriminator for '{runtimeType}'.");

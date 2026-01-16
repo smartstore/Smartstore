@@ -10,11 +10,11 @@ namespace Smartstore.Json.Polymorphy;
 /// - Reads legacy NSJ Objects: {"$type":"...","Prop":...}
 /// - Writes STJ-ish: {"$type":"...","$value":...} for arrays/scalars.
 /// </summary>
-internal sealed class PolymorphicObjectConverterFactory : JsonConverterFactory
+internal sealed class PolymorphicObjectJsonConverterFactory : JsonConverterFactory
 {
     private readonly PolymorphyOptions _options;
 
-    public PolymorphicObjectConverterFactory(PolymorphyOptions options)
+    public PolymorphicObjectJsonConverterFactory(PolymorphyOptions options)
         => _options = Guard.NotNull(options);
 
     public override bool CanConvert(Type typeToConvert)
