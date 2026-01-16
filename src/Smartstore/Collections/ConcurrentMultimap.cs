@@ -29,14 +29,14 @@ namespace Smartstore.Collections
         {
         }
 
-        public ConcurrentMultimap(IEnumerable<KeyValuePair<TKey, ICollection<TValue>>> items)
+        public ConcurrentMultimap(IEnumerable<KeyValuePair<TKey, IEnumerable<TValue>>> items)
             : this(items, null, null)
         {
             // for serialization
         }
 
         public ConcurrentMultimap(
-            IEnumerable<KeyValuePair<TKey, ICollection<TValue>>> items,
+            IEnumerable<KeyValuePair<TKey, IEnumerable<TValue>>> items,
             IEqualityComparer<TKey> comparer)
             : this(items, comparer, null)
         {
@@ -44,7 +44,7 @@ namespace Smartstore.Collections
         }
 
         public ConcurrentMultimap(
-            IEnumerable<KeyValuePair<TKey, ICollection<TValue>>> items,
+            IEnumerable<KeyValuePair<TKey, IEnumerable<TValue>>> items,
             IEqualityComparer<TKey> comparer,
             Func<IEnumerable<TValue>, ICollection<TValue>> collectionCreator)
         {
@@ -54,7 +54,7 @@ namespace Smartstore.Collections
                 comparer ?? EqualityComparer<TKey>.Default);
         }
 
-        private IEnumerable<KeyValuePair<TKey, SyncedCollection<TValue>>> ConvertItems(IEnumerable<KeyValuePair<TKey, ICollection<TValue>>> items)
+        private IEnumerable<KeyValuePair<TKey, SyncedCollection<TValue>>> ConvertItems(IEnumerable<KeyValuePair<TKey, IEnumerable<TValue>>> items)
         {
             if (items == null)
             {

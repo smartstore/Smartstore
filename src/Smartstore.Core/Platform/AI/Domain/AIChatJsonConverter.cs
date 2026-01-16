@@ -111,7 +111,6 @@ namespace Smartstore.Core.AI
             var topic = AIChatTopic.Text;
             string modelName = null;
 
-            // TODO: (json) Test after polymorphic deserialization is supported!!!
             IDictionary<string, object> metadata = null;
             var initialUserMessageHash = 0;
 

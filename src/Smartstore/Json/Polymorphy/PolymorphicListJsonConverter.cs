@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using System.Collections;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -68,10 +69,11 @@ internal sealed class PolymorphicListJsonConverterFactory : JsonConverterFactory
                 tmp.Add((TElement?)obj);
             }
 
-            // Convert to the requested list type using STJ (so it can handle arrays, custom list converters, etc.).
-            // This is cheap compared to fighting all possible list shapes manually.
-            var tmpEl = JsonSerializer.SerializeToElement(tmp, typeof(List<TElement?>), options);
-            return (TList?)JsonSerializer.Deserialize(tmpEl, typeToConvert, options);
+            // IMPORTANT:
+            // Do NOT roundtrip through JsonSerializer.Deserialize here.
+            // That would try to deserialize abstract/interface element types as root values (no property context).
+            var created = PolymorphyCodec.CreateAndPopulateCollectionInstance(typeToConvert, typeof(TElement), (IList)tmp);
+            return (TList)created;
         }
 
         public override void Write(Utf8JsonWriter writer, TList value, JsonSerializerOptions options)

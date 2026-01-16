@@ -207,6 +207,27 @@ internal static class PolymorphyCodec
         throw new JsonException($"Cannot populate collection type '{targetSequenceType}' for element type '{elementType}'.");
     }
 
+    internal static object CreateAndPopulateCollectionInstance(Type targetType, Type elementType, IList typedList)
+    {
+        // Arrays: we must allocate and copy explicitly.
+        if (targetType.IsArray)
+        {
+            var arr = Array.CreateInstance(elementType, typedList.Count);
+            typedList.CopyTo(arr, 0);
+            return arr;
+        }
+
+        var instance = CreateCollectionInstance(targetType, elementType, typedList);
+
+        // If the ctor(IEnumerable<T>) path was used, the instance is already populated.
+        // Otherwise, we need to add items.
+        if (!IsEmptyCollection(instance))
+            return instance;
+
+        PopulateCollection(instance, elementType, typedList);
+        return instance;
+    }
+
     private static object CreateCollectionInstance(Type targetType, Type elementType, IList typedList)
     {
         // Determine a concrete type to instantiate.
@@ -236,6 +257,48 @@ internal static class PolymorphyCodec
         // Fallback based on "shape".
         var fallback = ResolveConcreteCollectionType(targetType, elementType, forceFallback: true);
         return Activator.CreateInstance(fallback)!;
+    }
+
+    private static bool IsEmptyCollection(object instance)
+    {
+        // Best-effort fast checks. If we can't prove it's populated, we populate.
+        return instance switch
+        {
+            ICollection c => c.Count == 0,
+            _ => true
+        };
+    }
+
+    private static void PopulateCollection(object instance, Type elementType, IList typedList)
+    {
+        // Non-generic IList
+        if (instance is IList nongeneric)
+        {
+            foreach (var item in typedList)
+                nongeneric.Add(item);
+            return;
+        }
+
+        // ICollection<T>
+        var iCollectionOfT = typeof(ICollection<>).MakeGenericType(elementType);
+        if (iCollectionOfT.IsInstanceOfType(instance))
+        {
+            var add = iCollectionOfT.GetMethod("Add", [elementType])!;
+            foreach (var item in typedList)
+                add.Invoke(instance, [item]);
+            return;
+        }
+
+        // Last resort: try Add(T) on the concrete type.
+        var addMethod = instance.GetType().GetMethod("Add", [elementType]);
+        if (addMethod is not null)
+        {
+            foreach (var item in typedList)
+                addMethod.Invoke(instance, [item]);
+            return;
+        }
+
+        throw new NotSupportedException($"Cannot populate collection type '{instance.GetType()}'.");
     }
 
     private static Type ResolveConcreteCollectionType(Type targetType, Type elementType, bool forceFallback = false)

@@ -6,6 +6,9 @@ using System.Text.Json.Serialization;
 using NUnit.Framework;
 using Smartstore.Collections;
 using Smartstore.Collections.JsonConverters;
+using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Products;
+using Smartstore.Domain;
 using Smartstore.Json;
 using Smartstore.Test.Common;
 
@@ -26,10 +29,7 @@ public class MultiMapConverterTests
     public void Setup()
     {
         _converterFactory = new MultiMapConverterFactory();
-        _options = SmartJsonOptions.Default.Create(o =>
-        {
-            o.Converters.Add(_converterFactory);
-        });
+        _options = SmartJsonOptions.Default;
     }
 
     [Test]
@@ -236,18 +236,50 @@ public class MultiMapConverterTests
     }
 
     [Test]
-    public void Write_Should_Serialize_Polymorph_Types()
+    public void Should_Handle_Polymorph_Types()
     {
-        var multimap = new Multimap<int, object>();
-        multimap.Add(1, new MapClass1 { Prop1 = "Doe" });
-        multimap.Add(1, new MapClass1 { Prop1 = "Doe" });
-        multimap.Add(2, new MapClass1 { Prop1 = "Doe" });
-        multimap.Add(2, new MapClass1 { Prop1 = "Doe" });
+        var multimap = new Multimap<int, BaseEntity>
+        {
+            { 1, new ProductAttribute { Name = "Attr" } },
+            { 1, new Product { Name = "Product" } },
+            { 2, new ProductReview { ReviewText = "Good" } },
+            { 2, new ProductTag { Name = "Tag" } }
+        };
+        
+        var json = JsonSerializer.Serialize(multimap, _options);
+        json.ShouldNotBeNull();
+
+        var multimap2 = JsonSerializer.Deserialize<Multimap<int, BaseEntity>>(json, _options);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(multimap2.TotalValueCount, Is.EqualTo(4));
+            Assert.That(multimap2[1].ElementAt(0), Is.TypeOf<ProductAttribute>());
+            Assert.That(multimap2[1].ElementAt(1), Is.TypeOf<Product>());
+            Assert.That(multimap2[2].ElementAt(0), Is.TypeOf<ProductReview>());
+            Assert.That(multimap2[2].ElementAt(1), Is.TypeOf<ProductTag>());
+        }
+    }
+
+    [Test]
+    public void Should_Handle_Concurrent_Polymorph_Types()
+    {
+        var multimap = new ConcurrentMultimap<int, BaseEntity>();
+        multimap.TryAdd(1, new ProductAttribute { Name = "Attr" });
+        multimap.TryAdd(1, new Product { Name = "Product" });
+        multimap.TryAdd(2, new ProductReview { ReviewText = "Good" });
+        multimap.TryAdd(2, new ProductTag { Name = "Tag" });
 
         var json = JsonSerializer.Serialize(multimap, _options);
-        multimap = JsonSerializer.Deserialize<Multimap<int, object>>(json, _options);
-
         json.ShouldNotBeNull();
-        json.ShouldEqual("[]");
+
+        var multimap2 = JsonSerializer.Deserialize<ConcurrentMultimap<int, BaseEntity>>(json, _options);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(multimap2.TotalValueCount, Is.EqualTo(4));
+            Assert.That(multimap2[1].ElementAt(0), Is.TypeOf<ProductAttribute>());
+            Assert.That(multimap2[1].ElementAt(1), Is.TypeOf<Product>());
+            Assert.That(multimap2[2].ElementAt(0), Is.TypeOf<ProductReview>());
+            Assert.That(multimap2[2].ElementAt(1), Is.TypeOf<ProductTag>());
+        }
     }
 }

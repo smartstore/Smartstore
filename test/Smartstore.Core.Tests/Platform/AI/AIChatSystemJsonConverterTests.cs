@@ -117,7 +117,6 @@ namespace Smartstore.Core.Tests.Platform.AI
             chat.Messages[2].Role.ShouldEqual(KnownAIMessageRoles.Assistant);
             chat.Metadata.Count.ShouldEqual(2);
 
-            // TODO: (json) Types are not correct. Test again after polymorphic deserialization is implemented.
             chat.Metadata["key1"].ShouldEqual("value1");
             chat.Metadata["key2"].ShouldEqual(123);
         }
