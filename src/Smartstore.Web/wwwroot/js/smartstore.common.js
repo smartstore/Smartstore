@@ -447,6 +447,16 @@
         return $('meta[name="__rvt"]').attr("content") || $('input[name="__RequestVerificationToken"]').val();
     };
 
+    window.disableSubmitTemporarily = function (form) {
+        const btn = form && form.querySelector('[type="submit"]');
+        if (btn) {
+            btn.disabled = true;
+            setTimeout(function () {
+                try { btn.disabled = false; } catch { }
+            }, 4000);
+        }
+    }
+
     /**
      * Render a JSON object as an HTML tree using <div> rows.
      *  - One <div> per entry/row.

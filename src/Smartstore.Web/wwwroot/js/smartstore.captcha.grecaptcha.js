@@ -50,16 +50,6 @@
         return input;
     }
 
-    function disableSubmitTemporarily(form) {
-        const btn = form.querySelector('[type="submit"]');
-        if (btn) {
-            btn.disabled = true;
-            setTimeout(function () {
-                try { btn.disabled = false; } catch { }
-            }, 4000);
-        }
-    }
-
     // --- V3 Logic (Score based) ---
     function bindV3(ctx) {
         const container = ctx.container;
