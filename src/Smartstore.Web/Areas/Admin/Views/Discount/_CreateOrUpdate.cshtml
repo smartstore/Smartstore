@@ -2,16 +2,22 @@
 
 @{
     var primaryStoreCurrencyCode = (string)ViewBag.PrimaryStoreCurrencyCode;
-    var appliedToCategories = ViewBag.AppliedToCategories as List<DiscountAppliedToEntityModel>;
-    var appliedToManufacturers = ViewBag.AppliedToManufacturers as List<DiscountAppliedToEntityModel>;
-    var appliedToProducts = ViewBag.AppliedToProducts as List<DiscountAppliedToEntityModel>;
-
-    string categorySelector(DiscountAppliedToEntityModel x) => $"<a href='{Url.Action("Edit", "Category", new { id = x.Id })}'>{x.Name.HtmlEncode()}</a>";
-    string manufacturerSelector(DiscountAppliedToEntityModel x) => $"<a href='{Url.Action("Edit", "Manufacturer", new { id = x.Id })}'>{x.Name.HtmlEncode()}</a>";
-    string productSelector(DiscountAppliedToEntityModel x) => $"<a href='{Url.Action("Edit", "Product", new { id = x.Id })}'>{x.Name.HtmlEncode()}</a>";
-
     var discountUsageHistoryViewData = new ViewDataDictionary(ViewData);
     discountUsageHistoryViewData["Parent"] = Model;
+
+    async Task AppliedEntities(List<DiscountAppliedToEntityModel> models, string controller)
+    {
+        if (models.Count > 0)
+        {
+            <collapsed-content class="mb-0">
+                @Html.Raw(string.Join(" · ", models.Select(x => $"<a href='{Url.Action("Edit", controller, new { id = x.Id })}'>{x.Name.HtmlEncode()}</a>")))
+            </collapsed-content>
+        }
+        else
+        {
+            <div class="muted">@T("Admin.Promotions.Discounts.NoObjectsAssigned")</div>
+        }
+    }
 }
 
 <div asp-validation-summary="All"></div>
@@ -52,8 +58,9 @@
                     @Html.SmartLabel("AppliedToCategories", T("Admin.Promotions.Discounts.Fields.AppliedToCategories"), T("Admin.Promotions.Discounts.Fields.AppliedToCategories.Hint"))
                 </div>
                 <div class="adminData form-control-plaintext wide">
-                    <div sm-if="!appliedToCategories.Any()" class="muted">@T("Admin.Promotions.Discounts.NoObjectsAssigned")</div>
-                    @Html.Raw(string.Join(" · ", appliedToCategories.Select(categorySelector)))
+                    @{ 
+                        await AppliedEntities(ViewBag.AppliedToCategories, "Category");
+                    }
                 </div>
             </div>
             <div class="adminRow" id="pnlAppliedToManufacturers">
@@ -61,8 +68,9 @@
                     @Html.SmartLabel("AppliedToManufacturers", T("Admin.Promotions.Discounts.Fields.AppliedToManufacturers"), T("Admin.Promotions.Discounts.Fields.AppliedToManufacturers.Hint"))
                 </div>
                 <div class="adminData form-control-plaintext wide">
-                    <div sm-if="!appliedToManufacturers.Any()" class="muted">@T("Admin.Promotions.Discounts.NoObjectsAssigned")</div>
-                    @Html.Raw(string.Join(" · ", appliedToManufacturers.Select(manufacturerSelector)))
+                    @{
+                        await AppliedEntities(ViewBag.AppliedToManufacturers, "Manufacturer");
+                    }
                 </div>
             </div>
             <div class="adminRow" id="pnlAppliedToProducts">
@@ -70,8 +78,9 @@
                     @Html.SmartLabel("AppliedToProducts", T("Admin.Promotions.Discounts.Fields.AppliedToProducts"), T("Admin.Promotions.Discounts.Fields.AppliedToProducts.Hint"))
                 </div>
                 <div class="adminData form-control-plaintext wide">
-                    <div sm-if="!appliedToProducts.Any()" class="muted">@T("Admin.Promotions.Discounts.NoObjectsAssigned")</div>
-                    @Html.Raw(string.Join(" · ", appliedToProducts.Select(productSelector)))
+                    @{
+                        await AppliedEntities(ViewBag.AppliedToProducts, "Product");
+                    }
                 </div>
             </div>
             <div class="adminRow">

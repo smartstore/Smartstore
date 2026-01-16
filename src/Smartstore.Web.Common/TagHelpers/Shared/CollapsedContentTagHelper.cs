@@ -28,10 +28,11 @@ namespace Smartstore.Web.TagHelpers.Shared
             if (_catalogSettings.EnableHtmlTextCollapser)
             {
                 var maxHeight = MaxHeight ?? _catalogSettings.HtmlTextCollapsedHeight;
+                var classes = output.Attributes.TryGetAttribute("class", out var attr) ? $"more-less {attr.Value}" : "more-less";
 
                 var outer = new TagBuilder("div");
                 outer.MergeAttribute("id", "more-less" + CommonHelper.GenerateRandomInteger());
-                outer.Attributes.Add("class", "more-less");
+                outer.Attributes.Add("class", classes);
                 outer.Attributes.Add("data-max-height", maxHeight.ToString());
 
                 var inner = new TagBuilder("div");

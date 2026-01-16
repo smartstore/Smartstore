@@ -26,6 +26,7 @@
 - Checkout: After payment confirmation on the third-party site, you will be redirected directly to the completed page if successful.
 The intermediate step via the confirmation page is omitted.
 - #1465 Display the name of the applied discount on order edit page.
+- #1466 UI: Edit discount details page should use text-expander (more-less buttons) for "Assigned to xyz" fields.
 
 ### Bugfixes
 
