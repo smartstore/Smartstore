@@ -142,5 +142,5 @@ internal static class PolymorphyModifier
     }
 
     private static bool IsCandidateType(Type t)
-        => PolymorphyCodec.IsPolymorphType(t);
+        => PolymorphyCodec.IsPolymorphicType(t);
 }

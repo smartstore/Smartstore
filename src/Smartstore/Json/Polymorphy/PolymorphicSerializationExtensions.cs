@@ -1,6 +1,8 @@
 ﻿#nullable enable
 
 using System.Buffers;
+using System.Collections.Concurrent;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 
@@ -33,6 +35,22 @@ public static class PolymorphSerializationExtensions
         [Polymorphic(WrapArrays = true)]
         public List<TElement?>? Value { get; set; }
     }
+
+    private static readonly MethodInfo s_writeDictDef = FindGenericExtensionMethod(
+        nameof(WritePolymorphicDictionary), genericArity: 1, parameterCount: 4);
+
+    private static readonly MethodInfo s_writeListDef = FindGenericExtensionMethod(
+        nameof(WritePolymorphicList), genericArity: 1, parameterCount: 4);
+
+    private static readonly ConcurrentDictionary<(Type ElementType, bool WrapArrays), MethodInfo> s_writeDictCache = new();
+    private static readonly ConcurrentDictionary<(Type ElementType, bool WrapArrays), MethodInfo> s_writeListCache = new();
+
+    private static MethodInfo GetWriteDict(Type elementType, bool wrapArrays)
+        => s_writeDictCache.GetOrAdd((elementType, wrapArrays), static k => s_writeDictDef.MakeGenericMethod(k.ElementType));
+
+    private static MethodInfo GetWriteList(Type elementType, bool wrapArrays)
+        => s_writeListCache.GetOrAdd((elementType, wrapArrays), static k => s_writeListDef.MakeGenericMethod(k.ElementType));
+
 
     extension(JsonSerializerOptions options)
     {
@@ -265,6 +283,112 @@ public static class PolymorphSerializationExtensions
             using var doc = JsonDocument.ParseValue(ref reader);
             return ReadPolymorphicListFromRootElement<TElement>(options, doc.RootElement);
         }
+
+        // =====================================================================
+        // Non-generic API (always fallback, never throw)
+        // =====================================================================
+
+        public bool TryWritePolymorphicDictionary(
+            Utf8JsonWriter writer,
+            object? value,
+            Type elementType,
+            bool wrapArrays)
+        {
+            Guard.NotNull(options);
+            Guard.NotNull(writer);
+            Guard.NotNull(elementType);
+
+            try
+            {
+                EnsurePolymorphType(elementType);
+
+                var mi = GetWriteDict(elementType, wrapArrays);
+                mi.Invoke(null, [options, writer, value, wrapArrays]);
+                return true;
+            }
+            catch
+            {
+                // Always fallback.
+                JsonSerializer.Serialize(writer, value, value?.GetType() ?? typeof(object), options);
+                return false;
+            }
+        }
+
+        public bool TryWritePolymorphicList(
+            Utf8JsonWriter writer,
+            object? value,
+            Type elementType,
+            bool wrapArrays)
+        {
+            Guard.NotNull(options);
+            Guard.NotNull(writer);
+            Guard.NotNull(elementType);
+
+            try
+            {
+                EnsurePolymorphType(elementType);
+
+                var mi = GetWriteList(elementType, wrapArrays);
+                mi.Invoke(null, [options, writer, value, wrapArrays]);
+                return true;
+            }
+            catch
+            {
+                JsonSerializer.Serialize(writer, value, value?.GetType() ?? typeof(object), options);
+                return false;
+            }
+        }
+
+        public object? ReadPolymorphicDictionary(ReadOnlySpan<byte> json, Type elementType)
+            => ReadPolymorphicSlot(options, json, elementType, isDictionary: true);
+
+        public object? ReadPolymorphicList(ReadOnlySpan<byte> json, Type elementType)
+            => ReadPolymorphicSlot(options, json, elementType, isDictionary: false);
+
+        private object? ReadPolymorphicSlot(ReadOnlySpan<byte> json, Type elementType, bool isDictionary)
+        {
+            Guard.NotNull(options);
+            Guard.NotNull(elementType);
+
+            try
+            {
+                EnsurePolymorphType(elementType);
+
+                var reader = new Utf8JsonReader(json);
+                if (!reader.Read())
+                    return null;
+
+                using var doc = JsonDocument.ParseValue(ref reader);
+
+                var buffer = new ArrayBufferWriter<byte>(256);
+                using (var writer = new Utf8JsonWriter(buffer))
+                {
+                    writer.WriteStartObject();
+                    writer.WritePropertyName(ValueName);
+                    doc.RootElement.WriteTo(writer);
+                    writer.WriteEndObject();
+                }
+
+                var stubType = isDictionary
+                    ? typeof(DictionaryStub<>).MakeGenericType(elementType)
+                    : typeof(ListStub<>).MakeGenericType(elementType);
+
+                var root = JsonSerializer.Deserialize(buffer.WrittenSpan, stubType, options);
+                if (root is null)
+                    return null;
+
+                return stubType.GetProperty(ValueName)!.GetValue(root);
+            }
+            catch
+            {
+                // Always fallback to object-shape reading.
+                // Read does not require WrapArrays=true stub; wrapped/raw arrays are both accepted.
+                var s = Encoding.UTF8.GetString(json);
+                return isDictionary
+                    ? options.DeserializePolymorphicDictionary<object?>(s)
+                    : options.DeserializePolymorphicList<object?>(s);
+            }
+        }
     }
 
     private static IDictionary<string, TValue?>? ReadPolymorphicDictionaryFromRootElement<TValue>(
@@ -305,13 +429,44 @@ public static class PolymorphSerializationExtensions
     }
 
     private static void EnsurePolymorphType<T>()
+        => EnsurePolymorphType(typeof(T));
+
+    private static void EnsurePolymorphType(Type t)
     {
-        var t = typeof(T);
-        if (!PolymorphyCodec.IsPolymorphType(t))
+        if (!PolymorphyCodec.IsPolymorphicType(t))
         {
             throw new NotSupportedException(
                 $"Type '{t}' is not a supported polymorphic type. " +
                 $"Use 'object', an interface, or an abstract base type.");
         }
+    }
+
+    private static MethodInfo FindGenericExtensionMethod(string name, int genericArity, int parameterCount)
+    {
+        var methods = typeof(PolymorphSerializationExtensions)
+            .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+
+        foreach (var m in methods)
+        {
+            if (!string.Equals(m.Name, name, StringComparison.Ordinal))
+                continue;
+
+            if (!m.IsGenericMethodDefinition)
+                continue;
+
+            if (m.GetGenericArguments().Length != genericArity)
+                continue;
+
+            var ps = m.GetParameters();
+            if (ps.Length != parameterCount)
+                continue;
+
+            if (ps[0].ParameterType != typeof(JsonSerializerOptions))
+                continue;
+
+            return m;
+        }
+
+        throw new MissingMethodException($"Generic extension method '{name}`{genericArity}' not found.");
     }
 }

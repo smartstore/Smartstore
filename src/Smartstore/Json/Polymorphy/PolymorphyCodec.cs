@@ -2,6 +2,7 @@
 
 using System.Buffers;
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -24,7 +25,7 @@ internal static class PolymorphyCodec
         JsonSerializerOptions options, 
         PolymorphyOptions poly)
     {
-        return IsPolymorphType(declaredType)
+        return IsPolymorphicType(declaredType)
             ? Read(el, declaredType, options, poly)
             : JsonSerializer.Deserialize(el, declaredType, options);
     }
@@ -59,7 +60,7 @@ internal static class PolymorphyCodec
                 // If the target is a sequence with polymorphic element type, we must read elements
                 // via our codec so nested $type gets honored (otherwise STJ yields JsonNode/JsonElement).
                 if (runtimeType.IsSequenceType(out var elementType) &&
-                    IsPolymorphType(elementType) &&
+                    IsPolymorphicType(elementType) &&
                     valuesEl.ValueKind == JsonValueKind.Array)
                 {
                     return ReadPolymorphArray(valuesEl, runtimeType, elementType, readOptions, o);
@@ -462,7 +463,7 @@ internal static class PolymorphyCodec
 
             // Special-case: sequences with polymorphic element types need per-element wrapping,
             // otherwise STJ cannot roundtrip concrete runtime types (e.g. List<object>, List<IBase>, List<IInterface>).
-            var isPolymorphElement = runtimeType.IsSequenceType(out var elementType) && IsPolymorphType(elementType);
+            var isPolymorphElement = runtimeType.IsSequenceType(out var elementType) && IsPolymorphicType(elementType);
 
             if (isPolymorphElement)
             {
@@ -552,9 +553,43 @@ internal static class PolymorphyCodec
             || t == typeof(JsonDocument);
     }
 
-    public static bool IsPolymorphType(Type t)
+    public static bool IsPolymorphicType(Type t)
     {
         return t == typeof(object) || t.IsAbstract || t.IsInterface;
+    }
+
+    public static bool TryGetPolymorphyKind(Type t, [NotNullWhen(true)] out PolymorphyKind? kind, [NotNullWhen(true)] out Type? elementType)
+    {
+        kind = null;
+        elementType = null;
+
+        if (t.IsDictionaryType(out var keyType, out var valueType))
+        {
+            if (keyType == typeof(string) && IsPolymorphicType(valueType))
+            {
+                kind = PolymorphyKind.DictionarySlot;
+                elementType = valueType;
+                return true;
+            }
+        }
+        else if (t.IsSequenceType(out var itemType))
+        {
+            if (IsPolymorphicType(itemType))
+            {
+                kind = PolymorphyKind.ListSlot;
+                elementType = itemType;
+                return true;
+            }
+                
+        }
+        else if (IsPolymorphicType(t))
+        {
+            kind = PolymorphyKind.ObjectSlot;
+            elementType = t;
+            return true;
+        }
+
+        return false;
     }
 
     private static bool TryGetEnumerable(object value, out IEnumerable enumerable)

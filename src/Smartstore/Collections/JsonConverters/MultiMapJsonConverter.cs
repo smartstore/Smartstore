@@ -132,7 +132,7 @@ internal class MultimapConverter<TKey, TValue> : STJ.JsonConverter<Multimap<TKey
         if (reader.TokenType != JsonTokenType.StartArray)
             throw new JsonException("Expected JSON array.");
 
-        var isPolymorphicValueType = PolymorphyCodec.IsPolymorphType(typeof(TValue));
+        var isPolymorphicValueType = PolymorphyCodec.IsPolymorphicType(typeof(TValue));
         var items = new List<KeyValuePair<TKey, IEnumerable<TValue>>>();
 
         while (reader.Read())
@@ -224,7 +224,7 @@ internal class MultimapConverter<TKey, TValue> : STJ.JsonConverter<Multimap<TKey
         IEnumerable<KeyValuePair<TKey, ICollection<TValue>>> value, 
         JsonSerializerOptions options)
     {
-        var isPolymorphicValueType = PolymorphyCodec.IsPolymorphType(typeof(TValue));
+        var isPolymorphicValueType = PolymorphyCodec.IsPolymorphicType(typeof(TValue));
 
         writer.WriteStartArray();
         foreach (var item in value)
