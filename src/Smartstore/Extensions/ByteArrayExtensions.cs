@@ -1,3 +1,6 @@
+#nullable enable
+
+using System.Buffers;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Text;
@@ -6,6 +9,13 @@ namespace Smartstore;
 
 public static class ByteArrayExtensions
 {
+    const int CopyBufferSize = 64 * 1024;
+    const int CompressionThresholdBytes = 512;
+
+    // Simple codec header to avoid ambiguity.
+    const byte CodecNone = 0;
+    const byte CodecBrotli = 1;
+
     extension(byte[] value)
     {
         /// <summary>
@@ -46,87 +56,192 @@ public static class ByteArrayExtensions
         }
 
         /// <summary>
-        /// Compresses the input buffer with <see cref="GZipStream"/>
+        /// Compresses the current byte array using Brotli compression, or returns the original data if compression is
+        /// not beneficial.
         /// </summary>
-        /// <param name="buffer">Decompressed input</param>
-        /// <returns>The compressed result</returns>
-        public byte[] Zip()
+        /// <remarks>If the input data is empty or below a predefined threshold, compression is skipped
+        /// and the original data is returned with a marker indicating no compression. This method is optimized for
+        /// typical JSON payloads and may not compress very small inputs.</remarks>
+        /// <param name="level">The compression level to use when compressing the data. Defaults to <see cref="CompressionLevel.Fastest"/>.</param>
+        /// <returns>A byte array containing the compressed data with a codec marker, or the original data with a marker if
+        /// compression is skipped.</returns>
+        public byte[] Zip(CompressionLevel level = CompressionLevel.Fastest)
         {
-            if (value == null)
+            Guard.NotNull(value);
+
+            if (value.Length == 0)
+                return [CodecNone];
+
+            // Small payloads: skip compression (often faster + smaller overall).
+            if (value.Length < CompressionThresholdBytes)
             {
-                throw new ArgumentNullException(nameof(value));
+                var result = new byte[1 + value.Length];
+                result[0] = CodecNone;
+                Buffer.BlockCopy(value, 0, result, 1, value.Length);
+                return result;
             }
 
-            using (var compressedStream = new MemoryStream())
-            using (var zipStream = new GZipStream(compressedStream, CompressionMode.Compress))
+            // Heuristic capacity: compressed output usually smaller than input for JSON.
+            using var ms = new MemoryStream(1 + Math.Min(value.Length, 64 * 1024));
+            ms.WriteByte(CodecBrotli);
+
+            using (var brotli = new BrotliStream(ms, level, leaveOpen: true))
             {
-                zipStream.Write(value, 0, value.Length);
-                zipStream.Close();
-                return compressedStream.ToArray();
+                brotli.Write(value, 0, value.Length);
             }
+
+            return ms.ToArray();
+        }
+
+        /// <inheritdoc cref="Zip(byte[], CompressionLevel)" />
+        public async Task<byte[]> ZipAsync(CompressionLevel level = CompressionLevel.Fastest, CancellationToken cancelToken = default)
+        {
+            Guard.NotNull(value);
+
+            if (value.Length == 0)
+                return [CodecNone];
+
+            if (value.Length < CompressionThresholdBytes)
+            {
+                var result = new byte[1 + value.Length];
+                result[0] = CodecNone;
+                Buffer.BlockCopy(value, 0, result, 1, value.Length);
+                return result;
+            }
+
+            using var ms = new MemoryStream(1 + Math.Min(value.Length, 64 * 1024));
+            ms.WriteByte(CodecBrotli);
+
+            await using (var brotli = new BrotliStream(ms, level, leaveOpen: true))
+            {
+                await brotli.WriteAsync(value.AsMemory(), cancelToken).ConfigureAwait(false);
+            }
+
+            return ms.ToArray();
         }
 
         /// <summary>
-        /// Compresses the input buffer with <see cref="GZipStream"/>
+        /// Decompresses the stored byte array using the specified compression codec and returns the original
+        /// uncompressed data.
         /// </summary>
-        /// <param name="buffer">Decompressed input</param>
-        /// <returns>The compressed result</returns>
-        public async Task<byte[]> ZipAsync()
-        {
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
-
-            using (var compressedStream = new MemoryStream())
-            using (var zipStream = new GZipStream(compressedStream, CompressionMode.Compress))
-            {
-                await zipStream.WriteAsync(value);
-                zipStream.Close();
-                return compressedStream.ToArray();
-            }
-        }
-
-        /// <summary>
-        /// Decompresses the input buffer with <see cref="GZipStream"/> decompression
-        /// </summary>
-        /// <param name="buffer">Compressed input</param>
-        /// <returns>The decompressed result</returns>
+        /// <remarks>The method supports multiple compression codecs. If the input data uses an
+        /// unsupported codec, an exception is thrown. The method expects the first byte of the input array to indicate
+        /// the codec used for compression.</remarks>
+        /// <returns>A byte array containing the uncompressed data. Returns an empty array if the input is empty or contains no
+        /// data after decompression.</returns>
+        /// <exception cref="InvalidDataException">Thrown when the compression codec specified in the input data is not recognized.</exception>
         public byte[] Unzip()
         {
-            if (value == null)
+            Guard.NotNull(value);
+
+            if (value.Length == 0)
+                return [];
+
+            var codec = value[0];
+
+            if (codec == CodecNone)
             {
-                throw new ArgumentNullException(nameof(value));
+                if (value.Length == 1)
+                    return [];
+
+                var result = new byte[value.Length - 1];
+                Buffer.BlockCopy(value, 1, result, 0, result.Length);
+                return result;
             }
 
-            using (var compressedStream = new MemoryStream(value))
-            using (var zipStream = new GZipStream(compressedStream, CompressionMode.Decompress))
-            using (var resultStream = new MemoryStream())
-            {
-                zipStream.CopyTo(resultStream);
-                return resultStream.ToArray();
-            }
+            if (codec == CodecBrotli && value.Length == 1)
+                throw new InvalidDataException("Compressed payload is missing data.");
+
+            if (codec != CodecBrotli)
+                throw new InvalidDataException($"Unknown compression codec: {codec}");
+
+            using var source = new MemoryStream(value, 1, value.Length - 1, writable: false);
+            using var brotli = new BrotliStream(source, CompressionMode.Decompress);
+
+            // Inflated size unknown. For JSON, 2-4x is a common ballpark.
+            using var ms = new MemoryStream((value.Length - 1) * 3);
+
+            CopyToPooled(brotli, ms);
+
+            return ms.ToArray();
         }
 
-        /// <summary>
-        /// Decompresses the input buffer with <see cref="GZipStream"/> decompression
-        /// </summary>
-        /// <param name="buffer">Compressed input</param>
-        /// <returns>The decompressed result</returns>
-        public async Task<byte[]> UnzipAsync()
+        /// <inheritdoc cref="Unzip(byte[])" />
+        public async Task<byte[]> UnzipAsync(CancellationToken cancelToken = default)
         {
-            if (value == null)
+            Guard.NotNull(value);
+
+            if (value.Length == 0)
+                return [];
+
+            var codec = value[0];
+
+            if (codec == CodecNone)
             {
-                throw new ArgumentNullException(nameof(value));
+                if (value.Length == 1)
+                    return [];
+
+                var result = new byte[value.Length - 1];
+                Buffer.BlockCopy(value, 1, result, 0, result.Length);
+                return result;
             }
 
-            using (var compressedStream = new MemoryStream(value))
-            using (var zipStream = new GZipStream(compressedStream, CompressionMode.Decompress))
-            using (var resultStream = new MemoryStream())
+            if (codec == CodecBrotli && value.Length == 1)
+                throw new InvalidDataException("Compressed payload is missing data.");
+
+            if (codec != CodecBrotli)
+                throw new InvalidDataException($"Unknown compression codec: {codec}");
+
+            using var source = new MemoryStream(value, 1, value.Length - 1, writable: false);
+            await using var brotli = new BrotliStream(source, CompressionMode.Decompress);
+
+            using var ms = new MemoryStream((value.Length - 1) * 3);
+
+            await CopyToPooledAsync(brotli, ms, cancelToken).ConfigureAwait(false);
+
+            return ms.ToArray();
+        }
+    }
+
+    private static void CopyToPooled(Stream source, Stream destination)
+    {
+        byte[]? buffer = null;
+
+        try
+        {
+            buffer = ArrayPool<byte>.Shared.Rent(CopyBufferSize);
+
+            int read;
+            while ((read = source.Read(buffer, 0, buffer.Length)) > 0)
             {
-                await zipStream.CopyToAsync(resultStream);
-                return resultStream.ToArray();
+                destination.Write(buffer, 0, read);
             }
+        }
+        finally
+        {
+            if (buffer != null)
+                ArrayPool<byte>.Shared.Return(buffer);
+        }
+    }
+
+    private static async Task CopyToPooledAsync(Stream source, Stream destination, CancellationToken cancelToken)
+    {
+        byte[]? buffer = null;
+
+        try
+        {
+            buffer = ArrayPool<byte>.Shared.Rent(CopyBufferSize);
+
+            int read;
+            while ((read = await source.ReadAsync(buffer, cancelToken).ConfigureAwait(false)) > 0)
+            {
+                await destination.WriteAsync(buffer.AsMemory(0, read), cancelToken).ConfigureAwait(false);
+            }
+        }
+        finally
+        {
+            if (buffer != null)
+                ArrayPool<byte>.Shared.Return(buffer);
         }
     }
 }
