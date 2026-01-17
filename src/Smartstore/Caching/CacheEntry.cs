@@ -1,7 +1,9 @@
-﻿using System.Runtime.Serialization;
+﻿using System.ComponentModel;
+using System.Runtime.Serialization;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using Smartstore.ComponentModel;
+using Smartstore.Json;
 using Smartstore.Json.Converters;
 
 namespace Smartstore.Caching
@@ -44,6 +46,7 @@ namespace Smartstore.Caching
         /// Gets or sets the cache entry value.
         /// </summary>
         //[JsonConverter(typeof(ObjectWrapperValueJsonConverter))]
+        [Polymorphic(WrapArrays = true)]
         public object Value { get; set; }
 
         /// <summary>
@@ -81,12 +84,14 @@ namespace Smartstore.Caching
         /// memory pressure triggered cleanup. Only applies to memory cache.
         /// The default is <see cref="CacheItemPriority.Normal"/>.
         /// </summary>
+        [DefaultValue(CacheEntryPriority.Normal)]
         public CacheEntryPriority Priority { get; set; } = CacheEntryPriority.Normal;
 
         /// <summary>
         /// Gets or sets the keys of dependant (child) cache entries.
-        /// If any of these entries are removed from cáche, this item will also be removed.
+        /// If any of these entries are removed from cache, this item will also be removed.
         /// </summary>
+        [DefaultValue("[]")]
         public string[] Dependencies { get; set; } = [];
 
         [IgnoreDataMember]

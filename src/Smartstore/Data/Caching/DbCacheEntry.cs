@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Smartstore.ComponentModel;
+using Smartstore.Json;
 using Smartstore.Json.Converters;
 
 namespace Smartstore.Data.Caching
@@ -21,6 +22,7 @@ namespace Smartstore.Data.Caching
         /// <summary>
         /// The cached value, either a single entity or a list of entities.
         /// </summary>
+        [Polymorphic(WrapArrays = true)]
         public object Value { get; set; }
     }
 }

@@ -282,4 +282,25 @@ public class MultiMapConverterTests
             Assert.That(multimap2[2].ElementAt(1), Is.TypeOf<ProductTag>());
         }
     }
+
+    //[Test]
+    //public void Should_Handle_ObjectContainer()
+    //{
+    //    var entry = new CacheEntry
+    //    {
+    //        Key = "TestEntry",
+    //        Value = new DbCacheEntry 
+    //        { 
+    //            Key = new DbCacheKey { Key = "Yo" }, 
+    //            Value = new List<string> { "yo" }
+    //        },
+    //        CachedOn = DateTimeOffset.UtcNow,
+    //        Priority = CacheEntryPriority.High
+    //    };
+
+    //    var json = JsonSerializer.Serialize(entry, _options);
+    //    json.ShouldNotBeNull();
+
+    //    var entry2 = JsonSerializer.Deserialize<CacheEntry>(json, _options);
+    //}
 }

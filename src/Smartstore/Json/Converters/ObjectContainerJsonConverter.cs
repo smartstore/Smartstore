@@ -5,6 +5,7 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Json.Converters;
 
+// TODO: (json) Remove this and the IObjectContainer.ValueType property. STJ comes along with [Polymorphic] slot attribute now.
 public class ObjectContainerJsonConverter : JsonConverter<IObjectContainer>
 {
     public override bool CanRead

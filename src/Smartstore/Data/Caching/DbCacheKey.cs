@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Data.Caching
+﻿using System.ComponentModel;
+
+namespace Smartstore.Data.Caching
 {
     /// <summary>
     /// Stores information of the computed key of the input LINQ query.
@@ -14,7 +16,8 @@
         /// Determines which entities are involved in the LINQ query (by JOIN, INCLUDE etc.).
         /// This array will be used to invalidate data of all related queries automatically.
         /// </summary>
-        public string[] EntitySets { set; get; } = Array.Empty<string>();
+        [DefaultValue("[]")]
+        public string[] EntitySets { set; get; } = [];
 
         public override bool Equals(object obj)
         {
