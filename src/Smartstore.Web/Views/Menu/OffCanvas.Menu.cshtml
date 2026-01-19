@@ -30,7 +30,7 @@
     </div>
     
     <ul class="ocm-nav list-unstyled" role="@(targetNode.Depth > 0 ? "group" : "tree")" id="ocm-nav-@targetNode.Id">
-        <li sm-if="targetNode.Depth > 0 && !targetNode.Value.IsVoid()" class="show-current-node ocm-item">
+        <li sm-if="targetNode.Depth > 0 && !targetNode.Value.IsVoid" class="show-current-node ocm-item">
             <a href="@targetNode.Value.GenerateUrl(this.Url)" class="ocm-link" data-id="@targetNode.Id" data-ajax="false">
                 @T("Offcanvas.Menu.ShowCurrentCat", targetNode.Value.Text)
             </a>

@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System.ComponentModel;
+using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
@@ -19,11 +20,17 @@ namespace Smartstore.Core.Content.Menus
             _enabled = true;
         }
 
-        public AttributeDictionary HtmlAttributes { get; set; } = new();
-        public AttributeDictionary LinkHtmlAttributes { get; set; } = new();
-        public AttributeDictionary BadgeHtmlAttributes { get; set; } = new();
+        [DefaultValue("[]")]
+        public AttributeDictionary HtmlAttributes { get; set; } = [];
 
-        public RouteValueDictionary RouteValues { get; set; } = new();
+        [DefaultValue("[]")]
+        public AttributeDictionary LinkHtmlAttributes { get; set; } = [];
+
+        [DefaultValue("[]")]
+        public AttributeDictionary BadgeHtmlAttributes { get; set; } = [];
+
+        [DefaultValue("[]")]
+        public RouteValueDictionary RouteValues { get; set; } = [];
 
         [IgnoreDataMember]
         public ModifiedParameter ModifiedParam { get; } = new();
@@ -70,10 +77,13 @@ namespace Smartstore.Core.Content.Menus
 
         public int BadgeStyle { get; set; }
 
+        [DefaultValue(true)]
         public bool Visible { get; set; } = true;
 
+        [DefaultValue(true)]
         public bool Encoded { get; set; } = true;
 
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public bool Selected
         {
             get => _selected;
@@ -87,6 +97,7 @@ namespace Smartstore.Core.Content.Menus
             }
         }
 
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public bool Enabled
         {
             get => _enabled;
@@ -160,6 +171,7 @@ namespace Smartstore.Core.Content.Menus
         /// <summary>
         /// Checks whether action/controller or routeName or url has been specified.
         /// </summary>
+        [IgnoreDataMember]
 		public bool HasRoute
         {
             get => _actionName != null || _routeName != null || _url != null;
@@ -168,10 +180,11 @@ namespace Smartstore.Core.Content.Menus
         /// <summary>
         /// Checks whether url has been specified with '#' or 'javascript:void()' or empty string.
         /// </summary>
-        public bool IsVoid()
+        [IgnoreDataMember]
+        public bool IsVoid
         {
             // Perf: order from most to least common
-            return _url != null && (_url == "#" || _url.StartsWith("javascript:void") || _url == string.Empty || _url.IsWhiteSpace());
+            get => _url != null && (_url == "#" || _url.StartsWith("javascript:void") || _url == string.Empty || _url.IsWhiteSpace());
         }
 
         public override string ToString()

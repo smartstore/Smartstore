@@ -15,7 +15,7 @@ namespace Smartstore.Imaging
     {
         public ImageMetadataEntry(string tag, string value, ImageMetadataProfile profile)
         {
-            Guard.NotEmpty(tag, nameof(tag));
+            Guard.NotEmpty(tag);
 
             Tag = tag;
             Value = value;

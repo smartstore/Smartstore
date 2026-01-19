@@ -1,4 +1,5 @@
 ﻿
+using System.ComponentModel;
 using System.Text.Json.Serialization;
 
 namespace Smartstore.Web.Models
@@ -46,6 +47,7 @@ namespace Smartstore.Web.Models
         /// A value indicating whether the node is enabled.
         /// Disabled nodes cannot be checked or selected.
         /// </summary>
+        [DefaultValue(true)]
         public bool Enabled { get; set; } = true;
 
         /// <summary>
