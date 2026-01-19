@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Smartstore.Core.Rules.Rendering
 {
@@ -10,25 +10,25 @@ namespace Smartstore.Core.Rules.Rendering
         /// <summary>
         /// Value.
         /// </summary>
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public string Id { get; set; }
 
         /// <summary>
         /// Displayed text.
         /// </summary>
-        [JsonProperty("text")]
+        [JsonPropertyName("text")]
         public string Text { get; set; }
 
         /// <summary>
         /// Option hint, e.g. the product SKU.
         /// </summary>
-        [JsonProperty("hint")]
+        [JsonPropertyName("hint")]
         public string Hint { get; set; }
 
         /// <summary>
         /// Whether the item is selected.
         /// </summary>
-        [JsonProperty("selected")]
+        [JsonPropertyName("selected")]
         public bool Selected { get; set; }
     }
 }
