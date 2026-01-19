@@ -36,7 +36,16 @@
         <Value>Default values</Value>
     </LocaleResource>
     <LocaleResource Name="DefaultValueSettingsNote">
-        <Value>Default values will be exported if the information does not exist or is not available for a particular product. For a particular product, these values can be edited in the plugin configuration and the product edit page.</Value>
+        <Value>
+            <![CDATA[Default values will be exported if the information does not exist or is not available for a particular product. For a particular product, 
+these values can be edited in the plugin configuration and the product edit page. GMC data is set for <strong>{0}</strong> of <strong>{1}</strong> products.]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="ExportAllProducts">
+        <Value>Export all products</Value>
+    </LocaleResource>
+    <LocaleResource Name="ExportAllProducts.Hint">
+        <Value>Specifies whether all products are exported (default). If disabled, only products for which GMC data is specified are exported.</Value>
     </LocaleResource>
     <LocaleResource Name="MissingDefaultCategory">
         <Value>Default Google category is not set</Value>

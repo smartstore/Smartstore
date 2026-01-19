@@ -115,8 +115,10 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
                     Product entity = product.Entity;
                     var googleProduct = googleProducts.Get(entity.Id);
-                    if (googleProduct != null && !googleProduct.Export)
+                    if ((googleProduct == null && !config.ExportAllProducts) || (googleProduct != null && !googleProduct.Export))
+                    {
                         continue;
+                    }
 
                     writer.WriteStartElement("item");
 
