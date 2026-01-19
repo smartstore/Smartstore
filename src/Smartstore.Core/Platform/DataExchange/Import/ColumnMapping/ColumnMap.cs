@@ -98,7 +98,6 @@ namespace Smartstore.Core.DataExchange.Import
         /// The source name.
         /// </summary>
         [IgnoreDataMember]
-        [JsonIgnore]
         public string SourceName { get; set; }
 
         /// <summary>
@@ -114,7 +113,7 @@ namespace Smartstore.Core.DataExchange.Import
         /// <summary>
         /// A value indicating whether to explicitly ignore this property.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public bool IgnoreProperty
         {
             get => _ignored ??= Default != null && Default == "[IGNOREPROPERTY]";

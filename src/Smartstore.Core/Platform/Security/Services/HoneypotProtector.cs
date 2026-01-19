@@ -17,7 +17,7 @@ namespace Smartstore.Core.Security
     {
         public const string TokenFieldName = "__hpToken";
 
-        private static readonly string[] _fieldNames = new[] { "Phone", "Fax", "Email", "Age", "Name", "FirstName", "LastName", "Type", "Custom", "Reason", "Pet", "Question", "Region" };
+        private static readonly string[] _fieldNames = ["Phone", "Fax", "Email", "Age", "Name", "FirstName", "LastName", "Type", "Custom", "Reason", "Pet", "Question", "Region"];
         private static readonly string _fieldSuffix = CommonHelper.GenerateRandomDigitCode(5);
 
         private readonly IDataProtector _protector;

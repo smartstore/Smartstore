@@ -40,9 +40,9 @@ namespace Smartstore.Core.DataExchange.Csv
         {
             if (to == typeof(string))
             {
-                if (value is CsvConfiguration)
+                if (value is CsvConfiguration csvConfiguration)
                 {
-                    return JsonSerializer.Serialize(value);
+                    return JsonSerializer.Serialize(csvConfiguration, SmartJsonOptions.Default);
                 }
                 else
                 {

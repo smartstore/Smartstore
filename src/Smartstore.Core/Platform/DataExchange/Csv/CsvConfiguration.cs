@@ -59,7 +59,7 @@ namespace Smartstore.Core.DataExchange.Csv
             _escape = '"';
             _delimiter = ';';
             _quote = '"';
-            _quoteString = new string(new[] { _escape, _quote });
+            _quoteString = new string([_escape, _quote]);
 
             Comment = '#';
             HasHeaders = true;
@@ -72,7 +72,7 @@ namespace Smartstore.Core.DataExchange.Csv
 
         private void BuildQuotableChars()
         {
-            _quotableChars = new[] { '\r', '\n', _delimiter, _quote };
+            _quotableChars = ['\r', '\n', _delimiter, _quote];
         }
 
         internal char[] QuotableChars => _quotableChars;
@@ -91,7 +91,7 @@ namespace Smartstore.Core.DataExchange.Csv
         /// <summary>
         /// Gets an array with preset characters
         /// </summary>
-        public static char[] PresetCharacters => new[] { '\n', '\r', '\0' };
+        public static char[] PresetCharacters => ['\n', '\r', '\0'];
 
         /// <summary>
         /// Gets the comment character indicating that a line is commented out (default: #).
@@ -121,7 +121,7 @@ namespace Smartstore.Core.DataExchange.Csv
                 }
 
                 _escape = value;
-                _quoteString = new string(new[] { _escape, _quote });
+                _quoteString = new string([_escape, _quote]);
             }
         }
 
@@ -174,7 +174,7 @@ namespace Smartstore.Core.DataExchange.Csv
                 }
 
                 _quote = value;
-                _quoteString = new string(new[] { _escape, _quote });
+                _quoteString = new string([_escape, _quote]);
                 BuildQuotableChars();
             }
         }

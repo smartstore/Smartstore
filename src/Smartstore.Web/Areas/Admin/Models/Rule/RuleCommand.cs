@@ -6,7 +6,6 @@ using Smartstore.Core.Rules.Rendering;
 
 namespace Smartstore.Admin.Models.Rules
 {
-    [Serializable]
     public class RuleCommand
     {
         [JsonPropertyName("scope")]
