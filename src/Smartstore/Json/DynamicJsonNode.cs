@@ -99,10 +99,40 @@ public class DynamicJsonNode(JsonNode? node) : DynamicObject, IDictionary<string
             JsonObject obj => new DynamicJsonNode(obj),
             // If it is an array, convert items to a list to allow iteration and indexing
             JsonArray arr => arr.Select(ConvertNode).ToList(),
-            // If it is a value (String, Int, Bool), retrieve the native C# value
-            JsonValue val => val.GetValue<object>(),
+            // If it is a value (String, Number, Bool), retrieve the native C# value
+            JsonValue val => ConvertJsonValue(val),
             _ => node
         };
+    }
+
+    private static object? ConvertJsonValue(JsonValue val)
+    {
+        // Nodes created from JsonNode.Parse(...) typically store a JsonElement internally.
+        if (val.TryGetValue<JsonElement>(out var el))
+        {
+            return el.ValueKind switch
+            {
+                JsonValueKind.Null => null,
+                JsonValueKind.Undefined => null,
+                JsonValueKind.True => true,
+                JsonValueKind.False => false,
+                JsonValueKind.String => el.TryGetGuid(out var guid) ? guid
+                    : el.TryGetDateTime(out var dt) ? dt
+                    : el.GetString(),
+                JsonValueKind.Number => el.TryGetInt64(out var l) ? l
+                    : el.TryGetDouble(out var d) ? d
+                    : el.GetDecimal(),
+
+                // These should not usually appear as JsonValue, but handle defensively.
+                JsonValueKind.Object => new DynamicJsonNode(JsonNode.Parse(el.GetRawText())!),
+                JsonValueKind.Array => JsonNode.Parse(el.GetRawText())!.AsArray().Select(ConvertNode).ToList(),
+
+                _ => el.GetRawText()
+            };
+        }
+
+        // If it's CLR-backed already (e.g., JsonValue.Create(123m)), this returns the CLR value.
+        return val.GetValue<object?>();
     }
 
     /// <summary>

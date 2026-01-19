@@ -123,7 +123,7 @@ internal static class PolymorphyCodec
                 if (el.TryGetInt64(out var l))
                     return l;
 
-                return el.GetDouble();
+                return el.TryGetDouble(out var d) ? d : el.GetDecimal();
 
             case JsonValueKind.Array:
             {

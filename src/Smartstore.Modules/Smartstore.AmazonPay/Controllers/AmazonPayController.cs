@@ -336,13 +336,15 @@ public class AmazonPayController : PublicController
                 return Ok();
             }
 
-            var messageJson = (string)node["Message"];
+            var ipnEnvelope = node.ToDynamic();
+
+            var messageJson = (string)ipnEnvelope.Message;
             if (messageJson.IsEmpty())
             {
                 return Ok();
             }
 
-            var messageId = (string)node["MessageId"];
+            var messageId = (string)ipnEnvelope.MessageId;
             var message = JsonSerializer.Deserialize<IpnMessage>(messageJson, SmartJsonOptions.Default);
 
             if (message != null)
