@@ -91,7 +91,12 @@ jQuery(function () {
                 bubbles: true,
                 cancelable: true
             });
-            containingForm[0].dispatchEvent(submitEvent);
+            const nativePrevented = !containingForm[0].dispatchEvent(submitEvent);
+
+            // If native handlers (from captcha js) have NOT called preventDefault(), trigger jQuery.
+            if (!nativePrevented) {
+                containingForm.trigger('submit');
+            }
 
             if (!containingForm.valid()) {
                 el.prop('disabled', false);
