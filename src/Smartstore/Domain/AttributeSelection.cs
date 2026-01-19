@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Xml;
@@ -506,14 +507,11 @@ namespace Smartstore.Domain
 
         protected class AllAttributes
         {
+            [DefaultValue("[]")]
             public Multimap<int, object> Attributes { get; set; } = [];
-            public Multimap<string, object> CustomAttributes { get; set; } = [];
 
-            // INFO: Json.NET conditional property serialization convention:
-            // prevents CustomAttributes from being serialized if empty.
-            // Deserialized to an empty map if missing in raw JSON string.
-            public bool ShouldSerializeCustomAttributes()
-                => CustomAttributes?.Count > 0;
+            [DefaultValue("[]")]
+            public Multimap<string, object> CustomAttributes { get; set; } = [];
         }
     }
 
