@@ -1,9 +1,10 @@
 ﻿using System.Globalization;
+using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
-using Newtonsoft.Json;
 using Smartstore.ComponentModel;
 using Smartstore.ComponentModel.TypeConverters;
+using Smartstore.Json;
 
 namespace Smartstore.Core.Checkout.GiftCards
 {
@@ -69,14 +70,14 @@ namespace Smartstore.Core.Checkout.GiftCards
                         else if (firstChar is '[')
                         {
                             // JSON
-                            return JsonConvert.DeserializeObject<List<string>>(str)
+                            return JsonSerializer.Deserialize<List<string>>(str)
                                 .Select(x => new GiftCardCouponCode(x))
                                 .ToList();
                         }
                     }
-                    catch (JsonSerializationException ex)
+                    catch (JsonException ex)
                     {
-                        throw new JsonSerializationException("Error while trying to deserialize object from Json: " + str, ex);
+                        throw new JsonException("Error while trying to deserialize object from Json: " + str, ex);
                     }
                     catch (XmlException ex)
                     {
@@ -105,7 +106,7 @@ namespace Smartstore.Core.Checkout.GiftCards
                 var couponCodes = attributes.Select(x => x.Value);
                 if (!couponCodes.IsNullOrEmpty())
                 {
-                    return JsonConvert.SerializeObject(couponCodes);
+                    return JsonSerializer.Serialize(couponCodes, SmartJsonOptions.Default);
                 }
             }
 
