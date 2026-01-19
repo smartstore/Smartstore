@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Html;
+﻿using System.Text.Json;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Newtonsoft.Json;
 using Smartstore.Collections;
 using Smartstore.Core.Widgets;
+using Smartstore.Json;
 
 namespace Smartstore.Core.Content.Menus
 {
@@ -94,7 +95,7 @@ namespace Smartstore.Core.Content.Menus
                 }
 
                 // Add node data to head meta property as JSON.
-                _assetBuilder.AddHtmlContent("head", new HtmlString($"<meta property='sm:pagedata' content='{JsonConvert.SerializeObject(nodeData)}' />"));
+                _assetBuilder.AddHtmlContent("head", new HtmlString($"<meta property='sm:pagedata' content='{JsonSerializer.Serialize(nodeData, SmartJsonOptions.Default)}' />"));
             }
 
             public async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)

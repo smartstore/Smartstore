@@ -1,6 +1,6 @@
 ﻿#nullable enable
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Smartstore.Imaging
 {
@@ -22,13 +22,13 @@ namespace Smartstore.Imaging
             Profile = profile;
         }
 
-        [JsonProperty("tag")]
+        [JsonPropertyName("tag")]
         public string Tag { get; }
 
-        [JsonProperty("value")]
+        [JsonPropertyName("value")]
         public string? Value { get; }
 
-        [JsonProperty("profile")]
+        [JsonPropertyName("profile")]
         public ImageMetadataProfile Profile { get; }
     }
 }

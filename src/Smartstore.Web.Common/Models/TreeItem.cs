@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿
+using System.Text.Json.Serialization;
 
 namespace Smartstore.Web.Models
 {
@@ -16,19 +17,19 @@ namespace Smartstore.Web.Models
         /// <summary>
         /// The title of the node. It is used for the HTML title attribute.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string Title { get; set; }
 
         /// <summary>
         /// Optional text of the badge.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string BadgeText { get; set; }
 
         /// <summary>
         /// Optional CSS class of the badge, e.g. badge-secondary.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string BadgeStyle { get; set; }
 
         /// <summary>
@@ -60,39 +61,38 @@ namespace Smartstore.Web.Models
         /// <summary>
         /// URL to open when clicking the node.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string Url { get; set; }
 
         /// <summary>
         /// HTML target attribute for <see cref="Url"/>.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string UrlTarget { get; set; }
 
         /// <summary>
         /// State ID of the node. Needs to be unique across the entire tree.
         /// It is used for ID and name attribute of the state checkbox (if any).
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string StateId { get; set; }
 
         /// <summary>
         /// The value of the state checkbox.
         /// It is used for value attribute of the state checkbox (if any).
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string StateValue { get; set; }
 
         /// <summary>
         /// Optional icon class.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string IconClass { get; set; }
 
         /// <summary>
         /// Optional icon URL.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string IconUrl { get; set; }
     }
 }

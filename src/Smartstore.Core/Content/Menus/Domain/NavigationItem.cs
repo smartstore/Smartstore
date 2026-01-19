@@ -1,7 +1,7 @@
 ﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
-using Newtonsoft.Json;
 
 namespace Smartstore.Core.Content.Menus
 {
@@ -100,8 +100,7 @@ namespace Smartstore.Core.Content.Menus
             }
         }
 
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string ActionName
         {
             get => _actionName;
@@ -115,7 +114,7 @@ namespace Smartstore.Core.Content.Menus
             }
         }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string ControllerName
         {
             get => _controllerName;
@@ -129,7 +128,7 @@ namespace Smartstore.Core.Content.Menus
             }
         }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string RouteName
         {
             get => _routeName;
@@ -143,7 +142,7 @@ namespace Smartstore.Core.Content.Menus
             }
         }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string Url
         {
             get => _url;

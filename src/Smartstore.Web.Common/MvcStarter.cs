@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
 using Autofac;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -18,8 +17,6 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Bootstrapping;
 using Smartstore.Core.Common.JsonConverters;
