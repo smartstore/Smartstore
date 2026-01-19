@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Text.Json;
 using System.Xml.Linq;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Json;
@@ -79,10 +78,6 @@ namespace Smartstore.Core.Catalog.Attributes
                     }
 
                     return giftCardInfo;
-                }
-                else if (value is JsonElement el)
-                {
-                    return JsonSerializer.Deserialize<GiftCardInfo>(el.GetRawText(), SmartJsonOptions.CamelCased);
                 }
                 else if (value is GiftCardInfo gci)
                 {
