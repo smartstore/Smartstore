@@ -84,6 +84,10 @@ namespace Smartstore.Core.Catalog.Attributes
                 {
                     return JsonSerializer.Deserialize<GiftCardInfo>(el.GetRawText(), SmartJsonOptions.CamelCased);
                 }
+                else if (value is GiftCardInfo gci)
+                {
+                    return gci;
+                }
             }
 
             return null;
