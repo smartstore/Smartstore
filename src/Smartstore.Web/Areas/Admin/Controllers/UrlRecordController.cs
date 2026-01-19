@@ -96,7 +96,7 @@ namespace Smartstore.Admin.Controllers
                     var model = new UrlRecordModel();
                     PrepareUrlRecordModel(model, x);
 
-                    model.SlugsPerEntity = slugsPerEntity.ContainsKey(x.Id) ? slugsPerEntity[x.Id] : 0;
+                    model.SlugsPerEntity = slugsPerEntity.TryGetValue(x.Id, out int value) ? value : 0;
                     model.EditUrl = Url.Action(nameof(Edit), "UrlRecord", new { id = x.Id });
 
                     return model;

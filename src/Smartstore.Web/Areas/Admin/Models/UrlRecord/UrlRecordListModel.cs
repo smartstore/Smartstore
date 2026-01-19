@@ -10,6 +10,7 @@
         public string EntityName { get; set; }
 
         [LocalizedDisplay("*EntityId")]
+        [AdditionalMetadata("invariant", true)]
         public int? EntityId { get; set; }
 
         [LocalizedDisplay("*IsActive")]

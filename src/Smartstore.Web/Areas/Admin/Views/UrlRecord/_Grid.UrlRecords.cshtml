@@ -42,11 +42,7 @@
                 <a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a>
             </display-template>
         </column>
-        <column for="SlugsPerEntity" halign="center" sortable="false">
-            <display-template>
-                <a :href="item.row.FilterUrl" class="text-truncate">{{ item.value }}</a>
-            </display-template>
-        </column>
+        <column for="SlugsPerEntity" halign="center" sortable="false" />
         <column for="EntityName">
             <display-template>
                 <div class="text-truncate" :title="item.value">{{ item.row.LocalizedEntityName }}</div>
