@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Smartstore.Core.DataExchange.Import
 {
@@ -90,7 +90,6 @@ namespace Smartstore.Core.DataExchange.Import
             => index.HasValue() ? $"{name}[{index}]" : name;
     }
 
-    [JsonObject(MemberSerialization.OptIn)]
     public class ColumnMappingItem
     {
         private bool? _ignored;
@@ -99,23 +98,23 @@ namespace Smartstore.Core.DataExchange.Import
         /// The source name.
         /// </summary>
         [IgnoreDataMember]
+        [JsonIgnore]
         public string SourceName { get; set; }
 
         /// <summary>
         /// The mapped name.
         /// </summary>
-        [JsonProperty]
         public string MappedName { get; set; }
 
         /// <summary>
         /// An optional default value.
         /// </summary>
-        [JsonProperty]
         public string Default { get; set; }
 
         /// <summary>
         /// A value indicating whether to explicitly ignore this property.
         /// </summary>
+        [JsonIgnore]
         public bool IgnoreProperty
         {
             get => _ignored ??= Default != null && Default == "[IGNOREPROPERTY]";

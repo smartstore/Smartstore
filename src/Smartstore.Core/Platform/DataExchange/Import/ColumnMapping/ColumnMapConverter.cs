@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
-using Newtonsoft.Json;
+using System.Text.Json;
 using Smartstore.ComponentModel.TypeConverters;
+using Smartstore.Json;
 
 namespace Smartstore.Core.DataExchange.Import
 {
@@ -24,7 +25,8 @@ namespace Smartstore.Core.DataExchange.Import
         {
             if (value is string strValue)
             {
-                var dict = JsonConvert.DeserializeObject<Dictionary<string, ColumnMappingItem>>(strValue);
+                var dict =  JsonSerializer.Deserialize<Dictionary<string, ColumnMappingItem>>(strValue, SmartJsonOptions.Default);
+
                 var map = new ColumnMap();
 
                 foreach (var kvp in dict)
@@ -47,7 +49,7 @@ namespace Smartstore.Core.DataExchange.Import
             {
                 if (value is ColumnMap map)
                 {
-                    return JsonConvert.SerializeObject(map.Mappings);
+                    return JsonSerializer.Serialize(map.Mappings, SmartJsonOptions.Default);
                 }
                 else
                 {

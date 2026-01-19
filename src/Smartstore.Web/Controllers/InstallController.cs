@@ -1,10 +1,11 @@
 ﻿using System.Runtime.InteropServices;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Hosting;
-using Newtonsoft.Json;
 using Smartstore.Core.Installation;
 using Smartstore.IO;
+using Smartstore.Json;
 using Smartstore.Threading;
 using Smartstore.Utilities;
 
@@ -229,8 +230,7 @@ namespace Smartstore.Web.Controllers
                 if (file.Exists)
                 {
                     var json = file.ReadAllText();
-                    model = JsonConvert.DeserializeObject<InstallationModel>(json);
-
+                    model = JsonSerializer.Deserialize<InstallationModel>(json, SmartJsonOptions.Default);
                     // Otherwise validation fails
                     model.ConfirmPassword = model.AdminPassword;
 

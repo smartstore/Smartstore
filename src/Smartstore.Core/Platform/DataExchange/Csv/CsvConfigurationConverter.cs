@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
-using Newtonsoft.Json;
+using System.Text.Json;
 using Smartstore.ComponentModel.TypeConverters;
+using Smartstore.Json;
 
 namespace Smartstore.Core.DataExchange.Csv
 {
@@ -21,7 +22,7 @@ namespace Smartstore.Core.DataExchange.Csv
         {
             if (value is string strValue)
             {
-                return JsonConvert.DeserializeObject<CsvConfiguration>(strValue);
+                return JsonSerializer.Deserialize<CsvConfiguration>(strValue, SmartJsonOptions.Default);
             }
 
             return base.ConvertFrom(culture, value);
@@ -41,7 +42,7 @@ namespace Smartstore.Core.DataExchange.Csv
             {
                 if (value is CsvConfiguration)
                 {
-                    return JsonConvert.SerializeObject(value);
+                    return JsonSerializer.Serialize(value);
                 }
                 else
                 {

@@ -1,7 +1,8 @@
 ﻿using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
+using Smartstore.Json;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Security
@@ -47,7 +48,7 @@ namespace Smartstore.Core.Security
         {
             Guard.NotNull(token);
 
-            var json = JsonConvert.SerializeObject(token);
+            var json = JsonSerializer.Serialize(token, SmartJsonOptions.Default);
             var encoded = _protector.Protect(json.GetBytes());
 
             var result = Convert.ToBase64String(encoded);
@@ -62,7 +63,8 @@ namespace Smartstore.Core.Security
             var decoded = _protector.Unprotect(encoded);
             var json = Encoding.UTF8.GetString(decoded);
 
-            var result = JsonConvert.DeserializeObject<HoneypotField>(json);
+            var result = JsonSerializer.Deserialize<HoneypotField>(json, SmartJsonOptions.Default);
+
             return result;
         }
 

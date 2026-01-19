@@ -1,5 +1,5 @@
 ﻿using System.IO.Compression;
-using Newtonsoft.Json;
+using System.Text.Json;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Packaging
@@ -35,7 +35,8 @@ namespace Smartstore.Core.Packaging
 
                 // TODO: (core) Throw typed message if deserialization fails, catch in controller and notify with localized message. 
                 using var stream = manifest.Open();
-                descriptor = JsonConvert.DeserializeObject<MinimalExtensionDescriptor>(stream.AsString());
+
+                descriptor = JsonSerializer.Deserialize<MinimalExtensionDescriptor>(stream.AsString());
             }
 
             Descriptor = descriptor;
