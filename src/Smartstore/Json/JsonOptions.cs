@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using Smartstore.Domain;
+using Smartstore.Json.Converters;
 using Smartstore.Json.Polymorphy;
 
 namespace Smartstore.Json;
@@ -73,6 +74,8 @@ public static class SmartJsonOptions
 
         Converters =
         {
+            // Read and write "Type" as assembly-qualified name without version info.
+            new TypeJsonConverter(),
             // Serialize enums as strings, not as ints.
             new JsonStringEnumConverter(namingPolicy: null, allowIntegerValues: true)
         }
