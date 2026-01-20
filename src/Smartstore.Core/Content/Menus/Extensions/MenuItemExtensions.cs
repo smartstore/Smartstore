@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Routing;
-using Newtonsoft.Json;
 using Smartstore.Collections;
 using Smartstore.Core.Localization;
+using Smartstore.Json;
+using Smartstore.Json.Polymorphy;
 
 namespace Smartstore.Core.Content.Menus
 {
@@ -9,7 +10,7 @@ namespace Smartstore.Core.Content.Menus
     {
         public static IEnumerable<TreeNode<MenuItem>> GetBreadcrumb(this TreeNode<MenuItem> node)
         {
-            Guard.NotNull(node, nameof(node));
+            Guard.NotNull(node);
 
             return node.Trail.Where(x => !x.IsRoot);
         }
@@ -56,7 +57,7 @@ namespace Smartstore.Core.Content.Menus
         ///	</returns>
         public static NodePathState GetNodePathState(this TreeNode<MenuItem> node, IList<MenuItem> currentPath)
         {
-            Guard.NotNull(currentPath, nameof(currentPath));
+            Guard.NotNull(currentPath);
 
             var state = NodePathState.Unknown;
 
@@ -97,7 +98,8 @@ namespace Smartstore.Core.Content.Menus
         {
             if (data.HasValue())
             {
-                var routeValues = JsonConvert.DeserializeObject<RouteValueDictionary>(data);
+                var rawRouteValues = SmartJsonOptions.Default.DeserializePolymorphic<IDictionary<string, object>>(data);
+                var routeValues = new RouteValueDictionary(rawRouteValues);
                 var routeName = string.Empty;
 
                 if (routeValues.TryGetValue("routename", out var val))

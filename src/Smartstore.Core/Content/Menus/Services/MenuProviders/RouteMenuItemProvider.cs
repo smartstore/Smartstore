@@ -1,5 +1,5 @@
 ﻿using Smartstore.Collections;
-using Smartstore.Core.Localization;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Menus
 {
@@ -8,13 +8,7 @@ namespace Smartstore.Core.Content.Menus
     {
         protected override Task ApplyLinkAsync(MenuItemProviderRequest request, TreeNode<MenuItem> node)
         {
-            try
-            {
-                node.ApplyRouteData(request.Entity.Model);
-            }
-            catch
-            {
-            }
+            CommonHelper.TryAction(() => node.ApplyRouteData(request.Entity.Model));
 
             if (request.IsEditMode)
             {
