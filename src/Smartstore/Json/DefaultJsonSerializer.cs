@@ -3,7 +3,6 @@
 using System.Buffers;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -14,16 +13,8 @@ namespace Smartstore.Json;
 
 public class DefaultJsonSerializer : IJsonSerializer
 {
-    private readonly struct PolymorphyKindCacheEntry(bool isSlot, PolymorphyKind kind, Type? elementType)
-    {
-        public bool IsSlot { get; } = isSlot;
-        public PolymorphyKind Kind { get; } = kind;
-        public Type? ElementType { get; } = elementType;
-    }
-
     private static readonly byte[] NullResult = "null"u8.ToArray();
 
-    private readonly ConcurrentDictionary<Type, PolymorphyKindCacheEntry> _polymorphyCache = new();
     private readonly ConcurrentDictionary<Type, byte> _nonWritableTypes = new();
     private readonly ConcurrentDictionary<Type, byte> _nonReadableTypes = new();
     private readonly ConcurrentDictionary<Type, Type?> _genericTypeDefinitionCache = new();
@@ -137,11 +128,6 @@ public class DefaultJsonSerializer : IJsonSerializer
         if (uncompress)
             value = value.Unzip();
 
-        if (IsPolymorphicType(objectType))
-        {
-            return Options.DeserializePolymorphic(value, objectType);
-        }
-
         return JsonSerializer.Deserialize(value, objectType, Options);
     }
 
@@ -160,14 +146,7 @@ public class DefaultJsonSerializer : IJsonSerializer
             SkipValidation = false
         }))
         {
-            if (IsPolymorphicObject(value))
-            {
-                Options.SerializePolymorphic(writer, value, runtimeType, wrapArrays: true);
-            }
-            else
-            {
-                JsonSerializer.Serialize(writer, value, runtimeType, Options);
-            }
+            JsonSerializer.Serialize(writer, value, runtimeType, Options);
         }
 
         var bytes = buffer.WrittenSpan.ToArray();
@@ -210,54 +189,5 @@ public class DefaultJsonSerializer : IJsonSerializer
         return !(typeof(IObjectContainer).IsAssignableFrom(objectType)
                  || objectType == typeof(object)
                  || objectType.IsBasicOrNullableType());
-    }
-
-    private bool IsPolymorphicObject(object value)
-    {
-        // Fast path for common polymorphic slot types.
-        if (value is IDictionary<string, object?> || value is ICollection<object?> || value is ISet<object?>)
-            return true;
-        
-        // Slow (but cached) path
-        return IsPolymorphicType(value.GetType());
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsPolymorphicType(Type t)
-        => TryGetPolymorphyKind(t, out var _, out var _);
-
-    private bool TryGetPolymorphyKind(Type type, [NotNullWhen(true)] out PolymorphyKind? kind, [NotNullWhen(true)] out Type? elementType)
-    {
-        kind = default;
-        elementType = typeof(object);
-
-        if (type.IsBasicOrNullableType())
-        {
-            return false;
-        }
-        
-        // Note: elementType out param must be non-null when returning true.
-        if (_polymorphyCache.TryGetValue(type, out var entry))
-        {
-            if (entry.IsSlot && entry.ElementType is not null)
-            {
-                kind = entry.Kind;
-                elementType = entry.ElementType;
-                return true;
-            }
-
-            return false;
-        }
-
-        if (PolymorphyCodec.TryGetPolymorphyKind(type, out kind, out elementType))
-        {
-            _polymorphyCache.TryAdd(type, new PolymorphyKindCacheEntry(true, kind.Value, elementType));
-            return true;
-        }
-
-        // Negative cache entry.
-        _polymorphyCache.TryAdd(type, new PolymorphyKindCacheEntry(false, default, null));
-
-        return false;
     }
 }

@@ -1,4 +1,5 @@
-﻿using Smartstore.Caching;
+﻿using System.ComponentModel;
+using Smartstore.Caching;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -27,6 +28,7 @@ namespace Smartstore.Engine.Modularity
         /// Gets the fully qualified app relative paths to the provider's numbered brand images,
         /// e.g. "provider-1.png", "provider-2.png" etc. Up to 5 images are allowed.
         /// </summary>
+        [DefaultValue("[]")]
         public string[] NumberedImageUrls { get; set; }
     }
 
@@ -279,7 +281,7 @@ namespace Smartstore.Engine.Modularity
             if (descriptor != null)
             {
                 var systemName = metadata.SystemName.ToLower();
-                var cacheKey = $"ProviderBrandImage.{systemName}";
+                var cacheKey = $"ProviderBrandImage:{systemName}";
 
                 return _cache.Get(cacheKey, o => 
                 {

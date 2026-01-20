@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Catalog.Products;
+﻿using System.Text.Json.Serialization;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Core.Catalog.Attributes
@@ -95,10 +96,12 @@ namespace Smartstore.Core.Catalog.Attributes
             ProductVariantAttributeValue currentValue);
     }
 
-    [Serializable]
     public class CombinationAvailabilityInfo
     {
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public bool IsActive { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public bool IsOutOfStock { get; set; }
     }
 }

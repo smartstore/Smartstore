@@ -1,39 +1,34 @@
-﻿using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
+﻿using System.Text.Json;
+using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
 using Smartstore.Json;
+using Smartstore.Json.Polymorphy;
 
 namespace Smartstore.Web.Modelling;
 
 internal class SmartTempDataSerializer : TempDataSerializer
 {
-    private readonly IJsonSerializer _serializer;
+    protected virtual JsonSerializerOptions CreateDefaultOptions()
+        => SmartJsonOptions.Default;
 
-    public SmartTempDataSerializer(IJsonSerializer serializer)
-    {
-        _serializer = serializer;
-    }
+    protected JsonSerializerOptions Options => field ??= CreateDefaultOptions();
 
     public override bool CanSerializeType(Type type)
-        => _serializer.CanSerialize(type);
+        => true;
 
-    public override IDictionary<string, object> Deserialize(byte[] unprotectedData)
+    public override IDictionary<string, object> Deserialize(byte[] value)
     {
-        if (unprotectedData is null || unprotectedData.Length == 0)
-            return new Dictionary<string, object>(StringComparer.Ordinal);
+        if (value is null || value.Length == 0)
+            return new Dictionary<string, object>();
 
-        if (_serializer.TryDeserialize(typeof(Dictionary<string, object>), unprotectedData, false, out var result) &&
-            result is IDictionary<string, object> dict)
-        {
-            return dict;
-        }
-
-        return new Dictionary<string, object>(StringComparer.Ordinal);
+        return Options.DeserializePolymorphic<Dictionary<string, object>>(value);
     }
 
     public override byte[] Serialize(IDictionary<string, object> values)
     {
-        if (_serializer.TrySerialize(values, false, out var result))
-            return result;
+        if (values == null || values.Count == 0)
+            return [];
 
-        return Array.Empty<byte>();
+        var result = Options.SerializePolymorphicToUtf8Bytes(values);
+        return result;
     }
 }

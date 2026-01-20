@@ -41,7 +41,7 @@ public static class JsonElementExtensions
 
             case JsonValueKind.False:
                 value = false;
-                return false;
+                return true;
 
             case JsonValueKind.String:
                 if (element.TryGetGuid(out var guid))

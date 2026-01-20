@@ -174,7 +174,14 @@ internal sealed class TreeNodeJsonConverter<T> : JsonConverter<TreeNode<T>>
 
             if (string.Equals(propertyName, "Value", StringComparison.OrdinalIgnoreCase))
             {
-                value = JsonSerializer.Deserialize<T>(ref reader, options);
+                if (PolymorphyCodec.TryGetPolymorphyKind(typeof(T), out _, out _))
+                {
+                    value = options.DeserializePolymorphic<T>(ref reader);
+                }
+                else
+                {
+                    value = JsonSerializer.Deserialize<T>(ref reader, options);
+                }
             }
             else if (string.Equals(propertyName, "Metadata", StringComparison.OrdinalIgnoreCase))
             {
@@ -242,7 +249,14 @@ internal sealed class TreeNodeJsonConverter<T> : JsonConverter<TreeNode<T>>
 
         // Value
         writer.WritePropertyName("Value");
-        JsonSerializer.Serialize(writer, value.Value, options);
+        if (PolymorphyCodec.TryGetPolymorphyKind(typeof(T), out _, out _))
+        {
+            options.SerializePolymorphic(writer, value.Value);
+        }
+        else
+        {
+            JsonSerializer.Serialize(writer, value.Value, options);
+        }
 
         // Metadata
         if (value.Metadata != null && value.Metadata.Count > 0)
