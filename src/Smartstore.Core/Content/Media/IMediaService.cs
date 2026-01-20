@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 using Smartstore.Collections;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Content.Media.Storage;
@@ -66,13 +66,13 @@ namespace Smartstore.Core.Content.Media
 
     public class DuplicateFileInfo
     {
-        [JsonProperty("source")]
+        [JsonPropertyName("source")]
         public MediaFileInfo SourceFile { get; set; }
 
-        [JsonProperty("dest")]
+        [JsonPropertyName("dest")]
         public MediaFileInfo DestinationFile { get; set; }
 
-        [JsonProperty("uniquePath")]
+        [JsonPropertyName("uniquePath")]
         public string UniquePath { get; set; }
     }
 
@@ -86,10 +86,10 @@ namespace Smartstore.Core.Content.Media
 
     public class FolderDeleteResult
     {
-        public HashSet<int> DeletedFolderIds { get; set; } = new HashSet<int>();
-        public IList<string> DeletedFileNames { get; set; } = new List<string>();
-        public IList<string> TrackedFileNames { get; set; } = new List<string>();
-        public IList<string> LockedFileNames { get; set; } = new List<string>();
+        public HashSet<int> DeletedFolderIds { get; set; } = [];
+        public IList<string> DeletedFileNames { get; set; } = [];
+        public IList<string> TrackedFileNames { get; set; } = [];
+        public IList<string> LockedFileNames { get; set; } = [];
     }
 
     public class FileOperationResult
