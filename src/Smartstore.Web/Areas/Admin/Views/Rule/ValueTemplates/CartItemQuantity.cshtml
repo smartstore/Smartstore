@@ -1,4 +1,5 @@
-﻿@using Newtonsoft.Json.Linq;
+﻿@using System.Text.Json.Nodes
+@using Smartstore.Json
 
 @model IRuleExpression
 
@@ -16,7 +17,7 @@
     {
         if (Model.RawValue.HasValue())
         {
-            dynamic json = JObject.Parse(Model.RawValue);
+            dynamic json = JsonNode.Parse(Model.RawValue).ToDynamic();
             // INFO: 'ProductId' has been replaced by 'EntityId'.
             entityId = ((string)json.ProductId).NullEmpty() ?? (string)json.EntityId;
             minQuantity = (string)json.MinQuantity;
