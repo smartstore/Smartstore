@@ -110,19 +110,13 @@ public class DynamicJsonNode(JsonNode? node) : DynamicObject, IDictionary<string
         // Nodes created from JsonNode.Parse(...) typically store a JsonElement internally.
         if (val.TryGetValue<JsonElement>(out var el))
         {
+            if (el.TryGetScalarValue(out var value))
+            {
+                return value;
+            }
+
             return el.ValueKind switch
             {
-                JsonValueKind.Null => null,
-                JsonValueKind.Undefined => null,
-                JsonValueKind.True => true,
-                JsonValueKind.False => false,
-                JsonValueKind.String => el.TryGetGuid(out var guid) ? guid
-                    : el.TryGetDateTime(out var dt) ? dt
-                    : el.GetString(),
-                JsonValueKind.Number => el.TryGetInt64(out var l) ? l
-                    : el.TryGetDouble(out var d) ? d
-                    : el.GetDecimal(),
-
                 // These should not usually appear as JsonValue, but handle defensively.
                 JsonValueKind.Object => new DynamicJsonNode(JsonNode.Parse(el.GetRawText())!),
                 JsonValueKind.Array => JsonNode.Parse(el.GetRawText())!.AsArray().Select(ConvertNode).ToList(),

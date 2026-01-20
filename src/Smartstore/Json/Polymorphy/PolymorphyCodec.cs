@@ -99,32 +99,13 @@ internal static class PolymorphyCodec
 
     private static object? ReadUntyped(JsonElement el, JsonSerializerOptions options, PolymorphyOptions o)
     {
+        if (el.TryGetScalarValue(out var value))
+        {
+            return value;
+        }
+        
         switch (el.ValueKind)
         {
-            case JsonValueKind.Null:
-            case JsonValueKind.Undefined:
-                return null;
-
-            case JsonValueKind.True:
-                return true;
-
-            case JsonValueKind.False:
-                return false;
-
-            case JsonValueKind.String:
-                if (el.TryGetGuid(out var guid))
-                    return guid;
-                else if (el.TryGetDateTime(out var dateTime))
-                    return dateTime;
-
-                return el.GetString();
-
-            case JsonValueKind.Number:
-                if (el.TryGetInt64(out var l))
-                    return l;
-
-                return el.TryGetDouble(out var d) ? d : el.GetDecimal();
-
             case JsonValueKind.Array:
             {
                 var list = new List<object?>();
