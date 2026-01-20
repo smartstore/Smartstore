@@ -3,470 +3,285 @@
 using System.Buffers;
 using System.Collections.Concurrent;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Smartstore.Json.Polymorphy;
 
-public static class PolymorphSerializationExtensions
+public static class PolymorphicSerializationExtensions
 {
-    const string ValueName = "Value";
+    public delegate object? ReadByRefDelegate(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options);
 
-    internal sealed class DictionaryStub<TValue>
+    private readonly struct ConverterCacheKey : IEquatable<ConverterCacheKey>
     {
-        [Polymorphic(WrapArrays = false)]
-        public IDictionary<string, TValue?>? Value { get; set; }
+        public ConverterCacheKey(Type declaredType, bool wrapArrays)
+        {
+            DeclaredType = declaredType;
+            WrapArrays = wrapArrays;
+        }
+
+        public Type DeclaredType { get; }
+        public bool WrapArrays { get; }
+
+        public bool Equals(ConverterCacheKey other)
+            => DeclaredType == other.DeclaredType && WrapArrays == other.WrapArrays;
+
+        public override bool Equals(object? obj)
+            => obj is ConverterCacheKey other && Equals(other);
+
+        public override int GetHashCode()
+            => HashCode.Combine(DeclaredType, WrapArrays);
     }
 
-    internal sealed class DictionaryStubWithArrays<TValue>
+    private readonly struct ConverterEntry
     {
-        [Polymorphic(WrapArrays = true)]
-        public IDictionary<string, TValue?>? Value { get; set; }
+        public required JsonConverter Converter { get; init; }
+        public required Action<Utf8JsonWriter, object?, JsonSerializerOptions> Write { get; init; }
+        public required ReadByRefDelegate Read { get; init; }
     }
 
-    internal sealed class ListStub<TElement>
-    {
-        [Polymorphic(WrapArrays = false)]
-        public List<TElement?>? Value { get; set; }
-    }
-
-    internal sealed class ListStubWithArrays<TElement>
-    {
-        [Polymorphic(WrapArrays = true)]
-        public List<TElement?>? Value { get; set; }
-    }
-
-    private static readonly MethodInfo s_writeDictDef = FindGenericExtensionMethod(
-        nameof(WritePolymorphicDictionary), genericArity: 1, parameterCount: 4);
-
-    private static readonly MethodInfo s_writeListDef = FindGenericExtensionMethod(
-        nameof(WritePolymorphicList), genericArity: 1, parameterCount: 4);
-
-    private static readonly ConcurrentDictionary<(Type ElementType, bool WrapArrays), MethodInfo> s_writeDictCache = new();
-    private static readonly ConcurrentDictionary<(Type ElementType, bool WrapArrays), MethodInfo> s_writeListCache = new();
-
-    private static MethodInfo GetWriteDict(Type elementType, bool wrapArrays)
-        => s_writeDictCache.GetOrAdd((elementType, wrapArrays), static k => s_writeDictDef.MakeGenericMethod(k.ElementType));
-
-    private static MethodInfo GetWriteList(Type elementType, bool wrapArrays)
-        => s_writeListCache.GetOrAdd((elementType, wrapArrays), static k => s_writeListDef.MakeGenericMethod(k.ElementType));
-
+    private static readonly ConditionalWeakTable<JsonSerializerOptions, ConcurrentDictionary<ConverterCacheKey, ConverterEntry>> _converterCache = [];
 
     extension(JsonSerializerOptions options)
     {
-        // ----------------------------
-        // Dictionary - Serialize
-        // ----------------------------
+        #region Main API
 
-        public string SerializePolymorphicDictionary<TValue>(
-            IDictionary<string, TValue?>? dictionary,
-            bool wrapArrays = false)
-        {
-            Guard.NotNull(options);
-            EnsurePolymorphType<TValue>();
-
-            return dictionary is null
-                ? "null"
-                : Encoding.UTF8.GetString(SerializePolymorphicDictionaryToUtf8Bytes(options, dictionary, wrapArrays));
-        }
-
-        public byte[] SerializePolymorphicDictionaryToUtf8Bytes<TValue>(
-            IDictionary<string, TValue?>? dictionary,
-            bool wrapArrays = false)
-        {
-            Guard.NotNull(options);
-            EnsurePolymorphType<TValue>();
-
-            if (dictionary is null)
-                return Encoding.UTF8.GetBytes("null");
-
-            var buffer = new ArrayBufferWriter<byte>(256);
-            using (var writer = new Utf8JsonWriter(buffer))
-            {
-                WritePolymorphicDictionary(options, writer, dictionary, wrapArrays);
-            }
-
-            return buffer.WrittenSpan.ToArray();
-        }
-
-        public void WritePolymorphicDictionary<TValue>(
+        public void SerializePolymorphic(
             Utf8JsonWriter writer,
-            IDictionary<string, TValue?>? dictionary,
+            object? value,
+            Type declaredType,
             bool wrapArrays = false)
         {
             Guard.NotNull(options);
             Guard.NotNull(writer);
-            EnsurePolymorphType<TValue>();
+            Guard.NotNull(declaredType);
 
-            if (dictionary is null)
+            // Avoid null->value-type cast failures in the compiled delegate.
+            if (value is null)
             {
                 writer.WriteNullValue();
                 return;
             }
 
-            var el = SerializePolymorphicDictionaryToElement(options, dictionary, wrapArrays);
-            el.WriteTo(writer);
+            var entry = GetConverterEntry(options, declaredType, wrapArrays);
+            entry.Write(writer, value, options);
         }
 
-        public JsonElement SerializePolymorphicDictionaryToElement<TValue>(
-            IDictionary<string, TValue?>? dictionary,
+        public object? DeserializePolymorphic(ref Utf8JsonReader reader, Type declaredType)
+        {
+            Guard.NotNull(options);
+            Guard.NotNull(declaredType);
+
+            var entry = GetConverterEntry(options, declaredType, false);
+            return entry.Read(ref reader, declaredType, options);
+        }
+
+        #endregion
+
+        #region Convenience overloads (STJ-shaped, but explicitly Polymorphic)
+
+        public void SerializePolymorphic<TValue>(
+            Utf8JsonWriter writer,
+            TValue? value,
+            bool wrapArrays = false)
+            => SerializePolymorphic(options, writer, value, typeof(TValue), wrapArrays);
+
+        public TValue? DeserializePolymorphic<TValue>(ref Utf8JsonReader reader)
+            => (TValue?)DeserializePolymorphic(options, ref reader, typeof(TValue));
+
+        public byte[] SerializePolymorphicToUtf8Bytes(
+            object? value,
+            Type inputType,
             bool wrapArrays = false)
         {
             Guard.NotNull(options);
-            EnsurePolymorphType<TValue>();
-
-            if (dictionary is null)
-            {
-                using var doc = JsonDocument.Parse("null");
-                return doc.RootElement.Clone();
-            }
-
-            object root = wrapArrays
-                ? new DictionaryStubWithArrays<TValue> { Value = dictionary }
-                : new DictionaryStub<TValue> { Value = dictionary };
-
-            var el = JsonSerializer.SerializeToElement(root, root.GetType(), options);
-
-            if (!el.TryGetProperty(ValueName, out var vEl))
-                throw new JsonException($"Internal envelope property '{ValueName}' missing.");
-
-            return vEl.Clone();
-        }
-
-        // ----------------------------
-        // Dictionary - Deserialize
-        // ----------------------------
-
-        public IDictionary<string, object?>? DeserializePolymorphicDictionary(string json)
-            => DeserializePolymorphicDictionary<object?>(options, json);
-
-        public IDictionary<string, TValue?>? DeserializePolymorphicDictionary<TValue>(string json)
-        {
-            Guard.NotNull(options);
-            Guard.NotNull(json);
-            EnsurePolymorphType<TValue>();
-
-            if (json.Length <= 8 && json.Trim().Equals("null", StringComparison.OrdinalIgnoreCase))
-                return null;
-
-            using var doc = JsonDocument.Parse(json);
-            return ReadPolymorphicDictionaryFromRootElement<TValue>(options, doc.RootElement);
-        }
-
-        public IDictionary<string, object?>? ReadPolymorphicDictionary(ref Utf8JsonReader reader)
-            => ReadPolymorphicDictionary<object?>(options, ref reader);
-
-        public IDictionary<string, TValue?>? ReadPolymorphicDictionary<TValue>(ref Utf8JsonReader reader)
-        {
-            Guard.NotNull(options);
-            EnsurePolymorphType<TValue>();
-
-            if (reader.TokenType == JsonTokenType.Null)
-                return null;
-            
-            using var doc = JsonDocument.ParseValue(ref reader);
-            return ReadPolymorphicDictionaryFromRootElement<TValue>(options, doc.RootElement);
-        }
-
-        // ----------------------------
-        // List - Serialize
-        // ----------------------------
-
-        public string SerializePolymorphicList<TElement>(
-            IEnumerable<TElement?>? list,
-            bool wrapArrays = false)
-        {
-            Guard.NotNull(options);
-            EnsurePolymorphType<TElement>();
-
-            return list is null
-                ? "null"
-                : Encoding.UTF8.GetString(SerializePolymorphicListToUtf8Bytes(options, list, wrapArrays));
-        }
-
-        public byte[] SerializePolymorphicListToUtf8Bytes<TElement>(
-            IEnumerable<TElement?>? list,
-            bool wrapArrays = false)
-        {
-            Guard.NotNull(options);
-            EnsurePolymorphType<TElement>();
-
-            if (list is null)
-                return Encoding.UTF8.GetBytes("null");
+            Guard.NotNull(inputType);
 
             var buffer = new ArrayBufferWriter<byte>(256);
             using (var writer = new Utf8JsonWriter(buffer))
             {
-                WritePolymorphicList(options, writer, list, wrapArrays);
+                SerializePolymorphic(options, writer, value, inputType, wrapArrays);
             }
 
             return buffer.WrittenSpan.ToArray();
         }
 
-        public void WritePolymorphicList<TElement>(
-            Utf8JsonWriter writer,
-            IEnumerable<TElement?>? list,
+        public byte[] SerializePolymorphicToUtf8Bytes<TValue>(
+            TValue? value,
+            bool wrapArrays = false)
+            => SerializePolymorphicToUtf8Bytes(options, value, typeof(TValue), wrapArrays);
+
+        public string SerializePolymorphicToString(
+            object? value,
+            Type inputType,
+            bool wrapArrays = false)
+            => Encoding.UTF8.GetString(SerializePolymorphicToUtf8Bytes(options, value, inputType, wrapArrays));
+
+        public string SerializePolymorphicToString<TValue>(
+            TValue? value,
+            bool wrapArrays = false)
+            => SerializePolymorphicToString(options, value, typeof(TValue), wrapArrays);
+
+        public JsonElement SerializePolymorphicToElement(
+            object? value,
+            Type inputType,
             bool wrapArrays = false)
         {
             Guard.NotNull(options);
-            Guard.NotNull(writer);
-            EnsurePolymorphType<TElement>();
+            Guard.NotNull(inputType);
 
-            if (list is null)
-            {
-                writer.WriteNullValue();
-                return;
-            }
+            var utf8 = SerializePolymorphicToUtf8Bytes(options, value, inputType, wrapArrays);
 
-            var el = SerializePolymorphicListToElement(options, list, wrapArrays);
-            el.WriteTo(writer);
+            using var doc = JsonDocument.Parse(utf8);
+            return doc.RootElement.Clone();
         }
 
-        public JsonElement SerializePolymorphicListToElement<TElement>(
-            IEnumerable<TElement?>? list,
+        public JsonElement SerializePolymorphicToElement<TValue>(
+            TValue? value,
             bool wrapArrays = false)
+            => SerializePolymorphicToElement(options, value, typeof(TValue), wrapArrays);
+
+        public object? DeserializePolymorphic(ReadOnlySpan<byte> utf8Json, Type returnType)
         {
             Guard.NotNull(options);
-            EnsurePolymorphType<TElement>();
+            Guard.NotNull(returnType);
 
-            if (list is null)
-            {
-                using var doc = JsonDocument.Parse("null");
-                return doc.RootElement.Clone();
-            }
+            var reader = new Utf8JsonReader(utf8Json);
+            if (!reader.Read())
+                return null;
 
-            var materialized = list as List<TElement?> ?? list.ToList();
-
-            object root = wrapArrays
-                ? new ListStubWithArrays<TElement> { Value = materialized }
-                : new ListStub<TElement> { Value = materialized };
-
-            var el = JsonSerializer.SerializeToElement(root, root.GetType(), options);
-
-            if (!el.TryGetProperty(ValueName, out var vEl))
-                throw new JsonException($"Internal envelope property '{ValueName}' missing.");
-
-            return vEl.Clone();
+            return DeserializePolymorphic(options, ref reader, returnType);
         }
 
-        // ----------------------------
-        // List - Deserialize
-        // ----------------------------
+        public TValue? DeserializePolymorphic<TValue>(ReadOnlySpan<byte> utf8Json)
+            => (TValue?)DeserializePolymorphic(options, utf8Json, typeof(TValue));
 
-        public List<object?>? DeserializePolymorphicList(string json)
-            => DeserializePolymorphicList<object?>(options, json);
-
-        public List<TElement?>? DeserializePolymorphicList<TElement>(string json)
+        public object? DeserializePolymorphic(string json, Type returnType)
         {
             Guard.NotNull(options);
             Guard.NotNull(json);
-            EnsurePolymorphType<TElement>();
+            Guard.NotNull(returnType);
 
             if (json.Length <= 8 && json.Trim().Equals("null", StringComparison.OrdinalIgnoreCase))
                 return null;
 
-            using var doc = JsonDocument.Parse(json);
-            return ReadPolymorphicListFromRootElement<TElement>(options, doc.RootElement);
+            return DeserializePolymorphic(options, Encoding.UTF8.GetBytes(json), returnType);
         }
 
-        public List<object?>? ReadPolymorphicList(ref Utf8JsonReader reader)
-            => ReadPolymorphicList<object?>(options, ref reader);
+        public TValue? DeserializePolymorphic<TValue>(string json)
+            => (TValue?)DeserializePolymorphic(options, json, typeof(TValue));
 
-        public List<TElement?>? ReadPolymorphicList<TElement>(ref Utf8JsonReader reader)
+        public object? DeserializePolymorphic(JsonElement element, Type returnType)
         {
             Guard.NotNull(options);
-            EnsurePolymorphType<TElement>();
+            Guard.NotNull(returnType);
 
-            if (reader.TokenType == JsonTokenType.Null)
-                return null;
+            var buffer = new ArrayBufferWriter<byte>(256);
+            using (var writer = new Utf8JsonWriter(buffer))
+            {
+                element.WriteTo(writer);
+            }
 
-            using var doc = JsonDocument.ParseValue(ref reader);
-            return ReadPolymorphicListFromRootElement<TElement>(options, doc.RootElement);
+            return DeserializePolymorphic(options, buffer.WrittenSpan, returnType);
         }
 
-        // =====================================================================
-        // Non-generic API (always fallback, never throw)
-        // =====================================================================
+        public TValue? DeserializePolymorphic<TValue>(JsonElement element)
+            => (TValue?)DeserializePolymorphic(options, element, typeof(TValue));
 
-        public bool TryWritePolymorphicDictionary(
-            Utf8JsonWriter writer,
-            object? value,
-            Type elementType,
-            bool wrapArrays)
-        {
-            Guard.NotNull(options);
-            Guard.NotNull(writer);
-            Guard.NotNull(elementType);
-
-            try
-            {
-                EnsurePolymorphType(elementType);
-
-                var mi = GetWriteDict(elementType, wrapArrays);
-                mi.Invoke(null, [options, writer, value, wrapArrays]);
-                return true;
-            }
-            catch
-            {
-                // Always fallback.
-                JsonSerializer.Serialize(writer, value, value?.GetType() ?? typeof(object), options);
-                return false;
-            }
-        }
-
-        public bool TryWritePolymorphicList(
-            Utf8JsonWriter writer,
-            object? value,
-            Type elementType,
-            bool wrapArrays)
-        {
-            Guard.NotNull(options);
-            Guard.NotNull(writer);
-            Guard.NotNull(elementType);
-
-            try
-            {
-                EnsurePolymorphType(elementType);
-
-                var mi = GetWriteList(elementType, wrapArrays);
-                mi.Invoke(null, [options, writer, value, wrapArrays]);
-                return true;
-            }
-            catch
-            {
-                JsonSerializer.Serialize(writer, value, value?.GetType() ?? typeof(object), options);
-                return false;
-            }
-        }
-
-        public object? ReadPolymorphicDictionary(ReadOnlySpan<byte> json, Type elementType)
-            => ReadPolymorphicSlot(options, json, elementType, isDictionary: true);
-
-        public object? ReadPolymorphicList(ReadOnlySpan<byte> json, Type elementType)
-            => ReadPolymorphicSlot(options, json, elementType, isDictionary: false);
-
-        private object? ReadPolymorphicSlot(ReadOnlySpan<byte> json, Type elementType, bool isDictionary)
-        {
-            Guard.NotNull(options);
-            Guard.NotNull(elementType);
-
-            try
-            {
-                EnsurePolymorphType(elementType);
-
-                var reader = new Utf8JsonReader(json);
-                if (!reader.Read())
-                    return null;
-
-                using var doc = JsonDocument.ParseValue(ref reader);
-
-                var buffer = new ArrayBufferWriter<byte>(256);
-                using (var writer = new Utf8JsonWriter(buffer))
-                {
-                    writer.WriteStartObject();
-                    writer.WritePropertyName(ValueName);
-                    doc.RootElement.WriteTo(writer);
-                    writer.WriteEndObject();
-                }
-
-                var stubType = isDictionary
-                    ? typeof(DictionaryStub<>).MakeGenericType(elementType)
-                    : typeof(ListStub<>).MakeGenericType(elementType);
-
-                var root = JsonSerializer.Deserialize(buffer.WrittenSpan, stubType, options);
-                if (root is null)
-                    return null;
-
-                return stubType.GetProperty(ValueName)!.GetValue(root);
-            }
-            catch
-            {
-                // Always fallback to object-shape reading.
-                // Read does not require WrapArrays=true stub; wrapped/raw arrays are both accepted.
-                var s = Encoding.UTF8.GetString(json);
-                return isDictionary
-                    ? options.DeserializePolymorphicDictionary<object?>(s)
-                    : options.DeserializePolymorphicList<object?>(s);
-            }
-        }
+        #endregion
     }
 
-    private static IDictionary<string, TValue?>? ReadPolymorphicDictionaryFromRootElement<TValue>(
-        JsonSerializerOptions options,
-        JsonElement rootElement)
+    private static ConverterEntry GetConverterEntry(JsonSerializerOptions options, Type declaredType, bool wrapArrays)
     {
-        var buffer = new ArrayBufferWriter<byte>(256);
-        using (var writer = new Utf8JsonWriter(buffer))
-        {
-            writer.WriteStartObject();
-            writer.WritePropertyName(ValueName);
-            rootElement.WriteTo(writer);
-            writer.WriteEndObject();
-        }
+        var dict = _converterCache.GetValue(options, static _ => new ConcurrentDictionary<ConverterCacheKey, ConverterEntry>());
+        var key = new ConverterCacheKey(declaredType, wrapArrays);
 
-        // Reading does not require WrapArrays=true stub; wrapped/raw arrays are both accepted.
-        var info = options.GetTypeInfo(typeof(DictionaryStub<TValue>));
-        var root = JsonSerializer.Deserialize<DictionaryStub<TValue>>(buffer.WrittenSpan, options);
-        return root?.Value;
+        return dict.GetOrAdd(key, k => CreateEntry(options, k.DeclaredType, k.WrapArrays));
     }
 
-    private static List<TElement?>? ReadPolymorphicListFromRootElement<TElement>(
-        JsonSerializerOptions options,
-        JsonElement rootElement)
+    private static ConverterEntry CreateEntry(JsonSerializerOptions options, Type declaredType, bool wrapArrays)
     {
-        var buffer = new ArrayBufferWriter<byte>(256);
-        using (var writer = new Utf8JsonWriter(buffer))
-        {
-            writer.WriteStartObject();
-            writer.WritePropertyName(ValueName);
-            rootElement.WriteTo(writer);
-            writer.WriteEndObject();
-        }
+        var kind = PolymorphyModifier.Classify(declaredType);
+        var factory = PolymorphyModifier.ResolveConverterFactory(kind, wrapArrays);
 
-        // Reading does not require WrapArrays=true stub; wrapped/raw arrays are both accepted.
-        var root = JsonSerializer.Deserialize<ListStub<TElement>>(buffer.WrittenSpan, options);
-        return root?.Value;
+        // Create the closed converter for declaredType
+        var converter = factory.CreateConverter(declaredType, options)!;
+
+        // Build fast delegates for JsonConverter<T>.Write/Read
+        var write = CreateWriteDelegate(converter, declaredType);
+        var read = CreateReadDelegate(converter, declaredType);
+
+        return new ConverterEntry
+        {
+            Converter = converter,
+            Write = write,
+            Read = read
+        };
     }
 
-    private static void EnsurePolymorphType<T>()
-        => EnsurePolymorphType(typeof(T));
-
-    private static void EnsurePolymorphType(Type t)
+    private static Action<Utf8JsonWriter, object?, JsonSerializerOptions> CreateWriteDelegate(JsonConverter converter, Type declaredType)
     {
-        if (!PolymorphyCodec.IsPolymorphicType(t))
-        {
-            throw new NotSupportedException(
-                $"Type '{t}' is not a supported polymorphic type. " +
-                $"Use 'object', an interface, or an abstract base type.");
-        }
+        // (Utf8JsonWriter w, object? v, JsonSerializerOptions o) => v is null ? w.WriteNullValue() : ((JsonConverter<T>)converter).Write(w, (T)v, o)
+        var convType = typeof(JsonConverter<>).MakeGenericType(declaredType);
+
+        var writerParam = Expression.Parameter(typeof(Utf8JsonWriter), "writer");
+        var valueParam = Expression.Parameter(typeof(object), "value");
+        var optionsParam = Expression.Parameter(typeof(JsonSerializerOptions), "options");
+
+        var convConst = Expression.Constant(converter, convType);
+
+        var writeMi = convType.GetMethod(
+            "Write",
+            BindingFlags.Public | BindingFlags.Instance,
+            binder: null,
+            types: [typeof(Utf8JsonWriter), declaredType, typeof(JsonSerializerOptions)],
+            modifiers: null)!;
+
+        var nullConst = Expression.Constant(null, typeof(object));
+        var isNull = Expression.Equal(valueParam, nullConst);
+
+        var writeNullMi = typeof(Utf8JsonWriter).GetMethod(
+            nameof(Utf8JsonWriter.WriteNullValue),
+            BindingFlags.Public | BindingFlags.Instance,
+            binder: null,
+            types: Type.EmptyTypes,
+            modifiers: null)!;
+
+        var writeNullCall = Expression.Call(writerParam, writeNullMi);
+
+        var valueCast = Expression.Convert(valueParam, declaredType);
+        var writeCall = Expression.Call(convConst, writeMi, writerParam, valueCast, optionsParam);
+
+        var body = Expression.IfThenElse(isNull, writeNullCall, writeCall);
+
+        return Expression.Lambda<Action<Utf8JsonWriter, object?, JsonSerializerOptions>>(body, writerParam, valueParam, optionsParam)
+            .Compile();
     }
 
-    private static MethodInfo FindGenericExtensionMethod(string name, int genericArity, int parameterCount)
+    private static ReadByRefDelegate CreateReadDelegate(JsonConverter converter, Type declaredType)
     {
-        var methods = typeof(PolymorphSerializationExtensions)
-            .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+        // (ref Utf8JsonReader r, Type t, JsonSerializerOptions o) => (object?)((JsonConverter<T>)converter).Read(ref r, t, o)
+        var convType = typeof(JsonConverter<>).MakeGenericType(declaredType);
 
-        foreach (var m in methods)
-        {
-            if (!string.Equals(m.Name, name, StringComparison.Ordinal))
-                continue;
+        var readerParam = Expression.Parameter(typeof(Utf8JsonReader).MakeByRefType(), "reader");
+        var typeParam = Expression.Parameter(typeof(Type), "typeToConvert");
+        var optionsParam = Expression.Parameter(typeof(JsonSerializerOptions), "options");
 
-            if (!m.IsGenericMethodDefinition)
-                continue;
+        var convConst = Expression.Constant(converter, convType);
 
-            if (m.GetGenericArguments().Length != genericArity)
-                continue;
+        var readMi = convType.GetMethod(
+            "Read",
+            BindingFlags.Public | BindingFlags.Instance,
+            binder: null,
+            types: [typeof(Utf8JsonReader).MakeByRefType(), typeof(Type), typeof(JsonSerializerOptions)],
+            modifiers: null)!;
 
-            var ps = m.GetParameters();
-            if (ps.Length != parameterCount)
-                continue;
+        var call = Expression.Call(convConst, readMi, readerParam, typeParam, optionsParam);
+        var box = Expression.Convert(call, typeof(object));
 
-            if (ps[0].ParameterType != typeof(JsonSerializerOptions))
-                continue;
-
-            return m;
-        }
-
-        throw new MissingMethodException($"Generic extension method '{name}`{genericArity}' not found.");
+        return Expression.Lambda<ReadByRefDelegate>(box, readerParam, typeParam, optionsParam)
+            .Compile();
     }
 }

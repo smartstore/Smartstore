@@ -170,7 +170,8 @@ internal class MultimapConverter<TKey, TValue> : STJ.JsonConverter<Multimap<TKey
                     else
                     {
                         // Uses our stub/envelope pipeline, honors $type within list items.
-                        var tmp = options.ReadPolymorphicList<TValue>(ref reader) ?? [];
+                        //var tmp = options.ReadPolymorphicList<TValue>(ref reader) ?? [];
+                        var tmp = options.DeserializePolymorphic<ICollection<TValue?>>(ref reader) ?? [];
 
                         // TValue is a non-nullable value type -> List<TValue?> is List<Nullable<TValue>> at runtime.
                         // We must materialize to List<TValue> and reject null items.
@@ -237,7 +238,7 @@ internal class MultimapConverter<TKey, TValue> : STJ.JsonConverter<Multimap<TKey
             writer.WritePropertyName("Value");
             if (isPolymorphicValueType)
             {
-                options.WritePolymorphicList(writer, item.Value, wrapArrays: true);
+                options.SerializePolymorphic(writer, item.Value, wrapArrays: true);
             }
             else
             {

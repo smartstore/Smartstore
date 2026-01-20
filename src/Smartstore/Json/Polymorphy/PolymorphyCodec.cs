@@ -560,7 +560,7 @@ internal static class PolymorphyCodec
 
     public static bool TryGetPolymorphyKind(Type t, [NotNullWhen(true)] out PolymorphyKind? kind, [NotNullWhen(true)] out Type? elementType)
     {
-        kind = null;
+        kind = default;
         elementType = null;
 
         if (t.IsDictionaryType(out var keyType, out var valueType))

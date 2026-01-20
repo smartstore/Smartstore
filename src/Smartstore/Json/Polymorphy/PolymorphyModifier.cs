@@ -18,12 +18,12 @@ internal static class PolymorphyModifier
 {
     readonly struct PolymorphyConverterSet
     {
-        public required JsonConverter ObjectConverter { get; init; }
-        public required JsonConverter ObjectWithArraysConverter { get; init; }
-        public required JsonConverter ListConverter { get; init; }
-        public required JsonConverter ListWithArraysConverter { get; init; }
-        public required JsonConverter DictionaryConverter { get; init; }
-        public required JsonConverter DictionaryWithArraysConverter { get; init; }
+        public required JsonConverterFactory ObjectConverter { get; init; }
+        public required JsonConverterFactory ObjectWithArraysConverter { get; init; }
+        public required JsonConverterFactory ListConverter { get; init; }
+        public required JsonConverterFactory ListWithArraysConverter { get; init; }
+        public required JsonConverterFactory DictionaryConverter { get; init; }
+        public required JsonConverterFactory DictionaryWithArraysConverter { get; init; }
     }
 
     private readonly static PolymorphyConverterSet _converterSet = new()
@@ -62,29 +62,7 @@ internal static class PolymorphyModifier
             var kind = Classify(propType);
             var wrapArrays = attr?.WrapArrays ?? false;
 
-            switch (kind)
-            {
-                case PolymorphyKind.ObjectSlot:
-                    prop.CustomConverter = wrapArrays
-                        ? _converterSet.ObjectWithArraysConverter
-                        : _converterSet.ObjectConverter;
-                    break;
-
-                case PolymorphyKind.DictionarySlot:
-                    prop.CustomConverter = wrapArrays
-                        ? _converterSet.DictionaryWithArraysConverter
-                        : _converterSet.DictionaryConverter;
-                    break;
-
-                case PolymorphyKind.ListSlot:
-                    prop.CustomConverter = wrapArrays
-                        ? _converterSet.ListWithArraysConverter
-                        : _converterSet.ListConverter;
-                    break;
-
-                default:
-                    break;
-            }
+            prop.CustomConverter = ResolveConverterFactory(kind, wrapArrays);
 
 #if DEBUG
             // Sanity check: if a [Polymorphic] attribute was found, a converter must be assigned.
@@ -115,7 +93,7 @@ internal static class PolymorphyModifier
         return propertyType.TryGetAttribute<PolymorphicAttribute>(true, out attr) == true;
     }
 
-    private static PolymorphyKind Classify(Type t)
+    public static PolymorphyKind Classify(Type t)
     {
         if (t.IsDictionaryType(out var keyType, out var valueType))
         {
@@ -137,8 +115,28 @@ internal static class PolymorphyModifier
             if (IsCandidateType(t))
                 return PolymorphyKind.ObjectSlot;
 
-            throw new InvalidOperationException("Polymorphic properties must be of type object, interface, abstract class, dictionary with string keys, or list/array.");
+            throw new InvalidOperationException("Polymorphic objects must be of type object, interface, abstract class, dictionary with string keys, or list/array.");
         }
+    }
+
+    public static JsonConverterFactory ResolveConverterFactory(PolymorphyKind kind, bool wrapArrays)
+    {
+        return kind switch
+        {
+            PolymorphyKind.ObjectSlot => wrapArrays
+                ? _converterSet.ObjectWithArraysConverter
+                : _converterSet.ObjectConverter,
+
+            PolymorphyKind.ListSlot => wrapArrays
+                ? _converterSet.ListWithArraysConverter
+                : _converterSet.ListConverter,
+
+            PolymorphyKind.DictionarySlot => wrapArrays
+                ? _converterSet.DictionaryWithArraysConverter
+                : _converterSet.DictionaryConverter,
+
+            _ => throw new InvalidOperationException($"Unsupported polymorphy kind '{kind}'.")
+        };
     }
 
     private static bool IsCandidateType(Type t)

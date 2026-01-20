@@ -178,7 +178,7 @@ internal sealed class TreeNodeJsonConverter<T> : JsonConverter<TreeNode<T>>
             }
             else if (string.Equals(propertyName, "Metadata", StringComparison.OrdinalIgnoreCase))
             {
-                metadata = options.ReadPolymorphicDictionary(ref reader);
+                metadata = options.DeserializePolymorphic<IDictionary<string, object>>(ref reader);
             }
             else if (string.Equals(propertyName, "Children", StringComparison.OrdinalIgnoreCase))
             {
@@ -248,7 +248,7 @@ internal sealed class TreeNodeJsonConverter<T> : JsonConverter<TreeNode<T>>
         if (value.Metadata != null && value.Metadata.Count > 0)
         {
             writer.WritePropertyName("Metadata");
-            options.WritePolymorphicDictionary(writer, value.Metadata, wrapArrays: true);
+            options.SerializePolymorphic(writer, value.Metadata, wrapArrays: true);
         }
 
         // Children

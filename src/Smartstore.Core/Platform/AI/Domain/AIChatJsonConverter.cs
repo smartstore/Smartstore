@@ -149,7 +149,7 @@ namespace Smartstore.Core.AI
                 else if (string.Equals(propertyName, nameof(AIChat.Metadata), StringComparison.OrdinalIgnoreCase))
                 {
                     //metadata = JsonSerializer.Deserialize<Dictionary<string, object>>(ref reader, options);
-                    metadata = options.ReadPolymorphicDictionary(ref reader);
+                    metadata = options.DeserializePolymorphic<IDictionary<string, object>>(ref reader);
                 }
                 else if (string.Equals(propertyName, nameof(AIChat.InitialUserMessage) + "Hash", StringComparison.OrdinalIgnoreCase))
                 {
@@ -204,7 +204,7 @@ namespace Smartstore.Core.AI
                 {
                     writer.WritePropertyName(nameof(AIChat.Metadata));
                     //JsonSerializer.Serialize(writer, dict, options);
-                    options.WritePolymorphicDictionary(writer, dict);
+                    options.SerializePolymorphic(writer, dict);
                 }
             }
 
