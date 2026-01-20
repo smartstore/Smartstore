@@ -1,10 +1,9 @@
 ﻿@model string[]
 
-@using Newtonsoft.Json.Linq;
-
 @inject IWidgetProvider WidgetProvider
 
-@functions {
+@functions
+{
     private string[] Value
     {
         get
@@ -20,44 +19,35 @@
 }
 
 @{
-    var jsonZones = (JObject)(await WidgetProvider.GetAllKnownWidgetZonesAsync());
-
-    var areas =
-        from p in jsonZones["WidgetZonesAreas"]
-        select p;
-
+    dynamic jsonZones = await WidgetProvider.GetAllKnownWidgetZonesAsync();
+    var areas = jsonZones.WidgetZonesAreas as IEnumerable<dynamic>;
     var zones = new List<SelectListItem>();
     var userDefinedZones = Value != null ? Value.ToList() : new List<string>();
     var selectedZones = new HashSet<string>(userDefinedZones, StringComparer.OrdinalIgnoreCase);
 
-    // add system zones
-    foreach (var area in areas)
+    // Add system zones
+    foreach (dynamic area in areas)
     {
-        var areaName = area["name"].ToString();
-        var areasObj =
-            from p in area["zones"]
-            select p;
-
-        var groupName = T(areaName.ToString()).Value.Pascalize();
+        var zoneNames = area.zones as IEnumerable<dynamic>;
+        var groupName = T((string)area.name).Value.Pascalize();
         var group = new SelectListGroup { Name = groupName };
 
-        foreach (var zone in areasObj)
+        foreach (string zone in zoneNames)
         {
-            var zoneName = zone.ToString();
-            zones.Add(new SelectListItem
+            zones.Add(new()
             {
-                Text = zoneName,
-                Value = zoneName,
-                Selected = selectedZones.Contains(zoneName),
+                Text = zone,
+                Value = zone,
+                Selected = selectedZones.Contains(zone),
                 Group = group
             });
 
             // Remove item from userdefined zones (it is a system zone).
-            userDefinedZones.Remove(zoneName);
+            userDefinedZones.Remove(zone);
         }
     }
 
-    // add userdefined zones to available zones
+    // Add userdefined zones to available zones
     var userDefinedGroup = new SelectListGroup { Name = T("Admin.WidgetZones.UserDefined").Value };
     userDefinedZones.Reverse();
 
@@ -72,8 +62,11 @@
         });
     }
 
-    // get selected items
-    var selectedValues = zones.Where(x => x.Selected == true).Select(x => x.Value.ToString()).ToArray();
+    // Get selected items
+    var selectedValues = zones
+        .Where(x => x.Selected == true)
+        .Select(x => x.Value.ToString())
+        .ToArray();
 
     var cssClass = "form-control";
     var size = GetMetadata<string>("size");
