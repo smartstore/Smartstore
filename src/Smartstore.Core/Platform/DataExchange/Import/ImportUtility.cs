@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
+using System.Text;
+using System.Text.Json;
 using System.Xml;
-using Newtonsoft.Json;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.DataExchange.Import
@@ -38,14 +39,13 @@ namespace Smartstore.Core.DataExchange.Import
         {
             try
             {
-                using (var stringReader = new StringReader(xml))
-                using (var xmlReader = XmlReader.Create(stringReader, settings ?? _xmlValidatorSettings))
+                using var stringReader = new StringReader(xml);
+                using var xmlReader = XmlReader.Create(stringReader, settings ?? _xmlValidatorSettings);
+                var i = 0;
+
+                while (xmlReader.Read() && i < 3)
                 {
-                    var i = 0;
-                    while (xmlReader.Read() && i < 3)
-                    {
-                        ++i;
-                    }
+                    ++i;
                 }
 
                 return true;
@@ -65,14 +65,13 @@ namespace Smartstore.Core.DataExchange.Import
         {
             try
             {
-                using (var stringReader = new StringReader(json))
-                using (var jsonReader = new JsonTextReader(stringReader))
+                var bytes = Encoding.UTF8.GetBytes(json).AsSpan();
+                var reader = new Utf8JsonReader(bytes);
+
+                var i = 0;
+                while (reader.Read() && i < 5)
                 {
-                    var i = 0;
-                    while (jsonReader.Read() && i < 5)
-                    {
-                        ++i;
-                    }
+                    ++i;
                 }
 
                 return true;
