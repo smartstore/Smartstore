@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http;
+using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Packaging;
@@ -162,10 +162,11 @@ namespace Smartstore.Engine.Modularity.NuGet
 
             var baseUri = _serviceIndex.GetPackageBaseAddressUri();
             var index = GetPackageBaseAddressIndexUri(baseUri, id);
-            var json = await _httpSource.GetJObjectAsync(index, _cacheContext, _nuLogger, cancelToken);
+            var json = await _httpSource.GetJsonObjectAsync(index, _cacheContext, _nuLogger, cancelToken);
 
-            var versions = ((JArray)json["versions"])
-                .Select(e => NuGetVersion.Parse(e.ToString()))
+            var versions = (json["versions"] as JsonArray)
+                ?.Select(e => NuGetVersion.Parse(e?.ToString()))
+                .Where(x => x != null)
                 .Where(x => !x.IsPrerelease)
                 .OrderByDescending(x => x)
                 .AsEnumerable();
@@ -208,15 +209,16 @@ namespace Smartstore.Engine.Modularity.NuGet
             {
                 EnsureHttpSource();
 
-                var index = await _httpSource.GetJObjectAsync(_indexUri, _cacheContext, _nuLogger, cancelToken);
-                var resources = (index["resources"] as JArray);
+                var index = await _httpSource.GetJsonObjectAsync(_indexUri, _cacheContext, _nuLogger, cancelToken);
+                var resources = (index["resources"] as JsonArray);
 
                 if (resources == null)
                 {
                     throw new InvalidOperationException($"{uri.AbsoluteUri} does not contain a 'resources' property. Use the root service index.json for the nuget v3 feed.");
                 }
 
-                _serviceIndex = new ServiceIndexResourceV3(index, DateTime.UtcNow);
+                // NuGet's ServiceIndexResourceV3 expects a Newtonsoft JObject. Convert on the boundary only.
+                _serviceIndex = new ServiceIndexResourceV3(Newtonsoft.Json.Linq.JObject.Parse(index.ToJsonString()), DateTime.UtcNow);
             }
         }
 

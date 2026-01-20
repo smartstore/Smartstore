@@ -2,11 +2,11 @@
 
 using System.Collections.Concurrent;
 using System.Reflection;
+using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Newtonsoft.Json.Linq;
 using Smartstore.Engine.Modularity;
 using Smartstore.Utilities;
 
@@ -86,9 +86,9 @@ namespace Smartstore.Core.Widgets
         {
             var arguments = widget.Arguments;
             
-            if (arguments is JObject jobj)
+            if (arguments is JsonObject jobj)
             {
-                // ConvertUtility.ObjectToDictionary can handle JObject
+                // ConvertUtility.ObjectToDictionary can handle JsonObject
                 arguments = ConvertUtility.ObjectToDictionary(arguments, null);
             }
 

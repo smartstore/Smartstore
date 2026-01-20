@@ -1,6 +1,6 @@
 ﻿using System.Text;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using NuGet.Common;
 using NuGet.Packaging;
 using NuGet.Protocol;
@@ -12,7 +12,7 @@ namespace Smartstore.Engine.Modularity.NuGet
     {
         private static readonly string[] PackageBaseAddressUrl = { "PackageBaseAddress/3.0.0" };
 
-        public static Task<JObject> GetJObjectAsync(this HttpSource source,
+        public static Task<JsonObject> GetJsonObjectAsync(this HttpSource source,
             Uri uri,
             HttpSourceCacheContext cacheContext,
             ILogger log,
@@ -60,32 +60,34 @@ namespace Smartstore.Engine.Modularity.NuGet
                 .Replace(':', '_');
         }
 
-        private static Task<JObject> ProcessJson(HttpSourceResult result)
+        private static Task<JsonObject> ProcessJson(HttpSourceResult result)
         {
             return LoadJsonAsync(result.Stream, false);
         }
 
-        private static async Task<JObject> LoadJsonAsync(Stream stream, bool leaveOpen)
+        private static async Task<JsonObject> LoadJsonAsync(Stream stream, bool leaveOpen)
         {
             if (stream.CanSeek)
             {
                 stream.Position = 0;
             }
 
-            using (var reader = new StreamReader(stream, Encoding.UTF8, false, 8192, leaveOpen))
-            using (var jsonReader = new JsonTextReader(reader))
+            using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, bufferSize: 8192, leaveOpen: leaveOpen);
+            var options = new JsonDocumentOptions
             {
-                // Avoid error prone json.net date handling
-                jsonReader.DateParseHandling = DateParseHandling.None;
+                CommentHandling = JsonCommentHandling.Skip,
+                AllowTrailingCommas = true
+            };
 
-                var json = await JObject.LoadAsync(jsonReader, new JsonLoadSettings()
-                {
-                    LineInfoHandling = LineInfoHandling.Ignore,
-                    CommentHandling = CommentHandling.Ignore,
-                });
+            using var doc = await JsonDocument.ParseAsync(reader.BaseStream, options).ConfigureAwait(false);
+            var node = JsonNode.Parse(doc.RootElement.GetRawText());
 
-                return json;
+            if (node is not JsonObject obj)
+            {
+                throw new InvalidDataException("Expected a JSON object.");
             }
+
+            return obj;
         }
 
         public static Uri GetPackageBaseAddressUri(this ServiceIndexResourceV3 serviceIndex)

@@ -1,8 +1,9 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
-using Newtonsoft.Json.Linq;
 using Smartstore.Collections;
+using Smartstore.Json;
 
 namespace Smartstore.Core.Widgets
 {
@@ -56,7 +57,7 @@ namespace Smartstore.Core.Widgets
             {
                 try
                 {
-                    return JObject.Parse(json);
+                    return JsonObject.Parse(json).ToDynamic();
                 }
                 catch
                 {

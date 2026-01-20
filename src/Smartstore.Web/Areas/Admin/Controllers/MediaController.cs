@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using Newtonsoft.Json.Linq;
+﻿using System.Text.Json;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Options;
 using Smartstore.Admin.Models.Media;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Content.Media;
@@ -9,6 +10,7 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
 using Smartstore.Engine.Modularity;
 using Smartstore.Events;
+using Smartstore.Json;
 using Smartstore.Web.Modelling.Settings;
 
 namespace Smartstore.Admin.Controllers
@@ -25,6 +27,7 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<IMediaMover> _mediaMover;
         private readonly Lazy<ModuleManager> _moduleManager;
         private readonly IProviderManager _providerManager;
+        private readonly JsonSerializerOptions _jsonOptions;
 
         public MediaController(SmartDbContext db,
             IMediaService mediaService,
@@ -33,7 +36,8 @@ namespace Smartstore.Admin.Controllers
             IEventPublisher eventPublisher,
             Lazy<IMediaMover> mediaMover,
             Lazy<ModuleManager> moduleManager,
-            IProviderManager providerManager)
+            IProviderManager providerManager,
+            IOptions<JsonOptions> jsonOptions)
         {
             _db = db;
             _mediaService = mediaService;
@@ -43,6 +47,7 @@ namespace Smartstore.Admin.Controllers
             _mediaMover = mediaMover;
             _moduleManager = moduleManager;
             _providerManager = providerManager;
+            _jsonOptions = jsonOptions.Value.JsonSerializerOptions;
         }
 
         [HttpPost]
@@ -103,7 +108,7 @@ namespace Smartstore.Admin.Controllers
                         isTransient,
                         duplicateFileHandling);
 
-                    dynamic o = JObject.FromObject(mediaFile);
+                    dynamic o = JsonSerializer.SerializeToNode(mediaFile, _jsonOptions).ToDynamic();
                     o.success = true;
                     o.createdOn = mediaFile.CreatedOn.ToString();
                     o.lastUpdated = mediaFile.LastModified.ToString();
@@ -116,7 +121,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     var dupe = dex.File;
 
-                    dynamic o = JObject.FromObject(dupe);
+                    dynamic o = JsonSerializer.SerializeToNode(dupe, _jsonOptions).ToDynamic();
                     o.dupe = true;
                     o.errMessage = dex.Message;
 

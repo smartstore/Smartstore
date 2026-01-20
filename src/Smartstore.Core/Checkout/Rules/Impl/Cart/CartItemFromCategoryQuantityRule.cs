@@ -1,6 +1,7 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System.Text.Json.Nodes;
 using Smartstore.Core.Data;
 using Smartstore.Core.Rules;
+using Smartstore.Json;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
@@ -26,8 +27,7 @@ namespace Smartstore.Core.Checkout.Rules.Impl
                 var rawValue = expression.Value as string;
                 if (rawValue.HasValue())
                 {
-                    dynamic json = JObject.Parse(rawValue);
-
+                    dynamic json = JsonObject.Parse(rawValue).ToDynamic();
                     categoryId = ((string)json.EntityId).ToInt();
 
                     var str = (string)json.MinQuantity;
