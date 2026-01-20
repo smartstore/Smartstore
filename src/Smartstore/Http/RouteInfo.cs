@@ -154,7 +154,7 @@ internal sealed class RouteInfoJsonConverter : STJ.JsonConverter<RouteInfo>
                 }
                 else if (string.Equals(propertyName, "RouteValues", StringComparison.OrdinalIgnoreCase))
                 {
-                    var raw = options.ReadPolymorphicDictionary(ref reader);
+                    var raw = options.DeserializePolymorphic<IDictionary<string, object?>>(ref reader);
                     routeValues = new RouteValueDictionary(raw);
                 }
             }
@@ -175,7 +175,7 @@ internal sealed class RouteInfoJsonConverter : STJ.JsonConverter<RouteInfo>
         
         writer.WritePropertyName("RouteValues");
         //JsonSerializer.Serialize(writer, value.RouteValues, options);
-        options.WritePolymorphicDictionary(writer, value.RouteValues.ToDictionary());
+        options.SerializePolymorphic(writer, value.RouteValues.ToDictionary());
 
         writer.WriteEndObject();
     }
