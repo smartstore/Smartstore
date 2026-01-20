@@ -18,7 +18,7 @@ namespace Smartstore.ComponentModel
     /// </summary>
     public abstract class ObservableObject : INotifyPropertyChanged
     {
-        private readonly Dictionary<string, object> _properties = new();
+        private readonly Dictionary<string, object> _properties = [];
 
         public event PropertyChangedEventHandler PropertyChanged;
 

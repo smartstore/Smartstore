@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
 using Smartstore.Collections;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Content.Media.Storage;
@@ -86,9 +87,13 @@ namespace Smartstore.Core.Content.Media
 
     public class FolderDeleteResult
     {
+        [DefaultValue("[]")]
         public HashSet<int> DeletedFolderIds { get; set; } = [];
+        [DefaultValue("[]")]
         public IList<string> DeletedFileNames { get; set; } = [];
+        [DefaultValue("[]")]
         public IList<string> TrackedFileNames { get; set; } = [];
+        [DefaultValue("[]")]
         public IList<string> LockedFileNames { get; set; } = [];
     }
 

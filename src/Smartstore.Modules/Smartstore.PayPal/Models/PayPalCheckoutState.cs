@@ -2,7 +2,6 @@
 
 namespace Smartstore.PayPal.Models
 {
-    [Serializable]
     public class PayPalCheckoutState : ObservableObject
     {
         /// <summary>

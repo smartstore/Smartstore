@@ -2,7 +2,6 @@
 
 namespace Smartstore.StripeElements.Models;
 
-[Serializable]
 public class StripeCheckoutState : ObservableObject
 {
     public PaymentIntent PaymentIntent
