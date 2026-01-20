@@ -97,13 +97,13 @@ namespace Smartstore.Core.Content.Media.Icons
             var file = mapFileMin.Exists ? mapFileMin : mapFile;
 
             using var fileStream = file.OpenRead();
-            var icons = JsonSerializer.Deserialize<Dictionary<string, IconDescription>>(fileStream, SmartJsonOptions.CamelCased);
+            var icons = JsonSerializer.Deserialize<Dictionary<string, IconDescription>>(fileStream, SmartJsonOptions.CamelCasedIgnoreDefaults);
 
             if (!mapFileMin.Exists && mapFileMin.SubPath.HasValue())
             {
                 // minified file did not exist: save it.
                 using var minFileStream = mapFileMin.OpenWrite();
-                JsonSerializer.Serialize(minFileStream, icons, SmartJsonOptions.CamelCased);
+                JsonSerializer.Serialize(minFileStream, icons, SmartJsonOptions.CamelCasedIgnoreDefaults);
             }
 
             return icons;

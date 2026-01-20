@@ -102,7 +102,7 @@ public class StripeController : ModuleController
 
         try
         {
-            var returnedData = JsonSerializer.Deserialize<PublicStripeEventModel>(eventData, SmartJsonOptions.CamelCased);
+            var returnedData = JsonSerializer.Deserialize<PublicStripeEventModel>(eventData, SmartJsonOptions.CamelCasedIgnoreDefaults);
 
             // Create PaymentIntent.
             var options = new PaymentIntentCreateOptions
@@ -194,7 +194,7 @@ public class StripeController : ModuleController
             stripePaymentRequest.RequestPayerName = false;
             stripePaymentRequest.RequestPayerEmail = false;
 
-            var paymentRequest = JsonSerializer.Serialize(stripePaymentRequest, SmartJsonOptions.CamelCased);
+            var paymentRequest = JsonSerializer.Serialize(stripePaymentRequest, SmartJsonOptions.CamelCasedIgnoreDefaults);
 
             return Json(new { success = true, paymentRequest });
         }

@@ -265,7 +265,7 @@ namespace Smartstore.Admin.Controllers
             {
                 try
                 {
-                    var ruleData = JsonSerializer.Deserialize<RuleEditItem[]>(model.RawRuleData, SmartJsonOptions.CamelCased);
+                    var ruleData = JsonSerializer.Deserialize<RuleEditItem[]>(model.RawRuleData, SmartJsonOptions.CamelCasedIgnoreDefaults);
                     var provider = await GetProvider(ruleSet);
 
                     await _ruleService.ApplyRuleDataAsync(ruleData, provider);

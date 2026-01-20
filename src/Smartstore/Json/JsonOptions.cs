@@ -53,9 +53,8 @@ public static class SmartJsonOptions
         // NSJ: ObjectCreationHandling.Replace
         PreferredObjectCreationHandling = JsonObjectCreationHandling.Replace,
 
-        // NSJ: DefaultValueHandling.Ignore
-        // This actually differs from NSJ default behavoiour, but it's more useful this way.
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+        // NSJ: NullValueHandling.Ignore
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
 
         // NSJ: MaxDepth
         MaxDepth = 32,
@@ -196,7 +195,7 @@ public static class SmartJsonOptions
     }
 
     private static bool ShouldIgnoreDefaultValue(object? value, object? defaultValue)
-        => Equals(value, defaultValue);
+        => value == null || Equals(value, defaultValue);
 
     private static bool ShouldIgnoreEmptySequence(IEnumerable? value)
         => value == null || !value.GetEnumerator().MoveNext();

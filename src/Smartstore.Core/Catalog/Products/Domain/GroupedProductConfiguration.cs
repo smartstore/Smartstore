@@ -67,7 +67,7 @@ namespace Smartstore.Core.Catalog.Products
                 Titles = null;
             }
 
-            return JsonSerializer.Serialize(this, SmartJsonOptions.CamelCased);
+            return JsonSerializer.Serialize(this, SmartJsonOptions.CamelCasedIgnoreDefaults);
         }
 
         public bool IsDefaultState
