@@ -4,10 +4,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.Dynamic;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Newtonsoft.Json.Linq;
 using Smartstore.ComponentModel;
+using Smartstore.Json;
 
 namespace Smartstore.Utilities
 {
@@ -136,9 +138,9 @@ namespace Smartstore.Utilities
         /// 
         ///  If the object is already an <see cref="IDictionary{string, object}"> instance, then a copy is returned.
         ///  
-        ///  If the object is a <see cref="JObject"/> instance, then it will be converted recursively.
+        ///  If the object is a <see cref="JsonObject"/> instance, then it will be converted recursively.
         ///  </summary>
-        ///  <param name="keySelector">Key selector. Not invoked when <paramref name="value"/> is already a dictionary or <see cref="JObject"/>.</param>
+        ///  <param name="keySelector">Key selector. Not invoked when <paramref name="value"/> is already a dictionary or <see cref="JsonObject"/>.</param>
         ///  <param name="deep">When true, converts all nested objects to dictionaries also</param>
         ///  <remarks>
         ///  The implementation of FastProperty will cache the property accessors per-type. This is
@@ -151,9 +153,30 @@ namespace Smartstore.Utilities
                 return new Dictionary<string, object?>(dictionary, StringComparer.OrdinalIgnoreCase);
             }
 
-            if (value is JObject jobj)
+            if (value is JsonObject jsonObj)
             {
-                return JObjectToDictionary(jobj, deep);
+                return JsonObjectToDictionary(jsonObj, deep);
+            }
+
+            if (value is JsonNode jsonNode)
+            {
+                // Best effort: treat objects as dictionary, everything else as empty/default.
+                if (jsonNode is JsonObject obj)
+                {
+                    return JsonObjectToDictionary(obj, deep);
+                }
+            }
+
+            if (value is JsonElement jsonElement)
+            {
+                if (jsonElement.ValueKind == JsonValueKind.Object)
+                {
+                    var node = JsonNode.Parse(jsonElement.GetRawText());
+                    if (node is JsonObject obj)
+                    {
+                        return JsonObjectToDictionary(obj, deep);
+                    }
+                }
             }
 
             dictionary = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
@@ -167,7 +190,7 @@ namespace Smartstore.Utilities
                     object? propValue = kvp.Value.GetValue(value);
                     Type propType = kvp.Value.Property.PropertyType;
 
-                    if (deep && propValue != null && (propType == typeof(JObject) || propType.IsPlainObjectType()))
+                    if (deep && propValue != null && (propType == typeof(JsonObject) || propType.IsPlainObjectType()))
                     {
                         propValue = ObjectToDictionary(propValue, DefaultKeySelector, deep: true);
                     }
@@ -179,56 +202,62 @@ namespace Smartstore.Utilities
             return dictionary;
         }
 
-        private static IDictionary<string, object?> JObjectToDictionary(JObject value, bool deep)
+        private static Dictionary<string, object?> JsonObjectToDictionary(JsonObject value, bool deep)
         {
-            var result = value.ToObject<IDictionary<string, object?>>()!;
+            var result = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
 
-            if (deep && result.Any(kvp => kvp.Value is JContainer))
+            foreach (var (key, node) in value)
             {
-                ProcessObjectProperties(result);
-                ProcessArrayProperties(result);
+                result[key] = JsonNodeToObject(node, deep);
             }
 
             return result;
+        }
 
-            void ProcessObjectProperties(IDictionary<string, object?> props)
+        private static object? JsonNodeToObject(JsonNode? node, bool deep)
+        {
+            if (node is null)
             {
-                var propNames = from property in props 
-                                let name = property.Key
-                                let value = property.Value
-                                where value is JObject
-                                select name;
-                propNames.Each(x => props[x] = JObjectToDictionary((JObject)props[x]!, deep));
+                return null;
             }
 
-            void ProcessArrayProperties(IDictionary<string, object?> props)
+            if (node is JsonValue jv)
             {
-                var propNames = from property in props
-                                let name = property.Key
-                                let value = property.Value
-                                where value is JArray
-                                select name;
-                propNames.Each(x => props[x] = ToArray((JArray)props[x]!));
-            }
-
-            object[] ToArray(JArray array)
-            {
-                return array.ToObject<object[]>()!.Select(ProcessArrayEntry).ToArray();
-            }
-
-            object ProcessArrayEntry(object value)
-            {
-                if (value is JObject obj)
+                // Prefer JsonElement-backed values (common after JsonNode.Parse)
+                if (jv.TryGetValue<JsonElement>(out var el))
                 {
-                    return JObjectToDictionary(obj, deep);
-                }
-                else if (value is JArray arr)
-                {
-                    return ToArray(arr);
+                    if (el.IsNullOrUndefined())
+                    {
+                        return null;
+                    }
+
+                    // deep: convert scalar values; non-scalars (rare here) fall back to raw json text.
+                    if (deep)
+                    {
+                        return el.TryGetScalarValue(out var value)
+                            ? value
+                            : el.GetRawText();
+                    }
+
+                    // shallow: preserve original JSON representation
+                    return (object)el;
                 }
 
-                return value;
+                return jv.GetValue<object?>();
             }
+
+            if (!deep)
+            {
+                // Keep JsonObject/JsonArray as-is (shallow mode)
+                return node;
+            }
+
+            return node switch
+            {
+                JsonObject obj => JsonObjectToDictionary(obj, deep: true),
+                JsonArray arr => arr.Select(n => JsonNodeToObject(n, deep: true)).ToArray(),
+                _ => node
+            };
         }
 
         /// <summary>

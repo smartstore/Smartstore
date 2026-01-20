@@ -3,8 +3,8 @@ using System.Collections.Frozen;
 using System.Dynamic;
 using System.Globalization;
 using System.Reflection;
+using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Routing;
-using Newtonsoft.Json.Linq;
 using Smartstore.Utilities;
 
 namespace Smartstore.ComponentModel.TypeConverters
@@ -18,8 +18,8 @@ namespace Smartstore.ComponentModel.TypeConverters
 
         public override bool CanConvertFrom(Type type)
         {
-            // A dictionary can be created from JObject, POCO, and anonymous types
-            return type == typeof(JObject)
+            // A dictionary can be created from JsonObject, POCO, and anonymous types
+            return type == typeof(JsonObject)
                 || type.IsPlainObjectType()
                 || type.IsAnonymousType();
         }
@@ -101,7 +101,7 @@ namespace Smartstore.ComponentModel.TypeConverters
 
                         if (nestedTarget != null)
                         {
-                            populated = populated.Concat(new object[] { target }).ToArray();
+                            populated = populated.Concat([target]).ToArray();
                             Populate(dict, nestedTarget, populated);
                             SetProperty(target, pi, nestedTarget);
                         }
@@ -178,10 +178,10 @@ namespace Smartstore.ComponentModel.TypeConverters
                 .GetMethod("CreateSequenceActivator", BindingFlags.Static | BindingFlags.NonPublic);
 
             // --> Get activator func by reflection
-            var activator = createActivatorMethod.Invoke(null, new object[] { enumerableProp.PropertyType });
+            var activator = createActivatorMethod.Invoke(null, [enumerableProp.PropertyType]);
 
             // --> Invoke activator func: activator.Invoke(elements)
-            var result = activator.GetType().GetMethod("Invoke").Invoke(activator, new object[] { elements });
+            var result = activator.GetType().GetMethod("Invoke").Invoke(activator, [elements]);
 
             return result;
         }
