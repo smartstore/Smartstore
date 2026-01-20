@@ -1,8 +1,9 @@
 ﻿using System.Globalization;
 using System.Text;
+using System.Text.Json;
 using System.Xml;
 using Humanizer;
-using Newtonsoft.Json.Linq;
+using Smartstore.Json;
 
 namespace Smartstore.Utilities
 {
@@ -62,9 +63,8 @@ namespace Smartstore.Utilities
 
             try
             {
-                return json.StartsWith('[')
-                    ? JArray.Parse(json).ToString()
-                    : JToken.Parse(json).ToString();
+                using var doc = JsonDocument.Parse(json);
+                return SmartJsonOptions.Default.SerializeIndented(doc.RootElement);
             }
             catch
             {
