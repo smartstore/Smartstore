@@ -1,4 +1,7 @@
-﻿namespace Smartstore.Core.Content.Media
+﻿using System.ComponentModel;
+using System.Runtime.Serialization;
+
+namespace Smartstore.Core.Content.Media
 {
     /// <summary>
     /// Common info about a media album.
@@ -34,6 +37,7 @@
         /// <c>true</c> if at least one (<see cref="IMediaTrackDetector"/>) implementation
         /// can detect tracks for this album.
         /// </summary>
+        [IgnoreDataMember]
         public bool HasTrackDetector => TrackDetectorTypes?.Length > 0;
 
         /// <summary>
@@ -44,7 +48,8 @@
         /// <summary>
         /// Reflection info about trackable properties.
         /// </summary>
-        public TrackedMediaProperty[] TrackedProperties { get; set; } = Array.Empty<TrackedMediaProperty>();
+        [DefaultValue("[]")]
+        public TrackedMediaProperty[] TrackedProperties { get; set; } = [];
     }
 
     public class AlbumDisplayHint

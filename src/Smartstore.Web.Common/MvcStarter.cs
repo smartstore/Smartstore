@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Encodings.Web;
+using System.Text.Json.Serialization;
 using Autofac;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -127,6 +128,7 @@ internal class MvcStarter : StarterBase
                 var options = o.JsonSerializerOptions;
                 options.ApplyFrom(SmartJsonOptions.Default);
                 options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+                options.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
                 options.Converters.Add(new UtcDateTimeJsonConverter());
             })
             //.AddNewtonsoftJson(o =>

@@ -1,10 +1,17 @@
-﻿namespace Smartstore.Web.Models.Common
+﻿using System.ComponentModel;
+
+namespace Smartstore.Web.Models.Common
 {
     public partial class FaviconModel : ModelBase
     {
         public string FavIconUrl { get; set; }
-        public List<Favicon> PngIcons { get; set; } = new();
-        public List<Favicon> AppleTouchIcons { get; set; } = new();
+
+        [DefaultValue("[]")]
+        public List<Favicon> PngIcons { get; set; } = [];
+
+        [DefaultValue("[]")]
+        public List<Favicon> AppleTouchIcons { get; set; } = [];
+
         public string MsTileIconUrl { get; set; }
         public string MsTileColor { get; set; }
 
