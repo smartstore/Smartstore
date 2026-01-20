@@ -1,7 +1,7 @@
 ﻿using System.Collections.Frozen;
 using System.Dynamic;
+using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Routing;
-using Newtonsoft.Json.Linq;
 
 namespace Smartstore.ComponentModel.TypeConverters
 {
@@ -32,9 +32,9 @@ namespace Smartstore.ComponentModel.TypeConverters
             {
                 return new DictionaryTypeConverter<FrozenDictionary<string, object>>();
             }
-            else if (type == typeof(JObject))
+            else if (type == typeof(JsonObject))
             {
-                return new JObjectConverter();
+                return new JsonObjectConverter();
             }
             else if (type == typeof(IDictionary<string, object>) || type == typeof(Dictionary<string, object>))
             {

@@ -1,14 +1,15 @@
 ﻿using System.Globalization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using Smartstore.Json;
 using Smartstore.Utilities;
 
 namespace Smartstore.ComponentModel.TypeConverters
 {
-    internal class JObjectConverter : DefaultTypeConverter
+    internal class JsonObjectConverter : DefaultTypeConverter
     {
-        public JObjectConverter()
-            : base(typeof(JObject))
+        public JsonObjectConverter()
+            : base(typeof(JsonObject))
         {
         }
 
@@ -30,12 +31,12 @@ namespace Smartstore.ComponentModel.TypeConverters
         {
             if (value is string json)
             {
-                return JObject.Parse(json);
+                return JsonNode.Parse(json)?.AsObject();
             }
 
             if (value != null)
             {
-                return JObject.FromObject(value);
+                return JsonSerializer.SerializeToNode(value, SmartJsonOptions.Default)?.AsObject();
             }
 
             return base.ConvertFrom(culture, value);
@@ -43,11 +44,11 @@ namespace Smartstore.ComponentModel.TypeConverters
 
         public override object ConvertTo(CultureInfo culture, string format, object value, Type to)
         {
-            if (value is JObject jobj)
+            if (value is JsonObject jobj)
             {
                 if (to == typeof(string))
                 {
-                    return jobj.ToString(Formatting.Indented);
+                    return jobj.ToJsonString(SmartJsonOptions.Default);
                 }
                 else
                 {

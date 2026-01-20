@@ -288,7 +288,7 @@ namespace Smartstore.Domain
 
                     if (attributes.CustomAttributes.Count > 0)
                     {
-                        // Convert custom attributes from JObject to specific type.
+                        // Convert custom attributes from JsonObject to specific type.
                         var newAttributes = new Multimap<string, object>();
 
                         foreach (var pair in attributes.CustomAttributes)
@@ -325,11 +325,11 @@ namespace Smartstore.Domain
         #region Custom attributes
 
         /// <summary>
-        /// Converts an XElement (XML) or JObject (JSON) object into a desired custom attribute value instance (e.g. GiftCardInfo).
+        /// Converts an XElement (XML) or JsonObject (JSON) object into a desired custom attribute value instance (e.g. GiftCardInfo).
         /// This method is called when deserializing the raw attributes string.
         /// </summary>
         /// <param name="attributeName">The name of the custom attribute, e.g. GiftCardInfo.</param>
-        /// <param name="value">An XElement object if the raw data is XML serialized or an JObject object if it is JSON serialized.</param>
+        /// <param name="value">An XElement object if the raw data is XML serialized or an JsonObject object if it is JSON serialized.</param>
         /// <returns>The converted custom attribute value, e.g. a GiftCardInfo instance.</returns>
         protected virtual object ToCustomAttributeValue(string attributeName, object value)
             => null;
