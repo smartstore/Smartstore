@@ -80,19 +80,21 @@ public class CheckoutFilter : IAsyncActionFilter
             return;
         }
 
-        var state = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
-
-        if (state.SessionId.HasValue() && IsAmazonPaySelected() && await IsAmazonPayActive())
+        if (IsAmazonPaySelected() && await IsAmazonPayActive())
         {
-            if (action.EqualsNoCase(nameof(CheckoutController.PaymentMethod)))
+            var state = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
+            if (state.SessionId.HasValue())
             {
-                context.Result = new RedirectResult(_urlHelper.Value.Action(nameof(CheckoutController.Confirm), "Checkout"));
-                return;
-            }
-            else
-            {
-                _widgetProvider.Value.RegisterWidget("end",
-                    new PartialViewWidget("_CheckoutNavigation", state, "Smartstore.AmazonPay"));
+                if (action.EqualsNoCase(nameof(CheckoutController.PaymentMethod)))
+                {
+                    context.Result = new RedirectResult(_urlHelper.Value.Action(nameof(CheckoutController.Confirm), "Checkout"));
+                    return;
+                }
+                else
+                {
+                    _widgetProvider.Value.RegisterWidget("end",
+                        new PartialViewWidget("_CheckoutNavigation", state, "Smartstore.AmazonPay"));
+                }
             }
         }
 
