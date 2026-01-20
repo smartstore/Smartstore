@@ -12,7 +12,7 @@ using Smartstore.Domain;
 using Smartstore.Json;
 using Smartstore.Test.Common;
 
-namespace Smartstore.Tests.Collections;
+namespace Smartstore.Tests.Json;
 
 [TestFixture]
 public class MultiMapConverterTests

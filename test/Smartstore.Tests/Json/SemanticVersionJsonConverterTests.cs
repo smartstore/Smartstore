@@ -1,9 +1,8 @@
 using System.Text.Json;
 using NUnit.Framework;
-using Smartstore;
 using Smartstore.Test.Common;
 
-namespace Smartstore.Tests.Common;
+namespace Smartstore.Tests.Json;
 
 [TestFixture]
 public class SemanticVersionJsonConverterTests
