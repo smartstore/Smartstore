@@ -1,5 +1,6 @@
 ﻿using Smartstore.Collections;
 using Smartstore.ComponentModel;
+using Smartstore.Json;
 
 namespace Smartstore.Core.Checkout.Orders
 {
@@ -117,11 +118,13 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Use this dictionary for any custom data required along checkout flow
         /// </summary>
+        [Polymorphic(WrapArrays = true)]
         public ObservableDictionary<string, object> CustomProperties { get; set; } = [];
 
         /// <summary>
         /// The payment data entered on payment method selection page
         /// </summary>
+        [Polymorphic(WrapArrays = true)]
         public ObservableDictionary<string, object> PaymentData { get; set; } = [];
     }
 }

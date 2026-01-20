@@ -28,7 +28,7 @@ public class StripePaymentMethod
     [JsonPropertyName("billing_details")]
     public ChargeBillingDetails BillingDetails { get; set; }
     public StripeCard Card { get; set; }
-    public string Created { get; set; }
+    public int Created { get; set; }
     public bool LiveMode { get; set; }
     public string Object { get; set; }
     public string Type { get; set; }
