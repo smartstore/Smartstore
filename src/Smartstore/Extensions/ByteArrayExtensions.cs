@@ -14,7 +14,7 @@ public static class ByteArrayExtensions
 
     // Simple codec header to avoid ambiguity.
     const byte CodecNone = 0;
-    const byte CodecBrotli = 1;
+    const byte CodecGZip = 1;
 
     extension(byte[] value)
     {
@@ -56,7 +56,7 @@ public static class ByteArrayExtensions
         }
 
         /// <summary>
-        /// Compresses the current byte array using Brotli compression, or returns the original data if compression is
+        /// Compresses the current byte array using GZip compression, or returns the original data if compression is
         /// not beneficial.
         /// </summary>
         /// <remarks>If the input data is empty or below a predefined threshold, compression is skipped
@@ -83,11 +83,11 @@ public static class ByteArrayExtensions
 
             // Heuristic capacity: compressed output usually smaller than input for JSON.
             using var ms = new MemoryStream(1 + Math.Min(value.Length, 64 * 1024));
-            ms.WriteByte(CodecBrotli);
+            ms.WriteByte(CodecGZip);
 
-            using (var brotli = new BrotliStream(ms, level, leaveOpen: true))
+            using (var gzip = new GZipStream(ms, level, leaveOpen: true))
             {
-                brotli.Write(value, 0, value.Length);
+                gzip.Write(value, 0, value.Length);
             }
 
             return ms.ToArray();
@@ -110,26 +110,27 @@ public static class ByteArrayExtensions
             }
 
             using var ms = new MemoryStream(1 + Math.Min(value.Length, 64 * 1024));
-            ms.WriteByte(CodecBrotli);
+            ms.WriteByte(CodecGZip);
 
-            await using (var brotli = new BrotliStream(ms, level, leaveOpen: true))
+            await using (var gzip = new GZipStream(ms, level, leaveOpen: true))
             {
-                await brotli.WriteAsync(value.AsMemory(), cancelToken).ConfigureAwait(false);
+                await gzip.WriteAsync(value.AsMemory(), cancelToken).ConfigureAwait(false);
             }
 
             return ms.ToArray();
         }
 
         /// <summary>
-        /// Decompresses the stored byte array using the specified compression codec and returns the original
+        /// Decompresses a byte array that may be compressed using GZip or no compression at all, returning the
         /// uncompressed data.
         /// </summary>
-        /// <remarks>The method supports multiple compression codecs. If the input data uses an
-        /// unsupported codec, an exception is thrown. The method expects the first byte of the input array to indicate
-        /// the codec used for compression.</remarks>
-        /// <returns>A byte array containing the uncompressed data. Returns an empty array if the input is empty or contains no
-        /// data after decompression.</returns>
-        /// <exception cref="InvalidDataException">Thrown when the compression codec specified in the input data is not recognized.</exception>
+        /// <remarks>The first byte of the input array indicates the compression codec used. If the codec
+        /// is 'CodecNone', the method returns the input array excluding the codec byte. If the codec is 'CodecGZip',
+        /// the method attempts to decompress the data using GZip compression.</remarks>
+        /// <returns>A byte array containing the uncompressed data. If the input array is empty or only contains the codec
+        /// identifier, an empty array is returned.</returns>
+        /// <exception cref="InvalidDataException">Thrown if the input array indicates an unknown compression codec or if the GZip codec is specified but the
+        /// compressed payload is missing data.</exception>
         public byte[] Unzip()
         {
             Guard.NotNull(value);
@@ -149,19 +150,19 @@ public static class ByteArrayExtensions
                 return result;
             }
 
-            if (codec == CodecBrotli && value.Length == 1)
+            if (codec == CodecGZip && value.Length == 1)
                 throw new InvalidDataException("Compressed payload is missing data.");
 
-            if (codec != CodecBrotli)
+            if (codec != CodecGZip)
                 throw new InvalidDataException($"Unknown compression codec: {codec}");
 
             using var source = new MemoryStream(value, 1, value.Length - 1, writable: false);
-            using var brotli = new BrotliStream(source, CompressionMode.Decompress);
+            using var gzip = new GZipStream(source, CompressionMode.Decompress);
 
             // Inflated size unknown. For JSON, 2-4x is a common ballpark.
             using var ms = new MemoryStream((value.Length - 1) * 3);
 
-            CopyToPooled(brotli, ms);
+            CopyToPooled(gzip, ms);
 
             return ms.ToArray();
         }
@@ -186,18 +187,18 @@ public static class ByteArrayExtensions
                 return result;
             }
 
-            if (codec == CodecBrotli && value.Length == 1)
+            if (codec == CodecGZip && value.Length == 1)
                 throw new InvalidDataException("Compressed payload is missing data.");
 
-            if (codec != CodecBrotli)
+            if (codec != CodecGZip)
                 throw new InvalidDataException($"Unknown compression codec: {codec}");
 
             using var source = new MemoryStream(value, 1, value.Length - 1, writable: false);
-            await using var brotli = new BrotliStream(source, CompressionMode.Decompress);
+            await using var gzip = new GZipStream(source, CompressionMode.Decompress);
 
             using var ms = new MemoryStream((value.Length - 1) * 3);
 
-            await CopyToPooledAsync(brotli, ms, cancelToken).ConfigureAwait(false);
+            await CopyToPooledAsync(gzip, ms, cancelToken).ConfigureAwait(false);
 
             return ms.ToArray();
         }

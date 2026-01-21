@@ -4,8 +4,8 @@ namespace Smartstore.StripeElements.Models;
 
 public class StripeCheckoutState : ObservableObject
 {
-    // INFO: Uncommented because this object can be serialized due to https://github.com/stripe/stripe-dotnet/pull/3254
-    // TODO: Use again once this issue is resolved.
+    // INFO: Commented because this object cannot be deserialized due to https://github.com/stripe/stripe-dotnet/pull/3157
+    // TODO: Uncomment once this issue is resolved.
     //public PaymentIntent PaymentIntent
     //{
     //    get => GetProperty<PaymentIntent>();
