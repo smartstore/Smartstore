@@ -131,7 +131,10 @@ public partial interface IPaymentMethod : IProvider, IUserEditable
     /// This occurs immediately after the customer clicks the "buy now" button.
     /// Only applicable if <see cref="RequiresConfirmation"/> is <c>true</c>.
     /// </summary>
-    /// <exception cref="PaymentException">Throws if no URL is provided.</exception>
+    /// <returns>Confirmation URL or <c>null</c> if no redirection is necessary and the order can be placed directly.</returns>
+    /// <remarks>
+    /// Throw an exception, preferably <see cref="PaymentException"/>, to abort confirmation and redirect back to payment selection.
+    /// </remarks>
     Task<string> GetConfirmationUrlAsync(ProcessPaymentRequest request, CheckoutContext context);
 
     /// <summary>
