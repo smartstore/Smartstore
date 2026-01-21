@@ -76,9 +76,20 @@ public static class SmartJsonOptions
             // Read and write "Type" as assembly-qualified name without version info.
             new TypeJsonConverter(),
             // Serialize enums as strings, not as ints.
-            new JsonStringEnumConverter(namingPolicy: null, allowIntegerValues: true)
+            new JsonStringEnumConverter(namingPolicy: null, allowIntegerValues: true),
+            // RouteValueDictionary: write/read via IDictionary<string, object?>.
+            new RouteValueDictionaryJsonConverter()
         }
     };
+
+    /// <summary>
+    /// Gets a default set of JsonSerializerOptions configured to ignore properties with default values when serializing
+    /// objects to JSON.
+    /// </summary>
+    public static readonly JsonSerializerOptions DefaultIgnoreDefaults = Default.Create(o =>
+    {
+        o.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
+    });
 
     /// <summary>
     /// Gets a preconfigured instance of <see cref="JsonSerializerOptions"/> that uses camel case for property names
@@ -95,6 +106,25 @@ public static class SmartJsonOptions
     /// ignores properties with default values during serialization.
     /// </summary>
     public static readonly JsonSerializerOptions CamelCasedIgnoreDefaults = CamelCased.Create(o =>
+    {
+        o.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
+    });
+
+    /// <summary>
+    /// Provides a preconfigured <see cref="JsonSerializerOptions"/> instance that uses snake_case naming for JSON
+    /// properties and enables case-insensitive property name matching.
+    /// </summary>
+    public static readonly JsonSerializerOptions SnakeCased = Default.Create(o =>
+    {
+        o.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
+        o.PropertyNameCaseInsensitive = true;
+    });
+
+    /// <summary>
+    /// Provides a set of JsonSerializerOptions configured to use snake_case property naming and to ignore properties
+    /// with default values when serializing JSON.
+    /// </summary>
+    public static readonly JsonSerializerOptions SnakeCasedIgnoreDefaults = SnakeCased.Create(o =>
     {
         o.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
     });
