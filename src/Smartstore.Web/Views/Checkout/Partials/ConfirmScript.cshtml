@@ -178,8 +178,12 @@
                             }
                         }
                         else {
-                            // Stay on comfirmation page and display error messages.
-                            if (!_.isEmpty(response.messages)) {
+                            if (response.success) {
+                                // No redirection required.
+                                $('#confirm-order-form').submit();
+                            }
+                            else if (!_.isEmpty(response.messages)) {
+                                // Stay on comfirmation page and display error messages.
                                 reportError(response.messages);
                             }
                         }

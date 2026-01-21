@@ -310,7 +310,7 @@ namespace Smartstore.Web.Controllers
                 TempData[ErrorMessageKey] = string.Join(' ', errors);
             }
 
-            // Success: Redirect to a third-party payment page to confirm the payment.
+            // Success: If redirectUrl is provided, redirect to a third-party payment page to confirm the payment. Otherwise, place the order.
             // Failure: Stay on confirmation page and display error messages.
             // Exception: Redirect to payment selection page and display notification (default case of a payment error).
             return Json(new

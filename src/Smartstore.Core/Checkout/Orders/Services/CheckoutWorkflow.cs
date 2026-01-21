@@ -285,9 +285,7 @@ namespace Smartstore.Core.Checkout.Orders
                 var url = await provider.Value.GetConfirmationUrlAsync(paymentRequest, context);
                 if (url.IsEmpty())
                 {
-                    var md = provider.Metadata;
-                    var localizedName = _moduleManager.Value.GetLocalizedFriendlyName(md).NullEmpty() ?? md.FriendlyName.NullEmpty() ?? md.SystemName;
-                    return new(T("Payment.MissingConfirmationUrl", localizedName), confirmStep.ViewPath);
+                    return new(true);
                 }
 
                 // Keep the form values in the checkout state so that they are not lost when the user is redirected to the payment provider's page.
