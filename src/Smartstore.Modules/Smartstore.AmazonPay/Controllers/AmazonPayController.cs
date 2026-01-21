@@ -344,7 +344,7 @@ public class AmazonPayController : PublicController
                 return Ok();
             }
 
-            var messageId = (string)ipnEnvelope.MessageId;
+            var messageId = ipnEnvelope.MessageId.ToString();
             var message = JsonSerializer.Deserialize<IpnMessage>(messageJson, SmartJsonOptions.Default);
 
             if (message != null)
