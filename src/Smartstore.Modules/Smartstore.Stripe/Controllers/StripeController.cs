@@ -119,7 +119,7 @@ public class StripeController : ModuleController
             // Save PaymentIntent in CheckoutState.
             var checkoutState = _checkoutStateAccessor.CheckoutState.GetCustomState<StripeCheckoutState>();
             checkoutState.ButtonUsed = true;
-            checkoutState.PaymentIntent = paymentIntent;
+            checkoutState.PaymentIntentId = paymentIntent.Id;
 
             // Create address if it doesn't exist.
             if (returnedData.PaymentMethod?.BillingDetails?.Address != null)
@@ -251,7 +251,7 @@ public class StripeController : ModuleController
                         ? await GetShippingAddressAsync(customer, shippingOption.Name) 
                         : null;
 
-                    if (state.PaymentIntent == null)
+                    if (!state.PaymentIntentId.HasValue())
                     {
                         paymentIntent = paymentIntentService.Create(new PaymentIntentCreateOptions
                         {
@@ -270,7 +270,7 @@ public class StripeController : ModuleController
                             Shipping = shipping
                         });
 
-                        state.PaymentIntent = paymentIntent;
+                        state.PaymentIntentId = paymentIntent.Id;
                     }
                     else
                     {
@@ -278,12 +278,12 @@ public class StripeController : ModuleController
                         var intentUpdateOptions = new PaymentIntentUpdateOptions
                         {
                             Amount = _roundingHelper.ToSmallestCurrencyUnit(convertedTotal),
-                            Currency = state.PaymentIntent.Currency,
+                            Currency = Services.WorkContext.WorkingCurrency.CurrencyCode.ToLower(),
                             PaymentMethod = state.PaymentMethod,
                             Shipping = shipping
                         };
 
-                        paymentIntent = await paymentIntentService.UpdateAsync(state.PaymentIntent.Id, intentUpdateOptions);
+                        paymentIntent = await paymentIntentService.UpdateAsync(state.PaymentIntentId, intentUpdateOptions);
                     }
 
                     var confirmOptions = new PaymentIntentConfirmOptions
@@ -357,14 +357,14 @@ public class StripeController : ModuleController
         if (success && paymentIntent.Status != "requires_payment_method")
         {
             var state = _checkoutStateAccessor.CheckoutState.GetCustomState<StripeCheckoutState>();
-            if (state.PaymentIntent != null)
+            if (state.PaymentIntentId.HasValue())
             {
                 state.SubmitForm = true;
             }
             else
             {
                 error = true;
-                message = T("Payment.MissingCheckoutState", "StripeCheckoutState." + nameof(state.PaymentIntent));
+                message = T("Payment.MissingCheckoutState", "StripeCheckoutState." + nameof(state.PaymentIntentId));
             }
         }
         else

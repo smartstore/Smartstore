@@ -110,13 +110,13 @@ public class StripeElementsProvider : PaymentMethodBase, IConfigurable
 
         var state = _checkoutStateAccessor.CheckoutState.GetCustomState<StripeCheckoutState>();
 
-        if (state.PaymentIntent.Id.IsEmpty())
+        if (state.PaymentIntentId.IsEmpty())
         {
-            throw new Exception(T("Payment.MissingCheckoutState", "StripeCheckoutState." + nameof(state.PaymentIntent.Id)));
+            throw new Exception(T("Payment.MissingCheckoutState", "StripeCheckoutState." + nameof(state.PaymentIntentId)));
         }
 
         // Store PaymentIntent.Id in AuthorizationTransactionId.
-        result.AuthorizationTransactionId = state.PaymentIntent.Id;
+        result.AuthorizationTransactionId = state.PaymentIntentId;
 
         return Task.FromResult(result);
     }

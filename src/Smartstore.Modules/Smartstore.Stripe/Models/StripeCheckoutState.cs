@@ -4,9 +4,17 @@ namespace Smartstore.StripeElements.Models;
 
 public class StripeCheckoutState : ObservableObject
 {
-    public PaymentIntent PaymentIntent
+    // INFO: Uncommented because this object can be serialized due to https://github.com/stripe/stripe-dotnet/pull/3254
+    // TODO: Use again once this issue is resolved.
+    //public PaymentIntent PaymentIntent
+    //{
+    //    get => GetProperty<PaymentIntent>();
+    //    set => SetProperty(value);
+    //}
+
+    public string PaymentIntentId
     {
-        get => GetProperty<PaymentIntent>();
+        get => GetProperty<string>();
         set => SetProperty(value);
     }
 
@@ -49,6 +57,6 @@ public class StripeCheckoutState : ObservableObject
 
     public override string ToString()
     {
-        return $"PaymentIntentId:{PaymentIntent.Id}";
+        return $"PaymentIntentId:{PaymentIntentId}";
     }
 }
