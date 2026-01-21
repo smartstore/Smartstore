@@ -154,8 +154,7 @@ internal sealed class RouteInfoJsonConverter : STJ.JsonConverter<RouteInfo>
                 }
                 else if (string.Equals(propertyName, "RouteValues", StringComparison.OrdinalIgnoreCase))
                 {
-                    var raw = options.DeserializePolymorphic<IDictionary<string, object?>>(ref reader);
-                    routeValues = new RouteValueDictionary(raw);
+                    routeValues = JsonSerializer.Deserialize<RouteValueDictionary>(ref reader, options);
                 }
             }
         }

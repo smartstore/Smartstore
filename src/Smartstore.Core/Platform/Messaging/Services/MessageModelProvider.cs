@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Drawing;
 using System.Dynamic;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
@@ -901,7 +901,7 @@ namespace Smartstore.Core.Messaging
                 return null;
             }
 
-            return JsonConvert.DeserializeObject<TreeNode<ModelTreeMember>>(template.LastModelTree);
+            return JsonSerializer.Deserialize<TreeNode<ModelTreeMember>>(template.LastModelTree);
         }
 
         public TreeNode<ModelTreeMember> BuildModelTree(TemplateModel model)

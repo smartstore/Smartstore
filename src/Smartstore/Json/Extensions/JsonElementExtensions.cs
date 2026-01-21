@@ -54,7 +54,9 @@ public static class JsonElementExtensions
                 return true;
 
             case JsonValueKind.Number:
-                if (element.TryGetInt64(out var l))
+                if (element.TryGetInt32(out var i))
+                    value = i;
+                else if (element.TryGetInt64(out var l))
                     value = l;
                 else if (element.TryGetDouble(out var d))
                     value = d;

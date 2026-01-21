@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
+using System.Text.Json;
 using DotLiquid;
 using Humanizer;
-using Newtonsoft.Json;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
@@ -109,10 +109,7 @@ namespace Smartstore.Templating.Liquid
             if (input == null)
                 return null;
 
-            return JsonConvert.SerializeObject(input, new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-            });
+            return JsonSerializer.Serialize(input);
         }
 
         public static string FormatAddress(Context context, object input)

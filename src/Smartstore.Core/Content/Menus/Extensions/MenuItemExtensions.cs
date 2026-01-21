@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Routing;
+﻿using System.Text.Json;
+using Microsoft.AspNetCore.Routing;
 using Smartstore.Collections;
 using Smartstore.Core.Localization;
 using Smartstore.Json;
@@ -98,8 +99,8 @@ namespace Smartstore.Core.Content.Menus
         {
             if (data.HasValue())
             {
-                var rawRouteValues = SmartJsonOptions.Default.DeserializePolymorphic<IDictionary<string, object>>(data);
-                var routeValues = new RouteValueDictionary(rawRouteValues);
+                var routeValues = JsonSerializer.Deserialize<RouteValueDictionary>(data, SmartJsonOptions.Default);
+
                 var routeName = string.Empty;
 
                 if (routeValues.TryGetValue("routename", out var val))

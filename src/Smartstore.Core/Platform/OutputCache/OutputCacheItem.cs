@@ -5,7 +5,6 @@ using Microsoft.Net.Http.Headers;
 
 namespace Smartstore.Core.OutputCache
 {
-    [Serializable]
     [DebuggerDisplay("{CacheKey}, Url: {Url}, Query: {QueryString}, Duration: {Duration}, Tags: {Tags}")]
     public class OutputCacheItem : ICloneable<OutputCacheItem>
     {

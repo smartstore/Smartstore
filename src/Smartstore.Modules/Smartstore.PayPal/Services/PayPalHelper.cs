@@ -10,20 +10,10 @@ namespace Smartstore.PayPal.Services
 {
     public class PayPalHelper : ICookiePublisher
     {
-        private readonly static JsonSerializerOptions _serializerOptions;
-
-        static PayPalHelper()
-        {
-            _serializerOptions = SmartJsonOptions.Default.Create(o =>
-            {
-                o.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
-                o.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
-            });
-        }
 
         public static JsonSerializerOptions SerializerOptions
         {
-            get => _serializerOptions;
+            get => SmartJsonOptions.SnakeCasedIgnoreDefaults;
         }
 
         private readonly IStoreContext _storeContext;
@@ -123,12 +113,12 @@ namespace Smartstore.PayPal.Services
         }
 
         public static string Serialize(object value, bool useLocalOptions = true)
-            => JsonSerializer.Serialize(value, useLocalOptions ? _serializerOptions : null);
+            => JsonSerializer.Serialize(value, useLocalOptions ? SerializerOptions : null);
 
         public static T Deserialize<T>(string json, bool useLocalOptions = true) 
-            => JsonSerializer.Deserialize<T>(json, useLocalOptions ? _serializerOptions : null);
+            => JsonSerializer.Deserialize<T>(json, useLocalOptions ? SerializerOptions : null);
 
         public static object Deserialize(string json, Type returnType, bool useLocalOptions = true)
-            => JsonSerializer.Deserialize(json, returnType, useLocalOptions ? _serializerOptions : null);
+            => JsonSerializer.Deserialize(json, returnType, useLocalOptions ? SerializerOptions : null);
     }
 }

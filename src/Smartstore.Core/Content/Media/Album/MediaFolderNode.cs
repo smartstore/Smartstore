@@ -1,4 +1,5 @@
-﻿using Smartstore.Collections;
+﻿using System.Text.Json.Serialization;
+using Smartstore.Collections;
 
 namespace Smartstore.Core.Content.Media
 {
@@ -12,6 +13,7 @@ namespace Smartstore.Core.Content.Media
         /// <summary>
         /// Whether the folder is a root album node
         /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool IsAlbum { get; set; }
 
         /// <summary>
@@ -30,15 +32,31 @@ namespace Smartstore.Core.Content.Media
         public string Name { get; set; }
         public string Path { get; set; }
         public string Slug { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool CanDetectTracks { get; set; }
+
         public int? ParentId { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public int FilesCount { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string ResKey { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool IncludePath { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public int Order { get; set; }
 
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string Color { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string OverlayIcon { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string OverlayColor { get; set; }
     }
 }

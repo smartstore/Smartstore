@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text.Json;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -6,10 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
-using Newtonsoft.Json;
+//using Newtonsoft.Json;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Widgets;
 using Smartstore.Http;
+using Smartstore.Json;
 
 namespace Smartstore.Core.Content.Blocks
 {
@@ -33,6 +35,7 @@ namespace Smartstore.Core.Content.Blocks
             Guard.NotNull(entity);
 
             var block = Create(entity);
+            var runtimeType = block.GetType();
             var json = entity.Model;
 
             if (json.IsEmpty())
@@ -40,7 +43,10 @@ namespace Smartstore.Core.Content.Blocks
                 return block;
             }
 
-            JsonConvert.PopulateObject(json, block, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.None });
+            if (JsonSerializer.Deserialize(json, runtimeType, SmartJsonOptions.Default) is TBlock deserializedBlock)
+            {
+                block = deserializedBlock;
+            }
 
             if (block is IBindableBlock bindableBlock)
             {
@@ -66,12 +72,7 @@ namespace Smartstore.Core.Content.Blocks
                 return;
             }
 
-            var settings = new JsonSerializerSettings
-            {
-                ObjectCreationHandling = ObjectCreationHandling.Replace
-            };
-
-            entity.Model = JsonConvert.SerializeObject(block, Formatting.None, settings);
+            entity.Model = JsonSerializer.Serialize(block, SmartJsonOptions.Default);
 
             // Save BindEntintyName & BindEntintyId
             if (block is IBindableBlock bindableBlock)

@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
@@ -12,6 +12,7 @@ using Smartstore.Core.Logging;
 using Smartstore.Core.Messaging.Events;
 using Smartstore.Core.Stores;
 using Smartstore.Events;
+using Smartstore.Json;
 using Smartstore.Net.Mail;
 using Smartstore.Templating;
 using Smartstore.Utilities;
@@ -140,11 +141,7 @@ namespace Smartstore.Core.Messaging
 
             // Model tree
             var modelTree = _modelProvider.BuildModelTree(model);
-            var modelTreeJson = JsonConvert.SerializeObject(modelTree, new JsonSerializerSettings
-            {
-                Formatting = Formatting.None,
-                TypeNameHandling = TypeNameHandling.Objects
-            });
+            var modelTreeJson = JsonSerializer.Serialize(modelTree, SmartJsonOptions.Default);
 
             if (modelTreeJson != messageTemplate.LastModelTree)
             {

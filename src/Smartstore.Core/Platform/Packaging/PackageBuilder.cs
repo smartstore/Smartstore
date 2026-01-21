@@ -1,7 +1,7 @@
 ﻿using System.IO.Compression;
-using Newtonsoft.Json;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;
+using Smartstore.Json;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Packaging;
@@ -55,13 +55,8 @@ public partial class PackageBuilder : IPackageBuilder
 
     private static async Task EmbedManifest(ZipArchive archive, MinimalExtensionDescriptor manifest)
     {
-        var json = JsonConvert.SerializeObject(manifest, Formatting.Indented);
-
         var memStream = new MemoryStream();
-        using (var streamWriter = new StreamWriter(memStream, leaveOpen: true))
-        {
-            await streamWriter.WriteAsync(json);
-        }
+        await SmartJsonOptions.Default.SerializeIndentedAsync(memStream, manifest);
 
         memStream.Seek(0, SeekOrigin.Begin);
         await CreateArchiveEntry(archive, PackagingUtility.ManifestFileName, memStream);

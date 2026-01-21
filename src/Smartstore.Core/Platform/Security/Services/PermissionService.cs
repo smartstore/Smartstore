@@ -234,7 +234,7 @@ namespace Smartstore.Core.Security
 
         private TreeNode<IPermissionNode> GetPermissionTree(CustomerRole role)
         {
-            Guard.NotNull(role, nameof(role));
+            Guard.NotNull(role);
 
             var tree = _cache.Get(PERMISSION_TREE_KEY.FormatInvariant(role.Id), () =>
             {
