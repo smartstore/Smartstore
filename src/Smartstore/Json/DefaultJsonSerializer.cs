@@ -7,7 +7,6 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.ComponentModel;
-using Smartstore.Json.Polymorphy;
 
 namespace Smartstore.Json;
 
@@ -49,7 +48,7 @@ public class DefaultJsonSerializer : IJsonSerializer
     public virtual bool CanDeserialize(Type? objectType)
         => IsSerializableType(objectType, _nonReadableTypes);
 
-    public bool TrySerialize(object? value, bool compress, [MaybeNullWhen(false)] out byte[]? result)
+    public bool TrySerialize(object? value, Type inputType, bool compress, [MaybeNullWhen(false)] out byte[]? result)
     {
         result = null;
 
@@ -58,12 +57,12 @@ public class DefaultJsonSerializer : IJsonSerializer
 
         try
         {
-            result = SerializeCore(value, compress);
+            result = SerializeCore(value, inputType, compress);
             return true;
         }
         catch (NotSupportedException ex)
         {
-            var t = GetInnerType(value);
+            var t = inputType ?? GetInnerType(value);
             if (t != null)
             {
                 _nonWritableTypes.TryAdd(t, 0);
@@ -74,7 +73,7 @@ public class DefaultJsonSerializer : IJsonSerializer
         }
         catch (Exception ex)
         {
-            var t = GetInnerType(value);
+            var t = inputType ?? GetInnerType(value);
             if (t != null)
                 Logger.Debug(ex, "Serialization failed for type '{Type}'.", t);
 
@@ -131,12 +130,12 @@ public class DefaultJsonSerializer : IJsonSerializer
         return JsonSerializer.Deserialize(value, objectType, Options);
     }
 
-    private byte[] SerializeCore(object? value, bool compress)
+    private byte[] SerializeCore(object? value, Type inputType, bool compress)
     {
         if (value is null)
             return compress ? NullResult.Zip() : NullResult;
 
-        var runtimeType = GetInnerType(value) ?? value.GetType();
+        var runtimeType = inputType ?? value.GetType();
 
         var buffer = new ArrayBufferWriter<byte>(256);
 

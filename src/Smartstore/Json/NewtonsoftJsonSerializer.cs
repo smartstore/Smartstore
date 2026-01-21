@@ -49,7 +49,7 @@ namespace Smartstore.Json
             return IsSerializableType(objectType, _unDeserializableTypes);
         }
 
-        public virtual bool TrySerialize(object value, bool compress, out byte[] result)
+        public virtual bool TrySerialize(object value, Type inputType, bool compress, out byte[] result)
         {
             result = null;
 
@@ -60,7 +60,7 @@ namespace Smartstore.Json
 
             try
             {
-                result = Serialize(value, compress);
+                result = Serialize(value, inputType, compress);
                 return true;
             }
             catch
@@ -127,7 +127,7 @@ namespace Smartstore.Json
             return _jsonSerializer.Deserialize(reader, objectType);
         }
 
-        private byte[] Serialize(object item, bool compress)
+        private byte[] Serialize(object item, Type inputType, bool compress)
         {
             if (item == null)
             {
@@ -137,7 +137,11 @@ namespace Smartstore.Json
             using var psb = StringBuilderPool.Instance.Get(out var sb);
             using var writer = new StringWriter(sb);
 
-            _jsonSerializer.Serialize(writer, item);
+            if (inputType != null)
+                _jsonSerializer.Serialize(writer, item, inputType);
+            else
+                _jsonSerializer.Serialize(writer, item);
+
             var buffer = sb.ToString().GetBytes();
 
             if (compress)
