@@ -282,9 +282,9 @@ public class TreeNodeJsonConverterTests
     public void Can_roundtrip_complex_treenode()
     {
         var grandchild = new TreeNode<string>("Grandchild") { Id = 3 };
-        var child1 = new TreeNode<string>("Child1", new List<TreeNode<string>> { grandchild }) { Id = 2 };
+        var child1 = new TreeNode<string>("Child1", [grandchild]) { Id = 2 };
         var child2 = new TreeNode<string>("Child2") { Id = 4 };
-        var original = new TreeNode<string>("Root", new List<TreeNode<string>> { child1, child2 })
+        var original = new TreeNode<string>("Root", [child1, child2])
         {
             Id = 1
         };
@@ -295,17 +295,17 @@ public class TreeNodeJsonConverterTests
         var deserialized = JsonSerializer.Deserialize<TreeNode<string>>(json, _options);
 
         deserialized.ShouldNotBeNull();
-        ((JsonElement)deserialized.Id).GetInt32().ShouldEqual(1);
+        deserialized.Id.ShouldEqual(1);
         deserialized.Value.ShouldEqual("Root");
         deserialized.Metadata.Count.ShouldEqual(2);
         deserialized.HasChildren.ShouldEqual(true);
         deserialized.Children.Count.ShouldEqual(2);
         deserialized.Children[0].Value.ShouldEqual("Child1");
-        ((JsonElement)deserialized.Children[0].Id).GetInt32().ShouldEqual(2);
+        deserialized.Children[0].Id.ShouldEqual(2);
         deserialized.Children[0].HasChildren.ShouldEqual(true);
         deserialized.Children[0].Children[0].Value.ShouldEqual("Grandchild");
         deserialized.Children[1].Value.ShouldEqual("Child2");
-        ((JsonElement)deserialized.Children[1].Id).GetInt32().ShouldEqual(4);
+        deserialized.Children[1].Id.ShouldEqual(4);
     }
 
     [Test]
