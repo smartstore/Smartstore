@@ -40,6 +40,27 @@ If you don't know what a pull request is read this article: [https://help.github
 
 Your pull request will now go through extensive checks by the subject matter experts on our team. Update your pull request according to feedback until it is approved by one of the team members. After that, one of our team members may adjust the branch you merge into based on the expected release schedule.
 
+## Branching strategy
+
+The **main** branch contains the latest source code and represents the current state of active development. It does **not** reflect a stable or released version.
+
+Each Smartstore release is maintained in its own version-specific branch, [named after the compatible Smartstore version](how-to-contribute.md#version-number-scheme) (for example, `6.1.0.x`). These branches are created at release time and are used to maintain that release, including bug fixes and urgent patches, while remaining compatible with the corresponding Smartstore version.
+
+New features and changes are developed in dedicated feature branches (for example, `feature/webapi`). Once a feature is complete, it is merged into the appropriate target branch. The `main` branch is used for ongoing development, while a version-specific branch is used for changes intended for an existing release.
+
+Each branch reflects source code compatible with its respective Smartstore version.
+
+### Version number scheme
+
+Smartstore uses the following versioning pattern: `MAJOR.MINOR.PATCH.REVISION`
+
+* **MAJOR**: Indicates major product milestones and may include breaking changes.
+* **MINOR**: Introduces new features while remaining backward compatible within the same major version.
+* **PATCH**: Contains bug fixes and small improvements.
+* **REVISION**: Represents ongoing maintenance updates for a released version branch.
+
+A branch named `6.1.x.x` therefore contains all changes compatible with Smartstore version **6.1**.
+
 ## Code of conduct
 
 See [Code of Conduct](../../CODE_OF_CONDUCT.md)
