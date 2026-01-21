@@ -2,7 +2,6 @@
 
 namespace Smartstore.AmazonPay.Models;
 
-[Serializable]
 public class AmazonPayCheckoutState : ObservableObject
 {
     /// <summary>

@@ -1,4 +1,5 @@
-﻿@using Newtonsoft.Json
+﻿@using System.Text.Json
+@using Smartstore.Json
 @using Smartstore.Utilities
 
 @model string
@@ -16,15 +17,14 @@
     {
         if (rawValue.HasValue())
         {
-            var routeValues = JsonConvert.DeserializeObject<RouteValueDictionary>(rawValue);
-            object val;
-            if (routeValues.TryGetValue("routename", out val))
+            var routeValues = JsonSerializer.Deserialize<RouteValueDictionary>(rawValue, SmartJsonOptions.Default);
+            if (routeValues.TryGetValue("routename", out var val))
             {
                 routeName = val as string;
                 routeValues.Remove("routename");
             }
 
-            routeValuesStr = JsonConvert.SerializeObject(routeValues).EmptyNull();
+            routeValuesStr = JsonSerializer.Serialize(routeValues).EmptyNull();
             if (routeValuesStr == "{}")
             {
                 routeValuesStr = string.Empty;
@@ -47,9 +47,9 @@
 
 <script sm-target-zone="scripts" data-origin="MenuItem.Route">
     $(function () {
-        $('#@routeNameFieldId, #@routeValuesFieldId').on('change', function () {
-            var container = $(this).closest('.menu-item-route'),
-                val = $('#@routeValuesFieldId').val();
+        $('#@routeNameFieldId, #@routeValuesFieldId').on('change', (e) => {
+            const container = $(e.target).closest('.menu-item-route');
+            const val = $('#@routeValuesFieldId').val();
 
             var routeValues = _.isEmpty(val) ? { } : JSON.parse(val);
             routeValues.routename = $('#@routeNameFieldId').val();
