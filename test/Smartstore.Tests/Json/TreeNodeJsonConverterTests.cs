@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using NUnit.Framework;
 using Smartstore.Collections;
@@ -316,6 +317,49 @@ public class TreeNodeJsonConverterTests
 
         node.ShouldNotBeNull();
         node.Value.ShouldEqual(42);
+    }
+
+    [Test]
+    public void Can_serialize_and_deserialize_treenode()
+    {
+        var tree = BuildTestTree();
+        var nodesCount = tree.SelectNodes(x => true, false).Count();
+
+        var json = JsonSerializer.Serialize(tree, _options);
+        var root = JsonSerializer.Deserialize<TreeNode<string>>(json, _options);
+
+        var allNodes = root.SelectNodes(x => true, false).ToList();
+
+        Assert.That(allNodes, Has.Count.EqualTo(nodesCount));
+
+        var node57 = root.SelectNodeById("node-5-7");
+
+        Assert.That(node57, Is.Not.Null);
+        Assert.That(node57.Parent.Id, Is.EqualTo("node-5"));
+        Assert.That(tree.Value, Is.EqualTo(node57.Root.Value));
+    }
+
+    private static TreeNode<string> BuildTestTree()
+    {
+        var root = new TreeNode<string>("root", "root");
+        var children = CreateNodeList(10);
+
+        foreach (var child in children)
+        {
+            child.AppendRange(CreateNodeList(10, child.Value));
+            root.Append(child);
+        }
+
+        return root;
+
+        static IEnumerable<TreeNode<string>> CreateNodeList(int count, string keyPrefix = "node")
+        {
+            for (int i = 1; i <= count; i++)
+            {
+                var key = keyPrefix + "-" + i;
+                yield return new TreeNode<string>(key, key);
+            }
+        }
     }
 
     [Test]
