@@ -362,7 +362,7 @@ public class AmazonPayController : PublicController
             using var reader = new StreamReader(Request.Body);
             var json = await reader.ReadToEndAsync();
 
-            Logger.Error(ex, json);
+            Logger.Error(new($"{json}{Environment.NewLine}{Environment.NewLine}{ex}"), ex.Message);
         }
 
         return Ok();
