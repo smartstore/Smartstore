@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using Smartstore.Json;
 using Smartstore.Json.Polymorphy;
 using NSJ = Newtonsoft.Json;
 using NSJL = Newtonsoft.Json.Linq;
@@ -157,6 +158,8 @@ internal sealed class TreeNodeJsonConverter<T> : JsonConverter<TreeNode<T>>
         object id = null;
         IDictionary<string, object> metadata = null;
 
+        var isPolymorphicValueType = PolymorphyCodec.TryGetPolymorphyKind(typeof(T), out _, out _);
+
         while (reader.Read())
         {
             if (reader.TokenType == JsonTokenType.EndObject)
@@ -174,7 +177,7 @@ internal sealed class TreeNodeJsonConverter<T> : JsonConverter<TreeNode<T>>
 
             if (string.Equals(propertyName, "Value", StringComparison.OrdinalIgnoreCase))
             {
-                if (PolymorphyCodec.TryGetPolymorphyKind(typeof(T), out _, out _))
+                if (isPolymorphicValueType)
                 {
                     value = options.DeserializePolymorphic<T>(ref reader);
                 }
@@ -189,7 +192,34 @@ internal sealed class TreeNodeJsonConverter<T> : JsonConverter<TreeNode<T>>
             }
             else if (string.Equals(propertyName, "Children", StringComparison.OrdinalIgnoreCase))
             {
-                children = JsonSerializer.Deserialize<List<TreeNode<T>>>(ref reader, options);
+                if (isPolymorphicValueType)
+                {
+                    if (reader.TokenType != JsonTokenType.StartArray)
+                    {
+                        throw new JsonException();
+                    }
+
+                    children = [];
+
+                    while (reader.Read())
+                    {
+                        if (reader.TokenType == JsonTokenType.EndArray)
+                        {
+                            break;
+                        }
+
+                        // Recursion: will use TreeNodeJsonConverter<T> again via the [JsonConverter] attribute/factory.
+                        var child = JsonSerializer.Deserialize<TreeNode<T>>(ref reader, options);
+                        if (child != null)
+                        {
+                            children.Add(child);
+                        }
+                    }
+                }
+                else
+                {
+                    children = JsonSerializer.Deserialize<List<TreeNode<T>>>(ref reader, options);
+                }
             }
             else if (string.Equals(propertyName, "Id", StringComparison.OrdinalIgnoreCase))
             {
@@ -201,20 +231,13 @@ internal sealed class TreeNodeJsonConverter<T> : JsonConverter<TreeNode<T>>
                     var idList = new List<object>();
                     foreach (var item in element.EnumerateArray())
                     {
-                        if (item.ValueKind == JsonValueKind.Number && item.TryGetInt32(out int intValue))
-                        {
-                            idList.Add(intValue);
-                        }
-                        else
-                        {
-                            idList.Add(item.Deserialize<object>(options));
-                        }
+                        idList.Add(CoerceJsonElementToClrValue(item));
                     }
                     id = idList.ToArray();
                 }
                 else
                 {
-                    id = element.Deserialize<object>(options);
+                    id = CoerceJsonElementToClrValue(element);
                 }
             }
         }
@@ -273,5 +296,17 @@ internal sealed class TreeNodeJsonConverter<T> : JsonConverter<TreeNode<T>>
         }
 
         writer.WriteEndObject();
+    }
+
+    private static object CoerceJsonElementToClrValue(JsonElement element)
+    {
+        if (element.TryGetScalarValue(out var scalarValue))
+        {
+            return scalarValue;
+        }
+
+        // Avoid leaking JsonElement into Id for complex types:
+        // represent objects/arrays as raw JSON string (stable + hashable as dictionary key).
+        return element.GetRawText();
     }
 }
