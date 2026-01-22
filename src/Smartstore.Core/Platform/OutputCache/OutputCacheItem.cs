@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Text.Json.Serialization;
 using Microsoft.Net.Http.Headers;
 
 namespace Smartstore.Core.OutputCache
@@ -37,7 +38,7 @@ namespace Smartstore.Core.OutputCache
         [IgnoreDataMember]
         public DateTime ExpiresOnUtc => CachedOnUtc.AddSeconds(Duration);
 
-        [IgnoreDataMember]
+        [IgnoreDataMember, JsonIgnore]
         public Encoding ResponseEncoding 
         { 
             get

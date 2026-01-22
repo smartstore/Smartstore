@@ -9,6 +9,12 @@ namespace Smartstore.Json.Polymorphy;
 /// </summary>
 internal sealed class PolymorphyOptions
 {
+    private readonly static Dictionary<string, string> _legacyTypeMap = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["SmartStore.Web.Framework.Modelling.CustomPropertiesDictionary, SmartStore.Web.Framework"] 
+            = "Smartstore.Web.Modelling.CustomPropertiesDictionary, Smartstore.Web.Common"
+    };
+    
     public static PolymorphyOptions Default => new();
     public static PolymorphyOptions DefaultWithArrays => new() { WrapArrays = true };
 
@@ -26,8 +32,16 @@ internal sealed class PolymorphyOptions
     public Func<Type, string?> GetTypeId { get; init; } = static t 
         => t.AssemblyQualifiedNameWithoutVersion();
 
-    public Func<string, Type?> ResolveTypeId { get; init; } = static id
-        => Type.GetType(id, throwOnError: false, ignoreCase: false);
+    public Func<string, Type?> ResolveTypeId { get; init; } = static id =>
+    { 
+        var type = Type.GetType(id, throwOnError: false, ignoreCase: false);
+        if (type == null && _legacyTypeMap.TryGetValue(id, out var mappedId))
+        {
+            type = Type.GetType(mappedId, throwOnError: false, ignoreCase: false);
+        }
+
+        return type;
+    };
 
     public Func<Type, bool> IsAllowedType { get; init; } = static t
         => !t.IsAbstract && !t.IsInterface && !t.ContainsGenericParameters;
