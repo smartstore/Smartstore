@@ -146,6 +146,18 @@ internal sealed class TreeNodeJsonConverterFactory : JsonConverterFactory
 
 internal sealed class TreeNodeJsonConverter<T> : JsonConverter<TreeNode<T>>
 {
+    private readonly bool _isPolymorphicValueType;
+
+    public TreeNodeJsonConverter()
+    {
+        _isPolymorphicValueType = PolymorphyCodec.TryGetPolymorphyKind(typeof(T), out _, out _);
+        if (_isPolymorphicValueType)
+        {
+            // Polymorhic types with a custom converter (e.g. IPermissionNode) can be handled by STJ directly.
+            _isPolymorphicValueType = !typeof(T).HasAttribute<JsonConverterAttribute>(false);
+        }
+    }
+    
     public override TreeNode<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType != JsonTokenType.StartObject)
@@ -157,8 +169,6 @@ internal sealed class TreeNodeJsonConverter<T> : JsonConverter<TreeNode<T>>
         List<TreeNode<T>> children = null;
         object id = null;
         IDictionary<string, object> metadata = null;
-
-        var isPolymorphicValueType = PolymorphyCodec.TryGetPolymorphyKind(typeof(T), out _, out _);
 
         while (reader.Read())
         {
@@ -177,13 +187,14 @@ internal sealed class TreeNodeJsonConverter<T> : JsonConverter<TreeNode<T>>
 
             if (string.Equals(propertyName, "Value", StringComparison.OrdinalIgnoreCase))
             {
-                if (isPolymorphicValueType)
+                if (_isPolymorphicValueType)
                 {
                     value = options.DeserializePolymorphic<T>(ref reader);
                 }
                 else
                 {
-                    value = JsonSerializer.Deserialize<T>(ref reader, options);
+                    var declaredType = DefaultImplementationAttribute.Resolve(typeof(T));
+                    value = (T)JsonSerializer.Deserialize(ref reader, declaredType, options);
                 }
             }
             else if (string.Equals(propertyName, "Metadata", StringComparison.OrdinalIgnoreCase))
@@ -192,7 +203,7 @@ internal sealed class TreeNodeJsonConverter<T> : JsonConverter<TreeNode<T>>
             }
             else if (string.Equals(propertyName, "Children", StringComparison.OrdinalIgnoreCase))
             {
-                if (isPolymorphicValueType)
+                if (_isPolymorphicValueType)
                 {
                     if (reader.TokenType != JsonTokenType.StartArray)
                     {
@@ -272,7 +283,7 @@ internal sealed class TreeNodeJsonConverter<T> : JsonConverter<TreeNode<T>>
 
         // Value
         writer.WritePropertyName("Value");
-        if (PolymorphyCodec.TryGetPolymorphyKind(typeof(T), out _, out _))
+        if (_isPolymorphicValueType)
         {
             options.SerializePolymorphic(writer, value.Value);
         }

@@ -1,11 +1,14 @@
-﻿using Smartstore.Collections;
+﻿using System.Text.Json.Serialization;
+using Smartstore.Collections;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
+using Smartstore.Json;
 
 namespace Smartstore.Core.Catalog.Categories
 {
+    [DefaultImplementation(typeof(CategoryNode))]
     public interface ICategoryNode : ILocalizedEntity, ISlugSupported, IAclRestricted, IStoreRestricted
     {
         new int Id { get; }
@@ -21,7 +24,6 @@ namespace Smartstore.Core.Catalog.Categories
         int BadgeStyle { get; }
     }
 
-    [Serializable]
     public class CategoryNode : ICategoryNode, IKeyedNode
     {
         public int Id { get; set; }
@@ -30,12 +32,17 @@ namespace Smartstore.Core.Catalog.Categories
         public string ExternalLink { get; set; }
         public string Alias { get; set; }
         public int? MediaFileId { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool Published { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public int DisplayOrder { get; set; }
         public DateTime UpdatedOnUtc { get; set; }
         public string BadgeText { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public int BadgeStyle { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool SubjectToAcl { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool LimitedToStores { get; set; }
 
         /// <inheritdoc/>

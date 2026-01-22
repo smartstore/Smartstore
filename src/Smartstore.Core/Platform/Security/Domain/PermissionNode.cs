@@ -1,5 +1,6 @@
 ﻿
 using Smartstore.Collections;
+using Smartstore.Json;
 using System.Text.Json;
 
 using NSJ = Newtonsoft.Json;
@@ -8,7 +9,8 @@ using STJ = System.Text.Json.Serialization;
 namespace Smartstore.Core.Security
 {
     [NSJ.JsonConverter(typeof(IPermissionNodeConverter))]
-    [STJ.JsonConverter(typeof(IPermissionNodeStjConverter))]
+    //[STJ.JsonConverter(typeof(IPermissionNodeStjConverter))]
+    [DefaultImplementation(typeof(PermissionNode))]
     public interface IPermissionNode
     {
         int PermissionRecordId { get; }
