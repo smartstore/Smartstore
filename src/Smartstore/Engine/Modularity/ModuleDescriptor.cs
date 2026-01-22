@@ -8,7 +8,6 @@ using Smartstore.IO;
 using Smartstore.Json;
 using Smartstore.Utilities;
 using IOPath = System.IO.Path;
-using NSJ = Newtonsoft.Json;
 
 namespace Smartstore.Engine.Modularity
 {
@@ -163,35 +162,35 @@ namespace Smartstore.Engine.Modularity
             => SystemName;
 
         /// <inheritdoc/>
-        [JsonInclude, NSJ.JsonRequired]
+        [JsonInclude]
         public string FriendlyName { get; internal set; }
 
         /// <inheritdoc/>
-        [JsonInclude, NSJ.JsonRequired]
+        [JsonInclude]
         public string Description { get; internal set; }
 
         /// <inheritdoc/>
-        [JsonInclude, NSJ.JsonRequired]
+        [JsonInclude]
         public string Group { get; internal set; }
 
         /// <inheritdoc/>
-        [JsonInclude, NSJ.JsonRequired]
+        [JsonInclude]
         public string Author { get; internal set; }
 
         /// <inheritdoc/>
-        [JsonInclude, NSJ.JsonRequired]
+        [JsonInclude]
         public string ProjectUrl { get; internal set; }
 
         /// <inheritdoc/>
-        [JsonInclude, NSJ.JsonRequired]
+        [JsonInclude]
         public string Tags { get; internal set; }
 
         /// <inheritdoc/>
-        [JsonInclude, NSJ.JsonRequired]
+        [JsonInclude]
         public Version Version { get; internal set; }
 
         /// <inheritdoc/>
-        [JsonInclude, NSJ.JsonRequired]
+        [JsonInclude]
         public Version MinAppVersion { get; internal set; }
 
         #endregion
@@ -220,7 +219,7 @@ namespace Smartstore.Engine.Modularity
         #endregion
 
         /// <inheritdoc/>
-        [JsonInclude, NSJ.JsonRequired]
+        [JsonInclude]
         public string SystemName { get; internal set; }
 
         string ITopologicSortable<string>.Key
@@ -228,11 +227,11 @@ namespace Smartstore.Engine.Modularity
 
 
         /// <inheritdoc/>
-        [JsonInclude, NSJ.JsonRequired]
+        [JsonInclude]
         public string[] DependsOn { get; internal set; }
 
         /// <inheritdoc/>
-        [JsonInclude, NSJ.JsonRequired]
+        [JsonInclude]
         public int Order { get; internal set; }
 
         /// <inheritdoc/>
@@ -249,14 +248,14 @@ namespace Smartstore.Engine.Modularity
         public string SourcePhysicalPath { get; internal set; }
 
         /// <inheritdoc/>
-        [JsonInclude, NSJ.JsonRequired]
+        [JsonInclude]
         public string Theme { get; internal set; }
 
         /// <inheritdoc/>
         public ModuleAssemblyInfo Module { get; internal set; }
 
         /// <inheritdoc/>
-        [JsonInclude, NSJ.JsonRequired]
+        [JsonInclude]
         public string ResourceRootKey
         {
             get => _resourceRootKey ??= DiscoverResourceRootKey();
@@ -299,7 +298,7 @@ namespace Smartstore.Engine.Modularity
         }
 
         /// <inheritdoc/>
-        [JsonInclude, NSJ.JsonRequired]
+        [JsonInclude]
         public string BrandImageFileName
         {
             get => _brandImageFileName ??= DiscoverBrandImageFileName();

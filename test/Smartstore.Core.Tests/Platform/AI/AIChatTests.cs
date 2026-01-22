@@ -1,9 +1,10 @@
 ﻿using System.Linq;
 using System.Net.Mime;
-using Newtonsoft.Json;
+using System.Text.Json;
 using NUnit.Framework;
 using Smartstore.Core.AI;
 using Smartstore.Imaging;
+using Smartstore.Json;
 
 namespace Smartstore.Core.Tests.AI
 {
@@ -33,9 +34,8 @@ namespace Smartstore.Core.Tests.AI
                 OutputFormat = AIImageOutputFormat.Png
             });
 
-            var serializerSettings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Objects };
-            var serializedChat = JsonConvert.SerializeObject(chat, serializerSettings);
-            var obj = JsonConvert.DeserializeObject<AIChat>(serializedChat, serializerSettings);
+            var serializedChat = JsonSerializer.Serialize(chat, SmartJsonOptions.Default);
+            var obj = JsonSerializer.Deserialize<AIChat>(serializedChat, SmartJsonOptions.Default);
             serializedChat.Dump();
 
             Assert.Multiple(() =>
@@ -61,6 +61,11 @@ namespace Smartstore.Core.Tests.AI
                 Assert.That(ctx, Is.Not.EqualTo(null));
                 Assert.That(ctx.SourceFileIds, Is.EquivalentTo([101, 102, 103]));
                 Assert.That(ctx.Orientation, Is.EqualTo(ImageOrientation.Landscape));
+            });
+
+            Assert.Multiple(() =>
+            {
+                obj.Metadata.TryGetAndConvertValue<AIImageChatContext>(KnownAIChatMetadataKeys.ImageChatContext, out var ctx);
                 Assert.That(ctx.AspectRatio, Is.EqualTo(ImageAspectRatio.Ratio16x9));
                 Assert.That(ctx.Resolution, Is.EqualTo(AIImageResolution.QHD));
                 Assert.That(ctx.OutputFormat, Is.EqualTo(AIImageOutputFormat.Png));

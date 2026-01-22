@@ -3,14 +3,12 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Smartstore.Collections.JsonConverters;
-using NSJ = Newtonsoft.Json;
-using STJ = System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Smartstore.Collections;
 
 [DebuggerDisplay("TreeNode, Value = {Value}, Id = {Id}")]
-[NSJ.JsonConverter(typeof(TreeNodeJsonConverter))]
-[STJ.JsonConverter(typeof(TreeNodeJsonConverterFactory))]
+[JsonConverter(typeof(TreeNodeJsonConverterFactory))]
 public class TreeNode<TValue> : TreeNodeBase<TreeNode<TValue>>
 {
     public TreeNode(TValue value)

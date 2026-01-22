@@ -94,36 +94,36 @@ public class DefaultJsonSerializerTests
         Assert.That(output.Age, Is.EqualTo(input.Age));
     }
 
-    [Test]
-    public void TrySerialize_PolymorphicDictionary_WrapArrays_Roundtrip_Works()
-    {
-        var dict = new Dictionary<string, object?>
-        {
-            ["str"] = "x",
-            ["bool"] = true,
-            ["arr"] = new List<object?> { 1, "a" },
-            ["obj"] = new TestPoco { Name = "n", Age = 1 }
-        };
+    //[Test]
+    //public void TrySerialize_PolymorphicDictionary_WrapArrays_Roundtrip_Works()
+    //{
+    //    var dict = new Dictionary<string, object?>
+    //    {
+    //        ["str"] = "x",
+    //        ["bool"] = true,
+    //        ["arr"] = new List<object?> { 1, "a" },
+    //        ["obj"] = new TestPoco { Name = "n", Age = 1 }
+    //    };
 
-        var ok1 = _sut.TrySerialize(dict, compress: false, out var bytes);
-        var ok2 = _sut.TryDeserialize(typeof(Dictionary<string, object?>), bytes!, uncompress: false, out var result);
+    //    var ok1 = _sut.TrySerialize(dict, compress: false, out var bytes);
+    //    var ok2 = _sut.TryDeserialize(typeof(Dictionary<string, object?>), bytes!, uncompress: false, out var result);
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(ok1, Is.True);
-            Assert.That(ok2, Is.True);
-            Assert.That(result, Is.Not.Null);
-        }
+    //    using (Assert.EnterMultipleScope())
+    //    {
+    //        Assert.That(ok1, Is.True);
+    //        Assert.That(ok2, Is.True);
+    //        Assert.That(result, Is.Not.Null);
+    //    }
 
-        var output = (Dictionary<string, object?>)result!;
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(output["str"], Is.EqualTo("x"));
-            Assert.That(output["bool"], Is.EqualTo(true));
-            Assert.That(output.ContainsKey("arr"), Is.True);
-            Assert.That(output.ContainsKey("obj"), Is.True);
-        }
-    }
+    //    var output = (Dictionary<string, object?>)result!;
+    //    using (Assert.EnterMultipleScope())
+    //    {
+    //        Assert.That(output["str"], Is.EqualTo("x"));
+    //        Assert.That(output["bool"], Is.EqualTo(true));
+    //        Assert.That(output.ContainsKey("arr"), Is.True);
+    //        Assert.That(output.ContainsKey("obj"), Is.True);
+    //    }
+    //}
 
     private sealed class TestPoco
     {

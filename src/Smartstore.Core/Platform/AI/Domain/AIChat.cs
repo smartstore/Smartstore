@@ -1,8 +1,6 @@
 ﻿#nullable enable
 
 using System.Runtime.CompilerServices;
-
-using NSJ = Newtonsoft.Json;
 using System.Text.Json.Serialization;
 using Smartstore.Json;
 
@@ -11,8 +9,7 @@ namespace Smartstore.Core.AI
     /// <summary>
     /// Represents an AI conversation consisting of a sequence of messages.
     /// </summary>
-    [NSJ.JsonConverter(typeof(AIChatJsonConverter))]
-    [JsonConverter(typeof(AIChatStjConverter))]
+    [JsonConverter(typeof(AIChatJsonConverter))]
     public class AIChat(AIChatTopic topic)
     {
         private IDictionary<string, object?>? _metadata;

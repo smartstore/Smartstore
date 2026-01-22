@@ -5,8 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Smartstore.ComponentModel.TypeConverters;
-using NSJ = Newtonsoft.Json;
-using STJ = System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Smartstore
 {
@@ -14,8 +13,7 @@ namespace Smartstore
     /// A hybrid implementation of SemVer that supports semantic versioning as described at http://semver.org while not strictly enforcing it to 
     /// allow older 4-digit versioning schemes to continue working.
     /// </summary>
-    [NSJ.JsonConverter(typeof(SemanticVersionJsonConverter))]
-    [STJ.JsonConverter(typeof(SemanticVersionStjConverter))]
+    [JsonConverter(typeof(SemanticVersionJsonConverter))]
     [TypeConverter(typeof(SemanticVersionConverter))]
     public sealed partial class SemanticVersion : IComparable, IComparable<SemanticVersion>, IEquatable<SemanticVersion>
     {
@@ -597,33 +595,7 @@ namespace Smartstore
         }
     }
 
-    internal sealed class SemanticVersionJsonConverter : NSJ.JsonConverter<SemanticVersion>
-    {
-        public override bool CanRead
-            => true;
-
-        public override bool CanWrite
-            => true;
-
-        public override SemanticVersion ReadJson(NSJ.JsonReader reader, Type objectType, SemanticVersion existingValue, bool hasExistingValue, NSJ.JsonSerializer serializer)
-        {
-            reader.Read();
-            var str = reader.ReadAsString();
-            if (str.HasValue() && SemanticVersion.TryParse(str, out var semVer))
-            {
-                return semVer;
-            }
-
-            return null;
-        }
-
-        public override void WriteJson(NSJ.JsonWriter writer, SemanticVersion value, NSJ.JsonSerializer serializer)
-        {
-            serializer.Serialize(writer, value.ToString());
-        }
-    }
-
-    internal sealed class SemanticVersionStjConverter : STJ.JsonConverter<SemanticVersion>
+    internal sealed class SemanticVersionJsonConverter : JsonConverter<SemanticVersion>
     {
         public override SemanticVersion Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {

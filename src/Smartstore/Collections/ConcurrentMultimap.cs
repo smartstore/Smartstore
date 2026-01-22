@@ -1,8 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Concurrent;
 using Smartstore.Collections.JsonConverters;
-using NSJ = Newtonsoft.Json;
-using STJ = System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Smartstore.Collections
 {
@@ -11,9 +10,7 @@ namespace Smartstore.Collections
     /// </summary>
     /// <typeparam name="TKey">The type of key.</typeparam>
     /// <typeparam name="TValue">The type of value.</typeparam>
-    [NSJ.JsonConverter(typeof(ConcurrentMultiMapConverter))]
-    [STJ.JsonConverter(typeof(MultiMapConverterFactory))]
-    [Serializable]
+    [JsonConverter(typeof(MultiMapJsonConverterFactory))]
     public class ConcurrentMultimap<TKey, TValue> : IEnumerable<KeyValuePair<TKey, SyncedCollection<TValue>>>
     {
         private readonly ConcurrentDictionary<TKey, SyncedCollection<TValue>> _dict;

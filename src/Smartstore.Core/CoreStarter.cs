@@ -16,14 +16,11 @@ global using LogLevel = Smartstore.Core.Logging.LogLevel;
 global using EntityState = Smartstore.Data.EntityState;
 using System.Text;
 using Autofac;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using Smartstore.Bootstrapping;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Shipping;
-using Smartstore.Core.Common.JsonConverters;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Data;
@@ -32,7 +29,6 @@ using Smartstore.Data.Providers;
 using Smartstore.Engine.Builders;
 using Smartstore.Templating;
 using Smartstore.Templating.Liquid;
-using Smartstore.Json;
 
 namespace Smartstore.Core.Bootstrapping
 {
@@ -46,25 +42,6 @@ namespace Smartstore.Core.Bootstrapping
             
             // Type converters
             RegisterTypeConverters();
-
-            // Default Json serializer settings
-            JsonConvert.DefaultSettings = () =>
-            {
-                var settings = new JsonSerializerSettings
-                {
-                    ContractResolver = SmartContractResolver.Default,
-                    TypeNameHandling = TypeNameHandling.None,
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                    ObjectCreationHandling = ObjectCreationHandling.Auto,
-                    NullValueHandling = NullValueHandling.Ignore,
-                    MaxDepth = 32
-                };
-
-                settings.Converters.Add(new UTCDateTimeConverter(new IsoDateTimeConverter()));
-                settings.Converters.Add(new StringEnumConverter());
-
-                return settings;
-            };
 
             // CodePages dependency required by ExcelDataReader to avoid NotSupportedException "No data is available for encoding 1252."
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);

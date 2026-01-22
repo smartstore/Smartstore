@@ -159,8 +159,6 @@ namespace Smartstore.Engine
             services.AddSingleton<INativeLibraryManager, NativeLibraryManager>();
             services.AddSingleton<IChronometer>(x => NullChronometer.Instance);
 
-            // TODO: (json) Replace with STJ based serializer and remove NewtonsoftJsonSerializer later
-            //services.AddSingleton<IJsonSerializer, NewtonsoftJsonSerializer>();
             services.AddSingleton<IJsonSerializer, DefaultJsonSerializer>();
 
             services.AddSingleton<IFilePermissionChecker, FilePermissionChecker>();

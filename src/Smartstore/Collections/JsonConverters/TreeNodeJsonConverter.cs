@@ -2,131 +2,8 @@
 using System.Text.Json.Serialization;
 using Smartstore.Json;
 using Smartstore.Json.Polymorphy;
-using NSJ = Newtonsoft.Json;
-using NSJL = Newtonsoft.Json.Linq;
 
 namespace Smartstore.Collections.JsonConverters;
-
-internal sealed class TreeNodeJsonConverter : NSJ.JsonConverter
-{
-    public override bool CanConvert(Type objectType)
-    {
-        var canConvert = objectType.IsGenericType && objectType.GetGenericTypeDefinition() == typeof(TreeNode<>);
-        return canConvert;
-    }
-
-    public override object ReadJson(NSJ.JsonReader reader, Type objectType, object existingValue, NSJ.JsonSerializer serializer)
-    {
-        var valueType = objectType.GetGenericArguments()[0];
-        var sequenceType = typeof(List<>).MakeGenericType(objectType);
-
-        object objValue = null;
-        object objChildren = null;
-        object id = null;
-        Dictionary<string, object> metadata = null;
-
-        reader.Read();
-        while (reader.TokenType == NSJ.JsonToken.PropertyName)
-        {
-            string a = reader.Value.ToString();
-            if (string.Equals(a, "Value", StringComparison.OrdinalIgnoreCase))
-            {
-                reader.Read();
-                objValue = serializer.Deserialize(reader, valueType);
-            }
-            else if (string.Equals(a, "Metadata", StringComparison.OrdinalIgnoreCase))
-            {
-                reader.Read();
-                metadata = serializer.Deserialize<Dictionary<string, object>>(reader);
-            }
-            else if (string.Equals(a, "Children", StringComparison.OrdinalIgnoreCase))
-            {
-                reader.Read();
-                objChildren = serializer.Deserialize(reader, sequenceType);
-            }
-            else if (string.Equals(a, "Id", StringComparison.OrdinalIgnoreCase))
-            {
-                reader.Read();
-                id = serializer.Deserialize<object>(reader);
-
-                if (id is NSJL.JArray jarr)
-                {
-                    id = jarr.Select(token =>
-                    {
-                        // Newtonsoft holds ints as Int64, but we need Int32 here.
-                        return token.Type == NSJL.JTokenType.Integer
-                            ? token.ToObject<int>()
-                            : token.ToObject<object>();
-                    })
-                    .ToArray();
-                }
-            }
-            else
-            {
-                reader.Skip();
-            }
-
-            reader.Read();
-        }
-
-        var ctorParams = objChildren != null
-            ? [objValue, objChildren]
-            : new object[] { objValue };
-
-        var treeNode = Activator.CreateInstance(objectType, ctorParams);
-
-        // Set Metadata
-        if (metadata != null && metadata.Count > 0)
-        {
-            var metadataProp = objectType.GetProperty("Metadata");
-            metadataProp.SetValue(treeNode, metadata);
-        }
-
-        // Set Id
-        if (id != null)
-        {
-            var idProp = objectType.GetProperty("Id");
-            idProp.SetValue(treeNode, id);
-        }
-
-        return treeNode;
-    }
-
-    public override void WriteJson(NSJ.JsonWriter writer, object value, NSJ.JsonSerializer serializer)
-    {
-        writer.WriteStartObject();
-        {
-            // Id
-            if (GetPropValue("Id", value) is object o)
-            {
-                writer.WritePropertyName("Id");
-                serializer.Serialize(writer, o);
-            }
-
-            // Value
-            writer.WritePropertyName("Value");
-            serializer.Serialize(writer, GetPropValue("Value", value));
-
-            // Metadata
-            if (GetPropValue("Metadata", value) is IDictionary<string, object> dict && dict.Count > 0)
-            {
-                writer.WritePropertyName("Metadata");
-                serializer.SerializeObjectDictionary(writer, dict);
-            }
-
-            // Children
-            if (GetPropValue("HasChildren", value) is bool b && b == true)
-            {
-                writer.WritePropertyName("Children");
-                serializer.Serialize(writer, GetPropValue("Children", value));
-            }
-        }
-        writer.WriteEndObject();
-    }
-
-    private static object GetPropValue(string name, object instance)
-        => instance.GetType().GetProperty(name).GetValue(instance);
-}
 
 internal sealed class TreeNodeJsonConverterFactory : JsonConverterFactory
 {
@@ -151,11 +28,6 @@ internal sealed class TreeNodeJsonConverter<T> : JsonConverter<TreeNode<T>>
     public TreeNodeJsonConverter()
     {
         _isPolymorphicValueType = PolymorphyCodec.TryGetPolymorphyKind(typeof(T), out _, out _);
-        if (_isPolymorphicValueType)
-        {
-            // Polymorhic types with a custom converter (e.g. IPermissionNode) can be handled by STJ directly.
-            _isPolymorphicValueType = !typeof(T).HasAttribute<JsonConverterAttribute>(false);
-        }
     }
     
     public override TreeNode<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

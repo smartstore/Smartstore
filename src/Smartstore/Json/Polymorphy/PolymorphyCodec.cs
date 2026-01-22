@@ -536,7 +536,14 @@ internal static class PolymorphyCodec
 
     public static bool IsPolymorphicType(Type t)
     {
-        return t == typeof(object) || t.IsAbstract || t.IsInterface;
+        if (t == typeof(object))
+            return true;
+
+        // Polymorhic types with a custom converter(e.g.IPermissionNode) can be handled by STJ directly.
+        if (t.IsAbstract || t.IsInterface)
+            return !t.HasAttribute<JsonConverterAttribute>(false);
+
+        return false;
     }
 
     public static bool TryGetPolymorphyKind(Type t, [NotNullWhen(true)] out PolymorphyKind? kind, [NotNullWhen(true)] out Type? elementType)

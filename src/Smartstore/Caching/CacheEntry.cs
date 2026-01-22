@@ -1,10 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Runtime.Serialization;
 using Microsoft.Extensions.Caching.Memory;
-using Newtonsoft.Json;
 using Smartstore.ComponentModel;
 using Smartstore.Json;
-using Smartstore.Json.Converters;
 
 namespace Smartstore.Caching
 {
@@ -19,7 +17,6 @@ namespace Smartstore.Caching
         NeverRemove,
     }
 
-    [JsonConverter(typeof(ObjectContainerJsonConverter))]
     public class CacheEntry : IObjectContainer, ICloneable<CacheEntry>
     {
         // Used for serialization compatibility

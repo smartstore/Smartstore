@@ -30,7 +30,6 @@ public class RefundMessage
     ///// <summary>
     ///// An array of related [HATEOAS links](/docs/api/overview/#hateoas-links).
     ///// </summary>
-    //[JsonProperty("links", DefaultValueHandling = DefaultValueHandling.Ignore)]
     //public List<LinkDescription> Links;
 
     /// <summary>
@@ -41,7 +40,6 @@ public class RefundMessage
     ///// <summary>
     ///// The breakdown of the refund.
     ///// </summary>
-    //[JsonProperty("seller_payable_breakdown", DefaultValueHandling = DefaultValueHandling.Ignore)]
     //public MerchantPayableBreakdown SellerPayableBreakdown;
 
     /// <summary>
@@ -52,7 +50,6 @@ public class RefundMessage
     ///// <summary>
     ///// The details of the refund status.
     ///// </summary>
-    //[JsonProperty("status_details", DefaultValueHandling = DefaultValueHandling.Ignore)]
     //public StatusDetails StatusDetails;
 
     /// <summary>

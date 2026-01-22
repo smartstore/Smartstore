@@ -17,7 +17,7 @@ namespace Smartstore.Tests.Json;
 [TestFixture]
 public class MultiMapConverterTests
 {
-    private MultiMapConverterFactory _converterFactory;
+    private MultiMapJsonConverterFactory _converterFactory;
     private JsonSerializerOptions _options;
 
     private JsonConverter CreateConverter(Type converterType)
@@ -28,7 +28,7 @@ public class MultiMapConverterTests
     [SetUp]
     public void Setup()
     {
-        _converterFactory = new MultiMapConverterFactory();
+        _converterFactory = new MultiMapJsonConverterFactory();
         _options = SmartJsonOptions.Default;
     }
 

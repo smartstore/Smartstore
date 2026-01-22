@@ -1,6 +1,8 @@
 ﻿#nullable enable
 
+using System.Text.Json.Serialization;
 using Smartstore.Imaging;
+using Smartstore.Json.Converters;
 
 namespace Smartstore.Core.AI
 {
@@ -16,8 +18,13 @@ namespace Smartstore.Core.AI
 
         public ImageOrientation Orientation { get; init; }
 
+        [JsonConverter(typeof(TypeConverterJsonConverter<ImageAspectRatio>))]
         public ImageAspectRatio? AspectRatio { get; init; }
+
+        [JsonConverter(typeof(TypeConverterJsonConverter<AIImageResolution>))]
         public AIImageResolution? Resolution { get; init; }
+
+        [JsonConverter(typeof(TypeConverterJsonConverter<AIImageOutputFormat>))]
         public AIImageOutputFormat? OutputFormat { get; init; }
     }
 }
