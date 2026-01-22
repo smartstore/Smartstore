@@ -42,10 +42,16 @@ internal static class PolymorphyModifier
     /// <remarks>This method inspects each property of the provided type and assigns a custom JSON converter
     /// for properties that opt in to polymorphic serialization. Only properties of object, dictionary, or list types
     /// are considered. Properties that do not meet the criteria are left unchanged.</remarks>
-    public static void ApplyPolymorphyModifier(JsonTypeInfo typeInfo)
+    public static void Apply(JsonTypeInfo typeInfo)
     {
         if (typeInfo.Kind != JsonTypeInfoKind.Object)
             return;
+
+        //if (typeInfo.Type.Name is ("ICategoryNode" or "IPermissionNode"))
+        //{
+        //    var yo = true;
+        //    var activator = typeInfo.CreateObject;
+        //}
 
         foreach (var prop in typeInfo.Properties)
         {

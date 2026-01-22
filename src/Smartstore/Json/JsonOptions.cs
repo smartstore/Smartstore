@@ -1,14 +1,11 @@
 ﻿#nullable enable
 
-using System.Collections;
 using System.ComponentModel;
-using System.Reflection;
-using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
-using Smartstore.Domain;
 using Smartstore.Json.Converters;
+using Smartstore.Json.Modifiers;
 using Smartstore.Json.Polymorphy;
 
 namespace Smartstore.Json;
@@ -68,6 +65,7 @@ public static class SmartJsonOptions
         // Create a resolver early to allow adding modifiers
         TypeInfoResolver = (JsonSerializer.IsReflectionEnabledByDefault ? new DefaultJsonTypeInfoResolver() : JsonTypeInfoResolver.Combine())
             .WithPolymorphyModifier()
+            .WithDefaultImplementationModifier()
             .WithDefaultValueModifier()
             .WithDataContractModifier(),
 
@@ -140,7 +138,17 @@ public static class SmartJsonOptions
     public static IJsonTypeInfoResolver WithPolymorphyModifier(this IJsonTypeInfoResolver typeInfoResolver)
     {
         return Guard.NotNull(typeInfoResolver)
-            .WithAddedModifier(PolymorphyModifier.ApplyPolymorphyModifier);
+            .WithAddedModifier(PolymorphyModifier.Apply);
+    }
+
+    /// <summary>
+    /// Returns a JSON type info resolver that uses <see cref="DefaultImplementationAttribute"/> to provide
+    /// a concrete default implementation when deserializing interface/abstract declared types.
+    /// </summary>
+    public static IJsonTypeInfoResolver WithDefaultImplementationModifier(this IJsonTypeInfoResolver typeInfoResolver)
+    {
+        return Guard.NotNull(typeInfoResolver)
+            .WithAddedModifier(DefaultImplementationModifier.Apply);
     }
 
     /// <summary>
@@ -152,7 +160,7 @@ public static class SmartJsonOptions
     public static IJsonTypeInfoResolver WithDataContractModifier(this IJsonTypeInfoResolver typeInfoResolver)
     {
         return Guard.NotNull(typeInfoResolver)
-            .WithAddedModifier(ApplyIgnoreDataMemberModifier);
+            .WithAddedModifier(IgnoreDataMemberModifier.Apply);
     }
 
     /// <summary>
@@ -164,74 +172,8 @@ public static class SmartJsonOptions
     public static IJsonTypeInfoResolver WithDefaultValueModifier(this IJsonTypeInfoResolver typeInfoResolver)
     {
         return Guard.NotNull(typeInfoResolver)
-            .WithAddedModifier(ApplyDefaultValueModifier);
+            .WithAddedModifier(DefaultValueModifier.Apply);
     }
-
-    internal static void ApplyIgnoreDataMemberModifier(JsonTypeInfo typeInfo)
-    {
-        if (typeInfo.Kind != JsonTypeInfoKind.Object)
-            return;
-
-        foreach (var prop in typeInfo.Properties)
-        {
-            if (prop.AttributeProvider is not MemberInfo mi)
-                continue;
-
-            if (!mi.HasAttribute<IgnoreDataMemberAttribute>(true))
-                continue;
-
-            // Ignore on write
-            prop.Get = null;
-
-            // Ignore on read
-            prop.Set = null;
-
-            // Safety: if it was marked required somewhere, required+no-setter can explode.
-            prop.IsRequired = false;
-        }
-    }
-
-    internal static void ApplyDefaultValueModifier(JsonTypeInfo typeInfo)
-    {
-        if (typeInfo.Kind != JsonTypeInfoKind.Object)
-            return;
-
-        foreach (var p in typeInfo.Properties)
-        {
-            if (p.AttributeProvider?.TryGetAttribute<DefaultValueAttribute>(true, out var attr) ?? false)
-            {
-                var isSequenceType = p.PropertyType.IsSequenceType();
-                var isDefaultable = typeof(IDefaultable).IsAssignableFrom(p.PropertyType);
-                if (isSequenceType || isDefaultable)
-                {
-                    if (Equals(attr.Value, "[]"))
-                    {
-                        if (isSequenceType)
-                            // Ignore empty lists/arrays/dictionaries when default is "[]"
-                            p.ShouldSerialize = (o, value) => !ShouldIgnoreEmptySequence(value as IEnumerable);
-                        else
-                            // Ignore objects in default/initial state when default is "[]"
-                            p.ShouldSerialize = (o, value) => !ShouldIgnoreDefaultState(value as IDefaultable);
-                    }
-                }
-                else
-                {
-                    var defaultValue = attr.Value.Convert(p.PropertyType);
-                    var dv = defaultValue;
-                    p.ShouldSerialize = (o, value) => !ShouldIgnoreDefaultValue(value, dv);
-                }
-            }
-        }
-    }
-
-    private static bool ShouldIgnoreDefaultValue(object? value, object? defaultValue)
-        => value == null || Equals(value, defaultValue);
-
-    private static bool ShouldIgnoreEmptySequence(IEnumerable? value)
-        => value == null || !value.GetEnumerator().MoveNext();
-
-    private static bool ShouldIgnoreDefaultState(IDefaultable? value)
-        => value == null || value.IsDefaultState;
 
     #endregion
 
