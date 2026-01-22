@@ -14,7 +14,7 @@ namespace Smartstore.Web.Components
 
             if (model.UploadText.IsEmpty())
             {
-                model.UploadText = T("Common.Fileuploader.Upload");
+                model.UploadText = T("Common.FileUploader.Upload");
             }
 
             if (model.Name.IsEmpty())
