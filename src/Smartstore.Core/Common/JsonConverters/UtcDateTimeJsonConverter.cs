@@ -6,7 +6,6 @@ using Smartstore.Core.Common.Services;
 namespace Smartstore.Core.Common.JsonConverters
 {
     /// <summary>
-    /// The STJ variant of <see cref="UTCDateTimeConverter"/>.
     /// Converts <see cref="DateTime"/> values to and from JSON, ensuring that dates are handled in UTC format during
     /// serialization and deserialization.
     /// </summary>
