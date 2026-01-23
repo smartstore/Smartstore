@@ -66,7 +66,7 @@ public class DefaultJsonSerializer : IJsonSerializer
             if (t != null)
             {
                 _nonWritableTypes.TryAdd(t, 0);
-                Logger.Debug(ex, "Type '{Type}' cannot be serialized (NotSupported).", t);
+                Logger.Debug(ex, $"Type '{t}' cannot be serialized (NotSupported).");
             }
 
             return false;
@@ -75,7 +75,7 @@ public class DefaultJsonSerializer : IJsonSerializer
         {
             var t = inputType ?? GetInnerType(value);
             if (t != null)
-                Logger.Debug(ex, "Serialization failed for type '{Type}'.", t);
+                Logger.Debug(ex, $"Serialization failed for type '{t}'.");
 
             return false;
         }
@@ -101,19 +101,19 @@ public class DefaultJsonSerializer : IJsonSerializer
             if (ShouldBlacklistDeserializeType(objectType))
             {
                 _nonReadableTypes.TryAdd(objectType, 0);
-                Logger.Debug(ex, "Type '{Type}' cannot be DEserialized (NotSupported).", objectType);
+                Logger.Debug(ex, $"Type '{objectType}' cannot be DEserialized (NotSupported).");
             }
 
             return false;
         }
         catch (JsonException ex)
         {
-            Logger.Debug(ex, "Deserialization failed for type '{Type}' due to invalid JSON payload.", objectType);
+            Logger.Debug(ex, $"Deserialization failed for type '{objectType}' due to invalid JSON payload.");
             return false;
         }
         catch (Exception ex)
         {
-            Logger.Debug(ex, "Deserialization failed for type '{Type}'.", objectType);
+            Logger.Debug(ex, $"Deserialization failed for type '{objectType}'.");
             return false;
         }
     }
