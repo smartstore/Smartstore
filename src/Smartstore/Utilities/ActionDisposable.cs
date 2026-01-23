@@ -3,17 +3,15 @@
 /// <summary>
 /// Allows action to be executed when it is disposed
 /// </summary>
-public struct ActionDisposable : IDisposable
+public readonly struct ActionDisposable : IDisposable
 {
     readonly Action _action;
 
-    public static readonly ActionDisposable Empty = new ActionDisposable(() => { });
+    public static readonly ActionDisposable Empty = new(() => { });
 
     public ActionDisposable(Action action)
     {
-        Guard.NotNull(action, nameof(action));
-
-        _action = action;
+        _action = Guard.NotNull(action);
     }
 
     public void Dispose()

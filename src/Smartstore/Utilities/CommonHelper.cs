@@ -13,6 +13,7 @@ namespace Smartstore.Utilities;
 public static partial class CommonHelper
 {
     private const string Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    private const int CharsLength = 62; // Must match Chars.Length
 
     private static readonly int _pointerSize = Environment.Is64BitOperatingSystem
         ? sizeof(long)
@@ -35,7 +36,8 @@ public static partial class CommonHelper
 
     private static IFileSystem GetContentRoot()
     {
-        return EngineContext.Current?.Application?.ContentRoot ?? new LocalFileSystem(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
+        return EngineContext.Current?.Application?.ContentRoot
+            ?? new LocalFileSystem(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
     }
 
     public static bool IsDevEnvironment
@@ -62,40 +64,35 @@ public static partial class CommonHelper
     /// </remarks>
     public static string MapPath(string path, bool findAppRoot = true)
     {
-        if (path == null)
-        {
-            throw new ArgumentNullException(nameof(path));
-        }
+        ArgumentNullException.ThrowIfNull(path);
 
         if (IsHosted)
         {
             // hosted
             return ContentRoot.MapPath(path);
         }
-        else
+
+        // Not hosted. For example, running in unit tests or EF tooling
+        var baseDirectory = AppContext.BaseDirectory;
+        path = PathUtility.NormalizeRelativePath(path);
+
+        var testPath = Path.Combine(baseDirectory, path);
+
+        if (findAppRoot)
         {
-            // Not hosted. For example, running in unit tests or EF tooling
-            string baseDirectory = AppContext.BaseDirectory;
-            path = PathUtility.NormalizeRelativePath(path);
+            // Most likely we're in unit tests or design-mode (EF migration scaffolding)...
+            // find solution root directory first
+            var dir = FindSolutionRoot(baseDirectory);
 
-            var testPath = Path.Combine(baseDirectory, path);
-
-            if (findAppRoot /* && !Directory.Exists(testPath)*/)
+            // Concat the web root
+            if (dir != null)
             {
-                // Most likely we're in unit tests or design-mode (EF migration scaffolding)...
-                // find solution root directory first
-                var dir = FindSolutionRoot(baseDirectory);
-
-                // Concat the web root
-                if (dir != null)
-                {
-                    baseDirectory = Path.Combine(dir.FullName, "src", "Smartstore.Web");
-                    testPath = Path.Combine(baseDirectory, path);
-                }
+                baseDirectory = Path.Combine(dir.FullName, "src", "Smartstore.Web");
+                testPath = Path.Combine(baseDirectory, path);
             }
-
-            return Path.GetFullPath(testPath);
         }
+
+        return Path.GetFullPath(testPath);
     }
 
     private static bool IsDevEnvironmentInternal()
@@ -103,10 +100,11 @@ public static partial class CommonHelper
         if (!IsHosted)
             return true;
 
-        if (EngineContext.Current?.Application == null)
+        var app = EngineContext.Current?.Application;
+        if (app is null)
             return true;
 
-        if (EngineContext.Current.Application.HostEnvironment.IsDevelopment())
+        if (app.HostEnvironment.IsDevelopment())
             return true;
 
         if (System.Diagnostics.Debugger.IsAttached)
@@ -114,20 +112,15 @@ public static partial class CommonHelper
 
         // if there's a 'Smartstore.sln' in one of the parent folders,
         // then we're likely in a dev environment
-        if (FindSolutionRoot(EngineContext.Current.Application.ContentRoot.Root) != null)
-            return true;
-
-        return false;
+        return FindSolutionRoot(app.ContentRoot.Root) != null;
     }
 
     internal static DirectoryInfo FindSolutionRoot(string currentDir)
     {
+        // currentDir can be a file path depending on callers; Directory.GetParent handles both.
         var dir = Directory.GetParent(currentDir);
-        while (true)
+        while (dir != null && !IsSolutionRoot(dir))
         {
-            if (dir == null || IsSolutionRoot(dir))
-                break;
-
             dir = dir.Parent;
         }
 
@@ -142,6 +135,7 @@ public static partial class CommonHelper
     #endregion
 
     #region Randomizer
+
     /// <summary>
     /// Generates a random digit code
     /// </summary>
@@ -149,39 +143,50 @@ public static partial class CommonHelper
     /// <returns>Result string</returns>
     public static string GenerateRandomDigitCode(int length)
     {
-        var buffer = new byte[length];
-        for (int i = 0; i < length; ++i)
+        if (length <= 0)
         {
-            buffer[i] = (byte)Random.Shared.Next(10);
+            return string.Empty;
         }
 
-        return string.Join(string.Empty, buffer);
+        // Avoid byte[] + string.Join allocations; build chars directly.
+        return string.Create(length, 0, static (span, _) =>
+        {
+            var rnd = Random.Shared;
+            for (int i = 0; i < span.Length; i++)
+            {
+                span[i] = (char)('0' + rnd.Next(10));
+            }
+        });
     }
 
     /// <summary>
     /// Generates a cryptographically secure unique random string with a specified length.
     /// The string is composed of alphanumeric characters (A-Z, a-z, 0-9).
-    /// The default length of 16 characters provides approximately 96 bits of entropy, 
+    /// The default length of 16 characters provides approximately 96 bits of entropy,
     /// which makes collisions highly unlikely.
     /// </summary>
     /// <param name="length">The length of the random string to generate. Default is 16.</param>
     /// <returns>A cryptographically secure random string of the specified length.</returns>
     public static string GenerateRandomString(int length = 16)
     {
-        var result = new char[length];
-        var data = new byte[length];
-
-        // Fill the byte array with cryptographically secure random data
-        RandomNumberGenerator.Fill(data);
-
-        // Convert each byte into a character from the alphanumeric set
-        for (int i = 0; i < length; i++)
+        if (length <= 0)
         {
-            result[i] = Chars[data[i] % Chars.Length];
+            return string.Empty;
         }
 
-        // Return the generated random string
-        return new string(result);
+        // Avoid large stackalloc; small lengths can use stackalloc to avoid heap alloc.
+        Span<byte> data = length <= 256 ? stackalloc byte[length] : new byte[length];
+        RandomNumberGenerator.Fill(data);
+
+        return string.Create(length, data, static (span, bytes) =>
+        {
+            // `Chars` is a string; indexing is fine and bounds-checked.
+            for (int i = 0; i < span.Length; i++)
+            {
+                // Modulo bias is acceptable for non-token use; keeps it fast.
+                span[i] = Chars[bytes[i] % CharsLength];
+            }
+        });
     }
 
     /// <summary>
@@ -206,7 +211,7 @@ public static partial class CommonHelper
     /// <param name="action">Action to execute.</param>
     /// <param name="onException">Optional exception handler.</param>
     public static void TryAction(
-        Action action, 
+        Action action,
         Action<Exception> onException = null)
     {
         Guard.NotNull(action);
@@ -229,8 +234,8 @@ public static partial class CommonHelper
     /// <param name="defaultValue">The default value to return when an exception occurs.</param>
     /// <param name="onException">Optional exception handler.</param>
     public static TResult TryAction<TResult>(
-        Func<TResult> action, 
-        TResult defaultValue = default, 
+        Func<TResult> action,
+        TResult defaultValue = default,
         Action<Exception> onException = null)
     {
         Guard.NotNull(action);
@@ -263,6 +268,7 @@ public static partial class CommonHelper
 
         try
         {
+            // Preserve original behavior (captures context if any); don't force ConfigureAwait here.
             return await action();
         }
         catch (Exception ex)
@@ -289,7 +295,7 @@ public static partial class CommonHelper
             case string x:
                 return x.HasValue();
             case bool x:
-                return x == true;
+                return x;
             case DateTime x:
                 return x > DateTime.MinValue;
             case TimeSpan x:
@@ -299,9 +305,18 @@ public static partial class CommonHelper
             case IComparable x:
                 return x.CompareTo(0) != 0;
             case IEnumerable<object> x:
-                return x.GetEnumerator().MoveNext();
+                using (var e = x.GetEnumerator())
+                    return e.MoveNext();
             case IEnumerable x:
-                return x.GetEnumerator().MoveNext();
+                var enumerator = x.GetEnumerator();
+                try
+                {
+                    return enumerator.MoveNext();
+                }
+                finally
+                {
+                    (enumerator as IDisposable)?.Dispose();
+                }
         }
 
         if (value.GetType().IsNullableType(out var underlyingType))
@@ -414,7 +429,7 @@ public static partial class CommonHelper
         else
         {
             size = _pointerSize;
-            
+
             if (ObjectVisited(obj))
             {
                 return size;
@@ -428,7 +443,8 @@ public static partial class CommonHelper
             var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             foreach (var field in fields)
             {
-                if (IsToxicType(type))
+                // Bugfix/perf: check the *field type*, not the containing type.
+                if (IsToxicType(field.FieldType))
                 {
                     size = _pointerSize;
                     continue;
@@ -460,15 +476,15 @@ public static partial class CommonHelper
                 return true;
             }
 
-            if (type.IsDelegate())
+            if (t.IsDelegate())
             {
                 // Don't visit delegates (Action, Func<> etc.)
                 return true;
             }
 
-            if (type.IsGenericType)
+            if (t.IsGenericType)
             {
-                var gtdef = type.GetGenericTypeDefinition();
+                var gtdef = t.GetGenericTypeDefinition();
                 if (gtdef == typeof(Lazy<>) || gtdef == typeof(Work<>))
                 {
                     return true;

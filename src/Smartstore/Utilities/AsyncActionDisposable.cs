@@ -3,15 +3,15 @@
 /// <summary>
 /// Allows action to be executed when it is disposed
 /// </summary>
-public struct AsyncActionDisposable : IAsyncDisposable
+public readonly struct AsyncActionDisposable : IAsyncDisposable
 {
     readonly Func<ValueTask> _action;
 
-    public static readonly AsyncActionDisposable Empty = new AsyncActionDisposable(() => new ValueTask(Task.CompletedTask));
+    public static readonly AsyncActionDisposable Empty = new(() => new ValueTask(Task.CompletedTask));
 
     public AsyncActionDisposable(Func<ValueTask> action)
     {
-        _action = Guard.NotNull(action, nameof(action));
+        _action = Guard.NotNull(action);
     }
 
     public async ValueTask DisposeAsync()
