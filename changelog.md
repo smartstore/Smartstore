@@ -39,6 +39,7 @@ The intermediate step via the confirmation page is omitted.
 - Gemini: Fixed `ArgumentNullException` when creating embedded images in rich text.
 - #1452 The off-canvas menu is called infinitely often if the permission for shop access is not granted.
 - OpenTrans: Fixed missing email addresses when exporting addresses.
+- PageBuilder: Issues when previewing selected images while editing a media gallery block.
 
 
 ## Smartstore 6.3.0
