@@ -18,7 +18,9 @@ namespace Smartstore.Utilities
         private readonly static Func<string, string> DefaultKeySelector = new(key => key);
         private readonly static Func<string, string> HtmlAttributeKeySelector = new(key => key.Replace('_', '-').Replace("@", ""));
 
-        public static bool TryConvert<T>(object? value, [MaybeNullWhen(false)] out T? convertedValue)
+        public static bool TryConvert<T>(
+            object? value, 
+            [MaybeNullWhen(false)] out T? convertedValue)
         {
             convertedValue = default;
 
@@ -31,7 +33,10 @@ namespace Smartstore.Utilities
             return false;
         }
 
-        public static bool TryConvert<T>(object? value, CultureInfo? culture, [MaybeNullWhen(false)] out T? convertedValue)
+        public static bool TryConvert<T>(
+            object? value, 
+            CultureInfo? culture, 
+            [MaybeNullWhen(false)] out T? convertedValue)
         {
             convertedValue = default;
 
@@ -45,12 +50,19 @@ namespace Smartstore.Utilities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryConvert(object? value, Type to, [MaybeNullWhen(false)] out object? convertedValue)
+        public static bool TryConvert(
+            object? value, 
+            Type to, 
+            [MaybeNullWhen(false)] out object? convertedValue)
         {
             return TryConvert(value, to, CultureInfo.InvariantCulture, out convertedValue);
         }
 
-        public static bool TryConvert(object? value, Type to, CultureInfo? culture, [MaybeNullWhen(false)] out object? convertedValue)
+        public static bool TryConvert(
+            object? value, 
+            Type to, 
+            CultureInfo? culture, 
+            [MaybeNullWhen(false)] out object? convertedValue)
         {
             ArgumentNullException.ThrowIfNull(to);
 
@@ -146,7 +158,10 @@ namespace Smartstore.Utilities
         ///  The implementation of FastProperty will cache the property accessors per-type. This is
         ///  faster when the the same type is used multiple times with ObjectToDictionary.
         ///  </remarks>
-        public static IDictionary<string, object?> ObjectToDictionary(object? value, Func<string, string>? keySelector, bool deep = false)
+        public static IDictionary<string, object?> ObjectToDictionary(
+            object? value, 
+            Func<string, string>? keySelector, 
+            bool deep = false)
         {
             if (value is IDictionary<string, object?> dictionary)
             {
