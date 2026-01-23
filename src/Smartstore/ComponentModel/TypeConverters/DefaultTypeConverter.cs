@@ -1,120 +1,119 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
 
-namespace Smartstore.ComponentModel.TypeConverters
+namespace Smartstore.ComponentModel.TypeConverters;
+
+public class DefaultTypeConverter : ITypeConverter
 {
-    public class DefaultTypeConverter : ITypeConverter
+    private readonly Lazy<TypeConverter> _systemConverter;
+    private readonly Type _type;
+    private readonly bool _typeIsConvertible;
+    private readonly bool _typeIsEnum;
+
+    public DefaultTypeConverter(Type type)
     {
-        private readonly Lazy<TypeConverter> _systemConverter;
-        private readonly Type _type;
-        private readonly bool _typeIsConvertible;
-        private readonly bool _typeIsEnum;
+        Guard.NotNull(type);
 
-        public DefaultTypeConverter(Type type)
+        _type = type;
+        _typeIsConvertible = typeof(IConvertible).IsAssignableFrom(type);
+        _typeIsEnum = type.IsEnum;
+        _systemConverter = new Lazy<TypeConverter>(() => TypeDescriptor.GetConverter(type), true);
+    }
+
+    public TypeConverter SystemConverter
+    {
+        get
         {
-            Guard.NotNull(type);
+            if (_type == typeof(object))
+            {
+                return null;
+            }
 
-            _type = type;
-            _typeIsConvertible = typeof(IConvertible).IsAssignableFrom(type);
-            _typeIsEnum = type.IsEnum;
-            _systemConverter = new Lazy<TypeConverter>(() => TypeDescriptor.GetConverter(type), true);
+            return _systemConverter.Value;
+        }
+    }
+
+    public virtual bool CanConvertFrom(Type type)
+    {
+        if (typeof(IConvertible).IsAssignableFrom(type) && (_typeIsConvertible || _typeIsEnum))
+        {
+            return true;
         }
 
-        public TypeConverter SystemConverter
+        if (SystemConverter != null)
         {
-            get
-            {
-                if (_type == typeof(object))
-                {
-                    return null;
-                }
-
-                return _systemConverter.Value;
-            }
+            return SystemConverter.CanConvertFrom(type);
         }
 
-        public virtual bool CanConvertFrom(Type type)
+        return false;
+    }
+
+    public virtual bool CanConvertTo(Type type)
+    {
+        // Use Convert.ChangeType if both types are IConvertible
+        if (_typeIsConvertible && typeof(IConvertible).IsAssignableFrom(type))
         {
-            if (typeof(IConvertible).IsAssignableFrom(type) && (_typeIsConvertible || _typeIsEnum))
-            {
-                return true;
-            }
-
-            if (SystemConverter != null)
-            {
-                return SystemConverter.CanConvertFrom(type);
-            }
-
-            return false;
+            return true;
         }
 
-        public virtual bool CanConvertTo(Type type)
+        if (type == typeof(string))
         {
-            // Use Convert.ChangeType if both types are IConvertible
-            if (_typeIsConvertible && typeof(IConvertible).IsAssignableFrom(type))
-            {
-                return true;
-            }
-
-            if (type == typeof(string))
-            {
-                return true;
-            }
-
-            if (SystemConverter != null)
-            {
-                return SystemConverter.CanConvertTo(type);
-            }
-
-            return false;
+            return true;
         }
 
-        public virtual object ConvertFrom(CultureInfo culture, object value)
+        if (SystemConverter != null)
         {
-            if (value != null && value.GetType() == _type)
-            {
-                return value;
-            }
-
-            // Use Convert.ChangeType if both types are IConvertible
-            if (!_typeIsEnum && _typeIsConvertible && value is (IConvertible and not string))
-            {
-                return Convert.ChangeType(value, _type, culture);
-            }
-
-            // Use Enum.ToObject if type is Enum and value is numeric 
-            if (_typeIsEnum && value != null && value.GetType().IsPrimitive)
-            {
-                return Enum.ToObject(_type, value);
-            }
-
-            if (SystemConverter != null)
-            {
-                return SystemConverter.ConvertFrom(null, culture, value);
-            }
-
-            throw Error.InvalidCast(value.GetType(), _type);
+            return SystemConverter.CanConvertTo(type);
         }
 
-        public virtual object ConvertTo(CultureInfo culture, string format, object value, Type to)
+        return false;
+    }
+
+    public virtual object ConvertFrom(CultureInfo culture, object value)
+    {
+        if (value != null && value.GetType() == _type)
         {
-            // Use Convert.ChangeType if both types are IConvertible
-            if (!_typeIsEnum && _typeIsConvertible && value != null && value is not string && typeof(IConvertible).IsAssignableFrom(to))
-            {
-                return Convert.ChangeType(value, to, culture);
-            }
-
-            if (SystemConverter != null)
-            {
-                return SystemConverter.ConvertTo(null, culture, value, to);
-            }
-
-            if (value == null)
-            {
-                return string.Empty;
-            }
-
-            return value.ToString();
+            return value;
         }
+
+        // Use Convert.ChangeType if both types are IConvertible
+        if (!_typeIsEnum && _typeIsConvertible && value is (IConvertible and not string))
+        {
+            return Convert.ChangeType(value, _type, culture);
+        }
+
+        // Use Enum.ToObject if type is Enum and value is numeric 
+        if (_typeIsEnum && value != null && value.GetType().IsPrimitive)
+        {
+            return Enum.ToObject(_type, value);
+        }
+
+        if (SystemConverter != null)
+        {
+            return SystemConverter.ConvertFrom(null, culture, value);
+        }
+
+        throw Error.InvalidCast(value.GetType(), _type);
+    }
+
+    public virtual object ConvertTo(CultureInfo culture, string format, object value, Type to)
+    {
+        // Use Convert.ChangeType if both types are IConvertible
+        if (!_typeIsEnum && _typeIsConvertible && value != null && value is not string && typeof(IConvertible).IsAssignableFrom(to))
+        {
+            return Convert.ChangeType(value, to, culture);
+        }
+
+        if (SystemConverter != null)
+        {
+            return SystemConverter.ConvertTo(null, culture, value, to);
+        }
+
+        if (value == null)
+        {
+            return string.Empty;
+        }
+
+        return value.ToString();
     }
 }
