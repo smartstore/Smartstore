@@ -24,6 +24,9 @@ namespace Smartstore.Core.Data.Migrations
                 "The following discounts were applied to the products: {0}.",
                 "Auf die Produkte wurden die folgenden Rabatte gewährt: {0}.");
 
+            // TODO: (mg) Don't add new resources (*.Short), change the existing ones.
+            // In the validation summary box, display them this way as a single list item:
+            // Your password must meet the following requirements: [comma separated message list of unfulfilled criteria]
             builder.AddOrUpdate("Identity.Error.PasswordRequiresDigit.Short",
                 "At least one number (0–9)", 
                 "Mindestens eine Ziffer (0–9)");

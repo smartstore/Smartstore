@@ -389,6 +389,11 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> ValidatePassword(string password)
         {
+            // TODO: (mg) I hope you do not plan to call this on every keypress 😯
+            // The validation must occur on client side, and only if it passes there, the already existing
+            // server side validators should be called (which is repetitive, but necessary to avoid security issues).
+            // I'm sorry, but you gonna have to implement a small validation script for this.
+            // The script should only be included on pages, where the validator is active.
             List<string> errors = null;
 
             try
