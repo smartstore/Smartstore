@@ -9,7 +9,6 @@ using Smartstore.Core.DataExchange.Import;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Identity.Rules;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Engine.Builders;
@@ -28,6 +27,8 @@ namespace Smartstore.Core.Bootstrapping
                 .AddUserValidator<UserValidator>()
                 .AddPasswordValidator<UserValidator>()
                 .AddSignInManager<SmartSignInManager>();
+
+            services.AddScoped<IIdentityErrorDescriberOptions, IdentityErrorDescriberOptions>();
 
             services.TryAddEnumerable(
                 ServiceDescriptor.Singleton<IConfigureOptions<IdentityOptions>, IdentityOptionsConfigurer>());

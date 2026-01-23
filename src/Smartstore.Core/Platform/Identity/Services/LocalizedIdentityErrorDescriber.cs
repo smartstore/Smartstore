@@ -3,8 +3,20 @@ using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Identity
 {
-    public class LocalizedIdentityErrorDescriber : IdentityErrorDescriber
+    public interface IIdentityErrorDescriberOptions
     {
+        bool UseShortDescriptions { get; set; }
+    }
+
+    public sealed class IdentityErrorDescriberOptions : IIdentityErrorDescriberOptions
+    {
+        public bool UseShortDescriptions { get; set; }
+    }
+
+    public class LocalizedIdentityErrorDescriber(IIdentityErrorDescriberOptions options) : IdentityErrorDescriber
+    {
+        private readonly IIdentityErrorDescriberOptions _options = options;
+
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
         public override IdentityError DuplicateEmail(string email)
@@ -97,57 +109,22 @@ namespace Smartstore.Core.Identity
         }
 
         public override IdentityError PasswordRequiresDigit()
-        {
-            return new IdentityError
-            {
-                Code = nameof(PasswordRequiresDigit),
-                Description = T("Identity.Error.PasswordRequiresDigit")
-            };
-        }
+            => GetPasswordRequirementError(nameof(PasswordRequiresDigit));
 
         public override IdentityError PasswordRequiresLower()
-        {
-            return new IdentityError
-            {
-                Code = nameof(PasswordRequiresLower),
-                Description = T("Identity.Error.PasswordRequiresLower")
-            };
-        }
+            => GetPasswordRequirementError(nameof(PasswordRequiresLower));
+
         public override IdentityError PasswordRequiresNonAlphanumeric()
-        {
-            return new IdentityError
-            {
-                Code = nameof(PasswordRequiresNonAlphanumeric),
-                Description = T("Identity.Error.PasswordRequiresNonAlphanumeric")
-            };
-        }
+            => GetPasswordRequirementError(nameof(PasswordRequiresNonAlphanumeric));
 
         public override IdentityError PasswordRequiresUniqueChars(int uniqueChars)
-        {
-            return new IdentityError
-            {
-                Code = nameof(PasswordRequiresUniqueChars),
-                Description = T("Identity.Error.PasswordRequiresUniqueChars", uniqueChars)
-            };
-        }
+            => GetPasswordRequirementError(nameof(PasswordRequiresUniqueChars), uniqueChars);
 
         public override IdentityError PasswordRequiresUpper()
-        {
-            return new IdentityError
-            {
-                Code = nameof(PasswordRequiresUpper),
-                Description = T("Identity.Error.PasswordRequiresUpper")
-            };
-        }
+            => GetPasswordRequirementError(nameof(PasswordRequiresUpper));
 
         public override IdentityError PasswordTooShort(int length)
-        {
-            return new IdentityError
-            {
-                Code = nameof(PasswordTooShort),
-                Description = T("Identity.Error.PasswordTooShort", length)
-            };
-        }
+            => GetPasswordRequirementError(nameof(PasswordTooShort), length);
 
         public override IdentityError RecoveryCodeRedemptionFailed()
         {
@@ -191,6 +168,16 @@ namespace Smartstore.Core.Identity
             {
                 Code = nameof(UserNotInRole),
                 Description = T("Identity.Error.UserNotInRole", role)
+            };
+        }
+
+        private IdentityError GetPasswordRequirementError(string key, params object[] args)
+        {
+            var suffix = _options.UseShortDescriptions ? ".Short" : string.Empty;
+            return new IdentityError
+            {
+                Code = key,
+                Description = T($"Identity.Error.{key}{suffix}", args)
             };
         }
     }

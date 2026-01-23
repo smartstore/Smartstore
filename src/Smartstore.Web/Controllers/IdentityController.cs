@@ -34,6 +34,7 @@ namespace Smartstore.Web.Controllers
         private readonly IMessageFactory _messageFactory;
         private readonly IWebHelper _webHelper;
         private readonly IDateTimeHelper _dateTimeHelper;
+        private readonly IIdentityErrorDescriberOptions _errorDescriberOptions;
         private readonly CustomerSettings _customerSettings;
         private readonly CaptchaSettings _captchaSettings;
         private readonly DateTimeSettings _dateTimeSettings;
@@ -55,6 +56,7 @@ namespace Smartstore.Web.Controllers
             CustomerSettings customerSettings,
             CaptchaSettings captchaSettings,
             DateTimeSettings dateTimeSettings,
+            IIdentityErrorDescriberOptions errorDescriberOptions,
             TaxSettings taxSettings,
             LocalizationSettings localizationSettings,
             RewardPointsSettings rewardPointsSettings)
@@ -69,6 +71,7 @@ namespace Smartstore.Web.Controllers
             _messageFactory = messageFactory;
             _webHelper = webHelper;
             _dateTimeHelper = dateTimeHelper;
+            _errorDescriberOptions = errorDescriberOptions;
             _customerSettings = customerSettings;
             _captchaSettings = captchaSettings;
             _dateTimeSettings = dateTimeSettings;
@@ -380,6 +383,35 @@ namespace Smartstore.Web.Controllers
             ViewBag.ActivationResult = T("Account.AccountActivation.Activated");
 
             return View();
+        }
+
+        // AJAX.
+        [HttpPost]
+        public async Task<IActionResult> ValidatePassword(string password)
+        {
+            List<string> errors = null;
+
+            try
+            {
+                var customer = Services.WorkContext.CurrentCustomer;
+
+                _errorDescriberOptions.UseShortDescriptions = true;
+
+                errors = await _userManager.PasswordValidators
+                    .SelectManyAwait(async validator =>
+                    {
+                        var result = await validator.ValidateAsync(_userManager, customer, password);
+                        return result.Errors.Select(x => x.Description);
+                    })
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToListAsync();
+            }
+            finally
+            {
+                _errorDescriberOptions.UseShortDescriptions = false;
+            }
+
+            return Json(new { success = errors.IsNullOrEmpty(), errors });
         }
 
         #endregion
