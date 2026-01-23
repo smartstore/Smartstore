@@ -10,7 +10,9 @@ namespace Smartstore.Utilities;
 /// </summary>
 public sealed class Wildcard : Regex
 {
-    private readonly static Regex _rgNumberRange = new("[0-9]+-[0-9]+", RegexOptions.Compiled | RegexOptions.NonBacktracking);
+    // Avoid capturing groups; keep compiled + non-backtracking for perf and safety.
+    private static readonly Regex _rgNumberRange =
+        new(@"[0-9]+-[0-9]+", RegexOptions.Compiled | RegexOptions.NonBacktracking | RegexOptions.CultureInvariant);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Wildcard"/> class.
@@ -29,10 +31,10 @@ public sealed class Wildcard : Regex
     /// Initializes a new instance of the <see cref="Wildcard"/> class.
     /// </summary>
     /// <param name="pattern">The wildcard pattern.</param>
-		/// <param name="parseNumberRanges">
-		/// Specifies whether number ranges (e.g. 1234-5678) should
-		/// be converted to a regular expression pattern.
-		/// </param>
+    /// <param name="parseNumberRanges">
+    /// Specifies whether number ranges (e.g. 1234-5678) should
+    /// be converted to a regular expression pattern.
+    /// </param>
     /// <param name="options">The regular expression options.</param>
     public Wildcard(string pattern, RegexOptions options, bool parseNumberRanges = false)
         : this(WildcardToRegex(pattern, parseNumberRanges), options, Timeout.InfiniteTimeSpan)
@@ -59,46 +61,77 @@ public sealed class Wildcard : Regex
     {
         // Replace ? with . and * with .*
         // Prepend ^, append $
-        // Escape all chars except []^ 
+        // Escape all chars except []^
         pattern = ToGlobPattern(pattern);
 
-        // convert the number ranges into regular expression
-        if (parseNumberRanges)
+        if (!parseNumberRanges)
         {
-            MatchCollection collection = _rgNumberRange.Matches(pattern);
-            foreach (var match in collection.Cast<Match>())
-            {
-                var split = match.Value.Split(['-']);
-                var min = split[0];
-                var max = split[1];
-                var term = NumberRangeRegexGenerator.Generate(min, max);
-
-                pattern = pattern.Replace(match.Value, term);
-            }
+            return pattern;
         }
 
-        return pattern;
+        // Fast path: if there's no dash, there can't be a range.
+        // (Keeps behavior, just avoids regex allocation/work.)
+        if (pattern.IndexOf('-', StringComparison.Ordinal) < 0)
+        {
+            return pattern;
+        }
+
+        // Convert number ranges without:
+        // - LINQ/Cast allocations
+        // - repeated string.Replace() (O(n*m))
+        // - Split allocations
+        var matches = _rgNumberRange.Matches(pattern);
+        if (matches.Count == 0)
+        {
+            return pattern;
+        }
+
+        var sb = new StringBuilder(pattern.Length + 16);
+        int last = 0;
+
+        for (int i = 0; i < matches.Count; i++)
+        {
+            var m = matches[i];
+
+            // Append text before the match
+            sb.Append(pattern, last, m.Index - last);
+
+            // Parse "min-max" without Split
+            var value = m.Value;
+            int dash = value.IndexOf('-', StringComparison.Ordinal);
+            var min = value[..dash];
+            var max = value[(dash + 1)..];
+
+            sb.Append(NumberRangeRegexGenerator.Generate(min, max));
+
+            last = m.Index + m.Length;
+        }
+
+        // Append remaining tail
+        sb.Append(pattern, last, pattern.Length - last);
+
+        return sb.ToString();
     }
 
     #region Escaping
 
     /* --------------------------------------------------------------
-		Stuff here partly copied over from .NET's internal RegexParser 
-		class and modified for performance reasons: we don't want to escape 
-		'[^]' chars, but Regex.Escape() does. Besides, wen need 
+		Stuff here partly copied over from .NET's internal RegexParser
+		class and modified for performance reasons: we don't want to escape
+		'[^]' chars, but Regex.Escape() does. Besides, wen need
 		'*' and '?' as wildcard chars.
 		-------------------------------------------------------------- */
 
-    const byte W = 6;    // wildcard char
-    const byte Q = 5;    // quantifier
-    const byte S = 4;    // ordinary stopper
-    const byte Z = 3;    // ScanBlank stopper
-    const byte X = 2;    // whitespace
-    const byte E = 1;    // should be escaped
+    private const byte W = 6;    // wildcard char
+    private const byte Q = 5;    // quantifier
+    private const byte S = 4;    // ordinary stopper
+    private const byte Z = 3;    // ScanBlank stopper
+    private const byte X = 2;    // whitespace
+    private const byte E = 1;    // should be escaped
 
     /*
      * For categorizing ASCII characters.
-    */
+     */
     private static readonly byte[] _category = new byte[]
     {
         // 0 1 2 3 4 5 6 7 8 9 A B C D E F 0 1 2 3 4 5 6 7 8 9 A B C D E F
@@ -112,26 +145,23 @@ public sealed class Wildcard : Regex
     };
 
     private static bool IsMetachar(char ch)
-    {
-        return ch <= '|' && _category[ch] >= E;
-    }
+        => ch <= '|' && _category[ch] >= E;
 
     private static bool IsGlob(char ch)
-    {
-        return ch <= '|' && _category[ch] >= W;
-    }
+        => ch <= '|' && _category[ch] >= W;
 
     private static string ToGlobPattern(string input)
     {
         Guard.NotNull(input);
 
-        var sb = new StringBuilder();
-
+        // Fast path: if there are no metacharacters, just add anchors.
         for (int i = 0; i < input.Length; i++)
         {
             if (IsMetachar(input[i]))
             {
-                sb.Clear();
+                // Rare path: build escaped regex
+                // Approx capacity: anchors + input + escapes. Keep it simple but avoid growth.
+                var sb = new StringBuilder(input.Length + 2);
                 sb.Append('^');
 
                 char ch = input[i];
@@ -142,26 +172,21 @@ public sealed class Wildcard : Regex
                 {
                     if (IsGlob(ch))
                     {
-                        sb.Append('.'); // '?' > '.'
-                        if (ch == '*') sb.Append('*'); // '*' > '.*'
+                        sb.Append('.'); // '?' -> '.'
+                        if (ch == '*')
+                        {
+                            sb.Append('*'); // '*' -> '.*'
+                        }
                     }
                     else
                     {
                         sb.Append('\\');
                         switch (ch)
                         {
-                            case '\n':
-                                ch = 'n';
-                                break;
-                            case '\r':
-                                ch = 'r';
-                                break;
-                            case '\t':
-                                ch = 't';
-                                break;
-                            case '\f':
-                                ch = 'f';
-                                break;
+                            case '\n': ch = 'n'; break;
+                            case '\r': ch = 'r'; break;
+                            case '\t': ch = 't'; break;
+                            case '\f': ch = 'f'; break;
                         }
                         sb.Append(ch);
                     }
@@ -173,20 +198,24 @@ public sealed class Wildcard : Regex
                     {
                         ch = input[i];
                         if (IsMetachar(ch))
+                        {
                             break;
+                        }
 
                         i++;
                     }
 
                     sb.Append(input, lastpos, i - lastpos);
-                } while (i < input.Length);
+                }
+                while (i < input.Length);
 
                 sb.Append('$');
                 return sb.ToString();
             }
         }
 
-        return '^' + input + '$';
+        // No metacharacters => just anchor, no StringBuilder needed.
+        return string.Concat("^", input, "$");
     }
 
     #endregion
