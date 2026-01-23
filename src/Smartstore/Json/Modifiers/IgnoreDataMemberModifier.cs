@@ -24,6 +24,9 @@ internal static class IgnoreDataMemberModifier
             // Ignore on write
             prop.Get = null;
 
+            // Ensure write is blocked even if something later wires a getter again.
+            prop.ShouldSerialize ??= static (_, _) => false;
+
             // Ignore on read
             prop.Set = null;
 

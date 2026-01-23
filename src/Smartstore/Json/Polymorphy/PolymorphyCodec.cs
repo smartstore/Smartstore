@@ -2,6 +2,7 @@
 
 using System.Buffers;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -16,6 +17,7 @@ namespace Smartstore.Json.Polymorphy;
 internal static class PolymorphyCodec
 {
     private static readonly ConditionalWeakTable<JsonSerializerOptions, JsonSerializerOptions> _lenientOptionsCache = [];
+    private static readonly ConcurrentDictionary<Type, bool> _polyTypesCache = [];
 
     #region Read
 
@@ -534,14 +536,51 @@ internal static class PolymorphyCodec
             || t == typeof(JsonDocument);
     }
 
-    public static bool IsPolymorphicType(Type t)
+    public static bool IsPolymorphicType(Type t, JsonSerializerOptions? options = null)
     {
         if (t == typeof(object))
             return true;
 
-        // Polymorhic types with a custom converter(e.g.IPermissionNode) can be handled by STJ directly.
+        // Polymorhic types with a custom converter (e.g. IPermissionNode) can be handled by STJ directly.
         if (t.IsAbstract || t.IsInterface)
-            return !t.HasAttribute<JsonConverterAttribute>(false);
+        {
+            var isPolymorphAbstract = _polyTypesCache.GetOrAdd(t, tt =>
+            {
+                options ??= SmartJsonOptions.Default;
+
+                var typeInfo = options.GetTypeInfo(t);
+
+                // Not polymorph: Has custom activator delegate assigned, STJ can handle this.
+                if (typeInfo.CreateObject is not null)
+                    return false;
+
+                // If STJ resolved a custom converter for the type, treat it as non-polymorphic.
+                // NOTE: this is not "attribute-only" semantics anymore; it includes converters from options/resolvers too.
+                var converter = typeInfo.Converter;
+                if (converter is not null && !IsDefaultObjectConverter(converter))
+                    return false;
+
+                return true;
+            });
+
+            return isPolymorphAbstract;
+        }    
+
+        return false;
+    }
+
+    private static bool IsDefaultObjectConverter(JsonConverter converter)
+    {
+        // For interface/abstract types without a custom converter STJ typically uses ObjectDefaultConverter<T>.
+        // That converter is not "custom handling" in our sense, so we still treat those types as polymorphic.
+        var ct = converter.GetType();
+        var name = ct.Name;
+
+        if (ct.IsGenericType && ct.GetGenericTypeDefinition().Name == "ObjectDefaultConverter`1")
+            return true;
+
+        if (name == "ObjectDefaultConverter`1" || name.StartsWith("ObjectDefaultConverter", StringComparison.Ordinal))
+            return true;
 
         return false;
     }

@@ -65,9 +65,9 @@ public static class SmartJsonOptions
         // Create a resolver early to allow adding modifiers
         TypeInfoResolver = (JsonSerializer.IsReflectionEnabledByDefault ? new DefaultJsonTypeInfoResolver() : JsonTypeInfoResolver.Combine())
             .WithPolymorphyModifier()
-            .WithDefaultImplementationModifier()
             .WithDefaultValueModifier()
-            .WithDataContractModifier(),
+            .WithDataContractModifier()
+            .WithDefaultImplementationModifier(),
 
         Converters =
         {

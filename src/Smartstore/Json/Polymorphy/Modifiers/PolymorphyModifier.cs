@@ -47,12 +47,6 @@ internal static class PolymorphyModifier
         if (typeInfo.Kind != JsonTypeInfoKind.Object)
             return;
 
-        //if (typeInfo.Type.Name is ("ICategoryNode" or "IPermissionNode"))
-        //{
-        //    var yo = true;
-        //    var activator = typeInfo.CreateObject;
-        //}
-
         foreach (var prop in typeInfo.Properties)
         {
             // MemberInfo exists for reflection-based resolver (DefaultJsonTypeInfoResolver).

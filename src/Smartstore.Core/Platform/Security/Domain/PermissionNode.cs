@@ -1,4 +1,5 @@
 ﻿
+using System.Text.Json.Serialization;
 using Smartstore.Collections;
 using Smartstore.Json;
 
@@ -17,6 +18,8 @@ namespace Smartstore.Core.Security
         object IKeyedNode.GetNodeKey() => SystemName;
         public int PermissionRecordId { get; set; }
         public string SystemName { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public bool? Allow { get; set; }
     }
 }

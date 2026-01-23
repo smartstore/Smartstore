@@ -7,7 +7,12 @@ namespace Smartstore.Json;
 /// <summary>
 /// Defines the default concrete implementation type for an interface or abstract base type.
 /// Intended for deserialization of non-discriminated (non-$type) JSON payloads.
+/// Abstract types that are decorated with this attributes are considered non-polymorphic.
 /// </summary>
+/// <remarks>
+/// This attribute is used by a modifier to reflect the implementation type's 
+/// JSON property visibility conventions in this abstract type.
+/// </remarks>
 [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
 public sealed class DefaultImplementationAttribute : Attribute
 {

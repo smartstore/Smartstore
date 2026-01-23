@@ -32,16 +32,21 @@ namespace Smartstore.Core.Catalog.Categories
         public string ExternalLink { get; set; }
         public string Alias { get; set; }
         public int? MediaFileId { get; set; }
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public bool Published { get; set; }
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public int DisplayOrder { get; set; }
         public DateTime UpdatedOnUtc { get; set; }
         public string BadgeText { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool Published { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public int DisplayOrder { get; set; }
+
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public int BadgeStyle { get; set; }
+
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool SubjectToAcl { get; set; }
+
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool LimitedToStores { get; set; }
 
