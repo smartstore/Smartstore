@@ -5,71 +5,70 @@ using System.Xml;
 using Humanizer;
 using Smartstore.Json;
 
-namespace Smartstore.Utilities
+namespace Smartstore.Utilities;
+
+public static class Prettifier
 {
-    public static class Prettifier
+    public static string HumanizeBytes(long bytes)
     {
-        public static string HumanizeBytes(long bytes)
+        string format = "#,#";
+
+        if (bytes >= Math.Pow(1024, 3)) // > GB
         {
-            string format = "#,#";
-
-            if (bytes >= Math.Pow(1024, 3)) // > GB
-            {
-                format = "#,#.##";
-            }
-            else if (bytes >= Math.Pow(1024, 2)) // MB
-            {
-                format = "#,#.#";
-            }
-
-            return bytes.Bytes().Humanize(format);
+            format = "#,#.##";
+        }
+        else if (bytes >= Math.Pow(1024, 2)) // MB
+        {
+            format = "#,#.#";
         }
 
-        public static string HumanizeTimeSpan(TimeSpan timeSpan, CultureInfo culture = null)
-        {
-            Guard.NotNull(timeSpan);
+        return bytes.Bytes().Humanize(format);
+    }
 
-            return timeSpan.Humanize(timeSpan.TotalMinutes < 1 ? 1 : 2, culture ?? CultureInfo.InvariantCulture);
+    public static string HumanizeTimeSpan(TimeSpan timeSpan, CultureInfo culture = null)
+    {
+        Guard.NotNull(timeSpan);
+
+        return timeSpan.Humanize(timeSpan.TotalMinutes < 1 ? 1 : 2, culture ?? CultureInfo.InvariantCulture);
+    }
+
+    public static string PrettifyXML(string xml)
+    {
+        if (xml.IsEmpty() || xml.IsWhiteSpace())
+        {
+            return xml;
         }
 
-        public static string PrettifyXML(string xml)
+        // first read the xml ignoring whitespace
+        using (var xmlReader = XmlReader.Create(new StringReader(xml), new XmlReaderSettings { IgnoreWhitespace = true, CheckCharacters = false }))
         {
-            if (xml.IsEmpty() || xml.IsWhiteSpace())
+            // then write it out with indentation
+            var sb = new StringBuilder(xml.Length * 2);
+            using (XmlWriter writer = XmlWriter.Create(sb, new XmlWriterSettings { Indent = true, IndentChars = "\t", CheckCharacters = false }))
             {
-                return xml;
+                writer.WriteNode(xmlReader, true);
             }
 
-            // first read the xml ignoring whitespace
-            using (var xmlReader = XmlReader.Create(new StringReader(xml), new XmlReaderSettings { IgnoreWhitespace = true, CheckCharacters = false }))
-            {
-                // then write it out with indentation
-                var sb = new StringBuilder(xml.Length * 2);
-                using (XmlWriter writer = XmlWriter.Create(sb, new XmlWriterSettings { Indent = true, IndentChars = "\t", CheckCharacters = false }))
-                {
-                    writer.WriteNode(xmlReader, true);
-                }
+            var result = sb.ToString();
+            return result;
+        }
+    }
 
-                var result = sb.ToString();
-                return result;
-            }
+    public static string PrettifyJSON(string json)
+    {
+        if (json.IsEmpty())
+        {
+            return json;
         }
 
-        public static string PrettifyJSON(string json)
+        try
         {
-            if (json.IsEmpty())
-            {
-                return json;
-            }
-
-            try
-            {
-                using var doc = JsonDocument.Parse(json);
-                return SmartJsonOptions.Default.SerializeIndented(doc.RootElement);
-            }
-            catch
-            {
-                return json;
-            }
+            using var doc = JsonDocument.Parse(json);
+            return SmartJsonOptions.Default.SerializeIndented(doc.RootElement);
+        }
+        catch
+        {
+            return json;
         }
     }
 }
