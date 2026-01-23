@@ -1,6 +1,5 @@
 ﻿#nullable enable
 
-using System.Collections;
 using System.Text.Json;
 using Smartstore.Json.Polymorphy;
 using System.Text.Json.Serialization;
@@ -38,7 +37,9 @@ internal class MultiMapJsonConverterFactory : JsonConverterFactory
                 .MakeGenericType(keyType, valueType);
         }
 
-        return (JsonConverter)Activator.CreateInstance(converterType)!;
+        var isPolymorphicValueType = PolymorphyCodec.IsPolymorphicType(valueType, options);
+
+        return (JsonConverter)Activator.CreateInstance(converterType, [isPolymorphicValueType])!;
     }
 }
 
@@ -46,9 +47,9 @@ internal class MultimapConverter<TKey, TValue> : JsonConverter<Multimap<TKey, TV
 {
     private readonly bool _isPolymorphicValueType;
 
-    public MultimapConverter()
+    public MultimapConverter(bool isPolymorphicValueType)
     {
-        _isPolymorphicValueType = PolymorphyCodec.IsPolymorphicType(typeof(TValue));
+        _isPolymorphicValueType = isPolymorphicValueType;
     }
 
     public override Multimap<TKey, TValue> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -192,9 +193,9 @@ internal class ConcurrentMultimapConverter<TKey, TValue> : JsonConverter<Concurr
 {
     private readonly bool _isPolymorphicValueType;
 
-    public ConcurrentMultimapConverter()
+    public ConcurrentMultimapConverter(bool isPolymorphicValueType)
     {
-        _isPolymorphicValueType = PolymorphyCodec.IsPolymorphicType(typeof(TValue));
+        _isPolymorphicValueType = isPolymorphicValueType;
     }
 
     public override ConcurrentMultimap<TKey, TValue> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

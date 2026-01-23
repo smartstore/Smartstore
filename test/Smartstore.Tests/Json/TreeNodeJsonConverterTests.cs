@@ -12,17 +12,12 @@ namespace Smartstore.Tests.Json;
 [TestFixture]
 public class TreeNodeJsonConverterTests
 {
-    private TreeNodeJsonConverterFactory _converterFactory;
     private JsonSerializerOptions _options;
 
     [SetUp]
     public void Setup()
     {
-        _converterFactory = new TreeNodeJsonConverterFactory();
-        _options = SmartJsonOptions.Default.Create(o =>
-        {
-            o.Converters.Add(_converterFactory);
-        });
+        _options = SmartJsonOptions.Default;
     }
 
     [Test]

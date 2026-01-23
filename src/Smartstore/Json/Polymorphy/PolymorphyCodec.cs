@@ -585,14 +585,18 @@ internal static class PolymorphyCodec
         return false;
     }
 
-    public static bool TryGetPolymorphyKind(Type t, [NotNullWhen(true)] out PolymorphyKind? kind, [NotNullWhen(true)] out Type? elementType)
+    public static bool TryGetPolymorphyKind(
+        Type t,
+        JsonSerializerOptions? options,
+        [NotNullWhen(true)] out PolymorphyKind? kind, 
+        [NotNullWhen(true)] out Type? elementType)
     {
         kind = default;
         elementType = null;
 
         if (t.IsDictionaryType(out var keyType, out var valueType))
         {
-            if (keyType == typeof(string) && IsPolymorphicType(valueType))
+            if (keyType == typeof(string) && IsPolymorphicType(valueType, options))
             {
                 kind = PolymorphyKind.DictionarySlot;
                 elementType = valueType;
@@ -601,7 +605,7 @@ internal static class PolymorphyCodec
         }
         else if (t.IsSequenceType(out var itemType))
         {
-            if (IsPolymorphicType(itemType))
+            if (IsPolymorphicType(itemType, options))
             {
                 kind = PolymorphyKind.ListSlot;
                 elementType = itemType;
@@ -609,7 +613,7 @@ internal static class PolymorphyCodec
             }
                 
         }
-        else if (IsPolymorphicType(t))
+        else if (IsPolymorphicType(t, options))
         {
             kind = PolymorphyKind.ObjectSlot;
             elementType = t;

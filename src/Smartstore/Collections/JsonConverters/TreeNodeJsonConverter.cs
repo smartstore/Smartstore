@@ -17,7 +17,9 @@ internal sealed class TreeNodeJsonConverterFactory : JsonConverterFactory
         Type wrappedType = typeToConvert.GetGenericArguments()[0];
         Type converterType = typeof(TreeNodeJsonConverter<>).MakeGenericType(wrappedType);
 
-        return (JsonConverter)Activator.CreateInstance(converterType);
+        bool isPolymorphicValueType = PolymorphyCodec.TryGetPolymorphyKind(wrappedType, options, out _, out _);
+
+        return (JsonConverter)Activator.CreateInstance(converterType, [isPolymorphicValueType]);
     }
 }
 
@@ -25,9 +27,9 @@ internal sealed class TreeNodeJsonConverter<T> : JsonConverter<TreeNode<T>>
 {
     private readonly bool _isPolymorphicValueType;
 
-    public TreeNodeJsonConverter()
+    public TreeNodeJsonConverter(bool isPolymorphicValueType)
     {
-        _isPolymorphicValueType = PolymorphyCodec.TryGetPolymorphyKind(typeof(T), out _, out _);
+        _isPolymorphicValueType = isPolymorphicValueType;
     }
     
     public override TreeNode<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -65,8 +67,7 @@ internal sealed class TreeNodeJsonConverter<T> : JsonConverter<TreeNode<T>>
                 }
                 else
                 {
-                    var declaredType = DefaultImplementationAttribute.Resolve(typeof(T));
-                    value = (T)JsonSerializer.Deserialize(ref reader, declaredType, options);
+                    value = JsonSerializer.Deserialize<T>(ref reader, options);
                 }
             }
             else if (string.Equals(propertyName, "Metadata", StringComparison.OrdinalIgnoreCase))
