@@ -5,7 +5,7 @@ namespace Smartstore.Utilities;
 
 public static class Throttle
 {
-    private readonly static ConcurrentDictionary<string, CheckEntry> _checks = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly ConcurrentDictionary<string, CheckEntry> _checks = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Performs a throttled check.
@@ -16,9 +16,7 @@ public static class Throttle
     /// <returns>Check result</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool Check(string key, TimeSpan interval, Func<bool> check)
-    {
-        return CheckAsync(key, interval, false, () => Task.FromResult(check())).Await();
-    }
+        => Check(key, interval, recheckWhenFalse: false, check);
 
     /// <summary>
     /// Performs a throttled check.
@@ -31,7 +29,32 @@ public static class Throttle
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool Check(string key, TimeSpan interval, bool recheckWhenFalse, Func<bool> check)
     {
-        return CheckAsync(key, interval, recheckWhenFalse, () => Task.FromResult(check())).Await();
+        Guard.NotEmpty(key, nameof(key));
+        Guard.NotNull(check, nameof(check));
+
+        // Fast path: avoid async/state machine + avoid Task allocation.
+        var now = DateTime.UtcNow;
+
+        if (!_checks.TryGetValue(key, out var entry))
+        {
+            var ok = check();
+            // Another thread may race; we accept overwriting only via TryAdd failure,
+            // in which case we return our computed result (same behavior as before: "best effort" cache).
+            _checks.TryAdd(key, new CheckEntry(ok, now + interval));
+            return ok;
+        }
+
+        var value = entry.Value;
+
+        // Only re-check if overdue or if caller wants to recheck failed results.
+        if ((value && now <= entry.NextCheckUtc) || (!value && !recheckWhenFalse && now <= entry.NextCheckUtc))
+        {
+            return value;
+        }
+
+        var newValue = check();
+        _checks.TryUpdate(key, new CheckEntry(newValue, now + interval), entry);
+        return newValue;
     }
 
     /// <summary>
@@ -43,9 +66,7 @@ public static class Throttle
     /// <returns>Check result</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Task<bool> CheckAsync(string key, TimeSpan interval, Func<Task<bool>> check)
-    {
-        return CheckAsync(key, interval, false, check);
-    }
+        => CheckAsync(key, interval, recheckWhenFalse: false, check);
 
     /// <summary>
     /// Performs a throttled check.
@@ -55,43 +76,42 @@ public static class Throttle
     /// <param name="recheckWhenFalse"></param>
     /// <param name="check">The check factory</param>
     /// <returns>Check result</returns>
-    public static async Task<bool> CheckAsync(string key, TimeSpan interval, bool recheckWhenFalse, Func<Task<bool>> check)
+    public static Task<bool> CheckAsync(string key, TimeSpan interval, bool recheckWhenFalse, Func<Task<bool>> check)
     {
         Guard.NotEmpty(key, nameof(key));
         Guard.NotNull(check, nameof(check));
 
-        bool added = false;
         var now = DateTime.UtcNow;
 
         if (!_checks.TryGetValue(key, out var entry))
         {
-            added = true;
-            entry = new CheckEntry { Value = await check(), NextCheckUtc = (now + interval) };
-            _checks.TryAdd(key, entry);
+            return AddAndReturnAsync(key, now, interval, check);
         }
 
-        var ok = entry.Value;
+        var value = entry.Value;
 
-        if (added)
+        // Not overdue: return cached result without async/state machine.
+        if (!((!value && recheckWhenFalse) || now > entry.NextCheckUtc))
         {
-            return ok;
+            return Task.FromResult(value);
         }
 
-        var isOverdue = (!ok && recheckWhenFalse) || (now > entry.NextCheckUtc);
+        return RecheckAndUpdateAsync(key, entry, now, interval, check);
+    }
 
-        if (isOverdue)
-        {
-            // Check is overdue: recheck
-            ok = await check();
-            _checks.TryUpdate(key, new CheckEntry { Value = ok, NextCheckUtc = (now + interval) }, entry);
-        }
-
+    private static async Task<bool> AddAndReturnAsync(string key, DateTime now, TimeSpan interval, Func<Task<bool>> check)
+    {
+        var ok = await check().ConfigureAwait(false);
+        _checks.TryAdd(key, new CheckEntry(ok, now + interval));
         return ok;
     }
 
-    struct CheckEntry
+    private static async Task<bool> RecheckAndUpdateAsync(string key, CheckEntry entry, DateTime now, TimeSpan interval, Func<Task<bool>> check)
     {
-        public bool Value { get; set; }
-        public DateTime NextCheckUtc { get; set; }
+        var ok = await check().ConfigureAwait(false);
+        _checks.TryUpdate(key, new CheckEntry(ok, now + interval), entry);
+        return ok;
     }
+
+    private readonly record struct CheckEntry(bool Value, DateTime NextCheckUtc);
 }
