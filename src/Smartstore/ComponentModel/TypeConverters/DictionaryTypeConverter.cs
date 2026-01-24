@@ -1,4 +1,7 @@
-﻿using System.Collections;
+﻿#nullable enable
+
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.Dynamic;
 using System.Globalization;
@@ -11,6 +14,30 @@ namespace Smartstore.ComponentModel.TypeConverters;
 
 internal class DictionaryTypeConverter<T> : DefaultTypeConverter where T : IDictionary<string, object>
 {
+    private static class Cache
+    {
+        internal static readonly Type ToType = typeof(T);
+
+        internal static readonly bool ToIsRouteValueDictionary = ToType == typeof(RouteValueDictionary);
+        internal static readonly bool ToIsDictionary = ToType == typeof(Dictionary<string, object>);
+        internal static readonly bool ToIsExpandoObject = ToType == typeof(ExpandoObject);
+        internal static readonly bool ToIsHybridExpando = ToType == typeof(HybridExpando);
+        internal static readonly bool ToIsFrozenDictionary = ToType == typeof(FrozenDictionary<string, object>);
+
+        private static readonly ConcurrentDictionary<Type, MethodInfo> CreateSequenceActivatorMethodCache = new();
+
+        internal static MethodInfo GetCreateSequenceActivatorMethod(Type elemType)
+        {
+            return CreateSequenceActivatorMethodCache.GetOrAdd(elemType, static t =>
+            {
+                return typeof(EnumerableConverter<>).MakeGenericType(t)
+                    .GetMethod("CreateSequenceActivator", BindingFlags.Static | BindingFlags.NonPublic)
+                    ?? throw new MissingMethodException(
+                        $"EnumerableConverter<{t.Name}>.CreateSequenceActivator(Type) not found.");
+            });
+        }
+    }
+
     public DictionaryTypeConverter()
         : base(typeof(object))
     {
@@ -34,36 +61,33 @@ internal class DictionaryTypeConverter<T> : DefaultTypeConverter where T : IDict
     {
         // Obj > Dict
         var dict = ConvertUtility.ObjectToDictionary(value);
-        var to = typeof(T);
 
-        if (to == typeof(RouteValueDictionary))
+        if (Cache.ToIsRouteValueDictionary)
         {
             return new RouteValueDictionary(dict);
         }
-        else if (to == typeof(Dictionary<string, object>))
+        if (Cache.ToIsDictionary)
         {
             return (Dictionary<string, object>)dict;
         }
-        else if (to == typeof(ExpandoObject))
+        if (Cache.ToIsExpandoObject)
         {
             var expando = new ExpandoObject();
             expando.Merge(dict);
             return expando;
         }
-        else if (to == typeof(HybridExpando))
+        if (Cache.ToIsHybridExpando)
         {
             var expando = new HybridExpando();
             expando.Merge(dict);
             return expando;
         }
-        else if (to == typeof(FrozenDictionary<string, object>))
+        if (Cache.ToIsFrozenDictionary)
         {
             return dict.ToFrozenDictionary();
         }
-        else
-        {
-            return dict;
-        }
+
+        return dict;
     }
 
     public override object ConvertTo(CultureInfo culture, string format, object value, Type to)
@@ -72,8 +96,11 @@ internal class DictionaryTypeConverter<T> : DefaultTypeConverter where T : IDict
         if (value is IDictionary<string, object> dict)
         {
             var target = Activator.CreateInstance(to);
-            Populate(dict, target);
-            return target;
+            if (target != null)
+            {
+                Populate(dict, target);
+                return target;
+            }
         }
 
         return base.ConvertTo(culture, format, value, to);
@@ -81,7 +108,9 @@ internal class DictionaryTypeConverter<T> : DefaultTypeConverter where T : IDict
 
     private void Populate(IDictionary<string, object> source, object target, params object[] populated)
     {
-        foreach (var kvp in FastProperty.GetProperties(target.GetType()))
+        var props = FastProperty.GetProperties(target.GetType());
+
+        foreach (var kvp in props)
         {
             var pi = kvp.Value.Property;
 
@@ -101,7 +130,6 @@ internal class DictionaryTypeConverter<T> : DefaultTypeConverter where T : IDict
 
                     if (nestedTarget != null)
                     {
-                        populated = populated.Concat([target]).ToArray();
                         Populate(dict, nestedTarget, populated);
                         SetProperty(target, pi, nestedTarget);
                     }
@@ -123,7 +151,7 @@ internal class DictionaryTypeConverter<T> : DefaultTypeConverter where T : IDict
         }
     }
 
-    private static void SetProperty(object instance, PropertyInfo pi, object value)
+    private static void SetProperty(object instance, PropertyInfo pi, object? value)
     {
         if (!pi.CanWrite)
         {
@@ -138,23 +166,22 @@ internal class DictionaryTypeConverter<T> : DefaultTypeConverter where T : IDict
 
     private static object ConvertEnumerable(IDictionary<string, object> source, PropertyInfo enumerableProp, Type elemType)
     {
-        // REVIEW: Dieser Code ist redundant mit DefaultModelBinder u.Ä.
-        // Entweder ablösen oder eliminieren (vielleicht ist es ja in diesem Kontext notwendig!??!)
-
         var anyValuesFound = true;
         var index = 0;
-        var elements = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(elemType));
+
+        var elements = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(elemType))!;
         var properties = FastProperty.GetProperties(elemType);
+        var prefix = enumerableProp.Name;
 
         while (anyValuesFound)
         {
-            object curElement = null;
-            anyValuesFound = false; // false until proven otherwise
+            object? curElement = null;
+            anyValuesFound = false;
 
             foreach (var kvp in properties)
             {
                 var pi = kvp.Value.Property;
-                var key = string.Format("{0}[{1}].{2}", enumerableProp.Name, index, pi.Name);
+                var key = prefix + "[" + index.ToString(CultureInfo.InvariantCulture) + "]." + pi.Name;
 
                 if (source.TryGetValue(key, out var value))
                 {
@@ -162,7 +189,7 @@ internal class DictionaryTypeConverter<T> : DefaultTypeConverter where T : IDict
 
                     if (curElement == null)
                     {
-                        curElement = Activator.CreateInstance(elemType);
+                        curElement = Activator.CreateInstance(elemType)!;
                         elements.Add(curElement);
                     }
 
@@ -173,16 +200,8 @@ internal class DictionaryTypeConverter<T> : DefaultTypeConverter where T : IDict
             index++;
         }
 
-        // --> EnumerableConverter<T>.CreateSequenceActivator(Type)
-        var createActivatorMethod = typeof(EnumerableConverter<>).MakeGenericType(elemType)
-            .GetMethod("CreateSequenceActivator", BindingFlags.Static | BindingFlags.NonPublic);
-
-        // --> Get activator func by reflection
-        var activator = createActivatorMethod.Invoke(null, [enumerableProp.PropertyType]);
-
-        // --> Invoke activator func: activator.Invoke(elements)
-        var result = activator.GetType().GetMethod("Invoke").Invoke(activator, [elements]);
-
-        return result;
+        var createActivatorMethod = Cache.GetCreateSequenceActivatorMethod(elemType);
+        var activator = createActivatorMethod.Invoke(null, [enumerableProp.PropertyType])!;
+        return activator.GetType().GetMethod("Invoke")!.Invoke(activator, [elements])!;
     }
 }

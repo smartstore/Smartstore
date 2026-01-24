@@ -10,57 +10,52 @@ internal class DateTimeConverter : DefaultTypeConverter
     }
 
     public override bool CanConvertFrom(Type type)
-    {
-        return type == typeof(string)
+        => type == typeof(string)
             || type == typeof(long)
             || type == typeof(double)
             || type == typeof(TimeSpan)
             || base.CanConvertFrom(type);
-    }
 
     public override bool CanConvertTo(Type type)
-    {
-        return type == typeof(string)
+        => type == typeof(string)
             || type == typeof(long)
             || type == typeof(double)
             || type == typeof(DateTimeOffset)
             || type == typeof(TimeSpan)
             || base.CanConvertTo(type);
-    }
 
     public override object ConvertFrom(CultureInfo culture, object value)
     {
-        if (value is TimeSpan span)
+        switch (value)
         {
-            return new DateTime(span.Ticks);
-        }
+            case TimeSpan span:
+                return new DateTime(span.Ticks);
 
-        if (value is string str)
-        {
-            if (DateTime.TryParse(str, culture, DateTimeStyles.None, out var time))
-            {
-                return time;
-            }
+            case string str:
+                // Fast-path: numeric parsing first avoids DateTime.TryParse's comparatively heavy work
+                // for common cases like unix timestamps or OA dates.
+                if (long.TryParse(str, NumberStyles.None, culture, out var unix))
+                {
+                    return unix.FromUnixTime();
+                }
 
-            if (long.TryParse(str, NumberStyles.None, culture, out var lng))
-            {
-                return lng.FromUnixTime();
-            }
+                if (double.TryParse(str, NumberStyles.AllowDecimalPoint, culture, out var oa))
+                {
+                    return DateTime.FromOADate(oa);
+                }
 
-            if (double.TryParse(str, NumberStyles.AllowDecimalPoint, culture, out var dbl))
-            {
-                return DateTime.FromOADate(dbl);
-            }
-        }
+                if (DateTime.TryParse(str, culture, DateTimeStyles.None, out var parsed))
+                {
+                    return parsed;
+                }
 
-        if (value is long lng2)
-        {
-            return lng2.FromUnixTime();
-        }
+                break;
 
-        if (value is double dbl2)
-        {
-            return DateTime.FromOADate(dbl2);
+            case long unix2:
+                return unix2.FromUnixTime();
+
+            case double oa2:
+                return DateTime.FromOADate(oa2);
         }
 
         return base.ConvertFrom(culture, value);
@@ -71,21 +66,16 @@ internal class DateTimeConverter : DefaultTypeConverter
         var time = (DateTime)value;
 
         if (to == typeof(DateTimeOffset))
-        {
             return new DateTimeOffset(time);
-        }
+
         if (to == typeof(TimeSpan))
-        {
             return new TimeSpan(time.Ticks);
-        }
+
         if (to == typeof(double))
-        {
             return time.ToOADate();
-        }
+
         if (to == typeof(long))
-        {
             return time.ToUnixTime();
-        }
 
         return base.ConvertTo(culture, format, value, to);
     }

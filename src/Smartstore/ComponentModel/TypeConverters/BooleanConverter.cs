@@ -3,7 +3,7 @@ using System.Globalization;
 
 namespace Smartstore.ComponentModel.TypeConverters;
 
-internal class BooleanConverter : DefaultTypeConverter
+internal sealed class BooleanConverter : DefaultTypeConverter
 {
     private readonly FrozenSet<string> _trueValues;
     private readonly FrozenSet<string> _falseValues;
@@ -15,50 +15,49 @@ internal class BooleanConverter : DefaultTypeConverter
         _falseValues = falseValues.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
     }
 
-    public ICollection<string> TrueValues
-    {
-        get { return _trueValues; }
-    }
+    public ICollection<string> TrueValues => _trueValues;
 
-    public ICollection<string> FalseValues
-    {
-        get { return _falseValues; }
-    }
+    public ICollection<string> FalseValues => _falseValues;
 
     public override object ConvertFrom(CultureInfo culture, object value)
     {
+        // Fast-path for numeric types: avoid any string work/allocations.
         if (value is short shrt)
         {
-            if (shrt == 0)
+            return shrt switch
             {
-                return false;
-            }
-            if (shrt == 1)
-            {
-                return true;
-            }
+                0 => false,
+                1 => true,
+                _ => base.ConvertFrom(culture, value)
+            };
         }
 
+        // Keep the string path tight and avoid repeated parsing/branching.
         if (value is string str)
         {
+            // Common cases first.
             if (bool.TryParse(str, out var b))
             {
                 return b;
             }
 
-            if (short.TryParse(str, out var sh))
+            // Tiny fast-path for "0"/"1" without invoking a numeric parser.
+            // (Also avoids accepting culture/format variations that TryParse might handle.)
+            if (str.Length == 1)
             {
-                if (sh == 0)
-                {
-                    return false;
-                }
-                if (sh == 1)
-                {
-                    return true;
-                }
+                var ch = str[0];
+                if (ch == '0') return false;
+                if (ch == '1') return true;
             }
 
-            str = (str.NullEmpty() ?? string.Empty).Trim();
+            // Trim only when needed (most inputs are already trimmed).
+            // Also handles null/empty with minimal overhead.
+            str = (str.NullEmpty() ?? string.Empty);
+            if (str.Length != 0)
+            {
+                str = str.Trim();
+            }
+
             if (_trueValues.Contains(str))
             {
                 return true;
