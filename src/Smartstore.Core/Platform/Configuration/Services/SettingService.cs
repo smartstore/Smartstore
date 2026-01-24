@@ -175,12 +175,21 @@ namespace Smartstore.Core.Configuration
         }
 
         /// <inheritdoc/>
-        public virtual async Task<ApplySettingResult> ApplySettingAsync<T>(string key, T value, int storeId = 0)
+        public virtual ApplySettingResult ApplySetting<T>(string key, T value, int storeId = 0)
+            => ApplySettingCore(key, value, storeId, false).Await();
+
+        /// <inheritdoc/>
+        public virtual Task<ApplySettingResult> ApplySettingAsync<T>(string key, T value, int storeId = 0)
+            => ApplySettingCore(key, value, storeId, true);
+
+        private async Task<ApplySettingResult> ApplySettingCore<T>(string key, T value, int storeId, bool async)
         {
             Guard.NotEmpty(key);
 
             var str = value.Convert<string>() ?? string.Empty;
-            var setting = await _setSettings.FirstOrDefaultAsync(x => x.Name == key && x.StoreId == storeId);
+            var setting = async 
+                ? await _setSettings.FirstOrDefaultAsync(x => x.Name == key && x.StoreId == storeId)
+                : _setSettings.FirstOrDefault(x => x.Name == key && x.StoreId == storeId);
 
             if (setting == null)
             {

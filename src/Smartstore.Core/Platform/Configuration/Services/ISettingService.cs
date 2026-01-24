@@ -60,6 +60,9 @@
         /// <param name="key">Key</param>
         /// <param name="value">Value</param>
         /// <param name="storeId">Store identifier</param>
+        ApplySettingResult ApplySetting<T>(string key, T value, int storeId = 0);
+
+        /// <inheritdoc cref="ApplySetting{T}(string, T, int)" />
         Task<ApplySettingResult> ApplySettingAsync<T>(string key, T value, int storeId = 0);
 
         /// <summary>
