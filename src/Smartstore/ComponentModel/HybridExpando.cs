@@ -20,66 +20,36 @@ public enum MemberOptMethod
 /// Class that provides extensible properties and methods to an
 /// existing object when cast to dynamic. This
 /// dynamic object stores 'extra' properties in a dictionary or
-/// checks the actual properties of the instance passed via 
+/// checks the actual properties of the instance passed via
 /// constructor.
-/// 
-/// This class can be subclassed to extend an existing type or 
-/// you can pass in an instance to extend. Properties (both
-/// dynamic and strongly typed) can be accessed through an 
-/// indexer.
-/// 
-/// This type allows you three ways to access its properties:
-/// 
-/// Directly: any explicitly declared properties are accessible.
-/// Dynamic: dynamic cast allows access to dictionary and native properties/methods.
-/// Dictionary: Any of the extended properties are accessible via dictionary interface
 /// </summary>
 [Serializable]
 public class HybridExpando : DynamicObject, IDictionary<string, object?>, INotifyPropertyChanged
 {
-    /// <summary>
-    /// Instance of object passed in
-    /// </summary>
     private object? _instance;
-
-    /// <summary>
-    /// Type of the instance
-    /// </summary>
     private Type? _instanceType;
 
     /// <summary>
     /// Adjusted property list for the wrapped instance type after white/black-list members has been applied.
     /// </summary>
     private IDictionary<string, FastProperty>? _instanceProps;
-    
+
     /// <summary>
-    /// String Dictionary that contains the extra dynamic values
-    /// stored on this object/instance
-    /// </summary>        
+    /// String Dictionary that contains the extra dynamic values stored on this object/instance
+    /// </summary>
     public Dictionary<string, object?> Properties = new();
 
     private readonly ISet<string>? _optMembers;
     private readonly MemberOptMethod _optMethod;
-
     private readonly bool _returnNullWhenFalsy;
 
     private PropertyChangedEventHandler? _propertyChanged;
 
-    /// <summary>
-    /// This constructor just works off the internal dictionary and any 
-    /// public properties of this object.
-    /// 
-    /// Note you can subclass HybridExpando.
-    /// </summary>
     public HybridExpando(bool returnNullWhenFalsy = false)
     {
         _returnNullWhenFalsy = returnNullWhenFalsy;
     }
 
-    /// <summary>
-    /// Allows passing in an existing instance variable to 'extend'.        
-    /// </summary>
-    /// <param name="instance"></param>
     public HybridExpando(object instance, bool returnNullWhenFalsy = false)
     {
         Guard.NotNull(instance);
@@ -88,68 +58,73 @@ public class HybridExpando : DynamicObject, IDictionary<string, object?>, INotif
         Initialize(instance);
     }
 
-    /// <summary>
-    /// Allows passing in an existing instance variable to 'extend'
-    /// along with a list of member names to allow or disallow.
-    /// </summary>
-    /// <param name="instance"></param>
     public HybridExpando(object instance, IEnumerable<string> optMembers, MemberOptMethod optMethod, bool returnNullWhenFalsy = false)
     {
         Guard.NotNull(instance);
-        
+
         _returnNullWhenFalsy = returnNullWhenFalsy;
         Initialize(instance);
 
         _optMethod = optMethod;
 
-        if (optMembers is ISet<string> h)
-        {
-            _optMembers = h;
-        }
-        else
-        {
-            _optMembers = new HashSet<string>(optMembers);
-        }
+        _optMembers = optMembers as ISet<string> ?? new HashSet<string>(optMembers);
     }
 
     event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged
     {
-        add { _propertyChanged += value; }
-        remove { _propertyChanged -= value; }
+        add => _propertyChanged += value;
+        remove => _propertyChanged -= value;
     }
 
     protected void Initialize(object? instance)
     {
         _instance = instance;
         _instanceType = instance?.GetType();
+        _instanceProps = null; // ensure re-evaluation if instance changes
     }
 
-    protected object? WrappedObject
-    {
-        get { return _instance; }
-    }
+    protected object? WrappedObject => _instance;
 
     public override IEnumerable<string> GetDynamicMemberNames()
     {
-        return Properties.Keys
-            .Union(InstanceProperties.Keys)
-            .ToArray();
+        // Avoid LINQ (allocations) and avoid creating duplicates.
+        // Also avoids ToArray() allocation if caller enumerates.
+        return GetDynamicMemberNamesIterator();
+
+        IEnumerable<string> GetDynamicMemberNamesIterator()
+        {
+            if (_instance == null)
+            {
+                foreach (var k in Properties.Keys)
+                    yield return k;
+
+                yield break;
+            }
+
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+
+            foreach (var k in Properties.Keys)
+            {
+                if (seen.Add(k))
+                    yield return k;
+            }
+
+            foreach (var k in InstanceProperties.Keys)
+            {
+                if (seen.Add(k))
+                    yield return k;
+            }
+        }
     }
 
-    /// <summary>
-    /// Try to retrieve a member by name first from instance properties
-    /// followed by the collection entries.
-    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool TryGetMember(GetMemberBinder binder, out object? result)
         => TryGetMemberCore(binder.Name, out result);
 
     protected virtual bool TryGetMemberCore(string name, out object? result)
     {
-        // First check the Properties collection for member
         var exists = Properties.TryGetValue(name, out result);
 
-        // Next check for public properties via Reflection
         if (!exists && _instance != null)
         {
             try
@@ -161,37 +136,30 @@ public class HybridExpando : DynamicObject, IDictionary<string, object?>, INotif
             }
         }
 
-        // Falsy check
         if (_returnNullWhenFalsy && result != null && !CommonHelper.IsTruthy(result))
         {
             result = null;
         }
 
-        // Failed to retrieve a property
         return exists;
     }
 
-
-    /// <summary>
-    /// Property setter implementation tries to retrieve value from instance 
-    /// first, then into this object.
-    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool TrySetMember(SetMemberBinder binder, object? value)
         => TrySetMemberCore(binder.Name, value);
 
     protected virtual bool TrySetMemberCore(string name, object? value)
     {
+        object? oldValue = null;
         var result = false;
 
-        // First check to see if there's a dictionary entry to set
-        if (Properties.TryGetValue(name, out var oldValue))
+        // Prefer a single dictionary lookup + assignment.
+        if (Properties.TryGetValue(name, out oldValue))
         {
             Properties[name] = value;
             result = true;
         }
 
-        // Check to see if there's a native property to set
         if (!result && _instance != null)
         {
             try
@@ -203,55 +171,44 @@ public class HybridExpando : DynamicObject, IDictionary<string, object?>, INotif
             }
         }
 
-        // No match - set or add to dictionary
         if (!result)
         {
             Properties[name] = value;
         }
 
-        // Notify property changed
-        if (_propertyChanged != null && value != oldValue)
+        var handler = _propertyChanged;
+        if (handler != null && !Equals(value, oldValue))
         {
-            _propertyChanged(this, new PropertyChangedEventArgs(name));
+            handler(this, new PropertyChangedEventArgs(name));
         }
 
         return true;
     }
 
-    /// <summary>
-    /// Dynamic invocation method. Currently allows only for Reflection based
-    /// operation (no ability to add members dynamically).
-    /// </summary>
     public void Override(string name, object? value = null)
     {
         Guard.NotEmpty(name);
 
         Properties.TryGetValue(name, out var oldValue);
-
         Properties[name] = value;
 
-        // Notify property changed
-        if (_propertyChanged != null && value != oldValue)
+        var handler = _propertyChanged;
+        if (handler != null && !Equals(value, oldValue))
         {
-            _propertyChanged(this, new PropertyChangedEventArgs(name));
+            handler(this, new PropertyChangedEventArgs(name));
         }
     }
 
-    /// <returns></returns>
-    /// Dynamic invocation method. Currently allows only for Reflection based
-    /// operation (no ability to add methods dynamically).
-    /// </summary>
     public override bool TryInvokeMember(InvokeMemberBinder binder, object?[]? args, out object? result)
     {
         if (_instance != null)
         {
             try
             {
-                // Check instance passed in for methods to invoke
                 if (InvokeMethod(_instance, binder.Name, args, out result))
                 {
                     return true;
-                }   
+                }
             }
             catch
             {
@@ -262,10 +219,6 @@ public class HybridExpando : DynamicObject, IDictionary<string, object?>, INotif
         return false;
     }
 
-
-    /// <summary>
-    /// Reflection Helper method to retrieve a property
-    /// </summary>
     protected bool GetProperty(object instance, string name, out object? result)
     {
         if (InstanceProperties.TryGetValue(name, out var fastProp))
@@ -278,9 +231,6 @@ public class HybridExpando : DynamicObject, IDictionary<string, object?>, INotif
         return false;
     }
 
-    /// <summary>
-    /// Reflection helper method to set a property value
-    /// </summary>
     protected bool SetProperty(object instance, string name, object? value, out object? oldValue)
     {
         oldValue = null;
@@ -289,19 +239,15 @@ public class HybridExpando : DynamicObject, IDictionary<string, object?>, INotif
         {
             oldValue = fastProp.GetValue(instance);
             fastProp.SetValue(instance, value);
-
             return true;
         }
 
         return false;
     }
 
-    /// <summary>
-    /// Reflection helper method to invoke a method
-    /// </summary>
     protected bool InvokeMethod(object instance, string name, object?[]? args, out object? result)
     {
-        // Look at the instanceType
+        // NOTE: still reflection-based. If this is hot, best fix is caching MethodInfo per name.
         var mi = _instanceType?.GetMethod(name, BindingFlags.Instance | BindingFlags.Public);
         if (mi != null)
         {
@@ -312,7 +258,6 @@ public class HybridExpando : DynamicObject, IDictionary<string, object?>, INotif
         result = null;
         return false;
     }
-
 
     /// <summary>
     /// Convenience method that provides a string Indexer 
@@ -341,16 +286,9 @@ public class HybridExpando : DynamicObject, IDictionary<string, object?>, INotif
 
             return result;
         }
-        set
-        {
-            TrySetMemberCore(key, value);
-        }
+        set => TrySetMemberCore(key, value);
     }
 
-
-    /// <summary>
-    /// Enumerates all properties in both dictionary and instance.
-    /// </summary>
     public IEnumerable<KeyValuePair<string, object?>> GetProperties(bool includeInstanceProperties = false)
     {
         foreach (var kvp in Properties)
@@ -358,15 +296,18 @@ public class HybridExpando : DynamicObject, IDictionary<string, object?>, INotif
             yield return kvp;
         }
 
-        if (includeInstanceProperties)
+        if (!includeInstanceProperties || _instance == null)
         {
-            foreach (var kvp2 in InstanceProperties)
+            yield break;
+        }
+
+        foreach (var kvp2 in InstanceProperties)
+        {
+            // Avoid extra local/indirection, and use TryGetValue to prevent double hashing.
+            if (!Properties.ContainsKey(kvp2.Key))
             {
                 var prop = kvp2.Value;
-                if (!Properties.ContainsKey(prop.Name))
-                {
-                    yield return new KeyValuePair<string, object?>(prop.Name, prop.GetValue(_instance));
-                }
+                yield return new KeyValuePair<string, object?>(prop.Name, prop.GetValue(_instance));
             }
         }
     }
@@ -380,63 +321,73 @@ public class HybridExpando : DynamicObject, IDictionary<string, object?>, INotif
                 return FrozenDictionary<string, FastProperty>.Empty;
             }
 
-            if (_instanceProps == null)
+            var props = _instanceProps;
+            if (props != null)
             {
-                var props = FastProperty.GetProperties(_instance.GetType()) as IDictionary<string, FastProperty>;
-
-                if (_optMembers != null)
-                {
-                    props = props!
-                        .Where(x => _optMethod == MemberOptMethod.Allow ? _optMembers.Contains(x.Key) : !_optMembers.Contains(x.Key))
-                        .ToDictionary(x => x.Key, x => x.Value);
-                }
-
-                _instanceProps = props;
+                return props;
             }
 
-            return _instanceProps!;
+            props = FastProperty.GetProperties(_instance.GetType()) as IDictionary<string, FastProperty>;
+
+            if (_optMembers != null)
+            {
+                // Avoid LINQ allocations. Filter in one pass.
+                var filtered = new Dictionary<string, FastProperty>(props!.Count, StringComparer.Ordinal);
+
+                if (_optMethod == MemberOptMethod.Allow)
+                {
+                    foreach (var kvp in props!)
+                    {
+                        if (_optMembers.Contains(kvp.Key))
+                        {
+                            filtered.Add(kvp.Key, kvp.Value);
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var kvp in props!)
+                    {
+                        if (!_optMembers.Contains(kvp.Key))
+                        {
+                            filtered.Add(kvp.Key, kvp.Value);
+                        }
+                    }
+                }
+
+                props = filtered;
+            }
+
+            _instanceProps = props;
+            return props!;
         }
     }
 
-    /// <summary>
-    /// Checks whether a property exists in the Property collection
-    /// or as a property on the instance
-    /// </summary>
     public bool Contains(KeyValuePair<string, object?> item, bool includeInstanceProperties = false)
         => Contains(item.Key, includeInstanceProperties);
 
-    /// <summary>
-    /// Checks whether a property exists in the Property collection
-    /// or as a property on the instance
-    /// </summary>
     public bool Contains(string propertyName, bool includeInstanceProperties = false)
-    {
-        return 
-            Properties.ContainsKey(propertyName) || 
-            (includeInstanceProperties && InstanceProperties.ContainsKey(propertyName));
-    }
+        => Properties.ContainsKey(propertyName)
+            || (includeInstanceProperties && InstanceProperties.ContainsKey(propertyName));
 
     #region IDictionary<string, object?>
 
     ICollection<string> IDictionary<string, object?>.Keys
     {
-        get => GetProperties(true).Select(x => x.Key).AsReadOnly();
+        get => GetKeysSnapshot();
     }
 
     ICollection<object?> IDictionary<string, object?>.Values
     {
-        get => GetProperties(true).Select(x => x.Value).AsReadOnly();
+        get => GetValuesSnapshot();
     }
 
     int ICollection<KeyValuePair<string, object?>>.Count
     {
-        get => GetDynamicMemberNames().Count();
+        get => GetCountSnapshot();
     }
 
-    bool ICollection<KeyValuePair<string, object?>>.IsReadOnly
-    {
-        get => false;
-    }
+    bool ICollection<KeyValuePair<string, object?>>.IsReadOnly => false;
 
     object? IDictionary<string, object?>.this[string key]
     {
@@ -444,42 +395,29 @@ public class HybridExpando : DynamicObject, IDictionary<string, object?>, INotif
         set => this[key] = value;
     }
 
-    bool IDictionary<string, object?>.ContainsKey(string key)
-        => Contains(key, true);
+    bool IDictionary<string, object?>.ContainsKey(string key) => Contains(key, includeInstanceProperties: true);
 
-    void IDictionary<string, object?>.Add(string key, object? value)
-        => throw new NotImplementedException();
+    void IDictionary<string, object?>.Add(string key, object? value) => throw new NotImplementedException();
 
-    bool IDictionary<string, object?>.Remove(string key)
-        => throw new NotImplementedException();
+    bool IDictionary<string, object?>.Remove(string key) => throw new NotImplementedException();
 
     public bool TryGetValue(string key, out object? value)
     {
-        value = null;
-
-        if (Contains(key, true))
-        {
-            value = this[key];
-            return true;
-        }
-
-        return false;
+        // Avoid double lookups + exceptions by using the internal core method.
+        return TryGetMemberCore(key, out value);
     }
 
-    void ICollection<KeyValuePair<string, object?>>.Add(KeyValuePair<string, object?> item)
-        => throw new NotImplementedException();
+    void ICollection<KeyValuePair<string, object?>>.Add(KeyValuePair<string, object?> item) => throw new NotImplementedException();
 
-    void ICollection<KeyValuePair<string, object?>>.Clear()
-        => throw new NotImplementedException();
+    void ICollection<KeyValuePair<string, object?>>.Clear() => throw new NotImplementedException();
 
     bool ICollection<KeyValuePair<string, object?>>.Contains(KeyValuePair<string, object?> item)
-        => TryGetValue(item.Key, out var value) && Equals(value, item.Value);
+        => TryGetMemberCore(item.Key, out var value) && Equals(value, item.Value);
 
     void ICollection<KeyValuePair<string, object?>>.CopyTo(KeyValuePair<string, object?>[] array, int arrayIndex)
         => throw new NotImplementedException();
 
-    bool ICollection<KeyValuePair<string, object?>>.Remove(KeyValuePair<string, object?> item)
-        => throw new NotImplementedException();
+    bool ICollection<KeyValuePair<string, object?>>.Remove(KeyValuePair<string, object?> item) => throw new NotImplementedException();
 
     IEnumerator<KeyValuePair<string, object?>> IEnumerable<KeyValuePair<string, object?>>.GetEnumerator()
         => GetProperties(true).GetEnumerator();
@@ -488,4 +426,58 @@ public class HybridExpando : DynamicObject, IDictionary<string, object?>, INotif
         => GetProperties(true).GetEnumerator();
 
     #endregion
+
+    // Snapshot helpers to honor IDictionary contract (ICollection) without LINQ allocations.
+    private ICollection<string> GetKeysSnapshot()
+    {
+        var list = new List<string>(Properties.Count + (_instance != null ? InstanceProperties.Count : 0));
+
+        foreach (var kvp in Properties)
+            list.Add(kvp.Key);
+
+        if (_instance != null)
+        {
+            foreach (var kvp in InstanceProperties)
+            {
+                if (!Properties.ContainsKey(kvp.Key))
+                    list.Add(kvp.Key);
+            }
+        }
+
+        return list.AsReadOnly();
+    }
+
+    private ICollection<object?> GetValuesSnapshot()
+    {
+        var list = new List<object?>(Properties.Count + (_instance != null ? InstanceProperties.Count : 0));
+
+        foreach (var kvp in Properties)
+            list.Add(kvp.Value);
+
+        if (_instance != null)
+        {
+            foreach (var kvp in InstanceProperties)
+            {
+                if (!Properties.ContainsKey(kvp.Key))
+                    list.Add(kvp.Value.GetValue(_instance));
+            }
+        }
+
+        return list.AsReadOnly();
+    }
+
+    private int GetCountSnapshot()
+    {
+        if (_instance == null)
+            return Properties.Count;
+
+        var count = Properties.Count;
+        foreach (var kvp in InstanceProperties)
+        {
+            if (!Properties.ContainsKey(kvp.Key))
+                count++;
+        }
+
+        return count;
+    }
 }

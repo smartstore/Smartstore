@@ -6,7 +6,7 @@ using Smartstore.ComponentModel.TypeConverters;
 using Smartstore.Core.Common;
 using Smartstore.Test.Common;
 
-namespace Smartstore.Tests
+namespace Smartstore.Tests.ComponentModel
 {
     [TestFixture]
     public class DictionaryConversionTests

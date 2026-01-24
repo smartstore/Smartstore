@@ -13,7 +13,7 @@ using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Net.Mail;
 using Smartstore.Test.Common;
 
-namespace Smartstore.Tests;
+namespace Smartstore.Tests.ComponentModel;
 
 [TestFixture]
 public class ConversionTests
