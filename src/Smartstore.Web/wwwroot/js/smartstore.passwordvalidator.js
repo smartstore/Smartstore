@@ -1,4 +1,9 @@
 ﻿export class PasswordValidator {
+    // TODO: (mg) Make this unobtrusive: declare validation rules via data-attributes on the input field,
+    // e.g. data-require-digit="true", data-min-length="8", etc.
+    // Pass the input field (or a selector) as parameter to the constructor.
+    // Create the requirements only once on init.
+    // On input/blur events, run all requirements' validate methods and update validation messages accordingly.
     constructor(config, ressources) {
         this.$el = $('.validate-password');
         this.config = config ?? {};
