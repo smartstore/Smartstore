@@ -99,7 +99,7 @@
                     <div class="form-group row">
                         <label asp-for="Password" class="col-md-3 col-form-label required"></label>
                         <div class="col-md-9">
-                            <input asp-for="Password" type="password" sm-required="true" autocomplete="new-password" />
+                            <input asp-for="Password" type="password" sm-required="true" autocomplete="new-password" class="validate-password" />
                             <span asp-validation-for="Password"></span>
                         </div>
                     </div>
@@ -275,6 +275,8 @@
         </div>
     </div>
 </form>
+
+<partial name="PasswordValidator" />
 
 <script sm-target-zone="scripts" data-origin="register">
     $(function () {

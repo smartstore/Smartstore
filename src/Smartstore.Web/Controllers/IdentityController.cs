@@ -34,7 +34,6 @@ namespace Smartstore.Web.Controllers
         private readonly IMessageFactory _messageFactory;
         private readonly IWebHelper _webHelper;
         private readonly IDateTimeHelper _dateTimeHelper;
-        private readonly IIdentityErrorDescriberOptions _errorDescriberOptions;
         private readonly CustomerSettings _customerSettings;
         private readonly CaptchaSettings _captchaSettings;
         private readonly DateTimeSettings _dateTimeSettings;
@@ -56,7 +55,6 @@ namespace Smartstore.Web.Controllers
             CustomerSettings customerSettings,
             CaptchaSettings captchaSettings,
             DateTimeSettings dateTimeSettings,
-            IIdentityErrorDescriberOptions errorDescriberOptions,
             TaxSettings taxSettings,
             LocalizationSettings localizationSettings,
             RewardPointsSettings rewardPointsSettings)
@@ -71,7 +69,6 @@ namespace Smartstore.Web.Controllers
             _messageFactory = messageFactory;
             _webHelper = webHelper;
             _dateTimeHelper = dateTimeHelper;
-            _errorDescriberOptions = errorDescriberOptions;
             _customerSettings = customerSettings;
             _captchaSettings = captchaSettings;
             _dateTimeSettings = dateTimeSettings;
@@ -250,7 +247,7 @@ namespace Smartstore.Web.Controllers
             // TODO: (mh) Password validation is already performed in the UserManager.AddPasswordAsync method. Refactor workflow.
             foreach (var validator in _userManager.PasswordValidators)
             {
-                AddModelStateErrors(await validator.ValidateAsync(_userManager, customer, model.Password));
+                AddModelStateErrors(await validator.ValidateAsync(_userManager, customer, model.Password), true);
             }
 
             if (!Url.IsLocalUrl(returnUrl))
@@ -385,40 +382,6 @@ namespace Smartstore.Web.Controllers
             return View();
         }
 
-        // AJAX.
-        [HttpPost]
-        public async Task<IActionResult> ValidatePassword(string password)
-        {
-            // TODO: (mg) I hope you do not plan to call this on every keypress 😯
-            // The validation must occur on client side, and only if it passes there, the already existing
-            // server side validators should be called (which is repetitive, but necessary to avoid security issues).
-            // I'm sorry, but you gonna have to implement a small validation script for this.
-            // The script should only be included on pages, where the validator is active.
-            List<string> errors = null;
-
-            try
-            {
-                var customer = Services.WorkContext.CurrentCustomer;
-
-                _errorDescriberOptions.UseShortDescriptions = true;
-
-                errors = await _userManager.PasswordValidators
-                    .SelectManyAwait(async validator =>
-                    {
-                        var result = await validator.ValidateAsync(_userManager, customer, password);
-                        return result.Errors.Select(x => x.Description);
-                    })
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .ToListAsync();
-            }
-            finally
-            {
-                _errorDescriberOptions.UseShortDescriptions = false;
-            }
-
-            return Json(new { success = errors.IsNullOrEmpty(), errors });
-        }
-
         #endregion
 
         #region Profile
@@ -508,7 +471,7 @@ namespace Smartstore.Web.Controllers
             // TODO: (mh) Password validation is already performed in the UserManager.ChangePasswordAsync method. Refactor workflow.
             foreach (var validator in _userManager.PasswordValidators)
             {
-                AddModelStateErrors(await validator.ValidateAsync(_userManager, customer, model.NewPassword));
+                AddModelStateErrors(await validator.ValidateAsync(_userManager, customer, model.NewPassword), true);
             }
 
             if (ModelState.IsValid)
@@ -588,7 +551,7 @@ namespace Smartstore.Web.Controllers
             // TODO: (mh) Password validation is already performed in the UserManager.ResetPasswordAsync method. Refactor workflow.
             foreach (var validator in _userManager.PasswordValidators)
             {
-                AddModelStateErrors(await validator.ValidateAsync(_userManager, customer, model.NewPassword));
+                AddModelStateErrors(await validator.ValidateAsync(_userManager, customer, model.NewPassword), true);
             }
 
             if (ModelState.IsValid)
@@ -751,17 +714,14 @@ namespace Smartstore.Web.Controllers
             ViewBag.AvailableTimeZones = _dateTimeHelper.GetSystemTimeZones()
                 .ToSelectListItems(_dateTimeHelper.DefaultStoreTimeZone.Id);
 
-            if (_customerSettings.CountryEnabled)
+            if (_customerSettings.CountryEnabled && _customerSettings.StateProvinceEnabled)
             {
-                if (_customerSettings.StateProvinceEnabled)
-                {
-                    var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(model.CountryId);
+                var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(model.CountryId);
 
-                    ViewBag.AvailableStates = stateProvinces.ToSelectListItems(model.StateProvinceId ?? 0) ?? new List<SelectListItem>
-                    {
-                        new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" }
-                    };
-                }
+                ViewBag.AvailableStates = stateProvinces.ToSelectListItems(model.StateProvinceId ?? 0) ??
+                [
+                    new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" }
+                ];
             }
         }
 
@@ -1027,12 +987,20 @@ namespace Smartstore.Web.Controllers
             await _userManager.RemoveFromRoleAsync(customer, SystemCustomerRoleNames.Guests);
         }
 
-        private void AddModelStateErrors(IdentityResult result)
+        private void AddModelStateErrors(IdentityResult result, bool passwordValidation = false)
         {
             if (!result.Succeeded)
             {
-                result.Errors.Select(x => x.Description).Distinct()
-                    .Each(x => ModelState.AddModelError(string.Empty, x));
+                var descriptions = result.Errors.Select(x => x.Description).Distinct();
+
+                if (passwordValidation)
+                {
+                    ModelState.AddModelError(string.Empty, T("Account.Register.Result.MeetPasswordRequirements", string.Join(", ", descriptions)));
+                }
+                else
+                {
+                    descriptions.Each(x => ModelState.AddModelError(string.Empty, x));
+                }
             }
         }
 

@@ -28,8 +28,6 @@ namespace Smartstore.Core.Bootstrapping
                 .AddPasswordValidator<UserValidator>()
                 .AddSignInManager<SmartSignInManager>();
 
-            services.AddScoped<IIdentityErrorDescriberOptions, IdentityErrorDescriberOptions>();
-
             services.TryAddEnumerable(
                 ServiceDescriptor.Singleton<IConfigureOptions<IdentityOptions>, IdentityOptionsConfigurer>());
 

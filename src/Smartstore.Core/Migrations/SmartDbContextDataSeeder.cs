@@ -24,36 +24,33 @@ namespace Smartstore.Core.Data.Migrations
                 "The following discounts were applied to the products: {0}.",
                 "Auf die Produkte wurden die folgenden Rabatte gewährt: {0}.");
 
-            // TODO: (mg) Don't add new resources (*.Short), change the existing ones.
-            // In the validation summary box, display them this way as a single list item:
-            // Your password must meet the following requirements: [comma separated message list of unfulfilled criteria]
-            builder.AddOrUpdate("Identity.Error.PasswordRequiresDigit.Short",
+            builder.AddOrUpdate("Identity.Error.PasswordRequiresDigit",
                 "At least one number (0–9)", 
                 "Mindestens eine Ziffer (0–9)");
 
-            builder.AddOrUpdate("Identity.Error.PasswordRequiresLower.Short",
+            builder.AddOrUpdate("Identity.Error.PasswordRequiresLower",
                 "At least one lowercase letter (a–z)",
                 "Mindestens ein Kleinbuchstabe (a–z)");
 
-            builder.AddOrUpdate("Identity.Error.PasswordRequiresNonAlphanumeric.Short",
+            builder.AddOrUpdate("Identity.Error.PasswordRequiresNonAlphanumeric",
                 "At least one special character (e.g. !@#$)",
                 "Mindestens ein Sonderzeichen (z.B. !@#$)");
 
-            builder.AddOrUpdate("Identity.Error.PasswordRequiresUniqueChars.Short",
+            builder.AddOrUpdate("Identity.Error.PasswordRequiresUniqueChars",
                 "At least {0} unique characters",
                 "Mindestens {0} eindeutige Zeichen");
 
-            builder.AddOrUpdate("Identity.Error.PasswordRequiresUpper.Short",
+            builder.AddOrUpdate("Identity.Error.PasswordRequiresUpper",
                 "At least one uppercase letter (A–Z)",
                 "Mindestens ein Großbuchstabe (A–Z)");
 
-            builder.AddOrUpdate("Identity.Error.PasswordTooShort.Short",
+            builder.AddOrUpdate("Identity.Error.PasswordTooShort",
                 "At least {0} characters",
                 "Mindestens {0} Zeichen");
 
             builder.AddOrUpdate("Account.Register.Result.MeetPasswordRequirements",
-                "Your password must meet the following requirements:",
-                "Ihr Passwort muss die folgenden Anforderungen erfüllen:");
+                "Your password must meet the following requirements: {0}.",
+                "Ihr Passwort muss die folgenden Anforderungen erfüllen: {0}.");
         }
     }
 }

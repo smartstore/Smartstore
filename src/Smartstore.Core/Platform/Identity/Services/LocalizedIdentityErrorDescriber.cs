@@ -3,20 +3,8 @@ using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Identity
 {
-    public interface IIdentityErrorDescriberOptions
+    public class LocalizedIdentityErrorDescriber : IdentityErrorDescriber
     {
-        bool UseShortDescriptions { get; set; }
-    }
-
-    public sealed class IdentityErrorDescriberOptions : IIdentityErrorDescriberOptions
-    {
-        public bool UseShortDescriptions { get; set; }
-    }
-
-    public class LocalizedIdentityErrorDescriber(IIdentityErrorDescriberOptions options) : IdentityErrorDescriber
-    {
-        private readonly IIdentityErrorDescriberOptions _options = options;
-
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
         public override IdentityError DuplicateEmail(string email)
@@ -173,11 +161,10 @@ namespace Smartstore.Core.Identity
 
         private IdentityError GetPasswordRequirementError(string key, params object[] args)
         {
-            var suffix = _options.UseShortDescriptions ? ".Short" : string.Empty;
             return new IdentityError
             {
                 Code = key,
-                Description = T($"Identity.Error.{key}{suffix}", args)
+                Description = T($"Identity.Error.{key}", args)
             };
         }
     }
