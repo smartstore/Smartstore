@@ -122,7 +122,7 @@
 			        </div>
                     <div class="adminData wide">
                         <html-editor asp-for="Locales[item].Description" 
-                                     save-url="@(Url.PatchLocalizedEntity<Category>(nameof(Category.Description), Model.Id, Model.Locales[item].LanguageId)))" />
+                                     save-url="@(Url.PatchLocalizedEntity<Category>(nameof(Category.Description), Model.Id, Model.Locales[item].LanguageId))" />
                         <span asp-validation-for="Locales[item].Description"></span>
                     </div>
 		        </div>
@@ -132,7 +132,7 @@
 			        </div>
                     <div class="adminData wide">
                         <html-editor asp-for="Locales[item].BottomDescription" 
-                                     save-url="@(Url.PatchLocalizedEntity<Category>(nameof(Category.BottomDescription), Model.Id, Model.Locales[item].LanguageId)))" />
+                                     save-url="@(Url.PatchLocalizedEntity<Category>(nameof(Category.BottomDescription), Model.Id, Model.Locales[item].LanguageId))" />
                         <span asp-validation-for="Locales[item].BottomDescription"></span>
                     </div>
 		        </div>
