@@ -121,15 +121,6 @@ public class StripeElementsProvider : PaymentMethodBase, IConfigurable
         return Task.FromResult(result);
     }
 
-    public override async Task PostProcessPaymentAsync(PostProcessPaymentRequest processPaymentRequest)
-    {
-        var settings = await _settingFactory.LoadSettingsAsync<StripeSettings>(processPaymentRequest.Order.StoreId);
-        processPaymentRequest.Order.PaymentStatus = settings.CaptureMethod == "automatic"
-                            ? PaymentStatus.Paid
-                            : PaymentStatus.Authorized;
-        return;
-    }
-
     public override async Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest request)
     {
         var result = new RefundPaymentResult
