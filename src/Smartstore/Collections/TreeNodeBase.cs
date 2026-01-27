@@ -24,7 +24,7 @@ public interface IKeyedNode
 public abstract class TreeNodeBase<T> where T : TreeNodeBase<T>
 {
     private T? _parent;
-    protected List<T> _children = [];
+    protected List<T>? _children;
     private int? _depth = null;
     private int _index = -1;
 
@@ -193,7 +193,6 @@ public abstract class TreeNodeBase<T> where T : TreeNodeBase<T>
     public void SetMetadata(string key, object? value)
     {
         Guard.NotEmpty(key);
-
         Metadata[key] = value;
     }
 
@@ -273,8 +272,7 @@ public abstract class TreeNodeBase<T> where T : TreeNodeBase<T>
     {
         get
         {
-            _children ??= [];
-            return _children;
+            return _children ??= [];
         }
     }
 
@@ -293,7 +291,7 @@ public abstract class TreeNodeBase<T> where T : TreeNodeBase<T>
         Guard.NotNull(newParent);
 
         var prevParent = _parent;
-        
+
         // Detach from parent
         _parent?.Remove((T)this);
 
@@ -306,7 +304,7 @@ public abstract class TreeNodeBase<T> where T : TreeNodeBase<T>
         {
             newParent.ChildrenInternal.Insert(index.Value, (T)this);
             _index = index.Value;
-            FixIndexes(newParent._children, _index + 1, 1);
+            FixIndexes(newParent.ChildrenInternal, _index + 1, 1);
         }
 
         _parent = newParent;
@@ -328,9 +326,9 @@ public abstract class TreeNodeBase<T> where T : TreeNodeBase<T>
     [DefaultValue("[]")]
     public IReadOnlyList<T> Children
     {
-        get => (IReadOnlyList<T>)_children ?? [];
+        get => _children ?? [];
         // For STJ
-        internal set => _children = (List<T>)value;
+        internal set => _children = value as List<T> ?? value.ToList();
     }
 
     [IgnoreDataMember]
@@ -344,7 +342,6 @@ public abstract class TreeNodeBase<T> where T : TreeNodeBase<T>
     {
         get => _children?.Where(x => !x.IsLeaf) ?? [];
     }
-
 
     [IgnoreDataMember]
     public T? FirstChild
@@ -367,7 +364,7 @@ public abstract class TreeNodeBase<T> where T : TreeNodeBase<T>
     [IgnoreDataMember]
     public bool HasChildren
     {
-        get => _children == null || _children.Count > 0;
+        get => _children != null && _children.Count > 0;
     }
 
     [IgnoreDataMember]
@@ -447,7 +444,7 @@ public abstract class TreeNodeBase<T> where T : TreeNodeBase<T>
     public bool IsDescendantOf(T node)
     {
         Guard.NotNull(node);
-        
+
         var parent = _parent;
         while (parent != null)
         {
@@ -496,7 +493,7 @@ public abstract class TreeNodeBase<T> where T : TreeNodeBase<T>
         get
         {
             var trail = _depth.HasValue ? new List<T>(_depth.Value + 1) : [];
-            
+
             var node = (T)this;
             do
             {
@@ -539,16 +536,14 @@ public abstract class TreeNodeBase<T> where T : TreeNodeBase<T>
         return null;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T Append(T value)
     {
         Guard.NotNull(value);
-        
+
         AddChild(value, false, true);
         return value;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AppendRange(IEnumerable<T> values)
     {
         Guard.NotNull(values);
@@ -567,7 +562,6 @@ public abstract class TreeNodeBase<T> where T : TreeNodeBase<T>
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T Prepend(T value)
     {
         Guard.NotNull(value);
@@ -622,7 +616,6 @@ public abstract class TreeNodeBase<T> where T : TreeNodeBase<T>
         AttachTo(refParent, refNode._index + (after ? 1 : 0));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T? SelectNode(Func<T, bool> predicate, bool includeSelf = false)
     {
         Guard.NotNull(predicate);
@@ -635,7 +628,6 @@ public abstract class TreeNodeBase<T> where T : TreeNodeBase<T>
     /// </summary>
     /// <param name="predicate">The predicate to match against</param>
     /// <returns>A readonly collection of node matches</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<T> SelectNodes(Func<T, bool> predicate, bool includeSelf = false)
     {
         Guard.NotNull(predicate);
@@ -678,6 +670,7 @@ public abstract class TreeNodeBase<T> where T : TreeNodeBase<T>
     {
         Traverse(x => x._depth = null, false);
         _children?.Clear();
+        _children = null;
 
         FixIdNodeMap(_parent, null);
     }
@@ -754,7 +747,6 @@ public abstract class TreeNodeBase<T> where T : TreeNodeBase<T>
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<T> FlattenNodes(bool includeSelf = true)
     {
         return FlattenNodes(null, includeSelf);
@@ -762,20 +754,27 @@ public abstract class TreeNodeBase<T> where T : TreeNodeBase<T>
 
     protected IEnumerable<T> FlattenNodes(Func<T, bool>? predicate, bool includeSelf = true)
     {
-        var list = includeSelf ? [(T)this] : Enumerable.Empty<T>();
-
-        if (_children == null)
+        if (includeSelf)
         {
-            return list;
-        }  
-
-        var result = list.Union(_children.SelectMany(x => x.FlattenNodes()));
-        if (predicate != null)
-        {
-            result = result.Where(predicate);
+            var self = (T)this;
+            if (predicate == null || predicate(self))
+            {
+                yield return self;
+            }
         }
 
-        return result;
+        if (_children == null || _children.Count == 0)
+        {
+            yield break;
+        }
+
+        foreach (var child in _children)
+        {
+            foreach (var node in child.FlattenNodes(predicate, includeSelf: true))
+            {
+                yield return node;
+            }
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

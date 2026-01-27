@@ -1,7 +1,6 @@
 ﻿#nullable enable
 
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using Smartstore.Collections.JsonConverters;
 using System.Text.Json.Serialization;
 
@@ -79,7 +78,6 @@ public class TreeNode<TValue> : TreeNodeBase<TreeNode<TValue>>
         return node;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AppendRange(IEnumerable<TValue> values)
     {
         foreach (var value in values)
@@ -88,7 +86,6 @@ public class TreeNode<TValue> : TreeNodeBase<TreeNode<TValue>>
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AppendRange(IEnumerable<TValue> values, Func<TValue, object?> idSelector)
     {
         Guard.NotNull(values);
@@ -110,7 +107,6 @@ public class TreeNode<TValue> : TreeNodeBase<TreeNode<TValue>>
         return node;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<TValue> Flatten(bool includeSelf = true)
     {
         return Flatten(null, includeSelf);

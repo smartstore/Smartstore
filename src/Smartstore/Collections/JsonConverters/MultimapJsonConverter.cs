@@ -44,6 +44,7 @@ internal class MultimapJsonConverterFactory : JsonConverterFactory
 }
 
 internal class MultimapConverter<TKey, TValue> : JsonConverter<Multimap<TKey, TValue>>
+    where TKey : notnull
 {
     private readonly bool _isPolymorphicValueType;
 
@@ -190,6 +191,7 @@ internal class MultimapConverter<TKey, TValue> : JsonConverter<Multimap<TKey, TV
 }
 
 internal class ConcurrentMultimapConverter<TKey, TValue> : JsonConverter<ConcurrentMultimap<TKey, TValue>>
+    where TKey : notnull
 {
     private readonly bool _isPolymorphicValueType;
 
