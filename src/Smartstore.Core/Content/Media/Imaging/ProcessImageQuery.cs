@@ -1,13 +1,18 @@
 ﻿using System.Collections.Frozen;
+using System.Drawing;
+using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Smartstore.Collections;
 using Smartstore.Imaging;
+using Smartstore.IO;
 
 namespace Smartstore.Core.Content.Media.Imaging
 {
     public class ProcessImageQuery : MutableQueryCollection
     {
+        private delegate bool TokenValidator(string key, string value, out string normalizedValue);
+
         private readonly static string[] _validScaleModes
             = ["max", "boxpad", "crop", "min", "pad", "stretch"];
 
@@ -15,14 +20,15 @@ namespace Smartstore.Core.Content.Media.Imaging
             = ["center", "top", "bottom", "left", "right", "top-left", "top-right", "bottom-left", "bottom-right"];
 
         // Key = Supported token name, Value = Validator
-        private readonly static FrozenDictionary<string, Func<string, string, bool>> _supportedTokens = new Dictionary<string, Func<string, string, bool>>()
+        private readonly static FrozenDictionary<string, TokenValidator> _supportedTokens = new Dictionary<string, TokenValidator>()
         {
             ["w"] = ValidateSizeToken,
             ["h"] = ValidateSizeToken,
             ["size"] = ValidateSizeToken,
             ["q"] = ValidateQualityToken,
             ["m"] = ValidateScaleModeToken,
-            ["pos"] = ValidateAnchorPosToken
+            ["pos"] = ValidateAnchorPosToken,
+            ["bg"] = ValidateBackgroundToken
         }.ToFrozenDictionary();
 
         public ProcessImageQuery()
@@ -134,7 +140,8 @@ namespace Smartstore.Core.Content.Media.Imaging
 
         public string BackgroundColor
         {
-            get => Get<string>("bg");
+            // canonical value is stored during Add(...); still tolerate legacy / direct Store injection
+            get => TryNormalizeBackgroundColor(this["bg"], out var normalized) ? normalized : Get<string>("bg");
             set => Set("bg", value);
         }
 
@@ -151,10 +158,14 @@ namespace Smartstore.Core.Content.Media.Imaging
 
         public override MutableQueryCollection Add(string name, string value, bool isUnique)
         {
-            // Keep away invalid tokens from underlying query
-            if (name != null && _supportedTokens.TryGetValue(name, out var validator) && validator(name, value))
+            // Keep away invalid tokens from underlying query store and canonicalize values where applicable.
+            if (name != null && _supportedTokens.TryGetValue(name, out var validator))
             {
-                return base.Add(name, value, isUnique);
+                if (validator(name, value, out var normalized))
+                {
+                    // One value per token. (bg must be unique; others are effectively unique too.)
+                    return base.Add(name, normalized ?? value, isUnique: true);
+                }
             }
 
             return this;
@@ -202,17 +213,40 @@ namespace Smartstore.Core.Content.Media.Imaging
 
         public string CreateHash()
         {
-            var hash = string.Empty;
+            // Readable + deterministic + robust + filename-safe.
+            // Also re-validates/canonicalizes as "defense in depth" for cases where Store was populated elsewhere.
+            if (Count == 0)
+                return string.Empty;
 
-            foreach (var key in this.Keys)
+            var sb = new StringBuilder(64);
+
+            foreach (var key in Keys.OrderBy(k => k, StringComparer.Ordinal))
             {
-                if (key == "m" && this["m"] == "max")
-                    continue; // Mode 'max' is default and can be omitted
+                if (!_supportedTokens.TryGetValue(key, out var validator))
+                    continue;
 
-                hash += "-" + key + this[key];
+                if (key == "m" && this["m"] == "max")
+                    continue;
+
+                var values = this[key];
+                if (values.Count == 0)
+                    continue;
+
+                // Exactly one value is expected (we enforce it during Add), but stay tolerant.
+                var v = values[0];
+                if (v is null)
+                    continue;
+
+                if (!validator(key, v, out var normalized))
+                    continue;
+
+                sb.Append('-').Append(key).Append(normalized ?? v);
             }
 
-            return hash;
+            if (sb.Length == 0)
+                return string.Empty;
+
+            return PathUtility.SanitizeFileName(sb.ToString(), "_");
         }
 
         public string GetResultExtension()
@@ -279,24 +313,132 @@ namespace Smartstore.Core.Content.Media.Imaging
             }
         }
 
-        private static bool ValidateSizeToken(string key, string value)
+        private static bool ValidateSizeToken(string key, string value, out string normalizedValue)
         {
+            normalizedValue = null;
             return uint.TryParse(value, out var size) && size < 10000;
         }
 
-        private static bool ValidateQualityToken(string key, string value)
+        private static bool ValidateQualityToken(string key, string value, out string normalizedValue)
         {
+            normalizedValue = null;
             return uint.TryParse(value, out var q) && q <= 100;
         }
 
-        private static bool ValidateScaleModeToken(string key, string value)
+        private static bool ValidateScaleModeToken(string key, string value, out string normalizedValue)
         {
+            normalizedValue = null;
             return _validScaleModes.Contains(value);
         }
 
-        private static bool ValidateAnchorPosToken(string key, string value)
+        private static bool ValidateAnchorPosToken(string key, string value, out string normalizedValue)
         {
+            normalizedValue = null;
             return _validAnchorPositions.Contains(value);
+        }
+
+        private static bool ValidateBackgroundToken(string key, string value, out string normalizedValue)
+        {
+            // IMPORTANT (URL semantics):
+            // A raw '#' starts the URL fragment and is NOT sent to the server.
+            // Callers MUST URL-encode it: bg=%23ff0000 instead of bg=#ff0000.
+            //
+            // Canonicalization:
+            // - 'ff0000' / '#ff0000' => '#ff0000'
+            // - 'fff'    / '#fff'    => '#fff'
+            // - named colors => trimmed as-is
+            normalizedValue = null;
+
+            if (!TryNormalizeBackgroundColor(value, out var normalized))
+                return false;
+
+            // Return canonical representation so it gets stored and used by the processor.
+            normalizedValue = normalized;
+
+            try
+            {
+                _ = ColorTranslator.FromHtml(normalizedValue);
+                return true;
+            }
+            catch
+            {
+                normalizedValue = null;
+                return false;
+            }
+        }
+
+        private static bool TryNormalizeBackgroundColor(StringValues values, out string normalized)
+        {
+            normalized = null;
+
+            if (values.Count == 0)
+                return false;
+
+            // Only one bg allowed. If multiple exist, ignore excess deterministically (first wins).
+            return TryNormalizeBackgroundColor(values[0], out normalized);
+        }
+
+        private static bool TryNormalizeBackgroundColor(string value, out string normalized)
+        {
+            normalized = null;
+
+            if (string.IsNullOrWhiteSpace(value))
+                return false;
+
+            var s = value.AsSpan().Trim();
+
+            // Optional leading '#'
+            var candidate = s;
+            if (candidate[0] == '#')
+                candidate = candidate[1..];
+
+            // Hex (#RGB or #RRGGBB)
+            if (candidate.Length is 3 or 6 && IsAsciiHex(candidate))
+            {
+                normalized = "#" + candidate.ToString();
+                return true;
+            }
+
+            // Named colors (letters only)
+            if (IsAsciiLettersOnly(s))
+            {
+                normalized = s.ToString();
+                return true;
+            }
+
+            return false;
+
+            static bool IsAsciiHex(ReadOnlySpan<char> span)
+            {
+                foreach (var c in span)
+                {
+                    var isDigit = (uint)(c - '0') <= 9;
+                    var isLower = (uint)(c - 'a') <= 5;
+                    var isUpper = (uint)(c - 'A') <= 5;
+
+                    if (!isDigit && !isLower && !isUpper)
+                        return false;
+                }
+
+                return true;
+            }
+
+            static bool IsAsciiLettersOnly(ReadOnlySpan<char> span)
+            {
+                if (span.Length == 0)
+                    return false;
+
+                foreach (var c in span)
+                {
+                    var isLower = (uint)(c - 'a') <= 25;
+                    var isUpper = (uint)(c - 'A') <= 25;
+
+                    if (!isLower && !isUpper)
+                        return false;
+                }
+
+                return true;
+            }
         }
 
         #endregion
