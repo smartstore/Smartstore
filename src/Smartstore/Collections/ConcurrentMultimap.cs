@@ -114,9 +114,13 @@ public class ConcurrentMultimap<TKey, TValue> : IEnumerable<KeyValuePair<TKey, S
     }
 
     /// <summary>
-    /// Gets the collection of values stored under the specified key.
+    /// Gets the synchronized collection of values associated with the specified key.
     /// </summary>
-    /// <param name="key">The key.</param>
+    /// <remarks>This indexer allows for easy access to collections of values based on their keys. It ensures
+    /// thread safety when accessing the collection.</remarks>
+    /// <param name="key">The key used to access the associated collection of values. Must not be null.</param>
+    /// <returns>A synchronized collection of type SyncedCollection<TValue> that contains the values associated with the
+    /// specified key. If no collection exists for the key, a new collection is created.</returns>
     public virtual SyncedCollection<TValue> this[TKey key]
     {
         get
@@ -143,10 +147,13 @@ public class ConcurrentMultimap<TKey, TValue> : IEnumerable<KeyValuePair<TKey, S
     }
 
     /// <summary>
-    /// Attempts to add the specified value for the specified key.
+    /// Attempts to add the specified value to the collection associated with the given key. If the key does not exist,
+    /// creates a new collection for the key and adds the value to it.
     /// </summary>
-    /// <param name="key">The key.</param>
-    /// <param name="value">The value.</param>
+    /// <remarks>If the key already exists, the value is added to the existing collection. This method is
+    /// useful for adding values without overwriting existing entries.</remarks>
+    /// <param name="key">The key with which the value is to be associated. This parameter cannot be null.</param>
+    /// <param name="value">The value to add to the collection for the specified key. This parameter cannot be null.</param>
     public virtual void TryAdd(TKey key, TValue value)
     {
         if (!GetOrCreateValues(key, [value], out var col))

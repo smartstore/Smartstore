@@ -1,10 +1,15 @@
-﻿using System.Diagnostics;
+﻿#nullable enable
+
+using System.Diagnostics;
 using Smartstore.Domain;
 
 namespace Smartstore.Collections;
 
 /// <summary>
 /// Manages data keys like <see cref="BaseEntity.Id"/> and offers a combination of eager and lazy data loading.
+/// <para>
+/// This type is intended to be used as a scoped, single-consumer instance. It is not thread-safe.
+/// </para>
 /// </summary>
 public class LazyMultimap<T> : Multimap<int, T>
 {
@@ -27,13 +32,13 @@ public class LazyMultimap<T> : Multimap<int, T>
     /// </summary>
     /// <param name="load"><para>int[]</para> keys like <see cref="BaseEntity.Id"/>, <para>Multimap{int, T}></para> delegate to load data.</param>
     /// <param name="collect">Keys of eager loaded data.</param>
-    public LazyMultimap(Func<int[], Task<Multimap<int, T>>> load, IEnumerable<int> collect = null)
+    public LazyMultimap(Func<int[], Task<Multimap<int, T>>> load, IEnumerable<int>? collect = null)
     {
-        Guard.NotNull(load, nameof(load));
+        Guard.NotNull(load);
 
         _load = load;
-        _loaded = new HashSet<int>();
-        _collect = collect == null ? new HashSet<int>() : new HashSet<int>(collect);
+        _loaded = [];
+        _collect = collect == null ? [] : [.. collect];
     }
 
     /// <summary>
@@ -46,7 +51,7 @@ public class LazyMultimap<T> : Multimap<int, T>
     /// Data keys are collected internally in order to load the associated data in one go using <see cref="GetOrLoadAsync(int)"/> or <see cref="GetOrLoad(int)"/>.
     /// </summary>
     /// <param name="keys">Data keys like <see cref="BaseEntity.Id"/>.</param>
-    public virtual void Collect(IEnumerable<int> keys)
+    public virtual void Collect(IEnumerable<int>? keys)
     {
         if (keys?.Any() ?? false)
         {
@@ -90,12 +95,12 @@ public class LazyMultimap<T> : Multimap<int, T>
     {
         if (key == 0)
         {
-            return new List<T>();
+            return [];
         }
 
         if (!_loaded.Contains(key))
         {
-            await LoadAsync(new int[] { key });
+            await LoadAsync([key]);
         }
 
         // Better not override indexer cause of stack overflow risk.
@@ -103,7 +108,7 @@ public class LazyMultimap<T> : Multimap<int, T>
 
         Debug.Assert(_loaded.Contains(key), $"Possible missing multimap result for key {key} and type {typeof(T).Name}.", string.Empty);
 
-        return result;
+        return result!;
     }
 
     /// <summary>
@@ -138,36 +143,65 @@ public class LazyMultimap<T> : Multimap<int, T>
     /// Main method that loads all data that have not yet been loaded.
     /// </summary>
     /// <param name="keys">Data keys like <see cref="BaseEntity.Id"/>.</param>
-    protected virtual async Task LoadAsync(IEnumerable<int> keys)
+    protected virtual async Task LoadAsync(IEnumerable<int>? keys)
     {
         if (keys == null)
         {
             return;
         }
 
-        var loadKeys = (_collect.Count == 0 ? keys : _collect.Concat(keys))
-            .Distinct()
-            .Except(_loaded)
-            .ToArray();
+        // Collect candidates in one pass: (keys U _collect) \ _loaded
+        HashSet<int>? candidates = null;
+
+        foreach (var key in keys)
+        {
+            if (key == 0 || _loaded.Contains(key))
+            {
+                continue;
+            }
+
+            candidates ??= new HashSet<int>();
+            candidates.Add(key);
+        }
+
+        // Add collected keys as well (and exclude already-loaded).
+        if (_collect.Count != 0)
+        {
+            candidates ??= new HashSet<int>(_collect.Count);
+
+            foreach (var key in _collect)
+            {
+                if (key == 0 || _loaded.Contains(key))
+                {
+                    continue;
+                }
+
+                candidates.Add(key);
+            }
+        }
 
         // Invalidate, do not load again.
         _collect.Clear();
 
-        if (loadKeys.Any())
+        if (candidates == null || candidates.Count == 0)
         {
-            //++_roundTripCount;
-            //Debug.WriteLine("Round trip {0} of {1}: {2}", _roundTripCount, typeof(T).Name, string.Join(",", loadKeys.OrderBy(x => x)));
+            return;
+        }
 
-            var items = await _load(loadKeys);
+        var loadKeys = candidates.ToArray();
 
-            _loaded.AddRange(loadKeys);
+        //++_roundTripCount;
+        //Debug.WriteLine("Round trip {0} of {1}: {2}", _roundTripCount, typeof(T).Name, string.Join(",", loadKeys.OrderBy(x => x)));
 
-            if (items != null)
+        var items = await _load(loadKeys);
+
+        _loaded.AddRange(loadKeys);
+
+        if (items != null)
+        {
+            foreach (var range in items)
             {
-                foreach (var range in items)
-                {
-                    base.AddRange(range.Key, range.Value);
-                }
+                base.AddRange(range.Key, range.Value);
             }
         }
     }
