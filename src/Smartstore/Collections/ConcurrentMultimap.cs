@@ -10,7 +10,7 @@ namespace Smartstore.Collections
     /// </summary>
     /// <typeparam name="TKey">The type of key.</typeparam>
     /// <typeparam name="TValue">The type of value.</typeparam>
-    [JsonConverter(typeof(MultiMapJsonConverterFactory))]
+    [JsonConverter(typeof(MultimapJsonConverterFactory))]
     public class ConcurrentMultimap<TKey, TValue> : IEnumerable<KeyValuePair<TKey, SyncedCollection<TValue>>>
     {
         private readonly ConcurrentDictionary<TKey, SyncedCollection<TValue>> _dict;

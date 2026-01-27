@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace Smartstore.Collections.JsonConverters;
 
-internal class MultiMapJsonConverterFactory : JsonConverterFactory
+internal class MultimapJsonConverterFactory : JsonConverterFactory
 {
     public override bool CanConvert(Type typeToConvert)
     {
