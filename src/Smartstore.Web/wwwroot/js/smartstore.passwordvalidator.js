@@ -21,6 +21,16 @@
 
         this._createWidget($widget, requirements);
 
+        //$.validator.addMethod("pwdpolicy", function (value, element, params) {
+        //    if (this.optional(element)) {
+        //        return true;
+        //    }
+
+        //    return false;// validate password
+        //});
+        //$.validator.messages.pwdpolicy = "Das Passwort erfüllt die Anforderungen nicht.";
+
+
         $el.on('input.smartstore.passwordvalidator', () => {
             const value = String($el.val() ?? '');
 
@@ -29,10 +39,11 @@
                 msg: x.msg,
                 ok: x.test(value)
             }));
+            //console.log(checkedRequirements.filter(x => !x.ok).map(x => x.msg).join(', '));
 
             this._updateWidget($widget, checkedRequirements);
+
             $widget.removeClass('hide');
-            //console.log(tests.filter(x => !x.ok).map(x => x.msg).join(', '));
         }).on('blur.smartstore.passwordvalidator', () => {
             $widget.addClass('hide');
         });
@@ -66,8 +77,6 @@
                 //$icon.toggleClass('fa-minus', !r.ok);
             }
         }
-
-        // TODO: setCustomValidity....
     }
 
     _getRequirements($el, res) {

@@ -307,7 +307,7 @@
     const validator = new PasswordValidator('#@Html.IdFor(x => x.Password)', {
         @foreach (var (key, val) in passwordValidatorRes)
         {
-            <text>"@key": @val.JsValue,</text>
+            <text>"@Html.Raw(key)": @Html.Raw(val.ToString().EncodeJsString()),</text>
         }
     });
 </script>
