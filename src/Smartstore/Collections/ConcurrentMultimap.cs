@@ -1,5 +1,8 @@
-﻿using System.Collections;
+﻿#nullable enable
+
+using System.Collections;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using Smartstore.Collections.JsonConverters;
 using System.Text.Json.Serialization;
 
@@ -12,6 +15,7 @@ namespace Smartstore.Collections
     /// <typeparam name="TValue">The type of value.</typeparam>
     [JsonConverter(typeof(MultimapJsonConverterFactory))]
     public class ConcurrentMultimap<TKey, TValue> : IEnumerable<KeyValuePair<TKey, SyncedCollection<TValue>>>
+        where TKey : notnull
     {
         private readonly ConcurrentDictionary<TKey, SyncedCollection<TValue>> _dict;
         private readonly Func<IEnumerable<TValue>, ICollection<TValue>> _collectionCreator;
@@ -41,9 +45,9 @@ namespace Smartstore.Collections
         }
 
         public ConcurrentMultimap(
-            IEnumerable<KeyValuePair<TKey, IEnumerable<TValue>>> items,
-            IEqualityComparer<TKey> comparer,
-            Func<IEnumerable<TValue>, ICollection<TValue>> collectionCreator)
+            IEnumerable<KeyValuePair<TKey, IEnumerable<TValue>>>? items,
+            IEqualityComparer<TKey>? comparer,
+            Func<IEnumerable<TValue>, ICollection<TValue>>? collectionCreator)
         {
             _collectionCreator = collectionCreator ?? Multimap<TKey, TValue>.DefaultCollectionCreator;
             _dict = new ConcurrentDictionary<TKey, SyncedCollection<TValue>>(
@@ -51,7 +55,7 @@ namespace Smartstore.Collections
                 comparer ?? EqualityComparer<TKey>.Default);
         }
 
-        private IEnumerable<KeyValuePair<TKey, SyncedCollection<TValue>>> ConvertItems(IEnumerable<KeyValuePair<TKey, IEnumerable<TValue>>> items)
+        private IEnumerable<KeyValuePair<TKey, SyncedCollection<TValue>>> ConvertItems(IEnumerable<KeyValuePair<TKey, IEnumerable<TValue>>>? items)
         {
             if (items == null)
             {
@@ -64,7 +68,7 @@ namespace Smartstore.Collections
             }
         }
 
-        protected virtual SyncedCollection<TValue> CreateCollection(IEnumerable<TValue> values)
+        protected virtual SyncedCollection<TValue> CreateCollection(IEnumerable<TValue>? values)
         {
             var col = _collectionCreator(values ?? []);
             return col.AsSynchronized();
@@ -75,7 +79,7 @@ namespace Smartstore.Collections
         /// </summary>
         public int Count
         {
-            get => _dict.Keys.Count;
+            get => _dict.Count;
         }
 
         /// <summary>
@@ -83,7 +87,17 @@ namespace Smartstore.Collections
         /// </summary>
         public int TotalValueCount
         {
-            get => _dict.Values.Sum(x => x.Count);
+            get
+            {
+                var count = 0;
+
+                foreach (var values in _dict.Values)
+                {
+                    count += values.Count;
+                }
+
+                return count;
+            }
         }
 
         /// <summary>
@@ -135,7 +149,7 @@ namespace Smartstore.Collections
         /// <param name="value">The value.</param>
         public virtual void TryAdd(TKey key, TValue value)
         {
-            if (!GetOrCreateValues(key, new[] { value }, out var col))
+            if (!GetOrCreateValues(key, [value], out var col))
             {
                 col.Add(value);
             }
@@ -203,7 +217,7 @@ namespace Smartstore.Collections
         /// </summary>
         /// <param name="key">The key.</param>
         /// <returns><c>True</c> if any such values existed; otherwise <c>false</c>.</returns>
-        public virtual bool TryRemoveAll(TKey key, out SyncedCollection<TValue> collection)
+        public virtual bool TryRemoveAll(TKey key, [MaybeNullWhen(false)] out SyncedCollection<TValue> collection)
         {
             return _dict.TryRemove(key, out collection);
         }
@@ -234,7 +248,8 @@ namespace Smartstore.Collections
         /// <returns><c>True</c> if the multimap contains such a value; otherwise, <c>false</c>.</returns>
         public virtual bool ContainsValue(TKey key, TValue value)
         {
-            return _dict.ContainsKey(key) && _dict[key].Contains(value);
+            // Must be a single dictionary lookup to avoid race/KeyNotFoundException.
+            return _dict.TryGetValue(key, out var col) && col.Contains(value);
         }
 
         /// <summary>
@@ -243,7 +258,7 @@ namespace Smartstore.Collections
         /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the multimap.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return this.GetEnumerator();
+            return GetEnumerator();
         }
 
         /// <summary>
@@ -252,16 +267,15 @@ namespace Smartstore.Collections
         /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the multimap.</returns>
         public virtual IEnumerator<KeyValuePair<TKey, SyncedCollection<TValue>>> GetEnumerator()
         {
-            foreach (var pair in _dict)
-                yield return pair;
+            return _dict.GetEnumerator();
         }
 
-        private bool GetOrCreateValues(TKey key, IEnumerable<TValue> initial, out SyncedCollection<TValue> col)
+        private bool GetOrCreateValues(TKey key, IEnumerable<TValue>? initial, out SyncedCollection<TValue> col)
         {
             // Return true when created
             var created = false;
 
-            col = _dict.GetOrAdd(key, k =>
+            col = _dict.GetOrAdd(key, _ =>
             {
                 created = true;
                 return CreateCollection(initial);
