@@ -440,6 +440,11 @@ namespace Smartstore.StripeElements.Controllers
                             await _db.SaveChangesAsync();
                         }
                     }
+                    else
+                    {
+                        // The order may not have been created yet. Let Stripe send the hook again. 
+                        return StatusCode(500);
+                    }
                 }
                 else if (stripeEvent.Type == EventTypes.ChargeRefunded)
                 {
