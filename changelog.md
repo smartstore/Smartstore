@@ -41,6 +41,8 @@ The intermediate step via the confirmation page is omitted.
 - OpenTrans: Fixed missing email addresses when exporting addresses.
 - PageBuilder: Issues when previewing selected images while editing a media gallery block.
 - The *Summernote* save button may produce a "languageId must be greater or less than zero" error.
+- Stripe: Fixed bug where the order for which the hook was sent may not have been created yet.
+- Many reCAPTCHA fixes.
 
 
 ## Smartstore 6.3.0
