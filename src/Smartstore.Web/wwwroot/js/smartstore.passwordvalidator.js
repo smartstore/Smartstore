@@ -1,94 +1,150 @@
 ﻿export class PasswordValidator {
-    // TODO: (mg) Make this unobtrusive: declare validation rules via data-attributes on the input field,
-    // e.g. data-require-digit="true", data-min-length="8", etc.
-    // Pass the input field (or a selector) as parameter to the constructor.
-    // Create the requirements only once on init.
-    // On input/blur events, run all requirements' validate methods and update validation messages accordingly.
-    constructor(config, ressources) {
-        this.$el = $('.validate-password');
-        this.config = config ?? {};
-        this.res = ressources ?? {};
-
-        if (!this.$el.length) {
-            console.warn("PasswordValidator: field not found for selector ", fieldSelector);
+    constructor(passwordSelector, ressources) {
+        const $el = $(passwordSelector);
+        if (!$el.length) {
+            console.warn("PasswordValidator: input field not found for selector ", passwordSelector);
             return;
         }
 
-        this.$el.on('input.smartstore.passwordvalidator', () => {
-            const requirements = this.validate();
-            //requirements.forEach(x => { if (!x.ok) console.log(x.msg); });
+        const requirements = this._getRequirements($el, ressources);
+        if (requirements.length === 0) {
+            return;
+        }
 
+        const $widget = $('<div class="password-requirements mt-2 hide" aria-live="polite"></div>');
+        const $toggleGroup = $el.parent('.toggle-pwd-group');
+        if ($toggleGroup.length) {
+            $toggleGroup.after($widget);
+        } else {
+            $el.after($widget);
+        }
+
+        this._createWidget($widget, requirements);
+
+        $el.on('input.smartstore.passwordvalidator', () => {
+            const value = String($el.val() ?? '');
+
+            const checkedRequirements = requirements.map(x => ({
+                key: x.key,
+                msg: x.msg,
+                ok: x.test(value)
+            }));
+
+            this._updateWidget($widget, checkedRequirements);
+            $widget.removeClass('hide');
+            //console.log(tests.filter(x => !x.ok).map(x => x.msg).join(', '));
         }).on('blur.smartstore.passwordvalidator', () => {
-            // Hide requirements on blur.
+            $widget.addClass('hide');
         });
     }
 
-    validate() {
+    _createWidget($widget, requirements) {
+        const $ul = $('<ul class="list-unstyled small mb-0"></ul>');
+
+        for (const r of requirements) {
+            const $li = $(`
+                <li class="text-muted" data-requirement="${r.key}">
+                    <i class="fa fa-fw mr-1 requirement-icon" aria-hidden="true"></i>
+                    <span>${r.msg}</span>
+                </li>`);
+
+            $ul.append($li);
+        }
+
+        $widget.html($ul);
+    }
+
+    _updateWidget($widget, checkedRequirements) {
+        for (const r of checkedRequirements) {
+            const $li = $widget.find(`[data-requirement="${r.key}"]`);
+            if ($li.length) {
+                $li.toggleClass('text-success', r.ok);
+                $li.toggleClass('text-muted', !r.ok);
+
+                const $icon = $li.find('.requirement-icon');
+                $icon.toggleClass('fa-check', r.ok);
+                //$icon.toggleClass('fa-minus', !r.ok);
+            }
+        }
+
+        // TODO: setCustomValidity....
+    }
+
+    _getRequirements($el, res) {
         const requirements = [];
-        const value = String(this.$el.val() ?? '');
+        const minLength = parseInt($el.data('min-length')) || 0;
+        const requireLower = toBool($el.data('require-lower'));
+        const requireUpper = toBool($el.data('require-upper'));
+        const requireDigit = toBool($el.data('require-digit'));
+        const requireNonAlpha = toBool($el.data('require-nonalpha'));
+        const uniqueChars = parseInt($el.data('uniquechars')) || 0;
 
-        if (this.config.minLength > 0) {
+        if (minLength > 0) {
             requirements.push({
-                ok: value.length >= this.config.minLength,
-                msg: this.res.TooShort || `At least ${this.config.minLength} characters`
+                key: 'minlength',
+                test: (v) => v.length >= minLength,
+                msg: res.MinLength || `At least ${minLength} characters`
             });
         }
 
-        if (this.config.requireLower) {
+        if (requireLower) {
             requirements.push({
-                ok: this._testRegex(value, /\p{Ll}/u, /[a-z]/),
-                msg: this.res.RequireLower || 'At least one lowercase letter (a–z)'
+                key: 'lower',
+                test: this._getRegexTest(/\p{Ll}/u, /[a-z]/),
+                msg: res.RequireLower || 'At least one lowercase letter (a–z)'
             });
         }
 
-        if (this.config.requireUpper) {
+        if (requireUpper) {
             requirements.push({
-                ok: this._testRegex(value, /\p{Lu}/u, /[A-Z]/),
-                msg: this.res.RequireUpper || 'At least one uppercase letter (A–Z)'
+                key: 'upper',
+                test: this._getRegexTest(/\p{Lu}/u, /[A-Z]/),
+                msg: res.RequireUpper || 'At least one uppercase letter (A–Z)'
             });
         }
 
-        if (this.config.requireDigit) {
+        if (requireDigit) {
             requirements.push({
-                ok: this._testRegex(value, /\p{Nd}/u, /\d/),
-                msg: this.res.RequireDigit || 'At least one number (0–9)'
+                key: 'digit',
+                test: this._getRegexTest(/\p{Nd}/u, /\d/),
+                msg: res.RequireDigit || 'At least one number (0–9)'
             });
         }
 
-        if (this.config.requireNonAlpha) {
+        if (requireNonAlpha) {
             // .NET RequireNonAlphanumeric: at least one char where !char.IsLetterOrDigit(c)
             // char.IsLetterOrDigit => Letter (L*) OR DecimalDigitNumber (Nd)
             // So "non-alphanumeric" => NOT (L or Nd)
             requirements.push({
-                ok: this._testRegex(value, /[^\p{L}\p{Nd}]/u, /[^A-Za-z0-9]/),
-                msg: this.res.RequireNonAlpha || 'At least one special character (e.g. !@#$)'
+                key: 'nonalpha',
+                test: this._getRegexTest(/[^\p{L}\p{Nd}]/u, /[^A-Za-z0-9]/),
+                msg: res.RequireNonAlpha || 'At least one special character (e.g. !@#$)'
             });
         }
 
-        if (this.config.requireUniqueChars > 0) {
+        if (uniqueChars > 0) {
             requirements.push({
-                ok: this._countUniqueChars(value) >= this.config.requireUniqueChars,
-                msg: this.res.RequireUniqueChars || `At least ${this.config.requireUniqueChars} unique characters`
+                key: 'uniquechars',
+                test: (v) => this._countUniqueChars(v) >= uniqueChars,
+                msg: res.UniqueChars || `At least ${uniqueChars} unique characters`
             });
         }
 
         return requirements;
     }
 
-    _testRegex(value, unicodeRegex, asciiFallbackRegex) {
+    _getRegexTest(unicodeRegex, asciiFallbackRegex) {
         try {
-            return unicodeRegex.test(value);
+            unicodeRegex.test('');
+            return (x) => unicodeRegex.test(x);
         } catch {
-            return asciiFallbackRegex.test(value);
+            return (x) => asciiFallbackRegex.test(x);
         }
     }
 
     _countUniqueChars(value) {
-        // Identity counts distinct .NET char (UTF-16 code units), not codepoints/graphemes.
-        const set = new Set();
-        for (let i = 0; i < value.length; i++) {
-            set.add(value[i]);
-        }
-        return set.size;
+        // Identity's RequiredUniqueChars counts distinct .NET char values (UTF-16 code units), not Unicode code points.
+        // Using split('') preserves surrogate pairs as two units (like .NET char), whereas 'new Set(str)' would iterate by code point.
+        return new Set(value.split('')).size;
     }
 }
