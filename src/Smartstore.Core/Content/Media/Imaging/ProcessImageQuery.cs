@@ -58,10 +58,7 @@ namespace Smartstore.Core.Content.Media.Imaging
             Notify = true;
 
             // Add tokens sanitized
-            if (query != null)
-            {
-                query.Keys.Each(key => Add(key, query[key], false));
-            }
+            query?.Keys.Each(key => Add(key, query[key], false));
         }
 
         public ProcessImageQuery(ProcessImageQuery query)
