@@ -1,4 +1,7 @@
-﻿using System.Collections;
+﻿#nullable enable
+
+using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Smartstore.Collections.JsonConverters;
 using System.Text.Json.Serialization;
@@ -12,9 +15,10 @@ namespace Smartstore.Collections
     /// <typeparam name="TValue">The type of value.</typeparam>
     [JsonConverter(typeof(MultimapJsonConverterFactory))]
     public class Multimap<TKey, TValue> : IEnumerable<KeyValuePair<TKey, ICollection<TValue>>>
+        where TKey : notnull
     {
         private readonly IDictionary<TKey, ICollection<TValue>> _dict;
-        private readonly Func<IEnumerable<TValue>, ICollection<TValue>> _collectionCreator;
+        private readonly Func<IEnumerable<TValue>, ICollection<TValue>>? _collectionCreator;
         private readonly bool _isReadonly = false;
 
         internal readonly static Func<IEnumerable<TValue>, ICollection<TValue>> DefaultCollectionCreator =
@@ -73,7 +77,7 @@ namespace Smartstore.Collections
             // for serialization
         }
 
-        public Multimap(IEnumerable<KeyValuePair<TKey, IEnumerable<TValue>>> items, IEqualityComparer<TKey> comparer)
+        public Multimap(IEnumerable<KeyValuePair<TKey, IEnumerable<TValue>>> items, IEqualityComparer<TKey>? comparer)
         {
             // for serialization
             Guard.NotNull(items);
@@ -89,7 +93,7 @@ namespace Smartstore.Collections
             }
         }
 
-        protected virtual ICollection<TValue> CreateCollection(IEnumerable<TValue> values)
+        protected virtual ICollection<TValue> CreateCollection(IEnumerable<TValue>? values)
         {
             return (_collectionCreator ?? DefaultCollectionCreator)(values ?? []);
         }
@@ -107,14 +111,29 @@ namespace Smartstore.Collections
         /// </summary>
         public int TotalValueCount
         {
-            get => _dict.Values.Sum(x => x.Count);
+            get
+            {
+                var count = 0;
+                foreach (var values in _dict.Values)
+                {
+                    count += values.Count;
+                }
+
+                return count;
+            }
         }
 
         /// <summary>
-        /// Gets the collection of values stored under the specified key.
+        /// Gets the collection of values associated with the specified key. If the key does not exist and the
+        /// collection is not read-only, a new collection is created and associated with the key.
         /// </summary>
-        /// <param name="key">The key.</param>
-		public virtual ICollection<TValue> this[TKey key]
+        /// <remarks>If the key does not exist and the collection is not read-only, a new collection will
+        /// be created and associated with the key. The returned collection can be modified unless the instance is
+        /// marked as read-only.</remarks>
+        /// <param name="key">The key for which to retrieve or create the associated collection of values. Cannot be null.</param>
+        /// <returns>A collection of values associated with the specified key. Returns null if the key is not found and the
+        /// collection is read-only.</returns>
+        public virtual ICollection<TValue>? this[TKey key]
         {
             get
             {
@@ -150,6 +169,12 @@ namespace Smartstore.Collections
             get => _dict.Values;
         }
 
+        /// <summary>
+        /// Finds all values that match a predicate within a key group.
+        /// </summary>
+        /// <param name="key">The key to search in.</param>
+        /// <param name="predicate">The predicate to apply.</param>
+        /// <returns>An enumerable of matching values; empty if the key does not exist.</returns>
         public IEnumerable<TValue> Find(TKey key, Func<TValue, bool> predicate)
         {
             Guard.NotNull(key);
@@ -172,7 +197,7 @@ namespace Smartstore.Collections
         {
             CheckNotReadonly();
 
-            this[key].Add(value);
+            this[key]!.Add(value);
         }
 
         /// <summary>
@@ -189,7 +214,7 @@ namespace Smartstore.Collections
 
             CheckNotReadonly();
 
-            this[key].AddRange(values);
+            this[key]!.AddRange(values);
         }
 
         /// <summary>
@@ -250,8 +275,9 @@ namespace Smartstore.Collections
         /// Gets the values associated with the specified key.
         /// </summary>
         /// <param name="key">The key.</param>
+        /// <param name="values">The values, if found.</param>
         /// <returns><c>True</c> if the multimap has one or more values for the specified key, otherwise <c>false</c>.</returns>
-        public virtual bool TryGetValues(TKey key, out ICollection<TValue> values)
+        public virtual bool TryGetValues(TKey key, [NotNullWhen(true)] out ICollection<TValue>? values)
         {
             return _dict.TryGetValue(key, out values);
         }
@@ -267,6 +293,11 @@ namespace Smartstore.Collections
             return _dict.TryGetValue(key, out var values) && values.Contains(value);
         }
 
+        /// <summary>
+        /// Gets a dictionary view of the collection, where each key is associated with a collection of values.
+        /// </summary>
+        /// <returns>An IDictionary containing each key and its corresponding collection of values. Modifications to the returned
+        /// dictionary affect the underlying collection.</returns>
         public IDictionary<TKey, ICollection<TValue>> AsDictionary()
             => _dict;
 
@@ -275,18 +306,14 @@ namespace Smartstore.Collections
         /// </summary>
         /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the multimap.</returns>
         IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+            => GetEnumerator();
 
         /// <summary>
         /// Returns an enumerator that iterates through the multimap.
         /// </summary>
         /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the multimap.</returns>
-		public virtual IEnumerator<KeyValuePair<TKey, ICollection<TValue>>> GetEnumerator()
-        {
-            return _dict.GetEnumerator();
-        }
+        public virtual IEnumerator<KeyValuePair<TKey, ICollection<TValue>>> GetEnumerator()
+            => _dict.GetEnumerator();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void CheckNotReadonly()
@@ -305,43 +332,8 @@ namespace Smartstore.Collections
             {
                 map.AddRange(group.Key, group);
             }
-
+                    
             return map;
         }
-
-        #region Backlog
-
-        //class GroupingIterator : IEnumerator<IGrouping<TKey, TValue>>
-        //{
-        //    private readonly IEnumerator<KeyValuePair<TKey, ICollection<TValue>>> _inner;
-
-        //    public GroupingIterator(IEnumerator<KeyValuePair<TKey, ICollection<TValue>>> inner)
-        //    {
-        //        _inner = inner;
-        //    }
-
-        //    public IGrouping<TKey, TValue> Current => new GroupingWrapper(_inner.Current);
-        //    object IEnumerator.Current => new GroupingWrapper(_inner.Current);
-
-        //    public bool MoveNext() => _inner.MoveNext();
-        //    public void Reset() => _inner.Reset();
-        //    public void Dispose() => _inner.Dispose();
-        //}
-
-        //class GroupingWrapper : IGrouping<TKey, TValue>
-        //{
-        //    private readonly KeyValuePair<TKey, ICollection<TValue>> _inner;
-
-        //    public GroupingWrapper(KeyValuePair<TKey, ICollection<TValue>> inner)
-        //    {
-        //        _inner = inner;
-        //    }
-
-        //    public TKey Key => _inner.Key;
-        //    public IEnumerator<TValue> GetEnumerator() => _inner.Value.GetEnumerator();
-        //    IEnumerator IEnumerable.GetEnumerator() => _inner.Value.GetEnumerator();
-        //}
-
-        #endregion
     }
 }
