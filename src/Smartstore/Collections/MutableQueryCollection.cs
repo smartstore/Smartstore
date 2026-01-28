@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿#nullable enable
+
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Primitives;
 
@@ -42,14 +44,29 @@ public class MutableQueryCollection : QueryCollection
     /// <param name="name">The name</param>
     /// <param name="value">The value associated with the name</param>
     /// <param name="isUnique">true if the name is unique within the querystring. This allows us to override existing values</param>
-    public virtual MutableQueryCollection Add(string name, string value, bool isUnique = false)
+    public virtual MutableQueryCollection Add(string name, string? value, bool isUnique = false)
     {
         Guard.NotEmpty(name);
-       
+
+        // Fast-path: avoid SplitSafe/ToArray allocations when there is no CSV.
+        var hasComma = value?.Contains(',') ?? false;
+
+        if (isUnique)
+        {
+            _store[name] = hasComma
+                ? new StringValues(value!.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                : new StringValues(value);
+
+            return this;
+        }
+
         if (_store.TryGetValue(name, out var existingValues))
         {
-            var passedValues = new StringValues(value.SplitSafe(',').ToArray());
-            _store[name] = isUnique ? passedValues : StringValues.Concat(existingValues, passedValues);
+            var passedValues = hasComma
+                ? new StringValues(value!.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                : new StringValues(value);
+
+            _store[name] = StringValues.Concat(existingValues, passedValues);
         }
         else
         {
@@ -110,6 +127,6 @@ public class MutableQueryCollection : QueryCollection
 
     public override string ToString()
     {
-        return ToQueryString().Value;
+        return ToQueryString().Value ?? string.Empty;
     }
 }
