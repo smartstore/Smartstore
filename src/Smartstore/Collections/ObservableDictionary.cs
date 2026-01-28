@@ -1,6 +1,9 @@
-﻿using System.Collections;
+﻿#nullable enable
+
+using System.Collections;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Smartstore.Collections;
 
@@ -17,6 +20,7 @@ namespace Smartstore.Collections;
 /// </summary>
 public class ObservableDictionary<TKey, TValue>
     : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>, INotifyCollectionChanged, INotifyPropertyChanged
+    where TKey : notnull
 {
     enum AppendMode
     {
@@ -47,12 +51,12 @@ public class ObservableDictionary<TKey, TValue>
     {
     }
 
-    public ObservableDictionary(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer)
+    public ObservableDictionary(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey>? comparer)
     {
         _dict = new Dictionary<TKey, TValue>(dictionary, comparer);
     }
 
-    public ObservableDictionary(int capacity, IEqualityComparer<TKey> comparer)
+    public ObservableDictionary(int capacity, IEqualityComparer<TKey>? comparer)
     {
         _dict = new Dictionary<TKey, TValue>(capacity, comparer);
     }
@@ -62,7 +66,7 @@ public class ObservableDictionary<TKey, TValue>
     /// <summary>
     /// PropertyChanged event (per <see cref="INotifyPropertyChanged" />).
     /// </summary>
-    public virtual event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
     /// Occurs when the collection changes, either by adding or removing an item.
@@ -70,9 +74,9 @@ public class ObservableDictionary<TKey, TValue>
     /// <remarks>
     /// see <seealso cref="INotifyCollectionChanged"/>
     /// </remarks>
-    public virtual event NotifyCollectionChangedEventHandler CollectionChanged;
+    public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
-    protected virtual void OnPropertyChanged(string propertyName)
+    protected virtual void OnPropertyChanged(string? propertyName)
     {
         if (PropertyChanged != null && !string.IsNullOrEmpty(propertyName))
         {
@@ -85,7 +89,7 @@ public class ObservableDictionary<TKey, TValue>
         PropertyChanged?.Invoke(this, e);
     }
 
-    private void OnCollectionChanged(NotifyCollectionChangedAction action, KeyValuePair<TKey, TValue> changedItem)
+    private void OnCollectionChanged(NotifyCollectionChangedAction action, KeyValuePair<TKey, TValue>? changedItem)
     {
         OnCollectionChanged(
             new NotifyCollectionChangedEventArgs(
@@ -93,7 +97,7 @@ public class ObservableDictionary<TKey, TValue>
                 changedItem: changedItem));
     }
 
-    private void OnCollectionChanged(NotifyCollectionChangedAction action, KeyValuePair<TKey, TValue> newItem, KeyValuePair<TKey, TValue> oldItem)
+    private void OnCollectionChanged(NotifyCollectionChangedAction action, KeyValuePair<TKey, TValue>? newItem, KeyValuePair<TKey, TValue>? oldItem)
     {
         OnCollectionChanged(
             new NotifyCollectionChangedEventArgs(
@@ -139,9 +143,8 @@ public class ObservableDictionary<TKey, TValue>
     {
         if (key is string strKey && value is INotifyPropertyChanged notifyPropChanged)
         {
-            if (!_observerKeyMap.ContainsKey(notifyPropChanged))
+            if (_observerKeyMap.TryAdd(notifyPropChanged, strKey))
             {
-                _observerKeyMap[notifyPropChanged] = strKey;
                 notifyPropChanged.PropertyChanged += OnValuePropertyChanged;
             }
         }
@@ -149,7 +152,7 @@ public class ObservableDictionary<TKey, TValue>
 
     private void StopObserve(TKey key, TValue value)
     {
-        if (key is string strKey && value is INotifyPropertyChanged notifyPropChanged)
+        if (key is string && value is INotifyPropertyChanged notifyPropChanged)
         {
             if (_observerKeyMap.Remove(notifyPropChanged))
             {
@@ -158,15 +161,17 @@ public class ObservableDictionary<TKey, TValue>
         }
     }
 
-    private void OnValuePropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnValuePropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         // Watch for deep changes
-        if (sender is INotifyPropertyChanged notifyPropChanged)
+        if (sender is not INotifyPropertyChanged notifyPropChanged)
         {
-            if (_observerKeyMap.TryGetValue(notifyPropChanged, out var key))
-            {
-                OnPropertyChanged(key);
-            }
+            return;
+        }
+
+        if (_observerKeyMap.TryGetValue(notifyPropChanged, out var key))
+        {
+            OnPropertyChanged(key);
         }
     }
 
@@ -218,29 +223,26 @@ public class ObservableDictionary<TKey, TValue>
     /// <inheritdoc/>
     public void Clear()
     {
-        if (!_dict.Any())
+        if (_dict.Count == 0)
         {
             return;
         }
 
-        var removedItems = new List<KeyValuePair<TKey, TValue>>(_dict.AsEnumerable());
+        var removedItems = new List<KeyValuePair<TKey, TValue>>(_dict);
         _dict.Clear();
 
-        if (removedItems.Count > 0)
-        {
-            OnPropertyChanged(EventArgsCache.CountPropertyChanged);
-            OnPropertyChanged(EventArgsCache.IndexerPropertyChanged);
-            OnPropertyChanged(EventArgsCache.KeysPropertyChanged);
-            OnPropertyChanged(EventArgsCache.ValuesPropertyChanged);
-            OnCollectionReset();
+        OnPropertyChanged(EventArgsCache.CountPropertyChanged);
+        OnPropertyChanged(EventArgsCache.IndexerPropertyChanged);
+        OnPropertyChanged(EventArgsCache.KeysPropertyChanged);
+        OnPropertyChanged(EventArgsCache.ValuesPropertyChanged);
+        OnCollectionReset();
 
-            if (typeof(TKey) == typeof(string) && PropertyChanged != null)
+        if (typeof(TKey) == typeof(string) && PropertyChanged != null)
+        {
+            foreach (var kvp in removedItems)
             {
-                foreach (var kvp in removedItems)
-                {
-                    StopObserve(kvp.Key, kvp.Value);
-                    OnPropertyChanged(new PropertyChangedEventArgs(kvp.Key as string));
-                }
+                StopObserve(kvp.Key, kvp.Value);
+                OnPropertyChanged(new PropertyChangedEventArgs(kvp.Key as string));
             }
         }
     }
@@ -299,7 +301,7 @@ public class ObservableDictionary<TKey, TValue>
     }
 
     /// <inheritdoc/>
-    public bool TryGetValue(TKey key, out TValue value)
+    public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
         => _dict.TryGetValue(key, out value);
 
     /// <inheritdoc/>
@@ -326,7 +328,7 @@ public class ObservableDictionary<TKey, TValue>
 
     private void SetItem(TKey key, TValue value, AppendMode appendMode)
     {
-        Guard.NotNull(key, nameof(key));
+        Guard.NotNull(key);
 
         if (!_dict.TryGetValue(key, out var oldValue))
         {

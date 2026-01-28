@@ -4,7 +4,7 @@
 - First general instruction
 - Second general instruction
 - Avoid eager O(n) work in constructors when previously work was deferred; be careful to not introduce new up-front costs and justify any tradeoffs.
-- Do not remove XML documentation comments; preserve existing docs when modifying code and add docs for new/changed members. User explicitly requested: 'Mach das nie wieder! Schreib bitte Docs'.
+- Only modify existing XML documentation comments (including <inheritdoc/>) when making documentation corrections; otherwise, preserve docs verbatim during code changes. User explicitly requested: 'Mach das nie wieder! Schreib bitte Docs'.
 
 ## Code Style
 - Use specific formatting rules
