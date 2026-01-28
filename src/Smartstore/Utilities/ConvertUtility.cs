@@ -416,7 +416,6 @@ public static class ConvertUtility
         return new HtmlString(str);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string RewriteHtmlAttributeKey(string key)
     {
         // Single-pass rewrite to avoid creating two intermediate strings.
@@ -425,17 +424,26 @@ public static class ConvertUtility
         char[] buffer = new char[len]; // max size; may not fill.
 
         int j = 0;
+        bool changed = false;
+
         for (int i = 0; i < len; i++)
         {
             char c = key[i];
             if (c == '@')
             {
+                changed = true;
                 continue;
             }
 
-            buffer[j++] = (c == '_') ? '-' : c;
+            char rewritten = c == '_' ? '-' : c;
+            if (rewritten != c)
+            {
+                changed = true;
+            }
+
+            buffer[j++] = rewritten;
         }
 
-        return j == len ? key : new string(buffer, 0, j);
+        return changed ? new string(buffer, 0, j) : key;
     }
 }
