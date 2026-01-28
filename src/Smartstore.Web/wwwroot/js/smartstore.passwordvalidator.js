@@ -2,7 +2,7 @@
     constructor(passwordSelector, ressources) {
         const $el = $(passwordSelector);
         if (!$el.length) {
-            console.warn("PasswordValidator: input field not found for selector ", passwordSelector);
+            console.warn("PasswordValidator: password field not found for selector ", passwordSelector);
             return;
         }
 
@@ -11,28 +11,16 @@
             return;
         }
 
-        const $widget = $('<div class="password-requirements mt-2 hide" aria-live="polite"></div>');
-        const $toggleGroup = $el.parent('.toggle-pwd-group');
-        if ($toggleGroup.length) {
-            $toggleGroup.after($widget);
-        } else {
-            $el.after($widget);
-        }
+        //const $fieldError = $el.closest('.password-container').find('.field-validation-valid, .field-validation-error').first();
+        const $widget = this._createWidget($el, requirements);
 
-        this._createWidget($widget, requirements);
+        // TODO: (mg) Should we only display validation error after clicking the Submit button (instead of both error and requirements)? Too hackish?
 
-        //$.validator.addMethod("pwdpolicy", function (value, element, params) {
-        //    if (this.optional(element)) {
-        //        return true;
-        //    }
-
-        //    return false;// validate password
-        //});
-        //$.validator.messages.pwdpolicy = "Das Passwort erfüllt die Anforderungen nicht.";
-
-
-        $el.on('input.smartstore.passwordvalidator', () => {
-            const value = String($el.val() ?? '');
+        // jQuery unobtrusive validation.
+        $.validator.addMethod('pwpolicy', function (value, element) {
+            if (this.optional(element)) {
+                return true;
+            }
 
             const checkedRequirements = requirements.map(x => ({
                 key: x.key,
@@ -41,15 +29,53 @@
             }));
             //console.log(checkedRequirements.filter(x => !x.ok).map(x => x.msg).join(', '));
 
-            this._updateWidget($widget, checkedRequirements);
+            // Update widget.
+            for (const r of checkedRequirements) {
+                const $li = $widget.find(`[data-requirement="${r.key}"]`);
+                if ($li.length) {
+                    $li.toggleClass('text-success', r.ok);
+                    $li.toggleClass('text-muted', !r.ok);
 
+                    const $icon = $li.find('.requirement-icon');
+                    $icon.toggleClass('fa-check', r.ok);
+                    //$icon.toggleClass('fa-minus', !r.ok);
+                }
+            }
+
+            return checkedRequirements.every(x => x.ok);
+        });
+
+        $.validator.unobtrusive.adapters.add('pwpolicy',
+            ['minlength', 'lower', 'upper', 'digit', 'nonalpha', 'uniquechars'],
+            (options) => {
+                options.rules['pwpolicy'] = { };
+                if (options.message) {
+                    options.messages['pwpolicy'] = options.message;
+                }
+            }
+        );
+
+
+        $el.on('input.smartstore.passwordvalidator', () => {
+            $el.valid();
             $widget.removeClass('hide');
         }).on('blur.smartstore.passwordvalidator', () => {
             $widget.addClass('hide');
+        }).on('focus.smartstore.passwordvalidator', () => {
+            $widget.removeClass('hide');
         });
     }
 
-    _createWidget($widget, requirements) {
+    _createWidget($el, requirements) {
+        const $widget = $('<div class="password-requirements mt-1 hide" aria-live="polite"></div>');
+        const $elCtx = $el.closest('.password-container');
+        if ($elCtx.length) {
+            $elCtx.append($widget);
+        }
+        else {
+            $el.after($widget);
+        }
+        
         const $ul = $('<ul class="list-unstyled small mb-0"></ul>');
 
         for (const r of requirements) {
@@ -63,20 +89,7 @@
         }
 
         $widget.html($ul);
-    }
-
-    _updateWidget($widget, checkedRequirements) {
-        for (const r of checkedRequirements) {
-            const $li = $widget.find(`[data-requirement="${r.key}"]`);
-            if ($li.length) {
-                $li.toggleClass('text-success', r.ok);
-                $li.toggleClass('text-muted', !r.ok);
-
-                const $icon = $li.find('.requirement-icon');
-                $icon.toggleClass('fa-check', r.ok);
-                //$icon.toggleClass('fa-minus', !r.ok);
-            }
-        }
+        return $widget;
     }
 
     _getRequirements($el, res) {

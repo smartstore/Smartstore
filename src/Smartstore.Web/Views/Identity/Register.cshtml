@@ -101,18 +101,19 @@
 
                     <div class="form-group row">
                         <label asp-for="Password" class="col-md-3 col-form-label required"></label>
-                        <div class="col-md-9">
+                        <div class="col-md-9 password-container">
                             <input asp-for="Password" 
                                    type="password" 
                                    sm-required="true" 
                                    autocomplete="new-password"
+                                   data-val-pwpolicy="@T("Identity.Error.PasswordRequirementsNotMet")"
                                    data-min-length="@CustomerSettings.PasswordMinLength"
                                    data-require-lower="@CustomerSettings.PasswordRequireLowercase"
                                    data-require-upper="@CustomerSettings.PasswordRequireUppercase"
                                    data-require-digit="@CustomerSettings.PasswordRequireDigit"
                                    data-require-nonalpha="@CustomerSettings.PasswordRequireNonAlphanumeric"
                                    data-uniquechars="@CustomerSettings.PasswordRequiredUniqueChars" />
-                            <span asp-validation-for="Password"></span>
+                            <span asp-validation-for="Password" class="mb-1"></span>
                         </div>
                     </div>
                     <div class="form-group row">
