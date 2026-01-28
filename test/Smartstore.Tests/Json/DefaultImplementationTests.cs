@@ -185,11 +185,11 @@ public class DefaultImplementationTests
         map.ShouldNotBeNull();
         map!.Count.ShouldEqual(2);
 
-        map[1].Count.ShouldEqual(1);
-        Assert.That(map[1].Single(), Is.TypeOf<PermissionNode>());
+        map[1]!.Count.ShouldEqual(1);
+        Assert.That(map[1]!.Single(), Is.TypeOf<PermissionNode>());
 
-        map[2].Count.ShouldEqual(1);
-        Assert.That(map[2].Single(), Is.TypeOf<PermissionNode>());
+        map[2]!.Count.ShouldEqual(1);
+        Assert.That(map[2]!.Single(), Is.TypeOf<PermissionNode>());
     }
 
     [Test]
