@@ -19,7 +19,7 @@ public class MemoryCacheStore : Disposable, IMemoryCacheStore
     private readonly IOptions<MemoryCacheOptions> _optionsAccessor;
     private readonly ILoggerFactory _loggerFactory;
     private readonly IMessageBus _bus;
-    private readonly ICollection<string> _keys = new SyncedCollection<string>([]);
+    private readonly ICollection<string> _keys = new SyncedCollection<string>(new HashSet<string>());
     private readonly Lock _syncLock = new();
 
     private MemoryCache _cache;
@@ -31,8 +31,8 @@ public class MemoryCacheStore : Disposable, IMemoryCacheStore
 
     public MemoryCacheStore(IOptions<MemoryCacheOptions> optionsAccessor, IMessageBus bus, ILoggerFactory loggerFactory)
     {
-        Guard.NotNull(optionsAccessor, nameof(optionsAccessor));
-        Guard.NotNull(loggerFactory, nameof(loggerFactory));
+        Guard.NotNull(optionsAccessor);
+        Guard.NotNull(loggerFactory);
 
         _optionsAccessor = optionsAccessor;
         _bus = bus;
@@ -84,7 +84,7 @@ public class MemoryCacheStore : Disposable, IMemoryCacheStore
     public bool IsDistributed { get; }
 
     public virtual bool Contains(string key)
-        => _keys.Contains(key);
+        => _cache.TryGetValue(key, out _);
 
     public virtual Task<bool> ContainsAsync(string key)
         => Task.FromResult(Contains(key));
@@ -109,7 +109,7 @@ public class MemoryCacheStore : Disposable, IMemoryCacheStore
         {
             _keys.Add(key);
 
-            var memSet = preserveOrder 
+            var memSet = preserveOrder
                 ? new OrderedMemorySet(this, acquirer?.Invoke())
                 : new MemorySet(this, acquirer?.Invoke());
 
@@ -125,8 +125,8 @@ public class MemoryCacheStore : Disposable, IMemoryCacheStore
         {
             _keys.Add(key);
 
-            var memSet = preserveOrder 
-                ? new OrderedMemorySet(this,  acquirer == null ? null : await acquirer?.Invoke())
+            var memSet = preserveOrder
+                ? new OrderedMemorySet(this, acquirer == null ? null : await acquirer?.Invoke())
                 : new MemorySet(this, acquirer == null ? null : await acquirer?.Invoke());
 
             return new CacheEntry { Key = key, Value = memSet, ValueType = typeof(MemorySet) };
@@ -142,7 +142,7 @@ public class MemoryCacheStore : Disposable, IMemoryCacheStore
             // Don't reconfigure and re-add "equal" entry that is already in the cache.
             return;
         }
-        
+
         entry.Key = key;
         PopulateCacheEntry(entry, _cache.CreateEntry(key));
     }
@@ -365,8 +365,6 @@ public class MemoryCacheStore : Disposable, IMemoryCacheStore
     {
         _keys.Clear();
         _cache.Clear();
-
-        GC.Collect();
     }
 
     public virtual Task ClearAsync()
@@ -384,16 +382,44 @@ public class MemoryCacheStore : Disposable, IMemoryCacheStore
     public virtual bool SetTimeToLive(string key, TimeSpan? duration)
     {
         var entry = Get(key);
-        if (entry != null && entry.GetTimeToLive() != duration)
+        if (entry is null)
         {
+            return false;
+        }
+
+        // TTL updates absolute expiration; sliding expiration (if any) remains untouched and is capped by the absolute expiration.
+        if (duration is null)
+        {
+            if (entry.AbsoluteExpiration is null)
+            {
+                return true;
+            }
+
             var clone = entry.Clone();
-            clone.AbsoluteExpiration = duration;
+            clone.AbsoluteExpiration = null;
             clone.CancellationTokenSource = entry.CancellationTokenSource;
 
             Put(key, clone);
+            return true;
         }
 
-        return false;
+        if (duration.Value <= TimeSpan.Zero)
+        {
+            Remove(key);
+            return true;
+        }
+
+        if (entry.AbsoluteExpiration == duration)
+        {
+            return true;
+        }
+
+        var clone2 = entry.Clone();
+        clone2.AbsoluteExpiration = duration;
+        clone2.CancellationTokenSource = entry.CancellationTokenSource;
+
+        Put(key, clone2);
+        return true;
     }
 
     public virtual Task<bool> SetTimeToLiveAsync(string key, TimeSpan? duration)
