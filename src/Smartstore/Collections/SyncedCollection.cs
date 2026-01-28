@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿#nullable enable
+
+using System.Collections;
 using Smartstore.Threading;
 
 namespace Smartstore.Collections;
@@ -14,13 +16,16 @@ public sealed class SyncedCollection<T> : Disposable, ICollection<T>
         _col = Guard.NotNull(wrappedCollection);
     }
 
-    public ReaderWriterLockSlim Lock 
+    public ReaderWriterLockSlim Lock
     {
-        get => _rwLock; 
+        get => _rwLock;
     }
 
-    public void AddRange(IEnumerable<T> collection)
+    public void AddRange(IEnumerable<T>? collection)
     {
+        if (collection == null)
+            return;
+
         using (_rwLock.GetWriteLock())
         {
             _col.AddRange(collection);
@@ -44,11 +49,23 @@ public sealed class SyncedCollection<T> : Disposable, ICollection<T>
 
     public void InsertRange(int index, IEnumerable<T> values)
     {
+        Guard.NotNull(values);
+
         if (_col is List<T> list)
         {
             using (_rwLock.GetWriteLock())
             {
                 list.InsertRange(index, values);
+            }
+        }
+        else if (_col is IList<T> ilist)
+        {
+            using (_rwLock.GetWriteLock())
+            {
+                foreach (var value in values)
+                {
+                    ilist.Insert(index++, value);
+                }
             }
         }
         else
@@ -59,6 +76,8 @@ public sealed class SyncedCollection<T> : Disposable, ICollection<T>
 
     public int RemoveRange(IEnumerable<T> values)
     {
+        Guard.NotNull(values);
+
         int numRemoved = 0;
 
         using (_rwLock.GetWriteLock())
@@ -66,7 +85,9 @@ public sealed class SyncedCollection<T> : Disposable, ICollection<T>
             foreach (var value in values)
             {
                 if (_col.Remove(value))
+                {
                     numRemoved++;
+                }
             }
         }
 
@@ -82,6 +103,26 @@ public sealed class SyncedCollection<T> : Disposable, ICollection<T>
                 list.RemoveRange(index, count);
             }
         }
+        else if (_col is IList<T> ilist)
+        {
+            using (_rwLock.GetWriteLock())
+            {
+                if ((uint)index > (uint)ilist.Count)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(index));
+                }
+
+                if (count < 0 || index + count > ilist.Count)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(count));
+                }
+
+                for (var i = 0; i < count; i++)
+                {
+                    ilist.RemoveAt(index);
+                }
+            }
+        }
         else
         {
             throw new NotSupportedException();
@@ -95,15 +136,21 @@ public sealed class SyncedCollection<T> : Disposable, ICollection<T>
             if (_col is IList<T> list)
             {
                 list.RemoveAt(index);
+                return;
             }
-            else
+
+            // For non-indexable collections: emulate index-based semantics
+            var snapshot = _col.ToList();
+
+            if ((uint)index >= (uint)snapshot.Count)
             {
-                var item = _col.ElementAtOrDefault(index);
-                if (item != null)
-                {
-                    _col.Remove(item);
-                }
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
+
+            var item = snapshot[index];
+
+            // Remove the element instance/value at that position (including null)
+            _col.Remove(item);
         }
     }
 
@@ -113,7 +160,11 @@ public sealed class SyncedCollection<T> : Disposable, ICollection<T>
         {
             using (_rwLock.GetReadLock())
             {
-                if (_col is IList<T> list)
+                if (_col is IReadOnlyList<T> rolist)
+                {
+                    return rolist[index];
+                }
+                else if (_col is IList<T> list)
                 {
                     return list[index];
                 }
@@ -175,7 +226,7 @@ public sealed class SyncedCollection<T> : Disposable, ICollection<T>
     public void CopyTo(T[] array, int arrayIndex)
     {
         Guard.NotNull(array);
-        
+
         if (array.IsSynchronized)
         {
             // Have timeout in case of deadlock

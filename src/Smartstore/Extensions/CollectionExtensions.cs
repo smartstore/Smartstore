@@ -1,4 +1,7 @@
-﻿using Smartstore.Collections;
+﻿#nullable enable
+
+using System.Diagnostics.CodeAnalysis;
+using Smartstore.Collections;
 
 namespace Smartstore;
 
@@ -6,7 +9,7 @@ public static class CollectionExtensions
 {
     extension<T>(ICollection<T> source)
     {
-        public void AddRange(IEnumerable<T> other)
+        public void AddRange(IEnumerable<T>? other)
         {
             if (other == null)
                 return;
@@ -64,7 +67,7 @@ public static class CollectionExtensions
 
     extension<T>(Stack<T> stack)
     {
-        public bool TryPeek(out T value)
+        public bool TryPeek([MaybeNullWhen(false)] out T? value)
         {
             value = default;
 
@@ -77,7 +80,7 @@ public static class CollectionExtensions
             return false;
         }
 
-        public bool TryPop(out T value)
+        public bool TryPop([MaybeNullWhen(false)] out T? value)
         {
             value = default;
 
