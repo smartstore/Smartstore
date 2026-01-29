@@ -287,7 +287,17 @@ public class GmcXmlExportProvider : ExportProviderBase
         {
             availability = "out of stock";
         }
+        else if (entity.ManageInventoryMethod == ManageInventoryMethod.ManageStockByAttributes 
+            && cargo.AttributeCombinationAsProduct
+            && entity.StockQuantity <= 0 
+            && entity.BackorderMode != BackorderMode.AllowQtyBelow0)
+        {
+            // INFO: MergeWithCombination has been called by data exporter.
+            availability = "out of stock";
+        }
 
+        // INFO: "DefaultAvailability" seems to be specifically designed for this case. It is always applied when the product
+        // does not explicitly have the status "out of stock" or "preorder". For backward compatibility I keep the logic this way.
         availability ??= cargo.DefaultAvailability;
 
         Write(writer, "availability", availability);
@@ -504,6 +514,7 @@ public class GmcXmlExportProvider : ExportProviderBase
         {
             Config = config,
             LanguageId = context.Projection.LanguageId ?? 0,
+            AttributeCombinationAsProduct = context.Projection.AttributeCombinationAsProduct,
             Currency = (Currency)context.Currency.Entity,
             BaseMeasureWeight = baseMeasureWeight,
             BaseMeasureDimension = baseMeasureDimension,
@@ -537,6 +548,7 @@ public class GmcXmlExportProvider : ExportProviderBase
     {
         public ProfileConfigurationModel Config { get; init; }
         public int LanguageId { get; init; }
+        public bool AttributeCombinationAsProduct { get; init; }
         public Currency Currency { get; init; }
         public string BaseMeasureWeight { get; init; }
         public string BaseMeasureDimension { get; init; }
