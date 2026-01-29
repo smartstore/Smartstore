@@ -25,19 +25,22 @@
 	}
 }
 
+.pwd-policy-wrap {
+
+}
+
 .pwd-policy {
     display: inline-flex;
     flex-flow: column;
     position: relative;
+    background-color: var(--light);
+    border-radius: var(--border-radius-lg);
     margin-top: 1rem;
     @include bubble(top, near, 12, var(--light), var(--light));
 }
 
-.pwd-policy-inner {
-    background-color: var(--light);
-    border-radius: var(--border-radius-lg);
-}
-
 .pwd-rules {
+    --fa-li-margin: 2em;
+    --fa-li-width: 2.5em;
     color: var(--gray-600);
 }

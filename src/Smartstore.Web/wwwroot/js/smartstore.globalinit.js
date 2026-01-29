@@ -485,6 +485,9 @@ jQuery(function () {
             input.type = 'text';
             $btn.aria('pressed', 'true').aria('label', Res["Aria.Label.HidePassword"]);
         }
+
+        // Refocus input
+        input?.focus();
     });
 
     // Swap Popper x placement when RTL

@@ -1,5 +1,5 @@
 ﻿export class PasswordValidator {
-    // TODO: (mg) Don't hide .password-requirements if it is clicked, or if the "Confirm" field has focus (not sure about the latter though)
+    // TODO: (mg) Showing validation error state on input WHILE TYPING is annoying and distracting.
     constructor(passwordSelector, ressources) {
         const $el = $(passwordSelector);
         if (!$el.length) {
@@ -13,7 +13,6 @@
         }
 
         const $widget = this._createWidget($el, rules, ressources);
-        const $widgetInner = $widget.find('.pwd-policy-inner');
 
         // Attach per-field state for the global validator method.
         $el.attr('data-val-pwdpolicy', '')
@@ -26,17 +25,15 @@
 
         $el.on('input.smartstore.passwordvalidator', () => {
             $el.valid();
-            $widgetInner.collapse('show');
-        }).on('blur.smartstore.passwordvalidator', () => {
-            $widgetInner.collapse('hide');
+            $widget.collapse('show');
         }).on('focus.smartstore.passwordvalidator', () => {
-            $widgetInner.collapse('show');
+            $widget.collapse('show');
         });
 
-        $widgetInner.on('hidden.bs.collapse', () => {
-            $widget.addClass('d-none');
-        }).on('show.bs.collapse', () => {
-            $widget.removeClass('d-none');
+        $widget.closest('.pwd-container').on('clickoutside.smartstore.passwordvalidator', (e) => {
+            setTimeout(() => {
+                if (!$el.is(':focus')) $widget.collapse('hide');
+            }, 100);
         });
     }
 
@@ -93,18 +90,18 @@
     }
 
     _createWidget($el, rules, res) {
-        const $widget = $('<div class="pwd-policy small d-none" aria-live="polite"></div>');
-        const $inner = $('<div class="pwd-policy-inner collapse"></div>');
+        const $widget = $('<div class="pwd-policy-wrap collapse" aria-live="polite"></div>');
+        const $inner = $('<div class="pwd-policy small"></div>');
 
         const $content = $('<div class="p-2"></div>');
         $content.append($(`<div class="fwm mb-2">${res.MeetPasswordRules}</div>`));
 
-        const $ul = $('<ul class="pwd-rules list-unstyled mb-0"></ul>');
+        const $ul = $('<ul class="pwd-rules fa-ul mb-0"></ul>');
         for (const r of rules) {
             const $li = $(`
                 <li class="pwd-rule" data-rule="${r.key}">
-                    <i class="fa fa-fw fa-ban mr-1 rule-icon" aria-hidden="true"></i>
-                    <span>${r.msg}</span>
+                    <span class="fa-li"><i class="fa fa-ban rule-icon" aria-hidden="true"></i></span>
+                    ${r.msg}
                 </li>`);
 
             $ul.append($li);
