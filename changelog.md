@@ -23,8 +23,8 @@
 
 - Moved AI command tools from Media Manager toolbar to folder dropwdown menu.
 - #1459 Cart sorting: The selected items must always come before the unselected ones.
-- Checkout: After payment confirmation on the third-party site, you will be redirected directly to the completed page if successful.
-The intermediate step via the confirmation page is omitted.
+- Checkout: After payment confirmation on the third-party site, you will be redirected directly to the completed page if successful. The intermediate step via the confirmation page is omitted.
+- Theming: Added `.prose` helpers for readable long-form content: optimized measure (narrow/standard/wide) plus comfortable typography defaults.
 - #1465 Display the name of the applied discount on order edit page.
 - #1466 UI: Edit discount details page should use text-expander (more-less buttons) for "Assigned to xyz" fields.
 
