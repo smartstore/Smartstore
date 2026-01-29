@@ -70,3 +70,18 @@
     border-bottom-width: 0 !important;
     margin-bottom: 0 !important;
 }
+
+
+// Prose
+.prose {
+    max-width: cssmin(78ch, 640px);
+    margin-inline: auto;
+
+    &.prose-narrow {
+        max-width: cssmin(70ch, 540px);
+    }
+
+    &.prose-wide {
+        max-width: cssmin(88ch, 720px);
+    }
+}
