@@ -106,14 +106,13 @@
                                    type="password" 
                                    sm-required="true" 
                                    autocomplete="new-password"
-                                   data-val-pwpolicy="@T("Identity.Error.PasswordRequirementsNotMet")"
                                    data-min-length="@CustomerSettings.PasswordMinLength"
                                    data-require-lower="@CustomerSettings.PasswordRequireLowercase"
                                    data-require-upper="@CustomerSettings.PasswordRequireUppercase"
                                    data-require-digit="@CustomerSettings.PasswordRequireDigit"
                                    data-require-nonalpha="@CustomerSettings.PasswordRequireNonAlphanumeric"
                                    data-uniquechars="@CustomerSettings.PasswordRequiredUniqueChars" />
-                            <span asp-validation-for="Password" class="d-none mb-1"></span>
+                            <span asp-validation-for="Password"></span>
                         </div>
                     </div>
                     <div class="form-group row">

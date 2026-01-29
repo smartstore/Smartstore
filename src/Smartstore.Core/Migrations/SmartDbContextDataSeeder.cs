@@ -48,13 +48,9 @@ namespace Smartstore.Core.Data.Migrations
                 "At least {0} characters",
                 "Mindestens {0} Zeichen");
 
-            builder.AddOrUpdate("Identity.Error.PasswordRequirementsNotMet",
-                "The password does not meet the requirements.",
-                "Das Passwort erfüllt die Anforderungen nicht.");
-
-            builder.AddOrUpdate("Account.Register.Result.MeetPasswordRequirements",
-                "Your password must meet the following requirements: {0}.",
-                "Ihr Passwort muss die folgenden Anforderungen erfüllen: {0}.");
+            builder.AddOrUpdate("Account.Register.Result.MeetPasswordRules",
+                "Password must meet these rules: {0}",
+                "Passwort muss diese Regeln erfüllen: {0}");
         }
     }
 }
