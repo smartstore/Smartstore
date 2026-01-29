@@ -94,6 +94,7 @@
                             <form id="newsletter-form" sm-ajax method="post" asp-action="Subscribe" asp-controller="Newsletter"
                                   data-subscription-failure="@T("Newsletter.SubscriptionFailed")"
                                   aria-labelledby="newsletter-subscribe-heading">
+                                <honeypot />
                                 <div class="footer-newsletter nav-collapsible">
                                     <h3 id="newsletter-subscribe-heading" 
                                         class="footer-title nav-toggler collapsed h4"

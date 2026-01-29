@@ -1,6 +1,7 @@
 ﻿using Smartstore.Core.Identity;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Messaging;
+using Smartstore.Core.Security;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Models.Newsletter;
@@ -30,7 +31,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpPost]
-        [GdprConsent, DisallowRobot]
+        [GdprConsent, DisallowRobot, ValidateHoneypot]
         [LocalizedRoute("newsletter/subscribe", Name = "SubscribeNewsletter")]
         public async Task<IActionResult> Subscribe(bool subscribe, string email)
         {
