@@ -17,6 +17,7 @@ using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 using Smartstore.Engine.Modularity;
+using Smartstore.Utilities;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Catalog.Mappers;
@@ -786,7 +787,7 @@ namespace Smartstore.Web.Controllers
 
                     NotifySuccess(T("Products.AskQuestion.Sent"));
 
-                    return model.ProductUrl.HasValue()
+                    return model.ProductUrl.HasValue() && !CommonHelper.IsDevEnvironment
                         ? Redirect(model.ProductUrl)
                         : RedirectToRoute("Product", new { SeName = await product.GetActiveSlugAsync() });
                 }
