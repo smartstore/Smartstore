@@ -24,3 +24,18 @@
 		line-height: inherit;
 	}
 }
+
+.pwd-policy {
+    display: inline-flex;
+    flex-flow: column;
+    position: relative;
+    padding: 12px;
+    margin-top: 1rem;
+    background-color: var(--light);
+    border-radius: var(--border-radius-lg);
+    @include bubble(top, near, 12, var(--light), var(--light));
+}
+
+.pwd-rules {
+    color: var(--gray-600);
+}

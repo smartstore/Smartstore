@@ -1,4 +1,8 @@
 ﻿export class PasswordValidator {
+    // TODO: (mg) Reveal/hide .password-requirements animated (fast slide in/out). But not with jQuery slide*, it's too laggy. Use BS Collapse API.
+    // TODO: (mg) Don't hide .password-requirements if it is clicked, or if the "Confirm" field has focus (not sure about the latter though)
+    // TODO: (mg) Don't display the regular .field-validation-error. It is redundant, the policy box says everything we need. Besides: it has annoying jump effects.
+    // TODO: (mg) Terminology: Policy, Rules etc.. Not "Requirements".
     constructor(passwordSelector, ressources) {
         const $el = $(passwordSelector);
         if (!$el.length) {
@@ -16,6 +20,7 @@
 
         // TODO: (mg) Should we only display validation error after clicking the Submit button (instead of both error and requirements)? Too hackish?
 
+        // TODO: (mg) $ validators are global, but this is an instantiable class. Register only once.
         // jQuery unobtrusive validation.
         $.validator.addMethod('pwpolicy', function (value, element) {
             if (this.optional(element)) {
@@ -34,10 +39,9 @@
                 const $li = $widget.find(`[data-requirement="${r.key}"]`);
                 if ($li.length) {
                     $li.toggleClass('text-success', r.ok);
-                    $li.toggleClass('text-muted', !r.ok);
 
                     const $icon = $li.find('.requirement-icon');
-                    $icon.toggleClass('fa-check', r.ok);
+                    $icon.toggleClass('fa-check', r.ok).toggleClass('fa-ban', !r.ok);
                     //$icon.toggleClass('fa-minus', !r.ok);
                 }
             }
@@ -58,37 +62,43 @@
 
         $el.on('input.smartstore.passwordvalidator', () => {
             $el.valid();
-            $widget.removeClass('hide');
-        }).on('blur.smartstore.passwordvalidator', () => {
-            $widget.addClass('hide');
+            $widget.removeClass('d-none');
+            //$widget.slideDown('fast');
+        }).on('blur.smartstore.passwordvalidator', (e) => {
+            $widget.addClass('d-none');
+            //$widget.slideUp('fast');
         }).on('focus.smartstore.passwordvalidator', () => {
-            $widget.removeClass('hide');
+            $widget.removeClass('d-none');
+            //$widget.slideDown('fast');
         });
     }
 
     _createWidget($el, requirements) {
-        const $widget = $('<div class="password-requirements mt-1 hide" aria-live="polite"></div>');
-        const $elCtx = $el.closest('.password-container');
+        const $widget = $('<div class="pwd-policy small d-none" aria-live="polite"></div>');
+        const $elCtx = $el.closest('.pwd-container');
         if ($elCtx.length) {
             $elCtx.append($widget);
         }
         else {
             $el.after($widget);
         }
-        
-        const $ul = $('<ul class="list-unstyled small mb-0"></ul>');
+
+        // TODO: (mg) Localize (keep it short in DE)
+        $widget.append($('<div class="fwm mb-2">Password must meet these rules:</div>'));
+
+        const $ul = $('<ul class="pwd-rules list-unstyled mb-0"></ul>');
 
         for (const r of requirements) {
             const $li = $(`
-                <li class="text-muted" data-requirement="${r.key}">
-                    <i class="fa fa-fw mr-1 requirement-icon" aria-hidden="true"></i>
+                <li class="pwd-rule" data-requirement="${r.key}">
+                    <i class="fa fa-fw fa-ban mr-1 requirement-icon" aria-hidden="true"></i>
                     <span>${r.msg}</span>
                 </li>`);
 
             $ul.append($li);
         }
 
-        $widget.html($ul);
+        $widget.append($ul);
         return $widget;
     }
 

@@ -44,7 +44,7 @@
     }
 </div>
 
-<div id="password-container" class="row">
+<div id="pwd-container" class="row">
     <form id="topic-password-form" method="post" asp-action="Authenticate" aria-labelledby="topic-enter-password">
         <input type="hidden" asp-for="Id" />
         <div class="col-md-6">
@@ -83,7 +83,7 @@
                 },
                 success: function (response) {
                     if (response.success) {
-                        $('#password-container').hide();
+                        $('#pwd-container').hide();
                         $('#topic-container').html(response.content);
                     }
                     else {
