@@ -1,5 +1,4 @@
 ﻿export class PasswordValidator {
-    // TODO: (mg) Reveal/hide .password-requirements animated (fast slide in/out). But not with jQuery slide*, it's too laggy. Use BS Collapse API.
     // TODO: (mg) Don't hide .password-requirements if it is clicked, or if the "Confirm" field has focus (not sure about the latter though)
     constructor(passwordSelector, ressources) {
         const $el = $(passwordSelector);
@@ -14,6 +13,7 @@
         }
 
         const $widget = this._createWidget($el, rules, ressources);
+        const $widgetInner = $widget.find('.pwd-policy-inner');
 
         // Attach per-field state for the global validator method.
         $el.attr('data-val-pwdpolicy', '')
@@ -26,17 +26,17 @@
 
         $el.on('input.smartstore.passwordvalidator', () => {
             $el.valid();
-            $widget.collapse('show');
-            //$widget.removeClass('d-none');
-            //$widget.slideDown('fast');
+            $widgetInner.collapse('show');
         }).on('blur.smartstore.passwordvalidator', () => {
-            $widget.collapse('hide');
-            //$widget.addClass('d-none');
-            //$widget.slideUp('fast');
+            $widgetInner.collapse('hide');
         }).on('focus.smartstore.passwordvalidator', () => {
-            $widget.collapse('show');
-            //$widget.removeClass('d-none');
-            //$widget.slideDown('fast');
+            $widgetInner.collapse('show');
+        });
+
+        $widgetInner.on('hidden.bs.collapse', () => {
+            $widget.addClass('d-none');
+        }).on('show.bs.collapse', () => {
+            $widget.removeClass('d-none');
         });
     }
 
@@ -93,24 +93,13 @@
     }
 
     _createWidget($el, rules, res) {
-        const $widget = $('<div class="pwd-policy small collapse" aria-live="polite"></div>');
-        const $elCtx = $el.closest('.pwd-container');
-        if ($elCtx.length) {
-            $elCtx.append($widget);
-        }
-        else {
-            $el.after($widget);
-        }
+        const $widget = $('<div class="pwd-policy small d-none" aria-live="polite"></div>');
+        const $inner = $('<div class="pwd-policy-inner collapse"></div>');
 
-        // Hide validation message. Our widget says everything we need.
-        $elCtx.find('.field-validation-valid, .field-validation-error')
-            .first()
-            .addClass('d-none');
-
-        $widget.append($(`<div class="fwm mb-2">${res.MeetPasswordRules}</div>`));
+        const $content = $('<div class="p-2"></div>');
+        $content.append($(`<div class="fwm mb-2">${res.MeetPasswordRules}</div>`));
 
         const $ul = $('<ul class="pwd-rules list-unstyled mb-0"></ul>');
-
         for (const r of rules) {
             const $li = $(`
                 <li class="pwd-rule" data-rule="${r.key}">
@@ -121,7 +110,18 @@
             $ul.append($li);
         }
 
-        $widget.append($ul);
+        $content.append($ul);
+        $inner.append($content);
+        $widget.append($inner);
+
+        const $elCtx = $el.closest('.pwd-container');
+        if ($elCtx.length) {
+            $elCtx.append($widget);
+        }
+        else {
+            $el.after($widget);
+        }
+
         return $widget;
     }
 

@@ -736,7 +736,8 @@ namespace Smartstore.Web.Controllers
                 ["RequireUpper"] = T("Identity.Error.PasswordRequiresUpper"),
                 ["RequireDigit"] = T("Identity.Error.PasswordRequiresDigit"),
                 ["RequireNonAlpha"] = T("Identity.Error.PasswordRequiresNonAlphanumeric"),
-                ["UniqueChars"] = T("Identity.Error.PasswordRequiresUniqueChars", _customerSettings.PasswordRequiredUniqueChars)
+                ["UniqueChars"] = T("Identity.Error.PasswordRequiresUniqueChars", _customerSettings.PasswordRequiredUniqueChars),
+                ["MeetPasswordRules"] = T("Account.Register.Result.MeetPasswordRules", string.Empty)
             };
         }
 
