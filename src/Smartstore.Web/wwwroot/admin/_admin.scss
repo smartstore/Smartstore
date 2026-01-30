@@ -24,17 +24,6 @@ $section-header-height: 70px;
     border-radius: var(--border-radius-md);
 }
 
-pre {
-    background: $gray-100;
-    padding: 1rem;
-    border: 1px solid rgba(#000, 0.1);
-
-    &.prettyprint {
-        padding: 1rem !important;
-        border: 1px solid rgba(#000, 0.1) !important;
-    }
-}
-
 
 // Typo
 // -----------------------------------------------------

@@ -5,7 +5,7 @@
 <div sm-if="Model.Title.HasValue() || Model.Intro.HasValue() || Model.Body.HasValue()" id="ph-topic" class="page topic-page">
     <div sm-if="Model.Title.HasValue()" id="ph-title">
         <div class="page-title">
-            <h3 sm-tagname="@Model.TitleTag" class="block-title" sm-language-attributes-for="Model.Title">
+            <h3 sm-tagname="@Model.TitleTag" class="block-title fwb" sm-language-attributes-for="Model.Title">
                 @Html.Raw(Model.Title)
             </h3>
         </div>
@@ -17,7 +17,7 @@
 
     <zone name="topic_body_before"></zone>
 
-    <div sm-if="Model.Body.HasValue()" class="page-body html-editor-content" sm-language-attributes-for="Model.Body">
+    <div sm-if="Model.Body.HasValue()" class="page-body prose html-editor-content" sm-language-attributes-for="Model.Body">
         @Html.Raw(Model.Body)
     </div>
 

@@ -174,44 +174,118 @@ a.link-overlay {
 }
 
 
-// Long text
+// Blockquote
 // ======================================
 
-.long-text {
+.blockquote {
+    padding: 0.25rem 0 0.25rem 1rem;
+    border-inline-start: 0.25rem solid var(--gray-300);
+    color: var(--gray-700);
+}
+
+
+// Prose / long text
+// ======================================
+
+.prose-container {
+    max-width: cssmin(78ch, 640px);
+    margin-inline: auto;
+
+    &.prose-narrow {
+        max-width: cssmin(70ch, 540px);
+    }
+
+    &.prose-wide {
+        max-width: cssmin(88ch, 720px);
+    }
+}
+
+.prose {
     font-size: 1rem;
-    line-height: 1.5;
+    line-height: 1.55;
     letter-spacing: normal;
 
-    :is(h2, h3, h4) {
+    // Longform polish (safe defaults)
+    hyphens: auto;
+    text-wrap: pretty;
+
+    // Vertical rhythm
+    :where(p, ul, ol, blockquote, pre, table, figure) {
+        margin-block: 0 1rem;
+    }
+
+    //  Headings
+    :where(h2, h3, h4, h5, h6) {
+        line-height: 1.25;
+        scroll-margin-top: 6rem;
+        margin-block: 2.25rem 0.75rem;
+    }
+
+    :where(h2) {
         font-weight: $font-weight-bold;
+        margin-top: 3rem;
     }
 
-    :is(h5, h6) {
+    :where(h3) {
+        font-weight: $font-weight-bold;
+        margin-top: 2.25rem;
+    }
+
+    :where(h4) {
         font-weight: $font-weight-medium;
+        margin-top: 2rem;
     }
 
-    h2:not(:first-of-type) {
-        @include margin-top(4rem);
+    :where(h5) {
+        font-weight: $font-weight-medium;
+        margin-top: 1.5rem;
     }
 
-    h2 {
-        @include font-size($h3-font-size);
-        @include margin-bottom(2rem);
+    :where(h6) {
+        font-size: 1em;
+        font-weight: $font-weight-medium;
+        text-transform: none;
+        margin-top: 1.5rem;
     }
 
-    h3 {
-        font-size: $h4-font-size;
-        @include margin-top(3rem);
-        margin-bottom: 1.5rem;
+    :where(h2):first-child {
+        margin-top: 0;
     }
 
-    :is(h4, h5, h6) {
-        font-size: inherit;
-        @include margin-top(2rem);
+    // Links
+    a {
+        text-decoration-thickness: from-font;
+        text-underline-offset: .18em;
+        text-decoration-skip-ink: auto;
+
+        &:hover {
+            text-decoration-thickness: cssmax(2px, .12em);
+        }
     }
 
-    :is(h3, h6) {
-        color: $gray-700;
+    // Lists
+    :where(ul, ol) {
+        padding-inline-start: 1.25em; // bootstrap-like, but consistent
+    }
+
+    :where(ul, ol) > li {
+        margin-block: .35rem;
+    }
+
+    // Nested lists: tighter so they don't balloon
+    :where(ul, ol) :where(ul, ol) {
+        margin-block: .35rem .75rem;
+    }
+
+    // Tables (light touch)
+    table {
+        width: 100%;
+    }
+
+    // Media
+    :where(img, video) {
+        max-width: 100%;
+        height: auto;
     }
 }
 
@@ -247,9 +321,22 @@ a.link-overlay {
 }
 
 code {
-    padding-inline: 0.25rem;
-    background-color: rgba($black, 0.035);
-    border-radius: var(--border-radius-sm); 
+    white-space: break-spaces;
+    margin: 0;
+    padding: .2em .4em;
+    background-color: rgba($black, 0.055);
+    border-radius: var(--border-radius-md); 
+}
+
+pre {
+    padding: 1rem;
+    border-radius: var(--border-radius-md);
+    background: var(--gray-100);
+
+    code {
+        padding: 0;
+        background: transparent;
+    }
 }
 
 .html-editor-content {
