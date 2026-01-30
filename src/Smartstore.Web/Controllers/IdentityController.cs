@@ -456,6 +456,8 @@ namespace Smartstore.Web.Controllers
                 return ChallengeOrForbid();
             }
 
+            PreparePasswordValidator();
+
             return View(new ChangePasswordModel());
         }
 
@@ -538,6 +540,8 @@ namespace Smartstore.Web.Controllers
                 Email = email,
                 Token = token
             };
+
+            PreparePasswordValidator();
 
             return View(model);
         }

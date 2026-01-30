@@ -14,14 +14,21 @@
         const $widget = this._createWidget($el, rules, ressources);
         const $container = $widget.closest('.pwd-container');
 
+        // WCAG
+        const srHintId = $el.attr('id') + '-pwd-sr';
+        const $srHint = $(`<span id="${srHintId}" class="sr-only" aria-live="polite" aria-atomic="true"></span>`).insertAfter($el);
+        $el.aria('describedby', (($el.aria('describedby') || '') + ' ' + srHintId).trim());
+
         // Attach per-field state for the global validator method.
         $el.attr('data-val-pwdpolicy', '')
            .data('smPwdPolicy', {
-                rules: rules,
-                $widget: $widget
+               rules: rules,
+               $widget: $widget,
+               $srHint: $srHint
             });
 
-        this._addValidatorPolicy();
+        this._wireValidatorWhenReady($el);
+        //this._addValidatorPolicy();
 
         $el.on('input.smartstore.passwordvalidator', () => {
             $el.valid();
@@ -43,7 +50,49 @@
         });
     }
 
-    _addValidatorPolicy() {
+    _wireValidatorWhenReady($el) {
+        const wire = () => {
+            const $form = $el.closest('form');
+            if (!$.validator || !$form.length) {
+                return;
+            }
+
+            PasswordValidator._addValidatorPolicy();
+
+            const v = $form.data('validator') || $form.validate();
+
+            // Patch errorPlacement ONCE per form (suppress error label for pwd fields).
+            if (!v.settings._pwdNoMsgPatched) {
+                v.settings._pwdNoMsgPatched = true;
+
+                const origErrorPlacement = v.settings.errorPlacement;
+                v.settings.errorPlacement = function (error, element) {
+                    if ($(element).hasClass('pwd-no-msg')) {
+                        error.remove();
+                        return;
+                    }
+                    return origErrorPlacement
+                        ? origErrorPlacement.call(this, error, element)
+                        : error.insertAfter(element);
+                };
+            }
+
+            // Attach the rule to THIS field (no adapter needed).
+            $el.addClass('pwd-no-msg')
+               .rules('add', { pwdpolicy: true });//messages: { pwdpolicy: '' }
+        };
+
+        // If validate is already there -> wire immediately.
+        if ($.validator) {
+            wire();
+            return;
+        }
+
+        // Otherwise wire after full page load (asset bundles done).
+        window.addEventListener('load', wire, { once: true });
+    }
+
+    static _addValidatorPolicy() {
         if (!$.validator || $.validator._smPwdPolicyAdded) {
             return;
         }
@@ -81,13 +130,22 @@
                 }
             }
 
+            // Update SR hint.
+            const $srHint = state.$srHint;
+            if ($srHint && $srHint.length) {
+                const msg = checkedRules.filter(x => !x.ok).map(x => x.msg).join(', ');
+                if ($srHint.text() !== msg) {
+                    $srHint.text(msg);
+                }
+            }
+
             return checkedRules.every(x => x.ok);
         });
 
         $.validator.unobtrusive.adapters.add('pwdpolicy',
             ['minlength', 'lower', 'upper', 'digit', 'nonalpha', 'uniquechars'],
             (options) => {
-                options.rules['pwdpolicy'] = {};//true?
+                options.rules['pwdpolicy'] = {};
                 if (options.message) {
                     options.messages['pwdpolicy'] = options.message;
                 }
@@ -96,7 +154,7 @@
     }
 
     _createWidget($el, rules, res) {
-        const $widget = $('<div class="pwd-policy-wrap collapse" aria-live="polite"></div>');
+        const $widget = $('<div class="pwd-policy-wrap collapse"></div>');
         const $inner = $('<div class="pwd-policy small"></div>');
 
         const $content = $('<div class="p-2"></div>');
