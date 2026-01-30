@@ -44,3 +44,13 @@
     --fa-li-width: 2.5em;
     color: var(--gray-600);
 }
+
+.pwd-container.pwd-status-hidden :is(.form-control.is-valid, .form-control.is-invalid) {
+    border-color: var(--border-color) !important;
+    box-shadow: none !important;
+    background-image: none !important;
+}
+
+.pwd-container.pwd-status-hidden .form-control:focus {
+    border-color: $input-focus-border-color !important;
+}

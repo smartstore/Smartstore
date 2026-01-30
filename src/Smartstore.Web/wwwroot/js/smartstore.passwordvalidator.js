@@ -1,5 +1,4 @@
 ﻿export class PasswordValidator {
-    // TODO: (mg) Showing validation error state on input WHILE TYPING is annoying and distracting.
     constructor(passwordSelector, ressources) {
         const $el = $(passwordSelector);
         if (!$el.length) {
@@ -13,6 +12,7 @@
         }
 
         const $widget = this._createWidget($el, rules, ressources);
+        const $container = $widget.closest('.pwd-container');
 
         // Attach per-field state for the global validator method.
         $el.attr('data-val-pwdpolicy', '')
@@ -30,10 +30,16 @@
             $widget.collapse('show');
         });
 
-        $widget.closest('.pwd-container').on('clickoutside.smartstore.passwordvalidator', (e) => {
+        $container.on('clickoutside.smartstore.passwordvalidator', () => {
             setTimeout(() => {
                 if (!$el.is(':focus')) $widget.collapse('hide');
             }, 100);
+        });
+
+        $el.closest('form').one('submit.smartstore.pwdstatus', () => {
+            // Show the policy widget and status on submit in case of a validation error.
+            $container.removeClass('pwd-status-hidden');
+            $widget.collapse('show');
         });
     }
 
@@ -113,7 +119,7 @@
 
         const $elCtx = $el.closest('.pwd-container');
         if ($elCtx.length) {
-            $elCtx.append($widget);
+            $elCtx.addClass('pwd-status-hidden').append($widget);
         }
         else {
             $el.after($widget);
