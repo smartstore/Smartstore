@@ -8,9 +8,11 @@ namespace Smartstore;
 
 public static partial class StringExtensions
 {
-    private const string DumpStr = "------------------------------------------------";
-
     public const string NotAvailable = "n/a";
+
+    const string DumpStr = "------------------------------------------------";
+    const string TrueString = "true";
+    const string FalseString = "false";
 
     private delegate void ActionLine(TextWriter textWriter, string line);
 
@@ -77,5 +79,13 @@ public static partial class StringExtensions
         {
             return string.IsNullOrEmpty(value) ? defaultValue : value;
         }
+    }
+
+    extension (bool value)
+    {
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public string ToStringLower()
+            => value ? TrueString : FalseString;
     }
 }

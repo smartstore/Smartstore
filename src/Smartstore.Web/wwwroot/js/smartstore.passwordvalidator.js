@@ -1,22 +1,24 @@
 ﻿export class PasswordValidator {
-    constructor(passwordSelector, ressources) {
+    constructor(passwordSelector) {
         const $el = $(passwordSelector);
         if (!$el.length) {
             console.warn("PasswordValidator: password field not found for selector ", passwordSelector);
             return;
         }
 
-        const rules = this._getRules($el, ressources);
+        const state = this._getState($el);
+        const rules = state.rules;
         if (rules.length === 0) {
             return;
         }
 
-        const $widget = this._createWidget($el, rules, ressources);
-        const $container = $widget.closest('.pwd-container');
+        const $widget = state.$widget;
+        const $container = state.$container;
+        const $containerOrBody = ($container && $container.length) ? $container : $('body');
 
         // WCAG
         const srHintId = $el.attr('id') + '-pwd-sr';
-        const $srHint = $(`<span id="${srHintId}" class="sr-only" aria-live="polite" aria-atomic="true"></span>`).insertAfter($el);
+        const $srHint = $(`<span id="${srHintId}" class="sr-only" aria-live="polite" aria-atomic="true"></span>`).insertBefore($el);
         $el.aria('describedby', (($el.aria('describedby') || '') + ' ' + srHintId).trim());
 
         // Attach per-field state for the global validator method.
@@ -37,7 +39,7 @@
             $widget.collapse('show');
         });
 
-        $container.on('clickoutside.smartstore.passwordvalidator', () => {
+        $containerOrBody.on('clickoutside.smartstore.passwordvalidator', () => {
             setTimeout(() => {
                 if (!$el.is(':focus')) $widget.collapse('hide');
             }, 100);
@@ -45,9 +47,27 @@
 
         $el.closest('form').one('submit.smartstore.pwdstatus', () => {
             // Show the policy widget and status on submit in case of a validation error.
-            $container.removeClass('pwd-status-hidden');
+            if ($container && $container.length) {
+                $container.removeClass('pwd-status-hidden');
+            }
             $widget.collapse('show');
         });
+    }
+
+    _getState($el) {
+        const id = $el.attr('id');
+        const $container = $el.closest('.pwd-container');
+        const $widget = $(`[data-pwd-policy-for="${id}"]`).first();
+        const $dataHost = ($widget && $widget.length)
+            ? $widget.find(`[data-pwd-policy-host="${id}"]`).first()
+            : $(`[data-pwd-policy-host="${id}"]`).first();
+
+        const rules = this._getRules($dataHost, $widget);
+        return {
+            rules,
+            $container,
+            $widget
+        };
     }
 
     _wireValidatorWhenReady($el) {
@@ -153,53 +173,29 @@
         );
     }
 
-    _createWidget($el, rules, res) {
-        const $widget = $('<div class="pwd-policy-wrap collapse"></div>');
-        const $inner = $('<div class="pwd-policy small"></div>');
-
-        const $content = $('<div class="p-2"></div>');
-        $content.append($(`<div class="fwm mb-2">${res.MeetPasswordRules}</div>`));
-
-        const $ul = $('<ul class="pwd-rules fa-ul mb-0"></ul>');
-        for (const r of rules) {
-            const $li = $(`
-                <li class="pwd-rule" data-rule="${r.key}">
-                    <span class="fa-li"><i class="fa fa-ban rule-icon" aria-hidden="true"></i></span>
-                    ${r.msg}
-                </li>`);
-
-            $ul.append($li);
-        }
-
-        $content.append($ul);
-        $inner.append($content);
-        $widget.append($inner);
-
-        const $elCtx = $el.closest('.pwd-container');
-        if ($elCtx.length) {
-            $elCtx.addClass('pwd-status-hidden').append($widget);
-        }
-        else {
-            $el.after($widget);
-        }
-
-        return $widget;
-    }
-
-    _getRules($el, res) {
+    _getRules($dataHost, $widget) {
         const rules = [];
-        const minLength = parseInt($el.data('min-length')) || 0;
-        const requireLower = toBool($el.data('require-lower'));
-        const requireUpper = toBool($el.data('require-upper'));
-        const requireDigit = toBool($el.data('require-digit'));
-        const requireNonAlpha = toBool($el.data('require-nonalpha'));
-        const uniqueChars = parseInt($el.data('uniquechars')) || 0;
+        if (!$dataHost || !$dataHost.length || !$widget || !$widget.length) {
+            return rules;
+        }
+
+        const minLength = parseInt($dataHost.data('min-length')) || 0;
+        const requireLower = toBool($dataHost.data('require-lower'));
+        const requireUpper = toBool($dataHost.data('require-upper'));
+        const requireDigit = toBool($dataHost.data('require-digit'));
+        const requireNonAlpha = toBool($dataHost.data('require-nonalpha'));
+        const uniqueChars = parseInt($dataHost.data('uniquechars')) || 0;
+
+        const getMsg = (ruleKey, fallback) => {
+            const $li = $widget.find(`[data-rule="${ruleKey}"]`).first();
+            return ($li.data('msg') || $li.text() || fallback || '').trim();
+        };
 
         if (minLength > 0) {
             rules.push({
                 key: 'minlength',
                 test: (v) => v.length >= minLength,
-                msg: res.MinLength || `At least ${minLength} characters`
+                msg: getMsg('minlength', `At least ${minLength} characters`)
             });
         }
 
@@ -207,7 +203,7 @@
             rules.push({
                 key: 'lower',
                 test: this._getRegexTest(/\p{Ll}/u, /[a-z]/),
-                msg: res.RequireLower || 'At least one lowercase letter (a–z)'
+                msg: getMsg('lower', 'At least one lowercase letter (a–z)')
             });
         }
 
@@ -215,7 +211,7 @@
             rules.push({
                 key: 'upper',
                 test: this._getRegexTest(/\p{Lu}/u, /[A-Z]/),
-                msg: res.RequireUpper || 'At least one uppercase letter (A–Z)'
+                msg: getMsg('upper', 'At least one uppercase letter (A–Z)')
             });
         }
 
@@ -223,7 +219,7 @@
             rules.push({
                 key: 'digit',
                 test: this._getRegexTest(/\p{Nd}/u, /\d/),
-                msg: res.RequireDigit || 'At least one number (0–9)'
+                msg: getMsg('digit', 'At least one number (0–9)')
             });
         }
 
@@ -234,7 +230,7 @@
             rules.push({
                 key: 'nonalpha',
                 test: this._getRegexTest(/[^\p{L}\p{Nd}]/u, /[^A-Za-z0-9]/),
-                msg: res.RequireNonAlpha || 'At least one special character (e.g. !@#$)'
+                msg: getMsg('nonalpha', 'At least one special character (e.g. !@#$)')
             });
         }
 
@@ -242,7 +238,7 @@
             rules.push({
                 key: 'uniquechars',
                 test: (v) => this._countUniqueChars(v) >= uniqueChars,
-                msg: res.UniqueChars || `At least ${uniqueChars} unique characters`
+                msg: getMsg('uniquechars', `At least ${uniqueChars} unique characters`)
             });
         }
 

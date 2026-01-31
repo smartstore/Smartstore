@@ -2,12 +2,9 @@
 
 @model RegisterModel
 
-@inject CustomerSettings CustomerSettings
-
 @{
     Assets.AppendTitleParts(T("PageTitle.Register"));
     var returnUrl = Context.Request.Query["returnUrl"].ToString();
-    var passwordValidatorRes = (Dictionary<string, LocalizedString>)ViewBag.PasswordValidatorRes;
 }
 
 <form asp-route="Register" asp-route-returnUrl="@returnUrl" id="register-form" method="post" class="form-horizontal">
@@ -105,13 +102,8 @@
                             <input asp-for="Password" 
                                    type="password" 
                                    sm-required="true" 
-                                   autocomplete="new-password"
-                                   data-min-length="@CustomerSettings.PasswordMinLength"
-                                   data-require-lower="@CustomerSettings.PasswordRequireLowercase"
-                                   data-require-upper="@CustomerSettings.PasswordRequireUppercase"
-                                   data-require-digit="@CustomerSettings.PasswordRequireDigit"
-                                   data-require-nonalpha="@CustomerSettings.PasswordRequireNonAlphanumeric"
-                                   data-uniquechars="@CustomerSettings.PasswordRequiredUniqueChars" />
+                                   autocomplete="new-password" />
+                            <password-validator asp-for="Password" />
                         </div>
                     </div>
                     <div class="form-group row">
@@ -287,9 +279,7 @@
     </div>
 </form>
 
-<script sm-target-zone="scripts" data-origin="register" type="module">
-    import { PasswordValidator } from "@(Url.Content("~/js/smartstore.passwordvalidator.js"))";
-
+<script sm-target-zone="scripts" data-origin="register">
     $(function () {
         restoreRememberedFormFields("registerVals");
 
@@ -301,12 +291,5 @@
     const form = document.getElementById('register-form');
     form.addEventListener('focusout', (event) => {
         rememberFormFields("register-form", "registerVals");
-    });
-
-    const validator = new PasswordValidator('#@Html.IdFor(x => x.Password)', {
-        @foreach (var (key, val) in passwordValidatorRes)
-        {
-            <text>"@Html.Raw(key)": @Html.Raw(val.ToString().EncodeJsString()),</text>
-        }
     });
 </script>

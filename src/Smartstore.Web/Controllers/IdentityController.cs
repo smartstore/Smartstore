@@ -456,8 +456,6 @@ namespace Smartstore.Web.Controllers
                 return ChallengeOrForbid();
             }
 
-            PreparePasswordValidator();
-
             return View(new ChangePasswordModel());
         }
 
@@ -540,8 +538,6 @@ namespace Smartstore.Web.Controllers
                 Email = email,
                 Token = token
             };
-
-            PreparePasswordValidator();
 
             return View(model);
         }
@@ -727,22 +723,6 @@ namespace Smartstore.Web.Controllers
                     new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" }
                 ];
             }
-
-            PreparePasswordValidator();
-        }
-
-        private void PreparePasswordValidator()
-        {
-            ViewBag.PasswordValidatorRes = new Dictionary<string, LocalizedString>
-            {
-                ["MinLength"] = T("Identity.Error.PasswordTooShort", _customerSettings.PasswordMinLength),
-                ["RequireLower"] = T("Identity.Error.PasswordRequiresLower"),
-                ["RequireUpper"] = T("Identity.Error.PasswordRequiresUpper"),
-                ["RequireDigit"] = T("Identity.Error.PasswordRequiresDigit"),
-                ["RequireNonAlpha"] = T("Identity.Error.PasswordRequiresNonAlphanumeric"),
-                ["UniqueChars"] = T("Identity.Error.PasswordRequiresUniqueChars", _customerSettings.PasswordRequiredUniqueChars),
-                ["MeetPasswordRules"] = T("Account.Register.Result.MeetPasswordRules", string.Empty)
-            };
         }
 
         /// <summary>
