@@ -91,7 +91,6 @@ h6, .h6 {
         display: inline-block;
         background: var(--body-bg, #fff);
         padding-inline-end: 1rem;
-        font-weight: $font-weight-normal;
     }
 }
 
@@ -191,16 +190,22 @@ a.link-overlay {
     max-width: cssmin(78ch, 640px);
     margin-inline: auto;
 
-    &.prose-narrow {
+    &.prose-sm {
         max-width: cssmin(70ch, 540px);
     }
 
-    &.prose-wide {
+    &.prose-lg {
         max-width: cssmin(88ch, 720px);
+    }
+
+    &.prose-xl {
+        max-width: cssmin(98ch, 820px);
     }
 }
 
 .prose {
+    --prose-headings-lg-font-weight: #{$prose-headings-lg-font-weight};
+    --prose-headings-sm-font-weight: #{$prose-headings-sm-font-weight};
     font-size: 1rem;
     line-height: 1.55;
     letter-spacing: normal;
@@ -215,35 +220,38 @@ a.link-overlay {
     }
 
     //  Headings
-    :where(h2, h3, h4, h5, h6) {
+    :where(h1, h2, h3, h4, h5, h6) {
         line-height: 1.25;
         scroll-margin-top: 6rem;
         margin-block: 2.25rem 0.75rem;
     }
 
+    :where(h1, h2, h3) {
+        font-weight: var(--prose-headings-lg-font-weight);
+    }
+
+    :where(h4, h5, h6) {
+        font-weight: var(--prose-headings-sm-font-weight);
+    }
+
     :where(h2) {
-        font-weight: $font-weight-bold;
         margin-top: 3rem;
     }
 
     :where(h3) {
-        font-weight: $font-weight-bold;
         margin-top: 2.25rem;
     }
 
     :where(h4) {
-        font-weight: $font-weight-medium;
         margin-top: 2rem;
     }
 
     :where(h5) {
-        font-weight: $font-weight-medium;
         margin-top: 1.5rem;
     }
 
     :where(h6) {
         font-size: 1em;
-        font-weight: $font-weight-medium;
         text-transform: none;
         margin-top: 1.5rem;
     }
