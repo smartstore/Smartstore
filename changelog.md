@@ -45,6 +45,7 @@
 - Stripe: Fixed bug where the order for which the hook was sent may not have been created yet.
 - Many reCAPTCHA fixes.
 - #1472 GMC: Consider `ManageInventoryMethod.ManageStockByAttributes` when exporting availability and attribute combinations are exported as products.
+- An uploaded image must be transient if the associated entity has not yet been saved.
 
 
 ## Smartstore 6.3.0
