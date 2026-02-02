@@ -487,7 +487,7 @@ namespace Smartstore.Core.Content.Media
                 file,
                 pathData,
                 stream ?? new MemoryStream(),
-                isTransient: false,
+                isTransient: isTransient,
                 dupeFileHandling: dupeFileHandling);
 
             file = result.File;
