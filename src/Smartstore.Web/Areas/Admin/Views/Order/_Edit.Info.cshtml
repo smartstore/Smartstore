@@ -103,16 +103,10 @@
             <smart-label asp-for="CustomerId" />
         </div>
         <div class="adminData">
-            <div class="form-control-plaintext" attr-class='(Model.CustomerDeleted, "text-muted")'>
-                @if (!Model.CustomerDeleted)
-                {
-                    <a asp-action="Edit" asp-controller="Customer" asp-route-id="@Model.CustomerId">@Model.CustomerName</a>
-                }
-                else
-                {
-                    @Model.CustomerName
-                }
-            </div>
+            <a href="@Url.Action("Edit", "Customer", new { id = @Model.CustomerId })" class="btn btn-link p-0" attr-class='(Model.CustomerDeleted, "disabled")'>
+                <span attr-dir='(rtl, "rtl")'>@Model.CustomerName</span>
+                <span sm-if="Model.CustomerEmail.HasValue()">(@Model.CustomerEmail)</span>
+            </a>
         </div>
     </div>
     <div class="adminRow">

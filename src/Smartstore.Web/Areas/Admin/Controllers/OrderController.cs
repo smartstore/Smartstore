@@ -1919,7 +1919,7 @@ public class OrderController : AdminController
         model.CustomerName = order.BillingAddress?.GetFullName()?.NullEmpty()
             ?? order.ShippingAddress?.GetFullName()?.NullEmpty()
             ?? order.Customer.FormatUserName(_customerSettings, T, false);
-        model.CustomerEmail = order.BillingAddress?.Email ?? order.Customer?.FindEmail();
+        model.CustomerEmail = order.Customer?.FindEmail();
         model.CustomerDeleted = order.Customer?.Deleted ?? true;
         model.OrderTotalString = Format(order.OrderTotal);
         model.OrderStatusString = Services.Localization.GetLocalizedEnum(order.OrderStatus);
