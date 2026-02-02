@@ -524,8 +524,6 @@ namespace Smartstore.Web.Controllers
                 }
 
                 model.ResultMessage = T("Account.PasswordRecovery.EmailHasBeenSent");
-
-                return View(model);
             }
 
             return View(model);
@@ -573,11 +571,8 @@ namespace Smartstore.Web.Controllers
 
                     return RedirectToAction(nameof(PasswordRecoveryConfirm), new { token = model.Token, email = model.Email });
                 }
-
-                return View(model);
             }
 
-            // If we got this far something failed. Redisplay form.
             return View(model);
         }
 

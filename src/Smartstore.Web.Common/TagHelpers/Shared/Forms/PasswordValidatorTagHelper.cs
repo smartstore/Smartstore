@@ -8,11 +8,11 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
-    [HtmlTargetElement("password-validator", Attributes = ForAttributeName)]
     /// <summary>
     /// Renders a password policy widget and exposes the effective password policy via <c>data-*</c> attributes
     /// so that client-side code can provide interactive feedback while typing.
     /// </summary>
+    [HtmlTargetElement("password-validator", Attributes = ForAttributeName)]
     public class PasswordValidatorTagHelper(CustomerSettings customerSettings) : SmartTagHelper
     {
         private sealed class PasswordPolicy
@@ -79,9 +79,6 @@ namespace Smartstore.Web.TagHelpers.Shared
             var policy = GetPasswordPolicy();
 
             var content = new DefaultTagHelperContent();
-
-            var container = new TagBuilder("div");
-            container.AddCssClass("pwd-container");
 
             var wrap = new TagBuilder("div");
             wrap.AppendCssClass("pwd-policy-wrap collapse");

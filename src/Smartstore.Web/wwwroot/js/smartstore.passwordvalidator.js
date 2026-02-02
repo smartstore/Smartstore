@@ -30,7 +30,6 @@
             });
 
         this._wireValidatorWhenReady($el);
-        //this._addValidatorPolicy();
 
         $el.on('input.smartstore.passwordvalidator', () => {
             $el.valid();
@@ -56,11 +55,17 @@
 
     _getState($el) {
         const id = $el.attr('id');
-        const $container = $el.closest('.pwd-container');
         const $widget = $(`[data-pwd-policy-for="${id}"]`).first();
         const $dataHost = ($widget && $widget.length)
             ? $widget.find(`[data-pwd-policy-host="${id}"]`).first()
             : $(`[data-pwd-policy-host="${id}"]`).first();
+
+        let $container = $el.closest('.pwd-container');
+        if (!$container.length) {
+            $container = $widget.parent();
+            $container.addClass('pwd-container');
+        }
+        $container.addClass('pwd-status-hidden');
 
         const rules = this._getRules($dataHost, $widget);
         return {
