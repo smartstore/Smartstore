@@ -481,8 +481,15 @@ namespace Smartstore.Core.Content.Media
             DuplicateFileHandling dupeFileHandling = DuplicateFileHandling.ThrowError)
         {
             var pathData = CreatePathData(path);
-            var file = await _db.MediaFiles.FirstOrDefaultAsync(x => x.Name == pathData.FileName && x.FolderId == pathData.Folder.Id);
+
+            // Only treat non-deleted files as duplicates. A trashed file must not block uploads.
+            var file = await _db.MediaFiles.FirstOrDefaultAsync(x =>
+                x.Name == pathData.FileName &&
+                x.FolderId == pathData.Folder.Id &&
+                !x.Deleted);
+
             var isDupe = file != null;
+
             var result = await ProcessFileAsync(
                 file,
                 pathData,
