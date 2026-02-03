@@ -1,4 +1,6 @@
 ﻿export class PasswordValidator {
+    // TODO: (mg) If this validator is active, the client-side jQuery validation messages (.field-validation-error) are malformed.
+    // TODO: (mg) Rules validation is not triggered anymore if input is empty.
     constructor(passwordSelector) {
         const $el = $(passwordSelector);
         if (!$el.length) {
@@ -128,7 +130,7 @@
             if (this.optional(element)) {
                 return true;
             }
-
+            
             const state = $(element).data('smPwdPolicy');
             if (!state || !state.rules) {
                 return true;
