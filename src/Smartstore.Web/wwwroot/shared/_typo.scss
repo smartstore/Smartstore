@@ -190,6 +190,10 @@ a.link-overlay {
     max-width: cssmin(78ch, 640px);
     margin-inline: auto;
 
+    .page-title {
+        margin-bottom: 3rem;
+    }
+
     &.prose-sm {
         max-width: cssmin(70ch, 540px);
     }
@@ -224,6 +228,11 @@ a.link-overlay {
         line-height: 1.25;
         scroll-margin-top: 6rem;
         margin-block: 2.25rem 0.75rem;
+
+        > span[style="font-size: medium;"] {
+            // Fix a common htmledit quirk to maintain font-size proportions
+            font-size: inherit !important;
+        }
     }
 
     :where(h1, h2, h3) {
@@ -256,7 +265,7 @@ a.link-overlay {
         margin-top: 1.5rem;
     }
 
-    :where(h2):first-child {
+    > :where(h2):first-child {
         margin-top: 0;
     }
 
