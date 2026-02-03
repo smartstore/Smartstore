@@ -50,6 +50,7 @@
 - Many reCAPTCHA fixes.
 - #1472 GMC: Consider `ManageInventoryMethod.ManageStockByAttributes` when exporting availability and attribute combinations are exported as products.
 - An uploaded image must be transient if the associated entity has not yet been saved.
+- Fixed "Failed to add specification attribute" when assigning a specification attribute to a product.
 
 
 ## Smartstore 6.3.0
