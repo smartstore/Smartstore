@@ -65,8 +65,8 @@ namespace Smartstore.Core.Checkout.Payment
         public virtual Task<string> GetConfirmationUrlAsync(ProcessPaymentRequest request, CheckoutContext context)
             => Task.FromResult<string>(null);
 
-        public virtual Task CompletePaymentAsync(ProcessPaymentRequest request, CheckoutContext context)
-            => Task.CompletedTask;
+        public virtual Task<bool> CompletePaymentAsync(ProcessPaymentRequest request, CheckoutContext context)
+            => Task.FromResult(true);
 
         #endregion
 

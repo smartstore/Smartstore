@@ -143,10 +143,10 @@ public partial interface IPaymentMethod : IProvider, IUserEditable
     /// The order is placed immediately after this method returns. Unless an exception is thrown.
     /// Only applicable if <see cref="RequiresConfirmation"/> is <c>true</c>.
     /// </summary>
-    /// <remarks>
-    /// Throw an exception, preferably <see cref="PaymentException"/>, to prevent the order from being placed.
-    /// </remarks>
-    Task CompletePaymentAsync(ProcessPaymentRequest request, CheckoutContext context);
+    /// <returns>
+    /// <c>true</c> if the payment succeeded and the order is to be placed; otherwise <c>false</c>.
+    /// </returns>
+    Task<bool> CompletePaymentAsync(ProcessPaymentRequest request, CheckoutContext context);
 
     #endregion
 

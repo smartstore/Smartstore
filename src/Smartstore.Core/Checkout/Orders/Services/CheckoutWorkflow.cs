@@ -340,36 +340,37 @@ namespace Smartstore.Core.Checkout.Orders
                         new Exception($"Cannot complete the payment. The Payment provider {paymentMethod} could not be loaded or does not support payment confirmation."));
                 }
 
-                await provider.Value.CompletePaymentAsync(paymentRequest, context);
-
-                // Payment completed successfully. Place the order.
-                var state = _checkoutStateAccessor.CheckoutState;
-                var placeOrderResult = await _orderProcessingService.PlaceOrderAsync(paymentRequest, new()
+                if (await provider.Value.CompletePaymentAsync(paymentRequest, context))
                 {
-                    [CustomerCommentKey] = state.CustomerComment,
-                    [SubscribeToNewsletterKey] = state.SubscribeToNewsletter.ToString().ToLower(),
-                    [AcceptThirdPartyEmailHandOverKey] = state.AcceptThirdPartyEmailHandOver.ToString().ToLower()
-                });
-
-                if (placeOrderResult.Success)
-                {
-                    result = await PostProcessPayment(placeOrderResult, confirmStep, context);
-                }
-                else
-                {
-                    var cart = context.Cart;
-                    if (customer.Id != paymentRequest.CustomerId)
+                    // Payment completed successfully. Place the order.
+                    var state = _checkoutStateAccessor.CheckoutState;
+                    var placeOrderResult = await _orderProcessingService.PlaceOrderAsync(paymentRequest, new()
                     {
-                        // INFO: The payment provider may have changed the customer through ProcessPaymentRequest.CustomerId.
-                        customer = await _db.Customers.FindByIdAsync(paymentRequest.CustomerId);
-                        cart = await _shoppingCartService.Value.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+                        [CustomerCommentKey] = state.CustomerComment,
+                        [SubscribeToNewsletterKey] = state.SubscribeToNewsletter.ToString().ToLower(),
+                        [AcceptThirdPartyEmailHandOverKey] = state.AcceptThirdPartyEmailHandOver.ToString().ToLower()
+                    });
+
+                    if (placeOrderResult.Success)
+                    {
+                        result = await PostProcessPayment(placeOrderResult, confirmStep, context);
                     }
-
-                    if (cart?.HasItems ?? false)
+                    else
                     {
-                        // We should never end up here. We have received a payment but the order placement failed!
-                        _logger.Error(new Exception($"The payment with {paymentMethod} succeeded but the order placement failed! Order: {paymentRequest.OrderGuid}. Customer: {cart.Customer.Id}.",
-                            new Exception(string.Join(Environment.NewLine, placeOrderResult.Errors))));
+                        var cart = context.Cart;
+                        if (customer.Id != paymentRequest.CustomerId)
+                        {
+                            // INFO: The payment provider may have changed the customer through ProcessPaymentRequest.CustomerId.
+                            customer = await _db.Customers.FindByIdAsync(paymentRequest.CustomerId);
+                            cart = await _shoppingCartService.Value.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+                        }
+
+                        if (cart?.HasItems ?? false)
+                        {
+                            // We should never end up here. We have received a payment but the order placement failed!
+                            _logger.Error(new Exception($"The payment with {paymentMethod} succeeded but the order placement failed! Order: {paymentRequest.OrderGuid}. Customer: {cart.Customer.Id}.",
+                                new Exception(string.Join(Environment.NewLine, placeOrderResult.Errors))));
+                        }
                     }
                 }
             }
