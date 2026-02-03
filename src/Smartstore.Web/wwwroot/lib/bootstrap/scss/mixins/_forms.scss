@@ -1,3 +1,5 @@
+/// <reference path="../bootstrap-reboot.scss" />
+
 // Form control focus state
 //
 // Generate a customized focus state and for any input with the specified color,
@@ -81,6 +83,8 @@
   }
 
   .form-control {
+    --validation-icon-xpos: right;
+
     @include form-validation-state-selector($state) {
       border-color: $color;
 
@@ -88,7 +92,7 @@
         padding-inline-end: $input-height-inner !important; // stylelint-disable-line declaration-no-important
         background-image: escape-svg($icon);
         background-repeat: no-repeat;
-        background-position: right $input-height-inner-quarter center;
+        background-position: var(--validation-icon-xpos) $input-height-inner-quarter center;
         background-size: $input-height-inner-half $input-height-inner-half;
       }
 
@@ -104,7 +108,7 @@
     @include form-validation-state-selector($state) {
       @if $enable-validation-icons {
         padding-inline-end: $input-padding-x * 4 !important; // stylelint-disable-line declaration-no-important
-        background-position: right $input-padding-x * 2 center;
+        background-position: var(--validation-icon-xpos) $input-padding-x * 2 center;
       }
     }
   }
@@ -114,7 +118,7 @@
     @include form-validation-state-selector($state) {
       @if $enable-validation-icons {
         padding-inline-end: $input-height-inner;
-        background-position: top $input-height-inner-quarter right $input-height-inner-quarter;
+        background-position: top $input-height-inner-quarter var(--validation-icon-xpos) $input-height-inner-quarter;
       }
     }
   }

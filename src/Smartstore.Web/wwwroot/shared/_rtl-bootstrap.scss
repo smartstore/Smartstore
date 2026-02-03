@@ -16,6 +16,10 @@
 	// Forms
 	// ----------------------------------------------
 
+    .form-control {
+        --validation-icon-xpos: left;
+    }
+
     select.form-control {
         &:not([multiple], [size]:not([size="1"])) {
             background-position-x: 0.75rem;
