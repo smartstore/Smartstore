@@ -291,25 +291,28 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> SetCookieManagerConsent(CookieManagerModel model)
         {
-            if (model.AcceptAll)
+            if (model != null)
             {
-                model.RequiredConsent = true;
-                model.AnalyticsConsent = true;
-                model.ThirdPartyConsent = true;
-                model.AdUserDataConsent = true;
-                model.AdPersonalizationConsent = true;
-            }
+                if (model.AcceptAll)
+                {
+                    model.RequiredConsent = true;
+                    model.AnalyticsConsent = true;
+                    model.ThirdPartyConsent = true;
+                    model.AdUserDataConsent = true;
+                    model.AdPersonalizationConsent = true;
+                }
 
-            // Info: We don't pass the required value from model.RequiredConsent because the control is disabled and the value is always false
-            // but required cookies are always allowed. However, we need to set the consent explicitly because we can't even set required cookies without consent.
-            await _cookieConsentManager.SetConsentCookieAsync(true, model.AnalyticsConsent, model.ThirdPartyConsent, model.AdUserDataConsent, model.AdPersonalizationConsent);
+                // Info: We don't pass the required value from model.RequiredConsent because the control is disabled and the value is always false
+                // but required cookies are always allowed. However, we need to set the consent explicitly because we can't even set required cookies without consent.
+                await _cookieConsentManager.SetConsentCookieAsync(true, model.AnalyticsConsent, model.ThirdPartyConsent, model.AdUserDataConsent, model.AdPersonalizationConsent);
+            }
 
             if (!HttpContext.Request.IsAjax())
             {
                 return RedirectToReferrer();
             }
 
-            return Json(new { Success = true });
+            return Json(new { Success = model != null });
         }
     }
 }
