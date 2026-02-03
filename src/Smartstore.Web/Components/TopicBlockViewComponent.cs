@@ -70,6 +70,7 @@ namespace Smartstore.Web.Components
             {
                 Id = topic.Id,
                 SystemName = topic.SystemName,
+                DisableProseContainer = topic.DisableProseContainer,
                 HtmlId = topic.HtmlId,
                 BodyCssClass = topic.BodyCssClass,
                 IsPasswordProtected = topic.IsPasswordProtected,

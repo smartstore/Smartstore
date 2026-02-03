@@ -51,6 +51,13 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Account.Register.Result.MeetPasswordRules",
                 "Password must meet these rules: {0}",
                 "Passwort muss diese Regeln erfüllen: {0}");
+
+            builder.AddOrUpdate(
+                "Admin.ContentManagement.Topics.Fields.DisableProseContainer",
+                "Disable narrow text container",
+                "Schmalen Text-Container deaktivieren",
+                "When enabled, the topic is rendered at full page width (no narrow prose container). Not recommended.",
+                "Wenn aktiviert, wird das Topic in voller Seitenbreite gerendert (kein schmaler Prosa-Container). Nicht empfohlen.");
         }
     }
 }

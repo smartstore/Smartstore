@@ -36,34 +36,36 @@
     }
 }
 
-<div id="topic-container" class="prose-container prose-lg">
+<div id="topic-container" attr-class='(!Model.DisableProseContainer, "prose-container prose-lg")'>
     @if (!Model.IsPasswordProtected)
     {
         <partial name="_Topic" model="Model" />
-        return;
     }
-</div>
-
-<div id="pwd-container" class="row">
-    <form id="topic-password-form" method="post" asp-action="Authenticate" aria-labelledby="topic-enter-password">
-        <input type="hidden" asp-for="Id" />
-        <div class="col-md-6">
-            <div id="topic-enter-password" class="enter-password-title mb-2">
-                @T("Topic.EnterPassword")
-            </div>
-            <div>
-                <div class="input-group">
-                    <input type="password" sm-enable-visibility-toggle="false" id="password" name="password" class="form-control" autocomplete="current-password" />
-                    <div class="input-group-append">
-                        <button id="password-button" type="submit" class="btn btn-primary topic-password-button">
-                            <i class="fa fa-check" aria-hidden="true"></i>
-                            <span>@T("Common.OK")</span>
-                        </button>
+    else
+    {
+        var pwdContainerClass = Model.DisableProseContainer ? "col-md-6" : "col-md-12";
+        <div id="pwd-container" class="row">
+            <form id="topic-password-form" method="post" asp-action="Authenticate" aria-labelledby="topic-enter-password">
+                <input type="hidden" asp-for="Id" />
+                <div class="@pwdContainerClass">
+                    <div id="topic-enter-password" class="enter-password-title mb-2">
+                        @T("Topic.EnterPassword")
+                    </div>
+                    <div>
+                        <div class="input-group">
+                            <input type="password" sm-enable-visibility-toggle="false" id="password" name="password" class="form-control" autocomplete="current-password" />
+                            <div class="input-group-append">
+                                <button id="password-button" type="submit" class="btn btn-primary topic-password-button">
+                                    <i class="fa fa-check" aria-hidden="true"></i>
+                                    <span>@T("Common.OK")</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
-    </form>
+    }
 </div>
 
 <script sm-target-zone="scripts" sm-minify="true" data-origin="topic-details">

@@ -111,7 +111,9 @@
                     </div>
                 </div>
             }
-            <div><hr /></div>
+
+            <hr />
+
             <div class="adminRow">
                 <div class="adminTitle">
                     <smart-label asp-for="RenderAsWidget" />
@@ -122,6 +124,14 @@
                 </div>
             </div>
             <div id="pnlTopicAttrValues" data-panel-reverse="true">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="DisableProseContainer" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="DisableProseContainer" />
+                    </div>
+                </div>
                 <div class="adminRow">
                     <div class="adminTitle">
                         <smart-label asp-for="HtmlId" />
@@ -166,7 +176,6 @@
                     </div>
                     <div class="adminData">
                         <input asp-for="WidgetWrapContent" data-toggler-for="#pnlWidgetWrapContent" />
-                        <span asp-validation-for="WidgetWrapContent"></span>
                     </div>
                 </div>
                 <div id="pnlWidgetWrapContent">
@@ -176,7 +185,6 @@
                         </div>
                         <div class="adminData">
                             <input asp-for="WidgetShowTitle" data-toggler-for="#pnlTitleTag" />
-                            <span asp-validation-for="WidgetShowTitle"></span>
                         </div>
                     </div>
                     <div class="adminRow" id="pnlTitleTag">

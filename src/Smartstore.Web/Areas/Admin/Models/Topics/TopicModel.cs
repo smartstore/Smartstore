@@ -56,6 +56,9 @@ namespace Smartstore.Admin.Models.Topics
         [LocalizedDisplay("*BodyCssClass")]
         public string BodyCssClass { get; set; }
 
+        [LocalizedDisplay("*DisableProseContainer")]
+        public bool DisableProseContainer { get; set; }
+
         [LocalizedDisplay("*IncludeInSitemap")]
         public bool IncludeInSitemap { get; set; }
 
