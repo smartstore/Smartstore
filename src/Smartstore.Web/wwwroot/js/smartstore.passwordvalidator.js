@@ -1,6 +1,4 @@
 ﻿export class PasswordValidator {
-    // TODO: (mg) If this validator is active, the client-side jQuery validation messages (.field-validation-error) are malformed.
-    // TODO: (mg) Rules validation is not triggered anymore if input is empty.
     constructor(passwordSelector) {
         const $el = $(passwordSelector);
         if (!$el.length) {
@@ -17,6 +15,7 @@
         const $widget = state.$widget;
         const $container = state.$container;
         const $containerOrBody = ($container && $container.length) ? $container : $('body');
+        const $form = $el.closest('form');
 
         // WCAG
         const srHintId = $el.attr('id') + '-pwd-sr';
@@ -31,10 +30,17 @@
                $srHint: $srHint
             });
 
-        this._wireValidatorWhenReady($el);
+        this._wireValidatorWhenReady($el, $form);
 
         $el.on('input.smartstore.passwordvalidator', () => {
-            $el.valid();
+            //$el.valid();
+            const v = $form.data('validator');
+
+            // Force-run the custom rule so widget updates even when validate would skip it.
+            if (v && $.validator?.methods?.pwdpolicy) {
+                $.validator.methods.pwdpolicy.call(v, $el.val(), $el[0], $el.rules?.()?.pwdpolicy);
+            }
+
             $widget.collapse('show');
         }).on('focus.smartstore.passwordvalidator', () => {
             $widget.collapse('show');
@@ -46,7 +52,7 @@
             }, 100);
         });
 
-        $el.closest('form').one('submit.smartstore.pwdstatus', () => {
+        $form.one('submit.smartstore.pwdstatus', () => {
             // Show the policy widget and status on submit in case of a validation error.
             if ($container && $container.length) {
                 $container.removeClass('pwd-status-hidden');
@@ -77,19 +83,23 @@
         };
     }
 
-    _wireValidatorWhenReady($el) {
+    _wireValidatorWhenReady($el, $form) {
         const wire = () => {
-            const $form = $el.closest('form');
             if (!$.validator || !$form.length) {
                 return;
             }
 
             PasswordValidator._addValidatorPolicy();
 
-            const v = $form.data('validator') || $form.validate();
+            const v = $form.data('validator');
+
+            // Ensure unobtrusive has initialized the form validator (span-based messages etc.).
+            if (!v && $.validator.unobtrusive) {
+                $.validator.unobtrusive.parse($form);
+            }
 
             // Patch errorPlacement ONCE per form (suppress error label for pwd fields).
-            if (!v.settings._pwdNoMsgPatched) {
+            if (v && !v.settings._pwdNoMsgPatched) {
                 v.settings._pwdNoMsgPatched = true;
 
                 const origErrorPlacement = v.settings.errorPlacement;
@@ -127,10 +137,6 @@
         $.validator._smPwdPolicyAdded = true;
 
         $.validator.addMethod('pwdpolicy', function (value, element) {
-            if (this.optional(element)) {
-                return true;
-            }
-            
             const state = $(element).data('smPwdPolicy');
             if (!state || !state.rules) {
                 return true;
@@ -166,7 +172,7 @@
                 }
             }
 
-            return checkedRules.every(x => x.ok);
+            return this.optional(element) ? true : checkedRules.every(x => x.ok);
         });
 
         $.validator.unobtrusive.adapters.add('pwdpolicy',
