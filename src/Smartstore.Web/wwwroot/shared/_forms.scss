@@ -225,7 +225,7 @@ fieldset.content-group {
         // Shift the validation indicator symbol to the left to give our reveal icon more space
         > .form-control:is(.is-valid, .is-invalid) {
             padding-inline-end: calc(1.5 * #{$input-height-inner}) !important;
-            background-position-x: var(--validation-icon-xpos) calc(3.5 * #{$input-height-inner-quarter});
+            background-position: var(--validation-icon-xpos) calc(3.5 * #{$input-height-inner-quarter}) center;
         }
     }
 }
