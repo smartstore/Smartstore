@@ -29,6 +29,9 @@
 - #1465 Display the name of the applied discount on order edit page.
 - #1471 Show the customer's email address next to their name on the order edit page.
 - #1466 UI: Edit discount details page should use text-expander (more-less buttons) for "Assigned to xyz" fields.
+- Payever
+    - Better checkout flow for Zinia lending payment method
+    - Reactivated instant payment by Santander
 
 ### Bugfixes
 
