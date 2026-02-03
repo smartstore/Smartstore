@@ -353,7 +353,7 @@ namespace Smartstore.Core.Checkout.Orders
 
                 if (placeOrderResult.Success)
                 {
-                    result = new(RedirectToCheckout(CheckoutActionNames.Completed), confirmStep.ViewPath, true);
+                    result = await PostProcessPayment(placeOrderResult, confirmStep, context);
                 }
                 else
                 {
@@ -456,18 +456,14 @@ namespace Smartstore.Core.Checkout.Orders
                 return new(errors, confirmStep.ViewPath);
             }
 
-            var postPaymentRequest = new PostProcessPaymentRequest
-            {
-                Order = placeOrderResult.PlacedOrder
-            };
-
+            CheckoutResult result = null;
             try
             {
-                await _paymentService.PostProcessPaymentAsync(postPaymentRequest);
+                result = await PostProcessPayment(placeOrderResult, confirmStep, context);
             }
             catch (PaymentException ex)
             {
-                return CreateResult(ex, context);
+                result = CreateResult(ex, context);
             }
             catch (Exception ex)
             {
@@ -479,12 +475,24 @@ namespace Smartstore.Core.Checkout.Orders
                 _checkoutStateAccessor.Abandon();
             }
 
+            return result ?? new(RedirectToCheckout(CheckoutActionNames.Completed));
+        }
+
+        private async Task<CheckoutResult> PostProcessPayment(OrderPlacementResult placeOrderResult, CheckoutStep step, CheckoutContext context)
+        {
+            var postPaymentRequest = new PostProcessPaymentRequest
+            {
+                Order = placeOrderResult.PlacedOrder
+            };
+
+            await _paymentService.PostProcessPaymentAsync(postPaymentRequest);
+
             if (postPaymentRequest.RedirectUrl.HasValue())
             {
-                return new(new RedirectResult(postPaymentRequest.RedirectUrl));
+                return new(new RedirectResult(postPaymentRequest.RedirectUrl), step.ViewPath, true);
             }
 
-            return new(RedirectToCheckout(CheckoutActionNames.Completed));
+            return new(RedirectToCheckout(CheckoutActionNames.Completed), step.ViewPath, true);
         }
 
         /// <summary>
