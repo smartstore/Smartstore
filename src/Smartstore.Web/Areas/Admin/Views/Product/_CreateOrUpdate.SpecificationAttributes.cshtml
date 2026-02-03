@@ -96,7 +96,7 @@
                 success: (response) => {
                     options.html('');
                     $.each(response, (id, option) => {
-                        options.append($('<option></option>').val(option.id).html(option.name));
+                        options.append($(`<option data-id="${option.id}">${option.name}</option>`));
                     });
                     options.trigger("change");
                 },
@@ -108,12 +108,11 @@
 
         $(document).on("click", "#addProductSpec", () => {
             const attributeId = $("#@(Html.IdFor(x => x.AddSpecificationAttributeModel.SpecificationAttributeId))").val();
-            let elOption = $("#@(Html.IdFor(x => x.AddSpecificationAttributeModel.SpecificationAttributeOption))");
-            const option = elOption.val();
             const allowFiltering = $("#@(Html.IdFor(x => x.AddSpecificationAttributeModel.AllowFiltering))").val();
             const showOnProductPage = $("#@(Html.IdFor(x => x.AddSpecificationAttributeModel.ShowOnProductPage))").val();
             let elDisplayOrder = $("#@(Html.IdFor(x => x.AddSpecificationAttributeModel.DisplayOrder))");
             const displayOrder = elDisplayOrder.val();
+            const $selectedOption = $("#@(Html.IdFor(x => x.AddSpecificationAttributeModel.SpecificationAttributeOption)) :selected");
 
             $('#addProductSpec').attr('disabled', true);
 
@@ -123,7 +122,8 @@
                 url: "@(Url.Action("ProductSpecificationAttributeAdd", "Product"))",
                 data: {
                     "attributeId": attributeId,
-                    "attributeOption": option,
+                    "optionId": parseInt($selectedOption.data('id')) || 0,
+                    "optionValue": $selectedOption.val(),
                     "allowFiltering": allowFiltering,
                     "showOnProductPage": showOnProductPage,
                     "displayOrder": displayOrder,

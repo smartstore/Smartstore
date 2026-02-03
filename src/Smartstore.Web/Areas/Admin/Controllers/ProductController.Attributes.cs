@@ -68,7 +68,8 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditAttribute)]
         public async Task<IActionResult> ProductSpecificationAttributeAdd(
             int attributeId,
-            string attributeOption /*ID or name of new option*/,
+            int optionId,
+            string optionValue,
             bool? allowFiltering,
             bool? showOnProductPage,
             int displayOrder,
@@ -77,28 +78,36 @@ namespace Smartstore.Admin.Controllers
             var success = false;
             var message = string.Empty;
 
-            if (attributeId != 0 && attributeOption.HasValue())
+            if (attributeId != 0 && optionValue.HasValue())
             {
                 try
                 {
-                    var optionId = attributeOption.ToInt();
                     if (optionId == 0 && await _db.SpecificationAttributes.AnyAsync(x => x.Id == attributeId))
                     {
-                        var maxDisplayOrder = (await _db.SpecificationAttributeOptions
-                            .Where(x => x.SpecificationAttributeId == attributeId)
-                            .MaxAsync(x => (int?)x.DisplayOrder)) ?? 0;
+                        // Handle case where the user enters a new option value multiple times without reloading the edit page.
+                        optionId = await _db.SpecificationAttributeOptions
+                            .Where(x => x.SpecificationAttributeId == attributeId && x.Name == optionValue)
+                            .Select(x => x.Id)
+                            .FirstOrDefaultAsync();
 
-                        var newOption = new SpecificationAttributeOption
+                        if (optionId == 0)
                         {
-                            SpecificationAttributeId = attributeId,
-                            Name = attributeOption,
-                            DisplayOrder = ++maxDisplayOrder
-                        };
+                            var maxDisplayOrder = (await _db.SpecificationAttributeOptions
+                                .Where(x => x.SpecificationAttributeId == attributeId)
+                                .MaxAsync(x => (int?)x.DisplayOrder)) ?? 0;
 
-                        _db.SpecificationAttributeOptions.Add(newOption);
-                        await _db.SaveChangesAsync();
+                            var newOption = new SpecificationAttributeOption
+                            {
+                                SpecificationAttributeId = attributeId,
+                                Name = optionValue,
+                                DisplayOrder = ++maxDisplayOrder
+                            };
 
-                        optionId = newOption.Id;
+                            _db.SpecificationAttributeOptions.Add(newOption);
+                            await _db.SaveChangesAsync();
+
+                            optionId = newOption.Id;
+                        }
                     }
 
                     _db.ProductSpecificationAttributes.Add(new()
