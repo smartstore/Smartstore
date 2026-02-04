@@ -1,5 +1,10 @@
 ﻿namespace Smartstore.Core.Checkout.Payment
 {
+    // TODO: (mg) Make PaymentMethodType a Flag type enum and add UCP as member. Refactor all callers accordingly (e.g. PaymentMethodType[] --> PaymentMethodType)
+    // TODO: (mg) Remove ucpCapable parameter from LoadActivePaymentProvidersAsync and instead use PaymentMethodType.UCP in the type parameter to filter for UCP-capable payment providers.
+    // TODO: (mg) Remove StandardAndButton and StandardAndRedirection members from PaymentMethodType enum. They are not needed anymore since we have Flags now. Refactor all callers/providers accordingly.
+    // TODO: (mg) Annotate all provider types with new inheritable [PaymentMethodType] attribute. This way we don't have to instantiate each provider to check for its type (e.g. in LoadActivePaymentProvidersAsync) and can instead just read the attribute via reflection.
+    // TODO: (mg) Remove PaymentMethodType property from IPaymentMethod.
     /// <summary>
     /// Represents a payment method type.
     /// </summary>

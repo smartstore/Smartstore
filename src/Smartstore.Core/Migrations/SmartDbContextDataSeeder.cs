@@ -60,8 +60,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Wenn aktiviert, wird das Topic in voller Seitenbreite gerendert (kein schmaler Prosa-Container). Nicht empfohlen.");
 
             builder.AddOrUpdate("Admin.OrderNotice.OrderPlacedUcp",
-                "Order placed via UCP (Agentic Commerce) \"{0}\". Payment token {1} processed headless.",
-                "Auftrag ist über UCP (Agentic Commerce) \"{0}\" eingegangen. Der Zahlungstoken {1} wurde headless verarbeitet.");
+                "The order was placed using UCP (Agentic Commerce) \"{0}\". The payment token {1} was processed without a user interface.",
+                "Bestellung ist über UCP (Agentic Commerce) \"{0}\" eingegangen. Das Zahlungstoken {1} wurde ohne Benutzeroberfläche verarbeitet.");
         }
     }
 }
