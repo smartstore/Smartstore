@@ -3,7 +3,7 @@
 namespace Smartstore.Core.Checkout.Payment;
 
 /// <summary>
-/// Represents an error that occurs during processing a UCP (Universal Commerce Protocol) payment transaction.
+/// Represents an error that occurs during UCP (Universal Commerce Protocol) payment processing.
 /// </summary>
 public class UcpPaymentException : PaymentException
 {

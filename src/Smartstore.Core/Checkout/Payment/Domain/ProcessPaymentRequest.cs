@@ -48,7 +48,7 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         public List<int> ShoppingCartItemIds { get; set; } = [];
 
-        #region Agentic Commerce (autonomous shopping via AI)
+        #region UCP (Universal Commerce Protocol)
 
         /// <summary>
         /// Gets or sets a value indicating whether the request/transaction is initiated via UCP (Universal Commerce Protocol).

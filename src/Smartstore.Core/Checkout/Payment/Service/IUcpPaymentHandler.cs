@@ -3,8 +3,7 @@
 namespace Smartstore.Core.Checkout.Payment;
 
 /// <summary>
-/// Represents an UCP (Universal Commerce Protocol) capable handler for <see cref="IPaymentMethod"/> providers
-/// that supports "Agentic Commerce" (autonomous shopping via AI).
+/// Represents an UCP (Universal Commerce Protocol) capable handler for <see cref="IPaymentMethod"/> providers.
 /// </summary>
 public partial interface IUcpPaymentHandler
 {
