@@ -172,7 +172,8 @@ namespace Smartstore.Core.Checkout.Orders
             var isGuest = customer.IsGuest();
 
             // Check whether guest checkout is allowed.
-            if (!_orderSettings.AnonymousCheckoutAllowed && !paymentRequest.IsUcpTransaction && !customer.IsRegistered())
+            // TODO: (mg)(ucp) Check whether to apply IsUcpTransaction or a new setting for AnonymousCheckoutAllowed validation.
+            if (!_orderSettings.AnonymousCheckoutAllowed && !customer.IsRegistered())
             {
                 warnings.Add(T("Checkout.AnonymousNotAllowed"));
                 return (warnings, cart);
