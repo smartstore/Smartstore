@@ -260,7 +260,7 @@ namespace Smartstore.Core.Checkout.Payment
             ShoppingCart cart = null,
             int storeId = 0,
             PaymentMethodType[] types = null,
-            bool? agenticCommerce = null,
+            bool? ucpCapable = null,
             bool provideFallbackMethod = true)
         {
             var allPaymentMethods = await GetAllPaymentMethodsAsync(true);
@@ -272,9 +272,9 @@ namespace Smartstore.Core.Checkout.Payment
                 allProviders = allProviders.Where(x => types.Contains(x.Value.PaymentMethodType));
             }
 
-            if (agenticCommerce != null)
+            if (ucpCapable != null)
             {
-                allProviders = allProviders.Where(x => typeof(IUcpPaymentHandler).IsAssignableFrom(x.Metadata.ProviderType) == agenticCommerce);
+                allProviders = allProviders.Where(x => typeof(IUcpPaymentHandler).IsAssignableFrom(x.Metadata.ProviderType) == ucpCapable);
             }
 
             var activeProviders = await allProviders

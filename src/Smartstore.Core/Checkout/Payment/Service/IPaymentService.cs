@@ -38,14 +38,14 @@ namespace Smartstore.Core.Checkout.Payment
         /// <param name="cart">Shopping cart.</param>
         /// <param name="storeId">Filter payment provider by store identifier. 0 to load all.</param>
         /// <param name="types">Filter payment methods by payment method types.</param>
-        /// <param name="agenticCommerce">Filter by payment providers supporting "Agentic Commerce".</param>
+        /// <param name="ucpCapable">Filter for UCP-capable (Universal Commerce Protocol) payment providers.</param>
         /// <param name="provideFallbackMethod">Provide a fallback payment method if there is no match.</param>
         /// <returns>Filtered payment methods.</returns>
         Task<IEnumerable<Provider<IPaymentMethod>>> LoadActivePaymentProvidersAsync(
             ShoppingCart cart = null,
             int storeId = 0,
             PaymentMethodType[] types = null,
-            bool? agenticCommerce = null,
+            bool? ucpCapable = null,
             bool provideFallbackMethod = true);
 
         /// <summary>
