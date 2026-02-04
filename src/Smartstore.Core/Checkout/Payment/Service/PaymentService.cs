@@ -49,7 +49,7 @@ namespace Smartstore.Core.Checkout.Payment
         private readonly Lazy<Dictionary<string, Provider<IPaymentMethod>>> _providersCache;
 
         // Provider active states request cache. Key: (SystemName, StoreId, ShoppingCart)
-        private readonly Dictionary<object, bool> _activeStates = new();
+        private readonly Dictionary<object, bool> _activeStates = [];
 
         public PaymentService(
             SmartDbContext db,
@@ -260,6 +260,7 @@ namespace Smartstore.Core.Checkout.Payment
             ShoppingCart cart = null,
             int storeId = 0,
             PaymentMethodType[] types = null,
+            bool? agenticCommerce = null,
             bool provideFallbackMethod = true)
         {
             var allPaymentMethods = await GetAllPaymentMethodsAsync(true);
@@ -269,6 +270,11 @@ namespace Smartstore.Core.Checkout.Payment
             if (!types.IsNullOrEmpty())
             {
                 allProviders = allProviders.Where(x => types.Contains(x.Value.PaymentMethodType));
+            }
+
+            if (agenticCommerce != null)
+            {
+                allProviders = allProviders.Where(x => typeof(IUcpPaymentHandler).IsAssignableFrom(x.Metadata.ProviderType) == agenticCommerce);
             }
 
             var activeProviders = await allProviders
@@ -402,6 +408,13 @@ namespace Smartstore.Core.Checkout.Payment
             }     
 
             var provider = await LoadProviderOrThrow(processPaymentRequest.PaymentMethodSystemName);
+
+            if (processPaymentRequest.IsUcpTransaction && !typeof(IUcpPaymentHandler).IsAssignableFrom(provider.Metadata.ProviderType))
+            {
+                throw new UcpPaymentException(UcpPaymentErrorCode.HandlerNotSupported, 
+                    $"{processPaymentRequest.PaymentMethodSystemName} does not support Agentic Commerce because {nameof(IUcpPaymentHandler)} is not implemented.");
+            }
+
             return await provider.Value.PreProcessPaymentAsync(processPaymentRequest);
         }
 

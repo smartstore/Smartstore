@@ -172,7 +172,7 @@ namespace Smartstore.Core.Checkout.Orders
             var isGuest = customer.IsGuest();
 
             // Check whether guest checkout is allowed.
-            if (!_orderSettings.AnonymousCheckoutAllowed && !customer.IsRegistered())
+            if (!_orderSettings.AnonymousCheckoutAllowed && !paymentRequest.IsUcpTransaction && !customer.IsRegistered())
             {
                 warnings.Add(T("Checkout.AnonymousNotAllowed"));
                 return (warnings, cart);
@@ -1016,17 +1016,21 @@ namespace Smartstore.Core.Checkout.Orders
 
         private async Task FinalizeOrderPlacement(PlaceOrderContext ctx)
         {
-            _db.OrderNotes.Add(ctx.Order, T("Admin.OrderNotice.OrderPlaced"));
+            var pr = ctx.PaymentRequest;
+
+            _db.OrderNotes.Add(ctx.Order, pr.IsUcpTransaction 
+                ? T("Admin.OrderNotice.OrderPlacedUcp", pr.UcpPaymentMethod.NaIfEmpty(), pr.UcpPaymentToken) 
+                : T("Admin.OrderNotice.OrderPlaced"));
 
             // Log activity.
-            if (!ctx.PaymentRequest.IsRecurringPayment)
+            if (!pr.IsRecurringPayment)
             {
                 _activityLogger.LogActivity(KnownActivityLogTypes.PublicStorePlaceOrder, T("ActivityLog.PublicStore.PlaceOrder"), ctx.Order.GetOrderNumber());
             }
 
-            if (!ctx.PaymentRequest.IsRecurringPayment && !ctx.PaymentRequest.IsMultiOrder)
+            if (!pr.IsRecurringPayment && !pr.IsMultiOrder)
             {
-                ctx.Customer.ResetCheckoutData(ctx.PaymentRequest.StoreId, true, true, true, true, true, true);
+                ctx.Customer.ResetCheckoutData(pr.StoreId, true, true, true, true, true, true);
                 await _shoppingCartService.DeleteCartAsync(ctx.Cart, false);
             }
 

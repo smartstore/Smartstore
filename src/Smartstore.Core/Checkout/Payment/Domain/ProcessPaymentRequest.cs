@@ -46,7 +46,27 @@ namespace Smartstore.Core.Checkout.Payment
         /// <summary>
         /// All shopping cart item identifiers.
         /// </summary>
-        public List<int> ShoppingCartItemIds { get; set; } = new();
+        public List<int> ShoppingCartItemIds { get; set; } = [];
+
+        #region Agentic Commerce (autonomous shopping via AI)
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the request/transaction is initiated via UCP (Universal Commerce Protocol).
+        /// If <c>true</c>, services should bypass UI-based redirection or manual interaction checks.
+        /// </summary>
+        public bool IsUcpTransaction { get; set; }
+
+        /// <summary>
+        /// The standardized payment token provided by the UCP agent (e.g., Stripe Token, PayPal Vault ID).
+        /// </summary>
+        public string UcpPaymentToken { get; set; }
+
+        /// <summary>
+        /// The specific UCP payment method type (e.g., "google_pay", "apple_pay", "card").
+        /// </summary>
+        public string UcpPaymentMethod { get; set; }
+
+        #endregion
 
         #region Payment method specific properties 
 

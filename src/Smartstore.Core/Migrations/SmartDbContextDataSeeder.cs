@@ -58,6 +58,10 @@ namespace Smartstore.Core.Data.Migrations
                 "Schmalen Text-Container deaktivieren",
                 "When enabled, the topic is rendered at full page width (no narrow prose container). Not recommended.",
                 "Wenn aktiviert, wird das Topic in voller Seitenbreite gerendert (kein schmaler Prosa-Container). Nicht empfohlen.");
+
+            builder.AddOrUpdate("Admin.OrderNotice.OrderPlacedUcp",
+                "Order placed via UCP (Agentic Commerce) \"{0}\". Payment token {1} processed headless.",
+                "Auftrag ist über UCP (Agentic Commerce) \"{0}\" eingegangen. Der Zahlungstoken {1} wurde headless verarbeitet.");
         }
     }
 }
