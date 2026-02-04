@@ -16,12 +16,12 @@
 
 <div class="page checkout-completed-page">
     <div class="heading mt-3">
-        <h1 class="heading-title font-weight-light">@Html.Raw(T("Checkout.OrderHasBeenReceived"))</h1>
+        <h1 class="heading-title">@Html.Raw(T("Checkout.OrderHasBeenReceived"))</h1>
     </div>
     @* INFO: role=alert cannot be set on a h1 tag. *@
     <div class="sr-only" role="alert">@T("Checkout.OrderHasBeenReceived")</div>
 
-    <h2 class="text-muted font-weight-light h3">
+    <h2 class="text-muted fwl h3">
         @Html.Raw(T("Checkout.ThankYou"))
     </h2>
 
