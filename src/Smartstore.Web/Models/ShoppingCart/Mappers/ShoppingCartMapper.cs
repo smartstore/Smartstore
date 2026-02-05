@@ -420,11 +420,7 @@ namespace Smartstore.Web.Models.Cart
 
             #endregion
 
-            var paymentMethods = await _paymentService.LoadActivePaymentProvidersAsync(
-                from,
-                store.Id,
-                [PaymentMethodType.Button, PaymentMethodType.StandardAndButton],
-                provideFallbackMethod: false);
+            var paymentMethods = await _paymentService.LoadActivePaymentProvidersAsync(from, store.Id, PaymentMethodType.Button, provideFallbackMethod: false);
 
             if (from.ContainsRecurringItem())
             {

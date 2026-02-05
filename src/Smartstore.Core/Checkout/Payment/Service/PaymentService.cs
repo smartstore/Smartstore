@@ -259,22 +259,16 @@ namespace Smartstore.Core.Checkout.Payment
         public virtual async Task<IEnumerable<Provider<IPaymentMethod>>> LoadActivePaymentProvidersAsync(
             ShoppingCart cart = null,
             int storeId = 0,
-            PaymentMethodType[] types = null,
-            bool? ucpCapable = null,
+            PaymentMethodType? paymentMethodType = null,
             bool provideFallbackMethod = true)
         {
             var allPaymentMethods = await GetAllPaymentMethodsAsync(true);
             var allFilters = GetAllPaymentMethodFilters();
 
             var allProviders = await LoadAllPaymentProvidersAsync(true, storeId);
-            if (!types.IsNullOrEmpty())
+            if (paymentMethodType != null)
             {
-                allProviders = allProviders.Where(x => types.Contains(x.Value.PaymentMethodType));
-            }
-
-            if (ucpCapable != null)
-            {
-                allProviders = allProviders.Where(x => typeof(IUcpPaymentHandler).IsAssignableFrom(x.Metadata.ProviderType) == ucpCapable);
+                allProviders = allProviders.Where(x => x.Metadata.PaymentMethodType.HasFlag(paymentMethodType.Value));
             }
 
             var activeProviders = await allProviders
@@ -468,7 +462,7 @@ namespace Smartstore.Core.Checkout.Payment
                 return false;
             }
 
-            if (provider.Value.PaymentMethodType is not PaymentMethodType.Redirection and not PaymentMethodType.StandardAndRedirection)
+            if (!provider.Metadata.PaymentMethodType.HasFlag(PaymentMethodType.Redirection))
             {
                 // This option is available only for redirection payment methods.
                 return false;

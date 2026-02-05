@@ -69,12 +69,6 @@ public partial interface IPaymentMethod : IProvider, IUserEditable
     bool RequiresPaymentSelection { get; }
 
     /// <summary>
-    /// Gets the payment method type.
-    /// </summary>
-    /// <remarks>Choose a type that best suits your payment method.</remarks>
-    PaymentMethodType PaymentMethodType { get; }
-
-    /// <summary>
     /// Gets the widget invoker for payment info. The payment info is displayed on checkout's payment page.
     /// Return <c>null</c> when there is nothing to render.
     /// </summary>

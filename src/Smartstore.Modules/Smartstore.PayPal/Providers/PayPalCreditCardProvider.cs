@@ -1,7 +1,5 @@
-﻿using FluentValidation;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
@@ -13,6 +11,7 @@ namespace Smartstore.PayPal.Providers
     [SystemName(PayPalConstants.CreditCard)]
     [FriendlyName("PayPal Credit Card")]
     [Order(1)]
+    [PaymentMethodType(PaymentMethodType = PaymentMethodType.Standard)]
     public class PayPalCreditCardProvider : PayPalProviderBase
     {
         public PayPalCreditCardProvider(
@@ -27,8 +26,6 @@ namespace Smartstore.PayPal.Providers
 
         public override Widget GetPaymentInfoWidget()
             => new ComponentWidget(typeof(PayPalCreditCardViewComponent));
-
-        public override PaymentMethodType PaymentMethodType => PaymentMethodType.Standard;
 
         public override bool RequiresInteraction => true;
 

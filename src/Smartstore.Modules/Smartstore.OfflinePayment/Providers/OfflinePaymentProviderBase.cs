@@ -7,6 +7,7 @@ using Smartstore.OfflinePayment.Settings;
 
 namespace Smartstore.OfflinePayment
 {
+    [PaymentMethodType(PaymentMethodType = PaymentMethodType.Standard)]
     public abstract class OfflinePaymentProviderBase<TSetting> : PaymentMethodBase
         where TSetting : PaymentSettingsBase, ISettings, new()
     {
@@ -22,8 +23,6 @@ namespace Smartstore.OfflinePayment
         }
 
         public override bool RequiresPaymentSelection => false;
-
-        public override PaymentMethodType PaymentMethodType => PaymentMethodType.Standard;
 
         protected virtual Type GetViewComponentType()
             => null;

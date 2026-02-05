@@ -38,9 +38,6 @@ namespace Smartstore.Core.Checkout.Payment
 
         public virtual bool RequiresPaymentSelection => true;
 
-        public virtual PaymentMethodType PaymentMethodType
-            => PaymentMethodType.Unknown;
-
         public abstract Widget GetPaymentInfoWidget();
 
         public virtual Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)

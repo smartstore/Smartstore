@@ -108,6 +108,7 @@ public sealed class ModularityModule : Module
             var isEditable = typeof(IUserEditable).IsAssignableFrom(type);
             var isHidden = GetIsHidden(type);
             var exportFeature = GetExportFeature(type);
+            var paymentMethodType = GetPaymentMethodType(type);
 
             var registration = builder
                 .RegisterType(type)
@@ -132,6 +133,7 @@ public sealed class ModularityModule : Module
                 m.For(em => em.IsEditable, isEditable);
                 m.For(em => em.IsHidden, isHidden);
                 m.For(em => em.ExportFeatures, exportFeature);
+                m.For(em => em.PaymentMethodType, paymentMethodType);
             });
 
             // Register specific provider type.
@@ -226,6 +228,16 @@ public sealed class ModularityModule : Module
         }
 
         return ExportFeatures.None;
+    }
+
+    private static PaymentMethodType GetPaymentMethodType(Type type)
+    {
+        if (type.TryGetAttribute<PaymentMethodTypeAttribute>(true, out var attr))
+        {
+            return attr.PaymentMethodType;
+        }
+
+        return PaymentMethodType.Unknown;
     }
 
     private static (string Name, string Description) GetFriendlyName(Type type, IModuleDescriptor descriptor)

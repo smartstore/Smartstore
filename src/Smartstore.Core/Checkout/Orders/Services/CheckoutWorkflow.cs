@@ -332,7 +332,7 @@ namespace Smartstore.Core.Checkout.Orders
                 paymentRequest.PaymentMethodSystemName = paymentMethod;
 
                 var provider = await _paymentService.LoadPaymentProviderBySystemNameAsync(paymentMethod);
-                paymentType = provider?.Value?.PaymentMethodType ?? PaymentMethodType.Standard;
+                paymentType = provider.Metadata.PaymentMethodType;
 
                 if (provider == null || !provider.Value.RequiresConfirmation)
                 {

@@ -12,14 +12,6 @@ namespace Smartstore.Web.Models.Checkout
 {
     public class CheckoutPaymentMethodMapper : Mapper<CheckoutContext, CheckoutPaymentMethodModel>
     {
-        private static PaymentMethodType[] PaymentTypes =>
-        [
-            PaymentMethodType.Standard,
-            PaymentMethodType.Redirection,
-            PaymentMethodType.StandardAndButton,
-            PaymentMethodType.StandardAndRedirection
-        ];
-
         private readonly IWorkContext _workContext;
         private readonly ModuleManager _moduleManager;
         private readonly ICurrencyService _currencyService;
@@ -67,7 +59,7 @@ namespace Smartstore.Web.Models.Checkout
             var cart = from.Cart;
             var ga = cart.Customer.GenericAttributes;
             var allPaymentMethods = await _paymentService.GetAllPaymentMethodsAsync();
-            var providers = await _paymentService.LoadActivePaymentProvidersAsync(cart, cart.StoreId, PaymentTypes);
+            var providers = await _paymentService.LoadActivePaymentProvidersAsync(cart, cart.StoreId, PaymentMethodType.Standard | PaymentMethodType.Redirection);
 
             if (cart.ContainsRecurringItem())
             {

@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace Smartstore.Core.Checkout.Payment
+﻿namespace Smartstore.Core.Checkout.Payment
 {
     public static partial class IPaymentServiceExtensions
     {
@@ -70,8 +68,7 @@ namespace Smartstore.Core.Checkout.Payment
             Guard.NotNull(paymentService);
 
             var paymentMethod = await paymentService.LoadPaymentProviderBySystemNameAsync(systemName);
-
-            return paymentMethod?.Value?.PaymentMethodType ?? PaymentMethodType.Unknown;
+            return paymentMethod.Metadata.PaymentMethodType;
         }
 
         /// <summary>

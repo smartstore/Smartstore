@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
 using Smartstore.Core.Widgets;
 using Smartstore.PayPal.Client;
@@ -10,6 +9,7 @@ using Smartstore.PayPal.Services;
 
 namespace Smartstore.PayPal.Providers
 {
+    [PaymentMethodType(PaymentMethodType = PaymentMethodType.Standard)]
     public abstract class PayPalApmProviderBase : PayPalProviderBase
     {
         private readonly SmartDbContext _db;
@@ -26,8 +26,6 @@ namespace Smartstore.PayPal.Providers
 
         public override Widget GetPaymentInfoWidget()
             => new ComponentWidget(typeof(PayPalApmViewComponent));
-
-        public override PaymentMethodType PaymentMethodType => PaymentMethodType.Standard;
 
         public override bool RequiresInteraction => true;
 

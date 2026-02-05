@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
@@ -45,8 +44,6 @@ namespace Smartstore.PayPal.Providers
         public override bool SupportRefund => true;
 
         public override bool SupportVoid => true;
-
-        public override PaymentMethodType PaymentMethodType => PaymentMethodType.StandardAndButton;
 
         public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest request)
         {

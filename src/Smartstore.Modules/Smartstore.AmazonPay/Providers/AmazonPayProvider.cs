@@ -6,7 +6,6 @@ using Amazon.Pay.API.WebStore.Interfaces;
 using Amazon.Pay.API.WebStore.Refund;
 using Amazon.Pay.API.WebStore.Types;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.AmazonPay.Components;
 using Smartstore.AmazonPay.Services;
@@ -27,7 +26,8 @@ namespace Smartstore.AmazonPay.Providers;
 
 [SystemName("Payments.AmazonPay")]
 [FriendlyName("Amazon Pay")]
-[Order(-1)] // AmazonPay review.
+[Order(-1)]
+[PaymentMethodType(PaymentMethodType = PaymentMethodType.Button)]
 public class AmazonPayProvider : PaymentMethodBase, IConfigurable
 {
     private readonly SmartDbContext _db;
@@ -97,8 +97,6 @@ public class AmazonPayProvider : PaymentMethodBase, IConfigurable
 
 
     #region Checkout integration
-
-    public override PaymentMethodType PaymentMethodType => PaymentMethodType.Button;
 
     public override Widget GetPaymentInfoWidget()
         => new ComponentWidget(typeof(PayButtonViewComponent));

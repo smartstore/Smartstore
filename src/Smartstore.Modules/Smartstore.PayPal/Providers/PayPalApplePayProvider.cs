@@ -1,5 +1,4 @@
 ﻿using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
@@ -14,6 +13,7 @@ namespace Smartstore.PayPal.Providers
     [SystemName(PayPalConstants.ApplePay)]
     [FriendlyName("PayPal Apple Pay")]
     [Order(2)]
+    [PaymentMethodType(PaymentMethodType = PaymentMethodType.Standard | PaymentMethodType.Button)]
     public class PayPalApplePayProvider : PayPalProviderBase
     {
         public PayPalApplePayProvider(

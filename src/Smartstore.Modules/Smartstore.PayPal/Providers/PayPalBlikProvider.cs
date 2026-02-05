@@ -9,6 +9,7 @@ namespace Smartstore.PayPal.Providers
     [SystemName(PayPalConstants.Blik)]
     [FriendlyName("PayPal BLIK")]
     [Order(1)]
+    [PaymentMethodType(PaymentMethodType = PaymentMethodType.Standard)]
     public class PayPalBlikProvider : PayPalApmProviderBase
     {
         public PayPalBlikProvider(PayPalApmServiceContext context) : base(context)

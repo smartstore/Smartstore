@@ -1,5 +1,4 @@
 ﻿using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
@@ -11,6 +10,7 @@ namespace Smartstore.PayPal.Providers
     [SystemName(PayPalConstants.PayLater)]
     [FriendlyName("PayPal Pay Later")]
     [Order(1)]
+    [PaymentMethodType(PaymentMethodType = PaymentMethodType.Standard | PaymentMethodType.Button)]
     public class PayPalPayLaterProvider : PayPalProviderBase
     {
         public PayPalPayLaterProvider(

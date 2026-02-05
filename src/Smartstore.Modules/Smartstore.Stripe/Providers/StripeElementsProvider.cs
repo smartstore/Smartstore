@@ -22,6 +22,7 @@ namespace Smartstore.StripeElements.Providers;
 [SystemName("Payments.StripeElements")]
 [FriendlyName("Stripe Elements")]
 [Order(1)]
+[PaymentMethodType(PaymentMethodType = PaymentMethodType.Standard | PaymentMethodType.Button)]
 public class StripeElementsProvider : PaymentMethodBase, IConfigurable
 {
     private readonly SmartDbContext _db;
@@ -69,8 +70,6 @@ public class StripeElementsProvider : PaymentMethodBase, IConfigurable
     public override bool SupportRefund => true;
 
     public override bool RequiresInteraction => true;
-
-    public override PaymentMethodType PaymentMethodType => PaymentMethodType.StandardAndButton;
 
     public RouteInfo GetConfigurationRoute()
         => new(nameof(StripeAdminController.Configure), "StripeAdmin", new { area = "Admin" });

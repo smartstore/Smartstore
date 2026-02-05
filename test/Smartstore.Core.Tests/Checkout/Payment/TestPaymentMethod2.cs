@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Widgets;
 
 namespace Smartstore.Core.Tests.Checkout.Payment
 {
+    [PaymentMethodType(PaymentMethodType = PaymentMethodType.Standard)]
     public class TestPaymentMethod2 : PaymentMethodBase
     {
         public override Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
@@ -31,13 +30,7 @@ namespace Smartstore.Core.Tests.Checkout.Payment
         public override bool SupportVoid
             => false;
 
-        public decimal GetAdditionalHandlingFee(IList<OrganizedShoppingCartItem> cart)
-            => decimal.Zero;
-
         public override Widget GetPaymentInfoWidget()
             => throw new NotImplementedException();
-
-        public override PaymentMethodType PaymentMethodType
-            => PaymentMethodType.Standard;
     }
 }

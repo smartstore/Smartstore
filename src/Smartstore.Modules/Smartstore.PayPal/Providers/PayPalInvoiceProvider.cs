@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
@@ -18,6 +17,7 @@ namespace Smartstore.PayPal.Providers
     [SystemName(PayPalConstants.PayUponInvoice)]
     [FriendlyName("PayPal Pay Upon Invoice")]
     [Order(1)]
+    [PaymentMethodType(PaymentMethodType = PaymentMethodType.Standard)]
     public class PayPalInvoiceProvider : PaymentMethodBase, IConfigurable
     {
         private readonly SmartDbContext _db;
@@ -59,8 +59,6 @@ namespace Smartstore.PayPal.Providers
         public override bool RequiresInteraction => true;
 
         public override RecurringPaymentType RecurringPaymentType => RecurringPaymentType.Automatic;
-
-        public override PaymentMethodType PaymentMethodType => PaymentMethodType.Standard;
 
         public override Widget GetPaymentInfoWidget()
             => new ComponentWidget(typeof(PayPalInvoiceViewComponent));

@@ -9,6 +9,7 @@ namespace Smartstore.PayPal.Providers
     [SystemName(PayPalConstants.Trustly)]
     [FriendlyName("PayPal Trustly")]
     [Order(1)]
+    [PaymentMethodType(PaymentMethodType = PaymentMethodType.Standard)]
     public class PayPalTrustlyProvider : PayPalApmProviderBase
     {
         public PayPalTrustlyProvider(PayPalApmServiceContext context) : base(context)

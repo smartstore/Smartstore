@@ -1,48 +1,32 @@
 ﻿namespace Smartstore.Core.Checkout.Payment
 {
-    // TODO: (mg) Make PaymentMethodType a Flag type enum and add UCP as member. Refactor all callers accordingly (e.g. PaymentMethodType[] --> PaymentMethodType)
-    // TODO: (mg) Remove ucpCapable parameter from LoadActivePaymentProvidersAsync and instead use PaymentMethodType.UCP in the type parameter to filter for UCP-capable payment providers.
-    // TODO: (mg) Remove StandardAndButton and StandardAndRedirection members from PaymentMethodType enum. They are not needed anymore since we have Flags now. Refactor all callers/providers accordingly.
-    // TODO: (mg) Annotate all provider types with new inheritable [PaymentMethodType] attribute. This way we don't have to instantiate each provider to check for its type (e.g. in LoadActivePaymentProvidersAsync) and can instead just read the attribute via reflection.
-    // TODO: (mg) Remove PaymentMethodType property from IPaymentMethod.
-    /// <summary>
-    /// Represents a payment method type.
-    /// </summary>
+    [Flags]
     public enum PaymentMethodType
     {
-        /// <summary>
-        /// Unknown.
-        /// </summary>
         Unknown = 0,
 
         /// <summary>
-        /// All payment information is entered on the payment selection page.
+        /// The payment information is entered on the payment selection page during the checkout process.
         /// </summary>
         Standard = 10,
 
         /// <summary>
-        /// A customer is redirected to a third-party site to complete the payment after (!) the order has been placed.
+        /// After placing an order, the customer is redirected to a third-party site to complete the payment.
         /// </summary>
         /// <remarks>
-        /// This type of payment is required for older payment methods. It is recommended not to use it for new developments anymore.
+        /// This type of payment is required for older payment methods. It is no longer recommended for new developments.
         /// </remarks>
         Redirection = 15,
 
         /// <summary>
-        /// Payment via button on cart page.
+        /// The payment provider initiates the payment process from the cart page, e.g. AmazonPay.
         /// </summary>
         Button = 20,
 
         /// <summary>
-        /// All payment information is entered on the payment selection page and is available via button on cart page.
+        /// The payment provider is capable of headless payments via UCP (Universal Commerce Protocol).
         /// </summary>
-        StandardAndButton = 25,
-
-        /// <summary>
-        /// Payment information is entered in checkout and customer is redirected to complete payment (e.g. 3D Secure)
-        /// after the order has been placed.
-        /// </summary>
-        StandardAndRedirection = 30
+        UCP = 40
     }
 
     /// <summary>
