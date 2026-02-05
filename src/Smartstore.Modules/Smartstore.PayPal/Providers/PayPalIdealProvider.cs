@@ -9,7 +9,7 @@ namespace Smartstore.PayPal.Providers
     [SystemName(PayPalConstants.Ideal)]
     [FriendlyName("PayPal iDEAL")]
     [Order(1)]
-    [PaymentMethodType(PaymentMethodType = PaymentMethodType.Standard)]
+    [PaymentMethod(PaymentMethodType.Standard)]
     public class PayPalIdealProvider : PayPalApmProviderBase
     {
         public PayPalIdealProvider(PayPalApmServiceContext context) : base(context)

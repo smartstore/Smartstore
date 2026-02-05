@@ -9,7 +9,7 @@ namespace Smartstore.PayPal.Providers
     [SystemName(PayPalConstants.Eps)]
     [FriendlyName("PayPal eps-Überweisung")]
     [Order(1)]
-    [PaymentMethodType(PaymentMethodType = PaymentMethodType.Standard)]
+    [PaymentMethod(PaymentMethodType.Standard)]
     public class PayPalEpsProvider : PayPalApmProviderBase
     {
         public PayPalEpsProvider(PayPalApmServiceContext context) : base(context)

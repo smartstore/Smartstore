@@ -17,7 +17,7 @@ namespace Smartstore.PayPal.Providers
     [SystemName(PayPalConstants.PayUponInvoice)]
     [FriendlyName("PayPal Pay Upon Invoice")]
     [Order(1)]
-    [PaymentMethodType(PaymentMethodType = PaymentMethodType.Standard)]
+    [PaymentMethod(PaymentMethodType.Standard)]
     public class PayPalInvoiceProvider : PaymentMethodBase, IConfigurable
     {
         private readonly SmartDbContext _db;

@@ -9,7 +9,7 @@ namespace Smartstore.PayPal.Providers
     [SystemName(PayPalConstants.Bancontact)]
     [FriendlyName("PayPal Bancontact")]
     [Order(1)]
-    [PaymentMethodType(PaymentMethodType = PaymentMethodType.Standard)]
+    [PaymentMethod(PaymentMethodType.Standard)]
     public class PayPalBancontactProvider : PayPalApmProviderBase
     {
         public PayPalBancontactProvider(PayPalApmServiceContext context) : base(context)

@@ -9,7 +9,7 @@ namespace Smartstore.PayPal.Providers
     [SystemName(PayPalConstants.Przelewy24)]
     [FriendlyName("PayPal Przelewy24")]
     [Order(1)]
-    [PaymentMethodType(PaymentMethodType = PaymentMethodType.Standard)]
+    [PaymentMethod(PaymentMethodType.Standard)]
     public class PayPalPrzelewy24Provider : PayPalApmProviderBase
     {
         public PayPalPrzelewy24Provider(PayPalApmServiceContext context) : base(context)

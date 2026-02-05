@@ -11,7 +11,7 @@ namespace Smartstore.PayPal.Providers
     [SystemName(PayPalConstants.CreditCard)]
     [FriendlyName("PayPal Credit Card")]
     [Order(1)]
-    [PaymentMethodType(PaymentMethodType = PaymentMethodType.Standard)]
+    [PaymentMethod(PaymentMethodType.Standard)]
     public class PayPalCreditCardProvider : PayPalProviderBase
     {
         public PayPalCreditCardProvider(

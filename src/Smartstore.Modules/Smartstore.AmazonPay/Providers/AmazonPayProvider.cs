@@ -27,7 +27,7 @@ namespace Smartstore.AmazonPay.Providers;
 [SystemName("Payments.AmazonPay")]
 [FriendlyName("Amazon Pay")]
 [Order(-1)]
-[PaymentMethodType(PaymentMethodType = PaymentMethodType.Button)]
+[PaymentMethod(PaymentMethodType.Button)]
 public class AmazonPayProvider : PaymentMethodBase, IConfigurable
 {
     private readonly SmartDbContext _db;

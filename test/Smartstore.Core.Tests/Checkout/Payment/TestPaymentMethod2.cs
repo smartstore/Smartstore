@@ -5,7 +5,7 @@ using Smartstore.Core.Widgets;
 
 namespace Smartstore.Core.Tests.Checkout.Payment
 {
-    [PaymentMethodType(PaymentMethodType = PaymentMethodType.Standard)]
+    [PaymentMethod(PaymentMethodType.Standard)]
     public class TestPaymentMethod2 : PaymentMethodBase
     {
         public override Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)

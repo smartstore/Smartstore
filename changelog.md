@@ -5,7 +5,7 @@
 ### Breaking Changes
 
 - (DEV) Removed `AsyncTo*()` extension methods. Use `To*Async()` instead.
-- (DEV) Removed `IPaymentMethod.PaymentMethodType` property. Use `PaymentMethodTypeAttribute` to set and `ProviderMetadata.PaymentMethodType` to get the type instead.
+- (DEV) Removed `IPaymentMethod.PaymentMethodType` property. Use `PaymentMethodTypeAttribute` to SET, and `ProviderMetadata.PaymentMethodType` to GET the type instead.
 
 ### New Features
 

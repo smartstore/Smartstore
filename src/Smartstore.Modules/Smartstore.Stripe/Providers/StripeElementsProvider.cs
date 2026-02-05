@@ -22,7 +22,7 @@ namespace Smartstore.StripeElements.Providers;
 [SystemName("Payments.StripeElements")]
 [FriendlyName("Stripe Elements")]
 [Order(1)]
-[PaymentMethodType(PaymentMethodType = PaymentMethodType.Standard | PaymentMethodType.Button)]
+[PaymentMethod(PaymentMethodType.Standard | PaymentMethodType.Button)]
 public class StripeElementsProvider : PaymentMethodBase, IConfigurable
 {
     private readonly SmartDbContext _db;

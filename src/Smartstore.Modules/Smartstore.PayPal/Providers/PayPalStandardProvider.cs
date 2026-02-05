@@ -10,7 +10,7 @@ namespace Smartstore.PayPal.Providers
     [SystemName(PayPalConstants.Standard)]
     [FriendlyName("PayPal Standard")]
     [Order(1)]
-    [PaymentMethodType(PaymentMethodType = PaymentMethodType.Standard | PaymentMethodType.Button)]
+    [PaymentMethod(PaymentMethodType.Standard | PaymentMethodType.Button)]
     public class PayPalStandardProvider : PayPalProviderBase
     {
         public PayPalStandardProvider(

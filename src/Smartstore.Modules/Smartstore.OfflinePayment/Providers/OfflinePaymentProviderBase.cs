@@ -7,7 +7,7 @@ using Smartstore.OfflinePayment.Settings;
 
 namespace Smartstore.OfflinePayment
 {
-    [PaymentMethodType(PaymentMethodType = PaymentMethodType.Standard)]
+    [PaymentMethod(PaymentMethodType.Standard)]
     public abstract class OfflinePaymentProviderBase<TSetting> : PaymentMethodBase
         where TSetting : PaymentSettingsBase, ISettings, new()
     {

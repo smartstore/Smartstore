@@ -10,7 +10,7 @@ namespace Smartstore.PayPal.Providers
     [SystemName(PayPalConstants.PayLater)]
     [FriendlyName("PayPal Pay Later")]
     [Order(1)]
-    [PaymentMethodType(PaymentMethodType = PaymentMethodType.Standard | PaymentMethodType.Button)]
+    [PaymentMethod(PaymentMethodType.Standard | PaymentMethodType.Button)]
     public class PayPalPayLaterProvider : PayPalProviderBase
     {
         public PayPalPayLaterProvider(

@@ -232,9 +232,9 @@ public sealed class ModularityModule : Module
 
     private static PaymentMethodType GetPaymentMethodType(Type type)
     {
-        if (type.TryGetAttribute<PaymentMethodTypeAttribute>(true, out var attr))
+        if (type.TryGetAttribute<PaymentMethodAttribute>(true, out var attr))
         {
-            return attr.PaymentMethodType;
+            return attr.Type;
         }
 
         return PaymentMethodType.Unknown;

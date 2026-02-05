@@ -10,7 +10,7 @@ namespace Smartstore.PayPal.Providers
     [SystemName(PayPalConstants.Sepa)]
     [FriendlyName("PayPal Sepa")]
     [Order(1)]
-    [PaymentMethodType(PaymentMethodType = PaymentMethodType.Standard | PaymentMethodType.Button)]
+    [PaymentMethod(PaymentMethodType.Standard | PaymentMethodType.Button)]
     public class PayPalSepaProvider : PayPalProviderBase
     {
         public PayPalSepaProvider(

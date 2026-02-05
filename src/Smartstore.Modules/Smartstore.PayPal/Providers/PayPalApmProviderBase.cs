@@ -9,7 +9,7 @@ using Smartstore.PayPal.Services;
 
 namespace Smartstore.PayPal.Providers
 {
-    [PaymentMethodType(PaymentMethodType = PaymentMethodType.Standard)]
+    [PaymentMethod(PaymentMethodType.Standard)]
     public abstract class PayPalApmProviderBase : PayPalProviderBase
     {
         private readonly SmartDbContext _db;

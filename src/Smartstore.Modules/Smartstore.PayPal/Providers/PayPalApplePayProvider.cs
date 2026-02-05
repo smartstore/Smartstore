@@ -13,7 +13,7 @@ namespace Smartstore.PayPal.Providers
     [SystemName(PayPalConstants.ApplePay)]
     [FriendlyName("PayPal Apple Pay")]
     [Order(2)]
-    [PaymentMethodType(PaymentMethodType = PaymentMethodType.Standard | PaymentMethodType.Button)]
+    [PaymentMethod(PaymentMethodType.Standard | PaymentMethodType.Button)]
     public class PayPalApplePayProvider : PayPalProviderBase
     {
         public PayPalApplePayProvider(

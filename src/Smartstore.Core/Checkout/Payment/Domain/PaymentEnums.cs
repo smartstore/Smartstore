@@ -8,7 +8,7 @@
         /// <summary>
         /// The payment information is entered on the payment selection page during the checkout process.
         /// </summary>
-        Standard = 10,
+        Standard = 1 << 0,
 
         /// <summary>
         /// After placing an order, the customer is redirected to a third-party site to complete the payment.
@@ -16,17 +16,17 @@
         /// <remarks>
         /// This type of payment is required for older payment methods. It is no longer recommended for new developments.
         /// </remarks>
-        Redirection = 15,
+        Redirection = 1 << 1,
 
         /// <summary>
         /// The payment provider initiates the payment process from the cart page, e.g. AmazonPay.
         /// </summary>
-        Button = 20,
+        Button = 1 << 2,
 
         /// <summary>
         /// The payment provider is capable of headless payments via UCP (Universal Commerce Protocol).
         /// </summary>
-        UCP = 40
+        UCP = 1 << 3
     }
 
     /// <summary>
