@@ -5,9 +5,8 @@ using Smartstore.Http;
 
 namespace Smartstore.Web.Api.Models.Checkout;
 
-public class PaymentMethodInfoMapper(
-    ModuleManager moduleManager,
-    IUrlHelper urlHelper) : IMapper<Provider<IPaymentMethod>, ProviderInfo<PaymentMethodInfo>>
+public class PaymentMethodInfoMapper(ModuleManager moduleManager, IUrlHelper urlHelper) 
+    : IMapper<Provider<IPaymentMethod>, ProviderInfo<PaymentMethodInfo>>
 {
     private readonly ModuleManager _moduleManager = moduleManager;
     private readonly IUrlHelper _urlHelper = urlHelper;
@@ -29,6 +28,7 @@ public class PaymentMethodInfoMapper(
         {
             MiniMapper.Map(metadata, to);
 
+            to.Provider.PaymentMethodType = metadata.PaymentMethodType;
             to.FriendlyName = _moduleManager.GetLocalizedFriendlyName(metadata, languageId).NullEmpty() ?? metadata.FriendlyName;
             to.Description = _moduleManager.GetLocalizedDescription(metadata, languageId).NullEmpty() ?? metadata.Description;
 
