@@ -226,7 +226,7 @@ a.link-overlay {
     //  Headings
     :where(h1, h2, h3, h4, h5, h6) {
         line-height: 1.25;
-        scroll-margin-top: 6rem;
+        scroll-margin-top: 3rem;
         margin-block: 2.25rem 0.75rem;
 
         > span[style="font-size: medium;"] {
@@ -244,7 +244,7 @@ a.link-overlay {
     }
 
     :where(h2) {
-        margin-top: 3rem;
+        margin-top: 2.5rem;
     }
 
     :where(h3) {
@@ -274,6 +274,7 @@ a.link-overlay {
         text-decoration-thickness: from-font;
         text-underline-offset: .18em;
         text-decoration-skip-ink: auto;
+        overflow-wrap: anywhere;
 
         &:hover {
             text-decoration-thickness: cssmax(2px, .12em);
