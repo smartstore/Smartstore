@@ -1,23 +1,22 @@
-﻿namespace Smartstore.Imaging.Barcodes
+﻿namespace Smartstore.Imaging.Barcodes;
+
+/// <summary>
+/// Enumeration of supported Barcode types.
+/// </summary>
+public enum BarcodeType
 {
-    /// <summary>
-    /// Enumeration of supported Barcode types.
-    /// </summary>
-    public enum BarcodeType
-    {
-        Aztec,
-        Codabar,
-        Code128,
-        Code39,
-        Code93,
-        DataMatrix,
-        Ean,
-        KixCode,
-        PDF417,
-        Qr,
-        RoyalMail,
-        TwoToFive,
-        UPCA,
-        UPCE
-    }
+    Aztec,
+    Codabar,
+    Code128,
+    Code39,
+    Code93,
+    DataMatrix,
+    Ean,
+    KixCode,
+    PDF417,
+    Qr,
+    RoyalMail,
+    TwoToFive,
+    UPCA,
+    UPCE
 }
