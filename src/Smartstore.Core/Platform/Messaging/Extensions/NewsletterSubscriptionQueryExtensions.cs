@@ -84,5 +84,13 @@ namespace Smartstore
                 .OrderBy(x => x.Subscription.Email)
                 .ThenBy(x => x.Subscription.StoreId);
         }
+
+        /// <summary>
+        /// Filters the query to include only active subscribers for the specified store.
+        /// </summary>
+        public static IQueryable<NewsletterSubscription> ApplyActiveSubscriberFilter(this IQueryable<NewsletterSubscription> query, int storeId = 0)
+        {
+            return query.Where(x => (x.StoreId == storeId || x.StoreId == 0 || storeId == 0) && x.Active);
+        }
     }
 }
