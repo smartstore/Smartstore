@@ -33,9 +33,9 @@ This document sets **non-negotiable rules** and **operational checklists** for c
 ## Tech stack
 
 - Backend & Core Frameworks
-	- .NET 9 / C# – primary language and runtime.
-	- ASP.NET Core 9 – web framework powering the platform.
-	- Entity Framework Core 9 – ORM for database access.
+	- .NET 10 / C# – primary language and runtime.
+	- ASP.NET Core 10 – web framework powering the platform.
+	- Entity Framework Core 10 – ORM for database access.
 	- Domain‑Driven Design – guiding architectural approach.
 - Frontend & UI
 	- Bootstrap (4/5 hybrid) – responsive layout and theming.
