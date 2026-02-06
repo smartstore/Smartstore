@@ -34,7 +34,7 @@
 - **Payever**
     - Better checkout flow for Zinia lending payment method
     - Reactivated instant payment by Santander
-- PostFinance: Improved the processing of webhook messages.
+- PostFinance/Skrill: Improved the processing of webhook messages.
 
 ### Bugfixes
 
