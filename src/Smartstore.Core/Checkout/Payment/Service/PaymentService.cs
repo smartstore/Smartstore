@@ -268,7 +268,7 @@ namespace Smartstore.Core.Checkout.Payment
             var allProviders = await LoadAllPaymentProvidersAsync(true, storeId);
             if (paymentMethodType != null)
             {
-                allProviders = allProviders.Where(x => x.Metadata.PaymentMethodType.HasFlag(paymentMethodType.Value));
+                allProviders = allProviders.Where(x => (x.Metadata.PaymentMethodType & paymentMethodType.Value) != 0);
             }
 
             var activeProviders = await allProviders
