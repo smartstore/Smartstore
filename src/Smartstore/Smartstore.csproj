@@ -31,7 +31,7 @@
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="10.0.0" />
         <PackageReference Include="Barcoder" Version="3.0.0" />
         <PackageReference Include="CronExpressionDescriptor" Version="2.44.0" />
-        <PackageReference Include="HtmlSanitizer" Version="9.1.891-beta" />
+        <PackageReference Include="HtmlSanitizer" Version="9.1.893-beta" />
         <PackageReference Include="Humanizer" Version="3.0.1" />
         <PackageReference Include="MailKit" Version="4.14.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.1" />
@@ -39,7 +39,6 @@
         <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="10.0.1" />
         <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.15.0" />
         <PackageReference Include="NCrontab.Signed" Version="3.4.0" />
-        <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.3" />
         <PackageReference Include="NuGet.Protocol" Version="7.0.1" />
         <PackageReference Include="PreMailer.Net" Version="2.7.2" />
         <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />

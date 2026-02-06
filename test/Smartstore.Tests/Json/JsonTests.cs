@@ -29,24 +29,24 @@ public class JsonTests
         var node = JsonSerializer.Deserialize<JsonNode>(json, _jsonOptions);
     }
 
-    [Test]
-    public void NsjPolymorphyTest()
-    {
-        var root = CreateTestRootObject();
-        var settings = new Newtonsoft.Json.JsonSerializerSettings
-        {
-            TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Arrays,
-            DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.Ignore
-        };
+    //[Test]
+    //public void NsjPolymorphyTest()
+    //{
+    //    var root = CreateTestRootObject();
+    //    var settings = new Newtonsoft.Json.JsonSerializerSettings
+    //    {
+    //        TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Arrays,
+    //        DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.Ignore
+    //    };
 
-        root.Data = new List<MapClass1>
-        {
-            CreateTestObject()
-        };
+    //    root.Data = new List<MapClass1>
+    //    {
+    //        CreateTestObject()
+    //    };
 
-        var json = Newtonsoft.Json.JsonConvert.SerializeObject(root, settings);
-        var root2 = Newtonsoft.Json.JsonConvert.DeserializeObject<RootClass>(json, settings);
-    }
+    //    var json = Newtonsoft.Json.JsonConvert.SerializeObject(root, settings);
+    //    var root2 = Newtonsoft.Json.JsonConvert.DeserializeObject<RootClass>(json, settings);
+    //}
 
     [Test]
     public void StjPolymorphyTest()
