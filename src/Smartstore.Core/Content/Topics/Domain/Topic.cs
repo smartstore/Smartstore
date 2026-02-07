@@ -36,11 +36,11 @@ namespace Smartstore.Core.Content.Topics
         public string BodyCssClass { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the topic page should be rendered at full page width
-        /// instead of using a narrow prose container.
+        /// Gets or sets a value indicating whether the topic page should be rendered at full page width (FALSE)
+        /// instead of using a narrow prose container (TRUE).
         /// Applies only when the topic is not rendered as widget.
         /// </summary>
-        public bool DisableProseContainer { get; set; }
+        public bool EnableProseContainer { get; set; }
 
         /// <summary>
         /// Gets or sets the value indicating whether this topic should be included in sitemap.

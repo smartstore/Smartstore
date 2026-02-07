@@ -52,13 +52,6 @@ namespace Smartstore.Core.Data.Migrations
                 "Password must meet these rules: {0}",
                 "Passwort muss diese Regeln erfüllen: {0}");
 
-            builder.AddOrUpdate(
-                "Admin.ContentManagement.Topics.Fields.DisableProseContainer",
-                "Disable narrow text container",
-                "Schmalen Text-Container deaktivieren",
-                "When enabled, the topic is rendered at full page width (no narrow prose container). Not recommended.",
-                "Wenn aktiviert, wird das Topic in voller Seitenbreite gerendert (kein schmaler Prosa-Container). Nicht empfohlen.");
-
             builder.AddOrUpdate("Admin.OrderNotice.OrderPlacedUcp",
                 "The order was placed using UCP (Agentic Commerce) \"{0}\". The payment token {1} was processed without a user interface.",
                 "Bestellung ist über UCP (Agentic Commerce) \"{0}\" eingegangen. Das Zahlungstoken {1} wurde ohne Benutzeroberfläche verarbeitet.");

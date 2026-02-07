@@ -36,14 +36,14 @@
     }
 }
 
-<div id="topic-container" attr-class='(!Model.DisableProseContainer, "prose-container prose-lg")'>
+<div id="topic-container" attr-class='(Model.EnableProseContainer, "prose-container prose-lg")'>
     @if (!Model.IsPasswordProtected)
     {
         <partial name="_Topic" model="Model" />
     }
     else
     {
-        var pwdContainerClass = Model.DisableProseContainer ? "col-md-6" : "col-md-12";
+        var pwdContainerClass = Model.EnableProseContainer ? "col-md-12" : "col-md-6";
         <div id="pwd-container" class="row">
             <form id="topic-password-form" method="post" asp-action="Authenticate" aria-labelledby="topic-enter-password">
                 <input type="hidden" asp-for="Id" />

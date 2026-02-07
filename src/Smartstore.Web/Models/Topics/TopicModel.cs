@@ -10,7 +10,7 @@ namespace Smartstore.Web.Models.Topics
 
         public string BodyCssClass { get; set; }
 
-        public bool DisableProseContainer { get; set; }
+        public bool EnableProseContainer { get; set; }
 
         public bool IncludeInSitemap { get; set; }
 

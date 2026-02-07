@@ -129,7 +129,7 @@ namespace Smartstore.Web.Controllers
                 SystemName = topic.SystemName,
                 HtmlId = topic.HtmlId,
                 BodyCssClass = topic.BodyCssClass,
-                DisableProseContainer = topic.DisableProseContainer,
+                EnableProseContainer = topic.EnableProseContainer,
                 IsPasswordProtected = topic.IsPasswordProtected,
                 ShortTitle = includePasswordProtectedFields ? topic.GetLocalized(x => x.ShortTitle) : null,
                 Title = includePasswordProtectedFields ? topic.GetLocalized(x => x.Title) : null,
