@@ -5,7 +5,7 @@ using Smartstore.Data.Migrations;
 namespace Smartstore.Core.Data.Migrations;
 
 [MigrationVersion("2026-02-03 12:00:00", "Core: Topic ProseContainer")]
-internal class TopicDisableProseContainer : Migration, ILocaleResourcesProvider, IDataSeeder<SmartDbContext>
+internal class TopicProseContainer : Migration, ILocaleResourcesProvider, IDataSeeder<SmartDbContext>
 {
     const string TableName = nameof(Topic);
     const string ColumnName = nameof(Topic.EnableProseContainer);
