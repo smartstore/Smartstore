@@ -35,7 +35,7 @@ COPY --from=build /app/release/publish .
 
 # Install wkhtmltopdf
 RUN apt update &&\
-    apt -y install wget &&\
+    apt -y install wget libjpeg62-turbo && \
     wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_amd64.deb &&\ 
     apt -y install ./wkhtmltox_0.12.6.1-3.bookworm_amd64.deb &&\
     rm ./wkhtmltox_0.12.6.1-3.bookworm_amd64.deb
