@@ -21,6 +21,7 @@
   - Added a setting to export products only for those for which Google data is specified.
   - When deleting rows in Google grid, delete the Google data assigned to the product.
   - Consider the permission to update products.
+- **Brevo** Mailing list synchronization (commercial module)
 
 ### Improvements
 
