@@ -1,64 +1,63 @@
-﻿namespace Smartstore.Core.Web
+﻿namespace Smartstore.Core.Web;
+
+public class DefaultUserAgent : IUserAgent
 {
-    public class DefaultUserAgent : IUserAgent
+    private readonly string _userAgent;
+    private readonly UserAgentInfo _info;
+    private Version _version;
+    private bool _versionParsed;
+
+    public DefaultUserAgent(string userAgent, UserAgentInfo info)
     {
-        private string _userAgent;
-        private UserAgentInfo _info;
-        private Version _version;
-        private bool _versionParsed;
+        _userAgent = userAgent;
+        _info = info;
+    }
 
-        public DefaultUserAgent(string userAgent, UserAgentInfo info)
-        {
-            _userAgent = userAgent;
-            _info = info;
-        }
+    public string UserAgent
+    {
+        get => _userAgent;
+    }
 
-        public string UserAgent
-        {
-            get => _userAgent;
-        }
+    public virtual UserAgentType Type
+    {
+        get => _info.Type;
+    }
 
-        public virtual UserAgentType Type
-        {
-            get => _info.Type;
-        }
+    public virtual string Name
+    {
+        get => _info.Name ?? UserAgentInfo.Unknown;
+    }
 
-        public virtual string Name
+    public virtual Version Version
+    {
+        get
         {
-            get => _info.Name ?? UserAgentInfo.Unknown;
-        }
-
-        public virtual Version Version
-        {
-            get
+            if (!_versionParsed)
             {
-                if (!_versionParsed)
+                _versionParsed = true;
+
+                if (_info.Version.IsEmpty())
                 {
-                    _versionParsed = true;
-
-                    if (_info.Version.IsEmpty())
-                    {
-                        return null;
-                    }
-
-                    if (SemanticVersion.TryParse(_info.Version, out var version))
-                    {
-                        _version = version.Version;
-                    }
+                    return null;
                 }
-                
-                return _version;
+
+                if (SemanticVersion.TryParse(_info.Version, out var version))
+                {
+                    _version = version.Version;
+                }
             }
+            
+            return _version;
         }
+    }
 
-        public virtual UserAgentPlatform Platform
-        {
-            get => _info.Platform;
-        }
+    public virtual UserAgentPlatform Platform
+    {
+        get => _info.Platform;
+    }
 
-        public virtual UserAgentDevice Device
-        {
-            get => _info.Device;
-        }
+    public virtual UserAgentDevice Device
+    {
+        get => _info.Device;
     }
 }
