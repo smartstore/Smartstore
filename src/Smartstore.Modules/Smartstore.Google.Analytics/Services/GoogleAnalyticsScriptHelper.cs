@@ -245,7 +245,7 @@ namespace Smartstore.Google.Analytics.Services
         }
 
         /// <summary>
-        /// Builds json properties for the category tree as defined by Google.
+        /// Builds JSON properties for the category tree as defined by Google.
         /// </summary>
         /// <returns>
         /// Category path in this form:
@@ -258,23 +258,25 @@ namespace Smartstore.Google.Analytics.Services
         /// </returns
         private string GetCategoryPath()
         {
-            if (_breadcrumb.Trail.IsNullOrEmpty())
+            if (_breadcrumb?.Trail.IsNullOrEmpty() ?? true)
             {
                 return string.Empty;
             }
 
-            var i = 0;
-            var catScript = string.Empty;
-            
-            foreach (var node in _breadcrumb.Trail)
-            {
-                if (node.EntityName == nameof(Category) && ++i != 5)
+            var categoryItems = _breadcrumb.Trail
+                .Select((node, i) => new
                 {
-                    catScript += $"item_category{(i > 1 ? i.ToString() : string.Empty)}: '{node.Text.EncodeJsStringUnquoted()}',";
-                }
-            }
+                    Node = node,
+                    Item = "item_category{0}: '{1}'".FormatInvariant(
+                        i > 0 ? (i + 1).ToStringInvariant() : string.Empty,
+                        node.Text.EncodeJsStringUnquoted())
+                })
+                .Where(x => x.Node.EntityName.EqualsNoCase(nameof(Category)))
+                .Select(x => x.Item)
+                .Take(5)
+                .ToList();
 
-            return catScript;
+            return string.Join(',', categoryItems);
         }
 
 
