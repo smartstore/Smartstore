@@ -19,12 +19,13 @@ WORKDIR /app
 COPY ${SOURCE} ./
 
 # Install wkhtmltopdf
-RUN apt update &&\
-    apt -y install wget ca-certificates &&\
-    apt -y install libjpeg62-turbo libxrender1 libfontconfig1 libx11-6 libxext6 libssl3 &&\
-    wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_amd64.deb &&\ 
-    dpkg -i ./wkhtmltox_0.12.6.1-3.bookworm_amd64.deb || apt -y --fix-broken install &&\
-    rm ./wkhtmltox_0.12.6.1-3.bookworm_amd64.deb &&\
-    apt clean
+RUN apt-get update && \
+    apt-get -y install --no-install-recommends wget ca-certificates \
+    libjpeg62-turbo libxrender1 libfontconfig1 libx11-6 libxext6 libssl3 && \
+    wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_amd64.deb && \
+    (dpkg -i ./wkhtmltox_0.12.6.1-3.bookworm_amd64.deb || apt-get -y --fix-broken install) && \
+    rm ./wkhtmltox_0.12.6.1-3.bookworm_amd64.deb && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 ENTRYPOINT ["./Smartstore.Web", "--urls", "http://0.0.0.0:80"]
