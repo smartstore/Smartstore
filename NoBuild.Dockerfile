@@ -2,7 +2,7 @@
 # Creates a Docker image from an existing build artifact
 # -----------------------------------------------------------
 
-ARG ASPNET_TAG=10.0
+ARG ASPNET_TAG=10.0-bookworm-slim
 
 FROM mcr.microsoft.com/dotnet/aspnet:${ASPNET_TAG}
 EXPOSE 80
@@ -20,7 +20,7 @@ COPY ${SOURCE} ./
 
 # Install wkhtmltopdf
 RUN apt update &&\
-    apt -y install wget libjpeg-turbo8 && \
+    apt -y install wget && \
     wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_amd64.deb &&\ 
     apt -y install ./wkhtmltox_0.12.6.1-3.bookworm_amd64.deb &&\
     rm ./wkhtmltox_0.12.6.1-3.bookworm_amd64.deb
