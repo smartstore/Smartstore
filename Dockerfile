@@ -3,7 +3,7 @@
 # the source within the container
 # -----------------------------------------------------------
 
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0-bookworm-slim AS build
 
 # Copy solution and source
 ARG SOLUTION=Smartstore.sln
