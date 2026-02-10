@@ -20,27 +20,30 @@ COPY ${SOURCE} ./
 
 # Install wkhtmltopdf dependencies for Debian Trixie (.NET 10)
 # Install Trixie-compatible libraries and fonts for proper PDF rendering
-RUN apt-get update && \
+RUN echo "deb http://deb.debian.org/debian bookworm main" > /etc/apt/sources.list.d/bookworm.list && \
+    apt-get update && \
     apt-get -y install --no-install-recommends \
     wget \
     ca-certificates \
-    # Updated package name for Trixie
+    # Now available via bookworm repo
     libjpeg62-turbo \
     libxrender1 \
     libfontconfig1 \
     libx11-6 \
     libxext6 \
-    # Trixie uses t64 suffix for time64 compatibility
+    # Trixie's own SSL
     libssl3t64 \
-    # Essential fonts for Smartstore PDFs (Invoices, etc.)
     fonts-liberation \
     xfonts-75dpi \
     xfonts-base && \
+    # English comment: Download and install wkhtmltopdf
     wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_amd64.deb && \
-    # English comment: Force install due to 'libssl3' naming mismatch in the Bookworm deb package
     dpkg --force-depends -i ./wkhtmltox_0.12.6.1-3.bookworm_amd64.deb && \
     apt-get -y --fix-broken install && \
+    # English comment: Cleanup to keep image small and remove temporary repo
     rm ./wkhtmltox_0.12.6.1-3.bookworm_amd64.deb && \
+    rm /etc/apt/sources.list.d/bookworm.list && \
+    apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
