@@ -335,8 +335,8 @@ namespace Smartstore.Core.Seo
                             }
 
                             segment++;
-                            numProcessed = segment * MaximumSiteMapNodeCount;
-                            ctx.ProgressCallback?.Invoke(numProcessed, total, $"{numProcessed} / {total}");
+                            numProcessed = Math.Min(segment * MaximumSiteMapNodeCount, total);
+                            ctx.ProgressCallback?.Invoke(numProcessed, total, $"{numProcessed:N0} / {total:N0}");
 
                             var slugs = await GetUrlRecordCollectionsForBatchAsync([.. batch.Select(x => x.Entry)], languageIds);
 
@@ -386,7 +386,7 @@ namespace Smartstore.Core.Seo
                         // Process custom nodes
                         if (!ctx.CancellationToken.IsCancellationRequested)
                         {
-                            ctx.ProgressCallback?.Invoke(numProcessed, total, "Processing custom nodes".FormatCurrent(numProcessed, total));
+                            ctx.ProgressCallback?.Invoke(numProcessed, total, $"{numProcessed:N0} / {total:N0}... Processing custom nodes");
                             await ProcessCustomNodesAsync(ctx, sitemaps);
 
                             foreach (var data in languageData.Values)
