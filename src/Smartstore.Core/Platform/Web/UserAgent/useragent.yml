@@ -325,9 +325,14 @@ bots:
   
   # AI Bots
   - match: GPTBot
+  - match: ChatGPT
+    name: OpenAI ChatGPT
   - match: OAI-SearchBot
-  - match: OAI-Bot/
+  - match: OAI-Bot
     name: OpenAI GPT Bot
+
+  - match: OpenAI
+    name: OpenAI
 
   - match: DeepSeek
     name: DeepSeek Chat Bot
@@ -345,8 +350,14 @@ bots:
   - match: PerplexityBot/
     name: Perplexity Bot
 
+  - match: Perplexity
+    name: Perplexity
+
   - match: anthropic-ai
     name: Anthropic AI
+
+  - match: Anthropic
+    name: Anthropic
 
   - match: /[cC]laude[bB]ot/
     name: Claude Bot
@@ -359,12 +370,42 @@ bots:
 
   - match: InflectionPi
   - match: YouBot/
-  - match: CCBot/
   - match: ScaleAI-Bot/
   - match: Diffbot/
     name: $1
+
+  # Automation frameworks / agentic browsing
+  - match: Playwright
+  - match: Puppeteer
+  - match: Selenium
+  - match: WebDriver
+  - match: PhantomJS
+    name: $1
    
   # Common tools, readers & apps
+  - match: PostmanRuntime
+    name: Postman
+
+  - match: Insomnia
+    name: Insomnia
+
+  - match: node-fetch
+  - match: undici
+  - match: libwww-perl
+    name: $1
+
+  - match: Go-http-client
+    name: Go http client
+
+  - match: Java/
+    name: Java
+
+  - match: Apache-HttpClient
+    name: Apache HttpClient
+
+  - match: Wget/
+    name: Wget
+
   - match: python/
     name: Python
 
