@@ -410,7 +410,7 @@ namespace Smartstore.Core.Seo
                     }
 
                     ctx.CancellationToken.ThrowIfCancellationRequested();
-                    ctx.ProgressCallback?.Invoke(totalSegments, totalSegments, "Finalizing...'");
+                    ctx.ProgressCallback?.Invoke(totalSegments, totalSegments, "Finalizing...");
 
                     foreach (var data in languageData.Values)
                     {
