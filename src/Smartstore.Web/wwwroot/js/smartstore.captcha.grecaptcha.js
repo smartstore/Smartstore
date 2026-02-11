@@ -63,6 +63,9 @@
         if (!form || form.__captchaV3Bound) return;
         form.__captchaV3Bound = true;
 
+        // Check if unobtrusive AJAX is enabled upfront
+        const isUnobtrusive = !!(form.getAttribute('data-ajax') || (window.jQuery && jQuery(form).data('ajax')));
+
         form.addEventListener('submit', (e) => {
             // Re-entrancy guard: when set, allow normal pipeline (incl. unobtrusive) to proceed
             if (form.__captchaResubmit === true) return;
@@ -80,7 +83,9 @@
                 }
             }
 
+            // CRITICAL: Stop event propagation to prevent unobtrusive handler from firing
             e.preventDefault();
+            e.stopImmediatePropagation();
             disableSubmitTemporarily(form);
 
             const exec = () => {
@@ -96,7 +101,6 @@
                     ensureActionInput(form, action);
 
                     // If unobtrusive AJAX is enabled, trigger a jQuery submit with a reentrancy guard
-                    const isUnobtrusive = !!(form.getAttribute('data-ajax') || (window.jQuery && jQuery(form).data('ajax')));
                     if (isUnobtrusive && window.jQuery) {
                         form.__captchaResubmit = true; // guard ON
                         try { jQuery(form).trigger('submit'); } finally { form.__captchaResubmit = false; } // guard OFF
@@ -116,7 +120,7 @@
             } else {
                 waitForRecaptchaReady(isRecaptchaApiReady, exec, 8000);
             }
-        });
+        }, true); // Add listener in CAPTURE phase to run before unobtrusive
     }
 
     // --- V2 Logic (Checkbox or Invisible) ---
@@ -181,12 +185,15 @@
                         if (form.__captchaResubmit === true) return;
 
                         if (typeof form.checkValidity === 'function' && !form.checkValidity()) return;
+                        
+                        // CRITICAL: Stop event propagation
                         e.preventDefault();
+                        e.stopImmediatePropagation();
                         disableSubmitTemporarily(form);
 
                         // Execute the rendered widget
                         grecaptcha.execute(widgetId);
-                    });
+                    }, true); // Capture phase
                 }
             } catch (e) {
                 console.error("Failed to render reCAPTCHA v2", e);
