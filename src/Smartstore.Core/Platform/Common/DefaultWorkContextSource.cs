@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Net.Http.Headers;
 using Smartstore.Caching;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
@@ -486,7 +487,55 @@ namespace Smartstore.Core
 
         private static async Task<Customer> DetectBot(DetectCustomerContext context)
         {
-            if (context.UserAgent.IsBot())
+            var req = context.HttpContext.Request;
+            var headers = req.Headers;
+            var isBot = false;
+
+            // User Agent (Very cheap & effective against dumb bots)
+            var ua = req.UserAgent();
+            if (string.IsNullOrWhiteSpace(ua) || ua.Length < 10) // "Mozilla" is 7 chars
+            {
+                isBot = true;
+            }
+
+            // Accept-Language (Standard for ANY browser used by humans)
+            // Missing Accept-Language is extremely rare for real users.
+            if (!isBot)
+            {
+                isBot = !headers.ContainsKey(HeaderNames.AcceptLanguage);
+            }
+
+            // Missing Accept header is suspicious for storefront browsing
+            if (!isBot && (!headers.TryGetValue(HeaderNames.Accept, out var accept) || accept.Count == 0))
+            {
+                isBot = true;
+            }
+
+            // User-Agent vs. Sec-Fetch Headers Consistency (Modern Chromium browsers on top-level navigation)
+            if (!isBot
+                && req.IsNonAjaxGet()
+                && (ua.ContainsNoCase("Chrome/") || ua.ContainsNoCase("Edg/")))
+            {
+                var hasSecFetch =
+                    headers.ContainsKey("Sec-Fetch-Site") ||
+                    headers.ContainsKey("Sec-Fetch-Mode") ||
+                    headers.ContainsKey("Sec-Fetch-Dest") ||
+                    headers.ContainsKey("Sec-Fetch-User");
+
+                // Missing Sec-Fetch headers in modern browsers is suspicious.
+                if (!hasSecFetch)
+                {
+                    isBot = true;
+                }
+            }
+
+            if (!isBot)
+            {
+                // Fallback to existing UA parser logic (Regex based)
+                isBot = context.UserAgent.IsBot();
+            }
+
+            if (isBot)
             {
                 // Check traffic limit for bots.
                 await CheckBotDeniedAsync(context);
