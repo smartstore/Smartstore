@@ -107,68 +107,49 @@
         },
 
         /**
-         * Create a temporary hidden input for the submit button's name/value
-         * @param {HTMLFormElement} form
-         * @returns {HTMLInputElement|null} The created input (to be cleaned up later)
-         * @private
-         */
-        _createButtonInput: function (form) {
-            if (!form || !form.__captchaSubmitButton) return null;
-
-            var button = form.__captchaSubmitButton;
-            if (!button.name || button.disabled) return null;
-
-            // Create a temporary hidden input with the button's name/value
-            var input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = button.name;
-            input.value = button.value || '';
-            input.setAttribute('data-captcha-button-input', 'true');
-            form.appendChild(input);
-
-            return input;
-        },
-
-        /**
-         * Remove temporary button input after submit
-         * @param {HTMLFormElement} form
-         * @private
-         */
-        _cleanupButtonInput: function (form) {
-            if (!form) return;
-            var input = form.querySelector('input[data-captcha-button-input="true"]');
-            if (input) {
-                try { input.remove(); } catch (_) { /* IE11 fallback */ form.removeChild(input); }
-            }
-        },
-
-        /**
          * Resubmit form honoring jQuery Unobtrusive AJAX and preserving submit button context
+         * Uses modern requestSubmit() when available, falls back to trigger('submit') with hidden input
          * @param {HTMLFormElement} form
          * @param {string} reentryGuardName - Guard property name (e.g., '__captchaResubmit')
          */
         resubmitForm: function (form, reentryGuardName) {
             if (!form) return;
             const guard = reentryGuardName || '__captchaResubmit';
-            const isUnobtrusive = this.isUnobtrusiveAjax(form);
+            const button = form.__captchaSubmitButton;
 
-            // Create temporary hidden input for the submit button (if present)
-            var buttonInput = this._createButtonInput(form);
+            form[guard] = true;
+            try {
+                // Modern: Use requestSubmit (clean, native, includes button automatically)
+                if (typeof form.requestSubmit === 'function') {
+                    form.requestSubmit(button || null);
+                }
+                // Fallback: jQuery Unobtrusive + temporary hidden input for legacy browsers
+                else if (this.isUnobtrusiveAjax(form) && window.jQuery) {
+                    // Create temporary input for button name/value
+                    var tempInput = null;
+                    if (button && button.name && !button.disabled) {
+                        tempInput = document.createElement('input');
+                        tempInput.type = 'hidden';
+                        tempInput.name = button.name;
+                        tempInput.value = button.value || '';
+                        form.appendChild(tempInput);
+                    }
 
-            if (isUnobtrusive && window.jQuery) {
-                form[guard] = true;
-                try {
                     window.jQuery(form).trigger('submit');
+
+                    // Cleanup after serialization (100ms delay to let unobtrusive serialize first)
+                    if (tempInput) {
+                        setTimeout(function () {
+                            try { tempInput.remove(); } catch (_) { form.removeChild(tempInput); }
+                        }, 100);
+                    }
                 }
-                finally {
-                    form[guard] = false;
-                    // Cleanup after a short delay (let unobtrusive serialize the form first)
-                    setTimeout(function () { this._cleanupButtonInput(form); }.bind(this), 100);
+                // Last resort: native submit (no button context, but works)
+                else {
+                    form.submit();
                 }
-            } else {
-                form.submit();
-                // Cleanup immediately for non-AJAX submits (form will navigate away anyway)
-                this._cleanupButtonInput(form);
+            } finally {
+                form[guard] = false;
             }
         },
 
