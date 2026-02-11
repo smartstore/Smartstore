@@ -24,11 +24,10 @@ public class DefaultUserAgentFactory : IUserAgentFactory
 
         userAgent = userAgent.Trim();
 
-        var info = GetUserAgentInfo(userAgent, enableCache);
-        return new DefaultUserAgent(userAgent, info);
+        return new DefaultUserAgent(userAgent, (ua) => GenerateUserAgentInfo(ua, enableCache));
     }
 
-    protected virtual UserAgentInfo GetUserAgentInfo(string userAgent, bool enableCache)
+    protected internal virtual UserAgentInfo GenerateUserAgentInfo(string userAgent, bool enableCache)
     {
         if (userAgent.Length > UaStringSizeLimit)
         {

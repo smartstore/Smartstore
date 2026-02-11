@@ -1,16 +1,39 @@
-﻿namespace Smartstore.Core.Web;
+﻿#nullable enable
+
+namespace Smartstore.Core.Web;
 
 public class DefaultUserAgent : IUserAgent
 {
     private readonly string _userAgent;
-    private readonly UserAgentInfo _info;
-    private Version _version;
+    private UserAgentInfo? _info;
+    private Func<string, UserAgentInfo>? _infoFactory;
+    private Version? _version;
     private bool _versionParsed;
 
     public DefaultUserAgent(string userAgent, UserAgentInfo info)
     {
         _userAgent = userAgent;
         _info = info;
+    }
+
+    public DefaultUserAgent(string userAgent, Func<string, UserAgentInfo> infoFactory)
+    {
+        _userAgent = userAgent;
+        _infoFactory = infoFactory;
+    }
+
+    protected internal UserAgentInfo Info
+    {
+        get
+        {
+            if (_info == null && _infoFactory != null)
+            {
+                _info = _infoFactory(_userAgent);
+                _infoFactory = null;
+            }
+
+            return (UserAgentInfo)_info!;
+        }
     }
 
     public string UserAgent
@@ -20,15 +43,15 @@ public class DefaultUserAgent : IUserAgent
 
     public virtual UserAgentType Type
     {
-        get => _info.Type;
+        get => Info.Type;
     }
 
     public virtual string Name
     {
-        get => _info.Name ?? UserAgentInfo.Unknown;
+        get => Info.Name ?? UserAgentInfo.Unknown;
     }
 
-    public virtual Version Version
+    public virtual Version? Version
     {
         get
         {
@@ -36,12 +59,13 @@ public class DefaultUserAgent : IUserAgent
             {
                 _versionParsed = true;
 
-                if (_info.Version.IsEmpty())
+                var info = Info;
+                if (info.Version.IsEmpty())
                 {
                     return null;
                 }
 
-                if (SemanticVersion.TryParse(_info.Version, out var version))
+                if (SemanticVersion.TryParse(info.Version, out var version))
                 {
                     _version = version.Version;
                 }
@@ -53,11 +77,11 @@ public class DefaultUserAgent : IUserAgent
 
     public virtual UserAgentPlatform Platform
     {
-        get => _info.Platform;
+        get => Info.Platform;
     }
 
     public virtual UserAgentDevice Device
     {
-        get => _info.Device;
+        get => Info.Device;
     }
 }
