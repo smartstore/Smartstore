@@ -6,6 +6,7 @@
 - Avoid eager O(n) work in constructors when previously work was deferred; be careful to not introduce new up-front costs and justify any tradeoffs.
 - Only modify existing XML documentation comments (including <inheritdoc/>) when making documentation corrections; otherwise, preserve docs verbatim during code changes. User explicitly requested: 'Mach das nie wieder! Schreib bitte Docs'.
 - Never write German code comments; use English-only comments in code.
+- Tolerate minimal false positives for bot detection (around 0.5% real users affected acceptable) if it helps prevent DB junk.
 
 ## Code Style
 - Use specific formatting rules
