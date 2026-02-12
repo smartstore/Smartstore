@@ -34,7 +34,7 @@ WORKDIR /app
 COPY --from=build /app/release/publish .
 
 # Install wkhtmltopdf
-COPY docker/install-wkhtmltopdf.sh /tmp/
+COPY install-wkhtmltopdf.sh /tmp/
 RUN chmod +x /tmp/install-wkhtmltopdf.sh && \
     /tmp/install-wkhtmltopdf.sh && \
     rm /tmp/install-wkhtmltopdf.sh
