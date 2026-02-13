@@ -197,6 +197,7 @@ namespace Smartstore.Web.Controllers
                 {
                     var bundleItemModel = new OrderDetailsModel.BundleItemModel
                     {
+                        Parent = model,
                         Sku = bid.Sku,
                         ProductName = bid.ProductName,
                         ProductSeName = bid.ProductSeName,
