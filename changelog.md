@@ -11,7 +11,9 @@
 
 - Updated to **.NET 10**
   - Increased overall performance
-- #1445 AI: Create a new image using the Media Manager.
+- **AI**
+  - New HTML text optimization command: **Organize**: Improves document structure and cleans up HTML markup.
+  - #1445 Create a new image using the Media Manager.
 - #1469 Show password policy and live validation on customer registration.
 - Topics: added an option to disable the narrow prose container and render non-widget topic pages in full width (default remains prose/narrow layout).
 - **Wallet**
