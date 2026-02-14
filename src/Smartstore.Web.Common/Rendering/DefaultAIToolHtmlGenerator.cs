@@ -189,16 +189,16 @@ namespace Smartstore.Web.Rendering
             var dropdownUl = new TagBuilder("ul");
             dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-right";
 
-            dropdownUl.InnerHtml.AppendHtml(GenerateOptimizeCommands(false, enabled));
+            dropdownUl.InnerHtml.AppendHtml(GenerateOptimizeCommands(AICommandLocation.TextInput, false, enabled));
             inputGroupColDiv.InnerHtml.AppendHtml(dropdownUl);
 
             return inputGroupColDiv;
         }
 
-        public virtual IHtmlContent GenerateOptimizeCommands(bool forChatDialog, bool enabled = true, bool forHtmlEditor = false)
+        public virtual IHtmlContent GenerateOptimizeCommands(AICommandLocation location, bool forHtml = false, bool enabled = true)
         {
             var builder = new HtmlContentBuilder();
-            var className = forChatDialog ? "ai-text-optimizer" : "ai-text-composer";
+            var className = location == AICommandLocation.ChatDialog ? "ai-text-optimizer" : "ai-text-composer";
             var resRoot = "Admin.AI.TextCreation.";
 
             builder.AppendHtml(CreateDropdownItem(T($"{resRoot}CreateNew"), true, "create-new", "repeat", false, className));
@@ -220,16 +220,21 @@ namespace Smartstore.Web.Rendering
             builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Simplify"), enabled, "simplify", "text-left", false, className));
             builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Extend"), enabled, "extend", "body-text", false, className));
 
-            if (forChatDialog)
+            if (location == AICommandLocation.HtmlInput || (location == AICommandLocation.ChatDialog && forHtml))
+            {
+                builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Organize"), enabled, "organize", "card-heading", false, className));
+            }
+
+            if (location == AICommandLocation.ChatDialog)
             {
                 className += " d-none";
             }
 
-            if (forHtmlEditor)
+            if (location == AICommandLocation.HtmlInput)
             {
                 builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Continue"), enabled, "continue", "three-dots", false, className));
             }
-            
+
             return builder;
         }
 

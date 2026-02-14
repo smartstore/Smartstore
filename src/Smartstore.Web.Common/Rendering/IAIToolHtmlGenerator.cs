@@ -10,6 +10,32 @@ using Smartstore.Web.Modelling;
 namespace Smartstore.Web.Rendering
 {
     /// <summary>
+    /// Specifies the location or context in which an AI command is rendered.
+    /// </summary>
+    public enum AICommandLocation
+    {
+        /// <summary>
+        /// Command rendering location is unknown.
+        /// </summary>
+        Unknown,
+
+        /// <summary>
+        /// The command is rendered in a simple text or textarea field.
+        /// </summary>
+        TextInput,
+
+        /// <summary>
+        /// The command is rendered in an HTML input control.
+        /// </summary>
+        HtmlInput,
+
+        /// <summary>
+        /// The command is rendered in the text chat dialog.
+        /// </summary>
+        ChatDialog
+    }
+    
+    /// <summary>
     /// Represents a generator for creating the HTML for AI dialog openers.
     /// </summary>
     public partial interface IAIToolHtmlGenerator : IViewContextAware
@@ -70,11 +96,11 @@ namespace Smartstore.Web.Rendering
         /// <summary>
         /// Generates the text optimizer dropdown items for the text optimizer dropdown menu.
         /// </summary>
-        /// <param name="forChatDialog">Whether the dropdown is rendered within the chat dialog.</param>
-        /// <param name="enabled">A value indicating whether to initially enable the command dropdown items.</param>
-        /// <param name="forHtmlEditor">A value indicating whether to enable HTML editor specific commands such as 'continue'.</param>
+        /// <param name="location">Specifies the location where the menu is rendered.</param>
+        /// <param name="forHtml">Whether the text input is HTML formatted.</param>
+        /// <param name="enabled">Whether to initially enable the command dropdown items.</param>
         /// <returns>The HTML content.</returns>
-        IHtmlContent GenerateOptimizeCommands(bool forChatDialog, bool enabled = true, bool forHtmlEditor = false);
+        IHtmlContent GenerateOptimizeCommands(AICommandLocation location, bool forHtml = false, bool enabled = true);
 
         /// <summary>
         /// Gets the URL of the dialog.
