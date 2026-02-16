@@ -150,16 +150,19 @@
                         <div class="cart-body">
                             @foreach (var item in Model.Items)
                             {
-                                <partial name="Order.Product" model="item" view-data="partialViewData" />
+                                <div class="cart-row">
+                                    <div class="row">
+                                        <partial name="Order.Product" model="item" view-data="partialViewData" />
+                                    </div>
+                                </div>
                                 <zone name="orderdetails_page_after_item" model="item.Id" />
 
                                 @if (item.ProductType == ProductType.BundledProduct && item.BundleItems != null)
                                 {
-                                    var bundleItems = item.BundleItems.OrderBy(x => x.DisplayOrder).ToArray();
-                                    for (var i = 0; i < bundleItems.Length; i++)
+                                    foreach (var bi in item.BundleItems)
                                     {
-                                        <partial name="Order.BundleItem" model="bundleItems[i]" view-data="partialViewData" />
-                                        <zone name="orderdetails_page_after_item" model="bundleItems[i].Parent.Id" />
+                                        <partial name="Order.BundleItem" model="bi" view-data="partialViewData" />
+                                        <zone name="orderdetails_page_after_item" model="bi.Parent.Id" />
                                     }
                                 }
                             }

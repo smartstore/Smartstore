@@ -193,42 +193,45 @@ namespace Smartstore.Web.Controllers
                 model.BundlePerItemPricing = product.BundlePerItemPricing;
                 model.BundlePerItemShoppingCart = bundleData.Any(x => x.PerItemShoppingCart);
 
-                foreach (var bid in bundleData)
-                {
-                    var bundleItemModel = new OrderDetailsModel.BundleItemModel
+                model.BundleItems = await bundleData
+                    .SelectAwait(async x =>
                     {
-                        Parent = model,
-                        Sku = bid.Sku,
-                        ProductName = bid.ProductName,
-                        ProductSeName = bid.ProductSeName,
-                        VisibleIndividually = bid.VisibleIndividually,
-                        Quantity = bid.Quantity,
-                        DisplayOrder = bid.DisplayOrder,
-                        AttributeInfo = HtmlUtility.FormatPlainText(HtmlUtility.ConvertHtmlToPlainText(bid.AttributesInfo))
-                    };
+                        var biModel = new OrderDetailsModel.BundleItemModel
+                        {
+                            Parent = model,
+                            Sku = x.Sku,
+                            ProductName = x.ProductName,
+                            ProductSeName = x.ProductSeName,
+                            VisibleIndividually = x.VisibleIndividually,
+                            Quantity = x.Quantity,
+                            DisplayOrder = x.DisplayOrder,
+                            AttributeInfo = HtmlUtility.FormatPlainText(HtmlUtility.ConvertHtmlToPlainText(x.AttributesInfo))
+                        };
 
-                    bundleItemModel.ProductUrl = await _productUrlHelper.GetProductPathAsync(bid.ProductId, bundleItemModel.ProductSeName, bid.AttributeSelection);
+                        biModel.ProductUrl = await _productUrlHelper.GetProductPathAsync(x.ProductId, biModel.ProductSeName, x.AttributeSelection);
 
-                    if (model.BundlePerItemShoppingCart)
-                    {
-                        bundleItemModel.PriceWithDiscount = ConvertToExchangeRate(bid.PriceWithDiscount);
-                    }
+                        if (model.BundlePerItemShoppingCart)
+                        {
+                            biModel.PriceWithDiscount = ConvertToExchangeRate(x.PriceWithDiscount);
+                        }
 
-                    // Bundle item picture.
-                    if (shoppingCartSettings.ShowProductBundleImagesOnShoppingCart && bundleItems.TryGetValue(bid.ProductId, out var bundleItem))
-                    {
-                        bundleItemModel.HideThumbnail = bundleItem.HideThumbnail;
+                        // Bundle item picture.
+                        if (shoppingCartSettings.ShowProductBundleImagesOnShoppingCart && bundleItems.TryGetValue(x.ProductId, out var bundleItem))
+                        {
+                            biModel.HideThumbnail = bundleItem.HideThumbnail;
 
-                        bundleItemModel.Image = await PrepareOrderItemImageModelAsync(
-                            bundleItem.Product,
-                            mediaSettings.CartThumbBundleItemPictureSize,
-                            bid.ProductName,
-                            bid.AttributeSelection,
-                            catalogSettings);
-                    }
+                            biModel.Image = await PrepareOrderItemImageModelAsync(
+                                bundleItem.Product,
+                                mediaSettings.CartThumbBundleItemPictureSize,
+                                x.ProductName,
+                                x.AttributeSelection,
+                                catalogSettings);
+                        }
 
-                    model.BundleItems.Add(bundleItemModel);
-                }
+                        return biModel;
+                    })
+                    .OrderBy(x => x.DisplayOrder)
+                    .ToListAsync();
             }
 
             // Unit price, subtotal.

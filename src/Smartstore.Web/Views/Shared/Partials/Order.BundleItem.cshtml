@@ -6,14 +6,14 @@
 @{
     var parentModel = ViewData["Parent"] as OrderDetailsModel;
     var bundleItemThumbSize = Math.Min(parentModel.BundleThumbSize, 60);
-    var index = 1; // TODO: (mg) untangle "index" somehow.
+    var itemIndex = Model.Parent.BundleItems.IndexOf(Model);
 }
 
 <div class="cart-row cart-row-child">
     <div class="row">
         @* Spacer for image *@
         <div class="cart-item-img col-3 col-xl-2 d-none d-md-flex d-lg-none d-xl-flex text-start">
-            @if (index == 0)
+            @if (itemIndex == 0)
             {
                 <span class="fwm pt-1">@T("Products.Bundle.BundleIncludes"):</span>
             }
