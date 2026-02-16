@@ -115,11 +115,11 @@
             position: absolute;
             content: '';
             top: 50%;
-            left: 0;
+            left: 1px;
             transform: translate3d(-100%, -50%, 0);
             width: 0; 
             height: 0; 
-            border: 5px solid transparent;
+            border: 6px solid transparent;
             border-right-color: $gray-800;
         }
 
@@ -127,7 +127,7 @@
             border-right-color: transparent;
             border-left-color: $gray-800;
             left: auto;
-            right: 0;
+            right: 1px;
             transform: translate3d(100%, -50%, 0);
         }
     }
