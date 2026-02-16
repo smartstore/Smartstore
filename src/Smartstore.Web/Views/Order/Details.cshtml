@@ -7,6 +7,7 @@
     Assets.AppendTitleParts(T("PageTitle.OrderDetails"));
     Assets.BodyAttributes.AppendCssClass("content-overflow-initial");
 
+    var bundleItemThumbSize = Math.Min(Model.BundleThumbSize, 60);
     var hasOrderDetails1 = Model.BillingAddress != null || (Model.IsShippable && Model.ShippingAddress != null);
     var hasOrderDetails2 = Model.PaymentMethod.HasValue() || Model.IsShippable || Model.VatNumber.HasValue();
 
@@ -29,6 +30,134 @@
                 @T("Order.Fax"): @address.FaxNumber
             </div>
         </address>
+    }
+
+    async Task SimpleProduct(OrderDetailsModel.OrderItemModel item)
+    {
+        <div class="cart-row">
+            <div class="row">
+                @* Image *@
+                <div class="cart-item-img col-3 col-xl-2" sm-if="Model.ShowProductImages && item.Image != null && item.Image.HasImage()">
+                    <img sm-model="item.Image" class="img-fluid" attr-alt='(item.Image.Alt.IsEmpty(), item.ProductName)' />
+                </div>
+
+                @* Data *@
+                <div class="cart-item-data col">
+
+                    @* Title *@
+                    <div class="cart-item-group">
+                        <div class="cart-item-title">
+                            @if (item.ProductUrl.HasValue())
+                            {
+                                <a class="cart-item-link" href="@item.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
+                            }
+                            else
+                            {
+                                <span sm-language-attributes-for="item.ProductName">@item.ProductName</span>
+                            }
+                        </div>
+                    </div>
+
+                    @* Attributes & Variants *@
+                    <div class="cart-item-attrs cart-item-group fs-sm" sm-suppress-if-empty>
+                        @if (Model.ShowSku && item.Sku.HasValue())
+                        {
+                            <span>@T("Order.Product(s).SKU"):</span>
+                            <span>@item.Sku</span>
+                        }
+                        @if (item.AttributeInfo.HasValue())
+                        {
+                            @Html.Raw(item.AttributeInfo)
+                        }
+                    </div>
+
+                    @* Single unit price *@
+                    <div class="pd-finalprice">
+                        <data asp-for="@item.UnitPrice" class="pd-finalprice-amount"></data>
+                    </div>
+
+                    @* Quantity *@
+                    <div class="cart-item-qty pd-muted">
+                        <span>@T("Order.Product(s).Quantity"):</span> <span>@item.Quantity @item.QuantityUnit</span>
+                    </div>
+
+                    @* Subtotal *@
+                    <div sm-if="item.UnitPrice != item.SubTotal" class="pd-subtotal pd-muted">
+                        <span class="pd-subtotal-label">@T("Order.Product(s).Total"):</span>
+                        <data asp-for="@item.SubTotal" class="pd-subtotal-amount fwm"></data>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <zone name="orderdetails_page_after_item" model="item.Id" />
+    }
+
+    async Task BundleProduct(OrderDetailsModel.BundleItemModel item, OrderDetailsModel.OrderItemModel parentItem, int index)
+    {
+        <div class="cart-row cart-row-child">
+            <div class="row">
+                @* Spacer for image *@
+                <div class="cart-item-img col-3 col-xl-2 d-none d-md-flex d-lg-none d-xl-flex text-start">
+                    @if (index == 0)
+                    {
+                        <span class="fwm pt-1">@T("Products.Bundle.BundleIncludes"):</span>
+                    }
+                    else
+                    {
+                        <span>&nbsp;</span>
+                    }
+                </div>
+
+                @* Data *@
+                <div class="cart-item-data col">
+                    @* Title & Description *@
+                    <div class="cart-item-group">
+                        @* Title *@
+                        <div class="cart-item-title">
+                            @if (Model.ShowProductBundleImages)
+                            {
+                                <span class="cart-item-bundle-img mr-1" style="width: @(bundleItemThumbSize)px; height: @(bundleItemThumbSize)px;">
+                                    @if (item.Image != null && item.Image.HasImage() && !item.HideThumbnail)
+                                    {
+                                        <img sm-model="item.Image" class="img-fluid" attr-alt='(item.Image.Alt.IsEmpty(), item.ProductName)' />
+                                    }
+                                </span>
+                            }
+
+                            <span sm-if="item.Quantity > 1 && parentItem.BundlePerItemShoppingCart" class="badge badge-secondary">
+                                @(item.Quantity)&nbsp;&#215;
+                            </span>
+
+                            @if (item.VisibleIndividually)
+                            {
+                                <a class="cart-item-link" href="@item.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="item.ProductName">
+                                    @item.ProductName
+                                </a>
+                            }
+                            else
+                            {
+                                <span sm-language-attributes-for="item.ProductName">@item.ProductName</span>
+                            }
+                        </div>
+                    </div>
+
+                    @* Attributes *@
+                    <div sm-if="item.AttributeInfo.HasValue()" class="cart-item-attrs cart-item-group">
+                        @Html.Raw(item.AttributeInfo)
+                    </div>
+
+                    @* Price *@
+                    <div sm-if="item.PriceWithDiscount > 0" class="cart-item-price-group cart-item-group">
+                        <div class="pd-finalprice">
+                            <data asp-for="@item.PriceWithDiscount" class="pd-finalprice-amount"></data>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <zone name="orderdetails_page_after_item" model="parentItem.Id" />
     }
 }
 
@@ -150,19 +279,13 @@
                         <div class="cart-body">
                             @foreach (var item in Model.Items)
                             {
-                                <div class="cart-row">
-                                    <div class="row">
-                                        <partial name="Order.Product" model="item" view-data="partialViewData" />
-                                    </div>
-                                </div>
-                                <zone name="orderdetails_page_after_item" model="item.Id" />
-
-                                @if (item.ProductType == ProductType.BundledProduct && item.BundleItems != null)
+                                await SimpleProduct(item);
+                                if (item.ProductType == ProductType.BundledProduct && item.BundleItems != null)
                                 {
-                                    foreach (var bi in item.BundleItems)
+                                    var bundleItems = item.BundleItems.OrderBy(x => x.DisplayOrder).ToArray();
+                                    for (var i = 0; i < bundleItems.Length; i++)
                                     {
-                                        <partial name="Order.BundleItem" model="bi" view-data="partialViewData" />
-                                        <zone name="orderdetails_page_after_item" model="bi.Parent.Id" />
+                                        await BundleProduct(bundleItems[i], item, i);
                                     }
                                 }
                             }

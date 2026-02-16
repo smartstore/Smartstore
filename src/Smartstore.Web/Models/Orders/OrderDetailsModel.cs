@@ -103,7 +103,6 @@ namespace Smartstore.Web.Models.Orders
 
         public partial class BundleItemModel : ModelBase
         {
-            public OrderItemModel Parent { get; init; }
             public ImageModel Image { get; set; }
             public string Sku { get; set; }
             public string ProductName { get; set; }

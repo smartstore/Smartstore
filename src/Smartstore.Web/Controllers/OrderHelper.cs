@@ -198,7 +198,6 @@ namespace Smartstore.Web.Controllers
                     {
                         var biModel = new OrderDetailsModel.BundleItemModel
                         {
-                            Parent = model,
                             Sku = x.Sku,
                             ProductName = x.ProductName,
                             ProductSeName = x.ProductSeName,

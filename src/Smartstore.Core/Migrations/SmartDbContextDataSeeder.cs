@@ -59,8 +59,6 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.AI.TextCreation.Organize",
                 "Organize",
                 "Gliedern");
-
-            builder.AddOrUpdate("Order.Product(s).OrderedQuantity", "Ordered", "Bestellt");
         }
     }
 }
