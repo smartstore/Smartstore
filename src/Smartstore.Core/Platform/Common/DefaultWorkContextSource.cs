@@ -294,7 +294,7 @@ namespace Smartstore.Core
                 }
 
                 // Default currency of country to which the current IP address belongs.
-                if (currency == null)
+                if (currency == null && !customer.IsSystemAccount)
                 {
                     var ipAddress = _webHelper.GetClientIpAddress();
                     var lookupCountry = _geoCountryLookup.LookupCountry(ipAddress);
