@@ -59,6 +59,7 @@
 - An uploaded image must be transient if the associated entity has not yet been saved.
 - Fixed "Failed to add specification attribute" when assigning a specification attribute to a product.
 - Fixed sitemap generator progress bar.
+- Currency assignment by Country/IP lookup has not respected store restrictions.
 
 
 ## Smartstore 6.3.0
