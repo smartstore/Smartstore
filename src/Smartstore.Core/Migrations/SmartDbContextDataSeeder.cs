@@ -56,9 +56,31 @@ namespace Smartstore.Core.Data.Migrations
                 "The order was placed using UCP (Agentic Commerce) \"{0}\". The payment token {1} was processed without a user interface.",
                 "Bestellung ist über UCP (Agentic Commerce) \"{0}\" eingegangen. Das Zahlungstoken {1} wurde ohne Benutzeroberfläche verarbeitet.");
 
+            builder.AddOrUpdate("Order.Product(s).OrderedQuantity", "Ordered", "Bestellt");
+
             builder.AddOrUpdate("Admin.AI.TextCreation.Organize",
                 "Organize",
                 "Gliedern");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.EnsureLogicalFlow",
+                "Add headings (h2-h6) where appropriate, break long paragraphs, use lists for enumerations, ensure logical flow.",
+                "Füge passende Überschriften (h2-h6) ein, unterteile lange Absätze, nutze Listen für Aufzählungen und stelle einen logischen Ablauf sicher.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.AssignIdToHeader",
+                "Assign each heading a unique, concise id attribute in kebab-case format based on core content keywords. On ID collision: number them (e.g., id=\"benefits-1\", id=\"benefits-2\").",
+                "Vergib für jede Überschrift ein eindeutiges, prägnantes id-Attribut im \"kebab-case\"-Format, das auf den Kern-Keywords des Textinhalts basiert. Bei ID-Kollision: nummeriere (z.B. id=\"vorteile-1\", id=\"vorteile-2\").");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.CleanupMarkup",
+                "Remove inline styles, empty elements, unnecessary span/div/font wrappers, and redundant nesting.",
+                "Entferne Inline-Styles, leere Elemente, überflüssige span/div/font-Umhüllungen und unnötige Verschachtelungen.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.PreserveSemantic",
+                "Keep all semantic HTML intact (including tables, blockquotes, images, code blocks, etc.). Preserve CSS classes, links, and attributes.",
+                "Behalte sämtliche semantischen HTML-Elemente bei (inkl. Tabellen, Blockquotes, Bilder, Code-Blöcke etc.). Erhalte CSS-Klassen, Links und Attribute.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.OnlyImproveStructure",
+                "Only improve structure—don't remove content or meaningful markup.",
+                "Verbessere ausschließlich die Struktur – keine Inhalte oder bedeutsames Markup entfernen.");
         }
     }
 }

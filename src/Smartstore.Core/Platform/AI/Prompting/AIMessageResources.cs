@@ -157,7 +157,7 @@ namespace Smartstore.Core.AI.Prompting
             => P("DontUseLineBreaks");
 
         /// <summary>
-        /// Instruction to preserver HTML structure.
+        /// Instruction to preserve HTML structure.
         /// </summary>
         /// <returns>
         /// AI instruction: Be sure to preserve the HTML structure.
@@ -369,10 +369,8 @@ namespace Smartstore.Core.AI.Prompting
         /// <param name="paragraphCount">The count of paragraphs.</param>
         /// <returns>AI instruction: The text should be divided into <paramref name="paragraphCount"/> paragraphs, which are enclosed with p tags.</returns>
         public virtual string ParagraphCount(int paragraphCount)
-        {
-            return paragraphCount > 1 ? P("ParagraphCount", paragraphCount) : P("OneParagraph");
-        }
-        
+            => paragraphCount > 1 ? P("ParagraphCount", paragraphCount) : P("OneParagraph");
+
         /// <summary>
         /// Defines the number of words for each paragraph.
         /// </summary>
@@ -402,6 +400,30 @@ namespace Smartstore.Core.AI.Prompting
         /// <returns>AI instruction: End the text with a conclusion.</returns>
         public virtual string IncludeConclusion()
             => P("IncludeConclusion");
+
+        #endregion
+
+        #region "Organize" instructions
+
+        /// <returns>Add headings (h2-h6) where appropriate, break long paragraphs, use lists for enumerations, ensure logical flow.</returns>
+        public virtual string EnsureLogicalFlow()
+            => P("EnsureLogicalFlow");
+
+        /// <returns>Assign each heading a unique, concise id attribute in kebab-case format based on core content keywords...</returns>
+        public virtual string AssignIdToHeader()
+            => P("AssignIdToHeader");
+
+        /// <returns>Remove inline styles, empty elements, unnecessary span/div/font wrappers, and redundant nesting.</returns>
+        public virtual string CleanupMarkup()
+            => P("CleanupMarkup");
+
+        /// <returns>Keep all semantic HTML intact (including tables, blockquotes, images, code blocks, etc.). Preserve CSS classes, links, and attributes.</returns>
+        public virtual string PreserveSemantic()
+            => P("PreserveSemantic");
+
+        /// <returns>Only improve structure—don't remove content or meaningful markup.</returns>
+        public virtual string OnlyImproveStructure()
+            => P("OnlyImproveStructure");
 
         #endregion
 

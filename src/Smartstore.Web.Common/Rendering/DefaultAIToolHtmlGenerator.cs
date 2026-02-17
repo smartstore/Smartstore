@@ -189,7 +189,8 @@ namespace Smartstore.Web.Rendering
             var dropdownUl = new TagBuilder("ul");
             dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-right";
 
-            dropdownUl.InnerHtml.AppendHtml(GenerateOptimizeCommands(AICommandLocation.TextInput, false, enabled));
+            var location = topic == AIChatTopic.RichText ? AICommandLocation.HtmlInput : AICommandLocation.TextInput;
+            dropdownUl.InnerHtml.AppendHtml(GenerateOptimizeCommands(location, false, enabled));
             inputGroupColDiv.InnerHtml.AppendHtml(dropdownUl);
 
             return inputGroupColDiv;
