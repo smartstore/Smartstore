@@ -309,7 +309,7 @@ namespace Smartstore.Core
 
                         if (country?.DefaultCurrency?.Published == true)
                         {
-                            currency = country.DefaultCurrency;
+                            currency = storeCurrenciesMap.Get(country.DefaultCurrency.Id);
                         }
                     }
                 }
