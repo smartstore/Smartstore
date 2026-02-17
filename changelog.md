@@ -50,6 +50,7 @@
 - #1457 UI: "Show All" brand link content (ellipsis) is not centered in manufacturer carousel.
 - Gemini: Fixed `ArgumentNullException` when creating embedded images in rich text.
 - #1452 The off-canvas menu is called infinitely often if the permission for shop access is not granted.
+- A modified, localized name of a payment method was incorrectly overwritten when string resources were updated:
 - OpenTrans: Fixed missing email addresses when exporting addresses.
 - PageBuilder: Issues when previewing selected images while editing a media gallery block.
 - The *Summernote* save button may produce a "languageId must be greater or less than zero" error.
