@@ -210,10 +210,11 @@ namespace Smartstore.Engine.Modularity
                     // Delete
                     _db.LocaleStringResources.Remove(resource);
                 }
-                else
+                else if (value != resource.ResourceValue)
                 {
                     // Update
                     resource.ResourceValue = value;
+                    resource.IsTouched = true;
                 }
             }
             else
@@ -226,6 +227,7 @@ namespace Smartstore.Engine.Modularity
                         LanguageId = languageId,
                         ResourceName = resourceName,
                         ResourceValue = value,
+                        IsTouched = true
                     });
                 }
             }
