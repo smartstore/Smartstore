@@ -99,7 +99,7 @@ namespace Smartstore.Web.Controllers
             if (combination != null)
             {
                 var mediaIds = combination.GetAssignedMediaIds();
-                if (mediaIds.Any())
+                if (!mediaIds.IsNullOrEmpty())
                 {
                     file = await _mediaService.GetFileByIdAsync(mediaIds[0], MediaLoadFlags.AsNoTracking);
                 }

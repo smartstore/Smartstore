@@ -81,6 +81,8 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Smartstore.AI.Prompts.OnlyImproveStructure",
                 "Only improve structureódon't remove content or meaningful markup.",
                 "Verbessere ausschlieﬂlich die Struktur ñ keine Inhalte oder bedeutsames Markup entfernen.");
+
+            builder.AddOrUpdate("Order.Product(s).OrderedQuantity", "Ordered", "Bestellt");
         }
     }
 }

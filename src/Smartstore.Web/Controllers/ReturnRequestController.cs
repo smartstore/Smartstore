@@ -1,16 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using Smartstore.Core.Catalog;
-using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Checkout.Tax;
-using Smartstore.Core.Common.Services;
-using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
-using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
-using Smartstore.Utilities.Html;
 using Smartstore.Web.Models.Customers;
 using Smartstore.Web.Models.Orders;
 
@@ -20,44 +12,31 @@ namespace Smartstore.Web.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly IOrderProcessingService _orderProcessingService;
-        private readonly ICurrencyService _currencyService;
-        private readonly ProductUrlHelper _productUrlHelper;
-        private readonly OrderHelper _orderHelper;
         private readonly IMessageFactory _messageFactory;
         private readonly OrderSettings _orderSettings;
         private readonly LocalizationSettings _localizationSettings;
-        private readonly ShoppingCartSettings _shoppingCartSettings;
-        private readonly MediaSettings _mediaSettings;
 
         public ReturnRequestController(
             SmartDbContext db,
             IOrderProcessingService orderProcessingService,
-            ICurrencyService currencyService,
-            ProductUrlHelper productUrlHelper,
-            OrderHelper orderHelper,
             IMessageFactory messageFactory,
             OrderSettings orderSettings,
-            LocalizationSettings localizationSettings,
-            ShoppingCartSettings shoppingCartSettings,
-            MediaSettings mediaSettings)
+            LocalizationSettings localizationSettings)
         {
             _db = db;
             _orderProcessingService = orderProcessingService;
-            _currencyService = currencyService;
-            _productUrlHelper = productUrlHelper;
-            _orderHelper = orderHelper;
             _messageFactory = messageFactory;
             _orderSettings = orderSettings;
             _localizationSettings = localizationSettings;
-            _shoppingCartSettings = shoppingCartSettings;
-            _mediaSettings = mediaSettings;
         }
 
         [DisallowRobot]
         public async Task<IActionResult> ReturnRequest(int id /* orderId */)
         {
             var order = await _db.Orders
+                .IncludeCustomer()
                 .IncludeOrderItems()
+                .Include(x => x.Customer.ReturnRequests)
                 .FindByIdAsync(id);
 
             if (order == null)
@@ -65,7 +44,7 @@ namespace Smartstore.Web.Controllers
                 return NotFound();
             }
 
-            if (Services.WorkContext.CurrentCustomer.Id != order.CustomerId)
+            if (order.CustomerId != Services.WorkContext.CurrentCustomer.Id)
             {
                 return ChallengeOrForbid();
             }
@@ -85,9 +64,10 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> ReturnRequestSubmit(int id /* orderId */, SubmitReturnRequestModel model)
         {
             var form = Request.Form;
-            var customer = Services.WorkContext.CurrentCustomer;
             var order = await _db.Orders
+                .IncludeCustomer()
                 .IncludeOrderItems()
+                .Include(x => x.Customer.ReturnRequests)
                 .FindByIdAsync(id);
 
             if (order == null)
@@ -95,7 +75,7 @@ namespace Smartstore.Web.Controllers
                 return NotFound();
             }
 
-            if (customer.Id != order.CustomerId)
+            if (order.CustomerId != Services.WorkContext.CurrentCustomer.Id)
             {
                 return ChallengeOrForbid();
             }
@@ -113,7 +93,7 @@ namespace Smartstore.Web.Controllers
                     {
                         StoreId = order.StoreId,
                         OrderItemId = oi.Id,
-                        Quantity = form.TryGetValue($"quantity{oi.Id}", out var qtyValues) ? qtyValues.ToString().ToInt() : 0,
+                        Quantity = form.TryGetValue($"return-request-quantity{oi.Id}", out var qtyValues) ? qtyValues.ToString().ToInt() : 0,
                         CustomerId = order.CustomerId,
                         ReasonForReturn = model.ReturnReason,
                         RequestedAction = model.ReturnAction,
@@ -152,68 +132,7 @@ namespace Smartstore.Web.Controllers
             Guard.NotNull(model);
 
             model.OrderId = order.Id;
-
-            var language = Services.WorkContext.WorkingLanguage;
-            var customer = Services.WorkContext.CurrentCustomer;
-            var customerCurrency = await _db.Currencies
-                .AsNoTracking()
-                .Where(x => x.CurrencyCode == order.CustomerCurrencyCode)
-                .FirstOrDefaultAsync() ?? new() { CurrencyCode = order.CustomerCurrencyCode };
-
-            var store = Services.StoreContext.GetCachedStores().GetStoreById(order.StoreId) ?? Services.StoreContext.CurrentStore;
-            var catalogSettings = await Services.SettingFactory.LoadSettingsAsync<CatalogSettings>(store.Id);
-
-            var orderItemIds = order.OrderItems.Select(x => x.Id).ToArray();
-            var allExistingRequests = customer.ReturnRequests
-                .Where(x => orderItemIds.Contains(x.OrderItemId))
-                .Select(rr => new CustomerReturnRequestModel
-                {
-                    Quantity = rr.Quantity,
-                    OrderItemId = rr.OrderItemId,
-                    ReturnRequestStatus = rr.ReturnRequestStatus.GetLocalizedEnum(language.Id),
-                    CreatedOn = Services.DateTimeHelper.ConvertToUserTime(rr.CreatedOnUtc, DateTimeKind.Utc)
-                })
-                .ToMultimap(x => x.OrderItemId, x => x);
-
-            foreach (var oi in order.OrderItems)
-            {
-                var returnRequests = allExistingRequests.TryGetValues(oi.Id, out var tmp) ? tmp.ToList() : [];
-                var oiModel = new SubmitReturnRequestModel.OrderItemModel
-                {
-                    Id = oi.Id,
-                    ProductId = oi.Product.Id,
-                    ProductName = oi.Product.GetLocalized(x => x.Name),
-                    ProductSeName = await oi.Product.GetActiveSlugAsync(),
-                    AttributeInfo = HtmlUtility.FormatPlainText(HtmlUtility.ConvertHtmlToPlainText(oi.AttributeDescription)),
-                    Quantity = Math.Max(oi.Quantity - returnRequests.Sum(x => x.Quantity), 0),
-                    ReturnRequests = returnRequests
-                };
-
-                oiModel.ProductUrl = await _productUrlHelper.GetProductUrlAsync(oiModel.ProductSeName, oi);
-
-                switch (order.CustomerTaxDisplayType)
-                {
-                    case TaxDisplayType.ExcludingTax:
-                        oiModel.UnitPrice = _currencyService.ConvertToExchangeRate(oi.UnitPriceExclTax, order.CurrencyRate, customerCurrency, true);
-                        break;
-
-                    case TaxDisplayType.IncludingTax:
-                        oiModel.UnitPrice = _currencyService.ConvertToExchangeRate(oi.UnitPriceInclTax, order.CurrencyRate, customerCurrency, true);
-                        break;
-                }
-
-                if (_shoppingCartSettings.ShowProductImagesOnShoppingCart)
-                {
-                    oiModel.Image = await _orderHelper.PrepareOrderItemImageModelAsync(
-                        oi.Product,
-                        _mediaSettings.CartThumbPictureSize,
-                        oiModel.ProductName,
-                        oi.AttributeSelection,
-                        catalogSettings);
-                }
-
-                model.Items.Add(oiModel);
-            }
+            model.Items = await order.MapAsync(_db);
 
             string returnRequestReasons = _orderSettings.GetLocalizedSetting(x => x.ReturnRequestReasons, order.CustomerLanguageId, order.StoreId, true, false);
             string returnRequestActions = _orderSettings.GetLocalizedSetting(x => x.ReturnRequestActions, order.CustomerLanguageId, order.StoreId, true, false);

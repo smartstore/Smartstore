@@ -9,7 +9,7 @@ namespace Smartstore.Web.Models.Orders
     {
         public int OrderId { get; set; }
 
-        public List<OrderItemModel> Items { get; set; } = [];
+        public List<ReturnRequestItemModel> Items { get; set; }
 
         [LocalizedDisplay("*ReturnReason")]
         public string ReturnReason { get; set; }
@@ -22,21 +22,24 @@ namespace Smartstore.Web.Models.Orders
         public string Comments { get; set; }
 
         public bool HasItemsToReturn
-            => Items.Any(x => x.Quantity > 0);
+            => Items.Any(x => x.ReturnQuantity > 0);
+    }
 
-        public partial class OrderItemModel : EntityModelBase
-        {
-            public int ProductId { get; set; }
-            public LocalizedValue<string> ProductName { get; set; }
-            public string ProductSeName { get; set; }
-            public string ProductUrl { get; set; }
+    public partial class ReturnRequestItemModel : EntityModelBase
+    {
+        public int ProductId { get; set; }
+        public LocalizedValue<string> ProductName { get; set; }
+        public string ProductSeName { get; set; }
+        public string ProductUrl { get; set; }
 
-            public string AttributeInfo { get; set; }
-            public Money UnitPrice { get; set; }
-            public int Quantity { get; set; }
+        public string AttributeInfo { get; set; }
+        public Money UnitPrice { get; set; }
+        public int Quantity { get; set; }
+        public string QuantityUnit { get; set; }
 
-            public ImageModel Image { get; set; }
-            public List<CustomerReturnRequestModel> ReturnRequests { get; set; }
-        }
+        public ImageModel Image { get; set; }
+
+        public int ReturnQuantity { get; set; }
+        public List<CustomerReturnRequestModel> ReturnRequests { get; set; }
     }
 }

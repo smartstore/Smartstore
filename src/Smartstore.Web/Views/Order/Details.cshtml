@@ -282,10 +282,9 @@
                                 await SimpleProduct(item);
                                 if (item.ProductType == ProductType.BundledProduct && item.BundleItems != null)
                                 {
-                                    var bundleItems = item.BundleItems.OrderBy(x => x.DisplayOrder).ToArray();
-                                    for (var i = 0; i < bundleItems.Length; i++)
+                                    for (var i = 0; i < item.BundleItems.Count; i++)
                                     {
-                                        await BundleProduct(bundleItems[i], item, i);
+                                        await BundleProduct(item.BundleItems[i], item, i);
                                     }
                                 }
                             }

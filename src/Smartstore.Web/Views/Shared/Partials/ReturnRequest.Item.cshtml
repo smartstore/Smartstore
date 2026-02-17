@@ -1,0 +1,63 @@
+﻿@using Smartstore.Web.Models.Orders
+
+@model ReturnRequestItemModel
+
+@{
+    var quantityId = $"return-request-quantity{Model.Id}";
+}
+
+<div class="cart-item-img col-2" sm-if="Model.Image != null && Model.Image.HasImage()">
+    <img sm-model="Model.Image" class="img-fluid" attr-alt='(Model.Image.Alt.IsEmpty(), Model.ProductName)' />
+</div>
+<div class="cart-item-data col">
+    <div class="cart-item-group cart-item-title" role="heading" aria-level="3">
+        @if (Model.ProductUrl.HasValue())
+        {
+            <a href="@Model.ProductUrl" class="cart-item-link" sm-language-attributes-for="Model.ProductName">
+                @Model.ProductName
+            </a>
+        }
+        else
+        {
+            <span class="product-name" sm-language-attributes-for="Model.ProductName">@Model.ProductName</span>
+        }
+    </div>
+    <div sm-if="Model.AttributeInfo.HasValue()" class="cart-item-attrs cart-item-group fs-sm">
+        @Html.Raw(Model.AttributeInfo)
+    </div>
+    <div class="cart-item-price-group mt-3">
+        <span>@T("ReturnRequests.Products.Price"):</span>
+        <data asp-for="@Model.UnitPrice" class="pd-finalprice-amount"></data>
+    </div>
+    <div class="cart-item-qty cart-item-group pd-muted">
+        <span>@T("Order.Product(s).OrderedQuantity"):</span> <span>@Model.Quantity @Model.QuantityUnit</span>
+    </div>
+    <div class="cart-item-return-qty">
+        @if (Model.ReturnQuantity > 0)
+        {
+            <label for="@quantityId" class="mb-1">@T("ReturnRequests.Products.Quantity"):</label>
+            <select id="@quantityId" name="@quantityId" class="form-control form-control-sm noskin" style="max-width: 120px">
+                @for (var i = 0; i <= Model.ReturnQuantity; i++)
+                {
+                    <option value="@(i)">@(i)</option>
+                }
+            </select>
+        }
+        <div sm-if="Model.ReturnRequests.Count > 0" class="alert alert-info small mt-2 mb-0" role="status" aria-live="polite">
+            <p>@T("ReturnRequests.Products.RequestAlreadyExists")</p>
+            @foreach (var rr in Model.ReturnRequests)
+            {
+                <dl class="row">
+                    <dt class="col-sm-2">@T("ReturnRequests.Products.Quantity")</dt>
+                    <dd class="col-sm-10 mb-0">@rr.Quantity</dd>
+                    <dt class="col-sm-2">@T("Common.Status")</dt>
+                    <dd class="col-sm-10 mb-0">@rr.ReturnRequestStatus</dd>
+                    <dt class="col-sm-2">@T("Account.CustomerReturnRequests.Date")</dt>
+                    <dd class="col-sm-10 mb-0">
+                        <time asp-for="@rr.CreatedOn" sm-format="f"></time>
+                    </dd>
+                </dl>
+            }
+        </div>
+    </div>
+</div>
