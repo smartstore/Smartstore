@@ -3,7 +3,7 @@
 @model ReturnRequestItemModel
 
 @{
-    var quantityId = $"return-request-quantity{Model.Id}";
+    var quantityId = $"orderitem-quantity{Model.Id}";
 }
 
 <div class="cart-item-img col-2" sm-if="Model.Image != null && Model.Image.HasImage()">

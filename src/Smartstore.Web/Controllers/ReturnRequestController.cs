@@ -93,7 +93,7 @@ namespace Smartstore.Web.Controllers
                     {
                         StoreId = order.StoreId,
                         OrderItemId = oi.Id,
-                        Quantity = form.TryGetValue($"return-request-quantity{oi.Id}", out var qtyValues) ? qtyValues.ToString().ToInt() : 0,
+                        Quantity = form.TryGetValue($"orderitem-quantity{oi.Id}", out var qtyValues) ? qtyValues.ToString().ToInt() : 0,
                         CustomerId = order.CustomerId,
                         ReasonForReturn = model.ReturnReason,
                         RequestedAction = model.ReturnAction,
