@@ -10,32 +10,6 @@ using Smartstore.Web.Modelling;
 namespace Smartstore.Web.Rendering
 {
     /// <summary>
-    /// Specifies the location or context in which an AI command is rendered.
-    /// </summary>
-    public enum AICommandLocation
-    {
-        /// <summary>
-        /// Command rendering location is unknown.
-        /// </summary>
-        Unknown,
-
-        /// <summary>
-        /// The command is rendered in a simple text or textarea field.
-        /// </summary>
-        TextInput,
-
-        /// <summary>
-        /// The command is rendered in an HTML input control.
-        /// </summary>
-        HtmlInput,
-
-        /// <summary>
-        /// The command is rendered in the text chat dialog.
-        /// </summary>
-        ChatDialog
-    }
-    
-    /// <summary>
     /// Represents a generator for creating the HTML for AI dialog openers.
     /// </summary>
     public partial interface IAIToolHtmlGenerator : IViewContextAware
@@ -60,7 +34,7 @@ namespace Smartstore.Web.Rendering
         /// The icon button inclusive dropdown to choose a rewrite command from.
         /// <c>null</c> if there is no active <see cref="IAIProvider"/>.
         /// </returns>
-        TagBuilder? GenerateTextCreationTool(AttributeDictionary? attributes, bool enabled = true);
+        TagBuilder? GenerateTextTool(AttributeDictionary? attributes, bool enabled = true);
 
         /// <summary>
         /// Creates the icon button and the commands dropdown menu to open the rich text creation dialog.

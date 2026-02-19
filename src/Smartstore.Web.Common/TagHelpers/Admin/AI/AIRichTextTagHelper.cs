@@ -76,7 +76,7 @@ namespace Smartstore.Web.TagHelpers.Admin
             attrs["data-display-link-options"] = DisplayLinkOptions.ToString().ToLower();
             attrs["data-display-image-options"] = DisplayImageOptions.ToString().ToLower();
             attrs["data-display-layout-options"] = DisplayLayoutOptions.ToString().ToLower();
-            attrs["data-is-rich-text"] = "true";
+            attrs["data-is-richtext"] = "true";
 
             return attrs;
         }

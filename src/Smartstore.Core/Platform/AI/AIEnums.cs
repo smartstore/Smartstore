@@ -83,4 +83,35 @@
         HtmlEditor,
         ImageAnalyzer
     }
+
+    /// <summary>
+    /// Specifies the location or context in which an AI command is rendered.
+    /// </summary>
+    public enum AICommandLocation
+    {
+        /// <summary>
+        /// Command rendering location is unknown.
+        /// </summary>
+        Unknown,
+
+        /// <summary>
+        /// The command is rendered in a simple text or textarea field.
+        /// </summary>
+        TextInput,
+
+        /// <summary>
+        /// The command is rendered in a readonly HTML input control.
+        /// </summary>
+        HtmlInput,
+
+        /// <summary>
+        /// The command is rendered as an HTML editor tool.
+        /// </summary>
+        HtmlEditor,
+
+        /// <summary>
+        /// The command is rendered in the text chat dialog.
+        /// </summary>
+        ChatDialog
+    }
 }

@@ -57,8 +57,7 @@
 
             const cmd = el.data('command');
             const isSummernoteInlineEditing = el.closest(".html-editor-root").length !== 0;
-            
-            let isRichText = tool.data('is-rich-text') || (cmd === "create-new" && isSummernoteInlineEditing);
+            const isRichText = tool.data('is-richtext') || (cmd === "generate" && isSummernoteInlineEditing);
 
             let params = {
                 entityName: tool.data('entity-name'),
@@ -95,14 +94,13 @@
                     displayImageOptions: tool.data('display-image-options'),
                     displayLayoutOptions: tool.data('display-layout-options')
                 });
-
-                var richTextUrl = tool.data("rich-text-modal-url");
-                if (richTextUrl) {
-                    tool.data('modal-url', richTextUrl);
-                }
             }
 
-            openDialog(tool, params, isRichText);
+            if (!el.data('modal-url')) {
+                el.data('modal-url', tool.data('modal-url'));
+            }
+
+            openDialog(el, params, isRichText);
         });
 
         // Translation

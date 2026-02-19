@@ -166,7 +166,7 @@ namespace Smartstore.Web.Rendering
             return inputGroupColDiv;
         }
 
-        public virtual TagBuilder GenerateTextCreationTool(AttributeDictionary attributes, bool enabled = true)
+        public virtual TagBuilder GenerateTextTool(AttributeDictionary attributes, bool enabled = true)
             => GenerateTextToolOutput(attributes, AIChatTopic.Text, enabled);
 
         public virtual TagBuilder GenerateRichTextTool(AttributeDictionary attributes, bool enabled = true)
@@ -183,26 +183,43 @@ namespace Smartstore.Web.Rendering
             }
 
             var inputGroupColDiv = CreateDialogOpener(true, title: GetOpenerTitle(AIChatTopic.Text));
-            inputGroupColDiv.Attributes["data-modal-url"] = GetDialogUrl(topic);
+            inputGroupColDiv.Attributes["data-modal-url"] = GetDialogUrl(AIChatTopic.Text);
             inputGroupColDiv.MergeAttributes(attributes);
 
             var dropdownUl = new TagBuilder("ul");
             dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-right";
 
             var location = topic == AIChatTopic.RichText ? AICommandLocation.HtmlInput : AICommandLocation.TextInput;
-            dropdownUl.InnerHtml.AppendHtml(GenerateOptimizeCommands(location, false, enabled));
+            var forHtml = topic == AIChatTopic.RichText;
+
+            dropdownUl.InnerHtml.AppendHtml(GenerateOptimizeCommands(location, forHtml, enabled));
             inputGroupColDiv.InnerHtml.AppendHtml(dropdownUl);
 
             return inputGroupColDiv;
         }
 
-        public virtual IHtmlContent GenerateOptimizeCommands(AICommandLocation location, bool forHtml = false, bool enabled = true)
+        public virtual IHtmlContent GenerateOptimizeCommands(
+            AICommandLocation location, 
+            bool forHtml = false, 
+            bool enabled = true)
         {
             var builder = new HtmlContentBuilder();
             var className = location == AICommandLocation.ChatDialog ? "ai-text-optimizer" : "ai-text-composer";
             var resRoot = "Admin.AI.TextCreation.";
 
-            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}CreateNew"), true, "create-new", "repeat", false, className));
+            var itemGenerate = CreateDropdownItem(
+                T($"{resRoot}CreateNew"), 
+                enabled: true, 
+                command: "generate", 
+                iconName: "repeat", 
+                isProviderTool: false,
+                configureLink: a =>
+                {
+                    if (forHtml) a.Attributes["data-modal-url"] = GetDialogUrl(AIChatTopic.RichText);
+                },
+                className);
+
+            builder.AppendHtml(itemGenerate);
             builder.AppendHtml("<li class=\"dropdown-divider\"></li>");
 
             // Add "Change style" & "Change tone" options from module settings.
@@ -231,7 +248,7 @@ namespace Smartstore.Web.Rendering
                 className += " d-none";
             }
 
-            if (location == AICommandLocation.HtmlInput)
+            if (location == AICommandLocation.HtmlEditor)
             {
                 builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Continue"), enabled, "continue", "three-dots", false, className));
             }
@@ -437,6 +454,15 @@ namespace Smartstore.Web.Rendering
         protected virtual TagBuilder CreateDropdownItem(string menuText)
             => CreateDropdownItem(menuText, true, string.Empty, null, false);
 
+        private TagBuilder CreateDropdownItem(
+            string menuText,
+            bool enabled,
+            string command,
+            string iconName,
+            bool isProviderTool,
+            params string[] additionalClasses)
+            => CreateDropdownItem(menuText, enabled, command, iconName, isProviderTool, null, additionalClasses);
+
         /// <summary>
         /// Creates a dropdown item.
         /// </summary>
@@ -446,6 +472,7 @@ namespace Smartstore.Web.Rendering
         /// <param name="iconName">The optional name of a Bootstrap SVG icon. Can be null.</param>
         /// <param name="isProviderTool">Defines whether the item is a provider tool container.</param>
         /// <param name="additionalClasses">Additional CSS classes to add to the menu item.</param>
+        /// <param name="configureLink">An action to configure the anchor tag of the menu item.</param>
         /// <returns>An LI tag representing the menu item.</returns>
         protected virtual TagBuilder CreateDropdownItem(
             string menuText,
@@ -453,6 +480,7 @@ namespace Smartstore.Web.Rendering
             string command,
             string iconName,
             bool isProviderTool,
+            Action<TagBuilder> configureLink,
             params string[] additionalClasses)
         {
             var li = new TagBuilder("li");
@@ -484,6 +512,8 @@ namespace Smartstore.Web.Rendering
             }
 
             a.InnerHtml.AppendHtml(menuText);
+
+            configureLink?.Invoke(a);
 
             li.InnerHtml.AppendHtml(a);
 

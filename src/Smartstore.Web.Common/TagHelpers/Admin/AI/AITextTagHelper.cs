@@ -71,7 +71,7 @@ namespace Smartstore.Web.TagHelpers.Admin
             var enabled = For?.Model?.ToString()?.HasValue() ?? false;
             var attributes = GetTagHelperAttributes();
 
-            var tool = AIToolHtmlGenerator.GenerateTextCreationTool(attributes, enabled);
+            var tool = AIToolHtmlGenerator.GenerateTextTool(attributes, enabled);
             if (tool == null)
             {
                 return;
@@ -89,7 +89,7 @@ namespace Smartstore.Web.TagHelpers.Admin
             attrs["data-display-tone"] = DisplayTone.ToString().ToLower();
             attrs["data-display-optimization-options"] = DisplayOptimizationOptions.ToString().ToLower();
             attrs["data-char-limit"] = CharLimit.ToStringInvariant();
-            attrs["data-is-rich-text"] = "false";
+            attrs["data-is-richtext"] = "false";
 
             return attrs;
         }
