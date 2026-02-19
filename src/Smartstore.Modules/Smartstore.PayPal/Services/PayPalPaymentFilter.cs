@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Configuration;
 
 namespace Smartstore.PayPal.Services
