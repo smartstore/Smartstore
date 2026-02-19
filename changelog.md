@@ -39,6 +39,7 @@
     - Better checkout flow for Zinia lending payment method
     - Reactivated instant payment by Santander
 - PostFinance/Skrill: Improved the processing of webhook messages.
+- Rebranded payever payment methods. Zinia became Openbank. 
 
 ### Bugfixes
 
