@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Configuration;
 
 namespace Smartstore.PayPal.Services
@@ -10,6 +9,7 @@ namespace Smartstore.PayPal.Services
     /// Filters out:
     ///     PayUponInvoice if the cart total is above upper limit.
     ///     GooglePay if the request is local.
+    ///     ApplePay if the request comes not from an Apple device.
     /// </summary>
     public partial class PayPalPaymentFilter : IPaymentMethodFilter
     {
@@ -57,8 +57,26 @@ namespace Smartstore.PayPal.Services
                     return true;
                 }
             }
+            else if (request.PaymentProvider.Metadata.SystemName.EqualsNoCase(PayPalConstants.ApplePay))
+            {
+                var httpContext = _services.WebHelper.HttpContext;
+                if (httpContext != null && !IsAppleDevice(httpContext.Request))
+                {
+                    return true;
+                }
+            }
 
             return false;
+        }
+    
+        private static bool IsAppleDevice(HttpRequest request)
+        {
+            var userAgent = request.Headers.UserAgent.ToString();
+
+            return userAgent.Contains("iPhone", StringComparison.OrdinalIgnoreCase)
+                || userAgent.Contains("iPad", StringComparison.OrdinalIgnoreCase)
+                || userAgent.Contains("Macintosh", StringComparison.OrdinalIgnoreCase)
+                || userAgent.Contains("Mac OS", StringComparison.OrdinalIgnoreCase);
         }
     }
 }
