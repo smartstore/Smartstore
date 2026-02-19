@@ -38,6 +38,11 @@ public static class IUserAgentExtensions
     public static bool IsPdfConverter(this IUserAgent userAgent) 
         => userAgent.UserAgent == "wkhtmltopdf";
 
+    public static bool IsAppleDevice(this IUserAgent userAgent)
+        => userAgent.Platform.Family == UserAgentPlatformFamily.MacOS
+            || userAgent.Platform.Name == "Macintosh"
+            || userAgent.Device.Name.StartsWithNoCase("Apple");
+
     /// <summary>
     /// Checks whether the user agent supports the WebP image type.
     /// </summary>

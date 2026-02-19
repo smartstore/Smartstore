@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Smartstore.Core;
+﻿using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Configuration;
+using Smartstore.Core.Web;
 
 namespace Smartstore.PayPal.Services
 {
@@ -14,12 +14,18 @@ namespace Smartstore.PayPal.Services
     public partial class PayPalPaymentFilter : IPaymentMethodFilter
     {
         private readonly ICommonServices _services;
+        private readonly IUserAgent _userAgent;
         private readonly Lazy<ISettingFactory> _settingFactory;
         private readonly IOrderCalculationService _orderCalculationService;
         
-        public PayPalPaymentFilter(ICommonServices services, Lazy<ISettingFactory> settingFactory, IOrderCalculationService orderCalculationService)
+        public PayPalPaymentFilter(
+            ICommonServices services,
+            IUserAgent userAgent,
+            Lazy<ISettingFactory> settingFactory, 
+            IOrderCalculationService orderCalculationService)
         {
             _services = services;
+            _userAgent = userAgent;
             _settingFactory = settingFactory;
             _orderCalculationService = orderCalculationService;
         }
@@ -59,24 +65,13 @@ namespace Smartstore.PayPal.Services
             }
             else if (request.PaymentProvider.Metadata.SystemName.EqualsNoCase(PayPalConstants.ApplePay))
             {
-                var httpContext = _services.WebHelper.HttpContext;
-                if (httpContext != null && !IsAppleDevice(httpContext.Request))
+                if (_userAgent.IsAppleDevice())
                 {
                     return true;
                 }
             }
 
             return false;
-        }
-    
-        private static bool IsAppleDevice(HttpRequest request)
-        {
-            var userAgent = request.Headers.UserAgent.ToString();
-
-            return userAgent.Contains("iPhone", StringComparison.OrdinalIgnoreCase)
-                || userAgent.Contains("iPad", StringComparison.OrdinalIgnoreCase)
-                || userAgent.Contains("Macintosh", StringComparison.OrdinalIgnoreCase)
-                || userAgent.Contains("Mac OS", StringComparison.OrdinalIgnoreCase);
         }
     }
 }
