@@ -22,7 +22,7 @@ namespace Smartstore.Web.Models.Orders
         public string Comments { get; set; }
 
         public bool HasItemsToReturn
-            => Items.Any(x => x.ReturnQuantity > 0);
+            => Items.Any(x => x.MaxReturnQuantity > 0);
     }
 
     public partial class ReturnRequestItemModel : EntityModelBase
@@ -39,7 +39,8 @@ namespace Smartstore.Web.Models.Orders
 
         public ImageModel Image { get; set; }
 
-        public int ReturnQuantity { get; set; }
+        public int MaxReturnQuantity { get; set; }
+        public int SelectedReturnQuantity { get; set; }
         public List<CustomerReturnRequestModel> ReturnRequests { get; set; }
     }
 }

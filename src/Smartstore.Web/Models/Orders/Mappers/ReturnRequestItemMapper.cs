@@ -18,7 +18,8 @@ namespace Smartstore.Web.Models.Orders;
 public static partial class ReturnRequestMappingExtensions
 {
     public static async Task<List<ReturnRequestItemModel>> MapAsync(this Order order,
-        SmartDbContext db)
+        SmartDbContext db,
+        Dictionary<int, int> selectedReturnQuantities = null)
     {
         Guard.NotNull(order?.OrderItems);
         Guard.NotNull(order?.Customer?.ReturnRequests);
@@ -33,6 +34,7 @@ public static partial class ReturnRequestMappingExtensions
         dynamic parameters = new ExpandoObject();
         parameters.Order = order;
         parameters.CustomerCurrency = customerCurrency;
+        parameters.SelectedReturnQuantities = selectedReturnQuantities;
         parameters.ReturnRequests = order.Customer.ReturnRequests
             .Where(x => orderItemIds.Contains(x.OrderItemId))
             .ToMultimap(x => x.OrderItemId, x => x);
@@ -85,6 +87,7 @@ internal class ReturnRequestItemMapper : IMapper<OrderItem, ReturnRequestItemMod
         var language = _workContext.WorkingLanguage;
         var order = Guard.NotNull(parameters?.Order as Order);
         var customerCurrency = Guard.NotNull(parameters?.CustomerCurrency as Currency);
+        var selectedReturnQuantities = parameters?.SelectedReturnQuantities as Dictionary<int, int>;
         var allReturnRequests = Guard.NotNull(parameters?.ReturnRequests as Multimap<int, ReturnRequest>);
         var returnRequests = allReturnRequests.TryGetValues(from.Id, out var tmp) ? tmp.ToList() : [];
 
@@ -95,7 +98,8 @@ internal class ReturnRequestItemMapper : IMapper<OrderItem, ReturnRequestItemMod
         to.ProductUrl = await _productUrlHelper.GetProductUrlAsync(to.ProductSeName, from);
         to.AttributeInfo = HtmlUtility.FormatPlainText(HtmlUtility.ConvertHtmlToPlainText(from.AttributeDescription));
         to.Quantity = from.Quantity;
-        to.ReturnQuantity = Math.Max(from.Quantity - returnRequests.Sum(x => x.Quantity), 0);
+        to.SelectedReturnQuantity = selectedReturnQuantities?.Get(from.Id) ?? 0;
+        to.MaxReturnQuantity = Math.Max(from.Quantity - returnRequests.Sum(x => x.Quantity), 0);
         to.ReturnRequests = returnRequests
             .Select(x => new CustomerReturnRequestModel
             {

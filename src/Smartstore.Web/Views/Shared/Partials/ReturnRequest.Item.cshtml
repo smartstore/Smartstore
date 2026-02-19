@@ -4,6 +4,7 @@
 
 @{
     var quantityId = $"orderitem-quantity{Model.Id}";
+    var isEditable = (ViewBag.IsEditable as bool?) ?? true;
 }
 
 <div class="cart-item-img col-2" sm-if="Model.Image != null && Model.Image.HasImage()">
@@ -25,21 +26,25 @@
     <div sm-if="Model.AttributeInfo.HasValue()" class="cart-item-attrs cart-item-group fs-sm">
         @Html.Raw(Model.AttributeInfo)
     </div>
-    <div class="cart-item-price-group mt-3">
+    <div class="cart-item-price-group mt-2">
         <span>@T("ReturnRequests.Products.Price"):</span>
         <data asp-for="@Model.UnitPrice" class="pd-finalprice-amount"></data>
     </div>
-    <div class="cart-item-qty cart-item-group pd-muted">
+    <div sm-if="isEditable" class="cart-item-qty pd-muted">
         <span>@T("Order.Product(s).OrderedQuantity"):</span> <span>@Model.Quantity @Model.QuantityUnit</span>
     </div>
-    <div class="cart-item-return-qty">
-        @if (Model.ReturnQuantity > 0)
+    <div class="cart-item-return-qty mt-2">
+        @if (!isEditable)
+        {
+            <span>@T("ReturnRequests.Products.Quantity"):</span> <span>@Model.MaxReturnQuantity.ToString("N0")</span>
+        }
+        else if (Model.MaxReturnQuantity > 0)
         {
             <label for="@quantityId" class="mb-1">@T("ReturnRequests.Products.Quantity"):</label>
             <select id="@quantityId" name="@quantityId" class="form-control form-control-sm noskin" style="max-width: 120px">
-                @for (var i = 0; i <= Model.ReturnQuantity; i++)
+                @for (var i = 0; i <= Model.MaxReturnQuantity; i++)
                 {
-                    <option value="@(i)">@(i)</option>
+                    <option value="@(i)" attr-selected='(i == Model.SelectedReturnQuantity, "selected")'>@(i)</option>
                 }
             </select>
         }
