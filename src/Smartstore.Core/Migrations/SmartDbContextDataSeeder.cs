@@ -83,6 +83,9 @@ namespace Smartstore.Core.Data.Migrations
                 "Verbessere ausschlieﬂlich die Struktur ñ keine Inhalte oder bedeutsames Markup entfernen.");
 
             builder.AddOrUpdate("Order.Product(s).OrderedQuantity", "Ordered", "Bestellt");
+
+            builder.AddOrUpdate("ReturnRequests.ReturnAllItems", "All items", "Alle Artikel");
+            builder.AddOrUpdate("ReturnRequests.ReturnSelectedItems", "Selected items", "Ausgew‰hlte Artikel");
         }
     }
 }

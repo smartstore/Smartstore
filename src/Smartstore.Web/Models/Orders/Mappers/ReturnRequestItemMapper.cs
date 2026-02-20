@@ -1,5 +1,5 @@
 ﻿using System.Dynamic;
-using Smartstore.Collections;
+using Microsoft.AspNetCore.Http;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Products;
@@ -17,39 +17,24 @@ namespace Smartstore.Web.Models.Orders;
 
 public static partial class ReturnRequestMappingExtensions
 {
-    public static async Task<List<ReturnRequestItemModel>> MapAsync(this Order order,
-        SmartDbContext db,
-        Dictionary<int, int> selectedReturnQuantities = null)
+    public static async Task<ReturnRequestItemsModel> MapAsync(this Order order,
+        Dictionary<int, int> selectedQuantities = null)
     {
-        Guard.NotNull(order?.OrderItems);
-        Guard.NotNull(order?.Customer?.ReturnRequests);
-
-        var customerCurrency = await db.Currencies
-            .AsNoTracking()
-            .Where(x => x.CurrencyCode == order.CustomerCurrencyCode)
-            .FirstOrDefaultAsync() ?? new() { CurrencyCode = order.CustomerCurrencyCode };
-
-        var orderItemIds = order.OrderItems.Select(x => x.Id).ToArray();
-
         dynamic parameters = new ExpandoObject();
-        parameters.Order = order;
-        parameters.CustomerCurrency = customerCurrency;
-        parameters.SelectedReturnQuantities = selectedReturnQuantities;
-        parameters.ReturnRequests = order.Customer.ReturnRequests
-            .Where(x => orderItemIds.Contains(x.OrderItemId))
-            .ToMultimap(x => x.OrderItemId, x => x);
+        parameters.SelectedQuantities = selectedQuantities;
 
-        var models = await order.OrderItems
-            .SelectAwait(async x => (ReturnRequestItemModel)await MapperFactory.MapAsync<OrderItem, ReturnRequestItemModel>(x, parameters))
-            .ToListAsync();
+        var model = new ReturnRequestItemsModel();
+        await MapperFactory.MapAsync<Order, ReturnRequestItemsModel>(order, model, parameters);
 
-        return models;
+        return model;
     }
 }
 
-internal class ReturnRequestItemMapper : IMapper<OrderItem, ReturnRequestItemModel>
+internal class ReturnRequestItemsMapper : IMapper<Order, ReturnRequestItemsModel>
 {
+    private readonly SmartDbContext _db;
     private readonly IWorkContext _workContext;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IDateTimeHelper _dateTimeHelper;
     private readonly ProductUrlHelper _productUrlHelper;
     private readonly OrderHelper _orderHelper;
@@ -58,8 +43,10 @@ internal class ReturnRequestItemMapper : IMapper<OrderItem, ReturnRequestItemMod
     private readonly MediaSettings _mediaSettings;
     private readonly CatalogSettings _catalogSettings;
 
-    public ReturnRequestItemMapper(
+    public ReturnRequestItemsMapper(
+        SmartDbContext db,
         IWorkContext workContext,
+        IHttpContextAccessor httpContextAccessor,
         IDateTimeHelper dateTimeHelper,
         ProductUrlHelper productUrlHelper,
         OrderHelper orderHelper,
@@ -68,7 +55,9 @@ internal class ReturnRequestItemMapper : IMapper<OrderItem, ReturnRequestItemMod
         MediaSettings mediaSettings,
         CatalogSettings catalogSettings)
     {
+        _db = db;
         _workContext = workContext;
+        _httpContextAccessor = httpContextAccessor;
         _dateTimeHelper = dateTimeHelper;
         _productUrlHelper = productUrlHelper;
         _orderHelper = orderHelper;
@@ -78,58 +67,89 @@ internal class ReturnRequestItemMapper : IMapper<OrderItem, ReturnRequestItemMod
         _catalogSettings = catalogSettings;
     }
 
-    public async Task MapAsync(OrderItem from, ReturnRequestItemModel to, dynamic parameters = null)
+    public async Task MapAsync(Order from, ReturnRequestItemsModel to, dynamic parameters = null)
     {
         Guard.NotNull(from);
-        Guard.NotNull(from?.Product);
+        Guard.NotNull(from.OrderItems);
+        Guard.NotNull(from.Customer?.ReturnRequests);
         Guard.NotNull(to);
 
+        var selectedQuantities = parameters?.SelectedQuantities as Dictionary<int, int>;
+
         var language = _workContext.WorkingLanguage;
-        var order = Guard.NotNull(parameters?.Order as Order);
-        var customerCurrency = Guard.NotNull(parameters?.CustomerCurrency as Currency);
-        var selectedReturnQuantities = parameters?.SelectedReturnQuantities as Dictionary<int, int>;
-        var allReturnRequests = Guard.NotNull(parameters?.ReturnRequests as Multimap<int, ReturnRequest>);
-        var returnRequests = allReturnRequests.TryGetValues(from.Id, out var tmp) ? tmp.ToList() : [];
+        var request = _httpContextAccessor.HttpContext?.Request;
+        var form = request != null && request.IsPost() && request.HasFormContentType ? request.Form : null;
+        var excludingTax = from.CustomerTaxDisplayType == TaxDisplayType.ExcludingTax;
+        var customerCurrency = await _db.Currencies
+            .AsNoTracking()
+            .Where(x => x.CurrencyCode == from.CustomerCurrencyCode)
+            .FirstOrDefaultAsync() ?? new() { CurrencyCode = from.CustomerCurrencyCode };
 
-        to.Id = from.Id;
-        to.ProductId = from.Product.Id;
-        to.ProductName = from.Product.GetLocalized(x => x.Name);
-        to.ProductSeName = await from.Product.GetActiveSlugAsync();
-        to.ProductUrl = await _productUrlHelper.GetProductUrlAsync(to.ProductSeName, from);
-        to.AttributeInfo = HtmlUtility.FormatPlainText(HtmlUtility.ConvertHtmlToPlainText(from.AttributeDescription));
-        to.Quantity = from.Quantity;
-        to.SelectedReturnQuantity = selectedReturnQuantities?.Get(from.Id) ?? 0;
-        to.MaxReturnQuantity = Math.Max(from.Quantity - returnRequests.Sum(x => x.Quantity), 0);
-        to.ReturnRequests = returnRequests
-            .Select(x => new CustomerReturnRequestModel
+        var orderItemIds = from.OrderItems.Select(x => x.Id).ToArray();
+        var allReturnRequests = from.Customer.ReturnRequests
+            .Where(x => orderItemIds.Contains(x.OrderItemId))
+            .ToMultimap(x => x.OrderItemId, x => x);
+
+        foreach (var oi in from.OrderItems)
+        {
+            var selected = false;
+            var selectedReturnQuantity = 0;
+            var productSeName = await oi.Product.GetActiveSlugAsync();
+            var returnRequests = allReturnRequests.TryGetValues(oi.Id, out var tmp) ? tmp.ToList() : [];
+
+            if (selectedQuantities != null)
             {
-                Id = x.Id,
-                Quantity = x.Quantity,
-                OrderItemId = x.OrderItemId,
-                ReturnRequestStatus = x.ReturnRequestStatus.GetLocalizedEnum(language.Id),
-                CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
-            })
-            .ToList();
+                if (selectedQuantities.TryGetValue(oi.Id, out selectedReturnQuantity))
+                {
+                    selected = selectedReturnQuantity > 0;
+                }
+            }
+            else if (form != null)
+            {
+                selectedReturnQuantity = form.TryGetValue($"orderitem-quantity{oi.Id}", out var qtyVal) ? qtyVal.ToString().ToInt() : 0;
+                selected = selectedReturnQuantity > 0 && form.TryGetValue($"orderitem-select{oi.Id}", out var selectedVal) && selectedVal.ToString().ToBool();
+            }
 
-        switch (order.CustomerTaxDisplayType)
-        {
-            case TaxDisplayType.ExcludingTax:
-                to.UnitPrice = _currencyService.ConvertToExchangeRate(from.UnitPriceExclTax, order.CurrencyRate, customerCurrency, true);
-                break;
+            var item = new ReturnRequestItemsModel.ItemModel
+            {
+                Id = oi.Id,
+                ProductId = oi.Product.Id,
+                ProductName = oi.Product.GetLocalized(x => x.Name),
+                ProductSeName = productSeName,
+                ProductUrl = await _productUrlHelper.GetProductUrlAsync(productSeName, oi),
+                AttributeInfo = HtmlUtility.FormatPlainText(HtmlUtility.ConvertHtmlToPlainText(oi.AttributeDescription)),
+                Quantity = oi.Quantity,
+                Selected = selected,
+                SelectedReturnQuantity = selectedReturnQuantity,
+                MaxReturnQuantity = Math.Max(oi.Quantity - returnRequests.Sum(x => x.Quantity), 0),
+                ReturnRequests = returnRequests
+                    .Select(x => new CustomerReturnRequestModel
+                    {
+                        Id = x.Id,
+                        Quantity = x.Quantity,
+                        OrderItemId = x.OrderItemId,
+                        ReturnRequestStatus = x.ReturnRequestStatus.GetLocalizedEnum(language.Id),
+                        CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
+                    })
+                    .ToList(),
+                UnitPrice = _currencyService.ConvertToExchangeRate(
+                    excludingTax ? oi.UnitPriceExclTax : oi.UnitPriceInclTax,
+                    from.CurrencyRate,
+                    customerCurrency,
+                    true)
+            };
 
-            case TaxDisplayType.IncludingTax:
-                to.UnitPrice = _currencyService.ConvertToExchangeRate(from.UnitPriceInclTax, order.CurrencyRate, customerCurrency, true);
-                break;
-        }
+            if (_shoppingCartSettings.ShowProductImagesOnShoppingCart)
+            {
+                item.Image = await _orderHelper.PrepareOrderItemImageModelAsync(
+                    oi.Product,
+                    _mediaSettings.CartThumbPictureSize,
+                    item.ProductName,
+                    oi.AttributeSelection,
+                    _catalogSettings);
+            }
 
-        if (_shoppingCartSettings.ShowProductImagesOnShoppingCart)
-        {
-            to.Image = await _orderHelper.PrepareOrderItemImageModelAsync(
-                from.Product,
-                _mediaSettings.CartThumbPictureSize,
-                to.ProductName,
-                from.AttributeSelection,
-                _catalogSettings);
+            to.Items.Add(item);
         }
     }
 }

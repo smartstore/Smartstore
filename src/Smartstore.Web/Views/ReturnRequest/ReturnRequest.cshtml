@@ -6,6 +6,9 @@
     Assets.AppendTitleParts(T("PageTitle.ReturnItems"));
 
     var hasItemsToReturn = Model.HasItemsToReturn;
+
+    var itemsViewData = new ViewDataDictionary(ViewData);
+    itemsViewData.TemplateInfo.HtmlFieldPrefix = nameof(Model.Items);
 }
 
 <div class="page return-request-page">
@@ -13,7 +16,7 @@
         <h1 id="return-request-title" class="h3">@T("ReturnRequests.Title", Model.OrderId)</h1>
     </div>
 
-    @if (Model.Items.IsNullOrEmpty())
+    @if (Model.Items.Items.IsNullOrEmpty())
     {
         <div class="alert alert-info" role="alert">
             @T("ReturnRequests.ReturnsNotPossible")
@@ -30,20 +33,8 @@
 
             <div asp-validation-summary="ModelOnly"></div>
 
-            <div role="group" class="cart-container" aria-labelledby="return-request-title">
-                <div id="cart-items" class="cart cart-editable">
-                    <div class="cart-body">
-                        @foreach (var item in Model.Items)
-                        {
-                            var quantityId = $"quantity{item.Id}";
-                            <article class="cart-row">
-                                <div class="row">
-                                    <partial name="ReturnRequest.Item" model="item" />
-                                </div>
-                            </article>
-                        }
-                    </div>
-                </div>
+            <div class="cart-container">
+                <partial name="ReturnRequest.Items" model="Model.Items" view-data="itemsViewData" />
             </div>
 
             <div sm-if="hasItemsToReturn" class="mt-4">

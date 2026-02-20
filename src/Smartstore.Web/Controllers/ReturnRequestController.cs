@@ -86,23 +86,46 @@ namespace Smartstore.Web.Controllers
             }
 
             var items = order.OrderItems
-                .Select(oi => new ReturnRequestItem
+                .Select(oi =>
                 {
-                    OrderItem = oi,
-                    ReturnRequest = new ReturnRequest
+                    var existingQuantity = order.Customer.ReturnRequests
+                        .Where(x => x.OrderItemId == oi.Id)
+                        .Sum(x => x.Quantity);
+
+                    var quantity = 0;
+                    if (model.Items.ReturnAllItems)
                     {
-                        StoreId = order.StoreId,
-                        OrderItemId = oi.Id,
-                        Quantity = form.TryGetValue($"orderitem-quantity{oi.Id}", out var qtyValues) ? qtyValues.ToString().ToInt() : 0,
-                        CustomerId = order.CustomerId,
-                        ReasonForReturn = model.ReturnReason,
-                        RequestedAction = model.ReturnAction,
-                        CustomerComments = model.Comments,
-                        StaffNotes = string.Empty,
-                        ReturnRequestStatus = ReturnRequestStatus.Pending
+                        quantity = oi.Quantity;
                     }
+                    else if (form.TryGetValue($"orderitem-select{oi.Id}", out var selectedVal) && selectedVal.ToString().ToBool())
+                    {
+                        quantity = form.TryGetValue($"orderitem-quantity{oi.Id}", out var qtyVal) ? qtyVal.ToString().ToInt() : 0;
+                    }
+
+                    quantity = Math.Max(oi.Quantity - existingQuantity, 0);
+                    if (quantity == 0)
+                    {
+                        return null;
+                    }
+
+                    return new ReturnRequestItem
+                    {
+                        OrderItem = oi,
+                        ReturnRequest = new ReturnRequest
+                        {
+                            StoreId = order.StoreId,
+                            OrderItemId = oi.Id,
+                            Quantity = quantity,
+                            CustomerId = order.CustomerId,
+                            ReasonForReturn = model.ReturnReason,
+                            RequestedAction = model.ReturnAction,
+                            CustomerComments = model.Comments,
+                            StaffNotes = string.Empty,
+                            ReturnRequestStatus = ReturnRequestStatus.Pending
+                        }
+                    };
                 })
-                .Where(x => x.ReturnRequest.Quantity > 0)
+                .Where(x => x != null)
                 .ToList();
 
             if (items.Count > 0)
@@ -110,7 +133,7 @@ namespace Smartstore.Web.Controllers
                 _db.ReturnRequests.AddRange(items.Select(x => x.ReturnRequest));
                 await _db.SaveChangesAsync();
 
-                // Notify store owner here by sending an email.
+                // Notify store owner here by email.
                 foreach (var item in items)
                 {
                     await _messageFactory.SendNewReturnRequestStoreOwnerNotificationAsync(item.ReturnRequest, item.OrderItem, _localizationSettings.DefaultAdminLanguageId);
@@ -132,7 +155,7 @@ namespace Smartstore.Web.Controllers
             Guard.NotNull(model);
 
             model.OrderId = order.Id;
-            model.Items = await order.MapAsync(_db);
+            model.Items = await order.MapAsync();
 
             string returnRequestReasons = _orderSettings.GetLocalizedSetting(x => x.ReturnRequestReasons, order.CustomerLanguageId, order.StoreId, true, false);
             string returnRequestActions = _orderSettings.GetLocalizedSetting(x => x.ReturnRequestActions, order.CustomerLanguageId, order.StoreId, true, false);

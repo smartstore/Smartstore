@@ -9,7 +9,7 @@ namespace Smartstore.Web.Models.Orders
     {
         public int OrderId { get; set; }
 
-        public List<ReturnRequestItemModel> Items { get; set; }
+        public ReturnRequestItemsModel Items { get; set; }
 
         [LocalizedDisplay("*ReturnReason")]
         public string ReturnReason { get; set; }
@@ -22,25 +22,35 @@ namespace Smartstore.Web.Models.Orders
         public string Comments { get; set; }
 
         public bool HasItemsToReturn
-            => Items.Any(x => x.MaxReturnQuantity > 0);
+            => Items?.Items?.Any(x => x.MaxReturnQuantity > 0) ?? false;
     }
 
-    public partial class ReturnRequestItemModel : EntityModelBase
+    public partial class ReturnRequestItemsModel : ModelBase
     {
-        public int ProductId { get; set; }
-        public LocalizedValue<string> ProductName { get; set; }
-        public string ProductSeName { get; set; }
-        public string ProductUrl { get; set; }
+        public bool IsEditable { get; set; } = true;
+        public bool ReturnAllItems { get; set; } = true;
 
-        public string AttributeInfo { get; set; }
-        public Money UnitPrice { get; set; }
-        public int Quantity { get; set; }
-        public string QuantityUnit { get; set; }
+        public List<ItemModel> Items { get; set; } = [];
 
-        public ImageModel Image { get; set; }
+        public partial class ItemModel : EntityModelBase
+        {
+            public int ProductId { get; set; }
+            public LocalizedValue<string> ProductName { get; set; }
+            public string ProductSeName { get; set; }
+            public string ProductUrl { get; set; }
+            public string AttributeInfo { get; set; }
+            public Money UnitPrice { get; set; }
+            public int Quantity { get; set; }
+            public string QuantityUnit { get; set; }
 
-        public int MaxReturnQuantity { get; set; }
-        public int SelectedReturnQuantity { get; set; }
-        public List<CustomerReturnRequestModel> ReturnRequests { get; set; }
+            public ImageModel Image { get; set; }
+
+            public bool Selected { get; set; }
+            public int SelectedReturnQuantity { get; set; }
+
+            public int MaxReturnQuantity { get; set; }
+
+            public List<CustomerReturnRequestModel> ReturnRequests { get; set; }
+        }
     }
 }
