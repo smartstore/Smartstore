@@ -73,11 +73,12 @@
                 newsletterForm.find('#newsletter-subscribe-button').on("click", function (e) {
                     e.preventDefault();
 
-                    var email = $("#newsletter-email").val();
-                    var subscribe = 'true';
-                    var resultDisplay = $("#newsletter-result-block");
-                    var elemGdprConsent = $(".footer-newsletter .gdpr-consent-check");
-                    var gdprConsent = elemGdprConsent.length == 0 ? null : elemGdprConsent.is(':checked');
+                    let subscribe = 'true';
+                    let resultDisplay = $("#newsletter-result-block");
+                    const elemGdprConsent = $(".footer-newsletter .gdpr-consent-check");
+                    const gdprConsent = elemGdprConsent.length == 0 ? null : elemGdprConsent.is(':checked');
+                    const elHoneypot = newsletterForm.find('#' + newsletterForm.data('token-fieldname'));
+                    const elFake = elHoneypot.siblings(".required-text-input");
 
                     if ($('#newsletter-unsubscribe').is(':checked')) {
                         subscribe = 'false';
@@ -87,7 +88,13 @@
                         cache: false,
                         type: "POST",
                         url: newsletterForm.attr('action'),
-                        data: { "subscribe": subscribe, "email": email, "GdprConsent": subscribe == 'true' ? gdprConsent : true },
+                        data: {
+                            "subscribe": subscribe,
+                            "email": $("#newsletter-email").val(),
+                            "GdprConsent": subscribe == 'true' ? gdprConsent : true,
+                            tokenFieldName: elHoneypot.val(),
+                            elFake.attr("id"): elFake.val()
+                        },
                         success: function (data) {
                             resultDisplay.html(data.Result);
                             if (data.Success) {

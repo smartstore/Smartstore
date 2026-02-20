@@ -1,6 +1,7 @@
 ﻿@using Smartstore.Core.Content.Menus;
 @using Smartstore.Web.Models.Common;
-
+@using Smartstore.Core.Security;
+{
 @model FooterModel
 
 @{
@@ -93,7 +94,8 @@
                         <div sm-if="!Model.HideNewsletterBlock" class="col-12 col-md col-lg-12">
                             <form id="newsletter-form" sm-ajax method="post" asp-action="Subscribe" asp-controller="Newsletter"
                                   data-subscription-failure="@T("Newsletter.SubscriptionFailed")"
-                                  aria-labelledby="newsletter-subscribe-heading">
+                                  aria-labelledby="newsletter-subscribe-heading"
+                                  data-token-fieldname="@HoneypotProtector.TokenFieldName">
                                 <honeypot />
                                 <div class="footer-newsletter nav-collapsible">
                                     <h3 id="newsletter-subscribe-heading" 
