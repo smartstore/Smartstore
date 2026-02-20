@@ -77,7 +77,8 @@
                     let resultDisplay = $("#newsletter-result-block");
                     const elemGdprConsent = $(".footer-newsletter .gdpr-consent-check");
                     const gdprConsent = elemGdprConsent.length == 0 ? null : elemGdprConsent.is(':checked');
-                    const elHoneypot = newsletterForm.find('#' + newsletterForm.data('token-fieldname'));
+                    const tokenFieldName = newsletterForm.data('token-fieldname');
+                    const elHoneypot = newsletterForm.find('[name="' + tokenFieldName + '"]');
                     const elFake = elHoneypot.siblings(".required-text-input");
 
                     if ($('#newsletter-unsubscribe').is(':checked')) {
@@ -92,7 +93,7 @@
                             "subscribe": subscribe,
                             "email": $("#newsletter-email").val(),
                             "GdprConsent": subscribe == 'true' ? gdprConsent : true,
-                            tokenFieldName: elHoneypot.val(),
+                            [tokenFieldName]: elHoneypot.val(),
                             [elFake.attr("id")]: elFake.val()
                         },
                         success: function (data) {
