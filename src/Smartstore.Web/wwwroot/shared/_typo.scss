@@ -98,7 +98,7 @@ h6, .h6 {
     text-align: center;
 
     &:before {
-        background: radial-gradient(ellipse at center, $body-bg 25%, rgba(#000, 0.25) 100%) !important;
+        background: radial-gradient(ellipse at center, $body-bg 25%, rgba($black, 0.25) 100%) !important;
     }
 
     .heading-title {
@@ -108,6 +108,12 @@ h6, .h6 {
 
 .page-title {
     margin-bottom: 1.5rem;
+
+    > :where(h1, .h1) {
+        font-size: cssmin($h1-font-size, 46px);
+        line-height: 1.1;
+        letter-spacing: -.02em;
+    }
 }
 
 
@@ -225,7 +231,7 @@ a.link-overlay {
 
     //  Headings
     :where(h1, h2, h3, h4, h5, h6) {
-        line-height: 1.25;
+        letter-spacing: -.02em;
         scroll-margin-top: 3rem;
         margin-block: 2.25rem 0.75rem;
 
