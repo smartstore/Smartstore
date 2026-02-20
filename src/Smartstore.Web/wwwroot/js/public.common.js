@@ -93,7 +93,7 @@
                             "email": $("#newsletter-email").val(),
                             "GdprConsent": subscribe == 'true' ? gdprConsent : true,
                             tokenFieldName: elHoneypot.val(),
-                            elFake.attr("id"): elFake.val()
+                            [elFake.attr("id")]: elFake.val()
                         },
                         success: function (data) {
                             resultDisplay.html(data.Result);
