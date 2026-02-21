@@ -100,6 +100,11 @@
         TextInput,
 
         /// <summary>
+        /// The command is rendered in the text chat dialog.
+        /// </summary>
+        ChatDialog,
+
+        /// <summary>
         /// The command is rendered in a readonly HTML input control.
         /// </summary>
         HtmlInput,
@@ -107,11 +112,6 @@
         /// <summary>
         /// The command is rendered as an HTML editor tool.
         /// </summary>
-        HtmlEditor,
-
-        /// <summary>
-        /// The command is rendered in the text chat dialog.
-        /// </summary>
-        ChatDialog
+        HtmlEditor
     }
 }

@@ -238,7 +238,7 @@ namespace Smartstore.Web.Rendering
             builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Simplify"), enabled, "simplify", "text-left", false, className));
             builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Extend"), enabled, "extend", "body-text", false, className));
 
-            if (location == AICommandLocation.HtmlInput || (location == AICommandLocation.ChatDialog && forHtml))
+            if (location >= AICommandLocation.HtmlInput || (location == AICommandLocation.ChatDialog && forHtml))
             {
                 builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Organize"), enabled, "organize", "card-heading", false, className));
             }

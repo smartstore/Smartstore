@@ -71,11 +71,11 @@ namespace Smartstore.Web.TagHelpers.Admin
         {
             var attrs = base.GetTagHelperAttributes();
 
-            attrs["data-display-language-options"] = DisplayLanguageOptions.ToString().ToLower();
-            attrs["data-display-toc-options"] = DisplayTocOptions.ToString().ToLower();
-            attrs["data-display-link-options"] = DisplayLinkOptions.ToString().ToLower();
-            attrs["data-display-image-options"] = DisplayImageOptions.ToString().ToLower();
-            attrs["data-display-layout-options"] = DisplayLayoutOptions.ToString().ToLower();
+            attrs["data-display-language-options"] = DisplayLanguageOptions.ToStringLower();
+            attrs["data-display-toc-options"] = DisplayTocOptions.ToStringLower();
+            attrs["data-display-link-options"] = DisplayLinkOptions.ToStringLower();
+            attrs["data-display-image-options"] = DisplayImageOptions.ToStringLower();
+            attrs["data-display-layout-options"] = DisplayLayoutOptions.ToStringLower();
             attrs["data-is-richtext"] = "true";
 
             return attrs;

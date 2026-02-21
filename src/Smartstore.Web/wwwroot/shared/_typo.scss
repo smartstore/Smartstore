@@ -271,7 +271,8 @@ a.link-overlay {
         margin-top: 1.5rem;
     }
 
-    > :where(h2):first-child {
+    > :where(h2, h3, h4, h5, h6):first-child,
+    > div > :where(h2, h3, h4, h5, h6):first-child {
         margin-top: 0;
     }
 

@@ -82,6 +82,25 @@ namespace Smartstore.Core.Data.Migrations
                 "Only improve structureódon't remove content or meaningful markup.",
                 "Verbessere ausschlieﬂlich die Struktur ñ keine Inhalte oder bedeutsames Markup entfernen.");
 
+            builder.AddOrUpdate("Admin.AI.TopicGenerate", "Generate {0}", "{0} generieren");
+            builder.AddOrUpdate("Admin.AI.TopicOptimize", "Optimize {0}", "{0} optimieren");
+            builder.AddOrUpdate("Admin.AI.Topic.Text", "Text", "Text");
+            builder.AddOrUpdate("Admin.AI.Topic.Image", "Image", "Bild");
+            builder.AddOrUpdate("Admin.AI.Topic.ShortDesc", "Short Description", "Kurzbeschreibung");
+            builder.AddOrUpdate("Admin.AI.Topic.MetaTitle", "Title-Tag", "Title-Tag");
+            builder.AddOrUpdate("Admin.AI.Topic.MetaDesc", "Meta Description", "Meta Description");
+            builder.AddOrUpdate("Admin.AI.Topic.MetaKeywords", "Meta Keywords", "Meta Keywords");
+            builder.AddOrUpdate("Admin.AI.Topic.FullDesc", "Full Description", "Langtext");
+            builder.Delete(
+                "Admin.AI.EditHtml", 
+                "Admin.AI.CreateImage", 
+                "Admin.AI.CreateText",
+                "Admin.AI.CreateShortDesc",
+                "Admin.AI.CreateFullDesc",
+                "Admin.AI.CreateMetaTitle",
+                "Admin.AI.CreateMetaDesc",
+                "Admin.AI.CreateMetaKeywords");
+
             builder.AddOrUpdate("Order.Product(s).OrderedQuantity", "Ordered", "Bestellt");
 
             builder.AddOrUpdate("ReturnRequests.ReturnAllItems", "All items", "Alle Artikel");

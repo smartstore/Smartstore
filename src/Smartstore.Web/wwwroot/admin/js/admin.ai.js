@@ -65,7 +65,7 @@
                 targetProperty: tool.data('target-property'),
                 charLimit: tool.data('char-limit'),
                 // INFO: This is the optimization command of the clicked item.
-                optimizationCommand: el.data('command'),
+                command: el.data('command'),
                 // INFO: This is important for change style and tone items. We must know how to change the present text. 
                 // For command "change-style" e.g.professional, casual, friendly, etc.
                 changeParameter: cmd === 'change-style' || cmd === 'change-tone' ? el.text() : '',
