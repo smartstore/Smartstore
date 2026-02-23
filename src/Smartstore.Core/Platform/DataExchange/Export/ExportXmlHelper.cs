@@ -692,7 +692,8 @@ namespace Smartstore.Core.DataExchange.Export
             _writer.WriteElementString(nameof(Product.DisableWishlistButton), entity.DisableWishlistButton.ToString());
             _writer.WriteElementString(nameof(Product.AvailableForPreOrder), entity.AvailableForPreOrder.ToString());
             _writer.WriteElementString(nameof(Product.CallForPrice), entity.CallForPrice.ToString());
-            _writer.WriteElementString(nameof(Product.Price), ((decimal)product.Price).ToString(_culture));
+            // INFO: Export the entered price. Not "(decimal)product.Price" because it is the calculated price.
+            _writer.WriteElementString(nameof(Product.Price), entity.Price.ToString(_culture));
             _writer.WriteElementString(nameof(Product.ComparePrice), entity.ComparePrice.ToString(_culture));
             _writer.WriteElementString(nameof(Product.ProductCost), entity.ProductCost.ToString(_culture));
             _writer.WriteElementString(nameof(Product.SpecialPrice), entity.SpecialPrice?.ToString(_culture) ?? string.Empty);
