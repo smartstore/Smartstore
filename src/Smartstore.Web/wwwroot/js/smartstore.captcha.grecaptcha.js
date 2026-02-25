@@ -63,9 +63,6 @@
                 if (!$form.valid()) return true; // Allow event to proceed for validation
             }
 
-            // Block and execute reCAPTCHA v3
-            disableSubmitTemporarily(form);
-
             const exec = () => {
                 if (!window.grecaptcha || !grecaptcha.execute) {
                     console.error("reCAPTCHA v3 execute method not found.");
@@ -75,7 +72,10 @@
                 grecaptcha.execute(siteKey, { action: action }).then((token) => {
                     helpers.ensureResponseInput(form, RESPONSE_FIELD).value = token;
                     ensureActionInput(form, action);
+
+                    // Execute & block reCAPTCHA v3
                     helpers.resubmitForm(form, GUARD_NAME);
+                    disableSubmitTemporarily(form);
                 }, function (err) {
                     console.error("reCAPTCHA v3 execution failed", err);
                 });
@@ -127,6 +127,7 @@
 
                         if (isInvisible) {
                             H.resubmitForm(form, GUARD_NAME);
+                            disableSubmitTemporarily(form);
                         }
                     },
                     'expired-callback': () => {
@@ -136,7 +137,6 @@
 
                 if (isInvisible && form) {
                     H.bindSubmit(form, GUARD_NAME, function (e, helpers) {
-                        disableSubmitTemporarily(form);
                         grecaptcha.execute(widgetId);
                         return false; // Block submit
                     }, '__captchaV2InvisibleBound');
