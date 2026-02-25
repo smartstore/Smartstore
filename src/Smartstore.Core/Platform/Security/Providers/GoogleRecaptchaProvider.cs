@@ -149,18 +149,26 @@ namespace Smartstore.Core.Security
             Guard.NotNull(context);
 
             var result = new CaptchaValidationResult();
-
             Exception verifyException = null;
 
+            // ════════════════════════════════════════════════════════════════════════
+            // CONFIGURATION CHECK (Fail-Open: Customer might have wrong keys)
+            // ════════════════════════════════════════════════════════════════════════
             if (!IsConfigured)
             {
-                return LogFailOpenAndReturn("configuration-missing", "Not configured");
+                return LogFailOpen("configuration-missing", "Not configured");
             }
 
             var token = context.HttpContext.Request.Form["g-recaptcha-response"].ToString();
+
+            // ════════════════════════════════════════════════════════════════════════
+            // TOKEN PRESENCE CHECK (Fail-Closed: Bot exploit prevention!)
+            // ════════════════════════════════════════════════════════════════════════
             if (token.IsEmpty())
             {
-                return LogFailOpenAndReturn("missing-input-response", "Input response is empty");
+                Logger.Debug("reCAPTCHA validation failed: Token missing (likely bot or user skipped CAPTCHA). Blocking request.");
+                result.Messages.Add(new CaptchaValidationMessage("missing-input-response", CaptchaValidationMessageLevel.Error));
+                return result; // ← Fail-Closed!
             }
 
             var client = _httpClientFactory.CreateClient();
@@ -195,9 +203,12 @@ namespace Smartstore.Core.Security
                 verifyException = ex;
             }
 
+            // ════════════════════════════════════════════════════════════════════════
+            // NETWORK/API FAILURE (Fail-Open: Google API down, not customer's fault)
+            // ════════════════════════════════════════════════════════════════════════
             if (payload == null)
             {
-                return LogFailOpenAndReturn("unable-to-verify", "No payload");
+                return LogFailOpen("unable-to-verify", "Google API unreachable or returned empty payload");
             }
 
             if (!payload.Success)
@@ -212,20 +223,52 @@ namespace Smartstore.Core.Security
 
                 if (isMisconfiguration) 
                 {
-                    return LogFailOpenAndReturn("misconfiguration", "Misconfiguration detected");
+                    return LogFailOpen("misconfiguration", "Invalid secret key detected (check reCAPTCHA configuration)");
                 }
 
-                // Normal failure path
+                // ════════════════════════════════════════════════════════════════════════
+                // INVALID TOKEN (Fail-Closed: Bot sent garbage/expired/stolen token)
+                // ════════════════════════════════════════════════════════════════════════
+                // Bot or malicious user sent an invalid/expired/stolen token. Block!
                 foreach (var code in codes.Where(x => !x.Equals("missing-input-response", StringComparison.OrdinalIgnoreCase)))
                 {
-                    var level = code.EqualsNoCase("invalid-input-response")
+                    var level = code.EqualsNoCase("invalid-input-response") || code.EqualsNoCase("timeout-or-duplicate")
                         ? CaptchaValidationMessageLevel.Warning 
                         : CaptchaValidationMessageLevel.Error;
 
                     result.Messages.Add(new CaptchaValidationMessage(code, level));
                 }
 
-                return result;
+                return result; // ← Fail-Closed!
+            }
+
+            // ════════════════════════════════════════════════════════════════════════
+            // HOSTNAME VALIDATION (Fail-Closed: Cross-domain token theft prevention)
+            // ════════════════════════════════════════════════════════════════════════
+            if (payload.Hostname.HasValue())
+            {
+                var expectedHost = context.HttpContext.Request.Host.Host;
+                if (!payload.Hostname.EqualsNoCase(expectedHost))
+                {
+                    Logger.Debug("reCAPTCHA hostname mismatch: expected '{Expected}', got '{Actual}'. Potential cross-domain attack.",
+                        expectedHost, payload.Hostname);
+                    result.Messages.Add(new CaptchaValidationMessage("hostname-mismatch", CaptchaValidationMessageLevel.Error));
+                    return result; // ← Fail-Closed!
+                }
+            }
+
+            // ════════════════════════════════════════════════════════════════════════
+            // TIMESTAMP VALIDATION (Fail-Closed: Token replay attack prevention)
+            // ════════════════════════════════════════════════════════════════════════
+            if (payload.ChallengeTs.HasValue)
+            {
+                var tokenAge = DateTime.UtcNow - payload.ChallengeTs.Value;
+                if (tokenAge > TimeSpan.FromMinutes(5))
+                {
+                    Logger.Debug("reCAPTCHA token expired: age {Age:0.0} minutes. Potential replay attack.", tokenAge.TotalMinutes);
+                    result.Messages.Add(new CaptchaValidationMessage("token-expired", CaptchaValidationMessageLevel.Warning));
+                    return result; // ← Fail-Closed!
+                }
             }
 
             // v3 extra checks ---
@@ -235,7 +278,7 @@ namespace Smartstore.Core.Security
                 if (score < _settings.ScoreThreshold)
                 {
                     result.Messages.Add(new CaptchaValidationMessage($"low-score({score:0.00})", CaptchaValidationMessageLevel.Warning));
-                    return result;
+                    return result; // ← Fail-Closed!
                 }
 
                 // 2) Optional action comparison
@@ -246,14 +289,14 @@ namespace Smartstore.Core.Security
                 if (!string.IsNullOrEmpty(expectedAction) && !expectedAction.EqualsNoCase(payload.Action))
                 {
                     result.Messages.Add(new CaptchaValidationMessage("action-mismatch", CaptchaValidationMessageLevel.Warning));
-                    return result;
+                    return result; // ← Fail-Closed!
                 }
             }
 
             result.Success = true;
             return result;
 
-            CaptchaValidationResult LogFailOpenAndReturn(string code, string message)
+            CaptchaValidationResult LogFailOpen(string code, string message)
             {
                 Logger.Error(verifyException, $"reCAPTCHA verification failed: ${message}. Allowing request to pass (fail-open).");
                 result.Success = true;
