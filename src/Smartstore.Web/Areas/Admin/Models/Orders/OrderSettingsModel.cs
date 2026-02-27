@@ -5,7 +5,7 @@ using Smartstore.Core.Localization;
 namespace Smartstore.Admin.Models.Orders
 {
     [LocalizedDisplay("Admin.Configuration.Settings.Order.")]
-    public class OrderSettingsModel : ModelBase, ILocalizedModel<OrderSettingsLocalizedModel>
+    public class OrderSettingsModel : TabbableModel, ILocalizedModel<OrderSettingsLocalizedModel>
     {
         [LocalizedDisplay("*IsReOrderAllowed")]
         public bool IsReOrderAllowed { get; set; }

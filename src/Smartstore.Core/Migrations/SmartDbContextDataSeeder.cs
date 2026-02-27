@@ -122,6 +122,32 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Account.PasswordRecovery.EmailHasBeenSent",
                 "If there is an account associated with this email, we have sent a link to reset your password.",
                 "Falls ein Konto mit dieser E-Mail-Adresse verknüpft ist, haben wir Ihnen soeben Anweisungen zum Zurücksetzen Ihres Passworts zugeschickt.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Order.ReturnRequestsEnabled")
+                .Value("en", "Return requests enabled");
+
+            builder.Delete("Admin.Configuration.Settings.Order.ReturnRequestsEnabled.Hint");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Order.NumberOfDaysReturnRequestAvailable",
+                "Allowed period for return requests (days)",
+                "Erlaubter Zeitraum für Retourenanträge (in Tagen)");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Order.NumberOfDaysReturnRequestAvailable.Hint",
+                "The number of days after order completion during which customers can submit return requests."
+                + " This applies to RMA return requests only and not to legal withdrawal. The value 0 means \"unlimited\".",
+                "Die Anzahl der Tage nach Abschluss der Bestellung, während der Kunden Retourenanträge einreichen können."
+                + " Dies gilt nur für Retourenanträge im Rahmen des RMA-Verfahrens und nicht für den gesetzlichen Widerruf. Der Wert 0 bedeutet \"unbegrenzt\".");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Order.ReturnRequestReasons.Hint")
+                .Value("de", "Eine kommaseparierte Liste von Retourengründen, die der Benutzer auswählen kann, wenn er einen Rücksendeantrag übermittelt.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Order.ReturnRequestActions")
+                .Value("en", "Requested action for return");
+           
+            builder.AddOrUpdate("Admin.Configuration.Settings.Order.ReturnRequestActions.Hint",
+                "A comma-separated list of the actions that a customer will be able to select when submitting a return request. This is not used for legal withdrawal.",
+                "Eine kommaseparierte Liste von Aktionen, die ein Benutzer auswählen kann, wenn er einen Rücksendeantrag übermittelt. Beispiel: \"Ersatz\", \"Gutschein\" usw."
+                + " Dies wird nicht für den gesetzlichen Widerspruch verwendet.");
         }
     }
 }

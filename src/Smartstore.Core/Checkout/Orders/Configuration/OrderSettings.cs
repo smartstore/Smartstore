@@ -55,6 +55,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         /// <summary>
         /// Gets or sets a number of days that the return request link will be available for customers after placing an order.
+        /// The value 0 means "unlimited".
         /// </summary>
         public int NumberOfDaysReturnRequestAvailable { get; set; } = 365;
 
