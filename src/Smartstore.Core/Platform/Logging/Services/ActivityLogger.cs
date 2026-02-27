@@ -4,94 +4,93 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Data.Hooks;
 
-namespace Smartstore.Core.Logging
+namespace Smartstore.Core.Logging;
+
+[Important]
+public partial class ActivityLogger : IActivityLogger
 {
-    [Important]
-    public partial class ActivityLogger : IActivityLogger
+    const string CacheKey = "activitylogtypes:dict";
+
+    private readonly SmartDbContext _db;
+    private readonly IWorkContext _workContext;
+    private readonly IRequestCache _requestCache;
+
+    public ActivityLogger(SmartDbContext db, IWorkContext workContext, IRequestCache requestCache)
     {
-        const string CacheKey = "activitylogtypes:dict";
+        _db = db;
+        _workContext = workContext;
+        _requestCache = requestCache;
+    }
 
-        private readonly SmartDbContext _db;
-        private readonly IWorkContext _workContext;
-        private readonly IRequestCache _requestCache;
+    public IEnumerable<ActivityLogType> GetAllActivityTypes()
+    {
+        return GetCachedActivityLogTypes().Values;
+    }
 
-        public ActivityLogger(SmartDbContext db, IWorkContext workContext, IRequestCache requestCache)
+    public ActivityLogType GetActivityTypeByKeyword(string keyword)
+    {
+        if (keyword.IsEmpty())
+            return null;
+
+        if (GetCachedActivityLogTypes().TryGetValue(keyword, out var logType))
         {
-            _db = db;
-            _workContext = workContext;
-            _requestCache = requestCache;
+            return logType;
         }
 
-        public IEnumerable<ActivityLogType> GetAllActivityTypes()
+        return null;
+    }
+
+    protected virtual IReadOnlyDictionary<string, ActivityLogType> GetCachedActivityLogTypes()
+    {
+        return _requestCache.Get(CacheKey, () =>
         {
-            return GetCachedActivityLogTypes().Values;
-        }
+            var all = _db.ActivityLogTypes
+                .AsNoTracking()
+                .ToList();
 
-        public ActivityLogType GetActivityTypeByKeyword(string keyword)
+            return all.ToDictionarySafe(x => x.SystemKeyword);
+        });
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public virtual ActivityLog LogActivity(string activity, string comment, params object[] commentParams)
+    {
+        return LogActivity(activity, comment, _workContext.CurrentCustomer, commentParams);
+    }
+
+    public virtual ActivityLog LogActivity(string activity, string comment, Customer customer, params object[] commentParams)
+    {
+        if (customer == null || customer.IsSystemAccount)
         {
-            if (keyword.IsEmpty())
-                return null;
-
-            if (GetCachedActivityLogTypes().TryGetValue(keyword, out var logType))
-            {
-                return logType;
-            }
-
             return null;
         }
 
-        protected virtual IReadOnlyDictionary<string, ActivityLogType> GetCachedActivityLogTypes()
+        var activityType = GetActivityTypeByKeyword(activity);
+        if (activityType == null || !activityType.Enabled)
         {
-            return _requestCache.Get(CacheKey, () =>
-            {
-                var all = _db.ActivityLogTypes
-                    .AsNoTracking()
-                    .ToList();
-
-                return all.ToDictionarySafe(x => x.SystemKeyword);
-            });
+            return null;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual ActivityLog LogActivity(string activity, string comment, params object[] commentParams)
+        var entity = new ActivityLog
         {
-            return LogActivity(activity, comment, _workContext.CurrentCustomer, commentParams);
-        }
+            ActivityLogTypeId = activityType.Id,
+            CustomerId = customer.Id,
+            Comment = comment.EmptyNull().FormatCurrent(commentParams).Truncate(4000),
+            CreatedOnUtc = DateTime.UtcNow
+        };
 
-        public virtual ActivityLog LogActivity(string activity, string comment, Customer customer, params object[] commentParams)
-        {
-            if (customer == null || customer.IsSystemAccount)
-            {
-                return null;
-            }
+        _db.ActivityLogs.Add(entity);
 
-            var activityType = GetActivityTypeByKeyword(activity);
-            if (activityType == null || !activityType.Enabled)
-            {
-                return null;
-            }
+        return entity;
+    }
 
-            var entity = new ActivityLog
-            {
-                ActivityLogTypeId = activityType.Id,
-                CustomerId = customer.Id,
-                Comment = comment.EmptyNull().FormatCurrent(commentParams).Truncate(4000),
-                CreatedOnUtc = DateTime.UtcNow
-            };
+    public virtual async Task ClearAllActivitiesAsync(CancellationToken cancelToken = default)
+    {
+        using var tx = await _db.Database.BeginTransactionAsync(cancelToken);
 
-            _db.ActivityLogs.Add(entity);
+        await _db.DataProvider.TruncateTableAsync<ActivityLog>();
+        await _db.DataProvider.SetTableIncrementAsync<ActivityLog>(1);
 
-            return entity;
-        }
-
-        public virtual async Task ClearAllActivitiesAsync(CancellationToken cancelToken = default)
-        {
-            using var tx = await _db.Database.BeginTransactionAsync(cancelToken);
-
-            await _db.DataProvider.TruncateTableAsync<ActivityLog>();
-            await _db.DataProvider.SetTableIncrementAsync<ActivityLog>(1);
-
-            await tx.CommitAsync(cancelToken);
-        }
+        await tx.CommitAsync(cancelToken);
     }
 }
