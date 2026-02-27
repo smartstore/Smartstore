@@ -24,6 +24,7 @@
   - When deleting rows in Google grid, delete the Google data assigned to the product.
   - Consider the permission to update products.
 - **Brevo** Mailing list synchronization (commercial module)
+- New hidden system setting `CommonSettings.MinLogLevelToRetain` (for scheduled log cleanup operations)
 
 ### Improvements
 
