@@ -9,9 +9,7 @@ namespace Smartstore.Core.Logging
         private readonly SmartDbContext _db;
         private readonly CommonSettings _commonSettings;
 
-        public DbLogService(
-            SmartDbContext db,
-            CommonSettings commonSettings)
+        public DbLogService(SmartDbContext db, CommonSettings commonSettings)
         {
             _db = db;
             _commonSettings = commonSettings;
@@ -31,10 +29,10 @@ namespace Smartstore.Core.Logging
             return numDeleted;
         }
 
-        public virtual async Task<int> ClearLogsAsync(DateTime maxAgeUtc, LogLevel maxLevel, CancellationToken cancelToken = default)
+        public virtual async Task<int> ClearLogsAsync(DateTime maxAgeUtc, LogLevel minLevelToRetain, CancellationToken cancelToken = default)
         {
             var numDeleted = await _db.Logs
-                .Where(x => x.CreatedOnUtc <= maxAgeUtc && x.LogLevelId < (int)maxLevel)
+                .Where(x => x.CreatedOnUtc <= maxAgeUtc && x.LogLevelId < (int)minLevelToRetain)
                 .ExecuteDeleteAsync(_commonSettings.DeleteBulkSize, cancelToken);
 
             var dataProvider = _db.DataProvider;

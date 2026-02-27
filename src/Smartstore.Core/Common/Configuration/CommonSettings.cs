@@ -33,6 +33,11 @@ namespace Smartstore.Core.Common.Configuration
         public int MaxLogAgeInDays { get; set; } = 7;
 
         /// <summary>
+        /// Gets or sets the minimum log level for messages to be retained during scheduled log cleanup operations.
+        /// </summary>
+        public LogLevel MinLogLevelToRetain { get; set; } = LogLevel.Error;
+
+        /// <summary>
         /// Gets or sets the maximum number of schedule history entries per task.
         /// </summary>
         public int MaxNumberOfScheduleHistoryEntries { get; set; } = 100;

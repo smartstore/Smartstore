@@ -1,4 +1,6 @@
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Data.Migrations;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Data.Migrations
 {
@@ -15,7 +17,10 @@ namespace Smartstore.Core.Data.Migrations
 
         public Task MigrateSettingsAsync(SmartDbContext context, CancellationToken cancelToken = default)
         {
-            return Task.CompletedTask;
+            return context.MigrateSettingsAsync(builder =>
+            {
+                builder.Add(TypeHelper.NameOf<CommonSettings>(x => x.MinLogLevelToRetain, true), LogLevel.Error);
+            });
         }
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)

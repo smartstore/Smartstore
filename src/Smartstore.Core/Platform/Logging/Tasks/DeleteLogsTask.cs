@@ -21,7 +21,7 @@ namespace Smartstore.Core.Logging.Tasks
         {
             var maxAge = DateTime.UtcNow.AddDays(-_commonSettings.MaxLogAgeInDays);
 
-            return _dbLogService.ClearLogsAsync(maxAge, LogLevel.Error, cancelToken);
+            return _dbLogService.ClearLogsAsync(maxAge, _commonSettings.MinLogLevelToRetain, cancelToken);
         }
     }
 }

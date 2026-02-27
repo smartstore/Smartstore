@@ -18,11 +18,10 @@
         /// <param name="maxAgeUtc">
         /// Max UTC date of log entities to delete (inclusive).
         /// </param>
-        /// <param name="maxLevel">
-        /// Max level of log entities to delete (exclusive).
+        /// <param name="minLevelToRetain">
+        /// The minimum log level for messages to be retained.
         /// </param>
-        /// <param name="cancelToken">Cancellation token</param>
         /// <returns>Numer of deleted log entities.</returns>
-        Task<int> ClearLogsAsync(DateTime maxAgeUtc, LogLevel maxLevel, CancellationToken cancelToken = default);
+        Task<int> ClearLogsAsync(DateTime maxAgeUtc, LogLevel minLevelToRetain, CancellationToken cancelToken = default);
     }
 }
