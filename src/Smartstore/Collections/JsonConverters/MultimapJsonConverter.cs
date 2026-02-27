@@ -177,7 +177,7 @@ internal class MultimapConverter<TKey, TValue> : JsonConverter<Multimap<TKey, TV
             writer.WritePropertyName("Value");
             if (isPolymorphicValueType)
             {
-                options.SerializePolymorphic(writer, item.Value, wrapArrays: true);
+                options.SerializePolymorphic(writer, item.Value, wrapArrays: false);
             }
             else
             {

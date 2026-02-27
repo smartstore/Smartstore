@@ -261,6 +261,40 @@ public class MultimapConverterTests
     }
 
     [Test]
+    public void Should_Handle_Polymorph_Object_Types()
+    {
+        var now = DateTime.Now;
+
+        var multimap = new Multimap<int, object>
+        {
+            { 1, new ProductAttribute { Name = "Attr" } },
+            { 1, "John Doe" },
+            { 2, new ProductReview { ReviewText = "Good" } },
+            { 2, new ProductTag { Name = "Tag" } },
+            { 2, 345 },
+            { 2, true },
+            { 2, now }
+        };
+
+        var json = JsonSerializer.Serialize(multimap, _options);
+        json.ShouldNotBeNull();
+
+        var multimap2 = JsonSerializer.Deserialize<Multimap<int, object>>(json, _options);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(multimap2.TotalValueCount, Is.EqualTo(7));
+            Assert.That(multimap2[1].ElementAt(0), Is.TypeOf<ProductAttribute>());
+            Assert.That(multimap2[1].ElementAt(1), Is.TypeOf<string>().And.EqualTo("John Doe"));
+            Assert.That(multimap2[2].ElementAt(0), Is.TypeOf<ProductReview>());
+            Assert.That(multimap2[2].ElementAt(1), Is.TypeOf<ProductTag>());
+
+            Assert.That(multimap2[2].ElementAt(2), Is.TypeOf<int>().And.EqualTo(345));
+            Assert.That(multimap2[2].ElementAt(3), Is.True);
+            Assert.That(multimap2[2].ElementAt(4), Is.EqualTo(now));
+        }
+    }
+
+    [Test]
     public void Should_Handle_Concurrent_Polymorph_Types()
     {
         var multimap = new ConcurrentMultimap<int, BaseEntity>();
