@@ -361,6 +361,12 @@ namespace Smartstore.Web.Controllers
                 return RedirectToRoute("Homepage");
             }
 
+            if (await _userManager.IsEmailConfirmedAsync(customer))
+            {
+                ViewBag.ActivationResult = T("Account.AccountActivation.Activated");
+                return View();
+            }
+
             // Validate token & set user to active.
             var confirmed = await _userManager.ConfirmEmailAsync(customer, token);
 
