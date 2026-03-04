@@ -1149,7 +1149,7 @@ public class OrderController : AdminController
             order.Customer.ReturnCases.Add(returnRequest);
             await _db.SaveChangesAsync();
 
-            return RedirectToAction("Edit", "ReturnRequest", new { id = returnRequest.Id });
+            return RedirectToAction("Edit", "ReturnCase", new { id = returnRequest.Id });
         }
 
         return RedirectToAction(nameof(Edit), new { id = order.Id });

@@ -1,13 +1,14 @@
 ﻿namespace Smartstore.Admin.Models.Orders
 {
     [LocalizedDisplay("Admin.ReturnRequests.Fields.")]
-    public class ReturnRequestListModel : ModelBase
+    public class ReturnCaseListModel : ModelBase
     {
         [LocalizedDisplay("*ID")]
+        [AdditionalMetadata("invariant", true)]
         public int? SearchId { get; set; }
 
         [LocalizedDisplay("*Status")]
-        public int? SearchReturnRequestStatusId { get; set; }
+        public int? SearchStatusId { get; set; }
 
         [LocalizedDisplay("Admin.Common.Store.SearchFor")]
         public int SearchStoreId { get; set; }

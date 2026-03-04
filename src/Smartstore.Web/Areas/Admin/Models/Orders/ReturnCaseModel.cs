@@ -4,7 +4,7 @@ using Smartstore.Core.Checkout.Orders;
 namespace Smartstore.Admin.Models.Orders
 {
     [LocalizedDisplay("Admin.ReturnRequests.Fields.")]
-    public class ReturnRequestModel : EntityModelBase
+    public class ReturnCaseModel : EntityModelBase
     {
         [LocalizedDisplay("*ID")]
         public override int Id { get; set; }
@@ -58,9 +58,9 @@ namespace Smartstore.Admin.Models.Orders
         public string AdminComment { get; set; }
 
         [LocalizedDisplay("*Status")]
-        public int ReturnRequestStatusId { get; set; }
+        public int ReturnCaseStatusId { get; set; }
         [LocalizedDisplay("*Status")]
-        public string ReturnRequestStatusString { get; set; }
+        public string ReturnCaseStatusString { get; set; }
 
         [LocalizedDisplay("Common.CreatedOn")]
         public DateTime CreatedOn { get; set; }
@@ -69,9 +69,9 @@ namespace Smartstore.Admin.Models.Orders
         public DateTime UpdatedOn { get; set; }
 
         public bool CanAccept
-            => Id != 0 && (ReturnCaseStatus)ReturnRequestStatusId < ReturnCaseStatus.ReturnAuthorized;
+            => Id != 0 && (ReturnCaseStatus)ReturnCaseStatusId < ReturnCaseStatus.ReturnAuthorized;
 
-        public string ReturnRequestInfo { get; set; }
+        public string ReturnCaseInfo { get; set; }
         public string EditUrl { get; set; }
         public string OrderEditUrl { get; set; }
         public string CustomerEditUrl { get; set; }

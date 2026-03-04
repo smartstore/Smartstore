@@ -1,6 +1,6 @@
 ﻿@using Smartstore.Core.Common
 
-@model ReturnRequestModel
+@model ReturnCaseModel
 
 @{
     ViewBag.Title = T("Admin.ReturnRequests.EditReturnRequestDetails");
@@ -49,9 +49,9 @@
 
     <div asp-validation-summary="All"></div>
 
-    <div sm-if="Model.ReturnRequestInfo.HasValue()" class="alert alert-info alert-dismissible">
+    <div sm-if="Model.ReturnCaseInfo.HasValue()" class="alert alert-info alert-dismissible">
         <div class="w-25">
-            @Html.Raw(Model.ReturnRequestInfo)
+            @Html.Raw(Model.ReturnCaseInfo)
         </div>
         <button type="button" class="btn-close" data-dismiss="alert"></button>
     </div>
@@ -134,11 +134,11 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
-                <smart-label asp-for="ReturnRequestStatusId" />
+                <smart-label asp-for="ReturnCaseStatusId" />
             </div>
             <div class="adminData">
-                <select asp-for="ReturnRequestStatusId" asp-items="Html.GetLocalizedEnumSelectList(typeof(ReturnCaseStatus))"></select>
-                <span asp-validation-for="ReturnRequestStatusId"></span>
+                <select asp-for="ReturnCaseStatusId" asp-items="Html.GetLocalizedEnumSelectList(typeof(ReturnCaseStatus))"></select>
+                <span asp-validation-for="ReturnCaseStatusId"></span>
             </div>
         </div>
         <div class="adminRow">

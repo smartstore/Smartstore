@@ -1,15 +1,15 @@
-﻿@model ReturnRequestModel
+﻿@model ReturnCaseModel
 
 @{
-    var parentModel = ViewData["Parent"] as ReturnRequestListModel;
+    var parentModel = ViewData["Parent"] as ReturnCaseListModel;
     var stores = ViewBag.Stores as IList<SelectListItem>;
 }
 
-<datagrid id="returnrequests-grid"
+<datagrid id="returncases-grid"
           allow-resize="true"
           preserve-grid-state="true" preserve-command-state="true"
           allow-column-reordering="true">
-    <datasource read="@Url.Action("ReturnRequestList")" />
+    <datasource read="@Url.Action("ReturnCaseList")" />
     <paging position="Bottom" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
         <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
@@ -23,7 +23,7 @@
         <zone name="datagrid_toolbar_omega"></zone>
     </toolbar>
     <search-panel>
-        <partial name="_Grid.ReturnRequests.Search" model="parentModel" />
+        <partial name="_Grid.ReturnCases.Search" model="parentModel" />
     </search-panel>
     <columns>
         <column for="Id" halign="center" hideable="false">
@@ -47,7 +47,7 @@
                 <div class="text-truncate"><a :href="item.row.OrderEditUrl" class="text-truncate">{{ item.row.OrderNumber }}</a></div>
             </display-template>
         </column>
-        <column for="ReturnRequestStatusString" entity-member="ReturnRequestStatusId" />
+        <column for="ReturnCaseStatusString" entity-member="ReturnCaseStatusId" />
         <column for="CreatedOn" entity-member="CreatedOnUtc" />
         <column for="UpdatedOn" entity-member="UpdatedOnUtc" visible="false" />
         @if (stores.Count > 1)

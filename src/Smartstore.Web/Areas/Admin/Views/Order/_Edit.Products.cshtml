@@ -129,16 +129,16 @@
                                         }
                                     </div>
                                 </div>
-                                <div sm-if="item.ReturnRequests.Any()">
+                                <div sm-if="item.ReturnRequests.Count > 0">
                                     <hr />
-                                    @foreach (var rr in item.ReturnRequests)
+                                    @foreach (var rc in item.ReturnRequests)
                                     {
                                         <div>
-                                            <span class="badge badge-@(rr.StatusLabel) mr-1">@rr.StatusString</span>
-                                            <a asp-action="Edit" asp-controller="ReturnRequest" asp-route-id="@rr.Id">
-                                                @T("Admin.Orders.Products.ReturnRequest") @rr.Id
+                                            <span class="badge badge-@(rc.StatusLabel) mr-1">@rc.StatusString</span>
+                                            <a asp-action="Edit" asp-controller="ReturnCase" asp-route-id="@rc.Id">
+                                                @T("Admin.Orders.Products.ReturnRequest") @rc.Id
                                             </a>
-                                            , @T("Admin.ReturnRequests.Fields.Quantity") @rr.Quantity
+                                            , @T("Admin.ReturnRequests.Fields.Quantity") @rc.Quantity
                                         </div>
                                     }
                                 </div>

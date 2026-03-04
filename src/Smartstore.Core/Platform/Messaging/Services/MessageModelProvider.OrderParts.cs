@@ -498,7 +498,7 @@ namespace Smartstore.Core.Messaging
                 { "StaffNotes", HtmlUtility.StripTags(part.StaffNotes).NullEmpty() },
                 { "Quantity", part.Quantity },
                 { "RefundToWallet", part.RefundToWallet },
-                { "Url", _helper.BuildActionUrl("Edit", "ReturnRequest", new { id = part.Id, area = "Admin" }, messageContext) }
+                { "Url", _helper.BuildActionUrl("Edit", "ReturnCase", new { id = part.Id, area = "Admin" }, messageContext) }
             };
 
             await _helper.PublishModelPartCreatedEventAsync(part, m);
