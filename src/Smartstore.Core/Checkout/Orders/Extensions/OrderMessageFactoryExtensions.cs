@@ -72,34 +72,40 @@ namespace Smartstore.Core.Checkout.Orders
         }
 
         /// <summary>
-        /// Sends a new return request message to the store owner.
+        /// Sends a message to the store owner regarding a new return case.
         /// </summary>
-        public static Task<CreateMessageResult> SendNewReturnRequestStoreOwnerNotificationAsync(this IMessageFactory factory, ReturnCase returnRequest, OrderItem orderItem, int languageId = 0)
+        public static Task<CreateMessageResult> SendNewReturnCaseStoreOwnerNotificationAsync(this IMessageFactory factory, 
+            ReturnCase returnCase, 
+            OrderItem orderItem, 
+            int languageId = 0)
         {
-            Guard.NotNull(returnRequest);
+            Guard.NotNull(returnCase);
             Guard.NotNull(orderItem);
 
             return factory.CreateMessageAsync(
-                MessageContext.Create(MessageTemplateNames.NewReturnRequestStoreOwner, languageId, orderItem.Order?.StoreId, returnRequest.Customer),
+                MessageContext.Create(MessageTemplateNames.NewReturnCaseStoreOwner, languageId, orderItem.Order?.StoreId, returnCase.Customer),
                 true,
-                returnRequest,
+                returnCase,
                 orderItem,
                 orderItem.Order,
                 orderItem.Product);
         }
 
         /// <summary>
-        /// Sends a return request status changed message to the customer.
+        /// Sends a message to the customer regarding a return case status change.
         /// </summary>
-        public static Task<CreateMessageResult> SendReturnRequestStatusChangedCustomerNotificationAsync(this IMessageFactory factory, ReturnCase returnRequest, OrderItem orderItem, int languageId = 0)
+        public static Task<CreateMessageResult> SendReturnCaseStatusChangedCustomerNotificationAsync(this IMessageFactory factory, 
+            ReturnCase returnCase, 
+            OrderItem orderItem, 
+            int languageId = 0)
         {
-            Guard.NotNull(returnRequest);
+            Guard.NotNull(returnCase);
             Guard.NotNull(orderItem);
 
             return factory.CreateMessageAsync(
-                MessageContext.Create(MessageTemplateNames.ReturnRequestStatusChangedCustomer, languageId, orderItem.Order?.StoreId, returnRequest.Customer),
+                MessageContext.Create(MessageTemplateNames.ReturnCaseStatusChangedCustomer, languageId, orderItem.Order?.StoreId, returnCase.Customer),
                 true,
-                returnRequest,
+                returnCase,
                 orderItem,
                 orderItem.Order,
                 orderItem.Product);

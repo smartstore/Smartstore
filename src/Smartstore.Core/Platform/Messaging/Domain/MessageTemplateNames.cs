@@ -19,8 +19,8 @@
         public const string ShareProduct = "Service.EmailAFriend";
         public const string ShareWishlist = "Wishlist.EmailAFriend";
         public const string ProductQuestion = "Product.AskQuestion";
-        public const string NewReturnRequestStoreOwner = "NewReturnRequest.StoreOwnerNotification";
-        public const string ReturnRequestStatusChangedCustomer = "ReturnRequestStatusChanged.CustomerNotification";
+        public const string NewReturnCaseStoreOwner = "NewReturnRequest.StoreOwnerNotification";
+        public const string ReturnCaseStatusChangedCustomer = "ReturnRequestStatusChanged.CustomerNotification";
         public const string GiftCardCustomer = "GiftCard.Notification";
         public const string ProductReviewStoreOwner = "Product.ProductReview";
         public const string QuantityBelowStoreOwner = "QuantityBelow.StoreOwnerNotification";

@@ -83,11 +83,11 @@ public class CustomersController : WebApiController<Customer>
         return GetRelatedQuery(key, x => x.WalletHistory);
     }
 
-    [HttpGet("Customers({key})/ReturnRequests"), ApiQueryable]
+    [HttpGet("Customers({key})/ReturnCases"), ApiQueryable]
     [Permission(Permissions.Order.ReturnCase.Read)]
-    public IQueryable<ReturnCase> GetReturnRequests(int key)
+    public IQueryable<ReturnCase> GetReturnCases(int key)
     {
-        return GetRelatedQuery(key, x => x.ReturnRequests);
+        return GetRelatedQuery(key, x => x.ReturnCases);
     }
 
     [HttpGet("Customers({key})/CustomerRoleMappings"), ApiQueryable]

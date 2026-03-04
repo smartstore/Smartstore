@@ -8,7 +8,7 @@ using Smartstore.Web.Models.Orders;
 
 namespace Smartstore.Web.Controllers
 {
-    public class ReturnRequestController : PublicController
+    public class ReturnCaseController : PublicController
     {
         private readonly SmartDbContext _db;
         private readonly IOrderProcessingService _orderProcessingService;
@@ -16,7 +16,7 @@ namespace Smartstore.Web.Controllers
         private readonly OrderSettings _orderSettings;
         private readonly LocalizationSettings _localizationSettings;
 
-        public ReturnRequestController(
+        public ReturnCaseController(
             SmartDbContext db,
             IOrderProcessingService orderProcessingService,
             IMessageFactory messageFactory,
@@ -31,12 +31,12 @@ namespace Smartstore.Web.Controllers
         }
 
         [DisallowRobot]
-        public async Task<IActionResult> ReturnRequest(int id /* orderId */)
+        public async Task<IActionResult> ReturnCase(int id /* orderId */)
         {
             var order = await _db.Orders
                 .IncludeCustomer()
                 .IncludeOrderItems()
-                .Include(x => x.Customer.ReturnRequests)
+                .Include(x => x.Customer.ReturnCases)
                 .FindByIdAsync(id);
 
             if (order == null)
@@ -54,20 +54,20 @@ namespace Smartstore.Web.Controllers
                 return RedirectToRoute("Homepage");
             }
 
-            var model = new SubmitReturnRequestModel();
-            await PrepareReturnRequestModel(model, order);
+            var model = new ReturnCaseModel();
+            await PrepareReturnCaseModel(model, order);
 
             return View(model);
         }
 
-        [HttpPost, ActionName("ReturnRequest")]
-        public async Task<IActionResult> ReturnRequestSubmit(int id /* orderId */, SubmitReturnRequestModel model)
+        [HttpPost, ActionName("ReturnCase")]
+        public async Task<IActionResult> ReturnCaseSubmit(int id /* orderId */, ReturnCaseModel model)
         {
             var form = Request.Form;
             var order = await _db.Orders
                 .IncludeCustomer()
                 .IncludeOrderItems()
-                .Include(x => x.Customer.ReturnRequests)
+                .Include(x => x.Customer.ReturnCases)
                 .FindByIdAsync(id);
 
             if (order == null)
@@ -88,7 +88,7 @@ namespace Smartstore.Web.Controllers
             var items = order.OrderItems
                 .Select(oi =>
                 {
-                    var existingQuantity = order.Customer.ReturnRequests
+                    var existingQuantity = order.Customer.ReturnCases
                         .Where(x => x.OrderItemId == oi.Id)
                         .Sum(x => x.Quantity);
 
@@ -108,10 +108,10 @@ namespace Smartstore.Web.Controllers
                         return null;
                     }
 
-                    return new ReturnRequestItem
+                    return new ReturnItem
                     {
                         OrderItem = oi,
-                        ReturnRequest = new ReturnCase
+                        ReturnCase = new ReturnCase
                         {
                             StoreId = order.StoreId,
                             OrderItemId = oi.Id,
@@ -130,13 +130,12 @@ namespace Smartstore.Web.Controllers
 
             if (items.Count > 0)
             {
-                _db.ReturnRequests.AddRange(items.Select(x => x.ReturnRequest));
+                _db.ReturnCases.AddRange(items.Select(x => x.ReturnCase));
                 await _db.SaveChangesAsync();
 
-                // Notify store owner here by email.
                 foreach (var item in items)
                 {
-                    await _messageFactory.SendNewReturnRequestStoreOwnerNotificationAsync(item.ReturnRequest, item.OrderItem, _localizationSettings.DefaultAdminLanguageId);
+                    await _messageFactory.SendNewReturnCaseStoreOwnerNotificationAsync(item.ReturnCase, item.OrderItem, _localizationSettings.DefaultAdminLanguageId);
                 }
 
                 NotifySuccess(T("ReturnRequests.Submitted"));
@@ -144,12 +143,12 @@ namespace Smartstore.Web.Controllers
             }
 
             ModelState.AddModelError(string.Empty, T("ReturnRequests.NoItemsSubmitted"));
-            await PrepareReturnRequestModel(model, order);
+            await PrepareReturnCaseModel(model, order);
 
             return View(model);
         }
 
-        private async Task PrepareReturnRequestModel(SubmitReturnRequestModel model, Order order)
+        private async Task PrepareReturnCaseModel(ReturnCaseModel model, Order order)
         {
             Guard.NotNull(order);
             Guard.NotNull(model);
@@ -157,24 +156,24 @@ namespace Smartstore.Web.Controllers
             model.OrderId = order.Id;
             model.Items = await order.MapAsync(true, model.Items?.ReturnAllItems ?? true);
 
-            string returnRequestReasons = _orderSettings.GetLocalizedSetting(x => x.ReturnRequestReasons, order.CustomerLanguageId, order.StoreId, true, false);
-            string returnRequestActions = _orderSettings.GetLocalizedSetting(x => x.ReturnRequestActions, order.CustomerLanguageId, order.StoreId, true, false);
+            string returnReasons = _orderSettings.GetLocalizedSetting(x => x.ReturnRequestReasons, order.CustomerLanguageId, order.StoreId, true, false);
+            string returnActions = _orderSettings.GetLocalizedSetting(x => x.ReturnRequestActions, order.CustomerLanguageId, order.StoreId, true, false);
 
-            ViewBag.AvailableReturnReasons = returnRequestReasons
+            ViewBag.AvailableReturnReasons = returnReasons
                 .SplitSafe(',')
                 .Select(x => new SelectListItem { Text = x, Value = x })
                 .ToList();
 
-            ViewBag.AvailableReturnActions = returnRequestActions
+            ViewBag.AvailableReturnActions = returnActions
                 .SplitSafe(',')
                 .Select(x => new SelectListItem { Text = x, Value = x })
                 .ToList();
         }
 
-        record ReturnRequestItem
+        record ReturnItem
         {
             public OrderItem OrderItem { get; init; }
-            public ReturnCase ReturnRequest { get; init; }
+            public ReturnCase ReturnCase { get; init; }
         }
     }
 }

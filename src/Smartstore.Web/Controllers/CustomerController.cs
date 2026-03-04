@@ -583,9 +583,9 @@ namespace Smartstore.Web.Controllers
 
         #endregion
 
-        #region Return request
+        #region Return cases
 
-        public async Task<IActionResult> ReturnRequests()
+        public async Task<IActionResult> ReturnCases()
         {
             var customer = Services.WorkContext.CurrentCustomer;
             if (!customer.IsRegistered())
@@ -593,38 +593,37 @@ namespace Smartstore.Web.Controllers
                 return ChallengeOrForbid();
             }
 
-            var model = new CustomerReturnRequestsModel();
-            var returnRequests = await _db.ReturnRequests
+            var language = Services.WorkContext.WorkingLanguage;
+            var model = new CustomerReturnCasesModel();
+            var returnCases = await _db.ReturnCases
                 .AsNoTracking()
                 .ApplyStandardFilter(storeId: Services.StoreContext.CurrentStore.Id, customerId: customer.Id)
                 .ToListAsync();
 
-            foreach (var returnRequest in returnRequests)
+            foreach (var returnCase in returnCases)
             {
                 var orderItem = await _db.OrderItems
                     .Include(x => x.Product)
-                    .FindByIdAsync(returnRequest.OrderItemId, false);
-
+                    .FindByIdAsync(returnCase.OrderItemId, false);
                 if (orderItem != null)
                 {
-                    var itemModel = new CustomerReturnRequestModel
+                    var seName = await orderItem.Product.GetActiveSlugAsync();
+
+                    model.ReturnCases.Add(new()
                     {
-                        Id = returnRequest.Id,
-                        ReturnRequestStatus = returnRequest.ReturnCaseStatus.GetLocalizedEnum(Services.WorkContext.WorkingLanguage.Id),
+                        Id = returnCase.Id,
+                        ReturnCaseStatus = returnCase.ReturnCaseStatus.GetLocalizedEnum(language.Id),
                         ProductId = orderItem.Product.Id,
                         ProductName = orderItem.Product.GetLocalized(x => x.Name),
-                        ProductSeName = await orderItem.Product.GetActiveSlugAsync(),
-                        Quantity = returnRequest.Quantity,
-                        OrderItemId = returnRequest.OrderItemId,
-                        ReturnAction = returnRequest.RequestedAction,
-                        ReturnReason = returnRequest.ReasonForReturn,
-                        Comments = returnRequest.CustomerComments,
-                        CreatedOn = _dateTimeHelper.ConvertToUserTime(returnRequest.CreatedOnUtc, DateTimeKind.Utc)
-                    };
-
-                    itemModel.ProductUrl = await _productUrlHelper.GetProductUrlAsync(itemModel.ProductSeName, orderItem);
-
-                    model.Items.Add(itemModel);
+                        ProductSeName = seName,
+                        ProductUrl = await _productUrlHelper.GetProductUrlAsync(seName, orderItem),
+                        Quantity = returnCase.Quantity,
+                        OrderItemId = returnCase.OrderItemId,
+                        ReturnAction = returnCase.RequestedAction,
+                        ReturnReason = returnCase.ReasonForReturn,
+                        Comments = returnCase.CustomerComments,
+                        CreatedOn = _dateTimeHelper.ConvertToUserTime(returnCase.CreatedOnUtc, DateTimeKind.Utc)
+                    });
                 }
             }
 

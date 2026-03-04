@@ -78,7 +78,7 @@ namespace Smartstore.Core.Identity
                 }
 
                 // Return Request
-                var returnRequests = customer.ReturnRequests;
+                var returnRequests = customer.ReturnCases;
                 if (returnRequests.Count != 0)
                 {
                     model["ReturnRequests"] = await returnRequests.SelectAwait(x => _messageModelProvider.CreateModelPartAsync(x, true, "Url")).ToListAsync();

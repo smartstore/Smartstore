@@ -1,6 +1,6 @@
 ﻿@using Smartstore.Web.Models.Orders
 
-@model SubmitReturnRequestModel
+@model ReturnCaseModel
 
 @{
     Assets.AppendTitleParts(T("PageTitle.ReturnItems"));
@@ -25,7 +25,7 @@
     }
 
     <div class="page-body">
-        <form asp-action="ReturnRequest">
+        <form asp-action="ReturnCase">
             <input type="hidden" asp-for="OrderId" />
 
             <h2 sm-if="hasItemsToReturn" class="h4 fwn text-muted mb-4">@T("ReturnRequests.SelectProduct(s)")</h2>

@@ -127,14 +127,14 @@ namespace Smartstore.Web.Infrastructure
             }
 
             if (_orderSettings.ReturnRequestsEnabled
-                && await _db.ReturnRequests.ApplyStandardFilter(null, _workContext.CurrentCustomer.Id, _storeContext.CurrentStore.Id).AnyAsync())
+                && await _db.ReturnCases.ApplyStandardFilter(null, _workContext.CurrentCustomer.Id, _storeContext.CurrentStore.Id).AnyAsync())
             {
                 root.Append(new MenuItem
                 {
-                    Id = "returnrequests",
+                    Id = "returncases",
                     Text = T("Account.CustomerReturnRequests"),
                     Icon = "fal fa-truck",
-                    ActionName = "ReturnRequests",
+                    ActionName = "ReturnCases",
                     ControllerName = "Customer"
                 });
             }

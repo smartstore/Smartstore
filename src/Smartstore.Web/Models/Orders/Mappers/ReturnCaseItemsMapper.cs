@@ -15,9 +15,9 @@ using Smartstore.Web.Models.Customers;
 
 namespace Smartstore.Web.Models.Orders;
 
-public static partial class ReturnRequestMappingExtensions
+public static partial class ReturnCaseMappingExtensions
 {
-    public static async Task<ReturnRequestItemsModel> MapAsync(this Order order,
+    public static async Task<ReturnCaseItemsModel> MapAsync(this Order order,
         bool isEditable = true,
         bool returnAllItems = true,
         Dictionary<int, int> selectedQuantities = null)
@@ -27,14 +27,14 @@ public static partial class ReturnRequestMappingExtensions
         parameters.ReturnAllItems = returnAllItems;
         parameters.SelectedQuantities = selectedQuantities;
 
-        var model = new ReturnRequestItemsModel();
-        await MapperFactory.MapAsync<Order, ReturnRequestItemsModel>(order, model, parameters);
+        var model = new ReturnCaseItemsModel();
+        await MapperFactory.MapAsync<Order, ReturnCaseItemsModel>(order, model, parameters);
 
         return model;
     }
 }
 
-internal class ReturnRequestItemsMapper : IMapper<Order, ReturnRequestItemsModel>
+internal class ReturnCaseItemsMapper : IMapper<Order, ReturnCaseItemsModel>
 {
     private readonly SmartDbContext _db;
     private readonly IWorkContext _workContext;
@@ -47,7 +47,7 @@ internal class ReturnRequestItemsMapper : IMapper<Order, ReturnRequestItemsModel
     private readonly MediaSettings _mediaSettings;
     private readonly CatalogSettings _catalogSettings;
 
-    public ReturnRequestItemsMapper(
+    public ReturnCaseItemsMapper(
         SmartDbContext db,
         IWorkContext workContext,
         IHttpContextAccessor httpContextAccessor,
@@ -71,11 +71,11 @@ internal class ReturnRequestItemsMapper : IMapper<Order, ReturnRequestItemsModel
         _catalogSettings = catalogSettings;
     }
 
-    public async Task MapAsync(Order from, ReturnRequestItemsModel to, dynamic parameters = null)
+    public async Task MapAsync(Order from, ReturnCaseItemsModel to, dynamic parameters = null)
     {
         Guard.NotNull(from);
         Guard.NotNull(from.OrderItems);
-        Guard.NotNull(from.Customer?.ReturnRequests);
+        Guard.NotNull(from.Customer?.ReturnCases);
         Guard.NotNull(to);
 
         to.IsEditable = parameters?.IsEditable == true;
@@ -92,7 +92,7 @@ internal class ReturnRequestItemsMapper : IMapper<Order, ReturnRequestItemsModel
             .FirstOrDefaultAsync() ?? new() { CurrencyCode = from.CustomerCurrencyCode };
 
         var orderItemIds = from.OrderItems.Select(x => x.Id).ToArray();
-        var allReturnRequests = from.Customer.ReturnRequests
+        var allReturnCases = from.Customer.ReturnCases
             .Where(x => orderItemIds.Contains(x.OrderItemId))
             .ToMultimap(x => x.OrderItemId, x => x);
 
@@ -120,8 +120,8 @@ internal class ReturnRequestItemsMapper : IMapper<Order, ReturnRequestItemsModel
             }
 
             var productSeName = await oi.Product.GetActiveSlugAsync();
-            var returnRequests = allReturnRequests.TryGetValues(oi.Id, out var tmp) ? tmp.ToList() : [];
-            var item = new ReturnRequestItemsModel.ItemModel
+            var returnCases = allReturnCases.TryGetValues(oi.Id, out var tmp) ? tmp.ToList() : [];
+            var item = new ReturnCaseItemsModel.ItemModel
             {
                 Id = oi.Id,
                 ProductId = oi.Product.Id,
@@ -132,14 +132,14 @@ internal class ReturnRequestItemsMapper : IMapper<Order, ReturnRequestItemsModel
                 Quantity = oi.Quantity,
                 Selected = selected,
                 SelectedReturnQuantity = selectedReturnQuantity,
-                MaxReturnQuantity = Math.Max(oi.Quantity - returnRequests.Sum(x => x.Quantity), 0),
-                ReturnRequests = returnRequests
-                    .Select(x => new CustomerReturnRequestModel
+                MaxReturnQuantity = Math.Max(oi.Quantity - returnCases.Sum(x => x.Quantity), 0),
+                ReturnCases = returnCases
+                    .Select(x => new CustomerReturnCaseModel
                     {
                         Id = x.Id,
                         Quantity = x.Quantity,
                         OrderItemId = x.OrderItemId,
-                        ReturnRequestStatus = x.ReturnCaseStatus.GetLocalizedEnum(language.Id),
+                        ReturnCaseStatus = x.ReturnCaseStatus.GetLocalizedEnum(language.Id),
                         CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
                     })
                     .ToList(),

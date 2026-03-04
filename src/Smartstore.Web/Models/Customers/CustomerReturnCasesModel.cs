@@ -2,14 +2,14 @@
 
 namespace Smartstore.Web.Models.Customers
 {
-    public partial class CustomerReturnRequestsModel : ModelBase
+    public partial class CustomerReturnCasesModel : ModelBase
     {
-        public List<CustomerReturnRequestModel> Items { get; set; } = [];
+        public List<CustomerReturnCaseModel> ReturnCases { get; set; } = [];
     }
 
-    public partial class CustomerReturnRequestModel : EntityModelBase
+    public partial class CustomerReturnCaseModel : EntityModelBase
     {
-        public string ReturnRequestStatus { get; set; }
+        public string ReturnCaseStatus { get; set; }
         public int ProductId { get; set; }
         public LocalizedValue<string> ProductName { get; set; }
         public string ProductSeName { get; set; }

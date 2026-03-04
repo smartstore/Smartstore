@@ -5,11 +5,11 @@ using Smartstore.Web.Models.Media;
 namespace Smartstore.Web.Models.Orders
 {
     [LocalizedDisplay("ReturnRequests.")]
-    public partial class SubmitReturnRequestModel : ModelBase
+    public partial class ReturnCaseModel : ModelBase
     {
         public int OrderId { get; set; }
 
-        public ReturnRequestItemsModel Items { get; set; }
+        public ReturnCaseItemsModel Items { get; set; }
 
         [LocalizedDisplay("*ReturnReason")]
         public string ReturnReason { get; set; }
@@ -25,7 +25,7 @@ namespace Smartstore.Web.Models.Orders
             => Items?.Items?.Any(x => x.MaxReturnQuantity > 0) ?? false;
     }
 
-    public partial class ReturnRequestItemsModel : ModelBase
+    public partial class ReturnCaseItemsModel : ModelBase
     {
         public bool IsEditable { get; set; } = true;
         public bool ReturnAllItems { get; set; } = true;
@@ -50,7 +50,7 @@ namespace Smartstore.Web.Models.Orders
 
             public int MaxReturnQuantity { get; set; }
 
-            public List<CustomerReturnRequestModel> ReturnRequests { get; set; }
+            public List<CustomerReturnCaseModel> ReturnCases { get; set; }
         }
     }
 }

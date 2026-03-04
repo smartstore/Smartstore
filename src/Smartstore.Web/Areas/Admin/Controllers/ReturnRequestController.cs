@@ -58,7 +58,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.ReturnCase.Read)]
         public async Task<IActionResult> ReturnRequestList(GridCommand command, ReturnRequestListModel model)
         {
-            var query = _db.ReturnRequests
+            var query = _db.ReturnCases
                 .Include(x => x.Customer).ThenInclude(x => x.BillingAddress)
                 .Include(x => x.Customer).ThenInclude(x => x.ShippingAddress)
                 .AsNoTracking();
@@ -132,7 +132,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.ReturnCase.Read)]
         public async Task<IActionResult> Edit(int id)
         {
-            var returnRequest = await _db.ReturnRequests
+            var returnRequest = await _db.ReturnCases
                 .IncludeCustomer()
                 .FindByIdAsync(id);
 
@@ -152,7 +152,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.ReturnCase.Update)]
         public async Task<IActionResult> Edit(ReturnRequestModel model, bool continueEditing)
         {
-            var returnRequest = await _db.ReturnRequests
+            var returnRequest = await _db.ReturnCases
                 .IncludeCustomer()
                 .FindByIdAsync(model.Id);
 
@@ -199,7 +199,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.ReturnCase.Update)]
         public async Task<IActionResult> NotifyCustomer(ReturnRequestModel model)
         {
-            var returnRequest = await _db.ReturnRequests
+            var returnRequest = await _db.ReturnCases
                 .IncludeCustomer()
                 .FindByIdAsync(model.Id);
 
@@ -213,7 +213,7 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            var msg = await _messageFactory.SendReturnRequestStatusChangedCustomerNotificationAsync(returnRequest, orderItem, Services.WorkContext.WorkingLanguage.Id);
+            var msg = await _messageFactory.SendReturnCaseStatusChangedCustomerNotificationAsync(returnRequest, orderItem, Services.WorkContext.WorkingLanguage.Id);
             if (msg?.Email?.Id != null)
             {
                 NotifySuccess(T("Admin.ReturnRequests.Notified"));
@@ -226,7 +226,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.ReturnCase.Accept)]
         public async Task<IActionResult> Accept(UpdateOrderItemModel model)
         {
-            var returnRequest = await _db.ReturnRequests
+            var returnRequest = await _db.ReturnCases
                 .IncludeCustomer()
                 .FindByIdAsync(model.Id);
 
@@ -266,13 +266,13 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.ReturnCase.Delete)]
         public async Task<IActionResult> Delete(int id)
         {
-            var returnRequest = await _db.ReturnRequests.FindByIdAsync(id);
+            var returnRequest = await _db.ReturnCases.FindByIdAsync(id);
             if (returnRequest == null)
             {
                 return NotFound();
             }
 
-            _db.ReturnRequests.Remove(returnRequest);
+            _db.ReturnCases.Remove(returnRequest);
             await _db.SaveChangesAsync();
 
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteReturnRequest, T("ActivityLog.DeleteReturnRequest"), id);

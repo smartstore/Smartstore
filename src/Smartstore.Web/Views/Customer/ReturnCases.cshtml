@@ -1,24 +1,24 @@
 ﻿@using Smartstore.Web.Models.Customers
 @using Smartstore.Utilities.Html
 
-@model CustomerReturnRequestsModel
+@model CustomerReturnCasesModel
 
 @{
     Assets.AppendTitleParts(T("PageTitle.Account"));
 
     Layout = "_MyAccount";
-    ViewBag.PageClassToken = "returnrequests";
+    ViewBag.PageClassToken = "returncases";
     ViewBag.PageTitle = T("Account.CustomerReturnRequests").Value;
 }
 
-<ul class="return-request-grid list-unstyled" aria-labelledby="myaccount-header">
-    @foreach (var item in Model.Items)
+<ul class="return-cases-grid list-unstyled" aria-labelledby="myaccount-header">
+    @foreach (var item in Model.ReturnCases)
     {
         <li class="return-request-item mb-3" aria-labelledby="return-request-title@(item.Id)">
             <div class="card shadow-sm">
                 <div class="card-body">
                     <div id="return-request-title@(item.Id)" class="card-title h4 mb-4">
-                        @T("Account.CustomerReturnRequests.Title", item.Id, item.ReturnRequestStatus)
+                        @T("Account.CustomerReturnRequests.Title", item.Id, item.ReturnCaseStatus)
                     </div>
                     <dl class="row mb-0" role="presentation">
                         <dt class="col-sm-4 fwn text-muted">@T("Account.CustomerReturnRequests.Item")</dt>

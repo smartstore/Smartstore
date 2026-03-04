@@ -54,7 +54,7 @@
                     </a>
                     @if (order.IsReturnRequestAllowed)
                     {
-                        <a asp-action="ReturnRequest" asp-controller="ReturnRequest" asp-route-id="@order.Id" class="btn btn-light btn-sm btn-flat" rel="nofollow">
+                        <a asp-action="ReturnCase" asp-controller="ReturnCase" asp-route-id="@order.Id" class="btn btn-light btn-sm btn-flat" rel="nofollow">
                             <i class="fa fa-reply" aria-hidden="true"></i>
                             <span>@T("Account.CustomerOrders.ReturnItems")</span>
                             <span class="sr-only"> @order.OrderNumber</span>

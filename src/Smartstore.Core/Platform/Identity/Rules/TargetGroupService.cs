@@ -249,7 +249,7 @@ namespace Smartstore.Core.Identity.Rules
                     RuleType = RuleType.IntArray,
                     SelectList = new RemoteRuleValueSelectList("Country") { Multiple = true }
                 },
-                new FilterDescriptor<Customer, int>(x => x.ReturnRequests.Count)
+                new FilterDescriptor<Customer, int>(x => x.ReturnCases.Count)
                 {
                     Name = "ReturnRequestCount",
                     DisplayName = T("Admin.Rules.FilterDescriptor.ReturnRequestCount"),

@@ -1,6 +1,6 @@
 ﻿@using Smartstore.Web.Models.Orders
 
-@model ReturnRequestItemsModel
+@model ReturnCaseItemsModel
 
 @{
     var returnAll = Model.ReturnAllItems;
@@ -96,15 +96,15 @@ else
                                 </select>
                             }
 
-                            <div sm-if="Model.IsEditable && item.ReturnRequests.Count > 0" class="alert alert-info small mt-2 mb-0" role="status" aria-live="polite">
+                            <div sm-if="Model.IsEditable && item.ReturnCases.Count > 0" class="alert alert-info small mt-2 mb-0" role="status" aria-live="polite">
                                 <p>@T("ReturnRequests.Products.RequestAlreadyExists")</p>
-                                @foreach (var rr in item.ReturnRequests)
+                                @foreach (var rr in item.ReturnCases)
                                 {
                                     <dl class="row">
                                         <dt class="col-sm-2">@T("ReturnRequests.Products.Quantity")</dt>
                                         <dd class="col-sm-10 mb-0">@rr.Quantity</dd>
                                         <dt class="col-sm-2">@T("Common.Status")</dt>
-                                        <dd class="col-sm-10 mb-0">@rr.ReturnRequestStatus</dd>
+                                        <dd class="col-sm-10 mb-0">@rr.ReturnCaseStatus</dd>
                                         <dt class="col-sm-2">@T("Account.CustomerReturnRequests.Date")</dt>
                                         <dd class="col-sm-10 mb-0">
                                             <time asp-for="@rr.CreatedOn" sm-format="f"></time>

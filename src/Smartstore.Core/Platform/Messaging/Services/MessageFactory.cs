@@ -30,7 +30,7 @@ namespace Smartstore.Core.Messaging
             MessageTemplateNames.OrderCompletedCustomer,
             MessageTemplateNames.OrderCancelledCustomer,
             MessageTemplateNames.OrderNoteAddedCustomer,
-            MessageTemplateNames.ReturnRequestStatusChangedCustomer
+            MessageTemplateNames.ReturnCaseStatusChangedCustomer
         ];
 
         private Dictionary<string, Func<Task<object>>> _testModelFactories;

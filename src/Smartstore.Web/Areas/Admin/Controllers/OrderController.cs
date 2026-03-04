@@ -1115,7 +1115,7 @@ public class OrderController : AdminController
             .AsSplitQuery()
             .Include(x => x.OrderItems)
             .Include(x => x.Customer)
-            .ThenInclude(x => x.ReturnRequests)
+            .ThenInclude(x => x.ReturnCases)
             .FindByIdAsync(orderId);
 
         if (order == null)
@@ -1146,7 +1146,7 @@ public class OrderController : AdminController
                 ReturnCaseStatus = ReturnCaseStatus.Pending
             };
 
-            order.Customer.ReturnRequests.Add(returnRequest);
+            order.Customer.ReturnCases.Add(returnRequest);
             await _db.SaveChangesAsync();
 
             return RedirectToAction("Edit", "ReturnRequest", new { id = returnRequest.Id });
@@ -2269,7 +2269,7 @@ public class OrderController : AdminController
 
         if (orderItemIds.Length > 0)
         {
-            var returnRequests = await _db.ReturnRequests
+            var returnRequests = await _db.ReturnCases
                 .AsNoTracking()
                 .ApplyStandardFilter(orderItemIds)
                 .ToListAsync();
