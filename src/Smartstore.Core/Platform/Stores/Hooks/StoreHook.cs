@@ -91,7 +91,7 @@ namespace Smartstore.Core.Stores
             }
 
             // Cascade delete entities referenced by deleted stores which would be unused/unproductive after their deletion.
-            // Do not delete sales entities like ReturnRequest.
+            // Do not delete sales entities like ReturnCase.
             await _db.Settings
                 .Where(x => deletedStoreIds.Contains(x.StoreId))
                 .ExecuteDeleteAsync(cancelToken);

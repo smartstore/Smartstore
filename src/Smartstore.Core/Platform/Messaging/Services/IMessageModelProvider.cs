@@ -28,7 +28,7 @@ namespace Smartstore.Core.Messaging
         ///	The passed object instance (<paramref name="part"/>) will be converted to a special type which the underlying <see cref="ITemplateEngine"/> can handle.
         /// <para>
         ///		Supported types are: Order, Product, Address, Shipment, OrderNote, 
-        ///		RecurringPayment, ReturnRequest, GiftCard, <see cref="NewsletterSubscription"/>, <see cref="Campaign"/>, 
+        ///		RecurringPayment, ReturnCase, GiftCard, <see cref="NewsletterSubscription"/>, <see cref="Campaign"/>, 
         ///		ProductReview, BlogComment, NewsComment, ForumTopic, ForumPost, Forum, PrivateMessage.
         /// </para>
         /// <para>
@@ -53,7 +53,7 @@ namespace Smartstore.Core.Messaging
         /// Creates a serializable model object for the passed entity/object.
         /// <para>
         ///		Supported types are: Order, Product, Address, Shipment, OrderNote, 
-        ///		RecurringPayment, ReturnRequest, GiftCard, <see cref="NewsletterSubscription"/>, <see cref="Campaign"/>, 
+        ///		RecurringPayment, ReturnCase, GiftCard, <see cref="NewsletterSubscription"/>, <see cref="Campaign"/>, 
         ///		ProductReview, BlogComment, NewsComment, ForumTopic, ForumPost, Forum, PrivateMessage.
         /// </para>
         /// <para>

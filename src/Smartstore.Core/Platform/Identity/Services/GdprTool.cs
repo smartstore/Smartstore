@@ -77,11 +77,11 @@ namespace Smartstore.Core.Identity
                     model["Orders"] = await orders.SelectAwait(x => _messageModelProvider.CreateModelPartAsync(x, true, ignoreMemberNames)).ToListAsync();
                 }
 
-                // Return Request
-                var returnRequests = customer.ReturnCases;
-                if (returnRequests.Count != 0)
+                // Return cases
+                var returnCases = customer.ReturnCases;
+                if (returnCases.Count != 0)
                 {
-                    model["ReturnRequests"] = await returnRequests.SelectAwait(x => _messageModelProvider.CreateModelPartAsync(x, true, "Url")).ToListAsync();
+                    model["ReturnCases"] = await returnCases.SelectAwait(x => _messageModelProvider.CreateModelPartAsync(x, true, "Url")).ToListAsync();
                 }
 
                 // Wallet

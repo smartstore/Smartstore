@@ -4,7 +4,7 @@ using Smartstore.Core.Identity;
 
 namespace Smartstore
 {
-    public static partial class ReturnRequestQueryExtensions
+    public static partial class ReturnCaseQueryExtensions
     {
         /// <summary>
         /// Includes the the customer graph for eager loading.
