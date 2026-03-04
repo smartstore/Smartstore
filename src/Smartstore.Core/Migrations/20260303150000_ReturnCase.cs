@@ -64,6 +64,22 @@ internal class ReturnCase : Migration, ILocaleResourcesProvider, IDataSeeder<Sma
 
         await context.SaveChangesAsync(cancelToken);
 
+        // Poor migration of message templates.
+        var templateNames = new string[] { "NewReturnRequest.StoreOwnerNotification", "ReturnRequestStatusChanged.CustomerNotification" };
+        var messageTemplates = await context.MessageTemplates
+            .Where(x => templateNames.Contains(x.Name))
+            .ToListAsync(cancelToken);
+
+        foreach (var template in messageTemplates)
+        {
+            template.Name = template.Name.Replace("ReturnRequest", "ReturnCase");
+            template.Body = template.Body.Replace("ReturnRequest.", "ReturnCase.");
+            template.ModelTypes = template.ModelTypes.Replace("ReturnRequest", "ReturnCase");
+            template.LastModelTree = null;
+        }
+
+        await context.SaveChangesAsync(cancelToken);
+
         await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
     }
 
