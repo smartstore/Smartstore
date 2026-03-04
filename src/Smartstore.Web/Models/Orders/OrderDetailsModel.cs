@@ -19,7 +19,7 @@ namespace Smartstore.Web.Models.Orders
         public DateTime CreatedOn { get; set; }
         public string OrderStatus { get; set; }
         public bool IsReOrderAllowed { get; set; }
-        public bool IsReturnRequestAllowed { get; set; }
+        public bool CanReturnItems { get; set; }
         public bool IsShippable { get; set; }
         public string ShippingStatus { get; set; }
         public AddressModel BillingAddress { get; set; }

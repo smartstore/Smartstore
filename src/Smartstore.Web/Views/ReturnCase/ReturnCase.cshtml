@@ -11,9 +11,9 @@
     itemsViewData.TemplateInfo.HtmlFieldPrefix = nameof(Model.Items);
 }
 
-<div class="page return-request-page">
+<div class="page returncase-page">
     <div class="page-title">
-        <h1 id="return-request-title" class="h3">@T("ReturnRequests.Title", Model.OrderId)</h1>
+        <h1 id="returncase-title" class="h3">@T("ReturnRequests.Title", Model.OrderId)</h1>
     </div>
 
     @if (Model.Items.Items.IsNullOrEmpty())
@@ -77,7 +77,7 @@
 
             <div sm-if="hasItemsToReturn" class="buttons row justify-content-end">
                 <div class="col-md-9">
-                    <button type="submit" name="submit-return-request" value="save" class="btn btn-primary btn-lg">
+                    <button type="submit" name="submit-returncase" value="save" class="btn btn-primary btn-lg">
                         @T("ReturnRequests.Submit")
                     </button>
                 </div>

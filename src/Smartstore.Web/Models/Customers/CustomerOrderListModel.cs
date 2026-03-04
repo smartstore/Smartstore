@@ -15,7 +15,7 @@ namespace Smartstore.Web.Models.Customers
         {
             public string OrderNumber { get; set; }
             public Money OrderTotal { get; set; }
-            public bool IsReturnRequestAllowed { get; set; }
+            public bool CanReturnItems { get; set; }
             public string OrderStatus { get; set; }
             public DateTime CreatedOn { get; set; }
         }

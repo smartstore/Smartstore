@@ -143,7 +143,7 @@ public partial class OrderModel : EditOrderModel
         public int GiftCardId { get; set; }
     }
 
-    public class ReturnRequestModel : EntityModelBase
+    public class ReturnCaseModel : EntityModelBase
     {
         public int Quantity { get; set; }
         public ReturnCaseStatus Status { get; set; }
@@ -261,11 +261,11 @@ public partial class OrderModel : EditOrderModel
         public bool BundlePerItemShoppingCart { get; set; }
 
         public List<BundleItemModel> BundleItems { get; set; } = [];
-        public List<ReturnRequestModel> ReturnRequests { get; set; } = [];
+        public List<ReturnCaseModel> ReturnCases { get; set; } = [];
         public List<int> PurchasedGiftCardIds { get; set; } = [];
 
-        public bool IsReturnRequestPossible
-            => ReturnRequests.IsNullOrEmpty() || ReturnRequests.Sum(x => x.Quantity) < Quantity;
+        public bool CanReturnItems
+            => ReturnCases.IsNullOrEmpty() || ReturnCases.Sum(x => x.Quantity) < Quantity;
     }
 
     public class DiscountInfoModel : EntityModelBase

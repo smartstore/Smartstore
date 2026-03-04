@@ -49,7 +49,7 @@ namespace Smartstore.Web.Controllers
                 return ChallengeOrForbid();
             }
 
-            if (!_orderProcessingService.IsReturnRequestAllowed(order))
+            if (!_orderProcessingService.CanReturnItems(order))
             {
                 return RedirectToRoute("Homepage");
             }
@@ -80,7 +80,7 @@ namespace Smartstore.Web.Controllers
                 return ChallengeOrForbid();
             }
 
-            if (!_orderProcessingService.IsReturnRequestAllowed(order))
+            if (!_orderProcessingService.CanReturnItems(order))
             {
                 return RedirectToRoute("Homepage");
             }

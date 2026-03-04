@@ -129,9 +129,9 @@
                                         }
                                     </div>
                                 </div>
-                                <div sm-if="item.ReturnRequests.Count > 0">
+                                <div sm-if="item.ReturnCases.Count > 0">
                                     <hr />
-                                    @foreach (var rc in item.ReturnRequests)
+                                    @foreach (var rc in item.ReturnCases)
                                     {
                                         <div>
                                             <span class="badge badge-@(rc.StatusLabel) mr-1">@rc.StatusString</span>
@@ -317,8 +317,8 @@
                             </div>
                         </td>
                         <td class="omega text-truncate align-top">
-                            <a sm-if="item.IsReturnRequestPossible" 
-                                   href="@Url.Action("AddReturnRequest", "Order", new { orderId = Model.Id, orderItemId = item.Id})"        
+                            <a sm-if="item.CanReturnItems" 
+                                   href="@Url.Action("AddReturnCase", "Order", new { orderId = Model.Id, orderItemId = item.Id})"        
                                    class="btn btn-sm btn-secondary confirm btn-add-return-request">@T("Admin.Orders.Products.ReturnRequest.Create")</a>
 
                             <input type="submit" id="btnEditOrderItem@(item.Id)" name="btnEditOrderItem@(item.Id)"
@@ -434,7 +434,6 @@
                 $('#pnlEditPrice' + itemId).show();
                 $('#btnEditOrderItem' + itemId).hide();
                 $('#btnDeleteOrderItem' + itemId).hide();
-                $('#btnAddReturnRequest' + itemId).hide();
                 $('#btnSaveOrderItem' + itemId).removeClass("d-none");
                 $('#btnCancelOrderItem' + itemId).removeClass("d-none");
             }
@@ -445,7 +444,6 @@
                 $('#pnlEditPrice' + itemId).hide();
                 $('#btnEditOrderItem' + itemId).show();
                 $('#btnDeleteOrderItem' + itemId).show();
-                $('#btnAddReturnRequest' + itemId).show();
                 $('#btnSaveOrderItem' + itemId).addClass("d-none");
                 $('#btnCancelOrderItem' + itemId).addClass("d-none");
             }

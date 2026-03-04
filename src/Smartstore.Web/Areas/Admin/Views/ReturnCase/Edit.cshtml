@@ -18,7 +18,7 @@
         <div class="options">
             <zone name="admin_button_toolbar_before" />
 
-            <button sm-if="Model.CanAccept" type="button" name="accept" class="btn btn-secondary btn-to-danger accept-return-request-button"
+            <button sm-if="Model.CanAccept" type="button" name="accept" class="btn btn-secondary btn-to-danger accept-returncase-button"
                     data-toggle="modal"
                     data-target="#update-orderitem-dialog">
                 <i class="fa fa-check"></i>
@@ -37,11 +37,11 @@
             <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
                 <span>@T("Admin.Common.SaveContinue")</span>
             </button>
-            <button type="submit" id="returnrequest-delete" name="returnrequest-delete" class="btn btn-danger">
+            <button type="submit" id="returncase-delete" name="returncase-delete" class="btn btn-danger">
                 <i class="far fa-trash-can"></i>
                 <span>@T("Admin.Common.Delete")</span>
             </button>
-            <confirm button-id="returnrequest-delete" />
+            <confirm button-id="returncase-delete" />
 
             <zone name="admin_button_toolbar_after" />
         </div>

@@ -329,7 +329,7 @@ namespace Smartstore.Web.Controllers
                 CreatedOn = dtHelper.ConvertToUserTime(o.CreatedOnUtc, DateTimeKind.Utc),
                 OrderStatus = _services.Localization.GetLocalizedEnum(o.OrderStatus),
                 IsReOrderAllowed = orderSettings.IsReOrderAllowed,
-                IsReturnRequestAllowed = _orderProcessingService.IsReturnRequestAllowed(o),
+                CanReturnItems = _orderProcessingService.CanReturnItems(o),
                 DisplayPdfInvoice = pdfSettings.Enabled,
                 RenderOrderNotes = pdfSettings.RenderOrderNotes,
                 ShippingStatus = _services.Localization.GetLocalizedEnum(o.ShippingStatus),

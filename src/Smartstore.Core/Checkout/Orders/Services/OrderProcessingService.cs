@@ -471,7 +471,7 @@ namespace Smartstore.Core.Checkout.Orders
             await CheckOrderStatusAsync(order);
         }
 
-        public virtual bool IsReturnRequestAllowed(Order order)
+        public virtual bool CanReturnItems(Order order)
         {
             if (!_orderSettings.ReturnRequestsEnabled ||
                 order == null ||
@@ -481,15 +481,16 @@ namespace Smartstore.Core.Checkout.Orders
                 return false;
             }
 
-            if (_orderSettings.NumberOfDaysReturnRequestAvailable == 0)
+            if (_orderSettings.NumberOfDaysReturnRequestAvailable > 0)
             {
-                return true;
+                var daysSinceOrder = (DateTime.UtcNow - order.CreatedOnUtc).TotalDays;
+                if (daysSinceOrder > _orderSettings.NumberOfDaysReturnRequestAvailable)
+                {
+                    return false;
+                }
             }
-            else
-            {
-                var daysPassed = (DateTime.UtcNow - order.CreatedOnUtc).TotalDays;
-                return (daysPassed - _orderSettings.NumberOfDaysReturnRequestAvailable) < 0;
-            }
+
+            return true;
         }
 
         public virtual async Task<OrderTotalValidationResult> ValidateOrderTotalAsync(ShoppingCart cart, params CustomerRole[] customerRoles)

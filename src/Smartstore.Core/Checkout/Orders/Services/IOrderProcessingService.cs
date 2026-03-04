@@ -102,11 +102,9 @@ namespace Smartstore.Core.Checkout.Orders
         Task DeliverAsync(Shipment shipment, bool notifyCustomer);
 
         /// <summary>
-        /// Check whether a return request is allowed.
+        /// Gets a value indicating whether items can be returned for an order.
         /// </summary>
-        /// <param name="order">Order.</param>
-        /// <returns>A value indicating whether a return request is allowed.</returns>
-        bool IsReturnRequestAllowed(Order order);
+        bool CanReturnItems(Order order);
 
         /// <summary>
         /// Validates the order total (excluding discounts).

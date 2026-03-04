@@ -1109,7 +1109,7 @@ public class OrderController : AdminController
     }
 
     [Permission(Permissions.Order.ReturnCase.Create)]
-    public async Task<IActionResult> AddReturnRequest(int orderId, int orderItemId)
+    public async Task<IActionResult> AddReturnCase(int orderId, int orderItemId)
     {
         var order = await _db.Orders
             .AsSplitQuery()
@@ -1117,16 +1117,12 @@ public class OrderController : AdminController
             .Include(x => x.Customer)
             .ThenInclude(x => x.ReturnCases)
             .FindByIdAsync(orderId);
-
         if (order == null)
         {
             return NotFound();
         }
 
-        var orderItem = order.OrderItems
-            .Where(x => x.Id == orderItemId)
-            .FirstOrDefault();
-
+        var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
         if (orderItem == null)
         {
             return NotFound();
@@ -1134,7 +1130,7 @@ public class OrderController : AdminController
 
         if (orderItem.Quantity > 0)
         {
-            var returnRequest = new ReturnCase
+            var returnCase = new ReturnCase
             {
                 StoreId = order.StoreId,
                 OrderItemId = orderItem.Id,
@@ -1146,10 +1142,10 @@ public class OrderController : AdminController
                 ReturnCaseStatus = ReturnCaseStatus.Pending
             };
 
-            order.Customer.ReturnCases.Add(returnRequest);
+            order.Customer.ReturnCases.Add(returnCase);
             await _db.SaveChangesAsync();
 
-            return RedirectToAction("Edit", "ReturnCase", new { id = returnRequest.Id });
+            return RedirectToAction("Edit", "ReturnCase", new { id = returnCase.Id });
         }
 
         return RedirectToAction(nameof(Edit), new { id = order.Id });
@@ -2262,14 +2258,14 @@ public class OrderController : AdminController
     private async Task<List<OrderModel.OrderItemModel>> CreateOrderItemsModels(Order order)
     {
         var result = new List<OrderModel.OrderItemModel>();
-        var returnRequestsMap = new Multimap<int, ReturnCase>();
+        var returnCasesMap = new Multimap<int, ReturnCase>();
         var giftCardIdsMap = new Multimap<int, int>();
         var orderItemIds = order.OrderItems.Select(x => x.Id).ToArray();
         var mapper = MapperFactory.GetMapper<OrderItem, OrderModel.OrderItemModel>();
 
         if (orderItemIds.Length > 0)
         {
-            var returnRequests = await _db.ReturnCases
+            var returnCases = await _db.ReturnCases
                 .AsNoTracking()
                 .ApplyStandardFilter(orderItemIds)
                 .ToListAsync();
@@ -2285,7 +2281,7 @@ public class OrderController : AdminController
                 })
                 .ToListAsync();
 
-            returnRequestsMap = returnRequests.ToMultimap(x => x.OrderItemId, x => x);
+            returnCasesMap = returnCases.ToMultimap(x => x.OrderItemId, x => x);
             giftCardIdsMap = giftCards.ToMultimap(x => x.OrderItemId, x => x.Id);
         }
 
@@ -2329,10 +2325,10 @@ public class OrderController : AdminController
                 model.RecurringInfo = T("ShoppingCart.RecurringPeriod", product.RecurringCycleLength, product.RecurringCyclePeriod.GetLocalizedEnum());
             }
 
-            if (returnRequestsMap.ContainsKey(item.Id))
+            if (returnCasesMap.ContainsKey(item.Id))
             {
-                model.ReturnRequests = returnRequestsMap[item.Id]
-                    .Select(x => new OrderModel.ReturnRequestModel
+                model.ReturnCases = returnCasesMap[item.Id]
+                    .Select(x => new OrderModel.ReturnCaseModel
                     {
                         Id = x.Id,
                         Quantity = x.Quantity,

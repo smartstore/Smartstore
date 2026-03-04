@@ -14,10 +14,10 @@
 <ul class="return-cases-grid list-unstyled" aria-labelledby="myaccount-header">
     @foreach (var item in Model.ReturnCases)
     {
-        <li class="return-request-item mb-3" aria-labelledby="return-request-title@(item.Id)">
+        <li class="returncase-item mb-3" aria-labelledby="returncase-title@(item.Id)">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <div id="return-request-title@(item.Id)" class="card-title h4 mb-4">
+                    <div id="returncase-title@(item.Id)" class="card-title h4 mb-4">
                         @T("Account.CustomerReturnRequests.Title", item.Id, item.ReturnCaseStatus)
                     </div>
                     <dl class="row mb-0" role="presentation">

@@ -125,7 +125,7 @@ else
     return;
 }
 
-<script sm-target-zone="scripts" data-origin="return-request-items">
+<script sm-target-zone="scripts" data-origin="returncase-items">
     $(function () {
         $('input[name="@(Html.NameFor(x => x.ReturnAllItems))"]').on('change', (e) => {
             const returnAll = toBool($(e.currentTarget).val());
