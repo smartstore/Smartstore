@@ -229,7 +229,7 @@ namespace Smartstore.Core.Messaging
                 case RecurringPayment x:
                     modelPart = await CreateModelPartAsync(x, messageContext);
                     break;
-                case ReturnRequest x:
+                case ReturnCase x:
                     modelPart = await CreateModelPartAsync(x, messageContext);
                     break;
                 case GiftCard x:

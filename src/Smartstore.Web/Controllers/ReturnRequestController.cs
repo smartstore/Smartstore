@@ -111,7 +111,7 @@ namespace Smartstore.Web.Controllers
                     return new ReturnRequestItem
                     {
                         OrderItem = oi,
-                        ReturnRequest = new ReturnRequest
+                        ReturnRequest = new ReturnCase
                         {
                             StoreId = order.StoreId,
                             OrderItemId = oi.Id,
@@ -121,7 +121,7 @@ namespace Smartstore.Web.Controllers
                             RequestedAction = model.ReturnAction,
                             CustomerComments = model.Comments,
                             StaffNotes = string.Empty,
-                            ReturnRequestStatus = ReturnRequestStatus.Pending
+                            ReturnCaseStatus = ReturnCaseStatus.Pending
                         }
                     };
                 })
@@ -174,7 +174,7 @@ namespace Smartstore.Web.Controllers
         record ReturnRequestItem
         {
             public OrderItem OrderItem { get; init; }
-            public ReturnRequest ReturnRequest { get; init; }
+            public ReturnCase ReturnRequest { get; init; }
         }
     }
 }

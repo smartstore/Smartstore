@@ -961,7 +961,7 @@ namespace Smartstore.Core.Data.Migrations
                 ["SmartStore.Core.Domain.Localization.DefaultLanguageRedirectBehaviour"] = nameof(DefaultLanguageRedirectBehaviour),
                 ["SmartStore.Core.Domain.Logging.LogLevel"] = nameof(LogLevel),
                 ["SmartStore.Core.Domain.Orders.OrderStatus"] = nameof(OrderStatus),
-                ["SmartStore.Core.Domain.Orders.ReturnRequestStatus"] = nameof(ReturnRequestStatus),
+                ["SmartStore.Core.Domain.Orders.ReturnRequestStatus"] = nameof(ReturnCaseStatus),
                 ["SmartStore.Core.Domain.Payments.PaymentStatus"] = nameof(PaymentStatus),
                 ["SmartStore.Core.Domain.Security.UserRegistrationType"] = nameof(UserRegistrationType),
                 ["SmartStore.Core.Domain.Shipping.ShippingStatus"] = nameof(ShippingStatus),

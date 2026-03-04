@@ -69,7 +69,7 @@ namespace Smartstore.Admin.Models.Orders
         public DateTime UpdatedOn { get; set; }
 
         public bool CanAccept
-            => Id != 0 && (ReturnRequestStatus)ReturnRequestStatusId < ReturnRequestStatus.ReturnAuthorized;
+            => Id != 0 && (ReturnCaseStatus)ReturnRequestStatusId < ReturnCaseStatus.ReturnAuthorized;
 
         public string ReturnRequestInfo { get; set; }
         public string EditUrl { get; set; }

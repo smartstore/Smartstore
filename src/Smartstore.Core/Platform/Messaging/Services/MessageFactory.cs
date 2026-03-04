@@ -498,7 +498,7 @@ namespace Smartstore.Core.Messaging
                 { nameof(RecurringPayment), () => GetRandomEntity<RecurringPayment>(x => !x.Deleted) },
                 { nameof(NewsletterSubscription), () => GetRandomEntity<NewsletterSubscription>(x => true) },
                 { nameof(Campaign), () => GetRandomEntity<Campaign>(x => true) },
-                { nameof(ReturnRequest), () => GetRandomEntity<ReturnRequest>(x => true) },
+                { nameof(ReturnCase), () => GetRandomEntity<ReturnCase>(x => true) },
                 { nameof(OrderItem), () => GetRandomEntity<OrderItem>(x => !x.Order.Deleted) },
                 { nameof(GiftCard), () => GetRandomEntity<GiftCard>(x => true) },
                 { nameof(ProductReview), () => GetRandomEntity<ProductReview>(x => !x.Product.Deleted && !x.Product.IsSystemProduct && x.Product.Visibility != ProductVisibility.Hidden && x.Product.Published) },

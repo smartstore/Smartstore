@@ -47,7 +47,7 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction(nameof(List));
         }
 
-        [Permission(Permissions.Order.ReturnRequest.Read)]
+        [Permission(Permissions.Order.ReturnCase.Read)]
         public IActionResult List()
         {
             ViewBag.Stores = Services.StoreContext.GetAllStores().ToSelectListItems();
@@ -55,7 +55,7 @@ namespace Smartstore.Admin.Controllers
             return View(new ReturnRequestListModel());
         }
 
-        [Permission(Permissions.Order.ReturnRequest.Read)]
+        [Permission(Permissions.Order.ReturnCase.Read)]
         public async Task<IActionResult> ReturnRequestList(GridCommand command, ReturnRequestListModel model)
         {
             var query = _db.ReturnRequests
@@ -70,7 +70,7 @@ namespace Smartstore.Admin.Controllers
 
             if (model.SearchReturnRequestStatusId.HasValue)
             {
-                query = query.Where(x => x.ReturnRequestStatusId == model.SearchReturnRequestStatusId.Value);
+                query = query.Where(x => x.ReturnCaseStatusId == model.SearchReturnRequestStatusId.Value);
             }
 
             if (model.CustomerEmail.HasValue())
@@ -129,7 +129,7 @@ namespace Smartstore.Admin.Controllers
             });
         }
 
-        [Permission(Permissions.Order.ReturnRequest.Read)]
+        [Permission(Permissions.Order.ReturnCase.Read)]
         public async Task<IActionResult> Edit(int id)
         {
             var returnRequest = await _db.ReturnRequests
@@ -149,7 +149,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
         [FormValueRequired("save", "save-continue")]
-        [Permission(Permissions.Order.ReturnRequest.Update)]
+        [Permission(Permissions.Order.ReturnCase.Update)]
         public async Task<IActionResult> Edit(ReturnRequestModel model, bool continueEditing)
         {
             var returnRequest = await _db.ReturnRequests
@@ -176,7 +176,7 @@ namespace Smartstore.Admin.Controllers
                 returnRequest.CustomerComments = model.CustomerComments;
                 returnRequest.StaffNotes = model.StaffNotes;
                 returnRequest.AdminComment = model.AdminComment;
-                returnRequest.ReturnRequestStatusId = model.ReturnRequestStatusId;
+                returnRequest.ReturnCaseStatusId = model.ReturnRequestStatusId;
                 returnRequest.UpdatedOnUtc = utcNow;
 
                 await _db.SaveChangesAsync();
@@ -196,7 +196,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost, ActionName("Edit")]
         [FormValueRequired("notify-customer")]
-        [Permission(Permissions.Order.ReturnRequest.Update)]
+        [Permission(Permissions.Order.ReturnCase.Update)]
         public async Task<IActionResult> NotifyCustomer(ReturnRequestModel model)
         {
             var returnRequest = await _db.ReturnRequests
@@ -223,7 +223,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [Permission(Permissions.Order.ReturnRequest.Accept)]
+        [Permission(Permissions.Order.ReturnCase.Accept)]
         public async Task<IActionResult> Accept(UpdateOrderItemModel model)
         {
             var returnRequest = await _db.ReturnRequests
@@ -250,7 +250,7 @@ namespace Smartstore.Admin.Controllers
                 UpdateTotals = model.UpdateTotals
             };
 
-            returnRequest.ReturnRequestStatus = ReturnRequestStatus.ReturnAuthorized;
+            returnRequest.ReturnCaseStatus = ReturnCaseStatus.ReturnAuthorized;
 
             // INFO: UpdateOrderDetailsAsync performs commit.
             await _orderProcessingService.UpdateOrderDetailsAsync(orderItem, context);
@@ -263,7 +263,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [Permission(Permissions.Order.ReturnRequest.Delete)]
+        [Permission(Permissions.Order.ReturnCase.Delete)]
         public async Task<IActionResult> Delete(int id)
         {
             var returnRequest = await _db.ReturnRequests.FindByIdAsync(id);
@@ -283,7 +283,7 @@ namespace Smartstore.Admin.Controllers
 
         private async Task<ReturnRequestModel> PrepareReturnRequestModelAsync(
             ReturnRequestModel model,
-            ReturnRequest returnRequest,
+            ReturnCase returnRequest,
             bool excludeProperties = false)
         {
             var allStores = Services.StoreContext.GetAllStores().ToDictionary(x => x.Id);
@@ -299,7 +299,7 @@ namespace Smartstore.Admin.Controllers
 
         private void PrepareReturnRequestModel(
             ReturnRequestModel model,
-            ReturnRequest returnRequest,
+            ReturnCase returnRequest,
             OrderItem orderItem,
             Dictionary<int, Store> allStores,
             bool excludeProperties = false,
@@ -324,7 +324,7 @@ namespace Smartstore.Admin.Controllers
             model.CustomerFullName = customer.GetFullName().NullEmpty() ?? customer.FindEmail().NaIfEmpty();
             model.CanSendEmailToCustomer = customer.FindEmail().HasValue();
             model.Quantity = returnRequest.Quantity;
-            model.ReturnRequestStatusString = Services.Localization.GetLocalizedEnum(returnRequest.ReturnRequestStatus);
+            model.ReturnRequestStatusString = Services.Localization.GetLocalizedEnum(returnRequest.ReturnCaseStatus);
             model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(returnRequest.CreatedOnUtc, DateTimeKind.Utc);
             model.UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(returnRequest.UpdatedOnUtc, DateTimeKind.Utc);
             model.EditUrl = Url.Action(nameof(Edit), "ReturnRequest", new { id = returnRequest.Id });
@@ -358,7 +358,7 @@ namespace Smartstore.Admin.Controllers
                 model.CustomerComments = returnRequest.CustomerComments;
                 model.StaffNotes = returnRequest.StaffNotes;
                 model.AdminComment = returnRequest.AdminComment;
-                model.ReturnRequestStatusId = returnRequest.ReturnRequestStatusId;
+                model.ReturnRequestStatusId = returnRequest.ReturnCaseStatusId;
             }
 
             if (!forList)

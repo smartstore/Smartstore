@@ -46,7 +46,7 @@
     /// <summary>
     /// Represents a return request status.
     /// </summary>
-    public enum ReturnRequestStatus
+    public enum ReturnCaseStatus
     {
         /// <summary>
         /// Pending.
@@ -82,5 +82,21 @@
         /// Cancelled.
         /// </summary>
         Cancelled = 60
+    }
+
+    /// <summary>
+    /// Represents the kind of a return case.
+    /// </summary>
+    public enum ReturnCaseKind
+    {
+        /// <summary>
+        /// Return Merchandise Authorization (RMA).
+        /// </summary>
+        Return = 0,
+
+        /// <summary>
+        /// Legal online withdrawal (revocation) of a contract.
+        /// </summary>
+        Withdrawal = 10
     }
 }

@@ -74,7 +74,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Sends a new return request message to the store owner.
         /// </summary>
-        public static Task<CreateMessageResult> SendNewReturnRequestStoreOwnerNotificationAsync(this IMessageFactory factory, ReturnRequest returnRequest, OrderItem orderItem, int languageId = 0)
+        public static Task<CreateMessageResult> SendNewReturnRequestStoreOwnerNotificationAsync(this IMessageFactory factory, ReturnCase returnRequest, OrderItem orderItem, int languageId = 0)
         {
             Guard.NotNull(returnRequest);
             Guard.NotNull(orderItem);
@@ -91,7 +91,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Sends a return request status changed message to the customer.
         /// </summary>
-        public static Task<CreateMessageResult> SendReturnRequestStatusChangedCustomerNotificationAsync(this IMessageFactory factory, ReturnRequest returnRequest, OrderItem orderItem, int languageId = 0)
+        public static Task<CreateMessageResult> SendReturnRequestStatusChangedCustomerNotificationAsync(this IMessageFactory factory, ReturnCase returnRequest, OrderItem orderItem, int languageId = 0)
         {
             Guard.NotNull(returnRequest);
             Guard.NotNull(orderItem);

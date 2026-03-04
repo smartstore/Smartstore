@@ -9,7 +9,7 @@ namespace Smartstore
         /// <summary>
         /// Includes the the customer graph for eager loading.
         /// </summary>
-        public static IIncludableQueryable<ReturnRequest, CustomerRole> IncludeCustomer(this IQueryable<ReturnRequest> query,
+        public static IIncludableQueryable<ReturnCase, CustomerRole> IncludeCustomer(this IQueryable<ReturnCase> query,
             bool includeAddresses = true)
         {
             Guard.NotNull(query, nameof(query));
@@ -29,14 +29,14 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Applies a standard filter and sorts by <see cref="ReturnRequest.CreatedOnUtc"/> descending, then by <see cref="BaseEntity.Id"/> descending.
+        /// Applies a standard filter and sorts by <see cref="ReturnCase.CreatedOnUtc"/> descending, then by <see cref="BaseEntity.Id"/> descending.
         /// </summary>
         /// <param name="query">Return request query.</param>
         /// <param name="orderItemIds">Order item identifiers.</param>
         /// <param name="customerId">Customer identifier.</param>
         /// <param name="storeId">Store identifier.</param>
         /// <returns>Return request query.</returns>
-        public static IOrderedQueryable<ReturnRequest> ApplyStandardFilter(this IQueryable<ReturnRequest> query,
+        public static IOrderedQueryable<ReturnCase> ApplyStandardFilter(this IQueryable<ReturnCase> query,
             int[] orderItemIds = null,
             int? customerId = null,
             int? storeId = null)

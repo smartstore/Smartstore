@@ -137,7 +137,7 @@
                 <smart-label asp-for="ReturnRequestStatusId" />
             </div>
             <div class="adminData">
-                <select asp-for="ReturnRequestStatusId" asp-items="Html.GetLocalizedEnumSelectList(typeof(ReturnRequestStatus))"></select>
+                <select asp-for="ReturnRequestStatusId" asp-items="Html.GetLocalizedEnumSelectList(typeof(ReturnCaseStatus))"></select>
                 <span asp-validation-for="ReturnRequestStatusId"></span>
             </div>
         </div>

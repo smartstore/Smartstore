@@ -139,7 +139,7 @@ internal class ReturnRequestItemsMapper : IMapper<Order, ReturnRequestItemsModel
                         Id = x.Id,
                         Quantity = x.Quantity,
                         OrderItemId = x.OrderItemId,
-                        ReturnRequestStatus = x.ReturnRequestStatus.GetLocalizedEnum(language.Id),
+                        ReturnRequestStatus = x.ReturnCaseStatus.GetLocalizedEnum(language.Id),
                         CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
                     })
                     .ToList(),

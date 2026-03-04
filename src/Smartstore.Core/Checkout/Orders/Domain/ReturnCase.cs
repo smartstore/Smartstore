@@ -6,10 +6,12 @@ using Smartstore.Core.Identity;
 namespace Smartstore.Core.Checkout.Orders
 {
     /// <summary>
-    /// Represents a return request.
+    /// Represents a return case.
     /// </summary>
-    public partial class ReturnRequest : BaseEntity, IAuditable
+    public partial class ReturnCase : BaseEntity, IAuditable
     {
+        public ReturnCaseKind Kind { get; set; }
+
         /// <summary>
         /// Gets or sets the store identifier.
         /// </summary>
@@ -43,13 +45,13 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the reason for return.
         /// </summary>
-        [Required, StringLength(4000)]
+        [StringLength(4000)]
         public string ReasonForReturn { get; set; }
 
         /// <summary>
         /// Gets or sets the requested action.
         /// </summary>
-        [Required, StringLength(4000)]
+        [StringLength(4000)]
         public string RequestedAction { get; set; }
 
         /// <summary>
@@ -73,19 +75,13 @@ namespace Smartstore.Core.Checkout.Orders
         [StringLength(4000)]
         public string AdminComment { get; set; }
 
-        /// <summary>
-        /// Gets or sets the return status identifier.
-        /// </summary>
-        public int ReturnRequestStatusId { get; set; }
+        public int ReturnCaseStatusId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the return status.
-        /// </summary>
         [NotMapped]
-        public ReturnRequestStatus ReturnRequestStatus
+        public ReturnCaseStatus ReturnCaseStatus
         {
-            get => (ReturnRequestStatus)ReturnRequestStatusId;
-            set => ReturnRequestStatusId = (int)value;
+            get => (ReturnCaseStatus)ReturnCaseStatusId;
+            set => ReturnCaseStatusId = (int)value;
         }
 
         /// <summary>

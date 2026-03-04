@@ -146,22 +146,22 @@ public partial class OrderModel : EditOrderModel
     public class ReturnRequestModel : EntityModelBase
     {
         public int Quantity { get; set; }
-        public ReturnRequestStatus Status { get; set; }
+        public ReturnCaseStatus Status { get; set; }
         public string StatusString { get; set; }
         public string StatusLabel
         {
             get
             {
-                if (Status >= ReturnRequestStatus.RequestRejected)
+                if (Status >= ReturnCaseStatus.RequestRejected)
                     return "warning";
 
-                if (Status >= ReturnRequestStatus.ReturnAuthorized)
+                if (Status >= ReturnCaseStatus.ReturnAuthorized)
                     return "success";
 
-                if (Status == ReturnRequestStatus.Received)
+                if (Status == ReturnCaseStatus.Received)
                     return "info";
 
-                if (Status == ReturnRequestStatus.Pending)
+                if (Status == ReturnCaseStatus.Pending)
                     return "danger";
 
                 return "light";

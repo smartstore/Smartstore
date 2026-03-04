@@ -29,7 +29,7 @@
             <siteMapNode id="orders" icon="bi:graph-up-arrow" title="Orders" resKey="Admin.Orders" permissionNames="order" controller="Order" action="List" area="Admin" />
             <siteMapNode id="shipments" icon="bi:truck" title="Shipments" resKey="Admin.Orders.Shipments.List" permissionNames="order" controller="Shipment" action="List" area="Admin" />
             <siteMapNode id="recurring-payments" icon="bi:arrow-repeat" title="Recurring payments" resKey="Admin.RecurringPayments" permissionNames="order" controller="RecurringPayment" action="List" area="Admin" />
-            <siteMapNode id="return-requests" icon="bi:truck" iconClass="flip-h" title="Return requests" resKey="Admin.ReturnRequests" permissionNames="order.returnrequest" controller="ReturnRequest" action="List" area="Admin" />
+            <siteMapNode id="return-requests" icon="bi:truck" iconClass="flip-h" title="Return cases" resKey="Admin.ReturnRequests" permissionNames="order.returncase" controller="ReturnRequest" action="List" area="Admin" />
             <siteMapNode id="gift-cards" icon="bi:gift" title="Gift cards" resKey="Admin.GiftCards" permissionNames="order.giftcard" controller="GiftCard" action="List" area="Admin" />
             <siteMapNode id="sales-sep-1" isGroupHeader="true" title="[SKIP]" />
             <siteMapNode id="shopping-carts" icon="bi:cart-check" title="Current shopping carts" resKey="Admin.CurrentCarts" permissionNames="order" controller="ShoppingCart" action="CurrentCarts" area="Admin" />

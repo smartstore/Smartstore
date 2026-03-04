@@ -23,14 +23,14 @@
                 public const string Notify = "order.giftcard.notify";
             }
 
-            public static class ReturnRequest
+            public static class ReturnCase
             {
-                public const string Self = "order.returnrequest";
-                public const string Read = "order.returnrequest.read";
-                public const string Update = "order.returnrequest.update";
-                public const string Create = "order.returnrequest.create";
-                public const string Delete = "order.returnrequest.delete";
-                public const string Accept = "order.returnrequest.accept";
+                public const string Self = "order.returncase";
+                public const string Read = "order.returncase.read";
+                public const string Update = "order.returncase.update";
+                public const string Create = "order.returncase.create";
+                public const string Delete = "order.returncase.delete";
+                public const string Accept = "order.returncase.accept";
             }
         }
 

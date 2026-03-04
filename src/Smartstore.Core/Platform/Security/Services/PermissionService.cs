@@ -34,7 +34,7 @@ namespace Smartstore.Core.Security
             { "order", "Admin.Orders" },
             { "giftcard", "Admin.GiftCards" },
             { "notify", "Common.Notify" },
-            { "returnrequest", "Admin.ReturnRequests" },
+            { "returncase", "Admin.ReturnRequests" },
             { "accept", "Admin.ReturnRequests.Accept" },
             { "promotion", "Admin.Catalog.Products.Promotion" },
             { "affiliate", "Admin.Affiliates" },

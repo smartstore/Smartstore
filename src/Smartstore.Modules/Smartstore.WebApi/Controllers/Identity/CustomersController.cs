@@ -84,8 +84,8 @@ public class CustomersController : WebApiController<Customer>
     }
 
     [HttpGet("Customers({key})/ReturnRequests"), ApiQueryable]
-    [Permission(Permissions.Order.ReturnRequest.Read)]
-    public IQueryable<ReturnRequest> GetReturnRequests(int key)
+    [Permission(Permissions.Order.ReturnCase.Read)]
+    public IQueryable<ReturnCase> GetReturnRequests(int key)
     {
         return GetRelatedQuery(key, x => x.ReturnRequests);
     }

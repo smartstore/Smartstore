@@ -1108,7 +1108,7 @@ public class OrderController : AdminController
         return RedirectToAction(nameof(Edit), new { id = orderId });
     }
 
-    [Permission(Permissions.Order.ReturnRequest.Create)]
+    [Permission(Permissions.Order.ReturnCase.Create)]
     public async Task<IActionResult> AddReturnRequest(int orderId, int orderItemId)
     {
         var order = await _db.Orders
@@ -1134,7 +1134,7 @@ public class OrderController : AdminController
 
         if (orderItem.Quantity > 0)
         {
-            var returnRequest = new ReturnRequest
+            var returnRequest = new ReturnCase
             {
                 StoreId = order.StoreId,
                 OrderItemId = orderItem.Id,
@@ -1143,7 +1143,7 @@ public class OrderController : AdminController
                 ReasonForReturn = string.Empty,
                 RequestedAction = string.Empty,
                 StaffNotes = string.Empty,
-                ReturnRequestStatus = ReturnRequestStatus.Pending
+                ReturnCaseStatus = ReturnCaseStatus.Pending
             };
 
             order.Customer.ReturnRequests.Add(returnRequest);
@@ -2262,7 +2262,7 @@ public class OrderController : AdminController
     private async Task<List<OrderModel.OrderItemModel>> CreateOrderItemsModels(Order order)
     {
         var result = new List<OrderModel.OrderItemModel>();
-        var returnRequestsMap = new Multimap<int, ReturnRequest>();
+        var returnRequestsMap = new Multimap<int, ReturnCase>();
         var giftCardIdsMap = new Multimap<int, int>();
         var orderItemIds = order.OrderItems.Select(x => x.Id).ToArray();
         var mapper = MapperFactory.GetMapper<OrderItem, OrderModel.OrderItemModel>();
@@ -2336,8 +2336,8 @@ public class OrderController : AdminController
                     {
                         Id = x.Id,
                         Quantity = x.Quantity,
-                        Status = x.ReturnRequestStatus,
-                        StatusString = Services.Localization.GetLocalizedEnum(x.ReturnRequestStatus)
+                        Status = x.ReturnCaseStatus,
+                        StatusString = Services.Localization.GetLocalizedEnum(x.ReturnCaseStatus)
                     })
                     .ToList();
             }

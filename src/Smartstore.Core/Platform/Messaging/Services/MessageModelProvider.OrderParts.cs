@@ -483,7 +483,7 @@ namespace Smartstore.Core.Messaging
             return m;
         }
 
-        protected virtual async Task<object> CreateModelPartAsync(ReturnRequest part, MessageContext messageContext)
+        protected virtual async Task<object> CreateModelPartAsync(ReturnCase part, MessageContext messageContext)
         {
             Guard.NotNull(messageContext);
             Guard.NotNull(part);
@@ -492,7 +492,7 @@ namespace Smartstore.Core.Messaging
             {
                 { "Id", part.Id },
                 { "Reason", part.ReasonForReturn.NullEmpty() },
-                { "Status", part.ReturnRequestStatus.GetLocalizedEnum(messageContext.Language.Id) },
+                { "Status", part.ReturnCaseStatus.GetLocalizedEnum(messageContext.Language.Id) },
                 { "RequestedAction", part.RequestedAction.NullEmpty() },
                 { "CustomerComments", HtmlUtility.StripTags(part.CustomerComments).NullEmpty() },
                 { "StaffNotes", HtmlUtility.StripTags(part.StaffNotes).NullEmpty() },

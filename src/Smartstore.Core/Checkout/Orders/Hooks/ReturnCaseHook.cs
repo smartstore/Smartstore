@@ -4,38 +4,36 @@ using Smartstore.Events;
 
 namespace Smartstore.Core.Checkout.Orders
 {
-    internal class ReturnRequestHook : AsyncDbSaveHook<ReturnRequest>
+    internal class ReturnCaseHook : AsyncDbSaveHook<ReturnCase>
     {
         private readonly SmartDbContext _db;
         private readonly IEventPublisher _eventPublisher;
 
-        public ReturnRequestHook(SmartDbContext db, IEventPublisher eventPublisher)
+        public ReturnCaseHook(SmartDbContext db, IEventPublisher eventPublisher)
         {
             _db = db;
             _eventPublisher = eventPublisher;
         }
 
-        protected override Task<HookResult> OnDeletedAsync(ReturnRequest entity, IHookedEntity entry, CancellationToken cancelToken)
+        protected override Task<HookResult> OnDeletedAsync(ReturnCase entity, IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
-            var returnRequests = entries
+            var returnCases = entries
                 .Select(x => x.Entity)
-                .OfType<ReturnRequest>()
+                .OfType<ReturnCase>()
                 .ToList();
 
-            var orderItemIds = returnRequests.ToDistinctArray(x => x.OrderItemId);
-
-            if (orderItemIds.Any())
+            var orderItemIds = returnCases.ToDistinctArray(x => x.OrderItemId);
+            if (orderItemIds.Length > 0)
             {
                 var orders = await _db.OrderItems
                     .Include(x => x.Order)
                     .Where(x => orderItemIds.Contains(x.Id))
                     .Select(x => x.Order)
                     .ToListAsync(cancelToken);
-
-                if (orders.Any())
+                if (orders.Count > 0)
                 {
                     foreach (var groupedOrders in orders.GroupBy(x => x.Id))
                     {

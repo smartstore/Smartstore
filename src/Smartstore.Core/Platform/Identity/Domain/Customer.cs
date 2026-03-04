@@ -359,13 +359,13 @@ namespace Smartstore.Core.Identity
             protected set => _walletHistory = value;
         }
 
-        private ICollection<ReturnRequest> _returnRequests;
+        private ICollection<ReturnCase> _returnRequests;
         /// <summary>
         /// Gets or sets the return requests.
         /// </summary>
-        public ICollection<ReturnRequest> ReturnRequests
+        public ICollection<ReturnCase> ReturnRequests
         {
-            get => _returnRequests ?? LazyLoader.Load(this, ref _returnRequests) ?? (_returnRequests ??= new HashSet<ReturnRequest>());
+            get => _returnRequests ?? LazyLoader.Load(this, ref _returnRequests) ?? (_returnRequests ??= new HashSet<ReturnCase>());
             protected set => _returnRequests = value;
         }
 
