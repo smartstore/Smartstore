@@ -6,6 +6,7 @@
 
 - (DEV) Removed `AsyncTo*()` extension methods. Use `To*Async()` instead.
 - (DEV) Removed `IPaymentMethod.PaymentMethodType` property. Use `PaymentMethodTypeAttribute` to SET, and `ProviderMetadata.PaymentMethodType` to GET the type instead.
+- (DEV) Renamed `ReturnRequest` entity and database table to `ReturnCase`.
 
 ### New Features
 

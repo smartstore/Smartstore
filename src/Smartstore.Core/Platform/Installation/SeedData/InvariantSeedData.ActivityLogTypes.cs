@@ -137,9 +137,9 @@ namespace Smartstore.Core.Installation
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "DeleteReturnRequest",
+                    SystemKeyword = "DeleteReturnCase",
                     Enabled = true,
-                    Name = "Delete a return request"
+                    Name = "Delete a return"
                 },
                 new ActivityLogType
                 {
@@ -221,9 +221,9 @@ namespace Smartstore.Core.Installation
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "EditReturnRequest",
+                    SystemKeyword = "EditReturnCase",
                     Enabled = true,
-                    Name = "Edit a return request"
+                    Name = "Edit a return"
                 },
                 new ActivityLogType
                 {

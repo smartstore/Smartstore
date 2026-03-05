@@ -23,7 +23,7 @@ public static class KnownActivityLogTypes
     public const string DeleteManufacturer = "DeleteManufacturer";
     public const string DeleteProduct = "DeleteProduct";
     public const string DeleteProductAttribute = "DeleteProductAttribute";
-    public const string DeleteReturnCase = "DeleteReturnRequest";
+    public const string DeleteReturnCase = "DeleteReturnCase";
     public const string DeleteSetting = "DeleteSetting";
     public const string DeleteSpecAttribute = "DeleteSpecAttribute";
     public const string DeleteWidget = "DeleteWidget";
@@ -38,7 +38,7 @@ public static class KnownActivityLogTypes
     public const string EditProduct = "EditProduct";
     public const string EditProductAttribute = "EditProductAttribute";
     public const string EditPromotionProviders = "EditPromotionProviders";
-    public const string EditReturnCase = "EditReturnRequest";
+    public const string EditReturnCase = "EditReturnCase";
     public const string EditSettings = "EditSettings";
     public const string EditSpecAttribute = "EditSpecAttribute";
     public const string EditWidget = "EditWidget";
