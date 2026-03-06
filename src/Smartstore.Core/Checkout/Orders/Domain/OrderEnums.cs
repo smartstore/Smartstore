@@ -95,7 +95,7 @@
         Return = 0,
 
         /// <summary>
-        /// Legal online withdrawal (revocation) of a contract.
+        /// Legal online withdrawal (revocation) of a contract/order.
         /// </summary>
         Withdrawal = 10
     }
