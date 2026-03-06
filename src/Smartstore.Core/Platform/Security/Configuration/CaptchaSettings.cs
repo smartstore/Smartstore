@@ -61,6 +61,7 @@ namespace Smartstore.Core.Security
             public const string NewsComment = "NewsComment";
             public const string Forum = "Forum";
             public const string ProductReview = "ProductReview";
+            public const string Withdrawal = "Withdrawal";
 
             public static readonly IReadOnlyList<string> All =
             [
@@ -74,7 +75,8 @@ namespace Smartstore.Core.Security
                 BlogComment,
                 NewsComment,
                 Forum,
-                ProductReview
+                ProductReview,
+                Withdrawal
             ];
 
             public static IDictionary<string, string> GetLegacySettingNames()
@@ -110,7 +112,8 @@ namespace Smartstore.Core.Security
                     [BlogComment] = ResPrefix + "BlogComment",
                     [NewsComment] = ResPrefix + "NewsComment",
                     [Forum] = ResPrefix + "Forum",
-                    [ProductReview] = ResPrefix + "ProductReview"
+                    [ProductReview] = ResPrefix + "ProductReview",
+                    [Withdrawal] = ResPrefix + "Withdrawal"
                 };
             }
         }

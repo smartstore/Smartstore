@@ -131,7 +131,8 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.Order.ReturnRequestsEnabled")
                 .Value("en", "Return requests enabled");
 
-            builder.Delete("Admin.Configuration.Settings.Order.ReturnRequestsEnabled.Hint");
+            builder.Delete("Admin.Configuration.Settings.Order.ReturnRequestsEnabled.Hint",
+                "Admin.Configuration.Settings.Order.OrderSettings");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Order.NumberOfDaysReturnRequestAvailable",
                 "Allowed period for return requests (days)",
@@ -153,6 +154,10 @@ namespace Smartstore.Core.Data.Migrations
                 "A comma-separated list of the actions that a customer will be able to select when submitting a return request. This is not used for legal withdrawal.",
                 "Eine kommaseparierte Liste von Aktionen, die ein Benutzer auswählen kann, wenn er einen Rücksendeantrag übermittelt. Beispiel: \"Ersatz\", \"Gutschein\" usw."
                 + " Dies wird nicht für den gesetzlichen Widerspruch verwendet.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Order.ReturnRequestSettings", "Returns", "Retouren");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.CaptchaShowOnTargets.Option.Withdrawal", "Withdrawal", "Widerruf");
         }
     }
 }
