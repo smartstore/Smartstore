@@ -25,7 +25,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             output.TagName = null;
             await output.LoadAndSetChildContentAsync();
 
-            if (_catalogSettings.EnableHtmlTextCollapser)
+            if (_catalogSettings.EnableHtmlTextCollapser && (MaxHeight.HasValue && MaxHeight > 0))
             {
                 var maxHeight = MaxHeight ?? _catalogSettings.HtmlTextCollapsedHeight;
                 var classes = output.Attributes.TryGetAttribute("class", out var attr) ? $"more-less {attr.Value}" : "more-less";
