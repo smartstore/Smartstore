@@ -106,9 +106,9 @@
                                         aria-expanded="false">
                                         @Html.Raw(T("Newsletter.Title"))
                                     </h3>
-                                    <div id="newsletter-body" class="collapse nav-collapse" role="region" aria-labelledby="newsletter-subscribe-heading">
-                                        <div id="newsletter-subscribe-block" class="mt-2">
-                                            <div class="input-group has-icon shadow-xs rounded-pill mb-2">
+                                    <div id="newsletter-body" class="collapse nav-collapse pb-2" role="region" aria-labelledby="newsletter-subscribe-heading">
+                                        <div id="newsletter-subscribe-block" class="vstack gap-2">
+                                            <div class="input-group has-icon shadow-xs rounded-pill">
                                                 <input asp-for="NewsletterEmail" 
                                                        id="newsletter-email" 
                                                        type="email"
@@ -128,7 +128,7 @@
                                                 </span>
                                             </div>
 
-                                            <fieldset class="mb-2">
+                                            <fieldset>
                                                 <legend class="sr-only">@T("Common.SelectAction")</legend>
                                                 <div class="hstack">
                                                     <div class="form-check form-check-inline">
