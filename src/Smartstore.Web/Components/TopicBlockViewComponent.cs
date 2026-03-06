@@ -8,7 +8,12 @@ namespace Smartstore.Web.Components
 {
     public class TopicBlockViewComponent : SmartViewComponent
     {
-        public async Task<IViewComponentResult> InvokeAsync(string systemName, bool bodyOnly = false, bool isLead = false)
+        public async Task<IViewComponentResult> InvokeAsync(
+            string systemName, 
+            bool bodyOnly = false, 
+            bool isLead = false,
+            int marginY = 3,
+            int? maxHeight = null)
         {
             var store = Services.StoreContext.CurrentStore;
             var customer = Services.WorkContext.CurrentCustomer;
@@ -43,6 +48,8 @@ namespace Smartstore.Web.Components
 
             ViewBag.BodyOnly = bodyOnly;
             ViewBag.IsLead = isLead;
+            ViewBag.MarginY = marginY;
+            ViewBag.MaxHeight = maxHeight;
 
             if (!cacheModel.RenderAsWidget)
             {

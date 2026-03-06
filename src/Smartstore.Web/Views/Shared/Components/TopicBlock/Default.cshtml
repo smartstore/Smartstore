@@ -2,24 +2,30 @@
 
 @model TopicModel
 
-@if (Model.Body == null || !Model.Body.Value.HasValue())
-{
-    return;
+@{
+    if (Model.Body == null || !Model.Body.Value.HasValue())
+    {
+        return;
+    }
+
+    var isLead = ViewBag.IsLead == true;
+    var marginY = (int)ViewBag.MarginY;
+    var maxHeight = (int?)ViewBag.MaxHeight;
 }
 
-@if (ViewBag.BodyOnly)
+@if (ViewBag.BodyOnly == true)
 {
-    <div class="topic-html-content-body@(ViewBag.IsLead == true ? " lead" : "") my-3 html-editor-content" id="ph-topic-body-@Model.Id" sm-language-attributes-for="Model.Body">
-        <collapsed-content>
+    <div class="topic-html-content-body@(isLead ? " lead" : "") my-@marginY html-editor-content" id="ph-topic-body-@Model.Id" sm-language-attributes-for="Model.Body">
+        <collapsed-content sm-max-height="maxHeight">
             @Html.Raw(Model.Body)
         </collapsed-content>
     </div>
 }
 else
 {
-    <div id="ph-topic-@Model.Id" class="block topic-html-content my-3">
+    <div id="ph-topic-@Model.Id" class="block topic-html-content my-@marginY">
         <div sm-if="Model.Title.HasValue()" class="block-title" id="ph-title-@Model.Id">
-			@if (ViewBag.IsLead == true)
+            @if (isLead)
 			{
 				<h1 class="h2" sm-language-attributes-for="Model.Title">@Model.Title</h1>
 			}
@@ -28,11 +34,11 @@ else
 				<h4 sm-language-attributes-for="Model.Title">@Model.Title</h4>
 			}
         </div>
-        <div class="block-body html-editor-content topic-html-content-body@(ViewBag.IsLead == true ? " lead" : "")" sm-language-attributes-for="Model.Body">
-			<p sm-if="Model.Intro.HasValue() && (ViewBag.IsLead == null || ViewBag.IsLead == false)" class="topic-intro lead">
+        <div class="block-body html-editor-content topic-html-content-body@(isLead ? " lead" : "")" sm-language-attributes-for="Model.Body">
+            <p sm-if="Model.Intro.HasValue() && !isLead" class="topic-intro lead">
 				@Html.Raw(Model.Intro)
 			</p>
-            <collapsed-content>
+            <collapsed-content sm-max-height="maxHeight">
                 @Html.Raw(Model.Body)
             </collapsed-content>
         </div>
