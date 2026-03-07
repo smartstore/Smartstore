@@ -1,14 +1,14 @@
-﻿@using Smartstore.Core.Content.Menus;
+﻿@model FooterModel
+
+@using Smartstore.Core.Content.Menus;
 @using Smartstore.Web.Models.Common;
 @using Smartstore.Core.Security;
-{
-@model FooterModel
 
 @{
-    var invserseFooter = Display.GetThemeVariable<bool>("inverse-footer");
+    var inverseFooter = Display.GetThemeVariable<bool>("inverse-footer");
 }
 
-<footer id="footer" class="@(invserseFooter ? "footer-inverse" : "footer-light")">
+<footer id="footer" class="@(inverseFooter ? "footer-inverse" : "footer-light")">
 
     <zone name="footer_top"></zone>
 
@@ -167,9 +167,7 @@
                                 </h3>
                                 <div id="footer-themes" class="content collapse nav-collapse" role="region" aria-labelledby="theme-selector-heading">
                                     <div class="mb-3 mb-md-0">
-                                        @{
-                                            @await Component.InvokeAsync("StoreThemeSelector")
-                                        }
+                                        @await Component.InvokeAsync("StoreThemeSelector")
                                     </div>
                                 </div>
                             </div>
