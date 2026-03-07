@@ -8,15 +8,13 @@
 
 @if (Model.IsEditable)
 {
-    <div class="form-check">
-        <input type="radio" asp-for="ReturnAllItems" id="ReturnAllItems" value="true" class="form-check-input">
-        <label class="form-check-label" for="ReturnAllItems">
+    <div class="btn-group btn-group-toggle mb-3" data-toggle="buttons">
+        <label class="btn btn-secondary active">
+            <input type="radio" asp-for="ReturnAllItems" sm-ignore-label="true" id="ReturnAllItems" value="true" class="form-check-input" checked>
             @T("ReturnRequests.ReturnAllItems")
         </label>
-    </div>
-    <div class="form-check mt-2">
-        <input type="radio" asp-for="ReturnAllItems" id="ReturnSelectedItems" value="false" class="form-check-input">
-        <label class="form-check-label" for="ReturnSelectedItems">
+        <label class="btn btn-secondary">
+            <input type="radio" asp-for="ReturnAllItems" sm-ignore-label="true" id="ReturnSelectedItems" value="false" class="form-check-input">
             @T("ReturnRequests.ReturnSelectedItems")
         </label>
     </div>
