@@ -11,18 +11,18 @@
     <div class="btn-group btn-group-toggle mb-3" data-toggle="buttons">
         <label class="btn btn-secondary active">
             <input type="radio" asp-for="ReturnAllItems" sm-ignore-label="true" id="ReturnAllItems" value="true" class="form-check-input" checked>
-            @T("ReturnRequests.ReturnAllItems")
+            @T("ReturnCase.EntireOrder")
         </label>
         <label class="btn btn-secondary">
             <input type="radio" asp-for="ReturnAllItems" sm-ignore-label="true" id="ReturnSelectedItems" value="false" class="form-check-input">
-            @T("ReturnRequests.ReturnSelectedItems")
+            @T("ReturnCase.CertainItems")
         </label>
     </div>
 }
 else
 {
     <div>
-        @T(returnAll ? "ReturnRequests.WithdrawEntireOrder" : "ReturnRequests.WithdrawItems")
+        @T(returnAll ? "ReturnCase.WithdrawEntireOrder" : "ReturnCase.WithdrawItems")
     </div>
 }
 

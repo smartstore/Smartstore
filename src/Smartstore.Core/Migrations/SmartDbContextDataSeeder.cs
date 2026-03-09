@@ -108,13 +108,13 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Order.Product(s).OrderedQuantity", "Ordered", "Bestellt");
 
-            builder.AddOrUpdate("ReturnRequests.ReturnAllItems", "All items", "Alle Artikel");
-            builder.AddOrUpdate("ReturnRequests.ReturnSelectedItems", "Selected items", "Ausgewählte Artikel");
+            builder.AddOrUpdate("ReturnCase.EntireOrder", "Entire order", "Gesamte Bestellung");
+            builder.AddOrUpdate("ReturnCase.CertainItems", "Certain items", "Bestimmte Artikel");
 
-            builder.AddOrUpdate("ReturnRequests.WithdrawEntireOrder",
+            builder.AddOrUpdate("ReturnCase.WithdrawEntireOrder",
                 "I would like to withdraw the entire order:",
                 "Ich möchte die gesamte Bestellung stornieren:");
-            builder.AddOrUpdate("ReturnRequests.WithdrawItems",
+            builder.AddOrUpdate("ReturnCase.WithdrawItems",
                 "I would like to withdraw the following items:", 
                 "Ich möchte folgende Artikel stornieren:");
 
