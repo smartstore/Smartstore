@@ -608,7 +608,7 @@ public class PayPalHttpClient
 
         foreach (var item in model.Items)
         {
-            var cartItem = cart.Items.Where(x => x.Item.ProductId == item.ProductId).FirstOrDefault();
+            var cartItem = cart.Items.FirstOrDefault(x => x.Item.Id == item.Id);
             var taxRate = await _taxService.GetTaxRateAsync(cartItem.Item.Product);
             var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(cartItem, calculationOptions);
             var (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
