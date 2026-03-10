@@ -5,7 +5,7 @@
 @{
     Assets.AppendTitleParts(T("PageTitle.ReturnItems"));
 
-    var hasItemsToReturn = Model.HasItemsToReturn;
+    var hasItemsToReturn = Model.Items?.HasItemsToReturn == true;
 
     var itemsViewData = new ViewDataDictionary(ViewData);
     itemsViewData.TemplateInfo.HtmlFieldPrefix = nameof(Model.Items);

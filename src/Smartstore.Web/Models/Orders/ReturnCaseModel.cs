@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Localization;
+﻿using System.Runtime.Serialization;
+using Smartstore.Core.Localization;
 using Smartstore.Web.Models.Customers;
 using Smartstore.Web.Models.Media;
 
@@ -20,9 +21,6 @@ namespace Smartstore.Web.Models.Orders
         [SanitizeHtml]
         [LocalizedDisplay("*Comments")]
         public string Comments { get; set; }
-
-        public bool HasItemsToReturn
-            => Items?.Items?.Any(x => x.MaxReturnQuantity > 0) ?? false;
     }
 
     public partial class ReturnCaseItemsModel : ModelBase
@@ -31,6 +29,14 @@ namespace Smartstore.Web.Models.Orders
         public bool ReturnAllItems { get; set; } = true;
 
         public List<ItemModel> Items { get; set; } = [];
+
+        [IgnoreDataMember]
+        public bool HasItemsToReturn
+            => Items?.Any(x => x.MaxReturnQuantity > 0) ?? false;
+
+        [IgnoreDataMember]
+        public bool HasSingleItemToReturn
+            => Items?.Count == 1 && Items[0].MaxReturnQuantity == 1;
 
         public partial class ItemModel : EntityModelBase
         {
