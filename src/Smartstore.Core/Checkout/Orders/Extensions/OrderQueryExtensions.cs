@@ -360,4 +360,36 @@ public static class OrderQueryExtensions
         }
         return query;
     }
+
+    /// <summary>
+    /// Filters the queryable collection of orders by order number, order ID, or order GUID, depending on the format of
+    /// the specified number.
+    /// </summary>
+    /// <remarks>If the number parameter can be parsed as a GUID, the filter is applied to the OrderGuid
+    /// property. If it can be parsed as an integer, the filter is applied to the Id property. Otherwise, the filter is
+    /// applied to the OrderNumber property.</remarks>
+    /// <param name="number">The order identifier to filter by. Can be an order number, order ID, or order GUID. If null or empty, no
+    /// filtering is applied.</param>
+    public static IQueryable<Order> ApplyOrderNumberFilter(this IQueryable<Order> query, string number)
+    {
+        Guard.NotNull(query);
+        
+        if (number.HasValue())
+        {
+            if (Guid.TryParse(number, out var guid))
+            {
+                query = query.Where(x => x.OrderGuid == guid);
+            }
+            else if (int.TryParse(number, out var id))
+            {
+                query = query.Where(x => x.Id == id || x.OrderNumber == number);
+            }
+            else
+            {
+                query = query.Where(x => x.OrderNumber == number);
+            }
+        }
+
+        return query;
+    }
 }
