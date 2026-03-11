@@ -10,11 +10,23 @@
 {
     <div class="btn-group btn-group-toggle mb-3" data-toggle="buttons">
         <label class="btn btn-secondary active">
-            <input type="radio" asp-for="ReturnAllItems" sm-ignore-label="true" id="ReturnAllItems" value="true" class="form-check-input" checked>
+            <input type="radio" 
+                   asp-for="ReturnAllItems" 
+                   sm-ignore-label="true" 
+                   id="ReturnAllItems" 
+                   value="true" 
+                   attr-checked='(Model.ReturnAllItems, "checked")'
+                   class="form-check-input">
             @T("ReturnCase.EntireOrder")
         </label>
         <label class="btn btn-secondary">
-            <input type="radio" asp-for="ReturnAllItems" sm-ignore-label="true" id="ReturnSelectedItems" value="false" class="form-check-input">
+            <input type="radio" 
+                   asp-for="ReturnAllItems" 
+                   sm-ignore-label="true" 
+                   id="ReturnSelectedItems" 
+                   value="false" 
+                   attr-checked='(!Model.ReturnAllItems, "checked")'
+                   class="form-check-input">
             @T("ReturnCase.CertainItems")
         </label>
     </div>
