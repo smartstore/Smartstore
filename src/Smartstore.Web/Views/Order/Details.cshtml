@@ -190,25 +190,25 @@
 
             <div class="row mb-3">
                 <div class="col-6 col-sm-auto pb-3">
-                    <div class="text-muted h5">@T("Order.OrderDate")</div>
+                    <div class="text-muted h5 mb-1">@T("Order.OrderDate")</div>
                     <div>
                         <time asp-for="@Model.CreatedOn" sm-format="d"></time>
                     </div>
                 </div>
                 <div class="col-6 col-sm-auto pb-3">
-                    <div class="text-muted h5">@T("Order.Order#")</div>
+                    <div class="text-muted h5 mb-1">@T("Order.Order#")</div>
                     <div>@Model.OrderNumber</div>
                 </div>
                 <div sm-if="Model.DisplayPurchaseOrderNumber" class="col-6 col-sm-auto pb-3">
-                    <div class="text-muted h5">@T("Order.PurchaseOrderNumber")</div>
+                    <div class="text-muted h5 mb-1">@T("Order.PurchaseOrderNumber")</div>
                     <div>@Model.PurchaseOrderNumber</div>
                 </div>
                 <div class="col-6 col-sm-auto pb-3">
-                    <div class="text-muted h5">@T("Order.OrderStatus")</div>
+                    <div class="text-muted h5 mb-1">@T("Order.OrderStatus")</div>
                     <div>@Model.OrderStatus</div>
                 </div>
                 <div class="col-6 col-sm-auto pb-3">
-                    <div class="text-muted h5">@T("Order.OrderTotal")</div>
+                    <div class="text-muted h5 mb-1">@T("Order.OrderTotal")</div>
                     <div class="text-success-emphasis fwm">
                         <data asp-for="@Model.OrderTotal"></data>
                     </div>
