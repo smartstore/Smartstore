@@ -38,6 +38,15 @@ namespace Smartstore.Core.Checkout.Orders
         }
 
         /// <summary>
+        /// Gets or sets the withdrawal identifier.
+        /// </summary>
+        /// <remarks>
+        /// The withdrawal entity is not part of the core and can be provided by a plugin.
+        /// This property is intended for the necessary foreign key relationship.
+        /// </remarks>
+        public int? WithdrawalId { get; set; }
+
+        /// <summary>
         /// Gets or sets the quantity.
         /// </summary>
         public int Quantity { get; set; }

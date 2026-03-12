@@ -16,7 +16,7 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly IRoundingHelper _roundingHelper;
         private readonly IEventPublisher _eventPublisher;
         private readonly PaymentSettings _paymentSettings;
-        private readonly HashSet<Order> _toCapture = new();
+        private readonly HashSet<Order> _toCapture = [];
 
         public OrderService(
             SmartDbContext db,
@@ -58,6 +58,11 @@ namespace Smartstore.Core.Checkout.Orders
                         _toCapture.Add(entity);
                     }
                 }
+            }
+
+            if (entity.OrderStatus == OrderStatus.Complete && entity.CompletedOn == null)
+            {
+                entity.CompletedOn = DateTime.UtcNow;
             }
 
             return Task.FromResult(HookResult.Ok);

@@ -402,6 +402,11 @@ namespace Smartstore.Core.Checkout.Orders
         public DateTime UpdatedOnUtc { get; set; }
 
         /// <summary>
+        /// Gets or sets the date and time (UTC) when the order was completed.
+        /// </summary>
+        public DateTime? CompletedOn { get; set; }
+
+        /// <summary>
         /// Gets or sets the amount of remaing reward points
         /// </summary>
         public int? RewardPointsRemaining { get; set; }
