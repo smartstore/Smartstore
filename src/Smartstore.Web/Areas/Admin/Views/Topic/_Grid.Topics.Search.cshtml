@@ -2,10 +2,6 @@
 
 @model TopicListModel
 
-<div sm-if="!Model.IsSingleStoreMode" class="form-group">
-    <smart-label asp-for="SearchStoreId" />
-    <editor asp-for="SearchStoreId" />
-</div>
 <div class="form-group">
     <smart-label asp-for="SystemName" />
     <input asp-for="SystemName" />
@@ -21,4 +17,8 @@
 <div class="form-group">
     <smart-label asp-for="WidgetZone" />
     <editor asp-for="WidgetZone" />
+</div>
+<div sm-if="!Model.IsSingleStoreMode" class="form-group">
+    <smart-label asp-for="SearchStoreId" />
+    <editor asp-for="SearchStoreId" />
 </div>
