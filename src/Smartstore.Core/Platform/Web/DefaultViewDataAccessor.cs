@@ -5,33 +5,32 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
-namespace Smartstore.Core.Web
+namespace Smartstore.Core.Web;
+
+public class DefaultViewDataAccessor : IViewDataAccessor, IActionFilter
 {
-    public class DefaultViewDataAccessor : IViewDataAccessor, IActionFilter
+    internal const string ViewDataAccessKey = "__CurrentViewDataDictionary";
+
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public DefaultViewDataAccessor(IHttpContextAccessor httpContextAccessor)
     {
-        internal const string ViewDataAccessKey = "__CurrentViewDataDictionary";
+        _httpContextAccessor = httpContextAccessor;
+    }
 
-        private readonly IHttpContextAccessor _httpContextAccessor;
+    public ViewDataDictionary? ViewData 
+        => _httpContextAccessor.HttpContext?.Items[ViewDataAccessKey] as ViewDataDictionary;
 
-        public DefaultViewDataAccessor(IHttpContextAccessor httpContextAccessor)
+    void IActionFilter.OnActionExecuting(ActionExecutingContext context)
+    {
+        if (context.Controller is Controller controller)
         {
-            _httpContextAccessor = httpContextAccessor;
+            controller.HttpContext.Items[ViewDataAccessKey] = controller.ViewData;             
         }
+    }
 
-        public ViewDataDictionary? ViewData 
-            => _httpContextAccessor.HttpContext?.Items[ViewDataAccessKey] as ViewDataDictionary;
-
-        void IActionFilter.OnActionExecuting(ActionExecutingContext context)
-        {
-            if (context.Controller is Controller controller)
-            {
-                controller.HttpContext.Items[ViewDataAccessKey] = controller.ViewData;             
-            }
-        }
-
-        void IActionFilter.OnActionExecuted(ActionExecutedContext context)
-        {
-            // Noop
-        }
+    void IActionFilter.OnActionExecuted(ActionExecutedContext context)
+    {
+        // Noop
     }
 }
