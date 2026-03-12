@@ -111,7 +111,7 @@ namespace Smartstore.Admin.Controllers
 
         private async Task PrepareStoresMappingModelAsync(MessageTemplateModel model, MessageTemplate messageTemplate, bool excludeProperties)
         {
-            Guard.NotNull(model, nameof(model));
+            Guard.NotNull(model);
 
             if (!excludeProperties)
             {

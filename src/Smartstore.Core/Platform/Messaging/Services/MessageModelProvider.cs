@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Diagnostics;
 using System.Drawing;
 using System.Dynamic;
 using System.Text.Json;
@@ -27,6 +28,7 @@ using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.Imaging;
+using Smartstore.Json;
 using Smartstore.Templating;
 using Smartstore.Templating.Liquid;
 using Smartstore.Utilities;
@@ -42,10 +44,14 @@ namespace Smartstore.Core.Messaging
         Root
     }
 
+    [DebuggerDisplay("ModelTreeMember, Name: {Name}, Kind: {Kind}")]
     public class ModelTreeMember
     {
         public string Name { get; set; }
         public ModelTreeMemberKind Kind { get; set; }
+
+        public override string ToString()
+            => $"Name: {Name}, Kind: {Kind}";
     }
 
     public partial class MessageModelProvider : IMessageModelProvider
@@ -879,14 +885,22 @@ namespace Smartstore.Core.Messaging
             Guard.NotEmpty(messageTemplateName);
 
             var template = await _db.MessageTemplates
-                .AsNoTracking()
                 .Where(x => x.Name == messageTemplateName)
                 .ApplyStoreFilter(_services.StoreContext.CurrentStore.Id)
                 .FirstOrDefaultAsync();
 
             if (template != null)
             {
-                return GetLastModelTree(template);
+                try
+                {
+                    return GetLastModelTree(template);
+                }
+                catch
+                {
+                    // After migration to STJ, deserialization of the model tree may fail due to serialization changes.
+                    template.LastModelTree = null;
+                    await _db.SaveChangesAsync();
+                }
             }
 
             return null;
@@ -901,7 +915,7 @@ namespace Smartstore.Core.Messaging
                 return null;
             }
 
-            return JsonSerializer.Deserialize<TreeNode<ModelTreeMember>>(template.LastModelTree);
+            return JsonSerializer.Deserialize<TreeNode<ModelTreeMember>>(template.LastModelTree, SmartJsonOptions.Default);
         }
 
         public TreeNode<ModelTreeMember> BuildModelTree(TemplateModel model)
