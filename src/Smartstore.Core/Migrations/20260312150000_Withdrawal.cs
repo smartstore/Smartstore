@@ -20,7 +20,8 @@ internal class Withdrawal : Migration
         {
             Create.Column(WithdrawalIdColumn).OnTable(RcTable)
                 .AsInt32()
-                .Nullable();
+                .Nullable()
+                .Indexed();
         }
 
         if (!Schema.Table(OrderTable).Column(CompletedOnColumn).Exists())
@@ -30,7 +31,7 @@ internal class Withdrawal : Migration
                 .Nullable();
         }
 
-        // TODO: (mg) (w) Add the upcoming "Withdrawal period in days" properties here.
+        // TODO: (mg) (w) Add the upcoming "Withdrawal period in days" properties for category/product here.
     }
 
     public override void Down()
