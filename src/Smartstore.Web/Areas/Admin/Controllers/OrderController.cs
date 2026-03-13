@@ -209,7 +209,13 @@ namespace Smartstore.Admin.Controllers
 
             if (model.CustomerEmail.HasValue())
             {
-                orderQuery = orderQuery.ApplySearchFilterFor(x => x.BillingAddress.Email, model.CustomerEmail);
+                orderQuery = orderQuery.ApplySearchFilter(
+                    model.CustomerEmail,
+                    LogicalRuleOperator.Or,
+                    x => x.BillingAddress.Email,
+                    x => x.Customer.Email,
+                    x => x.ShippingAddress.Email);
+
             }
             if (model.CustomerName.HasValue())
             {
