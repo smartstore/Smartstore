@@ -39,6 +39,7 @@ public static partial class StringExtensions
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: NotNullIfNotNull(nameof(value))]
         public string EmptyNull()
         {
             return value ?? string.Empty;

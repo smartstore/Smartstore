@@ -588,7 +588,7 @@ namespace Smartstore.Web.Controllers
                 {
                     ProductId = product.Id,
                     CustomerId = customer.Id,
-                    IpAddress = _webHelper.GetClientIpAddress().ToString(),
+                    IpAddress = _webHelper.ClientInfo.IpAddress.ToString(),
                     Title = model.Title?.RemoveHtml(),
                     ReviewText = HtmlUtility.SanitizeHtml(model.ReviewText, HtmlSanitizerOptions.UserCommentSuitable),
                     Rating = rating,
@@ -680,7 +680,7 @@ namespace Smartstore.Web.Controllers
             {
                 ProductReviewId = productReview.Id,
                 CustomerId = customer.Id,
-                IpAddress = _webHelper.GetClientIpAddress().ToString(),
+                IpAddress = _webHelper.ClientInfo.IpAddress.ToString(),
                 WasHelpful = washelpful,
                 IsApproved = true // Always approved
             };

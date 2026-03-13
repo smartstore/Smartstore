@@ -17,7 +17,7 @@ namespace Smartstore.Controllers
         [HttpPost]
         public async Task<IActionResult> UploadPackage(bool expectTheme, string returnUrl = null)
         {
-            returnUrl ??= Services.WebHelper.GetUrlReferrer()?.OriginalString;
+            returnUrl ??= Services.WebHelper.ClientInfo.UrlReferrer?.OriginalString;
 
             var message = (string)null;
             var file = (IFormFile)null;

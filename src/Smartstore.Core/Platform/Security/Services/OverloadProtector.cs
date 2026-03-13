@@ -135,7 +135,7 @@ namespace Smartstore.Core.Security
                 if (httpContext != null)
                 {
                     var webHelper = httpContext.RequestServices.GetRequiredService<IWebHelper>();
-                    var ipAddress = webHelper.GetClientIpAddress().ToString();
+                    var ipAddress = webHelper.ClientInfo.IpAddress.ToString();
 
                     message += $" IP: {ipAddress}, Path: {httpContext.Request.Path}.";
                 }

@@ -1,5 +1,4 @@
-﻿using System.Net;
-using Smartstore.Core.Common.Services;
+﻿using Smartstore.Core.Common.Services;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Web;
 
@@ -18,12 +17,9 @@ namespace Smartstore.Core.Checkout.Rules.Impl
 
         public Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {
-            var ipAddress = _webHelper.GetClientIpAddress();
-            var countryIsoCode = ipAddress != IPAddress.None
-                ? _countryLookup.LookupCountry(ipAddress)?.IsoCode?.NullEmpty()
-                : null;
-
-            countryIsoCode ??= _countryLookup.LookupCountry(context.Customer?.LastIpAddress)?.IsoCode?.NullEmpty();
+            var countryIsoCode = 
+                _webHelper.ClientInfo.Country?.IsoCode?.NullEmpty() ??
+                _countryLookup.LookupCountry(context.Customer?.LastIpAddress)?.IsoCode?.NullEmpty();
 
             var match = expression.HasListMatch(countryIsoCode ?? string.Empty, comparer: StringComparer.InvariantCultureIgnoreCase);
             return Task.FromResult(match);

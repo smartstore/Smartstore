@@ -103,7 +103,7 @@ namespace Smartstore.Core.Identity
         {
             using (_chronometer.Step("FindGuestCustomerByClientIdent"))
             {
-                clientIdent = clientIdent.NullEmpty() ?? _webHelper.GetClientIdent();
+                clientIdent = clientIdent.NullEmpty() ?? _webHelper.ClientInfo.ClientIdent;
                 if (clientIdent.IsEmpty())
                 {
                     return null;

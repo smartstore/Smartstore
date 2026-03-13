@@ -1,37 +1,45 @@
-﻿using System.Net;
+﻿#nullable enable
 
-namespace Smartstore.Core.Common.Services
+using System.Net;
+
+namespace Smartstore.Core.Common.Services;
+
+public sealed class GeoCountryInfo
 {
-    public sealed class LookupCountryResponse
-    {
-        /// <summary>
-        /// The GeoName ID for the country. 
-        /// </summary>
-        public long? GeoNameId { get; set; }
-
-        /// <summary>
-        /// The english name of the country.
-        /// </summary>
-        public string Name { get; set; }
-
-        /// <summary>
-        /// The two-letter ISO 3166-1 alpha code for the country
-        /// </summary>
-        public string IsoCode { get; set; }
-
-        /// <summary>
-        /// This is true if the country is a member state of the European Union.
-        /// </summary>
-        public bool IsInEu { get; set; }
-    }
+    /// <summary>
+    /// The GeoName ID for the country. 
+    /// </summary>
+    public long? GeoNameId { get; set; }
 
     /// <summary>
-    /// Country lookup helper for IPv4/6 addresses
+    /// The english name of the country.
     /// </summary>
-    public partial interface IGeoCountryLookup
-    {
-        LookupCountryResponse LookupCountry(string addr);
+    public string? Name { get; set; }
 
-        LookupCountryResponse LookupCountry(IPAddress addr);
-    }
+    /// <summary>
+    /// The two-letter ISO 3166-1 alpha code for the country
+    /// </summary>
+    public string? IsoCode { get; set; }
+
+    /// <summary>
+    /// This is true if the country is a member state of the European Union.
+    /// </summary>
+    public bool IsInEu { get; set; }
+}
+
+/// <summary>
+/// Country lookup helper for IPv4/6 addresses
+/// </summary>
+public partial interface IGeoCountryLookup
+{
+    /// <inheritdoc cref="LookupCountry(IPAddress)" />
+    GeoCountryInfo? LookupCountry(string addr);
+
+    /// <summary>
+    /// Retrieves country information associated with the specified IP address.
+    /// </summary>
+    /// <param name="addr">The IP address for which to look up country information. Cannot be null.</param>
+    /// <returns>A <see cref="GeoCountryInfo"/> object containing country details if the lookup is successful and country data is
+    /// available; otherwise, null.</returns>
+    GeoCountryInfo? LookupCountry(IPAddress addr);
 }

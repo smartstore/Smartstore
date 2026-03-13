@@ -371,7 +371,7 @@ namespace Smartstore.Admin.Controllers
 
             if (returnUrl.IsEmpty())
             {
-                returnUrl = Services.WebHelper.GetUrlReferrer()?.PathAndQuery;
+                returnUrl = Services.WebHelper.ClientInfo.UrlReferrer?.PathAndQuery;
             }
 
             TempData["PreviewModeReturnUrl"] = returnUrl;

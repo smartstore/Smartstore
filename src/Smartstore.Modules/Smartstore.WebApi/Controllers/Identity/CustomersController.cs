@@ -135,7 +135,7 @@ public class CustomersController : WebApiController<Customer>
         if (model.Username.IsEmpty() && model.Email.IsEmpty())
         {
             // Create a guest customer.
-            var clientIdent = _webHelper.Value.GetClientIdent();
+            var clientIdent = _webHelper.Value.ClientInfo.ClientIdent;
             var guest = await _customerService.Value.CreateGuestCustomerAsync(clientIdent);
 
             return Created(guest);

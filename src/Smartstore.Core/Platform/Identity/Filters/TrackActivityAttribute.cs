@@ -117,7 +117,7 @@ namespace Smartstore.Core.Identity
             // Last IP address
             if (_attribute.TrackIpAddress && (forceTrack || _privacySettings.StoreLastIpAddress))
             {
-                var currentIpAddress = _webHelper.GetClientIpAddress().ToString();
+                var currentIpAddress = _webHelper.ClientInfo.IpAddress.ToString();
                 if (currentIpAddress.HasValue())
                 {
                     dirty = dirty || customer.LastIpAddress != currentIpAddress;

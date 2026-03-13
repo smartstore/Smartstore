@@ -34,7 +34,7 @@ namespace Smartstore.Admin.Components
                     var formContent = new FormUrlEncodedContent(new KeyValuePair<string, string>[]
                     {
                         new("lang", lang.UniqueSeoCode),
-                        new("ip", _webHelper.GetClientIpAddress().ToString()),
+                        new("ip", _webHelper.ClientInfo.IpAddress.ToString()),
                         new("modules", string.Join(',', Services.ApplicationContext.ModuleCatalog.Modules.Select(x => x.Name))),
                         new("id", Services.ApplicationContext.RuntimeInfo.ApplicationIdentifier),
                         new("auth", Services.StoreContext.CurrentStore.GetBaseUrl().TrimEnd('/'))

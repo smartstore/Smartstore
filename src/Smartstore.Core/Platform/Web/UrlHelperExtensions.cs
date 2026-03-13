@@ -44,7 +44,7 @@ public static class UrlHelperExtensions
 
         string? referrer = null;
         bool skipLocalCheck = false;
-        var requestReferrer = webHelper.GetUrlReferrer();
+        var requestReferrer = webHelper.ClientInfo.UrlReferrer;
 
         if (requestReferrer != null)
         {

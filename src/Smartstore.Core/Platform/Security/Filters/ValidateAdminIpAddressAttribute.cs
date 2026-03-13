@@ -60,7 +60,7 @@ namespace Smartstore.Core.Security
                 bool allow = allowedIpAddresses == null || allowedIpAddresses.Count == 0;
                 if (!allow)
                 {
-                    var currentIpAddress = _webHelper.GetClientIpAddress().ToString();
+                    var currentIpAddress = _webHelper.ClientInfo.IpAddress.ToString();
                     allow = allowedIpAddresses.Any(ip => ip.EqualsNoCase(currentIpAddress));
                 }
 

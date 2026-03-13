@@ -8,12 +8,21 @@ namespace Smartstore.Core.Web;
 
 public partial interface IWebHelper
 {
+    /// <summary>
+    /// Gets the current HTTP context associated with the request.
+    /// </summary>
     HttpContext? HttpContext { get; }
+
+    /// <summary>
+    /// Gets information about the client making the web request.
+    /// </summary>
+    WebClientInfo ClientInfo { get; }
 
     /// <summary>
     /// Gets URL referrer or <c>null</c> if Uri parsing fails.
     /// </summary>
     /// <returns>URL referrer</returns>
+    [Obsolete("Use 'ClientInfo.UrlReferrer' instead.")]
     Uri? GetUrlReferrer();
 
     /// <summary>
@@ -24,11 +33,13 @@ public partial interface IWebHelper
     /// The client identifier is a hashed combination of client ip address and user agent.
     /// This method returns <c>null</c> if IP or user agent (or both) cannot be determined.
     /// </remarks>
+    [Obsolete("Use 'ClientInfo.ClientIdent' instead.")]
     string? GetClientIdent();
 
     /// <summary>
     /// Gets client IP address.
     /// </summary>
+    [Obsolete("Use 'ClientInfo.IpAddress' instead.")]
     IPAddress GetClientIpAddress();
 
     /// <summary>

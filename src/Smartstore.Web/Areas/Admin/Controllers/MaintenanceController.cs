@@ -328,7 +328,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.System.Maintenance.Execute)]
         public IActionResult RestartApplication(string returnUrl = null)
         {
-            ViewBag.ReturnUrl = returnUrl ?? Services.WebHelper.GetUrlReferrer()?.PathAndQuery;
+            ViewBag.ReturnUrl = returnUrl ?? Services.WebHelper.ClientInfo.UrlReferrer?.PathAndQuery;
             return View();
         }
 

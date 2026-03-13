@@ -27,7 +27,6 @@ namespace Smartstore.Core.Identity
         private readonly ITypeScanner _typeScanner;
         private readonly PrivacySettings _privacySettings;
         private readonly IComponentContext _componentContext;
-        private readonly IGeoCountryLookup _countryLookup;
         private readonly IRequestCache _requestCache;
 
         private bool? _isCookieConsentRequired;
@@ -40,7 +39,6 @@ namespace Smartstore.Core.Identity
             ITypeScanner typeScanner,
             PrivacySettings privacySettings,
             IComponentContext componentContext,
-            IGeoCountryLookup countryLookup,
             IRequestCache requestCache)
         {
             _db = db;
@@ -50,16 +48,15 @@ namespace Smartstore.Core.Identity
             _typeScanner = typeScanner;
             _privacySettings = privacySettings;
             _componentContext = componentContext;
-            _countryLookup = countryLookup;
             _requestCache = requestCache;
         }
 
         public async Task<bool> IsCookieConsentRequiredAsync()
         {
-            return _isCookieConsentRequired ??= await IsCookieConsentRequiredCoreAsync(_webHelper.GetClientIpAddress());
+            return _isCookieConsentRequired ??= await IsCookieConsentRequiredCoreAsync();
         }
 
-        protected virtual async Task<bool> IsCookieConsentRequiredCoreAsync(IPAddress ipAddress)
+        protected virtual async Task<bool> IsCookieConsentRequiredCoreAsync()
         {
             if (_privacySettings.CookieConsentRequirement == CookieConsentRequirement.NeverRequired)
             {
@@ -67,7 +64,7 @@ namespace Smartstore.Core.Identity
             }
             else 
             {
-                var geoCountry = _countryLookup.LookupCountry(ipAddress);
+                var geoCountry = _webHelper.ClientInfo.Country;
                 if (geoCountry != null)
                 {
                     if (_privacySettings.CookieConsentRequirement == CookieConsentRequirement.DependsOnCountry)

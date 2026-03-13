@@ -13,7 +13,7 @@ namespace Smartstore.Core.Identity
         /// </summary>
         /// <param name="clientIdent">
         /// The client ident string, which usually is a hashed combination of client IP address and user agent. 
-        /// Call <see cref="IWebHelper.GetClientIdent()"/> to obtain an ident string. 
+        /// Call <see cref="IWebHelper.ClientInfo"/> to obtain an ident string. 
         /// The string should be unique for each client and must be at least 8 chars long.
         /// </param>
         /// <param name="customAction">
@@ -28,7 +28,7 @@ namespace Smartstore.Core.Identity
         /// </summary>
         /// <param name="clientIdent">
         /// The client ident string, which usually is a hashed combination of client IP address and user agent. 
-        /// Call <see cref="IWebHelper.GetClientIdent()"/> to obtain an ident string, or pass <c>null</c> to let this method obtain it automatically.
+        /// Call <see cref="IWebHelper.ClientInfo"/> to obtain an ident string, or pass <c>null</c> to let this method obtain it automatically.
         /// </param>
         /// <param name="maxAgeSeconds">The max age of the newly created guest customer record. The shorter, the better (default is 1 min.)</param>
         /// <returns>The identified customer or <c>null</c></returns>

@@ -1,5 +1,4 @@
-﻿using Smartstore.Core.Common.Services;
-using Smartstore.Core.Identity;
+﻿using Smartstore.Core.Identity;
 using Smartstore.Core.Web;
 using Smartstore.Web.Models.Common;
 
@@ -8,20 +7,17 @@ namespace Smartstore.Web.Components
     public class CookieManagerViewComponent : SmartViewComponent
     {
         private readonly SmartDbContext _db;
-        private readonly IGeoCountryLookup _countryLookup;
         private readonly ICookieConsentManager _cookieConsentManager;
         private readonly PrivacySettings _privacySettings;
         private readonly IWebHelper _webHelper;
 
         public CookieManagerViewComponent(
             SmartDbContext db,
-            IGeoCountryLookup countryLookup,
             ICookieConsentManager cookieConsentManager,
             PrivacySettings privacySettings,
             IWebHelper webHelper)
         {
             _db = db;
-            _countryLookup = countryLookup;
             _cookieConsentManager = cookieConsentManager;
             _privacySettings = privacySettings;
             _webHelper = webHelper;
@@ -51,9 +47,8 @@ namespace Smartstore.Web.Components
 
         private async Task<bool> DisplayForCountryAsync()
         {
-            var ipAddress = _webHelper.GetClientIpAddress();
-            var lookUpCountryResponse = _countryLookup.LookupCountry(ipAddress);
-            if (lookUpCountryResponse?.IsoCode == null)
+            var countryInfo = _webHelper.ClientInfo.Country;
+            if (countryInfo?.IsoCode == null)
             {
                 // No country was found (e.g. localhost), so we better return true.
                 return true;
@@ -61,7 +56,7 @@ namespace Smartstore.Web.Components
 
             var country = await _db.Countries
                 .AsNoTracking()
-                .ApplyIsoCodeFilter(lookUpCountryResponse.IsoCode)
+                .ApplyIsoCodeFilter(countryInfo.IsoCode)
                 .FirstOrDefaultAsync();
 
             if (country != null && country.DisplayCookieManager)

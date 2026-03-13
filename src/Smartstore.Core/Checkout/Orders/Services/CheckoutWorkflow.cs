@@ -545,7 +545,7 @@ namespace Smartstore.Core.Checkout.Orders
         private CheckoutStep Adjacent(CheckoutStep step)
         {
             // Get route values of the URL referrer.
-            var referrer = _webHelper.GetUrlReferrer();
+            var referrer = _webHelper.ClientInfo.UrlReferrer;
             var path = referrer?.PathAndQuery;
             var routeValues = new RouteValueDictionary();
 

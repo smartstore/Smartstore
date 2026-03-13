@@ -1,35 +1,47 @@
 ﻿using System.Net;
 using System.Net.Http;
-using System.Net.Sockets;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Smartstore.Collections;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Stores;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Web;
 
-public partial class DefaultWebHelper : IWebHelper
+public partial class DefaultWebHelper : IWebHelper, IDisposable
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly Work<IStoreContext> _storeContext;
+    private readonly Work<IGeoCountryLookup> _geoCountryLookup;
 
-    private IPAddress _ipAddress;
-    private bool _urlReferrerResolved;
-    private Uri _urlReferrer;
+    private DefaultWebClientInfo _clientInfo;
     private bool _publicIpAddressResolved;
     private IPAddress _publicIpAddress;
 
     public DefaultWebHelper(
         IHttpContextAccessor httpContextaccessor,
         IHttpClientFactory httpClientFactory,
-        Work<IStoreContext> storeContext)
+        Work<IStoreContext> storeContext,
+        Work<IGeoCountryLookup> geoCountryLookup)
     {
         _httpContextAccessor = httpContextaccessor;
         _httpClientFactory = httpClientFactory;
         _storeContext = storeContext;
+        _geoCountryLookup = geoCountryLookup;
+    }
+
+    internal GeoCountryInfo LookupCountry(IPAddress ipAddress)
+    {
+        return _geoCountryLookup.Value.LookupCountry(ipAddress);
+    }
+
+    public void Dispose()
+    {
+        _clientInfo?.SetDisposed();
+        GC.SuppressFinalize(this);
     }
 
     public HttpContext HttpContext
@@ -37,33 +49,19 @@ public partial class DefaultWebHelper : IWebHelper
         get => _httpContextAccessor.HttpContext;
     }
 
-    public virtual IPAddress GetClientIpAddress()
+    public WebClientInfo ClientInfo
     {
-        if (_ipAddress != null)
-        {
-            return _ipAddress;
-        }
-
-        var request = HttpContext?.Request;
-        if (request == null)
-        {
-            return _ipAddress = IPAddress.None;
-        }
-
-        if (HttpContext.Connection?.RemoteIpAddress is IPAddress ip)
-        {
-            if (ip != null && ip.AddressFamily == AddressFamily.InterNetworkV6)
-            {
-                ip = (ip == IPAddress.IPv6Loopback)
-                    ? IPAddress.Loopback
-                    : ip.MapToIPv4();
-            }
-
-            _ipAddress = ip;
-        }
-
-        return _ipAddress ??= IPAddress.None;
+        get => _clientInfo ??= new DefaultWebClientInfo(this);
     }
+
+    public virtual IPAddress GetClientIpAddress()
+        => ClientInfo.IpAddress;
+
+    public virtual Uri GetUrlReferrer()
+        => ClientInfo.UrlReferrer;
+
+    public virtual string GetClientIdent()
+        => ClientInfo.ClientIdent;
 
     public async Task<IPAddress> GetPublicIPAddressAsync()
     {
@@ -162,36 +160,6 @@ public partial class DefaultWebHelper : IWebHelper
         }
 
         return false;
-    }
-
-    public virtual Uri GetUrlReferrer()
-    {
-        if (_urlReferrerResolved)
-        {
-            return _urlReferrer;
-        }
-
-        var referrer = HttpContext?.Request?.UrlReferrer();
-        if (referrer.HasValue())
-        {
-            Uri.TryCreate(referrer, UriKind.RelativeOrAbsolute, out _urlReferrer);
-        }
-
-        _urlReferrerResolved = true;
-        return _urlReferrer;
-    }
-
-    public virtual string GetClientIdent()
-    {
-        var ipAddress = GetClientIpAddress();
-        var userAgent = HttpContext?.Request?.UserAgent().EmptyNull();
-
-        if (ipAddress != IPAddress.None && userAgent.HasValue())
-        {
-            return (ipAddress.ToString() + userAgent).XxHash64()?.ToLowerInvariant();
-        }
-
-        return null;
     }
 
     public virtual bool IsCurrentConnectionSecured()

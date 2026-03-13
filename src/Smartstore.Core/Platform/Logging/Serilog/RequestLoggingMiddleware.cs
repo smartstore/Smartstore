@@ -43,9 +43,9 @@ namespace Smartstore.Core.Logging
                 () => !workContext.IsInitialized ? null : httpContext.User?.Identity?.Name);
 
             using (LogContext.PushProperty("Url", webHelper.GetCurrentPageUrl(true)))
-            using (LogContext.PushProperty("Referrer", webHelper.GetUrlReferrer()?.OriginalString))
+            using (LogContext.PushProperty("Referrer", webHelper.ClientInfo.UrlReferrer?.OriginalString))
             using (LogContext.PushProperty("HttpMethod", httpContext.Request.Method))
-            using (LogContext.PushProperty("Ip", webHelper.GetClientIpAddress().ToString()))
+            using (LogContext.PushProperty("Ip", webHelper.ClientInfo.IpAddress.ToString()))
             using (LogContext.PushProperty("UserAgent", httpContext.Request.UserAgent()))
             using (LogContext.Push(customerIdEnricher))
             using (LogContext.Push(userNameEnricher))

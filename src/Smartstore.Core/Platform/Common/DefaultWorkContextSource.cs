@@ -55,7 +55,6 @@ namespace Smartstore.Core
         private readonly ICacheManager _cache;
         private readonly IUserAgent _userAgent;
         private readonly IWebHelper _webHelper;
-        private readonly IGeoCountryLookup _geoCountryLookup;
         private readonly IOverloadProtector _overloadProtector;
 
         public DefaultWorkContextSource(
@@ -70,7 +69,6 @@ namespace Smartstore.Core
             ICacheManager cache,
             IUserAgent userAgent,
             IWebHelper webHelper,
-            IGeoCountryLookup geoCountryLookup,
             IOverloadProtector overloadProtector)
         {
             _db = db;
@@ -84,7 +82,6 @@ namespace Smartstore.Core
             _userAgent = userAgent;
             _cache = cache;
             _webHelper = webHelper;
-            _geoCountryLookup = geoCountryLookup;
             _overloadProtector = overloadProtector;
         }
 
@@ -216,7 +213,7 @@ namespace Smartstore.Core
             {
                 try
                 {
-                    c.LastIpAddress = _webHelper.GetClientIpAddress().ToString();
+                    c.LastIpAddress = _webHelper.ClientInfo.IpAddress.ToString();
                     c.LastUserAgent = _userAgent.UserAgent.EmptyNull().Truncate(255);
                     c.LastUserDeviceType = _userAgent.Device.IsUnknown() ? _userAgent.Platform.Name : _userAgent.Device.Name;
 
@@ -297,8 +294,7 @@ namespace Smartstore.Core
                 // Default currency of country to which the current IP address belongs.
                 if (currency == null && !customer.IsSystemAccount)
                 {
-                    var ipAddress = _webHelper.GetClientIpAddress();
-                    var lookupCountry = _geoCountryLookup.LookupCountry(ipAddress);
+                    var lookupCountry = _webHelper.ClientInfo.Country;
                     if (lookupCountry != null)
                     {
                         var country = await _db.Countries
@@ -607,7 +603,7 @@ namespace Smartstore.Core
         private static async Task<Customer> DetectByClientIdent(DetectCustomerContext context)
         {
             // No anonymous visitor cookie yet. Try to identify anyway (by IP and UserAgent combination).
-            var clientIdent = context.WebHelper.GetClientIdent();
+            var clientIdent = context.WebHelper.ClientInfo.ClientIdent;
             context.ClientIdent = clientIdent;
 
             var customer = await context.CustomerService.FindCustomerByClientIdentAsync(clientIdent, maxAgeSeconds: 300);
