@@ -1,4 +1,4 @@
-﻿using System.Text.Encodings.Web;
+using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -91,6 +91,75 @@ namespace Smartstore.Web.Rendering
             string format,
             IDictionary<string, object> htmlAttributes)
         {
+            if (inputType == InputType.CheckBox && IsBooleanModel(modelExplorer))
+            {
+                TryNormalizeCheckboxModelState(viewContext, expression);
+
+                try
+                {
+                    return GenerateInputCore(
+                        viewContext,
+                        inputType,
+                        modelExplorer,
+                        expression,
+                        value,
+                        useViewData,
+                        isChecked,
+                        setId,
+                        isExplicitValue,
+                        format,
+                        htmlAttributes);
+                }
+                catch (FormatException)
+                {
+                    var key = viewContext.ViewData.TemplateInfo.GetFullHtmlFieldName(expression);
+                    if (viewContext.ModelState.Remove(key))
+                    {
+                        return GenerateInputCore(
+                            viewContext,
+                            inputType,
+                            modelExplorer,
+                            expression,
+                            value,
+                            useViewData,
+                            isChecked,
+                            setId,
+                            isExplicitValue,
+                            format,
+                            htmlAttributes);
+                    }
+
+                    throw;
+                }
+            }
+
+            return GenerateInputCore(
+                viewContext,
+                inputType,
+                modelExplorer,
+                expression,
+                value,
+                useViewData,
+                isChecked,
+                setId,
+                isExplicitValue,
+                format,
+                htmlAttributes);
+        }
+
+        private TagBuilder GenerateInputCore(
+            ViewContext viewContext,
+            InputType inputType,
+            ModelExplorer modelExplorer,
+            string expression,
+            object value,
+            bool useViewData,
+            bool isChecked,
+            bool setId,
+            bool isExplicitValue,
+            string format,
+            IDictionary<string, object> htmlAttributes)
+        {
             var tag = base.GenerateInput(
                 viewContext,
                 inputType,
@@ -103,23 +172,52 @@ namespace Smartstore.Web.Rendering
                 isExplicitValue,
                 format,
                 htmlAttributes);
-            
+
             if (inputType is InputType.Text or InputType.Password)
             {
-                // Determine input type attr value first from generated tag, then from htmlAttributes
                 if (!tag.Attributes.TryGetValue("type", out var strType) && htmlAttributes != null)
                 {
                     htmlAttributes.TryGetValueAs("type", out strType);
                 }
-                
+
                 if (strType.IsEmpty() || !_nonInputTypes.Contains(strType))
                 {
-                    // Add .form-control to text, password, number..., but not to hidden, checkbox, radio...
                     tag.Attributes.AddInValue("class", ' ', "form-control");
                 }
             }
 
             return tag;
+        }
+
+        private static bool IsBooleanModel(ModelExplorer modelExplorer)
+        {
+            var t = modelExplorer?.ModelType;
+            return t == typeof(bool) || t == typeof(bool?);
+        }
+
+        private static void TryNormalizeCheckboxModelState(ViewContext viewContext, string expression)
+        {
+            var key = viewContext.ViewData.TemplateInfo.GetFullHtmlFieldName(expression);
+            if (!viewContext.ModelState.TryGetValue(key, out var entry))
+            {
+                return;
+            }
+
+            var attempted = entry.AttemptedValue;
+            if (attempted.IsEmpty())
+            {
+                return;
+            }
+
+            var v = attempted.Trim();
+            if (v == "1" || v.EqualsNoCase("on") || v.EqualsNoCase("yes"))
+            {
+                viewContext.ModelState.SetModelValue(key, new ValueProviderResult("true"));
+            }
+            else if (v == "0" || v.EqualsNoCase("no"))
+            {
+                viewContext.ModelState.SetModelValue(key, new ValueProviderResult("false"));
+            }
         }
     }
 }
