@@ -1109,7 +1109,13 @@ namespace Smartstore.Core.Checkout.Orders
                 var response = await _shippingService.GetShippingOptionsAsync(cart, customer.ShippingAddress, null, cart.StoreId);
                 if (response.Success && response.ShippingOptions.Count > 0)
                 {
-                    shipping.Option = response.ShippingOptions[0];
+                    var preferredMethodId = customer.GenericAttributes?.PreferredShippingOption?.ShippingMethodId ?? 0;
+                    if (preferredMethodId != 0)
+                    {
+                        shipping.Option = response.ShippingOptions.FirstOrDefault(x => x.ShippingMethodId == preferredMethodId);
+                    }
+
+                    shipping.Option ??= response.ShippingOptions[0];
                 }
             }
 
