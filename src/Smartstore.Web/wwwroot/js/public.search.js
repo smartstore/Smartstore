@@ -74,6 +74,13 @@
                     const activeElement = document.activeElement;
                     // Execute code only when focus moves outside of the form container
                     if (!form[0].contains(activeElement)) {
+                        // INFO: On Mac/Safari, clicking a link does not focus it.
+                        // In this case focus moves to body. We avoid closing the drop
+                        // if the mouse is still over the form (result list).
+                        if (activeElement === document.body && form.is(':hover')) {
+                            return;
+                        }
+
                         shrinkBox();
                         closeDrop();
                     }
