@@ -127,6 +127,7 @@ namespace Smartstore.Core.Catalog.Rules
                     .BuildFacetMap(false)
                     .CheckSpelling(0);
 
+                searchQuery.CustomData["RuleCheckProductId"] = productId;
                 searchQuery = group.ApplyFilters(searchQuery);
 
                 var productQuery = _catalogSearchService.PrepareQuery(searchQuery);
@@ -211,7 +212,7 @@ namespace Smartstore.Core.Catalog.Rules
             {
                 if (!categoryIds.IsNullOrEmpty())
                 {
-                    var featuredOnly = _catalogSettings.IncludeFeaturedProductsInNormalLists ? (bool?)null : false;
+                    bool? featuredOnly = (_catalogSettings.IncludeFeaturedProductsInNormalLists || ctx.Query.CustomData.ContainsKey("RuleCheckProductId")) ? null : false;
 
                     if (_catalogSettings.ShowProductsFromSubcategories)
                     {
