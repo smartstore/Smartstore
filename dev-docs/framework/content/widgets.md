@@ -173,8 +173,30 @@ var widget = new ComponentWidget("Weather", "My.Module", new
     arg2 = "World"
 });
 
+```
+
+**Implicit context arguments** — When a `ComponentWidget` is rendered inside a widget zone, the `ComponentWidgetInvoker` automatically injects `WidgetContext.Model` and `WidgetContext.Zone` into the view component's `Invoke` method, provided the parameters follow these naming conventions:
+
+| Parameter name | Source | Accepted types |
+|---|---|---|
+| `model` | `WidgetContext.Model` | Any type assignable from the actual model |
+| `zone` / `widgetZone` | `WidgetContext.Zone` | `IWidgetZone` or `string` (receives `Zone.Name`) |
+
+Explicitly passed arguments always take precedence over implicit injection.
+
+```csharp
+// No need to pass "zone" or "model" explicitly —
+// they are injected from the WidgetContext automatically.
+var widget = new ComponentWidget<MyViewComponent>();
+
+// Inside the view component:
+// public IViewComponentResult Invoke(MyModel model, IWidgetZone zone) { ... }
+// public IViewComponentResult Invoke(MyModel model, string widgetZone) { ... }
+```
+
+```csharp
 // From partial view by name.
-// --------------------------
+
 // The second parameter "My.Module" is the system name of the module
 // where the partial view is located. This must be specified, 
 // otherwise view resolution will fail.
