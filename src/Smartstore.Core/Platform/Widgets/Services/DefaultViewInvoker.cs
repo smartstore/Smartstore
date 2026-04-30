@@ -4,101 +4,99 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Web;
 
-namespace Smartstore.Core.Widgets
+namespace Smartstore.Core.Widgets;
+
+public class DefaultViewInvoker : IViewInvoker
 {
-    public class DefaultViewInvoker : IViewInvoker
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IViewDataAccessor _viewDataAccessor;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public DefaultViewInvoker(
+        IServiceProvider serviceProvider,
+        IViewDataAccessor viewDataAccessor,
+        IHttpContextAccessor httpContextAccessor)
     {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly IViewDataAccessor _viewDataAccessor;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        _serviceProvider = serviceProvider;
+        _viewDataAccessor = viewDataAccessor;
+        _httpContextAccessor = httpContextAccessor;
+    }
 
-        public DefaultViewInvoker(
-            IServiceProvider serviceProvider,
-            IViewDataAccessor viewDataAccessor,
-            IHttpContextAccessor httpContextAccessor)
+    public ViewDataDictionary? ViewData
+    {
+        get => _viewDataAccessor.ViewData;
+    }
+
+    public ActionContext GetActionContext(ActionContext? context, string? module)
+    {
+        if (context == null)
         {
-            _serviceProvider = serviceProvider;
-            _viewDataAccessor = viewDataAccessor;
-            _httpContextAccessor = httpContextAccessor;
+            var httpContext = _httpContextAccessor.HttpContext ?? new DefaultHttpContext { RequestServices = _serviceProvider };
+            var routeData = httpContext.GetRouteData() ?? new RouteData();
+            var actionDescriptor = httpContext.GetEndpoint()?.Metadata?.GetMetadata<ActionDescriptor>() ?? new ActionDescriptor();
+
+            context = new ActionContext(httpContext, routeData, actionDescriptor);
         }
 
-        public ViewDataDictionary? ViewData
+        if (module.HasValue())
         {
-            get => _viewDataAccessor.ViewData;
+            context = new ActionContext(context);
+            context.RouteData = new RouteData(context.RouteData);
+            context.RouteData.DataTokens["module"] = module;
         }
 
-        public ActionContext GetActionContext(ActionContext? context, string? module)
+        return context;
+    }
+
+    public async Task<HtmlString> InvokeComponentAsync(ActionContext actionContext, ViewComponentResult result)
+    {
+        Guard.NotNull(actionContext);
+        Guard.NotNull(result);
+
+        var widget = result.ViewComponentType != null 
+            ? new ComponentWidget(result.ViewComponentType, result.Arguments)
+            : new ComponentWidget(result.ViewComponentName!, result.Arguments);
+
+        var widgetContext = new WidgetContext(actionContext)
         {
-            if (context == null)
-            {
-                var httpContext = _httpContextAccessor.HttpContext ?? new DefaultHttpContext { RequestServices = _serviceProvider };
-                var routeData = httpContext.GetRouteData() ?? new RouteData();
-                var actionDescriptor = httpContext.GetEndpoint()?.Metadata?.GetMetadata<ActionDescriptor>() ?? new ActionDescriptor();
+            ViewData = result.ViewData,
+            TempData = result.TempData
+        };
 
-                context = new ActionContext(httpContext, routeData, actionDescriptor);
-            }
+        return (await widget.InvokeAsync(widgetContext)).ToHtmlString();
+    }
 
-            if (module.HasValue())
-            {
-                context = new ActionContext(context);
-                context.RouteData = new RouteData(context.RouteData);
-                context.RouteData.DataTokens["module"] = module;
-            }
+    public async Task<HtmlString> InvokePartialViewAsync(ActionContext actionContext, PartialViewResult result)
+    {
+        Guard.NotNull(actionContext);
+        Guard.NotNull(result);
 
-            return context;
-        }
-
-        public async Task<HtmlString> InvokeComponentAsync(ActionContext actionContext, ViewComponentResult result)
+        var widget = new PartialViewWidget(result.ViewName!, result.Model);
+        var widgetContext = new WidgetContext(actionContext)
         {
-            Guard.NotNull(actionContext);
-            Guard.NotNull(result);
+            ViewData = result.ViewData,
+            TempData = result.TempData
+        };
 
-            var widget = result.ViewComponentType != null 
-                ? new ComponentWidget(result.ViewComponentType, result.Arguments)
-                : new ComponentWidget(result.ViewComponentName!, result.Arguments);
+        return (await widget.InvokeAsync(widgetContext)).ToHtmlString();
+    }
 
-            var widgetContext = new WidgetContext(actionContext)
-            {
-                ViewData = result.ViewData,
-                TempData = result.TempData
-            };
+    public async Task<HtmlString> InvokeViewAsync(ActionContext actionContext, ViewResult result)
+    {
+        Guard.NotNull(actionContext);
+        Guard.NotNull(result);
 
-            return (await widget.InvokeAsync(widgetContext)).ToHtmlString();
-        }
-
-        public async Task<HtmlString> InvokePartialViewAsync(ActionContext actionContext, PartialViewResult result)
+        var widget = new PartialViewWidget(result.ViewName!, result.Model) { IsMainPage = true };
+        var widgetContext = new WidgetContext(actionContext)
         {
-            Guard.NotNull(actionContext);
-            Guard.NotNull(result);
+            ViewData = result.ViewData,
+            TempData = result.TempData
+        };
 
-            var widget = new PartialViewWidget(result.ViewName!, result.Model);
-            var widgetContext = new WidgetContext(actionContext)
-            {
-                ViewData = result.ViewData,
-                TempData = result.TempData
-            };
-
-            return (await widget.InvokeAsync(widgetContext)).ToHtmlString();
-        }
-
-        public async Task<HtmlString> InvokeViewAsync(ActionContext actionContext, ViewResult result)
-        {
-            Guard.NotNull(actionContext);
-            Guard.NotNull(result);
-
-            var widget = new PartialViewWidget(result.ViewName!, result.Model) { IsMainPage = true };
-            var widgetContext = new WidgetContext(actionContext)
-            {
-                ViewData = result.ViewData,
-                TempData = result.TempData
-            };
-
-            return (await widget.InvokeAsync(widgetContext)).ToHtmlString();
-        }
+        return (await widget.InvokeAsync(widgetContext)).ToHtmlString();
     }
 }
