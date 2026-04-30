@@ -98,6 +98,7 @@ public class ComponentWidgetInvoker : WidgetInvoker<ComponentWidget>
             // since JsonConverter is not always able to deserialize as required
             // (e.g. Int64 instead of Int32).
             FixArgumentDictionary(currentArguments, currentArguments);
+            InjectContextArguments(context, currentArguments, SelectComponent(widget));
             return currentArguments;
         }
 
@@ -107,15 +108,19 @@ public class ComponentWidgetInvoker : WidgetInvoker<ComponentWidget>
         }
 
         var model = context.Model ?? context.ViewData?.Model;
-        if (model == null)
-        {
-            return null;
-        }
 
         ViewComponentDescriptor descriptor = SelectComponent(widget);
         if (descriptor.Parameters.Count == 0)
         {
             return null;
+        }
+
+        if (model == null)
+        {
+            // No model available, but zone injection may still be applicable.
+            var contextOnlyArgs = new Dictionary<string, object?>(2, StringComparer.OrdinalIgnoreCase);
+            InjectContextArguments(context, contextOnlyArgs, descriptor);
+            return contextOnlyArgs.Count > 0 ? contextOnlyArgs : null;
         }
 
         if (descriptor.Parameters.Count == 1 && descriptor.Parameters[0].ParameterType.IsAssignableFrom(model.GetType()))
@@ -133,6 +138,8 @@ public class ComponentWidgetInvoker : WidgetInvoker<ComponentWidget>
         // component descriptor's parameter list and the types match.
         var fixedArguments = new Dictionary<string, object?>(currentArguments.Count, StringComparer.OrdinalIgnoreCase);
         FixArgumentDictionary(currentArguments, fixedArguments, descriptor);
+
+        InjectContextArguments(context, fixedArguments, descriptor);
 
         return fixedArguments;
 
@@ -159,6 +166,58 @@ public class ComponentWidgetInvoker : WidgetInvoker<ComponentWidget>
                     else if (ConvertUtility.TryConvert(value, para.ParameterType, out var convertedValue))
                     {
                         fixedArgs[para.Name] = convertedValue!;
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Implicitly injects <see cref="WidgetContext.Model"/> and <see cref="WidgetContext.Zone"/> into
+    /// <paramref name="arguments"/> based on parameter name conventions, without overwriting explicitly provided values.
+    /// Conventions:
+    /// <list type="bullet">
+    ///   <item><term>model</term><description>Mapped to <see cref="WidgetContext.Model"/>. Parameter type must be assignable from the actual model type.</description></item>
+    ///   <item><term>zone / widgetZone</term><description>Mapped to <see cref="WidgetContext.Zone"/>. Parameter type can be <see cref="IWidgetZone"/> or <see cref="string"/> (zone name).</description></item>
+    /// </list>
+    /// </summary>
+    private static void InjectContextArguments(
+        WidgetContext context,
+        IDictionary<string, object?> arguments,
+        ViewComponentDescriptor descriptor)
+    {
+        foreach (var para in descriptor.Parameters)
+        {
+            if (para.Name is null)
+            {
+                continue;
+            }
+
+            // Explicit args always win.
+            if (arguments.ContainsKey(para.Name))
+            {
+                continue;
+            }
+
+            if (para.Name == "model")
+            {
+                var model = context.Model ?? context.ViewData?.Model;
+                if (model != null && para.ParameterType.IsAssignableFrom(model.GetType()))
+                {
+                    arguments[para.Name] = model;
+                }
+            }
+            else if (para.Name is ("zone" or "widgetZone"))
+            {
+                if (context.Zone != null)
+                {
+                    if (para.ParameterType == typeof(string))
+                    {
+                        arguments[para.Name] = context.Zone.Name;
+                    }
+                    else if (para.ParameterType.IsAssignableFrom(context.Zone.GetType()))
+                    {
+                        arguments[para.Name] = context.Zone;
                     }
                 }
             }
