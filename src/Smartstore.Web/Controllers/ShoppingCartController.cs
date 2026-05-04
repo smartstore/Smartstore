@@ -291,7 +291,10 @@ namespace Smartstore.Web.Controllers
 
         private async Task<IActionResult> UpdateCartItemInternal(UpdateCartItemModel model, bool delete)
         {
-            var permission = model.IsWishlist ? Permissions.Cart.AccessWishlist : Permissions.Cart.AccessShoppingCart;
+            var isOffCanvas = model.Origin == UpdateCartItemOrigin.OffCanvasCart || model.Origin == UpdateCartItemOrigin.OffCanvasWishlist;
+            var isWishlist = model.Origin == UpdateCartItemOrigin.Wishlist || model.Origin == UpdateCartItemOrigin.OffCanvasWishlist;
+            var permission = isWishlist ? Permissions.Cart.AccessWishlist : Permissions.Cart.AccessShoppingCart;
+
             if (!await Services.Permissions.AuthorizeAsync(permission))
             {
                 return Json(new
@@ -303,13 +306,12 @@ namespace Smartstore.Web.Controllers
 
             var store = Services.StoreContext.CurrentStore;
             var customer = Services.WorkContext.CurrentCustomer;
-            var cartType = model.IsWishlist ? ShoppingCartType.Wishlist : ShoppingCartType.ShoppingCart;
+            var cartType = isWishlist ? ShoppingCartType.Wishlist : ShoppingCartType.ShoppingCart;
             var cartHtml = string.Empty;
             var totalsHtml = string.Empty;
             var warningsHtml = string.Empty;
             var itemSelectionHtml = string.Empty;
             var paymentButtonsHtml = string.Empty;
-            var newItemPrice = string.Empty;
             var message = string.Empty;
             var subtotal = Money.Zero;
             var success = true;
@@ -348,34 +350,39 @@ namespace Smartstore.Web.Controllers
                 success = warnings.Count == 0;
             }
 
-            var cart = await _shoppingCartService.GetCartAsync(customer, cartType, store.Id, null);
+            var cart = await _shoppingCartService.GetCartAsync(customer, cartType, store.Id, isOffCanvas ? true : null);
 
-            if (model.IsCartPage || delete)
+            if (model.Origin == UpdateCartItemOrigin.OffCanvasCart)
             {
-                if (model.IsWishlist)
-                {
-                    var wishlistModel = new WishlistModel();
-                    await cart.MapAsync(wishlistModel);
+                var miniCartModel = new MiniShoppingCartModel();
+                await cart.MapAsync(miniCartModel);
 
-                    cartHtml = await InvokePartialViewAsync("WishlistItems", wishlistModel);
-                    warningsHtml = await InvokePartialViewAsync("CartWarnings", wishlistModel.Warnings);
-                }
-                else
-                {
-                    var cartModel = await cart.MapAsync();
-                    var item = cartModel.Items.FirstOrDefault(x => x.Id == model.CartItemId);
+                cartHtml = await InvokePartialViewAsync("OffCanvasShoppingCart.Items", miniCartModel);
+            }
+            else if (model.Origin == UpdateCartItemOrigin.OffCanvasWishlist)
+            {
+                var wishlistModel = new WishlistModel();
+                await cart.MapAsync(wishlistModel);
 
-                    cartHtml = await InvokePartialViewAsync("CartItems", cartModel);
-                    totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
-                    itemSelectionHtml = GetCartItemSelectionLink(cart);
-                    warningsHtml = await InvokePartialViewAsync("CartWarnings", cartModel.Warnings);
-                    paymentButtonsHtml = await InvokePartialViewAsync("CartPaymentButtons", cartModel);
+                cartHtml = await InvokePartialViewAsync("OffCanvasWishlist.Items", wishlistModel);
+            }
+            else if (isWishlist)
+            {
+                var wishlistModel = new WishlistModel();
+                await cart.MapAsync(wishlistModel);
 
-                    if (item != null)
-                    {
-                        newItemPrice = item.Price.UnitPrice.ToString();
-                    }
-                }
+                cartHtml = await InvokePartialViewAsync("WishlistItems", wishlistModel);
+                warningsHtml = await InvokePartialViewAsync("CartWarnings", wishlistModel.Warnings);
+            }
+            else
+            {
+                var cartModel = await cart.MapAsync();
+
+                cartHtml = await InvokePartialViewAsync("CartItems", cartModel);
+                totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
+                itemSelectionHtml = GetCartItemSelectionLink(cart);
+                warningsHtml = await InvokePartialViewAsync("CartWarnings", cartModel.Warnings);
+                paymentButtonsHtml = await InvokePartialViewAsync("CartPaymentButtons", cartModel);
             }
 
             if (!delete)
@@ -392,7 +399,6 @@ namespace Smartstore.Web.Controllers
                 success,
                 SubTotal = subtotal,
                 SubTotalValue = subtotal.Amount,
-                newItemPrice,
                 checkoutAllowed = cart.Items.Any(x => x.Active),
                 cartItemCount = cart.Items.Length,
                 message,

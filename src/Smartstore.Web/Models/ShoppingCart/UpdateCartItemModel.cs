@@ -3,25 +3,30 @@ using Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Web.Models.Cart
 {
+    /// <summary>
+    /// Represents the origin of a cart item update operation and indicates where the update was initiated from.
+    /// </summary>
+    public enum UpdateCartItemOrigin
+    {
+        Cart,
+        Wishlist,
+        OffCanvasCart,
+        OffCanvasWishlist
+    }
+
     public partial class UpdateCartItemModel : ModelBase
     {
+        /// <summary>
+        /// Gets or sets the origin of the request.
+        /// </summary>
+        [JsonPropertyName("origin")]
+        public UpdateCartItemOrigin Origin { get; set; }
+
         /// <summary>
         /// Identifier of <see cref="ShoppingCartItem"/>.
         /// </summary>
         [JsonPropertyName("cartItemId")]
         public int CartItemId { get; set; }
-
-        /// <summary>
-        /// A value indicating whether the customer is on the cart page or on any other page.
-        /// </summary>
-        [JsonPropertyName("isCartPage")]
-        public bool IsCartPage { get; set; }
-
-        /// <summary>
-        /// A value indicating whether the <see cref="ShoppingCartType"/> is <see cref="ShoppingCartType.Wishlist"/> or <see cref="ShoppingCartType.ShoppingCart"/>.
-        /// </summary>
-        [JsonPropertyName("isWishlist")]
-        public bool IsWishlist { get; set; }
 
         /// <summary>
         /// A value indicating whether the cart item is active.

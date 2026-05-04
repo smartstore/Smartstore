@@ -8,6 +8,8 @@
 @{
     var parentViewData = new ViewDataDictionary(ViewData);
     parentViewData["Parent"] = Model;
+
+    var origin = (int)UpdateCartItemOrigin.Cart;
 }
 
 @foreach (var item in Model.Items)
@@ -69,7 +71,7 @@
                     <button class="btn btn-secondary btn-to-danger btn-sm btn-icon ajax-action-link"
                             type="button"
                             title="@T("Common.Remove")"
-                            data-href='@Url.Action("DeleteCartItem", "ShoppingCart", new { cartItemId = item.Id })'
+                            data-href='@Url.Action("DeleteCartItem", "ShoppingCart", new { cartItemId = item.Id, origin })'
                             data-name="@item.ProductName"
                             data-type="cart"
                             data-id="@item.Id"
@@ -83,7 +85,7 @@
                         @{
                             var qtyAttributes = new Dictionary<string, object>
                             {
-                                ["data-href"] = Url.Action("UpdateCartItem", "ShoppingCart", new { cartItemId = item.Id, isCartPage = true }),
+                                ["data-href"] = Url.Action("UpdateCartItem", "ShoppingCart", new { cartItemId = item.Id, origin }),
                                 ["data-sci-item"] = item.Id,
                                 ["id"] = $"itemquantity{item.Id}",
                                 ["name"] = $"itemquantity{item.Id}"

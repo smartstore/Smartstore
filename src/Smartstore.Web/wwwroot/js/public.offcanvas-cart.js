@@ -103,7 +103,6 @@ var AjaxCart = (function ($, window, document, undefined) {
                 url: cmd.href,
                 data: cmd.data,
                 type: 'POST',
-
                 success: function (response) {
                     if (response.redirect) {
                         // when the controller sets the "redirect"
@@ -114,37 +113,33 @@ var AjaxCart = (function ($, window, document, undefined) {
                     }
 
                     // success is optional and therefore true by default
-                    var isSuccess = response.success === undefined ? true : response.success;
+                    const isSuccess = response.success === undefined ? true : response.success;
+                    const msg = cmd.action === "add" || cmd.action === "addfromwishlist" || cmd.action === "addfromcart"
+                        ? "ajaxcart.item.added"
+                        : "ajaxcart.item.removed";
 
-                    var msg = cmd.action === "add" || cmd.action === "addfromwishlist" || cmd.action === "addfromcart" ? "ajaxcart.item.added" : "ajaxcart.item.removed";
                     EventBroker.publish(
-                        isSuccess
-                            ? msg
-                            : "ajaxcart.error",
-                        $.extend(cmd, { response: response })
-                    );
+                        isSuccess ? msg : "ajaxcart.error",
+                        $.extend(cmd, { response: response }));
 
                     if (isSuccess && (cmd.action === "addfromwishlist" || cmd.action === "addfromcart")) {
                         // special case when item was copied/moved from wishlist
                         if (response.wasMoved) {
                             // if an item was MOVED from Wishlist to cart,
                             // we must also set the wishlist dropdown dirty
-                            var clonedCmd = $.extend({}, cmd, { type: "wishlist" });
                             EventBroker.publish(
                                 "ajaxcart.item.removed",
-                                clonedCmd
+                                $.extend({}, cmd, { type: "wishlist" })
                             );
                         }
                     }
                 },
-
                 error: function (jqXHR, textStatus, errorThrown) {
                     EventBroker.publish(
                         "ajaxcart.error",
                         $.extend(cmd, { response: { success: false, message: errorThrown } })
                     );
                 },
-
                 complete: function () {
                     // never say never ;-)
                     busy = false;
@@ -204,25 +199,35 @@ $(function () {
 
         updatingCart = true;
         var el = $(this);
-        
+
         $.ajax({
             cache: false,
             type: "POST",
             url: el.data("update-url"),
             data: {
                 "cartItemId": el.data("sci-id"),
-                "newQuantity": el.val(),
-                "isCartPage": true
+                "newQuantity": el.val()
             },
             success: function (data) {
                 if (data.success == true) {
-                    var type = el.data("type");
-                    ShopBar.loadSummary(type, true);
+                    const type = el.data("type");
+                    let $container = el.closest('.offcanvas-items-container');
+                    let $priceContainer = el.closest('.tab-pane').find('.sub-total');
 
-                    el.closest('.tab-pane').find('.sub-total').html(data.SubTotal);
-                    if (data.newItemPrice != "") {
-                        el.closest(".offcanvas-cart-item").find(".unit-price").html(data.newItemPrice);
-                    }
+                    // Update cart items.
+                    $container.html(data.cartHtml);
+
+                    // Update subtotal.
+                    $priceContainer.attr('value', data.SubTotalValue);
+                    $priceContainer.html(data.SubTotal);
+
+                    // Re-init quantity inputs.
+                    $container.find('.qty-input > .numberinput-group').each((_, el) => {
+                        $(el).numberInput();
+                    });
+
+                    // Update bubbles with the item counts.
+                    ShopBar.loadSummary(type, true);
 
                     // Fire update event.
                     EventBroker.publish("ajaxcart.updated", data);

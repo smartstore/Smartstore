@@ -1,14 +1,12 @@
 ﻿;
 $(function () {
     var orderSummary = $(".cart-content");
-    var isWishlist = orderSummary.is('.wishlist-content');
     var updatingCart = false;
 
     // Remove cart item and move to wishlist.
     orderSummary.on("click", ".ajax-action-link", function (e) {
         e.preventDefault();
         var link = $(this);
-        // What is "link.data"?
         var data = link.data('post-form') ? $(this).closest('form').serialize() : link.data;
         
         updateShoppingCartItems(link.data('href'), data);
@@ -23,9 +21,7 @@ $(function () {
 
         updateShoppingCartItems(url, {
             cartItemId,
-            active: this.checked,
-            isCartPage: true,
-            isWishlist
+            active: this.checked
         });
     });
 
@@ -36,11 +32,7 @@ $(function () {
         const activateAll = $(this).hasClass('select-cart-items');
         const url = orderSummary.data('update-item-url');
 
-        updateShoppingCartItems(url, {
-            activateAll,
-            isCartPage: true,
-            isWishlist
-        });
+        updateShoppingCartItems(url, { activateAll });
         
         return false;
     });
@@ -57,9 +49,7 @@ $(function () {
         var link = $(this);
         updateShoppingCartItems(link.data('href'), {
             cartItemId: link.data("sci-id"),
-            newQuantity: link.val(),
-            isCartPage: true,
-            isWishlist
+            newQuantity: link.val()
         });
 
         return false;
@@ -73,8 +63,9 @@ $(function () {
     });
 
     function updateShoppingCartItems(url, data) {
-        if (updatingCart)
+        if (updatingCart) {
             return;
+        }
 
         updatingCart = true;
         showThrobber();
