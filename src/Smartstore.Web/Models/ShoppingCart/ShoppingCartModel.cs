@@ -40,6 +40,7 @@ public partial class ShoppingCartModel : CartModelBase
         public bool IsDownload { get; set; }
         public bool HasUserAgreement { get; set; }
         public bool IsEsd { get; set; }
+        public int? DurabilityGuaranteeDurationYears { get; set; }
 
         public override IEnumerable<ShoppingCartItemModel> ChildItems { get; } = new List<ShoppingCartItemModel>();
 

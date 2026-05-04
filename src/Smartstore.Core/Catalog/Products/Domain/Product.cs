@@ -128,10 +128,6 @@ namespace Smartstore.Core.Catalog.Products
 
         #endregion
 
-        // TODO: (mh) (eu) Remove this (you forgot to commit this repo).
-        [NotMapped, IgnoreDataMember]
-        public int? DurabilityGuaranteeDurationYears { get; set; }
-
         [NotMapped, IgnoreDataMember]
         public bool MergedDataIgnore { get; set; }
 
@@ -811,6 +807,12 @@ namespace Smartstore.Core.Catalog.Products
         /// <remarks>Only effective in accordance with Withdrawal module.</remarks>
         public int? WithdrawalPeriodDays { get; set; }
 
+        /// <summary>
+        /// Gets or sets the duration of the product's durability guarantee in years.
+        /// </summary>
+        /// <remarks>Only effective in accordance with Warranty module.</remarks>
+        public int? DurabilityGuaranteeDurationYears { get; set; }
+        
         /// <summary>
         /// Gets or sets a value indicating whether the product has been deleted.
         /// </summary>

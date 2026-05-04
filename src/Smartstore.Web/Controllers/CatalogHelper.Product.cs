@@ -144,6 +144,7 @@ public partial class CatalogHelper
                 ShowSku = _catalogSettings.ShowProductSku,
                 Sku = product.Sku,
                 ShowManufacturerPartNumber = _catalogSettings.ShowManufacturerPartNumber,
+                DurabilityGuaranteeDurationYears = product.DurabilityGuaranteeDurationYears,
                 DisplayProductReviews = _catalogSettings.ShowProductReviewsInProductDetail && product.AllowCustomerReviews,
                 ManufacturerPartNumber = product.ManufacturerPartNumber,
                 ShowGtin = _catalogSettings.ShowGtin,

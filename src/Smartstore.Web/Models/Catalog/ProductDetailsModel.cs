@@ -121,6 +121,8 @@ namespace Smartstore.Web.Models.Catalog
         public bool DisplayAdminLink { get; set; }
         public bool ShowLegalInfo { get; set; }
         public string LegalInfo { get; set; }
+        public int? DurabilityGuaranteeDurationYears { get; set; }
+        
 
         public bool ShowWeight { get; set; }
         public bool ShowDimensions { get; set; }

@@ -55,6 +55,7 @@ namespace Smartstore.Web.Models.Cart
             to.IsEsd = product.IsEsd;
             to.HasUserAgreement = product.HasUserAgreement;
             to.DisableWishlistButton = product.DisableWishlistButton;
+            to.DurabilityGuaranteeDurationYears = product.DurabilityGuaranteeDurationYears;
 
             if (requiredProducts.TryGetValue(product.Id, out var parent))
             {
