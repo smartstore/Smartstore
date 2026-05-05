@@ -265,5 +265,17 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.Configuration.Settings.Order.ReturnRequestsDescription1",
             "Customers can use the returns system to request the return of items. Unlike withdrawal, returns are only possible for completed orders.",
             "Über das Retourensystem können Kunden die Rücksendung von Artikeln beantragen. Im Gegensatz zum Widerruf ist eine Retoure nur für abgeschlossene Aufträge möglich.");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Price.ShowRequiredProductPricesWithMainProduct",
+            "Show additional prices with main product",
+            "Zusatzpreise beim Hauptprodukt anzeigen",
+            "Specifies whether the prices of automatically added required products are displayed below the price of the main product, for example \"+ €3.00 deposit\"."
+            + " This makes additional mandatory costs, such as deposits or required accessories, visible before the customer proceeds to the shopping cart.",
+            "Legt fest, ob Preise automatisch hinzugefügter erforderlicher Produkte unterhalb des Preises des Hauptprodukts angezeigt werden, beispielsweise \"+ 3,00 € Pfand\"."
+            + " Dadurch werden zusätzliche Pflichtkosten wie Pfand oder erforderliches Zubehör bereits vor dem Warenkorb sichtbar.");
+
+        builder.AddOrUpdate("Products.RequiredProductPriceInfo",
+            "<span>+ {0} <span title=\"{1}\">{2}</span></span>",
+            "<span>+ {0} <span title=\"{1}\">{2}</span></span>");
     }
 }

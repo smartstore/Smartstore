@@ -95,6 +95,9 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*ApplyPriceRangeFormatInProductDetails")]
         public bool ApplyPriceRangeFormatInProductDetails { get; set; }
 
+        [LocalizedDisplay("*ShowRequiredProductPricesWithMainProduct")]
+        public bool ShowRequiredProductPricesWithMainProduct { get; set; }
+
         [LocalizedDisplay("*IgnoreProductDiscountsForSpecialPrices")]
         public bool IgnoreProductDiscountsForSpecialPrices { get; set; }
 

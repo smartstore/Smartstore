@@ -87,7 +87,14 @@
                         <meta itemprop="priceValidUntil" content="@pm.ValidUntilUtc.Value.ToString("u")" />
                     }
                 }
-
+                <div sm-if="!pm.RequiredProductPrices.IsNullOrEmpty()" class="mb-1">
+                    @foreach (var rpPrice in pm.RequiredProductPrices)
+                    {
+                        <data asp-for="@rpPrice.Price" class="pd-required-product-price d-block pd-muted">
+                            @Html.Raw(T("Products.RequiredProductPriceInfo", rpPrice.Price, rpPrice.ProductName, rpPrice.ProductName.Truncate(30, "…")))
+                        </data>
+                    }
+                </div>
                 @* Compare prices *@
                 <div sm-if="pm.RegularPrice != null || pm.RetailPrice != null" class="pd-promoprice-group">
                     @{

@@ -158,6 +158,12 @@ namespace Smartstore.Core.Catalog.Pricing
         public bool ApplyPriceRangeFormatInProductDetails { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the prices of automatically added required products 
+        /// are displayed discreetly below the price of the main product.
+        /// </summary>
+        public bool ShowRequiredProductPricesWithMainProduct { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether to ignore discounts assigned to products when a special price is applied.
         /// </summary>
         public bool IgnoreProductDiscountsForSpecialPrices { get; set; }

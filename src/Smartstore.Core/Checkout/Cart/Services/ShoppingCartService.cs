@@ -766,7 +766,7 @@ public partial class ShoppingCartService : IShoppingCartService
             .ToListAsync())
             .ToMultimap(x => x.ProductId, x => x);
 
-        foreach (var product in missingProducts)
+        foreach (var product in missingProducts.OrderBySequence(missingProductIds))
         {
             // Get preselected values of required attributes.
             var attributeSelection = new ProductVariantAttributeSelection(null);

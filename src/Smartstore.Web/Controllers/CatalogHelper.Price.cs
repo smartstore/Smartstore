@@ -132,12 +132,9 @@ public partial class CatalogHelper
 
         if (isBundle && product.BundlePerItemPricing)
         {
-            if (priceModel.RegularPrice != null)
-            {
-                // Change regular price label: "Regular/Lowest" --> "Instead of"
-                priceModel.RegularPrice.Label = T("Products.Bundle.PriceWithoutDiscount.Note");
-            }
-            
+            // Change regular price label: "Regular/Lowest" --> "Instead of"
+            priceModel.RegularPrice?.Label = T("Products.Bundle.PriceWithoutDiscount.Note");
+
             // Add promo badge for bundle: "As bundle only"
             if (unitPrice.Saving.HasSaving && !product.HasTierPrices)
             {
@@ -154,6 +151,38 @@ public partial class CatalogHelper
             await PrepareTierPriceModelAsync(priceModel, ctx);
         }
 
+        // Prices of required products.
+        if (_priceSettings.ShowRequiredProductPricesWithMainProduct
+            && product.RequireOtherProducts
+            && product.AutomaticallyAddRequiredProducts)
+        {
+            var requiredProductIds = product.ParseRequiredProductIds();
+            if (!requiredProductIds.IsNullOrEmpty())
+            {
+                var rpCalcOptions = _priceCalculationService.CreateDefaultOptions(false, ctx.Customer, ctx.Currency, ctx.BatchContext);
+                var requiredProducts = await _db.Products
+                    .SelectSummary()
+                    .GetManyAsync(requiredProductIds);
+
+                priceModel.RequiredProductPrices = await requiredProducts
+                    .OrderBySequence(requiredProductIds)
+                    .SelectAwait(async rp =>
+                    {
+                        // INFO: Use the unit price to be consistent with the displayed main product price.
+                        var rpQuantity = rp.QuantityPerParentUnit > 0 ? rp.QuantityPerParentUnit : 1;
+                        (_, var rpPrice) = await _priceCalculationService.CalculateSubtotalAsync(new(rp, rpQuantity, rpCalcOptions));
+
+                        return new RequiredProductPriceModel
+                        {
+                            Price = rpPrice.FinalPrice,
+                            ProductName = rp.GetLocalized(x => x.Name)
+                        };
+                    })
+                    .Where(x => x.Price > 0)
+                    .ToListAsync();
+            }
+        }
+
         // INFO: Price may have changed due to the assignment of a discount to a category.
         _services.DisplayControl.AnnounceRange(product.ProductCategories.Select(x => x.Category));
     }
@@ -168,8 +197,7 @@ public partial class CatalogHelper
             .OrderBy(x => x.Quantity)
             .ToList()
             .RemoveDuplicatedQuantities();
-
-        if (!tierPrices.Any())
+        if (tierPrices.Count == 0)
         {
             return;
         }

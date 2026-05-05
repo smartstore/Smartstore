@@ -13,7 +13,7 @@ namespace Smartstore.Web.TagHelpers.Shared
     {
         private readonly IRoundingHelper _roundingHelper = roundingHelper;
 
-        protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
+        protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
             var value = For?.Model;
 
@@ -26,7 +26,12 @@ namespace Smartstore.Web.TagHelpers.Shared
             output.Attributes.SetAttribute("value", _roundingHelper.Round(money).ToStringInvariant());
             output.Attributes.SetAttribute("data-currency", money.Currency?.CurrencyCode);
             output.AppendCssClass("text-nowrap");
-            output.Content.SetHtmlContent(money.ToString());
+
+            var childContent = await output.GetChildContentAsync();
+            if (childContent.IsEmptyOrWhiteSpace)
+            {
+                output.Content.SetHtmlContent(money.ToString());
+            }
         }
     }
 }

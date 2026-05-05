@@ -26,6 +26,8 @@ namespace Smartstore.Web.Models.Catalog
         public List<ProductBadgeModel> Badges { get; } = [];
         public RewardModel Reward { get; set; }
 
+        public List<RequiredProductPriceModel> RequiredProductPrices { get; set; }
+
         public bool HasDiscount
         {
             get => Saving.HasSaving;
@@ -75,5 +77,11 @@ namespace Smartstore.Web.Models.Catalog
     {
         public int Points { get; set; }
         public Money Amount { get; set; }
+    }
+
+    public class RequiredProductPriceModel : EntityModelBase
+    {
+        public Money Price { get; set; }
+        public LocalizedValue<string> ProductName { get; set; }
     }
 }
