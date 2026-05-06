@@ -302,9 +302,9 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     customerNumber = row.Entity.Id.ToString();
                 }
-                else if (_customerSettings.CustomerNumberMethod == CustomerNumberMethod.Enabled && !row.IsTransient && row.HasDataValue(nameof(Customer.CustomerNumber)))
+                else if (_customerSettings.CustomerNumberMethod == CustomerNumberMethod.Enabled && !row.IsTransient && row.TryGetDataValue(nameof(Customer.CustomerNumber), out string strValue))
                 {
-                    customerNumber = row.GetDataValue<string>(nameof(Customer.CustomerNumber));
+                    customerNumber = strValue;
                 }
 
                 if (customerNumber.HasValue() || !cargo.CustomerNumbers.Contains(customerNumber))

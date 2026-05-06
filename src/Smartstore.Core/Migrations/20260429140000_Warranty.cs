@@ -18,8 +18,6 @@ internal class Warranty : Migration
             Create.Column(DurabilityGuaranteeDurationYearsColumn).OnTable(ProductTable)
                 .AsInt32()
                 .Nullable();
-                // TODO: (mh) (eu) Why was this field indexed? Did I overlook something?
-                //.Indexed();
         }
     }
 
