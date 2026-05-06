@@ -56,6 +56,11 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ToBool(this string? value, bool defaultValue = false)
         {
+            if (string.IsNullOrEmpty(value))
+            {
+                return defaultValue;
+            }
+            
             if (ConvertUtility.TryConvert(value, typeof(bool), out object? result))
             {
                 return (bool)result!;
