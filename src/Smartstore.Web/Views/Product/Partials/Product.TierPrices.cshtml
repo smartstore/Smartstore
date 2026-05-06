@@ -26,11 +26,18 @@
             <thead>
                 <tr>
                     <th scope="col">@T("Products.TierPrices.Quantity")</th>
-                    @foreach (var tierPrice in Model.Take(200))
-                    {
-                        <th id="pd-tierprice-qty-@tierPrice.Quantity" scope="col" class="pd-tierprice-qty text-center">
-                            <data value="@tierPrice.Quantity">@(tierPrice.Quantity)+</data>
-                        </th>
+                    @{
+                        var tierPrices = Model.Take(200).ToArray();
+                        var len = tierPrices.Length;
+                        for (var i = 0; i < len; i++)
+                        {
+                            var tierPrice = tierPrices[i];
+                            var isLast = i + 1 == len;
+                            <th id="pd-tierprice-qty-@tierPrice.Quantity" scope="col" class="pd-tierprice-qty text-center">
+                                <data sm-if="!isLast" value="@tierPrice.Quantity">@T("Search.Facet.RangeMin", tierPrice.Quantity)</data>
+                                <data sm-if="isLast" value="@tierPrice.Quantity">@(tierPrice.Quantity)+</data>
+                            </th>
+                        }
                     }
                 </tr>
             </thead>
