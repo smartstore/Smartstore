@@ -1,91 +1,88 @@
 ﻿using System.Diagnostics;
 using Smartstore.Utilities;
 
-namespace Smartstore.Core.OutputCache
+namespace Smartstore.Core.OutputCache;
+
+/// <summary>
+/// Represents a route to a resource (page or component) that can be cached by output cache.
+/// </summary>
+[DebuggerDisplay("Route: {Route}, Duration: {Duration}")]
+public class CacheableRoute : IEquatable<CacheableRoute>
 {
-    /// <summary>
-    /// Represents a route to a resource (page or component) that can be cached by output cache.
-    /// </summary>
-    [DebuggerDisplay("Route: {Route}, Duration: {Duration}")]
-    public class CacheableRoute : IEquatable<CacheableRoute>
+    const string ComponentRoutePrefix = "vc:";
+
+    public CacheableRoute(string route)
     {
-        public CacheableRoute(string route)
-        {
-            Guard.NotEmpty(route);
-            Route = route;
-        }
-
-        /// <summary>
-        /// The route identifier. Can be a full page or a view component route.
-        /// <list type="bullet">
-        ///     <item>
-        ///         Full page route pattern: <c>[{Module}/]{ControllerShortName}/{Action}</c>. Module must be omitted
-        ///         if controller is part of the application core.
-        ///         Example: <c>Smartstore.Blog/Blog/List</c>, <c>Catalog/Category</c>
-        ///     </item>
-        ///     <item>
-        ///         View component route pattern: <c>vc:[{Module}/]{ComponentShortName}</c>. Module must be omitted
-        ///         if component is part of the application core.
-        ///         Example: <c>vc:SearchBox</c>, <c>vc:Smartstore.Blog/BlogSummary</c>
-        ///     </item>
-        /// </list>
-        /// </summary>
-        public string Route { get; }
-
-        /// <summary>
-        /// Number of seconds the page should be kept in cache on the server.
-        /// Only applies to pages, not view components. Set <c>null</c> to fall back to
-        /// default duration as specified by the output cache global settings (usually 5 minutes).
-        /// </summary>
-        public int? Duration { get; init; }
-
-        public int? Tolerance { get; init; }
-
-        public bool IsEnabled { get; init; } = true;
-
-        public bool IsUserRoute { get; init; }
-
-        public bool IsComponentRoute()
-        {
-            return Route.StartsWith("vc:");
-        }
-
-        public override bool Equals(object other)
-        {
-            return Equals(other as CacheableRoute);
-        }
-
-        public bool Equals(CacheableRoute other)
-        {
-            if (other == null)
-                return false;
-
-            return string.Equals(Route, other.Route, StringComparison.OrdinalIgnoreCase);
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCodeCombiner.Start().Add(typeof(CacheableRoute)).Add(Route).CombinedHash;
-        }
+        Guard.NotEmpty(route);
+        Route = route;
     }
 
     /// <summary>
-    /// Provides routes to resources (pages and view components) that can be cached by output cache.
+    /// The route identifier. Can be a full page or a view component route.
+    /// <list type="bullet">
+    ///     <item>
+    ///         Full page route pattern: <c>[{Module}/]{ControllerShortName}/{Action}</c>. Module must be omitted
+    ///         if controller is part of the application core.
+    ///         Example: <c>Smartstore.Blog/Blog/List</c>, <c>Catalog/Category</c>
+    ///     </item>
+    ///     <item>
+    ///         View component route pattern: <c>vc:[{Module}/]{ComponentShortName}</c>. Module must be omitted
+    ///         if component is part of the application core.
+    ///         Example: <c>vc:SearchBox</c>, <c>vc:Smartstore.Blog/BlogSummary</c>
+    ///     </item>
+    /// </list>
     /// </summary>
-    public interface ICacheableRouteProvider
+    public string Route { get; }
+
+    /// <summary>
+    /// Number of seconds the page should be kept in cache on the server.
+    /// Only applies to pages, not view components. Set <c>null</c> to fall back to
+    /// default duration as specified by the output cache global settings (usually 5 minutes).
+    /// </summary>
+    public int? Duration { get; init; }
+
+    public int? Tolerance { get; init; }
+
+    public bool IsEnabled { get; init; } = true;
+
+    public bool IsUserRoute { get; init; }
+
+    public bool IsComponentRoute()
+        => Route.StartsWith(ComponentRoutePrefix);
+
+    public override bool Equals(object other)
+        => Equals(other as CacheableRoute);
+
+    public bool Equals(CacheableRoute other)
     {
-        int Order { get; }
+        if (other == null)
+            return false;
 
-        /// <summary>
-        /// Gets the route keys of cacheable resources.
-        /// </summary>
-        IEnumerable<string> GetCacheableRoutes();
-
-        /// <summary>
-        /// Gets the route keys of overridden/uncacheable routes.
-        /// For example, implement this method if your module makes view components
-        /// from other application parts uncacheable.
-        /// </summary>
-        IEnumerable<string> GetOverriddenRoutes() => null;
+        return string.Equals(Route, other.Route, StringComparison.OrdinalIgnoreCase);
     }
+
+    public override int GetHashCode()
+    {
+        return HashCodeCombiner.Start().Add(typeof(CacheableRoute)).Add(Route).CombinedHash;
+    }
+}
+
+/// <summary>
+/// Provides routes to resources (pages and view components) that can be cached by output cache.
+/// </summary>
+public interface ICacheableRouteProvider
+{
+    int Order { get; }
+
+    /// <summary>
+    /// Gets the route keys of cacheable resources.
+    /// </summary>
+    IEnumerable<string> GetCacheableRoutes();
+
+    /// <summary>
+    /// Gets the route keys of overridden/uncacheable routes.
+    /// For example, implement this method if your module makes view components
+    /// from other application parts uncacheable.
+    /// </summary>
+    IEnumerable<string> GetOverriddenRoutes() => null;
 }
