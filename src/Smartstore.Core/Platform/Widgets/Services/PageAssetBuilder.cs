@@ -37,7 +37,9 @@ public partial class PageAssetBuilder : IPageAssetBuilder
         _urlHelper = urlHelper;
         _seoSettings = seoSettings;
         _assetTagGenerator = assetTagGenerator;
+
         WidgetProvider = widgetProvider;
+        JsonLd = new JsonLdBuilder();
 
         var htmlBodyId = storeContext.CurrentStore.HtmlBodyId;
         if (htmlBodyId.HasValue())
@@ -48,9 +50,11 @@ public partial class PageAssetBuilder : IPageAssetBuilder
 
     public IWidgetProvider WidgetProvider { get; }
 
-    public AttributeDictionary RootAttributes { get; } = new();
+    public JsonLdBuilder JsonLd { get; }
 
-    public AttributeDictionary BodyAttributes { get; } = new();
+    public AttributeDictionary RootAttributes { get; } = [];
+
+    public AttributeDictionary BodyAttributes { get; } = [];
 
     public virtual void AddTitleParts(IEnumerable<string> parts, bool prepend = false)
         => AddPartsInternal(ref _titleParts, parts, prepend);

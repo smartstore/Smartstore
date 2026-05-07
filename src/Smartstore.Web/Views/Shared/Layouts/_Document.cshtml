@@ -32,6 +32,9 @@
 
     <script src="~/js/smartstore.globalization.adapter.js"></script>
 
+    @* JSON-LD structured data *@
+    @Assets.JsonLd.RenderScripts()
+
     @await Component.InvokeAsync("Favicon")
 </head>
 

@@ -5,6 +5,28 @@
 @{
     var brand = Model.Brands == null ? null : Model.Brands.FirstOrDefault();
     var hasBrandImage = brand?.Image?.HasImage() ?? false;
+
+    Assets.JsonLd.AddProperty("Product", "name", Model.Name.Value);
+
+    if (Model.Sku.HasValue() && Model.ShowSku)
+    {
+        Assets.JsonLd.AddProperty("Product", "sku", Model.Sku);
+    }
+
+    if (Model.Gtin.HasValue() && Model.ShowGtin)
+    {
+        Assets.JsonLd.AddProperty("Product", "gtin", Model.Gtin);
+    }
+
+    if (Model.ManufacturerPartNumber.HasValue() && Model.ShowManufacturerPartNumber)
+    {
+        Assets.JsonLd.AddProperty("Product", "mpn", Model.ManufacturerPartNumber);
+    }
+
+    if (Model.CanonicalUrl.HasValue())
+    {
+        Assets.JsonLd.AddProperty("Product", "url", Model.CanonicalUrl);
+    }
 }
 
 <div class="pd-info pd-group">
@@ -14,6 +36,13 @@
 
     <!-- Brand -->
     <div sm-if="brand != null" class="pd-brand-block" itemprop="brand">
+        @{
+            Assets.JsonLd.AddObject("Product", "brand", new
+            {
+                type = "Brand",
+                name = brand.Name.Value
+            });
+        }
         <a class="pd-brand" asp-route="Manufacturer" asp-route-SeName="@brand.SeName" attr-aria-label='(hasBrandImage, brand.Image?.Title)'>
             @if (hasBrandImage)
             {
@@ -44,6 +73,7 @@
     <!-- Short description -->
     @if (Model.ShortDescription.Value.HasValue())
     {
+        Assets.JsonLd.AddProperty("Product", "description", Model.ShortDescription.Value.RemoveHtml());
         <div sm-language-attributes-for="Model.ShortDescription" class="pd-description" attr-itemprop='(Model.HasShortDescriptionSchemaProperty, "description")'>
             @Html.Raw(Model.ShortDescription)
         </div>

@@ -10,6 +10,11 @@ public partial interface IPageAssetBuilder
     IWidgetProvider WidgetProvider { get; }
 
     /// <summary>
+    /// Gets the JSON-LD structured data builder for the current page.
+    /// </summary>
+    JsonLdBuilder JsonLd { get; }
+
+    /// <summary>
     /// Gets the root element (html tag) attribute dictionary.
     /// </summary>
     AttributeDictionary RootAttributes { get; }

@@ -4,28 +4,23 @@
 @model ProductDetailsModel
 
 @{
-    var conditionContent = "https://schema.org/";
-
-    switch (Model.Condition)
+    var condition = Model.Condition switch
     {
-        case ProductCondition.Damaged:
-            conditionContent += "DamagedCondition";
-            break;
-        case ProductCondition.Used:
-            conditionContent += "UsedCondition";
-            break;
-        case ProductCondition.Refurbished:
-            conditionContent += "RefurbishedCondition";
-            break;
-        case ProductCondition.New:
-        default:
-            conditionContent += "NewCondition";
-            break;
-    }
+        ProductCondition.Damaged => "DamagedCondition",
+        ProductCondition.Used => "UsedCondition",
+        ProductCondition.Refurbished => "RefurbishedCondition",
+        _ => "NewCondition"
+    };
+
+    Assets.JsonLd.AddObject("Product", "offers", new
+    {
+        type = "Offer",
+        itemCondition = "https://schema.org/" + condition
+    });
 }
 
 <div class="pd-offer" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
-    <meta itemprop="itemCondition" content="@conditionContent" />
+    <meta itemprop="itemCondition" content="https://schema.org/@(condition)" />
     <link itemprop="url" href="@Url.RouteUrl("Product", new { SeName = Model.SeName }, Context.Request.Scheme)" />
     @if (!Model.Price.HidePrices || Model.Price.ShowLoginNote)
     {
