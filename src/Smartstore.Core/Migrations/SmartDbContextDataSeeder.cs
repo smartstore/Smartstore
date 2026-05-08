@@ -277,5 +277,9 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Products.RequiredProductPriceInfo",
             "<span>+ {0} <span title=\"{1}\">{2}</span></span>",
             "<span>+ {0} <span title=\"{1}\">{2}</span></span>");
+
+        builder.AddOrUpdate("Admin.Common.DefaultSetting", "Default setting", "Voreinstellung");
+
+        
     }
 }
