@@ -278,7 +278,7 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "<span>+ {0} <span title=\"{1}\">{2}</span></span>",
             "<span>+ {0} <span title=\"{1}\">{2}</span></span>");
 
-        builder.AddOrUpdate("Admin.Common.DefaultSetting", "Default setting", "Voreinstellung");
+        builder.AddOrUpdate("Common.Preset", "Preset", "Voreinstellung");
 
         
     }
