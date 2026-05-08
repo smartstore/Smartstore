@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
+using Smartstore.Json;
 using Smartstore.Http;
 
 namespace Smartstore.Core.Widgets;

@@ -12,10 +12,9 @@
         _ => "NewCondition"
     };
 
-    Assets.JsonLd.AddObject("Product", "offers", new
-    {
-        type = "Offer",
-        itemCondition = "https://schema.org/" + condition
+    Assets.JsonLd.Product.Obj("offers", "Offer", new 
+    { 
+        itemCondition = "https://schema.org/" + condition 
     });
 }
 

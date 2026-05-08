@@ -3,51 +3,57 @@
 @model IReadOnlyList<MenuItem>
 @inject IBreadcrumb Breadcrumb
 
-@{ 
+@{
     var trail = Model ?? Breadcrumb.Trail.AsReadOnly();
     if (trail == null || trail.Count == 0)
     {
         return;
     }
 
-    var itemAttrs = new AttributeDictionary();
-    itemAttrs.Add("itemscope", "");
-    itemAttrs.Add("itemprop", "itemListElement");
-    itemAttrs.Add("itemtype", "http://schema.org/ListItem");
-
     var resHomepage = T("HomePage");
+    var listItems = new List<object>(trail.Count + 1);
 }
 
 <zone name="breadcrumb_before"></zone>
 
 <nav class="breadcrumb-container d-none d-md-flex flex-wrap align-items-center mb-4" aria-label="@T("Aria.Label.Breadcrumb")">
-    <ol class="breadcrumb mb-0" itemscope itemtype="http://schema.org/BreadcrumbList">
-        <li class="breadcrumb-item" attrs="itemAttrs">
-            <a asp-route="Homepage" title="@resHomepage" itemprop="item">
-                <meta itemprop="name" content="@resHomepage">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+            <a asp-route="Homepage" title="@resHomepage">
                 <i class="fa fa-home" aria-hidden="true"></i>
                 <span class="sr-only">@resHomepage</span>
             </a>
-            <meta itemprop="position" content="1">
+            @{
+                listItems.Add(new { position = 1, name = resHomepage.Value, item = Url.RouteUrl("Homepage") });
+            }
         </li>
         @for (int i = 0; i < trail.Count - 1; i++)
         {
             var item = trail[i];
             var isLast = i == trail.Count - 1;
 
-            <li class="breadcrumb-item" attr-class='(isLast, "active")' attrs="itemAttrs">
+            <li class="breadcrumb-item" attr-class='(isLast, "active")'>
                 @if (item.HasRoute)
                 {
-                    <a href="@item.GenerateUrl(this.Url)" title="@item.Text" itemprop="item"><span itemprop="name" dir="auto">@item.Text</span></a>
-                    <meta itemprop="position" content="@(i + 2)">
+                    var url = item.GenerateUrl(this.Url);
+                    listItems.Add(new { position = i + 2, name = item.Text, item = url });
+                    <a href="@url" title="@item.Text"><span dir="auto">@item.Text</span></a>
                 }
             </li>
         }
-        <li class="breadcrumb-item active" aria-current="page" attrs="itemAttrs">
-            <span itemprop="name">@Html.Raw(trail.LastOrDefault().Text)</span>
-            <meta itemprop="position" content="@(trail.Count + 1)">
+        <li class="breadcrumb-item active" aria-current="page">
+            @{
+                var text = trail.LastOrDefault().Text;
+                listItems.Add(new { position = trail.Count + 1, name = text });
+            }
+            <span>@Html.Raw(text)</span>
         </li>
     </ol>
 </nav>
 
 <zone name="breadcrumb_after"></zone>
+
+@{
+    // JSON-LD BreadcrumbList
+    Assets.JsonLd.BreadcrumbList.Arr("itemListElement", listItems.Select(x => JsonLdFragment.Create("ListItem", x)));
+}

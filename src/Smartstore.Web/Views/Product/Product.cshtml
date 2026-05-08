@@ -11,6 +11,7 @@
     if (Model.CanonicalUrl.HasValue())
     {
         Assets.AppendCanonicalUrlParts(Model.CanonicalUrl);
+        Assets.JsonLd.Product.Prop("url", Model.CanonicalUrl);
     }
 }
 

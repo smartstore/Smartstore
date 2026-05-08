@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.FileProviders;
 using Smartstore.Core.Seo;
+using Smartstore.Json;
 
 namespace Smartstore.Core.Widgets;
 
