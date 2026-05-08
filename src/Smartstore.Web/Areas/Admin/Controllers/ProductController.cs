@@ -2054,6 +2054,8 @@ namespace Smartstore.Admin.Controllers
                     model.Attributes.Add(attributeModel);
                 }
             }
+            
+            ViewBag.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
         }
 
         private async Task SaveFilteredAttributesAsync(ProductBundleItem bundleItem)

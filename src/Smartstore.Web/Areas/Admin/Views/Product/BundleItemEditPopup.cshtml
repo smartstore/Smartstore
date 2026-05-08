@@ -26,6 +26,8 @@
 
     <script>
 		$(function() {
+            Smartstore.Admin.syncAmountPostfix();
+
 			@foreach (var attr in Model.Attributes)
 			{
 				<text>
@@ -106,7 +108,7 @@
                             <smart-label asp-for="Discount" />
                         </div>
                         <div class="adminData">
-                            <input asp-for="Discount" />
+                            <editor asp-for="Discount" class="sync-postfix-amount" sm-postfix="@ViewBag.PrimaryStoreCurrencyCode" />
                             <span asp-validation-for="Discount"></span>
                         </div>
                     </div>
@@ -115,7 +117,7 @@
                             <smart-label asp-for="DiscountPercentage" />
                         </div>
                         <div class="adminData">
-                            <input asp-for="DiscountPercentage" />
+                            <input asp-for="DiscountPercentage" class="sync-postfix-percent" />
                             <span asp-validation-for="DiscountPercentage"></span>
                         </div>
                     </div>

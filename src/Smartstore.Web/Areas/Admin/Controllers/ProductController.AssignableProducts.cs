@@ -383,7 +383,7 @@ namespace Smartstore.Admin.Controllers
             var model = new GridModel<ProductModel.BundleItemModel>();
             var bundleItems = await _db.ProductBundleItem
                 .AsNoTracking()
-                .ApplyBundledProductsFilter(new[] { productId }, true)
+                .ApplyBundledProductsFilter([productId], true)
                 .Include(x => x.Product)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
@@ -439,7 +439,7 @@ namespace Smartstore.Admin.Controllers
 
             var maxDisplayOrder = await _db.ProductBundleItem
                 .AsNoTracking()
-                .ApplyBundledProductsFilter(new[] { productId }, true)
+                .ApplyBundledProductsFilter([productId], true)
                 .OrderByDescending(x => x.DisplayOrder)
                 .Select(x => x.DisplayOrder)
                 .FirstOrDefaultAsync();
@@ -447,7 +447,7 @@ namespace Smartstore.Admin.Controllers
             foreach (var product in products.Where(x => x.CanBeBundleItem()))
             {
                 var attributes = await _db.ProductVariantAttributes
-                    .ApplyProductFilter(new[] { product.Id })
+                    .ApplyProductFilter([product.Id])
                     .ToListAsync();
 
                 if (attributes.Count > 0 && attributes.Any(a => a.ProductVariantAttributeValues.Any(v => v.ValueType == ProductVariantAttributeValueType.ProductLinkage)))
@@ -487,12 +487,8 @@ namespace Smartstore.Admin.Controllers
                 .Include(x => x.BundleProduct)
                 .Include(x => x.Product)
                 .Include(x => x.AttributeFilters)
-                .FindByIdAsync(id, false);
-
-            if (bundleItem == null)
-            {
-                throw new ArgumentException("No bundle item found with the specified id");
-            }
+                .FindByIdAsync(id, false) 
+                ?? throw new ArgumentException("No bundle item found with the specified id");
 
             var model = await MapperFactory.MapAsync<ProductBundleItem, ProductBundleItemModel>(bundleItem);
             await PrepareBundleItemEditModelAsync(model, bundleItem, btnId, formId);
