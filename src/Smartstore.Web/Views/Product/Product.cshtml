@@ -11,8 +11,21 @@
     if (Model.CanonicalUrl.HasValue())
     {
         Assets.AppendCanonicalUrlParts(Model.CanonicalUrl);
-        Assets.JsonLd.Product.Prop("url", Model.CanonicalUrl);
     }
+
+    // INFO: Not "showing" this data in the UI does not mean it's not useful for bots. We can add it to the JSON-LD anyway.
+    Assets.JsonLd.Product.Merge(new
+    {
+        name = Model.Name.Value,
+        sku = Model.Sku,
+        gtin = Model.Gtin,
+        mpn = Model.ManufacturerPartNumber,
+        url = Model.CanonicalUrl.NullEmpty(),
+        weight = Model.Weight.NullEmpty(),
+        width = Model.Width.NullEmpty(),
+        depth = Model.Length.NullEmpty(),
+        height = Model.Height.NullEmpty()
+    });
 }
 
 <partial name="MetaProperties" model="Model.MetaProperties" />

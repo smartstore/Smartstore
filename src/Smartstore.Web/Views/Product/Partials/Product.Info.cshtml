@@ -5,13 +5,6 @@
 @{
     var brand = Model.Brands == null ? null : Model.Brands.FirstOrDefault();
     var hasBrandImage = brand?.Image?.HasImage() ?? false;
-
-    // INFO: Not "showing" this data in the UI does not mean it's not useful for bots. We can add it to the JSON-LD anyway.
-    Assets.JsonLd.Product
-        .Prop("name", Model.Name.Value)
-        .Prop("sku", Model.Sku)
-        .Prop("gtin", Model.Gtin)
-        .Prop("mpn", Model.ManufacturerPartNumber);
 }
 
 <div class="pd-info pd-group">

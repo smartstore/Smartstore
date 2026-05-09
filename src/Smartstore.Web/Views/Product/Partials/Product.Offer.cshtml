@@ -3,24 +3,7 @@
 
 @model ProductDetailsModel
 
-@{
-    var condition = Model.Condition switch
-    {
-        ProductCondition.Damaged => "DamagedCondition",
-        ProductCondition.Used => "UsedCondition",
-        ProductCondition.Refurbished => "RefurbishedCondition",
-        _ => "NewCondition"
-    };
-
-    Assets.JsonLd.Product.Obj("offers", "Offer", new 
-    { 
-        itemCondition = "https://schema.org/" + condition 
-    });
-}
-
-<div class="pd-offer" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
-    <meta itemprop="itemCondition" content="https://schema.org/@(condition)" />
-    <link itemprop="url" href="@Url.RouteUrl("Product", new { SeName = Model.SeName }, Context.Request.Scheme)" />
+<div class="pd-offer">
     @if (!Model.Price.HidePrices || Model.Price.ShowLoginNote)
     {
         if (Model.AddToCart.CustomerEntersPrice)
@@ -68,29 +51,6 @@
     </div>
 
     <partial name="Product.Offer.Actions.Misc" model="Model" />
-    
-    @foreach (var shipping in Model.ShippingDetails)
-    {
-        <div itemprop="shippingDetails" itemscope itemtype="https://schema.org/OfferShippingDetails">
-            <div itemprop="shippingDestination" itemscope itemtype="https://schema.org/DefinedRegion">
-                @foreach (var countryCode in shipping.CountryCodes)
-                {
-                    <meta itemprop="addressCountry" content="@countryCode" />
-                }
-            </div>
-            <div itemprop="shippingRate" itemscope itemtype="https://schema.org/MonetaryAmount">
-                <meta itemprop="value" content="@RoundingHelper.Round(shipping.ShippingCosts).ToStringInvariant()" />
-                <meta itemprop="currency" content="@shipping.CurrencyCode" />
-            </div>
-            <div sm-if="shipping.TransitMinDays != null || shipping.TransitMaxDays != null" itemprop="deliveryTime" itemscope itemtype="https://schema.org/ShippingDeliveryTime">
-                <div itemprop="transitTime" itemscope itemtype="https://schema.org/QuantitativeValue">
-                    <meta sm-if="shipping.TransitMinDays != null" itemprop="minValue" content="@shipping.TransitMinDays" />
-                    <meta sm-if="shipping.TransitMaxDays != null" itemprop="maxValue" content="@shipping.TransitMaxDays" />
-                    <meta itemprop="unitCode" content="DAY" />
-                </div>
-            </div>
-        </div>
-    }
 </div>
 
 <zone name="productdetail_offer_after" />
@@ -116,3 +76,66 @@
         }
     });
 </script>
+
+@{
+    // JSON-LD Offer
+    var condition = Model.Condition switch
+    {
+        ProductCondition.Damaged => "DamagedCondition",
+        ProductCondition.Used => "UsedCondition",
+        ProductCondition.Refurbished => "RefurbishedCondition",
+        _ => "NewCondition"
+    };
+
+    var offer = JsonLdFragment.Create("Offer", new
+    {
+        itemCondition = "https://schema.org/" + condition,
+        url = Url.RouteUrl("Product", new { SeName = Model.SeName }, Context.Request.Scheme)
+    });
+
+    // ShippingDetails
+    if (Model.ShippingDetails.Count > 0)
+    {
+        var shippingDetails = new List<object>(Model.ShippingDetails.Count);
+
+        // INFO: The previous microdata structure was invalid --> one shippingDetail per Country is valid.
+        foreach (var shipping in Model.ShippingDetails)
+            foreach (var countryCode in shipping.CountryCodes)
+            {
+                var detail = JsonLdFragment.Create("OfferShippingDetails", new
+                {
+                    shippingDestination = new
+                    {
+                        type = "DefinedRegion",
+                        addressCountry = countryCode
+                    },
+                    shippingRate = new
+                    {
+                        type = "MonetaryAmount",
+                        value = RoundingHelper.Round(shipping.ShippingCosts),
+                        currency = shipping.CurrencyCode
+                    }
+                });
+
+                if (shipping.TransitMinDays != null || shipping.TransitMaxDays != null)
+                {
+                    detail.Obj("deliveryTime", "ShippingDeliveryTime", new
+                    {
+                        transitTime = new
+                        {
+                            type = "QuantitativeValue",
+                            minValue = shipping.TransitMinDays,
+                            maxValue = shipping.TransitMaxDays,
+                            unitCode = "DAY"
+                        }
+                    });
+                }
+
+                shippingDetails.Add(detail);
+            }
+
+        offer.Arr("shippingDetails", shippingDetails);
+    }
+
+    Assets.JsonLd.Product.Obj("offers", offer);
+}

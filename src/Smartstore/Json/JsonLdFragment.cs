@@ -3,6 +3,7 @@
 using System.Collections;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using Smartstore.Json.Converters;
 
 namespace Smartstore.Json;
@@ -10,10 +11,16 @@ namespace Smartstore.Json;
 /// <summary>
 /// Represents a single JSON-LD fragment for one schema.org @type.
 /// Supports a fluent API for adding properties, nested objects, and arrays.
-/// All Add* methods use first-write-wins semantics for conflicting keys.
+/// All methods use first-write-wins semantics for conflicting keys.
 /// </summary>
 public class JsonLdFragment
 {
+    private static readonly JsonSerializerOptions _jsonOptions = new()
+    {
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        Converters = { new JsonLdFragmentConverter() }
+    };
+
     private readonly JsonObject _data;
 
     private JsonLdFragment(string type, bool withContext = false)
@@ -25,7 +32,7 @@ public class JsonLdFragment
     }
 
     /// <summary>
-    /// Gets the type identifier.
+    /// Gets the @type identifier.
     /// </summary>
     public string Type { get; }
 
@@ -33,19 +40,16 @@ public class JsonLdFragment
     /// Explicitly converts this <see cref="JsonLdFragment"/> to its underlying <see cref="JsonObject"/>.
     /// Useful when a raw <see cref="JsonObject"/> is required, e.g. for <c>Obj(string key, JsonObject raw)</c>.
     /// </summary>
-    public static explicit operator JsonObject(JsonLdFragment obj) => obj._data;
-
-    private static readonly JsonSerializerOptions _jsonOptions = new()
-    {
-        Converters = { new JsonLdFragmentConverter() }
-    };
+    public static explicit operator JsonObject(JsonLdFragment obj) 
+        => obj._data;
 
     /// <summary>
     /// Creates a new top-level <see cref="JsonLdFragment"/> that includes <c>"@context": "https://schema.org/"</c>
     /// as the first property, followed by <c>"@type"</c>. Use this for root fragments rendered directly
     /// as JSON-LD script blocks.
     /// </summary>
-    internal static JsonLdFragment CreateTopLevel(string type) => new(type, withContext: true);
+    internal static JsonLdFragment CreateTopLevel(string type) 
+        => new(type, withContext: true);
 
     /// <summary>
     /// Creates a new <see cref="JsonLdFragment"/> with the given schema.org @type
@@ -212,15 +216,15 @@ public class JsonLdFragment
         }
     }
 
-    /// <param name="type">The schema.org @type of the nested object (e.g., "Offer", "Brand").</param>
     /// <param name="key">The property name to nest under (e.g., "offers", "brand").</param>
+    /// <param name="type">The schema.org @type of the nested object (e.g., "Offer", "Brand").</param>
     /// <param name="properties">Optional additional properties as an anonymous object or POCO.</param>
     public JsonLdFragment Obj(string key, string type, object? properties = null)
     {
         Guard.NotEmpty(key);
         Guard.NotEmpty(type);
 
-        SetOrMerge(_data, key, (JsonObject)JsonLdFragment.Create(type, properties));
+        SetOrMerge(_data, key, Create(type, properties).AsJsonObject());
         return this;
     }
 
@@ -233,7 +237,7 @@ public class JsonLdFragment
         Guard.NotEmpty(key);
         Guard.NotNull(nested);
 
-        SetOrMerge(_data, key, ((JsonObject)nested).DeepClone());
+        SetOrMerge(_data, key, nested.AsJsonObject().DeepClone());
         return this;
     }
 
