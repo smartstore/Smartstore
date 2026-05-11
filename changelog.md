@@ -19,6 +19,10 @@
   - New HTML text optimization command: **Organize**: Improves document structure and cleans up HTML markup.
   - #1445 Create a new image using the Media Manager.
   - Generate image: Quality levels (low, medium, or high) can now be specified, but only if the provider supports this feature.
+- **Required products**
+  - Automatically added required products can no longer be removed separately from the cart.
+  - Required products can now keep their quantity in sync with the main product.
+  - Added a setting to show prices of automatically added required products below the main product price.
 - #1469 Show password policy and live validation on customer registration.
 - #1141 Enable reward points to be awarded for subscribing to the newsletter.
 - Topics: added an option to disable the narrow prose container and render non-widget topic pages in full width (default remains prose/narrow layout).
