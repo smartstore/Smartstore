@@ -670,7 +670,7 @@ public partial class ShoppingCartValidator : IShoppingCartValidator
             return true;
         }
 
-        var requiredProductIds = product.ParseRequiredProductIds();
+        var requiredProductIds = product.RequiredProductIdList;
         if (requiredProductIds.Length == 0)
         {
             return true;
@@ -720,7 +720,7 @@ public partial class ShoppingCartValidator : IShoppingCartValidator
 
         foreach (var parentItem in parentItems)
         {
-            var requiredProductsIds = parentItem.Item.Product.ParseRequiredProductIds();
+            var requiredProductsIds = parentItem.Item.Product.RequiredProductIdList;
             if (requiredProductsIds.Contains(requiredProduct.Id))
             {
                 var expectedQuantity = parentItem.Item.Quantity * requiredProduct.QuantityPerParentUnit;

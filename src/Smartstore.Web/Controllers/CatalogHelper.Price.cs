@@ -156,7 +156,7 @@ public partial class CatalogHelper
             && product.RequireOtherProducts
             && product.AutomaticallyAddRequiredProducts)
         {
-            var requiredProductIds = product.ParseRequiredProductIds();
+            var requiredProductIds = product.RequiredProductIdList;
             if (!requiredProductIds.IsNullOrEmpty())
             {
                 var rpCalcOptions = _priceCalculationService.CreateDefaultOptions(false, ctx.Customer, ctx.Currency, ctx.BatchContext);

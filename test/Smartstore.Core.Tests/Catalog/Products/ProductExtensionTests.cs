@@ -31,7 +31,7 @@ namespace Smartstore.Core.Tests.Catalog.Products
                 RequiredProductIds = "1, 4,7 ,a,"
             };
 
-            var ids = product.ParseRequiredProductIds();
+            var ids = product.RequiredProductIdList;
             ids.Length.ShouldEqual(3);
             ids[0].ShouldEqual(1);
             ids[1].ShouldEqual(4);

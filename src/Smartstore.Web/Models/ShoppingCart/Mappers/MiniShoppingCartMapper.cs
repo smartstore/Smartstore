@@ -138,7 +138,7 @@ namespace Smartstore.Web.Models.Cart
             var requiredProducts = new Dictionary<int, OrganizedShoppingCartItem>();
             foreach (var item in from.Items.Where(x => x.Item.Product.RequireOtherProducts))
             {
-                var requiredProductIds = item.Item.Product.ParseRequiredProductIds();
+                var requiredProductIds = item.Item.Product.RequiredProductIdList;
                 requiredProductIds.Each(id => requiredProducts[id] = item);
             }
 

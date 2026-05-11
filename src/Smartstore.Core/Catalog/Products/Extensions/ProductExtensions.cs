@@ -247,11 +247,7 @@ namespace Smartstore.Core.Catalog.Products
             return allowedQuantities.Length > 0 ? allowedQuantities.Last() : product.OrderMaximumQuantity;
         }
 
-        /// <summary>
-        /// Gets a list of required product identifiers.
-        /// </summary>
-        /// <param name="product">Product entity.</param>
-        /// <returns>List of required product identifiers.</returns>
+        [Obsolete("Use 'Product.RequiredProductIdList' instead.")]
         public static int[] ParseRequiredProductIds(this Product product)
         {
             Guard.NotNull(product);

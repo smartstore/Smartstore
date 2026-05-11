@@ -105,6 +105,9 @@ namespace Smartstore.Core.Catalog.Products
     [DebuggerDisplay("{Id} - {Name}")]
     public partial class Product : EntityWithDiscounts, IAuditable, ISoftDeletable, ILocalizedEntity, ISlugSupported, IAclRestricted, IStoreRestricted, IMergedData
     {
+        private string _requiredProductIds;
+        private int[] _requiredProductIdList;
+
         #region Static
 
         private static readonly FrozenSet<string> _visibilityAffectingProductProps = new string[]
@@ -352,7 +355,44 @@ namespace Smartstore.Core.Catalog.Products
         /// Gets or sets the required product identifiers (comma separated).
         /// </summary>
         [StringLength(1000)]
-        public string RequiredProductIds { get; set; }
+        public string RequiredProductIds
+        {
+            get => _requiredProductIds;
+            set
+            {
+                if (_requiredProductIds != value)
+                {
+                    _requiredProductIds = value;
+                    _requiredProductIdList = null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the required product identifiers as an array.
+        /// It is the split equivalent of <see cref="RequiredProductIds"/>.
+        /// </summary>
+        [NotMapped, IgnoreDataMember]
+        public int[] RequiredProductIdList
+        {
+            get => _requiredProductIdList ??= RequiredProductIds
+                    .SplitSafe(',', StringSplitOptions.TrimEntries)
+                    .Select(x => int.TryParse(x, out var id) ? (int?)id : null)
+                    .Where(x => x.HasValue)
+                    .Select(x => x.Value)
+                    .ToArray();
+            set
+            {
+                var newIds = value ?? [];
+                var newString = string.Join(',', newIds);
+
+                if (_requiredProductIds != newString)
+                {
+                    _requiredProductIds = newString;
+                    _requiredProductIdList = newIds;
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether required products are automatically added to the cart.

@@ -747,7 +747,7 @@ public partial class ShoppingCartService : IShoppingCartService
 
     protected virtual async Task AddRequiredProductsAsync(ShoppingCart cart, AddToCartContext ctx)
     {
-        var productIds = ctx.Product.ParseRequiredProductIds();
+        var productIds = ctx.Product.RequiredProductIdList;
         if (productIds.IsNullOrEmpty())
         {
             return;
@@ -824,7 +824,7 @@ public partial class ShoppingCartService : IShoppingCartService
     {
         if (product.RequireOtherProducts)
         {
-            var requiredProductsIds = product.ParseRequiredProductIds();
+            var requiredProductsIds = product.RequiredProductIdList;
             var requiredItems = cart.Items
                 .Where(x => requiredProductsIds.Contains(x.Item.Product.Id) && x.Item.Product.QuantityPerParentUnit > 0)
                 .ToList();
