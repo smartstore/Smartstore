@@ -53,7 +53,7 @@ public class JsonLdBuilder
     public JsonLdFragment CollectionPage
     => this["CollectionPage"];
 
-    /// <summary>Gets or creates the <c>CollectionPage</c> fragment.</summary>
+    /// <summary>Gets or creates the <c>ItemList</c> fragment.</summary>
     public JsonLdFragment ItemList
         => this["ItemList"];
 

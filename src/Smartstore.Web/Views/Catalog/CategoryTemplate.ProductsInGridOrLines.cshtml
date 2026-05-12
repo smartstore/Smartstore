@@ -1,5 +1,7 @@
 ﻿@using Smartstore.Web.Models.Catalog
 @using Smartstore.Core.Catalog
+@using Smartstore.Web.Infrastructure.Hooks
+@using Microsoft.AspNetCore.Http.Extensions
 
 @model CategoryModel
 
@@ -19,7 +21,9 @@
 
     async Task SubCategoryList()
     {
-        <div class="artlist artlist-grid artlist-4-cols artlist-boxed artlist-sub-categories@(Model.SubCategoryDisplayType == SubCategoryDisplayType.AboveProductList ? " hide-on-active-filter" : "")" role="list">
+        <div class="artlist artlist-grid artlist-4-cols artlist-boxed artlist-sub-categories" 
+             attr-class='(Model.SubCategoryDisplayType == SubCategoryDisplayType.AboveProductList, "hide-on-active-filter")'
+             role="list">
             @foreach (var item in Model.SubCategories)
             {
                 var image = item.Image;
@@ -52,9 +56,9 @@
     <partial name="Search.Filters" model="Model.Products" />
 </widget>
 
-<div class="page category-page">
+<div class="page category-page" itemscope itemtype="https://schema.org/CollectionPage">
     <div class="page-title">
-        <h1 sm-language-attributes-for="categoryName" class="h3">
+        <h1 sm-language-attributes-for="categoryName" class="h3" itemprop="name">
             @Html.Raw(categoryName)
         </h1>
         @if (Model.SearchResult.TotalHitsCount > 0)
@@ -68,7 +72,10 @@
         @* Description *@
         @if (Model.Description.Value.HasValue())
         {
-            <div sm-language-attributes-for="Model.Description" class="category-description lead hide-on-active-filter html-editor-content">
+            <div sm-language-attributes-for="Model.Description" 
+                 id="category-description-top"
+                 class="category-description lead hide-on-active-filter html-editor-content" 
+                 itemprop="description">
                 <collapsed-content>
                     @Html.Raw(Model.Description)
                 </collapsed-content>
@@ -91,7 +98,7 @@
                 <div class="heading heading-center">
                     <h3 id="featured-products-title" class="heading-title fs-h1">@T("Products.FeaturedProducts")</h3>
                 </div>
-                <div class="block-body pt-3 artlist-no-separators">
+                <div id="featured-product-list" class="block-body pt-3 artlist-no-separators">
                     <partial name="Product.List" model="Model.FeaturedProducts" />
                 </div>
             </div>
@@ -100,7 +107,7 @@
         @* Product list *@
         <zone name="categorydetails_before_product_list" />
 
-        <div class="product-list-container">
+        <div id="main-product-list" class="product-list-container">
             @if (Model.Products != null)
             {
                 <partial name="Product.List" model="Model.Products" />
@@ -128,3 +135,34 @@
         <zone name="categorydetails_bottom" />
     </div>
 </div>
+
+@{
+    // Build JSON-LD for the category CollectionPage including featured and regular product lists.
+    var url = Model.CanonicalUrl.NullEmpty();
+
+    Assets.JsonLd.CollectionPage
+        .Prop("@id", url + "#webpage")
+        .Prop("url", url)
+        .Prop("name", @categoryName);
+
+    if (Model.Products != null && Model.Products.Items.Count > 0)
+    {
+        Assets.JsonLd.CollectionPage.Prop("mainEntity", new Dictionary<string, string> { ["@id"] = url + "#main-product-list" });
+
+        JsonLdHelper.BuildProductItemList(Assets.JsonLd, Model.Products.Items, @categoryName, url + "#main-product-list", url);
+    }
+
+    if (Model.Description.Value.HasValue())
+    {
+        Assets.JsonLd.CollectionPage.Prop("description", new Dictionary<string, string> { ["@id"] = url + "#category-description-top" });
+    }
+
+    if (Model.FeaturedProducts != null && Model.FeaturedProducts.Items.Count > 0)
+    {
+        Assets.JsonLd.CollectionPage.Prop("hasPart", new Dictionary<string, string> { ["@id"] = url + "#featured-product-list" });
+
+        // TODO: (jsonld) This also needs to build json ld but currently we have no way of distinguishing featured vs regular products in the list.
+        // Shortcoming of JsonLdBuilder
+        // JsonLdHelper.BuildProductItemList(Assets.JsonLd, Model.Products.Items, @categoryName, url);
+    }
+}
