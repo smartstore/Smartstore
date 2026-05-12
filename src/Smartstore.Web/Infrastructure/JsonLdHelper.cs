@@ -31,6 +31,8 @@ public static class JsonLdHelper
 
         var position = 1;
 
+        var uri = new Uri(url);
+
         builder.ItemList
             .Prop("@id", listId)
             .Prop("name", listName)
@@ -39,9 +41,9 @@ public static class JsonLdHelper
                 .Obj("item", JsonLdFragment.Create("Product")
                     .Prop("name", item.Name)
                     .Prop("description", item.ShortDescription)
-                    .Prop("url", new Uri(new Uri(url), item.DetailUrl))
+                    .Prop("url", new Uri(uri, item.DetailUrl))
                     .Prop("sku", item.Sku)
-                    .Prop("image", new Uri(new Uri(url), item.Image?.Url))
+                    .Prop("image", new Uri(uri, item.Image?.Url))
                     .Obj("brand", JsonLdFragment.Create("Brand")
                         .Prop("name", item.Brand?.Name))
                     .Obj("offers", JsonLdFragment.Create("Offer")

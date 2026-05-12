@@ -25,6 +25,7 @@ public class JsonLdFragment
 
     private readonly JsonObject _data;
 
+    // TODO: (jsonld) (prio low) Context url should be without ending / to be conform to spec.
     private JsonLdFragment(string type, bool withContext = false)
     {
         Type = type;
