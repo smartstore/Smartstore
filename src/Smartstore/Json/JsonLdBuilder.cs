@@ -49,6 +49,14 @@ public class JsonLdBuilder
     public JsonLdFragment Product 
         => this["Product"];
 
+    /// <summary>Gets or creates the <c>CollectionPage</c> fragment.</summary>
+    public JsonLdFragment CollectionPage
+    => this["CollectionPage"];
+
+    /// <summary>Gets or creates the <c>CollectionPage</c> fragment.</summary>
+    public JsonLdFragment ItemList
+        => this["ItemList"];
+
     /// <summary>Gets or creates the <c>BreadcrumbList</c> fragment.</summary>
     public JsonLdFragment BreadcrumbList 
         => this["BreadcrumbList"];
