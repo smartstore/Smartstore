@@ -192,12 +192,21 @@ namespace Smartstore.Web.Controllers
                 });
             });
 
-            var country = await Services.Cache.GetAsync($"jsonld:newsfeed{_companySettings.CountryId}", async ctx =>
+            string countryCode = null;
+            if (_companySettings.CountryId != 0)
             {
-                ctx.ExpiresIn(TimeSpan.FromHours(4));
+                // TODO: (jsonld) Is caching really necessary here? Note, Country is a CacheableEntity.
+                countryCode = await Services.Cache.GetAsync($"jsonld:country{_companySettings.CountryId}", async ctx =>
+                {
+                    ctx.ExpiresIn(TimeSpan.FromHours(4));
 
-                return await _db.Countries.FindByIdAsync(_companySettings.CountryId);
-            });
+                    var country = await _db.Countries
+                        .Select(x => new { x.Id, x.TwoLetterIsoCode })
+                        .FirstOrDefaultAsync(x => x.Id == _companySettings.CountryId);
+
+                    return country?.TwoLetterIsoCode.NullEmpty();
+                });
+            }
 
             // TODO: (jsonld) Only add values that are actually set.
             var contactPoint = JsonLdFragment.Create("ContactPoint", new
@@ -205,7 +214,7 @@ namespace Smartstore.Web.Controllers
                 telephone = _contactDataSettings.HotlineTelephoneNumber ?? _contactDataSettings.CompanyTelephoneNumber,
                 email = _contactDataSettings.ContactEmailAddress,
                 contactType = "customer service",
-                areaServed = country?.TwoLetterIsoCode
+                areaServed = countryCode
             });
 
             var address = JsonLdFragment.Create("PostalAddress", new
@@ -213,10 +222,8 @@ namespace Smartstore.Web.Controllers
                 streetAddress = _companySettings.Street,
                 addressLocality = _companySettings.City,
                 postalCode = _companySettings.ZipCode,
-                addressCountry = country?.TwoLetterIsoCode
+                addressCountry = countryCode
             });
-
-            var sameAs = new List<string>();
 
             var links = new[]
             {
@@ -236,7 +243,7 @@ namespace Smartstore.Web.Controllers
                 _socialSettings.BehanceLink
             };
 
-            sameAs.AddRange(links.Where(x => x.HasValue()));
+            var sameAs = new List<string>(links.Where(x => x.HasValue()));
 
             _assetBuilder.JsonLd.Organization
                 .Prop("@id", storeUrl + "#organization")
