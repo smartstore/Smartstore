@@ -15,6 +15,8 @@ namespace Smartstore.Json;
 /// </summary>
 public class JsonLdFragment
 {
+    private static readonly string[] _propertiesToNormalize = ["type", "id"];
+
     private static readonly JsonSerializerOptions _jsonOptions = new()
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
@@ -73,7 +75,7 @@ public class JsonLdFragment
             var jsonObj = JsonSerializer.SerializeToNode(properties, _jsonOptions)?.AsObject();
             if (jsonObj != null)
             {
-                NormalizeTypeProperty(jsonObj);
+                NormalizePropertyNames(jsonObj);
                 foreach (var (key, value) in jsonObj)
                 {
                     // @type is already set in the constructor; skip any accidental override
@@ -183,7 +185,7 @@ public class JsonLdFragment
         var jsonObj = JsonSerializer.SerializeToNode(properties, _jsonOptions)?.AsObject();
         if (jsonObj != null)
         {
-            NormalizeTypeProperty(jsonObj);
+            NormalizePropertyNames(jsonObj);
             MergeInto(_data, jsonObj, overwrite);
         }
         return this;
@@ -251,7 +253,7 @@ public class JsonLdFragment
         Guard.NotNull(raw);
 
         var clone = raw.DeepClone().AsObject();
-        NormalizeTypeProperty(clone);
+        NormalizePropertyNames(clone);
         SetOrMerge(_data, key, clone);
         return this;
     }
@@ -284,7 +286,7 @@ public class JsonLdFragment
                 else if (item != null)
                 {
                     var node = JsonSerializer.SerializeToNode(item, _jsonOptions);
-                    if (node is JsonObject nodeObj) NormalizeTypeProperty(nodeObj);
+                    if (node is JsonObject nodeObj) NormalizePropertyNames(nodeObj);
                     jsonArray.Add(node);
                 }
             }
@@ -294,18 +296,23 @@ public class JsonLdFragment
     }
 
     /// <summary>
-    /// Recursively normalizes <c>"type"</c> to <c>"@type"</c> and moves it to index 0 so it appears
-    /// before all other properties. C# anonymous objects cannot define "@"-prefixed keys,
+    /// Recursively normalizes <c>"type"</c> to <c>"@type"</c> and <c>"id"</c> to <c>"@id"</c> 
+    /// and moves them to index 0 so they appear before all other properties. C# anonymous objects cannot define "@"-prefixed keys,
     /// so callers use <c>type = "..."</c> as a convention.
     /// </summary>
-    private static void NormalizeTypeProperty(JsonObject obj)
+    private static void NormalizePropertyNames(JsonObject obj)
     {
-        if (obj.TryGetPropertyValue("type", out var typeValue))
+        foreach (var name in _propertiesToNormalize)
         {
-            obj.Remove("type");
-            if (!obj.ContainsKey("@type"))
+            if (obj.TryGetPropertyValue(name, out var value))
             {
-                obj.Insert(0, "@type", typeValue);
+                obj.Remove(name);
+
+                var newName = "@" + name;
+                if (!obj.ContainsKey(newName))
+                {
+                    obj.Insert(0, newName, value);
+                }
             }
         }
 
@@ -313,13 +320,13 @@ public class JsonLdFragment
         {
             if (value is JsonObject nested)
             {
-                NormalizeTypeProperty(nested);
+                NormalizePropertyNames(nested);
             }
             else if (value is JsonArray array)
             {
                 foreach (var item in array)
                 {
-                    if (item is JsonObject nestedItem) NormalizeTypeProperty(nestedItem);
+                    if (item is JsonObject nestedItem) NormalizePropertyNames(nestedItem);
                 }
             }
         }
