@@ -33,7 +33,10 @@
                 ? "InStock" 
                 : (Model.IsAvailable ? "InStock" : "SoldOut"));
 
-        <meta itemprop="availability" content="https://schema.org/@availability" />
+        Assets.JsonLd.Product.Obj("offers", JsonLdFragment.Create("Offer", new
+        {
+            availability = "https://schema.org/" + availability
+        }));
     }
 
     if (!showAttributes)

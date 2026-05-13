@@ -5,6 +5,7 @@
 <script src="~/js/public.reviews.js" sm-target-zone="scripts"></script>
 
 @{
+    // INFO: No JsonLd here. It could blow up the site. So we stay on microdata in this case.
     if (Model.Items.Count == 0)
     {
         <p class="text-muted">@T("Reviews.Empty")</p>
@@ -40,7 +41,7 @@
              aria-labelledby="review-title-@id"
              itemscope
              attr-itemprop='(!Model.IsReviewsDetailPage, "review")'
-             attr-itemtype='(!Model.IsReviewsDetailPage, "http://schema.org/Review")'>
+             attr-itemtype='(!Model.IsReviewsDetailPage, "https://schema.org/Review")'>
             <div class="review-title">
                 <div role="img" 
                      class="rating" 
@@ -50,6 +51,8 @@
                      aria-label="@T("Aria.Label.Rating", @review.Rating, string.Empty)">
                     <div style="width: @(ratingPercent)%"></div>
                     <meta itemprop="ratingValue" content="@review.Rating" />
+                    <meta itemprop="bestRating" content="5" />
+                    <meta itemprop="worstRating" content="1" />
                 </div>
                 <h4 id="review-title-@id" itemprop="name">@review.Title</h4>
             </div>

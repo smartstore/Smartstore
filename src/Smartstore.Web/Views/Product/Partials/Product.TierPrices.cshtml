@@ -14,6 +14,14 @@
     {
         return;
     }
+
+    Assets.JsonLd.Product
+        .Obj("offers", JsonLdFragment.Create("Offer")
+            .Arr("priceSpecification", Model.Take(200).Select(x => JsonLdFragment.Create("UnitPriceSpecification")
+                .Prop("price", x.Price.Amount.ToStringInvariant())
+                .Prop("priceCurrency", x.Price.Currency.CurrencyCode)
+                .Obj("eligibleQuantity", JsonLdFragment.Create("QuantitativeValue").Prop("minValue", x.Quantity))
+            )));
 }
 
 <div class="pd-tierprices pd-group" role="region" aria-labelledby="pd-tierprices-title">
@@ -21,7 +29,7 @@
         @Html.Raw(T("Products.TierPrices"))
     </h6>
     <div class="table-responsive">
-        <table class="table table-bordered table-sm table-tierprices@(Model.Count > 5 ? " d-block" : "")">
+        <table class="table table-bordered table-sm table-tierprices" attr-class='(Model.Count > 5, "d-block")'>
             <caption class="sr-only">@Html.Raw(T("Products.TierPrices"))</caption>
             <thead>
                 <tr>

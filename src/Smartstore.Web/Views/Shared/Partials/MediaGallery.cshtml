@@ -17,7 +17,7 @@
     <div class="gal-nav-cell" attr-class='(Model.Files.Count <= 1, "gal-nav-hidden")'>
         <div class="gal-nav">
             <div class="gal-list">
-                <div class="gal-track" role="listbox" aria-orientation="vertical" itemscope itemtype="http://schema.org/ImageGallery" aria-label="@T("Aria.Label.MediaGallery")">
+                <div class="gal-track" role="listbox" aria-orientation="vertical" itemscope itemtype="https://schema.org/ImageGallery" aria-label="@T("Aria.Label.MediaGallery")">
                     @for (int i = 0; i < Model.Files.Count; i++)
                     {
                         var file = Model.Files[i];
@@ -36,7 +36,7 @@
                             picTitle = file.TitleAttribute;
                         }
 
-                        <div class="gal-item" itemprop="associatedMedia" itemscope itemtype="http://schema.org/@(isVideo ? "Video" : "Image")Object">
+                        <div class="gal-item" itemprop="associatedMedia" itemscope itemtype="https://schema.org/@(isVideo ? "Video" : "Image")Object">
                             <a class="gal-item-viewport"
                                itemprop="contentUrl"
                                href="@file.GetUrl()"
@@ -50,13 +50,6 @@
                                role="option" 
                                tabindex="@(i == 0 ? "0" : "-1")" 
                                aria-selected="@(i == 0 ? "true" : "false")">
-                                @if (isVideo)
-                                {
-                                    <meta itemprop="thumbnailURL" content="@file.GetUrl(MediaSettings.ThumbnailSizeMd)" />
-                                    <meta itemprop="embedURL" content="@file.GetUrl()" />
-                                    <meta itemprop="name" content="@linkTitle" />
-                                    <meta itemprop="uploadDate" content="@file.CreatedOn.ToString("u")" />
-                                }
                                 <media sm-file="file" sm-size="Model.ThumbSize" class="gal-item-content" alt="@picAlt" title="@picTitle" />
                             </a>
                         </div>

@@ -2,6 +2,29 @@
 
 @model MediaGalleryModel
 
+@{
+    var baseUrl = CommonServices.StoreContext.CurrentStore.GetBaseUrl();
+    var images = Model.Files.Where(x => x.MediaType == MediaType.Image).ToArray();
+    var videos = Model.Files.Where(x => x.MediaType == MediaType.Video).ToArray();
+
+    if (images.Any())
+    {
+        Assets.JsonLd.Product
+            .Arr("image", images.Select(x => x.GetUrl(0, baseUrl)));
+    }
+
+    if (videos.Any())
+    {
+        Assets.JsonLd.Product
+            .Arr("video", videos.Select(x => JsonLdFragment.Create("VideoObject")
+                .Prop("name", x.Alt ?? x.TitleAttribute ?? x.Name)
+                .Prop("contentUrl", x.GetUrl(0, baseUrl))
+                .Prop("thumbnailUrl", x.GetUrl(MediaSettings.ThumbnailSizeMd, baseUrl))
+                .Prop("uploadDate", x.CreatedOn.ToString("u"))
+            ));
+    }
+}
+
 <div id="pd-gallery-container-inner">
     <div id="pd-gallery" class="mb-3">
         <partial name="MediaGallery" model="Model" />

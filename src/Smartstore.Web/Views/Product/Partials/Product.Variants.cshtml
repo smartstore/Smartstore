@@ -1,6 +1,20 @@
 ﻿@using Smartstore.Web.Models.Catalog;
+@using Smartstore.Core.Catalog.Attributes;
 
 @model IList<ProductDetailsModel.ProductVariantAttributeModel>
+
+@{
+    var variesByTypes = new[]
+    {
+        AttributeControlType.DropdownList,
+        AttributeControlType.RadioList,
+        AttributeControlType.Checkboxes,
+        AttributeControlType.Boxes
+    };
+
+    Assets.JsonLd.Product
+        .Arr("variesBy", Model.Where(x => x.ShouldBeRendered && variesByTypes.Contains(x.AttributeControlType)).Select(x => x.Name));
+}
 
 <div class="pd-variants">
     @foreach (var attribute in Model.Where(x => x.ShouldBeRendered))

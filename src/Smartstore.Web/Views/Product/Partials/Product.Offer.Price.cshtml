@@ -36,16 +36,17 @@
 }
 
 <div class="pd-offer-price" sm-suppress-if-empty="true">
-    @if (Model.Price.ShowLoginNote)
+    @if (Model.Price.ShowLoginNote || Model.Price.CallForPrice)
     {
-        <h4 class="pd-price pd-loginforprice">@T("Products.LoginForPrice")</h4>
-        @* Avoid Google error: Either "price" or "priceSpecification" must be specified (in "offers")*@
-        <div itemprop="priceSpecification" itemscope itemtype="https://schema.org/PriceSpecification"></div>
-    }
-    else if (Model.Price.CallForPrice)
-    {
-        <h4 class="pd-price pd-callforprice">@T("Products.CallForPrice")</h4>
-        <div itemprop="priceSpecification" itemscope itemtype="https://schema.org/PriceSpecification"></div>
+        <h4 class="pd-price @(Model.Price.ShowLoginNote ? "pd-loginforprice" : "pd-callforprice")">
+            @T("Products." + (Model.Price.ShowLoginNote ? "LoginForPrice" : "CallForPrice"))
+        </h4>
+
+        @* Avoid Google error: Either "price" or "priceSpecification" must be specified (in "offers") *@
+        Assets.JsonLd.Product.Obj("offers", JsonLdFragment.Create("Offer", new
+        {
+            priceSpecification = new { @type = "PriceSpecification" }
+        })); 
     }
     else
     {
@@ -80,12 +81,13 @@
                 </div>
                 @if (!isBundlePart)
                 {
-                    <meta itemprop="priceCurrency" content="@WorkContext.WorkingCurrency.CurrencyCode" />
-                    <meta itemprop="price" content="@roundedPrice.ToStringInvariant()" />
-                    @if (pm.ValidUntilUtc.HasValue)
+                    Assets.JsonLd.Product.Obj("offers", JsonLdFragment.Create("Offer", new
                     {
-                        <meta itemprop="priceValidUntil" content="@pm.ValidUntilUtc.Value.ToString("u")" />
-                    }
+                        price = Model.Price.FinalPrice.Amount.ToStringInvariant(),
+                        priceCurrency = Model.Price.FinalPrice.Currency.CurrencyCode,
+                        availability = Model.IsAvailable ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+                        priceValidUntil = pm.ValidUntilUtc.HasValue ? pm.ValidUntilUtc.Value.ToString("u") : null
+                    }));
                 }
                 <div sm-if="!pm.RequiredProductPrices.IsNullOrEmpty()" class="mb-1">
                     @foreach (var rpPrice in pm.RequiredProductPrices)
