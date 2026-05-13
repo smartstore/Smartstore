@@ -22,7 +22,11 @@
                     <span>@T("Products.CallForPrice.GoToForm")</span>
                 </button>
                 <div sm-if="Model.HotlineTelephoneNumber.HasValue()" class="quote-request-hotline">
-                    <div>@T("Products.AskQuestion.CallHotline")<i class="fas fa-phone-flip px-1" aria-hidden="true"></i><span class="fwm">@Model.HotlineTelephoneNumber</span></div>
+                    <div>
+                        <span>@T("Products.AskQuestion.CallHotline")</span>
+                        <i class="fas fa-phone-flip" aria-hidden="true"></i>
+                        <span class="fwm">@Model.HotlineTelephoneNumber</span>
+                    </div>
                 </div>
             </div>
         }
