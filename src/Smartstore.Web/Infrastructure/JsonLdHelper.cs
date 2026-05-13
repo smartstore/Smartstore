@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc.Routing;
 using Smartstore.Web.Models.Catalog;
 
 // TODO: (jsonld) Find a better place/method for this. I havn't thought about architecture a sigle second yet. 
@@ -19,6 +20,7 @@ public static class JsonLdHelper
     /// <param name="listName">The name of the list.</param>
     public static void BuildProductItemList(
         JsonLdBuilder builder,
+        IUrlHelper urlHelper,
         List<ProductSummaryItemModel> items,
         string listName,
         string listId,
@@ -37,7 +39,7 @@ public static class JsonLdHelper
             .Prop("@id", listId)
             .Prop("name", listName)
             .Arr("itemListElement", items.Select(item => JsonLdFragment.Create("ListItem")
-                .Prop("position", position++)
+                .Prop("position", position++)       // TODO: (jsonld) Until this point all itemlists are the same. This must be centralized & a callback should build the items
                 .Obj("item", JsonLdFragment.Create("Product")
                     .Prop("name", item.Name)
                     .Prop("description", item.ShortDescription)
@@ -45,10 +47,10 @@ public static class JsonLdHelper
                     .Prop("sku", item.Sku)
                     .Prop("image", new Uri(uri, item.Image?.Url))
                     .Obj("brand", JsonLdFragment.Create("Brand")
+                        .Prop("@id", urlHelper.RouteUrl("Manufacturer", new { item.Brand?.SeName }, uri.Scheme, null, "brand"))
                         .Prop("name", item.Brand?.Name))
                     .Obj("offers", JsonLdFragment.Create("Offer")
                         .Prop("priceCurrency", item.Price?.FinalPrice.Currency.CurrencyCode)
-                        .Prop("price", item.Price?.FinalPrice.Amount.ToStringInvariant())
-            ))));
+                        .Prop("price", item.Price?.FinalPrice.Amount.ToStringInvariant())))));
     }
 }

@@ -149,7 +149,7 @@
     {
         Assets.JsonLd.CollectionPage.Prop("mainEntity", new Dictionary<string, string> { ["@id"] = url + "#main-product-list" });
 
-        JsonLdHelper.BuildProductItemList(Assets.JsonLd, Model.Products.Items, @categoryName, url + "#main-product-list", url);
+        JsonLdHelper.BuildProductItemList(Assets.JsonLd, Url, Model.Products.Items, @categoryName, url + "#main-product-list", url);
     }
 
     if (Model.Description.Value.HasValue())
