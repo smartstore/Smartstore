@@ -21,7 +21,15 @@
         gtin = Model.Gtin,
         mpn = Model.ManufacturerPartNumber,
         url = Model.CanonicalUrl.NullEmpty(),
+        // TODO: (jsonld) This is wrong! We should either split the string value or omit this invalid value.
+        // Weight should look like this:
+        // "weight": {
+        //     "@type": "QuantitativeValue",
+        //     "value": 50,
+        //     "unitText": "kg"
+        // }
         weight = Model.Weight.NullEmpty(),
+        // TODO: (jsonld) This might also be wrong. Havn't checked yet but it smells like it.
         width = Model.Width.NullEmpty(),
         depth = Model.Length.NullEmpty(),
         height = Model.Height.NullEmpty()
