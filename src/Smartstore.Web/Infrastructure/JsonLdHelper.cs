@@ -50,7 +50,7 @@ public static class JsonLdHelper
                         .Prop("@id", urlHelper.RouteUrl("Manufacturer", new { item.Brand?.SeName }, uri.Scheme, null, "brand"))
                         .Prop("name", item.Brand?.Name))
                     .Obj("offers", JsonLdFragment.Create("Offer")
-                        .Prop("priceCurrency", item.Price?.FinalPrice.Currency.CurrencyCode)
+                        .Prop("priceCurrency", item.Price?.FinalPrice.Currency?.CurrencyCode)
                         .Prop("price", item.Price?.FinalPrice.Amount.ToStringInvariant())))));
     }
 }
