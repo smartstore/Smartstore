@@ -97,6 +97,7 @@
   - The checkboxes for overriding multistore settings were missing.
 - Take the customer's preferred shipping method into account when updating the shopping cart.
 - Fixed "The value '' is invalid" for category export filter.
+- Pricing: Apply a product discount if a tier price equals the regular price.
 
 
 ## Smartstore 6.3.0
