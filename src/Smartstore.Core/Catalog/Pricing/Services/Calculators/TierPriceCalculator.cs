@@ -47,7 +47,8 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 // but exclude additional charge from comparing.
                 context.FinalPrice -= context.AdditionalCharge;
 
-                if (context.MinTierPrice.Value < context.FinalPrice)
+                // INFO: A tier price may equal the regular price.
+                if (context.MinTierPrice.Value <= context.FinalPrice)
                 {
                     context.FinalPrice = context.MinTierPrice.Value;
                     context.AppliedTierPrice = tierPriceEntity;
