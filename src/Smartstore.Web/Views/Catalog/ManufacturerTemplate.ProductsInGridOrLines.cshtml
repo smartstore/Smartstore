@@ -1,4 +1,5 @@
 ﻿@using Smartstore.Web.Models.Catalog
+@using Microsoft.AspNetCore.Http.Extensions
 
 @model BrandModel
 
@@ -92,7 +93,7 @@
     // TODO: (jsonld) This is nearly identical to the code in CategoryTemplate.ProductsInGridOrLines.cshtml. We should find a way to reuse it.
 
     // Build JSON-LD for the category CollectionPage including featured and regular product lists.
-    var url = Model.CanonicalUrl.NullEmpty();
+    var url = Model.CanonicalUrl ?? Request.GetDisplayUrl();
 
     Assets.JsonLd.CollectionPage
         .Prop("@id", url + "#webpage")

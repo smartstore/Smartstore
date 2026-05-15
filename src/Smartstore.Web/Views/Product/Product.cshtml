@@ -1,5 +1,6 @@
 ﻿@using Smartstore.Web.Models.Catalog
 @using Smartstore.Core.Catalog.Products
+@using Microsoft.AspNetCore.Http.Extensions
 
 @model ProductDetailsModel
 
@@ -13,6 +14,7 @@
         Assets.AppendCanonicalUrlParts(Model.CanonicalUrl);
     }
 
+    var url = Model.CanonicalUrl ?? Request.GetDisplayUrl();
     // INFO: Not "showing" this data in the UI does not mean it's not useful for bots. We can add it to the JSON-LD anyway.
     Assets.JsonLd.Product.Merge(new
     {
@@ -20,7 +22,7 @@
         sku = Model.Sku,
         gtin = Model.Gtin,
         mpn = Model.ManufacturerPartNumber,
-        url = Model.CanonicalUrl.NullEmpty(),
+        url = url,
         // TODO: (jsonld) This is wrong! We should either split the string value or omit this invalid value.
         // Weight should look like this:
         // "weight": {
@@ -33,7 +35,7 @@
         width = Model.Width.NullEmpty(),
         depth = Model.Length.NullEmpty(),
         height = Model.Height.NullEmpty()
-    }).Prop("@id", Model.CanonicalUrl + "#product");
+    }).Prop("@id", url + "#product");
 }
 
 <partial name="MetaProperties" model="Model.MetaProperties" />

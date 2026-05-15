@@ -138,7 +138,7 @@
 
 @{
     // Build JSON-LD for the category CollectionPage including featured and regular product lists.
-    var url = Model.CanonicalUrl.NullEmpty();
+    var url = Model.CanonicalUrl ?? Request.GetDisplayUrl();
 
     Assets.JsonLd.CollectionPage
         .Prop("@id", url + "#webpage")
