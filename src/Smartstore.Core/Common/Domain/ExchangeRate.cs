@@ -24,6 +24,11 @@ namespace Smartstore.Core.Common
         public bool IsStoreCurrency { get; set; }
 
         /// <summary>
+        /// The conversion currency rate of this currency from the base currency
+        /// </summary>
+        public decimal CurrencyRate { get; set; } = 1.0m;
+
+        /// <summary>
         /// The conversion rate of this currency from the base currency
         /// </summary>
         public decimal Rate { get; set; } = 1.0m;

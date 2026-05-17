@@ -19,6 +19,9 @@ namespace Smartstore.Admin.Models.Common
         [LocalizedDisplay("*DisplayLocale")]
         public string DisplayLocale { get; set; }
 
+        [LocalizedDisplay("*CurrencyRate")]
+        public decimal CurrencyRate { get; set; } = 1;
+
         [LocalizedDisplay("*Rate")]
         public decimal Rate { get; set; } = 1;
 

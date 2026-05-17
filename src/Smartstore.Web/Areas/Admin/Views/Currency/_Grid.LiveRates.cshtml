@@ -1,6 +1,6 @@
 ﻿@model Smartstore.Core.Common.ExchangeRate
 
-<datagrid id="live-rates-grid" 
+<datagrid id="live-rates-grid"
           class="h-100"
           key-member="CurrencyCode"
           allow-resize="true"
@@ -13,6 +13,7 @@
     <columns>
         <column for="Name" hideable="false" title="@T("Admin.Configuration.Currencies.Fields.Name")" />
         <column for="CurrencyCode" halign="center" title="@T("Admin.Configuration.Currencies.Fields.CurrencyCode")" />
+        <column for="CurrencyRate" halign="flex-end" format="{0:N5}" title="@T("Admin.Configuration.Currencies.Fields.CurrencyRate")" />
         <column for="Rate" halign="flex-end" format="{0:N5}" title="@T("Admin.Configuration.Currencies.Fields.Rate")" />
         <column for="UpdatedOn" title="@T("Admin.Common.Updated")" />
     </columns>
@@ -38,15 +39,15 @@
     $(function () {
         $(document).on('click', '.grid-apply-rate', function (e) {
             e.preventDefault();
-            
+
             $.ajax({
-				cache: false,
-				type: 'POST',
-				url: '@(Url.Action("ApplyRate", "Currency"))',
-				data: {
+                cache: false,
+                type: 'POST',
+                url: '@(Url.Action("ApplyRate", "Currency"))',
+                data: {
                     "currencyCode": $(this).data("currency"),
                     "rate": $(this).data("rate")
-				},
+                },
                 success: function (response) {
                     displayNotification(response.returnMessage, response.success ? "success" : "error");
 

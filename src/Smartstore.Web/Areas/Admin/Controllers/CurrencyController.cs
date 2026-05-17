@@ -69,7 +69,7 @@ namespace Smartstore.Admin.Controllers
                     model.IsPrimaryCurrency = model.Id == _currencySettings.PrimaryCurrencyId;
                     model.IsPrimaryExchangeCurrency = model.Id == _currencySettings.PrimaryExchangeCurrencyId;
                     model.EditUrl = Url.Action(nameof(Edit), "Currency", new { id = x.Id });
-
+                    model.CurrencyRate = model.Rate == 0 ? 0 : 1.0M / model.Rate;
                     return model;
                 })
                 .ToListAsync();
@@ -94,6 +94,13 @@ namespace Smartstore.Admin.Controllers
             {
                 try
                 {
+                    decimal exchangeRate = currency.Rate == 0 ? 0 : 1.0M / currency.Rate;
+                    const decimal epsilon = 0.00000001M; // builder.Property(c => c.Rate).HasPrecision(18, 8);
+                    if (Math.Abs(model.CurrencyRate - exchangeRate) > epsilon)
+                    {
+                        model.Rate = 1.0M / model.CurrencyRate;
+                    }
+
                     await MapperFactory.MapAsync(model, currency);
                     await _db.SaveChangesAsync();
                     success = true;
@@ -183,6 +190,7 @@ namespace Smartstore.Admin.Controllers
                 // Provide rate with currency name and whether it is available in store.
                 foreach (var rate in rates)
                 {
+                    rate.CurrencyRate = rate.Rate == 0 ? 0 : 1.0M / rate.Rate;
                     rate.IsStoreCurrency = allCurrencies.ContainsKey(rate.CurrencyCode);
 
                     if (rate.Name.IsEmpty())
@@ -418,6 +426,31 @@ namespace Smartstore.Admin.Controllers
         }
 
         #region Utilities
+
+        [HttpPost]
+        [Permission(Permissions.Configuration.Currency.EditExchangeRate)]
+        public async Task<IActionResult> ApplyRatesToAllCurrencies(GridCommand command)
+        {
+            List<ExchangeRate> rates = (await Services.CurrencyService
+                .GetCurrencyLiveRatesAsync(!command.InitialRequest))
+                .ToList();
+
+            var currencies = await _db.Currencies.ToListAsync();
+
+            foreach (var currency in currencies)
+            {
+                var rateInfo = rates.FirstOrDefault(r => r.CurrencyCode == currency.CurrencyCode);
+                if (rateInfo != null && rateInfo.Rate > 0)
+                {
+                    currency.Rate = rateInfo.Rate;
+                    currency.UpdatedOnUtc = DateTime.UtcNow;
+                }
+            }
+
+            await _db.SaveChangesAsync();
+            NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
+            return RedirectToAction(nameof(Index));
+        }
 
         private async Task UpdateLocalesAsync(Currency currency, CurrencyModel model)
         {

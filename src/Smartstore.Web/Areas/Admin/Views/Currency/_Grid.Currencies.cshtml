@@ -22,6 +22,18 @@
                 <span>@T("Common.Cancel")</span>
             </button>
         </toolbar-group>
+        <toolbar-group>
+            <div>
+                <form method="post">
+                    <confirm button-id="apply-rates-to-all" message='@T("Admin.Configuration.Currencies.Q_ApplyRatesToAll").Value'
+                             type="Action" icon="fas fa-question-circle" action="ApplyRatesToAllCurrencies" />
+                    <button type="button" id="apply-rates-to-all" class="btn btn-warning btn-flat no-anims border" asp-action="ApplyRatesToAllCurrencies">
+                        <i class="fas fa-save"></i>
+                        <span>@T("Admin.Configuration.Currencies.ApplyRatesToAll")</span>
+                    </button>
+                </form>
+            </div>
+        </toolbar-group>
         <zone name="datagrid_toolbar_alpha"></zone>
         <toolbar-group class="omega"></toolbar-group>
         <zone name="datagrid_toolbar_omega"></zone>
@@ -40,8 +52,9 @@
         </column>
         <column for="CurrencyCode" halign="center" />
         <column for="Published" halign="center" />
-        <column for="Rate" halign="flex-end" format="{0:N5}" />
-        <column for="DisplayOrder" halign="center" />
+        <column for="CurrencyRate" halign="flex-end" format="{0:N5}" width="1fr" />
+        <column for="Rate" halign="flex-end" format="{0:N5}" width="1fr" />
+        <column for="DisplayOrder" halign="center" width="1fr" />
         <column for="LimitedToStores" halign="center" readonly="true" />
         <column for="DomainEndings" />
     </columns>
@@ -66,13 +79,13 @@
             var btn = $(this);
 
             $.ajax({
-				cache: false,
-				type: 'POST',
-				url: '@(Url.Action("SetPrimaryCurrency", "Currency"))',
-				data: {
+                cache: false,
+                type: 'POST',
+                url: '@(Url.Action("SetPrimaryCurrency", "Currency"))',
+                data: {
                     "id": btn.data("key"),
                     "forExchange": btn.hasClass('grid-set-primary-exchange-currency')
-				},
+                },
                 success: function () {
                     const currenciesGrid = $('#currencies-grid').parent().data('datagrid');
                     currenciesGrid.read();
