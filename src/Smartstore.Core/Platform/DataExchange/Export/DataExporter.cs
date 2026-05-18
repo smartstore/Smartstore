@@ -165,8 +165,9 @@ namespace Smartstore.Core.DataExchange.Export
             // The export directory is the "Content" subfolder. ZIP and LOG file are in the parent folder.
             var dir = await _exportProfileService.GetExportDirectoryAsync(profile, "Content", true);
             var logFile = await dir.Parent.GetFileAsync("log.txt");
-            var zipFile = await dir.Parent.GetFileAsync(PathUtility.SanitizeFileName(dir.Parent.Name) + ".zip");
-
+            var zipName = PathUtility.SanitizeFileName(dir.Parent.Name) + ".zip";
+            var zipFile = await dir.Parent.GetFileAsync(zipName);
+            
             await dir.FileSystem.TryDeleteFileAsync(logFile);
             await dir.FileSystem.TryDeleteFileAsync(zipFile);
             dir.FileSystem.ClearDirectory(dir, false, TimeSpan.Zero);
@@ -214,6 +215,9 @@ namespace Smartstore.Core.DataExchange.Export
                             if (profile.CreateZipArchive)
                             {
                                 ZipFile.CreateFromDirectory(ctx.ExportDirectory.PhysicalPath, ctx.ZipFile.PhysicalPath, CompressionLevel.Fastest, false);
+
+                                // INFO: We need to update the file status. Otherwise 'IFile.Exist' sometimes returns "false" even though the file exists.
+                                ctx.ZipFile = await dir.Parent.GetFileAsync(zipName);
                             }
 
                             if (profile.Deployments.Any(x => x.Enabled))
