@@ -8,14 +8,14 @@
     <meta property='og:site_name' content='@Model.SiteName' />
     <meta property='og:url' content='@Model.Url' />
     <meta property='og:type' content='@Model.Type' />
-    <meta property='og:title' content='@Html.Encode(Model.Title)' />
+    <meta property='og:title' content='@Model.Title' />
     <meta property='twitter:card' content='@(Model.ImageUrl.HasValue() ? "summary_large_image" : "summary")' />
-    <meta property='twitter:title' content='@Html.Encode(Model.Title)' />
+    <meta property='twitter:title' content='@Model.Title' />
 
     @if (Model.Description.HasValue())
     {
-        <meta property='og:description' content='@Html.Encode(Model.Description)' />
-        <meta property='twitter:description' content='@Html.Encode(Model.Description)' />
+        <meta property='og:description' content='@Model.Description' />
+        <meta property='twitter:description' content='@Model.Description' />
     }
 
     @if (Model.ImageUrl.HasValue())
@@ -26,8 +26,8 @@
 
         if (Model.ImageAlt.HasValue())
         {
-            <meta property='og:image:alt' content='@Html.Encode(Model.ImageAlt)' />
-            <meta property='twitter:image:alt' content='@Html.Encode(Model.ImageAlt)' />
+            <meta property='og:image:alt' content='@Model.ImageAlt' />
+            <meta property='twitter:image:alt' content='@Model.ImageAlt' />
         }
 
         if (Model.ImageWidth > 0 && Model.ImageHeight > 0)
