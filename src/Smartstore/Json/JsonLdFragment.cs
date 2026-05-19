@@ -15,7 +15,7 @@ namespace Smartstore.Json;
 /// </summary>
 public class JsonLdFragment
 {
-    private static readonly string[] _propertiesToNormalize = ["type", "id"];
+    private static readonly string[] _propertiesToNormalize = ["type", "id", "graph"];
 
     private static readonly JsonSerializerOptions _jsonOptions = new()
     {
@@ -297,7 +297,7 @@ public class JsonLdFragment
     }
 
     /// <summary>
-    /// Recursively normalizes <c>"type"</c> to <c>"@type"</c> and <c>"id"</c> to <c>"@id"</c> 
+    /// Recursively normalizes <c>"type"</c>, <c>"id"</c> and <c>"graph"</c> to <c>"@***"</c>,
     /// and moves them to index 0 so they appear before all other properties. C# anonymous objects cannot define "@"-prefixed keys,
     /// so callers use <c>type = "..."</c> as a convention.
     /// </summary>
