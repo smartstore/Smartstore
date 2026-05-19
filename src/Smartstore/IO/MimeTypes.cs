@@ -1,89 +1,88 @@
 ﻿using Microsoft.AspNetCore.StaticFiles;
 
-namespace Smartstore.IO
+namespace Smartstore.IO;
+
+public static class MimeTypes
 {
-    public static class MimeTypes
+    const string DefaultMimeType = "application/octet-stream";
+
+    private static readonly SmartContentTypeProvider _contentTypeProvider = new();
+
+    public static IContentTypeProvider ContentTypeProvider
     {
-        const string DefaultMimeType = "application/octet-stream";
+        get => _contentTypeProvider;
+    }
 
-        private static readonly SmartContentTypeProvider _contentTypeProvider = new();
+    public static IDictionary<string, string> Mappings
+    {
+        get => _contentTypeProvider.Mappings;
+    }
 
-        public static IContentTypeProvider ContentTypeProvider
+    /// <summary>
+    /// Given a file path, determine the MIME type.
+    /// </summary>
+    /// <param name="subpath">A file path, name or extension.</param>
+    /// <returns>The resulting MIME type or <c>application/octet-stream</c> as fallback.</returns>
+    public static string MapNameToMimeType(string subpath)
+    {
+        if (_contentTypeProvider.TryGetContentType(subpath, out var mimeType))
         {
-            get => _contentTypeProvider;
+            return mimeType;
         }
 
-        public static IDictionary<string, string> Mappings
+        return DefaultMimeType;
+    }
+
+    /// <summary>
+    /// Given a file path, determine the MIME type.
+    /// </summary>
+    /// <param name="subpath">A file path, name or extension.</param>
+    /// <param name="mimeType">The resulting MIME type</param>
+    /// <returns><c>true</c> if MIME type could be determined</returns>
+    public static bool TryMapNameToMimeType(string subpath, out string mimeType)
+    {
+        return _contentTypeProvider.TryGetContentType(subpath, out mimeType);
+    }
+
+    /// <summary>
+    /// Given a MIME type, determine the (dotless) default extension.
+    /// </summary>
+    /// <param name="mimeType">The mime type</param>
+    /// <returns>The corresponding default file extension (without dot) or <c>null</c>.</returns>
+    public static string MapMimeTypeToExtension(string mimeType)
+    {
+        if (TryMapMimeTypeToExtension(mimeType, out var extension))
         {
-            get => _contentTypeProvider.Mappings;
+            return extension;
         }
 
-        /// <summary>
-        /// Given a file path, determine the MIME type.
-        /// </summary>
-        /// <param name="subpath">A file path, name or extension.</param>
-        /// <returns>The resulting MIME type or <c>application/octet-stream</c> as fallback.</returns>
-        public static string MapNameToMimeType(string subpath)
-        {
-            if (_contentTypeProvider.TryGetContentType(subpath, out var mimeType))
-            {
-                return mimeType;
-            }
+        return null;
+    }
 
-            return DefaultMimeType;
+    /// <summary>
+    /// Given a MIME type, determine the (dotless) default extension.
+    /// </summary>
+    /// <param name="mimeType">The mime type</param>
+    /// <param name="extension">The corresponding default file extension (without dot)</param>
+    /// <returns><c>true</c> if default extension could be determined</returns>
+    public static bool TryMapMimeTypeToExtension(string mimeType, out string extension)
+    {
+        extension = null;
+
+        if (mimeType.HasValue() && MimeKit.MimeTypes.TryGetExtension(mimeType, out extension))
+        {
+            extension = extension.TrimStart('.');
         }
 
-        /// <summary>
-        /// Given a file path, determine the MIME type.
-        /// </summary>
-        /// <param name="subpath">A file path, name or extension.</param>
-        /// <param name="mimeType">The resulting MIME type</param>
-        /// <returns><c>true</c> if MIME type could be determined</returns>
-        public static bool TryMapNameToMimeType(string subpath, out string mimeType)
-        {
-            return _contentTypeProvider.TryGetContentType(subpath, out mimeType);
-        }
+        return extension != null;
+    }
 
-        /// <summary>
-        /// Given a MIME type, determine the (dotless) default extension.
-        /// </summary>
-        /// <param name="mimeType">The mime type</param>
-        /// <returns>The corresponding default file extension (without dot) or <c>null</c>.</returns>
-        public static string MapMimeTypeToExtension(string mimeType)
-        {
-            if (TryMapMimeTypeToExtension(mimeType, out var extension))
-            {
-                return extension;
-            }
+    public static void Register(string mimeType, string extension)
+    {
+        Guard.NotEmpty(mimeType);
+        Guard.NotEmpty(extension);
 
-            return null;
-        }
-
-        /// <summary>
-        /// Given a MIME type, determine the (dotless) default extension.
-        /// </summary>
-        /// <param name="mimeType">The mime type</param>
-        /// <param name="extension">The corresponding default file extension (without dot)</param>
-        /// <returns><c>true</c> if default extension could be determined</returns>
-        public static bool TryMapMimeTypeToExtension(string mimeType, out string extension)
-        {
-            extension = null;
-
-            if (mimeType.HasValue() && MimeKit.MimeTypes.TryGetExtension(mimeType, out extension))
-            {
-                extension = extension.TrimStart('.');
-            }
-
-            return extension != null;
-        }
-
-        public static void Register(string mimeType, string extension)
-        {
-            Guard.NotEmpty(mimeType);
-            Guard.NotEmpty(extension);
-
-            MimeKit.MimeTypes.Register(mimeType, extension);
-            _contentTypeProvider.Mappings[extension.EnsureStartsWith('.')] = mimeType;
-        }
+        MimeKit.MimeTypes.Register(mimeType, extension);
+        _contentTypeProvider.Mappings[extension.EnsureStartsWith('.')] = mimeType;
     }
 }
