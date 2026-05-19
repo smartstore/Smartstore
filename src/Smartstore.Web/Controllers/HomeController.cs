@@ -195,33 +195,26 @@ namespace Smartstore.Web.Controllers
             string countryCode = null;
             if (_companySettings.CountryId != 0)
             {
-                // TODO: (jsonld) Is caching really necessary here? Note, Country is a CacheableEntity.
-                countryCode = await Services.Cache.GetAsync($"jsonld:country{_companySettings.CountryId}", async ctx =>
-                {
-                    ctx.ExpiresIn(TimeSpan.FromHours(4));
+                var country = await _db.Countries
+                    .Select(x => new { x.Id, x.TwoLetterIsoCode })
+                    .FirstOrDefaultAsync(x => x.Id == _companySettings.CountryId);
 
-                    var country = await _db.Countries
-                        .Select(x => new { x.Id, x.TwoLetterIsoCode })
-                        .FirstOrDefaultAsync(x => x.Id == _companySettings.CountryId);
-
-                    return country?.TwoLetterIsoCode.NullEmpty();
-                });
+                countryCode = country?.TwoLetterIsoCode.NullEmpty();
             }
 
-            // TODO: (jsonld) Only add values that are actually set.
             var contactPoint = JsonLdFragment.Create("ContactPoint", new
             {
-                telephone = _contactDataSettings.HotlineTelephoneNumber ?? _contactDataSettings.CompanyTelephoneNumber,
-                email = _contactDataSettings.ContactEmailAddress,
+                telephone = (_contactDataSettings.HotlineTelephoneNumber ?? _contactDataSettings.CompanyTelephoneNumber).NullEmpty(),
+                email = _contactDataSettings.ContactEmailAddress.NullEmpty(),
                 contactType = "customer service",
-                areaServed = countryCode
+                areaServed = countryCode,
             });
 
             var address = JsonLdFragment.Create("PostalAddress", new
             {
-                streetAddress = _companySettings.Street,
-                addressLocality = _companySettings.City,
-                postalCode = _companySettings.ZipCode,
+                streetAddress = _companySettings.Street.NullEmpty(),
+                addressLocality = _companySettings.City.NullEmpty(),
+                postalCode = _companySettings.ZipCode.NullEmpty(),
                 addressCountry = countryCode
             });
 
