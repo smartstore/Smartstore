@@ -1,8 +1,18 @@
-﻿using System.Text;
+﻿using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Xml.Linq;
+using DotLiquid.Tags;
+using MaxMind.GeoIP2.Model;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Org.BouncyCastle.Asn1.X509;
+using SixLabors.ImageSharp.ColorSpaces;
 using Smartstore.Caching;
+using Smartstore.Core.Catalog;
+using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Checkout.Tax;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Localization.Routing;
@@ -10,11 +20,13 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Theming;
+using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.Utilities;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Rendering;
+using Smartstore.Web.Rendering.Menus;
 
 namespace Smartstore.Web.Controllers
 {
@@ -31,6 +43,16 @@ namespace Smartstore.Web.Controllers
         private readonly SeoSettings _seoSettings;
         private readonly LocalizationSettings _localizationSettings;
         private readonly IRouteHelper _routeHelper;
+        private readonly CatalogSettings _catalogSettings;
+        private readonly IMenuService _menuService;
+        private readonly Lazy<IProviderManager> _providerManager;
+        private readonly Lazy<ModuleManager> _moduleManager;
+        private readonly PaymentSettings _paymentSettings;
+        private readonly SocialSettings _socialSettings;
+        private readonly HomePageSettings _homePageSettings;
+        private readonly CompanyInformationSettings _companyInformationSettings;
+        private readonly ContactDataSettings _contactDataSettings;
+        private readonly TaxSettings _taxSettings;
 
         public CommonController(
             SmartDbContext db,
@@ -43,7 +65,16 @@ namespace Smartstore.Web.Controllers
             ThemeSettings themeSettings,
             SeoSettings seoSettings,
             LocalizationSettings localizationSettings,
-            IRouteHelper routeHelper)
+            IRouteHelper routeHelper,
+            CatalogSettings catalogSettings,
+            IMenuService menuService,
+            Lazy<IProviderManager> providerManager,
+            Lazy<ModuleManager> moduleManager,
+            PaymentSettings paymentSettings,
+            SocialSettings socialSettings,
+            HomePageSettings homePageSettings,
+            CompanyInformationSettings companyInformationSettings,
+            ContactDataSettings contactDataSettings)
         {
             _db = db;
             _cookieConsentManager = cookieConsentManager;
@@ -56,6 +87,15 @@ namespace Smartstore.Web.Controllers
             _seoSettings = seoSettings;
             _localizationSettings = localizationSettings;
             _routeHelper = routeHelper;
+            _catalogSettings = catalogSettings;
+            _menuService = menuService;
+            _providerManager = providerManager;
+            _moduleManager = moduleManager;
+            _paymentSettings = paymentSettings;
+            _socialSettings = socialSettings;
+            _homePageSettings = homePageSettings;
+            _companyInformationSettings = companyInformationSettings;
+            _contactDataSettings = contactDataSettings;
         }
 
         [CheckStoreClosed(false)]
@@ -186,6 +226,159 @@ namespace Smartstore.Web.Controllers
                     sb.AppendLine(lowerNormalized);
                 }
             }
+        }
+
+        // TODO: caching!?
+        [CheckStoreClosed(false)]
+        [Route("llms.txt"), CrawlerEndpoint]
+        public async Task<IActionResult> LlmsTextFile()
+        {
+            using var psb = StringBuilderPool.Instance.Get(out var sb);
+
+            var store = Services.StoreContext.CurrentStore;
+            var baseUrl = store.GetBaseUrl().EnsureEndsWith('/');
+            sb.AppendLine($"# {store.Name} - LLM Directory");
+            sb.AppendLine();
+
+            // Metadata
+            var languages = await _db.Languages
+                .AsNoTracking()
+                .ApplyStandardFilter(false, store.Id)
+                .ToListAsync();
+
+            var providers = _providerManager.Value.GetAllProviders<IPaymentMethod>()
+                .Where(x => x.IsPaymentProviderEnabled(_paymentSettings));
+
+            sb.AppendLine("## Metadata");
+            
+            sb.AppendLine($"- Base URL: {baseUrl}");
+            if (_homePageSettings.MetaTitle.HasValue())
+            {
+                sb.AppendLine($"- Title: {_homePageSettings.MetaTitle}");
+            }
+            if (_homePageSettings.MetaDescription.HasValue())
+            {
+                sb.AppendLine($"- Title: {_homePageSettings.MetaDescription}");
+            }
+            if (_companyInformationSettings.CompanyName.HasValue())
+            {
+                sb.AppendLine($"- Operator: {_companyInformationSettings.CompanyName}");
+            }
+            if (_companyInformationSettings.CompanyManagementDescription.HasValue())
+            {
+                sb.AppendLine($"- Legal Representatives: {_companyInformationSettings.CompanyManagementDescription}");
+            }
+
+            // Address
+            {
+                var addressParts = new List<string>();
+
+                var street = _companyInformationSettings.Street;
+                var street2 = _companyInformationSettings.Street2;
+                var zip = _companyInformationSettings.ZipCode;
+                var city = _companyInformationSettings.City;
+                var stateName = _companyInformationSettings.StateName;
+                var countryId = _companyInformationSettings.CountryId;
+
+                string countryName = null;
+                if (countryId > 0)
+                {
+                    var country = await _db.Countries.FindByIdAsync(countryId, false);
+                    countryName = country?.GetLocalized(x => x.Name);
+                }
+
+                var streetLine = string.Join(" ", new[] { street, street2 }.Where(x => x.HasValue()));
+                var cityLine = string.Join(" ", new[] { zip, city }.Where(x => x.HasValue()));      
+
+                if (streetLine.HasValue()) addressParts.Add(streetLine);
+                if (cityLine.HasValue()) addressParts.Add(cityLine);
+                if (stateName.HasValue()) addressParts.Add(stateName);
+                if (countryName.HasValue()) addressParts.Add(countryName);  
+
+                if (addressParts.Count > 0)
+                {
+                    sb.AppendLine($"- Address: {string.Join(", ", addressParts)}");
+                }
+            }
+
+            if (_companyInformationSettings.CommercialRegister.HasValue())
+            {
+                sb.AppendLine($"- Registered at: {_companyInformationSettings.CommercialRegister}");
+            }
+            if (_companyInformationSettings.VatId.HasValue())
+            {
+                sb.AppendLine($"- VAT ID: {_companyInformationSettings.VatId}");
+            }
+
+            if (_contactDataSettings.SupportEmailAddress.HasValue())
+            {
+                sb.AppendLine($"- Support Email: {_contactDataSettings.SupportEmailAddress}");
+            }
+            if (_contactDataSettings.HotlineTelephoneNumber.HasValue())
+            {
+                sb.AppendLine($"- Support Phone: {_contactDataSettings.HotlineTelephoneNumber}");
+            }
+
+            // TODO
+
+            //            -Target Audience: B2C
+            //- Price Display: Gross(Prices include VAT)
+            //                oder
+            //                - Target Audience: B2B
+            //- Price Display: Net(Prices exclude VAT)
+
+            sb.AppendLine($"- Currency: {Services.WorkContext.WorkingCurrency?.CurrencyCode}");
+            sb.AppendLine($"- Available Languages: {string.Join(", ", languages.Select(x => x.UniqueSeoCode))}");
+            sb.AppendLine($"- Available Payment Methods: {string.Join(", ", providers.Select(x => _moduleManager.Value.GetLocalizedFriendlyName(x.Metadata)))}");
+            sb.AppendLine();
+
+            // Main product categories
+            var menu = await _menuService.GetMenuAsync("Main");
+            if (menu != null)
+            {
+                var model = await menu.CreateModelAsync(null, ControllerContext);
+                var rootChildren = model.Root.Children;
+
+                sb.AppendLine("## Main product categories");
+                foreach (var node in rootChildren)
+                {
+                    var item = node.Value;
+                    sb.AppendLine($"- [{item.Text}]({ new Uri(new Uri(baseUrl), item.GenerateUrl(ControllerContext))})");
+                }
+                sb.AppendLine();
+            }
+
+            // Discovery Links
+            sb.AppendLine("## Discovery Links");
+            sb.AppendLine($"- [Sitemap]({baseUrl}sitemap.xml)");
+
+            if (_catalogSettings.RecentlyAddedProductsEnabled && _catalogSettings.RecentlyAddedProductsNumber > 0)
+            {
+                sb.AppendLine($"- [Recently added products]({Url.RouteUrl("RecentlyAddedProductsRSS", null, Request.Scheme)})");
+            }
+
+            sb.AppendLine($"- [Contact & Support]({Url.RouteUrl("ContactUs", null, Request.Scheme)})");
+            sb.AppendLine($"- [Brands]({Url.RouteUrl("ManufacturerList", null, Request.Scheme)})");
+            sb.AppendLine($"- [Shipping & Delivery Info]({ new Uri(new Uri(baseUrl), await Url.TopicAsync("ShippingInfo"))})");
+            sb.AppendLine($"- [Privacy Policy]({new Uri(new Uri(baseUrl), await Url.TopicAsync("PrivacyInfo"))})");
+
+            // Social media
+            if (_socialSettings.FacebookLink.HasValue()) sb.AppendLine($"- [Facebook]({_socialSettings.FacebookLink})");
+            if (_socialSettings.TwitterLink.HasValue()) sb.AppendLine($"- [Twitter]({_socialSettings.TwitterLink})");
+            if (_socialSettings.InstagramLink.HasValue()) sb.AppendLine($"- [Instagram]({_socialSettings.InstagramLink})");
+            if (_socialSettings.TikTokLink.HasValue()) sb.AppendLine($"- [TikTok]({_socialSettings.TikTokLink})");
+            if (_socialSettings.YoutubeLink.HasValue()) sb.AppendLine($"- [YouTube]({_socialSettings.YoutubeLink})");
+            if (_socialSettings.VimeoLink.HasValue()) sb.AppendLine($"- [Vimeo]({_socialSettings.VimeoLink})");
+            if (_socialSettings.PinterestLink.HasValue()) sb.AppendLine($"- [Pinterest]({_socialSettings.PinterestLink})");
+            if (_socialSettings.SnapchatLink.HasValue()) sb.AppendLine($"- [Snapchat]({_socialSettings.SnapchatLink})");
+            if (_socialSettings.FlickrLink.HasValue()) sb.AppendLine($"- [Flickr]({_socialSettings.FlickrLink})");
+            if (_socialSettings.LinkedInLink.HasValue()) sb.AppendLine($"- [LinkedIn]({_socialSettings.LinkedInLink})");
+            if (_socialSettings.XingLink.HasValue()) sb.AppendLine($"- [Xing]({_socialSettings.XingLink})");
+            if (_socialSettings.TumblrLink.HasValue()) sb.AppendLine($"- [Tumblr]({_socialSettings.TumblrLink})");
+            if (_socialSettings.ElloLink.HasValue()) sb.AppendLine($"- [Ello]({_socialSettings.ElloLink})");
+            if (_socialSettings.BehanceLink.HasValue()) sb.AppendLine($"- [Behance]({_socialSettings.BehanceLink})");
+
+            return Content(sb.ToString(), "text/plain", Encoding.UTF8);
         }
 
         [HttpPost]
