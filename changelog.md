@@ -99,6 +99,7 @@
 - Fixed "The value '' is invalid" for category export filter.
 - Pricing: Apply a product discount if a tier price equals the regular price.
 - Export: Occasionally, the email created using a publishing profile would be missing the attachment containing the ZIP archive.
+- #1532 Double encoding of Facebook and Twitter metadata.
 
 
 ## Smartstore 6.3.0
