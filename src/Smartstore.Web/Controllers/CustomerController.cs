@@ -668,6 +668,7 @@ namespace Smartstore.Web.Controllers
                 .Include(x => x.Product)
                 .Include(x => x.Order)
                 .Where(x => x.Product.IsDownload)
+                .OrderByDescending(x => x.Order.CreatedOnUtc)
                 .ToListAsync();
 
             foreach (var item in items)
@@ -686,8 +687,6 @@ namespace Smartstore.Web.Controllers
                 };
 
                 itemModel.ProductUrl = await _productUrlHelper.GetProductPathAsync(item.ProductId, itemModel.ProductSeName, item.AttributeSelection);
-
-                model.Items.Add(itemModel);
 
                 if (itemModel.IsDownloadAllowed)
                 {
@@ -714,6 +713,8 @@ namespace Smartstore.Web.Controllers
                 {
                     itemModel.LicenseId = item.LicenseDownloadId ?? 0;
                 }
+
+                model.Items.Add(itemModel);
             }
 
             return View(model);
