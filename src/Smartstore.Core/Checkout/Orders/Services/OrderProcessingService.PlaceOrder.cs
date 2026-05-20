@@ -939,7 +939,6 @@ namespace Smartstore.Core.Checkout.Orders
                     if (attributesSelection.HasAttributes)
                     {
                         var fileUploadAttributeIds = await _db.CheckoutAttributes
-                            .AsQueryable()
                             .Where(x => x.AttributeControlTypeId == (int)AttributeControlType.FileUpload)
                             .Select(x => x.Id)
                             .ToListAsync();
@@ -948,15 +947,13 @@ namespace Smartstore.Core.Checkout.Orders
                         {
                             var fileGuids = attributesSelection.AttributesMap
                                 .Where(x => fileUploadAttributeIds.Contains(x.Key))
-                                .SelectMany(x => x.Value)
-                                .Select(x => Guid.TryParse(x as string, out Guid guid) ? guid : Guid.Empty)
+                                .Select(x => Guid.TryParse(x.Value.FirstOrDefault()?.ToString(), out Guid guid) ? guid : Guid.Empty)
                                 .Where(x => x != Guid.Empty)
                                 .ToArray();
 
                             if (fileGuids.Length > 0)
                             {
                                 var downloads = await _db.Downloads
-                                    .AsQueryable()
                                     .Where(x => fileGuids.Contains(x.DownloadGuid) && x.IsTransient)
                                     .ToListAsync();
 
