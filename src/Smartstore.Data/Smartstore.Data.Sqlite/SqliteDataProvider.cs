@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.IO;
@@ -15,7 +16,7 @@ namespace Smartstore.Data.Sqlite;
 
 internal class SqliteDataProvider : DataProvider
 {
-    private static readonly ConcurrentDictionary<string, SemaphoreSlim> _maintenanceLocks = new(StringComparer.Ordinal);
+    private static readonly ConcurrentDictionary<string, MaintenanceLock> _maintenanceLocks = new(StringComparer.Ordinal);
 
     public SqliteDataProvider(DatabaseFacade database)
         : base(database)
@@ -133,7 +134,7 @@ LIMIT {take} OFFSET {skip}";
             return Task.FromResult(new FileInfo(builder.DataSource).Length);
         }
 
-        const string sql = "SELECT page_count * page_size FROM pragma_page_count(), pragma_page_size()";
+        const string sql = "SELECT page_count * page_size AS size FROM pragma_page_count(), pragma_page_size()";
         return async
             ? Database.ExecuteScalarRawAsync<long>(sql)
             : Task.FromResult(Database.ExecuteScalarRaw<long>(sql));
@@ -341,8 +342,17 @@ LIMIT {take} OFFSET {skip}";
 
     private async Task<T> ExecuteMaintenanceOperationAsync<T>(Func<Task<T>> action, CancellationToken cancelToken)
     {
-        var maintenanceLock = _maintenanceLocks.GetOrAdd(GetMaintenanceLockKey(), static _ => new SemaphoreSlim(1, 1));
-        await maintenanceLock.WaitAsync(cancelToken);
+        var key = GetMaintenanceLockKey();
+        var maintenanceLock = _maintenanceLocks.AddOrUpdate(
+            key,
+            static _ => new MaintenanceLock(1),
+            static (_, existing) =>
+            {
+                Interlocked.Increment(ref existing.RefCount);
+                return existing;
+            });
+
+        await maintenanceLock.Semaphore.WaitAsync(cancelToken);
 
         try
         {
@@ -350,7 +360,13 @@ LIMIT {take} OFFSET {skip}";
         }
         finally
         {
-            maintenanceLock.Release();
+            maintenanceLock.Semaphore.Release();
+
+            if (Interlocked.Decrement(ref maintenanceLock.RefCount) == 0
+                && _maintenanceLocks.TryRemove(new KeyValuePair<string, MaintenanceLock>(key, maintenanceLock)))
+            {
+                maintenanceLock.Semaphore.Dispose();
+            }
         }
     }
 
@@ -370,5 +386,11 @@ LIMIT {take} OFFSET {skip}";
         Database.ExecuteSqlRaw(checkpointSql);
         Database.ExecuteSqlRaw(vacuumSql);
         return Database.ExecuteSqlRaw(optimizeSql);
+    }
+
+    private sealed class MaintenanceLock(int refCount)
+    {
+        public SemaphoreSlim Semaphore { get; } = new(1, 1);
+        public int RefCount = refCount;
     }
 }
