@@ -4,7 +4,6 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Html;
-using Smartstore.Collections;
 using Smartstore.Utilities;
 
 namespace Smartstore.Json;
@@ -59,19 +58,27 @@ public class JsonLdBuilder
     public JsonLdFragment ItemList
         => this["ItemList"];
 
-    /// <summary>Gets or creates the <c>BreadcrumbList</c> fragment.</summary>
+    /// <summary>
+    /// Gets or creates the <c>BreadcrumbList</c> fragment.
+    /// </summary>
     public JsonLdFragment BreadcrumbList
         => this["BreadcrumbList"];
 
-    /// <summary>Gets or creates the <c>BlogPosting</c> fragment.</summary>
+    /// <summary>
+    /// Gets or creates the <c>BlogPosting</c> fragment.
+    /// </summary>
     public JsonLdFragment BlogPosting
         => this["BlogPosting"];
 
-    /// <summary>Gets or creates the <c>Organization</c> fragment.</summary>
+    /// <summary>
+    /// Gets or creates the <c>Organization</c> fragment.
+    /// </summary>
     public JsonLdFragment Organization
         => this["Organization"];
 
-    /// <summary>Gets or creates the <c>WebSite</c> fragment.</summary>
+    /// <summary>
+    /// Gets or creates the <c>WebSite</c> fragment.
+    /// </summary>
     public JsonLdFragment WebSite
         => this["WebSite"];
 

@@ -190,6 +190,12 @@ public partial class CatalogHelper
             SeName = await manufacturer.GetActiveSlugAsync()
         };
 
+        model.Path = _urlHelper.RouteUrl("Manufacturer", new { model.SeName });
+        if (_seoSettings.CanonicalUrlsEnabled)
+        {
+            model.CanonicalUrl = _urlHelper.RouteUrl("Manufacturer", new { model.SeName }, _httpRequest.Scheme);
+        }
+
         model.MetaProperties = await model.MapMetaPropertiesAsync();
 
         return model;

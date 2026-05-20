@@ -244,6 +244,7 @@ namespace Smartstore.Web.Controllers
 
             var model = await _helper.PrepareBrandModelAsync(manufacturer);
 
+            model.Path = Url.RouteUrl("Manufacturer", new { model.SeName });
             if (_seoSettings.CanonicalUrlsEnabled)
             {
                 model.CanonicalUrl = Url.RouteUrl("Manufacturer", new { model.SeName }, Request.Scheme);

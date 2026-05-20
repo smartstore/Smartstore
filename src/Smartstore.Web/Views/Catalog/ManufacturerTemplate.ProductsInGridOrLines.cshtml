@@ -21,9 +21,9 @@
     <partial name="Search.Filters" model="Model.Products" />
 </widget>
 
-<div class="page manufacturer-page" itemscope itemtype="https://schema.org/CollectionPage">
+<div class="page manufacturer-page">
     <div class="page-title">
-        <h1 sm-language-attributes-for="Model.Name" class="h3" itemprop="name">
+        <h1 sm-language-attributes-for="Model.Name" class="h3">
             @Html.Raw(Model.Name)
         </h1>
         @if (Model.SearchResult.TotalHitsCount > 0)
@@ -38,10 +38,7 @@
         @* Description *@
         @if (Model.Description.HasValue())
         {
-            <div sm-language-attributes-for="Model.Description" 
-                 id="manufacturer-description-top"
-                 class="manufacturer-description lead html-editor-content"
-                 itemprop="description">
+            <div sm-language-attributes-for="Model.Description" class="manufacturer-description lead html-editor-content">
                 <collapsed-content>
                     @Html.Raw(Model.Description)
                 </collapsed-content>
@@ -57,7 +54,7 @@
                 <div class="heading heading-center">
                     <h3 id="featured-products-title" class="heading-title fs-h1">@T("Products.FeaturedProducts")</h3>
                 </div>
-                <div id="featured-product-list" class="block-body pt-3 artlist-no-separators">
+                <div class="block-body pt-3 artlist-no-separators">
                     <partial name="Product.List" model="Model.FeaturedProducts" />
                 </div>
             </div>
