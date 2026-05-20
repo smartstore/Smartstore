@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.IO;
@@ -11,13 +9,12 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Data.Providers;
+using Smartstore.Threading;
 
 namespace Smartstore.Data.Sqlite;
 
 internal class SqliteDataProvider : DataProvider
 {
-    private static readonly ConcurrentDictionary<string, MaintenanceLock> _maintenanceLocksByDatabase = new(StringComparer.Ordinal);
-
     public SqliteDataProvider(DatabaseFacade database)
         : base(database)
     {
@@ -129,7 +126,7 @@ LIMIT {take} OFFSET {skip}";
         var connection = GetSqliteConnection();
         var builder = new SqliteConnectionStringBuilder(connection.ConnectionString);
 
-        if (!string.IsNullOrWhiteSpace(builder.DataSource) && File.Exists(builder.DataSource))
+        if (builder.DataSource.HasValue() && File.Exists(builder.DataSource))
         {
             return Task.FromResult(new FileInfo(builder.DataSource).Length);
         }
@@ -160,7 +157,7 @@ LIMIT {take} OFFSET {skip}";
 
     protected override async Task<int> OptimizeTableCore(string tableName, bool async, CancellationToken cancelToken = default)
     {
-        Guard.NotEmpty(tableName, nameof(tableName));
+        Guard.NotEmpty(tableName);
 
         return await ExecuteMaintenanceOperationAsync(async () =>
         {
@@ -202,7 +199,7 @@ LIMIT {take} OFFSET {skip}";
 
     protected override async Task<int> RestoreDatabaseCore(string backupFullPath, bool async, CancellationToken cancelToken = default)
     {
-        Guard.NotEmpty(backupFullPath, nameof(backupFullPath));
+        Guard.NotEmpty(backupFullPath);
 
         return await ExecuteMaintenanceOperationAsync(async () =>
         {
@@ -259,7 +256,7 @@ LIMIT {take} OFFSET {skip}";
 
     protected override async Task<int> BackupDatabaseCore(string fullPath, bool async, CancellationToken cancelToken = default)
     {
-        Guard.NotEmpty(fullPath, nameof(fullPath));
+        Guard.NotEmpty(fullPath);
 
         return await ExecuteMaintenanceOperationAsync(async () =>
         {
@@ -337,58 +334,14 @@ LIMIT {take} OFFSET {skip}";
     {
         var connection = GetSqliteConnection();
         var builder = new SqliteConnectionStringBuilder(connection.ConnectionString);
-        return string.IsNullOrWhiteSpace(builder.DataSource) ? connection.ConnectionString : builder.DataSource;
+        return builder.DataSource.NullEmpty() ?? connection.ConnectionString;
     }
 
     private async Task<T> ExecuteMaintenanceOperationAsync<T>(Func<Task<T>> action, CancellationToken cancelToken)
     {
         var key = GetMaintenanceLockKey();
-
-        MaintenanceLock maintenanceLock;
-
-        while (true)
-        {
-            maintenanceLock = _maintenanceLocksByDatabase.GetOrAdd(key, static _ => new MaintenanceLock());
-
-            lock (maintenanceLock.SyncRoot)
-            {
-                if (!maintenanceLock.IsRemoved)
-                {
-                    maintenanceLock.WaiterCount++;
-                    break;
-                }
-            }
-        }
-
-        await maintenanceLock.Semaphore.WaitAsync(cancelToken);
-
-        try
-        {
-            return await action();
-        }
-        finally
-        {
-            maintenanceLock.Semaphore.Release();
-
-            lock (maintenanceLock.SyncRoot)
-            {
-                maintenanceLock.WaiterCount--;
-
-                if (maintenanceLock.WaiterCount == 0)
-                {
-                    maintenanceLock.IsRemoved = true;
-
-                    if (_maintenanceLocksByDatabase.TryRemove(new KeyValuePair<string, MaintenanceLock>(key, maintenanceLock)))
-                    {
-                        maintenanceLock.Semaphore.Dispose();
-                    }
-                    else
-                    {
-                        maintenanceLock.IsRemoved = false;
-                    }
-                }
-            }
-        }
+        await using var _ = await AsyncLock.KeyedAsync(key, cancelToken: cancelToken);
+        return await action();
     }
 
     private async Task<int> ShrinkDatabaseInternalCore(bool async, CancellationToken cancelToken = default)
@@ -409,11 +362,4 @@ LIMIT {take} OFFSET {skip}";
         return Database.ExecuteSqlRaw(optimizeSql);
     }
 
-    private sealed class MaintenanceLock
-    {
-        public SemaphoreSlim Semaphore { get; } = new(1, 1);
-        public object SyncRoot { get; } = new();
-        public int WaiterCount;
-        public bool IsRemoved;
     }
-}
