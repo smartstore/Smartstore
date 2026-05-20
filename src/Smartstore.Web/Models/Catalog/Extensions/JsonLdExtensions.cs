@@ -1,8 +1,6 @@
 ﻿#nullable enable
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
-using Smartstore.Http;
 using Smartstore.Json;
 
 namespace Smartstore.Web.Models.Catalog;
@@ -37,11 +35,11 @@ public static class JsonLdExtensions
             .Prop("name", listName)
             .Arr("itemListElement", items.Select(item => JsonLdFragment.Create("ListItem")
                 .Prop("position", position++)
-                .Prop("url", WebHelper.GetAbsoluteUrl(item.DetailUrl, httpRequest, true))));
+                .Prop("url", httpRequest.ToAbsoluteUrl(item.DetailUrl))));
 
         return builder.CollectionPage
             .Prop("name", listName)
-            .Prop("url", WebHelper.GetAbsoluteUrl(url ?? httpRequest.GetDisplayUrl(), httpRequest, true))
+            .Prop("url", httpRequest.ToAbsoluteUrl(url))
             .Obj("mainEntity", itemList);
     }
 }
