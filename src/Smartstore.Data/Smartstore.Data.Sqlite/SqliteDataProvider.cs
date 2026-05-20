@@ -13,6 +13,8 @@ namespace Smartstore.Data.Sqlite;
 
 internal class SqliteDataProvider : DataProvider
 {
+    private static readonly SemaphoreSlim _databaseLock = new(1, 1);
+    
     public SqliteDataProvider(DatabaseFacade database)
         : base(database)
     {
@@ -119,53 +121,75 @@ LIMIT {take} OFFSET {skip}";
         return false;
     }
 
-    protected override Task<long> GetDatabaseSizeCore(bool async)
+    protected override async Task<long> GetDatabaseSizeCore(bool async)
     {
-        // TODO: Get actual file size
-        var sql = $"SELECT page_count * page_size as size FROM pragma_page_count(), pragma_page_size()";
+        var connection = Database.GetDbConnection();
+        var builder = new SqliteConnectionStringBuilder(connection.ConnectionString);
+
+        // If it is not in-memory, retrieve the physical file size
+        if (!string.IsNullOrEmpty(builder.DataSource) && File.Exists(builder.DataSource))
+        {
+            return new FileInfo(builder.DataSource).Length;
+        }
+
+        // Contingency plan: Calculate using SQL
+        var sql = "SELECT page_count * page_size FROM pragma_page_count(), pragma_page_size()";
         return async
-            ? Database.ExecuteQueryRawAsync<long>(sql).FirstOrDefaultAsync().AsTask()
-            : Task.FromResult(Database.ExecuteQueryRaw<long>(sql).FirstOrDefault());
+            ? await Database.ExecuteScalarRawAsync<long>(sql)
+            : Database.ExecuteScalarRaw<long>(sql);
     }
 
     protected override async Task<int> OptimizeDatabaseCore(bool async, CancellationToken cancelToken = default)
     {
-        // TODO: Lock
-        var sql = $"REINDEX;";
-        if (async)
+        // Prevent other maintenance or write operations from taking place during maintenance operations
+        await _databaseLock.WaitAsync(cancelToken);
+        try
         {
-            await Database.ExecuteSqlRawAsync(sql, cancelToken);
-        }
-        else
-        {
-            Database.ExecuteSqlRaw(sql);
-        }
+            const string sql = "REINDEX;";
+            if (async) await Database.ExecuteSqlRawAsync(sql, cancelToken);
+            else Database.ExecuteSqlRaw(sql);
 
-        return await ShrinkDatabaseCore(async, cancelToken);
+            // Shrink (VACUUM) already performs its own locking, but an external lock provides additional security
+            return await ShrinkDatabaseCore(async, cancelToken);
+        }
+        finally
+        {
+            _databaseLock.Release();
+        }
     }
 
     protected override async Task<int> OptimizeTableCore(string tableName, bool async, CancellationToken cancelToken = default)
     {
-        // TODO: Lock
-        var sql = $"REINDEX \"{tableName}\";";
-        if (async)
-        {
-            await Database.ExecuteSqlRawAsync(sql, cancelToken);
-        }
-        else
-        {
-            Database.ExecuteSqlRaw(sql);
-        }
+        Guard.NotEmpty(tableName, nameof(tableName));
 
-        return await ShrinkDatabaseCore(async, cancelToken);
+        await _databaseLock.WaitAsync(cancelToken);
+        try
+        {
+            var sql = $"REINDEX {EncloseIdentifier(tableName)};";
+
+            if (async) await Database.ExecuteSqlRawAsync(sql, cancelToken);
+            else Database.ExecuteSqlRaw(sql);
+
+            return await ShrinkDatabaseCore(async, cancelToken);
+        }
+        finally
+        {
+            _databaseLock.Release();
+        }
     }
 
-    protected override Task<int> ShrinkDatabaseCore(bool async, CancellationToken cancelToken = default)
+    protected override async Task<int> ShrinkDatabaseCore(bool async, CancellationToken cancelToken = default)
     {
-        var sql = $"VACUUM;PRAGMA wal_checkpoint=TRUNCATE;PRAGMA optimize;PRAGMA wal_autocheckpoint;";
+        // The database is locked during the VACUUM operation in SQLite. 
+        // Creating checkpoints in WAL mode to clear the logs improves performance.
+        var sql = @"
+        PRAGMA wal_checkpoint(TRUNCATE);
+        VACUUM;
+        PRAGMA optimize;";
+
         return async
-            ? Database.ExecuteSqlRawAsync(sql, cancelToken)
-            : Task.FromResult(Database.ExecuteSqlRaw(sql));
+            ? await Database.ExecuteSqlRawAsync(sql, cancelToken)
+            : Database.ExecuteSqlRaw(sql);
     }
 
     protected override Task<int?> GetTableIncrementCore(string tableName, bool async)
@@ -187,87 +211,74 @@ LIMIT {take} OFFSET {skip}";
 
     protected override async Task<int> RestoreDatabaseCore(string backupFullPath, bool async, CancellationToken cancelToken = default)
     {
-        if (async)
-        {
-            await Database.CloseConnectionAsync();
-        }
-        else
-        {
-            Database.CloseConnection();
-        }
-        
-        using var backupConnection = Database.GetDbConnection() as SqliteConnection;
-        var thisConnection = new SqliteConnection("Data Source=" + backupFullPath);
+        Guard.NotEmpty(backupFullPath, nameof(backupFullPath));
+
+        await _databaseLock.WaitAsync(cancelToken);
 
         try
         {
-            SqliteConnection.ClearAllPools();
+            var destinationConnection = Database.GetDbConnection() as SqliteConnection;
+
+            using var sourceConnection = new SqliteConnection($"Data Source={backupFullPath}");
+
             if (async)
             {
-                await thisConnection.OpenAsync(cancelToken);
+                await sourceConnection.OpenAsync(cancelToken);
+
+                if (destinationConnection.State != System.Data.ConnectionState.Open)
+                    await destinationConnection.OpenAsync(cancelToken);
             }
             else
             {
-                thisConnection.Open();
+                sourceConnection.Open();
+                if (destinationConnection.State != System.Data.ConnectionState.Open)
+                    destinationConnection.Open();
             }
-            thisConnection.BackupDatabase(backupConnection);
+
+            // SQLite Online Backup API: Copies the data from the source to the destination.
+            // The destination database is locked during this operation.
+            sourceConnection.BackupDatabase(destinationConnection);
+
+            return 1;
         }
         finally
         {
-            if (async)
-            {
-                await backupConnection.CloseAsync();
-                await thisConnection.CloseAsync();
-            }
-            else
-            {
-                backupConnection.Close();
-                thisConnection.Close();
-            }
-            SqliteConnection.ClearPool(thisConnection);
-            SqliteConnection.ClearPool(backupConnection);
+            _databaseLock.Release();
         }
-
-        return 1;
     }
-
 
     protected override async Task<int> BackupDatabaseCore(string fullPath, bool async, CancellationToken cancelToken = default)
     {
-        using var backupConnection = new SqliteConnection($"Data Source={fullPath}");
-        var thisConnection = Database.GetDbConnection() as SqliteConnection;
+        Guard.NotEmpty(fullPath, nameof(fullPath));
+
+        await _databaseLock.WaitAsync(cancelToken);
 
         try
         {
+            var sourceConnection = Database.GetDbConnection() as SqliteConnection;
+            using var destinationConnection = new SqliteConnection($"Data Source={fullPath}");
+
             if (async)
             {
-                await thisConnection.OpenAsync(cancelToken);
+                if (sourceConnection.State != System.Data.ConnectionState.Open)
+                    await sourceConnection.OpenAsync(cancelToken);
+                await destinationConnection.OpenAsync(cancelToken);
             }
             else
             {
-                thisConnection.Open();
+                if (sourceConnection.State != System.Data.ConnectionState.Open)
+                    sourceConnection.Open();
+                destinationConnection.Open();
             }
 
-            thisConnection.BackupDatabase(backupConnection);
+            sourceConnection.BackupDatabase(destinationConnection);
+
+            return 1;
         }
         finally
         {
-            if (async)
-            {
-                await backupConnection.CloseAsync();
-                await thisConnection.CloseAsync();
-            }
-            else
-            {
-                backupConnection.Close();
-                thisConnection.Close();
-            }
-
-            SqliteConnection.ClearPool(backupConnection);
-            SqliteConnection.ClearPool(thisConnection);
+            _databaseLock.Release();
         }
-
-        return 1;
     }
 
     protected override Stream OpenBlobStreamCore(string tableName, string blobColumnName, string pkColumnName, object pkColumnValue)
