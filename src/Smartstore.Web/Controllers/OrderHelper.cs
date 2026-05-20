@@ -36,6 +36,7 @@ namespace Smartstore.Web.Controllers
         private readonly IOrderService _orderService;
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IPaymentService _paymentService;
+        private readonly IDownloadService _downloadService;
         private readonly ITaxService _taxService;
         private readonly IGiftCardService _giftCardService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
@@ -53,6 +54,7 @@ namespace Smartstore.Web.Controllers
             IOrderService orderService,
             IOrderProcessingService orderProcessingService,
             IPaymentService paymentService,
+            IDownloadService downloadService,
             ITaxService taxService,
             IGiftCardService giftCardService,
             IProductAttributeMaterializer productAttributeMaterializer,
@@ -69,6 +71,7 @@ namespace Smartstore.Web.Controllers
             _orderService = orderService;
             _orderProcessingService = orderProcessingService;
             _paymentService = paymentService;
+            _downloadService = downloadService;
             _taxService = taxService;
             _giftCardService = giftCardService;
             _productAttributeMaterializer = productAttributeMaterializer;
@@ -163,6 +166,7 @@ namespace Smartstore.Web.Controllers
             var model = new OrderDetailsModel.OrderItemModel
             {
                 Id = orderItem.Id,
+                OrderItemGuid = orderItem.OrderItemGuid,
                 Sku = orderItem.Sku.NullEmpty() ?? product.Sku,
                 ProductId = product.Id,
                 IsProductSoftDeleted = product.Deleted,
@@ -173,6 +177,8 @@ namespace Smartstore.Web.Controllers
                 AttributeInfo = HtmlUtility.FormatPlainText(HtmlUtility.ConvertHtmlToPlainText(orderItem.AttributeDescription)),
                 QuantityUnit = quantityUnit == null ? string.Empty : quantityUnit.GetLocalized(x => x.Name),
                 MaxReturnQuantity = orderItem.GetMaxReturnQuantity(),
+                IsDownload = product.IsDownload,
+                IsDownloadAllowed = _downloadService.IsDownloadAllowed(orderItem),
                 ReturnCases = await order.Customer.ReturnCases
                     .Where(x => x.OrderItemId == orderItem.Id)
                     .SelectAwait(async x => await x.MapAsync(orderItem))

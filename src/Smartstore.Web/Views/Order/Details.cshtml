@@ -47,49 +47,50 @@
 
                 @* Data *@
                 <div class="cart-item-data col">
-
-                    @* Title *@
-                    <div class="cart-item-group">
-                        <div class="cart-item-title">
-                            @if (item.ProductUrl.HasValue())
+                    <div class="mb-2">
+                        <div class="cart-item-group">
+                            <div class="cart-item-title">
+                                @if (item.ProductUrl.HasValue())
+                                {
+                                    <a class="cart-item-link" href="@item.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
+                                }
+                                else
+                                {
+                                    <span sm-language-attributes-for="item.ProductName">@item.ProductName</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="cart-item-attrs cart-item-group fs-sm" sm-suppress-if-empty>
+                            @if (Model.ShowSku && item.Sku.HasValue())
                             {
-                                <a class="cart-item-link" href="@item.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
+                                <span>@T("Order.Product(s).SKU"):</span>
+                                <span>@item.Sku</span>
                             }
-                            else
+                            @if (item.AttributeInfo.HasValue())
                             {
-                                <span sm-language-attributes-for="item.ProductName">@item.ProductName</span>
+                                @Html.Raw(item.AttributeInfo)
                             }
+                        </div>
+                        <div class="pd-finalprice">
+                            <data asp-for="@item.UnitPrice" class="pd-finalprice-amount"></data>
+                        </div>
+                        <div sm-if="item.Quantity > 0" class="cart-item-qty pd-muted">
+                            <span>@T("Order.Product(s).Quantity"):</span> <span>@item.Quantity @item.QuantityUnit</span>
+                        </div>
+                        <div sm-if="item.UnitPrice != item.SubTotal && item.SubTotal != 0" class="pd-subtotal pd-muted">
+                            <span class="pd-subtotal-label">@T("Order.Product(s).Total"):</span>
+                            <data asp-for="@item.SubTotal" class="pd-subtotal-amount fwm"></data>
                         </div>
                     </div>
 
-                    @* Attributes & Variants *@
-                    <div class="cart-item-attrs cart-item-group fs-sm" sm-suppress-if-empty>
-                        @if (Model.ShowSku && item.Sku.HasValue())
-                        {
-                            <span>@T("Order.Product(s).SKU"):</span>
-                            <span>@item.Sku</span>
-                        }
-                        @if (item.AttributeInfo.HasValue())
-                        {
-                            @Html.Raw(item.AttributeInfo)
-                        }
-                    </div>
-
-                    @* Single unit price *@
-                    <div class="pd-finalprice">
-                        <data asp-for="@item.UnitPrice" class="pd-finalprice-amount"></data>
-                    </div>
-
-                    @* Quantity *@
-                    <div sm-if="item.Quantity > 0" class="cart-item-qty pd-muted">
-                        <span>@T("Order.Product(s).Quantity"):</span> <span>@item.Quantity @item.QuantityUnit</span>
-                    </div>
-
-                    @* Subtotal *@
-                    <div sm-if="item.UnitPrice != item.SubTotal && item.SubTotal != 0" class="pd-subtotal pd-muted">
-                        <span class="pd-subtotal-label">@T("Order.Product(s).Total"):</span>
-                        <data asp-for="@item.SubTotal" class="pd-subtotal-amount fwm"></data>
-                    </div>
+                    <a sm-if="item.IsDownload && item.IsDownloadAllowed"
+                       href="@Url.Action("GetDownload", "Download", new { id = item.OrderItemGuid })"
+                       class="btn btn-secondary btn-sm" 
+                       rel="nofollow">
+                        <i class="fa fa-download" aria-hidden="true"></i>
+                        <span>@T("DownloadableProducts.Fields.Download")</span>
+                        <span class="sr-only"> @item.ProductName</span>
+                    </a>
 
                     <zone name="orderdetails_page_after_item_data" model="item.Id" />
 

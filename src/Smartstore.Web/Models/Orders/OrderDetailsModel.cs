@@ -92,6 +92,7 @@ namespace Smartstore.Web.Models.Orders
 
         public partial class OrderItemModel : EntityModelBase
         {
+            public Guid OrderItemGuid { get; set; }
             public string Sku { get; set; }
             public int ProductId { get; set; }
             public bool IsProductSoftDeleted { get; set; }
@@ -106,6 +107,10 @@ namespace Smartstore.Web.Models.Orders
             public string AttributeInfo { get; set; }
             public bool BundlePerItemPricing { get; set; }
             public bool BundlePerItemShoppingCart { get; set; }
+
+            public bool IsDownload { get; set; }
+            public bool IsDownloadAllowed { get; set; }
+
             public ImageModel Image { get; set; }
             public List<BundleItemModel> BundleItems { get; set; } = [];
 
