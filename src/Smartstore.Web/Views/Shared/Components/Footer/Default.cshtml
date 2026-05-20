@@ -1,11 +1,11 @@
 ﻿@model FooterModel
 
-@using Smartstore.Core.Content.Menus;
 @using Smartstore.Web.Models.Common;
 @using Smartstore.Core.Security;
 
 @{
     var inverseFooter = Display.GetThemeVariable<bool>("inverse-footer");
+    Assets.JsonLd.TryGetFragment("Organization", out var org);
 }
 
 <footer id="footer" class="@(inverseFooter ? "footer-inverse" : "footer-light")">
@@ -27,6 +27,8 @@
                                 <i class="fab fa-@link.CssClass" aria-hidden="true"></i>
                             </a>
                         }
+
+                        @org?.Arr("sameAs", Model.SocialLinks.Select(x => x.Href).Where(x => x != "#"));
                     </div>
                 </div>
             </div>

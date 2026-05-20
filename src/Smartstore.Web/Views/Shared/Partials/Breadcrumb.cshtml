@@ -12,7 +12,6 @@
 
     var resHomepage = T("HomePage");
     var listItems = new List<object>(trail.Count + 1);
-    var baseUri = new Uri(CommonServices.StoreContext.CurrentStore.GetBaseUrl());
 }
 
 <zone name="breadcrumb_before"></zone>
@@ -25,7 +24,7 @@
                 <span class="sr-only">@resHomepage</span>
             </a>
             @{
-                listItems.Add(new { position = 1, name = resHomepage.Value, item = new Uri(baseUri, Url.RouteUrl("Homepage")) });
+                listItems.Add(new { position = 1, name = resHomepage.Value, item = Request.ToAbsoluteUrl(Url.RouteUrl("Homepage")) });
             }
         </li>
         @for (int i = 0; i < trail.Count - 1; i++)
@@ -37,7 +36,7 @@
                 @if (item.HasRoute)
                 {
                     var url = item.GenerateUrl(this.Url);
-                    listItems.Add(new { position = i + 2, name = item.Text, item = new Uri(baseUri, url) });
+                    listItems.Add(new { position = i + 2, name = item.Text, item = Request.ToAbsoluteUrl(url) });
                     <a href="@url" title="@item.Text"><span dir="auto">@item.Text</span></a>
                 }
             </li>

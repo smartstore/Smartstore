@@ -12,8 +12,18 @@
              alt="@Model.LogoTitle"
              title="@Model.LogoTitle"
              class="img-fluid"
-             attr-width="(Model.LogoWidth > 0, Model.LogoWidth.ToString())"
-             attr-height="(Model.LogoHeight > 0, Model.LogoHeight.ToString())" />
+             attr-width="(Model.LogoWidth > 0, Model.LogoWidth.ToStringInvariant())"
+             attr-height="(Model.LogoHeight > 0, Model.LogoHeight.ToStringInvariant())" />
+
+        if (logoUrl.HasValue() && Assets.JsonLd.TryGetFragment("Organization", out var org))
+        {
+            org.Obj("logo", JsonLdFragment.Create("ImageObject", new
+            {
+                url = Request.ToAbsoluteUrl(logoUrl),
+                width = Model.LogoWidth,
+                height = Model.LogoHeight
+            }));
+        }
     }
     else
     {

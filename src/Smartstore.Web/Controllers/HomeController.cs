@@ -6,7 +6,6 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Common.Configuration;
-using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Content.Topics;
 using Smartstore.Core.DataExchange.Export;
@@ -22,7 +21,6 @@ using Smartstore.Core.Stores;
 using Smartstore.Json;
 using Smartstore.Net.Mail;
 using Smartstore.Utilities.Html;
-using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Common;
 
 namespace Smartstore.Web.Controllers
@@ -38,9 +36,7 @@ namespace Smartstore.Web.Controllers
         private readonly StoreInformationSettings _storeInformationSettings;
         private readonly ContactDataSettings _contactDataSettings;
         private readonly CompanyInformationSettings _companySettings;
-        private readonly SocialSettings _socialSettings;
         private readonly IPageAssetBuilder _assetBuilder;
-        private readonly IMediaService _mediaService;
 
         public HomeController(
             SmartDbContext db,
@@ -52,27 +48,23 @@ namespace Smartstore.Web.Controllers
             StoreInformationSettings storeInformationSettings,
             ContactDataSettings contactDataSettings,
             CompanyInformationSettings companySettings,
-            SocialSettings socialSettings,
-            IPageAssetBuilder assetBuilder,
-            IMediaService mediaService)
+            IPageAssetBuilder assetBuilder)
         {
             _db = db;
             _storeContext = storeContext;
             _homePageSettings = homePageSettings;
             _messageFactory = messageFactory;
             _assetBuilder = assetBuilder;
-            _mediaService = mediaService;
             _assetBuilder = assetBuilder;
             _privacySettings = privacySettings;
             _commonSettings = commonSettings;
             _storeInformationSettings = storeInformationSettings;
             _contactDataSettings = contactDataSettings;
             _companySettings = companySettings;
-            _socialSettings = socialSettings;
         }
 
         [LocalizedRoute("/", Name = "Homepage")]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             var storeId = _storeContext.CurrentStore.Id;
 
@@ -80,7 +72,7 @@ namespace Smartstore.Web.Controllers
             ViewBag.MetaDescription = _homePageSettings.GetLocalizedSetting(x => x.MetaDescription, storeId);
             ViewBag.MetaKeywords = _homePageSettings.GetLocalizedSetting(x => x.MetaKeywords, storeId);
 
-            await CreateHomepageJsonLdAsync();
+            BuildHomeJsonLd();
 
             return View();
         }
@@ -165,104 +157,56 @@ namespace Smartstore.Web.Controllers
             return RedirectPermanent(Services.StoreContext.CurrentStore.GetBaseUrl());
         }
 
-        // TODO: (jsonld) Cache this somehow? It changes very rarely but is called very often.
-        private async Task CreateHomepageJsonLdAsync()
+        private void BuildHomeJsonLd()
         {
             var store = _storeContext.CurrentStore;
-            var storeUrl = _storeContext.CurrentStore.Url.EnsureEndsWith("/");
-
-            // Logo
-            var cacheKey = "pres:logo-json-ld-{0}-{1}-{2}".FormatInvariant(store.Id, Request.Scheme, Request.Host);
-            var logo = await Services.Cache.GetAsync(cacheKey, async (o) =>
-            {
-                o.ExpiresIn(TimeSpan.FromHours(4));
-
-                var logoFile = await _mediaService.GetFileByIdAsync(store.LogoMediaFileId, MediaLoadFlags.AsNoTracking);
-
-                if (logoFile == null)
-                {
-                    return null;
-                }
-                
-                return JsonLdFragment.Create("ImageObject", new
-                {
-                    url = _mediaService.GetUrl(logoFile, 0, store.GetBaseUrl(), false),
-                    width = logoFile.Size.Width,
-                    height = logoFile.Size.Height
-                });
-            });
-
-            string countryCode = null;
-            if (_companySettings.CountryId != 0)
-            {
-                var country = await _db.Countries
-                    .Select(x => new { x.Id, x.TwoLetterIsoCode })
-                    .FirstOrDefaultAsync(x => x.Id == _companySettings.CountryId);
-
-                countryCode = country?.TwoLetterIsoCode.NullEmpty();
-            }
-
+            var storeUrl = Services.WebHelper.GetStoreLocation();
+            var builder = _assetBuilder.JsonLd;
+            
             var contactPoint = JsonLdFragment.Create("ContactPoint", new
             {
                 telephone = (_contactDataSettings.HotlineTelephoneNumber ?? _contactDataSettings.CompanyTelephoneNumber).NullEmpty(),
                 email = _contactDataSettings.ContactEmailAddress.NullEmpty(),
-                contactType = "customer service",
-                areaServed = countryCode,
+                contactType = "Customer Service"
             });
 
             var address = JsonLdFragment.Create("PostalAddress", new
             {
                 streetAddress = _companySettings.Street.NullEmpty(),
                 addressLocality = _companySettings.City.NullEmpty(),
-                postalCode = _companySettings.ZipCode.NullEmpty(),
-                addressCountry = countryCode
+                postalCode = _companySettings.ZipCode.NullEmpty()
             });
 
-            var links = new[]
+            if (_companySettings.CountryId > 0)
             {
-                _socialSettings.FacebookLink,
-                _socialSettings.TwitterLink,
-                _socialSettings.InstagramLink,
-                _socialSettings.TikTokLink,
-                _socialSettings.YoutubeLink,
-                _socialSettings.VimeoLink,
-                _socialSettings.PinterestLink,
-                _socialSettings.SnapchatLink,
-                _socialSettings.FlickrLink,
-                _socialSettings.LinkedInLink,
-                _socialSettings.XingLink,
-                _socialSettings.TumblrLink,
-                _socialSettings.ElloLink,
-                _socialSettings.BehanceLink
-            };
+                var country = _db.Countries.FindById(_companySettings.CountryId, false);
+                var countryCode = country?.TwoLetterIsoCode.NullEmpty();
+                if (countryCode.HasValue())
+                {
+                    contactPoint.Prop("areaServed", countryCode);
+                    address.Prop("addressCountry", countryCode);
+                }
+            }
 
-            var sameAs = new List<string>(links.Where(x => x.HasValue()));
+            var searchAction = JsonLdFragment.Create("SearchAction")
+                .Obj("target", JsonLdFragment.Create("EntryPoint", new
+                {
+                    urlTemplate = storeUrl + "search?q={search_term_string}"
+                }))
+                .Prop("query-input", "required name=search_term_string");
 
-            _assetBuilder.JsonLd.Organization
+            builder.Organization
                 .Prop("@id", storeUrl + "#organization")
                 .Prop("name", store.Name)
                 .Prop("url", storeUrl)
                 .Obj("contactPoint", contactPoint)
-                .Obj("address", address)
-                .Arr("sameAs", sameAs);
+                .Obj("address", address);
 
-            if (logo != null)
-            {
-                _assetBuilder.JsonLd.Organization.Obj("logo", logo);
-            }
-
-            _assetBuilder.JsonLd.WebSite
-                .Prop("@id", storeUrl.EnsureEndsWith("/") + "#website")
+            builder.WebSite
+                .Prop("@id", storeUrl + "#website")
                 .Prop("name", store.Name)
                 .Prop("url", store.Url)
-                .Obj("potentialAction", JsonLdFragment.Create("SearchAction", new Dictionary<string, object>
-                {
-                    ["target"] = JsonLdFragment.Create("EntryPoint", new
-                    {
-                        urlTemplate = storeUrl + "search?q={search_term_string}"
-                    }),
-                    ["query-input"] = "required name=search_term_string"
-                }));
+                .Obj("potentialAction", searchAction);
         }
     }
 }
