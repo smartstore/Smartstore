@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.3.11310.294 d18.3
+VisualStudioVersion = 18.3.11310.294
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Web", "src\Smartstore.Web\Smartstore.Web.csproj", "{25E0AA77-1B48-4F6E-B42F-9F428ED968D1}"
 EndProject
@@ -82,6 +82,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Data.Sqlite", "src\Smartstore.Data\Smartstore.Data.Sqlite\Smartstore.Data.Sqlite.csproj", "{32683DB7-C20D-4ABD-BE90-569168B2A68F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Smartstore.Apple.Auth", "src\Smartstore.Modules\Smartstore.Apple.Auth\Smartstore.Apple.Auth.csproj", "{A7E56AC6-2ECF-029F-4CA1-522EAE8AE087}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Smartstore.Data.MySql", "src\Smartstore.Data\Smartstore.Data.MySql\Smartstore.Data.MySql.csproj", "{86AFBE84-F22E-84F3-7D95-3BC3937D5572}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -270,6 +272,12 @@ Global
 		{A7E56AC6-2ECF-029F-4CA1-522EAE8AE087}.DebugNoRazorCompile|Any CPU.Build.0 = DebugNoRazorCompile|Any CPU
 		{A7E56AC6-2ECF-029F-4CA1-522EAE8AE087}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7E56AC6-2ECF-029F-4CA1-522EAE8AE087}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86AFBE84-F22E-84F3-7D95-3BC3937D5572}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86AFBE84-F22E-84F3-7D95-3BC3937D5572}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86AFBE84-F22E-84F3-7D95-3BC3937D5572}.DebugNoRazorCompile|Any CPU.ActiveCfg = DebugNoRazorCompile|Any CPU
+		{86AFBE84-F22E-84F3-7D95-3BC3937D5572}.DebugNoRazorCompile|Any CPU.Build.0 = DebugNoRazorCompile|Any CPU
+		{86AFBE84-F22E-84F3-7D95-3BC3937D5572}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{86AFBE84-F22E-84F3-7D95-3BC3937D5572}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -301,6 +309,7 @@ Global
 		{1A016177-D0EA-49AD-9BD5-BAD99D9D08F9} = {82A38DDA-C944-4C15-AF43-86732F8ED15A}
 		{32683DB7-C20D-4ABD-BE90-569168B2A68F} = {82A38DDA-C944-4C15-AF43-86732F8ED15A}
 		{A7E56AC6-2ECF-029F-4CA1-522EAE8AE087} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
+		{86AFBE84-F22E-84F3-7D95-3BC3937D5572} = {82A38DDA-C944-4C15-AF43-86732F8ED15A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0A0B995-5D0B-458E-BCC0-1071B76949D1}
