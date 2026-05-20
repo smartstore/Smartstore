@@ -16,7 +16,7 @@ namespace Smartstore.Data.Sqlite;
 
 internal class SqliteDataProvider : DataProvider
 {
-    private static readonly ConcurrentDictionary<string, MaintenanceLock> _maintenanceLocks = new(StringComparer.Ordinal);
+    private static readonly ConcurrentDictionary<string, MaintenanceLock> _maintenanceLocksByDatabase = new(StringComparer.Ordinal);
 
     public SqliteDataProvider(DatabaseFacade database)
         : base(database)
@@ -343,14 +343,22 @@ LIMIT {take} OFFSET {skip}";
     private async Task<T> ExecuteMaintenanceOperationAsync<T>(Func<Task<T>> action, CancellationToken cancelToken)
     {
         var key = GetMaintenanceLockKey();
-        var maintenanceLock = _maintenanceLocks.AddOrUpdate(
-            key,
-            static _ => new MaintenanceLock(1),
-            static (_, existing) =>
+
+        MaintenanceLock maintenanceLock;
+
+        while (true)
+        {
+            maintenanceLock = _maintenanceLocksByDatabase.GetOrAdd(key, static _ => new MaintenanceLock());
+
+            lock (maintenanceLock.SyncRoot)
             {
-                Interlocked.Increment(ref existing.RefCount);
-                return existing;
-            });
+                if (!maintenanceLock.IsRemoved)
+                {
+                    maintenanceLock.WaiterCount++;
+                    break;
+                }
+            }
+        }
 
         await maintenanceLock.Semaphore.WaitAsync(cancelToken);
 
@@ -362,10 +370,23 @@ LIMIT {take} OFFSET {skip}";
         {
             maintenanceLock.Semaphore.Release();
 
-            if (Interlocked.Decrement(ref maintenanceLock.RefCount) == 0
-                && _maintenanceLocks.TryRemove(new KeyValuePair<string, MaintenanceLock>(key, maintenanceLock)))
+            lock (maintenanceLock.SyncRoot)
             {
-                maintenanceLock.Semaphore.Dispose();
+                maintenanceLock.WaiterCount--;
+
+                if (maintenanceLock.WaiterCount == 0)
+                {
+                    maintenanceLock.IsRemoved = true;
+
+                    if (_maintenanceLocksByDatabase.TryRemove(new KeyValuePair<string, MaintenanceLock>(key, maintenanceLock)))
+                    {
+                        maintenanceLock.Semaphore.Dispose();
+                    }
+                    else
+                    {
+                        maintenanceLock.IsRemoved = false;
+                    }
+                }
             }
         }
     }
@@ -388,9 +409,11 @@ LIMIT {take} OFFSET {skip}";
         return Database.ExecuteSqlRaw(optimizeSql);
     }
 
-    private sealed class MaintenanceLock(int refCount)
+    private sealed class MaintenanceLock
     {
         public SemaphoreSlim Semaphore { get; } = new(1, 1);
-        public int RefCount = refCount;
+        public object SyncRoot { get; } = new();
+        public int WaiterCount;
+        public bool IsRemoved;
     }
 }
