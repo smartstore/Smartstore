@@ -18,7 +18,6 @@
         </div>
     </div>
     <div id="pnlIsDownload">
-
         @if (Model.DownloadId == null)
         {
             @*If there is no download yet, show download template*@
@@ -51,10 +50,16 @@
                 <div class="adminData">
                     @if (!Model.CurrentDownload.UseDownloadUrl)
                     {
-                        <div id="current-download-preview" class="mb-3">
-                            <a href="@Model.CurrentDownload.DownloadUrl" class="filename" title="@(Model.CurrentDownload?.MediaFile?.Name)" target="_blank">
-                                <media-thumbnail sm-file="Model.CurrentFile" sm-size="MediaSettings.ThumbnailSizeMd" class="justify-content-start my-2" sm-width="150" sm-height="150" />
-                            </a>
+                        var name = Model.CurrentDownload?.MediaFile?.Name;
+                        <div class="row ml-0 mt-3 mb-3 align-items-center">
+                            <div id="current-download-preview" class="col-auto">
+                                <a href="@Model.CurrentDownload.DownloadUrl" class="filename" title="@name" target="_blank">
+                                    <media-thumbnail sm-file="Model.CurrentFile" sm-size="MediaSettings.ThumbnailSizeMd" sm-width="150" sm-height="150" />
+                                </a>
+                            </div>
+                            <div class="col">
+                                @name
+                            </div>
                         </div>
                     }
                     else
@@ -75,7 +80,6 @@
                 </div>
             </div>
         }
-
         @if (Model.DownloadId != null)
         {
             <div class="adminRow">
