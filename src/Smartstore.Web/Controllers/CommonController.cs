@@ -1,11 +1,6 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using System.Text;
+﻿using System.Text;
 using System.Xml.Linq;
-using DotLiquid.Tags;
-using MaxMind.GeoIP2.Model;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Org.BouncyCastle.Asn1.X509;
-using SixLabors.ImageSharp.ColorSpaces;
 using Smartstore.Caching;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Checkout.Payment;
@@ -74,7 +69,8 @@ namespace Smartstore.Web.Controllers
             SocialSettings socialSettings,
             HomePageSettings homePageSettings,
             CompanyInformationSettings companyInformationSettings,
-            ContactDataSettings contactDataSettings)
+            ContactDataSettings contactDataSettings,
+            TaxSettings taxSettings)
         {
             _db = db;
             _cookieConsentManager = cookieConsentManager;
@@ -96,6 +92,7 @@ namespace Smartstore.Web.Controllers
             _homePageSettings = homePageSettings;
             _companyInformationSettings = companyInformationSettings;
             _contactDataSettings = contactDataSettings;
+            _taxSettings = taxSettings;
         }
 
         [CheckStoreClosed(false)]
@@ -228,10 +225,25 @@ namespace Smartstore.Web.Controllers
             }
         }
 
-        // TODO: caching!?
         [CheckStoreClosed(false)]
         [Route("llms.txt"), CrawlerEndpoint]
         public async Task<IActionResult> LlmsTextFile()
+        {
+            // Cache for 24 hours
+            Response.Headers.CacheControl = "public, max-age=86400";
+
+            var cacheKey = string.Format("pres:llmstxt-{0}", Services.StoreContext.CurrentStore.Id);
+            var output = await _cache.GetAsync(cacheKey, async ctx =>
+            {
+                ctx.ExpiresIn(TimeSpan.FromHours(24));
+                // TODO: (jsonld) Create a service for this to avoid controller dependency stuffing?
+                return await BuildLlmsContentAsync(); 
+            });     
+
+            return Content(output, "text/plain", Encoding.UTF8);
+        }
+
+        private async Task<string> BuildLlmsContentAsync()
         {
             using var psb = StringBuilderPool.Instance.Get(out var sb);
 
@@ -250,7 +262,7 @@ namespace Smartstore.Web.Controllers
                 .Where(x => x.IsPaymentProviderEnabled(_paymentSettings));
 
             sb.AppendLine("## Metadata");
-            
+
             sb.AppendLine($"- Base URL: {baseUrl}");
             if (_homePageSettings.MetaTitle.HasValue())
             {
@@ -258,7 +270,7 @@ namespace Smartstore.Web.Controllers
             }
             if (_homePageSettings.MetaDescription.HasValue())
             {
-                sb.AppendLine($"- Title: {_homePageSettings.MetaDescription}");
+                sb.AppendLine($"- Description: {_homePageSettings.MetaDescription}");
             }
             if (_companyInformationSettings.CompanyName.HasValue())
             {
@@ -288,12 +300,12 @@ namespace Smartstore.Web.Controllers
                 }
 
                 var streetLine = string.Join(" ", new[] { street, street2 }.Where(x => x.HasValue()));
-                var cityLine = string.Join(" ", new[] { zip, city }.Where(x => x.HasValue()));      
+                var cityLine = string.Join(" ", new[] { zip, city }.Where(x => x.HasValue()));
 
                 if (streetLine.HasValue()) addressParts.Add(streetLine);
                 if (cityLine.HasValue()) addressParts.Add(cityLine);
                 if (stateName.HasValue()) addressParts.Add(stateName);
-                if (countryName.HasValue()) addressParts.Add(countryName);  
+                if (countryName.HasValue()) addressParts.Add(countryName);
 
                 if (addressParts.Count > 0)
                 {
@@ -319,13 +331,16 @@ namespace Smartstore.Web.Controllers
                 sb.AppendLine($"- Support Phone: {_contactDataSettings.HotlineTelephoneNumber}");
             }
 
-            // TODO
-
-            //            -Target Audience: B2C
-            //- Price Display: Gross(Prices include VAT)
-            //                oder
-            //                - Target Audience: B2B
-            //- Price Display: Net(Prices exclude VAT)
+            if (_taxSettings.TaxDisplayType == TaxDisplayType.IncludingTax)
+            {
+                sb.AppendLine("- Target Audience: B2C");
+                sb.AppendLine("- Price Display: Gross (Prices include VAT)");
+            }
+            else
+            {
+                sb.AppendLine("- Target Audience: B2B");
+                sb.AppendLine("- Price Display: Net (Prices exclude VAT)");
+            }
 
             sb.AppendLine($"- Currency: {Services.WorkContext.WorkingCurrency?.CurrencyCode}");
             sb.AppendLine($"- Available Languages: {string.Join(", ", languages.Select(x => x.UniqueSeoCode))}");
@@ -343,7 +358,7 @@ namespace Smartstore.Web.Controllers
                 foreach (var node in rootChildren)
                 {
                     var item = node.Value;
-                    sb.AppendLine($"- [{item.Text}]({ new Uri(new Uri(baseUrl), item.GenerateUrl(ControllerContext))})");
+                    sb.AppendLine($"- [{item.Text}]({new Uri(new Uri(baseUrl), item.GenerateUrl(ControllerContext))})");
                 }
                 sb.AppendLine();
             }
@@ -359,7 +374,7 @@ namespace Smartstore.Web.Controllers
 
             sb.AppendLine($"- [Contact & Support]({Url.RouteUrl("ContactUs", null, Request.Scheme)})");
             sb.AppendLine($"- [Brands]({Url.RouteUrl("ManufacturerList", null, Request.Scheme)})");
-            sb.AppendLine($"- [Shipping & Delivery Info]({ new Uri(new Uri(baseUrl), await Url.TopicAsync("ShippingInfo"))})");
+            sb.AppendLine($"- [Shipping & Delivery Info]({new Uri(new Uri(baseUrl), await Url.TopicAsync("ShippingInfo"))})");
             sb.AppendLine($"- [Privacy Policy]({new Uri(new Uri(baseUrl), await Url.TopicAsync("PrivacyInfo"))})");
 
             // Social media
@@ -378,7 +393,7 @@ namespace Smartstore.Web.Controllers
             if (_socialSettings.ElloLink.HasValue()) sb.AppendLine($"- [Ello]({_socialSettings.ElloLink})");
             if (_socialSettings.BehanceLink.HasValue()) sb.AppendLine($"- [Behance]({_socialSettings.BehanceLink})");
 
-            return Content(sb.ToString(), "text/plain", Encoding.UTF8);
+            return sb.ToString();
         }
 
         [HttpPost]
