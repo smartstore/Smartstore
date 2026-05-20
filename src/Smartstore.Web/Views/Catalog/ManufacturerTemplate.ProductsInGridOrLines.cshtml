@@ -1,5 +1,4 @@
 ﻿@using Smartstore.Web.Models.Catalog
-@using Microsoft.AspNetCore.Http.Extensions
 
 @model BrandModel
 
@@ -71,6 +70,7 @@
             @if (Model.Products != null)
             {
                 <partial name="Product.List" model="Model.Products" />
+                Assets.JsonLd.BuildProductItemList(Request, Model.Products.Items, Model.Name, Model.CanonicalUrl);
             }
         </div>
 
@@ -88,39 +88,3 @@
         <zone name="manufacturerdetails_bottom" />
     </div>
 </div>
-
-@{
-    // TODO: (jsonld) This is nearly identical to the code in CategoryTemplate.ProductsInGridOrLines.cshtml. We should find a way to reuse it.
-
-    // Build JSON-LD for the category CollectionPage including featured and regular product lists.
-    var url = Model.CanonicalUrl ?? Request.GetDisplayUrl();
-
-    Assets.JsonLd.CollectionPage
-        .Prop("@id", url + "#webpage")
-        .Prop("name", Model.Name)
-        .Obj("about", JsonLdFragment.Create("Brand")
-            .Prop("@id", url + "#brand")
-            .Prop("name", Model.Name)
-            .Prop("url", url));
-
-    if (Model.Products != null && Model.Products.Items.Count > 0)
-    {
-        Assets.JsonLd.CollectionPage.Prop("mainEntity", new Dictionary<string, string> { ["@id"] = url + "#main-product-list" });
-
-        JsonLdHelper.BuildProductItemList(Assets.JsonLd, Url, Model.Products.Items, @Model.Name, url + "#main-product-list", url);
-    }
-
-    if (Model.Description.Value.HasValue())
-    {
-        Assets.JsonLd.CollectionPage.Prop("description", new Dictionary<string, string> { ["@id"] = url + "#manufacturer-description-top" });
-    }
-
-    if (Model.FeaturedProducts != null && Model.FeaturedProducts.Items.Count > 0)
-    {
-        Assets.JsonLd.CollectionPage.Prop("hasPart", new Dictionary<string, string> { ["@id"] = url + "#featured-product-list" });
-
-        // TODO: (jsonld) This also needs to build json ld but currently we have no way of distinguishing featured vs regular products in the list.
-        // Shortcoming of JsonLdBuilder
-        // JsonLdHelper.BuildProductItemList(Assets.JsonLd, Model.Products.Items, @Model.Name, url);
-    }
-}
