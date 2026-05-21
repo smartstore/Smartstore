@@ -63,9 +63,7 @@ namespace Smartstore.Web.Controllers
             var orderItem = await _db.OrderItems
                 .Include(x => x.Product)
                 .Include(x => x.Order)
-                .Where(x => x.OrderItemGuid == id)
-                .FirstOrDefaultAsync();
-
+                .FirstOrDefaultAsync(x => x.OrderItemGuid == id);
             if (orderItem == null)
             {
                 return NotFound();
@@ -170,9 +168,7 @@ namespace Smartstore.Web.Controllers
                 .AsNoTracking()
                 .Include(x => x.Product)
                 .Include(x => x.Order)
-                .Where(x => x.OrderItemGuid == id)
-                .FirstOrDefaultAsync();
-
+                .FirstOrDefaultAsync(x => x.OrderItemGuid == id);
             if (orderItem == null)
             {
                 return NotFound();
@@ -184,7 +180,7 @@ namespace Smartstore.Web.Controllers
             if (!_downloadService.IsLicenseDownloadAllowed(orderItem))
             {
                 NotifyError(T("Common.Download.NotAllowed"));
-                return RedirectToAction("DownloadableProducts", "Customer");
+                return RedirectToDownloadReferrer();
             }
 
             if (_customerSettings.DownloadableProductsValidateUser)
@@ -198,7 +194,7 @@ namespace Smartstore.Web.Controllers
                 if (order.CustomerId != customer.Id)
                 {
                     NotifyError(T("Account.CustomerOrders.NotYourOrder"));
-                    return RedirectToAction("DownloadableProducts", "Customer");
+                    return RedirectToDownloadReferrer();
                 }
             }
 
@@ -213,7 +209,7 @@ namespace Smartstore.Web.Controllers
             }
 
             NotifyError(T("Common.Download.NotAvailable"));
-            return RedirectToAction("DownloadableProducts", "Customer");
+            return RedirectToDownloadReferrer();
         }
 
         [SaveChanges<SmartDbContext>(false)]
@@ -222,8 +218,7 @@ namespace Smartstore.Web.Controllers
             var download = await _db.Downloads
                 .AsNoTracking()
                 .Include(x => x.MediaFile)
-                .Where(x => x.DownloadGuid == downloadId)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(x => x.DownloadGuid == downloadId);
 
             var result = await GetResultFor(download);
             if (result != null)
@@ -232,7 +227,7 @@ namespace Smartstore.Web.Controllers
             }
 
             NotifyError(T("Common.Download.NotAvailable"));
-            return RedirectToAction("DownloadableProducts", "Customer");
+            return RedirectToDownloadReferrer();
         }
 
         public async Task<IActionResult> GetUserAgreement(int productId, bool? asPlainText)
@@ -291,6 +286,11 @@ namespace Smartstore.Web.Controllers
             {
                 FileDownloadName = download.MediaFile.Name
             };
+        }
+
+        private ActionResult RedirectToDownloadReferrer()
+        {
+            return RedirectToReferrer(null, () => RedirectToAction(Url.Action("DownloadableProducts", "Customer")));
         }
     }
 }

@@ -5,14 +5,18 @@ namespace Smartstore.Admin.Controllers
 {
     public class DownloadController : AdminController
     {
-        private const string DOWNLOAD_TEMPLATE = "EditorTemplates/Download";
+        const string downloadTemplate = "EditorTemplates/Download";
 
         private readonly SmartDbContext _db;
         private readonly IDownloadService _downloadService;
         private readonly IMediaService _mediaService;
         private readonly MediaSettings _mediaSettings;
 
-        public DownloadController(SmartDbContext db, IDownloadService downloadService, IMediaService mediaService, MediaSettings mediaSettings)
+        public DownloadController(
+            SmartDbContext db,
+            IDownloadService downloadService,
+            IMediaService mediaService,
+            MediaSettings mediaSettings)
         {
             _db = db;
             _downloadService = downloadService;
@@ -81,7 +85,7 @@ namespace Smartstore.Admin.Controllers
             {
                 success = true,
                 downloadId = download.Id,
-                html = await InvokePartialViewAsync(DOWNLOAD_TEMPLATE, download.Id, new { minimalMode, fieldName })
+                html = await InvokePartialViewAsync(downloadTemplate, download.Id, new { minimalMode, fieldName })
             });
         }
 
@@ -177,7 +181,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         /// <summary>
-        /// (ajax) We don't actually delete here. We just return the editor in it's init state.
+        /// (AJAX) We don't actually delete here. We just return the editor in it's init state.
         /// So the download entity can be set to transient state and deleted later by a scheduled task.
         /// </summary>
         [HttpPost]
@@ -187,7 +191,7 @@ namespace Smartstore.Admin.Controllers
             return Json(new
             {
                 success = true,
-                html = await InvokePartialViewAsync(DOWNLOAD_TEMPLATE, null, new { minimalMode, fieldName })
+                html = await InvokePartialViewAsync(downloadTemplate, null, new { minimalMode, fieldName })
             });
         }
     }
