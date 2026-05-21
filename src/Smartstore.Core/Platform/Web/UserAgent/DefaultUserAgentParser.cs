@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 using Smartstore.ComponentModel;
 using Smartstore.Threading;
@@ -13,6 +14,7 @@ public class DefaultUserAgentParser : Disposable, IUserAgentParser
 {
     const string GenericBot = "Generic bot";
     const string DefaultYamlPath = "App_Data/useragent.yml";
+    const string CustomYamlPath = "App_Data/useragent-custom.yml";
 
     private ImmutableList<UaMatcher> _browsers = [];
     private ImmutableList<UaMatcher> _platforms = [];
@@ -100,17 +102,37 @@ public class DefaultUserAgentParser : Disposable, IUserAgentParser
 
     protected virtual Stream OpenYamlStream(out IChangeToken changeToken)
     {
-        changeToken = CommonHelper.ContentRoot.Watch(DefaultYamlPath);
+        // Always watch both paths so that dropping a file into App_Data at runtime
+        // triggers a reload, even if the file did not exist when the watcher was registered.
+        changeToken = new CompositeChangeToken([
+            CommonHelper.ContentRoot.Watch(CustomYamlPath),
+            CommonHelper.ContentRoot.Watch(DefaultYamlPath)
+        ]);
 
-        // First check if physical file exists in App_Data
+        // 1. Explicit user customization always wins.
+        var customFile = CommonHelper.ContentRoot.GetFile(CustomYamlPath);
+        if (customFile.Exists)
+        {
+            return customFile.OpenRead();
+        }
+
+        var assembly = typeof(IUserAgent).Assembly;
+
+        // 2. Physical default file wins only if it is strictly newer than the assembly,
+        //    meaning the user intentionally placed a more recent version (e.g. downloaded
+        //    from GitHub). If the assembly is equal or newer, the embedded resource takes
+        //    precedence so that app updates are always picked up automatically.
         var physicalFile = CommonHelper.ContentRoot.GetFile(DefaultYamlPath);
         if (physicalFile.Exists)
         {
-            return physicalFile.OpenRead();
+            var assemblyDate = File.GetLastWriteTimeUtc(assembly.Location);
+            if (physicalFile.LastModified.UtcDateTime > assemblyDate)
+            {
+                return physicalFile.OpenRead();
+            }
         }
 
-        // If physical file does not exist, read embedded file from assembly
-        var assembly = typeof(IUserAgent).Assembly;
+        // 3. Fall back to the embedded resource (assembly is up-to-date or no physical file).
         var fullPath = assembly.GetManifestResourceNames()
             .Where(x => x.EndsWith("useragent.yml"))
             .FirstOrDefault();
