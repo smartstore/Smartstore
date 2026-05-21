@@ -44,9 +44,9 @@ namespace Smartstore.Web.Controllers
         private readonly Lazy<ModuleManager> _moduleManager;
         private readonly PaymentSettings _paymentSettings;
         private readonly SocialSettings _socialSettings;
-        private readonly HomePageSettings _homePageSettings;
-        private readonly CompanyInformationSettings _companyInformationSettings;
-        private readonly ContactDataSettings _contactDataSettings;
+        private readonly HomePageSettings _homepageSettings;
+        private readonly CompanyInformationSettings _companyInfoSettings;
+        private readonly ContactDataSettings _contactSettings;
         private readonly TaxSettings _taxSettings;
 
         public CommonController(
@@ -67,9 +67,9 @@ namespace Smartstore.Web.Controllers
             Lazy<ModuleManager> moduleManager,
             PaymentSettings paymentSettings,
             SocialSettings socialSettings,
-            HomePageSettings homePageSettings,
-            CompanyInformationSettings companyInformationSettings,
-            ContactDataSettings contactDataSettings,
+            HomePageSettings homepageSettings,
+            CompanyInformationSettings companyInfoSettings,
+            ContactDataSettings contactSettings,
             TaxSettings taxSettings)
         {
             _db = db;
@@ -89,9 +89,9 @@ namespace Smartstore.Web.Controllers
             _moduleManager = moduleManager;
             _paymentSettings = paymentSettings;
             _socialSettings = socialSettings;
-            _homePageSettings = homePageSettings;
-            _companyInformationSettings = companyInformationSettings;
-            _contactDataSettings = contactDataSettings;
+            _homepageSettings = homepageSettings;
+            _companyInfoSettings = companyInfoSettings;
+            _contactSettings = contactSettings;
             _taxSettings = taxSettings;
         }
 
@@ -235,8 +235,9 @@ namespace Smartstore.Web.Controllers
             var cacheKey = string.Format("pres:llmstxt-{0}", Services.StoreContext.CurrentStore.Id);
             var output = await _cache.GetAsync(cacheKey, async ctx =>
             {
+                // TODO: (jsonld) Cannot cache this: too many volatile dependencies.
                 ctx.ExpiresIn(TimeSpan.FromHours(24));
-                // TODO: (jsonld) Create a service for this to avoid controller dependency stuffing?
+                // TODO: (jsonld) Create ILlmsGenerator service for this to avoid controller cluttering?
                 return await BuildLlmsContentAsync(); 
             });     
 
@@ -246,9 +247,11 @@ namespace Smartstore.Web.Controllers
         private async Task<string> BuildLlmsContentAsync()
         {
             using var psb = StringBuilderPool.Instance.Get(out var sb);
+            var company = _companyInfoSettings;
+            var social = _socialSettings;
 
             var store = Services.StoreContext.CurrentStore;
-            var baseUrl = store.GetBaseUrl().EnsureEndsWith('/');
+            var baseUrl = store.GetBaseUrl();
             sb.AppendLine($"# {store.Name} - LLM Directory");
             sb.AppendLine();
 
@@ -263,34 +266,22 @@ namespace Smartstore.Web.Controllers
 
             sb.AppendLine("## Metadata");
 
-            sb.AppendLine($"- Base URL: {baseUrl}");
-            if (_homePageSettings.MetaTitle.HasValue())
-            {
-                sb.AppendLine($"- Title: {_homePageSettings.MetaTitle}");
-            }
-            if (_homePageSettings.MetaDescription.HasValue())
-            {
-                sb.AppendLine($"- Description: {_homePageSettings.MetaDescription}");
-            }
-            if (_companyInformationSettings.CompanyName.HasValue())
-            {
-                sb.AppendLine($"- Operator: {_companyInformationSettings.CompanyName}");
-            }
-            if (_companyInformationSettings.CompanyManagementDescription.HasValue())
-            {
-                sb.AppendLine($"- Legal Representatives: {_companyInformationSettings.CompanyManagementDescription}");
-            }
+            AppendLine("Base URL", baseUrl);
+            AppendLine("Title", _homepageSettings.MetaTitle);
+            AppendLine("Description", _homepageSettings.MetaDescription);
+            AppendLine("Operator", company.CompanyName);
+            AppendLine("Legal Representatives", company.CompanyManagementDescription);
 
             // Address
             {
                 var addressParts = new List<string>();
 
-                var street = _companyInformationSettings.Street;
-                var street2 = _companyInformationSettings.Street2;
-                var zip = _companyInformationSettings.ZipCode;
-                var city = _companyInformationSettings.City;
-                var stateName = _companyInformationSettings.StateName;
-                var countryId = _companyInformationSettings.CountryId;
+                var street = company.Street;
+                var street2 = company.Street2;
+                var zip = company.ZipCode;
+                var city = company.City;
+                var stateName = company.StateName;
+                var countryId = company.CountryId;
 
                 string countryName = null;
                 if (countryId > 0)
@@ -309,42 +300,30 @@ namespace Smartstore.Web.Controllers
 
                 if (addressParts.Count > 0)
                 {
-                    sb.AppendLine($"- Address: {string.Join(", ", addressParts)}");
+                    AppendLine("Address", string.Join(", ", addressParts));
                 }
             }
 
-            if (_companyInformationSettings.CommercialRegister.HasValue())
-            {
-                sb.AppendLine($"- Registered at: {_companyInformationSettings.CommercialRegister}");
-            }
-            if (_companyInformationSettings.VatId.HasValue())
-            {
-                sb.AppendLine($"- VAT ID: {_companyInformationSettings.VatId}");
-            }
+            AppendLine("Registered at", company.CommercialRegister);
+            AppendLine("VAT ID", company.VatId);
 
-            if (_contactDataSettings.SupportEmailAddress.HasValue())
-            {
-                sb.AppendLine($"- Support Email: {_contactDataSettings.SupportEmailAddress}");
-            }
-            if (_contactDataSettings.HotlineTelephoneNumber.HasValue())
-            {
-                sb.AppendLine($"- Support Phone: {_contactDataSettings.HotlineTelephoneNumber}");
-            }
+            AppendLine("Support Email", _contactSettings.SupportEmailAddress);
+            AppendLine("Support Phone", _contactSettings.HotlineTelephoneNumber);
 
             if (_taxSettings.TaxDisplayType == TaxDisplayType.IncludingTax)
             {
-                sb.AppendLine("- Target Audience: B2C");
-                sb.AppendLine("- Price Display: Gross (Prices include VAT)");
+                AppendLine("Target Audience", "B2C");
+                AppendLine("Price Display", "Gross (Prices include VAT)");
             }
             else
             {
-                sb.AppendLine("- Target Audience: B2B");
-                sb.AppendLine("- Price Display: Net (Prices exclude VAT)");
+                AppendLine("Target Audience", "B2B");
+                AppendLine("Price Display", "Net (Prices exclude VAT)");
             }
 
-            sb.AppendLine($"- Currency: {Services.WorkContext.WorkingCurrency?.CurrencyCode}");
-            sb.AppendLine($"- Available Languages: {string.Join(", ", languages.Select(x => x.UniqueSeoCode))}");
-            sb.AppendLine($"- Available Payment Methods: {string.Join(", ", providers.Select(x => _moduleManager.Value.GetLocalizedFriendlyName(x.Metadata)))}");
+            AppendLine("Currency", Services.WorkContext.WorkingCurrency?.CurrencyCode);
+            AppendLine("Available Languages", string.Join(", ", languages.Select(x => x.UniqueSeoCode)));
+            AppendLine("Available Payment Methods", string.Join(", ", providers.Select(x => _moduleManager.Value.GetLocalizedFriendlyName(x.Metadata))));
             sb.AppendLine();
 
             // Main product categories
@@ -358,42 +337,58 @@ namespace Smartstore.Web.Controllers
                 foreach (var node in rootChildren)
                 {
                     var item = node.Value;
-                    sb.AppendLine($"- [{item.Text}]({new Uri(new Uri(baseUrl), item.GenerateUrl(ControllerContext))})");
+                    AppendLinkLine(item.Text, new Uri(new Uri(baseUrl), item.GenerateUrl(ControllerContext)).ToString());
                 }
                 sb.AppendLine();
             }
 
             // Discovery Links
             sb.AppendLine("## Discovery Links");
-            sb.AppendLine($"- [Sitemap]({baseUrl}sitemap.xml)");
+            AppendLinkLine("Sitemap", baseUrl + "sitemap.xml");
 
             if (_catalogSettings.RecentlyAddedProductsEnabled && _catalogSettings.RecentlyAddedProductsNumber > 0)
             {
-                sb.AppendLine($"- [Recently added products]({Url.RouteUrl("RecentlyAddedProductsRSS", null, Request.Scheme)})");
+                AppendLinkLine("Recently added products", Url.RouteUrl("RecentlyAddedProductsRSS", null, Request.Scheme));
             }
 
-            sb.AppendLine($"- [Contact & Support]({Url.RouteUrl("ContactUs", null, Request.Scheme)})");
-            sb.AppendLine($"- [Brands]({Url.RouteUrl("ManufacturerList", null, Request.Scheme)})");
-            sb.AppendLine($"- [Shipping & Delivery Info]({new Uri(new Uri(baseUrl), await Url.TopicAsync("ShippingInfo"))})");
-            sb.AppendLine($"- [Privacy Policy]({new Uri(new Uri(baseUrl), await Url.TopicAsync("PrivacyInfo"))})");
+            AppendLinkLine("Contact & Support", Url.RouteUrl("ContactUs", null, Request.Scheme));
+            AppendLinkLine("Brands", Url.RouteUrl("ManufacturerList", null, Request.Scheme));
+            AppendLinkLine("Shipping & Delivery Info", new Uri(new Uri(baseUrl), await Url.TopicAsync("ShippingInfo")).ToString());
+            AppendLinkLine("Privacy Policy", new Uri(new Uri(baseUrl), await Url.TopicAsync("PrivacyInfo")).ToString());
 
             // Social media
-            if (_socialSettings.FacebookLink.HasValue()) sb.AppendLine($"- [Facebook]({_socialSettings.FacebookLink})");
-            if (_socialSettings.TwitterLink.HasValue()) sb.AppendLine($"- [Twitter]({_socialSettings.TwitterLink})");
-            if (_socialSettings.InstagramLink.HasValue()) sb.AppendLine($"- [Instagram]({_socialSettings.InstagramLink})");
-            if (_socialSettings.TikTokLink.HasValue()) sb.AppendLine($"- [TikTok]({_socialSettings.TikTokLink})");
-            if (_socialSettings.YoutubeLink.HasValue()) sb.AppendLine($"- [YouTube]({_socialSettings.YoutubeLink})");
-            if (_socialSettings.VimeoLink.HasValue()) sb.AppendLine($"- [Vimeo]({_socialSettings.VimeoLink})");
-            if (_socialSettings.PinterestLink.HasValue()) sb.AppendLine($"- [Pinterest]({_socialSettings.PinterestLink})");
-            if (_socialSettings.SnapchatLink.HasValue()) sb.AppendLine($"- [Snapchat]({_socialSettings.SnapchatLink})");
-            if (_socialSettings.FlickrLink.HasValue()) sb.AppendLine($"- [Flickr]({_socialSettings.FlickrLink})");
-            if (_socialSettings.LinkedInLink.HasValue()) sb.AppendLine($"- [LinkedIn]({_socialSettings.LinkedInLink})");
-            if (_socialSettings.XingLink.HasValue()) sb.AppendLine($"- [Xing]({_socialSettings.XingLink})");
-            if (_socialSettings.TumblrLink.HasValue()) sb.AppendLine($"- [Tumblr]({_socialSettings.TumblrLink})");
-            if (_socialSettings.ElloLink.HasValue()) sb.AppendLine($"- [Ello]({_socialSettings.ElloLink})");
-            if (_socialSettings.BehanceLink.HasValue()) sb.AppendLine($"- [Behance]({_socialSettings.BehanceLink})");
+            AppendLinkLine("Facebook", social.FacebookLink);
+            AppendLinkLine("Twitter", social.TwitterLink);
+            AppendLinkLine("Instagram", social.InstagramLink);
+            AppendLinkLine("TikTok", social.TikTokLink);
+            AppendLinkLine("YouTube", social.YoutubeLink);
+            AppendLinkLine("Vimeo", social.VimeoLink);
+            AppendLinkLine("Pinterest", social.PinterestLink);
+            AppendLinkLine("Snapchat", social.SnapchatLink);
+            AppendLinkLine("Flickr", social.FlickrLink);
+            AppendLinkLine("LinkedIn", social.LinkedInLink);
+            AppendLinkLine("Xing", social.XingLink);
+            AppendLinkLine("Tumblr", social.TumblrLink);
+            AppendLinkLine("Ello", social.ElloLink);
+            AppendLinkLine("Behance", social.BehanceLink);
 
             return sb.ToString();
+
+            void AppendLine(string prefix, string value)
+            {
+                if (value.HasValue())
+                {
+                    sb.AppendLine($"- {prefix}: {value}");
+                }
+            }
+
+            void AppendLinkLine(string name, string url)
+            {
+                if (url.HasValue())
+                {
+                    sb.AppendLine($"- [{name}]({url})");
+                }
+            }
         }
 
         [HttpPost]
