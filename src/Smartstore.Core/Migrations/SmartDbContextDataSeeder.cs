@@ -280,6 +280,6 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
         builder.AddOrUpdate("Common.Preset", "Preset", "Voreinstellung");
 
-        
+        builder.AddOrUpdate("Admin.Catalog.Products.Fields.GTIN", "GTIN (EAN)", "GTIN (EAN)");
     }
 }
