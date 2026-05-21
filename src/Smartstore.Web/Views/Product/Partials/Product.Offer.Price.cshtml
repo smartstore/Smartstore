@@ -45,7 +45,7 @@
         @* Avoid Google error: Either "price" or "priceSpecification" must be specified (in "offers") *@
         Assets.JsonLd.Product.Obj("offers", JsonLdFragment.Create("Offer", new
         {
-            priceSpecification = new { @type = "PriceSpecification" }
+            priceSpecification = new { type = "PriceSpecification" }
         })); 
     }
     else
@@ -83,10 +83,10 @@
                 {
                     Assets.JsonLd.Product.Obj("offers", JsonLdFragment.Create("Offer", new
                     {
-                        price = Model.Price.FinalPrice.Amount.ToStringInvariant(),
+                        price = Model.Price.FinalPrice.Amount,
                         priceCurrency = Model.Price.FinalPrice.Currency.CurrencyCode,
                         availability = Model.IsAvailable ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-                        priceValidUntil = pm.ValidUntilUtc.HasValue ? pm.ValidUntilUtc.Value.ToString("u") : null
+                        priceValidUntil = pm.ValidUntilUtc
                     }));
                 }
                 <div sm-if="!pm.RequiredProductPrices.IsNullOrEmpty()" class="mb-1">

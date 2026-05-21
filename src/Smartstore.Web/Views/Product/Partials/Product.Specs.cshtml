@@ -20,24 +20,6 @@
         .OrderBy(x => x.CollectionGroupDisplayOrder)
         .ThenNaturalBy(sortNaturally ? x => x.CollectionGroupName : null)
         .GroupBy(x => x.CollectionGroupName);
-
-    Assets.JsonLd.Product
-        .Arr("additionalProperty", Model
-            .Where(x => x.SpecificationAttributeOption.Value.HasValue())
-            .GroupBy(x => x.SpecificationAttributeName)
-            .Select(grp =>
-            {
-                var fragment = JsonLdFragment.Create("PropertyValue")
-                    .Prop("name", grp.Key);
-
-                return grp.Count() == 1
-                    ? fragment.Prop("value", grp.First().SpecificationAttributeOption)
-                    : fragment.Arr("value", grp
-                        .OrderBy(x => x.DisplayOrder)
-                        .ThenNaturalBy(sortNaturally ? x => x.SpecificationAttributeOption : null)
-                        .Select(x => x.SpecificationAttributeOption.Value));
-            })
-        );
 }
 
 <div class="pd-specs">
@@ -115,4 +97,25 @@
             </table>
         </div>
     }
+}
+
+@{
+    // TODO: (jsonld) Repetitive code. Build the array in the natural template flow (in AttributeTable)
+    Assets.JsonLd.Product
+        .Arr("additionalProperty", Model
+            .Where(x => x.SpecificationAttributeOption.Value.HasValue())
+            .GroupBy(x => x.SpecificationAttributeName)
+            .Select(grp =>
+            {
+                var fragment = JsonLdFragment.Create("PropertyValue")
+                    .Prop("name", grp.Key);
+
+                return grp.Count() == 1
+                    ? fragment.Prop("value", grp.First().SpecificationAttributeOption)
+                    : fragment.Arr("value", grp
+                        .OrderBy(x => x.DisplayOrder)
+                        .ThenNaturalBy(sortNaturally ? x => x.SpecificationAttributeOption : null)
+                        .Select(x => x.SpecificationAttributeOption.Value));
+            })
+        );
 }

@@ -11,21 +11,10 @@
     var ratingPercent = Model.TotalReviews != 0
         ? ((Model.RatingSum * 100) / Model.TotalReviews) / 5
         : 0;
-    var ratingValue = (ratingPercent / (decimal)20).ToString("0.0", CultureInfo.GetCultureInfo("en-US"));
+    var ratingValueNum = Math.Round(ratingPercent / (decimal)20, 1);
+    var ratingValue = ratingValueNum.ToString("0.0", CultureInfo.GetCultureInfo("en-US"));
     var ratingLabel = T(Model.TotalReviews == 1 ? "Reviews.Overview.Review" : "Reviews.Overview.Reviews", ratingValue, Model.TotalReviews);
     var reviewPageUrl = Url.Action("Reviews", new { id = Model.ProductId });
-    
-    if (Model.TotalReviews > 0)
-    {
-        Assets.JsonLd.Product.Obj("aggregateRating", JsonLdFragment.Create("AggregateRating", new
-        {
-            ratingValue = ratingValue,
-            reviewCount = Model.TotalReviews.ToString(),
-            ratingCount = Model.TotalReviews.ToString(),
-            bestRating = "5",
-            worstRating = "1"
-        }));
-    }
 }
 
 <div class="pd-review-summary pd-group">
@@ -52,3 +41,19 @@
         @Html.Raw(T("RewardPoints.Message.RewardPointsForProductReview", Model.Reward.Points, Model.Reward.Amount.ToString()))
     </div>
 </div>
+
+@{
+    // JSON-LD
+    if (Model.TotalReviews > 0)
+    {
+        // TODO: (jsonld) Put RatingCount to model and pass it to ratingCount
+        Assets.JsonLd.Product.Obj("aggregateRating", JsonLdFragment.Create("AggregateRating", new
+        {
+            ratingValue = ratingValueNum,
+            reviewCount = Model.TotalReviews,
+            ratingCount = Model.TotalReviews,
+            worstRating = 1,
+            bestRating = 5,
+        }));
+    }
+}

@@ -12,6 +12,7 @@
         AttributeControlType.Boxes
     };
 
+    // TODO: (jsonld) Add IsListTypeAttribute to model and check for it (remove variesByTypes)
     Assets.JsonLd.Product
         .Arr("variesBy", Model.Where(x => x.ShouldBeRendered && variesByTypes.Contains(x.AttributeControlType)).Select(x => x.Name));
 }

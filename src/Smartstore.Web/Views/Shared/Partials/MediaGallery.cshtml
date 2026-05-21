@@ -8,6 +8,8 @@
 @{
     var defaultFile = Model.Files?.ElementAtOrDefault(Model.GalleryStartIndex);
     var hasMediaManager = ModuleCatalog.HasModule("Smartstore.MediaManager");
+    var imageUrls = new List<string>(Model.Files.Count);
+    var videoObjects = new List<JsonLdFragment>(Model.Files.Count);
 }
 
 <script src="~/bundle/js/smart-gallery.js" sm-target-zone="scripts"></script>
@@ -69,23 +71,26 @@
                 for (int i = 0; i < Model.Files.Count; i++)
                 {
                     var file = Model.Files[i];
+                    var url = file.GetUrl();
+                    var thumbUrl = file.GetUrl(Model.ThumbSize);
                     var attrName = (i == Model.GalleryStartIndex ? "src" : "data-lazy");
                     var attrValue = file.GetUrl(Model.ImageSize);
                     var srcAttributes = new AttributeDictionary { [attrName] = attrValue };
 
                     <div class="gal-item" role="listitem">
-                        <a href="@file.GetUrl()" 
+                        <a href="@url"
                            class="gal-item-viewport"
                            title="@linkTitle"
                            aria-label="@linkTitle"
-                           data-thumb-image="@file.GetUrl(Model.ThumbSize)"
+                           data-thumb-image="@thumbUrl"
                            data-medium-image="@file.GetUrl(Model.ImageSize)"
                            data-picture-id="@file.Id">
                             @if (file.MediaType == MediaType.Image)
                             {
+                                imageUrls.Add(Request.ToAbsoluteUrl(url));
                                 <img class="gal-item-content file-img"
                                      attrs="@srcAttributes"
-                                     data-zoom="@file.GetUrl()"
+                                     data-zoom="@url"
                                      data-zoom-width="@file.Size.Width"
                                      data-zoom-height="@file.Size.Height"
                                      alt="@file.Alt"
@@ -97,7 +102,7 @@
                                 <figure class="file-figure gal-item-content">
                                     <picture class="file-thumb show fs-display-3" data-type="video" title="@file.TitleAttribute">
                                         <video class="file-video" alt="@file.Alt" attrs="@srcAttributes">
-                                            <source src="@file.GetUrl()" type="video/mp4">
+                                            <source src="@url" type="video/mp4">
                                         </video>
                                         <img class="d-none" src="@Model.FallbackUrl" alt="@Model.DefaultAlt" />
                                     </picture>
@@ -110,6 +115,21 @@
                                         <img class="file-img" attrs="@srcAttributes" alt="@file.Alt" />
                                     </picture>
                                 </figure>
+                            }
+
+                            @if (file.MediaType == MediaType.Video)
+                            {
+                                var videoObject = JsonLdFragment.Create("VideoObject")
+                                    .Prop("name", file.Alt ?? file.TitleAttribute ?? file.Name)
+                                    .Prop("contentUrl", Request.ToAbsoluteUrl(url))
+                                    .Prop("uploadDate", file.CreatedOn);
+
+                                if (hasMediaManager)
+                                {
+                                    videoObject.Prop("thumbnailUrl", Request.ToAbsoluteUrl(thumbUrl));
+                                }
+
+                                videoObjects.Add(videoObject);
                             }
                         </a>
                     </div>
@@ -130,3 +150,19 @@
 <widget sm-if="Model.BoxEnabled" target-zone="aftercontent" key="pswp">
     <partial name="PhotoSwipe" />
 </widget>
+
+@{
+    // JSON-LD
+    if (Assets.JsonLd.TryGetFragment("Product", out var frag))
+    {
+        if (imageUrls.Count > 0)
+        {
+            frag.Arr("image", imageUrls);
+        }
+
+        if (videoObjects.Count > 0)
+        {
+            frag.Arr("video", videoObjects);
+        }
+    }
+}
