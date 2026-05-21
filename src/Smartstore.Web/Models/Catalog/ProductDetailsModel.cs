@@ -261,6 +261,11 @@ namespace Smartstore.Web.Models.Catalog
             public int BundleItemId { get; set; }
             public int ProductAttributeId { get; set; }
             public ProductVariantAttribute ProductAttribute { get; set; }
+            public bool IsListTypeAttribute => AttributeControlType is
+                AttributeControlType.DropdownList or
+                AttributeControlType.RadioList or
+                AttributeControlType.Checkboxes or
+                AttributeControlType.Boxes;
 
             public override string BuildControlId()
                 => ProductVariantQueryItem.CreateKey(ProductId, BundleItemId, ProductAttributeId, Id);

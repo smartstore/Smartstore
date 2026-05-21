@@ -1,20 +1,10 @@
 ﻿@using Smartstore.Web.Models.Catalog;
-@using Smartstore.Core.Catalog.Attributes;
 
 @model IList<ProductDetailsModel.ProductVariantAttributeModel>
 
 @{
-    var variesByTypes = new[]
-    {
-        AttributeControlType.DropdownList,
-        AttributeControlType.RadioList,
-        AttributeControlType.Checkboxes,
-        AttributeControlType.Boxes
-    };
-
-    // TODO: (jsonld) Add IsListTypeAttribute to model and check for it (remove variesByTypes)
     Assets.JsonLd.Product
-        .Arr("variesBy", Model.Where(x => x.ShouldBeRendered && variesByTypes.Contains(x.AttributeControlType)).Select(x => x.Name));
+        .Arr("variesBy", Model.Where(x => x.ShouldBeRendered && x.IsListTypeAttribute).Select(x => x.Name));
 }
 
 <div class="pd-variants">
