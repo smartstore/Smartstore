@@ -230,18 +230,11 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> LlmsTextFile()
         {
             // Cache for 24 hours
-            Response.Headers.CacheControl = "public, max-age=86400";
+            Response.Headers.CacheControl = "public, max-age=86400";    
 
-            var cacheKey = string.Format("pres:llmstxt-{0}", Services.StoreContext.CurrentStore.Id);
-            var output = await _cache.GetAsync(cacheKey, async ctx =>
-            {
-                // TODO: (jsonld) Cannot cache this: too many volatile dependencies.
-                ctx.ExpiresIn(TimeSpan.FromHours(24));
-                // TODO: (jsonld) Create ILlmsGenerator service for this to avoid controller cluttering?
-                return await BuildLlmsContentAsync(); 
-            });     
+            var content = await BuildLlmsContentAsync();
 
-            return Content(output, "text/plain", Encoding.UTF8);
+            return Content(content, "text/plain", Encoding.UTF8);
         }
 
         private async Task<string> BuildLlmsContentAsync()
