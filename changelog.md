@@ -40,6 +40,7 @@
 - #1512 Implement new VAT number status `ServiceUnavailable`.
 - #1507 Add shipping details metadata for search engines to the product detail page.
 - #1516 Overwrite `CatalogSettings.DisplayAllImagesNumber` on product level.
+- (DEV) New `Measure` struct that represents a physical measurement.
 
 ### Improvements
 
