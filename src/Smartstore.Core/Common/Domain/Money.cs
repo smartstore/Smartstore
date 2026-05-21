@@ -199,10 +199,10 @@ public readonly struct Money : IHtmlContent, IConvertible, IFormattable, ICompar
 
     bool IEquatable<Money>.Equals(Money other)
     {
-        if (other.Amount == 0 && this.Amount == 0)
+        if (other.Amount == 0 && Amount == 0)
             return true;
 
-        return other.Amount == this.Amount && other.Currency == this.Currency;
+        return other.Amount == Amount && other.Currency == Currency;
     }
 
     public static bool operator ==(Money a, Money b) => a.Equals(b);
@@ -306,7 +306,7 @@ public readonly struct Money : IHtmlContent, IConvertible, IFormattable, ICompar
                     return clone;
                 });
             }
-
+            
             formatted = RoundedAmount.ToString("C", nf);
         }
 

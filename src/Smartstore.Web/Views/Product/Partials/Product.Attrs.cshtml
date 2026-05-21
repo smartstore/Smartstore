@@ -7,10 +7,10 @@
     var showSku = Model.ShowSku && Model.Sku.HasValue();
     var showGtin = Model.ShowGtin && Model.Gtin.HasValue();
     var showMpn = Model.ShowManufacturerPartNumber && Model.ManufacturerPartNumber.HasValue();
-    var showWeight = Model.ShowWeight && Model.Weight.HasValue();
-    var showWidth = Model.ShowDimensions && Model.Width.HasValue();
-    var showLength = Model.ShowDimensions && Model.Length.HasValue();
-    var showHeight = Model.ShowDimensions && Model.Height.HasValue();
+    var showWeight = Model.ShowWeight && !Model.Weight.IsEmpty;
+    var showWidth = Model.ShowDimensions && !Model.Width.IsEmpty;
+    var showLength = Model.ShowDimensions && !Model.Length.IsEmpty;
+    var showHeight = Model.ShowDimensions && !Model.Height.IsEmpty;
 
     if (!showCondition && !showSku && !showGtin && !showMpn && !showWeight && !showWidth && !showLength && !showHeight)
     {

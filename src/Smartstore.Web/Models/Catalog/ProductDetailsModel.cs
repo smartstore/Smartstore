@@ -127,14 +127,11 @@ namespace Smartstore.Web.Models.Catalog
         public bool ShowWeight { get; set; }
         public bool ShowDimensions { get; set; }
         public string DimensionSystemKeyword { get; set; }
-        public string Weight { get; set; }
-        public string Length { get; set; }
-        public string Width { get; set; }
-        public string Height { get; set; }
+        public Measure Weight { get; set; }
+        public Measure Length { get; set; }
+        public Measure Width { get; set; }
+        public Measure Height { get; set; }
         public decimal WeightValue { get; set; }
-        public decimal LengthValue { get; set; }
-        public decimal WidthValue { get; set; }
-        public decimal HeightValue { get; set; }
 
         public LocalizedValue<string> QuantityUnitName { get; set; }
         public LocalizedValue<string> QuantityUnitNamePlural { get; set; }

@@ -25,7 +25,7 @@
     var hasSkus = Model.ShowSku && Model.Items.Any(x => x.Sku.HasValue());
     var hasDescriptions = Model.ShowDescription && Model.Items.Any(x => x.ShortDescription.Value.HasValue());
     var hasDimensions = Model.Items.Any(x => x.Dimensions.HasValue());
-    var hasWeight = Model.Items.Any(x => x.Weight.HasValue());
+    var hasWeight = Model.Items.Any(x => !x.Weight.IsEmpty);
 }
 
 <div class="page compare-products-page">

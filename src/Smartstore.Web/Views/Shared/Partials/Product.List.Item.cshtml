@@ -94,7 +94,7 @@
             <th scope="row">@T("Products.Sku")</th>
             <td>@Model.Sku</td>
         </tr>
-        <tr sm-if="list.ShowWeight && Model.Weight.HasValue()">
+        <tr sm-if="list.ShowWeight && !Model.Weight.IsEmpty">
             <th scope="row">@T("Products.Weight")</th>
             <td>@Model.Weight</td>
         </tr>

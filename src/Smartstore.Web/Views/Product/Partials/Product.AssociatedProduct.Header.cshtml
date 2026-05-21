@@ -78,9 +78,9 @@
 
     string GetFormattedDimensions(bool full)
     {
-        var w = Model.WidthValue;
-        var h = Model.HeightValue;
-        var l = Model.LengthValue;
+        var w = Model.Width.Value;
+        var h = Model.Height.Value;
+        var l = Model.Length.Value;
 
         if (w == 0 && h == 0 && l == 0)
             return string.Empty;

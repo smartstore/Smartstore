@@ -540,7 +540,7 @@ public partial class CatalogHelper
         if (model.ShowWeight && contextProduct.Weight > 0)
         {
             var measureWeightName = (await GetMeasureWeightAsync(_measureSettings.BaseWeightId))?.GetLocalized(x => x.Name) ?? string.Empty;
-            item.Weight = $"{contextProduct.Weight:G29} {measureWeightName}";
+            item.Weight = new Measure(contextProduct.Weight, measureWeightName);
         }
 
         // "New" badge.
