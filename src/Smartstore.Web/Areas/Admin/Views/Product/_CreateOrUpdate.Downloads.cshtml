@@ -51,13 +51,15 @@
                     @if (!Model.CurrentDownload.UseDownloadUrl)
                     {
                         var name = Model.CurrentDownload?.MediaFile?.Name;
-                        <div class="row ml-0 mt-3 mb-3 align-items-center">
-                            <div id="current-download-preview" class="col-auto">
+                        <div class="hstack gap-2">
+                            <div id="current-download-preview">
+                                @* TODO: (mg) Why using DownloadUrl if this branch actually is !UseDownloadUrl? *@
+                                @* TODO: (mg) Looks ugly BTW. But I really don't have time for it now 🙁' *@
                                 <a href="@Model.CurrentDownload.DownloadUrl" class="filename" title="@name" target="_blank">
                                     <media-thumbnail sm-file="Model.CurrentFile" sm-size="MediaSettings.ThumbnailSizeMd" sm-width="150" sm-height="150" />
                                 </a>
                             </div>
-                            <div class="col">
+                            <div>
                                 @name
                             </div>
                         </div>
