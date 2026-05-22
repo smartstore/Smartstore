@@ -6,51 +6,50 @@ using Smartstore.Facebook.Auth.Models;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
 
-namespace Smartstore.Facebook.Auth.Controllers
+namespace Smartstore.Facebook.Auth.Controllers;
+
+public class FacebookAuthController : AdminController
 {
-    public class FacebookAuthController : AdminController
+    private readonly IOptionsMonitorCache<FacebookOptions> _optionsCache;
+    private readonly IProviderManager _providerManager;
+
+    public FacebookAuthController(IOptionsMonitorCache<FacebookOptions> optionsCache, IProviderManager providerManager)
     {
-        private readonly IOptionsMonitorCache<FacebookOptions> _optionsCache;
-        private readonly IProviderManager _providerManager;
+        _optionsCache = optionsCache;
+        _providerManager = providerManager;
+    }
 
-        public FacebookAuthController(IOptionsMonitorCache<FacebookOptions> optionsCache, IProviderManager providerManager)
+    [HttpGet, LoadSetting]
+    [Permission(Permissions.Configuration.Authentication.Read)]
+    public IActionResult Configure(FacebookExternalAuthSettings settings)
+    {
+        var model = MiniMapper.Map<FacebookExternalAuthSettings, ConfigurationModel>(settings);
+
+        var host = Services.StoreContext.CurrentStore.GetBaseUrl();
+        model.RedirectUrl = $"{host}signin-facebook";
+
+        ViewBag.Provider = _providerManager.GetProvider("Smartstore.Facebook.Auth").Metadata;
+
+        return View(model);
+    }
+
+    [HttpPost, SaveSetting]
+    [Permission(Permissions.Configuration.Authentication.Update)]
+    public IActionResult Configure(ConfigurationModel model, FacebookExternalAuthSettings settings, int storeScope)
+    {
+        if (!ModelState.IsValid)
         {
-            _optionsCache = optionsCache;
-            _providerManager = providerManager;
+            return Configure(settings);
         }
 
-        [HttpGet, LoadSetting]
-        [Permission(Permissions.Configuration.Authentication.Read)]
-        public IActionResult Configure(FacebookExternalAuthSettings settings)
-        {
-            var model = MiniMapper.Map<FacebookExternalAuthSettings, ConfigurationModel>(settings);
+        ModelState.Clear();
+        MiniMapper.Map(model, settings);
 
-            var host = Services.StoreContext.CurrentStore.GetBaseUrl();
-            model.RedirectUrl = $"{host}signin-facebook";
+        // TODO: (mh) (core) This must also be called when settings change via all settings grid.
+        _optionsCache.TryRemove(FacebookDefaults.AuthenticationScheme);
 
-            ViewBag.Provider = _providerManager.GetProvider("Smartstore.Facebook.Auth").Metadata;
+        NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 
-            return View(model);
-        }
-
-        [HttpPost, SaveSetting]
-        [Permission(Permissions.Configuration.Authentication.Update)]
-        public IActionResult Configure(ConfigurationModel model, FacebookExternalAuthSettings settings, int storeScope)
-        {
-            if (!ModelState.IsValid)
-            {
-                return Configure(settings);
-            }
-
-            ModelState.Clear();
-            MiniMapper.Map(model, settings);
-
-            // TODO: (mh) (core) This must also be called when settings change via all settings grid.
-            _optionsCache.TryRemove(FacebookDefaults.AuthenticationScheme);
-
-            NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
-
-            return RedirectToAction(nameof(Configure));
-        }
+        return RedirectToAction(nameof(Configure));
     }
 }
