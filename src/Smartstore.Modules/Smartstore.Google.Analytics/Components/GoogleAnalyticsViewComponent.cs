@@ -10,174 +10,173 @@ using Smartstore.Google.Analytics.Services;
 using Smartstore.Web.Components;
 using Smartstore.Web.Models.Search;
 
-namespace Smartstore.Google.Analytics.Components
+namespace Smartstore.Google.Analytics.Components;
+
+public class GoogleAnalyticsViewComponent : SmartViewComponent
 {
-    public class GoogleAnalyticsViewComponent : SmartViewComponent
+    private static readonly JsMinifier Minifier = new();
+
+    private readonly GoogleAnalyticsSettings _settings;
+    private readonly ICookieConsentManager _cookieConsentManager;
+    private readonly GoogleAnalyticsScriptHelper _googleAnalyticsScriptHelper;
+    private readonly OrderSettings _orderSettings;
+
+    public GoogleAnalyticsViewComponent(
+        GoogleAnalyticsSettings settings,
+        ICookieConsentManager cookieConsentManager,
+        GoogleAnalyticsScriptHelper googleAnalyticsScriptHelper,
+        OrderSettings orderSettings)
     {
-        private static readonly JsMinifier Minifier = new();
+        _settings = settings;
+        _cookieConsentManager = cookieConsentManager;
+        _googleAnalyticsScriptHelper = googleAnalyticsScriptHelper;
+        _orderSettings = orderSettings;
+    }
 
-        private readonly GoogleAnalyticsSettings _settings;
-        private readonly ICookieConsentManager _cookieConsentManager;
-        private readonly GoogleAnalyticsScriptHelper _googleAnalyticsScriptHelper;
-        private readonly OrderSettings _orderSettings;
-
-        public GoogleAnalyticsViewComponent(
-            GoogleAnalyticsSettings settings,
-            ICookieConsentManager cookieConsentManager,
-            GoogleAnalyticsScriptHelper googleAnalyticsScriptHelper,
-            OrderSettings orderSettings)
+    public async Task<IViewComponentResult> InvokeAsync(object model)
+    {
+        // If GoogleId is empty or is default don't render anything.
+        if (!_settings.GoogleId.HasValue() || _settings.GoogleId == "UA-0000000-0")
         {
-            _settings = settings;
-            _cookieConsentManager = cookieConsentManager;
-            _googleAnalyticsScriptHelper = googleAnalyticsScriptHelper;
-            _orderSettings = orderSettings;
+            return Empty();
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(object model)
+        var rootScript = string.Empty;
+        var specificScript = string.Empty;
+
+        try
         {
-            // If GoogleId is empty or is default don't render anything.
-            if (!_settings.GoogleId.HasValue() || _settings.GoogleId == "UA-0000000-0")
+            var routeData = HttpContext.GetRouteData();
+            var controller = routeData.Values.GetControllerName();
+            var action = routeData.Values.GetActionName();
+
+            // None of the Google Tag Manager code should be rendered when old (unmigrated) tracking code is still used.
+            var isOldScript = _settings.EcommerceScript.Contains("analytics.js");
+
+            if (!isOldScript)
             {
-                return Empty();
-            }
-
-            var rootScript = string.Empty;
-            var specificScript = string.Empty;
-
-            try
-            {
-                var routeData = HttpContext.GetRouteData();
-                var controller = routeData.Values.GetControllerName();
-                var action = routeData.Values.GetActionName();
-
-                // None of the Google Tag Manager code should be rendered when old (unmigrated) tracking code is still used.
-                var isOldScript = _settings.EcommerceScript.Contains("analytics.js");
-
-                if (!isOldScript)
+                if (_settings.RenderCatalogScripts)
                 {
-                    if (_settings.RenderCatalogScripts)
+                    if (controller.EqualsNoCase("product") && action.EqualsNoCase("productdetails"))
                     {
-                        if (controller.EqualsNoCase("product") && action.EqualsNoCase("productdetails"))
+                        // Product details page > view_item
+                        specificScript = _googleAnalyticsScriptHelper.GetViewItemScript((ProductDetailsModel)model);
+                    }
+                    else if (controller.EqualsNoCase("catalog"))
+                    {
+                        var isCategoryList = false;
+                        var productList = new List<ProductSummaryItemModel>();
+
+                        // Category, Manufacturer, RecentlyViewedProducts, RecentlyAddedProducts & CompareProducts pages
+                        if (action.EqualsNoCase("category"))
                         {
-                            // Product details page > view_item
-                            specificScript = _googleAnalyticsScriptHelper.GetViewItemScript((ProductDetailsModel)model);
+                            var categoryModel = (CategoryModel)model;
+                            productList = categoryModel.Products.Items;
+                            isCategoryList = true;
                         }
-                        else if (controller.EqualsNoCase("catalog"))
+                        else if (action.EqualsNoCase("manufacturer"))
                         {
-                            var isCategoryList = false;
-                            var productList = new List<ProductSummaryItemModel>();
-
-                            // Category, Manufacturer, RecentlyViewedProducts, RecentlyAddedProducts & CompareProducts pages
-                            if (action.EqualsNoCase("category"))
-                            {
-                                var categoryModel = (CategoryModel)model;
-                                productList = categoryModel.Products.Items;
-                                isCategoryList = true;
-                            }
-                            else if (action.EqualsNoCase("manufacturer"))
-                            {
-                                productList = ((BrandModel)model).Products.Items;
-                            }
-                            else if (action.EqualsNoCase("recentlyviewedproducts") ||
-                                     action.EqualsNoCase("recentlyaddedproducts") ||
-                                     action.EqualsNoCase("compareproducts"))
-                            {
-                                productList = ((ProductSummaryModel)model).Items;
-                            }
-
-                            // If there are no products in the list return just global script.
-                            if (productList.Count > 0)
-                            {
-                                specificScript = _googleAnalyticsScriptHelper.GetListScript(productList, action.ToLower(), isCategoryList);
-                            }
+                            productList = ((BrandModel)model).Products.Items;
                         }
-                        else if (controller.EqualsNoCase("search") && action.EqualsNoCase("search"))
+                        else if (action.EqualsNoCase("recentlyviewedproducts") ||
+                                 action.EqualsNoCase("recentlyaddedproducts") ||
+                                 action.EqualsNoCase("compareproducts"))
                         {
-                            var searchModel = (SearchResultModel)model;
-                            var productList = searchModel.TopProducts.Items;
+                            productList = ((ProductSummaryModel)model).Items;
+                        }
 
-                            specificScript = _googleAnalyticsScriptHelper.GetSearchTermScript(searchModel.Term);
-                            specificScript += _googleAnalyticsScriptHelper.GetListScript(productList, action.ToLower());
+                        // If there are no products in the list return just global script.
+                        if (productList.Count > 0)
+                        {
+                            specificScript = _googleAnalyticsScriptHelper.GetListScript(productList, action.ToLower(), isCategoryList);
                         }
                     }
-                    if (_settings.RenderCheckoutScripts)
+                    else if (controller.EqualsNoCase("search") && action.EqualsNoCase("search"))
                     {
-                        if (controller.EqualsNoCase("shoppingcart") && action.EqualsNoCase("cart"))
+                        var searchModel = (SearchResultModel)model;
+                        var productList = searchModel.TopProducts.Items;
+
+                        specificScript = _googleAnalyticsScriptHelper.GetSearchTermScript(searchModel.Term);
+                        specificScript += _googleAnalyticsScriptHelper.GetListScript(productList, action.ToLower());
+                    }
+                }
+                if (_settings.RenderCheckoutScripts)
+                {
+                    if (controller.EqualsNoCase("shoppingcart") && action.EqualsNoCase("cart"))
+                    {
+                        // Cart page > view_cart + remove_from_cart 
+                        specificScript = await _googleAnalyticsScriptHelper.GetCartScriptAsync((ShoppingCartModel)model);
+                    }
+                    else if (controller.EqualsNoCase("checkout"))
+                    {
+                        if (action.EqualsNoCase("billingaddress"))
                         {
-                            // Cart page > view_cart + remove_from_cart 
-                            specificScript = await _googleAnalyticsScriptHelper.GetCartScriptAsync((ShoppingCartModel)model);
+                            // Select billing address > begin_checkout
+                            specificScript = await _googleAnalyticsScriptHelper.GetCheckoutScriptAsync();
                         }
-                        else if (controller.EqualsNoCase("checkout"))
+                        else if (action.EqualsNoCase("paymentmethod"))
                         {
-                            if (action.EqualsNoCase("billingaddress"))
-                            {
-                                // Select billing address > begin_checkout
-                                specificScript = await _googleAnalyticsScriptHelper.GetCheckoutScriptAsync();
-                            }
-                            else if (action.EqualsNoCase("paymentmethod"))
-                            {
-                                // Payment method page > add_shipping_info
-                                specificScript = await _googleAnalyticsScriptHelper.GetCheckoutScriptAsync(addShippingInfo: true);
-                            }
-                            else if (action.EqualsNoCase("confirm"))
-                            {
-                                // Confirm order page > add_payment_info
-                                specificScript = await _googleAnalyticsScriptHelper.GetCheckoutScriptAsync(addPaymentInfo: true);
-                            }
+                            // Payment method page > add_shipping_info
+                            specificScript = await _googleAnalyticsScriptHelper.GetCheckoutScriptAsync(addShippingInfo: true);
+                        }
+                        else if (action.EqualsNoCase("confirm"))
+                        {
+                            // Confirm order page > add_payment_info
+                            specificScript = await _googleAnalyticsScriptHelper.GetCheckoutScriptAsync(addPaymentInfo: true);
                         }
                     }
                 }
+            }
 
-                // Special case: must be rendered also for old script
-                if (controller.EqualsNoCase("checkout") && action.EqualsNoCase("completed") && _settings.RenderCheckoutScripts)
+            // Special case: must be rendered also for old script
+            if (controller.EqualsNoCase("checkout") && action.EqualsNoCase("completed") && _settings.RenderCheckoutScripts)
+            {
+                // Checkout completed page > purchase
+                specificScript = await _googleAnalyticsScriptHelper.GetOrderCompletedScriptAsync();
+            }
+            else if (controller.EqualsNoCase("order") && action.EqualsNoCase("details") && _orderSettings.DisableOrderCompletedPage)
+            {
+                // If order was just being completed render script.
+                var orderCompleted = HttpContext.Session.GetString("GA-OrderCompleted").ToBool();
+                if (orderCompleted)
                 {
-                    // Checkout completed page > purchase
+                    // Order details page
                     specificScript = await _googleAnalyticsScriptHelper.GetOrderCompletedScriptAsync();
                 }
-                else if (controller.EqualsNoCase("order") && action.EqualsNoCase("details") && _orderSettings.DisableOrderCompletedPage)
-                {
-                    // If order was just being completed render script.
-                    var orderCompleted = HttpContext.Session.GetString("GA-OrderCompleted").ToBool();
-                    if (orderCompleted)
-                    {
-                        // Order details page
-                        specificScript = await _googleAnalyticsScriptHelper.GetOrderCompletedScriptAsync();
-                    }
-                }
-
-                // INFO: We must leave this here to handle Script settings which weren't updated yet. We can remove these parameters in the future.
-                var cookiesAllowed = await _cookieConsentManager.IsCookieAllowedAsync(CookieType.Analytics);
-                var adUserDataAllowed = await _cookieConsentManager.IsCookieAllowedAsync(CookieType.ConsentAdUserData);
-                var adPersonalizationAllowed = await _cookieConsentManager.IsCookieAllowedAsync(CookieType.ConsentAdPersonalization);
-
-                rootScript = _googleAnalyticsScriptHelper.GetTrackingScript(cookiesAllowed, adUserDataAllowed, adPersonalizationAllowed)
-                    .Replace("{ECOMMERCE}", specificScript);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, "Error creating scripts for google ecommerce tracking");
             }
 
-            // If user has not accepted the cookie consent modify script tags to include data-consent attribute.
-            var consented = !_settings.RenderWithUserConsentOnly || await _cookieConsentManager.IsCookieAllowedAsync(CookieType.Analytics);
-            if (!consented)
-            {
-                rootScript = rootScript.Replace("<script>", "<script type=\"text/plain\">");
-                rootScript = rootScript.Replace("<script", "<script data-consent=\"analytics\"");
-                rootScript = rootScript.Replace("src=", "data-src=");
-            }
+            // INFO: We must leave this here to handle Script settings which weren't updated yet. We can remove these parameters in the future.
+            var cookiesAllowed = await _cookieConsentManager.IsCookieAllowedAsync(CookieType.Analytics);
+            var adUserDataAllowed = await _cookieConsentManager.IsCookieAllowedAsync(CookieType.ConsentAdUserData);
+            var adPersonalizationAllowed = await _cookieConsentManager.IsCookieAllowedAsync(CookieType.ConsentAdPersonalization);
 
-            if (_settings.MinifyScripts && rootScript.HasValue())
-            {
-                rootScript = Minifier.Minify(rootScript);
-            }
-
-            var path = Url.Content("~/Modules/Smartstore.Google.Analytics/js/google-analytics.utils.js");
-            //rootScript = $"<script {(consented ? string.Empty : "data-consent=\"analytics\" data-")}src='{path}'></script>\n{rootScript}";
-            var scriptIncludeTag = _cookieConsentManager.GenerateScript(consented, CookieType.Analytics, path);
-            rootScript = $"{scriptIncludeTag.ToHtmlString()}\n{rootScript}";
-
-            return HtmlContent(rootScript);
+            rootScript = _googleAnalyticsScriptHelper.GetTrackingScript(cookiesAllowed, adUserDataAllowed, adPersonalizationAllowed)
+                .Replace("{ECOMMERCE}", specificScript);
         }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, "Error creating scripts for google ecommerce tracking");
+        }
+
+        // If user has not accepted the cookie consent modify script tags to include data-consent attribute.
+        var consented = !_settings.RenderWithUserConsentOnly || await _cookieConsentManager.IsCookieAllowedAsync(CookieType.Analytics);
+        if (!consented)
+        {
+            rootScript = rootScript.Replace("<script>", "<script type=\"text/plain\">");
+            rootScript = rootScript.Replace("<script", "<script data-consent=\"analytics\"");
+            rootScript = rootScript.Replace("src=", "data-src=");
+        }
+
+        if (_settings.MinifyScripts && rootScript.HasValue())
+        {
+            rootScript = Minifier.Minify(rootScript);
+        }
+
+        var path = Url.Content("~/Modules/Smartstore.Google.Analytics/js/google-analytics.utils.js");
+        //rootScript = $"<script {(consented ? string.Empty : "data-consent=\"analytics\" data-")}src='{path}'></script>\n{rootScript}";
+        var scriptIncludeTag = _cookieConsentManager.GenerateScript(consented, CookieType.Analytics, path);
+        rootScript = $"{scriptIncludeTag.ToHtmlString()}\n{rootScript}";
+
+        return HtmlContent(rootScript);
     }
 }

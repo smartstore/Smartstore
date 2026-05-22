@@ -8,72 +8,71 @@ using Smartstore.Events;
 using Smartstore.Google.Analytics.Services;
 using Smartstore.Web.Components;
 
-namespace Smartstore.Google.Analytics
+namespace Smartstore.Google.Analytics;
+
+public class Events : IConsumer
 {
-    public class Events : IConsumer
+    private static readonly Dictionary<Type, string> _interceptableViewComponents = new()
     {
-        private static readonly Dictionary<Type, string> _interceptableViewComponents = new()
-        {
-            { typeof(HomeProductsViewComponent), "home_page_after_products" },
-            { typeof(HomeBestsellersViewComponent), "home_page_after_bestsellers" },
-            { typeof(RecentlyViewedProductsViewComponent), "after_recently_viewed_products" },
-            { typeof(CrossSellProductsViewComponent), "after_cross_sell_products" }
-        };
+        { typeof(HomeProductsViewComponent), "home_page_after_products" },
+        { typeof(HomeBestsellersViewComponent), "home_page_after_bestsellers" },
+        { typeof(RecentlyViewedProductsViewComponent), "after_recently_viewed_products" },
+        { typeof(CrossSellProductsViewComponent), "after_cross_sell_products" }
+    };
 
-        private readonly GoogleAnalyticsSettings _settings;
-        private readonly GoogleAnalyticsScriptHelper _googleAnalyticsScriptHelper;
-        private readonly IWidgetProvider _widgetProvider;
+    private readonly GoogleAnalyticsSettings _settings;
+    private readonly GoogleAnalyticsScriptHelper _googleAnalyticsScriptHelper;
+    private readonly IWidgetProvider _widgetProvider;
 
-        public Events(GoogleAnalyticsSettings settings, GoogleAnalyticsScriptHelper googleAnalyticsScriptHelper, IWidgetProvider widgetProvider)
+    public Events(GoogleAnalyticsSettings settings, GoogleAnalyticsScriptHelper googleAnalyticsScriptHelper, IWidgetProvider widgetProvider)
+    {
+        _settings = settings;
+        _googleAnalyticsScriptHelper = googleAnalyticsScriptHelper;
+        _widgetProvider = widgetProvider;
+    }
+
+    public async Task HandleEventAsync(ViewComponentResultExecutingEvent message, 
+        IProviderManager providerManager, 
+        WidgetSettings widgetSettings,
+        ICookieConsentManager cookieConsentManager)
+    {
+        // If GoogleId is empty or is default don't render anything. Also if catalog scripts are configured not to be rendered.
+        if (!_settings.GoogleId.HasValue() || _settings.GoogleId == "UA-0000000-0" || !_settings.RenderCatalogScripts)
         {
-            _settings = settings;
-            _googleAnalyticsScriptHelper = googleAnalyticsScriptHelper;
-            _widgetProvider = widgetProvider;
+            return;
         }
 
-        public async Task HandleEventAsync(ViewComponentResultExecutingEvent message, 
-            IProviderManager providerManager, 
-            WidgetSettings widgetSettings,
-            ICookieConsentManager cookieConsentManager)
+        var componentType = message.Descriptor.TypeInfo.AsType();
+
+        if (!_interceptableViewComponents.TryGetValue(componentType, out var zone))
         {
-            // If GoogleId is empty or is default don't render anything. Also if catalog scripts are configured not to be rendered.
-            if (!_settings.GoogleId.HasValue() || _settings.GoogleId == "UA-0000000-0" || !_settings.RenderCatalogScripts)
-            {
+            return;
+        }
+        else if (message.Result is ViewViewComponentResult viewResult && viewResult.ViewData.Model is ProductSummaryModel model)
+        {
+            // Only render when module is active.
+            var widget = providerManager.GetProvider<IActivatableWidget>("Smartstore.Google.Analytics");
+
+            if (widget == null || !widget.IsWidgetActive(widgetSettings))
                 return;
-            }
 
-            var componentType = message.Descriptor.TypeInfo.AsType();
+            var productList = model.Items;
+            var componentName = message.Descriptor.ShortName;
 
-            if (!_interceptableViewComponents.TryGetValue(componentType, out var zone))
+            if (productList.Count > 0)
             {
-                return;
-            }
-            else if (message.Result is ViewViewComponentResult viewResult && viewResult.ViewData.Model is ProductSummaryModel model)
-            {
-                // Only render when module is active.
-                var widget = providerManager.GetProvider<IActivatableWidget>("Smartstore.Google.Analytics");
+                var itemsScript = _googleAnalyticsScriptHelper.GetListScript(productList, componentName);
 
-                if (widget == null || !widget.IsWidgetActive(widgetSettings))
-                    return;
-
-                var productList = model.Items;
-                var componentName = message.Descriptor.ShortName;
-
-                if (productList.Count > 0)
+                if (_settings.MinifyScripts)
                 {
-                    var itemsScript = _googleAnalyticsScriptHelper.GetListScript(productList, componentName);
-
-                    if (_settings.MinifyScripts)
-                    {
-                        itemsScript = new JsMinifier().Minify(itemsScript);
-                    }
-
-                    // If user has not accepted the cookie consent and the module is configured to render only with user consent, add consent attributes.
-                    var consented = _settings.RenderWithUserConsentOnly || await cookieConsentManager.IsCookieAllowedAsync(CookieType.Analytics);
-                    var scriptIncludeTag = new HtmlString($"<script{(consented ? string.Empty : " data-consent=\"analytics\" type=\"text/plain\"")}>$(function() {{{itemsScript}}});</script>");
-
-                    _widgetProvider.RegisterHtml(zone, scriptIncludeTag);
+                    itemsScript = new JsMinifier().Minify(itemsScript);
                 }
+
+                // If user has not accepted the cookie consent and the module is configured to render only with user consent, add consent attributes.
+                var consented = _settings.RenderWithUserConsentOnly || await cookieConsentManager.IsCookieAllowedAsync(CookieType.Analytics);
+                var scriptIncludeTag = new HtmlString($"<script{(consented ? string.Empty : " data-consent=\"analytics\" type=\"text/plain\"")}>$(function() {{{itemsScript}}});</script>");
+
+                _widgetProvider.RegisterHtml(zone, scriptIncludeTag);
             }
         }
     }

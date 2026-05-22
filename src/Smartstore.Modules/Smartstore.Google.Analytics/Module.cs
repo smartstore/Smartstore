@@ -17,87 +17,86 @@ using Smartstore.Engine.Modularity;
 using Smartstore.Google.Analytics.Components;
 using Smartstore.Http;
 
-namespace Smartstore.Google.Analytics
+namespace Smartstore.Google.Analytics;
+
+internal class Module : ModuleBase, IConfigurable, IActivatableWidget, ICookiePublisher
 {
-    internal class Module : ModuleBase, IConfigurable, IActivatableWidget, ICookiePublisher
+    private readonly IProviderManager _providerManager;
+    private readonly WidgetSettings _widgetSettings;
+    private readonly GoogleAnalyticsSettings _settings;
+
+    public Module(IProviderManager providerManager,  WidgetSettings widgetSettings, GoogleAnalyticsSettings settings)
     {
-        private readonly IProviderManager _providerManager;
-        private readonly WidgetSettings _widgetSettings;
-        private readonly GoogleAnalyticsSettings _settings;
+        _providerManager = providerManager;
+        _widgetSettings = widgetSettings;
+        _settings = settings;
+    }
 
-        public Module(IProviderManager providerManager,  WidgetSettings widgetSettings, GoogleAnalyticsSettings settings)
+    public ILogger Logger { get; set; } = NullLogger.Instance;
+    public Localizer T { get; set; } = NullLocalizer.Instance;
+
+    public RouteInfo GetConfigurationRoute()
+        => new("Configure", "GoogleAnalytics", new { area = "Admin" });
+
+    public Task<IEnumerable<CookieInfo>> GetCookieInfosAsync()
+    {
+        var widget = _providerManager.GetProvider<IActivatableWidget>("Smartstore.Google.Analytics");
+        if (!widget.IsWidgetActive(_widgetSettings))
         {
-            _providerManager = providerManager;
-            _widgetSettings = widgetSettings;
-            _settings = settings;
+            return Task.FromResult(Enumerable.Empty<CookieInfo>());
         }
 
-        public ILogger Logger { get; set; } = NullLogger.Instance;
-        public Localizer T { get; set; } = NullLocalizer.Instance;
-
-        public RouteInfo GetConfigurationRoute()
-            => new("Configure", "GoogleAnalytics", new { area = "Admin" });
-
-        public Task<IEnumerable<CookieInfo>> GetCookieInfosAsync()
+        var cookieInfos = new List<CookieInfo> 
         {
-            var widget = _providerManager.GetProvider<IActivatableWidget>("Smartstore.Google.Analytics");
-            if (!widget.IsWidgetActive(_widgetSettings))
-            {
-                return Task.FromResult(Enumerable.Empty<CookieInfo>());
+            new() {
+                Name = T("Plugins.FriendlyName.SmartStore.Google.Analytics"),
+                Description = T("Plugins.Widgets.GoogleAnalytics.CookieInfo"),
+                CookieType = CookieType.Analytics
             }
+        };
 
-            var cookieInfos = new List<CookieInfo> 
-            {
-                new() {
+        if (_settings.DisplayCookieInfosForAds)
+        {
+            cookieInfos.AddRange([
+                new()
+                {
                     Name = T("Plugins.FriendlyName.SmartStore.Google.Analytics"),
-                    Description = T("Plugins.Widgets.GoogleAnalytics.CookieInfo"),
-                    CookieType = CookieType.Analytics
+                    Description = T("Plugins.Widgets.GoogleAnalytics.ConsentAdUserData"),
+                    CookieType = CookieType.ConsentAdUserData
+                },
+                new()
+                {
+                    Name = T("Plugins.FriendlyName.SmartStore.Google.Analytics"),
+                    Description = T("Plugins.Widgets.GoogleAnalytics.ConsentAdPersonalization"),
+                    CookieType = CookieType.ConsentAdPersonalization
                 }
-            };
-
-            if (_settings.DisplayCookieInfosForAds)
-            {
-                cookieInfos.AddRange([
-                    new()
-                    {
-                        Name = T("Plugins.FriendlyName.SmartStore.Google.Analytics"),
-                        Description = T("Plugins.Widgets.GoogleAnalytics.ConsentAdUserData"),
-                        CookieType = CookieType.ConsentAdUserData
-                    },
-                    new()
-                    {
-                        Name = T("Plugins.FriendlyName.SmartStore.Google.Analytics"),
-                        Description = T("Plugins.Widgets.GoogleAnalytics.ConsentAdPersonalization"),
-                        CookieType = CookieType.ConsentAdPersonalization
-                    }
-                ]);
-            }
-
-            return Task.FromResult<IEnumerable<CookieInfo>>(cookieInfos);
+            ]);
         }
 
-        public Widget GetDisplayWidget(string widgetZone, object model, int storeId)
-            => new ComponentWidget(typeof(GoogleAnalyticsViewComponent), model);
+        return Task.FromResult<IEnumerable<CookieInfo>>(cookieInfos);
+    }
 
-        public string[] GetWidgetZones() => ["head"];
+    public Widget GetDisplayWidget(string widgetZone, object model, int storeId)
+        => new ComponentWidget(typeof(GoogleAnalyticsViewComponent), model);
 
-        public override async Task InstallAsync(ModuleInstallationContext context)
+    public string[] GetWidgetZones() => ["head"];
+
+    public override async Task InstallAsync(ModuleInstallationContext context)
+    {
+        await ImportLanguageResourcesAsync();
+        await TrySaveSettingsAsync(new GoogleAnalyticsSettings
         {
-            await ImportLanguageResourcesAsync();
-            await TrySaveSettingsAsync(new GoogleAnalyticsSettings
-            {
-                TrackingScript = AnalyticsScriptUtility.GetTrackingScript(),
-                EcommerceScript = AnalyticsScriptUtility.GetEcommerceScript(),
-                EcommerceDetailScript = AnalyticsScriptUtility.GetEcommerceDetailScript()
-            });
-            await base.InstallAsync(context);
-        }
+            TrackingScript = AnalyticsScriptUtility.GetTrackingScript(),
+            EcommerceScript = AnalyticsScriptUtility.GetEcommerceScript(),
+            EcommerceDetailScript = AnalyticsScriptUtility.GetEcommerceDetailScript()
+        });
+        await base.InstallAsync(context);
+    }
 
-        public override async Task UninstallAsync()
-        {
-            await DeleteLanguageResourcesAsync();
-            await DeleteSettingsAsync<GoogleAnalyticsSettings>();
-            await base.UninstallAsync();
-        }
+    public override async Task UninstallAsync()
+    {
+        await DeleteLanguageResourcesAsync();
+        await DeleteSettingsAsync<GoogleAnalyticsSettings>();
+        await base.UninstallAsync();
     }
 }

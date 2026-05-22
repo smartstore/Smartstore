@@ -13,108 +13,108 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 
-namespace Smartstore.Google.Analytics.Services
+namespace Smartstore.Google.Analytics.Services;
+
+/// <summary>
+/// Helper class to prepare script parts for Google Analytics (GA) according to 
+/// https://developers.google.com/analytics/devguides/collection/ga4/ecommerce?client_type=gtag
+/// </summary>
+public class GoogleAnalyticsScriptHelper
 {
-    /// <summary>
-    /// Helper class to prepare script parts for Google Analytics (GA) according to 
-    /// https://developers.google.com/analytics/devguides/collection/ga4/ecommerce?client_type=gtag
-    /// </summary>
-    public class GoogleAnalyticsScriptHelper
+    private readonly static Regex _rgScript = new(@"{(?<token>([A-Z]+))}", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled);
+
+    private readonly SmartDbContext _db;
+    private readonly GoogleAnalyticsSettings _settings;
+    private readonly ICategoryService _categoryService;
+    private readonly IProductAttributeMaterializer _productAttributeMaterializer;
+    private readonly IOrderCalculationService _orderCalculationService;
+    private readonly IShoppingCartService _shoppingCartService;
+    private readonly ICurrencyService _currencyService;
+    private readonly IPaymentService _paymentService;
+    private readonly ModuleManager _moduleManager;
+    private readonly IRoundingHelper _roundingHelper;
+    private readonly IWorkContext _workContext;
+    private readonly IStoreContext _storeContext;
+    private readonly IBreadcrumb _breadcrumb;
+
+    public GoogleAnalyticsScriptHelper(
+        SmartDbContext db,
+        GoogleAnalyticsSettings settings,
+        ICategoryService categoryService,
+        IProductAttributeMaterializer productAttributeMaterializer,
+        IOrderCalculationService orderCalculationService,
+        IShoppingCartService shoppingCartService,
+        ICurrencyService currencyService,
+        IPaymentService paymentService,
+        ModuleManager moduleManager,
+        IRoundingHelper roundingHelper,
+        IWorkContext workContext,
+        IStoreContext storeContext,
+        IBreadcrumb breadcrumb)
     {
-        private readonly static Regex _rgScript = new(@"{(?<token>([A-Z]+))}", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled);
+        _db = db;
+        _settings = settings;
+        _categoryService = categoryService;
+        _productAttributeMaterializer = productAttributeMaterializer;
+        _orderCalculationService = orderCalculationService;
+        _shoppingCartService = shoppingCartService;
+        _currencyService = currencyService;
+        _paymentService = paymentService;
+        _moduleManager = moduleManager;
+        _roundingHelper = roundingHelper;
+        _workContext = workContext;
+        _storeContext = storeContext;
+        _breadcrumb = breadcrumb;
+    }
 
-        private readonly SmartDbContext _db;
-        private readonly GoogleAnalyticsSettings _settings;
-        private readonly ICategoryService _categoryService;
-        private readonly IProductAttributeMaterializer _productAttributeMaterializer;
-        private readonly IOrderCalculationService _orderCalculationService;
-        private readonly IShoppingCartService _shoppingCartService;
-        private readonly ICurrencyService _currencyService;
-        private readonly IPaymentService _paymentService;
-        private readonly ModuleManager _moduleManager;
-        private readonly IRoundingHelper _roundingHelper;
-        private readonly IWorkContext _workContext;
-        private readonly IStoreContext _storeContext;
-        private readonly IBreadcrumb _breadcrumb;
+    public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public GoogleAnalyticsScriptHelper(
-            SmartDbContext db,
-            GoogleAnalyticsSettings settings,
-            ICategoryService categoryService,
-            IProductAttributeMaterializer productAttributeMaterializer,
-            IOrderCalculationService orderCalculationService,
-            IShoppingCartService shoppingCartService,
-            ICurrencyService currencyService,
-            IPaymentService paymentService,
-            ModuleManager moduleManager,
-            IRoundingHelper roundingHelper,
-            IWorkContext workContext,
-            IStoreContext storeContext,
-            IBreadcrumb breadcrumb)
+    /// <summary>
+    /// Generates global GA script
+    /// </summary>
+    /// <param name="cookiesAllowed">Defines whether cookies can be used by Google and sets ad_storage & analytics_storage of the consent tag accordingly.</param>
+    public string GetTrackingScript(bool cookiesAllowed, bool adUserDataAllowed, bool adPersonalizationAllowed)
+    {
+        using var writer = new StringWriter();
+
+        var globalTokens = new Dictionary<string, Func<string>>
         {
-            _db = db;
-            _settings = settings;
-            _categoryService = categoryService;
-            _productAttributeMaterializer = productAttributeMaterializer;
-            _orderCalculationService = orderCalculationService;
-            _shoppingCartService = shoppingCartService;
-            _currencyService = currencyService;
-            _paymentService = paymentService;
-            _moduleManager = moduleManager;
-            _roundingHelper = roundingHelper;
-            _workContext = workContext;
-            _storeContext = storeContext;
-            _breadcrumb = breadcrumb;
-        }
+            ["GOOGLEID"] = () => _settings.GoogleId,
+            ["OPTOUTCOOKIE"] = GetOptOutCookieScript,
 
-        public Localizer T { get; set; } = NullLocalizer.Instance;
+            // INFO: We must leave this here to handle Script settings which weren't updated yet. We can remove this in the future.
+            // If no consent to third party cookies was given, set storage type to denied.
+            ["STORAGETYPE"] = () => cookiesAllowed ? "granted" : "denied",
+            ["USERID"] = _workContext.CurrentCustomer.CustomerGuid.ToString,
+            ["ADUSERDATA"] = () => adUserDataAllowed ? "granted" : "denied",
+            ["ADPERSONALIZATION"] = () => adPersonalizationAllowed ? "granted" : "denied"
+        };
 
-        /// <summary>
-        /// Generates global GA script
-        /// </summary>
-        /// <param name="cookiesAllowed">Defines whether cookies can be used by Google and sets ad_storage & analytics_storage of the consent tag accordingly.</param>
-        public string GetTrackingScript(bool cookiesAllowed, bool adUserDataAllowed, bool adPersonalizationAllowed)
-        {
-            using var writer = new StringWriter();
+        ParseScript(_settings.TrackingScript, writer, globalTokens);
 
-            var globalTokens = new Dictionary<string, Func<string>>
-            {
-                ["GOOGLEID"] = () => _settings.GoogleId,
-                ["OPTOUTCOOKIE"] = GetOptOutCookieScript,
+        return writer.ToString();
+    }
 
-                // INFO: We must leave this here to handle Script settings which weren't updated yet. We can remove this in the future.
-                // If no consent to third party cookies was given, set storage type to denied.
-                ["STORAGETYPE"] = () => cookiesAllowed ? "granted" : "denied",
-                ["USERID"] = _workContext.CurrentCustomer.CustomerGuid.ToString,
-                ["ADUSERDATA"] = () => adUserDataAllowed ? "granted" : "denied",
-                ["ADPERSONALIZATION"] = () => adPersonalizationAllowed ? "granted" : "denied"
-            };
+    /// <summary>
+    /// Generates partial script for product details view. Will be rendered after global GA script.
+    /// </summary>
+    /// <param name="model">ProductDetailsModel already prepared by product controller for product details view.</param>
+    /// <returns>Script part to fire GA event view_item</returns>
+    public string GetViewItemScript(ProductDetailsModel model)
+    {
+        var brand = model.Brands.FirstOrDefault();
+        var price = _roundingHelper.Round(model.Price.FinalPrice).ToStringInvariant();
+        
+        var productsScript = GetItemScript(
+            model.Id,
+            model.Sku,
+            model.Name,
+            !model.Price.HasDiscount ? "''" : _roundingHelper.Round(model.Price.Saving.SavingAmount.Value).ToStringInvariant(),
+            brand != null ? brand.Name : string.Empty,
+            price,
+            GetCategoryPath(), addComma: false);
 
-            ParseScript(_settings.TrackingScript, writer, globalTokens);
-
-            return writer.ToString();
-        }
-
-        /// <summary>
-        /// Generates partial script for product details view. Will be rendered after global GA script.
-        /// </summary>
-        /// <param name="model">ProductDetailsModel already prepared by product controller for product details view.</param>
-        /// <returns>Script part to fire GA event view_item</returns>
-        public string GetViewItemScript(ProductDetailsModel model)
-        {
-            var brand = model.Brands.FirstOrDefault();
-            var price = _roundingHelper.Round(model.Price.FinalPrice).ToStringInvariant();
-            
-            var productsScript = GetItemScript(
-                model.Id,
-                model.Sku,
-                model.Name,
-                !model.Price.HasDiscount ? "''" : _roundingHelper.Round(model.Price.Saving.SavingAmount.Value).ToStringInvariant(),
-                brand != null ? brand.Name : string.Empty,
-                price,
-                GetCategoryPath(), addComma: false);
-
-            var eventScript = @$"
+        var eventScript = @$"
                 let pdItem = {productsScript};
                 let list = {{
                     item_list_name: 'product-detail',
@@ -129,21 +129,21 @@ namespace Smartstore.Google.Analytics.Services
                   items: [pdItem]
                 }});";
 
-            return eventScript;
-        }
+        return eventScript;
+    }
 
-        /// <summary>
-        /// Generates partial script for shopping cart view. Will be rendered after global GA script.
-        /// </summary>
-        /// <param name="model">ShoppingCartModel already prepared by shoppingcart controller.</param>
-        /// <returns>Script part to fire GA event view_cart</returns>
-        public async Task<string> GetCartScriptAsync(ShoppingCartModel model)
-        {
-            var cart = await _shoppingCartService.GetCartAsync(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
-            var subtotal = await GetSubtotal(cart);
-            var cartItemsScript = GetShoppingCartItemsScript(model.Items.ToList());
+    /// <summary>
+    /// Generates partial script for shopping cart view. Will be rendered after global GA script.
+    /// </summary>
+    /// <param name="model">ShoppingCartModel already prepared by shoppingcart controller.</param>
+    /// <returns>Script part to fire GA event view_cart</returns>
+    public async Task<string> GetCartScriptAsync(ShoppingCartModel model)
+    {
+        var cart = await _shoppingCartService.GetCartAsync(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
+        var subtotal = await GetSubtotal(cart);
+        var cartItemsScript = GetShoppingCartItemsScript(model.Items.ToList());
 
-            return @$"
+        return @$"
                 let cartItems = {cartItemsScript};
 
                 let cartItemList = {{
@@ -158,45 +158,45 @@ namespace Smartstore.Google.Analytics.Services
                     value: {subtotal.ToStringInvariant()},
                     items: cartItems
                 }});";
+    }
+
+    /// <summary>
+    /// Generates partial script for billing address, payment and shipping selection pages. 
+    /// Will be rendered after global GA script.
+    /// </summary>
+    /// <param name="addShippingInfo">Specifies whether shipping_tier property shoud be added to the event. True if we are on payment selection page.</param>
+    /// <param name="addPaymentInfo">Specifies whether payment_type property shoud be added to the event. True if we are on payment selection page.</param>
+    /// <returns>Script part to fire GA event begin_checkout, add_shipping_info or add_payment_info</returns>
+    public async Task<string> GetCheckoutScriptAsync(bool addShippingInfo = false, bool addPaymentInfo = false)
+    {
+        var customer = _workContext.CurrentCustomer;
+        var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
+        var subtotal = await GetSubtotal(cart);
+
+        var model = await cart.MapAsync();
+        var cartItemsScript = GetShoppingCartItemsScript(model.Items.ToList());
+        
+        var shippingMethod = addShippingInfo ? customer.GenericAttributes.SelectedShippingOption?.Name : null;
+        string paymentMethod = null;
+
+        if (addPaymentInfo)
+        {
+            var pm = await _paymentService.LoadPaymentProviderBySystemNameAsync(customer.GenericAttributes.SelectedPaymentMethod);
+            paymentMethod = pm != null ? _moduleManager.GetLocalizedFriendlyName(pm.Metadata).NullEmpty() : null;
+            paymentMethod ??= customer.GenericAttributes.SelectedPaymentMethod;
         }
 
-        /// <summary>
-        /// Generates partial script for billing address, payment and shipping selection pages. 
-        /// Will be rendered after global GA script.
-        /// </summary>
-        /// <param name="addShippingInfo">Specifies whether shipping_tier property shoud be added to the event. True if we are on payment selection page.</param>
-        /// <param name="addPaymentInfo">Specifies whether payment_type property shoud be added to the event. True if we are on payment selection page.</param>
-        /// <returns>Script part to fire GA event begin_checkout, add_shipping_info or add_payment_info</returns>
-        public async Task<string> GetCheckoutScriptAsync(bool addShippingInfo = false, bool addPaymentInfo = false)
+        var eventType = "begin_checkout";
+        if (shippingMethod.HasValue())
         {
-            var customer = _workContext.CurrentCustomer;
-            var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
-            var subtotal = await GetSubtotal(cart);
+            eventType = "add_shipping_info";
+        }
+        if (paymentMethod.HasValue())
+        {
+            eventType = "add_payment_info";
+        }
 
-            var model = await cart.MapAsync();
-            var cartItemsScript = GetShoppingCartItemsScript(model.Items.ToList());
-            
-            var shippingMethod = addShippingInfo ? customer.GenericAttributes.SelectedShippingOption?.Name : null;
-            string paymentMethod = null;
-
-            if (addPaymentInfo)
-            {
-                var pm = await _paymentService.LoadPaymentProviderBySystemNameAsync(customer.GenericAttributes.SelectedPaymentMethod);
-                paymentMethod = pm != null ? _moduleManager.GetLocalizedFriendlyName(pm.Metadata).NullEmpty() : null;
-                paymentMethod ??= customer.GenericAttributes.SelectedPaymentMethod;
-            }
-
-            var eventType = "begin_checkout";
-            if (shippingMethod.HasValue())
-            {
-                eventType = "add_shipping_info";
-            }
-            if (paymentMethod.HasValue())
-            {
-                eventType = "add_payment_info";
-            }
-
-            return @$"
+        return @$"
                 let cartItems = {cartItemsScript};
 
                 gtag('event', '{eventType}', {{
@@ -208,90 +208,90 @@ namespace Smartstore.Google.Analytics.Services
                     items: cartItems
                 }});
             ";
+    }
+
+    private async Task<decimal> GetSubtotal(ShoppingCart cart)
+    {
+        var cartSubtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
+        var subtotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubtotal.SubtotalWithoutDiscount.Amount, _workContext.WorkingCurrency);
+
+        return _roundingHelper.Round(subtotalConverted);
+    }
+
+    /// <summary>
+    /// Generates partial script for shopping cart items. 
+    /// Will be rendered for checkout events begin_checkout, add_shipping_info, add_payment_info & view_cart.
+    /// </summary>
+    /// <param name="products">List of ShoppingCartItemModel</param>
+    /// <returns>e.g.: items: [{item_id: "SKU_12345",...}, {...}, n] </returns>
+    private string GetShoppingCartItemsScript(List<ShoppingCartModel.ShoppingCartItemModel> products)
+    {
+        var productsScript = string.Empty;
+
+        var i = 0;
+        foreach (var product in products)
+        {
+            productsScript += GetItemScript(
+                product.Id,
+                product.Sku,
+                product.ProductName,
+                product.Price.Saving.SavingAmount.HasValue ? _roundingHelper.Round(product.Price.Saving.SavingAmount.Value).ToStringInvariant() : "0",
+                string.Empty,
+                _roundingHelper.Round(product.Price.UnitPrice).ToStringInvariant(),
+                index: ++i);
         }
 
-        private async Task<decimal> GetSubtotal(ShoppingCart cart)
-        {
-            var cartSubtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
-            var subtotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubtotal.SubtotalWithoutDiscount.Amount, _workContext.WorkingCurrency);
+        return $"[{productsScript}]";
+    }
 
-            return _roundingHelper.Round(subtotalConverted);
+    /// <summary>
+    /// Builds JSON properties for the category tree as defined by Google.
+    /// </summary>
+    /// <returns>
+    /// Category path in this form:
+    /// 
+    /// item_category: 'Apparel',
+    /// item_category2: 'Adult',
+    /// item_category3: 'Shirts',
+    /// item_category4: 'Crew',
+    /// item_category5: 'Short sleeve',
+    /// </returns
+    private string GetCategoryPath()
+    {
+        if (_breadcrumb?.Trail.IsNullOrEmpty() ?? true)
+        {
+            return string.Empty;
         }
 
-        /// <summary>
-        /// Generates partial script for shopping cart items. 
-        /// Will be rendered for checkout events begin_checkout, add_shipping_info, add_payment_info & view_cart.
-        /// </summary>
-        /// <param name="products">List of ShoppingCartItemModel</param>
-        /// <returns>e.g.: items: [{item_id: "SKU_12345",...}, {...}, n] </returns>
-        private string GetShoppingCartItemsScript(List<ShoppingCartModel.ShoppingCartItemModel> products)
-        {
-            var productsScript = string.Empty;
-
-            var i = 0;
-            foreach (var product in products)
+        var categoryItems = _breadcrumb.Trail
+            .Select((node, i) => new
             {
-                productsScript += GetItemScript(
-                    product.Id,
-                    product.Sku,
-                    product.ProductName,
-                    product.Price.Saving.SavingAmount.HasValue ? _roundingHelper.Round(product.Price.Saving.SavingAmount.Value).ToStringInvariant() : "0",
-                    string.Empty,
-                    _roundingHelper.Round(product.Price.UnitPrice).ToStringInvariant(),
-                    index: ++i);
-            }
+                Node = node,
+                Item = "item_category{0}: '{1}'".FormatInvariant(
+                    i > 0 ? (i + 1).ToStringInvariant() : string.Empty,
+                    node.Text.EncodeJsStringUnquoted())
+            })
+            .Where(x => x.Node.EntityName.EqualsNoCase(nameof(Category)))
+            .Select(x => x.Item)
+            .Take(5)
+            .ToList();
 
-            return $"[{productsScript}]";
-        }
-
-        /// <summary>
-        /// Builds JSON properties for the category tree as defined by Google.
-        /// </summary>
-        /// <returns>
-        /// Category path in this form:
-        /// 
-        /// item_category: 'Apparel',
-        /// item_category2: 'Adult',
-        /// item_category3: 'Shirts',
-        /// item_category4: 'Crew',
-        /// item_category5: 'Short sleeve',
-        /// </returns
-        private string GetCategoryPath()
-        {
-            if (_breadcrumb?.Trail.IsNullOrEmpty() ?? true)
-            {
-                return string.Empty;
-            }
-
-            var categoryItems = _breadcrumb.Trail
-                .Select((node, i) => new
-                {
-                    Node = node,
-                    Item = "item_category{0}: '{1}'".FormatInvariant(
-                        i > 0 ? (i + 1).ToStringInvariant() : string.Empty,
-                        node.Text.EncodeJsStringUnquoted())
-                })
-                .Where(x => x.Node.EntityName.EqualsNoCase(nameof(Category)))
-                .Select(x => x.Item)
-                .Take(5)
-                .ToList();
-
-            return string.Join(',', categoryItems);
-        }
+        return string.Join(',', categoryItems);
+    }
 
 
-        /// <summary>
-        /// Generates partial script for product lists. Used for pages (eg. category, manufacturer) as well as for view components (e.g. HomepageBestsellers, RecentlyViewedProducts)
-        /// Will be rendered after global GA script.
-        /// </summary>
-        /// <param name="products"><see cref="List<ProductSummaryModel.SummaryItem>"/> already prepared by category controller.</param>
-        /// <param name="listName">List identifier (action or view component name e.g. category-list, RecentlyViewedProducts, etc.).</param>
-        /// <param name="isCategory">Defines whether this is called from a category view thus we have to add a category breadcrumb.</param>
-        /// <returns>Script part to fire GA event view_item_list</returns>
-        public string GetListScript(List<ProductSummaryItemModel> products, string listName, bool isCategory = false)
-        {
-            listName = listName.EncodeJsStringUnquoted();
-            return @$"
+    /// <summary>
+    /// Generates partial script for product lists. Used for pages (eg. category, manufacturer) as well as for view components (e.g. HomepageBestsellers, RecentlyViewedProducts)
+    /// Will be rendered after global GA script.
+    /// </summary>
+    /// <param name="products"><see cref="List<ProductSummaryModel.SummaryItem>"/> already prepared by category controller.</param>
+    /// <param name="listName">List identifier (action or view component name e.g. category-list, RecentlyViewedProducts, etc.).</param>
+    /// <param name="isCategory">Defines whether this is called from a category view thus we have to add a category breadcrumb.</param>
+    /// <returns>Script part to fire GA event view_item_list</returns>
+    public string GetListScript(List<ProductSummaryItemModel> products, string listName, bool isCategory = false)
+    {
+        listName = listName.EncodeJsStringUnquoted();
+        return @$"
                 let eventData{listName} = {{
                     item_list_name: '{listName}',
                     {GetItemsScript(products, listName, isCategory)}
@@ -300,58 +300,58 @@ namespace Smartstore.Google.Analytics.Services
                 window.gaListDataStore.push(eventData{listName});
                 gtag('event', 'view_item_list', eventData{listName});
             ";
+    }
+
+    /// <summary>
+    /// Generates script for items property of view_item_list event.
+    /// Used by GetListScriptAsync.
+    /// </summary>
+    /// <param name="products"><see cref="List<ProductSummaryModel.SummaryItem>"/> already prepared by category controller.</param>
+    /// <param name="listName">List identifier (action or view component name e.g. category-list, RecentlyViewedProducts, etc.).</param>
+    /// <param name="categoryId">First category of the product, when called form category view.</param>
+    /// <returns>e.g.: items: [{item_id: "SKU_12345",...}, {...}, n] </returns>
+    private string GetItemsScript(List<ProductSummaryItemModel> products, string listName, bool isCategory = false)
+    {
+        var productsScript = string.Empty;
+        var categoryPathScript = isCategory ? GetCategoryPath() : string.Empty;
+
+        var i = 0;
+        foreach (var product in products)
+        {
+            var discount = product.Price.Saving.SavingAmount;
+            
+            productsScript += GetItemScript(
+                product.Id,
+                product.Sku,
+                product.Name,
+                discount != null ? _roundingHelper.Round(discount.Value).ToStringInvariant() : "0",
+                product.Brand != null ? product.Brand.Name : string.Empty,
+                _roundingHelper.Round(product.Price.FinalPrice).ToStringInvariant(),
+                categoryPathScript,
+                listName,
+                ++i);
         }
 
-        /// <summary>
-        /// Generates script for items property of view_item_list event.
-        /// Used by GetListScriptAsync.
-        /// </summary>
-        /// <param name="products"><see cref="List<ProductSummaryModel.SummaryItem>"/> already prepared by category controller.</param>
-        /// <param name="listName">List identifier (action or view component name e.g. category-list, RecentlyViewedProducts, etc.).</param>
-        /// <param name="categoryId">First category of the product, when called form category view.</param>
-        /// <returns>e.g.: items: [{item_id: "SKU_12345",...}, {...}, n] </returns>
-        private string GetItemsScript(List<ProductSummaryItemModel> products, string listName, bool isCategory = false)
-        {
-            var productsScript = string.Empty;
-            var categoryPathScript = isCategory ? GetCategoryPath() : string.Empty;
+        return $"items: [{productsScript}]";
+    }
 
-            var i = 0;
-            foreach (var product in products)
-            {
-                var discount = product.Price.Saving.SavingAmount;
-                
-                productsScript += GetItemScript(
-                    product.Id,
-                    product.Sku,
-                    product.Name,
-                    discount != null ? _roundingHelper.Round(discount.Value).ToStringInvariant() : "0",
-                    product.Brand != null ? product.Brand.Name : string.Empty,
-                    _roundingHelper.Round(product.Price.FinalPrice).ToStringInvariant(),
-                    categoryPathScript,
-                    listName,
-                    ++i);
-            }
-
-            return $"items: [{productsScript}]";
-        }
-
-        /// <summary>
-        /// Generates partial script for one item of items property. Inclusive comma.
-        /// </summary>
-        /// <returns>e.g.: {item_id: "SKU_12345",...},</returns>
-        private string GetItemScript(
-            int entityId,
-            string sku,
-            string productName,
-            string discount,
-            string brandName,
-            string price,
-            string categories = "",
-            string listName = "",
-            int index = 0,
-            bool addComma = true)
-        {
-            var itemScript = @$"{{
+    /// <summary>
+    /// Generates partial script for one item of items property. Inclusive comma.
+    /// </summary>
+    /// <returns>e.g.: {item_id: "SKU_12345",...},</returns>
+    private string GetItemScript(
+        int entityId,
+        string sku,
+        string productName,
+        string discount,
+        string brandName,
+        string price,
+        string categories = "",
+        string listName = "",
+        int index = 0,
+        bool addComma = true)
+    {
+        var itemScript = @$"{{
               entity_id: {entityId},
               item_id: '{sku.EncodeJsStringUnquoted()}',
               item_name: '{productName.EncodeJsStringUnquoted()}',
@@ -364,107 +364,107 @@ namespace Smartstore.Google.Analytics.Services
               {(!string.IsNullOrEmpty(brandName) ? $"item_brand: '{brandName.EncodeJsStringUnquoted()}'," : string.Empty)}
             }}";
 
-            if (addComma)
-            {
-                itemScript += ",";
-            }
-
-            return itemScript;
+        if (addComma)
+        {
+            itemScript += ",";
         }
 
-        /// <summary>
-        /// Generates partial script for search page. 
-        /// Will be rendered after global GA script.
-        /// </summary>
-        /// <returns>Script part to fire GA event search.</returns>
-        public string GetSearchTermScript(string searchTerm)
-        {
-            return @$"
+        return itemScript;
+    }
+
+    /// <summary>
+    /// Generates partial script for search page. 
+    /// Will be rendered after global GA script.
+    /// </summary>
+    /// <returns>Script part to fire GA event search.</returns>
+    public string GetSearchTermScript(string searchTerm)
+    {
+        return @$"
                 gtag('event', 'search', {{
                   search_term: '{searchTerm}'
                 }});
             ";
-        }
+    }
 
-        /// <summary>
-        /// Generates partial script for order completed page. 
-        /// Will be rendered after global GA script.
-        /// </summary>
-        /// <returns>Script part to fire GA event purchase.</returns>
-        public async Task<string> GetOrderCompletedScriptAsync()
+    /// <summary>
+    /// Generates partial script for order completed page. 
+    /// Will be rendered after global GA script.
+    /// </summary>
+    /// <returns>Script part to fire GA event purchase.</returns>
+    public async Task<string> GetOrderCompletedScriptAsync()
+    {
+        var order = await GetLastOrderAsync();
+        var ecScript = _settings.EcommerceScript + '\n';
+
+        if (order != null)
         {
-            var order = await GetLastOrderAsync();
-            var ecScript = _settings.EcommerceScript + '\n';
+            var ecDetailScript = string.Empty;
 
-            if (order != null)
+            if (_settings.EcommerceDetailScript.HasValue())
             {
-                var ecDetailScript = string.Empty;
+                var productIds = order.OrderItems.ToDistinctArray(x => x.ProductId);
+                var categories = (await _categoryService.GetProductCategoriesByProductIdsAsync(productIds, true))
+                    .ToDictionarySafe(x => x.ProductId);
 
-                if (_settings.EcommerceDetailScript.HasValue())
+                foreach (var item in order.OrderItems)
                 {
-                    var productIds = order.OrderItems.ToDistinctArray(x => x.ProductId);
-                    var categories = (await _categoryService.GetProductCategoriesByProductIdsAsync(productIds, true))
-                        .ToDictionarySafe(x => x.ProductId);
+                    categories.TryGetValue(item.ProductId, out var defaultProductCategory);
+                    var categoryName = defaultProductCategory?.Category?.Name ?? string.Empty;
 
-                    foreach (var item in order.OrderItems)
+                    // The SKU code is a required parameter for every item that is added to the transaction.
+                    var attributeCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(item.ProductId, item.AttributeSelection);
+                    if (attributeCombination != null)
                     {
-                        categories.TryGetValue(item.ProductId, out var defaultProductCategory);
-                        var categoryName = defaultProductCategory?.Category?.Name ?? string.Empty;
-
-                        // The SKU code is a required parameter for every item that is added to the transaction.
-                        var attributeCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(item.ProductId, item.AttributeSelection);
-                        if (attributeCombination != null)
-                        {
-                            item.Product.MergeWithCombination(attributeCombination);
-                        }
-
-                        var sku = item.Sku.NullEmpty() ?? item.Product.Sku;
-
-                        var itemTokens = new Dictionary<string, Func<string>>
-                        {
-                            ["ORDERID"] = order.GetOrderNumber,
-                            ["PRODUCTSKU"] = () => sku.EncodeJsStringUnquoted(),
-                            ["PRODUCTNAME"] = () => item.Product.Name.EncodeJsStringUnquoted(),
-                            ["CATEGORYNAME"] = () => categoryName.EncodeJsStringUnquoted(),
-                            ["UNITPRICE"] = () => item.UnitPriceInclTax.ToStringInvariant("0.00"),
-                            ["QUANTITY"] = item.Quantity.ToString
-                        };
-
-                        ecDetailScript += GenerateScript(_settings.EcommerceDetailScript, itemTokens);
+                        item.Product.MergeWithCombination(attributeCombination);
                     }
+
+                    var sku = item.Sku.NullEmpty() ?? item.Product.Sku;
+
+                    var itemTokens = new Dictionary<string, Func<string>>
+                    {
+                        ["ORDERID"] = order.GetOrderNumber,
+                        ["PRODUCTSKU"] = () => sku.EncodeJsStringUnquoted(),
+                        ["PRODUCTNAME"] = () => item.Product.Name.EncodeJsStringUnquoted(),
+                        ["CATEGORYNAME"] = () => categoryName.EncodeJsStringUnquoted(),
+                        ["UNITPRICE"] = () => item.UnitPriceInclTax.ToStringInvariant("0.00"),
+                        ["QUANTITY"] = item.Quantity.ToString
+                    };
+
+                    ecDetailScript += GenerateScript(_settings.EcommerceDetailScript, itemTokens);
                 }
-
-                var orderTokens = new Dictionary<string, Func<string>>
-                {
-                    ["ORDERID"] = order.GetOrderNumber,
-                    ["TOTAL"] = () => order.OrderTotal.ToStringInvariant("0.00"),
-                    ["TAX"] = () => order.OrderTax.ToStringInvariant("0.00"),
-                    ["SHIP"] = () => order.OrderShippingInclTax.ToStringInvariant("0.00"),
-                    ["CURRENCY"] = () => order.CustomerCurrencyCode,
-                    ["CITY"] = () => order.BillingAddress == null 
-                        ? string.Empty 
-                        : order.BillingAddress.City.EncodeJsStringUnquoted(),
-                    ["STATEPROVINCE"] = () => order.BillingAddress?.StateProvince == null
-                        ? string.Empty
-                        : order.BillingAddress.StateProvince.Name.EncodeJsStringUnquoted(),
-                    ["COUNTRY"] = () => order.BillingAddress?.Country == null
-                        ? string.Empty
-                        : order.BillingAddress.Country.Name.EncodeJsStringUnquoted(),
-                    ["DETAILS"] = () => ecDetailScript
-                };
-
-                ecScript = GenerateScript(ecScript, orderTokens);
             }
 
-            return ecScript;
+            var orderTokens = new Dictionary<string, Func<string>>
+            {
+                ["ORDERID"] = order.GetOrderNumber,
+                ["TOTAL"] = () => order.OrderTotal.ToStringInvariant("0.00"),
+                ["TAX"] = () => order.OrderTax.ToStringInvariant("0.00"),
+                ["SHIP"] = () => order.OrderShippingInclTax.ToStringInvariant("0.00"),
+                ["CURRENCY"] = () => order.CustomerCurrencyCode,
+                ["CITY"] = () => order.BillingAddress == null 
+                    ? string.Empty 
+                    : order.BillingAddress.City.EncodeJsStringUnquoted(),
+                ["STATEPROVINCE"] = () => order.BillingAddress?.StateProvince == null
+                    ? string.Empty
+                    : order.BillingAddress.StateProvince.Name.EncodeJsStringUnquoted(),
+                ["COUNTRY"] = () => order.BillingAddress?.Country == null
+                    ? string.Empty
+                    : order.BillingAddress.Country.Name.EncodeJsStringUnquoted(),
+                ["DETAILS"] = () => ecDetailScript
+            };
+
+            ecScript = GenerateScript(ecScript, orderTokens);
         }
 
-        /// <summary>
-        /// Builds script to provide functions for cookie usage opt-out. Usage is described in AdminInstruction.
-        /// </summary>
-        private string GetOptOutCookieScript()
-        {
-            return @$"
+        return ecScript;
+    }
+
+    /// <summary>
+    /// Builds script to provide functions for cookie usage opt-out. Usage is described in AdminInstruction.
+    /// </summary>
+    private string GetOptOutCookieScript()
+    {
+        return @$"
 				var gaProperty = '{_settings.GoogleId}'; 
 				var disableStr = 'ga-disable-' + gaProperty; 
 				if (document.cookie.indexOf(disableStr + '=true') > -1) {{ 
@@ -475,43 +475,42 @@ namespace Smartstore.Google.Analytics.Services
 					window[disableStr] = true; 
 					alert({T("Plugins.Widgets.GoogleAnalytics.OptOutNotification").JsValue});
                 }}";
-        }
+    }
 
-        private static string GenerateScript(string script, Dictionary<string, Func<string>> tokens)
-        {
-            var writer = new StringWriter();
-            ParseScript(script, writer, tokens);
-            return writer.ToString();
-        }
+    private static string GenerateScript(string script, Dictionary<string, Func<string>> tokens)
+    {
+        var writer = new StringWriter();
+        ParseScript(script, writer, tokens);
+        return writer.ToString();
+    }
 
-        private static void ParseScript(string input, TextWriter writer, IDictionary<string, Func<string>> tokens)
+    private static void ParseScript(string input, TextWriter writer, IDictionary<string, Func<string>> tokens)
+    {
+        var replacedScript = _rgScript.Replace(input, match =>
         {
-            var replacedScript = _rgScript.Replace(input, match =>
+            var token = match.Groups[1].Value;
+
+            if (tokens.TryGetValue(token, out var func))
             {
-                var token = match.Groups[1].Value;
+                return func();
+            }
 
-                if (tokens.TryGetValue(token, out var func))
-                {
-                    return func();
-                }
+            // If no func is found we return token in order to not remove any tokens which shouldn't replaced explicitly.
+            return match.Value;
+        });
 
-                // If no func is found we return token in order to not remove any tokens which shouldn't replaced explicitly.
-                return match.Value;
-            });
+        writer.Write(replacedScript);
+    }
 
-            writer.Write(replacedScript);
-        }
+    private async Task<Order> GetLastOrderAsync()
+    {
+        var order = await _db.Orders
+            .AsNoTracking()
+            .IncludeOrderItems()
+            .IncludeBillingAddress()
+            .ApplyStandardFilter(_workContext.CurrentCustomer.Id, _storeContext.CurrentStore.Id)
+            .FirstOrDefaultAsync();
 
-        private async Task<Order> GetLastOrderAsync()
-        {
-            var order = await _db.Orders
-                .AsNoTracking()
-                .IncludeOrderItems()
-                .IncludeBillingAddress()
-                .ApplyStandardFilter(_workContext.CurrentCustomer.Id, _storeContext.CurrentStore.Id)
-                .FirstOrDefaultAsync();
-
-            return order;
-        }
+        return order;
     }
 }

@@ -2,27 +2,26 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core.Checkout.Orders;
 
-namespace Smartstore.Google.Analytics.Filters
+namespace Smartstore.Google.Analytics.Filters;
+
+public class CheckoutFilter : IAsyncActionFilter
 {
-    public class CheckoutFilter : IAsyncActionFilter
+    private readonly OrderSettings _orderSettings;
+
+    public CheckoutFilter(OrderSettings orderSettings)
     {
-        private readonly OrderSettings _orderSettings;
+        _orderSettings = orderSettings;
+    }
 
-        public CheckoutFilter(OrderSettings orderSettings)
+    public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+    {
+        if (_orderSettings.DisableOrderCompletedPage)
         {
-            _orderSettings = orderSettings;
+            // Set session var to indicate Order was just being completed.
+            // We use plugin prefix in order to remove it safely in case other plugins also must set this.
+            context.HttpContext.Session.SetString("GA-OrderCompleted", "true");
         }
 
-        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
-        {
-            if (_orderSettings.DisableOrderCompletedPage)
-            {
-                // Set session var to indicate Order was just being completed.
-                // We use plugin prefix in order to remove it safely in case other plugins also must set this.
-                context.HttpContext.Session.SetString("GA-OrderCompleted", "true");
-            }
-
-            await next();
-        }
+        await next();
     }
 }
