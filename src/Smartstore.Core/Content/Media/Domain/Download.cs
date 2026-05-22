@@ -29,7 +29,8 @@ namespace Smartstore.Core.Content.Media
         public Guid DownloadGuid { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to use the <see cref="DownloadUrl"/> property.
+        /// This value indicates whether a media file is available for download. 
+        /// <c>true</c> means that no media file is available, for example for a CDN source. Otherwise <c>false</c> (default).
         /// </summary>
         public bool UseDownloadUrl { get; set; }
 
