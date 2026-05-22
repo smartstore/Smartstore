@@ -46,8 +46,6 @@
     // JSON-LD
     if (Model.TotalReviews > 0)
     {
-        // TODO: (jsonld) Put RatingCount to model and pass it to ratingCount
-        // RE: In Smartstore every review needs a rating, which is stored in in the ProductReview table. That's why reviewCount = ratingCount.
         Assets.JsonLd.Product.Obj("aggregateRating", JsonLdFragment.Create("AggregateRating", new
         {
             ratingValue = ratingValueNum,
