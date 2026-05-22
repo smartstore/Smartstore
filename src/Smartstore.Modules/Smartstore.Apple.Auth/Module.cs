@@ -8,27 +8,26 @@ using Smartstore.Engine.Modularity;
 using Smartstore.Apple.Auth.Components;
 using Smartstore.Http;
 
-namespace Smartstore.Apple.Auth
+namespace Smartstore.Apple.Auth;
+
+internal class Module : ModuleBase, IConfigurable, IExternalAuthenticationMethod
 {
-    internal class Module : ModuleBase, IConfigurable, IExternalAuthenticationMethod
+    public RouteInfo GetConfigurationRoute()
+        => new("Configure", "AppleAuth", new { area = "Admin" });
+
+    public Widget GetDisplayWidget(int storeId)
+        => new ComponentWidget(typeof(AppleAuthViewComponent), null);
+
+    public override async Task InstallAsync(ModuleInstallationContext context)
     {
-        public RouteInfo GetConfigurationRoute()
-            => new("Configure", "AppleAuth", new { area = "Admin" });
+        await ImportLanguageResourcesAsync();
+        await base.InstallAsync(context);
+    }
 
-        public Widget GetDisplayWidget(int storeId)
-            => new ComponentWidget(typeof(AppleAuthViewComponent), null);
-
-        public override async Task InstallAsync(ModuleInstallationContext context)
-        {
-            await ImportLanguageResourcesAsync();
-            await base.InstallAsync(context);
-        }
-
-        public override async Task UninstallAsync()
-        {
-            await DeleteLanguageResourcesAsync();
-            await base.UninstallAsync();
-        }
+    public override async Task UninstallAsync()
+    {
+        await DeleteLanguageResourcesAsync();
+        await base.UninstallAsync();
     }
 }
 
