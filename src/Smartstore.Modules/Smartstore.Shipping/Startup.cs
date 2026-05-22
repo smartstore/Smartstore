@@ -5,24 +5,23 @@ using Smartstore.Data.Providers;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 
-namespace Smartstore.Shipping
-{
-    internal class Startup : StarterBase
-    {
-        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
-        {
-            services.AddTransient<IDbContextConfigurationSource<SmartDbContext>, SmartDbContextConfigurer>();
-        }
+namespace Smartstore.Shipping;
 
-        class SmartDbContextConfigurer : IDbContextConfigurationSource<SmartDbContext>
+internal class Startup : StarterBase
+{
+    public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
+    {
+        services.AddTransient<IDbContextConfigurationSource<SmartDbContext>, SmartDbContextConfigurer>();
+    }
+
+    class SmartDbContextConfigurer : IDbContextConfigurationSource<SmartDbContext>
+    {
+        public void Configure(IServiceProvider services, DbContextOptionsBuilder builder)
         {
-            public void Configure(IServiceProvider services, DbContextOptionsBuilder builder)
+            builder.UseDbFactory(b =>
             {
-                builder.UseDbFactory(b =>
-                {
-                    b.AddModelAssembly(this.GetType().Assembly);
-                });
-            }
+                b.AddModelAssembly(this.GetType().Assembly);
+            });
         }
     }
 }

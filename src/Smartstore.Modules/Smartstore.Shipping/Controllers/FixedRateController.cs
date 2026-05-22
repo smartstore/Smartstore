@@ -4,71 +4,70 @@ using Smartstore.Core.Security;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Models.DataGrid;
 
-namespace Smartstore.Shipping.Controllers
+namespace Smartstore.Shipping.Controllers;
+
+[Route("[area]/fixedrateshipping/{action=index}/{id?}")]
+public class FixedRateController : AdminController
 {
-    [Route("[area]/fixedrateshipping/{action=index}/{id?}")]
-    public class FixedRateController : AdminController
+    private readonly SmartDbContext _db;
+    private readonly IProviderManager _providerManager;
+
+    public FixedRateController(SmartDbContext db, IProviderManager providerManager)
     {
-        private readonly SmartDbContext _db;
-        private readonly IProviderManager _providerManager;
+        _db = db;
+        _providerManager = providerManager;
+    }
 
-        public FixedRateController(SmartDbContext db, IProviderManager providerManager)
+    public IActionResult Index()
+    {
+        return RedirectToAction(nameof(Configure));
+    }
+
+    public async Task<IActionResult> Configure()
+    {
+        if (!await _db.ShippingMethods.AnyAsync())
         {
-            _db = db;
-            _providerManager = providerManager;
+            NotifyWarning(T("Admin.Configuration.Shipping.Methods.NoMethodsLoaded"));
         }
 
-        public IActionResult Index()
+        ViewBag.Provider = _providerManager.GetProvider("Shipping.FixedRate").Metadata;
+
+        return View();
+    }
+
+    [HttpPost]
+    [Permission(Permissions.Configuration.Shipping.Read)]
+    public async Task<IActionResult> FixedRateList(GridCommand command)
+    {
+        var shippingMethods = await _db.ShippingMethods
+            .AsNoTracking()
+            .OrderBy(x => x.DisplayOrder)
+            .ToPagedList(command)
+            .LoadAsync();
+
+        var ShippingRateModels = await shippingMethods.SelectAwait(async x => new FixedRateModel
         {
-            return RedirectToAction(nameof(Configure));
-        }
+            ShippingMethodId = x.Id,
+            ShippingMethodName = x.Name,
+            Rate = await Services.Settings.GetSettingByKeyAsync<decimal>($"ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{x.Id}")
+        }).ToListAsync();
 
-        public async Task<IActionResult> Configure()
+        var gridModel = new GridModel<FixedRateModel>
         {
-            if (!await _db.ShippingMethods.AnyAsync())
-            {
-                NotifyWarning(T("Admin.Configuration.Shipping.Methods.NoMethodsLoaded"));
-            }
+            Rows = ShippingRateModels,
+            Total = await shippingMethods.GetTotalCountAsync()
+        };
 
-            ViewBag.Provider = _providerManager.GetProvider("Shipping.FixedRate").Metadata;
+        return Json(gridModel);
+    }
 
-            return View();
-        }
+    [HttpPost]
+    [Permission(Permissions.Configuration.Shipping.Update)]
+    public async Task<IActionResult> FixedRateUpdate(FixedRateModel model)
+    {
+        await Services.Settings.ApplySettingAsync($"ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{model.ShippingMethodId}", model.Rate);
+        await _db.SaveChangesAsync();
 
-        [HttpPost]
-        [Permission(Permissions.Configuration.Shipping.Read)]
-        public async Task<IActionResult> FixedRateList(GridCommand command)
-        {
-            var shippingMethods = await _db.ShippingMethods
-                .AsNoTracking()
-                .OrderBy(x => x.DisplayOrder)
-                .ToPagedList(command)
-                .LoadAsync();
-
-            var ShippingRateModels = await shippingMethods.SelectAwait(async x => new FixedRateModel
-            {
-                ShippingMethodId = x.Id,
-                ShippingMethodName = x.Name,
-                Rate = await Services.Settings.GetSettingByKeyAsync<decimal>($"ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{x.Id}")
-            }).ToListAsync();
-
-            var gridModel = new GridModel<FixedRateModel>
-            {
-                Rows = ShippingRateModels,
-                Total = await shippingMethods.GetTotalCountAsync()
-            };
-
-            return Json(gridModel);
-        }
-
-        [HttpPost]
-        [Permission(Permissions.Configuration.Shipping.Update)]
-        public async Task<IActionResult> FixedRateUpdate(FixedRateModel model)
-        {
-            await Services.Settings.ApplySettingAsync($"ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{model.ShippingMethodId}", model.Rate);
-            await _db.SaveChangesAsync();
-
-            return Json(new { success = true });
-        }
+        return Json(new { success = true });
     }
 }
