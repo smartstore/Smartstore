@@ -9,408 +9,407 @@ using Smartstore.Core.Stores;
 using Smartstore.Web.Models.Checkout;
 using Smartstore.Web.Models.Common;
 
-namespace Smartstore.Web.Controllers
+namespace Smartstore.Web.Controllers;
+
+public class CheckoutController : PublicController
 {
-    public class CheckoutController : PublicController
+    const string ErrorMessageKey = "CheckoutErrorMessage";
+
+    private readonly SmartDbContext _db;
+    private readonly IStoreContext _storeContext;
+    private readonly IWorkContext _workContext;
+    private readonly ICheckoutWorkflow _checkoutWorkflow;
+    private readonly IPaymentService _paymentService;
+    private readonly IShoppingCartService _shoppingCartService;
+    private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+    private readonly OrderSettings _orderSettings;
+    private readonly ShoppingCartSettings _shoppingCartSettings;
+
+    public CheckoutController(
+        SmartDbContext db,
+        IStoreContext storeContext,
+        IWorkContext workContext,
+        ICheckoutWorkflow checkoutWorkflow,
+        IPaymentService paymentService,
+        IShoppingCartService shoppingCartService,
+        ICheckoutStateAccessor checkoutStateAccessor,
+        OrderSettings orderSettings,
+        ShoppingCartSettings shoppingCartSettings)
     {
-        const string ErrorMessageKey = "CheckoutErrorMessage";
+        _db = db;
+        _storeContext = storeContext;
+        _workContext = workContext;
+        _checkoutWorkflow = checkoutWorkflow;
+        _paymentService = paymentService;
+        _shoppingCartService = shoppingCartService;
+        _checkoutStateAccessor = checkoutStateAccessor;
+        _orderSettings = orderSettings;
+        _shoppingCartSettings = shoppingCartSettings;
+    }
 
-        private readonly SmartDbContext _db;
-        private readonly IStoreContext _storeContext;
-        private readonly IWorkContext _workContext;
-        private readonly ICheckoutWorkflow _checkoutWorkflow;
-        private readonly IPaymentService _paymentService;
-        private readonly IShoppingCartService _shoppingCartService;
-        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
-        private readonly OrderSettings _orderSettings;
-        private readonly ShoppingCartSettings _shoppingCartSettings;
+    [DisallowRobot]
+    [LocalizedRoute("/checkout", Name = "Checkout")]
+    public async Task<IActionResult> Index()
+    {
+        var result = await _checkoutWorkflow.StartAsync(await CreateCheckoutContext());
 
-        public CheckoutController(
-            SmartDbContext db,
-            IStoreContext storeContext,
-            IWorkContext workContext,
-            ICheckoutWorkflow checkoutWorkflow,
-            IPaymentService paymentService,
-            IShoppingCartService shoppingCartService,
-            ICheckoutStateAccessor checkoutStateAccessor,
-            OrderSettings orderSettings,
-            ShoppingCartSettings shoppingCartSettings)
+        return result.ActionResult ?? RedirectToRoute("ShoppingCart");
+    }
+
+    public async Task<IActionResult> BillingAddress()
+    {
+        var context = await CreateCheckoutContext();
+        var result = await _checkoutWorkflow.ProcessAsync(context);
+        if (result.ActionResult != null)
         {
-            _db = db;
-            _storeContext = storeContext;
-            _workContext = workContext;
-            _checkoutWorkflow = checkoutWorkflow;
-            _paymentService = paymentService;
-            _shoppingCartService = shoppingCartService;
-            _checkoutStateAccessor = checkoutStateAccessor;
-            _orderSettings = orderSettings;
-            _shoppingCartSettings = shoppingCartSettings;
+            return result.ActionResult;
         }
 
-        [DisallowRobot]
-        [LocalizedRoute("/checkout", Name = "Checkout")]
-        public async Task<IActionResult> Index()
-        {
-            var result = await _checkoutWorkflow.StartAsync(await CreateCheckoutContext());
+        var model = await context.MapAddressesAsync(false);
 
-            return result.ActionResult ?? RedirectToRoute("ShoppingCart");
+        return View(result.ViewPath, model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SelectBillingAddress(int addressId)
+    {
+        var result = await _checkoutWorkflow.AdvanceAsync(await CreateCheckoutContext(addressId));
+
+        return result.ActionResult ?? RedirectToAction(nameof(BillingAddress));
+    }
+
+    [HttpPost, ActionName(CheckoutActionNames.BillingAddress)]
+    [FormValueRequired("nextstep")]
+    public async Task<IActionResult> NewBillingAddress(CheckoutAddressModel model)
+    {
+        var context = await CreateCheckoutContext();
+        var result = await AddAddress(model, context, false);
+
+        if (result?.ActionResult != null)
+        {
+            return result.ActionResult;
         }
 
-        public async Task<IActionResult> BillingAddress()
+        model = await context.MapAddressesAsync(false);
+
+        return View(model);
+    }
+
+    [HttpPost, ActionName(CheckoutActionNames.ShippingAddress)]
+    [FormValueRequired("nextstep")]
+    public async Task<IActionResult> NewShippingAddress(CheckoutAddressModel model)
+    {
+        var context = await CreateCheckoutContext();
+        var result = await AddAddress(model, context, true);
+
+        if (result?.ActionResult != null)
         {
-            var context = await CreateCheckoutContext();
-            var result = await _checkoutWorkflow.ProcessAsync(context);
-            if (result.ActionResult != null)
-            {
-                return result.ActionResult;
-            }
-
-            var model = await context.MapAddressesAsync(false);
-
-            return View(result.ViewPath, model);
+            return result.ActionResult;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> SelectBillingAddress(int addressId)
-        {
-            var result = await _checkoutWorkflow.AdvanceAsync(await CreateCheckoutContext(addressId));
+        model = await context.MapAddressesAsync(true);
 
-            return result.ActionResult ?? RedirectToAction(nameof(BillingAddress));
+        return View(model);
+    }
+
+    private async Task<CheckoutResult> AddAddress(CheckoutAddressModel model, CheckoutContext context, bool isShippingAddress)
+    {
+        var cart = context.Cart;
+        var customer = cart.Customer;
+        var ga = customer.GenericAttributes;
+
+        if (!cart.HasItems)
+        {
+            return new(RedirectToRoute("ShoppingCart"));
         }
 
-        [HttpPost, ActionName(CheckoutActionNames.BillingAddress)]
-        [FormValueRequired("nextstep")]
-        public async Task<IActionResult> NewBillingAddress(CheckoutAddressModel model)
+        if (!_orderSettings.AnonymousCheckoutAllowed && !customer.IsRegistered())
         {
-            var context = await CreateCheckoutContext();
-            var result = await AddAddress(model, context, false);
-
-            if (result?.ActionResult != null)
-            {
-                return result.ActionResult;
-            }
-
-            model = await context.MapAddressesAsync(false);
-
-            return View(model);
+            return new(ChallengeOrForbid());
         }
 
-        [HttpPost, ActionName(CheckoutActionNames.ShippingAddress)]
-        [FormValueRequired("nextstep")]
-        public async Task<IActionResult> NewShippingAddress(CheckoutAddressModel model)
+        if (ModelState.IsValid)
         {
-            var context = await CreateCheckoutContext();
-            var result = await AddAddress(model, context, true);
+            var address = await MapperFactory.MapAsync<AddressModel, Address>(model.NewAddress);
+            customer.Addresses.Add(address);
 
-            if (result?.ActionResult != null)
+            // Save to avoid duplicate addresses.
+            await _db.SaveChangesAsync();
+
+            if (isShippingAddress)
             {
-                return result.ActionResult;
-            }
-
-            model = await context.MapAddressesAsync(true);
-
-            return View(model);
-        }
-
-        private async Task<CheckoutResult> AddAddress(CheckoutAddressModel model, CheckoutContext context, bool isShippingAddress)
-        {
-            var cart = context.Cart;
-            var customer = cart.Customer;
-            var ga = customer.GenericAttributes;
-
-            if (!cart.HasItems)
-            {
-                return new(RedirectToRoute("ShoppingCart"));
-            }
-
-            if (!_orderSettings.AnonymousCheckoutAllowed && !customer.IsRegistered())
-            {
-                return new(ChallengeOrForbid());
-            }
-
-            if (ModelState.IsValid)
-            {
-                var address = await MapperFactory.MapAsync<AddressModel, Address>(model.NewAddress);
-                customer.Addresses.Add(address);
-
-                // Save to avoid duplicate addresses.
-                await _db.SaveChangesAsync();
-
-                if (isShippingAddress)
+                customer.ShippingAddress = address;
+                if (_shoppingCartSettings.QuickCheckoutEnabled)
                 {
-                    customer.ShippingAddress = address;
-                    if (_shoppingCartSettings.QuickCheckoutEnabled)
+                    ga.DefaultShippingAddressId = customer.ShippingAddress.Id;
+                }
+            }
+            else
+            {
+                customer.BillingAddress = address;
+                customer.ShippingAddress = model.ShippingAddressDiffers || !cart.IsShippingRequired ? null : address;
+
+                var state = _checkoutStateAccessor.CheckoutState;
+                state.CustomProperties["SkipShippingAddress"] = !model.ShippingAddressDiffers;
+                state.CustomProperties["ShippingAddressDiffers"] = model.ShippingAddressDiffers;
+
+                if (_shoppingCartSettings.QuickCheckoutEnabled)
+                {
+                    ga.DefaultBillingAddressId = customer.BillingAddress.Id;
+                    if (customer.ShippingAddress != null)
                     {
                         ga.DefaultShippingAddressId = customer.ShippingAddress.Id;
                     }
                 }
-                else
-                {
-                    customer.BillingAddress = address;
-                    customer.ShippingAddress = model.ShippingAddressDiffers || !cart.IsShippingRequired ? null : address;
-
-                    var state = _checkoutStateAccessor.CheckoutState;
-                    state.CustomProperties["SkipShippingAddress"] = !model.ShippingAddressDiffers;
-                    state.CustomProperties["ShippingAddressDiffers"] = model.ShippingAddressDiffers;
-
-                    if (_shoppingCartSettings.QuickCheckoutEnabled)
-                    {
-                        ga.DefaultBillingAddressId = customer.BillingAddress.Id;
-                        if (customer.ShippingAddress != null)
-                        {
-                            ga.DefaultShippingAddressId = customer.ShippingAddress.Id;
-                        }
-                    }
-                }
-
-                await _db.SaveChangesAsync();
-
-                var result = await _checkoutWorkflow.AdvanceAsync(context);
-                result.ActionResult ??= RedirectToAction(isShippingAddress ? nameof(ShippingMethod) : nameof(ShippingAddress));
-
-                return result;
             }
 
-            return null;
+            await _db.SaveChangesAsync();
+
+            var result = await _checkoutWorkflow.AdvanceAsync(context);
+            result.ActionResult ??= RedirectToAction(isShippingAddress ? nameof(ShippingMethod) : nameof(ShippingAddress));
+
+            return result;
         }
 
-        public async Task<IActionResult> ShippingAddress()
+        return null;
+    }
+
+    public async Task<IActionResult> ShippingAddress()
+    {
+        var context = await CreateCheckoutContext();
+        var result = await _checkoutWorkflow.ProcessAsync(context);
+        if (result.ActionResult != null)
+        {
+            return result.ActionResult;
+        }
+
+        var model = await context.MapAddressesAsync(true);
+
+        return View(result.ViewPath, model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SelectShippingAddress(int addressId)
+    {
+        var result = await _checkoutWorkflow.AdvanceAsync(await CreateCheckoutContext(addressId));
+
+        return result.ActionResult ?? RedirectToAction(nameof(ShippingAddress));
+    }
+
+    public async Task<IActionResult> ShippingMethod()
+    {
+        var context = await CreateCheckoutContext();
+        var result = await _checkoutWorkflow.ProcessAsync(context);
+        if (result.ActionResult != null)
+        {
+            return result.ActionResult;
+        }
+
+        var model = await MapperFactory.MapAsync<CheckoutContext, CheckoutShippingMethodModel>(context);
+
+        result.Errors.Each(x => model.Warnings.Add(x.ErrorMessage));
+
+        return View(result.ViewPath, model);
+    }
+
+    [HttpPost, ActionName(CheckoutActionNames.ShippingMethod)]
+    [FormValueRequired("nextstep")]
+    public async Task<IActionResult> SelectShippingMethod(string shippingOption)
+    {
+        var result = await _checkoutWorkflow.AdvanceAsync(await CreateCheckoutContext(shippingOption));
+
+        result.Errors.Take(3).Each(x => NotifyError(x.ErrorMessage));
+
+        return result.ActionResult ?? RedirectToAction(nameof(ShippingMethod));
+    }
+
+    public async Task<IActionResult> PaymentMethod()
+    {
+        var context = await CreateCheckoutContext();
+        var result = await _checkoutWorkflow.ProcessAsync(context);
+        if (result.ActionResult != null)
+        {
+            return result.ActionResult;
+        }
+
+        var model = await MapperFactory.MapAsync<CheckoutContext, CheckoutPaymentMethodModel>(context);
+
+        if (TempData.TryGetValueAs<string>(ErrorMessageKey, out var msg) && msg.HasValue())
+        {
+            NotifyError(msg);
+        }
+
+        return View(result.ViewPath, model);
+    }
+
+    [HttpPost, ActionName(CheckoutActionNames.PaymentMethod)]
+    [FormValueRequired("nextstep")]
+    public async Task<IActionResult> SelectPaymentMethod(string paymentMethod, IFormCollection form)
+    {
+        var result = await _checkoutWorkflow.AdvanceAsync(await CreateCheckoutContext(paymentMethod));
+
+        result.Errors.Each(x => ModelState.AddModelError(x.PropertyName, x.ErrorMessage));
+
+        if (!ModelState.IsValid)
+        {
+            return await PaymentMethod();
+        }
+
+        return result.ActionResult ?? RedirectToAction(nameof(PaymentMethod));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> PaymentInfoAjax(string paymentMethodSystemName)
+    {
+        if (!_orderSettings.AnonymousCheckoutAllowed && !_workContext.CurrentCustomer.IsRegistered())
+        {
+            return new EmptyResult();
+        }
+
+        var paymentMethod = await _paymentService.LoadPaymentProviderBySystemNameAsync(paymentMethodSystemName);
+        if (paymentMethod == null)
+        {
+            return new NotFoundResult();
+        }
+
+        var infoWidget = paymentMethod.Value.GetPaymentInfoWidget();
+        if (infoWidget == null)
+        {
+            return new EmptyResult();
+        }
+
+        try
+        {
+            var widgetContent = await infoWidget.InvokeAsync(new WidgetContext(ControllerContext));
+            return Content(widgetContent.ToHtmlString().ToString());
+        }
+        catch (Exception ex)
+        {
+            // Log all but do not display inner exceptions.
+            Logger.Error(ex);
+            NotifyError(ex.Message);
+
+            return new EmptyResult();
+        }
+    }
+
+    /// <summary>
+    /// AJAX. Starts the payment confirmation process. The URL of the third-party payment page is obtained 
+    /// from the payment provider and is used to confirm and fulfil the payment. Redirection is performed on the client side.
+    /// </summary>
+    [HttpPost]
+    public async Task<IActionResult> ConfirmPayment()
+    {
+        var result = await _checkoutWorkflow.ConfirmPaymentAsync(await CreateCheckoutContext());
+        var redirectUrl = result.ActionResult is RedirectResult rs ? rs?.Url.NullEmpty() : null;
+        var errors = result.Errors.Select(e => e.ErrorMessage).ToList();
+
+        if (redirectUrl != null && errors.Count > 0)
+        {
+            // INFO: Display error after client-side redirection.
+            TempData[ErrorMessageKey] = string.Join(' ', errors);
+        }
+
+        // Success: If redirectUrl is provided, redirect to a third-party payment page to confirm the payment. Otherwise, place the order.
+        // Failure: Stay on confirmation page and display error messages.
+        // Exception: Redirect to payment selection page and display notification (default case of a payment error).
+        return Json(new
+        {
+            success = result.Success,
+            redirectUrl,
+            messages = errors
+        });
+    }
+
+    /// <summary>
+    /// After completing the payment, the payment provider redirects the customer to this action method.
+    /// </summary>
+    /// <remarks>
+    /// We have been redirected to third-party payment page via browser (JavaScript "window.location").
+    /// Cookies are thereby preserved. The customer and the checkout state object are the same as before the redirection.
+    /// Without cookies we would get a new guest customer and an empty checkout state object here. In this case, CheckoutState could not be used.
+    /// We would have to either cache state obejct for x minutes or store it in the database.
+    /// </remarks>
+    public async Task<IActionResult> PaymentCompleted()
+    {
+        var result = await _checkoutWorkflow.CompletePaymentAsync(await CreateCheckoutContext());
+
+        return result.ActionResult ?? RedirectToAction(nameof(Completed));
+    }
+
+    public async Task<IActionResult> Confirm()
+    {
+        var context = await CreateCheckoutContext();
+        var result = await _checkoutWorkflow.ProcessAsync(context);
+        if (result.ActionResult != null)
+        {
+            return result.ActionResult;
+        }
+
+        var model = await MapperFactory.MapAsync<CheckoutContext, CheckoutConfirmModel>(context);
+
+        return View(result.ViewPath, model);
+    }
+
+    [HttpPost, ActionName(CheckoutActionNames.Confirm)]
+    public async Task<IActionResult> ConfirmOrder()
+    {
+        var result = await _checkoutWorkflow.CompleteAsync(await CreateCheckoutContext());
+
+        if (result.Errors.Length > 0)
         {
             var context = await CreateCheckoutContext();
-            var result = await _checkoutWorkflow.ProcessAsync(context);
-            if (result.ActionResult != null)
-            {
-                return result.ActionResult;
-            }
-
-            var model = await context.MapAddressesAsync(true);
-
-            return View(result.ViewPath, model);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> SelectShippingAddress(int addressId)
-        {
-            var result = await _checkoutWorkflow.AdvanceAsync(await CreateCheckoutContext(addressId));
-
-            return result.ActionResult ?? RedirectToAction(nameof(ShippingAddress));
-        }
-
-        public async Task<IActionResult> ShippingMethod()
-        {
-            var context = await CreateCheckoutContext();
-            var result = await _checkoutWorkflow.ProcessAsync(context);
-            if (result.ActionResult != null)
-            {
-                return result.ActionResult;
-            }
-
-            var model = await MapperFactory.MapAsync<CheckoutContext, CheckoutShippingMethodModel>(context);
+            var model = await MapperFactory.MapAsync<CheckoutContext, CheckoutConfirmModel>(context);
 
             result.Errors.Each(x => model.Warnings.Add(x.ErrorMessage));
 
-            return View(result.ViewPath, model);
+            return View(model);
         }
 
-        [HttpPost, ActionName(CheckoutActionNames.ShippingMethod)]
-        [FormValueRequired("nextstep")]
-        public async Task<IActionResult> SelectShippingMethod(string shippingOption)
+        return result.ActionResult ?? RedirectToAction(nameof(Confirm));
+    }
+
+    public async Task<IActionResult> Completed()
+    {
+        var store = _storeContext.CurrentStore;
+        var customer = _workContext.CurrentCustomer;
+
+        if (!_orderSettings.AnonymousCheckoutAllowed && !_workContext.CurrentCustomer.IsRegistered())
         {
-            var result = await _checkoutWorkflow.AdvanceAsync(await CreateCheckoutContext(shippingOption));
-
-            result.Errors.Take(3).Each(x => NotifyError(x.ErrorMessage));
-
-            return result.ActionResult ?? RedirectToAction(nameof(ShippingMethod));
+            return ChallengeOrForbid();
         }
 
-        public async Task<IActionResult> PaymentMethod()
+        var order = await _db.Orders
+            .AsNoTracking()
+            .Include(x => x.Customer)
+            .ApplyStandardFilter(customer.Id, store.Id)
+            .FirstOrDefaultAsync();
+
+        if (order == null || customer.Id != order.CustomerId)
         {
-            var context = await CreateCheckoutContext();
-            var result = await _checkoutWorkflow.ProcessAsync(context);
-            if (result.ActionResult != null)
-            {
-                return result.ActionResult;
-            }
-
-            var model = await MapperFactory.MapAsync<CheckoutContext, CheckoutPaymentMethodModel>(context);
-
-            if (TempData.TryGetValueAs<string>(ErrorMessageKey, out var msg) && msg.HasValue())
-            {
-                NotifyError(msg);
-            }
-
-            return View(result.ViewPath, model);
+            return NotFound();
         }
 
-        [HttpPost, ActionName(CheckoutActionNames.PaymentMethod)]
-        [FormValueRequired("nextstep")]
-        public async Task<IActionResult> SelectPaymentMethod(string paymentMethod, IFormCollection form)
+        if (_orderSettings.DisableOrderCompletedPage)
         {
-            var result = await _checkoutWorkflow.AdvanceAsync(await CreateCheckoutContext(paymentMethod));
-
-            result.Errors.Each(x => ModelState.AddModelError(x.PropertyName, x.ErrorMessage));
-
-            if (!ModelState.IsValid)
-            {
-                return await PaymentMethod();
-            }
-
-            return result.ActionResult ?? RedirectToAction(nameof(PaymentMethod));
+            return RedirectToAction(nameof(OrderController.Details), "Order", new { id = order.Id });
         }
 
-        [HttpPost]
-        public async Task<IActionResult> PaymentInfoAjax(string paymentMethodSystemName)
+        return View(new CheckoutCompletedModel
         {
-            if (!_orderSettings.AnonymousCheckoutAllowed && !_workContext.CurrentCustomer.IsRegistered())
-            {
-                return new EmptyResult();
-            }
+            OrderId = order.Id,
+            OrderNumber = order.GetOrderNumber(),
+            Order = order
+        });
+    }
 
-            var paymentMethod = await _paymentService.LoadPaymentProviderBySystemNameAsync(paymentMethodSystemName);
-            if (paymentMethod == null)
-            {
-                return new NotFoundResult();
-            }
-
-            var infoWidget = paymentMethod.Value.GetPaymentInfoWidget();
-            if (infoWidget == null)
-            {
-                return new EmptyResult();
-            }
-
-            try
-            {
-                var widgetContent = await infoWidget.InvokeAsync(new WidgetContext(ControllerContext));
-                return Content(widgetContent.ToHtmlString().ToString());
-            }
-            catch (Exception ex)
-            {
-                // Log all but do not display inner exceptions.
-                Logger.Error(ex);
-                NotifyError(ex.Message);
-
-                return new EmptyResult();
-            }
-        }
-
-        /// <summary>
-        /// AJAX. Starts the payment confirmation process. The URL of the third-party payment page is obtained 
-        /// from the payment provider and is used to confirm and fulfil the payment. Redirection is performed on the client side.
-        /// </summary>
-        [HttpPost]
-        public async Task<IActionResult> ConfirmPayment()
+    private async Task<CheckoutContext> CreateCheckoutContext(object model = null)
+    {
+        var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
+        
+        return new(cart, HttpContext, Url)
         {
-            var result = await _checkoutWorkflow.ConfirmPaymentAsync(await CreateCheckoutContext());
-            var redirectUrl = result.ActionResult is RedirectResult rs ? rs?.Url.NullEmpty() : null;
-            var errors = result.Errors.Select(e => e.ErrorMessage).ToList();
-
-            if (redirectUrl != null && errors.Count > 0)
-            {
-                // INFO: Display error after client-side redirection.
-                TempData[ErrorMessageKey] = string.Join(' ', errors);
-            }
-
-            // Success: If redirectUrl is provided, redirect to a third-party payment page to confirm the payment. Otherwise, place the order.
-            // Failure: Stay on confirmation page and display error messages.
-            // Exception: Redirect to payment selection page and display notification (default case of a payment error).
-            return Json(new
-            {
-                success = result.Success,
-                redirectUrl,
-                messages = errors
-            });
-        }
-
-        /// <summary>
-        /// After completing the payment, the payment provider redirects the customer to this action method.
-        /// </summary>
-        /// <remarks>
-        /// We have been redirected to third-party payment page via browser (JavaScript "window.location").
-        /// Cookies are thereby preserved. The customer and the checkout state object are the same as before the redirection.
-        /// Without cookies we would get a new guest customer and an empty checkout state object here. In this case, CheckoutState could not be used.
-        /// We would have to either cache state obejct for x minutes or store it in the database.
-        /// </remarks>
-        public async Task<IActionResult> PaymentCompleted()
-        {
-            var result = await _checkoutWorkflow.CompletePaymentAsync(await CreateCheckoutContext());
-
-            return result.ActionResult ?? RedirectToAction(nameof(Completed));
-        }
-
-        public async Task<IActionResult> Confirm()
-        {
-            var context = await CreateCheckoutContext();
-            var result = await _checkoutWorkflow.ProcessAsync(context);
-            if (result.ActionResult != null)
-            {
-                return result.ActionResult;
-            }
-
-            var model = await MapperFactory.MapAsync<CheckoutContext, CheckoutConfirmModel>(context);
-
-            return View(result.ViewPath, model);
-        }
-
-        [HttpPost, ActionName(CheckoutActionNames.Confirm)]
-        public async Task<IActionResult> ConfirmOrder()
-        {
-            var result = await _checkoutWorkflow.CompleteAsync(await CreateCheckoutContext());
-
-            if (result.Errors.Length > 0)
-            {
-                var context = await CreateCheckoutContext();
-                var model = await MapperFactory.MapAsync<CheckoutContext, CheckoutConfirmModel>(context);
-
-                result.Errors.Each(x => model.Warnings.Add(x.ErrorMessage));
-
-                return View(model);
-            }
-
-            return result.ActionResult ?? RedirectToAction(nameof(Confirm));
-        }
-
-        public async Task<IActionResult> Completed()
-        {
-            var store = _storeContext.CurrentStore;
-            var customer = _workContext.CurrentCustomer;
-
-            if (!_orderSettings.AnonymousCheckoutAllowed && !_workContext.CurrentCustomer.IsRegistered())
-            {
-                return ChallengeOrForbid();
-            }
-
-            var order = await _db.Orders
-                .AsNoTracking()
-                .Include(x => x.Customer)
-                .ApplyStandardFilter(customer.Id, store.Id)
-                .FirstOrDefaultAsync();
-
-            if (order == null || customer.Id != order.CustomerId)
-            {
-                return NotFound();
-            }
-
-            if (_orderSettings.DisableOrderCompletedPage)
-            {
-                return RedirectToAction(nameof(OrderController.Details), "Order", new { id = order.Id });
-            }
-
-            return View(new CheckoutCompletedModel
-            {
-                OrderId = order.Id,
-                OrderNumber = order.GetOrderNumber(),
-                Order = order
-            });
-        }
-
-        private async Task<CheckoutContext> CreateCheckoutContext(object model = null)
-        {
-            var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
-            
-            return new(cart, HttpContext, Url)
-            {
-                Model = model
-            };
-        }
+            Model = model
+        };
     }
 }

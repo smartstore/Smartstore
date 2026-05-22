@@ -1,7 +1,6 @@
-﻿namespace Smartstore.Web.Models.Newsletter
+﻿namespace Smartstore.Web.Models.Newsletter;
+
+public partial class SubscriptionActivationModel : ModelBase
 {
-    public partial class SubscriptionActivationModel : ModelBase
-    {
-        public string Result { get; set; }
-    }
+    public string Result { get; set; }
 }

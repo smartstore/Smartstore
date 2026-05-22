@@ -1,25 +1,24 @@
 ﻿using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Identity;
 
-namespace Smartstore.Web.Components
+namespace Smartstore.Web.Components;
+
+public class TopicWidgetViewComponent : SmartViewComponent
 {
-    public class TopicWidgetViewComponent : SmartViewComponent
+    private readonly ICookieConsentManager _cookieManager;
+
+    public TopicWidgetViewComponent(ICookieConsentManager cookieManager)
     {
-        private readonly ICookieConsentManager _cookieManager;
+        _cookieManager = cookieManager;
+    }
 
-        public TopicWidgetViewComponent(ICookieConsentManager cookieManager)
-        {
-            _cookieManager = cookieManager;
-        }
+    public async Task<IViewComponentResult> InvokeAsync(TopicWidget model)
+    {
+        // Check for Cookie Consent
+        model.Consented = model.CookieType != null && await _cookieManager.IsCookieAllowedAsync(model.CookieType.Value);
 
-        public async Task<IViewComponentResult> InvokeAsync(TopicWidget model)
-        {
-            // Check for Cookie Consent
-            model.Consented = model.CookieType != null && await _cookieManager.IsCookieAllowedAsync(model.CookieType.Value);
+        Services.DisplayControl.Announce(new Topic { Id = model.Id });
 
-            Services.DisplayControl.Announce(new Topic { Id = model.Id });
-
-            return View(model);
-        }
+        return View(model);
     }
 }

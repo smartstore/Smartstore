@@ -1,25 +1,24 @@
 ﻿using Smartstore.Web.Models.Customers;
 
-namespace Smartstore.Web.Models.Identity
+namespace Smartstore.Web.Models.Identity;
+
+public partial class ProfileIndexModel : TabbableModel
 {
-    public partial class ProfileIndexModel : TabbableModel
-    {
-        public string CustomerName { get; set; }
+    public string CustomerName { get; set; }
 
-        public ProfileInfoModel ProfileInfo { get; set; }
-    }
+    public ProfileInfoModel ProfileInfo { get; set; }
+}
 
-    public partial class ProfileInfoModel : EntityModelBase
-    {
-        public CustomerAvatarModel Avatar { get; set; }
+public partial class ProfileInfoModel : EntityModelBase
+{
+    public CustomerAvatarModel Avatar { get; set; }
 
-        public bool LocationEnabled { get; set; }
-        public string Location { get; set; }
+    public bool LocationEnabled { get; set; }
+    public string Location { get; set; }
 
-        public bool JoinDateEnabled { get; set; }
-        public DateTime JoinDate { get; set; }
+    public bool JoinDateEnabled { get; set; }
+    public DateTime JoinDate { get; set; }
 
-        public bool DateOfBirthEnabled { get; set; }
-        public DateTime DateOfBirth { get; set; }
-    }
+    public bool DateOfBirthEnabled { get; set; }
+    public DateTime DateOfBirth { get; set; }
 }

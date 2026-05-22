@@ -1,28 +1,27 @@
 ﻿using Smartstore.Utilities;
 using Smartstore.Web.TagHelpers.Shared;
 
-namespace Smartstore.Web.Components
+namespace Smartstore.Web.Components;
+
+public class FileUploaderViewComponent : SmartViewComponent
 {
-    public class FileUploaderViewComponent : SmartViewComponent
+    public IViewComponentResult Invoke(FileUploaderModel model)
     {
-        public IViewComponentResult Invoke(FileUploaderModel model)
+        if (model == null)
         {
-            if (model == null)
-            {
-                return Empty();
-            }
-
-            if (model.UploadText.IsEmpty())
-            {
-                model.UploadText = T("Common.FileUploader.Upload");
-            }
-
-            if (model.Name.IsEmpty())
-            {
-                model.Name = "upload-" + CommonHelper.GenerateRandomInteger();
-            }
-
-            return View(model);
+            return Empty();
         }
+
+        if (model.UploadText.IsEmpty())
+        {
+            model.UploadText = T("Common.FileUploader.Upload");
+        }
+
+        if (model.Name.IsEmpty())
+        {
+            model.Name = "upload-" + CommonHelper.GenerateRandomInteger();
+        }
+
+        return View(model);
     }
 }

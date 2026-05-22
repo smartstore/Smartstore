@@ -5,80 +5,79 @@ using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Common.Services;
 
-namespace Smartstore.Web.Models.Cart
+namespace Smartstore.Web.Models.Cart;
+
+public static partial class ShoppingCartMappingExtensions
 {
-    public static partial class ShoppingCartMappingExtensions
+    public static Task MapAsync(this OrganizedShoppingCartItem entity, ShoppingCartModel.ShoppingCartItemModel model, dynamic parameters = null)
     {
-        public static Task MapAsync(this OrganizedShoppingCartItem entity, ShoppingCartModel.ShoppingCartItemModel model, dynamic parameters = null)
-        {
-            return MapperFactory.MapAsync(entity, model, parameters);
-        }
+        return MapperFactory.MapAsync(entity, model, parameters);
+    }
+}
+
+public class ShoppingCartItemMapper : CartItemMapperBase<ShoppingCartModel.ShoppingCartItemModel>
+{
+    public ShoppingCartItemMapper(
+        ICommonServices services,
+        IPriceCalculationService priceCalculationService,
+        IDeliveryTimeService deliveryTimeService,
+        IProductAttributeMaterializer productAttributeMaterializer,
+        ShoppingCartSettings shoppingCartSettings,
+        CatalogSettings catalogSettings,
+        CatalogHelper catalogHelper)
+        : base(services, 
+              priceCalculationService, 
+              deliveryTimeService,
+              productAttributeMaterializer, 
+              shoppingCartSettings, 
+              catalogSettings, 
+              catalogHelper)
+    {
     }
 
-    public class ShoppingCartItemMapper : CartItemMapperBase<ShoppingCartModel.ShoppingCartItemModel>
+    protected override void Map(OrganizedShoppingCartItem from, ShoppingCartModel.ShoppingCartItemModel to, dynamic parameters = null)
+        => throw new NotImplementedException();
+
+    public override async Task MapAsync(OrganizedShoppingCartItem from, ShoppingCartModel.ShoppingCartItemModel to, dynamic parameters = null)
     {
-        public ShoppingCartItemMapper(
-            ICommonServices services,
-            IPriceCalculationService priceCalculationService,
-            IDeliveryTimeService deliveryTimeService,
-            IProductAttributeMaterializer productAttributeMaterializer,
-            ShoppingCartSettings shoppingCartSettings,
-            CatalogSettings catalogSettings,
-            CatalogHelper catalogHelper)
-            : base(services, 
-                  priceCalculationService, 
-                  deliveryTimeService,
-                  productAttributeMaterializer, 
-                  shoppingCartSettings, 
-                  catalogSettings, 
-                  catalogHelper)
+        Guard.NotNull(from);
+        Guard.NotNull(to);
+
+        var requiredProducts = parameters?.RequiredProducts as Dictionary<int, OrganizedShoppingCartItem>;
+        var item = from.Item;
+        var product = item.Product;
+
+        await base.MapAsync(from, to, (object)parameters);
+
+        to.Active = from.Active;
+        to.IsShippingEnabled = product.IsShippingEnabled;
+        to.IsDownload = product.IsDownload;
+        to.IsEsd = product.IsEsd;
+        to.HasUserAgreement = product.HasUserAgreement;
+        to.DisableWishlistButton = product.DisableWishlistButton;
+        to.DurabilityGuaranteeDurationYears = product.DurabilityGuaranteeDurationYears;
+        to.ManufacturerPartNumber = product.ManufacturerPartNumber;
+
+        if (requiredProducts.TryGetValue(product.Id, out var parent))
         {
+            var expectedQuantity = parent.Item.Quantity * product.QuantityPerParentUnit;
+
+            to.IsRequired = parent.Item.Product.AutomaticallyAddRequiredProducts;
+            to.DisableQuantityControl = product.QuantityPerParentUnit > 0 && item.Quantity == expectedQuantity;
         }
 
-        protected override void Map(OrganizedShoppingCartItem from, ShoppingCartModel.ShoppingCartItemModel to, dynamic parameters = null)
-            => throw new NotImplementedException();
-
-        public override async Task MapAsync(OrganizedShoppingCartItem from, ShoppingCartModel.ShoppingCartItemModel to, dynamic parameters = null)
+        if (from.ChildItems != null)
         {
-            Guard.NotNull(from);
-            Guard.NotNull(to);
-
-            var requiredProducts = parameters?.RequiredProducts as Dictionary<int, OrganizedShoppingCartItem>;
-            var item = from.Item;
-            var product = item.Product;
-
-            await base.MapAsync(from, to, (object)parameters);
-
-            to.Active = from.Active;
-            to.IsShippingEnabled = product.IsShippingEnabled;
-            to.IsDownload = product.IsDownload;
-            to.IsEsd = product.IsEsd;
-            to.HasUserAgreement = product.HasUserAgreement;
-            to.DisableWishlistButton = product.DisableWishlistButton;
-            to.DurabilityGuaranteeDurationYears = product.DurabilityGuaranteeDurationYears;
-            to.ManufacturerPartNumber = product.ManufacturerPartNumber;
-
-            if (requiredProducts.TryGetValue(product.Id, out var parent))
+            foreach (var childItem in from.ChildItems.Where(x => x.Item.Id != item.Id))
             {
-                var expectedQuantity = parent.Item.Quantity * product.QuantityPerParentUnit;
+                var model = new ShoppingCartModel.ShoppingCartItemModel();
 
-                to.IsRequired = parent.Item.Product.AutomaticallyAddRequiredProducts;
-                to.DisableQuantityControl = product.QuantityPerParentUnit > 0 && item.Quantity == expectedQuantity;
-            }
+                await childItem.MapAsync(model, (object)parameters);
 
-            if (from.ChildItems != null)
-            {
-                foreach (var childItem in from.ChildItems.Where(x => x.Item.Id != item.Id))
-                {
-                    var model = new ShoppingCartModel.ShoppingCartItemModel();
+                // Inherit state from parent because only the parent item can be enabled/disabled.
+                model.Active = from.Active;
 
-                    await childItem.MapAsync(model, (object)parameters);
-
-                    // Inherit state from parent because only the parent item can be enabled/disabled.
-                    model.Active = from.Active;
-
-                    to.AddChildItems(model);
-                }
+                to.AddChildItems(model);
             }
         }
     }

@@ -1,8 +1,7 @@
-﻿namespace Smartstore.Web.Models.Common
+﻿namespace Smartstore.Web.Models.Common;
+
+public partial class StoreThemeModel : ModelBase
 {
-    public partial class StoreThemeModel : ModelBase
-    {
-        public string Name { get; set; }
-        public string Title { get; set; }
-    }
+    public string Name { get; set; }
+    public string Title { get; set; }
 }

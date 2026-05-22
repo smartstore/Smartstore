@@ -3,33 +3,32 @@ using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Security;
 using Smartstore.Web.Models.Cart;
 
-namespace Smartstore.Web.Components
+namespace Smartstore.Web.Components;
+
+public class OffCanvasCartViewComponent : SmartViewComponent
 {
-    public class OffCanvasCartViewComponent : SmartViewComponent
+    private readonly ShoppingCartSettings _shoppingCartSettings;
+    private readonly CatalogSettings _catalogSettings;
+
+    public OffCanvasCartViewComponent(
+        ShoppingCartSettings shoppingCartSettings,
+        CatalogSettings catalogSettings)
     {
-        private readonly ShoppingCartSettings _shoppingCartSettings;
-        private readonly CatalogSettings _catalogSettings;
+        _shoppingCartSettings = shoppingCartSettings;
+        _catalogSettings = catalogSettings;
+    }
 
-        public OffCanvasCartViewComponent(
-            ShoppingCartSettings shoppingCartSettings,
-            CatalogSettings catalogSettings)
+    public async Task<IViewComponentResult> InvokeAsync()
+    {
+        var model = new OffCanvasCartModel();
+
+        if (await Services.Permissions.AuthorizeAsync(Permissions.System.AccessShop))
         {
-            _shoppingCartSettings = shoppingCartSettings;
-            _catalogSettings = catalogSettings;
+            model.ShoppingCartEnabled = _shoppingCartSettings.MiniShoppingCartEnabled && await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart);
+            model.WishlistEnabled = await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist);
+            model.CompareProductsEnabled = _catalogSettings.CompareProductsEnabled;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync()
-        {
-            var model = new OffCanvasCartModel();
-
-            if (await Services.Permissions.AuthorizeAsync(Permissions.System.AccessShop))
-            {
-                model.ShoppingCartEnabled = _shoppingCartSettings.MiniShoppingCartEnabled && await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart);
-                model.WishlistEnabled = await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist);
-                model.CompareProductsEnabled = _catalogSettings.CompareProductsEnabled;
-            }
-
-            return View(model);
-        }
+        return View(model);
     }
 }

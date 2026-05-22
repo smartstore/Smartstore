@@ -2,36 +2,35 @@
 using Smartstore.Core.Identity;
 using Smartstore.Web.Models.Cart;
 
-namespace Smartstore.Web.Components
+namespace Smartstore.Web.Components;
+
+/// <summary>
+/// Component for rendering order totals.
+/// </summary>
+public class OrderSummaryViewComponent : SmartViewComponent
 {
-    /// <summary>
-    /// Component for rendering order totals.
-    /// </summary>
-    public class OrderSummaryViewComponent : SmartViewComponent
+    private readonly IShoppingCartService _shoppingCartService;
+
+    public OrderSummaryViewComponent(IShoppingCartService shoppingCartService)
     {
-        private readonly IShoppingCartService _shoppingCartService;
+        _shoppingCartService = shoppingCartService;
+    }
 
-        public OrderSummaryViewComponent(IShoppingCartService shoppingCartService)
+    public async Task<IViewComponentResult> InvokeAsync(
+        ShoppingCartModel model = null,
+        Customer customer = null,
+        int? storeId = null)
+    {
+        if (model == null)
         {
-            _shoppingCartService = shoppingCartService;
+            customer ??= Services.WorkContext.CurrentCustomer;
+            storeId ??= Services.StoreContext.CurrentStore.Id;
+
+            var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, storeId.Value);
+
+            model = await cart.MapAsync(isEditable: false, prepareEstimateShippingIfEnabled: false);
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(
-            ShoppingCartModel model = null,
-            Customer customer = null,
-            int? storeId = null)
-        {
-            if (model == null)
-            {
-                customer ??= Services.WorkContext.CurrentCustomer;
-                storeId ??= Services.StoreContext.CurrentStore.Id;
-
-                var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, storeId.Value);
-
-                model = await cart.MapAsync(isEditable: false, prepareEstimateShippingIfEnabled: false);
-            }
-
-            return View(model);
-        }
+        return View(model);
     }
 }
