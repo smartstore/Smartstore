@@ -46,13 +46,13 @@ namespace Smartstore.Core.Checkout.Orders
         /// Gets or sets a list of return request reasons.
         /// </summary>
         [LocalizedProperty]
-        public string ReturnRequestReasons { get; set; } = "Received Wrong Product,Wrong Product Ordered,There Was A Problem With The Product";
+        public string ReturnRequestReasons { get; set; } = "Wrong item received,Wrong size or variant ordered,Item does not meet expectations,Item does not match the description,Item is faulty or defective,Item arrived damaged,Delivery is incomplete,Ordered by mistake,Other";
 
         /// <summary>
         /// Gets or sets a list of return request actions.
         /// </summary>
         [LocalizedProperty]
-        public string ReturnRequestActions { get; set; } = "Repair,Replacement,Store Credit";
+        public string ReturnRequestActions { get; set; } = "Refund to original payment method,Replacement shipment,Exchange for another item,Repair,Store credit / voucher,Other";
 
         /// <summary>
         /// Gets or sets a number of days that the return request link will be available for customers after placing an order.

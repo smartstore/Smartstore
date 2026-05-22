@@ -1975,8 +1975,8 @@ namespace Smartstore.Core.Installation
                 .Alter<SeoSettings>(x => x.MetaTitle = "Mein Shop")
                 .Alter<OrderSettings>(x =>
                 {
-                    x.ReturnRequestActions = "Reparatur,Ersatz,Gutschein";
-                    x.ReturnRequestReasons = "Falschen Artikel erhalten,Falsch bestellt,Ware fehlerhaft bzw. defekt";
+                    x.ReturnRequestActions = "Erstattung auf ursprüngliche Zahlart,Ersatzlieferung,Umtausch gegen anderen Artikel,Reparatur,Gutschrift/Gutschein,Sonstiges";
+                    x.ReturnRequestReasons = "Falschen Artikel erhalten,Falsche Größe oder Variante bestellt,Artikel gefällt nicht,Artikel entspricht nicht der Beschreibung,Ware fehlerhaft oder defekt,Ware beschädigt erhalten,Lieferung unvollständig,Falsch bestellt,Sonstiges";
                     x.NumberOfDaysReturnRequestAvailable = 14;
                 })
                 .Alter<ShippingSettings>(x => x.EstimateShippingEnabled = false)
