@@ -2,48 +2,47 @@
 using Smartstore.Core.Checkout.Orders.Reporting;
 using Smartstore.Core.Security;
 
-namespace Smartstore.Admin.Components
+namespace Smartstore.Admin.Components;
+
+public class DashboardTopCustomersViewComponent : SmartViewComponent
 {
-    public class DashboardTopCustomersViewComponent : SmartViewComponent
+    private const int NUM_REPORT_LINES = 7;
+
+    private readonly SmartDbContext _db;
+
+    public DashboardTopCustomersViewComponent(SmartDbContext db)
     {
-        private const int NUM_REPORT_LINES = 7;
+        _db = db;
+    }
 
-        private readonly SmartDbContext _db;
-
-        public DashboardTopCustomersViewComponent(SmartDbContext db)
+    public async Task<IViewComponentResult> InvokeAsync()
+    {
+        if (!await Services.Permissions.AuthorizeAsync(Permissions.Customer.Read))
         {
-            _db = db;
+            return Empty();
         }
 
-        public async Task<IViewComponentResult> InvokeAsync()
+        var customer = Services.WorkContext.CurrentCustomer;
+        var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync("Customer", customer.Id);
+        
+        var orderQuery = _db.Orders.Where(x => !x.Customer.Deleted).ApplyCustomerFilter(authorizedStoreIds);
+
+        var reportByQuantity = await orderQuery
+            .SelectAsTopCustomerReportLine(ReportSorting.ByQuantityDesc)
+            .Take(NUM_REPORT_LINES)
+            .ToListAsync();
+
+        var reportByAmount = await orderQuery
+            .SelectAsTopCustomerReportLine(ReportSorting.ByAmountDesc)
+            .Take(NUM_REPORT_LINES)
+            .ToListAsync();
+
+        var model = new DashboardTopCustomersModel
         {
-            if (!await Services.Permissions.AuthorizeAsync(Permissions.Customer.Read))
-            {
-                return Empty();
-            }
+            TopCustomersByQuantity = await reportByQuantity.MapAsync(_db),
+            TopCustomersByAmount = await reportByAmount.MapAsync(_db)
+        };
 
-            var customer = Services.WorkContext.CurrentCustomer;
-            var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync("Customer", customer.Id);
-            
-            var orderQuery = _db.Orders.Where(x => !x.Customer.Deleted).ApplyCustomerFilter(authorizedStoreIds);
-
-            var reportByQuantity = await orderQuery
-                .SelectAsTopCustomerReportLine(ReportSorting.ByQuantityDesc)
-                .Take(NUM_REPORT_LINES)
-                .ToListAsync();
-
-            var reportByAmount = await orderQuery
-                .SelectAsTopCustomerReportLine(ReportSorting.ByAmountDesc)
-                .Take(NUM_REPORT_LINES)
-                .ToListAsync();
-
-            var model = new DashboardTopCustomersModel
-            {
-                TopCustomersByQuantity = await reportByQuantity.MapAsync(_db),
-                TopCustomersByAmount = await reportByAmount.MapAsync(_db)
-            };
-
-            return View(model);
-        }
+        return View(model);
     }
 }

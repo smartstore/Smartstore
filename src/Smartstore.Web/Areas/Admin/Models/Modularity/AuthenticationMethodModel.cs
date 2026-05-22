@@ -1,6 +1,5 @@
-﻿namespace Smartstore.Admin.Models.Modularity
+﻿namespace Smartstore.Admin.Models.Modularity;
+
+public class AuthenticationMethodModel : ActivatableProviderModel
 {
-    public class AuthenticationMethodModel : ActivatableProviderModel
-    {
-    }
 }

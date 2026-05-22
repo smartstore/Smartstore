@@ -5,86 +5,85 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;
 using Smartstore.Scheduling;
 
-namespace Smartstore.Admin.Models.Scheduling
+namespace Smartstore.Admin.Models.Scheduling;
+
+internal static partial class SchedulingMappingExtensions
 {
-    internal static partial class SchedulingMappingExtensions
+    internal static async Task<TaskModel> MapAsync(this TaskDescriptor entity, TaskExecutionInfo lastExecutionInfo = null)
     {
-        internal static async Task<TaskModel> MapAsync(this TaskDescriptor entity, TaskExecutionInfo lastExecutionInfo = null)
-        {
-            var model = new TaskModel();
-            await entity.MapAsync(model, lastExecutionInfo);
-            return model;
-        }
-
-        internal static async Task MapAsync(this TaskDescriptor entity, TaskModel model, TaskExecutionInfo lastExecutionInfo = null)
-        {
-            dynamic parameters = new ExpandoObject();
-            parameters.LastExecutionInfo = lastExecutionInfo;
-
-            await MapperFactory.MapAsync(entity, model, parameters);
-        }
+        var model = new TaskModel();
+        await entity.MapAsync(model, lastExecutionInfo);
+        return model;
     }
 
-    internal class TaskDescriptorMapper : Mapper<TaskDescriptor, TaskModel>
+    internal static async Task MapAsync(this TaskDescriptor entity, TaskModel model, TaskExecutionInfo lastExecutionInfo = null)
     {
-        private readonly IDateTimeHelper _dateTimeHelper;
-        private readonly IUrlHelper _urlHelper;
+        dynamic parameters = new ExpandoObject();
+        parameters.LastExecutionInfo = lastExecutionInfo;
 
-        public TaskDescriptorMapper(IDateTimeHelper dateTimeHelper, IUrlHelper urlHelper)
+        await MapperFactory.MapAsync(entity, model, parameters);
+    }
+}
+
+internal class TaskDescriptorMapper : Mapper<TaskDescriptor, TaskModel>
+{
+    private readonly IDateTimeHelper _dateTimeHelper;
+    private readonly IUrlHelper _urlHelper;
+
+    public TaskDescriptorMapper(IDateTimeHelper dateTimeHelper, IUrlHelper urlHelper)
+    {
+        _dateTimeHelper = dateTimeHelper;
+        _urlHelper = urlHelper;
+    }
+
+    public Localizer T { get; set; } = NullLocalizer.Instance;
+
+    protected override void Map(TaskDescriptor from, TaskModel to, dynamic parameters = null)
+        => throw new NotImplementedException();
+
+    public override async Task MapAsync(TaskDescriptor from, TaskModel to, dynamic parameters = null)
+    {
+        if (from == null || to == null)
         {
-            _dateTimeHelper = dateTimeHelper;
-            _urlHelper = urlHelper;
+            return;
         }
 
-        public Localizer T { get; set; } = NullLocalizer.Instance;
+        var lastExecutionInfo = parameters?.LastExecutionInfo as TaskExecutionInfo;
+        var now = DateTime.UtcNow;
+        var nextRunPretty = string.Empty;
+        var isOverdue = false;
 
-        protected override void Map(TaskDescriptor from, TaskModel to, dynamic parameters = null)
-            => throw new NotImplementedException();
+        TimeSpan? dueIn = from.NextRunUtc.HasValue
+            ? from.NextRunUtc.Value - now
+            : null;
 
-        public override async Task MapAsync(TaskDescriptor from, TaskModel to, dynamic parameters = null)
+        if (dueIn.HasValue)
         {
-            if (from == null || to == null)
+            if (dueIn.Value.TotalSeconds > 0)
             {
-                return;
+                nextRunPretty = from.NextRunUtc.Value.ToHumanizedString(true, now);
             }
-
-            var lastExecutionInfo = parameters?.LastExecutionInfo as TaskExecutionInfo;
-            var now = DateTime.UtcNow;
-            var nextRunPretty = string.Empty;
-            var isOverdue = false;
-
-            TimeSpan? dueIn = from.NextRunUtc.HasValue
-                ? from.NextRunUtc.Value - now
-                : null;
-
-            if (dueIn.HasValue)
+            else
             {
-                if (dueIn.Value.TotalSeconds > 0)
-                {
-                    nextRunPretty = from.NextRunUtc.Value.ToHumanizedString(true, now);
-                }
-                else
-                {
-                    nextRunPretty = T("Common.Waiting") + "…";
-                    isOverdue = true;
-                }
+                nextRunPretty = T("Common.Waiting") + "…";
+                isOverdue = true;
             }
+        }
 
-            MiniMapper.Map(from, to);
+        MiniMapper.Map(from, to);
 
-            to.CronDescription = CronExpression.GetFriendlyDescription(from.CronExpression);
-            to.NextRunPretty = nextRunPretty;
-            to.IsOverdue = isOverdue;
-            to.NextRun = from.NextRunUtc.HasValue ? _dateTimeHelper.ConvertToUserTime(from.NextRunUtc.Value, DateTimeKind.Utc) : null;
-            to.EditUrl = _urlHelper.Action("Edit", "Scheduling", new { id = from.Id });
-            to.ExecuteUrl = _urlHelper.Action("RunJob", "Scheduling", new { id = from.Id });
-            to.CancelUrl = _urlHelper.Action("CancelJob", "Scheduling", new { id = from.Id });
+        to.CronDescription = CronExpression.GetFriendlyDescription(from.CronExpression);
+        to.NextRunPretty = nextRunPretty;
+        to.IsOverdue = isOverdue;
+        to.NextRun = from.NextRunUtc.HasValue ? _dateTimeHelper.ConvertToUserTime(from.NextRunUtc.Value, DateTimeKind.Utc) : null;
+        to.EditUrl = _urlHelper.Action("Edit", "Scheduling", new { id = from.Id });
+        to.ExecuteUrl = _urlHelper.Action("RunJob", "Scheduling", new { id = from.Id });
+        to.CancelUrl = _urlHelper.Action("CancelJob", "Scheduling", new { id = from.Id });
 
-            if (lastExecutionInfo != null)
-            {
-                var executionInfoMapper = MapperFactory.GetMapper<TaskExecutionInfo, TaskExecutionInfoModel>();
-                await executionInfoMapper.MapAsync(lastExecutionInfo, to.LastExecutionInfo, parameters);
-            }
+        if (lastExecutionInfo != null)
+        {
+            var executionInfoMapper = MapperFactory.GetMapper<TaskExecutionInfo, TaskExecutionInfoModel>();
+            await executionInfoMapper.MapAsync(lastExecutionInfo, to.LastExecutionInfo, parameters);
         }
     }
 }

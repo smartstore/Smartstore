@@ -1,6 +1,5 @@
-﻿namespace Smartstore.Admin.Models.Modularity
+﻿namespace Smartstore.Admin.Models.Modularity;
+
+public class WidgetModel : ActivatableProviderModel
 {
-    public class WidgetModel : ActivatableProviderModel
-    {
-    }
 }

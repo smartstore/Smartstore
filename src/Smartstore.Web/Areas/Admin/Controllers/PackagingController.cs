@@ -3,75 +3,74 @@ using Smartstore.Core.Packaging;
 using Smartstore.Core.Security;
 using Smartstore.Engine.Modularity;
 
-namespace Smartstore.Controllers
-{
-    public class PackagingController : AdminController
-    {
-        private readonly IPackageInstaller _packageInstaller;
+namespace Smartstore.Controllers;
 
-        public PackagingController(IPackageInstaller packageInstaller)
+public class PackagingController : AdminController
+{
+    private readonly IPackageInstaller _packageInstaller;
+
+    public PackagingController(IPackageInstaller packageInstaller)
+    {
+        _packageInstaller = packageInstaller;
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> UploadPackage(bool expectTheme, string returnUrl = null)
+    {
+        returnUrl ??= Services.WebHelper.ClientInfo.UrlReferrer?.OriginalString;
+
+        var message = (string)null;
+        var file = (IFormFile)null;
+
+        if (Request.Form.Files.Count == 0)
         {
-            _packageInstaller = packageInstaller;
+            message = T("Admin.Common.UploadFile").Value;
+            return Json(new { fileName = file.FileName, message, returnUrl });
         }
 
-        [HttpPost]
-        public async Task<IActionResult> UploadPackage(bool expectTheme, string returnUrl = null)
+        try
         {
-            returnUrl ??= Services.WebHelper.ClientInfo.UrlReferrer?.OriginalString;
+            file = Request.Form.Files[0];
 
-            var message = (string)null;
-            var file = (IFormFile)null;
-
-            if (Request.Form.Files.Count == 0)
+            if (!Path.GetExtension(file.FileName).EqualsNoCase(".zip"))
             {
-                message = T("Admin.Common.UploadFile").Value;
+                message = T("Admin.Packaging.NotAPackage").Value;
                 return Json(new { fileName = file.FileName, message, returnUrl });
             }
 
-            try
+            using var package = new ExtensionPackage(file.OpenReadStream(), false) { FileName = file.Name };
+
+            if (!SmartstoreVersion.IsAssumedCompatible(package.Descriptor.MinAppVersion))
             {
-                file = Request.Form.Files[0];
-
-                if (!Path.GetExtension(file.FileName).EqualsNoCase(".zip"))
-                {
-                    message = T("Admin.Packaging.NotAPackage").Value;
-                    return Json(new { fileName = file.FileName, message, returnUrl });
-                }
-
-                using var package = new ExtensionPackage(file.OpenReadStream(), false) { FileName = file.Name };
-
-                if (!SmartstoreVersion.IsAssumedCompatible(package.Descriptor.MinAppVersion))
-                {
-                    message = T("Admin.Packaging.IsIncompatible", SmartstoreVersion.CurrentFullVersion);
-                    return Json(new { fileName = file.FileName, message, returnUrl });
-                }
-
-                var isTheme = package.Descriptor.ExtensionType == ExtensionType.Theme;
-                if (isTheme != expectTheme)
-                {
-                    message = T("Admin.Packaging." + (isTheme ? "NotAModule" : "NotATheme")).Value;
-                    return Json(new { fileName = file.FileName, message, returnUrl });
-                }
-
-                var requiredPermission = isTheme ? Permissions.Configuration.Theme.Upload : Permissions.Configuration.Module.Upload;
-
-                if (!await Services.Permissions.AuthorizeAsync(requiredPermission))
-                {
-                    message = T("Admin.AccessDenied.Description").Value;
-                    return Json(new { fileName = file.FileName, message, returnUrl });
-                }
-
-                // ===> Install package now
-                var result = await _packageInstaller.InstallPackageAsync(package);
-
-                message = T("Admin.Packaging.InstallSuccess" + (isTheme ? ".Theme" : string.Empty), result.Name).ToString();
-                return Json(new { success = true, file = file.Name, message, returnUrl });
+                message = T("Admin.Packaging.IsIncompatible", SmartstoreVersion.CurrentFullVersion);
+                return Json(new { fileName = file.FileName, message, returnUrl });
             }
-            catch (Exception ex)
+
+            var isTheme = package.Descriptor.ExtensionType == ExtensionType.Theme;
+            if (isTheme != expectTheme)
             {
-                message = ex.Message;
-                return Json(new { fileName = file?.Name, message, returnUrl });
+                message = T("Admin.Packaging." + (isTheme ? "NotAModule" : "NotATheme")).Value;
+                return Json(new { fileName = file.FileName, message, returnUrl });
             }
+
+            var requiredPermission = isTheme ? Permissions.Configuration.Theme.Upload : Permissions.Configuration.Module.Upload;
+
+            if (!await Services.Permissions.AuthorizeAsync(requiredPermission))
+            {
+                message = T("Admin.AccessDenied.Description").Value;
+                return Json(new { fileName = file.FileName, message, returnUrl });
+            }
+
+            // ===> Install package now
+            var result = await _packageInstaller.InstallPackageAsync(package);
+
+            message = T("Admin.Packaging.InstallSuccess" + (isTheme ? ".Theme" : string.Empty), result.Name).ToString();
+            return Json(new { success = true, file = file.Name, message, returnUrl });
+        }
+        catch (Exception ex)
+        {
+            message = ex.Message;
+            return Json(new { fileName = file?.Name, message, returnUrl });
         }
     }
 }

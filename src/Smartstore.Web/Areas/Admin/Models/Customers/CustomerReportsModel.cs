@@ -1,6 +1,5 @@
-﻿namespace Smartstore.Admin.Models.Customers
+﻿namespace Smartstore.Admin.Models.Customers;
+
+public class CustomerReportsModel : ModelBase
 {
-    public class CustomerReportsModel : ModelBase
-    {
-    }
 }

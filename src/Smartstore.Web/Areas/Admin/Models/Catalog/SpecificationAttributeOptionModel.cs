@@ -3,80 +3,79 @@ using FluentValidation;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 
-namespace Smartstore.Admin.Models.Catalog
+namespace Smartstore.Admin.Models.Catalog;
+
+[LocalizedDisplay("Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.")]
+public class SpecificationAttributeOptionModel : EntityModelBase, ILocalizedModel<SpecificationAttributeOptionLocalizedModel>
 {
-    [LocalizedDisplay("Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.")]
-    public class SpecificationAttributeOptionModel : EntityModelBase, ILocalizedModel<SpecificationAttributeOptionLocalizedModel>
+    public Type GetEntityType() => typeof(SpecificationAttributeOption);
+
+    public int SpecificationAttributeId { get; set; }
+
+    [LocalizedDisplay("*Name")]
+    public string Name { get; set; }
+
+    [LocalizedDisplay("*Alias")]
+    public string Alias { get; set; }
+
+    [LocalizedDisplay("Common.DisplayOrder")]
+    public int DisplayOrder { get; set; }
+
+    [LocalizedDisplay("*Multiple")]
+    public bool Multiple { get; set; }
+
+    [LocalizedDisplay("*NumberValue")]
+    public decimal NumberValue { get; set; }
+
+    [LocalizedDisplay("*ColorSquaresRgb")]
+    [UIHint("Color")]
+    public string Color { get; set; } = string.Empty;
+
+    [UIHint("Media")]
+    [AdditionalMetadata("album", "catalog"), AdditionalMetadata("transientUpload", true), AdditionalMetadata("entityType", "SpecificationAttributeOption")]
+    [LocalizedDisplay("*Picture")]
+    public int PictureId { get; set; }
+
+    public List<SpecificationAttributeOptionLocalizedModel> Locales { get; set; } = [];
+}
+
+[LocalizedDisplay("Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.")]
+public class SpecificationAttributeOptionLocalizedModel : ILocalizedLocaleModel
+{
+    public int LanguageId { get; set; }
+
+    [LocalizedDisplay("*Name")]
+    public string Name { get; set; }
+
+    [LocalizedDisplay("*Alias")]
+    public string Alias { get; set; }
+}
+
+public partial class SpecificationAttributeOptionValidator : SmartValidator<SpecificationAttributeOptionModel>
+{
+    public SpecificationAttributeOptionValidator(SmartDbContext db)
     {
-        public Type GetEntityType() => typeof(SpecificationAttributeOption);
+        ApplyEntityRules<SpecificationAttributeOption>(db);
+    }
+}
 
-        public int SpecificationAttributeId { get; set; }
+public class SpecificationAttributeOptionMapper :
+    IMapper<SpecificationAttributeOption, SpecificationAttributeOptionModel>,
+    IMapper<SpecificationAttributeOptionModel, SpecificationAttributeOption>
+{
+    public Task MapAsync(SpecificationAttributeOption from, SpecificationAttributeOptionModel to, dynamic parameters = null)
+    {
+        MiniMapper.Map(from, to);
+        to.PictureId = from.MediaFileId;
 
-        [LocalizedDisplay("*Name")]
-        public string Name { get; set; }
-
-        [LocalizedDisplay("*Alias")]
-        public string Alias { get; set; }
-
-        [LocalizedDisplay("Common.DisplayOrder")]
-        public int DisplayOrder { get; set; }
-
-        [LocalizedDisplay("*Multiple")]
-        public bool Multiple { get; set; }
-
-        [LocalizedDisplay("*NumberValue")]
-        public decimal NumberValue { get; set; }
-
-        [LocalizedDisplay("*ColorSquaresRgb")]
-        [UIHint("Color")]
-        public string Color { get; set; } = string.Empty;
-
-        [UIHint("Media")]
-        [AdditionalMetadata("album", "catalog"), AdditionalMetadata("transientUpload", true), AdditionalMetadata("entityType", "SpecificationAttributeOption")]
-        [LocalizedDisplay("*Picture")]
-        public int PictureId { get; set; }
-
-        public List<SpecificationAttributeOptionLocalizedModel> Locales { get; set; } = [];
+        return Task.CompletedTask;
     }
 
-    [LocalizedDisplay("Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.")]
-    public class SpecificationAttributeOptionLocalizedModel : ILocalizedLocaleModel
+    public Task MapAsync(SpecificationAttributeOptionModel from, SpecificationAttributeOption to, dynamic parameters = null)
     {
-        public int LanguageId { get; set; }
+        MiniMapper.Map(from, to);
+        to.MediaFileId = from.PictureId;
 
-        [LocalizedDisplay("*Name")]
-        public string Name { get; set; }
-
-        [LocalizedDisplay("*Alias")]
-        public string Alias { get; set; }
-    }
-
-    public partial class SpecificationAttributeOptionValidator : SmartValidator<SpecificationAttributeOptionModel>
-    {
-        public SpecificationAttributeOptionValidator(SmartDbContext db)
-        {
-            ApplyEntityRules<SpecificationAttributeOption>(db);
-        }
-    }
-
-    public class SpecificationAttributeOptionMapper :
-        IMapper<SpecificationAttributeOption, SpecificationAttributeOptionModel>,
-        IMapper<SpecificationAttributeOptionModel, SpecificationAttributeOption>
-    {
-        public Task MapAsync(SpecificationAttributeOption from, SpecificationAttributeOptionModel to, dynamic parameters = null)
-        {
-            MiniMapper.Map(from, to);
-            to.PictureId = from.MediaFileId;
-
-            return Task.CompletedTask;
-        }
-
-        public Task MapAsync(SpecificationAttributeOptionModel from, SpecificationAttributeOption to, dynamic parameters = null)
-        {
-            MiniMapper.Map(from, to);
-            to.MediaFileId = from.PictureId;
-
-            return Task.CompletedTask;
-        }
+        return Task.CompletedTask;
     }
 }

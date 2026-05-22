@@ -1,40 +1,39 @@
 ﻿#nullable enable
 
-namespace Smartstore.Admin.Models.Modularity
-{
-    public class ProviderModelCollection
-    {
-        public IEnumerable<ProviderModel> Data { get; set; } = default!;
+namespace Smartstore.Admin.Models.Modularity;
 
-        public Func<dynamic, object>? ButtonTemplate { get; set; }
-        public Func<dynamic, object>? InfoTemplate { get; set; }
+public class ProviderModelCollection
+{
+    public IEnumerable<ProviderModel> Data { get; set; } = default!;
+
+    public Func<dynamic, object>? ButtonTemplate { get; set; }
+    public Func<dynamic, object>? InfoTemplate { get; set; }
+}
+
+public class ProviderModelCollection<TModel> : ProviderModelCollection
+    where TModel : ProviderModel
+{
+    public ProviderModelCollection(IEnumerable<TModel> data)
+    {
+        Data = Guard.NotNull(data);
     }
 
-    public class ProviderModelCollection<TModel> : ProviderModelCollection
-        where TModel : ProviderModel
+    public void SetTemplates(Func<TModel, object>? buttonTemplate, Func<TModel, object>? infoTemplate)
     {
-        public ProviderModelCollection(IEnumerable<TModel> data)
+        if (buttonTemplate != null)
         {
-            Data = Guard.NotNull(data);
+            ButtonTemplate = Cast(buttonTemplate);
         }
 
-        public void SetTemplates(Func<TModel, object>? buttonTemplate, Func<TModel, object>? infoTemplate)
+        if (infoTemplate != null)
         {
-            if (buttonTemplate != null)
-            {
-                ButtonTemplate = Cast(buttonTemplate);
-            }
+            InfoTemplate = Cast(infoTemplate);
+        }
 
-            if (infoTemplate != null)
-            {
-                InfoTemplate = Cast(infoTemplate);
-            }
-
-            Func<dynamic, object> Cast(Func<TModel, object> template)
-            {
-                object fn(dynamic x) => template(x);
-                return fn;
-            }
+        Func<dynamic, object> Cast(Func<TModel, object> template)
+        {
+            object fn(dynamic x) => template(x);
+            return fn;
         }
     }
 }

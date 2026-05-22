@@ -21,557 +21,556 @@ using Smartstore.Pdf;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.DataGrid;
 
-namespace Smartstore.Admin.Controllers
+namespace Smartstore.Admin.Controllers;
+
+public class ShipmentController : AdminController
 {
-    public class ShipmentController : AdminController
+    private readonly SmartDbContext _db;
+    private readonly IAddressService _addressService;
+    private readonly IProductAttributeMaterializer _productAttributeMaterializer;
+    private readonly IOrderProcessingService _orderProcessingService;
+    private readonly IPdfConverter _pdfConverter;
+    private readonly PdfSettings _pdfSettings;
+    private readonly MeasureSettings _measureSettings;
+    private readonly CatalogSettings _catalogSettings;
+
+    public ShipmentController(
+        SmartDbContext db,
+        IAddressService addressService,
+        IProductAttributeMaterializer productAttributeMaterializer,
+        IOrderProcessingService orderProcessingService,
+        IPdfConverter pdfConverter,
+        PdfSettings pdfSettings,
+        MeasureSettings measureSettings,
+        CatalogSettings catalogSettings)
     {
-        private readonly SmartDbContext _db;
-        private readonly IAddressService _addressService;
-        private readonly IProductAttributeMaterializer _productAttributeMaterializer;
-        private readonly IOrderProcessingService _orderProcessingService;
-        private readonly IPdfConverter _pdfConverter;
-        private readonly PdfSettings _pdfSettings;
-        private readonly MeasureSettings _measureSettings;
-        private readonly CatalogSettings _catalogSettings;
+        _db = db;
+        _addressService = addressService;
+        _productAttributeMaterializer = productAttributeMaterializer;
+        _orderProcessingService = orderProcessingService;
+        _pdfConverter = pdfConverter;
+        _pdfSettings = pdfSettings;
+        _measureSettings = measureSettings;
+        _catalogSettings = catalogSettings;
+    }
 
-        public ShipmentController(
-            SmartDbContext db,
-            IAddressService addressService,
-            IProductAttributeMaterializer productAttributeMaterializer,
-            IOrderProcessingService orderProcessingService,
-            IPdfConverter pdfConverter,
-            PdfSettings pdfSettings,
-            MeasureSettings measureSettings,
-            CatalogSettings catalogSettings)
+    public IActionResult Index()
+    {
+        return RedirectToAction(nameof(List));
+    }
+
+    [Permission(Permissions.Order.Read)]
+    public IActionResult List()
+    {
+        PrepareViewBag();
+
+        return View(new ShipmentListModel());
+    }
+
+    [Permission(Permissions.Order.Read)]
+    public async Task<IActionResult> ShipmentList(GridCommand command, ShipmentListModel model)
+    {
+        var dtHelper = Services.DateTimeHelper;
+
+        DateTime? startDate = model.StartDate == null
+            ? null
+            : dtHelper.ConvertToUtcTime(model.StartDate.Value, dtHelper.CurrentTimeZone);
+
+        DateTime? endDate = model.EndDate == null
+            ? null
+            : dtHelper.ConvertToUtcTime(model.EndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
+
+        var query = _db.Shipments.AsNoTracking();
+
+        if (model.TrackingNumber.HasValue())
         {
-            _db = db;
-            _addressService = addressService;
-            _productAttributeMaterializer = productAttributeMaterializer;
-            _orderProcessingService = orderProcessingService;
-            _pdfConverter = pdfConverter;
-            _pdfSettings = pdfSettings;
-            _measureSettings = measureSettings;
-            _catalogSettings = catalogSettings;
+            query = query.ApplySearchFilterFor(x => x.TrackingNumber, model.TrackingNumber);
         }
 
-        public IActionResult Index()
+        if (model.ShippingMethod.HasValue())
         {
-            return RedirectToAction(nameof(List));
+            query = query.ApplySearchFilterFor(x => x.Order.ShippingMethod, model.ShippingMethod);
         }
 
-        [Permission(Permissions.Order.Read)]
-        public IActionResult List()
+        if (model.OrderId.GetValueOrDefault() > 0)
         {
-            PrepareViewBag();
-
-            return View(new ShipmentListModel());
+            query = query.Where(x => x.OrderId == model.OrderId.Value);
         }
 
-        [Permission(Permissions.Order.Read)]
-        public async Task<IActionResult> ShipmentList(GridCommand command, ShipmentListModel model)
+        var shipments = await query
+            .Include(x => x.Order)
+            .Where(x => x.Order != null)
+            .ApplyTimeFilter(startDate, endDate)
+            .ApplyGridCommand(command, false)
+            .ToPagedList(command)
+            .LoadAsync();
+
+        var rows = await shipments.SelectAwait(async x =>
         {
-            var dtHelper = Services.DateTimeHelper;
+            var m = new ShipmentModel();
+            await PrepareShipmentModel(m, x, false);
+            return m;
+        })
+        .ToListAsync();
 
-            DateTime? startDate = model.StartDate == null
-                ? null
-                : dtHelper.ConvertToUtcTime(model.StartDate.Value, dtHelper.CurrentTimeZone);
+        return Json(new GridModel<ShipmentModel>
+        {
+            Rows = rows,
+            Total = shipments.TotalCount
+        });
+    }
 
-            DateTime? endDate = model.EndDate == null
-                ? null
-                : dtHelper.ConvertToUtcTime(model.EndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
+    [Permission(Permissions.Order.EditShipment)]
+    public async Task<IActionResult> Create(int orderId)
+    {
+        var order = await _db.Orders
+            .IncludeCustomer(true)
+            .IncludeOrderItems()
+            .IncludeShipments()
+            .FindByIdAsync(orderId);
 
-            var query = _db.Shipments.AsNoTracking();
+        if (order == null)
+        {
+            return NotFound();
+        }
 
-            if (model.TrackingNumber.HasValue())
+        var model = new ShipmentModel
+        {
+            OrderId = order.Id,
+        };
+
+        var orderItemIds = order.OrderItems.ToDistinctArray(x => x.Id);
+        if (orderItemIds.Any())
+        {
+            var baseWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
+            var baseDimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId, false);
+
+            foreach (var orderItem in order.OrderItems)
             {
-                query = query.ApplySearchFilterFor(x => x.TrackingNumber, model.TrackingNumber);
+                // We can ship only shippable products.
+                if (!orderItem.Product.IsShippingEnabled)
+                    continue;
+
+                // Ensure that this product can be added to a shipment.
+                if (await _orderProcessingService.GetShippableItemsCountAsync(orderItem) <= 0)
+                    continue;
+
+                var itemModel = await CreateShipmentItemModel(null, orderItem, baseDimension, baseWeight);
+                if (itemModel != null)
+                {
+                    model.Items.Add(itemModel);
+                }
+            }
+        }
+
+        PrepareViewBag();
+
+        return View(model);
+    }
+
+    [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+    [FormValueRequired("save", "save-continue")]
+    [Permission(Permissions.Order.EditShipment)]
+    public async Task<IActionResult> Create(ShipmentModel model, IFormCollection form, bool continueEditing)
+    {
+        var order = await _db.Orders
+            .IncludeCustomer(true)
+            .IncludeOrderItems()
+            .IncludeShipments()
+            .FindByIdAsync(model.OrderId);
+
+        if (order == null)
+        {
+            return NotFound();
+        }
+
+        if (ModelState.IsValid)
+        {
+            var quantities = new Dictionary<int, int>();
+
+            foreach (var orderItem in order.OrderItems)
+            {
+                foreach (var key in form.Keys)
+                {
+                    if (key.EqualsNoCase($"qtyToAdd{orderItem.Id}"))
+                    {
+                        quantities.Add(orderItem.Id, form[key].FirstOrDefault().ToInt());
+                        break;
+                    }
+                }
             }
 
-            if (model.ShippingMethod.HasValue())
+            var shipment = await _orderProcessingService.AddShipmentAsync(order, model.Carrier, model.TrackingNumber, model.TrackingUrl, quantities);
+            if (shipment != null)
             {
-                query = query.ApplySearchFilterFor(x => x.Order.ShippingMethod, model.ShippingMethod);
-            }
+                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
+                NotifySuccess(T("Admin.Orders.Shipments.Added"));
 
-            if (model.OrderId.GetValueOrDefault() > 0)
+                return continueEditing
+                   ? RedirectToAction(nameof(Edit), new { id = shipment.Id })
+                   : RedirectToAction(nameof(OrderController.Edit), "Order", new { id = order.Id });
+            }
+            else
             {
-                query = query.Where(x => x.OrderId == model.OrderId.Value);
+                NotifyError(T("Admin.Orders.Shipments.NoProductsSelected"));
+
+                return RedirectToAction(nameof(Create), new { orderId = order.Id });
             }
+        }
 
-            var shipments = await query
-                .Include(x => x.Order)
-                .Where(x => x.Order != null)
-                .ApplyTimeFilter(startDate, endDate)
-                .ApplyGridCommand(command, false)
-                .ToPagedList(command)
-                .LoadAsync();
+        return await Create(order.Id);
+    }
 
-            var rows = await shipments.SelectAwait(async x =>
+    [Permission(Permissions.Order.Read)]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var shipment = await _db.Shipments
+            .Include(x => x.ShipmentItems)
+            .Include(x => x.Order.ShippingAddress.Country)
+            .Include(x => x.Order.ShippingAddress.StateProvince)
+            .FindByIdAsync(id);
+
+        if (shipment == null)
+        {
+            return NotFound();
+        }
+
+        var model = new ShipmentModel();
+        await PrepareShipmentModel(model, shipment, true);
+        PrepareViewBag();
+
+        return View(model);
+    }
+
+    [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+    [Permission(Permissions.Order.EditShipment)]
+    public async Task<IActionResult> Edit(ShipmentModel model, bool continueEditing)
+    {
+        var shipment = await _db.Shipments
+            .Include(x => x.ShipmentItems)
+            .Include(x => x.Order.ShippingAddress.Country)
+            .Include(x => x.Order.ShippingAddress.StateProvince)
+            .FindByIdAsync(model.Id);
+
+        if (shipment == null)
+        {
+            return NotFound();
+        }
+
+        if (ModelState.IsValid)
+        {
+            shipment.GenericAttributes.Set("Carrier", model.Carrier);
+            shipment.TrackingNumber = model.TrackingNumber;
+            shipment.TrackingUrl = model.TrackingUrl;
+            shipment.TotalWeight = model.TotalWeight;
+
+            await _db.SaveChangesAsync();
+
+            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), shipment.Order.GetOrderNumber());
+
+            return continueEditing
+                ? RedirectToAction(nameof(Edit), new { id = shipment.Id })
+                : RedirectToAction(nameof(OrderController.Edit), "Order", new { id = shipment.OrderId });
+        }
+
+        await PrepareShipmentModel(model, shipment, true);
+        PrepareViewBag();
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [Permission(Permissions.Order.EditShipment)]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var shipment = await _db.Shipments
+            .Include(x => x.Order)
+            .FindByIdAsync(id);
+
+        if (shipment == null)
+        {
+            return NotFound();
+        }
+
+        var orderId = shipment.OrderId;
+        var orderNumber = shipment.Order.GetOrderNumber();
+
+        _db.Shipments.Remove(shipment);
+        await _db.SaveChangesAsync();
+
+        Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), orderNumber);
+        NotifySuccess(T("Admin.Orders.Shipments.Deleted"));
+
+        return RedirectToAction(nameof(OrderController.Edit), "Order", new { id = orderId });
+    }
+
+    [HttpPost]
+    [Permission(Permissions.Order.EditShipment)]
+    public async Task<IActionResult> SetAsShipped(int id)
+    {
+        var shipment = await _db.Shipments
+            .Include(x => x.Order)
+            .FindByIdAsync(id);
+
+        if (shipment == null)
+        {
+            return NotFound();
+        }
+
+        try
+        {
+            await _orderProcessingService.ShipAsync(shipment, true);
+
+            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), shipment.Order.GetOrderNumber());
+        }
+        catch (Exception ex)
+        {
+            NotifyError(ex);
+        }
+
+        return RedirectToAction(nameof(Edit), new { id });
+    }
+
+    [HttpPost]
+    [Permission(Permissions.Order.EditShipment)]
+    public async Task<IActionResult> SetAsDelivered(int id)
+    {
+        var shipment = await _db.Shipments
+            .Include(x => x.Order)
+            .FindByIdAsync(id);
+
+        if (shipment == null)
+        {
+            return NotFound();
+        }
+
+        try
+        {
+            await _orderProcessingService.DeliverAsync(shipment, true);
+
+            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), shipment.Order.GetOrderNumber());
+        }
+        catch (Exception ex)
+        {
+            NotifyError(ex, true);
+        }
+
+        return RedirectToAction(nameof(Edit), new { id });
+    }
+
+    [Permission(Permissions.Order.Read)]
+    public async Task<IActionResult> PdfPackagingSlips(string selectedIds, bool all)
+    {
+        var ids = selectedIds.ToIntArray();
+        if (!all && ids.IsNullOrEmpty())
+        {
+            NotifyInfo(T("Admin.Common.ExportNoData"));
+            return RedirectToReferrer();
+        }
+
+        var query = _db.Shipments
+            .Include(x => x.ShipmentItems)
+            .Include(x => x.Order.ShippingAddress.Country)
+            .Include(x => x.Order.ShippingAddress.StateProvince)
+            .AsQueryable();
+
+        var expectedShipments = all ? await query.CountAsync() : ids.Length;
+        if (expectedShipments > _pdfSettings.MaxItemsToPrint)
+        {
+            NotifyWarning(T("Admin.Common.ExportToPdf.TooManyItems", _pdfSettings.MaxItemsToPrint.ToString("N0"), expectedShipments.ToString("N0")));
+            return RedirectToReferrer();
+        }
+
+        if (!all)
+        {
+            query = query.Where(x => ids.Contains(x.Id));
+        }
+
+        var shipments = await query
+            .OrderByDescending(x => x.CreatedOnUtc)
+            .ToListAsync();
+
+        if (shipments.Count == 0)
+        {
+            NotifyInfo(T("Admin.Common.ExportNoData"));
+            return RedirectToReferrer();
+        }
+
+        var pdfFileName = shipments.Count == 1
+            ? $"PackagingSlip-{shipments[0].Id}.pdf"
+            : "PackagingSlips.pdf";
+
+        var models = await shipments
+            .SelectAwait(async x =>
             {
                 var m = new ShipmentModel();
-                await PrepareShipmentModel(m, x, false);
+                await PrepareShipmentModel(m, x, true);
                 return m;
             })
             .ToListAsync();
 
-            return Json(new GridModel<ShipmentModel>
-            {
-                Rows = rows,
-                Total = shipments.TotalCount
-            });
-        }
-
-        [Permission(Permissions.Order.EditShipment)]
-        public async Task<IActionResult> Create(int orderId)
+        // TODO: (mc) this is bad for multi-document processing, where orders can originate from different stores.
+        var storeId = models[0].StoreId;
+        var pdfSettings = await Services.SettingFactory.LoadSettingsAsync<PdfSettings>(storeId);
+        var routeValues = new RouteValueDictionary(new
         {
-            var order = await _db.Orders
-                .IncludeCustomer(true)
-                .IncludeOrderItems()
-                .IncludeShipments()
-                .FindByIdAsync(orderId);
+            storeId,
+            lid = Services.WorkContext.WorkingLanguage.Id,
+            area = string.Empty
+        });
 
-            if (order == null)
+        PrepareViewBag();
+
+        var conversionSettings = new PdfConversionSettings
+        {
+            Size = pdfSettings.LetterPageSizeEnabled ? PdfPageSize.Letter : PdfPageSize.A4,
+            Margins = new PdfPageMargins { Top = 35, Bottom = 35 },
+            Page = _pdfConverter.CreateHtmlInput(await InvokeViewAsync("PdfPackagingSlips.Print", models)),
+            Header = _pdfConverter.CreateFileInput(Url.Action("ReceiptHeader", "Pdf", routeValues)),
+            Footer = _pdfConverter.CreateFileInput(Url.Action("ReceiptFooter", "Pdf", routeValues))
+        };
+
+        var output = await _pdfConverter.GeneratePdfAsync(conversionSettings);
+
+        return File(output, MediaTypeNames.Application.Pdf, pdfFileName);
+    }
+
+    #region Utilities
+
+    private async Task PrepareShipmentModel(ShipmentModel model, Shipment shipment, bool forEdit)
+    {
+        var dtHelper = Services.DateTimeHelper;
+        var order = Guard.NotNull(shipment.Order);
+
+        await MapperFactory.MapAsync(shipment, model);
+
+        model.StoreId = order.StoreId;
+        model.LanguageId = order.CustomerLanguageId;
+        model.OrderNumber = order.GetOrderNumber();
+        model.PurchaseOrderNumber = order.PurchaseOrderNumber;
+        model.ShippingMethod = order.ShippingMethod;
+        model.CreatedOn = dtHelper.ConvertToUserTime(shipment.CreatedOnUtc, DateTimeKind.Utc);
+        model.Carrier = shipment.GenericAttributes.Get<string>("Carrier");
+
+        model.CanShip = !shipment.ShippedDateUtc.HasValue;
+        model.CanDeliver = shipment.ShippedDateUtc.HasValue && !shipment.DeliveryDateUtc.HasValue;
+        model.ShippedDate = shipment.ShippedDateUtc.HasValue
+            ? dtHelper.ConvertToUserTime(shipment.ShippedDateUtc.Value, DateTimeKind.Utc)
+            : null;
+        model.DeliveryDate = shipment.DeliveryDateUtc.HasValue
+            ? dtHelper.ConvertToUserTime(shipment.DeliveryDateUtc.Value, DateTimeKind.Utc)
+            : null;
+
+        model.EditUrl = Url.Action(nameof(Edit), "Shipment", new { id = shipment.Id, area = "Admin" });
+        model.OrderEditUrl = Url.Action(nameof(OrderController.Edit), "Order", new { id = shipment.OrderId, area = "Admin" });
+
+        if (forEdit)
+        {
+            // Edit requires: Shipment.Order, Shipment.Order.ShippingAddress, Shipment.ShipmentItems
+            var store = Services.StoreContext.GetStoreById(order.StoreId) ?? Services.StoreContext.CurrentStore;
+            var baseWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
+            model.BaseWeight = baseWeight?.GetLocalized(x => x.Name) ?? string.Empty;
+
+            model.MerchantCompanyInfo = await Services.SettingFactory.LoadSettingsAsync<CompanyInformationSettings>(store.Id);
+            model.FormattedMerchantAddress = await _addressService.FormatAddressAsync(model.MerchantCompanyInfo, true);
+
+            if (order.ShippingAddressId.HasValue)
             {
-                return NotFound();
+                // INFO: Customer parameter not required here yet.
+                await order.ShippingAddress.MapAsync(model.ShippingAddress);
             }
 
-            var model = new ShipmentModel
+            // Shipment items.
+            var orderItemIds = shipment.ShipmentItems.ToDistinctArray(x => x.OrderItemId);
+            if (orderItemIds.Length > 0)
             {
-                OrderId = order.Id,
-            };
-
-            var orderItemIds = order.OrderItems.ToDistinctArray(x => x.Id);
-            if (orderItemIds.Any())
-            {
-                var baseWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
                 var baseDimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId, false);
 
-                foreach (var orderItem in order.OrderItems)
-                {
-                    // We can ship only shippable products.
-                    if (!orderItem.Product.IsShippingEnabled)
-                        continue;
-
-                    // Ensure that this product can be added to a shipment.
-                    if (await _orderProcessingService.GetShippableItemsCountAsync(orderItem) <= 0)
-                        continue;
-
-                    var itemModel = await CreateShipmentItemModel(null, orderItem, baseDimension, baseWeight);
-                    if (itemModel != null)
-                    {
-                        model.Items.Add(itemModel);
-                    }
-                }
-            }
-
-            PrepareViewBag();
-
-            return View(model);
-        }
-
-        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
-        [FormValueRequired("save", "save-continue")]
-        [Permission(Permissions.Order.EditShipment)]
-        public async Task<IActionResult> Create(ShipmentModel model, IFormCollection form, bool continueEditing)
-        {
-            var order = await _db.Orders
-                .IncludeCustomer(true)
-                .IncludeOrderItems()
-                .IncludeShipments()
-                .FindByIdAsync(model.OrderId);
-
-            if (order == null)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                var quantities = new Dictionary<int, int>();
-
-                foreach (var orderItem in order.OrderItems)
-                {
-                    foreach (var key in form.Keys)
-                    {
-                        if (key.EqualsNoCase($"qtyToAdd{orderItem.Id}"))
-                        {
-                            quantities.Add(orderItem.Id, form[key].FirstOrDefault().ToInt());
-                            break;
-                        }
-                    }
-                }
-
-                var shipment = await _orderProcessingService.AddShipmentAsync(order, model.Carrier, model.TrackingNumber, model.TrackingUrl, quantities);
-                if (shipment != null)
-                {
-                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
-                    NotifySuccess(T("Admin.Orders.Shipments.Added"));
-
-                    return continueEditing
-                       ? RedirectToAction(nameof(Edit), new { id = shipment.Id })
-                       : RedirectToAction(nameof(OrderController.Edit), "Order", new { id = order.Id });
-                }
-                else
-                {
-                    NotifyError(T("Admin.Orders.Shipments.NoProductsSelected"));
-
-                    return RedirectToAction(nameof(Create), new { orderId = order.Id });
-                }
-            }
-
-            return await Create(order.Id);
-        }
-
-        [Permission(Permissions.Order.Read)]
-        public async Task<IActionResult> Edit(int id)
-        {
-            var shipment = await _db.Shipments
-                .Include(x => x.ShipmentItems)
-                .Include(x => x.Order.ShippingAddress.Country)
-                .Include(x => x.Order.ShippingAddress.StateProvince)
-                .FindByIdAsync(id);
-
-            if (shipment == null)
-            {
-                return NotFound();
-            }
-
-            var model = new ShipmentModel();
-            await PrepareShipmentModel(model, shipment, true);
-            PrepareViewBag();
-
-            return View(model);
-        }
-
-        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
-        [Permission(Permissions.Order.EditShipment)]
-        public async Task<IActionResult> Edit(ShipmentModel model, bool continueEditing)
-        {
-            var shipment = await _db.Shipments
-                .Include(x => x.ShipmentItems)
-                .Include(x => x.Order.ShippingAddress.Country)
-                .Include(x => x.Order.ShippingAddress.StateProvince)
-                .FindByIdAsync(model.Id);
-
-            if (shipment == null)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                shipment.GenericAttributes.Set("Carrier", model.Carrier);
-                shipment.TrackingNumber = model.TrackingNumber;
-                shipment.TrackingUrl = model.TrackingUrl;
-                shipment.TotalWeight = model.TotalWeight;
-
-                await _db.SaveChangesAsync();
-
-                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), shipment.Order.GetOrderNumber());
-
-                return continueEditing
-                    ? RedirectToAction(nameof(Edit), new { id = shipment.Id })
-                    : RedirectToAction(nameof(OrderController.Edit), "Order", new { id = shipment.OrderId });
-            }
-
-            await PrepareShipmentModel(model, shipment, true);
-            PrepareViewBag();
-
-            return View(model);
-        }
-
-        [HttpPost]
-        [Permission(Permissions.Order.EditShipment)]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var shipment = await _db.Shipments
-                .Include(x => x.Order)
-                .FindByIdAsync(id);
-
-            if (shipment == null)
-            {
-                return NotFound();
-            }
-
-            var orderId = shipment.OrderId;
-            var orderNumber = shipment.Order.GetOrderNumber();
-
-            _db.Shipments.Remove(shipment);
-            await _db.SaveChangesAsync();
-
-            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), orderNumber);
-            NotifySuccess(T("Admin.Orders.Shipments.Deleted"));
-
-            return RedirectToAction(nameof(OrderController.Edit), "Order", new { id = orderId });
-        }
-
-        [HttpPost]
-        [Permission(Permissions.Order.EditShipment)]
-        public async Task<IActionResult> SetAsShipped(int id)
-        {
-            var shipment = await _db.Shipments
-                .Include(x => x.Order)
-                .FindByIdAsync(id);
-
-            if (shipment == null)
-            {
-                return NotFound();
-            }
-
-            try
-            {
-                await _orderProcessingService.ShipAsync(shipment, true);
-
-                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), shipment.Order.GetOrderNumber());
-            }
-            catch (Exception ex)
-            {
-                NotifyError(ex);
-            }
-
-            return RedirectToAction(nameof(Edit), new { id });
-        }
-
-        [HttpPost]
-        [Permission(Permissions.Order.EditShipment)]
-        public async Task<IActionResult> SetAsDelivered(int id)
-        {
-            var shipment = await _db.Shipments
-                .Include(x => x.Order)
-                .FindByIdAsync(id);
-
-            if (shipment == null)
-            {
-                return NotFound();
-            }
-
-            try
-            {
-                await _orderProcessingService.DeliverAsync(shipment, true);
-
-                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), shipment.Order.GetOrderNumber());
-            }
-            catch (Exception ex)
-            {
-                NotifyError(ex, true);
-            }
-
-            return RedirectToAction(nameof(Edit), new { id });
-        }
-
-        [Permission(Permissions.Order.Read)]
-        public async Task<IActionResult> PdfPackagingSlips(string selectedIds, bool all)
-        {
-            var ids = selectedIds.ToIntArray();
-            if (!all && ids.IsNullOrEmpty())
-            {
-                NotifyInfo(T("Admin.Common.ExportNoData"));
-                return RedirectToReferrer();
-            }
-
-            var query = _db.Shipments
-                .Include(x => x.ShipmentItems)
-                .Include(x => x.Order.ShippingAddress.Country)
-                .Include(x => x.Order.ShippingAddress.StateProvince)
-                .AsQueryable();
-
-            var expectedShipments = all ? await query.CountAsync() : ids.Length;
-            if (expectedShipments > _pdfSettings.MaxItemsToPrint)
-            {
-                NotifyWarning(T("Admin.Common.ExportToPdf.TooManyItems", _pdfSettings.MaxItemsToPrint.ToString("N0"), expectedShipments.ToString("N0")));
-                return RedirectToReferrer();
-            }
-
-            if (!all)
-            {
-                query = query.Where(x => ids.Contains(x.Id));
-            }
-
-            var shipments = await query
-                .OrderByDescending(x => x.CreatedOnUtc)
-                .ToListAsync();
-
-            if (shipments.Count == 0)
-            {
-                NotifyInfo(T("Admin.Common.ExportNoData"));
-                return RedirectToReferrer();
-            }
-
-            var pdfFileName = shipments.Count == 1
-                ? $"PackagingSlip-{shipments[0].Id}.pdf"
-                : "PackagingSlips.pdf";
-
-            var models = await shipments
-                .SelectAwait(async x =>
-                {
-                    var m = new ShipmentModel();
-                    await PrepareShipmentModel(m, x, true);
-                    return m;
-                })
-                .ToListAsync();
-
-            // TODO: (mc) this is bad for multi-document processing, where orders can originate from different stores.
-            var storeId = models[0].StoreId;
-            var pdfSettings = await Services.SettingFactory.LoadSettingsAsync<PdfSettings>(storeId);
-            var routeValues = new RouteValueDictionary(new
-            {
-                storeId,
-                lid = Services.WorkContext.WorkingLanguage.Id,
-                area = string.Empty
-            });
-
-            PrepareViewBag();
-
-            var conversionSettings = new PdfConversionSettings
-            {
-                Size = pdfSettings.LetterPageSizeEnabled ? PdfPageSize.Letter : PdfPageSize.A4,
-                Margins = new PdfPageMargins { Top = 35, Bottom = 35 },
-                Page = _pdfConverter.CreateHtmlInput(await InvokeViewAsync("PdfPackagingSlips.Print", models)),
-                Header = _pdfConverter.CreateFileInput(Url.Action("ReceiptHeader", "Pdf", routeValues)),
-                Footer = _pdfConverter.CreateFileInput(Url.Action("ReceiptFooter", "Pdf", routeValues))
-            };
-
-            var output = await _pdfConverter.GeneratePdfAsync(conversionSettings);
-
-            return File(output, MediaTypeNames.Application.Pdf, pdfFileName);
-        }
-
-        #region Utilities
-
-        private async Task PrepareShipmentModel(ShipmentModel model, Shipment shipment, bool forEdit)
-        {
-            var dtHelper = Services.DateTimeHelper;
-            var order = Guard.NotNull(shipment.Order);
-
-            await MapperFactory.MapAsync(shipment, model);
-
-            model.StoreId = order.StoreId;
-            model.LanguageId = order.CustomerLanguageId;
-            model.OrderNumber = order.GetOrderNumber();
-            model.PurchaseOrderNumber = order.PurchaseOrderNumber;
-            model.ShippingMethod = order.ShippingMethod;
-            model.CreatedOn = dtHelper.ConvertToUserTime(shipment.CreatedOnUtc, DateTimeKind.Utc);
-            model.Carrier = shipment.GenericAttributes.Get<string>("Carrier");
-
-            model.CanShip = !shipment.ShippedDateUtc.HasValue;
-            model.CanDeliver = shipment.ShippedDateUtc.HasValue && !shipment.DeliveryDateUtc.HasValue;
-            model.ShippedDate = shipment.ShippedDateUtc.HasValue
-                ? dtHelper.ConvertToUserTime(shipment.ShippedDateUtc.Value, DateTimeKind.Utc)
-                : null;
-            model.DeliveryDate = shipment.DeliveryDateUtc.HasValue
-                ? dtHelper.ConvertToUserTime(shipment.DeliveryDateUtc.Value, DateTimeKind.Utc)
-                : null;
-
-            model.EditUrl = Url.Action(nameof(Edit), "Shipment", new { id = shipment.Id, area = "Admin" });
-            model.OrderEditUrl = Url.Action(nameof(OrderController.Edit), "Order", new { id = shipment.OrderId, area = "Admin" });
-
-            if (forEdit)
-            {
-                // Edit requires: Shipment.Order, Shipment.Order.ShippingAddress, Shipment.ShipmentItems
-                var store = Services.StoreContext.GetStoreById(order.StoreId) ?? Services.StoreContext.CurrentStore;
-                var baseWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
-                model.BaseWeight = baseWeight?.GetLocalized(x => x.Name) ?? string.Empty;
-
-                model.MerchantCompanyInfo = await Services.SettingFactory.LoadSettingsAsync<CompanyInformationSettings>(store.Id);
-                model.FormattedMerchantAddress = await _addressService.FormatAddressAsync(model.MerchantCompanyInfo, true);
-
-                if (order.ShippingAddressId.HasValue)
-                {
-                    // INFO: Customer parameter not required here yet.
-                    await order.ShippingAddress.MapAsync(model.ShippingAddress);
-                }
-
-                // Shipment items.
-                var orderItemIds = shipment.ShipmentItems.ToDistinctArray(x => x.OrderItemId);
-                if (orderItemIds.Length > 0)
-                {
-                    var baseDimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId, false);
-
-                    var orderItems = await _db.OrderItems
-                        .AsNoTracking()
-                        .AsSplitQuery()
-                        .Include(x => x.Product)
-                        .Include(x => x.Order)
-                        .ThenInclude(x => x.Shipments)
-                        .ThenInclude(x => x.ShipmentItems)
-                        .Where(x => orderItemIds.Contains(x.Id))
-                        .ToDictionaryAsync(x => x.Id);
-
-                    model.Items = await shipment.ShipmentItems
-                        .SelectAwait(async x => await CreateShipmentItemModel(x, orderItems.Get(x.OrderItemId), baseDimension, baseWeight))
-                        .Where(x => x != null)
-                        .ToListAsync();
-                }
+                var orderItems = await _db.OrderItems
+                    .AsNoTracking()
+                    .AsSplitQuery()
+                    .Include(x => x.Product)
+                    .Include(x => x.Order)
+                    .ThenInclude(x => x.Shipments)
+                    .ThenInclude(x => x.ShipmentItems)
+                    .Where(x => orderItemIds.Contains(x.Id))
+                    .ToDictionaryAsync(x => x.Id);
+
+                model.Items = await shipment.ShipmentItems
+                    .SelectAwait(async x => await CreateShipmentItemModel(x, orderItems.Get(x.OrderItemId), baseDimension, baseWeight))
+                    .Where(x => x != null)
+                    .ToListAsync();
             }
         }
-
-        private async Task<ShipmentModel.ShipmentItemModel> CreateShipmentItemModel(
-            ShipmentItem shipmentItem,
-            OrderItem orderItem,
-            MeasureDimension baseDimension,
-            MeasureWeight baseWeight)
-        {
-            // Requires: OrderItem.Product, OrderItem.Order, OrderItem.Order.Shipments, OrderItem.Order.Shipments.ShipmentItems
-            if (orderItem == null || orderItem.Product == null)
-            {
-                return null;
-            }
-
-            var product = orderItem.Product;
-            await _productAttributeMaterializer.MergeWithCombinationAsync(product, orderItem.AttributeSelection);
-
-            var model = new ShipmentModel.ShipmentItemModel
-            {
-                Id = shipmentItem?.Id ?? 0,
-                OrderItemId = orderItem.Id,
-                ProductId = orderItem.ProductId,
-                ProductName = product.Name,
-                ProductType = product.ProductType,
-                ProductTypeName = product.GetProductTypeLabel(Services.Localization),
-                ProductTypeLabelHint = product.ProductTypeLabelHint,
-                Sku = orderItem.Sku.NullEmpty() ?? product.Sku,
-                Gtin = product.Gtin,
-                AttributeInfo = orderItem.AttributeDescription,
-                ItemWeight = orderItem.ItemWeight.HasValue
-                    ? "{0:F2} [{1}]".FormatInvariant(orderItem.ItemWeight, baseWeight?.GetLocalized(x => x.Name) ?? string.Empty)
-                    : string.Empty,
-                ItemDimensions = "{0:F2} x {1:F2} x {2:F2} [{3}]".FormatInvariant(
-                    product.Length, product.Width, product.Height, baseDimension?.GetLocalized(x => x.Name) ?? string.Empty),
-                QuantityOrdered = orderItem.Quantity,
-                QuantityInThisShipment = shipmentItem?.Quantity ?? 0,
-                QuantityInAllShipments = await _orderProcessingService.GetShipmentItemsCountAsync(orderItem),
-                QuantityToAdd = await _orderProcessingService.GetShippableItemsCountAsync(orderItem)
-            };
-
-            if (product.ProductType == ProductType.BundledProduct && orderItem.BundleData.HasValue())
-            {
-                var bundleData = orderItem.GetBundleData();
-
-                model.BundlePerItemPricing = product.BundlePerItemPricing;
-                model.BundlePerItemShoppingCart = bundleData.Any(x => x.PerItemShoppingCart);
-
-                model.BundleItems = bundleData
-                    .Select(x => new ShipmentModel.BundleItemModel
-                    {
-                        Sku = x.Sku,
-                        ProductName = x.ProductName,
-                        ProductSeName = x.ProductSeName,
-                        VisibleIndividually = x.VisibleIndividually,
-                        Quantity = x.Quantity,
-                        DisplayOrder = x.DisplayOrder,
-                        AttributeInfo = x.AttributesInfo
-                    })
-                    .ToList();
-            }
-
-            return model;
-        }
-
-        private void PrepareViewBag()
-        {
-            ViewBag.DisplayPdfPackagingSlip = _pdfSettings.Enabled;
-            ViewBag.ShowSku = _catalogSettings.ShowProductSku;
-        }
-
-        #endregion
     }
+
+    private async Task<ShipmentModel.ShipmentItemModel> CreateShipmentItemModel(
+        ShipmentItem shipmentItem,
+        OrderItem orderItem,
+        MeasureDimension baseDimension,
+        MeasureWeight baseWeight)
+    {
+        // Requires: OrderItem.Product, OrderItem.Order, OrderItem.Order.Shipments, OrderItem.Order.Shipments.ShipmentItems
+        if (orderItem == null || orderItem.Product == null)
+        {
+            return null;
+        }
+
+        var product = orderItem.Product;
+        await _productAttributeMaterializer.MergeWithCombinationAsync(product, orderItem.AttributeSelection);
+
+        var model = new ShipmentModel.ShipmentItemModel
+        {
+            Id = shipmentItem?.Id ?? 0,
+            OrderItemId = orderItem.Id,
+            ProductId = orderItem.ProductId,
+            ProductName = product.Name,
+            ProductType = product.ProductType,
+            ProductTypeName = product.GetProductTypeLabel(Services.Localization),
+            ProductTypeLabelHint = product.ProductTypeLabelHint,
+            Sku = orderItem.Sku.NullEmpty() ?? product.Sku,
+            Gtin = product.Gtin,
+            AttributeInfo = orderItem.AttributeDescription,
+            ItemWeight = orderItem.ItemWeight.HasValue
+                ? "{0:F2} [{1}]".FormatInvariant(orderItem.ItemWeight, baseWeight?.GetLocalized(x => x.Name) ?? string.Empty)
+                : string.Empty,
+            ItemDimensions = "{0:F2} x {1:F2} x {2:F2} [{3}]".FormatInvariant(
+                product.Length, product.Width, product.Height, baseDimension?.GetLocalized(x => x.Name) ?? string.Empty),
+            QuantityOrdered = orderItem.Quantity,
+            QuantityInThisShipment = shipmentItem?.Quantity ?? 0,
+            QuantityInAllShipments = await _orderProcessingService.GetShipmentItemsCountAsync(orderItem),
+            QuantityToAdd = await _orderProcessingService.GetShippableItemsCountAsync(orderItem)
+        };
+
+        if (product.ProductType == ProductType.BundledProduct && orderItem.BundleData.HasValue())
+        {
+            var bundleData = orderItem.GetBundleData();
+
+            model.BundlePerItemPricing = product.BundlePerItemPricing;
+            model.BundlePerItemShoppingCart = bundleData.Any(x => x.PerItemShoppingCart);
+
+            model.BundleItems = bundleData
+                .Select(x => new ShipmentModel.BundleItemModel
+                {
+                    Sku = x.Sku,
+                    ProductName = x.ProductName,
+                    ProductSeName = x.ProductSeName,
+                    VisibleIndividually = x.VisibleIndividually,
+                    Quantity = x.Quantity,
+                    DisplayOrder = x.DisplayOrder,
+                    AttributeInfo = x.AttributesInfo
+                })
+                .ToList();
+        }
+
+        return model;
+    }
+
+    private void PrepareViewBag()
+    {
+        ViewBag.DisplayPdfPackagingSlip = _pdfSettings.Enabled;
+        ViewBag.ShowSku = _catalogSettings.ShowProductSku;
+    }
+
+    #endregion
 }

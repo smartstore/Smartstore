@@ -22,149 +22,250 @@ using Smartstore.Web.Models.Customers;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
 
-namespace Smartstore.Admin.Controllers
+namespace Smartstore.Admin.Controllers;
+
+public class CustomerRoleController : AdminController
 {
-    public class CustomerRoleController : AdminController
+    private readonly SmartDbContext _db;
+    private readonly RoleManager<CustomerRole> _roleManager;
+    private readonly IRuleService _ruleService;
+    private readonly ICurrencyService _currencyService;
+    private readonly Lazy<ITaskStore> _taskStore;
+    private readonly Lazy<ITaskScheduler> _taskScheduler;
+    private readonly CustomerSettings _customerSettings;
+
+    public CustomerRoleController(
+        SmartDbContext db,
+        RoleManager<CustomerRole> roleManager,
+        IRuleService ruleService,
+        ICurrencyService currencyService,
+        Lazy<ITaskStore> taskStore,
+        Lazy<ITaskScheduler> taskScheduler,
+        CustomerSettings customerSettings)
     {
-        private readonly SmartDbContext _db;
-        private readonly RoleManager<CustomerRole> _roleManager;
-        private readonly IRuleService _ruleService;
-        private readonly ICurrencyService _currencyService;
-        private readonly Lazy<ITaskStore> _taskStore;
-        private readonly Lazy<ITaskScheduler> _taskScheduler;
-        private readonly CustomerSettings _customerSettings;
+        _db = db;
+        _roleManager = roleManager;
+        _taskStore = taskStore;
+        _ruleService = ruleService;
+        _currencyService = currencyService;
+        _taskScheduler = taskScheduler;
+        _customerSettings = customerSettings;
+    }
 
-        public CustomerRoleController(
-            SmartDbContext db,
-            RoleManager<CustomerRole> roleManager,
-            IRuleService ruleService,
-            ICurrencyService currencyService,
-            Lazy<ITaskStore> taskStore,
-            Lazy<ITaskScheduler> taskScheduler,
-            CustomerSettings customerSettings)
+    /// <summary>
+    /// (AJAX) Gets a list of all available customer roles. 
+    /// </summary>
+    /// <param name="label">Text for optional entry. If not null an entry with the specified label text and the Id 0 will be added to the list.</param>
+    /// <param name="selectedIds">Ids of selected entities.</param>
+    /// <param name="includeSystemRoles">Specifies whether to include system roles.</param>
+    /// <returns>List of all customer roles as JSON.</returns>
+    public async Task<IActionResult> AllCustomerRoles(string label, string selectedIds, bool? includeSystemRoles)
+    {
+        var query = _roleManager.Roles.AsNoTracking();
+
+        if (!(includeSystemRoles ?? true))
         {
-            _db = db;
-            _roleManager = roleManager;
-            _taskStore = taskStore;
-            _ruleService = ruleService;
-            _currencyService = currencyService;
-            _taskScheduler = taskScheduler;
-            _customerSettings = customerSettings;
+            query = query.Where(x => !x.IsSystemRole);
         }
 
-        /// <summary>
-        /// (AJAX) Gets a list of all available customer roles. 
-        /// </summary>
-        /// <param name="label">Text for optional entry. If not null an entry with the specified label text and the Id 0 will be added to the list.</param>
-        /// <param name="selectedIds">Ids of selected entities.</param>
-        /// <param name="includeSystemRoles">Specifies whether to include system roles.</param>
-        /// <returns>List of all customer roles as JSON.</returns>
-        public async Task<IActionResult> AllCustomerRoles(string label, string selectedIds, bool? includeSystemRoles)
+        query = query.ApplyStandardFilter(true);
+
+        var rolesPager = new FastPager<CustomerRole>(query, 1000);
+        var customerRoles = new List<CustomerRole>();
+        var ids = selectedIds.ToIntArray();
+
+        while ((await rolesPager.ReadNextPageAsync<CustomerRole>()).Out(out var roles))
         {
-            var query = _roleManager.Roles.AsNoTracking();
-
-            if (!(includeSystemRoles ?? true))
-            {
-                query = query.Where(x => !x.IsSystemRole);
-            }
-
-            query = query.ApplyStandardFilter(true);
-
-            var rolesPager = new FastPager<CustomerRole>(query, 1000);
-            var customerRoles = new List<CustomerRole>();
-            var ids = selectedIds.ToIntArray();
-
-            while ((await rolesPager.ReadNextPageAsync<CustomerRole>()).Out(out var roles))
-            {
-                customerRoles.AddRange(roles);
-            }
-
-            var list = customerRoles
-                .OrderBy(x => x.Name)
-                .Select(x => new ChoiceListItem
-                {
-                    Id = x.Id.ToString(),
-                    Text = x.Name,
-                    Selected = ids.Contains(x.Id)
-                })
-                .ToList();
-
-            if (label.HasValue())
-            {
-                list.Insert(0, new ChoiceListItem
-                {
-                    Id = "0",
-                    Text = label,
-                    Selected = ids.Contains(0)
-                });
-            }
-
-            return new JsonResult(list);
+            customerRoles.AddRange(roles);
         }
 
-        public IActionResult Index()
-        {
-            return RedirectToAction(nameof(List));
-        }
-
-        [Permission(Permissions.Customer.Role.Read)]
-        public IActionResult List()
-        {
-            return View();
-        }
-
-        [Permission(Permissions.Customer.Role.Read)]
-        public async Task<IActionResult> RoleList(GridCommand command)
-        {
-            var mapper = MapperFactory.GetMapper<CustomerRole, CustomerRoleModel>();
-            var customerRoles = await _roleManager.Roles
-                .AsNoTracking()
-                .OrderBy(x => x.Name)
-                .ApplyGridCommand(command)
-                .ToPagedList(command)
-                .LoadAsync();
-
-            var rows = await customerRoles.SelectAwait(async x =>
+        var list = customerRoles
+            .OrderBy(x => x.Name)
+            .Select(x => new ChoiceListItem
             {
-                var model = await mapper.MapAsync(x);
-                model.EditUrl = Url.Action(nameof(Edit), "CustomerRole", new { id = x.Id, area = "Admin" });
-                return model;
+                Id = x.Id.ToString(),
+                Text = x.Name,
+                Selected = ids.Contains(x.Id)
             })
-            .ToListAsync();
+            .ToList();
 
-            return Json(new GridModel<CustomerRoleModel>
+        if (label.HasValue())
+        {
+            list.Insert(0, new ChoiceListItem
             {
-                Rows = rows,
-                Total = customerRoles.TotalCount
+                Id = "0",
+                Text = label,
+                Selected = ids.Contains(0)
             });
         }
 
-        [Permission(Permissions.Customer.Role.Create)]
-        public async Task<IActionResult> Create()
+        return new JsonResult(list);
+    }
+
+    public IActionResult Index()
+    {
+        return RedirectToAction(nameof(List));
+    }
+
+    [Permission(Permissions.Customer.Role.Read)]
+    public IActionResult List()
+    {
+        return View();
+    }
+
+    [Permission(Permissions.Customer.Role.Read)]
+    public async Task<IActionResult> RoleList(GridCommand command)
+    {
+        var mapper = MapperFactory.GetMapper<CustomerRole, CustomerRoleModel>();
+        var customerRoles = await _roleManager.Roles
+            .AsNoTracking()
+            .OrderBy(x => x.Name)
+            .ApplyGridCommand(command)
+            .ToPagedList(command)
+            .LoadAsync();
+
+        var rows = await customerRoles.SelectAwait(async x =>
         {
-            var model = new CustomerRoleModel
+            var model = await mapper.MapAsync(x);
+            model.EditUrl = Url.Action(nameof(Edit), "CustomerRole", new { id = x.Id, area = "Admin" });
+            return model;
+        })
+        .ToListAsync();
+
+        return Json(new GridModel<CustomerRoleModel>
+        {
+            Rows = rows,
+            Total = customerRoles.TotalCount
+        });
+    }
+
+    [Permission(Permissions.Customer.Role.Create)]
+    public async Task<IActionResult> Create()
+    {
+        var model = new CustomerRoleModel
+        {
+            Active = true
+        };
+
+        await PrepareRoleModel(model, null);
+
+        return View(model);
+    }
+
+    [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+    [Permission(Permissions.Customer.Role.Create)]
+    public async Task<IActionResult> Create(CustomerRoleModel model, bool continueEditing)
+    {
+        if (ModelState.IsValid)
+        {
+            var role = await MapperFactory.MapAsync<CustomerRoleModel, CustomerRole>(model);
+            var result = await _roleManager.CreateAsync(role);
+
+            if (result.Succeeded)
             {
-                Active = true
-            };
+                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.AddNewCustomerRole, T("ActivityLog.AddNewCustomerRole"), role.Name);
+                NotifySuccess(T("Admin.Customers.CustomerRoles.Added"));
 
-            await PrepareRoleModel(model, null);
-
-            return View(model);
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), new { id = role.Id })
+                    : RedirectToAction(nameof(List));
+            }
+            else
+            {
+                AddModelErrors(result, string.Empty);
+            }
         }
 
-        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
-        [Permission(Permissions.Customer.Role.Create)]
-        public async Task<IActionResult> Create(CustomerRoleModel model, bool continueEditing)
-        {
-            if (ModelState.IsValid)
-            {
-                var role = await MapperFactory.MapAsync<CustomerRoleModel, CustomerRole>(model);
-                var result = await _roleManager.CreateAsync(role);
+        await PrepareRoleModel(model, null);
 
+        return View(model);
+    }
+
+    [Permission(Permissions.Customer.Role.Read)]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var role = await _roleManager.FindByIdAsync(id.ToString());
+        if (role == null)
+        {
+            return NotFound();
+        }
+
+        var model = await MapperFactory.MapAsync<CustomerRole, CustomerRoleModel>(role);
+
+        await PrepareRoleModel(model, role);
+
+        return View(model);
+    }
+
+    public async Task<IActionResult> RoleUpdate(CustomerRoleModel model)
+    {
+        var success = false;
+
+        if (await Services.Permissions.AuthorizeAsync(Permissions.Customer.Role.Update))
+        {
+            var role = await _roleManager.FindByIdAsync(model.Id.ToString());
+            if (role != null)
+            {
+                Validate(model, role);
+
+                if (ModelState.IsValid)
+                {
+                    await MapperFactory.MapAsync(model, role);
+
+                    var result = await _roleManager.UpdateAsync(role);
+                    success = result.Succeeded;
+
+                    if (!result.Succeeded)
+                    {
+                        AddModelErrors(result, string.Empty);
+                    }
+                }
+            }
+        }
+        else
+        {
+            ModelState.AddModelError(string.Empty, await Services.Permissions.GetUnauthorizedMessageAsync(Permissions.Customer.Role.Update));
+        }
+
+        if (!ModelState.IsValid)
+        {
+            ModelState.Values.SelectMany(x => x.Errors).Each(x => NotifyError(x.ErrorMessage));
+        }
+
+        return Json(new { success });
+    }
+
+    [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+    [FormValueRequired("save", "save-continue")]
+    [Permission(Permissions.Customer.Role.Update)]
+    public async Task<IActionResult> Edit(CustomerRoleModel model, bool continueEditing, IFormCollection form)
+    {
+        var role = await _roleManager.FindByIdAsync(model.Id.ToString());
+        if (role == null)
+        {
+            return NotFound();
+        }
+
+        await _db.LoadCollectionAsync(role, x => x.PermissionRoleMappings, true);
+
+        Validate(model, role);
+
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                await MapperFactory.MapAsync(model, role);
+                await _ruleService.ApplyRuleSetMappingsAsync(role, model.SelectedRuleSetIds);
+
+                // INFO: cached permission tree removed by PermissionRoleMappingHook.
+                ApplyPermissionRoleMappings(role, form);
+
+                var result = await _roleManager.UpdateAsync(role);
                 if (result.Succeeded)
                 {
-                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.AddNewCustomerRole, T("ActivityLog.AddNewCustomerRole"), role.Name);
-                    NotifySuccess(T("Admin.Customers.CustomerRoles.Added"));
+                    await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, role, form, GetActiveStoreScopeConfiguration()));
+                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditCustomerRole, T("ActivityLog.EditCustomerRole"), role.Name);
+                    NotifySuccess(T("Admin.Customers.CustomerRoles.Updated"));
 
                     return continueEditing
                         ? RedirectToAction(nameof(Edit), new { id = role.Id })
@@ -175,373 +276,271 @@ namespace Smartstore.Admin.Controllers
                     AddModelErrors(result, string.Empty);
                 }
             }
-
-            await PrepareRoleModel(model, null);
-
-            return View(model);
-        }
-
-        [Permission(Permissions.Customer.Role.Read)]
-        public async Task<IActionResult> Edit(int id)
-        {
-            var role = await _roleManager.FindByIdAsync(id.ToString());
-            if (role == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                ModelState.AddModelError(string.Empty, ex.Message);
             }
-
-            var model = await MapperFactory.MapAsync<CustomerRole, CustomerRoleModel>(role);
-
-            await PrepareRoleModel(model, role);
-
-            return View(model);
         }
 
-        public async Task<IActionResult> RoleUpdate(CustomerRoleModel model)
+        await PrepareRoleModel(model, role);
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [Permission(Permissions.Customer.Role.Delete)]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var role = await _roleManager.FindByIdAsync(id.ToString());
+        if (role == null)
         {
-            var success = false;
+            return NotFound();
+        }
 
-            if (await Services.Permissions.AuthorizeAsync(Permissions.Customer.Role.Update))
+        try
+        {
+            var result = await _roleManager.DeleteAsync(role);
+            if (result.Succeeded)
             {
-                var role = await _roleManager.FindByIdAsync(model.Id.ToString());
-                if (role != null)
-                {
-                    Validate(model, role);
+                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteCustomerRole, T("ActivityLog.DeleteCustomerRole"), role.Name);
+                NotifySuccess(T("Admin.Customers.CustomerRoles.Deleted"));
 
-                    if (ModelState.IsValid)
-                    {
-                        await MapperFactory.MapAsync(model, role);
-
-                        var result = await _roleManager.UpdateAsync(role);
-                        success = result.Succeeded;
-
-                        if (!result.Succeeded)
-                        {
-                            AddModelErrors(result, string.Empty);
-                        }
-                    }
-                }
+                return RedirectToAction(nameof(List));
             }
             else
             {
-                ModelState.AddModelError(string.Empty, await Services.Permissions.GetUnauthorizedMessageAsync(Permissions.Customer.Role.Update));
+                result.Errors.Select(x => x.Description).Distinct().Each(x => NotifyError(x));
             }
-
-            if (!ModelState.IsValid)
-            {
-                ModelState.Values.SelectMany(x => x.Errors).Each(x => NotifyError(x.ErrorMessage));
-            }
-
-            return Json(new { success });
+        }
+        catch (Exception ex)
+        {
+            NotifyError(ex.Message);
         }
 
-        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
-        [FormValueRequired("save", "save-continue")]
-        [Permission(Permissions.Customer.Role.Update)]
-        public async Task<IActionResult> Edit(CustomerRoleModel model, bool continueEditing, IFormCollection form)
+        return RedirectToAction(nameof(Edit), new { id = role.Id });
+    }
+
+    [Permission(Permissions.Customer.Role.Read)]
+    public async Task<IActionResult> CustomerRoleMappingList(GridCommand command, int id, CustomerSearchModel model)
+    {
+        var query = _db.CustomerRoleMappings
+            .AsNoTracking()
+            .Include(x => x.Customer)
+            .Where(x => x.CustomerRoleId == id && x.Customer != null);
+
+        if (model.SearchEmail.HasValue())
         {
-            var role = await _roleManager.FindByIdAsync(model.Id.ToString());
-            if (role == null)
-            {
-                return NotFound();
-            }
-
-            await _db.LoadCollectionAsync(role, x => x.PermissionRoleMappings, true);
-
-            Validate(model, role);
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    await MapperFactory.MapAsync(model, role);
-                    await _ruleService.ApplyRuleSetMappingsAsync(role, model.SelectedRuleSetIds);
-
-                    // INFO: cached permission tree removed by PermissionRoleMappingHook.
-                    ApplyPermissionRoleMappings(role, form);
-
-                    var result = await _roleManager.UpdateAsync(role);
-                    if (result.Succeeded)
-                    {
-                        await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, role, form, GetActiveStoreScopeConfiguration()));
-                        Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditCustomerRole, T("ActivityLog.EditCustomerRole"), role.Name);
-                        NotifySuccess(T("Admin.Customers.CustomerRoles.Updated"));
-
-                        return continueEditing
-                            ? RedirectToAction(nameof(Edit), new { id = role.Id })
-                            : RedirectToAction(nameof(List));
-                    }
-                    else
-                    {
-                        AddModelErrors(result, string.Empty);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError(string.Empty, ex.Message);
-                }
-            }
-
-            await PrepareRoleModel(model, role);
-
-            return View(model);
+            query = query.Where(x => x.Customer.Email.Contains(model.SearchEmail));
+        }
+        if (model.SearchUsername.HasValue())
+        {
+            query = query.Where(x => x.Customer.Username.Contains(model.SearchUsername));
+        }
+        if (model.SearchCustomerNumber.HasValue())
+        {
+            query = query.Where(x => x.Customer.CustomerNumber.Contains(model.SearchCustomerNumber));
+        }
+        if (model.SearchTerm.HasValue())
+        {
+            query = query.ApplySearchFilter(model.SearchTerm, LogicalRuleOperator.Or, x => x.Customer.FullName, x => x.Customer.Company);
+        }
+        if (model.SearchActiveOnly != null)
+        {
+            query = query.Where(x => x.Customer.Active == model.SearchActiveOnly);
         }
 
-        [HttpPost]
-        [Permission(Permissions.Customer.Role.Delete)]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var role = await _roleManager.FindByIdAsync(id.ToString());
-            if (role == null)
+        var rows = await query
+            .OrderBy(x => x.IsSystemMapping)
+            .Select(x => new CustomerRoleMappingModel
             {
-                return NotFound();
+                Id = x.Id,
+                Active = x.Customer.Active,
+                CustomerId = x.CustomerId,
+                Email = x.Customer.Email,
+                Username = x.Customer.Username,
+                FullName = x.Customer.FullName,
+                CreatedOn = x.Customer.CreatedOnUtc,
+                LastActivityDate = x.Customer.LastActivityDateUtc,
+                IsSystemMapping = x.IsSystemMapping
+            })
+            .ApplyGridCommand(command)
+            .ToPagedList(command)
+            .LoadAsync();
+
+        var role = await _roleManager.FindByIdAsync(id.ToString());
+        var isGuestRole = role.SystemName.EqualsNoCase(SystemCustomerRoleNames.Guests);
+        var emailFallbackStr = isGuestRole ? T("Admin.Customers.Guest").Value : string.Empty;
+
+        foreach (var row in rows)
+        {
+            row.Email = row.Email.NullEmpty() ?? emailFallbackStr;
+            row.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(row.CreatedOn, DateTimeKind.Utc);
+            row.LastActivityDate = Services.DateTimeHelper.ConvertToUserTime(row.LastActivityDate, DateTimeKind.Utc);
+            row.EditUrl = Url.Action(nameof(CustomerController.Edit), "Customer", new { id = row.CustomerId, area = "Admin" });
+        }
+
+        return Json(new GridModel<CustomerRoleMappingModel>
+        {
+            Rows = rows,
+            Total = rows.TotalCount
+        });
+    }
+
+    [HttpPost]
+    [Permission(Permissions.Customer.Role.Update)]
+    public async Task<IActionResult> CustomerRoleMappingDelete(GridSelection selection)
+    {
+        var success = false;
+        var numDeleted = 0;
+        var ids = selection.GetEntityIds();
+
+        if (ids.Any())
+        {
+            var roleMappings = await _db.CustomerRoleMappings.GetManyAsync(ids, true);
+            _db.CustomerRoleMappings.RemoveRange(roleMappings);
+
+            numDeleted = await _db.SaveChangesAsync();
+            success = true;
+        }
+
+        return Json(new { Success = success, Count = numDeleted });
+    }
+
+    [HttpPost]
+    [Permission(Permissions.Customer.Role.Update)]
+    public async Task<IActionResult> ApplyRules(int id)
+    {
+        var role = await _roleManager.FindByIdAsync(id.ToString());
+        if (role == null)
+        {
+            return NotFound();
+        }
+
+        var task = await _taskStore.Value.GetTaskByTypeAsync<TargetGroupEvaluatorTask>();
+        if (task != null)
+        {
+            _ = _taskScheduler.Value.RunSingleTaskAsync(task.Id, new Dictionary<string, string>
+            {
+                { "CustomerRoleIds", role.Id.ToString() }
+            });
+
+            NotifyInfo(T("Admin.System.ScheduleTasks.RunNow.Progress"));
+        }
+        else
+        {
+            NotifyError(T("Admin.System.ScheduleTasks.TaskNotFound", nameof(TargetGroupEvaluatorTask)));
+        }
+
+        return RedirectToAction(nameof(Edit), new { id = role.Id });
+    }
+
+    private async Task PrepareRoleModel(CustomerRoleModel model, CustomerRole role)
+    {
+        Guard.NotNull(model, nameof(model));
+
+        if (role != null)
+        {
+            model.SelectedRuleSetIds = role.RuleSets.Select(x => x.Id).ToArray();
+
+            var showRuleApplyButton = model.SelectedRuleSetIds.Any();
+
+            if (!showRuleApplyButton)
+            {
+                // Ignore deleted customers.
+                showRuleApplyButton = await _db.CustomerRoleMappings
+                    .AsNoTracking()
+                    .Include(x => x.Customer)
+                    .Where(x => x.CustomerRoleId == role.Id && x.IsSystemMapping && x.Customer != null)
+                    .AnyAsync();
             }
 
-            try
-            {
-                var result = await _roleManager.DeleteAsync(role);
-                if (result.Succeeded)
-                {
-                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteCustomerRole, T("ActivityLog.DeleteCustomerRole"), role.Name);
-                    NotifySuccess(T("Admin.Customers.CustomerRoles.Deleted"));
+            ViewBag.ShowRuleApplyButton = showRuleApplyButton;
+            ViewBag.PermissionTree = await Services.Permissions.GetPermissionTreeAsync(role, true);
+            ViewBag.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
+        }
 
-                    return RedirectToAction(nameof(List));
+        ViewBag.TaxDisplayTypes = model.TaxDisplayType.HasValue
+            ? ((TaxDisplayType)model.TaxDisplayType.Value).ToSelectList()
+            : TaxDisplayType.IncludingTax.ToSelectList(false);
+
+        ViewBag.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
+    }
+
+    private void ApplyPermissionRoleMappings(CustomerRole role, IFormCollection form)
+    {
+        var permissionKey = "permission-";
+        var existingMappings = role.PermissionRoleMappings.ToDictionarySafe(x => x.PermissionRecordId, x => x);
+
+        var mappings = form.Keys.Where(x => x.StartsWith(permissionKey))
+            .Select(x =>
+            {
+                var id = x[permissionKey.Length..].ToInt();
+                bool? allow = null;
+                var value = form[x].ToString().EmptyNull();
+                if (value.StartsWith("2"))
+                {
+                    allow = true;
+                }
+                else if (value.StartsWith("1"))
+                {
+                    allow = false;
+                }
+
+                return new { id, allow };
+            })
+            .ToDictionary(x => x.id, x => x.allow);
+
+        foreach (var item in mappings)
+        {
+            if (existingMappings.TryGetValue(item.Key, out var mapping))
+            {
+                if (item.Value.HasValue)
+                {
+                    if (mapping.Allow != item.Value.Value)
+                    {
+                        mapping.Allow = item.Value.Value;
+                    }
                 }
                 else
                 {
-                    result.Errors.Select(x => x.Description).Distinct().Each(x => NotifyError(x));
+                    _db.PermissionRoleMappings.Remove(mapping);
                 }
             }
-            catch (Exception ex)
+            else if (item.Value.HasValue)
             {
-                NotifyError(ex.Message);
-            }
-
-            return RedirectToAction(nameof(Edit), new { id = role.Id });
-        }
-
-        [Permission(Permissions.Customer.Role.Read)]
-        public async Task<IActionResult> CustomerRoleMappingList(GridCommand command, int id, CustomerSearchModel model)
-        {
-            var query = _db.CustomerRoleMappings
-                .AsNoTracking()
-                .Include(x => x.Customer)
-                .Where(x => x.CustomerRoleId == id && x.Customer != null);
-
-            if (model.SearchEmail.HasValue())
-            {
-                query = query.Where(x => x.Customer.Email.Contains(model.SearchEmail));
-            }
-            if (model.SearchUsername.HasValue())
-            {
-                query = query.Where(x => x.Customer.Username.Contains(model.SearchUsername));
-            }
-            if (model.SearchCustomerNumber.HasValue())
-            {
-                query = query.Where(x => x.Customer.CustomerNumber.Contains(model.SearchCustomerNumber));
-            }
-            if (model.SearchTerm.HasValue())
-            {
-                query = query.ApplySearchFilter(model.SearchTerm, LogicalRuleOperator.Or, x => x.Customer.FullName, x => x.Customer.Company);
-            }
-            if (model.SearchActiveOnly != null)
-            {
-                query = query.Where(x => x.Customer.Active == model.SearchActiveOnly);
-            }
-
-            var rows = await query
-                .OrderBy(x => x.IsSystemMapping)
-                .Select(x => new CustomerRoleMappingModel
+                _db.PermissionRoleMappings.Add(new PermissionRoleMapping
                 {
-                    Id = x.Id,
-                    Active = x.Customer.Active,
-                    CustomerId = x.CustomerId,
-                    Email = x.Customer.Email,
-                    Username = x.Customer.Username,
-                    FullName = x.Customer.FullName,
-                    CreatedOn = x.Customer.CreatedOnUtc,
-                    LastActivityDate = x.Customer.LastActivityDateUtc,
-                    IsSystemMapping = x.IsSystemMapping
-                })
-                .ApplyGridCommand(command)
-                .ToPagedList(command)
-                .LoadAsync();
-
-            var role = await _roleManager.FindByIdAsync(id.ToString());
-            var isGuestRole = role.SystemName.EqualsNoCase(SystemCustomerRoleNames.Guests);
-            var emailFallbackStr = isGuestRole ? T("Admin.Customers.Guest").Value : string.Empty;
-
-            foreach (var row in rows)
-            {
-                row.Email = row.Email.NullEmpty() ?? emailFallbackStr;
-                row.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(row.CreatedOn, DateTimeKind.Utc);
-                row.LastActivityDate = Services.DateTimeHelper.ConvertToUserTime(row.LastActivityDate, DateTimeKind.Utc);
-                row.EditUrl = Url.Action(nameof(CustomerController.Edit), "Customer", new { id = row.CustomerId, area = "Admin" });
-            }
-
-            return Json(new GridModel<CustomerRoleMappingModel>
-            {
-                Rows = rows,
-                Total = rows.TotalCount
-            });
-        }
-
-        [HttpPost]
-        [Permission(Permissions.Customer.Role.Update)]
-        public async Task<IActionResult> CustomerRoleMappingDelete(GridSelection selection)
-        {
-            var success = false;
-            var numDeleted = 0;
-            var ids = selection.GetEntityIds();
-
-            if (ids.Any())
-            {
-                var roleMappings = await _db.CustomerRoleMappings.GetManyAsync(ids, true);
-                _db.CustomerRoleMappings.RemoveRange(roleMappings);
-
-                numDeleted = await _db.SaveChangesAsync();
-                success = true;
-            }
-
-            return Json(new { Success = success, Count = numDeleted });
-        }
-
-        [HttpPost]
-        [Permission(Permissions.Customer.Role.Update)]
-        public async Task<IActionResult> ApplyRules(int id)
-        {
-            var role = await _roleManager.FindByIdAsync(id.ToString());
-            if (role == null)
-            {
-                return NotFound();
-            }
-
-            var task = await _taskStore.Value.GetTaskByTypeAsync<TargetGroupEvaluatorTask>();
-            if (task != null)
-            {
-                _ = _taskScheduler.Value.RunSingleTaskAsync(task.Id, new Dictionary<string, string>
-                {
-                    { "CustomerRoleIds", role.Id.ToString() }
+                    Allow = item.Value.Value,
+                    PermissionRecordId = item.Key,
+                    CustomerRoleId = role.Id
                 });
-
-                NotifyInfo(T("Admin.System.ScheduleTasks.RunNow.Progress"));
-            }
-            else
-            {
-                NotifyError(T("Admin.System.ScheduleTasks.TaskNotFound", nameof(TargetGroupEvaluatorTask)));
-            }
-
-            return RedirectToAction(nameof(Edit), new { id = role.Id });
-        }
-
-        private async Task PrepareRoleModel(CustomerRoleModel model, CustomerRole role)
-        {
-            Guard.NotNull(model, nameof(model));
-
-            if (role != null)
-            {
-                model.SelectedRuleSetIds = role.RuleSets.Select(x => x.Id).ToArray();
-
-                var showRuleApplyButton = model.SelectedRuleSetIds.Any();
-
-                if (!showRuleApplyButton)
-                {
-                    // Ignore deleted customers.
-                    showRuleApplyButton = await _db.CustomerRoleMappings
-                        .AsNoTracking()
-                        .Include(x => x.Customer)
-                        .Where(x => x.CustomerRoleId == role.Id && x.IsSystemMapping && x.Customer != null)
-                        .AnyAsync();
-                }
-
-                ViewBag.ShowRuleApplyButton = showRuleApplyButton;
-                ViewBag.PermissionTree = await Services.Permissions.GetPermissionTreeAsync(role, true);
-                ViewBag.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
-            }
-
-            ViewBag.TaxDisplayTypes = model.TaxDisplayType.HasValue
-                ? ((TaxDisplayType)model.TaxDisplayType.Value).ToSelectList()
-                : TaxDisplayType.IncludingTax.ToSelectList(false);
-
-            ViewBag.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
-        }
-
-        private void ApplyPermissionRoleMappings(CustomerRole role, IFormCollection form)
-        {
-            var permissionKey = "permission-";
-            var existingMappings = role.PermissionRoleMappings.ToDictionarySafe(x => x.PermissionRecordId, x => x);
-
-            var mappings = form.Keys.Where(x => x.StartsWith(permissionKey))
-                .Select(x =>
-                {
-                    var id = x[permissionKey.Length..].ToInt();
-                    bool? allow = null;
-                    var value = form[x].ToString().EmptyNull();
-                    if (value.StartsWith("2"))
-                    {
-                        allow = true;
-                    }
-                    else if (value.StartsWith("1"))
-                    {
-                        allow = false;
-                    }
-
-                    return new { id, allow };
-                })
-                .ToDictionary(x => x.id, x => x.allow);
-
-            foreach (var item in mappings)
-            {
-                if (existingMappings.TryGetValue(item.Key, out var mapping))
-                {
-                    if (item.Value.HasValue)
-                    {
-                        if (mapping.Allow != item.Value.Value)
-                        {
-                            mapping.Allow = item.Value.Value;
-                        }
-                    }
-                    else
-                    {
-                        _db.PermissionRoleMappings.Remove(mapping);
-                    }
-                }
-                else if (item.Value.HasValue)
-                {
-                    _db.PermissionRoleMappings.Add(new PermissionRoleMapping
-                    {
-                        Allow = item.Value.Value,
-                        PermissionRecordId = item.Key,
-                        CustomerRoleId = role.Id
-                    });
-                }
             }
         }
+    }
 
-        private void Validate(CustomerRoleModel model, CustomerRole role)
+    private void Validate(CustomerRoleModel model, CustomerRole role)
+    {
+        if (role.IsSystemRole)
         {
-            if (role.IsSystemRole)
+            if (!model.Active)
             {
-                if (!model.Active)
-                {
-                    ModelState.AddModelError(nameof(model.Active), T("Admin.Customers.CustomerRoles.Fields.Active.CantEditSystem"));
-                }
-                if (!role.SystemName.EqualsNoCase(model.SystemName))
-                {
-                    ModelState.AddModelError(nameof(model.SystemName), T("Admin.Customers.CustomerRoles.Fields.SystemName.CantEditSystem"));
-                }
+                ModelState.AddModelError(nameof(model.Active), T("Admin.Customers.CustomerRoles.Fields.Active.CantEditSystem"));
+            }
+            if (!role.SystemName.EqualsNoCase(model.SystemName))
+            {
+                ModelState.AddModelError(nameof(model.SystemName), T("Admin.Customers.CustomerRoles.Fields.SystemName.CantEditSystem"));
             }
         }
+    }
 
-        private void AddModelErrors(IdentityResult result, string key)
+    private void AddModelErrors(IdentityResult result, string key)
+    {
+        if (!result.Succeeded)
         {
-            if (!result.Succeeded)
-            {
-                result.Errors
-                    .Select(x => x.Description)
-                    .Distinct()
-                    .Each(x => ModelState.AddModelError(key, x));
-            }
+            result.Errors
+                .Select(x => x.Description)
+                .Distinct()
+                .Each(x => ModelState.AddModelError(key, x));
         }
     }
 }

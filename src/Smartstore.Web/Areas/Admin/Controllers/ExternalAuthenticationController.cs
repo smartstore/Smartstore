@@ -3,73 +3,72 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
 using Smartstore.Engine.Modularity;
 
-namespace Smartstore.Admin.Controllers
+namespace Smartstore.Admin.Controllers;
+
+public partial class ExternalAuthenticationController : AdminController
 {
-    public partial class ExternalAuthenticationController : AdminController
+    private readonly IWidgetService _widgetService;
+    private readonly IProviderManager _providerManager;
+    private readonly ExternalAuthenticationSettings _externalAuthenticationSettings;
+    private readonly ModuleManager _moduleManager;
+
+    public ExternalAuthenticationController(
+        IWidgetService widgetService,
+        IProviderManager providerManager,
+        ExternalAuthenticationSettings externalAuthenticationSettings,
+        ModuleManager moduleManager)
     {
-        private readonly IWidgetService _widgetService;
-        private readonly IProviderManager _providerManager;
-        private readonly ExternalAuthenticationSettings _externalAuthenticationSettings;
-        private readonly ModuleManager _moduleManager;
+        _widgetService = widgetService;
+        _providerManager = providerManager;
+        _externalAuthenticationSettings = externalAuthenticationSettings;
+        _moduleManager = moduleManager;
+    }
 
-        public ExternalAuthenticationController(
-            IWidgetService widgetService,
-            IProviderManager providerManager,
-            ExternalAuthenticationSettings externalAuthenticationSettings,
-            ModuleManager moduleManager)
+    public IActionResult Index()
+    {
+        return RedirectToAction(nameof(Providers));
+    }
+
+    [Permission(Permissions.Configuration.Authentication.Read)]
+    public IActionResult Providers()
+    {
+        var widgetsModel = new List<AuthenticationMethodModel>();
+        var methods = _providerManager.GetAllProviders<IExternalAuthenticationMethod>();
+
+        foreach (var method in methods)
         {
-            _widgetService = widgetService;
-            _providerManager = providerManager;
-            _externalAuthenticationSettings = externalAuthenticationSettings;
-            _moduleManager = moduleManager;
+            var model = _moduleManager.ToProviderModel<IExternalAuthenticationMethod, AuthenticationMethodModel>(method);
+            model.IsActive = method.IsMethodActive(_externalAuthenticationSettings);
+            widgetsModel.Add(model);
         }
 
-        public IActionResult Index()
-        {
-            return RedirectToAction(nameof(Providers));
-        }
+        return View(widgetsModel);
+    }
 
-        [Permission(Permissions.Configuration.Authentication.Read)]
-        public IActionResult Providers()
-        {
-            var widgetsModel = new List<AuthenticationMethodModel>();
-            var methods = _providerManager.GetAllProviders<IExternalAuthenticationMethod>();
+    [HttpPost]
+    [Permission(Permissions.Configuration.Authentication.Activate)]
+    public async Task<IActionResult> ActivateProvider(string systemName, bool activate)
+    {
+        await _widgetService.ActivateWidgetAsync(systemName, activate);
 
-            foreach (var method in methods)
+        var provider = _providerManager.GetProvider<IExternalAuthenticationMethod>(systemName);
+        var dirty = provider.IsMethodActive(_externalAuthenticationSettings) != activate;
+
+        if (dirty)
+        {
+            if (!activate)
             {
-                var model = _moduleManager.ToProviderModel<IExternalAuthenticationMethod, AuthenticationMethodModel>(method);
-                model.IsActive = method.IsMethodActive(_externalAuthenticationSettings);
-                widgetsModel.Add(model);
+                _externalAuthenticationSettings.ActiveAuthenticationMethodSystemNames.Remove(x => x.EqualsNoCase(provider.Metadata.SystemName));
+            }
+            else
+            {
+                _externalAuthenticationSettings.ActiveAuthenticationMethodSystemNames.Add(provider.Metadata.SystemName);
             }
 
-            return View(widgetsModel);
+            await Services.SettingFactory.SaveSettingsAsync(_externalAuthenticationSettings);
+            await _widgetService.ActivateWidgetAsync(provider.Metadata.SystemName, activate);
         }
 
-        [HttpPost]
-        [Permission(Permissions.Configuration.Authentication.Activate)]
-        public async Task<IActionResult> ActivateProvider(string systemName, bool activate)
-        {
-            await _widgetService.ActivateWidgetAsync(systemName, activate);
-
-            var provider = _providerManager.GetProvider<IExternalAuthenticationMethod>(systemName);
-            var dirty = provider.IsMethodActive(_externalAuthenticationSettings) != activate;
-
-            if (dirty)
-            {
-                if (!activate)
-                {
-                    _externalAuthenticationSettings.ActiveAuthenticationMethodSystemNames.Remove(x => x.EqualsNoCase(provider.Metadata.SystemName));
-                }
-                else
-                {
-                    _externalAuthenticationSettings.ActiveAuthenticationMethodSystemNames.Add(provider.Metadata.SystemName);
-                }
-
-                await Services.SettingFactory.SaveSettingsAsync(_externalAuthenticationSettings);
-                await _widgetService.ActivateWidgetAsync(provider.Metadata.SystemName, activate);
-            }
-
-            return RedirectToAction(nameof(Providers));
-        }
+        return RedirectToAction(nameof(Providers));
     }
 }

@@ -6,205 +6,204 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
 using Smartstore.Web.Models.DataGrid;
 
-namespace Smartstore.Admin.Controllers
-{
-    public class GenericAttributeController : AdminController
-    {
-        private readonly SmartDbContext _db;
-        private readonly IGenericAttributeService _genericAttributeService;
+namespace Smartstore.Admin.Controllers;
 
-        public GenericAttributeController(SmartDbContext db, IGenericAttributeService genericAttributeService)
+public class GenericAttributeController : AdminController
+{
+    private readonly SmartDbContext _db;
+    private readonly IGenericAttributeService _genericAttributeService;
+
+    public GenericAttributeController(SmartDbContext db, IGenericAttributeService genericAttributeService)
+    {
+        _db = db;
+        _genericAttributeService = genericAttributeService;
+    }
+
+    [HttpPost]
+    public IActionResult GenericAttributesList(GridCommand command, string entityName, int entityId)
+    {
+        var storeId = Services.StoreContext.CurrentStore.Id;
+        ViewBag.StoreId = storeId;
+
+        var totalCount = 0;
+        var attributesItems = new List<GenericAttributeModel>();
+
+        if (entityName.HasValue() && entityId > 0)
         {
-            _db = db;
-            _genericAttributeService = genericAttributeService;
+            var (readPermission, _) = GetPermissionNames(entityName);
+
+            if (readPermission.IsEmpty() || Services.Permissions.Authorize(readPermission))
+            {
+                var allAttributes = _genericAttributeService.GetAttributesForEntity(entityName, entityId).UnderlyingEntities;
+                var attributes = allAttributes
+                    .AsQueryable()
+                    .Where(x => x.StoreId == storeId || x.StoreId == 0)
+                    .ApplyGridCommand(command, true);
+
+                totalCount = allAttributes.Count(x => x.StoreId == storeId || x.StoreId == 0);
+
+                attributesItems = attributes
+                    .Select(x => new GenericAttributeModel
+                    {
+                        Id = x.Id,
+                        AttributeEntityId = x.EntityId,
+                        EntityName = x.KeyGroup,
+                        Key = x.Key,
+                        Value = x.Value
+                    })
+                    .ToList();
+            }
         }
 
-        [HttpPost]
-        public IActionResult GenericAttributesList(GridCommand command, string entityName, int entityId)
+        var gridModel = new GridModel<GenericAttributeModel>
+        {
+            Rows = attributesItems,
+            Total = totalCount
+        };
+
+        return Json(gridModel);
+    }
+
+    public async Task<IActionResult> GenericAttributeInsert(GenericAttributeModel model, string entityName, int entityId)
+    {
+        model.Key = model.Key.TrimSafe();
+        model.Value = model.Value.TrimSafe() ?? string.Empty;
+
+        if (ModelState.IsValid)
         {
             var storeId = Services.StoreContext.CurrentStore.Id;
-            ViewBag.StoreId = storeId;
-
-            var totalCount = 0;
-            var attributesItems = new List<GenericAttributeModel>();
-
-            if (entityName.HasValue() && entityId > 0)
+            var (readPermission, updatePermission) = GetPermissionNames(entityName);
+            if (updatePermission.HasValue() && !Services.Permissions.Authorize(updatePermission))
             {
-                var (readPermission, _) = GetPermissionNames(entityName);
-
-                if (readPermission.IsEmpty() || Services.Permissions.Authorize(readPermission))
-                {
-                    var allAttributes = _genericAttributeService.GetAttributesForEntity(entityName, entityId).UnderlyingEntities;
-                    var attributes = allAttributes
-                        .AsQueryable()
-                        .Where(x => x.StoreId == storeId || x.StoreId == 0)
-                        .ApplyGridCommand(command, true);
-
-                    totalCount = allAttributes.Count(x => x.StoreId == storeId || x.StoreId == 0);
-
-                    attributesItems = attributes
-                        .Select(x => new GenericAttributeModel
-                        {
-                            Id = x.Id,
-                            AttributeEntityId = x.EntityId,
-                            EntityName = x.KeyGroup,
-                            Key = x.Key,
-                            Value = x.Value
-                        })
-                        .ToList();
-                }
+                NotifyError(await Services.Permissions.GetUnauthorizedMessageAsync(updatePermission));
+                return Json(new { success = false });
             }
-
-            var gridModel = new GridModel<GenericAttributeModel>
+            else
             {
-                Rows = attributesItems,
-                Total = totalCount
-            };
+                var attr = await _db.GenericAttributes
+                    .Where(x => x.EntityId == entityId && x.KeyGroup == entityName && x.Key == model.Key && x.StoreId == storeId)
+                    .FirstOrDefaultAsync();
 
-            return Json(gridModel);
-        }
-
-        public async Task<IActionResult> GenericAttributeInsert(GenericAttributeModel model, string entityName, int entityId)
-        {
-            model.Key = model.Key.TrimSafe();
-            model.Value = model.Value.TrimSafe() ?? string.Empty;
-
-            if (ModelState.IsValid)
-            {
-                var storeId = Services.StoreContext.CurrentStore.Id;
-                var (readPermission, updatePermission) = GetPermissionNames(entityName);
-                if (updatePermission.HasValue() && !Services.Permissions.Authorize(updatePermission))
+                if (attr == null)
                 {
-                    NotifyError(await Services.Permissions.GetUnauthorizedMessageAsync(updatePermission));
-                    return Json(new { success = false });
+                    _db.GenericAttributes.Add(new GenericAttribute
+                    {
+                        StoreId = storeId,
+                        KeyGroup = entityName,
+                        EntityId = entityId,
+                        Key = model.Key,
+                        Value = model.Value
+                    });
+                    await _db.SaveChangesAsync();
+                    return Json(new { success = true });
                 }
                 else
                 {
-                    var attr = await _db.GenericAttributes
-                        .Where(x => x.EntityId == entityId && x.KeyGroup == entityName && x.Key == model.Key && x.StoreId == storeId)
-                        .FirstOrDefaultAsync();
+                    NotifyWarning(T("Admin.Common.GenericAttributes.NameAlreadyExists", model.Key));
+                    return Json(new { success = false });
+                }
+            }
+        }
+        else
+        {
+            var modelStateErrorMessages = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage);
+            NotifyError(modelStateErrorMessages.FirstOrDefault());
+            return Json(new { success = false });
+        }
+    }
 
-                    if (attr == null)
-                    {
-                        _db.GenericAttributes.Add(new GenericAttribute
-                        {
-                            StoreId = storeId,
-                            KeyGroup = entityName,
-                            EntityId = entityId,
-                            Key = model.Key,
-                            Value = model.Value
-                        });
-                        await _db.SaveChangesAsync();
-                        return Json(new { success = true });
-                    }
-                    else
+    public async Task<IActionResult> GenericAttributeUpdate(GenericAttributeModel model)
+    {
+        var entityName = model.EntityName;
+        var entityId = model.AttributeEntityId;
+
+        model.Key = model.Key.TrimSafe();
+        model.Value = model.Value.TrimSafe();
+
+        if (ModelState.IsValid)
+        {
+            var storeId = Services.StoreContext.CurrentStore.Id;
+            var (readPermission, updatePermission) = GetPermissionNames(model.EntityName);
+
+            if (updatePermission.HasValue() && !await Services.Permissions.AuthorizeAsync(updatePermission))
+            {
+                NotifyError(await Services.Permissions.GetUnauthorizedMessageAsync(updatePermission));
+                return Json(new { success = false });
+            }
+            else
+            {
+                var attr = await _db.GenericAttributes.FindByIdAsync(model.Id);
+
+                // If the key changed, ensure it isn't being used by another attribute.
+                if (!attr.Key.EqualsNoCase(model.Key))
+                {
+                    var attributes = _genericAttributeService.GetAttributesForEntity(entityName, entityId).UnderlyingEntities;
+                    var attr2 = attributes
+                        .Where(x => x.StoreId == storeId && x.Key.Equals(model.Key, StringComparison.InvariantCultureIgnoreCase))
+                        .FirstOrDefault();
+
+                    if (attr2 != null && attr2.Id != attr.Id)
                     {
                         NotifyWarning(T("Admin.Common.GenericAttributes.NameAlreadyExists", model.Key));
                         return Json(new { success = false });
                     }
                 }
-            }
-            else
-            {
-                var modelStateErrorMessages = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage);
-                NotifyError(modelStateErrorMessages.FirstOrDefault());
-                return Json(new { success = false });
+
+                attr.Key = model.Key;
+                attr.Value = model.Value;
+
+                await _db.SaveChangesAsync();
+
+                return Json(new { success = true });
             }
         }
-
-        public async Task<IActionResult> GenericAttributeUpdate(GenericAttributeModel model)
+        else
         {
-            var entityName = model.EntityName;
-            var entityId = model.AttributeEntityId;
-
-            model.Key = model.Key.TrimSafe();
-            model.Value = model.Value.TrimSafe();
-
-            if (ModelState.IsValid)
-            {
-                var storeId = Services.StoreContext.CurrentStore.Id;
-                var (readPermission, updatePermission) = GetPermissionNames(model.EntityName);
-
-                if (updatePermission.HasValue() && !await Services.Permissions.AuthorizeAsync(updatePermission))
-                {
-                    NotifyError(await Services.Permissions.GetUnauthorizedMessageAsync(updatePermission));
-                    return Json(new { success = false });
-                }
-                else
-                {
-                    var attr = await _db.GenericAttributes.FindByIdAsync(model.Id);
-
-                    // If the key changed, ensure it isn't being used by another attribute.
-                    if (!attr.Key.EqualsNoCase(model.Key))
-                    {
-                        var attributes = _genericAttributeService.GetAttributesForEntity(entityName, entityId).UnderlyingEntities;
-                        var attr2 = attributes
-                            .Where(x => x.StoreId == storeId && x.Key.Equals(model.Key, StringComparison.InvariantCultureIgnoreCase))
-                            .FirstOrDefault();
-
-                        if (attr2 != null && attr2.Id != attr.Id)
-                        {
-                            NotifyWarning(T("Admin.Common.GenericAttributes.NameAlreadyExists", model.Key));
-                            return Json(new { success = false });
-                        }
-                    }
-
-                    attr.Key = model.Key;
-                    attr.Value = model.Value;
-
-                    await _db.SaveChangesAsync();
-
-                    return Json(new { success = true });
-                }
-            }
-            else
-            {
-                var modelStateErrorMessages = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage);
-                NotifyError(modelStateErrorMessages.FirstOrDefault());
-                return Json(new { success = false });
-            }
+            var modelStateErrorMessages = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage);
+            NotifyError(modelStateErrorMessages.FirstOrDefault());
+            return Json(new { success = false });
         }
+    }
 
-        [HttpPost]
-        public async Task<IActionResult> GenericAttributeDelete(GridSelection selection, string entityName)
+    [HttpPost]
+    public async Task<IActionResult> GenericAttributeDelete(GridSelection selection, string entityName)
+    {
+        var ids = selection.GetEntityIds();
+        var numDeleted = 0;
+
+        if (ids.Any())
         {
-            var ids = selection.GetEntityIds();
-            var numDeleted = 0;
+            var (readPermission, updatePermission) = GetPermissionNames(entityName);
 
-            if (ids.Any())
+            if (updatePermission.HasValue() && !await Services.Permissions.AuthorizeAsync(updatePermission))
             {
-                var (readPermission, updatePermission) = GetPermissionNames(entityName);
-
-                if (updatePermission.HasValue() && !await Services.Permissions.AuthorizeAsync(updatePermission))
-                {
-                    NotifyError(await Services.Permissions.GetUnauthorizedMessageAsync(updatePermission));
-                    return Json(new { Success = false, Count = numDeleted });
-                }
-
-                numDeleted = await _db.GenericAttributes
-                    .Where(x => ids.Contains(x.Id))
-                    .ExecuteDeleteAsync();
+                NotifyError(await Services.Permissions.GetUnauthorizedMessageAsync(updatePermission));
+                return Json(new { Success = false, Count = numDeleted });
             }
 
-            return Json(new { Success = true, Count = numDeleted });
+            numDeleted = await _db.GenericAttributes
+                .Where(x => ids.Contains(x.Id))
+                .ExecuteDeleteAsync();
         }
 
-        private static (string ReadPermission, string UpdatePermission) GetPermissionNames(string entityName)
+        return Json(new { Success = true, Count = numDeleted });
+    }
+
+    private static (string ReadPermission, string UpdatePermission) GetPermissionNames(string entityName)
+    {
+        if (entityName.EqualsNoCase(nameof(Order)))
         {
-            if (entityName.EqualsNoCase(nameof(Order)))
-            {
-                return (Permissions.Order.Read, Permissions.Order.Update);
-            }
-            else if (entityName.EqualsNoCase(nameof(Topic)))
-            {
-                return (Permissions.Cms.Topic.Read, Permissions.Cms.Topic.Update);
-            }
-            else if (entityName.EqualsNoCase(nameof(Customer)))
-            {
-                return (Permissions.Customer.Read, Permissions.Customer.Update);
-            }
-
-            return (null, null);
+            return (Permissions.Order.Read, Permissions.Order.Update);
         }
+        else if (entityName.EqualsNoCase(nameof(Topic)))
+        {
+            return (Permissions.Cms.Topic.Read, Permissions.Cms.Topic.Update);
+        }
+        else if (entityName.EqualsNoCase(nameof(Customer)))
+        {
+            return (Permissions.Customer.Read, Permissions.Customer.Update);
+        }
+
+        return (null, null);
     }
 }
