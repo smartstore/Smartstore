@@ -3,26 +3,25 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.OfflinePayment.Models;
 using Smartstore.Web.Components;
 
-namespace Smartstore.OfflinePayment.Components
+namespace Smartstore.OfflinePayment.Components;
+
+public class PurchaseOrderNumberViewComponent : SmartViewComponent
 {
-    public class PurchaseOrderNumberViewComponent : SmartViewComponent
+    private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+
+    public PurchaseOrderNumberViewComponent(ICheckoutStateAccessor checkoutStateAccessor)
     {
-        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+        _checkoutStateAccessor = checkoutStateAccessor;
+    }
 
-        public PurchaseOrderNumberViewComponent(ICheckoutStateAccessor checkoutStateAccessor)
+    public IViewComponentResult Invoke()
+    {
+        var paymentData = _checkoutStateAccessor.CheckoutState.PaymentData;
+        var model = new PurchaseOrderNumberPaymentInfoModel
         {
-            _checkoutStateAccessor = checkoutStateAccessor;
-        }
+            PurchaseOrderNumber = (string)paymentData.Get("PurchaseOrderNumber")
+        };
 
-        public IViewComponentResult Invoke()
-        {
-            var paymentData = _checkoutStateAccessor.CheckoutState.PaymentData;
-            var model = new PurchaseOrderNumberPaymentInfoModel
-            {
-                PurchaseOrderNumber = (string)paymentData.Get("PurchaseOrderNumber")
-            };
-
-            return View(model);
-        }
+        return View(model);
     }
 }

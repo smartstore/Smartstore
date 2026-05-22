@@ -9,69 +9,68 @@ using Smartstore.OfflinePayment.Components;
 using Smartstore.OfflinePayment.Models;
 using Smartstore.OfflinePayment.Settings;
 
-namespace Smartstore.OfflinePayment
+namespace Smartstore.OfflinePayment;
+
+[SystemName("Payments.PurchaseOrderNumber")]
+[FriendlyName("Purchase Order Number")]
+[Order(100)]
+public class PurchaseOrderNumberProvider : OfflinePaymentProviderBase<PurchaseOrderNumberPaymentSettings>, IConfigurable
 {
-    [SystemName("Payments.PurchaseOrderNumber")]
-    [FriendlyName("Purchase Order Number")]
-    [Order(100)]
-    public class PurchaseOrderNumberProvider : OfflinePaymentProviderBase<PurchaseOrderNumberPaymentSettings>, IConfigurable
+    private readonly IValidator<PurchaseOrderNumberPaymentInfoModel> _validator;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public PurchaseOrderNumberProvider(
+        IStoreContext storeContext,
+        ISettingFactory settingFactory,
+        IValidator<PurchaseOrderNumberPaymentInfoModel> validator,
+        IHttpContextAccessor httpContextAccessor)
+        : base(storeContext, settingFactory)
     {
-        private readonly IValidator<PurchaseOrderNumberPaymentInfoModel> _validator;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        _validator = validator;
+        _httpContextAccessor = httpContextAccessor;
+    }
 
-        public PurchaseOrderNumberProvider(
-            IStoreContext storeContext,
-            ISettingFactory settingFactory,
-            IValidator<PurchaseOrderNumberPaymentInfoModel> validator,
-            IHttpContextAccessor httpContextAccessor)
-            : base(storeContext, settingFactory)
+    // INFO: "true" because purchase order number is unique. It makes no sense to reuse them.
+    public override bool RequiresPaymentSelection => true;
+
+    public override bool RequiresInteraction => true;
+
+    protected override Type GetViewComponentType()
+        => typeof(PurchaseOrderNumberViewComponent);
+
+    public RouteInfo GetConfigurationRoute()
+        => new("PurchaseOrderNumberConfigure", "OfflinePayment", new { area = "Admin" });
+
+    public override Task<string> GetPaymentSummaryAsync()
+    {
+        var result = string.Empty;
+
+        if (_httpContextAccessor.HttpContext.Session.TryGetObject<ProcessPaymentRequest>(CheckoutState.OrderPaymentInfoName, out var pr) && pr != null)
         {
-            _validator = validator;
-            _httpContextAccessor = httpContextAccessor;
+            result = pr.PurchaseOrderNumber.EmptyNull();
         }
 
-        // INFO: "true" because purchase order number is unique. It makes no sense to reuse them.
-        public override bool RequiresPaymentSelection => true;
+        return Task.FromResult(result);
+    }
 
-        public override bool RequiresInteraction => true;
-
-        protected override Type GetViewComponentType()
-            => typeof(PurchaseOrderNumberViewComponent);
-
-        public RouteInfo GetConfigurationRoute()
-            => new("PurchaseOrderNumberConfigure", "OfflinePayment", new { area = "Admin" });
-
-        public override Task<string> GetPaymentSummaryAsync()
+    public override async Task<PaymentValidationResult> ValidatePaymentDataAsync(IFormCollection form)
+    {
+        var model = new PurchaseOrderNumberPaymentInfoModel
         {
-            var result = string.Empty;
+            PurchaseOrderNumber = form["PurchaseOrderNumber"]
+        };
 
-            if (_httpContextAccessor.HttpContext.Session.TryGetObject<ProcessPaymentRequest>(CheckoutState.OrderPaymentInfoName, out var pr) && pr != null)
-            {
-                result = pr.PurchaseOrderNumber.EmptyNull();
-            }
+        var result = await _validator.ValidateAsync(model);
+        return new PaymentValidationResult(result);
+    }
 
-            return Task.FromResult(result);
-        }
-
-        public override async Task<PaymentValidationResult> ValidatePaymentDataAsync(IFormCollection form)
+    public override Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
+    {
+        var paymentInfo = new ProcessPaymentRequest
         {
-            var model = new PurchaseOrderNumberPaymentInfoModel
-            {
-                PurchaseOrderNumber = form["PurchaseOrderNumber"]
-            };
+            PurchaseOrderNumber = form["PurchaseOrderNumber"]
+        };
 
-            var result = await _validator.ValidateAsync(model);
-            return new PaymentValidationResult(result);
-        }
-
-        public override Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
-        {
-            var paymentInfo = new ProcessPaymentRequest
-            {
-                PurchaseOrderNumber = form["PurchaseOrderNumber"]
-            };
-
-            return Task.FromResult(paymentInfo);
-        }
+        return Task.FromResult(paymentInfo);
     }
 }
