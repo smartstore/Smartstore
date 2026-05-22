@@ -5,25 +5,24 @@ using Smartstore.Engine.Modularity;
 using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Components;
 
-namespace Smartstore.PayPal.Providers
-{
-    [SystemName(PayPalConstants.PayLater)]
-    [FriendlyName("PayPal Pay Later")]
-    [Order(1)]
-    [PaymentMethod(PaymentMethodType.Standard | PaymentMethodType.Button)]
-    public class PayPalPayLaterProvider : PayPalProviderBase
-    {
-        public PayPalPayLaterProvider(
-            SmartDbContext db, 
-            PayPalHttpClient client, 
-            PayPalSettings settings, 
-            IPaymentService paymentService, 
-            ICheckoutStateAccessor checkoutStateAccessor)
-            : base(db, client, settings, paymentService, checkoutStateAccessor)
-        {
-        }
+namespace Smartstore.PayPal.Providers;
 
-        public override Widget GetPaymentInfoWidget()
-            => new ComponentWidget(typeof(PayPalPayLaterViewComponent), true);
+[SystemName(PayPalConstants.PayLater)]
+[FriendlyName("PayPal Pay Later")]
+[Order(1)]
+[PaymentMethod(PaymentMethodType.Standard | PaymentMethodType.Button)]
+public class PayPalPayLaterProvider : PayPalProviderBase
+{
+    public PayPalPayLaterProvider(
+        SmartDbContext db, 
+        PayPalHttpClient client, 
+        PayPalSettings settings, 
+        IPaymentService paymentService, 
+        ICheckoutStateAccessor checkoutStateAccessor)
+        : base(db, client, settings, paymentService, checkoutStateAccessor)
+    {
     }
+
+    public override Widget GetPaymentInfoWidget()
+        => new ComponentWidget(typeof(PayPalPayLaterViewComponent), true);
 }

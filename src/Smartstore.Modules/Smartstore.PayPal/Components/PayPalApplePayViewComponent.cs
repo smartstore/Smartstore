@@ -2,32 +2,31 @@
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.PayPal.Services;
 
-namespace Smartstore.PayPal.Components
+namespace Smartstore.PayPal.Components;
+
+/// <summary>
+/// Renders PayPal button for Apple Pay.
+/// </summary>
+public class PayPalApplePayViewComponent : PayPalViewComponentBase
 {
-    /// <summary>
-    /// Renders PayPal button for Apple Pay.
-    /// </summary>
-    public class PayPalApplePayViewComponent : PayPalViewComponentBase
+    protected override IViewComponentResult InvokeCore()
     {
-        protected override IViewComponentResult InvokeCore()
+        if (HttpContext.Connection.IsLocal())
         {
-            if (HttpContext.Connection.IsLocal())
-            {
-                return Empty();
-            }
-
-            if (PayPalHelper.IsCartRoute(RouteIdent) && !Settings.FundingsCart.Contains(FundingOptions.applepay.ToString()))
-            {
-                return Empty();
-            }
-
-            var model = new ApplePayModel
-            {
-                IsSandbox = Settings.UseSandbox,
-                RouteIdent = RouteIdent
-            };
-
-            return View(model);
+            return Empty();
         }
+
+        if (PayPalHelper.IsCartRoute(RouteIdent) && !Settings.FundingsCart.Contains(FundingOptions.applepay.ToString()))
+        {
+            return Empty();
+        }
+
+        var model = new ApplePayModel
+        {
+            IsSandbox = Settings.UseSandbox,
+            RouteIdent = RouteIdent
+        };
+
+        return View(model);
     }
 }

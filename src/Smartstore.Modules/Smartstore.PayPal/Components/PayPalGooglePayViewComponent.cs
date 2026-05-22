@@ -2,33 +2,32 @@
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.PayPal.Services;
 
-namespace Smartstore.PayPal.Components
+namespace Smartstore.PayPal.Components;
+
+/// <summary>
+/// Renders PayPal button for Google Pay.
+/// </summary>
+public class PayPalGooglePayViewComponent : PayPalViewComponentBase
 {
-    /// <summary>
-    /// Renders PayPal button for Google Pay.
-    /// </summary>
-    public class PayPalGooglePayViewComponent : PayPalViewComponentBase
+    protected override IViewComponentResult InvokeCore()
     {
-        protected override IViewComponentResult InvokeCore()
+        if (HttpContext.Connection.IsLocal())
         {
-            if (HttpContext.Connection.IsLocal())
-            {
-                return Empty();
-            }
-
-            // Get displayable options from settings depending on location (OffCanvasCart or Cart).
-            if (PayPalHelper.IsCartRoute(RouteIdent) && !Settings.FundingsCart.Contains(FundingOptions.googlepay.ToString()))
-            {
-                return Empty();
-            }
-
-            var model = new GooglePayModel
-            {
-                IsSandbox = Settings.UseSandbox,
-                RouteIdent = RouteIdent
-            };
-
-            return View(model);
+            return Empty();
         }
+
+        // Get displayable options from settings depending on location (OffCanvasCart or Cart).
+        if (PayPalHelper.IsCartRoute(RouteIdent) && !Settings.FundingsCart.Contains(FundingOptions.googlepay.ToString()))
+        {
+            return Empty();
+        }
+
+        var model = new GooglePayModel
+        {
+            IsSandbox = Settings.UseSandbox,
+            RouteIdent = RouteIdent
+        };
+
+        return View(model);
     }
 }

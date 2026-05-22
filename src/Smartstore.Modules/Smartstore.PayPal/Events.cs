@@ -10,131 +10,130 @@ using Smartstore.Events;
 using Smartstore.PayPal.Client;
 using Smartstore.Utilities;
 
-namespace Smartstore.PayPal
+namespace Smartstore.PayPal;
+
+public class Events : IConsumer
 {
-    public class Events : IConsumer
+    private readonly SmartDbContext _db;
+    private readonly ICommonServices _services;
+    private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+    private readonly PayPalHttpClient _client;
+
+    public Events(
+        SmartDbContext db,
+        ICommonServices services, 
+        ICheckoutStateAccessor checkoutStateAccessor,
+        PayPalHttpClient client)
     {
-        private readonly SmartDbContext _db;
-        private readonly ICommonServices _services;
-        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
-        private readonly PayPalHttpClient _client;
+        _db = db;
+        _services = services;
+        _checkoutStateAccessor = checkoutStateAccessor;
+        _client = client;
+    }
 
-        public Events(
-            SmartDbContext db,
-            ICommonServices services, 
-            ICheckoutStateAccessor checkoutStateAccessor,
-            PayPalHttpClient client)
+    public void HandleEvent(CustomerSignedInEvent eventMessage)
+    {
+        var customerBeforeLogin = _services.WorkContext.CurrentCustomer;
+        
+        if (customerBeforeLogin.GenericAttributes.SelectedPaymentMethod.HasValue() 
+            && customerBeforeLogin.GenericAttributes.SelectedPaymentMethod.StartsWith("Payments.PayPal"))
         {
-            _db = db;
-            _services = services;
-            _checkoutStateAccessor = checkoutStateAccessor;
-            _client = client;
+            // Save selected payment method in session                
+            _checkoutStateAccessor.CheckoutState.CustomProperties["SelectedPaymentMethod"] = customerBeforeLogin.GenericAttributes.SelectedPaymentMethod;
         }
 
-        public void HandleEvent(CustomerSignedInEvent eventMessage)
-        {
-            var customerBeforeLogin = _services.WorkContext.CurrentCustomer;
-            
-            if (customerBeforeLogin.GenericAttributes.SelectedPaymentMethod.HasValue() 
-                && customerBeforeLogin.GenericAttributes.SelectedPaymentMethod.StartsWith("Payments.PayPal"))
-            {
-                // Save selected payment method in session                
-                _checkoutStateAccessor.CheckoutState.CustomProperties["SelectedPaymentMethod"] = customerBeforeLogin.GenericAttributes.SelectedPaymentMethod;
-            }
+        return;
+    }
 
+    public async Task HandleEvent(MigrateShoppingCartEvent eventMessage,
+        IShoppingCartService shoppingCartService)
+    {
+        // Only do this if PayPal is selected as payment method.
+        if (!_checkoutStateAccessor.CheckoutState.CustomProperties.ContainsKey("SelectedPaymentMethod"))
+        {
+            return;
+        }    
+
+        // If migrated shopping cart differs from current shopping cart, store a value in session and redirect user to basket.
+        var storeId = _services.StoreContext.CurrentStore.Id;
+        var oldCart = await shoppingCartService.GetCartAsync(eventMessage.FromCustomer, storeId: storeId);
+        var newCart = await shoppingCartService.GetCartAsync(eventMessage.ToCustomer, storeId: storeId);
+
+        var oldHash = HashCodeCombiner
+            .Start()
+            .AddSequence(oldCart.Items.Select(x => x.Item.ProductId + x.Item.Quantity))
+            .CombinedHash;
+
+        var newHash = HashCodeCombiner
+            .Start()
+            .AddSequence(newCart.Items.Select(x => x.Item.ProductId + x.Item.Quantity))
+            .CombinedHash;
+
+        if (oldHash != newHash)
+        {
+            _checkoutStateAccessor.CheckoutState.CustomProperties["UserMustBeRedirectedToCart"] = true;
+        }
+
+        return;
+    }
+
+    public async Task HandleEvent(TrackingNumberAddedEvent eventMessage,
+        PayPalSettings settings)
+    {
+        if (!settings.TransmitTrackingNumbers)
+        {
             return;
         }
 
-        public async Task HandleEvent(MigrateShoppingCartEvent eventMessage,
-            IShoppingCartService shoppingCartService)
+        var order = eventMessage.Shipment.Order;
+
+        // Only do this if PayPal is the selected payment method of this order.
+        if (order.PaymentMethodSystemName.HasValue() && order.PaymentMethodSystemName.StartsWith("Payments.PayPal"))
         {
-            // Only do this if PayPal is selected as payment method.
-            if (!_checkoutStateAccessor.CheckoutState.CustomProperties.ContainsKey("SelectedPaymentMethod"))
-            {
-                return;
-            }    
+            await AddTrackingNumberAsync(eventMessage.Shipment);
+        }
 
-            // If migrated shopping cart differs from current shopping cart, store a value in session and redirect user to basket.
-            var storeId = _services.StoreContext.CurrentStore.Id;
-            var oldCart = await shoppingCartService.GetCartAsync(eventMessage.FromCustomer, storeId: storeId);
-            var newCart = await shoppingCartService.GetCartAsync(eventMessage.ToCustomer, storeId: storeId);
+        return;
+    }
 
-            var oldHash = HashCodeCombiner
-                .Start()
-                .AddSequence(oldCart.Items.Select(x => x.Item.ProductId + x.Item.Quantity))
-                .CombinedHash;
-
-            var newHash = HashCodeCombiner
-                .Start()
-                .AddSequence(newCart.Items.Select(x => x.Item.ProductId + x.Item.Quantity))
-                .CombinedHash;
-
-            if (oldHash != newHash)
-            {
-                _checkoutStateAccessor.CheckoutState.CustomProperties["UserMustBeRedirectedToCart"] = true;
-            }
-
+    public async Task HandleEvent(TrackingNumberChangedEvent eventMessage,
+        PayPalHttpClient client,
+        PayPalSettings settings)
+    {
+        if (!settings.TransmitTrackingNumbers)
+        {
             return;
         }
 
-        public async Task HandleEvent(TrackingNumberAddedEvent eventMessage,
-            PayPalSettings settings)
+        var order = eventMessage.Shipment.Order;
+
+        // Only do this if PayPal is the selected payment method of this order.
+        if (order.PaymentMethodSystemName.HasValue() && order.PaymentMethodSystemName.StartsWith("Payments.PayPal"))
         {
-            if (!settings.TransmitTrackingNumbers)
-            {
-                return;
-            }
+            // We can't change the tracking number in PayPal. We have to cancel the old tracking number and add a new one.
+            await client.CancelTrackingNumberAsync(eventMessage.Shipment);
 
-            var order = eventMessage.Shipment.Order;
-
-            // Only do this if PayPal is the selected payment method of this order.
-            if (order.PaymentMethodSystemName.HasValue() && order.PaymentMethodSystemName.StartsWith("Payments.PayPal"))
-            {
-                await AddTrackingNumberAsync(eventMessage.Shipment);
-            }
-
-            return;
+            await AddTrackingNumberAsync(eventMessage.Shipment);
         }
 
-        public async Task HandleEvent(TrackingNumberChangedEvent eventMessage,
-            PayPalHttpClient client,
-            PayPalSettings settings)
-        {
-            if (!settings.TransmitTrackingNumbers)
-            {
-                return;
-            }
+        return;
+    }
 
-            var order = eventMessage.Shipment.Order;
+    private async Task AddTrackingNumberAsync(Shipment shipment)
+    {
+        // Make API call to PayPal to add the tracking number.
+        var response = await _client.AddTrackingNumberAsync(shipment);
+        var j = response.BodyAsJsonNode();
 
-            // Only do this if PayPal is the selected payment method of this order.
-            if (order.PaymentMethodSystemName.HasValue() && order.PaymentMethodSystemName.StartsWith("Payments.PayPal"))
-            {
-                // We can't change the tracking number in PayPal. We have to cancel the old tracking number and add a new one.
-                await client.CancelTrackingNumberAsync(eventMessage.Shipment);
+        var trackingId = 
+            j["purchase_units"]?[0]?["shipping"]?["trackers"]?[0]?["id"]?.GetValue<string>();
 
-                await AddTrackingNumberAsync(eventMessage.Shipment);
-            }
+        // Store tracking id as generic attribute in shipment.
+        shipment.GenericAttributes.Set("PayPalTrackingId", trackingId);
 
-            return;
-        }
+        // Add order note.
+        _db.OrderNotes.Add(shipment.Order, $"Tracking number {shipment.TrackingNumber} has been transmitted to PayPal. Tracking ID: {trackingId}");
 
-        private async Task AddTrackingNumberAsync(Shipment shipment)
-        {
-            // Make API call to PayPal to add the tracking number.
-            var response = await _client.AddTrackingNumberAsync(shipment);
-            var j = response.BodyAsJsonNode();
-
-            var trackingId = 
-                j["purchase_units"]?[0]?["shipping"]?["trackers"]?[0]?["id"]?.GetValue<string>();
-
-            // Store tracking id as generic attribute in shipment.
-            shipment.GenericAttributes.Set("PayPalTrackingId", trackingId);
-
-            // Add order note.
-            _db.OrderNotes.Add(shipment.Order, $"Tracking number {shipment.TrackingNumber} has been transmitted to PayPal. Tracking ID: {trackingId}");
-
-            await _db.SaveChangesAsync();
-        }
+        await _db.SaveChangesAsync();
     }
 }

@@ -5,25 +5,24 @@ using Smartstore.Engine.Modularity;
 using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Components;
 
-namespace Smartstore.PayPal.Providers
-{
-    [SystemName(PayPalConstants.Sepa)]
-    [FriendlyName("PayPal Sepa")]
-    [Order(1)]
-    [PaymentMethod(PaymentMethodType.Standard | PaymentMethodType.Button)]
-    public class PayPalSepaProvider : PayPalProviderBase
-    {
-        public PayPalSepaProvider(
-            SmartDbContext db, 
-            PayPalHttpClient client, 
-            PayPalSettings settings, 
-            IPaymentService paymentService, 
-            ICheckoutStateAccessor checkoutStateAccessor)
-            : base(db, client, settings, paymentService, checkoutStateAccessor)
-        {
-        }
+namespace Smartstore.PayPal.Providers;
 
-        public override Widget GetPaymentInfoWidget()
-            => new ComponentWidget(typeof(PayPalSepaViewComponent), true);
+[SystemName(PayPalConstants.Sepa)]
+[FriendlyName("PayPal Sepa")]
+[Order(1)]
+[PaymentMethod(PaymentMethodType.Standard | PaymentMethodType.Button)]
+public class PayPalSepaProvider : PayPalProviderBase
+{
+    public PayPalSepaProvider(
+        SmartDbContext db, 
+        PayPalHttpClient client, 
+        PayPalSettings settings, 
+        IPaymentService paymentService, 
+        ICheckoutStateAccessor checkoutStateAccessor)
+        : base(db, client, settings, paymentService, checkoutStateAccessor)
+    {
     }
+
+    public override Widget GetPaymentInfoWidget()
+        => new ComponentWidget(typeof(PayPalSepaViewComponent), true);
 }

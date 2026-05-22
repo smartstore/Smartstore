@@ -2,7 +2,6 @@
 
 using System.Net;
 using System.Net.Http.Headers;
-using Smartstore.Core.Checkout.Payment;
 using Smartstore.Net.Http;
 
 namespace Smartstore.PayPal.Client;

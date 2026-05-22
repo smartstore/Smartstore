@@ -4,19 +4,18 @@ using Smartstore.Engine.Modularity;
 using Smartstore.PayPal.Components;
 using Smartstore.PayPal.Services;
 
-namespace Smartstore.PayPal.Providers
-{
-    [SystemName(PayPalConstants.Bancontact)]
-    [FriendlyName("PayPal Bancontact")]
-    [Order(1)]
-    [PaymentMethod(PaymentMethodType.Standard)]
-    public class PayPalBancontactProvider : PayPalApmProviderBase
-    {
-        public PayPalBancontactProvider(PayPalApmServiceContext context) : base(context)
-        {
-        }
+namespace Smartstore.PayPal.Providers;
 
-        public override Widget GetPaymentInfoWidget()
-            => new ComponentWidget(typeof(PayPalApmViewComponent), "bancontact");
+[SystemName(PayPalConstants.Bancontact)]
+[FriendlyName("PayPal Bancontact")]
+[Order(1)]
+[PaymentMethod(PaymentMethodType.Standard)]
+public class PayPalBancontactProvider : PayPalApmProviderBase
+{
+    public PayPalBancontactProvider(PayPalApmServiceContext context) : base(context)
+    {
     }
+
+    public override Widget GetPaymentInfoWidget()
+        => new ComponentWidget(typeof(PayPalApmViewComponent), "bancontact");
 }

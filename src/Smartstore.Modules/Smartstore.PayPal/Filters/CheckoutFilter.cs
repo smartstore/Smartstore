@@ -11,191 +11,190 @@ using Smartstore.PayPal.Services;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Models.Checkout;
 
-namespace Smartstore.PayPal.Filters
-{
-    public class CheckoutFilter : IAsyncResultFilter
-    {
-        private static readonly string[] _apms =
-        {
-            PayPalConstants.Trustly,
-            PayPalConstants.Bancontact,
-            PayPalConstants.Blik,
-            PayPalConstants.Eps,
-            PayPalConstants.Ideal,
-            PayPalConstants.MyBank,
-            PayPalConstants.Przelewy24,
-            PayPalConstants.GooglePay,
-            PayPalConstants.ApplePay
-        };
+namespace Smartstore.PayPal.Filters;
 
-        private readonly SmartDbContext _db;
-        private readonly ICommonServices _services;
-        private readonly PayPalSettings _settings;
-        private readonly INotifier _notifier;
-        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly Lazy<IWidgetProvider> _widgetProvider;
-        private readonly PayPalHelper _payPalHelper;
-        
-        public CheckoutFilter(
-            SmartDbContext db,
-            ICommonServices services,
-            PayPalSettings settings,
-            INotifier notifier,
-            ICheckoutStateAccessor checkoutStateAccessor,
-            IHttpContextAccessor httpContextAccessor,
-            Lazy<IWidgetProvider> widgetProvider,
-            PayPalHelper payPalHelper)
+public class CheckoutFilter : IAsyncResultFilter
+{
+    private static readonly string[] _apms =
+    {
+        PayPalConstants.Trustly,
+        PayPalConstants.Bancontact,
+        PayPalConstants.Blik,
+        PayPalConstants.Eps,
+        PayPalConstants.Ideal,
+        PayPalConstants.MyBank,
+        PayPalConstants.Przelewy24,
+        PayPalConstants.GooglePay,
+        PayPalConstants.ApplePay
+    };
+
+    private readonly SmartDbContext _db;
+    private readonly ICommonServices _services;
+    private readonly PayPalSettings _settings;
+    private readonly INotifier _notifier;
+    private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly Lazy<IWidgetProvider> _widgetProvider;
+    private readonly PayPalHelper _payPalHelper;
+    
+    public CheckoutFilter(
+        SmartDbContext db,
+        ICommonServices services,
+        PayPalSettings settings,
+        INotifier notifier,
+        ICheckoutStateAccessor checkoutStateAccessor,
+        IHttpContextAccessor httpContextAccessor,
+        Lazy<IWidgetProvider> widgetProvider,
+        PayPalHelper payPalHelper)
+    {
+        _db = db;
+        _services = services;
+        _settings = settings;
+        _notifier = notifier;
+        _checkoutStateAccessor = checkoutStateAccessor;
+        _httpContextAccessor = httpContextAccessor;
+        _widgetProvider = widgetProvider;
+        _payPalHelper = payPalHelper;
+    }
+
+    public async Task OnResultExecutionAsync(ResultExecutingContext filterContext, ResultExecutionDelegate next)
+    {
+        // If the PayPal order must be updated, we need to ensure the Confirm partial is loaded, because there might be a redirect after another required payer action.
+        var checkoutState = _checkoutStateAccessor.CheckoutState;
+        var redirectRequired = checkoutState.CustomProperties.ContainsKey("PayPalPayerActionRequired");
+
+        if (!await _payPalHelper.IsAnyProviderActiveAsync(
+            PayPalConstants.Standard,
+            PayPalConstants.PayLater,
+            PayPalConstants.Sepa,
+            PayPalConstants.GooglePay,
+            PayPalConstants.ApplePay) && !redirectRequired)
         {
-            _db = db;
-            _services = services;
-            _settings = settings;
-            _notifier = notifier;
-            _checkoutStateAccessor = checkoutStateAccessor;
-            _httpContextAccessor = httpContextAccessor;
-            _widgetProvider = widgetProvider;
-            _payPalHelper = payPalHelper;
+            await next();
+            return;
         }
 
-        public async Task OnResultExecutionAsync(ResultExecutingContext filterContext, ResultExecutionDelegate next)
+        // If client id or secret haven't been configured yet, don't do anything.
+        if (!_settings.ClientId.HasValue() || !_settings.Secret.HasValue())
         {
-            // If the PayPal order must be updated, we need to ensure the Confirm partial is loaded, because there might be a redirect after another required payer action.
-            var checkoutState = _checkoutStateAccessor.CheckoutState;
-            var redirectRequired = checkoutState.CustomProperties.ContainsKey("PayPalPayerActionRequired");
+            await next();
+            return;
+        }
 
-            if (!await _payPalHelper.IsAnyProviderActiveAsync(
-                PayPalConstants.Standard,
-                PayPalConstants.PayLater,
-                PayPalConstants.Sepa,
-                PayPalConstants.GooglePay,
-                PayPalConstants.ApplePay) && !redirectRequired)
+        var customer = _services.WorkContext.CurrentCustomer;
+        var action = filterContext.RouteData.Values.GetActionName();
+
+        if (action.EqualsNoCase(nameof(CheckoutController.BillingAddress)))
+        {
+            var userMustBeRedirectedToCart = checkoutState.CustomProperties.ContainsKey("UserMustBeRedirectedToCart");
+            if (userMustBeRedirectedToCart)
             {
-                await next();
-                return;
+                checkoutState.CustomProperties.Remove("UserMustBeRedirectedToCart");
+                _notifier.Error(_services.Localization.GetResource("Plugins.Smartstore.PayPal.CartHasChanged"));
+                filterContext.Result = new RedirectToActionResult("Cart", "ShoppingCart", new { area = "" });
+            }
+        }
+        else if (action.EqualsNoCase(nameof(CheckoutController.PaymentMethod)))
+        {
+            // If a customer has used a PayPal button before login, we need to restore the selected poayment method.
+            var hasSelectedPaymentMethod = checkoutState.CustomProperties.ContainsKey("SelectedPaymentMethod");
+            if (hasSelectedPaymentMethod)
+            {
+                customer.GenericAttributes.SelectedPaymentMethod = (string)checkoutState.CustomProperties.Get("SelectedPaymentMethod");
+                await _db.SaveChangesAsync();
             }
 
-            // If client id or secret haven't been configured yet, don't do anything.
-            if (!_settings.ClientId.HasValue() || !_settings.Secret.HasValue())
+            var skipPaymentPage = checkoutState.CustomProperties.ContainsKey("PayPalButtonUsed");
+
+            if (!skipPaymentPage)
             {
-                await next();
-                return;
-            }
-
-            var customer = _services.WorkContext.CurrentCustomer;
-            var action = filterContext.RouteData.Values.GetActionName();
-
-            if (action.EqualsNoCase(nameof(CheckoutController.BillingAddress)))
-            {
-                var userMustBeRedirectedToCart = checkoutState.CustomProperties.ContainsKey("UserMustBeRedirectedToCart");
-                if (userMustBeRedirectedToCart)
+                if (filterContext.Result is not ViewResult viewResult || viewResult.Model is not CheckoutPaymentMethodModel model)
                 {
-                    checkoutState.CustomProperties.Remove("UserMustBeRedirectedToCart");
-                    _notifier.Error(_services.Localization.GetResource("Plugins.Smartstore.PayPal.CartHasChanged"));
-                    filterContext.Result = new RedirectToActionResult("Cart", "ShoppingCart", new { area = "" });
-                }
-            }
-            else if (action.EqualsNoCase(nameof(CheckoutController.PaymentMethod)))
-            {
-                // If a customer has used a PayPal button before login, we need to restore the selected poayment method.
-                var hasSelectedPaymentMethod = checkoutState.CustomProperties.ContainsKey("SelectedPaymentMethod");
-                if (hasSelectedPaymentMethod)
-                {
-                    customer.GenericAttributes.SelectedPaymentMethod = (string)checkoutState.CustomProperties.Get("SelectedPaymentMethod");
-                    await _db.SaveChangesAsync();
-                }
-
-                var skipPaymentPage = checkoutState.CustomProperties.ContainsKey("PayPalButtonUsed");
-
-                if (!skipPaymentPage)
-                {
-                    if (filterContext.Result is not ViewResult viewResult || viewResult.Model is not CheckoutPaymentMethodModel model)
-                    {
-                        await next();
-                        return;
-                    }
-
-                    var isSelected = false;
-                    var firstPaymentMethod = model.PaymentMethods.First();
-                    var funding = FundingOptions.paypal.ToString();
-
-                    if (firstPaymentMethod != null)
-                    {
-                        isSelected =
-                            (firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.Standard
-                            || firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.Sepa
-                            || firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.PayLater
-                            || firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.GooglePay
-                            || firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.ApplePay
-                            ) && firstPaymentMethod.Selected;
-
-                        if (firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.Sepa)
-                        {
-                            funding = FundingOptions.sepa.ToString();
-                        }
-                        else if (firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.PayLater)
-                        {
-                            funding = FundingOptions.paylater.ToString();
-                        }
-                        else if (firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.GooglePay)
-                        {
-                            funding = FundingOptions.googlepay.ToString();
-                        }
-                        else if (firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.ApplePay)
-                        {
-                            funding = FundingOptions.applepay.ToString();
-                        }
-                    }
-
-                    _widgetProvider.Value.RegisterViewComponent<PayPalPaymentSelectionViewComponent>(
-                        "checkout_payment_method_buttons",
-                        new
-                        {
-                            funding,
-                            isSelected
-                        }
-                     );
-
                     await next();
                     return;
                 }
 
-                // Should only run on a full view rendering result or HTML ContentResult.
-                if ((filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult()) && skipPaymentPage)
-                {
-                    // Delete property for backward navigation.
-                    checkoutState.CustomProperties.Remove("PayPalButtonUsed");
+                var isSelected = false;
+                var firstPaymentMethod = model.PaymentMethods.First();
+                var funding = FundingOptions.paypal.ToString();
 
-                    // Set property to indicate PayPal order must be updated.
-                    checkoutState.CustomProperties["UpdatePayPalOrder"] = true;
+                if (firstPaymentMethod != null)
+                {
+                    isSelected =
+                        (firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.Standard
+                        || firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.Sepa
+                        || firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.PayLater
+                        || firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.GooglePay
+                        || firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.ApplePay
+                        ) && firstPaymentMethod.Selected;
 
-                    filterContext.Result = new RedirectToActionResult("Confirm", "Checkout", new { area = "" });
-                }
-                else
-                {
-                    // Set property to indicate PayPal order must not be updated
-                    // because we are on payment selection page and shipping fees, discounts etc. are known.
-                    checkoutState.CustomProperties.Remove("UpdatePayPalOrder");
-                }
-            }
-            else if (action.EqualsNoCase(nameof(CheckoutController.Confirm)))
-            {
-                if (IsApm(customer.GenericAttributes.SelectedPaymentMethod) || redirectRequired)
-                {
-                    if (checkoutState.IsPaymentRequired)
+                    if (firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.Sepa)
                     {
-                        _widgetProvider.Value.RegisterWidget("end",
-                            new PartialViewWidget("_CheckoutConfirm", checkoutState.GetCustomState<PayPalCheckoutState>(), "Smartstore.PayPal"));
+                        funding = FundingOptions.sepa.ToString();
+                    }
+                    else if (firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.PayLater)
+                    {
+                        funding = FundingOptions.paylater.ToString();
+                    }
+                    else if (firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.GooglePay)
+                    {
+                        funding = FundingOptions.googlepay.ToString();
+                    }
+                    else if (firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.ApplePay)
+                    {
+                        funding = FundingOptions.applepay.ToString();
                     }
                 }
-            }
-            
-            await next();
-        }
 
-        /// <summary>
-        /// Checks if the choosen payment method is an APM (alternative payment method).
-        /// </summary>
-        private static bool IsApm(string systemName)
-            => _apms.Contains(systemName);
+                _widgetProvider.Value.RegisterViewComponent<PayPalPaymentSelectionViewComponent>(
+                    "checkout_payment_method_buttons",
+                    new
+                    {
+                        funding,
+                        isSelected
+                    }
+                 );
+
+                await next();
+                return;
+            }
+
+            // Should only run on a full view rendering result or HTML ContentResult.
+            if ((filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult()) && skipPaymentPage)
+            {
+                // Delete property for backward navigation.
+                checkoutState.CustomProperties.Remove("PayPalButtonUsed");
+
+                // Set property to indicate PayPal order must be updated.
+                checkoutState.CustomProperties["UpdatePayPalOrder"] = true;
+
+                filterContext.Result = new RedirectToActionResult("Confirm", "Checkout", new { area = "" });
+            }
+            else
+            {
+                // Set property to indicate PayPal order must not be updated
+                // because we are on payment selection page and shipping fees, discounts etc. are known.
+                checkoutState.CustomProperties.Remove("UpdatePayPalOrder");
+            }
+        }
+        else if (action.EqualsNoCase(nameof(CheckoutController.Confirm)))
+        {
+            if (IsApm(customer.GenericAttributes.SelectedPaymentMethod) || redirectRequired)
+            {
+                if (checkoutState.IsPaymentRequired)
+                {
+                    _widgetProvider.Value.RegisterWidget("end",
+                        new PartialViewWidget("_CheckoutConfirm", checkoutState.GetCustomState<PayPalCheckoutState>(), "Smartstore.PayPal"));
+                }
+            }
+        }
+        
+        await next();
     }
+
+    /// <summary>
+    /// Checks if the choosen payment method is an APM (alternative payment method).
+    /// </summary>
+    private static bool IsApm(string systemName)
+        => _apms.Contains(systemName);
 }
