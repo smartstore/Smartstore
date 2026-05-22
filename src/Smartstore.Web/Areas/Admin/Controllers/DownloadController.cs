@@ -5,7 +5,7 @@ namespace Smartstore.Admin.Controllers
 {
     public class DownloadController : AdminController
     {
-        const string downloadTemplate = "EditorTemplates/Download";
+        const string DownloadTemplate = "EditorTemplates/Download";
 
         private readonly SmartDbContext _db;
         private readonly IDownloadService _downloadService;
@@ -85,7 +85,7 @@ namespace Smartstore.Admin.Controllers
             {
                 success = true,
                 downloadId = download.Id,
-                html = await InvokePartialViewAsync(downloadTemplate, download.Id, new { minimalMode, fieldName })
+                html = await InvokePartialViewAsync(DownloadTemplate, download.Id, new { minimalMode, fieldName })
             });
         }
 
@@ -191,7 +191,7 @@ namespace Smartstore.Admin.Controllers
             return Json(new
             {
                 success = true,
-                html = await InvokePartialViewAsync(downloadTemplate, null, new { minimalMode, fieldName })
+                html = await InvokePartialViewAsync(DownloadTemplate, null, new { minimalMode, fieldName })
             });
         }
     }

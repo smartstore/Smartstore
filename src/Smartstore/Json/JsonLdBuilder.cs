@@ -71,6 +71,12 @@ public class JsonLdBuilder
         => this["BlogPosting"];
 
     /// <summary>
+    /// Gets or creates the <c>NewsArticle</c> fragment.
+    /// </summary>
+    public JsonLdFragment NewsArticle
+        => this["NewsArticle"];
+
+    /// <summary>
     /// Gets or creates the <c>Organization</c> fragment.
     /// </summary>
     public JsonLdFragment Organization
