@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace Smartstore;
@@ -92,9 +93,9 @@ public static class NumericExtensions
     /// <param name="value">The value to be checked</param>
     /// <param name="min">Minimum (inclusive) value</param>
     /// <param name="max">Maximum (inclusive) value</param>
-    public static bool IsBetween<T>(this T value, T min, T max) where T : IComparable<T>
+    public static bool IsBetween<T>(this T value, T min, T max) where T : INumber<T>
     {
-        return value.CompareTo(min) >= 0 && value.CompareTo(max) <= 0;
+        return value >= min && value <= max;
     }
 
     #endregion

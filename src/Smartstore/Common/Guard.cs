@@ -2,6 +2,7 @@
 
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace Smartstore;
@@ -104,9 +105,9 @@ public class Guard
 
     [DebuggerStepThrough]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static T InRange<T>(T arg, T min, T max, [CallerArgumentExpression(nameof(arg))] string? argName = null) where T : struct, IComparable<T>
+    public static T InRange<T>(T arg, T min, T max, [CallerArgumentExpression(nameof(arg))] string? argName = null) where T : struct, INumber<T>
     {
-        if (arg.CompareTo(min) < 0 || arg.CompareTo(max) > 0)
+        if (arg < min || arg > max)
         {
             throw new ArgumentOutOfRangeException(argName, string.Format(InRangeMessage, argName, min, max));
         }
@@ -116,9 +117,9 @@ public class Guard
 
     [DebuggerStepThrough]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static T NotNegative<T>(T arg, [CallerArgumentExpression(nameof(arg))] string? argName = null, string message = NotNegativeMessage) where T : struct, IComparable<T>
+    public static T NotNegative<T>(T arg, [CallerArgumentExpression(nameof(arg))] string? argName = null, string message = NotNegativeMessage) where T : struct, INumber<T>
     {
-        if (arg.CompareTo(default) < 0)
+        if (arg < T.Zero)
         {
             throw new ArgumentOutOfRangeException(argName, string.Format(message, argName, arg));
         }
@@ -128,9 +129,9 @@ public class Guard
 
     [DebuggerStepThrough]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static T IsPositive<T>(T arg, [CallerArgumentExpression(nameof(arg))] string? argName = null, string message = IsPositiveMessage) where T : struct, IComparable<T>
+    public static T IsPositive<T>(T arg, [CallerArgumentExpression(nameof(arg))] string? argName = null, string message = IsPositiveMessage) where T : struct, INumber<T>
     {
-        if (arg.CompareTo(default) < 1)
+        if (arg <= T.Zero)
         {
             throw new ArgumentOutOfRangeException(argName, string.Format(message, argName, arg));
         }
@@ -140,9 +141,9 @@ public class Guard
 
     [DebuggerStepThrough]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static T NotZero<T>(T arg, [CallerArgumentExpression(nameof(arg))] string? argName = null) where T : struct, IComparable<T>
+    public static T NotZero<T>(T arg, [CallerArgumentExpression(nameof(arg))] string? argName = null) where T : struct, INumber<T>
     {
-        if (arg.CompareTo(default) == 0)
+        if (arg == T.Zero)
         {
             throw new ArgumentOutOfRangeException(argName, string.Format(NotZeroMessage, argName, arg));
         }
