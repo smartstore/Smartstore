@@ -14,25 +14,24 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Http;
 
-namespace Smartstore.Tax
+namespace Smartstore.Tax;
+
+internal class Module : ModuleBase, IConfigurable
 {
-    internal class Module : ModuleBase, IConfigurable
+    public ILogger Logger { get; set; } = NullLogger.Instance;
+
+    public RouteInfo GetConfigurationRoute()
+        => new("Providers", "Tax", new { area = "Admin" });
+
+    public override async Task InstallAsync(ModuleInstallationContext context)
     {
-        public ILogger Logger { get; set; } = NullLogger.Instance;
+        await ImportLanguageResourcesAsync();
+        await base.InstallAsync(context);
+    }
 
-        public RouteInfo GetConfigurationRoute()
-            => new("Providers", "Tax", new { area = "Admin" });
-
-        public override async Task InstallAsync(ModuleInstallationContext context)
-        {
-            await ImportLanguageResourcesAsync();
-            await base.InstallAsync(context);
-        }
-
-        public override async Task UninstallAsync()
-        {
-            await DeleteLanguageResourcesAsync();
-            await base.UninstallAsync();
-        }
+    public override async Task UninstallAsync()
+    {
+        await DeleteLanguageResourcesAsync();
+        await base.UninstallAsync();
     }
 }
