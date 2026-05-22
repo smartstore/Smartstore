@@ -1,9 +1,8 @@
-﻿namespace Smartstore.DevTools.Models
+﻿namespace Smartstore.DevTools.Models;
+
+[CustomModelPart]
+public class BackendExtensionModel : ModelBase
 {
-    [CustomModelPart]
-    public class BackendExtensionModel : ModelBase
-    {
-        public string Welcome { get; set; }
-        public int ProductId { get; set; }
-    }
+    public string Welcome { get; set; }
+    public int ProductId { get; set; }
 }

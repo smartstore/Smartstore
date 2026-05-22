@@ -3,32 +3,32 @@ using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core;
 using Smartstore.Web.Components;
 
-namespace Smartstore.DevTools.Components
-{
-    public class MachineNameViewComponent : SmartViewComponent
-    {
-        private readonly ICommonServices _services;
-        private readonly ProfilerSettings _profilerSettings;
+namespace Smartstore.DevTools.Components;
 
-        public MachineNameViewComponent(ICommonServices services, ProfilerSettings profilerSettings)
+public class MachineNameViewComponent : SmartViewComponent
+{
+    private readonly ICommonServices _services;
+    private readonly ProfilerSettings _profilerSettings;
+
+    public MachineNameViewComponent(ICommonServices services, ProfilerSettings profilerSettings)
+    {
+        _services = services;
+        _profilerSettings = profilerSettings;
+    }
+
+    public IViewComponentResult Invoke()
+    {
+        if (!_profilerSettings.DisplayMachineName)
         {
-            _services = services;
-            _profilerSettings = profilerSettings;
+            return Empty();
         }
 
-        public IViewComponentResult Invoke()
+        if (!_services.WorkContext.CurrentCustomer.IsAdmin() && !HttpContext.Connection.IsLocal())
         {
-            if (!_profilerSettings.DisplayMachineName)
-            {
-                return Empty();
-            }
+            return Empty();
+        }
 
-            if (!_services.WorkContext.CurrentCustomer.IsAdmin() && !HttpContext.Connection.IsLocal())
-            {
-                return Empty();
-            }
-
-            var css = @"<style>
+        var css = @"<style>
 	            .devtools-machinename {
 		            position: fixed;
 		            right: 0;
@@ -47,8 +47,7 @@ namespace Smartstore.DevTools.Components
 	            }
             </style>";
 
-            var html = $"<div class='devtools-machinename'>{_services.ApplicationContext.RuntimeInfo.EnvironmentIdentifier}</div>";
-            return HtmlContent(new HtmlString(css + html));
-        }
+        var html = $"<div class='devtools-machinename'>{_services.ApplicationContext.RuntimeInfo.EnvironmentIdentifier}</div>";
+        return HtmlContent(new HtmlString(css + html));
     }
 }
