@@ -10,6 +10,9 @@
 
     var itemsViewData = new ViewDataDictionary(ViewData);
     itemsViewData.TemplateInfo.HtmlFieldPrefix = nameof(Model.Items);
+
+    var returnReasons = ViewBag.AvailableReturnReasons as List<SelectListItem>;
+    var returnActions = ViewBag.AvailableReturnActions as List<SelectListItem>;
 }
 
 <div class="page returncase-page">
@@ -51,7 +54,15 @@
                                 asp-items="ViewBag.AvailableReturnReasons" 
                                 sm-required="true" 
                                 class="return-reasons"
-                                aria-labelledby="return-reason-label"></select>
+                                aria-label="return-reason-label"
+                                placeholder="@T("Common.PleaseSelect")">
+                            <option value=""></option>
+                            @foreach (var item in returnReasons)
+                            {
+                                <option value="@item.Value" data-hint-class="fwm">@item.Text</option>
+                            }
+                        </select>
+                        <span asp-validation-for="ReturnReason"></span>
                     </div>
                 </div>
                 <div class="form-group row">
@@ -63,7 +74,15 @@
                                 asp-items="ViewBag.AvailableReturnActions" 
                                 sm-required="true" 
                                 class="return-actions"
-                                aria-labelledby="return-action-label"></select>
+                                aria-labelledby="return-action-label"
+                                placeholder="@T("Common.PleaseSelect")">
+                            <option value=""></option>
+                            @foreach (var item in returnActions)
+                            {
+                                <option value="@item.Value" data-hint-class="fwm">@item.Text</option>
+                            }
+                        </select>
+                        <span asp-validation-for="ReturnAction"></span>
                     </div>
                 </div>
                 <div class="form-group row">

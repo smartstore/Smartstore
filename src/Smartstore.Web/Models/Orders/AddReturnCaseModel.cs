@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Web.Models.Orders
+﻿using FluentValidation;
+
+namespace Smartstore.Web.Models.Orders
 {
     [LocalizedDisplay("ReturnRequests.")]
     public partial class AddReturnCaseModel : ModelBase
@@ -16,5 +18,14 @@
         [SanitizeHtml]
         [LocalizedDisplay("*Comments")]
         public string Comments { get; set; }
+    }
+
+    public class AddReturnCaseModelValidator : SmartValidator<AddReturnCaseModel>
+    {
+        public AddReturnCaseModelValidator()
+        {
+            RuleFor(x => x.ReturnReason).NotEmpty();
+            RuleFor(x => x.ReturnAction).NotEmpty();
+        }
     }
 }
