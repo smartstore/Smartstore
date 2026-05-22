@@ -42,4 +42,20 @@ public static class JsonLdExtensions
             .Prop("url", httpRequest.ToAbsoluteUrl(url))
             .Obj("mainEntity", itemList);
     }
+
+    /// <summary>
+    /// Adds a <see cref="Measure"/> as a schema.org <c>QuantitativeValue</c> nested object.
+    /// Does nothing if <paramref name="measure"/> is empty (zero value or missing unit).
+    /// </summary>
+    public static JsonLdFragment Quantity(this JsonLdFragment fragment, string key, Measure measure)
+    {
+        if (measure.IsEmpty)
+            return fragment;
+
+        return fragment.Obj(key, JsonLdFragment.Create("QuantitativeValue", new
+        {
+            value = measure.Value,
+            unitText = measure.Unit
+        }));
+    }
 }

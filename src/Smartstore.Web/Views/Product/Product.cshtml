@@ -22,20 +22,13 @@
         sku = Model.Sku,
         gtin = Model.Gtin,
         mpn = Model.ManufacturerPartNumber,
-        url = url,
-        // TODO: (jsonld) This is wrong! We should either split the string value or omit this invalid value.
-        // Weight should look like this:
-        // "weight": {
-        //     "@type": "QuantitativeValue",
-        //     "value": 50,
-        //     "unitText": "kg"
-        // }
-        weight = Model.Weight.NullEmpty(),
-        // TODO: (jsonld) This might also be wrong. Havn't checked yet but it smells like it.
-        width = Model.Width.NullEmpty(),
-        depth = Model.Length.NullEmpty(),
-        height = Model.Height.NullEmpty()
+        url = url
     });
+
+    Assets.JsonLd.Product.Quantity("weight", Model.Weight);
+    Assets.JsonLd.Product.Quantity("width", Model.Width);
+    Assets.JsonLd.Product.Quantity("depth", Model.Length);
+    Assets.JsonLd.Product.Quantity("height", Model.Height);
 }
 
 <partial name="MetaProperties" model="Model.MetaProperties" />

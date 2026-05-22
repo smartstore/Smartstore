@@ -153,5 +153,5 @@ internal sealed class MeasureJsonConverter : JsonConverter<Measure>
         => throw new NotSupportedException();
 
     public override void Write(Utf8JsonWriter writer, Measure measure, JsonSerializerOptions options)
-        => writer.WriteStringValue(measure.ToString());
+        => writer.WriteStringValue(measure.ToString().Replace('\u00a0', ' '));
 }
