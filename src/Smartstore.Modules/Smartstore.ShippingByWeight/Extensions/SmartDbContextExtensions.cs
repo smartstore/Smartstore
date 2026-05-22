@@ -1,10 +1,9 @@
 ﻿using Smartstore.Core.Data;
 
-namespace Smartstore.ShippingByWeight
+namespace Smartstore.ShippingByWeight;
+
+public static class SmartDbContextExtensions
 {
-    public static class SmartDbContextExtensions
-    {
-        public static DbSet<ShippingRateByWeight> ShippingRatesByWeight(this SmartDbContext db)
-            => db.Set<ShippingRateByWeight>();
-    }
+    public static DbSet<ShippingRateByWeight> ShippingRatesByWeight(this SmartDbContext db)
+        => db.Set<ShippingRateByWeight>();
 }
