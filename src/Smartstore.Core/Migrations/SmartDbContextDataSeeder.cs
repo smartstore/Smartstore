@@ -281,5 +281,8 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Common.Preset", "Preset", "Voreinstellung");
 
         builder.AddOrUpdate("Admin.Catalog.Products.Fields.GTIN", "GTIN / EAN", "GTIN / EAN");
+
+        builder.AddOrUpdate("ReturnRequests.SelectProduct(s)")
+            .Value("de", "Welche Artikel möchten Sie zurücksenden?");
     }
 }
