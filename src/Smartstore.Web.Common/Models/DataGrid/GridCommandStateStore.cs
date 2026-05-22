@@ -1,50 +1,49 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace Smartstore.Web.Models.DataGrid
+namespace Smartstore.Web.Models.DataGrid;
+
+public interface IGridCommandStateStore
 {
-    public interface IGridCommandStateStore
+    Task<GridCommand> LoadStateAsync(string gridId);
+    Task SaveStateAsync(GridCommand command);
+}
+
+internal class GridCommandStateStore : IGridCommandStateStore
+{
+    const string KeyPattern = "GridState-{0}";
+
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public GridCommandStateStore(IHttpContextAccessor httpContextAccessor)
     {
-        Task<GridCommand> LoadStateAsync(string gridId);
-        Task SaveStateAsync(GridCommand command);
+        _httpContextAccessor = httpContextAccessor;
     }
 
-    internal class GridCommandStateStore : IGridCommandStateStore
+    public Task<GridCommand> LoadStateAsync(string gridId)
     {
-        const string KeyPattern = "GridState-{0}";
-
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-        public GridCommandStateStore(IHttpContextAccessor httpContextAccessor)
+        if (_httpContextAccessor.HttpContext?.Session != null && gridId.HasValue())
         {
-            _httpContextAccessor = httpContextAccessor;
+            var state = _httpContextAccessor.HttpContext.Session.GetObject<GridCommand>(BuildKey(gridId));
+            return Task.FromResult(state);
         }
 
-        public Task<GridCommand> LoadStateAsync(string gridId)
-        {
-            if (_httpContextAccessor.HttpContext?.Session != null && gridId.HasValue())
-            {
-                var state = _httpContextAccessor.HttpContext.Session.GetObject<GridCommand>(BuildKey(gridId));
-                return Task.FromResult(state);
-            }
+        return Task.FromResult<GridCommand>(null);
+    }
 
-            return Task.FromResult<GridCommand>(null);
+    public Task SaveStateAsync(GridCommand command)
+    {
+        Guard.NotNull(command);
+
+        if (_httpContextAccessor.HttpContext?.Session != null && command.GridId.HasValue())
+        {
+            _httpContextAccessor.HttpContext.Session.TrySetObject(BuildKey(command.GridId), command);
         }
 
-        public Task SaveStateAsync(GridCommand command)
-        {
-            Guard.NotNull(command);
+        return Task.CompletedTask;
+    }
 
-            if (_httpContextAccessor.HttpContext?.Session != null && command.GridId.HasValue())
-            {
-                _httpContextAccessor.HttpContext.Session.TrySetObject(BuildKey(command.GridId), command);
-            }
-
-            return Task.CompletedTask;
-        }
-
-        private static string BuildKey(string gridId)
-        {
-            return KeyPattern.FormatCurrent(gridId).ToLower();
-        }
+    private static string BuildKey(string gridId)
+    {
+        return KeyPattern.FormatCurrent(gridId).ToLower();
     }
 }

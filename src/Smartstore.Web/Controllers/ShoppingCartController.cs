@@ -513,8 +513,8 @@ public class ShoppingCartController : PublicController
         if (product == null)
         {
             return Json(new
-            { 
-                productId, 
+            {
+                productId,
                 redirect = Url.RouteUrl("Homepage")
             });
         }
@@ -782,13 +782,13 @@ public class ShoppingCartController : PublicController
             allWarnings.AddRange(addToCartContext.Warnings);
         }
 
-        var notifyType = numAdded == 0 
+        var notifyType = numAdded == 0
             ? NotifyType.Error
             : (numAdded == cartItems.Length ? NotifyType.Success : NotifyType.Warning);
         Services.Notifier.Add(notifyType, T("Products.ProductsHaveBeenAddedToTheCart", numAdded, cartItems.Length));
 
-        return numAdded > 0 
-            ? RedirectToRoute("ShoppingCart") 
+        return numAdded > 0
+            ? RedirectToRoute("ShoppingCart")
             : RedirectToRoute("Wishlist", new { customerGuid });
     }
 
@@ -1094,7 +1094,7 @@ public class ShoppingCartController : PublicController
                 .ApplyCouponFilter([giftCardCouponCode])
                 .ApplyStandardFilter()
                 .FirstOrDefaultAsync();
-            
+
             if (giftCard == null || !await _giftCardService.ValidateGiftCardAsync(giftCard, cart.Customer, cart.StoreId))
             {
                 return (false, T("ShoppingCart.GiftCardCouponCode.WrongGiftCard"));

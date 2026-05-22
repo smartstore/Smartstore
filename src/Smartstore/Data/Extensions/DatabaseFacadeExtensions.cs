@@ -14,7 +14,7 @@ public static class DatabaseFacadeExtensions
 {
     #region Database creation
 
-    extension (DatabaseFacade databaseFacade)
+    extension(DatabaseFacade databaseFacade)
     {
         /// <summary>
         /// Ensures that the database for the context exists. If it exists, no action is taken. If it does not
@@ -76,7 +76,7 @@ public static class DatabaseFacadeExtensions
 
     #region ExecuteScalar
 
-    extension (DatabaseFacade databaseFacade)
+    extension(DatabaseFacade databaseFacade)
     {
         public T ExecuteScalarInterpolated<T>(FormattableString sql)
             => ExecuteScalarRaw<T>(databaseFacade, sql.Format, sql.GetArguments());
@@ -201,7 +201,7 @@ public static class DatabaseFacadeExtensions
         public Task<RelationalDataReader> ExecuteReaderRawAsync(string sql, params object[] parameters)
             => ExecuteReaderRawAsync(databaseFacade, sql, parameters.AsEnumerable());
 
-        public  async Task<RelationalDataReader> ExecuteReaderRawAsync(
+        public async Task<RelationalDataReader> ExecuteReaderRawAsync(
             string sql,
             IEnumerable<object> parameters,
             CancellationToken cancelToken = default)
@@ -237,7 +237,7 @@ public static class DatabaseFacadeExtensions
 
     #region ExecuteQuery
 
-    extension (DatabaseFacade databaseFacade)
+    extension(DatabaseFacade databaseFacade)
     {
         public IEnumerable<T> ExecuteQueryInterpolated<T>(FormattableString sql)
             => ExecuteQueryRaw<T>(databaseFacade, sql.Format, sql.GetArguments());

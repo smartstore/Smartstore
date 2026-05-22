@@ -712,7 +712,7 @@ public class RuleController : AdminController
 
     private async Task<bool> IsProductAttributeRuleSetMissing(RuleCommand command)
     {
-        return command.Scope == RuleScope.ProductAttribute 
+        return command.Scope == RuleScope.ProductAttribute
             && (command.RuleSetId == 0 || !await _db.RuleSets.AnyAsync(x => x.Id == command.RuleSetId));
     }
 

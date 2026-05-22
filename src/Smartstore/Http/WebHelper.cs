@@ -62,7 +62,7 @@ public static partial class WebHelper
             {
                 return _htmlEncoder;
             }
-            
+
             var registeredEncoder = EngineContext.Current.Application.Services.ResolveOptional<HtmlEncoder>();
             if (registeredEncoder != null)
             {
@@ -568,7 +568,7 @@ public static partial class WebHelper
             {
                 return requestUri.Host;
             }
-            
+
             // Try loopback
             var hostName = Dns.GetHostName();
             var hosts = new List<string> { "localhost", hostName, "127.0.0.1" };

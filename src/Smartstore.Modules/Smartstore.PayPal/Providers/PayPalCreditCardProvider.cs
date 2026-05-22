@@ -15,8 +15,8 @@ namespace Smartstore.PayPal.Providers;
 public class PayPalCreditCardProvider : PayPalProviderBase
 {
     public PayPalCreditCardProvider(
-        SmartDbContext db, 
-        PayPalHttpClient client, 
+        SmartDbContext db,
+        PayPalHttpClient client,
         PayPalSettings settings,
         IPaymentService paymentService,
         ICheckoutStateAccessor checkoutStateAccessor)

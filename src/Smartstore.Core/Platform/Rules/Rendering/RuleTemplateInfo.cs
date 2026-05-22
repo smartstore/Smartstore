@@ -1,7 +1,6 @@
-﻿namespace Smartstore.Core.Rules.Rendering
+﻿namespace Smartstore.Core.Rules.Rendering;
+
+public class RuleTemplateInfo
 {
-    public class RuleTemplateInfo
-    {
-        public string TemplateName { get; set; }
-    }
+    public string TemplateName { get; set; }
 }

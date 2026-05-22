@@ -210,7 +210,7 @@ namespace Smartstore.Collections
                     var comp1 = span1.Slice(startIndex1, rangeLength1);
                     var comp2 = span2.Slice(startIndex2, rangeLength2);
                     int stringCompare = _stringComparer.Compare(comp1.ToString(), comp2.ToString());
-                    
+
                     if (stringCompare != 0) return stringCompare;
                 }
                 else
@@ -303,7 +303,7 @@ namespace Smartstore.Collections
             return currentEnd;
         }
 
-        private static bool IsSeparator(char c) 
+        private static bool IsSeparator(char c)
             => c == '.' || c == ',';
 
         // Space-like characters used when validating a unit suffix.

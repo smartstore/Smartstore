@@ -1,86 +1,85 @@
 ﻿using Smartstore.Core.Rules.Filters;
 
-namespace Smartstore.Core.Rules.Operators
+namespace Smartstore.Core.Rules.Operators;
+
+internal sealed class IsNotEmptyOperator : IsEmptyOperator
 {
-    internal sealed class IsNotEmptyOperator : IsEmptyOperator
+    internal IsNotEmptyOperator()
+        : base("IsNotEmpty", true) { }
+}
+
+internal class IsEmptyOperator : RuleOperator
+{
+    internal IsEmptyOperator()
+        : this("IsEmpty", false) { }
+
+    protected IsEmptyOperator(string op, bool negate)
+        : base(op)
     {
-        internal IsNotEmptyOperator()
-            : base("IsNotEmpty", true) { }
+        Negate = negate;
     }
 
-    internal class IsEmptyOperator : RuleOperator
+    public bool Negate { get; }
+
+    protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
     {
-        internal IsEmptyOperator()
-            : this("IsEmpty", false) { }
+        return Expression.Equal(
+            left.CallIsNullOrEmpty(),
+            Negate ? ExpressionHelper.FalseLiteral : ExpressionHelper.TrueLiteral);
+    }
+}
 
-        protected IsEmptyOperator(string op, bool negate)
-            : base(op)
-        {
-            Negate = negate;
-        }
+internal sealed class StartsWithOperator : RuleOperator
+{
+    internal StartsWithOperator()
+        : base("StartsWith") { }
 
-        public bool Negate { get; }
+    protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
+    {
+        var methodInfo = ExpressionHelper.StringStartsWithMethod;
+        return Expression.Equal(
+            methodInfo.ToCaseInsensitiveStringMethodCall(left, right, provider),
+            ExpressionHelper.TrueLiteral);
+    }
+}
 
-        protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
-        {
-            return Expression.Equal(
-                left.CallIsNullOrEmpty(),
-                Negate ? ExpressionHelper.FalseLiteral : ExpressionHelper.TrueLiteral);
-        }
+internal sealed class EndsWithOperator : RuleOperator
+{
+    internal EndsWithOperator()
+        : base("EndsWith") { }
+
+    protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
+    {
+        var methodInfo = ExpressionHelper.StringEndsWithMethod;
+        return Expression.Equal(
+            methodInfo.ToCaseInsensitiveStringMethodCall(left, right, provider),
+            ExpressionHelper.TrueLiteral);
+    }
+}
+
+internal sealed class NotContainsOperator : ContainsOperator
+{
+    internal NotContainsOperator()
+        : base("NotContains", true) { }
+}
+
+internal class ContainsOperator : RuleOperator
+{
+    internal ContainsOperator()
+        : this("Contains", false) { }
+
+    protected ContainsOperator(string op, bool negate)
+        : base(op)
+    {
+        Negate = negate;
     }
 
-    internal sealed class StartsWithOperator : RuleOperator
+    public bool Negate { get; }
+
+    protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
     {
-        internal StartsWithOperator()
-            : base("StartsWith") { }
-
-        protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
-        {
-            var methodInfo = ExpressionHelper.StringStartsWithMethod;
-            return Expression.Equal(
-                methodInfo.ToCaseInsensitiveStringMethodCall(left, right, provider),
-                ExpressionHelper.TrueLiteral);
-        }
-    }
-
-    internal sealed class EndsWithOperator : RuleOperator
-    {
-        internal EndsWithOperator()
-            : base("EndsWith") { }
-
-        protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
-        {
-            var methodInfo = ExpressionHelper.StringEndsWithMethod;
-            return Expression.Equal(
-                methodInfo.ToCaseInsensitiveStringMethodCall(left, right, provider),
-                ExpressionHelper.TrueLiteral);
-        }
-    }
-
-    internal sealed class NotContainsOperator : ContainsOperator
-    {
-        internal NotContainsOperator()
-            : base("NotContains", true) { }
-    }
-
-    internal class ContainsOperator : RuleOperator
-    {
-        internal ContainsOperator()
-            : this("Contains", false) { }
-
-        protected ContainsOperator(string op, bool negate)
-            : base(op)
-        {
-            Negate = negate;
-        }
-
-        public bool Negate { get; }
-
-        protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
-        {
-            return Expression.Equal(
-                ExpressionHelper.StringContainsMethod.ToCaseInsensitiveStringMethodCall(left, right, provider),
-                Negate ? ExpressionHelper.FalseLiteral : ExpressionHelper.TrueLiteral);
-        }
+        return Expression.Equal(
+            ExpressionHelper.StringContainsMethod.ToCaseInsensitiveStringMethodCall(left, right, provider),
+            Negate ? ExpressionHelper.FalseLiteral : ExpressionHelper.TrueLiteral);
     }
 }

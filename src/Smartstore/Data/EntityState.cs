@@ -1,11 +1,10 @@
-﻿namespace Smartstore.Data
+﻿namespace Smartstore.Data;
+
+public enum EntityState
 {
-    public enum EntityState
-    {
-        Detached,
-        Unchanged,
-        Deleted,
-        Modified,
-        Added
-    }
+    Detached,
+    Unchanged,
+    Deleted,
+    Modified,
+    Added
 }

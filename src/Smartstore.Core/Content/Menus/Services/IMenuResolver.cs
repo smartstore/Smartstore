@@ -1,10 +1,9 @@
-﻿namespace Smartstore.Core.Content.Menus
-{
-    public interface IMenuResolver
-    {
-        int Order { get; }
+﻿namespace Smartstore.Core.Content.Menus;
 
-        Task<bool> ExistsAsync(string menuName);
-        IMenu Resolve(string menuName);
-    }
+public interface IMenuResolver
+{
+    int Order { get; }
+
+    Task<bool> ExistsAsync(string menuName);
+    IMenu Resolve(string menuName);
 }

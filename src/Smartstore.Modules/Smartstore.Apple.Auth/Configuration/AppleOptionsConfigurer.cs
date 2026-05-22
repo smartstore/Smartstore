@@ -44,7 +44,7 @@ internal sealed class AppleOptionsConfigurer : IConfigureOptions<AuthenticationO
         if (!settings.ClientId.HasValue() || !settings.KeyId.HasValue() || !settings.TeamId.HasValue() || !settings.PrivateKey.HasValue())
         {
             // Not configured.
-            return; 
+            return;
         }
 
         // INFO: If generation of the client secret fails (maybe because of wrong configuration data)
@@ -108,8 +108,8 @@ internal sealed class AppleOptionsConfigurer : IConfigureOptions<AuthenticationO
 
         var now = DateTime.UtcNow;
         var token = new JwtSecurityToken(
-            issuer: settings.TeamId,                          
-            audience: "https://appleid.apple.com",   
+            issuer: settings.TeamId,
+            audience: "https://appleid.apple.com",
             claims: [new Claim("sub", settings.ClientId)],
             notBefore: now,
             expires: now.AddDays(daysValid),
@@ -139,4 +139,3 @@ internal sealed class AppleOptionsConfigurer : IConfigureOptions<AuthenticationO
         return new string([.. pem.Where(c => !char.IsWhiteSpace(c))]);
     }
 }
-

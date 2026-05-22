@@ -1,8 +1,7 @@
-﻿namespace Smartstore.Core.Content.Media
+﻿namespace Smartstore.Core.Content.Media;
+
+public interface IMediaHandler
 {
-    public interface IMediaHandler
-    {
-        int Order { get; }
-        Task ExecuteAsync(MediaHandlerContext context);
-    }
+    int Order { get; }
+    Task ExecuteAsync(MediaHandlerContext context);
 }

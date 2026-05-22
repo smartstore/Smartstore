@@ -1,28 +1,27 @@
-﻿namespace Smartstore.Core.Content.Media
+﻿namespace Smartstore.Core.Content.Media;
+
+public enum MediaTrackOperation
 {
-    public enum MediaTrackOperation
-    {
-        Track,
-        Untrack
-    }
+    Track,
+    Untrack
+}
+
+/// <summary>
+/// Represents a picture item type.
+/// </summary>
+public enum FallbackPictureType
+{
+    NoFallback = 0,
 
     /// <summary>
-    /// Represents a picture item type.
+    /// Entities (products, categories, manufacturers).
     /// </summary>
-    public enum FallbackPictureType
-    {
-        NoFallback = 0,
+    Entity = 1,
+}
 
-        /// <summary>
-        /// Entities (products, categories, manufacturers).
-        /// </summary>
-        Entity = 1,
-    }
-
-    public enum ThumbnailScaleMode
-    {
-        Auto,
-        UseWidth,
-        UseHeight
-    }
+public enum ThumbnailScaleMode
+{
+    Auto,
+    UseWidth,
+    UseHeight
 }

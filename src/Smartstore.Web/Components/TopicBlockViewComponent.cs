@@ -9,8 +9,8 @@ namespace Smartstore.Web.Components;
 public class TopicBlockViewComponent : SmartViewComponent
 {
     public async Task<IViewComponentResult> InvokeAsync(
-        string systemName, 
-        bool bodyOnly = false, 
+        string systemName,
+        bool bodyOnly = false,
         bool isLead = false,
         int marginY = 3,
         int? maxHeight = null)

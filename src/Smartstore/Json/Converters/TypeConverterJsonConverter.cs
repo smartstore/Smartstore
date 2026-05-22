@@ -25,7 +25,7 @@ public sealed class TypeConverterJsonConverter<T> : JsonConverter<T>
             if (_isNonNullableValueType)
             {
                 throw new JsonException($"Cannot convert null to '{typeof(T)}'.");
-            } 
+            }
 
             return default!;
         }
@@ -33,7 +33,7 @@ public sealed class TypeConverterJsonConverter<T> : JsonConverter<T>
         if (_converter is null || !_converter.CanConvertFrom(typeof(string)))
         {
             throw new JsonException($"No usable TypeConverter for '{typeof(T)}'.");
-        }   
+        }
 
         var text = ReadScalarAsString(ref reader);
 
@@ -59,7 +59,7 @@ public sealed class TypeConverterJsonConverter<T> : JsonConverter<T>
         if (_converter is null || !_converter.CanConvertTo(typeof(string)))
         {
             throw new JsonException($"No usable TypeConverter for '{typeof(T)}'.");
-        }    
+        }
 
         var s = _converter.ConvertTo(value, typeof(string)) as string;
         writer.WriteStringValue(s);

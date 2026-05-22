@@ -1,8 +1,8 @@
 ﻿#nullable enable
 
 using System.Diagnostics;
-using Smartstore.Collections.JsonConverters;
 using System.Text.Json.Serialization;
+using Smartstore.Collections.JsonConverters;
 
 namespace Smartstore.Collections;
 
@@ -64,7 +64,7 @@ public class TreeNode<TValue> : TreeNodeBase<TreeNode<TValue>>
                 clonedNode.SetMetadata(kvp.Key, metadataValue);
             }
         }
-        
+
         return clonedNode;
     }
 
@@ -126,7 +126,7 @@ public class TreeNode<TValue> : TreeNodeBase<TreeNode<TValue>>
                 foreach (var descendant in child.Flatten(predicate, true))
                 {
                     yield return descendant;
-                }   
+                }
             }
         }
     }

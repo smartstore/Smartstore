@@ -38,7 +38,7 @@ internal class PostgreSqlDbFactory : DbFactory
         string password)
     {
         Guard.NotEmpty(server);
-        
+
         var builder = new NpgsqlConnectionStringBuilder
         {
             Host = server,
@@ -47,7 +47,7 @@ internal class PostgreSqlDbFactory : DbFactory
             Password = password,
             Pooling = true,
             MinPoolSize = 1,
-            MaxPoolSize = 1024, 
+            MaxPoolSize = 1024,
             Multiplexing = false
         };
 
@@ -72,7 +72,7 @@ internal class PostgreSqlDbFactory : DbFactory
     }
 
     public override DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString)
-    {   
+    {
         return builder.UseNpgsql(connectionString, sql =>
         {
             var extension = builder.Options.FindExtension<DbFactoryOptionsExtension>();
@@ -104,7 +104,7 @@ internal class PostgreSqlDbFactory : DbFactory
         //configurationBuilder.Properties<string>().UseCollation("und-x-icu-ci");
         configurationBuilder.Properties<string>().HaveColumnType("citext");
     }
-    
+
     public override void CreateModel(ModelBuilder modelBuilder)
     {
         // Create a non-deterministic, case-insensitive collation

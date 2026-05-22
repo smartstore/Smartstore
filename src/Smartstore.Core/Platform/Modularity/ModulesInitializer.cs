@@ -5,151 +5,150 @@ using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Engine.Initialization;
 
-namespace Smartstore.Engine.Modularity
+namespace Smartstore.Engine.Modularity;
+
+/// <summary>
+/// Installs pending modules on app startup and checks whether any module has changed
+/// and refreshes all module locale resources.
+/// </summary>
+internal class ModulesInitializer : IApplicationInitializer
 {
-    /// <summary>
-    /// Installs pending modules on app startup and checks whether any module has changed
-    /// and refreshes all module locale resources.
-    /// </summary>
-    internal class ModulesInitializer : IApplicationInitializer
+    public ILogger Logger { get; set; } = NullLogger.Instance;
+
+    public int Order => int.MinValue + 10;
+    public bool ThrowOnError => true;
+    public int MaxAttempts => 1;
+
+    public async Task InitializeAsync(HttpContext httpContext)
     {
-        public ILogger Logger { get; set; } = NullLogger.Instance;
+        var appContext = httpContext.RequestServices.GetRequiredService<IApplicationContext>();
+        var resourceManager = httpContext.RequestServices.GetRequiredService<IXmlResourceManager>();
+        var db = httpContext.RequestServices.GetRequiredService<SmartDbContext>();
 
-        public int Order => int.MinValue + 10;
-        public bool ThrowOnError => true;
-        public int MaxAttempts => 1;
+        // Discover and refresh changed module locale resources
+        await TryRefreshLocaleResources(appContext.ModuleCatalog, resourceManager, db);
 
-        public async Task InitializeAsync(HttpContext httpContext)
+        // Install pending modules
+        var modularState = ModularState.Instance;
+        if (modularState.PendingModules.Count == 0)
+            return;
+
+        var moduleManager = httpContext.RequestServices.GetRequiredService<ModuleManager>();
+        var languageService = httpContext.RequestServices.GetRequiredService<ILanguageService>();
+        var processedModules = new List<string>(modularState.PendingModules.Count);
+        var exceptions = new List<(string, Exception)>(modularState.PendingModules.Count);
+
+        var installContext = new ModuleInstallationContext
         {
-            var appContext = httpContext.RequestServices.GetRequiredService<IApplicationContext>();
-            var resourceManager = httpContext.RequestServices.GetRequiredService<IXmlResourceManager>();
-            var db = httpContext.RequestServices.GetRequiredService<SmartDbContext>();
+            ApplicationContext = appContext,
+            Scope = httpContext.RequestServices.AsLifetimeScope(),
+            Culture = languageService.GetMasterLanguageSeoCode(),
+            Stage = ModuleInstallationStage.ModuleInstallation,
+            Logger = Logger
+        };
 
-            // Discover and refresh changed module locale resources
-            await TryRefreshLocaleResources(appContext.ModuleCatalog, resourceManager, db);
+        foreach (var pendingModule in modularState.PendingModules)
+        {
 
-            // Install pending modules
-            var modularState = ModularState.Instance;
-            if (modularState.PendingModules.Count == 0)
-                return;
-
-            var moduleManager = httpContext.RequestServices.GetRequiredService<ModuleManager>();
-            var languageService = httpContext.RequestServices.GetRequiredService<ILanguageService>();
-            var processedModules = new List<string>(modularState.PendingModules.Count);
-            var exceptions = new List<(string, Exception)>(modularState.PendingModules.Count);
-
-            var installContext = new ModuleInstallationContext
+            if (modularState.InstalledModules.Contains(pendingModule))
             {
-                ApplicationContext = appContext,
-                Scope = httpContext.RequestServices.AsLifetimeScope(),
-                Culture = languageService.GetMasterLanguageSeoCode(),
-                Stage = ModuleInstallationStage.ModuleInstallation,
-                Logger = Logger
-            };
-
-            foreach (var pendingModule in modularState.PendingModules)
-            {
-
-                if (modularState.InstalledModules.Contains(pendingModule))
-                {
-                    processedModules.Add(pendingModule);
-                    Logger.Warn("Module '{0}' was marked as pending but is installed already.", pendingModule);
-                    continue;
-                }
-
-                var descriptor = appContext.ModuleCatalog.GetModuleByName(pendingModule);
-
-                if (descriptor == null)
-                {
-                    Logger.Warn("Pending module '{0}' is not contained in the module catalog. Skipping installation.", pendingModule);
-                }
-                else
-                {
-                    try
-                    {
-                        var module = moduleManager.CreateInstance(descriptor);
-                        installContext.ModuleDescriptor = descriptor;
-                        await module.InstallAsync(installContext);
-                        Logger.Info("Successfully Installed module '{0}'.", pendingModule);
-                    }
-                    catch (Exception ex)
-                    {
-                        exceptions.Add((pendingModule, ex));
-                    }
-                }
-
                 processedModules.Add(pendingModule);
+                Logger.Warn("Module '{0}' was marked as pending but is installed already.", pendingModule);
+                continue;
             }
 
-            if (processedModules.Count > 0)
-            {
-                processedModules.Each(x => modularState.PendingModules.Remove(x));
-                modularState.Save();
-            }
+            var descriptor = appContext.ModuleCatalog.GetModuleByName(pendingModule);
 
-            if (exceptions.Count > 0)
+            if (descriptor == null)
             {
-                var msg = $"Installation of {exceptions.Count} module(s) failed\n=============================================================\n";
-                foreach (var item in exceptions)
+                Logger.Warn("Pending module '{0}' is not contained in the module catalog. Skipping installation.", pendingModule);
+            }
+            else
+            {
+                try
                 {
-                    msg += "\n\n" + item.Item1 + "\n-----------------------------------------------------------------\n";
-                    msg += item.Item2.ToAllMessages();
+                    var module = moduleManager.CreateInstance(descriptor);
+                    installContext.ModuleDescriptor = descriptor;
+                    await module.InstallAsync(installContext);
+                    Logger.Info("Successfully Installed module '{0}'.", pendingModule);
                 }
+                catch (Exception ex)
+                {
+                    exceptions.Add((pendingModule, ex));
+                }
+            }
 
-                throw new Exception(msg, exceptions[0].Item2);
+            processedModules.Add(pendingModule);
+        }
+
+        if (processedModules.Count > 0)
+        {
+            processedModules.Each(x => modularState.PendingModules.Remove(x));
+            modularState.Save();
+        }
+
+        if (exceptions.Count > 0)
+        {
+            var msg = $"Installation of {exceptions.Count} module(s) failed\n=============================================================\n";
+            foreach (var item in exceptions)
+            {
+                msg += "\n\n" + item.Item1 + "\n-----------------------------------------------------------------\n";
+                msg += item.Item2.ToAllMessages();
+            }
+
+            throw new Exception(msg, exceptions[0].Item2);
+        }
+    }
+
+    public Task OnFailAsync(Exception exception, bool willRetry)
+        => Task.CompletedTask;
+
+    private static async Task TryRefreshLocaleResources(IModuleCatalog moduleCatalog, IXmlResourceManager resourceManager, SmartDbContext db)
+    {
+        using var scope = new DbContextScope(db,
+            autoDetectChanges: false,
+            retainConnection: true,
+            deferCommit: true,
+            minHookImportance: HookImportance.Essential);
+
+        var dirty = false;
+        var modules = moduleCatalog.GetInstalledModules().ToArray();
+        List<Language> languages = null;
+
+        foreach (var module in modules)
+        {
+            var hasher = resourceManager.CreateModuleResourcesHasher(module);
+            if (hasher == null)
+            {
+                continue;
+            }
+
+            if (hasher.HasChanged)
+            {
+                dirty = true;
+                await resourceManager.ImportModuleResourcesFromXmlAsync(
+                    moduleDescriptor: module,
+                    updateTouchedResources: false,
+                    filterLanguages: await GetLanguagesAsync());
             }
         }
 
-        public Task OnFailAsync(Exception exception, bool willRetry)
-            => Task.CompletedTask;
-
-        private static async Task TryRefreshLocaleResources(IModuleCatalog moduleCatalog, IXmlResourceManager resourceManager, SmartDbContext db)
+        if (dirty)
         {
-            using var scope = new DbContextScope(db, 
-                autoDetectChanges: false, 
-                retainConnection: true,
-                deferCommit: true,
-                minHookImportance: HookImportance.Essential);
+            await scope.CommitAsync();
 
-            var dirty = false;
-            var modules = moduleCatalog.GetInstalledModules().ToArray();
-            List<Language> languages = null;
+            db.DetachEntities<LocaleStringResource>();
+            db.DetachEntities<Language>();
+        }
 
-            foreach (var module in modules)
-            {
-                var hasher = resourceManager.CreateModuleResourcesHasher(module);
-                if (hasher == null)
-                {
-                    continue;
-                }
+        async Task<List<Language>> GetLanguagesAsync()
+        {
+            languages ??= await db.Languages
+                .Include(x => x.LocaleStringResources)
+                .ApplyStandardFilter()
+                .ToListAsync();
 
-                if (hasher.HasChanged)
-                {
-                    dirty = true;
-                    await resourceManager.ImportModuleResourcesFromXmlAsync(
-                        moduleDescriptor: module,
-                        updateTouchedResources: false,
-                        filterLanguages: await GetLanguagesAsync());
-                }
-            }
-
-            if (dirty)
-            {
-                await scope.CommitAsync();
-                
-                db.DetachEntities<LocaleStringResource>();
-                db.DetachEntities<Language>();
-            }
-
-            async Task<List<Language>> GetLanguagesAsync()
-            {
-                languages ??= await db.Languages
-                    .Include(x => x.LocaleStringResources)
-                    .ApplyStandardFilter()
-                    .ToListAsync();
-
-                return languages;
-            }
+            return languages;
         }
     }
 }

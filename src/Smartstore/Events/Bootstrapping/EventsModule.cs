@@ -6,89 +6,88 @@ using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
 using Smartstore.Events;
 
-namespace Smartstore.Bootstrapping
+namespace Smartstore.Bootstrapping;
+
+public class EventsModule : Autofac.Module
 {
-    public class EventsModule : Autofac.Module
+    public readonly static Type[] IgnoredInterfaces = new Type[]
     {
-        public readonly static Type[] IgnoredInterfaces = new Type[]
+        typeof(IDisposable),
+        typeof(IAsyncDisposable),
+        typeof(IScopedService)
+    };
+
+    private readonly IApplicationContext _appContext;
+
+    public EventsModule(IApplicationContext appContext)
+    {
+        _appContext = appContext;
+    }
+
+    protected override void Load(ContainerBuilder builder)
+    {
+        builder.RegisterInstance(NullMessageBus.Instance)
+            .As<IMessageBus>()
+            .SingleInstance();
+
+        builder.RegisterType<EventPublisher>()
+            .As<IEventPublisher>()
+            .SingleInstance();
+
+        builder.RegisterType<ConsumerRegistry>()
+            .As<IConsumerRegistry>()
+            .SingleInstance();
+
+        builder.RegisterType<ConsumerResolver>()
+            .As<IConsumerResolver>()
+            .SingleInstance();
+
+        builder.RegisterType<ConsumerInvoker>()
+            .As<IConsumerInvoker>()
+            .SingleInstance();
+
+        builder.RegisterType<NullModuleContraint>()
+            .As<IModuleConstraint>()
+            .SingleInstance();
+
+        DiscoverConsumers(builder);
+    }
+
+    private void DiscoverConsumers(ContainerBuilder builder)
+    {
+        var moduleCatalog = _appContext.ModuleCatalog;
+
+        var consumerTypes = _appContext.TypeScanner.FindTypes(typeof(IConsumer));
+        foreach (var consumerType in consumerTypes)
         {
-            typeof(IDisposable),
-            typeof(IAsyncDisposable),
-            typeof(IScopedService)
-        };
+            var registration = builder
+                .RegisterType(consumerType)
+                .As<IConsumer>()
+                .Keyed<IConsumer>(consumerType)
+                .InstancePerAttributedLifetime();
 
-        private readonly IApplicationContext _appContext;
+            var moduleDescriptor = moduleCatalog.GetModuleByAssembly(consumerType.Assembly);
 
-        public EventsModule(IApplicationContext appContext)
-        {
-            _appContext = appContext;
-        }
-
-        protected override void Load(ContainerBuilder builder)
-        {
-            builder.RegisterInstance(NullMessageBus.Instance)
-                .As<IMessageBus>()
-                .SingleInstance();
-
-            builder.RegisterType<EventPublisher>()
-                .As<IEventPublisher>()
-                .SingleInstance();
-
-            builder.RegisterType<ConsumerRegistry>()
-                .As<IConsumerRegistry>()
-                .SingleInstance();
-
-            builder.RegisterType<ConsumerResolver>()
-                .As<IConsumerResolver>()
-                .SingleInstance();
-
-            builder.RegisterType<ConsumerInvoker>()
-                .As<IConsumerInvoker>()
-                .SingleInstance();
-
-            builder.RegisterType<NullModuleContraint>()
-                .As<IModuleConstraint>()
-                .SingleInstance();
-
-            DiscoverConsumers(builder);
-        }
-
-        private void DiscoverConsumers(ContainerBuilder builder)
-        {
-            var moduleCatalog = _appContext.ModuleCatalog;
-
-            var consumerTypes = _appContext.TypeScanner.FindTypes(typeof(IConsumer));
-            foreach (var consumerType in consumerTypes)
+            registration.WithMetadata<EventConsumerMetadata>(m =>
             {
-                var registration = builder
-                    .RegisterType(consumerType)
-                    .As<IConsumer>()
-                    .Keyed<IConsumer>(consumerType)
-                    .InstancePerAttributedLifetime();
+                m.For(em => em.ContainerType, consumerType);
+                m.For(em => em.ModuleDescriptor, moduleDescriptor);
+            });
 
-                var moduleDescriptor = moduleCatalog.GetModuleByAssembly(consumerType.Assembly);
+            // Find other interfaces that the impl type implements and override
+            // a possibly existing previous registration. E.g.: SettingService
+            // also implements IConsumer directly. But we don't want two different registrations,
+            // we want Autofac to resolve the same instance of SettingsService, 
+            // either injected as ISettingService or IConsumer.
+            var interfaces = consumerType.GetTypeInfo().ImplementedInterfaces
+                .Where(x => !x.IsGenericType)
+                .Except(IgnoredInterfaces.Concat(new[] { typeof(IConsumer), typeof(IDbSaveHook) }))
+                .ToArray();
 
-                registration.WithMetadata<EventConsumerMetadata>(m =>
-                {
-                    m.For(em => em.ContainerType, consumerType);
-                    m.For(em => em.ModuleDescriptor, moduleDescriptor);
-                });
-
-                // Find other interfaces that the impl type implements and override
-                // a possibly existing previous registration. E.g.: SettingService
-                // also implements IConsumer directly. But we don't want two different registrations,
-                // we want Autofac to resolve the same instance of SettingsService, 
-                // either injected as ISettingService or IConsumer.
-                var interfaces = consumerType.GetTypeInfo().ImplementedInterfaces
-                    .Where(x => !x.IsGenericType)
-                    .Except(IgnoredInterfaces.Concat(new[] { typeof(IConsumer), typeof(IDbSaveHook) }))
-                    .ToArray();
-
-                if (interfaces.Length > 0)
-                {
-                    // This call actually overrides any former registration for the interface.
-                    registration.As(interfaces);
-                }
+            if (interfaces.Length > 0)
+            {
+                // This call actually overrides any former registration for the interface.
+                registration.As(interfaces);
             }
         }
     }

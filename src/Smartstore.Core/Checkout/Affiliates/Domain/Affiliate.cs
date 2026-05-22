@@ -3,50 +3,49 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Common;
 
-namespace Smartstore.Core.Checkout.Affiliates
-{
-    internal class AffiliateMap : IEntityTypeConfiguration<Affiliate>
-    {
-        public void Configure(EntityTypeBuilder<Affiliate> builder)
-        {
-            // Globally exclude soft-deleted entities from all queries.
-            builder.HasQueryFilter(c => !c.Deleted);
+namespace Smartstore.Core.Checkout.Affiliates;
 
-            builder.HasOne(x => x.Address)
-                .WithMany()
-                .OnDelete(DeleteBehavior.Restrict);
-        }
+internal class AffiliateMap : IEntityTypeConfiguration<Affiliate>
+{
+    public void Configure(EntityTypeBuilder<Affiliate> builder)
+    {
+        // Globally exclude soft-deleted entities from all queries.
+        builder.HasQueryFilter(c => !c.Deleted);
+
+        builder.HasOne(x => x.Address)
+            .WithMany()
+            .OnDelete(DeleteBehavior.Restrict);
     }
+}
+
+/// <summary>
+/// Represents an affiliate
+/// </summary>
+public partial class Affiliate : EntityWithAttributes, ISoftDeletable
+{
+    /// <summary>
+    /// Gets or sets a value indicating whether the entity is active
+    /// </summary>
+    public bool Active { get; set; }
 
     /// <summary>
-    /// Represents an affiliate
+    /// Gets or sets a value indicating whether the entity has been (soft) deleted
     /// </summary>
-    public partial class Affiliate : EntityWithAttributes, ISoftDeletable
+    public bool Deleted { get; set; }
+
+    /// <summary>
+    /// Gets or sets the address identifier
+    /// </summary>
+    public int AddressId { get; set; }
+
+    private Address _address;
+    /// <summary>
+    /// Gets or sets the address relating to the affiliate
+    /// </summary>
+    [IgnoreDataMember]
+    public Address Address
     {
-        /// <summary>
-        /// Gets or sets a value indicating whether the entity is active
-        /// </summary>
-        public bool Active { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the entity has been (soft) deleted
-        /// </summary>
-        public bool Deleted { get; set; }
-
-        /// <summary>
-        /// Gets or sets the address identifier
-        /// </summary>
-        public int AddressId { get; set; }
-
-        private Address _address;
-        /// <summary>
-        /// Gets or sets the address relating to the affiliate
-        /// </summary>
-        [IgnoreDataMember]
-        public Address Address
-        {
-            get => _address ?? LazyLoader.Load(this, ref _address);
-            set => _address = value;
-        }
+        get => _address ?? LazyLoader.Load(this, ref _address);
+        set => _address = value;
     }
 }

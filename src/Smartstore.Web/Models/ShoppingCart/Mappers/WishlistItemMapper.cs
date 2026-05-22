@@ -25,12 +25,12 @@ public class WishlistItemModelMapper : CartItemMapperBase<WishlistModel.Wishlist
         ShoppingCartSettings shoppingCartSettings,
         CatalogSettings catalogSettings,
         CatalogHelper catalogHelper)
-        : base(services, 
-              priceCalculationService, 
+        : base(services,
+              priceCalculationService,
               deliveryTimeService,
-              productAttributeMaterializer, 
-              shoppingCartSettings, 
-              catalogSettings, 
+              productAttributeMaterializer,
+              shoppingCartSettings,
+              catalogSettings,
               catalogHelper)
     {
     }

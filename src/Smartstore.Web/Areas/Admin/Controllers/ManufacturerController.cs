@@ -168,8 +168,8 @@ public class ManufacturerController : AdminController
             await _db.SaveChangesAsync();
 
             Services.ActivityLogger.LogActivity(
-                KnownActivityLogTypes.DeleteManufacturer, 
-                T("ActivityLog.DeleteManufacturer"), 
+                KnownActivityLogTypes.DeleteManufacturer,
+                T("ActivityLog.DeleteManufacturer"),
                 string.Join(", ", entities.Select(x => x.Name)));
         }
 

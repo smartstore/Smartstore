@@ -88,7 +88,7 @@ public class DirectoryHasher
         {
             return 0;
         }
-        
+
         var combiner = HashCodeCombiner.Start();
 
         if (_hasPattern)
@@ -133,7 +133,7 @@ public class DirectoryHasher
         if (_hasPattern)
         {
             key += "_" + PathUtility.SanitizeFileName(_searchPattern.ToLower(), "x");
-        }    
+        }
 
         return key.Trim(PathUtility.PathSeparators);
     }

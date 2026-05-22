@@ -122,7 +122,7 @@ public class PartialViewWidgetInvoker : WidgetInvoker<PartialViewWidget>
     private static IEnumerable<string> ExpandViewPath(string viewPath, ActionContext actionContext)
     {
         viewPath = viewPath.TrimStart('~');
-        
+
         if (viewPath.StartsWithNoCase("/{theme}/"))
         {
             // Strip off /{theme}
@@ -139,7 +139,7 @@ public class PartialViewWidgetInvoker : WidgetInvoker<PartialViewWidget>
         else
         {
             yield return viewPath;
-        }        
+        }
     }
 
     private static bool IsApplicationRelativePath(string name)

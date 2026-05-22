@@ -1,41 +1,40 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Smartstore.Core.Seo
+namespace Smartstore.Core.Seo;
+
+[NotMapped]
+public sealed class NamedEntity : BaseEntity, ISlugSupported
 {
-    [NotMapped]
-    public sealed class NamedEntity : BaseEntity, ISlugSupported
+    public string EntityName { get; set; }
+    public string DisplayName { get; set; }
+    public string Slug { get; set; }
+    public DateTime LastMod { get; set; }
+    public int? LanguageId { get; set; }
+
+    public string GetDisplayName()
+        => DisplayName;
+
+    public string[] GetDisplayNameMemberNames()
+        => [nameof(DisplayName)];
+
+    public override string GetEntityName()
+        => EntityName;
+
+    public static string GetEntityName<T>()
+        where T : INamedEntity, new()
     {
-        public string EntityName { get; set; }
-        public string DisplayName { get; set; }
-        public string Slug { get; set; }
-        public DateTime LastMod { get; set; }
-        public int? LanguageId { get; set; }
+        return new T().GetEntityName();
+    }
 
-        public string GetDisplayName()
-            => DisplayName;
+    public static string GetEntityName(Type entityType)
+    {
+        Guard.NotNull(entityType);
 
-        public string[] GetDisplayNameMemberNames()
-            => [nameof(DisplayName)];
-
-        public override string GetEntityName()
-            => EntityName;
-
-        public static string GetEntityName<T>() 
-            where T : INamedEntity, new()
+        if (entityType.HasDefaultConstructor() && typeof(INamedEntity).IsAssignableFrom(entityType))
         {
-            return new T().GetEntityName();
+            return (Activator.CreateInstance(entityType) as INamedEntity).GetEntityName();
         }
 
-        public static string GetEntityName(Type entityType)
-        {
-            Guard.NotNull(entityType);
-
-            if (entityType.HasDefaultConstructor() && typeof(INamedEntity).IsAssignableFrom(entityType))
-            {
-                return (Activator.CreateInstance(entityType) as INamedEntity).GetEntityName();
-            }
-
-            return entityType.Name;
-        }
+        return entityType.Name;
     }
 }

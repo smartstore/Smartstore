@@ -9,7 +9,7 @@ public class DefaultUserAgentFactory : IUserAgentFactory
     private readonly IUserAgentParser _parser;
     private readonly IMemoryCache _memCache;
 
-    public DefaultUserAgentFactory(IUserAgentParser parser) 
+    public DefaultUserAgentFactory(IUserAgentParser parser)
     {
         _parser = parser;
         _memCache = new MemoryCache(new MemoryCacheOptions

@@ -2,28 +2,27 @@
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 
-namespace Smartstore.Core.Checkout.Rules.Impl
+namespace Smartstore.Core.Checkout.Rules.Impl;
+
+internal class WeekdayRule : IRule<CartRuleContext>
 {
-    internal class WeekdayRule : IRule<CartRuleContext>
+    public static RuleValueSelectListOption[] GetDefaultOptions(Language language)
     {
-        public static RuleValueSelectListOption[] GetDefaultOptions(Language language)
-        {
-            CultureHelper.TryGetCultureInfoForLocale(language.LanguageCulture, out var cultureInfo);
+        CultureHelper.TryGetCultureInfoForLocale(language.LanguageCulture, out var cultureInfo);
 
-            var dtif = cultureInfo?.DateTimeFormat ?? DateTimeFormatInfo.InvariantInfo;
+        var dtif = cultureInfo?.DateTimeFormat ?? DateTimeFormatInfo.InvariantInfo;
 
-            var options = Enum.GetValues(typeof(DayOfWeek))
-                .Cast<DayOfWeek>()
-                .Select(x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = dtif.GetDayName(x) })
-                .ToArray();
+        var options = Enum.GetValues(typeof(DayOfWeek))
+            .Cast<DayOfWeek>()
+            .Select(x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = dtif.GetDayName(x) })
+            .ToArray();
 
-            return options;
-        }
+        return options;
+    }
 
-        public Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
-        {
-            var match = expression.HasListMatch((int)DateTime.Now.DayOfWeek);
-            return Task.FromResult(match);
-        }
+    public Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
+    {
+        var match = expression.HasListMatch((int)DateTime.Now.DayOfWeek);
+        return Task.FromResult(match);
     }
 }

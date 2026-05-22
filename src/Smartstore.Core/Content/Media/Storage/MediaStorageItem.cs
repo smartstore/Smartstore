@@ -4,147 +4,146 @@ using Microsoft.AspNetCore.Http;
 using Smartstore.Imaging;
 using Smartstore.IO;
 
-namespace Smartstore.Core.Content.Media.Storage
+namespace Smartstore.Core.Content.Media.Storage;
+
+public abstract class MediaStorageItem : Disposable
 {
-    public abstract class MediaStorageItem : Disposable
+    private Stream? _sourceStream;
+
+    public Stream SourceStream
     {
-        private Stream? _sourceStream;
-
-        public Stream SourceStream
+        get
         {
-            get
+            _sourceStream ??= GetSourceStreamAsync().Await();
+
+            if (_sourceStream.CanSeek)
             {
-                _sourceStream ??= GetSourceStreamAsync().Await();
-
-                if (_sourceStream.CanSeek)
-                {
-                    _sourceStream.Position = 0;
-                } 
-
-                return _sourceStream;
+                _sourceStream.Position = 0;
             }
+
+            return _sourceStream;
+        }
+    }
+
+    protected bool LeaveOpen { get; set; }
+
+    protected abstract Task<Stream> GetSourceStreamAsync();
+
+    public abstract Task SaveToAsync(Stream stream, IMediaAware media);
+
+    private static int GetLength(Stream stream)
+    {
+        if (stream.CanSeek)
+        {
+            return (int)stream.Length;
+        }
+        else if (stream.Position > 0)
+        {
+            return (int)stream.Position;
         }
 
-        protected bool LeaveOpen { get; set; }
+        return 0;
+    }
 
-        protected abstract Task<Stream> GetSourceStreamAsync();
+    protected override void OnDispose(bool disposing)
+    {
+        if (disposing && _sourceStream != null)
+        {
+            if (!LeaveOpen)
+            {
+                _sourceStream.Dispose();
+            }
 
-        public abstract Task SaveToAsync(Stream stream, IMediaAware media);
+            _sourceStream = null;
+        }
+    }
 
-        private static int GetLength(Stream stream)
+    #region Factories
+
+    public static MediaStorageItem FromImage(IImage image)
+    {
+        return new ImageStorageItem(image);
+    }
+
+    public static MediaStorageItem FromStream(Stream stream, bool leaveOpen = false)
+    {
+        return new StreamStorageItem(stream, leaveOpen);
+    }
+
+    public static MediaStorageItem FromFile(IFile file)
+    {
+        return new StreamStorageItem(file.OpenRead());
+    }
+
+    public static MediaStorageItem FromFormFile(IFormFile formFile)
+    {
+        return new StreamStorageItem(formFile.OpenReadStream());
+    }
+
+    public static MediaStorageItem FromPath(string physicalPath)
+    {
+        return new StreamStorageItem(File.OpenRead(physicalPath));
+    }
+
+    #endregion
+
+    #region Impls
+
+    public class ImageStorageItem : MediaStorageItem
+    {
+        private readonly IImage _image;
+
+        public ImageStorageItem(IImage image)
+        {
+            _image = image;
+        }
+
+        protected override async Task<Stream> GetSourceStreamAsync()
+        {
+            var memStream = new MemoryStream();
+            await _image.SaveAsync(memStream);
+            return memStream;
+        }
+
+        public override async Task SaveToAsync(Stream stream, IMediaAware media)
+        {
+            await _image.SaveAsync(stream);
+            media.Size = GetLength(stream);
+        }
+    }
+
+    public class StreamStorageItem : MediaStorageItem
+    {
+        private readonly Stream _stream;
+
+        public StreamStorageItem(Stream stream, bool leaveOpen = false)
+        {
+            _stream = stream;
+            LeaveOpen = leaveOpen;
+        }
+
+        protected override Task<Stream> GetSourceStreamAsync()
+        {
+            return Task.FromResult(_stream);
+        }
+
+        public override async Task SaveToAsync(Stream stream, IMediaAware media)
         {
             if (stream.CanSeek)
             {
-                return (int)stream.Length;
+                stream.SetLength(0);
             }
-            else if (stream.Position > 0)
+
+            await SourceStream.CopyToAsync(stream);
+
+            if (stream.CanSeek)
             {
-                return (int)stream.Position;
+                stream.Position = 0;
             }
 
-            return 0;
+            media.Size = GetLength(stream);
         }
-
-        protected override void OnDispose(bool disposing)
-        {
-            if (disposing && _sourceStream != null)
-            {
-                if (!LeaveOpen)
-                {
-                    _sourceStream.Dispose();
-                }
-                
-                _sourceStream = null;
-            }
-        }
-
-        #region Factories
-
-        public static MediaStorageItem FromImage(IImage image)
-        {
-            return new ImageStorageItem(image);
-        }
-
-        public static MediaStorageItem FromStream(Stream stream, bool leaveOpen = false)
-        {
-            return new StreamStorageItem(stream, leaveOpen);
-        }
-
-        public static MediaStorageItem FromFile(IFile file)
-        {
-            return new StreamStorageItem(file.OpenRead());
-        }
-
-        public static MediaStorageItem FromFormFile(IFormFile formFile)
-        {
-            return new StreamStorageItem(formFile.OpenReadStream());
-        }
-
-        public static MediaStorageItem FromPath(string physicalPath)
-        {
-            return new StreamStorageItem(File.OpenRead(physicalPath));
-        }
-
-        #endregion
-
-        #region Impls
-
-        public class ImageStorageItem : MediaStorageItem
-        {
-            private readonly IImage _image;
-
-            public ImageStorageItem(IImage image)
-            {
-                _image = image;
-            }
-
-            protected override async Task<Stream> GetSourceStreamAsync()
-            {
-                var memStream = new MemoryStream();
-                await _image.SaveAsync(memStream);
-                return memStream;
-            }
-
-            public override async Task SaveToAsync(Stream stream, IMediaAware media)
-            {
-                await _image.SaveAsync(stream);
-                media.Size = GetLength(stream);
-            }
-        }
-
-        public class StreamStorageItem : MediaStorageItem
-        {
-            private readonly Stream _stream;
-
-            public StreamStorageItem(Stream stream, bool leaveOpen = false)
-            {
-                _stream = stream;
-                LeaveOpen = leaveOpen;
-            }
-
-            protected override Task<Stream> GetSourceStreamAsync()
-            {
-                return Task.FromResult(_stream);
-            }
-
-            public override async Task SaveToAsync(Stream stream, IMediaAware media)
-            {
-                if (stream.CanSeek)
-                {
-                    stream.SetLength(0);
-                }
-
-                await SourceStream.CopyToAsync(stream);
-
-                if (stream.CanSeek)
-                {
-                    stream.Position = 0;
-                }
-
-                media.Size = GetLength(stream);
-            }
-        }
-
-        #endregion
     }
+
+    #endregion
 }

@@ -5,41 +5,40 @@ using Smartstore.Core.Messaging;
 using Smartstore.Core.Messaging.Events;
 using Smartstore.Events;
 
-namespace Smartstore.Core.Checkout.Orders.Events
+namespace Smartstore.Core.Checkout.Orders.Events;
+
+internal class CreateAttachmentsConsumer : IConsumer
 {
-    internal class CreateAttachmentsConsumer : IConsumer
+    public ILogger Logger { get; set; } = NullLogger.Instance;
+    public Localizer T { get; set; } = NullLocalizer.Instance;
+
+    public async Task HandleEventAsync(MessageQueuingEvent message,
+        Lazy<PdfInvoiceHttpClient> client,
+        PdfSettings pdfSettings)
     {
-        public ILogger Logger { get; set; } = NullLogger.Instance;
-        public Localizer T { get; set; } = NullLocalizer.Instance;
+        var messageName = message.MessageContext.MessageTemplate.Name;
+        var processMessage = (pdfSettings.AttachOrderPdfToOrderPlacedEmail && messageName.EqualsNoCase(MessageTemplateNames.OrderPlacedCustomer))
+            || (pdfSettings.AttachOrderPdfToOrderCompletedEmail && messageName.EqualsNoCase(MessageTemplateNames.OrderCompletedCustomer));
 
-        public async Task HandleEventAsync(MessageQueuingEvent message,
-            Lazy<PdfInvoiceHttpClient> client,
-            PdfSettings pdfSettings)
+        if (processMessage
+            && message.MessageModel.Get("Order") is IDictionary<string, object> order
+            && order.Get("ID") is int orderId)
         {
-            var messageName = message.MessageContext.MessageTemplate.Name;
-            var processMessage = (pdfSettings.AttachOrderPdfToOrderPlacedEmail && messageName.EqualsNoCase(MessageTemplateNames.OrderPlacedCustomer))
-                || (pdfSettings.AttachOrderPdfToOrderCompletedEmail && messageName.EqualsNoCase(MessageTemplateNames.OrderCompletedCustomer));
-
-            if (processMessage 
-                && message.MessageModel.Get("Order") is IDictionary<string, object> order 
-                && order.Get("ID") is int orderId)
+            try
             {
-                try
-                {
-                    var result = await client.Value.GetPdfInvoiceAsync(orderId);
+                var result = await client.Value.GetPdfInvoiceAsync(orderId);
 
-                    message.QueuedEmail.Attachments.Add(new()
-                    {
-                        StorageLocation = EmailAttachmentStorageLocation.Blob,
-                        MimeType = result.MimeType,
-                        Name = result.FileName,
-                        MediaStorage = new MediaStorage { Data = result.Buffer }
-                    });
-                }
-                catch (Exception ex)
+                message.QueuedEmail.Attachments.Add(new()
                 {
-                    Logger.Error(ex, T("Admin.System.QueuedEmails.ErrorCreatingAttachment"));
-                }
+                    StorageLocation = EmailAttachmentStorageLocation.Blob,
+                    MimeType = result.MimeType,
+                    Name = result.FileName,
+                    MediaStorage = new MediaStorage { Data = result.Buffer }
+                });
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, T("Admin.System.QueuedEmails.ErrorCreatingAttachment"));
             }
         }
     }

@@ -228,8 +228,8 @@ public class ProductsController : WebApiController<Product>
     [ProducesResponseType(typeof(ProductCategory), Status200OK)]
     [ProducesResponseType(typeof(ProductCategory), Status201Created)]
     [ProducesResponseType(Status404NotFound)]
-    public Task<IActionResult> PostProductCategories(int key, 
-        int relatedkey /*categoryId*/, 
+    public Task<IActionResult> PostProductCategories(int key,
+        int relatedkey /*categoryId*/,
         [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] ProductCategory? model = default)
     {
         model ??= new();

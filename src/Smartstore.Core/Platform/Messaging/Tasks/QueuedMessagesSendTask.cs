@@ -13,8 +13,8 @@ public partial class QueuedMessagesSendTask : ITask
     private readonly IEmailRateLimiter _rateLimiter;
 
     public QueuedMessagesSendTask(
-        SmartDbContext db, 
-        IQueuedEmailService queuedEmailService, 
+        SmartDbContext db,
+        IQueuedEmailService queuedEmailService,
         IEmailRateLimiter rateLimiter)
     {
         _db = db;

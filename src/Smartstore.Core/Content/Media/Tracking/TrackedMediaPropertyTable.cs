@@ -1,46 +1,45 @@
-﻿namespace Smartstore.Core.Content.Media
+﻿namespace Smartstore.Core.Content.Media;
+
+public class TrackedMediaPropertyTable
 {
-    public class TrackedMediaPropertyTable
+    private readonly IList<TrackedMediaProperty> _propertyList = new List<TrackedMediaProperty>();
+
+    protected internal TrackedMediaPropertyTable(string album)
     {
-        private readonly IList<TrackedMediaProperty> _propertyList = new List<TrackedMediaProperty>();
-
-        protected internal TrackedMediaPropertyTable(string album)
-        {
-            Album = album;
-        }
-
-        public void Register<T>(Expression<Func<T, int>> foreignKeyProperty) where T : BaseEntity
-        {
-            RegisterInternal(typeof(T), foreignKeyProperty.ExtractPropertyInfo().Name);
-        }
-
-        public void Register<T>(Expression<Func<T, int?>> foreignKeyProperty) where T : BaseEntity
-        {
-            RegisterInternal(typeof(T), foreignKeyProperty.ExtractPropertyInfo().Name);
-        }
-
-        internal string Album { get; set; }
-
-        private void RegisterInternal(Type entityType, string propertyName)
-        {
-            _propertyList.Add(new TrackedMediaProperty
-            {
-                Name = propertyName,
-                EntityType = entityType,
-                Album = Album,
-            });
-        }
-
-        internal TrackedMediaProperty[] GetProperties()
-        {
-            return _propertyList.ToArray();
-        }
+        Album = album;
     }
 
-    public class TrackedMediaProperty
+    public void Register<T>(Expression<Func<T, int>> foreignKeyProperty) where T : BaseEntity
     {
-        public string Name { get; set; }
-        public Type EntityType { get; set; }
-        public string Album { get; set; }
+        RegisterInternal(typeof(T), foreignKeyProperty.ExtractPropertyInfo().Name);
     }
+
+    public void Register<T>(Expression<Func<T, int?>> foreignKeyProperty) where T : BaseEntity
+    {
+        RegisterInternal(typeof(T), foreignKeyProperty.ExtractPropertyInfo().Name);
+    }
+
+    internal string Album { get; set; }
+
+    private void RegisterInternal(Type entityType, string propertyName)
+    {
+        _propertyList.Add(new TrackedMediaProperty
+        {
+            Name = propertyName,
+            EntityType = entityType,
+            Album = Album,
+        });
+    }
+
+    internal TrackedMediaProperty[] GetProperties()
+    {
+        return _propertyList.ToArray();
+    }
+}
+
+public class TrackedMediaProperty
+{
+    public string Name { get; set; }
+    public Type EntityType { get; set; }
+    public string Album { get; set; }
 }

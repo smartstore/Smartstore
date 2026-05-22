@@ -10,137 +10,245 @@ using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Utilities;
 
-namespace Smartstore.Core.Content.Media
+namespace Smartstore.Core.Content.Media;
+
+public class MediaTracker : IMediaTracker
 {
-    public class MediaTracker : IMediaTracker
+    public Localizer T { get; set; } = NullLocalizer.Instance;
+
+    internal const string TrackedPropertiesKey = "media:trackedprops:all";
+
+    private readonly ICacheManager _cache;
+    private readonly SmartDbContext _db;
+    private readonly ISettingService _settingService;
+    private readonly IStoreContext _storeContext;
+    private readonly IAlbumRegistry _albumRegistry;
+    private readonly IFolderService _folderService;
+    private readonly MediaSettings _mediaSettings;
+    private readonly IIndex<Type, IMediaTrackDetector> _trackDetectorFactory;
+
+    private bool _makeFilesTransientWhenOrphaned;
+
+    public MediaTracker(
+        ICacheManager cache,
+        SmartDbContext db,
+        ISettingService settingService,
+        IStoreContext storeContext,
+        IAlbumRegistry albumRegistry,
+        IFolderService folderService,
+        MediaSettings mediaSettings,
+        IIndex<Type, IMediaTrackDetector> trackDetectorFactory)
     {
-        public Localizer T { get; set; } = NullLocalizer.Instance;
+        _cache = cache;
+        _db = db;
+        _settingService = settingService;
+        _storeContext = storeContext;
+        _albumRegistry = albumRegistry;
+        _folderService = folderService;
+        _mediaSettings = mediaSettings;
+        _trackDetectorFactory = trackDetectorFactory;
 
-        internal const string TrackedPropertiesKey = "media:trackedprops:all";
+        _makeFilesTransientWhenOrphaned = _mediaSettings.MakeFilesTransientWhenOrphaned;
+    }
 
-        private readonly ICacheManager _cache;
-        private readonly SmartDbContext _db;
-        private readonly ISettingService _settingService;
-        private readonly IStoreContext _storeContext;
-        private readonly IAlbumRegistry _albumRegistry;
-        private readonly IFolderService _folderService;
-        private readonly MediaSettings _mediaSettings;
-        private readonly IIndex<Type, IMediaTrackDetector> _trackDetectorFactory;
+    public IDisposable BeginScope(bool makeFilesTransientWhenOrphaned)
+    {
+        var makeTransient = _makeFilesTransientWhenOrphaned;
+        _makeFilesTransientWhenOrphaned = makeFilesTransientWhenOrphaned;
 
-        private bool _makeFilesTransientWhenOrphaned;
+        return new ActionDisposable(() => _makeFilesTransientWhenOrphaned = makeTransient);
+    }
 
-        public MediaTracker(
-            ICacheManager cache,
-            SmartDbContext db,
-            ISettingService settingService,
-            IStoreContext storeContext,
-            IAlbumRegistry albumRegistry,
-            IFolderService folderService,
-            MediaSettings mediaSettings,
-            IIndex<Type, IMediaTrackDetector> trackDetectorFactory)
+    public Task TrackAsync<TSetting>(TSetting settings, int? prevMediaFileId, Expression<Func<TSetting, int>> path) where TSetting : ISettings, new()
+    {
+        Guard.NotNull(settings);
+        Guard.NotNull(path);
+
+        return TrackSettingAsync(settings, path.ExtractPropertyInfo().Name, prevMediaFileId, path.GetPropertyInvoker().Invoke(settings));
+    }
+
+    public Task TrackAsync<TSetting>(TSetting settings, int? prevMediaFileId, Expression<Func<TSetting, int?>> path) where TSetting : ISettings, new()
+    {
+        Guard.NotNull(settings);
+        Guard.NotNull(path);
+
+        return TrackSettingAsync(settings, path.ExtractPropertyInfo().Name, prevMediaFileId, path.GetPropertyInvoker().Invoke(settings));
+    }
+
+    protected async Task TrackSettingAsync<TSetting>(
+        TSetting settings,
+        string propertyName,
+        int? prevMediaFileId,
+        int? currentMediaFileId) where TSetting : ISettings, new()
+    {
+        Guard.NotNull(settings);
+        Guard.NotEmpty(propertyName);
+
+        var key = nameof(TSetting) + "." + propertyName;
+        var storeId = _storeContext.CurrentStoreIdIfMultiStoreMode;
+
+        var settingEntity = await _settingService.GetSettingEntityByKeyAsync(key, storeId);
+        if (settingEntity != null)
         {
-            _cache = cache;
-            _db = db;
-            _settingService = settingService;
-            _storeContext = storeContext;
-            _albumRegistry = albumRegistry;
-            _folderService = folderService;
-            _mediaSettings = mediaSettings;
-            _trackDetectorFactory = trackDetectorFactory;
-
-            _makeFilesTransientWhenOrphaned = _mediaSettings.MakeFilesTransientWhenOrphaned;
+            await this.UpdateTracksAsync(settingEntity, prevMediaFileId, currentMediaFileId, propertyName);
         }
+    }
 
-        public IDisposable BeginScope(bool makeFilesTransientWhenOrphaned)
+    public Task TrackAsync(BaseEntity entity, int mediaFileId, string propertyName)
+    {
+        Guard.NotNull(entity);
+        Guard.NotEmpty(propertyName);
+
+        return TrackSingleAsync(entity, mediaFileId, propertyName, MediaTrackOperation.Track);
+    }
+
+    public Task UntrackAsync(BaseEntity entity, int mediaFileId, string propertyName)
+    {
+        Guard.NotNull(entity);
+        Guard.NotEmpty(propertyName);
+
+        return TrackSingleAsync(entity, mediaFileId, propertyName, MediaTrackOperation.Untrack);
+    }
+
+    protected virtual async Task TrackSingleAsync(BaseEntity entity, int mediaFileId, string propertyName, MediaTrackOperation operation)
+    {
+        Guard.NotNull(entity);
+
+        if (mediaFileId < 1 || entity.IsTransientRecord())
+            return;
+
+        var file = await _db.MediaFiles.FindByIdAsync(mediaFileId);
+        if (file != null)
         {
-            var makeTransient = _makeFilesTransientWhenOrphaned;
-            _makeFilesTransientWhenOrphaned = makeFilesTransientWhenOrphaned;
-
-            return new ActionDisposable(() => _makeFilesTransientWhenOrphaned = makeTransient);
-        }
-
-        public Task TrackAsync<TSetting>(TSetting settings, int? prevMediaFileId, Expression<Func<TSetting, int>> path) where TSetting : ISettings, new()
-        {
-            Guard.NotNull(settings);
-            Guard.NotNull(path);
-
-            return TrackSettingAsync(settings, path.ExtractPropertyInfo().Name, prevMediaFileId, path.GetPropertyInvoker().Invoke(settings));
-        }
-
-        public Task TrackAsync<TSetting>(TSetting settings, int? prevMediaFileId, Expression<Func<TSetting, int?>> path) where TSetting : ISettings, new()
-        {
-            Guard.NotNull(settings);
-            Guard.NotNull(path);
-
-            return TrackSettingAsync(settings, path.ExtractPropertyInfo().Name, prevMediaFileId, path.GetPropertyInvoker().Invoke(settings));
-        }
-
-        protected async Task TrackSettingAsync<TSetting>(
-            TSetting settings,
-            string propertyName,
-            int? prevMediaFileId,
-            int? currentMediaFileId) where TSetting : ISettings, new()
-        {
-            Guard.NotNull(settings);
-            Guard.NotEmpty(propertyName);
-
-            var key = nameof(TSetting) + "." + propertyName;
-            var storeId = _storeContext.CurrentStoreIdIfMultiStoreMode;
-
-            var settingEntity = await _settingService.GetSettingEntityByKeyAsync(key, storeId);
-            if (settingEntity != null)
+            var album = _folderService.FindAlbum(file)?.Value;
+            if (album == null)
             {
-                await this.UpdateTracksAsync(settingEntity, prevMediaFileId, currentMediaFileId, propertyName);
+                throw new InvalidOperationException(T("Admin.Media.Exception.TrackUnassignedFile"));
             }
-        }
-
-        public Task TrackAsync(BaseEntity entity, int mediaFileId, string propertyName)
-        {
-            Guard.NotNull(entity);
-            Guard.NotEmpty(propertyName);
-
-            return TrackSingleAsync(entity, mediaFileId, propertyName, MediaTrackOperation.Track);
-        }
-
-        public Task UntrackAsync(BaseEntity entity, int mediaFileId, string propertyName)
-        {
-            Guard.NotNull(entity);
-            Guard.NotEmpty(propertyName);
-
-            return TrackSingleAsync(entity, mediaFileId, propertyName, MediaTrackOperation.Untrack);
-        }
-
-        protected virtual async Task TrackSingleAsync(BaseEntity entity, int mediaFileId, string propertyName, MediaTrackOperation operation)
-        {
-            Guard.NotNull(entity);
-
-            if (mediaFileId < 1 || entity.IsTransientRecord())
-                return;
-
-            var file = await _db.MediaFiles.FindByIdAsync(mediaFileId);
-            if (file != null)
+            else if (!album.CanDetectTracks)
             {
-                var album = _folderService.FindAlbum(file)?.Value;
-                if (album == null)
+                // No support for tracking on album level, so get outta here.
+                return;
+            }
+
+            var track = new MediaTrack
+            {
+                EntityId = entity.Id,
+                EntityName = entity.GetEntityName(),
+                MediaFileId = mediaFileId,
+                Property = propertyName,
+                Album = album.Name
+            };
+
+            if (operation == MediaTrackOperation.Track)
+            {
+                file.Tracks.Add(track);
+            }
+            else
+            {
+                var dbTrack = file.Tracks.FirstOrDefault(x => x == track);
+                if (dbTrack != null)
                 {
-                    throw new InvalidOperationException(T("Admin.Media.Exception.TrackUnassignedFile"));
+                    file.Tracks.Remove(track);
+                    _db.TryChangeState(dbTrack, EfState.Deleted);
                 }
-                else if (!album.CanDetectTracks)
+            }
+
+            if (file.Tracks.Count > 0)
+            {
+                // A file with tracks can NEVER be transient
+                file.IsTransient = false;
+            }
+            else if (_makeFilesTransientWhenOrphaned)
+            {
+                // But an untracked file can OPTIONALLY be transient
+                file.IsTransient = true;
+            }
+
+            await _db.SaveChangesAsync();
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Task TrackManyAsync(IEnumerable<MediaTrack> actions)
+    {
+        return TrackManyCoreAsync(actions, null);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Task TrackManyAsync(string albumName, IEnumerable<MediaTrack> tracks)
+    {
+        return TrackManyCoreAsync(tracks, albumName);
+    }
+
+    protected virtual async Task TrackManyCoreAsync(IEnumerable<MediaTrack> tracks, string albumName)
+    {
+        Guard.NotNull(tracks);
+
+        if (!tracks.Any())
+            return;
+
+        using var scope = new DbContextScope(_db, minHookImportance: HookImportance.Important, autoDetectChanges: false);
+
+        // Get the album (necessary later to set FolderId)...
+        MediaFolderNode albumNode = albumName.HasValue()
+            ? _folderService.GetNodeByPath(albumName)?.Value
+            : null;
+
+        // Get distinct ids of all detected files...
+        var mediaFileIds = tracks.Select(x => x.MediaFileId).Distinct().ToArray();
+
+        // fetch these files from database...
+        var query = _db.MediaFiles
+            .Include(x => x.Tracks)
+            .Where(x => mediaFileIds.Contains(x.Id));
+
+        var isInstallation = !EngineContext.Current.Application.IsInstalled;
+        if (isInstallation)
+        {
+            query = query.Where(x => x.Version == 1);
+        }
+
+        var files = await query.ToDictionaryAsync(x => x.Id);
+
+        // for each media file relation to an entity...
+        foreach (var track in tracks)
+        {
+            // fetch the file from local dictionary by its id...
+            if (files.TryGetValue(track.MediaFileId, out var file))
+            {
+                if (isInstallation)
                 {
-                    // No support for tracking on album level, so get outta here.
-                    return;
+                    // set album id as folder id (during installation there are no sub-folders)
+                    file.FolderId = albumNode?.Id;
+
+                    // remember that we processed tracks for this file already
+                    file.Version = 2;
                 }
 
-                var track = new MediaTrack
+                if (track.Album.IsEmpty())
                 {
-                    EntityId = entity.Id,
-                    EntityName = entity.GetEntityName(),
-                    MediaFileId = mediaFileId,
-                    Property = propertyName,
-                    Album = album.Name
-                };
+                    if (albumNode != null)
+                    {
+                        // Overwrite track album if scope album was passed.
+                        track.Album = albumNode.Name;
+                    }
+                    else if (file.FolderId.HasValue)
+                    {
+                        // Determine album from file
+                        albumNode = _folderService.FindAlbum(file)?.Value;
+                        track.Album = albumNode?.Name;
+                    }
+                }
 
-                if (operation == MediaTrackOperation.Track)
+                if (track.Album.IsEmpty())
+                    continue; // cannot track without album
+
+                if ((albumNode ?? _folderService.FindAlbum(file)?.Value)?.CanDetectTracks == false)
+                    continue; // should not track in albums that do not support track detection
+
+                // add or remove the track from file
+                if (track.Operation == MediaTrackOperation.Track)
                 {
                     file.Tracks.Add(track);
                 }
@@ -164,221 +272,112 @@ namespace Smartstore.Core.Content.Media
                     // But an untracked file can OPTIONALLY be transient
                     file.IsTransient = true;
                 }
-
-                await _db.SaveChangesAsync();
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Task TrackManyAsync(IEnumerable<MediaTrack> actions)
+        // Save whole batch to database
+        int num = await _db.SaveChangesAsync();
+
+        if (num > 0)
         {
-            return TrackManyCoreAsync(actions, null);
+            // Breathe
+            _db.DetachEntities<MediaFile>(deep: true);
         }
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Task TrackManyAsync(string albumName, IEnumerable<MediaTrack> tracks)
+    public Task<int> DeleteAllTracksAsync(string albumName)
+    {
+        Guard.NotEmpty(albumName);
+        return _db.MediaTracks.Where(x => x.Album == albumName).ExecuteDeleteAsync();
+    }
+
+    public async Task DetectAllTracksAsync(string albumName, CancellationToken cancelToken = default)
+    {
+        Guard.NotEmpty(albumName);
+
+        // Get album info...
+        var albumInfo = _albumRegistry.GetAlbumByName(albumName);
+        if (albumInfo == null)
         {
-            return TrackManyCoreAsync(tracks, albumName);
+            throw new InvalidOperationException(T("Admin.Media.Exception.AlbumNonexistent", albumName));
         }
 
-        protected virtual async Task TrackManyCoreAsync(IEnumerable<MediaTrack> tracks, string albumName)
+        if (!albumInfo.HasTrackDetector)
         {
-            Guard.NotNull(tracks);
-
-            if (!tracks.Any())
-                return;
-
-            using var scope = new DbContextScope(_db, minHookImportance: HookImportance.Important, autoDetectChanges: false);
-
-            // Get the album (necessary later to set FolderId)...
-            MediaFolderNode albumNode = albumName.HasValue()
-                ? _folderService.GetNodeByPath(albumName)?.Value
-                : null;
-
-            // Get distinct ids of all detected files...
-            var mediaFileIds = tracks.Select(x => x.MediaFileId).Distinct().ToArray();
-
-            // fetch these files from database...
-            var query = _db.MediaFiles
-                .Include(x => x.Tracks)
-                .Where(x => mediaFileIds.Contains(x.Id));
-
-            var isInstallation = !EngineContext.Current.Application.IsInstalled;
-            if (isInstallation)
-            {
-                query = query.Where(x => x.Version == 1);
-            }
-
-            var files = await query.ToDictionaryAsync(x => x.Id);
-
-            // for each media file relation to an entity...
-            foreach (var track in tracks)
-            {
-                // fetch the file from local dictionary by its id...
-                if (files.TryGetValue(track.MediaFileId, out var file))
-                {
-                    if (isInstallation)
-                    {
-                        // set album id as folder id (during installation there are no sub-folders)
-                        file.FolderId = albumNode?.Id;
-
-                        // remember that we processed tracks for this file already
-                        file.Version = 2;
-                    }
-
-                    if (track.Album.IsEmpty())
-                    {
-                        if (albumNode != null)
-                        {
-                            // Overwrite track album if scope album was passed.
-                            track.Album = albumNode.Name;
-                        }
-                        else if (file.FolderId.HasValue)
-                        {
-                            // Determine album from file
-                            albumNode = _folderService.FindAlbum(file)?.Value;
-                            track.Album = albumNode?.Name;
-                        }
-                    }
-
-                    if (track.Album.IsEmpty())
-                        continue; // cannot track without album
-
-                    if ((albumNode ?? _folderService.FindAlbum(file)?.Value)?.CanDetectTracks == false)
-                        continue; // should not track in albums that do not support track detection
-
-                    // add or remove the track from file
-                    if (track.Operation == MediaTrackOperation.Track)
-                    {
-                        file.Tracks.Add(track);
-                    }
-                    else
-                    {
-                        var dbTrack = file.Tracks.FirstOrDefault(x => x == track);
-                        if (dbTrack != null)
-                        {
-                            file.Tracks.Remove(track);
-                            _db.TryChangeState(dbTrack, EfState.Deleted);
-                        }
-                    }
-
-                    if (file.Tracks.Count > 0)
-                    {
-                        // A file with tracks can NEVER be transient
-                        file.IsTransient = false;
-                    }
-                    else if (_makeFilesTransientWhenOrphaned)
-                    {
-                        // But an untracked file can OPTIONALLY be transient
-                        file.IsTransient = true;
-                    }
-                }
-            }
-
-            // Save whole batch to database
-            int num = await _db.SaveChangesAsync();
-
-            if (num > 0)
-            {
-                // Breathe
-                _db.DetachEntities<MediaFile>(deep: true);
-            }
+            throw new InvalidOperationException(T("Admin.Media.Exception.AlbumNoTrack", albumName));
         }
 
-        public Task<int> DeleteAllTracksAsync(string albumName)
+        // Load corresponding track detectors for current album...
+        var trackDetectors = albumInfo
+            .TrackDetectorTypes
+            .Select(x => _trackDetectorFactory[x])
+            .ToArray();
+
+        var isInstallation = !EngineContext.Current.Application.IsInstalled;
+        if (!isInstallation)
         {
-            Guard.NotEmpty(albumName);
-            return _db.MediaTracks.Where(x => x.Album == albumName).ExecuteDeleteAsync();
+            // First delete all tracks for current album...
+            await DeleteAllTracksAsync(albumName);
         }
 
-        public async Task DetectAllTracksAsync(string albumName, CancellationToken cancelToken = default)
+        IAsyncEnumerable<MediaTrack> allTracks = null;
+
+        for (int i = 0; i < trackDetectors.Length; i++)
         {
-            Guard.NotEmpty(albumName);
+            // >>>>> DO detection (potentially a long process)...
+            var tracks = trackDetectors[i].DetectAllTracksAsync(albumName, cancelToken);
 
-            // Get album info...
-            var albumInfo = _albumRegistry.GetAlbumByName(albumName);
-            if (albumInfo == null)
+            if (i == 0)
             {
-                throw new InvalidOperationException(T("Admin.Media.Exception.AlbumNonexistent", albumName));
+                allTracks = tracks;
             }
-
-            if (!albumInfo.HasTrackDetector)
+            else if (allTracks != null)
             {
-                throw new InvalidOperationException(T("Admin.Media.Exception.AlbumNoTrack", albumName));
-            }
-
-            // Load corresponding track detectors for current album...
-            var trackDetectors = albumInfo
-                .TrackDetectorTypes
-                .Select(x => _trackDetectorFactory[x])
-                .ToArray();
-
-            var isInstallation = !EngineContext.Current.Application.IsInstalled;
-            if (!isInstallation)
-            {
-                // First delete all tracks for current album...
-                await DeleteAllTracksAsync(albumName);
-            }
-
-            IAsyncEnumerable<MediaTrack> allTracks = null;
-
-            for (int i = 0; i < trackDetectors.Length; i++)
-            {
-                // >>>>> DO detection (potentially a long process)...
-                var tracks = trackDetectors[i].DetectAllTracksAsync(albumName, cancelToken);
-
-                if (i == 0)
-                {
-                    allTracks = tracks;
-                }
-                else if (allTracks != null)
-                {
-                    // Must be this way to prevent namespace collision with EF.
-                    allTracks = allTracks.Concat(tracks);
-                }
-            }
-
-            // (perf) Batch result data...
-            await foreach (var batch in allTracks.ChunkAsync(500, cancelToken))
-            {
-                cancelToken.ThrowIfCancellationRequested();
-                // process the batch
-                await TrackManyCoreAsync(batch, albumName);
+                // Must be this way to prevent namespace collision with EF.
+                allTracks = allTracks.Concat(tracks);
             }
         }
 
-        public bool TryGetTrackedPropertiesFor(Type forType, out IEnumerable<TrackedMediaProperty> properties)
+        // (perf) Batch result data...
+        await foreach (var batch in allTracks.ChunkAsync(500, cancelToken))
         {
-            properties = null;
+            cancelToken.ThrowIfCancellationRequested();
+            // process the batch
+            await TrackManyCoreAsync(batch, albumName);
+        }
+    }
 
-            var allTrackedProps = GetAllTrackedProperties();
-            if (allTrackedProps.ContainsKey(forType))
+    public bool TryGetTrackedPropertiesFor(Type forType, out IEnumerable<TrackedMediaProperty> properties)
+    {
+        properties = null;
+
+        var allTrackedProps = GetAllTrackedProperties();
+        if (allTrackedProps.ContainsKey(forType))
+        {
+            properties = allTrackedProps[forType];
+            return true;
+        }
+
+        return false;
+    }
+
+    protected virtual Multimap<Type, TrackedMediaProperty> GetAllTrackedProperties()
+    {
+        var propsMap = _cache.Get(TrackedPropertiesKey, () =>
+        {
+            var map = new Multimap<Type, TrackedMediaProperty>();
+            var props = _albumRegistry.GetAllAlbums()
+                .Where(x => x.TrackedProperties != null && x.TrackedProperties.Length > 0)
+                .SelectMany(x => x.TrackedProperties);
+
+            foreach (var prop in props)
             {
-                properties = allTrackedProps[forType];
-                return true;
+                map.Add(prop.EntityType, prop);
             }
 
-            return false;
-        }
+            return map;
+        });
 
-        protected virtual Multimap<Type, TrackedMediaProperty> GetAllTrackedProperties()
-        {
-            var propsMap = _cache.Get(TrackedPropertiesKey, () =>
-            {
-                var map = new Multimap<Type, TrackedMediaProperty>();
-                var props = _albumRegistry.GetAllAlbums()
-                    .Where(x => x.TrackedProperties != null && x.TrackedProperties.Length > 0)
-                    .SelectMany(x => x.TrackedProperties);
-
-                foreach (var prop in props)
-                {
-                    map.Add(prop.EntityType, prop);
-                }
-
-                return map;
-            });
-
-            return propsMap;
-        }
+        return propsMap;
     }
 }

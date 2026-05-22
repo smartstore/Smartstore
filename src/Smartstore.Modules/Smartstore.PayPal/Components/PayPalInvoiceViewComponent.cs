@@ -7,7 +7,7 @@ namespace Smartstore.PayPal.Components;
 public class PayPalInvoiceViewComponent : SmartViewComponent
 {
     private readonly ICheckoutStateAccessor _checkoutStateAccessor;
-    
+
     public PayPalInvoiceViewComponent(ICheckoutStateAccessor checkoutStateAccessor)
     {
         _checkoutStateAccessor = checkoutStateAccessor;
@@ -45,8 +45,8 @@ public class PayPalInvoiceViewComponent : SmartViewComponent
                 var birthDate = DateTime.Parse((string)paymentData.Get("PayPalInvoiceBirthdate"));
                 model.DateOfBirth = birthDate;
             }
-            catch 
-            { 
+            catch
+            {
             }
         }
         else if (customer.BirthDate != null)

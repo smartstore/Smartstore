@@ -5,64 +5,63 @@ using NUnit.Framework;
 using Smartstore.Core.Common.Services;
 using Smartstore.Utilities;
 
-namespace Smartstore.Core.Tests.Common
+namespace Smartstore.Core.Tests.Common;
+
+[TestFixture]
+public class GeoCountryLookupTests
 {
-    [TestFixture]
-    public class GeoCountryLookupTests
+    private IDictionary<string, GeoCountryInfo> _addresses;
+
+    [OneTimeSetUp]
+    public void SetUp()
     {
-        private IDictionary<string, GeoCountryInfo> _addresses;
+        CommonHelper.IsHosted = false;
 
-        [OneTimeSetUp]
-        public void SetUp()
+        try
         {
-            CommonHelper.IsHosted = false;
-
-            try
+            _addresses = new Dictionary<string, GeoCountryInfo>
             {
-                _addresses = new Dictionary<string, GeoCountryInfo>
-                {
-                    ["0:0:0:0:0:ffff:b0eb:6304"] = new GeoCountryInfo { IsoCode = "TR", Name = "Turkey" },
-                    ["104.221.132.123"] = new GeoCountryInfo { IsoCode = "US", Name = "United States" },
-                    ["14.232.208.88"] = new GeoCountryInfo { IsoCode = "VN", Name = "Vietnam" },
-                    ["88.199.164.142"] = new GeoCountryInfo { IsoCode = "PL", Name = "Poland", IsInEu = true },
-                    ["186.10.251.74"] = new GeoCountryInfo { IsoCode = "CL", Name = "Chile" },
-                    ["131.196.141.56"] = new GeoCountryInfo { IsoCode = "BR", Name = "Brazil" },
-                    ["1.179.245.146"] = new GeoCountryInfo { IsoCode = "TH", Name = "Thailand" },
-                    ["85.62.10.84"] = new GeoCountryInfo { IsoCode = "ES", Name = "Spain", IsInEu = true },
-                    ["89.111.105.72"] = new GeoCountryInfo { IsoCode = "CZ", Name = "Czechia", IsInEu = true },
-                    ["46.254.246.123"] = new GeoCountryInfo { IsoCode = "RU", Name = "Russia" },
-                    ["177.87.79.90"] = new GeoCountryInfo { IsoCode = "BR", Name = "Brazil" },
-                    ["176.235.99.4"] = new GeoCountryInfo { IsoCode = "TR", Name = "Turkey" },
-                    ["185.216.213.237"] = new GeoCountryInfo { IsoCode = "DE", Name = "Germany", IsInEu = true },
-                    ["41.60.232.2"] = new GeoCountryInfo { IsoCode = "KE", Name = "Kenya" },
-                    ["88.157.176.94"] = new GeoCountryInfo { IsoCode = "PT", Name = "Portugal", IsInEu = true },
-                    ["193.62.7.52"] = new GeoCountryInfo { IsoCode = "GB", Name = "United Kingdom", IsInEu = false }
-                };
-            }
-            catch (FileNotFoundException)
-            {
-                Assert.Ignore("This unit test can only be executed from the Test Explorer.");
-            }
+                ["0:0:0:0:0:ffff:b0eb:6304"] = new GeoCountryInfo { IsoCode = "TR", Name = "Turkey" },
+                ["104.221.132.123"] = new GeoCountryInfo { IsoCode = "US", Name = "United States" },
+                ["14.232.208.88"] = new GeoCountryInfo { IsoCode = "VN", Name = "Vietnam" },
+                ["88.199.164.142"] = new GeoCountryInfo { IsoCode = "PL", Name = "Poland", IsInEu = true },
+                ["186.10.251.74"] = new GeoCountryInfo { IsoCode = "CL", Name = "Chile" },
+                ["131.196.141.56"] = new GeoCountryInfo { IsoCode = "BR", Name = "Brazil" },
+                ["1.179.245.146"] = new GeoCountryInfo { IsoCode = "TH", Name = "Thailand" },
+                ["85.62.10.84"] = new GeoCountryInfo { IsoCode = "ES", Name = "Spain", IsInEu = true },
+                ["89.111.105.72"] = new GeoCountryInfo { IsoCode = "CZ", Name = "Czechia", IsInEu = true },
+                ["46.254.246.123"] = new GeoCountryInfo { IsoCode = "RU", Name = "Russia" },
+                ["177.87.79.90"] = new GeoCountryInfo { IsoCode = "BR", Name = "Brazil" },
+                ["176.235.99.4"] = new GeoCountryInfo { IsoCode = "TR", Name = "Turkey" },
+                ["185.216.213.237"] = new GeoCountryInfo { IsoCode = "DE", Name = "Germany", IsInEu = true },
+                ["41.60.232.2"] = new GeoCountryInfo { IsoCode = "KE", Name = "Kenya" },
+                ["88.157.176.94"] = new GeoCountryInfo { IsoCode = "PT", Name = "Portugal", IsInEu = true },
+                ["193.62.7.52"] = new GeoCountryInfo { IsoCode = "GB", Name = "United Kingdom", IsInEu = false }
+            };
         }
-
-        [Test]
-        public void CanLookup()
+        catch (FileNotFoundException)
         {
-            using (var geoCountryLookup = new GeoCountryLookup())
+            Assert.Ignore("This unit test can only be executed from the Test Explorer.");
+        }
+    }
+
+    [Test]
+    public void CanLookup()
+    {
+        using (var geoCountryLookup = new GeoCountryLookup())
+        {
+            if (_addresses?.Any() ?? false)
             {
-                if (_addresses?.Any() ?? false)
+                foreach (var kvp in _addresses)
                 {
-                    foreach (var kvp in _addresses)
-                    {
-                        var ip = kvp.Key;
-                        var expect = kvp.Value;
+                    var ip = kvp.Key;
+                    var expect = kvp.Value;
 
-                        var response = geoCountryLookup.LookupCountry(ip);
+                    var response = geoCountryLookup.LookupCountry(ip);
 
-                        Assert.That(response.IsoCode, Is.EqualTo(expect.IsoCode), response.Name);
-                        Assert.That(response.Name, Is.EqualTo(expect.Name), response.Name);
-                        Assert.That(response.IsInEu, Is.EqualTo(expect.IsInEu), response.Name);
-                    }
+                    Assert.That(response.IsoCode, Is.EqualTo(expect.IsoCode), response.Name);
+                    Assert.That(response.Name, Is.EqualTo(expect.Name), response.Name);
+                    Assert.That(response.IsInEu, Is.EqualTo(expect.IsInEu), response.Name);
                 }
             }
         }

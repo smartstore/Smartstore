@@ -22,9 +22,9 @@ internal static class PolymorphyCodec
     #region Read
 
     public static object? ReadValue(
-        JsonElement el, 
-        Type declaredType, 
-        JsonSerializerOptions options, 
+        JsonElement el,
+        Type declaredType,
+        JsonSerializerOptions options,
         PolymorphyOptions poly)
     {
         return IsPolymorphicType(declaredType)
@@ -105,7 +105,7 @@ internal static class PolymorphyCodec
         {
             return value;
         }
-        
+
         switch (el.ValueKind)
         {
             case JsonValueKind.Array:
@@ -564,7 +564,7 @@ internal static class PolymorphyCodec
             });
 
             return isPolymorphAbstract;
-        }    
+        }
 
         return false;
     }
@@ -588,7 +588,7 @@ internal static class PolymorphyCodec
     public static bool TryGetPolymorphyKind(
         Type t,
         JsonSerializerOptions? options,
-        [NotNullWhen(true)] out PolymorphyKind? kind, 
+        [NotNullWhen(true)] out PolymorphyKind? kind,
         [NotNullWhen(true)] out Type? elementType)
     {
         kind = default;
@@ -611,7 +611,7 @@ internal static class PolymorphyCodec
                 elementType = itemType;
                 return true;
             }
-                
+
         }
         else if (IsPolymorphicType(t, options))
         {

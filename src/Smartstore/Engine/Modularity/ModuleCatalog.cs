@@ -1,119 +1,118 @@
 ﻿using System.Collections.Frozen;
 using System.Reflection;
 
-namespace Smartstore.Engine.Modularity
+namespace Smartstore.Engine.Modularity;
+
+public class ModuleCatalog : IModuleCatalog
 {
-    public class ModuleCatalog : IModuleCatalog
+    private readonly FrozenDictionary<string, IModuleDescriptor> _nameMap;
+    private readonly FrozenDictionary<Assembly, IModuleDescriptor> _assemblyMap;
+    private readonly FrozenDictionary<string, IModuleDescriptor> _themeMap;
+    private readonly FrozenDictionary<string, IModuleDescriptor> _pathMap;
+
+    public ModuleCatalog(IEnumerable<IModuleDescriptor> modules)
     {
-        private readonly FrozenDictionary<string, IModuleDescriptor> _nameMap;
-        private readonly FrozenDictionary<Assembly, IModuleDescriptor> _assemblyMap;
-        private readonly FrozenDictionary<string, IModuleDescriptor> _themeMap;
-        private readonly FrozenDictionary<string, IModuleDescriptor> _pathMap;
+        Guard.NotNull(modules);
 
-        public ModuleCatalog(IEnumerable<IModuleDescriptor> modules)
+        var nameMap = new Dictionary<string, IModuleDescriptor>(StringComparer.OrdinalIgnoreCase);
+        var assemblyMap = new Dictionary<Assembly, IModuleDescriptor>();
+        var themeMap = new Dictionary<string, IModuleDescriptor>(StringComparer.OrdinalIgnoreCase);
+        var pathMap = new Dictionary<string, IModuleDescriptor>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var module in modules)
         {
-            Guard.NotNull(modules);
+            nameMap[module.SystemName] = module;
+            pathMap[module.PhysicalPath] = module;
 
-            var nameMap = new Dictionary<string, IModuleDescriptor>(StringComparer.OrdinalIgnoreCase);
-            var assemblyMap = new Dictionary<Assembly, IModuleDescriptor>();
-            var themeMap = new Dictionary<string, IModuleDescriptor>(StringComparer.OrdinalIgnoreCase);
-            var pathMap = new Dictionary<string, IModuleDescriptor>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var module in modules)
+            if (module.Module?.Assembly != null)
             {
-                nameMap[module.SystemName] = module;
-                pathMap[module.PhysicalPath] = module;
-
-                if (module.Module?.Assembly != null)
-                {
-                    assemblyMap[module.Module.Assembly] = module;
-                }
-
-                if (module.Theme.HasValue())
-                {
-                    themeMap[module.Theme] = module;
-                }
+                assemblyMap[module.Module.Assembly] = module;
             }
 
-            _nameMap = nameMap.ToFrozenDictionary();
-            _assemblyMap = assemblyMap.ToFrozenDictionary();
-            _pathMap = pathMap.ToFrozenDictionary();
-
-            if (themeMap.Count > 0)
+            if (module.Theme.HasValue())
             {
-                _themeMap = themeMap.ToFrozenDictionary();
+                themeMap[module.Theme] = module;
             }
-
-            IncompatibleModules = modules
-                .Where(x => x.Incompatible)
-                .Select(x => x.SystemName)
-                .ToArray();
         }
 
-        public IEnumerable<IModuleDescriptor> Modules
+        _nameMap = nameMap.ToFrozenDictionary();
+        _assemblyMap = assemblyMap.ToFrozenDictionary();
+        _pathMap = pathMap.ToFrozenDictionary();
+
+        if (themeMap.Count > 0)
         {
-            get => _nameMap.Values;
+            _themeMap = themeMap.ToFrozenDictionary();
         }
 
-        public IEnumerable<string> IncompatibleModules
+        IncompatibleModules = modules
+            .Where(x => x.Incompatible)
+            .Select(x => x.SystemName)
+            .ToArray();
+    }
+
+    public IEnumerable<IModuleDescriptor> Modules
+    {
+        get => _nameMap.Values;
+    }
+
+    public IEnumerable<string> IncompatibleModules
+    {
+        get;
+        // For unit testing purposes
+        internal set;
+    }
+
+    public bool HasModule(string systemName)
+    {
+        return _nameMap.TryGetValue(systemName, out var descriptor) && descriptor.IsInstalled();
+    }
+
+    public IModuleDescriptor GetModuleByAssembly(Assembly assembly)
+    {
+        if (assembly != null && _assemblyMap.TryGetValue(assembly, out var descriptor))
         {
-            get;
-            // For unit testing purposes
-            internal set;
+            return descriptor;
         }
 
-        public bool HasModule(string systemName)
-        {
-            return _nameMap.TryGetValue(systemName, out var descriptor) && descriptor.IsInstalled();
-        }
+        return null;
+    }
 
-        public IModuleDescriptor GetModuleByAssembly(Assembly assembly)
+    public IModuleDescriptor GetModuleByName(string name, bool installedOnly = true)
+    {
+        if (name.HasValue() && _nameMap.TryGetValue(name, out var descriptor))
         {
-            if (assembly != null && _assemblyMap.TryGetValue(assembly, out var descriptor))
+            if (!installedOnly || descriptor.IsInstalled())
             {
                 return descriptor;
             }
-
-            return null;
         }
 
-        public IModuleDescriptor GetModuleByName(string name, bool installedOnly = true)
+        return null;
+    }
+
+    public IModuleDescriptor GetModuleByTheme(string themeName, bool installedOnly = true)
+    {
+        if (_themeMap != null && themeName.HasValue() && _themeMap.TryGetValue(themeName, out var descriptor))
         {
-            if (name.HasValue() && _nameMap.TryGetValue(name, out var descriptor))
+            if (!installedOnly || descriptor.IsInstalled())
             {
-                if (!installedOnly || descriptor.IsInstalled())
-                {
-                    return descriptor;
-                } 
+                return descriptor;
             }
-
-            return null;
         }
 
-        public IModuleDescriptor GetModuleByTheme(string themeName, bool installedOnly = true)
+        return null;
+    }
+
+    public IModuleDescriptor GetModuleByPath(string physicalPath, bool installedOnly = true)
+    {
+        if (physicalPath.HasValue() && _pathMap.TryGetValue(physicalPath, out var descriptor))
         {
-            if (_themeMap != null && themeName.HasValue() && _themeMap.TryGetValue(themeName, out var descriptor))
+            if (!installedOnly || descriptor.IsInstalled())
             {
-                if (!installedOnly || descriptor.IsInstalled())
-                {
-                    return descriptor;
-                }
+                return descriptor;
             }
-
-            return null;
         }
 
-        public IModuleDescriptor GetModuleByPath(string physicalPath, bool installedOnly = true)
-        {
-            if (physicalPath.HasValue() && _pathMap.TryGetValue(physicalPath, out var descriptor))
-            {
-                if (!installedOnly || descriptor.IsInstalled())
-                {
-                    return descriptor;
-                }
-            }
-
-            return null;
-        }
+        return null;
     }
 }

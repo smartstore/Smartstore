@@ -365,7 +365,7 @@ public class GridTagHelper : SmartTagHelper
 
         string antiforgeryToken = null;
         var isAjax = ViewContext.HttpContext.Request.IsAjax();
-        if (!isAjax &&  (!ViewContext.FormContext.CanRenderAtEndOfForm || !ViewContext.FormContext.HasAntiforgeryToken))
+        if (!isAjax && (!ViewContext.FormContext.CanRenderAtEndOfForm || !ViewContext.FormContext.HasAntiforgeryToken))
         {
             var tokenSet = _antiforgery.GetTokens(ViewContext.HttpContext);
             antiforgeryToken = tokenSet.RequestToken;
@@ -420,8 +420,8 @@ public class GridTagHelper : SmartTagHelper
 
     private static string SerializeObject(object obj)
     {
-        return CommonHelper.IsDevEnvironment 
-            ? SmartJsonOptions.Default.SerializeIndented(obj) 
+        return CommonHelper.IsDevEnvironment
+            ? SmartJsonOptions.Default.SerializeIndented(obj)
             : JsonSerializer.Serialize(obj);
     }
 }

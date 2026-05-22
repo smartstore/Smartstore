@@ -79,7 +79,7 @@ public static class DbSetExtensions
     {
         if (id == 0)
             return null;
-        
+
         return query.GetDbContext().Set<TEntity>().Local.FindEntry(id)?.Entity ?? query.ApplyTracking(tracked).SingleOrDefault(x => x.Id == id);
     }
 
@@ -185,7 +185,7 @@ public static class DbSetExtensions
             .Select(context.FindTracked<TEntity>)
             .Where(x => x != null)
             .ToList();
-        
+
         var untrackedIds = distinctIds.Except(localEntities.Select(x => x.Id)).ToArray();
         var dbEntities = dbSet
             .Where(x => untrackedIds.Contains(x.Id))

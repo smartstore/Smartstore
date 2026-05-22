@@ -3,42 +3,41 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Data.Hooks;
 
-namespace Smartstore.Core.Common.Hooks
+namespace Smartstore.Core.Common.Hooks;
+
+internal class MeasureWeightHook : AsyncDbSaveHook<MeasureWeight>
 {
-    internal class MeasureWeightHook : AsyncDbSaveHook<MeasureWeight>
+    private readonly MeasureSettings _measureSettings;
+    private string _hookErrorMessage;
+
+    public MeasureWeightHook(MeasureSettings measureSettings)
     {
-        private readonly MeasureSettings _measureSettings;
-        private string _hookErrorMessage;
+        _measureSettings = measureSettings;
+    }
 
-        public MeasureWeightHook(MeasureSettings measureSettings)
+    public Localizer T { get; set; } = NullLocalizer.Instance;
+
+    protected override Task<HookResult> OnDeletingAsync(MeasureWeight entity, IHookedEntity entry, CancellationToken cancelToken)
+    {
+        if (entity.Id == _measureSettings.BaseWeightId)
         {
-            _measureSettings = measureSettings;
+            entry.ResetState();
+            _hookErrorMessage = T("Admin.Configuration.Measures.Weights.CantDeletePrimary");
         }
 
-        public Localizer T { get; set; } = NullLocalizer.Instance;
+        return Task.FromResult(HookResult.Ok);
+    }
 
-        protected override Task<HookResult> OnDeletingAsync(MeasureWeight entity, IHookedEntity entry, CancellationToken cancelToken)
+    public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+    {
+        if (_hookErrorMessage.HasValue())
         {
-            if (entity.Id == _measureSettings.BaseWeightId)
-            {
-                entry.ResetState();
-                _hookErrorMessage = T("Admin.Configuration.Measures.Weights.CantDeletePrimary");
-            }
+            var message = new string(_hookErrorMessage);
+            _hookErrorMessage = null;
 
-            return Task.FromResult(HookResult.Ok);
+            throw new HookException(message);
         }
 
-        public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
-        {
-            if (_hookErrorMessage.HasValue())
-            {
-                var message = new string(_hookErrorMessage);
-                _hookErrorMessage = null;
-
-                throw new HookException(message);
-            }
-
-            return Task.CompletedTask;
-        }
+        return Task.CompletedTask;
     }
 }

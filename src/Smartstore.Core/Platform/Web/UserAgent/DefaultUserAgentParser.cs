@@ -48,7 +48,7 @@ public class DefaultUserAgentParser : Disposable, IUserAgentParser
     private void ReadMappings()
     {
         IChangeToken changeToken = null;
-        
+
         try
         {
             // Read YAML from file or embedded resource
@@ -153,11 +153,11 @@ public class DefaultUserAgentParser : Disposable, IUserAgentParser
 
         var hasPlatform = segment is UserAgentSegment.Platform;
         var regexFlags = RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Singleline;
-        
-        for (var i = 0; i < mapping.Sequences.Count; i++) 
+
+        for (var i = 0; i < mapping.Sequences.Count; i++)
         {
             var sequence = mapping.Sequences[i];
-            
+
             if (!sequence.TryGetValue("match", out var match))
             {
                 continue;

@@ -3,363 +3,362 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Rules.Operators;
 
-namespace Smartstore.Core.Rules
+namespace Smartstore.Core.Rules;
+
+public abstract class RuleOperator : IEquatable<RuleOperator>
 {
-    public abstract class RuleOperator : IEquatable<RuleOperator>
+    private readonly static IDictionary<string, RuleOperator> _map = new Dictionary<string, RuleOperator>(StringComparer.OrdinalIgnoreCase);
+
+    public readonly static RuleOperator IsEqualTo = new EqualOperator();
+    public readonly static RuleOperator IsNotEqualTo = new NotEqualOperator();
+    public readonly static RuleOperator IsNull = new IsNullOperator();
+    public readonly static RuleOperator IsNotNull = new IsNotNullOperator();
+    public readonly static RuleOperator GreaterThanOrEqualTo = new GreaterThanOrEqualOperator();
+    public readonly static RuleOperator GreaterThan = new GreaterThanOperator();
+    public readonly static RuleOperator LessThanOrEqualTo = new LessThanOrEqualOperator();
+    public readonly static RuleOperator LessThan = new LessThanOperator();
+    public readonly static RuleOperator StartsWith = new StartsWithOperator();
+    public readonly static RuleOperator EndsWith = new EndsWithOperator();
+    public readonly static RuleOperator Contains = new ContainsOperator();
+    public readonly static RuleOperator NotContains = new NotContainsOperator();
+    public readonly static RuleOperator IsEmpty = new IsEmptyOperator();
+    public readonly static RuleOperator IsNotEmpty = new IsNotEmptyOperator();
+    public readonly static RuleOperator In = new InOperator();
+    public readonly static RuleOperator NotIn = new NotInOperator();
+    public readonly static RuleOperator AllIn = new AllInOperator();
+    public readonly static RuleOperator NotAllIn = new NotAllInOperator();
+    public readonly static RuleOperator Like = new LikeOperator();
+    public readonly static RuleOperator NotLike = new NotLikeOperator();
+    //public readonly static string All = new RuleOperator(); // TODO
+
+    protected RuleOperator(string op)
     {
-        private readonly static IDictionary<string, RuleOperator> _map = new Dictionary<string, RuleOperator>(StringComparer.OrdinalIgnoreCase);
+        Guard.NotEmpty(op);
 
-        public readonly static RuleOperator IsEqualTo = new EqualOperator();
-        public readonly static RuleOperator IsNotEqualTo = new NotEqualOperator();
-        public readonly static RuleOperator IsNull = new IsNullOperator();
-        public readonly static RuleOperator IsNotNull = new IsNotNullOperator();
-        public readonly static RuleOperator GreaterThanOrEqualTo = new GreaterThanOrEqualOperator();
-        public readonly static RuleOperator GreaterThan = new GreaterThanOperator();
-        public readonly static RuleOperator LessThanOrEqualTo = new LessThanOrEqualOperator();
-        public readonly static RuleOperator LessThan = new LessThanOperator();
-        public readonly static RuleOperator StartsWith = new StartsWithOperator();
-        public readonly static RuleOperator EndsWith = new EndsWithOperator();
-        public readonly static RuleOperator Contains = new ContainsOperator();
-        public readonly static RuleOperator NotContains = new NotContainsOperator();
-        public readonly static RuleOperator IsEmpty = new IsEmptyOperator();
-        public readonly static RuleOperator IsNotEmpty = new IsNotEmptyOperator();
-        public readonly static RuleOperator In = new InOperator();
-        public readonly static RuleOperator NotIn = new NotInOperator();
-        public readonly static RuleOperator AllIn = new AllInOperator();
-        public readonly static RuleOperator NotAllIn = new NotAllInOperator();
-        public readonly static RuleOperator Like = new LikeOperator();
-        public readonly static RuleOperator NotLike = new NotLikeOperator();
-        //public readonly static string All = new RuleOperator(); // TODO
+        Operator = op;
+        _map[op] = this;
+    }
 
-        protected RuleOperator(string op)
+    public string Operator { get; set; }
+
+    public override string ToString()
+    {
+        return Operator;
+    }
+
+    public static implicit operator string(RuleOperator obj)
+    {
+        return obj.Operator;
+    }
+
+    public static implicit operator RuleOperator(string obj)
+    {
+        return GetOperator(obj);
+    }
+
+    public static RuleOperator GetOperator(string op)
+    {
+        if (op.IsEmpty())
         {
-            Guard.NotEmpty(op);
-
-            Operator = op;
-            _map[op] = this;
+            return null;
         }
 
-        public string Operator { get; set; }
-
-        public override string ToString()
+        if (_map.TryGetValue(op, out var instance))
         {
-            return Operator;
+            return instance;
         }
 
-        public static implicit operator string(RuleOperator obj)
+        throw new InvalidCastException("No rule operator has been registered for '{0}'.".FormatInvariant(op));
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj is null)
+            return false;
+
+        if (ReferenceEquals(this, obj))
+            return true;
+
+        return obj.GetType() == GetType() && Equals((RuleOperator)obj);
+    }
+
+    public bool Equals(RuleOperator other)
+    {
+        return string.Equals(Operator, other.Operator);
+    }
+
+    public override int GetHashCode()
+    {
+        return Operator?.GetHashCode() ?? 0;
+    }
+
+    public bool Match(object left, object right)
+    {
+        return Match<object>(left, right);
+    }
+
+    public virtual bool Match<TLeft>(TLeft left, object right)
+    {
+        var body = GetExpression(
+            ExpressionHelper.CreateConstantExpression(left, typeof(TLeft)),
+            ExpressionHelper.CreateConstantExpression(right),
+            ExpressionHelper.LinqToObjectsProvider);
+
+        var lambda = Expression.Lambda<Func<bool>>(body);
+
+        return lambda.Compile().Invoke();
+    }
+
+    public Expression GetExpression(Expression left, Expression right, IQueryProvider provider)
+    {
+        var targetType = GetBodyType(left);
+        bool valid = true;
+
+        if (TypesAreDifferent(left, right))
         {
-            return obj.Operator;
-        }
-
-        public static implicit operator RuleOperator(string obj)
-        {
-            return GetOperator(obj);
-        }
-
-        public static RuleOperator GetOperator(string op)
-        {
-            if (op.IsEmpty())
-            {
-                return null;
-            }
-
-            if (_map.TryGetValue(op, out var instance))
-            {
-                return instance;
-            }
-
-            throw new InvalidCastException("No rule operator has been registered for '{0}'.".FormatInvariant(op));
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is null)
-                return false;
-
-            if (ReferenceEquals(this, obj))
-                return true;
-
-            return obj.GetType() == GetType() && Equals((RuleOperator)obj);
-        }
-
-        public bool Equals(RuleOperator other)
-        {
-            return string.Equals(Operator, other.Operator);
-        }
-
-        public override int GetHashCode()
-        {
-            return Operator?.GetHashCode() ?? 0;
-        }
-
-        public bool Match(object left, object right)
-        {
-            return Match<object>(left, right);
-        }
-
-        public virtual bool Match<TLeft>(TLeft left, object right)
-        {
-            var body = GetExpression(
-                ExpressionHelper.CreateConstantExpression(left, typeof(TLeft)),
-                ExpressionHelper.CreateConstantExpression(right),
-                ExpressionHelper.LinqToObjectsProvider);
-
-            var lambda = Expression.Lambda<Func<bool>>(body);
-
-            return lambda.Compile().Invoke();
-        }
-
-        public Expression GetExpression(Expression left, Expression right, IQueryProvider provider)
-        {
-            var targetType = GetBodyType(left);
-            bool valid = true;
-
-            if (TypesAreDifferent(left, right))
-            {
-                if (!TryConvertExpressionTypes(ref left, ref right))
-                {
-                    valid = false;
-                }
-            }
-            else if (targetType.IsEnumType() || right.Type.IsEnumType())
-            {
-                if (!TryPromoteNullableEnums(ref left, ref right))
-                {
-                    valid = false;
-                }
-            }
-            else if (targetType.IsValueType && !TryConvertNullableValue(left, ref right))
+            if (!TryConvertExpressionTypes(ref left, ref right))
             {
                 valid = false;
             }
-
-            if (!valid)
+        }
+        else if (targetType.IsEnumType() || right.Type.IsEnumType())
+        {
+            if (!TryPromoteNullableEnums(ref left, ref right))
             {
-                throw new ArgumentException("Operator '{0}' is incompatible with operand types '{1}' and '{2}'.".FormatInvariant(
-                    Operator,
-                    GetTypeName(targetType),
-                    GetTypeName(right.Type)));
+                valid = false;
             }
-
-            if (provider is EntityQueryProvider && right is ConstantExpression constExpr && constExpr.Value != null)
-            {
-                // For EF Core, it's always better to parameterize the generated
-                // SQL query for some value types instead of using constant literals.
-                // We do this by wrapping the value in a constant Tuple and return
-                // an expression referencing the Item1 property.
-                var rtype = right.Type;
-                if (
-                    rtype == typeof(DateTime) ||
-                    rtype == typeof(DateTimeOffset) ||
-                    rtype == typeof(DateOnly) ||
-                    rtype == typeof(TimeOnly))
-                {
-                    var closureType = typeof(Tuple<>).MakeGenericType(rtype);
-                    var closure = Activator.CreateInstance(closureType, constExpr.Value);
-                    right = Expression.Property(Expression.Constant(closure), "Item1");
-                }
-            }
-
-            return GenerateExpression(left, right, provider);
+        }
+        else if (targetType.IsValueType && !TryConvertNullableValue(left, ref right))
+        {
+            valid = false;
         }
 
-        protected abstract Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider);
-
-        private static string GetTypeName(Type type)
+        if (!valid)
         {
-            if (type.IsNullableType(out var underlyingType))
-            {
-                return underlyingType.Name + "?";
-            }
-
-            return type.Name;
+            throw new ArgumentException("Operator '{0}' is incompatible with operand types '{1}' and '{2}'.".FormatInvariant(
+                Operator,
+                GetTypeName(targetType),
+                GetTypeName(right.Type)));
         }
 
-        #region Expression/Lambda stuff
-
-        protected virtual bool TypesAreDifferent(Expression left, Expression right)
+        if (provider is EntityQueryProvider && right is ConstantExpression constExpr && constExpr.Value != null)
         {
-            bool isEqualityCheck = this == RuleOperator.IsEqualTo || this == RuleOperator.IsNotEqualTo;
-            return isEqualityCheck && GetBodyType(left) != GetBodyType(right);
-            //return (isEqualityCheck && !GetBodyType(left).IsValueType) && !GetBodyType(right).IsValueType;
+            // For EF Core, it's always better to parameterize the generated
+            // SQL query for some value types instead of using constant literals.
+            // We do this by wrapping the value in a constant Tuple and return
+            // an expression referencing the Item1 property.
+            var rtype = right.Type;
+            if (
+                rtype == typeof(DateTime) ||
+                rtype == typeof(DateTimeOffset) ||
+                rtype == typeof(DateOnly) ||
+                rtype == typeof(TimeOnly))
+            {
+                var closureType = typeof(Tuple<>).MakeGenericType(rtype);
+                var closure = Activator.CreateInstance(closureType, constExpr.Value);
+                right = Expression.Property(Expression.Constant(closure), "Item1");
+            }
         }
 
-        private bool TryConvertNullableValue(Expression left, ref Expression right)
+        return GenerateExpression(left, right, provider);
+    }
+
+    protected abstract Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider);
+
+    private static string GetTypeName(Type type)
+    {
+        if (type.IsNullableType(out var underlyingType))
         {
-            if (right is not ConstantExpression c)
-            {
-                return true;
-            }   
+            return underlyingType.Name + "?";
+        }
 
-            var targetType = GetBodyType(left);
-            if (targetType == right.Type)
-            {
-                return true;
-            }  
+        return type.Name;
+    }
 
-            var leftIsNullable = targetType.IsNullableType(out _);
-            var rightIsNullObj = ExpressionHelper.IsNullObjectConstantExpression(right);
-            var rightIsList = false;
+    #region Expression/Lambda stuff
 
-            if (!rightIsNullObj && right.Type.IsGenericType)
-            {
-                rightIsList = right.Type.GetGenericTypeDefinition() == typeof(List<>);
-            }
+    protected virtual bool TypesAreDifferent(Expression left, Expression right)
+    {
+        bool isEqualityCheck = this == RuleOperator.IsEqualTo || this == RuleOperator.IsNotEqualTo;
+        return isEqualityCheck && GetBodyType(left) != GetBodyType(right);
+        //return (isEqualityCheck && !GetBodyType(left).IsValueType) && !GetBodyType(right).IsValueType;
+    }
 
-            if (leftIsNullable || rightIsNullObj)
-            {
-                try
-                {
-                    var value = c.Value;
-                    var handled = false;
-
-                    if (!leftIsNullable && rightIsNullObj)
-                    {
-                        // Right is null, but left is NOT nullable: (int)null does not work, we need to create the default value (e.g. default(int))
-                        value = Activator.CreateInstance(targetType);
-                    }
-                    else if (leftIsNullable && rightIsList)
-                    {
-                        handled = TryConvertList(targetType, ref right);
-                    }
-
-                    if (!handled)
-                    {
-                        right = Expression.Constant(value, targetType);
-                    }
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-
+    private bool TryConvertNullableValue(Expression left, ref Expression right)
+    {
+        if (right is not ConstantExpression c)
+        {
             return true;
         }
 
-        private static bool TryConvertList(Type targetType, ref Expression right)
+        var targetType = GetBodyType(left);
+        if (targetType == right.Type)
         {
-            // If left is int?, but right is List<int>: make right List<int?>
+            return true;
+        }
+
+        var leftIsNullable = targetType.IsNullableType(out _);
+        var rightIsNullObj = ExpressionHelper.IsNullObjectConstantExpression(right);
+        var rightIsList = false;
+
+        if (!rightIsNullObj && right.Type.IsGenericType)
+        {
+            rightIsList = right.Type.GetGenericTypeDefinition() == typeof(List<>);
+        }
+
+        if (leftIsNullable || rightIsNullObj)
+        {
             try
             {
-                var value = ((ConstantExpression)right).Value;
-                var listElemType = right.Type.GetGenericArguments()[0];
-                if (!listElemType.IsNullableType(out _))
-                {
-                    // List<T> > List<T?>
-                    var nullableListType = typeof(List<>).MakeGenericType(targetType);
-                    var nullableList = Activator.CreateInstance(nullableListType);
-                    var addMethod = nullableListType.GetMethod("Add");
-                    foreach (var item in (IEnumerable)value)
-                    {
-                        addMethod.Invoke(nullableList, new object[] { item.Convert(targetType) });
-                    }
+                var value = c.Value;
+                var handled = false;
 
-                    right = Expression.Constant(nullableList, nullableListType);
-                }
-                else
+                if (!leftIsNullable && rightIsNullObj)
                 {
-                    return true;
+                    // Right is null, but left is NOT nullable: (int)null does not work, we need to create the default value (e.g. default(int))
+                    value = Activator.CreateInstance(targetType);
+                }
+                else if (leftIsNullable && rightIsList)
+                {
+                    handled = TryConvertList(targetType, ref right);
+                }
+
+                if (!handled)
+                {
+                    right = Expression.Constant(value, targetType);
                 }
             }
             catch
             {
                 return false;
             }
-
-            return true;
         }
 
-        private bool TryPromoteNullableEnums(ref Expression left, ref Expression right)
+        return true;
+    }
+
+    private static bool TryConvertList(Type targetType, ref Expression right)
+    {
+        // If left is int?, but right is List<int>: make right List<int?>
+        try
         {
-            var targetType = GetBodyType(left);
-
-            if (targetType != right.Type)
+            var value = ((ConstantExpression)right).Value;
+            var listElemType = right.Type.GetGenericArguments()[0];
+            if (!listElemType.IsNullableType(out _))
             {
-                var expression = PromoteExpression(right, targetType, true);
-                if (expression == null)
+                // List<T> > List<T?>
+                var nullableListType = typeof(List<>).MakeGenericType(targetType);
+                var nullableList = Activator.CreateInstance(nullableListType);
+                var addMethod = nullableListType.GetMethod("Add");
+                foreach (var item in (IEnumerable)value)
                 {
-                    expression = PromoteExpression(left, right.Type, true);
-                    if (expression == null)
-                    {
-                        return false;
-                    }
-                    left = expression; // TODO > Expression <> LambdaExpression ??
+                    addMethod.Invoke(nullableList, new object[] { item.Convert(targetType) });
                 }
-                else
-                {
-                    right = expression;
-                }
-            }
 
-            return true;
-        }
-
-        private Expression PromoteExpression(Expression expr, Type type, bool exact)
-        {
-            var targetType = GetBodyType(expr);
-
-            if (targetType == type)
-            {
-                return expr;
-            }
-
-            var expression = expr as ConstantExpression;
-
-            if (expression != null && expression.Value == null && (!type.IsValueType || type.IsNullableType(out _)))
-            {
-                return Expression.Constant(null, type);
-            }
-
-            if (!targetType.IsCompatibleWith(type))
-            {
-                return null;
-            }
-
-            if (!type.IsValueType && !exact)
-            {
-                return expr;
-            }
-
-            return Expression.Convert(expr, type);
-        }
-
-        private bool TryConvertExpressionTypes(ref Expression left, ref Expression right)
-        {
-            var targetType = GetBodyType(left);
-
-            if (targetType != right.Type)
-            {
-                if (!targetType.IsAssignableFrom(right.Type))
-                {
-                    if (!right.Type.IsAssignableFrom(targetType))
-                    {
-                        return false;
-                    }
-
-                    left = Expression.Convert(left, right.Type); // TODO > UnaryExpression <> LambdaExpression ??
-                }
-                else
-                {
-                    right = Expression.Convert(right, targetType);
-                }
-            }
-
-            return true;
-        }
-
-        protected Type GetBodyType(Expression expr)
-        {
-            if (expr is LambdaExpression lambda)
-            {
-                return lambda.Body.Type;
+                right = Expression.Constant(nullableList, nullableListType);
             }
             else
             {
-                return expr.Type;
-            }  
+                return true;
+            }
+        }
+        catch
+        {
+            return false;
         }
 
-        #endregion
+        return true;
     }
+
+    private bool TryPromoteNullableEnums(ref Expression left, ref Expression right)
+    {
+        var targetType = GetBodyType(left);
+
+        if (targetType != right.Type)
+        {
+            var expression = PromoteExpression(right, targetType, true);
+            if (expression == null)
+            {
+                expression = PromoteExpression(left, right.Type, true);
+                if (expression == null)
+                {
+                    return false;
+                }
+                left = expression; // TODO > Expression <> LambdaExpression ??
+            }
+            else
+            {
+                right = expression;
+            }
+        }
+
+        return true;
+    }
+
+    private Expression PromoteExpression(Expression expr, Type type, bool exact)
+    {
+        var targetType = GetBodyType(expr);
+
+        if (targetType == type)
+        {
+            return expr;
+        }
+
+        var expression = expr as ConstantExpression;
+
+        if (expression != null && expression.Value == null && (!type.IsValueType || type.IsNullableType(out _)))
+        {
+            return Expression.Constant(null, type);
+        }
+
+        if (!targetType.IsCompatibleWith(type))
+        {
+            return null;
+        }
+
+        if (!type.IsValueType && !exact)
+        {
+            return expr;
+        }
+
+        return Expression.Convert(expr, type);
+    }
+
+    private bool TryConvertExpressionTypes(ref Expression left, ref Expression right)
+    {
+        var targetType = GetBodyType(left);
+
+        if (targetType != right.Type)
+        {
+            if (!targetType.IsAssignableFrom(right.Type))
+            {
+                if (!right.Type.IsAssignableFrom(targetType))
+                {
+                    return false;
+                }
+
+                left = Expression.Convert(left, right.Type); // TODO > UnaryExpression <> LambdaExpression ??
+            }
+            else
+            {
+                right = Expression.Convert(right, targetType);
+            }
+        }
+
+        return true;
+    }
+
+    protected Type GetBodyType(Expression expr)
+    {
+        if (expr is LambdaExpression lambda)
+        {
+            return lambda.Body.Type;
+        }
+        else
+        {
+            return expr.Type;
+        }
+    }
+
+    #endregion
 }

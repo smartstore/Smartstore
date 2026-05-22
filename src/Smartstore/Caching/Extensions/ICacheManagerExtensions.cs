@@ -4,7 +4,7 @@ namespace Smartstore;
 
 public static class ICacheManagerExtensions
 {
-    extension (ICacheManager cache)
+    extension(ICacheManager cache)
     {
         /// <summary>
         /// Gets a cache item associated with the specified key or adds the item

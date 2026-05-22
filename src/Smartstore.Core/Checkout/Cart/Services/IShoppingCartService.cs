@@ -73,7 +73,7 @@ public interface IShoppingCartService
     Task<ShoppingCart> GetCartAsync(
         Customer customer = null,
         ShoppingCartType cartType = ShoppingCartType.ShoppingCart,
-        int storeId = 0, 
+        int storeId = 0,
         bool? activeOnly = true);
 
     /// <summary>
@@ -114,7 +114,7 @@ public interface IShoppingCartService
     /// <returns>List of error messages.</returns>
     Task<IList<string>> UpdateCartItemAsync(
         Customer customer,
-        int cartItemId, 
+        int cartItemId,
         int? quantity,
         bool? active,
         bool resetCheckoutData = false);

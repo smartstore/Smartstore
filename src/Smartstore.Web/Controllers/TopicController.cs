@@ -84,7 +84,7 @@ public class TopicController : PublicController
         var content = string.Empty;
         var topic = await _db.Topics.FindByIdAsync(id, false);
 
-        if (topic != null 
+        if (topic != null
             && topic.IsPublished
             && topic.IsPasswordProtected
             && await _storeMappingService.AuthorizeAsync(topic)

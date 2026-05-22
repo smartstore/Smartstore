@@ -1,38 +1,37 @@
 ﻿using System.Net;
 using Microsoft.AspNetCore.Http;
 
-namespace Smartstore
+namespace Smartstore;
+
+public static class ConnectionInfoExtensions
 {
-    public static class ConnectionInfoExtensions
+    /// <summary>
+    /// Checks whether the current request originates from a local computer.
+    /// </summary>
+    public static bool IsLocal(this ConnectionInfo connection)
     {
-        /// <summary>
-        /// Checks whether the current request originates from a local computer.
-        /// </summary>
-        public static bool IsLocal(this ConnectionInfo connection)
+        Guard.NotNull(connection);
+
+        if (connection.RemoteIpAddress != null)
         {
-            Guard.NotNull(connection);
-
-            if (connection.RemoteIpAddress != null)
+            if (connection.LocalIpAddress != null)
             {
-                if (connection.LocalIpAddress != null)
-                {
-                    // When both local and remote IP are equal, we are local.
-                    return connection.RemoteIpAddress.Equals(connection.LocalIpAddress);
-                }
-                else
-                {
-                    // If for some reason local IP is null, we are local when remote IP is a loopback.
-                    return IPAddress.IsLoopback(connection.RemoteIpAddress);
-                }
+                // When both local and remote IP are equal, we are local.
+                return connection.RemoteIpAddress.Equals(connection.LocalIpAddress);
             }
-
-            // For in memory TestServer or when dealing with default connection info  
-            if (connection.RemoteIpAddress == null && connection.LocalIpAddress == null)
+            else
             {
-                return true;
+                // If for some reason local IP is null, we are local when remote IP is a loopback.
+                return IPAddress.IsLoopback(connection.RemoteIpAddress);
             }
-
-            return false;
         }
+
+        // For in memory TestServer or when dealing with default connection info  
+        if (connection.RemoteIpAddress == null && connection.LocalIpAddress == null)
+        {
+            return true;
+        }
+
+        return false;
     }
 }

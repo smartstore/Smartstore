@@ -18,7 +18,7 @@ public class SpecificationAttributeController : AdminController
     private readonly ILocalizedEntityService _localizedEntityService;
     private readonly ICollectionGroupService _collectionGroupService;
 
-    public SpecificationAttributeController(SmartDbContext db, 
+    public SpecificationAttributeController(SmartDbContext db,
         ILocalizedEntityService localizedEntityService,
         ICollectionGroupService collectionGroupService)
     {
@@ -219,7 +219,7 @@ public class SpecificationAttributeController : AdminController
             await _db.SaveChangesAsync();
 
             Services.ActivityLogger.LogActivity(
-                KnownActivityLogTypes.DeleteSpecAttribute, 
+                KnownActivityLogTypes.DeleteSpecAttribute,
                 T("ActivityLog.DeleteSpecAttribute"),
                 string.Join(", ", entities.Select(x => x.Name)));
         }

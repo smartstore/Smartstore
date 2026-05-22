@@ -2,35 +2,34 @@
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 
-namespace Smartstore.Core.Checkout.Rules
+namespace Smartstore.Core.Checkout.Rules;
+
+public class CartRuleContext
 {
-    public class CartRuleContext
+    private readonly Func<object> _sessionKeyBuilder;
+    private object _sessionKey;
+    private ShoppingCart _cart;
+
+    internal CartRuleContext(Func<object> sessionKeyBuilder)
     {
-        private readonly Func<object> _sessionKeyBuilder;
-        private object _sessionKey;
-        private ShoppingCart _cart;
-
-        internal CartRuleContext(Func<object> sessionKeyBuilder)
-        {
-            _sessionKeyBuilder = sessionKeyBuilder;
-        }
-
-        public IWorkContext WorkContext { get; init; }
-        public IShoppingCartService ShoppingCartService { get; init; }
-
-        public Customer Customer { get; set; }
-        public Store Store { get; set; }
-
-        /// <summary>
-        /// Gets or sets the current shopping cart for the <see cref="Customer"/>, containing only active cart items.
-        /// </summary>
-        public ShoppingCart ShoppingCart
-        {
-            get => _cart ??= ShoppingCartService.GetCartAsync(Customer, storeId: Store.Id).Await();
-            set => _cart = value;
-        }
-
-        public object SessionKey 
-            => _sessionKey ??= _sessionKeyBuilder?.Invoke() ?? 0;
+        _sessionKeyBuilder = sessionKeyBuilder;
     }
+
+    public IWorkContext WorkContext { get; init; }
+    public IShoppingCartService ShoppingCartService { get; init; }
+
+    public Customer Customer { get; set; }
+    public Store Store { get; set; }
+
+    /// <summary>
+    /// Gets or sets the current shopping cart for the <see cref="Customer"/>, containing only active cart items.
+    /// </summary>
+    public ShoppingCart ShoppingCart
+    {
+        get => _cart ??= ShoppingCartService.GetCartAsync(Customer, storeId: Store.Id).Await();
+        set => _cart = value;
+    }
+
+    public object SessionKey
+        => _sessionKey ??= _sessionKeyBuilder?.Invoke() ?? 0;
 }

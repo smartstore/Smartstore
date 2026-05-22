@@ -53,7 +53,7 @@ public class NewsletterController : PublicController
             await _newsletterSubscriptionService.UnsubscribeAsync(email, false);
         }
 
-        return Json(new 
+        return Json(new
         {
             Success = true,
             Result = T(subscribe ? "Newsletter.SubscribeEmailSent" : "Newsletter.UnsubscribeEmailSent").Value

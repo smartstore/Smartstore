@@ -5,7 +5,7 @@ namespace Smartstore.Threading;
 
 public static class LockExtensions
 {
-    extension (ReaderWriterLockSlim rwLock)
+    extension(ReaderWriterLockSlim rwLock)
     {
         /// <summary>
         /// Acquires a disposable reader lock that can be used with a using statement.

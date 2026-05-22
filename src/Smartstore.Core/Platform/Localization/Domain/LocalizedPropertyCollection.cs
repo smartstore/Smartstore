@@ -1,94 +1,93 @@
 ﻿using System.Collections;
 
-namespace Smartstore.Core.Localization
+namespace Smartstore.Core.Localization;
+
+public class LocalizedPropertyCollection : IReadOnlyCollection<LocalizedProperty>
 {
-    public class LocalizedPropertyCollection : IReadOnlyCollection<LocalizedProperty>
+    private readonly string _keyGroup;
+    private readonly IDictionary<string, LocalizedProperty> _dict;
+    private HashSet<int> _requestedSet;
+
+    public LocalizedPropertyCollection(string keyGroup, int[] requestedSet, IEnumerable<LocalizedProperty> items)
     {
-        private readonly string _keyGroup;
-        private readonly IDictionary<string, LocalizedProperty> _dict;
-        private HashSet<int> _requestedSet;
+        Guard.NotEmpty(keyGroup, nameof(keyGroup));
+        Guard.NotNull(items, nameof(items));
 
-        public LocalizedPropertyCollection(string keyGroup, int[] requestedSet, IEnumerable<LocalizedProperty> items)
+        _keyGroup = keyGroup;
+        _dict = items.ToDictionarySafe(x => CreateKey(x.LocaleKey, x.EntityId, x.LanguageId), StringComparer.OrdinalIgnoreCase);
+
+        if (requestedSet != null && requestedSet.Length > 0)
         {
-            Guard.NotEmpty(keyGroup, nameof(keyGroup));
-            Guard.NotNull(items, nameof(items));
+            _requestedSet = new HashSet<int>(requestedSet);
+        }
+    }
 
-            _keyGroup = keyGroup;
-            _dict = items.ToDictionarySafe(x => CreateKey(x.LocaleKey, x.EntityId, x.LanguageId), StringComparer.OrdinalIgnoreCase);
+    public void MergeWith(LocalizedPropertyCollection other)
+    {
+        Guard.NotNull(other, nameof(other));
 
-            if (requestedSet != null && requestedSet.Length > 0)
+        if (!this._keyGroup.EqualsNoCase(other._keyGroup))
+        {
+            throw new InvalidOperationException("Expected keygroup '{0}', but was '{1}'".FormatInvariant(this._keyGroup, other._keyGroup));
+        }
+
+        // Merge dictionary
+        other._dict.Merge(this._dict, true);
+
+        // Merge requested set (entity ids)
+        if (this._requestedSet != null)
+        {
+            if (other._requestedSet == null)
             {
-                _requestedSet = new HashSet<int>(requestedSet);
+                other._requestedSet = new HashSet<int>(this._requestedSet);
+            }
+            else
+            {
+                other._requestedSet.AddRange(this._requestedSet);
             }
         }
+    }
 
-        public void MergeWith(LocalizedPropertyCollection other)
+    public string GetValue(int languageId, int entityId, string localeKey)
+    {
+        return Find(languageId, entityId, localeKey)?.LocaleValue;
+    }
+
+    public LocalizedProperty Find(int languageId, int entityId, string localeKey)
+    {
+        var item = _dict.Get(CreateKey(localeKey, entityId, languageId));
+
+        if (item == null && (_requestedSet == null || _requestedSet.Contains(entityId)))
         {
-            Guard.NotNull(other, nameof(other));
-
-            if (!this._keyGroup.EqualsNoCase(other._keyGroup))
+            // Although the item does not exist in the local dictionary it has been requested
+            // from the database, which means it does not exist in the db either.
+            // Avoid the upcoming roundtrip.
+            return new LocalizedProperty
             {
-                throw new InvalidOperationException("Expected keygroup '{0}', but was '{1}'".FormatInvariant(this._keyGroup, other._keyGroup));
-            }
-
-            // Merge dictionary
-            other._dict.Merge(this._dict, true);
-
-            // Merge requested set (entity ids)
-            if (this._requestedSet != null)
-            {
-                if (other._requestedSet == null)
-                {
-                    other._requestedSet = new HashSet<int>(this._requestedSet);
-                }
-                else
-                {
-                    other._requestedSet.AddRange(this._requestedSet);
-                }
-            }
+                LocaleKeyGroup = _keyGroup,
+                EntityId = entityId,
+                LanguageId = languageId,
+                LocaleKey = localeKey,
+                CreatedOnUtc = DateTime.UtcNow
+            };
         }
 
-        public string GetValue(int languageId, int entityId, string localeKey)
-        {
-            return Find(languageId, entityId, localeKey)?.LocaleValue;
-        }
+        return item;
+    }
 
-        public LocalizedProperty Find(int languageId, int entityId, string localeKey)
-        {
-            var item = _dict.Get(CreateKey(localeKey, entityId, languageId));
+    private static string CreateKey(string localeKey, int entityId, int languageId)
+    {
+        return string.Concat(localeKey, "-", entityId.ToStringInvariant(), "-", languageId);
+    }
 
-            if (item == null && (_requestedSet == null || _requestedSet.Contains(entityId)))
-            {
-                // Although the item does not exist in the local dictionary it has been requested
-                // from the database, which means it does not exist in the db either.
-                // Avoid the upcoming roundtrip.
-                return new LocalizedProperty
-                {
-                    LocaleKeyGroup = _keyGroup,
-                    EntityId = entityId,
-                    LanguageId = languageId,
-                    LocaleKey = localeKey,
-                    CreatedOnUtc = DateTime.UtcNow
-                };
-            }
+    public int Count => _dict.Values.Count;
+    public IEnumerator<LocalizedProperty> GetEnumerator()
+    {
+        return _dict.Values.GetEnumerator();
+    }
 
-            return item;
-        }
-
-        private static string CreateKey(string localeKey, int entityId, int languageId)
-        {
-            return string.Concat(localeKey, "-", entityId.ToStringInvariant(), "-", languageId);
-        }
-
-        public int Count => _dict.Values.Count;
-        public IEnumerator<LocalizedProperty> GetEnumerator()
-        {
-            return _dict.Values.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return _dict.Values.GetEnumerator();
-        }
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return _dict.Values.GetEnumerator();
     }
 }

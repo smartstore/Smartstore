@@ -23,9 +23,9 @@ internal class PostgreSqlDateDiffTranslator : IMethodCallTranslator
     }
 
     public SqlExpression Translate(
-        SqlExpression instance, 
-        MethodInfo method, 
-        IReadOnlyList<SqlExpression> arguments, 
+        SqlExpression instance,
+        MethodInfo method,
+        IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
         // Check if one of our DateDiff* methods were called
@@ -95,7 +95,7 @@ internal class PostgreSqlDateDiffTranslator : IMethodCallTranslator
                 }
             }
         }
-        
+
         return null;
     }
 
@@ -151,7 +151,7 @@ internal class PostgreSqlDateDiffTranslator : IMethodCallTranslator
         // right * right
         return _sqlExpressionFactory.Multiply(left, right, _typeMappingSource.FindMapping(typeof(double?)));
     }
-    
+
     private SqlExpression Divide(SqlExpression left, SqlExpression right)
     {
         // right / right

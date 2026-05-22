@@ -46,7 +46,7 @@ public static class HttpSessionExtensions
             result = acquirer();
             TrySetObject(session, key, result);
         }
-        
+
         return result;
     }
 

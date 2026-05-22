@@ -1,85 +1,84 @@
 ﻿using Smartstore.Collections;
 
-namespace Smartstore.Core.Search.Indexing
+namespace Smartstore.Core.Search.Indexing;
+
+/// <summary>
+/// Represents a data segmenter for indexing that uses paging.
+/// </summary>
+/// <remarks>
+/// <see cref="SeekingIndexDataSegmenter"/> does the same as <see cref="IndexDataSegmenter"/> but is faster for very large amounts of data.
+/// </remarks>
+public class IndexDataSegmenter : IIndexDataSegmenter
 {
-    /// <summary>
-    /// Represents a data segmenter for indexing that uses paging.
-    /// </summary>
-    /// <remarks>
-    /// <see cref="SeekingIndexDataSegmenter"/> does the same as <see cref="IndexDataSegmenter"/> but is faster for very large amounts of data.
-    /// </remarks>
-    public class IndexDataSegmenter : IIndexDataSegmenter
+    private const int SEGMENT_SIZE = 500;
+
+    private readonly IPageable _pageable;
+    private readonly Func<int, int, Task<List<IIndexOperation>>> _segmentFactory;
+    private List<IIndexOperation> _currentSegment;
+    private bool _bof = true;
+
+    public IndexDataSegmenter(int totalRecords, Func<int, int, Task<List<IIndexOperation>>> segmentFactory)
     {
-        private const int SEGMENT_SIZE = 500;
+        Guard.NotNull(segmentFactory, nameof(segmentFactory));
 
-        private readonly IPageable _pageable;
-        private readonly Func<int, int, Task<List<IIndexOperation>>> _segmentFactory;
-        private List<IIndexOperation> _currentSegment;
-        private bool _bof = true;
+        _pageable = new PagedDataList(0, SEGMENT_SIZE, totalRecords);
+        _segmentFactory = segmentFactory;
+    }
 
-        public IndexDataSegmenter(int totalRecords, Func<int, int, Task<List<IIndexOperation>>> segmentFactory)
+    public async Task<IEnumerable<IIndexOperation>> GetCurrentSegmentAsync()
+    {
+        _currentSegment ??= await _segmentFactory(_pageable.FirstItemIndex - 1, SEGMENT_SIZE);
+
+        return _currentSegment;
+    }
+
+    public int CurrentSegmentIndex => _pageable.PageIndex;
+
+    public int SegmentSize => SEGMENT_SIZE;
+
+    public int TotalDocuments => _pageable.TotalCount;
+
+    public bool ReadNextSegment()
+    {
+        if (_currentSegment != null)
         {
-            Guard.NotNull(segmentFactory, nameof(segmentFactory));
-
-            _pageable = new PagedDataList(0, SEGMENT_SIZE, totalRecords);
-            _segmentFactory = segmentFactory;
+            _currentSegment.Clear();
+            _currentSegment = null;
         }
 
-        public async Task<IEnumerable<IIndexOperation>> GetCurrentSegmentAsync()
+        if (_bof)
         {
-            _currentSegment ??= await _segmentFactory(_pageable.FirstItemIndex - 1, SEGMENT_SIZE);
-
-            return _currentSegment;
+            _bof = false;
+            return _pageable.TotalCount > 0;
         }
 
-        public int CurrentSegmentIndex => _pageable.PageIndex;
-
-        public int SegmentSize => SEGMENT_SIZE;
-
-        public int TotalDocuments => _pageable.TotalCount;
-
-        public bool ReadNextSegment()
+        if (_pageable.HasNextPage)
         {
-            if (_currentSegment != null)
-            {
-                _currentSegment.Clear();
-                _currentSegment = null;
-            }
-
-            if (_bof)
-            {
-                _bof = false;
-                return _pageable.TotalCount > 0;
-            }
-
-            if (_pageable.HasNextPage)
-            {
-                _pageable.PageIndex++;
-                return true;
-            }
-
-            Reset();
-            return false;
+            _pageable.PageIndex++;
+            return true;
         }
 
-        private void Reset()
-        {
-            if (_pageable.PageIndex != 0 && _currentSegment != null)
-            {
-                _currentSegment.Clear();
-                _currentSegment = null;
-            }
+        Reset();
+        return false;
+    }
 
-            _bof = true;
-            _pageable.PageIndex = 0;
+    private void Reset()
+    {
+        if (_pageable.PageIndex != 0 && _currentSegment != null)
+        {
+            _currentSegment.Clear();
+            _currentSegment = null;
         }
 
-        class PagedDataList : PagedListBase
+        _bof = true;
+        _pageable.PageIndex = 0;
+    }
+
+    class PagedDataList : PagedListBase
+    {
+        public PagedDataList(int pageIndex, int pageSize, int totalItemsCount)
+            : base(pageIndex, pageSize, totalItemsCount)
         {
-            public PagedDataList(int pageIndex, int pageSize, int totalItemsCount)
-                : base(pageIndex, pageSize, totalItemsCount)
-            {
-            }
         }
     }
 }

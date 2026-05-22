@@ -6,7 +6,7 @@ namespace Smartstore;
 
 public static class XmlWriterExtensions
 {
-    extension (XmlWriter writer)
+    extension(XmlWriter writer)
     {
         public void WriteCData(string? name, string? value, string? prefix = null, string? ns = null)
         {

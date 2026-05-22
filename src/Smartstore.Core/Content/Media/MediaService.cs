@@ -413,7 +413,7 @@ public partial class MediaService : IMediaService
         {
             // If outImage is ImageWrapper and its inStream equals the original stream,
             // then the image has not been touched.
-            
+
             var storageItem = MediaStorageItem.FromImage(outImage);
 
             file.Width = outImage.Width;
@@ -734,7 +734,7 @@ public partial class MediaService : IMediaService
         {
             var madeUniqueFileName = dupeFileHandling == DuplicateFileHandling.Overwrite
                 ? false
-                : (dupeDetector != null 
+                : (dupeDetector != null
                     ? await dupeDetector.CheckUniqueFileNameAsync(pathData, cancelToken)
                     : await CheckUniqueFileNameAsync(pathData, cancelToken));
 
@@ -817,7 +817,7 @@ public partial class MediaService : IMediaService
     {
         // Determine image format
         var format = _imageProcessor.Factory.FindFormatByExtension(file.Extension) ?? new UnsupportedImageFormat(file.MimeType, file.Extension);
-        
+
         // Try to read original dimensions from binary header
         var originalSize = CommonHelper.TryAction(() => ImageHeader.GetPixelSize(inStream, file.MimeType));
 
@@ -1162,7 +1162,7 @@ public partial class MediaService : IMediaService
         {
             throw new InvalidOperationException($"Retrospective resolution of media metadata is only possible if {nameof(FileSystemMediaStorageProvider)} is active.");
         }
-        
+
         var message = string.Empty;
 
         var query = _db.MediaFiles
@@ -1184,7 +1184,7 @@ public partial class MediaService : IMediaService
                 var filePath = storageProvider.GetPath(file);
 
                 _helper.TokenizePath(filePath, true, out var pathData);
-                
+
                 file.Name = pathData.FileName;
                 file.Extension = pathData.Extension;
                 file.MimeType = pathData.MimeType;

@@ -36,11 +36,11 @@ internal class ImageGenerator
         if (barcode.Bounds.Y == 1)
         {
             return Generate1D(barcode, opts);
-        } 
+        }
         else if (barcode.Bounds.Y > 1)
         {
             return Generate2D(barcode, opts);
-        }         
+        }
         else
         {
             throw new NotSupportedException($"Y value of {barcode.Bounds.Y} is invalid");
@@ -76,7 +76,7 @@ internal class ImageGenerator
         {
             EanTextRenderer.Render(image, barcode, o);
         }
-        
+
         return new SharpImage(image);
     }
 

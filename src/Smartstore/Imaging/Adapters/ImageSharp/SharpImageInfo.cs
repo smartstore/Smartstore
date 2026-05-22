@@ -3,72 +3,71 @@ using SixLabors.ImageSharp.Metadata;
 using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 using SixLabors.ImageSharp.Metadata.Profiles.Iptc;
 
-namespace Smartstore.Imaging.Adapters.ImageSharp
-{
-    internal sealed class SharpImageInfo : IImageInfo
-    {
-        private readonly SixLabors.ImageSharp.ImageInfo _info;
-        private readonly IImageFormat _format;
+namespace Smartstore.Imaging.Adapters.ImageSharp;
 
-        public SharpImageInfo(SixLabors.ImageSharp.ImageInfo info)
+internal sealed class SharpImageInfo : IImageInfo
+{
+    private readonly SixLabors.ImageSharp.ImageInfo _info;
+    private readonly IImageFormat _format;
+
+    public SharpImageInfo(SixLabors.ImageSharp.ImageInfo info)
+    {
+        Guard.NotNull(info);
+
+        _info = info;
+        _format = ImageSharpUtility.CreateFormat(info.Metadata.DecodedImageFormat);
+    }
+
+    public int Width
+        => _info.Width;
+
+    public int Height
+        => _info.Height;
+
+    public byte BitDepth
+        => (byte)(_info.PixelType?.BitsPerPixel);
+
+    public IImageFormat Format
+        => _format;
+
+    public IEnumerable<ImageMetadataEntry> GetMetadata()
+        => ConvertMetadata(_info.Metadata);
+
+    public static IEnumerable<ImageMetadataEntry> ConvertMetadata(ImageMetadata metadata)
+    {
+        if (metadata == null)
         {
-            Guard.NotNull(info);
-            
-            _info = info;
-            _format = ImageSharpUtility.CreateFormat(info.Metadata.DecodedImageFormat);
+            yield break;
         }
 
-        public int Width
-            => _info.Width;
-
-        public int Height
-            => _info.Height;
-
-        public byte BitDepth
-            => (byte)(_info.PixelType?.BitsPerPixel);
-
-        public IImageFormat Format
-            => _format;
-
-        public IEnumerable<ImageMetadataEntry> GetMetadata()
-            => ConvertMetadata(_info.Metadata);
-
-        public static IEnumerable<ImageMetadataEntry> ConvertMetadata(ImageMetadata metadata)
+        var iptcValues = metadata.IptcProfile?.Values;
+        if (iptcValues != null)
         {
-            if (metadata == null)
+            foreach (var entry in iptcValues)
             {
-                yield break;
-            }
-            
-            var iptcValues = metadata.IptcProfile?.Values;
-            if (iptcValues != null)
-            {
-                foreach (var entry in iptcValues)
+                if (entry.Tag > IptcTag.Unknown)
                 {
-                    if (entry.Tag > IptcTag.Unknown)
-                    {
-                        yield return new ImageMetadataEntry(entry.Tag.ToString(), entry.Value, ImageMetadataProfile.Iptc);
-                    }
+                    yield return new ImageMetadataEntry(entry.Tag.ToString(), entry.Value, ImageMetadataProfile.Iptc);
                 }
             }
+        }
 
-            var exifValues = metadata.ExifProfile?.Values;
-            if (exifValues != null && exifValues.Count > 0)
+        var exifValues = metadata.ExifProfile?.Values;
+        if (exifValues != null && exifValues.Count > 0)
+        {
+            foreach (var entry in exifValues)
             {
-                foreach (var entry in exifValues)
+                if (entry.DataType > ExifDataType.Unknown)
                 {
-                    if (entry.DataType > ExifDataType.Unknown)
+                    var value = entry.GetValue();
+
+                    if (value != null)
                     {
-                        var value = entry.GetValue();
+                        var valueString = value.GetType().IsArray
+                            ? string.Join(", ", (value as IEnumerable).Cast<object>().ToArray())
+                            : value.ToString();
 
-                        if (value != null)
-                        {
-                            var valueString = value.GetType().IsArray
-                                ? string.Join(", ", (value as IEnumerable).Cast<object>().ToArray())
-                                : value.ToString();
-
-                            yield return new ImageMetadataEntry(entry.Tag.ToString(), valueString, ImageMetadataProfile.Exif);
-                        }
+                        yield return new ImageMetadataEntry(entry.Tag.ToString(), valueString, ImageMetadataProfile.Exif);
                     }
                 }
             }

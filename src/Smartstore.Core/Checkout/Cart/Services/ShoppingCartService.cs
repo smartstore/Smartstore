@@ -106,7 +106,7 @@ public partial class ShoppingCartService : IShoppingCartService
         // This is called when customer adds a product to cart
         ctx.Customer ??= _workContext.CurrentCustomer;
         ctx.StoreId ??= _storeContext.CurrentStore.Id;
-        
+
         if (ctx.Customer.IsBot())
         {
             ctx.Warnings.Add(T("Common.Error.BotsNotPermitted"));
@@ -387,7 +387,7 @@ public partial class ShoppingCartService : IShoppingCartService
 
     public virtual Task<ShoppingCart> GetCartAsync(
         Customer customer = null,
-        ShoppingCartType cartType = ShoppingCartType.ShoppingCart, 
+        ShoppingCartType cartType = ShoppingCartType.ShoppingCart,
         int storeId = 0,
         bool? activeOnly = true)
     {
@@ -504,9 +504,9 @@ public partial class ShoppingCartService : IShoppingCartService
     }
 
     public virtual async Task<IList<string>> UpdateCartItemAsync(
-        Customer customer, 
+        Customer customer,
         int cartItemId,
-        int? quantity, 
+        int? quantity,
         bool? active,
         bool resetCheckoutData = false)
     {

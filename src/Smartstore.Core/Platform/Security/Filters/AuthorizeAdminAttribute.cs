@@ -1,60 +1,59 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Smartstore.Core.Security
+namespace Smartstore.Core.Security;
+
+/// <summary>
+/// Checks whether the current user has the permission to access the administration backend.
+/// </summary>
+public sealed class AuthorizeAdminAttribute : TypeFilterAttribute
 {
-    /// <summary>
-    /// Checks whether the current user has the permission to access the administration backend.
-    /// </summary>
-    public sealed class AuthorizeAdminAttribute : TypeFilterAttribute
+    public AuthorizeAdminAttribute()
+        : base(typeof(AuthorizeAdminFilter))
     {
-        public AuthorizeAdminAttribute()
-            : base(typeof(AuthorizeAdminFilter))
+    }
+
+    class AuthorizeAdminFilter : IAsyncAuthorizationFilter
+    {
+        private readonly IPermissionService _permissionService;
+
+        public AuthorizeAdminFilter(IPermissionService permissionService)
         {
+            _permissionService = permissionService;
         }
 
-        class AuthorizeAdminFilter : IAsyncAuthorizationFilter
+        public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
-            private readonly IPermissionService _permissionService;
+            Guard.NotNull(context, nameof(context));
 
-            public AuthorizeAdminFilter(IPermissionService permissionService)
+            var overrideFilter = context.ActionDescriptor.FilterDescriptors
+                .Where(x => x.Scope == FilterScope.Action)
+                .Select(x => x.Filter)
+                .OfType<NeverAuthorizeAttribute>()
+                .FirstOrDefault();
+
+            if (overrideFilter != null)
             {
-                _permissionService = permissionService;
+                return;
             }
 
-            public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
+            if (context.Filters.Any(x => x is AuthorizeAdminFilter))
             {
-                Guard.NotNull(context, nameof(context));
-
-                var overrideFilter = context.ActionDescriptor.FilterDescriptors
-                    .Where(x => x.Scope == FilterScope.Action)
-                    .Select(x => x.Filter)
-                    .OfType<NeverAuthorizeAttribute>()
-                    .FirstOrDefault();
-
-                if (overrideFilter != null)
+                if (!await HasAdminAccess())
                 {
-                    return;
-                }
-
-                if (context.Filters.Any(x => x is AuthorizeAdminFilter))
-                {
-                    if (!await HasAdminAccess())
-                    {
-                        context.Result = new ChallengeResult();
-                    }
+                    context.Result = new ChallengeResult();
                 }
             }
+        }
 
-            private async Task<bool> HasAdminAccess()
+        private async Task<bool> HasAdminAccess()
+        {
+            if (await _permissionService.AuthorizeAsync(Permissions.System.AccessBackend))
             {
-                if (await _permissionService.AuthorizeAsync(Permissions.System.AccessBackend))
-                {
-                    return true;
-                }
-
-                return false;
+                return true;
             }
+
+            return false;
         }
     }
 }

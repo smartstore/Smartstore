@@ -15,464 +15,463 @@ using Smartstore.Events;
 using Smartstore.Net;
 using Smartstore.Utilities;
 
-namespace Smartstore.Core.Identity
+namespace Smartstore.Core.Identity;
+
+public partial class CustomerService : ICustomerService
 {
-    public partial class CustomerService : ICustomerService
+    private readonly SmartDbContext _db;
+    private readonly IStoreContext _storeContext;
+    private readonly UserManager<Customer> _userManager;
+    private readonly IWebHelper _webHelper;
+    private readonly IEventPublisher _eventPublisher;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IChronometer _chronometer;
+    private readonly RewardPointsSettings _rewardPointsSettings;
+    private readonly PrivacySettings _privacySettings;
+
+    private Customer _authCustomer;
+    private bool _authCustomerResolved;
+
+    public CustomerService(
+        SmartDbContext db,
+        IStoreContext storeContext,
+        UserManager<Customer> userManager,
+        IWebHelper webHelper,
+        IEventPublisher eventPublisher,
+        IHttpContextAccessor httpContextAccessor,
+        IChronometer chronometer,
+        RewardPointsSettings rewardPointsSettings,
+        PrivacySettings privacySettings)
     {
-        private readonly SmartDbContext _db;
-        private readonly IStoreContext _storeContext;
-        private readonly UserManager<Customer> _userManager;
-        private readonly IWebHelper _webHelper;
-        private readonly IEventPublisher _eventPublisher;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IChronometer _chronometer;
-        private readonly RewardPointsSettings _rewardPointsSettings;
-        private readonly PrivacySettings _privacySettings;
+        _db = db;
+        _storeContext = storeContext;
+        _userManager = userManager;
+        _webHelper = webHelper;
+        _eventPublisher = eventPublisher;
+        _httpContextAccessor = httpContextAccessor;
+        _chronometer = chronometer;
+        _rewardPointsSettings = rewardPointsSettings;
+        _privacySettings = privacySettings;
+    }
 
-        private Customer _authCustomer;
-        private bool _authCustomerResolved;
+    public Localizer T { get; set; } = NullLocalizer.Instance;
+    public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        public CustomerService(
-            SmartDbContext db,
-            IStoreContext storeContext,
-            UserManager<Customer> userManager,
-            IWebHelper webHelper,
-            IEventPublisher eventPublisher,
-            IHttpContextAccessor httpContextAccessor,
-            IChronometer chronometer,
-            RewardPointsSettings rewardPointsSettings,
-            PrivacySettings privacySettings)
+    #region Guest customers
+
+    public virtual async Task<Customer> CreateGuestCustomerAsync(string clientIdent = null, Action<Customer> customAction = null)
+    {
+        if (clientIdent.HasValue() && clientIdent.Length < 8)
         {
-            _db = db;
-            _storeContext = storeContext;
-            _userManager = userManager;
-            _webHelper = webHelper;
-            _eventPublisher = eventPublisher;
-            _httpContextAccessor = httpContextAccessor;
-            _chronometer = chronometer;
-            _rewardPointsSettings = rewardPointsSettings;
-            _privacySettings = privacySettings;
+            throw new ArgumentException("Client ident must be at least 8 chars long.", nameof(clientIdent));
         }
 
-        public Localizer T { get; set; } = NullLocalizer.Instance;
-        public ILogger Logger { get; set; } = NullLogger.Instance;
-
-        #region Guest customers
-
-        public virtual async Task<Customer> CreateGuestCustomerAsync(string clientIdent = null, Action<Customer> customAction = null)
+        var customer = new Customer
         {
-            if (clientIdent.HasValue() && clientIdent.Length < 8)
+            CustomerGuid = Guid.NewGuid(),
+            CreatedOnUtc = DateTime.UtcNow,
+            LastActivityDateUtc = DateTime.UtcNow,
+            ClientIdent = clientIdent.NullEmpty(),
+            Active = true
+        };
+
+        // Add to 'Guests' role
+        var guestRole = await GetRoleBySystemNameAsync(SystemCustomerRoleNames.Guests)
+            ?? throw new InvalidOperationException("'Guests' role could not be loaded");
+
+        using (new DbContextScope(_db, minHookImportance: HookImportance.Essential))
+        {
+            // Non-essential hooks should NOT react to the insertion of a guest customer record.
+            // We want to prevent cache key lock recursion flaws this way: because a hook can trigger
+            // actions which - in rare cases, e.g. in a singleton scope - may result in a new guest customer
+            // entity inserted to the database, which would now result in calling the source hook again
+            // (if it handled the Customer entity).
+
+            // Ensure that entities are saved to db in any case
+            customer.CustomerRoleMappings.Add(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = guestRole.Id });
+
+            // Invoke custom action
+            customAction?.Invoke(customer);
+
+            _db.Customers.Add(customer);
+
+            await _db.SaveChangesAsync();
+        }
+
+        //Logger.DebugFormat("Guest account created for anonymous visitor. Id: {0}, ClientIdent: {1}", customer.CustomerGuid, clientIdent ?? "n/a");
+
+        return customer;
+    }
+
+    public virtual async Task<Customer> FindCustomerByClientIdentAsync(string clientIdent = null, int maxAgeSeconds = 60)
+    {
+        using (_chronometer.Step("FindGuestCustomerByClientIdent"))
+        {
+            clientIdent = clientIdent.NullEmpty() ?? _webHelper.ClientInfo.ClientIdent;
+            if (clientIdent.IsEmpty())
             {
-                throw new ArgumentException("Client ident must be at least 8 chars long.", nameof(clientIdent));
+                return null;
             }
-            
-            var customer = new Customer
-            {
-                CustomerGuid = Guid.NewGuid(),
-                CreatedOnUtc = DateTime.UtcNow,
-                LastActivityDateUtc = DateTime.UtcNow,
-                ClientIdent = clientIdent.NullEmpty(),
-                Active = true
-            };
 
-            // Add to 'Guests' role
-            var guestRole = await GetRoleBySystemNameAsync(SystemCustomerRoleNames.Guests) 
-                ?? throw new InvalidOperationException("'Guests' role could not be loaded");
+            var dateFrom = DateTime.UtcNow.AddSeconds(-maxAgeSeconds);
 
-            using (new DbContextScope(_db, minHookImportance: HookImportance.Essential))
-            {
-                // Non-essential hooks should NOT react to the insertion of a guest customer record.
-                // We want to prevent cache key lock recursion flaws this way: because a hook can trigger
-                // actions which - in rare cases, e.g. in a singleton scope - may result in a new guest customer
-                // entity inserted to the database, which would now result in calling the source hook again
-                // (if it handled the Customer entity).
-
-                // Ensure that entities are saved to db in any case
-                customer.CustomerRoleMappings.Add(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = guestRole.Id });
-
-                // Invoke custom action
-                customAction?.Invoke(customer);
-
-                _db.Customers.Add(customer);
-
-                await _db.SaveChangesAsync();
-            }
-
-            //Logger.DebugFormat("Guest account created for anonymous visitor. Id: {0}, ClientIdent: {1}", customer.CustomerGuid, clientIdent ?? "n/a");
+            var customer = await _db.Customers
+                .Where(c => c.ClientIdent == clientIdent && c.Username == null && c.Email == null && c.LastActivityDateUtc >= dateFrom)
+                .OrderByDescending(c => c.Id)
+                .IncludeCustomerRoles()
+                // Disabled because of SqlClient "Deadlock" exception (?)
+                //.IncludeShoppingCart()
+                .FirstOrDefaultAsync();
 
             return customer;
         }
-
-        public virtual async Task<Customer> FindCustomerByClientIdentAsync(string clientIdent = null, int maxAgeSeconds = 60)
-        {
-            using (_chronometer.Step("FindGuestCustomerByClientIdent"))
-            {
-                clientIdent = clientIdent.NullEmpty() ?? _webHelper.ClientInfo.ClientIdent;
-                if (clientIdent.IsEmpty())
-                {
-                    return null;
-                }
-
-                var dateFrom = DateTime.UtcNow.AddSeconds(-maxAgeSeconds);
-
-                var customer = await _db.Customers
-                    .Where(c => c.ClientIdent == clientIdent && c.Username == null && c.Email == null && c.LastActivityDateUtc >= dateFrom)
-                    .OrderByDescending(c => c.Id)
-                    .IncludeCustomerRoles()
-                    // Disabled because of SqlClient "Deadlock" exception (?)
-                    //.IncludeShoppingCart()
-                    .FirstOrDefaultAsync();
-
-                return customer;
-            }
-        }
-
-        public virtual async Task<CustomerDeletionResult> DeleteCustomersAsync(int[] customerIds, CancellationToken cancelToken = default)
-        {
-            if (customerIds.IsNullOrEmpty())
-            {
-                return new();
-            }
-
-            int[] deletedGuestCustomerIds = null;
-            int[] softDeletedCustomerIds = null;
-            int[] skippedAdminIds = null;
-
-            var guestCustomersQuery = await GetGuestCustomersDeletionQuery(null, null, false, cancelToken);
-            var guestCustomerIds = await guestCustomersQuery
-                .Where(x => customerIds.Contains(x.Id))
-                .Select(x => x.Id)
-                .ToArrayAsync(cancelToken);
-
-            if (guestCustomerIds.Length > 0)
-            {
-                // Delete guest customer's attributes.
-                await _db.GenericAttributes
-                    .IgnoreQueryFilters()
-                    .Where(x => guestCustomerIds.Contains(x.EntityId) && x.KeyGroup == nameof(Customer))
-                    .ExecuteDeleteAsync(cancelToken);
-
-                // Delete guest customers.
-                await _db.Customers
-                    .IgnoreQueryFilters()
-                    .Where(x => guestCustomerIds.Contains(x.Id))
-                    .ExecuteDeleteAsync(cancelToken);
-
-                deletedGuestCustomerIds = guestCustomerIds;
-                customerIds = [.. customerIds.Where(x => !guestCustomerIds.Contains(x))];
-            }
-
-            var customers = await _db.Customers
-                .IncludeCustomerRoles()
-                .Where(x => !x.IsSystemAccount)
-                .GetManyAsync(customerIds, true);
-            if (customers.Count > 0)
-            {
-                // Do not delete administrators.
-                skippedAdminIds = [.. customers
-                    .Where(c => c.CustomerRoleMappings.Any(rm =>
-                        rm.CustomerRole.IsSystemRole &&
-                        rm.CustomerRole.Active &&
-                        (rm.CustomerRole.SystemName == SystemCustomerRoleNames.Administrators || rm.CustomerRole.SystemName == SystemCustomerRoleNames.SuperAdministrators)))
-                    .Select(x => x.Id)];
-
-                if (skippedAdminIds.Length > 0)
-                {
-                    customers = [.. customers.Where(x => !skippedAdminIds.Contains(x.Id))];
-                }
-
-                // INFO: We do not use Remove/RemoveRange to soft-delete (see SoftDeletableHook),
-                // because that would physically delete included entities (here CustomerRoleMappings)!
-                customers.Each(x => x.Deleted = true);
-                await _db.SaveChangesAsync(cancelToken);
-
-                softDeletedCustomerIds = [.. customers.Select(x => x.Id)];
-            }
-
-            return new(deletedGuestCustomerIds, softDeletedCustomerIds, skippedAdminIds);
-        }
-
-        public virtual async Task<int> DeleteGuestCustomersAsync(
-            DateTime? registrationFrom,
-            DateTime? registrationTo,
-            bool onlyWithoutShoppingCart,
-            CancellationToken cancelToken = default)
-        {
-            var numberOfDeletedCustomers = 0;
-            var numberOfDeletedAttributes = 0;
-            var query = await GetGuestCustomersDeletionQuery(registrationFrom, registrationTo, onlyWithoutShoppingCart, cancelToken);
-            var customerIdsQuery = query
-                .OrderBy(x => x.Id)
-                .Select(x => x.Id)
-                .Take(5000);
-
-            while (true)
-            {
-                cancelToken.ThrowIfCancellationRequested();
-
-                var customerIds = await customerIdsQuery.ToListAsync(cancelToken);
-                if (customerIds.Count == 0)
-                {
-                    break;
-                }
-
-                // Delete generic attributes.
-                var numDeleted = await _db.GenericAttributes
-                    .IgnoreQueryFilters()
-                    .Where(x => customerIds.Contains(x.EntityId) && x.KeyGroup == nameof(Customer))
-                    .ExecuteDeleteAsync(cancelToken);
-
-                numberOfDeletedAttributes += numDeleted;
-
-                // Delete guest customers.
-                numDeleted = await _db.Customers
-                    .IgnoreQueryFilters()
-                    .Where(x => customerIds.Contains(x.Id))
-                    .ExecuteDeleteAsync(cancelToken);
-
-                if (numDeleted == 0)
-                {
-                    break;
-                }
-
-                numberOfDeletedCustomers += numDeleted;
-            }
-
-            if (numberOfDeletedCustomers + numberOfDeletedAttributes > 10000 && !cancelToken.IsCancellationRequested && _db.DataProvider.CanOptimizeTable)
-            {
-                var tableName = _db.Model.FindEntityType(typeof(Customer)).GetTableName();
-                await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync(tableName, cancelToken));
-            }
-
-            Logger.Debug("Deleted {0} guest customers including {1} generic attributes.", numberOfDeletedCustomers, numberOfDeletedAttributes);
-
-            return numberOfDeletedCustomers;
-        }
-
-        private async Task<IQueryable<Customer>> GetGuestCustomersDeletionQuery(
-            DateTime? registrationFrom,
-            DateTime? registrationTo,
-            bool onlyWithoutShoppingCart,
-            CancellationToken cancelToken)
-        {
-            var query =
-                from c in _db.Customers.IgnoreQueryFilters()
-                where c.Username == null && c.Email == null && !c.IsSystemAccount
-                    && !_db.Orders.IgnoreQueryFilters().Any(o => o.CustomerId == c.Id)
-                    && !_db.CustomerContent.IgnoreQueryFilters().Any(cc => cc.CustomerId == c.Id)
-                select c;
-
-            if (onlyWithoutShoppingCart)
-            {
-                query =
-                    from c in query
-                    where !_db.ShoppingCartItems.IgnoreQueryFilters().Any(sci => sci.CustomerId == c.Id && sci.Active)
-                    select c;
-            }
-            if (registrationFrom.HasValue)
-            {
-                query = query.Where(c => c.CreatedOnUtc >= registrationFrom.Value);
-            }
-            if (registrationTo.HasValue)
-            {
-                query = query.Where(c => c.CreatedOnUtc <= registrationTo.Value);
-            }
-
-            var message = new GuestCustomerDeletingEvent(registrationFrom, registrationTo, onlyWithoutShoppingCart)
-            {
-                Query = query
-            };
-            await _eventPublisher.PublishAsync(message, cancelToken);
-
-            return message.Query;
-        }
-
-        public virtual void AppendVisitorCookie(Customer customer)
-        {
-            Guard.NotNull(customer);
-            
-            if (_httpContextAccessor.HttpContext is HttpContext httpContext)
-            {
-                var cookieExpiry = customer.CustomerGuid == Guid.Empty
-                    ? DateTime.Now.AddMonths(-1)
-                    : DateTime.Now.AddDays(_privacySettings.VisitorCookieExpirationDays);
-
-                // Set visitor cookie
-                var cookieOptions = new CookieOptions
-                {
-                    Expires = cookieExpiry,
-                    HttpOnly = true,
-                    IsEssential = true,
-                    Secure = _webHelper.IsCurrentConnectionSecured(),
-                    SameSite = SameSiteMode.Lax
-                };
-
-                // INFO: Global OnAppendCookie does not always run for visitor cookie.
-                if (cookieOptions.Secure)
-                {
-                    cookieOptions.SameSite = _privacySettings.SameSiteMode;
-                }
-
-                if (httpContext.Request.PathBase.HasValue)
-                {
-                    cookieOptions.Path = httpContext.Request.PathBase;
-                }
-
-                var cookies = httpContext.Response.Cookies;
-                try
-                {
-                    cookies.Delete(CookieNames.Visitor, cookieOptions);
-                }
-                finally
-                {
-                    cookies.Append(CookieNames.Visitor, customer.CustomerGuid.ToString(), cookieOptions);
-                }
-            }
-        }
-
-        #endregion
-
-        #region Customers
-
-        public virtual Customer GetCustomerBySystemName(string systemName, bool tracked = true)
-            => GetCustomerBySystemNameInternal(systemName, tracked, false).Await();
-
-        public virtual Task<Customer> GetCustomerBySystemNameAsync(string systemName, bool tracked = true)
-            => GetCustomerBySystemNameInternal(systemName, tracked, true);
-
-        private async Task<Customer> GetCustomerBySystemNameInternal(string systemName, bool tracked, bool async)
-        {
-            if (string.IsNullOrWhiteSpace(systemName))
-            {
-                return null;
-            }
-
-            var query = _db.Customers
-                .IncludeCustomerRoles()
-                .ApplyTracking(tracked)
-                .AsCaching()
-                .Where(x => x.SystemName == systemName)
-                .OrderBy(x => x.Id);
-
-            return async 
-                ? await query.FirstOrDefaultAsync() 
-                : query.FirstOrDefault();
-        }
-
-        public virtual async Task<Customer> GetAuthenticatedCustomerAsync()
-        {
-            if (!_authCustomerResolved)
-            {
-                var httpContext = _httpContextAccessor.HttpContext;
-                if (httpContext == null)
-                {
-                    return null;
-                }
-
-                var principal = await EnsureAuthentication(httpContext);
-
-                if (principal?.Identity?.IsAuthenticated == true)
-                {
-                    _authCustomer = await _userManager.GetUserAsync(principal);
-                }
-
-                _authCustomerResolved = true;
-            }
-
-            if (_authCustomer == null || !_authCustomer.Active || _authCustomer.Deleted || !_authCustomer.IsRegistered())
-            {
-                return null;
-            }
-
-            return _authCustomer;
-        }
-
-        /// <summary>
-        /// Ensures that the authentication handler runs (even before the authentication middleware).
-        /// </summary>
-        private static async Task<ClaimsPrincipal> EnsureAuthentication(HttpContext context)
-        {
-            var authenticateResult = context.Features.Get<IAuthenticateResultFeature>()?.AuthenticateResult 
-                ?? await context.AuthenticateAsync();
-            if (authenticateResult.Succeeded)
-            {
-                // The middleware ran already
-                return authenticateResult.Principal ?? context.User;
-            }
-
-            // The middleware did not run yet
-            return context.User;
-        }
-
-        #endregion
-
-        #region Roles
-
-        public virtual CustomerRole GetRoleBySystemName(string systemName, bool tracked = true)
-        {
-            if (string.IsNullOrWhiteSpace(systemName))
-            {
-                return null;
-            }
-
-            var query = _db.CustomerRoles
-                .ApplyTracking(tracked)
-                .AsCaching()
-                .Where(x => x.SystemName == systemName)
-                .OrderBy(x => x.Id);
-
-            return query.FirstOrDefault();
-        }
-
-        public virtual Task<CustomerRole> GetRoleBySystemNameAsync(string systemName, bool tracked = true)
-        {
-            if (string.IsNullOrWhiteSpace(systemName))
-            {
-                return Task.FromResult((CustomerRole)null);
-            }
-
-            var query = _db.CustomerRoles
-                .ApplyTracking(tracked)
-                .AsCaching()
-                .Where(x => x.SystemName == systemName)
-                .OrderBy(x => x.Id);
-
-            return query.FirstOrDefaultAsync();
-        }
-
-        #endregion
-
-        #region Reward points
-
-        public virtual void ApplyRewardPointsForProductReview(Customer customer, Product product, bool add)
-        {
-            Guard.NotNull(customer);
-
-            if (_rewardPointsSettings.Enabled && _rewardPointsSettings.PointsForProductReview > 0)
-            {
-                var productName = product?.GetLocalized(x => x.Name) ?? StringExtensions.NotAvailable;
-                var message = T(add ? "RewardPoints.Message.EarnedForProductReview" : "RewardPoints.Message.ReducedForProductReview", productName);
-
-                customer.AddRewardPointsHistoryEntry(_rewardPointsSettings.PointsForProductReview * (add ? 1 : -1), message);
-            }
-        }
-
-        public virtual void ApplyRewardPointsForNewsletterSubscription(Customer customer)
-        {
-            Guard.NotNull(customer);
-
-            if (_rewardPointsSettings.Enabled 
-                && _rewardPointsSettings.PointsForNewsletterSubscription > 0
-                && customer.IsRegistered()
-                && !customer.GenericAttributes.HasEarnedNewsletterRewardPoints)
-            {
-                var msg = T("RewardPoints.Message.EarnedForNewsletterSubscription", _storeContext.CurrentStore.Name.NaIfEmpty());
-
-                customer.AddRewardPointsHistoryEntry(_rewardPointsSettings.PointsForNewsletterSubscription, msg);
-                customer.GenericAttributes.HasEarnedNewsletterRewardPoints = true;
-            }
-        }
-
-        #endregion
     }
+
+    public virtual async Task<CustomerDeletionResult> DeleteCustomersAsync(int[] customerIds, CancellationToken cancelToken = default)
+    {
+        if (customerIds.IsNullOrEmpty())
+        {
+            return new();
+        }
+
+        int[] deletedGuestCustomerIds = null;
+        int[] softDeletedCustomerIds = null;
+        int[] skippedAdminIds = null;
+
+        var guestCustomersQuery = await GetGuestCustomersDeletionQuery(null, null, false, cancelToken);
+        var guestCustomerIds = await guestCustomersQuery
+            .Where(x => customerIds.Contains(x.Id))
+            .Select(x => x.Id)
+            .ToArrayAsync(cancelToken);
+
+        if (guestCustomerIds.Length > 0)
+        {
+            // Delete guest customer's attributes.
+            await _db.GenericAttributes
+                .IgnoreQueryFilters()
+                .Where(x => guestCustomerIds.Contains(x.EntityId) && x.KeyGroup == nameof(Customer))
+                .ExecuteDeleteAsync(cancelToken);
+
+            // Delete guest customers.
+            await _db.Customers
+                .IgnoreQueryFilters()
+                .Where(x => guestCustomerIds.Contains(x.Id))
+                .ExecuteDeleteAsync(cancelToken);
+
+            deletedGuestCustomerIds = guestCustomerIds;
+            customerIds = [.. customerIds.Where(x => !guestCustomerIds.Contains(x))];
+        }
+
+        var customers = await _db.Customers
+            .IncludeCustomerRoles()
+            .Where(x => !x.IsSystemAccount)
+            .GetManyAsync(customerIds, true);
+        if (customers.Count > 0)
+        {
+            // Do not delete administrators.
+            skippedAdminIds = [.. customers
+                .Where(c => c.CustomerRoleMappings.Any(rm =>
+                    rm.CustomerRole.IsSystemRole &&
+                    rm.CustomerRole.Active &&
+                    (rm.CustomerRole.SystemName == SystemCustomerRoleNames.Administrators || rm.CustomerRole.SystemName == SystemCustomerRoleNames.SuperAdministrators)))
+                .Select(x => x.Id)];
+
+            if (skippedAdminIds.Length > 0)
+            {
+                customers = [.. customers.Where(x => !skippedAdminIds.Contains(x.Id))];
+            }
+
+            // INFO: We do not use Remove/RemoveRange to soft-delete (see SoftDeletableHook),
+            // because that would physically delete included entities (here CustomerRoleMappings)!
+            customers.Each(x => x.Deleted = true);
+            await _db.SaveChangesAsync(cancelToken);
+
+            softDeletedCustomerIds = [.. customers.Select(x => x.Id)];
+        }
+
+        return new(deletedGuestCustomerIds, softDeletedCustomerIds, skippedAdminIds);
+    }
+
+    public virtual async Task<int> DeleteGuestCustomersAsync(
+        DateTime? registrationFrom,
+        DateTime? registrationTo,
+        bool onlyWithoutShoppingCart,
+        CancellationToken cancelToken = default)
+    {
+        var numberOfDeletedCustomers = 0;
+        var numberOfDeletedAttributes = 0;
+        var query = await GetGuestCustomersDeletionQuery(registrationFrom, registrationTo, onlyWithoutShoppingCart, cancelToken);
+        var customerIdsQuery = query
+            .OrderBy(x => x.Id)
+            .Select(x => x.Id)
+            .Take(5000);
+
+        while (true)
+        {
+            cancelToken.ThrowIfCancellationRequested();
+
+            var customerIds = await customerIdsQuery.ToListAsync(cancelToken);
+            if (customerIds.Count == 0)
+            {
+                break;
+            }
+
+            // Delete generic attributes.
+            var numDeleted = await _db.GenericAttributes
+                .IgnoreQueryFilters()
+                .Where(x => customerIds.Contains(x.EntityId) && x.KeyGroup == nameof(Customer))
+                .ExecuteDeleteAsync(cancelToken);
+
+            numberOfDeletedAttributes += numDeleted;
+
+            // Delete guest customers.
+            numDeleted = await _db.Customers
+                .IgnoreQueryFilters()
+                .Where(x => customerIds.Contains(x.Id))
+                .ExecuteDeleteAsync(cancelToken);
+
+            if (numDeleted == 0)
+            {
+                break;
+            }
+
+            numberOfDeletedCustomers += numDeleted;
+        }
+
+        if (numberOfDeletedCustomers + numberOfDeletedAttributes > 10000 && !cancelToken.IsCancellationRequested && _db.DataProvider.CanOptimizeTable)
+        {
+            var tableName = _db.Model.FindEntityType(typeof(Customer)).GetTableName();
+            await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync(tableName, cancelToken));
+        }
+
+        Logger.Debug("Deleted {0} guest customers including {1} generic attributes.", numberOfDeletedCustomers, numberOfDeletedAttributes);
+
+        return numberOfDeletedCustomers;
+    }
+
+    private async Task<IQueryable<Customer>> GetGuestCustomersDeletionQuery(
+        DateTime? registrationFrom,
+        DateTime? registrationTo,
+        bool onlyWithoutShoppingCart,
+        CancellationToken cancelToken)
+    {
+        var query =
+            from c in _db.Customers.IgnoreQueryFilters()
+            where c.Username == null && c.Email == null && !c.IsSystemAccount
+                && !_db.Orders.IgnoreQueryFilters().Any(o => o.CustomerId == c.Id)
+                && !_db.CustomerContent.IgnoreQueryFilters().Any(cc => cc.CustomerId == c.Id)
+            select c;
+
+        if (onlyWithoutShoppingCart)
+        {
+            query =
+                from c in query
+                where !_db.ShoppingCartItems.IgnoreQueryFilters().Any(sci => sci.CustomerId == c.Id && sci.Active)
+                select c;
+        }
+        if (registrationFrom.HasValue)
+        {
+            query = query.Where(c => c.CreatedOnUtc >= registrationFrom.Value);
+        }
+        if (registrationTo.HasValue)
+        {
+            query = query.Where(c => c.CreatedOnUtc <= registrationTo.Value);
+        }
+
+        var message = new GuestCustomerDeletingEvent(registrationFrom, registrationTo, onlyWithoutShoppingCart)
+        {
+            Query = query
+        };
+        await _eventPublisher.PublishAsync(message, cancelToken);
+
+        return message.Query;
+    }
+
+    public virtual void AppendVisitorCookie(Customer customer)
+    {
+        Guard.NotNull(customer);
+
+        if (_httpContextAccessor.HttpContext is HttpContext httpContext)
+        {
+            var cookieExpiry = customer.CustomerGuid == Guid.Empty
+                ? DateTime.Now.AddMonths(-1)
+                : DateTime.Now.AddDays(_privacySettings.VisitorCookieExpirationDays);
+
+            // Set visitor cookie
+            var cookieOptions = new CookieOptions
+            {
+                Expires = cookieExpiry,
+                HttpOnly = true,
+                IsEssential = true,
+                Secure = _webHelper.IsCurrentConnectionSecured(),
+                SameSite = SameSiteMode.Lax
+            };
+
+            // INFO: Global OnAppendCookie does not always run for visitor cookie.
+            if (cookieOptions.Secure)
+            {
+                cookieOptions.SameSite = _privacySettings.SameSiteMode;
+            }
+
+            if (httpContext.Request.PathBase.HasValue)
+            {
+                cookieOptions.Path = httpContext.Request.PathBase;
+            }
+
+            var cookies = httpContext.Response.Cookies;
+            try
+            {
+                cookies.Delete(CookieNames.Visitor, cookieOptions);
+            }
+            finally
+            {
+                cookies.Append(CookieNames.Visitor, customer.CustomerGuid.ToString(), cookieOptions);
+            }
+        }
+    }
+
+    #endregion
+
+    #region Customers
+
+    public virtual Customer GetCustomerBySystemName(string systemName, bool tracked = true)
+        => GetCustomerBySystemNameInternal(systemName, tracked, false).Await();
+
+    public virtual Task<Customer> GetCustomerBySystemNameAsync(string systemName, bool tracked = true)
+        => GetCustomerBySystemNameInternal(systemName, tracked, true);
+
+    private async Task<Customer> GetCustomerBySystemNameInternal(string systemName, bool tracked, bool async)
+    {
+        if (string.IsNullOrWhiteSpace(systemName))
+        {
+            return null;
+        }
+
+        var query = _db.Customers
+            .IncludeCustomerRoles()
+            .ApplyTracking(tracked)
+            .AsCaching()
+            .Where(x => x.SystemName == systemName)
+            .OrderBy(x => x.Id);
+
+        return async
+            ? await query.FirstOrDefaultAsync()
+            : query.FirstOrDefault();
+    }
+
+    public virtual async Task<Customer> GetAuthenticatedCustomerAsync()
+    {
+        if (!_authCustomerResolved)
+        {
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext == null)
+            {
+                return null;
+            }
+
+            var principal = await EnsureAuthentication(httpContext);
+
+            if (principal?.Identity?.IsAuthenticated == true)
+            {
+                _authCustomer = await _userManager.GetUserAsync(principal);
+            }
+
+            _authCustomerResolved = true;
+        }
+
+        if (_authCustomer == null || !_authCustomer.Active || _authCustomer.Deleted || !_authCustomer.IsRegistered())
+        {
+            return null;
+        }
+
+        return _authCustomer;
+    }
+
+    /// <summary>
+    /// Ensures that the authentication handler runs (even before the authentication middleware).
+    /// </summary>
+    private static async Task<ClaimsPrincipal> EnsureAuthentication(HttpContext context)
+    {
+        var authenticateResult = context.Features.Get<IAuthenticateResultFeature>()?.AuthenticateResult
+            ?? await context.AuthenticateAsync();
+        if (authenticateResult.Succeeded)
+        {
+            // The middleware ran already
+            return authenticateResult.Principal ?? context.User;
+        }
+
+        // The middleware did not run yet
+        return context.User;
+    }
+
+    #endregion
+
+    #region Roles
+
+    public virtual CustomerRole GetRoleBySystemName(string systemName, bool tracked = true)
+    {
+        if (string.IsNullOrWhiteSpace(systemName))
+        {
+            return null;
+        }
+
+        var query = _db.CustomerRoles
+            .ApplyTracking(tracked)
+            .AsCaching()
+            .Where(x => x.SystemName == systemName)
+            .OrderBy(x => x.Id);
+
+        return query.FirstOrDefault();
+    }
+
+    public virtual Task<CustomerRole> GetRoleBySystemNameAsync(string systemName, bool tracked = true)
+    {
+        if (string.IsNullOrWhiteSpace(systemName))
+        {
+            return Task.FromResult((CustomerRole)null);
+        }
+
+        var query = _db.CustomerRoles
+            .ApplyTracking(tracked)
+            .AsCaching()
+            .Where(x => x.SystemName == systemName)
+            .OrderBy(x => x.Id);
+
+        return query.FirstOrDefaultAsync();
+    }
+
+    #endregion
+
+    #region Reward points
+
+    public virtual void ApplyRewardPointsForProductReview(Customer customer, Product product, bool add)
+    {
+        Guard.NotNull(customer);
+
+        if (_rewardPointsSettings.Enabled && _rewardPointsSettings.PointsForProductReview > 0)
+        {
+            var productName = product?.GetLocalized(x => x.Name) ?? StringExtensions.NotAvailable;
+            var message = T(add ? "RewardPoints.Message.EarnedForProductReview" : "RewardPoints.Message.ReducedForProductReview", productName);
+
+            customer.AddRewardPointsHistoryEntry(_rewardPointsSettings.PointsForProductReview * (add ? 1 : -1), message);
+        }
+    }
+
+    public virtual void ApplyRewardPointsForNewsletterSubscription(Customer customer)
+    {
+        Guard.NotNull(customer);
+
+        if (_rewardPointsSettings.Enabled
+            && _rewardPointsSettings.PointsForNewsletterSubscription > 0
+            && customer.IsRegistered()
+            && !customer.GenericAttributes.HasEarnedNewsletterRewardPoints)
+        {
+            var msg = T("RewardPoints.Message.EarnedForNewsletterSubscription", _storeContext.CurrentStore.Name.NaIfEmpty());
+
+            customer.AddRewardPointsHistoryEntry(_rewardPointsSettings.PointsForNewsletterSubscription, msg);
+            customer.GenericAttributes.HasEarnedNewsletterRewardPoints = true;
+        }
+    }
+
+    #endregion
 }

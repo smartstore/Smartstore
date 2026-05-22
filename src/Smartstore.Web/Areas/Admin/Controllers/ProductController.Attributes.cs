@@ -769,7 +769,7 @@ public partial class ProductController : AdminController
             pvacModel.ProductUrl = await _productUrlHelper.Value.GetProductPathAsync(product.Id, productSlug, x.AttributeSelection);
             pvacModel.EntityIndex = index++;
             pvacModel.AttributesXml = await _productAttributeFormatter.Value.FormatAttributesAsync(
-                x.AttributeSelection, 
+                x.AttributeSelection,
                 product,
                 new ProductAttributeFormatOptions { HtmlEncode = false, IncludeHyperlinks = false },
                 customer);
@@ -872,7 +872,7 @@ public partial class ProductController : AdminController
 
     [Permission(Permissions.Catalog.Product.Read)]
     public async Task<IActionResult> AttributeCombinationEditPopup(
-        int id, 
+        int id,
         string btnId,
         string formId,
         int entityIndex)

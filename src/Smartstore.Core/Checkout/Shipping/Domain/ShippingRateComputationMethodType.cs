@@ -1,21 +1,20 @@
-﻿namespace Smartstore.Core.Checkout.Shipping
+﻿namespace Smartstore.Core.Checkout.Shipping;
+
+/// <summary>
+/// Represents a shipping rate computation method type
+/// </summary>
+public enum ShippingRateComputationMethodType
 {
     /// <summary>
-    /// Represents a shipping rate computation method type
+    /// Unknown
     /// </summary>
-    public enum ShippingRateComputationMethodType
-    {
-        /// <summary>
-        /// Unknown
-        /// </summary>
-        Unknown = 0,
-        /// <summary>
-        /// Offline
-        /// </summary>
-        Offline = 10,
-        /// <summary>
-        /// Realtime
-        /// </summary>
-        Realtime = 20
-    }
+    Unknown = 0,
+    /// <summary>
+    /// Offline
+    /// </summary>
+    Offline = 10,
+    /// <summary>
+    /// Realtime
+    /// </summary>
+    Realtime = 20
 }

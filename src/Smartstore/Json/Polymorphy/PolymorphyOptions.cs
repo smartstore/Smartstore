@@ -11,10 +11,10 @@ internal sealed class PolymorphyOptions
 {
     private readonly static Dictionary<string, string> _legacyTypeMap = new(StringComparer.OrdinalIgnoreCase)
     {
-        ["SmartStore.Web.Framework.Modelling.CustomPropertiesDictionary, SmartStore.Web.Framework"] 
+        ["SmartStore.Web.Framework.Modelling.CustomPropertiesDictionary, SmartStore.Web.Framework"]
             = "Smartstore.Web.Modelling.CustomPropertiesDictionary, Smartstore.Web.Common"
     };
-    
+
     public static PolymorphyOptions Default => new();
     public static PolymorphyOptions DefaultWithArrays => new() { WrapArrays = true };
 
@@ -29,11 +29,11 @@ internal sealed class PolymorphyOptions
 
     public bool WrapArrays { get; set; }
 
-    public Func<Type, string?> GetTypeId { get; init; } = static t 
+    public Func<Type, string?> GetTypeId { get; init; } = static t
         => t.AssemblyQualifiedNameWithoutVersion();
 
     public Func<string, Type?> ResolveTypeId { get; init; } = static id =>
-    { 
+    {
         var type = Type.GetType(id, throwOnError: false, ignoreCase: false);
         if (type == null && _legacyTypeMap.TryGetValue(id, out var mappedId))
         {

@@ -29,7 +29,7 @@ namespace Smartstore.Web.Controllers;
 public partial class CatalogHelper
 {
     public async Task<ProductDetailsModelContext> CreateModelContext(
-        Product product, 
+        Product product,
         ProductVariantQuery query,
         ProductBundleItem bundleItem = null,
         bool isAssociatedProduct = false,
@@ -272,7 +272,7 @@ public partial class CatalogHelper
             review.TotalReviews = product.ApprovedTotalReviews;
             review.AllowCustomerReviews = product.AllowCustomerReviews;
 
-            if (product.AllowCustomerReviews 
+            if (product.AllowCustomerReviews
                 && _rewardPointsSettings.Enabled
                 && _rewardPointsSettings.ShowPointsForProductReview
                 && _rewardPointsSettings.PointsForProductReview > 0)
@@ -428,8 +428,8 @@ public partial class CatalogHelper
     }
 
     public async Task PrepareProductDetailModelAsync(
-        ProductDetailsModel model, 
-        ProductDetailsModelContext ctx, 
+        ProductDetailsModel model,
+        ProductDetailsModelContext ctx,
         int selectedQuantity = 1,
         bool callCustomMapper = false)
     {
@@ -444,7 +444,7 @@ public partial class CatalogHelper
 
         // Attributes and attribute combination
         await PrepareProductAttributesModelAsync(model, ctx, selectedQuantity);
-        
+
         // Weight requires merge with attribute combination.
         model.WeightValue = product.Weight;
 
@@ -481,7 +481,7 @@ public partial class CatalogHelper
         var batchContext = ctx.BatchContext;
         var config = ctx.GroupedProductConfiguration;
         var pageSize = config.PageSize ?? _catalogSettings.AssociatedProductsPageSize;
-        var searchFields = term.HasValue() && term.Length >= _searchSettings.InstantSearchTermMinLength 
+        var searchFields = term.HasValue() && term.Length >= _searchSettings.InstantSearchTermMinLength
             ? _searchSettings.GetSearchFields(true).ToArray()
             : null;
 
@@ -630,7 +630,7 @@ public partial class CatalogHelper
 
                                 var mediaFileInfo = _mediaService.ConvertMediaFile(mediaFile);
 
-                                attributeModel.CustomProperties["UploadedFileInfo"] = JsonSerializer.Serialize(mediaFileInfo, SmartJsonOptions.Default); 
+                                attributeModel.CustomProperties["UploadedFileInfo"] = JsonSerializer.Serialize(mediaFileInfo, SmartJsonOptions.Default);
                             }
                             break;
                         case AttributeControlType.TextBox:
@@ -1088,7 +1088,7 @@ public partial class CatalogHelper
         if (product.IsFreeShipping
             && product.IsShippingEnabled
             && model.IsAvailable
-            && productBundleItem == null 
+            && productBundleItem == null
             && !ctx.IsAssociatedProduct
             && _catalogSettings.ShippingMetadataInProductDetail)
         {
@@ -1178,8 +1178,8 @@ public partial class CatalogHelper
         }
 
         // Add-to-Cart button summary for screen readers.
-        if (!toCart.DisableBuyButton 
-            && !toCart.AvailableForPreOrder 
+        if (!toCart.DisableBuyButton
+            && !toCart.AvailableForPreOrder
             && !ctx.IsAssociatedProduct
             && product.ProductType != ProductType.GroupedProduct
             && ctx.ProductBundleItem == null)
@@ -1416,7 +1416,7 @@ public partial class CatalogHelper
         {
             // INFO: Use navigation properties because data is only required on product detail page.
             // See also CatalogHelper.ProductSummary.MapProductSpecificationModels.
-            await _db.LoadCollectionAsync(product, x => x.ProductSpecificationAttributes, false, 
+            await _db.LoadCollectionAsync(product, x => x.ProductSpecificationAttributes, false,
                 q => q.Include(x => x.SpecificationAttributeOption.SpecificationAttribute.CollectionGroupMapping.CollectionGroup));
 
             var result =
@@ -1547,7 +1547,7 @@ public partial class CatalogHelper
             model.DeliveryTimeHexValue = deliveryTime.ColorHexValue;
 
             // Due to lack of space, the grid view does not show a date for the delivery time.
-            if (settings.ViewMode >= ProductSummaryViewMode.List 
+            if (settings.ViewMode >= ProductSummaryViewMode.List
                 && (presentation == DeliveryTimesPresentation.DateOnly || presentation == DeliveryTimesPresentation.LabelAndDate))
             {
                 model.DeliveryTimeDate = _deliveryTimeService.GetFormattedDeliveryDate(deliveryTime);
@@ -1572,8 +1572,8 @@ public partial class CatalogHelper
 
         var label = model.DisplayDeliveryTimeAccordingToStock ? model.DeliveryTimeName : model.StockAvailability;
 
-        if (label.HasValue() && (!model.DeliveryTimeDate.HasValue() 
-            || presentation == DeliveryTimesPresentation.LabelOnly 
+        if (label.HasValue() && (!model.DeliveryTimeDate.HasValue()
+            || presentation == DeliveryTimesPresentation.LabelOnly
             || presentation == DeliveryTimesPresentation.LabelAndDate))
         {
             model.StatusLabel = label;

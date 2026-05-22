@@ -40,10 +40,10 @@ public class StripeController : ModuleController
     private readonly IRoundingHelper _roundingHelper;
     private readonly IOrderProcessingService _orderProcessingService;
     private readonly StripeHelper _stripeHelper;
-    
+
     public StripeController(
-        SmartDbContext db, 
-        StripeSettings settings, 
+        SmartDbContext db,
+        StripeSettings settings,
         ICheckoutStateAccessor checkoutStateAccessor,
         ICheckoutWorkflow checkoutWorkflow,
         IShoppingCartService shoppingCartService,
@@ -248,7 +248,7 @@ public class StripeController : ModuleController
 
                     var shippingOption = customer.GenericAttributes.Get<ShippingOption>(SystemCustomerAttributeNames.SelectedShippingOption, store.Id);
                     var shipping = shippingOption != null
-                        ? await GetShippingAddressAsync(customer, shippingOption.Name) 
+                        ? await GetShippingAddressAsync(customer, shippingOption.Name)
                         : null;
 
                     if (!state.PaymentIntentId.HasValue())
@@ -469,7 +469,7 @@ public class StripeController : ModuleController
                     }
                 }
             }
-            else if (stripeEvent.Type == EventTypes.PaymentIntentCanceled || 
+            else if (stripeEvent.Type == EventTypes.PaymentIntentCanceled ||
                      stripeEvent.Type == EventTypes.PaymentIntentPaymentFailed)
             {
                 var paymentIntent = stripeEvent.Data.Object as PaymentIntent;

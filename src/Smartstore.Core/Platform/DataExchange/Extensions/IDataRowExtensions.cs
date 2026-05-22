@@ -1,27 +1,26 @@
-﻿namespace Smartstore.Core.DataExchange.Import
+﻿namespace Smartstore.Core.DataExchange.Import;
+
+public static partial class IDataRowExtensions
 {
-    public static partial class IDataRowExtensions
+    public static bool TryGetValue(this IDataRow row, string name, out object value)
     {
-        public static bool TryGetValue(this IDataRow row, string name, out object value)
-        {
-            value = null;
+        value = null;
 
-            var index = row.Table.GetColumnIndex(name);
-            if (index < 0)
-                return false;
+        var index = row.Table.GetColumnIndex(name);
+        if (index < 0)
+            return false;
 
-            value = row[index];
-            return true;
-        }
+        value = row[index];
+        return true;
+    }
 
-        public static bool TrySetValue(this IDataRow row, string name, object value)
-        {
-            var index = row.Table.GetColumnIndex(name);
-            if (index < 0)
-                return false;
+    public static bool TrySetValue(this IDataRow row, string name, object value)
+    {
+        var index = row.Table.GetColumnIndex(name);
+        if (index < 0)
+            return false;
 
-            row[index] = value;
-            return true;
-        }
+        row[index] = value;
+        return true;
     }
 }

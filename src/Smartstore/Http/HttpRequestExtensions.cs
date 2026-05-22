@@ -3,9 +3,9 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
-using Smartstore.Http;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
+using Smartstore.Http;
 using Smartstore.IO;
 using Smartstore.Utilities;
 
@@ -208,7 +208,7 @@ public static class HttpRequestExtensions
         if (request is null)
             return false;
 
-        return request.HttpContext.GetItem("IsSubRequest", () => 
+        return request.HttpContext.GetItem("IsSubRequest", () =>
         {
             if (IsExternalReferrer(request))
             {

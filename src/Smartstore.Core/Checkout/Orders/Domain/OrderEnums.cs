@@ -1,102 +1,101 @@
-﻿namespace Smartstore.Core.Checkout.Orders
+﻿namespace Smartstore.Core.Checkout.Orders;
+
+/// <summary>
+/// Represents requirements of a standard checkout.
+/// </summary>
+/// <remarks>
+/// If you have custom checkout requirements/steps then you must check directly via 
+/// <see cref="ICheckoutFactory"/> whether they are required.
+/// </remarks>
+[Flags]
+public enum CheckoutRequirements
+{
+    BillingAddress = 1 << 0,
+    Shipping = 1 << 1,
+    Payment = 1 << 2,
+
+    All = BillingAddress | Shipping | Payment
+}
+
+/// <summary>
+/// Represents an order status.
+/// </summary>
+public enum OrderStatus
 {
     /// <summary>
-    /// Represents requirements of a standard checkout.
+    /// Pending
     /// </summary>
-    /// <remarks>
-    /// If you have custom checkout requirements/steps then you must check directly via 
-    /// <see cref="ICheckoutFactory"/> whether they are required.
-    /// </remarks>
-    [Flags]
-    public enum CheckoutRequirements
-    {
-        BillingAddress = 1 << 0,
-        Shipping = 1 << 1,
-        Payment = 1 << 2,
-
-        All = BillingAddress | Shipping | Payment
-    }
+    Pending = 10,
 
     /// <summary>
-    /// Represents an order status.
+    /// Processing
     /// </summary>
-    public enum OrderStatus
-    {
-        /// <summary>
-        /// Pending
-        /// </summary>
-        Pending = 10,
-
-        /// <summary>
-        /// Processing
-        /// </summary>
-        Processing = 20,
-
-        /// <summary>
-        /// Complete
-        /// </summary>
-        Complete = 30,
-
-        /// <summary>
-        /// Cancelled
-        /// </summary>
-        Cancelled = 40
-    }
+    Processing = 20,
 
     /// <summary>
-    /// Represents a return request status.
+    /// Complete
     /// </summary>
-    public enum ReturnCaseStatus
-    {
-        /// <summary>
-        /// Pending.
-        /// </summary>
-        Pending = 0,
-
-        /// <summary>
-        /// Item(s) received.
-        /// </summary>
-        Received = 10,
-
-        /// <summary>
-        /// Return accepted.
-        /// </summary>
-        ReturnAuthorized = 20,
-
-        /// <summary>
-        /// Item(s) repaired.
-        /// </summary>
-        ItemsRepaired = 30,
-
-        /// <summary>
-        /// Item(s) refunded.
-        /// </summary>
-        ItemsRefunded = 40,
-
-        /// <summary>
-        /// Request rejected.
-        /// </summary>
-        RequestRejected = 50,
-
-        /// <summary>
-        /// Cancelled.
-        /// </summary>
-        Cancelled = 60
-    }
+    Complete = 30,
 
     /// <summary>
-    /// Represents the kind of a return case.
+    /// Cancelled
     /// </summary>
-    public enum ReturnCaseKind
-    {
-        /// <summary>
-        /// Return Merchandise Authorization (RMA).
-        /// </summary>
-        Return = 0,
+    Cancelled = 40
+}
 
-        /// <summary>
-        /// Legal online withdrawal (revocation) of a contract/order.
-        /// </summary>
-        Withdrawal
-    }
+/// <summary>
+/// Represents a return request status.
+/// </summary>
+public enum ReturnCaseStatus
+{
+    /// <summary>
+    /// Pending.
+    /// </summary>
+    Pending = 0,
+
+    /// <summary>
+    /// Item(s) received.
+    /// </summary>
+    Received = 10,
+
+    /// <summary>
+    /// Return accepted.
+    /// </summary>
+    ReturnAuthorized = 20,
+
+    /// <summary>
+    /// Item(s) repaired.
+    /// </summary>
+    ItemsRepaired = 30,
+
+    /// <summary>
+    /// Item(s) refunded.
+    /// </summary>
+    ItemsRefunded = 40,
+
+    /// <summary>
+    /// Request rejected.
+    /// </summary>
+    RequestRejected = 50,
+
+    /// <summary>
+    /// Cancelled.
+    /// </summary>
+    Cancelled = 60
+}
+
+/// <summary>
+/// Represents the kind of a return case.
+/// </summary>
+public enum ReturnCaseKind
+{
+    /// <summary>
+    /// Return Merchandise Authorization (RMA).
+    /// </summary>
+    Return = 0,
+
+    /// <summary>
+    /// Legal online withdrawal (revocation) of a contract/order.
+    /// </summary>
+    Withdrawal
 }

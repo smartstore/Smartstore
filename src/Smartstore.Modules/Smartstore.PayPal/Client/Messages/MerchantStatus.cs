@@ -47,7 +47,7 @@ public class PayPalProducts
     /// The item name or title of the PayPal product.
     /// </summary>
     public string Name;
-    
+
     /// <summary>
     /// Vetting status 
     /// </summary>

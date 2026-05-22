@@ -1,16 +1,15 @@
 ﻿using Microsoft.AspNetCore.Routing;
 
-namespace Smartstore.Core.Content.Menus
+namespace Smartstore.Core.Content.Menus;
+
+public interface INavigatable
 {
-    public interface INavigatable
-    {
-        string ControllerName { get; set; }
-        string ActionName { get; set; }
-        string RouteName { get; set; }
+    string ControllerName { get; set; }
+    string ActionName { get; set; }
+    string RouteName { get; set; }
 
-        string Url { get; set; }
+    string Url { get; set; }
 
-        RouteValueDictionary RouteValues { get; }
-        ModifiedParameter ModifiedParam { get; }
-    }
+    RouteValueDictionary RouteValues { get; }
+    ModifiedParameter ModifiedParam { get; }
 }

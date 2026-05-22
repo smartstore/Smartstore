@@ -1,40 +1,39 @@
 ﻿using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 
-namespace Smartstore.Core.Common.Hooks
+namespace Smartstore.Core.Common.Hooks;
+
+/// <summary>
+/// Deletes the <see cref="CollectionGroupMapping"/> assigned to an entity that implements the <see cref="IGroupedEntity"/> interface.
+/// </summary>
+internal class IGroupedEntityHook(SmartDbContext db) : AsyncDbSaveHook<IGroupedEntity>
 {
-    /// <summary>
-    /// Deletes the <see cref="CollectionGroupMapping"/> assigned to an entity that implements the <see cref="IGroupedEntity"/> interface.
-    /// </summary>
-    internal class IGroupedEntityHook(SmartDbContext db) : AsyncDbSaveHook<IGroupedEntity>
+    private readonly SmartDbContext _db = db;
+
+    protected override Task<HookResult> OnDeletedAsync(IGroupedEntity entity, IHookedEntity entry, CancellationToken cancelToken)
+        => Task.FromResult(HookResult.Ok);
+
+    public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
     {
-        private readonly SmartDbContext _db = db;
+        var deletedEntities = entries
+            .Where(x => x.InitialState == EntityState.Deleted)
+            .Select(x => x.Entity)
+            .OfType<IGroupedEntity>()
+            .Select(x => x as BaseEntity)
+            .ToList();
 
-        protected override Task<HookResult> OnDeletedAsync(IGroupedEntity entity, IHookedEntity entry, CancellationToken cancelToken)
-            => Task.FromResult(HookResult.Ok);
-
-        public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        if (deletedEntities.Count > 0)
         {
-            var deletedEntities = entries
-                .Where(x => x.InitialState == EntityState.Deleted)
-                .Select(x => x.Entity)
-                .OfType<IGroupedEntity>()
-                .Select(x => x as BaseEntity)
-                .ToList();
-
-            if (deletedEntities.Count > 0)
+            foreach (var group in deletedEntities.GroupBy(x => x.GetEntityName()))
             {
-                foreach (var group in deletedEntities.GroupBy(x => x.GetEntityName()))
-                {
-                    var entityIds = group.Select(x => x.Id).ToArray();
-                    var entityName = group.Key;
+                var entityIds = group.Select(x => x.Id).ToArray();
+                var entityName = group.Key;
 
-                    foreach (var chunk in entityIds.Chunk(128))
-                    {
-                        await _db.CollectionGroupMappings
-                            .Where(x => chunk.Contains(x.EntityId) && x.CollectionGroup.EntityName == entityName)
-                            .ExecuteDeleteAsync(cancelToken);
-                    }
+                foreach (var chunk in entityIds.Chunk(128))
+                {
+                    await _db.CollectionGroupMappings
+                        .Where(x => chunk.Contains(x.EntityId) && x.CollectionGroup.EntityName == entityName)
+                        .ExecuteDeleteAsync(cancelToken);
                 }
             }
         }

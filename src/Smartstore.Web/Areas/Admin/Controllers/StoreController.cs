@@ -23,7 +23,7 @@ public class StoreController : AdminController
     private readonly ShoppingCartSettings _shoppingCartSettings;
 
     public StoreController(
-        SmartDbContext db, 
+        SmartDbContext db,
         ICatalogSearchService catalogSearchService,
         ShoppingCartSettings shoppingCartSettings)
     {

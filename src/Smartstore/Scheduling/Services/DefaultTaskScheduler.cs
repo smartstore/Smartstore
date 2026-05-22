@@ -102,7 +102,7 @@ internal class DefaultTaskScheduler : Disposable, ITaskScheduler
         {
             throw new InvalidOperationException("The task scheduler is already activated.");
         }
-        
+
         Guard.IsPositive(pollInterval);
         Guard.NotNull(httpContext);
 
@@ -189,7 +189,7 @@ internal class DefaultTaskScheduler : Disposable, ITaskScheduler
 
             // Call endpoint
             using var response = await client.SendAsync(requestMessage, _stopping.Token);
-            
+
             // Throw if not a success code.
             response.EnsureSuccessStatusCode();
 
@@ -281,7 +281,7 @@ internal class DefaultTaskScheduler : Disposable, ITaskScheduler
         if (disposing)
         {
             DisposeInternal();
-        }  
+        }
     }
 
     private void DisposeInternal()

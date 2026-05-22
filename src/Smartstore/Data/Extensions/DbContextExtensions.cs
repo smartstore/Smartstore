@@ -136,7 +136,7 @@ public static partial class DbContextExtensions
                 {
                     TryDetachAlreadyTrackedEntity(ctx, entity);
                 }
-                
+
                 entry.State = requestedState;
                 return true;
             }

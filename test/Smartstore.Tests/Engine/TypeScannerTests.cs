@@ -6,30 +6,29 @@ using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
 using Smartstore.Test.Common;
 
-namespace Smartstore.Tests.Engine
+namespace Smartstore.Tests.Engine;
+
+[TestFixture]
+public class TypeScannerTests
 {
-    [TestFixture]
-    public class TypeScannerTests
+    [Test]
+    public void TypeFinder_Benchmark_Findings()
     {
-        [Test]
-        public void TypeFinder_Benchmark_Findings()
-        {
-            var scanner = new DefaultTypeScanner(
-                new[] { typeof(ISomeInterface).Assembly },
-                new ModuleCatalog(Array.Empty<IModuleDescriptor>()),
-                NullLogger.Instance);
+        var scanner = new DefaultTypeScanner(
+            new[] { typeof(ISomeInterface).Assembly },
+            new ModuleCatalog(Array.Empty<IModuleDescriptor>()),
+            NullLogger.Instance);
 
-            var type = scanner.FindTypes<ISomeInterface>();
-            type.Count().ShouldEqual(1);
-            typeof(ISomeInterface).IsAssignableFrom(type.FirstOrDefault()).ShouldBeTrue();
-        }
+        var type = scanner.FindTypes<ISomeInterface>();
+        type.Count().ShouldEqual(1);
+        typeof(ISomeInterface).IsAssignableFrom(type.FirstOrDefault()).ShouldBeTrue();
+    }
 
-        public interface ISomeInterface
-        {
-        }
+    public interface ISomeInterface
+    {
+    }
 
-        public class SomeClass : ISomeInterface
-        {
-        }
+    public class SomeClass : ISomeInterface
+    {
     }
 }

@@ -122,7 +122,7 @@ public class GoogleMerchantCenterController : AdminController
     {
         var textInfo = CultureInfo.InvariantCulture.TextInfo;
 
-        var query = 
+        var query =
             from p in _db.Products
             join gp in _db.GoogleProducts().AsNoTracking() on p.Id equals gp.ProductId into Products
             from gp in Products.DefaultIfEmpty()

@@ -78,7 +78,7 @@ public class AmazonPayAdminController : AdminController
         {
             foreach (var entity in allStores)
             {
-                var baseUri = entity.GetBaseUri();               
+                var baseUri = entity.GetBaseUri();
                 var baseUrl = baseUri.ToString().EmptyNull().TrimEnd('/').NullEmpty();
                 var checkoutReviewUrl = CreateUrl(nameof(AmazonPayController.CheckoutReview), baseUri);
                 var signIn = CreateUrl(nameof(AmazonPayController.SignIn), baseUri);

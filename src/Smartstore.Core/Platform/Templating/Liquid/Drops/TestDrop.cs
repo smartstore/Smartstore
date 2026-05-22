@@ -1,76 +1,75 @@
 ﻿using DotLiquid;
 
-namespace Smartstore.Templating.Liquid
+namespace Smartstore.Templating.Liquid;
+
+internal class TestDrop : ITestModel, ILiquidizable, IIndexable, ISafeObject
 {
-    internal class TestDrop : ITestModel, ILiquidizable, IIndexable, ISafeObject
+    private readonly BaseEntity _entity;
+    private readonly Type _type;
+    private readonly string _modelPrefix;
+
+    public TestDrop(BaseEntity entity, string modelPrefix)
     {
-        private readonly BaseEntity _entity;
-        private readonly Type _type;
-        private readonly string _modelPrefix;
+        _entity = entity;
+        _type = entity.GetType();
 
-        public TestDrop(BaseEntity entity, string modelPrefix)
+        if (modelPrefix.HasValue())
         {
-            _entity = entity;
-            _type = entity.GetType();
-
-            if (modelPrefix.HasValue())
-            {
-                _modelPrefix = modelPrefix.EnsureEndsWith('.');
-            }
-
-            _modelPrefix ??= string.Empty;
+            _modelPrefix = modelPrefix.EnsureEndsWith('.');
         }
 
-        public string ModelName
-            => _type.Name;
+        _modelPrefix ??= string.Empty;
+    }
 
-        public object GetWrappedObject()
-            => _entity;
+    public string ModelName
+        => _type.Name;
 
-        public bool ContainsKey(object key)
-            => true;
+    public object GetWrappedObject()
+        => _entity;
 
-        public object this[object key]
+    public bool ContainsKey(object key)
+        => true;
+
+    public object this[object key]
+    {
+        get
         {
-            get
+            object value = null;
+
+            if (key is string name)
             {
-                object value = null;
+                var modelPrefix = _modelPrefix + name;
+                var pi = _type.GetProperty(name);
 
-                if (key is string name)
+                if (pi == null)
                 {
-                    var modelPrefix = _modelPrefix + name;
-                    var pi = _type.GetProperty(name);
-
-                    if (pi == null)
+                    value = "{{ " + modelPrefix + " }}";
+                }
+                else if (pi.PropertyType.IsBasicOrNullableType())
+                {
+                    value = pi.GetValue(_entity) ?? "{{ " + modelPrefix + " }}";
+                }
+                else if (pi.PropertyType.IsSequenceType(out var elementType))
+                {
+                    if (typeof(BaseEntity).IsAssignableFrom(elementType))
                     {
-                        value = "{{ " + modelPrefix + " }}";
-                    }
-                    else if (pi.PropertyType.IsBasicOrNullableType())
-                    {
-                        value = pi.GetValue(_entity) ?? "{{ " + modelPrefix + " }}";
-                    }
-                    else if (pi.PropertyType.IsSequenceType(out var elementType))
-                    {
-                        if (typeof(BaseEntity).IsAssignableFrom(elementType))
+                        value = new List<TestDrop>
                         {
-                            value = new List<TestDrop>
-                            {
-                                new TestDrop((BaseEntity)Activator.CreateInstance(elementType), "it"),
-                                new TestDrop((BaseEntity)Activator.CreateInstance(elementType), "it")
-                            };
-                        }
-                    }
-                    else if (typeof(BaseEntity).IsAssignableFrom(pi.PropertyType))
-                    {
-                        value = new TestDrop((BaseEntity)Activator.CreateInstance(pi.PropertyType), modelPrefix);
+                            new TestDrop((BaseEntity)Activator.CreateInstance(elementType), "it"),
+                            new TestDrop((BaseEntity)Activator.CreateInstance(elementType), "it")
+                        };
                     }
                 }
-
-                return value;
+                else if (typeof(BaseEntity).IsAssignableFrom(pi.PropertyType))
+                {
+                    value = new TestDrop((BaseEntity)Activator.CreateInstance(pi.PropertyType), modelPrefix);
+                }
             }
-        }
 
-        public object ToLiquid()
-            => this;
+            return value;
+        }
     }
+
+    public object ToLiquid()
+        => this;
 }

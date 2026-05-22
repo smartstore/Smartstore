@@ -167,7 +167,7 @@ internal partial class SwaggerOperationFilter : IOperationFilter
             default:
                 if (isNavigationProperty)
                 {
-                    var navPropType = mi.ReturnType.GenericTypeArguments[0];                        
+                    var navPropType = mi.ReturnType.GenericTypeArguments[0];
 
                     helper.Op.Summary ??= isQueryResult
                         ? $"Gets {navPropType.Name.NaIfEmpty()} entities assigned to {entityName}."
@@ -221,8 +221,8 @@ internal partial class SwaggerOperationFilter : IOperationFilter
 
         if (helper.HasKeyParameter)
         {
-            allowedOptions = allowedOptions.Where(x => 
-                x == AllowedQueryOptions.Select || 
+            allowedOptions = allowedOptions.Where(x =>
+                x == AllowedQueryOptions.Select ||
                 x == AllowedQueryOptions.Expand ||
                 x == AllowedQueryOptions.Compute);
         }

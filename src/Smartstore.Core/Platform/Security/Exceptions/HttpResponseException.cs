@@ -1,7 +1,6 @@
-﻿namespace Smartstore.Core.Security
+﻿namespace Smartstore.Core.Security;
+
+public class HttpResponseException(int statusCode, string message = null) : Exception(message)
 {
-    public class HttpResponseException(int statusCode, string message = null) : Exception(message)
-    {
-        public int StatusCode { get; } = statusCode;
-    }
+    public int StatusCode { get; } = statusCode;
 }

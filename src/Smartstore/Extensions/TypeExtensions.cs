@@ -547,7 +547,7 @@ public static class TypeExtensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsDictionaryType()
         {
-            return typeof(IDictionary).IsAssignableFrom(type) || 
+            return typeof(IDictionary).IsAssignableFrom(type) ||
                 type.TryGetClosedGenericTypeOf(typeof(IDictionary<,>), out _) ||
                 type.TryGetClosedGenericTypeOf(typeof(IReadOnlyDictionary<,>), out _);
         }
@@ -565,7 +565,7 @@ public static class TypeExtensions
             valueType = null;
 
             if (
-                type.TryGetClosedGenericTypeOf(typeof(IDictionary<,>), out var closedType) || 
+                type.TryGetClosedGenericTypeOf(typeof(IDictionary<,>), out var closedType) ||
                 type.TryGetClosedGenericTypeOf(typeof(IReadOnlyDictionary<,>), out closedType))
             {
                 var args = closedType.GetGenericArguments();

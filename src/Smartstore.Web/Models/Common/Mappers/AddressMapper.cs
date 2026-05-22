@@ -40,7 +40,7 @@ public static class AddressMappingExtensions
     /// </summary>
     /// <param name="entity">Source <see cref="Address"/> to be mapped.</param>
     /// <returns>New <see cref="AddressModel"/>.</returns>
-    public static async Task<AddressModel> MapAsync(this Address entity, 
+    public static async Task<AddressModel> MapAsync(this Address entity,
         Customer customer = null,
         bool defaultAddressesEnabled = false,
         bool? emailEnabled = null)
@@ -56,8 +56,8 @@ public static class AddressMappingExtensions
     /// </summary>
     /// <param name="entity">Source <see cref="Address"/> to be mapped.</param>
     /// <param name="model">Target <see cref="AddressModel"/> to which <paramref name="entity"/> is to be mapped.</param>
-    public static async Task MapAsync(this Address entity, 
-        AddressModel model, 
+    public static async Task MapAsync(this Address entity,
+        AddressModel model,
         Customer customer = null,
         bool defaultAddressesEnabled = false,
         bool? emailEnabled = null)
@@ -85,7 +85,7 @@ public static class AddressMappingExtensions
     }
 }
 
-internal class AddressMapper : 
+internal class AddressMapper :
     IMapper<Address, AddressModel>,
     IMapper<AddressModel, Address>
 {

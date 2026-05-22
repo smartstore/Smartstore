@@ -1,27 +1,26 @@
 ﻿#nullable enable
 
-namespace Smartstore.Core.Checkout.Orders
+namespace Smartstore.Core.Checkout.Orders;
+
+public interface ICheckoutHandler
 {
-    public interface ICheckoutHandler
-    {
-        /// <summary>
-        /// Processes a checkout step.
-        /// </summary>
-        Task<CheckoutResult> ProcessAsync(CheckoutContext context);
-    }
+    /// <summary>
+    /// Processes a checkout step.
+    /// </summary>
+    Task<CheckoutResult> ProcessAsync(CheckoutContext context);
+}
 
-    public sealed class CheckoutHandler(Lazy<ICheckoutHandler, CheckoutHandlerMetadata> lazy)
-    {
-        private readonly Lazy<ICheckoutHandler, CheckoutHandlerMetadata> _lazy = lazy;
+public sealed class CheckoutHandler(Lazy<ICheckoutHandler, CheckoutHandlerMetadata> lazy)
+{
+    private readonly Lazy<ICheckoutHandler, CheckoutHandlerMetadata> _lazy = lazy;
 
-        public ICheckoutHandler Value => _lazy.Value;
-        public CheckoutHandlerMetadata Metadata => _lazy.Metadata;
+    public ICheckoutHandler Value => _lazy.Value;
+    public CheckoutHandlerMetadata Metadata => _lazy.Metadata;
 
-        public bool IsValueCreated => _lazy.IsValueCreated;
+    public bool IsValueCreated => _lazy.IsValueCreated;
 
-        public Lazy<ICheckoutHandler, CheckoutHandlerMetadata> ToLazy() => _lazy;
+    public Lazy<ICheckoutHandler, CheckoutHandlerMetadata> ToLazy() => _lazy;
 
-        public override string ToString()
-            => _lazy.Metadata.ToString();
-    }
+    public override string ToString()
+        => _lazy.Metadata.ToString();
 }

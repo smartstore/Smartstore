@@ -17,11 +17,11 @@ public abstract class PayPalProviderBase : PaymentMethodBase, IConfigurable
     private readonly PayPalSettings _settings;
     private readonly IPaymentService _paymentService;
     private readonly ICheckoutStateAccessor _checkoutStateAccessor;
-    
+
     public PayPalProviderBase(
-        SmartDbContext db, 
-        PayPalHttpClient client, 
-        PayPalSettings settings, 
+        SmartDbContext db,
+        PayPalHttpClient client,
+        PayPalSettings settings,
         IPaymentService paymentService,
         ICheckoutStateAccessor checkoutStateAccessor)
     {
@@ -79,7 +79,7 @@ public abstract class PayPalProviderBase : PaymentMethodBase, IConfigurable
         {
             _ = await _client.UpdateOrderAsync(request, result);
         }
-        
+
         try
         {
             var paymentMethod = await _paymentService.LoadPaymentProviderBySystemNameAsync(request.PaymentMethodSystemName);
@@ -93,7 +93,7 @@ public abstract class PayPalProviderBase : PaymentMethodBase, IConfigurable
                 var response = await _client.CaptureOrderAsync(request, result);
             }
         }
-        catch (Exception ex) 
+        catch (Exception ex)
         {
             PayPalHelper.HandleException(ex, T);
 

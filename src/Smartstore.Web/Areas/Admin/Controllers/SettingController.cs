@@ -287,7 +287,7 @@ public partial class SettingController : AdminController
             new() { Text = "noindex, follow", Value = "noindex, follow" },
             new() { Text = "noindex, nofollow", Value = "noindex, nofollow" }
         };
-        
+
         model.CaptchaSettings.AvailableProviders = _captchaManager.ListProviders()
             .Select(x => new GeneralCommonSettingsModel.CaptchaProviderModel
             {
@@ -314,9 +314,9 @@ public partial class SettingController : AdminController
             .ToList();
 
         ViewBag.CaptchaShowOnOptions = new MultiSelectList(
-            captchaTargetOptions, 
-            nameof(SelectListItem.Value), 
-            nameof(SelectListItem.Text), 
+            captchaTargetOptions,
+            nameof(SelectListItem.Value),
+            nameof(SelectListItem.Text),
             selectedTargets);
 
         SelectListItem CreateItem(string resourceKey)

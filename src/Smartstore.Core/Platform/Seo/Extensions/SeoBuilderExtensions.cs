@@ -4,37 +4,36 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
 
-namespace Microsoft.AspNetCore.Builder
+namespace Microsoft.AspNetCore.Builder;
+
+public static class SeoBuilderExtensions
 {
-    public static class SeoBuilderExtensions
+    const string DefaultDisplayName = "Xml Sitemap";
+    const string DefaultPattern = "sitemap.xml/{index:int?}";
+
+    /// <summary>
+    /// Determines current URL policy and performs HTTP redirection
+    /// if any previous middleware required redirection to a new
+    /// valid / sanitized location.
+    /// </summary>
+    public static IApplicationBuilder UseUrlPolicy(this IApplicationBuilder app)
     {
-        const string DefaultDisplayName = "Xml Sitemap";
-        const string DefaultPattern = "sitemap.xml/{index:int?}";
+        return app.UseMiddleware<UrlPolicyMiddleware>();
+    }
 
-        /// <summary>
-        /// Determines current URL policy and performs HTTP redirection
-        /// if any previous middleware required redirection to a new
-        /// valid / sanitized location.
-        /// </summary>
-        public static IApplicationBuilder UseUrlPolicy(this IApplicationBuilder app)
-        {
-            return app.UseMiddleware<UrlPolicyMiddleware>();
-        }
+    /// <summary>
+    /// Maps XML sitemap endpoint (sitemap.xml)
+    /// </summary>
+    public static IEndpointConventionBuilder MapXmlSitemap(this IEndpointRouteBuilder endpoints)
+    {
+        Guard.NotNull(endpoints);
 
-        /// <summary>
-        /// Maps XML sitemap endpoint (sitemap.xml)
-        /// </summary>
-        public static IEndpointConventionBuilder MapXmlSitemap(this IEndpointRouteBuilder endpoints)
-        {
-            Guard.NotNull(endpoints);
+        var pipeline = endpoints.CreateApplicationBuilder()
+           .UseMiddleware<XmlSitemapMiddleware>()
+           .Build();
 
-            var pipeline = endpoints.CreateApplicationBuilder()
-               .UseMiddleware<XmlSitemapMiddleware>()
-               .Build();
-
-            return endpoints.MapLocalized(DefaultPattern, pipeline)
-                .WithMetadata(new CrawlerEndpointAttribute())
-                .WithDisplayName(DefaultDisplayName);
-        }
+        return endpoints.MapLocalized(DefaultPattern, pipeline)
+            .WithMetadata(new CrawlerEndpointAttribute())
+            .WithDisplayName(DefaultDisplayName);
     }
 }

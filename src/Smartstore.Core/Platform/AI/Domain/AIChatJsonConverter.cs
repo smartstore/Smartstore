@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
-using Smartstore.Json.Polymorphy;
 using System.Text.Json.Serialization;
+using Smartstore.Json.Polymorphy;
 
 namespace Smartstore.Core.AI;
 
@@ -87,7 +87,7 @@ internal sealed class AIChatJsonConverter : JsonConverter<AIChat>
             JsonSerializer.Serialize(writer, value.Topic, options);
 
             writer.WriteString(
-                nameof(AIChat.ModelName), 
+                nameof(AIChat.ModelName),
                 value.ModelName);
 
             writer.WritePropertyName(nameof(AIChat.Messages));

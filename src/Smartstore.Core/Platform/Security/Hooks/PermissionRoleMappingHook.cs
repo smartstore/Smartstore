@@ -2,25 +2,24 @@
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 
-namespace Smartstore.Core.Security
+namespace Smartstore.Core.Security;
+
+[Important]
+[ServiceLifetime(ServiceLifetime.Singleton)]
+internal class PermissionRoleMappingHook : AsyncDbSaveHook<PermissionRoleMapping>
 {
-    [Important]
-    [ServiceLifetime(ServiceLifetime.Singleton)]
-    internal class PermissionRoleMappingHook : AsyncDbSaveHook<PermissionRoleMapping>
+    private readonly ICacheManager _cache;
+
+    public PermissionRoleMappingHook(ICacheManager cache)
     {
-        private readonly ICacheManager _cache;
+        _cache = cache;
+    }
 
-        public PermissionRoleMappingHook(ICacheManager cache)
-        {
-            _cache = cache;
-        }
+    public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        => Task.FromResult(HookResult.Ok);
 
-        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
-            => Task.FromResult(HookResult.Ok);
-
-        public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
-        {
-            await _cache.RemoveByPatternAsync(PermissionService.PERMISSION_TREE_PATTERN_KEY);
-        }
+    public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+    {
+        await _cache.RemoveByPatternAsync(PermissionService.PERMISSION_TREE_PATTERN_KEY);
     }
 }

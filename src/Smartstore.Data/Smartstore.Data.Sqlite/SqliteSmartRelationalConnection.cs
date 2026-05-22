@@ -34,7 +34,7 @@ internal class SqliteSmartRelationalConnection : SqliteRelationalConnection
         {
             sqliteConnection.CreateCollation(
                 "NOCASE",
-                static (string left, string right) => 
+                static (string left, string right) =>
                 {
                     // Override equality check (Sqlite cannot compare non-ascii chars uncased)
                     return string.Compare(left, right, ignoreCase: true);

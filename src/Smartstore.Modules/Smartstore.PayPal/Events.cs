@@ -21,7 +21,7 @@ public class Events : IConsumer
 
     public Events(
         SmartDbContext db,
-        ICommonServices services, 
+        ICommonServices services,
         ICheckoutStateAccessor checkoutStateAccessor,
         PayPalHttpClient client)
     {
@@ -34,8 +34,8 @@ public class Events : IConsumer
     public void HandleEvent(CustomerSignedInEvent eventMessage)
     {
         var customerBeforeLogin = _services.WorkContext.CurrentCustomer;
-        
-        if (customerBeforeLogin.GenericAttributes.SelectedPaymentMethod.HasValue() 
+
+        if (customerBeforeLogin.GenericAttributes.SelectedPaymentMethod.HasValue()
             && customerBeforeLogin.GenericAttributes.SelectedPaymentMethod.StartsWith("Payments.PayPal"))
         {
             // Save selected payment method in session                
@@ -52,7 +52,7 @@ public class Events : IConsumer
         if (!_checkoutStateAccessor.CheckoutState.CustomProperties.ContainsKey("SelectedPaymentMethod"))
         {
             return;
-        }    
+        }
 
         // If migrated shopping cart differs from current shopping cart, store a value in session and redirect user to basket.
         var storeId = _services.StoreContext.CurrentStore.Id;
@@ -125,7 +125,7 @@ public class Events : IConsumer
         var response = await _client.AddTrackingNumberAsync(shipment);
         var j = response.BodyAsJsonNode();
 
-        var trackingId = 
+        var trackingId =
             j["purchase_units"]?[0]?["shipping"]?["trackers"]?[0]?["id"]?.GetValue<string>();
 
         // Store tracking id as generic attribute in shipment.

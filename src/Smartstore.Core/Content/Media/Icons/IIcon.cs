@@ -1,8 +1,7 @@
-﻿namespace Smartstore.Core.Content.Media.Icons
+﻿namespace Smartstore.Core.Content.Media.Icons;
+
+public interface IIcon
 {
-    public interface IIcon
-    {
-        string Icon { get; }
-        string Style { get; }
-    }
+    string Icon { get; }
+    string Style { get; }
 }

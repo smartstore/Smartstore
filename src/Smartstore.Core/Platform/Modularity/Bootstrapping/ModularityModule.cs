@@ -1,6 +1,8 @@
 ﻿using Autofac;
 using Autofac.Builder;
 using Humanizer;
+using Microsoft.Extensions.FileProviders;
+using Smartstore.Core.AI;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
@@ -10,13 +12,11 @@ using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.Identity;
 using Smartstore.Core.OutputCache;
-using Smartstore.Core.AI;
+using Smartstore.Core.Security;
+using Smartstore.Core.Theming;
 using Smartstore.Core.Widgets;
 using Smartstore.Data;
 using Smartstore.Engine.Modularity;
-using Microsoft.Extensions.FileProviders;
-using Smartstore.Core.Theming;
-using Smartstore.Core.Security;
 
 namespace Smartstore.Core.Bootstrapping;
 
@@ -52,7 +52,7 @@ public sealed class ModularityModule : Module
                     {
                         x.Context.InjectProperties(x.Instance);
                     }
-                    
+
                     if (x.Instance is ModuleBase moduleBase)
                     {
                         moduleBase.Services = x.Context.Resolve<ICommonServices>();

@@ -32,12 +32,12 @@ public static class StoreExtensions
         Guard.NotNull(store);
 
         var baseUrl = store.GetBaseUrl();
-        
+
         if (string.IsNullOrEmpty(path))
         {
             return baseUrl;
         }
-        
+
         if (!pathBase.HasValue)
         {
             // If BasePath is empty just concat baseUri and relative path.
@@ -67,7 +67,7 @@ public static class StoreExtensions
         if (store.Url.IsEmpty())
         {
             return false;
-        } 
+        }
 
         if (Uri.TryCreate(store.Url, UriKind.Absolute, out var uri))
         {

@@ -58,7 +58,7 @@ public class RecurringPaymentModel : EntityModelBase
 
                 return $"fa fa-fw fa-circle text-{color}";
             }
-             
+
             return "fa fa-fw icon-active-false";
         }
     }

@@ -12,8 +12,8 @@ public class EventPublisher : IEventPublisher
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public EventPublisher(
-        IConsumerRegistry registry, 
-        IConsumerResolver resolver, 
+        IConsumerRegistry registry,
+        IConsumerResolver resolver,
         IConsumerInvoker invoker,
         IHttpContextAccessor httpContextAccessor)
     {

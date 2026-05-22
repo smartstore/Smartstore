@@ -24,11 +24,11 @@ public class PayPalInvoiceProvider : PaymentMethodBase, IConfigurable
     private readonly ICheckoutStateAccessor _checkoutStateAccessor;
     private readonly PayPalHttpClient _client;
     private readonly IValidator<PublicInvoiceModel> _validator;
-    
+
     public PayPalInvoiceProvider(
-        SmartDbContext db, 
-        ICheckoutStateAccessor checkoutStateAccessor, 
-        PayPalHttpClient client, 
+        SmartDbContext db,
+        ICheckoutStateAccessor checkoutStateAccessor,
+        PayPalHttpClient client,
         IValidator<PublicInvoiceModel> validator)
     {
         _db = db;
@@ -75,7 +75,7 @@ public class PayPalInvoiceProvider : PaymentMethodBase, IConfigurable
 
         if (result.Errors.Count > 0)
         {
-            if(!result.Errors.Any(x => x.PropertyName == nameof(PublicInvoiceModel.PhoneNumber)))
+            if (!result.Errors.Any(x => x.PropertyName == nameof(PublicInvoiceModel.PhoneNumber)))
             {
                 _checkoutStateAccessor.CheckoutState.PaymentData["PayPalInvoicePhoneNumber"] = form["PhoneNumber"].ToString();
             }
@@ -129,7 +129,7 @@ public class PayPalInvoiceProvider : PaymentMethodBase, IConfigurable
 
         return result;
     }
-    
+
     public override async Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest request)
     {
         var result = new RefundPaymentResult

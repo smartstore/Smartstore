@@ -21,6 +21,6 @@ internal sealed class MessagingStarter : StarterBase
         builder.RegisterType<MessageModelProvider>().As<IMessageModelProvider>().InstancePerLifetimeScope();
         builder.RegisterType<MessageModelHelper>().InstancePerLifetimeScope();
         builder.RegisterType<MessageTemplateService>().As<IMessageTemplateService>().InstancePerLifetimeScope();
-        builder.RegisterType<CampaignService>().As<ICampaignService>().InstancePerLifetimeScope(); 
+        builder.RegisterType<CampaignService>().As<ICampaignService>().InstancePerLifetimeScope();
     }
 }

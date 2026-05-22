@@ -30,7 +30,7 @@ internal sealed class PolymorphicObjectJsonConverterFactory : JsonConverterFacto
     {
         private readonly PolymorphyOptions _polyOptions;
 
-        public PolymorphicObjectConverter(PolymorphyOptions options) 
+        public PolymorphicObjectConverter(PolymorphyOptions options)
             => _polyOptions = options;
 
         public override T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

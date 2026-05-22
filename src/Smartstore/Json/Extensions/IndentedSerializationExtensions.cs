@@ -8,7 +8,7 @@ namespace Smartstore.Json;
 
 public static partial class IndentedSerializationExtensions
 {
-    extension (JsonSerializerOptions options)
+    extension(JsonSerializerOptions options)
     {
         /// <summary>
         /// Serializes the specified value as indented JSON and writes the result to the provided stream using UTF-8

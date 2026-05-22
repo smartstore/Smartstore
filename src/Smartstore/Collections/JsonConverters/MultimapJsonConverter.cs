@@ -1,8 +1,8 @@
 ﻿#nullable enable
 
 using System.Text.Json;
-using Smartstore.Json.Polymorphy;
 using System.Text.Json.Serialization;
+using Smartstore.Json.Polymorphy;
 
 namespace Smartstore.Collections.JsonConverters;
 
@@ -66,7 +66,7 @@ internal class MultimapConverter<TKey, TValue> : JsonConverter<Multimap<TKey, TV
     }
 
     internal static List<KeyValuePair<TKey, IEnumerable<TValue>>> DeserializeKeyValuePairs(
-        ref Utf8JsonReader reader, 
+        ref Utf8JsonReader reader,
         JsonSerializerOptions options,
         bool isPolymorphicValueType)
     {
@@ -153,8 +153,8 @@ internal class MultimapConverter<TKey, TValue> : JsonConverter<Multimap<TKey, TV
     }
 
     public override void Write(
-        Utf8JsonWriter writer, 
-        Multimap<TKey, TValue> value, 
+        Utf8JsonWriter writer,
+        Multimap<TKey, TValue> value,
         JsonSerializerOptions options)
     {
         WriteCore(writer, value, options, _isPolymorphicValueType);
@@ -162,7 +162,7 @@ internal class MultimapConverter<TKey, TValue> : JsonConverter<Multimap<TKey, TV
 
     internal static void WriteCore(
         Utf8JsonWriter writer,
-        IEnumerable<KeyValuePair<TKey, ICollection<TValue>>> value, 
+        IEnumerable<KeyValuePair<TKey, ICollection<TValue>>> value,
         JsonSerializerOptions options,
         bool isPolymorphicValueType)
     {

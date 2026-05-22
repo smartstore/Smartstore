@@ -1,33 +1,32 @@
 ﻿using Microsoft.AspNetCore.Mvc.Razor;
 
-namespace Smartstore.Web.Razor
+namespace Smartstore.Web.Razor;
+
+internal class PartialViewLocationExpander : IViewLocationExpander
 {
-    internal class PartialViewLocationExpander : IViewLocationExpander
+    const string ParamKey = "expand-partials";
+
+    public IEnumerable<string> ExpandViewLocations(ViewLocationExpanderContext context, IEnumerable<string> viewLocations)
     {
-        const string ParamKey = "expand-partials";
+        var doExpand = context.Values.ContainsKey(ParamKey);
 
-        public IEnumerable<string> ExpandViewLocations(ViewLocationExpanderContext context, IEnumerable<string> viewLocations)
+        foreach (var format in viewLocations)
         {
-            var doExpand = context.Values.ContainsKey(ParamKey);
-
-            foreach (var format in viewLocations)
+            if (doExpand)
             {
-                if (doExpand)
-                {
-                    yield return format.Replace("{0}", "Partials/{0}");
-                    yield return format.Replace("{0}", "Layouts/{0}");
-                }
-
-                yield return format;
+                yield return format.Replace("{0}", "Partials/{0}");
+                yield return format.Replace("{0}", "Layouts/{0}");
             }
+
+            yield return format;
         }
+    }
 
-        public void PopulateValues(ViewLocationExpanderContext context)
+    public void PopulateValues(ViewLocationExpanderContext context)
+    {
+        if (!context.IsMainPage && !context.ViewName.StartsWithNoCase("Components/"))
         {
-            if (!context.IsMainPage && !context.ViewName.StartsWithNoCase("Components/"))
-            {
-                context.Values[ParamKey] = "true";
-            }
+            context.Values[ParamKey] = "true";
         }
     }
 }

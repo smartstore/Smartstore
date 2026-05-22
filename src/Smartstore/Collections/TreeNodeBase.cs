@@ -158,7 +158,7 @@ public abstract class TreeNodeBase<T> where T : TreeNodeBase<T>
         if (id == null || IsLeaf)
         {
             return null;
-        }   
+        }
 
         var map = GetIdNodeMap();
         var node = (T?)map?.Get(id);
@@ -682,14 +682,14 @@ public abstract class TreeNodeBase<T> where T : TreeNodeBase<T>
         if (includeSelf)
         {
             action((T)this);
-        } 
+        }
 
         if (_children != null)
         {
             foreach (var child in _children)
             {
                 child.Traverse(action, true);
-            }             
+            }
         }
     }
 
@@ -700,7 +700,7 @@ public abstract class TreeNodeBase<T> where T : TreeNodeBase<T>
         if (includeSelf)
         {
             await action((T)this);
-        }  
+        }
 
         if (_children != null)
         {
@@ -718,7 +718,7 @@ public abstract class TreeNodeBase<T> where T : TreeNodeBase<T>
         if (includeSelf)
         {
             action((T)this);
-        } 
+        }
 
         var parent = _parent;
 

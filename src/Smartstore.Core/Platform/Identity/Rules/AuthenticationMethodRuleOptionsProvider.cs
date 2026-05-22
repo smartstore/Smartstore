@@ -2,50 +2,49 @@
 using Smartstore.Core.Rules.Rendering;
 using Smartstore.Engine.Modularity;
 
-namespace Smartstore.Core.Identity.Rules
+namespace Smartstore.Core.Identity.Rules;
+
+public partial class AuthenticationMethodRuleOptionsProvider : IRuleOptionsProvider
 {
-    public partial class AuthenticationMethodRuleOptionsProvider : IRuleOptionsProvider
+    private readonly IProviderManager _providerManager;
+    private readonly ModuleManager _moduleManager;
+
+    public AuthenticationMethodRuleOptionsProvider(
+        IProviderManager providerManager,
+        ModuleManager moduleManager)
     {
-        private readonly IProviderManager _providerManager;
-        private readonly ModuleManager _moduleManager;
+        _providerManager = providerManager;
+        _moduleManager = moduleManager;
+    }
 
-        public AuthenticationMethodRuleOptionsProvider(
-            IProviderManager providerManager,
-            ModuleManager moduleManager)
+    public int Order => 0;
+
+    public bool Matches(string dataSource)
+        => dataSource == KnownRuleOptionDataSourceNames.AuthenticationMethod;
+
+    public Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
+    {
+        RuleOptionsResult result = null;
+
+        if (context.DataSource == KnownRuleOptionDataSourceNames.AuthenticationMethod)
         {
-            _providerManager = providerManager;
-            _moduleManager = moduleManager;
-        }
+            var authProviders = _providerManager.GetAllProviders<IExternalAuthenticationMethod>();
 
-        public int Order => 0;
-
-        public bool Matches(string dataSource)
-            => dataSource == KnownRuleOptionDataSourceNames.AuthenticationMethod;
-
-        public Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
-        {
-            RuleOptionsResult result = null;
-
-            if (context.DataSource == KnownRuleOptionDataSourceNames.AuthenticationMethod)
+            var options = authProviders.Select(x =>
             {
-                var authProviders = _providerManager.GetAllProviders<IExternalAuthenticationMethod>();
+                var friendlyName = _moduleManager.GetLocalizedFriendlyName(x.Metadata).NullEmpty();
 
-                var options = authProviders.Select(x =>
+                return new RuleValueSelectListOption
                 {
-                    var friendlyName = _moduleManager.GetLocalizedFriendlyName(x.Metadata).NullEmpty();
+                    Value = x.Metadata.SystemName,
+                    Text = friendlyName ?? x.Metadata.SystemName,
+                    Hint = friendlyName == null ? null : x.Metadata.SystemName
+                };
+            });
 
-                    return new RuleValueSelectListOption
-                    {
-                        Value = x.Metadata.SystemName,
-                        Text = friendlyName ?? x.Metadata.SystemName,
-                        Hint = friendlyName == null ? null : x.Metadata.SystemName
-                    };
-                });
-
-                result = RuleOptionsResult.Create(context, options);
-            }
-
-            return Task.FromResult(result);
+            result = RuleOptionsResult.Create(context, options);
         }
+
+        return Task.FromResult(result);
     }
 }

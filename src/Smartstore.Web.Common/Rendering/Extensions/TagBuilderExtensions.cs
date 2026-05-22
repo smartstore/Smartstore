@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Smartstore.Web.Rendering;
 
-public static class TagBuilderExtensions {
+public static class TagBuilderExtensions
+{
     extension(TagBuilder builder)
     {
         public TagBuilder AppendCssClass(Func<string> cssClass)

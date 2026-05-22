@@ -12,205 +12,204 @@ using Smartstore.Core.Widgets;
 using Smartstore.Http;
 using Smartstore.Json;
 
-namespace Smartstore.Core.Content.Blocks
+namespace Smartstore.Core.Content.Blocks;
+
+public abstract class BlockHandlerBase<TBlock> : IBlockHandler<TBlock> where TBlock : IBlock
 {
-    public abstract class BlockHandlerBase<TBlock> : IBlockHandler<TBlock> where TBlock : IBlock
+    public ICommonServices Services { get; set; }
+
+    public ILogger Logger { get; set; } = NullLogger.Instance;
+
+    public Localizer T { get; set; } = NullLocalizer.Instance;
+
+    public required ILocalizedEntityService LocalizedEntityService { protected get; set; }
+
+    public virtual TBlock Create(IBlockEntity entity)
     {
-        public ICommonServices Services { get; set; }
+        return Activator.CreateInstance<TBlock>();
+    }
 
-        public ILogger Logger { get; set; } = NullLogger.Instance;
+    protected virtual TBlock Load(IBlockEntity entity, StoryViewMode viewMode)
+    {
+        Guard.NotNull(entity);
 
-        public Localizer T { get; set; } = NullLocalizer.Instance;
+        var block = Create(entity);
+        var runtimeType = block.GetType();
+        var json = entity.Model;
 
-        public required ILocalizedEntityService LocalizedEntityService { protected get; set; }
-
-        public virtual TBlock Create(IBlockEntity entity)
+        if (json.IsEmpty())
         {
-            return Activator.CreateInstance<TBlock>();
-        }
-
-        protected virtual TBlock Load(IBlockEntity entity, StoryViewMode viewMode)
-        {
-            Guard.NotNull(entity);
-
-            var block = Create(entity);
-            var runtimeType = block.GetType();
-            var json = entity.Model;
-
-            if (json.IsEmpty())
-            {
-                return block;
-            }
-
-            if (JsonSerializer.Deserialize(json, runtimeType, SmartJsonOptions.Default) is TBlock deserializedBlock)
-            {
-                block = deserializedBlock;
-            }
-
-            if (block is IBindableBlock bindableBlock)
-            {
-                bindableBlock.BindEntityName = entity.BindEntityName;
-                bindableBlock.BindEntityId = entity.BindEntityId;
-            }
-
             return block;
         }
 
-        public virtual Task<TBlock> LoadAsync(IBlockEntity entity, StoryViewMode viewMode)
-            => Task.FromResult(Load(entity, viewMode));
-
-        public virtual bool IsValid(TBlock block)
-            => true;
-
-        protected virtual void Save(TBlock block, IBlockEntity entity)
+        if (JsonSerializer.Deserialize(json, runtimeType, SmartJsonOptions.Default) is TBlock deserializedBlock)
         {
-            Guard.NotNull(entity);
+            block = deserializedBlock;
+        }
 
-            if (block == null)
+        if (block is IBindableBlock bindableBlock)
+        {
+            bindableBlock.BindEntityName = entity.BindEntityName;
+            bindableBlock.BindEntityId = entity.BindEntityId;
+        }
+
+        return block;
+    }
+
+    public virtual Task<TBlock> LoadAsync(IBlockEntity entity, StoryViewMode viewMode)
+        => Task.FromResult(Load(entity, viewMode));
+
+    public virtual bool IsValid(TBlock block)
+        => true;
+
+    protected virtual void Save(TBlock block, IBlockEntity entity)
+    {
+        Guard.NotNull(entity);
+
+        if (block == null)
+        {
+            return;
+        }
+
+        entity.Model = JsonSerializer.Serialize(block, SmartJsonOptions.Default);
+
+        // Save BindEntintyName & BindEntintyId
+        if (block is IBindableBlock bindableBlock)
+        {
+            entity.BindEntityId = bindableBlock.BindEntityId;
+            entity.BindEntityName = bindableBlock.BindEntityName;
+        }
+    }
+
+    public virtual Task SaveAsync(TBlock block, IBlockEntity entity)
+    {
+        Save(block, entity);
+        return Task.CompletedTask;
+    }
+
+    public virtual Task AfterSaveAsync(IBlockContainer container, IBlockEntity entity)
+    {
+        // Default impl does nothing.
+        return Task.CompletedTask;
+    }
+
+    public virtual void BeforeRender(IBlockContainer container, StoryViewMode viewMode, IBlockHtmlParts htmlParts)
+    {
+        // Default impl does nothing.
+    }
+
+    public virtual Task<string> CloneAsync(IBlockEntity sourceEntity, IBlockEntity clonedEntity)
+    {
+        return Task.FromResult(sourceEntity.Model);
+    }
+
+    public Task RenderAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper)
+    {
+        return RenderCoreAsync(element, templates, htmlHelper, htmlHelper.ViewContext.Writer);
+    }
+
+    public async Task<IHtmlContent> ToHtmlContentAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper)
+    {
+        using var writer = new StringWriter(CultureInfo.CurrentCulture);
+        await RenderCoreAsync(element, templates, htmlHelper, writer);
+        return new HtmlString(writer.ToString());
+    }
+
+    protected virtual Task RenderCoreAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
+    {
+        return RenderByViewAsync(element, templates, htmlHelper, textWriter);
+    }
+
+    protected virtual Task RenderByViewAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
+    {
+        Guard.NotNull(element);
+        Guard.NotNull(templates);
+        Guard.NotNull(htmlHelper);
+
+        var viewContext = htmlHelper.ViewContext;
+        var actionContext = GetActionContextFor(element, viewContext);
+        var viewResult = FindFirstView(element.Metadata, templates, actionContext, out var searchedLocations);
+
+        if (viewResult == null)
+        {
+            var msg = string.Format("No template found for '{0}'. Searched locations:\n{1}.", string.Join(", ", templates), string.Join('\n', searchedLocations));
+            Logger.Debug(msg);
+            throw new FileNotFoundException(msg);
+        }
+
+        viewContext = new ViewContext(
+            viewContext,
+            viewResult.View,
+            CreateViewData(element, viewContext),
+            textWriter ?? viewContext.Writer);
+
+        return viewResult.View.RenderAsync(viewContext);
+    }
+
+    protected ViewDataDictionary CreateViewData(IBlockContainer element, ViewContext viewContext)
+    {
+        var viewData = new ViewDataDictionary<IBlock>(viewContext.ViewData, element.Block);
+
+        viewData.TemplateInfo.HtmlFieldPrefix = "Block";
+
+        return viewData;
+    }
+
+    protected virtual async Task RenderByWidgetAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
+    {
+        Guard.NotNull(element);
+        Guard.NotNull(templates);
+        Guard.NotNull(htmlHelper);
+
+        var widget = templates.Select(x => GetWidget(element, htmlHelper, x)).FirstOrDefault(x => x != null);
+        if (widget == null)
+        {
+            throw new InvalidOperationException("The return value of the 'GetWidget()' method cannot be NULL.");
+        }
+
+        textWriter ??= htmlHelper.ViewContext.Writer;
+        var content = await widget.InvokeAsync(htmlHelper.ViewContext);
+        content.WriteTo(textWriter, WebHelper.HtmlEncoder);
+    }
+
+    protected virtual Widget GetWidget(IBlockContainer element, IHtmlHelper htmlHelper, string template)
+    {
+        throw new NotImplementedException();
+    }
+
+    private static ActionContext GetActionContextFor(IBlockContainer element, ActionContext originalContext)
+    {
+        // Change "module" token in RouteData in order to begin search in the module's view folder.
+        var routeData = new RouteData(originalContext.RouteData);
+        routeData.DataTokens["module"] = element.Metadata.ModuleName;
+
+        return new ActionContext(originalContext)
+        {
+            RouteData = routeData
+        };
+    }
+
+    private static ViewEngineResult FindFirstView(
+        IBlockMetadata blockMetadata,
+        IEnumerable<string> templates,
+        ActionContext actionContext,
+        out ICollection<string> searchedLocations)
+    {
+        searchedLocations = new List<string>();
+
+        var viewEngine = actionContext.HttpContext.RequestServices.GetRequiredService<IRazorViewEngine>();
+
+        foreach (var template in templates)
+        {
+            var viewName = string.Concat("BlockTemplates/", blockMetadata.SystemName, "/", template);
+            var viewResult = viewEngine.FindView(actionContext, viewName, false);
+            searchedLocations.AddRange(viewResult.SearchedLocations);
+            if (viewResult.View != null)
             {
-                return;
+                return viewResult;
             }
-
-            entity.Model = JsonSerializer.Serialize(block, SmartJsonOptions.Default);
-
-            // Save BindEntintyName & BindEntintyId
-            if (block is IBindableBlock bindableBlock)
-            {
-                entity.BindEntityId = bindableBlock.BindEntityId;
-                entity.BindEntityName = bindableBlock.BindEntityName;
-            }
         }
 
-        public virtual Task SaveAsync(TBlock block, IBlockEntity entity)
-        {
-            Save(block, entity);
-            return Task.CompletedTask;
-        }
-
-        public virtual Task AfterSaveAsync(IBlockContainer container, IBlockEntity entity)
-        {
-            // Default impl does nothing.
-            return Task.CompletedTask;
-        }
-
-        public virtual void BeforeRender(IBlockContainer container, StoryViewMode viewMode, IBlockHtmlParts htmlParts)
-        {
-            // Default impl does nothing.
-        }
-
-        public virtual Task<string> CloneAsync(IBlockEntity sourceEntity, IBlockEntity clonedEntity)
-        {
-            return Task.FromResult(sourceEntity.Model);
-        }
-
-        public Task RenderAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper)
-        {
-            return RenderCoreAsync(element, templates, htmlHelper, htmlHelper.ViewContext.Writer);
-        }
-
-        public async Task<IHtmlContent> ToHtmlContentAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper)
-        {
-            using var writer = new StringWriter(CultureInfo.CurrentCulture);
-            await RenderCoreAsync(element, templates, htmlHelper, writer);
-            return new HtmlString(writer.ToString());
-        }
-
-        protected virtual Task RenderCoreAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
-        {
-            return RenderByViewAsync(element, templates, htmlHelper, textWriter);
-        }
-
-        protected virtual Task RenderByViewAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
-        {
-            Guard.NotNull(element);
-            Guard.NotNull(templates);
-            Guard.NotNull(htmlHelper);
-
-            var viewContext = htmlHelper.ViewContext;
-            var actionContext = GetActionContextFor(element, viewContext);
-            var viewResult = FindFirstView(element.Metadata, templates, actionContext, out var searchedLocations);
-
-            if (viewResult == null)
-            {
-                var msg = string.Format("No template found for '{0}'. Searched locations:\n{1}.", string.Join(", ", templates), string.Join('\n', searchedLocations));
-                Logger.Debug(msg);
-                throw new FileNotFoundException(msg);
-            }
-
-            viewContext = new ViewContext(
-                viewContext,
-                viewResult.View,
-                CreateViewData(element, viewContext),
-                textWriter ?? viewContext.Writer);
-
-            return viewResult.View.RenderAsync(viewContext);
-        }
-
-        protected ViewDataDictionary CreateViewData(IBlockContainer element, ViewContext viewContext)
-        {
-            var viewData = new ViewDataDictionary<IBlock>(viewContext.ViewData, element.Block);
-
-            viewData.TemplateInfo.HtmlFieldPrefix = "Block";
-
-            return viewData;
-        }
-
-        protected virtual async Task RenderByWidgetAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
-        {
-            Guard.NotNull(element);
-            Guard.NotNull(templates);
-            Guard.NotNull(htmlHelper);
-
-            var widget = templates.Select(x => GetWidget(element, htmlHelper, x)).FirstOrDefault(x => x != null);
-            if (widget == null)
-            {
-                throw new InvalidOperationException("The return value of the 'GetWidget()' method cannot be NULL.");
-            }
-
-            textWriter ??= htmlHelper.ViewContext.Writer;
-            var content = await widget.InvokeAsync(htmlHelper.ViewContext);
-            content.WriteTo(textWriter, WebHelper.HtmlEncoder);
-        }
-
-        protected virtual Widget GetWidget(IBlockContainer element, IHtmlHelper htmlHelper, string template)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static ActionContext GetActionContextFor(IBlockContainer element, ActionContext originalContext)
-        {
-            // Change "module" token in RouteData in order to begin search in the module's view folder.
-            var routeData = new RouteData(originalContext.RouteData);
-            routeData.DataTokens["module"] = element.Metadata.ModuleName;
-
-            return new ActionContext(originalContext)
-            {
-                RouteData = routeData
-            };
-        }
-
-        private static ViewEngineResult FindFirstView(
-            IBlockMetadata blockMetadata,
-            IEnumerable<string> templates,
-            ActionContext actionContext,
-            out ICollection<string> searchedLocations)
-        {
-            searchedLocations = new List<string>();
-
-            var viewEngine = actionContext.HttpContext.RequestServices.GetRequiredService<IRazorViewEngine>();
-
-            foreach (var template in templates)
-            {
-                var viewName = string.Concat("BlockTemplates/", blockMetadata.SystemName, "/", template);
-                var viewResult = viewEngine.FindView(actionContext, viewName, false);
-                searchedLocations.AddRange(viewResult.SearchedLocations);
-                if (viewResult.View != null)
-                {
-                    return viewResult;
-                }
-            }
-
-            return null;
-        }
+        return null;
     }
 }

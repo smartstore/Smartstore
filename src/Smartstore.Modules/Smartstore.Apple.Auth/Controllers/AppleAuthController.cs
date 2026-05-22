@@ -22,7 +22,7 @@ public class AppleAuthController : AdminController
     private readonly ICacheManager _cache;
 
     public AppleAuthController(
-        IOptionsMonitorCache<AppleAuthenticationOptions> optionsCache, 
+        IOptionsMonitorCache<AppleAuthenticationOptions> optionsCache,
         IProviderManager providerManager,
         ICacheManager cache)
     {

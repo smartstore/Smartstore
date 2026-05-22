@@ -1,9 +1,8 @@
 ﻿using FluentMigrator.Runner.Conventions;
 
-namespace Smartstore.Core.Data.Migrations
+namespace Smartstore.Core.Data.Migrations;
+
+public interface IConventionSource
 {
-    public interface IConventionSource
-    {
-        void Configure(IConventionSet conventionSet);
-    }
+    void Configure(IConventionSet conventionSet);
 }

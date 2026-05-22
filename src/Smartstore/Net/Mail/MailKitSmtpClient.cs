@@ -2,119 +2,118 @@
 using MailKit.Net.Smtp;
 using MailKit.Security;
 
-namespace Smartstore.Net.Mail
+namespace Smartstore.Net.Mail;
+
+public partial class MailKitSmtpClient : Disposable, ISmtpClient
 {
-    public partial class MailKitSmtpClient : Disposable, ISmtpClient
+    private readonly SmtpClient _client;
+
+    public MailKitSmtpClient(SmtpClient client, IMailAccount account)
     {
-        private readonly SmtpClient _client;
+        Guard.NotNull(client, nameof(client));
+        Guard.NotNull(account, nameof(account));
 
-        public MailKitSmtpClient(SmtpClient client, IMailAccount account)
+        _client = client;
+        Account = account;
+    }
+
+    public IMailAccount Account { get; init; }
+
+    internal void Connect()
+    {
+        try
         {
-            Guard.NotNull(client, nameof(client));
-            Guard.NotNull(account, nameof(account));
+            _client.Connect(Account.Host, Account.Port, (SecureSocketOptions)Account.MailSecureOption);
 
-            _client = client;
-            Account = account;
-        }
-
-        public IMailAccount Account { get; init; }
-
-        internal void Connect()
-        {
-            try
+            if (Account.UseDefaultCredentials)
             {
-                _client.Connect(Account.Host, Account.Port, (SecureSocketOptions)Account.MailSecureOption);
-
-                if (Account.UseDefaultCredentials)
-                {
-                    _client.Authenticate(CredentialCache.DefaultNetworkCredentials);
-                }
-                else if (Account.Username.HasValue())
-                {
-                    _client.Authenticate(new NetworkCredential(Account.Username, Account.Password));
-                }
+                _client.Authenticate(CredentialCache.DefaultNetworkCredentials);
             }
-            catch (Exception ex)
+            else if (Account.Username.HasValue())
             {
-                _client.Dispose();
-                throw new MailException(ex.Message, ex);
+                _client.Authenticate(new NetworkCredential(Account.Username, Account.Password));
             }
         }
-
-        internal async Task ConnectAsync()
+        catch (Exception ex)
         {
-            try
-            {
-                await _client.ConnectAsync(Account.Host, Account.Port, (SecureSocketOptions)Account.MailSecureOption);
+            _client.Dispose();
+            throw new MailException(ex.Message, ex);
+        }
+    }
 
-                if (Account.UseDefaultCredentials)
-                {
-                    await _client.AuthenticateAsync(CredentialCache.DefaultNetworkCredentials);
-                }
-                else if (Account.Username.HasValue())
-                {
-                    await _client.AuthenticateAsync(new NetworkCredential(Account.Username, Account.Password));
-                }
-            }
-            catch (Exception ex)
+    internal async Task ConnectAsync()
+    {
+        try
+        {
+            await _client.ConnectAsync(Account.Host, Account.Port, (SecureSocketOptions)Account.MailSecureOption);
+
+            if (Account.UseDefaultCredentials)
             {
-                _client.Dispose();
-                throw new MailException(ex.Message, ex);
+                await _client.AuthenticateAsync(CredentialCache.DefaultNetworkCredentials);
+            }
+            else if (Account.Username.HasValue())
+            {
+                await _client.AuthenticateAsync(new NetworkCredential(Account.Username, Account.Password));
             }
         }
-
-        public virtual void Send(IEnumerable<MailMessage> messages, CancellationToken cancelToken = default)
+        catch (Exception ex)
         {
-            Guard.NotNull(messages, nameof(messages));
-
-            CheckDisposed();
-
-            foreach (var mimeMessage in messages.Select(DefaultMailService.BuildMimeMessage))
-            {
-                if (cancelToken.IsCancellationRequested)
-                    break;
-
-                _client.Send(mimeMessage, cancelToken);
-            }
+            _client.Dispose();
+            throw new MailException(ex.Message, ex);
         }
+    }
 
-        public virtual async Task SendAsync(IEnumerable<MailMessage> messages, CancellationToken cancelToken = default)
+    public virtual void Send(IEnumerable<MailMessage> messages, CancellationToken cancelToken = default)
+    {
+        Guard.NotNull(messages, nameof(messages));
+
+        CheckDisposed();
+
+        foreach (var mimeMessage in messages.Select(DefaultMailService.BuildMimeMessage))
         {
-            Guard.NotNull(messages, nameof(messages));
+            if (cancelToken.IsCancellationRequested)
+                break;
 
-            CheckDisposed();
-
-            foreach (var mimeMessage in messages.Select(DefaultMailService.BuildMimeMessage))
-            {
-                if (cancelToken.IsCancellationRequested)
-                    break;
-
-                await _client.SendAsync(mimeMessage, cancelToken);
-            }
+            _client.Send(mimeMessage, cancelToken);
         }
+    }
 
-        protected override void OnDispose(bool disposing)
+    public virtual async Task SendAsync(IEnumerable<MailMessage> messages, CancellationToken cancelToken = default)
+    {
+        Guard.NotNull(messages, nameof(messages));
+
+        CheckDisposed();
+
+        foreach (var mimeMessage in messages.Select(DefaultMailService.BuildMimeMessage))
         {
-            if (disposing)
-            {
-                if (_client.IsConnected)
-                {
-                    _client.Disconnect(true);
-                }
-                _client.Dispose();
-            }
+            if (cancelToken.IsCancellationRequested)
+                break;
+
+            await _client.SendAsync(mimeMessage, cancelToken);
         }
+    }
 
-        protected override async ValueTask OnDisposeAsync(bool disposing)
+    protected override void OnDispose(bool disposing)
+    {
+        if (disposing)
         {
-            if (disposing)
+            if (_client.IsConnected)
             {
-                if (_client.IsConnected)
-                {
-                    await _client.DisconnectAsync(true);
-                }
-                _client.Dispose();
+                _client.Disconnect(true);
             }
+            _client.Dispose();
+        }
+    }
+
+    protected override async ValueTask OnDisposeAsync(bool disposing)
+    {
+        if (disposing)
+        {
+            if (_client.IsConnected)
+            {
+                await _client.DisconnectAsync(true);
+            }
+            _client.Dispose();
         }
     }
 }

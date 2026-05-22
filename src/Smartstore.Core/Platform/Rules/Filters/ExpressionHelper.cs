@@ -4,213 +4,212 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Smartstore.Utilities;
 using EFCore = Microsoft.EntityFrameworkCore;
 
-namespace Smartstore.Core.Rules.Filters
+namespace Smartstore.Core.Rules.Filters;
+
+internal static class ExpressionHelper
 {
-    internal static class ExpressionHelper
+    public readonly static Expression TrueLiteral = Expression.Constant(true);
+    public readonly static Expression FalseLiteral = Expression.Constant(false);
+    public readonly static Expression NullLiteral = Expression.Constant(null);
+    public readonly static Expression ZeroLiteral = Expression.Constant(0);
+    public readonly static Expression EmptyStringLiteral = Expression.Constant(string.Empty);
+
+    public readonly static MethodInfo StringToLowerMethod = typeof(string).GetMethod(nameof(string.ToLower), Type.EmptyTypes);
+    public readonly static MethodInfo StringTrimMethod = typeof(string).GetMethod(nameof(string.Trim), Type.EmptyTypes);
+    public readonly static MethodInfo StringIsNullOrEmptyMethod = typeof(string).GetMethod("IsNullOrEmpty", new Type[] { typeof(string) });
+    public readonly static MethodInfo StringStartsWithMethod = typeof(string).GetMethod(nameof(string.StartsWith), new Type[] { typeof(string) });
+    public readonly static MethodInfo StringEndsWithMethod = typeof(string).GetMethod(nameof(string.EndsWith), new Type[] { typeof(string) });
+    public readonly static MethodInfo StringContainsMethod = typeof(string).GetMethod(nameof(string.Contains), new Type[] { typeof(string) });
+    public readonly static MethodInfo WildcardIsMatchMethod = typeof(Wildcard).GetMethod(nameof(Wildcard.IsMatch), new Type[] { typeof(string) });
+
+    public readonly static MethodInfo DbLikeMethod
+        = typeof(EFCore.DbFunctionsExtensions).GetRuntimeMethod("Like",
+            new Type[] { typeof(EFCore.DbFunctions), typeof(string), typeof(string) });
+
+    public readonly static MethodInfo DbLikeMethodWithEscape
+        = typeof(EFCore.DbFunctionsExtensions).GetRuntimeMethod("Like",
+            new Type[] { typeof(EFCore.DbFunctions), typeof(string), typeof(string), typeof(string) });
+
+    public readonly static IQueryProvider LinqToObjectsProvider = Enumerable.Empty<int>().AsQueryable().Provider;
+
+    public static Expression CallToLower(this Expression stringExpression, IQueryProvider provider)
     {
-        public readonly static Expression TrueLiteral = Expression.Constant(true);
-        public readonly static Expression FalseLiteral = Expression.Constant(false);
-        public readonly static Expression NullLiteral = Expression.Constant(null);
-        public readonly static Expression ZeroLiteral = Expression.Constant(0);
-        public readonly static Expression EmptyStringLiteral = Expression.Constant(string.Empty);
-
-        public readonly static MethodInfo StringToLowerMethod = typeof(string).GetMethod(nameof(string.ToLower), Type.EmptyTypes);
-        public readonly static MethodInfo StringTrimMethod = typeof(string).GetMethod(nameof(string.Trim), Type.EmptyTypes);
-        public readonly static MethodInfo StringIsNullOrEmptyMethod = typeof(string).GetMethod("IsNullOrEmpty", new Type[] { typeof(string) });
-        public readonly static MethodInfo StringStartsWithMethod = typeof(string).GetMethod(nameof(string.StartsWith), new Type[] { typeof(string) });
-        public readonly static MethodInfo StringEndsWithMethod = typeof(string).GetMethod(nameof(string.EndsWith), new Type[] { typeof(string) });
-        public readonly static MethodInfo StringContainsMethod = typeof(string).GetMethod(nameof(string.Contains), new Type[] { typeof(string) });
-        public readonly static MethodInfo WildcardIsMatchMethod = typeof(Wildcard).GetMethod(nameof(Wildcard.IsMatch), new Type[] { typeof(string) });
-
-        public readonly static MethodInfo DbLikeMethod
-            = typeof(EFCore.DbFunctionsExtensions).GetRuntimeMethod("Like",
-                new Type[] { typeof(EFCore.DbFunctions), typeof(string), typeof(string) });
-
-        public readonly static MethodInfo DbLikeMethodWithEscape
-            = typeof(EFCore.DbFunctionsExtensions).GetRuntimeMethod("Like",
-                new Type[] { typeof(EFCore.DbFunctions), typeof(string), typeof(string), typeof(string) });
-
-        public readonly static IQueryProvider LinqToObjectsProvider = Enumerable.Empty<int>().AsQueryable().Provider;
-
-        public static Expression CallToLower(this Expression stringExpression, IQueryProvider provider)
+        if (provider is EnumerableQuery)
         {
-            if (provider is EnumerableQuery)
-            {
-                stringExpression = LiftStringExpressionToEmpty(stringExpression);
-            }
-
-            if (provider is EntityQueryProvider)
-            {
-                // EF: handle collation on database level.
-                return stringExpression;
-            }
-            else
-            {
-                return Expression.Call(stringExpression, StringToLowerMethod);
-            } 
+            stringExpression = LiftStringExpressionToEmpty(stringExpression);
         }
 
-        public static Expression CallIsNullOrEmpty(this Expression stringExpression)
+        if (provider is EntityQueryProvider)
         {
-            return Expression.Call(StringIsNullOrEmptyMethod, stringExpression);
+            // EF: handle collation on database level.
+            return stringExpression;
+        }
+        else
+        {
+            return Expression.Call(stringExpression, StringToLowerMethod);
+        }
+    }
+
+    public static Expression CallIsNullOrEmpty(this Expression stringExpression)
+    {
+        return Expression.Call(StringIsNullOrEmptyMethod, stringExpression);
+    }
+
+    public static Expression CallTrim(this Expression stringExpression, IQueryProvider provider)
+    {
+        if (provider is EnumerableQuery)
+        {
+            stringExpression = LiftStringExpressionToEmpty(stringExpression);
         }
 
-        public static Expression CallTrim(this Expression stringExpression, IQueryProvider provider)
-        {
-            if (provider is EnumerableQuery)
-            {
-                stringExpression = LiftStringExpressionToEmpty(stringExpression);
-            }
+        return Expression.Call(stringExpression, StringTrimMethod);
+    }
 
-            return Expression.Call(stringExpression, StringTrimMethod);
+    public static Expression ToCaseInsensitiveStringMethodCall(this MethodInfo methodInfo, Expression left, Expression right, IQueryProvider provider)
+    {
+        var leftCall = CallToLower(left, provider);
+        var rightCall = CallToLower(right, provider);
+
+        if (methodInfo.IsStatic)
+        {
+            return Expression.Call(methodInfo, new Expression[] { leftCall, rightCall });
         }
 
-        public static Expression ToCaseInsensitiveStringMethodCall(this MethodInfo methodInfo, Expression left, Expression right, IQueryProvider provider)
+        return Expression.Call(leftCall, methodInfo, new Expression[] { rightCall });
+    }
+
+    public static Expression LiftStringExpressionToEmpty(Expression stringExpression)
+    {
+        if (stringExpression.Type != typeof(string))
         {
-            var leftCall = CallToLower(left, provider);
-            var rightCall = CallToLower(right, provider);
-
-            if (methodInfo.IsStatic)
-            {
-                return Expression.Call(methodInfo, new Expression[] { leftCall, rightCall });
-            }
-
-            return Expression.Call(leftCall, methodInfo, new Expression[] { rightCall });
+            throw new ArgumentException("Provided expression should be string type", nameof(stringExpression));
         }
 
-        public static Expression LiftStringExpressionToEmpty(Expression stringExpression)
+        if (IsNotNullConstantExpression(stringExpression, out _))
         {
-            if (stringExpression.Type != typeof(string))
-            {
-                throw new ArgumentException("Provided expression should be string type", nameof(stringExpression));
-            }
-
-            if (IsNotNullConstantExpression(stringExpression, out _))
-            {
-                return stringExpression;
-            }
-
-            return Expression.Coalesce(stringExpression, EmptyStringLiteral);
+            return stringExpression;
         }
 
-        public static bool IsNotNullConstantExpression(Expression expression, out object value)
+        return Expression.Coalesce(stringExpression, EmptyStringLiteral);
+    }
+
+    public static bool IsNotNullConstantExpression(Expression expression, out object value)
+    {
+        value = null;
+
+        if (expression is ConstantExpression c)
+        {
+            value = c.Value;
+            return value != null;
+        }
+
+        return false;
+    }
+
+    public static bool IsNullObjectConstantExpression(Expression expression)
+    {
+        if (expression is ConstantExpression c)
+        {
+            return c.Value == null && c.Type == typeof(object);
+        }
+
+        return false;
+    }
+
+    public static MethodInfo GetCollectionContainsMethod(Type itemType)
+    {
+        return typeof(ICollection<>).MakeGenericType(itemType).GetMethod("Contains", new Type[] { itemType });
+    }
+
+    public static Expression CreateValueExpression(Type targetType, object value, CultureInfo culture = null)
+    {
+        var targetIsNullable = targetType.IsNullableType(out var nonNullableType);
+
+        if (((targetType != typeof(string)) && (!targetType.IsValueType || targetIsNullable)) && (string.Compare(value as string, "null", StringComparison.OrdinalIgnoreCase) == 0))
         {
             value = null;
-
-            if (expression is ConstantExpression c)
-            {
-                value = c.Value;
-                return value != null;
-            }
-
-            return false;
         }
 
-        public static bool IsNullObjectConstantExpression(Expression expression)
+        if (value != null)
         {
-            if (expression is ConstantExpression c)
+            if (value.GetType() != nonNullableType)
             {
-                return c.Value == null && c.Type == typeof(object);
-            }
-
-            return false;
-        }
-
-        public static MethodInfo GetCollectionContainsMethod(Type itemType)
-        {
-            return typeof(ICollection<>).MakeGenericType(itemType).GetMethod("Contains", new Type[] { itemType });
-        }
-
-        public static Expression CreateValueExpression(Type targetType, object value, CultureInfo culture = null)
-        {
-            var targetIsNullable = targetType.IsNullableType(out var nonNullableType);
-
-            if (((targetType != typeof(string)) && (!targetType.IsValueType || targetIsNullable)) && (string.Compare(value as string, "null", StringComparison.OrdinalIgnoreCase) == 0))
-            {
-                value = null;
-            }
-
-            if (value != null)
-            {
-                if (value.GetType() != nonNullableType)
+                if (nonNullableType.IsEnum)
                 {
-                    if (nonNullableType.IsEnum)
+                    value = Enum.Parse(nonNullableType, value.ToString(), true);
+                }
+                else if (value is IConvertible)
+                {
+                    if (typeof(IConvertible).IsAssignableFrom(nonNullableType))
                     {
-                        value = Enum.Parse(nonNullableType, value.ToString(), true);
-                    }
-                    else if (value is IConvertible)
-                    {
-                        if (typeof(IConvertible).IsAssignableFrom(nonNullableType))
-                        {
-                            value = Convert.ChangeType(value, nonNullableType, culture ?? CultureInfo.InvariantCulture);
-                        }
+                        value = Convert.ChangeType(value, nonNullableType, culture ?? CultureInfo.InvariantCulture);
                     }
                 }
             }
-
-            return CreateConstantExpression(value);
         }
 
-        public static Expression CreateConstantExpression(object value, Type type = null)
+        return CreateConstantExpression(value);
+    }
+
+    public static Expression CreateConstantExpression(object value, Type type = null)
+    {
+        if (type != null && type != typeof(object))
         {
-            if (type != null && type != typeof(object))
-            {
-                return Expression.Constant(value, type);
-            }
-
-            if (value != null)
-            {
-                return Expression.Constant(value);
-            }
-
-            return NullLiteral;
+            return Expression.Constant(value, type);
         }
 
-        public static LambdaExpression CreateLambdaExpression<T, TValue>(Expression<Func<T, TValue>> left, RuleOperator op, object right)
+        if (value != null)
         {
-            var paramExpr = Expression.Parameter(typeof(T), "it");
-            var valueExpr = CreateValueExpression(left.Body.Type, right);
-            var expr = op.GetExpression(left.Body, valueExpr, LinqToObjectsProvider);
-
-            return CreateLambdaExpression(paramExpr, expr);
+            return Expression.Constant(value);
         }
 
-        public static LambdaExpression CreateLambdaExpression(ParameterExpression p, Expression body)
+        return NullLiteral;
+    }
+
+    public static LambdaExpression CreateLambdaExpression<T, TValue>(Expression<Func<T, TValue>> left, RuleOperator op, object right)
+    {
+        var paramExpr = Expression.Parameter(typeof(T), "it");
+        var valueExpr = CreateValueExpression(left.Body.Type, right);
+        var expr = op.GetExpression(left.Body, valueExpr, LinqToObjectsProvider);
+
+        return CreateLambdaExpression(paramExpr, expr);
+    }
+
+    public static LambdaExpression CreateLambdaExpression(ParameterExpression p, Expression body)
+    {
+        return Expression.Lambda(
+            new FilterExpressionVisitor(p).Visit(body),
+            new[] { p });
+    }
+
+    public static Expression CombineExpressions(ParameterExpression node, LogicalRuleOperator logicalOperator, params Expression[] expressions)
+    {
+        Guard.NotNull(node, nameof(node));
+
+        Expression left = null;
+
+        foreach (var expression in expressions)
         {
-            return Expression.Lambda(
-                new FilterExpressionVisitor(p).Visit(body),
-                new[] { p });
-        }
-
-        public static Expression CombineExpressions(ParameterExpression node, LogicalRuleOperator logicalOperator, params Expression[] expressions)
-        {
-            Guard.NotNull(node, nameof(node));
-
-            Expression left = null;
-
-            foreach (var expression in expressions)
-            {
-                var right = expression;
-
-                if (left == null)
-                    left = right;
-                else
-                    left = CombineExpressions(left, logicalOperator, right);
-            }
+            var right = expression;
 
             if (left == null)
-            {
-                return TrueLiteral;
-            }
-
-            return left;
+                left = right;
+            else
+                left = CombineExpressions(left, logicalOperator, right);
         }
 
-        public static Expression CombineExpressions(Expression left, LogicalRuleOperator logicalOperator, Expression right)
+        if (left == null)
         {
-            return logicalOperator == LogicalRuleOperator.And
-                ? Expression.AndAlso(left, right)
-                : Expression.OrElse(left, right);
+            return TrueLiteral;
         }
+
+        return left;
+    }
+
+    public static Expression CombineExpressions(Expression left, LogicalRuleOperator logicalOperator, Expression right)
+    {
+        return logicalOperator == LogicalRuleOperator.And
+            ? Expression.AndAlso(left, right)
+            : Expression.OrElse(left, right);
     }
 }

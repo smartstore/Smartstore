@@ -66,7 +66,7 @@ public class ComponentWidgetInvoker : WidgetInvoker<ComponentWidget>
         var viewComponentHelper = context.HttpContext.RequestServices.GetRequiredService<IViewComponentHelper>();
         (viewComponentHelper as IViewContextAware)?.Contextualize(viewContext);
         var result = GetViewComponentResult(widget, arguments, viewComponentHelper);
-        
+
         return result;
     }
 
@@ -85,7 +85,7 @@ public class ComponentWidgetInvoker : WidgetInvoker<ComponentWidget>
     private object? GetComponentArguments(WidgetContext context, ComponentWidget widget)
     {
         var arguments = widget.Arguments;
-        
+
         if (arguments is JsonObject jobj)
         {
             // ConvertUtility.ObjectToDictionary can handle JsonObject
@@ -144,8 +144,8 @@ public class ComponentWidgetInvoker : WidgetInvoker<ComponentWidget>
         return fixedArguments;
 
         void FixArgumentDictionary(
-            IDictionary<string, object?> currentArgs, 
-            IDictionary<string, object?> fixedArgs, 
+            IDictionary<string, object?> currentArgs,
+            IDictionary<string, object?> fixedArgs,
             ViewComponentDescriptor? descriptor = null)
         {
             descriptor ??= SelectComponent(widget);
@@ -294,7 +294,7 @@ public class ComponentWidgetInvoker : WidgetInvoker<ComponentWidget>
                 return componentType;
             }
         }
-        
+
         return widget.ComponentType;
     }
 }

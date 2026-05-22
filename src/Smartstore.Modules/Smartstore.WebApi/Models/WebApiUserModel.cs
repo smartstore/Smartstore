@@ -23,7 +23,7 @@ public class WebApiUserModel : EntityModelBase
     [LocalizedDisplay("Plugins.Api.WebApi.ApiAccess")]
     public string PublicKey { get; set; }
     public string SecretKey { get; set; }
-    
+
     public bool Enabled { get; set; }
     public string EnabledString { get; set; }
 

@@ -472,9 +472,9 @@ public class RoxyFileManagerController : AdminController
         {
             if (external)
             {
-                return Json(new 
-                { 
-                    Success = !hasError, 
+                return Json(new
+                {
+                    Success = !hasError,
                     Message = message,
                     Url = uploadedFileInfo?.GetUrl()
                 });

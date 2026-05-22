@@ -13,7 +13,7 @@ public partial class ProductController : AdminController
     public async Task<IActionResult> RecycleBin(DeletedProductListModel model)
     {
         await PrepareProductListModelAsync(model);
-        
+
         // Only display products without orders by default.
         model.SearchWithOrders = false;
 

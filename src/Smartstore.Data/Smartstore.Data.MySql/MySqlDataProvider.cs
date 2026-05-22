@@ -146,7 +146,7 @@ LIMIT {take} OFFSET {skip}";
 
         return false;
     }
-    
+
     protected override Task<long> GetDatabaseSizeCore(bool async)
     {
         var sql = $@"SELECT CAST(SUM(DATA_LENGTH + INDEX_LENGTH) AS SIGNED) AS 'size'
@@ -160,14 +160,14 @@ LIMIT {take} OFFSET {skip}";
     protected override async Task<int> OptimizeDatabaseCore(bool async, CancellationToken cancelToken = default)
     {
         var sqlTables = $"SHOW TABLES FROM `{DatabaseName}`";
-        var tables = async 
+        var tables = async
             ? await Database.ExecuteQueryRawAsync<string>(sqlTables, cancelToken).ToListAsync(cancelToken)
             : Database.ExecuteQueryRaw<string>(sqlTables).ToList();
-        
+
         if (tables.Count > 0)
         {
             var sql = $"OPTIMIZE TABLE `{string.Join("`, `", tables)}`";
-            return async 
+            return async
                 ? await Database.ExecuteSqlRawAsync(sql, cancelToken)
                 : Database.ExecuteSqlRaw(sql);
         }

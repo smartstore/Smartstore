@@ -85,7 +85,7 @@ public class PayPalScriptIncludeFilter : IAsyncActionFilter
             var googlePayEnabled = await _payPalHelper.IsProviderEnabledAsync(PayPalConstants.GooglePay);
             var applePayEnabled = await _payPalHelper.IsProviderEnabledAsync(PayPalConstants.ApplePay);
             var creditCardEnabled = await _payPalHelper.IsProviderEnabledAsync(PayPalConstants.CreditCard);
-            scriptUrl += $"&components=messages,buttons,funding-eligibility{(creditCardEnabled? ",hosted-fields" : "")}{(googlePayEnabled ? ",googlepay" : "")}{(applePayEnabled ? ",applepay" : "")}";
+            scriptUrl += $"&components=messages,buttons,funding-eligibility{(creditCardEnabled ? ",hosted-fields" : "")}{(googlePayEnabled ? ",googlepay" : "")}{(applePayEnabled ? ",applepay" : "")}";
 
             if (_settings.Intent == PayPalTransactionType.Authorize)
             {
@@ -143,7 +143,7 @@ public class PayPalScriptIncludeFilter : IAsyncActionFilter
             clientMetaId = Guid.NewGuid().ToString();
             _checkoutStateAccessor.CheckoutState.PaymentData["ClientMetaId"] = clientMetaId;
         }
-        
+
         var sourceIdentifier = GetSourceIdentifier(_settings.MerchantName, _settings.PayerId, routeId);
 
         var sb = new StringBuilder();
@@ -220,7 +220,7 @@ public class PayPalScriptIncludeFilter : IAsyncActionFilter
     {
         // Get client token from session if available.
         var session = httpContext.Session;
-        
+
         var clientToken = session.GetString("PayPalClientToken");
         if (clientToken != null)
         {

@@ -4,183 +4,182 @@ using Smartstore.IO;
 using Smartstore.Json;
 using Smartstore.Utilities;
 
-namespace Smartstore.Core.Content.Media.Icons
+namespace Smartstore.Core.Content.Media.Icons;
+
+public interface IIconExplorer
 {
-    public interface IIconExplorer
+    ICollection<IconDescription> All { get; }
+    Multimap<string, string> SearchMap { get; }
+    IconDescription GetIconByName(string name);
+    IEnumerable<IconDescription> FindIcons(string searchTerm, bool relaxed = false);
+}
+
+public class IconExplorer : IIconExplorer
+{
+    private IDictionary<string, IconDescription> _icons;
+    private readonly Multimap<string, string> _searchMap = new(StringComparer.OrdinalIgnoreCase, x => new HashSet<string>(x));
+    private readonly Lock _lock = new();
+
+    private readonly IApplicationContext _appContext;
+
+    public IconExplorer(IApplicationContext appContext)
     {
-        ICollection<IconDescription> All { get; }
-        Multimap<string, string> SearchMap { get; }
-        IconDescription GetIconByName(string name);
-        IEnumerable<IconDescription> FindIcons(string searchTerm, bool relaxed = false);
+        _appContext = appContext;
     }
 
-    public class IconExplorer : IIconExplorer
+    public ILogger Logger { get; set; } = NullLogger.Instance;
+
+    private void EnsureIsLoaded()
     {
-        private IDictionary<string, IconDescription> _icons;
-        private readonly Multimap<string, string> _searchMap = new(StringComparer.OrdinalIgnoreCase, x => new HashSet<string>(x));
-        private readonly Lock _lock = new();
-
-        private readonly IApplicationContext _appContext;
-
-        public IconExplorer(IApplicationContext appContext)
+        if (_icons == null)
         {
-            _appContext = appContext;
-        }
-
-        public ILogger Logger { get; set; } = NullLogger.Instance;
-
-        private void EnsureIsLoaded()
-        {
-            if (_icons == null)
+            lock (_lock)
             {
-                lock (_lock)
+                if (_icons == null)
                 {
-                    if (_icons == null)
+                    try
                     {
-                        try
-                        {
-                            _icons = LoadIconsMetadata();
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Error(ex);
-                            _icons = new Dictionary<string, IconDescription>(StringComparer.OrdinalIgnoreCase);
-                        }
+                        _icons = LoadIconsMetadata();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex);
+                        _icons = new Dictionary<string, IconDescription>(StringComparer.OrdinalIgnoreCase);
+                    }
 
-                        foreach (var kvp in _icons)
+                    foreach (var kvp in _icons)
+                    {
+                        var key = kvp.Key;
+                        var value = kvp.Value;
+
+                        value.Name = key;
+
+                        // Styles
+                        var styles = value.Styles;
+                        if (styles != null)
                         {
-                            var key = kvp.Key;
-                            var value = kvp.Value;
-
-                            value.Name = key;
-
-                            // Styles
-                            var styles = value.Styles;
-                            if (styles != null)
+                            if (styles.Length == 1 && styles[0] == "brands")
                             {
-                                if (styles.Length == 1 && styles[0] == "brands")
-                                {
-                                    value.IsBrandIcon = true;
-                                }
-                                else if (styles.Contains("regular"))
-                                {
-                                    value.HasRegularStyle = true;
-                                }
+                                value.IsBrandIcon = true;
                             }
-
-                            if (value.SearchInfo?.Terms?.Length > 0)
+                            else if (styles.Contains("regular"))
                             {
-                                foreach (var term in value.SearchInfo.Terms)
-                                {
-                                    _searchMap.Add(term, key);
-                                }
+                                value.HasRegularStyle = true;
+                            }
+                        }
+
+                        if (value.SearchInfo?.Terms?.Length > 0)
+                        {
+                            foreach (var term in value.SearchInfo.Terms)
+                            {
+                                _searchMap.Add(term, key);
                             }
                         }
                     }
                 }
             }
         }
+    }
 
-        private Dictionary<string, IconDescription> LoadIconsMetadata()
+    private Dictionary<string, IconDescription> LoadIconsMetadata()
+    {
+        var fs = _appContext.AppDataRoot;
+        var mapFile = fs.GetFile("icons.json");
+
+        if (!mapFile.Exists)
         {
-            var fs = _appContext.AppDataRoot;
-            var mapFile = fs.GetFile("icons.json");
-
-            if (!mapFile.Exists)
-            {
-                throw new FileNotFoundException("Icons metadata file does not exist.", mapFile.PhysicalPath);
-            }
-
-            // (Perf) look up minified version of metadata file
-            var hashCode = HashCodeCombiner.Start().Add(mapFile, false).CombinedHashString;
-            var mapFileMin = fs.GetFile(PathUtility.Join(_appContext.GetTempDirectory().SubPath, $"icons.{hashCode}.json"));
-            var file = mapFileMin.Exists ? mapFileMin : mapFile;
-
-            using var fileStream = file.OpenRead();
-            var icons = JsonSerializer.Deserialize<Dictionary<string, IconDescription>>(fileStream, SmartJsonOptions.CamelCasedIgnoreDefaults);
-
-            if (!mapFileMin.Exists && mapFileMin.SubPath.HasValue())
-            {
-                // minified file did not exist: save it.
-                using var minFileStream = mapFileMin.OpenWrite();
-                JsonSerializer.Serialize(minFileStream, icons, SmartJsonOptions.CamelCasedIgnoreDefaults);
-            }
-
-            return icons;
+            throw new FileNotFoundException("Icons metadata file does not exist.", mapFile.PhysicalPath);
         }
 
-        public ICollection<IconDescription> All
+        // (Perf) look up minified version of metadata file
+        var hashCode = HashCodeCombiner.Start().Add(mapFile, false).CombinedHashString;
+        var mapFileMin = fs.GetFile(PathUtility.Join(_appContext.GetTempDirectory().SubPath, $"icons.{hashCode}.json"));
+        var file = mapFileMin.Exists ? mapFileMin : mapFile;
+
+        using var fileStream = file.OpenRead();
+        var icons = JsonSerializer.Deserialize<Dictionary<string, IconDescription>>(fileStream, SmartJsonOptions.CamelCasedIgnoreDefaults);
+
+        if (!mapFileMin.Exists && mapFileMin.SubPath.HasValue())
         {
-            get
-            {
-                EnsureIsLoaded();
-                return _icons.Values;
-            }
+            // minified file did not exist: save it.
+            using var minFileStream = mapFileMin.OpenWrite();
+            JsonSerializer.Serialize(minFileStream, icons, SmartJsonOptions.CamelCasedIgnoreDefaults);
         }
 
-        public Multimap<string, string> SearchMap
-        {
-            get
-            {
-                EnsureIsLoaded();
-                return _searchMap;
-            }
-        }
+        return icons;
+    }
 
-        public IconDescription GetIconByName(string name)
+    public ICollection<IconDescription> All
+    {
+        get
         {
-            Guard.NotEmpty(name, nameof(name));
             EnsureIsLoaded();
+            return _icons.Values;
+        }
+    }
 
-            if (!_icons.TryGetValue(name, out var description))
+    public Multimap<string, string> SearchMap
+    {
+        get
+        {
+            EnsureIsLoaded();
+            return _searchMap;
+        }
+    }
+
+    public IconDescription GetIconByName(string name)
+    {
+        Guard.NotEmpty(name, nameof(name));
+        EnsureIsLoaded();
+
+        if (!_icons.TryGetValue(name, out var description))
+        {
+            description = new IconDescription
             {
-                description = new IconDescription
-                {
-                    IsPro = true,
-                    Name = name,
-                    Label = name,
-                    Styles = new[] { "solid", "regular", "light", "duotone" },
-                    HasRegularStyle = true,
-                };
-            }
-
-            return description;
+                IsPro = true,
+                Name = name,
+                Label = name,
+                Styles = new[] { "solid", "regular", "light", "duotone" },
+                HasRegularStyle = true,
+            };
         }
 
-        public IEnumerable<IconDescription> FindIcons(string searchTerm, bool relaxed = false)
+        return description;
+    }
+
+    public IEnumerable<IconDescription> FindIcons(string searchTerm, bool relaxed = false)
+    {
+        Guard.NotEmpty(searchTerm, nameof(searchTerm));
+        EnsureIsLoaded();
+
+        var hasExactMatch = false;
+
+        if (_icons.TryGetValue(searchTerm, out var description))
         {
-            Guard.NotEmpty(searchTerm, nameof(searchTerm));
-            EnsureIsLoaded();
+            hasExactMatch = true;
+            yield return description;
+        }
 
-            var hasExactMatch = false;
-
-            if (_icons.TryGetValue(searchTerm, out var description))
+        if (_searchMap.ContainsKey(searchTerm))
+        {
+            var names = _searchMap[searchTerm];
+            foreach (var name in names)
             {
-                hasExactMatch = true;
-                yield return description;
-            }
-
-            if (_searchMap.ContainsKey(searchTerm))
-            {
-                var names = _searchMap[searchTerm];
-                foreach (var name in names)
+                if (_icons.TryGetValue(name, out var description2))
                 {
-                    if (_icons.TryGetValue(name, out var description2))
-                    {
-                        hasExactMatch = true;
-                        yield return description2;
-                    }
+                    hasExactMatch = true;
+                    yield return description2;
                 }
             }
+        }
 
-            if (relaxed && !hasExactMatch)
+        if (relaxed && !hasExactMatch)
+        {
+            foreach (var kvp in _icons)
             {
-                foreach (var kvp in _icons)
+                if (kvp.Key.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) > -1)
                 {
-                    if (kvp.Key.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) > -1)
-                    {
-                        yield return kvp.Value;
-                    }
+                    yield return kvp.Value;
                 }
             }
         }

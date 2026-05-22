@@ -17,11 +17,11 @@ public partial class PayPalPaymentFilter : IPaymentMethodFilter
     private readonly IUserAgent _userAgent;
     private readonly Lazy<ISettingFactory> _settingFactory;
     private readonly IOrderCalculationService _orderCalculationService;
-    
+
     public PayPalPaymentFilter(
         ICommonServices services,
         IUserAgent userAgent,
-        Lazy<ISettingFactory> settingFactory, 
+        Lazy<ISettingFactory> settingFactory,
         IOrderCalculationService orderCalculationService)
     {
         _services = services;
@@ -47,7 +47,7 @@ public partial class PayPalPaymentFilter : IPaymentMethodFilter
                 // Do not render Pay Upon Invoice if order total is above limit or below 5 €.
                 // Info: it's save to use € here directly, because PayPal offers Pay Upon Invoice only in Germany.
                 var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(request.Cart);
-                if (cartTotal.Total.HasValue 
+                if (cartTotal.Total.HasValue
                     && (cartTotal.Total.Value.Amount >= settings.PayUponInvoiceLimit
                     || cartTotal.Total.Value.Amount <= 5
                     || _services.WorkContext.WorkingCurrency.CurrencyCode != "EUR"))
@@ -58,7 +58,7 @@ public partial class PayPalPaymentFilter : IPaymentMethodFilter
         }
         else if (request.PaymentProvider.Metadata.SystemName.EqualsNoCase(PayPalConstants.GooglePay))
         {
-            if(_services.WebHelper.HttpContext.Connection.IsLocal())
+            if (_services.WebHelper.HttpContext.Connection.IsLocal())
             {
                 return true;
             }

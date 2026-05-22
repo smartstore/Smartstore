@@ -53,7 +53,7 @@ public class BarcodeTesterController : AdminController
     }
 
     public async Task<IActionResult> Image(
-        string data, 
+        string data,
         BarcodeType type,
         int? scale,         /* PixelSize */
         int? m,             /* Margin */

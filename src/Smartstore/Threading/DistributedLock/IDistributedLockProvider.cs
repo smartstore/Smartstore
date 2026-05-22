@@ -1,13 +1,12 @@
-﻿namespace Smartstore.Threading
+﻿namespace Smartstore.Threading;
+
+/// <summary>
+/// Provider for <see cref="IDistributedLock"/> instances.
+/// </summary>
+public interface IDistributedLockProvider
 {
     /// <summary>
-    /// Provider for <see cref="IDistributedLock"/> instances.
+    /// Gets a <see cref="IDistributedLock"/> instance for the given <paramref name="key"/>.
     /// </summary>
-    public interface IDistributedLockProvider
-    {
-        /// <summary>
-        /// Gets a <see cref="IDistributedLock"/> instance for the given <paramref name="key"/>.
-        /// </summary>
-        IDistributedLock GetLock(string key);
-    }
+    IDistributedLock GetLock(string key);
 }

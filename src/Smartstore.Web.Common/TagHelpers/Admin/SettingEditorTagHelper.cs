@@ -5,143 +5,142 @@ using Microsoft.AspNetCore.Routing;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Rendering;
 
-namespace Smartstore.Web.TagHelpers.Admin
+namespace Smartstore.Web.TagHelpers.Admin;
+
+[HtmlTargetElement(EditorTagName, Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
+public class SettingEditorTagHelper : BaseFormTagHelper
 {
-    [HtmlTargetElement(EditorTagName, Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
-    public class SettingEditorTagHelper : BaseFormTagHelper
+    const string EditorTagName = "setting-editor";
+    const string TemplateAttributeName = "asp-template";
+    const string ParentSelectorAttributeName = "parent-selector";
+    const string PostfixAttributeName = "sm-postfix";
+
+    private readonly MultiStoreSettingHelper _settingHelper;
+
+    public SettingEditorTagHelper(MultiStoreSettingHelper settingHelper)
     {
-        const string EditorTagName = "setting-editor";
-        const string TemplateAttributeName = "asp-template";
-        const string ParentSelectorAttributeName = "parent-selector";
-        const string PostfixAttributeName = "sm-postfix";
+        _settingHelper = settingHelper;
+    }
 
-        private readonly MultiStoreSettingHelper _settingHelper;
+    /// <summary>
+    /// Specifies the editor template which will be used to render the field.
+    /// </summary>
+    [HtmlAttributeName(TemplateAttributeName)]
+    public string Template { get; set; }
 
-        public SettingEditorTagHelper(MultiStoreSettingHelper settingHelper)
+    /// <summary>
+    /// Sets the parent selector. Must be set if an editor template is used which renders more than only an input so the checkbox can be rendered at the correct location.
+    /// </summary>
+    [HtmlAttributeName(ParentSelectorAttributeName)]
+    public string ParentSelector { get; set; }
+
+    /// <summary>
+    /// The text which will be displayed inside the input tag as a post fix.
+    /// </summary>
+    [HtmlAttributeName(PostfixAttributeName)]
+    public string Postfix { get; set; }
+
+    protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
+    {
+        ProcessCoreAsync(context, output).Await();
+    }
+
+    protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
+    {
+        output.TagMode = TagMode.StartTagAndEndTag;
+
+        var content = await output.GetChildContentAsync();
+        if (content.IsEmptyOrWhiteSpace)
         {
-            _settingHelper = settingHelper;
-        }
-
-        /// <summary>
-        /// Specifies the editor template which will be used to render the field.
-        /// </summary>
-        [HtmlAttributeName(TemplateAttributeName)]
-        public string Template { get; set; }
-
-        /// <summary>
-        /// Sets the parent selector. Must be set if an editor template is used which renders more than only an input so the checkbox can be rendered at the correct location.
-        /// </summary>
-        [HtmlAttributeName(ParentSelectorAttributeName)]
-        public string ParentSelector { get; set; }
-
-        /// <summary>
-        /// The text which will be displayed inside the input tag as a post fix.
-        /// </summary>
-        [HtmlAttributeName(PostfixAttributeName)]
-        public string Postfix { get; set; }
-
-        protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
-        {
-            ProcessCoreAsync(context, output).Await();
-        }
-
-        protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
-        {
-            output.TagMode = TagMode.StartTagAndEndTag;
-
-            var content = await output.GetChildContentAsync();
-            if (content.IsEmptyOrWhiteSpace)
+            var additionalViewData = new RouteValueDictionary();
+            if (Postfix.HasValue())
             {
-                var additionalViewData = new RouteValueDictionary();
-                if (Postfix.HasValue())
-                {
-                    additionalViewData["postfix"] = Postfix;
-                }
-
-                if (output.Attributes != null && output.Attributes.Count > 0)
-                {
-                    var htmlAttributes = new Dictionary<string, object>();
-
-                    foreach (var attr in output.Attributes)
-                    {
-                        htmlAttributes[attr.Name] = attr.ValueAsString();
-
-                        if (attr.Name == "placeholder")
-                        {
-                            additionalViewData["placeholder"] = attr.ValueAsString();
-                        }
-                    }
-
-                    additionalViewData["htmlAttributes"] = htmlAttributes;
-                }
-
-                if (additionalViewData.Count > 0)
-                {
-                    output.Content.SetHtmlContent(HtmlHelper.EditorFor(For, Template, additionalViewData));
-                }
-                else
-                {
-                    output.Content.SetHtmlContent(HtmlHelper.EditorFor(For, Template));
-                }
+                additionalViewData["postfix"] = Postfix;
             }
 
-            var data = _settingHelper.Data;
-            if (data == null || data.StoreScope <= 0)
+            if (output.Attributes != null && output.Attributes.Count > 0)
             {
-                output.TagName = null;
+                var htmlAttributes = new Dictionary<string, object>();
+
+                foreach (var attr in output.Attributes)
+                {
+                    htmlAttributes[attr.Name] = attr.ValueAsString();
+
+                    if (attr.Name == "placeholder")
+                    {
+                        additionalViewData["placeholder"] = attr.ValueAsString();
+                    }
+                }
+
+                additionalViewData["htmlAttributes"] = htmlAttributes;
+            }
+
+            if (additionalViewData.Count > 0)
+            {
+                output.Content.SetHtmlContent(HtmlHelper.EditorFor(For, Template, additionalViewData));
             }
             else
             {
-                output.TagName = "div";
-                output.AppendCssClass("form-row flex-nowrap multi-store-setting-group");
-
-                var overrideColDiv = new TagBuilder("div");
-                overrideColDiv.Attributes["class"] = "col-auto";
-                overrideColDiv.InnerHtml.AppendHtml(SettingOverrideCheckboxInternal(data));
-
-                // Controls are not floating, so line-break prevents different distances between them.
-                overrideColDiv.InnerHtml.AppendLine();
-
-                var settingColDiv = new TagBuilder("div");
-                settingColDiv.Attributes["class"] = "col multi-store-setting-control";
-
-                output.WrapContentWith(settingColDiv);
-                output.PreContent.PrependHtml(overrideColDiv);
+                output.Content.SetHtmlContent(HtmlHelper.EditorFor(For, Template));
             }
         }
 
-        private IHtmlContent SettingOverrideCheckboxInternal(MultiStoreSettingData data)
+        var data = _settingHelper.Data;
+        if (data == null || data.StoreScope <= 0)
         {
-            var fieldPrefix = HtmlHelper.ViewData.TemplateInfo.HtmlFieldPrefix;
-            var settingKey = For.Name;
-
-            if (fieldPrefix.HasValue())
-            {
-                settingKey = fieldPrefix + "." + settingKey;
-            }
-
-            var overrideForStore = data.OverriddenKeys.Contains(settingKey);
-            var fieldId = settingKey.EnsureEndsWith("_OverrideForStore");
-
-            var switchContainer = new TagBuilder("div");
-            switchContainer.AppendCssClass("form-check form-check-solo form-switch form-switch-lg multi-store-override-switch");
-
-            var overrideInput = new TagBuilder("input");
-            overrideInput.Attributes["class"] = "form-check-input multi-store-override-option";
-            overrideInput.Attributes["type"] = "checkbox";
-            overrideInput.Attributes["id"] = fieldId.SanitizeHtmlId();
-            overrideInput.Attributes["name"] = fieldId;
-            overrideInput.Attributes["onclick"] = "Smartstore.Admin.checkOverriddenStoreValue(this)";
-            overrideInput.Attributes["data-parent-selector"] = ParentSelector.EmptyNull();
-
-            if (overrideForStore)
-            {
-                overrideInput.Attributes["checked"] = "checked";
-            }
-
-            switchContainer.InnerHtml.AppendHtml(overrideInput);
-
-            return switchContainer;
+            output.TagName = null;
         }
+        else
+        {
+            output.TagName = "div";
+            output.AppendCssClass("form-row flex-nowrap multi-store-setting-group");
+
+            var overrideColDiv = new TagBuilder("div");
+            overrideColDiv.Attributes["class"] = "col-auto";
+            overrideColDiv.InnerHtml.AppendHtml(SettingOverrideCheckboxInternal(data));
+
+            // Controls are not floating, so line-break prevents different distances between them.
+            overrideColDiv.InnerHtml.AppendLine();
+
+            var settingColDiv = new TagBuilder("div");
+            settingColDiv.Attributes["class"] = "col multi-store-setting-control";
+
+            output.WrapContentWith(settingColDiv);
+            output.PreContent.PrependHtml(overrideColDiv);
+        }
+    }
+
+    private IHtmlContent SettingOverrideCheckboxInternal(MultiStoreSettingData data)
+    {
+        var fieldPrefix = HtmlHelper.ViewData.TemplateInfo.HtmlFieldPrefix;
+        var settingKey = For.Name;
+
+        if (fieldPrefix.HasValue())
+        {
+            settingKey = fieldPrefix + "." + settingKey;
+        }
+
+        var overrideForStore = data.OverriddenKeys.Contains(settingKey);
+        var fieldId = settingKey.EnsureEndsWith("_OverrideForStore");
+
+        var switchContainer = new TagBuilder("div");
+        switchContainer.AppendCssClass("form-check form-check-solo form-switch form-switch-lg multi-store-override-switch");
+
+        var overrideInput = new TagBuilder("input");
+        overrideInput.Attributes["class"] = "form-check-input multi-store-override-option";
+        overrideInput.Attributes["type"] = "checkbox";
+        overrideInput.Attributes["id"] = fieldId.SanitizeHtmlId();
+        overrideInput.Attributes["name"] = fieldId;
+        overrideInput.Attributes["onclick"] = "Smartstore.Admin.checkOverriddenStoreValue(this)";
+        overrideInput.Attributes["data-parent-selector"] = ParentSelector.EmptyNull();
+
+        if (overrideForStore)
+        {
+            overrideInput.Attributes["checked"] = "checked";
+        }
+
+        switchContainer.InnerHtml.AppendHtml(overrideInput);
+
+        return switchContainer;
     }
 }

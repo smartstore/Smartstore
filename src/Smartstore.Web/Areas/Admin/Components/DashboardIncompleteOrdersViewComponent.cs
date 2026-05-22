@@ -38,7 +38,7 @@ public class DashboardIncompleteOrdersViewComponent : DashboardViewComponentBase
             // Index 3: this year.
             new()
         };
-        
+
         var dataPoints = await _db.Orders
             .AsNoTracking()
             .ApplyAuditDateFilter(CreatedFrom, null)

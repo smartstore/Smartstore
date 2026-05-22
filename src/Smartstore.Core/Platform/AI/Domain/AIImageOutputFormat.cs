@@ -17,8 +17,8 @@ namespace Smartstore.Core.AI;
 public readonly partial struct AIImageOutputFormat : IStringBacked<AIImageOutputFormat>, IEquatable<AIImageOutputFormat>
 {
     private readonly string _value;
-    
-    internal AIImageOutputFormat(string value, string mimeType) 
+
+    internal AIImageOutputFormat(string value, string mimeType)
     {
         _value = value ?? throw new ArgumentNullException(nameof(value));
         MimeType = mimeType ?? throw new ArgumentNullException(nameof(mimeType));
@@ -73,23 +73,23 @@ public readonly partial struct AIImageOutputFormat : IStringBacked<AIImageOutput
         };
     }
 
-    public static bool operator ==(AIImageOutputFormat left, AIImageOutputFormat right) 
+    public static bool operator ==(AIImageOutputFormat left, AIImageOutputFormat right)
         => left.Equals(right);
 
-    public static bool operator !=(AIImageOutputFormat left, AIImageOutputFormat right) 
+    public static bool operator !=(AIImageOutputFormat left, AIImageOutputFormat right)
         => !left.Equals(right);
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public override bool Equals(object? obj) 
+    public override bool Equals(object? obj)
         => obj is AIImageOutputFormat other && Equals(other);
 
-    public bool Equals(AIImageOutputFormat other) 
+    public bool Equals(AIImageOutputFormat other)
         => _value?.EqualsNoCase(other._value) ?? false;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public override int GetHashCode() 
+    public override int GetHashCode()
         => _value?.GetHashCode() ?? 0;
 
-    public override string? ToString() 
+    public override string? ToString()
         => _value;
 }

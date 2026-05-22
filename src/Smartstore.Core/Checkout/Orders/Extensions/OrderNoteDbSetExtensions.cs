@@ -36,7 +36,7 @@ public static class OrderNoteDbSetExtensions
         else
         {
             dbSet.Add(entity);
-        }     
+        }
 
         return entity;
     }

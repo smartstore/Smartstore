@@ -72,7 +72,7 @@ public class ImportProfileModel : EntityModelBase
         public bool IsDefaultState
         {
             get => NumberOfPictures == null && !UpdateAllKeyFieldMatches;
-        }   
+        }
     }
 }
 

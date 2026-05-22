@@ -141,7 +141,7 @@ public class LocalDirectory : IDirectory
         {
             throw new DirectoryNotFoundException($"Directory '{SubPath}' does not exist.");
         }
-        
+
         return _di
             .EnumerateFileSystemInfos(pattern, deep ? DeepEnumerationOptions : FlatEnumerationOptions)
             .Select(x =>

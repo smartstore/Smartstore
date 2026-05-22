@@ -205,7 +205,7 @@ public abstract class CartItemMapperBase<TModel> : Mapper<OrganizedShoppingCartI
         var currency = _services.WorkContext.WorkingCurrency;
         var shoppingCartType = item.ShoppingCartType;
         var priceModel = to.Price;
-        
+
         var taxFormat = parameters?.TaxFormat as string;
         var batchContext = parameters?.BatchContext as ProductBatchContext;
 
@@ -319,12 +319,12 @@ public abstract class CartItemMapperBase<TModel> : Mapper<OrganizedShoppingCartI
             // Single unit base price info (PanGV)
             if (
                 _shoppingCartSettings.ShowBasePrice &&
-                priceModel.UnitPrice != decimal.Zero && 
-                product.BasePriceEnabled && 
+                priceModel.UnitPrice != decimal.Zero &&
+                product.BasePriceEnabled &&
                 !(product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing))
             {
                 priceModel.BasePriceInfo = _priceCalculationService.GetBasePriceInfo(
-                    product: product, 
+                    product: product,
                     price: priceModel.UnitPrice,
                     targetCurrency: priceModel.UnitPrice.Currency,
                     displayTaxSuffix: false);

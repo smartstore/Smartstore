@@ -31,8 +31,8 @@ public class Events : IConsumer
         _widgetProvider = widgetProvider;
     }
 
-    public async Task HandleEventAsync(ViewComponentResultExecutingEvent message, 
-        IProviderManager providerManager, 
+    public async Task HandleEventAsync(ViewComponentResultExecutingEvent message,
+        IProviderManager providerManager,
         WidgetSettings widgetSettings,
         ICookieConsentManager cookieConsentManager)
     {

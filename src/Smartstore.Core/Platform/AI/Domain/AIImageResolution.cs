@@ -17,8 +17,8 @@ namespace Smartstore.Core.AI;
 public readonly partial struct AIImageResolution : IStringBacked<AIImageResolution>, IEquatable<AIImageResolution>
 {
     private readonly string _value;
-    
-    internal AIImageResolution(string value) 
+
+    internal AIImageResolution(string value)
     {
         _value = value ?? throw new ArgumentNullException(nameof(value));
     }
@@ -66,23 +66,23 @@ public readonly partial struct AIImageResolution : IStringBacked<AIImageResoluti
         };
     }
 
-    public static bool operator ==(AIImageResolution left, AIImageResolution right) 
+    public static bool operator ==(AIImageResolution left, AIImageResolution right)
         => left.Equals(right);
 
-    public static bool operator !=(AIImageResolution left, AIImageResolution right) 
+    public static bool operator !=(AIImageResolution left, AIImageResolution right)
         => !left.Equals(right);
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public override bool Equals(object? obj) 
+    public override bool Equals(object? obj)
         => obj is AIImageResolution other && Equals(other);
 
-    public bool Equals(AIImageResolution other) 
+    public bool Equals(AIImageResolution other)
         => _value?.EqualsNoCase(other._value) ?? false;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public override int GetHashCode() 
+    public override int GetHashCode()
         => _value?.GetHashCode() ?? 0;
 
-    public override string? ToString() 
+    public override string? ToString()
         => _value;
 }

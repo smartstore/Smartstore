@@ -487,7 +487,7 @@ public partial class ProductController : AdminController
             .Include(x => x.BundleProduct)
             .Include(x => x.Product)
             .Include(x => x.AttributeFilters)
-            .FindByIdAsync(id, false) 
+            .FindByIdAsync(id, false)
             ?? throw new ArgumentException("No bundle item found with the specified id");
 
         var model = await MapperFactory.MapAsync<ProductBundleItem, ProductBundleItemModel>(bundleItem);

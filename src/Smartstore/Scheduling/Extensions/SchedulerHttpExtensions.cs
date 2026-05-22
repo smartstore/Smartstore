@@ -11,8 +11,8 @@ public static class SchedulerHttpExtensions
     public static bool IsCalledByTaskScheduler(this HttpRequest request)
     {
         Guard.NotNull(request);
-        return 
-            request.Headers.ContainsKey(DefaultTaskScheduler.AuthTokenName) || 
+        return
+            request.Headers.ContainsKey(DefaultTaskScheduler.AuthTokenName) ||
             request.Path.StartsWithSegments("/taskscheduler");
     }
 }

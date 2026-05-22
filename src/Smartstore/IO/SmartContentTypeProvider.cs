@@ -20,8 +20,8 @@ public class SmartContentTypeProvider : IContentTypeProvider
     /// <summary>
     /// The cross reference table of file extensions and content-types.
     /// </summary>
-    public IDictionary<string, string> Mappings 
-    { 
+    public IDictionary<string, string> Mappings
+    {
         get => _innerProvider.Mappings;
     }
 

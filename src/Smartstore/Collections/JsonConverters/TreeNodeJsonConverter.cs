@@ -31,7 +31,7 @@ internal sealed class TreeNodeJsonConverter<T> : JsonConverter<TreeNode<T>>
     {
         _isPolymorphicValueType = isPolymorphicValueType;
     }
-    
+
     public override TreeNode<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType != JsonTokenType.StartObject)

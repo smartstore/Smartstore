@@ -1,55 +1,54 @@
 ﻿using Smartstore.Core.Data;
 using Smartstore.Core.Rules;
 
-namespace Smartstore.Core.Checkout.Rules.Impl
+namespace Smartstore.Core.Checkout.Rules.Impl;
+
+internal class PurchasedProductRule : IRule<CartRuleContext>
 {
-    internal class PurchasedProductRule : IRule<CartRuleContext>
+    private readonly SmartDbContext _db;
+
+    public PurchasedProductRule(SmartDbContext db)
     {
-        private readonly SmartDbContext _db;
+        _db = db;
+    }
 
-        public PurchasedProductRule(SmartDbContext db)
+    public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
+    {
+        var query = _db.Orders
+            .AsNoTracking()
+            .Include(x => x.OrderItems)
+            .ApplyStandardFilter(context.Customer.Id, context.Store.Id)
+            .SelectMany(x => x.OrderItems);
+
+        if (expression.Operator == RuleOperator.In || expression.Operator == RuleOperator.NotIn)
         {
-            _db = db;
+            // Find match using LINQ to Entities.
+            var productIds = expression.Value as List<int>;
+            if (!(productIds?.Any() ?? false))
+            {
+                return true;
+            }
+
+            if (expression.Operator == RuleOperator.In)
+            {
+                return await query.Where(oi => productIds.Contains(oi.ProductId)).AnyAsync();
+            }
+
+            return await query.Where(oi => !productIds.Contains(oi.ProductId)).AnyAsync();
         }
-
-        public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
+        else
         {
-            var query = _db.Orders
-                .AsNoTracking()
-                .Include(x => x.OrderItems)
-                .ApplyStandardFilter(context.Customer.Id, context.Store.Id)
-                .SelectMany(x => x.OrderItems);
+            // Find match using LINQ to Objects.
+            var productIds = new HashSet<int>();
+            var pager = query.ToFastPager(4000);
 
-            if (expression.Operator == RuleOperator.In || expression.Operator == RuleOperator.NotIn)
+            while ((await pager.ReadNextPageAsync(x => new { x.Id, x.ProductId }, x => x.Id)).Out(out var orderItems))
             {
-                // Find match using LINQ to Entities.
-                var productIds = expression.Value as List<int>;
-                if (!(productIds?.Any() ?? false))
-                {
-                    return true;
-                }
-
-                if (expression.Operator == RuleOperator.In)
-                {
-                    return await query.Where(oi => productIds.Contains(oi.ProductId)).AnyAsync();
-                }
-
-                return await query.Where(oi => !productIds.Contains(oi.ProductId)).AnyAsync();
+                productIds.AddRange(orderItems.Select(x => x.ProductId));
             }
-            else
-            {
-                // Find match using LINQ to Objects.
-                var productIds = new HashSet<int>();
-                var pager = query.ToFastPager(4000);
 
-                while ((await pager.ReadNextPageAsync(x => new { x.Id, x.ProductId }, x => x.Id)).Out(out var orderItems))
-                {
-                    productIds.AddRange(orderItems.Select(x => x.ProductId));
-                }
-
-                var match = expression.HasListsMatch(productIds);
-                return match;
-            }
+            var match = expression.HasListsMatch(productIds);
+            return match;
         }
     }
 }

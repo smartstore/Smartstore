@@ -70,7 +70,7 @@ public class PayPalHelper : ICookiePublisher
     public static void HandleException(Exception ex, Localizer T = null)
     {
         var exceptionMessage = Deserialize<ExceptionMessage>(ex.Message);
-        
+
         foreach (var detail in exceptionMessage.Details)
         {
             switch (detail.Issue)
@@ -113,7 +113,7 @@ public class PayPalHelper : ICookiePublisher
     public static string Serialize(object value, bool useLocalOptions = true)
         => JsonSerializer.Serialize(value, useLocalOptions ? SerializerOptions : null);
 
-    public static T Deserialize<T>(string json, bool useLocalOptions = true) 
+    public static T Deserialize<T>(string json, bool useLocalOptions = true)
         => JsonSerializer.Deserialize<T>(json, useLocalOptions ? SerializerOptions : null);
 
     public static object Deserialize(string json, Type returnType, bool useLocalOptions = true)

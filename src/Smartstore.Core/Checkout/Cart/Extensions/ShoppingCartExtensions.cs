@@ -8,7 +8,7 @@ public static partial class ShoppingCartExtensions
     /// <summary>
     /// Gets the total quantity of products in the cart.
     /// </summary>
-		public static int GetTotalQuantity(this ShoppingCart cart)
+    public static int GetTotalQuantity(this ShoppingCart cart)
     {
         Guard.NotNull(cart);
 
@@ -41,17 +41,17 @@ public static partial class ShoppingCartExtensions
     {
         Guard.NotNull(cart);
 
-        return cart.Items.Any(x => 
-            x.Item.Product != null 
-            && matcher(x.Item.Product) 
+        return cart.Items.Any(x =>
+            x.Item.Product != null
+            && matcher(x.Item.Product)
             && (activeOnly == null || x.Active == activeOnly.Value));
     }
 
     /// <summary>
     /// Gets a value indicating whether the shopping cart contains any recurring item.
     /// </summary>
-		public static bool ContainsRecurringItem(this ShoppingCart cart)
-        => cart.IncludesMatchingItems(x => x.IsRecurring);
+    public static bool ContainsRecurringItem(this ShoppingCart cart)
+    => cart.IncludesMatchingItems(x => x.IsRecurring);
 
     /// <summary>
     /// Gets the recurring cycle information.

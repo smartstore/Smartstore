@@ -26,4 +26,3 @@ public class ConfigurationModel : ModelBase
     /// </summary>
     public bool DisplayIISUserProfileWarning { get; set; }
 }
-

@@ -120,7 +120,7 @@ public class InstallController : Controller
                 PrepareInstallForm();
                 return View(model);
             }
-            
+
             // Do AutoInstall!
             result = await _installService.InstallAsync(model, HttpContext.RequestServices.AsLifetimeScope());
 
@@ -135,11 +135,11 @@ public class InstallController : Controller
                 {
                     // Delete auto-install model file after successfull installation
                     file.Delete();
-                }  
+                }
 
                 // Shutdown application with slight delay to not
                 // interfere with AJAX calls.
-                _ = Task.Delay(500).ContinueWith((t, state) => 
+                _ = Task.Delay(500).ContinueWith((t, state) =>
                 {
                     ((IHostApplicationLifetime)state).StopApplication();
                 }, _hostApplicationLifetime);
@@ -147,7 +147,7 @@ public class InstallController : Controller
 
             return Json(result);
         }
-        
+
         // From here on we know it is NOT autoinstall...
 
         model = result?.Model ?? new InstallationModel
@@ -190,8 +190,8 @@ public class InstallController : Controller
     {
         await _asyncState.RemoveAsync<InstallationResult>();
 
-        if (restart && 
-            !_hostApplicationLifetime.ApplicationStopping.IsCancellationRequested && 
+        if (restart &&
+            !_hostApplicationLifetime.ApplicationStopping.IsCancellationRequested &&
             !_hostApplicationLifetime.ApplicationStopped.IsCancellationRequested)
         {
             _hostApplicationLifetime.StopApplication();

@@ -55,7 +55,7 @@ internal class ODataOptionsConfigurer : IConfigureOptions<ODataOptions>
             // Why enabling EnableKeyAsSegment? We need KeyInParenthesis for OData functions anyway.
             options.RouteOptions.EnableKeyAsSegment = false;
             options.RouteOptions.EnableKeyInParenthesis = true;
-            options.RouteOptions.EnablePropertyNameCaseInsensitive = true;              
+            options.RouteOptions.EnablePropertyNameCaseInsensitive = true;
 
             // INFO: does not have to be set here on the basis of the settings. Will be applied later in ApiQueryableAttribute.
             options.EnableQueryFeatures(WebApiSettings.DefaultMaxTop);

@@ -109,8 +109,8 @@ public static partial class OrderItemQueryExtensions
     /// <param name="includeHidden">A value indicating whether to include unpublished products.</param>
     /// <returns>Query of product identifiers.</returns>
     public static IQueryable<int> SelectAlsoPurchasedProductIds(this IQueryable<OrderItem> query,
-        int productId, 
-        int? recordsToReturn = 5, 
+        int productId,
+        int? recordsToReturn = 5,
         int storeId = 0,
         bool includeHidden = false)
     {
@@ -127,7 +127,7 @@ public static partial class OrderItemQueryExtensions
             .Where(x => x.ProductId == productId)
             .Select(x => x.OrderId);
 
-        var orderItemsQuery = 
+        var orderItemsQuery =
             from orderItem in db.OrderItems
             join p in db.Products on orderItem.ProductId equals p.Id
             where orderIdsQuery.Contains(orderItem.OrderId) &&
@@ -139,7 +139,7 @@ public static partial class OrderItemQueryExtensions
             (includeHidden || p.Published)
             select new { orderItem, p };
 
-        var productIdsQuery1 = 
+        var productIdsQuery1 =
             from oi in orderItemsQuery
             group oi by oi.p.Id into g
             select new

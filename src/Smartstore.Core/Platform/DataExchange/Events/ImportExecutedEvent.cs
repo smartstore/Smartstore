@@ -1,22 +1,21 @@
 ﻿using Smartstore.Events;
 
-namespace Smartstore.Core.DataExchange.Import.Events
+namespace Smartstore.Core.DataExchange.Import.Events;
+
+/// <summary>
+/// An event that is fired after a data import.
+/// </summary>
+public class ImportExecutedEvent : IEventMessage
 {
-    /// <summary>
-    /// An event that is fired after a data import.
-    /// </summary>
-    public class ImportExecutedEvent : IEventMessage
+    public ImportExecutedEvent(ImportExecuteContext context)
     {
-        public ImportExecutedEvent(ImportExecuteContext context)
-        {
-            Guard.NotNull(context);
+        Guard.NotNull(context);
 
-            Context = context;
-        }
-
-        /// <summary>
-        /// Context of the import.
-        /// </summary>
-        public ImportExecuteContext Context { get; private set; }
+        Context = context;
     }
+
+    /// <summary>
+    /// Context of the import.
+    /// </summary>
+    public ImportExecuteContext Context { get; private set; }
 }

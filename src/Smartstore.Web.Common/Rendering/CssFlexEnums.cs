@@ -1,25 +1,24 @@
-﻿namespace Smartstore.Web.Rendering
+﻿namespace Smartstore.Web.Rendering;
+
+public enum FlexFlow
 {
-    public enum FlexFlow
-    {
-        Row,
-        Column
-    }
+    Row,
+    Column
+}
 
-    public enum FlexAlignItems
-    {
-        FlexStart,
-        Center,
-        FlexEnd,
-        Baseline
-    }
+public enum FlexAlignItems
+{
+    FlexStart,
+    Center,
+    FlexEnd,
+    Baseline
+}
 
-    public enum FlexJustifyContent
-    {
-        FlexStart,
-        Center,
-        FlexEnd,
-        SpaceAround,
-        SpaceBetween
-    }
+public enum FlexJustifyContent
+{
+    FlexStart,
+    Center,
+    FlexEnd,
+    SpaceAround,
+    SpaceBetween
 }

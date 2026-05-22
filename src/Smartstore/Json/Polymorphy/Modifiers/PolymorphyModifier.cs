@@ -84,7 +84,7 @@ internal static class PolymorphyModifier
     private static bool TryGetPolymorphicAttribute(MemberInfo? member, Type propertyType, out PolymorphicAttribute? attr)
     {
         // Prefer member-level attribute
-        if (member?.TryGetAttribute<PolymorphicAttribute>(true, out attr) == true) 
+        if (member?.TryGetAttribute<PolymorphicAttribute>(true, out attr) == true)
         {
             return true;
         }

@@ -7,7 +7,7 @@ public class AppleAuthViewComponent : SmartViewComponent
 {
     private readonly AppleAuthenticationOptions _appleOptions;
     private readonly AppleExternalAuthSettings _settings;
-    
+
 
     public AppleAuthViewComponent(IOptionsMonitor<AppleAuthenticationOptions> appleOptions, AppleExternalAuthSettings settings)
     {
@@ -17,7 +17,7 @@ public class AppleAuthViewComponent : SmartViewComponent
 
     public IViewComponentResult Invoke()
     {
-        if (!_appleOptions.ClientId.HasValue() 
+        if (!_appleOptions.ClientId.HasValue()
             || !_appleOptions.TeamId.HasValue()
             || !_appleOptions.KeyId.HasValue()
             || !_appleOptions.ClientSecret.HasValue()
@@ -35,4 +35,3 @@ public class AppleAuthViewComponent : SmartViewComponent
         return HtmlContent(html);
     }
 }
-

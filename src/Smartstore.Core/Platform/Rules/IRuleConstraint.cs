@@ -1,7 +1,6 @@
-﻿namespace Smartstore.Core.Rules
+﻿namespace Smartstore.Core.Rules;
+
+public interface IRuleConstraint
 {
-    public interface IRuleConstraint
-    {
-        bool Match(RuleExpression expression);
-    }
+    bool Match(RuleExpression expression);
 }

@@ -1,20 +1,19 @@
 ﻿using Smartstore.IO;
 
-namespace Smartstore.Core.Content.Media
+namespace Smartstore.Core.Content.Media;
+
+/// <summary>
+/// Storage abstraction for media files.
+/// </summary>
+public interface IMediaFileSystem : IFileSystem
 {
     /// <summary>
-    /// Storage abstraction for media files.
+    /// Contains media storage and path configuration.
     /// </summary>
-    public interface IMediaFileSystem : IFileSystem
-    {
-        /// <summary>
-        /// Contains media storage and path configuration.
-        /// </summary>
-        IMediaStorageConfiguration StorageConfiguration { get; }
+    IMediaStorageConfiguration StorageConfiguration { get; }
 
-        /// <summary>
-        /// Checks whether the underlying storage is remote, like 'Azure' for example. 
-        /// </summary>
-        bool IsCloudStorage { get; }
-    }
+    /// <summary>
+    /// Checks whether the underlying storage is remote, like 'Azure' for example. 
+    /// </summary>
+    bool IsCloudStorage { get; }
 }

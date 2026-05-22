@@ -5,193 +5,192 @@ using Smartstore.Core.Web;
 using Smartstore.Core.Widgets;
 using Smartstore.Net;
 
-namespace Smartstore.Core.Identity
+namespace Smartstore.Core.Identity;
+
+public sealed class CookieConsentAttribute : TypeFilterAttribute
 {
-    public sealed class CookieConsentAttribute : TypeFilterAttribute
+    /// <summary>
+    /// Checks if the shop visitor has already agreed to the use of cookies, and opens the CookieManager if he or she hasn't.
+    /// </summary>
+    public CookieConsentAttribute()
+        : base(typeof(CookieConsentFilter))
     {
-        /// <summary>
-        /// Checks if the shop visitor has already agreed to the use of cookies, and opens the CookieManager if he or she hasn't.
-        /// </summary>
-        public CookieConsentAttribute()
-            : base(typeof(CookieConsentFilter))
+    }
+
+    class CookieConsentFilter : IAsyncActionFilter, IResultFilter
+    {
+        // System names of topics that should not display the consent banner (because it would overlay important legal text)
+        readonly static string[] UnprocessableTopics = ["ConditionsOfUse", "PrivacyInfo", "Imprint", "Disclaimer"];
+
+        private readonly PrivacySettings _privacySettings;
+        private readonly ICookieConsentManager _cookieConsentManager;
+        private readonly IUserAgent _userAgent;
+        private readonly IWidgetProvider _widgetProvider;
+
+        private bool _isProcessableRequest;
+
+        public CookieConsentFilter(
+            PrivacySettings privacySettings,
+            ICookieConsentManager cookieConsentManager,
+            IUserAgent userAgent,
+            IWidgetProvider widgetProvider)
         {
+            _privacySettings = privacySettings;
+            _cookieConsentManager = cookieConsentManager;
+            _userAgent = userAgent;
+            _widgetProvider = widgetProvider;
         }
 
-        class CookieConsentFilter : IAsyncActionFilter, IResultFilter
+        private bool IsProcessableRequest(ActionExecutingContext context)
         {
-            // System names of topics that should not display the consent banner (because it would overlay important legal text)
-            readonly static string[] UnprocessableTopics = ["ConditionsOfUse", "PrivacyInfo", "Imprint", "Disclaimer"];
+            if (_privacySettings.CookieConsentRequirement == CookieConsentRequirement.NeverRequired)
+                return false;
 
-            private readonly PrivacySettings _privacySettings;
-            private readonly ICookieConsentManager _cookieConsentManager;
-            private readonly IUserAgent _userAgent;
-            private readonly IWidgetProvider _widgetProvider;
-            
-            private bool _isProcessableRequest;
+            var request = context.HttpContext?.Request;
 
-            public CookieConsentFilter(
-                PrivacySettings privacySettings,
-                ICookieConsentManager cookieConsentManager,
-                IUserAgent userAgent,
-                IWidgetProvider widgetProvider)
+            if (request == null)
+                return false;
+
+            if (!request.IsNonAjaxGet())
+                return false;
+
+            return true;
+        }
+
+        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        {
+            _isProcessableRequest = IsProcessableRequest(context);
+
+            if (!_isProcessableRequest)
             {
-                _privacySettings = privacySettings;
-                _cookieConsentManager = cookieConsentManager;
-                _userAgent = userAgent;
-                _widgetProvider = widgetProvider;
+                await next();
+                return;
             }
 
-            private bool IsProcessableRequest(ActionExecutingContext context)
+            var isLegacy = false;
+            var hasLegacyName = false;
+            var request = context.HttpContext.Request;
+            var response = context.HttpContext.Response;
+
+            ConsentCookie cookieData = null;
+
+            // Check if the user has a consent cookie.
+            var consentCookie = request.Cookies[CookieNames.CookieConsent];
+
+            // Try fetch cookie from pre Smartstore 5.0.0
+            if (consentCookie == null)
             {
-                if (_privacySettings.CookieConsentRequirement == CookieConsentRequirement.NeverRequired)
-                    return false;
-
-                var request = context.HttpContext?.Request;
-
-                if (request == null)
-                    return false;
-
-                if (!request.IsNonAjaxGet())
-                    return false;
-
-                return true;
+                consentCookie = request.Cookies["CookieConsent"];
+                hasLegacyName = true;
             }
 
-            public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+            if (consentCookie == null)
             {
-                _isProcessableRequest = IsProcessableRequest(context);
+                // No consent cookie. We first check the Do Not Track header value, this can have the value "0" or "1"
+                var doNotTrack = request.Headers.Get("DNT").FirstOrDefault();
 
-                if (!_isProcessableRequest)
+                // If we receive a DNT header, we accept its value (0 = give consent, 1 = deny) and do not ask the user anymore.
+                if (doNotTrack.HasValue())
                 {
-                    await next();
-                    return;
-                }
+                    var consented = doNotTrack.Equals("0");
 
-                var isLegacy = false;
-                var hasLegacyName = false;
-                var request = context.HttpContext.Request;
-                var response = context.HttpContext.Response;
-
-                ConsentCookie cookieData = null;
-
-                // Check if the user has a consent cookie.
-                var consentCookie = request.Cookies[CookieNames.CookieConsent];
-
-                // Try fetch cookie from pre Smartstore 5.0.0
-                if (consentCookie == null)
-                {
-                    consentCookie = request.Cookies["CookieConsent"];
-                    hasLegacyName = true;
-                }
-
-                if (consentCookie == null)
-                {
-                    // No consent cookie. We first check the Do Not Track header value, this can have the value "0" or "1"
-                    var doNotTrack = request.Headers.Get("DNT").FirstOrDefault();
-
-                    // If we receive a DNT header, we accept its value (0 = give consent, 1 = deny) and do not ask the user anymore.
-                    if (doNotTrack.HasValue())
-                    {
-                        var consented = doNotTrack.Equals("0");
-
-                        // Tracking consented/denied.
-                        await _cookieConsentManager.SetConsentCookieAsync(consented, consented);
-                    }
-                    else
-                    {
-                        if (_userAgent.IsBot())
-                        {
-                            // Don't ask consent from search engines, also don't set cookies.
-                            await _cookieConsentManager.SetConsentCookieAsync(true, true);
-                        }
-                        else
-                        {
-                            // First request on the site and no DNT header (we can use session cookie, which is allowed by EU cookie law).
-                            // Don't set cookie!
-                        }
-                    }
+                    // Tracking consented/denied.
+                    await _cookieConsentManager.SetConsentCookieAsync(consented, consented);
                 }
                 else
                 {
-                    // We received a consent cookie
-                    try
+                    if (_userAgent.IsBot())
                     {
-                        cookieData = JsonSerializer.Deserialize<ConsentCookie>(consentCookie);
+                        // Don't ask consent from search engines, also don't set cookies.
+                        await _cookieConsentManager.SetConsentCookieAsync(true, true);
                     }
-                    catch
+                    else
                     {
+                        // First request on the site and no DNT header (we can use session cookie, which is allowed by EU cookie law).
+                        // Don't set cookie!
                     }
+                }
+            }
+            else
+            {
+                // We received a consent cookie
+                try
+                {
+                    cookieData = JsonSerializer.Deserialize<ConsentCookie>(consentCookie);
+                }
+                catch
+                {
+                }
 
-                    if (cookieData == null)
-                    {
-                        // Cookie was found but could not be converted thus it's a pre Smartstore 3 legacy cookie.
-                        isLegacy = true;
-                        var str = consentCookie;
+                if (cookieData == null)
+                {
+                    // Cookie was found but could not be converted thus it's a pre Smartstore 3 legacy cookie.
+                    isLegacy = true;
+                    var str = consentCookie;
 
-                        // 'asked' means customer has not consented.
-                        // '2' was the Value of legacy enum CookieConsentStatus.Denied
-                        if (str.Equals("asked") || str.Equals("2"))
-                        {
-                            // Remove legacy Cookie & thus show CookieManager.
-                            response.Cookies.Delete("CookieConsent");
-                        }
-                        // 'true' means consented to all cookies.
-                        // '1' was the Value of legacy enum CookieConsentStatus.Consented
-                        else if (str.Equals("true") || str.Equals("1"))
-                        {
-                            // Set Cookie with all types allowed.
-                            await _cookieConsentManager.SetConsentCookieAsync(true, true);
-                        }
-                    }
-                    else if (hasLegacyName)
+                    // 'asked' means customer has not consented.
+                    // '2' was the Value of legacy enum CookieConsentStatus.Denied
+                    if (str.Equals("asked") || str.Equals("2"))
                     {
-                        // Cookie was found with old name and could be converted thus it's a pre Smartstore 5 and after Smartstore 3 legacy cookie. So let's rename it.
-                        // Remove legacy cookie 
+                        // Remove legacy Cookie & thus show CookieManager.
                         response.Cookies.Delete("CookieConsent");
-                        // Add again with new name
-                        await _cookieConsentManager.SetConsentCookieAsync(cookieData.AllowAnalytics, cookieData.AllowThirdParty);
                     }
-                }
-
-                if (!isLegacy)
-                {
-                    context.HttpContext.Items["CookieConsent"] = cookieData;
-                }
-
-                await next();
-            }
-
-            public void OnResultExecuting(ResultExecutingContext context)
-            {
-                if (!_isProcessableRequest)
-                    return;
-
-                // Should only run on a full view rendering result or HTML ContentResult.
-                if (!context.Result.IsHtmlViewResult())
-                {
-                    return;
-                }
-
-                // Check for topics which are excluded from displaying the CookieManager.
-                var routeIdent = context.RouteData.Values.GenerateRouteIdentifier();
-                if (routeIdent == "Topic.TopicDetails")
-                {
-                    if (context.Result is ViewResult vr && vr.Model != null)
+                    // 'true' means consented to all cookies.
+                    // '1' was the Value of legacy enum CookieConsentStatus.Consented
+                    else if (str.Equals("true") || str.Equals("1"))
                     {
-                        var modelType = vr.Model.GetType();
-                        if (modelType.GetProperty("SystemName")?.GetValue(vr.Model) is string systemNameValue && UnprocessableTopics.Contains(systemNameValue))
-                        {
-                            return;
-                        }
+                        // Set Cookie with all types allowed.
+                        await _cookieConsentManager.SetConsentCookieAsync(true, true);
                     }
                 }
-
-                _widgetProvider.RegisterWidget("end", new ComponentWidget("CookieManager", null));
+                else if (hasLegacyName)
+                {
+                    // Cookie was found with old name and could be converted thus it's a pre Smartstore 5 and after Smartstore 3 legacy cookie. So let's rename it.
+                    // Remove legacy cookie 
+                    response.Cookies.Delete("CookieConsent");
+                    // Add again with new name
+                    await _cookieConsentManager.SetConsentCookieAsync(cookieData.AllowAnalytics, cookieData.AllowThirdParty);
+                }
             }
 
-            public void OnResultExecuted(ResultExecutedContext context)
+            if (!isLegacy)
             {
+                context.HttpContext.Items["CookieConsent"] = cookieData;
             }
+
+            await next();
+        }
+
+        public void OnResultExecuting(ResultExecutingContext context)
+        {
+            if (!_isProcessableRequest)
+                return;
+
+            // Should only run on a full view rendering result or HTML ContentResult.
+            if (!context.Result.IsHtmlViewResult())
+            {
+                return;
+            }
+
+            // Check for topics which are excluded from displaying the CookieManager.
+            var routeIdent = context.RouteData.Values.GenerateRouteIdentifier();
+            if (routeIdent == "Topic.TopicDetails")
+            {
+                if (context.Result is ViewResult vr && vr.Model != null)
+                {
+                    var modelType = vr.Model.GetType();
+                    if (modelType.GetProperty("SystemName")?.GetValue(vr.Model) is string systemNameValue && UnprocessableTopics.Contains(systemNameValue))
+                    {
+                        return;
+                    }
+                }
+            }
+
+            _widgetProvider.RegisterWidget("end", new ComponentWidget("CookieManager", null));
+        }
+
+        public void OnResultExecuted(ResultExecutedContext context)
+        {
         }
     }
 }

@@ -2,52 +2,51 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Smartstore.Core.Catalog.Attributes
+namespace Smartstore.Core.Catalog.Attributes;
+
+internal class ProductAttributeOptionsSetMap : IEntityTypeConfiguration<ProductAttributeOptionsSet>
 {
-    internal class ProductAttributeOptionsSetMap : IEntityTypeConfiguration<ProductAttributeOptionsSet>
+    public void Configure(EntityTypeBuilder<ProductAttributeOptionsSet> builder)
     {
-        public void Configure(EntityTypeBuilder<ProductAttributeOptionsSet> builder)
-        {
-            builder.HasOne(c => c.ProductAttribute)
-                .WithMany(c => c.ProductAttributeOptionsSets)
-                .HasForeignKey(c => c.ProductAttributeId);
-        }
+        builder.HasOne(c => c.ProductAttribute)
+            .WithMany(c => c.ProductAttributeOptionsSets)
+            .HasForeignKey(c => c.ProductAttributeId);
     }
+}
+
+/// <summary>
+/// Represents an options set for a product attribute.
+/// </summary>
+public partial class ProductAttributeOptionsSet : EntityWithAttributes, INamedEntity
+{
+    /// <summary>
+    /// Gets or sets the name.
+    /// </summary>
+    [StringLength(400)]
+    public string Name { get; set; }
 
     /// <summary>
-    /// Represents an options set for a product attribute.
+    /// Gets or sets the product attribute identifier.
     /// </summary>
-    public partial class ProductAttributeOptionsSet : EntityWithAttributes, INamedEntity
+    public int ProductAttributeId { get; set; }
+
+    private ProductAttribute _productAttribute;
+    /// <summary>
+    /// Gets or sets the product attribute.
+    /// </summary>
+    public ProductAttribute ProductAttribute
     {
-        /// <summary>
-        /// Gets or sets the name.
-        /// </summary>
-        [StringLength(400)]
-        public string Name { get; set; }
+        get => _productAttribute ?? LazyLoader.Load(this, ref _productAttribute);
+        set => _productAttribute = value;
+    }
 
-        /// <summary>
-        /// Gets or sets the product attribute identifier.
-        /// </summary>
-        public int ProductAttributeId { get; set; }
-
-        private ProductAttribute _productAttribute;
-        /// <summary>
-        /// Gets or sets the product attribute.
-        /// </summary>
-        public ProductAttribute ProductAttribute
-        {
-            get => _productAttribute ?? LazyLoader.Load(this, ref _productAttribute);
-            set => _productAttribute = value;
-        }
-
-        private ICollection<ProductAttributeOption> _productAttributeOptions;
-        /// <summary>
-        /// Gets or sets the product attribute options.
-        /// </summary>
-        public ICollection<ProductAttributeOption> ProductAttributeOptions
-        {
-            get => _productAttributeOptions ?? LazyLoader.Load(this, ref _productAttributeOptions) ?? (_productAttributeOptions ??= new HashSet<ProductAttributeOption>());
-            protected set => _productAttributeOptions = value;
-        }
+    private ICollection<ProductAttributeOption> _productAttributeOptions;
+    /// <summary>
+    /// Gets or sets the product attribute options.
+    /// </summary>
+    public ICollection<ProductAttributeOption> ProductAttributeOptions
+    {
+        get => _productAttributeOptions ?? LazyLoader.Load(this, ref _productAttributeOptions) ?? (_productAttributeOptions ??= new HashSet<ProductAttributeOption>());
+        protected set => _productAttributeOptions = value;
     }
 }

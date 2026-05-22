@@ -3,59 +3,58 @@ using System.Text.Json;
 using Smartstore.Engine.Modularity;
 using Smartstore.Json;
 
-namespace Smartstore.Core.Packaging
+namespace Smartstore.Core.Packaging;
+
+public class ExtensionPackage : Disposable
 {
-    public class ExtensionPackage : Disposable
+    private string _fileName;
+    private readonly bool _leaveOpen;
+
+    public ExtensionPackage(Stream archiveStream, bool leaveOpen)
+        : this(archiveStream, null, leaveOpen)
     {
-        private string _fileName;
-        private readonly bool _leaveOpen;
+    }
 
-        public ExtensionPackage(Stream archiveStream, bool leaveOpen)
-            : this(archiveStream, null, leaveOpen)
+    internal ExtensionPackage(Stream archiveStream, IExtensionDescriptor descriptor, bool leaveOpen)
+    {
+        ArchiveStream = Guard.NotNull(archiveStream, nameof(archiveStream));
+        _leaveOpen = leaveOpen;
+
+        if (archiveStream.CanSeek)
         {
+            archiveStream.Seek(0, SeekOrigin.Begin);
         }
 
-        internal ExtensionPackage(Stream archiveStream, IExtensionDescriptor descriptor, bool leaveOpen)
+        if (descriptor == null)
         {
-            ArchiveStream = Guard.NotNull(archiveStream, nameof(archiveStream));
-            _leaveOpen = leaveOpen;
-
-            if (archiveStream.CanSeek)
+            using var archive = new ZipArchive(archiveStream, ZipArchiveMode.Read, true);
+            var manifest = archive.GetEntry(PackagingUtility.ManifestFileName);
+            if (manifest == null)
             {
-                archiveStream.Seek(0, SeekOrigin.Begin);
+                throw new ArgumentException("Manifest file 'manifest.json' could not be extracted from zip archive.", nameof(archiveStream));
             }
 
-            if (descriptor == null)
-            {
-                using var archive = new ZipArchive(archiveStream, ZipArchiveMode.Read, true);
-                var manifest = archive.GetEntry(PackagingUtility.ManifestFileName);
-                if (manifest == null)
-                {
-                    throw new ArgumentException("Manifest file 'manifest.json' could not be extracted from zip archive.", nameof(archiveStream));
-                }
-
-                // TODO: (core) Throw typed message if deserialization fails, catch in controller and notify with localized message. 
-                using var stream = manifest.Open();
-                descriptor = JsonSerializer.Deserialize<MinimalExtensionDescriptor>(stream, SmartJsonOptions.Default);
-            }
-
-            Descriptor = descriptor;
+            // TODO: (core) Throw typed message if deserialization fails, catch in controller and notify with localized message. 
+            using var stream = manifest.Open();
+            descriptor = JsonSerializer.Deserialize<MinimalExtensionDescriptor>(stream, SmartJsonOptions.Default);
         }
 
-        public Stream ArchiveStream { get; }
+        Descriptor = descriptor;
+    }
 
-        public IExtensionDescriptor Descriptor { get; }
+    public Stream ArchiveStream { get; }
 
-        public string FileName
-        {
-            get => _fileName ??= Descriptor.BuildPackageName() + ".zip";
-            init => _fileName = value;
-        }
+    public IExtensionDescriptor Descriptor { get; }
 
-        protected override void OnDispose(bool disposing)
-        {
-            if (disposing && !_leaveOpen)
-                ArchiveStream.Dispose();
-        }
+    public string FileName
+    {
+        get => _fileName ??= Descriptor.BuildPackageName() + ".zip";
+        init => _fileName = value;
+    }
+
+    protected override void OnDispose(bool disposing)
+    {
+        if (disposing && !_leaveOpen)
+            ArchiveStream.Dispose();
     }
 }

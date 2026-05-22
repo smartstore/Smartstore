@@ -1,27 +1,26 @@
-﻿namespace Smartstore.Core.DataExchange
+﻿namespace Smartstore.Core.DataExchange;
+
+/// <summary>
+/// Supported entity types
+/// </summary>
+public enum ImportEntityType
 {
-    /// <summary>
-    /// Supported entity types
-    /// </summary>
-    public enum ImportEntityType
-    {
-        Product = 0,
-        Category,
-        Customer,
-        NewsletterSubscription,
-        Manufacturer
-    }
+    Product = 0,
+    Category,
+    Customer,
+    NewsletterSubscription,
+    Manufacturer
+}
 
-    public enum ImportFileType
-    {
-        Csv = 0,
-        Xlsx
-    }
+public enum ImportFileType
+{
+    Csv = 0,
+    Xlsx
+}
 
-    [Flags]
-    public enum ImportModeFlags
-    {
-        Insert = 1,
-        Update = 2
-    }
+[Flags]
+public enum ImportModeFlags
+{
+    Insert = 1,
+    Update = 2
 }

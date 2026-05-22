@@ -1,51 +1,50 @@
-﻿namespace Smartstore.Core.Rules
+﻿namespace Smartstore.Core.Rules;
+
+public abstract class RuleValueSelectList
 {
-    public abstract class RuleValueSelectList
+    public bool Multiple { get; set; }
+    public bool Tags { get; set; }
+}
+
+public class RuleValueSelectListOption
+{
+    public string Value { get; set; }
+    public string Text { get; set; }
+    public string Hint { get; set; }
+    public RuleValueSelectListGroup Group { get; set; }
+}
+
+public class RuleValueSelectListGroup
+{
+    public string Name { get; set; }
+    public int Order { get; set; }
+}
+
+public class LocalRuleValueSelectList : RuleValueSelectList
+{
+    public LocalRuleValueSelectList() : this(null)
     {
-        public bool Multiple { get; set; }
-        public bool Tags { get; set; }
     }
 
-    public class RuleValueSelectListOption
+    public LocalRuleValueSelectList(params RuleValueSelectListOption[] options)
     {
-        public string Value { get; set; }
-        public string Text { get; set; }
-        public string Hint { get; set; }
-        public RuleValueSelectListGroup Group { get; set; }
+        Options = new List<RuleValueSelectListOption>(options ?? Enumerable.Empty<RuleValueSelectListOption>());
     }
 
-    public class RuleValueSelectListGroup
+    public IEnumerable<RuleValueSelectListOption> Options { get; }
+}
+
+public class RemoteRuleValueSelectList : RuleValueSelectList
+{
+    public RemoteRuleValueSelectList(string dataSource)
     {
-        public string Name { get; set; }
-        public int Order { get; set; }
+        Guard.NotEmpty(dataSource);
+
+        DataSource = dataSource;
     }
 
-    public class LocalRuleValueSelectList : RuleValueSelectList
-    {
-        public LocalRuleValueSelectList() : this(null)
-        {
-        }
-
-        public LocalRuleValueSelectList(params RuleValueSelectListOption[] options)
-        {
-            Options = new List<RuleValueSelectListOption>(options ?? Enumerable.Empty<RuleValueSelectListOption>());
-        }
-
-        public IEnumerable<RuleValueSelectListOption> Options { get; }
-    }
-
-    public class RemoteRuleValueSelectList : RuleValueSelectList
-    {
-        public RemoteRuleValueSelectList(string dataSource)
-        {
-            Guard.NotEmpty(dataSource);
-
-            DataSource = dataSource;
-        }
-
-        /// <summary>
-        /// Name of the data source.
-        /// </summary>
-        public string DataSource { get; }
-    }
+    /// <summary>
+    /// Name of the data source.
+    /// </summary>
+    public string DataSource { get; }
 }

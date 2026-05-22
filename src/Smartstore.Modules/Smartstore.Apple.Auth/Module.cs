@@ -2,10 +2,10 @@ global using System.Threading.Tasks;
 global using AspNet.Security.OAuth.Apple;
 global using Microsoft.Extensions.Options;
 global using Smartstore.Web.Modelling;
+using Smartstore.Apple.Auth.Components;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
-using Smartstore.Apple.Auth.Components;
 using Smartstore.Http;
 
 namespace Smartstore.Apple.Auth;
@@ -30,4 +30,3 @@ internal class Module : ModuleBase, IConfigurable, IExternalAuthenticationMethod
         await base.UninstallAsync();
     }
 }
-

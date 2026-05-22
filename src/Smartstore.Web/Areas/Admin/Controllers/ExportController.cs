@@ -320,8 +320,8 @@ public class ExportController : AdminController
     public async Task<IActionResult> ResolveTokens(int id, string pattern, int? fileIndex = null)
     {
         var resolvedPattern = _exportProfileService.ResolveTokens(
-            await _db.ExportProfiles.FindByIdAsync(id, false), 
-            pattern.EmptyNull(), 
+            await _db.ExportProfiles.FindByIdAsync(id, false),
+            pattern.EmptyNull(),
             fileIndex,
             fileIndex != null ? _dataExchangeSettings.MaxFileNameLength : null);
 

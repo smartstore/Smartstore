@@ -4,107 +4,106 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Widgets;
 
-namespace Smartstore.Core.Identity
+namespace Smartstore.Core.Identity;
+
+/// <summary>
+/// Requires GDPR consent for the current action.
+/// </summary>
+public sealed class GdprConsentAttribute : TypeFilterAttribute
 {
-    /// <summary>
-    /// Requires GDPR consent for the current action.
-    /// </summary>
-    public sealed class GdprConsentAttribute : TypeFilterAttribute
+    public GdprConsentAttribute()
+        : base(typeof(GdprConsentFilter))
     {
-        public GdprConsentAttribute()
-            : base(typeof(GdprConsentFilter))
+    }
+
+    class GdprConsentFilter : IAsyncActionFilter, IResultFilter
+    {
+        private readonly IWorkContext _workContext;
+        private readonly IWidgetProvider _widgetProvider;
+        private readonly PrivacySettings _privacySettings;
+        private readonly INotifier _notifier;
+
+        public GdprConsentFilter(
+            IWorkContext workContext,
+            IWidgetProvider widgetProvider,
+            PrivacySettings privacySettings,
+            INotifier notifier,
+            Localizer localizer)
         {
+            _workContext = workContext;
+            _widgetProvider = widgetProvider;
+            _privacySettings = privacySettings;
+            _notifier = notifier;
+            T = localizer;
         }
 
-        class GdprConsentFilter : IAsyncActionFilter, IResultFilter
-        {
-            private readonly IWorkContext _workContext;
-            private readonly IWidgetProvider _widgetProvider;
-            private readonly PrivacySettings _privacySettings;
-            private readonly INotifier _notifier;
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
-            public GdprConsentFilter(
-                IWorkContext workContext,
-                IWidgetProvider widgetProvider,
-                PrivacySettings privacySettings,
-                INotifier notifier,
-                Localizer localizer)
+        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        {
+            if (!_privacySettings.DisplayGdprConsentOnForms)
             {
-                _workContext = workContext;
-                _widgetProvider = widgetProvider;
-                _privacySettings = privacySettings;
-                _notifier = notifier;
-                T = localizer;
+                await next();
+                return;
             }
 
-            public Localizer T { get; set; } = NullLocalizer.Instance;
-
-            public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+            var request = context.HttpContext.Request;
+            if (request.IsPost() && request.HasFormContentType)
             {
-                if (!_privacySettings.DisplayGdprConsentOnForms)
+                var hasConsentedToGdpr = request.Form["GdprConsent"].ToString();
+                if (hasConsentedToGdpr.HasValue())
                 {
-                    await next();
-                    return;
-                }
+                    // Set flag which can be accessed in corresponding action.
+                    context.HttpContext.Items.Add("GdprConsent", hasConsentedToGdpr.Contains("true"));
 
-                var request = context.HttpContext.Request;
-                if (request.IsPost() && request.HasFormContentType)
-                {
-                    var hasConsentedToGdpr = request.Form["GdprConsent"].ToString();
-                    if (hasConsentedToGdpr.HasValue())
+                    if (hasConsentedToGdpr.Contains("true"))
                     {
-                        // Set flag which can be accessed in corresponding action.
-                        context.HttpContext.Items.Add("GdprConsent", hasConsentedToGdpr.Contains("true"));
-
-                        if (hasConsentedToGdpr.Contains("true"))
+                        var customer = _workContext.CurrentCustomer;
+                        customer.GenericAttributes.HasConsentedToGdpr = true;
+                        await customer.GenericAttributes.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        if (!request.IsAjax())
                         {
-                            var customer = _workContext.CurrentCustomer;
-                            customer.GenericAttributes.HasConsentedToGdpr = true;
-                            await customer.GenericAttributes.SaveChangesAsync();
+                            context.ModelState.AddModelError(string.Empty, T("Gdpr.Consent.ValidationMessage"));
                         }
                         else
                         {
-                            if (!request.IsAjax())
-                            {
-                                context.ModelState.AddModelError(string.Empty, T("Gdpr.Consent.ValidationMessage"));
-                            }
-                            else
-                            {
-                                _notifier.Error(T("Gdpr.Consent.ValidationMessage"));
-                            }
+                            _notifier.Error(T("Gdpr.Consent.ValidationMessage"));
                         }
                     }
                 }
-
-                await next();
             }
 
-            public void OnResultExecuting(ResultExecutingContext context)
-            {
-                if (!_privacySettings.DisplayGdprConsentOnForms)
-                    return;
+            await next();
+        }
 
-                if (context.HttpContext.Items.ContainsKey("GdprConsentRendered"))
-                    return;
+        public void OnResultExecuting(ResultExecutingContext context)
+        {
+            if (!_privacySettings.DisplayGdprConsentOnForms)
+                return;
 
-                var result = context.Result;
+            if (context.HttpContext.Items.ContainsKey("GdprConsentRendered"))
+                return;
 
-                // should only run on a full view rendering result or HTML ContentResult
-                if (!result.IsHtmlViewResult())
-                    return;
+            var result = context.Result;
 
-                _widgetProvider.RegisterWidget("gdpr_consent",
-                    new ComponentWidget("GdprConsent", new { isSmall = false }));
+            // should only run on a full view rendering result or HTML ContentResult
+            if (!result.IsHtmlViewResult())
+                return;
 
-                _widgetProvider.RegisterWidget("gdpr_consent_small",
-                    new ComponentWidget("GdprConsent", new { isSmall = true }));
+            _widgetProvider.RegisterWidget("gdpr_consent",
+                new ComponentWidget("GdprConsent", new { isSmall = false }));
 
-                context.HttpContext.Items["GdprConsentRendered"] = true;
-            }
+            _widgetProvider.RegisterWidget("gdpr_consent_small",
+                new ComponentWidget("GdprConsent", new { isSmall = true }));
 
-            public void OnResultExecuted(ResultExecutedContext context)
-            {
-            }
+            context.HttpContext.Items["GdprConsentRendered"] = true;
+        }
+
+        public void OnResultExecuted(ResultExecutedContext context)
+        {
         }
     }
 }

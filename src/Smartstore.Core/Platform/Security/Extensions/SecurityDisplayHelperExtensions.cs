@@ -2,29 +2,28 @@
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Security;
 
-namespace Smartstore
+namespace Smartstore;
+
+public static class SecurityDisplayHelperExtensions
 {
-    public static class SecurityDisplayHelperExtensions
+    public static bool HoneypotProtectionEnabled(this IDisplayHelper displayHelper)
     {
-        public static bool HoneypotProtectionEnabled(this IDisplayHelper displayHelper)
+        return displayHelper.HttpContext.GetItem(nameof(HoneypotProtectionEnabled), () =>
         {
-            return displayHelper.HttpContext.GetItem(nameof(HoneypotProtectionEnabled), () =>
-            {
-                return displayHelper.Resolve<SecuritySettings>().EnableHoneypotProtection;
-            });
-        }
+            return displayHelper.Resolve<SecuritySettings>().EnableHoneypotProtection;
+        });
+    }
 
-        public static bool IsStoreClosed(this IDisplayHelper displayHelper)
+    public static bool IsStoreClosed(this IDisplayHelper displayHelper)
+    {
+        return displayHelper.HttpContext.GetItem(nameof(IsStoreClosed), () =>
         {
-            return displayHelper.HttpContext.GetItem(nameof(IsStoreClosed), () =>
-            {
-                var settings = displayHelper.Resolve<StoreInformationSettings>();
-                var customer = displayHelper.Resolve<IWorkContext>().CurrentCustomer;
+            var settings = displayHelper.Resolve<StoreInformationSettings>();
+            var customer = displayHelper.Resolve<IWorkContext>().CurrentCustomer;
 
-                return settings.StoreClosedAllowForAdmins && customer.IsAdmin()
-                    ? false
-                    : settings.StoreClosed;
-            });
-        }
+            return settings.StoreClosedAllowForAdmins && customer.IsAdmin()
+                ? false
+                : settings.StoreClosed;
+        });
     }
 }

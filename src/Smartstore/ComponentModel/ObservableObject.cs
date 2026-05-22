@@ -2,64 +2,63 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
-namespace Smartstore.ComponentModel
+namespace Smartstore.ComponentModel;
+
+/// <summary>
+/// A base object that implements <see cref="INotifyPropertyChanged"/>.
+/// Changes to any property value will raise the <see cref="PropertyChanged"/>
+/// event handler automatically. Property usage:
+/// <code>
+///     public string MyProperty
+///     {
+///         get => GetProperty<string>(() => "MyDefaultValue");
+///         set => SetProperty(value);
+///     }
+/// </code>
+/// </summary>
+public abstract class ObservableObject : INotifyPropertyChanged
 {
-    /// <summary>
-    /// A base object that implements <see cref="INotifyPropertyChanged"/>.
-    /// Changes to any property value will raise the <see cref="PropertyChanged"/>
-    /// event handler automatically. Property usage:
-    /// <code>
-    ///     public string MyProperty
-    ///     {
-    ///         get => GetProperty<string>(() => "MyDefaultValue");
-    ///         set => SetProperty(value);
-    ///     }
-    /// </code>
-    /// </summary>
-    public abstract class ObservableObject : INotifyPropertyChanged
+    private readonly Dictionary<string, object> _properties = [];
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    [IgnoreDataMember]
+    protected IReadOnlyDictionary<string, object> Properties
     {
-        private readonly Dictionary<string, object> _properties = [];
+        get => _properties;
+    }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [IgnoreDataMember]
-        protected IReadOnlyDictionary<string, object> Properties
+    protected virtual T GetProperty<T>(Func<T> defaultValue = null, [CallerMemberName] string name = null)
+    {
+        if (_properties.TryGetValue(name, out var value))
         {
-            get => _properties;
+            return (T)value;
+        }
+        else if (defaultValue != null)
+        {
+            return defaultValue();
         }
 
-        protected virtual T GetProperty<T>(Func<T> defaultValue = null, [CallerMemberName] string name = null)
-        {
-            if (_properties.TryGetValue(name, out var value))
-            {
-                return (T)value;
-            }
-            else if (defaultValue != null)
-            {
-                return defaultValue();
-            }
+        return default;
+    }
 
-            return default;
+    protected virtual void SetProperty<T>(T value, [CallerMemberName] string name = null)
+    {
+        _properties.TryGetValueAs<T>(name, out var oldValue);
+
+        _properties[name] = value;
+
+        if (!Equals(value, oldValue))
+        {
+            OnPropertyChanged(name);
         }
+    }
 
-        protected virtual void SetProperty<T>(T value, [CallerMemberName] string name = null)
+    protected void OnPropertyChanged(string propertyName)
+    {
+        if (PropertyChanged != null && !string.IsNullOrEmpty(propertyName))
         {
-            _properties.TryGetValueAs<T>(name, out var oldValue);
-
-            _properties[name] = value;
-
-            if (!Equals(value, oldValue))
-            {
-                OnPropertyChanged(name);
-            }
-        }
-
-        protected void OnPropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null && !string.IsNullOrEmpty(propertyName))
-            {
-                PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
+            PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

@@ -34,7 +34,7 @@ public partial class CatalogHelper
         model.AllowSorting = _catalogSettings.AllowProductSorting;
         if (model.AllowSorting)
         {
-            model.AvailableSortOptions = _cache.Get($"pres:productlistsortoptions-{languageId}", () => 
+            model.AvailableSortOptions = _cache.Get($"pres:productlistsortoptions-{languageId}", () =>
                 Enum.GetValues(typeof(ProductSortingEnum))
                     .Cast<ProductSortingEnum>()
                     .Where(x => x != ProductSortingEnum.CreatedOnAsc && x != ProductSortingEnum.Initial)
@@ -207,7 +207,7 @@ public partial class CatalogHelper
             prefetchTranslations = prefetchTranslations && _isMultiLanguageEnvironment;
             var prefetchSlugs = settings.PrefetchUrlSlugs == true || (settings.PrefetchUrlSlugs == null && _performanceSettings.AlwaysPrefetchUrlSlugs);
             var allProductIds = prefetchSlugs || prefetchTranslations ? products.Select(x => x.Id).ToArray() : Array.Empty<int>();
-            
+
             string taxInfo = T(calculationOptions.TaxInclusive ? "Tax.InclVAT" : "Tax.ExclVAT");
             var legalInfo = string.Empty;
             var taxExemptLegalInfo = string.Empty;
@@ -219,7 +219,7 @@ public partial class CatalogHelper
                 { "Products.DimensionsValue", T("Products.DimensionsValue") },
                 { "Common.AdditionalShippingSurcharge", T("Common.AdditionalShippingSurcharge") }
             };
-            
+
             if (settings.MapLegalInfo)
             {
                 var shippingInfoUrl = await _urlHelper.TopicAsync("ShippingInfo");
@@ -254,7 +254,7 @@ public partial class CatalogHelper
                 {
                     await batchContext.AppliedDiscounts.LoadAllAsync();
                 }
-                
+
                 await batchContext.TierPrices.LoadAllAsync();
             }
 

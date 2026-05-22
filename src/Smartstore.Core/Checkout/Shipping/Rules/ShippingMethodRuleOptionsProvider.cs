@@ -3,41 +3,40 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 
-namespace Smartstore.Core.Checkout.Shipping.Rules
+namespace Smartstore.Core.Checkout.Shipping.Rules;
+
+public partial class ShippingMethodRuleOptionsProvider : IRuleOptionsProvider
 {
-    public partial class ShippingMethodRuleOptionsProvider : IRuleOptionsProvider
+    private readonly SmartDbContext _db;
+
+    public ShippingMethodRuleOptionsProvider(SmartDbContext db)
     {
-        private readonly SmartDbContext _db;
+        _db = db;
+    }
 
-        public ShippingMethodRuleOptionsProvider(SmartDbContext db)
+    public int Order => 0;
+
+    public bool Matches(string dataSource)
+        => dataSource == KnownRuleOptionDataSourceNames.ShippingMethod;
+
+    public async Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
+    {
+        if (context.DataSource != KnownRuleOptionDataSourceNames.ShippingMethod)
         {
-            _db = db;
+            return null;
         }
 
-        public int Order => 0;
+        var shippingMethods = await _db.ShippingMethods
+            .AsNoTracking()
+            .OrderBy(x => x.DisplayOrder)
+            .ToListAsync();
 
-        public bool Matches(string dataSource)
-            => dataSource == KnownRuleOptionDataSourceNames.ShippingMethod;
-
-        public async Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
+        var options = shippingMethods.Select(x => new RuleValueSelectListOption
         {
-            if (context.DataSource != KnownRuleOptionDataSourceNames.ShippingMethod)
-            {
-                return null;
-            }
+            Value = context.OptionById ? x.Id.ToString() : x.Name,
+            Text = context.OptionById ? x.GetLocalized(y => y.Name, context.Language, true, false) : x.Name
+        });
 
-            var shippingMethods = await _db.ShippingMethods
-                .AsNoTracking()
-                .OrderBy(x => x.DisplayOrder)
-                .ToListAsync();
-
-            var options = shippingMethods.Select(x => new RuleValueSelectListOption
-            {
-                Value = context.OptionById ? x.Id.ToString() : x.Name,
-                Text = context.OptionById ? x.GetLocalized(y => y.Name, context.Language, true, false) : x.Name
-            });
-
-            return RuleOptionsResult.Create(context, options);
-        }
+        return RuleOptionsResult.Create(context, options);
     }
 }

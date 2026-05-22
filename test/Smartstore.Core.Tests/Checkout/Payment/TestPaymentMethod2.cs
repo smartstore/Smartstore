@@ -3,34 +3,33 @@ using System.Threading.Tasks;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Widgets;
 
-namespace Smartstore.Core.Tests.Checkout.Payment
+namespace Smartstore.Core.Tests.Checkout.Payment;
+
+[PaymentMethod(PaymentMethodType.Standard)]
+public class TestPaymentMethod2 : PaymentMethodBase
 {
-    [PaymentMethod(PaymentMethodType.Standard)]
-    public class TestPaymentMethod2 : PaymentMethodBase
+    public override Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
     {
-        public override Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
+        var result = new ProcessPaymentResult
         {
-            var result = new ProcessPaymentResult
-            {
-                NewPaymentStatus = PaymentStatus.Paid
-            };
+            NewPaymentStatus = PaymentStatus.Paid
+        };
 
-            return Task.FromResult(result);
-        }
-
-        public override bool SupportCapture
-            => false;
-
-        public override bool SupportPartiallyRefund
-            => false;
-
-        public override bool SupportRefund
-            => false;
-
-        public override bool SupportVoid
-            => false;
-
-        public override Widget GetPaymentInfoWidget()
-            => throw new NotImplementedException();
+        return Task.FromResult(result);
     }
+
+    public override bool SupportCapture
+        => false;
+
+    public override bool SupportPartiallyRefund
+        => false;
+
+    public override bool SupportRefund
+        => false;
+
+    public override bool SupportVoid
+        => false;
+
+    public override Widget GetPaymentInfoWidget()
+        => throw new NotImplementedException();
 }

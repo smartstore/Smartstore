@@ -23,7 +23,7 @@ public class ErrorController : Controller
         var errorFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
         var reExecuteFeature = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
         var urlPolicy = HttpContext.GetUrlPolicy();
-        
+
         var model = new ErrorModel
         {
             RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,

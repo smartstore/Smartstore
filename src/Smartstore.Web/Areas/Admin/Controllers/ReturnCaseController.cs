@@ -459,11 +459,11 @@ public class ReturnCaseController : AdminController
                     model.MaxRefundAmount = new(maxRefundAmount, _primaryCurrency, false, _taxService.GetTaxFormat(true, true));
                 }
             }
-            
+
             ViewBag.ReturnCaseStatuses = Enum.GetValues<ReturnCaseStatus>()
-                .Select(x => new ExtendedSelectListItem 
-                { 
-                    Value = ((int)x).ToString(), 
+                .Select(x => new ExtendedSelectListItem
+                {
+                    Value = ((int)x).ToString(),
                     Text = localization.GetLocalizedEnum(x),
                     Selected = x == returnCase.ReturnCaseStatus,
                     CustomProperties = new() { ["NextStep"] = T($"ReturnCase.NextStep.{x}").Value }

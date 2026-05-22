@@ -1,58 +1,57 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.OData.Query;
 
-namespace Smartstore.Web.Api
-{
-    public class MaxApiQueryOptions
-    {
-        public static readonly string Key = "Smartstore.WebApi.MaxQueryOptions";
+namespace Smartstore.Web.Api;
 
-        public int MaxTop { get; init; }
-        public int MaxExpansionDepth { get; init; }
+public class MaxApiQueryOptions
+{
+    public static readonly string Key = "Smartstore.WebApi.MaxQueryOptions";
+
+    public int MaxTop { get; init; }
+    public int MaxExpansionDepth { get; init; }
+}
+
+/// <inheritdoc/>
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+public class ApiQueryableAttribute : EnableQueryAttribute
+{
+    /// <inheritdoc/>
+    public override void OnActionExecuted(ActionExecutedContext actionExecutedContext)
+    {
+        ApplyDefaultQueryOptions(actionExecutedContext);
+        base.OnActionExecuted(actionExecutedContext);
     }
 
-    /// <inheritdoc/>
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-    public class ApiQueryableAttribute : EnableQueryAttribute
+    protected virtual void ApplyDefaultQueryOptions(ActionExecutedContext actionExecutedContext)
     {
-        /// <inheritdoc/>
-        public override void OnActionExecuted(ActionExecutedContext actionExecutedContext)
+        try
         {
-            ApplyDefaultQueryOptions(actionExecutedContext);
-            base.OnActionExecuted(actionExecutedContext);
-        }
+            var context = actionExecutedContext.HttpContext;
 
-        protected virtual void ApplyDefaultQueryOptions(ActionExecutedContext actionExecutedContext)
-        {
-            try
+            if (context.Items.TryGetValue(MaxApiQueryOptions.Key, out var obj) && obj is MaxApiQueryOptions maxValues)
             {
-                var context = actionExecutedContext.HttpContext;
-
-                if (context.Items.TryGetValue(MaxApiQueryOptions.Key, out var obj) && obj is MaxApiQueryOptions maxValues)
+                if (MaxTop != int.MaxValue)
                 {
-                    if (MaxTop != int.MaxValue)
-                    {
-                        MaxTop = maxValues.MaxTop;
+                    MaxTop = maxValues.MaxTop;
 
-                        var hasClientPaging = context?.Request?.Query?.Any(x => x.Key == "$top") ?? false;
-                        if (!hasClientPaging)
-                        {
-                            // If paging is required and there is no $top sent by client then force the page size specified by merchant.
-                            PageSize = MaxTop;
-                        }
-                    }
-
-                    if (MaxExpansionDepth != int.MaxValue)
+                    var hasClientPaging = context?.Request?.Query?.Any(x => x.Key == "$top") ?? false;
+                    if (!hasClientPaging)
                     {
-                        MaxExpansionDepth = maxValues.MaxExpansionDepth;
+                        // If paging is required and there is no $top sent by client then force the page size specified by merchant.
+                        PageSize = MaxTop;
                     }
                 }
 
-                //$"ApiQueryable MaxTop:{MaxTop} MaxExpansionDepth:{MaxExpansionDepth}".Dump();
+                if (MaxExpansionDepth != int.MaxValue)
+                {
+                    MaxExpansionDepth = maxValues.MaxExpansionDepth;
+                }
             }
-            catch
-            {
-            }
+
+            //$"ApiQueryable MaxTop:{MaxTop} MaxExpansionDepth:{MaxExpansionDepth}".Dump();
+        }
+        catch
+        {
         }
     }
 }

@@ -2,49 +2,48 @@
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Localization;
 
-namespace Smartstore.Web.TagHelpers.Shared
+namespace Smartstore.Web.TagHelpers.Shared;
+
+[HtmlTargetElement("title")]
+[HtmlTargetElement("*", Attributes = LangForAttributeName)]
+public class LanguageTagHelper : TagHelper
 {
-    [HtmlTargetElement("title")]
-    [HtmlTargetElement("*", Attributes = LangForAttributeName)]
-    public class LanguageTagHelper : TagHelper
+    const string DirAttributeName = "dir";
+    const string LangAttributeName = "lang";
+    const string LangForAttributeName = "sm-language-attributes-for";
+    const string TitleTagName = "title";
+
+    /// <summary>
+    /// A <see cref="Language"/> or <see cref="LocalizedValue"/> instance.
+    /// </summary>
+    [HtmlAttributeName(LangForAttributeName)]
+    public object LanguageAttributesFor { get; set; }
+
+    public override void Process(TagHelperContext context, TagHelperOutput output)
     {
-        const string DirAttributeName = "dir";
-        const string LangAttributeName = "lang";
-        const string LangForAttributeName = "sm-language-attributes-for";
-        const string TitleTagName = "title";
-
-        /// <summary>
-        /// A <see cref="Language"/> or <see cref="LocalizedValue"/> instance.
-        /// </summary>
-        [HtmlAttributeName(LangForAttributeName)]
-        public object LanguageAttributesFor { get; set; }
-
-        public override void Process(TagHelperContext context, TagHelperOutput output)
+        if (context.TagName == TitleTagName)
         {
-            if (context.TagName == TitleTagName)
-            {
-                // Render meta accept-language right before the title tag
-                var acceptLang = CultureInfo.CurrentUICulture.ToString();
-                output.PreElement.AppendHtml($"<meta name='accept-language' content='{acceptLang}'/>");
-            }
+            // Render meta accept-language right before the title tag
+            var acceptLang = CultureInfo.CurrentUICulture.ToString();
+            output.PreElement.AppendHtml($"<meta name='accept-language' content='{acceptLang}'/>");
+        }
 
-            ILanguage currentLanguage = null;
+        ILanguage currentLanguage = null;
 
-            if (LanguageAttributesFor is LocalizedValue localizedValue && localizedValue.BidiOverride)
-            {
-                currentLanguage = localizedValue.CurrentLanguage;
-            }
+        if (LanguageAttributesFor is LocalizedValue localizedValue && localizedValue.BidiOverride)
+        {
+            currentLanguage = localizedValue.CurrentLanguage;
+        }
 
-            currentLanguage ??= LanguageAttributesFor as ILanguage;
+        currentLanguage ??= LanguageAttributesFor as ILanguage;
 
-            if (currentLanguage != null)
-            {
-                var code = currentLanguage.GetTwoLetterISOLanguageName();
-                var rtl = currentLanguage.Rtl;
+        if (currentLanguage != null)
+        {
+            var code = currentLanguage.GetTwoLetterISOLanguageName();
+            var rtl = currentLanguage.Rtl;
 
-                output.MergeAttribute(LangAttributeName, code);
-                output.MergeAttribute(DirAttributeName, rtl ? "rtl" : "ltr");
-            }
+            output.MergeAttribute(LangAttributeName, code);
+            output.MergeAttribute(DirAttributeName, rtl ? "rtl" : "ltr");
         }
     }
 }

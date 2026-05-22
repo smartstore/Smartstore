@@ -57,7 +57,7 @@ internal class Startup : StarterBase
         var observer = builder.ApplicationBuilder.ApplicationServices.GetRequiredService<IOutputCacheInvalidationObserver>();
 
         observer.ObserveSettingProperty<PayPalSettings>(
-            x => x.DisplayProductDetailPayLaterWidget, 
+            x => x.DisplayProductDetailPayLaterWidget,
             p => p.InvalidateByRouteAsync(OutputCacheDefaults.ProductDetailsRoute));
 
         // INFO: We can load the utility js regardless of user consent. It doesn't set any cookies.

@@ -65,4 +65,3 @@ internal class ReturnCaseMapper : IMapper<ReturnCase, ReturnCaseModel>
         to.CreatedOn = _dateTimeHelper.ConvertToUserTime(from.CreatedOnUtc, DateTimeKind.Utc);
     }
 }
-

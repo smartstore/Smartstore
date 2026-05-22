@@ -19,7 +19,7 @@ public class OrderMessage
     /// The instruction to process an order.
     /// </summary>
     public string ProcessingInstruction;
-    
+
     /// <summary>
     /// An array of purchase units. Each purchase unit establishes a contract between a payer and the payee.
     /// </summary>
@@ -71,7 +71,7 @@ public class PurchaseUnit
     /// <summary>
     /// An array of items that the customer purchases from the merchant.
     /// </summary>
-    public PurchaseUnitItem [] Items;
+    public PurchaseUnitItem[] Items;
 
     /// <summary>
     /// The shipping details.
@@ -107,7 +107,7 @@ public class PurchaseUnitItem
     /// The item quantity. Must be a whole number.
     /// </summary>
     public string TaxRate;
-    
+
     /// <summary>
     /// The item price or rate per unit. 
     /// </summary>
@@ -204,7 +204,7 @@ public class ShippingAddress
     /// The first line of the address. For example, number or street. For example, 173 Drury Lane. 
     /// Required for data entry and compliance and risk checks. Must contain the full address.
     /// </summary>
-    [MaxLength(300)]        
+    [MaxLength(300)]
     [JsonPropertyName("address_line_1")]
     public string AddressLine1;
 

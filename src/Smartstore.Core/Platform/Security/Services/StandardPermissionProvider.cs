@@ -1,75 +1,74 @@
 ﻿using Smartstore.Core.Identity;
 
-namespace Smartstore.Core.Security
+namespace Smartstore.Core.Security;
+
+/// <summary>
+/// Provider to get permissions of the core module.
+/// </summary>
+public partial class StandardPermissionProvider : IPermissionProvider
 {
-    /// <summary>
-    /// Provider to get permissions of the core module.
-    /// </summary>
-    public partial class StandardPermissionProvider : IPermissionProvider
+    public virtual IEnumerable<PermissionRecord> GetPermissions()
     {
-        public virtual IEnumerable<PermissionRecord> GetPermissions()
-        {
-            var permissionSystemNames = PermissionHelper.GetPermissions(typeof(Permissions));
-            var permissions = permissionSystemNames.Select(x => new PermissionRecord { SystemName = x });
+        var permissionSystemNames = PermissionHelper.GetPermissions(typeof(Permissions));
+        var permissions = permissionSystemNames.Select(x => new PermissionRecord { SystemName = x });
 
-            return permissions;
-        }
+        return permissions;
+    }
 
-        public virtual IEnumerable<DefaultPermissionRecord> GetDefaultPermissions()
+    public virtual IEnumerable<DefaultPermissionRecord> GetDefaultPermissions()
+    {
+        return new[]
         {
-            return new[]
+            new DefaultPermissionRecord
             {
-                new DefaultPermissionRecord
+                CustomerRoleSystemName = SystemCustomerRoleNames.Administrators,
+                PermissionRecords = new[]
                 {
-                    CustomerRoleSystemName = SystemCustomerRoleNames.Administrators,
-                    PermissionRecords = new[]
-                    {
-                        new PermissionRecord { SystemName = Permissions.Catalog.Self },
-                        new PermissionRecord { SystemName = Permissions.Customer.Self },
-                        new PermissionRecord { SystemName = Permissions.Order.Self },
-                        new PermissionRecord { SystemName = Permissions.Promotion.Self },
-                        new PermissionRecord { SystemName = Permissions.Cms.Self },
-                        new PermissionRecord { SystemName = Permissions.Configuration.Self },
-                        new PermissionRecord { SystemName = Permissions.Configuration.CollectionGroup.Self },
-                        new PermissionRecord { SystemName = Permissions.System.Self },
-                        new PermissionRecord { SystemName = Permissions.Cart.Self },
-                        new PermissionRecord { SystemName = Permissions.Media.Self }
-                    }
-                },
-                new DefaultPermissionRecord
-                {
-                    CustomerRoleSystemName = SystemCustomerRoleNames.ForumModerators,
-                    PermissionRecords = new[]
-                    {
-                        new PermissionRecord { SystemName = Permissions.Catalog.DisplayPrice },
-                        new PermissionRecord { SystemName = Permissions.Cart.AccessShoppingCart },
-                        new PermissionRecord { SystemName = Permissions.Cart.AccessWishlist },
-                        new PermissionRecord { SystemName = Permissions.System.AccessShop }
-                    }
-                },
-                new DefaultPermissionRecord
-                {
-                    CustomerRoleSystemName = SystemCustomerRoleNames.Guests,
-                    PermissionRecords = new[]
-                    {
-                        new PermissionRecord { SystemName = Permissions.Catalog.DisplayPrice },
-                        new PermissionRecord { SystemName = Permissions.Cart.AccessShoppingCart },
-                        new PermissionRecord { SystemName = Permissions.Cart.AccessWishlist },
-                        new PermissionRecord { SystemName = Permissions.System.AccessShop }
-                    }
-                },
-                new DefaultPermissionRecord
-                {
-                    CustomerRoleSystemName = SystemCustomerRoleNames.Registered,
-                    PermissionRecords = new[]
-                    {
-                        new PermissionRecord { SystemName = Permissions.Catalog.DisplayPrice },
-                        new PermissionRecord { SystemName = Permissions.Cart.AccessShoppingCart },
-                        new PermissionRecord { SystemName = Permissions.Cart.AccessWishlist },
-                        new PermissionRecord { SystemName = Permissions.System.AccessShop }
-                    }
+                    new PermissionRecord { SystemName = Permissions.Catalog.Self },
+                    new PermissionRecord { SystemName = Permissions.Customer.Self },
+                    new PermissionRecord { SystemName = Permissions.Order.Self },
+                    new PermissionRecord { SystemName = Permissions.Promotion.Self },
+                    new PermissionRecord { SystemName = Permissions.Cms.Self },
+                    new PermissionRecord { SystemName = Permissions.Configuration.Self },
+                    new PermissionRecord { SystemName = Permissions.Configuration.CollectionGroup.Self },
+                    new PermissionRecord { SystemName = Permissions.System.Self },
+                    new PermissionRecord { SystemName = Permissions.Cart.Self },
+                    new PermissionRecord { SystemName = Permissions.Media.Self }
                 }
-            };
-        }
+            },
+            new DefaultPermissionRecord
+            {
+                CustomerRoleSystemName = SystemCustomerRoleNames.ForumModerators,
+                PermissionRecords = new[]
+                {
+                    new PermissionRecord { SystemName = Permissions.Catalog.DisplayPrice },
+                    new PermissionRecord { SystemName = Permissions.Cart.AccessShoppingCart },
+                    new PermissionRecord { SystemName = Permissions.Cart.AccessWishlist },
+                    new PermissionRecord { SystemName = Permissions.System.AccessShop }
+                }
+            },
+            new DefaultPermissionRecord
+            {
+                CustomerRoleSystemName = SystemCustomerRoleNames.Guests,
+                PermissionRecords = new[]
+                {
+                    new PermissionRecord { SystemName = Permissions.Catalog.DisplayPrice },
+                    new PermissionRecord { SystemName = Permissions.Cart.AccessShoppingCart },
+                    new PermissionRecord { SystemName = Permissions.Cart.AccessWishlist },
+                    new PermissionRecord { SystemName = Permissions.System.AccessShop }
+                }
+            },
+            new DefaultPermissionRecord
+            {
+                CustomerRoleSystemName = SystemCustomerRoleNames.Registered,
+                PermissionRecords = new[]
+                {
+                    new PermissionRecord { SystemName = Permissions.Catalog.DisplayPrice },
+                    new PermissionRecord { SystemName = Permissions.Cart.AccessShoppingCart },
+                    new PermissionRecord { SystemName = Permissions.Cart.AccessWishlist },
+                    new PermissionRecord { SystemName = Permissions.System.AccessShop }
+                }
+            }
+        };
     }
 }

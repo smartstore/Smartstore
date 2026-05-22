@@ -26,7 +26,7 @@ public class CartItemQuantityInputMapper : QuantityInputMapperBase<OrganizedShop
     private readonly CatalogSettings _catalogSettings;
 
     public CartItemQuantityInputMapper(
-        SmartDbContext db, 
+        SmartDbContext db,
         CatalogSettings catalogSettings,
         ShoppingCartSettings shoppingCartSettings)
         : base(shoppingCartSettings)

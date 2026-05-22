@@ -1,38 +1,37 @@
 ﻿using Smartstore.ComponentModel;
 
-namespace Smartstore.Core.DataExchange.Export.Internal
+namespace Smartstore.Core.DataExchange.Export.Internal;
+
+internal class DynamicEntity : HybridExpando
 {
-    internal class DynamicEntity : HybridExpando
+    public DynamicEntity(DynamicEntity dynamicEntity)
+        : this(dynamicEntity.WrappedObject)
     {
-        public DynamicEntity(DynamicEntity dynamicEntity)
-            : this(dynamicEntity.WrappedObject)
-        {
-            MergeRange(dynamicEntity);
-        }
+        MergeRange(dynamicEntity);
+    }
 
-        public DynamicEntity(object entity)
-            : base(entity)
-        {
-            base.Properties["Entity"] = entity;
-        }
+    public DynamicEntity(object entity)
+        : base(entity)
+    {
+        base.Properties["Entity"] = entity;
+    }
 
-        public void Merge(string name, object value)
-        {
-            Properties[name] = value;
-        }
+    public void Merge(string name, object value)
+    {
+        Properties[name] = value;
+    }
 
-        public void MergeRange(IDictionary<string, object> other)
+    public void MergeRange(IDictionary<string, object> other)
+    {
+        foreach (var kvp in other)
         {
-            foreach (var kvp in other)
-            {
-                Properties[kvp.Key] = kvp.Value;
-            }
+            Properties[kvp.Key] = kvp.Value;
         }
+    }
 
-        protected override bool TrySetMemberCore(string name, object value)
-        {
-            Properties[name] = value;
-            return true;
-        }
+    protected override bool TrySetMemberCore(string name, object value)
+    {
+        Properties[name] = value;
+        return true;
     }
 }

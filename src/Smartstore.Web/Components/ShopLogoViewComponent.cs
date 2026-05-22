@@ -17,7 +17,7 @@ public class ShopLogoViewComponent : SmartViewComponent
     {
         var store = Services.StoreContext.CurrentStore;
         var cacheKey = ModelCacheInvalidator.STORE_LOGO_MODEL_KEY.FormatInvariant(store.Id, Request.Scheme, Request.Host);
-        
+
         var model = await Services.Cache.GetAsync(cacheKey, async (o) =>
         {
             o.ExpiresIn(TimeSpan.FromHours(4));

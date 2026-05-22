@@ -112,7 +112,7 @@ public class GenericAttributeCollection
             {
                 return [];
             }
-            
+
             if (Entities == null)
             {
                 Reload();

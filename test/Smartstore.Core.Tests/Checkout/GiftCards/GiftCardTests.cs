@@ -7,94 +7,93 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Identity;
 using Smartstore.Test.Common;
 
-namespace Smartstore.Core.Tests.Checkout.GiftCards
+namespace Smartstore.Core.Tests.Checkout.GiftCards;
+
+[TestFixture]
+public class GiftCardTests : ServiceTestBase
 {
-    [TestFixture]
-    public class GiftCardTests : ServiceTestBase
+    IGiftCardService _giftCardService;
+    ICurrencyService _currencyService;
+
+    [SetUp]
+    public new void SetUp()
     {
-        IGiftCardService _giftCardService;
-        ICurrencyService _currencyService;
+        //base.SetUp();
 
-        [SetUp]
-        public new void SetUp()
+        _currencyService = new CurrencyService(
+            DbContext,
+            null,
+            null,
+            null,
+            new() { PrimaryCurrencyId = 1 },
+            null,
+            null)
         {
-            //base.SetUp();
+            PrimaryCurrency = new()
+        };
 
-            _currencyService = new CurrencyService(
-                DbContext,
-                null,
-                null,
-                null,
-                new() { PrimaryCurrencyId = 1 },
-                null, 
-                null)
-            {
-                PrimaryCurrency = new()
-            };
+        _giftCardService = new GiftCardService(DbContext, _currencyService);
+    }
 
-            _giftCardService = new GiftCardService(DbContext, _currencyService);
-        }
-
-        [Test]
-        public async Task Can_validate_gift_card()
+    [Test]
+    public async Task Can_validate_gift_card()
+    {
+        var customer = new Customer
         {
-            var customer = new Customer
-            {
-                Id = 1
-            };
+            Id = 1
+        };
 
-            var gc = new GiftCard
+        var gc = new GiftCard
+        {
+            Amount = 100,
+            IsGiftCardActivated = true,
+            PurchasedWithOrderItemId = 2,
+            PurchasedWithOrderItem = new()
             {
-                Amount = 100,
-                IsGiftCardActivated = true,
-                PurchasedWithOrderItemId = 2,
-                PurchasedWithOrderItem = new()
+                Id = 2,
+                OrderId = 1,
+                Order = new Order
                 {
-                    Id = 2,
-                    OrderId = 1,
-                    Order = new Order
-                    {
-                        StoreId = 1
-                    }
+                    StoreId = 1
                 }
-            };
+            }
+        };
 
-            gc.GiftCardUsageHistory.Add(new() { UsedValue = 30 });
-            gc.GiftCardUsageHistory.Add(new() { UsedValue = 20 });
-            gc.GiftCardUsageHistory.Add(new() { UsedValue = 5 });
+        gc.GiftCardUsageHistory.Add(new() { UsedValue = 30 });
+        gc.GiftCardUsageHistory.Add(new() { UsedValue = 20 });
+        gc.GiftCardUsageHistory.Add(new() { UsedValue = 5 });
 
-            // valid
-            (await _giftCardService.ValidateGiftCardAsync(gc, customer, 1)).ShouldEqual(true);
+        // valid
+        (await _giftCardService.ValidateGiftCardAsync(gc, customer, 1)).ShouldEqual(true);
 
-            // wrong store
-            (await _giftCardService.ValidateGiftCardAsync(gc, customer, 2)).ShouldEqual(false);
+        // wrong store
+        (await _giftCardService.ValidateGiftCardAsync(gc, customer, 2)).ShouldEqual(false);
 
-            // mark as not active
-            gc.IsGiftCardActivated = false;
-            (await _giftCardService.ValidateGiftCardAsync(gc, customer, 1)).ShouldEqual(false);
+        // mark as not active
+        gc.IsGiftCardActivated = false;
+        (await _giftCardService.ValidateGiftCardAsync(gc, customer, 1)).ShouldEqual(false);
 
-            // again active
-            gc.IsGiftCardActivated = true;
-            (await _giftCardService.ValidateGiftCardAsync(gc, customer, 1)).ShouldEqual(true);
+        // again active
+        gc.IsGiftCardActivated = true;
+        (await _giftCardService.ValidateGiftCardAsync(gc, customer, 1)).ShouldEqual(true);
 
-            // add usage history record
-            gc.GiftCardUsageHistory.Add(new GiftCardUsageHistory { UsedValue = 1000 });
-            (await _giftCardService.ValidateGiftCardAsync(gc, customer, 1)).ShouldEqual(false);
-        }
+        // add usage history record
+        gc.GiftCardUsageHistory.Add(new GiftCardUsageHistory { UsedValue = 1000 });
+        (await _giftCardService.ValidateGiftCardAsync(gc, customer, 1)).ShouldEqual(false);
+    }
 
-        [Test]
-        public async Task Can_calculate_gift_card_remaining_amount()
+    [Test]
+    public async Task Can_calculate_gift_card_remaining_amount()
+    {
+        var gc = new GiftCard
         {
-            var gc = new GiftCard
-            {
-                Amount = 100
-            };
+            Amount = 100
+        };
 
-            gc.GiftCardUsageHistory.Add(new() { UsedValue = 30 });
-            gc.GiftCardUsageHistory.Add(new() { UsedValue = 20 });
-            gc.GiftCardUsageHistory.Add(new() { UsedValue = 5 });
+        gc.GiftCardUsageHistory.Add(new() { UsedValue = 30 });
+        gc.GiftCardUsageHistory.Add(new() { UsedValue = 20 });
+        gc.GiftCardUsageHistory.Add(new() { UsedValue = 5 });
 
-            (await _giftCardService.GetRemainingAmountAsync(gc)).Amount.ShouldEqual(45);
-        }
+        (await _giftCardService.GetRemainingAmountAsync(gc)).Amount.ShouldEqual(45);
     }
 }

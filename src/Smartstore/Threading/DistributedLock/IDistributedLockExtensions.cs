@@ -4,7 +4,7 @@ public static class IDistributedLockExtensions
 {
     static readonly TimeSpan NoTimeout = TimeSpan.FromMilliseconds(0);
 
-    extension (IDistributedLock @lock)
+    extension(IDistributedLock @lock)
     {
         /// <inheritdoc cref="IDistributedLock.Acquire(TimeSpan, CancellationToken)"/>
         /// <summary>

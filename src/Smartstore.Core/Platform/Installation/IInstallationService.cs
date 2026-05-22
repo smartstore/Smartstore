@@ -1,40 +1,39 @@
 ﻿using Autofac;
 
-namespace Smartstore.Core.Installation
+namespace Smartstore.Core.Installation;
+
+/// <summary>
+/// Thrown when application is installed already or is currently running (hast started but not completed yet).
+/// </summary>
+public class InstallationException : Exception
 {
-    /// <summary>
-    /// Thrown when application is installed already or is currently running (hast started but not completed yet).
-    /// </summary>
-    public class InstallationException : Exception
+    public InstallationException(string message, InstallationResult result)
+        : base(message)
     {
-        public InstallationException(string message, InstallationResult result)
-            : base(message)
-        {
-            Result = Guard.NotNull(result, nameof(result));
-        }
-
-        public InstallationResult Result { get; }
+        Result = Guard.NotNull(result, nameof(result));
     }
 
-    /// <summary>
-    /// Responsible for installing the application
-    /// </summary>
-    public partial interface IInstallationService
-    {
-        Task<InstallationResult> InstallAsync(InstallationModel model, ILifetimeScope scope, CancellationToken cancelToken = default);
+    public InstallationResult Result { get; }
+}
 
-        InstallationResult GetCurrentInstallationResult();
+/// <summary>
+/// Responsible for installing the application
+/// </summary>
+public partial interface IInstallationService
+{
+    Task<InstallationResult> InstallAsync(InstallationModel model, ILifetimeScope scope, CancellationToken cancelToken = default);
 
-        string GetResource(string resourceName);
+    InstallationResult GetCurrentInstallationResult();
 
-        InstallationLanguage GetCurrentLanguage();
+    string GetResource(string resourceName);
 
-        void SaveCurrentLanguage(string languageCode);
+    InstallationLanguage GetCurrentLanguage();
 
-        IList<InstallationLanguage> GetInstallationLanguages();
+    void SaveCurrentLanguage(string languageCode);
 
-        IEnumerable<InstallationAppLanguageMetadata> GetAppLanguages();
+    IList<InstallationLanguage> GetInstallationLanguages();
 
-        Lazy<InvariantSeedData, InstallationAppLanguageMetadata> GetAppLanguage(string culture);
-    }
+    IEnumerable<InstallationAppLanguageMetadata> GetAppLanguages();
+
+    Lazy<InvariantSeedData, InstallationAppLanguageMetadata> GetAppLanguage(string culture);
 }

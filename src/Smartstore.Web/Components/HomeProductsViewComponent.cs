@@ -45,7 +45,7 @@ public class HomeProductsViewComponent : SmartViewComponent
             .OrderBy(x => x.HomePageDisplayOrder)
             .SelectSummary()
             .ToListAsync();
-        
+
         // ACL and store mapping
         products = await products
             .WhereAwait(async c => (await _aclService.AuthorizeAsync(c)) && (await _storeMappingService.AuthorizeAsync(c)))

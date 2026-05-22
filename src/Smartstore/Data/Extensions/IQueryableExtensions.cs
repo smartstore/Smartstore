@@ -21,7 +21,7 @@ public static class IQueryableExtensions
         .GetMethod(nameof(string.Substring), [typeof(int), typeof(int)]);
 
     private readonly static ConcurrentDictionary<Type, LambdaExpression> _memberInitExpressions = new();
-    
+
     #region EF reflection
 
     private readonly static FieldInfo _queryCompilerField = typeof(EntityQueryProvider).GetField("_queryCompiler", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -198,7 +198,7 @@ public static class IQueryableExtensions
         }
     }
 
-    extension (IQueryable query)
+    extension(IQueryable query)
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TContext GetDbContext<TContext>() where TContext : HookingDbContext

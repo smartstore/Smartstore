@@ -51,14 +51,14 @@ public class PaymentResponse
                 JsonValueKind.Array => JsonArray.Create(el),
                 // primitives + null
                 JsonValueKind.Undefined => null,
-                _ => JsonValue.Create((JsonElement?)el)          
+                _ => JsonValue.Create((JsonElement?)el)
             },
 
             string s => ParseJsonStringOrThrow(s),
 
             _ => null
         };
-        
+
         static JsonNode? ParseJsonStringOrThrow(string s)
         {
             s = s.Trim();

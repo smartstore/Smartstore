@@ -103,7 +103,8 @@ public class StripeElementsProvider : PaymentMethodBase, IConfigurable
             throw new Exception($"{nameof(processPaymentRequest.OrderGuid)} is missing.");
         }
 
-        var result = new ProcessPaymentResult { 
+        var result = new ProcessPaymentResult
+        {
             NewPaymentStatus = PaymentStatus.Pending
         };
 

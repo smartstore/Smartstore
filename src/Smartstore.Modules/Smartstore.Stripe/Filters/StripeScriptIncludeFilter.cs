@@ -18,9 +18,9 @@ public class StripeScriptIncludeFilter : IAsyncActionFilter
     private readonly ICookieConsentManager _cookieConsentManager;
 
     public StripeScriptIncludeFilter(
-        ICookieConsentManager cookieConsentManager, 
-        StripeSettings settings, 
-        IWidgetProvider widgetProvider, 
+        ICookieConsentManager cookieConsentManager,
+        StripeSettings settings,
+        IWidgetProvider widgetProvider,
         StripeHelper stripeHelper)
     {
         _settings = settings;
@@ -51,7 +51,7 @@ public class StripeScriptIncludeFilter : IAsyncActionFilter
 
         _widgetProvider.RegisterHtml("scripts", new HtmlString("<script src=\"/Modules/Smartstore.Stripe/smartstore.stripe.js\"></script>"));
         _widgetProvider.RegisterHtml("head", scriptIncludeTag);
-        
+
         await next();
     }
 }

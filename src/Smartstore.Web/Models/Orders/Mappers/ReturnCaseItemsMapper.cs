@@ -146,8 +146,8 @@ internal class ReturnCaseItemsMapper : IMapper<Order, ReturnCaseItemsModel>
             to.Items.Add(item);
         }
 
-        to.HasSingleItemToReturn = from.OrderItems.Count == 1 
-            && to.Items.Count == 1 
+        to.HasSingleItemToReturn = from.OrderItems.Count == 1
+            && to.Items.Count == 1
             && to.Items[0].MaxReturnQuantity == 1;
         if (to.HasSingleItemToReturn)
         {

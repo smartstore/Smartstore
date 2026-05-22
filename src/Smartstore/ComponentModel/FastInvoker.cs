@@ -2,225 +2,224 @@
 using System.Reflection;
 using Smartstore.Utilities;
 
-namespace Smartstore.ComponentModel
+namespace Smartstore.ComponentModel;
+
+public class FastInvoker
 {
-    public class FastInvoker
+    private static readonly ConcurrentDictionary<MethodKey, FastInvoker> _invokersCache = new();
+
+    private MethodInvoker _invoker;
+
+    public FastInvoker(MethodInfo methodInfo)
     {
-        private static readonly ConcurrentDictionary<MethodKey, FastInvoker> _invokersCache = new();
+        Guard.NotNull(methodInfo);
 
-        private MethodInvoker _invoker;
+        Method = methodInfo;
+        ParameterTypes = methodInfo.GetParameters().Select(p => p.ParameterType).ToArray();
+    }
 
-        public FastInvoker(MethodInfo methodInfo)
+    /// <summary>
+    /// Gets the backing <see cref="MethodInfo"/>.
+    /// </summary>
+    public MethodInfo Method { get; private set; }
+
+    /// <summary>
+    /// Gets the parameter types from the backing <see cref="MethodInfo"/>
+    /// </summary>
+    public Type[] ParameterTypes { get; private set; }
+
+    /// <summary>
+    /// Gets the method invoker.
+    /// </summary>
+    public MethodInvoker Invoker
+    {
+        get
         {
-            Guard.NotNull(methodInfo);
-
-            Method = methodInfo;
-            ParameterTypes = methodInfo.GetParameters().Select(p => p.ParameterType).ToArray();
-        }
-
-        /// <summary>
-        /// Gets the backing <see cref="MethodInfo"/>.
-        /// </summary>
-        public MethodInfo Method { get; private set; }
-
-        /// <summary>
-        /// Gets the parameter types from the backing <see cref="MethodInfo"/>
-        /// </summary>
-        public Type[] ParameterTypes { get; private set; }
-
-        /// <summary>
-        /// Gets the method invoker.
-        /// </summary>
-        public MethodInvoker Invoker
-        {
-            get
+            if (_invoker == null)
             {
-                if (_invoker == null)
-                {
-                    Interlocked.Exchange(ref _invoker, MethodInvoker.Create(Method));
-                }
-
-                return _invoker;
-            }
-        }
-
-        /// <summary>
-        /// Invokes the method using the specified parameters.
-        /// </summary>
-        /// <returns>The method invocation result.</returns>
-        public object Invoke(object obj, params object[] parameters)
-        {
-            return Invoker.Invoke(obj, parameters.AsSpan());
-        }
-
-        #region Static
-
-        /// <summary>
-        /// Invokes a method using the specified object and parameter instances.
-        /// </summary>
-        /// <param name="obj">The objectinstance</param>
-        /// <param name="methodName">Method name</param>
-        /// <param name="parameterTypes">Argument types of the matching method overload (in exact order)</param>
-        /// <param name="parameters">Parameter instances to pass to invocation</param>
-        /// <returns>The method invocation result.</returns>
-        public static object Invoke(object obj, string methodName, Type[] parameterTypes, object[] parameters)
-        {
-            Guard.NotNull(obj);
-
-            FastInvoker invoker;
-
-            if (parameterTypes == null || parameterTypes.Length == 0)
-            {
-                invoker = GetInvoker(obj.GetType(), methodName);
-            }
-            else
-            {
-                invoker = GetInvoker(obj.GetType(), methodName, parameterTypes);
+                Interlocked.Exchange(ref _invoker, MethodInvoker.Create(Method));
             }
 
-            return invoker.Invoke(obj, parameters ?? []);
+            return _invoker;
+        }
+    }
+
+    /// <summary>
+    /// Invokes the method using the specified parameters.
+    /// </summary>
+    /// <returns>The method invocation result.</returns>
+    public object Invoke(object obj, params object[] parameters)
+    {
+        return Invoker.Invoke(obj, parameters.AsSpan());
+    }
+
+    #region Static
+
+    /// <summary>
+    /// Invokes a method using the specified object and parameter instances.
+    /// </summary>
+    /// <param name="obj">The objectinstance</param>
+    /// <param name="methodName">Method name</param>
+    /// <param name="parameterTypes">Argument types of the matching method overload (in exact order)</param>
+    /// <param name="parameters">Parameter instances to pass to invocation</param>
+    /// <returns>The method invocation result.</returns>
+    public static object Invoke(object obj, string methodName, Type[] parameterTypes, object[] parameters)
+    {
+        Guard.NotNull(obj);
+
+        FastInvoker invoker;
+
+        if (parameterTypes == null || parameterTypes.Length == 0)
+        {
+            invoker = GetInvoker(obj.GetType(), methodName);
+        }
+        else
+        {
+            invoker = GetInvoker(obj.GetType(), methodName, parameterTypes);
         }
 
-        /// <summary>
-        /// Creates and caches a fast method invoker.
-        /// </summary>
-        /// <param name="methodName">Name of method to create an invoker for.</param>
-        /// <param name="argTypes">Argument types of method to create an invoker for.</param>
-        /// <returns>The fast method invoker.</returns>
-        public static FastInvoker GetInvoker<T>(string methodName, params Type[] argTypes)
+        return invoker.Invoke(obj, parameters ?? []);
+    }
+
+    /// <summary>
+    /// Creates and caches a fast method invoker.
+    /// </summary>
+    /// <param name="methodName">Name of method to create an invoker for.</param>
+    /// <param name="argTypes">Argument types of method to create an invoker for.</param>
+    /// <returns>The fast method invoker.</returns>
+    public static FastInvoker GetInvoker<T>(string methodName, params Type[] argTypes)
+    {
+        return GetInvoker(typeof(T), methodName, argTypes);
+    }
+
+    /// <summary>
+    /// Creates and caches a fast method invoker.
+    /// </summary>
+    /// <param name="type">The type to extract fast method invoker for.</param>
+    /// <param name="methodName">Name of method to create an invoker for.</param>
+    /// <param name="argTypes">Argument types of method to create an invoker for.</param>
+    /// <returns>The fast method invoker.</returns>
+    public static FastInvoker GetInvoker(Type type, string methodName, params Type[] argTypes)
+    {
+        Guard.NotNull(type);
+        Guard.NotEmpty(methodName);
+
+        var cacheKey = MethodKey.Create(type, methodName, argTypes);
+
+        var invoker = _invokersCache.GetOrAdd(cacheKey, key =>
         {
-            return GetInvoker(typeof(T), methodName, argTypes);
+            var method = FindMatchingMethod(type, methodName, argTypes);
+            if (method == null)
+            {
+                throw new MethodAccessException("Could not find a matching method '{0}' in type {1}.".FormatInvariant(methodName, type));
+            }
+
+            return new FastInvoker(method);
+        });
+
+        return invoker;
+    }
+
+    /// <summary>
+    /// Creates and caches a fast method invoker.
+    /// </summary>
+    /// <param name="method">Method info instance to create an invoker for.</param>
+    /// <returns>The fast method invoker.</returns>
+    public static FastInvoker GetInvoker(MethodInfo method)
+    {
+        Guard.NotNull(method);
+
+        return _invokersCache.GetOrAdd(MethodKey.Create(method), key =>
+        {
+            return new FastInvoker(method);
+        });
+    }
+
+    private static MethodInfo FindMatchingMethod(Type type, string methodName, Type[] argTypes)
+    {
+        var method = argTypes == null || argTypes.Length == 0
+            ? type.GetMethod(methodName)
+            : type.GetMethod(
+                methodName,
+                BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly,
+                null,
+                argTypes ?? [],
+                null);
+
+        return method;
+    }
+
+    #endregion
+
+    abstract class MethodKey
+    {
+        public override bool Equals(object obj) =>
+            throw new NotImplementedException();
+
+        public override int GetHashCode() =>
+            throw new NotImplementedException();
+
+        public static bool operator ==(MethodKey left, MethodKey right) =>
+            object.Equals(left, right);
+
+        public static bool operator !=(MethodKey left, MethodKey right) =>
+            !(left == right);
+
+        internal static MethodKey Create(Type type, string methodName, IEnumerable<Type> parameterTypes)
+        {
+            return new HashMethodKey(type, methodName, parameterTypes);
         }
 
-        /// <summary>
-        /// Creates and caches a fast method invoker.
-        /// </summary>
-        /// <param name="type">The type to extract fast method invoker for.</param>
-        /// <param name="methodName">Name of method to create an invoker for.</param>
-        /// <param name="argTypes">Argument types of method to create an invoker for.</param>
-        /// <returns>The fast method invoker.</returns>
-        public static FastInvoker GetInvoker(Type type, string methodName, params Type[] argTypes)
+        internal static MethodKey Create(MethodInfo method)
         {
-            Guard.NotNull(type);
-            Guard.NotEmpty(methodName);
+            return new MethodInfoKey(method);
+        }
+    }
 
-            var cacheKey = MethodKey.Create(type, methodName, argTypes);
+    class HashMethodKey : MethodKey, IEquatable<HashMethodKey>
+    {
+        private readonly int _hash;
 
-            var invoker = _invokersCache.GetOrAdd(cacheKey, key => 
-            {
-                var method = FindMatchingMethod(type, methodName, argTypes);
-                if (method == null)
-                {
-                    throw new MethodAccessException("Could not find a matching method '{0}' in type {1}.".FormatInvariant(methodName, type));
-                }
-
-                return new FastInvoker(method);
-            });
-
-            return invoker;
+        public HashMethodKey(Type type, string methodName, IEnumerable<Type> parameterTypes)
+        {
+            _hash = HashCodeCombiner.Start().Add(type).Add(methodName).Add(parameterTypes).CombinedHash;
         }
 
-        /// <summary>
-        /// Creates and caches a fast method invoker.
-        /// </summary>
-        /// <param name="method">Method info instance to create an invoker for.</param>
-        /// <returns>The fast method invoker.</returns>
-        public static FastInvoker GetInvoker(MethodInfo method)
-        {
-            Guard.NotNull(method);
+        public override bool Equals(object obj) =>
+            this.Equals(obj as HashMethodKey);
 
-            return _invokersCache.GetOrAdd(MethodKey.Create(method), key =>
-            {
-                return new FastInvoker(method);
-            });
+        public bool Equals(HashMethodKey other)
+        {
+            if (other == null)
+                return false;
+
+            return this._hash == other._hash;
         }
 
-        private static MethodInfo FindMatchingMethod(Type type, string methodName, Type[] argTypes)
+        public override int GetHashCode()
         {
-            var method = argTypes == null || argTypes.Length == 0
-                ? type.GetMethod(methodName)
-                : type.GetMethod(
-                    methodName,
-                    BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly,
-                    null,
-                    argTypes ?? [],
-                    null);
+            return _hash;
+        }
+    }
 
-            return method;
+    class MethodInfoKey(MethodInfo method) : MethodKey, IEquatable<MethodInfoKey>
+    {
+        private readonly MethodInfo _method = method;
+
+        public override bool Equals(object obj) =>
+            this.Equals(obj as MethodInfoKey);
+
+        public bool Equals(MethodInfoKey other)
+        {
+            if (other == null)
+                return false;
+
+            return this._method == other._method;
         }
 
-        #endregion
-
-        abstract class MethodKey
+        public override int GetHashCode()
         {
-            public override bool Equals(object obj) =>
-                throw new NotImplementedException();
-
-            public override int GetHashCode() =>
-                throw new NotImplementedException();
-
-            public static bool operator ==(MethodKey left, MethodKey right) =>
-                object.Equals(left, right);
-
-            public static bool operator !=(MethodKey left, MethodKey right) =>
-                !(left == right);
-
-            internal static MethodKey Create(Type type, string methodName, IEnumerable<Type> parameterTypes)
-            {
-                return new HashMethodKey(type, methodName, parameterTypes);
-            }
-
-            internal static MethodKey Create(MethodInfo method)
-            {
-                return new MethodInfoKey(method);
-            }
-        }
-
-        class HashMethodKey : MethodKey, IEquatable<HashMethodKey>
-        {
-            private readonly int _hash;
-
-            public HashMethodKey(Type type, string methodName, IEnumerable<Type> parameterTypes)
-            {
-                _hash = HashCodeCombiner.Start().Add(type).Add(methodName).Add(parameterTypes).CombinedHash;
-            }
-
-            public override bool Equals(object obj) =>
-                this.Equals(obj as HashMethodKey);
-
-            public bool Equals(HashMethodKey other)
-            {
-                if (other == null)
-                    return false;
-
-                return this._hash == other._hash;
-            }
-
-            public override int GetHashCode()
-            {
-                return _hash;
-            }
-        }
-
-        class MethodInfoKey(MethodInfo method) : MethodKey, IEquatable<MethodInfoKey>
-        {
-            private readonly MethodInfo _method = method;
-
-            public override bool Equals(object obj) =>
-                this.Equals(obj as MethodInfoKey);
-
-            public bool Equals(MethodInfoKey other)
-            {
-                if (other == null)
-                    return false;
-
-                return this._method == other._method;
-            }
-
-            public override int GetHashCode()
-            {
-                return _method.GetHashCode();
-            }
+            return _method.GetHashCode();
         }
     }
 }

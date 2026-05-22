@@ -133,7 +133,7 @@ public sealed class BasicAuthenticationHandler : AuthenticationHandler<BasicAuth
     private AuthenticateResult Failure(
         AccessDeniedReason reason,
         WebApiUser user = null,
-        string publicKey = null, 
+        string publicKey = null,
         int statusCode = Status401Unauthorized)
     {
         var reasonId = ((int)reason).ToString();
@@ -186,7 +186,7 @@ public sealed class BasicAuthenticationHandler : AuthenticationHandler<BasicAuth
 
     private AuthenticateResult Failure(
         string message,
-        Exception ex = null, 
+        Exception ex = null,
         int statusCode = Status401Unauthorized,
         ICollection<ODataErrorDetail> details = null)
     {

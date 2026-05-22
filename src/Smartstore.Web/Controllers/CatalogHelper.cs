@@ -553,7 +553,7 @@ public partial class CatalogHelper
         if (id == 0) return null;
 
         var key = $"CatalogHelper.DeliveryTime.{id}";
-        return await _httpRequest.HttpContext.GetItemAsync(key, async () => 
+        return await _httpRequest.HttpContext.GetItemAsync(key, async () =>
         {
             return await _db.DeliveryTimes.FindByIdAsync(id, true);
         });

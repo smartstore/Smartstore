@@ -439,7 +439,7 @@ public class CurrencyController : AdminController
 
         if (roundOrderTotalPaymentMethods.Length > 0)
         {
-            var paymentProviders = await _paymentService.LoadAllPaymentProvidersAsync();                
+            var paymentProviders = await _paymentService.LoadAllPaymentProvidersAsync();
             var roundOrderTotalProviders = paymentProviders
                 .Where(x => roundOrderTotalPaymentMethods.Contains(x.Metadata.SystemName, StringComparer.OrdinalIgnoreCase))
                 .ToArray();

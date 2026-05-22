@@ -1,10 +1,9 @@
-﻿namespace Smartstore.Core.Localization
+﻿namespace Smartstore.Core.Localization;
+
+/// <summary>
+/// Represents a localized entity
+/// </summary>
+public interface ILocalizedEntity : INamedEntity
 {
-    /// <summary>
-    /// Represents a localized entity
-    /// </summary>
-    public interface ILocalizedEntity : INamedEntity
-    {
-        int Id { get; }
-    }
+    int Id { get; }
 }

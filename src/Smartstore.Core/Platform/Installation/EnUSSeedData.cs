@@ -1,10 +1,9 @@
 ﻿using Smartstore.Core.Configuration;
 
-namespace Smartstore.Core.Installation
+namespace Smartstore.Core.Installation;
+
+public class EnUSSeedData : InvariantSeedData
 {
-    public class EnUSSeedData : InvariantSeedData
-    {
-        protected override void Alter(IList<ISettings> settings)
-            => base.Alter(settings);
-    }
+    protected override void Alter(IList<ISettings> settings)
+        => base.Alter(settings);
 }

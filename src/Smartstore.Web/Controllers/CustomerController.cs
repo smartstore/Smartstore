@@ -1238,8 +1238,8 @@ public class CustomerController : PublicController
             .OrderByDescending(x => x.CreatedOnUtc)
             .SelectMany(x => x.OrderItems.Select(y => y.Product))
             .Where(predicate)
-            .FirstOrDefaultAsync() 
-            ?? await _db.Products.AsNoTracking().Where(predicate).FirstOrDefaultAsync() 
+            .FirstOrDefaultAsync()
+            ?? await _db.Products.AsNoTracking().Where(predicate).FirstOrDefaultAsync()
             ?? await _db.Products.FirstOrDefaultAsync();
 
         return product;

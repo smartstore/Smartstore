@@ -2,41 +2,40 @@
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 
-namespace Smartstore.Core.Localization.Rules
+namespace Smartstore.Core.Localization.Rules;
+
+public partial class LanguageRuleOptionsProvider : IRuleOptionsProvider
 {
-    public partial class LanguageRuleOptionsProvider : IRuleOptionsProvider
+    private readonly SmartDbContext _db;
+
+    public LanguageRuleOptionsProvider(SmartDbContext db)
     {
-        private readonly SmartDbContext _db;
+        _db = db;
+    }
 
-        public LanguageRuleOptionsProvider(SmartDbContext db)
+    public int Order => 0;
+
+    public bool Matches(string dataSource)
+        => dataSource == KnownRuleOptionDataSourceNames.Language;
+
+    public async Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
+    {
+        if (context.DataSource != KnownRuleOptionDataSourceNames.Language)
         {
-            _db = db;
+            return null;
         }
 
-        public int Order => 0;
+        var languages = await _db.Languages
+            .AsNoTracking()
+            .ApplyStandardFilter(true)
+            .ToListAsync();
 
-        public bool Matches(string dataSource)
-            => dataSource == KnownRuleOptionDataSourceNames.Language;
-
-        public async Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
+        var options = languages.Select(x => new RuleValueSelectListOption
         {
-            if (context.DataSource != KnownRuleOptionDataSourceNames.Language)
-            {
-                return null;
-            }
+            Value = x.Id.ToString(),
+            Text = x.GetLocalized(x => x.Name)
+        });
 
-            var languages = await _db.Languages
-                .AsNoTracking()
-                .ApplyStandardFilter(true)
-                .ToListAsync();
-
-            var options = languages.Select(x => new RuleValueSelectListOption
-            {
-                Value = x.Id.ToString(),
-                Text = x.GetLocalized(x => x.Name)
-            });
-
-            return RuleOptionsResult.Create(context, options);
-        }
+        return RuleOptionsResult.Create(context, options);
     }
 }

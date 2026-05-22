@@ -4,8 +4,8 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using Microsoft.AspNetCore.Html;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Html;
 using Sys = System;
 
 namespace Smartstore.Core.Common;
@@ -77,7 +77,7 @@ public readonly struct Money : IHtmlContent, IConvertible, IFormattable, ICompar
     /// </remarks>
     internal decimal RoundedAmount
     {
-        get => decimal.Round(Amount, DecimalDigits, 
+        get => decimal.Round(Amount, DecimalDigits,
             Currency == null || Currency.MidpointRounding == CurrencyMidpointRounding.AwayFromZero ? MidpointRounding.AwayFromZero : MidpointRounding.ToEven);
     }
 
@@ -275,7 +275,7 @@ public readonly struct Money : IHtmlContent, IConvertible, IFormattable, ICompar
     {
         if (Currency == null)
         {
-            return postFormat == null 
+            return postFormat == null
                 ? RoundedAmount.ToStringInvariant()
                 : string.Format(postFormat, RoundedAmount.ToStringInvariant());
         }
@@ -306,7 +306,7 @@ public readonly struct Money : IHtmlContent, IConvertible, IFormattable, ICompar
                     return clone;
                 });
             }
-            
+
             formatted = RoundedAmount.ToString("C", nf);
         }
 

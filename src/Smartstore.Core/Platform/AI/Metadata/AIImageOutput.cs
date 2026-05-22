@@ -16,12 +16,12 @@ public record AIImageOutput
     /// <summary>
     /// Gets the default configuration for AI image output.
     /// </summary>
-    public static AIImageOutput Default => new() 
-    { 
-        AspectRatios = ["1:1"], 
-        Resolutions = ["1K"], 
-        Qualities = ["auto"], 
-        Formats = ["jpeg"] 
+    public static AIImageOutput Default => new()
+    {
+        AspectRatios = ["1:1"],
+        Resolutions = ["1K"],
+        Qualities = ["auto"],
+        Formats = ["jpeg"]
     };
 
     /// <summary>
@@ -70,8 +70,8 @@ public record AIImageOutput
     public bool OmitDefault { get; set; }
 
     public ImageAspectRatio FindSupportedAspectRatio(
-        ImageAspectRatio? attemptedRatio, 
-        ImageOrientation defaultOrientation, 
+        ImageAspectRatio? attemptedRatio,
+        ImageOrientation defaultOrientation,
         out bool isDefault)
     {
         isDefault = false;

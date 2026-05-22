@@ -23,7 +23,7 @@ public class WebApiAdminController : AdminController
     private readonly CustomerSettings _customerSettings;
 
     public WebApiAdminController(
-        SmartDbContext db, 
+        SmartDbContext db,
         IWebApiService apiService,
         Lazy<IConfigureOptions<ODataOptions>> odataOptionsConfigurer,
         IOptions<ODataOptions> odataOptions,

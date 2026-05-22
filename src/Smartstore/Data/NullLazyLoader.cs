@@ -1,32 +1,31 @@
 ﻿using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Smartstore.Data
+namespace Smartstore.Data;
+
+internal sealed class NullLazyLoader : ILazyLoader
 {
-    internal sealed class NullLazyLoader : ILazyLoader
+    private NullLazyLoader()
     {
-        private NullLazyLoader()
-        {
-        }
+    }
 
-        public static NullLazyLoader Instance { get; } = new NullLazyLoader();
+    public static NullLazyLoader Instance { get; } = new NullLazyLoader();
 
-        public void SetLoaded(object entity, [CallerMemberName] string navigationName = "", bool loaded = true)
-        {
-        }
+    public void SetLoaded(object entity, [CallerMemberName] string navigationName = "", bool loaded = true)
+    {
+    }
 
-        public bool IsLoaded(object entity, [CallerMemberName] string navigationName = "")
-            => true;
+    public bool IsLoaded(object entity, [CallerMemberName] string navigationName = "")
+        => true;
 
-        public void Load(object entity, [CallerMemberName] string navigationName = "")
-        {
-        }
+    public void Load(object entity, [CallerMemberName] string navigationName = "")
+    {
+    }
 
-        public Task LoadAsync(object entity, CancellationToken cancellationToken = default, [CallerMemberName] string navigationName = "")
-            => Task.CompletedTask;
+    public Task LoadAsync(object entity, CancellationToken cancellationToken = default, [CallerMemberName] string navigationName = "")
+        => Task.CompletedTask;
 
-        public void Dispose()
-        {
-        }
+    public void Dispose()
+    {
     }
 }

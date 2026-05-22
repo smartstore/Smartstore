@@ -8,82 +8,81 @@ using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 using Smartstore.Net;
 
-namespace Smartstore.Web.Razor
+namespace Smartstore.Web.Razor;
+
+public class SmartFileVersionProvider : IFileVersionProvider
 {
-    public class SmartFileVersionProvider : IFileVersionProvider
+    private const string VersionKey = "v";
+
+    private readonly IFileProvider _fileProvider;
+    private readonly IMemoryCache _cache;
+
+    public SmartFileVersionProvider(
+        IAssetFileProvider assetFileProvider,
+        TagHelperMemoryCacheProvider cacheProvider)
     {
-        private const string VersionKey = "v";
+        _fileProvider = assetFileProvider;
+        _cache = cacheProvider.Cache;
+    }
 
-        private readonly IFileProvider _fileProvider;
-        private readonly IMemoryCache _cache;
+    public string AddFileVersionToPath(PathString requestPathBase, string path)
+    {
+        var resolvedPath = path;
 
-        public SmartFileVersionProvider(
-            IAssetFileProvider assetFileProvider, 
-            TagHelperMemoryCacheProvider cacheProvider)
+        var queryStringOrFragmentStartIndex = path.AsSpan().IndexOfAny('?', '#');
+        if (queryStringOrFragmentStartIndex != -1)
         {
-            _fileProvider = assetFileProvider;
-            _cache = cacheProvider.Cache;
+            resolvedPath = path[..queryStringOrFragmentStartIndex];
         }
 
-        public string AddFileVersionToPath(PathString requestPathBase, string path)
+        if (Uri.TryCreate(resolvedPath, UriKind.Absolute, out var uri) && !uri.IsFile)
         {
-            var resolvedPath = path;
+            // Don't append version if the path is absolute.
+            return path;
+        }
 
-            var queryStringOrFragmentStartIndex = path.AsSpan().IndexOfAny('?', '#');
-            if (queryStringOrFragmentStartIndex != -1)
-            {
-                resolvedPath = path[..queryStringOrFragmentStartIndex];
-            }
-
-            if (Uri.TryCreate(resolvedPath, UriKind.Absolute, out var uri) && !uri.IsFile)
-            {
-                // Don't append version if the path is absolute.
-                return path;
-            }
-
-            if (_cache.TryGetValue<string>(path, out var value) && value is not null)
-            {
-                return value;
-            }
-
-            var cacheEntryOptions = new MemoryCacheEntryOptions();
-            cacheEntryOptions.AddExpirationToken(_fileProvider.Watch(resolvedPath));
-            var fileInfo = _fileProvider.GetFileInfo(resolvedPath);
-
-            if (!fileInfo.Exists &&
-                requestPathBase.HasValue &&
-                resolvedPath.StartsWithNoCase(requestPathBase.Value))
-            {
-                var requestPathBaseRelativePath = resolvedPath.Substring(requestPathBase.Value.Length);
-                cacheEntryOptions.AddExpirationToken(_fileProvider.Watch(requestPathBaseRelativePath));
-                fileInfo = _fileProvider.GetFileInfo(requestPathBaseRelativePath);
-            }
-
-            if (fileInfo.Exists)
-            {
-                value = QueryHelpers.AddQueryString(path, VersionKey, GetHashForFile(fileInfo));
-            }
-            else
-            {
-                // if the file is not in the current server.
-                value = path;
-            }
-
-            cacheEntryOptions.SetSize(value.Length * sizeof(char));
-            _cache.Set(path, value, cacheEntryOptions);
+        if (_cache.TryGetValue<string>(path, out var value) && value is not null)
+        {
             return value;
         }
 
-        private static string GetHashForFile(IFileInfo fileInfo)
+        var cacheEntryOptions = new MemoryCacheEntryOptions();
+        cacheEntryOptions.AddExpirationToken(_fileProvider.Watch(resolvedPath));
+        var fileInfo = _fileProvider.GetFileInfo(resolvedPath);
+
+        if (!fileInfo.Exists &&
+            requestPathBase.HasValue &&
+            resolvedPath.StartsWithNoCase(requestPathBase.Value))
         {
-            if (fileInfo is IFileHashProvider hashProvider)
-            {
-                return hashProvider.GetFileHashAsync().Await().ToString("x");
-            }
-            else
-            {
-                return ETagUtility.GenerateETag(fileInfo.LastModified, fileInfo.Length, null, true);
-            }
+            var requestPathBaseRelativePath = resolvedPath.Substring(requestPathBase.Value.Length);
+            cacheEntryOptions.AddExpirationToken(_fileProvider.Watch(requestPathBaseRelativePath));
+            fileInfo = _fileProvider.GetFileInfo(requestPathBaseRelativePath);
+        }
+
+        if (fileInfo.Exists)
+        {
+            value = QueryHelpers.AddQueryString(path, VersionKey, GetHashForFile(fileInfo));
+        }
+        else
+        {
+            // if the file is not in the current server.
+            value = path;
+        }
+
+        cacheEntryOptions.SetSize(value.Length * sizeof(char));
+        _cache.Set(path, value, cacheEntryOptions);
+        return value;
+    }
+
+    private static string GetHashForFile(IFileInfo fileInfo)
+    {
+        if (fileInfo is IFileHashProvider hashProvider)
+        {
+            return hashProvider.GetFileHashAsync().Await().ToString("x");
+        }
+        else
+        {
+            return ETagUtility.GenerateETag(fileInfo.LastModified, fileInfo.Length, null, true);
         }
     }
 }

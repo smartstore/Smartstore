@@ -2,58 +2,57 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core.Web;
 
-namespace Smartstore.Core.Security
+namespace Smartstore.Core.Security;
+
+/// <summary>
+/// Checks whether captcha is valid and - if not - outputs a notification.
+/// </summary>
+public class ValidateHoneypotAttribute : TypeFilterAttribute
 {
-    /// <summary>
-    /// Checks whether captcha is valid and - if not - outputs a notification.
-    /// </summary>
-    public class ValidateHoneypotAttribute : TypeFilterAttribute
+    public ValidateHoneypotAttribute()
+        : base(typeof(ValidateHoneypotFilter))
     {
-        public ValidateHoneypotAttribute()
-            : base(typeof(ValidateHoneypotFilter))
+    }
+
+    class ValidateHoneypotFilter : IAsyncResourceFilter
+    {
+        private readonly HoneypotProtector _honeypotProtector;
+        private readonly SecuritySettings _securitySettings;
+        private readonly IWebHelper _webHelper;
+        private readonly ILogger _logger;
+
+        public ValidateHoneypotFilter(
+            HoneypotProtector honeypotProtector,
+            SecuritySettings securitySettings,
+            IWebHelper webHelper,
+            ILogger<ValidateHoneypotFilter> logger)
         {
+            _honeypotProtector = honeypotProtector;
+            _securitySettings = securitySettings;
+            _webHelper = webHelper;
+            _logger = logger;
         }
 
-        class ValidateHoneypotFilter : IAsyncResourceFilter
+        public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
         {
-            private readonly HoneypotProtector _honeypotProtector;
-            private readonly SecuritySettings _securitySettings;
-            private readonly IWebHelper _webHelper;
-            private readonly ILogger _logger;
-
-            public ValidateHoneypotFilter(
-                HoneypotProtector honeypotProtector,
-                SecuritySettings securitySettings,
-                IWebHelper webHelper,
-                ILogger<ValidateHoneypotFilter> logger)
+            if (!_securitySettings.EnableHoneypotProtection)
             {
-                _honeypotProtector = honeypotProtector;
-                _securitySettings = securitySettings;
-                _webHelper = webHelper;
-                _logger = logger;
+                await next();
+                return;
             }
 
-            public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
+            var isBot = _honeypotProtector.IsBot();
+            if (!isBot)
             {
-                if (!_securitySettings.EnableHoneypotProtection)
-                {
-                    await next();
-                    return;
-                }
+                await next();
+                return;
+            }
+            else
+            {
+                _logger.Warn("Honeypot detected a bot and rejected the request.");
 
-                var isBot = _honeypotProtector.IsBot();
-                if (!isBot)
-                {
-                    await next();
-                    return;
-                }
-                else
-                {
-                    _logger.Warn("Honeypot detected a bot and rejected the request.");
-
-                    var redirectUrl = _webHelper.GetCurrentPageUrl(true);
-                    context.Result = new RedirectResult(redirectUrl);
-                }
+                var redirectUrl = _webHelper.GetCurrentPageUrl(true);
+                context.Result = new RedirectResult(redirectUrl);
             }
         }
     }

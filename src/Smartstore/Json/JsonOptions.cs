@@ -55,7 +55,7 @@ public static class SmartJsonOptions
 
         // NSJ: MaxDepth
         MaxDepth = 32,
-        
+
         // NSJ default
         ReadCommentHandling = JsonCommentHandling.Skip,
 
@@ -248,7 +248,7 @@ public static class SmartJsonOptions
                 if (target.Converters.Contains(converter))
                     continue;
 
-                if (target.Converters.Any(c => c.Type == converter.Type)) 
+                if (target.Converters.Any(c => c.Type == converter.Type))
                     continue;
 
                 target.Converters.Add(converter);

@@ -5,184 +5,183 @@ using Smartstore.Core.Localization;
 using Smartstore.Json;
 using Smartstore.Json.Polymorphy;
 
-namespace Smartstore.Core.Content.Menus
+namespace Smartstore.Core.Content.Menus;
+
+public static class MenuItemExtensions
 {
-    public static class MenuItemExtensions
+    public static IEnumerable<TreeNode<MenuItem>> GetBreadcrumb(this TreeNode<MenuItem> node)
     {
-        public static IEnumerable<TreeNode<MenuItem>> GetBreadcrumb(this TreeNode<MenuItem> node)
-        {
-            Guard.NotNull(node);
+        Guard.NotNull(node);
 
-            return node.Trail.Where(x => !x.IsRoot);
+        return node.Trail.Where(x => !x.IsRoot);
+    }
+
+    public static string GetItemText(this TreeNode<MenuItem> node, Localizer localizer)
+    {
+        string result = null;
+
+        if (node.Value.ResKey.HasValue())
+        {
+            result = localizer(node.Value.ResKey).Value;
         }
 
-        public static string GetItemText(this TreeNode<MenuItem> node, Localizer localizer)
+        if (!result.HasValue() || result.EqualsNoCase(node.Value.ResKey))
         {
-            string result = null;
-
-            if (node.Value.ResKey.HasValue())
-            {
-                result = localizer(node.Value.ResKey).Value;
-            }
-
-            if (!result.HasValue() || result.EqualsNoCase(node.Value.ResKey))
-            {
-                result = node.Value.Text;
-            }
-
-            return result;
+            result = node.Value.Text;
         }
 
-        /// <summary>
-        /// Gets the state of <c>node</c> within the passed <c>currentPath</c>, which is the navigation breadcrumb.
-        /// </summary>
-        /// <param name="node">The node to get the state for</param>
-        /// <param name="currentPath">The current path/breadcrumb</param>
-        /// <returns>
-        ///		<see cref="NodePathState" /> enumeration indicating whether the node is in the current path (<c>Selected</c> or <c>Expanded</c>)
-        ///		and whether it has children (<c>Parent</c>)
-        ///	</returns>
-        public static NodePathState GetNodePathState(this TreeNode<MenuItem> node, IEnumerable<TreeNode<MenuItem>> currentPath)
+        return result;
+    }
+
+    /// <summary>
+    /// Gets the state of <c>node</c> within the passed <c>currentPath</c>, which is the navigation breadcrumb.
+    /// </summary>
+    /// <param name="node">The node to get the state for</param>
+    /// <param name="currentPath">The current path/breadcrumb</param>
+    /// <returns>
+    ///		<see cref="NodePathState" /> enumeration indicating whether the node is in the current path (<c>Selected</c> or <c>Expanded</c>)
+    ///		and whether it has children (<c>Parent</c>)
+    ///	</returns>
+    public static NodePathState GetNodePathState(this TreeNode<MenuItem> node, IEnumerable<TreeNode<MenuItem>> currentPath)
+    {
+        return GetNodePathState(node, currentPath.Select(x => x.Value).ToList());
+    }
+
+    /// <summary>
+    /// Gets the state of <c>node</c> within the passed <c>currentPath</c>, which is the navigation breadcrumb.
+    /// </summary>
+    /// <param name="node">The node to get the state for</param>
+    /// <param name="currentPath">The current path/breadcrumb</param>
+    /// <returns>
+    ///		<see cref="NodePathState" /> enumeration indicating whether the node is in the current path (<c>Selected</c> or <c>Expanded</c>)
+    ///		and whether it has children (<c>Parent</c>)
+    ///	</returns>
+    public static NodePathState GetNodePathState(this TreeNode<MenuItem> node, IList<MenuItem> currentPath)
+    {
+        Guard.NotNull(currentPath);
+
+        var state = NodePathState.Unknown;
+
+        if (node.HasChildren)
         {
-            return GetNodePathState(node, currentPath.Select(x => x.Value).ToList());
+            state |= NodePathState.Parent;
         }
 
-        /// <summary>
-        /// Gets the state of <c>node</c> within the passed <c>currentPath</c>, which is the navigation breadcrumb.
-        /// </summary>
-        /// <param name="node">The node to get the state for</param>
-        /// <param name="currentPath">The current path/breadcrumb</param>
-        /// <returns>
-        ///		<see cref="NodePathState" /> enumeration indicating whether the node is in the current path (<c>Selected</c> or <c>Expanded</c>)
-        ///		and whether it has children (<c>Parent</c>)
-        ///	</returns>
-        public static NodePathState GetNodePathState(this TreeNode<MenuItem> node, IList<MenuItem> currentPath)
+        var lastInPath = currentPath.LastOrDefault();
+
+        if (currentPath.Count > 0)
         {
-            Guard.NotNull(currentPath);
-
-            var state = NodePathState.Unknown;
-
-            if (node.HasChildren)
+            if (node.Value.Equals(lastInPath))
             {
-                state |= NodePathState.Parent;
+                state |= NodePathState.Selected;
             }
-
-            var lastInPath = currentPath.LastOrDefault();
-
-            if (currentPath.Count > 0)
+            else
             {
-                if (node.Value.Equals(lastInPath))
+                if (node.Depth - 1 < currentPath.Count)
                 {
-                    state |= NodePathState.Selected;
-                }
-                else
-                {
-                    if (node.Depth - 1 < currentPath.Count)
+                    if (currentPath[node.Depth - 1].Equals(node.Value))
                     {
-                        if (currentPath[node.Depth - 1].Equals(node.Value))
-                        {
-                            state |= NodePathState.Expanded;
-                        }
+                        state |= NodePathState.Expanded;
                     }
                 }
             }
-
-            return state;
         }
 
-        /// <summary>
-        /// Applies serialized route informations to a tree node.
-        /// </summary>
-        /// <param name="node">Tree node.</param>
-        /// <param name="data">JSON serialized route data.</param>
-        public static void ApplyRouteData(this TreeNode<MenuItem> node, string data)
+        return state;
+    }
+
+    /// <summary>
+    /// Applies serialized route informations to a tree node.
+    /// </summary>
+    /// <param name="node">Tree node.</param>
+    /// <param name="data">JSON serialized route data.</param>
+    public static void ApplyRouteData(this TreeNode<MenuItem> node, string data)
+    {
+        if (data.HasValue())
         {
-            if (data.HasValue())
+            var routeValues = JsonSerializer.Deserialize<RouteValueDictionary>(data, SmartJsonOptions.Default);
+
+            var routeName = string.Empty;
+
+            if (routeValues.TryGetValue("routename", out var val))
             {
-                var routeValues = JsonSerializer.Deserialize<RouteValueDictionary>(data, SmartJsonOptions.Default);
+                routeName = val as string;
+                routeValues.Remove("routename");
+            }
 
-                var routeName = string.Empty;
-
-                if (routeValues.TryGetValue("routename", out var val))
-                {
-                    routeName = val as string;
-                    routeValues.Remove("routename");
-                }
-
-                if (routeName.HasValue())
-                {
-                    node.Value.Route(routeName, routeValues);
-                }
-                else
-                {
-                    node.Value.Action(routeValues);
-                }
+            if (routeName.HasValue())
+            {
+                node.Value.Route(routeName, routeValues);
+            }
+            else
+            {
+                node.Value.Action(routeValues);
             }
         }
+    }
 
-        /// <summary>
-        /// Converts a list of menu items into a tree.
-        /// </summary>
-        /// <param name="origin">Origin of the tree.</param>
-        /// <param name="items">List of menu items.</param>
-        /// <param name="itemProviders">Menu item providers.</param>
-        /// <returns>Tree of menu items.</returns>
-        public static async Task<TreeNode<MenuItem>> GetTreeAsync(
-            this IEnumerable<MenuItemEntity> items,
-            string origin,
-            IDictionary<string, Lazy<IMenuItemProvider, MenuItemProviderMetadata>> itemProviders)
+    /// <summary>
+    /// Converts a list of menu items into a tree.
+    /// </summary>
+    /// <param name="origin">Origin of the tree.</param>
+    /// <param name="items">List of menu items.</param>
+    /// <param name="itemProviders">Menu item providers.</param>
+    /// <returns>Tree of menu items.</returns>
+    public static async Task<TreeNode<MenuItem>> GetTreeAsync(
+        this IEnumerable<MenuItemEntity> items,
+        string origin,
+        IDictionary<string, Lazy<IMenuItemProvider, MenuItemProviderMetadata>> itemProviders)
+    {
+        Guard.NotNull(items);
+        Guard.NotNull(itemProviders);
+
+        if (!items.Any())
         {
-            Guard.NotNull(items);
-            Guard.NotNull(itemProviders);
+            return new TreeNode<MenuItem>(new MenuItem());
+        }
 
-            if (!items.Any())
+        var itemMap = items.ToMultimap(x => x.ParentItemId, x => x);
+
+        // Prepare root node. It represents the MenuRecord.
+        var menu = items.First().Menu;
+        var rootItem = new MenuItem
+        {
+            Text = menu.GetLocalized(x => x.Title),
+            EntityId = 0,
+            MenuId = menu.Id
+        };
+        var root = new TreeNode<MenuItem>(rootItem)
+        {
+            Id = menu.SystemName
+        };
+
+        await AddChildItemsAsync(root, 0);
+
+        return root;
+
+        async Task AddChildItemsAsync(TreeNode<MenuItem> parentNode, int parentItemId)
+        {
+            if (parentNode == null)
             {
-                return new TreeNode<MenuItem>(new MenuItem());
+                return;
             }
 
-            var itemMap = items.ToMultimap(x => x.ParentItemId, x => x);
+            var entities = itemMap.ContainsKey(parentItemId)
+                ? itemMap[parentItemId].OrderBy(x => x.DisplayOrder)
+                : Enumerable.Empty<MenuItemEntity>();
 
-            // Prepare root node. It represents the MenuRecord.
-            var menu = items.First().Menu;
-            var rootItem = new MenuItem
+            foreach (var entity in entities)
             {
-                Text = menu.GetLocalized(x => x.Title),
-                EntityId = 0,
-                MenuId = menu.Id
-            };
-            var root = new TreeNode<MenuItem>(rootItem)
-            {
-                Id = menu.SystemName
-            };
-
-            await AddChildItemsAsync(root, 0);
-
-            return root;
-
-            async Task AddChildItemsAsync(TreeNode<MenuItem> parentNode, int parentItemId)
-            {
-                if (parentNode == null)
+                if (!string.IsNullOrEmpty(entity.ProviderName) && itemProviders.TryGetValue(entity.ProviderName, out var provider))
                 {
-                    return;
-                }
-
-                var entities = itemMap.ContainsKey(parentItemId)
-                    ? itemMap[parentItemId].OrderBy(x => x.DisplayOrder)
-                    : Enumerable.Empty<MenuItemEntity>();
-
-                foreach (var entity in entities)
-                {
-                    if (!string.IsNullOrEmpty(entity.ProviderName) && itemProviders.TryGetValue(entity.ProviderName, out var provider))
+                    var newNode = await provider.Value.AppendAsync(new MenuItemProviderRequest
                     {
-                        var newNode = await provider.Value.AppendAsync(new MenuItemProviderRequest
-                        {
-                            Origin = origin,
-                            Parent = parentNode,
-                            Entity = entity
-                        });
+                        Origin = origin,
+                        Parent = parentNode,
+                        Entity = entity
+                    });
 
-                        await AddChildItemsAsync(newNode, entity.Id);
-                    }
+                    await AddChildItemsAsync(newNode, entity.Id);
                 }
             }
         }

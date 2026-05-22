@@ -1,36 +1,35 @@
 ﻿using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
 
-namespace Smartstore.Core.Identity.Rules
+namespace Smartstore.Core.Identity.Rules;
+
+public class TargetGroupFilterDescriptor : FilterDescriptor<Customer, bool>
 {
-    public class TargetGroupFilterDescriptor : FilterDescriptor<Customer, bool>
+    private readonly IRuleService _ruleService;
+    private readonly WeakReference<IRuleVisitor> _ruleVisitor;
+
+    public TargetGroupFilterDescriptor(IRuleService ruleService, IRuleVisitor ruleVisitor)
+        : base(x => true)
     {
-        private readonly IRuleService _ruleService;
-        private readonly WeakReference<IRuleVisitor> _ruleVisitor;
+        _ruleService = ruleService;
+        _ruleVisitor = new WeakReference<IRuleVisitor>(ruleVisitor);
+    }
 
-        public TargetGroupFilterDescriptor(IRuleService ruleService, IRuleVisitor ruleVisitor)
-            : base(x => true)
+    public override Expression GetExpression(RuleOperator op, Expression valueExpression, IQueryProvider provider)
+    {
+        var ruleSetId = ((ConstantExpression)valueExpression).Value.Convert<int>();
+
+        // Get other expression group.
+        _ruleVisitor.TryGetTarget(out var visitor);
+
+        var otherGroup = _ruleService.CreateExpressionGroupAsync(ruleSetId, visitor).Await() as FilterExpressionGroup;
+
+        var otherPredicate = otherGroup?.ToPredicate(provider);
+        if (otherPredicate is Expression<Func<Customer, bool>> lambda)
         {
-            _ruleService = ruleService;
-            _ruleVisitor = new WeakReference<IRuleVisitor>(ruleVisitor);
+            MemberExpression = lambda;
         }
 
-        public override Expression GetExpression(RuleOperator op, Expression valueExpression, IQueryProvider provider)
-        {
-            var ruleSetId = ((ConstantExpression)valueExpression).Value.Convert<int>();
-
-            // Get other expression group.
-            _ruleVisitor.TryGetTarget(out var visitor);
-
-            var otherGroup = _ruleService.CreateExpressionGroupAsync(ruleSetId, visitor).Await() as FilterExpressionGroup;
-
-            var otherPredicate = otherGroup?.ToPredicate(provider);
-            if (otherPredicate is Expression<Func<Customer, bool>> lambda)
-            {
-                MemberExpression = lambda;
-            }
-
-            return base.GetExpression(op, Expression.Constant(true), provider);
-        }
+        return base.GetExpression(op, Expression.Constant(true), provider);
     }
 }

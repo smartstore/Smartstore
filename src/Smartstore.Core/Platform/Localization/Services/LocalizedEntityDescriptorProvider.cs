@@ -4,57 +4,56 @@ using Microsoft.Extensions.Options;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Configuration;
 
-namespace Smartstore.Core.Localization
+namespace Smartstore.Core.Localization;
+
+public class LocalizedEntityDescriptorProvider : ILocalizedEntityDescriptorProvider
 {
-    public class LocalizedEntityDescriptorProvider : ILocalizedEntityDescriptorProvider
+    private readonly IReadOnlyDictionary<Type, LocalizedEntityDescriptor> _descriptors;
+    private readonly List<LoadLocalizedEntityDelegate> _delegates = [];
+
+    public LocalizedEntityDescriptorProvider(ITypeScanner typeScanner, IOptions<LocalizedEntityOptions> options)
     {
-        private readonly IReadOnlyDictionary<Type, LocalizedEntityDescriptor> _descriptors;
-        private readonly List<LoadLocalizedEntityDelegate> _delegates = [];
-        
-        public LocalizedEntityDescriptorProvider(ITypeScanner typeScanner, IOptions<LocalizedEntityOptions> options)
+        var descriptors = new Dictionary<Type, LocalizedEntityDescriptor>();
+
+        foreach (var type in typeScanner.FindTypes<ILocalizedEntity>())
         {
-            var descriptors = new Dictionary<Type, LocalizedEntityDescriptor>();
-            
-            foreach (var type in typeScanner.FindTypes<ILocalizedEntity>())
+            if (typeof(ISettings).IsAssignableFrom(type))
             {
-                if (typeof(ISettings).IsAssignableFrom(type))
-                {
-                    continue;
-                }
-                
-                var candidateProperties = FastProperty.GetCandidateProperties(type)
-                    .Where(x => x.HasAttribute<LocalizedPropertyAttribute>(true));
-
-                if (candidateProperties.Any())
-                {
-                    var attr = type.GetAttribute<LocalizedEntityAttribute>(true);
-
-                    descriptors.Add(type, new LocalizedEntityDescriptor 
-                    {
-                        EntityType = type,
-                        KeyGroup = attr?.KeyGroup,
-                        FilterPredicate = attr?.FilterPredicate,
-                        Properties = candidateProperties.ToArray()
-                    });
-                }
+                continue;
             }
 
-            _descriptors = descriptors.ToFrozenDictionary();
+            var candidateProperties = FastProperty.GetCandidateProperties(type)
+                .Where(x => x.HasAttribute<LocalizedPropertyAttribute>(true));
 
-            foreach (var @delegate in options.Value.Delegates)
+            if (candidateProperties.Any())
             {
-                _delegates.Add(@delegate);
+                var attr = type.GetAttribute<LocalizedEntityAttribute>(true);
+
+                descriptors.Add(type, new LocalizedEntityDescriptor
+                {
+                    EntityType = type,
+                    KeyGroup = attr?.KeyGroup,
+                    FilterPredicate = attr?.FilterPredicate,
+                    Properties = candidateProperties.ToArray()
+                });
             }
         }
 
-        public IReadOnlyDictionary<Type, LocalizedEntityDescriptor> GetDescriptors()
-        {
-            return _descriptors;
-        }
+        _descriptors = descriptors.ToFrozenDictionary();
 
-        public IReadOnlyList<LoadLocalizedEntityDelegate> GetDelegates()
+        foreach (var @delegate in options.Value.Delegates)
         {
-            return _delegates;
+            _delegates.Add(@delegate);
         }
+    }
+
+    public IReadOnlyDictionary<Type, LocalizedEntityDescriptor> GetDescriptors()
+    {
+        return _descriptors;
+    }
+
+    public IReadOnlyList<LoadLocalizedEntityDelegate> GetDelegates()
+    {
+        return _delegates;
     }
 }

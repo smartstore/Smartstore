@@ -3,286 +3,285 @@ using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Html;
 using Smartstore.Http;
 
-namespace Smartstore.Core.Widgets
+namespace Smartstore.Core.Widgets;
+
+/// <summary>
+/// A custom <see cref="HtmlContentBuilder"/> implementation that exposes
+/// the <c>Entries</c> property for faster emptyness checks.
+/// </summary>
+[DebuggerDisplay("{DebuggerToString()}")]
+public class SmartHtmlContentBuilder : IHtmlContentBuilder
 {
+    private object _singleContent;
+    private bool _isSingleContentSet;
+    private bool _hasContent;
+    private List<object> _entries;
+
     /// <summary>
-    /// A custom <see cref="HtmlContentBuilder"/> implementation that exposes
-    /// the <c>Entries</c> property for faster emptyness checks.
+    /// Gets the number of elements in the <see cref="SmartHtmlContentBuilder"/>.
     /// </summary>
-    [DebuggerDisplay("{DebuggerToString()}")]
-    public class SmartHtmlContentBuilder : IHtmlContentBuilder
+    public int Count => _entries != null ? _entries.Count : 0;
+
+    /// <summary>
+    /// The list of content entries.
+    /// </summary>
+    public IList<object> Entries
     {
-        private object _singleContent;
-        private bool _isSingleContentSet;
-        private bool _hasContent;
-        private List<object> _entries;
-
-        /// <summary>
-        /// Gets the number of elements in the <see cref="SmartHtmlContentBuilder"/>.
-        /// </summary>
-        public int Count => _entries != null ? _entries.Count : 0;
-
-        /// <summary>
-        /// The list of content entries.
-        /// </summary>
-        public IList<object> Entries
+        get
         {
-            get
+            if (_entries == null)
             {
-                if (_entries == null)
-                {
-                    _entries = [];
-                }
-
-                if (_isSingleContentSet)
-                {
-                    Debug.Assert(_entries.Count == 0);
-
-                    _entries.Add(_singleContent);
-                    _isSingleContentSet = false;
-                }
-
-                return _entries;
+                _entries = [];
             }
-        }
 
-        /// <summary>
-        /// Gets a value indicating whether the content is empty or whitespace.
-        /// </summary>
-        /// <remarks>
-        /// Returns <c>true</c> for a cleared <see cref="SmartHtmlContentBuilder"/>.
-        /// </remarks>
-        public bool IsEmptyOrWhiteSpace
-        {
-            get
+            if (_isSingleContentSet)
             {
-                if (!_hasContent)
-                {
-                    return true;
-                }
+                Debug.Assert(_entries.Count == 0);
 
-                if (_isSingleContentSet)
-                {
-                    return IsEmptyOrWhiteSpaceCore(_singleContent);
-                }
+                _entries.Add(_singleContent);
+                _isSingleContentSet = false;
+            }
 
-                for (var i = 0; i < (_entries?.Count ?? 0); i++)
-                {
-                    if (!IsEmptyOrWhiteSpaceCore(Entries[i]))
-                    {
-                        return false;
-                    }
-                }
+            return _entries;
+        }
+    }
 
+    /// <summary>
+    /// Gets a value indicating whether the content is empty or whitespace.
+    /// </summary>
+    /// <remarks>
+    /// Returns <c>true</c> for a cleared <see cref="SmartHtmlContentBuilder"/>.
+    /// </remarks>
+    public bool IsEmptyOrWhiteSpace
+    {
+        get
+        {
+            if (!_hasContent)
+            {
                 return true;
             }
-        }
-
-        /// <inheritdoc />
-        public IHtmlContentBuilder Append(string unencoded) 
-            => AppendCore(unencoded);
-
-        /// <inheritdoc />
-        public IHtmlContentBuilder AppendHtml(IHtmlContent htmlContent)
-            => AppendCore(htmlContent);
-
-        /// <inheritdoc />
-        public IHtmlContentBuilder AppendHtml(string encoded)
-        {
-            if (encoded == null)
-            {
-                return AppendCore(null);
-            }
-
-            return AppendCore(new HtmlString(encoded));
-        }
-
-        /// <inheritdoc />
-        public IHtmlContentBuilder Clear()
-        {
-            _hasContent = false;
-            _isSingleContentSet = false;
-            _entries?.Clear();
-            return this;
-        }
-
-        /// <inheritdoc />
-        public void CopyTo(IHtmlContentBuilder destination)
-        {
-            Guard.NotNull(destination);
-
-            if (!_hasContent)
-            {
-                return;
-            }
 
             if (_isSingleContentSet)
             {
-                CopyToCore(_singleContent, destination);
-            }
-            else
-            {
-                for (var i = 0; i < (_entries?.Count ?? 0); i++)
-                {
-                    CopyToCore(Entries[i], destination);
-                }
-            }
-        }
-
-        /// <inheritdoc />
-        public void MoveTo(IHtmlContentBuilder destination)
-        {
-            Guard.NotNull(destination);
-
-            if (!_hasContent)
-            {
-                return;
-            }
-
-            if (_isSingleContentSet)
-            {
-                MoveToCore(_singleContent, destination);
-            }
-            else
-            {
-                for (var i = 0; i < (_entries?.Count ?? 0); i++)
-                {
-                    MoveToCore(Entries[i], destination);
-                }
-            }
-
-            Clear();
-        }
-
-        /// <inheritdoc />
-        public void WriteTo(TextWriter writer, HtmlEncoder encoder)
-        {
-            Guard.NotNull(writer);
-            Guard.NotNull(encoder);
-
-            if (!_hasContent)
-            {
-                return;
-            }
-
-            if (_isSingleContentSet)
-            {
-                WriteToCore(_singleContent, writer, encoder);
-                return;
+                return IsEmptyOrWhiteSpaceCore(_singleContent);
             }
 
             for (var i = 0; i < (_entries?.Count ?? 0); i++)
             {
-                WriteToCore(Entries[i], writer, encoder);
-            }
-        }
-
-        private static bool IsEmptyOrWhiteSpaceCore(object entry)
-        {
-            if (entry == null)
-            {
-                return true;
-            }
-
-            if (entry is string stringValue)
-            {
-                // Do not encode the string because encoded value remains whitespace from user's POV.
-                return string.IsNullOrWhiteSpace(stringValue);
-            }
-            else if (entry is IHtmlContent htmlContent)
-            {
-                return !htmlContent.HasContent();
+                if (!IsEmptyOrWhiteSpaceCore(Entries[i]))
+                {
+                    return false;
+                }
             }
 
             return true;
         }
+    }
 
-        private static void WriteToCore(object entry, TextWriter writer, HtmlEncoder encoder)
+    /// <inheritdoc />
+    public IHtmlContentBuilder Append(string unencoded)
+        => AppendCore(unencoded);
+
+    /// <inheritdoc />
+    public IHtmlContentBuilder AppendHtml(IHtmlContent htmlContent)
+        => AppendCore(htmlContent);
+
+    /// <inheritdoc />
+    public IHtmlContentBuilder AppendHtml(string encoded)
+    {
+        if (encoded == null)
         {
-            if (entry == null)
-            {
-                return;
-            }
+            return AppendCore(null);
+        }
 
-            if (entry is string stringValue)
+        return AppendCore(new HtmlString(encoded));
+    }
+
+    /// <inheritdoc />
+    public IHtmlContentBuilder Clear()
+    {
+        _hasContent = false;
+        _isSingleContentSet = false;
+        _entries?.Clear();
+        return this;
+    }
+
+    /// <inheritdoc />
+    public void CopyTo(IHtmlContentBuilder destination)
+    {
+        Guard.NotNull(destination);
+
+        if (!_hasContent)
+        {
+            return;
+        }
+
+        if (_isSingleContentSet)
+        {
+            CopyToCore(_singleContent, destination);
+        }
+        else
+        {
+            for (var i = 0; i < (_entries?.Count ?? 0); i++)
             {
-                encoder.Encode(writer, stringValue);
+                CopyToCore(Entries[i], destination);
             }
-            else
+        }
+    }
+
+    /// <inheritdoc />
+    public void MoveTo(IHtmlContentBuilder destination)
+    {
+        Guard.NotNull(destination);
+
+        if (!_hasContent)
+        {
+            return;
+        }
+
+        if (_isSingleContentSet)
+        {
+            MoveToCore(_singleContent, destination);
+        }
+        else
+        {
+            for (var i = 0; i < (_entries?.Count ?? 0); i++)
             {
-                ((IHtmlContent)entry).WriteTo(writer, encoder);
+                MoveToCore(Entries[i], destination);
             }
         }
 
-        private static void CopyToCore(object entry, IHtmlContentBuilder destination)
-        {
-            if (entry == null)
-            {
-                return;
-            }
+        Clear();
+    }
 
-            if (entry is string entryAsString)
-            {
-                destination.Append(entryAsString);
-            }
-            else if (entry is IHtmlContentContainer entryAsContainer)
-            {
-                entryAsContainer.CopyTo(destination);
-            }
-            else
-            {
-                destination.AppendHtml((IHtmlContent)entry);
-            }
+    /// <inheritdoc />
+    public void WriteTo(TextWriter writer, HtmlEncoder encoder)
+    {
+        Guard.NotNull(writer);
+        Guard.NotNull(encoder);
+
+        if (!_hasContent)
+        {
+            return;
         }
 
-        private static void MoveToCore(object entry, IHtmlContentBuilder destination)
+        if (_isSingleContentSet)
         {
-            if (entry == null)
-            {
-                return;
-            }
-
-            if (entry is string entryAsString)
-            {
-                destination.Append(entryAsString);
-            }
-            else if (entry is IHtmlContentContainer entryAsContainer)
-            {
-                entryAsContainer.MoveTo(destination);
-            }
-            else
-            {
-                destination.AppendHtml((IHtmlContent)entry);
-            }
+            WriteToCore(_singleContent, writer, encoder);
+            return;
         }
 
-        private SmartHtmlContentBuilder AppendCore(object entry)
+        for (var i = 0; i < (_entries?.Count ?? 0); i++)
         {
-            if (entry == null)
-            {
-                return this;
-            }
-            
-            if (!_hasContent)
-            {
-                _isSingleContentSet = true;
-                _singleContent = entry;
-            }
-            else
-            {
-                Entries.Add(entry);
-            }
+            WriteToCore(Entries[i], writer, encoder);
+        }
+    }
 
-            _hasContent = true;
+    private static bool IsEmptyOrWhiteSpaceCore(object entry)
+    {
+        if (entry == null)
+        {
+            return true;
+        }
 
+        if (entry is string stringValue)
+        {
+            // Do not encode the string because encoded value remains whitespace from user's POV.
+            return string.IsNullOrWhiteSpace(stringValue);
+        }
+        else if (entry is IHtmlContent htmlContent)
+        {
+            return !htmlContent.HasContent();
+        }
+
+        return true;
+    }
+
+    private static void WriteToCore(object entry, TextWriter writer, HtmlEncoder encoder)
+    {
+        if (entry == null)
+        {
+            return;
+        }
+
+        if (entry is string stringValue)
+        {
+            encoder.Encode(writer, stringValue);
+        }
+        else
+        {
+            ((IHtmlContent)entry).WriteTo(writer, encoder);
+        }
+    }
+
+    private static void CopyToCore(object entry, IHtmlContentBuilder destination)
+    {
+        if (entry == null)
+        {
+            return;
+        }
+
+        if (entry is string entryAsString)
+        {
+            destination.Append(entryAsString);
+        }
+        else if (entry is IHtmlContentContainer entryAsContainer)
+        {
+            entryAsContainer.CopyTo(destination);
+        }
+        else
+        {
+            destination.AppendHtml((IHtmlContent)entry);
+        }
+    }
+
+    private static void MoveToCore(object entry, IHtmlContentBuilder destination)
+    {
+        if (entry == null)
+        {
+            return;
+        }
+
+        if (entry is string entryAsString)
+        {
+            destination.Append(entryAsString);
+        }
+        else if (entry is IHtmlContentContainer entryAsContainer)
+        {
+            entryAsContainer.MoveTo(destination);
+        }
+        else
+        {
+            destination.AppendHtml((IHtmlContent)entry);
+        }
+    }
+
+    private SmartHtmlContentBuilder AppendCore(object entry)
+    {
+        if (entry == null)
+        {
             return this;
         }
 
-        private string DebuggerToString()
+        if (!_hasContent)
         {
-            using var writer = new StringWriter();
-            WriteTo(writer, WebHelper.HtmlEncoder);
-            return writer.ToString();
+            _isSingleContentSet = true;
+            _singleContent = entry;
         }
+        else
+        {
+            Entries.Add(entry);
+        }
+
+        _hasContent = true;
+
+        return this;
+    }
+
+    private string DebuggerToString()
+    {
+        using var writer = new StringWriter();
+        WriteTo(writer, WebHelper.HtmlEncoder);
+        return writer.ToString();
     }
 }

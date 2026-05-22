@@ -22,7 +22,7 @@ public class CheckoutPaymentMethodMapper : Mapper<CheckoutContext, CheckoutPayme
     private readonly ICheckoutFactory _checkoutFactory;
     private readonly ITaxCalculator _taxCalculator;
     private readonly PaymentSettings _paymentSettings;
-    
+
     public CheckoutPaymentMethodMapper(
         IWorkContext workContext,
         ModuleManager moduleManager,
@@ -101,7 +101,7 @@ public class CheckoutPaymentMethodMapper : Mapper<CheckoutContext, CheckoutPayme
             to.PaymentMethods.Add(pmModel);
         }
 
-        var toSelect = GetPaymentMethodModel(ga.SelectedPaymentMethod) 
+        var toSelect = GetPaymentMethodModel(ga.SelectedPaymentMethod)
             ?? GetPaymentMethodModel(ga.PreferredPaymentMethod)
             ?? to.PaymentMethods.FirstOrDefault();
         if (toSelect != null)

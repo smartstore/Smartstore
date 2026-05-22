@@ -101,7 +101,7 @@ public partial class Country : EntityWithAttributes, ILocalizedEntity, IStoreRes
     /// </summary>
     [MaxLength]
     public int? DiallingCode { get; set; }
-    
+
     /// <summary>
     /// Gets or sets the identfier of the default currency.
     /// </summary>

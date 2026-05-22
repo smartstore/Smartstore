@@ -640,7 +640,8 @@ public partial class ProductController : AdminController
                         return T("Admin.Configuration.Measures.Dimensions");
                     default:
                         return null;
-                };
+                }
+                ;
             })
             .Where(x => x != null);
 
@@ -1745,7 +1746,7 @@ public partial class ProductController : AdminController
             model.AddPictureModel.PictureId = product.MainPictureId ?? 0;
 
             model.ProductTagNames = product.ProductTags.Select(x => x.Name).ToArray();
-            
+
             ViewBag.SelectedProductTags = model.ProductTagNames
                 .Select(x => new SelectListItem { Value = x, Text = x, Selected = true })
                 .ToList();
@@ -2054,7 +2055,7 @@ public partial class ProductController : AdminController
                 model.Attributes.Add(attributeModel);
             }
         }
-        
+
         ViewBag.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
     }
 
@@ -2368,8 +2369,8 @@ public partial class ProductController : AdminController
         var canUpdateStockQuantity = true;
         var stockQuantityInDatabase = product.StockQuantity;
 
-        if (product.Id != 0 
-            && product.ManageInventoryMethod == ManageInventoryMethod.ManageStock 
+        if (product.Id != 0
+            && product.ManageInventoryMethod == ManageInventoryMethod.ManageStock
             && stockQuantityInDatabase != originalStockQuantity)
         {
             // The stock has changed since the edit page was loaded, e.g. because an order has been placed.

@@ -2,78 +2,77 @@
 using Smartstore.Core.Rules;
 using Smartstore.Json;
 
-namespace Smartstore.Core.Checkout.Rules.Impl
+namespace Smartstore.Core.Checkout.Rules.Impl;
+
+internal class CartItemQuantityRule : IRule<CartRuleContext>
 {
-    internal class CartItemQuantityRule : IRule<CartRuleContext>
+    public ILogger Logger { get; set; } = NullLogger.Instance;
+
+    public Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
     {
-        public ILogger Logger { get; set; } = NullLogger.Instance;
+        int productId = 0;
+        int? minQuantity = null;
+        int? maxQuantity = null;
 
-        public Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
+        try
         {
-            int productId = 0;
-            int? minQuantity = null;
-            int? maxQuantity = null;
-
-            try
+            var rawValue = expression.Value as string;
+            if (rawValue.HasValue())
             {
-                var rawValue = expression.Value as string;
-                if (rawValue.HasValue())
+                dynamic json = JsonObject.Parse(rawValue).ToDynamic();
+                var rawProductId = ((string)json.ProductId).NullEmpty() ?? (string)json.EntityId;
+                productId = rawProductId.ToInt();
+
+                var str = (string)json.MinQuantity;
+                if (str.HasValue())
                 {
-                    dynamic json = JsonObject.Parse(rawValue).ToDynamic();
-                    var rawProductId = ((string)json.ProductId).NullEmpty() ?? (string)json.EntityId;
-                    productId = rawProductId.ToInt();
+                    minQuantity = str.ToInt();
+                }
 
-                    var str = (string)json.MinQuantity;
-                    if (str.HasValue())
-                    {
-                        minQuantity = str.ToInt();
-                    }
-
-                    str = (string)json.MaxQuantity;
-                    if (str.HasValue())
-                    {
-                        maxQuantity = str.ToInt();
-                    }
+                str = (string)json.MaxQuantity;
+                if (str.HasValue())
+                {
+                    maxQuantity = str.ToInt();
                 }
             }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-            }
-
-            if (productId != 0)
-            {
-                var cart = context.ShoppingCart;
-                var items = cart.Items.Where(x => x.Item.ProductId == productId);
-                if (items.Any())
-                {
-                    var quantity = items.Sum(x => x.Item.Quantity);
-                    if (quantity > 0)
-                    {
-                        if (minQuantity.HasValue && maxQuantity.HasValue)
-                        {
-                            if (minQuantity == maxQuantity)
-                            {
-                                return Task.FromResult(quantity == minQuantity);
-                            }
-                            else
-                            {
-                                return Task.FromResult(quantity >= minQuantity && quantity <= maxQuantity);
-                            }
-                        }
-                        else if (minQuantity.HasValue)
-                        {
-                            return Task.FromResult(quantity >= minQuantity);
-                        }
-                        else if (maxQuantity.HasValue)
-                        {
-                            return Task.FromResult(quantity <= maxQuantity);
-                        }
-                    }
-                }
-            }
-
-            return Task.FromResult(false);
         }
+        catch (Exception ex)
+        {
+            Logger.Error(ex);
+        }
+
+        if (productId != 0)
+        {
+            var cart = context.ShoppingCart;
+            var items = cart.Items.Where(x => x.Item.ProductId == productId);
+            if (items.Any())
+            {
+                var quantity = items.Sum(x => x.Item.Quantity);
+                if (quantity > 0)
+                {
+                    if (minQuantity.HasValue && maxQuantity.HasValue)
+                    {
+                        if (minQuantity == maxQuantity)
+                        {
+                            return Task.FromResult(quantity == minQuantity);
+                        }
+                        else
+                        {
+                            return Task.FromResult(quantity >= minQuantity && quantity <= maxQuantity);
+                        }
+                    }
+                    else if (minQuantity.HasValue)
+                    {
+                        return Task.FromResult(quantity >= minQuantity);
+                    }
+                    else if (maxQuantity.HasValue)
+                    {
+                        return Task.FromResult(quantity <= maxQuantity);
+                    }
+                }
+            }
+        }
+
+        return Task.FromResult(false);
     }
 }

@@ -3,8 +3,8 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using Smartstore.Collections.JsonConverters;
 using System.Text.Json.Serialization;
+using Smartstore.Collections.JsonConverters;
 
 namespace Smartstore.Collections;
 
@@ -332,7 +332,7 @@ public class Multimap<TKey, TValue> : IEnumerable<KeyValuePair<TKey, ICollection
         {
             map.AddRange(group.Key, group);
         }
-                
+
         return map;
     }
 }

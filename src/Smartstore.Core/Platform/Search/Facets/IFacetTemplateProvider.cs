@@ -1,9 +1,8 @@
 ﻿using Smartstore.Core.Widgets;
 
-namespace Smartstore.Core.Search.Facets
+namespace Smartstore.Core.Search.Facets;
+
+public interface IFacetTemplateProvider
 {
-    public interface IFacetTemplateProvider
-    {
-        Widget GetTemplateWidget(FacetGroup facetGroup);
-    }
+    Widget GetTemplateWidget(FacetGroup facetGroup);
 }

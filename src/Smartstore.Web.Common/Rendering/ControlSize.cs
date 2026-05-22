@@ -1,9 +1,8 @@
-﻿namespace Smartstore.Web.Rendering
+﻿namespace Smartstore.Web.Rendering;
+
+public enum ControlSize
 {
-    public enum ControlSize
-    {
-        Small = 0,
-        Medium = 5,
-        Large = 10
-    }
+    Small = 0,
+    Medium = 5,
+    Large = 10
 }

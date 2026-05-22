@@ -1,23 +1,22 @@
-﻿namespace Smartstore.Core.Checkout.Orders.Reporting
+﻿namespace Smartstore.Core.Checkout.Orders.Reporting;
+
+/// <summary>
+/// Represents a best sellers report line.
+/// </summary>
+public partial class BestsellersReportLine
 {
     /// <summary>
-    /// Represents a best sellers report line.
+    /// Gets or sets the product identifier.
     /// </summary>
-    public partial class BestsellersReportLine
-    {
-        /// <summary>
-        /// Gets or sets the product identifier.
-        /// </summary>
-        public int ProductId { get; set; }
+    public int ProductId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the total amount.
-        /// </summary>
-        public decimal TotalAmount { get; set; }
+    /// <summary>
+    /// Gets or sets the total amount.
+    /// </summary>
+    public decimal TotalAmount { get; set; }
 
-        /// <summary>
-        /// Gets or sets the total quantity.
-        /// </summary>
-        public int TotalQuantity { get; set; }
-    }
+    /// <summary>
+    /// Gets or sets the total quantity.
+    /// </summary>
+    public int TotalQuantity { get; set; }
 }

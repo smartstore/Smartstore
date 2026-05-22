@@ -195,7 +195,7 @@ public class PriceLabelController : AdminController
         {
             priceSettings.DefaultRegularPriceLabelId = id;
         }
-        
+
         return Json(new { Success = true });
     }
 

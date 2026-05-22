@@ -1,9 +1,8 @@
-﻿namespace Smartstore.Web.Bundling
-{
-    public interface IBundleProvider
-    {
-        void RegisterBundles(IApplicationContext appContext, IBundleCollection bundles);
+﻿namespace Smartstore.Web.Bundling;
 
-        int Priority { get; }
-    }
+public interface IBundleProvider
+{
+    void RegisterBundles(IApplicationContext appContext, IBundleCollection bundles);
+
+    int Priority { get; }
 }

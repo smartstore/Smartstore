@@ -26,7 +26,7 @@ public static class PathUtility
         _invalidPathChars = Path.GetInvalidPathChars();
         _invalidFileNameChars = SearchValues.Create(Path.GetInvalidFileNameChars());
         _invalidFilterChars = SearchValues.Create(Path.GetInvalidFileNameChars().Where(c => c != '*' && c != '|' && c != '?').ToArray());
-        
+
         var invalidChars = Regex.Escape(new string(Path.GetInvalidPathChars()) + new string(Path.GetInvalidFileNameChars()));
         _invalidCharsPattern = new Regex(string.Format(@"[{0}]+", invalidChars), RegexOptions.Compiled | RegexOptions.NonBacktracking);
     }
@@ -50,7 +50,7 @@ public static class PathUtility
         if (paths.Length == 0)
         {
             return null;
-        } 
+        }
 
         var result = paths[0];
 
@@ -202,7 +202,7 @@ public static class PathUtility
         ReadOnlySpan<char> trimChars = PathSeparators;
 
         var joined = NormalizeRelativePath(Path.Join(
-            path1, 
+            path1,
             path2.TrimStart(trimChars),
             path3.TrimStart(trimChars),
             path4.TrimStart(trimChars)), ensureLeadingSeparator);
@@ -247,10 +247,10 @@ public static class PathUtility
         var availableNameLength = maxLength - extension.Length;
 
         // Ensure we have at least 1 character for the name
-        if (availableNameLength < 1) 
+        if (availableNameLength < 1)
         {
             availableNameLength = 1;
-        }   
+        }
 
         // Shorten the name part
         string shortenedName;
@@ -295,7 +295,7 @@ public static class PathUtility
         {
             return TruncateFileName(fileName, maxLength);
         }
-            
+
         // First shorten the filename
         var shortenedFileName = TruncateFileName(fileName, Math.Min(maxLength, fileName.Length))!;
 
@@ -329,7 +329,7 @@ public static class PathUtility
         if (parts.Length == 0)
         {
             return directory[..maxLength];
-        }  
+        }
 
         // Try to shorten from the front (keep important directories at the end)
         var result = string.Empty;
@@ -353,7 +353,7 @@ public static class PathUtility
             else
             {
                 result = directory[..maxLength];
-            } 
+            }
         }
 
         return result;

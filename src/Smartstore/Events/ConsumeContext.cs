@@ -47,7 +47,7 @@ public sealed class ConsumeContext<TMessage> : IConsumeContext<TMessage>, IEvent
     where TMessage : IEventMessage
 {
     private bool _initialized;
-    
+
     public ConsumeContext(TMessage message)
     {
         Message = Guard.NotNull(message);
@@ -66,7 +66,7 @@ public sealed class ConsumeContext<TMessage> : IConsumeContext<TMessage>, IEvent
 
     internal void Initialize(HttpContext? httpContext)
     {
-        if (!_initialized) 
+        if (!_initialized)
         {
             MessageType = Message.GetType().Name;
 

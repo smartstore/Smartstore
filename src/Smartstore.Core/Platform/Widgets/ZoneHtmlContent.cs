@@ -3,85 +3,84 @@ using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Html;
 using Smartstore.Http;
 
-namespace Smartstore.Core.Widgets
+namespace Smartstore.Core.Widgets;
+
+[DebuggerDisplay("{DebuggerToString()}")]
+public class ZoneHtmlContent : IHtmlContent
 {
-    [DebuggerDisplay("{DebuggerToString()}")]
-    public class ZoneHtmlContent : IHtmlContent
+    private SmartHtmlContentBuilder _preContent;
+    private SmartHtmlContentBuilder _postContent;
+
+    /// <summary>
+    /// Gets a value indicating whether the content is empty or whitespace.
+    /// </summary>
+    public bool IsEmptyOrWhiteSpace
     {
-        private SmartHtmlContentBuilder _preContent;
-        private SmartHtmlContentBuilder _postContent;
-
-        /// <summary>
-        /// Gets a value indicating whether the content is empty or whitespace.
-        /// </summary>
-        public bool IsEmptyOrWhiteSpace 
-        { 
-            get
+        get
+        {
+            if (HasPreContent)
             {
-                if (HasPreContent)
-                {
-                    return false;
-                }
-
-                if (HasPostContent)
-                {
-                    return false;
-                }
-
-                return true;
-            }
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether any PRE content exists.
-        /// </summary>
-        public bool HasPreContent
-        {
-            get => _preContent != null && !_preContent.IsEmptyOrWhiteSpace;
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether any POST content exists.
-        /// </summary>
-        public bool HasPostContent
-        {
-            get => _postContent != null && !_postContent.IsEmptyOrWhiteSpace;
-        }
-
-        /// <summary>
-        /// The zone content that should precede the existing content.
-        /// </summary>
-        public IHtmlContentBuilder PreContent
-        {
-            get => _preContent ??= new SmartHtmlContentBuilder();
-        }
-
-        /// <summary>
-        /// The zone content that should follow the existing content.
-        /// </summary>
-        public IHtmlContentBuilder PostContent
-        {
-            get => _postContent ??= new SmartHtmlContentBuilder();
-        }
-
-        public void WriteTo(TextWriter writer, HtmlEncoder encoder)
-        {
-            if (_preContent != null)
-            {
-                _preContent.WriteTo(writer, encoder);
+                return false;
             }
 
-            if (_postContent != null)
+            if (HasPostContent)
             {
-                _postContent.WriteTo(writer, encoder);
+                return false;
             }
+
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether any PRE content exists.
+    /// </summary>
+    public bool HasPreContent
+    {
+        get => _preContent != null && !_preContent.IsEmptyOrWhiteSpace;
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether any POST content exists.
+    /// </summary>
+    public bool HasPostContent
+    {
+        get => _postContent != null && !_postContent.IsEmptyOrWhiteSpace;
+    }
+
+    /// <summary>
+    /// The zone content that should precede the existing content.
+    /// </summary>
+    public IHtmlContentBuilder PreContent
+    {
+        get => _preContent ??= new SmartHtmlContentBuilder();
+    }
+
+    /// <summary>
+    /// The zone content that should follow the existing content.
+    /// </summary>
+    public IHtmlContentBuilder PostContent
+    {
+        get => _postContent ??= new SmartHtmlContentBuilder();
+    }
+
+    public void WriteTo(TextWriter writer, HtmlEncoder encoder)
+    {
+        if (_preContent != null)
+        {
+            _preContent.WriteTo(writer, encoder);
         }
 
-        private string DebuggerToString()
+        if (_postContent != null)
         {
-            using var writer = new StringWriter();
-            WriteTo(writer, WebHelper.HtmlEncoder);
-            return writer.ToString();
+            _postContent.WriteTo(writer, encoder);
         }
+    }
+
+    private string DebuggerToString()
+    {
+        using var writer = new StringWriter();
+        WriteTo(writer, WebHelper.HtmlEncoder);
+        return writer.ToString();
     }
 }

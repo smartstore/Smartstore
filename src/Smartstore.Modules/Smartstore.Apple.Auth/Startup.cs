@@ -20,4 +20,3 @@ internal class Startup : StarterBase
             .InstancePerDependency();
     }
 }
-

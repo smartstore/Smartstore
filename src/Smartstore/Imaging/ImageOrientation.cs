@@ -1,23 +1,22 @@
-﻿namespace Smartstore.Imaging
+﻿namespace Smartstore.Imaging;
+
+/// <summary>
+/// Specifies the orientation of an image.
+/// </summary>
+public enum ImageOrientation
 {
     /// <summary>
-    /// Specifies the orientation of an image.
+    /// Represents a portrait (vertical) orientation.
     /// </summary>
-    public enum ImageOrientation
-    {
-        /// <summary>
-        /// Represents a portrait (vertical) orientation.
-        /// </summary>
-        Portrait,
+    Portrait,
 
-        /// <summary>
-        /// Represents a landscape (horizontal) orientation.
-        /// </summary>
-        Landscape,
+    /// <summary>
+    /// Represents a landscape (horizontal) orientation.
+    /// </summary>
+    Landscape,
 
-        /// <summary>
-        /// Represents a geometric square with equal-length sides.
-        /// </summary>
-        Square
-    }
+    /// <summary>
+    /// Represents a geometric square with equal-length sides.
+    /// </summary>
+    Square
 }

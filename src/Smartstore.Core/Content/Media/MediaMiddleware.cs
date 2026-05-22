@@ -88,7 +88,7 @@ public class MediaMiddleware
             context.Response.StatusCode = StatusCodes.Status405MethodNotAllowed;
             return;
         }
-        
+
         if (!TryMatchRoute(context.Request.Path, out var mediaFileId, out var path))
         {
             await _next(context);

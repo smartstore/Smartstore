@@ -177,7 +177,7 @@ public class OrderController : AdminController
         var paymentMethodSystemnames = model.PaymentMethods.SplitSafe(',').ToArray();
         var customer = Services.WorkContext.CurrentCustomer;
         var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync("Customer", customer.Id);
-        
+
         DateTime? startDateUtc = model.StartDate == null
             ? null
             : dtHelper.ConvertToUtcTime(model.StartDate.Value, dtHelper.CurrentTimeZone);
@@ -484,12 +484,12 @@ public class OrderController : AdminController
                                     if (shipment != null)
                                     {
                                         Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), o.GetOrderNumber());
-                                    
+
                                         if (ship && shipment.ShippedDateUtc == null)
                                         {
                                             await _orderProcessingService.ShipAsync(shipment, true);
                                         }
-                                
+
                                         ++numSuccess;
                                         succeededOrderNumbers.Add(o.GetOrderNumber());
                                     }

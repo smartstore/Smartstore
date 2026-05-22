@@ -3,42 +3,41 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 
-namespace Smartstore.Core.Catalog.Products
+namespace Smartstore.Core.Catalog.Products;
+
+public partial class ProductTagRuleOptionsProvider : IRuleOptionsProvider
 {
-    public partial class ProductTagRuleOptionsProvider : IRuleOptionsProvider
+    private readonly SmartDbContext _db;
+
+    public ProductTagRuleOptionsProvider(SmartDbContext db)
     {
-        private readonly SmartDbContext _db;
+        _db = db;
+    }
 
-        public ProductTagRuleOptionsProvider(SmartDbContext db)
+    public int Order => 0;
+
+    public bool Matches(string dataSource)
+        => dataSource == KnownRuleOptionDataSourceNames.ProductTag;
+
+    public async Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
+    {
+        if (context.DataSource != KnownRuleOptionDataSourceNames.ProductTag)
         {
-            _db = db;
+            return null;
         }
 
-        public int Order => 0;
+        var result = new RuleOptionsResult();
+        var pager = _db.ProductTags.AsNoTracking().ToFastPager();
 
-        public bool Matches(string dataSource)
-            => dataSource == KnownRuleOptionDataSourceNames.ProductTag;
-
-        public async Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
+        while ((await pager.ReadNextPageAsync<ProductTag>()).Out(out var tags))
         {
-            if (context.DataSource != KnownRuleOptionDataSourceNames.ProductTag)
+            result.AddOptions(context, tags.Select(x => new RuleValueSelectListOption
             {
-                return null;
-            }
-
-            var result = new RuleOptionsResult();
-            var pager = _db.ProductTags.AsNoTracking().ToFastPager();
-
-            while ((await pager.ReadNextPageAsync<ProductTag>()).Out(out var tags))
-            {
-                result.AddOptions(context, tags.Select(x => new RuleValueSelectListOption
-                {
-                    Value = x.Id.ToString(),
-                    Text = x.GetLocalized(y => y.Name, context.Language, true, false)
-                }));
-            }
-
-            return result;
+                Value = x.Id.ToString(),
+                Text = x.GetLocalized(y => y.Name, context.Language, true, false)
+            }));
         }
+
+        return result;
     }
 }

@@ -3,41 +3,40 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 
-namespace Smartstore.Core.Catalog.Brands.Rules
+namespace Smartstore.Core.Catalog.Brands.Rules;
+
+public partial class ManufacturerRuleOptionsProvider : IRuleOptionsProvider
 {
-    public partial class ManufacturerRuleOptionsProvider : IRuleOptionsProvider
+    private readonly SmartDbContext _db;
+
+    public ManufacturerRuleOptionsProvider(SmartDbContext db)
     {
-        private readonly SmartDbContext _db;
+        _db = db;
+    }
 
-        public ManufacturerRuleOptionsProvider(SmartDbContext db)
+    public int Order => 0;
+
+    public bool Matches(string dataSource)
+        => dataSource == KnownRuleOptionDataSourceNames.Manufacturer;
+
+    public async Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
+    {
+        if (context.DataSource != KnownRuleOptionDataSourceNames.Manufacturer)
         {
-            _db = db;
+            return null;
         }
 
-        public int Order => 0;
+        var manufacturers = await _db.Manufacturers
+            .AsNoTracking()
+            .ApplyStandardFilter(true)
+            .ToListAsync();
 
-        public bool Matches(string dataSource)
-            => dataSource == KnownRuleOptionDataSourceNames.Manufacturer;
-
-        public async Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
+        var options = manufacturers.Select(x => new RuleValueSelectListOption
         {
-            if (context.DataSource != KnownRuleOptionDataSourceNames.Manufacturer)
-            {
-                return null;
-            }
+            Value = x.Id.ToString(),
+            Text = x.GetLocalized(y => y.Name, context.Language, true, false)
+        });
 
-            var manufacturers = await _db.Manufacturers
-                .AsNoTracking()
-                .ApplyStandardFilter(true)
-                .ToListAsync();
-
-            var options = manufacturers.Select(x => new RuleValueSelectListOption
-            {
-                Value = x.Id.ToString(),
-                Text = x.GetLocalized(y => y.Name, context.Language, true, false)
-            });
-
-            return RuleOptionsResult.Create(context, options);
-        }
+        return RuleOptionsResult.Create(context, options);
     }
 }

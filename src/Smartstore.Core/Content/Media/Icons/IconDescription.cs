@@ -2,101 +2,100 @@
 using System.Text.Json.Serialization;
 using Smartstore.Utilities;
 
-namespace Smartstore.Core.Content.Media.Icons
+namespace Smartstore.Core.Content.Media.Icons;
+
+public class IconDescription : IEquatable<IconDescription>
 {
-    public class IconDescription : IEquatable<IconDescription>
+    [IgnoreDataMember]
+    public string Name { get; set; }
+
+    public string Label { get; set; }
+
+    public string Unicode { get; set; }
+
+    public string[] Styles { get; set; }
+
+    [JsonPropertyName("search")]
+    public Search SearchInfo { get; set; }
+
+    [IgnoreDataMember]
+    public bool IsBrandIcon
     {
-        [IgnoreDataMember]
-        public string Name { get; set; }
+        get;
+        internal set;
+    }
 
-        public string Label { get; set; }
+    [IgnoreDataMember]
+    public bool HasRegularStyle
+    {
+        get;
+        internal set;
+    }
 
-        public string Unicode { get; set; }
+    [IgnoreDataMember]
+    public bool IsPro
+    {
+        get;
+        internal set;
+    }
 
-        public string[] Styles { get; set; }
+    public string GetCssClass(string style)
+    {
+        var prefix = "fa";
 
-        [JsonPropertyName("search")]
-        public Search SearchInfo { get; set; }
-
-        [IgnoreDataMember]
-        public bool IsBrandIcon
+        if (IsBrandIcon)
         {
-            get;
-            internal set;
+            prefix = "fab";
         }
-
-        [IgnoreDataMember]
-        public bool HasRegularStyle
+        else
         {
-            get;
-            internal set;
-        }
-
-        [IgnoreDataMember]
-        public bool IsPro
-        {
-            get;
-            internal set;
-        }
-
-        public string GetCssClass(string style)
-        {
-            var prefix = "fa";
-
-            if (IsBrandIcon)
+            switch (style)
             {
-                prefix = "fab";
+                case "solid":
+                case "fas":
+                    prefix = "fas";
+                    break;
+                case "regular":
+                case "far":
+                    prefix = "far";
+                    break;
+                case "light":
+                case "fal":
+                    prefix = "fal";
+                    break;
+                case "duotone":
+                case "fad":
+                    prefix = "fad";
+                    break;
             }
-            else
-            {
-                switch (style)
-                {
-                    case "solid":
-                    case "fas":
-                        prefix = "fas";
-                        break;
-                    case "regular":
-                    case "far":
-                        prefix = "far";
-                        break;
-                    case "light":
-                    case "fal":
-                        prefix = "fal";
-                        break;
-                    case "duotone":
-                    case "fad":
-                        prefix = "fad";
-                        break;
-                }
-            }
-
-            return string.Concat(prefix, " fa-", Name);
         }
 
-        public override bool Equals(object other)
-        {
-            return Equals(other as IconDescription);
-        }
+        return string.Concat(prefix, " fa-", Name);
+    }
 
-        public bool Equals(IconDescription other)
-        {
-            if (other == null)
-                return false;
+    public override bool Equals(object other)
+    {
+        return Equals(other as IconDescription);
+    }
 
-            return this.Name == other.Name;
-        }
+    public bool Equals(IconDescription other)
+    {
+        if (other == null)
+            return false;
 
-        public override int GetHashCode()
-        {
-            return HashCodeCombiner.Start()
-                .Add(typeof(IconDescription))
-                .Add(this.Name)
-                .CombinedHash;
-        }
+        return this.Name == other.Name;
+    }
 
-        public class Search
-        {
-            public string[] Terms { get; set; }
-        }
+    public override int GetHashCode()
+    {
+        return HashCodeCombiner.Start()
+            .Add(typeof(IconDescription))
+            .Add(this.Name)
+            .CombinedHash;
+    }
+
+    public class Search
+    {
+        public string[] Terms { get; set; }
     }
 }

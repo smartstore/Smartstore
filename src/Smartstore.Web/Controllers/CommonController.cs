@@ -230,7 +230,7 @@ public class CommonController : PublicController
     public async Task<IActionResult> LlmsTextFile()
     {
         // Cache for 24 hours
-        Response.Headers.CacheControl = "public, max-age=86400";    
+        Response.Headers.CacheControl = "public, max-age=86400";
 
         var content = await BuildLlmsContentAsync();
 

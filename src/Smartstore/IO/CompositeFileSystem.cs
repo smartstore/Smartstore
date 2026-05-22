@@ -22,7 +22,7 @@ public class CompositeFileSystem : IFileSystem
     public CompositeFileSystem(IEnumerable<IFileSystem> fileSystems)
     {
         Guard.NotNull(fileSystems);
-        
+
         if (!fileSystems.Any())
         {
             throw new ArgumentException("CompositeFileSystem must contain at least one item.", nameof(fileSystems));
@@ -50,11 +50,11 @@ public class CompositeFileSystem : IFileSystem
 
     private bool Check(string subpath, Func<IFileSystem, string, bool> checker)
     {
-        if (_primary != null) 
+        if (_primary != null)
         {
             return checker(_primary, subpath);
         }
-        
+
         foreach (var fs in _fileSystems)
         {
             if (checker(fs, subpath))

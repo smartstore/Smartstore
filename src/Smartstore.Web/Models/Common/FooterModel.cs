@@ -15,7 +15,7 @@ public partial class FooterModel : ModelBase
     public void AddSocialLink(string href, string cssClass, string displayName)
     {
         SocialLinks.Add(new SocialLink { Href = href, CssClass = cssClass, DisplayName = displayName });
-    }        
+    }
 
     public class SocialLink
     {

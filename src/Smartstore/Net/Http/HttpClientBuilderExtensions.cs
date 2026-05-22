@@ -5,89 +5,88 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Smartstore.Net.Http
+namespace Smartstore.Net.Http;
+
+public static class HttpClientBuilderExtensions
 {
-    public static class HttpClientBuilderExtensions
+    internal readonly static ProductInfoHeaderValue UserAgentHeader = new("Smartstore", SmartstoreVersion.CurrentFullVersion);
+
+    public static IHttpClientBuilder AddSmartstoreUserAgent(this IHttpClientBuilder builder)
     {
-        internal readonly static ProductInfoHeaderValue UserAgentHeader = new("Smartstore", SmartstoreVersion.CurrentFullVersion);
-
-        public static IHttpClientBuilder AddSmartstoreUserAgent(this IHttpClientBuilder builder)
+        return builder.ConfigureHttpClient(client =>
         {
-            return builder.ConfigureHttpClient(client =>
-            {
-                client.DefaultRequestHeaders.UserAgent.Add(UserAgentHeader);
-            });
+            client.DefaultRequestHeaders.UserAgent.Add(UserAgentHeader);
+        });
+    }
+
+    public static IHttpClientBuilder SkipCertificateValidation(this IHttpClientBuilder builder)
+    {
+        return builder.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+        });
+    }
+
+    /// <summary>
+    /// Adds a message handler for propagating cookies from current HTTP request to an outgoing request,
+    /// explicitly specifying which cookies to propagate.
+    /// </summary>
+    /// <param name="cookieNames">A list of specific cookie names to propagate. If null or empty all request cookies will be propagated.</param>
+    public static IHttpClientBuilder PropagateCookies(this IHttpClientBuilder builder, params string[] cookieNames)
+    {
+        return builder.AddHttpMessageHandler(services =>
+        {
+            return new CookiePropagationMessageHandler(services.GetRequiredService<IHttpContextAccessor>(), cookieNames ?? Array.Empty<string>());
+        });
+    }
+
+    class CookiePropagationMessageHandler : DelegatingHandler
+    {
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly string[] _cookieNames;
+
+        public CookiePropagationMessageHandler(IHttpContextAccessor httpContextAccessor, params string[] cookieNames)
+        {
+            _httpContextAccessor = httpContextAccessor;
+            _cookieNames = cookieNames;
         }
 
-        public static IHttpClientBuilder SkipCertificateValidation(this IHttpClientBuilder builder)
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            return builder.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext != null)
             {
-                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
-            });
-        }
+                var httpRequest = httpContext.Request;
 
-        /// <summary>
-        /// Adds a message handler for propagating cookies from current HTTP request to an outgoing request,
-        /// explicitly specifying which cookies to propagate.
-        /// </summary>
-        /// <param name="cookieNames">A list of specific cookie names to propagate. If null or empty all request cookies will be propagated.</param>
-        public static IHttpClientBuilder PropagateCookies(this IHttpClientBuilder builder, params string[] cookieNames)
-        {
-            return builder.AddHttpMessageHandler(services =>
-            {
-                return new CookiePropagationMessageHandler(services.GetRequiredService<IHttpContextAccessor>(), cookieNames ?? Array.Empty<string>());
-            });
-        }
-
-        class CookiePropagationMessageHandler : DelegatingHandler
-        {
-            private readonly IHttpContextAccessor _httpContextAccessor;
-            private readonly string[] _cookieNames;
-
-            public CookiePropagationMessageHandler(IHttpContextAccessor httpContextAccessor, params string[] cookieNames)
-            {
-                _httpContextAccessor = httpContextAccessor;
-                _cookieNames = cookieNames;
-            }
-
-            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-            {
-                var httpContext = _httpContextAccessor.HttpContext;
-                if (httpContext != null)
+                if (_cookieNames.Length == 0)
                 {
-                    var httpRequest = httpContext.Request;
+                    request.Headers.TryAddWithoutValidation("Cookie", httpRequest.Headers.Cookie.ToString());
+                }
+                else
+                {
+                    var cookieContainer = new CookieContainer(_cookieNames.Length);
 
-                    if (_cookieNames.Length == 0)
+                    foreach (var cookieName in _cookieNames)
                     {
-                        request.Headers.TryAddWithoutValidation("Cookie", httpRequest.Headers.Cookie.ToString());
+                        if (httpRequest.Cookies.TryGetValue(cookieName, out var cookieValue))
+                        {
+                            cookieContainer.Add(new Cookie(
+                                cookieName,
+                                cookieValue,
+                                httpRequest.PathBase.Value.NullEmpty(),
+                                httpRequest.Host.Host));
+                        }
                     }
-                    else
+
+                    if (cookieContainer.Count > 0)
                     {
-                        var cookieContainer = new CookieContainer(_cookieNames.Length);
-
-                        foreach (var cookieName in _cookieNames)
-                        {
-                            if (httpRequest.Cookies.TryGetValue(cookieName, out var cookieValue))
-                            {
-                                cookieContainer.Add(new Cookie(
-                                    cookieName,
-                                    cookieValue,
-                                    httpRequest.PathBase.Value.NullEmpty(),
-                                    httpRequest.Host.Host));
-                            }
-                        }
-
-                        if (cookieContainer.Count > 0)
-                        {
-                            var cookieHeader = cookieContainer.GetCookieHeader(new Uri(httpRequest.GetDisplayUrl()));
-                            request.Headers.TryAddWithoutValidation("Cookie", cookieHeader);
-                        }
+                        var cookieHeader = cookieContainer.GetCookieHeader(new Uri(httpRequest.GetDisplayUrl()));
+                        request.Headers.TryAddWithoutValidation("Cookie", cookieHeader);
                     }
                 }
-
-                return base.SendAsync(request, cancellationToken);
             }
+
+            return base.SendAsync(request, cancellationToken);
         }
     }
 }

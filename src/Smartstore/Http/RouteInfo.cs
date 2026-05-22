@@ -1,10 +1,10 @@
 ﻿#nullable enable
 
-using Microsoft.AspNetCore.Routing;
-using System.Text.Json.Serialization;
-using System.Text.Json;
-using Smartstore.Json.Polymorphy;
 using System.ComponentModel;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Routing;
+using Smartstore.Json.Polymorphy;
 
 namespace Smartstore.Http;
 
@@ -108,12 +108,12 @@ internal sealed class RouteInfoJsonConverter : JsonConverter<RouteInfo>
     {
         writer.WriteStartObject();
         writer.WriteString("Action", value.Action);
-        
+
         if (value.Controller != null)
         {
             writer.WriteString("Controller", value.Controller);
         }
-        
+
         writer.WritePropertyName("RouteValues");
         //JsonSerializer.Serialize(writer, value.RouteValues, options);
         options.SerializePolymorphic(writer, value.RouteValues.ToDictionary());

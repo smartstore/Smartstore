@@ -213,7 +213,7 @@ public static class OrderQueryExtensions
 
         if (billingEmail.HasValue())
         {
-            query = query.Where(x => x.BillingAddress != null 
+            query = query.Where(x => x.BillingAddress != null
                 && !string.IsNullOrEmpty(x.BillingAddress.Email) && x.BillingAddress.Email.Contains(billingEmail));
         }
 
@@ -381,7 +381,7 @@ public static class OrderQueryExtensions
     public static IQueryable<Order> ApplyOrderNumberFilter(this IQueryable<Order> query, string number)
     {
         Guard.NotNull(query);
-        
+
         if (number.HasValue())
         {
             if (Guid.TryParse(number, out var guid))

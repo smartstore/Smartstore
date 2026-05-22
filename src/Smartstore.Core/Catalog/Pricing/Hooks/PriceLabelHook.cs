@@ -2,49 +2,48 @@
 using Smartstore.Core.Localization;
 using Smartstore.Data.Hooks;
 
-namespace Smartstore.Core.Catalog.Pricing
+namespace Smartstore.Core.Catalog.Pricing;
+
+internal class PriceLabelHook : AsyncDbSaveHook<PriceLabel>
 {
-    internal class PriceLabelHook : AsyncDbSaveHook<PriceLabel>
+    private readonly SmartDbContext _db;
+    private readonly PriceSettings _priceSettings;
+    private string _hookErrorMessage;
+
+    public PriceLabelHook(SmartDbContext db, PriceSettings priceSettings)
     {
-        private readonly SmartDbContext _db;
-        private readonly PriceSettings _priceSettings;
-        private string _hookErrorMessage;
+        _db = db;
+        _priceSettings = priceSettings;
+    }
 
-        public PriceLabelHook(SmartDbContext db, PriceSettings priceSettings)
+    public Localizer T { get; set; } = NullLocalizer.Instance;
+
+    protected override Task<HookResult> OnDeletingAsync(PriceLabel entity, IHookedEntity entry, CancellationToken cancelToken)
+    {
+        if (entity.Id == _priceSettings.DefaultRegularPriceLabelId)
         {
-            _db = db;
-            _priceSettings = priceSettings;
+            entry.ResetState();
+            _hookErrorMessage = T("Admin.Configuration.PriceLabel.CantDeleteDefaultRegularPriceLabel");
+        }
+        else if (entity.Id == _priceSettings.DefaultComparePriceLabelId)
+        {
+            entry.ResetState();
+            _hookErrorMessage = T("Admin.Configuration.PriceLabel.CantDeleteDefaultComparePriceLabel");
         }
 
-        public Localizer T { get; set; } = NullLocalizer.Instance;
+        return Task.FromResult(HookResult.Ok);
+    }
 
-        protected override Task<HookResult> OnDeletingAsync(PriceLabel entity, IHookedEntity entry, CancellationToken cancelToken)
+    public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+    {
+        if (_hookErrorMessage.HasValue())
         {
-            if (entity.Id == _priceSettings.DefaultRegularPriceLabelId)
-            {
-                entry.ResetState();
-                _hookErrorMessage = T("Admin.Configuration.PriceLabel.CantDeleteDefaultRegularPriceLabel");
-            }
-            else if (entity.Id == _priceSettings.DefaultComparePriceLabelId)
-            {
-                entry.ResetState();
-                _hookErrorMessage = T("Admin.Configuration.PriceLabel.CantDeleteDefaultComparePriceLabel");
-            }
+            var message = new string(_hookErrorMessage);
+            _hookErrorMessage = null;
 
-            return Task.FromResult(HookResult.Ok);
+            throw new HookException(message);
         }
 
-        public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
-        {
-            if (_hookErrorMessage.HasValue())
-            {
-                var message = new string(_hookErrorMessage);
-                _hookErrorMessage = null;
-
-                throw new HookException(message);
-            }
-
-            return Task.CompletedTask;
-        }
+        return Task.CompletedTask;
     }
 }

@@ -2,30 +2,29 @@
 using Moq;
 using NUnit.Framework;
 
-namespace Smartstore.Test.Common
+namespace Smartstore.Test.Common;
+
+public abstract class TestsBase
 {
-    public abstract class TestsBase
+    protected MockRepository mocks;
+
+    [OneTimeSetUp]
+    public virtual void SetUp()
     {
-        protected MockRepository mocks;
+        mocks = new MockRepository(MockBehavior.Loose);
+    }
 
-        [OneTimeSetUp]
-        public virtual void SetUp()
+    [TearDown]
+    public virtual void TearDown()
+    {
+        if (mocks != null)
         {
-            mocks = new MockRepository(MockBehavior.Loose);
+            mocks.VerifyAll();
         }
+    }
 
-        [TearDown]
-        public virtual void TearDown()
-        {
-            if (mocks != null)
-            {
-                mocks.VerifyAll();
-            }
-        }
-
-        protected static IPrincipal CreatePrincipal(string name, params string[] roles)
-        {
-            return new GenericPrincipal(new GenericIdentity(name, "TestIdentity"), roles);
-        }
+    protected static IPrincipal CreatePrincipal(string name, params string[] roles)
+    {
+        return new GenericPrincipal(new GenericIdentity(name, "TestIdentity"), roles);
     }
 }

@@ -1,18 +1,17 @@
-﻿namespace Smartstore.Pdf
+﻿namespace Smartstore.Pdf;
+
+/// <summary>
+/// PDF page orientation
+/// </summary>
+public enum PdfPageOrientation
 {
     /// <summary>
-    /// PDF page orientation
+    /// Landscape orientation
     /// </summary>
-    public enum PdfPageOrientation
-    {
-        /// <summary>
-        /// Landscape orientation
-        /// </summary>
-        Landscape,
+    Landscape,
 
-        /// <summary>
-        /// Portrait orientation (default)
-        /// </summary>
-        Portrait
-    }
+    /// <summary>
+    /// Portrait orientation (default)
+    /// </summary>
+    Portrait
 }

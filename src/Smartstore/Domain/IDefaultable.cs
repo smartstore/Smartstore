@@ -17,6 +17,6 @@ public interface IDefaultable
     /// Resets all settings or values to their default state.
     /// </summary>
     /// <exception cref="NotImplementedException">The method is not implemented.</exception>
-    void ResetToDefault() 
+    void ResetToDefault()
         => throw new NotImplementedException();
 }

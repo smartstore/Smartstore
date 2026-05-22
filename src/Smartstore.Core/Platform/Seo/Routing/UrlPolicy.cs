@@ -91,7 +91,7 @@ public sealed class UrlPolicy
         set => _defaultCultureCode = value;
     }
 
-    public LocalizationSettings LocalizationSettings 
+    public LocalizationSettings LocalizationSettings
     {
         get => _localizationSettings ??= _services.GetRequiredService<LocalizationSettings>();
         set => _localizationSettings = value;

@@ -187,7 +187,7 @@ internal class Startup : StarterBase
                 });
             });
 
-            builder.Configure(StarterOrdering.BeforeRoutingMiddleware, app => 
+            builder.Configure(StarterOrdering.BeforeRoutingMiddleware, app =>
             {
                 if (isDev)
                 {

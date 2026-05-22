@@ -148,8 +148,8 @@ public class CheckoutAttributeController : AdminController
             _activityLogger.LogActivity(KnownActivityLogTypes.AddNewCheckoutAttribute, T("ActivityLog.AddNewCheckoutAttribute"), checkoutAttribute.Name);
             NotifySuccess(T("Admin.Catalog.Attributes.CheckoutAttributes.Added"));
 
-            return continueEditing 
-                ? RedirectToAction(nameof(Edit), new { id = checkoutAttribute.Id }) 
+            return continueEditing
+                ? RedirectToAction(nameof(Edit), new { id = checkoutAttribute.Id })
                 : RedirectToAction(nameof(List));
         }
 
@@ -200,8 +200,8 @@ public class CheckoutAttributeController : AdminController
             _activityLogger.LogActivity(KnownActivityLogTypes.EditCheckoutAttribute, T("ActivityLog.EditCheckoutAttribute"), checkoutAttribute.Name);
             NotifySuccess(T("Admin.Catalog.Attributes.CheckoutAttributes.Updated"));
 
-            return continueEditing 
-                ? RedirectToAction(nameof(Edit), checkoutAttribute.Id) 
+            return continueEditing
+                ? RedirectToAction(nameof(Edit), checkoutAttribute.Id)
                 : RedirectToAction(nameof(List));
         }
 
@@ -235,13 +235,13 @@ public class CheckoutAttributeController : AdminController
     {
         var entities = await _db.CheckoutAttributes.GetManyAsync(selection.GetEntityIds(), true);
         if (entities.Count > 0)
-        {                
+        {
             _db.CheckoutAttributes.RemoveRange(entities);
             await _db.SaveChangesAsync();
 
             _activityLogger.LogActivity(
-                KnownActivityLogTypes.DeleteCheckoutAttribute, 
-                T("ActivityLog.DeleteCheckoutAttribute"), 
+                KnownActivityLogTypes.DeleteCheckoutAttribute,
+                T("ActivityLog.DeleteCheckoutAttribute"),
                 string.Join(", ", entities.Select(x => x.Name)));
         }
 

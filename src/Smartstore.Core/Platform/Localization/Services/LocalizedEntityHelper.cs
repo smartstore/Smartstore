@@ -4,84 +4,167 @@ using Smartstore.Core.Seo;
 using Smartstore.Engine.Modularity;
 using Smartstore.Utilities.Html;
 
-namespace Smartstore.Core.Localization
+namespace Smartstore.Core.Localization;
+
+public partial class LocalizedEntityHelper
 {
-    public partial class LocalizedEntityHelper
+    private readonly SmartDbContext _db;
+    private readonly ILanguageService _languageService;
+    private readonly ILocalizedEntityService _localizedEntityService;
+    private readonly ILocalizationService _localizationService;
+    private readonly IUrlService _urlService;
+    private readonly IWorkContext _workContext;
+
+    private int? _languageCount;
+    private Language _masterLanguage;
+
+    public LocalizedEntityHelper(
+        SmartDbContext db,
+        ILanguageService languageService,
+        ILocalizedEntityService localizedEntityService,
+        ILocalizationService localizationService,
+        IUrlService urlService,
+        IWorkContext workContext)
     {
-        private readonly SmartDbContext _db;
-        private readonly ILanguageService _languageService;
-        private readonly ILocalizedEntityService _localizedEntityService;
-        private readonly ILocalizationService _localizationService;
-        private readonly IUrlService _urlService;
-        private readonly IWorkContext _workContext;
+        _db = db;
+        _languageService = languageService;
+        _localizedEntityService = localizedEntityService;
+        _localizationService = localizationService;
+        _urlService = urlService;
+        _workContext = workContext;
+    }
 
-        private int? _languageCount;
-        private Language _masterLanguage;
+    private int LanguageCount
+    {
+        get => _languageCount ??= _db.Languages.ApplyStandardFilter().Count();
+    }
 
-        public LocalizedEntityHelper(
-            SmartDbContext db,
-            ILanguageService languageService,
-            ILocalizedEntityService localizedEntityService,
-            ILocalizationService localizationService,
-            IUrlService urlService,
-            IWorkContext workContext)
+    private Language MasterLanguage
+    {
+        get => _masterLanguage ??= _db.Languages.FindById(_languageService.GetMasterLanguageId());
+    }
+
+    public LocalizedValue<TProp> GetLocalizedValue<T, TProp>(T obj,
+        int id, // T is BaseEntity = EntityId, T is ISetting = StoreId
+        string localeKeyGroup,
+        string localeKey,
+        Func<T, TProp> fallback,
+        object requestLanguageIdOrObj, // Id or Language
+        bool returnDefaultValue = true,
+        bool ensureTwoPublishedLanguages = true,
+        bool detectEmptyHtml = false)
+        where T : class
+    {
+        Guard.NotNull(obj, nameof(obj));
+
+        TProp result = default;
+        var str = string.Empty;
+
+        Language currentLanguage = null;
+        Language requestLanguage = null;
+
+        if (requestLanguageIdOrObj is not Language language)
         {
-            _db = db;
-            _languageService = languageService;
-            _localizedEntityService = localizedEntityService;
-            _localizationService = localizationService;
-            _urlService = urlService;
-            _workContext = workContext;
+            if (requestLanguageIdOrObj is int requestLanguageId)
+            {
+                requestLanguage = _db.Languages.FindById(requestLanguageId);
+            }
+        }
+        else
+        {
+            requestLanguage = language;
         }
 
-        private int LanguageCount
+        if (requestLanguage == null)
         {
-            get => _languageCount ??= _db.Languages.ApplyStandardFilter().Count();
+            requestLanguage = _workContext.WorkingLanguage;
         }
 
-        private Language MasterLanguage
+        // Ensure that we have at least two published languages
+        var loadLocalizedValue = true;
+        if (ensureTwoPublishedLanguages)
         {
-            get => _masterLanguage ??= _db.Languages.FindById(_languageService.GetMasterLanguageId());
+            loadLocalizedValue = LanguageCount > 1;
         }
 
-        public LocalizedValue<TProp> GetLocalizedValue<T, TProp>(T obj,
-            int id, // T is BaseEntity = EntityId, T is ISetting = StoreId
-            string localeKeyGroup,
-            string localeKey,
-            Func<T, TProp> fallback,
-            object requestLanguageIdOrObj, // Id or Language
-            bool returnDefaultValue = true,
-            bool ensureTwoPublishedLanguages = true,
-            bool detectEmptyHtml = false)
-            where T : class
+        // Localized value
+        if (loadLocalizedValue)
         {
-            Guard.NotNull(obj, nameof(obj));
+            str = _localizedEntityService.GetLocalizedValue(requestLanguage.Id, id, localeKeyGroup, localeKey);
 
-            TProp result = default;
-            var str = string.Empty;
-
-            Language currentLanguage = null;
-            Language requestLanguage = null;
-
-            if (requestLanguageIdOrObj is not Language language)
+            if (detectEmptyHtml && HtmlUtility.IsEmptyHtml(str))
             {
-                if (requestLanguageIdOrObj is int requestLanguageId)
-                {
-                    requestLanguage = _db.Languages.FindById(requestLanguageId);
-                }
-            }
-            else
-            {
-                requestLanguage = language;
+                str = string.Empty;
             }
 
-            if (requestLanguage == null)
+            if (!string.IsNullOrEmpty(str))
             {
-                requestLanguage = _workContext.WorkingLanguage;
+                currentLanguage = requestLanguage;
+                result = str.Convert<TProp>(CultureInfo.InvariantCulture);
             }
+        }
 
+        // Set default value if required
+        if (returnDefaultValue && string.IsNullOrEmpty(str))
+        {
+            currentLanguage = MasterLanguage;
+            result = fallback(obj);
+        }
+
+        if (currentLanguage == null)
+        {
+            currentLanguage = requestLanguage;
+        }
+
+        return new LocalizedValue<TProp>(result, requestLanguage, currentLanguage);
+    }
+
+    public string GetLocalizedModuleProperty(IModuleDescriptor module, string propertyName, int languageId = 0, bool doFallback = true)
+    {
+        Guard.NotNull(module);
+        Guard.NotEmpty(propertyName);
+
+        var systemName = module.SystemName;
+        var resourceName = string.Format("Plugins.{0}.{1}", propertyName, systemName);
+        var result = _localizationService.GetResource(resourceName, languageId, logIfNotFound: false, returnEmptyIfNotFound: true);
+
+        if (string.IsNullOrEmpty(result) && doFallback)
+        {
+            var prop = module.GetType().GetProperty(propertyName);
+            if (prop != null)
+            {
+                result = prop.GetValue(module) as string;
+            }
+        }
+
+        return result;
+    }
+
+    public virtual string GetActiveSlug(
+        string entityName,
+        int entityId,
+        int? languageId,
+        bool returnDefaultValue = true,
+        bool ensureTwoPublishedLanguages = true)
+    {
+        return GetActiveSlugAsync(entityName, entityId, languageId, returnDefaultValue, ensureTwoPublishedLanguages).Await();
+    }
+
+    public virtual async Task<string> GetActiveSlugAsync(
+        string entityName,
+        int entityId,
+        int? languageId,
+        bool returnDefaultValue = true,
+        bool ensureTwoPublishedLanguages = true)
+    {
+        string result = string.Empty;
+
+        languageId ??= _workContext.WorkingLanguage.Id;
+
+        if (languageId > 0)
+        {
             // Ensure that we have at least two published languages
-            var loadLocalizedValue = true;
+            bool loadLocalizedValue = true;
             if (ensureTwoPublishedLanguages)
             {
                 loadLocalizedValue = LanguageCount > 1;
@@ -90,100 +173,16 @@ namespace Smartstore.Core.Localization
             // Localized value
             if (loadLocalizedValue)
             {
-                str = _localizedEntityService.GetLocalizedValue(requestLanguage.Id, id, localeKeyGroup, localeKey);
-
-                if (detectEmptyHtml && HtmlUtility.IsEmptyHtml(str))
-                {
-                    str = string.Empty;
-                }
-
-                if (!string.IsNullOrEmpty(str))
-                {
-                    currentLanguage = requestLanguage;
-                    result = str.Convert<TProp>(CultureInfo.InvariantCulture);
-                }
+                result = await _urlService.GetActiveSlugAsync(entityId, entityName, languageId.Value);
             }
-
-            // Set default value if required
-            if (returnDefaultValue && string.IsNullOrEmpty(str))
-            {
-                currentLanguage = MasterLanguage;
-                result = fallback(obj);
-            }
-
-            if (currentLanguage == null)
-            {
-                currentLanguage = requestLanguage;
-            }
-
-            return new LocalizedValue<TProp>(result, requestLanguage, currentLanguage);
         }
 
-        public string GetLocalizedModuleProperty(IModuleDescriptor module, string propertyName, int languageId = 0, bool doFallback = true)
+        // Set default value if required
+        if (string.IsNullOrEmpty(result) && returnDefaultValue)
         {
-            Guard.NotNull(module);
-            Guard.NotEmpty(propertyName);
-
-            var systemName = module.SystemName;
-            var resourceName = string.Format("Plugins.{0}.{1}", propertyName, systemName);
-            var result = _localizationService.GetResource(resourceName, languageId, logIfNotFound: false, returnEmptyIfNotFound: true);
-
-            if (string.IsNullOrEmpty(result) && doFallback)
-            {
-                var prop = module.GetType().GetProperty(propertyName);
-                if (prop != null)
-                {
-                    result = prop.GetValue(module) as string;
-                }
-            }
-
-            return result;
+            result = await _urlService.GetActiveSlugAsync(entityId, entityName, 0);
         }
 
-        public virtual string GetActiveSlug(
-            string entityName,
-            int entityId,
-            int? languageId,
-            bool returnDefaultValue = true,
-            bool ensureTwoPublishedLanguages = true)
-        {
-            return GetActiveSlugAsync(entityName, entityId, languageId, returnDefaultValue, ensureTwoPublishedLanguages).Await();
-        }
-
-        public virtual async Task<string> GetActiveSlugAsync(
-            string entityName,
-            int entityId,
-            int? languageId,
-            bool returnDefaultValue = true,
-            bool ensureTwoPublishedLanguages = true)
-        {
-            string result = string.Empty;
-
-            languageId ??= _workContext.WorkingLanguage.Id;
-
-            if (languageId > 0)
-            {
-                // Ensure that we have at least two published languages
-                bool loadLocalizedValue = true;
-                if (ensureTwoPublishedLanguages)
-                {
-                    loadLocalizedValue = LanguageCount > 1;
-                }
-
-                // Localized value
-                if (loadLocalizedValue)
-                {
-                    result = await _urlService.GetActiveSlugAsync(entityId, entityName, languageId.Value);
-                }
-            }
-
-            // Set default value if required
-            if (string.IsNullOrEmpty(result) && returnDefaultValue)
-            {
-                result = await _urlService.GetActiveSlugAsync(entityId, entityName, 0);
-            }
-
-            return result;
-        }
+        return result;
     }
 }

@@ -155,7 +155,7 @@ public class SqlServerDataProvider : DataProvider
     {
         get
         {
-            var enabled = _marsCache.GetOrAdd(Database.GetConnectionString(), conString => 
+            var enabled = _marsCache.GetOrAdd(Database.GetConnectionString(), conString =>
             {
                 var builder = new SqlConnectionStringBuilder(conString);
                 return builder.MultipleActiveResultSets;
@@ -183,8 +183,8 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
     protected override ValueTask<bool> HasDatabaseCore(string databaseName, bool async)
     {
         FormattableString sql = $"SELECT database_id FROM sys.databases WHERE name = {databaseName}";
-        return async 
-            ? Database.ExecuteQueryInterpolatedAsync<string>(sql).AnyAsync() 
+        return async
+            ? Database.ExecuteQueryInterpolatedAsync<string>(sql).AnyAsync()
             : ValueTask.FromResult(Database.ExecuteQueryInterpolated<string>(sql).Any());
     }
 
@@ -219,7 +219,7 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
             ? Database.ExecuteSqlRawAsync(sql)
             : Task.FromResult(Database.ExecuteSqlRaw(sql));
     }
-    
+
     protected override async Task<int> InsertIntoCore(string sql, bool async, params object[] parameters)
     {
         sql += "; SELECT @@IDENTITY;";
@@ -237,7 +237,7 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
     {
         return DetectSqlError(updateException?.InnerException, _uniquenessViolationErrorCodes);
     }
-    
+
     protected override Task<long> GetDatabaseSizeCore(bool async)
     {
         var sql = "SELECT SUM(CAST(size AS bigint) * 8192) FROM sys.database_files";
@@ -309,7 +309,7 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
 
     protected override Task<int> BackupDatabaseCore(string fullPath, bool async, CancellationToken cancelToken = default)
     {
-        return async 
+        return async
             ? Database.ExecuteSqlRawAsync(CreateBackupSql(), new object[] { fullPath }, cancelToken)
             : Task.FromResult(Database.ExecuteSqlRaw(CreateBackupSql(), new object[] { fullPath }));
     }

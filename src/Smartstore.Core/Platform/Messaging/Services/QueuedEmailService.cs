@@ -80,7 +80,7 @@ public partial class QueuedEmailService : IQueuedEmailService
         var result = false;
         var saveToDisk = ShouldSaveToDisk();
         var groupedQueuedEmails = queuedEmails.GroupBy(x => x.EmailAccountId);
-        
+
         foreach (var group in groupedQueuedEmails)
         {
             var account = group.FirstOrDefault().EmailAccount;
@@ -276,7 +276,7 @@ public partial class QueuedEmailService : IQueuedEmailService
                         attachment.IsEmbedded = true;
                         attachment.ContentId = qea.ContentId;
                     }
-                    
+
                     msg.Attachments.Add(attachment);
                 }
             }

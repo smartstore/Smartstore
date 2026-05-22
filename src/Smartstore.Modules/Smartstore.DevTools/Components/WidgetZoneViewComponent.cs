@@ -14,7 +14,7 @@ public class WidgetZoneViewComponent : SmartViewComponent
             // Zone preview rendering
             return View();
         }
-        
+
         // Menu rendering
         var widgetProvider = HttpContext.RequestServices.GetRequiredService<IWidgetProvider>();
 

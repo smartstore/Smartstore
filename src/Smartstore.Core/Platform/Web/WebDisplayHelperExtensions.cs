@@ -11,9 +11,9 @@ public static class WebDisplayHelperExtensions
     #region URL
 
     /// <inheritdoc cref="IWebHelper.ModifyQueryString(string?, string?, string?, string?)" />
-    public static string ModifyQueryString(this IDisplayHelper displayHelper, 
-        string? url, 
-        string? queryModification, 
+    public static string ModifyQueryString(this IDisplayHelper displayHelper,
+        string? url,
+        string? queryModification,
         string? removeParamName = null,
         string? anchor = null)
     {

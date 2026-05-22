@@ -1,28 +1,27 @@
-﻿namespace Smartstore.Core.Search
+﻿namespace Smartstore.Core.Search;
+
+public abstract class SearchFilterBase : ISearchFilter
 {
-    public abstract class SearchFilterBase : ISearchFilter
+    protected SearchFilterBase()
     {
-        protected SearchFilterBase()
-        {
-            Occurence = SearchFilterOccurence.Should;
-        }
+        Occurence = SearchFilterOccurence.Should;
+    }
 
-        public string FieldName
-        {
-            get;
-            protected internal set;
-        }
+    public string FieldName
+    {
+        get;
+        protected internal set;
+    }
 
-        public float? Boost
-        {
-            get;
-            protected internal set;
-        }
+    public float? Boost
+    {
+        get;
+        protected internal set;
+    }
 
-        public SearchFilterOccurence Occurence
-        {
-            get;
-            protected internal set;
-        }
+    public SearchFilterOccurence Occurence
+    {
+        get;
+        protected internal set;
     }
 }

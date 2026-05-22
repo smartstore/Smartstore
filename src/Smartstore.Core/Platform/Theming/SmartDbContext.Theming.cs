@@ -1,9 +1,8 @@
 ﻿using Smartstore.Core.Theming;
 
-namespace Smartstore.Core.Data
+namespace Smartstore.Core.Data;
+
+public partial class SmartDbContext
 {
-    public partial class SmartDbContext
-    {
-        public DbSet<ThemeVariable> ThemeVariables { get; set; }
-    }
+    public DbSet<ThemeVariable> ThemeVariables { get; set; }
 }

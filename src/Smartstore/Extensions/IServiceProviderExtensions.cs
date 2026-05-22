@@ -38,7 +38,7 @@ public static class IServiceProviderExtensions
                     return new FastActivator(constructor);
                 }
             }
-            
+
             return null;
         });
 

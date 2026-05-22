@@ -2,27 +2,26 @@
 using Smartstore.Core.Rules;
 using Smartstore.Core.Web;
 
-namespace Smartstore.Core.Checkout.Rules.Impl
+namespace Smartstore.Core.Checkout.Rules.Impl;
+
+internal class IPCountryRule : IRule<CartRuleContext>
 {
-    internal class IPCountryRule : IRule<CartRuleContext>
+    private readonly IGeoCountryLookup _countryLookup;
+    private readonly IWebHelper _webHelper;
+
+    public IPCountryRule(IGeoCountryLookup countryLookup, IWebHelper webHelper)
     {
-        private readonly IGeoCountryLookup _countryLookup;
-        private readonly IWebHelper _webHelper;
+        _countryLookup = countryLookup;
+        _webHelper = webHelper;
+    }
 
-        public IPCountryRule(IGeoCountryLookup countryLookup, IWebHelper webHelper)
-        {
-            _countryLookup = countryLookup;
-            _webHelper = webHelper;
-        }
+    public Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
+    {
+        var countryIsoCode =
+            _webHelper.ClientInfo.Country?.IsoCode?.NullEmpty() ??
+            _countryLookup.LookupCountry(context.Customer?.LastIpAddress)?.IsoCode?.NullEmpty();
 
-        public Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
-        {
-            var countryIsoCode = 
-                _webHelper.ClientInfo.Country?.IsoCode?.NullEmpty() ??
-                _countryLookup.LookupCountry(context.Customer?.LastIpAddress)?.IsoCode?.NullEmpty();
-
-            var match = expression.HasListMatch(countryIsoCode ?? string.Empty, comparer: StringComparer.InvariantCultureIgnoreCase);
-            return Task.FromResult(match);
-        }
+        var match = expression.HasListMatch(countryIsoCode ?? string.Empty, comparer: StringComparer.InvariantCultureIgnoreCase);
+        return Task.FromResult(match);
     }
 }

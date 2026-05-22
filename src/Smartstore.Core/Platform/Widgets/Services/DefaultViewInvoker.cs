@@ -57,7 +57,7 @@ public class DefaultViewInvoker : IViewInvoker
         Guard.NotNull(actionContext);
         Guard.NotNull(result);
 
-        var widget = result.ViewComponentType != null 
+        var widget = result.ViewComponentType != null
             ? new ComponentWidget(result.ViewComponentType, result.Arguments)
             : new ComponentWidget(result.ViewComponentName!, result.Arguments);
 

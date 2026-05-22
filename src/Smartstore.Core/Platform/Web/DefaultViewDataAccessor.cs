@@ -18,14 +18,14 @@ public class DefaultViewDataAccessor : IViewDataAccessor, IActionFilter
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public ViewDataDictionary? ViewData 
+    public ViewDataDictionary? ViewData
         => _httpContextAccessor.HttpContext?.Items[ViewDataAccessKey] as ViewDataDictionary;
 
     void IActionFilter.OnActionExecuting(ActionExecutingContext context)
     {
         if (context.Controller is Controller controller)
         {
-            controller.HttpContext.Items[ViewDataAccessKey] = controller.ViewData;             
+            controller.HttpContext.Items[ViewDataAccessKey] = controller.ViewData;
         }
     }
 

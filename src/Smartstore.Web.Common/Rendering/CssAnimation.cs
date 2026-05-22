@@ -1,15 +1,14 @@
-﻿namespace Smartstore.Web.Rendering
+﻿namespace Smartstore.Web.Rendering;
+
+public enum CssAnimation
 {
-    public enum CssAnimation
-    {
-        Fade,
-        Spin,
-        SpinReverse,
-        SpinPulse,
-        SpinPulseReverse,
-        Beat,
-        Throb,
-        Cylon,
-        CylonVertical
-    }
+    Fade,
+    Spin,
+    SpinReverse,
+    SpinPulse,
+    SpinPulseReverse,
+    Beat,
+    Throb,
+    Cylon,
+    CylonVertical
 }

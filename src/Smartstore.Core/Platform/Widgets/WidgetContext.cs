@@ -35,8 +35,8 @@ public class WidgetContext
     /// <summary>
     /// Gets the <see cref="HttpContext"/>
     /// </summary>
-    public HttpContext HttpContext 
-    { 
+    public HttpContext HttpContext
+    {
         get => ActionContext.HttpContext;
     }
 

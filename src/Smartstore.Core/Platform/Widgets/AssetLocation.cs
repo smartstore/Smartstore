@@ -1,14 +1,13 @@
-﻿namespace Smartstore.Core.Widgets
+﻿namespace Smartstore.Core.Widgets;
+
+public enum AssetLocation
 {
-    public enum AssetLocation
-    {
-        /// <summary>
-        /// Header
-        /// </summary>
-        Head,
-        /// <summary>
-        /// Footer
-        /// </summary>
-        Foot
-    }
+    /// <summary>
+    /// Header
+    /// </summary>
+    Head,
+    /// <summary>
+    /// Footer
+    /// </summary>
+    Foot
 }

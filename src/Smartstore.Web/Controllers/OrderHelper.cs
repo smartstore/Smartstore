@@ -679,9 +679,10 @@ public partial class OrderHelper
         var currencies = await _db.Currencies.AsNoTracking().ToListAsync();
 
         var countryNames = countries.Select(x => new
-        { 
+        {
             x.Value.Id,
-            Name = x.Value.GetLocalized(y => y.Name).Value }
+            Name = x.Value.GetLocalized(y => y.Name).Value
+        }
         );
 
         var context = new OrderHelperContext

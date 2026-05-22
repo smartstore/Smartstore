@@ -1,155 +1,154 @@
 ﻿using Autofac;
 using Smartstore.Core.Configuration;
 
-namespace Smartstore.Engine.Modularity
+namespace Smartstore.Engine.Modularity;
+
+public partial class ProviderManager : IProviderManager
 {
-    public partial class ProviderManager : IProviderManager
+    private readonly IComponentContext _ctx;
+    private readonly ISettingService _settingService;
+    private readonly IModuleConstraint _moduleConstraint;
+
+    public ProviderManager(
+        IComponentContext ctx,
+        ISettingService settingService,
+        IModuleConstraint moduleConstraint)
     {
-        private readonly IComponentContext _ctx;
-        private readonly ISettingService _settingService;
-        private readonly IModuleConstraint _moduleConstraint;
+        _ctx = ctx;
+        _settingService = settingService;
+        _moduleConstraint = moduleConstraint;
+    }
 
-        public ProviderManager(
-            IComponentContext ctx,
-            ISettingService settingService,
-            IModuleConstraint moduleConstraint)
+    public Provider<TProvider> GetProvider<TProvider>(string systemName, int storeId = 0) where TProvider : IProvider
+    {
+        if (systemName.IsEmpty())
         {
-            _ctx = ctx;
-            _settingService = settingService;
-            _moduleConstraint = moduleConstraint;
-        }
-
-        public Provider<TProvider> GetProvider<TProvider>(string systemName, int storeId = 0) where TProvider : IProvider
-        {
-            if (systemName.IsEmpty())
-            {
-                return null;
-            }   
-
-            var provider = _ctx.ResolveOptionalNamed<Lazy<TProvider, ProviderMetadata>>(systemName);
-
-            if (provider != null)
-            {
-                if (storeId > 0)
-                {
-                    var d = provider.Metadata.ModuleDescriptor;
-                    if (d != null && !_moduleConstraint.Matches(d, storeId))
-                    {
-                        return null;
-                    }
-                }
-
-                SetUserData(provider.Metadata);
-                return new Provider<TProvider>(provider);
-            }
-
             return null;
         }
 
-        public Provider<IProvider> GetProvider(string systemName, int storeId = 0)
+        var provider = _ctx.ResolveOptionalNamed<Lazy<TProvider, ProviderMetadata>>(systemName);
+
+        if (provider != null)
         {
-            Guard.NotEmpty(systemName);
-
-            var provider = _ctx.ResolveOptionalNamed<Lazy<IProvider, ProviderMetadata>>(systemName);
-
-            if (provider != null)
+            if (storeId > 0)
             {
-                if (storeId > 0)
+                var d = provider.Metadata.ModuleDescriptor;
+                if (d != null && !_moduleConstraint.Matches(d, storeId))
                 {
-                    var d = provider.Metadata.ModuleDescriptor;
-                    if (d != null && !_moduleConstraint.Matches(d, storeId))
-                    {
-                        return null;
-                    }
+                    return null;
                 }
-
-                SetUserData(provider.Metadata);
-                return new Provider<IProvider>(provider);
             }
 
-            return null;
+            SetUserData(provider.Metadata);
+            return new Provider<TProvider>(provider);
         }
 
-        public IEnumerable<Provider<TProvider>> GetAllProviders<TProvider>(int storeId = 0) where TProvider : IProvider
-        {
-            var providers = _ctx.Resolve<IEnumerable<Lazy<TProvider, ProviderMetadata>>>();
+        return null;
+    }
 
+    public Provider<IProvider> GetProvider(string systemName, int storeId = 0)
+    {
+        Guard.NotEmpty(systemName);
+
+        var provider = _ctx.ResolveOptionalNamed<Lazy<IProvider, ProviderMetadata>>(systemName);
+
+        if (provider != null)
+        {
             if (storeId > 0)
             {
-                providers = from p in providers
-                            let d = p.Metadata.ModuleDescriptor
-                            where d == null || _moduleConstraint.Matches(d, storeId)
-                            select p;
+                var d = provider.Metadata.ModuleDescriptor;
+                if (d != null && !_moduleConstraint.Matches(d, storeId))
+                {
+                    return null;
+                }
             }
 
-            return SortProviders(providers.Select(x => new Provider<TProvider>(x)));
+            SetUserData(provider.Metadata);
+            return new Provider<IProvider>(provider);
         }
 
-        public IEnumerable<Provider<IProvider>> GetAllProviders(int storeId = 0)
+        return null;
+    }
+
+    public IEnumerable<Provider<TProvider>> GetAllProviders<TProvider>(int storeId = 0) where TProvider : IProvider
+    {
+        var providers = _ctx.Resolve<IEnumerable<Lazy<TProvider, ProviderMetadata>>>();
+
+        if (storeId > 0)
         {
-            var providers = _ctx.Resolve<IEnumerable<Lazy<IProvider, ProviderMetadata>>>();
-
-            if (storeId > 0)
-            {
-                providers = from p in providers
-                            let d = p.Metadata.ModuleDescriptor
-                            where d == null || _moduleConstraint.Matches(d, storeId)
-                            select p;
-            }
-
-            return SortProviders(providers.Select(x => new Provider<IProvider>(x)));
+            providers = from p in providers
+                        let d = p.Metadata.ModuleDescriptor
+                        where d == null || _moduleConstraint.Matches(d, storeId)
+                        select p;
         }
 
-        protected virtual IEnumerable<Provider<TProvider>> SortProviders<TProvider>(IEnumerable<Provider<TProvider>> providers) where TProvider : IProvider
+        return SortProviders(providers.Select(x => new Provider<TProvider>(x)));
+    }
+
+    public IEnumerable<Provider<IProvider>> GetAllProviders(int storeId = 0)
+    {
+        var providers = _ctx.Resolve<IEnumerable<Lazy<IProvider, ProviderMetadata>>>();
+
+        if (storeId > 0)
         {
-            foreach (var m in providers.Select(x => x.Metadata))
-            {
-                SetUserData(m);
-            }
-
-            return providers.OrderBy(x => x.Metadata.DisplayOrder).ThenBy(x => x.Metadata.FriendlyName);
+            providers = from p in providers
+                        let d = p.Metadata.ModuleDescriptor
+                        where d == null || _moduleConstraint.Matches(d, storeId)
+                        select p;
         }
 
-        protected virtual void SetUserData(ProviderMetadata metadata)
+        return SortProviders(providers.Select(x => new Provider<IProvider>(x)));
+    }
+
+    protected virtual IEnumerable<Provider<TProvider>> SortProviders<TProvider>(IEnumerable<Provider<TProvider>> providers) where TProvider : IProvider
+    {
+        foreach (var m in providers.Select(x => x.Metadata))
         {
-            if (!metadata.IsEditable)
-            {
-                return;
-            }
-
-            metadata.FriendlyName = GetUserSetting(metadata, x => x.FriendlyName);
-            metadata.Description = GetUserSetting(metadata, x => x.Description);
-
-            var displayOrder = GetUserSetting<int?>(metadata, x => x.DisplayOrder);
-            if (displayOrder.HasValue)
-            {
-                metadata.DisplayOrder = displayOrder.Value;
-            }
+            SetUserData(m);
         }
 
-        public bool IsEnabledForStore(IModuleDescriptor module, int storeId)
+        return providers.OrderBy(x => x.Metadata.DisplayOrder).ThenBy(x => x.Metadata.FriendlyName);
+    }
+
+    protected virtual void SetUserData(ProviderMetadata metadata)
+    {
+        if (!metadata.IsEditable)
         {
-            return _moduleConstraint.Matches(module, storeId);
+            return;
         }
 
-        public T GetUserSetting<T>(ProviderMetadata metadata, Expression<Func<ProviderMetadata, T>> propertyAccessor)
+        metadata.FriendlyName = GetUserSetting(metadata, x => x.FriendlyName);
+        metadata.Description = GetUserSetting(metadata, x => x.Description);
+
+        var displayOrder = GetUserSetting<int?>(metadata, x => x.DisplayOrder);
+        if (displayOrder.HasValue)
         {
-            Guard.NotNull(metadata);
-            Guard.NotNull(propertyAccessor);
-
-            var settingKey = metadata.SettingKeyPattern.FormatInvariant(metadata.SystemName, propertyAccessor.ExtractPropertyInfo().Name);
-            return _settingService.GetSettingByKey<T>(settingKey);
+            metadata.DisplayOrder = displayOrder.Value;
         }
+    }
 
-        public ApplySettingResult ApplyUserSetting<T>(ProviderMetadata metadata, Expression<Func<ProviderMetadata, T>> propertyAccessor)
-        {
-            Guard.NotNull(metadata);
-            Guard.NotNull(propertyAccessor);
+    public bool IsEnabledForStore(IModuleDescriptor module, int storeId)
+    {
+        return _moduleConstraint.Matches(module, storeId);
+    }
 
-            var settingKey = metadata.SettingKeyPattern.FormatInvariant(metadata.SystemName, propertyAccessor.ExtractPropertyInfo().Name);
-            var value = propertyAccessor.Compile().Invoke(metadata);
+    public T GetUserSetting<T>(ProviderMetadata metadata, Expression<Func<ProviderMetadata, T>> propertyAccessor)
+    {
+        Guard.NotNull(metadata);
+        Guard.NotNull(propertyAccessor);
 
-            return _settingService.ApplySettingAsync(settingKey, value).Await();
-        }
+        var settingKey = metadata.SettingKeyPattern.FormatInvariant(metadata.SystemName, propertyAccessor.ExtractPropertyInfo().Name);
+        return _settingService.GetSettingByKey<T>(settingKey);
+    }
+
+    public ApplySettingResult ApplyUserSetting<T>(ProviderMetadata metadata, Expression<Func<ProviderMetadata, T>> propertyAccessor)
+    {
+        Guard.NotNull(metadata);
+        Guard.NotNull(propertyAccessor);
+
+        var settingKey = metadata.SettingKeyPattern.FormatInvariant(metadata.SystemName, propertyAccessor.ExtractPropertyInfo().Name);
+        var value = propertyAccessor.Compile().Invoke(metadata);
+
+        return _settingService.ApplySettingAsync(settingKey, value).Await();
     }
 }

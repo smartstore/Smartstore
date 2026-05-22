@@ -68,8 +68,8 @@ public class DefaultWidgetSelector : IWidgetSelector
         return zone switch
         {
             "start" => StartAliases,
-            "end"   => EndAliases,
-            _       => null
+            "end" => EndAliases,
+            _ => null
         };
     }
 }

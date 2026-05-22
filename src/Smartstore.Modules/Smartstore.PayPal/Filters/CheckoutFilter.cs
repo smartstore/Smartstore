@@ -36,7 +36,7 @@ public class CheckoutFilter : IAsyncResultFilter
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly Lazy<IWidgetProvider> _widgetProvider;
     private readonly PayPalHelper _payPalHelper;
-    
+
     public CheckoutFilter(
         SmartDbContext db,
         ICommonServices services,
@@ -188,7 +188,7 @@ public class CheckoutFilter : IAsyncResultFilter
                 }
             }
         }
-        
+
         await next();
     }
 

@@ -37,7 +37,7 @@ public abstract class QuantityInputMapperBase<TFrom, TTo> : IMapper<TFrom, TTo>
                 Selected = model.EnteredQuantity == qty,
                 Disabled = model.MaxInStock.HasValue && qty > model.MaxInStock.Value
             }));
-        } 
+        }
     }
 
     protected virtual void PostProcess(TTo model)

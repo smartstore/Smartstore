@@ -27,7 +27,7 @@ public class OffCanvasShoppingCartFilter : IAsyncResultFilter
             await next();
             return;
         }
-        
+
         // Should only run on a full view rendering result or HTML ContentResult.
         if (filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult())
         {

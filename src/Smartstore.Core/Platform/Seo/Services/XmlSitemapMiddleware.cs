@@ -1,57 +1,56 @@
 ﻿using System.Net;
 using Microsoft.AspNetCore.Http;
 
-namespace Smartstore.Core.Seo
-{
-    public class XmlSitemapMiddleware
-    {
-        private readonly RequestDelegate _next;
+namespace Smartstore.Core.Seo;
 
-        public XmlSitemapMiddleware(RequestDelegate next)
+public class XmlSitemapMiddleware
+{
+    private readonly RequestDelegate _next;
+
+    public XmlSitemapMiddleware(RequestDelegate next)
+    {
+        _next = next;
+    }
+
+    public async Task Invoke(HttpContext context, SeoSettings seoSettings, IXmlSitemapGenerator sitemapGenerator)
+    {
+        var response = context.Response;
+
+        if (!seoSettings.XmlSitemapEnabled)
         {
-            _next = next;
+            response.StatusCode = 404;
+            return;
         }
 
-        public async Task Invoke(HttpContext context, SeoSettings seoSettings, IXmlSitemapGenerator sitemapGenerator)
+        try
         {
-            var response = context.Response;
+            //var index = context.Request.Query["index"].ToString().Convert<int>();
+            var index = context.GetRouteValueAs<int>("index");
+            var partition = await sitemapGenerator.GetSitemapPartAsync(index);
 
-            if (!seoSettings.XmlSitemapEnabled)
+            using (partition.Stream)
             {
-                response.StatusCode = 404;
-                return;
+                response.StatusCode = 200;
+                response.ContentType = "application/xml";
+                response.ContentLength = partition.Stream.Length;
+                await partition.Stream.CopyToAsync(response.Body);
             }
+        }
+        catch (IndexOutOfRangeException)
+        {
+            await SendStatus(HttpStatusCode.BadRequest, "Sitemap index is out of range.");
 
-            try
-            {
-                //var index = context.Request.Query["index"].ToString().Convert<int>();
-                var index = context.GetRouteValueAs<int>("index");
-                var partition = await sitemapGenerator.GetSitemapPartAsync(index);
+        }
+        catch (Exception ex)
+        {
+            await SendStatus(HttpStatusCode.InternalServerError, ex.Message);
+            //throw;
+        }
 
-                using (partition.Stream)
-                {
-                    response.StatusCode = 200;
-                    response.ContentType = "application/xml";
-                    response.ContentLength = partition.Stream.Length;
-                    await partition.Stream.CopyToAsync(response.Body);
-                }
-            }
-            catch (IndexOutOfRangeException)
-            {
-                await SendStatus(HttpStatusCode.BadRequest, "Sitemap index is out of range.");
-
-            }
-            catch (Exception ex)
-            {
-                await SendStatus(HttpStatusCode.InternalServerError, ex.Message);
-                //throw;
-            }
-
-            Task SendStatus(HttpStatusCode code, string message)
-            {
-                response.StatusCode = (int)code;
-                return response.WriteAsync(message);
-            }
+        Task SendStatus(HttpStatusCode code, string message)
+        {
+            response.StatusCode = (int)code;
+            return response.WriteAsync(message);
         }
     }
 }

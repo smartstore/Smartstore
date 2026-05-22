@@ -1,15 +1,14 @@
-﻿namespace Smartstore
+﻿namespace Smartstore;
+
+/// <summary>
+/// Generic variant of <see cref="ICloneable" />.
+/// </summary>
+/// <typeparam name="T">The type of object that is cloned</typeparam>
+public interface ICloneable<T> : ICloneable
 {
     /// <summary>
-    /// Generic variant of <see cref="ICloneable" />.
+    /// Clones the object.
     /// </summary>
-    /// <typeparam name="T">The type of object that is cloned</typeparam>
-    public interface ICloneable<T> : ICloneable
-    {
-        /// <summary>
-        /// Clones the object.
-        /// </summary>
-        /// <returns>The cloned instance</returns>
-        new T Clone();
-    }
+    /// <returns>The cloned instance</returns>
+    new T Clone();
 }

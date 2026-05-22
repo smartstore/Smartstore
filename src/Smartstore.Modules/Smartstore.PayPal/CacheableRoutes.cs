@@ -8,6 +8,6 @@ internal sealed class CacheableRoutes : ICacheableRouteProvider
 
     public IEnumerable<string> GetCacheableRoutes()
     {
-        return [ "vc:Smartstore.PayPal/PayPalPayLaterMessage" ];
+        return ["vc:Smartstore.PayPal/PayPalPayLaterMessage"];
     }
 }

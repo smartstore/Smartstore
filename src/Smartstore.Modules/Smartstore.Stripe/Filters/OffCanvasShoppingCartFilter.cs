@@ -13,7 +13,7 @@ public class OffCanvasShoppingCartFilter : IAsyncResultFilter
     private readonly IWidgetProvider _widgetProvider;
     private readonly StripeHelper _stripeHelper;
 
-    public OffCanvasShoppingCartFilter(StripeSettings settings,  IWidgetProvider widgetProvider, StripeHelper stripeHelper)
+    public OffCanvasShoppingCartFilter(StripeSettings settings, IWidgetProvider widgetProvider, StripeHelper stripeHelper)
     {
         _settings = settings;
         _widgetProvider = widgetProvider;

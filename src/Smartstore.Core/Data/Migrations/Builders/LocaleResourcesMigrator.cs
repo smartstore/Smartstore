@@ -2,155 +2,154 @@
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
 
-namespace Smartstore.Core.Data.Migrations
+namespace Smartstore.Core.Data.Migrations;
+
+internal class LocaleResourcesMigrator
 {
-    internal class LocaleResourcesMigrator
+    private readonly SmartDbContext _db;
+    private readonly DbSet<Language> _languages;
+    private readonly DbSet<LocaleStringResource> _resources;
+
+    public LocaleResourcesMigrator(SmartDbContext db)
     {
-        private readonly SmartDbContext _db;
-        private readonly DbSet<Language> _languages;
-        private readonly DbSet<LocaleStringResource> _resources;
+        _db = Guard.NotNull(db);
+        _languages = db.Languages;
+        _resources = db.LocaleStringResources;
+    }
 
-        public LocaleResourcesMigrator(SmartDbContext db)
+    public async Task<int> MigrateAsync(IEnumerable<LocaleResourceEntry> entries, bool updateTouchedResources = false)
+    {
+        Guard.NotNull(entries);
+
+        if (!entries.Any() || !_languages.Any())
+            return 0;
+
+        using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Essential))
         {
-            _db = Guard.NotNull(db);
-            _languages = db.Languages;
-            _resources = db.LocaleStringResources;
-        }
+            var langMap = (await _languages
+                .ToListAsync())
+                .ToDictionarySafe(x => x.LanguageCulture.EmptyNull().ToLower());
 
-        public async Task<int> MigrateAsync(IEnumerable<LocaleResourceEntry> entries, bool updateTouchedResources = false)
-        {
-            Guard.NotNull(entries);
+            var toDelete = new List<LocaleStringResource>();
+            var toUpdate = new List<LocaleStringResource>();
+            var toAdd = new List<LocaleStringResource>();
 
-            if (!entries.Any() || !_languages.Any())
-                return 0;
-
-            using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Essential))
+            bool IsEntryValid(LocaleResourceEntry entry, Language targetLang)
             {
-                var langMap = (await _languages
-                    .ToListAsync())
-                    .ToDictionarySafe(x => x.LanguageCulture.EmptyNull().ToLower());
+                if (entry.Lang == null)
+                    return true;
 
-                var toDelete = new List<LocaleStringResource>();
-                var toUpdate = new List<LocaleStringResource>();
-                var toAdd = new List<LocaleStringResource>();
+                var sourceLangCode = entry.Lang.ToLower();
 
-                bool IsEntryValid(LocaleResourceEntry entry, Language targetLang)
+                if (targetLang != null)
                 {
-                    if (entry.Lang == null)
+                    var culture = targetLang.LanguageCulture;
+                    if (culture == sourceLangCode || culture.StartsWith(sourceLangCode + "-"))
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    if (langMap.ContainsKey(sourceLangCode))
                         return true;
 
-                    var sourceLangCode = entry.Lang.ToLower();
+                    if (langMap.Keys.Any(k => k.StartsWith(sourceLangCode + "-", StringComparison.OrdinalIgnoreCase)))
+                        return true;
+                }
 
-                    if (targetLang != null)
+                return false;
+            }
+
+            // Remove all entries with invalid lang identifier
+            var invalidEntries = entries.Where(x => !IsEntryValid(x, null));
+            if (invalidEntries.Any())
+            {
+                entries = entries.Except(invalidEntries).ToArray();
+            }
+
+            foreach (var lang in langMap)
+            {
+                var validEntries = entries.Where(x => IsEntryValid(x, lang.Value)).ToArray();
+                foreach (var entry in validEntries)
+                {
+                    var dbRes = GetResource(entry.Key, lang.Value.Id, toAdd, out bool isLocal);
+
+                    if (dbRes == null && entry.Value.HasValue() && !entry.UpdateOnly)
                     {
-                        var culture = targetLang.LanguageCulture;
-                        if (culture == sourceLangCode || culture.StartsWith(sourceLangCode + "-"))
-                        {
-                            return true;
-                        }
+                        // ADD action
+                        toAdd.Add(new LocaleStringResource { LanguageId = lang.Value.Id, ResourceName = entry.Key, ResourceValue = entry.Value });
+                    }
+
+                    if (dbRes == null)
+                        continue;
+
+                    if (entry.Value == null)
+                    {
+                        // DELETE action
+                        if (isLocal)
+                            toAdd.Remove(dbRes);
+                        else
+                            toDelete.Add(dbRes);
                     }
                     else
                     {
-                        if (langMap.ContainsKey(sourceLangCode))
-                            return true;
-
-                        if (langMap.Keys.Any(k => k.StartsWith(sourceLangCode + "-", StringComparison.OrdinalIgnoreCase)))
-                            return true;
-                    }
-
-                    return false;
-                }
-
-                // Remove all entries with invalid lang identifier
-                var invalidEntries = entries.Where(x => !IsEntryValid(x, null));
-                if (invalidEntries.Any())
-                {
-                    entries = entries.Except(invalidEntries).ToArray();
-                }
-
-                foreach (var lang in langMap)
-                {
-                    var validEntries = entries.Where(x => IsEntryValid(x, lang.Value)).ToArray();
-                    foreach (var entry in validEntries)
-                    {
-                        var dbRes = GetResource(entry.Key, lang.Value.Id, toAdd, out bool isLocal);
-
-                        if (dbRes == null && entry.Value.HasValue() && !entry.UpdateOnly)
+                        if (isLocal)
                         {
-                            // ADD action
-                            toAdd.Add(new LocaleStringResource { LanguageId = lang.Value.Id, ResourceName = entry.Key, ResourceValue = entry.Value });
-                        }
-
-                        if (dbRes == null)
+                            dbRes.ResourceValue = entry.Value;
                             continue;
-
-                        if (entry.Value == null)
-                        {
-                            // DELETE action
-                            if (isLocal)
-                                toAdd.Remove(dbRes);
-                            else
-                                toDelete.Add(dbRes);
                         }
-                        else
-                        {
-                            if (isLocal)
-                            {
-                                dbRes.ResourceValue = entry.Value;
-                                continue;
-                            }
 
-                            // UPDATE action
-                            if (updateTouchedResources || !dbRes.IsTouched.GetValueOrDefault())
-                            {
-                                dbRes.ResourceValue = entry.Value;
-                                toUpdate.Add(dbRes);
-                                if (toDelete.Contains(dbRes))
-                                    toDelete.Remove(dbRes);
-                            }
+                        // UPDATE action
+                        if (updateTouchedResources || !dbRes.IsTouched.GetValueOrDefault())
+                        {
+                            dbRes.ResourceValue = entry.Value;
+                            toUpdate.Add(dbRes);
+                            if (toDelete.Contains(dbRes))
+                                toDelete.Remove(dbRes);
                         }
                     }
-                }
-
-                try
-                {
-                    if (toAdd.Any() || toDelete.Any() || toUpdate.Any())
-                    {
-                        // add new resources to context
-                        _resources.AddRange(toAdd);
-
-                        // remove deleted resources
-                        _resources.RemoveRange(toDelete);
-
-                        // save now
-                        return await _db.SaveChangesAsync();
-                    }
-
-                    return 0;
-                }
-                finally
-                {
-                    // Forces db refresh on next language entity load
-                    _db.DetachEntities<LocaleStringResource>();
-                    _db.DetachEntities<Language>();
                 }
             }
-        }
 
-        private LocaleStringResource GetResource(string key, int langId, IList<LocaleStringResource> local, out bool isLocal)
-        {
-            var res = local.FirstOrDefault(x => x.ResourceName.Equals(key, StringComparison.InvariantCultureIgnoreCase) && x.LanguageId == langId);
-            isLocal = res != null;
-
-            if (res == null)
+            try
             {
-                res = _resources
-                    .Where(x => x.ResourceName == key && x.LanguageId == langId)
-                    .FirstOrDefault();
-            }
+                if (toAdd.Any() || toDelete.Any() || toUpdate.Any())
+                {
+                    // add new resources to context
+                    _resources.AddRange(toAdd);
 
-            return res;
+                    // remove deleted resources
+                    _resources.RemoveRange(toDelete);
+
+                    // save now
+                    return await _db.SaveChangesAsync();
+                }
+
+                return 0;
+            }
+            finally
+            {
+                // Forces db refresh on next language entity load
+                _db.DetachEntities<LocaleStringResource>();
+                _db.DetachEntities<Language>();
+            }
+        }
+    }
+
+    private LocaleStringResource GetResource(string key, int langId, IList<LocaleStringResource> local, out bool isLocal)
+    {
+        var res = local.FirstOrDefault(x => x.ResourceName.Equals(key, StringComparison.InvariantCultureIgnoreCase) && x.LanguageId == langId);
+        isLocal = res != null;
+
+        if (res == null)
+        {
+            res = _resources
+                .Where(x => x.ResourceName == key && x.LanguageId == langId)
+                .FirstOrDefault();
         }
 
+        return res;
     }
+
 }

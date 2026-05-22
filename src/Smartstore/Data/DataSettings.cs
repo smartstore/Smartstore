@@ -201,8 +201,8 @@ public partial class DataSettings
 
                     if (shouldSave)
                     {
-                        new DataSettings 
-                        { 
+                        new DataSettings
+                        {
                             TenantName = TenantName,
                             TenantRoot = TenantRoot,
                             AppVersion = currentVersion,
@@ -239,7 +239,7 @@ public partial class DataSettings
         if (!IsValid())
         {
             return false;
-        } 
+        }
 
         using (_rwLock.GetWriteLock())
         {

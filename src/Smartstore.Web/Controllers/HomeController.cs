@@ -162,7 +162,7 @@ public class HomeController : PublicController
         var store = _storeContext.CurrentStore;
         var storeUrl = Services.WebHelper.GetStoreLocation();
         var builder = _assetBuilder.JsonLd;
-        
+
         var contactPoint = JsonLdFragment.Create("ContactPoint", new
         {
             telephone = (_contactDataSettings.HotlineTelephoneNumber ?? _contactDataSettings.CompanyTelephoneNumber).NullEmpty(),

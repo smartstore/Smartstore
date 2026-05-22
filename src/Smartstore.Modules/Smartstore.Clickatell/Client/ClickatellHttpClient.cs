@@ -30,7 +30,7 @@ public class ClickatellHttpClient
             ["content"] = text,
             ["to"] = settings.PhoneNumber.SplitSafe(';')
         };
-        
+
         var errorMessage = string.Empty;
 
         try

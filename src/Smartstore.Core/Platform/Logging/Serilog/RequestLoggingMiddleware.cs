@@ -106,7 +106,7 @@ internal class RequestLoggingMiddleware
             {
                 collectedProperties = Array.Empty<LogEventProperty>();
             }
-            
+
             // Last-in (correctly) wins...
             var properties = collectedProperties.Concat(
             [

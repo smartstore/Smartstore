@@ -273,4 +273,3 @@ bool IsApiQueryWarning(LogEvent e)
 }
 
 #endregion
-

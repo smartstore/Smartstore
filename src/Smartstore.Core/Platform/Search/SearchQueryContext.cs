@@ -1,27 +1,26 @@
-﻿namespace Smartstore.Core.Search
+﻿namespace Smartstore.Core.Search;
+
+public class SearchQueryContext<TQuery> where TQuery : ISearchQuery
 {
-    public class SearchQueryContext<TQuery> where TQuery : ISearchQuery
+    public SearchQueryContext(TQuery query)
     {
-        public SearchQueryContext(TQuery query)
-        {
-            SearchQuery = Guard.NotNull(query);
+        SearchQuery = Guard.NotNull(query);
 
-            CopyFilters(query.Filters);
-        }
+        CopyFilters(query.Filters);
+    }
 
-        public TQuery SearchQuery { get; }
-        
-        public DateTime Now { get; init; } = DateTime.UtcNow;
-        public bool IsGroupingRequired { get; set; }
+    public TQuery SearchQuery { get; }
 
-        /// <summary>
-        /// All query filters.
-        /// </summary>
-        public List<ISearchFilter> Filters { get; } = new();
+    public DateTime Now { get; init; } = DateTime.UtcNow;
+    public bool IsGroupingRequired { get; set; }
 
-        protected virtual void CopyFilters(ICollection<ISearchFilter> filters)
-        {
-            Filters.AddRange(filters);
-        }
+    /// <summary>
+    /// All query filters.
+    /// </summary>
+    public List<ISearchFilter> Filters { get; } = new();
+
+    protected virtual void CopyFilters(ICollection<ISearchFilter> filters)
+    {
+        Filters.AddRange(filters);
     }
 }

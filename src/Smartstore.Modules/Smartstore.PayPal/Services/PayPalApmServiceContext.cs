@@ -13,7 +13,7 @@ public class PayPalApmServiceContext
     private readonly ICheckoutStateAccessor _checkoutStateAccessor;
     private readonly IValidator<PublicApmModel> _validator;
     private readonly IPaymentService _paymentService;
-    
+
     public PayPalApmServiceContext(
         SmartDbContext db,
         PayPalHttpClient client,

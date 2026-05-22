@@ -6,7 +6,7 @@ public static class LoggerExtensions
 {
     #region Is[X]Enabled
 
-    extension (ILogger l)
+    extension(ILogger l)
     {
         public bool IsTraceEnabled()
             => l.IsEnabled(LogLevel.Trace);
@@ -31,7 +31,7 @@ public static class LoggerExtensions
 
     #region Log methods
 
-    extension (ILogger l)
+    extension(ILogger l)
     {
         public void Trace(string? msg, params object?[] args)
         {

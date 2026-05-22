@@ -49,7 +49,7 @@ internal class ByTotalProvider : IShippingRateComputationMethod, IConfigurable
     /// <param name="stateProvinceId">state province identifier</param>
     /// <param name="zip">Zip code</param>
     /// <returns>the rate for the shipping method</returns>
-		private async Task<decimal?> GetRateAsync(decimal subtotal, int shippingMethodId, int storeId, int countryId, int stateProvinceId, string zip)
+    private async Task<decimal?> GetRateAsync(decimal subtotal, int shippingMethodId, int storeId, int countryId, int stateProvinceId, string zip)
     {
         decimal? shippingTotal = null;
 

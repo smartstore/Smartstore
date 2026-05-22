@@ -3,43 +3,42 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Catalog;
 using Smartstore.Utilities;
 
-namespace Smartstore.Web.TagHelpers.Shared
+namespace Smartstore.Web.TagHelpers.Shared;
+
+[HtmlTargetElement("collapsed-content")]
+public class CollapsedContentTagHelper : TagHelper
 {
-    [HtmlTargetElement("collapsed-content")]
-    public class CollapsedContentTagHelper : TagHelper
+    const string MaxHeightAttributeName = "sm-max-height";
+
+    private readonly CatalogSettings _catalogSettings;
+
+    public CollapsedContentTagHelper(CatalogSettings catalogSettings)
     {
-        const string MaxHeightAttributeName = "sm-max-height";
+        _catalogSettings = catalogSettings;
+    }
 
-        private readonly CatalogSettings _catalogSettings;
+    [HtmlAttributeName(MaxHeightAttributeName)]
+    public int? MaxHeight { get; set; }
 
-        public CollapsedContentTagHelper(CatalogSettings catalogSettings)
+    public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
+    {
+        output.TagName = null;
+        await output.LoadAndSetChildContentAsync();
+
+        if (_catalogSettings.EnableHtmlTextCollapser && (MaxHeight.HasValue && MaxHeight > 0))
         {
-            _catalogSettings = catalogSettings;
-        }
+            var maxHeight = MaxHeight ?? _catalogSettings.HtmlTextCollapsedHeight;
+            var classes = output.Attributes.TryGetAttribute("class", out var attr) ? $"more-less {attr.Value}" : "more-less";
 
-        [HtmlAttributeName(MaxHeightAttributeName)]
-        public int? MaxHeight { get; set; }
+            var outer = new TagBuilder("div");
+            outer.MergeAttribute("id", "more-less" + CommonHelper.GenerateRandomInteger());
+            outer.Attributes.Add("class", classes);
+            outer.Attributes.Add("data-max-height", maxHeight.ToString());
 
-        public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
-        {
-            output.TagName = null;
-            await output.LoadAndSetChildContentAsync();
+            var inner = new TagBuilder("div");
+            inner.Attributes.Add("class", "more-block");
 
-            if (_catalogSettings.EnableHtmlTextCollapser && (MaxHeight.HasValue && MaxHeight > 0))
-            {
-                var maxHeight = MaxHeight ?? _catalogSettings.HtmlTextCollapsedHeight;
-                var classes = output.Attributes.TryGetAttribute("class", out var attr) ? $"more-less {attr.Value}" : "more-less";
-
-                var outer = new TagBuilder("div");
-                outer.MergeAttribute("id", "more-less" + CommonHelper.GenerateRandomInteger());
-                outer.Attributes.Add("class", classes);
-                outer.Attributes.Add("data-max-height", maxHeight.ToString());
-
-                var inner = new TagBuilder("div");
-                inner.Attributes.Add("class", "more-block");
-
-                output.WrapContentWith(outer, inner);
-            }
+            output.WrapContentWith(outer, inner);
         }
     }
 }

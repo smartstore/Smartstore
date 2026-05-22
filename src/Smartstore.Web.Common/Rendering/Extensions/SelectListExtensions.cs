@@ -9,288 +9,287 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 
-namespace Smartstore.Web.Rendering
+namespace Smartstore.Web.Rendering;
+
+public static class SelectListExtensions
 {
-    public static class SelectListExtensions
+    public static SelectList ToSelectList<TEnum>(this TEnum enumObj, bool markCurrentAsSelected = true)
+        where TEnum : struct
     {
-        public static SelectList ToSelectList<TEnum>(this TEnum enumObj, bool markCurrentAsSelected = true)
-            where TEnum : struct
+        Guard.IsEnumType(typeof(TEnum));
+
+        var languageId = EngineContext.Current.Scope.Resolve<IWorkContext>().WorkingLanguage.Id;
+
+        var values = from TEnum enumValue in Enum.GetValues(typeof(TEnum))
+                     select new
+                     {
+                         ID = Convert.ToInt32(enumValue),
+                         Name = enumValue.GetLocalizedEnum(languageId)
+                     };
+
+        object? selectedValue = null;
+        if (markCurrentAsSelected)
         {
-            Guard.IsEnumType(typeof(TEnum));
+            selectedValue = Convert.ToInt32(enumObj);
+        }
 
-            var languageId = EngineContext.Current.Scope.Resolve<IWorkContext>().WorkingLanguage.Id;
+        return new SelectList(values, "ID", "Name", selectedValue!);
+    }
 
-            var values = from TEnum enumValue in Enum.GetValues(typeof(TEnum))
-                         select new 
-                         { 
-                             ID = Convert.ToInt32(enumValue), 
-                             Name = enumValue.GetLocalizedEnum(languageId) 
-                         };
+    /// <summary>
+    /// Get a select list of all stores
+    /// </summary>
+    public static IList<SelectListItem> ToSelectListItems(this IEnumerable<Store> stores, params int[] selectedStoreIds)
+    {
+        Guard.NotNull(stores);
 
-            object? selectedValue = null;
-            if (markCurrentAsSelected)
+        return stores.Select(x => new SelectListItem
+        {
+            Text = x.Name,
+            Value = x.Id.ToStringInvariant(),
+            Selected = selectedStoreIds != null && selectedStoreIds.Contains(x.Id)
+        })
+        .ToList();
+    }
+
+    /// <summary>
+    /// Get a select list of all customer roles
+    /// </summary>
+    public static IList<SelectListItem> ToSelectListItems(this IEnumerable<CustomerRole> roles, params int[] selectedCustomerRoleIds)
+    {
+        Guard.NotNull(roles);
+
+        return roles.Select(x => new SelectListItem
+        {
+            Text = x.Name,
+            Value = x.Id.ToStringInvariant(),
+            Selected = selectedCustomerRoleIds != null && selectedCustomerRoleIds.Contains(x.Id)
+        })
+        .ToList();
+    }
+
+    /// <summary>
+    /// Get a select list of all payment methods.
+    /// </summary>
+    /// <param name="paymentProviders">Payment providers.</param>
+    /// <param name="pluginMediator">Plugin mediator.</param>
+    /// <param name="selectedMethods">System name of selected methods.</param>
+    /// <returns>List of select items</returns>
+    public static IList<ExtendedSelectListItem> ToSelectListItems(
+        this IEnumerable<Provider<IPaymentMethod>> paymentProviders,
+        ModuleManager moduleManager,
+        params string[] selectedMethods)
+    {
+        Guard.NotNull(paymentProviders);
+        Guard.NotNull(moduleManager);
+
+        var list = new List<ExtendedSelectListItem>();
+
+        foreach (var provider in paymentProviders)
+        {
+            var systemName = provider.Metadata.SystemName;
+            var name = moduleManager.GetLocalizedFriendlyName(provider.Metadata);
+
+            if (name.IsEmpty())
             {
-                selectedValue = Convert.ToInt32(enumObj);
+                name = provider.Metadata.FriendlyName;
             }
 
-            return new SelectList(values, "ID", "Name", selectedValue!);
-        }
-
-        /// <summary>
-        /// Get a select list of all stores
-        /// </summary>
-        public static IList<SelectListItem> ToSelectListItems(this IEnumerable<Store> stores, params int[] selectedStoreIds)
-        {
-            Guard.NotNull(stores);
-
-            return stores.Select(x => new SelectListItem
+            if (name.IsEmpty())
             {
-                Text = x.Name,
-                Value = x.Id.ToStringInvariant(),
-                Selected = selectedStoreIds != null && selectedStoreIds.Contains(x.Id)
-            })
-            .ToList();
-        }
-
-        /// <summary>
-        /// Get a select list of all customer roles
-        /// </summary>
-        public static IList<SelectListItem> ToSelectListItems(this IEnumerable<CustomerRole> roles, params int[] selectedCustomerRoleIds)
-        {
-            Guard.NotNull(roles);
-
-            return roles.Select(x => new SelectListItem
-            {
-                Text = x.Name,
-                Value = x.Id.ToStringInvariant(),
-                Selected = selectedCustomerRoleIds != null && selectedCustomerRoleIds.Contains(x.Id)
-            })
-            .ToList();
-        }
-
-        /// <summary>
-        /// Get a select list of all payment methods.
-        /// </summary>
-        /// <param name="paymentProviders">Payment providers.</param>
-        /// <param name="pluginMediator">Plugin mediator.</param>
-        /// <param name="selectedMethods">System name of selected methods.</param>
-        /// <returns>List of select items</returns>
-        public static IList<ExtendedSelectListItem> ToSelectListItems(
-            this IEnumerable<Provider<IPaymentMethod>> paymentProviders,
-            ModuleManager moduleManager,
-            params string[] selectedMethods)
-        {
-            Guard.NotNull(paymentProviders);
-            Guard.NotNull(moduleManager);
-
-            var list = new List<ExtendedSelectListItem>();
-
-            foreach (var provider in paymentProviders)
-            {
-                var systemName = provider.Metadata.SystemName;
-                var name = moduleManager.GetLocalizedFriendlyName(provider.Metadata);
-
-                if (name.IsEmpty())
-                {
-                    name = provider.Metadata.FriendlyName;
-                }
-
-                if (name.IsEmpty())
-                {
-                    name = provider.Metadata.SystemName;
-                }
-
-                var item = new ExtendedSelectListItem
-                {
-                    Text = name.NaIfEmpty(),
-                    Value = systemName,
-                    Selected = selectedMethods != null && selectedMethods.Contains(systemName)
-                };
-
-                item.CustomProperties.Add("hint", systemName.Replace("SmartStore.", "").Replace("Payments.", ""));
-
-                list.Add(item);
+                name = provider.Metadata.SystemName;
             }
 
-            return list.OrderBy(x => x.Text).ToList();
+            var item = new ExtendedSelectListItem
+            {
+                Text = name.NaIfEmpty(),
+                Value = systemName,
+                Selected = selectedMethods != null && selectedMethods.Contains(systemName)
+            };
+
+            item.CustomProperties.Add("hint", systemName.Replace("SmartStore.", "").Replace("Payments.", ""));
+
+            list.Add(item);
         }
 
-        /// <summary>
-        /// Gets a select list of countries.
-        /// </summary>
-        /// <param name="countries">Countries.</param>
-        /// <param name="selectedCountryIds">Identifiers of countries to be selected.</param>
-        /// <returns>Select list of countries.</returns>
-        public static IList<CountrySelectListItem> ToSelectListItems(this IEnumerable<Country> countries, params int[] selectedCountryIds)
+        return list.OrderBy(x => x.Text).ToList();
+    }
+
+    /// <summary>
+    /// Gets a select list of countries.
+    /// </summary>
+    /// <param name="countries">Countries.</param>
+    /// <param name="selectedCountryIds">Identifiers of countries to be selected.</param>
+    /// <returns>Select list of countries.</returns>
+    public static IList<CountrySelectListItem> ToSelectListItems(this IEnumerable<Country> countries, params int[] selectedCountryIds)
+    {
+        Guard.NotNull(countries);
+
+        return countries.Select(country => new CountrySelectListItem
         {
-            Guard.NotNull(countries);
+            Text = country.GetLocalized(x => x.Name),
+            Value = country.Id.ToStringInvariant(),
+            DisplayOrder = country.DisplayOrder,
+            TwoLetterIsoCode = country.TwoLetterIsoCode,
+            ThreeLetterIsoCode = country.ThreeLetterIsoCode,
+            Selected = selectedCountryIds != null && selectedCountryIds.Contains(country.Id)
+        })
+        .OrderBy(x => x.DisplayOrder)
+        .ThenBy(x => x.Text)
+        .ToList();
+    }
 
-            return countries.Select(country => new CountrySelectListItem
-            {
-                Text = country.GetLocalized(x => x.Name),
-                Value = country.Id.ToStringInvariant(),
-                DisplayOrder = country.DisplayOrder,
-                TwoLetterIsoCode = country.TwoLetterIsoCode,
-                ThreeLetterIsoCode = country.ThreeLetterIsoCode,
-                Selected = selectedCountryIds != null && selectedCountryIds.Contains(country.Id)
-            })
-            .OrderBy(x => x.DisplayOrder)
-            .ThenBy(x => x.Text)
-            .ToList();
-        }
+    /// <summary>
+    /// Gets a select list of countries.
+    /// </summary>
+    /// <param name="countries">Countries.</param>
+    /// <param name="selectedCountryCodes">2-letter ISO codes of countries to be selected.</param>
+    /// <returns>Select list of countries.</returns>
+    public static IList<CountrySelectListItem> ToSelectListItems(this IEnumerable<Country> countries, string[]? selectedCountryCodes)
+    {
+        Guard.NotNull(countries);
+        Guard.NotNull(selectedCountryCodes);
 
-        /// <summary>
-        /// Gets a select list of countries.
-        /// </summary>
-        /// <param name="countries">Countries.</param>
-        /// <param name="selectedCountryCodes">2-letter ISO codes of countries to be selected.</param>
-        /// <returns>Select list of countries.</returns>
-        public static IList<CountrySelectListItem> ToSelectListItems(this IEnumerable<Country> countries, string[]? selectedCountryCodes)
+        return countries.Select(country => new CountrySelectListItem
         {
-            Guard.NotNull(countries);
-            Guard.NotNull(selectedCountryCodes);
+            Text = country.GetLocalized(x => x.Name),
+            Value = country.TwoLetterIsoCode,
+            DisplayOrder = country.DisplayOrder,
+            TwoLetterIsoCode = country.TwoLetterIsoCode,
+            ThreeLetterIsoCode = country.ThreeLetterIsoCode,
+            Selected = selectedCountryCodes != null && selectedCountryCodes.Any(code => IsSelected(country, code))
+        })
+        .OrderBy(x => x.DisplayOrder)
+        .ThenBy(x => x.Text)
+        .ToList();
 
-            return countries.Select(country => new CountrySelectListItem
+        static bool IsSelected(Country country, string? code)
+        {
+            if (code == null) return false;
+            if (code.Length == 2)
             {
-                Text = country.GetLocalized(x => x.Name),
-                Value = country.TwoLetterIsoCode,
-                DisplayOrder = country.DisplayOrder,
-                TwoLetterIsoCode = country.TwoLetterIsoCode,
-                ThreeLetterIsoCode = country.ThreeLetterIsoCode,
-                Selected = selectedCountryCodes != null && selectedCountryCodes.Any(code => IsSelected(country, code))
-            })
-            .OrderBy(x => x.DisplayOrder)
-            .ThenBy(x => x.Text)
-            .ToList();
-
-            static bool IsSelected(Country country, string? code)
-            {
-                if (code == null) return false;
-                if (code.Length == 2)
-                {
-                    return country.TwoLetterIsoCode == code;
-                }
-
-                return false;
+                return country.TwoLetterIsoCode == code;
             }
+
+            return false;
         }
+    }
 
-        /// <summary>
-        /// Gets a select list of languages.
-        /// </summary>
-        /// <param name="languages">Languages.</param>
-        /// <param name="selectedLanguageIds">Identifiers of languages to be selected.</param>
-        /// <returns>Select list of languages.</returns>
-        public static IList<SelectListItem> ToSelectListItems(this IEnumerable<Language> languages, params int[] selectedLanguageIds)
+    /// <summary>
+    /// Gets a select list of languages.
+    /// </summary>
+    /// <param name="languages">Languages.</param>
+    /// <param name="selectedLanguageIds">Identifiers of languages to be selected.</param>
+    /// <returns>Select list of languages.</returns>
+    public static IList<SelectListItem> ToSelectListItems(this IEnumerable<Language> languages, params int[] selectedLanguageIds)
+    {
+        Guard.NotNull(languages);
+
+        return languages.Select(x => new SelectListItem
         {
-            Guard.NotNull(languages);
+            Text = x.GetLocalized(x => x.Name),
+            Value = x.Id.ToStringInvariant(),
+            Selected = selectedLanguageIds?.Contains(x.Id) ?? false
+        })
+        .ToList();
+    }
 
-            return languages.Select(x => new SelectListItem
+    /// <summary>
+    /// Gets a select list of culture codes.
+    /// </summary>
+    public static IList<SelectListItem> ToSelectListItems(this IEnumerable<CultureInfo> cultureInfos, string[]? selectedCultureCodes = null)
+    {
+        Guard.NotNull(cultureInfos);
+
+        return cultureInfos
+            .Select(ci => new SelectListItem
+            {
+                Text = $"{ci.DisplayName} [{ci.Name}]",
+                Value = ci.Name,
+                Selected = selectedCultureCodes?.Contains(ci.Name) ?? false
+            })
+            .ToList();
+    }
+
+    /// <summary>
+    /// Gets a select list of state provinces.
+    /// </summary>
+    /// <param name="stateProvinces">State provinces.</param>
+    /// <param name="selectedStateProvinceIds">Identifiers of state provinces to be selected.</param>
+    /// <returns>Select list of state provinces. <c>null</c> if <paramref name="stateProvinces"/> does not contain any state provinces.</returns>
+    public static IList<SelectListItem>? ToSelectListItems(this IEnumerable<StateProvince> stateProvinces, params int[] selectedStateProvinceIds)
+    {
+        if (stateProvinces?.Any() ?? false)
+        {
+            return stateProvinces.Select(x => new SelectListItem
             {
                 Text = x.GetLocalized(x => x.Name),
                 Value = x.Id.ToStringInvariant(),
-                Selected = selectedLanguageIds?.Contains(x.Id) ?? false
+                Selected = selectedStateProvinceIds != null && selectedStateProvinceIds.Contains(x.Id)
             })
             .ToList();
         }
 
-        /// <summary>
-        /// Gets a select list of culture codes.
-        /// </summary>
-        public static IList<SelectListItem> ToSelectListItems(this IEnumerable<CultureInfo> cultureInfos, string[]? selectedCultureCodes = null)
-        {
-            Guard.NotNull(cultureInfos);
-
-            return cultureInfos
-                .Select(ci => new SelectListItem
-                {
-                    Text = $"{ci.DisplayName} [{ci.Name}]",
-                    Value = ci.Name,
-                    Selected = selectedCultureCodes?.Contains(ci.Name) ?? false
-                })
-                .ToList();
-        }
-
-        /// <summary>
-        /// Gets a select list of state provinces.
-        /// </summary>
-        /// <param name="stateProvinces">State provinces.</param>
-        /// <param name="selectedStateProvinceIds">Identifiers of state provinces to be selected.</param>
-        /// <returns>Select list of state provinces. <c>null</c> if <paramref name="stateProvinces"/> does not contain any state provinces.</returns>
-        public static IList<SelectListItem>? ToSelectListItems(this IEnumerable<StateProvince> stateProvinces, params int[] selectedStateProvinceIds)
-        {
-            if (stateProvinces?.Any() ?? false)
-            {
-                return stateProvinces.Select(x => new SelectListItem
-                {
-                    Text = x.GetLocalized(x => x.Name),
-                    Value = x.Id.ToStringInvariant(),
-                    Selected = selectedStateProvinceIds != null && selectedStateProvinceIds.Contains(x.Id)
-                })
-                .ToList();
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Gets a select list of time zone infos.
-        /// </summary>
-        /// <param name="timeZoneInfos">Time zone infos.</param>
-        /// <param name="selectedTimeZoneId">Identifier of time zone info to be selected.</param>
-        /// <returns>Select list of time zone infos.</returns>
-        public static IList<SelectListItem> ToSelectListItems(this IEnumerable<TimeZoneInfo> timeZoneInfos, string? selectedTimeZoneId = null)
-        {
-            Guard.NotNull(timeZoneInfos);
-
-            return timeZoneInfos.Select(x => new SelectListItem
-            {
-                Text = x.DisplayName,
-                Value = x.Id,
-                Selected = selectedTimeZoneId != null && selectedTimeZoneId.EqualsNoCase(x.Id)
-            })
-            .ToList();
-        }
-
-        public static void SelectValue(this IEnumerable<SelectListItem>? list, string value, string? defaultValue = null)
-        {
-            if (list == null)
-            {
-                return;
-            }
-
-            var item = list.FirstOrDefault(x => x.Value.EqualsNoCase(value));
-            if (item == null && defaultValue != null)
-            {
-                item = list.FirstOrDefault(x => x.Value.EqualsNoCase(defaultValue));
-            }
-
-            if (item != null)
-            {
-                item.Selected = true;
-            } 
-        }
+        return null;
     }
 
-    public partial class CountrySelectListItem : SelectListItem
+    /// <summary>
+    /// Gets a select list of time zone infos.
+    /// </summary>
+    /// <param name="timeZoneInfos">Time zone infos.</param>
+    /// <param name="selectedTimeZoneId">Identifier of time zone info to be selected.</param>
+    /// <returns>Select list of time zone infos.</returns>
+    public static IList<SelectListItem> ToSelectListItems(this IEnumerable<TimeZoneInfo> timeZoneInfos, string? selectedTimeZoneId = null)
     {
-        public int DisplayOrder { get; set; }
-        public string? TwoLetterIsoCode { get; set; }
-        public string? ThreeLetterIsoCode { get; set; }
+        Guard.NotNull(timeZoneInfos);
+
+        return timeZoneInfos.Select(x => new SelectListItem
+        {
+            Text = x.DisplayName,
+            Value = x.Id,
+            Selected = selectedTimeZoneId != null && selectedTimeZoneId.EqualsNoCase(x.Id)
+        })
+        .ToList();
     }
 
-    public partial class ExtendedSelectListItem : SelectListItem
+    public static void SelectValue(this IEnumerable<SelectListItem>? list, string value, string? defaultValue = null)
     {
-        public Dictionary<string, object?> CustomProperties { get; set; } = new();
-
-        public TProperty? Get<TProperty>(string key, TProperty? defaultValue = default)
+        if (list == null)
         {
-            if (CustomProperties.TryGetValue(key, out var value))
-            {
-                return (TProperty)value!;
-            }
-
-            return defaultValue;
+            return;
         }
+
+        var item = list.FirstOrDefault(x => x.Value.EqualsNoCase(value));
+        if (item == null && defaultValue != null)
+        {
+            item = list.FirstOrDefault(x => x.Value.EqualsNoCase(defaultValue));
+        }
+
+        if (item != null)
+        {
+            item.Selected = true;
+        }
+    }
+}
+
+public partial class CountrySelectListItem : SelectListItem
+{
+    public int DisplayOrder { get; set; }
+    public string? TwoLetterIsoCode { get; set; }
+    public string? ThreeLetterIsoCode { get; set; }
+}
+
+public partial class ExtendedSelectListItem : SelectListItem
+{
+    public Dictionary<string, object?> CustomProperties { get; set; } = new();
+
+    public TProperty? Get<TProperty>(string key, TProperty? defaultValue = default)
+    {
+        if (CustomProperties.TryGetValue(key, out var value))
+        {
+            return (TProperty)value!;
+        }
+
+        return defaultValue;
     }
 }

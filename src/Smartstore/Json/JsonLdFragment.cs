@@ -43,7 +43,7 @@ public class JsonLdFragment
     /// Explicitly converts this <see cref="JsonLdFragment"/> to its underlying <see cref="JsonObject"/>.
     /// Useful when a raw <see cref="JsonObject"/> is required, e.g. for <c>Obj(string key, JsonObject raw)</c>.
     /// </summary>
-    public static explicit operator JsonObject(JsonLdFragment obj) 
+    public static explicit operator JsonObject(JsonLdFragment obj)
         => obj._data;
 
     /// <summary>
@@ -51,7 +51,7 @@ public class JsonLdFragment
     /// as the first property, followed by <c>"@type"</c>. Use this for root fragments rendered directly
     /// as JSON-LD script blocks.
     /// </summary>
-    internal static JsonLdFragment CreateTopLevel(string type) 
+    internal static JsonLdFragment CreateTopLevel(string type)
         => new(type, withContext: true);
 
     /// <summary>
@@ -91,7 +91,7 @@ public class JsonLdFragment
         return fragment;
     }
 
-    public JsonObject AsJsonObject() 
+    public JsonObject AsJsonObject()
         => _data;
 
     #region Prop overloads

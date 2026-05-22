@@ -1,12 +1,11 @@
-﻿namespace Smartstore.Pdf.WkHtml
-{
-    public sealed class WkHtmlToPdfException : Exception
-    {
-        public WkHtmlToPdfException(int errCode, string message) : base($"{message} (exit code: {errCode})")
-        {
-            ErrorCode = errCode;
-        }
+﻿namespace Smartstore.Pdf.WkHtml;
 
-        public int ErrorCode { get; }
+public sealed class WkHtmlToPdfException : Exception
+{
+    public WkHtmlToPdfException(int errCode, string message) : base($"{message} (exit code: {errCode})")
+    {
+        ErrorCode = errCode;
     }
+
+    public int ErrorCode { get; }
 }

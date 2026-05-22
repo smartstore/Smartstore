@@ -2,21 +2,20 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Smartstore.Templating;
 
-namespace Smartstore.Bootstrapping
+namespace Smartstore.Bootstrapping;
+
+public static class TemplatingBootstrappingExtensions
 {
-    public static class TemplatingBootstrappingExtensions
+    /// <summary>
+    /// Adds a singleton template manager and a void <see cref="ITemplateEngine"/>.
+    /// </summary>
+    public static IServiceCollection AddTemplateEngine(this IServiceCollection services)
     {
-        /// <summary>
-        /// Adds a singleton template manager and a void <see cref="ITemplateEngine"/>.
-        /// </summary>
-        public static IServiceCollection AddTemplateEngine(this IServiceCollection services)
-        {
-            Guard.NotNull(services, nameof(services));
+        Guard.NotNull(services, nameof(services));
 
-            services.TryAddSingleton<ITemplateEngine>(NullTemplateEngine.Instance);
-            services.TryAddSingleton<ITemplateManager, DefaultTemplateManager>();
+        services.TryAddSingleton<ITemplateEngine>(NullTemplateEngine.Instance);
+        services.TryAddSingleton<ITemplateManager, DefaultTemplateManager>();
 
-            return services;
-        }
+        return services;
     }
 }

@@ -25,7 +25,7 @@ internal class Module : ModuleBase, IConfigurable, IActivatableWidget, ICookiePu
     private readonly WidgetSettings _widgetSettings;
     private readonly GoogleAnalyticsSettings _settings;
 
-    public Module(IProviderManager providerManager,  WidgetSettings widgetSettings, GoogleAnalyticsSettings settings)
+    public Module(IProviderManager providerManager, WidgetSettings widgetSettings, GoogleAnalyticsSettings settings)
     {
         _providerManager = providerManager;
         _widgetSettings = widgetSettings;
@@ -46,7 +46,7 @@ internal class Module : ModuleBase, IConfigurable, IActivatableWidget, ICookiePu
             return Task.FromResult(Enumerable.Empty<CookieInfo>());
         }
 
-        var cookieInfos = new List<CookieInfo> 
+        var cookieInfos = new List<CookieInfo>
         {
             new() {
                 Name = T("Plugins.FriendlyName.SmartStore.Google.Analytics"),

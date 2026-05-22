@@ -5,25 +5,25 @@ public static class IUserAgentExtensions
     /// <summary>
     /// Checks whether agent is a bot.
     /// </summary>
-    public static bool IsBot(this IUserAgent userAgent) 
+    public static bool IsBot(this IUserAgent userAgent)
         => userAgent.Type == UserAgentType.Bot;
 
     /// <summary>
     /// Checks whether agent is a browser.
     /// </summary>
-    public static bool IsBrowser(this IUserAgent userAgent) 
+    public static bool IsBrowser(this IUserAgent userAgent)
         => userAgent.Type == UserAgentType.Browser;
 
     /// <summary>
     /// Checks whether agent is a mobile device.
     /// </summary>
-    public static bool IsMobileDevice(this IUserAgent userAgent) 
+    public static bool IsMobileDevice(this IUserAgent userAgent)
         => userAgent.Device.Type is >= UserAgentDeviceType.Wearable and <= UserAgentDeviceType.Tablet;
 
     /// <summary>
     /// Checks whether agent is a mobile tablet device.
     /// </summary>
-    public static bool IsTablet(this IUserAgent userAgent) 
+    public static bool IsTablet(this IUserAgent userAgent)
         => userAgent.Device.Type is UserAgentDeviceType.Tablet;
 
     /// <summary>
@@ -40,13 +40,13 @@ public static class IUserAgentExtensions
     /// <summary>
     /// Checks whether agent is the Smartstore application itself.
     /// </summary>
-    public static bool IsApplication(this IUserAgent userAgent) 
+    public static bool IsApplication(this IUserAgent userAgent)
         => userAgent.Type == UserAgentType.Application;
 
     /// <summary>
     /// Checks whether agent is the application's PDF converter.
     /// </summary>
-    public static bool IsPdfConverter(this IUserAgent userAgent) 
+    public static bool IsPdfConverter(this IUserAgent userAgent)
         => userAgent.UserAgent == "wkhtmltopdf";
 
     public static bool IsAppleDevice(this IUserAgent userAgent)

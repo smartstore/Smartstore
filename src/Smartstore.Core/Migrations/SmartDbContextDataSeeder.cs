@@ -30,7 +30,7 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Auf die Produkte wurden die folgenden Rabatte gewährt: {0}.");
 
         builder.AddOrUpdate("Identity.Error.PasswordRequiresDigit",
-            "At least one number (0–9)", 
+            "At least one number (0–9)",
             "Mindestens eine Ziffer (0–9)");
 
         builder.AddOrUpdate("Identity.Error.PasswordRequiresLower",
@@ -97,8 +97,8 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.AI.Topic.MetaKeywords", "Meta Keywords", "Meta Keywords");
         builder.AddOrUpdate("Admin.AI.Topic.FullDesc", "Full Description", "Langtext");
         builder.Delete(
-            "Admin.AI.EditHtml", 
-            "Admin.AI.CreateImage", 
+            "Admin.AI.EditHtml",
+            "Admin.AI.CreateImage",
             "Admin.AI.CreateText",
             "Admin.AI.CreateShortDesc",
             "Admin.AI.CreateFullDesc",
@@ -115,7 +115,7 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "I would like to withdraw the entire order:",
             "Ich möchte die gesamte Bestellung stornieren:");
         builder.AddOrUpdate("ReturnCase.WithdrawItems",
-            "I would like to withdraw the following items:", 
+            "I would like to withdraw the following items:",
             "Ich möchte folgende Artikel stornieren:");
 
         builder.AddOrUpdate("Account.CustomerOrders.ReturnItems", "Return items", "Artikel zurücksenden");
@@ -169,7 +169,7 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
         builder.AddOrUpdate("Admin.Configuration.Settings.Order.ReturnRequestActions")
             .Value("en", "Available return actions");
-       
+
         builder.AddOrUpdate("Admin.Configuration.Settings.Order.ReturnRequestActions.Hint",
             "A comma-separated list of the actions that a customer will be able to select when submitting a return request. This is not used for legal withdrawal.",
             "Eine kommaseparierte Liste von Aktionen, aus denen der Benutzer wählen kann, wenn er einen Retourenantrag übermittelt. Beispiel: \"Ersatz\", \"Gutschein\" usw."
@@ -216,8 +216,8 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Online checks are currently unavailable",
             "Onlineprüfung derzeit nicht möglich");
 
-        builder.AddOrUpdate("Admin.Customers.Customers.Fields.VatNumberStatus", 
-            "VAT number status", 
+        builder.AddOrUpdate("Admin.Customers.Customers.Fields.VatNumberStatus",
+            "VAT number status",
             "Status der Steuernummer");
 
         builder.AddOrUpdate("Admin.Customers.Customers.Fields.VatNumber.MarkAs",

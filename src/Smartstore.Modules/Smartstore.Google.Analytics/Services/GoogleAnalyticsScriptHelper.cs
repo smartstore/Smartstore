@@ -104,7 +104,7 @@ public class GoogleAnalyticsScriptHelper
     {
         var brand = model.Brands.FirstOrDefault();
         var price = _roundingHelper.Round(model.Price.FinalPrice).ToStringInvariant();
-        
+
         var productsScript = GetItemScript(
             model.Id,
             model.Sku,
@@ -175,7 +175,7 @@ public class GoogleAnalyticsScriptHelper
 
         var model = await cart.MapAsync();
         var cartItemsScript = GetShoppingCartItemsScript(model.Items.ToList());
-        
+
         var shippingMethod = addShippingInfo ? customer.GenericAttributes.SelectedShippingOption?.Name : null;
         string paymentMethod = null;
 
@@ -319,7 +319,7 @@ public class GoogleAnalyticsScriptHelper
         foreach (var product in products)
         {
             var discount = product.Price.Saving.SavingAmount;
-            
+
             productsScript += GetItemScript(
                 product.Id,
                 product.Sku,
@@ -441,8 +441,8 @@ public class GoogleAnalyticsScriptHelper
                 ["TAX"] = () => order.OrderTax.ToStringInvariant("0.00"),
                 ["SHIP"] = () => order.OrderShippingInclTax.ToStringInvariant("0.00"),
                 ["CURRENCY"] = () => order.CustomerCurrencyCode,
-                ["CITY"] = () => order.BillingAddress == null 
-                    ? string.Empty 
+                ["CITY"] = () => order.BillingAddress == null
+                    ? string.Empty
                     : order.BillingAddress.City.EncodeJsStringUnquoted(),
                 ["STATEPROVINCE"] = () => order.BillingAddress?.StateProvince == null
                     ? string.Empty

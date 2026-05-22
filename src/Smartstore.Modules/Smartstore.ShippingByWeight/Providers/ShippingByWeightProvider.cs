@@ -66,7 +66,7 @@ internal class ShippingByWeightProvider : IShippingRateComputationMethod, IConfi
     /// <param name="countryId">Country identifier</param>
     /// <param name="zip">Zip code</param>
     /// <returns>The rate for the shipping method.</returns>
-		private decimal? GetRate(decimal subtotal, decimal weight, ShippingRateByWeight shippingByWeightRecord)
+    private decimal? GetRate(decimal subtotal, decimal weight, ShippingRateByWeight shippingByWeightRecord)
     {
         if (shippingByWeightRecord == null)
         {

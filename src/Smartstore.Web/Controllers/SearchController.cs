@@ -131,8 +131,8 @@ public class SearchController : PublicController
                     if (attributeCombination != null)
                     {
                         return Redirect(await _productUrlHelper.GetProductPathAsync(
-                            product.Id, 
-                            await product.GetActiveSlugAsync(), 
+                            product.Id,
+                            await product.GetActiveSlugAsync(),
                             attributeCombination.AttributeSelection));
                     }
 

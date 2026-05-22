@@ -75,10 +75,10 @@ public class CollectionGroupController : AdminController
 
         ViewBag.EntityNames = entityNames
             .OrderBy(x => x)
-            .Select(x => new SelectListItem 
-            { 
-                Text = Services.Localization.GetResource("Common.Entity." + x, 0, false, string.Empty, true), 
-                Value = x 
+            .Select(x => new SelectListItem
+            {
+                Text = Services.Localization.GetResource("Common.Entity." + x, 0, false, string.Empty, true),
+                Value = x
             })
             .ToList();
 
@@ -253,10 +253,10 @@ public class CollectionGroupController : AdminController
         });
 
         return entityNames
-            .Select(x => new SelectListItem 
-            { 
-                Text = Services.Localization.GetResource("Common.Entity." + x, 0, false, string.Empty, true), 
-                Value = x 
+            .Select(x => new SelectListItem
+            {
+                Text = Services.Localization.GetResource("Common.Entity." + x, 0, false, string.Empty, true),
+                Value = x
             })
             .ToList();
     }

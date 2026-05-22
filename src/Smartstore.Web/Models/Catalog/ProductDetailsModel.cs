@@ -122,7 +122,7 @@ public partial class ProductDetailsModel : EntityModelBase
     public bool ShowLegalInfo { get; set; }
     public string LegalInfo { get; set; }
     public int? DurabilityGuaranteeDurationYears { get; set; }
-    
+
 
     public bool ShowWeight { get; set; }
     public bool ShowDimensions { get; set; }

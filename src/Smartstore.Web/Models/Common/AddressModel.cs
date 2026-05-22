@@ -142,7 +142,7 @@ public class AddressValidator : SmartValidator<AddressModel>
 {
     public AddressValidator(
         SmartDbContext db,
-        Localizer T, 
+        Localizer T,
         AddressSettings addressSettings)
     {
         RuleFor(x => x.FirstName).ValidPersonName(T);

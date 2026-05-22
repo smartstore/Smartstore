@@ -1,57 +1,56 @@
 ﻿using Smartstore.Core.Data;
 using Smartstore.Core.Rules;
 
-namespace Smartstore.Core.Checkout.Rules.Impl
+namespace Smartstore.Core.Checkout.Rules.Impl;
+
+internal class PurchasedFromManufacturerRule : IRule<CartRuleContext>
 {
-    internal class PurchasedFromManufacturerRule : IRule<CartRuleContext>
+    private readonly SmartDbContext _db;
+
+    public PurchasedFromManufacturerRule(SmartDbContext db)
     {
-        private readonly SmartDbContext _db;
+        _db = db;
+    }
 
-        public PurchasedFromManufacturerRule(SmartDbContext db)
+    public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
+    {
+        var query = _db.Orders
+            .AsNoTracking()
+            .Include(x => x.OrderItems)
+                .ThenInclude(x => x.Product)
+                    .ThenInclude(x => x.ProductManufacturers)
+            .ApplyStandardFilter(context.Customer.Id, context.Store.Id)
+            .SelectMany(x => x.OrderItems);
+
+        if (expression.Operator == RuleOperator.In || expression.Operator == RuleOperator.NotIn)
         {
-            _db = db;
+            // Find match using LINQ to Entities.
+            var manuIds = expression.Value as List<int>;
+            if (!(manuIds?.Any() ?? false))
+            {
+                return true;
+            }
+
+            if (expression.Operator == RuleOperator.In)
+            {
+                return await query.Where(oi => oi.Product.ProductManufacturers.Any(pm => manuIds.Contains(pm.ManufacturerId))).AnyAsync();
+            }
+
+            return await query.Where(oi => oi.Product.ProductManufacturers.Any(pm => !manuIds.Contains(pm.ManufacturerId))).AnyAsync();
         }
-
-        public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
+        else
         {
-            var query = _db.Orders
-                .AsNoTracking()
-                .Include(x => x.OrderItems)
-                    .ThenInclude(x => x.Product)
-                        .ThenInclude(x => x.ProductManufacturers)
-                .ApplyStandardFilter(context.Customer.Id, context.Store.Id)
-                .SelectMany(x => x.OrderItems);
+            // Find match using LINQ to Objects.
+            var manuIds = new HashSet<int>();
+            var pager = query.ToFastPager(4000);
 
-            if (expression.Operator == RuleOperator.In || expression.Operator == RuleOperator.NotIn)
+            while ((await pager.ReadNextPageAsync(x => new { x.Id, ManufacturerIds = x.Product.ProductManufacturers.Select(pm => pm.ManufacturerId) }, x => x.Id)).Out(out var orderItems))
             {
-                // Find match using LINQ to Entities.
-                var manuIds = expression.Value as List<int>;
-                if (!(manuIds?.Any() ?? false))
-                {
-                    return true;
-                }
-
-                if (expression.Operator == RuleOperator.In)
-                {
-                    return await query.Where(oi => oi.Product.ProductManufacturers.Any(pm => manuIds.Contains(pm.ManufacturerId))).AnyAsync();
-                }
-
-                return await query.Where(oi => oi.Product.ProductManufacturers.Any(pm => !manuIds.Contains(pm.ManufacturerId))).AnyAsync();
+                manuIds.AddRange(orderItems.SelectMany(x => x.ManufacturerIds));
             }
-            else
-            {
-                // Find match using LINQ to Objects.
-                var manuIds = new HashSet<int>();
-                var pager = query.ToFastPager(4000);
 
-                while ((await pager.ReadNextPageAsync(x => new { x.Id, ManufacturerIds = x.Product.ProductManufacturers.Select(pm => pm.ManufacturerId) }, x => x.Id)).Out(out var orderItems))
-                {
-                    manuIds.AddRange(orderItems.SelectMany(x => x.ManufacturerIds));
-                }
-
-                var match = expression.HasListsMatch(manuIds);
-                return match;
-            }
+            var match = expression.HasListsMatch(manuIds);
+            return match;
         }
     }
 }

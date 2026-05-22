@@ -1,17 +1,16 @@
-﻿namespace Smartstore.Core.Search
+﻿namespace Smartstore.Core.Search;
+
+public interface ISearchHit
 {
-    public interface ISearchHit
-    {
-        int EntityId { get; }
-        float Score { get; }
+    int EntityId { get; }
+    float Score { get; }
 
-        int GetInt(string name);
-        double GetDouble(string name);
-        bool GetBoolean(string name);
-        string GetString(string name);
-        string GetString(string name, string languageSeoCode);
-        DateTime GetDateTime(string name);
+    int GetInt(string name);
+    double GetDouble(string name);
+    bool GetBoolean(string name);
+    string GetString(string name);
+    string GetString(string name, string languageSeoCode);
+    DateTime GetDateTime(string name);
 
-        IEnumerable<string> GetStoredFieldNames();
-    }
+    IEnumerable<string> GetStoredFieldNames();
 }

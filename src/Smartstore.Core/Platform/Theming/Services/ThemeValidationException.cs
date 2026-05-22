@@ -1,15 +1,14 @@
-﻿namespace Smartstore.Core.Theming
+﻿namespace Smartstore.Core.Theming;
+
+public class ThemeValidationException : Exception
 {
-    public class ThemeValidationException : Exception
+    public ThemeValidationException(string message, IDictionary<string, object> attemptedVars)
+        : base(message)
     {
-        public ThemeValidationException(string message, IDictionary<string, object> attemptedVars)
-            : base(message)
-        {
-            Guard.NotNull(attemptedVars, nameof(attemptedVars));
+        Guard.NotNull(attemptedVars, nameof(attemptedVars));
 
-            AttemptedVars = attemptedVars;
-        }
-
-        public IDictionary<string, object> AttemptedVars { get; }
+        AttemptedVars = attemptedVars;
     }
+
+    public IDictionary<string, object> AttemptedVars { get; }
 }

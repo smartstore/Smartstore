@@ -1,55 +1,54 @@
 ﻿using Smartstore.Core.Catalog.Products;
 
-namespace Smartstore.Core.Checkout.Orders
+namespace Smartstore.Core.Checkout.Orders;
+
+/// <summary>
+/// Contains data that is used to recalculate details of an order.
+/// </summary>
+public class UpdateOrderDetailsContext
 {
+    public static string InfoKey => "UpdateOrderDetailsContextInfo";
+
     /// <summary>
-    /// Contains data that is used to recalculate details of an order.
+    /// Indicates whether to update the order item.
     /// </summary>
-    public class UpdateOrderDetailsContext
-    {
-        public static string InfoKey => "UpdateOrderDetailsContextInfo";
+    public bool UpdateOrderItem { get; set; }
 
-        /// <summary>
-        /// Indicates whether to update the order item.
-        /// </summary>
-        public bool UpdateOrderItem { get; set; }
+    /// <summary>
+    /// Indicates whether to update order totals if order is in pending state.
+    /// </summary>
+    public bool UpdateTotals { get; set; }
 
-        /// <summary>
-        /// Indicates whether to update order totals if order is in pending state.
-        /// </summary>
-        public bool UpdateTotals { get; set; }
+    /// <summary>
+    /// Indicates whether to update reward points.
+    /// </summary>
+    public bool UpdateRewardPoints { get; set; }
 
-        /// <summary>
-        /// Indicates whether to update reward points.
-        /// </summary>
-        public bool UpdateRewardPoints { get; set; }
+    /// <summary>
+    /// Indicates whether to adjust the inventory.
+    /// </summary>
+    public bool AdjustInventory { get; set; }
 
-        /// <summary>
-        /// Indicates whether to adjust the inventory.
-        /// </summary>
-        public bool AdjustInventory { get; set; }
+    /// <summary>
+    /// Result of adjusting the inventory.
+    /// </summary>
+    public AdjustInventoryResult Inventory { get; set; }
 
-        /// <summary>
-        /// Result of adjusting the inventory.
-        /// </summary>
-        public AdjustInventoryResult Inventory { get; set; }
+    public int? OldQuantity { get; set; }
+    public int? NewQuantity { get; set; }
+    public int ReduceQuantity { get; set; }
 
-        public int? OldQuantity { get; set; }
-        public int? NewQuantity { get; set; }
-        public int ReduceQuantity { get; set; }
+    public decimal? NewUnitPriceInclTax { get; set; }
+    public decimal? NewUnitPriceExclTax { get; set; }
+    public decimal? NewTaxRate { get; set; }
+    public decimal? NewDiscountInclTax { get; set; }
+    public decimal? NewDiscountExclTax { get; set; }
 
-        public decimal? NewUnitPriceInclTax { get; set; }
-        public decimal? NewUnitPriceExclTax { get; set; }
-        public decimal? NewTaxRate { get; set; }
-        public decimal? NewDiscountInclTax { get; set; }
-        public decimal? NewDiscountExclTax { get; set; }
+    public decimal? OldPriceInclTax { get; set; }
+    public decimal? OldPriceExclTax { get; set; }
+    public decimal? NewPriceInclTax { get; set; }
+    public decimal? NewPriceExclTax { get; set; }
 
-        public decimal? OldPriceInclTax { get; set; }
-        public decimal? OldPriceExclTax { get; set; }
-        public decimal? NewPriceInclTax { get; set; }
-        public decimal? NewPriceExclTax { get; set; }
-
-        public int OldRewardPoints { get; set; }
-        public int NewRewardPoints { get; set; }
-    }
+    public int OldRewardPoints { get; set; }
+    public int NewRewardPoints { get; set; }
 }

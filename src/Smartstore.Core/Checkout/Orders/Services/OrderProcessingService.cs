@@ -21,228 +21,294 @@ using Smartstore.Core.Web;
 using Smartstore.Data;
 using Smartstore.Events;
 
-namespace Smartstore.Core.Checkout.Orders
+namespace Smartstore.Core.Checkout.Orders;
+
+public partial class OrderProcessingService : IOrderProcessingService
 {
-    public partial class OrderProcessingService : IOrderProcessingService
+    private readonly SmartDbContext _db;
+    private readonly IWorkContext _workContext;
+    private readonly IWebHelper _webHelper;
+    private readonly ILocalizationService _localizationService;
+    private readonly ICurrencyService _currencyService;
+    private readonly IRoundingHelper _roundingHelper;
+    private readonly IPaymentService _paymentService;
+    private readonly IProductService _productService;
+    private readonly IProductAttributeMaterializer _productAttributeMaterializer;
+    private readonly IProductAttributeFormatter _productAttributeFormatter;
+    private readonly IPriceCalculationService _priceCalculationService;
+    private readonly IOrderCalculationService _orderCalculationService;
+    private readonly ITaxCalculator _taxCalculator;
+    private readonly IShoppingCartService _shoppingCartService;
+    private readonly IShoppingCartValidator _shoppingCartValidator;
+    private readonly IShippingService _shippingService;
+    private readonly IGiftCardService _giftCardService;
+    private readonly INewsletterSubscriptionService _newsletterSubscriptionService;
+    private readonly ICheckoutAttributeFormatter _checkoutAttributeFormatter;
+    private readonly IEncryptor _encryptor;
+    private readonly IMessageFactory _messageFactory;
+    private readonly IEventPublisher _eventPublisher;
+    private readonly IActivityLogger _activityLogger;
+    private readonly RewardPointsSettings _rewardPointsSettings;
+    private readonly CatalogSettings _catalogSettings;
+    private readonly OrderSettings _orderSettings;
+    private readonly ShoppingCartSettings _shoppingCartSettings;
+    private readonly LocalizationSettings _localizationSettings;
+    private readonly TaxSettings _taxSettings;
+    private readonly PaymentSettings _paymentSettings;
+    private readonly Currency _primaryCurrency;
+    private readonly Currency _workingCurrency;
+
+    public OrderProcessingService(
+        SmartDbContext db,
+        IWorkContext workContext,
+        IWebHelper webHelper,
+        ILocalizationService localizationService,
+        ICurrencyService currencyService,
+        IRoundingHelper roundingHelper,
+        IPaymentService paymentService,
+        IProductService productService,
+        IProductAttributeMaterializer productAttributeMaterializer,
+        IProductAttributeFormatter productAttributeFormatter,
+        IPriceCalculationService priceCalculationService,
+        IOrderCalculationService orderCalculationService,
+        ITaxCalculator taxCalculator,
+        IShoppingCartService shoppingCartService,
+        IShoppingCartValidator shoppingCartValidator,
+        IShippingService shippingService,
+        IGiftCardService giftCardService,
+        INewsletterSubscriptionService newsletterSubscriptionService,
+        ICheckoutAttributeFormatter checkoutAttributeFormatter,
+        IEncryptor encryptor,
+        IMessageFactory messageFactory,
+        IEventPublisher eventPublisher,
+        IActivityLogger activityLogger,
+        RewardPointsSettings rewardPointsSettings,
+        CatalogSettings catalogSettings,
+        OrderSettings orderSettings,
+        ShoppingCartSettings shoppingCartSettings,
+        LocalizationSettings localizationSettings,
+        TaxSettings taxSettings,
+        PaymentSettings paymentSettings)
     {
-        private readonly SmartDbContext _db;
-        private readonly IWorkContext _workContext;
-        private readonly IWebHelper _webHelper;
-        private readonly ILocalizationService _localizationService;
-        private readonly ICurrencyService _currencyService;
-        private readonly IRoundingHelper _roundingHelper;
-        private readonly IPaymentService _paymentService;
-        private readonly IProductService _productService;
-        private readonly IProductAttributeMaterializer _productAttributeMaterializer;
-        private readonly IProductAttributeFormatter _productAttributeFormatter;
-        private readonly IPriceCalculationService _priceCalculationService;
-        private readonly IOrderCalculationService _orderCalculationService;
-        private readonly ITaxCalculator _taxCalculator;
-        private readonly IShoppingCartService _shoppingCartService;
-        private readonly IShoppingCartValidator _shoppingCartValidator;
-        private readonly IShippingService _shippingService;
-        private readonly IGiftCardService _giftCardService;
-        private readonly INewsletterSubscriptionService _newsletterSubscriptionService;
-        private readonly ICheckoutAttributeFormatter _checkoutAttributeFormatter;
-        private readonly IEncryptor _encryptor;
-        private readonly IMessageFactory _messageFactory;
-        private readonly IEventPublisher _eventPublisher;
-        private readonly IActivityLogger _activityLogger;
-        private readonly RewardPointsSettings _rewardPointsSettings;
-        private readonly CatalogSettings _catalogSettings;
-        private readonly OrderSettings _orderSettings;
-        private readonly ShoppingCartSettings _shoppingCartSettings;
-        private readonly LocalizationSettings _localizationSettings;
-        private readonly TaxSettings _taxSettings;
-        private readonly PaymentSettings _paymentSettings;
-        private readonly Currency _primaryCurrency;
-        private readonly Currency _workingCurrency;
+        _db = db;
+        _workContext = workContext;
+        _webHelper = webHelper;
+        _localizationService = localizationService;
+        _currencyService = currencyService;
+        _roundingHelper = roundingHelper;
+        _paymentService = paymentService;
+        _productService = productService;
+        _productAttributeMaterializer = productAttributeMaterializer;
+        _productAttributeFormatter = productAttributeFormatter;
+        _priceCalculationService = priceCalculationService;
+        _orderCalculationService = orderCalculationService;
+        _taxCalculator = taxCalculator;
+        _shoppingCartService = shoppingCartService;
+        _shoppingCartValidator = shoppingCartValidator;
+        _shippingService = shippingService;
+        _giftCardService = giftCardService;
+        _newsletterSubscriptionService = newsletterSubscriptionService;
+        _checkoutAttributeFormatter = checkoutAttributeFormatter;
+        _encryptor = encryptor;
+        _messageFactory = messageFactory;
+        _eventPublisher = eventPublisher;
+        _activityLogger = activityLogger;
+        _rewardPointsSettings = rewardPointsSettings;
+        _catalogSettings = catalogSettings;
+        _orderSettings = orderSettings;
+        _shoppingCartSettings = shoppingCartSettings;
+        _localizationSettings = localizationSettings;
+        _taxSettings = taxSettings;
+        _paymentSettings = paymentSettings;
 
-        public OrderProcessingService(
-            SmartDbContext db,
-            IWorkContext workContext,
-            IWebHelper webHelper,
-            ILocalizationService localizationService,
-            ICurrencyService currencyService,
-            IRoundingHelper roundingHelper,
-            IPaymentService paymentService,
-            IProductService productService,
-            IProductAttributeMaterializer productAttributeMaterializer,
-            IProductAttributeFormatter productAttributeFormatter,
-            IPriceCalculationService priceCalculationService,
-            IOrderCalculationService orderCalculationService,
-            ITaxCalculator taxCalculator,
-            IShoppingCartService shoppingCartService,
-            IShoppingCartValidator shoppingCartValidator,
-            IShippingService shippingService,
-            IGiftCardService giftCardService,
-            INewsletterSubscriptionService newsletterSubscriptionService,
-            ICheckoutAttributeFormatter checkoutAttributeFormatter,
-            IEncryptor encryptor,
-            IMessageFactory messageFactory,
-            IEventPublisher eventPublisher,
-            IActivityLogger activityLogger,
-            RewardPointsSettings rewardPointsSettings,
-            CatalogSettings catalogSettings,
-            OrderSettings orderSettings,
-            ShoppingCartSettings shoppingCartSettings,
-            LocalizationSettings localizationSettings,
-            TaxSettings taxSettings,
-            PaymentSettings paymentSettings)
+        _primaryCurrency = currencyService.PrimaryCurrency;
+        _workingCurrency = workContext.WorkingCurrency;
+    }
+
+    public Localizer T { get; set; } = NullLocalizer.Instance;
+    public ILogger Logger { get; set; } = NullLogger.Instance;
+
+    public virtual Task<int> GetDispatchedItemsCountAsync(OrderItem orderItem, bool dispatched)
+    {
+        Guard.NotNull(orderItem);
+
+        if (dispatched)
         {
-            _db = db;
-            _workContext = workContext;
-            _webHelper = webHelper;
-            _localizationService = localizationService;
-            _currencyService = currencyService;
-            _roundingHelper = roundingHelper;
-            _paymentService = paymentService;
-            _productService = productService;
-            _productAttributeMaterializer = productAttributeMaterializer;
-            _productAttributeFormatter = productAttributeFormatter;
-            _priceCalculationService = priceCalculationService;
-            _orderCalculationService = orderCalculationService;
-            _taxCalculator = taxCalculator;
-            _shoppingCartService = shoppingCartService;
-            _shoppingCartValidator = shoppingCartValidator;
-            _shippingService = shippingService;
-            _giftCardService = giftCardService;
-            _newsletterSubscriptionService = newsletterSubscriptionService;
-            _checkoutAttributeFormatter = checkoutAttributeFormatter;
-            _encryptor = encryptor;
-            _messageFactory = messageFactory;
-            _eventPublisher = eventPublisher;
-            _activityLogger = activityLogger;
-            _rewardPointsSettings = rewardPointsSettings;
-            _catalogSettings = catalogSettings;
-            _orderSettings = orderSettings;
-            _shoppingCartSettings = shoppingCartSettings;
-            _localizationSettings = localizationSettings;
-            _taxSettings = taxSettings;
-            _paymentSettings = paymentSettings;
+            return SumUpQuantity(orderItem, x => x.ShippedDateUtc.HasValue);
+        }
+        else
+        {
+            return SumUpQuantity(orderItem, x => !x.ShippedDateUtc.HasValue);
+        }
+    }
 
-            _primaryCurrency = currencyService.PrimaryCurrency;
-            _workingCurrency = workContext.WorkingCurrency;
+    public virtual async Task<bool> HasItemsToDispatchAsync(Order order)
+    {
+        Guard.NotNull(order);
+
+        await LoadNavigationProperties(order, false, true);
+
+        foreach (var orderItem in order.OrderItems.Where(x => x.Product.IsShippingEnabled))
+        {
+            var notDispatchedItems = await GetDispatchedItemsCountAsync(orderItem, false);
+            if (notDispatchedItems <= 0)
+                continue;
+
+            // Yes, we have at least one item to ship.
+            return true;
         }
 
-        public Localizer T { get; set; } = NullLocalizer.Instance;
-        public ILogger Logger { get; set; } = NullLogger.Instance;
+        return false;
+    }
 
-        public virtual Task<int> GetDispatchedItemsCountAsync(OrderItem orderItem, bool dispatched)
+    public virtual Task<int> GetDeliveredItemsCountAsync(OrderItem orderItem, bool delivered)
+    {
+        Guard.NotNull(orderItem);
+
+        if (delivered)
         {
-            Guard.NotNull(orderItem);
+            return SumUpQuantity(orderItem, x => x.DeliveryDateUtc.HasValue);
+        }
+        else
+        {
+            return SumUpQuantity(orderItem, x => !x.DeliveryDateUtc.HasValue);
+        }
+    }
 
-            if (dispatched)
-            {
-                return SumUpQuantity(orderItem, x => x.ShippedDateUtc.HasValue);
-            }
-            else
-            {
-                return SumUpQuantity(orderItem, x => !x.ShippedDateUtc.HasValue);
-            }
+    public virtual async Task<bool> HasItemsToDeliverAsync(Order order)
+    {
+        Guard.NotNull(order);
+
+        await LoadNavigationProperties(order, false, true);
+
+        foreach (var orderItem in order.OrderItems.Where(x => x.Product.IsShippingEnabled))
+        {
+            var dispatchedItems = await GetDispatchedItemsCountAsync(orderItem, true);
+            var deliveredItems = await GetDeliveredItemsCountAsync(orderItem, true);
+
+            if (dispatchedItems <= deliveredItems)
+                continue;
+
+            // Yes, we have at least one item to deliver.
+            return true;
         }
 
-        public virtual async Task<bool> HasItemsToDispatchAsync(Order order)
+        return false;
+    }
+
+    public virtual async Task<int> GetShippableItemsCountAsync(OrderItem orderItem)
+    {
+        var itemsCount = await GetShipmentItemsCountAsync(orderItem);
+
+        return Math.Max(orderItem.Quantity - itemsCount, 0);
+    }
+
+    public virtual Task<int> GetShipmentItemsCountAsync(OrderItem orderItem)
+    {
+        Guard.NotNull(orderItem);
+
+        return SumUpQuantity(orderItem, null);
+    }
+
+    public virtual async Task<bool> CanAddItemsToShipmentAsync(Order order)
+    {
+        Guard.NotNull(order);
+
+        await LoadNavigationProperties(order, false, true);
+
+        foreach (var orderItem in order.OrderItems.Where(x => x.Product.IsShippingEnabled))
         {
-            Guard.NotNull(order);
+            var canBeAddedToShipment = await GetShippableItemsCountAsync(orderItem);
+            if (canBeAddedToShipment <= 0)
+                continue;
 
-            await LoadNavigationProperties(order, false, true);
-
-            foreach (var orderItem in order.OrderItems.Where(x => x.Product.IsShippingEnabled))
-            {
-                var notDispatchedItems = await GetDispatchedItemsCountAsync(orderItem, false);
-                if (notDispatchedItems <= 0)
-                    continue;
-
-                // Yes, we have at least one item to ship.
-                return true;
-            }
-
-            return false;
+            // Yes, we have at least one item to create a new shipment.
+            return true;
         }
 
-        public virtual Task<int> GetDeliveredItemsCountAsync(OrderItem orderItem, bool delivered)
-        {
-            Guard.NotNull(orderItem);
+        return false;
+    }
 
-            if (delivered)
-            {
-                return SumUpQuantity(orderItem, x => x.DeliveryDateUtc.HasValue);
-            }
-            else
-            {
-                return SumUpQuantity(orderItem, x => !x.DeliveryDateUtc.HasValue);
-            }
+    public virtual async Task CancelOrderAsync(Order order, bool notifyCustomer)
+    {
+        Guard.NotNull(order);
+
+        await LoadNavigationProperties(order, true);
+
+        if (!order.CanCancelOrder())
+        {
+            throw new InvalidOperationException(T("Order.CannotCancel"));
         }
 
-        public virtual async Task<bool> HasItemsToDeliverAsync(Order order)
+        await SetOrderStatusAsync(order, OrderStatus.Cancelled, notifyCustomer);
+
+        AddOrderNotes(order, T("Admin.OrderNotice.OrderCancelled"));
+
+        // Cancel recurring payments.
+        var recurringPayments = await _db.RecurringPayments
+            .Include(x => x.InitialOrder)
+            .ApplyStandardFilter(order.Id)
+            .ToListAsync();
+
+        foreach (var rp in recurringPayments)
         {
-            Guard.NotNull(order);
-
-            await LoadNavigationProperties(order, false, true);
-
-            foreach (var orderItem in order.OrderItems.Where(x => x.Product.IsShippingEnabled))
-            {
-                var dispatchedItems = await GetDispatchedItemsCountAsync(orderItem, true);
-                var deliveredItems = await GetDeliveredItemsCountAsync(orderItem, true);
-
-                if (dispatchedItems <= deliveredItems)
-                    continue;
-
-                // Yes, we have at least one item to deliver.
-                return true;
-            }
-
-            return false;
+            await CancelRecurringPaymentAsync(rp);
         }
 
-        public virtual async Task<int> GetShippableItemsCountAsync(OrderItem orderItem)
+        // Adjust inventory.
+        foreach (var orderItem in order.OrderItems)
         {
-            var itemsCount = await GetShipmentItemsCountAsync(orderItem);
-
-            return Math.Max(orderItem.Quantity - itemsCount, 0);
+            await _productService.AdjustInventoryAsync(orderItem, false, orderItem.Quantity);
         }
 
-        public virtual Task<int> GetShipmentItemsCountAsync(OrderItem orderItem)
-        {
-            Guard.NotNull(orderItem);
+        await _db.SaveChangesAsync();
+    }
 
-            return SumUpQuantity(orderItem, null);
+    public virtual async Task CompleteOrderAsync(Order order)
+    {
+        await LoadNavigationProperties(order, true);
+
+        if (!order.CanCompleteOrder())
+        {
+            throw new InvalidOperationException(T("Order.CannotMarkCompleted"));
         }
 
-        public virtual async Task<bool> CanAddItemsToShipmentAsync(Order order)
+        if (_paymentSettings.CapturePaymentReason == CapturePaymentReason.OrderCompleted && await CanCaptureAsync(order))
         {
-            Guard.NotNull(order);
-
-            await LoadNavigationProperties(order, false, true);
-
-            foreach (var orderItem in order.OrderItems.Where(x => x.Product.IsShippingEnabled))
-            {
-                var canBeAddedToShipment = await GetShippableItemsCountAsync(orderItem);
-                if (canBeAddedToShipment <= 0)
-                    continue;
-
-                // Yes, we have at least one item to create a new shipment.
-                return true;
-            }
-
-            return false;
+            await CaptureAsync(order);
         }
 
-        public virtual async Task CancelOrderAsync(Order order, bool notifyCustomer)
+        if (order.CanMarkOrderAsPaid())
         {
-            Guard.NotNull(order);
+            await MarkOrderAsPaidAsync(order);
+        }
 
+        if (order.ShippingStatus != ShippingStatus.ShippingNotRequired)
+        {
+            order.ShippingStatusId = (int)ShippingStatus.Delivered;
+        }
+
+        // INFO: CheckOrderStatus performs commit.
+        await CheckOrderStatusAsync(order, true);
+
+        if (order.OrderStatus != OrderStatus.Complete)
+        {
+            var message = order.PaymentStatus != PaymentStatus.Paid
+                ? T("Order.CannotCompleteUnpaidOrder", _localizationService.GetLocalizedEnum(order.PaymentStatus))
+                : T("Order.CannotMarkCompleted");
+            throw new InvalidOperationException(message);
+        }
+    }
+
+    public virtual async Task DeleteOrderAsync(Order order)
+    {
+        Guard.NotNull(order);
+
+        if (order.OrderStatus != OrderStatus.Cancelled)
+        {
             await LoadNavigationProperties(order, true);
 
-            if (!order.CanCancelOrder())
-            {
-                throw new InvalidOperationException(T("Order.CannotCancel"));
-            }
-
-            await SetOrderStatusAsync(order, OrderStatus.Cancelled, notifyCustomer);
-
-            AddOrderNotes(order, T("Admin.OrderNotice.OrderCancelled"));
+            ApplyRewardPoints(order, true);
 
             // Cancel recurring payments.
             var recurringPayments = await _db.RecurringPayments
@@ -260,760 +326,693 @@ namespace Smartstore.Core.Checkout.Orders
             {
                 await _productService.AdjustInventoryAsync(orderItem, false, orderItem.Quantity);
             }
-
-            await _db.SaveChangesAsync();
         }
 
-        public virtual async Task CompleteOrderAsync(Order order)
+        order.Deleted = true;
+
+        await _db.SaveChangesAsync();
+    }
+
+    public virtual async Task ReOrderAsync(Order order)
+    {
+        Guard.NotNull(order);
+
+        await LoadNavigationProperties(order, true);
+
+        foreach (var orderItem in order.OrderItems)
         {
-            await LoadNavigationProperties(order, true);
+            var isBundle = orderItem.Product.ProductType == ProductType.BundledProduct;
 
-            if (!order.CanCompleteOrder())
+            var addToCartContext = new AddToCartContext
             {
-                throw new InvalidOperationException(T("Order.CannotMarkCompleted"));
-            }
+                Customer = order.Customer,
+                Product = orderItem.Product,
+                CartType = ShoppingCartType.ShoppingCart,
+                StoreId = order.StoreId,
+                RawAttributes = orderItem.RawAttributes,
+                CustomerEnteredPrice = new(isBundle ? decimal.Zero : orderItem.UnitPriceExclTax, _primaryCurrency),
+                Quantity = orderItem.Quantity,
+            };
 
-            if (_paymentSettings.CapturePaymentReason == CapturePaymentReason.OrderCompleted && await CanCaptureAsync(order))
+            var valid = await _shoppingCartService.AddToCartAsync(addToCartContext);
+
+            if (valid && isBundle && orderItem.BundleData.HasValue())
             {
-                await CaptureAsync(order);
-            }
+                var bundleData = orderItem.GetBundleData();
+                var bundleItemIds = bundleData.Select(x => x.BundleItemId).Distinct().ToArray();
 
-            if (order.CanMarkOrderAsPaid())
-            {
-                await MarkOrderAsPaidAsync(order);
-            }
-
-            if (order.ShippingStatus != ShippingStatus.ShippingNotRequired)
-            {
-                order.ShippingStatusId = (int)ShippingStatus.Delivered;
-            }
-
-            // INFO: CheckOrderStatus performs commit.
-            await CheckOrderStatusAsync(order, true);
-
-            if (order.OrderStatus != OrderStatus.Complete)
-            {
-                var message = order.PaymentStatus != PaymentStatus.Paid 
-                    ? T("Order.CannotCompleteUnpaidOrder", _localizationService.GetLocalizedEnum(order.PaymentStatus)) 
-                    : T("Order.CannotMarkCompleted");
-                throw new InvalidOperationException(message);
-            }
-        }
-
-        public virtual async Task DeleteOrderAsync(Order order)
-        {
-            Guard.NotNull(order);
-
-            if (order.OrderStatus != OrderStatus.Cancelled)
-            {
-                await LoadNavigationProperties(order, true);
-
-                ApplyRewardPoints(order, true);
-
-                // Cancel recurring payments.
-                var recurringPayments = await _db.RecurringPayments
-                    .Include(x => x.InitialOrder)
-                    .ApplyStandardFilter(order.Id)
+                var bundleItems = await _db.ProductBundleItem
+                    .Include(x => x.Product)
+                    .Include(x => x.BundleProduct)
+                    .Where(x => bundleItemIds.Contains(x.Id))
                     .ToListAsync();
 
-                foreach (var rp in recurringPayments)
+                var bundleItemsDic = bundleItems.ToDictionarySafe(x => x.Id);
+
+                foreach (var itemData in bundleData)
                 {
-                    await CancelRecurringPaymentAsync(rp);
-                }
+                    bundleItemsDic.TryGetValue(itemData.BundleItemId, out var bundleItem);
 
-                // Adjust inventory.
-                foreach (var orderItem in order.OrderItems)
-                {
-                    await _productService.AdjustInventoryAsync(orderItem, false, orderItem.Quantity);
-                }
-            }
-
-            order.Deleted = true;
-
-            await _db.SaveChangesAsync();
-        }
-
-        public virtual async Task ReOrderAsync(Order order)
-        {
-            Guard.NotNull(order);
-
-            await LoadNavigationProperties(order, true);
-
-            foreach (var orderItem in order.OrderItems)
-            {
-                var isBundle = orderItem.Product.ProductType == ProductType.BundledProduct;
-
-                var addToCartContext = new AddToCartContext
-                {
-                    Customer = order.Customer,
-                    Product = orderItem.Product,
-                    CartType = ShoppingCartType.ShoppingCart,
-                    StoreId = order.StoreId,
-                    RawAttributes = orderItem.RawAttributes,
-                    CustomerEnteredPrice = new(isBundle ? decimal.Zero : orderItem.UnitPriceExclTax, _primaryCurrency),
-                    Quantity = orderItem.Quantity,
-                };
-
-                var valid = await _shoppingCartService.AddToCartAsync(addToCartContext);
-
-                if (valid && isBundle && orderItem.BundleData.HasValue())
-                {
-                    var bundleData = orderItem.GetBundleData();
-                    var bundleItemIds = bundleData.Select(x => x.BundleItemId).Distinct().ToArray();
-
-                    var bundleItems = await _db.ProductBundleItem
-                        .Include(x => x.Product)
-                        .Include(x => x.BundleProduct)
-                        .Where(x => bundleItemIds.Contains(x.Id))
-                        .ToListAsync();
-
-                    var bundleItemsDic = bundleItems.ToDictionarySafe(x => x.Id);
-
-                    foreach (var itemData in bundleData)
+                    var itemContext = new AddToCartContext
                     {
-                        bundleItemsDic.TryGetValue(itemData.BundleItemId, out var bundleItem);
+                        Item = addToCartContext.Item,
+                        ChildItems = addToCartContext.ChildItems,
+                        Customer = order.Customer,
+                        Product = bundleItem.Product,
+                        BundleItem = bundleItem,
+                        CartType = ShoppingCartType.ShoppingCart,
+                        StoreId = order.StoreId,
+                        RawAttributes = itemData.RawAttributes,
+                        CustomerEnteredPrice = new(_primaryCurrency),
+                        Quantity = itemData.Quantity,
+                    };
 
-                        var itemContext = new AddToCartContext
-                        {
-                            Item = addToCartContext.Item,
-                            ChildItems = addToCartContext.ChildItems,
-                            Customer = order.Customer,
-                            Product = bundleItem.Product,
-                            BundleItem = bundleItem,
-                            CartType = ShoppingCartType.ShoppingCart,
-                            StoreId = order.StoreId,
-                            RawAttributes = itemData.RawAttributes,
-                            CustomerEnteredPrice = new(_primaryCurrency),
-                            Quantity = itemData.Quantity,
-                        };
-
-                        if (!await _shoppingCartService.AddToCartAsync(itemContext))
-                        {
-                            valid = false;
-                            break;
-                        }
+                    if (!await _shoppingCartService.AddToCartAsync(itemContext))
+                    {
+                        valid = false;
+                        break;
                     }
                 }
+            }
 
-                if (valid && isBundle)
-                {
-                    await _shoppingCartService.AddItemToCartAsync(addToCartContext);
-                }
+            if (valid && isBundle)
+            {
+                await _shoppingCartService.AddItemToCartAsync(addToCartContext);
+            }
+        }
+    }
+
+    public virtual async Task ShipAsync(Shipment shipment, bool notifyCustomer)
+    {
+        Guard.NotNull(shipment);
+        Guard.NotNull(shipment.Order);
+
+        var order = shipment.Order;
+
+        if (shipment.ShippedDateUtc.HasValue)
+        {
+            throw new Exception(T("Shipment.AlreadyShipped"));
+        }
+
+        shipment.ShippedDateUtc = DateTime.UtcNow;
+
+        // Check whether we have more items to ship.
+        order.ShippingStatusId = await CanAddItemsToShipmentAsync(order) || await HasItemsToDispatchAsync(order)
+            ? (int)ShippingStatus.PartiallyShipped
+            : (int)ShippingStatus.Shipped;
+
+        var notes = new List<string> { T("Admin.OrderNotice.ShipmentSent", shipment.Id) };
+
+        if (notifyCustomer)
+        {
+            var msg = await _messageFactory.SendShipmentSentCustomerNotificationAsync(shipment, order.CustomerLanguageId);
+            if (msg?.Email?.Id != null)
+            {
+                notes.Add(T("Admin.OrderNotice.CustomerShippedEmailQueued", msg.Email.Id));
             }
         }
 
-        public virtual async Task ShipAsync(Shipment shipment, bool notifyCustomer)
+        AddOrderNotes(order, [.. notes]);
+
+        // INFO: CheckOrderStatus performs commit.
+        await CheckOrderStatusAsync(order);
+    }
+
+    public virtual async Task DeliverAsync(Shipment shipment, bool notifyCustomer)
+    {
+        Guard.NotNull(shipment);
+        Guard.NotNull(shipment.Order);
+
+        var order = shipment.Order;
+
+        shipment.DeliveryDateUtc = DateTime.UtcNow;
+
+        if (!await CanAddItemsToShipmentAsync(order) &&
+            !await HasItemsToDispatchAsync(order) &&
+            !await HasItemsToDeliverAsync(order))
         {
-            Guard.NotNull(shipment);
-            Guard.NotNull(shipment.Order);
-
-            var order = shipment.Order;
-
-            if (shipment.ShippedDateUtc.HasValue)
-            {
-                throw new Exception(T("Shipment.AlreadyShipped"));
-            }
-
-            shipment.ShippedDateUtc = DateTime.UtcNow;
-
-            // Check whether we have more items to ship.
-            order.ShippingStatusId = await CanAddItemsToShipmentAsync(order) || await HasItemsToDispatchAsync(order)
-                ? (int)ShippingStatus.PartiallyShipped
-                : (int)ShippingStatus.Shipped;
-
-            var notes = new List<string> { T("Admin.OrderNotice.ShipmentSent", shipment.Id) };
-
-            if (notifyCustomer)
-            {
-                var msg = await _messageFactory.SendShipmentSentCustomerNotificationAsync(shipment, order.CustomerLanguageId);
-                if (msg?.Email?.Id != null)
-                {
-                    notes.Add(T("Admin.OrderNotice.CustomerShippedEmailQueued", msg.Email.Id));
-                }
-            }
-
-            AddOrderNotes(order, [.. notes]);
-
-            // INFO: CheckOrderStatus performs commit.
-            await CheckOrderStatusAsync(order);
+            order.ShippingStatusId = (int)ShippingStatus.Delivered;
         }
 
-        public virtual async Task DeliverAsync(Shipment shipment, bool notifyCustomer)
+        var notes = new List<string> { T("Admin.OrderNotice.ShipmentDelivered", shipment.Id) };
+
+        if (notifyCustomer)
         {
-            Guard.NotNull(shipment);
-            Guard.NotNull(shipment.Order);
-
-            var order = shipment.Order;
-
-            shipment.DeliveryDateUtc = DateTime.UtcNow;
-
-            if (!await CanAddItemsToShipmentAsync(order) &&
-                !await HasItemsToDispatchAsync(order) &&
-                !await HasItemsToDeliverAsync(order))
+            var msg = await _messageFactory.SendShipmentDeliveredCustomerNotificationAsync(shipment, order.CustomerLanguageId);
+            if (msg?.Email?.Id != null)
             {
-                order.ShippingStatusId = (int)ShippingStatus.Delivered;
+                notes.Add(T("Admin.OrderNotice.CustomerDeliveredEmailQueued", msg.Email.Id));
             }
-
-            var notes = new List<string> { T("Admin.OrderNotice.ShipmentDelivered", shipment.Id) };
-
-            if (notifyCustomer)
-            {
-                var msg = await _messageFactory.SendShipmentDeliveredCustomerNotificationAsync(shipment, order.CustomerLanguageId);
-                if (msg?.Email?.Id != null)
-                {
-                    notes.Add(T("Admin.OrderNotice.CustomerDeliveredEmailQueued", msg.Email.Id));
-                }
-            }
-
-            AddOrderNotes(order, [.. notes]);
-
-            // INFO: CheckOrderStatus performs commit.
-            await CheckOrderStatusAsync(order);
         }
 
-        public virtual bool CanReturnItems(Order order)
+        AddOrderNotes(order, [.. notes]);
+
+        // INFO: CheckOrderStatus performs commit.
+        await CheckOrderStatusAsync(order);
+    }
+
+    public virtual bool CanReturnItems(Order order)
+    {
+        if (!_orderSettings.ReturnRequestsEnabled ||
+            order == null ||
+            order.Deleted ||
+            order.OrderStatus != OrderStatus.Complete)
         {
-            if (!_orderSettings.ReturnRequestsEnabled ||
-                order == null ||
-                order.Deleted ||
-                order.OrderStatus != OrderStatus.Complete)
+            return false;
+        }
+
+        if (_orderSettings.NumberOfDaysReturnRequestAvailable > 0)
+        {
+            var daysSinceOrder = (DateTime.UtcNow - order.CreatedOnUtc).TotalDays;
+            if (daysSinceOrder > _orderSettings.NumberOfDaysReturnRequestAvailable)
             {
                 return false;
             }
-
-            if (_orderSettings.NumberOfDaysReturnRequestAvailable > 0)
-            {
-                var daysSinceOrder = (DateTime.UtcNow - order.CreatedOnUtc).TotalDays;
-                if (daysSinceOrder > _orderSettings.NumberOfDaysReturnRequestAvailable)
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
 
-        public virtual async Task<OrderTotalValidationResult> ValidateOrderTotalAsync(ShoppingCart cart, params CustomerRole[] customerRoles)
+        return true;
+    }
+
+    public virtual async Task<OrderTotalValidationResult> ValidateOrderTotalAsync(ShoppingCart cart, params CustomerRole[] customerRoles)
+    {
+        Guard.NotNull(cart);
+
+        var minRolesQuery = _orderSettings.MultipleOrderTotalRestrictionsExpandRange
+            ? customerRoles.Where(x => x.OrderTotalMinimum > decimal.Zero).OrderBy(x => x.OrderTotalMinimum)
+            : customerRoles.Where(x => x.OrderTotalMinimum > decimal.Zero).OrderByDescending(x => x.OrderTotalMinimum);
+
+        var maxRolesQuery = _orderSettings.MultipleOrderTotalRestrictionsExpandRange
+            ? customerRoles.Where(x => x.OrderTotalMaximum > decimal.Zero).OrderByDescending(x => x.OrderTotalMaximum)
+            : customerRoles.Where(x => x.OrderTotalMaximum > decimal.Zero).OrderBy(x => x.OrderTotalMaximum);
+
+        var minRole = minRolesQuery.FirstOrDefault();
+        var maxRole = maxRolesQuery.FirstOrDefault();
+
+        var orderTotalMin = (minRole == null ? _orderSettings.OrderTotalMinimum : minRole.OrderTotalMinimum) ?? decimal.Zero;
+        var orderTotalMax = (maxRole == null ? _orderSettings.OrderTotalMaximum : maxRole.OrderTotalMaximum) ?? decimal.Zero;
+        var isAboveMin = true;
+        var isBelowMax = true;
+
+        if (cart.HasItems && (orderTotalMin > decimal.Zero || orderTotalMax > decimal.Zero))
         {
-            Guard.NotNull(cart);
+            var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, activeOnly: true);
 
-            var minRolesQuery = _orderSettings.MultipleOrderTotalRestrictionsExpandRange
-                ? customerRoles.Where(x => x.OrderTotalMinimum > decimal.Zero).OrderBy(x => x.OrderTotalMinimum)
-                : customerRoles.Where(x => x.OrderTotalMinimum > decimal.Zero).OrderByDescending(x => x.OrderTotalMinimum);
-
-            var maxRolesQuery = _orderSettings.MultipleOrderTotalRestrictionsExpandRange
-                ? customerRoles.Where(x => x.OrderTotalMaximum > decimal.Zero).OrderByDescending(x => x.OrderTotalMaximum)
-                : customerRoles.Where(x => x.OrderTotalMaximum > decimal.Zero).OrderBy(x => x.OrderTotalMaximum);
-
-            var minRole = minRolesQuery.FirstOrDefault();
-            var maxRole = maxRolesQuery.FirstOrDefault();
-
-            var orderTotalMin = (minRole == null ? _orderSettings.OrderTotalMinimum : minRole.OrderTotalMinimum) ?? decimal.Zero;
-            var orderTotalMax = (maxRole == null ? _orderSettings.OrderTotalMaximum : maxRole.OrderTotalMaximum) ?? decimal.Zero;
-            var isAboveMin = true;
-            var isBelowMax = true;
-
-            if (cart.HasItems && (orderTotalMin > decimal.Zero || orderTotalMax > decimal.Zero))
+            if (orderTotalMin > decimal.Zero)
             {
-                var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, activeOnly: true);
-
-                if (orderTotalMin > decimal.Zero)
-                {
-                    isAboveMin = subtotal.SubtotalWithoutDiscount >= orderTotalMin;
-                }
-
-                if (orderTotalMax > decimal.Zero)
-                {
-                    isBelowMax = subtotal.SubtotalWithoutDiscount <= orderTotalMax;
-                }
+                isAboveMin = subtotal.SubtotalWithoutDiscount >= orderTotalMin;
             }
 
-            var result = new OrderTotalValidationResult
+            if (orderTotalMax > decimal.Zero)
             {
-                OrderTotalMinimum = orderTotalMin,
-                OrderTotalMaximum = orderTotalMax,
-                IsAboveMinimum = isAboveMin,
-                IsBelowMaximum = isBelowMax
-            };
-
-            return result;
-        }
-
-        public virtual async Task<Shipment> AddShipmentAsync(
-            Order order, 
-            string carrier,
-            string trackingNumber, 
-            string trackingUrl, 
-            Dictionary<int, int> quantities)
-        {
-            Guard.NotNull(order);
-
-            await LoadNavigationProperties(order, true, true);
-
-            Shipment shipment = null;
-            decimal? totalWeight = null;
-
-            foreach (var orderItem in order.OrderItems)
-            {
-                if (!orderItem.Product.IsShippingEnabled)
-                    continue;
-
-                // Ensure that this product can be shipped (have at least one item to ship).
-                var maxQtyToAdd = await GetShippableItemsCountAsync(orderItem);
-                if (maxQtyToAdd <= 0)
-                    continue;
-
-                var qtyToAdd = 0;
-
-                if (quantities == null)
-                {
-                    qtyToAdd = maxQtyToAdd;
-                }
-                else
-                {
-                    quantities.TryGetValue(orderItem.Id, out qtyToAdd);
-                }
-
-                if (qtyToAdd <= 0)
-                    continue;
-
-                if (qtyToAdd > maxQtyToAdd)
-                    qtyToAdd = maxQtyToAdd;
-
-                var orderItemTotalWeight = orderItem.ItemWeight.HasValue ? orderItem.ItemWeight * qtyToAdd : null;
-                if (orderItemTotalWeight.HasValue)
-                {
-                    totalWeight ??= 0;
-                    totalWeight += orderItemTotalWeight.Value;
-                }
-
-                if (shipment == null)
-                {
-                    shipment = new()
-                    {
-                        OrderId = order.Id,
-                        // Otherwise order updated event would not be fired during InsertShipment:
-                        Order = order,
-                        TrackingNumber = trackingNumber.NullEmpty(),
-                        TrackingUrl = trackingUrl.NullEmpty(),
-                        TotalWeight = null,
-                        ShippedDateUtc = null,
-                        DeliveryDateUtc = null,
-                        CreatedOnUtc = DateTime.UtcNow
-                    };
-                }
-
-                shipment.ShipmentItems.Add(new()
-                {
-                    OrderItemId = orderItem.Id,
-                    Quantity = qtyToAdd
-                });
-            }
-
-            if (!(shipment?.ShipmentItems.IsNullOrEmpty() ?? true))
-            {
-                shipment.TotalWeight = totalWeight;
-
-                _db.Shipments.Add(shipment);
-                await _db.SaveChangesAsync();
-
-                if (carrier.HasValue())
-                {
-                    shipment.GenericAttributes.Set("Carrier", carrier);
-                    await _db.SaveChangesAsync();
-                }
-
-                return shipment;
-            }
-
-            return null;
-        }
-
-        public virtual async Task UpdateOrderDetailsAsync(OrderItem orderItem, UpdateOrderDetailsContext context)
-        {
-            Guard.NotNull(orderItem);
-            Guard.NotNull(orderItem.Order);
-
-            await LoadNavigationProperties(orderItem.Order, true, true);
-
-            var oi = orderItem;
-            var order = oi.Order;
-            var oldQuantity = context.OldQuantity ?? oi.Quantity;
-            var newQuantity = context.NewQuantity ?? oi.Quantity;
-            var oldPriceInclTax = context.OldPriceInclTax ?? oi.PriceInclTax;
-            var oldPriceExclTax = context.OldPriceExclTax ?? oi.PriceExclTax;
-
-            if (context.ReduceQuantity > 0)
-            {
-                var reduceQuantity = context.ReduceQuantity > oi.Quantity ? oi.Quantity : context.ReduceQuantity;
-                newQuantity = Math.Max(oi.Quantity - reduceQuantity, 0);
-            }
-
-            if (context.UpdateOrderItem)
-            {
-                if (newQuantity == 0)
-                {
-                    return;
-                }
-
-                oi.Quantity = newQuantity;
-                oi.UnitPriceInclTax = context.NewUnitPriceInclTax ?? oi.UnitPriceInclTax;
-                oi.UnitPriceExclTax = context.NewUnitPriceExclTax ?? oi.UnitPriceExclTax;
-                oi.TaxRate = context.NewTaxRate ?? oi.TaxRate;
-                oi.DiscountAmountInclTax = context.NewDiscountInclTax ?? oi.DiscountAmountInclTax;
-                oi.DiscountAmountExclTax = context.NewDiscountExclTax ?? oi.DiscountAmountExclTax;
-                oi.PriceInclTax = context.NewPriceInclTax ?? oi.PriceInclTax;
-                oi.PriceExclTax = context.NewPriceExclTax ?? oi.PriceExclTax;
-            }
-
-            context.OldRewardPoints = context.NewRewardPoints = order.Customer.GetRewardPointsBalance();
-
-            if (context.UpdateTotals && order.OrderStatusId <= (int)OrderStatus.Pending)
-            {
-                var currency = await _db.Currencies
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(x => x.CurrencyCode == order.CustomerCurrencyCode) ?? _primaryCurrency;
-
-                decimal priceInclTax = _roundingHelper.RoundIfEnabledFor(newQuantity * oi.UnitPriceInclTax, currency, order.CustomerTaxDisplayType);
-                decimal priceExclTax = _roundingHelper.RoundIfEnabledFor(newQuantity * oi.UnitPriceExclTax, currency, order.CustomerTaxDisplayType);
-
-                decimal priceInclTaxDiff = priceInclTax - oldPriceInclTax;
-                decimal priceExclTaxDiff = priceExclTax - oldPriceExclTax;
-
-                oi.Quantity = newQuantity;
-                oi.PriceInclTax = _roundingHelper.RoundIfEnabledFor(priceInclTax, currency, order.CustomerTaxDisplayType);
-                oi.PriceExclTax = _roundingHelper.RoundIfEnabledFor(priceExclTax, currency, order.CustomerTaxDisplayType);
-
-                decimal subtotalInclTax = order.OrderSubtotalInclTax + priceInclTaxDiff;
-                decimal subtotalExclTax = order.OrderSubtotalExclTax + priceExclTaxDiff;
-
-                order.OrderSubtotalInclTax = _roundingHelper.RoundIfEnabledFor(subtotalInclTax, currency, order.CustomerTaxDisplayType);
-                order.OrderSubtotalExclTax = _roundingHelper.RoundIfEnabledFor(subtotalExclTax, currency, order.CustomerTaxDisplayType);
-
-                decimal quantityChangeFactor = oldQuantity != 0 ? newQuantity / oldQuantity : 1.0M;
-
-                decimal discountInclTax = oi.DiscountAmountInclTax * quantityChangeFactor;
-                decimal discountExclTax = oi.DiscountAmountExclTax * quantityChangeFactor;
-
-                //decimal deltaDiscountInclTax = discountInclTax - oi.DiscountAmountInclTax;
-                //decimal deltaDiscountExclTax = discountExclTax - oi.DiscountAmountExclTax;
-
-                oi.DiscountAmountInclTax = _roundingHelper.RoundIfEnabledFor(discountInclTax, currency, order.CustomerTaxDisplayType);
-                oi.DiscountAmountExclTax = _roundingHelper.RoundIfEnabledFor(discountExclTax, currency, order.CustomerTaxDisplayType);
-
-                decimal total = Math.Max(order.OrderTotal + priceInclTaxDiff, 0);
-                decimal tax = Math.Max(order.OrderTax + (priceInclTaxDiff - priceExclTaxDiff), 0);
-
-                order.OrderTotal = _roundingHelper.RoundIfEnabledFor(total, currency, order.CustomerTaxDisplayType);
-                order.OrderTax = _roundingHelper.RoundIfEnabledFor(tax, currency, order.CustomerTaxDisplayType);
-
-                // Update tax rate value.
-                var deltaTax = priceInclTaxDiff - priceExclTaxDiff;
-                if (deltaTax != decimal.Zero)
-                {
-                    var taxRates = order.TaxRatesDictionary;
-
-                    taxRates[oi.TaxRate] = taxRates.ContainsKey(oi.TaxRate)
-                        ? Math.Max(taxRates[oi.TaxRate] + deltaTax, 0)
-                        : Math.Max(deltaTax, 0);
-
-                    order.TaxRates = FormatTaxRates(taxRates);
-                }
-
-                await _db.SaveChangesAsync();
-            }
-
-            var quantityDiff = newQuantity - oldQuantity;
-
-            if (context.AdjustInventory && quantityDiff != 0)
-            {
-                context.Inventory = await _productService.AdjustInventoryAsync(oi, quantityDiff > 0, Math.Abs(quantityDiff));
-            }
-
-            if (context.UpdateRewardPoints && quantityDiff < 0)
-            {
-                // INFO: We subsequently reduce the award points, but do not award them. They can be awarded once per order anyway
-                // (see "Order.RewardPointsWereAdded"). "UpdateRewardPoints" is only visible for unpending orders (see "RewardPointsSettingsValidator").
-                // Of course, reducing can only work if "oi.UnitPriceExclTax" has not been changed in the meantime.
-                decimal reduceAmount = Math.Abs(quantityDiff) * oi.UnitPriceExclTax;
-                ApplyRewardPoints(order, true, reduceAmount);
-
-                context.NewRewardPoints = order.Customer.GetRewardPointsBalance();
-            }
-
-            await _db.SaveChangesAsync();
-        }
-
-        #region Utilities
-
-        protected virtual string FormatTaxRates(SortedDictionary<decimal, decimal> taxRates)
-        {
-            return string.Join("   ", taxRates.Select(x => "{0}:{1};".FormatInvariant(x.Key.ToString(CultureInfo.InvariantCulture), x.Value.ToString(CultureInfo.InvariantCulture))));
-        }
-
-        /// <summary>
-        /// Applies reward points. The caller is responsible for database commit.
-        /// </summary>
-        protected virtual void ApplyRewardPoints(Order order, bool decrease, decimal? amount = null)
-        {
-            if (!_rewardPointsSettings.Enabled 
-                || _rewardPointsSettings.PointsForPurchases_Amount <= decimal.Zero 
-                || (!decrease && order.RewardPointsWereAdded) 
-                || (decrease && !order.RewardPointsWereAdded) 
-                || order.Customer == null 
-                || order.Customer.IsGuest())
-            {
-                return;
-            }
-
-            var points = _orderCalculationService.GetRewardPointsForPurchase(amount ?? order.OrderSubtotalExclTax, decrease);
-
-            if (decrease)
-            {
-                if (order.RewardPointsRemaining.HasValue && order.RewardPointsRemaining.Value < points)
-                {
-                    points = order.RewardPointsRemaining.Value;
-                }
-
-                if (points != 0)
-                {
-                    order.Customer.AddRewardPointsHistoryEntry(-points, T("RewardPoints.Message.ReducedForOrder", order.GetOrderNumber()));
-
-                    if (!order.RewardPointsRemaining.HasValue)
-                    {
-                        order.RewardPointsRemaining = _orderCalculationService.GetRewardPointsForPurchase(order.OrderSubtotalExclTax, true);
-                    }
-
-                    order.RewardPointsRemaining = Math.Max(order.RewardPointsRemaining.Value - points, 0);
-                }
-            }
-            else if (points != 0)
-            {
-                order.Customer.AddRewardPointsHistoryEntry(points, T("RewardPoints.Message.EarnedForOrder", order.GetOrderNumber()));
-                order.RewardPointsWereAdded = true;
+                isBelowMax = subtotal.SubtotalWithoutDiscount <= orderTotalMax;
             }
         }
 
-        /// <summary>
-        /// Activates gift cards. The caller is responsible for database commit.
-        /// </summary>
-        protected virtual async Task ActivateGiftCardsAsync(Order order)
+        var result = new OrderTotalValidationResult
         {
-            var activateGiftCards = _orderSettings.GiftCards_Activated_OrderStatusId > 0 && _orderSettings.GiftCards_Activated_OrderStatusId == order.OrderStatusId;
-            var deactivateGiftCards = _orderSettings.GiftCards_Deactivated_OrderStatusId > 0 && _orderSettings.GiftCards_Deactivated_OrderStatusId == order.OrderStatusId;
+            OrderTotalMinimum = orderTotalMin,
+            OrderTotalMaximum = orderTotalMax,
+            IsAboveMinimum = isAboveMin,
+            IsBelowMaximum = isBelowMax
+        };
 
-            if (!activateGiftCards && !deactivateGiftCards)
-            {
-                return;
-            }
+        return result;
+    }
 
-            var giftCards = await _db.GiftCards
-                .Include(x => x.PurchasedWithOrderItem)
-                .ThenInclude(x => x.Order)
-                .ApplyOrderFilter([order.Id])
-                .ToListAsync();
+    public virtual async Task<Shipment> AddShipmentAsync(
+        Order order,
+        string carrier,
+        string trackingNumber,
+        string trackingUrl,
+        Dictionary<int, int> quantities)
+    {
+        Guard.NotNull(order);
 
-            if (giftCards.Count == 0)
-            {
-                return;
-            }
+        await LoadNavigationProperties(order, true, true);
 
-            var customerLanguage = 
-                await _db.Languages.FindByIdAsync(order.CustomerLanguageId, false) ?? 
-                await _db.Languages.AsNoTracking().Where(x => x.Published).OrderBy(x => x.DisplayOrder).FirstOrDefaultAsync();
+        Shipment shipment = null;
+        decimal? totalWeight = null;
 
-            foreach (var gc in giftCards)
-            {
-                if (activateGiftCards && !gc.IsGiftCardActivated)
-                {
-                    var isRecipientNotified = gc.IsRecipientNotified;
-
-                    if (gc.GiftCardType == GiftCardType.Virtual)
-                    {
-                        // Send email for virtual gift card.
-                        if (gc.RecipientEmail.HasValue() && gc.SenderEmail.HasValue())
-                        {
-                            var msgResult = await _messageFactory.SendGiftCardNotificationAsync(gc, customerLanguage.Id);
-                            // INFO: QueuedEmail.Id may be 0 here because CheckOrderStatusAsync uses scope commit.
-                            isRecipientNotified = msgResult?.Email.Id != null;
-                        }
-                    }
-
-                    gc.IsGiftCardActivated = true;
-                    gc.IsRecipientNotified = isRecipientNotified;
-                }
-                else if (deactivateGiftCards && gc.IsGiftCardActivated)
-                {
-                    gc.IsGiftCardActivated = false;
-                }
-            }
-        }
-
-        protected virtual async Task SetOrderStatusAsync(Order order, OrderStatus status, bool notifyCustomer)
+        foreach (var orderItem in order.OrderItems)
         {
-            Guard.NotNull(order);
+            if (!orderItem.Product.IsShippingEnabled)
+                continue;
 
-            var prevOrderStatus = order.OrderStatus;
-            if (prevOrderStatus == status)
+            // Ensure that this product can be shipped (have at least one item to ship).
+            var maxQtyToAdd = await GetShippableItemsCountAsync(orderItem);
+            if (maxQtyToAdd <= 0)
+                continue;
+
+            var qtyToAdd = 0;
+
+            if (quantities == null)
             {
-                return;
+                qtyToAdd = maxQtyToAdd;
+            }
+            else
+            {
+                quantities.TryGetValue(orderItem.Id, out qtyToAdd);
             }
 
-            order.OrderStatusId = (int)status;
+            if (qtyToAdd <= 0)
+                continue;
 
-            // Save new order status.
-            await _db.SaveChangesAsync();
+            if (qtyToAdd > maxQtyToAdd)
+                qtyToAdd = maxQtyToAdd;
 
-            var notes = new List<string> { T("Admin.OrderNotice.OrderStatusChanged", _localizationService.GetLocalizedEnum(status)) };
-
-            if (prevOrderStatus != OrderStatus.Complete && status == OrderStatus.Complete && notifyCustomer)
+            var orderItemTotalWeight = orderItem.ItemWeight.HasValue ? orderItem.ItemWeight * qtyToAdd : null;
+            if (orderItemTotalWeight.HasValue)
             {
-                var msgResult = await _messageFactory.SendOrderCompletedCustomerNotificationAsync(order, order.CustomerLanguageId);
-                if (msgResult?.Email?.Id != null)
+                totalWeight ??= 0;
+                totalWeight += orderItemTotalWeight.Value;
+            }
+
+            if (shipment == null)
+            {
+                shipment = new()
                 {
-                    notes.Add(T("Admin.OrderNotice.CustomerCompletedEmailQueued", msgResult.Email.Id));
-                }
+                    OrderId = order.Id,
+                    // Otherwise order updated event would not be fired during InsertShipment:
+                    Order = order,
+                    TrackingNumber = trackingNumber.NullEmpty(),
+                    TrackingUrl = trackingUrl.NullEmpty(),
+                    TotalWeight = null,
+                    ShippedDateUtc = null,
+                    DeliveryDateUtc = null,
+                    CreatedOnUtc = DateTime.UtcNow
+                };
             }
 
-            if (prevOrderStatus != OrderStatus.Cancelled && status == OrderStatus.Cancelled && notifyCustomer)
+            shipment.ShipmentItems.Add(new()
             {
-                var msgResult = await _messageFactory.SendOrderCancelledCustomerNotificationAsync(order, order.CustomerLanguageId);
-                if (msgResult?.Email?.Id != null)
-                {
-                    notes.Add(T("Admin.OrderNotice.CustomerCancelledEmailQueued", msgResult.Email.Id));
-                }
-            }
-
-            AddOrderNotes(order, [.. notes]);
-
-            // Reward points.
-            var rewardPointsAwarded = order.OrderStatus == _rewardPointsSettings.PointsForPurchases_Awarded;
-            var rewardPointsCanceled = order.OrderStatus == _rewardPointsSettings.PointsForPurchases_Canceled;
-
-            if (rewardPointsAwarded || rewardPointsCanceled)
-            {
-                await LoadNavigationProperties(order, true, false);
-
-                ApplyRewardPoints(order, rewardPointsCanceled);
-            }
-
-            // Gift cards activation.
-            await ActivateGiftCardsAsync(order);
-
-            // Update order.
-            await _db.SaveChangesAsync();
-        }
-
-        /// <summary>
-        /// Updates the order status based on payment and shipping status.
-        /// </summary>
-        /// <param name="order">Order whose status is to be checked.</param>
-        /// <param name="completeOnRefund">
-        /// Indicates whether to complete the order if the payment has been refunded.
-        /// If set to <c>false</c>, the order is only completed if it was paid.
-        /// </param>
-        protected virtual async Task CheckOrderStatusAsync(Order order, bool completeOnRefund = false)
-        {
-            Guard.NotNull(order);
-
-            var ps = order.PaymentStatus;
-
-            using (var scope = new DbContextScope(_db, deferCommit: true))
-            {
-                if (ps == PaymentStatus.Paid && !order.PaidDateUtc.HasValue)
-                {
-                    order.PaidDateUtc = DateTime.UtcNow;
-                }
-
-                if (order.OrderStatus == OrderStatus.Pending && (ps == PaymentStatus.Authorized || ps == PaymentStatus.Paid))
-                {
-                    await SetOrderStatusAsync(order, OrderStatus.Processing, false);
-                }
-
-                if (order.OrderStatus == OrderStatus.Pending &&
-                    (order.ShippingStatus == ShippingStatus.PartiallyShipped || order.ShippingStatus == ShippingStatus.Shipped || order.ShippingStatus == ShippingStatus.Delivered))
-                {
-                    await SetOrderStatusAsync(order, OrderStatus.Processing, false);
-                }
-
-                await scope.CommitAsync();
-            }
-
-            if (order.OrderStatus != OrderStatus.Cancelled &&
-                order.OrderStatus != OrderStatus.Complete &&
-                (ps == PaymentStatus.Paid || (completeOnRefund && (ps == PaymentStatus.Refunded || ps == PaymentStatus.PartiallyRefunded))) &&
-                (order.ShippingStatus == ShippingStatus.ShippingNotRequired || order.ShippingStatus == ShippingStatus.Delivered))
-            {
-                // INFO: SetOrderStatusAsync performs commit. Exclude from scope commit because QueuedEmail.Id is required for messages.
-                await SetOrderStatusAsync(order, OrderStatus.Complete, true);
-            }
-        }
-
-        private async Task<int> SumUpQuantity(OrderItem orderItem, Func<Shipment, bool> predicate)
-        {
-            await _db.LoadReferenceAsync(orderItem, x => x.Order, false, q => q
-                .Include(x => x.Shipments)
-                .ThenInclude(x => x.ShipmentItems));
-
-            var result = 0;
-            var shipments = predicate != null
-                ? orderItem.Order.Shipments.Where(predicate)
-                : orderItem.Order.Shipments;
-
-            foreach (var shipment in shipments)
-            {
-                var item = shipment.ShipmentItems.FirstOrDefault(x => x.OrderItemId == orderItem.Id);
-                if (item != null)
-                {
-                    result += item.Quantity;
-                }
-            }
-
-            return result;
-        }
-
-        private async Task LoadNavigationProperties(Order order, bool includeCustomer = false, bool includeShipments = false)
-        {
-            // Resolve customer related navigation properties.
-            if (includeCustomer)
-            {
-                await _db.LoadReferenceAsync(order, x => x.RedeemedRewardPointsEntry);
-
-                await _db.LoadReferenceAsync(order, x => x.Customer, false, q => q
-                    .AsSplitQuery()
-                    .Include(x => x.RewardPointsHistory)
-                    .Include(x => x.CustomerRoleMappings)
-                    .ThenInclude(x => x.CustomerRole));
-            }
-
-            // Lazy load all order items in one go. Optionally also resolve more required navigation properties.
-            await _db.LoadCollectionAsync(order, x => x.OrderItems, false, q =>
-            {
-                q = q.Include(x => x.Product);
-
-                if (includeShipments)
-                {
-                    q = q.AsSplitQuery()
-                        .Include(x => x.Order.Shipments)
-                        .ThenInclude(x => x.ShipmentItems);
-                }
-
-                return q;
+                OrderItemId = orderItem.Id,
+                Quantity = qtyToAdd
             });
         }
 
-        private void AddOrderNotes(Order order, params string[] notes)
+        if (!(shipment?.ShipmentItems.IsNullOrEmpty() ?? true))
         {
-            var now = DateTime.UtcNow;
+            shipment.TotalWeight = totalWeight;
 
-            _db.OrderNotes.AddRange(notes.Select(note => new OrderNote
+            _db.Shipments.Add(shipment);
+            await _db.SaveChangesAsync();
+
+            if (carrier.HasValue())
             {
-                OrderId = order.Id,
-                Note = note,
-                CreatedOnUtc = now
-            }));
+                shipment.GenericAttributes.Set("Carrier", carrier);
+                await _db.SaveChangesAsync();
+            }
+
+            return shipment;
         }
 
-        #endregion
+        return null;
     }
+
+    public virtual async Task UpdateOrderDetailsAsync(OrderItem orderItem, UpdateOrderDetailsContext context)
+    {
+        Guard.NotNull(orderItem);
+        Guard.NotNull(orderItem.Order);
+
+        await LoadNavigationProperties(orderItem.Order, true, true);
+
+        var oi = orderItem;
+        var order = oi.Order;
+        var oldQuantity = context.OldQuantity ?? oi.Quantity;
+        var newQuantity = context.NewQuantity ?? oi.Quantity;
+        var oldPriceInclTax = context.OldPriceInclTax ?? oi.PriceInclTax;
+        var oldPriceExclTax = context.OldPriceExclTax ?? oi.PriceExclTax;
+
+        if (context.ReduceQuantity > 0)
+        {
+            var reduceQuantity = context.ReduceQuantity > oi.Quantity ? oi.Quantity : context.ReduceQuantity;
+            newQuantity = Math.Max(oi.Quantity - reduceQuantity, 0);
+        }
+
+        if (context.UpdateOrderItem)
+        {
+            if (newQuantity == 0)
+            {
+                return;
+            }
+
+            oi.Quantity = newQuantity;
+            oi.UnitPriceInclTax = context.NewUnitPriceInclTax ?? oi.UnitPriceInclTax;
+            oi.UnitPriceExclTax = context.NewUnitPriceExclTax ?? oi.UnitPriceExclTax;
+            oi.TaxRate = context.NewTaxRate ?? oi.TaxRate;
+            oi.DiscountAmountInclTax = context.NewDiscountInclTax ?? oi.DiscountAmountInclTax;
+            oi.DiscountAmountExclTax = context.NewDiscountExclTax ?? oi.DiscountAmountExclTax;
+            oi.PriceInclTax = context.NewPriceInclTax ?? oi.PriceInclTax;
+            oi.PriceExclTax = context.NewPriceExclTax ?? oi.PriceExclTax;
+        }
+
+        context.OldRewardPoints = context.NewRewardPoints = order.Customer.GetRewardPointsBalance();
+
+        if (context.UpdateTotals && order.OrderStatusId <= (int)OrderStatus.Pending)
+        {
+            var currency = await _db.Currencies
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.CurrencyCode == order.CustomerCurrencyCode) ?? _primaryCurrency;
+
+            decimal priceInclTax = _roundingHelper.RoundIfEnabledFor(newQuantity * oi.UnitPriceInclTax, currency, order.CustomerTaxDisplayType);
+            decimal priceExclTax = _roundingHelper.RoundIfEnabledFor(newQuantity * oi.UnitPriceExclTax, currency, order.CustomerTaxDisplayType);
+
+            decimal priceInclTaxDiff = priceInclTax - oldPriceInclTax;
+            decimal priceExclTaxDiff = priceExclTax - oldPriceExclTax;
+
+            oi.Quantity = newQuantity;
+            oi.PriceInclTax = _roundingHelper.RoundIfEnabledFor(priceInclTax, currency, order.CustomerTaxDisplayType);
+            oi.PriceExclTax = _roundingHelper.RoundIfEnabledFor(priceExclTax, currency, order.CustomerTaxDisplayType);
+
+            decimal subtotalInclTax = order.OrderSubtotalInclTax + priceInclTaxDiff;
+            decimal subtotalExclTax = order.OrderSubtotalExclTax + priceExclTaxDiff;
+
+            order.OrderSubtotalInclTax = _roundingHelper.RoundIfEnabledFor(subtotalInclTax, currency, order.CustomerTaxDisplayType);
+            order.OrderSubtotalExclTax = _roundingHelper.RoundIfEnabledFor(subtotalExclTax, currency, order.CustomerTaxDisplayType);
+
+            decimal quantityChangeFactor = oldQuantity != 0 ? newQuantity / oldQuantity : 1.0M;
+
+            decimal discountInclTax = oi.DiscountAmountInclTax * quantityChangeFactor;
+            decimal discountExclTax = oi.DiscountAmountExclTax * quantityChangeFactor;
+
+            //decimal deltaDiscountInclTax = discountInclTax - oi.DiscountAmountInclTax;
+            //decimal deltaDiscountExclTax = discountExclTax - oi.DiscountAmountExclTax;
+
+            oi.DiscountAmountInclTax = _roundingHelper.RoundIfEnabledFor(discountInclTax, currency, order.CustomerTaxDisplayType);
+            oi.DiscountAmountExclTax = _roundingHelper.RoundIfEnabledFor(discountExclTax, currency, order.CustomerTaxDisplayType);
+
+            decimal total = Math.Max(order.OrderTotal + priceInclTaxDiff, 0);
+            decimal tax = Math.Max(order.OrderTax + (priceInclTaxDiff - priceExclTaxDiff), 0);
+
+            order.OrderTotal = _roundingHelper.RoundIfEnabledFor(total, currency, order.CustomerTaxDisplayType);
+            order.OrderTax = _roundingHelper.RoundIfEnabledFor(tax, currency, order.CustomerTaxDisplayType);
+
+            // Update tax rate value.
+            var deltaTax = priceInclTaxDiff - priceExclTaxDiff;
+            if (deltaTax != decimal.Zero)
+            {
+                var taxRates = order.TaxRatesDictionary;
+
+                taxRates[oi.TaxRate] = taxRates.ContainsKey(oi.TaxRate)
+                    ? Math.Max(taxRates[oi.TaxRate] + deltaTax, 0)
+                    : Math.Max(deltaTax, 0);
+
+                order.TaxRates = FormatTaxRates(taxRates);
+            }
+
+            await _db.SaveChangesAsync();
+        }
+
+        var quantityDiff = newQuantity - oldQuantity;
+
+        if (context.AdjustInventory && quantityDiff != 0)
+        {
+            context.Inventory = await _productService.AdjustInventoryAsync(oi, quantityDiff > 0, Math.Abs(quantityDiff));
+        }
+
+        if (context.UpdateRewardPoints && quantityDiff < 0)
+        {
+            // INFO: We subsequently reduce the award points, but do not award them. They can be awarded once per order anyway
+            // (see "Order.RewardPointsWereAdded"). "UpdateRewardPoints" is only visible for unpending orders (see "RewardPointsSettingsValidator").
+            // Of course, reducing can only work if "oi.UnitPriceExclTax" has not been changed in the meantime.
+            decimal reduceAmount = Math.Abs(quantityDiff) * oi.UnitPriceExclTax;
+            ApplyRewardPoints(order, true, reduceAmount);
+
+            context.NewRewardPoints = order.Customer.GetRewardPointsBalance();
+        }
+
+        await _db.SaveChangesAsync();
+    }
+
+    #region Utilities
+
+    protected virtual string FormatTaxRates(SortedDictionary<decimal, decimal> taxRates)
+    {
+        return string.Join("   ", taxRates.Select(x => "{0}:{1};".FormatInvariant(x.Key.ToString(CultureInfo.InvariantCulture), x.Value.ToString(CultureInfo.InvariantCulture))));
+    }
+
+    /// <summary>
+    /// Applies reward points. The caller is responsible for database commit.
+    /// </summary>
+    protected virtual void ApplyRewardPoints(Order order, bool decrease, decimal? amount = null)
+    {
+        if (!_rewardPointsSettings.Enabled
+            || _rewardPointsSettings.PointsForPurchases_Amount <= decimal.Zero
+            || (!decrease && order.RewardPointsWereAdded)
+            || (decrease && !order.RewardPointsWereAdded)
+            || order.Customer == null
+            || order.Customer.IsGuest())
+        {
+            return;
+        }
+
+        var points = _orderCalculationService.GetRewardPointsForPurchase(amount ?? order.OrderSubtotalExclTax, decrease);
+
+        if (decrease)
+        {
+            if (order.RewardPointsRemaining.HasValue && order.RewardPointsRemaining.Value < points)
+            {
+                points = order.RewardPointsRemaining.Value;
+            }
+
+            if (points != 0)
+            {
+                order.Customer.AddRewardPointsHistoryEntry(-points, T("RewardPoints.Message.ReducedForOrder", order.GetOrderNumber()));
+
+                if (!order.RewardPointsRemaining.HasValue)
+                {
+                    order.RewardPointsRemaining = _orderCalculationService.GetRewardPointsForPurchase(order.OrderSubtotalExclTax, true);
+                }
+
+                order.RewardPointsRemaining = Math.Max(order.RewardPointsRemaining.Value - points, 0);
+            }
+        }
+        else if (points != 0)
+        {
+            order.Customer.AddRewardPointsHistoryEntry(points, T("RewardPoints.Message.EarnedForOrder", order.GetOrderNumber()));
+            order.RewardPointsWereAdded = true;
+        }
+    }
+
+    /// <summary>
+    /// Activates gift cards. The caller is responsible for database commit.
+    /// </summary>
+    protected virtual async Task ActivateGiftCardsAsync(Order order)
+    {
+        var activateGiftCards = _orderSettings.GiftCards_Activated_OrderStatusId > 0 && _orderSettings.GiftCards_Activated_OrderStatusId == order.OrderStatusId;
+        var deactivateGiftCards = _orderSettings.GiftCards_Deactivated_OrderStatusId > 0 && _orderSettings.GiftCards_Deactivated_OrderStatusId == order.OrderStatusId;
+
+        if (!activateGiftCards && !deactivateGiftCards)
+        {
+            return;
+        }
+
+        var giftCards = await _db.GiftCards
+            .Include(x => x.PurchasedWithOrderItem)
+            .ThenInclude(x => x.Order)
+            .ApplyOrderFilter([order.Id])
+            .ToListAsync();
+
+        if (giftCards.Count == 0)
+        {
+            return;
+        }
+
+        var customerLanguage =
+            await _db.Languages.FindByIdAsync(order.CustomerLanguageId, false) ??
+            await _db.Languages.AsNoTracking().Where(x => x.Published).OrderBy(x => x.DisplayOrder).FirstOrDefaultAsync();
+
+        foreach (var gc in giftCards)
+        {
+            if (activateGiftCards && !gc.IsGiftCardActivated)
+            {
+                var isRecipientNotified = gc.IsRecipientNotified;
+
+                if (gc.GiftCardType == GiftCardType.Virtual)
+                {
+                    // Send email for virtual gift card.
+                    if (gc.RecipientEmail.HasValue() && gc.SenderEmail.HasValue())
+                    {
+                        var msgResult = await _messageFactory.SendGiftCardNotificationAsync(gc, customerLanguage.Id);
+                        // INFO: QueuedEmail.Id may be 0 here because CheckOrderStatusAsync uses scope commit.
+                        isRecipientNotified = msgResult?.Email.Id != null;
+                    }
+                }
+
+                gc.IsGiftCardActivated = true;
+                gc.IsRecipientNotified = isRecipientNotified;
+            }
+            else if (deactivateGiftCards && gc.IsGiftCardActivated)
+            {
+                gc.IsGiftCardActivated = false;
+            }
+        }
+    }
+
+    protected virtual async Task SetOrderStatusAsync(Order order, OrderStatus status, bool notifyCustomer)
+    {
+        Guard.NotNull(order);
+
+        var prevOrderStatus = order.OrderStatus;
+        if (prevOrderStatus == status)
+        {
+            return;
+        }
+
+        order.OrderStatusId = (int)status;
+
+        // Save new order status.
+        await _db.SaveChangesAsync();
+
+        var notes = new List<string> { T("Admin.OrderNotice.OrderStatusChanged", _localizationService.GetLocalizedEnum(status)) };
+
+        if (prevOrderStatus != OrderStatus.Complete && status == OrderStatus.Complete && notifyCustomer)
+        {
+            var msgResult = await _messageFactory.SendOrderCompletedCustomerNotificationAsync(order, order.CustomerLanguageId);
+            if (msgResult?.Email?.Id != null)
+            {
+                notes.Add(T("Admin.OrderNotice.CustomerCompletedEmailQueued", msgResult.Email.Id));
+            }
+        }
+
+        if (prevOrderStatus != OrderStatus.Cancelled && status == OrderStatus.Cancelled && notifyCustomer)
+        {
+            var msgResult = await _messageFactory.SendOrderCancelledCustomerNotificationAsync(order, order.CustomerLanguageId);
+            if (msgResult?.Email?.Id != null)
+            {
+                notes.Add(T("Admin.OrderNotice.CustomerCancelledEmailQueued", msgResult.Email.Id));
+            }
+        }
+
+        AddOrderNotes(order, [.. notes]);
+
+        // Reward points.
+        var rewardPointsAwarded = order.OrderStatus == _rewardPointsSettings.PointsForPurchases_Awarded;
+        var rewardPointsCanceled = order.OrderStatus == _rewardPointsSettings.PointsForPurchases_Canceled;
+
+        if (rewardPointsAwarded || rewardPointsCanceled)
+        {
+            await LoadNavigationProperties(order, true, false);
+
+            ApplyRewardPoints(order, rewardPointsCanceled);
+        }
+
+        // Gift cards activation.
+        await ActivateGiftCardsAsync(order);
+
+        // Update order.
+        await _db.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Updates the order status based on payment and shipping status.
+    /// </summary>
+    /// <param name="order">Order whose status is to be checked.</param>
+    /// <param name="completeOnRefund">
+    /// Indicates whether to complete the order if the payment has been refunded.
+    /// If set to <c>false</c>, the order is only completed if it was paid.
+    /// </param>
+    protected virtual async Task CheckOrderStatusAsync(Order order, bool completeOnRefund = false)
+    {
+        Guard.NotNull(order);
+
+        var ps = order.PaymentStatus;
+
+        using (var scope = new DbContextScope(_db, deferCommit: true))
+        {
+            if (ps == PaymentStatus.Paid && !order.PaidDateUtc.HasValue)
+            {
+                order.PaidDateUtc = DateTime.UtcNow;
+            }
+
+            if (order.OrderStatus == OrderStatus.Pending && (ps == PaymentStatus.Authorized || ps == PaymentStatus.Paid))
+            {
+                await SetOrderStatusAsync(order, OrderStatus.Processing, false);
+            }
+
+            if (order.OrderStatus == OrderStatus.Pending &&
+                (order.ShippingStatus == ShippingStatus.PartiallyShipped || order.ShippingStatus == ShippingStatus.Shipped || order.ShippingStatus == ShippingStatus.Delivered))
+            {
+                await SetOrderStatusAsync(order, OrderStatus.Processing, false);
+            }
+
+            await scope.CommitAsync();
+        }
+
+        if (order.OrderStatus != OrderStatus.Cancelled &&
+            order.OrderStatus != OrderStatus.Complete &&
+            (ps == PaymentStatus.Paid || (completeOnRefund && (ps == PaymentStatus.Refunded || ps == PaymentStatus.PartiallyRefunded))) &&
+            (order.ShippingStatus == ShippingStatus.ShippingNotRequired || order.ShippingStatus == ShippingStatus.Delivered))
+        {
+            // INFO: SetOrderStatusAsync performs commit. Exclude from scope commit because QueuedEmail.Id is required for messages.
+            await SetOrderStatusAsync(order, OrderStatus.Complete, true);
+        }
+    }
+
+    private async Task<int> SumUpQuantity(OrderItem orderItem, Func<Shipment, bool> predicate)
+    {
+        await _db.LoadReferenceAsync(orderItem, x => x.Order, false, q => q
+            .Include(x => x.Shipments)
+            .ThenInclude(x => x.ShipmentItems));
+
+        var result = 0;
+        var shipments = predicate != null
+            ? orderItem.Order.Shipments.Where(predicate)
+            : orderItem.Order.Shipments;
+
+        foreach (var shipment in shipments)
+        {
+            var item = shipment.ShipmentItems.FirstOrDefault(x => x.OrderItemId == orderItem.Id);
+            if (item != null)
+            {
+                result += item.Quantity;
+            }
+        }
+
+        return result;
+    }
+
+    private async Task LoadNavigationProperties(Order order, bool includeCustomer = false, bool includeShipments = false)
+    {
+        // Resolve customer related navigation properties.
+        if (includeCustomer)
+        {
+            await _db.LoadReferenceAsync(order, x => x.RedeemedRewardPointsEntry);
+
+            await _db.LoadReferenceAsync(order, x => x.Customer, false, q => q
+                .AsSplitQuery()
+                .Include(x => x.RewardPointsHistory)
+                .Include(x => x.CustomerRoleMappings)
+                .ThenInclude(x => x.CustomerRole));
+        }
+
+        // Lazy load all order items in one go. Optionally also resolve more required navigation properties.
+        await _db.LoadCollectionAsync(order, x => x.OrderItems, false, q =>
+        {
+            q = q.Include(x => x.Product);
+
+            if (includeShipments)
+            {
+                q = q.AsSplitQuery()
+                    .Include(x => x.Order.Shipments)
+                    .ThenInclude(x => x.ShipmentItems);
+            }
+
+            return q;
+        });
+    }
+
+    private void AddOrderNotes(Order order, params string[] notes)
+    {
+        var now = DateTime.UtcNow;
+
+        _db.OrderNotes.AddRange(notes.Select(note => new OrderNote
+        {
+            OrderId = order.Id,
+            Note = note,
+            CreatedOnUtc = now
+        }));
+    }
+
+    #endregion
 }

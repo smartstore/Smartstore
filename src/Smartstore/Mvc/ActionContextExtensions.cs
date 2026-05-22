@@ -15,7 +15,7 @@ public static class ActionContextExtensions
         {
             return typeof(TController).IsAssignableFrom(actionDescriptor.ControllerTypeInfo);
         }
-        
+
         return false;
     }
 

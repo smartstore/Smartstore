@@ -80,7 +80,7 @@ public class TreeNodeJsonConverterTests
         node.ShouldNotBeNull();
         node.Value.ShouldEqual("Test");
         node.Id.ShouldNotBeNull();
-        
+
         var idArray = node.Id as object[];
         idArray.ShouldNotBeNull();
         idArray.Length.ShouldEqual(3);

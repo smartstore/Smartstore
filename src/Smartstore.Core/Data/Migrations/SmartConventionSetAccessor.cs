@@ -2,14 +2,13 @@
 using FluentMigrator.Runner.Conventions;
 using FluentMigrator.Runner.Initialization;
 
-namespace Smartstore.Core.Data.Migrations
+namespace Smartstore.Core.Data.Migrations;
+
+public sealed class SmartConventionSetAccessor : IConventionSetAccessor
 {
-    public sealed class SmartConventionSetAccessor : IConventionSetAccessor
+    public IConventionSet GetConventionSet()
     {
-        public IConventionSet GetConventionSet()
-        {
-            var defaultSchemaName = EngineContext.Current.Application.AppConfiguration.DbDefaultSchema;
-            return new DefaultConventionSet(defaultSchemaName, null);
-        }
+        var defaultSchemaName = EngineContext.Current.Application.AppConfiguration.DbDefaultSchema;
+        return new DefaultConventionSet(defaultSchemaName, null);
     }
 }

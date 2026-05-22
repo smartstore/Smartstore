@@ -7,153 +7,152 @@ using Microsoft.Extensions.FileProviders;
 using Smartstore.Core.Theming;
 using Smartstore.Web.Bundling.Processors;
 
-namespace Smartstore.Web.Bundling
+namespace Smartstore.Web.Bundling;
+
+public class DynamicBundleContext
 {
-    public class DynamicBundleContext
+    public PathString Path { get; set; }
+    public RouteValueDictionary RouteValues { get; init; }
+    public DynamicBundle Bundle { get; set; }
+    public HttpContext HttpContext { get; init; }
+    public IApplicationContext ApplicationContext { get; init; }
+    public IThemeRegistry ThemeRegistry { get; init; }
+    public BundlingOptions BundlingOptions { get; init; }
+}
+
+[DebuggerDisplay("DynamicBundle: {Route}")]
+internal class DynamicBundleMatch : Bundle
+{
+    private string[] _sourceFiles;
+
+    public DynamicBundleMatch(DynamicBundleContext context)
+        : base(context.Path, context.Bundle.ContentType, context.Bundle.FileProvider, context.Bundle.Processors.ToArray())
     {
-        public PathString Path { get; set; }
-        public RouteValueDictionary RouteValues { get; init; }
-        public DynamicBundle Bundle { get; set; }
-        public HttpContext HttpContext { get; init; }
-        public IApplicationContext ApplicationContext { get; init; }
-        public IThemeRegistry ThemeRegistry { get; init; }
-        public BundlingOptions BundlingOptions { get; init; }
+        DynamicBundleContext = Guard.NotNull(context);
     }
 
-    [DebuggerDisplay("DynamicBundle: {Route}")]
-    internal class DynamicBundleMatch : Bundle
+    public DynamicBundleContext DynamicBundleContext { get; }
+
+    public override IEnumerable<string> SourceFiles
     {
-        private string[] _sourceFiles;
+        get => _sourceFiles ??= DynamicBundleContext.Bundle.ResolveSourceFiles(DynamicBundleContext).ToArray();
+    }
+}
 
-        public DynamicBundleMatch(DynamicBundleContext context)
-            : base(context.Path, context.Bundle.ContentType, context.Bundle.FileProvider, context.Bundle.Processors.ToArray())
-        {
-            DynamicBundleContext = Guard.NotNull(context);
-        }
+/// <summary>
+/// Represents a dynamic script bundle that does Js minification.
+/// </summary>
+public class DynamicScriptBundle : DynamicBundle
+{
+    public DynamicScriptBundle(string routeTemplate, object defaults = null)
+        : base(routeTemplate, defaults, "application/javascript", null, DefaultScriptProcessors)
+    {
+        ConcatenationToken = ";" + Environment.NewLine;
+    }
+}
 
-        public DynamicBundleContext DynamicBundleContext { get; }
+/// <summary>
+/// Represents a dynamic stylesheet bundle that does CSS minification, URL rewrite & Autoprefixing.
+/// </summary>
+public class DynamicStyleBundle : DynamicBundle
+{
+    public DynamicStyleBundle(string routeTemplate, object defaults = null)
+        : base(routeTemplate, defaults, "text/css", null, DefaultStyleProcessors)
+    {
+    }
+}
 
-        public override IEnumerable<string> SourceFiles
-        {
-            get => _sourceFiles ??= DynamicBundleContext.Bundle.ResolveSourceFiles(DynamicBundleContext).ToArray();
-        }
+/// <summary>
+/// Represents a dynamic late-bound list of file references to be bundled together as a single resource.
+/// </summary>
+public class DynamicBundle : Bundle
+{
+    private static readonly ConcurrentDictionary<string, string[]> _sourceFilesCache = new();
+
+    private readonly List<Func<DynamicBundleContext, bool>> _constraints = new();
+    private readonly List<Func<DynamicBundleContext, IEnumerable<string>>> _resolvers = new();
+
+    public DynamicBundle(
+        string routeTemplate,
+        object defaults,
+        string contentType,
+        IFileProvider fileProvider,
+        params IBundleProcessor[] processors)
+        : base(routeTemplate, contentType, fileProvider, processors)
+    {
+        routeTemplate = base.Route;
+
+        Defaults = new RouteValueDictionary(defaults);
+        TemplateMatcher = new TemplateMatcher(TemplateParser.Parse(routeTemplate), Defaults);
     }
 
-    /// <summary>
-    /// Represents a dynamic script bundle that does Js minification.
-    /// </summary>
-    public class DynamicScriptBundle : DynamicBundle
+    public RouteValueDictionary Defaults { get; }
+    public TemplateMatcher TemplateMatcher { get; }
+
+    protected override string ValidateRoute(string route)
     {
-        public DynamicScriptBundle(string routeTemplate, object defaults = null)
-            : base(routeTemplate, defaults, "application/javascript", null, DefaultScriptProcessors)
-        {
-            ConcatenationToken = ";" + Environment.NewLine;
-        }
+        return route;
     }
 
-    /// <summary>
-    /// Represents a dynamic stylesheet bundle that does CSS minification, URL rewrite & Autoprefixing.
-    /// </summary>
-    public class DynamicStyleBundle : DynamicBundle
+    public override Bundle Include(params string[] paths)
     {
-        public DynamicStyleBundle(string routeTemplate, object defaults = null)
-            : base(routeTemplate, defaults, "text/css", null, DefaultStyleProcessors)
-        {
-        }
+        throw new NotSupportedException("Adding static files to dynamic bundles is not supported. Call the 'Include(Func<...> fileResolver)' method which takes a resolver delegate instead.");
     }
 
-    /// <summary>
-    /// Represents a dynamic late-bound list of file references to be bundled together as a single resource.
-    /// </summary>
-    public class DynamicBundle : Bundle
+    public DynamicBundle Include(Func<DynamicBundleContext, IEnumerable<string>> fileResolver)
     {
-        private static readonly ConcurrentDictionary<string, string[]> _sourceFilesCache = new();
+        _resolvers.Add(Guard.NotNull(fileResolver));
+        return this;
+    }
 
-        private readonly List<Func<DynamicBundleContext, bool>> _constraints = new();
-        private readonly List<Func<DynamicBundleContext, IEnumerable<string>>> _resolvers = new();
+    public DynamicBundle WithConstraint(Func<DynamicBundleContext, bool> constraint)
+    {
+        _constraints.Add(Guard.NotNull(constraint));
+        return this;
+    }
 
-        public DynamicBundle(
-            string routeTemplate,
-            object defaults,
-            string contentType,
-            IFileProvider fileProvider,
-            params IBundleProcessor[] processors)
-            : base(routeTemplate, contentType, fileProvider, processors)
+    internal bool TryMatchRoute(PathString path, out RouteValueDictionary values)
+    {
+        values = new RouteValueDictionary();
+        if (TemplateMatcher.TryMatch(path, values))
         {
-            routeTemplate = base.Route;
-
-            Defaults = new RouteValueDictionary(defaults);
-            TemplateMatcher = new TemplateMatcher(TemplateParser.Parse(routeTemplate), Defaults);
+            return true;
         }
 
-        public RouteValueDictionary Defaults { get; }
-        public TemplateMatcher TemplateMatcher { get; }
+        values = null;
+        return false;
+    }
 
-        protected override string ValidateRoute(string route)
+    internal bool IsStatisfiedByConstraints(DynamicBundleContext context)
+    {
+        if (_constraints.Count == 0)
         {
-            return route;
+            return true;
         }
 
-        public override Bundle Include(params string[] paths)
+        return _constraints.All(c => c(context));
+    }
+
+    internal virtual IEnumerable<string> ResolveSourceFiles(DynamicBundleContext context)
+    {
+        if (context.RouteValues.Count == 0)
         {
-            throw new NotSupportedException("Adding static files to dynamic bundles is not supported. Call the 'Include(Func<...> fileResolver)' method which takes a resolver delegate instead.");
+            return _resolvers.SelectMany(resolver => resolver(context));
         }
 
-        public DynamicBundle Include(Func<DynamicBundleContext, IEnumerable<string>> fileResolver)
+        var cacheKey = BuildSourceFilesCacheKey(context);
+        return _sourceFilesCache.GetOrAdd(cacheKey, key
+            => _resolvers.SelectMany(resolver => resolver(context)).ToArray());
+    }
+
+    private static string BuildSourceFilesCacheKey(DynamicBundleContext context)
+    {
+        var key = context.Path.Value + '_';
+        foreach (var kvp in context.RouteValues)
         {
-            _resolvers.Add(Guard.NotNull(fileResolver));
-            return this;
+            key += $"{kvp.Key}:{kvp.Value}_";
         }
 
-        public DynamicBundle WithConstraint(Func<DynamicBundleContext, bool> constraint)
-        {
-            _constraints.Add(Guard.NotNull(constraint));
-            return this;
-        }
-
-        internal bool TryMatchRoute(PathString path, out RouteValueDictionary values)
-        {
-            values = new RouteValueDictionary();
-            if (TemplateMatcher.TryMatch(path, values))
-            {
-                return true;
-            }
-
-            values = null;
-            return false;
-        }
-
-        internal bool IsStatisfiedByConstraints(DynamicBundleContext context)
-        {
-            if (_constraints.Count == 0)
-            {
-                return true;
-            }
-
-            return _constraints.All(c => c(context));
-        }
-
-        internal virtual IEnumerable<string> ResolveSourceFiles(DynamicBundleContext context)
-        {
-            if (context.RouteValues.Count == 0)
-            {
-                return _resolvers.SelectMany(resolver => resolver(context));
-            }
-
-            var cacheKey = BuildSourceFilesCacheKey(context);
-            return _sourceFilesCache.GetOrAdd(cacheKey, key
-                => _resolvers.SelectMany(resolver => resolver(context)).ToArray());
-        }
-
-        private static string BuildSourceFilesCacheKey(DynamicBundleContext context)
-        {
-            var key = context.Path.Value + '_';
-            foreach (var kvp in context.RouteValues)
-            {
-                key += $"{kvp.Key}:{kvp.Value}_";
-            }
-
-            return key;
-        }
+        return key;
     }
 }

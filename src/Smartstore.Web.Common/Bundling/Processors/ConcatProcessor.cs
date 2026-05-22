@@ -1,40 +1,39 @@
 ﻿using Smartstore.Utilities;
 
-namespace Smartstore.Web.Bundling.Processors
+namespace Smartstore.Web.Bundling.Processors;
+
+public class ConcatProcessor : BundleProcessor
 {
-    public class ConcatProcessor : BundleProcessor
+    internal static readonly ConcatProcessor Instance = new();
+
+    public override string Code => "concat";
+
+    public override Task ProcessAsync(BundleContext context)
     {
-        internal static readonly ConcatProcessor Instance = new();
-
-        public override string Code => "concat";
-
-        public override Task ProcessAsync(BundleContext context)
+        if (context.Content.Count > 1)
         {
-            if (context.Content.Count > 1)
+            using var psb = StringBuilderPool.Instance.Get(out var sb);
+
+            foreach (var asset in context.Content)
             {
-                using var psb = StringBuilderPool.Instance.Get(out var sb);
-
-                foreach (var asset in context.Content)
-                {
-                    sb.Append(asset.Content);
-                    sb.Append(context.Bundle.ConcatenationToken);
-                }
-
-                var combinedAsset = new AssetContent
-                {
-                    Content = sb.ToString(),
-                    LastModifiedUtc = DateTimeOffset.UtcNow,
-                    ContentType = context.Bundle.ContentType,
-                    Path = Guid.NewGuid().ToString()
-                };
-
-                context.Content.Clear();
-                context.Content.Add(combinedAsset);
-
-                context.ProcessorCodes.Add(Code);
+                sb.Append(asset.Content);
+                sb.Append(context.Bundle.ConcatenationToken);
             }
 
-            return Task.CompletedTask;
+            var combinedAsset = new AssetContent
+            {
+                Content = sb.ToString(),
+                LastModifiedUtc = DateTimeOffset.UtcNow,
+                ContentType = context.Bundle.ContentType,
+                Path = Guid.NewGuid().ToString()
+            };
+
+            context.Content.Clear();
+            context.Content.Add(combinedAsset);
+
+            context.ProcessorCodes.Add(Code);
         }
+
+        return Task.CompletedTask;
     }
 }

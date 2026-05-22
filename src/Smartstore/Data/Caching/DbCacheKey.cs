@@ -1,44 +1,43 @@
 ﻿using System.ComponentModel;
 
-namespace Smartstore.Data.Caching
+namespace Smartstore.Data.Caching;
+
+/// <summary>
+/// Stores information of the computed key of the input LINQ query.
+/// </summary>
+public sealed class DbCacheKey
 {
     /// <summary>
-    /// Stores information of the computed key of the input LINQ query.
+    /// The computed key of the input LINQ query.
     /// </summary>
-    public sealed class DbCacheKey
+    public string Key { set; get; }
+
+    /// <summary>
+    /// Determines which entities are involved in the LINQ query (by JOIN, INCLUDE etc.).
+    /// This array will be used to invalidate data of all related queries automatically.
+    /// </summary>
+    [DefaultValue("[]")]
+    public string[] EntitySets { set; get; } = [];
+
+    public override bool Equals(object obj)
     {
-        /// <summary>
-        /// The computed key of the input LINQ query.
-        /// </summary>
-        public string Key { set; get; }
+        if (obj is not DbCacheKey efCacheKey)
+            return false;
 
-        /// <summary>
-        /// Determines which entities are involved in the LINQ query (by JOIN, INCLUDE etc.).
-        /// This array will be used to invalidate data of all related queries automatically.
-        /// </summary>
-        [DefaultValue("[]")]
-        public string[] EntitySets { set; get; } = [];
+        return Key == efCacheKey.Key;
+    }
 
-        public override bool Equals(object obj)
+    public override int GetHashCode()
+    {
+        unchecked
         {
-            if (obj is not DbCacheKey efCacheKey)
-                return false;
-
-            return Key == efCacheKey.Key;
+            var hash = 17;
+            return (hash * 23) + Key.GetHashCode();
         }
+    }
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hash = 17;
-                return (hash * 23) + Key.GetHashCode();
-            }
-        }
-
-        public override string ToString()
-        {
-            return $"KeyHash: {Key}, CacheDependencies: {string.Join(", ", EntitySets)}.";
-        }
+    public override string ToString()
+    {
+        return $"KeyHash: {Key}, CacheDependencies: {string.Join(", ", EntitySets)}.";
     }
 }

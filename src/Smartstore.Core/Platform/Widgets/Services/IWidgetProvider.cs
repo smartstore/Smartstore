@@ -74,7 +74,7 @@ public static class IWidgetProviderExtensions
     /// <param name="zoneName">The zone name to check for existing widget.</param>
     public static bool ContainsWidget(this IWidgetProvider provider, string zoneName, string widgetKey)
         => provider.ContainsWidget(new PlainWidgetZone(zoneName), widgetKey);
-    
+
     /// <summary>
     /// Registers a custom widget for a single widget zone.
     /// </summary>

@@ -136,10 +136,10 @@ public class DefaultWidgetProvider : IWidgetProvider, IWidgetSource
         {
             foreach (var entry in _zoneExpressionWidgetsMap)
             {
-                var isMatch = 
-                    (entry.Key is Regex rg && rg.IsMatch(zone.Name)) || 
+                var isMatch =
+                    (entry.Key is Regex rg && rg.IsMatch(zone.Name)) ||
                     (entry.Key is Func<string, bool> fn && fn(zone.Name));
-                
+
                 if (isMatch)
                 {
                     foreach (var widget in entry.Value)

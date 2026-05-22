@@ -161,7 +161,7 @@ public class ProductAttributeController : AdminController
             await _db.SaveChangesAsync();
 
             Services.ActivityLogger.LogActivity(
-                KnownActivityLogTypes.DeleteProductAttribute, 
+                KnownActivityLogTypes.DeleteProductAttribute,
                 T("ActivityLog.DeleteProductAttribute"),
                 string.Join(", ", entities.Select(x => x.Name)));
         }

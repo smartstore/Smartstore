@@ -87,7 +87,7 @@ public class ReturnCaseModel : TabbableModel
                     return "muted";
                 default:
                     return string.Empty;
-            }                
+            }
         }
     }
 

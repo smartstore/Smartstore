@@ -3,90 +3,89 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Rules;
 using Smartstore.Web.Models.DataGrid;
 
-namespace Smartstore.Web.TagHelpers.Admin
+namespace Smartstore.Web.TagHelpers.Admin;
+
+[HtmlTargetElement("filtering", ParentTag = "datagrid")]
+[RestrictChildren("filter")]
+public class GridFilteringTagHelper : TagHelper
 {
-    [HtmlTargetElement("filtering", ParentTag = "datagrid")]
-    [RestrictChildren("filter")]
-    public class GridFilteringTagHelper : TagHelper
+    const string EnabledAttributeName = "enabled";
+
+    public override void Init(TagHelperContext context)
     {
-        const string EnabledAttributeName = "enabled";
-
-        public override void Init(TagHelperContext context)
+        base.Init(context);
+        if (context.Items.TryGetValue(nameof(GridTagHelper), out var obj) && obj is GridTagHelper parent)
         {
-            base.Init(context);
-            if (context.Items.TryGetValue(nameof(GridTagHelper), out var obj) && obj is GridTagHelper parent)
-            {
-                parent.Filtering = this;
-            }
-        }
-
-        [HtmlAttributeName(EnabledAttributeName)]
-        public bool Enabled { get; set; } = true;
-
-        [HtmlAttributeNotBound]
-        internal List<GridFilterTagHelper> Descriptors { get; set; } = new();
-
-        public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
-        {
-            await output.GetChildContentAsync();
-            output.SuppressOutput();
-        }
-
-        internal object ToPlainObject(GridCommand command = null)
-        {
-            return new
-            {
-                enabled = Enabled,
-                descriptors = command == null
-                    ? Descriptors.Select(x => x.ToPlainObject()).ToArray()
-                    : Descriptors.Select(x => x.ToPlainObject()).ToArray() // TODO: (core) Implement command filter preservation
-            };
+            parent.Filtering = this;
         }
     }
 
-    [HtmlTargetElement("filter", Attributes = "for,op", ParentTag = "filtering", TagStructure = TagStructure.NormalOrSelfClosing)]
-    public class GridFilterTagHelper : TagHelper
+    [HtmlAttributeName(EnabledAttributeName)]
+    public bool Enabled { get; set; } = true;
+
+    [HtmlAttributeNotBound]
+    internal List<GridFilterTagHelper> Descriptors { get; set; } = new();
+
+    public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
-        const string ForAttributeName = "for";
-        const string OperatorAttributeName = "op";
-        const string ValueAttributeName = "value";
+        await output.GetChildContentAsync();
+        output.SuppressOutput();
+    }
 
-        public override void Init(TagHelperContext context)
+    internal object ToPlainObject(GridCommand command = null)
+    {
+        return new
         {
-            base.Init(context);
-            if (context.Items.TryGetValue(nameof(GridTagHelper), out var obj) && obj is GridTagHelper parent)
-            {
-                parent.Filtering.Descriptors.Add(this);
-            }
-        }
+            enabled = Enabled,
+            descriptors = command == null
+                ? Descriptors.Select(x => x.ToPlainObject()).ToArray()
+                : Descriptors.Select(x => x.ToPlainObject()).ToArray() // TODO: (core) Implement command filter preservation
+        };
+    }
+}
 
-        /// <summary>
-        /// The filtered member.
-        /// </summary>
-        [HtmlAttributeName(ForAttributeName)]
-        public ModelExpression For { get; set; }
+[HtmlTargetElement("filter", Attributes = "for,op", ParentTag = "filtering", TagStructure = TagStructure.NormalOrSelfClosing)]
+public class GridFilterTagHelper : TagHelper
+{
+    const string ForAttributeName = "for";
+    const string OperatorAttributeName = "op";
+    const string ValueAttributeName = "value";
 
-        [HtmlAttributeName(OperatorAttributeName)]
-        public RuleOperator Operator { get; set; }
-
-        [HtmlAttributeName(ValueAttributeName)]
-        public object Value { get; set; }
-
-        [HtmlAttributeNotBound]
-        internal string MemberName
+    public override void Init(TagHelperContext context)
+    {
+        base.Init(context);
+        if (context.Items.TryGetValue(nameof(GridTagHelper), out var obj) && obj is GridTagHelper parent)
         {
-            get => For.Metadata.Name;
+            parent.Filtering.Descriptors.Add(this);
         }
+    }
 
-        [HtmlAttributeNotBound]
-        internal Type MemberType
-        {
-            get => For.Metadata.ModelType;
-        }
+    /// <summary>
+    /// The filtered member.
+    /// </summary>
+    [HtmlAttributeName(ForAttributeName)]
+    public ModelExpression For { get; set; }
 
-        internal object ToPlainObject()
-        {
-            return new { member = MemberName, op = Operator.ToString(), value = Value };
-        }
+    [HtmlAttributeName(OperatorAttributeName)]
+    public RuleOperator Operator { get; set; }
+
+    [HtmlAttributeName(ValueAttributeName)]
+    public object Value { get; set; }
+
+    [HtmlAttributeNotBound]
+    internal string MemberName
+    {
+        get => For.Metadata.Name;
+    }
+
+    [HtmlAttributeNotBound]
+    internal Type MemberType
+    {
+        get => For.Metadata.ModelType;
+    }
+
+    internal object ToPlainObject()
+    {
+        return new { member = MemberName, op = Operator.ToString(), value = Value };
     }
 }

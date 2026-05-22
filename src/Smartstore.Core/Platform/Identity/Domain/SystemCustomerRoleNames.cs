@@ -1,15 +1,14 @@
-﻿namespace Smartstore.Core.Identity
+﻿namespace Smartstore.Core.Identity;
+
+public static partial class SystemCustomerRoleNames
 {
-    public static partial class SystemCustomerRoleNames
-    {
-        public static string SuperAdministrators => "SuperAdmins";
+    public static string SuperAdministrators => "SuperAdmins";
 
-        public static string Administrators => "Administrators";
+    public static string Administrators => "Administrators";
 
-        public static string ForumModerators => "ForumModerators";
+    public static string ForumModerators => "ForumModerators";
 
-        public static string Registered => "Registered";
+    public static string Registered => "Registered";
 
-        public static string Guests => "Guests";
-    }
+    public static string Guests => "Guests";
 }

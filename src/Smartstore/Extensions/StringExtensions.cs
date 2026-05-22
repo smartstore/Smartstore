@@ -82,7 +82,7 @@ public static partial class StringExtensions
         }
     }
 
-    extension (bool value)
+    extension(bool value)
     {
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -2,43 +2,42 @@
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Customers;
 
-namespace Smartstore.Web.Models.Common
+namespace Smartstore.Web.Models.Common;
+
+public partial class CommentListModel : ModelBase
 {
-    public partial class CommentListModel : ModelBase
+    public bool AllowComments { get; set; }
+    public int NumberOfComments { get; set; }
+    [DefaultValue("[]")]
+    public List<CommentModel> Comments { get; set; } = [];
+    public bool AllowCustomersToUploadAvatars { get; set; }
+}
+
+public partial class CommentModel : EntityModelBase
+{
+    private readonly WeakReference<CommentListModel> _parent;
+
+    public CommentModel(CommentListModel parent)
     {
-        public bool AllowComments { get; set; }
-        public int NumberOfComments { get; set; }
-        [DefaultValue("[]")]
-        public List<CommentModel> Comments { get; set; } = [];
-        public bool AllowCustomersToUploadAvatars { get; set; }
+        Guard.NotNull(parent, nameof(parent));
+
+        _parent = new WeakReference<CommentListModel>(parent);
     }
 
-    public partial class CommentModel : EntityModelBase
+    public int CustomerId { get; set; }
+    public string CustomerName { get; set; }
+    public string CommentTitle { get; set; }
+    public string CommentText { get; set; }
+    public DateTime CreatedOn { get; set; }
+    public bool AllowViewingProfiles { get; set; }
+    public CustomerAvatarModel Avatar { get; set; } = new();
+
+    public CommentListModel Parent
     {
-        private readonly WeakReference<CommentListModel> _parent;
-
-        public CommentModel(CommentListModel parent)
+        get
         {
-            Guard.NotNull(parent, nameof(parent));
-
-            _parent = new WeakReference<CommentListModel>(parent);
-        }
-
-        public int CustomerId { get; set; }
-        public string CustomerName { get; set; }
-        public string CommentTitle { get; set; }
-        public string CommentText { get; set; }
-        public DateTime CreatedOn { get; set; }
-        public bool AllowViewingProfiles { get; set; }
-        public CustomerAvatarModel Avatar { get; set; } = new();
-
-        public CommentListModel Parent
-        {
-            get
-            {
-                _parent.TryGetTarget(out var parent);
-                return parent;
-            }
+            _parent.TryGetTarget(out var parent);
+            return parent;
         }
     }
 }

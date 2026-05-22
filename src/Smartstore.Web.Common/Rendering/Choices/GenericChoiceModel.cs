@@ -1,36 +1,35 @@
-﻿namespace Smartstore.Web.Rendering.Choices
+﻿namespace Smartstore.Web.Rendering.Choices;
+
+public class GenericChoiceModel : ChoiceModel
 {
-    public class GenericChoiceModel : ChoiceModel
+    private readonly Func<ChoiceModel, string> _controlIdFn;
+
+    public GenericChoiceModel(Func<ChoiceModel, string> controlIdFn)
     {
-        private readonly Func<ChoiceModel, string> _controlIdFn;
+        Guard.NotNull(controlIdFn, nameof(controlIdFn));
 
-        public GenericChoiceModel(Func<ChoiceModel, string> controlIdFn)
-        {
-            Guard.NotNull(controlIdFn, nameof(controlIdFn));
-
-            _controlIdFn = controlIdFn;
-        }
-
-        public override string BuildControlId()
-        {
-            return _controlIdFn(this);
-        }
+        _controlIdFn = controlIdFn;
     }
 
-    public class GenericChoiceItemModel : ChoiceItemModel
+    public override string BuildControlId()
     {
-        private readonly Func<ChoiceItemModel, string> _itemLabelFn;
+        return _controlIdFn(this);
+    }
+}
 
-        public GenericChoiceItemModel(Func<ChoiceItemModel, string> itemLabelFn)
-        {
-            Guard.NotNull(itemLabelFn, nameof(itemLabelFn));
+public class GenericChoiceItemModel : ChoiceItemModel
+{
+    private readonly Func<ChoiceItemModel, string> _itemLabelFn;
 
-            _itemLabelFn = itemLabelFn;
-        }
+    public GenericChoiceItemModel(Func<ChoiceItemModel, string> itemLabelFn)
+    {
+        Guard.NotNull(itemLabelFn, nameof(itemLabelFn));
 
-        public override string GetItemLabel()
-        {
-            return _itemLabelFn(this);
-        }
+        _itemLabelFn = itemLabelFn;
+    }
+
+    public override string GetItemLabel()
+    {
+        return _itemLabelFn(this);
     }
 }

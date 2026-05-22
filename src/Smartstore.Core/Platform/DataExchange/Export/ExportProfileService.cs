@@ -15,115 +15,135 @@ using Smartstore.IO;
 using Smartstore.Scheduling;
 using Smartstore.Utilities;
 
-namespace Smartstore.Core.DataExchange.Export
+namespace Smartstore.Core.DataExchange.Export;
+
+public partial class ExportProfileService : AsyncDbSaveHook<ExportProfile>, IExportProfileService
 {
-    public partial class ExportProfileService : AsyncDbSaveHook<ExportProfile>, IExportProfileService
+    const string PublicDirName = "exchange";
+    const string ExportFileRoot = "ExportProfiles";
+    const string FileNamePattern = "%Store.Id%-%Profile.Id%-%File.Index%-%Profile.SeoName%";
+
+    [GeneratedRegex(".*/ExportProfiles/?", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline)]
+    private static partial Regex FolderNameRegex();
+    private static readonly Regex FolderName = FolderNameRegex();
+
+    private readonly SmartDbContext _db;
+    private readonly IApplicationContext _appContext;
+    private readonly IStoreContext _storeContext;
+    private readonly ILocalizationService _localizationService;
+    private readonly Lazy<IUrlHelper> _urlHelper;
+    private readonly IDateTimeHelper _dateTimeHelper;
+    private readonly ITaskStore _taskStore;
+    private readonly IProviderManager _providerManager;
+    private readonly DataExchangeSettings _dataExchangeSettings;
+
+    public ExportProfileService(
+        SmartDbContext db,
+        IApplicationContext appContext,
+        IStoreContext storeContext,
+        ILocalizationService localizationService,
+        Lazy<IUrlHelper> urlHelper,
+        IDateTimeHelper dateTimeHelper,
+        ITaskStore taskStore,
+        IProviderManager providerManager,
+        DataExchangeSettings dataExchangeSettings)
     {
-        const string PublicDirName = "exchange";
-        const string ExportFileRoot = "ExportProfiles";
-        const string FileNamePattern = "%Store.Id%-%Profile.Id%-%File.Index%-%Profile.SeoName%";
+        _db = db;
+        _appContext = appContext;
+        _storeContext = storeContext;
+        _localizationService = localizationService;
+        _urlHelper = urlHelper;
+        _dateTimeHelper = dateTimeHelper;
+        _taskStore = taskStore;
+        _providerManager = providerManager;
+        _dataExchangeSettings = dataExchangeSettings;
+    }
 
-        [GeneratedRegex(".*/ExportProfiles/?", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline)]
-        private static partial Regex FolderNameRegex();
-        private static readonly Regex FolderName = FolderNameRegex();
+    public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        private readonly SmartDbContext _db;
-        private readonly IApplicationContext _appContext;
-        private readonly IStoreContext _storeContext;
-        private readonly ILocalizationService _localizationService;
-        private readonly Lazy<IUrlHelper> _urlHelper;
-        private readonly IDateTimeHelper _dateTimeHelper;
-        private readonly ITaskStore _taskStore;
-        private readonly IProviderManager _providerManager;
-        private readonly DataExchangeSettings _dataExchangeSettings;
+    #region Hook
 
-        public ExportProfileService(
-            SmartDbContext db,
-            IApplicationContext appContext,
-            IStoreContext storeContext,
-            ILocalizationService localizationService,
-            Lazy<IUrlHelper> urlHelper,
-            IDateTimeHelper dateTimeHelper,
-            ITaskStore taskStore,
-            IProviderManager providerManager,
-            DataExchangeSettings dataExchangeSettings)
+    protected override Task<HookResult> OnUpdatingAsync(ExportProfile entity, IHookedEntity entry, CancellationToken cancelToken)
+    {
+        // INFO: validation of 'FolderName' not necessary anymore. Contains only the name of the export folder (no more path information).
+        if (entity.FolderName.HasValue())
         {
-            _db = db;
-            _appContext = appContext;
-            _storeContext = storeContext;
-            _localizationService = localizationService;
-            _urlHelper = urlHelper;
-            _dateTimeHelper = dateTimeHelper;
-            _taskStore = taskStore;
-            _providerManager = providerManager;
-            _dataExchangeSettings = dataExchangeSettings;
-        }
+            string newFolderName = null;
 
-        public Localizer T { get; set; } = NullLocalizer.Instance;
-
-        #region Hook
-
-        protected override Task<HookResult> OnUpdatingAsync(ExportProfile entity, IHookedEntity entry, CancellationToken cancelToken)
-        {
-            // INFO: validation of 'FolderName' not necessary anymore. Contains only the name of the export folder (no more path information).
-            if (entity.FolderName.HasValue())
+            if (entity.FolderName[0] == '~')
             {
-                string newFolderName = null;
+                // Map legacy folder names. Examples:
+                // ~/App_Data/ExportProfiles/smartstorecategorycsv
+                // ~/App_Data/Tenants/Default/ExportProfiles/smartstoreshoppingcartitemcsv
+                newFolderName = FolderName.Replace(PathUtility.NormalizeRelativePath(entity.FolderName).TrimEnd('/'), string.Empty);
 
-                if (entity.FolderName[0] == '~')
+                if (newFolderName.IsEmpty())
                 {
-                    // Map legacy folder names. Examples:
-                    // ~/App_Data/ExportProfiles/smartstorecategorycsv
-                    // ~/App_Data/Tenants/Default/ExportProfiles/smartstoreshoppingcartitemcsv
-                    newFolderName = FolderName.Replace(PathUtility.NormalizeRelativePath(entity.FolderName).TrimEnd('/'), string.Empty);
-
-                    if (newFolderName.IsEmpty())
-                    {
-                        // Profile folder is root folder '~/App_Data/ExportProfiles/'.
-                        newFolderName = CreateUniqueDirectoryName(entity);
-                    }
-                }
-                else if (PathUtility.IsAbsolutePhysicalPath(entity.FolderName))
-                {
+                    // Profile folder is root folder '~/App_Data/ExportProfiles/'.
                     newFolderName = CreateUniqueDirectoryName(entity);
                 }
-
-                if (newFolderName.HasValue())
-                {
-                    entity.FolderName = newFolderName;
-                }
+            }
+            else if (PathUtility.IsAbsolutePhysicalPath(entity.FolderName))
+            {
+                newFolderName = CreateUniqueDirectoryName(entity);
             }
 
-            return Task.FromResult(HookResult.Ok);
+            if (newFolderName.HasValue())
+            {
+                entity.FolderName = newFolderName;
+            }
         }
 
-        private string CreateUniqueDirectoryName(ExportProfile profile)
+        return Task.FromResult(HookResult.Ok);
+    }
+
+    private string CreateUniqueDirectoryName(ExportProfile profile)
+    {
+        var cleanedProviderName = profile.ProviderSystemName
+            .Replace("Exports.", string.Empty)
+            .Replace("Feeds.", string.Empty)
+            .Replace("/", string.Empty)
+            .Replace("-", string.Empty);
+
+        var folderName = SlugUtility.Slugify(cleanedProviderName, true, false, false)
+            .Truncate(_dataExchangeSettings.MaxFileNameLength);
+
+        return _appContext.TenantRoot.CreateUniqueDirectoryName(ExportFileRoot, folderName);
+    }
+
+    #endregion
+
+    public virtual async Task<IDirectory> GetExportDirectoryAsync(ExportProfile profile, string subpath = null, bool createIfNotExists = false)
+    {
+        Guard.NotNull(profile);
+        Guard.IsTrue(profile.FolderName.EmptyNull().Length > 2, message: "The export folder name must be at least 3 characters long.");
+
+        // Legacy examples:
+        // ~/App_Data/ExportProfiles/smartstorecategorycsv
+        // ~/App_Data/Tenants/Default/ExportProfiles/smartstoreshoppingcartitemcsv
+        var root = _appContext.TenantRoot;
+        var path = PathUtility.Join(ExportFileRoot, FolderName.Replace(profile.FolderName, string.Empty), subpath.EmptyNull());
+        var dir = await root.GetDirectoryAsync(path);
+
+        if (createIfNotExists)
         {
-            var cleanedProviderName = profile.ProviderSystemName
-                .Replace("Exports.", string.Empty)
-                .Replace("Feeds.", string.Empty)
-                .Replace("/", string.Empty)
-                .Replace("-", string.Empty);
-
-            var folderName = SlugUtility.Slugify(cleanedProviderName, true, false, false)
-                .Truncate(_dataExchangeSettings.MaxFileNameLength);
-
-            return _appContext.TenantRoot.CreateUniqueDirectoryName(ExportFileRoot, folderName);
+            await dir.CreateAsync();
         }
 
-        #endregion
+        return dir;
+    }
 
-        public virtual async Task<IDirectory> GetExportDirectoryAsync(ExportProfile profile, string subpath = null, bool createIfNotExists = false)
+    public virtual async Task<IDirectory> GetDeploymentDirectoryAsync(ExportDeployment deployment, bool createIfNotExists = false)
+    {
+        if (deployment == null)
         {
-            Guard.NotNull(profile);
-            Guard.IsTrue(profile.FolderName.EmptyNull().Length > 2, message: "The export folder name must be at least 3 characters long.");
+            return null;
+        }
 
-            // Legacy examples:
-            // ~/App_Data/ExportProfiles/smartstorecategorycsv
-            // ~/App_Data/Tenants/Default/ExportProfiles/smartstoreshoppingcartitemcsv
-            var root = _appContext.TenantRoot;
-            var path = PathUtility.Join(ExportFileRoot, FolderName.Replace(profile.FolderName, string.Empty), subpath.EmptyNull());
-            var dir = await root.GetDirectoryAsync(path);
+        if (deployment.DeploymentType == ExportDeploymentType.PublicFolder)
+        {
+            var path = PathUtility.Join(PublicDirName, deployment.SubFolder);
+            var dir = await _appContext.TenantRoot.GetDirectoryAsync(path);
 
             if (createIfNotExists)
             {
@@ -133,446 +153,425 @@ namespace Smartstore.Core.DataExchange.Export
             return dir;
         }
 
-        public virtual async Task<IDirectory> GetDeploymentDirectoryAsync(ExportDeployment deployment, bool createIfNotExists = false)
+        if (deployment.DeploymentType == ExportDeploymentType.FileSystem && deployment.FileSystemPath.HasValue())
         {
-            if (deployment == null)
+            // Any file system path is allowed.
+            var fullPath = deployment.FileSystemPath;
+
+            if (!PathUtility.IsAbsolutePhysicalPath(fullPath))
             {
-                return null;
+                fullPath = CommonHelper.MapPath(PathUtility.NormalizeRelativePath(fullPath));
             }
 
-            if (deployment.DeploymentType == ExportDeploymentType.PublicFolder)
+            if (!Directory.Exists(fullPath))
             {
-                var path = PathUtility.Join(PublicDirName, deployment.SubFolder);
-                var dir = await _appContext.TenantRoot.GetDirectoryAsync(path);
-
-                if (createIfNotExists)
+                if (!createIfNotExists)
                 {
-                    await dir.CreateAsync();
+                    return null;
                 }
 
-                return dir;
-            }
-            
-            if (deployment.DeploymentType == ExportDeploymentType.FileSystem && deployment.FileSystemPath.HasValue())
-            {
-                // Any file system path is allowed.
-                var fullPath = deployment.FileSystemPath;
-
-                if (!PathUtility.IsAbsolutePhysicalPath(fullPath))
+                try
                 {
-                    fullPath = CommonHelper.MapPath(PathUtility.NormalizeRelativePath(fullPath));
+                    Directory.CreateDirectory(fullPath);
                 }
-
-                if (!Directory.Exists(fullPath))
+                catch
                 {
-                    if (!createIfNotExists)
-                    {
-                        return null;
-                    }
-
-                    try
-                    {
-                        Directory.CreateDirectory(fullPath);
-                    }
-                    catch
-                    {
-                        return null;
-                    }
+                    return null;
                 }
-
-                // 'fullPath' must exist for LocalFileSystem (otherwise exception)!
-                var root = new LocalFileSystem(fullPath);
-
-                return await root.GetDirectoryAsync(null);
             }
 
+            // 'fullPath' must exist for LocalFileSystem (otherwise exception)!
+            var root = new LocalFileSystem(fullPath);
+
+            return await root.GetDirectoryAsync(null);
+        }
+
+        return null;
+    }
+
+    public virtual async Task<string> GetDeploymentDirectoryUrlAsync(ExportDeployment deployment, Store store = null)
+    {
+        if (deployment == null)
+        {
             return null;
         }
 
-        public virtual async Task<string> GetDeploymentDirectoryUrlAsync(ExportDeployment deployment, Store store = null)
+        if (deployment.DeploymentType == ExportDeploymentType.PublicFolder)
         {
-            if (deployment == null)
+            if (store == null)
             {
-                return null;
-            }
+                await _db.LoadReferenceAsync(deployment, x => x.Profile);
 
-            if (deployment.DeploymentType == ExportDeploymentType.PublicFolder)
-            {
-                if (store == null)
+                var filter = XmlHelper.Deserialize<ExportFilter>(deployment.Profile.Filtering);
+                var storeId = filter.StoreId;
+
+                if (storeId == 0)
                 {
-                    await _db.LoadReferenceAsync(deployment, x => x.Profile);
-
-                    var filter = XmlHelper.Deserialize<ExportFilter>(deployment.Profile.Filtering);
-                    var storeId = filter.StoreId;
-
-                    if (storeId == 0)
-                    {
-                        var projection = XmlHelper.Deserialize<ExportProjection>(deployment.Profile.Projection);
-                        storeId = projection.StoreId ?? 0;
-                    }
-
-                    store = _storeContext.GetStoreById(storeId) ?? _storeContext.CurrentStore;
+                    var projection = XmlHelper.Deserialize<ExportProjection>(deployment.Profile.Projection);
+                    storeId = projection.StoreId ?? 0;
                 }
 
-                // Always use IUrlHelper.Content("~/subpath") or WebHelper.ToAbsolutePath("~/subpath") for public URLs,
-                // so that IIS application path can be prepended if applicable. 
-                var path = WebHelper.ToAppRelativePath(PathUtility.Join(PublicDirName, deployment.SubFolder));
-
-                return store.GetAbsoluteUrl(_urlHelper.Value.Content(path).EnsureEndsWith('/'));
+                store = _storeContext.GetStoreById(storeId) ?? _storeContext.CurrentStore;
             }
 
-            return null;
+            // Always use IUrlHelper.Content("~/subpath") or WebHelper.ToAbsolutePath("~/subpath") for public URLs,
+            // so that IIS application path can be prepended if applicable. 
+            var path = WebHelper.ToAppRelativePath(PathUtility.Join(PublicDirName, deployment.SubFolder));
+
+            return store.GetAbsoluteUrl(_urlHelper.Value.Content(path).EnsureEndsWith('/'));
         }
 
-        public virtual async Task<ExportProfile> InsertExportProfileAsync(
-            Provider<IExportProvider> provider,
-            bool isSystemProfile = false,
-            string profileSystemName = null,
-            int cloneFromProfileId = 0)
+        return null;
+    }
+
+    public virtual async Task<ExportProfile> InsertExportProfileAsync(
+        Provider<IExportProvider> provider,
+        bool isSystemProfile = false,
+        string profileSystemName = null,
+        int cloneFromProfileId = 0)
+    {
+        Guard.NotNull(provider);
+
+        var providerSystemName = provider.Metadata.SystemName;
+        var resourceName = provider.Metadata.ResourceKeyPattern.FormatInvariant(providerSystemName, "FriendlyName");
+        var profileName = _localizationService.GetResource(resourceName, 0, false, providerSystemName, true);
+
+        var profile = await InsertExportProfileAsync(
+            providerSystemName,
+            profileName.NullEmpty() ?? providerSystemName,
+            provider.Value.FileExtension,
+            provider.Metadata.ExportFeatures,
+            isSystemProfile,
+            profileSystemName,
+            cloneFromProfileId);
+
+        return profile;
+    }
+
+    public virtual async Task<ExportProfile> InsertExportProfileAsync(
+        string providerSystemName,
+        string name,
+        string fileExtension,
+        ExportFeatures features,
+        bool isSystemProfile = false,
+        string profileSystemName = null,
+        int cloneFromProfileId = 0)
+    {
+        Guard.NotEmpty(providerSystemName);
+
+        if (name.IsEmpty())
         {
-            Guard.NotNull(provider);
-
-            var providerSystemName = provider.Metadata.SystemName;
-            var resourceName = provider.Metadata.ResourceKeyPattern.FormatInvariant(providerSystemName, "FriendlyName");
-            var profileName = _localizationService.GetResource(resourceName, 0, false, providerSystemName, true);
-
-            var profile = await InsertExportProfileAsync(
-                providerSystemName,
-                profileName.NullEmpty() ?? providerSystemName,
-                provider.Value.FileExtension,
-                provider.Metadata.ExportFeatures,
-                isSystemProfile,
-                profileSystemName,
-                cloneFromProfileId);
-
-            return profile;
+            name = providerSystemName;
         }
 
-        public virtual async Task<ExportProfile> InsertExportProfileAsync(
-            string providerSystemName,
-            string name,
-            string fileExtension,
-            ExportFeatures features,
-            bool isSystemProfile = false,
-            string profileSystemName = null,
-            int cloneFromProfileId = 0)
+        if (!isSystemProfile)
         {
-            Guard.NotEmpty(providerSystemName);
+            var profileCount = await _db.ExportProfiles.CountAsync(x => x.ProviderSystemName == providerSystemName);
+            name = $"{T("Common.My").Value} {name} {profileCount + 1}";
+        }
 
-            if (name.IsEmpty())
+        TaskDescriptor task = null;
+        ExportProfile cloneProfile = null;
+        ExportProfile profile = null;
+
+        if (cloneFromProfileId != 0)
+        {
+            cloneProfile = await _db.ExportProfiles
+                .Include(x => x.Task)
+                .Include(x => x.Deployments)
+                .FindByIdAsync(cloneFromProfileId);
+        }
+
+        if (cloneProfile == null)
+        {
+            task = _taskStore.CreateDescriptor(name + " Task", typeof(DataExportTask));
+            task.Enabled = false;
+            task.CronExpression = "0 */6 * * *"; // Every six hours.
+            task.StopOnError = false;
+            task.IsHidden = true;
+        }
+        else
+        {
+            task = cloneProfile.Task.Clone();
+            task.Name = name + " Task";
+        }
+
+        await _taskStore.InsertTaskAsync(task);
+
+        if (cloneProfile == null)
+        {
+            profile = new ExportProfile
             {
-                name = providerSystemName;
-            }
+                FileNamePattern = FileNamePattern
+            };
 
-            if (!isSystemProfile)
+            if (isSystemProfile)
             {
-                var profileCount = await _db.ExportProfiles.CountAsync(x => x.ProviderSystemName == providerSystemName);
-                name = $"{T("Common.My").Value} {name} {profileCount + 1}";
-            }
-
-            TaskDescriptor task = null;
-            ExportProfile cloneProfile = null;
-            ExportProfile profile = null;
-
-            if (cloneFromProfileId != 0)
-            {
-                cloneProfile = await _db.ExportProfiles
-                    .Include(x => x.Task)
-                    .Include(x => x.Deployments)
-                    .FindByIdAsync(cloneFromProfileId);
-            }
-
-            if (cloneProfile == null)
-            {
-                task = _taskStore.CreateDescriptor(name + " Task", typeof(DataExportTask));
-                task.Enabled = false;
-                task.CronExpression = "0 */6 * * *"; // Every six hours.
-                task.StopOnError = false;
-                task.IsHidden = true;
+                profile.Enabled = true;
+                profile.PerStore = false;
+                profile.CreateZipArchive = false;
+                profile.Cleanup = false;
             }
             else
             {
-                task = cloneProfile.Task.Clone();
-                task.Name = name + " Task";
-            }
-
-            await _taskStore.InsertTaskAsync(task);
-
-            if (cloneProfile == null)
-            {
-                profile = new ExportProfile
+                // What we do here is to preset typical settings for feed creation
+                // but on the other hand they may be untypical for generic data export\exchange.
+                var projection = new ExportProjection
                 {
-                    FileNamePattern = FileNamePattern
+                    RemoveCriticalCharacters = true,
+                    CriticalCharacters = "¼,½,¾",
+                    PriceType = PriceDisplayType.PreSelectedPrice,
+                    NoGroupedProducts = features.HasFlag(ExportFeatures.CanOmitGroupedProducts),
+                    OnlyIndividuallyVisibleAssociated = true,
+                    DescriptionMerging = ExportDescriptionMerging.Description
                 };
 
-                if (isSystemProfile)
+                var filter = new ExportFilter
                 {
-                    profile.Enabled = true;
-                    profile.PerStore = false;
-                    profile.CreateZipArchive = false;
-                    profile.Cleanup = false;
+                    IsPublished = true,
+                    ShoppingCartTypeId = (int)ShoppingCartType.ShoppingCart
+                };
+
+                profile.Projection = XmlHelper.Serialize(projection);
+                profile.Filtering = XmlHelper.Serialize(filter);
+            }
+        }
+        else
+        {
+            profile = cloneProfile.Clone();
+        }
+
+        profile.IsSystemProfile = isSystemProfile;
+        profile.Name = name;
+        profile.ProviderSystemName = providerSystemName;
+        profile.TaskId = task.Id;
+
+        var cleanedProviderName = providerSystemName
+            .Replace("Exports.", string.Empty)
+            .Replace("Feeds.", string.Empty)
+            .Replace("/", string.Empty)
+            .Replace("-", string.Empty);
+
+        var folderName = SlugUtility.Slugify(cleanedProviderName, true, false, false)
+            .Truncate(_dataExchangeSettings.MaxFileNameLength);
+
+        profile.FolderName = _appContext.TenantRoot.CreateUniqueDirectoryName(ExportFileRoot, folderName);
+
+        profile.SystemName = profileSystemName.IsEmpty() && isSystemProfile
+            ? cleanedProviderName
+            : profileSystemName;
+
+        _db.ExportProfiles.Add(profile);
+
+        // Get the export profile ID.
+        await _db.SaveChangesAsync();
+
+        task.Alias = profile.Id.ToString();
+
+        try
+        {
+            _ = await _appContext.TenantRoot.TryCreateDirectoryAsync(PathUtility.Join(ExportFileRoot, profile.FolderName));
+
+            if (fileExtension.HasValue() && !isSystemProfile)
+            {
+                if (cloneProfile == null)
+                {
+                    if (features.HasFlag(ExportFeatures.CreatesInitialPublicDeployment))
+                    {
+                        profile.Deployments.Add(new ExportDeployment
+                        {
+                            ProfileId = profile.Id,
+                            Enabled = true,
+                            DeploymentType = ExportDeploymentType.PublicFolder,
+                            Name = profile.Name,
+                            SubFolder = await CreateUniquePublicDirectory(folderName)
+                        });
+                    }
                 }
                 else
                 {
-                    // What we do here is to preset typical settings for feed creation
-                    // but on the other hand they may be untypical for generic data export\exchange.
-                    var projection = new ExportProjection
+                    foreach (var deployment in cloneProfile.Deployments)
                     {
-                        RemoveCriticalCharacters = true,
-                        CriticalCharacters = "¼,½,¾",
-                        PriceType = PriceDisplayType.PreSelectedPrice,
-                        NoGroupedProducts = features.HasFlag(ExportFeatures.CanOmitGroupedProducts),
-                        OnlyIndividuallyVisibleAssociated = true,
-                        DescriptionMerging = ExportDescriptionMerging.Description
-                    };
-
-                    var filter = new ExportFilter
-                    {
-                        IsPublished = true,
-                        ShoppingCartTypeId = (int)ShoppingCartType.ShoppingCart
-                    };
-
-                    profile.Projection = XmlHelper.Serialize(projection);
-                    profile.Filtering = XmlHelper.Serialize(filter);
+                        var clone = deployment.Clone();
+                        if (deployment.DeploymentType == ExportDeploymentType.PublicFolder)
+                        {
+                            clone.SubFolder = await CreateUniquePublicDirectory(folderName);
+                        }
+                        profile.Deployments.Add(clone);
+                    }
                 }
             }
-            else
-            {
-                profile = cloneProfile.Clone();
-            }
-
-            profile.IsSystemProfile = isSystemProfile;
-            profile.Name = name;
-            profile.ProviderSystemName = providerSystemName;
-            profile.TaskId = task.Id;
-
-            var cleanedProviderName = providerSystemName
-                .Replace("Exports.", string.Empty)
-                .Replace("Feeds.", string.Empty)
-                .Replace("/", string.Empty)
-                .Replace("-", string.Empty);
-
-            var folderName = SlugUtility.Slugify(cleanedProviderName, true, false, false)
-                .Truncate(_dataExchangeSettings.MaxFileNameLength);
-
-            profile.FolderName = _appContext.TenantRoot.CreateUniqueDirectoryName(ExportFileRoot, folderName);
-
-            profile.SystemName = profileSystemName.IsEmpty() && isSystemProfile
-                ? cleanedProviderName
-                : profileSystemName;
-
-            _db.ExportProfiles.Add(profile);
-
-            // Get the export profile ID.
+        }
+        finally
+        {
+            // Finally update task and export profile.
+            await _taskStore.UpdateTaskAsync(task);
             await _db.SaveChangesAsync();
-
-            task.Alias = profile.Id.ToString();
-
-            try
-            {
-                _ = await _appContext.TenantRoot.TryCreateDirectoryAsync(PathUtility.Join(ExportFileRoot, profile.FolderName));
-
-                if (fileExtension.HasValue() && !isSystemProfile)
-                {
-                    if (cloneProfile == null)
-                    {
-                        if (features.HasFlag(ExportFeatures.CreatesInitialPublicDeployment))
-                        {
-                            profile.Deployments.Add(new ExportDeployment
-                            {
-                                ProfileId = profile.Id,
-                                Enabled = true,
-                                DeploymentType = ExportDeploymentType.PublicFolder,
-                                Name = profile.Name,
-                                SubFolder = await CreateUniquePublicDirectory(folderName)
-                            });
-                        }
-                    }
-                    else
-                    {
-                        foreach (var deployment in cloneProfile.Deployments)
-                        {
-                            var clone = deployment.Clone();
-                            if (deployment.DeploymentType == ExportDeploymentType.PublicFolder)
-                            {
-                                clone.SubFolder = await CreateUniquePublicDirectory(folderName);
-                            }
-                            profile.Deployments.Add(clone);
-                        }
-                    }
-                }
-            }
-            finally
-            {
-                // Finally update task and export profile.
-                await _taskStore.UpdateTaskAsync(task);
-                await _db.SaveChangesAsync();
-            }
-
-            return profile;
-
-            async Task<string> CreateUniquePublicDirectory(string defaultName)
-            {
-                var root = _appContext.TenantRoot;
-                var uniqueName = root.CreateUniqueDirectoryName(PublicDirName, defaultName);
-                _ = await root.TryCreateDirectoryAsync(PathUtility.Join(PublicDirName, uniqueName));
-                return uniqueName;
-            }
         }
 
-        public virtual async Task DeleteExportProfileAsync(ExportProfile profile, bool force = false)
+        return profile;
+
+        async Task<string> CreateUniquePublicDirectory(string defaultName)
         {
-            if (profile == null)
-            {
-                return;
-            }
+            var root = _appContext.TenantRoot;
+            var uniqueName = root.CreateUniqueDirectoryName(PublicDirName, defaultName);
+            _ = await root.TryCreateDirectoryAsync(PathUtility.Join(PublicDirName, uniqueName));
+            return uniqueName;
+        }
+    }
 
-            if (!force && profile.IsSystemProfile)
-            {
-                throw new InvalidOperationException(T("Admin.DataExchange.Export.CannotDeleteSystemProfile"));
-            }
-
-            await _db.LoadCollectionAsync(profile, x => x.Deployments);
-            await _db.LoadReferenceAsync(profile, x => x.Task);
-
-            var directory = await GetExportDirectoryAsync(profile);
-            var deployments = profile.Deployments.Where(x => !x.IsTransientRecord()).ToList();
-
-            if (profile.Deployments.Count > 0)
-            {
-                _db.ExportDeployments.RemoveRange(deployments);
-            }
-
-            _db.ExportProfiles.Remove(profile);
-
-            await _db.SaveChangesAsync();
-
-            if (profile.Task != null)
-            {
-                await _taskStore.DeleteTaskAsync(profile.Task);
-            }
-
-            if (directory.Exists)
-            {
-                directory.FileSystem.ClearDirectory(directory, true, TimeSpan.Zero);
-            }
+    public virtual async Task DeleteExportProfileAsync(ExportProfile profile, bool force = false)
+    {
+        if (profile == null)
+        {
+            return;
         }
 
-        public virtual IEnumerable<Provider<IExportProvider>> LoadAllExportProviders(int storeId = 0, bool includeHidden = true)
+        if (!force && profile.IsSystemProfile)
         {
-            var allProviders = _providerManager.GetAllProviders<IExportProvider>(storeId)
-                .Where(x => x.Value != null && (includeHidden || !x.Metadata.IsHidden))
-                .OrderBy(x => x.Metadata.FriendlyName);
-
-            return allProviders;
+            throw new InvalidOperationException(T("Admin.DataExchange.Export.CannotDeleteSystemProfile"));
         }
 
-        public virtual async Task<(int DeletedFiles, int DeletedFolders)> DeleteExportFilesAsync(DateTime? startDate, DateTime? endDate)
+        await _db.LoadCollectionAsync(profile, x => x.Deployments);
+        await _db.LoadReferenceAsync(profile, x => x.Task);
+
+        var directory = await GetExportDirectoryAsync(profile);
+        var deployments = profile.Deployments.Where(x => !x.IsTransientRecord()).ToList();
+
+        if (profile.Deployments.Count > 0)
         {
-            var numFiles = 0;
-            var numFolders = 0;
-            var tenantRoot = _appContext.TenantRoot;
-            var directories = new List<IDirectory>
-            {
-                await tenantRoot.GetDirectoryAsync(PublicDirName),
-                await tenantRoot.GetDirectoryAsync(ExportFileRoot)
-            };
+            _db.ExportDeployments.RemoveRange(deployments);
+        }
 
-            foreach (var dir in directories.Where(x => x.Exists))
-            {
-                var files = dir.EnumerateFiles(deep: true);
+        _db.ExportProfiles.Remove(profile);
 
-                foreach (var file in files)
+        await _db.SaveChangesAsync();
+
+        if (profile.Task != null)
+        {
+            await _taskStore.DeleteTaskAsync(profile.Task);
+        }
+
+        if (directory.Exists)
+        {
+            directory.FileSystem.ClearDirectory(directory, true, TimeSpan.Zero);
+        }
+    }
+
+    public virtual IEnumerable<Provider<IExportProvider>> LoadAllExportProviders(int storeId = 0, bool includeHidden = true)
+    {
+        var allProviders = _providerManager.GetAllProviders<IExportProvider>(storeId)
+            .Where(x => x.Value != null && (includeHidden || !x.Metadata.IsHidden))
+            .OrderBy(x => x.Metadata.FriendlyName);
+
+        return allProviders;
+    }
+
+    public virtual async Task<(int DeletedFiles, int DeletedFolders)> DeleteExportFilesAsync(DateTime? startDate, DateTime? endDate)
+    {
+        var numFiles = 0;
+        var numFolders = 0;
+        var tenantRoot = _appContext.TenantRoot;
+        var directories = new List<IDirectory>
+        {
+            await tenantRoot.GetDirectoryAsync(PublicDirName),
+            await tenantRoot.GetDirectoryAsync(ExportFileRoot)
+        };
+
+        foreach (var dir in directories.Where(x => x.Exists))
+        {
+            var files = dir.EnumerateFiles(deep: true);
+
+            foreach (var file in files)
+            {
+                if (!file.Name.EqualsNoCase("index.htm") && !file.Name.EqualsNoCase("placeholder"))
                 {
-                    if (!file.Name.EqualsNoCase("index.htm") && !file.Name.EqualsNoCase("placeholder"))
+                    try
                     {
-                        try
+                        if ((!startDate.HasValue || startDate.Value < file.CreatedOn) &&
+                            (!endDate.HasValue || file.CreatedOn < endDate.Value))
                         {
-                            if ((!startDate.HasValue || startDate.Value < file.CreatedOn) &&
-                                (!endDate.HasValue || file.CreatedOn < endDate.Value))
-                            {
-                                await file.DeleteAsync();
-                                numFiles++;
-                            }
-                        }
-                        catch
-                        {
-                            // Do nothing. We are just cleaning up.
+                            await file.DeleteAsync();
+                            numFiles++;
                         }
                     }
-                }
-
-                foreach (var subdir in dir.EnumerateDirectories())
-                {
-                    if ((!startDate.HasValue || startDate.Value < subdir.LastModified) &&
-                        (!endDate.HasValue || subdir.LastModified < endDate.Value))
+                    catch
                     {
-                        dir.FileSystem.ClearDirectory(subdir, true, TimeSpan.Zero);
-                        numFolders++;
+                        // Do nothing. We are just cleaning up.
                     }
                 }
             }
 
-            return (numFiles, numFolders);
+            foreach (var subdir in dir.EnumerateDirectories())
+            {
+                if ((!startDate.HasValue || startDate.Value < subdir.LastModified) &&
+                    (!endDate.HasValue || subdir.LastModified < endDate.Value))
+                {
+                    dir.FileSystem.ClearDirectory(subdir, true, TimeSpan.Zero);
+                    numFolders++;
+                }
+            }
         }
 
-        public virtual string ResolveTokens(
-            ExportProfile profile,
-            string pattern,
-            int? fileIndex = null,
-            int? maxLength = null,
-            Store store = null)
+        return (numFiles, numFolders);
+    }
+
+    public virtual string ResolveTokens(
+        ExportProfile profile,
+        string pattern,
+        int? fileIndex = null,
+        int? maxLength = null,
+        Store store = null)
+    {
+        Guard.NotNull(profile);
+
+        if (pattern.IsEmpty())
         {
-            Guard.NotNull(profile);
-
-            if (pattern.IsEmpty())
-            {
-                return pattern;
-            }
-
-            store ??= _storeContext.CurrentStore;
-
-            using var psb = StringBuilderPool.Instance.Get(out var sb);
-
-            sb.Append(pattern);
-            sb.Replace("%Profile.Id%", profile.Id.ToString());
-            sb.Replace("%Profile.FolderName%", profile.FolderName);
-            sb.Replace("%Store.Id%", store.Id.ToString());
-
-            if (pattern.Contains("%Profile.SeoName%"))
-            {
-                sb.Replace("%Profile.SeoName%", SlugUtility.Slugify(profile.Name, true, false, false).Replace("-", ""));
-            }
-            if (pattern.Contains("%Store.SeoName%"))
-            {
-                sb.Replace("%Store.SeoName%", profile.PerStore ? SlugUtility.Slugify(store.Name, true, false, true) : "allstores");
-            }
-            if (pattern.Contains("%Random.Number%"))
-            {
-                sb.Replace("%Random.Number%", CommonHelper.GenerateRandomInteger().ToString());
-            }
-            if (pattern.Contains("%Timestamp%"))
-            {
-                sb.Replace("%Timestamp%", DateTime.UtcNow.ToString("s", CultureInfo.InvariantCulture));
-            }
-            if (pattern.Contains("%DateTime%"))
-            {
-                sb.Replace("%DateTime%", _dateTimeHelper.ConvertToUserTime(DateTime.UtcNow, DateTimeKind.Utc).ToString());
-            }
-
-            string result;
-            if (fileIndex != null)
-            {
-                sb.Replace("%File.Index%", fileIndex.Value.ToString("D4"));
-
-                result = PathUtility.SanitizeFileName(sb.ToString(), string.Empty);
-            }
-            else
-            {
-                result = sb.ToString();
-            }
-
-            return maxLength != null ? result.Truncate(maxLength.Value) : result;
+            return pattern;
         }
+
+        store ??= _storeContext.CurrentStore;
+
+        using var psb = StringBuilderPool.Instance.Get(out var sb);
+
+        sb.Append(pattern);
+        sb.Replace("%Profile.Id%", profile.Id.ToString());
+        sb.Replace("%Profile.FolderName%", profile.FolderName);
+        sb.Replace("%Store.Id%", store.Id.ToString());
+
+        if (pattern.Contains("%Profile.SeoName%"))
+        {
+            sb.Replace("%Profile.SeoName%", SlugUtility.Slugify(profile.Name, true, false, false).Replace("-", ""));
+        }
+        if (pattern.Contains("%Store.SeoName%"))
+        {
+            sb.Replace("%Store.SeoName%", profile.PerStore ? SlugUtility.Slugify(store.Name, true, false, true) : "allstores");
+        }
+        if (pattern.Contains("%Random.Number%"))
+        {
+            sb.Replace("%Random.Number%", CommonHelper.GenerateRandomInteger().ToString());
+        }
+        if (pattern.Contains("%Timestamp%"))
+        {
+            sb.Replace("%Timestamp%", DateTime.UtcNow.ToString("s", CultureInfo.InvariantCulture));
+        }
+        if (pattern.Contains("%DateTime%"))
+        {
+            sb.Replace("%DateTime%", _dateTimeHelper.ConvertToUserTime(DateTime.UtcNow, DateTimeKind.Utc).ToString());
+        }
+
+        string result;
+        if (fileIndex != null)
+        {
+            sb.Replace("%File.Index%", fileIndex.Value.ToString("D4"));
+
+            result = PathUtility.SanitizeFileName(sb.ToString(), string.Empty);
+        }
+        else
+        {
+            result = sb.ToString();
+        }
+
+        return maxLength != null ? result.Truncate(maxLength.Value) : result;
     }
 }

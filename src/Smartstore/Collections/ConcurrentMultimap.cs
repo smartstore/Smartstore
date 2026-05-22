@@ -3,8 +3,8 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
-using Smartstore.Collections.JsonConverters;
 using System.Text.Json.Serialization;
+using Smartstore.Collections.JsonConverters;
 
 namespace Smartstore.Collections;
 

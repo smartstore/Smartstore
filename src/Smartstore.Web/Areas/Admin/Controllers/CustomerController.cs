@@ -264,8 +264,8 @@ public class CustomerController : AdminController
         if (_customerSettings.CountryEnabled && _customerSettings.StateProvinceEnabled && model.CountryId > 0)
         {
             var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync((int)model.CountryId);
-            ViewBag.AvailableStates = stateProvinces.ToSelectListItems(model.StateProvinceId) 
-                ?? [ new() { Text = T("Address.OtherNonUS"), Value = "0" } ];
+            ViewBag.AvailableStates = stateProvinces.ToSelectListItems(model.StateProvinceId)
+                ?? [new() { Text = T("Address.OtherNonUS"), Value = "0" }];
         }
 
         if (_shoppingCartSettings.QuickCheckoutEnabled)
@@ -900,7 +900,7 @@ public class CustomerController : AdminController
     private async Task<int> GetVatNumberStatus(string vatNumber)
     {
         var response = await _taxService.GetVatNumberStatusAsync(vatNumber);
-        
+
         if (response.Exception != null)
         {
             NotifyError(T("Admin.Customers.VatNumberValidationError", response.Exception.Message));
@@ -1642,7 +1642,7 @@ public class CustomerController : AdminController
         // Now serialize again.
         // INFO: (json) With NewtonSoft this was serialized UnsafeRelaxed. With System.Text.Json it's now the default behavior. 
         // This doesn't seem to be an issue when displaying the data in the browser neither in the backend nor in the frontend.
-        _privacySettings.CookieInfos = JsonSerializer.Serialize(ciList, SmartJsonOptions.Default); 
+        _privacySettings.CookieInfos = JsonSerializer.Serialize(ciList, SmartJsonOptions.Default);
 
         // Save setting.
         await Services.Settings.ApplySettingAsync(_privacySettings, x => x.CookieInfos);

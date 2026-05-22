@@ -52,9 +52,9 @@ internal class PostgreSqlLikeTranslator : IMethodCallTranslator
     }
 
     public SqlExpression Translate(
-        SqlExpression instance, 
-        MethodInfo method, 
-        IReadOnlyList<SqlExpression> arguments, 
+        SqlExpression instance,
+        MethodInfo method,
+        IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
         if (method == StartsWith)

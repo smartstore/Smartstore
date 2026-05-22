@@ -1,38 +1,37 @@
-﻿namespace Smartstore.Threading
+﻿namespace Smartstore.Threading;
+
+/// <summary>
+/// A handle to a lock or other synchronization primitive. To unlock/release,
+/// simply dispose the handle or call <see cref="Release()"/> / <see cref="ReleaseAsync()"/>
+/// </summary>
+public interface ILockHandle : IDisposable, IAsyncDisposable
 {
     /// <summary>
-    /// A handle to a lock or other synchronization primitive. To unlock/release,
-    /// simply dispose the handle or call <see cref="Release()"/> / <see cref="ReleaseAsync()"/>
+    /// Releases the lock synchronously.
     /// </summary>
-    public interface ILockHandle : IDisposable, IAsyncDisposable
-    {
-        /// <summary>
-        /// Releases the lock synchronously.
-        /// </summary>
-        void Release();
+    void Release();
 
-        /// <summary>
-        /// Releases the lock asynchronously.
-        /// </summary>
-        Task ReleaseAsync();
+    /// <summary>
+    /// Releases the lock asynchronously.
+    /// </summary>
+    Task ReleaseAsync();
+}
+
+public sealed class NullLockHandle : ILockHandle
+{
+    public static NullLockHandle Instance { get; } = new NullLockHandle();
+
+    public void Dispose()
+    {
     }
 
-    public sealed class NullLockHandle : ILockHandle
+    public ValueTask DisposeAsync()
+        => ValueTask.CompletedTask;
+
+    public void Release()
     {
-        public static NullLockHandle Instance { get; } = new NullLockHandle();
-
-        public void Dispose()
-        {
-        }
-
-        public ValueTask DisposeAsync()
-            => ValueTask.CompletedTask;
-
-        public void Release()
-        {
-        }
-
-        public Task ReleaseAsync()
-            => Task.CompletedTask;
     }
+
+    public Task ReleaseAsync()
+        => Task.CompletedTask;
 }

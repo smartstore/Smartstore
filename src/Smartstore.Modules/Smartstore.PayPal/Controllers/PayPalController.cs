@@ -92,7 +92,7 @@ public class PayPalController : PublicController
         // Remove unwanted custom properties that might be left from last checkout.
         checkoutState.CustomProperties.Remove("PayPalPayerActionRequired");
         checkoutState.CustomProperties.Remove("UpdatePayPalOrder");
-        
+
         // Only set this if we're not on payment page.
         if (routeIdent != "Checkout.PaymentMethod")
         {
@@ -281,7 +281,7 @@ public class PayPalController : PublicController
         return Json(new { success = true, data = j });
     }
 
-    private async Task AddAddressesAsync(string payPalOrderId) 
+    private async Task AddAddressesAsync(string payPalOrderId)
     {
         var getOrderResponse = await _client.GetOrderAsync(payPalOrderId);
         var order = getOrderResponse.Body<OrderMessage>();
@@ -335,7 +335,7 @@ public class PayPalController : PublicController
         // Add shipping address if it doesn't exist yet.
         address.FirstName = nameParts.FirstName;
         address.LastName = nameParts.LastName;
-        
+
         if (customer.Addresses.FindAddress(address) == null)
         {
             customer.Addresses.Add(address);
@@ -470,18 +470,18 @@ public class PayPalController : PublicController
                 try
                 {
                     await CreateOrderApmAsync(paymentRequest.OrderGuid.ToString());
-                } 
+                }
                 catch (PayPalException ex)
                 {
                     PayPalHelper.HandleException(ex, T);
                 }
-                
+
                 paymentRequest.PaymentMethodSystemName = state.ApmProviderSystemName;
             }
-            
+
             paymentRequest.StoreId = store.Id;
             paymentRequest.CustomerId = customer.Id;
-            
+
             // We must check here if an order can be placed to avoid creating unauthorized transactions.
             var (warnings, cart) = await _orderProcessingService.ValidateOrderPlacementAsync(paymentRequest);
             if (warnings.Count == 0)
@@ -877,7 +877,8 @@ public class PayPalController : PublicController
                         break;
                     default:
                         throw new PayPalException("Cannot proccess resource type.");
-                };
+                }
+                ;
 
                 // Update order.
                 await _db.SaveChangesAsync();
@@ -958,7 +959,7 @@ public class PayPalController : PublicController
                     }
                 }
                 else
-                {   
+                {
                     if (settings.CancelOrdersForDeclinedPayments)
                     {
                         order.PaymentStatus = PaymentStatus.Voided;

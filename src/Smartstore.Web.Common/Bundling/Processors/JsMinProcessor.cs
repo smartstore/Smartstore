@@ -1,51 +1,50 @@
 ﻿using DouglasCrockford.JsMin;
 
-namespace Smartstore.Web.Bundling.Processors
+namespace Smartstore.Web.Bundling.Processors;
+
+public class JsMinProcessor : BundleProcessor
 {
-    public class JsMinProcessor : BundleProcessor
+    internal static string JsContentType = "application/javascript";
+    internal static readonly JsMinProcessor Instance = new();
+    internal static readonly JsMinifier Minifier = new();
+
+    public override string Code => BundleProcessorCodes.Minify;
+
+    public override Task ProcessAsync(BundleContext context)
     {
-        internal static string JsContentType = "application/javascript";
-        internal static readonly JsMinProcessor Instance = new();
-        internal static readonly JsMinifier Minifier = new();
-
-        public override string Code => BundleProcessorCodes.Minify;
-
-        public override Task ProcessAsync(BundleContext context)
+        if (context.Options.EnableMinification == false || context.ProcessorCodes.Contains(Code))
         {
-            if (context.Options.EnableMinification == false || context.ProcessorCodes.Contains(Code))
-            {
-                return Task.CompletedTask;
-            }
-
-            foreach (var asset in context.Content)
-            {
-                if (asset.IsMinified)
-                {
-                    continue;
-                }
-
-                try
-                {
-                    asset.Content = MinifyCore(asset, context);
-                    context.ProcessorCodes.Add(Code);
-                }
-                catch (Exception ex)
-                {
-                    HandleError(asset, ex.ToAllMessages());
-                }
-            }
-
             return Task.CompletedTask;
         }
 
-        protected virtual string MinifyCore(AssetContent asset, BundleContext context)
+        foreach (var asset in context.Content)
         {
-            return Minifier.Minify(asset.Content);
+            if (asset.IsMinified)
+            {
+                continue;
+            }
+
+            try
+            {
+                asset.Content = MinifyCore(asset, context);
+                context.ProcessorCodes.Add(Code);
+            }
+            catch (Exception ex)
+            {
+                HandleError(asset, ex.ToAllMessages());
+            }
         }
 
-        private static void HandleError(AssetContent asset, string message)
-        {
-            asset.Content = "/* JSMIN ERRORS: " + Environment.NewLine + message + " */" + Environment.NewLine + asset.Content;
-        }
+        return Task.CompletedTask;
+    }
+
+    protected virtual string MinifyCore(AssetContent asset, BundleContext context)
+    {
+        return Minifier.Minify(asset.Content);
+    }
+
+    private static void HandleError(AssetContent asset, string message)
+    {
+        asset.Content = "/* JSMIN ERRORS: " + Environment.NewLine + message + " */" + Environment.NewLine + asset.Content;
     }
 }

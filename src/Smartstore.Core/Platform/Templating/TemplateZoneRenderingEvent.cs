@@ -1,75 +1,74 @@
 ﻿using DotLiquid;
 using Smartstore.Events;
 
-namespace Smartstore.Templating
+namespace Smartstore.Templating;
+
+/// <summary>
+/// Published when a template zone is about to be rendered.
+/// By subscribing to this event, implementors can inject custom
+/// content to specific template zones.
+/// </summary>
+public sealed class TemplateZoneRenderingEvent : IEventMessage
 {
-    /// <summary>
-    /// Published when a template zone is about to be rendered.
-    /// By subscribing to this event, implementors can inject custom
-    /// content to specific template zones.
-    /// </summary>
-    public sealed class TemplateZoneRenderingEvent : IEventMessage
+    private IList<Snippet> _snippets;
+
+    public TemplateZoneRenderingEvent(string zoneName, IDictionary<string, object> model)
     {
-        private IList<Snippet> _snippets;
+        ZoneName = zoneName;
+        Model = model;
+    }
 
-        public TemplateZoneRenderingEvent(string zoneName, IDictionary<string, object> model)
+    internal Context LiquidContext { get; set; }
+
+    /// <summary>
+    /// The name of the rendered template.
+    /// </summary>
+    public string TemplateName => Evaluate("Context.TemplateName") as string;
+
+    /// <summary>
+    /// The name of the zone which is rendered.
+    /// </summary>
+    public string ZoneName { get; }
+
+    /// <summary>
+    /// The template model
+    /// </summary>
+    public IDictionary<string, object> Model { get; }
+
+    /// <summary>
+    /// Evaluates an expression - e.g. Product.Sku - and returns it's value.
+    /// </summary>
+    /// <param name="expression"></param>
+    /// <returns></returns>
+    public object Evaluate(string expression)
+    {
+        return LiquidContext[expression, false];
+    }
+
+    /// <summary>
+    /// Specifies the custom content to inject.
+    /// </summary>
+    /// <param name="content">The content</param>
+    /// <param name="parse">This should be <c>true</c> if the content contains template syntax.</param>
+    public void InjectContent(string content, bool parse = true)
+    {
+        if (content.HasValue())
         {
-            ZoneName = zoneName;
-            Model = model;
+            AddSnippet(new Snippet { Content = content, Parse = parse });
         }
+    }
 
-        internal Context LiquidContext { get; set; }
+    private void AddSnippet(Snippet snippet)
+    {
+        _snippets ??= [];
+        _snippets.Add(snippet);
+    }
 
-        /// <summary>
-        /// The name of the rendered template.
-        /// </summary>
-        public string TemplateName => Evaluate("Context.TemplateName") as string;
+    internal IList<Snippet> Snippets => _snippets;
 
-        /// <summary>
-        /// The name of the zone which is rendered.
-        /// </summary>
-        public string ZoneName { get; }
-
-        /// <summary>
-        /// The template model
-        /// </summary>
-        public IDictionary<string, object> Model { get; }
-
-        /// <summary>
-        /// Evaluates an expression - e.g. Product.Sku - and returns it's value.
-        /// </summary>
-        /// <param name="expression"></param>
-        /// <returns></returns>
-        public object Evaluate(string expression)
-        {
-            return LiquidContext[expression, false];
-        }
-
-        /// <summary>
-        /// Specifies the custom content to inject.
-        /// </summary>
-        /// <param name="content">The content</param>
-        /// <param name="parse">This should be <c>true</c> if the content contains template syntax.</param>
-        public void InjectContent(string content, bool parse = true)
-        {
-            if (content.HasValue())
-            {
-                AddSnippet(new Snippet { Content = content, Parse = parse });
-            }
-        }
-
-        private void AddSnippet(Snippet snippet)
-        {
-            _snippets ??= [];
-            _snippets.Add(snippet);
-        }
-
-        internal IList<Snippet> Snippets => _snippets;
-
-        internal class Snippet
-        {
-            public string Content { get; set; }
-            public bool Parse { get; set; }
-        }
+    internal class Snippet
+    {
+        public string Content { get; set; }
+        public bool Parse { get; set; }
     }
 }

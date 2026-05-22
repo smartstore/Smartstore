@@ -53,7 +53,7 @@ public class PriceSettingsModel : ModelBase
 
     [LocalizedDisplay("*AlwaysDisplayRetailPrice")]
     public bool AlwaysDisplayRetailPrice { get; set; }
-    
+
     [LocalizedDisplay("*ShowOfferCountdownRemainingHours")]
     public int? ShowOfferCountdownRemainingHours { get; set; }
 

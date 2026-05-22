@@ -247,7 +247,7 @@ public partial class DefaultWebHelper : IWebHelper, IDisposable
     public virtual T QueryString<T>(string name)
     {
         Guard.NotEmpty(name, nameof(name));
-        
+
         var queryParam = HttpContext?.Request?.Query[name] ?? StringValues.Empty;
 
         if (!StringValues.IsNullOrEmpty(queryParam))
@@ -263,7 +263,7 @@ public partial class DefaultWebHelper : IWebHelper, IDisposable
         if (string.IsNullOrEmpty(url))
         {
             return string.Empty;
-        }   
+        }
 
         if (string.IsNullOrEmpty(queryModification) && string.IsNullOrEmpty(anchor))
         {
@@ -373,12 +373,12 @@ public partial class DefaultWebHelper : IWebHelper, IDisposable
         if (string.IsNullOrEmpty(url))
         {
             return string.Empty;
-        }  
+        }
 
         if (string.IsNullOrEmpty(queryParam))
         {
             return url;
-        }  
+        }
 
         var parts = url.SplitSafe('?').ToArray();
 

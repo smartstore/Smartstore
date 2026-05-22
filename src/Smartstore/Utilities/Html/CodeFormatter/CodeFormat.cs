@@ -23,142 +23,140 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Smartstore.Utilities.Html.CodeFormatter
+namespace Smartstore.Utilities.Html.CodeFormatter;
+
+/// <summary>
+/// Provides a base class for formatting most programming languages.
+/// </summary>
+public abstract partial class CodeFormat : SourceFormat
 {
     /// <summary>
-    /// Provides a base class for formatting most programming languages.
+    /// Must be overridden to provide a list of keywords defined in 
+    /// each language.
     /// </summary>
-    public abstract partial class CodeFormat : SourceFormat
+    /// <remarks>
+    /// Keywords must be separated with spaces.
+    /// </remarks>
+    protected abstract string Keywords
     {
-        /// <summary>
-        /// Must be overridden to provide a list of keywords defined in 
-        /// each language.
-        /// </summary>
-        /// <remarks>
-        /// Keywords must be separated with spaces.
-        /// </remarks>
-        protected abstract string Keywords
+        get;
+    }
+
+    /// <summary>
+    /// Can be overridden to provide a list of preprocessors defined in 
+    /// each language.
+    /// </summary>
+    /// <remarks>
+    /// Preprocessors must be separated with spaces.
+    /// </remarks>
+    protected virtual string Preprocessors => "";
+
+    /// <summary>
+    /// Must be overridden to provide a regular expression string
+    /// to match strings literals. 
+    /// </summary>
+    protected abstract string StringRegex
+    {
+        get;
+    }
+
+    /// <summary>
+    /// Must be overridden to provide a regular expression string
+    /// to match comments. 
+    /// </summary>
+    protected abstract string CommentRegex
+    {
+        get;
+    }
+
+    /// <summary>
+    /// Determines if the language is case sensitive.
+    /// </summary>
+    /// <value><b>true</b> if the language is case sensitive, <b>false</b> 
+    /// otherwise. The default is true.</value>
+    /// <remarks>
+    /// A case-insensitive language formatter must override this 
+    /// property to return false.
+    /// </remarks>
+    public virtual bool CaseSensitive => true;
+
+    /// <summary/>
+    protected CodeFormat()
+    {
+        // generate the keyword and preprocessor regexes from the keyword lists
+        Regex r;
+        r = new Regex(@"\w+|-\w+|#\w+|@@\w+|#(?:\\(?:s|w)(?:\*|\+)?\w+)+|@\\w\*+");
+        string regKeyword = r.Replace(Keywords, @"(?<=^|\W)$0(?=\W)");
+        string regPreproc = r.Replace(Preprocessors, @"(?<=^|\s)$0(?=\s|$)");
+        r = new Regex(@" +");
+        regKeyword = r.Replace(regKeyword, @"|");
+        regPreproc = r.Replace(regPreproc, @"|");
+
+        if (regPreproc.Length == 0)
         {
-            get;
+            regPreproc = "(?!.*)_{37}(?<!.*)"; //use something quite impossible...
         }
 
-        /// <summary>
-        /// Can be overridden to provide a list of preprocessors defined in 
-        /// each language.
-        /// </summary>
-        /// <remarks>
-        /// Preprocessors must be separated with spaces.
-        /// </remarks>
-        protected virtual string Preprocessors => "";
-
-        /// <summary>
-        /// Must be overridden to provide a regular expression string
-        /// to match strings literals. 
-        /// </summary>
-        protected abstract string StringRegex
+        // build a master regex with capturing groups
+        var regAll = new StringBuilder(1000);
+        regAll.Append('(');
+        regAll.Append(CommentRegex);
+        regAll.Append(")|(");
+        regAll.Append(StringRegex);
+        if (regPreproc.Length > 0)
         {
-            get;
-        }
-
-        /// <summary>
-        /// Must be overridden to provide a regular expression string
-        /// to match comments. 
-        /// </summary>
-        protected abstract string CommentRegex
-        {
-            get;
-        }
-
-        /// <summary>
-        /// Determines if the language is case sensitive.
-        /// </summary>
-        /// <value><b>true</b> if the language is case sensitive, <b>false</b> 
-        /// otherwise. The default is true.</value>
-        /// <remarks>
-        /// A case-insensitive language formatter must override this 
-        /// property to return false.
-        /// </remarks>
-        public virtual bool CaseSensitive => true;
-
-        /// <summary/>
-        protected CodeFormat()
-        {
-            // generate the keyword and preprocessor regexes from the keyword lists
-            Regex r;
-            r = new Regex(@"\w+|-\w+|#\w+|@@\w+|#(?:\\(?:s|w)(?:\*|\+)?\w+)+|@\\w\*+");
-            string regKeyword = r.Replace(Keywords, @"(?<=^|\W)$0(?=\W)");
-            string regPreproc = r.Replace(Preprocessors, @"(?<=^|\s)$0(?=\s|$)");
-            r = new Regex(@" +");
-            regKeyword = r.Replace(regKeyword, @"|");
-            regPreproc = r.Replace(regPreproc, @"|");
-
-            if (regPreproc.Length == 0)
-            {
-                regPreproc = "(?!.*)_{37}(?<!.*)"; //use something quite impossible...
-            }
-
-            // build a master regex with capturing groups
-            var regAll = new StringBuilder(1000);
-            regAll.Append('(');
-            regAll.Append(CommentRegex);
             regAll.Append(")|(");
-            regAll.Append(StringRegex);
-            if (regPreproc.Length > 0)
-            {
-                regAll.Append(")|(");
-                regAll.Append(regPreproc);
-            }
-            regAll.Append(")|(");
-            regAll.Append(regKeyword);
-            regAll.Append(')');
-
-            RegexOptions caseInsensitive = CaseSensitive ? 0 : RegexOptions.IgnoreCase;
-            CodeRegex = new Regex(regAll.ToString(), RegexOptions.Singleline | caseInsensitive);
+            regAll.Append(regPreproc);
         }
+        regAll.Append(")|(");
+        regAll.Append(regKeyword);
+        regAll.Append(')');
 
-        /// <summary>
-        /// Called to evaluate the HTML fragment corresponding to each 
-        /// matching token in the code.
-        /// </summary>
-        /// <param name="match">The <see cref="Match"/> resulting from a 
-        /// single regular expression match.</param>
-        /// <returns>A string containing the HTML code fragment.</returns>
-        protected override string MatchEval(Match match)
+        RegexOptions caseInsensitive = CaseSensitive ? 0 : RegexOptions.IgnoreCase;
+        CodeRegex = new Regex(regAll.ToString(), RegexOptions.Singleline | caseInsensitive);
+    }
+
+    /// <summary>
+    /// Called to evaluate the HTML fragment corresponding to each 
+    /// matching token in the code.
+    /// </summary>
+    /// <param name="match">The <see cref="Match"/> resulting from a 
+    /// single regular expression match.</param>
+    /// <returns>A string containing the HTML code fragment.</returns>
+    protected override string MatchEval(Match match)
+    {
+        if (match.Groups[1].Success) //comment
         {
-            if (match.Groups[1].Success) //comment
-            {
-                var reader = new StringReader(match.ToString());
-                string line;
-                var sb = new StringBuilder();
+            var reader = new StringReader(match.ToString());
+            string line;
+            var sb = new StringBuilder();
 
-                while ((line = reader.ReadLine()) != null)
+            while ((line = reader.ReadLine()) != null)
+            {
+                if (sb.Length > 0)
                 {
-                    if (sb.Length > 0)
-                    {
-                        sb.Append('\n');
-                    }
-                    sb.Append("<span class=\"rem\">");
-                    sb.Append(line);
-                    sb.Append("</span>");
+                    sb.Append('\n');
                 }
+                sb.Append("<span class=\"rem\">");
+                sb.Append(line);
+                sb.Append("</span>");
+            }
 
-                return sb.ToString();
-            }
-            if (match.Groups[2].Success) //string literal
-            {
-                return "<span class=\"str\">" + match.ToString() + "</span>";
-            }
-            if (match.Groups[3].Success) //preprocessor keyword
-            {
-                return "<span class=\"preproc\">" + match.ToString() + "</span>";
-            }
-            if (match.Groups[4].Success) //keyword
-            {
-                return "<span class=\"kwrd\">" + match.ToString() + "</span>";
-            }
-            System.Diagnostics.Debug.Assert(false, "None of the above!");
-            return ""; //none of the above
+            return sb.ToString();
         }
+        if (match.Groups[2].Success) //string literal
+        {
+            return "<span class=\"str\">" + match.ToString() + "</span>";
+        }
+        if (match.Groups[3].Success) //preprocessor keyword
+        {
+            return "<span class=\"preproc\">" + match.ToString() + "</span>";
+        }
+        if (match.Groups[4].Success) //keyword
+        {
+            return "<span class=\"kwrd\">" + match.ToString() + "</span>";
+        }
+        System.Diagnostics.Debug.Assert(false, "None of the above!");
+        return ""; //none of the above
     }
 }
-

@@ -406,7 +406,7 @@ public class CheckoutController : PublicController
     private async Task<CheckoutContext> CreateCheckoutContext(object model = null)
     {
         var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
-        
+
         return new(cart, HttpContext, Url)
         {
             Model = model

@@ -2,25 +2,24 @@
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 
-namespace Smartstore.Core.Catalog.Discounts
+namespace Smartstore.Core.Catalog.Discounts;
+
+internal class DiscountUsageHistoryHook : AsyncDbSaveHook<DiscountUsageHistory>
 {
-    internal class DiscountUsageHistoryHook : AsyncDbSaveHook<DiscountUsageHistory>
+    private readonly IRequestCache _requestCache;
+
+    public DiscountUsageHistoryHook(IRequestCache requestCache)
     {
-        private readonly IRequestCache _requestCache;
+        _requestCache = requestCache;
+    }
 
-        public DiscountUsageHistoryHook(IRequestCache requestCache)
-        {
-            _requestCache = requestCache;
-        }
+    public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        => Task.FromResult(HookResult.Ok);
 
-        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
-            => Task.FromResult(HookResult.Ok);
+    public override Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+    {
+        _requestCache.RemoveByPattern(DiscountService.DiscountsPatternKey);
 
-        public override Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
-        {
-            _requestCache.RemoveByPattern(DiscountService.DiscountsPatternKey);
-
-            return Task.CompletedTask;
-        }
+        return Task.CompletedTask;
     }
 }

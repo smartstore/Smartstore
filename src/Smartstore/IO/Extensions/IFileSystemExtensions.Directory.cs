@@ -49,7 +49,8 @@ public static partial class IFileSystemExtensions
         await foreach (var entry in (await fs.GetDirectoryAsync(subpath)).EnumerateEntriesAsync(pattern, deep, cancelToken))
         {
             yield return entry;
-        };
+        }
+        ;
     }
 
     /// <summary>
@@ -86,7 +87,8 @@ public static partial class IFileSystemExtensions
         await foreach (var entry in (await fs.GetDirectoryAsync(subpath)).EnumerateFilesAsync(pattern, deep, cancelToken))
         {
             yield return entry;
-        };
+        }
+        ;
     }
 
     /// <summary>
@@ -123,7 +125,8 @@ public static partial class IFileSystemExtensions
         await foreach (var entry in (await fs.GetDirectoryAsync(subpath)).EnumerateDirectoriesAsync(pattern, deep, cancelToken))
         {
             yield return entry;
-        };
+        }
+        ;
     }
 
     #endregion

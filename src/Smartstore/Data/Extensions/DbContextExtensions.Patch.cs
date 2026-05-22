@@ -81,7 +81,7 @@ public static partial class DbContextExtensions
         }
 
         // Load the existing entity
-        var entity = async 
+        var entity = async
             ? await db.FindAsync(entityType.ClrType, [patch.EntityId], cancelToken) as BaseEntity
             : db.Find(entityType.ClrType, [patch.EntityId]) as BaseEntity;
         if (entity == null)

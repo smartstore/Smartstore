@@ -3,59 +3,58 @@ using System.Text.Json;
 using Smartstore.ComponentModel.TypeConverters;
 using Smartstore.Json;
 
-namespace Smartstore.Core.DataExchange.Csv
+namespace Smartstore.Core.DataExchange.Csv;
+
+public class CsvConfigurationConverter : DefaultTypeConverter
 {
-    public class CsvConfigurationConverter : DefaultTypeConverter
+    public CsvConfigurationConverter()
+        : base(typeof(object))
     {
-        public CsvConfigurationConverter()
-            : base(typeof(object))
+    }
+
+    public override bool CanConvertFrom(Type type)
+        => type == typeof(string);
+
+    public override bool CanConvertTo(Type type)
+        => type == typeof(string);
+
+    public override object ConvertFrom(CultureInfo culture, object value)
+    {
+        if (value is string strValue)
         {
+            return JsonSerializer.Deserialize<CsvConfiguration>(strValue, SmartJsonOptions.Default);
         }
 
-        public override bool CanConvertFrom(Type type)
-            => type == typeof(string);
+        return base.ConvertFrom(culture, value);
+    }
 
-        public override bool CanConvertTo(Type type)
-            => type == typeof(string);
+    public T ConvertFrom<T>(string value)
+    {
+        if (value.HasValue())
+            return (T)ConvertFrom(CultureInfo.InvariantCulture, value);
 
-        public override object ConvertFrom(CultureInfo culture, object value)
+        return default;
+    }
+
+    public override object ConvertTo(CultureInfo culture, string format, object value, Type to)
+    {
+        if (to == typeof(string))
         {
-            if (value is string strValue)
+            if (value is CsvConfiguration csvConfiguration)
             {
-                return JsonSerializer.Deserialize<CsvConfiguration>(strValue, SmartJsonOptions.Default);
+                return JsonSerializer.Serialize(csvConfiguration, SmartJsonOptions.Default);
             }
-
-            return base.ConvertFrom(culture, value);
-        }
-
-        public T ConvertFrom<T>(string value)
-        {
-            if (value.HasValue())
-                return (T)ConvertFrom(CultureInfo.InvariantCulture, value);
-
-            return default;
-        }
-
-        public override object ConvertTo(CultureInfo culture, string format, object value, Type to)
-        {
-            if (to == typeof(string))
+            else
             {
-                if (value is CsvConfiguration csvConfiguration)
-                {
-                    return JsonSerializer.Serialize(csvConfiguration, SmartJsonOptions.Default);
-                }
-                else
-                {
-                    return string.Empty;
-                }
+                return string.Empty;
             }
-
-            return base.ConvertTo(culture, format, value, to);
         }
 
-        public string ConvertTo(object value)
-        {
-            return (string)ConvertTo(CultureInfo.InvariantCulture, null, value, typeof(string));
-        }
+        return base.ConvertTo(culture, format, value, to);
+    }
+
+    public string ConvertTo(object value)
+    {
+        return (string)ConvertTo(CultureInfo.InvariantCulture, null, value, typeof(string));
     }
 }

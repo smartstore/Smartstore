@@ -46,7 +46,7 @@ internal sealed class PolymorphicDictionaryJsonConverterFactory : JsonConverterF
     {
         private readonly PolymorphyOptions _poly;
 
-        public GenericDictionaryConverter(PolymorphyOptions options) 
+        public GenericDictionaryConverter(PolymorphyOptions options)
             => _poly = options;
 
         public override TDict? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -199,7 +199,7 @@ internal sealed class PolymorphicDictionaryJsonConverterFactory : JsonConverterF
             _targetType = targetType;
         }
 
-        public override bool CanConvert(Type typeToConvert) 
+        public override bool CanConvert(Type typeToConvert)
             => typeToConvert == _targetType;
 
         public override object? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

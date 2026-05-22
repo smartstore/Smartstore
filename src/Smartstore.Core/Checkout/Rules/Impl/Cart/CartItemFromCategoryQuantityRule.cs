@@ -3,93 +3,92 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Rules;
 using Smartstore.Json;
 
-namespace Smartstore.Core.Checkout.Rules.Impl
+namespace Smartstore.Core.Checkout.Rules.Impl;
+
+internal class CartItemFromCategoryQuantityRule : IRule<CartRuleContext>
 {
-    internal class CartItemFromCategoryQuantityRule : IRule<CartRuleContext>
+    private readonly SmartDbContext _db;
+
+    public CartItemFromCategoryQuantityRule(SmartDbContext db)
     {
-        private readonly SmartDbContext _db;
+        _db = db;
+    }
 
-        public CartItemFromCategoryQuantityRule(SmartDbContext db)
+    public ILogger Logger { get; set; } = NullLogger.Instance;
+
+    public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
+    {
+        int categoryId = 0;
+        int? minQuantity = null;
+        int? maxQuantity = null;
+
+        try
         {
-            _db = db;
-        }
-
-        public ILogger Logger { get; set; } = NullLogger.Instance;
-
-        public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
-        {
-            int categoryId = 0;
-            int? minQuantity = null;
-            int? maxQuantity = null;
-
-            try
+            var rawValue = expression.Value as string;
+            if (rawValue.HasValue())
             {
-                var rawValue = expression.Value as string;
-                if (rawValue.HasValue())
+                dynamic json = JsonObject.Parse(rawValue).ToDynamic();
+                categoryId = ((string)json.EntityId).ToInt();
+
+                var str = (string)json.MinQuantity;
+                if (str.HasValue())
                 {
-                    dynamic json = JsonObject.Parse(rawValue).ToDynamic();
-                    categoryId = ((string)json.EntityId).ToInt();
+                    minQuantity = str.ToInt();
+                }
 
-                    var str = (string)json.MinQuantity;
-                    if (str.HasValue())
-                    {
-                        minQuantity = str.ToInt();
-                    }
-
-                    str = (string)json.MaxQuantity;
-                    if (str.HasValue())
-                    {
-                        maxQuantity = str.ToInt();
-                    }
+                str = (string)json.MaxQuantity;
+                if (str.HasValue())
+                {
+                    maxQuantity = str.ToInt();
                 }
             }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex);
+        }
 
-            if (categoryId != 0)
-            {
-                var productsIds = await _db.ProductCategories
-                    .Where(x => x.CategoryId == categoryId)
-                    .Select(x => x.ProductId)
-                    .Distinct()
-                    .ToArrayAsync();
+        if (categoryId != 0)
+        {
+            var productsIds = await _db.ProductCategories
+                .Where(x => x.CategoryId == categoryId)
+                .Select(x => x.ProductId)
+                .Distinct()
+                .ToArrayAsync();
 
-                if (productsIds.Length > 0)
+            if (productsIds.Length > 0)
+            {
+                var cart = context.ShoppingCart;
+                var items = cart.Items.Where(x => productsIds.Contains(x.Item.ProductId));
+                if (items.Any())
                 {
-                    var cart = context.ShoppingCart;
-                    var items = cart.Items.Where(x => productsIds.Contains(x.Item.ProductId));
-                    if (items.Any())
+                    var quantity = items.Sum(x => x.Item.Quantity);
+                    if (quantity > 0)
                     {
-                        var quantity = items.Sum(x => x.Item.Quantity);
-                        if (quantity > 0)
+                        if (minQuantity.HasValue && maxQuantity.HasValue)
                         {
-                            if (minQuantity.HasValue && maxQuantity.HasValue)
+                            if (minQuantity == maxQuantity)
                             {
-                                if (minQuantity == maxQuantity)
-                                {
-                                    return quantity == minQuantity;
-                                }
-                                else
-                                {
-                                    return quantity >= minQuantity && quantity <= maxQuantity;
-                                }
+                                return quantity == minQuantity;
                             }
-                            else if (minQuantity.HasValue)
+                            else
                             {
-                                return quantity >= minQuantity;
+                                return quantity >= minQuantity && quantity <= maxQuantity;
                             }
-                            else if (maxQuantity.HasValue)
-                            {
-                                return quantity <= maxQuantity;
-                            }
+                        }
+                        else if (minQuantity.HasValue)
+                        {
+                            return quantity >= minQuantity;
+                        }
+                        else if (maxQuantity.HasValue)
+                        {
+                            return quantity <= maxQuantity;
                         }
                     }
                 }
             }
-
-            return false;
         }
+
+        return false;
     }
 }

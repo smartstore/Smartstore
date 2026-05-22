@@ -26,7 +26,7 @@ public partial class CatalogHelper
         var isBundlePricing = bundleItem != null && !bundleItem.BundleProduct.BundlePerItemPricing;
         var computeRewardAmount = _rewardPointsSettings.Enabled
             && _rewardPointsSettings.ShowPointsForProductPurchase
-            && _rewardPointsSettings.PointsForPurchases_Amount > decimal.Zero 
+            && _rewardPointsSettings.PointsForPurchases_Amount > decimal.Zero
             && !ctx.Customer.IsGuest();
 
         priceModel.HidePrices = !ctx.DisplayPrices;
@@ -44,7 +44,7 @@ public partial class CatalogHelper
             return;
         }
 
-        var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, ctx.Customer, ctx.Currency, ctx.BatchContext);            
+        var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, ctx.Customer, ctx.Currency, ctx.BatchContext);
         calculationOptions.ApplyPriceRangeFormat = _priceSettings.ApplyPriceRangeFormatInProductDetails && !ctx.HasInitiallySelectedVariants;
 
         var calculationContext = new PriceCalculationContext(product, selectedQuantity, calculationOptions)

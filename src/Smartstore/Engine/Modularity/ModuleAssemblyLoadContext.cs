@@ -1,38 +1,37 @@
 ﻿using System.Reflection;
 using System.Runtime.Loader;
 
-namespace Smartstore.Engine.Modularity
+namespace Smartstore.Engine.Modularity;
+
+public class ModuleAssemblyLoadContext : AssemblyLoadContext
 {
-    public class ModuleAssemblyLoadContext : AssemblyLoadContext
+    private readonly AssemblyDependencyResolver _resolver;
+
+    public ModuleAssemblyLoadContext(string modulePath)
     {
-        private readonly AssemblyDependencyResolver _resolver;
+        Guard.NotEmpty(modulePath);
+        _resolver = new AssemblyDependencyResolver(modulePath);
+    }
 
-        public ModuleAssemblyLoadContext(string modulePath)
+    protected override Assembly Load(AssemblyName assemblyName)
+    {
+        var assemblyPath = _resolver.ResolveAssemblyToPath(assemblyName);
+        if (assemblyPath != null)
         {
-            Guard.NotEmpty(modulePath);
-            _resolver = new AssemblyDependencyResolver(modulePath);
+            return LoadFromAssemblyPath(assemblyPath);
         }
 
-        protected override Assembly Load(AssemblyName assemblyName)
-        {
-            var assemblyPath = _resolver.ResolveAssemblyToPath(assemblyName);
-            if (assemblyPath != null)
-            {
-                return LoadFromAssemblyPath(assemblyPath);
-            }
+        return null;
+    }
 
-            return null;
+    protected override nint LoadUnmanagedDll(string unmanagedDllName)
+    {
+        var libraryPath = _resolver.ResolveUnmanagedDllToPath(unmanagedDllName);
+        if (libraryPath != null)
+        {
+            return LoadUnmanagedDllFromPath(libraryPath);
         }
 
-        protected override nint LoadUnmanagedDll(string unmanagedDllName)
-        {
-            var libraryPath = _resolver.ResolveUnmanagedDllToPath(unmanagedDllName);
-            if (libraryPath != null)
-            {
-                return LoadUnmanagedDllFromPath(libraryPath);
-            }
-
-            return IntPtr.Zero;
-        }
+        return IntPtr.Zero;
     }
 }

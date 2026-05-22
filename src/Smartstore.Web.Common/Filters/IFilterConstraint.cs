@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Smartstore.Web.Filters
+namespace Smartstore.Web.Filters;
+
+public interface IFilterConstraint : IFilterFactory
 {
-    public interface IFilterConstraint : IFilterFactory
-    {
-        bool Match(ActionContext context);
-    }
+    bool Match(ActionContext context);
 }

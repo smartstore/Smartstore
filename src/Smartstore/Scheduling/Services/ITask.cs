@@ -14,6 +14,6 @@ public partial interface ITask
     /// <summary>
     /// Runs a task implementation.
     /// </summary>
-		/// <param name="ctx">The execution context</param>
+    /// <param name="ctx">The execution context</param>
     Task Run(TaskExecutionContext ctx, CancellationToken cancelToken = default);
 }

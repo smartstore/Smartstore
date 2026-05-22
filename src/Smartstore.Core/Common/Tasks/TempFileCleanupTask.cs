@@ -1,36 +1,35 @@
 ﻿using Smartstore.Scheduling;
 
-namespace Smartstore.Core.Common.Tasks
+namespace Smartstore.Core.Common.Tasks;
+
+/// <summary>
+/// Task to cleanup temporary files.
+/// </summary>
+public partial class TempFileCleanupTask : ITask
 {
-    /// <summary>
-    /// Task to cleanup temporary files.
-    /// </summary>
-    public partial class TempFileCleanupTask : ITask
+    private readonly IApplicationContext _appContext;
+
+    public TempFileCleanupTask(IApplicationContext appContext)
     {
-        private readonly IApplicationContext _appContext;
+        _appContext = appContext;
+    }
 
-        public TempFileCleanupTask(IApplicationContext appContext)
+    public Task Run(TaskExecutionContext ctx, CancellationToken cancelToken = default)
+    {
+        var olderThan = TimeSpan.FromHours(5);
+
+        var tempDir = _appContext.GetTempDirectory();
+        if (tempDir.Exists)
         {
-            _appContext = appContext;
+            tempDir.FileSystem.ClearDirectory(tempDir, false, olderThan);
         }
 
-        public Task Run(TaskExecutionContext ctx, CancellationToken cancelToken = default)
+        var tenantTempDir = _appContext.GetTenantTempDirectory();
+        if (tenantTempDir.Exists)
         {
-            var olderThan = TimeSpan.FromHours(5);
-
-            var tempDir = _appContext.GetTempDirectory();
-            if (tempDir.Exists)
-            {
-                tempDir.FileSystem.ClearDirectory(tempDir, false, olderThan);
-            }
-
-            var tenantTempDir = _appContext.GetTenantTempDirectory();
-            if (tenantTempDir.Exists)
-            {
-                tenantTempDir.FileSystem.ClearDirectory(tenantTempDir, false, olderThan);
-            }
-
-            return Task.CompletedTask;
+            tenantTempDir.FileSystem.ClearDirectory(tenantTempDir, false, olderThan);
         }
+
+        return Task.CompletedTask;
     }
 }

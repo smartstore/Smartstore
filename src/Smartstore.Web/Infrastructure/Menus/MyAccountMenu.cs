@@ -132,7 +132,7 @@ public partial class MyAccountMenu : IMenu
 
         if ((_orderSettings.ReturnRequestsEnabled || await _settingService.GetSettingByKeyAsync<bool>("WithdrawalSettings.Enabled"))
             && await _db.ReturnCases.ApplyStandardFilter(null, _workContext.CurrentCustomer.Id, _storeContext.CurrentStore.Id).AnyAsync())
-        {                
+        {
             root.Append(new MenuItem
             {
                 Id = "returncases",

@@ -287,9 +287,9 @@ public class GmcXmlExportProvider : ExportProviderBase
         {
             availability = "out of stock";
         }
-        else if (entity.ManageInventoryMethod == ManageInventoryMethod.ManageStockByAttributes 
+        else if (entity.ManageInventoryMethod == ManageInventoryMethod.ManageStockByAttributes
             && cargo.AttributeCombinationAsProduct
-            && entity.StockQuantity <= 0 
+            && entity.StockQuantity <= 0
             && entity.BackorderMode != BackorderMode.AllowQtyBelow0)
         {
             // INFO: MergeWithCombination has been called by data exporter.

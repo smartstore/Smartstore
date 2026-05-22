@@ -31,7 +31,7 @@ public static class TopologicalSortExtensions
         return sortedList.ToArray();
     }
 
-    private static int[] SortIndexesTopological<T>(ITopologicSortable<T>[] items) 
+    private static int[] SortIndexesTopological<T>(ITopologicSortable<T>[] items)
         => SortIndexesTopological(items, null);
 
     private static int[] SortIndexesTopological<T>(ITopologicSortable<T>[] items, IEqualityComparer<T> comparer)

@@ -15,7 +15,7 @@ public abstract class OfflinePaymentProviderBase<TSetting> : PaymentMethodBase
     protected readonly ISettingFactory _settingFactory;
 
     protected OfflinePaymentProviderBase(
-        IStoreContext storeContext, 
+        IStoreContext storeContext,
         ISettingFactory settingFactory)
     {
         _storeContext = storeContext;

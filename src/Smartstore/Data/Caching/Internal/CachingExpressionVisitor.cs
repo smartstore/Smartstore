@@ -3,224 +3,223 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Domain;
 
-namespace Smartstore.Data.Caching.Internal
+namespace Smartstore.Data.Caching.Internal;
+
+/// <summary>
+/// A Table's EntityInfo and policy information.
+/// </summary>
+internal class TableEntityInfo
 {
     /// <summary>
-    /// A Table's EntityInfo and policy information.
+    /// Gets the CLR class that is used to represent instances of this type.
+    /// Returns null if the type does not have a corresponding CLR class (known as a shadow type).
     /// </summary>
-    internal class TableEntityInfo
+    public Type ClrType { set; get; }
+
+    /// <summary>
+    /// The Corresponding table's name.
+    /// </summary>
+    public string TableName { set; get; }
+
+    /// <summary>
+    /// Policy annotation.
+    /// </summary>
+    public CacheableEntityAttribute Policy { get; set; }
+
+    /// <summary>
+    /// Debug info.
+    /// </summary>
+    public override string ToString() => $"{ClrType}::{TableName}";
+}
+
+internal sealed class CachingExpressionVisitor : ExpressionVisitor
+{
+    internal static readonly MethodInfo AsTrackingMethodInfo =
+        typeof(EntityFrameworkQueryableExtensions)
+        .GetTypeInfo()
+        .GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.AsTracking))
+        .Single(m => m.GetParameters().Length == 1);
+
+    internal static readonly MethodInfo AsNoTrackingMethodInfo =
+        typeof(EntityFrameworkQueryableExtensions)
+        .GetTypeInfo()
+        .GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTracking));
+
+    internal static readonly MethodInfo AsNoTrackingWithIdentityResolutionMethodInfo =
+        typeof(EntityFrameworkQueryableExtensions)
+        .GetTypeInfo()
+        .GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTrackingWithIdentityResolution));
+
+
+    // Key = DbContextType
+    // Value = [Key: EntityClrType, ...]
+    private readonly ConcurrentDictionary<Type, Lazy<Dictionary<Type, TableEntityInfo>>> _contextTableInfos = new();
+
+    private readonly DbContext _context;
+    private readonly CachingOptionsExtension _extension;
+
+    private QueryTrackingBehavior? _queryTracking;
+
+    public CachingExpressionVisitor(DbContext context, CachingOptionsExtension extension)
     {
-        /// <summary>
-        /// Gets the CLR class that is used to represent instances of this type.
-        /// Returns null if the type does not have a corresponding CLR class (known as a shadow type).
-        /// </summary>
-        public Type ClrType { set; get; }
-
-        /// <summary>
-        /// The Corresponding table's name.
-        /// </summary>
-        public string TableName { set; get; }
-
-        /// <summary>
-        /// Policy annotation.
-        /// </summary>
-        public CacheableEntityAttribute Policy { get; set; }
-
-        /// <summary>
-        /// Debug info.
-        /// </summary>
-        public override string ToString() => $"{ClrType}::{TableName}";
+        _context = context;
+        _extension = extension;
     }
 
-    internal sealed class CachingExpressionVisitor : ExpressionVisitor
+    public bool IsSequenceType { get; private set; }
+
+    public Type ElementType { get; private set; }
+
+    public DbCachingPolicy CachingPolicy { get; private set; }
+
+    protected override Expression VisitMethodCall(MethodCallExpression node)
     {
-        internal static readonly MethodInfo AsTrackingMethodInfo =
-            typeof(EntityFrameworkQueryableExtensions)
-            .GetTypeInfo()
-            .GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.AsTracking))
-            .Single(m => m.GetParameters().Length == 1);
-
-        internal static readonly MethodInfo AsNoTrackingMethodInfo =
-            typeof(EntityFrameworkQueryableExtensions)
-            .GetTypeInfo()
-            .GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTracking));
-
-        internal static readonly MethodInfo AsNoTrackingWithIdentityResolutionMethodInfo =
-            typeof(EntityFrameworkQueryableExtensions)
-            .GetTypeInfo()
-            .GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTrackingWithIdentityResolution));
-
-
-        // Key = DbContextType
-        // Value = [Key: EntityClrType, ...]
-        private readonly ConcurrentDictionary<Type, Lazy<Dictionary<Type, TableEntityInfo>>> _contextTableInfos = new();
-
-        private readonly DbContext _context;
-        private readonly CachingOptionsExtension _extension;
-
-        private QueryTrackingBehavior? _queryTracking;
-
-        public CachingExpressionVisitor(DbContext context, CachingOptionsExtension extension)
+        if (node.Method.IsGenericMethod)
         {
-            _context = context;
-            _extension = extension;
-        }
+            var methodDef = node.Method.GetGenericMethodDefinition();
 
-        public bool IsSequenceType { get; private set; }
-
-        public Type ElementType { get; private set; }
-
-        public DbCachingPolicy CachingPolicy { get; private set; }
-
-        protected override Expression VisitMethodCall(MethodCallExpression node)
-        {
-            if (node.Method.IsGenericMethod)
+            // Find cachable query extension calls
+            if (methodDef == CachingQueryExtensions.AsCachingMethodInfo)
             {
-                var methodDef = node.Method.GetGenericMethodDefinition();
+                // Get parameter with "last one wins"
+                CachingPolicy = node.Arguments
+                    .OfType<ConstantExpression>()
+                    .Where(a => a.Value is DbCachingPolicy)
+                    .Select(a => (DbCachingPolicy)a.Value)
+                    .Last();
 
-                // Find cachable query extension calls
-                if (methodDef == CachingQueryExtensions.AsCachingMethodInfo)
+                // Cut out extension expression
+                return Visit(node.Arguments[0]);
+            }
+            else if (
+                methodDef == AsNoTrackingMethodInfo ||
+                methodDef == AsNoTrackingWithIdentityResolutionMethodInfo ||
+                methodDef == AsTrackingMethodInfo)
+            {
+                // If _isNoTracking is true, we found the marker already. Useless to do it again.
+                if (node.Arguments.Count > 0)
                 {
-                    // Get parameter with "last one wins"
-                    CachingPolicy = node.Arguments
-                        .OfType<ConstantExpression>()
-                        .Where(a => a.Value is DbCachingPolicy)
-                        .Select(a => (DbCachingPolicy)a.Value)
-                        .Last();
-
-                    // Cut out extension expression
-                    return Visit(node.Arguments[0]);
-                }
-                else if (
-                    methodDef == AsNoTrackingMethodInfo || 
-                    methodDef == AsNoTrackingWithIdentityResolutionMethodInfo || 
-                    methodDef == AsTrackingMethodInfo)
-                {
-                    // If _isNoTracking is true, we found the marker already. Useless to do it again.
-                    if (node.Arguments.Count > 0)
+                    var nodeType = node.Arguments[0]?.Type;
+                    if (nodeType != null)
                     {
-                        var nodeType = node.Arguments[0]?.Type;
-                        if (nodeType != null)
+                        var nodeResultType = nodeType.GetGenericArguments()[0];
+                        if (nodeResultType == ElementType)
                         {
-                            var nodeResultType = nodeType.GetGenericArguments()[0];
-                            if (nodeResultType == ElementType)
+                            if (methodDef == AsNoTrackingMethodInfo)
                             {
-                                if (methodDef == AsNoTrackingMethodInfo)
-                                {
-                                    _queryTracking = QueryTrackingBehavior.NoTracking;
-                                }
-                                else if (methodDef == AsNoTrackingWithIdentityResolutionMethodInfo)
-                                {
-                                    _queryTracking = QueryTrackingBehavior.NoTrackingWithIdentityResolution;
-                                }
-                                else
-                                {
-                                    _queryTracking = QueryTrackingBehavior.TrackAll;
-                                }
+                                _queryTracking = QueryTrackingBehavior.NoTracking;
+                            }
+                            else if (methodDef == AsNoTrackingWithIdentityResolutionMethodInfo)
+                            {
+                                _queryTracking = QueryTrackingBehavior.NoTrackingWithIdentityResolution;
+                            }
+                            else
+                            {
+                                _queryTracking = QueryTrackingBehavior.TrackAll;
                             }
                         }
                     }
                 }
             }
-
-            return base.VisitMethodCall(node);
         }
 
-        public Expression ExtractPolicy(Expression expression)
+        return base.VisitMethodCall(node);
+    }
+
+    public Expression ExtractPolicy(Expression expression)
+    {
+        IsSequenceType = false;
+        ElementType = expression.Type;
+        CachingPolicy = null;
+
+        if (expression.Type.IsEnumerableType(out var elementType))
         {
-            IsSequenceType = false;
-            ElementType = expression.Type;
+            IsSequenceType = true;
+            ElementType = elementType;
+        }
+
+        expression = Visit(expression);
+
+        // If the expression did not contain one of the As[No]Tracking... method calls,
+        // we gonna fallback to the change tracker's default option.
+        _queryTracking ??= _context.ChangeTracker.QueryTrackingBehavior;
+
+        if (_queryTracking == QueryTrackingBehavior.TrackAll && typeof(BaseEntity).IsAssignableFrom(ElementType))
+        {
+            // We never gonna cache trackable entities
             CachingPolicy = null;
-            
-            if (expression.Type.IsEnumerableType(out var elementType))
-            {
-                IsSequenceType = true;
-                ElementType = elementType;
-            }
-
-            expression = Visit(expression);
-
-            // If the expression did not contain one of the As[No]Tracking... method calls,
-            // we gonna fallback to the change tracker's default option.
-            _queryTracking ??= _context.ChangeTracker.QueryTrackingBehavior;
-
-            if (_queryTracking == QueryTrackingBehavior.TrackAll && typeof(BaseEntity).IsAssignableFrom(ElementType))
-            {
-                // We never gonna cache trackable entities
-                CachingPolicy = null;
-            }
-            else
-            {
-                CachingPolicy = SanitizePolicy(CachingPolicy);
-            }
-
-            return expression;
+        }
+        else
+        {
+            CachingPolicy = SanitizePolicy(CachingPolicy);
         }
 
-        private DbCachingPolicy SanitizePolicy(DbCachingPolicy policy)
+        return expression;
+    }
+
+    private DbCachingPolicy SanitizePolicy(DbCachingPolicy policy)
+    {
+        if (policy?.NoCaching == true)
         {
-            if (policy?.NoCaching == true)
+            // Caching disabled on query level
+            return null;
+        }
+
+        // Try resolve global policy
+        var policyAttribute = GetAllEntityInfos().Get(ElementType)?.Policy;
+
+        if (policyAttribute != null)
+        {
+            if (policyAttribute.NeverCache)
             {
-                // Caching disabled on query level
                 return null;
             }
 
-            // Try resolve global policy
-            var policyAttribute = GetAllEntityInfos().Get(ElementType)?.Policy;
-
-            if (policyAttribute != null)
-            {
-                if (policyAttribute.NeverCache)
-                {
-                    return null;
-                }
-
-                // Either create new policy from attribute or merge attribute with query policy.
-                policy = (policy ?? new DbCachingPolicy()).Merge(policyAttribute);
-            }
-
-            if (policy != null)
-            {
-                // Global fallbacks from extension options
-                if (policy.ExpirationTimeout == null)
-                {
-                    policy.ExpirationTimeout = _extension.DefaultExpirationTimeout;
-                }
-
-                if (policy.MaxRows == null)
-                {
-                    policy.MaxRows = _extension.DefaultMaxRows;
-                }
-            }
-
-            return policy;
+            // Either create new policy from attribute or merge attribute with query policy.
+            policy = (policy ?? new DbCachingPolicy()).Merge(policyAttribute);
         }
 
-        /// <summary>
-        /// Returns all of the given context's entity infos.
-        /// </summary>
-        public Dictionary<Type, TableEntityInfo> GetAllEntityInfos()
+        if (policy != null)
         {
-            return _contextTableInfos.GetOrAdd(_context.GetType(),
-                _ => new Lazy<Dictionary<Type, TableEntityInfo>>(() =>
-                {
-                    var infos = new Dictionary<Type, TableEntityInfo>();
-                    foreach (var entityType in _context.Model.GetEntityTypes())
-                    {
-                        var clrType = entityType.ClrType;
-                        var tableName = entityType.GetTableName();
-                        var info = new TableEntityInfo
-                        {
-                            ClrType = clrType,
-                            TableName = tableName,
-                            Policy = clrType.GetAttribute<CacheableEntityAttribute>(false)
-                        };
+            // Global fallbacks from extension options
+            if (policy.ExpirationTimeout == null)
+            {
+                policy.ExpirationTimeout = _extension.DefaultExpirationTimeout;
+            }
 
-                        infos[clrType] = info;
-                    }
-                    return infos;
-                },
-                LazyThreadSafetyMode.ExecutionAndPublication)).Value;
+            if (policy.MaxRows == null)
+            {
+                policy.MaxRows = _extension.DefaultMaxRows;
+            }
         }
+
+        return policy;
+    }
+
+    /// <summary>
+    /// Returns all of the given context's entity infos.
+    /// </summary>
+    public Dictionary<Type, TableEntityInfo> GetAllEntityInfos()
+    {
+        return _contextTableInfos.GetOrAdd(_context.GetType(),
+            _ => new Lazy<Dictionary<Type, TableEntityInfo>>(() =>
+            {
+                var infos = new Dictionary<Type, TableEntityInfo>();
+                foreach (var entityType in _context.Model.GetEntityTypes())
+                {
+                    var clrType = entityType.ClrType;
+                    var tableName = entityType.GetTableName();
+                    var info = new TableEntityInfo
+                    {
+                        ClrType = clrType,
+                        TableName = tableName,
+                        Policy = clrType.GetAttribute<CacheableEntityAttribute>(false)
+                    };
+
+                    infos[clrType] = info;
+                }
+                return infos;
+            },
+            LazyThreadSafetyMode.ExecutionAndPublication)).Value;
     }
 }

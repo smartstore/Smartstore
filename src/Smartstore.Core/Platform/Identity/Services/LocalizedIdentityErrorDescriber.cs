@@ -1,171 +1,170 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Smartstore.Core.Localization;
 
-namespace Smartstore.Core.Identity
+namespace Smartstore.Core.Identity;
+
+public class LocalizedIdentityErrorDescriber : IdentityErrorDescriber
 {
-    public class LocalizedIdentityErrorDescriber : IdentityErrorDescriber
+    public Localizer T { get; set; } = NullLocalizer.Instance;
+
+    public override IdentityError DuplicateEmail(string email)
     {
-        public Localizer T { get; set; } = NullLocalizer.Instance;
-
-        public override IdentityError DuplicateEmail(string email)
+        return new IdentityError
         {
-            return new IdentityError
-            {
-                Code = nameof(DuplicateEmail),
-                Description = T("Identity.Error.DuplicateEmail", email)
-            };
-        }
+            Code = nameof(DuplicateEmail),
+            Description = T("Identity.Error.DuplicateEmail", email)
+        };
+    }
 
-        public override IdentityError DuplicateUserName(string userName)
+    public override IdentityError DuplicateUserName(string userName)
+    {
+        return new IdentityError
         {
-            return new IdentityError
-            {
-                Code = nameof(DuplicateUserName),
-                Description = T("Identity.Error.DuplicateUserName", userName)
-            };
-        }
+            Code = nameof(DuplicateUserName),
+            Description = T("Identity.Error.DuplicateUserName", userName)
+        };
+    }
 
-        public override IdentityError PasswordMismatch()
+    public override IdentityError PasswordMismatch()
+    {
+        return new IdentityError
         {
-            return new IdentityError
-            {
-                Code = nameof(PasswordMismatch),
-                Description = T("Identity.Error.PasswordMismatch")
-            };
-        }
+            Code = nameof(PasswordMismatch),
+            Description = T("Identity.Error.PasswordMismatch")
+        };
+    }
 
-        public override IdentityError ConcurrencyFailure()
+    public override IdentityError ConcurrencyFailure()
+    {
+        return new IdentityError
         {
-            return new IdentityError
-            {
-                Code = nameof(ConcurrencyFailure),
-                Description = T("Identity.Error.ConcurrencyFailure")
-            };
-        }
+            Code = nameof(ConcurrencyFailure),
+            Description = T("Identity.Error.ConcurrencyFailure")
+        };
+    }
 
-        public override IdentityError DefaultError()
+    public override IdentityError DefaultError()
+    {
+        return new IdentityError
         {
-            return new IdentityError
-            {
-                Code = nameof(DefaultError),
-                Description = T("Identity.Error.DefaultError")
-            };
-        }
+            Code = nameof(DefaultError),
+            Description = T("Identity.Error.DefaultError")
+        };
+    }
 
-        public override IdentityError DuplicateRoleName(string role)
+    public override IdentityError DuplicateRoleName(string role)
+    {
+        return new IdentityError
         {
-            return new IdentityError
-            {
-                Code = nameof(DuplicateRoleName),
-                Description = T("Identity.Error.DuplicateRoleName", role)
-            };
-        }
+            Code = nameof(DuplicateRoleName),
+            Description = T("Identity.Error.DuplicateRoleName", role)
+        };
+    }
 
-        public override IdentityError InvalidRoleName(string role)
+    public override IdentityError InvalidRoleName(string role)
+    {
+        return new IdentityError
         {
-            return new IdentityError
-            {
-                Code = nameof(InvalidRoleName),
-                Description = T("Identity.Error.InvalidRoleName", role)
-            };
-        }
+            Code = nameof(InvalidRoleName),
+            Description = T("Identity.Error.InvalidRoleName", role)
+        };
+    }
 
-        public override IdentityError InvalidToken()
+    public override IdentityError InvalidToken()
+    {
+        return new IdentityError
         {
-            return new IdentityError
-            {
-                Code = nameof(InvalidToken),
-                Description = T("Identity.Error.InvalidToken")
-            };
-        }
+            Code = nameof(InvalidToken),
+            Description = T("Identity.Error.InvalidToken")
+        };
+    }
 
-        public override IdentityError InvalidUserName(string userName)
+    public override IdentityError InvalidUserName(string userName)
+    {
+        return new IdentityError
         {
-            return new IdentityError
-            {
-                Code = nameof(InvalidUserName),
-                Description = T("Identity.Error.InvalidUserName", userName)
-            };
-        }
-        public override IdentityError LoginAlreadyAssociated()
+            Code = nameof(InvalidUserName),
+            Description = T("Identity.Error.InvalidUserName", userName)
+        };
+    }
+    public override IdentityError LoginAlreadyAssociated()
+    {
+        return new IdentityError
         {
-            return new IdentityError
-            {
-                Code = nameof(LoginAlreadyAssociated),
-                Description = T("Identity.Error.LoginAlreadyAssociated")
-            };
-        }
+            Code = nameof(LoginAlreadyAssociated),
+            Description = T("Identity.Error.LoginAlreadyAssociated")
+        };
+    }
 
-        public override IdentityError PasswordRequiresDigit()
-            => GetPasswordRequirementError(nameof(PasswordRequiresDigit));
+    public override IdentityError PasswordRequiresDigit()
+        => GetPasswordRequirementError(nameof(PasswordRequiresDigit));
 
-        public override IdentityError PasswordRequiresLower()
-            => GetPasswordRequirementError(nameof(PasswordRequiresLower));
+    public override IdentityError PasswordRequiresLower()
+        => GetPasswordRequirementError(nameof(PasswordRequiresLower));
 
-        public override IdentityError PasswordRequiresNonAlphanumeric()
-            => GetPasswordRequirementError(nameof(PasswordRequiresNonAlphanumeric));
+    public override IdentityError PasswordRequiresNonAlphanumeric()
+        => GetPasswordRequirementError(nameof(PasswordRequiresNonAlphanumeric));
 
-        public override IdentityError PasswordRequiresUniqueChars(int uniqueChars)
-            => GetPasswordRequirementError(nameof(PasswordRequiresUniqueChars), uniqueChars);
+    public override IdentityError PasswordRequiresUniqueChars(int uniqueChars)
+        => GetPasswordRequirementError(nameof(PasswordRequiresUniqueChars), uniqueChars);
 
-        public override IdentityError PasswordRequiresUpper()
-            => GetPasswordRequirementError(nameof(PasswordRequiresUpper));
+    public override IdentityError PasswordRequiresUpper()
+        => GetPasswordRequirementError(nameof(PasswordRequiresUpper));
 
-        public override IdentityError PasswordTooShort(int length)
-            => GetPasswordRequirementError(nameof(PasswordTooShort), length);
+    public override IdentityError PasswordTooShort(int length)
+        => GetPasswordRequirementError(nameof(PasswordTooShort), length);
 
-        public override IdentityError RecoveryCodeRedemptionFailed()
+    public override IdentityError RecoveryCodeRedemptionFailed()
+    {
+        return new IdentityError
         {
-            return new IdentityError
-            {
-                Code = nameof(RecoveryCodeRedemptionFailed),
-                Description = T("Identity.Error.RecoveryCodeRedemptionFailed")
-            };
-        }
+            Code = nameof(RecoveryCodeRedemptionFailed),
+            Description = T("Identity.Error.RecoveryCodeRedemptionFailed")
+        };
+    }
 
-        public override IdentityError UserAlreadyHasPassword()
+    public override IdentityError UserAlreadyHasPassword()
+    {
+        return new IdentityError
         {
-            return new IdentityError
-            {
-                Code = nameof(UserAlreadyHasPassword),
-                Description = T("Identity.Error.UserAlreadyHasPassword")
-            };
-        }
+            Code = nameof(UserAlreadyHasPassword),
+            Description = T("Identity.Error.UserAlreadyHasPassword")
+        };
+    }
 
-        public override IdentityError UserAlreadyInRole(string role)
+    public override IdentityError UserAlreadyInRole(string role)
+    {
+        return new IdentityError
         {
-            return new IdentityError
-            {
-                Code = nameof(UserAlreadyInRole),
-                Description = T("Identity.Error.UserAlreadyInRole", role)
-            };
-        }
+            Code = nameof(UserAlreadyInRole),
+            Description = T("Identity.Error.UserAlreadyInRole", role)
+        };
+    }
 
-        public override IdentityError UserLockoutNotEnabled()
+    public override IdentityError UserLockoutNotEnabled()
+    {
+        return new IdentityError
         {
-            return new IdentityError
-            {
-                Code = nameof(UserLockoutNotEnabled),
-                Description = T("Identity.Error.UserLockoutNotEnabled")
-            };
-        }
+            Code = nameof(UserLockoutNotEnabled),
+            Description = T("Identity.Error.UserLockoutNotEnabled")
+        };
+    }
 
-        public override IdentityError UserNotInRole(string role)
+    public override IdentityError UserNotInRole(string role)
+    {
+        return new IdentityError
         {
-            return new IdentityError
-            {
-                Code = nameof(UserNotInRole),
-                Description = T("Identity.Error.UserNotInRole", role)
-            };
-        }
+            Code = nameof(UserNotInRole),
+            Description = T("Identity.Error.UserNotInRole", role)
+        };
+    }
 
-        private IdentityError GetPasswordRequirementError(string key, params object[] args)
+    private IdentityError GetPasswordRequirementError(string key, params object[] args)
+    {
+        return new IdentityError
         {
-            return new IdentityError
-            {
-                Code = key,
-                Description = T($"Identity.Error.{key}", args)
-            };
-        }
+            Code = key,
+            Description = T($"Identity.Error.{key}", args)
+        };
     }
 }

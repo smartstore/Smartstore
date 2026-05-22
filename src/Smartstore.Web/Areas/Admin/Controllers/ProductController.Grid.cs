@@ -144,7 +144,7 @@ public partial class ProductController : AdminController
             await _db.SaveChangesAsync();
 
             Services.ActivityLogger.LogActivity(
-                KnownActivityLogTypes.DeleteProduct, 
+                KnownActivityLogTypes.DeleteProduct,
                 T("ActivityLog.DeleteProduct"),
                 string.Join(", ", entities.Select(x => x.Name)));
         }

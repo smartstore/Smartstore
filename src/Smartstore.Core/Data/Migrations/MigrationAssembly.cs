@@ -1,47 +1,46 @@
 ﻿using System.Reflection;
 using FluentMigrator;
 
-namespace Smartstore.Core.Data.Migrations
+namespace Smartstore.Core.Data.Migrations;
+
+/// <summary>
+/// Represents an assembly containing database migration classes.
+/// </summary>
+internal class MigrationAssembly
 {
-    /// <summary>
-    /// Represents an assembly containing database migration classes.
-    /// </summary>
-    internal class MigrationAssembly
+    private readonly Assembly _assembly;
+    private IReadOnlyCollection<MigrationDescriptor> _migrations;
+
+    public MigrationAssembly(Assembly assembly)
     {
-        private readonly Assembly _assembly;
-        private IReadOnlyCollection<MigrationDescriptor> _migrations;
+        _assembly = Guard.NotNull(assembly, nameof(assembly));
+    }
 
-        public MigrationAssembly(Assembly assembly)
+    /// <summary>
+    /// Gets all the migrations that are defined in the migrations assembly.
+    /// </summary>
+    public virtual IReadOnlyCollection<MigrationDescriptor> GetMigrations()
+    {
+        IReadOnlyCollection<MigrationDescriptor> Create()
         {
-            _assembly = Guard.NotNull(assembly, nameof(assembly));
-        }
+            var result = new List<MigrationDescriptor>();
+            var typeScanner = new DefaultTypeScanner(_assembly);
 
-        /// <summary>
-        /// Gets all the migrations that are defined in the migrations assembly.
-        /// </summary>
-        public virtual IReadOnlyCollection<MigrationDescriptor> GetMigrations()
-        {
-            IReadOnlyCollection<MigrationDescriptor> Create()
+            var items
+                = from t in typeScanner.FindTypes<IMigration>()
+                  let descriptor = new MigrationDescriptor(t)
+                  where descriptor.Version > 0
+                  orderby descriptor.Version
+                  select descriptor;
+
+            foreach (var descriptor in items)
             {
-                var result = new List<MigrationDescriptor>();
-                var typeScanner = new DefaultTypeScanner(_assembly);
-
-                var items
-                    = from t in typeScanner.FindTypes<IMigration>()
-                      let descriptor = new MigrationDescriptor(t)
-                      where descriptor.Version > 0
-                      orderby descriptor.Version
-                      select descriptor;
-
-                foreach (var descriptor in items)
-                {
-                    result.Add(descriptor);
-                }
-
-                return result;
+                result.Add(descriptor);
             }
 
-            return _migrations ??= Create();
+            return result;
         }
+
+        return _migrations ??= Create();
     }
 }

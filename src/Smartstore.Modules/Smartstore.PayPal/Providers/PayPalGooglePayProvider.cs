@@ -17,10 +17,10 @@ namespace Smartstore.PayPal.Providers;
 public class PayPalGooglePayProvider : PayPalProviderBase
 {
     public PayPalGooglePayProvider(
-        SmartDbContext db, 
-        PayPalHttpClient client, 
-        PayPalSettings settings, 
-        IPaymentService paymentService, 
+        SmartDbContext db,
+        PayPalHttpClient client,
+        PayPalSettings settings,
+        IPaymentService paymentService,
         ICheckoutStateAccessor checkoutStateAccessor)
         : base(db, client, settings, paymentService, checkoutStateAccessor)
     {

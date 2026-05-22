@@ -1,13 +1,12 @@
-﻿namespace Smartstore.Core.Rules
+﻿namespace Smartstore.Core.Rules;
+
+/// <summary>
+/// Represents an entity which supports rule sets.
+/// </summary>
+public partial interface IRulesContainer
 {
     /// <summary>
-    /// Represents an entity which supports rule sets.
+    /// Gets assigned rule sets.
     /// </summary>
-    public partial interface IRulesContainer
-    {
-        /// <summary>
-        /// Gets assigned rule sets.
-        /// </summary>
-        ICollection<RuleSetEntity> RuleSets { get; }
-    }
+    ICollection<RuleSetEntity> RuleSets { get; }
 }

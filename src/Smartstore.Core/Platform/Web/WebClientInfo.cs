@@ -46,7 +46,7 @@ public abstract class WebClientInfo
     /// </summary>
     /// <returns>A <see cref="GeoCountryInfo"/> object containing country details for the current IP address; or <see
     /// langword="null"/> if the IP address is not set or no country information is found.</returns>
-    public abstract GeoCountryInfo? Country { get; } 
+    public abstract GeoCountryInfo? Country { get; }
 }
 
 internal sealed class DefaultWebClientInfo : WebClientInfo
@@ -75,8 +75,8 @@ internal sealed class DefaultWebClientInfo : WebClientInfo
         _helper = null!;
     }
 
-    public override string? UserAgent 
-    { 
+    public override string? UserAgent
+    {
         get => field ??= _helper.HttpContext?.Request?.UserAgent();
     }
 
@@ -85,18 +85,18 @@ internal sealed class DefaultWebClientInfo : WebClientInfo
         get => field ??= _clientIdentAccessor.Value;
     }
 
-    public override IPAddress IpAddress 
-    { 
+    public override IPAddress IpAddress
+    {
         get => field ??= _ipAddressAccessor.Value;
     }
 
-    public override Uri? UrlReferrer 
+    public override Uri? UrlReferrer
     {
         get => field ??= _urlReferrerAccessor.Value;
     }
 
-    public override GeoCountryInfo? Country 
-    { 
+    public override GeoCountryInfo? Country
+    {
         get => field ??= _countryAccessor.Value;
     }
 

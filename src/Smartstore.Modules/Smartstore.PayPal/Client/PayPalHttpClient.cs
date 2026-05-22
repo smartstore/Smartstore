@@ -364,10 +364,10 @@ public class PayPalHttpClient
         result.AuthorizationTransactionId =
             j["purchase_units"]?[0]?["payments"]?["authorizations"]?[0]?["id"]?.GetValue<string>();
 
-        result.AuthorizationTransactionCode = 
+        result.AuthorizationTransactionCode =
             j["id"]?.GetValue<string>();
 
-        result.AuthorizationTransactionResult = 
+        result.AuthorizationTransactionResult =
             j["status"]?.GetValue<string>();
 
         result.NewPaymentStatus = PaymentStatus.Authorized;
@@ -561,12 +561,12 @@ public class PayPalHttpClient
         {
             var file = await _mediaService.GetFileByIdAsync((int)product.MainPictureId);
             imageUrl = _mediaService.GetUrl(file, 0, store.GetBaseUrl());
-        }   
-        
-        var productMessage = new ProductMessage 
+        }
+
+        var productMessage = new ProductMessage
         {
             // Ensure Id is not empty & has at least 6 characters
-            Id = (product.Sku.HasValue() ? product.Sku : product.Id.ToString()).PadLeft(6, '*'), 
+            Id = (product.Sku.HasValue() ? product.Sku : product.Id.ToString()).PadLeft(6, '*'),
             Name = product.GetLocalized(x => x.Name),
             Description = product.GetLocalized(x => x.ShortDescription).Value.Truncate(256, "..."),
             // TODO: Init according to product type
@@ -612,7 +612,7 @@ public class PayPalHttpClient
             var taxRate = await _taxService.GetTaxRateAsync(cartItem.Item.Product);
             var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(cartItem, calculationOptions);
             var (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
-            
+
             var convertedUnitPriceNet = _currencyService.ConvertToWorkingCurrency(unitPrice.Tax.Value.PriceNet);
             var convertedUnitPriceTax = _currencyService.ConvertToWorkingCurrency(unitPrice.Tax.Value.Amount);
 
@@ -709,7 +709,7 @@ public class PayPalHttpClient
 
         // INFO: We must execute the following code also for cart pages in case of customer backward navigation,
         // where shipping method might be set or discounts might be applied
-        
+
         var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
 
         // Discount
@@ -723,12 +723,12 @@ public class PayPalHttpClient
         if (cartSubTotalInklTax.DiscountAmount > decimal.Zero)
         {
             subTotalDiscountAmount = _currencyService.ConvertFromPrimaryCurrency(
-                isVatExempt ? cartSubTotalExclTax.DiscountAmount.Amount : cartSubTotalInklTax.DiscountAmount.Amount, 
+                isVatExempt ? cartSubTotalExclTax.DiscountAmount.Amount : cartSubTotalInklTax.DiscountAmount.Amount,
                 currency);
         }
 
         decimal discountAmount = _roundingHelper.Round(orderTotalDiscountAmount.Amount + subTotalDiscountAmount.Amount);
-        
+
         purchaseUnit.Amount.AmountBreakdown.Discount = new MoneyMessage
         {
             Value = discountAmount.ToStringInvariant("F"),
@@ -797,7 +797,7 @@ public class PayPalHttpClient
                 }
             };
         }
-        
+
         return [purchaseUnit];
     }
 
@@ -825,7 +825,7 @@ public class PayPalHttpClient
             orderMessage.Intent = Intent.Capture;
             orderMessage.ProcessingInstruction = "ORDER_COMPLETE_ON_PAYMENT_APPROVAL";
         }
-        
+
         return orderMessage;
     }
 

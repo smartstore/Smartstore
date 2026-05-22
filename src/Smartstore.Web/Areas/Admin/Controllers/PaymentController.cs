@@ -159,7 +159,7 @@ public class PaymentController : AdminController
         await _moduleManager.ApplySettingAsync(provider.Metadata, "FriendlyName", model.FriendlyName);
         await _moduleManager.ApplySettingAsync(provider.Metadata, "Description", model.Description);
 
-        var paymentMethod = await _db.PaymentMethods.FirstOrDefaultAsync(x => x.PaymentMethodSystemName == systemName) 
+        var paymentMethod = await _db.PaymentMethods.FirstOrDefaultAsync(x => x.PaymentMethodSystemName == systemName)
             ?? new PaymentMethod { PaymentMethodSystemName = systemName };
 
         paymentMethod.FullDescription = model.FullDescription;

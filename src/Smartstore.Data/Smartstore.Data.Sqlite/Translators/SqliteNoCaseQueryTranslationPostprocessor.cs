@@ -38,7 +38,7 @@ public class SqliteNoCaseQueryTranslationPostprocessor : SqliteQueryTranslationP
     private readonly RelationalTypeMapping _textTypeMapping;
 
     public SqliteNoCaseQueryTranslationPostprocessor(
-        QueryTranslationPostprocessorDependencies dependencies, 
+        QueryTranslationPostprocessorDependencies dependencies,
         RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
         RelationalQueryCompilationContext queryCompilationContext,
         IRelationalTypeMappingSource typeMappingSource)

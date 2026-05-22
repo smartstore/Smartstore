@@ -50,7 +50,7 @@ public class TrafficRateLimiters(ResiliencySettings settings) : Disposable, IHos
         catch
         {
             // Ignore exceptions thrown as a result of a cancellation.
-        }   
+        }
 
         return Task.CompletedTask;
     }

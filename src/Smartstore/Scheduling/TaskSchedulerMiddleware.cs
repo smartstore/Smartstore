@@ -20,7 +20,7 @@ public class TaskSchedulerMiddleware
     public async Task Invoke(
         HttpContext context,
         ITaskScheduler scheduler,
-        ITaskStore taskStore, 
+        ITaskStore taskStore,
         ITaskExecutor executor)
     {
         if (_stopping.IsCancellationRequested)
@@ -28,7 +28,7 @@ public class TaskSchedulerMiddleware
             context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
             return;
         }
-        
+
         var urlSegments = context.Request.Path.Value.Trim('/').SplitSafe('/').ToArray();
         var action = urlSegments.Length > 1 ? urlSegments[1] : string.Empty;
 

@@ -1,46 +1,45 @@
-﻿namespace Smartstore.Core.Rules.Operators
+﻿namespace Smartstore.Core.Rules.Operators;
+
+internal sealed class LessThanOperator : RuleOperator
 {
-    internal sealed class LessThanOperator : RuleOperator
-    {
-        internal LessThanOperator()
-            : base("<") { }
+    internal LessThanOperator()
+        : base("<") { }
 
-        protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
-        {
-            return Expression.LessThan(left, right);
-        }
+    protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
+    {
+        return Expression.LessThan(left, right);
     }
+}
 
-    internal sealed class LessThanOrEqualOperator : RuleOperator
+internal sealed class LessThanOrEqualOperator : RuleOperator
+{
+    internal LessThanOrEqualOperator()
+        : base("<=") { }
+
+    protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
     {
-        internal LessThanOrEqualOperator()
-            : base("<=") { }
-
-        protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
-        {
-            return Expression.LessThanOrEqual(left, right);
-        }
+        return Expression.LessThanOrEqual(left, right);
     }
+}
 
-    internal sealed class GreaterThanOperator : RuleOperator
+internal sealed class GreaterThanOperator : RuleOperator
+{
+    internal GreaterThanOperator()
+        : base(">") { }
+
+    protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
     {
-        internal GreaterThanOperator()
-            : base(">") { }
-
-        protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
-        {
-            return Expression.GreaterThan(left, right);
-        }
+        return Expression.GreaterThan(left, right);
     }
+}
 
-    internal sealed class GreaterThanOrEqualOperator : RuleOperator
+internal sealed class GreaterThanOrEqualOperator : RuleOperator
+{
+    internal GreaterThanOrEqualOperator()
+        : base(">=") { }
+
+    protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
     {
-        internal GreaterThanOrEqualOperator()
-            : base(">=") { }
-
-        protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
-        {
-            return Expression.GreaterThanOrEqual(left, right);
-        }
+        return Expression.GreaterThanOrEqual(left, right);
     }
 }

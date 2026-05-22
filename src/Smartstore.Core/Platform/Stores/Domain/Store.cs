@@ -47,7 +47,7 @@ public partial class Store : EntityWithAttributes, IDisplayOrder
     /// Gets or sets the store URL
     /// </summary>
     [Required, StringLength(400)]
-    public string Url 
+    public string Url
     {
         get => _url;
         set

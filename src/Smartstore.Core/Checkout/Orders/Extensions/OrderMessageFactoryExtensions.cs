@@ -74,9 +74,9 @@ public static class OrderMessageFactoryExtensions
     /// <summary>
     /// Sends a message to the store owner regarding a new return case.
     /// </summary>
-    public static Task<CreateMessageResult> SendNewReturnCaseStoreOwnerNotificationAsync(this IMessageFactory factory, 
-        ReturnCase returnCase, 
-        OrderItem orderItem, 
+    public static Task<CreateMessageResult> SendNewReturnCaseStoreOwnerNotificationAsync(this IMessageFactory factory,
+        ReturnCase returnCase,
+        OrderItem orderItem,
         int languageId = 0)
     {
         Guard.NotNull(returnCase);
@@ -94,9 +94,9 @@ public static class OrderMessageFactoryExtensions
     /// <summary>
     /// Sends a message to the customer regarding a return case status change.
     /// </summary>
-    public static Task<CreateMessageResult> SendReturnCaseStatusChangedCustomerNotificationAsync(this IMessageFactory factory, 
-        ReturnCase returnCase, 
-        OrderItem orderItem, 
+    public static Task<CreateMessageResult> SendReturnCaseStatusChangedCustomerNotificationAsync(this IMessageFactory factory,
+        ReturnCase returnCase,
+        OrderItem orderItem,
         int languageId = 0)
     {
         Guard.NotNull(returnCase);

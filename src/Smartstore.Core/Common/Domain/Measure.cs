@@ -66,19 +66,19 @@ public readonly struct Measure : IHtmlContent, IComparable<Measure>, IEquatable<
     /// <summary>
     /// Returns a new <see cref="Measure"/> with a changed value.
     /// </summary>
-    public Measure WithValue(decimal value) 
+    public Measure WithValue(decimal value)
         => new(value, Unit, Decimals);
 
     /// <summary>
     /// Returns a new <see cref="Measure"/> with a changed unit.
     /// </summary>
-    public Measure WithUnit(string unit) 
+    public Measure WithUnit(string unit)
         => new(Value, unit, Decimals);
 
     /// <summary>
     /// Returns a new <see cref="Measure"/> with a changed decimal display setting.
     /// </summary>
-    public Measure WithDecimals(int? decimals) 
+    public Measure WithDecimals(int? decimals)
         => new(Value, Unit, decimals);
 
     #endregion

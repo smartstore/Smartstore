@@ -12,8 +12,8 @@ global using Microsoft.Extensions.Logging.Abstractions;
 global using Smartstore.Domain;
 global using Smartstore.Engine;
 global using EfState = Microsoft.EntityFrameworkCore.EntityState;
-global using LogLevel = Smartstore.Core.Logging.LogLevel;
 global using EntityState = Smartstore.Data.EntityState;
+global using LogLevel = Smartstore.Core.Logging.LogLevel;
 using System.Text;
 using Autofac;
 using Smartstore.Bootstrapping;
@@ -30,100 +30,99 @@ using Smartstore.Engine.Builders;
 using Smartstore.Templating;
 using Smartstore.Templating.Liquid;
 
-namespace Smartstore.Core.Bootstrapping
+namespace Smartstore.Core.Bootstrapping;
+
+internal class CoreStarter : StarterBase
 {
-    internal class CoreStarter : StarterBase
+    public override int Order => (int)StarterOrdering.Early;
+
+    public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
     {
-        public override int Order => (int)StarterOrdering.Early;
+        var config = appContext.AppConfiguration;
 
-        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
+        // Type converters
+        RegisterTypeConverters();
+
+        // CodePages dependency required by ExcelDataReader to avoid NotSupportedException "No data is available for encoding 1252."
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+        services.AddDbMigrator(appContext);
+        services.AddDisplayControl();
+        services.AddWkHtmlToPdf();
+
+        if (appContext.IsInstalled && config.UsePooledDbContextFactory)
         {
-            var config = appContext.AppConfiguration;
-            
-            // Type converters
-            RegisterTypeConverters();
+            // Application DbContext as pooled factory
+            services.AddPooledDbContextFactory<SmartDbContext>(DbContextAction, config.DbContextPoolSize);
+        }
+        else
+        {
+            // No pooling allowed or desired.
+            services.AddDbContextFactory<SmartDbContext>(DbContextAction);
+        }
 
-            // CodePages dependency required by ExcelDataReader to avoid NotSupportedException "No data is available for encoding 1252."
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        services.AddScoped(sp => sp.GetRequiredService<IDbContextFactory<SmartDbContext>>().CreateDbContext());
 
-            services.AddDbMigrator(appContext);
-            services.AddDisplayControl();
-            services.AddWkHtmlToPdf();
-
-            if (appContext.IsInstalled && config.UsePooledDbContextFactory)
+        void DbContextAction(IServiceProvider c, DbContextOptionsBuilder builder)
+        {
+            if (appContext.IsInstalled)
             {
-                // Application DbContext as pooled factory
-                services.AddPooledDbContextFactory<SmartDbContext>(DbContextAction, config.DbContextPoolSize);
-            }
-            else
-            {
-                // No pooling allowed or desired.
-                services.AddDbContextFactory<SmartDbContext>(DbContextAction);
-            }
-
-            services.AddScoped(sp => sp.GetRequiredService<IDbContextFactory<SmartDbContext>>().CreateDbContext());
-
-            void DbContextAction(IServiceProvider c, DbContextOptionsBuilder builder)
-            {
-                if (appContext.IsInstalled)
+                if (config.UseDbCache)
                 {
-                    if (config.UseDbCache)
-                    {
-                        builder.UseSecondLevelCache();
-                    }
-
-                    if (config.UseSequentialDbDataReader && DataSettings.Instance.DbFactory.DbSystem == DbSystemType.SqlServer)
-                    {
-                        // Fixes large binary or text async read performance issue.
-                        // See: https://github.com/dotnet/SqlClient/issues/593
-                        builder.AddInterceptors(new SequentialDbCommandInterceptor());
-                    }
+                    builder.UseSecondLevelCache();
                 }
 
-                builder
-                    .UseDbFactory(factoryBuilder =>
-                    {
-                        factoryBuilder
-                            //.QuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
-                            .AddModelAssemblies(new[]
-                            { 
-                                // Add all core models from Smartstore.Core assembly
-                                typeof(SmartDbContext).Assembly,
-                                // Add provider specific entity configurations
-                                DataSettings.Instance.DbFactory.GetType().Assembly
-                            });
-
-                        if (appContext.IsInstalled)
-                        {
-                            factoryBuilder.AddDataSeeder<SmartDbContext, SmartDbContextDataSeeder>();
-                        }
-                    });
-
-                var configurers = c.GetServices<IDbContextConfigurationSource<SmartDbContext>>();
-                foreach (var configurer in configurers)
+                if (config.UseSequentialDbDataReader && DataSettings.Instance.DbFactory.DbSystem == DbSystemType.SqlServer)
                 {
-                    configurer.Configure(c, builder);
+                    // Fixes large binary or text async read performance issue.
+                    // See: https://github.com/dotnet/SqlClient/issues/593
+                    builder.AddInterceptors(new SequentialDbCommandInterceptor());
                 }
             }
-        }
 
-        internal static void RegisterTypeConverters()
-        {
-            TypeConverterFactory.Providers.Insert(0, new ProductBundleItemOrderDataConverterProvider());
-            TypeConverterFactory.Providers.Insert(0, new ShippingOptionConverterProvider());
-            TypeConverterFactory.Providers.Insert(0, new GiftCardCouponCodeConverterProvider());
-        }
+            builder
+                .UseDbFactory(factoryBuilder =>
+                {
+                    factoryBuilder
+                        //.QuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+                        .AddModelAssemblies(new[]
+                        { 
+                            // Add all core models from Smartstore.Core assembly
+                            typeof(SmartDbContext).Assembly,
+                            // Add provider specific entity configurations
+                            DataSettings.Instance.DbFactory.GetType().Assembly
+                        });
 
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
-        {
-            builder.RegisterType<LiquidTemplateEngine>().As<ITemplateEngine>().SingleInstance();
+                    if (appContext.IsInstalled)
+                    {
+                        factoryBuilder.AddDataSeeder<SmartDbContext, SmartDbContextDataSeeder>();
+                    }
+                });
 
-            builder.RegisterModule(new LoggingModule());
-            builder.RegisterModule(new PackagingModule());
-            builder.RegisterModule(new CommonServicesModule());
-            builder.RegisterModule(new DbHooksModule(appContext));
-            builder.RegisterModule(new DbQuerySettingsModule());
-            builder.RegisterModule(new StoresModule());
+            var configurers = c.GetServices<IDbContextConfigurationSource<SmartDbContext>>();
+            foreach (var configurer in configurers)
+            {
+                configurer.Configure(c, builder);
+            }
         }
+    }
+
+    internal static void RegisterTypeConverters()
+    {
+        TypeConverterFactory.Providers.Insert(0, new ProductBundleItemOrderDataConverterProvider());
+        TypeConverterFactory.Providers.Insert(0, new ShippingOptionConverterProvider());
+        TypeConverterFactory.Providers.Insert(0, new GiftCardCouponCodeConverterProvider());
+    }
+
+    public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
+    {
+        builder.RegisterType<LiquidTemplateEngine>().As<ITemplateEngine>().SingleInstance();
+
+        builder.RegisterModule(new LoggingModule());
+        builder.RegisterModule(new PackagingModule());
+        builder.RegisterModule(new CommonServicesModule());
+        builder.RegisterModule(new DbHooksModule(appContext));
+        builder.RegisterModule(new DbQuerySettingsModule());
+        builder.RegisterModule(new StoresModule());
     }
 }

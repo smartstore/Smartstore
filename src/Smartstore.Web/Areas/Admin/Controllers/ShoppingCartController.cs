@@ -202,8 +202,8 @@ public class ShoppingCartController : AdminController
 
         foreach (var localized in model.Locales)
         {
-            await _localizedEntityService.ApplyLocalizedSettingAsync(settings, 
-                x => x.ThirdPartyEmailHandOverLabel, 
+            await _localizedEntityService.ApplyLocalizedSettingAsync(settings,
+                x => x.ThirdPartyEmailHandOverLabel,
                 localized.ThirdPartyEmailHandOverLabel,
                 localized.LanguageId,
                 storeScope);

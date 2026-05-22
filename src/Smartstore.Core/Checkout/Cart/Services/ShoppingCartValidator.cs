@@ -130,7 +130,7 @@ public partial class ShoppingCartValidator : IShoppingCartValidator
     }
 
     public virtual async Task<bool> ValidateCartAsync(
-        ShoppingCart cart, 
+        ShoppingCart cart,
         IList<string> warnings,
         bool validateCheckoutAttributes = false,
         bool validateRequiredProducts = false)
@@ -312,10 +312,10 @@ public partial class ShoppingCartValidator : IShoppingCartValidator
     }
 
     public virtual async Task<bool> ValidateProductAsync(
-        ShoppingCartItem cartItem, 
+        ShoppingCartItem cartItem,
         IEnumerable<OrganizedShoppingCartItem> cartItems,
         IList<string> warnings,
-        int? storeId = null, 
+        int? storeId = null,
         int? quantity = null)
     {
         Guard.NotNull(cartItem);
@@ -712,9 +712,9 @@ public partial class ShoppingCartValidator : IShoppingCartValidator
         }
 
         var parentItems = cart.Items
-            .Where(x => x.Active 
+            .Where(x => x.Active
                 && x.Item.ParentItemId == null
-                && x.Item.Product.Id != requiredProduct.Id 
+                && x.Item.Product.Id != requiredProduct.Id
                 && x.Item.Product.RequireOtherProducts)
             .ToList();
 

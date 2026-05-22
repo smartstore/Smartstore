@@ -4,130 +4,129 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 
-namespace Smartstore.Core.Catalog.Products.Rules
+namespace Smartstore.Core.Catalog.Products.Rules;
+
+public partial class ProductRuleOptionsProvider : IRuleOptionsProvider
 {
-    public partial class ProductRuleOptionsProvider : IRuleOptionsProvider
+    private readonly SmartDbContext _db;
+    private readonly IWorkContext _workContext;
+    private readonly ICatalogSearchService _catalogSearchService;
+    private readonly ILocalizedEntityService _localizedEntityService;
+    private readonly SearchSettings _searchSettings;
+
+    public ProductRuleOptionsProvider(
+        SmartDbContext db,
+        IWorkContext workContext,
+        ICatalogSearchService catalogSearchService,
+        ILocalizedEntityService localizedEntityService,
+        SearchSettings searchSettings)
     {
-        private readonly SmartDbContext _db;
-        private readonly IWorkContext _workContext;
-        private readonly ICatalogSearchService _catalogSearchService;
-        private readonly ILocalizedEntityService _localizedEntityService;
-        private readonly SearchSettings _searchSettings;
+        _db = db;
+        _workContext = workContext;
+        _catalogSearchService = catalogSearchService;
+        _localizedEntityService = localizedEntityService;
+        _searchSettings = searchSettings;
+    }
 
-        public ProductRuleOptionsProvider(
-            SmartDbContext db,
-            IWorkContext workContext,
-            ICatalogSearchService catalogSearchService,
-            ILocalizedEntityService localizedEntityService,
-            SearchSettings searchSettings)
+    public int Order => 0;
+
+    public bool Matches(string dataSource)
+        => dataSource == KnownRuleOptionDataSourceNames.Product;
+
+    public async Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
+    {
+        if (context.DataSource != KnownRuleOptionDataSourceNames.Product)
         {
-            _db = db;
-            _workContext = workContext;
-            _catalogSearchService = catalogSearchService;
-            _localizedEntityService = localizedEntityService;
-            _searchSettings = searchSettings;
+            return null;
         }
 
-        public int Order => 0;
-
-        public bool Matches(string dataSource)
-            => dataSource == KnownRuleOptionDataSourceNames.Product;
-
-        public async Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
+        if (context.Reason == RuleOptionsRequestReason.SelectedDisplayNames)
         {
-            if (context.DataSource != KnownRuleOptionDataSourceNames.Product)
-            {
-                return null;
-            }
+            var products = await _db.Products
+                .SelectSummary()
+                .GetManyAsync(context.Value.ToIntArray());
 
-            if (context.Reason == RuleOptionsRequestReason.SelectedDisplayNames)
+            var options = products.Select(x => new RuleValueSelectListOption
             {
-                var products = await _db.Products
-                    .SelectSummary()
-                    .GetManyAsync(context.Value.ToIntArray());
+                Value = x.Id.ToString(),
+                Text = x.GetLocalized(y => y.Name, context.Language, true, false),
+                Hint = x.Sku
+            });
 
-                var options = products.Select(x => new RuleValueSelectListOption
-                {
-                    Value = x.Id.ToString(),
-                    Text = x.GetLocalized(y => y.Name, context.Language, true, false),
-                    Hint = x.Sku
-                });
+            return RuleOptionsResult.Create(context, options);
+        }
+        else
+        {
+            return await SearchProducts(context);
+        }
+    }
 
-                return RuleOptionsResult.Create(context, options);
-            }
-            else
-            {
-                return await SearchProducts(context);
-            }
+    private async Task<RuleOptionsResult> SearchProducts(RuleOptionsContext context)
+    {
+        IEnumerable<Product> products = null;
+        var localeKeyGroup = nameof(Product);
+        var localeKey = nameof(Product.Name);
+        var language = _workContext.WorkingLanguage;
+        var fields = new List<string> { "name" };
+        var hasMoreData = false;
+        var skip = context.PageIndex * context.PageSize;
+        var take = context.PageSize;
+
+        if (_searchSettings.SearchFields.Contains("sku"))
+        {
+            fields.Add("sku");
+        }
+        if (_searchSettings.SearchFields.Contains("shortdescription"))
+        {
+            fields.Add("shortdescription");
         }
 
-        private async Task<RuleOptionsResult> SearchProducts(RuleOptionsContext context)
+        var searchQuery = new CatalogSearchQuery(fields.ToArray(), context.SearchTerm);
+
+        if (_searchSettings.UseCatalogSearchInBackend)
         {
-            IEnumerable<Product> products = null;
-            var localeKeyGroup = nameof(Product);
-            var localeKey = nameof(Product.Name);
-            var language = _workContext.WorkingLanguage;
-            var fields = new List<string> { "name" };
-            var hasMoreData = false;
-            var skip = context.PageIndex * context.PageSize;
-            var take = context.PageSize;
+            searchQuery = searchQuery
+                .Slice(skip, take)
+                .SortBy(ProductSortingEnum.NameAsc)
+                .WithLanguage(language);
 
-            if (_searchSettings.SearchFields.Contains("sku"))
-            {
-                fields.Add("sku");
-            }
-            if (_searchSettings.SearchFields.Contains("shortdescription"))
-            {
-                fields.Add("shortdescription");
-            }
+            var searchResult = await _catalogSearchService.SearchAsync(searchQuery);
+            var hits = await searchResult.GetHitsAsync();
 
-            var searchQuery = new CatalogSearchQuery(fields.ToArray(), context.SearchTerm);
+            hasMoreData = hits.HasNextPage;
+            products = hits;
+        }
+        else
+        {
+            var query = _catalogSearchService.PrepareQuery(searchQuery);
 
-            if (_searchSettings.UseCatalogSearchInBackend)
-            {
-                searchQuery = searchQuery
-                    .Slice(skip, take)
-                    .SortBy(ProductSortingEnum.NameAsc)
-                    .WithLanguage(language);
+            var pageIndex = take == 0 ? 0 : Math.Max(skip / take, 0);
+            hasMoreData = (pageIndex + 1) * take < query.Count();
 
-                var searchResult = await _catalogSearchService.SearchAsync(searchQuery);
-                var hits = await searchResult.GetHitsAsync();
-
-                hasMoreData = hits.HasNextPage;
-                products = hits;
-            }
-            else
-            {
-                var query = _catalogSearchService.PrepareQuery(searchQuery);
-
-                var pageIndex = take == 0 ? 0 : Math.Max(skip / take, 0);
-                hasMoreData = (pageIndex + 1) * take < query.Count();
-
-                products = await query
-                    .Select(x => new Product
-                    {
-                        Id = x.Id,
-                        Name = x.Name,
-                        Sku = x.Sku
-                    })
-                    .OrderBy(x => x.Name)
-                    .Skip(skip)
-                    .Take(take)
-                    .ToListAsync();
-            }
-
-            await _localizedEntityService.PrefetchLocalizedPropertiesAsync(localeKeyGroup, language.Id, products.Select(x => x.Id).ToArray());
-
-            var options = products
-                .Select(x => new RuleValueSelectListOption
+            products = await query
+                .Select(x => new Product
                 {
-                    Value = x.Id.ToString(),
-                    Text = _localizedEntityService.GetLocalizedValue(language.Id, x.Id, localeKeyGroup, localeKey).NullEmpty() ?? x.Name,
-                    Hint = x.Sku
+                    Id = x.Id,
+                    Name = x.Name,
+                    Sku = x.Sku
                 })
-                .ToList();
-
-            return RuleOptionsResult.Create(context, options, true, hasMoreData);
+                .OrderBy(x => x.Name)
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync();
         }
+
+        await _localizedEntityService.PrefetchLocalizedPropertiesAsync(localeKeyGroup, language.Id, products.Select(x => x.Id).ToArray());
+
+        var options = products
+            .Select(x => new RuleValueSelectListOption
+            {
+                Value = x.Id.ToString(),
+                Text = _localizedEntityService.GetLocalizedValue(language.Id, x.Id, localeKeyGroup, localeKey).NullEmpty() ?? x.Name,
+                Hint = x.Sku
+            })
+            .ToList();
+
+        return RuleOptionsResult.Create(context, options, true, hasMoreData);
     }
 }

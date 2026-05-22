@@ -16,216 +16,215 @@ using Smartstore.IO;
 using Smartstore.Json;
 using Smartstore.Pdf;
 
-namespace Smartstore.Engine
+namespace Smartstore.Engine;
+
+public abstract class EngineStarter<TEngine> : Disposable, IEngineStarter
+    where TEngine : IEngine
 {
-    public abstract class EngineStarter<TEngine> : Disposable, IEngineStarter
-        where TEngine : IEngine
+    private TEngine _engine;
+    private IApplicationContext _appContext;
+    private ModuleLoader _moduleLoader;
+    private IStarter[] _starters;
+
+    protected EngineStarter(TEngine engine)
     {
-        private TEngine _engine;
-        private IApplicationContext _appContext;
-        private ModuleLoader _moduleLoader;
-        private IStarter[] _starters;
+        _engine = engine;
+        _appContext = engine.Application;
+        _moduleLoader = new ModuleLoader(_appContext);
 
-        protected EngineStarter(TEngine engine)
+        AppConfiguration = _appContext.AppConfiguration;
+
+        LoadModules();
+
+        _starters = SortStarters(DiscoverStarters()).ToArray();
+    }
+
+    protected TEngine Engine => _engine;
+    protected IStarter[] Starters => _starters;
+
+    public SmartConfiguration AppConfiguration { get; protected set; }
+
+    protected abstract IEnumerable<Assembly> ResolveCoreAssemblies();
+
+    /// <summary>
+    /// Discovers all deployed modules without loading their assemblies.
+    /// </summary>
+    /// <returns>All valid modules.</returns>
+    protected virtual IEnumerable<IModuleDescriptor> DiscoverModules()
+    {
+        return Enumerable.Empty<IModuleDescriptor>();
+    }
+
+    protected virtual IEnumerable<IStarter> DiscoverStarters()
+    {
+        return _appContext.TypeScanner.FindTypes<IStarter>()
+            .Select(t => (IStarter)Activator.CreateInstance(t))
+            .Where(x => x.Matches(_appContext));
+    }
+
+    private void LoadModules()
+    {
+        // Create temporary type scanner
+        var coreAssemblies = ResolveCoreAssemblies().ToArray();
+        _appContext.TypeScanner = new DefaultTypeScanner(coreAssemblies);
+
+        var modules = DiscoverModules().ToArray();
+        var appIsInstalled = _appContext.IsInstalled;
+        var installedModules = ModularState.Instance.InstalledModules;
+        var pendingModules = ModularState.Instance.PendingModules;
+        var loadedModules = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var module in modules)
         {
-            _engine = engine;
-            _appContext = engine.Application;
-            _moduleLoader = new ModuleLoader(_appContext);
-
-            AppConfiguration = _appContext.AppConfiguration;
-
-            LoadModules();
-
-            _starters = SortStarters(DiscoverStarters()).ToArray();
-        }
-
-        protected TEngine Engine => _engine;
-        protected IStarter[] Starters => _starters;
-
-        public SmartConfiguration AppConfiguration { get; protected set; }
-
-        protected abstract IEnumerable<Assembly> ResolveCoreAssemblies();
-
-        /// <summary>
-        /// Discovers all deployed modules without loading their assemblies.
-        /// </summary>
-        /// <returns>All valid modules.</returns>
-        protected virtual IEnumerable<IModuleDescriptor> DiscoverModules()
-        {
-            return Enumerable.Empty<IModuleDescriptor>();
-        }
-
-        protected virtual IEnumerable<IStarter> DiscoverStarters()
-        {
-            return _appContext.TypeScanner.FindTypes<IStarter>()
-                .Select(t => (IStarter)Activator.CreateInstance(t))
-                .Where(x => x.Matches(_appContext));
-        }
-
-        private void LoadModules()
-        {
-            // Create temporary type scanner
-            var coreAssemblies = ResolveCoreAssemblies().ToArray();
-            _appContext.TypeScanner = new DefaultTypeScanner(coreAssemblies);
-
-            var modules = DiscoverModules().ToArray();
-            var appIsInstalled = _appContext.IsInstalled;
-            var installedModules = ModularState.Instance.InstalledModules;
-            var pendingModules = ModularState.Instance.PendingModules;
-            var loadedModules = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var module in modules)
+            if (CanLoadModule(module))
             {
-                if (CanLoadModule(module))
-                {
-                    LoadModule(module);
+                LoadModule(module);
 
-                    if (module.Module?.Assembly != null)
-                    {
-                        loadedModules.Add(module.Name);
-                    }
+                if (module.Module?.Assembly != null)
+                {
+                    loadedModules.Add(module.Name);
                 }
             }
-
-            // Provide module catalog
-            _appContext.ModuleCatalog = new ModuleCatalog(modules);
-
-            // Provide type scanner which also can reflect over module assemblies
-            _appContext.TypeScanner = new DefaultTypeScanner(coreAssemblies, _appContext.ModuleCatalog, _appContext.Logger);
-
-            bool CanLoadModule(IModuleDescriptor module)
-            {
-                var canLoad = 
-                    !appIsInstalled || 
-                    installedModules.Contains(module.Name) || 
-                    pendingModules.Contains(module.Name);
-
-                return canLoad && CheckDependencyGraphLoaded(module);
-            }
-
-            bool CheckDependencyGraphLoaded(IModuleDescriptor module)
-            {
-                if (module.DependsOn == null || module.DependsOn.Length == 0)
-                {
-                    return true;
-                }
-                
-                return module.DependsOn.All(loadedModules.Contains);
-            }
         }
 
-        /// <summary>
-        /// Loads a module's assembly.
-        /// </summary>
-        protected virtual void LoadModule(IModuleDescriptor descriptor)
+        // Provide module catalog
+        _appContext.ModuleCatalog = new ModuleCatalog(modules);
+
+        // Provide type scanner which also can reflect over module assemblies
+        _appContext.TypeScanner = new DefaultTypeScanner(coreAssemblies, _appContext.ModuleCatalog, _appContext.Logger);
+
+        bool CanLoadModule(IModuleDescriptor module)
         {
-            try
-            {
-                _moduleLoader.LoadModule(descriptor as ModuleDescriptor);
-            }
-            catch (Exception ex)
-            {
-                _appContext.Logger.Error(ex, "Failed to load module '{0}'.", descriptor.Name);
-            }
+            var canLoad =
+                !appIsInstalled ||
+                installedModules.Contains(module.Name) ||
+                pendingModules.Contains(module.Name);
+
+            return canLoad && CheckDependencyGraphLoaded(module);
         }
 
-        public virtual void ConfigureServices(IServiceCollection services)
+        bool CheckDependencyGraphLoaded(IModuleDescriptor module)
         {
-            //ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-
-            var app = _engine.Application;
-
-            services.AddOptions();
-            services.AddSingleton(app.AppConfiguration);
-            services.AddSingleton(app.ModuleCatalog);
-            services.AddSingleton(app.TypeScanner);
-            services.AddSingleton(app.OSIdentity);
-            services.AddSingleton<IEngine>(_engine);
-            services.AddSingleton(app);
-
-            if (DataSettings.Instance.DbFactory != null)
+            if (module.DependsOn == null || module.DependsOn.Length == 0)
             {
-                services.AddSingleton(DataSettings.Instance.DbFactory);
+                return true;
             }
 
-            // Bind the config to host options
-            services.Configure<HostOptions>(app.Configuration.GetSection("HostOptions"));
+            return module.DependsOn.All(loadedModules.Contains);
+        }
+    }
 
-            // Add Async/Threading stuff
-            services.AddAsyncRunner();
-            services.AddLockFileManager();
-            services.AddDistributedSemaphoreLockProvider();
+    /// <summary>
+    /// Loads a module's assembly.
+    /// </summary>
+    protected virtual void LoadModule(IModuleDescriptor descriptor)
+    {
+        try
+        {
+            _moduleLoader.LoadModule(descriptor as ModuleDescriptor);
+        }
+        catch (Exception ex)
+        {
+            _appContext.Logger.Error(ex, "Failed to load module '{0}'.", descriptor.Name);
+        }
+    }
 
-            services.AddSingleton<INativeLibraryManager, NativeLibraryManager>();
-            services.AddSingleton<IChronometer>(x => NullChronometer.Instance);
+    public virtual void ConfigureServices(IServiceCollection services)
+    {
+        //ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
-            services.AddSingleton<IJsonSerializer, DefaultJsonSerializer>();
+        var app = _engine.Application;
 
-            services.AddSingleton<IFilePermissionChecker, FilePermissionChecker>();
-            services.AddSingleton<ILifetimeScopeAccessor, DefaultLifetimeScopeAccessor>();
-            services.AddSingleton<IPdfConverter, NullPdfConverter>();
-            services.AddScoped<IDisplayHelper, DefaultDisplayHelper>();
-            services.AddHttpContextAccessor();
+        services.AddOptions();
+        services.AddSingleton(app.AppConfiguration);
+        services.AddSingleton(app.ModuleCatalog);
+        services.AddSingleton(app.TypeScanner);
+        services.AddSingleton(app.OSIdentity);
+        services.AddSingleton<IEngine>(_engine);
+        services.AddSingleton(app);
 
-            services.AddMemoryCache(o =>
+        if (DataSettings.Instance.DbFactory != null)
+        {
+            services.AddSingleton(DataSettings.Instance.DbFactory);
+        }
+
+        // Bind the config to host options
+        services.Configure<HostOptions>(app.Configuration.GetSection("HostOptions"));
+
+        // Add Async/Threading stuff
+        services.AddAsyncRunner();
+        services.AddLockFileManager();
+        services.AddDistributedSemaphoreLockProvider();
+
+        services.AddSingleton<INativeLibraryManager, NativeLibraryManager>();
+        services.AddSingleton<IChronometer>(x => NullChronometer.Instance);
+
+        services.AddSingleton<IJsonSerializer, DefaultJsonSerializer>();
+
+        services.AddSingleton<IFilePermissionChecker, FilePermissionChecker>();
+        services.AddSingleton<ILifetimeScopeAccessor, DefaultLifetimeScopeAccessor>();
+        services.AddSingleton<IPdfConverter, NullPdfConverter>();
+        services.AddScoped<IDisplayHelper, DefaultDisplayHelper>();
+        services.AddHttpContextAccessor();
+
+        services.AddMemoryCache(o =>
+        {
+            o.SizeLimit = app.AppConfiguration.MemoryCacheSizeLimit;
+
+            if (app.AppConfiguration.MemoryCacheExpirationScanFrequency.HasValue)
             {
-                o.SizeLimit = app.AppConfiguration.MemoryCacheSizeLimit;
-
-                if (app.AppConfiguration.MemoryCacheExpirationScanFrequency.HasValue)
-                {
-                    o.ExpirationScanFrequency = app.AppConfiguration.MemoryCacheExpirationScanFrequency.Value;
-                }
-            });
-
-            services.AddMailKitMailService();
-            services.AddTemplateEngine();
-
-            // Configure all modular services
-            foreach (var starter in _starters)
-            {
-                // Call modular service configurers
-                starter.ConfigureServices(services, _appContext);
+                o.ExpirationScanFrequency = app.AppConfiguration.MemoryCacheExpirationScanFrequency.Value;
             }
-        }
+        });
 
-        public virtual void ConfigureContainer(ContainerBuilder builder)
+        services.AddMailKitMailService();
+        services.AddTemplateEngine();
+
+        // Configure all modular services
+        foreach (var starter in _starters)
         {
-            builder.RegisterGeneric(typeof(Work<>)).SingleInstance();
-
-            builder.RegisterModule(new CachingModule());
-            builder.RegisterModule(new EventsModule(_appContext));
-
-            // Configure all modular services by Autofac
-            foreach (var starter in _starters.OfType<IContainerConfigurer>())
-            {
-                starter.ConfigureContainer(builder, _appContext);
-            }
+            // Call modular service configurers
+            starter.ConfigureServices(services, _appContext);
         }
+    }
 
-        public virtual void ConfigureApplication(IApplicationBuilder app)
+    public virtual void ConfigureContainer(ContainerBuilder builder)
+    {
+        builder.RegisterGeneric(typeof(Work<>)).SingleInstance();
+
+        builder.RegisterModule(new CachingModule());
+        builder.RegisterModule(new EventsModule(_appContext));
+
+        // Configure all modular services by Autofac
+        foreach (var starter in _starters.OfType<IContainerConfigurer>())
         {
-            // Do nothing here
+            starter.ConfigureContainer(builder, _appContext);
         }
+    }
 
-        private static IEnumerable<IStarter> SortStarters(IEnumerable<IStarter> starters)
+    public virtual void ConfigureApplication(IApplicationBuilder app)
+    {
+        // Do nothing here
+    }
+
+    private static IEnumerable<IStarter> SortStarters(IEnumerable<IStarter> starters)
+    {
+        return starters
+            .GroupBy(x => x.Order)
+            .OrderBy(x => x.Key)
+            .SelectMany(x => x.ToArray().SortTopological(StringComparer.OrdinalIgnoreCase))
+            .Cast<IStarter>();
+    }
+
+    protected override void OnDispose(bool disposing)
+    {
+        if (disposing)
         {
-            return starters
-                .GroupBy(x => x.Order)
-                .OrderBy(x => x.Key)
-                .SelectMany(x => x.ToArray().SortTopological(StringComparer.OrdinalIgnoreCase))
-                .Cast<IStarter>();
-        }
+            _engine.IsStarted = true;
 
-        protected override void OnDispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _engine.IsStarted = true;
-
-                _engine = default;
-                _appContext = null;
-                _starters = null;
-            }
+            _engine = default;
+            _appContext = null;
+            _starters = null;
         }
     }
 }

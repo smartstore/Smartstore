@@ -1,45 +1,44 @@
 ﻿using Microsoft.AspNetCore.Razor.Hosting;
 
-namespace Smartstore.Engine.Modularity.ApplicationParts
+namespace Smartstore.Engine.Modularity.ApplicationParts;
+
+/// <summary>
+/// A custom implementation of <see cref="RazorCompiledItemLoader"/> that
+/// fixes checksum validation issues. See https://github.com/dotnet/razor/issues/7498
+/// </summary>
+internal class HostRazorCompiledItemLoader : RazorCompiledItemLoader
 {
-    /// <summary>
-    /// A custom implementation of <see cref="RazorCompiledItemLoader"/> that
-    /// fixes checksum validation issues. See https://github.com/dotnet/razor/issues/7498
-    /// </summary>
-    internal class HostRazorCompiledItemLoader : RazorCompiledItemLoader
+    protected override RazorCompiledItem CreateItem(RazorCompiledItemAttribute attribute)
     {
-        protected override RazorCompiledItem CreateItem(RazorCompiledItemAttribute attribute)
+        return new CompiledItem(base.CreateItem(attribute));
+    }
+
+    class CompiledItem : RazorCompiledItem
+    {
+        public CompiledItem(RazorCompiledItem other)
         {
-            return new CompiledItem(base.CreateItem(attribute));
+            Identifier = other.Identifier;
+            Kind = other.Kind;
+            Metadata = other.Metadata.Select(NormalizeMetadata).ToArray();
+            Type = other.Type;
         }
 
-        class CompiledItem : RazorCompiledItem
+        private object NormalizeMetadata(object metadata)
         {
-            public CompiledItem(RazorCompiledItem other)
+            if (metadata is IRazorSourceChecksumMetadata checksum)
             {
-                Identifier = other.Identifier;
-                Kind = other.Kind;
-                Metadata = other.Metadata.Select(NormalizeMetadata).ToArray();
-                Type = other.Type;
+                return new RazorSourceChecksumAttribute(
+                    checksum.ChecksumAlgorithm.ToUpper(), // ToUpper: fix the algorithm casing mismatch
+                    checksum.Checksum,
+                    checksum.Identifier);
             }
 
-            private object NormalizeMetadata(object metadata)
-            {
-                if (metadata is IRazorSourceChecksumMetadata checksum)
-                {
-                    return new RazorSourceChecksumAttribute(
-                        checksum.ChecksumAlgorithm.ToUpper(), // ToUpper: fix the algorithm casing mismatch
-                        checksum.Checksum,
-                        checksum.Identifier);
-                }
-
-                return metadata;
-            }
-
-            public override string Identifier { get; }
-            public override string Kind { get; }
-            public override IReadOnlyList<object> Metadata { get; }
-            public override Type Type { get; }
+            return metadata;
         }
+
+        public override string Identifier { get; }
+        public override string Kind { get; }
+        public override IReadOnlyList<object> Metadata { get; }
+        public override Type Type { get; }
     }
 }

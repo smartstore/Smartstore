@@ -5,61 +5,60 @@ using Smartstore.Engine;
 using Smartstore.Pdf;
 using Smartstore.Pdf.WkHtml;
 
-namespace Smartstore.Bootstrapping
+namespace Smartstore.Bootstrapping;
+
+public static class WkHtmlBootstrappingExtensions
 {
-    public static class WkHtmlBootstrappingExtensions
+    public static IServiceCollection AddWkHtmlToPdf(this IServiceCollection services)
     {
-        public static IServiceCollection AddWkHtmlToPdf(this IServiceCollection services)
+        Guard.NotNull(services);
+
+        // Don't overwrite any options setups that a user may have added.
+        services.TryAddEnumerable(
+            ServiceDescriptor.Transient<IConfigureOptions<WkHtmlToPdfOptions>, WkHtmlToPdfOptionsSetup>());
+
+        services.AddTransient<IPdfConverter, WkHtmlToPdfConverter>();
+        services.AddSingleton<IWkHtmlCommandBuilder, WkHtmlCommandBuilder>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddWkHtmlToPdf(this IServiceCollection services, Action<WkHtmlToPdfOptions> setupAction)
+    {
+        Guard.NotNull(services);
+        Guard.NotNull(setupAction);
+
+        services.AddWkHtmlToPdf();
+        services.Configure(setupAction);
+
+        return services;
+    }
+
+    class WkHtmlToPdfOptionsSetup : IConfigureOptions<WkHtmlToPdfOptions>
+    {
+        private readonly IApplicationContext _appContext;
+
+        public WkHtmlToPdfOptionsSetup(IApplicationContext appContext)
         {
-            Guard.NotNull(services);
-
-            // Don't overwrite any options setups that a user may have added.
-            services.TryAddEnumerable(
-                ServiceDescriptor.Transient<IConfigureOptions<WkHtmlToPdfOptions>, WkHtmlToPdfOptionsSetup>());
-
-            services.AddTransient<IPdfConverter, WkHtmlToPdfConverter>();
-            services.AddSingleton<IWkHtmlCommandBuilder, WkHtmlCommandBuilder>();
-
-            return services;
+            _appContext = appContext;
         }
 
-        public static IServiceCollection AddWkHtmlToPdf(this IServiceCollection services, Action<WkHtmlToPdfOptions> setupAction)
+        public void Configure(WkHtmlToPdfOptions options)
         {
-            Guard.NotNull(services);
-            Guard.NotNull(setupAction);
+            Guard.NotNull(options);
 
-            services.AddWkHtmlToPdf();
-            services.Configure(setupAction);
+            options.TempFilesPath = _appContext.GetTenantTempDirectory("PdfGen").PhysicalPath.EnsureEndsWith(Path.DirectorySeparatorChar);
 
-            return services;
-        }
-
-        class WkHtmlToPdfOptionsSetup : IConfigureOptions<WkHtmlToPdfOptions>
-        {
-            private readonly IApplicationContext _appContext;
-
-            public WkHtmlToPdfOptionsSetup(IApplicationContext appContext)
+            var baseUrl = _appContext.AppConfiguration.PdfEngineBaseUrl.TrimSafe().NullEmpty();
+            if (baseUrl != null)
             {
-                _appContext = appContext;
-            }
-
-            public void Configure(WkHtmlToPdfOptions options)
-            {
-                Guard.NotNull(options);
-
-                options.TempFilesPath = _appContext.GetTenantTempDirectory("PdfGen").PhysicalPath.EnsureEndsWith(Path.DirectorySeparatorChar);
-
-                var baseUrl = _appContext.AppConfiguration.PdfEngineBaseUrl.TrimSafe().NullEmpty();
-                if (baseUrl != null)
+                try
                 {
-                    try
-                    {
-                        options.BaseUrl = new Uri(baseUrl, UriKind.Absolute);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new FormatException($"Malformed Uri string in '{nameof(SmartConfiguration.PdfEngineBaseUrl)}'.", ex);
-                    }
+                    options.BaseUrl = new Uri(baseUrl, UriKind.Absolute);
+                }
+                catch (Exception ex)
+                {
+                    throw new FormatException($"Malformed Uri string in '{nameof(SmartConfiguration.PdfEngineBaseUrl)}'.", ex);
                 }
             }
         }

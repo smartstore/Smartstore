@@ -100,7 +100,7 @@ public static partial class ShoppingCartItemQueryExtensions
     /// <param name="cartType"><see cref="ShoppingCartType"/> of shopping cart items.</param>
     /// <param name="active">A value indicating whether to only load active/inactive items. <c>null</c> to load all items.</param>
     /// <returns>Sub total of all open wish lists.</returns>
-    public static Task<decimal> GetOpenCartTypeSubTotalAsync(this IQueryable<ShoppingCartItem> query, 
+    public static Task<decimal> GetOpenCartTypeSubTotalAsync(this IQueryable<ShoppingCartItem> query,
         ShoppingCartType cartType = ShoppingCartType.ShoppingCart,
         bool? active = null)
     {

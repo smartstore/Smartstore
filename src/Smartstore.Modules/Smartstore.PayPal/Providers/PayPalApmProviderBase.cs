@@ -67,7 +67,7 @@ public abstract class PayPalApmProviderBase : PayPalProviderBase
     }
 
     public override async Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
-    {   
+    {
         var state = _checkoutStateAccessor.CheckoutState.GetCustomState<PayPalCheckoutState>();
 
         // Add Fullname & CountryCode to checkout state.

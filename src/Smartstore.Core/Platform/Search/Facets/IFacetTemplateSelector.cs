@@ -1,9 +1,8 @@
 ﻿using Smartstore.Core.Widgets;
 
-namespace Smartstore.Core.Search.Facets
+namespace Smartstore.Core.Search.Facets;
+
+public interface IFacetTemplateSelector : IOrdered
 {
-    public interface IFacetTemplateSelector : IOrdered
-    {
-        Widget GetTemplateWidget(FacetGroup facetGroup);
-    }
+    Widget GetTemplateWidget(FacetGroup facetGroup);
 }

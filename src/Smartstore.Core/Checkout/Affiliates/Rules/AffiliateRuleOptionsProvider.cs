@@ -2,48 +2,47 @@
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 
-namespace Smartstore.Core.Checkout.Affiliates.Rules
+namespace Smartstore.Core.Checkout.Affiliates.Rules;
+
+public partial class AffiliateRuleOptionsProvider : IRuleOptionsProvider
 {
-    public partial class AffiliateRuleOptionsProvider : IRuleOptionsProvider
+    private readonly SmartDbContext _db;
+
+    public AffiliateRuleOptionsProvider(SmartDbContext db)
     {
-        private readonly SmartDbContext _db;
+        _db = db;
+    }
 
-        public AffiliateRuleOptionsProvider(SmartDbContext db)
+    public int Order => 0;
+
+    public bool Matches(string dataSource)
+        => dataSource == KnownRuleOptionDataSourceNames.Affiliate;
+
+    public async Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
+    {
+        if (context.DataSource != KnownRuleOptionDataSourceNames.Affiliate)
         {
-            _db = db;
+            return null;
         }
 
-        public int Order => 0;
+        var result = new RuleOptionsResult();
 
-        public bool Matches(string dataSource)
-            => dataSource == KnownRuleOptionDataSourceNames.Affiliate;
+        var pager = _db.Affiliates
+            .AsNoTracking()
+            .Include(x => x.Address)
+            .Where(x => x.Active)
+            .ToFastPager();
 
-        public async Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
+        while ((await pager.ReadNextPageAsync<Affiliate>()).Out(out var affiliates))
         {
-            if (context.DataSource != KnownRuleOptionDataSourceNames.Affiliate)
+            result.AddOptions(context, affiliates.Select(x => new RuleValueSelectListOption
             {
-                return null;
-            }
-
-            var result = new RuleOptionsResult();
-
-            var pager = _db.Affiliates
-                .AsNoTracking()
-                .Include(x => x.Address)
-                .Where(x => x.Active)
-                .ToFastPager();
-
-            while ((await pager.ReadNextPageAsync<Affiliate>()).Out(out var affiliates))
-            {
-                result.AddOptions(context, affiliates.Select(x => new RuleValueSelectListOption
-                {
-                    Value = x.Id.ToString(),
-                    Text = x.Address?.GetFullName()?.NullEmpty() ?? StringExtensions.NotAvailable,
-                    Hint = x.Address?.Email
-                }));
-            }
-
-            return result;
+                Value = x.Id.ToString(),
+                Text = x.Address?.GetFullName()?.NullEmpty() ?? StringExtensions.NotAvailable,
+                Hint = x.Address?.Email
+            }));
         }
+
+        return result;
     }
 }

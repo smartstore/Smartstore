@@ -1,6 +1,6 @@
-﻿using FluentMigrator.Infrastructure;
-using FluentMigrator.Builders;
+﻿using FluentMigrator.Builders;
 using FluentMigrator.Builders.Create.Table;
+using FluentMigrator.Infrastructure;
 using Smartstore.Data;
 
 namespace FluentMigrator;
@@ -27,9 +27,9 @@ public static class FluentMigratorExtensions
     {
         return (DataSettings.Instance.DbFactory?.DbSystem) switch
         {
-            DbSystemType.MySql      => root.AsCustom("JSON"),
+            DbSystemType.MySql => root.AsCustom("JSON"),
             DbSystemType.PostgreSql => root.AsCustom("JSONB"),
-            _                       => root.AsString(int.MaxValue)  // SQL Server: NVARCHAR(MAX), SQLite: TEXT
+            _ => root.AsString(int.MaxValue)  // SQL Server: NVARCHAR(MAX), SQLite: TEXT
         };
     }
 }

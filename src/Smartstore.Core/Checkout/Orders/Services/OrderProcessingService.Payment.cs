@@ -2,35 +2,80 @@
 using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
 
-namespace Smartstore.Core.Checkout.Orders
+namespace Smartstore.Core.Checkout.Orders;
+
+public partial class OrderProcessingService : IOrderProcessingService
 {
-    public partial class OrderProcessingService : IOrderProcessingService
+    public virtual async Task MarkAsAuthorizedAsync(Order order)
     {
-        public virtual async Task MarkAsAuthorizedAsync(Order order)
+        Guard.NotNull(order);
+
+        order.PaymentStatusId = (int)PaymentStatus.Authorized;
+
+        AddOrderNotes(order, T("Admin.OrderNotice.OrderMarkedAsAuthorized"));
+
+        // INFO: CheckOrderStatus performs commit.
+        await CheckOrderStatusAsync(order);
+    }
+
+    public virtual async Task MarkOrderAsPaidAsync(Order order)
+    {
+        Guard.NotNull(order);
+
+        if (!order.CanMarkOrderAsPaid())
         {
-            Guard.NotNull(order);
-
-            order.PaymentStatusId = (int)PaymentStatus.Authorized;
-
-            AddOrderNotes(order, T("Admin.OrderNotice.OrderMarkedAsAuthorized"));
-
-            // INFO: CheckOrderStatus performs commit.
-            await CheckOrderStatusAsync(order);
+            throw new PaymentException(T("Order.CannotMarkPaid"));
         }
 
-        public virtual async Task MarkOrderAsPaidAsync(Order order)
+        order.PaymentStatusId = (int)PaymentStatus.Paid;
+        order.PaidDateUtc = DateTime.UtcNow;
+
+        AddOrderNotes(order, T("Admin.OrderNotice.OrderMarkedAsPaid"));
+
+        // INFO: CheckOrderStatus performs commit.
+        await CheckOrderStatusAsync(order);
+
+        if (order.PaymentStatus == PaymentStatus.Paid)
         {
-            Guard.NotNull(order);
+            await _eventPublisher.PublishOrderPaidAsync(order);
+        }
+    }
 
-            if (!order.CanMarkOrderAsPaid())
+    public virtual async Task<bool> CanCaptureAsync(Order order)
+    {
+        Guard.NotNull(order);
+
+        if (order.OrderStatus == OrderStatus.Cancelled || order.OrderStatus == OrderStatus.Pending)
+            return false;
+
+        if (order.PaymentStatus == PaymentStatus.Authorized && await _paymentService.SupportCaptureAsync(order.PaymentMethodSystemName))
+            return true;
+
+        return false;
+    }
+
+    public virtual async Task CaptureAsync(Order order)
+    {
+        Guard.NotNull(order);
+
+        if (!await CanCaptureAsync(order))
+        {
+            throw new PaymentException(T("Order.CannotCapture"));
+        }
+
+        try
+        {
+            var result = await _paymentService.CaptureAsync(new()
             {
-                throw new PaymentException(T("Order.CannotMarkPaid"));
-            }
+                Order = order
+            });
 
-            order.PaymentStatusId = (int)PaymentStatus.Paid;
-            order.PaidDateUtc = DateTime.UtcNow;
+            order.CaptureTransactionId = result.CaptureTransactionId;
+            order.CaptureTransactionResult = result.CaptureTransactionResult.Truncate(400);
+            order.PaymentStatus = result.NewPaymentStatus;
+            order.PaidDateUtc = result.NewPaymentStatus == PaymentStatus.Paid ? DateTime.UtcNow : order.PaidDateUtc;
 
-            AddOrderNotes(order, T("Admin.OrderNotice.OrderMarkedAsPaid"));
+            AddOrderNotes(order, T("Admin.OrderNotice.OrderCaptured"));
 
             // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
@@ -40,390 +85,344 @@ namespace Smartstore.Core.Checkout.Orders
                 await _eventPublisher.PublishOrderPaidAsync(order);
             }
         }
-
-        public virtual async Task<bool> CanCaptureAsync(Order order)
+        catch (Exception ex)
         {
-            Guard.NotNull(order);
+            AddOrderNotes(order, T("Admin.OrderNotice.OrderCaptureError", order.GetOrderNumber()).ToString() + " " + ex.Message);
+            await _db.SaveChangesAsync();
+            ex.ReThrow();
+        }
+    }
 
-            if (order.OrderStatus == OrderStatus.Cancelled || order.OrderStatus == OrderStatus.Pending)
-                return false;
+    public virtual async Task<bool> CanRefundAsync(Order order)
+    {
+        Guard.NotNull(order);
 
-            if (order.PaymentStatus == PaymentStatus.Authorized && await _paymentService.SupportCaptureAsync(order.PaymentMethodSystemName))
-                return true;
-
+        if (order.OrderTotal == decimal.Zero)
             return false;
-        }
 
-        public virtual async Task CaptureAsync(Order order)
-        {
-            Guard.NotNull(order);
-
-            if (!await CanCaptureAsync(order))
-            {
-                throw new PaymentException(T("Order.CannotCapture"));
-            }
-
-            try
-            {
-                var result = await _paymentService.CaptureAsync(new()
-                {
-                    Order = order
-                });
-
-                order.CaptureTransactionId = result.CaptureTransactionId;
-                order.CaptureTransactionResult = result.CaptureTransactionResult.Truncate(400);
-                order.PaymentStatus = result.NewPaymentStatus;
-                order.PaidDateUtc = result.NewPaymentStatus == PaymentStatus.Paid ? DateTime.UtcNow : order.PaidDateUtc;
-
-                AddOrderNotes(order, T("Admin.OrderNotice.OrderCaptured"));
-
-                // INFO: CheckOrderStatus performs commit.
-                await CheckOrderStatusAsync(order);
-
-                if (order.PaymentStatus == PaymentStatus.Paid)
-                {
-                    await _eventPublisher.PublishOrderPaidAsync(order);
-                }
-            }
-            catch (Exception ex)
-            {
-                AddOrderNotes(order, T("Admin.OrderNotice.OrderCaptureError", order.GetOrderNumber()).ToString() + " " + ex.Message);
-                await _db.SaveChangesAsync();
-                ex.ReThrow();
-            }
-        }
-
-        public virtual async Task<bool> CanRefundAsync(Order order)
-        {
-            Guard.NotNull(order);
-
-            if (order.OrderTotal == decimal.Zero)
-                return false;
-
-            // Only partial refunds allowed if already refunded.
-            if (order.RefundedAmount > decimal.Zero)
-                return false;
-
-            // Uncomment the lines below in order to allow this operation for cancelled orders.
-            //if (order.OrderStatus == OrderStatus.Cancelled)
-            //    return false;
-
-            if (order.PaymentStatus == PaymentStatus.Paid && await _paymentService.SupportRefundAsync(order.PaymentMethodSystemName))
-                return true;
-
+        // Only partial refunds allowed if already refunded.
+        if (order.RefundedAmount > decimal.Zero)
             return false;
+
+        // Uncomment the lines below in order to allow this operation for cancelled orders.
+        //if (order.OrderStatus == OrderStatus.Cancelled)
+        //    return false;
+
+        if (order.PaymentStatus == PaymentStatus.Paid && await _paymentService.SupportRefundAsync(order.PaymentMethodSystemName))
+            return true;
+
+        return false;
+    }
+
+    public virtual async Task RefundAsync(Order order)
+    {
+        Guard.NotNull(order);
+
+        if (!await CanRefundAsync(order))
+        {
+            throw new PaymentException(T("Order.CannotRefund"));
         }
 
-        public virtual async Task RefundAsync(Order order)
+        try
         {
-            Guard.NotNull(order);
-
-            if (!await CanRefundAsync(order))
+            var request = new RefundPaymentRequest
             {
-                throw new PaymentException(T("Order.CannotRefund"));
-            }
+                Order = order,
+                AmountToRefund = new Money(order.OrderTotal, _primaryCurrency),
+                IsPartialRefund = false
+            };
 
-            try
-            {
-                var request = new RefundPaymentRequest
-                {
-                    Order = order,
-                    AmountToRefund = new Money(order.OrderTotal, _primaryCurrency),
-                    IsPartialRefund = false
-                };
-
-                var result = await _paymentService.RefundAsync(request);
-                var totalAmountRefunded = order.RefundedAmount + order.OrderTotal;
-
-                order.RefundedAmount = totalAmountRefunded;
-                order.PaymentStatus = result.NewPaymentStatus;
-
-                AddOrderNotes(order, T("Admin.OrderNotice.OrderRefunded", request.AmountToRefund.ToString(true)));
-
-                // INFO: CheckOrderStatus performs commit.
-                await CheckOrderStatusAsync(order);
-            }
-            catch (Exception ex)
-            {
-                AddOrderNotes(order, T("Admin.OrderNotice.OrderRefundError", order.GetOrderNumber()).ToString() + " " + ex.Message);
-                await _db.SaveChangesAsync();
-                ex.ReThrow();
-            }
-        }
-
-        public virtual async Task RefundOfflineAsync(Order order)
-        {
-            Guard.NotNull(order);
-
-            if (!order.CanRefundOffline())
-            {
-                throw new PaymentException(T("Order.CannotRefund"));
-            }
-
-            var amountToRefund = new Money(order.OrderTotal, _primaryCurrency);
-            var totalAmountRefunded = order.RefundedAmount + amountToRefund.Amount;
+            var result = await _paymentService.RefundAsync(request);
+            var totalAmountRefunded = order.RefundedAmount + order.OrderTotal;
 
             order.RefundedAmount = totalAmountRefunded;
-            order.PaymentStatus = PaymentStatus.Refunded;
+            order.PaymentStatus = result.NewPaymentStatus;
 
-            AddOrderNotes(order, T("Admin.OrderNotice.OrderMarkedAsRefunded", amountToRefund.ToString(true)));
+            AddOrderNotes(order, T("Admin.OrderNotice.OrderRefunded", request.AmountToRefund.ToString(true)));
 
             // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
         }
-
-        public virtual async Task<bool> CanPartiallyRefundAsync(Order order, decimal amountToRefund)
+        catch (Exception ex)
         {
-            Guard.NotNull(order);
+            AddOrderNotes(order, T("Admin.OrderNotice.OrderRefundError", order.GetOrderNumber()).ToString() + " " + ex.Message);
+            await _db.SaveChangesAsync();
+            ex.ReThrow();
+        }
+    }
 
-            if (order.OrderTotal == decimal.Zero)
-                return false;
+    public virtual async Task RefundOfflineAsync(Order order)
+    {
+        Guard.NotNull(order);
 
-            // Uncomment the lines below in order to allow this operation for cancelled orders.
-            //if (order.OrderStatus == OrderStatus.Cancelled)
-            //    return false;
+        if (!order.CanRefundOffline())
+        {
+            throw new PaymentException(T("Order.CannotRefund"));
+        }
 
-            var canBeRefunded = order.OrderTotal - order.RefundedAmount;
-            if (canBeRefunded <= decimal.Zero)
-                return false;
+        var amountToRefund = new Money(order.OrderTotal, _primaryCurrency);
+        var totalAmountRefunded = order.RefundedAmount + amountToRefund.Amount;
 
-            if (amountToRefund > canBeRefunded)
-                return false;
+        order.RefundedAmount = totalAmountRefunded;
+        order.PaymentStatus = PaymentStatus.Refunded;
 
-            if ((order.PaymentStatus == PaymentStatus.Paid || order.PaymentStatus == PaymentStatus.PartiallyRefunded) &&
-                await _paymentService.SupportPartiallyRefundAsync(order.PaymentMethodSystemName))
-                return true;
+        AddOrderNotes(order, T("Admin.OrderNotice.OrderMarkedAsRefunded", amountToRefund.ToString(true)));
 
+        // INFO: CheckOrderStatus performs commit.
+        await CheckOrderStatusAsync(order);
+    }
+
+    public virtual async Task<bool> CanPartiallyRefundAsync(Order order, decimal amountToRefund)
+    {
+        Guard.NotNull(order);
+
+        if (order.OrderTotal == decimal.Zero)
             return false;
+
+        // Uncomment the lines below in order to allow this operation for cancelled orders.
+        //if (order.OrderStatus == OrderStatus.Cancelled)
+        //    return false;
+
+        var canBeRefunded = order.OrderTotal - order.RefundedAmount;
+        if (canBeRefunded <= decimal.Zero)
+            return false;
+
+        if (amountToRefund > canBeRefunded)
+            return false;
+
+        if ((order.PaymentStatus == PaymentStatus.Paid || order.PaymentStatus == PaymentStatus.PartiallyRefunded) &&
+            await _paymentService.SupportPartiallyRefundAsync(order.PaymentMethodSystemName))
+            return true;
+
+        return false;
+    }
+
+    public virtual async Task PartiallyRefundAsync(Order order, decimal amountToRefund)
+    {
+        Guard.NotNull(order);
+
+        if (!await CanPartiallyRefundAsync(order, amountToRefund))
+        {
+            throw new PaymentException(T("Order.CannotPartialRefund"));
         }
 
-        public virtual async Task PartiallyRefundAsync(Order order, decimal amountToRefund)
+        try
         {
-            Guard.NotNull(order);
-
-            if (!await CanPartiallyRefundAsync(order, amountToRefund))
+            var request = new RefundPaymentRequest
             {
-                throw new PaymentException(T("Order.CannotPartialRefund"));
-            }
+                Order = order,
+                AmountToRefund = new Money(amountToRefund, _primaryCurrency),
+                IsPartialRefund = true
+            };
 
-            try
-            {
-                var request = new RefundPaymentRequest
-                {
-                    Order = order,
-                    AmountToRefund = new Money(amountToRefund, _primaryCurrency),
-                    IsPartialRefund = true
-                };
-
-                var result = await _paymentService.RefundAsync(request);
-
-                var totalAmountRefunded = order.RefundedAmount + amountToRefund;
-                order.RefundedAmount = totalAmountRefunded;
-                order.PaymentStatus = result.NewPaymentStatus;
-
-                AddOrderNotes(order, T("Admin.OrderNotice.OrderPartiallyRefunded", request.AmountToRefund.ToString(true)));
-
-                // INFO: CheckOrderStatus performs commit.
-                await CheckOrderStatusAsync(order);
-            }
-            catch (Exception ex)
-            {
-                AddOrderNotes(order, T("Admin.OrderNotice.OrderPartiallyRefundError", order.GetOrderNumber()).ToString() + " " + ex.Message);
-                await _db.SaveChangesAsync();
-                ex.ReThrow();
-            }
-        }
-
-        public virtual async Task PartiallyRefundOfflineAsync(Order order, decimal amountToRefund)
-        {
-            Guard.NotNull(order);
-
-            if (!order.CanPartiallyRefundOffline(amountToRefund))
-            {
-                throw new PaymentException(T("Order.CannotPartialRefund"));
-            }
+            var result = await _paymentService.RefundAsync(request);
 
             var totalAmountRefunded = order.RefundedAmount + amountToRefund;
             order.RefundedAmount = totalAmountRefunded;
-            order.PaymentStatus = PaymentStatus.PartiallyRefunded;
+            order.PaymentStatus = result.NewPaymentStatus;
 
-            var formattedAmount = new Money(amountToRefund, _primaryCurrency).ToString(true);
-            AddOrderNotes(order, T("Admin.OrderNotice.OrderMarkedAsPartiallyRefunded", formattedAmount));
+            AddOrderNotes(order, T("Admin.OrderNotice.OrderPartiallyRefunded", request.AmountToRefund.ToString(true)));
 
             // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
         }
-
-        public virtual async Task<bool> CanVoidAsync(Order order)
+        catch (Exception ex)
         {
-            Guard.NotNull(order);
+            AddOrderNotes(order, T("Admin.OrderNotice.OrderPartiallyRefundError", order.GetOrderNumber()).ToString() + " " + ex.Message);
+            await _db.SaveChangesAsync();
+            ex.ReThrow();
+        }
+    }
 
-            if (order.OrderTotal == decimal.Zero)
-                return false;
+    public virtual async Task PartiallyRefundOfflineAsync(Order order, decimal amountToRefund)
+    {
+        Guard.NotNull(order);
 
-            // Uncomment the lines below in order to allow this operation for cancelled orders.
-            //if (order.OrderStatus == OrderStatus.Cancelled)
-            //    return false;
+        if (!order.CanPartiallyRefundOffline(amountToRefund))
+        {
+            throw new PaymentException(T("Order.CannotPartialRefund"));
+        }
 
-            if (order.PaymentStatus == PaymentStatus.Authorized && await _paymentService.SupportVoidAsync(order.PaymentMethodSystemName))
-                return true;
+        var totalAmountRefunded = order.RefundedAmount + amountToRefund;
+        order.RefundedAmount = totalAmountRefunded;
+        order.PaymentStatus = PaymentStatus.PartiallyRefunded;
 
+        var formattedAmount = new Money(amountToRefund, _primaryCurrency).ToString(true);
+        AddOrderNotes(order, T("Admin.OrderNotice.OrderMarkedAsPartiallyRefunded", formattedAmount));
+
+        // INFO: CheckOrderStatus performs commit.
+        await CheckOrderStatusAsync(order);
+    }
+
+    public virtual async Task<bool> CanVoidAsync(Order order)
+    {
+        Guard.NotNull(order);
+
+        if (order.OrderTotal == decimal.Zero)
+            return false;
+
+        // Uncomment the lines below in order to allow this operation for cancelled orders.
+        //if (order.OrderStatus == OrderStatus.Cancelled)
+        //    return false;
+
+        if (order.PaymentStatus == PaymentStatus.Authorized && await _paymentService.SupportVoidAsync(order.PaymentMethodSystemName))
+            return true;
+
+        return false;
+    }
+
+    public virtual async Task VoidAsync(Order order)
+    {
+        Guard.NotNull(order);
+
+        if (!await CanVoidAsync(order))
+        {
+            throw new PaymentException(T("Order.CannotVoid"));
+        }
+
+        try
+        {
+            var result = await _paymentService.VoidAsync(new()
+            {
+                Order = order
+            });
+
+            order.PaymentStatus = result.NewPaymentStatus;
+            AddOrderNotes(order, T("Admin.OrderNotice.OrderVoided"));
+
+            // INFO: CheckOrderStatus performs commit.
+            await CheckOrderStatusAsync(order);
+        }
+        catch (Exception ex)
+        {
+            AddOrderNotes(order, T("Admin.OrderNotice.OrderVoidError", order.GetOrderNumber()).ToString() + " " + ex.Message);
+            await _db.SaveChangesAsync();
+            ex.ReThrow();
+        }
+    }
+
+    public virtual async Task VoidOfflineAsync(Order order)
+    {
+        Guard.NotNull(order);
+
+        if (!order.CanVoidOffline())
+        {
+            throw new PaymentException(T("Order.CannotVoid"));
+        }
+
+        order.PaymentStatusId = (int)PaymentStatus.Voided;
+        AddOrderNotes(order, T("Admin.OrderNotice.OrderMarkedAsVoided"));
+
+        // INFO: CheckOrderStatus performs commit.
+        await CheckOrderStatusAsync(order);
+    }
+
+    public virtual async Task<bool> CanCancelRecurringPaymentAsync(RecurringPayment recurringPayment, Customer customerToValidate)
+    {
+        Guard.NotNull(recurringPayment);
+        Guard.NotNull(customerToValidate);
+
+        await _db.LoadReferenceAsync(recurringPayment, x => x.InitialOrder, false, q => q.Include(x => x.Customer));
+        await _db.LoadCollectionAsync(customerToValidate, x => x.CustomerRoleMappings, false, q => q.Include(x => x.CustomerRole));
+
+        var initialOrder = recurringPayment.InitialOrder;
+        var customer = initialOrder?.Customer;
+
+        if (customer == null || initialOrder == null || initialOrder.OrderStatus == OrderStatus.Cancelled)
+        {
             return false;
         }
 
-        public virtual async Task VoidAsync(Order order)
+        if (customer.Id != customerToValidate.Id && !customerToValidate.IsAdmin())
         {
-            Guard.NotNull(order);
-
-            if (!await CanVoidAsync(order))
-            {
-                throw new PaymentException(T("Order.CannotVoid"));
-            }
-
-            try
-            {
-                var result = await _paymentService.VoidAsync(new()
-                {
-                    Order = order
-                });
-
-                order.PaymentStatus = result.NewPaymentStatus;
-                AddOrderNotes(order, T("Admin.OrderNotice.OrderVoided"));
-
-                // INFO: CheckOrderStatus performs commit.
-                await CheckOrderStatusAsync(order);
-            }
-            catch (Exception ex)
-            {
-                AddOrderNotes(order, T("Admin.OrderNotice.OrderVoidError", order.GetOrderNumber()).ToString() + " " + ex.Message);
-                await _db.SaveChangesAsync();
-                ex.ReThrow();
-            }
+            return false;
         }
 
-        public virtual async Task VoidOfflineAsync(Order order)
+        var nextPaymentDate = await _paymentService.GetNextRecurringPaymentDateAsync(recurringPayment);
+        return nextPaymentDate.HasValue;
+    }
+
+    public virtual async Task CancelRecurringPaymentAsync(RecurringPayment recurringPayment)
+    {
+        Guard.NotNull(recurringPayment);
+
+        await _db.LoadReferenceAsync(recurringPayment, x => x.InitialOrder, false, q => q.Include(x => x.Customer));
+
+        var initialOrder = recurringPayment.InitialOrder ?? throw new PaymentException(T("Order.InitialOrderDoesNotExistForRecurringPayment"));
+
+        try
         {
-            Guard.NotNull(order);
-
-            if (!order.CanVoidOffline())
+            await _paymentService.CancelRecurringPaymentAsync(new()
             {
-                throw new PaymentException(T("Order.CannotVoid"));
-            }
+                Order = initialOrder
+            });
 
-            order.PaymentStatusId = (int)PaymentStatus.Voided;
-            AddOrderNotes(order, T("Admin.OrderNotice.OrderMarkedAsVoided"));
+            recurringPayment.IsActive = false;
+            AddOrderNotes(initialOrder, T("Admin.OrderNotice.RecurringPaymentCancelled"));
 
-            // INFO: CheckOrderStatus performs commit.
-            await CheckOrderStatusAsync(order);
+            await _db.SaveChangesAsync();
+            await _messageFactory.SendRecurringPaymentCancelledStoreOwnerNotificationAsync(recurringPayment, _localizationSettings.DefaultAdminLanguageId);
+        }
+        catch (Exception ex)
+        {
+            AddOrderNotes(initialOrder, T("Admin.OrderNotice.RecurringPaymentCancellationError", initialOrder.GetOrderNumber()).ToString() + " " + ex.Message);
+            await _db.SaveChangesAsync();
+            ex.ReThrow();
+        }
+    }
+
+    public virtual async Task ProcessNextRecurringPaymentAsync(RecurringPayment recurringPayment)
+    {
+        Guard.NotNull(recurringPayment);
+
+        if (!recurringPayment.IsActive)
+        {
+            throw new PaymentException(T("Payment.RecurringPaymentNotActive"));
         }
 
-        public virtual async Task<bool> CanCancelRecurringPaymentAsync(RecurringPayment recurringPayment, Customer customerToValidate)
+        await _db.LoadReferenceAsync(recurringPayment, x => x.InitialOrder, false, q => q.Include(x => x.Customer));
+
+        var initialOrder = recurringPayment.InitialOrder ?? throw new PaymentException(T("Order.InitialOrderDoesNotExistForRecurringPayment"));
+        var customer = initialOrder.Customer ?? throw new Exception(T("Customer.DoesNotExist"));
+        var nextPaymentDate = await _paymentService.GetNextRecurringPaymentDateAsync(recurringPayment);
+
+        if (!nextPaymentDate.HasValue)
         {
-            Guard.NotNull(recurringPayment);
-            Guard.NotNull(customerToValidate);
-
-            await _db.LoadReferenceAsync(recurringPayment, x => x.InitialOrder, false, q => q.Include(x => x.Customer));
-            await _db.LoadCollectionAsync(customerToValidate, x => x.CustomerRoleMappings, false, q => q.Include(x => x.CustomerRole));
-
-            var initialOrder = recurringPayment.InitialOrder;
-            var customer = initialOrder?.Customer;
-
-            if (customer == null || initialOrder == null || initialOrder.OrderStatus == OrderStatus.Cancelled)
-            {
-                return false;
-            }
-
-            if (customer.Id != customerToValidate.Id && !customerToValidate.IsAdmin())
-            {
-                return false;
-            }
-
-            var nextPaymentDate = await _paymentService.GetNextRecurringPaymentDateAsync(recurringPayment);
-            return nextPaymentDate.HasValue;
+            throw new PaymentException(T("Payment.CannotCalculateNextPaymentDate"));
         }
 
-        public virtual async Task CancelRecurringPaymentAsync(RecurringPayment recurringPayment)
+        var paymentInfo = new ProcessPaymentRequest
         {
-            Guard.NotNull(recurringPayment);
+            StoreId = initialOrder.StoreId,
+            CustomerId = customer.Id,
+            OrderGuid = Guid.NewGuid(),
+            IsRecurringPayment = true,
+            InitialOrderId = initialOrder.Id,
+            RecurringCycleLength = recurringPayment.CycleLength,
+            RecurringCyclePeriod = recurringPayment.CyclePeriod,
+            RecurringTotalCycles = recurringPayment.TotalCycles,
+        };
 
-            await _db.LoadReferenceAsync(recurringPayment, x => x.InitialOrder, false, q => q.Include(x => x.Customer));
-
-            var initialOrder = recurringPayment.InitialOrder ?? throw new PaymentException(T("Order.InitialOrderDoesNotExistForRecurringPayment"));
-
-            try
+        var result = await PlaceOrderAsync(paymentInfo, new());
+        if (result.Success)
+        {
+            if (result.PlacedOrder == null)
             {
-                await _paymentService.CancelRecurringPaymentAsync(new()
-                {
-                    Order = initialOrder
-                });
-
-                recurringPayment.IsActive = false;
-                AddOrderNotes(initialOrder, T("Admin.OrderNotice.RecurringPaymentCancelled"));
-
-                await _db.SaveChangesAsync();
-                await _messageFactory.SendRecurringPaymentCancelledStoreOwnerNotificationAsync(recurringPayment, _localizationSettings.DefaultAdminLanguageId);
+                throw new Exception(T("Order.NotFound", StringExtensions.NotAvailable));
             }
-            catch (Exception ex)
+
+            recurringPayment.RecurringPaymentHistory.Add(new()
             {
-                AddOrderNotes(initialOrder, T("Admin.OrderNotice.RecurringPaymentCancellationError", initialOrder.GetOrderNumber()).ToString() + " " + ex.Message);
-                await _db.SaveChangesAsync();
-                ex.ReThrow();
-            }
+                RecurringPayment = recurringPayment,
+                CreatedOnUtc = DateTime.UtcNow,
+                OrderId = result.PlacedOrder.Id
+            });
+
+            await _db.SaveChangesAsync();
         }
-
-        public virtual async Task ProcessNextRecurringPaymentAsync(RecurringPayment recurringPayment)
+        else if (result.Errors.Count > 0)
         {
-            Guard.NotNull(recurringPayment);
-
-            if (!recurringPayment.IsActive)
-            {
-                throw new PaymentException(T("Payment.RecurringPaymentNotActive"));
-            }
-
-            await _db.LoadReferenceAsync(recurringPayment, x => x.InitialOrder, false, q => q.Include(x => x.Customer));
-
-            var initialOrder = recurringPayment.InitialOrder ?? throw new PaymentException(T("Order.InitialOrderDoesNotExistForRecurringPayment"));
-            var customer = initialOrder.Customer ?? throw new Exception(T("Customer.DoesNotExist"));
-            var nextPaymentDate = await _paymentService.GetNextRecurringPaymentDateAsync(recurringPayment);
-
-            if (!nextPaymentDate.HasValue)
-            {
-                throw new PaymentException(T("Payment.CannotCalculateNextPaymentDate"));
-            }
-
-            var paymentInfo = new ProcessPaymentRequest
-            {
-                StoreId = initialOrder.StoreId,
-                CustomerId = customer.Id,
-                OrderGuid = Guid.NewGuid(),
-                IsRecurringPayment = true,
-                InitialOrderId = initialOrder.Id,
-                RecurringCycleLength = recurringPayment.CycleLength,
-                RecurringCyclePeriod = recurringPayment.CyclePeriod,
-                RecurringTotalCycles = recurringPayment.TotalCycles,
-            };
-
-            var result = await PlaceOrderAsync(paymentInfo, new());
-            if (result.Success)
-            {
-                if (result.PlacedOrder == null)
-                {
-                    throw new Exception(T("Order.NotFound", StringExtensions.NotAvailable));
-                }
-
-                recurringPayment.RecurringPaymentHistory.Add(new()
-                {
-                    RecurringPayment = recurringPayment,
-                    CreatedOnUtc = DateTime.UtcNow,
-                    OrderId = result.PlacedOrder.Id
-                });
-
-                await _db.SaveChangesAsync();
-            }
-            else if (result.Errors.Count > 0)
-            {
-                throw new Exception(string.Join(" ", result.Errors));
-            }
+            throw new Exception(string.Join(" ", result.Errors));
         }
     }
 }

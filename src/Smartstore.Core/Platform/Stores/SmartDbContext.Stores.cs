@@ -1,10 +1,9 @@
 ﻿using Smartstore.Core.Stores;
 
-namespace Smartstore.Core.Data
+namespace Smartstore.Core.Data;
+
+public partial class SmartDbContext
 {
-    public partial class SmartDbContext
-    {
-        public DbSet<Store> Stores { get; set; }
-        public DbSet<StoreMapping> StoreMappings { get; set; }
-    }
+    public DbSet<Store> Stores { get; set; }
+    public DbSet<StoreMapping> StoreMappings { get; set; }
 }

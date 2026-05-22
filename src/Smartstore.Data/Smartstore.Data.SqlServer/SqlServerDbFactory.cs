@@ -100,7 +100,7 @@ internal class SqlServerDbFactory : DbFactory
                 }
             })
             .ReplaceService<IMethodCallTranslatorProvider, SqlServerMappingMethodCallTranslatorProvider>();
-        
+
         return (TContext)Activator.CreateInstance(typeof(TContext), [optionsBuilder.Options]);
     }
 

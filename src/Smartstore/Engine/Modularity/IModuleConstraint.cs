@@ -1,13 +1,12 @@
-﻿namespace Smartstore.Engine.Modularity
-{
-    public interface IModuleConstraint
-    {
-        bool Matches(IModuleDescriptor descriptor, int? storeId);
-    }
+﻿namespace Smartstore.Engine.Modularity;
 
-    internal sealed class NullModuleContraint : IModuleConstraint
-    {
-        public bool Matches(IModuleDescriptor descriptor, int? storeId)
-            => true;
-    }
+public interface IModuleConstraint
+{
+    bool Matches(IModuleDescriptor descriptor, int? storeId);
+}
+
+internal sealed class NullModuleContraint : IModuleConstraint
+{
+    public bool Matches(IModuleDescriptor descriptor, int? storeId)
+        => true;
 }

@@ -1,11 +1,10 @@
-﻿namespace Smartstore.Core.Rules
+﻿namespace Smartstore.Core.Rules;
+
+public sealed class InvalidRuleOperatorException : NotSupportedException
 {
-    public sealed class InvalidRuleOperatorException : NotSupportedException
+    public InvalidRuleOperatorException(RuleExpression expression)
+        : base("The rule type '{0}' does not support the rule operator '{1}'.".FormatInvariant(expression.Descriptor.Name, expression.Operator))
     {
-        public InvalidRuleOperatorException(RuleExpression expression)
-            : base("The rule type '{0}' does not support the rule operator '{1}'.".FormatInvariant(expression.Descriptor.Name, expression.Operator))
-        {
-            // TODO: expression.Descriptor.Name could be null or empty (?)
-        }
+        // TODO: expression.Descriptor.Name could be null or empty (?)
     }
 }

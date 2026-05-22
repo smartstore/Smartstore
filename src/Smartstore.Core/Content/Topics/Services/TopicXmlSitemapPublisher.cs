@@ -2,58 +2,57 @@
 using Smartstore.Core.Data;
 using Smartstore.Core.Seo;
 
-namespace Smartstore.Core.Content.Topics
+namespace Smartstore.Core.Content.Topics;
+
+public partial class TopicXmlSitemapPublisher : IXmlSitemapPublisher
 {
-    public partial class TopicXmlSitemapPublisher : IXmlSitemapPublisher
+    private readonly SmartDbContext _db;
+    private readonly IWorkContext _workContext;
+
+    public TopicXmlSitemapPublisher(
+        SmartDbContext db,
+        IWorkContext workContext)
     {
-        private readonly SmartDbContext _db;
-        private readonly IWorkContext _workContext;
+        _db = db;
+        _workContext = workContext;
+    }
 
-        public TopicXmlSitemapPublisher(
-            SmartDbContext db,
-            IWorkContext workContext)
+    public XmlSitemapProvider PublishXmlSitemap(XmlSitemapBuildContext context)
+    {
+        if (!context.LoadSettings<SeoSettings>().XmlSitemapIncludesTopics)
         {
-            _db = db;
-            _workContext = workContext;
+            return null;
         }
 
-        public XmlSitemapProvider PublishXmlSitemap(XmlSitemapBuildContext context)
+        var customerRoleIds = _workContext.CurrentCustomer.GetRoleIds();
+
+        var query = _db.Topics
+            .AsNoTracking()
+            .Where(x => !x.RenderAsWidget)
+            .ApplyStandardFilter(false, customerRoleIds, context.RequestStoreId);
+
+        return new TopicXmlSitemapResult { Query = query };
+    }
+
+    class TopicXmlSitemapResult : XmlSitemapProvider
+    {
+        public IQueryable<Topic> Query { get; set; }
+
+        public override async Task<int> GetTotalCountAsync()
         {
-            if (!context.LoadSettings<SeoSettings>().XmlSitemapIncludesTopics)
-            {
-                return null;
-            }
-
-            var customerRoleIds = _workContext.CurrentCustomer.GetRoleIds();
-
-            var query = _db.Topics
-                .AsNoTracking()
-                .Where(x => !x.RenderAsWidget)
-                .ApplyStandardFilter(false, customerRoleIds, context.RequestStoreId);
-
-            return new TopicXmlSitemapResult { Query = query };
+            return await Query.CountAsync();
         }
 
-        class TopicXmlSitemapResult : XmlSitemapProvider
+        public override async IAsyncEnumerable<NamedEntity> EnlistAsync([EnumeratorCancellation] CancellationToken cancelToken = default)
         {
-            public IQueryable<Topic> Query { get; set; }
+            var topics = await Query.Select(x => new { x.Id }).ToListAsync(cancelToken);
 
-            public override async Task<int> GetTotalCountAsync()
+            foreach (var x in topics)
             {
-                return await Query.CountAsync();
+                yield return new NamedEntity { EntityName = nameof(Topic), Id = x.Id, LastMod = DateTime.UtcNow };
             }
-
-            public override async IAsyncEnumerable<NamedEntity> EnlistAsync([EnumeratorCancellation] CancellationToken cancelToken = default)
-            {
-                var topics = await Query.Select(x => new { x.Id }).ToListAsync(cancelToken);
-
-                foreach (var x in topics)
-                {
-                    yield return new NamedEntity { EntityName = nameof(Topic), Id = x.Id, LastMod = DateTime.UtcNow };
-                }
-            }
-
-            public override int Order => 200;
         }
+
+        public override int Order => 200;
     }
 }

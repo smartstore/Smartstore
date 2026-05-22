@@ -17,7 +17,7 @@ public static class UrlHelperExtensions
     public static string? Action(this IUrlHelper url, RouteInfo? routeInfo)
     {
         Guard.NotNull(url);
-        
+
         if (routeInfo == null)
         {
             return null;

@@ -185,8 +185,8 @@ public class TaxController : AdminController
     [Permission(Permissions.Configuration.Setting.Read)]
     [LoadSetting]
     public async Task<IActionResult> FinanceSettings
-        (int storeScope, 
-        TaxSettings taxSettings, 
+        (int storeScope,
+        TaxSettings taxSettings,
         CurrencySettings currencySettings)
     {
         var model = new FinanceSettingsModel();
@@ -265,9 +265,9 @@ public class TaxController : AdminController
     [Permission(Permissions.Configuration.Setting.Update)]
     [HttpPost, LoadSetting]
     public async Task<IActionResult> FinanceSettings(
-        int storeScope, 
-        FinanceSettingsModel model, 
-        TaxSettings taxSettings, 
+        int storeScope,
+        FinanceSettingsModel model,
+        TaxSettings taxSettings,
         CurrencySettings currencySettings)
     {
         var form = Request.Form;

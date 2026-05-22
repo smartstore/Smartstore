@@ -1,122 +1,121 @@
-﻿namespace Smartstore.Core.Catalog.Attributes
+﻿namespace Smartstore.Core.Catalog.Attributes;
+
+public static partial class ProductVariantAttributeCombinationQueryExtensions
 {
-    public static partial class ProductVariantAttributeCombinationQueryExtensions
+    /// <summary>
+    /// Apply standard filter for a product variant combinations query.
+    /// </summary>
+    /// <param name="query">Product attribute combinations query.</param>
+    /// <param name="includeHidden">Applies filter by <c>Product.Published</c> and <see cref="ProductVariantAttributeCombination.IsActive"/>.</param>
+    /// <returns>Product attribute combinations query.</returns>
+    public static IQueryable<ProductVariantAttributeCombination> ApplyStandardFilter(this IQueryable<ProductVariantAttributeCombination> query, bool includeHidden = false)
     {
-        /// <summary>
-        /// Apply standard filter for a product variant combinations query.
-        /// </summary>
-        /// <param name="query">Product attribute combinations query.</param>
-        /// <param name="includeHidden">Applies filter by <c>Product.Published</c> and <see cref="ProductVariantAttributeCombination.IsActive"/>.</param>
-        /// <returns>Product attribute combinations query.</returns>
-        public static IQueryable<ProductVariantAttributeCombination> ApplyStandardFilter(this IQueryable<ProductVariantAttributeCombination> query, bool includeHidden = false)
+        Guard.NotNull(query);
+
+        if (!includeHidden)
         {
-            Guard.NotNull(query);
-
-            if (!includeHidden)
-            {
-                query = query.Where(x => x.Product.Published && x.IsActive);
-            }
-
-            return query;
+            query = query.Where(x => x.Product.Published && x.IsActive);
         }
 
-        /// <summary>
-        /// Apply a filter to get the lowest attribute combination price and sorts by <see cref="ProductVariantAttributeCombination.Price"/>.
-        /// </summary>
-        /// <param name="query">Product attribute combinations query.</param>
-        /// <param name="productId">Product identifier. Must not be zero.</param>
-        /// <returns>Product attribute combinations query.</returns>
-        public static IOrderedQueryable<ProductVariantAttributeCombination> ApplyLowestPriceFilter(this IQueryable<ProductVariantAttributeCombination> query, int productId)
-        {
-            Guard.NotNull(query);
-            Guard.NotZero(productId);
+        return query;
+    }
 
-            query = query.Where(x => x.ProductId == productId && x.Price != null && x.IsActive);
+    /// <summary>
+    /// Apply a filter to get the lowest attribute combination price and sorts by <see cref="ProductVariantAttributeCombination.Price"/>.
+    /// </summary>
+    /// <param name="query">Product attribute combinations query.</param>
+    /// <param name="productId">Product identifier. Must not be zero.</param>
+    /// <returns>Product attribute combinations query.</returns>
+    public static IOrderedQueryable<ProductVariantAttributeCombination> ApplyLowestPriceFilter(this IQueryable<ProductVariantAttributeCombination> query, int productId)
+    {
+        Guard.NotNull(query);
+        Guard.NotZero(productId);
 
-            return query.OrderBy(x => x.Price);
-        }
+        query = query.Where(x => x.ProductId == productId && x.Price != null && x.IsActive);
 
-        /// <summary>
-        /// Applies a filter for SKU.
-        /// </summary>
-        /// <param name="query">Product attribute combinations query.</param>
-        /// <param name="sku">Stock keeping unit (SKU).</param>
-        /// <returns>Product attribute combinations query.</returns>
-        public static IQueryable<ProductVariantAttributeCombination> ApplySkuFilter(this IQueryable<ProductVariantAttributeCombination> query, string sku)
-        {
-            Guard.NotNull(query);
+        return query.OrderBy(x => x.Price);
+    }
 
-            sku = sku.TrimSafe();
+    /// <summary>
+    /// Applies a filter for SKU.
+    /// </summary>
+    /// <param name="query">Product attribute combinations query.</param>
+    /// <param name="sku">Stock keeping unit (SKU).</param>
+    /// <returns>Product attribute combinations query.</returns>
+    public static IQueryable<ProductVariantAttributeCombination> ApplySkuFilter(this IQueryable<ProductVariantAttributeCombination> query, string sku)
+    {
+        Guard.NotNull(query);
 
-            query = query.Where(x => x.Sku == sku && !x.Product.Deleted);
+        sku = sku.TrimSafe();
 
-            return query;
-        }
+        query = query.Where(x => x.Sku == sku && !x.Product.Deleted);
 
-        /// <summary>
-        /// Applies a filter for GTIN.
-        /// </summary>
-        /// <param name="query">Product attribute combinations query.</param>
-        /// <param name="gtin">Global Trade Item Number (GTIN).</param>
-        /// <returns>Product attribute combinations query.</returns>
-        public static IQueryable<ProductVariantAttributeCombination> ApplyGtinFilter(this IQueryable<ProductVariantAttributeCombination> query, string gtin)
-        {
-            Guard.NotNull(query, nameof(query));
+        return query;
+    }
 
-            gtin = gtin.TrimSafe();
+    /// <summary>
+    /// Applies a filter for GTIN.
+    /// </summary>
+    /// <param name="query">Product attribute combinations query.</param>
+    /// <param name="gtin">Global Trade Item Number (GTIN).</param>
+    /// <returns>Product attribute combinations query.</returns>
+    public static IQueryable<ProductVariantAttributeCombination> ApplyGtinFilter(this IQueryable<ProductVariantAttributeCombination> query, string gtin)
+    {
+        Guard.NotNull(query, nameof(query));
 
-            query = query.Where(x => x.Gtin == gtin && !x.Product.Deleted);
+        gtin = gtin.TrimSafe();
 
-            return query;
-        }
+        query = query.Where(x => x.Gtin == gtin && !x.Product.Deleted);
 
-        /// <summary>
-        /// Applies a filter for MPN.
-        /// </summary>
-        /// <param name="query">Product attribute combinations query.</param>
-        /// <param name="manufacturerPartNumber">Manufacturer Part Number (MPN).</param>
-        /// <returns>Product attribute combinations query.</returns>
-        public static IQueryable<ProductVariantAttributeCombination> ApplyMpnFilter(this IQueryable<ProductVariantAttributeCombination> query, string manufacturerPartNumber)
-        {
-            Guard.NotNull(query);
+        return query;
+    }
 
-            manufacturerPartNumber = manufacturerPartNumber.TrimSafe();
+    /// <summary>
+    /// Applies a filter for MPN.
+    /// </summary>
+    /// <param name="query">Product attribute combinations query.</param>
+    /// <param name="manufacturerPartNumber">Manufacturer Part Number (MPN).</param>
+    /// <returns>Product attribute combinations query.</returns>
+    public static IQueryable<ProductVariantAttributeCombination> ApplyMpnFilter(this IQueryable<ProductVariantAttributeCombination> query, string manufacturerPartNumber)
+    {
+        Guard.NotNull(query);
 
-            query = query.Where(x => x.ManufacturerPartNumber == manufacturerPartNumber && !x.Product.Deleted);
+        manufacturerPartNumber = manufacturerPartNumber.TrimSafe();
 
-            return query;
-        }
+        query = query.Where(x => x.ManufacturerPartNumber == manufacturerPartNumber && !x.Product.Deleted);
 
-        /// <summary>
-        /// Applies a filter to find a <see cref="ProductVariantAttributeCombination"/> by its SKU, MPN or GTIN.
-        /// </summary>
-        /// <param name="query">Product attribute combinations query.</param>
-        /// <param name="productCode">A product code like SKU, MPN or GTIN.</param>
-        /// <returns>Product attribute combinations query.</returns>
-        public static IQueryable<ProductVariantAttributeCombination> ApplyProductCodeFilter(this IQueryable<ProductVariantAttributeCombination> query, string productCode)
-        {
-            Guard.NotNull(query);
-            Guard.NotEmpty(productCode);
+        return query;
+    }
 
-            productCode = productCode.Trim();
+    /// <summary>
+    /// Applies a filter to find a <see cref="ProductVariantAttributeCombination"/> by its SKU, MPN or GTIN.
+    /// </summary>
+    /// <param name="query">Product attribute combinations query.</param>
+    /// <param name="productCode">A product code like SKU, MPN or GTIN.</param>
+    /// <returns>Product attribute combinations query.</returns>
+    public static IQueryable<ProductVariantAttributeCombination> ApplyProductCodeFilter(this IQueryable<ProductVariantAttributeCombination> query, string productCode)
+    {
+        Guard.NotNull(query);
+        Guard.NotEmpty(productCode);
 
-            query = query.Where(x => x.Sku == productCode || x.ManufacturerPartNumber == productCode || x.Gtin == productCode);
+        productCode = productCode.Trim();
 
-            return query;
-        }
+        query = query.Where(x => x.Sku == productCode || x.ManufacturerPartNumber == productCode || x.Gtin == productCode);
 
-        /// <summary>
-        /// Applies a filter to find a <see cref="ProductVariantAttributeCombination"/> by hash code.
-        /// </summary>
-        /// <param name="productId">Product identifier.</param>
-        /// <param name="hashCode">A hash code generated by <see cref="AttributeSelection.GetHashCode"/> or <see cref="ProductVariantAttributeCombination.GetAttributesHashCode"/>.</param>
-        public static Task<ProductVariantAttributeCombination> ApplyHashCodeFilter(this IQueryable<ProductVariantAttributeCombination> query, int productId, int hashCode)
-        {
-            Guard.NotNull(query);
-            Guard.NotZero(productId);
-            Guard.NotZero(hashCode);
+        return query;
+    }
 
-            return query.FirstOrDefaultAsync(x => x.ProductId == productId && x.HashCode == hashCode);
-        }
+    /// <summary>
+    /// Applies a filter to find a <see cref="ProductVariantAttributeCombination"/> by hash code.
+    /// </summary>
+    /// <param name="productId">Product identifier.</param>
+    /// <param name="hashCode">A hash code generated by <see cref="AttributeSelection.GetHashCode"/> or <see cref="ProductVariantAttributeCombination.GetAttributesHashCode"/>.</param>
+    public static Task<ProductVariantAttributeCombination> ApplyHashCodeFilter(this IQueryable<ProductVariantAttributeCombination> query, int productId, int hashCode)
+    {
+        Guard.NotNull(query);
+        Guard.NotZero(productId);
+        Guard.NotZero(hashCode);
+
+        return query.FirstOrDefaultAsync(x => x.ProductId == productId && x.HashCode == hashCode);
     }
 }

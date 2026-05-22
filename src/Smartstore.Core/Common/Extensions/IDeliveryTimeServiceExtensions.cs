@@ -3,17 +3,16 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 
-namespace Smartstore
+namespace Smartstore;
+
+public static class IDeliveryTimeServiceExtensions
 {
-    public static class IDeliveryTimeServiceExtensions
+    /// <summary>
+    /// Gets the product delivery time according to stock.
+    /// </summary>
+    public static Task<DeliveryTime> GetDeliveryTimeAsync(this IDeliveryTimeService service, Product product, CatalogSettings catalogSettings)
     {
-        /// <summary>
-        /// Gets the product delivery time according to stock.
-        /// </summary>
-        public static Task<DeliveryTime> GetDeliveryTimeAsync(this IDeliveryTimeService service, Product product, CatalogSettings catalogSettings)
-        {
-            var deliveryTimeId = product.GetDeliveryTimeIdAccordingToStock(catalogSettings);
-            return service.GetDeliveryTimeAsync(deliveryTimeId, false);
-        }
+        var deliveryTimeId = product.GetDeliveryTimeIdAccordingToStock(catalogSettings);
+        return service.GetDeliveryTimeAsync(deliveryTimeId, false);
     }
 }

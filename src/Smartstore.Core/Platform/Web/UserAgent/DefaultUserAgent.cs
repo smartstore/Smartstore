@@ -70,7 +70,7 @@ public class DefaultUserAgent : IUserAgent
                     _version = version.Version;
                 }
             }
-            
+
             return _version;
         }
     }

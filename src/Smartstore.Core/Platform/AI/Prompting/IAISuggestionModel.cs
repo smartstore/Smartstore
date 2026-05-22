@@ -1,15 +1,14 @@
 ﻿#nullable enable
 
-namespace Smartstore.Core.AI.Prompting
+namespace Smartstore.Core.AI.Prompting;
+
+/// <summary>
+/// Represents a text suggestion model.
+/// </summary>
+public interface IAISuggestionModel
 {
-    /// <summary>
-    /// Represents a text suggestion model.
-    /// </summary>
-    public interface IAISuggestionModel
-    {
-        string EntityName { get; }
-        string TargetProperty { get; }
-        int? NumSuggestions { get; }
-        int CharLimit { get; }
-    }
+    string EntityName { get; }
+    string TargetProperty { get; }
+    int? NumSuggestions { get; }
+    int CharLimit { get; }
 }

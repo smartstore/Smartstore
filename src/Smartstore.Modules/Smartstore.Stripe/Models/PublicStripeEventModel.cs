@@ -17,7 +17,7 @@ public class PublicStripeEventModel : ModelBase
     public string PayerPhone { get; set; }
 
     public StripePaymentMethod PaymentMethod { get; set; }
-    
+
     public string WalletName { get; set; }
 }
 

@@ -42,7 +42,7 @@ public interface ITypeConverter
 
 public static class ITypeConverterExtensions
 {
-    extension (ITypeConverter converter)
+    extension(ITypeConverter converter)
     {
         public object ConvertFrom(object value)
         {

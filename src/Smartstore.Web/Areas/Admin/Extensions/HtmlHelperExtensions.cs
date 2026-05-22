@@ -13,7 +13,7 @@ public static class HtmlHelperExtensions
     {
         var list = new ProviderModelCollection<TModel>(model);
         list.SetTemplates(buttonTemplate, infoTemplate);
-        
+
         return html.PartialAsync("_Providers", list);
     }
 }

@@ -1,20 +1,19 @@
-﻿namespace Microsoft.AspNetCore.Builder
+﻿namespace Microsoft.AspNetCore.Builder;
+
+internal sealed class CompositeEndpointConventionBuilder : IEndpointConventionBuilder
 {
-    internal sealed class CompositeEndpointConventionBuilder : IEndpointConventionBuilder
+    private readonly IEndpointConventionBuilder[] _builders;
+
+    public CompositeEndpointConventionBuilder(params IEndpointConventionBuilder[] builders)
     {
-        private readonly IEndpointConventionBuilder[] _builders;
+        _builders = builders;
+    }
 
-        public CompositeEndpointConventionBuilder(params IEndpointConventionBuilder[] builders)
+    public void Add(Action<EndpointBuilder> convention)
+    {
+        for (int i = 0; i < _builders.Length; i++)
         {
-            _builders = builders;
-        }
-
-        public void Add(Action<EndpointBuilder> convention)
-        {
-            for (int i = 0; i < _builders.Length; i++)
-            {
-                _builders[i].Add(convention);
-            }
+            _builders[i].Add(convention);
         }
     }
 }

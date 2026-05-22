@@ -53,7 +53,7 @@ internal class TopCustomerReportLineMapper : Mapper<TopCustomerReportLine, TopCu
     public TopCustomerReportLineMapper(
         ICurrencyService currencyService,
         IDateTimeHelper dateTimeHelper,
-        IUrlHelper urlHelper, 
+        IUrlHelper urlHelper,
         CustomerSettings customerSettings)
     {
         _currencyService = currencyService;

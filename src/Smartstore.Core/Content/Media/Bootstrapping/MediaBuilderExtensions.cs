@@ -1,33 +1,32 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Smartstore.Core.Content.Media;
 
-namespace Smartstore.Core.Bootstrapping
+namespace Smartstore.Core.Bootstrapping;
+
+public static class MediaBuilderExtensions
 {
-    public static class MediaBuilderExtensions
+    /// <summary>
+    /// Maps media middleware as a new branch
+    /// </summary>
+    public static IApplicationBuilder MapMedia(this IApplicationBuilder app)
     {
-        /// <summary>
-        /// Maps media middleware as a new branch
-        /// </summary>
-        public static IApplicationBuilder MapMedia(this IApplicationBuilder app)
+        Guard.NotNull(app);
+
+        var publicPath = (app.ApplicationServices.GetService<IMediaStorageConfiguration>()?.PublicPath ?? "media")
+            .EnsureStartsWith('/')
+            .TrimEnd('/');
+
+        app.Map(publicPath, preserveMatchedPathSegment: true, branch =>
         {
-            Guard.NotNull(app);
+            branch.UseRequestLogging();
+            branch.UseCookiePolicy();
+            branch.UseAuthentication();
+            branch.UseWorkContext();
 
-            var publicPath = (app.ApplicationServices.GetService<IMediaStorageConfiguration>()?.PublicPath ?? "media")
-                .EnsureStartsWith('/')
-                .TrimEnd('/');
+            branch.UseMiddleware<MediaMiddleware>();
+            branch.UseMiddleware<MediaLegacyMiddleware>();
+        });
 
-            app.Map(publicPath, preserveMatchedPathSegment: true, branch =>
-            {
-                branch.UseRequestLogging();
-                branch.UseCookiePolicy();
-                branch.UseAuthentication();
-                branch.UseWorkContext();
-                
-                branch.UseMiddleware<MediaMiddleware>();
-                branch.UseMiddleware<MediaLegacyMiddleware>();
-            });
-
-            return app;
-        }
+        return app;
     }
 }

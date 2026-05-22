@@ -1,10 +1,9 @@
-﻿namespace Smartstore.Core.Checkout.Orders.Reporting
+﻿namespace Smartstore.Core.Checkout.Orders.Reporting;
+
+public enum ReportSorting
 {
-    public enum ReportSorting
-    {
-        ByQuantityAsc = 0,
-        ByQuantityDesc,
-        ByAmountAsc,
-        ByAmountDesc
-    }
+    ByQuantityAsc = 0,
+    ByQuantityDesc,
+    ByAmountAsc,
+    ByAmountDesc
 }

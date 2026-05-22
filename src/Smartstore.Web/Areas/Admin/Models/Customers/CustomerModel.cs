@@ -123,7 +123,7 @@ public class CustomerModel : TabbableModel
     [LocalizedDisplay("*VatNumberStatus")]
     public VatNumberStatus VatNumberStatus { get; set; }
 
-    public string VatNumberStatusClass 
+    public string VatNumberStatusClass
     {
         get
         {

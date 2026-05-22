@@ -8,7 +8,7 @@ public class BarcodePayload : IEquatable<BarcodePayload>
     public BarcodePayload(string data, BarcodeType type)
     {
         Guard.NotEmpty(data);
-        
+
         Data = data;
         Type = type;
     }
@@ -44,7 +44,7 @@ public class BarcodePayload : IEquatable<BarcodePayload>
         if (ReferenceEquals(this, other))
         {
             return true;
-        } 
+        }
 
         return GetType() == other.GetType() &&
             Type == other.Type &&

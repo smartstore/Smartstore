@@ -40,7 +40,7 @@ internal class Events : IConsumer
     public async Task HandleEventAsync(ModelBoundEvent message,
         IPermissionService permissionService)
     {
-        if (!message.BoundModel.CustomProperties.TryGetValue("GMC", out object value) 
+        if (!message.BoundModel.CustomProperties.TryGetValue("GMC", out object value)
             || value is not GoogleProductModel model
             || !await permissionService.AuthorizeAsync(Permissions.Catalog.Product.Update))
         {

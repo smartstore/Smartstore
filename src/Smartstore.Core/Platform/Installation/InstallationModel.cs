@@ -1,99 +1,98 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 
-namespace Smartstore.Core.Installation
+namespace Smartstore.Core.Installation;
+
+public partial class InstallationModel
 {
-    public partial class InstallationModel
+    [DataType(DataType.EmailAddress)]
+    public string AdminEmail { get; set; }
+
+    [DataType(DataType.Password)]
+    public string AdminPassword { get; set; }
+
+    [DataType(DataType.Password)]
+    public string ConfirmPassword { get; set; }
+
+    public string DataProvider { get; set; } // sqlserver | mysql | postgresql | sqlite
+
+    public string PrimaryLanguage { get; set; } // ISO code
+
+    public string MediaStorage { get; set; } // db | fs
+
+    public bool CreateDatabase { get; set; } = true;
+
+    public string DbServer { get; set; }
+
+    public string DbName { get; set; }
+
+    public string DbUserId { get; set; }
+
+    [DataType(DataType.Password)]
+    public string DbPassword { get; set; }
+
+    public bool UseRawConnectionString { get; set; }
+
+    public string DbRawConnectionString { get; set; }
+
+    public string DbAuthType { get; set; } = "sqlserver"; // sqlserver | windows
+
+    public bool InstallSampleData { get; set; }
+
+    public bool UseCustomCollation { get; set; }
+    public string Collation { get; set; }
+
+    #region AutoInstall
+
+    public bool IsAutoInstall { get; set; }
+
+    /// <summary>
+    /// For auto-install
+    /// </summary>
+    public string CallbackUrl { get; set; }
+
+    /// <summary>
+    /// For auto-install. Passed to <see cref="CallbackUrl"/> to identify client.
+    /// </summary>
+    public string TenantId { get; set; }
+
+    #endregion
+}
+
+public class InstallationModelValidator : AbstractValidator<InstallationModel>
+{
+    public InstallationModelValidator(IInstallationService installService)
     {
-        [DataType(DataType.EmailAddress)]
-        public string AdminEmail { get; set; }
+        RuleFor(x => x.AdminEmail).NotEmpty().WithMessage(Res("AdminEmailRequired")).EmailAddress();
+        RuleFor(x => x.AdminPassword).NotEmpty().WithMessage(Res("AdminPasswordRequired"));
+        RuleFor(x => x.ConfirmPassword).NotEmpty().WithMessage(Res("ConfirmPasswordRequired"));
+        RuleFor(x => x.AdminPassword).Equal(x => x.ConfirmPassword).WithMessage(Res("PasswordsDoNotMatch"));
+        RuleFor(x => x.DataProvider).NotEmpty();
+        RuleFor(x => x.PrimaryLanguage).NotEmpty();
 
-        [DataType(DataType.Password)]
-        public string AdminPassword { get; set; }
+        RuleFor(x => x.DbRawConnectionString)
+            .NotEmpty()
+            .When(x => x.UseRawConnectionString)
+            .WithMessage(Res("DbRawConnectionStringRequired"));
 
-        [DataType(DataType.Password)]
-        public string ConfirmPassword { get; set; }
+        RuleFor(x => x.DbServer)
+            .NotEmpty()
+            .Unless(x => x.UseRawConnectionString || x.DataProvider == "sqlite")
+            .WithMessage(Res("DbServerRequired"));
 
-        public string DataProvider { get; set; } // sqlserver | mysql | postgresql | sqlite
+        RuleFor(x => x.DbName)
+            .NotEmpty()
+            .Unless(x => x.UseRawConnectionString)
+            .WithMessage(Res("DbNameRequired"));
 
-        public string PrimaryLanguage { get; set; } // ISO code
+        RuleFor(x => x.DbUserId)
+            .NotEmpty()
+            .Unless(x => x.UseRawConnectionString || x.DataProvider == "sqlite" || (x.DataProvider == "sqlserver" && x.DbAuthType == "windows"))
+            .WithMessage(Res("DbUserIdRequired"));
 
-        public string MediaStorage { get; set; } // db | fs
-
-        public bool CreateDatabase { get; set; } = true;
-
-        public string DbServer { get; set; }
-
-        public string DbName { get; set; }
-
-        public string DbUserId { get; set; }
-
-        [DataType(DataType.Password)]
-        public string DbPassword { get; set; }
-
-        public bool UseRawConnectionString { get; set; }
-
-        public string DbRawConnectionString { get; set; }
-
-        public string DbAuthType { get; set; } = "sqlserver"; // sqlserver | windows
-
-        public bool InstallSampleData { get; set; }
-
-        public bool UseCustomCollation { get; set; }
-        public string Collation { get; set; }
-
-        #region AutoInstall
-
-        public bool IsAutoInstall { get; set; }
-
-        /// <summary>
-        /// For auto-install
-        /// </summary>
-        public string CallbackUrl { get; set; }
-
-        /// <summary>
-        /// For auto-install. Passed to <see cref="CallbackUrl"/> to identify client.
-        /// </summary>
-        public string TenantId { get; set; }
-
-        #endregion
-    }
-
-    public class InstallationModelValidator : AbstractValidator<InstallationModel>
-    {
-        public InstallationModelValidator(IInstallationService installService)
+        string Res(string key)
         {
-            RuleFor(x => x.AdminEmail).NotEmpty().WithMessage(Res("AdminEmailRequired")).EmailAddress();
-            RuleFor(x => x.AdminPassword).NotEmpty().WithMessage(Res("AdminPasswordRequired"));
-            RuleFor(x => x.ConfirmPassword).NotEmpty().WithMessage(Res("ConfirmPasswordRequired"));
-            RuleFor(x => x.AdminPassword).Equal(x => x.ConfirmPassword).WithMessage(Res("PasswordsDoNotMatch"));
-            RuleFor(x => x.DataProvider).NotEmpty();
-            RuleFor(x => x.PrimaryLanguage).NotEmpty();
-
-            RuleFor(x => x.DbRawConnectionString)
-                .NotEmpty()
-                .When(x => x.UseRawConnectionString)
-                .WithMessage(Res("DbRawConnectionStringRequired"));
-
-            RuleFor(x => x.DbServer)
-                .NotEmpty()
-                .Unless(x => x.UseRawConnectionString || x.DataProvider == "sqlite")
-                .WithMessage(Res("DbServerRequired"));
-
-            RuleFor(x => x.DbName)
-                .NotEmpty()
-                .Unless(x => x.UseRawConnectionString)
-                .WithMessage(Res("DbNameRequired"));
-
-            RuleFor(x => x.DbUserId)
-                .NotEmpty()
-                .Unless(x => x.UseRawConnectionString || x.DataProvider == "sqlite" || (x.DataProvider == "sqlserver" && x.DbAuthType == "windows"))
-                .WithMessage(Res("DbUserIdRequired"));
-
-            string Res(string key)
-            {
-                return installService.GetResource(key);
-            }
+            return installService.GetResource(key);
         }
     }
 }

@@ -371,7 +371,7 @@ public class OrdersController : WebApiController<Order>
             {
                 await _orderProcessingService.Value.MarkOrderAsPaidAsync(entity);
             }
-            
+
             return Ok(entity);
         }
         catch (Exception ex)

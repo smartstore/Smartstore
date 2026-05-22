@@ -60,7 +60,7 @@ public partial class AdminMenu : MenuBase
         var url = node.GetAttribute("url");
         var icon = node.GetAttribute("icon").NullEmpty();
 
-        var item = new MenuItem 
+        var item = new MenuItem
         {
             Id = id,
             Text = node.GetAttribute("title").NullEmpty(),
@@ -69,7 +69,7 @@ public partial class AdminMenu : MenuBase
             IconClass = node.GetAttribute("iconClass").NullEmpty(),
             ImageUrl = node.GetAttribute("imageUrl").NullEmpty()
         };
-        
+
         var root = new TreeNode<MenuItem>(item, id);
 
         if (icon.HasValue())

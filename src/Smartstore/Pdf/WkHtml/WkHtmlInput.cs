@@ -1,94 +1,94 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Http;
 
-namespace Smartstore.Pdf.WkHtml
+namespace Smartstore.Pdf.WkHtml;
+
+internal class WkHtmlInput : IPdfInput
 {
-    internal class WkHtmlInput : IPdfInput
+    private string _html;
+    private string _originalHtml;
+    private bool _processed;
+    private string _tempFilePath;
+
+    private readonly WkHtmlToPdfOptions _options;
+    private readonly HttpContext _httpContext;
+
+    public WkHtmlInput(string html, WkHtmlToPdfOptions options, HttpContext httpContext)
     {
-        private string _html;
-        private string _originalHtml;
-        private bool _processed;
-        private string _tempFilePath;
+        _originalHtml = html;
+        _html = html;
+        _options = options;
+        // Can be null
+        _httpContext = httpContext;
+    }
 
-        private readonly WkHtmlToPdfOptions _options;
-        private readonly HttpContext _httpContext;
+    public PdfInputKind Kind { get; private set; } = PdfInputKind.Html;
 
-        public WkHtmlInput(string html, WkHtmlToPdfOptions options, HttpContext httpContext)
+    public string Content
+    {
+        get => _tempFilePath ?? _html;
+    }
+
+    public void Teardown()
+    {
+        if (_tempFilePath != null && File.Exists(_tempFilePath))
         {
-            _originalHtml = html;
-            _html = html;
-            _options = options;
-            // Can be null
-            _httpContext = httpContext;
+            try
+            {
+                File.Delete(_tempFilePath);
+            }
+            catch
+            {
+            }
         }
 
-        public PdfInputKind Kind { get; private set; } = PdfInputKind.Html;
+        Kind = PdfInputKind.Html;
+        _html = _originalHtml;
+        _tempFilePath = null;
+        _processed = false;
+    }
 
-        public string Content
+    internal async Task ProcessAsync(string flag)
+    {
+        if (_processed)
         {
-            get => _tempFilePath ?? _html;
+            return;
         }
 
-        public void Teardown()
+        if (_options.BaseUrl != null)
         {
-            if (_tempFilePath != null && File.Exists(_tempFilePath))
-            {
-                try
-                {
-                    File.Delete(_tempFilePath);
-                }
-                catch
-                {
-                }
-            }
-
-            Kind = PdfInputKind.Html;
-            _html = _originalHtml;
-            _tempFilePath = null;
-            _processed = false;
+            _html = WebHelper.MakeAllUrlsAbsolute(_html, _options.BaseUrl.Scheme, _options.BaseUrl.Authority);
+        }
+        else if (_httpContext?.Request != null)
+        {
+            _html = WebHelper.MakeAllUrlsAbsolute(_html, _httpContext.Request);
         }
 
-        internal async Task ProcessAsync(string flag)
+        if (!flag.EqualsNoCase("page"))
         {
-            if (_processed)
-            {
-                return;
-            }
-
-            if (_options.BaseUrl != null)
-            {
-                _html = WebHelper.MakeAllUrlsAbsolute(_html, _options.BaseUrl.Scheme, _options.BaseUrl.Authority);
-            }
-            else if (_httpContext?.Request != null)
-            {
-                _html = WebHelper.MakeAllUrlsAbsolute(_html, _httpContext.Request);
-            }
-
-            if (!flag.EqualsNoCase("page"))
-            {
-                await CreateTempFileAsync();
-            }
-
-            _processed = true;
+            await CreateTempFileAsync();
         }
 
-        private async Task CreateTempFileAsync()
-        {
-            // TODO: (mc) This is a very weak mechanism to determine if html is partial. Find a better way!
-            bool isPartial = !_html.Trim().StartsWith("<!DOCTYPE", StringComparison.OrdinalIgnoreCase);
-            if (isPartial)
-            {
-                _html = WrapPartialHtml(_html);
-            }
+        _processed = true;
+    }
 
-            _tempFilePath = WkHtmlToPdfConverter.GetTempFileName(".html");
-            await File.WriteAllBytesAsync(_tempFilePath, _html.GetBytes());
-            Kind = PdfInputKind.File;
+    private async Task CreateTempFileAsync()
+    {
+        // TODO: (mc) This is a very weak mechanism to determine if html is partial. Find a better way!
+        bool isPartial = !_html.Trim().StartsWith("<!DOCTYPE", StringComparison.OrdinalIgnoreCase);
+        if (isPartial)
+        {
+            _html = WrapPartialHtml(_html);
         }
 
-        private static string WrapPartialHtml(string html)
-        {
-            return $@"<!DOCTYPE html><html><head>
+        _tempFilePath = WkHtmlToPdfConverter.GetTempFileName(".html");
+        await File.WriteAllBytesAsync(_tempFilePath, _html.GetBytes());
+        Kind = PdfInputKind.File;
+    }
+
+    private static string WrapPartialHtml(string html)
+    {
+        return $@"<!DOCTYPE html><html><head>
 <script>
     function subst() {{
         var vars = {{}};
@@ -110,6 +110,5 @@ namespace Smartstore.Pdf.WkHtml
         }}
     }}
 </script></head><body style='border: 0; margin: 0;' onload='subst()'>{html}</body></html>";
-        }
     }
 }

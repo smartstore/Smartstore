@@ -1,6 +1,5 @@
-﻿namespace Smartstore.Web.Controllers
+﻿namespace Smartstore.Web.Controllers;
+
+public abstract class ModuleController : ManageController
 {
-    public abstract class ModuleController : ManageController
-    {
-    }
 }

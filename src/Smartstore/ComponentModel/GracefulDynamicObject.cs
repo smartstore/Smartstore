@@ -2,40 +2,39 @@
 
 using System.Dynamic;
 
-namespace Smartstore.ComponentModel
+namespace Smartstore.ComponentModel;
+
+/// <summary>
+/// A simple <see cref="DynamicObject"/> implementaion that does not throw
+/// when accessed member was not found.
+/// </summary>
+public class GracefulDynamicObject : DynamicObject
 {
-    /// <summary>
-    /// A simple <see cref="DynamicObject"/> implementaion that does not throw
-    /// when accessed member was not found.
-    /// </summary>
-    public class GracefulDynamicObject : DynamicObject
+    private readonly Dictionary<string, object?> _data;
+
+    public GracefulDynamicObject(bool ignoreCase = false)
     {
-        private readonly Dictionary<string, object?> _data;
+        _data = ignoreCase ? new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase) : [];
+    }
 
-        public GracefulDynamicObject(bool ignoreCase = false)
-        {
-            _data = ignoreCase ? new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase) : [];
-        }
+    public override IEnumerable<string> GetDynamicMemberNames()
+    {
+        return _data.Keys;
+    }
 
-        public override IEnumerable<string> GetDynamicMemberNames()
-        {
-            return _data.Keys;
-        }
+    public override bool TryGetMember(GetMemberBinder binder, out object? result)
+    {
+        Guard.NotNull(binder);
 
-        public override bool TryGetMember(GetMemberBinder binder, out object? result)
-        {
-            Guard.NotNull(binder);
+        _data.TryGetValue(binder.Name, out result);
+        return true;
+    }
 
-            _data.TryGetValue(binder.Name, out result);
-            return true;
-        }
+    public override bool TrySetMember(SetMemberBinder binder, object? value)
+    {
+        Guard.NotNull(binder);
 
-        public override bool TrySetMember(SetMemberBinder binder, object? value)
-        {
-            Guard.NotNull(binder);
-
-            _data[binder.Name] = value;
-            return true;
-        }
+        _data[binder.Name] = value;
+        return true;
     }
 }

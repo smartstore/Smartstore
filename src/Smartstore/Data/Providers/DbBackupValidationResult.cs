@@ -1,34 +1,33 @@
-﻿namespace Smartstore.Data.Providers
+﻿namespace Smartstore.Data.Providers;
+
+/// <summary>
+/// Represents the result of a database backup name validation.
+/// </summary>
+public record DbBackupValidationResult(string Name)
 {
     /// <summary>
-    /// Represents the result of a database backup name validation.
+    /// The file name of the database backup.
     /// </summary>
-    public record DbBackupValidationResult(string Name)
-    {
-        /// <summary>
-        /// The file name of the database backup.
-        /// </summary>
-        public string Name { get; } = Name;
+    public string Name { get; } = Name;
 
-        /// <summary>
-        /// A value indicating whether the backup is valid.
-        /// </summary>
-        public bool IsValid { get; init; }
+    /// <summary>
+    /// A value indicating whether the backup is valid.
+    /// </summary>
+    public bool IsValid { get; init; }
 
-        /// <summary>
-        /// The Smartstore version under which the backup was created.
-        /// </summary>
-        public Version Version { get; init; }
+    /// <summary>
+    /// The Smartstore version under which the backup was created.
+    /// </summary>
+    public Version Version { get; init; }
 
-        /// <summary>
-        /// Timestamp representing the date (in local time) when the backup was created.
-        /// </summary>
-        public DateTime Timestamp { get; init; }
+    /// <summary>
+    /// Timestamp representing the date (in local time) when the backup was created.
+    /// </summary>
+    public DateTime Timestamp { get; init; }
 
-        /// <summary>
-        /// A value indicating whether the backup version matches current Smartstore version.
-        /// </summary>
-        public bool MatchesCurrentVersion
-            => Version != null && Version == SmartstoreVersion.Version;
-    }
+    /// <summary>
+    /// A value indicating whether the backup version matches current Smartstore version.
+    /// </summary>
+    public bool MatchesCurrentVersion
+        => Version != null && Version == SmartstoreVersion.Version;
 }

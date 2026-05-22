@@ -245,7 +245,7 @@ public class MultimapConverterTests
             { 2, new ProductReview { ReviewText = "Good" } },
             { 2, new ProductTag { Name = "Tag" } }
         };
-        
+
         var json = JsonSerializer.Serialize(multimap, _options);
         json.ShouldNotBeNull();
 

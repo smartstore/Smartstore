@@ -1,48 +1,47 @@
-﻿namespace Smartstore.Data.Caching
+﻿namespace Smartstore.Data.Caching;
+
+public class DbCachingPolicy
 {
-    public class DbCachingPolicy
+    public DbCachingPolicy()
     {
-        public DbCachingPolicy()
+    }
+
+    public DbCachingPolicy(CacheableEntityAttribute attribute)
+    {
+        NoCaching = attribute.NeverCache;
+        Merge(attribute);
+    }
+
+    internal DbCachingPolicy Merge(CacheableEntityAttribute attribute)
+    {
+        // Merge global policy with query policy
+        if (ExpirationTimeout == null && attribute?.Expiry > 0)
         {
+            ExpirationTimeout = TimeSpan.FromMinutes(attribute.Expiry);
         }
 
-        public DbCachingPolicy(CacheableEntityAttribute attribute)
+        if (MaxRows == null && attribute?.MaxRows > 0)
         {
-            NoCaching = attribute.NeverCache;
-            Merge(attribute);
+            MaxRows = attribute.MaxRows;
         }
 
-        internal DbCachingPolicy Merge(CacheableEntityAttribute attribute)
-        {
-            // Merge global policy with query policy
-            if (ExpirationTimeout == null && attribute?.Expiry > 0)
-            {
-                ExpirationTimeout = TimeSpan.FromMinutes(attribute.Expiry);
-            }
+        return this;
+    }
 
-            if (MaxRows == null && attribute?.MaxRows > 0)
-            {
-                MaxRows = attribute.MaxRows;
-            }
+    internal bool NoCaching { get; set; }
 
-            return this;
-        }
+    /// <summary>
+    /// Gets or sets a max rows limit. Query results with more items than the given number will not be cached.
+    /// </summary>
+    public int? MaxRows { get; internal set; }
 
-        internal bool NoCaching { get; set; }
+    /// <summary>
+    /// Gets or sets the expiration timeout. Default value 3 hours.
+    /// </summary>
+    public TimeSpan? ExpirationTimeout { get; internal set; }
 
-        /// <summary>
-        /// Gets or sets a max rows limit. Query results with more items than the given number will not be cached.
-        /// </summary>
-        public int? MaxRows { get; internal set; }
-
-        /// <summary>
-        /// Gets or sets the expiration timeout. Default value 3 hours.
-        /// </summary>
-        public TimeSpan? ExpirationTimeout { get; internal set; }
-
-        public override string ToString()
-        {
-            return $"Timeout: {ExpirationTimeout}, MaxRows: {MaxRows}";
-        }
+    public override string ToString()
+    {
+        return $"Timeout: {ExpirationTimeout}, MaxRows: {MaxRows}";
     }
 }

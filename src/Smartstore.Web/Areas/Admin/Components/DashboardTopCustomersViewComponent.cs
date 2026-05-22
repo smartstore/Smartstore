@@ -24,7 +24,7 @@ public class DashboardTopCustomersViewComponent : SmartViewComponent
 
         var customer = Services.WorkContext.CurrentCustomer;
         var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync("Customer", customer.Id);
-        
+
         var orderQuery = _db.Orders.Where(x => !x.Customer.Deleted).ApplyCustomerFilter(authorizedStoreIds);
 
         var reportByQuantity = await orderQuery

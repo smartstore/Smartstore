@@ -9,4 +9,3 @@ public class AppleExternalAuthSettings : ISettings
     public string KeyId { get; set; }
     public string PrivateKey { get; set; }
 }
-

@@ -129,8 +129,8 @@ public class DiscountController : AdminController
             await _db.SaveChangesAsync();
 
             Services.ActivityLogger.LogActivity(
-                KnownActivityLogTypes.DeleteDiscount, 
-                T("ActivityLog.DeleteDiscount"), 
+                KnownActivityLogTypes.DeleteDiscount,
+                T("ActivityLog.DeleteDiscount"),
                 string.Join(", ", entities.Select(x => x.Name)));
         }
 

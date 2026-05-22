@@ -24,9 +24,9 @@ internal class SqliteDateDiffTranslator : IMethodCallTranslator
     }
 
     public SqlExpression Translate(
-        SqlExpression instance, 
-        MethodInfo method, 
-        IReadOnlyList<SqlExpression> arguments, 
+        SqlExpression instance,
+        MethodInfo method,
+        IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
         // Check if one of our DateDiff* methods were called
@@ -64,7 +64,7 @@ internal class SqliteDateDiffTranslator : IMethodCallTranslator
                 return Multiply(daysDiff, Constant(86400));
             }
         }
-        
+
         return null;
     }
 
@@ -96,7 +96,7 @@ internal class SqliteDateDiffTranslator : IMethodCallTranslator
         // right * right
         return _sqlExpressionFactory.Multiply(left, right, _typeMappingSource.FindMapping(typeof(double?)));
     }
-    
+
     private SqlExpression Divide(SqlExpression left, SqlExpression right)
     {
         // right / right

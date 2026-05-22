@@ -170,7 +170,7 @@ public partial interface IPaymentMethod : IProvider, IUserEditable
     Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest request);
 
     /// <summary>
-		/// Post-process payment. Called after (!) an order has been placed or when the user starts the payment again and is redirected
+    /// Post-process payment. Called after (!) an order has been placed or when the user starts the payment again and is redirected
     /// to the payment page of a third-party provider for this purpose (only required for older payment methods).
     /// </summary>
     /// <param name="request">Payment info required for order processing.</param>

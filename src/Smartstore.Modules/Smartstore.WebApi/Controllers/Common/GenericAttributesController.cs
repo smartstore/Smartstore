@@ -85,7 +85,7 @@ public class GenericAttributesController : WebApiController<GenericAttribute>
 
     private void CheckCustomerAttributes(GenericAttribute entity)
     {
-        if (entity != null 
+        if (entity != null
             && entity.KeyGroup.EqualsNoCase(nameof(Customer))
             && _forbiddenCustomerAttributes.Contains(entity.Key, StringComparer.OrdinalIgnoreCase))
         {

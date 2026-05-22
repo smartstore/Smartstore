@@ -22,9 +22,9 @@ public class PayPalAdminController : ModuleController
     private readonly ILocalizedEntityService _localizedEntityService;
 
     public PayPalAdminController(
-        ICacheFactory cacheFactory, 
-        IProviderManager providerManager, 
-        PayPalHttpClient client, 
+        ICacheFactory cacheFactory,
+        IProviderManager providerManager,
+        PayPalHttpClient client,
         ILocalizedEntityService localizedEntityService)
     {
         _cacheFactory = cacheFactory;
@@ -181,7 +181,7 @@ public class PayPalAdminController : ModuleController
     {
         var success = false;
         var message = string.Empty;
-        
+
         try
         {
             var accessTokenRequest = _client.RequestFactory.AccessToken(authCode: authCode, sharedId: sharedId, sellerNonce: sellerNonce);

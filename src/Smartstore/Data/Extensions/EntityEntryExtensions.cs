@@ -113,7 +113,7 @@ public static class EntityEntryExtensions
     {
         // Be aware of the entity state. you cannot get modified properties for detached entities.
         EnsureChangesDetected(entry);
-        
+
         if (entry.State != EfState.Modified)
         {
             yield break;
@@ -172,7 +172,7 @@ public static class EntityEntryExtensions
         if (ctx is HookingDbContext { IsInSaveOperation: true })
         {
             return;
-        }  
+        }
 
         if (state == EfState.Unchanged || state == EfState.Modified)
         {

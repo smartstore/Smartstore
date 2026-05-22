@@ -1,41 +1,40 @@
 ﻿using Microsoft.Extensions.Logging;
 using Smartstore.IO;
 
-namespace Smartstore.Engine.Modularity
-{
-    internal class ModuleLoader
-    {
-        private readonly IApplicationContext _appContext;
+namespace Smartstore.Engine.Modularity;
 
-        public ModuleLoader(IApplicationContext appContext)
+internal class ModuleLoader
+{
+    private readonly IApplicationContext _appContext;
+
+    public ModuleLoader(IApplicationContext appContext)
+    {
+        _appContext = appContext;
+    }
+
+    public void LoadModule(ModuleDescriptor descriptor)
+    {
+        if (descriptor == null || descriptor.Incompatible)
         {
-            _appContext = appContext;
+            return;
         }
 
-        public void LoadModule(ModuleDescriptor descriptor)
+        descriptor.Module = new ModuleAssemblyInfo(descriptor);
+
+        if (descriptor.Theme.HasValue() && !PathUtility.HasInvalidPathChars(descriptor.Theme))
         {
-            if (descriptor == null || descriptor.Incompatible)
+            // Module is a theme companion. Create theme symlink: /Themes/{Theme} --> /Modules/{Module}
+            var themeDir = _appContext.ThemesRoot.GetDirectory(descriptor.Theme);
+            if (!themeDir.Exists)
             {
-                return;
-            }
-
-            descriptor.Module = new ModuleAssemblyInfo(descriptor);
-
-            if (descriptor.Theme.HasValue() && !PathUtility.HasInvalidPathChars(descriptor.Theme))
-            {
-                // Module is a theme companion. Create theme symlink: /Themes/{Theme} --> /Modules/{Module}
-                var themeDir = _appContext.ThemesRoot.GetDirectory(descriptor.Theme);
-                if (!themeDir.Exists) 
+                // Create symlink only if theme dir does not exist
+                try
                 {
-                    // Create symlink only if theme dir does not exist
-                    try
-                    {
-                        Directory.CreateSymbolicLink(themeDir.PhysicalPath, descriptor.PhysicalPath);
-                    }
-                    catch (Exception ex)
-                    {
-                        _appContext.Logger.Error(ex);
-                    }
+                    Directory.CreateSymbolicLink(themeDir.PhysicalPath, descriptor.PhysicalPath);
+                }
+                catch (Exception ex)
+                {
+                    _appContext.Logger.Error(ex);
                 }
             }
         }

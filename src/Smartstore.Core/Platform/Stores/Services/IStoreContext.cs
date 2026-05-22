@@ -1,48 +1,47 @@
-﻿namespace Smartstore.Core.Stores
+﻿namespace Smartstore.Core.Stores;
+
+/// <summary>
+/// Store context
+/// </summary>
+public interface IStoreContext
 {
     /// <summary>
-    /// Store context
+    /// Gets or sets the current store
     /// </summary>
-    public interface IStoreContext
-    {
-        /// <summary>
-        /// Gets or sets the current store
-        /// </summary>
-        /// <remarks>Setter is for virtualization and testing purposes</remarks>
-        Store CurrentStore { get; set; }
+    /// <remarks>Setter is for virtualization and testing purposes</remarks>
+    Store CurrentStore { get; set; }
 
-        /// <summary>
-        /// Gets a cache wrapper for all untracked store entities.
-        /// </summary>
-        StoreEntityCache GetCachedStores();
+    /// <summary>
+    /// Gets a cache wrapper for all untracked store entities.
+    /// </summary>
+    StoreEntityCache GetCachedStores();
 
-        /// <summary>
-        /// IsSingleStoreMode ? 0 : CurrentStore.Id
-        /// </summary>
-        int CurrentStoreIdIfMultiStoreMode { get; }
+    /// <summary>
+    /// IsSingleStoreMode ? 0 : CurrentStore.Id
+    /// </summary>
+    int CurrentStoreIdIfMultiStoreMode { get; }
 
-        /// <summary>
-        /// Sets a store override to be used for the current request
-        /// </summary>
-        /// <param name="storeId">The store override or <c>null</c> to remove the override</param>
-        void SetRequestStore(int? storeId);
+    /// <summary>
+    /// Sets a store override to be used for the current request
+    /// </summary>
+    /// <param name="storeId">The store override or <c>null</c> to remove the override</param>
+    void SetRequestStore(int? storeId);
 
-        /// <summary>
-        /// Sets a store override to be used for the current user's session (e.g. for preview mode)
-        /// </summary>
-        /// <param name="storeId">The store override or <c>null</c> to remove the override</param>
-        void SetPreviewStore(int? storeId);
+    /// <summary>
+    /// Sets a store override to be used for the current user's session (e.g. for preview mode)
+    /// </summary>
+    /// <param name="storeId">The store override or <c>null</c> to remove the override</param>
+    void SetPreviewStore(int? storeId);
 
-        /// <summary>
-        /// Gets the store override for the current request
-        /// </summary>
-        /// <returns>The store override or <c>null</c></returns>
-        int? GetRequestStore();
+    /// <summary>
+    /// Gets the store override for the current request
+    /// </summary>
+    /// <returns>The store override or <c>null</c></returns>
+    int? GetRequestStore();
 
-        /// <summary>
-        /// Gets the store override for the current session
-        /// </summary>
-        /// <returns>The store override or <c>null</c></returns>
-        int? GetPreviewStore();
-    }
+    /// <summary>
+    /// Gets the store override for the current session
+    /// </summary>
+    /// <returns>The store override or <c>null</c></returns>
+    int? GetPreviewStore();
 }

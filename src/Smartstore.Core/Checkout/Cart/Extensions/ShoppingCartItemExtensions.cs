@@ -14,8 +14,8 @@ public static class ShoppingCartItemExtensions
     /// <param name="storeId">Store identifier to filter by.</param>
     /// <param name="active">A value indicating whether to load active items. <c>null</c> to load all items.</param>
     /// <param name="hasParent">A value indicating whether to load items that has a parent item. <c>null</c> to load all items.</param>
-    public static IOrderedEnumerable<ShoppingCartItem> FilterByCartType(this ICollection<ShoppingCartItem> cart, 
-        ShoppingCartType cartType, 
+    public static IOrderedEnumerable<ShoppingCartItem> FilterByCartType(this ICollection<ShoppingCartItem> cart,
+        ShoppingCartType cartType,
         int? storeId = null,
         bool? active = true,
         bool? hasParent = null)
