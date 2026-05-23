@@ -17,10 +17,11 @@
 
     var hasImageHeader = HasHeader(AssociatedProductHeader.Image);
     var hasSkuHeader = HasHeader(AssociatedProductHeader.Sku);
+    var hasGtinHeader = HasHeader(AssociatedProductHeader.Gtin);
     var hasDimensionsHeader = HasHeader(AssociatedProductHeader.Dimensions);
     var hasWeightHeader = HasHeader(AssociatedProductHeader.Weight);
     var hasPriceHeader = HasHeader(AssociatedProductHeader.Price);
-    var hasData = hasSkuHeader || hasDimensionsHeader || hasWeightHeader;
+    var hasData = hasSkuHeader || hasGtinHeader || hasDimensionsHeader || hasWeightHeader;
     var hasDataCol = hasData || hasPriceHeader;
 
     var dataLen = HeaderFields().Length;
@@ -138,6 +139,9 @@
             <div class="row gx-2 flex-nowrap align-items-center w-100">
                 <div sm-if="@hasSkuHeader" class="col pd-assoc-attr text-start text-lg-center d-none d-sm-block" title="@Model.Sku">
                     @Model.Sku
+                </div>
+                <div sm-if="@hasGtinHeader" class="col pd-assoc-attr text-start text-lg-center d-none d-sm-block" title="@Model.Gtin">
+                    @Model.Gtin
                 </div>
                 <div sm-if="@hasDimensionsHeader" class="col pd-assoc-attr text-start text-lg-center d-none d-sm-block" title="@GetFormattedDimensions(true)">
                     @GetFormattedDimensions(false)

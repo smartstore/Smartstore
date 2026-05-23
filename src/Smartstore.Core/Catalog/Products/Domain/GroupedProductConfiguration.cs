@@ -12,6 +12,7 @@ public static class AssociatedProductHeader
     public const string Name = "name";
     public const string Image = "image";
     public const string Sku = "sku";
+    public const string Gtin = "gtin";
     public const string Dimensions = "dimensions";
     public const string Weight = "weight";
     public const string Price = "price";

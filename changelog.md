@@ -70,6 +70,7 @@
     - Reactivated instant payment by Santander
 - PostFinance/Skrill: Improved the processing of webhook messages.
 - Rebranded payever payment methods. Zinia became Openbank.
+- Grouped products: The GTIN has been added as a header field in the list of associated products.
 - **Downloadable products**
   - Sort downloadable products by order date in descending order in the my-account section.
   - Show download button for a downloadable product on order detail page.

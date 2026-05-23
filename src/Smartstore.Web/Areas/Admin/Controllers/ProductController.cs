@@ -1929,6 +1929,7 @@ public partial class ProductController : AdminController
         {
             new() { Value = AssociatedProductHeader.Image, Text = T("Common.Image"), Selected = headerFields.Contains(AssociatedProductHeader.Image) },
             new() { Value = AssociatedProductHeader.Sku, Text = T("Admin.Catalog.Products.Fields.Sku"), Selected = headerFields.Contains(AssociatedProductHeader.Sku) },
+            new() { Value = AssociatedProductHeader.Gtin, Text = T("Admin.Catalog.Products.Fields.Gtin"), Selected = headerFields.Contains(AssociatedProductHeader.Gtin) },
             new() { Value = AssociatedProductHeader.Price, Text = T("Admin.Catalog.Products.Fields.Price"), Selected = headerFields.Contains(AssociatedProductHeader.Price) },
             new() { Value = AssociatedProductHeader.Weight, Text = T("Admin.Catalog.Products.Fields.Weight"), Selected = headerFields.Contains(AssociatedProductHeader.Weight) },
             new() { Value = AssociatedProductHeader.Dimensions, Text = T("Admin.Configuration.Measures.Dimensions"), Selected = headerFields.Contains(AssociatedProductHeader.Dimensions) }
