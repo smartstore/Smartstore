@@ -50,11 +50,8 @@
         </column>
         <column for="Published" halign="center" />
         <column for="DisplayOrder" halign="center" />
-		@if (!isSingleStoreMode)
-		{
-			<column for="LimitedToStores" halign="center" />
-		}
-        <column for="CreatedOn" entity-member="CreatedOnUtc" visible="false" />
+		<column for="LimitedToStores" halign="center" sm-if="!isSingleStoreMode" />
+		<column for="CreatedOn" entity-member="CreatedOnUtc" visible="false" />
         <column for="UpdatedOn" entity-member="UpdatedOnUtc" visible="false" />
     </columns>
 </datagrid>

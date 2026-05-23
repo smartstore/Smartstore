@@ -47,23 +47,21 @@
         <partial name="Grids/_Grid.Products.Search" model="parentModel" />
     </search-panel>
     <columns>
-        @if (parentModel.DisplayProductPictures)
-        {
-            <column for="PictureThumbnailUrl"
-                    title=""
-                    width="48px"
-                    sortable="false"
-                    visible="true"
-                    readonly="true"
-                    resizable="false"
-                    reorderable="false">
-                <display-template>
-                    <div v-if="item.row.Id > 0" class="hstack justify-content-center position-absolute w-100 h-100 top-0 start-0" style="padding: 8px;">
-                        <img :alt="item.row.Id" :src="item.value" style="max-width: 42px; max-height: 32px" />
-                    </div>
-                </display-template>
-            </column>
-        }
+        <column for="PictureThumbnailUrl"
+                sm-if="parentModel.DisplayProductPictures"
+                title=""
+                width="48px"
+                sortable="false"
+                visible="true"
+                readonly="true"
+                resizable="false"
+                reorderable="false">
+            <display-template>
+                <div v-if="item.row.Id > 0" class="hstack justify-content-center position-absolute w-100 h-100 top-0 start-0" style="padding: 8px;">
+                    <img :alt="item.row.Id" :src="item.value" style="max-width: 42px; max-height: 32px" />
+                </div>
+            </display-template>
+        </column>
         <column for="Name" width="3fr" hideable="false">
             <display-template>
                 @Html.LabeledProductName()

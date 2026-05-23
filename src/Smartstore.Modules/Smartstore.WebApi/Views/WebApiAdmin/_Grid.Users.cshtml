@@ -38,10 +38,7 @@
                 </a>
             </display-template>
         </column>
-        @if (ViewBag.UsernamesEnabled)
-        {
-            <column for="Username" />
-        }
+        <column for="Username" sm-if="ViewBag.UsernamesEnabled == true" />
         <column for="FullName" />
         <column for="Active" halign="center" />
         <column for="AdminComment" />

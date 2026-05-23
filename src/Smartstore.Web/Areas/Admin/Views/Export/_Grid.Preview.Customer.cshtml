@@ -1,4 +1,4 @@
-﻿@model ExportPreviewCustomerModel
+@model ExportPreviewCustomerModel
 
 @{
 	var parentModel = ViewData["Parent"] as ExportPreviewModel;
@@ -16,18 +16,17 @@
 			<i class="far fa-upload"></i>
 			<span>@T("Admin.Common.ExportSelected")</span>
         </button>
-        <button type="button" id="ExportAll" class="btn btn-primary btn-flat" v-bind:class="{ disabled: grid.rows.length == 0 }">
-			<i class="far fa-upload"></i>
-			<span>@T("Admin.Common.ExportAll")</span>
-        </button>
+		<fragment>
+			<button type="button" id="ExportAll" class="btn btn-primary btn-flat" v-bind:class="{ disabled: grid.rows.length == 0 }">
+				<i class="far fa-upload"></i>
+				<span>@T("Admin.Common.ExportAll")</span>
+			</button>
+		</fragment>
 	</toolbar>
 	<columns>
 		<column for="Id" halign="center" type="string" />
 		<column for="Email" hideable="false" />
-		@if (parentModel.UsernamesEnabled)
-		{
-			<column for="Username" />
-		}
+		<column for="Username" sm-if="parentModel.UsernamesEnabled" />
 		<column for="FullName" />
 		<column for="CustomerRoleNames" />
 		<column for="Active" halign="center" />

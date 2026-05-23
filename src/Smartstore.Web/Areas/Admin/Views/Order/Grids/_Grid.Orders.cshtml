@@ -21,15 +21,13 @@
         <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
     </sorting>
     <toolbar>
-        @if (isOrderListPage)
-        {
-            <toolbar-group>
+        <toolbar-group sm-if="isOrderListPage">
                 <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
                     <i class="fa fa-fw fa-filter"></i>
                 </button>
             </toolbar-group>
 
-            <toolbar-group class="dropdown">
+            <toolbar-group class="dropdown" sm-if="isOrderListPage">
                 <button type="button" class="btn btn-light btn-flat dropdown-toggle" data-toggle="dropdown" data-boundary="window">
                     @T("Admin.Common.Export.PDF")
                 </button>
@@ -44,7 +42,6 @@
                     </a>
                 </div>
             </toolbar-group>
-        }
         <zone name="datagrid_toolbar_alpha"></zone>
         <toolbar-group class="omega"></toolbar-group>
         <zone name="datagrid_toolbar_omega"></zone>
@@ -57,12 +54,9 @@
             </div>
         </toolbar-group>
     </toolbar>
-    @if (isOrderListPage)
-    {
-        <search-panel>
-            <partial name="~/Areas/Admin/Views/Order/Grids/_Grid.Orders.Search.cshtml" model="parentModel" />
-        </search-panel>
-    }
+    <search-panel sm-if="isOrderListPage">
+        <partial name="~/Areas/Admin/Views/Order/Grids/_Grid.Orders.Search.cshtml" model="parentModel" />
+    </search-panel>
     <columns>
         <column for="Id" halign="center" visible="false" type="string" />
         <column for="OrderNumber" hideable="false" width="auto">

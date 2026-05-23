@@ -29,7 +29,7 @@ public enum DataRowAction
 /// </code>
 /// </summary>
 [HtmlTargetElement("row-commands", ParentTag = "datagrid")]
-[RestrictChildren("a", "div")]
+[RestrictChildren("fragment", "a", "div")]
 public class GridRowCommandsTagHelper : TagHelper
 {
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)

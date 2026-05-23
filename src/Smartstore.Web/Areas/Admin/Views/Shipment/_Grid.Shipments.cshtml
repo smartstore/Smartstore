@@ -30,26 +30,18 @@
         <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="@sortDesc" />
     </sorting>
     <toolbar>
-        @if (isOrderEditPage)
-        {
-            if (canAddNewShipments)
-            {
-                <toolbar-group>
-                    <a asp-action="Create" asp-controller="Shipment" asp-route-orderId="@orderId" class="btn btn-primary btn-flat">
-                        <i class="fa fa-plus"></i>
-                        <span>@T("Admin.Orders.Shipments.AddNew")</span>
-                    </a>
-                </toolbar-group>
-            }
-        }
-        else
-        {
-            <toolbar-group>
+        <toolbar-group sm-if="isOrderEditPage && canAddNewShipments">
+                <a asp-action="Create" asp-controller="Shipment" asp-route-orderId="@orderId" class="btn btn-primary btn-flat">
+                    <i class="fa fa-plus"></i>
+                    <span>@T("Admin.Orders.Shipments.AddNew")</span>
+                </a>
+            </toolbar-group>
+            <toolbar-group sm-if="!isOrderEditPage">
                 <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
                     <i class="fa fa-fw fa-filter"></i>
                 </button>
             </toolbar-group>
-            <toolbar-group class="dropdown">
+            <toolbar-group class="dropdown" sm-if="!isOrderEditPage">
                 <button type="button" class="btn btn-flat btn-light dropdown-toggle" data-toggle="dropdown">
                     <i class="fa fa-print"></i>
                     <span>@T("Admin.Common.Print")</span>
@@ -63,29 +55,22 @@
                     </a>
                 </div>
             </toolbar-group>
-        }
         <zone name="datagrid_toolbar_omega"></zone>
     </toolbar>
-    @if (!isOrderEditPage)
-    {
-        <search-panel>
-            <partial name="_Grid.Shipments.Search" model="parentModel" />
-        </search-panel>
-    }
+    <search-panel sm-if="!isOrderEditPage">
+        <partial name="_Grid.Shipments.Search" model="parentModel" />
+    </search-panel>
     <columns>
         <column for="Id" hideable="false" halign="center">
             <display-template>
                 <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
             </display-template>
         </column>
-        @if (!isOrderEditPage)
-        {
-            <column for="OrderNumber" entity-member="Order.OrderNumber">
-                <display-template>
-                    <div class="text-truncate"><a :href="item.row.OrderEditUrl" class="text-truncate">{{ item.value }}</a></div>
-                </display-template>
-            </column>
-        }
+        <column for="OrderNumber" entity-member="Order.OrderNumber" sm-if="!isOrderEditPage">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.OrderEditUrl" class="text-truncate">{{ item.value }}</a></div>
+            </display-template>
+        </column>
         <column for="TrackingNumber" />
         <column for="Carrier" visible="false" />
         <column for="TrackingUrl" visible="false">

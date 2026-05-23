@@ -43,12 +43,7 @@
     <columns>
         <column for="Email" width="2fr" hideable="false" />
         <column for="Active" halign="center" />
-
-        @if (!(bool)ViewBag.IsSingleStoreMode)
-        {
-            <column for="StoreName" readonly sortable="false" />
-        }
-
+        <column for="StoreName" readonly sortable="false" sm-if="!(bool)ViewBag.IsSingleStoreMode" />
         <column for="CreatedOn" entity-member="CreatedOnUtc" readonly />
     </columns>
     <row-commands>

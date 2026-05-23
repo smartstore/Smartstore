@@ -29,10 +29,7 @@
                 </a>
             </display-template>
         </column>
-        @if (ViewBag.UsernamesEnabled)
-        {
-            <column for="Username" sortable="false" />
-        }
+        <column for="Username" sortable="false" sm-if="(bool)ViewBag.UsernamesEnabled" />
         <column for="FullName" sortable="false" />
         <column for="Active" halign="center" sortable="false" />
         <column for="LastActivityDate" sortable="false" />

@@ -15,10 +15,7 @@
         <column for="Quantity" halign="center" />
         <column for="UnitPrice" halign="right" />
         <column for="Total" halign="right" />
-        @if (!(bool)ViewBag.IsSingleStoreMode)
-        {
-            <column for="Store" />
-        }
+        <column for="Store" sm-if="!(bool)ViewBag.IsSingleStoreMode" />
         <column for="UpdatedOn" />
     </columns>
 </datagrid>

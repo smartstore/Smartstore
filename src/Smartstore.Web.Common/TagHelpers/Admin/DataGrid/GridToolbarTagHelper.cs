@@ -43,7 +43,7 @@ public enum DataGridToolAction
 /// </code>
 /// </summary>
 [HtmlTargetElement("toolbar", ParentTag = "datagrid")]
-[RestrictChildren("toolbar-group", "a", "button", "div", "zone")]
+[RestrictChildren("toolbar-group", "fragment", "a", "button", "div", "zone")]
 public class GridToolbarTagHelper : TagHelper
 {
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
@@ -67,7 +67,7 @@ public class GridToolbarTagHelper : TagHelper
 
 [OutputElementHint("div")]
 [HtmlTargetElement("toolbar-group", ParentTag = "toolbar")]
-[RestrictChildren("a", "button", "div", "zone")]
+[RestrictChildren("fragment", "a", "button", "div", "zone")]
 public class GridToolbarGroupTagHelper : TagHelper
 {
     public override void Process(TagHelperContext context, TagHelperOutput output)

@@ -57,10 +57,7 @@
         </column>
         <column for="CreatedOn" entity-member="CreatedOnUtc" />
         <column for="UpdatedOn" entity-member="UpdatedOnUtc" visible="false" />
-        @if (!isSingleStoreMode)
-        {
-            <column for="StoreName" sortable="false" />
-        }
+        <column for="StoreName" sortable="false" sm-if="!isSingleStoreMode" />
         <column for="StaffNotes" visible="false" wrap="true" />
         <column for="AdminComment" visible="false" wrap="true" />
         <column for="CustomerComments" visible="false" wrap="true" />

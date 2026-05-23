@@ -24,18 +24,12 @@
                 <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate" target="_blank">{{ item.value }}</a></div>
             </display-template>
 		</column>
-		@if (usernamesEnabled)
-		{
-			<column for="Username" />
-		}
+		<column for="Username" sm-if="usernamesEnabled" />
 		<column for="FullName" />
 		<column for="Active" halign="center" />
 		<column for="CreatedOn" />
 		<column for="LastActivityDate" />
-        @if (!isSingleStoreMode)
-        {
-            <column for="LimitedToStores" halign="center" />
-        }
+		<column for="LimitedToStores" halign="center" sm-if="!isSingleStoreMode" />
 	</columns>
 </datagrid>
 
