@@ -323,5 +323,9 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             .Value("de", "Welche Artikel möchten Sie zurücksenden?");
 
         builder.AddOrUpdate("Admin.Configuration.Currencies.Fields.ExchangeRateDate", "Exchange rate date", "Umrechnungskursdatum");
+
+        builder.AddOrUpdate("Admin.ThemeVar.Boxed")
+            .Value("de", "Legt fest, ob sich die Seite über den kompletten verfügbaren Platz streckt.");
+
     }
 }
