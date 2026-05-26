@@ -94,6 +94,18 @@ public class SmartHtmlGenerator : DefaultHtmlGenerator
         string format,
         IDictionary<string, object> htmlAttributes)
     {
+        // The ASP.NET Core System.ComponentModel.BooleanConverter does not recognize "0"/"1".
+        // Normalize string model state values for checkboxes before calling base to prevent FormatException.
+        if (inputType == InputType.CheckBox && value is string strVal)
+        {
+            value = strVal switch
+            {
+                "1" => "true",
+                "0" => "false",
+                _ => value
+            };
+        }
+
         var tag = base.GenerateInput(
             viewContext,
             inputType,
