@@ -284,5 +284,7 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
         builder.AddOrUpdate("ReturnRequests.SelectProduct(s)")
             .Value("de", "Welche Artikel möchten Sie zurücksenden?");
+
+        builder.AddOrUpdate("Admin.Configuration.Currencies.Fields.ExchangeRateDate", "Exchange rate date", "Umrechnungskursdatum");
     }
 }
