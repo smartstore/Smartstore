@@ -7,9 +7,9 @@ using Smartstore.Utilities;
 namespace Smartstore.Core.Content.Media.Tasks;
 
 /// <summary>
-/// Represents a task for deleting transient media from the database
-	/// (files and downloads which have been uploaded but never assigned to an entity).
+/// A task for deleting transient media from the database, i.e. files and downloads that have been uploaded but never assigned to an entity.
 /// </summary>
+/// <exception cref="DeleteTrackedFileException">Thrown if the file to be deleted is tracked.</exception>
 public partial class TransientMediaClearTask : ITask
 {
     private readonly SmartDbContext _db;
@@ -29,26 +29,27 @@ public partial class TransientMediaClearTask : ITask
         var olderThan = DateTime.UtcNow.AddHours(-3);
         var numDeleted = 0;
 
-        using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important))
+        using var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important);
+        var files = await _db.MediaFiles
+            .Where(x => x.IsTransient && x.UpdatedOnUtc < olderThan)
+            .ToListAsync(cancelToken);
+
+        foreach (var file in files)
         {
-            var files = await _db.MediaFiles.Where(x => x.IsTransient && x.UpdatedOnUtc < olderThan).ToListAsync(cancelToken);
-            foreach (var file in files)
-            {
-                await _mediaService.DeleteFileAsync(file, true);
-                numDeleted += 1;
-            }
+            await _mediaService.DeleteFileAsync(file, true);
+            numDeleted += 1;
+        }
 
-            await _db.SaveChangesAsync(cancelToken);
+        await _db.SaveChangesAsync(cancelToken);
 
-            numDeleted += await _db.Downloads
-                .Where(x => x.IsTransient && x.UpdatedOnUtc < olderThan)
-                .ExecuteDeleteAsync(cancelToken);
+        numDeleted += await _db.Downloads
+            .Where(x => x.IsTransient && x.UpdatedOnUtc < olderThan)
+            .ExecuteDeleteAsync(cancelToken);
 
-            if (numDeleted > 1000 && _db.DataProvider.CanOptimizeTable)
-            {
-                var tableName = _db.Model.FindEntityType(typeof(MediaFile)).GetTableName();
-                await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync(tableName, cancelToken));
-            }
+        if (numDeleted > 1000 && _db.DataProvider.CanOptimizeTable)
+        {
+            var tableName = _db.Model.FindEntityType(typeof(MediaFile)).GetTableName();
+            await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync(tableName, cancelToken));
         }
     }
 }
