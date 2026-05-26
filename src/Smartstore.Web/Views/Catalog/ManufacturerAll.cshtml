@@ -1,33 +1,10 @@
 ﻿@using Smartstore.Web.Models.Catalog
-@using Microsoft.AspNetCore.Http.Extensions
 
 @model IList<BrandModel>
 
 @{
     Assets.AppendTitleParts(T("PageTitle.Manufacturers"));
     Assets.AppendMetaDescriptionParts(T("PageDescription.Manufacturers", CommonServices.StoreContext.CurrentStore.Name));
-
-    // var url = Request.GetDisplayUrl();
-    // Assets.JsonLd.CollectionPage
-    //     .Prop("@id", url + "#webpage")
-    //     .Prop("url", url)
-    //     .Prop("name", T("Manufacturers.List"));
-
-    // if (Model.Count > 0)
-    // {
-    //     Assets.JsonLd.CollectionPage.Prop("mainEntity", new Dictionary<string, string> { ["@id"] = url + "#brand-list" });
-    // }
-    
-    // var position = 1;
-    // Assets.JsonLd.ItemList
-    //     .Prop("@id", url + "#brand-list")
-    //     .Prop("name", T("Manufacturers.List"))
-    //     .Arr("itemListElement", Model.Select(item => JsonLdFragment.Create("ListItem")
-    //         .Prop("position", position++)
-    //         .Obj("item", JsonLdFragment.Create("Brand")
-    //             .Prop("@id", Url.RouteUrl("Manufacturer", new { SeName = item.SeName }, Request.Scheme, null, "brand"))
-    //             .Prop("name", item.Name)
-    //             .Prop("url", Url.RouteUrl("Manufacturer", new { SeName = item.SeName }, Request.Scheme)))));
 
     var numericList = Model.Where(x => Char.IsNumber(x.Name.Value[0])).OrderBy(x => x.Name).ToArray();
     var alphabeticalList = Model.Except(numericList).Where(x => x.Name.HasValue()).OrderBy(x => x.Name).ToArray();

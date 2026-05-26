@@ -53,11 +53,6 @@ public class JsonLdBuilder
     public JsonLdFragment CollectionPage
         => this["CollectionPage"];
 
-    // TODO: (jsonld) Remove ItemList in favor of CollectionPage with mainEntity = ItemList. This is more flexible and allows to add more properties to the page itself.
-    /// <summary>Gets or creates the <c>ItemList</c> fragment.</summary>
-    public JsonLdFragment ItemList
-        => this["ItemList"];
-
     /// <summary>
     /// Gets or creates the <c>BreadcrumbList</c> fragment.
     /// </summary>
