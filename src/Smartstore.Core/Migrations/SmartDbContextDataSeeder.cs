@@ -327,5 +327,8 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.ThemeVar.Boxed")
             .Value("de", "Legt fest, ob sich die Seite über den kompletten verfügbaren Platz streckt.");
 
+        builder.AddOrUpdate("Admin.System.Maintenance.StorageStatusUpdate",
+            "The storage status for {0} downloads and {1} media files was updated to \"Temporary\". {2} tracks have been removed.",
+            "Bei {0} Downloads und {1} Mediendateien wurde der Speicherstatus auf \"Temporär\" aktualisiert. {2} Verweise wurden entfernt.");
     }
 }

@@ -7,7 +7,6 @@ using Smartstore.Core.Messaging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Http;
-using Smartstore.Threading;
 using Smartstore.Utilities;
 using Smartstore.Web.Models.DataGrid;
 
@@ -18,18 +17,15 @@ public class QueuedEmailController : AdminController
     private readonly SmartDbContext _db;
     private readonly IDateTimeHelper _dateTimeHelper;
     private readonly IQueuedEmailService _queuedEmailService;
-    private readonly AsyncRunner _asyncRunner;
 
     public QueuedEmailController(
         SmartDbContext db,
         IDateTimeHelper dateTimeHelper,
-        IQueuedEmailService queuedEmailService,
-        AsyncRunner asyncRunner)
+        IQueuedEmailService queuedEmailService)
     {
         _db = db;
         _dateTimeHelper = dateTimeHelper;
         _queuedEmailService = queuedEmailService;
-        _asyncRunner = asyncRunner;
     }
 
     public IActionResult Index()

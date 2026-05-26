@@ -30,6 +30,12 @@ public partial class TransientMediaClearTask : ITask
         var numDeleted = 0;
 
         using var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important);
+
+        // First delete transient downloads so that they won't reference media files that are deleted in the next step.
+        numDeleted += await _db.Downloads
+            .Where(x => x.IsTransient && x.UpdatedOnUtc < olderThan)
+            .ExecuteDeleteAsync(cancelToken);
+
         var files = await _db.MediaFiles
             .Where(x => x.IsTransient && x.UpdatedOnUtc < olderThan)
             .ToListAsync(cancelToken);
@@ -41,10 +47,6 @@ public partial class TransientMediaClearTask : ITask
         }
 
         await _db.SaveChangesAsync(cancelToken);
-
-        numDeleted += await _db.Downloads
-            .Where(x => x.IsTransient && x.UpdatedOnUtc < olderThan)
-            .ExecuteDeleteAsync(cancelToken);
 
         if (numDeleted > 1000 && _db.DataProvider.CanOptimizeTable)
         {

@@ -358,6 +358,104 @@ public partial class ProductController : AdminController
         return Json(string.Empty);
     }
 
+    // TODO: (mg) I don't like any of this. It's overly complicated and prone to errors, with too many "ifs" and "buts".
+
+    /// <summary>
+    /// Sets the transient storage status of old file uploads associated with product and checkout attributes.
+    /// </summary>
+    /// <remarks>
+    /// This method prepares for the TransientMediaClearTask, which deletes the transient downloads and files.
+    /// </remarks>
+    /// <param name="days">The number of days to determine which downloads are considered old.</param>
+    /// <param name="batchSize">The maximum number of records to process in each batch operation.</param>
+    [MaintenanceAction]
+    [Permission(Permissions.Catalog.Product.EditVariant)]
+    public async Task<IActionResult> UpdateAttributeFileUploadTransientState(int days = 180, int batchSize = 128)
+    {
+        const int maxBatches = 10000;
+        var numTracksDeleted = 0;
+        var numDownloadsUpdated = 0;
+        var numFilesUpdated = 0;
+
+        try
+        {
+            if (days > 0)
+            {
+                var olderThan = DateTime.UtcNow.AddDays(-days);
+
+                var query = _db.Downloads
+                    .Where(x => !x.IsTransient
+                        && x.MediaFileId != null
+                        && (x.EntityName == "ProductAttribute" || x.EntityName == "CheckoutAttribute")
+                        && x.UpdatedOnUtc < olderThan
+                        && x.MediaFile != null
+                        && x.MediaFile.Tracks.Count() <= 1)
+                    .OrderBy(x => x.Id)
+                    .Select(x => new 
+                    { 
+                        x.Id,
+                        x.MediaFileId,
+                        MediaTrackId = x.MediaFile.Tracks.Select(t => (int?)t.Id).FirstOrDefault()
+                    })
+                    .Take(batchSize);
+
+                for (var i = 0; i < maxBatches; i++)
+                {
+                    var ids = await query.ToListAsync();
+                    if (ids.Count == 0)
+                    {
+                        break;
+                    }
+
+                    // Delete tracks. This is required because otherwise transient records cannot be deleted.
+                    var trackIds = ids
+                        .Select(x => x.MediaTrackId ?? 0)
+                        .Where(x => x != 0)
+                        .Distinct()
+                        .ToArray();
+                    if (trackIds.Length > 0)
+                    {
+                        numTracksDeleted += await _db.MediaTracks
+                            .Where(x => trackIds.Contains(x.Id))
+                            .ExecuteDeleteAsync();
+                    }
+
+                    // Mark downloads as "transient".
+                    var downloadIds = ids.ToDistinctArray(x => x.Id);
+                    if (downloadIds.Length > 0)
+                    {
+                        numDownloadsUpdated += await _db.Downloads
+                            .Where(x => downloadIds.Contains(x.Id))
+                            .ExecuteUpdateAsync(x => x.SetProperty(d => d.IsTransient, d => true));
+                    }
+
+                    // Mark files as "transient".
+                    var fileIds = ids
+                        .Select(x => x.MediaFileId ?? 0)
+                        .Where(x => x != 0)
+                        .Distinct()
+                        .ToArray();
+                    if (fileIds.Length > 0)
+                    {
+                        numFilesUpdated += await _db.MediaFiles
+                            .Where(x => fileIds.Contains(x.Id) && !x.IsTransient)
+                            .ExecuteUpdateAsync(x => x.SetProperty(f => f.IsTransient, f => true));
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex);
+            return Content($"ERROR: {ex.Message}");
+        }
+
+        return Content(T("Admin.System.Maintenance.StorageStatusUpdate", 
+            numDownloadsUpdated.ToString("N0"), 
+            numFilesUpdated.ToString("N0"),
+            numTracksDeleted.ToString("N0")));
+    }
+
     #endregion
 
     #region Product variant attribute values
