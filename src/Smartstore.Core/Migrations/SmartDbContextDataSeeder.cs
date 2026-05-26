@@ -1,4 +1,5 @@
 using Smartstore.Core.Common.Configuration;
+using Smartstore.Core.Configuration;
 using Smartstore.Data.Migrations;
 using Smartstore.Utilities;
 
@@ -15,9 +16,45 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         await MigrateSettingsAsync(context, cancelToken);
     }
 
-    public Task MigrateSettingsAsync(SmartDbContext context, CancellationToken cancelToken = default)
+    public async Task MigrateSettingsAsync(SmartDbContext context, CancellationToken cancelToken = default)
     {
-        return context.MigrateSettingsAsync(builder =>
+        // ContentSlider: Corrected setting name & adaptions for template 6.
+        var contentSliderTemplate = new[]
+        {
+            // Template1
+            @"<div class=""container h-100""><div class=""row h-100""><div class=""col-md-6 py-3 text-md-right text-center""><h2 data-aos=""slide-right"" style=""--aos-delay: 600ms"">Slide-Title</h2><p class=""d-none d-md-block"" data-aos=""slide-right"" style=""--aos-delay: 800ms"">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p></div><div class=""col-md-6 picture-container""><img alt="""" src=""https://picsum.photos/600/600"" class=""img-fluid"" /></div></div></div>",
+            // Template2
+            @"<div class=""container h-100""><div class=""row h-100""><div class=""col-6 col-md-3 picture-container""><img src=""https://picsum.photos/400/600"" class=""img-fluid"" /></div><div class=""col-6 col-md-9 py-3""><h2 data-aos=""slide-left"" style=""--aos-delay: 600ms"">Slide-Title</h2><p data-aos=""slide-left"" style=""--aos-delay: 800ms"">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.</p></div></div></div>",
+            // Template3
+            @"<div class=""container h-100""><div class=""row h-100""><div class=""col-md-12 col-lg-6 picture-container""><img alt="""" src=""https://picsum.photos/600/600"" class=""img-fluid"" /></div><div class=""col-lg-6 d-none d-lg-block""><h2 data-aos=""slide-left"" style=""--aos-delay: 600ms"">Slide-Title</h2><p data-aos=""slide-left"" style=""--aos-delay: 800ms"">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p></div></div></div>",
+            // Template4
+            @"<div class=""container h-100""><div class=""row h-100""><div class=""col-md-6 d-flex align-items-center justify-content-end""><figure class=""picture-container vertical-align-middle"" data-aos=""zoom-in"" data-aos-easing=""ease-out-cubic""><img src=""https://picsum.photos/300/300"" class=""img-fluid"" /></figure></div><div class=""col-md-6 d-flex align-items-center""><div><h2 data-aos=""slide-left"" style=""--aos-delay: 600ms"">Slide-Title</h2><p data-aos=""slide-left"" style=""--aos-delay: 900ms"">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est .</p></div></div></div></div>",
+            // Template5
+            @"<div class=""container h-100""><div class=""row h-100""><div class=""col col-md-3 col-sm-6"" data-aos=""slide-down"" data-aos-easing=""ease-out-cubic"" style=""--aos-delay: 1000ms""><img src=""https://picsum.photos/300/500/"" class=""img-fluid"" /></div><div class=""col-md-3 col-12 col-sm-6 d-none d-sm-block"" data-aos=""slide-down"" data-aos-easing=""ease-out-cubic"" style=""--aos-delay: 1500ms""><img src=""https://picsum.photos/300/501/"" class=""img-fluid"" /></div><div class=""col-md-3 d-none d-md-block"" data-aos=""slide-down"" data-aos-easing=""ease-out-cubic"" style=""--aos-delay: 2000ms""><img src=""https://picsum.photos/300/502/"" class=""img-fluid"" /></div><div class=""col-md-3 d-none d-md-block"" data-aos=""slide-down"" data-aos-easing=""ease-out-cubic"" style=""--aos-delay: 2500ms""><img src=""https://picsum.photos/300/503/"" class=""img-fluid"" /></div></div></div>",
+            // Template6
+            @"<div class=""container p-0""><div class=""row h-100 g-0""><div class=""col-md-3 d-none d-md-block"" data-aos=""fade-up"" data-aos-easing=""ease-out-cubic"" style=""--aos-delay: 1500ms""><img src=""https://picsum.photos/330/501/"" class=""img-fluid"" /></div><div class=""col-md-3 col-12 col-sm-6"" data-aos=""fade-right"" data-aos-easing=""ease-out-cubic"" style=""--aos-delay: 500ms""><img class=""img-fluid"" src=""https://picsum.photos/330/500/"" /></div><div class=""col-md-3 col-sm-6"" data-aos=""fade-left"" data-aos-easing=""ease-out-cubic"" style=""--aos-delay: 500ms""><img class=""img-fluid"" src=""https://picsum.photos/330/500/"" /></div><div class=""col-md-3 d-none d-md-block"" data-aos=""fade-up"" data-aos-easing=""ease-out-cubic"" style=""--aos-delay: 1500ms""><img src=""https://picsum.photos/330/501/"" class=""img-fluid"" /></div></div></div>"
+        };
+
+        for (var i = 0; i < 6; i++)
+        {
+            var templateName = $"ContentSliderSettings.Template{i + 1}";
+            var template = await context.Settings
+                .Where(x => x.Name == templateName)
+                .FirstOrDefaultAsync(cancelToken);
+
+            if (template != null)
+            {
+                context.Remove(template);
+                context.Settings.Add(new Setting
+                {
+                    Name = templateName,
+                    Value = contentSliderTemplate[i],
+                    StoreId = 0
+                });
+            }
+        }
+
+        await context.MigrateSettingsAsync(builder =>
         {
             builder.Add(TypeHelper.NameOf<CommonSettings>(x => x.MinLogLevelToRetain, true), LogLevel.Error);
         });
