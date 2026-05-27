@@ -5,12 +5,15 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Rules;
 using Smartstore.Core.Checkout.Attributes;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
+using Smartstore.Data;
+using Smartstore.Data.Hooks;
 using Smartstore.Utilities;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
@@ -358,90 +361,103 @@ public partial class ProductController : AdminController
         return Json(string.Empty);
     }
 
-    // TODO: (mg) I don't like any of this. It's overly complicated and prone to errors, with too many "ifs" and "buts".
-
     /// <summary>
-    /// Sets the transient storage status of old file uploads associated with product and checkout attributes.
+    /// Deletes old product and checkout attribute file uploads.
     /// </summary>
-    /// <remarks>
-    /// This method prepares for the TransientMediaClearTask, which deletes the transient downloads and files.
-    /// </remarks>
     /// <param name="days">The number of days to determine which downloads are considered old.</param>
     /// <param name="batchSize">The maximum number of records to process in each batch operation.</param>
     [MaintenanceAction]
     [Permission(Permissions.Catalog.Product.EditVariant)]
-    public async Task<IActionResult> UpdateAttributeFileUploadTransientState(int days = 180, int batchSize = 128)
+    public async Task<IActionResult> DeleteAttributeFileUploads(int days = 180, int batchSize = 128)
     {
         const int maxBatches = 10000;
         var numTracksDeleted = 0;
-        var numDownloadsUpdated = 0;
-        var numFilesUpdated = 0;
+        var numDownloadsDeleted = 0;
+        var numFilesDeleted = 0;
 
         try
         {
-            if (days > 0)
-            {
-                var olderThan = DateTime.UtcNow.AddDays(-days);
+            using var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important);
 
-                var query = _db.Downloads
-                    .Where(x => !x.IsTransient
-                        && x.MediaFileId != null
-                        && (x.EntityName == "ProductAttribute" || x.EntityName == "CheckoutAttribute")
-                        && x.UpdatedOnUtc < olderThan
-                        && x.MediaFile != null
-                        && x.MediaFile.Tracks.Count() <= 1)
-                    .OrderBy(x => x.Id)
-                    .Select(x => new 
-                    { 
-                        x.Id,
-                        x.MediaFileId,
-                        MediaTrackId = x.MediaFile.Tracks.Select(t => (int?)t.Id).FirstOrDefault()
-                    })
-                    .Take(batchSize);
+            var olderThan = DateTime.UtcNow.AddDays(-Math.Abs(days));
 
-                for (var i = 0; i < maxBatches; i++)
+            // Go for IDs rather than entities to avoid DbUpdateConcurrencyException.
+            var query = _db.Downloads
+                .Where(x => x.MediaFileId != null
+                    && (x.EntityName == "ProductAttribute" || x.EntityName == "CheckoutAttribute")
+                    && x.UpdatedOnUtc < olderThan
+                    && x.MediaFile != null
+                    && x.MediaFile.Tracks.Count() <= 1)
+                .OrderBy(x => x.Id)
+                .Select(x => new
                 {
-                    var ids = await query.ToListAsync();
-                    if (ids.Count == 0)
-                    {
-                        break;
-                    }
+                    x.Id,
+                    x.MediaFileId,
+                    MediaTrackId = x.MediaFile.Tracks.Select(t => (int?)t.Id).FirstOrDefault()
+                })
+                .Take(batchSize);
 
-                    // Delete tracks. This is required because otherwise transient records cannot be deleted.
-                    var trackIds = ids
-                        .Select(x => x.MediaTrackId ?? 0)
-                        .Where(x => x != 0)
-                        .Distinct()
-                        .ToArray();
-                    if (trackIds.Length > 0)
-                    {
-                        numTracksDeleted += await _db.MediaTracks
-                            .Where(x => trackIds.Contains(x.Id))
-                            .ExecuteDeleteAsync();
-                    }
-
-                    // Mark downloads as "transient".
-                    var downloadIds = ids.ToDistinctArray(x => x.Id);
-                    if (downloadIds.Length > 0)
-                    {
-                        numDownloadsUpdated += await _db.Downloads
-                            .Where(x => downloadIds.Contains(x.Id))
-                            .ExecuteUpdateAsync(x => x.SetProperty(d => d.IsTransient, d => true));
-                    }
-
-                    // Mark files as "transient".
-                    var fileIds = ids
-                        .Select(x => x.MediaFileId ?? 0)
-                        .Where(x => x != 0)
-                        .Distinct()
-                        .ToArray();
-                    if (fileIds.Length > 0)
-                    {
-                        numFilesUpdated += await _db.MediaFiles
-                            .Where(x => fileIds.Contains(x.Id) && !x.IsTransient)
-                            .ExecuteUpdateAsync(x => x.SetProperty(f => f.IsTransient, f => true));
-                    }
+            for (var i = 0; i < maxBatches; i++)
+            {
+                var ids = await query.ToListAsync();
+                if (ids.Count == 0)
+                {
+                    break;
                 }
+
+                // First, we need to delete the tracks in order to delete the files.
+                var trackIds = ids
+                    .Select(x => x.MediaTrackId ?? 0)
+                    .Where(x => x != 0)
+                    .Distinct()
+                    .ToArray();
+                if (trackIds.Length > 0)
+                {
+                    numTracksDeleted += await _db.MediaTracks
+                        .Where(x => trackIds.Contains(x.Id))
+                        .ExecuteDeleteAsync();
+                }
+
+                // Delete downloads.
+                var downloadIds = ids.ToDistinctArray(x => x.Id);
+                if (downloadIds.Length > 0)
+                {
+                    numDownloadsDeleted += await _db.Downloads
+                        .Where(x => downloadIds.Contains(x.Id))
+                        .ExecuteDeleteAsync();
+                }
+
+                // Delete files.
+                var fileIds = ids
+                    .Select(x => x.MediaFileId ?? 0)
+                    .Where(x => x != 0)
+                    .Distinct()
+                    .ToArray();
+                if (fileIds.Length > 0)
+                {
+                    var files = await _db.MediaFiles
+                        .Where(x => fileIds.Contains(x.Id))
+                        .ToListAsync();
+                    foreach (var file in files)
+                    {
+                        await _mediaService.DeleteFileAsync(file, true);
+                    }
+
+                    await _db.SaveChangesAsync();
+                    numFilesDeleted += files.Count;
+                }
+            }
+
+            // Finally, delete orphaned tracks of downloads where the download does not exist anymore.
+            // This enables the administrator to delete associated files in the Media Manager.
+            numTracksDeleted = await _db.MediaTracks
+               .Where(x => x.EntityName == "Download" && x.Property == "MediaFileId" && !_db.Downloads.Any(d => d.Id == x.EntityId))
+               .ExecuteDeleteAsync();
+
+            if (numFilesDeleted > 1000 && _db.DataProvider.CanOptimizeTable)
+            {
+                var tableName = _db.Model.FindEntityType(typeof(MediaFile)).GetTableName();
+                await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync(tableName));
             }
         }
         catch (Exception ex)
@@ -450,9 +466,9 @@ public partial class ProductController : AdminController
             return Content($"ERROR: {ex.Message}");
         }
 
-        return Content(T("Admin.System.Maintenance.StorageStatusUpdate", 
-            numDownloadsUpdated.ToString("N0"), 
-            numFilesUpdated.ToString("N0"),
+        return Content(T("Admin.System.Maintenance.AttributeFileUploadsDeleted",
+            numFilesDeleted.ToString("N0"),
+            numDownloadsDeleted.ToString("N0"),
             numTracksDeleted.ToString("N0")));
     }
 
