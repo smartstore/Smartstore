@@ -1933,6 +1933,11 @@ public class OrderController : AdminController
         model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc);
         model.UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(order.UpdatedOnUtc, DateTimeKind.Utc);
         model.EditUrl = Url.Action(nameof(Edit), "Order", new { id = order.Id });
+
+        if (!model.CustomerDeleted)
+        {
+            model.CustomerEditUrl = Url.Action("Edit", "Customer", new { id = order.CustomerId });
+        }
     }
 
     private async Task PrepareOrderModel(OrderModel model, Order order)
