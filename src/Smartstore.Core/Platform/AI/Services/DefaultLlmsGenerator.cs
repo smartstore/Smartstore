@@ -5,6 +5,7 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Configuration;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -20,6 +21,7 @@ public class DefaultLlmsGenerator : ILlmsGenerator
     private readonly IStoreContext _storeContext;
     private readonly IWorkContext _workContext;
     private readonly ICategoryService _categoryService;
+    private readonly IAddressService _addressService;
     private readonly Lazy<IProviderManager> _providerManager;
     private readonly Lazy<ModuleManager> _moduleManager;
     private readonly Lazy<IUrlHelper> _urlHelper;
@@ -38,6 +40,7 @@ public class DefaultLlmsGenerator : ILlmsGenerator
         IStoreContext storeContext,
         IWorkContext workContext,
         ICategoryService categoryService,
+        IAddressService addressService,
         Lazy<IProviderManager> providerManager,
         Lazy<ModuleManager> moduleManager,
         Lazy<IUrlHelper> urlHelper,
@@ -53,6 +56,7 @@ public class DefaultLlmsGenerator : ILlmsGenerator
         _storeContext = storeContext;
         _workContext = workContext;
         _categoryService = categoryService;
+        _addressService = addressService;
         _providerManager = providerManager;
         _moduleManager = moduleManager;
         _urlHelper = urlHelper;
@@ -101,28 +105,12 @@ public class DefaultLlmsGenerator : ILlmsGenerator
         WriteLine(writer, "Legal Representatives", company.CompanyManagementDescription);
 
         // Address
+        var formattedAddress = await _addressService.FormatAddressAsync(company);
+        if (formattedAddress.HasValue())
         {
-            var addressParts = new List<string>();
-
-            var streetLine = string.Join(" ", new[] { company.Street, company.Street2 }.Where(x => x.HasValue()));
-            var cityLine = string.Join(" ", new[] { company.ZipCode, company.City }.Where(x => x.HasValue()));
-
-            string countryName = null;
-            if (company.CountryId > 0)
-            {
-                var country = await _db.Countries.FindByIdAsync(company.CountryId, false);
-                countryName = country?.GetLocalized(x => x.Name);
-            }
-
-            if (streetLine.HasValue()) addressParts.Add(streetLine);
-            if (cityLine.HasValue()) addressParts.Add(cityLine);
-            if (company.StateName.HasValue()) addressParts.Add(company.StateName);
-            if (countryName.HasValue()) addressParts.Add(countryName);
-
-            if (addressParts.Count > 0)
-            {
-                WriteLine(writer, "Address", string.Join(", ", addressParts));
-            }
+            var sep = formattedAddress.Contains(',') ? " | " : ", ";
+            formattedAddress = formattedAddress.ReplaceLineEndings(sep);
+            WriteLine(writer, "Address", formattedAddress);
         }
 
         WriteLine(writer, "Registered at", company.CommercialRegister);
