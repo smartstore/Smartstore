@@ -5,6 +5,8 @@ namespace Smartstore.Web.TagHelpers.Shared;
 [HtmlTargetElement("*", Attributes = IfAttributeName)]
 public class IfTagHelper : TagHelper
 {
+    public static readonly object SuppressChildContentKey = new();
+
     const string IfAttributeName = "sm-if";
 
     public override int Order => int.MinValue;
@@ -18,8 +20,14 @@ public class IfTagHelper : TagHelper
 
     public override Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
+        if (context.ShouldSuppressChildContent())
+        {
+            return Task.CompletedTask;
+        }
+
         if (!Condition)
         {
+            context.Items[SuppressChildContentKey] = true;
             output.SuppressOutput();
         }
 

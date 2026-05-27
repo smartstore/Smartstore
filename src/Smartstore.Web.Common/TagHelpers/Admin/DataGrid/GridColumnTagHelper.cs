@@ -219,7 +219,7 @@ public class GridColumnTagHelper : TagHelper
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
         // If output was suppressed by a prior tag helper (e.g. sm-if), remove from parent's column list.
-        if (output.TagName == null)
+        if (context.ShouldSuppressChildContent())
         {
             if (context.Items.TryGetValue(nameof(GridTagHelper), out var obj) && obj is GridTagHelper parent)
             {

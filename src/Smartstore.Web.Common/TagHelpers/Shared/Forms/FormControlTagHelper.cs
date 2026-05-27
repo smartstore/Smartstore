@@ -13,6 +13,11 @@ public class FormCheckTagHelper : TagHelper
 {
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         context.Items["FormCheckOutput"] = output;
         await output.GetChildContentAsync();
     }
@@ -27,6 +32,11 @@ public class SelectPlaceholderTagHelper : TagHelper
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         if (!string.IsNullOrEmpty(Placeholder))
         {
             await output.GetChildContentAsync();

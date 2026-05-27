@@ -42,6 +42,12 @@ public class GridSearchPanelTagHelper : TagHelper
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
+        // Short-circuit if output was already suppressed by sm-if or similar.
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         var content = await output.GetChildContentAsync();
         if (content.IsEmptyOrWhiteSpace)
         {

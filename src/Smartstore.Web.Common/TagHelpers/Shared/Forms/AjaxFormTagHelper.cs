@@ -134,6 +134,11 @@ public class AjaxFormTagHelper : TagHelper
 
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         if (!IsAjax || !output.Attributes.ContainsName("action"))
         {
             return;

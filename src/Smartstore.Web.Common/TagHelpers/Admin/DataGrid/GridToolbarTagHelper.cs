@@ -48,6 +48,11 @@ public class GridToolbarTagHelper : TagHelper
 {
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         var content = await output.GetChildContentAsync();
         if (content.IsEmptyOrWhiteSpace)
         {
@@ -72,6 +77,11 @@ public class GridToolbarGroupTagHelper : TagHelper
 {
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         output.TagName = "div";
         output.AppendCssClass("dg-toolbar-group");
     }
@@ -90,6 +100,11 @@ public class GridToolTagHelper : TagHelper
 
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         if (Action == null)
         {
             return;

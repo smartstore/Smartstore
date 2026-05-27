@@ -26,7 +26,7 @@ public class SuppressIfEmptyTagHelper : TagHelper
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
-        if (!SuppressIfEmpty)
+        if (!SuppressIfEmpty || context.ShouldSuppressChildContent())
         {
             return;
         }

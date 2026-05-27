@@ -22,12 +22,13 @@
     </sorting>
     <toolbar>
         <toolbar-group sm-if="isOrderListPage">
-                <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
-                    <i class="fa fa-fw fa-filter"></i>
-                </button>
-            </toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
 
-            <toolbar-group class="dropdown" sm-if="isOrderListPage">
+        <toolbar-group class="dropdown" sm-if="isOrderListPage">
+            <fragment>
                 <button type="button" class="btn btn-light btn-flat dropdown-toggle" data-toggle="dropdown" data-boundary="window">
                     @T("Admin.Common.Export.PDF")
                 </button>
@@ -41,7 +42,8 @@
                         <span class="order-process-title">@T("Admin.Common.ExportToPdf.All")</span>
                     </a>
                 </div>
-            </toolbar-group>
+            </fragment>
+        </toolbar-group>
         <zone name="datagrid_toolbar_alpha"></zone>
         <toolbar-group class="omega"></toolbar-group>
         <zone name="datagrid_toolbar_omega"></zone>

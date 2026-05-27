@@ -53,6 +53,11 @@ public class CaptchaTagHelper : TagHelper
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         // Do not render when disabled, target is inactive or when no provider is configured.
         if (!Enabled || !_captchaManager.IsActiveTarget(Target) || !_captchaManager.IsConfigured(out var provider))
         {

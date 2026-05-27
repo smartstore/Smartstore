@@ -22,6 +22,11 @@ public class CollapsedContentTagHelper : TagHelper
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         output.TagName = null;
         await output.LoadAndSetChildContentAsync();
 

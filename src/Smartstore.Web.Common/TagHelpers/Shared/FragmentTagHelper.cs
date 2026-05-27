@@ -13,6 +13,11 @@ public class FragmentTagHelper : TagHelper
 {
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         output.TagName = null;
         _ = await output.GetChildContentAsync();
     }

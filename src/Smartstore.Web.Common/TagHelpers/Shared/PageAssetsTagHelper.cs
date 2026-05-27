@@ -23,6 +23,11 @@ public class PageAssetsTagHelper : TagHelper
 
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         if (output.TagName == "html")
         {
             _assetBuilder.RootAttributes.CopyTo(output.Attributes);

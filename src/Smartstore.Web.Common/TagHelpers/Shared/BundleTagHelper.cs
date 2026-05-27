@@ -61,6 +61,11 @@ public abstract class BundleTagHelper : TagHelper
 
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         if (output.TagName == null)
         {
             // Something went wrong in a previous TagHelper. Get out.

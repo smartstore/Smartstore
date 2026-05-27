@@ -53,6 +53,11 @@ public class LocalizationScriptTagHelper : TagHelper
 
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         var src = output.Attributes["src"].ValueAsString();
 
         if (src.Length < 11)

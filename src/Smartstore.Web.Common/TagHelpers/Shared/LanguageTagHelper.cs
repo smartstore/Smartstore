@@ -21,6 +21,11 @@ public class LanguageTagHelper : TagHelper
 
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         if (context.TagName == TitleTagName)
         {
             // Render meta accept-language right before the title tag

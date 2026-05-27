@@ -18,6 +18,11 @@ public class BackToTagHelper(Localizer localizer) : TagHelper
 
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         if (!IsBackButton)
         {
             return;

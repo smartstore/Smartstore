@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -73,15 +72,25 @@ public abstract class SmartTagHelper : TagHelper
     public override sealed void Process(TagHelperContext context, TagHelperOutput output)
     {
         Output = output;
-        ProcessCommon(context, output);
-        ProcessCore(context, output);
+        if (!context.ShouldSuppressChildContent())
+        {
+            ProcessCommon(context, output);
+            ProcessCore(context, output);
+        }
     }
 
     public override sealed Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
         Output = output;
-        ProcessCommon(context, output);
-        return ProcessCoreAsync(context, output);
+        if (!context.ShouldSuppressChildContent())
+        {
+            ProcessCommon(context, output);
+            return ProcessCoreAsync(context, output);
+        }
+        else
+        {
+            return Task.CompletedTask;
+        }
     }
 
     private void ProcessCommon(TagHelperContext context, TagHelperOutput output)

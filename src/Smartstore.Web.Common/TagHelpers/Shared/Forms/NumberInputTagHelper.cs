@@ -74,7 +74,7 @@ public class NumberInputTagHelper : TagHelper
 
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
-        if (Native)
+        if (Native || context.ShouldSuppressChildContent())
         {
             return;
         }

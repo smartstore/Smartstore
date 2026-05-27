@@ -17,6 +17,11 @@ public class GridColumnsTagHelper : TagHelper
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         await output.GetChildContentAsync();
         output.SuppressOutput();
     }

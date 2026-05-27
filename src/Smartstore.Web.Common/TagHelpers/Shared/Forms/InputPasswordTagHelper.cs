@@ -27,6 +27,11 @@ public class InputPasswordTagHelper : TagHelper
 
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         if (EnableVisibilityToggle)
         {
             output.PreElement.AppendHtml("<div class=\"toggle-pwd-group\">");

@@ -45,6 +45,11 @@ public class AttributesTagHelper : TagHelper
 
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         if (Attributes != null)
         {
             foreach (var attr in Attributes)

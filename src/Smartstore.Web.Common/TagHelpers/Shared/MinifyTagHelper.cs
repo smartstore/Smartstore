@@ -30,6 +30,11 @@ public class MinifyTagHelper : TagHelper
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         if (!Minify || CommonHelper.IsDevEnvironment)
         {
             // Proceed only if enabled or in release mode

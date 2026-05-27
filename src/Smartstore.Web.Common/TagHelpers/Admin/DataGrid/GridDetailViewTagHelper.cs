@@ -7,6 +7,11 @@ public class GridDetailViewTagHelper : TagHelper
 {
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         var content = await output.GetChildContentAsync();
         if (content.IsEmptyOrWhiteSpace)
         {

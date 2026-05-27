@@ -36,6 +36,11 @@ public class FileIconTagHelper : TagHelper
 
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         output.TagName = null;
         output.TagMode = TagMode.StartTagAndEndTag;
 

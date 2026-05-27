@@ -34,6 +34,11 @@ public class GridRowCommandsTagHelper : TagHelper
 {
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         var content = await output.GetChildContentAsync();
         if (content.IsEmptyOrWhiteSpace)
         {
@@ -61,6 +66,11 @@ public class GridRowCommandTagHelper : TagHelper
 
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         if (Action == null)
         {
             return;

@@ -20,6 +20,11 @@ public class ConsentScriptTagHelper(ICookieConsentManager cookieConsentManager) 
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         await base.ProcessAsync(context, output);
 
         var isAllowed = await _cookieConsentManager.IsCookieAllowedAsync(ConsentType);
