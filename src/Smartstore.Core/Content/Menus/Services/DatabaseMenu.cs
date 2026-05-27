@@ -185,7 +185,7 @@ internal class DatabaseMenu : MenuBase
 
                 if (node == null && currentProductId > 0)
                 {
-                    var productCategories = await _categoryService.Value.GetProductCategoriesByProductIdsAsync(new[] { currentProductId });
+                    var productCategories = await _categoryService.Value.GetProductCategoriesByProductIdsAsync([currentProductId]);
                     if (productCategories.Any())
                     {
                         currentCategoryId = productCategories[0].Category.Id;

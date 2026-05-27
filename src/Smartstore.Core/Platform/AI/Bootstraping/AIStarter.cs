@@ -25,5 +25,6 @@ internal sealed class AIStarter : StarterBase
         builder.RegisterType<AIMessageBuilder>().AsSelf().InstancePerLifetimeScope();
         builder.RegisterType<AIMessageResources>().AsSelf().InstancePerLifetimeScope();
         builder.RegisterType<AIProviderFactory>().As<IAIProviderFactory>().InstancePerLifetimeScope();
+        builder.RegisterType<DefaultLlmsGenerator>().As<ILlmsGenerator>().InstancePerLifetimeScope();
     }
 }

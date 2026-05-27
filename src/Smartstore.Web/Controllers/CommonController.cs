@@ -2,10 +2,8 @@
 using System.Xml.Linq;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Caching;
-using Smartstore.Core.Catalog;
+using Smartstore.Core.AI;
 using Smartstore.Core.Checkout.Payment;
-using Smartstore.Core.Checkout.Tax;
-using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Identity;
@@ -15,13 +13,11 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Theming;
-using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.Utilities;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Rendering;
-using Smartstore.Web.Rendering.Menus;
 
 namespace Smartstore.Web.Controllers;
 
@@ -38,16 +34,7 @@ public class CommonController : PublicController
     private readonly SeoSettings _seoSettings;
     private readonly LocalizationSettings _localizationSettings;
     private readonly IRouteHelper _routeHelper;
-    private readonly CatalogSettings _catalogSettings;
-    private readonly IMenuService _menuService;
-    private readonly Lazy<IProviderManager> _providerManager;
-    private readonly Lazy<ModuleManager> _moduleManager;
-    private readonly PaymentSettings _paymentSettings;
-    private readonly SocialSettings _socialSettings;
-    private readonly HomePageSettings _homepageSettings;
-    private readonly CompanyInformationSettings _companyInfoSettings;
-    private readonly ContactDataSettings _contactSettings;
-    private readonly TaxSettings _taxSettings;
+    private readonly Lazy<ILlmsGenerator> _llmsGenerator;
 
     public CommonController(
         SmartDbContext db,
@@ -61,16 +48,7 @@ public class CommonController : PublicController
         SeoSettings seoSettings,
         LocalizationSettings localizationSettings,
         IRouteHelper routeHelper,
-        CatalogSettings catalogSettings,
-        IMenuService menuService,
-        Lazy<IProviderManager> providerManager,
-        Lazy<ModuleManager> moduleManager,
-        PaymentSettings paymentSettings,
-        SocialSettings socialSettings,
-        HomePageSettings homepageSettings,
-        CompanyInformationSettings companyInfoSettings,
-        ContactDataSettings contactSettings,
-        TaxSettings taxSettings)
+        Lazy<ILlmsGenerator> llmsGenerator)
     {
         _db = db;
         _cookieConsentManager = cookieConsentManager;
@@ -83,16 +61,7 @@ public class CommonController : PublicController
         _seoSettings = seoSettings;
         _localizationSettings = localizationSettings;
         _routeHelper = routeHelper;
-        _catalogSettings = catalogSettings;
-        _menuService = menuService;
-        _providerManager = providerManager;
-        _moduleManager = moduleManager;
-        _paymentSettings = paymentSettings;
-        _socialSettings = socialSettings;
-        _homepageSettings = homepageSettings;
-        _companyInfoSettings = companyInfoSettings;
-        _contactSettings = contactSettings;
-        _taxSettings = taxSettings;
+        _llmsGenerator = llmsGenerator;
     }
 
     [CheckStoreClosed(false)]
@@ -232,156 +201,14 @@ public class CommonController : PublicController
         // Cache for 24 hours
         Response.Headers.CacheControl = "public, max-age=86400";
 
-        var content = await BuildLlmsContentAsync();
+        using var psb = StringBuilderPool.Instance.Get(out var sb);
+        using var writer = new StringWriter(sb);
+
+        await _llmsGenerator.Value.GenerateLlms(writer, Request);
+
+        var content = sb.ToString();
 
         return Content(content, "text/plain", Encoding.UTF8);
-    }
-
-    private async Task<string> BuildLlmsContentAsync()
-    {
-        using var psb = StringBuilderPool.Instance.Get(out var sb);
-        var company = _companyInfoSettings;
-        var social = _socialSettings;
-
-        var store = Services.StoreContext.CurrentStore;
-        var baseUrl = store.GetBaseUrl();
-        sb.AppendLine($"# {store.Name} - LLM Directory");
-        sb.AppendLine();
-
-        // Metadata
-        var languages = await _db.Languages
-            .AsNoTracking()
-            .ApplyStandardFilter(false, store.Id)
-            .ToListAsync();
-
-        var providers = _providerManager.Value.GetAllProviders<IPaymentMethod>()
-            .Where(x => x.IsPaymentProviderEnabled(_paymentSettings));
-
-        sb.AppendLine("## Metadata");
-
-        AppendLine("Base URL", baseUrl);
-        AppendLine("Title", _homepageSettings.MetaTitle);
-        AppendLine("Description", _homepageSettings.MetaDescription);
-        AppendLine("Operator", company.CompanyName);
-        AppendLine("Legal Representatives", company.CompanyManagementDescription);
-
-        // Address
-        {
-            var addressParts = new List<string>();
-
-            var street = company.Street;
-            var street2 = company.Street2;
-            var zip = company.ZipCode;
-            var city = company.City;
-            var stateName = company.StateName;
-            var countryId = company.CountryId;
-
-            string countryName = null;
-            if (countryId > 0)
-            {
-                var country = await _db.Countries.FindByIdAsync(countryId, false);
-                countryName = country?.GetLocalized(x => x.Name);
-            }
-
-            var streetLine = string.Join(" ", new[] { street, street2 }.Where(x => x.HasValue()));
-            var cityLine = string.Join(" ", new[] { zip, city }.Where(x => x.HasValue()));
-
-            if (streetLine.HasValue()) addressParts.Add(streetLine);
-            if (cityLine.HasValue()) addressParts.Add(cityLine);
-            if (stateName.HasValue()) addressParts.Add(stateName);
-            if (countryName.HasValue()) addressParts.Add(countryName);
-
-            if (addressParts.Count > 0)
-            {
-                AppendLine("Address", string.Join(", ", addressParts));
-            }
-        }
-
-        AppendLine("Registered at", company.CommercialRegister);
-        AppendLine("VAT ID", company.VatId);
-
-        AppendLine("Support Email", _contactSettings.SupportEmailAddress);
-        AppendLine("Support Phone", _contactSettings.HotlineTelephoneNumber);
-
-        if (_taxSettings.TaxDisplayType == TaxDisplayType.IncludingTax)
-        {
-            AppendLine("Target Audience", "B2C");
-            AppendLine("Price Display", "Gross (Prices include VAT)");
-        }
-        else
-        {
-            AppendLine("Target Audience", "B2B");
-            AppendLine("Price Display", "Net (Prices exclude VAT)");
-        }
-
-        AppendLine("Currency", Services.WorkContext.WorkingCurrency?.CurrencyCode);
-        AppendLine("Available Languages", string.Join(", ", languages.Select(x => x.UniqueSeoCode)));
-        AppendLine("Available Payment Methods", string.Join(", ", providers.Select(x => _moduleManager.Value.GetLocalizedFriendlyName(x.Metadata))));
-        sb.AppendLine();
-
-        // Main product categories
-        var menu = await _menuService.GetMenuAsync("Main");
-        if (menu != null)
-        {
-            var model = await menu.CreateModelAsync(null, ControllerContext);
-            var rootChildren = model.Root.Children;
-
-            sb.AppendLine("## Main product categories");
-            foreach (var node in rootChildren)
-            {
-                var item = node.Value;
-                AppendLinkLine(item.Text, new Uri(new Uri(baseUrl), item.GenerateUrl(ControllerContext)).ToString());
-            }
-            sb.AppendLine();
-        }
-
-        // Discovery Links
-        sb.AppendLine("## Discovery Links");
-        AppendLinkLine("Sitemap", baseUrl + "sitemap.xml");
-
-        if (_catalogSettings.RecentlyAddedProductsEnabled && _catalogSettings.RecentlyAddedProductsNumber > 0)
-        {
-            AppendLinkLine("Recently added products", Url.RouteUrl("RecentlyAddedProductsRSS", null, Request.Scheme));
-        }
-
-        AppendLinkLine("Contact & Support", Url.RouteUrl("ContactUs", null, Request.Scheme));
-        AppendLinkLine("Brands", Url.RouteUrl("ManufacturerList", null, Request.Scheme));
-        AppendLinkLine("Shipping & Delivery Info", new Uri(new Uri(baseUrl), await Url.TopicAsync("ShippingInfo")).ToString());
-        AppendLinkLine("Privacy Policy", new Uri(new Uri(baseUrl), await Url.TopicAsync("PrivacyInfo")).ToString());
-
-        // Social media
-        AppendLinkLine("Facebook", social.FacebookLink);
-        AppendLinkLine("Twitter", social.TwitterLink);
-        AppendLinkLine("Instagram", social.InstagramLink);
-        AppendLinkLine("TikTok", social.TikTokLink);
-        AppendLinkLine("YouTube", social.YoutubeLink);
-        AppendLinkLine("Vimeo", social.VimeoLink);
-        AppendLinkLine("Pinterest", social.PinterestLink);
-        AppendLinkLine("Snapchat", social.SnapchatLink);
-        AppendLinkLine("Flickr", social.FlickrLink);
-        AppendLinkLine("LinkedIn", social.LinkedInLink);
-        AppendLinkLine("Xing", social.XingLink);
-        AppendLinkLine("Tumblr", social.TumblrLink);
-        AppendLinkLine("Ello", social.ElloLink);
-        AppendLinkLine("Behance", social.BehanceLink);
-
-        return sb.ToString();
-
-        void AppendLine(string prefix, string value)
-        {
-            if (value.HasValue())
-            {
-                sb.AppendLine($"- {prefix}: {value}");
-            }
-        }
-
-        void AppendLinkLine(string name, string url)
-        {
-            if (url.HasValue())
-            {
-                sb.AppendLine($"- [{name}]({url})");
-            }
-        }
     }
 
     [HttpPost]
