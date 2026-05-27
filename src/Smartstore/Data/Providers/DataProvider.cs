@@ -611,6 +611,10 @@ public abstract partial class DataProvider : Disposable
     /// Reorganizes the physical storage of table data and associated index data, 
     /// to reduce storage space and improve I/O efficiency when accessing the specified table.
     /// </summary
+    public int OptimizeTable<T>() where T : BaseEntity
+        => OptimizeTable(Context.Model.FindEntityType(typeof(T)).GetTableName());
+
+    /// <inheritdoc cref="OptimizeTable{T}()" />
     /// <param name="tableName">Name of table to optimize.</param>
     public int OptimizeTable(string tableName)
     {
@@ -626,9 +630,11 @@ public abstract partial class DataProvider : Disposable
         }
     }
 
-    /// <summary>
-    /// Reorganizes the physical storage of table data and associated index data, to reduce storage space and improve I/O efficiency when accessing the specified table.
-    /// </summary
+    /// <inheritdoc cref="OptimizeTable{T}()" />
+    public Task<int> OptimizeTableAsync<T>(CancellationToken cancelToken = default) where T : BaseEntity
+        => OptimizeTableAsync(Context.Model.FindEntityType(typeof(T)).GetTableName(), cancelToken);
+
+    /// <inheritdoc cref="OptimizeTable{T}()" />
     /// <param name="tableName">Name of table to optimize.</param>
     public Task<int> OptimizeTableAsync(string tableName, CancellationToken cancelToken = default)
     {

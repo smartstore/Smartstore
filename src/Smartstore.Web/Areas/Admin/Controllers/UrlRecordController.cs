@@ -284,8 +284,7 @@ public class UrlRecordController : AdminController
 
                 if (numTotalDeleted > 500 && _db.DataProvider.CanOptimizeTable)
                 {
-                    var tableName = _db.Model.FindEntityType(typeof(UrlRecord)).GetTableName();
-                    await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync(tableName));
+                    await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync<UrlRecord>());
                 }
             }
         }

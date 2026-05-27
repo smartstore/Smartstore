@@ -68,8 +68,7 @@ public partial class QueuedEmailService : IQueuedEmailService
 
         if (numTotalDeleted > 1000 && _db.DataProvider.CanOptimizeTable)
         {
-            var tableName = _db.Model.FindEntityType(typeof(QueuedEmail)).GetTableName();
-            await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync(tableName, cancelToken));
+            await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync<QueuedEmail>(cancelToken));
         }
 
         return numTotalDeleted;

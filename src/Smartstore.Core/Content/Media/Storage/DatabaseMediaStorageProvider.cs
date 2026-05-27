@@ -278,8 +278,7 @@ public class DatabaseMediaStorageProvider : IMediaStorageProvider, IMediaSender,
         if (succeeded && context.AffectedFiles.Count > 0 && _db.DataProvider.CanOptimizeTable)
         {
             // Optimize MediaFile table after sending/removing at least one blob
-            var tableName = _db.Model.FindEntityType(typeof(MediaFile))?.GetTableName();
-            return _db.DataProvider.OptimizeTableAsync(tableName, cancelToken);
+            return _db.DataProvider.OptimizeTableAsync<MediaFile>(cancelToken);
         }
 
         return Task.CompletedTask;

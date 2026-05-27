@@ -50,8 +50,7 @@ public partial class TransientMediaClearTask : ITask
 
         if (numDeleted > 1000 && _db.DataProvider.CanOptimizeTable)
         {
-            var tableName = _db.Model.FindEntityType(typeof(MediaFile)).GetTableName();
-            await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync(tableName, cancelToken));
+            await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync<MediaFile>(cancelToken));
         }
     }
 }

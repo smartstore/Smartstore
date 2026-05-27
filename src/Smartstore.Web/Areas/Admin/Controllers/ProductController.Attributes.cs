@@ -456,8 +456,7 @@ public partial class ProductController : AdminController
 
             if (numFilesDeleted > 1000 && _db.DataProvider.CanOptimizeTable)
             {
-                var tableName = _db.Model.FindEntityType(typeof(MediaFile)).GetTableName();
-                await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync(tableName));
+                await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync<MediaFile>());
             }
         }
         catch (Exception ex)

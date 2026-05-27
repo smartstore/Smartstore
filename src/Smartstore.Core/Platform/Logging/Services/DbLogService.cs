@@ -38,8 +38,7 @@ public partial class DbLogService : IDbLogService
         var dataProvider = _db.DataProvider;
         if (numDeleted > 100 && dataProvider.CanOptimizeTable)
         {
-            var tableName = _db.Model.FindEntityType(typeof(Log)).GetTableName();
-            await CommonHelper.TryAction(() => dataProvider.OptimizeTableAsync(tableName, cancelToken));
+            await CommonHelper.TryAction(() => dataProvider.OptimizeTableAsync<Log>(cancelToken));
         }
 
         return numDeleted;

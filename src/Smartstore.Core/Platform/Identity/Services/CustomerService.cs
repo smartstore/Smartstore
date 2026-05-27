@@ -240,8 +240,7 @@ public partial class CustomerService : ICustomerService
 
         if (numberOfDeletedCustomers + numberOfDeletedAttributes > 10000 && !cancelToken.IsCancellationRequested && _db.DataProvider.CanOptimizeTable)
         {
-            var tableName = _db.Model.FindEntityType(typeof(Customer)).GetTableName();
-            await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync(tableName, cancelToken));
+            await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync<Customer>(cancelToken));
         }
 
         Logger.Debug("Deleted {0} guest customers including {1} generic attributes.", numberOfDeletedCustomers, numberOfDeletedAttributes);
