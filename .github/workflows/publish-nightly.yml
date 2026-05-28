@@ -85,6 +85,7 @@ jobs:
     steps:
     - name: Delete untagged versions of ${{ matrix.package }}
       uses: actions/delete-package-versions@v5
+      continue-on-error: true
       with:
         package-name: ${{ matrix.package }}
         package-type: container
