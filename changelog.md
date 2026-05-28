@@ -65,6 +65,8 @@
 - #1465 Display the name of the applied discount on order edit page.
 - #1471 Show the customer's email address next to their name on the order edit page.
 - #1466 UI: Edit discount details page should use text-expander (more-less buttons) for "Assigned to xyz" fields.
+- Improved **guest session isolation** to prevent unrelated visitors from being associated with an existing session under certain network conditions. Also hardened the client identification mechanism against edge cases in IPv6
+    environments.
 - **UserAgent YAML** mappings are now always updated from the embedded resource when a newer app version is deployed. A physical `App_Data/useragent.yml` is only used if it is strictly newer than the assembly. For true customizations, place the file at `App_Data/useragent-custom.yml` instead, which always takes highest priority.
 - **Payever**
     - Better checkout flow for Zinia lending payment method
