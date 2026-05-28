@@ -158,7 +158,8 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Account.CustomerOrders.ReturnItems", "Return items", "Artikel zurücksenden");
 
         builder.Delete("Admin.ReturnRequests.Updated",
-            "Admin.ReturnRequests.Deleted");
+            "Admin.ReturnRequests.Deleted",
+            "Admin.Orders.Products.ReturnRequest");
 
         builder.AddOrUpdate("ReturnRequests.NoItemsSubmitted",
             "Please select the items you wish to return and specify the quantity.",
@@ -330,5 +331,8 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.System.Maintenance.AttributeFileUploadsDeleted",
             "{0} media files, {1} downloads, and {2} tracks of uploaded attribute files have been deleted.",
             "Es wurden {0} Mediendateien, {1} Downloads und {2} Verweise von hochgeladenen Attributdateien gelöscht.");
+
+        builder.AddOrUpdate("Admin.Orders.Products.ReturnRequest.Create")
+            .Value("de", "Retoure erstellen");
     }
 }
