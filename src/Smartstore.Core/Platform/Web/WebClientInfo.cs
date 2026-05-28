@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using Microsoft.Net.Http.Headers;
 using System.Net;
 using System.Net.Sockets;
 using Smartstore.Core.Common.Services;
@@ -109,7 +110,18 @@ internal sealed class DefaultWebClientInfo : WebClientInfo
 
         if (ipAddress != IPAddress.None && userAgent.HasValue())
         {
-            return (ipAddress.ToString() + userAgent).XxHash64()?.ToLowerInvariant();
+            var headers = _helper.HttpContext?.Request?.Headers;
+
+            // Include Accept-Language: highly user-specific locale setting, virtually
+            // always present in real browsers and differs between users even behind NAT.
+            var acceptLanguage = headers?[HeaderNames.AcceptLanguage].ToString().EmptyNull() ?? string.Empty;
+
+            // Include Sec-CH-UA-Platform: OS platform hint sent by all Chromium-based
+            // browsers. Adds entropy for users sharing IP + browser version.
+            var platform = headers?["Sec-CH-UA-Platform"].ToString().EmptyNull() ?? string.Empty;
+
+            return (ipAddress.ToString() + userAgent + acceptLanguage + platform)
+                .XxHash64()?.ToLowerInvariant();
         }
 
         return null;
@@ -140,11 +152,20 @@ internal sealed class DefaultWebClientInfo : WebClientInfo
 
         if (httpContext.Connection?.RemoteIpAddress is IPAddress ip)
         {
-            if (ip != null && ip.AddressFamily == AddressFamily.InterNetworkV6)
+            if (ip.AddressFamily == AddressFamily.InterNetworkV6)
             {
-                ip = (ip == IPAddress.IPv6Loopback)
-                    ? IPAddress.Loopback
-                    : ip.MapToIPv4();
+                if (ip == IPAddress.IPv6Loopback)
+                {
+                    ip = IPAddress.Loopback;
+                }
+                else if (ip.IsIPv4MappedToIPv6)
+                {
+                    // Only unmap if it truly is an IPv4-mapped address (::ffff:x.x.x.x),
+                    // otherwise MapToIPv4() would silently truncate to the last 4 bytes,
+                    // causing unrelated IPv6 clients to collide on the same fake IPv4.
+                    ip = ip.MapToIPv4();
+                }
+                // Native IPv6: keep as-is to preserve full address uniqueness.
             }
 
             return ip!;

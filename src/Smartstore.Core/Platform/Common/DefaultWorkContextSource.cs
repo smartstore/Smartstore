@@ -606,7 +606,7 @@ public class DefaultWorkContextSource : AsyncDbSaveHook<BaseEntity>, IWorkContex
         var clientIdent = context.WebHelper.ClientInfo.ClientIdent;
         context.ClientIdent = clientIdent;
 
-        var customer = await context.CustomerService.FindCustomerByClientIdentAsync(clientIdent, maxAgeSeconds: 300);
+        var customer = await context.CustomerService.FindCustomerByClientIdentAsync(clientIdent, maxAgeSeconds: 60);
 
         if (customer == null)
         {
@@ -637,8 +637,12 @@ public class DefaultWorkContextSource : AsyncDbSaveHook<BaseEntity>, IWorkContex
                 // Check traffic limit for guests.
                 await CheckGuestDeniedAsync(context, customer);
 
-                // Try to append visitor cookie to better identify visitor on next (sub)-request
-                context.CustomerService.AppendVisitorCookie(customer);
+                // Intentionally do NOT append a visitor cookie here.
+                // ClientIdent is a heuristic (IP + UA + headers), not a verified identity.
+                // Anchoring it via cookie would permanently assign the wrong session
+                // to an unrelated visitor in case of a hash collision (e.g. shared NAT,
+                // IPv6 address truncation). The cookie is only set when a guest account
+                // is freshly created (CreateGuestCustomerAsync), where identity is certain.
             }
         }
 
