@@ -84,11 +84,30 @@ jobs:
         package: [smartstore-linux, smartstore-windows]
     steps:
     - name: Delete untagged versions of ${{ matrix.package }}
-      uses: actions/delete-package-versions@v5
-      continue-on-error: true
+      uses: actions/github-script@v7
       with:
-        package-name: ${{ matrix.package }}
-        package-type: container
-        delete-only-untagged-versions: true
-        min-versions-to-keep: 0
+        script: |
+          const versions = await github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
+            package_type: 'container',
+            package_name: '${{ matrix.package }}',
+            org: 'smartstore',
+            per_page: 100
+          });
+
+          const untagged = versions.data.filter(v => !v.metadata?.container?.tags?.length);
+          console.log(`Found ${untagged.length} untagged versions`);
+
+          for (const v of untagged) {
+            try {
+              await github.rest.packages.deletePackageVersionForOrg({
+                package_type: 'container',
+                package_name: '${{ matrix.package }}',
+                org: 'smartstore',
+                package_version_id: v.id
+              });
+              console.log(`Deleted: ${v.id} (${v.name})`);
+            } catch (err) {
+              console.log(`Failed to delete ${v.id}: ${err.message}`);
+            }
+          }
 
