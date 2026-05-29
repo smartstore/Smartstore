@@ -37,7 +37,7 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.8" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.8" />
         <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="10.0.8" />
-        <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.17.0" />
+        <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.18.0" />
         <PackageReference Include="NCrontab.Signed" Version="3.4.0" />
         <PackageReference Include="NuGet.Protocol" Version="7.3.1" />
         <PackageReference Include="PreMailer.Net" Version="2.7.2" />

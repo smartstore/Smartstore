@@ -10,7 +10,7 @@
 
 	<ItemGroup>
         <PackageReference Include="Azure.Identity" Version="1.21.0" />
-        <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.0" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.8" GeneratePathProperty="true" />
         <None Include="$(PkgMicrosoft_EntityFrameworkCore_SqlServer)\lib\net10.0\*.dll" CopyToOutputDirectory="PreserveNewest">
             <Visible>false</Visible>
