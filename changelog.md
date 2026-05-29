@@ -15,10 +15,13 @@
 - **Withdrawal** plugin (commercial)
   - Enables customers to submit withdrawals online for eligible orders and items.
   - Supports compliance with EU rules for digital withdrawal.
+- **Warranty** plugin (commercial)
+  - Enables the configuration and display of harmonised EU labels for legal guarantee and commercial guarantee of durability.
 - **AI**
   - New HTML text optimization command: **Organize**: Improves document structure and cleans up HTML markup.
   - #1445 Create a new image using the Media Manager.
   - Generate image: Quality levels (low, medium, or high) can now be specified, but only if the provider supports this feature.
+  - Automatic llms.txt generation  
 - **Required products**
   - Automatically added required products can no longer be removed separately from the cart.
   - Required products can now keep their quantity in sync with the main product.
