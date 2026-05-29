@@ -33,6 +33,18 @@
             </div>
         }
     }
+
+    async Task RenderSurcharge(ProductDetailsPriceModel pm, bool blockStyle)
+    {
+        <div class='@(blockStyle ? "my-1" : "text-truncate")'>
+            @foreach (var rpPrice in pm.RequiredProductPrices)
+            {
+                <data asp-for="@rpPrice.Price" class="pd-required-product-price d-block text-muted fs-xs text-truncate">
+                    @Html.Raw(T("Products.RequiredProductPriceInfo", rpPrice.Price, rpPrice.ProductName, rpPrice.ProductName))
+                </data>
+            }
+        </div>
+    }
 }
 
 <div class="pd-offer-price" sm-suppress-if-empty="true">
@@ -47,7 +59,7 @@
         {
             priceSpecification = new { type = "PriceSpecification" }
         })); 
-    }
+    } 
     else
     {
         var pm = Model.Price;
@@ -57,6 +69,8 @@
         var showPriceSaving = pm.Saving.SavingAmount.HasValue && (pm.ShowRetailPriceSaving || pm.RegularPrice != null);
         var showPrice = !(isBundlePart && pm.FinalPrice == 0);
         var roundedPrice = RoundingHelper.Round(pm.FinalPrice);
+        var showSurcharge = !pm.RequiredProductPrices.IsNullOrEmpty();
+        var blockStyleSurcharge = pm.CountdownText != null || pm.RequiredProductPrices?.Count > 1;
 
         @* Price *@
         <div class="pd-group" sm-suppress-if-empty="true">
@@ -78,6 +92,10 @@
                     <span sm-if="pm.CountdownText != null" id="pd-offer-countdown" class="pd-offer-countdown">
                         @Html.Raw(pm.CountdownText)
                     </span>
+                    @if (showSurcharge && !blockStyleSurcharge)
+                    {
+                        await RenderSurcharge(pm, false);
+                    }
                 </div>
                 @if (!isBundlePart)
                 {
@@ -89,14 +107,10 @@
                         priceValidUntil = pm.ValidUntilUtc
                     }));
                 }
-                <div sm-if="!pm.RequiredProductPrices.IsNullOrEmpty()" class="mb-1">
-                    @foreach (var rpPrice in pm.RequiredProductPrices)
-                    {
-                        <data asp-for="@rpPrice.Price" class="pd-required-product-price d-block pd-muted">
-                            @Html.Raw(T("Products.RequiredProductPriceInfo", rpPrice.Price, rpPrice.ProductName, rpPrice.ProductName.Truncate(30, "…")))
-                        </data>
-                    }
-                </div>
+                @if (showSurcharge && blockStyleSurcharge)
+                {
+                    await RenderSurcharge(pm, true);
+                }
                 @* Compare prices *@
                 <div sm-if="pm.RegularPrice != null || pm.RetailPrice != null" class="pd-promoprice-group">
                     @{
