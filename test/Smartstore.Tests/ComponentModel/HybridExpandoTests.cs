@@ -73,9 +73,12 @@ public class HybridExpandoTests
         exp.Empty = "";
         exp.False = false;
 
-        Assert.That(exp.Zero, Is.Null);
-        Assert.That(exp.Empty, Is.Null);
-        Assert.That(exp.False, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That((object)exp.Zero, Is.Null);
+            Assert.That((object)exp.Empty, Is.Null);
+            Assert.That((object)exp.False, Is.Null);
+        }
     }
 
     [Test]
