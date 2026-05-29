@@ -34,19 +34,19 @@
         <PackageReference Include="HtmlSanitizer" Version="9.1.893-beta" />
         <PackageReference Include="Humanizer" Version="3.0.10" />
         <PackageReference Include="MailKit" Version="4.16.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.6" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.6" />
-        <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="10.0.6" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.8" />
+        <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="10.0.8" />
         <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.17.0" />
         <PackageReference Include="NCrontab.Signed" Version="3.4.0" />
         <PackageReference Include="NuGet.Protocol" Version="7.3.1" />
         <PackageReference Include="PreMailer.Net" Version="2.7.2" />
         <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
         <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />
-        <PackageReference Include="System.IO.Hashing" Version="10.0.6" />
+        <PackageReference Include="System.IO.Hashing" Version="10.0.8" />
         <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.2" />
-        <PackageReference Include="System.Memory.Data" Version="10.0.6" />
-        <PackageReference Include="System.ServiceModel.Syndication" Version="10.0.6" />
+        <PackageReference Include="System.Memory.Data" Version="10.0.8" />
+        <PackageReference Include="System.ServiceModel.Syndication" Version="10.0.8" />
     </ItemGroup>
 
     <ItemGroup>

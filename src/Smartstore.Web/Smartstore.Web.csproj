@@ -28,7 +28,7 @@
         <PackageReference Include="Microsoft.CodeAnalysis.Razor" Version="6.0.36" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.Extensions" Version="6.0.36" />
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.6">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.8">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -37,7 +37,7 @@
             <!-- Prevents BuildHost folders from being copied into the project -->
             <ExcludeAssets>contentFiles</ExcludeAssets>
         </PackageReference>
-		<PackageReference Include="System.Runtime.Caching" Version="10.0.6" />
+		<PackageReference Include="System.Runtime.Caching" Version="10.0.8" />
         <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.11" />
 	</ItemGroup>
 
