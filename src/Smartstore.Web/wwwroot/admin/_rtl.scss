@@ -21,31 +21,29 @@
             right: auto;
         }
     }
+
     // Form Grid
     // ---------
-    .adminContent {
-        &:not(.adminContent-vertical) > tbody > tr:not(.wide),
-        &:not(.adminContent-vertical) > tr:not(.wide),
-        &:not(.adminContent-vertical) .adminRow:not(.wide) {
-            @include media-breakpoint-up(md) {
-                > .adminTitle {
-                    text-align: left;
+    .adminRow:not(.wide) {
+        @include media-breakpoint-up(md) {
+            > .adminTitle {
+                text-align: start;
+                //padding-right: $grid-gutter-width/2 !important;
+                padding-inline-start: 0 !important;
+            }
+
+            > .adminData {
+                //padding-left: $grid-gutter-width/2 !important;
+                padding-inline-end: 0 !important;
+
+                &:not(.wide) {
                     //padding-right: $grid-gutter-width/2 !important;
-                    padding-left: 0 !important;
-                }
-
-                > .adminData {
-                    //padding-left: $grid-gutter-width/2 !important;
-                    padding-right: 0 !important;
-
-                    &:not(.wide) {
-                        //padding-right: $grid-gutter-width/2 !important;
-                        padding-left: 0 !important;
-                    }
+                    padding-inline-start: 0 !important;
                 }
             }
         }
     }
+
     // Themes
     // ------
     #theme-list .theme-broken-badge {

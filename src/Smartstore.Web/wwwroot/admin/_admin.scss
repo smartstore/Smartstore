@@ -740,6 +740,47 @@ legend {
 // Apply grid layout to editor tables (.adminContent)
 // --------------------------------------------------
 
+.adminContent {
+    --adminRow-width: 1000px;
+    --adminTitle-width: 0.4;
+    --adminContent-width: 0.6;
+    --adminRow-margin-y: 0.8rem;
+
+    display: block;
+    width: 100%;
+    margin-inline: auto;
+    padding-inline: 0;
+    border-collapse: initial;
+
+    &.adminContent-boxed {
+        --adminContent-padding: 1rem;
+        padding-inline: 1rem;
+    }
+}
+
+.adminRow {
+    display: flex;
+    flex-wrap: wrap;
+    margin-block: var(--adminRow-margin-y, 0.8rem);
+    margin-inline: 0 !important;
+
+    &:first-child {
+        margin-top: 0;
+    }
+}
+
+.adminTitle,
+.adminData {
+    position: relative;
+    display: block;
+    @include make-col-ready();
+    padding-inline: 0;
+}
+
+.adminTitle {
+    margin-bottom: 0;
+}
+
 .adminData {
     select,
     input,
@@ -751,133 +792,67 @@ legend {
     }
 }
 
-.adminContent {
-    --adminRow-width: 1000px;
-    --adminTitle-width: 0.4;
-    --adminContent-width: 0.6;
-    --adminRow-margin-y: 0.8rem;
+.adminRow:not(.wide) {
+    @include media-breakpoint-up(md) {
+        flex-wrap: nowrap;
 
-    display: block;
-    width: 100%;
-    margin-right: auto;
-    margin-left: auto;
-    padding-left: 0;
-    padding-right: 0;
-    border-collapse: initial;
+        > .adminTitle {
+            flex: 0 0 33.333333%;
+            max-width: 33.333333%;
+            padding-inline-end: 0 !important;
 
-    > tbody {
-        display: flex;
-        flex-flow: column;
-        border-collapse: initial;
-    }
-
-    > tbody > tr,
-    > tr,
-    .adminRow {
-        display: flex;
-        flex-wrap: wrap;
-        margin-block: 0.4rem;
-        margin-inline: 0 !important;
-    }
-
-    div.adminRow {
-        // DIV type rows do margin collapse, fix it.
-        margin-block: var(--adminRow-margin-y, 0.8rem);
-    }
-
-    .adminTitle,
-    .adminData {
-        position: relative;
-        display: block;
-        @include make-col-ready();
-        padding-inline: 0;
-    }
-
-    .adminTitle {
-        margin-bottom: 0;
-    }
-
-    > tbody > tr > td:only-child:not(.adminData):not(.adminTitle),
-    > tr > td:only-child:not(.adminData):not(.adminTitle) {
-        flex-grow: 1;
-        max-width: 100%;
-    }
-
-    &:not(.adminContent-vertical) > tbody > tr:not(.wide),
-    &:not(.adminContent-vertical) > tr:not(.wide),
-    &:not(.adminContent-vertical) .adminRow:not(.wide) {
-        @include media-breakpoint-up(md) {
-            flex-wrap: nowrap;
-
-            > .adminTitle {
-                flex: 0 0 33.333333%;
-                max-width: 33.333333%;
-                //text-align: right;
-                padding-right: 0 !important;
-
-                .ctl-label > label,
-                .ctl-label > .hint {
-                    // actually is '.col-form-label', @extend is not possible here.
-                    font-size: inherit;
-                    line-height: $input-line-height;
-                    padding-top: calc(#{$input-padding-y} + #{$input-border-width});
-                    padding-bottom: calc(#{$input-padding-y} + #{$input-border-width});
-                    margin-bottom: 0;
-                }
-            }
-
-            > .adminData {
-                flex: 0 0 66.666667%;
-                max-width: 66.666667%;
-                padding-left: 0 !important;
-
-                &:not(.wide) {
-                    padding-right: 0 !important;
-                }
+            .ctl-label > :is(label, .hint) {
+                // actually is '.col-form-label', @extend is not possible here.
+                font-size: inherit;
+                line-height: $input-line-height;
+                padding-top: calc(#{$input-padding-y} + #{$input-border-width});
+                padding-bottom: calc(#{$input-padding-y} + #{$input-border-width});
+                margin-bottom: 0;
             }
         }
 
-        @include media-breakpoint-up(lg) {
-            > .adminTitle {
-                flex-basis: calc(calc(var(--adminRow-width) * var(--adminTitle-width)) - var(--adminContent-padding, 0px));
-                max-width: calc(var(--adminTitle-width) * 100%);
+        > .adminData {
+            flex: 0 0 66.666667%;
+            max-width: 66.666667%;
+            padding-inline-start: 0 !important;
+
+            &:not(.wide) {
+                padding-inline-end: 0 !important;
             }
+        }
+    }
 
-            > .adminData {
-                --w: calc(var(--adminRow-width) * var(--adminContent-width));
-                flex-basis: var(--w);
-                width: var(--w);
-                max-width: calc(var(--adminContent-width) * 100%);
+    @include media-breakpoint-up(lg) {
+        > .adminTitle {
+            flex-basis: calc(calc(var(--adminRow-width) * var(--adminTitle-width)) - var(--adminContent-padding, 0px));
+            max-width: calc(var(--adminTitle-width) * 100%);
+        }
 
-                &.wide {
-                    flex-grow: 1;
-                    flex-basis: 0;
-                    max-width: 100%;
-                }
-            }
+        > .adminData {
+            --w: calc(var(--adminRow-width) * var(--adminContent-width));
+            flex-basis: var(--w);
+            width: var(--w);
+            max-width: calc(var(--adminContent-width) * 100%);
 
-            .adminContainer {
-                flex-basis: var(--adminRow-width);
-                width: var(--adminRow-width);
+            &.wide {
+                flex-grow: 1;
+                flex-basis: 0;
                 max-width: 100%;
             }
         }
-    }
 
-    &.adminContent-boxed {
-        --adminContent-padding: 1rem;
-        padding-inline: 1rem;
+        .adminContainer {
+            flex-basis: var(--adminRow-width);
+            width: var(--adminRow-width);
+            max-width: 100%;
+        }
     }
-}
-
-.adminData .adminRow:first-child,
-.collapsible > .adminRow:first-child {
-    margin-top: 0;
 }
 
 .adminSeparator {
     width: 100%;
 }
+
 
 //
 // Tables
