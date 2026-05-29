@@ -14,7 +14,7 @@
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="11.0.0" />
         <PackageReference Include="DotLiquid" Version="2.3.197" />
         <PackageReference Include="ExcelDataReader" Version="3.8.0" />
-        <PackageReference Include="FluentFTP" Version="54.1.1" />
+        <PackageReference Include="FluentFTP" Version="54.2.0" />
         <PackageReference Include="FluentMigrator" Version="8.0.1" />
         <PackageReference Include="FluentMigrator.Runner.MySql" Version="8.0.1" />
         <PackageReference Include="FluentMigrator.Runner.Postgres" Version="8.0.1" />
@@ -23,8 +23,8 @@
         <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
         <PackageReference Include="HtmlSanitizer" Version="9.1.893-beta" />
         <PackageReference Include="LumenWorksCsvReader" Version="4.0.0" />
-        <PackageReference Include="MaxMind.Db" Version="5.0.0" />
-        <PackageReference Include="MaxMind.GeoIP2" Version="5.4.1" />
+        <PackageReference Include="MaxMind.Db" Version="5.1.0" />
+        <PackageReference Include="MaxMind.GeoIP2" Version="6.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.8" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.8" />
         <PackageReference Include="Parlot" Version="1.5.7" />

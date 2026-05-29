@@ -30,10 +30,10 @@
         <PackageReference Include="Autofac" Version="9.1.0" />
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="11.0.0" />
         <PackageReference Include="Barcoder" Version="3.0.0" />
-        <PackageReference Include="CronExpressionDescriptor" Version="2.45.0" />
+        <PackageReference Include="CronExpressionDescriptor" Version="2.48.0" />
         <PackageReference Include="HtmlSanitizer" Version="9.1.893-beta" />
         <PackageReference Include="Humanizer" Version="3.0.10" />
-        <PackageReference Include="MailKit" Version="4.16.0" />
+        <PackageReference Include="MailKit" Version="4.17.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.8" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.8" />
         <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="10.0.8" />
