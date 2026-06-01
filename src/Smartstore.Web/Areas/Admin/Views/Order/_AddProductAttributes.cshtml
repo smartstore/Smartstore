@@ -19,7 +19,7 @@
                 {
                     case AttributeControlType.DropdownList:
                         {
-                            <select name="@controlId" id="@controlId">
+                            <select name="@controlId" id="@controlId" class="attribute-list">
                                 <option sm-if="!attribute.IsRequired" value="0">---</option>
                                 @foreach (var value in attribute.Values)
                                 {
@@ -36,7 +36,8 @@
                             {
                                 var checkId = controlId + "_" + value.Id;
                                 <div class="form-check">
-                                    <input id="@checkId" name="@controlId" class="form-check-input"
+                                    <input id="@checkId" name="@controlId" 
+                                           class="form-check-input attribute-list-item"
                                            attr-checked='(value.IsPreSelected, "checked")'
                                            type="@(attribute.AttributeControlType == AttributeControlType.Checkboxes ? "checkbox" : "radio")"
                                            value="@value.Id" />

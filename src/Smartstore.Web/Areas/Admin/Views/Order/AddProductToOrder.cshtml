@@ -4,13 +4,10 @@
 
 @{
     ViewBag.Title = T("Admin.Orders.Products.AddNew.Title2", Model.Name, Model.OrderId);
-
-    var warnings = ViewBag.Warnings as List<string>;
-    var primaryStoreCurrencyCode = (string)ViewBag.PrimaryStoreCurrencyCode;
 }
 
 @*We add enctype = "multipart/form-data" because "File upload" attribute control type requries it.*@
-<form method="post" asp-action="AddProductToOrder" asp-route-orderId="@Model.OrderId" asp-route-productId="@Model.ProductId" enctype="multipart/form-data">
+<form id="AddProductToOrderForm" method="post" asp-action="AddProductToOrder" asp-route-orderId="@Model.OrderId" asp-route-productId="@Model.ProductId" enctype="multipart/form-data">
     <div class="section-header">
         <div class="title">
             <a sm-backto asp-action="Edit" asp-route-id="@Model.OrderId" title="@T("Admin.Orders.Products.AddNew.BackToOrder")"></a>
@@ -36,67 +33,11 @@
         return;
     }
 
-    <div sm-if="warnings?.Any() ?? false">
-        <div class="alert alert-danger">
-            @foreach (var warning in warnings)
-            {
-                <div>@Html.Raw(warning)</div>
-            }
-        </div>
+    <div id="AddProductToOrderPrices">
+        <partial name="_AddProductToOrder.Prices" />
     </div>
 
-    <div class="adminContent">
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="UnitPriceInclTax" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="UnitPriceInclTax" sm-postfix="@primaryStoreCurrencyCode" />
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="UnitPriceExclTax" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="UnitPriceExclTax" sm-postfix="@primaryStoreCurrencyCode" />
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="TaxRate" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="TaxRate" />
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="Quantity" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="Quantity" />
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="PriceInclTax" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="PriceInclTax" sm-postfix="@primaryStoreCurrencyCode" />
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="PriceExclTax" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="PriceExclTax" sm-postfix="@primaryStoreCurrencyCode" />
-            </div>
-        </div>
-    </div>
-
-    @if (Model.ProductVariantAttributes.Any())
+    @if (Model.ProductVariantAttributes.Count > 0)
     {
         <partial name="_AddProductAttributes" />
     }
@@ -142,5 +83,20 @@
 <script sm-target-zone="scripts" data-origin="add-product-to-order">
     $(function () {
         applyCommonPlugins($('#AddProductAttributeContainer'));
+        
+        $('#AddProductToOrderForm').on('change', '#Quantity, .attribute-list, .attribute-list-item', () => {
+            $({}).ajax({
+                type: 'POST',
+                url: '@Url.Action("UpdateProductPrices", new { Model.OrderId, Model.ProductId })',
+                data: $('#AddProductToOrderForm').serialize(),
+                success: (response) => {
+                    if (response.success) {
+                        const $elPrices = $('#AddProductToOrderPrices');
+                        $elPrices.html(response.prices);
+                        applyCommonPlugins($elPrices);
+                    }
+                }
+            });
+        });
     });
 </script>

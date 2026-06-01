@@ -1549,15 +1549,17 @@ public class OrderController : AdminController
     {
         var order = await _db.Orders
             .Include(x => x.Customer)
-            .FindByIdAsync(orderId);
+            .FindByIdAsync(orderId, false);
 
         var product = await _db.Products
+            .AsSplitQuery()
             .Include(x => x.ProductVariantAttributes)
-            .ThenInclude(x => x.ProductAttribute)
+                .ThenInclude(x => x.ProductAttribute)
+            .Include(x => x.ProductVariantAttributes)
+                .ThenInclude(x => x.ProductVariantAttributeValues)
             .FindByIdAsync(productId);
 
         var model = new AddOrderProductModel();
-
         await PrepareAddOrderProductModel(model, product, order);
 
         return View(model);
@@ -1573,10 +1575,13 @@ public class OrderController : AdminController
             .FindByIdAsync(model.OrderId);
 
         var product = await _db.Products
+            .AsSplitQuery()
             .Include(x => x.ProductVariantAttributes)
-            .ThenInclude(x => x.ProductAttribute)
+                .ThenInclude(x => x.ProductAttribute)
             .Include(x => x.ProductVariantAttributes)
-            .ThenInclude(x => x.RuleSet)
+                .ThenInclude(x => x.ProductVariantAttributeValues)
+            .Include(x => x.ProductVariantAttributes)
+                .ThenInclude(x => x.RuleSet)
             .FindByIdAsync(model.ProductId);
 
         if (order == null || product == null)
@@ -1589,7 +1594,6 @@ public class OrderController : AdminController
             throw new NotSupportedException("Adding a product bundle to an existing order is not supported.");
         }
 
-        var utcNow = DateTime.UtcNow;
         var warnings = new List<string>();
         var attributes = product.ProductVariantAttributes
             .OrderBy(x => x.DisplayOrder)
@@ -1600,10 +1604,7 @@ public class OrderController : AdminController
             : null;
 
         var (selection, _) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, attributes, product.Id, 0);
-        if (giftCardInfo != null)
-        {
-            selection.AddGiftCardInfo(giftCardInfo);
-        }
+        selection.AddGiftCardInfo(giftCardInfo);
 
         await _shoppingCartValidator.Value.ValidateProductAttributesAsync(
             product,
@@ -1615,12 +1616,11 @@ public class OrderController : AdminController
 
         _shoppingCartValidator.Value.ValidateGiftCardInfo(product, selection, warnings);
 
-        if (warnings.Any())
+        if (warnings.Count > 0)
         {
-            await PrepareAddOrderProductModel(model, product, order);
+            warnings.Each(x => ModelState.AddModelError(string.Empty, x));
 
-            ViewBag.Warnings = warnings;
-
+            await PrepareAddOrderProductModel(model, product, order, selection);
             return View(model);
         }
 
@@ -1663,6 +1663,8 @@ public class OrderController : AdminController
 
         if (product.IsGiftCard)
         {
+            var utcNow = DateTime.UtcNow;
+
             _db.GiftCards.AddRange(Enumerable.Repeat(new GiftCard
             {
                 GiftCardType = product.GiftCardType,
@@ -1702,6 +1704,50 @@ public class OrderController : AdminController
         Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
 
         return RedirectToAction(nameof(Edit), new { id = order.Id });
+    }
+
+    /// <summary>
+    /// AJAX. Updates the product prices form elements based on the selected attributes and quantity when adding a product to an order.
+    /// </summary>
+    public async Task<IActionResult> UpdateProductPrices(AddOrderProductModel model, ProductVariantQuery query)
+    {
+        // TODO: (mg) DRY. Add a mapper for AddOrderProductModel (too much code for a controller).
+        // Pass "ProductVariantQuery query" to mapper. If "null" create it and add preselected attributes.
+        string prices = null;
+
+        var order = await _db.Orders
+            .Include(x => x.Customer)
+            .FindByIdAsync(model.OrderId, false);
+
+        var product = await _db.Products
+            .AsSplitQuery()
+            .Include(x => x.ProductVariantAttributes)
+                .ThenInclude(x => x.ProductAttribute)
+            .Include(x => x.ProductVariantAttributes)
+                .ThenInclude(x => x.ProductVariantAttributeValues)
+            .FindByIdAsync(model.ProductId);
+
+        if (order != null && product != null)
+        {
+            var attributes = product.ProductVariantAttributes
+                .OrderBy(x => x.DisplayOrder)
+                .ToList();
+
+            var giftCardInfo = product.IsGiftCard
+                ? query.GetGiftCardInfo(product.Id, 0)
+                : null;
+
+            var (selection, _) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, attributes, product.Id, 0);
+            if (giftCardInfo != null)
+            {
+                selection.AddGiftCardInfo(giftCardInfo);
+            }
+
+            await PrepareAddOrderProductModel(model, product, order, selection);
+            prices = await InvokePartialViewAsync("_AddProductToOrder.Prices", model);
+        }
+
+        return Json(new { success = prices.HasValue(), prices });
     }
 
     #endregion
@@ -2153,38 +2199,30 @@ public class OrderController : AdminController
         ViewBag.PrimaryStoreCurrencyCode = _primaryCurrency.CurrencyCode;
     }
 
-    private async Task PrepareAddOrderProductModel(AddOrderProductModel model, Product product, Order order)
+    private async Task PrepareAddOrderProductModel(
+        AddOrderProductModel model, 
+        Product product, 
+        Order order,
+        ProductVariantAttributeSelection selection = null)
     {
         if (product == null)
         {
             throw new ArgumentException(T("Products.NotFound", model.ProductId));
         }
 
+        var query = new ProductVariantQuery();
         var customer = Services.WorkContext.CurrentCustomer;
         var currency = await _db.Currencies
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.CurrencyCode == order.CustomerCurrencyCode) ?? _primaryCurrency;
 
-        var calculationOptions = _priceCalculationService.Value.CreateDefaultOptions(false, customer, currency);
-        calculationOptions.IgnoreDiscounts = true;
-
-        var calculationContext = new PriceCalculationContext(product, calculationOptions);
-        var unitPrice = await _priceCalculationService.Value.CalculatePriceAsync(calculationContext);
-        var priceTax = unitPrice.Tax.Value;
-
         model.OrderId = order.Id;
         model.ProductId = product.Id;
         model.Name = product.GetLocalized(x => x.Name);
         model.ProductType = product.ProductType;
-        model.UnitPriceInclTax = priceTax.PriceGross;
-        model.UnitPriceExclTax = priceTax.PriceNet;
-        model.PriceInclTax = priceTax.PriceGross;
-        model.PriceExclTax = priceTax.PriceNet;
-        model.TaxRate = priceTax.Rate.Rate;
         model.ShowUpdateTotals = order.OrderStatusId <= (int)OrderStatus.Pending;
         model.GiftCard.IsGiftCard = product.IsGiftCard;
         model.GiftCard.GiftCardType = product.GiftCardType;
-
         model.UpdateTotals = model.ShowUpdateTotals;
 
         var attributes = product.ProductVariantAttributes
@@ -2253,10 +2291,61 @@ public class OrderController : AdminController
                     .Select(x => (ChoiceItemModel)x)
                     .OrderBy(x => x.DisplayOrder)
                     .ThenNaturalBy(_catalogSettings.SortAttributesNaturally ? x => x.Name : null)];
+
+                if (selection == null)
+                {
+                    // Get preselected values.
+                    foreach (var value in valueModels.Where(x => x.IsPreSelected))
+                    {
+                        query.AddVariant(new()
+                        {
+                            Value = value.Id.ToString(),
+                            ProductId = product.Id,
+                            AttributeId = attribute.ProductAttributeId,
+                            VariantAttributeId = attribute.Id,
+                            Alias = attribute.ProductAttribute.Alias,
+                            ValueAlias = value.Alias
+                        });
+                    }
+                }
             }
 
             model.ProductVariantAttributes.Add(attributeModel);
         }
+
+        // Prices.
+        if (selection == null && query.Variants.Count > 0)
+        {
+            var (tmpSelection, _) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, attributes, product.Id, 0);
+            selection = tmpSelection;
+        }
+
+        var selectedCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, selection);
+        product.MergeWithCombination(selectedCombination);
+
+        var calculationOptions = _priceCalculationService.Value.CreateDefaultOptions(false, customer, currency);
+        calculationOptions.IgnoreDiscounts = true;
+
+        var calculationContext = new PriceCalculationContext(product, model.Quantity, calculationOptions);
+
+        CalculatedPrice unitPrice, subtotal;
+        if (model.Quantity > 1)
+        {
+            (unitPrice, subtotal) = await _priceCalculationService.Value.CalculateSubtotalAsync(calculationContext);
+        }
+        else
+        {
+            unitPrice = subtotal = await _priceCalculationService.Value.CalculatePriceAsync(calculationContext);
+        }
+
+        var taxUnit = unitPrice.Tax.Value;
+        var taxSubtotal = subtotal.Tax.Value;
+
+        model.UnitPriceInclTax = taxUnit.PriceGross;
+        model.UnitPriceExclTax = taxUnit.PriceNet;
+        model.PriceInclTax = taxSubtotal.PriceGross;
+        model.PriceExclTax = taxSubtotal.PriceNet;
+        model.TaxRate = taxUnit.Rate.Rate;
 
         ViewBag.PrimaryStoreCurrencyCode = _primaryCurrency.CurrencyCode;
     }
