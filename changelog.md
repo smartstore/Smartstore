@@ -1,5 +1,15 @@
 # Release Notes
 
+## Smartstore 6.5.0
+
+### New Features
+
+### Improvements
+
+### Bugfixes
+
+- Prevent a race condition in `TemplateZoneRenderingEvent` by eagerly resolving `TemplateName` from the DotLiquid context before publishing the event.
+
 ## Smartstore 6.4.0
 
 ### Breaking Changes
