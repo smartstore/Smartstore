@@ -1,7 +1,4 @@
-using Smartstore.Core.Common.Configuration;
-using Smartstore.Core.Configuration;
 using Smartstore.Data.Migrations;
-using Smartstore.Utilities;
 
 namespace Smartstore.Core.Data.Migrations;
 
@@ -18,11 +15,9 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
     public async Task MigrateSettingsAsync(SmartDbContext context, CancellationToken cancelToken = default)
     {
-
     }
 
     public void MigrateLocaleResources(LocaleResourcesBuilder builder)
     {
-        
     }
 }
