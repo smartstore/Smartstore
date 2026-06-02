@@ -125,9 +125,11 @@ $(function () {
                 applyCommonPlugins(cartBody);
 
                 // Update shopbar.
-                ShopBar.loadSummary('cart', true);
-                ShopBar.loadSummary('wishlist', true);
-
+                if (typeof ShopBar !== 'undefined') {
+                    ShopBar.loadSummary('cart', true);
+                    ShopBar.loadSummary('wishlist', true);
+                }
+                
                 hideThrobber();
 
                 var cartRefreshEvent = jQuery.Event('shoppingCartRefresh');
