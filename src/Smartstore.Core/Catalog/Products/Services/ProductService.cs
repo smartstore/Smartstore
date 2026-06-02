@@ -221,18 +221,16 @@ public partial class ProductService : IProductService
     {
         Guard.NotNull(orderItem);
 
+        await _db.LoadReferenceAsync(orderItem, x => x.Product, false);
+
         if (orderItem.Product.ProductType == ProductType.BundledProduct && orderItem.Product.BundlePerItemShoppingCart)
         {
             if (orderItem.BundleData.HasValue())
             {
                 var bundleData = orderItem.GetBundleData();
-                if (bundleData.Any())
+                if (bundleData.Count > 0)
                 {
-                    var productIds = bundleData
-                        .Select(x => x.ProductId)
-                        .Distinct()
-                        .ToArray();
-
+                    var productIds = bundleData.ToDistinctArray(x => x.ProductId);
                     var products = await _db.Products
                         .Where(x => productIds.Contains(x.Id))
                         .ToListAsync();

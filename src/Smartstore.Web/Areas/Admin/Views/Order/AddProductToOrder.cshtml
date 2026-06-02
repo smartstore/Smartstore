@@ -4,10 +4,15 @@
 
 @{
     ViewBag.Title = T("Admin.Orders.Products.AddNew.Title2", Model.Name, Model.OrderId);
+
+    var warnings = ViewBag.Warnings as List<string>;
 }
 
 @*We add enctype = "multipart/form-data" because "File upload" attribute control type requries it.*@
 <form id="AddProductToOrderForm" method="post" asp-action="AddProductToOrder" asp-route-orderId="@Model.OrderId" asp-route-productId="@Model.ProductId" enctype="multipart/form-data">
+    @Html.HiddenFor(x => x.OrderId)
+    @Html.HiddenFor(x => x.ProductId)
+
     <div class="section-header">
         <div class="title">
             <a sm-backto asp-action="Edit" asp-route-id="@Model.OrderId" title="@T("Admin.Orders.Products.AddNew.BackToOrder")"></a>
@@ -20,7 +25,14 @@
         </div>
     </div>
 
-    <div asp-validation-summary="All"></div>
+    <div sm-if="!warnings.IsNullOrEmpty()">
+        <div class="alert alert-danger">
+            @foreach (var warning in warnings)
+            {
+                <div>@Html.Raw(warning)</div>
+            }
+        </div>
+    </div>
 
     @if (Model.ProductType == ProductType.GroupedProduct)
     {
@@ -87,7 +99,7 @@
         $('#AddProductToOrderForm').on('change', '#Quantity, .attribute-list, .attribute-list-item', () => {
             $({}).ajax({
                 type: 'POST',
-                url: '@Url.Action("UpdateProductPrices", new { Model.OrderId, Model.ProductId })',
+                url: '@Url.Action("UpdateProductPrices")',
                 data: $('#AddProductToOrderForm').serialize(),
                 success: (response) => {
                     if (response.success) {

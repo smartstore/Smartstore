@@ -19,5 +19,15 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
     public void MigrateLocaleResources(LocaleResourcesBuilder builder)
     {
+        builder.Delete(
+            "Admin.Orders.Products.AddNew.UnitPriceInclTax.Hint",
+            "Admin.Orders.Products.AddNew.UnitPriceExclTax.Hint",
+            "Admin.Orders.Products.AddNew.SubTotalInclTax.Hint",
+            "Admin.Orders.Products.AddNew.SubTotalExclTax.Hint");
+
+        builder.AddOrUpdate("Admin.Orders.Products.AddNew.UnitPriceInclTax", "Unit price (gross)", "Einzelpreis (brutto)");
+        builder.AddOrUpdate("Admin.Orders.Products.AddNew.UnitPriceExclTax", "Unit price (net)", "Einzelpreis (netto)");
+        builder.AddOrUpdate("Admin.Orders.Products.AddNew.SubTotalInclTax", "Total (gross)", "Gesamt (brutto)");
+        builder.AddOrUpdate("Admin.Orders.Products.AddNew.SubTotalExclTax", "Total (net)", "Gesamt (netto)");
     }
 }

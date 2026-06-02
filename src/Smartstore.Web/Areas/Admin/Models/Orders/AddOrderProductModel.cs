@@ -2,6 +2,7 @@
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Web.Rendering.Choices;
 
 namespace Smartstore.Admin.Models.Orders;
@@ -42,9 +43,7 @@ public partial class AddOrderProductModel : ModelBase
         => GiftCardQueryItem.CreateKey(ProductId, 0, null);
 
     public GiftCardModel GiftCard { get; set; } = new();
-
-    public List<ProductVariantAttributeModel> ProductVariantAttributes { get; set; } = new();
-
+    public List<ProductVariantAttributeModel> ProductVariantAttributes { get; set; } = [];
 
     public partial class ProductVariantAttributeModel : ChoiceModel
     {
@@ -97,4 +96,12 @@ public partial class AddOrderProductModel : ModelBase
         [LocalizedDisplay("*Message")]
         public string Message { get; set; }
     }
+}
+
+record class AddOrderProductData
+{
+    public Order Order { get; set; }
+    public Product Product { get; set; }
+    public ProductVariantAttributeSelection Selection { get; set; }
+    public GiftCardInfo GiftCardInfo { get; set; }
 }

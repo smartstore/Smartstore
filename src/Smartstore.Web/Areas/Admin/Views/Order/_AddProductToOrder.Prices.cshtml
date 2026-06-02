@@ -1,7 +1,7 @@
 ﻿@model AddOrderProductModel
 
 @{
-    var primaryCurrencyCode = (string)ViewBag.PrimaryStoreCurrencyCode;
+    var primaryCurrencyCode = CommonServices.CurrencyService.PrimaryCurrency.CurrencyCode;
     // TODO: (mg) Change resources: Inkl./Excl. Steuern --> Brutto/Netto
     // TODO: (mg) Very awkward to enter gross, net, and tax amounts without automatic calculation. TBD with MC.
 }
@@ -28,7 +28,7 @@
             <smart-label asp-for="TaxRate" />
         </div>
         <div class="adminData">
-            <editor asp-for="TaxRate" />
+            <editor asp-for="TaxRate" sm-postfix="%" />
         </div>
     </div>
     <div class="adminRow">
