@@ -11,11 +11,13 @@ namespace Smartstore.Templating;
 public sealed class TemplateZoneRenderingEvent : IEventMessage
 {
     private IList<Snippet> _snippets;
+    private readonly string _templateName;
 
-    public TemplateZoneRenderingEvent(string zoneName, IDictionary<string, object> model)
+    public TemplateZoneRenderingEvent(string zoneName, IDictionary<string, object> model, string templateName = null)
     {
         ZoneName = zoneName;
         Model = model;
+        _templateName = templateName;
     }
 
     internal Context LiquidContext { get; set; }
@@ -23,7 +25,7 @@ public sealed class TemplateZoneRenderingEvent : IEventMessage
     /// <summary>
     /// The name of the rendered template.
     /// </summary>
-    public string TemplateName => Evaluate("Context.TemplateName") as string;
+    public string TemplateName => _templateName ?? Evaluate("Context.TemplateName") as string;
 
     /// <summary>
     /// The name of the zone which is rendered.
@@ -38,8 +40,6 @@ public sealed class TemplateZoneRenderingEvent : IEventMessage
     /// <summary>
     /// Evaluates an expression - e.g. Product.Sku - and returns it's value.
     /// </summary>
-    /// <param name="expression"></param>
-    /// <returns></returns>
     public object Evaluate(string expression)
     {
         return LiquidContext[expression, false];

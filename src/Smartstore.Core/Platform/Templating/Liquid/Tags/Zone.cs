@@ -54,7 +54,13 @@ internal sealed class ZoneTagFactory : ITagFactory
                 return;
 
             var model = context.Environments.First();
-            var evt = new TemplateZoneRenderingEvent(zoneName, model)
+
+            // Eagerly resolve TemplateName on the rendering thread to avoid concurrent
+            // Dictionary access inside DotLiquid's Context when consumers call this property
+            // during async/parallel event dispatch.
+            var templateName = context["Context.TemplateName", false] as string;
+
+            var evt = new TemplateZoneRenderingEvent(zoneName, model, templateName)
             {
                 LiquidContext = context
             };
