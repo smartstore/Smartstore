@@ -12,19 +12,6 @@ using Smartstore.Web.Rendering.Choices;
 
 namespace Smartstore.Admin.Models.Orders;
 
-// TODO: (mg) Find a new home for "MapperResult", if it survives ;-)
-
-/// <summary>
-/// Helper class to return both the model and the data from a mapping operation.
-/// </summary>
-record class MapperResult<TModel, TData>(TModel Model, TData Data)
-    where TModel : ModelBase
-{
-    public TModel Model { get; } = Model;
-    public TData Data { get; } = Data;
-}
-
-
 internal static partial class AddProductToOrderMappingExtensions
 {
     public static async Task<MapperResult<AddOrderProductModel, AddOrderProductData>> MapAsync(this AddOrderProductModel from,
