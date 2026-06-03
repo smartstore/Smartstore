@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Frozen;
+using System.Reflection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Engine.Modularity;
@@ -15,7 +16,7 @@ public class DefaultTypeScanner : ITypeScanner
         _activeAssemblies.AddRange(assemblies);
 
         // No edit allowed from now on
-        Assemblies = assemblies.AsReadOnly();
+        Assemblies = assemblies.ToFrozenSet();
     }
 
     public DefaultTypeScanner(IEnumerable<Assembly> coreAssemblies, IModuleCatalog moduleCatalog, ILogger logger)
@@ -32,13 +33,13 @@ public class DefaultTypeScanner : ITypeScanner
         assemblies.AddRange(moduleCatalog.GetInstalledModules().Select(x => x.Module.Assembly));
 
         // No edit allowed from now on
-        Assemblies = assemblies.AsReadOnly();
+        Assemblies = assemblies.ToFrozenSet();
     }
 
     public ILogger Logger { get; set; } = NullLogger.Instance;
 
     /// <inheritdoc/>
-    public IEnumerable<Assembly> Assemblies { get; private set; }
+    public ISet<Assembly> Assemblies { get; private set; }
 
     /// <inheritdoc/>
     public IEnumerable<Type> FindTypes(Type baseType, bool concreteTypesOnly = true)

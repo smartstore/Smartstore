@@ -10,7 +10,7 @@ public interface ITypeScanner
     /// <summary>
     /// Gets all registered scannable assemblies (core & all modules)
     /// </summary>
-    IEnumerable<Assembly> Assemblies { get; }
+    ISet<Assembly> Assemblies { get; }
 
     /// <summary>
     /// Find all types that are subclasses of <paramref name="baseType"/> in all scannable <see cref="Assemblies"/>.
@@ -60,7 +60,7 @@ public sealed class NullTypeScanner : ITypeScanner
 {
     public static NullTypeScanner Instance { get; } = new NullTypeScanner();
 
-    public IEnumerable<Assembly> Assemblies { get; } = Enumerable.Empty<Assembly>();
+    public ISet<Assembly> Assemblies { get; } = new HashSet<Assembly>().AsReadOnly();
 
     public IEnumerable<Type> FindTypes(Type baseType, bool concreteTypesOnly = true)
         => Type.EmptyTypes;
