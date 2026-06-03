@@ -26,7 +26,13 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Admin.Orders.Products.AddNew.SubTotalExclTax.Hint",
             "Admin.Orders.Products.Edit",
             "Admin.Orders.Products.Edit.InclTax",
-            "Admin.Orders.Products.Edit.ExclTax");
+            "Admin.Orders.Products.Edit.ExclTax",
+            "Admin.Orders.Fields.OrderShippingInclTax.Hint",
+            "Admin.Orders.Fields.OrderSubTotalDiscountInclTax.Hint",
+            "Admin.Orders.Fields.OrderSubtotalInclTax.Hint",
+            "Admin.Orders.Fields.OrderShippingExclTax.Hint",
+            "Admin.Orders.Fields.OrderSubTotalDiscountExclTax.Hint",
+            "Admin.Orders.Fields.OrderSubtotalExclTax.Hint");
 
         builder.AddOrUpdate("Admin.Orders.Products.AddNew.UnitPriceInclTax", "Unit price (gross)", "Einzelpreis (brutto)");
         builder.AddOrUpdate("Admin.Orders.Products.AddNew.UnitPriceExclTax", "Unit price (net)", "Einzelpreis (netto)");
@@ -36,5 +42,14 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.Orders.Fields.Edit.InclTax", "gross", "brutto");
         builder.AddOrUpdate("Admin.Orders.Fields.Edit.ExclTax", "net", "netto");
         builder.AddOrUpdate("Admin.Common.TaxPercent", "tax %", "Steuer %");
+
+        builder.AddOrUpdate("Admin.Orders.Fields.OrderShippingInclTax", "Order shipping (gross)", "Versandkosten (brutto)");
+        builder.AddOrUpdate("Admin.Orders.Fields.OrderShippingExclTax", "Order shipping (net)", "Versandkosten (netto)");
+
+        builder.AddOrUpdate("Admin.Orders.Fields.OrderSubTotalDiscountInclTax", "Order subtotal discount (gross)", "Rabatt für Auftragszwischensumme (brutto)");
+        builder.AddOrUpdate("Admin.Orders.Fields.OrderSubTotalDiscountExclTax", "Order subtotal discount (net)", "Rabatt für Auftragszwischensumme (netto)");
+
+        builder.AddOrUpdate("Admin.Orders.Fields.OrderSubtotalInclTax", "Order subtotal (gross)", "Auftragszwischensumme (brutto)");
+        builder.AddOrUpdate("Admin.Orders.Fields.OrderSubtotalExclTax", "Order subtotal (net)", "Auftragszwischensumme (netto)");
     }
 }
