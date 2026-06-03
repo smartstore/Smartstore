@@ -5,6 +5,9 @@
 @model OrderModel
 
 @{
+    var inclTax = T("Admin.Orders.Fields.Edit.InclTax");
+    var exclTax = T("Admin.Orders.Fields.Edit.ExclTax");
+
     var taxTypeSelectable = (bool)ViewBag.AllowCustomersToSelectTaxDisplayType;
     var taxType = (TaxDisplayType)ViewBag.TaxDisplayType;
     var discountLinks = Model.AppliedDiscounts
@@ -15,7 +18,7 @@
 }
 
 <style>
-    .order-edit-cnt .edit-label {
+    .order-edit-cnt .numberinput-postfix {
         font-size: 0.75rem;
     }
 
@@ -191,7 +194,7 @@
                             </div>
                         </td>
                         <td class="align-top">
-                            <div class="text-center">
+                            <div id="pnlUnitPrice@(item.Id)" class="text-center">
                                 @if (taxTypeSelectable)
                                 {
                                     <div>@item.UnitPriceInclTaxString</div>
@@ -202,49 +205,28 @@
                                     @(taxType == TaxDisplayType.ExcludingTax ? item.UnitPriceExclTaxString : item.UnitPriceInclTaxString)
                                 }
                             </div>
-                            <div id="pnlEditUnitPrice@(item.Id)" class="order-edit-cnt mt-3">
-                                <div class="container mb-1">
-                                    <div class="row">
-                                        <div class="col-5">
-                                            <span class="edit-label">@T("Admin.Orders.Products.Edit.InclTax")</span>
-                                        </div>
-                                        <div class="col-7">
-                                            <editor asp-for="Items[i].UnitPriceInclTax" class="form-control-sm edit-value" data-id="oi-unit-price-incl-tax-@item.Id" />
-                                        </div>
-                                    </div>
+                            <div id="pnlEditUnitPrice@(item.Id)" class="order-edit-cnt">
+                                <div class="m-1">
+                                    <editor asp-for="Items[i].UnitPriceInclTax" class="form-control-sm edit-value" data-id="oi-unit-price-incl-tax-@item.Id" sm-postfix="@inclTax" />
                                 </div>
-                                <div class="container mb-1">
-                                    <div class="row">
-                                        <div class="col-5">
-                                            <span class="edit-label">@T("Admin.Orders.Products.Edit.ExclTax")</span>
-                                        </div>
-                                        <div class="col-7">
-                                            <editor asp-for="Items[i].UnitPriceExclTax" class="form-control-sm edit-value" data-id="oi-unit-price-excl-tax-@item.Id" />
-                                        </div>
-                                    </div>
+                                <div class="m-1">
+                                    <editor asp-for="Items[i].UnitPriceExclTax" class="form-control-sm edit-value" data-id="oi-unit-price-excl-tax-@item.Id" sm-postfix="@exclTax" />
                                 </div>
-                                <div class="container mb-1">
-                                    <div class="row">
-                                        <div class="col-5">
-                                            <span class="edit-label">@T("Admin.Orders.Products.AddNew.TaxRate")</span>
-                                        </div>
-                                        <div class="col-7">
-                                            <editor asp-for="Items[i].TaxRate" class="form-control-sm edit-value" data-id="oi-tax-rate-@item.Id" />
-                                        </div>
-                                    </div>
+                                <div class="m-1">
+                                    <editor asp-for="Items[i].TaxRate" class="form-control-sm edit-value" data-id="oi-tax-rate-@item.Id" sm-postfix="@T("Admin.Common.TaxPercent")" />
                                 </div>
                             </div>
                         </td>
                         <td class="text-center align-top">
-                            <div>@item.Quantity</div>
-                            <div id="pnlEditQuantity@(item.Id)" class="order-edit-cnt mt-3">
+                            <div id="pnlQuantity@(item.Id)">@item.Quantity</div>
+                            <div id="pnlEditQuantity@(item.Id)" class="order-edit-cnt">
                                 <div class="mb-1">
                                     <editor asp-for="Items[i].Quantity" class="form-control-sm edit-value" data-id="oi-quantity-@item.Id" />
                                 </div>
                             </div>
                         </td>
                         <td class="text-center align-top">
-                            <div>
+                            <div id="pnlDiscount@(item.Id)">
                                 @if (taxTypeSelectable)
                                 {
                                     <div>@item.DiscountAmountInclTaxString</div>
@@ -255,31 +237,17 @@
                                     @(taxType == TaxDisplayType.ExcludingTax ? item.DiscountAmountExclTaxString : item.DiscountAmountInclTaxString)
                                 }
                             </div>
-                            <div id="pnlEditDiscount@(item.Id)" class="order-edit-cnt mt-3">
-                                <div class="container mb-1">
-                                    <div class="row">
-                                        <div class="col-5">
-                                            <span class="edit-label">@T("Admin.Orders.Products.Edit.InclTax")</span>
-                                        </div>
-                                        <div class="col-7">
-                                            <editor asp-for="Items[i].DiscountAmountInclTax" class="form-control-sm edit-value" data-id="oi-discount-incl-tax-@item.Id" />
-                                        </div>
-                                    </div>
+                            <div id="pnlEditDiscount@(item.Id)" class="order-edit-cnt">
+                                <div class="m-1">
+                                    <editor asp-for="Items[i].DiscountAmountInclTax" class="form-control-sm edit-value" data-id="oi-discount-incl-tax-@item.Id" sm-postfix="@inclTax" />
                                 </div>
-                                <div class="container mb-1">
-                                    <div class="row">
-                                        <div class="col-5">
-                                            <span class="edit-label">@T("Admin.Orders.Products.Edit.ExclTax")</span>
-                                        </div>
-                                        <div class="col-7">
-                                            <editor asp-for="Items[i].DiscountAmountExclTax" class="form-control-sm edit-value" data-id="oi-discount-excl-tax-@item.Id" />
-                                        </div>
-                                    </div>
+                                <div class="m-1">
+                                    <editor asp-for="Items[i].DiscountAmountExclTax" class="form-control-sm edit-value" data-id="oi-discount-excl-tax-@item.Id" sm-postfix="@exclTax" />
                                 </div>
                             </div>
                         </td>
                         <td class="text-center align-top">
-                            <div>
+                            <div id="pnlPrice@(item.Id)">
                                 @if (taxTypeSelectable)
                                 {
                                     <div>@item.PriceInclTaxString</div>
@@ -290,32 +258,18 @@
                                     @(taxType == TaxDisplayType.ExcludingTax ? item.PriceExclTaxString : item.PriceInclTaxString)
                                 }
                             </div>
-                            <div id="pnlEditPrice@(item.Id)" class="order-edit-cnt mt-3">
-                                <div class="container mb-1">
-                                    <div class="row">
-                                        <div class="col-5">
-                                            <span class="edit-label">@T("Admin.Orders.Products.Edit.InclTax")</span>
-                                        </div>
-                                        <div class="col-7">
-                                            <editor asp-for="Items[i].PriceInclTax" class="form-control-sm edit-value" data-id="oi-price-incl-tax-@item.Id" />
-                                        </div>
-                                    </div>
+                            <div id="pnlEditPrice@(item.Id)" class="order-edit-cnt">
+                                <div class="m-1">
+                                    <editor asp-for="Items[i].PriceInclTax" class="form-control-sm edit-value" data-id="oi-price-incl-tax-@item.Id" sm-postfix="@inclTax" />
                                 </div>
-
-                                <div class="container mb-1">
-                                    <div class="row">
-                                        <div class="col-5">
-                                            <span class="edit-label">@T("Admin.Orders.Products.Edit.ExclTax")</span>
-                                        </div>
-                                        <div class="col-7">
-                                            <editor asp-for="Items[i].PriceExclTax" class="form-control-sm edit-value" data-id="oi-price-excl-tax-@item.Id" />
-                                        </div>
-                                    </div>
+                                <div class="m-1">
+                                    <editor asp-for="Items[i].PriceExclTax" class="form-control-sm edit-value" data-id="oi-price-excl-tax-@item.Id" sm-postfix="@exclTax" />
                                 </div>
                             </div>
                         </td>
                         <td class="omega text-truncate align-top">
                             <a sm-if="item.CanReturnItems" 
+                                   id="btnAddReturnCase@(item.Id)"
                                    href="@Url.Action("AddReturnCase", "Order", new { orderId = Model.Id, orderItemId = item.Id})"        
                                    class="btn btn-sm btn-secondary confirm btn-add-return-request">@T("Admin.Orders.Products.ReturnRequest.Create")</a>
 
@@ -374,7 +328,7 @@
 			<text>toggleOrderItemEdit(</text>@(item.Id)<text>, false);</text>
 		}
 
-        var orderItemTable = $('#orderitem-table');
+        let orderItemTable = $('#orderitem-table');
 
         orderItemTable.on('click', '.btn-license-file', function (e) {
             e.preventDefault();
@@ -424,27 +378,23 @@
             return false;
         });
 
-        function toggleOrderItemEdit(itemId, editMode) {
-            if (editMode) {
-                $('#pnlEditUnitPrice' + itemId).show();
-                $('#pnlEditQuantity' + itemId).show();
-                $('#pnlEditDiscount' + itemId).show();
-                $('#pnlEditPrice' + itemId).show();
-                $('#btnEditOrderItem' + itemId).hide();
-                $('#btnDeleteOrderItem' + itemId).hide();
-                $('#btnSaveOrderItem' + itemId).removeClass("d-none");
-                $('#btnCancelOrderItem' + itemId).removeClass("d-none");
-            }
-            else {
-                $('#pnlEditUnitPrice' + itemId).hide();
-                $('#pnlEditQuantity' + itemId).hide();
-                $('#pnlEditDiscount' + itemId).hide();
-                $('#pnlEditPrice' + itemId).hide();
-                $('#btnEditOrderItem' + itemId).show();
-                $('#btnDeleteOrderItem' + itemId).show();
-                $('#btnSaveOrderItem' + itemId).addClass("d-none");
-                $('#btnCancelOrderItem' + itemId).addClass("d-none");
-            }
+        function toggleOrderItemEdit(itemId, edit) {
+            $('#pnlUnitPrice' + itemId).toggle(!edit);
+            $('#pnlQuantity' + itemId).toggle(!edit);
+            $('#pnlDiscount' + itemId).toggle(!edit);
+            $('#pnlPrice' + itemId).toggle(!edit);
+
+            $('#pnlEditUnitPrice' + itemId).toggle(edit);
+            $('#pnlEditQuantity' + itemId).toggle(edit);
+            $('#pnlEditDiscount' + itemId).toggle(edit);
+            $('#pnlEditPrice' + itemId).toggle(edit);
+
+            $('#btnAddReturnCase' + itemId).toggle(!edit);
+            $('#btnEditOrderItem' + itemId).toggle(!edit);
+            $('#btnDeleteOrderItem' + itemId).toggle(!edit);
+
+            $('#btnSaveOrderItem' + itemId).toggleClass('d-none', !edit);
+            $('#btnCancelOrderItem' + itemId).toggleClass('d-none', !edit);
         }
     });
 </script>

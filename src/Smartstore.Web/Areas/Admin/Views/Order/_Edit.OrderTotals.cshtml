@@ -1,8 +1,8 @@
 ﻿@model OrderModel
 
 @{
-    string inclTax = T("Admin.Orders.Fields.Edit.InclTax");
-    string exclTax = T("Admin.Orders.Fields.Edit.ExclTax");
+    var inclTax = T("Admin.Orders.Fields.Edit.InclTax");
+    var exclTax = T("Admin.Orders.Fields.Edit.ExclTax");
 
     var primaryStoreCurrencyCode = (string)ViewBag.PrimaryStoreCurrencyCode;
 }
@@ -120,7 +120,7 @@
     </div>
 </div>
 
-<div class="adminContent">
+<div class="adminContent mt-2">
     <div class="adminRow">
         <div class="w-auto">
             <button type="submit" id="btnEditOrderTotals" name="btnEditOrderTotals" class="btn btn-secondary">
