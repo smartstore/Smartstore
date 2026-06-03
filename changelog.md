@@ -4,11 +4,14 @@
 
 ### New Features
 
+- #1530 If a product is subsequently added to an order, update all price input controls with the price of the selected attribute combination.
+
 ### Improvements
 
 ### Bugfixes
 
 - Prevent a race condition in `TemplateZoneRenderingEvent` by eagerly resolving `TemplateName` from the DotLiquid context before publishing the event.
+
 
 ## Smartstore 6.4.0
 
