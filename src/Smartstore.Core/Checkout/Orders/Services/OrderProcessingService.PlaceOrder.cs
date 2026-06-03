@@ -84,7 +84,6 @@ public partial class OrderProcessingService : IOrderProcessingService
             {
                 return ctx.Result;
             }
-            ;
 
             // Also applies data (like discounts) required for saving associated data.
             await AddOrderItems(ctx);
@@ -97,7 +96,6 @@ public partial class OrderProcessingService : IOrderProcessingService
             {
                 return ctx.Result;
             }
-            ;
 
             // Email messages, order notes etc.
             await FinalizeOrderPlacement(ctx);
