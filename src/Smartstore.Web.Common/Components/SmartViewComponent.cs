@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
-using Smartstore.Events;
 
 namespace Smartstore.Web.Components;
 
@@ -45,11 +44,7 @@ public abstract class SmartViewComponent : ViewComponent
     /// <param name="content">The content, will be HTML encoded before output.</param>
     /// <returns>A <see cref="ContentViewComponentResult"/>.</returns>
     public new IViewComponentResult Content(string content)
-    {
-        IViewComponentResult result = base.Content(content);
-        PublishResultExecutingEvent(ref result);
-        return result;
-    }
+        => Wrap(base.Content(content));
 
     /// <summary>
     /// Returns a result which will render raw (unencoded) HTML content.
@@ -57,11 +52,7 @@ public abstract class SmartViewComponent : ViewComponent
     /// <param name="content">The HTML content.</param>
     /// <returns>A <see cref="HtmlContentViewComponentResult"/>.</returns>
     public IViewComponentResult HtmlContent(string content)
-    {
-        IViewComponentResult result = new HtmlContentViewComponentResult(new HtmlString(content));
-        PublishResultExecutingEvent(ref result);
-        return result;
-    }
+        => Wrap(new HtmlContentViewComponentResult(new HtmlString(content)));
 
     /// <summary>
     /// Returns a result which will render raw (unencoded) HTML content.
@@ -69,22 +60,14 @@ public abstract class SmartViewComponent : ViewComponent
     /// <param name="content">The HTML content.</param>
     /// <returns>A <see cref="HtmlContentViewComponentResult"/>.</returns>
     public IViewComponentResult HtmlContent(IHtmlContent content)
-    {
-        IViewComponentResult result = new HtmlContentViewComponentResult(content);
-        PublishResultExecutingEvent(ref result);
-        return result;
-    }
+        => Wrap(new HtmlContentViewComponentResult(content));
 
     /// <summary>
     /// Returns a result which will render the partial view with name <c>&quot;Default&quot;</c>.
     /// </summary>
     /// <returns>A <see cref="ViewViewComponentResult"/>.</returns>
     public new IViewComponentResult View()
-    {
-        IViewComponentResult result = base.View();
-        PublishResultExecutingEvent(ref result);
-        return result;
-    }
+        => Wrap(base.View());
 
     /// <summary>
     /// Returns a result which will render the partial view with name <paramref name="viewName"/>.
@@ -92,11 +75,7 @@ public abstract class SmartViewComponent : ViewComponent
     /// <param name="viewName">The name of the partial view to render.</param>
     /// <returns>A <see cref="ViewViewComponentResult"/>.</returns>
     public new IViewComponentResult View(string? viewName)
-    {
-        IViewComponentResult result = base.View(viewName);
-        PublishResultExecutingEvent(ref result);
-        return result;
-    }
+        => Wrap(base.View(viewName));
 
     /// <summary>
     /// Returns a result which will render the partial view with name <c>&quot;Default&quot;</c>.
@@ -104,11 +83,7 @@ public abstract class SmartViewComponent : ViewComponent
     /// <param name="model">The model object for the view.</param>
     /// <returns>A <see cref="ViewViewComponentResult"/>.</returns>
     public new IViewComponentResult View<TModel>(TModel? model)
-    {
-        IViewComponentResult result = base.View(model);
-        PublishResultExecutingEvent(ref result);
-        return result;
-    }
+        => Wrap(base.View(model));
 
     /// <summary>
     /// Returns a result which will render the partial view with name <paramref name="viewName"/>.
@@ -117,28 +92,21 @@ public abstract class SmartViewComponent : ViewComponent
     /// <param name="model">The model object for the view.</param>
     /// <returns>A <see cref="ViewViewComponentResult"/>.</returns>
     public new IViewComponentResult View<TModel>(string? viewName, TModel? model)
-    {
-        IViewComponentResult result = base.View(viewName, model);
-        PublishResultExecutingEvent(ref result);
-        return result;
-    }
+        => Wrap(base.View(viewName, model));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected IViewComponentResult Empty() => _emptyResult;
 
-    private void PublishResultExecutingEvent(ref IViewComponentResult result)
+    private IViewComponentResult Wrap(IViewComponentResult result)
     {
+        // Defer async event publishing to ExecuteAsync to avoid sync-over-async.
         // Give integrators the chance to react to component rendering.
-        if (PublishEvents)
+        if (!PublishEvents)
         {
-            var e = new ViewComponentResultExecutingEvent(ViewComponentContext, result);
-
-            Services.EventPublisher.Publish(e);
-            if (e.Result != result && e.Result != null)
-            {
-                result = e.Result;
-            }
+            return result;
         }
+
+        return new DeferredEventViewComponentResult(result, ViewComponentContext, Services.EventPublisher);
     }
 
     #endregion
