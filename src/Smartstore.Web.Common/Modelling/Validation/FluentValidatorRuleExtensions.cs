@@ -81,7 +81,7 @@ public static class FluentValidatorRuleExtensions
         ApplyConditionTo applyConditionTo,
         bool negate)
     {
-        Guard.NotNull(predicate, nameof(predicate));
+        Guard.NotNull(predicate);
 
         var validatorProperty = ruleBuilder.GetType().GetProperty("ParentValidator");
         var validator = validatorProperty?.GetValue(ruleBuilder, null) as ISettingModelValidator
@@ -93,7 +93,7 @@ public static class FluentValidatorRuleExtensions
             {
                 var condition =
                     (validator.StoreScope == 0 && predicate(ctx.InstanceToValidate, ctx)) ||
-                    (validator.StoreScope > 0 && validator.IsOverridenSetting(ctx.PropertyName));
+                    (validator.StoreScope > 0 && validator.IsOverridenSetting(ctx.PropertyPath));
 
                 return negate ? !condition : condition;
             },
