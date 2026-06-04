@@ -763,10 +763,6 @@ legend {
     flex-wrap: wrap;
     margin-block: var(--adminRow-margin-y, 0.8rem);
     margin-inline: 0 !important;
-
-    &:first-child {
-        margin-top: 0;
-    }
 }
 
 .adminTitle,
@@ -847,6 +843,11 @@ legend {
             max-width: 100%;
         }
     }
+}
+
+.adminData .adminRow:first-child,
+.collapsible > .adminRow:first-child {
+    margin-top: 0;
 }
 
 .adminSeparator {
