@@ -4,6 +4,7 @@ using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
@@ -36,7 +37,6 @@ public partial class MessageFactory : IMessageFactory
     private Dictionary<string, Func<Task<object>>> _testModelFactories;
 
     private readonly SmartDbContext _db;
-    private readonly ICommonServices _services;
     private readonly ITemplateEngine _templateEngine;
     private readonly ITemplateManager _templateManager;
     private readonly IMessageModelProvider _modelProvider;
@@ -46,13 +46,14 @@ public partial class MessageFactory : IMessageFactory
     private readonly EmailAccountSettings _emailAccountSettings;
     private readonly IMediaService _mediaService;
     private readonly IEventPublisher _eventPublisher;
+    private readonly INotifier _notifier;
+    private readonly IDateTimeHelper _dateTimeHelper;
     private readonly IStoreContext _storeContext;
     private readonly IWorkContext _workContext;
     private readonly OrderSettings _orderSettings;
 
     public MessageFactory(
         SmartDbContext db,
-        ICommonServices services,
         ITemplateEngine templateEngine,
         ITemplateManager templateManager,
         IMessageModelProvider modelProvider,
@@ -62,12 +63,13 @@ public partial class MessageFactory : IMessageFactory
         EmailAccountSettings emailAccountSettings,
         IMediaService mediaService,
         IEventPublisher eventPublisher,
+        INotifier notifier,
+        IDateTimeHelper dateTimeHelper,
         IStoreContext storeContext,
         IWorkContext workContext,
         OrderSettings orderSettings)
     {
         _db = db;
-        _services = services;
         _templateEngine = templateEngine;
         _templateManager = templateManager;
         _modelProvider = modelProvider;
@@ -77,6 +79,8 @@ public partial class MessageFactory : IMessageFactory
         _emailAccountSettings = emailAccountSettings;
         _mediaService = mediaService;
         _eventPublisher = eventPublisher;
+        _notifier = notifier;
+        _dateTimeHelper = dateTimeHelper;
         _storeContext = storeContext;
         _workContext = workContext;
         _orderSettings = orderSettings;
@@ -235,7 +239,7 @@ public partial class MessageFactory : IMessageFactory
             }
 
             var ex2 = new InvalidOperationException($"Failed to parse email address for variable '{email}'. Value was '{parsed.EmptyNull()}': {ex.Message}", ex);
-            _services.Notifier.Error(ex2.Message);
+            _notifier.Error(ex2.Message);
             throw ex2;
         }
     }
@@ -439,7 +443,7 @@ public partial class MessageFactory : IMessageFactory
                 && order.OrderStatus >= OrderStatus.Complete
                 && order.CreatedOnUtc.AddDays(_orderSettings.MaxMessageOrderAgeInDays) < DateTime.UtcNow)
             {
-                var createdOnStr = _services.DateTimeHelper.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc).ToHumanizedString(false);
+                var createdOnStr = _dateTimeHelper.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc).ToHumanizedString(false);
                 Logger.Info(T("Admin.MessageTemplate.OrderTooOldForMessageInfo", ctx.MessageTemplateName, order.Id, createdOnStr));
 
                 return false;
