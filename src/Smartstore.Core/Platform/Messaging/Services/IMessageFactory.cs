@@ -34,17 +34,20 @@ public interface IMessageFactory
     /// Creates an email message.
     /// </summary>
     /// <param name="messageContext">Contains all data required for creating a message.</param>
-    /// <param name="queue">If <c>true</c>, the created email message will automatically be queued for sending (saved in database as a <see cref="QueuedEmail"/>).</param>
+    /// <param name="queueMessage">
+    /// Specifies whether the message should be queued for delivery (saved in database as a <see cref="QueuedEmail"/>).
+    /// If <c>false</c>, the message is created only. It is neither queued nor sent automatically and the caller is responsible for delivering the message.
+    /// </param>
     /// <param name="modelParts">
     ///	All model objects that are necessary to render the template (in no particular order).
     ///	The passed object instances will be converted to special types which the underlying <see cref="ITemplateEngine"/> can handle.
     ///	<see cref="IMessageModelProvider"/> is responsible for the conversion. See also <seealso cref="IMessageModelProvider.AddModelPartAsync(object, MessageContext, string)"/>.
     /// </param>
     /// <returns>Contains the message creation result.</returns>
-    Task<CreateMessageResult> CreateMessageAsync(MessageContext messageContext, bool queue, params object[] modelParts);
+    Task<CreateMessageResult> CreateMessageAsync(MessageContext messageContext, bool queueMessage, params object[] modelParts);
 
     /// <summary>
-    /// Queues a message created by <see cref="IMessageFactory.CreateMessageAsync(MessageContext, bool, object[])"/>.
+    /// Queues a message created by <see cref="CreateMessageAsync(MessageContext, bool, object[])"/>.
     /// </summary>
     /// <param name="messageContext">The message context used to create the message.</param>
     /// <param name="queuedEmail">The instance of <see cref="QueuedEmail"/> to queue, e.g. obtained from <see cref="CreateMessageResult.Email"/>.</param>
@@ -57,7 +60,7 @@ public interface IMessageFactory
     /// <see cref="ITemplateEngine.CreateTestModelFor(BaseEntity, string)"/> gets called internally to obtain a test model wrapper with sample data.
     /// </summary>
     /// <param name="messageContext">The message context used to create the message.</param>
-    /// <returns>An array of model parts which can be passed to <see cref="IMessageFactory.CreateMessageAsync(MessageContext, bool, object[])"/>.</returns>
+    /// <returns>An array of model parts which can be passed to <see cref="CreateMessageAsync(MessageContext, bool, object[])"/>.</returns>
     Task<object[]> GetTestModelsAsync(MessageContext messageContext);
 }
 

@@ -85,7 +85,7 @@ public partial class MessageFactory : IMessageFactory
     public Localizer T { get; set; } = NullLocalizer.Instance;
     public ILogger Logger { get; set; } = NullLogger.Instance;
 
-    public virtual async Task<CreateMessageResult> CreateMessageAsync(MessageContext messageContext, bool queue, params object[] modelParts)
+    public virtual async Task<CreateMessageResult> CreateMessageAsync(MessageContext messageContext, bool queueMessage, params object[] modelParts)
     {
         Guard.NotNull(messageContext);
 
@@ -178,7 +178,7 @@ public partial class MessageFactory : IMessageFactory
         // Create and add attachments (if any).
         await CreateAttachmentsAsync(qe, messageContext);
 
-        if (queue)
+        if (queueMessage)
         {
             // Put to queue.
             await QueueMessageAsync(messageContext, qe);
@@ -581,7 +581,7 @@ public partial class MessageFactory : IMessageFactory
         return [.. result];
     }
 
-    private async Task<object> GetModelFromExpressionAsync(string expression, IDictionary<string, object> models, Dictionary<string, Func<Task<object>>> factories)
+    private async Task<object> GetModelFromExpressionAsync(string expression, Dictionary<string, object> models, Dictionary<string, Func<Task<object>>> factories)
     {
         object currentModel = null;
         int dotIndex = 0;
