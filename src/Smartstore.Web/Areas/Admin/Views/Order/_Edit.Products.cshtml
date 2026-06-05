@@ -5,8 +5,9 @@
 @model OrderModel
 
 @{
-    var inclTax = T("Admin.Orders.Fields.Edit.InclTax");
-    var exclTax = T("Admin.Orders.Fields.Edit.ExclTax");
+    var primaryCurrencyCode = (string)ViewBag.PrimaryStoreCurrencyCode;
+    var inclTax = T("Admin.Orders.Fields.Edit.InclTax", primaryCurrencyCode);
+    var exclTax = T("Admin.Orders.Fields.Edit.ExclTax", primaryCurrencyCode);
 
     var taxTypeSelectable = (bool)ViewBag.AllowCustomersToSelectTaxDisplayType;
     var taxType = (TaxDisplayType)ViewBag.TaxDisplayType;

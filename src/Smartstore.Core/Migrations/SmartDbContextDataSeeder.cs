@@ -34,13 +34,13 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Admin.Orders.Fields.OrderSubTotalDiscountExclTax.Hint",
             "Admin.Orders.Fields.OrderSubtotalExclTax.Hint");
 
-        builder.AddOrUpdate("Admin.Orders.Products.AddNew.UnitPriceInclTax", "Unit price (gross)", "Einzelpreis (brutto)");
-        builder.AddOrUpdate("Admin.Orders.Products.AddNew.UnitPriceExclTax", "Unit price (net)", "Einzelpreis (netto)");
-        builder.AddOrUpdate("Admin.Orders.Products.AddNew.SubTotalInclTax", "Total (gross)", "Gesamt (brutto)");
-        builder.AddOrUpdate("Admin.Orders.Products.AddNew.SubTotalExclTax", "Total (net)", "Gesamt (netto)");
+        builder.AddOrUpdate("Admin.Orders.Products.AddNew.UnitPriceInclTax", "Unit price", "Einzelpreis");
+        builder.AddOrUpdate("Admin.Orders.Products.AddNew.UnitPriceExclTax", "Unit price", "Einzelpreis");
+        builder.AddOrUpdate("Admin.Orders.Products.AddNew.SubTotalInclTax", "Total", "Gesamt");
+        builder.AddOrUpdate("Admin.Orders.Products.AddNew.SubTotalExclTax", "Total", "Gesamt");
 
-        builder.AddOrUpdate("Admin.Orders.Fields.Edit.InclTax", "gross", "brutto");
-        builder.AddOrUpdate("Admin.Orders.Fields.Edit.ExclTax", "net", "netto");
+        builder.AddOrUpdate("Admin.Orders.Fields.Edit.InclTax", "{0} gross", "{0} brutto");
+        builder.AddOrUpdate("Admin.Orders.Fields.Edit.ExclTax", "{0} net", "{0} netto");
         builder.AddOrUpdate("Admin.Common.TaxPercent", "tax %", "Steuer %");
 
         builder.AddOrUpdate("Admin.Orders.Fields.OrderShippingInclTax", "Order shipping (gross)", "Versandkosten (brutto)");

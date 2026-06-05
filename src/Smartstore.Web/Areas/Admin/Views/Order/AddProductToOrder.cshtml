@@ -51,7 +51,7 @@
 
     @if (Model.ProductVariantAttributes.Count > 0)
     {
-        <partial name="_AddProductAttributes" />
+        <partial name="_AddProductToOrder.Attributes" />
     }
 
     @if (Model.GiftCard.IsGiftCard)
@@ -59,7 +59,7 @@
         var giftCardViewData = new ViewDataDictionary(ViewData);
         giftCardViewData.TemplateInfo.HtmlFieldPrefix = Model.GiftCardFieldPrefix;
 
-        <partial name="_AddProductGiftCardInfo" model="Model.GiftCard" view-data="giftCardViewData" />
+        <partial name="_AddProductToOrder.GiftCardInfo" model="Model.GiftCard" view-data="giftCardViewData" />
     }
 
     <div class="adminContent">

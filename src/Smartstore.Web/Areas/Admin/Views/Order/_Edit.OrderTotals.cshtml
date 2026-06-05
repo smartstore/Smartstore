@@ -1,10 +1,9 @@
 ﻿@model OrderModel
 
 @{
-    var inclTax = T("Admin.Orders.Fields.Edit.InclTax");
-    var exclTax = T("Admin.Orders.Fields.Edit.ExclTax");
-
-    var primaryStoreCurrencyCode = (string)ViewBag.PrimaryStoreCurrencyCode;
+    var primaryCurrencyCode = (string)ViewBag.PrimaryStoreCurrencyCode;
+    var inclTax = T("Admin.Orders.Fields.Edit.InclTax", primaryCurrencyCode);
+    var exclTax = T("Admin.Orders.Fields.Edit.ExclTax", primaryCurrencyCode);
 }
 
 <div id="order-total-controls" class="card">
@@ -82,7 +81,7 @@
                 <smart-label asp-for="OrderTax" />
             </div>
             <div class="adminData">
-                <editor asp-for="OrderTax" sm-postfix="@primaryStoreCurrencyCode" />
+                <editor asp-for="OrderTax" sm-postfix="@primaryCurrencyCode" />
             </div>
         </div>
         <div class="adminRow">
@@ -90,7 +89,7 @@
                 <smart-label asp-for="OrderDiscount" />
             </div>
             <div class="adminData">
-                <editor asp-for="OrderDiscount" sm-postfix="@primaryStoreCurrencyCode" />
+                <editor asp-for="OrderDiscount" sm-postfix="@primaryCurrencyCode" />
             </div>
         </div>
         <div class="adminRow">
@@ -98,7 +97,7 @@
                 <smart-label asp-for="CreditBalance" />
             </div>
             <div class="adminData">
-                <editor asp-for="CreditBalance" sm-postfix="@primaryStoreCurrencyCode" />
+                <editor asp-for="CreditBalance" sm-postfix="@primaryCurrencyCode" />
             </div>
         </div>
         <div class="adminRow">
@@ -106,7 +105,7 @@
                 <smart-label asp-for="OrderTotalRounding" />
             </div>
             <div class="adminData">
-                <editor asp-for="OrderTotalRounding" sm-postfix="@primaryStoreCurrencyCode" />
+                <editor asp-for="OrderTotalRounding" sm-postfix="@primaryCurrencyCode" />
             </div>
         </div>
         <div class="adminRow">
@@ -114,7 +113,7 @@
                 <smart-label asp-for="OrderTotal" />
             </div>
             <div class="adminData">
-                <editor asp-for="OrderTotal" sm-postfix="@primaryStoreCurrencyCode" />
+                <editor asp-for="OrderTotal" sm-postfix="@primaryCurrencyCode" />
             </div>
         </div>
     </div>
