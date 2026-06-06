@@ -85,33 +85,33 @@
                     <tr attr-class='(item.IsProductSoftDeleted, "text-muted")'>
                         <td class="align-top">
                             <div>
-                                <div class="mb-2">
+                                <div class="hstack fwm">
                                     @if (item.IsProductSoftDeleted)
                                     {
-                                        <span class="mr-1 badge badge-subtle badge-ring badge-light">@T("Admin.Common.Deleted")</span>
-                                        <span>@item.ProductName</span>
+                                        <span class="badge badge-subtle badge-ring badge-light mr-1">@T("Admin.Common.Deleted")</span>
+                                        <span class="fwm">@item.ProductName</span>
                                     }
                                     else
                                     {
                                         @Html.BadgedProductName(item.ProductId, item.ProductName, item.ProductTypeName, item.ProductTypeLabelHint)
                                     }
                                 </div>
-                                <div sm-if="item.AttributeDescription.HasValue()">
+                                <div sm-if="item.AttributeDescription.HasValue()" class="small mt-1">
                                     @Html.Raw(item.AttributeDescription)
                                 </div>
-                                <div sm-if="item.RecurringInfo.HasValue()">
+                                <div sm-if="item.RecurringInfo.HasValue()" class="mt-1">
                                     <a href="@Url.Action("Edit", "RecurringPayment", new { id = Model.RecurringPaymentId, area = "Admin" })">
                                         @Html.Raw(item.RecurringInfo)
                                     </a>
                                 </div>
-                                <div sm-if="item.Sku.HasValue()">
-                                    <span class="fwm">@T("Admin.Orders.Products.SKU")</span>: @item.Sku
+                                <div sm-if="item.Sku.HasValue()" class="small">
+                                    <span>@T("Order.Product(s).SKU")</span>: <span>@item.Sku</span>
                                 </div>
                                 <div sm-if="item.ProductType == ProductType.BundledProduct && item.BundleItems != null">
-                                    <div class="bundle-items-container pt-2 pl-4">
+                                    <div class="bundle-items-container well mb-0 mt-2 vstack gap-2">
                                         @foreach (var bi in item.BundleItems.OrderBy(x => x.DisplayOrder))
                                         {
-                                            <div class="bundle-item mt-2">
+                                            <div class="bundle-item">
                                                 <div class="bundle-item-name">
                                                     @if (item.IsProductSoftDeleted)
                                                     {

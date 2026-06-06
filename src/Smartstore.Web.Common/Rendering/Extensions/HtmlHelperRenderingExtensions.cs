@@ -840,21 +840,24 @@ public static class HtmlHelperRenderingExtensions
         if (id == 0 && name.IsEmpty())
             return null;
 
-        string namePart;
+        var builder = new SmartHtmlContentBuilder();
+
+        if (typeName.HasValue())
+        {
+            builder.AppendHtml($"<span class='badge badge-subtle badge-ring badge-{typeLabelHint} mr-1'>{typeName}</span>");
+        }
 
         if (id != 0)
         {
             var urlHelper = helper.ViewContext.HttpContext.RequestServices.GetRequiredService<IUrlHelper>();
             string url = urlHelper.Content("~/Admin/Product/Edit/");
-            namePart = $"<a href='{url}{id}' title='{name}'>{name}</a>";
+            builder.AppendHtml($"<a href='{url}{id}' title='{name}'>{name}</a>");
         }
         else
         {
-            namePart = $"<span>{helper.Encode(name)}</span>";
+            builder.AppendHtml($"<span>{helper.Encode(name)}</span>");
         }
 
-        var builder = new SmartHtmlContentBuilder();
-        builder.AppendHtml($"<span class='badge badge-subtle badge-ring badge-{typeLabelHint} mr-1'>{typeName}</span>{namePart}");
         return builder;
     }
 
