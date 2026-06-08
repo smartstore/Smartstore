@@ -17,25 +17,35 @@
             <editor asp-for="Quantity" />
         </div>
     </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="TaxRate" />
+    <div class="gross-net-converter">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="TaxRate" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="TaxRate" sm-postfix="%" class="conversion-taxrate" />
+            </div>
         </div>
-        <div class="adminData">
-            <editor asp-for="TaxRate" sm-postfix="%" />
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="UnitPriceInclTax" />
-        </div>
-        <div class="adminData">
-            <div class="form-row flex-nowrap">
-                <div class="col">
-                    <editor asp-for="UnitPriceInclTax" sm-postfix="@inclTax" />
-                </div>
-                <div class="col">
-                    <editor asp-for="UnitPriceExclTax" sm-postfix="@exclTax" />
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="UnitPriceInclTax" />
+            </div>
+            <div class="adminData">
+                <div class="form-row flex-nowrap">
+                    @* TODO: (mg) Tag helper?*@
+                    <div class="col">
+                        <editor asp-for="UnitPriceInclTax" sm-postfix="@inclTax" class="conversion-gross" />
+                    </div>
+                    <div class="col-auto align-content-center p-0">
+                        <button type="button" 
+                                class="btn btn-sm btn-icon btn-no-border btn-flat btn-conversion-toggler conversion-enabled"
+                                title="@T("Admin.Common.GrossNetConversion.Disable")">
+                            <i class="fa fa-lock"></i>
+                        </button>
+                    </div>
+                    <div class="col">
+                        <editor asp-for="UnitPriceExclTax" sm-postfix="@exclTax" class="conversion-net" />
+                    </div>
                 </div>
             </div>
         </div>
