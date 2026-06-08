@@ -169,7 +169,7 @@ public partial class CatalogHelper
                 })
             };
 
-            // Determine which description to add the itemprop="description" attribute to, using Model.DescriptionPriority.
+            // Determine which description to add to JsonLd, using Model.DescriptionPriority.
             switch (_seoSettings.ProductDescriptionPriority)
             {
                 case ProductDescriptionPriority.FullDescription:
