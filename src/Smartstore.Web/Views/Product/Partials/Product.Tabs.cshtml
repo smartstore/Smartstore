@@ -10,8 +10,15 @@
     @if (Model.FullDescription.Value.HasValue())
     {
         var summary = Model.FullDescription.Value.RemoveHtml().Truncate(300, "...");
+
+        if (Model.HasFullDescriptionSchemaProperty)
+        {
+            var url = Model.CanonicalUrl ?? Request.ToAbsoluteUrl();
+            Assets.JsonLd.Product.Prop("description", new Dictionary<string, string> { ["@id"] = url + "#product-full-desc" });
+        }
+
         <tab sm-title="@T("Products.Details")" sm-name="pd-full-desc" sm-selected="true">
-            <div sm-language-attributes-for="Model.FullDescription" attr-itemprop='(Model.HasFullDescriptionSchemaProperty, "description")' class="prose html-editor-content">
+            <div sm-language-attributes-for="Model.FullDescription" id="product-full-desc" class="prose html-editor-content">
                 <collapsed-content>
                     @Html.Raw(Model.FullDescription)
                     <zone name="productdetail_fulldescription_after"></zone>
