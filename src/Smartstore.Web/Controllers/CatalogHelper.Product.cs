@@ -169,16 +169,19 @@ public partial class CatalogHelper
                 })
             };
 
-            // Determine which description to add to JsonLd, using Model.DescriptionPriority.
+            // Determine which description to add to JsonLd, using DescriptionPriority.
+            var hasFullDescription = model.FullDescription.HasValue();
+            var hasShortDescription = model.ShortDescription.HasValue();
+
             switch (_seoSettings.ProductDescriptionPriority)
             {
                 case ProductDescriptionPriority.FullDescription:
-                    model.HasFullDescriptionSchemaProperty = model.FullDescription.Value.HasValue() && _seoSettings.ProductDescriptionPriority == ProductDescriptionPriority.FullDescription;
-                    model.HasShortDescriptionSchemaProperty = !model.HasFullDescriptionSchemaProperty;
+                    model.HasFullDescriptionSchemaProperty = hasFullDescription;
+                    model.HasShortDescriptionSchemaProperty = !hasFullDescription;
                     break;
                 case ProductDescriptionPriority.ShortDescription:
-                    model.HasShortDescriptionSchemaProperty = model.ShortDescription.Value.HasValue() && _seoSettings.ProductDescriptionPriority == ProductDescriptionPriority.ShortDescription;
-                    model.HasFullDescriptionSchemaProperty = !model.HasShortDescriptionSchemaProperty;
+                    model.HasShortDescriptionSchemaProperty = hasShortDescription;
+                    model.HasFullDescriptionSchemaProperty = !hasShortDescription;
                     break;
                 case ProductDescriptionPriority.Both:
                     model.HasFullDescriptionSchemaProperty = true;
