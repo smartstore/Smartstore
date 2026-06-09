@@ -6,6 +6,8 @@
     var exclTax = T("Admin.Orders.Fields.Edit.ExclTax", primaryCurrencyCode);
 
     // TODO: (mg) Very awkward to enter gross, net, and tax amounts without automatic calculation. TBD with MC.
+    // TODO: (mg) Add a TaxConverterTagHelper (see "tax-converter" below).
+    // TODO: (mg) Auto recalculate the total respective unit price fields.
 }
 
 <div class="adminContent">
@@ -25,11 +27,11 @@
             <editor asp-for="TaxRate" sm-postfix="%" class="conversion-taxrate" />
         </div>
     </div>
-    <div class="adminRow tax-converter conversion-active">
+    <div class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="UnitPriceInclTax" />
         </div>
-        <div class="adminData">
+        <div class="adminData tax-converter conversion-active">
             <div class="form-row flex-nowrap">
                 <div class="col">
                     <editor asp-for="UnitPriceInclTax" sm-postfix="@inclTax" class="conversion-gross" />
@@ -51,13 +53,20 @@
         <div class="adminTitle">
             <smart-label asp-for="PriceInclTax" />
         </div>
-        <div class="adminData">
+        <div class="adminData tax-converter conversion-active">
             <div class="form-row flex-nowrap">
                 <div class="col">
-                    <editor asp-for="PriceInclTax" sm-postfix="@inclTax" />
+                    <editor asp-for="PriceInclTax" sm-postfix="@inclTax" class="conversion-gross" />
+                </div>
+                <div class="col-auto align-content-center p-0">
+                    <button type="button"
+                            class="btn btn-sm btn-icon btn-no-border btn-flat btn-conversion-toggler"
+                            title="@T("Admin.Common.TaxConversion.Disable")">
+                        <i class="fa fa-lock"></i>
+                    </button>
                 </div>
                 <div class="col">
-                    <editor asp-for="PriceExclTax" sm-postfix="@exclTax" />
+                    <editor asp-for="PriceExclTax" sm-postfix="@exclTax" class="conversion-net" />
                 </div>
             </div>
         </div>
