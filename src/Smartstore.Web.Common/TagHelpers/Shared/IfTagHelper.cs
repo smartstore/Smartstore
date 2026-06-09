@@ -18,16 +18,21 @@ public class IfTagHelper : TagHelper
     [HtmlAttributeName(IfAttributeName)]
     public bool Condition { get; set; } = true;
 
-    public override Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
+    public override void Init(TagHelperContext context)
     {
-        if (context.ShouldSuppressChildContent())
-        {
-            return Task.CompletedTask;
-        }
-
         if (!Condition)
         {
+            // Set the flag during Init so that peer TagHelpers on the same element
+            // (e.g. TabTagHelper, which runs Init after us due to Order) can bail out
+            // before performing irreversible side-effects such as registering with a parent.
             context.Items[SuppressChildContentKey] = true;
+        }
+    }
+
+    public override Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
+    {
+        if (!Condition || context.ShouldSuppressChildContent())
+        {
             output.SuppressOutput();
         }
 

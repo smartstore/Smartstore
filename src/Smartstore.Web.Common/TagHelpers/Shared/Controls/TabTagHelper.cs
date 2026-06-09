@@ -26,6 +26,11 @@ public class TabTagHelper : SmartTagHelper
     {
         base.Init(context);
 
+        if (context.ShouldSuppressChildContent())
+        {
+            return;
+        }
+
         if (Selected && Disabled)
         {
             Disabled = false;
