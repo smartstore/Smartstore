@@ -154,12 +154,27 @@ public class JsonLdFragment
 
     /// <summary>
     /// Adds a property to this JSON-LD fragment (fallback overload for unsupported types).
-    /// First-write wins if the key already exists. Nulls are ignored.
+    /// If <paramref name="value"/> serializes to a <see cref="JsonObject"/> (e.g. an anonymous object or POCO),
+    /// it is treated like <c>Obj(key, raw)</c>: property names are normalized and the object is deep-merged
+    /// when the key already exists. For all other types the serialized node is set directly.
+    /// Nulls are ignored.
     /// </summary>
     public JsonLdFragment Prop(string key, object? value)
     {
         Guard.NotEmpty(key);
-        if (value != null) SetOrMerge(_data, key, JsonValue.Create(value));
+        if (value != null)
+        {
+            var node = JsonSerializer.SerializeToNode(value, _jsonOptions);
+            if (node is JsonObject jsonObj)
+            {
+                NormalizePropertyNames(jsonObj);
+                SetOrMerge(_data, key, jsonObj);
+            }
+            else if (node != null)
+            {
+                SetOrMerge(_data, key, node);
+            }
+        }
         return this;
     }
 
