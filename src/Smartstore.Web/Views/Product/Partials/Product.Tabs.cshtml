@@ -4,49 +4,40 @@
 
 @{
     var hasSpecificationAttributes = Model.SpecificationAttributes.Count > 0;
+    var hasFullDescription = Model.FullDescription.HasValue();
+
+    if (Model.HasFullDescriptionSchemaProperty)
+    {
+        var url = Model.CanonicalUrl ?? Request.ToAbsoluteUrl();
+        Assets.JsonLd.Product.Prop("description", new { id = url + "#product-full-desc" });
+    }
 }
 
 <tabstrip id="pd-tabs" class="pd-tabs" sm-nav-style="Material" sm-hide-single-item="true" sm-responsive="true">
-    @if (Model.FullDescription.Value.HasValue())
-    {
-        var summary = Model.FullDescription.Value.RemoveHtml().Truncate(300, "...");
+    <tab sm-if="hasFullDescription" sm-title="@T("Products.Details")" sm-name="pd-full-desc" sm-selected="true">
+        <div sm-language-attributes-for="Model.FullDescription" id="product-full-desc" class="prose html-editor-content">
+            <collapsed-content>
+                @Html.Raw(Model.FullDescription)
+                <zone name="productdetail_fulldescription_after"></zone>
+            </collapsed-content>
+        </div>
+    </tab>
 
-        if (Model.HasFullDescriptionSchemaProperty)
-        {
-            var url = Model.CanonicalUrl ?? Request.ToAbsoluteUrl();
-            Assets.JsonLd.Product.Prop("description", new Dictionary<string, string> { ["@id"] = url + "#product-full-desc" });
-        }
+    <tab sm-if="hasSpecificationAttributes" sm-title="@T("Products.Specs")" sm-name="pd-spec-attrs" sm-selected="!hasFullDescription">
+        <partial name="Product.Specs" model="Model.SpecificationAttributes" />
+    </tab>
 
-        <tab sm-title="@T("Products.Details")" sm-name="pd-full-desc" sm-selected="true">
-            <div sm-language-attributes-for="Model.FullDescription" id="product-full-desc" class="prose html-editor-content">
-                <collapsed-content>
-                    @Html.Raw(Model.FullDescription)
-                    <zone name="productdetail_fulldescription_after"></zone>
-                </collapsed-content>
-            </div>
-        </tab>
-    }
-
-    @if (hasSpecificationAttributes)
-    {
-        <tab sm-title="@T("Products.Specs")" sm-name="pd-spec-attrs" sm-selected="!Model.FullDescription.HasValue()">
-            <partial name="Product.Specs" model="Model.SpecificationAttributes" />
-        </tab>
-    }
-
-    @if (Model.DisplayProductReviews)
-    {
-        <tab sm-title="@T("Reviews")" 
-             sm-name="pd-reviews"
-             sm-selected="!Model.FullDescription.HasValue() && !hasSpecificationAttributes" 
-             sm-badge-text="@(Model.ReviewCount == 0 ? string.Empty : Model.ReviewCount.ToString())"
-             sm-badge-style="Warning">
-            <p class="mb-4">
-                <a asp-action="Reviews" asp-controller="Product" asp-route-id="@Model.Id" class="btn btn-warning">
-                    <span>@T($"Reviews.Overview.{(Model.ProductReviews.TotalReviewsCount > 0 ? "AddNew" : "First")}")</span>
-                </a>
-            </p>
-            <partial name="Product.Reviews" model="Model.ProductReviews" />
-        </tab>
-    }
+    <tab sm-if="Model.DisplayProductReviews" 
+            sm-title="@T("Reviews")" 
+            sm-name="pd-reviews"
+            sm-selected="!hasFullDescription && !hasSpecificationAttributes"
+            sm-badge-text="@(Model.ReviewCount == 0 ? string.Empty : Model.ReviewCount.ToString())"
+            sm-badge-style="Warning">
+        <p class="mb-4">
+            <a asp-action="Reviews" asp-controller="Product" asp-route-id="@Model.Id" class="btn btn-warning">
+                <span>@T($"Reviews.Overview.{(Model.ProductReviews.TotalReviewsCount > 0 ? "AddNew" : "First")}")</span>
+            </a>
+        </p>
+        <partial name="Product.Reviews" model="Model.ProductReviews" />
+    </tab>
 </tabstrip>
