@@ -2194,6 +2194,7 @@ public class OrderController : AdminController
                     .Select(x => new OrderModel.ReturnCaseModel
                     {
                         Id = x.Id,
+                        Kind = x.Kind,
                         Quantity = x.Quantity,
                         Status = x.ReturnCaseStatus,
                         StatusString = Services.Localization.GetLocalizedEnum(x.ReturnCaseStatus)

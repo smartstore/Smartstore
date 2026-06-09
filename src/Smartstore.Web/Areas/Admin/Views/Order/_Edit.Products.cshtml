@@ -139,7 +139,7 @@
                                     {
                                         <div>
                                             <span class="badge badge-@(rc.StatusLabel) mr-1">@rc.StatusString</span>
-                                            <a asp-action="Edit" asp-controller="ReturnCase" asp-route-id="@rc.Id">@T("Enums.ReturnCaseKind.Return") @rc.Id</a><span>, 
+                                            <a asp-action="Edit" asp-controller="ReturnCase" asp-route-id="@rc.Id">@rc.Kind.GetLocalizedEnum() @rc.Id</a><span>, 
                                                 @T("Admin.ReturnRequests.Fields.Quantity") @rc.Quantity</span>
                                         </div>
                                     }

@@ -145,6 +145,7 @@ public partial class OrderModel : EditOrderModel
 
     public class ReturnCaseModel : EntityModelBase
     {
+        public ReturnCaseKind Kind { get; set; }
         public int Quantity { get; set; }
         public ReturnCaseStatus Status { get; set; }
         public string StatusString { get; set; }
