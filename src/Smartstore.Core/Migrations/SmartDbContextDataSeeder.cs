@@ -62,5 +62,9 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.Common.TaxConversion.Disable",
             "Disable automatic gross-to-net conversion",
             "Automatische Brutto-/Netto-Umrechnung deaktivieren");
+
+        builder.AddOrUpdate("Admin.DataExchange.Export.Filter.IsPublished.Hint",
+            "Specifies whether only published objects are exported, provided the object has a publishing setting.",
+            "Legt fest, ob nur Objekte, die veröffentlicht wurden, exportiert werden, sofern das Objekt eine Einstellung zur Veröffentlichung besitzt.");
     }
 }

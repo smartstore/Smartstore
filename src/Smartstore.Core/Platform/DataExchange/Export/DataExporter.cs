@@ -402,7 +402,7 @@ public partial class DataExporter : IDataExporter
 
         if (!ctx.IsPreview && ctx.Request.Profile.PerStore)
         {
-            result = new List<Store>(ctx.Stores.Values.Where(x => x.Id == ctx.Filter.StoreId || ctx.Filter.StoreId == 0));
+            result = [.. ctx.Stores.Values.Where(x => x.Id == ctx.Filter.StoreId || ctx.Filter.StoreId == 0)];
         }
         else
         {
@@ -450,13 +450,7 @@ public partial class DataExporter : IDataExporter
 
         ctx.Log.Info(CreateLogHeader(ctx));
 
-        using var segmenter = CreateSegmenter(ctx);
-
-        if (segmenter == null)
-        {
-            throw new NotSupportedException($"Unsupported entity type '{provider.EntityType}'.");
-        }
-
+        using var segmenter = CreateSegmenter(ctx) ?? throw new NotSupportedException($"Unsupported entity type '{provider.EntityType}'.");
         if (segmenter.TotalRecords <= 0)
         {
             ctx.Log.Info("There are no records to export.");
@@ -1002,7 +996,7 @@ public partial class DataExporter : IDataExporter
                 ];
                 break;
             default:
-                return Enumerable.Empty<ExportDataUnit>();
+                return [];
         }
 
         var result = new List<ExportDataUnit>();
@@ -1194,8 +1188,7 @@ public partial class DataExporter : IDataExporter
 
                 ctx.TranslationsPerPage[nameof(Product)] = await CreateTranslationCollection(nameof(Product), products);
                 ctx.UrlRecordsPerPage[nameof(Product)] = await CreateUrlRecordCollection(nameof(Product), products);
-            }
-            ;
+            };
 
             ctx.ExecuteContext.DataSegmenter = new ExportDataSegmenter<Order>
             (
@@ -1211,8 +1204,7 @@ public partial class DataExporter : IDataExporter
             {
                 ctx.ManufacturerBatchContext = new ManufacturerBatchContext(entities, _services);
                 return Task.CompletedTask;
-            }
-            ;
+            };
 
             ctx.ExecuteContext.DataSegmenter = new ExportDataSegmenter<Manufacturer>
             (
@@ -1228,8 +1220,7 @@ public partial class DataExporter : IDataExporter
             {
                 ctx.CategoryBatchContext = new CategoryBatchContext(entities, _services);
                 return Task.CompletedTask;
-            }
-            ;
+            };
 
             ctx.ExecuteContext.DataSegmenter = new ExportDataSegmenter<Category>
             (
@@ -1245,8 +1236,7 @@ public partial class DataExporter : IDataExporter
             {
                 ctx.CustomerBatchContext = new CustomerBatchContext(entities, _services);
                 return Task.CompletedTask;
-            }
-            ;
+            };
 
             ctx.ExecuteContext.DataSegmenter = new ExportDataSegmenter<Customer>
             (
@@ -1277,8 +1267,7 @@ public partial class DataExporter : IDataExporter
 
                 ctx.TranslationsPerPage[nameof(Product)] = await CreateTranslationCollection(nameof(Product), products);
                 ctx.UrlRecordsPerPage[nameof(Product)] = await CreateUrlRecordCollection(nameof(Product), products);
-            }
-            ;
+            };
 
             ctx.ExecuteContext.DataSegmenter = new ExportDataSegmenter<ShoppingCartItem>
             (
@@ -1458,10 +1447,7 @@ public partial class DataExporter : IDataExporter
             {
                 allSucceeded = false;
 
-                if (context.Result != null)
-                {
-                    context.Result.LastError = ex.ToAllMessages(true);
-                }
+                context.Result?.LastError = ex.ToAllMessages(true);
 
                 ctx.Log.Error(ex, $"Deployment \"{deployment.Name}\" of type {deployment.DeploymentType} failed.");
             }
