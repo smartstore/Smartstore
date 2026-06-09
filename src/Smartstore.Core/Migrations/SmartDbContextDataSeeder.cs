@@ -55,11 +55,11 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.Orders.Products.Total")
             .Value("de", "Gesamt");
 
-        builder.AddOrUpdate("Admin.Common.GrossNetConversion.Enable",
+        builder.AddOrUpdate("Admin.Common.TaxConversion.Enable",
             "Enable automatic gross-to-net conversion",
             "Automatische Brutto-/Netto-Umrechnung aktivieren");
 
-        builder.AddOrUpdate("Admin.Common.GrossNetConversion.Disable",
+        builder.AddOrUpdate("Admin.Common.TaxConversion.Disable",
             "Disable automatic gross-to-net conversion",
             "Automatische Brutto-/Netto-Umrechnung deaktivieren");
     }

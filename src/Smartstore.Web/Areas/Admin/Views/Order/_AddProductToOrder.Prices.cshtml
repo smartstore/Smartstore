@@ -17,7 +17,7 @@
             <editor asp-for="Quantity" />
         </div>
     </div>
-    <div class="gross-net-converter">
+    <div class="tax-converter">
         <div class="adminRow">
             <div class="adminTitle">
                 <smart-label asp-for="TaxRate" />
@@ -39,7 +39,7 @@
                     <div class="col-auto align-content-center p-0">
                         <button type="button" 
                                 class="btn btn-sm btn-icon btn-no-border btn-flat btn-conversion-toggler conversion-enabled"
-                                title="@T("Admin.Common.GrossNetConversion.Disable")">
+                                title="@T("Admin.Common.TaxConversion.Disable")">
                             <i class="fa fa-lock"></i>
                         </button>
                     </div>

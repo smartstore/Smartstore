@@ -1,4 +1,4 @@
-﻿Smartstore.Admin.grossNetConverter = (() => {
+﻿Smartstore.Admin.taxConverter = (() => {
     let pricesIncludeTax = true;
     let taxRate = 0;
     let getTaxRate = true;
@@ -13,8 +13,8 @@
             }            
 
             // Enable/disable the gross/net conversion.
-            $('.gross-net-converter').on('click', '.btn-conversion-toggler', (e) => {
-                const T = window.grossNetConverterRes;
+            $('.tax-converter').on('click', '.btn-conversion-toggler', (e) => {
+                const T = window.taxConverterRes;
                 const $el = $(e.currentTarget);
                 const enable = $el.hasClass('conversion-disabled');
 
@@ -24,7 +24,7 @@
 
                 $el.toggleClass('conversion-enabled', enable)
                     .toggleClass('conversion-disabled', !enable)
-                    .attr('title', T[enable ? 'Admin.Common.GrossNetConversion.Disable' : 'Admin.Common.GrossNetConversion.Enable']);
+                    .attr('title', T[enable ? 'Admin.Common.TaxConversion.Disable' : 'Admin.Common.TaxConversion.Enable']);
 
                 if (enable) {
                     convert($el);
@@ -34,7 +34,7 @@
     };
 
     function convert(el) {
-        const $ctn = el.closest('.gross-net-converter');
+        const $ctn = el.closest('.tax-converter');
         let grossToNet = pricesIncludeTax;
 
         if (el.hasClass('conversion-gross')) {
