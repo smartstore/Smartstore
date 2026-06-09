@@ -1,66 +1,87 @@
 ﻿Smartstore.Admin.taxConverter = (() => {
-    let pricesIncludeTax = true;
-    let taxRate = 0;
-    let getTaxRate = true;
+    let pricesIncludeTax = true;    // A value indicating whether prices include tax or not.
+    let taxRate = 0;                // Current tax rate (e.g. 19). Default is 0, which means that tax rate will be read from the ".conversion-taxrate" field.
+    let $elTaxRate = null;          // jQuery element representing the tax rate input field.
 
     return {
         initialize: (options) => {
             pricesIncludeTax = options.pricesIncludeTax;
 
+            const $form = $('.tax-converter:first').closest('form');
+
             if (options.taxRate !== undefined) {
                 taxRate = (parseFloat(options.taxRate) || 0) / 100;
-                getTaxRate = taxRate === 0;
-            }            
+            }
+            if (taxRate === 0) {
+                $elTaxRate = $form.find('.conversion-taxrate:first');
+            }
 
-            // Enable/disable the gross/net conversion.
-            $('.tax-converter').on('click', '.btn-conversion-toggler', (e) => {
-                const T = window.taxConverterRes;
-                const $el = $(e.currentTarget);
-                const enable = $el.hasClass('conversion-disabled');
+            $form
+                .on('click', '.btn-conversion-toggler', (e) => {
+                    // Toggler icon clicked to enable/disable the tax conversion.
+                    const T = window.taxConverterRes;
+                    const $btn = $(e.currentTarget);
+                    const $converter = $btn.closest('.tax-converter');
+                    const active = !$converter.hasClass('conversion-active');
 
-                $el.find('i')
-                    .toggleClass('fa-lock', enable)
-                    .toggleClass('fa-unlock-keyhole text-muted', !enable);
+                    $btn.find('i')
+                        .toggleClass('fa-lock', active)
+                        .toggleClass('fa-unlock-keyhole text-muted', !active);
 
-                $el.toggleClass('conversion-enabled', enable)
-                    .toggleClass('conversion-disabled', !enable)
-                    .attr('title', T[enable ? 'Admin.Common.TaxConversion.Disable' : 'Admin.Common.TaxConversion.Enable']);
+                    $btn.attr('title', T[active ? 'Admin.Common.TaxConversion.Disable' : 'Admin.Common.TaxConversion.Enable']);
+                    $converter.toggleClass('conversion-active', active);
 
-                if (enable) {
-                    convert($el);
-                }
-            });
+                    if (active) {
+                        convert($converter.find(pricesIncludeTax ? '.conversion-gross' : '.conversion-net'));                        
+                    }
+                })
+                .on('change', '.conversion-gross, .conversion-net', (e) => {
+                    // Gross or net updated.
+                    convert($(e.currentTarget));
+                })
+                .on('change', '.conversion-taxrate', (e) => {
+                    // Tax rate updated.
+                    $form.find(pricesIncludeTax ? '.conversion-gross' : '.conversion-net').each((_, el) => {
+                        convert($(el));
+                    });
+                });
         }
     };
 
     function convert(el) {
-        const $ctn = el.closest('.tax-converter');
-        let grossToNet = pricesIncludeTax;
+        const $converter = el.closest('.tax-converter');
+        if (!$converter.hasClass('conversion-active')) {
+            return;
+        }
 
+        if ($elTaxRate.length) {
+            // Get current tax rate.
+            taxRate = (parseFloat($elTaxRate.val()) || 0) / 100;
+        }
+
+        let grossToNet = pricesIncludeTax;
         if (el.hasClass('conversion-gross')) {
-            // Gross field updated.
+            // Gross updated.
             grossToNet = true;
         }
         else if (el.hasClass('conversion-net')) {
-            // Net field updated.
+            // Net updated.
             grossToNet = false;
         }
 
-        if (getTaxRate) {
-            // Get current tax rate.
-            const rawRate = el.hasClass('conversion-taxrate') ? el.val() : $ctn.find('.conversion-taxrate').val();
-            taxRate = (parseFloat(rawRate) || 0) / 100;
-        }
-
-        const amount = parseFloat($ctn.find(grossToNet ? '.conversion-gross' : '.conversion-net').val()) || 0;
-        //console.log(`grossToNet:${grossToNet} rate:${taxRate} amount:${amount}`);
-
+        let amount = parseFloat(el.val()) || 0;
         if (grossToNet) {
-            $ctn.find('.conversion-net').val(amount / (1 + taxRate));
+            amount = amount / (1 + taxRate);
         }
         else {
-            $ctn.find('.conversion-gross').val(amount * (1 + taxRate));
+            amount = amount * (1 + taxRate);
         }
+
+        // INFO: Do not trigger('change')! Causes a stack overflow.
+        // See the event handlers that smartstore.numberinput.js listens for.
+        $converter.find(grossToNet ? '.conversion-net' : '.conversion-gross')
+            .val(amount)
+            .trigger('change.ni');
     }
 
 })();

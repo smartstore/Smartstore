@@ -1,5 +1,6 @@
 ﻿/*
  * Author: Murat Cakir, Smartstore AG
+ * After updating the value of the input element, trigger the 'paste.ni', 'input.ni', 'change.ni' or 'focusout.ni' event to refresh the displayed value.
  */
 
 ; (function ($) {
