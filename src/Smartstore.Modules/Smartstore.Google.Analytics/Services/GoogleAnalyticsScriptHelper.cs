@@ -276,7 +276,7 @@ public class GoogleAnalyticsScriptHelper
             .Take(5)
             .ToList();
 
-        return string.Join(',', categoryItems);
+        return string.Join(',', categoryItems) + ",";
     }
 
 
