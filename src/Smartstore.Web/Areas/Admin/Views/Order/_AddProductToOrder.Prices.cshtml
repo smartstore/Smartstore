@@ -40,7 +40,6 @@
                     @* 
                         TODO: (mg) Don't render this as button, it must not have borders on interaction. 
                         TODO: (mg) btn-conversion-toggler: too generic name. Convert what?!
-                        TODO: (mg) Fucked up symmetry between UnitPrice & TotalPrice rows. Looks UGLY.
                     *@
                     <button type="button" 
                             class="btn btn-sm btn-icon btn-no-border btn-flat btn-conversion-toggler"
@@ -59,7 +58,7 @@
             <smart-label asp-for="PriceInclTax" />
         </div>
         <div class="adminData tax-converter conversion-active">
-            <div class="form-row flex-nowrap">
+            <div class="row g-1 flex-nowrap">
                 <div class="col">
                     <editor asp-for="PriceInclTax" sm-postfix="@inclTax" class="conversion-gross" />
                 </div>
