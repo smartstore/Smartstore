@@ -11,6 +11,7 @@
 ### Bugfixes
 
 - Prevent a race condition in `TemplateZoneRenderingEvent` by eagerly resolving `TemplateName` from the DotLiquid context before publishing the event.
+- Withdrawal: Fixed a `SecurityException` when a return case is saved.
 
 
 ## Smartstore 6.4.0
