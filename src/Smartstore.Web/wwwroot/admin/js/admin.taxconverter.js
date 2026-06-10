@@ -26,7 +26,7 @@
 
                     $btn.find('i')
                         .toggleClass('fa-lock', active)
-                        .toggleClass('fa-unlock-keyhole text-muted', !active);
+                        .toggleClass('fa-lock-open text-muted', !active);
 
                     $btn.attr('title', T[active ? 'Admin.Common.TaxConversion.Disable' : 'Admin.Common.TaxConversion.Enable']);
                     $converter.toggleClass('conversion-active', active);

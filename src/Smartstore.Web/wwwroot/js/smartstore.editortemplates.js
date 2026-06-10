@@ -197,7 +197,13 @@
     }
 
     window.initializeEditControls = function (context) {
-        context = context?.length ? context.get(0) : context;
+        if (context instanceof jQuery) {
+            context = context[0];
+        }
+        else if (!(context instanceof HTMLElement)) {
+            context = null;
+        }
+
         var editControls = (context || document).getElementsByClassName("edit-control");
 
         Array.from(editControls).forEach(el => {
