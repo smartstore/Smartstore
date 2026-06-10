@@ -17,9 +17,14 @@ internal abstract class UaMatcher
 [DebuggerDisplay("Regex: {Regex}, Name: {Name}, Platform: {PlatformFamily}")]
 internal class RegexMatcher : UaMatcher
 {
+    // Precomputed: true when the pattern contains capture groups beyond group 0.
+    // Bot patterns rarely have groups; browser/platform patterns always do.
+    private readonly bool _hasGroups;
+
     public RegexMatcher(Regex rg)
     {
         Regex = Guard.NotNull(rg);
+        _hasGroups = rg.GetGroupNumbers().Length > 1;
     }
 
     public Regex Regex { get; }
@@ -28,22 +33,29 @@ internal class RegexMatcher : UaMatcher
     public override bool Match(ReadOnlySpan<char> userAgent, [MaybeNullWhen(true)] out string? version)
     {
         version = null;
-        var match = Regex.Match(userAgent.ToString());
-        if (match.Success)
-        {
-            if (match.Groups.ContainsKey("v"))
-            {
-                version = match.Groups["v"].Value.NullEmpty();
-            }
-            else if (match.Groups.Count > 1)
-            {
-                version = match.Groups[1].Value.NullEmpty();
-            }
 
-            return true;
+        if (!_hasGroups)
+        {
+            // Zero-allocation fast path: no groups to capture.
+            return Regex.IsMatch(userAgent);
         }
 
-        return false;
+        // Fast-fail: avoid allocating a string when the pattern doesn't match at all.
+        // The string + Match object are only created on an actual hit.
+        if (!Regex.IsMatch(userAgent))
+            return false;
+
+        var match = Regex.Match(userAgent.ToString());
+        if (match.Groups.ContainsKey("v"))
+        {
+            version = match.Groups["v"].Value.NullEmpty();
+        }
+        else if (match.Groups.Count > 1)
+        {
+            version = match.Groups[1].Value.NullEmpty();
+        }
+
+        return true;
     }
 }
 

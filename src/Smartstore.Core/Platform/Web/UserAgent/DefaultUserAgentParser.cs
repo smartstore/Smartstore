@@ -1,11 +1,9 @@
-﻿using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 using Smartstore.ComponentModel;
-using Smartstore.Threading;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Web;
@@ -16,15 +14,22 @@ public class DefaultUserAgentParser : Disposable, IUserAgentParser
     const string DefaultYamlPath = "App_Data/useragent.yml";
     const string CustomYamlPath = "App_Data/useragent-custom.yml";
 
-    private ImmutableList<UaMatcher> _browsers = [];
-    private ImmutableList<UaMatcher> _platforms = [];
-    private ImmutableList<UaMatcher> _bots = [];
-    private ImmutableList<UaMatcher> _devices = [];
-    private ImmutableList<UaMatcher> _tablets = [];
+    // Single volatile reference; readers snapshot it once per Parse() call — no lock needed.
+    private volatile UaSnapshot _snapshot = UaSnapshot.Empty;
+    // Used only to serialise rare YAML reload callbacks.
+    private readonly object _reloadLock = new();
     private IDisposable _yamlWatcher;
-
-    private readonly ReaderWriterLockSlim _rwLock = new();
     private readonly ILogger _logger;
+
+    private sealed record UaSnapshot(
+        UaMatcher[] Browsers,
+        UaMatcher[] Platforms,
+        UaMatcher[] Bots,
+        UaMatcher[] Devices,
+        UaMatcher[] Tablets)
+    {
+        public static readonly UaSnapshot Empty = new([], [], [], [], []);
+    }
 
     public DefaultUserAgentParser(ILogger logger)
     {
@@ -57,16 +62,13 @@ public class DefaultUserAgentParser : Disposable, IUserAgentParser
             // Parse YAML content to YAML mappings
             var mappings = ParseYaml(yamlStream);
 
-            // Create matchers for browsers
-            _browsers = [.. ConvertMapping(mappings.Get("browsers"), UserAgentSegment.Browser)];
-            // Create matchers for platforms
-            _platforms = [.. ConvertMapping(mappings.Get("platforms"), UserAgentSegment.Platform)];
-            // Create matchers for bots
-            _bots = [.. ConvertMapping(mappings.Get("bots"), UserAgentSegment.Bot)];
-            // Create matchers for devices
-            _devices = [.. ConvertMapping(mappings.Get("devices"), UserAgentSegment.Device)];
-            // Create matchers for tablets
-            _tablets = [.. ConvertMapping(mappings.Get("tablets"), UserAgentSegment.Device)];
+            _snapshot = new UaSnapshot(
+                Browsers: [.. ConvertMapping(mappings.Get("browsers"), UserAgentSegment.Browser)],
+                Platforms: [.. ConvertMapping(mappings.Get("platforms"), UserAgentSegment.Platform)],
+                Bots: [.. ConvertMapping(mappings.Get("bots"), UserAgentSegment.Bot)],
+                Devices: [.. ConvertMapping(mappings.Get("devices"), UserAgentSegment.Device)],
+                Tablets: [.. ConvertMapping(mappings.Get("tablets"), UserAgentSegment.Device)]
+            );
         }
         catch (Exception ex)
         {
@@ -90,12 +92,9 @@ public class DefaultUserAgentParser : Disposable, IUserAgentParser
 
     private void OnYamlChanged(object state)
     {
-        // Read and create mappings locked here because concurrency issues may occur here.
-        using (_rwLock.GetWriteLock())
+        lock (_reloadLock)
         {
-            // Breathe
             Thread.Sleep(50);
-            // Read
             ReadMappings();
         }
     }
@@ -223,12 +222,13 @@ public class DefaultUserAgentParser : Disposable, IUserAgentParser
 
     public IEnumerable<string> GetDetectableAgents(UserAgentSegment segment)
     {
+        var snapshot = _snapshot;
         var matchers = segment switch
         {
-            UserAgentSegment.Bot => _bots,
-            UserAgentSegment.Platform => _platforms,
-            UserAgentSegment.Device => _devices,
-            _ => _browsers
+            UserAgentSegment.Bot => snapshot.Bots,
+            UserAgentSegment.Platform => snapshot.Platforms,
+            UserAgentSegment.Device => snapshot.Devices,
+            _ => snapshot.Browsers
         };
 
         return matchers.Select(m => m.Name).Distinct().Order();
@@ -243,8 +243,6 @@ public class DefaultUserAgentParser : Disposable, IUserAgentParser
             // Empty useragent > bad bot!
             return UserAgentInfo.UnknownBot;
         }
-
-        using var locker = _rwLock.GetReadLock();
 
         // Analyze Bot
         if (TryGetBot(userAgentSpan, out string botName))
@@ -279,18 +277,12 @@ public class DefaultUserAgentParser : Disposable, IUserAgentParser
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool TryGetPlatform(ReadOnlySpan<char> userAgent, out UserAgentPlatform? platform)
-    {
-        platform = GetPlatform(userAgent);
-        return platform is not null;
-    }
-
     private UserAgentPlatform? GetPlatform(ReadOnlySpan<char> userAgent)
     {
-        for (var i = 0; i < _platforms.Count; i++)
+        var platforms = _snapshot.Platforms;
+        for (var i = 0; i < platforms.Length; i++)
         {
-            var matcher = _platforms[i];
+            var matcher = platforms[i];
             if (matcher.Match(userAgent, out var version))
             {
                 return new UserAgentPlatform(matcher.Name, matcher.PlatformFamily ?? UserAgentPlatformFamily.Unknown, version);
@@ -303,62 +295,56 @@ public class DefaultUserAgentParser : Disposable, IUserAgentParser
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool TryGetBrowser(ReadOnlySpan<char> userAgent, [NotNullWhen(true)] out (string Name, string Version)? browser)
     {
-        browser = GetBrowser(userAgent);
-        return browser is not null;
-    }
-
-    private (string Name, string Version)? GetBrowser(ReadOnlySpan<char> userAgent)
-    {
-        for (var i = 0; i < _browsers.Count; i++)
+        var browsers = _snapshot.Browsers;
+        for (var i = 0; i < browsers.Length; i++)
         {
-            var matcher = _browsers[i];
-            if (matcher.Match(userAgent, out var version))
+            if (browsers[i].Match(userAgent, out var version))
             {
-                return (matcher.Name, version);
+                browser = (browsers[i].Name, version);
+                return true;
             }
         }
 
-        return null;
+        browser = null;
+        return false;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool TryGetBot(ReadOnlySpan<char> userAgent, out string botName)
     {
-        botName = GetBot(userAgent);
-        return botName is not null;
-    }
-
-    private string GetBot(ReadOnlySpan<char> userAgent)
-    {
-        for (var i = 0; i < _bots.Count; i++)
+        var bots = _snapshot.Bots;
+        for (var i = 0; i < bots.Length; i++)
         {
-            var matcher = _bots[i];
-            if (matcher.Match(userAgent, out _))
+            if (bots[i].Match(userAgent, out _))
             {
-                return matcher.Name;
+                botName = bots[i].Name;
+                return true;
             }
         }
 
-        return null;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool TryGetDevice(ReadOnlySpan<char> userAgent, [NotNullWhen(true)] out UserAgentDevice? device)
-    {
-        device = GetDevice(userAgent);
-        return device is not null;
+        botName = null;
+        return false;
     }
 
     private UserAgentDevice? GetDevice(ReadOnlySpan<char> userAgent)
     {
-        for (var i = 0; i < _devices.Count; i++)
+        var devices = _snapshot.Devices;
+        var tablets = _snapshot.Tablets;
+        for (var i = 0; i < devices.Length; i++)
         {
-            var matcher = _devices[i];
-            if (matcher.Match(userAgent, out _))
+            if (devices[i].Match(userAgent, out _))
             {
-                var uaString = userAgent.ToString();
-                var isTablet = _tablets.Any(m => m.Match(uaString, out _));
-                return new UserAgentDevice(matcher.Name, isTablet ? UserAgentDeviceType.Tablet : UserAgentDeviceType.Smartphone);
+                var isTablet = false;
+                for (var j = 0; j < tablets.Length; j++)
+                {
+                    if (tablets[j].Match(userAgent, out _))
+                    {
+                        isTablet = true;
+                        break;
+                    }
+                }
+
+                return new UserAgentDevice(devices[i].Name, isTablet ? UserAgentDeviceType.Tablet : UserAgentDeviceType.Smartphone);
             }
         }
 

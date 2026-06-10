@@ -250,8 +250,8 @@ bots:
   - match: Grok/
     name: xAI Grok
 
-  - match: meta-externalagent
-    name: Meta External Agent
+  - match: meta-
+    name: Meta
 
   - match: MistralAI-crawler
     name: Mistral AI Crawler
