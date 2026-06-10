@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
@@ -27,8 +28,10 @@ public partial class AddOrderProductModel : ModelBase
     public decimal PriceExclTax { get; set; }
 
     [LocalizedDisplay("*TaxRate")]
+    [AdditionalMetadata("min", 0)]
     public decimal TaxRate { get; set; }
 
+    [AdditionalMetadata("min", 1)]
     [LocalizedDisplay("*Quantity")]
     public int Quantity { get; set; } = 1;
 
@@ -105,3 +108,13 @@ record class AddOrderProductData
     public ProductVariantAttributeSelection Selection { get; set; }
     public GiftCardInfo GiftCardInfo { get; set; }
 }
+
+public partial class AddOrderProductModelValidator : SmartValidator<AddOrderProductModel>
+{
+    public AddOrderProductModelValidator()
+    {
+        RuleFor(x => x.Quantity).GreaterThanOrEqualTo(1);
+        RuleFor(x => x.TaxRate).GreaterThanOrEqualTo(0);
+    }
+}
+

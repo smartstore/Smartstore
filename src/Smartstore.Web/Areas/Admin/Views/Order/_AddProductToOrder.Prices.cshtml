@@ -8,6 +8,7 @@
     // TODO: (mg) Very awkward to enter gross, net, and tax amounts without automatic calculation. TBD with MC.
     // TODO: (mg) Add a TaxConverterTagHelper (see "tax-converter" below).
     // TODO: (mg) Auto recalculate the total respective unit price fields.
+    // TODO: (mg) In this context, the term 'calculator/calculate' is slightly more accurate than 'converter/convert'.
 }
 
 <div class="adminContent">
@@ -16,7 +17,7 @@
             <smart-label asp-for="Quantity" />
         </div>
         <div class="adminData">
-            <editor asp-for="Quantity" />
+            <editor asp-for="Quantity" class="taxcalc-quantity" />
         </div>
     </div>
     <div class="adminRow">
@@ -24,31 +25,27 @@
             <smart-label asp-for="TaxRate" />
         </div>
         <div class="adminData">
-            <editor asp-for="TaxRate" sm-postfix="%" class="conversion-taxrate" />
+            <editor asp-for="TaxRate" sm-postfix="%" class="taxcalc-rate" />
         </div>
     </div>
     <div class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="UnitPriceInclTax" />
         </div>
-        <div class="adminData tax-converter conversion-active">
+        <div class="adminData tax-converter taxcalc-unitprice taxcalc-active">
             <div class="row g-1 flex-nowrap">
                 <div class="col">
-                    <editor asp-for="UnitPriceInclTax" sm-postfix="@inclTax" class="conversion-gross" />
+                    <editor asp-for="UnitPriceInclTax" sm-postfix="@inclTax" class="taxcalc-gross" />
                 </div>
-                <div class="col-auto align-content-center p-0">
-                    @* 
-                        TODO: (mg) Don't render this as button, it must not have borders on interaction. 
-                        TODO: (mg) btn-conversion-toggler: too generic name. Convert what?!
-                    *@
+                <div class="col-auto align-content-center">
                     <button type="button" 
-                            class="btn btn-sm btn-icon btn-no-border btn-flat btn-conversion-toggler"
+                            class="btn btn-sm border-0 shadow-none bg-transparent text-reset p-1 btn-taxcalc-lock"
                             title="@T("Admin.Common.TaxConversion.Disable")">
                         <i class="fa fa-lock"></i>
                     </button>
                 </div>
                 <div class="col">
-                    <editor asp-for="UnitPriceExclTax" sm-postfix="@exclTax" class="conversion-net" />
+                    <editor asp-for="UnitPriceExclTax" sm-postfix="@exclTax" class="taxcalc-net" />
                 </div>
             </div>
         </div>
@@ -57,20 +54,20 @@
         <div class="adminTitle">
             <smart-label asp-for="PriceInclTax" />
         </div>
-        <div class="adminData tax-converter conversion-active">
+        <div class="adminData tax-converter taxcalc-total taxcalc-active">
             <div class="row g-1 flex-nowrap">
                 <div class="col">
-                    <editor asp-for="PriceInclTax" sm-postfix="@inclTax" class="conversion-gross" />
+                    <editor asp-for="PriceInclTax" sm-postfix="@inclTax" class="taxcalc-gross" />
                 </div>
-                <div class="col-auto align-content-center p-0">
+                <div class="col-auto align-content-center">
                     <button type="button"
-                            class="btn btn-sm btn-icon btn-no-border btn-flat btn-conversion-toggler"
+                            class="btn btn-sm border-0 shadow-none bg-transparent text-reset p-1 btn-taxcalc-lock"
                             title="@T("Admin.Common.TaxConversion.Disable")">
                         <i class="fa fa-lock"></i>
                     </button>
                 </div>
                 <div class="col">
-                    <editor asp-for="PriceExclTax" sm-postfix="@exclTax" class="conversion-net" />
+                    <editor asp-for="PriceExclTax" sm-postfix="@exclTax" class="taxcalc-net" />
                 </div>
             </div>
         </div>
