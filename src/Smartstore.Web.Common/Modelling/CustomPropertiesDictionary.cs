@@ -68,7 +68,8 @@ public class CustomPropertiesDictionaryModelBinder : IModelBinder
                 var valueType = GetValueType(keys, modelName, bindingContext.ValueProvider);
                 if (!valueType.HasAttribute<CustomModelPartAttribute>(false))
                 {
-                    throw new SecurityException("For security reasons complex types in '{0}' must be decorated with the '{1}' attribute.".FormatInvariant(
+                    throw new SecurityException("For security reasons complex types ({0}) in '{1}' must be decorated with the '{2}' attribute.".FormatInvariant(
+                        valueType?.Name,
                         typeof(CustomPropertiesDictionary).AssemblyQualifiedNameWithoutVersion(),
                         typeof(CustomModelPartAttribute).AssemblyQualifiedNameWithoutVersion()));
                 }
