@@ -14,6 +14,7 @@
 - **Withdrawal**: 
   - Allow immediate withdrawal regardless of when the withdrawal period begins.
   - Fixed a `SecurityException` when a return case is saved.
+- Currency: Edit page did not select/display the saved denominator for order total rounding.
 
 
 ## Smartstore 6.4.0
