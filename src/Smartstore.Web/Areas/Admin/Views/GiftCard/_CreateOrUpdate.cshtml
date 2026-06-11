@@ -146,12 +146,9 @@
             </div>
         </div>
     </tab>
-    @if (Model.Id > 0)
-    {
-        <tab sm-title="@T("Admin.GiftCards.History")" sm-adaptive-height="true">
-            <partial name="_Grid.GiftCardUsageHistory" model="null" view-data="giftCardUsageHistoryViewData" />
-        </tab>
-    }
+    <tab sm-title="@T("Admin.GiftCards.History")" sm-adaptive-height="true" sm-if="Model.Id > 0">
+        <partial name="_Grid.GiftCardUsageHistory" model="null" view-data="giftCardUsageHistoryViewData" />
+    </tab>
 </tabstrip>
 
 <script sm-target-zone="scripts" data-origin="giftcard-edit">
