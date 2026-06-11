@@ -14,11 +14,21 @@ namespace Smartstore.Admin.Models.Orders;
 
 internal static partial class AddProductToOrderMappingExtensions
 {
+    /// <summary>
+    /// Maps the <see cref="AddOrderProductModel"/> to a <see cref="MapperResult{AddOrderProductModel, AddOrderProductData}"/> 
+    /// containing the model and the data needed for adding a product to an order.
+    /// </summary>
+    /// <param name="isEdit">
+    /// A value indicating whether the model is mapped for editing. 
+    /// <c>false</c> if the model data is about to be saved to the database.
+    /// </param>
     public static async Task<MapperResult<AddOrderProductModel, AddOrderProductData>> MapAsync(this AddOrderProductModel from,
-        ProductVariantQuery query = null)
+        ProductVariantQuery query = null,
+        bool isEdit = true)
     {
         dynamic parameters = new ExpandoObject();
         parameters.ProductVariantQuery = query;
+        parameters.IsEdit = isEdit;
 
         var mapper = MapperFactory.GetMapper<AddOrderProductModel, MapperResult<AddOrderProductModel, AddOrderProductData>>();
         var result = new MapperResult<AddOrderProductModel, AddOrderProductData>(from, new());
@@ -62,6 +72,7 @@ internal class AddProductToOrderMapper : IMapper<AddOrderProductModel, MapperRes
         var model = Guard.NotNull(to.Model);
         var data = Guard.NotNull(to.Data);
 
+        var isEdit = parameters?.IsEdit == true;
         var query = parameters?.ProductVariantQuery as ProductVariantQuery;
         var preselectAttributes = query == null;
         query ??= new();
@@ -183,43 +194,47 @@ internal class AddProductToOrderMapper : IMapper<AddOrderProductModel, MapperRes
 
         model.Name = product.GetLocalized(x => x.Name);
         model.ProductType = product.ProductType;
-        model.ShowUpdateTotals = order.OrderStatusId <= (int)OrderStatus.Pending;
         model.GiftCard.IsGiftCard = product.IsGiftCard;
         model.GiftCard.GiftCardType = product.GiftCardType;
         model.Quantity = from.Quantity;
-        model.UpdateTotals = from.ShowUpdateTotals;
+        model.ShowUpdateTotals = order.OrderStatusId <= (int)OrderStatus.Pending;
         model.AdjustInventory = from.AdjustInventory;
 
-        // Price calculation.
         var (selection, _) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, attributes, product.Id, 0);
         selection.AddGiftCardInfo(giftCardInfo);
 
-        var selectedCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, selection);
-        product.MergeWithCombination(selectedCombination);
-
-        var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, _workContext.CurrentCustomer, currency);
-        calculationOptions.IgnoreDiscounts = true;
-
-        var calculationContext = new PriceCalculationContext(product, from.Quantity, calculationOptions);
-
-        CalculatedPrice unitPrice, subtotal;
-        if (from.Quantity > 1)
+        if (isEdit)
         {
-            (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
-        }
-        else
-        {
-            unitPrice = subtotal = await _priceCalculationService.CalculatePriceAsync(calculationContext);
-        }
+            model.UpdateTotals = from.ShowUpdateTotals;
 
-        var taxUnit = unitPrice.Tax.Value;
-        var taxSubtotal = subtotal.Tax.Value;
+            // Price calculation.
+            var selectedCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, selection);
+            product.MergeWithCombination(selectedCombination);
 
-        model.UnitPriceInclTax = taxUnit.PriceGross;
-        model.UnitPriceExclTax = taxUnit.PriceNet;
-        model.PriceInclTax = taxSubtotal.PriceGross;
-        model.PriceExclTax = taxSubtotal.PriceNet;
-        model.TaxRate = taxUnit.Rate.Rate;
+            var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, _workContext.CurrentCustomer, currency);
+            calculationOptions.IgnoreDiscounts = true;
+
+            var calculationContext = new PriceCalculationContext(product, from.Quantity, calculationOptions);
+
+            CalculatedPrice unitPrice, subtotal;
+            if (from.Quantity > 1)
+            {
+                (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
+            }
+            else
+            {
+                unitPrice = subtotal = await _priceCalculationService.CalculatePriceAsync(calculationContext);
+            }
+
+            var taxUnit = unitPrice.Tax.Value;
+            var taxSubtotal = subtotal.Tax.Value;
+
+            model.UnitPriceInclTax = taxUnit.PriceGross;
+            model.UnitPriceExclTax = taxUnit.PriceNet;
+            model.PriceInclTax = taxSubtotal.PriceGross;
+            model.PriceExclTax = taxSubtotal.PriceNet;
+            model.TaxRate = taxUnit.Rate.Rate;
+        }
 
         data.Order = order;
         data.Product = product;

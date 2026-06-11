@@ -1548,13 +1548,11 @@ public class OrderController : AdminController
     [Permission(Permissions.Order.EditItem)]
     public async Task<IActionResult> AddProductToOrder(AddOrderProductModel model, ProductVariantQuery query)
     {
-        var result = await model.MapAsync(query);
+        var result = await model.MapAsync(query, false);
         var order = result.Data.Order;
         var product = result.Data.Product;
         var selection = result.Data.Selection;
         var warnings = new List<string>();
-
-        model = result.Model;
 
         if (product == null || order == null)
         {
@@ -1575,7 +1573,7 @@ public class OrderController : AdminController
 
         _shoppingCartValidator.Value.ValidateGiftCardInfo(product, selection, warnings);
 
-        if (warnings.Count > 0)
+        if (warnings.Count > 0 || !ModelState.IsValid)
         {
             ViewBag.Warnings = warnings;
             return View(model);
