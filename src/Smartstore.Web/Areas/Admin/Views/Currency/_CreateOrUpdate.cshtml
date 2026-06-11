@@ -5,14 +5,6 @@
 
 @{
     var cultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures).ToSelectListItems();
-
-    var roundOrderTotalDenominators = new List<SelectListItem>
-    {
-        new() { Text = 0.05.ToString("F"), Value = "0.05" },
-        new() { Text = 0.10.ToString("F"), Value = "0.10" },
-        new() { Text = 0.50.ToString("F"), Value = "0.50" },
-        new() { Text = 1.00.ToString("F"), Value = "1.00" }
-    };
 }
 
 <div asp-validation-summary="All"></div>
@@ -226,7 +218,12 @@
                         <smart-label asp-for="RoundOrderTotalDenominator" />
                     </div>
                     <div class="adminData">
-                        <select asp-for="RoundOrderTotalDenominator" asp-items="roundOrderTotalDenominators" class="autowidth" style="width: 150px"></select>
+                        <select asp-for="RoundOrderTotalDenominator" class="autowidth" style="width: 150px">
+                            @foreach (var denominator in new decimal[] { 0.05m, 0.1m, 0.5m, 1.0m })
+                            {
+                                <option value="@denominator.ToStringInvariant()" selected="@(Model.RoundOrderTotalDenominator == denominator)">@denominator.ToString("F")</option>
+                            }
+                        </select>
                         <span asp-validation-for="RoundOrderTotalDenominator"></span>
                     </div>
                 </div>
