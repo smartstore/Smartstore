@@ -50,7 +50,7 @@ public class SelectedTabInfo
 
 [OutputElementHint("div")]
 [HtmlTargetElement("tabstrip", Attributes = "id")]
-[RestrictChildren("tab")]
+[RestrictChildren("tab", "fragment")]
 public class TabStripTagHelper : SmartTagHelper
 {
     const string HideSingleItemAttributeName = "sm-hide-single-item";

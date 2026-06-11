@@ -202,9 +202,7 @@
             </div>
         </tab>
 
-        @* TODO: (mc) tab-group *@
-        @if (Model.HasActiveProvider)
-        {
+        <fragment sm-if="Model.HasActiveProvider">
             <tab sm-title="@T("Common.Partition")">
                 <div class="alert alert-info">
                     @Html.Raw(T("Admin.DataExchange.Export.Partition.Note"))
@@ -303,7 +301,7 @@
             <tab sm-title="@T("Common.Deployment")">
                 <partial name="_Tab.Deployment" model="Model" />
             </tab>
-        }
+        </fragment>
     </tabstrip>
 </form>
 

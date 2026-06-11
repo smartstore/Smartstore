@@ -5,6 +5,7 @@ namespace Smartstore.Web.TagHelpers.Shared;
 
 [OutputElementHint("a")]
 [HtmlTargetElement("tab", ParentTag = "tabstrip")]
+[HtmlTargetElement("tab", ParentTag = "fragment")]
 public class TabTagHelper : SmartTagHelper
 {
     const string NameAttributeName = "sm-name";

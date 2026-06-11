@@ -17,9 +17,7 @@
     <tab sm-title="@T("Admin.Customers.Customers.Info")" sm-selected="true" sm-icon="bi:pencil">
         <partial name="_CreateOrUpdate.Info" model="Model" />
     </tab>
-    @* TODO: (mc) tab-group*@
-    @if (Model.Id > 0)
-    {
+    <fragment sm-if="Model.Id > 0">
         <tab sm-title="@T("Admin.Configuration.ACL")" sm-icon="bi:shield">
             @if (Model.PermissionTree?.Permissions?.HasChildren ?? false)
             {
@@ -32,11 +30,13 @@
                     </button>
                 </p>
                 <div id="permission-tree" class="tree">
-                    @{ await PermissionNode(Model.PermissionTree.Permissions); }
+                    @{
+                        await PermissionNode(Model.PermissionTree.Permissions);
+                    }
                 </div>
 
                 <script sm-target-zone="scripts" data-origin="customer-create-or-update-ACL">
-                    $(function () {
+                    $(function() {
                         // Init permission tree.
                         $('#permission-tree').tree('init', {
                             readOnly: true,
@@ -45,20 +45,20 @@
                             showStateInfo: true,
                             highlightNodes: false,
                             leafClass: 'tree-leaf tree-leaf-left',
-                            stateTitles: [@T("Common.Allow").JsValue, 
-                                @T("Common.Deny").JsValue, 
-                                @T("Admin.Permissions.AllowInherited").JsValue, 
-                                @T("Admin.Permissions.DenyInherited").JsValue],
+                            stateTitles: [@T("Common.Allow").JsValue,
+                                                    @T("Common.Deny").JsValue,
+                                                    @T("Admin.Permissions.AllowInherited").JsValue,
+                                                    @T("Admin.Permissions.DenyInherited").JsValue],
                             stateInfoTitles: [@T("Admin.Permissions.AllPermissionsGranted").JsValue,
-                                @T("Admin.Permissions.NumPermissionsGranted").JsValue,
-                                @T("Admin.Permissions.NoPermissionGranted").JsValue]
+                                                    @T("Admin.Permissions.NumPermissionsGranted").JsValue,
+                                                    @T("Admin.Permissions.NoPermissionGranted").JsValue]
                         });
 
                         // Expand\collapse all.
-                        $('#ExpandCollapseAll').on('click', function () {
+                        $('#ExpandCollapseAll').on('click', function() {
                             $('#permission-tree').tree('expandAll');
                         });
-	                });
+                    });
                 </script>
             }
             else
@@ -102,12 +102,12 @@
         <tab sm-title="@T("Admin.Customers.Customers.CurrentCart")" sm-icon="bi:cart-check">
             <h5 class="mt-3 text-muted">@T("Admin.Customers.Customers.CurrentShoppingCart")</h5>
             <div class="mt-3">
-                <partial name="Grids/_Grid.ShoppingCart" model="null" view-data="gridViewData"  />
+                <partial name="Grids/_Grid.ShoppingCart" model="null" view-data="gridViewData" />
             </div>
 
             <h5 class="mt-5 text-muted">@T("Admin.Customers.Customers.CurrentWishlist")</h5>
             <div class="mt-3">
-                <partial name="Grids/_Grid.Wishlist" model="null" view-data="gridViewData"  />
+                <partial name="Grids/_Grid.Wishlist" model="null" view-data="gridViewData" />
             </div>
         </tab>
         <tab sm-title="@T("Admin.Customers.Customers.Impersonate")" sm-icon="bi:person-badge">
@@ -123,10 +123,10 @@
                 </button>
             </p>
         </tab>
-        <tab sm-if="Model.Id != 0" sm-title="@T("Admin.Common.GenericAttributes")" sm-icon="bi:card-checklist" sm-adaptive-height="true">
+        <tab sm-title="@T("Admin.Common.GenericAttributes")" sm-icon="bi:card-checklist" sm-adaptive-height="true">
             <partial name="_Grid.GenericAttributes" model='new GenericAttributeModel { EntityName = "Customer", AttributeEntityId = Model.Id }' />
         </tab>
-    }
+    </fragment>
 </tabstrip>
 
 <script sm-target-zone="Scripts" data-origin="customer-edit">
