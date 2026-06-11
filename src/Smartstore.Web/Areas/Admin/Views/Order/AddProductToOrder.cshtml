@@ -128,7 +128,7 @@
         };
 
         Smartstore.Admin.taxConverter.initialize('#AddProductToOrderForm', {
-            pricesIncludeTax: @(TaxSettings.PricesIncludeTax.ToString().ToLowerInvariant())
+            pricesIncludeTax: @(TaxSettings.PricesIncludeTax.ToStringLower())
         });
     });
 </script>

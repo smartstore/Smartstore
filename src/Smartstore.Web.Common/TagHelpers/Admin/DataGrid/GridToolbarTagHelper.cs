@@ -10,7 +10,9 @@ public enum DataGridToolAction
     SaveChanges,
     DeleteSelectedRows,
     ReactToSelection,
-    ToggleSearchPanel
+    ToggleSearchPanel,
+    // Just here to prevent <fragment> TagHelper
+    Custom = 99
 }
 
 /// <summary>
@@ -105,7 +107,7 @@ public class GridToolTagHelper : TagHelper
             return;
         }
 
-        if (Action == null)
+        if (Action == null || Action == DataGridToolAction.Custom)
         {
             return;
         }

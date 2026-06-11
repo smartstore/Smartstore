@@ -15,18 +15,20 @@
     <paging position="Bottom" page-index="1" show-size-chooser="false" />
     <toolbar>
         <toolbar-group>
-            <button id="pick-crosssell-products" type="button" class="btn btn-primary btn-flat no-anims">
-                <i class="fa fa-plus"></i>
-                <span>@T("Common.AddNew")</span>
-            </button>
-            <button type="button"
-                    id="btnCreateMutuallyCrossSellProducts"
-                    data-url="@Url.Action("CreateAllMutuallyCrossSellProducts", new { productId = parentModel.Id })"
-                    data-ask="@T("Admin.Common.AskCreateMutuallyAssociations")"
-                    class="btn btn-light btn-flat">
-                <i class="fa fa-random"></i>
-                <span>@T("Admin.Common.CreateMutuallyAssociations")</span>
-            </button>
+            <fragment>
+                <button id="pick-crosssell-products" type="button" class="btn btn-primary btn-flat no-anims">
+                    <i class="fa fa-plus"></i>
+                    <span>@T("Common.AddNew")</span>
+                </button>
+                <button type="button"
+                        id="btnCreateMutuallyCrossSellProducts"
+                        data-url="@Url.Action("CreateAllMutuallyCrossSellProducts", new { productId = parentModel.Id })"
+                        data-ask="@T("Admin.Common.AskCreateMutuallyAssociations")"
+                        class="btn btn-light btn-flat">
+                    <i class="fa fa-random"></i>
+                    <span>@T("Admin.Common.CreateMutuallyAssociations")</span>
+                </button>
+            </fragment>
         </toolbar-group>
         <zone name="datagrid_toolbar_alpha"></zone>
         <toolbar-group class="omega"></toolbar-group>

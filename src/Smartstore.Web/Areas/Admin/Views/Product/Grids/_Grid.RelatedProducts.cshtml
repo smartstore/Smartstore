@@ -19,18 +19,20 @@
     </sorting>
     <toolbar>
         <toolbar-group>
-            <button id="pick-related-products" type="button" class="btn btn-primary btn-flat no-anims">
-                <i class="fa fa-plus"></i>
-                <span>@T("Common.AddNew")</span>
-            </button>
-            <button type="button"
-                    id="btnCreateMutuallyRelatedProducts"
-                    data-url="@Url.Action("CreateAllMutuallyRelatedProducts", new { productId = parentModel.Id })"
-                    data-ask="@T("Admin.Common.AskCreateMutuallyAssociations")"
-                    class="btn btn-light btn-flat">
-                <i class="fa fa-random"></i>
-                <span>@T("Admin.Common.CreateMutuallyAssociations")</span>
-            </button>
+            <fragment>
+                <button id="pick-related-products" type="button" class="btn btn-primary btn-flat no-anims">
+                    <i class="fa fa-plus"></i>
+                    <span>@T("Common.AddNew")</span>
+                </button>
+                <button type="button"
+                        id="btnCreateMutuallyRelatedProducts"
+                        data-url="@Url.Action("CreateAllMutuallyRelatedProducts", new { productId = parentModel.Id })"
+                        data-ask="@T("Admin.Common.AskCreateMutuallyAssociations")"
+                        class="btn btn-light btn-flat">
+                    <i class="fa fa-random"></i>
+                    <span>@T("Admin.Common.CreateMutuallyAssociations")</span>
+                </button>
+            </fragment>
             <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
                 <i class="fa fa-check"></i>
                 <span>@T("Admin.Common.SaveChanges")</span>
