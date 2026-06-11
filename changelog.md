@@ -12,7 +12,7 @@
 
 - Prevent a race condition in `TemplateZoneRenderingEvent` by eagerly resolving `TemplateName` from the DotLiquid context before publishing the event.
 - **Withdrawal**: 
-  - It should be possible to make withdrawals even before the withdrawal period has begun.
+  - Allow immediate withdrawal regardless of when the withdrawal period begins.
   - Fixed a `SecurityException` when a return case is saved.
 
 
