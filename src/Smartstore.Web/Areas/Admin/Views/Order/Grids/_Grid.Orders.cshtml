@@ -51,9 +51,13 @@
             <button datagrid-action="DataGridToolAction.ReactToSelection" class="btn btn-light btn-flat dropdown-toggle no-chevron" data-toggle="dropdown" data-boundary="window">
                 <i class="fa fa-fw fa-ellipsis-h"></i>
             </button>
-            <div class="dropdown-menu dropdown-menu-right">
-                @{ OrdersGridMenu(false); }
-            </div>
+            <fragment>
+                <div class="dropdown-menu dropdown-menu-right">
+                    @{
+                        OrdersGridMenu(false);
+                    }
+                </div>
+            </fragment>
         </toolbar-group>
     </toolbar>
     <search-panel sm-if="isOrderListPage">
@@ -134,7 +138,11 @@
         </column>
     </columns>
     <row-commands>
-        @{ OrdersGridMenu(true); }
+        <fragment>
+            @{
+                OrdersGridMenu(true);
+            }
+        </fragment>
     </row-commands>
 </datagrid>
 

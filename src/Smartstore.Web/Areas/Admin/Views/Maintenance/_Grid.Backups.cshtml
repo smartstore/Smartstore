@@ -18,14 +18,16 @@
     </sorting>
     <toolbar>
         <toolbar-group>
-            <button type="submit" name="execute-create-backup" value="execute-create-backup" class="btn btn-primary btn-flat confirm">
-                <i class="fa fa-plus"></i>
-                <span>@T("Admin.System.Maintenance.DbBackup.Create")</span>
-            </button>
-            <button type="button" class="btn btn-secondary btn-flat" data-toggle="modal" data-target="#upload-backup-dialog">
-                <i class="fa fa-upload"></i>
-                <span>@T("Admin.System.Maintenance.DbBackup.Upload")</span>
-            </button>
+            <fragment>
+                <button type="submit" name="execute-create-backup" value="execute-create-backup" class="btn btn-primary btn-flat confirm">
+                    <i class="fa fa-plus"></i>
+                    <span>@T("Admin.System.Maintenance.DbBackup.Create")</span>
+                </button>
+                <button type="button" class="btn btn-secondary btn-flat" data-toggle="modal" data-target="#upload-backup-dialog">
+                    <i class="fa fa-upload"></i>
+                    <span>@T("Admin.System.Maintenance.DbBackup.Upload")</span>
+                </button>
+            </fragment>
         </toolbar-group>
         <zone name="datagrid_toolbar_alpha"></zone>
         <toolbar-group class="omega"></toolbar-group>

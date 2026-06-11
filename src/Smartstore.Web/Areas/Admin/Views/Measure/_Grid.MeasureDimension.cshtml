@@ -16,7 +16,7 @@
     <paging position="Bottom" show-size-chooser="true" />
     <toolbar>
         <toolbar-group>
-            <a href="#" class="add-measure-dimension btn btn-primary btn-flat">
+            <a datagrid-action="DataGridToolAction.Custom" href="#" class="add-measure-dimension btn btn-primary btn-flat">
                 <i class="fa fa-plus"></i>
                 <span>@T("Admin.Common.AddNew")...</span>
             </a>
@@ -54,7 +54,7 @@
     <row-commands>
         <a datarow-action="DataRowAction.Custom" class="grid-edit-measure-dimension" :data-key="item.row.Id">@T("Common.Edit")</a>
         <a datarow-action="DataRowAction.Custom" class="grid-set-default" :data-key="item.row.Id" v-bind:class="{ disabled: item.row.IsPrimaryDimension }">@T("Common.SetDefault")</a>
-        <div class="dropdown-divider"></div>
+        <fragment><div class="dropdown-divider"></div></fragment>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>
