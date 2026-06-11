@@ -11,10 +11,7 @@
        class="confirmation-dialog"
        data-submit-button-id="@Model.ButtonId"
        data-action-url="@Model.ActionUrl">
-    @if (Model.Title.HasValue())
-    {
-        <modal-header sm-show-close="false" sm-title="@Model.Title"></modal-header>
-    }
+    <modal-header sm-show-close="false" sm-title="@Model.Title" sm-if="Model.Title.HasValue()"></modal-header>
     <modal-body>
         <div class="modal-box-body d-flex" attr-class='(Model.CenterContent, "flex-nowrap")'>
             <div class="modal-box-icon">
