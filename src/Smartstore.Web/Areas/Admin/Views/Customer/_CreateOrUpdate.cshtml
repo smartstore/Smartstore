@@ -17,6 +17,7 @@
     <tab sm-title="@T("Admin.Customers.Customers.Info")" sm-selected="true" sm-icon="bi:pencil">
         <partial name="_CreateOrUpdate.Info" model="Model" />
     </tab>
+    @* TODO: (mc) tab-group*@
     @if (Model.Id > 0)
     {
         <tab sm-title="@T("Admin.Configuration.ACL")" sm-icon="bi:shield">
@@ -83,12 +84,9 @@
             }
         </tab>
 
-        if (Model.DisplayRewardPointsHistory)
-        {
-            <tab sm-title="@T("Admin.Customers.Customers.RewardPoints")" sm-icon="bi:trophy" sm-adaptive-height="true">
-                <partial name="Grids/_Grid.RewardPoints" model="null" view-data="gridViewData" />
-            </tab>
-        }
+        <tab sm-title="@T("Admin.Customers.Customers.RewardPoints")" sm-icon="bi:trophy" sm-adaptive-height="true" sm-if="Model.DisplayRewardPointsHistory">
+            <partial name="Grids/_Grid.RewardPoints" model="null" view-data="gridViewData" />
+        </tab>
 
         <tab sm-title="@T("Admin.Customers.Customers.Addresses")" sm-icon="bi:geo-alt">
             <div>

@@ -218,12 +218,9 @@
             </div>
         </div>
     </tab>
-    @if (Model.Id > 0)
-    {
-        <tab sm-title="@T("Admin.Promotions.Discounts.History")" sm-adaptive-height="true">
-            <partial name="_Grid.DiscountUsageHistory" model="null" view-data="discountUsageHistoryViewData" />
-        </tab>
-    }
+    <tab sm-title="@T("Admin.Promotions.Discounts.History")" sm-adaptive-height="true" sm-if="Model.Id > 0">
+        <partial name="_Grid.DiscountUsageHistory" model="null" view-data="discountUsageHistoryViewData" />
+    </tab>
 </tabstrip>
 
 <script sm-target-zone="scripts" sm-minify="true" data-origin="discount-edit">

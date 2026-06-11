@@ -132,22 +132,19 @@
             </div>
         </div>
     </tab>
-    @if (Model.Id == 0 || (Model.Id > 0 && Model.IsListTypeAttribute))
-    {
-        <tab sm-title="@T("Admin.Catalog.Attributes.CheckoutAttributes.Values")" sm-adaptive-height="true">
-            @if (Model.Id > 0)
-            {
-                var gridViewData = new ViewDataDictionary(ViewData);
-                gridViewData["CheckoutAttributeId"] = Model.Id;
+    <tab sm-title="@T("Admin.Catalog.Attributes.CheckoutAttributes.Values")" sm-adaptive-height="true" sm-if="Model.Id == 0 || (Model.Id > 0 && Model.IsListTypeAttribute)">
+        @if (Model.Id > 0)
+        {
+            var gridViewData = new ViewDataDictionary(ViewData);
+            gridViewData["CheckoutAttributeId"] = Model.Id;
 
-                <partial name="_Grid.CheckoutAttributeValues" model="null" view-data="gridViewData" />
-            }
-            else
-            {
-                <div class="alert alert-warning">
-                    @T("Admin.SaveBeforeEdit")
-                </div>
-            }
-        </tab>
-    }
+            <partial name="_Grid.CheckoutAttributeValues" model="null" view-data="gridViewData" />
+        }
+        else
+        {
+            <div class="alert alert-warning">
+                @T("Admin.SaveBeforeEdit")
+            </div>
+        }
+    </tab>
 </tabstrip>
