@@ -42,7 +42,7 @@ public static class CultureHelper
     /// <example>Returns "zh-Hans-CN" for "zh-CN".</example>
     public static string GetValidCultureCode(string locale)
     {
-        if (!IsValidCultureCode(locale) && locale != null && _cultureAliasMappings.TryGetValue(locale, out var mapping))
+        if (!IsValidCultureCode(locale) && _cultureAliasMappings.TryGetValue(locale, out var mapping))
         {
             return mapping;
         }
@@ -87,11 +87,13 @@ public static class CultureHelper
     public static bool TryGetCultureInfoForLocale(string locale, out CultureInfo culture)
     {
         culture = null;
+        if (!locale.HasValue() || !_cultureCodes.Contains(locale))
+            return false;
 
         try
         {
             culture = CultureInfo.GetCultureInfo(locale);
-            return culture != null;
+            return true;
         }
         catch
         {
@@ -121,7 +123,7 @@ public static class CultureHelper
 
     public static string NormalizeLanguageDisplayName(string languageName, bool stripRegion = false, CultureInfo culture = null)
     {
-        if (string.IsNullOrEmpty(languageName) || languageName.Length == 0)
+        if (string.IsNullOrEmpty(languageName))
         {
             return languageName;
         }
@@ -169,8 +171,7 @@ public static class CultureHelper
             if (locale.HasValue())
             {
                 var info = new RegionInfo(locale);
-                if (info != null)
-                    return info.CurrencySymbol;
+                return info.CurrencySymbol;
             }
         }
         catch
@@ -189,6 +190,8 @@ public static class CultureHelper
 
     public static string GetBaseCultureName(string cultureName)
     {
+        Guard.NotEmpty(cultureName);
+
         var idx = cultureName.IndexOf('-', StringComparison.Ordinal);
         return idx > -1
             ? cultureName[..idx]
