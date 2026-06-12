@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using Autofac;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Caching;
@@ -14,6 +15,10 @@ public class SettingFactory : ISettingFactory
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ICacheManager _cache;
     private readonly IDbContextFactory<SmartDbContext> _dbContextFactory;
+
+    private static readonly ConcurrentDictionary<Type, Func<ISettings>> _activators = new();
+    private static readonly ConcurrentDictionary<Type, (FastProperty FastProp, string Key)[]> _loadProps = new();
+    private static readonly ConcurrentDictionary<Type, (FastProperty FastProp, string Key)[]> _saveProps = new();
 
     public SettingFactory(
         IHttpContextAccessor httpContextAccessor,
@@ -66,7 +71,7 @@ public class SettingFactory : ISettingFactory
 
         return _cache.Get(cacheKey, o =>
         {
-            o.ExpiresIn(TimeSpan.FromHours(8));
+            o.ExpiresIn(SettingService.DefaultExpiry);
 
             using (GetOrCreateDbContext(out var db))
             {
@@ -91,7 +96,7 @@ public class SettingFactory : ISettingFactory
 
         return _cache.GetAsync(cacheKey, async (o) =>
         {
-            o.ExpiresIn(TimeSpan.FromHours(8));
+            o.ExpiresIn(SettingService.DefaultExpiry);
 
             using (GetOrCreateDbContext(out var db))
             {
@@ -130,27 +135,13 @@ public class SettingFactory : ISettingFactory
         Guard.NotNull(settings);
 
         var settingsType = settings.GetType();
-        var prefix = settingsType.Name;
         var hasChanges = false;
 
         var rawSettings = await GetRawSettingsAsync(db, settingsType, storeId, doFallback: false, tracked: true);
 
-        foreach (var prop in FastProperty.GetProperties(settingsType).Values)
+        foreach (var (fastProp, key) in _saveProps.GetOrAdd(settingsType, BuildSaveProps))
         {
-            // Get only properties we can read and write to
-            if (!prop.IsPublicSettable)
-            {
-                continue;
-            }
-
-            var converter = TypeConverterFactory.GetConverter(prop.Property.PropertyType);
-            if (converter == null || !converter.CanConvertFrom(typeof(string)))
-            {
-                continue;
-            }
-
-            var key = prefix + '.' + prop.Name;
-            var currentValue = prop.GetValue(settings).Convert<string>();
+            var currentValue = fastProp.GetValue(settings).Convert<string>();
 
             if (rawSettings.TryGetValue(key, out var setting))
             {
@@ -164,20 +155,17 @@ public class SettingFactory : ISettingFactory
             else
             {
                 // Insert
-                setting = new Setting
+                db.Settings.Add(new Setting
                 {
                     Name = key,
                     Value = currentValue,
                     StoreId = storeId
-                };
-
+                });
                 hasChanges = true;
-                db.Settings.Add(setting);
             }
         }
 
-        var numSaved = hasChanges ? await db.SaveChangesAsync() : 0;
-        return numSaved;
+        return hasChanges ? await db.SaveChangesAsync() : 0;
     }
 
     #region Utils
@@ -231,19 +219,9 @@ public class SettingFactory : ISettingFactory
         var instance = (ISettings)Activator.CreateInstance(settingsType);
         var prefix = settingsType.Name;
 
-        foreach (var fastProp in FastProperty.GetProperties(settingsType).Values)
+        foreach (var (fastProp, key) in _loadProps.GetOrAdd(settingsType, BuildLoadProps))
         {
-            var prop = fastProp.Property;
-
-            // Handle only properties we can read and write to
-            if (!prop.CanWrite)
-            {
-                continue;
-            }
-
-            var key = prefix + "." + prop.Name;
             rawSettings.TryGetValue(key, out var rawSetting);
-
             var valueStr = rawSetting?.Value;
 
             if (valueStr == null)
@@ -263,28 +241,55 @@ public class SettingFactory : ISettingFactory
                 }
             }
 
-            var converter = TypeConverterFactory.GetConverter(prop.PropertyType);
-
-            if (converter == null || !converter.CanConvertFrom(typeof(string)))
-            {
-                continue;
-            }
-
             try
             {
-                object value = converter.ConvertFrom(valueStr);
-
-                // Set property
-                fastProp.SetValue(instance, value);
+                fastProp.SetValue(instance, TypeConverterFactory.GetConverter(fastProp.Property.PropertyType).ConvertFrom(valueStr));
             }
             catch (Exception ex)
             {
-                var msg = "Could not convert setting '{0}' to type '{1}'".FormatInvariant(key, prop.PropertyType.Name);
-                Logger.Error(ex, msg);
+                Logger.Error(ex, "Could not convert setting '{0}' to type '{1}'".FormatInvariant(key, fastProp.Property.PropertyType.Name));
             }
         }
 
         return instance;
+    }
+
+    private static (FastProperty FastProp, string Key)[] BuildLoadProps(Type settingsType)
+    {
+        var prefix = settingsType.Name;
+        var result = new List<(FastProperty, string)>();
+
+        foreach (var fastProp in FastProperty.GetProperties(settingsType).Values)
+        {
+            if (!fastProp.Property.CanWrite)
+                continue;
+
+            if (!TypeConverterFactory.GetConverter(fastProp.Property.PropertyType).CanConvertFrom(typeof(string)))
+                continue;
+
+            result.Add((fastProp, prefix + '.' + fastProp.Name));
+        }
+
+        return [.. result];
+    }
+
+    private static (FastProperty FastProp, string Key)[] BuildSaveProps(Type settingsType)
+    {
+        var prefix = settingsType.Name;
+        var result = new List<(FastProperty, string)>();
+
+        foreach (var fastProp in FastProperty.GetProperties(settingsType).Values)
+        {
+            if (!fastProp.IsPublicSettable)
+                continue;
+
+            if (!TypeConverterFactory.GetConverter(fastProp.Property.PropertyType).CanConvertFrom(typeof(string)))
+                continue;
+
+            result.Add((fastProp, prefix + '.' + fastProp.Name));
+        }
+
+        return [.. result];
     }
 
     #endregion

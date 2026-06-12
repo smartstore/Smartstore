@@ -192,7 +192,8 @@ public static class EnumerableExtensions
             Guard.NotNull(keySelector);
             Guard.NotNull(elementSelector);
 
-            var dictionary = new Dictionary<TKey, TElement>(comparer);
+            source.TryGetNonEnumeratedCount(out var capacity);
+            var dictionary = new Dictionary<TKey, TElement>(capacity, comparer);
 
             foreach (var local in source)
             {
