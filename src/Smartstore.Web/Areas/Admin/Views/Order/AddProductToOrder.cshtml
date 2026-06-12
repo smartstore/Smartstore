@@ -99,44 +99,43 @@
 
 <script sm-target-zone="scripts" data-origin="add-product-to-order">
     $(function () {
-        applyCommonPlugins($('#AddProductAttributeContainer'));
-        
-        $('#AddProductToOrderForm').on('change', '#Quantity, .attribute-list, .attribute-list-item', () => {
-            $({}).ajax({
-                type: 'POST',
-                url: '@Url.Action("UpdateProductPrices")',
-                data: $('#AddProductToOrderForm').serialize(),
-                success: (response) => {
-                    if (response.success) {
-                        Smartstore.Admin.taxCalculator.lock = true;
+		applyCommonPlugins($('#AddProductAttributeContainer'));
 
-                        try {
-                            const $elPrices = $('#AddProductToOrderPrices');
-                            $elPrices.html(response.prices);
-                            applyCommonPlugins($elPrices);
-                        }
-                        finally {
-                            Smartstore.Admin.taxCalculator.lock = false;
-                        }
-                    }
-                }
-            });
-        });
+		const taxCalc = new Smartstore.Admin.TaxCalculator({
+			rootSelector: '#AddProductToOrderForm',
+			pricesIncludeTax: @(TaxSettings.PricesIncludeTax.ToStringLower()),
+			res: {
+				@foreach (var key in new[]
+				{
+					"Admin.Common.TaxCalculator.Enable",
+					"Admin.Common.TaxCalculator.Disable"
+				})
+				{
+					<text>"@(Html.Raw(key))": @(T(key).JsValue),</text>
+				}
+			}
+		});
 
-        window.taxCalculatorRes = {
-		    @foreach (var key in new[]
-            {
-                "Admin.Common.TaxCalculator.Enable",
-                "Admin.Common.TaxCalculator.Disable"
-            })
-            {
-			    <text>"@(Html.Raw(key))": @(T(key).JsValue),</text>
-		    }
-        };
+		$('#AddProductToOrderForm').on('change', '#Quantity, .attribute-list, .attribute-list-item', () => {
+			$({}).ajax({
+				type: 'POST',
+				url: '@Url.Action("UpdateProductPrices")',
+				data: $('#AddProductToOrderForm').serialize(),
+				success: (response) => {
+					if (response.success) {
+						taxCalc.lock(true);
 
-        Smartstore.Admin.taxCalculator.initialize({
-            rootSelector: '#AddProductToOrderForm',
-            pricesIncludeTax: @(TaxSettings.PricesIncludeTax.ToStringLower())
-        });
-    });
+						try {
+							const $elPrices = $('#AddProductToOrderPrices');
+							$elPrices.html(response.prices);
+							applyCommonPlugins($elPrices);
+						}
+						finally {
+							taxCalc.lock(false);
+						}
+					}
+				}
+			});
+		});
+	});
 </script>
