@@ -8,11 +8,27 @@ public static class CharExtensions
     private const int _size = 256;
     private static readonly string[] _table = new string[_size];
 
+    // Prebuilt base-char table for U+0080–U+1EFF (Latin, Greek, Cyrillic, Vietnamese, …).
+    // Value '\0' means no diacritic. Built once via Normalize(FormD), looked up O(1) at runtime.
+    private const char _diacriticBase = '\u0080';
+    private static readonly char[] _diacriticTable;
+
     static CharExtensions()
     {
         for (int i = 0; i < _size; i++)
         {
             _table[i] = ((char)i).ToString();
+        }
+
+        var diacriticTableSize = '\u1F00' - _diacriticBase; // 7808 entries ≈ 15 KB
+        _diacriticTable = new char[diacriticTableSize];
+        for (int i = 0; i < diacriticTableSize; i++)
+        {
+            var c = (char)(_diacriticBase + i);
+            var formD = c.ToString().Normalize(NormalizationForm.FormD);
+            if (formD.Length > 1)
+                _diacriticTable[i] = formD[0];
+            // else stays '\0' — no diacritic
         }
     }
 
@@ -52,27 +68,31 @@ public static class CharExtensions
         }
 
         public char RemoveDiacritic()
-        {
-            var normalized = ch.AsString().Normalize(NormalizationForm.FormD);
-            if (normalized.Length > 1)
-            {
-                return normalized[0];
-            }
-
-            return ch;
-        }
+            => TryRemoveDiacritic(ch, out var b) ? b : ch;
 
         public bool TryRemoveDiacritic(out char normalized)
         {
-            normalized = default;
-
-            var formD = ch.AsString().Normalize(NormalizationForm.FormD);
-            if (formD.Length > 1)
+            var idx = (uint)(ch - _diacriticBase);
+            if (idx < (uint)_diacriticTable.Length)
             {
-                normalized = formD[0];
-                return true;
+                var b = _diacriticTable[idx];
+                if (b != '\0')
+                {
+                    normalized = b;
+                    return true;
+                }
+            }
+            else
+            {
+                var formD = ch.AsString().Normalize(NormalizationForm.FormD);
+                if (formD.Length > 1)
+                {
+                    normalized = formD[0];
+                    return true;
+                }
             }
 
+            normalized = default;
             return false;
         }
 

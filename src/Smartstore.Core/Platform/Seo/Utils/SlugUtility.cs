@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Runtime.CompilerServices;
 using System.Text;
 using Autofac;
 
@@ -11,7 +10,6 @@ public static partial class SlugUtility
 
     /// <inheritdoc cref="Slugify(string, SlugifyOptions)"/>
     /// <param name="seoSettings">SEO settings</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string Slugify(string input, SeoSettings seoSettings)
     {
         seoSettings ??= EngineContext.Current.Application.Services.ResolveOptional<SeoSettings>() ?? new SeoSettings();
@@ -25,7 +23,6 @@ public static partial class SlugUtility
     }
 
     /// <inheritdoc cref="Slugify(string, bool, bool, bool, IReadOnlyDictionary{char, string})"/>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string Slugify(
         string input,
         bool removeDiacritic,
@@ -46,7 +43,6 @@ public static partial class SlugUtility
     /// <param name="allowUnicodeChars">Whether unicode chars are allowed</param>
     /// <param name="allowForwardSlash">Whether forward slash (/) is allowed (but only if prev or next char is not whitespace)</param>
     /// <param name="charConversionMap">Optional character conversion map (e.g. ä --> ae).</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string Slugify(
         string input,
         bool removeDiacritic,
@@ -95,7 +91,7 @@ public static partial class SlugUtility
 
         for (int i = 0; i < len; i++)
         {
-            if (i > SlugMaxLength)
+            if (i >= SlugMaxLength)
             {
                 break;
             }
@@ -169,11 +165,14 @@ public static partial class SlugUtility
 
             if (c == ',' || c == '.' || c == '\\' || c == '-' || c == '_' || c == '=')
             {
-                if (!IsPrevDash(ref vsb))
-                {
-                    vsb.Append('-');
-                }
+                if (!IsPrevDash(ref vsb)) vsb.Append('-');
+                continue;
+            }
 
+            // All remaining ASCII characters → dash (surrogate characters, etc., are all greater than 127)
+            if (c < 128)
+            {
+                if (!IsPrevDash(ref vsb)) vsb.Append('-');
                 continue;
             }
 
@@ -184,11 +183,7 @@ public static partial class SlugUtility
             }
             else if (category >= UnicodeCategory.ConnectorPunctuation && category <= UnicodeCategory.MathSymbol)
             {
-                if (!IsPrevDash(ref vsb))
-                {
-                    vsb.Append('-');
-                }
-
+                if (!IsPrevDash(ref vsb)) vsb.Append('-');
                 continue;
             }
 
