@@ -13,9 +13,11 @@ public class LocalizedUrlHelper
     private string? _cultureCode;
 
     public LocalizedUrlHelper(HttpRequest httpRequest)
-        : this(httpRequest.PathBase.Value!, httpRequest.Path.Value!)
     {
         Guard.NotNull(httpRequest);
+
+        _pathBase = httpRequest.PathBase.Value!;
+        _path = httpRequest.Path.Value!.TrimStart('/');
     }
 
     public LocalizedUrlHelper(string pathBase, string path)
@@ -45,7 +47,6 @@ public class LocalizedUrlHelper
     /// <summary>
     /// Full path: PathBase + Path
     /// </summary>
-    /// <returns></returns>
     public string FullPath
     {
         get
@@ -119,7 +120,7 @@ public class LocalizedUrlHelper
         {
             if (IsLocalizedUrl(out var currentCultureCode))
             {
-                if (cultureCode == currentCultureCode)
+                if (cultureCode.EqualsNoCase(currentCultureCode))
                 {
                     return Path;
                 }
