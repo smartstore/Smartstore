@@ -315,7 +315,6 @@ public class Multimap<TKey, TValue> : IEnumerable<KeyValuePair<TKey, ICollection
     public virtual IEnumerator<KeyValuePair<TKey, ICollection<TValue>>> GetEnumerator()
         => _dict.GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void CheckNotReadonly()
     {
         if (_isReadonly)

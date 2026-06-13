@@ -34,7 +34,6 @@ public class Guard
     }
 
     [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void NotNull(string arg, [CallerArgumentExpression(nameof(arg))] string? argName = null)
     {
         if (arg is null)
@@ -44,7 +43,6 @@ public class Guard
     }
 
     [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T NotNull<T>([NotNull] T? arg, [CallerArgumentExpression(nameof(arg))] string? argName = null)
     {
         return arg ?? throw new ArgumentNullException(argName);
@@ -80,7 +78,6 @@ public class Guard
     }
 
     [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ICollection<T> NotEmpty<T>([NotNull] ICollection<T>? arg, [CallerArgumentExpression(nameof(arg))] string? argName = null)
     {
         if (arg == null || arg.Count == 0)
@@ -92,7 +89,6 @@ public class Guard
     }
 
     [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T NotEmpty<T>(T arg, [CallerArgumentExpression(nameof(arg))] string? argName = null) where T : struct
     {
         if (Equals(arg, default(T)))
@@ -104,7 +100,6 @@ public class Guard
     }
 
     [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T InRange<T>(T arg, T min, T max, [CallerArgumentExpression(nameof(arg))] string? argName = null) where T : struct, INumber<T>
     {
         if (arg < min || arg > max)
@@ -116,7 +111,6 @@ public class Guard
     }
 
     [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T NotNegative<T>(T arg, [CallerArgumentExpression(nameof(arg))] string? argName = null, string message = NotNegativeMessage) where T : struct, INumber<T>
     {
         if (arg < T.Zero)
@@ -128,7 +122,6 @@ public class Guard
     }
 
     [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T IsPositive<T>(T arg, [CallerArgumentExpression(nameof(arg))] string? argName = null, string message = IsPositiveMessage) where T : struct, INumber<T>
     {
         if (arg <= T.Zero)
@@ -140,7 +133,6 @@ public class Guard
     }
 
     [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T NotZero<T>(T arg, [CallerArgumentExpression(nameof(arg))] string? argName = null) where T : struct, INumber<T>
     {
         if (arg == T.Zero)
@@ -152,7 +144,6 @@ public class Guard
     }
 
     [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Against<TException>(bool assertion, string message = AgainstMessage) where TException : Exception
     {
         if (assertion)
@@ -160,7 +151,6 @@ public class Guard
     }
 
     [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Against<TException>(Func<bool> assertion, string message = AgainstMessage) where TException : Exception
     {
         //Execute the lambda and if it evaluates to true then throw the exception.
@@ -169,7 +159,6 @@ public class Guard
     }
 
     [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void IsTrue(bool arg, [CallerArgumentExpression(nameof(arg))] string? argName = null, string message = IsTrueMessage)
     {
         if (!arg)
@@ -177,7 +166,6 @@ public class Guard
     }
 
     [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void IsEnumType(Type arg, [CallerArgumentExpression(nameof(arg))] string? argName = null)
     {
         if (!arg.IsEnum)
@@ -187,7 +175,6 @@ public class Guard
     }
 
     [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void IsEnumType(Type enumType, object arg, [CallerArgumentExpression(nameof(arg))] string? argName = null)
     {
         if (!Enum.IsDefined(enumType, arg))
@@ -197,7 +184,6 @@ public class Guard
     }
 
     [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T NotDisposed<T>(T arg, [CallerArgumentExpression(nameof(arg))] string? argName = null) where T : Disposable
     {
         if (arg.IsDisposed)
@@ -232,7 +218,6 @@ public class Guard
     }
 
     [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void InheritsFrom<TBase>(Type type, string message)
     {
         if (type.BaseType != typeof(TBase))
@@ -242,7 +227,6 @@ public class Guard
     }
 
     [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void IsAssignableFrom<TBase>(Type type, string message = ImplementsMessage)
     {
         if (!typeof(TBase).IsAssignableFrom(type))
@@ -268,7 +252,6 @@ public class Guard
     }
 
     [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TType IsTypeOf<TType>(object? instance, string message)
     {
         if (instance is not TType casted)
@@ -289,14 +272,12 @@ public class Guard
     }
 
     [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void HasDefaultConstructor<T>()
     {
         HasDefaultConstructor(typeof(T));
     }
 
     [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void HasDefaultConstructor(Type t)
     {
         if (!t.HasDefaultConstructor())

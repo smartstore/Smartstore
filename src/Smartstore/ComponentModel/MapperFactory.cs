@@ -210,7 +210,6 @@ public static class MapperFactory
     /// <param name="from">Source instance</param>
     /// <param name="parameters">Custom parameters for the underlying mapper.</param>
     /// <returns>The mapped target instance.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async static Task<TTo> MapAsync<TFrom, TTo>(TFrom from, dynamic? parameters = null)
         where TFrom : class
         where TTo : class, new()
@@ -246,7 +245,6 @@ public static class MapperFactory
     /// <param name="from">Source instance</param>
     /// <param name="to">Target instance</param>
     /// <param name="parameters">Custom parameters for the underlying mapper.</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Task MapWithRegisteredMapperAsync<TFrom, TTo>(TFrom from, TTo to, dynamic? parameters = null)
         where TFrom : class
         where TTo : class

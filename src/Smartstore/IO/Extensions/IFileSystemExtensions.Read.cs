@@ -9,7 +9,7 @@ public static partial class IFileSystemExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string ReadAllText(this IFileSystem fs, string subpath, Encoding encoding = null)
     {
-        Guard.NotEmpty(subpath, nameof(subpath));
+        Guard.NotEmpty(subpath);
         return ReadAllTextInternal(fs.GetFile(subpath), encoding, false).Await();
     }
 
@@ -19,7 +19,7 @@ public static partial class IFileSystemExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static async Task<string> ReadAllTextAsync(this IFileSystem fs, string subpath, Encoding encoding = null)
     {
-        Guard.NotEmpty(subpath, nameof(subpath));
+        Guard.NotEmpty(subpath);
         return await (ReadAllTextInternal(await fs.GetFileAsync(subpath), encoding, true));
     }
 
@@ -29,7 +29,7 @@ public static partial class IFileSystemExtensions
 
     private static async Task<string> ReadAllTextInternal(IFile file, Encoding encoding, bool async)
     {
-        Guard.NotNull(file, nameof(file));
+        Guard.NotNull(file);
 
         if (!file.Exists)
         {

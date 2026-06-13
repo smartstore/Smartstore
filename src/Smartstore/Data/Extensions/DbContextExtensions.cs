@@ -228,7 +228,6 @@ public static partial class DbContextExtensions
     /// <param name="entity">The entity instance to detach</param>
     /// <param name="deep">Whether to scan all navigation properties and detach them recursively also.</param>
     /// <returns>The count of detached entities</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int DetachEntity<TEntity>(this HookingDbContext ctx, TEntity entity, bool deep = false) where TEntity : BaseEntity
     {
         return ctx.DetachInternal(entity, deep ? new HashSet<BaseEntity>() : null, deep);
