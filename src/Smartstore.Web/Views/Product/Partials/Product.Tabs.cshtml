@@ -14,7 +14,7 @@
         if (Model.HasFullDescriptionSchemaProperty)
         {
             var url = Model.CanonicalUrl ?? Request.ToAbsoluteUrl();
-            Assets.JsonLd.Product.Prop("description", new Dictionary<string, string> { ["@id"] = url + "#product-full-desc" });
+            Assets.JsonLd.Product.Prop("description", Smartstore.Utilities.Html.HtmlUtility.StripTags(Model.FullDescription).Truncate(200));
         }
 
         <tab sm-title="@T("Products.Details")" sm-name="pd-full-desc" sm-selected="true">
