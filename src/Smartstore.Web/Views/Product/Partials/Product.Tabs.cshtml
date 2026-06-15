@@ -1,4 +1,5 @@
 ﻿@using Smartstore.Web.Models.Catalog
+@using Smartstore.Utilities.Html
 
 @model ProductDetailsModel
 
@@ -9,7 +10,7 @@
     if (Model.HasFullDescriptionSchemaProperty)
     {
         var url = Model.CanonicalUrl ?? Request.ToAbsoluteUrl();
-        Assets.JsonLd.Product.Prop("description", Smartstore.Utilities.Html.HtmlUtility.StripTags(Model.FullDescription).Truncate(200));
+        Assets.JsonLd.Product.Prop("description", HtmlUtility.StripTags(Model.FullDescription).Truncate(200));
     }
 }
 
