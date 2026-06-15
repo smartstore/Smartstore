@@ -1,12 +1,7 @@
 ﻿@model AddOrderProductModel
 
 @{
-    var primaryCurrencyCode = CommonServices.CurrencyService.PrimaryCurrency.CurrencyCode;
-    var inclTax = T("Admin.Orders.Fields.Edit.InclTax", primaryCurrencyCode);
-    var exclTax = T("Admin.Orders.Fields.Edit.ExclTax", primaryCurrencyCode);
-
     // TODO: (mg) Very awkward to enter gross, net, and tax amounts without automatic calculation. TBD with MC.
-    // TODO: (mg) Add a TaxCalculatorTagHelper (see "taxcalc-pair" below).
 }
 
 <div class="adminContent">
@@ -30,44 +25,16 @@
         <div class="adminTitle">
             <smart-label asp-for="UnitPriceInclTax" />
         </div>
-        <div class="adminData" data-tax-pair="unitprice" data-tax-active>
-            <div class="row g-1 flex-nowrap">
-                <div class="col">
-                    <editor asp-for="UnitPriceInclTax" sm-postfix="@inclTax" data-tax-field="gross" />
-                </div>
-                <div class="col-auto align-content-center">
-                    <button type="button" 
-                            class="btn btn-sm border-0 shadow-none bg-transparent text-reset p-1 btn-tax-lock"
-                            title="@T("Admin.Common.TaxCalculator.Disable")">
-                        <i class="fa fa-lock"></i>
-                    </button>
-                </div>
-                <div class="col">
-                    <editor asp-for="UnitPriceExclTax" sm-postfix="@exclTax" data-tax-field="net" />
-                </div>
-            </div>
+        <div class="adminData">
+            <tax-pair kind="UnitPrice" asp-for-gross="UnitPriceInclTax" asp-for-net="UnitPriceExclTax" />
         </div>
     </div>
     <div class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="PriceInclTax" />
         </div>
-        <div class="adminData" data-tax-pair="total" data-tax-active>
-            <div class="row g-1 flex-nowrap">
-                <div class="col">
-                    <editor asp-for="PriceInclTax" sm-postfix="@inclTax" data-tax-field="gross" />
-                </div>
-                <div class="col-auto align-content-center">
-                    <button type="button"
-                            class="btn btn-sm border-0 shadow-none bg-transparent text-reset p-1 btn-tax-lock"
-                            title="@T("Admin.Common.TaxCalculator.Disable")">
-                        <i class="fa fa-lock"></i>
-                    </button>
-                </div>
-                <div class="col">
-                    <editor asp-for="PriceExclTax" sm-postfix="@exclTax" data-tax-field="net" />
-                </div>
-            </div>
+        <div class="adminData">
+            <tax-pair kind="Total" asp-for-gross="PriceInclTax" asp-for-net="PriceExclTax" />
         </div>
     </div>
 </div>
