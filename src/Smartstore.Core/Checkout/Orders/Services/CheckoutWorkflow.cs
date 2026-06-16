@@ -332,13 +332,13 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
             paymentRequest.PaymentMethodSystemName = paymentMethod;
 
             var provider = await _paymentService.LoadPaymentProviderBySystemNameAsync(paymentMethod);
-            paymentType = provider.Metadata.PaymentMethodType;
-
             if (provider == null || !provider.Value.RequiresConfirmation)
             {
                 throw new Exception(T("Payment.CouldNotLoadMethod"),
                     new Exception($"Cannot complete the payment. The Payment provider {paymentMethod} could not be loaded or does not support payment confirmation."));
             }
+
+            paymentType = provider?.Metadata?.PaymentMethodType ?? PaymentMethodType.Standard;
 
             if (await provider.Value.CompletePaymentAsync(paymentRequest, context))
             {
