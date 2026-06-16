@@ -3,6 +3,8 @@
 
 @model OrderModel
 
+@inject TaxSettings TaxSettings
+
 @{
     var rtl = WorkContext.WorkingLanguage.Rtl;
     var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
@@ -26,6 +28,8 @@
         </div>
     }
 }
+
+<script src="~/admin/js/admin.taxcalculator.js" sm-target-zone="scripts" sm-key="tax-calculator"></script>
 
 <zone name="order_edit_top" />
 
@@ -478,5 +482,20 @@
             openPopup('@Url.Action("PartiallyRefundOrderPopup", "Order", new { id = Model.Id, online = "false" })');
             return false;
         });
+
+		const taxCalc = new Smartstore.Admin.TaxCalculator({
+            rootSelector: '#order-total-controls',
+			pricesIncludeTax: @(TaxSettings.PricesIncludeTax.ToStringLower()),
+			res: {
+				@foreach (var key in new[]
+				{
+					"Admin.Common.TaxCalculator.Enable",
+					"Admin.Common.TaxCalculator.Disable"
+				})
+				{
+					<text>"@(Html.Raw(key))": @(T(key).JsValue),</text>
+				}
+			}
+		});
     });
 </script>

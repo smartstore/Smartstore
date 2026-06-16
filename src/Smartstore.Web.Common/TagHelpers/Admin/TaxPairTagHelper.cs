@@ -13,8 +13,38 @@ namespace Smartstore.Web.TagHelpers.Admin;
 /// </summary>
 public enum TaxPairKind
 {
-    UnitPrice,
-    Total
+    SubTotal,
+    LineTotal,
+    UnitPrice
+}
+
+public enum TaxPairState
+{
+    /// <summary>
+    /// Gross and net values are calculated by default.
+    /// The user may switch to manual editing. This is the default state.
+    /// </summary>
+    CalculateOrEdit,
+
+    /// <summary>
+    /// Gross and net values are always calculated.
+    /// The user cannot switch to manual editing.
+    /// </summary>
+    /// <remarks>Not supported yet. For future use.</remarks>
+    CalculateOnly,
+
+    /// <summary>
+    /// Gross and net values are edited manually by default.
+    /// The user may switch to calculated values.
+    /// </summary>
+    /// <remarks>Not supported yet. For future use.</remarks>
+    EditOrCalculate,
+
+    /// <summary>
+    /// Gross and net values are always edited manually.
+    /// The user cannot switch to calculated values.
+    /// </summary>
+    EditOnly
 }
 
 [HtmlTargetElement(TagName, TagStructure = TagStructure.NormalOrSelfClosing)]
@@ -22,6 +52,7 @@ public class TaxPairTagHelper : SmartTagHelper
 {
     const string TagName = "tax-pair";
     const string KindAttributeName = "kind";
+    const string StateAttributeName = "state";
     const string ForGrossAttributeName = "asp-for-gross";
     const string ForNetAttributeName = "asp-for-net";
 
@@ -29,9 +60,16 @@ public class TaxPairTagHelper : SmartTagHelper
 
     /// <summary>
     /// Gets or sets the kind of the tax pair.
+    /// It is required to find other tax pairs in order to automatically calculate their values.
     /// </summary>
     [HtmlAttributeName(KindAttributeName)]
     public TaxPairKind Kind { get; set; }
+
+    /// <summary>
+    /// Gets or sets the state of the tax pair which determines whether the gross and net values are calculated or edited manually.
+    /// </summary>
+    [HtmlAttributeName(StateAttributeName)]
+    public TaxPairState State { get; set; } = TaxPairState.CalculateOrEdit;
 
     /// <summary>
     /// An expression for the gross property of the view model.
@@ -66,7 +104,11 @@ public class TaxPairTagHelper : SmartTagHelper
 
         output.Attributes.Add("class", "row g-1 flex-nowrap");
         output.Attributes.Add("data-tax-pair", Kind.ToString().ToLower());
-        output.Attributes.Add("data-tax-active", string.Empty);
+
+        if (State == TaxPairState.CalculateOrEdit || State == TaxPairState.CalculateOnly)
+        {
+            output.Attributes.Add("data-tax-active", string.Empty);
+        }
 
         output.Content.Clear();
 
@@ -80,20 +122,32 @@ public class TaxPairTagHelper : SmartTagHelper
             }
         });
 
-        var divGross = new TagBuilder("div");
-        divGross.AddCssClass("col");
-        divGross.InnerHtml.AppendHtml(grossEditor);
+        var grossDiv = new TagBuilder("div");
+        grossDiv.AddCssClass("col");
+        grossDiv.InnerHtml.AppendHtml(grossEditor);
 
         // Lock/unlock button.
-        var btnTag = new TagBuilder("button");
-        btnTag.Attributes.Add("type", "button");
-        btnTag.Attributes.Add("title", T("Admin.Common.TaxCalculator.Disable"));
-        btnTag.AddCssClass("btn btn-sm border-0 shadow-none bg-transparent text-reset p-1 btn-tax-lock");
-        btnTag.InnerHtml.AppendHtml("<i class='fa fa-lock'></i>");
+        TagBuilder lockTag;
+        if (State == TaxPairState.EditOnly)
+        {
+            // Automatic gross-to-net conversion is not possible.
+            lockTag = new TagBuilder("span");
+            lockTag.AddCssClass("p-1");
+            lockTag.Attributes.Add("title", T("Admin.Common.TaxCalculator.NoCalculation"));
+            lockTag.InnerHtml.AppendHtml("<i class='fa fa-lock-open text-danger'></i>");
+        }
+        else
+        {
+            lockTag = new TagBuilder("button");
+            lockTag.Attributes.Add("type", "button");
+            lockTag.AddCssClass("btn btn-sm border-0 shadow-none bg-transparent text-reset p-1 btn-tax-lock");
+            lockTag.Attributes.Add("title", T("Admin.Common.TaxCalculator.Disable"));
+            lockTag.InnerHtml.AppendHtml("<i class='fa fa-lock'></i>");
+        }
 
-        var btnDiv = new TagBuilder("div");
-        btnDiv.AddCssClass("col-auto align-content-center");
-        btnDiv.InnerHtml.AppendHtml(btnTag);
+        var lockDiv = new TagBuilder("div");
+        lockDiv.AddCssClass("col-auto align-content-center");
+        lockDiv.InnerHtml.AppendHtml(lockTag);
 
         // Editor for net.
         var netEditor = HtmlHelper.EditorFor(NetProperty, new RouteValueDictionary
@@ -105,13 +159,13 @@ public class TaxPairTagHelper : SmartTagHelper
             }
         });
 
-        var divNet = new TagBuilder("div");
-        divNet.AddCssClass("col");
-        divNet.InnerHtml.AppendHtml(netEditor);
+        var netDiv = new TagBuilder("div");
+        netDiv.AddCssClass("col");
+        netDiv.InnerHtml.AppendHtml(netEditor);
 
         // Put all together.
-        output.Content.AppendHtml(divGross);
-        output.Content.AppendHtml(btnDiv);
-        output.Content.AppendHtml(divNet);
+        output.Content.AppendHtml(grossDiv);
+        output.Content.AppendHtml(lockDiv);
+        output.Content.AppendHtml(netDiv);
     }
 }

@@ -4,11 +4,11 @@
 *
 * Variant          → actual price calculation, always takes precedence.
 * Quantity         → actual price calculation, so that tiered prices/pricing rules apply.
-* Gross unit price → remains unchanged; net and total are calculated (unit price * quantity).
-* Net unit price   → remains unchanged; gross and total are calculated (unit price * quantity).
-* Gross total      → remains unchanged, net total and unit prices are calculated (total / quantity).
-* Net total        → remains unchanged, gross total and unit prices are calculated (total / quantity).
-* Tax rate         → depending on 'pricesIncludeTax', total and unit prices are calculated.
+* Gross unit price → remains unchanged; net and line total are calculated (unit price * quantity).
+* Net unit price   → remains unchanged; gross and line total are calculated (unit price * quantity).
+* Gross line total → remains unchanged, net line total and unit prices are calculated (line total / quantity).
+* Net line total   → remains unchanged, gross line total and unit prices are calculated (line total / quantity).
+* Tax rate         → depending on 'pricesIncludeTax', line total and unit prices are calculated.
 */
 
 Smartstore.Admin.TaxCalculator = class TaxCalculator {
@@ -114,29 +114,29 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
                 .val(amount)
                 .trigger('change.ni');
 
-            // Update total price when unit price is changed or vice versa.
-            this.#updateTotalOrUnitPrice($taxPair);
+            // Update line total price when unit price is changed or vice versa.
+            this.#updateLineTotalOrUnitPrice($taxPair);
         }
         finally {
             this.#locked = false;
         }
     }
 
-    #updateTotalOrUnitPrice(sourcePair) {
-        let updateTotal;
+    #updateLineTotalOrUnitPrice(sourcePair) {
+        let updateLineTotal;
         if (sourcePair.is('[data-tax-pair="unitprice"]')) {
-            // Unit price changed -> update total.
-            updateTotal = true;
+            // Unit price changed -> update line total.
+            updateLineTotal = true;
         }
-        else if (sourcePair.is('[data-tax-pair="total"]')) {
-            // Total changed -> update unit price.
-            updateTotal = false;
+        else if (sourcePair.is('[data-tax-pair="linetotal"]')) {
+            // Line total changed -> update unit price.
+            updateLineTotal = false;
         }
         else {
             return;
         }
 
-        const $targetPair = this.#$root.find(updateTotal ? '[data-tax-pair="total"]' : '[data-tax-pair="unitprice"]');
+        const $targetPair = this.#$root.find(updateLineTotal ? '[data-tax-pair="linetotal"]' : '[data-tax-pair="unitprice"]');
         if (!$targetPair.length || !$targetPair.is('[data-tax-active]')) {
             return;
         }
@@ -144,14 +144,14 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
         const gross = sourcePair.find('[data-tax-field="gross"]').val();
         if (!isNaN(gross)) {
             $targetPair.find('[data-tax-field="gross"]')
-                .val(updateTotal ? (gross * this.#quantity) : (gross / this.#quantity))
+                .val(updateLineTotal ? (gross * this.#quantity) : (gross / this.#quantity))
                 .trigger('change.ni');
         }
 
         const net = sourcePair.find('[data-tax-field="net"]').val();
         if (!isNaN(net)) {
             $targetPair.find('[data-tax-field="net"]')
-                .val(updateTotal ? (net * this.#quantity) : (net / this.#quantity))
+                .val(updateLineTotal ? (net * this.#quantity) : (net / this.#quantity))
                 .trigger('change.ni');
         }
     }
