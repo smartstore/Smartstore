@@ -20,7 +20,7 @@ public static class ISettingServiceExtensions
         int storeId = 0)
         where T : ISettings, new()
     {
-        Guard.NotNull(keySelector, nameof(keySelector));
+        Guard.NotNull(keySelector);
 
         var propInfo = keySelector.ExtractPropertyInfo();
         var key = string.Concat(typeof(T).Name, ".", propInfo.Name);
