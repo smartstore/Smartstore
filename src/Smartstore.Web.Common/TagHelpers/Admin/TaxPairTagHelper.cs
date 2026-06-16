@@ -1,5 +1,4 @@
-﻿using Autofac;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.AspNetCore.Routing;
@@ -18,6 +17,8 @@ public enum TaxPairKind
     UnitPrice
 }
 
+// TODO: (mg) CalculateOrEdit AND EditOrCalculate? WTF!
+// TODO: (mg) This qualifies for Flags enum, doesn't it?
 public enum TaxPairState
 {
     /// <summary>
@@ -47,6 +48,7 @@ public enum TaxPairState
     EditOnly
 }
 
+// TODO: (mg) Changing the quantity field must not reset single price fields to their initial state.
 [HtmlTargetElement(TagName, TagStructure = TagStructure.NormalOrSelfClosing)]
 public class TaxPairTagHelper : SmartTagHelper
 {
@@ -56,7 +58,12 @@ public class TaxPairTagHelper : SmartTagHelper
     const string ForGrossAttributeName = "asp-for-gross";
     const string ForNetAttributeName = "asp-for-net";
 
-    private ICurrencyService _currencyService;
+    private readonly ICurrencyService _currencyService;
+
+    public TaxPairTagHelper(ICurrencyService currencyService)
+    {
+        _currencyService = currencyService;
+    }
 
     /// <summary>
     /// Gets or sets the kind of the tax pair.
@@ -75,28 +82,17 @@ public class TaxPairTagHelper : SmartTagHelper
     /// An expression for the gross property of the view model.
     /// </summary>
     [HtmlAttributeName(ForGrossAttributeName)]
-    public ModelExpression GrossProperty { get; set; }
+    public ModelExpression ForGross { get; set; }
 
     /// <summary>
     /// An expression for the net property of the view model.
     /// </summary>
     [HtmlAttributeName(ForNetAttributeName)]
-    public ModelExpression NetProperty { get; set; }
-
-    [HtmlAttributeNotBound]
-    protected internal ICurrencyService CurrencyService
-    {
-        get => _currencyService ??= ViewContext.HttpContext.GetServiceScope().Resolve<ICurrencyService>();
-    }
+    public ModelExpression ForNet { get; set; }
 
     protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
     {
-        ProcessCoreAsync(context, output).Await();
-    }
-
-    protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
-    {
-        var primaryCurrencyCode = CurrencyService.PrimaryCurrency.CurrencyCode;
+        var primaryCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
 
         // Main div container.
         output.TagName = "div";
@@ -111,20 +107,6 @@ public class TaxPairTagHelper : SmartTagHelper
         }
 
         output.Content.Clear();
-
-        // Editor for gross.
-        var grossEditor = HtmlHelper.EditorFor(GrossProperty, new RouteValueDictionary
-        {
-            ["postfix"] = T("Admin.Orders.Fields.Edit.InclTax", primaryCurrencyCode),
-            ["htmlAttributes"] = new Dictionary<string, object>
-            {
-                ["data-tax-field"] = "gross"
-            }
-        });
-
-        var grossDiv = new TagBuilder("div");
-        grossDiv.AddCssClass("col");
-        grossDiv.InnerHtml.AppendHtml(grossEditor);
 
         // Lock/unlock button.
         TagBuilder lockTag;
@@ -149,23 +131,30 @@ public class TaxPairTagHelper : SmartTagHelper
         lockDiv.AddCssClass("col-auto align-content-center");
         lockDiv.InnerHtml.AppendHtml(lockTag);
 
-        // Editor for net.
-        var netEditor = HtmlHelper.EditorFor(NetProperty, new RouteValueDictionary
-        {
-            ["postfix"] = T("Admin.Orders.Fields.Edit.ExclTax", primaryCurrencyCode),
-            ["htmlAttributes"] = new Dictionary<string, object>
-            {
-                ["data-tax-field"] = "net"
-            }
-        });
-
-        var netDiv = new TagBuilder("div");
-        netDiv.AddCssClass("col");
-        netDiv.InnerHtml.AppendHtml(netEditor);
-
         // Put all together.
-        output.Content.AppendHtml(grossDiv);
+        output.Content.AppendHtml(BuildEditor(ForGross, true));
         output.Content.AppendHtml(lockDiv);
-        output.Content.AppendHtml(netDiv);
+        output.Content.AppendHtml(BuildEditor(ForNet, false));
+
+        TagBuilder BuildEditor(ModelExpression expression, bool gross)
+        {
+            var postfix = T("Admin.Orders.Fields.Edit." + (gross ? "InclTax" : "ExclTax"), primaryCurrencyCode).ToString();
+            var taxField = gross ? "gross" : "net";
+
+            var editor = HtmlHelper.EditorFor(expression, new RouteValueDictionary
+            {
+                ["postfix"] = postfix,
+                ["htmlAttributes"] = new Dictionary<string, object>
+                {
+                    ["data-tax-field"] = taxField
+                }
+            });
+
+            var div = new TagBuilder("div");
+            div.AddCssClass("col");
+            div.InnerHtml.AppendHtml(editor);
+
+            return div;
+        }
     }
 }
