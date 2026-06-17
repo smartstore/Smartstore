@@ -347,7 +347,8 @@ public class IdentityController : PublicController
             }
         }
 
-        ViewBag.RegisterResult = resultText.HasValue() ? resultText + " " + message : message;
+        ViewBag.RegisterResult = resultText.Grow(message.Truncate(200).HtmlEncode());
+
         return View();
     }
 
