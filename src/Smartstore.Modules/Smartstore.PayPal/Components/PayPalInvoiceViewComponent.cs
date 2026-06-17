@@ -38,11 +38,12 @@ public class PayPalInvoiceViewComponent : SmartViewComponent
             model.PhoneNumber = phoneNumber;
         }
 
-        if (((string)paymentData.Get("PayPalInvoiceBirthdate")).HasValue())
+        var birthdate = (DateTime?)paymentData.Get("PayPalInvoiceBirthdate");
+        if (birthdate != null && birthdate != default)
         {
             try
             {
-                var birthDate = DateTime.Parse((string)paymentData.Get("PayPalInvoiceBirthdate"));
+                var birthDate = (DateTime)paymentData.Get("PayPalInvoiceBirthdate");
                 model.DateOfBirth = birthDate;
             }
             catch

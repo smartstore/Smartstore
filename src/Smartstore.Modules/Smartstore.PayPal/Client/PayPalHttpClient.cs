@@ -244,10 +244,10 @@ public class PayPalHttpClient
 
         var logoUrl = store.LogoMediaFileId != 0 ? await _mediaService.GetUrlAsync(store.LogoMediaFileId, 0, store.GetBaseUrl(), false) : string.Empty;
 
-        paymentData.TryGetValueAs<string>("PayPalInvoiceBirthdate", out var birthDate);
+        paymentData.TryGetValueAs<DateTime>("PayPalInvoiceBirthdate", out var birthDate);
         paymentData.TryGetValueAs<string>("PayPalInvoicePhoneNumber", out var phoneNumber);
 
-        if (!paymentData.TryGetValueAs<string>("ClientMetaId", out var clientMetaId))
+        if (!paymentData.TryGetAndConvertValue<string>("ClientMetaId", out var clientMetaId))
         {
             return null;
         }
@@ -269,8 +269,8 @@ public class PayPalHttpClient
                         GivenName = customer.BillingAddress.FirstName,
                         Surname = customer.BillingAddress.LastName
                     },
-                    Email = customer.BillingAddress.Email,
-                    BirthDate = birthDate,
+                    Email = customer.BillingAddress.Email.NullEmpty() ?? customer.Email,
+                    BirthDate = birthDate.ToString("yyyy-MM-dd"),
                     Phone = new PhoneMessage
                     {
                         NationalNumber = phoneNumber,
