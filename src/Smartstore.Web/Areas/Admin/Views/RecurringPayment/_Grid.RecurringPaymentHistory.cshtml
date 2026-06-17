@@ -12,23 +12,20 @@
     <datasource read="@Url.Action("RecurringPaymentHistoryList", new { recurringPaymentId = parentModel.Id })" />
     <paging position="Bottom" show-size-chooser="true" enabled="false" />
     <sorting enabled="false"></sorting>
-    @if (parentModel.CanProcessNextPayment || parentModel.CanCancel)
-    {
-        <toolbar>
-            <toolbar-group>
-                <button sm-if="parentModel.CanProcessNextPayment" type="button" 
-                        class="btn btn-primary btn-flat no-anims mr-1 grid-process-next-payment"
-                        data-url="@Url.Action("ProcessNextPayment", new { id = parentModel.Id })">
-                    <span>@T("Admin.RecurringPayments.History.ProcessNextPayment")</span>
-                </button>
-                <button sm-if="parentModel.CanCancel" type="button" 
-                        class="btn btn-danger no-anims grid-cancel-payment"
-                        data-url="@Url.Action("CancelRecurringPayment", new { id = parentModel.Id })">
-                    <span>@T("Admin.RecurringPayments.History.CancelPayment")</span>
-                </button>
-            </toolbar-group>
-        </toolbar>
-    }
+    <toolbar sm-if="parentModel.CanProcessNextPayment || parentModel.CanCancel">
+        <toolbar-group>
+            <button sm-if="parentModel.CanProcessNextPayment" type="button" 
+                    class="btn btn-primary btn-flat no-anims mr-1 grid-process-next-payment"
+                    data-url="@Url.Action("ProcessNextPayment", new { id = parentModel.Id })">
+                <span>@T("Admin.RecurringPayments.History.ProcessNextPayment")</span>
+            </button>
+            <button sm-if="parentModel.CanCancel" type="button" 
+                    class="btn btn-danger no-anims grid-cancel-payment"
+                    data-url="@Url.Action("CancelRecurringPayment", new { id = parentModel.Id })">
+                <span>@T("Admin.RecurringPayments.History.CancelPayment")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
     <columns>
         <column for="Id" halign="center" visible="false" type="string" />
         <column for="CreatedOn" entity-member="CreatedOnUtc" />
