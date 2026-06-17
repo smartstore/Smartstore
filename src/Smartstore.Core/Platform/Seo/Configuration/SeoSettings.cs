@@ -125,6 +125,8 @@ public class SeoSettings : ISettings
     public bool AllowUnicodeCharsInUrls { get; set; }
 
     private string _seoNameCharConversion;
+
+    [GlobalSetting]
     public string SeoNameCharConversion
     {
         get
@@ -153,11 +155,20 @@ public class SeoSettings : ISettings
 
     //public bool LowercaseUrls { get; set; } = true;
     //public bool LowercaseQueryStrings { get; set; }
+
+    [GlobalSetting]
     public bool AppendTrailingSlashToUrls { get; set; } = true;
+
+    [GlobalSetting]
     public TrailingSlashRule TrailingSlashRule { get; set; } = TrailingSlashRule.Allow;
 
+    [GlobalSetting]
     public List<string> ExtraRobotsDisallows { get; set; }
+
+    [GlobalSetting]
     public List<string> ExtraRobotsAllows { get; set; }
+
+    [GlobalSetting]
     public string ExtraRobotsLines { get; set; }
 
     /// <summary>

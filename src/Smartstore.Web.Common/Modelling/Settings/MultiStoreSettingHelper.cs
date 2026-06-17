@@ -390,16 +390,27 @@ public class MultiStoreSettingHelper
 
             if (_data!.StoreScope == 0 || IsOverrideChecked(settingName, name, form, out _))
             {
-                dynamic value = prop.GetValue(settings)!;
-                await _settingService.ApplySettingAsync(key, value ?? string.Empty, _data.StoreScope);
+                await ApplySettingAsync(key, prop, _data.StoreScope);
             }
             else if (_data.StoreScope > 0)
             {
                 await _settingService.RemoveSettingAsync(key, _data.StoreScope);
+
+                if (prop.Property.GetCustomAttribute<GlobalSettingAttribute>() != null)
+                {
+                    // In case of global setting, apply the default value for the store which is the same as global value.
+                    await ApplySettingAsync(key, prop, 0);
+                }
             }
         }
 
         await _db.SaveChangesAsync();
+
+        Task ApplySettingAsync(string key, FastProperty prop, int storeScope)
+        {
+            dynamic value = prop.GetValue(settings)!;
+            return _settingService.ApplySettingAsync(key, value ?? string.Empty, storeScope);
+        }
     }
 
     /// <summary>
