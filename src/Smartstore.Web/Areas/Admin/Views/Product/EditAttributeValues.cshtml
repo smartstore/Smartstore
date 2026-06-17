@@ -49,11 +49,8 @@
     </div>
 
     <tabstrip id="productvariantattribute-edit" sm-nav-style="Material" sm-nav-position="Top">
-        @if (Model.IsListTypeAttribute)
-        {
-            <tab sm-title="@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values")" sm-selected="true" sm-adaptive-height="true">
-                <partial name="Grids/_Grid.AttributeValues" model="null" view-data="gridViewData" />
-            </tab>
-        }
+        <tab sm-title="@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values")" sm-selected="true" sm-adaptive-height="true" sm-if="Model.IsListTypeAttribute">
+            <partial name="Grids/_Grid.AttributeValues" model="null" view-data="gridViewData" />
+        </tab>
     </tabstrip>
 </form>

@@ -439,12 +439,9 @@
         </text>))
     </tab>
 
-    @if (Model.Id > 0)
-    {
-        <tab sm-title="@T("Admin.Common.GenericAttributes")" sm-adaptive-height="true">
-            <partial name="_Grid.GenericAttributes" model='new GenericAttributeModel {  EntityName = "Topic", AttributeEntityId = Model.Id }' />
-        </tab>
-    }
+    <tab sm-if="Model.Id > 0" sm-title="@T("Admin.Common.GenericAttributes")" sm-adaptive-height="true">
+        <partial name="_Grid.GenericAttributes" model='new GenericAttributeModel {  EntityName = "Topic", AttributeEntityId = Model.Id }' />
+    </tab>
 </tabstrip>
 
 <script sm-target-zone="Scripts" data-origin="topic-edit">
