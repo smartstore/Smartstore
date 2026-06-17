@@ -8,6 +8,8 @@
 
 ### Improvements
 
+- Withdrawal: Case-insensitive check of the email.
+
 ### Bugfixes
 
 - Prevent a race condition in `TemplateZoneRenderingEvent` by eagerly resolving `TemplateName` from the DotLiquid context before publishing the event.
