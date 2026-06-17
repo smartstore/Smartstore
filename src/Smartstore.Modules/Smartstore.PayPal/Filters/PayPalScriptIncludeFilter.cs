@@ -138,7 +138,7 @@ public class PayPalScriptIncludeFilter : IAsyncActionFilter
 
         // Risk Session Correlation ID / Client Metadata ID has to be unique and invariant to the current checkout.
         // Will be used for create order API call.
-        if (!_checkoutStateAccessor.CheckoutState.PaymentData.TryGetValueAs<string>("ClientMetaId", out var clientMetaId))
+        if (!_checkoutStateAccessor.CheckoutState.PaymentData.TryGetAndConvertValue<string>("ClientMetaId", out var clientMetaId))
         {
             clientMetaId = Guid.NewGuid().ToString();
             _checkoutStateAccessor.CheckoutState.PaymentData["ClientMetaId"] = clientMetaId;

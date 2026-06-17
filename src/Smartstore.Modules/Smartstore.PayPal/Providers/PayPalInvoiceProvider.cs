@@ -104,7 +104,7 @@ public class PayPalInvoiceProvider : PaymentMethodBase, IConfigurable
 
     public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest request)
     {
-        if (!_checkoutStateAccessor.CheckoutState.PaymentData.TryGetValueAs<string>("ClientMetaId", out var clientMetaId))
+        if (!_checkoutStateAccessor.CheckoutState.PaymentData.TryGetAndConvertValue<string>("ClientMetaId", out var clientMetaId))
         {
             throw new PayPalException(T("Payment.MissingCheckoutState", "PayPalCheckoutState." + nameof(clientMetaId)));
         }
