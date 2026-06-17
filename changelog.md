@@ -16,8 +16,15 @@
 - **Withdrawal**: 
   - Allow immediate withdrawal regardless of when the withdrawal period begins.
   - Fixed a `SecurityException` when a return case is saved.
+  - Emails weren't sent to customers.
 - Currency: Edit page did not select/display the saved denominator for order total rounding.
-
+- Google Analytics: Fixed script error when obtaining category path.
+- PageBuilder: Fixed Json conversion error for background overlay. 
+- Warranty: Labels disappeared after UpdateProductDetails was called when switching a variant.
+- JsonLd: 
+	- Removed duplicate reference of *Product* entity.
+	- Restored application of `SeoSettings.ProductDescriptionPriority`.
+	- Fixed wrong id usage for long description. 
 
 ## Smartstore 6.4.0
 
