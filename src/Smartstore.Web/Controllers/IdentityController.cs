@@ -592,7 +592,7 @@ public class IdentityController : PublicController
 
     [HttpGet]
     [AllowAnonymous, DisallowRobot]
-    public IActionResult ExternalLogin(string provider, string returnUrl = null)
+    public IActionResult ExternalLogin(string provider)
     {
         var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Identity");
         var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
@@ -608,7 +608,7 @@ public class IdentityController : PublicController
     {
         if (remoteError != null)
         {
-            NotifyError(remoteError);
+            NotifyError(remoteError.Truncate(200).HtmlEncode());
             return RedirectToAction(nameof(Login));
         }
 
@@ -681,7 +681,7 @@ public class IdentityController : PublicController
     {
         if (provider.HasValue() || errorMessage.HasValue())
         {
-            Logger.Error($"Error from external provider {provider}: {errorMessage}");
+            Logger.Error($"Error from external provider {provider.Truncate(200).HtmlEncode()}: {errorMessage.Truncate(200).HtmlEncode()}");
         }
 
         NotifyError(T("ExternalAuthentication.ConfigError"));
