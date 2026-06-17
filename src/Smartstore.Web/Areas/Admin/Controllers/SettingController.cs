@@ -219,20 +219,9 @@ public partial class SettingController : AdminController
             await _localizedEntityService.ApplyLocalizedSettingAsync(homePageSeoSettings, x => x.MetaKeywords, localized.MetaKeywords, localized.LanguageId, storeScope);
         }
 
-        // ExtraRobots fields are store-independent (no per-store override checkbox in view).
-        // MiniMapper cannot split newline-separated strings back to List<string>, so parse manually.
-        // RE: Yes, it can and it does!
-
-        await Services.Settings.ApplySettingAsync(seoSettings, x => x.ExtraRobotsDisallows, storeId: 0);
-        await Services.Settings.ApplySettingAsync(seoSettings, x => x.ExtraRobotsAllows, storeId: 0);
-        await Services.Settings.ApplySettingAsync(seoSettings, x => x.ExtraRobotsLines, storeId: 0);
-
         await _db.SaveChangesAsync();
 
         #endregion
-
-        // Does not contain any store specific settings.
-        await Services.SettingFactory.SaveSettingsAsync(securitySettings);
 
         NotifySuccess(T("Admin.Configuration.Updated"));
         return RedirectToAction(nameof(GeneralCommon));
