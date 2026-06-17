@@ -18,7 +18,7 @@
             <smart-label asp-for="TaxRate" />
         </div>
         <div class="adminData">
-            <editor asp-for="TaxRate" sm-postfix="%" data-tax-field="rate" />
+            <editor asp-for="TaxRate" sm-postfix="%" data-tax-field="taxrate" />
         </div>
     </div>
     <div class="adminRow">
@@ -26,7 +26,7 @@
             <smart-label asp-for="UnitPriceInclTax" />
         </div>
         <div class="adminData">
-            <tax-pair kind="UnitPrice" asp-for-gross="UnitPriceInclTax" asp-for-net="UnitPriceExclTax" />
+            <tax-pair kind="TaxPairKind.UnitPrice" asp-for-gross="UnitPriceInclTax" asp-for-net="UnitPriceExclTax" />
         </div>
     </div>
     <div class="adminRow">
@@ -34,7 +34,7 @@
             <smart-label asp-for="PriceInclTax" />
         </div>
         <div class="adminData">
-            <tax-pair kind="LineTotal" asp-for-gross="PriceInclTax" asp-for-net="PriceExclTax" />
+            <tax-pair kind="TaxPairKind.LineTotal" asp-for-gross="PriceInclTax" asp-for-net="PriceExclTax" />
         </div>
     </div>
 </div>

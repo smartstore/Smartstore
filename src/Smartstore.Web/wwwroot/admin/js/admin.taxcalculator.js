@@ -25,7 +25,7 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
         this.#res = options.res || {};
 
         const getTaxRate = options.taxRate === undefined;
-        this.#taxRate = (parseFloat(getTaxRate ? this.#$root.find('[data-tax-field="rate"]').val() : options.taxRate) || 0) / 100;
+        this.#taxRate = (parseFloat(getTaxRate ? this.#$root.find('[data-tax-field="taxrate"]').val() : options.taxRate) || 0) / 100;
 
         this.#bindEvents(getTaxRate);
     }
@@ -61,7 +61,7 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
                 // Quantity changed.
                 this.#quantity = parseFloat($(e.currentTarget).val()) || 1;
             })
-            .on('change', '[data-tax-field="rate"]', (e) => {
+            .on('change', '[data-tax-field="taxrate"]', (e) => {
                 // Tax rate changed.
                 if (getTaxRate) {
                     this.#taxRate = (parseFloat($(e.currentTarget).val()) || 0) / 100;
@@ -154,5 +154,9 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
                 .val(updateLineTotal ? (net * this.#quantity) : (net / this.#quantity))
                 .trigger('change.ni');
         }
+    }
+
+    #updateTotalOrTaxes(sourcePair) {
+        // TODO...
     }
 };

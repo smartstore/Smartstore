@@ -12,49 +12,37 @@ namespace Smartstore.Web.TagHelpers.Admin;
 /// </summary>
 public enum TaxPairKind
 {
-    SubTotal,
+    UnitPrice,
+    Discount,
+    Shipping,
+    PaymentFee,
     LineTotal,
-    UnitPrice
+    Subtotal
 }
 
-// TODO: (mg) CalculateOrEdit AND EditOrCalculate? WTF!
-// TODO: (mg) This qualifies for Flags enum, doesn't it?
-public enum TaxPairState
+[Flags]
+public enum TaxPairMode
 {
     /// <summary>
-    /// Gross and net values are calculated by default.
-    /// The user may switch to manual editing. This is the default state.
+    /// Gross and net values are calculated.
     /// </summary>
-    CalculateOrEdit,
+    Calculate = 1 << 0,
 
     /// <summary>
-    /// Gross and net values are always calculated.
-    /// The user cannot switch to manual editing.
+    /// Gross and net values are edited manually.
     /// </summary>
-    /// <remarks>Not supported yet. For future use.</remarks>
-    CalculateOnly,
-
-    /// <summary>
-    /// Gross and net values are edited manually by default.
-    /// The user may switch to calculated values.
-    /// </summary>
-    /// <remarks>Not supported yet. For future use.</remarks>
-    EditOrCalculate,
-
-    /// <summary>
-    /// Gross and net values are always edited manually.
-    /// The user cannot switch to calculated values.
-    /// </summary>
-    EditOnly
+    Edit = 1 << 1
 }
 
 // TODO: (mg) Changing the quantity field must not reset single price fields to their initial state.
+// RE: Are you really sure that's how it's meant to work? Because of the tiered pricing, the quantity is part of the server-side price calculation,
+// and that should always take precedence over this little helper tool.
 [HtmlTargetElement(TagName, TagStructure = TagStructure.NormalOrSelfClosing)]
 public class TaxPairTagHelper : SmartTagHelper
 {
     const string TagName = "tax-pair";
     const string KindAttributeName = "kind";
-    const string StateAttributeName = "state";
+    const string ModeAttributeName = "mode";
     const string ForGrossAttributeName = "asp-for-gross";
     const string ForNetAttributeName = "asp-for-net";
 
@@ -70,13 +58,13 @@ public class TaxPairTagHelper : SmartTagHelper
     /// It is required to find other tax pairs in order to automatically calculate their values.
     /// </summary>
     [HtmlAttributeName(KindAttributeName)]
-    public TaxPairKind Kind { get; set; }
+    public TaxPairKind? Kind { get; set; }
 
     /// <summary>
-    /// Gets or sets the state of the tax pair which determines whether the gross and net values are calculated or edited manually.
+    /// Gets or sets the mode of the tax pair which determines whether the gross and net values are calculated, edited manually or both.
     /// </summary>
-    [HtmlAttributeName(StateAttributeName)]
-    public TaxPairState State { get; set; } = TaxPairState.CalculateOrEdit;
+    [HtmlAttributeName(ModeAttributeName)]
+    public TaxPairMode Mode { get; set; } = TaxPairMode.Calculate | TaxPairMode.Edit;
 
     /// <summary>
     /// An expression for the gross property of the view model.
@@ -93,15 +81,16 @@ public class TaxPairTagHelper : SmartTagHelper
     protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
     {
         var primaryCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
+        var calculate = Mode.HasFlag(TaxPairMode.Calculate);
 
         // Main div container.
         output.TagName = "div";
         output.TagMode = TagMode.StartTagAndEndTag;
 
         output.Attributes.Add("class", "row g-1 flex-nowrap");
-        output.Attributes.Add("data-tax-pair", Kind.ToString().ToLower());
+        output.Attributes.Add("data-tax-pair", Kind == null ? string.Empty : Kind.ToString().ToLower());
 
-        if (State == TaxPairState.CalculateOrEdit || State == TaxPairState.CalculateOnly)
+        if (calculate)
         {
             output.Attributes.Add("data-tax-active", string.Empty);
         }
@@ -110,21 +99,21 @@ public class TaxPairTagHelper : SmartTagHelper
 
         // Lock/unlock button.
         TagBuilder lockTag;
-        if (State == TaxPairState.EditOnly)
-        {
-            // Automatic gross-to-net conversion is not possible.
-            lockTag = new TagBuilder("span");
-            lockTag.AddCssClass("p-1");
-            lockTag.Attributes.Add("title", T("Admin.Common.TaxCalculator.NoCalculation"));
-            lockTag.InnerHtml.AppendHtml("<i class='fa fa-lock-open text-danger'></i>");
-        }
-        else
+        if (calculate)
         {
             lockTag = new TagBuilder("button");
             lockTag.Attributes.Add("type", "button");
             lockTag.AddCssClass("btn btn-sm border-0 shadow-none bg-transparent text-reset p-1 btn-tax-lock");
             lockTag.Attributes.Add("title", T("Admin.Common.TaxCalculator.Disable"));
             lockTag.InnerHtml.AppendHtml("<i class='fa fa-lock'></i>");
+        }
+        else
+        {
+            // Automatic gross-to-net conversion is not possible.
+            lockTag = new TagBuilder("span");
+            lockTag.AddCssClass("p-1");
+            lockTag.Attributes.Add("title", T("Admin.Common.TaxCalculator.NoCalculation"));
+            lockTag.InnerHtml.AppendHtml("<i class='fa fa-lock-open text-danger'></i>");
         }
 
         var lockDiv = new TagBuilder("div");
