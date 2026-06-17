@@ -34,9 +34,6 @@ public enum TaxPairMode
     Edit = 1 << 1
 }
 
-// TODO: (mg) Changing the quantity field must not reset single price fields to their initial state.
-// RE: Are you really sure that's how it's meant to work? Because of the tiered pricing, the quantity is part of the server-side price calculation,
-// and that should always take precedence over this little helper tool.
 [HtmlTargetElement(TagName, TagStructure = TagStructure.NormalOrSelfClosing)]
 public class TaxPairTagHelper : SmartTagHelper
 {
