@@ -1541,6 +1541,8 @@ public class OrderController : AdminController
             return NotFound();
         }
 
+        ViewBag.PrimaryCurrencyDecimals = _primaryCurrency.RoundNumDecimals;
+
         return View(result.Model);
     }
 
@@ -1576,6 +1578,8 @@ public class OrderController : AdminController
         if (warnings.Count > 0 || !ModelState.IsValid)
         {
             ViewBag.Warnings = warnings;
+            ViewBag.PrimaryCurrencyDecimals = _primaryCurrency.RoundNumDecimals;
+
             return View(model);
         }
 
@@ -2114,6 +2118,7 @@ public class OrderController : AdminController
         ViewBag.DisplayTaxRates = _taxSettings.DisplayTaxRates;
         ViewBag.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
         ViewBag.PrimaryStoreCurrencyCode = _primaryCurrency.CurrencyCode;
+        ViewBag.PrimaryCurrencyDecimals = _primaryCurrency.RoundNumDecimals;
     }
 
     private async Task<List<OrderModel.OrderItemModel>> CreateOrderItemsModels(Order order)

@@ -13,6 +13,7 @@
 
 Smartstore.Admin.TaxCalculator = class TaxCalculator {
     #pricesIncludeTax;
+    #decimals = 2;      // The number of decimal places to be rounded to.
     #taxRate = 0;
     #quantity = 1;
     #locked = false;
@@ -26,6 +27,7 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
         this.#$taxAmount = this.#$root.find('[data-tax-field="taxamount"]');
         this.#$total = this.#$root.find('[data-tax-field="total"]');
         this.#pricesIncludeTax = options.pricesIncludeTax;
+        this.#decimals = parseInt(options.decimals ?? 2) || 2;
         this.#res = options.res || {};
 
         const getTaxRate = options.taxRate === undefined;
@@ -232,14 +234,12 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
                 - this.#getAmount('orderdiscount')
                 - this.#getAmount('creditbalance')
                 + this.#getAmount('rounding');
-            console.log(total);
 
-            // TODO....
-            //if (!isNaN(total)) {
-            //    this.#$total
-            //        .val(total)
-            //        .trigger('change.ni');
-            //}
+            if (!isNaN(total)) {
+                this.#$total
+                    .val(total.toFixed(this.#decimals))
+                    .trigger('change.ni');
+            }
         }
         catch (e) {
             console.error(e);
