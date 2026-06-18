@@ -84,6 +84,7 @@ public class TaxPairTagHelper : SmartTagHelper
         output.TagName = "div";
         output.TagMode = TagMode.StartTagAndEndTag;
 
+        output.Attributes.RemoveAll("id");
         output.Attributes.Add("class", "row g-1 flex-nowrap");
         output.Attributes.Add("data-tax-pair", Kind == null ? string.Empty : Kind.ToString().ToLower());
 

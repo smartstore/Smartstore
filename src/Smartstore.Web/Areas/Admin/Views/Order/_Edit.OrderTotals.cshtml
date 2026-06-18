@@ -54,7 +54,7 @@
                 <smart-label asp-for="TaxRates" />
             </div>
             <div class="adminData">
-                <editor asp-for="TaxRates" />
+                <editor asp-for="TaxRates" data-tax-field="taxrates" />
             </div>
         </div>
         <div class="adminRow">
@@ -62,7 +62,7 @@
                 <smart-label asp-for="OrderTax" />
             </div>
             <div class="adminData">
-                <editor asp-for="OrderTax" sm-postfix="@primaryCurrencyCode" data-tax-field="taxes" />
+                <editor asp-for="OrderTax" sm-postfix="@primaryCurrencyCode" data-tax-field="taxamount" />
             </div>
         </div>
         <div class="adminRow">
@@ -70,7 +70,7 @@
                 <smart-label asp-for="OrderDiscount" />
             </div>
             <div class="adminData">
-                <editor asp-for="OrderDiscount" sm-postfix="@primaryCurrencyCode" />
+                <editor asp-for="OrderDiscount" sm-postfix="@primaryCurrencyCode" data-tax-field="orderdiscount" />
             </div>
         </div>
         <div class="adminRow">
@@ -78,7 +78,7 @@
                 <smart-label asp-for="CreditBalance" />
             </div>
             <div class="adminData">
-                <editor asp-for="CreditBalance" sm-postfix="@primaryCurrencyCode" />
+                <editor asp-for="CreditBalance" sm-postfix="@primaryCurrencyCode" data-tax-field="creditbalance" />
             </div>
         </div>
         <div class="adminRow">
@@ -86,7 +86,7 @@
                 <smart-label asp-for="OrderTotalRounding" />
             </div>
             <div class="adminData">
-                <editor asp-for="OrderTotalRounding" sm-postfix="@primaryCurrencyCode" />
+                <editor asp-for="OrderTotalRounding" sm-postfix="@primaryCurrencyCode" data-tax-field="rounding" />
             </div>
         </div>
         <div class="adminRow">
