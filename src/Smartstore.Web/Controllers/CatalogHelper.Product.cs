@@ -970,6 +970,7 @@ public partial class CatalogHelper
         model.MetaTitle = product.GetLocalized(x => x.MetaTitle);
         model.ShowManufacturerPartNumber = _catalogSettings.ShowManufacturerPartNumber;
         model.ManufacturerPartNumber = product.ManufacturerPartNumber;
+        model.DurabilityGuaranteeDurationYears = product.DurabilityGuaranteeDurationYears;
         model.ShowDimensions = _catalogSettings.ShowDimensions;
         model.ShowWeight = _catalogSettings.ShowWeight;
         model.ShowGtin = _catalogSettings.ShowGtin;
