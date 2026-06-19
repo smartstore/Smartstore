@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Smartstore.Core.AI.Metadata;
 
-public class AIModelCollection : ICollection<AIModelEntry>
+public class AIModelCollection : ICollection<AIModelEntry>, IReadOnlyCollection<AIModelEntry>
 {
     protected readonly KeyedCollection<string, AIModelEntry> _innerCollection;
 

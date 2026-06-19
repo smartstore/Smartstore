@@ -44,7 +44,7 @@ public class AIModelEntry : ICloneable<AIModelEntry>, IEquatable<AIModelEntry>
     /// <summary>
     /// Model identifier (e.g. "gpt-5", "gemini-2.5-pro").
     /// </summary>
-    public string Id { get; set; } = default!;
+    public required string Id { get; set; }
 
     /// <summary>
     /// Model name (e.g. "GPT-5", "Gemini 2.5 Pro").

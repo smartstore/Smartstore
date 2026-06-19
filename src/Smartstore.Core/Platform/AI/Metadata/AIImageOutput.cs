@@ -16,7 +16,7 @@ public record AIImageOutput
     /// <summary>
     /// Gets the default configuration for AI image output.
     /// </summary>
-    public static AIImageOutput Default => new()
+    public static readonly AIImageOutput Default = new()
     {
         AspectRatios = ["1:1"],
         Resolutions = ["1K"],
@@ -147,7 +147,7 @@ public record AIImageOutput
     /// resolution if the attempted resolution is not supported.
     /// </summary>
     /// <remarks>If the <paramref name="attemptedResolution"/> is not <see langword="null"/> and is 
-    /// included in the list of supported resolutions, it will be returned. Otherwise, the  method returns the last
+    /// included in the list of supported resolutions, it will be returned. Otherwise, the  method returns the first
     /// resolution in the list of supported resolutions.</remarks>
     /// <param name="attemptedResolution">The resolution to attempt, or <see langword="null"/> to use the default resolution.</param>
     /// <returns>The supported resolution that matches the attempted resolution, if found;  otherwise, the default
