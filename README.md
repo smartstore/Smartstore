@@ -12,7 +12,7 @@
 </p>
 <p align="center">
 <a href="#try-it-online">Try Online</a> &#8729;
-<a href="https://dev.smartstore.com">Developer Guide</a> &#8729;
+<a href="https://docs.smartstore.com/developer">Developer Guide</a> &#8729;
 <a href="http://community.smartstore.com">Forum</a> &#8729;
 <a href="http://community.smartstore.com/marketplace">Marketplace</a> &#8729;
 <a href="http://translate.smartstore.com/">Translations</a>
@@ -36,8 +36,8 @@ A comprehensive set of tools for CRM & CMS, sales, marketing, payment, and shipp
 The state-of-the-art architecture — with `ASP.NET Core 10`, `Entity Framework Core 10`, and a domain-driven design approach — makes Smartstore easy to extend, extremely flexible, and a pleasure to work with.
 
 * :house: **Website:** [https://www.smartstore.com](https://www.smartstore.com)
-* :orange_book: **Developer Guide:** [Smartstore Developer Guide](https://dev.smartstore.com/)
-* :blue_book: **User Guide:** [Smartstore User Guide](https://smartstore.atlassian.net/wiki/spaces/SMNET60/pages/2511044691/Getting+Started)
+* :orange_book: **Developer Guide:** [Smartstore Developer Guide](https://docs.smartstore.com/developer)
+* :blue_book: **User Guide:** [Smartstore User Guide](https://docs.smartstore.com)
 * :speech_balloon: **Forum:** [https://community.smartstore.com](http://community.smartstore.com)
 * :mega: **Marketplace:** [https://community.smartstore.com/marketplace](http://community.smartstore.com/marketplace)
 * :earth_americas: **Translations:** [https://translate.smartstore.com](http://translate.smartstore.com/)
