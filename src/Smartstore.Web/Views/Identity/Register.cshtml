@@ -110,12 +110,6 @@
                             <span asp-validation-for="ConfirmPassword"></span>
                         </div>
                     </div>
-
-                    <div sm-if="Model.DisplayCaptcha" class="form-group row justify-content-end">
-                        <div class="captcha-box col-md-9">
-                            <captcha />
-                        </div>
-                    </div>
                 </fieldset>
 
                 <fieldset sm-if="Model.CompanyEnabled || Model.DisplayVatNumber" class="content-group">
@@ -263,7 +257,11 @@
                         @T("Common.FormFields.Required.Hint")
                     </div>
                 </div>
-
+                <div sm-if="Model.DisplayCaptcha" class="form-group row justify-content-end">
+                    <div class="captcha-box">
+                        <captcha />
+                    </div>
+                </div>
                 <div class="form-group row">
                     <div class="col">
                         <button type="submit" class="btn btn-primary btn-lg" name="register-button" id="register-button">
