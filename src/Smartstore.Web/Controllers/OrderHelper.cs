@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using System.Dynamic;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
@@ -278,7 +279,10 @@ public partial class OrderHelper
         }
 
         // Custom mapping
-        await MapperFactory.MapWithRegisteredMapperAsync(orderItem, model, new { Order = order, Currency = customerCurrency });
+        dynamic mapperParams = new ExpandoObject();
+        mapperParams.Order = order;
+        mapperParams.Currency = customerCurrency;
+        await MapperFactory.MapWithRegisteredMapperAsync(orderItem, model, mapperParams);
 
         return model;
 
@@ -620,7 +624,9 @@ public partial class OrderHelper
         model.IsOrderWithdrawn = isOrderWithdrawn;
 
         // Custom mapping
-        await MapperFactory.MapWithRegisteredMapperAsync(o, model, new { Context = context });
+        dynamic mapperParams = new ExpandoObject();
+        mapperParams.Context = context;
+        await MapperFactory.MapWithRegisteredMapperAsync(o, model, mapperParams);
 
         return model;
 

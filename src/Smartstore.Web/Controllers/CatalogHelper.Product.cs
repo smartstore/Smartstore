@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Dynamic;
+using System.Text.Json;
 using Microsoft.CodeAnalysis;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
@@ -104,7 +105,7 @@ public partial class CatalogHelper
         await PrepareAlsoPurchasedProductsModelAsync(model, product);
 
         // Custom mapping
-        await MapperFactory.MapWithRegisteredMapperAsync(product, model, new { Context = ctx, Quantity = 1 });
+        await MapperFactory.MapWithRegisteredMapperAsync(product, model, BuildMapperParams(ctx, 1));
 
         return model;
     }
@@ -467,7 +468,7 @@ public partial class CatalogHelper
         // Custom mapping
         if (callCustomMapper)
         {
-            await MapperFactory.MapWithRegisteredMapperAsync(product, model, new { Context = ctx, Quantity = selectedQuantity });
+            await MapperFactory.MapWithRegisteredMapperAsync(product, model, BuildMapperParams(ctx, selectedQuantity));
         }
 
         _services.DisplayControl.Announce(product);
@@ -1600,5 +1601,13 @@ public partial class CatalogHelper
 
         // Return for chaining
         return file;
+    }
+
+    private static dynamic BuildMapperParams(ProductDetailsModelContext context, int quantity)
+    {
+        dynamic paramObj = new ExpandoObject();
+        paramObj.Context = context;
+        paramObj.Quantity = quantity;
+        return paramObj;
     }
 }
