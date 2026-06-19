@@ -7,12 +7,16 @@ global using System.Threading;
 global using System.Threading.Tasks;
 global using EfState = Microsoft.EntityFrameworkCore.EntityState;
 using System.Reflection;
+using Smartstore.IO;
 
 namespace Smartstore;
 
 public class HelpTopic
 {
-    public readonly static HelpTopic CronExpressions = new("cron", "4ZOrlQ#Cron-Expressions", "sRiqlQ#Cron-Ausdruck");
+    public readonly static HelpTopic CronExpressions = new(
+        "cron", 
+        "manage/system-maintenance/managing-scheduled-tasks#cron-expressions",
+        "verwalten/system-and-wartung/geplante-aufgaben-verwalten#cron-ausdruck");
 
     public HelpTopic(string name, string enPath, string dePath)
     {
@@ -41,7 +45,7 @@ public static class SmartstoreVersion
         //       a greater minor version.
     };
 
-    private const string HELP_BASEURL = "https://smartstore.atlassian.net/wiki/x/";
+    private const string HELP_BASEURL = "https://docs.smartstore.com/";
 
     static SmartstoreVersion()
     {
@@ -127,18 +131,17 @@ public static class SmartstoreVersion
     {
         Guard.NotEmpty(languageCode);
 
-        return string.Concat(
-            HELP_BASEURL,
-            //GetUserGuideSpaceKey(languageCode),
-            //"/",
-            path.EmptyNull().Trim().TrimStart('/', '\\'));
+        return PathUtility.Join(
+            HELP_BASEURL, 
+            GetUserGuideSpaceKey(languageCode), 
+            path);
     }
 
     public static string GetUserGuideSpaceKey(string languageCode)
     {
         return languageCode.EqualsNoCase("de")
-            ? "SDDE60"
-            : "SMNET60";
+            ? "user/docs/"
+            : string.Empty;
     }
 
     /// <summary>
