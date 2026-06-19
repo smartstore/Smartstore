@@ -1,6 +1,14 @@
 ﻿/*
-*  Project: Smartstore gross/net tax calculation.
-*  Author: Marcus Gesing, SmartStore AG
+* Project: Smartstore gross/net tax calculation.
+* Author: Marcus Gesing, SmartStore AG
+*
+* The net value is calculated automatically when the corresponding gross value changes—and vice versa. 
+* In addition, fields such as the total amount or the total tax amount are updated.
+*
+* Server-side price calculation takes precedence. If the values affecting the calculation change (e.g. quantity or variant),
+* the new prices take precedence and override any previous manual changes.
+*
+* Calculations are performed without rounding. Only the total amount is rounded to the specified number of decimal places.
 *
 * Variant          → actual price calculation, always takes precedence.
 * Quantity         → actual price calculation, so that tiered prices/pricing rules apply.
@@ -11,9 +19,13 @@
 * Tax rate         → depending on 'pricesIncludeTax', line total and unit prices are calculated.
 */
 
+// TODO: (mg) Introduce "#recalculateOrder" to avoid many update methods (see below).
+// TODO: (mg) Second TagHelper or lock icon for single currency values required (order total, tax total...). It must also be possible to lock/unlock those.
+// TODO: (mg) Replicating the server-side rounding behavior? Necessary, expected, exactly possible, too costly, many new TODOs?
+
 Smartstore.Admin.TaxCalculator = class TaxCalculator {
     #pricesIncludeTax;
-    #decimals = 2;      // The number of decimal places to be rounded to.
+    #decimals = 2;      // The number of decimal places (of the primary currency) to be rounded to.
     #taxRate = 0;
     #quantity = 1;
     #locked = false;
@@ -73,10 +85,12 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
                     this.#calculate($(el));
                 });
             })
-            .on('change', '[data-tax-field="orderdiscount"], [data-tax-field="creditbalance"], [data-tax-field="rounding"]', () => {
-                // Value for calculating the order total changed.
-                this.#updateTotal();
-            })
+            //.on('change', '[data-tax-field="taxamount"]', () => {
+            //    this.#updateTaxRates();
+            //})
+            //.on('change', '[data-tax-field="orderdiscount"], [data-tax-field="creditbalance"], [data-tax-field="rounding"]', () => {
+            //    this.#updateTotal();
+            //})
             .on('change', '[data-tax-field="gross"], [data-tax-field="net"]', (e) => {
                 // Gross or net changed.
                 this.#calculate($(e.currentTarget));
@@ -89,62 +103,57 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
         }
 
         const $taxPair = el.closest('[data-tax-pair]');
-        if (!$taxPair.length || !$taxPair.is('[data-tax-active]')) {
+        if (!$taxPair.length) {
             return;
         }
 
         this.#locked = true;
         try {
-            let grossToNet = this.#pricesIncludeTax;
-            if (el.is('[data-tax-field="gross"]')) {
-                // Gross updated.
-                grossToNet = true;
-            }
-            else if (el.is('[data-tax-field="net"]')) {
-                // Net updated.
-                grossToNet = false;
-            }
+            if ($taxPair.is('[data-tax-active]')) {
+                let grossToNet = this.#pricesIncludeTax;
 
-            let amount = parseFloat(el.val()) || 0;
-            if (grossToNet) {
-                amount = amount / (1 + this.#taxRate);
-            }
-            else {
-                amount = amount * (1 + this.#taxRate);
-            }
-            //console.log(`qty:${this.#quantity} taxRate:${this.#taxRate} grossToNet:${grossToNet} amount:${amount}`);
+                if (el.is('[data-tax-field="gross"]')) {
+                    // Gross updated.
+                    grossToNet = true;
+                }
+                else if (el.is('[data-tax-field="net"]')) {
+                    // Net updated.
+                    grossToNet = false;
+                }
 
-            // INFO: Do not trigger('change')! Causes a stack overflow.
-            // See the event handlers that smartstore.numberinput.js listens for.
-            $taxPair.find(grossToNet ? '[data-tax-field="net"]' : '[data-tax-field="gross"]')
-                .val(amount)
-                .trigger('change.ni');
+                let amount = parseFloat(el.val()) || 0;
+                if (grossToNet) {
+                    amount = amount / (1 + this.#taxRate);
+                }
+                else {
+                    amount = amount * (1 + this.#taxRate);
+                }
+                //console.log(`qty:${this.#quantity} taxRate:${this.#taxRate} grossToNet:${grossToNet} amount:${amount}`);
+
+                // INFO: Do not trigger('change')! Causes a stack overflow.
+                // See the event handlers that smartstore.numberinput.js listens for.
+                $taxPair.find(grossToNet ? '[data-tax-field="net"]' : '[data-tax-field="gross"]')
+                    .val(amount)
+                    .trigger('change.ni');
+            }
 
             // Update line total price when unit price is changed or vice versa.
             this.#updateLineTotalOrUnitPrice($taxPair);
 
-            if (this.#$taxAmount.length) {
-                // Update total tax amount.
-                this.#updateTaxAmount();
-            }
-
-            if (this.#$total.length) {
-                // Update total amount.
-                this.#updateTotal();
-            }
+            this.#recalculateOrder(el);
         }
         finally {
             this.#locked = false;
         }
     }
 
-    #updateLineTotalOrUnitPrice(sourcePair) {
+    #updateLineTotalOrUnitPrice(el) {
         let updateLineTotal;
-        if (sourcePair.is('[data-tax-pair="unitprice"]')) {
+        if (el.is('[data-tax-pair="unitprice"]')) {
             // Unit price changed -> update line total.
             updateLineTotal = true;
         }
-        else if (sourcePair.is('[data-tax-pair="linetotal"]')) {
+        else if (el.is('[data-tax-pair="linetotal"]')) {
             // Line total changed -> update unit price.
             updateLineTotal = false;
         }
@@ -152,99 +161,162 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
             return;
         }
 
-        const $targetPair = this.#$root.find(updateLineTotal ? '[data-tax-pair="linetotal"]' : '[data-tax-pair="unitprice"]');
-        if (!$targetPair.length || !$targetPair.is('[data-tax-active]')) {
+        const $target = this.#$root.find(updateLineTotal ? '[data-tax-pair="linetotal"]' : '[data-tax-pair="unitprice"]');
+        if (!$target.length || !$target.is('[data-tax-active]')) {
             return;
         }
 
-        const gross = sourcePair.find('[data-tax-field="gross"]').val();
+        const gross = el.find('[data-tax-field="gross"]').val();
         if (!isNaN(gross)) {
-            $targetPair.find('[data-tax-field="gross"]')
+            $target.find('[data-tax-field="gross"]')
                 .val(updateLineTotal ? (gross * this.#quantity) : (gross / this.#quantity))
                 .trigger('change.ni');
         }
 
-        const net = sourcePair.find('[data-tax-field="net"]').val();
+        const net = el.find('[data-tax-field="net"]').val();
         if (!isNaN(net)) {
-            $targetPair.find('[data-tax-field="net"]')
+            $target.find('[data-tax-field="net"]')
                 .val(updateLineTotal ? (net * this.#quantity) : (net / this.#quantity))
                 .trigger('change.ni');
         }
     }
 
-    #updateTaxAmount() {
+    #recalculateOrder(el) {
+        if (!this.#$total.length) {
+            return;
+        }
+
         try {
-            const subtotal = this.#getAmounts('subtotal');
-            const discount = this.#getAmounts('discount');
-            const shipping = this.#getAmounts('shipping');
-            const paymentFee = this.#getAmounts('paymentfee');
+            const field = el.data('tax-field');
 
-            const taxAmount = (subtotal.gross - subtotal.net)
-                + (discount.gross - discount.net)
-                + (shipping.gross - shipping.net)
-                + (paymentFee.gross - paymentFee.net);
-
-            //let taxAmount = 0;
-            //this.#$root.find('[data-tax-pair="subtotal"], [data-tax-pair="discount"], [data-tax-pair="shipping"], [data-tax-pair="paymentfee"]').each((_, el) => {
-            //    const $taxPair = $(el);
-            //    const amount = parseFloat($taxPair.find('[data-tax-field="gross"]').val()) - parseFloat($taxPair.find('[data-tax-field="net"]').val());
-
-            //    if (isNaN(amount)) {
-            //        taxAmount = NaN;
-            //        return;
-            //    }
-
-            //    taxAmount += amount;
-            //});
-
-            if (!isNaN(taxAmount)) {
-                this.#$taxAmount
-                    .val(taxAmount)
-                    .trigger('change.ni');
-
-                // Update tax rates field (tax amount per tax rate formatted string).
-                const $elTaxRates = this.#$root.find('[data-tax-field="taxrates"]');
-                if ($elTaxRates.length) {
-                    let str = $elTaxRates.val();
-                    let arr = str.split(';');
-                    if (arr.length > 0) {
-                        str = arr[0];
-                    }
-
-                    arr = str.split(':');
-                    if (arr.length == 2) {
-                        // For some reason it always ends with a semicolon.
-                        $elTaxRates.val(`${arr[0].trim()}:${taxAmount};`);
-                    }
+            if (field === 'taxrates' || field === 'taxamount') {
+                // Recalculate from changed tax value.
+                const taxAmount = field === 'taxamount' ? this.#getAmount(el) : this.#parseTaxRates()?.amount;
+                if (!taxAmount) {
+                    return;
                 }
+
+
             }
+            else {
+                // Recalculate from difference between gross and net.
+            }
+
+            // TODO...
         }
         catch (e) {
             console.error(e);
         }
     }
 
-    #updateTotal() {
-        try {
-            // TODO: (mg) Test calculation of each field amount (number sign).
-            const total = this.#getAmounts('subtotal').gross
-                - this.#getAmounts('discount').gross
-                + this.#getAmounts('shipping').gross
-                + this.#getAmounts('paymentfee').gross
-                - this.#getAmount('orderdiscount')
-                - this.#getAmount('creditbalance')
-                + this.#getAmount('rounding');
+    #parseTaxRates() {
+        const $elTaxRates = this.#$root.find('[data-tax-field="taxrates"]');
+        if ($elTaxRates.length) {
+            let str = $elTaxRates.val();
+            let arr = str.split(';');
+            if (arr.length > 0) {
+                str = arr[0];
+            }
 
-            if (!isNaN(total)) {
-                this.#$total
-                    .val(total.toFixed(this.#decimals))
-                    .trigger('change.ni');
+            arr = str.split(':');
+            if (arr.length == 2) {
+                const result = {
+                    rate: parseFloat(arr[0].trim()),
+                    amount: parseFloat(arr[1].trim())
+                }
+
+                if (isNaN(result.rate) || isNaN(result.amount)) {
+                    const str = isNaN(result.rate) ? 'rate' : 'amount';
+                    throw new Error(`Tax ${str} is not a number!`);
+                }
+
+                return result;
             }
         }
-        catch (e) {
-            console.error(e);
-        }
+
+        return null;
     }
+
+    // This updates the field with the order total tax amount.
+    //#updateTaxAmount() {
+    //    if (!this.#$taxAmount.length) {
+    //        return;
+    //    }
+
+    //    try {
+    //        const subtotal = this.#getAmounts('subtotal');
+    //        const discount = this.#getAmounts('discount');
+    //        const shipping = this.#getAmounts('shipping');
+    //        const paymentFee = this.#getAmounts('paymentfee');
+
+    //        const taxAmount = (subtotal.gross - subtotal.net)
+    //            + (discount.gross - discount.net)
+    //            + (shipping.gross - shipping.net)
+    //            + (paymentFee.gross - paymentFee.net);
+
+    //        if (!isNaN(taxAmount)) {
+    //            this.#$taxAmount
+    //                .val(taxAmount)
+    //                .trigger('change.ni');
+
+    //            this.#updateTaxRates(taxAmount);
+    //        }
+    //    }
+    //    catch (e) {
+    //        console.error(e);
+    //    }
+    //}
+
+    // This updates the tax rates field, which is the tax amount per tax rate formatted string.
+    //#updateTaxRates(taxAmount) {
+    //    try {
+    //        taxAmount ??= this.#getAmount('taxamount');
+
+    //        const $elTaxRates = this.#$root.find('[data-tax-field="taxrates"]');
+    //        if ($elTaxRates.length) {
+    //            let str = $elTaxRates.val();
+    //            let arr = str.split(';');
+    //            if (arr.length > 0) {
+    //                str = arr[0];
+    //            }
+
+    //            arr = str.split(':');
+    //            if (arr.length == 2) {
+    //                // For some reason it always ends with a semicolon.
+    //                $elTaxRates.val(`${arr[0].trim()}:${taxAmount};`);
+    //            }
+    //        }
+    //    }
+    //    catch (e) {
+    //        console.error(e);
+    //    }
+    //}
+
+    // This updates the order total field.
+    //#updateTotal() {
+    //    if (!this.#$total.length) {
+    //        return;
+    //    }
+
+    //    try {
+    //        const total = this.#getAmounts('subtotal').gross
+    //            - this.#getAmounts('discount').gross
+    //            + this.#getAmounts('shipping').gross
+    //            + this.#getAmounts('paymentfee').gross
+    //            - this.#getAmount('orderdiscount')
+    //            - this.#getAmount('creditbalance')
+    //            + this.#getAmount('rounding');
+
+    //        if (!isNaN(total)) {
+    //            this.#$total
+    //                .val(total.toFixed(this.#decimals))
+    //                .trigger('change.ni');
+    //        }
+    //    }
+    //    catch (e) {
+    //        console.error(e);
+    //    }
+    //}
 
     #fieldSel() {
         return this.#pricesIncludeTax ? '[data-tax-field="gross"]' : '[data-tax-field="net"]';
@@ -266,11 +338,12 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
         return result;
     }
 
-    #getAmount(name) {
-        const result = parseFloat(this.#$root.find(`[data-tax-field="${name}"]`).val());
+    #getAmount(nameOrElement) {
+        const val = typeof nameOrElement === 'string' ? this.#$root.find(`[data-tax-field="${nameOrElement}"]`).val() : el.val();
+        const result = parseFloat(val);
 
         if (isNaN(result)) {
-            throw new Error(`Amount for ${name} is not a number!`);
+            throw new Error(`Amount for ${nameOrElement} is not a number!`);
         }
 
         return result;

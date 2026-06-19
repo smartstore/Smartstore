@@ -79,6 +79,16 @@ public class TaxPairTagHelper : SmartTagHelper
     {
         var primaryCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
         var calculate = Mode.HasFlag(TaxPairMode.Calculate);
+        var active = calculate;
+
+        if (calculate)
+        {
+            var grossValue = ForGross.Model.Convert<decimal?>() ?? 0;
+            var netValue = ForNet.Model.Convert<decimal?>() ?? 0;
+
+            // Deactivate conversion by default if the net and gross amounts are the same.
+            active = (grossValue == 0 && netValue == 0) || grossValue > netValue;
+        }
 
         // Main div container.
         output.TagName = "div";
@@ -88,7 +98,7 @@ public class TaxPairTagHelper : SmartTagHelper
         output.Attributes.Add("class", "row g-1 flex-nowrap");
         output.Attributes.Add("data-tax-pair", Kind == null ? string.Empty : Kind.ToString().ToLower());
 
-        if (calculate)
+        if (active)
         {
             output.Attributes.Add("data-tax-active", string.Empty);
         }
@@ -102,8 +112,8 @@ public class TaxPairTagHelper : SmartTagHelper
             lockTag = new TagBuilder("button");
             lockTag.Attributes.Add("type", "button");
             lockTag.AddCssClass("btn btn-sm border-0 shadow-none bg-transparent text-reset p-1 btn-tax-lock");
-            lockTag.Attributes.Add("title", T("Admin.Common.TaxCalculator.Disable"));
-            lockTag.InnerHtml.AppendHtml("<i class='fa fa-lock'></i>");
+            lockTag.Attributes.Add("title", T(active ? "Admin.Common.TaxCalculator.Disable" : "Admin.Common.TaxCalculator.Enable"));
+            lockTag.InnerHtml.AppendHtml("<i class='fa {0}'></i>".FormatInvariant(active ? "fa-lock" : "fa-lock-open text-muted"));
         }
         else
         {
