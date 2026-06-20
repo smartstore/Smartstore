@@ -12,6 +12,7 @@
 
 ### Bugfixes
 
+- GridCommand.Sorting lost after session roundtrip
 - Prevent a race condition in `TemplateZoneRenderingEvent` by eagerly resolving `TemplateName` from the DotLiquid context before publishing the event.
 - **Withdrawal**: 
   - Allow immediate withdrawal regardless of when the withdrawal period begins.
