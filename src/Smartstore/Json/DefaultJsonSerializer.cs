@@ -24,7 +24,7 @@ public class DefaultJsonSerializer : IJsonSerializer
     }
 
     protected virtual JsonSerializerOptions CreateDefaultOptions()
-        => SmartJsonOptions.Default;
+        => SmartJsonOptions.DefaultIgnoreDefaults;
 
     protected JsonSerializerOptions Options => field ??= CreateDefaultOptions();
 
