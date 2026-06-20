@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System.ComponentModel;
+using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Smartstore.Web.Modelling;
@@ -29,23 +30,23 @@ public class GridCommand
     [JsonPropertyName("path")]
     public string Path { get; set; }
 
-    [JsonPropertyName("page")]
+    [JsonPropertyName("page"), DefaultValue(1)]
     public int Page { get; set; } = 1;
 
-    [JsonPropertyName("pageSize")]
+    [JsonPropertyName("pageSize"), DefaultValue(25)]
     public int PageSize { get; set; } = 25;
 
-    [JsonPropertyName("sorting")]
-    public List<SortDescriptor> Sorting { get; } = new();
+    [JsonPropertyName("sorting"), DefaultValue("[]")]
+    public List<SortDescriptor> Sorting { get; set; } = [];
 
-    [JsonPropertyName("filters")]
-    public List<object> Filters { get; } = new();
+    [JsonPropertyName("filters"), DefaultValue("[]")]
+    public List<object> Filters { get; set; } = [];
 
-    [JsonPropertyName("groups")]
-    public List<object> Groups { get; } = new();
+    [JsonPropertyName("groups"), DefaultValue("[]")]
+    public List<object> Groups { get; set; } = [];
 
-    [JsonPropertyName("aggregates")]
-    public List<object> Aggregates { get; } = new();
+    [JsonPropertyName("aggregates"), DefaultValue("[]")]
+    public List<object> Aggregates { get; set; } = [];
 }
 
 /// <summary>

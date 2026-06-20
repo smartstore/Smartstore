@@ -34,7 +34,7 @@ public abstract class SmartModelBinder<T> : ISmartModelBinder where T : class
 
     public virtual Task BindModelAsync(ModelBindingContext bindingContext)
     {
-        Guard.NotNull(bindingContext, nameof(bindingContext));
+        Guard.NotNull(bindingContext);
 
         var propertyData = CanCreateModel(bindingContext);
         if (propertyData == NoDataAvailable)
@@ -235,7 +235,7 @@ public abstract class SmartModelBinder<T> : ISmartModelBinder where T : class
 
     protected virtual T CreateModel(ModelBindingContext bindingContext)
     {
-        Guard.NotNull(bindingContext, nameof(bindingContext));
+        Guard.NotNull(bindingContext);
 
         if (_modelCreator == null)
         {
