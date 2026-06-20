@@ -6,19 +6,16 @@
 
     <ItemGroup>
         <PackageReference Include="SQLitePCLRaw.config.e_sqlite3" Version="3.0.3" GeneratePathProperty="true" />
-        <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.11" GeneratePathProperty="true" />
+        <PackageReference Include="SourceGear.sqlite3" Version="3.50.4.5" GeneratePathProperty="true" />
         <!--<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.1" GeneratePathProperty="true" />-->
         <PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="3.0.3" GeneratePathProperty="true" />
         <PackageReference Include="SQLitePCLRaw.core" Version="3.0.3" GeneratePathProperty="true" />
         <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.8" GeneratePathProperty="true" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="10.0.8" GeneratePathProperty="true" />
 
-        <!--<None Include="$(PkgSQLitePCLRaw_lib_e_sqlite3)\runtimes\**\*" CopyToOutputDirectory="PreserveNewest" LinkBase="runtimes">
+        <None Include="$(PkgSourceGear_sqlite3)\runtimes\**\*" CopyToOutputDirectory="PreserveNewest" LinkBase="runtimes">
             <Visible>true</Visible>
         </None>
-        <None Include="$(PkgSQLitePCLRaw_bundle_e_sqlite3)\lib\netstandard2.0\*" CopyToOutputDirectory="PreserveNewest">
-            <Visible>false</Visible>
-        </None>-->
         <None Include="$(PkgSQLitePCLRaw_config_e_sqlite3)\lib\net8.0\*.dll" CopyToOutputDirectory="PreserveNewest">
             <Visible>false</Visible>
         </None>
