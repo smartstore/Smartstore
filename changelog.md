@@ -25,7 +25,9 @@
 - JsonLd: 
 	- Removed duplicate reference of *Product* entity.
 	- Restored application of `SeoSettings.ProductDescriptionPriority`.
-	- Fixed wrong id usage for long description. 
+	- Fixed wrong id usage for long description.
+- MegaMenu: Fixed `DependencyResolutionException` caused by `MegaMenuService` when creating Web API keys in Web API plugin.
+
 
 ## Smartstore 6.4.0
 
