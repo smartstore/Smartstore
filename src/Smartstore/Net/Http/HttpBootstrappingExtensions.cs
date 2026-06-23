@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Net.Http;
+using System.Net.Http.Headers;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Net.Http;
 
@@ -13,17 +14,20 @@ public static class HttpBootstrappingExtensions
     {
         Guard.NotNull(services, nameof(services));
 
-        services.AddHttpClient<DownloadManager>((sp, client) =>
-        {
-            var cache = new CacheControlHeaderValue { NoCache = true };
+        services
+            .AddHttpClient<DownloadManager>((sp, client) =>
+            {
+                var cache = new CacheControlHeaderValue { NoCache = true };
 
-            // TODO: (core) What about downloadTimeout and maxCachingAge parameters?
+                // TODO: (core) What about downloadTimeout and maxCachingAge parameters?
 
-            client.Timeout = TimeSpan.FromMinutes(5);
+                client.Timeout = TimeSpan.FromMinutes(5);
 
-            client.DefaultRequestHeaders.CacheControl = cache;
-            client.DefaultRequestHeaders.Add("Connection", "Keep-alive");
-        });
+                client.DefaultRequestHeaders.CacheControl = cache;
+                client.DefaultRequestHeaders.Add("Connection", "Keep-alive");
+            })
+            // Disable automatic redirect following so DownloadManager can re-validate each redirect target (SSRF).
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
 
         return services;
     }

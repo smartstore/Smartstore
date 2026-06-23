@@ -1,11 +1,14 @@
 ﻿using System.Net;
 using System.Net.Http;
 using Smartstore.IO;
+using Smartstore.Net;
 
 namespace Smartstore.Net.Http;
 
 public sealed class DownloadManager : Disposable
 {
+    private const int MaxRedirects = 5;
+
     public DownloadManager(HttpClient httpClient)
     {
         HttpClient = Guard.NotNull(httpClient, nameof(httpClient));
@@ -50,48 +53,94 @@ public sealed class DownloadManager : Disposable
     {
         try
         {
-            using var response = await HttpClient.GetAsync(item.Url, HttpCompletionOption.ResponseHeadersRead, cancelToken);
-
-            item.StatusCode = response.StatusCode;
-
-            if (response.IsSuccessStatusCode)
-            {
-                if (item.MimeType.IsEmpty())
-                {
-                    item.MimeType = MimeTypes.MapNameToMimeType(item.FileName);
-                }
-
-                var contentType = response.Content.Headers.ContentType?.MediaType;
-                if (contentType.HasValue() && !contentType.EqualsNoCase(item.MimeType))
-                {
-                    // Update mime type and local path.
-                    var extension = MimeTypes.MapMimeTypeToExtension(contentType)
-                        .OrDefault(Path.GetExtension(item.Url)!)
-                        .OrDefault("jpg");
-
-                    item.MimeType = contentType;
-                    item.Path = Path.ChangeExtension(item.Path, extension.EnsureStartsWith('.'));
-                }
-
-                using var source = await response.Content.ReadAsStreamAsync(cancelToken);
-                using var target = File.Open(item.Path, FileMode.Create);
-
-                await source.CopyToAsync(target, cancelToken);
-
-                item.Success = true;
-            }
-            else
+            if (!Uri.TryCreate(item.Url, UriKind.Absolute, out var uri))
             {
                 item.Success = false;
-                item.ErrorMessage = response.ReasonPhrase.HasValue()
-                    ? $"{response.StatusCode} ({response.ReasonPhrase})"
-                    : response.StatusCode.ToString();
+                item.ErrorMessage = "Invalid URL.";
+                return;
+            }
+
+            // SSRF guard: resolve the host and reject private/loopback/link-local addresses
+            // before issuing the request. Redirects are followed manually so each hop is re-validated.
+            if (!uri.Scheme.EqualsNoCase("http") && !uri.Scheme.EqualsNoCase("https") ||
+                !await IpAddressUtils.IsPublicHostAsync(uri.DnsSafeHost, cancelToken))
+            {
+                item.Success = false;
+                item.ErrorMessage = "The URL was blocked by the security policy.";
+                return;
+            }
+
+            var redirectCount = 0;
+            HttpResponseMessage response = null;
+
+            while (true)
+            {
+                response?.Dispose();
+                response = await HttpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, cancelToken);
+
+                if (!response.StatusCode.IsRedirect() ||
+                    response.Headers.Location is not { } location ||
+                    redirectCount++ >= MaxRedirects)
+                {
+                    break;
+                }
+
+                // Re-validate the redirect target before following it.
+                var redirectUri = location.IsAbsoluteUri ? location : new Uri(uri, location);
+                if (!redirectUri.Scheme.EqualsNoCase("http") && !redirectUri.Scheme.EqualsNoCase("https") ||
+                    !await IpAddressUtils.IsPublicHostAsync(redirectUri.DnsSafeHost, cancelToken))
+                {
+                    response.Dispose();
+                    item.Success = false;
+                    item.ErrorMessage = "The URL was blocked by the security policy.";
+                    return;
+                }
+
+                uri = redirectUri;
+            }
+
+            using (response)
+            {
+                item.StatusCode = response.StatusCode;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    if (item.MimeType.IsEmpty())
+                    {
+                        item.MimeType = MimeTypes.MapNameToMimeType(item.FileName);
+                    }
+
+                    var contentType = response.Content.Headers.ContentType?.MediaType;
+                    if (contentType.HasValue() && !contentType.EqualsNoCase(item.MimeType))
+                    {
+                        // Update mime type and local path.
+                        var extension = MimeTypes.MapMimeTypeToExtension(contentType)
+                            .OrDefault(Path.GetExtension(item.Url)!)
+                            .OrDefault("jpg");
+
+                        item.MimeType = contentType;
+                        item.Path = Path.ChangeExtension(item.Path, extension.EnsureStartsWith('.'));
+                    }
+
+                    using var source = await response.Content.ReadAsStreamAsync(cancelToken);
+                    using var target = File.Open(item.Path, FileMode.Create);
+
+                    await source.CopyToAsync(target, cancelToken);
+
+                    item.Success = true;
+                }
+                else
+                {
+                    item.Success = false;
+                    // Avoid surfacing status + reason verbatim — it acts as a port-scan oracle for internal services.
+                    item.ErrorMessage = $"Remote server returned HTTP {(int)response.StatusCode}.";
+                }
             }
         }
         catch (Exception ex)
         {
             item.Success = false;
-            item.ErrorMessage = ex.ToAllMessages();
+            item.ErrorMessage = ex.Message;
 
             if (ex.InnerException is WebException webExc)
             {
