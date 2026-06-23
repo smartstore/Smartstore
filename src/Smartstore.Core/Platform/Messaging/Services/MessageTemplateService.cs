@@ -15,21 +15,27 @@ public class MessageTemplateService : IMessageTemplateService
     private readonly ILanguageService _languageService;
     private readonly ILocalizedEntityService _locEntityService;
     private readonly IStoreMappingService _storeMappingService;
-    private readonly EmailAccount _defaultEmailAccount;
+    private readonly int _defaultEmailAccountId;
 
     public MessageTemplateService(
         SmartDbContext db,
         IApplicationContext appContext,
         ILanguageService languageService,
         ILocalizedEntityService locEntityService,
-        IStoreMappingService storeMappingService)
+        IStoreMappingService storeMappingService,
+        EmailAccountSettings emailAccountSettings)
     {
         _db = db;
         _appContext = appContext;
         _languageService = languageService;
         _locEntityService = locEntityService;
         _storeMappingService = storeMappingService;
-        _defaultEmailAccount = _db.Set<EmailAccount>().FirstOrDefault(x => x.Email != null);
+
+        _defaultEmailAccountId = _db.Set<EmailAccount>()
+            .Where(x => x.Email != null)
+            .OrderByDescending(x => x.Id == emailAccountSettings.DefaultEmailAccountId)
+            .Select(x => (int?)x.Id)
+            .FirstOrDefault() ?? 0;
     }
 
     public async Task<MessageTemplate> CopyTemplateAsync(MessageTemplate source)
@@ -189,7 +195,7 @@ public class MessageTemplateService : IMessageTemplateService
                     ModelTypes = source.ModelTypes,
                     Body = source.Body,
                     IsActive = true,
-                    EmailAccountId = (_defaultEmailAccount?.Id).GetValueOrDefault(),
+                    EmailAccountId = _defaultEmailAccountId,
                 };
 
                 _db.MessageTemplates.Add(template);
