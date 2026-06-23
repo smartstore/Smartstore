@@ -3,7 +3,7 @@ using System.Net.Sockets;
 
 namespace Smartstore.Net;
 
-public static class IpAddressUtils
+public static class IPAddressUtils
 {
     /// <summary>
     /// Returns <c>true</c> when <paramref name="address"/> is publicly routable,
@@ -23,7 +23,7 @@ public static class IpAddressUtils
         {
             return false;
         }
-
+        
         if (address.AddressFamily == AddressFamily.InterNetworkV6)
         {
             var b = address.GetAddressBytes();

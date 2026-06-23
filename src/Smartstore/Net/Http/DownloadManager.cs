@@ -63,7 +63,7 @@ public sealed class DownloadManager : Disposable
             // SSRF guard: resolve the host and reject private/loopback/link-local addresses
             // before issuing the request. Redirects are followed manually so each hop is re-validated.
             if (!uri.Scheme.EqualsNoCase("http") && !uri.Scheme.EqualsNoCase("https") ||
-                !await IpAddressUtils.IsPublicHostAsync(uri.DnsSafeHost, cancelToken))
+                !await IPAddressUtils.IsPublicHostAsync(uri.DnsSafeHost, cancelToken))
             {
                 item.Success = false;
                 item.ErrorMessage = "The URL was blocked by the security policy.";
@@ -88,7 +88,7 @@ public sealed class DownloadManager : Disposable
                 // Re-validate the redirect target before following it.
                 var redirectUri = location.IsAbsoluteUri ? location : new Uri(uri, location);
                 if (!redirectUri.Scheme.EqualsNoCase("http") && !redirectUri.Scheme.EqualsNoCase("https") ||
-                    !await IpAddressUtils.IsPublicHostAsync(redirectUri.DnsSafeHost, cancelToken))
+                    !await IPAddressUtils.IsPublicHostAsync(redirectUri.DnsSafeHost, cancelToken))
                 {
                     response.Dispose();
                     item.Success = false;
