@@ -30,7 +30,7 @@ public class CollapsedContentTagHelper : TagHelper
         output.TagName = null;
         await output.LoadAndSetChildContentAsync();
 
-        if (_catalogSettings.EnableHtmlTextCollapser && (MaxHeight.HasValue && MaxHeight > 0))
+        if (_catalogSettings.EnableHtmlTextCollapser && (MaxHeight == null || MaxHeight > 0))
         {
             var maxHeight = MaxHeight ?? _catalogSettings.HtmlTextCollapsedHeight;
             var classes = output.Attributes.TryGetAttribute("class", out var attr) ? $"more-less {attr.Value}" : "more-less";
