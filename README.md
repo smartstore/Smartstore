@@ -21,8 +21,9 @@
 <br/>
 
 <p align="center">
-  <img src="https://smartstore.com/media/7935/catalog/sm6-devices_small.png" alt="Smartstore Demo Shop" />
+  <img src="assets//sm6-devices.png" alt="Smartstore Demo Shop" />
 </p>
+
 <br/>
 
 Smartstore is a cross-platform, modular, scalable, and ultra-fast open-source all-in-one eCommerce platform built on `ASP.NET Core 10`, `Entity Framework Core 10`, `Vue.js`, `Sass`, `Bootstrap`, and more.
