@@ -5,36 +5,34 @@
 ### New Features
 
 - #1530 If a product is subsequently added to an order, update all price input controls with the price of the selected attribute combination.
-
-### New Features
-
-- Enforce `MaxDownloadFileSize` in `DownloadManager` via global `appsettings.json` (default: 50 MB)
+- Enforce `MaxDownloadFileSize` in `DownloadManager` via the global `appsettings.json` setting (default: 50 MB).
 
 ### Improvements
 
 - SSRF guard for media downloads.
-- Withdrawal: Case-insensitive check of the email.
+- Withdrawal: Case-insensitive email check.
 
 ### Bugfixes
 
-- GridCommand.Sorting lost after session roundtrip
+- `GridCommand.Sorting` lost after session roundtrip.
 - Prevent a race condition in `TemplateZoneRenderingEvent` by eagerly resolving `TemplateName` from the DotLiquid context before publishing the event.
-- **Withdrawal**: 
+- **Withdrawal**:
   - Allow immediate withdrawal regardless of when the withdrawal period begins.
   - Fixed a `SecurityException` when a return case is saved.
-  - Emails weren't sent to customers.
+  - Emails were not sent to customers.
 - Currency: Edit page did not select/display the saved denominator for order total rounding.
-- Google Analytics: Fixed script error when obtaining category path.
-- PageBuilder: Fixed Json conversion error for background overlay. 
-- Warranty: Labels disappeared after UpdateProductDetails was called when switching a variant.
-- JsonLd: 
-	- Removed duplicate reference of *Product* entity.
-	- Restored application of `SeoSettings.ProductDescriptionPriority`.
-	- Fixed wrong id usage for long description.
-- MegaMenu: Fixed `DependencyResolutionException` caused by `MegaMenuService` when creating Web API keys in Web API plugin.
+- Google Analytics: Fixed script error when obtaining the category path.
+- PageBuilder: Fixed JSON conversion error for background overlay.
+- Warranty: Labels disappeared after `UpdateProductDetails` was called when switching a variant.
+- JsonLd:
+  - Removed duplicate reference of the *Product* entity.
+  - Restored application of `SeoSettings.ProductDescriptionPriority`.
+  - Fixed wrong ID usage for the long description.
+- MegaMenu: Fixed `DependencyResolutionException` caused by `MegaMenuService` when creating Web API keys in the Web API plugin.
 
 
 ## Smartstore 6.4.0
+
 
 ### Breaking Changes
 
