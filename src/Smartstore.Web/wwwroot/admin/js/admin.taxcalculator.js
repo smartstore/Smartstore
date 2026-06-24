@@ -20,9 +20,9 @@
 */
 
 Smartstore.Admin.TaxCalculator = class TaxCalculator {
-    #grossToNet;
+    #pricesIncludeTax;
     #decimals = 2;      // The number of decimal places (of the primary currency) to be rounded to.
-    #taxRate = 0;
+    #taxRate = 0;       // Tax rate value between 0 and 1.
     #autoUpdate;        // A value indicating whether to automatically update/recalculate other fields like line total or order total.
     #locked = false;
     #$root;
@@ -33,47 +33,50 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
         this.#$root = $(options.rootSelector || 'form:first');
         this.#$total = this.#$root.find('[data-tax-field="total"]');
         this.#autoUpdate = this.#$root.find('[data-tax-active]').length > 0;
-        this.#grossToNet = options.pricesIncludeTax;
+        this.#pricesIncludeTax = options.pricesIncludeTax;
         this.#decimals = parseInt(options.decimals ?? 2) || 2;
         this.#res = options.res || {};
 
-        const getTaxRate = options.taxRate === undefined;
-        this.#taxRate = (getTaxRate ? this.#getNumber('taxrate') : options.taxRate) / 100;
-
-        this.#bindEvents(getTaxRate);
+        this.#taxRate = options.taxRate;
+        if (this.#taxRate === undefined) {
+            const $elTaxRate = this.#$root.find('[data-tax-field="taxrate"]');
+            this.#taxRate = ($elTaxRate.length ? this.#getNumber($elTaxRate) : this.#parseTaxRates().rate) / 100;
+        }
+        
+        this.#bindEvents();
     }
 
     lock(value) {
         this.#locked = value;
     }
 
-    #bindEvents(getTaxRate) {
+    #bindEvents() {
         this.#$root
             .on('click', '.btn-tax-lock', (e) => {
                 // Toggler icon clicked to enable/disable the tax calculation.
                 const $btn = $(e.currentTarget);
                 const $pair = $btn.closest('[data-tax-pair]');
-                const active = !$pair.is('[data-tax-active]');
+                const activate = !$pair.is('[data-tax-active]');
 
                 $btn.find('i')
-                    .toggleClass('fa-lock', active)
-                    .toggleClass('fa-lock-open text-muted', !active);
+                    .toggleClass('fa-lock', activate)
+                    .toggleClass('fa-lock-open text-muted', !activate);
 
-                $btn.attr('title', this.#res['Admin.Common.TaxCalculator.' + (active ? 'Disable' : 'Enable')]);
-                active ? $pair.attr('data-tax-active', '') : $pair.removeAttr('data-tax-active');
+                $btn.attr('title', this.#res['Admin.Common.TaxCalculator.' + (activate ? 'Disable' : 'Enable')]);
+                activate ? $pair.attr('data-tax-active', '') : $pair.removeAttr('data-tax-active');
 
                 this.#autoUpdate = this.#$root.find('[data-tax-active]').length > 0;
 
-                if (active) {
-                    $pair.find(this.#fieldSel()).trigger('change');
+                if (activate) {
+                    $pair.find(this.#pricesIncludeTax ? '[data-tax-field="gross"]' : '[data-tax-field="net"]').trigger('change');
                 }
             })
             .on('change', '[data-tax-field]', (e) => {
-                this.#handleChange($(e.currentTarget), getTaxRate);
+                this.#handleChange($(e.currentTarget));
             });
     }
 
-    #handleChange(el, getTaxRate) {
+    #handleChange(el) {
         if (this.#locked) {
             return;
         }
@@ -90,13 +93,7 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
         try {
             if (name === 'taxrate') {
                 // Tax rate changed.
-                if (getTaxRate) {
-                    this.#taxRate = (parseFloat(el.val()) || 0) / 100;
-                }
-
-                this.#$root.find(this.#fieldSel()).each((_, el2) => {
-                    this.#updatePair($(el2), name);
-                });
+                this.#updateTaxRate(this.#getNumber(el));
             }
             else if (name === 'gross' || name === 'net') {
                 this.#updatePair(el, name);
@@ -125,7 +122,7 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
         }
 
         if ($pair.is('[data-tax-active]')) {
-            let grossToNet = this.#grossToNet;
+            let grossToNet = this.#pricesIncludeTax;
             if (name === 'gross') {
                 // Gross changed.
                 grossToNet = true;
@@ -134,11 +131,17 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
                 // Net changed.
                 grossToNet = false;
             }
+            else {
+                throw new Error(`Invalid field name "${name} for updating tax pair. Expected "gross" or "net".`);
+            }
 
-            const amount = this.#calculateTax(parseFloat(el.val()), grossToNet);
+            let amount = parseFloat(el.val());
+            if (!isNaN(amount)) {
+                amount = grossToNet ? (amount / (1 + this.#taxRate)) : (amount * (1 + this.#taxRate));
 
-            //console.log(`taxRate:${this.#taxRate} grossToNet:${grossToNet} amount:${amount}`);
-            this.#updateNumber($pair.find(grossToNet ? '[data-tax-field="net"]' : '[data-tax-field="gross"]'), amount);
+                //console.log(`taxRate:${this.#taxRate} grossToNet:${grossToNet} amount:${amount}`);
+                this.#updateNumber($pair.find(grossToNet ? '[data-tax-field="net"]' : '[data-tax-field="gross"]'), amount);
+            }
         }
 
         if ($pair.is('[data-tax-pair="unitprice"]')) {
@@ -185,10 +188,10 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
         }
 
         try {
-            const subtotal = this.#getPairAmounts('subtotal');
-            const discount = this.#getPairAmounts('discount');
-            const shipping = this.#getPairAmounts('shipping');
-            const paymentFee = this.#getPairAmounts('paymentfee');
+            const subtotal = this.#getPair('subtotal');
+            const discount = this.#getPair('discount');
+            const shipping = this.#getPair('shipping');
+            const paymentFee = this.#getPair('paymentfee');
             const orderDiscount = this.#getNumber('orderdiscount');
             const creditBalance = this.#getNumber('creditbalance');
             const rounding = this.#getNumber('rounding');
@@ -200,16 +203,20 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
                 taxAmount = this.#getNumber(el);
                 this.#updateTaxRates(taxAmount);
 
-                // TODO....
-                //const amount = this.#calculateTax(this.#grossToNet ? subtotal.gross : subtotal.net, this.#grossToNet);
-                //const $target = subtotal.$pair.find(this.#grossToNet ? '[data-tax-field="net"]' : '[data-tax-field="gross"]');
-                //this.#updateNumber($target, amount);
-                //return $target;
+                // INFO: In accounting, the tax amount is usually the result of a calculation, not the source.
+                // If the user changes the tax amount, the system should treat this as a "tax adjustment entry"
+                // rather than attempting to recalculate the subtotal.
             }
             else if (name === 'taxrates') {
                 // Parse tax amount from tax rates field.
-                taxAmount = this.#parseTaxRates().amount;
+                const rates = this.#parseTaxRates();
+                taxAmount = rates.amount;
                 this.#updateNumber('taxamount', taxAmount);
+
+                // Update tax rate if changed.
+                if (this.#updateTaxRate(rates.rate)) {
+                    return subtotal.$pair.find('[data-tax-field="gross"]');
+                }
             }
             else {
                 // Calculate from difference between gross and net.
@@ -251,15 +258,13 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
 
                 this.#updateNumber(this.#$total, total.toFixed(this.#decimals));
             }
-
-            // TODO more...?
-            // Update subtotal (net and gross) if the tax amount or tax rate changes.
         }
         catch (e) {
             console.error(e);
         }
     }
 
+    // Parses the tax rates field, which is the tax amount per tax rate formatted string.
     #parseTaxRates() {
         const $elTaxRates = this.#$root.find('[data-tax-field="taxrates"]');
         if ($elTaxRates.length) {
@@ -313,11 +318,28 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
         }
     }
 
-    #fieldSel() {
-        return this.#grossToNet ? '[data-tax-field="gross"]' : '[data-tax-field="net"]';
+    // Updates the tax rate and recalculates all tax pairs fields if the tax rate has changed.
+    #updateTaxRate(taxRate) {
+        if (taxRate > 1) {
+            taxRate = taxRate / 100;
+        }
+
+        if (taxRate === this.#taxRate) {
+            return false;
+        }
+
+        this.#taxRate = taxRate;
+
+        const name = this.#pricesIncludeTax ? 'gross' : 'net';
+        this.#$root.find(`[data-tax-field="${name}"]`).each((_, el2) => {
+            this.#updatePair($(el2), name);
+        });
+
+        return true;
     }
 
-    #getPairAmounts(kind) {
+    // Returns a tax pair including its gross and net values.
+    #getPair(kind) {
         const $pair = this.#$root.find(`[data-tax-pair="${kind}"]`);
 
         return {
@@ -327,6 +349,7 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
         };
     }
 
+    // Returns the numeric value of a field. Throws an error if the value is not a number.
     #getNumber(nameOrElement) {
         const el = typeof nameOrElement === 'string' ? this.#$root.find(`[data-tax-field="${nameOrElement}"]`) : nameOrElement;
         const result = parseFloat(el.val());
@@ -339,6 +362,7 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
         return result;
     }
 
+    // Updates the numeric value of a field.
     #updateNumber(nameOrElement, value) {
         if (!isNaN(value)) {
             // INFO: Do not trigger('change')! Causes a stack overflow.
@@ -346,19 +370,6 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
 
             const el = typeof nameOrElement === 'string' ? this.#$root.find(`[data-tax-field="${nameOrElement}"]`) : nameOrElement;
             el.val(value).trigger('change.ni');
-        }
-    }
-
-    #calculateTax(amount, grossToNet) {
-        if (isNaN(amount)) {
-            throw new Error(`Amount for tax calculation is not a number!`);
-        }
-
-        if (grossToNet) {
-            return amount / (1 + this.#taxRate);
-        }
-        else {
-            return amount * (1 + this.#taxRate);
         }
     }
 };
