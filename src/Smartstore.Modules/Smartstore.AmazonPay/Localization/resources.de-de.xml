@@ -102,7 +102,7 @@
         <Value>Der Payload Parameter fehlt.</Value>
     </LocaleResource>
     <LocaleResource Name="EncryptionNotSupported">
-        <Value>Eine Verschlüsselung von Zugangsdaten wird nicnt unterstützt.</Value>
+        <Value>Eine Verschlüsselung von Zugangsdaten wird nicht unterstützt.</Value>
     </LocaleResource>
     <LocaleResource Name="MissingBillingAddress">
         <Value>Die Amazon Rechnungsanschrift fehlt. Bitte hinterlegen Sie eine Rechnungsanschrift bei Amazon oder wählen Sie eine andere Zahlart.</Value>

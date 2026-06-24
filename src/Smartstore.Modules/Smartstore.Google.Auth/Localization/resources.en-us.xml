@@ -14,8 +14,8 @@
 							If not done already, a new project must be created on the <a href="https://console.cloud.google.com/">Google Cloud Platform</a> beforehand.
 					</li>
 					<li>Click <b>Create credentials &gt; OAuth client ID</b>.</li>
-					<li>Enter the credentials at the bottom of this form.</li>.
-					<li>The URL listed below must be entered at <b>Sign-in credentials &gt; Authorized forwarding URIs</b>.</li>.
+					<li>Enter the credentials at the bottom of this form.</li>
+					<li>The URL listed below must be entered at <b>Sign-in credentials &gt; Authorized forwarding URIs</b>.</li>
 				</ul>
 			]]>
         </Value>

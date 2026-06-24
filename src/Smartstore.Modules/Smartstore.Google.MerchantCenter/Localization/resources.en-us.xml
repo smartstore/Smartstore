@@ -141,10 +141,10 @@ these values can be edited in the plugin configuration and the product edit page
         <Value>The material or fabric that a product is made out of. Usefull for clothes for instance.</Value>
     </LocaleResource>
     <LocaleResource Name="Pattern">
-        <Value>Muster</Value>
+        <Value>Pattern</Value>
     </LocaleResource>
     <LocaleResource Name="Pattern.Hint">
-        <Value>The pattern or graphic print featured on a product. Usefull for clothes for instance.</Value>
+        <Value>The pattern or graphic print featured on a product. Useful for clothes for instance.</Value>
     </LocaleResource>
     <LocaleResource Name="EmptyGridCell">
         <Value>Empty</Value>

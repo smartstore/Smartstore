@@ -34,7 +34,7 @@
                         It will not be viewable in Amazon Seller Central afterwards. Keep it safe or create new keys if needed.</li>
                     </ul>
                 </li>
-                <li>If you would like to receive instant payment notifications (SSL required!) enter the IPN URL listed bewlow under <b>Integration Settings - Instant Notification Settings - Merchant URL</b>.</li>
+                <li>If you would like to receive instant payment notifications (SSL required!) enter the IPN URL listed below under <b>Integration Settings - Instant Notification Settings - Merchant URL</b>.</li>
                 </ul>
                 <div class="mb-1">Please add information about <b>Login and Pay with Amazon</b> on your payment page (see <b>CMS > Topics</b>). You will find picture material <a class="alert-link" href="https://payments.amazon.de/resources#marks">here</a>.
                 Text suggestions:</div><ul>
