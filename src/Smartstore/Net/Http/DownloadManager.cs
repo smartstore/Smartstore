@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http;
+using Smartstore.Engine;
 using Smartstore.IO;
-using Smartstore.Net;
 
 namespace Smartstore.Net.Http;
 
@@ -9,9 +9,12 @@ public sealed class DownloadManager : Disposable
 {
     private const int MaxRedirects = 5;
 
-    public DownloadManager(HttpClient httpClient)
+    private readonly IApplicationContext _appContext;
+
+    public DownloadManager(HttpClient httpClient, IApplicationContext applicationContext)
     {
-        HttpClient = Guard.NotNull(httpClient, nameof(httpClient));
+        HttpClient = Guard.NotNull(httpClient);
+        _appContext = applicationContext;
     }
 
     public HttpClient HttpClient { get; }
@@ -105,6 +108,15 @@ public sealed class DownloadManager : Disposable
 
                 if (response.IsSuccessStatusCode)
                 {
+                    var maxFileSize = _appContext.AppConfiguration.MaxDownloadFileSize * 1024L * 1024L;
+                    var contentLength = response.Content.Headers.ContentLength;
+                    if (contentLength > maxFileSize)
+                    {
+                        item.Success = false;
+                        item.ErrorMessage = "The downloaded file exceeds the maximum allowed size.";
+                        return;
+                    }
+
                     if (item.MimeType.IsEmpty())
                     {
                         item.MimeType = MimeTypes.MapNameToMimeType(item.FileName);
@@ -125,7 +137,8 @@ public sealed class DownloadManager : Disposable
                     using var source = await response.Content.ReadAsStreamAsync(cancelToken);
                     using var target = File.Open(item.Path, FileMode.Create);
 
-                    await source.CopyToAsync(target, cancelToken);
+                    // Stream with size enforcement in case Content-Length is missing or forged.
+                    await source.CopyToWithLimitAsync(target, maxFileSize, cancelToken);
 
                     item.Success = true;
                 }

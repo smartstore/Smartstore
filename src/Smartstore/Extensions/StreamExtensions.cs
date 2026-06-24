@@ -130,6 +130,36 @@ public static class StreamExtensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task<bool> ContentsEqualAsync(Stream other, bool? forceLengthCompare = null)
             => ContentsEqualInternal(stream, other, forceLengthCompare, true);
+
+        /// <summary>
+        /// Asynchronously copies the source stream to the target stream while enforcing
+        /// a maximum number of bytes. Throws <see cref="InvalidOperationException"/>
+        /// if the limit is exceeded.
+        /// </summary>
+        /// <param name="target">The target stream to copy to.</param>
+        /// <param name="maxBytes">Maximum number of bytes allowed.</param>
+        /// <param name="cancelToken">Cancellation token.</param>
+        public async Task CopyToWithLimitAsync(Stream target, long maxBytes, CancellationToken cancelToken = default)
+        {
+            Guard.NotNull(stream);
+            Guard.NotNull(target);
+            Guard.IsPositive(maxBytes);
+
+            var buffer = new byte[81920];
+            long totalBytes = 0;
+            int read;
+
+            while ((read = await stream.ReadAsync(buffer, cancelToken)) > 0)
+            {
+                totalBytes += read;
+                if (totalBytes > maxBytes)
+                {
+                    throw new InvalidOperationException("The stream exceeds the maximum allowed size.");
+                }
+
+                await target.WriteAsync(buffer.AsMemory(0, read), cancelToken);
+            }
+        }
     }
 
     extension(MemoryStream stream)

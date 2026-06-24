@@ -109,6 +109,12 @@ public partial class SmartConfiguration
     public int? ImagingMaxPoolSizeMB { get; set; }
 
     /// <summary>
+    /// The maximum file size (in MB) allowed for media downloads via "DownloadManager".
+    /// Default is 50 MB.
+    /// </summary>
+    public int MaxDownloadFileSize { get; set; } = 50;
+
+    /// <summary>
     /// List of module names to ignore during app installation.
     /// </summary>
     public string[]? IgnoredModules { get; set; }

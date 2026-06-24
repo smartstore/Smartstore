@@ -12,7 +12,7 @@ public static class HttpBootstrappingExtensions
     /// </summary>
     public static IServiceCollection AddDownloadManager(this IServiceCollection services)
     {
-        Guard.NotNull(services, nameof(services));
+        Guard.NotNull(services);
 
         services
             .AddHttpClient<DownloadManager>((sp, client) =>
