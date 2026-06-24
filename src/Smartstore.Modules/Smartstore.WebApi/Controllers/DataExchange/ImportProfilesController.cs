@@ -200,9 +200,7 @@ public class ImportProfilesController : WebApiController<ImportProfile>
                     else
                     {
                         // Entry is a file.
-                        var fullTargetPath = Path.GetFullPath(Path.Combine(targetBaseDir, entry.FullName));
-
-                        if (!fullTargetPath.StartsWithNoCase(targetBaseDir))
+                        if (!PathUtility.PathIsWithinDirectory(Path.Combine(targetBaseDir, entry.FullName), targetBaseDir, out _))
                         {
                             // INFO: Malicious entry detected. Ignore entry and skip extraction.
                             // entry.FullName may look like "../../somefile.txt"

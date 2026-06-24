@@ -117,7 +117,8 @@ public partial class MediaImporter : IMediaImporter
 
         static string GetAbsolutePath(IDirectory directory, string fileNameOrRelativePath)
         {
-            return Path.Combine(directory.PhysicalPath, fileNameOrRelativePath.TrimStart(PathUtility.PathSeparators).Replace('/', '\\'));
+            var path = Path.Combine(directory.PhysicalPath, fileNameOrRelativePath.TrimStart(PathUtility.PathSeparators).Replace('/', '\\'));
+            return PathUtility.EnsurePathIsWithinDirectory(path, directory.PhysicalPath);
         }
     }
 

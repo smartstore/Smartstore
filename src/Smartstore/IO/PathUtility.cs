@@ -2,6 +2,7 @@
 
 using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
+using System.Security;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Primitives;
 
@@ -589,6 +590,52 @@ public static class PathUtility
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Ensures that <paramref name="path"/> is located within <paramref name="baseDirectory"/>.
+    /// Normalizes both paths and throws <see cref="SecurityException"/> if the path attempts
+    /// to escape the base directory (e.g. via ".." segments).
+    /// </summary>
+    /// <param name="path">The path to validate.</param>
+    /// <param name="baseDirectory">The base directory that must contain <paramref name="path"/>.</param>
+    /// <returns>The normalized full path.</returns>
+    /// <exception cref="ArgumentNullException">If <paramref name="path"/> or <paramref name="baseDirectory"/> is null or empty.</exception>
+    /// <exception cref="SecurityException">If <paramref name="path"/> is outside of <paramref name="baseDirectory"/>.</exception>
+    public static string EnsurePathIsWithinDirectory(string path, string baseDirectory)
+    {
+        Guard.NotEmpty(path);
+        Guard.NotEmpty(baseDirectory);
+
+        if (!PathIsWithinDirectory(path, baseDirectory, out var fullPath))
+        {
+            throw new SecurityException($"Path '{path}' is outside of the allowed directory '{baseDirectory}'.");
+        }
+
+        return fullPath;
+    }
+
+    /// <summary>
+    /// Validates that <paramref name="path"/> is located within <paramref name="baseDirectory"/>
+    /// without throwing an exception. Returns the normalized full path when valid.
+    /// </summary>
+    /// <param name="path">The path to validate.</param>
+    /// <param name="baseDirectory">The base directory that must contain <paramref name="path"/>.</param>
+    /// <param name="fullPath">The normalized full path when the method returns <c>true</c>.</param>
+    /// <returns><c>true</c> if <paramref name="path"/> is within <paramref name="baseDirectory"/>; otherwise <c>false</c>.</returns>
+    public static bool PathIsWithinDirectory(string path, string baseDirectory, out string fullPath)
+    {
+        if (path.IsEmpty() || baseDirectory.IsEmpty())
+        {
+            fullPath = path ?? string.Empty;
+            return false;
+        }
+
+        fullPath = Path.GetFullPath(path);
+        var fullBaseDirectory = Path.GetFullPath(baseDirectory);
+        fullBaseDirectory = EnsureTrailingSlash(fullBaseDirectory)!;
+
+        return fullPath.StartsWithNoCase(fullBaseDirectory);
     }
 
     /// <summary>
