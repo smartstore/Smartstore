@@ -6,8 +6,13 @@
 
 - #1530 If a product is subsequently added to an order, update all price input controls with the price of the selected attribute combination.
 
+### New Features
+
+- Enforce `MaxDownloadFileSize` in `DownloadManager` via global `appsettings.json` (default: 50 MB)
+
 ### Improvements
 
+- SSRF guard for media downloads.
 - Withdrawal: Case-insensitive check of the email.
 
 ### Bugfixes
