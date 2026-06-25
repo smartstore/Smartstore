@@ -1,6 +1,9 @@
 ﻿@using Smartstore.Admin.Models.Common
+@using Smartstore.Core.Checkout.Tax
 
 @model OrderModel
+
+@inject TaxSettings TaxSettings
 
 @{
     ViewBag.Title = T("Admin.Orders.EditOrderDetails") + " - " + Model.OrderNumber;
@@ -10,6 +13,8 @@
     var gridViewData = new ViewDataDictionary(ViewData);
     gridViewData["Parent"] = Model;
 }
+
+<script src="~/admin/js/admin.taxcalculator.js" sm-target-zone="scripts" sm-key="tax-calculator"></script>
 
 <form asp-action="Edit" method="post">
     <input type="hidden" asp-for="Id" />
@@ -77,4 +82,22 @@
         applyCommonPlugins(pane);
         reinitFormValidator("#order-form");
     }
+
+    $(function () {
+		const taxCalc = new Smartstore.Admin.TaxCalculator({
+            rootSelector: '#order-edit',
+			pricesIncludeTax: @(TaxSettings.PricesIncludeTax.ToStringLower()),
+            decimals: @((int)ViewBag.PrimaryCurrencyDecimals),
+			res: {
+				@foreach (var key in new[]
+				{
+					"Admin.Common.TaxCalculator.Enable",
+					"Admin.Common.TaxCalculator.Disable"
+				})
+				{
+					<text>"@(Html.Raw(key))": @(T(key).JsValue),</text>
+				}
+			}
+		});
+    });
 </script>

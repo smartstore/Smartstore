@@ -1,22 +1,12 @@
-﻿@using Smartstore.Core.Checkout.Tax
-
-@model OrderModel
-
-@inject TaxSettings TaxSettings
+﻿@model OrderModel
 
 @{
     var primaryCurrencyCode = (string)ViewBag.PrimaryStoreCurrencyCode;
-    var inclTax = T("Admin.Orders.Fields.Edit.InclTax", primaryCurrencyCode);
-    var exclTax = T("Admin.Orders.Fields.Edit.ExclTax", primaryCurrencyCode);
-
-    var primaryCurrencyDecimals = (int)ViewBag.PrimaryCurrencyDecimals;
     var taxPairMode = TaxPairMode.Edit | (Model.TaxRatesList.Count > 1 ? 0 : TaxPairMode.Calculate);
 }
 
-<script src="~/admin/js/admin.taxcalculator.js" sm-target-zone="scripts" sm-key="tax-calculator"></script>
-
 <div id="order-total-controls" class="card">
-    <div class="adminContent card-body px-4 py-3">
+    <div class="adminContent card-body px-4 py-3" data-tax-area>
         <div class="adminRow">
             <div class="adminTitle">
                 <smart-label asp-for="OrderSubtotalInclTax" />
@@ -30,7 +20,7 @@
                 <smart-label asp-for="OrderSubTotalDiscountInclTax" />
             </div>
             <div class="adminData">
-                <tax-pair asp-for-gross="OrderSubTotalDiscountInclTax" asp-for-net="OrderSubTotalDiscountExclTax" kind="TaxPairKind.Discount" mode="@taxPairMode" />
+                <tax-pair asp-for-gross="OrderSubTotalDiscountInclTax" asp-for-net="OrderSubTotalDiscountExclTax" kind="TaxPairKind.SubtotalDiscount" mode="@taxPairMode" />
             </div>
         </div>
         <div class="adminRow">
@@ -132,23 +122,6 @@
             toggleOrderTotals($(this).attr('id') === 'btnEditOrderTotals');
             return false;
         });
-
-		const taxCalc = new Smartstore.Admin.TaxCalculator({
-            rootSelector: '#order-total-controls',
-			pricesIncludeTax: @(TaxSettings.PricesIncludeTax.ToStringLower()),
-            decimals: @primaryCurrencyDecimals,
-			res: {
-				@foreach (var key in new[]
-				{
-					"Admin.Common.TaxCalculator.Enable",
-					"Admin.Common.TaxCalculator.Disable"
-				})
-				{
-					<text>"@(Html.Raw(key))": @(T(key).JsValue),</text>
-				}
-			}
-		});
-
 
         function toggleOrderTotals(editmode) {
             if (editmode) {

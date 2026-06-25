@@ -17,7 +17,8 @@ public enum TaxPairKind
     Shipping,
     PaymentFee,
     LineTotal,
-    Subtotal
+    Subtotal,
+    SubtotalDiscount
 }
 
 [Flags]
@@ -34,6 +35,12 @@ public enum TaxPairMode
     Edit = 1 << 1
 }
 
+public enum TaxPairAlignment
+{
+    Horizontal, 
+    Vertical
+}
+
 [HtmlTargetElement(TagName, TagStructure = TagStructure.NormalOrSelfClosing)]
 public class TaxPairTagHelper : SmartTagHelper
 {
@@ -42,6 +49,7 @@ public class TaxPairTagHelper : SmartTagHelper
     const string ModeAttributeName = "mode";
     const string ForGrossAttributeName = "asp-for-gross";
     const string ForNetAttributeName = "asp-for-net";
+    const string AlignAttributeName = "align";
 
     private readonly ICurrencyService _currencyService;
 
@@ -75,6 +83,12 @@ public class TaxPairTagHelper : SmartTagHelper
     [HtmlAttributeName(ForNetAttributeName)]
     public ModelExpression ForNet { get; set; }
 
+    /// <summary>
+    /// Gets or sets the alignment of the tax pair editors.
+    /// </summary>
+    [HtmlAttributeName(AlignAttributeName)]
+    public TaxPairAlignment Align { get; set; } = TaxPairAlignment.Horizontal;
+
     protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
     {
         var primaryCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
@@ -94,8 +108,13 @@ public class TaxPairTagHelper : SmartTagHelper
         output.TagName = "div";
         output.TagMode = TagMode.StartTagAndEndTag;
 
-        output.Attributes.RemoveAll("id");
-        output.Attributes.Add("class", "row g-1 flex-nowrap");
+        var isVertical = Align == TaxPairAlignment.Vertical;
+        var containerClass = isVertical ? "d-flex align-items-center" : "row g-1 flex-nowrap";
+        var inputsWrapperClass = isVertical ? "d-flex flex-column gap-1 flex-grow-1" : "row g-1 flex-nowrap";
+
+        // Clear all existing attributes. We apply them on the editors.
+        output.Attributes.Clear();
+        output.Attributes.Add("class", containerClass);
         output.Attributes.Add("data-tax-pair", Kind == null ? string.Empty : Kind.ToString().ToLower());
 
         if (active)
@@ -105,50 +124,84 @@ public class TaxPairTagHelper : SmartTagHelper
 
         output.Content.Clear();
 
-        // Lock/unlock button.
-        TagBuilder lockTag;
-        if (calculate)
+        // Lock/unlock button
+        var lockDiv = new TagBuilder("div");
+        lockDiv.AddCssClass(isVertical ? "ms-2" : "col-auto align-content-center");
+        lockDiv.InnerHtml.AppendHtml(CreateLockTag());
+
+        var editorGross = BuildEditor(ForGross, true);
+        var editorNet = BuildEditor(ForNet, false);
+
+        if (isVertical)
         {
-            lockTag = new TagBuilder("button");
-            lockTag.Attributes.Add("type", "button");
-            lockTag.AddCssClass("btn btn-sm border-0 shadow-none bg-transparent text-reset p-1 btn-tax-lock");
-            lockTag.Attributes.Add("title", T(active ? "Admin.Common.TaxCalculator.Disable" : "Admin.Common.TaxCalculator.Enable"));
-            lockTag.InnerHtml.AppendHtml("<i class='fa {0}'></i>".FormatInvariant(active ? "fa-lock" : "fa-lock-open text-muted"));
+            // Wrap editors in a column for vertical layout
+            var inputsWrapper = new TagBuilder("div");
+            inputsWrapper.AddCssClass(inputsWrapperClass);
+            inputsWrapper.InnerHtml.AppendHtml(editorGross);
+            inputsWrapper.InnerHtml.AppendHtml(editorNet);
+
+            output.Content.AppendHtml(inputsWrapper);
+            output.Content.AppendHtml(lockDiv);
         }
         else
         {
-            // Automatic gross-to-net conversion is not possible.
-            lockTag = new TagBuilder("span");
-            lockTag.AddCssClass("p-1");
-            lockTag.Attributes.Add("title", T("Admin.Common.TaxCalculator.NoCalculation"));
-            lockTag.InnerHtml.AppendHtml("<i class='fa fa-lock-open text-danger'></i>");
+            // Standard horizontal flow
+            output.Content.AppendHtml(editorGross);
+            output.Content.AppendHtml(lockDiv);
+            output.Content.AppendHtml(editorNet);
         }
 
-        var lockDiv = new TagBuilder("div");
-        lockDiv.AddCssClass("col-auto align-content-center");
-        lockDiv.InnerHtml.AppendHtml(lockTag);
+        TagBuilder CreateLockTag()
+        {
+            TagBuilder lockTag;
+            if (calculate)
+            {
+                lockTag = new TagBuilder("button");
+                lockTag.Attributes.Add("type", "button");
+                lockTag.AddCssClass("btn btn-sm border-0 shadow-none bg-transparent text-reset p-1 btn-tax-lock");
+                lockTag.Attributes.Add("title", T(active ? "Admin.Common.TaxCalculator.Disable" : "Admin.Common.TaxCalculator.Enable"));
+                lockTag.InnerHtml.AppendHtml("<i class='fa {0}'></i>".FormatInvariant(active ? "fa-lock" : "fa-lock-open text-muted"));
+            }
+            else
+            {
+                // Automatic gross-to-net conversion is not possible.
+                lockTag = new TagBuilder("span");
+                lockTag.AddCssClass("p-1");
+                lockTag.Attributes.Add("title", T("Admin.Common.TaxCalculator.NoCalculation"));
+                lockTag.InnerHtml.AppendHtml("<i class='fa fa-lock-open text-danger'></i>");
+            }
 
-        // Put all together.
-        output.Content.AppendHtml(BuildEditor(ForGross, true));
-        output.Content.AppendHtml(lockDiv);
-        output.Content.AppendHtml(BuildEditor(ForNet, false));
+            return lockTag;
+        }
 
         TagBuilder BuildEditor(ModelExpression expression, bool gross)
         {
             var postfix = T("Admin.Orders.Fields.Edit." + (gross ? "InclTax" : "ExclTax"), primaryCurrencyCode).ToString();
-            var taxField = gross ? "gross" : "net";
+            var baseId = context.AllAttributes["data-id"]?.Value?.ToString();
+            var cssClass = context.AllAttributes["class"]?.Value?.ToString();
+
+            var htmlAttributes = new Dictionary<string, object>
+            {
+                ["data-tax-field"] = gross ? "gross" : "net"
+            };
+
+            if (cssClass.HasValue())
+            {
+                htmlAttributes.Add("class", cssClass);
+            }
+            if (baseId.HasValue())
+            {
+                htmlAttributes.Add("data-id", baseId.FormatInvariant(gross ? "incl" : "excl"));
+            }
 
             var editor = HtmlHelper.EditorFor(expression, new RouteValueDictionary
             {
                 ["postfix"] = postfix,
-                ["htmlAttributes"] = new Dictionary<string, object>
-                {
-                    ["data-tax-field"] = taxField
-                }
+                ["htmlAttributes"] = htmlAttributes
             });
 
             var div = new TagBuilder("div");
-            div.AddCssClass("col");
+            div.AddCssClass(isVertical ? string.Empty : "col");
             div.InnerHtml.AppendHtml(editor);
 
             return div;

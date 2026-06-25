@@ -63,16 +63,16 @@
                     <th sm-if="Model.HasDownloadableProducts" style="width: 10%;">
                         @T("Admin.Orders.Products.Download")
                     </th>
-                    <th class="text-center" style="width: 18%;">
+                    <th class="text-center" style="width: 16%;">
                         @T("Admin.Orders.Products.Price")
                     </th>
-                    <th class="text-center" style="width: 8%;">
+                    <th class="text-center" style="width: 14%;">
                         @T("Admin.Orders.Products.Quantity")
                     </th>
-                    <th class="text-center" style="width: 18%;">
+                    <th class="text-center" style="width: 16%;">
                         @T("Admin.Orders.Products.Discount")
                     </th>
-                    <th class="text-center" style="width: 18%;">
+                    <th class="text-center" style="width: 16%;">
                         @T("Admin.Orders.Products.Total")
                     </th>
                     <th></th>
@@ -82,7 +82,7 @@
                 @for (var i = 0; i < Model.Items.Count; i++)
                 {
                     var item = Model.Items[i];
-                    <tr attr-class='(item.IsProductSoftDeleted, "text-muted")'>
+                    <tr attr-class='(item.IsProductSoftDeleted, "text-muted")' data-tax-area>
                         <td class="align-top">
                             <div>
                                 <div class="hstack fwm">
@@ -208,13 +208,12 @@
                             </div>
                             <div id="pnlEditUnitPrice@(item.Id)" class="order-edit-cnt">
                                 <div class="m-1">
-                                    <editor asp-for="Items[i].UnitPriceInclTax" class="form-control-sm edit-value" data-id="oi-unit-price-incl-tax-@item.Id" sm-postfix="@inclTax" />
-                                </div>
-                                <div class="m-1">
-                                    <editor asp-for="Items[i].UnitPriceExclTax" class="form-control-sm edit-value" data-id="oi-unit-price-excl-tax-@item.Id" sm-postfix="@exclTax" />
-                                </div>
-                                <div class="m-1">
-                                    <editor asp-for="Items[i].TaxRate" class="form-control-sm edit-value" data-id="oi-tax-rate-@item.Id" sm-postfix="@T("Admin.Common.TaxPercent")" />
+                                    <tax-pair asp-for-gross="Items[i].UnitPriceInclTax" 
+                                              asp-for-net="Items[i].UnitPriceExclTax" 
+                                              kind="TaxPairKind.UnitPrice" 
+                                              align="Vertical" 
+                                              class="form-control-sm edit-value"
+                                              data-id="oi-unit-price-{0}-tax-@item.Id" />
                                 </div>
                             </div>
                         </td>
@@ -222,7 +221,14 @@
                             <div id="pnlQuantity@(item.Id)">@item.Quantity</div>
                             <div id="pnlEditQuantity@(item.Id)" class="order-edit-cnt">
                                 <div class="m-1">
-                                    <editor asp-for="Items[i].Quantity" class="form-control-sm edit-value" data-id="oi-quantity-@item.Id" />
+                                    <editor asp-for="Items[i].Quantity" class="form-control-sm edit-value" data-id="oi-quantity-@item.Id" data-tax-field="quantity" />
+                                </div>
+                                <div class="m-1">
+                                    <editor asp-for="Items[i].TaxRate"
+                                            class="form-control-sm edit-value"
+                                            data-id="oi-tax-rate-@item.Id"
+                                            sm-postfix="@T("Admin.Common.TaxPercent")"
+                                            data-tax-field="taxrate" />
                                 </div>
                             </div>
                         </td>
@@ -240,10 +246,12 @@
                             </div>
                             <div id="pnlEditDiscount@(item.Id)" class="order-edit-cnt">
                                 <div class="m-1">
-                                    <editor asp-for="Items[i].DiscountAmountInclTax" class="form-control-sm edit-value" data-id="oi-discount-incl-tax-@item.Id" sm-postfix="@inclTax" />
-                                </div>
-                                <div class="m-1">
-                                    <editor asp-for="Items[i].DiscountAmountExclTax" class="form-control-sm edit-value" data-id="oi-discount-excl-tax-@item.Id" sm-postfix="@exclTax" />
+                                    <tax-pair asp-for-gross="Items[i].DiscountAmountInclTax"
+                                              asp-for-net="Items[i].DiscountAmountExclTax"
+                                              kind="TaxPairKind.Discount"
+                                              align="Vertical"
+                                              class="form-control-sm edit-value"
+                                              data-id="oi-discount-{0}-tax-@item.Id" />
                                 </div>
                             </div>
                         </td>
@@ -261,10 +269,12 @@
                             </div>
                             <div id="pnlEditPrice@(item.Id)" class="order-edit-cnt">
                                 <div class="m-1">
-                                    <editor asp-for="Items[i].PriceInclTax" class="form-control-sm edit-value" data-id="oi-price-incl-tax-@item.Id" sm-postfix="@inclTax" />
-                                </div>
-                                <div class="m-1">
-                                    <editor asp-for="Items[i].PriceExclTax" class="form-control-sm edit-value" data-id="oi-price-excl-tax-@item.Id" sm-postfix="@exclTax" />
+                                    <tax-pair asp-for-gross="Items[i].PriceInclTax"
+                                              asp-for-net="Items[i].PriceExclTax"
+                                              kind="TaxPairKind.LineTotal"
+                                              align="Vertical"
+                                              class="form-control-sm edit-value"
+                                              data-id="oi-price-{0}-tax-@item.Id" />
                                 </div>
                             </div>
                         </td>

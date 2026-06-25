@@ -239,7 +239,10 @@ public partial class OrderModel : EditOrderModel
         public decimal PriceExclTax { get; set; }
         public string PriceExclTaxString { get; set; }
 
+        [AdditionalMetadata("min", 0)]
         public decimal TaxRate { get; set; }
+        
+        [AdditionalMetadata("min", 1)]
         public int Quantity { get; set; }
 
         public decimal DiscountAmountInclTax { get; set; }
