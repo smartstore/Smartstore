@@ -159,7 +159,7 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
             return;
         }
 
-        // TODO: (mg) discount missing/ignored.
+        // INFO: A product-specific discount is included in the unit price. Therefore, it must not be included in the line total again.
         const quantity = this.#getNumber(ctx, 'quantity');
         const gross = pair.find('[data-tax-field="gross"]').val();
         const net = pair.find('[data-tax-field="net"]').val();
@@ -361,8 +361,8 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
 
         return {
             $pair: $pair,
-            gross: this.#getNumber(ctx, $pair.find('[data-tax-field="gross"]')),
-            net: this.#getNumber(ctx, $pair.find('[data-tax-field="net"]'))
+            gross: $pair.length ? this.#getNumber(ctx, $pair.find('[data-tax-field="gross"]')) : 0,
+            net: $pair.length ? this.#getNumber(ctx, $pair.find('[data-tax-field="net"]')) : 0
         };
     }
 
