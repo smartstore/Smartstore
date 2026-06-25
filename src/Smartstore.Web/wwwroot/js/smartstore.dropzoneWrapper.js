@@ -1045,10 +1045,10 @@
 
     // Logs any dropzone event. Can be invoked by get parameter where value is the event you want to be logged (e.g. logEvents=error || logEvents=success, to log every event use logEvents=all)
     function logEvent() {
-        var keyValues = getQueryStrings();
+        var params = new URLSearchParams(window.location.search);
 
         // Event logging can be turned on by a GET parameter e.g. ?logEvents=all || ?logEvents=eventname
-        var paramValue = keyValues.logevents;
+        var paramValue = params.get("logEvents");
         if (paramValue === "all" || paramValue === arguments[0]) {
             console.log.apply(console, arguments);
         }

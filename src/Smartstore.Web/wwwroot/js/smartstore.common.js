@@ -17,65 +17,60 @@
     };
 
     window.modifyUrl = function (url, qsName, qsValue) {
-        var search = null;
+        var baseUrl;
+        var search;
 
         if (!url) {
-            url = window.location.protocol + "//" +
+            baseUrl = window.location.protocol + "//" +
                 window.location.host +
                 window.location.pathname;
+            search = window.location.search;
         }
         else {
             // strip query from url
             var idx = url.indexOf('?', 0);
             if (idx > -1) {
                 search = url.substring(idx);
-                url = url.substring(0, idx);
+                baseUrl = url.substring(0, idx);
+            }
+            else {
+                baseUrl = url;
+                search = "";
             }
         }
 
-        var qs = getQueryStrings(search);
+        var qs = new URLSearchParams(search);
 
-        // Add new params to the querystring dictionary
-        qs[qsName] = qsValue;
-
-        return url + createQueryString(qs);
-
-        function createQueryString(dict) {
-            var bits = [];
-            for (var key in dict) {
-                if (dict.hasOwnProperty(key) && dict[key]) {
-                    bits.push(key + "=" + dict[key]);
-                }
-            }
-            return bits.length > 0 ? "?" + bits.join("&") : "";
+        // Add new param to querystring or remove it if value is empty.
+        if (qsValue) {
+            qs.set(qsName, qsValue);
         }
+        else {
+            qs.delete(qsName);
+        }
+
+        var queryString = qs.toString();
+        return baseUrl + (queryString ? "?" + queryString : "");
     };
 
     // http://stackoverflow.com/questions/2907482
     // Gets Querystring from window.location and converts all keys to lowercase
     window.getQueryStrings = function (search) {
         var assoc = {};
-        var decode = function (s) { return decodeURIComponent(s.replace(/\+/g, " ")); };
-        var queryString = (search || location.search).substring(1);
-        var keyValues = queryString.split('&');
+        var params = new URLSearchParams(search || location.search);
 
-        for (var i in keyValues) {
-            var item = keyValues[i].split('=');
-            if (item.length > 1) {
-                var key = decode(item[0]).toLowerCase();
-                var val = decode(item[1]);
-                if (assoc[key] === undefined) {
-                    assoc[key] = val;
-                } else {
-                    var v = assoc[key];
-                    if (v.constructor != Array) {
-                        assoc[key] = [];
-                        assoc[key].push(v);
-                    }
-                    assoc[key].push(val);
+        params.forEach(function (value, key) {
+            key = key.toLowerCase();
+            if (assoc[key] === undefined) {
+                assoc[key] = value;
+            } else {
+                var v = assoc[key];
+                if (!Array.isArray(v)) {
+                    assoc[key] = [v];
                 }
+                assoc[key].push(value);
             }
-        }
+        });
 
         return assoc;
     };
