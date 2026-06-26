@@ -9,7 +9,6 @@
     ViewBag.Title = T("Admin.Orders.Products.AddNew.Title2", Model.Name, Model.OrderId);
 
     var warnings = ViewBag.Warnings as List<string>;
-    var primaryCurrencyDecimals = (int)ViewBag.PrimaryCurrencyDecimals;
 }
 
 <script src="~/admin/js/admin.taxcalculator.js" sm-target-zone="scripts" sm-key="tax-calculator"></script>
@@ -105,7 +104,7 @@
 		const taxCalc = new Smartstore.Admin.TaxCalculator({
 			rootSelector: '#AddProductToOrderForm',
 			pricesIncludeTax: @(TaxSettings.PricesIncludeTax.ToStringLower()),
-            decimals: @primaryCurrencyDecimals,
+            decimals: @((int)ViewBag.PrimaryCurrencyDecimals),
 			res: {
 				@foreach (var key in new[]
 				{

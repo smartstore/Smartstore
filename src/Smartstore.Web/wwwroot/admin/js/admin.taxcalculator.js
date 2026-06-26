@@ -140,20 +140,22 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
             }
         }
 
-        if (ctx.autoUpdate) {
-            if ($pair.is('[data-tax-pair="unitprice"]')) {
-                // Unit price changed -> update line total.
-                this.#updateLineTotalOrUnitPrice(ctx, $pair, true);
-            }
-            else if ($pair.is('[data-tax-pair="linetotal"]')) {
-                // Line total changed -> update unit price.
-                this.#updateLineTotalOrUnitPrice(ctx, $pair, false);
-            }
+        if ($pair.is('[data-tax-pair="unitprice"]')) {
+            // Unit price changed -> update line total.
+            this.#updateLineTotalOrUnitPrice(ctx, $pair, true);
+        }
+        else if ($pair.is('[data-tax-pair="linetotal"]')) {
+            // Line total changed -> update unit price.
+            this.#updateLineTotalOrUnitPrice(ctx, $pair, false);
         }
     }
 
     // Update line total price when unit price is changed or vice versa, if at least one tax calculator is active.
     #updateLineTotalOrUnitPrice(ctx, pair, lineTotal) {
+        if (!ctx.autoUpdate) {
+            return;
+        }
+
         const $target = ctx.$area.find(lineTotal ? '[data-tax-pair="linetotal"]' : '[data-tax-pair="unitprice"]');
         if (!$target.length || !$target.is('[data-tax-active]')) {
             return;
