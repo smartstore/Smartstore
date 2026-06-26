@@ -2,7 +2,7 @@
 * Project: Smartstore gross/net tax calculation.
 * Author: Marcus Gesing, SmartStore AG
 *
-* The net value is calculated automatically when the corresponding gross value changes—and vice versa. 
+* The net value is calculated automatically whenever the corresponding gross value changes, and vice versa.
 * In addition, fields such as the total amount or the total tax amount are updated.
 *
 * Server-side price calculation takes precedence. If the values affecting the calculation change (e.g. quantity or variant),
