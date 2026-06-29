@@ -20,7 +20,9 @@
                 <smart-label asp-for="TransactMode" />
             </div>
             <div class="adminData">
-                <select asp-for="TransactMode" asp-items="ViewBag.TransactModes"></select>
+                <setting-editor asp-for="TransactMode">
+                    <select asp-for="TransactMode" asp-items="ViewBag.TransactModes"></select>
+                </setting-editor>
                 <span asp-validation-for="TransactMode"></span>
             </div>
         </div>
@@ -29,7 +31,7 @@
                 <smart-label asp-for="AdditionalFee" />
             </div>
             <div class="adminData">
-                <editor asp-for="AdditionalFee" sm-postfix="@ViewBag.PrimaryStoreCurrencyCode" />
+                <setting-editor asp-for="AdditionalFee" sm-postfix="@ViewBag.PrimaryStoreCurrencyCode"></setting-editor>
                 <span asp-validation-for="AdditionalFee"></span>
             </div>
         </div>
@@ -38,7 +40,7 @@
                 <smart-label asp-for="AdditionalFeePercentage" />
             </div>
             <div class="adminData">
-                <editor asp-for="AdditionalFeePercentage" />
+                <setting-editor asp-for="AdditionalFeePercentage"></setting-editor>
                 <span asp-validation-for="AdditionalFeePercentage"></span>
             </div>
         </div>
