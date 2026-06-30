@@ -22,6 +22,7 @@
   - Fixed a `SecurityException` when a return case is saved.
   - Emails were not sent to customers.
   - #1550 Clearly distinguish between the terms "withdrawal" and "return", and do not use "withdrawal" when referring to returns.
+- MegaSearch: A single letter in the search term may incorrectly result in 0 search results if "Hits contain all searched terms" is enabled.
 - Currency: Edit page did not select/display the saved denominator for order total rounding.
 - Google Analytics: Fixed script error when obtaining the category path.
 - PageBuilder: Fixed JSON conversion error for background overlay.
