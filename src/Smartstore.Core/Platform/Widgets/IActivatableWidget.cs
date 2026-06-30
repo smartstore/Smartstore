@@ -17,7 +17,7 @@ public partial interface IActivatableWidget : IProvider, IUserEditable
     /// Gets an invoker for displaying a widget.
     /// </summary>
     /// <param name="widgetZone">Widget zone where it's displayed.</param>
-		/// <param name="model">The model of the parent view context.</param>
-		/// <param name="storeId">The id of the current store.</param>
+	/// <param name="model">The model of the parent view context.</param>
+	/// <param name="storeId">The id of the current store.</param>
     Widget GetDisplayWidget(string widgetZone, object model, int storeId);
 }
