@@ -34,7 +34,7 @@ public class ModularState
 
                 var dir = new DirectoryInfo(m.PhysicalPath);
                 var dlls = dir.GetFiles("*.dll", SearchOption.TopDirectoryOnly);
-                dlls.Each(x => hashCombiner.Add(x));
+                dlls.Cast<FileSystemInfo>().Each(x => hashCombiner.Add(x));
             }
 
             return hashCombiner.CombinedHash;
@@ -113,7 +113,7 @@ public class ModularState
 
             if (isLegacy)
             {
-                lines = lines.Concat(new[] { "Smartstore.Blog", "Smartstore.Forums", "Smartstore.News", "Smartstore.Polls" });
+                lines = lines.Concat(["Smartstore.Blog", "Smartstore.Forums", "Smartstore.News", "Smartstore.Polls"]);
 
                 // After first migration, create and save new InstalledModules.txt
                 _appContext.TenantRoot.WriteAllText(FileName, string.Join(Environment.NewLine, lines));
