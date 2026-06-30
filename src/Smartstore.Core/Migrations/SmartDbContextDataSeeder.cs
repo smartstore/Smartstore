@@ -72,5 +72,19 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Legt fest, ob nur Objekte, die veröffentlicht wurden, exportiert werden, sofern das Objekt eine Einstellung zur Veröffentlichung besitzt.");
 
         builder.AddOrUpdate("Footer.Info", "Information", "Informationen");
+
+        builder.AddOrUpdate("ReturnCase.WithdrawEntireOrder",
+            "I want to withdraw the contract for the entire order:",
+            "Ich möchte den Vertrag für die gesamte Bestellung widerrufen:");
+        builder.AddOrUpdate("ReturnCase.WithdrawItems",
+            "I want to withdraw the contract for the following items:",
+            "Ich möchte den Vertrag für die folgenden Artikel widerrufen:");
+
+        builder.AddOrUpdate("ReturnCase.ReturnEntireOrder",
+            "I want to return the entire order:",
+            "Ich möchte die gesamte Bestellung zurücksenden:");
+        builder.AddOrUpdate("ReturnCase.ReturnItems",
+            "I want to return the following items:",
+            "Ich möchte die folgenden Artikel zurücksenden:");
     }
 }

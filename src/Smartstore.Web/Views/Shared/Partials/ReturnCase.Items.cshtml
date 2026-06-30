@@ -5,10 +5,13 @@
 @model ReturnCaseItemsModel
 
 @{
+    var withdrawal = ViewData["Withdrawal"] as bool? == true;
     var returnAll = Model.ReturnAllItems;
     var isEditable = Model.IsEditable;
     var hasItemsToReturn = Model.HasItemsToReturn;
     var hasSingleItemToReturn = Model.HasSingleItemToReturn;
+    var entireOrder = returnAll && !hasSingleItemToReturn;
+    var msgKey = entireOrder ? (withdrawal ? "WithdrawEntireOrder" : "ReturnEntireOrder") : (withdrawal ? "WithdrawItems" : "ReturnItems");
 }
 
 @if (isEditable)
@@ -42,7 +45,7 @@
 else
 {
     <div>
-        @T(returnAll && !hasSingleItemToReturn ? "ReturnCase.WithdrawEntireOrder" : "ReturnCase.WithdrawItems")
+        @T("ReturnCase." + msgKey)
     </div>
 }
 
