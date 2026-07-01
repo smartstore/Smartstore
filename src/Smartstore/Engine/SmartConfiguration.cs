@@ -290,6 +290,28 @@ public partial class SmartConfiguration
         /// Default is false (recommended for multi-hop proxy chains).
         /// </summary>
         public bool? RequireHeaderSymmetry { get; set; }
+
+        /// <summary>
+        /// The name of the HTTP header that contains the bot score provided by a trusted reverse proxy or bot management service.
+        /// If set and the header is present, its value is compared against <see cref="TrustedBotScoreThreshold"/>
+        /// to decide whether the internal bot heuristics should be skipped or the request should be treated as a bot.
+        /// Default is "CF-Bot-Score" (Cloudflare Bot Management).
+        /// </summary>
+        public string TrustedBotScoreHeader { get; set; } = "CF-Bot-Score";
+
+        /// <summary>
+        /// The name of the HTTP header that identifies a request as a verified/good bot by a trusted reverse proxy or bot management service.
+        /// If set and the header value is "true", the request is treated as a bot without running internal heuristics.
+        /// Default is "CF-Verified-Bot" (Cloudflare).
+        /// </summary>
+        public string TrustedVerifiedBotHeader { get; set; } = "CF-Verified-Bot";
+
+        /// <summary>
+        /// The bot score threshold below which a request is treated as a bot when <see cref="TrustedBotScoreHeader"/> is present and valid.
+        /// Scores greater than or equal to this value are considered human and the internal bot heuristics are skipped.
+        /// Must be between 1 and 99. Default is 30.
+        /// </summary>
+        public int TrustedBotScoreThreshold { get; set; } = 30;
     }
 
     /// <summary>

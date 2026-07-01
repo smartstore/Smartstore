@@ -56,6 +56,7 @@ public class DefaultWorkContextSource : AsyncDbSaveHook<BaseEntity>, IWorkContex
     private readonly IUserAgent _userAgent;
     private readonly IWebHelper _webHelper;
     private readonly IOverloadProtector _overloadProtector;
+    private readonly IApplicationContext _appContext;
 
     public DefaultWorkContextSource(
         SmartDbContext db,
@@ -69,7 +70,8 @@ public class DefaultWorkContextSource : AsyncDbSaveHook<BaseEntity>, IWorkContex
         ICacheManager cache,
         IUserAgent userAgent,
         IWebHelper webHelper,
-        IOverloadProtector overloadProtector)
+        IOverloadProtector overloadProtector,
+        IApplicationContext appContext)
     {
         _db = db;
         _httpContextAccessor = httpContextAccessor;
@@ -83,6 +85,7 @@ public class DefaultWorkContextSource : AsyncDbSaveHook<BaseEntity>, IWorkContex
         _cache = cache;
         _webHelper = webHelper;
         _overloadProtector = overloadProtector;
+        _appContext = appContext;
     }
 
     public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -119,7 +122,8 @@ public class DefaultWorkContextSource : AsyncDbSaveHook<BaseEntity>, IWorkContex
             Endpoint = _httpContextAccessor.HttpContext?.GetEndpoint(),
             UserAgent = _userAgent,
             WebHelper = _webHelper,
-            OverloadProtector = _overloadProtector
+            OverloadProtector = _overloadProtector,
+            AppContext = _appContext
         };
 
         try
@@ -446,6 +450,7 @@ public class DefaultWorkContextSource : AsyncDbSaveHook<BaseEntity>, IWorkContex
         public ICustomerService CustomerService { get; init; }
         public IUserAgent UserAgent { get; init; }
         public IWebHelper WebHelper { get; init; }
+        public IApplicationContext AppContext { get; init; }
 
         public IOverloadProtector OverloadProtector { get; init; }
         public bool? DenyGuest { get; set; }
@@ -483,9 +488,24 @@ public class DefaultWorkContextSource : AsyncDbSaveHook<BaseEntity>, IWorkContex
 
     private static async Task<Customer> DetectBot(DetectCustomerContext context)
     {
+        // If a trusted reverse proxy / bot management service sends a verdict,
+        // honor it before running our own heuristics.
+        var botVerdict = GetTrustedProxyBotVerdict(context);
+        if (botVerdict == TrustedProxyBotVerdict.Bot)
+        {
+            // The trusted proxy says this is a bot.
+            return await GetBotIfAllowedAsync(context);
+        }
+        else if (botVerdict == TrustedProxyBotVerdict.Human)
+        {
+            // The trusted proxy says this is likely a human. Skip our own heuristics,
+            // because proxies may have modified headers such as Accept-Language or Sec-Fetch-*.
+            return null;
+        }
+
+        var isBot = false;
         var req = context.HttpContext.Request;
         var headers = req.Headers;
-        var isBot = false;
 
         // User Agent (Very cheap & effective against dumb bots)
         var ua = req.UserAgent();
@@ -533,13 +553,69 @@ public class DefaultWorkContextSource : AsyncDbSaveHook<BaseEntity>, IWorkContex
 
         if (isBot)
         {
-            // Check traffic limit for bots.
-            await CheckBotDeniedAsync(context);
-            // Return Bot system account
-            return await context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.Bot);
+            return await GetBotIfAllowedAsync(context);
         }
 
         return null;
+    }
+
+    private enum TrustedProxyBotVerdict
+    {
+        Unknown,
+        Human,
+        Bot
+    }
+
+    private static TrustedProxyBotVerdict GetTrustedProxyBotVerdict(DetectCustomerContext context)
+    {
+        var proxyConfig = context.AppContext.AppConfiguration.ReverseProxy;
+        if (proxyConfig?.Enabled != true)
+        {
+            return TrustedProxyBotVerdict.Unknown;
+        }
+
+        // If a trusted reverse proxy / bot management service sends bot verdict headers,
+        // honor them before running our own heuristics.
+        var headers = context.HttpContext.Request.Headers;
+        var verifiedBotHeader = proxyConfig?.TrustedVerifiedBotHeader;
+        var scoreHeader = proxyConfig?.TrustedBotScoreHeader;
+        var scoreThreshold = proxyConfig?.TrustedBotScoreThreshold ?? 0;
+
+        if (verifiedBotHeader.HasValue() && headers.TryGetValue(verifiedBotHeader, out var verifiedBotValue)
+            && verifiedBotValue.ToString().ToBool() == true)
+        {
+            // The trusted proxy says this is a known/good bot.
+            return TrustedProxyBotVerdict.Bot;
+        }
+
+        if (scoreHeader.HasValue()
+            && scoreThreshold is >= 1 and <= 99
+            && headers.TryGetValue(scoreHeader, out var scoreValue)
+            && scoreValue.ToString().HasValue()
+            && int.TryParse(scoreValue.ToString(), out var score))
+        {
+            if (score < scoreThreshold)
+            {
+                // The trusted proxy says this is likely a bot.
+                return TrustedProxyBotVerdict.Bot;
+            }
+            else
+            {
+                // The trusted proxy says this is likely a human. Skip our own heuristics,
+                // because proxies may have modified headers such as Accept-Language or Sec-Fetch-*.
+                return TrustedProxyBotVerdict.Human;
+            }
+        }
+
+        return TrustedProxyBotVerdict.Unknown;
+    }
+
+    private async static Task<Customer> GetBotIfAllowedAsync(DetectCustomerContext context)
+    {
+        // Check traffic limit for bots.
+        await CheckBotDeniedAsync(context);
+        // Return Bot system account
+        return await context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.Bot);
     }
 
     private static async Task<Customer> DetectWebhookEndpoint(DetectCustomerContext context)
@@ -653,10 +729,8 @@ public class DefaultWorkContextSource : AsyncDbSaveHook<BaseEntity>, IWorkContex
     {
         if (context.Endpoint?.Metadata?.GetMetadata<CrawlerEndpointAttribute>() != null)
         {
-            // Check traffic limit for bots.
-            await CheckBotDeniedAsync(context);
             // Access to sitemap.xml, robots.txt etc. is most likely coming from crawlers/bots.
-            return await context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.Bot);
+            return await GetBotIfAllowedAsync(context);
         }
 
         return null;
