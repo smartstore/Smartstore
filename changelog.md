@@ -17,6 +17,7 @@
 
 - `GridCommand.Sorting` lost after session roundtrip.
 - Prevent a race condition in `TemplateZoneRenderingEvent` by eagerly resolving `TemplateName` from the DotLiquid context before publishing the event.
+- The **EasyCredit** calculator widget cannot be serialised on the product detail page when output cache is active.
 - **Withdrawal**:
   - Allow immediate withdrawal regardless of when the withdrawal period begins.
   - Fixed a `SecurityException` when a return case is saved.
