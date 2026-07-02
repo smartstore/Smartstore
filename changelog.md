@@ -13,6 +13,7 @@
 
 - SSRF guard for media downloads.
 - Withdrawal: Case-insensitive email check.
+- Theming: made `.prose` font-size and line-height configurable.
 
 ### Bugfixes
 
