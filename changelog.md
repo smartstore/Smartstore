@@ -13,7 +13,9 @@
 
 - SSRF guard for media downloads.
 - Withdrawal: Case-insensitive email check.
-- Theming: made `.prose` font-size and line-height configurable.
+- **Theming**: 
+  - Made `.prose` font-size and line-height configurable.
+  - New theme variable `$enable-alert-icons` (`false` by default)
 
 ### Bugfixes
 
