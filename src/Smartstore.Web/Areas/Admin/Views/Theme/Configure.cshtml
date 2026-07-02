@@ -29,6 +29,15 @@
         <div class="options">
             <zone name="admin_button_toolbar_before"></zone>
 
+            <a href="#importvariables-window" data-toggle="modal" class="btn btn-outline-secondary">
+                <i class="far fa-circle-up"></i>
+                <span>@T("Common.Import")</span>
+            </a>
+            <a href="#exportvariables-window" data-toggle="modal" class="btn btn-outline-secondary">
+                <i class="far fa-circle-down"></i>
+                <span>@T("Common.Export")</span>
+            </a>
+            <span class="vr"></span>
             <button type="submit" name="save" value="save" class="btn btn-warning">
                 <i class="fa fa-check"></i>
                 <span>@T("Admin.Common.Save")</span>
@@ -36,14 +45,6 @@
             <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
                 <span>@T("Admin.Common.SaveContinue")</span>
             </button>
-            <a href="#importvariables-window" data-toggle="modal" class="btn btn-secondary">
-                <i class="far fa-circle-up"></i>
-                <span>@T("Common.Import")</span>
-            </a>
-            <a href="#exportvariables-window" data-toggle="modal" class="btn btn-secondary">
-                <i class="far fa-circle-down"></i>
-                <span>@T("Common.Export")</span>
-            </a>
             <button type="submit" class="btn btn-danger confirm" name="reset-vars" value="reset-vars">
                 <i class="far fa-trash-can"></i>
                 <span>@T("Admin.Common.Reset")</span>

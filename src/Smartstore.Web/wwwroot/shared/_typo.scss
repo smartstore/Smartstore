@@ -216,24 +216,30 @@ a.link-overlay {
 .prose {
     --prose-headings-lg-font-weight: #{$prose-headings-lg-font-weight};
     --prose-headings-sm-font-weight: #{$prose-headings-sm-font-weight};
-    font-size: 1rem;
-    line-height: 1.55;
+    --prose-font-size: #{$prose-font-size};
+    --prose-line-height: #{$prose-line-height};
+    font-size: var(--prose-font-size);
+    line-height: var(--prose-line-height);
     letter-spacing: normal;
 
     // Longform polish (safe defaults)
     hyphens: auto;
     text-wrap: pretty;
 
-    // Vertical rhythm
+    // Vertical rhythm in em: scales with the prose font size
     :where(p, ul, ol, blockquote, pre, table, figure) {
-        margin-block: 0 1rem;
+        margin-block: 0 1em;
     }
 
-    //  Headings
+    // Headings are sized in em so they scale directly with the prose font.
+    // Margins are also in em, but calculated relative to each heading's own
+    // font size so that the resulting prose-relative spacing matches the
+    // previous rem values at the default 1rem prose size.
     :where(h1, h2, h3, h4, h5, h6) {
         letter-spacing: -.02em;
-        scroll-margin-top: 3rem;
-        margin-block: 2.25rem 0.75rem;
+        scroll-margin-top: 3rem; // keep fixed, relates to sticky nav height
+        margin-top: 1.5em;
+        margin-bottom: calc(0.75rem * calc(var(--prose-font-size) / 1rem)); // = 12px when prose-font-size is 16px
 
         > span[style="font-size: medium;"] {
             // Fix a common htmledit quirk to maintain font-size proportions
@@ -249,30 +255,15 @@ a.link-overlay {
         font-weight: var(--prose-headings-sm-font-weight);
     }
 
-    :where(h2) {
-        margin-top: 2.5rem;
-    }
-
-    :where(h3) {
-        margin-top: 2.25rem;
-    }
-
-    :where(h4) {
-        margin-top: 2rem;
-    }
-
-    :where(h5) {
-        margin-top: 1.5rem;
-    }
-
-    :where(h6) {
-        font-size: 1em;
-        text-transform: none;
-        margin-top: 1.5rem;
-    }
+    :where(h1) { font-size: divide($h1-font-size, 1rem) * 1em; }
+    :where(h2) { font-size: divide($h2-font-size, 1rem) * 1em; }
+    :where(h3) { font-size: divide($h3-font-size, 1rem) * 1em; }
+    :where(h4) { font-size: divide($h4-font-size, 1rem) * 1em }
+    :where(h5) { font-size: divide($h5-font-size, 1rem) * 1em; }
+    :where(h6) { font-size: 1em; text-transform: none; }
 
     > :where(h2, h3, h4, h5, h6):first-child,
-    > div > :where(h2, h3, h4, h5, h6):first-child {
+    > div :where(h2, h3, h4, h5, h6):first-child {
         margin-top: 0;
     }
 
@@ -294,12 +285,12 @@ a.link-overlay {
     }
 
     :where(ul, ol) > li {
-        margin-block: .35rem;
+        margin-block: .35em;
     }
 
     // Nested lists: tighter so they don't balloon
     :where(ul, ol) :where(ul, ol) {
-        margin-block: .35rem .75rem;
+        margin-block: .35em .75em;
     }
 
     // Tables (light touch)
