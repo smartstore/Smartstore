@@ -17,39 +17,19 @@
     --alert-icon-bg-rgb: var(--alert-base-rgb);
     --alert-icon-color: var(--alert-bg);
     --alert-icon-content: "\f129"; // info
-
-	padding-inline-start: 4rem;
+	
 	line-height: 1.5;
-	border-width: 0;
 
-    // Left icon box
-	&:before {
-		display: block;
-		position: absolute;
-		content: ' ';
-		left: 0;
-		top: 0;
-		bottom: 0;
-		width: 3rem;
-		z-index: 1;
-        background-color: var(--alert-icon-bg);
-        @include border-left-radius(var(--border-radius, var(--alert-border-radius)));
-	}
+    @if ($enable-alert-icons) {
+        padding-inline-start: 4rem;
+	    border-width: 0;
 
-    // Icon
-	&:after {
-		display: block;
-		position: absolute;
-		color: var(--alert-icon-color);
-        @include fontawesome-font(var(--alert-icon-content), regular);
-		inset-inline-start: 0;
-		top: 50%;
-		font-size: 24px;
-		width: 3rem;
-		text-align: center;
-		transform: translateY(-50%);
-		z-index: 2;
-	}
+        @include alert-icon-box;
+    }
+    @else {
+        border-left-width: 4px;
+        border-left-color: var(--alert-icon-bg);
+    }
 }
 
 .alert-info {

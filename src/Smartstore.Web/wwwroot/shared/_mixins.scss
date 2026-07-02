@@ -156,6 +156,37 @@
     content: $content;
 }
 
+@mixin alert-icon-box() {
+    // Left icon box
+	&:before {
+		display: block;
+		position: absolute;
+		content: ' ';
+		left: 0;
+		top: 0;
+		bottom: 0;
+		width: 3rem;
+		z-index: 1;
+        background-color: var(--alert-icon-bg);
+        @include border-left-radius(var(--border-radius, var(--alert-border-radius)));
+	}
+
+    // Icon
+	&:after {
+		display: block;
+		position: absolute;
+		color: var(--alert-icon-color);
+        @include fontawesome-font(var(--alert-icon-content), regular);
+		inset-inline-start: 0;
+		top: 50%;
+		font-size: 24px;
+		width: 3rem;
+		text-align: center;
+		transform: translateY(-50%);
+		z-index: 2;
+	}
+}
+
 @mixin active-list-item($size: 4px, $color: theme-color("warning")) {
     position: absolute;
     display: block;

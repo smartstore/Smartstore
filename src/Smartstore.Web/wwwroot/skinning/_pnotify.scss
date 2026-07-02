@@ -26,6 +26,10 @@
     border-color: rgba($white, 0.12) !important;
     overflow: hidden;
 
+    @if ($enable-alert-icons == false) {
+        @include alert-icon-box;
+    }
+
     &:after {
         visibility: initial;
         height: auto;
