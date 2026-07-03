@@ -26,7 +26,9 @@ public partial interface IAIProvider : IProvider
     /// <summary>
     /// Waits for asynchronous metadata post-processing to complete, if still in progress.
     /// </summary>
-    Task WaitForMetadataAsync(CancellationToken cancelToken = default);
+    /// <param name="timeout">The maximum time to wait for the metadata post-processing to complete.</param>
+    /// <param name="cancelToken">A token to cancel the wait operation.</param>
+    Task WaitForMetadataAsync(TimeSpan? timeout = null, CancellationToken cancelToken = default);
 
     /// <summary>
     /// Gets the local AI models available for the specified topic.

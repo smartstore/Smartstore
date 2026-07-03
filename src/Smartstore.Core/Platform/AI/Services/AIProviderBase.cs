@@ -32,7 +32,6 @@ public abstract class AIProviderBase : IAIProvider
     private readonly IAIMetadataLoader _metadataLoader;
     private readonly string _moduleSystemName;
     private AIMetadata _metadata;
-    private Task _postProcessTask;
 
     public AIProviderBase(IAIMetadataLoader metadataLoader, string moduleSystemName)
     {
@@ -44,12 +43,21 @@ public abstract class AIProviderBase : IAIProvider
 
     public abstract bool IsActive();
 
-    public Task WaitForMetadataAsync(CancellationToken cancelToken = default)
+    public async Task WaitForMetadataAsync(TimeSpan? timeout = null, CancellationToken cancelToken = default)
     {
-        var task = Interlocked.Exchange(ref _postProcessTask, null);
-        return task != null
-            ? task.WaitAsync(cancelToken)
-            : Task.CompletedTask;
+        if (_metadata == null || _metadata.PostProcessed)
+        {
+            return;
+        }
+
+        var lockKey = BuildMetadataLockKey(_metadata);
+        if (!AsyncLock.IsLockHeld(lockKey))
+        {
+            return;
+        }
+
+        await Task.Delay(10, cancelToken);
+        using (await AsyncLock.KeyedAsync(lockKey, timeout, cancelToken)) { }
     }
 
     public AIMetadata Metadata
@@ -60,9 +68,21 @@ public abstract class AIProviderBase : IAIProvider
             {
                 _metadata = _metadataLoader.LoadMetadata(_moduleSystemName);
 
+                // Ensure that metadata is post-processed only once.
                 if (!_metadata.PostProcessed)
                 {
-                    _postProcessTask = PostProcessMetadataInBackground();
+                    // Post-process metadata asynchronously (fire-and-forget).
+                    var lockHandle = AsyncLock.Keyed(BuildMetadataLockKey(_metadata));
+                    // Reload from cache
+                    var metadata = _metadataLoader.LoadMetadata(_moduleSystemName);
+                    if (!metadata.PostProcessed)
+                    {
+                        PostProcessMetadataInBackground(metadata, lockHandle);
+                    }
+                    else
+                    {
+                        lockHandle.Release();
+                    }
                 }
             }
 
@@ -71,52 +91,43 @@ public abstract class AIProviderBase : IAIProvider
         protected set => _metadata = value;
     }
 
-    private Task PostProcessMetadataInBackground()
+    private void PostProcessMetadataInBackground(AIMetadata metadata, ILockHandle lockHandle)
     {
-        var metadata = _metadataLoader.LoadMetadata(_moduleSystemName);
-        if (metadata.PostProcessed)
-        {
-            _postProcessTask = null;
-            return Task.CompletedTask;
-        }
-
         var task = _metadataLoader.PostProcessAsync(metadata);
 
         if (task.IsCompleted)
         {
+            // If already completed, update metadata immediately.
             if (task.Status == TaskStatus.RanToCompletion && task.Result != null)
             {
-                var result = task.Result;
-                result.PostProcessed = true;
-                _metadataLoader.ReplaceMetadata(_moduleSystemName, result);
-                _metadata = result;
-            }
-            else
-            {
-                metadata.PostProcessed = true;
+                _metadata = task.Result;
             }
 
-            _postProcessTask = null;
-            return Task.CompletedTask;
+            _metadata.PostProcessed = true;
+            lockHandle.Release();
         }
-
-        return task.ContinueWith(t =>
+        else
         {
-            if (t.Status == TaskStatus.RanToCompletion && t.Result != null)
+            // Update cached metadata when post-processing is done.
+            task.ContinueWith(t =>
             {
-                var result = t.Result;
-                result.PostProcessed = true;
-                _metadataLoader.ReplaceMetadata(_moduleSystemName, result);
-                _metadata = result;
-            }
-            else
-            {
-                metadata.PostProcessed = true;
-            }
+                if (t.Result != null)
+                {
+                    t.Result.PostProcessed = true;
+                    _metadataLoader.ReplaceMetadata(_moduleSystemName, t.Result);
+                }
+                else
+                {
+                    _metadata.PostProcessed = true;
+                }
 
-            _postProcessTask = null;
-        }, TaskScheduler.Default);
+                lockHandle.Release();
+            });
+        }
     }
+
+    private static string BuildMetadataLockKey(AIMetadata metadata)
+        => "aimetadatalock:" + metadata.ProviderId;
 
     public virtual AIModelCollection GetModels(AIChatTopic topic)
     {
