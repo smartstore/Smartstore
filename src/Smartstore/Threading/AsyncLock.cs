@@ -18,13 +18,20 @@ public sealed class AsyncLock : IHideObjectMembers
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ILockHandle Keyed(string key, TimeSpan? timeout = null, CancellationToken cancelToken = default)
     {
-        return new AsyncLockHandle(_asyncKeyedLock.LockOrNull(key, timeout ?? Timeout.InfiniteTimeSpan, cancelToken));
+        var releaser = _asyncKeyedLock
+            .LockOrNull(key, timeout ?? Timeout.InfiniteTimeSpan, cancelToken);
+
+        return new AsyncLockHandle(releaser);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static async Task<ILockHandle> KeyedAsync(string key, TimeSpan? timeout = null, CancellationToken cancelToken = default)
     {
-        return new AsyncLockHandle(await _asyncKeyedLock.LockOrNullAsync(key, timeout ?? Timeout.InfiniteTimeSpan, cancelToken).ConfigureAwait(false));
+        var releaser = await _asyncKeyedLock
+            .LockOrNullAsync(key, timeout ?? Timeout.InfiniteTimeSpan, cancelToken)
+            .ConfigureAwait(false);
+
+        return new AsyncLockHandle(releaser);
     }
 
     #endregion
