@@ -24,6 +24,11 @@ public partial interface IAIProvider : IProvider
     AIMetadata Metadata { get; }
 
     /// <summary>
+    /// Waits for asynchronous metadata post-processing to complete, if still in progress.
+    /// </summary>
+    Task WaitForMetadataAsync(CancellationToken cancelToken = default);
+
+    /// <summary>
     /// Gets the local AI models available for the specified topic.
     /// </summary>
     AIModelCollection GetModels(AIChatTopic topic);
