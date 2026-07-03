@@ -1602,6 +1602,19 @@ public abstract partial class InvariantSeedData
             },
             new Country
             {
+                Name = "Timor-Leste",
+                AllowsBilling = true,
+                AllowsShipping = true,
+                TwoLetterIsoCode = "TL",
+                ThreeLetterIsoCode = "TLS",
+                NumericIsoCode = 626,
+                SubjectToVat = false,
+                DisplayOrder = 100,
+                Published = true,
+                DiallingCode = 670,
+            },
+            new Country
+            {
                 Name = "Turkey",
                 AllowsBilling = true,
                 AllowsShipping = true,
@@ -2525,6 +2538,19 @@ public abstract partial class InvariantSeedData
             },
             new Country
             {
+                Name = "Kosovo",
+                AllowsBilling = true,
+                AllowsShipping = true,
+                TwoLetterIsoCode = "XK",
+                ThreeLetterIsoCode = "XKX",
+                NumericIsoCode = 383,
+                SubjectToVat = false,
+                DisplayOrder = 100,
+                Published = true,
+                DiallingCode = 383,
+            },
+            new Country
+            {
                 Name = "Kyrgyzstan",
                 AllowsBilling = true,
                 AllowsShipping = true,
@@ -3094,6 +3120,19 @@ public abstract partial class InvariantSeedData
                 DisplayOrder = 100,
                 Published = true,
                 DiallingCode = 680,
+            },
+            new Country
+            {
+                Name = "Palestinian Territory",
+                AllowsBilling = true,
+                AllowsShipping = true,
+                TwoLetterIsoCode = "PS",
+                ThreeLetterIsoCode = "PSE",
+                NumericIsoCode = 275,
+                SubjectToVat = false,
+                DisplayOrder = 100,
+                Published = true,
+                DiallingCode = 970,
             },
             new Country
             {

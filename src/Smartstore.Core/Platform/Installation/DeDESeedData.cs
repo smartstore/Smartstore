@@ -1517,6 +1517,11 @@ public class DeDESeedData : InvariantSeedData
                 x.Name = "Mongolei";
                 x.DisplayOrder = 100;
             })
+            .Alter(499, x =>
+            {
+                x.Name = "Montenegro";
+                x.DisplayOrder = 100;
+            })
             .Alter(500, x =>
             {
                 x.Name = "Montserrat";
@@ -1600,6 +1605,11 @@ public class DeDESeedData : InvariantSeedData
             .Alter(585, x =>
             {
                 x.Name = "Palau";
+                x.DisplayOrder = 100;
+            })
+            .Alter(275, x =>
+            {
+                x.Name = "Palästinensisches Gebiet";
                 x.DisplayOrder = 100;
             })
             .Alter(591, x =>
