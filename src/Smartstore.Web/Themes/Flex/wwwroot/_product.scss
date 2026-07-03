@@ -182,7 +182,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 .pd-review-summary {
     display: flex;
     align-items: center;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     gap: 0.5rem;
 
     > .pd-rating-box {
@@ -198,6 +198,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 }
 
 .pd-review-amount {
+    flex-basis: 100%;
     // Award icon (.fa-award)
     --alert-icon-content: '\f559';
 }
