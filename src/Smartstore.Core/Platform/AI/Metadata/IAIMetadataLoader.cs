@@ -19,7 +19,7 @@ public interface IAIMetadataLoader
     /// </summary>
     /// <param name="localMetadata">The metadata object containing information required for post-processing. Cannot be null.</param>
     /// <returns>Return null if no post-processing was performed. Return an <see cref="AIMetadata"/> instance to update the metadata cache deferredly.</returns>
-    Task<AIMetadata?> PostProcessAsync(AIMetadata localMetadata);
+    Task<AIMetadata?> PostProcessAsync(AIMetadata localMetadata, CancellationToken cancelToken = default);
 
     /// <summary>
     /// Replaces the cached metadata for the given <paramref name="moduleSystemName"/> with the given <paramref name="metadata"/> instance.

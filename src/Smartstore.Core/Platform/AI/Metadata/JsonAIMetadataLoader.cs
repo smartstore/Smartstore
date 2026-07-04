@@ -52,7 +52,7 @@ public class JsonAIMetadataLoader : IAIMetadataLoader
         return (AIMetadata)result!.Value;
     }
 
-    public virtual Task<AIMetadata?> PostProcessAsync(AIMetadata localMetadata)
+    public virtual Task<AIMetadata?> PostProcessAsync(AIMetadata localMetadata, CancellationToken cancelToken = default)
     {
         localMetadata.PostProcessed = true;
         return Task.FromResult<AIMetadata?>(null);

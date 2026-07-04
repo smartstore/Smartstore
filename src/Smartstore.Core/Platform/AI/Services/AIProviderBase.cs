@@ -45,19 +45,25 @@ public abstract class AIProviderBase : IAIProvider
 
     public async Task WaitForMetadataAsync(TimeSpan? timeout = null, CancellationToken cancelToken = default)
     {
-        if (_metadata == null || _metadata.PostProcessed)
+        var metadata = _metadata ?? _metadataLoader.LoadMetadata(_moduleSystemName);
+        if (metadata == null || metadata.PostProcessed)
         {
             return;
         }
 
-        var lockKey = BuildMetadataLockKey(_metadata);
-        if (!AsyncLock.IsLockHeld(lockKey))
-        {
-            return;
-        }
+        timeout ??= TimeSpan.FromSeconds(5000);
+        var startedOn = DateTime.UtcNow;
 
-        await Task.Delay(10, cancelToken);
-        using (await AsyncLock.KeyedAsync(lockKey, timeout, cancelToken)) { }
+        do
+        {
+            await Task.Delay(50, cancelToken);
+
+            if (metadata.PostProcessed || _metadataLoader.LoadMetadata(_moduleSystemName)?.PostProcessed == true)
+            {
+                return;
+            }
+        }
+        while (!cancelToken.IsCancellationRequested && DateTime.UtcNow - startedOn < timeout.Value);
     }
 
     public AIMetadata Metadata
@@ -97,31 +103,44 @@ public abstract class AIProviderBase : IAIProvider
 
         if (task.IsCompleted)
         {
-            // If already completed, update metadata immediately.
-            if (task.Status == TaskStatus.RanToCompletion && task.Result != null)
+            try
             {
-                _metadata = task.Result;
-            }
+                // If already completed, update metadata immediately.
+                if (task.Status == TaskStatus.RanToCompletion && task.Result != null)
+                {
+                    _metadata = task.Result;
+                }
 
-            _metadata.PostProcessed = true;
-            lockHandle.Release();
+                _metadata.PostProcessed = true;
+            }
+            finally
+            {
+                lockHandle.Release();
+            }
         }
         else
         {
             // Update cached metadata when post-processing is done.
             task.ContinueWith(t =>
             {
-                if (t.Result != null)
+                try
                 {
-                    t.Result.PostProcessed = true;
-                    _metadataLoader.ReplaceMetadata(_moduleSystemName, t.Result);
+                    var result = t.Result;
+                    if (result != null)
+                    {
+                        result.PostProcessed = true;
+                        _metadata = result;
+                        _metadataLoader.ReplaceMetadata(_moduleSystemName, result);
+                    }
+                    else
+                    {
+                        _metadata.PostProcessed = true;
+                    }
                 }
-                else
+                finally
                 {
-                    _metadata.PostProcessed = true;
+                    lockHandle.Release();
                 }
-
-                lockHandle.Release();
             });
         }
     }
