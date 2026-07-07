@@ -9,26 +9,22 @@
     @extend .link-transition;
 }
 
-.alert-info, 
-.alert-danger, 
-.alert-success, 
-.alert-warning {
-    --alert-icon-bg: rgba(var(--alert-base-rgb), 1);
-    --alert-icon-bg-rgb: var(--alert-base-rgb);
-    --alert-icon-color: var(--alert-bg);
-    --alert-icon-content: "\f129"; // info
-	
-	line-height: 1.5;
+.alert {
+    border-left-width: 4px;
+    border-left-color: rgba(var(--alert-base-rgb), 1);
+}
 
-    @if ($enable-alert-icons) {
-        padding-inline-start: 4rem;
-	    border-width: 0;
-
-        @include alert-icon-box;
+@if ($enable-alert-icons) {
+    .alert-info, 
+    .alert-danger, 
+    .alert-success, 
+    .alert-warning {
+        @include alert-iconic;
     }
-    @else {
-        border-left-width: 4px;
-        border-left-color: var(--alert-icon-bg);
+}
+@else {
+    .alert-iconic {
+        @include alert-iconic;
     }
 }
 

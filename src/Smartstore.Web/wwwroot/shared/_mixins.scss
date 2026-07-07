@@ -156,6 +156,16 @@
     content: $content;
 }
 
+@mixin alert-iconic() {
+    --alert-icon-bg: rgba(var(--alert-base-rgb), 1);
+    --alert-icon-bg-rgb: var(--alert-base-rgb);
+    --alert-icon-color: var(--alert-bg);
+    --alert-icon-content: "\f129"; // info
+    padding-inline-start: 4rem;
+	border-width: 0;
+    @include alert-icon-box;
+}
+
 @mixin alert-icon-box() {
     // Left icon box
 	&:before {
