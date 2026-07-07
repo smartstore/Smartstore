@@ -37,7 +37,7 @@
             @T("Reviews.Overview." + (Model.TotalReviews > 0 ? "AddNew" : "First"))
         </a>
     </div>
-    <div sm-if="Model.Reward != null" id="pd-points-for-review" class="pd-review-amount alert alert-success mt-1 fs-sm py-2 w-100">
+    <div sm-if="Model.Reward != null" id="pd-points-for-review" class="pd-review-amount alert alert-success alert-iconic mt-1 fs-sm py-2 w-100">
         @Html.Raw(T("RewardPoints.Message.RewardPointsForProductReview", Model.Reward.Points, Model.Reward.Amount.ToString()))
     </div>
 </div>
