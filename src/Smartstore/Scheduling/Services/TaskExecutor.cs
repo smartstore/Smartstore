@@ -167,7 +167,16 @@ public class TaskExecutor : ITaskExecutor
                 updateTask = true;
             }
 
+            // Primary update via change tracker.
             await _taskStore.UpdateExecutionInfoAsync(executionInfo);
+
+            // Fallback: verify the critical IsRunning flag was actually persisted.
+            // Uses a direct SQL UPDATE that is immune to any prior EF tracking corruption.
+            // This guarantees the entry is never left in a zombie "IsRunning = true" state.
+            if (executionInfo.Id > 0)
+            {
+                await _taskStore.FinalizeExecutionInfoAsync(executionInfo);
+            }
 
             if (updateTask)
             {

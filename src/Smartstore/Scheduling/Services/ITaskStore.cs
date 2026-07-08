@@ -159,6 +159,24 @@ public partial interface ITaskStore
     /// <returns>Number of deleted entries.</returns>
     Task<int> TrimExecutionInfosAsync(CancellationToken cancelToken = default);
 
+    /// <summary>
+    /// Finalizes a <see cref="TaskExecutionInfo"/> instance using a direct SQL UPDATE,
+    /// bypassing the EF change tracker. Use this as a guaranteed fallback when
+    /// <see cref="UpdateExecutionInfoAsync"/> may have failed due to tracking corruption.
+    /// </summary>
+    /// <param name="info">The entry to finalize.</param>
+    /// <returns><c>true</c> if the entry was updated, <c>false</c> otherwise.</returns>
+    Task<bool> FinalizeExecutionInfoAsync(TaskExecutionInfo info);
+
+    /// <summary>
+    /// Detects and repairs stale <see cref="TaskExecutionInfo"/> entries where
+    /// <see cref="TaskExecutionInfo.IsRunning"/> is <c>true</c> but the parent
+    /// <see cref="TaskDescriptor.NextRunUtc"/> is already set to a future date,
+    /// indicating an abnormal abort that was never cleaned up at runtime.
+    /// </summary>
+    /// <returns>The number of repaired entries.</returns>
+    Task<int> NormalizeStaleExecutionInfosAsync();
+
     #endregion
 }
 
