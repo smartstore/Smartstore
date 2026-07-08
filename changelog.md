@@ -21,6 +21,7 @@
 
 - `GridCommand.Sorting` lost after session roundtrip.
 - Prevent a race condition in `TemplateZoneRenderingEvent` by eagerly resolving `TemplateName` from the DotLiquid context before publishing the event.
+- **Scheduled tasks** could get permanently stuck and never execute again due to stale `IsRunning = true` history entries that were never cleaned up after an abnormal abort.
 - The **EasyCredit** calculator widget cannot be serialised on the product detail page when output cache is active.
 - **Withdrawal**:
   - Allow immediate withdrawal regardless of when the withdrawal period begins.
