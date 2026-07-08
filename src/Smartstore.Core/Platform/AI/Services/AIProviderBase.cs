@@ -11,7 +11,7 @@ namespace Smartstore.Core.AI;
 /// <summary>
 /// A base class to implement <see cref="IAIProvider"/>.
 /// </summary>
-public abstract class AIProviderBase : IAIProvider
+public abstract class AIProviderBase : Disposable, IAIProvider
 {
     /// <summary>
     /// The character used to split streamed AI responses.

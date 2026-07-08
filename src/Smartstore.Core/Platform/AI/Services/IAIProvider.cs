@@ -10,7 +10,7 @@ namespace Smartstore.Core.AI;
 /// <summary>
 /// Represents an AI provider like ChatGPT.
 /// </summary>
-public partial interface IAIProvider : IProvider
+public partial interface IAIProvider : IProvider, IDisposable, IAsyncDisposable
 {
     /// <summary>
     /// Gets a value indicating whether the provider is active.
