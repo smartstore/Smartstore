@@ -493,20 +493,19 @@ public partial class DbTaskStore : Disposable, ITaskStore
         return Db.SaveChangesAsync();
     }
 
-    public virtual Task UpdateExecutionInfoAsync(TaskExecutionInfo info)
+    public virtual async Task UpdateExecutionInfoAsync(TaskExecutionInfo info)
     {
         Guard.NotNull(info);
 
         try
         {
             Db.TryUpdate(info);
-            return Db.SaveChangesAsync();
+            await Db.SaveChangesAsync();
         }
         catch (Exception ex)
         {
             Logger.Error(ex);
             // Do not throw.
-            return Task.CompletedTask;
         }
     }
 
@@ -594,6 +593,52 @@ public partial class DbTaskStore : Disposable, ITaskStore
         }
 
         return numDeleted;
+    }
+
+    public virtual async Task<bool> FinalizeExecutionInfoAsync(TaskExecutionInfo info)
+    {
+        Guard.NotNull(info);
+
+        try
+        {
+            // Uses ExecuteUpdateAsync to bypass the EF change tracker entirely,
+            // making this robust against any prior tracking corruption.
+            var affected = await Db.TaskExecutionInfos
+                .Where(x => x.Id == info.Id)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(x => x.IsRunning, info.IsRunning)
+                    .SetProperty(x => x.ProgressPercent, (int?)null)
+                    .SetProperty(x => x.ProgressMessage, (string)null)
+                    .SetProperty(x => x.Error, info.Error)
+                    .SetProperty(x => x.FinishedOnUtc, info.FinishedOnUtc)
+                    .SetProperty(x => x.SucceededOnUtc, info.SucceededOnUtc));
+
+            return affected > 0;
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex);
+            return false;
+        }
+    }
+
+    public virtual async Task<int> NormalizeStaleExecutionInfosAsync()
+    {
+        // Fixes the invalid state: IsRunning = true while NextRunUtc is already
+        // set to a future date (meaning the task "completed" but the history
+        // entry was never properly closed out).
+        var abnormalAbort = T("Admin.System.ScheduleTasks.AbnormalAbort");
+
+        return await Db.TaskExecutionInfos
+            .Where(x => x.IsRunning
+                && x.Task.NextRunUtc.HasValue
+                && x.Task.NextRunUtc > DateTime.UtcNow)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(x => x.IsRunning, false)
+                .SetProperty(x => x.ProgressPercent, (int?)null)
+                .SetProperty(x => x.ProgressMessage, (string)null)
+                .SetProperty(x => x.FinishedOnUtc, x => x.StartedOnUtc)
+                .SetProperty(x => x.Error, abnormalAbort.ToString()));
     }
 
     #endregion
