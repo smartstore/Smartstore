@@ -214,6 +214,27 @@ public abstract class AIProviderBase : Disposable, IAIProvider
 
     #region Utilities
 
+    /// <summary>
+    /// Returns the effective tools for the given chat by intersecting the requested tools
+    /// with what the resolved model actually supports.
+    /// </summary>
+    protected AIResponseTool GetEffectiveTools(AIChat chat)
+    {
+        var requested = chat.Tools;
+        if (requested == AIResponseTool.None)
+        {
+            return AIResponseTool.None;
+        }
+
+        var modelEntry = Metadata?.GetModelById(
+            Metadata.ValidateModelId(chat.ModelName, AIOutputType.Text));
+
+        // Intersect: honour only tools the model actually declares support for.
+        return modelEntry != null
+            ? requested & modelEntry.Tools
+            : AIResponseTool.None;
+    }
+
     protected static float? ClampTemperature(float temperature)
     {
         if (temperature == 1) return null;
