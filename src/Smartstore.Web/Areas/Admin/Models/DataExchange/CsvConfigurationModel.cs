@@ -1,4 +1,3 @@
-﻿using System.Text.RegularExpressions;
 using FluentValidation;
 using Smartstore.Core.DataExchange.Csv;
 using Smartstore.Core.Localization;
@@ -17,9 +16,9 @@ public class CsvConfigurationModel : ModelBase, ICloneable<CsvConfiguration>
         QuoteAllFields = config.QuoteAllFields;
         TrimValues = config.TrimValues;
         SupportsMultiline = config.SupportsMultiline;
-        Delimiter = Regex.Escape(config.Delimiter.ToString());
-        Quote = Regex.Escape(config.Quote.ToString());
-        Escape = Regex.Escape(config.Escape.ToString());
+        Delimiter = EscapeDisplayChar(config.Delimiter);
+        Quote = EscapeDisplayChar(config.Quote);
+        Escape = EscapeDisplayChar(config.Escape);
     }
 
     public bool Validate { get; set; }
@@ -57,6 +56,17 @@ public class CsvConfigurationModel : ModelBase, ICloneable<CsvConfiguration>
             Escape = Escape.ToChar(true)
         };
     }
+
+    private static string EscapeDisplayChar(char value)
+        => value switch
+        {
+            '\\' => @"\\",
+            '\t' => @"\t",
+            '\r' => @"\r",
+            '\n' => @"\n",
+            '\0' => @"\0",
+            _ => value.ToString()
+        };
 }
 
 public partial class CsvConfigurationValidator : AbstractValidator<CsvConfigurationModel>
@@ -78,11 +88,11 @@ public partial class CsvConfigurationValidator : AbstractValidator<CsvConfigurat
                 .WithMessage(T("Admin.DataExchange.Csv.Escape.Validation"));
 
             RuleFor(x => x.Escape)
-                .Must((model, x) => x != model.Delimiter)
+                .Must((model, x) => x.ToChar(true) != model.Delimiter.ToChar(true))
                 .WithMessage(T("Admin.DataExchange.Csv.EscapeDelimiter.Validation"));
 
             RuleFor(x => x.Quote)
-                .Must((model, x) => x != model.Delimiter)
+                .Must((model, x) => x.ToChar(true) != model.Delimiter.ToChar(true))
                 .WithMessage(T("Admin.DataExchange.Csv.QuoteDelimiter.Validation"));
         });
     }
