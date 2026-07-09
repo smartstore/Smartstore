@@ -49,7 +49,7 @@ public class InputPasswordTagHelper : TagHelper
                 htmlAttributes = "aria-hidden=\"true\"";
             }
 
-            output.PostElement.AppendHtml($"<button type=\"button\" class=\"btn-toggle-pwd\" {htmlAttributes}><i class=\"far fa-fw fa-eye-slash\" aria-hidden=\"true\"></i></button></div>");
+            output.PostElement.AppendHtml($"<button type=\"button\" class=\"btn-toggle-pwd\" tabindex=\"-1\" {htmlAttributes}><i class=\"far fa-fw fa-eye-slash\" aria-hidden=\"true\"></i></button></div>");
         }
     }
 }
