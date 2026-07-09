@@ -448,7 +448,7 @@ input.form-control-plaintext {
     .dg-col-pinned {
         position: sticky !important;
         overflow-x: visible !important;
-        z-index: 20;
+        z-index: 9;
 
         &.dg-th {
             z-index: 10;
