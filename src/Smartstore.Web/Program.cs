@@ -16,7 +16,6 @@ global using Smartstore.Domain;
 global using Smartstore.Engine;
 global using Smartstore.Web.Components;
 global using Smartstore.Web.Controllers;
-global using Smartstore.Web.Filters;
 global using Smartstore.Web.Modelling;
 global using EntityState = Smartstore.Data.EntityState;
 using System.Reflection;
