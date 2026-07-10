@@ -383,10 +383,11 @@ public partial class XmlSitemapGenerator : AsyncDbSaveHook<BaseEntity>, IXmlSite
                         slugs.Clear();
                     }
 
+                    ctx.ProgressCallback?.Invoke(totalSegments, totalSegments, "Finalizing...");
+
                     // Process custom nodes
                     if (!ctx.CancellationToken.IsCancellationRequested)
                     {
-                        ctx.ProgressCallback?.Invoke(numProcessed, total, $"{numProcessed:N0} / {total:N0}... Processing custom nodes");
                         await ProcessCustomNodesAsync(ctx, sitemaps);
 
                         foreach (var data in languageData.Values)
@@ -410,7 +411,6 @@ public partial class XmlSitemapGenerator : AsyncDbSaveHook<BaseEntity>, IXmlSite
                 }
 
                 ctx.CancellationToken.ThrowIfCancellationRequested();
-                ctx.ProgressCallback?.Invoke(totalSegments, totalSegments, "Finalizing...");
 
                 foreach (var data in languageData.Values)
                 {
