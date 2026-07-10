@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Immutable;
+using System.Reflection;
 
 namespace Smartstore.Engine;
 
@@ -10,7 +11,7 @@ public interface ITypeScanner
     /// <summary>
     /// Gets all registered scannable assemblies (core & all modules)
     /// </summary>
-    ISet<Assembly> Assemblies { get; }
+    IReadOnlyList<Assembly> Assemblies { get; }
 
     /// <summary>
     /// Find all types that are subclasses of <paramref name="baseType"/> in all scannable <see cref="Assemblies"/>.
@@ -60,7 +61,7 @@ public sealed class NullTypeScanner : ITypeScanner
 {
     public static NullTypeScanner Instance { get; } = new NullTypeScanner();
 
-    public ISet<Assembly> Assemblies { get; } = new HashSet<Assembly>().AsReadOnly();
+    public IReadOnlyList<Assembly> Assemblies { get; } = [];
 
     public IEnumerable<Type> FindTypes(Type baseType, bool concreteTypesOnly = true)
         => Type.EmptyTypes;

@@ -1,4 +1,4 @@
-﻿using System.Collections.Frozen;
+﻿using System.Collections.Immutable;
 using System.Reflection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -9,14 +9,10 @@ namespace Smartstore.Engine;
 /// <inheritdoc/>
 public class DefaultTypeScanner : ITypeScanner
 {
-    private readonly HashSet<Assembly> _activeAssemblies = [];
-
     public DefaultTypeScanner(params Assembly[] assemblies)
     {
-        _activeAssemblies.AddRange(assemblies);
-
         // No edit allowed from now on
-        Assemblies = assemblies.ToFrozenSet();
+        Assemblies = assemblies.ToImmutableArray();
     }
 
     public DefaultTypeScanner(IEnumerable<Assembly> coreAssemblies, IModuleCatalog moduleCatalog, ILogger logger)
@@ -27,19 +23,19 @@ public class DefaultTypeScanner : ITypeScanner
 
         Logger = logger;
 
-        var assemblies = new HashSet<Assembly>(coreAssemblies);
-
-        // Add all module assemblies to assemblies list
-        assemblies.AddRange(moduleCatalog.GetInstalledModules().Select(x => x.Module.Assembly));
-
         // No edit allowed from now on
-        Assemblies = assemblies.ToFrozenSet();
+        Assemblies = coreAssemblies
+            // Add all module assemblies to assemblies list
+            .Concat(moduleCatalog.GetInstalledModules().Select(x => x.Module.Assembly))
+            // Remove dupes, Keep first occurrence = preserve order
+            .Distinct()
+            .ToImmutableArray();
     }
 
     public ILogger Logger { get; set; } = NullLogger.Instance;
 
     /// <inheritdoc/>
-    public ISet<Assembly> Assemblies { get; private set; }
+    public IReadOnlyList<Assembly> Assemblies { get; private set; }
 
     /// <inheritdoc/>
     public IEnumerable<Type> FindTypes(Type baseType, bool concreteTypesOnly = true)
