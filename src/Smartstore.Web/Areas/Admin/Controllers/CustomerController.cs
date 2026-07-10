@@ -830,6 +830,9 @@ public class CustomerController : AdminController
         if (ModelState.IsValid)
         {
             IdentityResult passwordResult;
+            var oldPasswordFormat = customer.PasswordFormat;
+            customer.PasswordFormat = _customerSettings.DefaultPasswordFormat;
+
             if (await _userManager.HasPasswordAsync(customer))
             {
                 var token = await _userManager.GeneratePasswordResetTokenAsync(customer);
@@ -845,6 +848,7 @@ public class CustomerController : AdminController
                 return new EmptyResult();
             }
 
+            customer.PasswordFormat = oldPasswordFormat;
             AddModelErrors(passwordResult, string.Empty);
         }
 
