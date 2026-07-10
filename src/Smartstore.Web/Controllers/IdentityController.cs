@@ -802,6 +802,7 @@ public class IdentityController : PublicController
         var guestRoleMappings = customer.CustomerRoleMappings
             .Where(x => !x.IsSystemMapping && x.CustomerRole.SystemName.EqualsNoCase(SystemCustomerRoleNames.Guests))
             .ToArray();
+
         if (guestRoleMappings.Length > 0)
         {
             _db.CustomerRoleMappings.RemoveRange(guestRoleMappings);
@@ -815,6 +816,7 @@ public class IdentityController : PublicController
                 .Where(x => x.SystemName == SystemCustomerRoleNames.Registered)
                 .OrderBy(x => x.Id)
                 .FirstOrDefaultAsync();
+
             if (registeredRole != null)
             {
                 _db.CustomerRoleMappings.Add(new()
@@ -822,6 +824,18 @@ public class IdentityController : PublicController
                     CustomerId = customer.Id,
                     CustomerRoleId = registeredRole.Id
                 });
+
+                // Add customer to an additional role.
+                var roleIdToAdd = _customerSettings.RegisterCustomerRoleId ?? 0;
+                if (roleIdToAdd != 0 && roleIdToAdd != registeredRole.Id)
+                {
+                    var customerRole = await _roleManager.FindByIdAsync(roleIdToAdd);
+                    if (customerRole != null)
+                    {
+                        await _userManager.AddToRoleAsync(customer, customerRole.Name);
+                    }
+                }
+
                 updated = true;
             }
         }
