@@ -485,10 +485,26 @@ public class IdentityController : PublicController
 
         if (ModelState.IsValid)
         {
-            var passwordResult = await _userManager.ChangePasswordAsync(customer, model.OldPassword, model.NewPassword);
-            if (passwordResult.Succeeded)
+            IdentityResult passwordResult;
+            if (await _userManager.CheckPasswordAsync(customer, model.OldPassword))
             {
-                model.Result = T("Account.ChangePassword.Success");
+                var token = await _userManager.GeneratePasswordResetTokenAsync(customer);
+                var oldPasswordFormat = customer.PasswordFormat;
+                customer.PasswordFormat = _customerSettings.DefaultPasswordFormat;
+
+                passwordResult = await _userManager.ResetPasswordAsync(customer, token, model.NewPassword);
+                if (passwordResult.Succeeded)
+                {
+                    model.Result = T("Account.ChangePassword.Success");
+                }
+                else
+                {
+                    customer.PasswordFormat = oldPasswordFormat;
+                }
+            }
+            else
+            {
+                passwordResult = await _userManager.ChangePasswordAsync(customer, model.OldPassword, model.NewPassword);
             }
 
             AddModelStateErrors(passwordResult);
@@ -563,6 +579,9 @@ public class IdentityController : PublicController
 
         if (ModelState.IsValid)
         {
+            var oldPasswordFormat = customer.PasswordFormat;
+            customer.PasswordFormat = _customerSettings.DefaultPasswordFormat;
+
             var identityResult = await _userManager.ResetPasswordAsync(customer, model.Token, model.NewPassword);
             if (identityResult.Succeeded)
             {
@@ -576,6 +595,7 @@ public class IdentityController : PublicController
             }
             else
             {
+                customer.PasswordFormat = oldPasswordFormat;
                 identityResult.Errors.Each(x => NotifyError(x.Description));
 
                 return RedirectToAction(nameof(PasswordRecoveryConfirm), new { token = model.Token, email = model.Email });
