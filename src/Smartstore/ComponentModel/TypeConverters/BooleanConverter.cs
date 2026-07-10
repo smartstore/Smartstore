@@ -15,9 +15,9 @@ internal sealed class BooleanConverter : DefaultTypeConverter
         _falseValues = falseValues.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
     }
 
-    public ICollection<string> TrueValues => _trueValues;
+    public IReadOnlyCollection<string> TrueValues => _trueValues;
 
-    public ICollection<string> FalseValues => _falseValues;
+    public IReadOnlyCollection<string> FalseValues => _falseValues;
 
     public override object ConvertFrom(CultureInfo culture, object value)
     {
