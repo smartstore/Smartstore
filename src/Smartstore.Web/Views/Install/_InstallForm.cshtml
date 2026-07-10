@@ -318,7 +318,7 @@
         var collationInnerPanel = $('#CollationInnerPanel');
 
         function hide(el, thenShow, callback) {
-            $(el).slideUp(300, "ease-in-out", function () {
+            $(el).slideUp(300, "swing", function () {
                 if (thenShow) {
                     show($(thenShow), callback);
                 }
@@ -329,7 +329,7 @@
         }
 
         function show(el, callback) {
-            $(el).slideDown(300, "ease-in-out", callback);
+            $(el).slideDown(300, "swing", callback);
         }
 
         function toggleDataProvider() {
