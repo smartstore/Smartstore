@@ -336,7 +336,10 @@ public partial class XmlSitemapGenerator : AsyncDbSaveHook<BaseEntity>, IXmlSite
 
                         segment++;
                         numProcessed = Math.Min(segment * MaximumSiteMapNodeCount, total);
-                        ctx.ProgressCallback?.Invoke(numProcessed, total, $"{numProcessed:N0} / {total:N0}");
+                        if (ctx.ProgressCallback != null)
+                        {
+                            await ctx.ProgressCallback(numProcessed, total, $"{numProcessed:N0} / {total:N0}");
+                        }
 
                         var slugs = await GetUrlRecordCollectionsForBatchAsync([.. batch.Select(x => x.Entry)], languageIds);
 
@@ -383,11 +386,14 @@ public partial class XmlSitemapGenerator : AsyncDbSaveHook<BaseEntity>, IXmlSite
                         slugs.Clear();
                     }
 
-                    ctx.ProgressCallback?.Invoke(totalSegments, totalSegments, "Finalizing...");
-
                     // Process custom nodes
                     if (!ctx.CancellationToken.IsCancellationRequested)
                     {
+                        if (ctx.ProgressCallback != null)
+                        {
+                            await ctx.ProgressCallback(numProcessed, total, $"{numProcessed:N0} / {total:N0}... Processing custom nodes");
+                        }
+
                         await ProcessCustomNodesAsync(ctx, sitemaps);
 
                         foreach (var data in languageData.Values)
@@ -411,6 +417,11 @@ public partial class XmlSitemapGenerator : AsyncDbSaveHook<BaseEntity>, IXmlSite
                 }
 
                 ctx.CancellationToken.ThrowIfCancellationRequested();
+
+                if (ctx.ProgressCallback != null)
+                {
+                    await ctx.ProgressCallback(totalSegments, totalSegments, "Finalizing...");
+                }
 
                 foreach (var data in languageData.Values)
                 {
