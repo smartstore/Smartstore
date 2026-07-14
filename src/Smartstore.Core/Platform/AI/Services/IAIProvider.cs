@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using System.Text.Json;
 using Smartstore.Core.AI.Metadata;
 using Smartstore.Core.AI.Prompting;
 using Smartstore.Core.Content.Media;
@@ -53,6 +54,20 @@ public partial interface IAIProvider : IProvider, IDisposable, IAsyncDisposable
     /// </returns>
     /// <exception cref="AIException">Thrown when an error occurs during the AI conversation.</exception>
     Task<string?> ChatAsync(AIChat chat, CancellationToken cancelToken = default);
+
+    /// <summary>
+    /// Starts an AI conversation and requests a structured JSON response that can be deserialized to <typeparamref name="T"/>.
+    /// </summary>
+    /// <param name="chat">The AI chat.</param>
+    /// <param name="format">The response format to request.</param>
+    /// <param name="jsonOptions">Optional serializer options used to deserialize the response.</param>
+    /// <returns>The deserialized structured response.</returns>
+    /// <exception cref="AIException">Thrown when an error occurs during the AI conversation or response deserialization.</exception>
+    Task<T?> ChatStructuredAsync<T>(
+        AIChat chat,
+        AIResponseFormat format,
+        JsonSerializerOptions? jsonOptions = null,
+        CancellationToken cancelToken = default);
 
     /// <summary>
     /// Starts or continues an AI conversation.

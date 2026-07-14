@@ -5,6 +5,7 @@ using Smartstore.Core.Localization;
 using Smartstore.IO;
 using Smartstore.Threading;
 using Smartstore.Utilities;
+using System.Text.Json;
 
 namespace Smartstore.Core.AI;
 
@@ -188,6 +189,33 @@ public abstract class AIProviderBase : Disposable, IAIProvider
     /// <returns>AI text answer.</returns>
     protected virtual Task<string> TextChatAsync(AIChat chat, CancellationToken cancelToken = default)
         => throw new NotImplementedException();
+
+    public virtual async Task<T> ChatStructuredAsync<T>(
+        AIChat chat,
+        AIResponseFormat format,
+        JsonSerializerOptions jsonOptions = null,
+        CancellationToken cancelToken = default)
+    {
+        Guard.NotNull(format);
+
+        var json = await ChatStructuredCoreAsync(chat, format, cancelToken);
+        if (json.IsEmpty())
+        {
+            return default;
+        }
+
+        try
+        {
+            return JsonSerializer.Deserialize<T>(json, jsonOptions);
+        }
+        catch (JsonException ex)
+        {
+            throw new AIException($"The AI response could not be deserialized to {typeof(T).Name}.", ex, null);
+        }
+    }
+
+    protected virtual Task<string> ChatStructuredCoreAsync(AIChat chat, AIResponseFormat format, CancellationToken cancelToken = default)
+        => ChatAsync(chat, cancelToken);
 
     /// <summary>
     /// Starts or continues a text-to-image AI conversation, including source image(s), to create an image.
