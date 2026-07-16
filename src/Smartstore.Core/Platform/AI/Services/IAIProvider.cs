@@ -56,12 +56,12 @@ public partial interface IAIProvider : IProvider, IDisposable, IAsyncDisposable
     Task<string?> ChatAsync(AIChat chat, CancellationToken cancelToken = default);
 
     /// <summary>
-    /// Sends the chat to the AI provider, requests a response that conforms to the given <paramref name="format"/>,
+    /// Sends the chat to the AI provider, requests a response that conforms to the given <paramref name="schema"/>,
     /// and deserializes the returned JSON to a strongly typed object of type <typeparamref name="T"/>.
     /// </summary>
     /// <typeparam name="T">The reference type to deserialize the JSON response into.</typeparam>
     /// <param name="chat">The AI chat containing the messages and topic.</param>
-    /// <param name="format">The response format (schema) the AI must adhere to.</param>
+    /// <param name="schema">The response schema the AI must adhere to.</param>
     /// <param name="jsonOptions">Optional <see cref="JsonSerializerOptions"/> used to deserialize the provider response.</param>
     /// <returns>
     /// The deserialized AI response, or <c>null</c> when the provider returns an empty response.
@@ -69,7 +69,7 @@ public partial interface IAIProvider : IProvider, IDisposable, IAsyncDisposable
     /// <exception cref="AIException">Thrown when an error occurs during the AI conversation or when the response cannot be deserialized to <typeparamref name="T"/>.</exception>
     Task<T?> GetTypedResponseAsync<T>(
         AIChat chat,
-        AIResponseSchema format,
+        AIResponseSchema schema,
         JsonSerializerOptions? jsonOptions = null,
         CancellationToken cancelToken = default) where T : class;
 

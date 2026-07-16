@@ -192,14 +192,24 @@ public abstract class AIProviderBase : Disposable, IAIProvider
 
     public virtual async Task<T> GetTypedResponseAsync<T>(
         AIChat chat,
-        AIResponseSchema format,
+        AIResponseSchema schema,
         JsonSerializerOptions jsonOptions = null,
         CancellationToken cancelToken = default)
         where T : class
     {
-        Guard.NotNull(format);
+        Guard.NotNull(schema);
 
-        var json = await GetTypedResponseCoreAsync(chat, format, cancelToken);
+        if (chat == null || !chat.HasMessages())
+        {
+            return null;
+        }
+
+        if (chat.Topic == AIChatTopic.Image)
+        {
+            throw new NotSupportedException($"Typed response is not supported for {nameof(AIChatTopic.Image)} chats.");
+        }
+
+        var json = await GetTypedResponseCoreAsync(chat, schema, cancelToken);
         if (json.IsEmpty())
         {
             return default;
@@ -215,23 +225,32 @@ public abstract class AIProviderBase : Disposable, IAIProvider
         }
     }
 
+    protected virtual string GetDefaultTypedResponsePrompt(AIResponseSchema schema)
+    {
+        return @$"Return only valid JSON for the requested typed response.
+            Do not include markdown, comments, explanations, or surrounding text.
+            The JSON object must conform to this schema:
+            {schema.SchemaJson}
+            ";
+    }
+
     /// <summary>
     /// Provider-specific implementation hook for requesting a typed AI response.
     /// Implementers override this method to configure the provider for structured JSON output (e.g., attach a JSON schema,
     /// set response format options, or add system instructions) and return the raw JSON returned by the model.
     /// </summary>
     /// <param name="chat">The AI chat containing the messages and topic.</param>
-    /// <param name="format">The response format (schema) the AI must adhere to.</param>
+    /// <param name="schema">The response schema the AI must adhere to.</param>
     /// <returns>The raw JSON response from the AI, or an empty string if the provider returned no content.</returns>
     /// <remarks>
     /// The default implementation forwards the chat to <see cref="ChatAsync"/> and returns its string result as JSON.
-    /// Override this method when the provider requires provider-specific format handling. For example, the ChatGPT provider
+    /// Override this method when the provider requires provider-specific schema handling. For example, the ChatGPT provider
     /// sets <c>ResponseTextOptions.TextFormat</c> to <c>CreateJsonSchemaFormat</c> and validates that the finish reason
     /// is <c>stop</c> before returning the model's JSON output.
     /// </remarks>
     protected virtual Task<string> GetTypedResponseCoreAsync(
         AIChat chat,
-        AIResponseSchema format,
+        AIResponseSchema schema,
         CancellationToken cancelToken = default)
         => ChatAsync(chat, cancelToken);
 
