@@ -56,18 +56,22 @@ public partial interface IAIProvider : IProvider, IDisposable, IAsyncDisposable
     Task<string?> ChatAsync(AIChat chat, CancellationToken cancelToken = default);
 
     /// <summary>
-    /// Starts an AI conversation and requests a structured JSON response that can be deserialized to <typeparamref name="T"/>.
+    /// Sends the chat to the AI provider, requests a response that conforms to the given <paramref name="format"/>,
+    /// and deserializes the returned JSON to a strongly typed object of type <typeparamref name="T"/>.
     /// </summary>
-    /// <param name="chat">The AI chat.</param>
-    /// <param name="format">The response format to request.</param>
-    /// <param name="jsonOptions">Optional serializer options used to deserialize the response.</param>
-    /// <returns>The deserialized structured response.</returns>
-    /// <exception cref="AIException">Thrown when an error occurs during the AI conversation or response deserialization.</exception>
-    Task<T?> ChatStructuredAsync<T>(
+    /// <typeparam name="T">The reference type to deserialize the JSON response into.</typeparam>
+    /// <param name="chat">The AI chat containing the messages and topic.</param>
+    /// <param name="format">The response format (schema) the AI must adhere to.</param>
+    /// <param name="jsonOptions">Optional <see cref="JsonSerializerOptions"/> used to deserialize the provider response.</param>
+    /// <returns>
+    /// The deserialized AI response, or <c>null</c> when the provider returns an empty response.
+    /// </returns>
+    /// <exception cref="AIException">Thrown when an error occurs during the AI conversation or when the response cannot be deserialized to <typeparamref name="T"/>.</exception>
+    Task<T?> GetTypedResponseAsync<T>(
         AIChat chat,
-        AIResponseFormat format,
+        AIResponseSchema format,
         JsonSerializerOptions? jsonOptions = null,
-        CancellationToken cancelToken = default);
+        CancellationToken cancelToken = default) where T : class;
 
     /// <summary>
     /// Starts or continues an AI conversation.

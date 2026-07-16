@@ -20,7 +20,7 @@
 ## Code Style
 - Use specific formatting rules
 - Follow naming conventions
-- Enable nullable reference types explicitly at file level in new or modified C# files using `#nullable enable`, but only if really necessary.
+- Enable nullable reference types explicitly at file level in new or modified C# files using `#nullable enable`, primarily in interfaces/contracts for Intellisense, but only if really necessary.
 - New admin model properties must be decorated with `LocalizedDisplayAttribute` using a resource key. For locale resources, use the `AddOrUpdate` overload (key, value, deValue, hint, deHint) where value/deValue are the short visible labels and hint/deHint are the help tooltip texts for a property.
 - Prefer existing utilities like `Smartstore.Utilities.HashCodeCombiner` over ad-hoc hash implementations, provided they cover the use case or can be sensibly extended.
 
@@ -29,4 +29,4 @@
 - Treat `TValue` as nullable in `Multimap<TKey, TValue>` under nullable reference types, allowing null values.
 - LazyMultimap<T> is used only scoped and never shared; it does not need to be thread-safe. Prefer variant 1 changes (lightweight, minimal, avoid heavy locking).
 - This codebase uses FluentMigrator (not EF Core migrations). New translations are added via `src/Smartstore.Core/Migrations/SmartDbContextDataSeeder.cs`.
-- User prefers .NET naming conventions where acronyms of 2+ letters are fully capitalized (e.g., IPAddress, HTTP, XML) following BCL standards like System.Net.IPAddress
+- User prefers .NET naming conventions where acronyms of 2+ letters are fully capitalized (e.g., IPAddress, HTTP, XML) following BCL standards like System.Net.IPAddress.
