@@ -1,5 +1,7 @@
 ﻿#nullable enable
 
+using System.ComponentModel;
+using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
 namespace Smartstore.Core.AI.Metadata;
@@ -84,6 +86,7 @@ public class AIModelEntry : ICloneable<AIModelEntry>, IEquatable<AIModelEntry>
     /// <summary>
     /// The performance level of the model.
     /// </summary>
+    [DefaultValue(AIModelPerformanceLevel.Balanced)]
     public AIModelPerformanceLevel Level { get; set; } = AIModelPerformanceLevel.Balanced;
 
     /// <summary>
@@ -95,6 +98,7 @@ public class AIModelEntry : ICloneable<AIModelEntry>, IEquatable<AIModelEntry>
     /// <summary>
     /// Indicates whether the model supports streaming responses.
     /// </summary>
+    [DefaultValue(true)]
     public bool Stream { get; set; } = true;
 
     /// <summary>
@@ -124,6 +128,7 @@ public class AIModelEntry : ICloneable<AIModelEntry>, IEquatable<AIModelEntry>
     /// <summary>
     /// User-defined custom model (not provided by metadata.json).
     /// </summary>
+    [IgnoreDataMember]
     public bool IsCustom { get; set; }
 
     /// <summary>
