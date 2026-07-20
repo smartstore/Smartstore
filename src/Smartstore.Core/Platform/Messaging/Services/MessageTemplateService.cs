@@ -158,7 +158,7 @@ public class MessageTemplateService : IMessageTemplateService
         // File path
         var filePath = PathUtility.Join(dir.SubPath, template.Name + ".xml");
 
-        var xml = Prettifier.PrettifyXML(doc.OuterXml);
+        var xml = Prettifier.PrettifyXml(doc.OuterXml);
         root.WriteAllText(filePath, xml);
 
         return doc;

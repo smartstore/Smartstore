@@ -33,7 +33,7 @@ public class XmlDownloadResult : ActionResult
         response.Headers[HeaderNames.ContentEncoding] = "utf-8";
         response.Headers[HeaderNames.ContentDisposition] = string.Format("attachment; filename={0}", FileDownloadName);
 
-        var buffer = Prettifier.PrettifyXML(document.InnerXml).GetBytes();
+        var buffer = Prettifier.PrettifyXml(document.InnerXml).GetBytes();
         await response.Body.WriteAsync(buffer.AsMemory(0, buffer.Length));
     }
 }
