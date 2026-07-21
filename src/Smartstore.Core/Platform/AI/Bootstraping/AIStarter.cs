@@ -3,6 +3,7 @@ using Smartstore.Core.AI;
 using Smartstore.Core.AI.Metadata;
 using Smartstore.Core.AI.Prompting;
 using Smartstore.Engine.Builders;
+using Smartstore.Net.Http;
 
 namespace Smartstore.Core.Bootstrapping;
 
@@ -10,6 +11,16 @@ internal sealed class AIStarter : StarterBase
 {
     public override bool Matches(IApplicationContext appContext)
         => appContext.IsInstalled;
+
+    public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
+    {
+        services.AddHttpClient<AIMetadataHttpClient>()
+            .AddSmartstoreUserAgent()
+            .ConfigureHttpClient(client =>
+            {
+                client.Timeout = TimeSpan.FromSeconds(2);
+            });
+    }
 
     public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
     {

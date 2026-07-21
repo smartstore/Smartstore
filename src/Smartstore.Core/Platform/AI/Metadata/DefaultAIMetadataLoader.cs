@@ -9,13 +9,13 @@ using Smartstore.Json;
 
 namespace Smartstore.Core.AI.Metadata;
 
-public class JsonAIMetadataLoader : IAIMetadataLoader
+public class DefaultAIMetadataLoader : IAIMetadataLoader
 {
     private readonly IMemoryCache _cache;
     private readonly IApplicationContext _appContext;
     private readonly JsonSerializerOptions _jsonOptions;
 
-    public JsonAIMetadataLoader(IMemoryCache cache, IApplicationContext appContext)
+    public DefaultAIMetadataLoader(IMemoryCache cache, IApplicationContext appContext)
     {
         _cache = cache;
         _appContext = appContext;
@@ -52,6 +52,12 @@ public class JsonAIMetadataLoader : IAIMetadataLoader
         return (AIMetadata)result!.Value;
     }
 
+    public virtual Task<AIMetadata?> PostProcessAsync(AIMetadata localMetadata, CancellationToken cancelToken = default)
+    {
+        localMetadata.PostProcessed = true;
+        return Task.FromResult<AIMetadata?>(null);
+    }
+
     public void ReplaceMetadata(string moduleSystemName, AIMetadata metadata)
     {
         Guard.NotEmpty(moduleSystemName);
@@ -82,12 +88,6 @@ public class JsonAIMetadataLoader : IAIMetadataLoader
         var changeToken = file.FileSystem.Watch(file.SubPath);
 
         return (metadata, changeToken);
-    }
-
-    public virtual Task<AIMetadata?> PostProcessAsync(AIMetadata localMetadata, CancellationToken cancelToken = default)
-    {
-        localMetadata.PostProcessed = true;
-        return Task.FromResult<AIMetadata?>(null);
     }
 
     protected virtual AIMetadata? Deserialize(IFile file)
