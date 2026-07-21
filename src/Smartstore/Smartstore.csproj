@@ -24,7 +24,7 @@
 	</ItemGroup>-->
 	
     <ItemGroup>
-        <PackageReference Include="AngleSharp" Version="1.4.0" />
+        <PackageReference Include="AngleSharp" Version="1.5.0" />
         <PackageReference Include="AngleSharp.Css" Version="1.0.0-beta.164" />
         <PackageReference Include="AsyncKeyedLock" Version="8.0.2" />
         <PackageReference Include="Autofac" Version="9.1.0" />

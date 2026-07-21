@@ -13,6 +13,7 @@
 	<ItemGroup>
 		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="11.0.0" />
 		<PackageReference Include="AutoprefixerHost" Version="3.2.4" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" />
 		<PackageReference Include="DouglasCrockford.JsMin" Version="2.2.0" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
         <PackageReference Include="FluentValidation" Version="12.1.1" />

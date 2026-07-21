@@ -16,7 +16,7 @@
 		<PackageReference Include="Microsoft.Build.Tasks.Core" Version="18.4.0" />
 		<PackageReference Include="Nuke.Common" Version="10.1.0" />
 		<PackageReference Include="NuGet.Packaging" Version="7.3.1" />
-		<PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.8" />
+		<PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.10" />
 		<PackageDownload Include="GitVersion.Tool" Version="[6.7.0]" />
 	</ItemGroup>
 
