@@ -381,7 +381,7 @@ public class GoogleAnalyticsScriptHelper
     {
         return @$"
                 gtag('event', 'search', {{
-                  search_term: '{searchTerm}'
+                  search_term: '{searchTerm.EncodeJsStringUnquoted()}'
                 }});
             ";
     }
