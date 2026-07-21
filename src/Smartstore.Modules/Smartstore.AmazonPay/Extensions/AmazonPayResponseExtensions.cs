@@ -30,13 +30,13 @@ internal static class AmazonPayResponseExtensions
         if (response.RawRequest.HasValue())
         {
             sb.AppendLine();
-            sb.AppendLine(Prettifier.PrettifyJSON(response.RawRequest));
+            sb.AppendLine(Prettifier.PrettifyJson(response.RawRequest));
         }
 
         if (response.RawResponse.HasValue())
         {
             sb.AppendLine();
-            sb.AppendLine(Prettifier.PrettifyJSON(response.RawResponse));
+            sb.AppendLine(Prettifier.PrettifyJson(response.RawResponse));
         }
 
         return sb.ToString();
