@@ -32,6 +32,7 @@ internal sealed class AIStarter : StarterBase
         }
 
         builder.RegisterType<JsonAIMetadataLoader>().As<IAIMetadataLoader>().SingleInstance();
+        //builder.RegisterType<DefaultAIMetadataLoader>().As<IAIMetadataLoader>().SingleInstance();
         builder.RegisterType<DefaultAIChatCache>().As<IAIChatCache>().SingleInstance();
         builder.RegisterType<AIMessageBuilder>().AsSelf().InstancePerLifetimeScope();
         builder.RegisterType<AIMessageResources>().AsSelf().InstancePerLifetimeScope();

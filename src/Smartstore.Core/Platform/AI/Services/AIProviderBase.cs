@@ -52,7 +52,7 @@ public abstract class AIProviderBase : Disposable, IAIProvider
             return;
         }
 
-        timeout ??= TimeSpan.FromSeconds(5000);
+        timeout ??= TimeSpan.FromSeconds(5);
         var startedOn = DateTime.UtcNow;
 
         do

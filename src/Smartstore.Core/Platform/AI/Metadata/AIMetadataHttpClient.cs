@@ -24,7 +24,7 @@ public class AIMetadataHttpClient
     /// <param name="providerId">The provider ID, e.g. "openai".</param>
     /// <param name="cancelToken">Cancellation token.</param>
     /// <returns>The deserialized <see cref="AIMetadata"/>, or <c>null</c> on failure.</returns>
-    public virtual async Task<AIMetadata?> GetMetadataAsync(string providerId, CancellationToken cancelToken = default)
+    public virtual async Task<AIMetadata?> FetchMetadataAsync(string providerId, CancellationToken cancelToken = default)
     {
         Guard.NotEmpty(providerId);
 

@@ -13,12 +13,14 @@ public class DefaultAIMetadataLoader : IAIMetadataLoader
 {
     private readonly IMemoryCache _cache;
     private readonly IApplicationContext _appContext;
+    private readonly AIMetadataHttpClient _metadataHttpClient;
     private readonly JsonSerializerOptions _jsonOptions;
 
-    public DefaultAIMetadataLoader(IMemoryCache cache, IApplicationContext appContext)
+    public DefaultAIMetadataLoader(IMemoryCache cache, IApplicationContext appContext, AIMetadataHttpClient metadataHttpClient)
     {
         _cache = cache;
         _appContext = appContext;
+        _metadataHttpClient = metadataHttpClient;
 
         _jsonOptions = SmartJsonOptions.CamelCased;
     }
@@ -52,10 +54,17 @@ public class DefaultAIMetadataLoader : IAIMetadataLoader
         return (AIMetadata)result!.Value;
     }
 
-    public virtual Task<AIMetadata?> PostProcessAsync(AIMetadata localMetadata, CancellationToken cancelToken = default)
+    public virtual async Task<AIMetadata?> PostProcessAsync(AIMetadata localMetadata, CancellationToken cancelToken = default)
     {
-        localMetadata.PostProcessed = true;
-        return Task.FromResult<AIMetadata?>(null);
+        try
+        {
+            var metadata = await _metadataHttpClient.FetchMetadataAsync(localMetadata.ProviderId, cancelToken);
+            return metadata;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     public void ReplaceMetadata(string moduleSystemName, AIMetadata metadata)
