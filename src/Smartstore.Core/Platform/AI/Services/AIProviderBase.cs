@@ -36,7 +36,9 @@ public abstract class AIProviderBase : Disposable, IAIProvider
 
     public AIProviderBase(IAIMetadataLoader metadataLoader, string moduleSystemName)
     {
-        _metadataLoader = metadataLoader;
+        Guard.NotEmpty(moduleSystemName);
+        
+        _metadataLoader = Guard.NotNull(metadataLoader);
         _moduleSystemName = moduleSystemName;
     }
 

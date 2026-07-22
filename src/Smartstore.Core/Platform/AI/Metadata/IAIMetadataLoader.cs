@@ -12,7 +12,7 @@ public interface IAIMetadataLoader
     /// </summary>
     /// <param name="moduleSystemName">The AI modules's system name to load metadata.json from.</param>"
     /// <exception cref="InvalidOperationException"></exception>
-    AIMetadata LoadMetadata(string moduleSystemName);
+    AIMetadata? LoadMetadata(string moduleSystemName);
 
     /// <summary>
     /// Performs post-processing operations asynchronously using the specified AI metadata.
@@ -25,4 +25,24 @@ public interface IAIMetadataLoader
     /// Replaces the cached metadata for the given <paramref name="moduleSystemName"/> with the given <paramref name="metadata"/> instance.
     /// </summary>
     void ReplaceMetadata(string moduleSystemName, AIMetadata metadata);
+}
+
+public class NullAIMetadataLoader : IAIMetadataLoader
+{
+    private NullAIMetadataLoader()
+    {
+    }
+
+    public static NullAIMetadataLoader Instance { get; } = new NullAIMetadataLoader();
+    
+    public AIMetadata? LoadMetadata(string moduleSystemName) 
+        => null;
+
+    public Task<AIMetadata?> PostProcessAsync(AIMetadata localMetadata, CancellationToken cancelToken = default)
+        => Task.FromResult<AIMetadata?>(localMetadata);
+
+
+    public void ReplaceMetadata(string moduleSystemName, AIMetadata metadata)
+    {
+    }
 }
