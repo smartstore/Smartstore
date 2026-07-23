@@ -86,7 +86,7 @@
     display: flex;
     align-items: center;
     flex-wrap: nowrap;
-    z-index: 10;
+    z-index: 6;
     background-color: $input-bg;
     color: $gray-600;
     font-size: var(--ni-font-size);
@@ -107,7 +107,7 @@
 
 .numberinput-stepper {
     position: absolute;
-    z-index: 15;
+    z-index: 7;
     text-decoration: none !important;
     display: inline-flex;
     align-items: center;
@@ -129,7 +129,7 @@
     &:after {
         // Mimic input group addon
         position: absolute;
-        z-index: 10;
+        z-index: 5;
         content: ' ';
         display: block;
         background: $input-group-addon-bg;
