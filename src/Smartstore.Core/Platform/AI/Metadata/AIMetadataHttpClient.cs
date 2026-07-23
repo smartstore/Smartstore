@@ -1,7 +1,8 @@
 #nullable enable
 
+using System.Net;
 using System.Net.Http;
-using System.Net.Http.Json;
+using System.Text.Json;
 using Smartstore.Json;
 
 namespace Smartstore.Core.AI.Metadata;
@@ -29,15 +30,21 @@ public class AIMetadataHttpClient
         Guard.NotEmpty(providerId);
 
         var url = $"http://localhost:59318/aimetadata/{providerId}";
+        var response = await _httpClient.GetAsync(url, cancelToken);
 
-        try
-        {
-            var response = await _httpClient.GetFromJsonAsync<AIMetadata>(url, SmartJsonOptions.CamelCased, cancelToken);
-            return response;
-        }
-        catch (Exception)
+        if (response.StatusCode == HttpStatusCode.NoContent)
         {
             return null;
         }
+
+        response.EnsureSuccessStatusCode();
+
+        var json = await response.Content.ReadAsStringAsync(cancelToken);
+        if (json.IsNullOrEmpty())
+        {
+            return null;
+        }
+
+        return JsonSerializer.Deserialize<AIMetadata>(json, SmartJsonOptions.CamelCased);
     }
 }

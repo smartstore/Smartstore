@@ -25,8 +25,8 @@ public class DefaultAIMetadataLoader : IAIMetadataLoader
         _jsonOptions = SmartJsonOptions.CamelCased;
     }
 
-    protected static string BuildCacheKey(string moduleSystemName)
-        => "aimetadata:" + moduleSystemName;
+    protected internal string BuildCacheKey(string moduleSystemName)
+        => _cache.BuildScopedKey("aimetadata:" + moduleSystemName);
 
     protected IMemoryCache Cache
     {
