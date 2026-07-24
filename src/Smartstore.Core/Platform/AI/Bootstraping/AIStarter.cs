@@ -14,10 +14,11 @@ internal sealed class AIStarter : StarterBase
 
     public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
     {
-        services.AddHttpClient<AIMetadataHttpClient>()
+        services.AddHttpClient("AIRemoteMetadata")
             .AddSmartstoreUserAgent()
             .ConfigureHttpClient(client =>
             {
+                client.BaseAddress = new Uri("http://localhost:59318/");
                 client.Timeout = TimeSpan.FromSeconds(2);
             });
     }
@@ -31,8 +32,9 @@ internal sealed class AIStarter : StarterBase
             builder.RegisterType(type).As<IAIPromptGenerator>().Keyed<IAIPromptGenerator>(type).InstancePerLifetimeScope();
         }
 
-        builder.RegisterType<JsonAIMetadataLoader>().As<IAIMetadataLoader>().SingleInstance();
+        builder.RegisterType<RemoteAIMetadataLoader>().As<IRemoteAIMetadataLoader>().SingleInstance();
         //builder.RegisterType<DefaultAIMetadataLoader>().As<IAIMetadataLoader>().SingleInstance();
+        builder.RegisterType<JsonAIMetadataLoader>().As<IAIMetadataLoader>().SingleInstance();
         builder.RegisterType<DefaultAIChatCache>().As<IAIChatCache>().SingleInstance();
         builder.RegisterType<AIMessageBuilder>().AsSelf().InstancePerLifetimeScope();
         builder.RegisterType<AIMessageResources>().AsSelf().InstancePerLifetimeScope();
