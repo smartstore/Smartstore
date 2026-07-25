@@ -90,6 +90,12 @@ public class AIModelEntry : ICloneable<AIModelEntry>, IEquatable<AIModelEntry>
     public AIModelPerformanceLevel Level { get; set; } = AIModelPerformanceLevel.Balanced;
 
     /// <summary>
+    /// Gets or sets the adjustable reasoning effort options for this model.
+    /// If <c>null</c>, the model does not support explicit reasoning effort control.
+    /// </summary>
+    public AIModelThinkOptions? Think { get; set; }
+
+    /// <summary>
     /// Gets or sets the tools supported by this model.
     /// </summary>
     [JsonConverter(typeof(AIResponseToolConverter))]

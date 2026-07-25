@@ -26,6 +26,12 @@ public class AIChat(AIChatTopic topic)
     public string? ModelName { get; set; }
 
     /// <summary>
+    /// The selected reasoning effort level (low, medium, high).
+    /// <c>null</c> or <c>"auto"</c> to let the provider/model decide.
+    /// </summary>
+    public string? ReasoningEffort { get; set; }
+
+    /// <summary>
     /// Tools available for AI response generation, allowing for a combination of multiple tools.
     /// </summary>
     public AIResponseTool Tools { get; set; }
