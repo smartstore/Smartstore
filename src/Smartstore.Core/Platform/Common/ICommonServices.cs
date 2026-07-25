@@ -45,17 +45,11 @@ public interface ICommonServices
 public static class ICommonServicesExtensions
 {
     public static TService Resolve<TService>(this ICommonServices services)
-    {
-        return services.Container.Resolve<TService>();
-    }
+        => services.Container.Resolve<TService>();
 
     public static TService ResolveKeyed<TService>(this ICommonServices services, object serviceKey)
-    {
-        return services.Container.ResolveKeyed<TService>(serviceKey);
-    }
+        => services.Container.ResolveKeyed<TService>(serviceKey);
 
     public static TService ResolveNamed<TService>(this ICommonServices services, string serviceName)
-    {
-        return services.Container.ResolveNamed<TService>(serviceName);
-    }
+        => services.Container.ResolveNamed<TService>(serviceName);
 }
