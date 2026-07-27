@@ -9,7 +9,6 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
-using Smartstore.Engine.Modularity;
 using Smartstore.Events;
 using Smartstore.Http;
 using Smartstore.Utilities.Html;
@@ -35,7 +34,6 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
     private readonly IPaymentService _paymentService;
     private readonly ICheckoutFactory _checkoutFactory;
     private readonly ICheckoutStateAccessor _checkoutStateAccessor;
-    private readonly Lazy<ModuleManager> _moduleManager;
     private readonly OrderSettings _orderSettings;
     private readonly ShoppingCartSettings _shoppingCartSettings;
 
@@ -52,7 +50,6 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         IPaymentService paymentService,
         ICheckoutFactory checkoutFactory,
         ICheckoutStateAccessor checkoutStateAccessor,
-        Lazy<ModuleManager> moduleManager,
         OrderSettings orderSettings,
         ShoppingCartSettings shoppingCartSettings)
     {
@@ -68,7 +65,6 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         _paymentService = paymentService;
         _checkoutFactory = checkoutFactory;
         _checkoutStateAccessor = checkoutStateAccessor;
-        _moduleManager = moduleManager;
         _orderSettings = orderSettings;
         _shoppingCartSettings = shoppingCartSettings;
     }
@@ -256,6 +252,12 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
             var customer = context.Cart.Customer;
             var paymentMethod = customer.GenericAttributes.SelectedPaymentMethod;
 
+            var validationResult = await PublishValidatingCartEvent(context);
+            if (validationResult != null)
+            {
+                return validationResult;
+            }
+
             context.HttpContext.Session.TryGetObject<ProcessPaymentRequest>(CheckoutState.OrderPaymentInfoName, out var paymentRequest);
             paymentRequest ??= new();
             paymentRequest.StoreId = store.Id;
@@ -395,23 +397,14 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
 
         var confirmStep = Guard.NotNull(_checkoutFactory.GetCheckoutStep(CheckoutActionNames.Confirm));
 
-        var warnings = new List<string>();
         var store = _storeContext.CurrentStore;
         var cart = context.Cart;
         OrderPlacementResult placeOrderResult = null;
 
-        var validatingCartEvent = new ValidatingCartEvent(cart, warnings);
-        await _eventPublisher.PublishAsync(validatingCartEvent);
-
-        if (validatingCartEvent.Result != null)
+        var validationResult = await PublishValidatingCartEvent(context);
+        if (validationResult != null)
         {
-            return new(validatingCartEvent.Result);
-        }
-
-        if (warnings.Count > 0)
-        {
-            warnings.Take(_maxWarnings).Each(x => _notifier.Warning(x));
-            return new(RedirectToCart());
+            return validationResult;
         }
 
         // Prevent two orders from being placed within a time span of x seconds.
@@ -587,6 +580,27 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         result ??= next ? _checkoutFactory.GetCheckoutStep(CheckoutActionNames.Confirm) : null;
 
         return result;
+    }
+
+    private async Task<CheckoutResult> PublishValidatingCartEvent(CheckoutContext context)
+    {
+        var warnings = new List<string>();
+        var result = new ValidatingCartEvent(context.Cart, warnings);
+
+        await _eventPublisher.PublishAsync(result);
+
+        if (result.Result != null)
+        {
+            return new(result.Result);
+        }
+
+        if (warnings.Count > 0)
+        {
+            warnings.Take(_maxWarnings).Each(x => _notifier.Warning(x));
+            return new(RedirectToCart());
+        }
+
+        return null;
     }
 
     private CheckoutResult CreateResult(PaymentException ex, CheckoutContext context)

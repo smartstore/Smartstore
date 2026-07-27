@@ -301,7 +301,7 @@ public class CheckoutController : PublicController
     public async Task<IActionResult> ConfirmPayment()
     {
         var result = await _checkoutWorkflow.ConfirmPaymentAsync(await CreateCheckoutContext());
-        var redirectUrl = result.ActionResult is RedirectResult rs ? rs?.Url.NullEmpty() : null;
+        var redirectUrl = GetUrl(result.ActionResult);
         var errors = result.Errors.Select(e => e.ErrorMessage).ToList();
 
         if (redirectUrl != null && errors.Count > 0)
@@ -311,7 +311,7 @@ public class CheckoutController : PublicController
         }
 
         // Success: If redirectUrl is provided, redirect to a third-party payment page to confirm the payment. Otherwise, place the order.
-        // Failure: Stay on confirmation page and display error messages.
+        // Failure: Stay on confirmation page and display error messages, except a redirectUrl is provided.
         // Exception: Redirect to payment selection page and display notification (default case of a payment error).
         return Json(new
         {
@@ -411,5 +411,18 @@ public class CheckoutController : PublicController
         {
             Model = model
         };
+    }
+
+    private string GetUrl(IActionResult result)
+    {
+        var url = result switch
+        {
+            RedirectToRouteResult route => Url.RouteUrl(route.RouteName, route.RouteValues),
+            RedirectToActionResult action => Url.Action(action.ActionName, action.ControllerName, action.RouteValues),
+            RedirectResult direct => direct.Url,
+            _ => null
+        };
+
+        return url.NullEmpty();
     }
 }
