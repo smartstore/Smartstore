@@ -34,6 +34,7 @@ public class AIChatSystemJsonConverterTests
             .UseModel("gpt-4o-mini")
             .UserTopic(initialMessage.Content)
             .AddMessages([assistantMessage, userMessage]);
+        chat.ReasoningEffort = "high";
 
         chat.SetMetaData("SomeKey", 12345);
 
@@ -55,6 +56,7 @@ public class AIChatSystemJsonConverterTests
             Assert.That(obj, Is.Not.EqualTo(null));
             Assert.That(obj.Topic, Is.EqualTo(AIChatTopic.RichText));
             Assert.That(obj.ModelName, Is.EqualTo("gpt-4o-mini"));
+            Assert.That(obj.ReasoningEffort, Is.EqualTo("high"));
             Assert.That(obj.Messages, Has.Count.EqualTo(3));
 
             Assert.That(obj.Messages.All(x => x.Content.HasValue()));
@@ -91,6 +93,7 @@ public class AIChatSystemJsonConverterTests
         // Arrange
         var chat = new AIChat(AIChatTopic.RichText);
         chat.UseModel("gpt-4");
+        chat.ReasoningEffort = "medium";
         chat.System("System prompt")
             .User("User message")
             .System("Assistant response");
@@ -105,6 +108,7 @@ public class AIChatSystemJsonConverterTests
         // Assert
         chat.Topic.ShouldEqual(AIChatTopic.RichText);
         chat.ModelName.ShouldEqual("gpt-4");
+        chat.ReasoningEffort.ShouldEqual("medium");
         chat.Messages.Count.ShouldEqual(3);
         chat.InitialUserMessage.ShouldBeNull();
         chat.Metadata["key1"].ShouldEqual("value1");
@@ -156,6 +160,7 @@ public class AIChatSystemJsonConverterTests
         var json = @"{
                 ""Topic"": 2,
                 ""ModelName"": ""gpt-4"",
+                ""ReasoningEffort"": ""low"",
                 ""Messages"": [
                     {""Role"": ""system"", ""Content"": ""System prompt""},
                     {""Role"": ""user"", ""Content"": ""User message""},
@@ -174,6 +179,7 @@ public class AIChatSystemJsonConverterTests
         chat.ShouldNotBeNull();
         chat.Topic.ShouldEqual(AIChatTopic.Translation);
         chat.ModelName.ShouldEqual("gpt-4");
+        chat.ReasoningEffort.ShouldEqual("low");
         chat.Messages.Count.ShouldEqual(3);
         chat.Messages[0].Role.ShouldEqual(KnownAIMessageRoles.System);
         chat.Messages[0].Content.ShouldEqual("System prompt");
@@ -353,6 +359,7 @@ public class AIChatSystemJsonConverterTests
         var json = @"{
                 ""topic"": 2,
                 ""modelname"": ""gpt-3.5"",
+                ""reasoningeffort"": ""high"",
                 ""messages"": [{""Role"": ""user"", ""Content"": ""Test""}],
                 ""initialusermessagehash"": 0
             }";
@@ -364,6 +371,7 @@ public class AIChatSystemJsonConverterTests
         chat.ShouldNotBeNull();
         chat.Topic.ShouldEqual(AIChatTopic.Translation);
         chat.ModelName.ShouldEqual("gpt-3.5");
+        chat.ReasoningEffort.ShouldEqual("high");
         chat.Messages.Count.ShouldEqual(1);
     }
 
