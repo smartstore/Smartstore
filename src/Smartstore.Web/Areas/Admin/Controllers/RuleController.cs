@@ -828,6 +828,7 @@ public class RuleController : AdminController
         if (scope == RuleScope.ProductAttribute)
         {
             int productId;
+            List<ProductVariantAttribute> attributes = null;
 
             if (ruleSet != null)
             {
@@ -838,9 +839,20 @@ public class RuleController : AdminController
             {
                 var attributeId = Guard.NotZero(command?.EntityId ?? 0);
                 productId = await _db.ProductVariantAttributes.Where(x => x.Id == attributeId).Select(x => x.ProductId).FirstOrDefaultAsync();
+
+                attributes = await _db.ProductVariantAttributes
+                    .AsNoTracking()
+                    .Include(x => x.ProductAttribute)
+                    .Include(x => x.ProductVariantAttributeValues)
+                    .Where(x => x.ProductId == productId && x.Id != attributeId)
+                    .OrderBy(x => x.DisplayOrder)
+                    .ToListAsync();
             }
 
-            return _ruleProviderFactory.GetProvider(scope, new AttributeRuleProviderContext(productId));
+            return _ruleProviderFactory.GetProvider(scope, new AttributeRuleProviderContext(productId)
+            {
+                Attributes = attributes
+            });
         }
 
         return _ruleProviderFactory.GetProvider(scope);
