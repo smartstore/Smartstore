@@ -186,6 +186,7 @@ public partial class ProductController : AdminController
             { "CopyOptions", T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.CopyOptions") }
         };
 
+        var language = _workContext.WorkingLanguage;
         var attributes = await _db.ProductVariantAttributes
             .AsNoTracking()
             .AsSplitQuery()
@@ -215,12 +216,12 @@ public partial class ProductController : AdminController
             {
                 Id = x.Id,
                 ProductId = x.ProductId,
-                ProductAttribute = x.ProductAttribute.Name,
+                ProductAttribute = x.ProductAttribute.GetLocalized(y => y.Name, language, true, false),
                 ProductAttributeId = x.ProductAttributeId,
                 TextPrompt = x.TextPrompt,
                 CustomData = x.CustomData,
                 IsRequired = x.IsRequired,
-                AttributeControlType = Services.Localization.GetLocalizedEnum(x.AttributeControlType),
+                AttributeControlType = Services.Localization.GetLocalizedEnum(x.AttributeControlType, language.Id),
                 AttributeControlTypeId = x.AttributeControlTypeId,
                 DisplayOrder = x.DisplayOrder,
                 NumberOfRules = rulesCount.Get(x.Id),
@@ -552,6 +553,7 @@ public partial class ProductController : AdminController
             return NotFound();
         }
 
+        var language = _workContext.WorkingLanguage;
         var product = await _db.Products
             .Select(x => new { x.Id, x.Name })
             .FirstOrDefaultAsync(x => x.Id == pva.ProductId);
@@ -561,17 +563,17 @@ public partial class ProductController : AdminController
             Id = pva.Id,
             ProductName = product?.Name?.EmptyNull(),
             ProductId = pva.ProductId,
-            ProductAttributeName = pva.ProductAttribute.GetLocalized(x => x.Name, _workContext.WorkingLanguage, true, false),
+            ProductAttributeName = pva.ProductAttribute.GetLocalized(x => x.Name, language, true, false),
             IsListTypeAttribute = pva.IsListTypeAttribute()
         };
 
         var attributes = await _db.ProductVariantAttributes
             .AsNoTracking()
+            .Include(x => x.ProductAttribute)
             .Where(x => x.ProductId == pva.ProductId)
             .Select(x => new
             {
                 Pva = x,
-                AttributeName = x.ProductAttribute.Name,
                 NumberOfOptions = x.ProductVariantAttributeValues.Count,
                 NumberOfRules = x.RuleSet != null ? x.RuleSet.Rules.Count : 0
             })
@@ -581,7 +583,7 @@ public partial class ProductController : AdminController
         ViewBag.ProductVariantAttributes = attributes
             .Select(x => new ExtendedSelectListItem
             {
-                Text = x.AttributeName,
+                Text = x.Pva.ProductAttribute.GetLocalized(y => y.Name, language, true, false),
                 Value = x.Pva.Id.ToString(),
                 Disabled = x.Pva.Id == productVariantAttributeId,
                 Selected = x.Pva.Id == productVariantAttributeId

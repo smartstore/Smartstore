@@ -26,11 +26,8 @@ public class ProductAttributeController : AdminController
     // AJAX.
     public async Task<IActionResult> AllProductAttributes(string label, int selectedId)
     {
-        var query = _db.ProductAttributes
-            .AsNoTracking()
-            .OrderBy(x => x.DisplayOrder)
-            .ThenBy(x => x.Name);
-
+        var query = _db.ProductAttributes.AsNoTracking();
+        var language = Services.WorkContext.WorkingLanguage;
         var pager = new FastPager<ProductAttribute>(query, 1000);
         var allAttributes = new List<dynamic>();
 
@@ -42,7 +39,7 @@ public class ProductAttributeController : AdminController
                 {
                     attribute.Id,
                     attribute.DisplayOrder,
-                    attribute.Name
+                    Name = attribute.GetLocalized(x => x.Name, language, true, false).Value
                 };
 
                 allAttributes.Add(obj);
