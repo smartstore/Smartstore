@@ -3,7 +3,7 @@ using Smartstore.Json.Converters;
 
 namespace Smartstore.Core.AI;
 
-internal sealed class AIResponseToolConverter : ArrayEnumFlagConverter<AIResponseTool>
+public sealed class AIResponseToolConverter : ArrayEnumFlagConverter<AIResponseTool>
 {
     protected override IReadOnlyDictionary<string, AIResponseTool> GetMapping()
     {
