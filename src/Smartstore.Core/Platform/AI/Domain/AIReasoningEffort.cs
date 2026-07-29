@@ -11,6 +11,7 @@ namespace Smartstore.Core.AI;
 /// Represents the reasoning effort used for AI response generation.
 /// </summary>
 [TypeConverter(typeof(StringBackedTypeConverter<AIReasoningEffort>))]
+[JsonConverter(typeof(TypeConverterJsonConverter<AIReasoningEffort>))]
 public readonly partial struct AIReasoningEffort : IStringBacked<AIReasoningEffort>, IEquatable<AIReasoningEffort>
 {
     private readonly string _value;

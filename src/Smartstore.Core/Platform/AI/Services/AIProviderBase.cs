@@ -293,8 +293,7 @@ public abstract class AIProviderBase : Disposable, IAIProvider
             return AIResponseTool.None;
         }
 
-        var modelEntry = Metadata?.GetModelById(
-            Metadata.ValidateModelId(chat.ModelName, AIOutputType.Text));
+        var modelEntry = Metadata?.GetModelById(chat.ModelName);
 
         // Intersect: honour only tools the model actually declares support for.
         return modelEntry != null
