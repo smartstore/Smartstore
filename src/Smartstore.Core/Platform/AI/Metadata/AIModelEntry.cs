@@ -3,6 +3,7 @@
 using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
+using Smartstore.Core.AI.JsonConverters;
 
 namespace Smartstore.Core.AI.Metadata;
 
@@ -51,16 +52,19 @@ public class AIModelEntry : ICloneable<AIModelEntry>, IEquatable<AIModelEntry>
     /// <summary>
     /// Model name (e.g. "GPT-5", "Gemini 2.5 Pro").
     /// </summary>
+    [DefaultValue("")]
     public string? Name { get; set; }
 
     /// <summary>
     /// Model type: "text" or "image".
     /// </summary>
+    [JsonConverter(typeof(AIOutputTypeConverter))]
     public AIOutputType Type { get; set; }
 
     /// <summary>
     /// Human-readable description of the model.
     /// </summary>
+    [DefaultValue("")]
     public string? Description { get; set; }
 
     /// <summary>
@@ -81,18 +85,22 @@ public class AIModelEntry : ICloneable<AIModelEntry>, IEquatable<AIModelEntry>
     /// <summary>
     /// Suggested replacement model ID for deprecated models.
     /// </summary>
+    [DefaultValue("")]
     public string? Alias { get; set; }
 
     /// <summary>
     /// The performance level of the model.
     /// </summary>
     [DefaultValue(AIModelPerformanceLevel.Balanced)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+    [JsonConverter(typeof(JsonNumberEnumConverter<AIModelPerformanceLevel>))]
     public AIModelPerformanceLevel Level { get; set; } = AIModelPerformanceLevel.Balanced;
 
     /// <summary>
     /// Gets or sets the adjustable reasoning effort options for this model.
     /// If <c>null</c>, the model does not support explicit reasoning effort control.
     /// </summary>
+    [DefaultValue("[]")]
     public AIModelThinkOptions? Think { get; set; }
 
     /// <summary>
@@ -105,12 +113,14 @@ public class AIModelEntry : ICloneable<AIModelEntry>, IEquatable<AIModelEntry>
     /// Indicates whether the model supports streaming responses.
     /// </summary>
     [DefaultValue(true)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     public bool Stream { get; set; } = true;
 
     /// <summary>
     /// Gets the output capabilities of the AI image generation process.
     /// </summary>
     [JsonPropertyName("output")]
+    [DefaultValue("[]")]
     public AIImageOutput? ImageOutputCapabilities { get; set; }
 
     /// <summary>

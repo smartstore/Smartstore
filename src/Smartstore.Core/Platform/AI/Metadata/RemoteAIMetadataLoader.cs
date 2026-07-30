@@ -3,9 +3,7 @@
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text.Json;
 using Smartstore.IO;
-using Smartstore.Json;
 
 namespace Smartstore.Core.AI.Metadata;
 
@@ -13,13 +11,11 @@ public class RemoteAIMetadataLoader : IRemoteAIMetadataLoader
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IApplicationContext _appContext;
-    private readonly JsonSerializerOptions _jsonOptions;
 
     public RemoteAIMetadataLoader(IHttpClientFactory httpClientFactory, IApplicationContext appContext)
     {
         _httpClientFactory = httpClientFactory;
         _appContext = appContext;
-        _jsonOptions = SmartJsonOptions.CamelCased;
     }
 
     private HttpClient HttpClient
@@ -67,7 +63,7 @@ public class RemoteAIMetadataLoader : IRemoteAIMetadataLoader
                 }
                 else
                 {
-                    var metadata = JsonSerializer.Deserialize<AIMetadata>(json, _jsonOptions);
+                    var metadata = AIMetadata.FromJson(json);
                     if (metadata != null)
                     {
                         await WriteCacheAsync(cacheFile, metadata, cancelToken);
@@ -108,7 +104,7 @@ public class RemoteAIMetadataLoader : IRemoteAIMetadataLoader
         return a;
     }
 
-    private async Task<AIMetadata?> ReadCacheAsync(IFile file, CancellationToken cancelToken)
+    private static async Task<AIMetadata?> ReadCacheAsync(IFile file, CancellationToken cancelToken)
     {
         if (!file.Exists)
         {
@@ -118,7 +114,7 @@ public class RemoteAIMetadataLoader : IRemoteAIMetadataLoader
         try
         {
             await using var stream = await file.OpenReadAsync(cancelToken);
-            return await JsonSerializer.DeserializeAsync<AIMetadata>(stream, _jsonOptions, cancelToken);
+            return await AIMetadata.FromJsonAsync(stream, cancelToken);
         }
         catch
         {
@@ -126,7 +122,7 @@ public class RemoteAIMetadataLoader : IRemoteAIMetadataLoader
         }
     }
 
-    private async Task WriteCacheAsync(IFile file, AIMetadata metadata, CancellationToken cancelToken)
+    private static async Task WriteCacheAsync(IFile file, AIMetadata metadata, CancellationToken cancelToken)
     {
         try
         {
@@ -137,7 +133,7 @@ public class RemoteAIMetadataLoader : IRemoteAIMetadataLoader
             }
 
             await using var stream = file.OpenWrite();
-            await JsonSerializer.SerializeAsync(stream, metadata, _jsonOptions, cancelToken);
+            await metadata.ToJsonAsync(stream, cancelToken);
         }
         catch
         {

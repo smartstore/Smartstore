@@ -1,7 +1,7 @@
 ﻿using Smartstore.Core.AI.Metadata;
 using Smartstore.Json.Converters;
 
-namespace Smartstore.Core.AI;
+namespace Smartstore.Core.AI.JsonConverters;
 
 public sealed class AIResponseToolConverter : ArrayEnumFlagConverter<AIResponseTool>
 {

@@ -1,5 +1,7 @@
 ﻿#nullable enable
 
+using System.ComponentModel;
+using System.Runtime.Serialization;
 using Smartstore.Imaging;
 
 namespace Smartstore.Core.AI.Metadata;
@@ -11,7 +13,7 @@ namespace Smartstore.Core.AI.Metadata;
 /// properties to specify supported aspect ratios, resolutions, and formats, as well as methods to determine the
 /// best match for a given attempted configuration. A default configuration is available via the <see
 /// cref="Default"/> property.</remarks>
-public record AIImageOutput
+public record AIImageOutput : IDefaultable
 {
     /// <summary>
     /// Gets the default configuration for AI image output.
@@ -27,47 +29,72 @@ public record AIImageOutput
     /// <summary>
     /// Gets an array of supported aspect ratios. Default: 1:1.
     /// </summary>
+    [DefaultValue("[]")]
     public string[]? AspectRatios { get; set; }
 
     /// <summary>
     /// Gets an array of supported resolutions. Default: 1K.
     /// </summary>
+    [DefaultValue("[]")]
     public string[]? Resolutions { get; set; }
 
     /// <summary>
     /// Gets an array of supported image rendering qualities. Default: auto.
     /// </summary>
+    [DefaultValue("[]")]
     public string[]? Qualities { get; set; }
 
     /// <summary>
     /// Gets an array of supported image formats. Default: png.
     /// </summary>
+    [DefaultValue("[]")]
     public string[]? Formats { get; set; }
 
     /// <summary>
     /// Gets the default aspect ratio for this model instance.
     /// </summary>
+    [DefaultValue("")]
     public string? DefaultAspectRatio { get; set; }
 
     /// <summary>
     /// Gets the default resolution for this model instance.
     /// </summary>
+    [DefaultValue("")]
     public string? DefaultResolution { get; set; }
 
     /// <summary>
     /// Gets the default image rendering quality for this model instance.
     /// </summary>
+    [DefaultValue("")]
     public string? DefaultQuality { get; set; }
 
     /// <summary>
     /// Gets the default image format for this model instance.
     /// </summary>
+    [DefaultValue("")]
     public string? DefaultFormat { get; set; }
 
     /// <summary>
     /// Gets a value indicating whether default values should be omitted during API calls.
     /// </summary>
     public bool OmitDefault { get; set; }
+
+    /// <summary>
+    /// Gets a value indicating whether the current instance is in its default state, meaning all properties are either null or empty.
+    /// </summary>
+    [IgnoreDataMember]
+    public bool IsDefaultState
+    {
+        get => AspectRatios.IsNullOrEmpty()
+            && Resolutions.IsNullOrEmpty()
+            && Qualities.IsNullOrEmpty()
+            && Formats.IsNullOrEmpty()
+            && DefaultAspectRatio.IsEmpty()
+            && DefaultResolution.IsEmpty()
+            && DefaultQuality.IsEmpty()
+            && DefaultFormat.IsEmpty()
+            && !OmitDefault;
+    }
 
     public ImageAspectRatio FindSupportedAspectRatio(
         ImageAspectRatio? attemptedRatio,

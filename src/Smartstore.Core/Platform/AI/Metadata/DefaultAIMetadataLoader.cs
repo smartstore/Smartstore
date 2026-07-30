@@ -1,11 +1,9 @@
 ﻿#nullable enable
 
-using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Primitives;
 using Smartstore.Caching;
 using Smartstore.IO;
-using Smartstore.Json;
 
 namespace Smartstore.Core.AI.Metadata;
 
@@ -14,14 +12,12 @@ public class DefaultAIMetadataLoader : IAIMetadataLoader
     private readonly IMemoryCache _cache;
     private readonly IApplicationContext _appContext;
     private readonly IRemoteAIMetadataLoader _remoteLoader;
-    private readonly JsonSerializerOptions _jsonOptions;
 
     public DefaultAIMetadataLoader(IMemoryCache cache, IApplicationContext appContext, IRemoteAIMetadataLoader remoteLoader)
     {
         _cache = cache;
         _appContext = appContext;
         _remoteLoader = remoteLoader;
-        _jsonOptions = SmartJsonOptions.CamelCased;
     }
 
     protected internal string BuildCacheKey(string moduleSystemName)
@@ -96,7 +92,7 @@ public class DefaultAIMetadataLoader : IAIMetadataLoader
     protected virtual AIMetadata? Deserialize(IFile file)
     {
         using var stream = file.OpenRead();
-        return JsonSerializer.Deserialize<AIMetadata>(stream, _jsonOptions);
+        return AIMetadata.FromJson(stream);
     }
 
     public void Invalidate(string moduleSystemName)

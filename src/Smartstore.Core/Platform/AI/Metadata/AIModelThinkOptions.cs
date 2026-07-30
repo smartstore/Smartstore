@@ -1,5 +1,7 @@
 #nullable enable
 
+using System.ComponentModel;
+using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
 namespace Smartstore.Core.AI.Metadata;
@@ -8,17 +10,20 @@ namespace Smartstore.Core.AI.Metadata;
 /// Represents the adjustable reasoning effort levels supported by a model.
 /// If <c>null</c>, the model does not support explicit reasoning effort control.
 /// </summary>
-public class AIModelThinkOptions
+public class AIModelThinkOptions : IDefaultable
 {
     /// <summary>
     /// The default effort level when the user does not make an explicit choice.
     /// Defaults to <c>"auto"</c> if not specified in metadata.json.
     /// </summary>
+    [JsonPropertyName("defaultLevel")]
+    [DefaultValue("auto")]
     public AIReasoningEffort Default { get; set; } = AIReasoningEffort.Auto;
 
     /// <summary>
     /// The supported effort levels, e.g. low, medium, high.
     /// </summary>
+    [DefaultValue("[]")]
     public AIReasoningEffort[] Levels { get; set; } =
     [
         AIReasoningEffort.Low,
@@ -27,9 +32,19 @@ public class AIModelThinkOptions
     ];
 
     /// <summary>
+    /// Gets a value indicating whether the current instance is in its default state, meaning all properties are either null or empty.
+    /// </summary>
+    [IgnoreDataMember]
+    public bool IsDefaultState
+    {
+        // If Levels is null or empty, "Default" is considered to be in its default state as well.
+        get => Levels.IsNullOrEmpty();
+    }
+
+    /// <summary>
     /// Indicates whether the model supports explicit reasoning effort control.
     /// </summary>
-    [JsonIgnore]
+    [IgnoreDataMember]
     public bool IsSupported => Levels is { Length: > 0 };
 
     /// <summary>

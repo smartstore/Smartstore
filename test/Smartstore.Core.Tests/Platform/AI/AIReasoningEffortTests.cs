@@ -32,7 +32,7 @@ public class AIReasoningEffortTests
 
         options.ShouldNotBeNull();
         options.Default.ShouldEqual(AIReasoningEffort.Auto);
-        options.Levels.ShouldEqual([AIReasoningEffort.Low, AIReasoningEffort.Medium, AIReasoningEffort.XHigh]);
+        options.Levels.ShouldEqual(new AIReasoningEffort[] { AIReasoningEffort.Low, AIReasoningEffort.Medium, AIReasoningEffort.XHigh });
         options.ContainsLevel(AIReasoningEffort.Medium).ShouldBeTrue();
         options.ContainsLevel(AIReasoningEffort.High).ShouldBeFalse();
     }
@@ -51,7 +51,7 @@ public class AIReasoningEffortTests
 
         roundtripped.ShouldNotBeNull();
         roundtripped.Default.ShouldEqual(AIReasoningEffort.High);
-        roundtripped.Levels.ShouldEqual([AIReasoningEffort.Low, AIReasoningEffort.High, AIReasoningEffort.Max]);
+        roundtripped.Levels.ShouldEqual(new AIReasoningEffort[] { AIReasoningEffort.Low, AIReasoningEffort.High, AIReasoningEffort.Max });
     }
 
     [Test]
