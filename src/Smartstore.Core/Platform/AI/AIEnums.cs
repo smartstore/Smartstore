@@ -1,6 +1,10 @@
-﻿namespace Smartstore.Core.AI;
+﻿using System.Text.Json.Serialization;
+using Smartstore.Core.AI.JsonConverters;
+
+namespace Smartstore.Core.AI;
 
 [Flags]
+[JsonConverter(typeof(AIProviderFeaturesConverter))]
 public enum AIProviderFeatures
 {
     None = 0,

@@ -19,6 +19,7 @@ public enum AIOutputType
 /// <summary>
 /// Represents the performance level of an AI model.
 /// </summary>
+[JsonConverter(typeof(JsonNumberEnumConverter<AIModelPerformanceLevel>))]
 public enum AIModelPerformanceLevel
 {
     Fast,
@@ -30,6 +31,7 @@ public enum AIModelPerformanceLevel
 /// Represents the tools available for AI response generation, allowing for a combination of multiple tools.
 /// </summary>
 [Flags]
+[JsonConverter(typeof(AIResponseToolConverter))]
 public enum AIResponseTool
 {
     None = 0,
