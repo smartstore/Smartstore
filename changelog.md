@@ -32,7 +32,9 @@
 - Currency: Edit page did not select/display the saved denominator for order total rounding.
 - Google Analytics: Fixed script error when obtaining the category path.
 - PageBuilder: Fixed JSON conversion error for background overlay.
-- Warranty: Labels disappeared after `UpdateProductDetails` was called when switching a variant.
+- **Warranty**:
+  - Labels disappeared after `UpdateProductDetails` was called when switching a variant.
+  - The manufacturer is displayed on the product detail page even though the catalog setting is disabled.
 - JsonLd:
   - Removed duplicate reference of the *Product* entity.
   - Restored application of `SeoSettings.ProductDescriptionPriority`.
