@@ -118,7 +118,7 @@ public class AIMetadata
         => Supports(AIProviderFeatures.ImageAnalysis);
 
     [IgnoreDataMember]
-    public bool SuportsThemeVarGeneration
+    public bool SupportsThemeVarGeneration
         => Supports(AIProviderFeatures.ThemeVarGeneration);
 
     [IgnoreDataMember]
@@ -241,7 +241,7 @@ public class AIMetadata
     {
         if (preferredModelIds.IsNullOrEmpty())
         {
-            return [.. GetModels(outputType)];
+            return new AIModelCollection(GetModels(outputType));
         }
 
         var mergedModels = new AIModelCollection();
