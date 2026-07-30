@@ -151,18 +151,49 @@ public static class IQueryableExtensions
             Guard.NotNull(query);
             Guard.IsPositive(bulkSize);
 
+            var dbContext = query.GetDbContext();
             var numTotal = 0;
 
-            query = query.OrderBy(x => x.Id).Take(bulkSize);
-
-            while (true)
+            if (dbContext.DataProvider.ProviderType == DbSystemType.MySql)
             {
-                var num = query.ExecuteDelete();
-                numTotal += num;
+                // MySQL/MariaDB does not support LIMIT inside the subquery used by EF Core's ExecuteDelete.
+                // Therefore we materialize only the IDs per batch and delete with a simple IN clause.
+                var dbSet = dbContext.Set<T>();
 
-                if (num < bulkSize)
+                while (true)
                 {
-                    break;
+                    var ids = query
+                        .OrderBy(x => x.Id)
+                        .Take(bulkSize)
+                        .Select(x => x.Id)
+                        .ToArray();
+
+                    if (ids.Length == 0)
+                    {
+                        break;
+                    }
+
+                    var num = dbSet
+                        .Where(x => ids.Contains(x.Id))
+                        .ExecuteDelete();
+
+                    numTotal += num;
+                }
+            }
+            else
+            {
+                // For SQL Server, SQLite and PostgreSQL, EF Core's native batched ExecuteDelete is supported.
+                var batchedQuery = query.OrderBy(x => x.Id).Take(bulkSize);
+
+                while (true)
+                {
+                    var num = batchedQuery.ExecuteDelete();
+                    numTotal += num;
+
+                    if (num < bulkSize)
+                    {
+                        break;
+                    }
                 }
             }
 
@@ -179,18 +210,49 @@ public static class IQueryableExtensions
             Guard.NotNull(query);
             Guard.IsPositive(bulkSize);
 
+            var dbContext = query.GetDbContext();
             var numTotal = 0;
 
-            query = query.OrderBy(x => x.Id).Take(bulkSize);
-
-            while (true)
+            if (dbContext.DataProvider.ProviderType == DbSystemType.MySql)
             {
-                var num = await query.ExecuteDeleteAsync(cancellationToken);
-                numTotal += num;
+                // MySQL/MariaDB does not support LIMIT inside the subquery used by EF Core's ExecuteDelete.
+                // Therefore we materialize only the IDs per batch and delete with a simple IN clause.
+                var dbSet = dbContext.Set<T>();
 
-                if (num < bulkSize)
+                while (true)
                 {
-                    break;
+                    var ids = await query
+                        .OrderBy(x => x.Id)
+                        .Take(bulkSize)
+                        .Select(x => x.Id)
+                        .ToArrayAsync(cancellationToken);
+
+                    if (ids.Length == 0)
+                    {
+                        break;
+                    }
+
+                    var num = await dbSet
+                        .Where(x => ids.Contains(x.Id))
+                        .ExecuteDeleteAsync(cancellationToken);
+
+                    numTotal += num;
+                }
+            }
+            else
+            {
+                // For SQL Server, SQLite and PostgreSQL, EF Core's native batched ExecuteDelete is supported.
+                var batchedQuery = query.OrderBy(x => x.Id).Take(bulkSize);
+
+                while (true)
+                {
+                    var num = await batchedQuery.ExecuteDeleteAsync(cancellationToken);
+                    numTotal += num;
+
+                    if (num < bulkSize)
+                    {
+                        break;
+                    }
                 }
             }
 
