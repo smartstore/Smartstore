@@ -39,6 +39,7 @@
   - Removed duplicate reference of the *Product* entity.
   - Restored application of `SeoSettings.ProductDescriptionPriority`.
   - Fixed wrong ID usage for the long description.
+- Fixed bulk `ExecuteDelete` for MySQL/MariaDB
 - MegaMenu: Fixed `DependencyResolutionException` caused by `MegaMenuService` when creating Web API keys in the Web API plugin.
 - The multi-store settings for offline payment methods could not be configured.
 - Fixed script error "ce.easing[this.easing] is not a function" on installation page.
