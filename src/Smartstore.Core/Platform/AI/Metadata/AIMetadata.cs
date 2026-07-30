@@ -101,21 +101,27 @@ public class AIMetadata
     public bool Supports(AIProviderFeatures feature)
         => Capabilities.HasFlag(feature);
 
+    [IgnoreDataMember]
     public bool SupportsTextGeneration
         => Supports(AIProviderFeatures.TextGeneration);
 
+    [IgnoreDataMember]
     public bool SupportsTranslation
         => Supports(AIProviderFeatures.Translation);
 
+    [IgnoreDataMember]
     public bool SupportsImageGeneration
         => Supports(AIProviderFeatures.ImageGeneration);
 
+    [IgnoreDataMember]
     public bool SupportsImageAnalysis
         => Supports(AIProviderFeatures.ImageAnalysis);
 
+    [IgnoreDataMember]
     public bool SuportsThemeVarGeneration
         => Supports(AIProviderFeatures.ThemeVarGeneration);
 
+    [IgnoreDataMember]
     public bool SupportsAssistance
         => Supports(AIProviderFeatures.Assistance);
 
