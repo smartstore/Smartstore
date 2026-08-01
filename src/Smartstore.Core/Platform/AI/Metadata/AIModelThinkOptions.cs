@@ -2,7 +2,6 @@
 
 using System.ComponentModel;
 using System.Runtime.Serialization;
-using System.Text.Json.Serialization;
 
 namespace Smartstore.Core.AI.Metadata;
 
@@ -16,7 +15,6 @@ public class AIModelThinkOptions : IDefaultable
     /// The default effort level when the user does not make an explicit choice.
     /// Defaults to <c>"auto"</c> if not specified in metadata.json.
     /// </summary>
-    [JsonPropertyName("defaultLevel")]
     [DefaultValue("auto")]
     public AIReasoningEffort Default { get; set; } = AIReasoningEffort.Auto;
 
