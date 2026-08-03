@@ -2,7 +2,9 @@
 
 using System.ComponentModel;
 using System.Runtime.Serialization;
+using System.Text.Json;
 using Smartstore.Imaging;
+using Smartstore.Json;
 
 namespace Smartstore.Core.AI.Metadata;
 
@@ -218,4 +220,20 @@ public record AIImageOutput : IDefaultable
 
         return (AIImageQuality)defaultQuality!;
     }
+
+    #region Serialization
+
+    /// <summary>
+    /// Serializes this instance to a JSON string.
+    /// </summary>
+    public virtual string? ToJson()
+        => IsDefaultState ? null : JsonSerializer.Serialize(this, SmartJsonOptions.CamelCasedIgnoreDefaults);
+
+    /// <summary>
+    /// Deserializes an <see cref="AIImageOutput"/> instance from a JSON string.
+    /// </summary>
+    public static AIImageOutput? FromJson(string json)
+        => json.HasValue() ? JsonSerializer.Deserialize<AIImageOutput>(json, SmartJsonOptions.CamelCasedIgnoreDefaults) : null;
+
+    #endregion
 }

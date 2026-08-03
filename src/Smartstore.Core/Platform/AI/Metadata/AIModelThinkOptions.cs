@@ -2,6 +2,8 @@
 
 using System.ComponentModel;
 using System.Runtime.Serialization;
+using System.Text.Json;
+using Smartstore.Json;
 
 namespace Smartstore.Core.AI.Metadata;
 
@@ -51,4 +53,20 @@ public class AIModelThinkOptions : IDefaultable
     /// <param name="effort">The effort level to validate (case-insensitive).</param>
     public bool ContainsLevel(AIReasoningEffort effort)
         => Levels?.Contains(effort) == true;
+
+    #region Serialization
+
+    /// <summary>
+    /// Serializes this instance to a JSON string.
+    /// </summary>
+    public virtual string? ToJson()
+        => IsDefaultState ? null : JsonSerializer.Serialize(this, SmartJsonOptions.CamelCasedIgnoreDefaults);
+
+    /// <summary>
+    /// Deserializes an <see cref="AIModelThinkOptions"/> instance from a JSON string.
+    /// </summary>
+    public static AIModelThinkOptions? FromJson(string json)
+        => json.HasValue() ? JsonSerializer.Deserialize<AIModelThinkOptions>(json, SmartJsonOptions.CamelCasedIgnoreDefaults) : null;
+
+    #endregion
 }
