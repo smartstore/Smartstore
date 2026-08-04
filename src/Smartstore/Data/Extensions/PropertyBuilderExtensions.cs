@@ -7,7 +7,7 @@ namespace Smartstore;
 public static class PropertyBuilderExtensions
 {
     /// <summary>
-    /// Configures the property so that the property value is converted into a JSON string before
+    /// Configures the property so that its value is converted into a JSON string before
     /// writing to the database and converted back into an array of type <typeparamref name="T" /> 
     /// when reading from the database.
     /// </summary>
