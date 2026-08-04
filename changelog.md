@@ -46,6 +46,7 @@
 - The multi-store settings for offline payment methods could not be configured.
 - Fixed script error "ce.easing[this.easing] is not a function" on installation page.
 - When adding a group of attribute rules, the attribute that is currently being edited must not be included in the list of product attributes.
+- #1567 SQLite error when clearing logs: No such column "Log".
 
 
 ## Smartstore 6.4.0
