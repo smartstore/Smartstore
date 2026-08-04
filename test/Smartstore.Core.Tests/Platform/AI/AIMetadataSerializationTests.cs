@@ -218,7 +218,7 @@ public class AIMetadataSerializationTests
                 .Select(x => x.GetString())
                 .ToArray()
                 .ShouldEqual(new string[] { "WebSearch", "CodeAnalysis" });
-            serializedTextModel.GetProperty("think").GetProperty("defaultLevel").GetString().ShouldEqual("high");
+            serializedTextModel.GetProperty("think").GetProperty("default").GetString().ShouldEqual("high");
             serializedImageModel.GetProperty("output").GetProperty("defaultFormat").GetString().ShouldEqual("png");
 
             roundtripped.Version.ShouldEqual(metadata.Version);
