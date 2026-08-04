@@ -47,7 +47,7 @@ internal class SqliteDataProvider : DataProvider
 
     public override string EncloseIdentifier(string identifier)
     {
-        Guard.NotEmpty(identifier, nameof(identifier));
+        Guard.NotEmpty(identifier);
         return identifier.EnsureStartsWith('"').EnsureEndsWith('"');
     }
 
@@ -182,7 +182,8 @@ LIMIT {take} OFFSET {skip}";
 
     protected override Task<int?> GetTableIncrementCore(string tableName, bool async)
     {
-        var sql = $"SELECT seq FROM sqlite_sequence WHERE name = \"{tableName}\"";
+        // INFO: In SQL, string literals are enclosed in single quotes, while identifiers are enclosed in double quotes.
+        var sql = $"SELECT seq FROM sqlite_sequence WHERE name = '{tableName}'";
 
         return async
            ? Database.ExecuteScalarRawAsync<int?>(sql)
@@ -191,7 +192,8 @@ LIMIT {take} OFFSET {skip}";
 
     protected override Task SetTableIncrementCore(string tableName, int ident, bool async)
     {
-        var sql = $"UPDATE sqlite_sequence SET seq = {ident} WHERE name = \"{tableName}\"";
+        var sql = $"UPDATE sqlite_sequence SET seq = {ident} WHERE name = '{tableName}'";
+
         return async
            ? Database.ExecuteSqlRawAsync(sql)
            : Task.FromResult(Database.ExecuteSqlRaw(sql));
