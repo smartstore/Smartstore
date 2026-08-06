@@ -1,5 +1,6 @@
-﻿using Autofac;
+using Autofac;
 using Smartstore.Core.Widgets;
+using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Builders;
 
 namespace Smartstore.Core.Bootstrapping;
@@ -23,5 +24,21 @@ internal sealed class WidgetStarter : StarterBase
         builder.RegisterType<DefaultViewInvoker>().As<IViewInvoker>().InstancePerLifetimeScope();
         builder.RegisterType<ComponentWidgetInvoker>().As<IWidgetInvoker<ComponentWidget>>().SingleInstance();
         builder.RegisterType<PartialViewWidgetInvoker>().As<IWidgetInvoker<PartialViewWidget>>().SingleInstance();
+
+        // Dashboard widgets
+        if (appContext.IsInstalled) 
+        {
+            builder.RegisterType<DashboardWidgetService>().As<IDashboardWidgetService>().InstancePerLifetimeScope();
+
+            foreach (var type in appContext.TypeScanner.FindTypes<IDashboardWidget>())
+            {
+                builder.RegisterType(type).As<IDashboardWidget>().InstancePerLifetimeScope();
+            }
+
+            foreach (var type in appContext.TypeScanner.FindTypes<IDashboardLayoutProvider>())
+            {
+                builder.RegisterType(type).As<IDashboardLayoutProvider>().InstancePerLifetimeScope();
+            }
+        }
     }
 }
