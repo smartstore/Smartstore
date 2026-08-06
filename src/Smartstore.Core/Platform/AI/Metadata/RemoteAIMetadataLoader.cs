@@ -31,7 +31,7 @@ public class RemoteAIMetadataLoader : IRemoteAIMetadataLoader
         // Determine the newest local version to use for a conditional request.
         var newestLocalVersion = GetNewestVersion(localMetadata.Version, cached?.Version);
 
-        var request = new HttpRequestMessage(HttpMethod.Get, $"aimetadata/{localMetadata.ProviderId}");
+        var request = new HttpRequestMessage(HttpMethod.Post, $"aimetadata/{localMetadata.ProviderId}");
         if (newestLocalVersion != null)
         {
             request.Headers.IfNoneMatch.Add(new EntityTagHeaderValue($"\"{newestLocalVersion}\"", isWeak: false));

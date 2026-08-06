@@ -1,4 +1,6 @@
-﻿using Autofac;
+﻿using System.Net;
+using System.Net.Http;
+using Autofac;
 using Smartstore.Core.AI;
 using Smartstore.Core.AI.Metadata;
 using Smartstore.Core.AI.Prompting;
@@ -16,9 +18,14 @@ internal sealed class AIStarter : StarterBase
     {
         services.AddHttpClient("AIRemoteMetadata")
             .AddSmartstoreUserAgent()
+            .ConfigurePrimaryHttpMessageHandler(c => new HttpClientHandler
+            {
+                AutomaticDecompression = DecompressionMethods.GZip
+            })
             .ConfigureHttpClient(client =>
             {
                 client.BaseAddress = new Uri("http://localhost:59318/");
+                //client.BaseAddress = new Uri("http://localhost:5000/");
                 client.Timeout = TimeSpan.FromSeconds(2);
             });
     }
