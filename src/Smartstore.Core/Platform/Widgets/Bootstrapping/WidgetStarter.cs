@@ -28,7 +28,8 @@ internal sealed class WidgetStarter : StarterBase
         // Dashboard widgets
         if (appContext.IsInstalled) 
         {
-            builder.RegisterType<DashboardWidgetService>().As<IDashboardWidgetService>().InstancePerLifetimeScope();
+            builder.RegisterType<DashboardService>().As<IDashboardService>().InstancePerLifetimeScope();
+            builder.RegisterType<DashboardCssBuilder>().As<IDashboardCssBuilder>().InstancePerLifetimeScope();
 
             foreach (var type in appContext.TypeScanner.FindTypes<IDashboardWidget>())
             {

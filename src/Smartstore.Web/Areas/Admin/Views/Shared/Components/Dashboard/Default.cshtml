@@ -1,0 +1,18 @@
+@using Smartstore.Core.Widgets.Dashboard
+
+@model DashboardRenderModel
+@inject IDashboardCssBuilder DashboardCssBuilder
+
+<style>
+    @Html.Raw(DashboardCssBuilder.Build(Model))
+</style>
+
+<div id="@(Model.Layout.Id)-grid"
+     style="display: grid; grid-template-columns: @Model.Layout.GridTemplateColumns; column-gap: @Model.Layout.ColumnGap; row-gap: @Model.Layout.RowGap; grid-auto-rows: @Model.Layout.GridAutoRows;">
+    @foreach (var item in Model.Widgets)
+    {
+        <div id="@item.Instance.Id" class="dashboard-widget @item.Descriptor.CssClass">
+            @await item.Widget.InvokeAsync(ViewContext)
+        </div>
+    }
+</div>

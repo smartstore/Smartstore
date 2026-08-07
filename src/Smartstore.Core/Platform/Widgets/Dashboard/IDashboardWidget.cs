@@ -18,6 +18,7 @@ public interface IDashboardWidget
     /// Determines whether the widget is available for the current dashboard request.
     /// </summary>
     /// <param name="context">The current dashboard context.</param>
+    /// <param name="cancelToken">A token to cancel the operation.</param>
     /// <returns><see langword="true"/> when the widget is available; otherwise, <see langword="false"/>.</returns>
     ValueTask<bool> IsAvailableAsync(DashboardWidgetContext context, CancellationToken cancelToken = default);
 
@@ -47,6 +48,8 @@ public interface IDashboardWidget
     /// Validates a widget settings payload at the current schema version.
     /// </summary>
     /// <param name="settings">The settings payload to validate.</param>
+    /// <param name="cancelToken">A token to cancel the operation.</param>
+    /// <returns>A task that represents the asynchronous validation operation.</returns>
     ValueTask ValidateSettingsAsync(JsonObject settings, CancellationToken cancelToken = default);
 
     /// <summary>
@@ -54,6 +57,7 @@ public interface IDashboardWidget
     /// </summary>
     /// <param name="settings">The settings payload to migrate.</param>
     /// <param name="fromVersion">The schema version of the supplied payload.</param>
+    /// <param name="cancelToken">A token to cancel the operation.</param>
     /// <returns>The settings payload migrated to <see cref="DashboardWidgetDescriptor.SettingsVersion"/>.</returns>
     ValueTask<JsonObject> MigrateSettingsAsync(
         JsonObject settings,

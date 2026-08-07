@@ -1,13 +1,11 @@
 #nullable enable
 
-using System.Threading;
-using System.Threading.Tasks;
 using Smartstore.Core.Widgets.Dashboard;
 
 namespace Smartstore.Core.Tests.Platform.Widgets;
 
 /// <summary>
-/// Returns a fixed dashboard layout with a configurable resolution priority.
+/// Returns a fixed system-default dashboard layout.
 /// </summary>
 internal sealed class TestLayoutProvider : IDashboardLayoutProvider
 {
@@ -19,21 +17,15 @@ internal sealed class TestLayoutProvider : IDashboardLayoutProvider
     /// <summary>
     /// Initializes a new fixed dashboard layout provider.
     /// </summary>
-    /// <param name="order">The resolution priority of the provider.</param>
     /// <param name="layout">The dashboard layout returned by the provider.</param>
-    public TestLayoutProvider(int order, DashboardLayout layout)
+    public TestLayoutProvider(DashboardLayout layout)
     {
-        Order = order;
         _layout = layout;
     }
 
     /// <inheritdoc />
-    public int Order { get; }
+    public string DashboardId => _layout.Id;
 
     /// <inheritdoc />
-    public ValueTask<DashboardLayout?> GetLayoutAsync(
-        string dashboardId,
-        int customerId,
-        CancellationToken cancelToken = default)
-        => ValueTask.FromResult<DashboardLayout?>(_layout);
+    public DashboardLayout GetDefaultLayout() => _layout;
 }
