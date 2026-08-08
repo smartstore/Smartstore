@@ -7,7 +7,7 @@ using Smartstore.Core.Security;
 
 namespace Smartstore.Admin.Components;
 
-public class DashboardIncompleteOrdersViewComponent : DashboardViewComponentBase
+public class DashboardIncompleteOrdersViewComponent : DashboardWidgetViewComponentBase
 {
     private readonly SmartDbContext _db;
 

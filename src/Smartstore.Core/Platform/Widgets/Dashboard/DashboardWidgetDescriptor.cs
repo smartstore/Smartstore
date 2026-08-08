@@ -11,14 +11,14 @@ public sealed class DashboardWidgetDescriptor
     /// Initializes a new dashboard widget descriptor.
     /// </summary>
     /// <param name="systemName">The stable and globally unique widget identifier.</param>
-    /// <param name="titleResourceKey">The localization resource key for the widget title.</param>
-    public DashboardWidgetDescriptor(string systemName, string titleResourceKey)
+    /// <param name="titleResKey">The localization resource key for the widget title.</param>
+    public DashboardWidgetDescriptor(string systemName, string titleResKey)
     {
         Guard.NotEmpty(systemName);
-        Guard.NotEmpty(titleResourceKey);
+        Guard.NotEmpty(titleResKey);
 
         SystemName = systemName;
-        TitleResKey = titleResourceKey;
+        TitleResKey = titleResKey;
     }
 
     /// <summary>
@@ -42,9 +42,9 @@ public sealed class DashboardWidgetDescriptor
     public string? CategoryResKey { get; init; }
 
     /// <summary>
-    /// Gets the optional CSS class used to render the widget icon.
+    /// Gets the optional name of the Bootstrap icon used to render the widget.
     /// </summary>
-    public string? IconCssClass { get; init; }
+    public string? IconName { get; init; }
 
     /// <summary>
     /// Gets the optional CSS class used for widget-specific styling.
@@ -84,12 +84,12 @@ public sealed class DashboardWidgetDescriptor
     /// <summary>
     /// Gets the smallest size supported by the widget.
     /// </summary>
-    public required DashboardWidgetSize MinimumSize { get; init; }
+    public required DashboardWidgetSize MinSize { get; init; }
 
     /// <summary>
     /// Gets the largest size supported by the widget.
     /// </summary>
-    public required DashboardWidgetSize MaximumSize { get; init; }
+    public required DashboardWidgetSize MaxSize { get; init; }
 
     /// <summary>
     /// Gets the optional discrete size presets supported by the widget.

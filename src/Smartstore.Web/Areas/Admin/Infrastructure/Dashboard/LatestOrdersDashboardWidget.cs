@@ -19,14 +19,14 @@ public sealed class LatestOrdersDashboardWidget : DashboardViewComponentWidget<D
     {
         DescriptionResKey = "Admin.SalesReport.LatestOrders",
         CategoryResKey = "Admin.Dashboard.StoreStatistics",
-        IconCssClass = "far fa-list-alt",
+        IconName = "card-checklist",
         CssClass = "report-latest-orders",
         Order = 600,
         AllowMultipleInstances = false,
         SupportsRefresh = false,
         DefaultSize = new DashboardWidgetSize(6, 1),
-        MinimumSize = new DashboardWidgetSize(4, 1),
-        MaximumSize = new DashboardWidgetSize(12, 1),
+        MinSize = new DashboardWidgetSize(4, 1),
+        MaxSize = new DashboardWidgetSize(12, 1),
         AllowedSizes =
         [
             new DashboardWidgetSize(6, 1),

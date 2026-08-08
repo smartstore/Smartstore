@@ -15,7 +15,7 @@
 
 @if (useDashboardWidgetSystem)
 {
-    @await Component.InvokeAsync("Dashboard", new { dashboardId = "admin-dashboard" })
+    @await Component.InvokeAsync("Dashboard", new { dashboardId = "admin-dashboard", skipUserLayout = false })
 }
 else
 {

@@ -4,7 +4,7 @@ using Smartstore.Core.Security;
 
 namespace Smartstore.Admin.Components;
 
-public class DashboardTopCustomersViewComponent : SmartViewComponent
+public class DashboardTopCustomersViewComponent : DashboardWidgetViewComponentBase
 {
     private const int NUM_REPORT_LINES = 7;
 
@@ -15,7 +15,7 @@ public class DashboardTopCustomersViewComponent : SmartViewComponent
         _db = db;
     }
 
-    public async Task<IViewComponentResult> InvokeAsync()
+    public override async Task<IViewComponentResult> InvokeAsync()
     {
         if (!await Services.Permissions.AuthorizeAsync(Permissions.Customer.Read))
         {

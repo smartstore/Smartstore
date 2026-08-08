@@ -23,8 +23,8 @@ internal sealed class TestDashboardWidget : IDashboardWidget
     {
         SettingsVersion = 2,
         DefaultSize = new DashboardWidgetSize(4),
-        MinimumSize = new DashboardWidgetSize(2),
-        MaximumSize = new DashboardWidgetSize(12),
+        MinSize = new DashboardWidgetSize(2),
+        MaxSize = new DashboardWidgetSize(12),
         Policy = new DashboardWidgetPolicy
         {
             AllowResize = false

@@ -1,5 +1,7 @@
 #nullable enable
 
+using Smartstore.Core.Identity;
+
 namespace Smartstore.Core.Widgets.Dashboard;
 
 /// <summary>
@@ -25,25 +27,25 @@ public interface IDashboardService
     /// Resolves the user, global or provider-default layout for a dashboard and customer.
     /// </summary>
     /// <param name="dashboardId">The stable dashboard identifier.</param>
-    /// <param name="customerId">The customer for whom the layout is requested.</param>
+    /// <param name="customer">The customer for whom the layout is requested.</param>
     /// <param name="cancelToken">A token to cancel the operation.</param>
     /// <returns>The validated effective layout.</returns>
     ValueTask<DashboardLayout> GetEffectiveLayoutAsync(
         string dashboardId,
-        int customerId,
+        Customer? customer,
         CancellationToken cancelToken = default);
 
     /// <summary>
     /// Resolves, validates and prepares a dashboard for rendering.
     /// </summary>
     /// <param name="dashboardId">The stable dashboard identifier.</param>
-    /// <param name="customerId">The customer for whom the dashboard is rendered.</param>
+    /// <param name="customer">The customer for whom the dashboard is rendered.</param>
     /// <param name="isEditMode">A value indicating whether the dashboard is rendered in edit mode.</param>
     /// <param name="cancelToken">A token to cancel the operation.</param>
     /// <returns>The fully resolved dashboard render model.</returns>
     ValueTask<DashboardRenderModel> GetDashboardAsync(
         string dashboardId,
-        int customerId,
+        Customer? customer,
         bool isEditMode = false,
         CancellationToken cancelToken = default);
 }

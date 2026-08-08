@@ -2,7 +2,7 @@
 
 namespace Smartstore.Admin.Components;
 
-public abstract class DashboardViewComponentBase : SmartViewComponent
+public abstract class DashboardWidgetViewComponentBase : SmartViewComponent
 {
     private DateTime? _now;
     private DateTime? _userTime;

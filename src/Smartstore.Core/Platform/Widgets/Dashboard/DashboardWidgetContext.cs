@@ -1,5 +1,7 @@
 #nullable enable
 
+using Smartstore.Core.Identity;
+
 namespace Smartstore.Core.Widgets.Dashboard;
 
 /// <summary>
@@ -13,9 +15,9 @@ public sealed class DashboardWidgetContext
     public required string DashboardId { get; init; }
 
     /// <summary>
-    /// Gets the identifier of the customer for whom the dashboard is rendered.
+    /// Gets the customer for whom the dashboard is rendered.
     /// </summary>
-    public int CustomerId { get; init; }
+    public Customer? Customer { get; init; }
 
     /// <summary>
     /// Gets a value indicating whether the dashboard is rendered in edit mode.

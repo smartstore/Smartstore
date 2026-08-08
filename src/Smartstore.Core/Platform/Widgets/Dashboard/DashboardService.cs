@@ -4,9 +4,6 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Identity;
 using Smartstore.IO;
 using Smartstore.Json;
@@ -23,53 +20,17 @@ public sealed class DashboardService : IDashboardService
     /// </summary>
     private const string UserLayoutAttributePrefix = "DashboardLayout.";
 
-    /// <summary>
-    /// Contains registered widget implementations keyed by their case-insensitive system names.
-    /// </summary>
     private readonly IReadOnlyDictionary<string, IDashboardWidget> _widgets;
-
-    /// <summary>
-    /// Contains dashboard default providers keyed by their case-insensitive dashboard identifiers.
-    /// </summary>
     private readonly IReadOnlyDictionary<string, IDashboardLayoutProvider> _layoutProviders;
-
-    /// <summary>
-    /// Contains widget descriptors in their declared display order.
-    /// </summary>
     private readonly IReadOnlyCollection<DashboardWidgetDescriptor> _descriptors;
+    private readonly IApplicationContext _appContext;
+    private readonly IMemoryCache _memCache;
 
-    /// <summary>
-    /// Provides access to customer generic attributes.
-    /// </summary>
-    private readonly IGenericAttributeService _genericAttributeService;
-
-    /// <summary>
-    /// Provides access to the application data file system.
-    /// </summary>
-    private readonly IApplicationContext _applicationContext;
-
-    /// <summary>
-    /// Caches global layouts until their source files change.
-    /// </summary>
-    private readonly IMemoryCache _memoryCache;
-
-    /// <summary>
-    /// Initializes a new dashboard service.
-    /// </summary>
-    /// <param name="widgets">The registered dashboard widget implementations.</param>
-    /// <param name="layoutProviders">The registered dashboard default providers.</param>
-    /// <param name="genericAttributeService">The generic attribute service.</param>
-    /// <param name="applicationContext">The application context.</param>
-    /// <param name="memoryCache">The application memory cache.</param>
-    /// <exception cref="InvalidOperationException">
-    /// A widget descriptor is invalid, or a widget system name or dashboard identifier is registered more than once.
-    /// </exception>
     public DashboardService(
         IEnumerable<IDashboardWidget> widgets,
         IEnumerable<IDashboardLayoutProvider> layoutProviders,
-        IGenericAttributeService genericAttributeService,
-        IApplicationContext applicationContext,
-        IMemoryCache memoryCache)
+        IApplicationContext appContext,
+        IMemoryCache memCache)
     {
         var widgetMap = new Dictionary<string, IDashboardWidget>(StringComparer.OrdinalIgnoreCase);
 
@@ -105,9 +66,8 @@ public sealed class DashboardService : IDashboardService
             .ToList()
             .AsReadOnly();
 
-        _genericAttributeService = Guard.NotNull(genericAttributeService);
-        _applicationContext = Guard.NotNull(applicationContext);
-        _memoryCache = Guard.NotNull(memoryCache);
+        _appContext = appContext;
+        _memCache = memCache;
     }
 
     /// <summary>
@@ -115,11 +75,9 @@ public sealed class DashboardService : IDashboardService
     /// </summary>
     public ILogger Logger { get; set; } = NullLogger.Instance;
 
-    /// <inheritdoc />
     public IReadOnlyCollection<DashboardWidgetDescriptor> GetDescriptors()
         => _descriptors;
 
-    /// <inheritdoc />
     public IDashboardWidget GetWidget(string systemName)
     {
         Guard.NotEmpty(systemName);
@@ -132,10 +90,9 @@ public sealed class DashboardService : IDashboardService
         return widget;
     }
 
-    /// <inheritdoc />
     public async ValueTask<DashboardLayout> GetEffectiveLayoutAsync(
         string dashboardId,
-        int customerId,
+        Customer? customer,
         CancellationToken cancelToken = default)
     {
         Guard.NotEmpty(dashboardId);
@@ -146,7 +103,7 @@ public sealed class DashboardService : IDashboardService
         }
 
         var canonicalDashboardId = provider.DashboardId;
-        var layout = LoadUserLayout(canonicalDashboardId, customerId);
+        var layout = LoadUserLayout(canonicalDashboardId, customer);
 
         if (layout == null)
         {
@@ -163,24 +120,23 @@ public sealed class DashboardService : IDashboardService
                     $"System-default layout for dashboard '{canonicalDashboardId}' must be global.");
             }
 
-            ValidateLayout(layout, canonicalDashboardId, customerId);
+            ValidateLayout(layout, canonicalDashboardId, customer);
         }
 
         return layout;
     }
 
-    /// <inheritdoc />
     public async ValueTask<DashboardRenderModel> GetDashboardAsync(
         string dashboardId,
-        int customerId,
+        Customer? customer,
         bool isEditMode = false,
         CancellationToken cancelToken = default)
     {
-        var layout = await GetEffectiveLayoutAsync(dashboardId, customerId, cancelToken);
+        var layout = await GetEffectiveLayoutAsync(dashboardId, customer, cancelToken);
         var context = new DashboardWidgetContext
         {
             DashboardId = layout.Id,
-            CustomerId = customerId,
+            Customer = customer,
             IsEditMode = isEditMode
         };
 
@@ -240,7 +196,7 @@ public sealed class DashboardService : IDashboardService
                 Instance = runtimeInstance,
                 Descriptor = descriptor,
                 Policy = policy,
-                Widget = Guard.NotNull(dashboardWidget.CreateWidget(context, runtimeInstance))
+                Widget = dashboardWidget.CreateWidget(context, runtimeInstance)
             });
         }
 
@@ -256,18 +212,17 @@ public sealed class DashboardService : IDashboardService
     /// Loads and validates a customer-specific layout from a generic attribute.
     /// </summary>
     /// <param name="dashboardId">The canonical dashboard identifier.</param>
-    /// <param name="customerId">The customer whose layout should be loaded.</param>
+    /// <param name="customer">The customer whose layout should be loaded.</param>
     /// <returns>The valid user layout, or <see langword="null"/> when no usable layout exists.</returns>
-    private DashboardLayout? LoadUserLayout(string dashboardId, int customerId)
+    private DashboardLayout? LoadUserLayout(string dashboardId, Customer? customer)
     {
-        if (customerId <= 0)
+        if (customer == null || customer.IsTransientRecord())
         {
             return null;
         }
 
         var attributeKey = UserLayoutAttributePrefix + dashboardId;
-        var attributes = _genericAttributeService.GetAttributesForEntity(nameof(Customer), customerId);
-        var json = attributes.Get<string>(attributeKey);
+        var json = customer.GenericAttributes.Get<string>(attributeKey);
 
         if (json.IsEmpty())
         {
@@ -277,37 +232,33 @@ public sealed class DashboardService : IDashboardService
         try
         {
             var layout = JsonSerializer.Deserialize<DashboardLayout>(json, SmartJsonOptions.CamelCased);
-            return ValidateCustomLayout(layout, dashboardId, customerId, DashboardLayoutScope.User, "user");
+            return ValidateCustomLayout(layout, dashboardId, customer, DashboardLayoutScope.User, "user");
         }
         catch (JsonException exception)
         {
             Logger.Error(
                 exception,
-                "Failed to load user layout for dashboard '{DashboardId}' and customer '{CustomerId}'.",
-                dashboardId,
-                customerId);
+                $"Failed to load user layout for dashboard '{dashboardId}' and customer '{customer.Id}'.");
 
             return null;
         }
     }
 
     /// <summary>
-    /// Loads and validates a global layout from <c>App_Data/dashboard.{id}.json</c>.
+    /// Loads and validates a global layout from <c>TenantRoot/dashboard.{id}.json</c>.
     /// </summary>
     /// <param name="dashboardId">The canonical dashboard identifier.</param>
     /// <param name="cancelToken">A token to cancel the operation.</param>
     /// <returns>The valid global layout, or <see langword="null"/> when no usable file exists.</returns>
-    private async Task<DashboardLayout?> LoadGlobalLayoutAsync(
-        string dashboardId,
-        CancellationToken cancelToken)
+    private async Task<DashboardLayout?> LoadGlobalLayoutAsync(string dashboardId, CancellationToken cancelToken)
     {
         cancelToken.ThrowIfCancellationRequested();
 
         var fileName = $"dashboard.{dashboardId}.json";
-        var fileSystem = _applicationContext.AppDataRoot;
-        var cacheKey = _memoryCache.BuildScopedKey($"DashboardLayout:{dashboardId}");
+        var fileSystem = _appContext.TenantRoot;
+        var cacheKey = _memCache.BuildScopedKey($"DashboardLayout:{dashboardId}");
 
-        var layout = await _memoryCache.GetOrCreateAsync<DashboardLayout?>(cacheKey, async entry =>
+        var layout = await _memCache.GetOrCreateAsync<DashboardLayout?>(cacheKey, async entry =>
         {
             entry.ExpirationTokens.Add(fileSystem.Watch(fileName) ?? NullChangeToken.Singleton);
 
@@ -321,36 +272,22 @@ public sealed class DashboardService : IDashboardService
                 var json = await fileSystem.ReadAllTextAsync(fileName);
                 if (json.IsEmpty())
                 {
-                    Logger.Warn(
-                        "Ignored empty global layout file '{FileName}' for dashboard '{DashboardId}'.",
-                        fileName,
-                        dashboardId);
-
+                    Logger.Warn($"Ignored empty global layout file '{fileName}' for dashboard '{dashboardId}'.");
                     return null;
                 }
 
                 var candidate = JsonSerializer.Deserialize<DashboardLayout>(json, SmartJsonOptions.CamelCased);
-                return ValidateCustomLayout(candidate, dashboardId, 0, DashboardLayoutScope.Global, "global");
+                return ValidateCustomLayout(candidate, dashboardId, null, DashboardLayoutScope.Global, "global");
             }
-            catch (JsonException exception)
+            catch (JsonException ex)
             {
-                Logger.Error(
-                    exception,
-                    "Failed to load global layout for dashboard '{DashboardId}' from '{FileName}'.",
-                    dashboardId,
-                    fileName);
-
+                Logger.Error(ex, $"Failed to load global layout for dashboard '{dashboardId}' from '{fileName}'.");
                 return null;
             }
-            catch (Exception exception) when (
-                exception is IOException or UnauthorizedAccessException or FileSystemException)
+            catch (Exception ex) when (
+                ex is IOException or UnauthorizedAccessException or FileSystemException)
             {
-                Logger.Error(
-                    exception,
-                    "Failed to read global layout for dashboard '{DashboardId}' from '{FileName}'.",
-                    dashboardId,
-                    fileName);
-
+                Logger.Error(ex, $"Failed to read global layout for dashboard '{dashboardId}' from '{fileName}'.");
                 return null;
             }
         });
@@ -364,40 +301,31 @@ public sealed class DashboardService : IDashboardService
     /// </summary>
     /// <param name="layout">The custom layout to validate.</param>
     /// <param name="dashboardId">The canonical dashboard identifier.</param>
-    /// <param name="customerId">The expected customer identifier.</param>
+    /// <param name="customer">The expected customer.</param>
     /// <param name="scope">The expected layout scope.</param>
     /// <param name="layerName">The layer name used for diagnostics.</param>
     /// <returns>The valid layout, or <see langword="null"/> when validation fails.</returns>
     private DashboardLayout? ValidateCustomLayout(
         DashboardLayout? layout,
         string dashboardId,
-        int customerId,
+        Customer? customer,
         DashboardLayoutScope scope,
         string layerName)
     {
-        if (layout == null || layout.Scope != scope || layout.CustomerId != customerId)
+        if (layout == null || layout.Scope != scope || layout.CustomerId != customer?.Id)
         {
-            Logger.Warn(
-                "Ignored {LayerName} layout for dashboard '{DashboardId}' because its scope or customer assignment is invalid.",
-                layerName,
-                dashboardId);
-
+            Logger.Warn($"Ignored {layerName} layout for dashboard '{dashboardId}' because its scope or customer assignment is invalid.");
             return null;
         }
 
         try
         {
-            ValidateLayout(layout, dashboardId, customerId);
+            ValidateLayout(layout, dashboardId, customer);
             return layout;
         }
-        catch (InvalidOperationException exception)
+        catch (InvalidOperationException ex)
         {
-            Logger.Error(
-                exception,
-                "Ignored invalid {LayerName} layout for dashboard '{DashboardId}'.",
-                layerName,
-                dashboardId);
-
+            Logger.Error(ex, $"Ignored invalid {layerName} layout for dashboard '{dashboardId}'.");
             return null;
         }
     }
@@ -418,7 +346,7 @@ public sealed class DashboardService : IDashboardService
         }
 
         var defaultColumns = descriptor.DefaultSize.ColumnSpan;
-        if (defaultColumns < descriptor.MinimumSize.ColumnSpan || defaultColumns > descriptor.MaximumSize.ColumnSpan)
+        if (defaultColumns < descriptor.MinSize.ColumnSpan || defaultColumns > descriptor.MaxSize.ColumnSpan)
         {
             throw new InvalidOperationException(
                 $"The default size of dashboard widget '{descriptor.SystemName}' is outside its declared bounds.");
@@ -430,9 +358,9 @@ public sealed class DashboardService : IDashboardService
     /// </summary>
     /// <param name="layout">The resolved layout to validate.</param>
     /// <param name="requestedDashboardId">The dashboard identifier requested from the provider.</param>
-    /// <param name="customerId">The customer for whom the layout was requested.</param>
+    /// <param name="customer">The customer for whom the layout was requested.</param>
     /// <exception cref="InvalidOperationException">The layout violates a dashboard layout invariant.</exception>
-    private static void ValidateLayout(DashboardLayout layout, string requestedDashboardId, int customerId)
+    private static void ValidateLayout(DashboardLayout layout, string requestedDashboardId, Customer? customer)
     {
         if (!layout.Id.EqualsNoCase(requestedDashboardId))
         {
@@ -450,11 +378,10 @@ public sealed class DashboardService : IDashboardService
             throw new InvalidOperationException($"Global dashboard layout '{layout.Id}' cannot be assigned to a customer.");
         }
 
-        if (layout.Scope == DashboardLayoutScope.User &&
-            (layout.CustomerId <= 0 || layout.CustomerId != customerId))
+        if (layout.Scope == DashboardLayoutScope.User && (layout.CustomerId <= 0 || layout.CustomerId != customer?.Id))
         {
             throw new InvalidOperationException(
-                $"User dashboard layout '{layout.Id}' is not assigned to customer '{customerId}'.");
+                $"User dashboard layout '{layout.Id}' is not assigned to customer '{customer?.Id}'.");
         }
 
         var instanceIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);

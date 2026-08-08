@@ -3,7 +3,7 @@
 @model DashboardRenderModel
 @inject IDashboardCssBuilder DashboardCssBuilder
 
-<style>
+<style sm-target-zone="stylesheets" data-origin="@Model.Layout.Id">
     @Html.Raw(DashboardCssBuilder.Build(Model))
 </style>
 

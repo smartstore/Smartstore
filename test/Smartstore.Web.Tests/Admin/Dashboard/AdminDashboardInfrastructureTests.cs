@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using NUnit.Framework;
 using Smartstore.Admin.Infrastructure.Dashboard;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Json;
 
@@ -21,7 +22,7 @@ public sealed class AdminDashboardInfrastructureTests
     [Test]
     public void System_Default_Matches_Legacy_Latest_Orders_Placement()
     {
-        var layout = new MainDashboardLayoutProvider().GetDefaultLayout();
+        var layout = new AdminDashboardLayoutProvider().GetDefaultLayout();
         var instance = layout.Widgets.Single();
 
         Assert.Multiple(() =>
@@ -40,14 +41,14 @@ public sealed class AdminDashboardInfrastructureTests
     [Test]
     public void Json_Contract_Roundtrips_System_Default()
     {
-        var source = new MainDashboardLayoutProvider().GetDefaultLayout();
+        var source = new AdminDashboardLayoutProvider().GetDefaultLayout();
 
         var json = JsonSerializer.Serialize(source, SmartJsonOptions.CamelCased);
         var result = JsonSerializer.Deserialize<DashboardLayout>(json, SmartJsonOptions.CamelCased)!;
 
         Assert.Multiple(() =>
         {
-            Assert.That(result.Id, Is.EqualTo(MainDashboardLayoutProvider.Id));
+            Assert.That(result.Id, Is.EqualTo(AdminDashboardLayoutProvider.Id));
             Assert.That(result.Scope, Is.EqualTo(DashboardLayoutScope.Global));
             Assert.That(result.Widgets, Has.Count.EqualTo(1));
             Assert.That(result.Widgets[0].WidgetSystemName, Is.EqualTo(LatestOrdersDashboardWidget.SystemName));
@@ -61,13 +62,13 @@ public sealed class AdminDashboardInfrastructureTests
     [Test]
     public void Css_Is_Scoped_To_Dashboard_Grid_Identifier()
     {
-        var layout = new MainDashboardLayoutProvider().GetDefaultLayout();
+        var layout = new AdminDashboardLayoutProvider().GetDefaultLayout();
         var instance = layout.Widgets.Single();
         var dashboardWidget = new LatestOrdersDashboardWidget();
         var context = new DashboardWidgetContext
         {
             DashboardId = layout.Id,
-            CustomerId = 42
+            Customer = new Customer { Id = 42 },
         };
         var model = new DashboardRenderModel
         {

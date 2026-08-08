@@ -4,7 +4,7 @@ using Smartstore.Core.Security;
 
 namespace Smartstore.Admin.Components;
 
-public class DashboardRegisteredCustomersViewComponent : DashboardViewComponentBase
+public class DashboardRegisteredCustomersViewComponent : DashboardWidgetViewComponentBase
 {
     private readonly SmartDbContext _db;
 

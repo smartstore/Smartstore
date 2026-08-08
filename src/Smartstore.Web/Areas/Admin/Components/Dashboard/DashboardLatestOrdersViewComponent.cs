@@ -4,12 +4,11 @@ using Smartstore.Core.Security;
 
 namespace Smartstore.Admin.Components;
 
-public class DashboardLatestOrdersViewComponent(
-    CustomerSettings customerSettings) : SmartViewComponent
+public class DashboardLatestOrdersViewComponent(CustomerSettings customerSettings) : DashboardWidgetViewComponentBase
 {
     private readonly CustomerSettings _customerSettings = customerSettings;
 
-    public async Task<IViewComponentResult> InvokeAsync()
+    public override async Task<IViewComponentResult> InvokeAsync()
     {
         if (!await Services.Permissions.AuthorizeAsync(Permissions.Order.Read))
         {
