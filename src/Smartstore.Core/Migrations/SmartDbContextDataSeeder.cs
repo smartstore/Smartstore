@@ -87,10 +87,10 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "I want to return the following items:",
             "Ich möchte die folgenden Artikel zurücksenden:");
 
-        builder.AddOrUpdate("Admin.Catalog.Products.Fields.DisplayAllImagesNumber",
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.DisplayAllImagesNumber",
             "Only show selected variant images from this number of images",
             "Ab dieser Bildanzahl nur Bilder der gewählten Variante anzeigen",
-            "If the number of images reaches this value, only the images of the selected variant are shown. If fewer images are available, all images are shown.",
-            "Sobald diese Bildanzahl erreicht ist, werden nur noch die Bilder der gewählten Variante angezeigt. Bei weniger Bildern werden weiterhin alle Bilder angezeigt.");
+            "Once this number of images has been reached, only the product images of the selected variant are displayed. If fewer images are available, all the product images are shown.",
+            "Sobald diese Bildanzahl erreicht ist, werden nur noch die Produktbilder der gewählten Variante angezeigt. Bei weniger Bildern werden hingegen alle Produktbilder angezeigt.");
     }
 }

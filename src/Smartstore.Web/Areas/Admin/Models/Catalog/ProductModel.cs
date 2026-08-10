@@ -279,7 +279,7 @@ public class ProductModel : ProductOverviewModel, ILocalizedModel<ProductLocaliz
     public ProductPictureModel AddPictureModel { get; set; } = new();
     public List<ProductMediaFile> ProductMediaFiles { get; set; } = [];
 
-    [LocalizedDisplay("*DisplayAllImagesNumber")]
+    [LocalizedDisplay("Admin.Configuration.Settings.Catalog.DisplayAllImagesNumber")]
     public int? DisplayAllImagesNumber { get; set; }
 
     [UIHint("Discounts")]
