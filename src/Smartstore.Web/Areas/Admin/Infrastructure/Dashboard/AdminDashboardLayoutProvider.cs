@@ -88,6 +88,17 @@ public sealed class AdminDashboardLayoutProvider : IDashboardLayoutProvider
                         At(1600, 0, 3, 6)
                     ]
                 },
+                new DashboardWidgetInstance("store-report", StoreReportDashboardWidget.SystemName)
+                {
+                    Order = 700,
+                    Positions =
+                    [
+                        At(0, 0, 6, 12),
+                        At(768, 0, 5, 12),
+                        At(992, 0, 5, 10),
+                        At(1600, 6, 3, 4)
+                    ]
+                },
                 new DashboardWidgetInstance("news-feed", NewsFeedDashboardWidget.SystemName)
                 {
                     Order = 800,

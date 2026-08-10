@@ -25,12 +25,12 @@ public sealed record DashboardWidgetPolicy
     /// <summary>
     /// Gets a value indicating whether the widget settings may be changed.
     /// </summary>
-    public bool AllowConfigure { get; init; } = true;
+    public bool AllowConfigure { get; init; }
 
     /// <summary>
     /// Gets a value indicating whether the widget may be refreshed independently.
     /// </summary>
-    public bool AllowRefresh { get; init; } = true;
+    public bool AllowRefresh { get; init; }
 
     /// <summary>
     /// Combines the intrinsic widget policy with the policy of a concrete layout instance.

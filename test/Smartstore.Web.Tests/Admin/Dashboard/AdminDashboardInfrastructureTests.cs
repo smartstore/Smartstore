@@ -5,6 +5,7 @@ using System.Text.Json;
 using NUnit.Framework;
 using Smartstore.Admin.Infrastructure.Dashboard;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Widgets;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Json;
 
@@ -29,12 +30,13 @@ public sealed class AdminDashboardInfrastructureTests
         var topCustomers = GetInstance(layout, TopCustomersDashboardWidget.SystemName);
         var registeredCustomers = GetInstance(layout, RegisteredCustomersDashboardWidget.SystemName);
         var latestOrders = GetInstance(layout, LatestOrdersDashboardWidget.SystemName);
+        var storeReport = GetInstance(layout, StoreReportDashboardWidget.SystemName);
         var newsFeed = GetInstance(layout, NewsFeedDashboardWidget.SystemName);
 
         Assert.Multiple(() =>
         {
             Assert.That(layout.GridTemplateColumns, Is.EqualTo("repeat(10, 1fr) repeat(2, 130px)"));
-            Assert.That(layout.Widgets, Has.Count.EqualTo(7));
+            Assert.That(layout.Widgets, Has.Count.EqualTo(8));
 
             AssertPosition(incompleteOrders.GetPosition(0), 0, 0, 12);
             AssertPosition(incompleteOrders.GetPosition(768), 0, 0, 12);
@@ -66,6 +68,11 @@ public sealed class AdminDashboardInfrastructureTests
             AssertPosition(latestOrders.GetPosition(992), 0, 4, 10);
             AssertPosition(latestOrders.GetPosition(1600), 0, 3, 6);
 
+            AssertPosition(storeReport.GetPosition(0), 0, 6, 12);
+            AssertPosition(storeReport.GetPosition(768), 0, 5, 12);
+            AssertPosition(storeReport.GetPosition(992), 0, 5, 10);
+            AssertPosition(storeReport.GetPosition(1600), 6, 3, 4);
+
             AssertPosition(newsFeed.GetPosition(0), 0, 7, 12);
             AssertPosition(newsFeed.GetPosition(768), 0, 6, 12);
             AssertPosition(newsFeed.GetPosition(992), 10, 0, 2, 6);
@@ -88,13 +95,41 @@ public sealed class AdminDashboardInfrastructureTests
         {
             Assert.That(result.Id, Is.EqualTo(AdminDashboardLayoutProvider.Id));
             Assert.That(result.Scope, Is.EqualTo(DashboardLayoutScope.Global));
-            Assert.That(result.Widgets, Has.Count.EqualTo(7));
+            Assert.That(result.Widgets, Has.Count.EqualTo(8));
             Assert.That(
                 result.Widgets.Select(x => x.WidgetSystemName),
                 Does.Contain(LatestOrdersDashboardWidget.SystemName));
             Assert.That(
+                result.Widgets.Select(x => x.WidgetSystemName),
+                Does.Contain(StoreReportDashboardWidget.SystemName));
+            Assert.That(
                 result.Widgets.Single(x => x.WidgetSystemName == LatestOrdersDashboardWidget.SystemName).Positions,
                 Has.Count.EqualTo(4));
+        });
+    }
+
+    /// <summary>
+    /// Verifies that the store report is rendered through the partial-view widget infrastructure.
+    /// </summary>
+    [Test]
+    public void Store_Report_Creates_Partial_View_Widget()
+    {
+        var layout = new AdminDashboardLayoutProvider().GetDefaultLayout();
+        var instance = GetInstance(layout, StoreReportDashboardWidget.SystemName);
+        var dashboardWidget = new StoreReportDashboardWidget();
+        var context = new DashboardWidgetContext
+        {
+            DashboardId = layout.Id,
+            Customer = new Customer { Id = 42 }
+        };
+
+        var widget = dashboardWidget.CreateWidget(context, instance);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(widget, Is.TypeOf<PartialViewWidget>());
+            Assert.That(((PartialViewWidget)widget).ViewName, Is.EqualTo(StoreReportDashboardWidget.ViewPath));
+            Assert.That(widget.Key, Is.EqualTo(instance.Id));
         });
     }
 

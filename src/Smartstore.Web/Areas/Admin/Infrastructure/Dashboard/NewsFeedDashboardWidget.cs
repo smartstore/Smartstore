@@ -30,12 +30,7 @@ public sealed class NewsFeedDashboardWidget : DashboardViewComponentWidget<NewsF
             new DashboardWidgetSize(2, 4),
             new DashboardWidgetSize(2, 6),
             new DashboardWidgetSize(12, 1)
-        ],
-        Policy = new DashboardWidgetPolicy
-        {
-            AllowConfigure = false,
-            AllowRefresh = false
-        }
+        ]
     };
 
     /// <inheritdoc />

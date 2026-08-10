@@ -29,12 +29,7 @@ public sealed class IncompleteOrdersDashboardWidget : DashboardViewComponentWidg
         [
             new DashboardWidgetSize(10, 1),
             new DashboardWidgetSize(12, 1)
-        ],
-        Policy = new DashboardWidgetPolicy
-        {
-            AllowConfigure = false,
-            AllowRefresh = false
-        }
+        ]
     };
 
     /// <inheritdoc />

@@ -30,12 +30,7 @@ public sealed class TopCustomersDashboardWidget : DashboardViewComponentWidget<D
             new DashboardWidgetSize(3, 1),
             new DashboardWidgetSize(6, 1),
             new DashboardWidgetSize(12, 1)
-        ],
-        Policy = new DashboardWidgetPolicy
-        {
-            AllowConfigure = false,
-            AllowRefresh = false
-        }
+        ]
     };
 
     /// <inheritdoc />

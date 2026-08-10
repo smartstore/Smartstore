@@ -31,12 +31,7 @@ public sealed class BestsellersDashboardWidget : DashboardViewComponentWidget<Da
             new DashboardWidgetSize(4, 1),
             new DashboardWidgetSize(6, 1),
             new DashboardWidgetSize(12, 1)
-        ],
-        Policy = new DashboardWidgetPolicy
-        {
-            AllowConfigure = false,
-            AllowRefresh = false
-        }
+        ]
     };
 
     /// <inheritdoc />

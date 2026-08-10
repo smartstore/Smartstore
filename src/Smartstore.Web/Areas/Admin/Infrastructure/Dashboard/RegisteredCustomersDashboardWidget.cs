@@ -30,12 +30,7 @@ public sealed class RegisteredCustomersDashboardWidget : DashboardViewComponentW
             new DashboardWidgetSize(7, 1),
             new DashboardWidgetSize(10, 1),
             new DashboardWidgetSize(12, 1)
-        ],
-        Policy = new DashboardWidgetPolicy
-        {
-            AllowConfigure = false,
-            AllowRefresh = false
-        }
+        ]
     };
 
     /// <inheritdoc />
