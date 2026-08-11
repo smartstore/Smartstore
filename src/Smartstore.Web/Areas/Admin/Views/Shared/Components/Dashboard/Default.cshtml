@@ -11,7 +11,7 @@
      style="display: grid; grid-template-columns: @Model.Layout.GridTemplateColumns; column-gap: @Model.Layout.ColumnGap; row-gap: @Model.Layout.RowGap; grid-auto-rows: @Model.Layout.GridAutoRows;">
     @foreach (var item in Model.Widgets)
     {
-        <div id="@item.Instance.Id" class="dashboard-widget @item.Descriptor.CssClass">
+        <div id="@Model.Layout.BuildWidgetId(item.Instance.Id)" class="dashboard-widget @item.Descriptor.CssClass">
             @await item.Widget.InvokeAsync(ViewContext)
         </div>
     }

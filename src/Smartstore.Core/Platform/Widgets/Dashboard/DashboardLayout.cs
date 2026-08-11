@@ -87,4 +87,16 @@ public sealed class DashboardLayout
     /// Gets the widget instances contained in the dashboard layout.
     /// </summary>
     public IReadOnlyList<DashboardWidgetInstance> Widgets { get; init; } = [];
+
+    /// <summary>
+    /// Builds the dashboard-qualified HTML identifier of a widget instance.
+    /// </summary>
+    /// <param name="widgetId">The dashboard-local widget instance identifier.</param>
+    /// <returns>The HTML identifier using the dashboard and widget identifiers as BEM-style segments.</returns>
+    public string BuildWidgetId(string widgetId)
+    {
+        Guard.NotEmpty(widgetId);
+
+        return $"{Id}__{widgetId.SanitizeHtmlId()}";
+    }
 }
