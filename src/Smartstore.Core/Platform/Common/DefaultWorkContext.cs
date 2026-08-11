@@ -79,7 +79,18 @@ public partial class DefaultWorkContext : IWorkContext
 
             return _customer;
         }
-        set => _customer = value;
+        set
+        {
+            if (value != _customer)
+            {
+                _customer = value;
+
+                // Reset all properties that depend on "_customer".
+                _language = null;
+                _currency = null;
+                _taxDisplayType = null;
+            }
+        }
     }
 
     public Customer CurrentImpersonator => _impersonator;

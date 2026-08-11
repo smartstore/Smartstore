@@ -309,6 +309,7 @@ public partial class XmlSitemapGenerator : AsyncDbSaveHook<BaseEntity>, IXmlSite
             var prevCustomer = _services.WorkContext.CurrentCustomer;
             // No need to vary xml sitemap by customer roles: it's relevant to crawlers only.
             _services.WorkContext.CurrentCustomer = (await _customerService.GetCustomerBySystemNameAsync(SystemCustomerNames.Bot, false)) ?? prevCustomer;
+            await _services.WorkContext.InitializeAsync();
 
             try
             {
@@ -440,6 +441,8 @@ public partial class XmlSitemapGenerator : AsyncDbSaveHook<BaseEntity>, IXmlSite
             {
                 // Undo impersonation
                 _services.WorkContext.CurrentCustomer = prevCustomer;
+                await _services.WorkContext.InitializeAsync();
+
                 sitemaps.Clear();
 
                 foreach (var data in languageData.Values)

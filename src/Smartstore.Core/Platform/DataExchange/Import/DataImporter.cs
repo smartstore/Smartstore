@@ -113,7 +113,10 @@ public partial class DataImporter : IDataImporter
                             using var batchScope = _scopeAccessor.LifetimeScope.BeginLifetimeScope();
 
                             // Apply changes made by TaskContextVirtualizer.VirtualizeAsync (e.g. required for checking permissions).
-                            batchScope.Resolve<IWorkContext>().CurrentCustomer = _services.WorkContext.CurrentCustomer;
+                            var workContext = batchScope.Resolve<IWorkContext>();
+                            workContext.CurrentCustomer = _services.WorkContext.CurrentCustomer;
+                            await workContext.InitializeAsync();
+
                             batchScope.Resolve<IStoreContext>().CurrentStore = _services.StoreContext.CurrentStore;
 
                             // It would be nice if we could make all dependencies use our TraceLogger.
