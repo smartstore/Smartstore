@@ -44,6 +44,11 @@ public partial class ProcessPaymentRequest
     public bool IsMultiOrder { get; set; }
 
     /// <summary>
+    /// <c>true</c> if an order is created subsequently because it is missing after a successful payment.
+    /// </summary>
+    public bool IsOrderRecovery { get; set; }
+
+    /// <summary>
     /// All shopping cart item identifiers.
     /// </summary>
     public List<int> ShoppingCartItemIds { get; set; } = [];
