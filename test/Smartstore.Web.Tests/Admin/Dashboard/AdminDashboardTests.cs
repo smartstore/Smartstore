@@ -15,7 +15,7 @@ namespace Smartstore.Web.Tests.Admin.Dashboard;
 /// Verifies the system fallback, JSON contract and responsive CSS generation of the admin dashboard.
 /// </summary>
 [TestFixture]
-public sealed class AdminDashboardInfrastructureTests
+public sealed class AdminDashboardTests
 {
     /// <summary>
     /// Verifies that the system fallback reproduces the legacy widget placements at every breakpoint.
@@ -167,9 +167,11 @@ public sealed class AdminDashboardInfrastructureTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(css, Does.Contain("#admin-dashboard-grid > #latest-orders"));
-            Assert.That(css, Does.Contain("grid-column: 1 / span 12;"));
-            Assert.That(css, Does.Contain("grid-row: 6 / span 1;"));
+            Assert.That(layout.BuildWidgetId(instance.Id), Is.EqualTo("admin-dashboard__latest-orders"));
+            Assert.That(
+                css,
+                Does.Contain("#admin-dashboard__latest-orders { grid-column: 1 / span 12; grid-row: 6 / span 1; }"));
+            Assert.That(css, Does.Not.Contain("#admin-dashboard-grid >"));
             Assert.That(css, Does.Contain("@media screen and (min-width: 768px)"));
             Assert.That(css, Does.Contain("@media screen and (min-width: 992px)"));
             Assert.That(css, Does.Contain("@media screen and (min-width: 1600px)"));

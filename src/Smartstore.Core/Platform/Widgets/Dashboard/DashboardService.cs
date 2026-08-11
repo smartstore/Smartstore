@@ -312,7 +312,9 @@ public sealed class DashboardService : IDashboardService
         DashboardLayoutScope scope,
         string layerName)
     {
-        if (layout == null || layout.Scope != scope || layout.CustomerId != customer?.Id)
+        var expectedCustomerId = scope == DashboardLayoutScope.Global ? 0 : customer?.Id ?? 0;
+
+        if (layout == null || layout.Scope != scope || layout.CustomerId != expectedCustomerId)
         {
             Logger.Warn($"Ignored {layerName} layout for dashboard '{dashboardId}' because its scope or customer assignment is invalid.");
             return null;
