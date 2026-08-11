@@ -15,14 +15,6 @@
     --chart-color-primary-dark: #{$chart-color-primary-dark};
 }
 
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(10, 1fr) repeat(2, 130px);
-    grid-column-gap: 1rem;
-    grid-row-gap: 1rem;
-    grid-auto-rows: auto;
-}
-
 .table-dashboard {
     padding-bottom: 0.75rem;
 
@@ -409,46 +401,6 @@
     }
 }
 
-.report-incomplete-orders {
-    grid-column: 1 / 13;
-    grid-row: 1 / 2;
-}
-
-.news-feed {
-    grid-column: 1 / 13;
-    grid-row: 8 / 9;
-}
-
-.report-orders {
-    grid-column: 1 / 13;
-    grid-row: 2 / 3;
-}
-
-.report-bestsellers {
-    grid-column: 1 / 13;
-    grid-row: 3 / 4;
-}
-
-.report-top-customers {
-    grid-column: 1 / 13;
-    grid-row: 4 / 5;
-}
-
-.report-customer-registrations {
-    grid-column: 1 / 13;
-    grid-row: 5 / 6;
-}
-
-.report-latest-orders {
-    grid-column: 1 / 13;
-    grid-row: 6 / 7;
-}
-
-.report-store-statistics {
-    grid-column: 1 / 13;
-    grid-row: 7 / 8;
-}
-
 @include media-breakpoint-up(sm) {
     .incomplete-orders-container {
         width: 50% !important;
@@ -456,119 +408,14 @@
 }
 
 @include media-breakpoint-up(md) {
-    .report-incomplete-orders {
-        .incomplete-orders-container {
-            width: 25% !important;
-        }
-    }
-
-    .news-feed {
-        grid-row: 7 / 8;
-    }
-
-    .report-orders {
-        grid-row: 2 / 3;
-    }
-
-    .report-bestsellers {
-        grid-column: 1 / 7;
-        grid-row: 3 / 4;
-    }
-
-    .report-top-customers {
-        grid-column: 7 / 13;
-        grid-row: 3 / 4;
-    }
-
-    .report-customer-registrations {
-        grid-row: 4 / 5;
-    }
-
-    .report-latest-orders {
-        grid-row: 5 / 6;
-    }
-
-    .report-store-statistics {
-        grid-row: 6 / 7;
-    }
-}
-
-@include media-breakpoint-up(lg) {
-    .report-incomplete-orders {
-        grid-column: 1 / 11;
-    }
-
-    .news-feed {
-        grid-column: 11 / -1;
-        grid-row: 1 / 7;
-    }
-
-    .report-orders {
-        grid-column: 1 / 11;
-    }
-
-    .report-bestsellers {
-        grid-column: 1 / 5;
-    }
-
-    .report-top-customers {
-        grid-column: 5 / 11;
-        grid-row: 3 / 4;
-    }
-
-    .report-customer-registrations {
-        grid-column: 1 / 11;
-    }
-
-    .report-latest-orders {
-        grid-column: 1 / 11;
-    }
-
-    .report-store-statistics {
-        grid-column: 1 / 11;
+    .incomplete-orders-container {
+        width: 25% !important;
     }
 }
 
 @media screen and (min-width: 1600px) {
-    .report-incomplete-orders {
-        grid-column: 1 / 11;
-
-        .incomplete-orders-chart-container {
-            height: 300px;
-        }
-    }
-
-    .news-feed {
-        grid-column: 11 / 13;
-        grid-row: 1 / 5;
-    }
-
-    .report-orders {
-        grid-column: 1 / 8;
-    }
-
-    .report-bestsellers {
-        grid-column: 8 / 11;
-        grid-row: 2 / 3;
-    }
-
-    .report-top-customers {
-        grid-column: 1 / 4;
-    }
-
-    .report-customer-registrations {
-        grid-column: 4 / 11;
-        grid-row: 3 / 4;
-    }
-
-    .report-latest-orders {
-        grid-column: 1 / 7;
-        grid-row: 4 / 5;
-    }
-
-    .report-store-statistics {
-        grid-column: 7 / 11;
-        grid-row: 4 / 5;
+    .incomplete-orders-chart-container {
+        height: 300px;
     }
 }
 
