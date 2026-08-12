@@ -95,6 +95,12 @@ label.required,
 .choice-box {
     position: relative;
     display: block;
+    --choice-box-gradient: linear-gradient(
+        145deg,
+        rgba(255,255,255, 0.16) 0%,
+        transparent 48%,
+        rgba(0,0,0, 0.055) 100%
+    );
 
     &.dark {
         --choice-box-strike-color: #fff;
@@ -163,7 +169,7 @@ label.required,
     }
 
     .choice-box.unavailable & {
-        border: 1px dashed rgba(#000, .3);
+        border: 1px dashed rgba($black, .3);
 
         &:not(.choice-box-color) {
             opacity: .5;
@@ -185,6 +191,15 @@ label.required,
     .choice-box.disabled & {
         opacity: .5;
     }
+}
+
+.choice-box-color:before {
+    position: absolute;
+    content: "";
+    inset: 0;
+    border-radius: inherit;
+    background: var(--choice-box-gradient);
+    pointer-events: none;
 }
 
 .choice-box-mediafile .choice-box-content {
