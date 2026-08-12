@@ -9,11 +9,11 @@ namespace Smartstore.Admin.Infrastructure.Dashboard;
 /// Supplies the system-default layout of the main admin dashboard.
 /// </summary>
 [SystemName(Id)]
-public sealed class AdminDashboardLayoutProvider : IDashboardLayoutProvider
+public class AdminDashboardLayoutProvider : IDashboardLayoutProvider
 {
     public const string Id = "admin-dashboard";
 
-    public DashboardLayout GetDefaultLayout()
+    public virtual DashboardLayout GetDefaultLayout()
     {
         return new DashboardLayout(Id)
         {

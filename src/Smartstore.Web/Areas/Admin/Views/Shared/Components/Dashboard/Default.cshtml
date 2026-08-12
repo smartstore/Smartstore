@@ -9,10 +9,15 @@
 
 <div id="@(Model.Layout.Id)-grid"
      style="display: grid; grid-template-columns: @Model.Layout.GridTemplateColumns; column-gap: @Model.Layout.ColumnGap; row-gap: @Model.Layout.RowGap; grid-auto-rows: @Model.Layout.GridAutoRows;">
+    
+    <zone name="dashboard_top"></zone>
+
     @foreach (var item in Model.Widgets)
     {
         <div id="@Model.Layout.BuildWidgetId(item.Instance.Id)" class="dashboard-widget @item.Descriptor.CssClass">
             @await item.Widget.InvokeAsync(ViewContext)
         </div>
     }
+
+    <zone name="dashboard_bottom"></zone>
 </div>

@@ -13,7 +13,7 @@ namespace Smartstore.Core.Widgets.Dashboard;
 /// <summary>
 /// Provides dashboard registration, layered layout resolution and render-model preparation.
 /// </summary>
-public sealed class DashboardService : IDashboardService
+public class DashboardService : IDashboardService
 {
     /// <summary>
     /// Defines the prefix used for customer-specific dashboard layout attributes.
@@ -103,7 +103,7 @@ public sealed class DashboardService : IDashboardService
         return layout;
     }
 
-    public async ValueTask<DashboardRenderModel> GetDashboardAsync(
+    public virtual async ValueTask<DashboardRenderModel> GetDashboardAsync(
         string dashboardId,
         Customer? customer,
         bool isEditMode = false,
