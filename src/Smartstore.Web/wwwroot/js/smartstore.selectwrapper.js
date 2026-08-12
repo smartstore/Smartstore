@@ -517,17 +517,41 @@
 
             sel.select2(opts);
 
+            const select2 = sel.data("select2");
+
+            if (sel.prop("multiple") && select2.options.get("tags")) {
+                sel.on("select2:select", (e) => {
+                    const selectedId = e.params?.data?.id;
+                    if (selectedId === undefined || selectedId === null) {
+                        return;
+                    }
+
+                    // Select2 marks options generated from free-text input as tags.
+                    const isCustomTag = sel
+                        .find("option[data-select2-tag]")
+                        .filter(function () {
+                            return this.selected && this.value === String(selectedId);
+                        })
+                        .length > 0;
+
+                    if (isCustomTag) {
+                        // Keep the dropdown open, but reset the search for the next tag.
+                        select2.selection.$search.val("").trigger("input");
+                    }
+                });
+            }
+
             // Cancel event bubbling for unselect button in multiselect control.
             sel.on("select2:unselect", stopPropagation);
 
             if (sel.hasClass("autowidth")) {
                 // move special "autowidth" class to plugin container,
                 // so we are able to omit min-width per css
-                sel.data("select2").$container.addClass("autowidth");
+                select2.$container.addClass("autowidth");
             }
 
             // WCAG.
-            const $sel = sel.data("select2").$container.find('.select2-selection');
+            const $sel = select2.$container.find('.select2-selection');
             if ($sel.length) {
                 const labelledBy = sel.aria("labelledby");
                 if (!_.isEmpty(labelledBy)) {
