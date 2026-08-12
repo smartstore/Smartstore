@@ -1,9 +1,6 @@
 @{
     Layout = "_AdminLayout";
     Assets.BodyAttributes.AppendCssClass("minimal-admin");
-
-    // Set to true to preview the new dashboard widget infrastructure.
-    var useDashboardWidgetSystem = true;
 }
 
 <div class="section-header">
@@ -13,40 +10,8 @@
     </div>
 </div>
 
-@if (useDashboardWidgetSystem)
-{
-    @await Component.InvokeAsync("Dashboard", new { dashboardId = "admin-dashboard", skipUserLayout = false })
-}
-else
-{
-    <div class="dashboard-grid">
-        <zone name="admin_dashboard_top"></zone>
+<zone name="admin_dashboard_before"></zone>
 
-        <div class="report-incomplete-orders">
-            @await Component.InvokeAsync("DashboardIncompleteOrders")
-        </div>
-        <div class="report-orders">
-            @await Component.InvokeAsync("DashboardOrders")
-        </div>
-        <div class="report-bestsellers">
-            @await Component.InvokeAsync("DashboardBestsellers")
-        </div>
-        <div class="report-top-customers">
-            @await Component.InvokeAsync("DashboardTopCustomers")
-        </div>
-        <div class="report-customer-registrations">
-            @await Component.InvokeAsync("DashboardRegisteredCustomers")
-        </div>
-        <div class="report-latest-orders">
-            @await Component.InvokeAsync("DashboardLatestOrders")
-        </div>
-        <div class="report-store-statistics">
-            <partial name="~/Areas/Admin/Views/Store/StoreDashboardReport.cshtml" />
-        </div>
-        <div class="news-feed">
-            @await Component.InvokeAsync("NewsFeed")
-        </div>
+@await Component.InvokeAsync("Dashboard", new { dashboardId = "admin-dashboard", skipUserLayout = false })
 
-        <zone name="admin_dashboard_bottom"></zone>
-    </div>
-}
+<zone name="admin_dashboard_after"></zone>

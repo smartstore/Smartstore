@@ -12,7 +12,7 @@ public interface IWorkContext
 {
     /// <summary>
     /// Initializes the work context by pre-resolving current customer
-    /// working language and working currency asynchronously.
+    /// working language, working currency and tax display type asynchronously.
     /// </summary>
     Task InitializeAsync();
 
@@ -22,7 +22,10 @@ public interface IWorkContext
     bool IsInitialized { get; }
 
     /// <summary>
-    /// Gets or sets the current customer
+    /// Gets or sets the current customer. Only set this property to override the current customer, 
+    /// which is resolved by the <c>WorkContextMiddleware</c> very early in the request pipeline.
+    /// After setting this property, call <see cref="InitializeAsync"/> asynchronously
+    /// to re-resolve the working language, working currency and tax display type.
     /// </summary>
     Customer CurrentCustomer { get; set; }
 

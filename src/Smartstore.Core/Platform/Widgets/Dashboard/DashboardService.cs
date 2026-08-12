@@ -5,6 +5,7 @@ using System.Text.Json.Nodes;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.FileProviders;
 using Smartstore.Core.Identity;
+using Smartstore.Events;
 using Smartstore.IO;
 using Smartstore.Json;
 
@@ -13,62 +14,41 @@ namespace Smartstore.Core.Widgets.Dashboard;
 /// <summary>
 /// Provides dashboard registration, layered layout resolution and render-model preparation.
 /// </summary>
-public sealed class DashboardService : IDashboardService
+public class DashboardService : IDashboardService
 {
     /// <summary>
     /// Defines the prefix used for customer-specific dashboard layout attributes.
     /// </summary>
     private const string UserLayoutAttributePrefix = "DashboardLayout.";
 
-    private readonly IReadOnlyDictionary<string, IDashboardWidget> _widgets;
-    private readonly IReadOnlyDictionary<string, IDashboardLayoutProvider> _layoutProviders;
-    private readonly IReadOnlyCollection<DashboardWidgetDescriptor> _descriptors;
     private readonly IApplicationContext _appContext;
     private readonly IMemoryCache _memCache;
+    private readonly IEventPublisher _eventPublisher;
+    private readonly IEnumerable<Lazy<IDashboardWidget, DashboardMetadata>> _widgetRegistrations;
+    private readonly IEnumerable<Lazy<IDashboardLayoutProvider, DashboardMetadata>> _layoutProviderRegistrations;
+    private IReadOnlyDictionary<string, Lazy<IDashboardWidget, DashboardMetadata>>? _widgets;
+    private IReadOnlyDictionary<string, Lazy<IDashboardLayoutProvider, DashboardMetadata>>? _layoutProviders;
+    private IReadOnlyCollection<DashboardWidgetDescriptor>? _descriptors;
 
     public DashboardService(
-        IEnumerable<IDashboardWidget> widgets,
-        IEnumerable<IDashboardLayoutProvider> layoutProviders,
         IApplicationContext appContext,
-        IMemoryCache memCache)
+        IMemoryCache memCache,
+        IEventPublisher eventPublisher,
+        IEnumerable<Lazy<IDashboardWidget, DashboardMetadata>> widgetRegistrations,
+        IEnumerable<Lazy<IDashboardLayoutProvider, DashboardMetadata>> layoutProviderRegistrations)
     {
-        var widgetMap = new Dictionary<string, IDashboardWidget>(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var widget in Guard.NotNull(widgets))
-        {
-            ValidateDescriptor(widget.Descriptor);
-
-            if (!widgetMap.TryAdd(widget.Descriptor.SystemName, widget))
-            {
-                throw new InvalidOperationException(
-                    $"Dashboard widget '{widget.Descriptor.SystemName}' is registered more than once.");
-            }
-        }
-
-        var providerMap = new Dictionary<string, IDashboardLayoutProvider>(StringComparer.OrdinalIgnoreCase);
-        foreach (var provider in Guard.NotNull(layoutProviders))
-        {
-            Guard.NotEmpty(provider.DashboardId);
-
-            if (!providerMap.TryAdd(provider.DashboardId, provider))
-            {
-                throw new InvalidOperationException(
-                    $"Dashboard layout provider for '{provider.DashboardId}' is registered more than once.");
-            }
-        }
-
-        _widgets = widgetMap;
-        _layoutProviders = providerMap;
-        _descriptors = widgetMap.Values
-            .Select(x => x.Descriptor)
-            .OrderBy(x => x.Order)
-            .ThenBy(x => x.SystemName, StringComparer.OrdinalIgnoreCase)
-            .ToList()
-            .AsReadOnly();
-
         _appContext = appContext;
         _memCache = memCache;
+        _eventPublisher = eventPublisher;
+        _widgetRegistrations = widgetRegistrations;
+        _layoutProviderRegistrations = layoutProviderRegistrations;
     }
+
+    private IReadOnlyDictionary<string, Lazy<IDashboardWidget, DashboardMetadata>> Widgets
+        => _widgets ??= CreateWidgetMap();
+
+    private IReadOnlyDictionary<string, Lazy<IDashboardLayoutProvider, DashboardMetadata>> LayoutProviders
+        => _layoutProviders ??= CreateLayoutProviderMap();
 
     /// <summary>
     /// Gets or sets the property-injected diagnostic logger.
@@ -76,18 +56,18 @@ public sealed class DashboardService : IDashboardService
     public ILogger Logger { get; set; } = NullLogger.Instance;
 
     public IReadOnlyCollection<DashboardWidgetDescriptor> GetDescriptors()
-        => _descriptors;
+        => _descriptors ??= CreateDescriptors();
 
     public IDashboardWidget GetWidget(string systemName)
     {
         Guard.NotEmpty(systemName);
 
-        if (!_widgets.TryGetValue(systemName, out var widget))
+        if (!Widgets.TryGetValue(systemName, out var registration))
         {
             throw new KeyNotFoundException($"Dashboard widget '{systemName}' is not registered.");
         }
 
-        return widget;
+        return ResolveWidget(registration);
     }
 
     public async ValueTask<DashboardLayout> GetEffectiveLayoutAsync(
@@ -97,12 +77,12 @@ public sealed class DashboardService : IDashboardService
     {
         Guard.NotEmpty(dashboardId);
 
-        if (!_layoutProviders.TryGetValue(dashboardId, out var provider))
+        if (!LayoutProviders.TryGetValue(dashboardId, out var providerRegistration))
         {
             throw new KeyNotFoundException($"Dashboard '{dashboardId}' is not registered.");
         }
 
-        var canonicalDashboardId = provider.DashboardId;
+        var canonicalDashboardId = providerRegistration.Metadata.SystemName;
         var layout = LoadUserLayout(canonicalDashboardId, customer);
 
         if (layout == null)
@@ -112,7 +92,10 @@ public sealed class DashboardService : IDashboardService
 
         if (layout == null)
         {
+            var provider = providerRegistration.Value;
             layout = Guard.NotNull(provider.GetDefaultLayout());
+
+            await _eventPublisher.PublishAsync(new DashboardLayoutBuiltEvent(layout), cancelToken);
 
             if (layout.Scope != DashboardLayoutScope.Global || layout.CustomerId != 0)
             {
@@ -126,7 +109,7 @@ public sealed class DashboardService : IDashboardService
         return layout;
     }
 
-    public async ValueTask<DashboardRenderModel> GetDashboardAsync(
+    public virtual async ValueTask<DashboardRenderModel> GetDashboardAsync(
         string dashboardId,
         Customer? customer,
         bool isEditMode = false,
@@ -145,7 +128,7 @@ public sealed class DashboardService : IDashboardService
 
         foreach (var instance in layout.Widgets.OrderBy(x => x.Order))
         {
-            if (!_widgets.TryGetValue(instance.WidgetSystemName, out var dashboardWidget))
+            if (!Widgets.TryGetValue(instance.WidgetSystemName, out var widgetRegistration))
             {
                 if (instance.Policy.IsRequired)
                 {
@@ -156,6 +139,7 @@ public sealed class DashboardService : IDashboardService
                 continue;
             }
 
+            var dashboardWidget = ResolveWidget(widgetRegistration);
             var descriptor = dashboardWidget.Descriptor;
             if (!descriptor.AllowMultipleInstances && !singletonWidgets.Add(descriptor.SystemName))
             {
@@ -206,6 +190,67 @@ public sealed class DashboardService : IDashboardService
             Context = context,
             Widgets = items
         };
+    }
+
+    private IReadOnlyDictionary<string, Lazy<IDashboardWidget, DashboardMetadata>> CreateWidgetMap()
+    {
+        var widgets = new Dictionary<string, Lazy<IDashboardWidget, DashboardMetadata>>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var registration in _widgetRegistrations)
+        {
+            var systemName = registration.Metadata.SystemName;
+
+            if (!widgets.TryAdd(systemName, registration))
+            {
+                throw new InvalidOperationException(
+                    $"Dashboard widget '{systemName}' is registered more than once.");
+            }
+        }
+
+        return widgets;
+    }
+
+    private IReadOnlyDictionary<string, Lazy<IDashboardLayoutProvider, DashboardMetadata>> CreateLayoutProviderMap()
+    {
+        var providers = new Dictionary<string, Lazy<IDashboardLayoutProvider, DashboardMetadata>>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var registration in _layoutProviderRegistrations)
+        {
+            var systemName = registration.Metadata.SystemName;
+
+            if (!providers.TryAdd(systemName, registration))
+            {
+                throw new InvalidOperationException(
+                    $"Dashboard layout provider for '{systemName}' is registered more than once.");
+            }
+        }
+
+        return providers;
+    }
+
+    private IReadOnlyCollection<DashboardWidgetDescriptor> CreateDescriptors()
+    {
+        return Widgets.Values
+            .Select(ResolveWidget)
+            .Select(x => x.Descriptor)
+            .OrderBy(x => x.Order)
+            .ThenBy(x => x.SystemName, StringComparer.OrdinalIgnoreCase)
+            .ToList()
+            .AsReadOnly();
+    }
+
+    private static IDashboardWidget ResolveWidget(Lazy<IDashboardWidget, DashboardMetadata> registration)
+    {
+        var widget = registration.Value;
+        ValidateDescriptor(widget.Descriptor);
+
+        if (!widget.Descriptor.SystemName.EqualsNoCase(registration.Metadata.SystemName))
+        {
+            throw new InvalidOperationException(
+                $"Dashboard widget metadata '{registration.Metadata.SystemName}' does not match descriptor '{widget.Descriptor.SystemName}'.");
+        }
+
+        return widget;
     }
 
     /// <summary>

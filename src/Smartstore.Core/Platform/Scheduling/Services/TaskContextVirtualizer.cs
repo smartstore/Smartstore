@@ -36,6 +36,7 @@ public class TaskContextVirtualizer : ITaskContextVirtualizer
         if (customer != null)
         {
             workContext.CurrentCustomer = customer;
+            await workContext.InitializeAsync();
         }
 
         // Try virtualize current store.

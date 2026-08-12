@@ -5,6 +5,17 @@ using Smartstore.Core.Identity;
 namespace Smartstore.Core.Widgets.Dashboard;
 
 /// <summary>
+/// Contains registration metadata for a dashboard component.
+/// </summary>
+public sealed class DashboardMetadata
+{
+    /// <summary>
+    /// Gets or sets the stable system name of the dashboard component.
+    /// </summary>
+    public string SystemName { get; set; } = string.Empty;
+}
+
+/// <summary>
 /// Discovers dashboard widgets, resolves effective layouts and prepares dashboards for rendering.
 /// </summary>
 public interface IDashboardService

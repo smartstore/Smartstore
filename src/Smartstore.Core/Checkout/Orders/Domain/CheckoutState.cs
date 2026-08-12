@@ -11,8 +11,6 @@ namespace Smartstore.Core.Checkout.Orders;
 /// </summary>
 public partial class CheckoutState : ObservableObject
 {
-    public static string CheckoutStateSessionKey => ".Smart.CheckoutState";
-
     /// <summary>
     /// Gets the object name of the currently selected payment method info.
     /// The object is stored in HttpContext.Session using this name.

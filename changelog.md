@@ -4,6 +4,7 @@
 
 ### New Features
 
+- (DEV) Added an extensible admin dashboard widget infrastructure with responsive layouts.
 - **AI**
   - Added configurable **reasoning effort levels** for supported AI models across providers, including model-specific defaults and automatic persistence of user selections.
 - #1530 If a product is subsequently added to an order, update all price input controls with the price of the selected attribute combination.
@@ -44,6 +45,7 @@
   - Fixed wrong ID usage for the long description.
 - Fixed bulk `ExecuteDelete` for MySQL/MariaDB
 - MegaMenu: Fixed `DependencyResolutionException` caused by `MegaMenuService` when creating Web API keys in the Web API plugin.
+- Fixed a bug that could cause long-running exports to fail with `ObjectDisposedException` when the underlying service scope was disposed while the export was still running.
 - The multi-store settings for offline payment methods could not be configured.
 - Fixed script error "ce.easing[this.easing] is not a function" on installation page.
 - When adding a group of attribute rules, the attribute that is currently being edited must not be included in the list of product attributes.

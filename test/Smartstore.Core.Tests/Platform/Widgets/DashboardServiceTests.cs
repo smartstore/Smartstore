@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -17,6 +18,7 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Widgets;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine;
+using Smartstore.Events;
 using Smartstore.IO;
 using Smartstore.Json;
 
@@ -29,6 +31,22 @@ namespace Smartstore.Core.Tests.Platform.Widgets;
 public sealed class DashboardServiceTests
 {
     /// <summary>
+    /// Verifies that constructing the service does not enumerate dashboard component registrations.
+    /// </summary>
+    [Test]
+    public void Does_Not_Enumerate_Component_Registrations_In_Constructor()
+    {
+        var widgets = new Mock<IEnumerable<Lazy<IDashboardWidget, DashboardMetadata>>>(MockBehavior.Strict);
+        var providers = new Mock<IEnumerable<Lazy<IDashboardLayoutProvider, DashboardMetadata>>>(MockBehavior.Strict);
+
+        var service = CreateService(widgets.Object, providers.Object);
+
+        Assert.That(service, Is.Not.Null);
+        widgets.VerifyNoOtherCalls();
+        providers.VerifyNoOtherCalls();
+    }
+
+    /// <summary>
     /// Verifies that the registered provider supplies the system-default layout.
     /// </summary>
     [Test]
@@ -40,6 +58,43 @@ public sealed class DashboardServiceTests
         var result = await service.GetEffectiveLayoutAsync("admin-dashboard", CreateTestCustomer());
 
         Assert.That(result, Is.SameAs(globalLayout));
+    }
+
+    /// <summary>
+    /// Verifies that consumers can modify a system-default layout before it is validated.
+    /// </summary>
+    [Test]
+    public async Task Publishes_Built_Event_For_Provider_Default()
+    {
+        var defaultLayout = CreateLayout(DashboardLayoutScope.Global);
+        var eventPublisher = new Mock<IEventPublisher>();
+        eventPublisher
+            .Setup(x => x.PublishAsync(
+                It.IsAny<DashboardLayoutBuiltEvent>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<DashboardLayoutBuiltEvent, CancellationToken>((message, _) =>
+            {
+                message.Layout.ColumnGap = "2rem";
+                message.Layout.Widgets.Add(CreateInstance());
+            })
+            .Returns(Task.CompletedTask);
+
+        var service = CreateService(
+            [],
+            [new TestLayoutProvider(defaultLayout)],
+            eventPublisher: eventPublisher.Object);
+
+        var result = await service.GetEffectiveLayoutAsync("admin-dashboard", CreateTestCustomer());
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.ColumnGap, Is.EqualTo("2rem"));
+            Assert.That(result.Widgets, Has.Count.EqualTo(1));
+        });
+
+        eventPublisher.Verify(x => x.PublishAsync(
+            It.IsAny<DashboardLayoutBuiltEvent>(),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     /// <summary>
@@ -60,6 +115,37 @@ public sealed class DashboardServiceTests
             Assert.That(result, Is.Not.SameAs(defaultLayout));
             Assert.That(result.Revision, Is.EqualTo(7));
             Assert.That(result.Scope, Is.EqualTo(DashboardLayoutScope.Global));
+        });
+    }
+
+    /// <summary>
+    /// Verifies that a valid global layout does not activate the system-default layout provider.
+    /// </summary>
+    [Test]
+    public async Task Resolves_Global_Json_Without_Activating_Provider()
+    {
+        var providerActivated = false;
+        var globalLayout = CreateLayout(DashboardLayoutScope.Global, revision: 7);
+        var json = JsonSerializer.Serialize(globalLayout, SmartJsonOptions.CamelCased);
+        var service = CreateService(
+            Array.Empty<Lazy<IDashboardWidget, DashboardMetadata>>(),
+            [
+                new Lazy<IDashboardLayoutProvider, DashboardMetadata>(
+                    () =>
+                    {
+                        providerActivated = true;
+                        return new TestLayoutProvider(CreateLayout(DashboardLayoutScope.Global));
+                    },
+                    new DashboardMetadata { SystemName = "admin-dashboard" })
+            ],
+            json);
+
+        var result = await service.GetEffectiveLayoutAsync("admin-dashboard", CreateTestCustomer());
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Revision, Is.EqualTo(7));
+            Assert.That(providerActivated, Is.False);
         });
     }
 
@@ -176,7 +262,7 @@ public sealed class DashboardServiceTests
             Scope = scope,
             CustomerId = customerId,
             Revision = revision,
-            Widgets = widgets ?? []
+            Widgets = widgets?.ToList() ?? []
         };
     }
 
@@ -205,11 +291,30 @@ public sealed class DashboardServiceTests
     /// <param name="widgets">The dashboard widgets registered for the test.</param>
     /// <param name="providers">The dashboard layout providers registered for the test.</param>
     /// <param name="globalLayoutJson">The optional contents of the global layout file.</param>
+    /// <param name="eventPublisher">The optional event publisher used by the service.</param>
     /// <returns>The configured dashboard service.</returns>
     private static DashboardService CreateService(
         IEnumerable<IDashboardWidget> widgets,
         IEnumerable<IDashboardLayoutProvider> providers,
-        string? globalLayoutJson = null)
+        string? globalLayoutJson = null,
+        IEventPublisher? eventPublisher = null)
+    {
+        return CreateService(
+            widgets.Select(x => new Lazy<IDashboardWidget, DashboardMetadata>(
+                () => x,
+                new DashboardMetadata { SystemName = x.Descriptor.SystemName })),
+            providers.Select(x => new Lazy<IDashboardLayoutProvider, DashboardMetadata>(
+                () => x,
+                new DashboardMetadata { SystemName = "admin-dashboard" })),
+            globalLayoutJson,
+            eventPublisher);
+    }
+
+    private static DashboardService CreateService(
+        IEnumerable<Lazy<IDashboardWidget, DashboardMetadata>> widgets,
+        IEnumerable<Lazy<IDashboardLayoutProvider, DashboardMetadata>> providers,
+        string? globalLayoutJson = null,
+        IEventPublisher? eventPublisher = null)
     {
         var fileSystem = new Mock<IFileSystem>();
         fileSystem
@@ -239,10 +344,11 @@ public sealed class DashboardServiceTests
             .Returns(fileSystem.Object);
 
         return new DashboardService(
-            widgets,
-            providers,
             applicationContext.Object,
-            new MemoryCache(new MemoryCacheOptions()));
+            new MemoryCache(new MemoryCacheOptions()),
+            eventPublisher ?? NullEventPublisher.Instance,
+            widgets,
+            providers);
     }
 
     private static Customer CreateTestCustomer(int id = 42)
