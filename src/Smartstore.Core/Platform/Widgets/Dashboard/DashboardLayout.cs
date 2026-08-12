@@ -39,54 +39,54 @@ public sealed class DashboardLayout
     public string Id { get; }
 
     /// <summary>
-    /// Gets the audience to which the layout applies.
+    /// Gets or sets the audience to which the layout applies.
     /// </summary>
-    public DashboardLayoutScope Scope { get; init; }
+    public DashboardLayoutScope Scope { get; set; }
 
     /// <summary>
-    /// Gets the schema version of the layout model.
+    /// Gets or sets the schema version of the layout model.
     /// </summary>
-    public int Version { get; init; } = 1;
+    public int Version { get; set; } = 1;
 
     /// <summary>
-    /// Gets the revision used to distinguish updates within the same layout schema version.
+    /// Gets or sets the revision used to distinguish updates within the same layout schema version.
     /// </summary>
-    public int Revision { get; init; }
+    public int Revision { get; set; }
 
     /// <summary>
-    /// Gets the customer identifier for a user-scoped layout, or zero for a global layout.
+    /// Gets or sets the customer identifier for a user-scoped layout, or zero for a global layout.
     /// </summary>
-    public int CustomerId { get; init; }
+    public int CustomerId { get; set; }
 
     /// <summary>
-    /// Gets the number of columns in the dashboard grid.
+    /// Gets or sets the number of columns in the dashboard grid.
     /// </summary>
-    public int ColumnCount { get; init; } = 12;
+    public int ColumnCount { get; set; } = 12;
 
     /// <summary>
-    /// Gets the CSS <c>grid-template-columns</c> value of the dashboard grid.
+    /// Gets or sets the CSS <c>grid-template-columns</c> value of the dashboard grid.
     /// </summary>
-    public string GridTemplateColumns { get; init; } = "repeat(12, minmax(0, 1fr))";
+    public string GridTemplateColumns { get; set; } = "repeat(12, minmax(0, 1fr))";
 
     /// <summary>
-    /// Gets the CSS column gap value of the dashboard grid.
+    /// Gets or sets the CSS column gap value of the dashboard grid.
     /// </summary>
-    public string ColumnGap { get; init; } = "1rem";
+    public string ColumnGap { get; set; } = "1rem";
 
     /// <summary>
-    /// Gets the CSS row gap value of the dashboard grid.
+    /// Gets or sets the CSS row gap value of the dashboard grid.
     /// </summary>
-    public string RowGap { get; init; } = "1rem";
+    public string RowGap { get; set; } = "1rem";
 
     /// <summary>
-    /// Gets the CSS <c>grid-auto-rows</c> value of the dashboard grid.
+    /// Gets or sets the CSS <c>grid-auto-rows</c> value of the dashboard grid.
     /// </summary>
-    public string GridAutoRows { get; init; } = "auto";
+    public string GridAutoRows { get; set; } = "auto";
 
     /// <summary>
-    /// Gets the widget instances contained in the dashboard layout.
+    /// Gets or sets the widget instances contained in the dashboard layout.
     /// </summary>
-    public IReadOnlyList<DashboardWidgetInstance> Widgets { get; init; } = [];
+    public IList<DashboardWidgetInstance> Widgets { get; set; } = [];
 
     /// <summary>
     /// Builds the dashboard-qualified HTML identifier of a widget instance.

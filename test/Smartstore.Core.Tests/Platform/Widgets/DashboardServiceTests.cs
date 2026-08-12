@@ -18,6 +18,7 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Widgets;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine;
+using Smartstore.Events;
 using Smartstore.IO;
 using Smartstore.Json;
 
@@ -57,6 +58,43 @@ public sealed class DashboardServiceTests
         var result = await service.GetEffectiveLayoutAsync("admin-dashboard", CreateTestCustomer());
 
         Assert.That(result, Is.SameAs(globalLayout));
+    }
+
+    /// <summary>
+    /// Verifies that consumers can modify a system-default layout before it is validated.
+    /// </summary>
+    [Test]
+    public async Task Publishes_Built_Event_For_Provider_Default()
+    {
+        var defaultLayout = CreateLayout(DashboardLayoutScope.Global);
+        var eventPublisher = new Mock<IEventPublisher>();
+        eventPublisher
+            .Setup(x => x.PublishAsync(
+                It.IsAny<DashboardLayoutBuiltEvent>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<DashboardLayoutBuiltEvent, CancellationToken>((message, _) =>
+            {
+                message.Layout.ColumnGap = "2rem";
+                message.Layout.Widgets.Add(CreateInstance());
+            })
+            .Returns(Task.CompletedTask);
+
+        var service = CreateService(
+            [],
+            [new TestLayoutProvider(defaultLayout)],
+            eventPublisher: eventPublisher.Object);
+
+        var result = await service.GetEffectiveLayoutAsync("admin-dashboard", CreateTestCustomer());
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.ColumnGap, Is.EqualTo("2rem"));
+            Assert.That(result.Widgets, Has.Count.EqualTo(1));
+        });
+
+        eventPublisher.Verify(x => x.PublishAsync(
+            It.IsAny<DashboardLayoutBuiltEvent>(),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     /// <summary>
@@ -224,7 +262,7 @@ public sealed class DashboardServiceTests
             Scope = scope,
             CustomerId = customerId,
             Revision = revision,
-            Widgets = widgets ?? []
+            Widgets = widgets?.ToList() ?? []
         };
     }
 
@@ -253,11 +291,13 @@ public sealed class DashboardServiceTests
     /// <param name="widgets">The dashboard widgets registered for the test.</param>
     /// <param name="providers">The dashboard layout providers registered for the test.</param>
     /// <param name="globalLayoutJson">The optional contents of the global layout file.</param>
+    /// <param name="eventPublisher">The optional event publisher used by the service.</param>
     /// <returns>The configured dashboard service.</returns>
     private static DashboardService CreateService(
         IEnumerable<IDashboardWidget> widgets,
         IEnumerable<IDashboardLayoutProvider> providers,
-        string? globalLayoutJson = null)
+        string? globalLayoutJson = null,
+        IEventPublisher? eventPublisher = null)
     {
         return CreateService(
             widgets.Select(x => new Lazy<IDashboardWidget, DashboardMetadata>(
@@ -266,13 +306,15 @@ public sealed class DashboardServiceTests
             providers.Select(x => new Lazy<IDashboardLayoutProvider, DashboardMetadata>(
                 () => x,
                 new DashboardMetadata { SystemName = "admin-dashboard" })),
-            globalLayoutJson);
+            globalLayoutJson,
+            eventPublisher);
     }
 
     private static DashboardService CreateService(
         IEnumerable<Lazy<IDashboardWidget, DashboardMetadata>> widgets,
         IEnumerable<Lazy<IDashboardLayoutProvider, DashboardMetadata>> providers,
-        string? globalLayoutJson = null)
+        string? globalLayoutJson = null,
+        IEventPublisher? eventPublisher = null)
     {
         var fileSystem = new Mock<IFileSystem>();
         fileSystem
@@ -304,6 +346,7 @@ public sealed class DashboardServiceTests
         return new DashboardService(
             applicationContext.Object,
             new MemoryCache(new MemoryCacheOptions()),
+            eventPublisher ?? NullEventPublisher.Instance,
             widgets,
             providers);
     }

@@ -5,6 +5,7 @@ using System.Text.Json.Nodes;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.FileProviders;
 using Smartstore.Core.Identity;
+using Smartstore.Events;
 using Smartstore.IO;
 using Smartstore.Json;
 
@@ -22,6 +23,7 @@ public class DashboardService : IDashboardService
 
     private readonly IApplicationContext _appContext;
     private readonly IMemoryCache _memCache;
+    private readonly IEventPublisher _eventPublisher;
     private readonly IEnumerable<Lazy<IDashboardWidget, DashboardMetadata>> _widgetRegistrations;
     private readonly IEnumerable<Lazy<IDashboardLayoutProvider, DashboardMetadata>> _layoutProviderRegistrations;
     private IReadOnlyDictionary<string, Lazy<IDashboardWidget, DashboardMetadata>>? _widgets;
@@ -31,11 +33,13 @@ public class DashboardService : IDashboardService
     public DashboardService(
         IApplicationContext appContext,
         IMemoryCache memCache,
+        IEventPublisher eventPublisher,
         IEnumerable<Lazy<IDashboardWidget, DashboardMetadata>> widgetRegistrations,
         IEnumerable<Lazy<IDashboardLayoutProvider, DashboardMetadata>> layoutProviderRegistrations)
     {
         _appContext = appContext;
         _memCache = memCache;
+        _eventPublisher = eventPublisher;
         _widgetRegistrations = widgetRegistrations;
         _layoutProviderRegistrations = layoutProviderRegistrations;
     }
@@ -90,6 +94,8 @@ public class DashboardService : IDashboardService
         {
             var provider = providerRegistration.Value;
             layout = Guard.NotNull(provider.GetDefaultLayout());
+
+            await _eventPublisher.PublishAsync(new DashboardLayoutBuiltEvent(layout), cancelToken);
 
             if (layout.Scope != DashboardLayoutScope.Global || layout.CustomerId != 0)
             {
