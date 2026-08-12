@@ -24,8 +24,5 @@ internal sealed class TestLayoutProvider : IDashboardLayoutProvider
     }
 
     /// <inheritdoc />
-    public string DashboardId => _layout.Id;
-
-    /// <inheritdoc />
     public DashboardLayout GetDefaultLayout() => _layout;
 }

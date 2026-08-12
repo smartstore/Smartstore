@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -28,6 +29,22 @@ namespace Smartstore.Core.Tests.Platform.Widgets;
 [TestFixture]
 public sealed class DashboardServiceTests
 {
+    /// <summary>
+    /// Verifies that constructing the service does not enumerate dashboard component registrations.
+    /// </summary>
+    [Test]
+    public void Does_Not_Enumerate_Component_Registrations_In_Constructor()
+    {
+        var widgets = new Mock<IEnumerable<Lazy<IDashboardWidget, DashboardMetadata>>>(MockBehavior.Strict);
+        var providers = new Mock<IEnumerable<Lazy<IDashboardLayoutProvider, DashboardMetadata>>>(MockBehavior.Strict);
+
+        var service = CreateService(widgets.Object, providers.Object);
+
+        Assert.That(service, Is.Not.Null);
+        widgets.VerifyNoOtherCalls();
+        providers.VerifyNoOtherCalls();
+    }
+
     /// <summary>
     /// Verifies that the registered provider supplies the system-default layout.
     /// </summary>
@@ -60,6 +77,37 @@ public sealed class DashboardServiceTests
             Assert.That(result, Is.Not.SameAs(defaultLayout));
             Assert.That(result.Revision, Is.EqualTo(7));
             Assert.That(result.Scope, Is.EqualTo(DashboardLayoutScope.Global));
+        });
+    }
+
+    /// <summary>
+    /// Verifies that a valid global layout does not activate the system-default layout provider.
+    /// </summary>
+    [Test]
+    public async Task Resolves_Global_Json_Without_Activating_Provider()
+    {
+        var providerActivated = false;
+        var globalLayout = CreateLayout(DashboardLayoutScope.Global, revision: 7);
+        var json = JsonSerializer.Serialize(globalLayout, SmartJsonOptions.CamelCased);
+        var service = CreateService(
+            Array.Empty<Lazy<IDashboardWidget, DashboardMetadata>>(),
+            [
+                new Lazy<IDashboardLayoutProvider, DashboardMetadata>(
+                    () =>
+                    {
+                        providerActivated = true;
+                        return new TestLayoutProvider(CreateLayout(DashboardLayoutScope.Global));
+                    },
+                    new DashboardMetadata { SystemName = "admin-dashboard" })
+            ],
+            json);
+
+        var result = await service.GetEffectiveLayoutAsync("admin-dashboard", CreateTestCustomer());
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Revision, Is.EqualTo(7));
+            Assert.That(providerActivated, Is.False);
         });
     }
 
@@ -211,6 +259,21 @@ public sealed class DashboardServiceTests
         IEnumerable<IDashboardLayoutProvider> providers,
         string? globalLayoutJson = null)
     {
+        return CreateService(
+            widgets.Select(x => new Lazy<IDashboardWidget, DashboardMetadata>(
+                () => x,
+                new DashboardMetadata { SystemName = x.Descriptor.SystemName })),
+            providers.Select(x => new Lazy<IDashboardLayoutProvider, DashboardMetadata>(
+                () => x,
+                new DashboardMetadata { SystemName = "admin-dashboard" })),
+            globalLayoutJson);
+    }
+
+    private static DashboardService CreateService(
+        IEnumerable<Lazy<IDashboardWidget, DashboardMetadata>> widgets,
+        IEnumerable<Lazy<IDashboardLayoutProvider, DashboardMetadata>> providers,
+        string? globalLayoutJson = null)
+    {
         var fileSystem = new Mock<IFileSystem>();
         fileSystem
             .Setup(x => x.Watch(It.IsAny<string>()))
@@ -239,10 +302,10 @@ public sealed class DashboardServiceTests
             .Returns(fileSystem.Object);
 
         return new DashboardService(
-            widgets,
-            providers,
             applicationContext.Object,
-            new MemoryCache(new MemoryCacheOptions()));
+            new MemoryCache(new MemoryCacheOptions()),
+            widgets,
+            providers);
     }
 
     private static Customer CreateTestCustomer(int id = 42)

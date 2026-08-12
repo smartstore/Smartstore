@@ -3,12 +3,14 @@
 using System.Text.Json.Nodes;
 using Smartstore.Core.Widgets;
 using Smartstore.Core.Widgets.Dashboard;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Admin.Infrastructure.Dashboard;
 
 /// <summary>
 /// Describes and creates the dashboard widget that renders the store statistics partial view.
 /// </summary>
+[SystemName(SystemName)]
 public sealed class StoreReportDashboardWidget : IDashboardWidget
 {
     /// <summary>

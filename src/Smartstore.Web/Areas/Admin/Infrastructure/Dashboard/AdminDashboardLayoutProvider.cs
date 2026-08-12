@@ -1,17 +1,17 @@
 #nullable enable
 
 using Smartstore.Core.Widgets.Dashboard;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Admin.Infrastructure.Dashboard;
 
 /// <summary>
 /// Supplies the system-default layout of the main admin dashboard.
 /// </summary>
+[SystemName(Id)]
 public sealed class AdminDashboardLayoutProvider : IDashboardLayoutProvider
 {
     public const string Id = "admin-dashboard";
-
-    public string DashboardId => Id;
 
     public DashboardLayout GetDefaultLayout()
     {

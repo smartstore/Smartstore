@@ -2,12 +2,14 @@
 
 using Smartstore.Admin.Components;
 using Smartstore.Core.Widgets.Dashboard;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Admin.Infrastructure.Dashboard;
 
 /// <summary>
 /// Describes and creates the dashboard widget that renders the Smartstore news feed.
 /// </summary>
+[SystemName(SystemName)]
 public sealed class NewsFeedDashboardWidget : DashboardViewComponentWidget<NewsFeedViewComponent>
 {
     /// <summary>

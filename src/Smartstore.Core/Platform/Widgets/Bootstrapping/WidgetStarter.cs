@@ -2,6 +2,7 @@ using Autofac;
 using Smartstore.Core.Widgets;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Builders;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Bootstrapping;
 
@@ -33,13 +34,30 @@ internal sealed class WidgetStarter : StarterBase
 
             foreach (var type in appContext.TypeScanner.FindTypes<IDashboardWidget>())
             {
-                builder.RegisterType(type).As<IDashboardWidget>().InstancePerLifetimeScope();
+                builder.RegisterType(type)
+                    .As<IDashboardWidget>()
+                    .WithMetadata<DashboardMetadata>(metadata => metadata.For(x => x.SystemName, GetDashboardSystemName(type)))
+                    .InstancePerLifetimeScope();
             }
 
             foreach (var type in appContext.TypeScanner.FindTypes<IDashboardLayoutProvider>())
             {
-                builder.RegisterType(type).As<IDashboardLayoutProvider>().InstancePerLifetimeScope();
+                builder.RegisterType(type)
+                    .As<IDashboardLayoutProvider>()
+                    .WithMetadata<DashboardMetadata>(metadata => metadata.For(x => x.SystemName, GetDashboardSystemName(type)))
+                    .InstancePerLifetimeScope();
             }
         }
+    }
+
+    private static string GetDashboardSystemName(Type type)
+    {
+        if (!type.TryGetAttribute<SystemNameAttribute>(false, out var attr) || attr.Name.IsEmpty())
+        {
+            throw new InvalidOperationException(
+                $"Dashboard component '{type.FullName}' must declare a SystemNameAttribute.");
+        }
+
+        return attr.Name;
     }
 }
