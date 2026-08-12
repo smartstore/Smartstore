@@ -50,6 +50,7 @@
 - Fixed script error "ce.easing[this.easing] is not a function" on installation page.
 - When adding a group of attribute rules, the attribute that is currently being edited must not be included in the list of product attributes.
 - #1567 SQLite error when clearing logs: No such column "Log".
+- Select2: Clear the search input after adding a custom tag to a multiselect.
 
 
 ## Smartstore 6.4.0
