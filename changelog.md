@@ -4,6 +4,7 @@
 
 ### New Features
 
+- (DEV) Added an extensible admin dashboard widget infrastructure with responsive layouts.
 - **AI**
   - Added configurable **reasoning effort levels** for supported AI models across providers, including model-specific defaults and automatic persistence of user selections.
 - #1530 If a product is subsequently added to an order, update all price input controls with the price of the selected attribute combination.
