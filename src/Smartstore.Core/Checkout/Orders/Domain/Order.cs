@@ -53,6 +53,7 @@ internal class OrderMap : IEntityTypeConfiguration<Order>
 [Index(nameof(PaymentMethodSystemName), nameof(AuthorizationTransactionId))]
 [Index(nameof(PaymentMethodSystemName), nameof(AuthorizationTransactionCode))]
 [Index(nameof(PaymentMethodSystemName), nameof(CaptureTransactionId))]
+[Index(nameof(OrderPlacementHashCode), Name = "IX_Order_OrderPlacementHashCode", IsUnique = true)]
 public partial class Order : EntityWithAttributes, IAuditable, ISoftDeletable
 {
     #region Properties
@@ -328,6 +329,13 @@ public partial class Order : EntityWithAttributes, IAuditable, ISoftDeletable
     /// </summary>
     [MaxLength]
     public string CustomerOrderComment { get; set; }
+
+    /// <summary>
+    /// Gets or sets a unique order hash code to ensure that the order is not placed twice.
+    /// It is intended for use when an order is missing and the payment provider recovers it 
+    /// using the customer's cart data when a webhook message is received.
+    /// </summary>
+    public int? OrderPlacementHashCode { get; set; }
 
     /// <summary>
     /// Gets or sets the ID of a payment authorization.

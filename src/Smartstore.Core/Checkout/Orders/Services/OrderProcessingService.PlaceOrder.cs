@@ -718,6 +718,7 @@ public partial class OrderProcessingService : IOrderProcessingService
         order.PurchaseOrderNumber = pr.PurchaseOrderNumber;
         order.PaymentStatus = result.NewPaymentStatus;
         order.PaidDateUtc = result.NewPaymentStatus == PaymentStatus.Paid ? ctx.Now : null;
+        order.OrderPlacementHashCode = pr.OrderPlacementHashCode == 0 ? null : pr.OrderPlacementHashCode;
     }
 
     private async Task AddOrderItems(PlaceOrderContext ctx)
