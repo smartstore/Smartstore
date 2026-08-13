@@ -57,4 +57,11 @@ public partial class ProcessPaymentResult : PaymentResult
     /// Gets or sets a payment status after processing.
     /// </summary>
     public PaymentStatus NewPaymentStatus { get; set; } = PaymentStatus.Pending;
+
+    /// <summary>
+    /// Gets or sets a unique hash code for an order. It is used to prevent duplicate orders from being created
+    /// if an order is recovered using the customer's cart data when a payment webhook message is received.
+    /// 0 (default) to not apply a unique hash code.
+    /// </summary>
+    public int PaymentReferenceHashCode { get; set; }
 }

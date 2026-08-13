@@ -353,7 +353,7 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
                     [AcceptThirdPartyEmailHandOverKey] = state.AcceptThirdPartyEmailHandOver.ToString().ToLower()
                 });
 
-                if (placeOrderResult.Success)
+                if (placeOrderResult.Success && placeOrderResult.PlacedOrder != null)
                 {
                     result = await PostProcessPayment(placeOrderResult, confirmStep, context);
                 }

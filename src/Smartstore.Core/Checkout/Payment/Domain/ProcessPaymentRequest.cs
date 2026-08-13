@@ -49,11 +49,9 @@ public partial class ProcessPaymentRequest
     public List<int> ShoppingCartItemIds { get; set; } = [];
 
     /// <summary>
-    /// Gets or sets a unique hash code used when placing an order. It is used to prevent duplicate orders from being created
-    /// if an order is recovered using the customer's cart data when a webhook message is received.
-    /// 0 (default) to not use a unique hash code (no order recovery).
+    /// <c>true</c> if an order is created subsequently because it is missing after a successful payment.
     /// </summary>
-    public int OrderPlacementHashCode { get; set; }
+    public bool IsOrderRecovery { get; set; }
 
     #region UCP (Universal Commerce Protocol)
 

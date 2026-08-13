@@ -127,8 +127,18 @@ public partial class OrderProcessingService : IOrderProcessingService
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Order processing failed");
             await transaction.RollbackAsync(cancelToken);
+
+            if (ex is DbUpdateException ex2 && _db.DataProvider.IsUniquenessViolationException(ex2))
+            {
+                // A race condition may occur when both the core and the payment provider attempt to place the order simultaneously.
+                Logger.Warn(ex, T("Order.AlreadyExists", paymentRequest.CustomerId));
+            }
+            else
+            {
+                Logger.Error(ex, T("Order.PlaceOrderError", paymentRequest.CustomerId));
+            }
+
             ex.ReThrow();
         }
 
@@ -718,7 +728,7 @@ public partial class OrderProcessingService : IOrderProcessingService
         order.PurchaseOrderNumber = pr.PurchaseOrderNumber;
         order.PaymentStatus = result.NewPaymentStatus;
         order.PaidDateUtc = result.NewPaymentStatus == PaymentStatus.Paid ? ctx.Now : null;
-        order.OrderPlacementHashCode = pr.OrderPlacementHashCode == 0 ? null : pr.OrderPlacementHashCode;
+        order.PaymentReferenceHashCode = result.PaymentReferenceHashCode == 0 ? null : result.PaymentReferenceHashCode;
     }
 
     private async Task AddOrderItems(PlaceOrderContext ctx)

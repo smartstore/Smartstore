@@ -437,7 +437,7 @@ public partial class PaymentService : AsyncDbSaveHook<BaseEntity>, IPaymentServi
     {
         var order = postProcessPaymentRequest.Order;
 
-        if (order.PaymentMethodSystemName.IsEmpty() || order.OrderTotal == decimal.Zero)
+        if (order == null || order.PaymentMethodSystemName.IsEmpty() || order.OrderTotal == decimal.Zero)
         {
             return;
         }

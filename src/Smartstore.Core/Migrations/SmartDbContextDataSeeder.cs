@@ -92,5 +92,12 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Ab dieser Bildanzahl nur Bilder der gewählten Variante anzeigen",
             "Once this number of images has been reached, only the product images of the selected variant are displayed. If fewer images are available, all the product images are shown.",
             "Sobald diese Bildanzahl erreicht ist, werden nur noch die Produktbilder der gewählten Variante angezeigt. Bei weniger Bildern werden hingegen alle Produktbilder angezeigt.");
+
+        builder.AddOrUpdate("Order.PlaceOrderError",
+            "An unknown error occurred when placing an order for customer {0}.",
+            "Bei der Bestellung für den Kunden {0} ist ein unbekannter Fehler aufgetreten.");
+        builder.AddOrUpdate("Order.AlreadyExists",
+            "An order cannot be created for customer {0} because it already exists.",
+            "Für Kunde {0} kann kein Auftrag erstellt werden, da dieser bereits existiert.");
     }
 }
