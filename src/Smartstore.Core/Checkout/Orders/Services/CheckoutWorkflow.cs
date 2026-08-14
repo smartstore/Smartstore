@@ -640,6 +640,13 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         {
             _notifier.Error(msg);
         }
+
+        /*
+         * TODO: (mg) Generic uniqueness errors are misclassified.
+         * This treats every unique-constraint failure during order placement as the expected payment-reference duplicate. 
+         * Other constraint failures will be downgraded to a warning and reported with a misleading message; 
+         * verify the specific reference or constraint.
+         */
     }
 
     private static RedirectToActionResult RedirectToCheckout(string action)

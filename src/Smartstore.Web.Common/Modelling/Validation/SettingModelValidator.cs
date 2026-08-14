@@ -3,6 +3,7 @@ using FluentValidation.Internal;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Smartstore;
+using Smartstore.Core.Configuration;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Modelling.Settings;
 
@@ -21,6 +22,7 @@ public interface ISettingModelValidator : IStoreScoped
 /// <typeparam name="TModel">Type of setting model</typeparam>
 /// <typeparam name="TSetting">Type of actual setting class that is being configured</typeparam>
 public abstract class SettingModelValidator<TModel, TSetting> : AbstractValidator<TModel>, IValidatorInterceptor, ISettingModelValidator
+    where TSetting : ISettings
 {
     private MultiStoreSettingValidatorSelector _validatorSelector;
 
