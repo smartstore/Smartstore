@@ -94,10 +94,11 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Sobald diese Bildanzahl erreicht ist, werden nur noch die Produktbilder der gewählten Variante angezeigt. Bei weniger Bildern werden hingegen alle Produktbilder angezeigt.");
 
         builder.AddOrUpdate("Order.PlaceOrderError",
-            "An unknown error occurred when placing an order for customer {0}.",
-            "Bei der Bestellung für den Kunden {0} ist ein unbekannter Fehler aufgetreten.");
+            "The order could not be completed due to an unexpected error. Customer ID: {0}.",
+            "Die Bestellung konnte aufgrund eines unerwarteten Fehlers nicht abgeschlossen werden. Kunden-ID: {0}.");
+
         builder.AddOrUpdate("Order.AlreadyExists",
-            "An order cannot be created for customer {0} because it already exists.",
-            "Für Kunde {0} kann kein Auftrag erstellt werden, da dieser bereits existiert.");
+            "The order has already been created. Customer ID: {0}.",
+            "Die Bestellung wurde bereits angelegt. Kunden-ID: {0}.");
     }
 }

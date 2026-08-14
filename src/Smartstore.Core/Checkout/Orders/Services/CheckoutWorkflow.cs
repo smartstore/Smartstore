@@ -12,6 +12,7 @@ using Smartstore.Core.Web;
 using Smartstore.Events;
 using Smartstore.Http;
 using Smartstore.Utilities.Html;
+using MsLogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace Smartstore.Core.Checkout.Orders;
 
@@ -378,8 +379,7 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         }
         catch (Exception ex)
         {
-            _logger.Error(ex);
-            _notifier.Error(ex.Message);
+            LogOrderPlacementException(ex, context.Cart.Customer.Id, true);
         }
         finally
         {
@@ -435,7 +435,7 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         }
         catch (Exception ex)
         {
-            _logger.Error(ex);
+            LogOrderPlacementException(ex, cart.Customer.Id, false);
 
             return new(ex.Message, confirmStep.ViewPath);
         }
@@ -627,6 +627,19 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         var paymentStep = _checkoutFactory.GetCheckoutStep(CheckoutActionNames.PaymentMethod);
 
         return new(paymentStep.GetActionResult(context), paymentStep.ViewPath);
+    }
+
+    private void LogOrderPlacementException(Exception ex, int customerId, bool notify)
+    {
+        var isUniquenessViolation = ex is DbUpdateException ex2 && _db.DataProvider.IsUniquenessViolationException(ex2);
+        var msg = T(isUniquenessViolation ? "Order.AlreadyExists" : "Order.PlaceOrderError", customerId);
+
+        _logger.Log(isUniquenessViolation ? MsLogLevel.Warning : MsLogLevel.Error, ex, msg);
+
+        if (notify)
+        {
+            _notifier.Error(msg);
+        }
     }
 
     private static RedirectToActionResult RedirectToCheckout(string action)

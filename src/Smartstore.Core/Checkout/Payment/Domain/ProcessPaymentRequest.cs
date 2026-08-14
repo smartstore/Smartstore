@@ -49,7 +49,7 @@ public partial class ProcessPaymentRequest
     public List<int> ShoppingCartItemIds { get; set; } = [];
 
     /// <summary>
-    /// <c>true</c> if an order is created subsequently because it is missing after a successful payment.
+    /// <c>true</c> if an order is created by the payment provider subsequently because it is missing after a successful payment.
     /// </summary>
     public bool IsOrderRecovery { get; set; }
 

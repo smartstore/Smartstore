@@ -330,6 +330,7 @@ public class CheckoutController : PublicController
     /// Without cookies we would get a new guest customer and an empty checkout state object here. In this case, CheckoutState could not be used.
     /// We would have to either cache state obejct for x minutes or store it in the database.
     /// </remarks>
+    [SaveChanges<SmartDbContext>(false)]
     public async Task<IActionResult> PaymentCompleted()
     {
         var result = await _checkoutWorkflow.CompletePaymentAsync(await CreateCheckoutContext());
@@ -352,6 +353,7 @@ public class CheckoutController : PublicController
     }
 
     [HttpPost, ActionName(CheckoutActionNames.Confirm)]
+    [SaveChanges<SmartDbContext>(false)]
     public async Task<IActionResult> ConfirmOrder()
     {
         var result = await _checkoutWorkflow.CompleteAsync(await CreateCheckoutContext());

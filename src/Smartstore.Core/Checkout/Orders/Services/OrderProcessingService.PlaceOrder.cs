@@ -128,17 +128,6 @@ public partial class OrderProcessingService : IOrderProcessingService
         catch (Exception ex)
         {
             await transaction.RollbackAsync(cancelToken);
-
-            if (ex is DbUpdateException ex2 && _db.DataProvider.IsUniquenessViolationException(ex2))
-            {
-                // A race condition may occur when both the core and the payment provider attempt to place the order simultaneously.
-                Logger.Warn(ex, T("Order.AlreadyExists", paymentRequest.CustomerId));
-            }
-            else
-            {
-                Logger.Error(ex, T("Order.PlaceOrderError", paymentRequest.CustomerId));
-            }
-
             ex.ReThrow();
         }
 
