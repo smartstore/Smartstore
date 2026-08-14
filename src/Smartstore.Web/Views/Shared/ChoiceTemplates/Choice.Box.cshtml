@@ -40,7 +40,12 @@
             var hasImage = item.ImageUrl.HasValue();
             if (hasImage)
             {
+                elClass += " choice-box-image";
                 css += "background-image: url('" + item.ImageUrl + "');";
+            }
+            else if (hasColor)
+            {
+                elClass += " choice-box-color";
             }
 
             if (item.IsDisabled)
@@ -50,14 +55,6 @@
             else if (item.IsUnavailable)
             {
                 boxClass += " unavailable";
-                if (hasImage)
-                {
-                    elClass += " choice-box-image";
-                }
-                else if (hasColor)
-                {
-                    elClass += " choice-box-color";
-                }
             }
 
             if (item.Title.HasValue())
