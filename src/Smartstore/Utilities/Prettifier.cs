@@ -97,16 +97,36 @@ public static class Prettifier
                 writer.WriteEndObject();
                 break;
             case JsonValueKind.Array:
-                writer.WriteStartArray();
-                foreach (var item in element.EnumerateArray())
+                if (IsPrimitiveArray(element))
                 {
-                    WriteJsonElement(writer, item);
+                    writer.WriteRawValue(element.GetRawText());
                 }
-                writer.WriteEndArray();
+                else
+                {
+                    writer.WriteStartArray();
+                    foreach (var item in element.EnumerateArray())
+                    {
+                        WriteJsonElement(writer, item);
+                    }
+                    writer.WriteEndArray();
+                }
                 break;
             default:
                 writer.WriteRawValue(element.GetRawText());
                 break;
         }
+    }
+
+    private static bool IsPrimitiveArray(JsonElement element)
+    {
+        foreach (var item in element.EnumerateArray())
+        {
+            if (item.ValueKind is JsonValueKind.Object or JsonValueKind.Array)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
