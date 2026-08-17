@@ -3,7 +3,7 @@ name: Build and Publish Smartstore 6.3
 on:
   push:
     branches:
-      - mein-smartstore-6.3 # Hier den exakten Namen Ihres Branches eintragen
+      - main_shs # Hier den exakten Namen Ihres Branches eintragen
 
 jobs:
   build-and-publish:
