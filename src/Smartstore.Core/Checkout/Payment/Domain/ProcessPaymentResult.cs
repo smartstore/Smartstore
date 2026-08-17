@@ -65,5 +65,5 @@ public partial class ProcessPaymentResult : PaymentResult
     /// using the customer's cart data when a webhook message is received.
     /// 0 (default) to not apply a hash code.
     /// </summary>
-    public int PaymentReferenceHashCode { get; set; }
+    public long PaymentReferenceHashCode { get; set; }
 }

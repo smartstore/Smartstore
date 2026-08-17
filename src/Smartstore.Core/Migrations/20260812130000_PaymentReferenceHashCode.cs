@@ -20,7 +20,7 @@ internal class PaymentReferenceHashCode : Migration
         {
             Create.Column(ColumnName)
                 .OnTable(TableName)
-                .AsInt32()
+                .AsInt64()
                 .Nullable();
         }
 

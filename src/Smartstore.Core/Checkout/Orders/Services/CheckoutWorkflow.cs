@@ -379,7 +379,7 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         }
         catch (Exception ex)
         {
-            LogOrderPlacementException(ex, context.Cart.Customer.Id, true);
+            await LogOrderPlacementException(ex, context.Cart.Customer.Id, true);
         }
         finally
         {
@@ -435,7 +435,7 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         }
         catch (Exception ex)
         {
-            LogOrderPlacementException(ex, cart.Customer.Id, false);
+            await LogOrderPlacementException(ex, cart.Customer.Id, false);
 
             return new(ex.Message, confirmStep.ViewPath);
         }
@@ -629,24 +629,32 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         return new(paymentStep.GetActionResult(context), paymentStep.ViewPath);
     }
 
-    private void LogOrderPlacementException(Exception ex, int customerId, bool notify)
+    private async Task LogOrderPlacementException(Exception ex, int customerId, bool notify)
     {
-        var isUniquenessViolation = ex is DbUpdateException ex2 && _db.DataProvider.IsUniquenessViolationException(ex2);
-        var msg = T(isUniquenessViolation ? "Order.AlreadyExists" : "Order.PlaceOrderError", customerId);
+        var orderAlreadyExists = false;
 
-        _logger.Log(isUniquenessViolation ? MsLogLevel.Warning : MsLogLevel.Error, ex, msg);
+        if (ex is DbUpdateException dbEx && _db.DataProvider.IsUniquenessViolationException(dbEx))
+        {
+            var paymentReferenceHashCode = dbEx.Entries
+                .Select(x => x.Entity)
+                .OfType<Order>()
+                .Select(x => x.PaymentReferenceHashCode)
+                .FirstOrDefault(x => x.HasValue);
+
+            orderAlreadyExists = paymentReferenceHashCode.HasValue &&
+                await _db.Orders
+                    .IgnoreQueryFilters()
+                    .AnyAsync(x => x.PaymentReferenceHashCode == paymentReferenceHashCode);
+        }
+
+        var msg = T(orderAlreadyExists ? "Order.AlreadyExists" : "Order.PlaceOrderError", customerId);
+
+        _logger.Log(orderAlreadyExists ? MsLogLevel.Warning : MsLogLevel.Error, ex, msg);
 
         if (notify)
         {
             _notifier.Error(msg);
         }
-
-        /*
-         * TODO: (mg) Generic uniqueness errors are misclassified.
-         * This treats every unique-constraint failure during order placement as the expected payment-reference duplicate. 
-         * Other constraint failures will be downgraded to a warning and reported with a misleading message; 
-         * verify the specific reference or constraint.
-         */
     }
 
     private static RedirectToActionResult RedirectToCheckout(string action)

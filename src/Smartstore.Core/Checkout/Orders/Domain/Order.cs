@@ -336,7 +336,7 @@ public partial class Order : EntityWithAttributes, IAuditable, ISoftDeletable
     /// It is intended for use when an order is missing and the payment provider recovers it 
     /// using the customer's cart data when a webhook message is received.
     /// </summary>
-    public int? PaymentReferenceHashCode { get; set; }
+    public long? PaymentReferenceHashCode { get; set; }
 
     /// <summary>
     /// Gets or sets the ID of a payment authorization.
