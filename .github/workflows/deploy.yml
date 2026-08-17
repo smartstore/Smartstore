@@ -3,7 +3,7 @@ name: Build and Deploy Smartstore to Plesk
 on:
   push:
     branches:
-      - main  # Oder 'master' – je nachdem, wie Ihr Haupt-Branch heißt
+      - main_shs  # Oder 'master' – je nachdem, wie Ihr Haupt-Branch heißt
   workflow_dispatch: # <--- Ermöglicht den manuellen Start per Knopfdruck
 
 jobs:
