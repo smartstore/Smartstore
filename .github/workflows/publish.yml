@@ -1,0 +1,33 @@
+name: Build and Publish Smartstore 6.3
+
+on:
+  push:
+    branches:
+      - mein-smartstore-6.3 # Hier den exakten Namen Ihres Branches eintragen
+
+jobs:
+  build-and-publish:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x' # Erzwingt .NET 9 für Version 6.3
+
+    - name: Restore Dependencies
+      run: dotnet restore Smartstore.sln
+
+    - name: Build and Publish
+      run: |
+        dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release -r win-x86 --self-contained false -o ./publish-folder
+# Erklaerung: -r win-x86 stellt auf 32-Bit fuer Fritz IT ein. --self-contained false nutzt das Server-.NET-9.
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: smartstore-plesk-package
+        path: ./publish-folder
