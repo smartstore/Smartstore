@@ -3,6 +3,7 @@ using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
@@ -20,6 +21,7 @@ public class CheckoutController : PublicController
     private readonly IWorkContext _workContext;
     private readonly ICheckoutWorkflow _checkoutWorkflow;
     private readonly IPaymentService _paymentService;
+    private readonly IShippingService _shippingService;
     private readonly IShoppingCartService _shoppingCartService;
     private readonly ICheckoutStateAccessor _checkoutStateAccessor;
     private readonly OrderSettings _orderSettings;
@@ -31,6 +33,7 @@ public class CheckoutController : PublicController
         IWorkContext workContext,
         ICheckoutWorkflow checkoutWorkflow,
         IPaymentService paymentService,
+        IShippingService shippingService,
         IShoppingCartService shoppingCartService,
         ICheckoutStateAccessor checkoutStateAccessor,
         OrderSettings orderSettings,
@@ -41,6 +44,7 @@ public class CheckoutController : PublicController
         _workContext = workContext;
         _checkoutWorkflow = checkoutWorkflow;
         _paymentService = paymentService;
+        _shippingService = shippingService;
         _shoppingCartService = shoppingCartService;
         _checkoutStateAccessor = checkoutStateAccessor;
         _orderSettings = orderSettings;
@@ -210,6 +214,63 @@ public class CheckoutController : PublicController
         result.Errors.Each(x => model.Warnings.Add(x.ErrorMessage));
 
         return View(result.ViewPath, model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> UpdateShippingMethodTotals(string shippingOption)
+    {
+        var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
+        if (!cart.HasItems || !cart.IsShippingRequired)
+        {
+            return BadRequest();
+        }
+
+        var optionParts = shippingOption.SplitSafe("___").ToArray();
+        if (optionParts.Length != 2)
+        {
+            return BadRequest();
+        }
+
+        var selectedId = optionParts[0].ToInt();
+        var providerSystemName = optionParts[1];
+        var customerAttributes = cart.Customer.GenericAttributes;
+        var options = customerAttributes.OfferedShippingOptions;
+
+        if (options.IsNullOrEmpty())
+        {
+            var response = await _shippingService.GetShippingOptionsAsync(
+                cart,
+                cart.Customer.ShippingAddress,
+                providerSystemName,
+                cart.StoreId);
+
+            options = response.ShippingOptions;
+        }
+        else
+        {
+            options = options
+                .Where(x => x.ShippingRateComputationMethodSystemName.EqualsNoCase(providerSystemName))
+                .ToList();
+        }
+
+        var selectedOption = options.FirstOrDefault(x => x.ShippingMethodId == selectedId);
+        if (selectedOption == null)
+        {
+            return BadRequest();
+        }
+
+        var currentOption = customerAttributes.SelectedShippingOption;
+        customerAttributes.SelectedShippingOption = selectedOption;
+
+        try
+        {
+            var totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { });
+            return Json(new { totalsHtml });
+        }
+        finally
+        {
+            customerAttributes.SelectedShippingOption = currentOption;
+        }
     }
 
     [HttpPost, ActionName(CheckoutActionNames.ShippingMethod)]

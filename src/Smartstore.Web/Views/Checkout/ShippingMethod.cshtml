@@ -18,7 +18,10 @@
         <h1 class="h3">@T("Checkout.SelectShippingMethod")</h1>
     </div>
     <div class="page-body checkout-data">
-        <form asp-action="ShippingMethod" asp-controller="Checkout" method="post">
+        <form asp-action="ShippingMethod"
+              asp-controller="Checkout"
+              method="post"
+              data-update-totals-url="@Url.Action("UpdateShippingMethodTotals", "Checkout")">
             <zone name="checkout_shipping_method_top" />
 
             <div class="order-summary-content">
@@ -39,10 +42,30 @@
 
 <script sm-target-zone="scripts" data-origin="shipping-method">
     $(function () {
+        let shippingRequest;
+
         $('.checkout-data .opt-radio').on('change', function (e) {
             $('.checkout-data .opt-list-item').removeClass('active');
             var item = $(this).closest('.opt-list-item');
             item.addClass("active");
+
+            shippingRequest?.abort();
+
+            var form = $(this).closest('form');
+            shippingRequest = $.ajax({
+                    cache: false,
+                    url: form.data('update-totals-url'),
+                    data: form.serialize(),
+                    type: 'POST'
+                })
+                .done(function (response) {
+                    $('#order-totals').html(response.totalsHtml);
+                })
+                .fail(function (xhr, status) {
+                    if (status !== 'abort') {
+                        location.reload();
+                    }
+                });
         });
 
         $('.shipping-method-next-step-button').on('click', function () {
