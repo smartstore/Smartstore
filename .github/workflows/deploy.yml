@@ -3,8 +3,8 @@ name: Build and Deploy Smartstore to Plesk
 on:
   push:
     branches:
-      - main_shs  # Oder 'master' – je nachdem, wie Ihr Haupt-Branch heißt
-  workflow_dispatch: # <--- Ermöglicht den manuellen Start per Knopfdruck
+      - main_shs
+  workflow_dispatch: # Ermöglicht den manuellen Start per Knopfdruck
 
 jobs:
   build-and-deploy:
@@ -15,29 +15,34 @@ jobs:
     - name: Checkout Source Code
       uses: actions/checkout@v4
 
-    # 2. .NET SDK bereitstellen (Passend zur Smartstore-Version, z.B. .NET 8 oder 9)
+    # 2. .NET SDK bereitstellen
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '9.0.x' # Hier ggf. Ihre Version eintragen (z.B. 9.0.x)
+        dotnet-version: '9.0.x'
 
     # 3. Projektabhängigkeiten wiederherstellen
     - name: Restore dependencies
       run: dotnet restore Smartstore.sln
 
     # 4. Smartstore kompilieren (Publish erzeugen)
-    # Das Skript kompiliert nur das Haupt-Webprojekt in einen temporären Ausgabeordner
+    # Korrektur: Einheitlicher Ausgabeordner "./publish_output"
     - name: Publish Smartstore.Web
-     # run: dotnet publish src/Smartstore.Web/Smartstore.Web.csproj --configuration Release --output ./publish_output
       run: |
-        dotnet publish Smartstore.sln -c Release -r win-x86 --self-contained false -o ./publish-folder
+        dotnet publish Smartstore.sln -c Release -r win-x86 --self-contained false -o ./publish_output
 
-    # 5. Die fertig kompilierten DLLs und Dateien per FTP zu Plesk hochladen
+    # 4b. App Offline schalten (Verhindert Datei-Sperren in Plesk und erzwingt Neustart)
+    - name: Create app_offline.htm
+      run: |
+        echo "<h1>Shop wird aktualisiert...</h1>" > ./publish_output/app_offline.htm
+
+    # 5. Die fertig kompilierten Dateien per FTP zu Plesk hochladen
+    # Korrektur: local-dir nutzt jetzt exakt den korrekten Ordner
     - name: FTP Deploy to Plesk
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
         server: ${{ secrets.FTP_SERVER }}
-        username: 'thuneck' # Ersetzen Sie dies mit Ihrem echten FTP-User!
+        username: 'thuneck'
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./publish_output/
-        server-dir: /httpdocs/               # Ihr Plesk-Hauptordner
+        server-dir: /httpdocs/
