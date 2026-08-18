@@ -28,7 +28,9 @@ jobs:
     # 4. Smartstore kompilieren (Publish erzeugen)
     # Das Skript kompiliert nur das Haupt-Webprojekt in einen temporären Ausgabeordner
     - name: Publish Smartstore.Web
-      run: dotnet publish src/Smartstore.Web/Smartstore.Web.csproj --configuration Release --output ./publish_output
+     # run: dotnet publish src/Smartstore.Web/Smartstore.Web.csproj --configuration Release --output ./publish_output
+      run: |
+        dotnet publish Smartstore.sln -c Release -r win-x86 --self-contained false -o ./publish-folder
 
     # 5. Die fertig kompilierten DLLs und Dateien per FTP zu Plesk hochladen
     - name: FTP Deploy to Plesk
