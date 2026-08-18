@@ -23,7 +23,8 @@ jobs:
 
     - name: Build and Publish
       run: |
-        dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release -r win-x86 --self-contained false -o ./publish-folder
+        dotnet publish Smartstore.sln -c Release -r win-x86 --self-contained false -o ./publish-folder
+        
 # Erklaerung: -r win-x86 stellt auf 32-Bit fuer Fritz IT ein. --self-contained false nutzt das Server-.NET-9.
 
     - name: Upload Artifact
