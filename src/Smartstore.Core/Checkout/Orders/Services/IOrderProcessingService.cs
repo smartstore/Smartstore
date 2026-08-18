@@ -283,6 +283,7 @@ public partial interface IOrderProcessingService
 
     /// <summary>
     /// Checks whether the exception is caused by a duplicate payment reference.
+    /// A duplicate payment occurs when a payment reference is already used for another order.
     /// </summary>
     /// <param name="ex">The exception to check.</param>
     /// <returns><c>True</c> if the exception is caused by a duplicate payment reference, otherwise <c>false</c>.</returns>
