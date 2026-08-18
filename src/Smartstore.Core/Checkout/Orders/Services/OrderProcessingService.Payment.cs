@@ -425,4 +425,23 @@ public partial class OrderProcessingService : IOrderProcessingService
             throw new Exception(string.Join(" ", result.Errors));
         }
     }
+
+    public virtual async Task<bool> IsDuplicatePaymentReferenceAsync(Exception ex)
+    {
+        if (ex is DbUpdateException dbEx && _db.DataProvider.IsUniquenessViolationException(dbEx))
+        {
+            var paymentReferenceHashCode = dbEx.Entries
+                .Select(x => x.Entity)
+                .OfType<Order>()
+                .Select(x => x.PaymentReferenceHashCode)
+                .FirstOrDefault(x => x.HasValue);
+
+            return paymentReferenceHashCode.HasValue &&
+                await _db.Orders
+                    .IgnoreQueryFilters()
+                    .AnyAsync(x => x.PaymentReferenceHashCode == paymentReferenceHashCode);
+        }
+
+        return false;
+    }
 }

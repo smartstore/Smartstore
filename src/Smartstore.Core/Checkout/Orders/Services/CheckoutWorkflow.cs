@@ -631,25 +631,13 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
 
     private async Task LogOrderPlacementException(Exception ex, int customerId, bool notify)
     {
-        var orderAlreadyExists = false;
+        var isDuplicatePaymentReference = await _orderProcessingService.IsDuplicatePaymentReferenceAsync(ex);
+        var msg = T(isDuplicatePaymentReference ? "Order.AlreadyExists" : "Order.PlaceOrderError", customerId);
 
-        if (ex is DbUpdateException dbEx && _db.DataProvider.IsUniquenessViolationException(dbEx))
-        {
-            var paymentReferenceHashCode = dbEx.Entries
-                .Select(x => x.Entity)
-                .OfType<Order>()
-                .Select(x => x.PaymentReferenceHashCode)
-                .FirstOrDefault(x => x.HasValue);
-
-            orderAlreadyExists = paymentReferenceHashCode.HasValue &&
-                await _db.Orders
-                    .IgnoreQueryFilters()
-                    .AnyAsync(x => x.PaymentReferenceHashCode == paymentReferenceHashCode);
-        }
-
-        var msg = T(orderAlreadyExists ? "Order.AlreadyExists" : "Order.PlaceOrderError", customerId);
-
-        _logger.Log(orderAlreadyExists ? MsLogLevel.Warning : MsLogLevel.Error, ex, msg);
+        _logger.Log(
+            isDuplicatePaymentReference ? MsLogLevel.Warning : MsLogLevel.Error, 
+            ex, 
+            msg);
 
         if (notify)
         {

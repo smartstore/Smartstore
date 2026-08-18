@@ -281,5 +281,12 @@ public partial interface IOrderProcessingService
     /// <param name="recurringPayment">Recurring payment.</param>
     Task ProcessNextRecurringPaymentAsync(RecurringPayment recurringPayment);
 
+    /// <summary>
+    /// Checks whether the exception is caused by a duplicate payment reference.
+    /// </summary>
+    /// <param name="ex">The exception to check.</param>
+    /// <returns><c>True</c> if the exception is caused by a duplicate payment reference, otherwise <c>false</c>.</returns>
+    Task<bool> IsDuplicatePaymentReferenceAsync(Exception ex);
+
     #endregion
 }
