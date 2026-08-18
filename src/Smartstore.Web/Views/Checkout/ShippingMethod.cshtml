@@ -58,10 +58,10 @@
                     data: form.serialize(),
                     type: 'POST'
                 })
-                .done(function (response) {
+                .done((response) => {
                     $('#order-totals').html(response.totalsHtml);
                 })
-                .fail(function (xhr, status) {
+                .fail((xhr, status) => {
                     if (status !== 'abort') {
                         location.reload();
                     }

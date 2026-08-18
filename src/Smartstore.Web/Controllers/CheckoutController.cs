@@ -219,6 +219,7 @@ public class CheckoutController : PublicController
     [HttpPost]
     public async Task<IActionResult> UpdateShippingMethodTotals(string shippingOption)
     {
+        // TODO: (mh) I don't like this! It is an ugly HACK! We should refactor this to use the checkout workflow instead. TBD with MG.
         var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
         if (!cart.HasItems || !cart.IsShippingRequired)
         {
@@ -264,7 +265,7 @@ public class CheckoutController : PublicController
 
         try
         {
-            var totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { });
+            var totalsHtml = await InvokeComponentAsync<OrderTotalsViewComponent>(ViewData, new { });
             return Json(new { totalsHtml });
         }
         finally

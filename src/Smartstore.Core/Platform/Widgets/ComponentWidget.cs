@@ -13,7 +13,7 @@ public class ComponentWidget<T> : ComponentWidget
     {
     }
 
-    public ComponentWidget(object arguments)
+    public ComponentWidget(object? arguments)
         : base(typeof(T), arguments)
     {
     }

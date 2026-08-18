@@ -119,21 +119,20 @@ public abstract class SmartController : Controller
     }
 
 
-    /// <summary>
-    /// Invokes a view component and returns its HTML result content as string.
-    /// </summary>
+    /// <inheritdoc cref="InvokeComponentAsync(Type, ViewDataDictionary?, object?)" />
     /// <param name="componentName">The name of component to invoke.</param>
-    /// <param name="viewData">The <see cref="ViewDataDictionary"/> instance.</param>
-    /// <param name="arguments">
-    /// An <see cref="object"/> with properties representing arguments to be passed to the invoked view component
-    /// method. Alternatively, an <see cref="IDictionary{String, Object}"/> instance
-    /// containing the invocation arguments.
-    /// </param>
-    /// <returns>View component rendering result</returns>
     protected Task<string> InvokeComponentAsync(string componentName, ViewDataDictionary? viewData, object? arguments)
     {
         Guard.NotEmpty(componentName);
         return InvokeWidget(viewData, new ComponentWidget(componentName, arguments));
+    }
+
+    /// <inheritdoc cref="InvokeComponentAsync(Type, ViewDataDictionary?, object?)" />
+    /// <typeparam name="TComponent">The type of component to invoke.</typeparam>
+    protected Task<string> InvokeComponentAsync<TComponent>(ViewDataDictionary? viewData, object? arguments) 
+        where TComponent : ViewComponent
+    {
+        return InvokeWidget(viewData, new ComponentWidget<TComponent>(arguments));
     }
 
     /// <summary>
@@ -152,7 +151,6 @@ public abstract class SmartController : Controller
         Guard.NotNull(componentType);
         return InvokeWidget(viewData, new ComponentWidget(componentType, arguments));
     }
-
 
     private async Task<string> InvokeWidget(ViewDataDictionary? viewData, Widget widget)
     {
