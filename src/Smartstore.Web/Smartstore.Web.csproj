@@ -40,6 +40,7 @@
         </PackageReference>
 		<PackageReference Include="System.Runtime.Caching" Version="9.0.11" />
         <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.11" />
+        <PackageReference Include="Serilog.Formatting.Compact.Reader" Version="4.0.0" />
 	</ItemGroup>
 
 	<ItemGroup> 
