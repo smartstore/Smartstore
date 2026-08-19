@@ -203,7 +203,7 @@ public static class PolymorphicSerializationExtensions
 
     private static ConverterEntry CreateEntry(JsonSerializerOptions options, Type declaredType, bool wrapArrays)
     {
-        var kind = PolymorphyModifier.Classify(declaredType);
+        var kind = PolymorphyModifier.Classify(declaredType, ignoreCustomConverter: true);
         var factory = PolymorphyModifier.ResolveConverterFactory(kind, wrapArrays);
 
         // Create the closed converter for declaredType

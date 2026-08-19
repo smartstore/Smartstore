@@ -71,6 +71,10 @@ internal static class PolymorphyCodec
                 return JsonSerializer.Deserialize(valuesEl, runtimeType, readOptions);
             }
 
+            // Wrapped scalar/custom-converter payload: {"$type":"...","$value":...}
+            if (el.TryGetProperty(o.ScalarValuePropertyName, out var valueEl))
+                return JsonSerializer.Deserialize(valueEl, runtimeType, readOptions);
+
             // Object payload: strip discriminator at this level; nested $type remain.
             var jsonBytes = SerializeObjectWithoutType(el, o.TypePropertyName);
             return JsonSerializer.Deserialize(jsonBytes, runtimeType, readOptions);
@@ -498,8 +502,11 @@ internal static class PolymorphyCodec
 
         if (payload.ValueKind != JsonValueKind.Object)
         {
-            // Defensive fallback: should not happen for POCOs, but keep behavior predictable.
-            JsonSerializer.Serialize(writer, value, runtimeType, options);
+            // Custom converters may emit scalar or array payloads for otherwise complex runtime types.
+            WriteWrappedObjectStart(writer, runtimeType, o);
+            writer.WritePropertyName(o.ScalarValuePropertyName);
+            payload.WriteTo(writer);
+            writer.WriteEndObject();
             return;
         }
 

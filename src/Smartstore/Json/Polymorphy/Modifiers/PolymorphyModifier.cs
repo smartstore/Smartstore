@@ -93,11 +93,11 @@ internal static class PolymorphyModifier
         return propertyType.TryGetAttribute<PolymorphicAttribute>(true, out attr) == true;
     }
 
-    public static PolymorphyKind Classify(Type t)
+    public static PolymorphyKind Classify(Type t, bool ignoreCustomConverter = false)
     {
         if (t.IsDictionaryType(out var keyType, out var valueType))
         {
-            if (keyType == typeof(string) && IsCandidateType(valueType))
+            if (keyType == typeof(string) && IsCandidateType(valueType, ignoreCustomConverter))
                 return PolymorphyKind.DictionarySlot;
 
             throw new InvalidOperationException("Polymorphic dictionaries must have string keys and object/interface/abstract value types.");
@@ -105,14 +105,14 @@ internal static class PolymorphyModifier
         }
         else if (t.IsSequenceType(out var elementType))
         {
-            if (IsCandidateType(elementType))
+            if (IsCandidateType(elementType, ignoreCustomConverter))
                 return PolymorphyKind.ListSlot;
 
             throw new InvalidOperationException("Polymorphic lists must have object/interface/abstract element types.");
         }
         else
         {
-            if (IsCandidateType(t))
+            if (IsCandidateType(t, ignoreCustomConverter))
                 return PolymorphyKind.ObjectSlot;
 
             throw new InvalidOperationException("Polymorphic objects must be of type object, interface, abstract class, dictionary with string keys, or list/array.");
@@ -139,6 +139,8 @@ internal static class PolymorphyModifier
         };
     }
 
-    private static bool IsCandidateType(Type t)
-        => PolymorphyCodec.IsPolymorphicType(t);
+    private static bool IsCandidateType(Type t, bool ignoreCustomConverter)
+        => ignoreCustomConverter
+            ? t == typeof(object) || t.IsInterface || t.IsAbstract
+            : PolymorphyCodec.IsPolymorphicType(t);
 }
