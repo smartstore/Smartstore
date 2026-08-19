@@ -26,10 +26,9 @@ jobs:
       run: dotnet restore Smartstore.sln
 
     # 4. Smartstore kompilieren (Publish erzeugen)
-    # Korrektur: Einheitlicher Ausgabeordner "./publish_output"
     - name: Publish Smartstore.Web
       run: |
-        dotnet publish Smartstore.sln -c Release -r win-x86 --self-contained false -o ./publish_output
+        dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release -r win-x86 --self-contained false -o ./publish_output
 
     # 4b. App Offline schalten (Verhindert Datei-Sperren in Plesk und erzwingt Neustart)
     - name: Create app_offline.htm
