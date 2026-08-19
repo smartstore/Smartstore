@@ -29,11 +29,12 @@ public abstract class ResolvableText : IEquatable<ResolvableText>
         => new ResourceText(resourceKey);
 
     /// <summary>
-    /// Resolves the localized text value.
+    /// Resolves the text value.
     /// </summary>
     /// <param name="localizer">The localizer used to resolve resource-backed text.</param>
+    /// <param name="args">Optional arguments for formatting the resolved text.</param>
     /// <returns>The resolved localized text.</returns>
-    public abstract LocalizedString Resolve(Localizer localizer);
+    public abstract string Resolve(Localizer localizer, params object?[] args);
 
     /// <summary>
     /// Determines whether this instance represents the same text source as another instance.

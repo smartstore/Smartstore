@@ -19,8 +19,8 @@ public sealed class LiteralText : ResolvableText
     public string Value { get; }
 
     /// <inheritdoc />
-    public override LocalizedString Resolve(Localizer localizer)
-        => Value;
+    public override string Resolve(Localizer localizer, params object?[] args)
+        => args == null || args.Length == 0 ? Value : string.Format(Value, args);
 
     /// <inheritdoc />
     public override bool Equals(ResolvableText? other)

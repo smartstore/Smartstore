@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿#nullable enable
+
+using System.Diagnostics;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Html;
 
@@ -15,23 +17,18 @@ public class LocalizedString : IHtmlContent
     {
     }
 
-    public LocalizedString(string value, string name, params object[] arguments)
+    public LocalizedString(string value, string? name, params object?[] arguments)
         : this(value, name, false, arguments)
     {
     }
 
-    public LocalizedString(string value, string name, bool isResourceNotFound, params object[] arguments)
+    public LocalizedString(string value, string? name, bool isResourceNotFound, params object?[] arguments)
     {
-        Name = name;
         Value = value;
+        Name = name;
         Arguments = arguments;
         IsResourceNotFound = isResourceNotFound;
     }
-
-    /// <summary>
-    /// The name of the string resource.
-    /// </summary>
-    public string Name { get; }
 
     /// <summary>
     /// The original resource string, prior to formatting with any constructor arguments.
@@ -39,9 +36,14 @@ public class LocalizedString : IHtmlContent
     public string Value { get; }
 
     /// <summary>
+    /// The name of the string resource.
+    /// </summary>
+    public string? Name { get; }
+
+    /// <summary>
     /// Arguments to format <see cref="Value"/> with.
     /// </summary>
-    public object[] Arguments { get; }
+    public object?[] Arguments { get; }
 
     /// <summary>
     /// Gets a flag that indicates if the resource is not found.
@@ -89,7 +91,7 @@ public class LocalizedString : IHtmlContent
         => HashCode.Combine(Value, Arguments);
 
     /// <inheritdoc />
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (obj == null || obj.GetType() != GetType())
             return false;

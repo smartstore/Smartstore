@@ -1,7 +1,9 @@
-﻿namespace Smartstore.Core.Localization;
+﻿#nullable enable
 
-public delegate LocalizedString Localizer(string key, params object[] args);
-public delegate LocalizedString LocalizerEx(string key, int languageId, params object[] args);
+namespace Smartstore.Core.Localization;
+
+public delegate LocalizedString Localizer(string key, params object?[] args);
+public delegate LocalizedString LocalizerEx(string key, int languageId, params object?[] args);
 
 public static class NullLocalizer
 {

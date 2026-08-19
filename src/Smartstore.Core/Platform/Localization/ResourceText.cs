@@ -19,8 +19,8 @@ public sealed class ResourceText : ResolvableText
     public string ResourceKey { get; }
 
     /// <inheritdoc />
-    public override LocalizedString Resolve(Localizer localizer)
-        => localizer(ResourceKey);
+    public override string Resolve(Localizer localizer, params object?[] args)
+        => localizer(ResourceKey, args);
 
     /// <inheritdoc />
     public override bool Equals(ResolvableText? other)

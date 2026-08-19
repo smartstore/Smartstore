@@ -66,7 +66,6 @@ internal sealed class LocalizationModule : Autofac.Module
 
                 try
                 {
-                    var iText = context.Resolve<IText>();
                     if (prop.PropertyType == typeof(Localizer))
                     {
                         Localizer localizer = context.Resolve<IText>().Get;
