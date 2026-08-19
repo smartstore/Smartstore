@@ -1,6 +1,7 @@
 #nullable enable
 
 using System.Text.Json.Nodes;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Widgets;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Modularity;
@@ -23,10 +24,10 @@ public sealed class StoreReportDashboardWidget : IDashboardWidget
     /// </summary>
     public const string ViewPath = "~/Areas/Admin/Views/Store/StoreDashboardReport.cshtml";
 
-    private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, "Admin.Report.StoreStatistics")
+    private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, ResolvableText.Resource("Admin.Report.StoreStatistics"))
     {
-        DescriptionResKey = "Admin.Report.StoreStatistics",
-        CategoryResKey = "Admin.Dashboard.StoreStatistics",
+        Description = ResolvableText.Resource("Admin.Report.StoreStatistics"),
+        Group = KnownDashboardWidgetGroups.System,
         IconName = "bar-chart",
         CssClass = "report-store-statistics",
         Order = 700,

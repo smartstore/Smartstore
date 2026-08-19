@@ -1,6 +1,7 @@
 #nullable enable
 
 using Smartstore.Admin.Components;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Modularity;
 
@@ -17,10 +18,10 @@ public sealed class TopCustomersDashboardWidget : DashboardViewComponentWidget<D
     /// </summary>
     public const string SystemName = "Smartstore.Admin.Dashboard.TopCustomers";
 
-    private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, "Admin.SalesReport.TopCustomers")
+    private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, ResolvableText.Resource("Admin.SalesReport.TopCustomers"))
     {
-        DescriptionResKey = "Admin.SalesReport.TopCustomers",
-        CategoryResKey = "Admin.Dashboard.StoreStatistics",
+        Description = ResolvableText.Resource("Admin.SalesReport.TopCustomers"),
+        Group = KnownDashboardWidgetGroups.Customers,
         IconName = "people",
         CssClass = "report-top-customers",
         Order = 400,

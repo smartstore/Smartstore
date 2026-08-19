@@ -1,6 +1,7 @@
 #nullable enable
 
 using Smartstore.Admin.Components;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Modularity;
 
@@ -17,10 +18,10 @@ public sealed class LatestOrdersDashboardWidget : DashboardViewComponentWidget<D
     /// <summary>
     /// Contains the immutable metadata and capabilities of the latest orders widget.
     /// </summary>
-    private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, "Admin.SalesReport.LatestOrders")
+    private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, ResolvableText.Resource("Admin.SalesReport.LatestOrders"))
     {
-        DescriptionResKey = "Admin.SalesReport.LatestOrders",
-        CategoryResKey = "Admin.Dashboard.StoreStatistics",
+        Description = ResolvableText.Resource("Admin.SalesReport.LatestOrders"),
+        Group = KnownDashboardWidgetGroups.Sales,
         IconName = "card-checklist",
         CssClass = "report-latest-orders",
         Order = 600,

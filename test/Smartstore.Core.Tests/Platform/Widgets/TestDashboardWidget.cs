@@ -3,6 +3,7 @@
 using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Widgets;
 using Smartstore.Core.Widgets.Dashboard;
 
@@ -19,7 +20,7 @@ internal sealed class TestDashboardWidget : IDashboardWidget
     public const string SystemName = "Tests.Dashboard.Widget";
 
     /// <inheritdoc />
-    public DashboardWidgetDescriptor Descriptor { get; } = new(SystemName, "Tests.Dashboard.Widget.Title")
+    public DashboardWidgetDescriptor Descriptor { get; } = new(SystemName, ResolvableText.Resource("Tests.Dashboard.Widget.Title"))
     {
         SettingsVersion = 2,
         DefaultSize = new DashboardWidgetSize(4),

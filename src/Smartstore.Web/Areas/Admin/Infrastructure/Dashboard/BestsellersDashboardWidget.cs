@@ -1,6 +1,7 @@
 #nullable enable
 
 using Smartstore.Admin.Components;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Modularity;
 
@@ -17,10 +18,10 @@ public sealed class BestsellersDashboardWidget : DashboardViewComponentWidget<Da
     /// </summary>
     public const string SystemName = "Smartstore.Admin.Dashboard.Bestsellers";
 
-    private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, "Admin.SalesReport.BestSellers")
+    private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, ResolvableText.Resource("Admin.SalesReport.BestSellers"))
     {
-        DescriptionResKey = "Admin.SalesReport.BestSellers",
-        CategoryResKey = "Admin.Dashboard.StoreStatistics",
+        Description = ResolvableText.Resource("Admin.SalesReport.BestSellers"),
+        Group = KnownDashboardWidgetGroups.Sales,
         IconName = "trophy",
         CssClass = "report-bestsellers",
         Order = 300,

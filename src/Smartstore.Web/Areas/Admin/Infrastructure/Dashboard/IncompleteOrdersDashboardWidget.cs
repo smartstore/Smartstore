@@ -1,6 +1,7 @@
 #nullable enable
 
 using Smartstore.Admin.Components;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Modularity;
 
@@ -17,10 +18,10 @@ public sealed class IncompleteOrdersDashboardWidget : DashboardViewComponentWidg
     /// </summary>
     public const string SystemName = "Smartstore.Admin.Dashboard.IncompleteOrders";
 
-    private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, "Admin.SalesReport.Incomplete")
+    private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, ResolvableText.Resource("Admin.SalesReport.Incomplete"))
     {
-        DescriptionResKey = "Admin.SalesReport.Incomplete",
-        CategoryResKey = "Admin.Dashboard.StoreStatistics",
+        Description = ResolvableText.Resource("Admin.SalesReport.Incomplete"),
+        Group = KnownDashboardWidgetGroups.Sales,
         IconName = "hourglass-split",
         CssClass = "report-incomplete-orders",
         Order = 100,

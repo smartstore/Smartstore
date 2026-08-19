@@ -1,6 +1,7 @@
 #nullable enable
 
 using Smartstore.Admin.Components;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Modularity;
 
@@ -17,10 +18,10 @@ public sealed class RegisteredCustomersDashboardWidget : DashboardViewComponentW
     /// </summary>
     public const string SystemName = "Smartstore.Admin.Dashboard.RegisteredCustomers";
 
-    private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, "Admin.Report.CustomerRegistrations")
+    private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, ResolvableText.Resource("Admin.Report.CustomerRegistrations"))
     {
-        DescriptionResKey = "Admin.Report.CustomerRegistrations",
-        CategoryResKey = "Admin.Dashboard.StoreStatistics",
+        Description = ResolvableText.Resource("Admin.Report.CustomerRegistrations"),
+        Group = KnownDashboardWidgetGroups.Customers,
         IconName = "person-plus",
         CssClass = "report-customer-registrations",
         Order = 500,

@@ -1,5 +1,7 @@
 #nullable enable
 
+using Smartstore.Core.Localization;
+
 namespace Smartstore.Core.Widgets.Dashboard;
 
 /// <summary>
@@ -11,14 +13,14 @@ public sealed class DashboardWidgetDescriptor
     /// Initializes a new dashboard widget descriptor.
     /// </summary>
     /// <param name="systemName">The stable and globally unique widget identifier.</param>
-    /// <param name="titleResKey">The localization resource key for the widget title.</param>
-    public DashboardWidgetDescriptor(string systemName, string titleResKey)
+    /// <param name="title">The resolvable widget title.</param>
+    public DashboardWidgetDescriptor(string systemName, ResolvableText title)
     {
         Guard.NotEmpty(systemName);
-        Guard.NotEmpty(titleResKey);
+        Guard.NotNull(title);
 
         SystemName = systemName;
-        TitleResKey = titleResKey;
+        Title = title;
     }
 
     /// <summary>
@@ -27,19 +29,19 @@ public sealed class DashboardWidgetDescriptor
     public string SystemName { get; }
 
     /// <summary>
-    /// Gets the localization resource key for the widget title.
+    /// Gets the widget title.
     /// </summary>
-    public string TitleResKey { get; }
+    public ResolvableText Title { get; }
 
     /// <summary>
-    /// Gets the optional localization resource key for the widget description.
+    /// Gets the optional widget description.
     /// </summary>
-    public string? DescriptionResKey { get; init; }
+    public ResolvableText? Description { get; init; }
 
     /// <summary>
-    /// Gets the optional localization resource key for the widget category.
+    /// Gets the optional group name used to organize the widget in selection interfaces.
     /// </summary>
-    public string? CategoryResKey { get; init; }
+    public ResolvableText? Group { get; init; }
 
     /// <summary>
     /// Gets the optional name of the Bootstrap icon used to render the widget.

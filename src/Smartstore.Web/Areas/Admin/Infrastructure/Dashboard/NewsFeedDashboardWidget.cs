@@ -1,6 +1,7 @@
 #nullable enable
 
 using Smartstore.Admin.Components;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Modularity;
 
@@ -17,10 +18,10 @@ public sealed class NewsFeedDashboardWidget : DashboardViewComponentWidget<NewsF
     /// </summary>
     public const string SystemName = "Smartstore.Admin.Dashboard.NewsFeed";
 
-    private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, "Admin.NewsFeed.Title")
+    private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, ResolvableText.Resource("Admin.NewsFeed.Title"))
     {
-        DescriptionResKey = "Admin.NewsFeed.Title",
-        CategoryResKey = "Admin.Dashboard.StoreStatistics",
+        Description = ResolvableText.Resource("Admin.NewsFeed.Title"),
+        Group = KnownDashboardWidgetGroups.System,
         IconName = "newspaper",
         CssClass = "news-feed",
         Order = 800,
