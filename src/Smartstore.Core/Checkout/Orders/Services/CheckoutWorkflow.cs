@@ -319,6 +319,7 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         Guard.NotNull(context);
 
         CheckoutResult result = null;
+        OrderPlacementResult placeOrderResult = null;
         var paymentType = PaymentMethodType.Standard;
         var confirmStep = Guard.NotNull(_checkoutFactory.GetCheckoutStep(CheckoutActionNames.Confirm));
 
@@ -347,39 +348,31 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
             {
                 // Payment completed successfully. Place the order.
                 var state = _checkoutStateAccessor.CheckoutState;
-                var placeOrderResult = await _orderProcessingService.PlaceOrderAsync(paymentRequest, new()
+                placeOrderResult = await _orderProcessingService.PlaceOrderAsync(paymentRequest, new()
                 {
                     [CustomerCommentKey] = state.CustomerComment,
                     [SubscribeToNewsletterKey] = state.SubscribeToNewsletter.ToString().ToLower(),
                     [AcceptThirdPartyEmailHandOverKey] = state.AcceptThirdPartyEmailHandOver.ToString().ToLower()
                 });
-
-                if (placeOrderResult.Success && placeOrderResult.PlacedOrder != null)
-                {
-                    result = await PostProcessPayment(placeOrderResult, confirmStep, context);
-                }
-                else
-                {
-                    var cart = context.Cart;
-                    if (customer.Id != paymentRequest.CustomerId)
-                    {
-                        // INFO: The payment provider may have changed the customer through ProcessPaymentRequest.CustomerId.
-                        customer = await _db.Customers.FindByIdAsync(paymentRequest.CustomerId);
-                        cart = await _shoppingCartService.Value.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
-                    }
-
-                    if (cart?.HasItems ?? false)
-                    {
-                        // We should never end up here. We have received a payment but the order placement failed!
-                        _logger.Error(new Exception($"The payment with {paymentMethod} succeeded but the order placement failed! Order: {paymentRequest.OrderGuid}. Customer: {cart.Customer.Id}.",
-                            new Exception(string.Join(Environment.NewLine, placeOrderResult.Errors))));
-                    }
-                }
             }
         }
         catch (Exception ex)
         {
             await LogOrderPlacementException(ex, context.Cart.Customer.Id, true);
+        }
+
+        if (placeOrderResult == null || !placeOrderResult.Success || placeOrderResult.PlacedOrder == null)
+        {
+            return GetResult();
+        }
+
+        try
+        {
+            result = await PostProcessPayment(placeOrderResult, confirmStep, context);
+        }
+        catch (Exception ex)
+        {
+            _notifier.Error(ex.Message);
         }
         finally
         {
@@ -387,8 +380,10 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
             _checkoutStateAccessor.Abandon();
         }
 
-        result ??= new(paymentType == PaymentMethodType.Button ? RedirectToCart() : RedirectToCheckout(CheckoutActionNames.PaymentMethod), confirmStep.ViewPath);
-        return result;
+        return GetResult();
+
+        CheckoutResult GetResult()
+            => result ?? new(paymentType == PaymentMethodType.Button ? RedirectToCart() : RedirectToCheckout(CheckoutActionNames.PaymentMethod), confirmStep.ViewPath);
     }
 
     public virtual async Task<CheckoutResult> CompleteAsync(CheckoutContext context)
@@ -440,7 +435,7 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
             return new(ex.Message, confirmStep.ViewPath);
         }
 
-        if (placeOrderResult == null || !placeOrderResult.Success)
+        if (placeOrderResult == null || !placeOrderResult.Success || placeOrderResult.PlacedOrder == null)
         {
             var errors = placeOrderResult?.Errors
                 ?.Take(_maxWarnings)
