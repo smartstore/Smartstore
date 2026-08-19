@@ -150,6 +150,94 @@ public sealed class DashboardServiceTests
     }
 
     /// <summary>
+    /// Verifies that the complete persisted layout graph survives a JSON roundtrip.
+    /// </summary>
+    [Test]
+    public void Roundtrips_Complete_Layout()
+    {
+        var instance = new DashboardWidgetInstance("orders", TestDashboardWidget.SystemName)
+        {
+            Order = 3,
+            SettingsVersion = 2,
+            Settings = new JsonObject
+            {
+                ["limit"] = 5,
+                ["filters"] = new JsonObject { ["paid"] = true }
+            },
+            Policy = new DashboardWidgetPolicy
+            {
+                IsRequired = true,
+                AllowMove = false,
+                AllowConfigure = true
+            },
+            Positions =
+            [
+                new DashboardWidgetPosition
+                {
+                    Size = new DashboardWidgetSize(12, 1)
+                },
+                new DashboardWidgetPosition
+                {
+                    MinViewportWidth = 992,
+                    Column = 2,
+                    Row = 1,
+                    Size = new DashboardWidgetSize(6, 2)
+                }
+            ]
+        };
+        var layout = CreateLayout(DashboardLayoutScope.User, customerId: 42, revision: 7, widgets: [instance]);
+        layout.ColumnCount = 16;
+        layout.GridTemplateColumns = "repeat(16, minmax(0, 1fr))";
+        layout.ColumnGap = "2rem";
+        layout.RowGap = "3rem";
+        layout.GridAutoRows = "minmax(10rem, auto)";
+        var service = CreateService(Array.Empty<IDashboardWidget>(), Array.Empty<IDashboardLayoutProvider>());
+
+        var json = service.Serialize(layout);
+        var result = service.Deserialize(json)!;
+        var resultInstance = result.Widgets.Single();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Id, Is.EqualTo(layout.Id));
+            Assert.That(result.Scope, Is.EqualTo(DashboardLayoutScope.User));
+            Assert.That(result.Version, Is.EqualTo(layout.Version));
+            Assert.That(result.Revision, Is.EqualTo(7));
+            Assert.That(result.CustomerId, Is.EqualTo(42));
+            Assert.That(result.ColumnCount, Is.EqualTo(16));
+            Assert.That(result.GridTemplateColumns, Is.EqualTo(layout.GridTemplateColumns));
+            Assert.That(result.ColumnGap, Is.EqualTo("2rem"));
+            Assert.That(result.RowGap, Is.EqualTo("3rem"));
+            Assert.That(result.GridAutoRows, Is.EqualTo("minmax(10rem, auto)"));
+            Assert.That(resultInstance.Id, Is.EqualTo("orders"));
+            Assert.That(resultInstance.WidgetSystemName, Is.EqualTo(TestDashboardWidget.SystemName));
+            Assert.That(resultInstance.Order, Is.EqualTo(3));
+            Assert.That(resultInstance.SettingsVersion, Is.EqualTo(2));
+            Assert.That(resultInstance.Settings["limit"]!.GetValue<int>(), Is.EqualTo(5));
+            Assert.That(resultInstance.Settings["filters"]!["paid"]!.GetValue<bool>(), Is.True);
+            Assert.That(resultInstance.Policy.IsRequired, Is.True);
+            Assert.That(resultInstance.Policy.AllowMove, Is.False);
+            Assert.That(resultInstance.Policy.AllowConfigure, Is.True);
+            Assert.That(resultInstance.Positions, Is.EqualTo(instance.Positions));
+        });
+    }
+
+    /// <summary>
+    /// Verifies that a structurally incomplete global layout falls back to the provider default.
+    /// </summary>
+    [Test]
+    public async Task Falls_Back_For_Null_Widget_Collection()
+    {
+        const string json = """{"id":"admin-dashboard","scope":"Global","widgets":null}""";
+        var defaultLayout = CreateLayout(DashboardLayoutScope.Global);
+        var service = CreateService([], [new TestLayoutProvider(defaultLayout)], json);
+
+        var result = await service.GetEffectiveLayoutAsync("admin-dashboard", CreateTestCustomer());
+
+        Assert.That(result, Is.SameAs(defaultLayout));
+    }
+
+    /// <summary>
     /// Verifies that malformed global JSON falls back to the provider default.
     /// </summary>
     [Test]
@@ -293,7 +381,7 @@ public sealed class DashboardServiceTests
     /// <param name="globalLayoutJson">The optional contents of the global layout file.</param>
     /// <param name="eventPublisher">The optional event publisher used by the service.</param>
     /// <returns>The configured dashboard service.</returns>
-    private static DashboardService CreateService(
+    private static TestDashboardService CreateService(
         IEnumerable<IDashboardWidget> widgets,
         IEnumerable<IDashboardLayoutProvider> providers,
         string? globalLayoutJson = null,
@@ -310,7 +398,7 @@ public sealed class DashboardServiceTests
             eventPublisher);
     }
 
-    private static DashboardService CreateService(
+    private static TestDashboardService CreateService(
         IEnumerable<Lazy<IDashboardWidget, DashboardMetadata>> widgets,
         IEnumerable<Lazy<IDashboardLayoutProvider, DashboardMetadata>> providers,
         string? globalLayoutJson = null,
@@ -343,7 +431,7 @@ public sealed class DashboardServiceTests
             .SetupGet(x => x.TenantRoot)
             .Returns(fileSystem.Object);
 
-        return new DashboardService(
+        return new TestDashboardService(
             applicationContext.Object,
             new MemoryCache(new MemoryCacheOptions()),
             eventPublisher ?? NullEventPublisher.Instance,

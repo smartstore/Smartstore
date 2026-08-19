@@ -26,7 +26,7 @@ public sealed class ResolvableTextTests
         Assert.Multiple(() =>
         {
             Assert.That(value, Is.TypeOf<LiteralText>());
-            Assert.That(value.Resolve(NullLocalizer.Instance).Value, Is.EqualTo("Umami"));
+            Assert.That(value.Resolve(NullLocalizer.Instance), Is.EqualTo("Umami"));
         });
     }
 
@@ -44,7 +44,7 @@ public sealed class ResolvableTextTests
         Assert.Multiple(() =>
         {
             Assert.That(value, Is.TypeOf<ResourceText>());
-            Assert.That(result.Value, Is.EqualTo("Resolved:Dashboard.Groups.Sales"));
+            Assert.That(result, Is.EqualTo("Resolved:Dashboard.Groups.Sales"));
         });
     }
 
@@ -198,7 +198,7 @@ public sealed class ResolvableTextTests
         public string Value { get; }
 
         /// <inheritdoc />
-        public override LocalizedString Resolve(Localizer localizer)
+        public override string Resolve(Localizer localizer, params object?[] args)
             => Value;
 
         /// <inheritdoc />

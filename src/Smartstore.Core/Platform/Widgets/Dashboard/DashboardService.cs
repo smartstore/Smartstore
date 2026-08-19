@@ -55,6 +55,30 @@ public class DashboardService : IDashboardService
     /// </summary>
     public ILogger Logger { get; set; } = NullLogger.Instance;
 
+    /// <summary>
+    /// Serializes a dashboard layout using the canonical JSON settings.
+    /// </summary>
+    /// <param name="layout">The dashboard layout to serialize.</param>
+    /// <returns>The serialized dashboard layout.</returns>
+    protected virtual string SerializeLayout(DashboardLayout layout)
+    {
+        Guard.NotNull(layout);
+
+        return JsonSerializer.Serialize(layout, SmartJsonOptions.CamelCased);
+    }
+
+    /// <summary>
+    /// Deserializes a dashboard layout using the canonical JSON settings.
+    /// </summary>
+    /// <param name="json">The serialized dashboard layout.</param>
+    /// <returns>The deserialized dashboard layout, or <see langword="null"/> for a JSON null value.</returns>
+    protected virtual DashboardLayout? DeserializeLayout(string json)
+    {
+        Guard.NotEmpty(json);
+
+        return JsonSerializer.Deserialize<DashboardLayout>(json, SmartJsonOptions.CamelCased);
+    }
+
     public IReadOnlyCollection<DashboardWidgetDescriptor> GetDescriptors()
         => _descriptors ??= CreateDescriptors();
 
@@ -276,7 +300,7 @@ public class DashboardService : IDashboardService
 
         try
         {
-            var layout = JsonSerializer.Deserialize<DashboardLayout>(json, SmartJsonOptions.CamelCased);
+            var layout = DeserializeLayout(json);
             return ValidateCustomLayout(layout, dashboardId, customer, DashboardLayoutScope.User, "user");
         }
         catch (JsonException exception)
@@ -321,7 +345,7 @@ public class DashboardService : IDashboardService
                     return null;
                 }
 
-                var candidate = JsonSerializer.Deserialize<DashboardLayout>(json, SmartJsonOptions.CamelCased);
+                var candidate = DeserializeLayout(json);
                 return ValidateCustomLayout(candidate, dashboardId, null, DashboardLayoutScope.Global, "global");
             }
             catch (JsonException ex)
@@ -431,16 +455,25 @@ public class DashboardService : IDashboardService
                 $"User dashboard layout '{layout.Id}' is not assigned to customer '{customer?.Id}'.");
         }
 
+        if (layout.Widgets is null)
+            throw new InvalidOperationException($"Dashboard layout '{layout.Id}' has no widget collection.");
+
         var instanceIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var instance in layout.Widgets)
         {
+            if (instance is null || instance.Id.IsEmpty() || instance.WidgetSystemName.IsEmpty())
+                throw new InvalidOperationException($"Dashboard layout '{layout.Id}' contains an invalid widget instance.");
+
             if (!instanceIds.Add(instance.Id))
             {
                 throw new InvalidOperationException(
                     $"Dashboard layout '{layout.Id}' contains duplicate widget instance ID '{instance.Id}'.");
             }
 
-            if (instance.Positions.Count == 0 || !instance.Positions.Any(x => x.MinViewportWidth == 0))
+            if (instance.Settings is null || instance.Policy is null || instance.Positions is null)
+                throw new InvalidOperationException($"Dashboard widget instance '{instance.Id}' is incomplete.");
+
+            if (instance.Positions.Count == 0 || !instance.Positions.Any(x => x?.MinViewportWidth == 0))
             {
                 throw new InvalidOperationException(
                     $"Dashboard widget instance '{instance.Id}' must declare a base position.");
@@ -460,6 +493,9 @@ public class DashboardService : IDashboardService
 
             foreach (var position in instance.Positions)
             {
+                if (position?.Size is null)
+                    throw new InvalidOperationException($"Dashboard widget instance '{instance.Id}' contains an invalid grid position.");
+
                 if (position.MinViewportWidth < 0 || position.Column < 0 || position.Row < 0 ||
                     position.Column + position.Size.ColumnSpan > layout.ColumnCount)
                 {
