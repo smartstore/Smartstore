@@ -46,3 +46,4 @@ jobs:
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./publish_output/
         server-dir: /httpdocs/
+        dangerous-clean-slate: true # <--- ZWINGT DIE ACTION ALLES NEU ZU SCHREIBEN!
