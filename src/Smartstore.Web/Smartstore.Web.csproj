@@ -47,6 +47,7 @@
 		<ProjectReference Include="..\Smartstore\Smartstore.csproj" />
 		<ProjectReference Include="..\Smartstore.Core\Smartstore.Core.csproj" />
 		<ProjectReference Include="..\Smartstore.Web.Common\Smartstore.Web.Common.csproj" />
+        <ProjectReference Include="..\Smartstore.Data.SqlServer\Smartstore.Data.SqlServer.csproj" />
 	</ItemGroup>
 	
 	<ItemGroup>
