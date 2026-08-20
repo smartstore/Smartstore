@@ -28,7 +28,8 @@ jobs:
     # 4. Smartstore kompilieren (Publish erzeugen)
     - name: Publish Smartstore.Web
       run: |
-        dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release -r win-x86 --self-contained false -o ./publish_output
+        # dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release -r win-x86 --self-contained false -o ./publish_output
+        dotnet publish Smartstore.sln -c Release -r win-x86 --self-contained false -o ./publish_output /p:CopyLocalLockFileAssemblies=true
 
     # 4b. App Offline schalten (Verhindert Datei-Sperren in Plesk und erzwingt Neustart)
     - name: Create app_offline.htm
