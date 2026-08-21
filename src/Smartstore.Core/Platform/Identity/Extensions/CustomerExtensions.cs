@@ -387,22 +387,10 @@ public static class CustomerExtensions
     /// Resets data required for checkout. The caller is responsible for database commit.
     /// </summary>
     /// <param name="storeId">Store identifier</param>
-    /// <param name="clearCouponCodes">A value indicating whether to clear coupon code</param>
-    /// <param name="clearCheckoutAttributes">A value indicating whether to clear selected checkout attributes</param>
-    /// <param name="clearRewardPoints">A value indicating whether to clear "Use reward points" flag</param>
-    /// <param name="clearShippingMethod">A value indicating whether to clear selected shipping method</param>
-    /// <param name="clearPaymentMethod">A value indicating whether to clear selected payment method</param>
-    /// <param name="clearCreditBalance">A value indicating whether to clear credit balance.</param>
-    /// <param name="clearCheckoutOrderData">A value indicating whether to clear checkout order data.</param>
-    public static void ResetCheckoutData(this Customer customer, 
+    /// <param name="flags">Specifies which checkout data to reset. Defaults to <see cref="CheckoutDataResetFlags.Default"/>.</param>
+    public static void ResetCheckoutData(this Customer customer,
         int storeId,
-        bool clearCouponCodes = false, 
-        bool clearCheckoutAttributes = false,
-        bool clearRewardPoints = false, 
-        bool clearShippingMethod = true,
-        bool clearPaymentMethod = true,
-        bool clearCreditBalance = false,
-        bool clearCheckoutOrderData = false)
+        CheckoutDataResetFlags flags = CheckoutDataResetFlags.Default)
     {
         Guard.NotNull(customer);
 
@@ -413,39 +401,39 @@ public static class CustomerExtensions
 
         var ga = customer.GenericAttributes;
 
-        if (clearCouponCodes)
+        if (flags.HasFlag(CheckoutDataResetFlags.CouponCodes))
         {
             ga.DiscountCouponCode = null;
             ga.RawGiftCardCouponCodes = null;
         }
 
-        if (clearCheckoutAttributes)
+        if (flags.HasFlag(CheckoutDataResetFlags.CheckoutAttributes))
         {
             ga.RawCheckoutAttributes = null;
         }
 
-        if (clearRewardPoints)
+        if (flags.HasFlag(CheckoutDataResetFlags.RewardPoints))
         {
             ga.Set(SystemCustomerAttributeNames.UseRewardPointsDuringCheckout, false, storeId);
         }
 
-        if (clearCreditBalance)
+        if (flags.HasFlag(CheckoutDataResetFlags.CreditBalance))
         {
             ga.Set(SystemCustomerAttributeNames.UseCreditBalanceDuringCheckout, decimal.Zero, storeId);
         }
 
-        if (clearShippingMethod)
+        if (flags.HasFlag(CheckoutDataResetFlags.ShippingMethod))
         {
             ga.Set<string?>(SystemCustomerAttributeNames.SelectedShippingOption, null, storeId);
             ga.Set<string?>(SystemCustomerAttributeNames.OfferedShippingOptions, null, storeId);
         }
 
-        if (clearPaymentMethod)
+        if (flags.HasFlag(CheckoutDataResetFlags.PaymentMethod))
         {
             ga.Set<string?>(SystemCustomerAttributeNames.SelectedPaymentMethod, null, storeId);
         }
 
-        if (clearCheckoutOrderData)
+        if (flags.HasFlag(CheckoutDataResetFlags.CheckoutOrderData))
         {
             ga.Set<string?>(SystemCustomerAttributeNames.CheckoutOrderData, null, storeId);
         }

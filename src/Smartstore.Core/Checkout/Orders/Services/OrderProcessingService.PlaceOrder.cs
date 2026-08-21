@@ -1029,7 +1029,7 @@ public partial class OrderProcessingService : IOrderProcessingService
 
         if (!pr.IsRecurringPayment && !pr.IsMultiOrder)
         {
-            ctx.Customer.ResetCheckoutData(pr.StoreId, true, true, true, true, true, true, true);
+            ctx.Customer.ResetCheckoutData(pr.StoreId, CheckoutDataResetFlags.All);
             await _shoppingCartService.DeleteCartAsync(ctx.Cart, false);
         }
 
