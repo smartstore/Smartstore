@@ -28,6 +28,7 @@
 - **PostFinance**: 
   - Fixed missing orders even though the payment was successful.
   - #1544 Online partial refunds are booked twice (locally and via the following webhook).
+- **Skrill**: Fixed missing orders even though the payment was successful.
 - The **EasyCredit** calculator widget cannot be serialised on the product detail page when output cache is active.
 - **Withdrawal**:
   - Allow immediate withdrawal regardless of when the withdrawal period begins.
