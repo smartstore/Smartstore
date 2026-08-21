@@ -413,6 +413,7 @@ public class CustomerAttributeCollection : GenericAttributeCollection<Customer>
         get
         {
             var json = Get<string>(SystemCustomerAttributeNames.CheckoutOrderData, CurrentStoreId);
+            // TODO: (mg) No JSON serializer options are used here. Sure?
             return json.HasValue() ? JsonSerializer.Deserialize<Dictionary<string, string>>(json) : null;
         }
         set
