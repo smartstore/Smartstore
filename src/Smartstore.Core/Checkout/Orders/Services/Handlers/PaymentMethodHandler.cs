@@ -7,7 +7,7 @@ using Smartstore.Engine.Modularity;
 namespace Smartstore.Core.Checkout.Orders.Handlers;
 
 [CheckoutStep(40, CheckoutActionNames.PaymentMethod)]
-public class PaymentMethodHandler : ICheckoutHandler
+public class PaymentMethodHandler : CheckoutHandlerBase
 {
     private readonly IPaymentService _paymentService;
     private readonly IOrderCalculationService _orderCalculationService;
@@ -29,7 +29,7 @@ public class PaymentMethodHandler : ICheckoutHandler
         _shoppingCartSettings = shoppingCartSettings;
     }
 
-    public async Task<CheckoutResult> ProcessAsync(CheckoutContext context)
+    public override async Task<CheckoutResult> ProcessAsync(CheckoutContext context)
     {
         var state = _checkoutStateAccessor.CheckoutState;
         var cart = context.Cart;

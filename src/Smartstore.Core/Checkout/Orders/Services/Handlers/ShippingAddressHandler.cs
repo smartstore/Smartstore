@@ -6,7 +6,7 @@ using Smartstore.Core.Identity;
 namespace Smartstore.Core.Checkout.Orders.Handlers;
 
 [CheckoutStep(20, CheckoutActionNames.ShippingAddress, CheckoutActionNames.SelectShippingAddress)]
-public class ShippingAddressHandler : ICheckoutHandler
+public class ShippingAddressHandler : CheckoutHandlerBase
 {
     private readonly SmartDbContext _db;
     private readonly ICheckoutStateAccessor _checkoutStateAccessor;
@@ -22,7 +22,7 @@ public class ShippingAddressHandler : ICheckoutHandler
         _shoppingCartSettings = shoppingCartSettings;
     }
 
-    public async Task<CheckoutResult> ProcessAsync(CheckoutContext context)
+    public override async Task<CheckoutResult> ProcessAsync(CheckoutContext context)
     {
         var customer = context.Cart.Customer;
         var ga = customer.GenericAttributes;

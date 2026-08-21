@@ -19,7 +19,7 @@ public partial interface ICheckoutWorkflow
     Task<CheckoutResult> StartAsync(CheckoutContext context);
 
     /// <summary>
-    /// Processes the current checkout step.
+    /// Processes the current synchronous checkout step.
     /// </summary>
     /// <returns>
     /// <see cref="CheckoutResult.ActionResult"/> to the next/previous checkout page, if the current page should be skipped.
@@ -29,6 +29,12 @@ public partial interface ICheckoutWorkflow
     /// Typically called in GET requests when the current checkout page is to be opened.
     /// </remarks>
     Task<CheckoutResult> ProcessAsync(CheckoutContext context);
+
+    /// <summary>
+    /// Processes an asynchronous request (AJAX) to refresh a part of the current checkout page.
+    /// </summary>
+    /// <returns></returns>
+    Task<CheckoutResult> RefreshAsync(CheckoutContext context);
 
     /// <summary>
     /// Advances in checkout.

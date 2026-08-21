@@ -5,9 +5,14 @@ namespace Smartstore.Core.Checkout.Orders;
 public interface ICheckoutHandler
 {
     /// <summary>
-    /// Processes a checkout step.
+    /// Processes a synchronous checkout step.
     /// </summary>
     Task<CheckoutResult> ProcessAsync(CheckoutContext context);
+
+    /// <summary>
+    /// Processes an asynchronous request (AJAX) to refresh a part of the current checkout page.
+    /// </summary>
+    Task<CheckoutResult> RefreshAsync(CheckoutContext context);
 }
 
 public sealed class CheckoutHandler(Lazy<ICheckoutHandler, CheckoutHandlerMetadata> lazy)

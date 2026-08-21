@@ -6,7 +6,7 @@ using Smartstore.Core.Checkout.Shipping;
 namespace Smartstore.Core.Checkout.Orders.Handlers;
 
 [CheckoutStep(30, CheckoutActionNames.ShippingMethod)]
-public class ShippingMethodHandler : ICheckoutHandler
+public class ShippingMethodHandler : CheckoutHandlerBase
 {
     private readonly IShippingService _shippingService;
     private readonly ShippingSettings _shippingSettings;
@@ -22,7 +22,7 @@ public class ShippingMethodHandler : ICheckoutHandler
         _shoppingCartSettings = shoppingCartSettings;
     }
 
-    public async Task<CheckoutResult> ProcessAsync(CheckoutContext context)
+    public override async Task<CheckoutResult> ProcessAsync(CheckoutContext context)
     {
         var cart = context.Cart;
         var customer = cart.Customer;

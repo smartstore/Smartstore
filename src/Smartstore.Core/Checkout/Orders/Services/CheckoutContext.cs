@@ -21,6 +21,11 @@ public partial class CheckoutContext(ShoppingCart cart, HttpContext httpContext,
         => HttpContext.Request.RouteValues;
 
     /// <summary>
+    /// An optional value that indicates which part of the checkout page needs to be refreshed.
+    /// </summary>
+    public CheckoutPartial? Partial { get; init; } = null;
+
+    /// <summary>
     /// An optional model (usually of a simple type) representing a user selection (e.g. address ID, shipping method ID or payment method system name).
     /// </summary>
     public object? Model { get; init; } = null;
@@ -62,4 +67,13 @@ public partial class CheckoutContext(ShoppingCart cart, HttpContext httpContext,
     /// </summary>
     public string? Action(string? action, string? controller = "Checkout", object? values = null, string? protocol = null)
         => UrlHelper.Action(action, controller, values, protocol);
+}
+
+/// <summary>
+/// Represents a part of a checkout page that needs to be refreshed.
+/// </summary>
+public enum CheckoutPartial
+{
+    OrderTotals,
+    PaymentInfo
 }

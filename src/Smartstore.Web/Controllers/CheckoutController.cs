@@ -356,6 +356,15 @@ public class CheckoutController : PublicController
     }
 
     /// <summary>
+    /// AJAX. Refreshes a part of the current checkout page.
+    /// </summary>
+    [HttpPost]
+    public async Task<IActionResult> Refresh(CheckoutPartial partial)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
     /// AJAX. Starts the payment confirmation process. The URL of the third-party payment page is obtained 
     /// from the payment provider and is used to confirm and fulfil the payment. Redirection is performed on the client side.
     /// </summary>

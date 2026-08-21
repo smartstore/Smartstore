@@ -178,6 +178,14 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         return new(result.Errors, result.ViewPath, true);
     }
 
+    public virtual async Task<CheckoutResult> RefreshAsync(CheckoutContext context)
+    {
+        Guard.NotNull(context);
+        Guard.NotNull(context.Partial);
+
+        throw new NotImplementedException();
+    }
+
     public virtual async Task<CheckoutResult> AdvanceAsync(CheckoutContext context)
     {
         Guard.NotNull(context);
