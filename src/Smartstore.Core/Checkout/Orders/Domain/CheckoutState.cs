@@ -51,33 +51,6 @@ public partial class CheckoutState : ObservableObject
     }
 
     /// <summary>
-    /// Gets or sets the customer comment entered on checkout confirmation page.
-    /// </summary>
-    public string CustomerComment
-    {
-        get => GetProperty<string>();
-        set => SetProperty(value);
-    }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the customer wants to subscribe to the newsletter.
-    /// </summary>
-    public bool SubscribeToNewsletter
-    {
-        get => GetProperty<bool>();
-        set => SetProperty(value);
-    }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the customer accepts third-party email handover.
-    /// </summary>
-    public bool AcceptThirdPartyEmailHandOver
-    {
-        get => GetProperty<bool>();
-        set => SetProperty(value);
-    }
-
-    /// <summary>
     /// Gets a custom state object from the <see cref="CustomProperties"/> dictionary.
     /// If the object did not exist in the dictionary it will be created.
     /// The key used to save the object in the dictionary is the type short name.

@@ -19,25 +19,26 @@ public partial class OrderProcessingService : IOrderProcessingService
 {
     public virtual async Task<OrderPlacementResult> PlaceOrderAsync(
         ProcessPaymentRequest paymentRequest,
-        Dictionary<string, string> extraData,
         CancellationToken cancelToken = default)
     {
         Guard.NotNull(paymentRequest);
-
-        extraData ??= [];
 
         if (paymentRequest.OrderGuid == Guid.Empty)
         {
             paymentRequest.OrderGuid = Guid.NewGuid();
         }
 
+        var customer = await _db.Customers
+            .IncludeCustomerRoles()
+            .FindByIdAsync(paymentRequest.CustomerId, true, cancelToken);
+
         var ctx = new PlaceOrderContext
         {
             InitialOrder = await _db.Orders.FindByIdAsync(paymentRequest.InitialOrderId, true, cancelToken),
-            Customer = await _db.Customers
-                .IncludeCustomerRoles()
-                .FindByIdAsync(paymentRequest.CustomerId, true, cancelToken),
-            ExtraData = extraData,
+            Customer = customer,
+            CheckoutOrderData = paymentRequest.IsRecurringPayment
+                ? []
+                : customer?.GenericAttributes.CheckoutOrderData ?? [],
             PaymentRequest = paymentRequest
         };
 
@@ -484,14 +485,14 @@ public partial class OrderProcessingService : IOrderProcessingService
             order.CustomerLanguageId = _workContext.WorkingLanguage.Id;
         }
 
-        // Apply extra data.
-        if (ctx.ExtraData.TryGetValue(CheckoutWorkflow.CustomerCommentKey, out var customerComment))
+        // Apply checkout data.
+        if (ctx.CheckoutOrderData.TryGetValue(CheckoutWorkflow.CustomerCommentKey, out var customerComment))
         {
             order.CustomerOrderComment = customerComment;
         }
 
         if (_shoppingCartSettings.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None
-            && ctx.ExtraData.TryGetValue(CheckoutWorkflow.AcceptThirdPartyEmailHandOverKey, out var acceptEmailHandOver))
+            && ctx.CheckoutOrderData.TryGetValue(CheckoutWorkflow.AcceptThirdPartyEmailHandOverKey, out var acceptEmailHandOver))
         {
             order.AcceptThirdPartyEmailHandOver = acceptEmailHandOver.ToBool();
         }
@@ -1028,7 +1029,7 @@ public partial class OrderProcessingService : IOrderProcessingService
 
         if (!pr.IsRecurringPayment && !pr.IsMultiOrder)
         {
-            ctx.Customer.ResetCheckoutData(pr.StoreId, true, true, true, true, true, true);
+            ctx.Customer.ResetCheckoutData(pr.StoreId, true, true, true, true, true, true, true);
             await _shoppingCartService.DeleteCartAsync(ctx.Cart, false);
         }
 
@@ -1055,7 +1056,7 @@ public partial class OrderProcessingService : IOrderProcessingService
 
         // Newsletter subscription.
         if (_shoppingCartSettings.NewsletterSubscription != CheckoutNewsletterSubscription.None
-            && ctx.ExtraData.TryGetValue(CheckoutWorkflow.SubscribeToNewsletterKey, out var addSubscription))
+            && ctx.CheckoutOrderData.TryGetValue(CheckoutWorkflow.SubscribeToNewsletterKey, out var addSubscription))
         {
             var email = ctx.Customer.Email ?? ctx.Customer.Addresses?.FirstOrDefault()?.Email;
 
@@ -1089,7 +1090,7 @@ public partial class OrderProcessingService : IOrderProcessingService
         public Order Order { get; } = new();
         public Order InitialOrder { get; init; }
         public Customer Customer { get; init; }
-        public Dictionary<string, string> ExtraData { get; init; }
+        public Dictionary<string, string> CheckoutOrderData { get; init; }
         public ProcessPaymentRequest PaymentRequest { get; init; }
         public ShoppingCart Cart { get; set; }
         public ProductBatchContext BatchContext { get; set; }

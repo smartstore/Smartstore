@@ -30,7 +30,6 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
     private readonly IWebHelper _webHelper;
     private readonly IEventPublisher _eventPublisher;
     private readonly IShoppingCartValidator _shoppingCartValidator;
-    private readonly Lazy<IShoppingCartService> _shoppingCartService;
     private readonly IOrderProcessingService _orderProcessingService;
     private readonly IPaymentService _paymentService;
     private readonly ICheckoutFactory _checkoutFactory;
@@ -46,7 +45,6 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         IWebHelper webHelper,
         IEventPublisher eventPublisher,
         IShoppingCartValidator shoppingCartValidator,
-        Lazy<IShoppingCartService> shoppingCartService,
         IOrderProcessingService orderProcessingService,
         IPaymentService paymentService,
         ICheckoutFactory checkoutFactory,
@@ -61,7 +59,6 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         _webHelper = webHelper;
         _eventPublisher = eventPublisher;
         _shoppingCartValidator = shoppingCartValidator;
-        _shoppingCartService = shoppingCartService;
         _orderProcessingService = orderProcessingService;
         _paymentService = paymentService;
         _checkoutFactory = checkoutFactory;
@@ -291,11 +288,7 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
                 return new(true);
             }
 
-            // Keep the form values in the checkout state so that they are not lost when the user is redirected to the payment provider's page.
-            var state = _checkoutStateAccessor.CheckoutState;
-            state.CustomerComment = context.GetFormValue<string>("customercommenthidden");
-            state.SubscribeToNewsletter = context.GetFormValue<bool>(SubscribeToNewsletterKey);
-            state.AcceptThirdPartyEmailHandOver = context.GetFormValue<bool>(AcceptThirdPartyEmailHandOverKey);
+            customer.GenericAttributes.CheckoutOrderData = GetCheckoutOrderData(context);
 
             return new(new RedirectResult(url), confirmStep.ViewPath, true);
         }
@@ -360,13 +353,7 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
             if (await provider.Value.CompletePaymentAsync(paymentRequest, context))
             {
                 // Payment completed successfully. Place the order.
-                var state = _checkoutStateAccessor.CheckoutState;
-                placeOrderResult = await _orderProcessingService.PlaceOrderAsync(paymentRequest, new()
-                {
-                    [CustomerCommentKey] = state.CustomerComment,
-                    [SubscribeToNewsletterKey] = state.SubscribeToNewsletter.ToString().ToLower(),
-                    [AcceptThirdPartyEmailHandOverKey] = state.AcceptThirdPartyEmailHandOver.ToString().ToLower()
-                });
+                placeOrderResult = await _orderProcessingService.PlaceOrderAsync(paymentRequest);
             }
         }
         catch (Exception ex)
@@ -388,7 +375,7 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         {
             try
             {
-                result = await PostProcessPayment(placeOrderResult, confirmStep, context);
+                result = await PostProcessPayment(placeOrderResult, confirmStep);
             }
             catch (Exception ex)
             {
@@ -412,8 +399,9 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
 
         OrderPlacementResult placeOrderResult = null;
         var confirmStep = Guard.NotNull(_checkoutFactory.GetCheckoutStep(CheckoutActionNames.Confirm));
-        var store = _storeContext.CurrentStore;
         var cart = context.Cart;
+        var store = _storeContext.CurrentStore;
+        var customer = cart.Customer;
 
         var validationResult = await PublishValidatingCartEvent(context);
         if (validationResult != null)
@@ -422,7 +410,7 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         }
 
         // Prevent two orders from being placed within a time span of x seconds.
-        if (!await _orderProcessingService.IsMinimumOrderPlacementIntervalValidAsync(cart.Customer, store))
+        if (!await _orderProcessingService.IsMinimumOrderPlacementIntervalValidAsync(customer, store))
         {
             _notifier.Warning(T("Checkout.MinOrderPlacementInterval"));
             return new(confirmStep.GetActionResult(context), confirmStep.ViewPath);
@@ -433,15 +421,12 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
             context.HttpContext.Session.TryGetObject<ProcessPaymentRequest>(CheckoutState.OrderPaymentInfoName, out var paymentRequest);
             paymentRequest ??= new();
             paymentRequest.StoreId = store.Id;
-            paymentRequest.CustomerId = cart.Customer.Id;
-            paymentRequest.PaymentMethodSystemName = cart.Customer.GenericAttributes.SelectedPaymentMethod;
+            paymentRequest.CustomerId = customer.Id;
+            paymentRequest.PaymentMethodSystemName = customer.GenericAttributes.SelectedPaymentMethod;
 
-            placeOrderResult = await _orderProcessingService.PlaceOrderAsync(paymentRequest, new()
-            {
-                [CustomerCommentKey] = context.GetFormValue<string>("customercommenthidden"),
-                [SubscribeToNewsletterKey] = context.GetFormValue<string>(SubscribeToNewsletterKey),
-                [AcceptThirdPartyEmailHandOverKey] = context.GetFormValue<string>(AcceptThirdPartyEmailHandOverKey)
-            });
+            customer.GenericAttributes.CheckoutOrderData = GetCheckoutOrderData(context);
+
+            placeOrderResult = await _orderProcessingService.PlaceOrderAsync(paymentRequest);
         }
         catch (PaymentException ex)
         {
@@ -449,7 +434,7 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         }
         catch (Exception ex)
         {
-            if (await ProcessOrderPlacementException(ex, cart.Customer.Id))
+            if (await ProcessOrderPlacementException(ex, customer.Id))
             {
                 return new(RedirectToCheckout(CheckoutActionNames.Completed), confirmStep.ViewPath, true);
             }
@@ -466,7 +451,7 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
             CheckoutResult result = null;
             try
             {
-                result = await PostProcessPayment(placeOrderResult, confirmStep, context);
+                result = await PostProcessPayment(placeOrderResult, confirmStep);
             }
             catch (PaymentException ex)
             {
@@ -494,7 +479,7 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         }
     }
 
-    private async Task<CheckoutResult> PostProcessPayment(OrderPlacementResult placeOrderResult, CheckoutStep step, CheckoutContext context)
+    private async Task<CheckoutResult> PostProcessPayment(OrderPlacementResult placeOrderResult, CheckoutStep step)
     {
         var postPaymentRequest = new PostProcessPaymentRequest
         {
@@ -509,6 +494,16 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         }
 
         return new(RedirectToCheckout(CheckoutActionNames.Completed), step.ViewPath, true);
+    }
+
+    private static Dictionary<string, string> GetCheckoutOrderData(CheckoutContext context)
+    {
+        return new()
+        {
+            [CustomerCommentKey] = context.GetFormValue<string>("customercommenthidden"),
+            [SubscribeToNewsletterKey] = context.GetFormValue<string>(SubscribeToNewsletterKey),
+            [AcceptThirdPartyEmailHandOverKey] = context.GetFormValue<string>(AcceptThirdPartyEmailHandOverKey)
+        };
     }
 
     /// <summary>

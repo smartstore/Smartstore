@@ -405,5 +405,22 @@ public class CustomerAttributeCollection : GenericAttributeCollection<Customer>
         set => Set(SystemCustomerAttributeNames.SelectedPaymentMethod, value, CurrentStoreId);
     }
 
+    /// <summary>
+    /// Gets or sets transient data to be applied during order placement.
+    /// </summary>
+    public Dictionary<string, string> CheckoutOrderData
+    {
+        get
+        {
+            var json = Get<string>(SystemCustomerAttributeNames.CheckoutOrderData, CurrentStoreId);
+            return json.HasValue() ? JsonSerializer.Deserialize<Dictionary<string, string>>(json) : null;
+        }
+        set
+        {
+            var json = value != null ? JsonSerializer.Serialize(value) : null;
+            Set(SystemCustomerAttributeNames.CheckoutOrderData, json, CurrentStoreId);
+        }
+    }
+
     #endregion
 }

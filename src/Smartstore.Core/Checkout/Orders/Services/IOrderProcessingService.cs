@@ -146,12 +146,8 @@ public partial interface IOrderProcessingService
     /// Places an order.
     /// </summary>
     /// <param name="paymentRequest">Payment processing request.</param>
-    /// <param name="extraData">Additional data to be taken into account when placing the order.</param>
     /// <returns>Order placement result.</returns>
-    Task<OrderPlacementResult> PlaceOrderAsync(
-        ProcessPaymentRequest paymentRequest,
-        Dictionary<string, string> extraData,
-        CancellationToken cancelToken = default);
+    Task<OrderPlacementResult> PlaceOrderAsync(ProcessPaymentRequest paymentRequest, CancellationToken cancelToken = default);
 
     /// <summary>
     /// Checks whether an order can be placed.

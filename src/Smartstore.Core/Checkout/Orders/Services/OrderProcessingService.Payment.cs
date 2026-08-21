@@ -403,7 +403,7 @@ public partial class OrderProcessingService : IOrderProcessingService
             RecurringTotalCycles = recurringPayment.TotalCycles,
         };
 
-        var result = await PlaceOrderAsync(paymentInfo, new());
+        var result = await PlaceOrderAsync(paymentInfo);
         if (result.Success)
         {
             if (result.PlacedOrder == null)

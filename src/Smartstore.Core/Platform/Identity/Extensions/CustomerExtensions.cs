@@ -393,11 +393,16 @@ public static class CustomerExtensions
     /// <param name="clearShippingMethod">A value indicating whether to clear selected shipping method</param>
     /// <param name="clearPaymentMethod">A value indicating whether to clear selected payment method</param>
     /// <param name="clearCreditBalance">A value indicating whether to clear credit balance.</param>
-    public static void ResetCheckoutData(this Customer customer, int storeId,
-        bool clearCouponCodes = false, bool clearCheckoutAttributes = false,
-        bool clearRewardPoints = false, bool clearShippingMethod = true,
+    /// <param name="clearCheckoutOrderData">A value indicating whether to clear checkout order data.</param>
+    public static void ResetCheckoutData(this Customer customer, 
+        int storeId,
+        bool clearCouponCodes = false, 
+        bool clearCheckoutAttributes = false,
+        bool clearRewardPoints = false, 
+        bool clearShippingMethod = true,
         bool clearPaymentMethod = true,
-        bool clearCreditBalance = false)
+        bool clearCreditBalance = false,
+        bool clearCheckoutOrderData = false)
     {
         Guard.NotNull(customer);
 
@@ -438,6 +443,11 @@ public static class CustomerExtensions
         if (clearPaymentMethod)
         {
             ga.Set<string?>(SystemCustomerAttributeNames.SelectedPaymentMethod, null, storeId);
+        }
+
+        if (clearCheckoutOrderData)
+        {
+            ga.Set<string?>(SystemCustomerAttributeNames.CheckoutOrderData, null, storeId);
         }
     }
 }

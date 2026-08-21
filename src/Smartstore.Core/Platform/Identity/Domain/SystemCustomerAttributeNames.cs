@@ -40,6 +40,7 @@ public static partial class SystemCustomerAttributeNames
     public static string SelectedShippingOption => "SelectedShippingOption";
     public static string OfferedShippingOptions => "OfferedShippingOptions";
     public static string SelectedPaymentMethod => "SelectedPaymentMethod";
+    public static string CheckoutOrderData => "CheckoutOrderData";
 
     // Depends on store
     public static string CurrencyId => "CurrencyId";
