@@ -359,7 +359,7 @@ public class CheckoutController : PublicController
     /// AJAX. Refreshes a part of the current checkout page.
     /// </summary>
     [HttpPost]
-    public async Task<IActionResult> Refresh(CheckoutPartial partial)
+    public async Task<IActionResult> Refresh(CheckoutPartial part)
     {
         throw new NotImplementedException();
     }
