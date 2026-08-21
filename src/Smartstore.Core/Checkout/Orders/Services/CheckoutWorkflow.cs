@@ -328,8 +328,8 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
 
         context.HttpContext.Session.TryGetObject<ProcessPaymentRequest>(CheckoutState.OrderPaymentInfoName, out var paymentRequest);
 
-        // INFO: (mg) paymentRequest?.OrderGuid can be null, so we need to check for null before checking for Guid.Empty.
-        if (paymentRequest != null && paymentRequest.OrderGuid != Guid.Empty
+        if (paymentRequest != null 
+            && paymentRequest.OrderGuid != Guid.Empty
             && await _db.Orders.AnyAsync(x => x.OrderGuid == paymentRequest.OrderGuid && x.CustomerId == customer.Id && x.StoreId == store.Id))
         {
             // The order has already been recovered. The payment plugin was faster. Further processing would result
