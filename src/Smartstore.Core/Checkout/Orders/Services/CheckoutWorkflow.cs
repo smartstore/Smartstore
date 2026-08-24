@@ -178,12 +178,18 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         return new(result.Errors, result.ViewPath, true);
     }
 
-    public virtual async Task<CheckoutResult> RefreshAsync(CheckoutContext context)
+    public virtual Task<CheckoutResult> RefreshAsync(CheckoutContext context)
     {
         Guard.NotNull(context);
-        Guard.NotNull(context.Partial);
+        Guard.NotNull(context.Part);
 
-        throw new NotImplementedException();
+        var step = _checkoutFactory.GetCheckoutStep(context);
+        if (step == null)
+        {
+            return Task.FromResult(new CheckoutResult(false));
+        }
+
+        return step.Handler.Value.RefreshAsync(context);
     }
 
     public virtual async Task<CheckoutResult> AdvanceAsync(CheckoutContext context)
@@ -579,7 +585,6 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
 
         if (path.HasValue())
         {
-            var values = new RouteValueDictionary();
             var template = TemplateParser.Parse("{controller}/{action}/{id?}");
             var matcher = new TemplateMatcher(template, []);
             matcher.TryMatch(path, routeValues);

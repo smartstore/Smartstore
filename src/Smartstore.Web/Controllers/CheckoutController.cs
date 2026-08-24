@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Smartstore.ComponentModel;
+﻿using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
@@ -306,7 +305,7 @@ public class CheckoutController : PublicController
 
     [HttpPost, ActionName(CheckoutActionNames.PaymentMethod)]
     [FormValueRequired("nextstep")]
-    public async Task<IActionResult> SelectPaymentMethod(string paymentMethod, IFormCollection form)
+    public async Task<IActionResult> SelectPaymentMethod(string paymentMethod)
     {
         var result = await _checkoutWorkflow.AdvanceAsync(await CreateCheckoutContext(paymentMethod));
 
@@ -359,9 +358,27 @@ public class CheckoutController : PublicController
     /// AJAX. Refreshes a part of the current checkout page.
     /// </summary>
     [HttpPost]
-    public async Task<IActionResult> Refresh(CheckoutPartial part)
+    public async Task<IActionResult> Refresh(string actionName, CheckoutPart part)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var context = await CreateCheckoutContext(null, actionName, part);
+            var result = await _checkoutWorkflow.RefreshAsync(context);
+
+            result.Errors.Take(3).Each(x => NotifyError(x.ErrorMessage));
+
+            if (result.ActionResult != null)
+            {
+                return result.ActionResult;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex);
+            NotifyError(ex.Message);
+        }
+
+        return new EmptyResult();
     }
 
     /// <summary>
@@ -476,14 +493,29 @@ public class CheckoutController : PublicController
         });
     }
 
-    private async Task<CheckoutContext> CreateCheckoutContext(object model = null)
+    private async Task<CheckoutContext> CreateCheckoutContext(
+        object model = null, 
+        string actionName = null, 
+        CheckoutPart? part = null)
     {
         var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
-
-        return new(cart, HttpContext, Url)
+        var result = new CheckoutContext(cart, HttpContext, Url)
         {
-            Model = model
+            Model = model,
+            Part = part
         };
+
+        if (part != null && actionName.HasValue())
+        {
+            result.RouteValues = new(new
+            {
+                action = actionName,
+                controller = "Checkout",
+                area = string.Empty
+            });
+        }
+
+        return result;
     }
 
     private string GetUrl(IActionResult result)

@@ -1,4 +1,5 @@
 ﻿@using Smartstore.Web.Models.Checkout
+@using Smartstore.Core.Checkout.Orders
 
 @model CheckoutShippingMethodModel
 
@@ -18,10 +19,8 @@
         <h1 class="h3">@T("Checkout.SelectShippingMethod")</h1>
     </div>
     <div class="page-body checkout-data">
-        <form asp-action="ShippingMethod"
-              asp-controller="Checkout"
-              method="post"
-              data-update-totals-url="@Url.Action("UpdateShippingMethodTotals", "Checkout")">
+        <form asp-action="ShippingMethod" asp-controller="Checkout" method="post">
+            @* data-update-totals-url="@Url.Action("UpdateShippingMethodTotals", "Checkout")" *@
             <zone name="checkout_shipping_method_top" />
 
             <div class="order-summary-content">
@@ -42,30 +41,45 @@
 
 <script sm-target-zone="scripts" data-origin="shipping-method">
     $(function () {
-        let shippingRequest;
+        //let shippingRequest;
 
-        $('.checkout-data .opt-radio').on('change', function (e) {
+        $('.checkout-data .opt-radio').on('change', (e) => {
+            const $el = $(e.currentTarget);
             $('.checkout-data .opt-list-item').removeClass('active');
-            var item = $(this).closest('.opt-list-item');
-            item.addClass("active");
+            $el.closest('.opt-list-item').addClass('active');
 
-            shippingRequest?.abort();
+            $.ajax({
+                type: 'POST',
+                cache: false,
+                url: '@Url.Action("Refresh", new { actionName = CheckoutActionNames.ShippingMethod, part = CheckoutPart.OrderTotals })',
+                data: $el.closest('form').serialize()
+            })
+            .done((response) => {
+                //$('#order-totals').html(response.totalsHtml);
+            })
+            .fail((xhr, status) => {
+                if (status !== 'abort') {
+                    location.reload();
+                }
+            });
 
-            var form = $(this).closest('form');
-            shippingRequest = $.ajax({
-                    cache: false,
-                    url: form.data('update-totals-url'),
-                    data: form.serialize(),
-                    type: 'POST'
-                })
-                .done((response) => {
-                    $('#order-totals').html(response.totalsHtml);
-                })
-                .fail((xhr, status) => {
-                    if (status !== 'abort') {
-                        location.reload();
-                    }
-                });
+            // shippingRequest?.abort();
+
+            // var form = $(this).closest('form');
+            // shippingRequest = $.ajax({
+            //         cache: false,
+            //         url: form.data('update-totals-url'),
+            //         data: form.serialize(),
+            //         type: 'POST'
+            //     })
+            //     .done((response) => {
+            //         $('#order-totals').html(response.totalsHtml);
+            //     })
+            //     .fail((xhr, status) => {
+            //         if (status !== 'abort') {
+            //             location.reload();
+            //         }
+            //     });
         });
 
         $('.shipping-method-next-step-button').on('click', function () {
