@@ -28,7 +28,7 @@ public partial class CheckoutContext(ShoppingCart cart, HttpContext httpContext,
     /// <summary>
     /// An optional value that indicates which part of the checkout page needs to be refreshed.
     /// </summary>
-    public CheckoutPart? Part { get; init; } = null;
+    public CheckoutPartial? Part { get; init; } = null;
 
     /// <summary>
     /// An optional model (usually of a simple type) representing a user selection (e.g. address ID, shipping method ID or payment method system name).
@@ -77,7 +77,7 @@ public partial class CheckoutContext(ShoppingCart cart, HttpContext httpContext,
 /// <summary>
 /// Represents a part of a checkout page that needs to be refreshed.
 /// </summary>
-public enum CheckoutPart
+public enum CheckoutPartial
 {
     OrderTotals,
     PaymentInfo

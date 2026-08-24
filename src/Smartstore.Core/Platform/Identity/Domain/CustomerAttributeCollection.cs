@@ -413,13 +413,6 @@ public class CustomerAttributeCollection : GenericAttributeCollection<Customer>
         get
         {
             var json = Get<string>(SystemCustomerAttributeNames.CheckoutOrderData, CurrentStoreId);
-            // TODO: (mg) No JSON serializer options are used here. Sure?
-            // RE: Yes. The STJ default options are sufficient. Reasons: 
-            // - Consistency with other serializations in CustomerAttributeCollection.
-            // - Dictionary<string, string> is a primitive type(no converters etc. required).
-            // - Not subject to the Newtonsoft.Json change because it is new.
-            // - No compatibility risk, since STJ default options are used for serialization in both directions.
-            // - I have tested the result ;-)
             return json.HasValue() ? JsonSerializer.Deserialize<Dictionary<string, string>>(json) : null;
         }
         set

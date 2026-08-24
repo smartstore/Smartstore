@@ -202,10 +202,10 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         {
             switch (context.Part)
             {
-                case CheckoutPart.OrderTotals:
+                case CheckoutPartial.OrderTotals:
                     result.Widget = new ComponentWidget("OrderTotals", null);
                     break;
-                case CheckoutPart.PaymentInfo:
+                case CheckoutPartial.PaymentInfo:
                     if (context.Model is string paymentMethodSystemName)
                     {
                         var paymentMethod = await _paymentService.LoadPaymentProviderBySystemNameAsync(paymentMethodSystemName);

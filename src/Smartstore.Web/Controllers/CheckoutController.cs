@@ -257,7 +257,7 @@ public class CheckoutController : PublicController
     /// AJAX. Refreshes a part of the current checkout page.
     /// </summary>
     [HttpPost]
-    public async Task<IActionResult> Refresh(string actionName, CheckoutPart part)
+    public async Task<IActionResult> Refresh(string actionName, CheckoutPartial part)
     {
         // TODO: (mg) Consolidate query and form values into a single model object.
         var success = false;
@@ -415,15 +415,15 @@ public class CheckoutController : PublicController
         });
     }
 
-    private async Task<CheckoutContext> CreateCheckoutContext(object model = null, CheckoutPart? part = null)
+    private async Task<CheckoutContext> CreateCheckoutContext(object model = null, CheckoutPartial? part = null)
     {
         if (model == null && part != null)
         {
             switch (part)
             {
-                case CheckoutPart.OrderTotals:
-                case CheckoutPart.PaymentInfo:
-                    var key = part == CheckoutPart.OrderTotals ? "shippingoption" : "paymentMethodSystemName";
+                case CheckoutPartial.OrderTotals:
+                case CheckoutPartial.PaymentInfo:
+                    var key = part == CheckoutPartial.OrderTotals ? "shippingoption" : "paymentMethodSystemName";
                     if (Request.Form.TryGetValue(key, out var val))
                     {
                         model = val.ToString().NullEmpty();
