@@ -12,6 +12,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Stores;
 using Smartstore.Utilities;
+using MsLogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace Smartstore.Core.Checkout.Orders;
 
@@ -133,6 +134,86 @@ public partial class OrderProcessingService : IOrderProcessingService
         }
 
         return ctx.Result;
+    }
+
+    public virtual async Task<OrderPlacementResult> RecoverOrderAsync(OrderRecoveryData data, CancellationToken cancelToken = default)
+    {
+        Guard.NotNull(data);
+        Guard.IsPositive(data.StoreId);
+
+        var customer = await _db.Customers
+            .IncludeCustomerRoles()
+            .FindByIdAsync(data.CustomerId, true, cancelToken);
+        if (customer == null)
+        {
+            return CreateFailure(T("Customer.DoesNotExist"));
+        }
+
+        // Check if the current cart matches the cart that was used to pay it.
+        var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, data.StoreId);
+        if (!cart.HasItems)
+        {
+            return CreateFailure(T("ShoppingCart.CartIsEmpty"));
+        }
+
+        // INFO: Order recovery deliberately uses the customer's current persisted addresses and
+        // selected shipping option. These values are not part of the cart hash because changing
+        // them should not prevent recovery of an already paid order.
+        // This means that a restored order may have different addresses and a different shipping
+        // method than an order created normally during checkout.
+
+        var currentCartHash = cart.GetHashCode();
+        if (data.CartHash == 0 || currentCartHash != data.CartHash)
+        {
+            return CreateFailure(T("Admin.Configuration.Payment.Methods.NoMatchingCartHash", currentCartHash, data.CartHash));
+        }
+
+        if (customer.Id != _workContext.CurrentCustomer.Id)
+        {
+            // Always use the customer who paid for the order. Otherwise, the system may calculate a different cart total.
+            _workContext.CurrentCustomer = customer;
+            await _workContext.InitializeAsync();
+        }
+
+        // Check if the current cart total matches the total that was paid.
+        var total = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
+        if (total.Total == null)
+        {
+            return CreateFailure(T("Order.CannotCalculateOrderTotal"));
+        }
+
+        var roundedTotal = _roundingHelper.Round(total.Total.Value);
+        if (data.PaidAmount == 0 || roundedTotal != data.PaidAmount)
+        {
+            return CreateFailure(T("Admin.Configuration.Payment.Methods.NoMatchingCartTotal", roundedTotal, data.PaidAmount));
+        }
+
+        try
+        {
+            var paymentRequest = new ProcessPaymentRequest
+            {
+                StoreId = data.StoreId,
+                CustomerId = data.CustomerId,
+                PaymentMethodSystemName = data.PaymentMethodSystemName,
+                OrderGuid = data.OrderGuid,
+                IsOrderRecovery = true
+            };
+
+            var result = await PlaceOrderAsync(paymentRequest, cancelToken);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            var isDuplicatePaymentReference = await IsDuplicatePaymentReferenceAsync(ex);
+            var msg = T(isDuplicatePaymentReference ? "Order.AlreadyExists" : "Order.PlaceOrderError", customer.Id);
+
+            Logger.Log(isDuplicatePaymentReference ? MsLogLevel.Warning : MsLogLevel.Error, ex, msg);
+
+            return CreateFailure(msg);
+        }
+
+        static OrderPlacementResult CreateFailure(string error)
+            => new() { Errors = [error] };
     }
 
     public virtual Task<(IList<string> Warnings, ShoppingCart Cart)> ValidateOrderPlacementAsync(

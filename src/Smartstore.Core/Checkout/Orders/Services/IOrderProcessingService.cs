@@ -150,6 +150,14 @@ public partial interface IOrderProcessingService
     Task<OrderPlacementResult> PlaceOrderAsync(ProcessPaymentRequest paymentRequest, CancellationToken cancelToken = default);
 
     /// <summary>
+    /// Recovers an order after a payment has been made but the order was not placed accidentally 
+    /// (e.g. the browser window was closed before the user was redirected to the shop).
+    /// </summary>
+    /// <param name="data">Data required for order recovery.</param>
+    /// <returns>Order placement result.</returns>
+    Task<OrderPlacementResult> RecoverOrderAsync(OrderRecoveryData data, CancellationToken cancelToken = default);
+
+    /// <summary>
     /// Checks whether an order can be placed.
     /// </summary>
     /// <param name="paymentRequest">Payment processing request.</param>

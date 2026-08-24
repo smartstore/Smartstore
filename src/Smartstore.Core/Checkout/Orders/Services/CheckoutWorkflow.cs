@@ -364,6 +364,14 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
                 placeOrderResult = await _orderProcessingService.PlaceOrderAsync(paymentRequest);
             }
         }
+        catch (PaymentException ex)
+        {
+            // A payment-related error always takes precedence over a generic error.
+            // The buyer should only see a simple, general payment message here.
+            _logger.Error(ex);
+            _notifier.Error(ex.Message);
+            return GetDefaultResult();
+        }
         catch (Exception ex)
         {
             if (await ProcessOrderPlacementException(ex, customer.Id, true))
@@ -438,6 +446,8 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         }
         catch (PaymentException ex)
         {
+            // A payment-related error always takes precedence over a generic error.
+            // The buyer should only see a simple, general payment message here.
             return CreateResult(ex, context);
         }
         catch (Exception ex)
