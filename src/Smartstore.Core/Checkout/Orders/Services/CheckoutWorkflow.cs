@@ -9,6 +9,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
+using Smartstore.Core.Widgets;
 using Smartstore.Events;
 using Smartstore.Http;
 using Smartstore.Utilities.Html;
@@ -178,18 +179,45 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         return new(result.Errors, result.ViewPath, true);
     }
 
-    public virtual Task<CheckoutResult> RefreshAsync(CheckoutContext context)
+    public virtual async Task<CheckoutResult> RefreshAsync(CheckoutContext context)
     {
         Guard.NotNull(context);
         Guard.NotNull(context.Part);
 
+        var preliminaryResult = Preliminary(context);
+        if (preliminaryResult != null)
+        {
+            return new(false);
+        }
+
         var step = _checkoutFactory.GetCheckoutStep(context);
         if (step == null)
         {
-            return Task.FromResult(new CheckoutResult(false));
+            return new(false);
         }
 
-        return step.Handler.Value.RefreshAsync(context);
+        var result = await step.Handler.Value.RefreshAsync(context);
+
+        if (result.ActionResult == null && result.Widget == null)
+        {
+            switch (context.Part)
+            {
+                case CheckoutPart.OrderTotals:
+                    result.Widget = new ComponentWidget("OrderTotals", null);
+                    break;
+                case CheckoutPart.PaymentInfo:
+                    if (context.Model is string paymentMethodSystemName)
+                    {
+                        var paymentMethod = await _paymentService.LoadPaymentProviderBySystemNameAsync(paymentMethodSystemName);
+                        result.Widget = paymentMethod?.Value?.GetPaymentInfoWidget();
+                    }
+                    break;
+                default:
+                    throw new ArgumentException($"Unknown checkout part {context.Part}.");
+            }
+        }
+
+        return result;
     }
 
     public virtual async Task<CheckoutResult> AdvanceAsync(CheckoutContext context)

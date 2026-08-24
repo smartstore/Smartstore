@@ -1,4 +1,5 @@
 ﻿@using Smartstore.Web.Models.Checkout
+@using Smartstore.Core.Checkout.Orders
 
 @model CheckoutPaymentMethodModel
 
@@ -116,32 +117,35 @@
 
             disableNextStepButton(true);
 
+            const url = '@Html.Raw(Url.Action("Refresh", new
+            {
+                actionName = CheckoutActionNames.PaymentMethod,
+                part = CheckoutPart.PaymentInfo
+            }))';
+
             $.ajax({
                 type: 'POST',
                 cache: false,
-                dataType: 'html',
-                async: true,
-                url: '@Url.Action("PaymentInfoAjax")',
+                url,
                 data: { paymentMethodSystemName: systemName },
-                success: function (html) {
-                    if (!html) return;
+                success: function(response) {
+                    if (response) { 
+                        let panel = item.find('.opt-info');
+                        if (panel.length == 0) {
+                            panel = $('<div class="opt-info opt-info-embedded payment-method-info"></div>')
+                                .appendTo(item)
+                                .data('system-name', systemName)
+                                .data('lazy-info', true);
+                        }
 
-                    var panel = item.find('.opt-info');
-
-                    if (panel.length == 0) {
-                        panel = $('<div class="opt-info opt-info-embedded payment-method-info"></div>')
-                            .appendTo(item)
-                            .data('system-name', systemName)
-                            .data('lazy-info', true);
+                        panel.html(response.content);
+                        applyCommonPlugins(panel);
                     }
-
-                    panel.html(html);
-                    applyCommonPlugins(panel);
                 },
-                error: function (xhr, ajaxOptions, thrownError) {
+                error: function(xhr, ajaxOptions, thrownError) {
                     console.error(thrownError);
                 },
-                complete: function () {
+                complete: function() {
                     disableNextStepButton(false);
                     // Remove all other info containers.
                     removeInfoPanels();

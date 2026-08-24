@@ -1,8 +1,6 @@
 ﻿using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Checkout.Payment;
-using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
@@ -19,8 +17,6 @@ public class CheckoutController : PublicController
     private readonly IStoreContext _storeContext;
     private readonly IWorkContext _workContext;
     private readonly ICheckoutWorkflow _checkoutWorkflow;
-    private readonly IPaymentService _paymentService;
-    private readonly IShippingService _shippingService;
     private readonly IShoppingCartService _shoppingCartService;
     private readonly ICheckoutStateAccessor _checkoutStateAccessor;
     private readonly OrderSettings _orderSettings;
@@ -31,8 +27,6 @@ public class CheckoutController : PublicController
         IStoreContext storeContext,
         IWorkContext workContext,
         ICheckoutWorkflow checkoutWorkflow,
-        IPaymentService paymentService,
-        IShippingService shippingService,
         IShoppingCartService shoppingCartService,
         ICheckoutStateAccessor checkoutStateAccessor,
         OrderSettings orderSettings,
@@ -42,8 +36,6 @@ public class CheckoutController : PublicController
         _storeContext = storeContext;
         _workContext = workContext;
         _checkoutWorkflow = checkoutWorkflow;
-        _paymentService = paymentService;
-        _shippingService = shippingService;
         _shoppingCartService = shoppingCartService;
         _checkoutStateAccessor = checkoutStateAccessor;
         _orderSettings = orderSettings;
@@ -215,64 +207,6 @@ public class CheckoutController : PublicController
         return View(result.ViewPath, model);
     }
 
-    [HttpPost]
-    public async Task<IActionResult> UpdateShippingMethodTotals(string shippingOption)
-    {
-        // TODO: (mh) I don't like this! It is an ugly HACK! We should refactor this to use the checkout workflow instead. TBD with MG.
-        var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
-        if (!cart.HasItems || !cart.IsShippingRequired)
-        {
-            return BadRequest();
-        }
-
-        var optionParts = shippingOption.SplitSafe("___").ToArray();
-        if (optionParts.Length != 2)
-        {
-            return BadRequest();
-        }
-
-        var selectedId = optionParts[0].ToInt();
-        var providerSystemName = optionParts[1];
-        var customerAttributes = cart.Customer.GenericAttributes;
-        var options = customerAttributes.OfferedShippingOptions;
-
-        if (options.IsNullOrEmpty())
-        {
-            var response = await _shippingService.GetShippingOptionsAsync(
-                cart,
-                cart.Customer.ShippingAddress,
-                providerSystemName,
-                cart.StoreId);
-
-            options = response.ShippingOptions;
-        }
-        else
-        {
-            options = options
-                .Where(x => x.ShippingRateComputationMethodSystemName.EqualsNoCase(providerSystemName))
-                .ToList();
-        }
-
-        var selectedOption = options.FirstOrDefault(x => x.ShippingMethodId == selectedId);
-        if (selectedOption == null)
-        {
-            return BadRequest();
-        }
-
-        var currentOption = customerAttributes.SelectedShippingOption;
-        customerAttributes.SelectedShippingOption = selectedOption;
-
-        try
-        {
-            var totalsHtml = await InvokeComponentAsync<OrderTotalsViewComponent>(ViewData, new { });
-            return Json(new { totalsHtml });
-        }
-        finally
-        {
-            customerAttributes.SelectedShippingOption = currentOption;
-        }
-    }
-
     [HttpPost, ActionName(CheckoutActionNames.ShippingMethod)]
     [FormValueRequired("nextstep")]
     public async Task<IActionResult> SelectShippingMethod(string shippingOption)
@@ -319,57 +253,41 @@ public class CheckoutController : PublicController
         return result.ActionResult ?? RedirectToAction(nameof(PaymentMethod));
     }
 
-    [HttpPost]
-    public async Task<IActionResult> PaymentInfoAjax(string paymentMethodSystemName)
-    {
-        if (!_orderSettings.AnonymousCheckoutAllowed && !_workContext.CurrentCustomer.IsRegistered())
-        {
-            return new EmptyResult();
-        }
-
-        var paymentMethod = await _paymentService.LoadPaymentProviderBySystemNameAsync(paymentMethodSystemName);
-        if (paymentMethod == null)
-        {
-            return new NotFoundResult();
-        }
-
-        var infoWidget = paymentMethod.Value.GetPaymentInfoWidget();
-        if (infoWidget == null)
-        {
-            return new EmptyResult();
-        }
-
-        try
-        {
-            var widgetContent = await infoWidget.InvokeAsync(new WidgetContext(ControllerContext));
-            return Content(widgetContent.ToHtmlString().ToString());
-        }
-        catch (Exception ex)
-        {
-            // Log all but do not display inner exceptions.
-            Logger.Error(ex);
-            NotifyError(ex.Message);
-
-            return new EmptyResult();
-        }
-    }
-
     /// <summary>
     /// AJAX. Refreshes a part of the current checkout page.
     /// </summary>
     [HttpPost]
     public async Task<IActionResult> Refresh(string actionName, CheckoutPart part)
     {
+        // TODO: (mg) Consolidate query and form values into a single model object.
+        var success = false;
+        string content = null;
+
         try
         {
-            var context = await CreateCheckoutContext(null, actionName, part);
-            var result = await _checkoutWorkflow.RefreshAsync(context);
+            var context = await CreateCheckoutContext(null, part);
 
+            context.RouteValues = new(new
+            {
+                action = actionName,
+                controller = "Checkout",
+                area = string.Empty
+            });
+
+            var result = await _checkoutWorkflow.RefreshAsync(context);
+            
+            success = result.Success;
             result.Errors.Take(3).Each(x => NotifyError(x.ErrorMessage));
 
             if (result.ActionResult != null)
             {
                 return result.ActionResult;
+            }
+
+            if (result.Widget != null)
+            {
+                var widgetContent = await result.Widget.InvokeAsync(new WidgetContext(ControllerContext));
+                content = widgetContent.ToHtmlString().ToString();
             }
         }
         catch (Exception ex)
@@ -378,7 +296,11 @@ public class CheckoutController : PublicController
             NotifyError(ex.Message);
         }
 
-        return new EmptyResult();
+        return Json(new 
+        {
+            success,
+            content
+        });
     }
 
     /// <summary>
@@ -493,29 +415,32 @@ public class CheckoutController : PublicController
         });
     }
 
-    private async Task<CheckoutContext> CreateCheckoutContext(
-        object model = null, 
-        string actionName = null, 
-        CheckoutPart? part = null)
+    private async Task<CheckoutContext> CreateCheckoutContext(object model = null, CheckoutPart? part = null)
     {
+        if (model == null && part != null)
+        {
+            switch (part)
+            {
+                case CheckoutPart.OrderTotals:
+                case CheckoutPart.PaymentInfo:
+                    var key = part == CheckoutPart.OrderTotals ? "shippingoption" : "paymentMethodSystemName";
+                    if (Request.Form.TryGetValue(key, out var val))
+                    {
+                        model = val.ToString().NullEmpty();
+                    }
+                    break;
+                default:
+                    throw new ArgumentException($"Unknown checkout part {part}.");
+            }
+        }
+
         var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
-        var result = new CheckoutContext(cart, HttpContext, Url)
+
+        return new CheckoutContext(cart, HttpContext, Url)
         {
             Model = model,
             Part = part
         };
-
-        if (part != null && actionName.HasValue())
-        {
-            result.RouteValues = new(new
-            {
-                action = actionName,
-                controller = "Checkout",
-                area = string.Empty
-            });
-        }
-
-        return result;
     }
 
     private string GetUrl(IActionResult result)

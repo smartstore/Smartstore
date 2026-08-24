@@ -22,22 +22,15 @@ public class ShippingMethodHandler : CheckoutHandlerBase
         _shoppingCartSettings = shoppingCartSettings;
     }
 
-    public override async Task<CheckoutResult> RefreshAsync(CheckoutContext context)
+    public override Task<CheckoutResult> RefreshAsync(CheckoutContext context)
     {
-        if (context.Part == null)
+        if (context.Model is string shippingOption
+            && context.IsCurrentRoute(HttpMethods.Post, CheckoutActionNames.ShippingMethod))
         {
-            return new(false);
+            return SaveShippingOption(shippingOption, context);
         }
 
-        var result = await TrySaveShippingOption(context) ?? new(false);
-        if (!result.Success)
-        {
-            return result;
-        }
-
-
-
-        return new(false);
+        return Task.FromResult(new CheckoutResult(false));
     }
 
     public override async Task<CheckoutResult> ProcessAsync(CheckoutContext context)
@@ -60,10 +53,10 @@ public class ShippingMethodHandler : CheckoutHandlerBase
             return new(true, null, true);
         }
 
-        var result = await TrySaveShippingOption(context);
-        if (result != null)
+        if (context.Model is string shippingOption
+            && context.IsCurrentRoute(HttpMethods.Post, CheckoutActionNames.ShippingMethod))
         {
-            return result;
+            return await SaveShippingOption(shippingOption, context);
         }
 
         if (options.IsNullOrEmpty())
@@ -115,24 +108,8 @@ public class ShippingMethodHandler : CheckoutHandlerBase
         return new(ga.SelectedShippingOption != null, errors, skip);
     }
 
-    private async Task<CheckoutResult> TrySaveShippingOption(CheckoutContext context)
+    private async Task<CheckoutResult> SaveShippingOption(string shippingOption, CheckoutContext context)
     {
-        if (!context.IsCurrentRoute(HttpMethods.Post, CheckoutActionNames.ShippingMethod))
-        {
-            return null;
-        }
-
-        string shippingOption = null;
-        if (context.Model is string model)
-        {
-            shippingOption = model;
-        }
-        else if (context.Part == CheckoutPart.OrderTotals
-            && context.HttpContext.Request.Form.TryGetValue("shippingoption", out var val))
-        {
-            shippingOption = val.ToString();
-        }
-
         var splittedOption = shippingOption.SplitSafe("___").ToArray();
         if (splittedOption.Length != 2)
         {
