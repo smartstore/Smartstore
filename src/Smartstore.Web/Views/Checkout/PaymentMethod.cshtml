@@ -85,12 +85,12 @@
         }
 
         $('.checkout-data .opt-radio').on('change', function (e) {
-            var radio = $(this);
-            var systemName = radio.val();
+            let radio = $(this);
+            const systemName = radio.val();
 
             function removeInfoPanels() {
                 $('.checkout-data .opt-info').each(function (i, val) {
-                    var el = $(val);
+                    let el = $(val);
                     if (el.data('system-name') != systemName && el.data('lazy-info')) {
                         el.remove();
                     }
@@ -98,7 +98,7 @@
             }
 
             function disableNextStepButton(disable) {
-                var btn = $('button.payment-method-next-step-button');
+                let btn = $('button.payment-method-next-step-button');
                 btn.prop('disabled', disable);
                 btn.find('.fa')
                     .removeClass('fa-angle-right fa-spinner fa-spin')
@@ -107,15 +107,21 @@
 
             $('.checkout-data .opt-list-item').removeClass('active');
 
-            var item = radio.closest('.opt-list-item');
+            let item = radio.closest('.opt-list-item');
             item.addClass("active");
 
-            if (!radio.data("has-info") || !radio.data("lazy-info")) {
-                removeInfoPanels();
-                return;
-            }
+            const orderTotalPart = @((int)CheckoutPartial.OrderTotals);
+            const paymentInfoPart = @((int)CheckoutPartial.PaymentInfo);
+            const updatePaymentInfo = radio.data('has-info') && radio.data('lazy-info');
+            let parts = orderTotalPart;
 
-            disableNextStepButton(true);
+            if (updatePaymentInfo) {
+                parts |= paymentInfoPart;
+                disableNextStepButton(true);
+            }
+            else {
+                removeInfoPanels();
+            }
 
             $.ajax({
                 type: 'POST',
@@ -124,29 +130,35 @@
                 data: { 
                     paymentMethodSystemName: systemName,
                     actionName: '@CheckoutActionNames.PaymentMethod',
-                    part: @((int)CheckoutPartial.PaymentInfo)
+                    parts
                 },
                 success: function(response) {
                     if (response) { 
-                        let panel = item.find('.opt-info');
-                        if (panel.length == 0) {
-                            panel = $('<div class="opt-info opt-info-embedded payment-method-info"></div>')
-                                .appendTo(item)
-                                .data('system-name', systemName)
-                                .data('lazy-info', true);
-                        }
+                        $('#order-totals').html(response.contents[orderTotalPart]);
 
-                        panel.html(response.content);
-                        applyCommonPlugins(panel);
+                        if (updatePaymentInfo) {
+                            let panel = item.find('.opt-info');
+                            if (panel.length == 0) {
+                                panel = $('<div class="opt-info opt-info-embedded payment-method-info"></div>')
+                                    .appendTo(item)
+                                    .data('system-name', systemName)
+                                    .data('lazy-info', true);
+                            }
+
+                            panel.html(response.contents[paymentInfoPart]);
+                            applyCommonPlugins(panel);
+                        }
                     }
                 },
                 error: function(xhr, ajaxOptions, thrownError) {
                     console.error(thrownError);
                 },
                 complete: function() {
-                    disableNextStepButton(false);
-                    // Remove all other info containers.
-                    removeInfoPanels();
+                    if (updatePaymentInfo) {
+                        disableNextStepButton(false);
+                        // Remove all other info containers.
+                        removeInfoPanels();
+                    }
                 }
             });
         });

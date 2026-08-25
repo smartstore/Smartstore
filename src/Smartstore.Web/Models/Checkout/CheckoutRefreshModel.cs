@@ -4,7 +4,7 @@ namespace Smartstore.Web.Models.Checkout;
 
 public class CheckoutRefreshModel : CheckoutModelBase
 {
-    public CheckoutPartial Part { get; set; }
+    public CheckoutPartial Parts { get; set; }
 
     public string PaymentMethodSystemName { get; set; }
 

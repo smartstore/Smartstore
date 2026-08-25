@@ -29,6 +29,17 @@ public class PaymentMethodHandler : CheckoutHandlerBase
         _shoppingCartSettings = shoppingCartSettings;
     }
 
+    public override Task<CheckoutResult> RefreshAsync(CheckoutContext context)
+    {
+        if (context.Model is string systemName
+            && context.IsCurrentRoute(HttpMethods.Post, CheckoutActionNames.PaymentMethod))
+        {
+            return SavePaymentMethod(systemName, false, context);
+        }
+
+        return base.RefreshAsync(context);
+    }
+
     public override async Task<CheckoutResult> ProcessAsync(CheckoutContext context)
     {
         var state = _checkoutStateAccessor.CheckoutState;
@@ -36,61 +47,10 @@ public class PaymentMethodHandler : CheckoutHandlerBase
         var ga = cart.Customer.GenericAttributes;
         List<Provider<IPaymentMethod>> providers = null;
 
-        if (context.Model != null
-            && context.Model is string systemName
+        if (context.Model is string systemName
             && context.IsCurrentRoute(HttpMethods.Post, CheckoutActionNames.PaymentMethod))
         {
-            var provider = await _paymentService.LoadPaymentProviderBySystemNameAsync(systemName, true, cart.StoreId);
-            if (provider == null)
-            {
-                return new(false);
-            }
-
-            var oldPreferredPaymentMethod = ga.PreferredPaymentMethod;
-
-            // SelectedPaymentMethod must be set before validation.
-            ga.SelectedPaymentMethod = systemName;
-            ga.PreferredPaymentMethod = systemName;
-            await ga.SaveChangesAsync();
-
-            var form = context.HttpContext.Request.Form;
-            if (form != null)
-            {
-                // Save payment data so that the user must not re-enter it.
-                foreach (var pair in form)
-                {
-                    var v = pair.Value;
-                    state.PaymentData[pair.Key] = v.Count == 2 && v[0] != null && v[0] == "true"
-                        ? "true"
-                        : v.ToString();
-                }
-            }
-
-            // Validate payment data.
-            var validationResult = await provider.Value.ValidatePaymentDataAsync(form);
-            if (validationResult.IsValid)
-            {
-                var paymentInfo = await provider.Value.GetPaymentInfoAsync(form);
-                context.HttpContext.Session.TrySetObject(CheckoutState.OrderPaymentInfoName, paymentInfo);
-                state.PaymentSummary = await provider.Value.GetPaymentSummaryAsync();
-
-                return new(true);
-            }
-            else
-            {
-                if (!ga.PreferredPaymentMethod.EqualsNoCase(oldPreferredPaymentMethod))
-                {
-                    // Reset.
-                    ga.PreferredPaymentMethod = oldPreferredPaymentMethod;
-                    await ga.SaveChangesAsync();
-                }
-
-                var errors = validationResult.Errors
-                    .Select(x => new CheckoutError(x.PropertyName, x.ErrorMessage))
-                    .ToArray();
-
-                return new(false, errors);
-            }
+            return await SavePaymentMethod(systemName, true, context);
         }
 
         var cartTotal = (Money?)await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
@@ -172,6 +132,68 @@ public class PaymentMethodHandler : CheckoutHandlerBase
         }
 
         return new(ga.SelectedPaymentMethod.HasValue(), null, skip);
+    }
+
+    private async Task<CheckoutResult> SavePaymentMethod(string systemName, bool validate, CheckoutContext context)
+    {
+        var provider = await _paymentService.LoadPaymentProviderBySystemNameAsync(systemName, true, context.Cart.StoreId);
+        if (provider == null)
+        {
+            return new(false);
+        }
+
+        var state = _checkoutStateAccessor.CheckoutState;
+        var ga = context.Cart.Customer.GenericAttributes;
+        var oldPreferredPaymentMethod = ga.PreferredPaymentMethod;
+
+        // SelectedPaymentMethod must be set before validation.
+        ga.SelectedPaymentMethod = systemName;
+        ga.PreferredPaymentMethod = systemName;
+        await ga.SaveChangesAsync();
+
+        var form = context.HttpContext.Request.Form;
+        if (form != null)
+        {
+            // Save payment data so that the user must not re-enter it.
+            foreach (var pair in form)
+            {
+                var v = pair.Value;
+                state.PaymentData[pair.Key] = v.Count == 2 && v[0] != null && v[0] == "true"
+                    ? "true"
+                    : v.ToString();
+            }
+        }
+
+        if (!validate)
+        {
+            return new(true);
+        }
+
+        // Validate payment data.
+        var validationResult = await provider.Value.ValidatePaymentDataAsync(form);
+        if (validationResult.IsValid)
+        {
+            var paymentInfo = await provider.Value.GetPaymentInfoAsync(form);
+            context.HttpContext.Session.TrySetObject(CheckoutState.OrderPaymentInfoName, paymentInfo);
+            state.PaymentSummary = await provider.Value.GetPaymentSummaryAsync();
+
+            return new(true);
+        }
+        else
+        {
+            if (!ga.PreferredPaymentMethod.EqualsNoCase(oldPreferredPaymentMethod))
+            {
+                // Reset.
+                ga.PreferredPaymentMethod = oldPreferredPaymentMethod;
+                await ga.SaveChangesAsync();
+            }
+
+            var errors = validationResult.Errors
+                .Select(x => new CheckoutError(x.PropertyName, x.ErrorMessage))
+                .ToArray();
+
+            return new(false, errors);
+        }
     }
 
     private async Task<List<Provider<IPaymentMethod>>> GetPaymentMethods(ShoppingCart cart)

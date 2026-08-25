@@ -65,10 +65,11 @@ public partial class CheckoutResult
     public string? ViewPath { get; set; }
 
     /// <summary>
-    /// Gets or sets a widget to be rendered on the current checkout page.
+    /// Gets or sets widgets to be rendered on the current checkout page.
     /// Only applicable for AJAX requests.
     /// </summary>
-    public Widget? Widget { get; set; }
+    public IDictionary<CheckoutPartial, Widget> Widgets { get; } =
+        new Dictionary<CheckoutPartial, Widget>();
 }
 
 public class CheckoutError(string propertyName, string errorMessage)

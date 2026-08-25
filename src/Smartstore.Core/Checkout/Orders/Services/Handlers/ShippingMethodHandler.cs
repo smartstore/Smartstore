@@ -30,7 +30,7 @@ public class ShippingMethodHandler : CheckoutHandlerBase
             return SaveShippingOption(shippingOption, context);
         }
 
-        return Task.FromResult(new CheckoutResult(false));
+        return base.RefreshAsync(context);
     }
 
     public override async Task<CheckoutResult> ProcessAsync(CheckoutContext context)

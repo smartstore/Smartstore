@@ -48,6 +48,7 @@
             $el.closest('.opt-list-item').addClass('active');
 
             const shippingOption = $el.closest('form').find('input[name="shippingoption"]:checked').val();
+            const orderTotalPart = @((int)CheckoutPartial.OrderTotals);
 
             shippingRequest?.abort();
             shippingRequest = $.ajax({
@@ -57,11 +58,11 @@
                 data: { 
                     shippingOption,
                     actionName: '@CheckoutActionNames.ShippingMethod',
-                    part: @((int)CheckoutPartial.OrderTotals)
+                    parts: orderTotalPart
                 }
             })
             .done((response) => {
-                $('#order-totals').html(response.content);
+                $('#order-totals').html(response.contents[orderTotalPart]);
             })
             .fail((xhr, status) => {
                 if (status !== 'abort') {

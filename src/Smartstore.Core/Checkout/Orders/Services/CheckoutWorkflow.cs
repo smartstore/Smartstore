@@ -182,7 +182,7 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
     public virtual async Task<CheckoutResult> RefreshAsync(CheckoutContext context)
     {
         Guard.NotNull(context);
-        Guard.NotNull(context.Part);
+        Guard.NotNull(context.Parts);
 
         var preliminaryResult = Preliminary(context);
         if (preliminaryResult != null)
@@ -197,23 +197,25 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         }
 
         var result = await step.Handler.Value.RefreshAsync(context);
-
-        if (result.ActionResult == null && result.Widget == null)
+        if (result.ActionResult != null)
         {
-            switch (context.Part)
+            return result;
+        }
+
+        var parts = context.Parts.Value;
+        if (parts.HasFlag(CheckoutPartial.OrderTotals))
+        {
+            result.Widgets[CheckoutPartial.OrderTotals] = new ComponentWidget("OrderTotals", null);
+        }
+
+        if (parts.HasFlag(CheckoutPartial.PaymentInfo)
+            && context.Model is string systemName)
+        {
+            var paymentMethod = await _paymentService.LoadPaymentProviderBySystemNameAsync(systemName);
+            var widget = paymentMethod?.Value?.GetPaymentInfoWidget();
+            if (widget != null)
             {
-                case CheckoutPartial.OrderTotals:
-                    result.Widget = new ComponentWidget("OrderTotals", null);
-                    break;
-                case CheckoutPartial.PaymentInfo:
-                    if (context.Model is string systemName)
-                    {
-                        var paymentMethod = await _paymentService.LoadPaymentProviderBySystemNameAsync(systemName);
-                        result.Widget = paymentMethod?.Value?.GetPaymentInfoWidget();
-                    }
-                    break;
-                default:
-                    throw new ArgumentException($"Unknown checkout part {context.Part}.");
+                result.Widgets[CheckoutPartial.PaymentInfo] = widget;
             }
         }
 

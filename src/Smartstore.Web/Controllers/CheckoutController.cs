@@ -260,7 +260,7 @@ public class CheckoutController : PublicController
     public async Task<IActionResult> Refresh(CheckoutRefreshModel model)
     {
         var success = false;
-        string content = null;
+        var contents = new Dictionary<int, string>();
 
         try
         {
@@ -268,7 +268,7 @@ public class CheckoutController : PublicController
             var context = new CheckoutContext(cart, HttpContext, Url)
             {
                 Model = GetContextModel(),
-                Part = model.Part,
+                Parts = model.Parts,
                 RouteValues = new(new
                 {
                     action = model.ActionName,
@@ -287,10 +287,10 @@ public class CheckoutController : PublicController
                 return result.ActionResult;
             }
 
-            if (result.Widget != null)
+            foreach (var widget in result.Widgets)
             {
-                var widgetContent = await result.Widget.InvokeAsync(new WidgetContext(ControllerContext));
-                content = widgetContent.ToHtmlString().ToString();
+                var widgetContent = await widget.Value.InvokeAsync(new WidgetContext(ControllerContext));
+                contents[(int)widget.Key] = widgetContent.ToHtmlString().ToString();
             }
         }
         catch (Exception ex)
@@ -302,20 +302,22 @@ public class CheckoutController : PublicController
         return Json(new 
         {
             success,
-            content
+            contents
         });
 
         string GetContextModel()
         {
-            switch (model.Part)
+            if (model.ActionName.EqualsNoCase(CheckoutActionNames.PaymentMethod))
             {
-                case CheckoutPartial.OrderTotals:
-                    return model.ShippingOption;
-                case CheckoutPartial.PaymentInfo:
-                    return model.PaymentMethodSystemName;
-                default:
-                    throw new ArgumentException($"Unknown checkout part {model.Part}.");
+                return model.PaymentMethodSystemName;
             }
+
+            if (model.ActionName.EqualsNoCase(CheckoutActionNames.ShippingMethod))
+            {
+                return model.ShippingOption;
+            }
+
+            return null;
         }
     }
 

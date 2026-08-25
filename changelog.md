@@ -16,6 +16,7 @@
 
 - SSRF guard for media downloads.
 - Withdrawal: Case-insensitive email check.
+- Checkout: The updated total is displayed immediately when the shipping or payment method is changed.
 - **Theming**: 
   - Made `.prose` font-size and line-height configurable.
   - New theme variable `$enable-alert-icons` (`false` by default)
