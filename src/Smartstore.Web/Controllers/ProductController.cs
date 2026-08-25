@@ -727,7 +727,7 @@ public partial class ProductController : PublicController
             return NotFound();
         }
 
-        var model = await PrepareAskQuestionModelAsync(product);
+        var model = await PrepareAskQuestionModel(product);
 
         return View(model);
     }
@@ -772,6 +772,13 @@ public partial class ProductController : PublicController
 
         if (ModelState.IsValid)
         {
+            var store = Services.StoreContext.CurrentStore;
+            var slug = await product.GetActiveSlugAsync();
+            var rawAttributes = TempData.Peek("AskQuestionAttributeSelection-" + product.Id) as string;
+            var selection = new ProductVariantAttributeSelection(rawAttributes);
+            var productUrl = await _productUrlHelper.Value.GetProductPathAsync(product.Id, slug, selection);
+            var absoluteProductUrl = store.GetAbsoluteUrl(Request.PathBase, productUrl);
+
             var msg = await _messageFactory.Value.SendProductQuestionMessageAsync(
                 Services.WorkContext.CurrentCustomer,
                 product,
@@ -780,7 +787,7 @@ public partial class ProductController : PublicController
                 model.SenderPhone,
                 HtmlUtility.ConvertPlainTextToHtml(model.Question.HtmlEncode()),
                 HtmlUtility.ConvertPlainTextToHtml(model.SelectedAttributes.HtmlEncode()),
-                model.ProductUrl,
+                absoluteProductUrl,
                 model.IsQuoteRequest);
 
             if (msg?.Email?.Id != null)
@@ -788,10 +795,7 @@ public partial class ProductController : PublicController
                 TempData.Remove("AskQuestionAttributeSelection-" + product.Id);
 
                 NotifySuccess(T("Products.AskQuestion.Sent"));
-
-                return model.ProductUrl.HasValue() && !CommonHelper.IsDevEnvironment
-                    ? Redirect(model.ProductUrl)
-                    : RedirectToRoute("Product", new { SeName = await product.GetActiveSlugAsync() });
+                return Redirect(productUrl);
             }
             else
             {
@@ -800,33 +804,34 @@ public partial class ProductController : PublicController
         }
 
         // If we got this far something failed. Redisplay form.
-        model = await PrepareAskQuestionModelAsync(product);
+        model = await PrepareAskQuestionModel(product);
 
         return View(model);
     }
 
-    private async Task<ProductAskQuestionModel> PrepareAskQuestionModelAsync(Product product)
+    private async Task<ProductAskQuestionModel> PrepareAskQuestionModel(Product product)
     {
         var customer = Services.WorkContext.CurrentCustomer;
         var rawAttributes = TempData.Peek("AskQuestionAttributeSelection-" + product.Id) as string;
         var selection = new ProductVariantAttributeSelection(rawAttributes);
         var slug = await product.GetActiveSlugAsync();
+        var name = product.GetLocalized(x => x.Name);
 
         var model = new ProductAskQuestionModel
         {
             Id = product.Id,
-            ProductName = product.GetLocalized(x => x.Name),
+            ProductName = name,
             ProductSeName = slug,
             SenderEmail = customer.Email,
             SenderName = customer.GetFullName(),
             SenderNameRequired = _privacySettings.FullNameOnProductRequestRequired,
             SenderPhone = customer.GenericAttributes.Phone,
             SelectedAttributes = string.Empty,
-            ProductUrl = await _productUrlHelper.Value.GetAbsoluteProductUrlAsync(product.Id, slug, selection),
-            IsQuoteRequest = product.CallForPrice
+            //ProductUrl = await _productUrlHelper.Value.GetAbsoluteProductUrlAsync(product.Id, slug, selection),
+            ProductUrl = await _productUrlHelper.Value.GetProductPathAsync(product.Id, slug, selection),
+            IsQuoteRequest = product.CallForPrice,
+            Question = T(product.CallForPrice ? "Products.AskQuestion.Question.QuoteRequest" : "Products.AskQuestion.Question.GeneralInquiry", name)
         };
-
-        model.Question = T("Products.AskQuestion.Question." + (model.IsQuoteRequest ? "QuoteRequest" : "GeneralInquiry"), model.ProductName);
 
         if (selection.HasAttributes)
         {

@@ -8,8 +8,8 @@ namespace Smartstore.Web.Models.Catalog;
 public partial class ProductAskQuestionModel : EntityModelBase
 {
     public LocalizedValue<string> ProductName { get; set; }
-
     public string ProductSeName { get; set; }
+    public string ProductUrl { get; set; }
 
     [DataType(DataType.EmailAddress)]
     [LocalizedDisplay("Account.Fields.Email")]
@@ -27,7 +27,6 @@ public partial class ProductAskQuestionModel : EntityModelBase
     public string Question { get; set; }
 
     public string SelectedAttributes { get; set; }
-    public string ProductUrl { get; set; }
     public bool IsQuoteRequest { get; set; }
 }
 
