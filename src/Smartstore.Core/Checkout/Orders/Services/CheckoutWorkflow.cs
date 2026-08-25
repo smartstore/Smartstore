@@ -206,9 +206,9 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
                     result.Widget = new ComponentWidget("OrderTotals", null);
                     break;
                 case CheckoutPartial.PaymentInfo:
-                    if (context.Model is string paymentMethodSystemName)
+                    if (context.Model is string systemName)
                     {
-                        var paymentMethod = await _paymentService.LoadPaymentProviderBySystemNameAsync(paymentMethodSystemName);
+                        var paymentMethod = await _paymentService.LoadPaymentProviderBySystemNameAsync(systemName);
                         result.Widget = paymentMethod?.Value?.GetPaymentInfoWidget();
                     }
                     break;

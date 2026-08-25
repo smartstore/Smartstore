@@ -8,12 +8,6 @@
     Assets.AppendTitleParts(T("PageTitle.Checkout.PaymentMethod"));
     Assets.BodyAttributes.AppendCssClass("no-offcanvas-cart");
     Assets.AddMetaRobots();
-
-    var refreshUrl = Html.Raw(Url.Action("Refresh", new
-    {
-        actionName = CheckoutActionNames.PaymentMethod,
-        part = CheckoutPartial.PaymentInfo
-    }));
 }
 
 <widget target-zone="order_progress">
@@ -123,13 +117,15 @@
 
             disableNextStepButton(true);
 
-            const url = '@refreshUrl';
-
             $.ajax({
                 type: 'POST',
                 cache: false,
-                url,
-                data: { paymentMethodSystemName: systemName },
+                url: '@Url.Action("Refresh")',
+                data: { 
+                    paymentMethodSystemName: systemName,
+                    actionName: '@CheckoutActionNames.PaymentMethod',
+                    part: @((int)CheckoutPartial.PaymentInfo)
+                },
                 success: function(response) {
                     if (response) { 
                         let panel = item.find('.opt-info');

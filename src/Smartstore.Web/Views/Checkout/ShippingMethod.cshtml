@@ -8,12 +8,6 @@
     Assets.AppendTitleParts(T("PageTitle.Checkout.ShippingMethod"));
     Assets.BodyAttributes.AppendCssClass("no-offcanvas-cart");
     Assets.AddMetaRobots();
-
-    var refreshUrl = Html.Raw(Url.Action("Refresh", new
-    {
-        actionName = CheckoutActionNames.ShippingMethod,
-        part = CheckoutPartial.OrderTotals
-    }));
 }
 
 <widget target-zone="order_progress">
@@ -53,14 +47,18 @@
             $('.checkout-data .opt-list-item').removeClass('active');
             $el.closest('.opt-list-item').addClass('active');
 
-            const url = '@refreshUrl';
+            const shippingOption = $el.closest('form').find('input[name="shippingoption"]:checked').val();
 
             shippingRequest?.abort();
             shippingRequest = $.ajax({
                 type: 'POST',
                 cache: false,
-                url,
-                data: $el.closest('form').serialize()
+                url: '@Url.Action("Refresh")',
+                data: { 
+                    shippingOption,
+                    actionName: '@CheckoutActionNames.ShippingMethod',
+                    part: @((int)CheckoutPartial.OrderTotals)
+                }
             })
             .done((response) => {
                 $('#order-totals').html(response.content);

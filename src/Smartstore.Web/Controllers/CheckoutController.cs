@@ -257,22 +257,25 @@ public class CheckoutController : PublicController
     /// AJAX. Refreshes a part of the current checkout page.
     /// </summary>
     [HttpPost]
-    public async Task<IActionResult> Refresh(string actionName, CheckoutPartial part)
+    public async Task<IActionResult> Refresh(CheckoutRefreshModel model)
     {
-        // TODO: (mg) Consolidate query and form values into a single model object.
         var success = false;
         string content = null;
 
         try
         {
-            var context = await CreateCheckoutContext(null, part);
-
-            context.RouteValues = new(new
+            var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
+            var context = new CheckoutContext(cart, HttpContext, Url)
             {
-                action = actionName,
-                controller = "Checkout",
-                area = string.Empty
-            });
+                Model = GetContextModel(),
+                Part = model.Part,
+                RouteValues = new(new
+                {
+                    action = model.ActionName,
+                    controller = "Checkout",
+                    area = string.Empty
+                })
+            };
 
             var result = await _checkoutWorkflow.RefreshAsync(context);
             
@@ -301,6 +304,19 @@ public class CheckoutController : PublicController
             success,
             content
         });
+
+        string GetContextModel()
+        {
+            switch (model.Part)
+            {
+                case CheckoutPartial.OrderTotals:
+                    return model.ShippingOption;
+                case CheckoutPartial.PaymentInfo:
+                    return model.PaymentMethodSystemName;
+                default:
+                    throw new ArgumentException($"Unknown checkout part {model.Part}.");
+            }
+        }
     }
 
     /// <summary>
@@ -415,31 +431,13 @@ public class CheckoutController : PublicController
         });
     }
 
-    private async Task<CheckoutContext> CreateCheckoutContext(object model = null, CheckoutPartial? part = null)
+    private async Task<CheckoutContext> CreateCheckoutContext(object model = null)
     {
-        if (model == null && part != null)
-        {
-            switch (part)
-            {
-                case CheckoutPartial.OrderTotals:
-                case CheckoutPartial.PaymentInfo:
-                    var key = part == CheckoutPartial.OrderTotals ? "shippingoption" : "paymentMethodSystemName";
-                    if (Request.Form.TryGetValue(key, out var val))
-                    {
-                        model = val.ToString().NullEmpty();
-                    }
-                    break;
-                default:
-                    throw new ArgumentException($"Unknown checkout part {part}.");
-            }
-        }
-
         var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
 
         return new CheckoutContext(cart, HttpContext, Url)
         {
-            Model = model,
-            Part = part
+            Model = model
         };
     }
 
