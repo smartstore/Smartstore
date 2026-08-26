@@ -37,6 +37,7 @@
   - Emails were not sent to customers.
   - #1550 Clearly distinguish between the terms "withdrawal" and "return", and do not use "withdrawal" when referring to returns.
   - Fixed missing order number in JSON deserialization of `WithdrawalRequest`.
+  - "Challenge" instead of "Forbid" for a customer who has already logged in but has not been authorized.
 - #1575 Newsletter reward points are not awarded during customer registration.
 - MegaSearch: A single letter in the search term may incorrectly result in 0 search results if "Hits contain all searched terms" is enabled.
 - Currency: Edit page did not select/display the saved denominator for order total rounding.
