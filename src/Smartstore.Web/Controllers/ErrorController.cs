@@ -30,7 +30,7 @@ public class ErrorController : Controller
             StatusCode = httpStatusCode,
             Exception = errorFeature?.Error,
             Path = errorFeature?.Path ?? (reExecuteFeature?.OriginalPath + reExecuteFeature?.OriginalQueryString).NullEmpty(),
-            Endpoint = urlPolicy.Endpoint
+            Endpoint = errorFeature?.Endpoint ?? urlPolicy.Endpoint
         };
 
         if (model.Endpoint != null)

@@ -10,6 +10,7 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Identity.Rules;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules.Rendering;
+using Smartstore.Core.Security;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Engine.Builders;
 using Smartstore.Net;
@@ -42,6 +43,14 @@ internal sealed class IdentityStarter : StarterBase
                 options.LogoutPath = RouteHelper.NormalizePathComponent("/logout");
                 options.AccessDeniedPath = RouteHelper.NormalizePathComponent("/access-denied");
                 options.ReturnUrlParameter = "returnUrl";
+
+                options.Events.OnRedirectToAccessDenied = context =>
+                {
+                    var req = context.Request;
+                    var returnUrl = (req.PathBase + req.Path + req.QueryString).NullEmpty();
+
+                    throw new AccessDeniedException(null, returnUrl);
+                };
             });
 
             services.ConfigureExternalCookie(options =>
