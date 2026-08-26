@@ -126,5 +126,13 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Fehlenden Auftrag nur bis x Stunden nach Zahlung wiederherstellen",
             "Specifies how many hours after a payment is completed a missing order may be automatically recovered. If the payment is older than the specified value, automatic recovery will no longer be performed. 0 means unlimited age. The default is 24 hours.",
             "Legt fest, wie viele Stunden nach Abschluss einer Zahlung ein fehlender Auftrag automatisch wiederhergestellt werden darf. Ist die Zahlung älter als der angegebene Wert, wird keine automatische Wiederherstellung mehr durchgeführt. 0 bedeutet unbegrenztes Alter. Standard ist 24 Stunden.");
+
+        builder.AddOrUpdate("Admin.Catalog.Products.Deleted",
+            "The product was moved to the recycle bin.",
+            "Das Produkt wurde in den Papierkorb verschoben.");
+
+        builder.AddOrUpdate("ActivityLog.DeleteProduct",
+            "Product ('{0}') has been moved to the recycle bin",
+            "Produkt ('{0}') in den Papierkorb verschoben");
     }
 }
