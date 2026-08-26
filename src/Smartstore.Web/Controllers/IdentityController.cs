@@ -306,6 +306,8 @@ public class IdentityController : PublicController
 
             if (succeeded)
             {
+                await AssignCustomerRolesAsync(customer);
+
                 // Update customer properties.
                 await MapRegisterModelToCustomerAsync(customer, model);
 
@@ -675,6 +677,8 @@ public class IdentityController : PublicController
                     identityResult = await _userManager.AddLoginAsync(customer, info);
                     if (identityResult.Succeeded)
                     {
+                        await AssignCustomerRolesAsync(customer);
+
                         var result = await FinalizeCustomerRegistrationAsync(customer, returnUrl);
                         await FinalizeLoginAsync(Services.WorkContext.CurrentCustomer, customer, logActivity: true);
 
@@ -757,8 +761,6 @@ public class IdentityController : PublicController
     {
         // Remove ClientIdent: no other "same-building" guest should be identified by this ident.
         customer.ClientIdent = null;
-
-        await AssignCustomerRolesAsync(customer);
 
         // Add reward points for customer registration (if enabled).
         if (_rewardPointsSettings.Enabled && _rewardPointsSettings.PointsForRegistration > 0)
