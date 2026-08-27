@@ -2,6 +2,7 @@
 @using Smartstore.Core.Catalog.Products
 
 @model ProductDetailsModel
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostEnvironment
 
 <div class="pd-offer">
     @if (!Model.Price.HidePrices || Model.Price.ShowLoginNote)
@@ -33,6 +34,12 @@
 
     @if (Model.ProductType != ProductType.BundledProduct && Model.ProductVariantAttributes.Any(x => x.ShouldBeRendered))
     {
+        @* PROTOTYPE ONLY: rendered outside the AJAX-replaced container so it survives variant changes. *@
+        @* if (HostEnvironment.EnvironmentName == "Development")
+        {
+            <partial name="Product.Variants.Playground" />
+        } *@
+
         <div class="pd-variants-container" data-partial="Variants" role="group" aria-label="@T("Aria.Label.ProductVariants")">
             @{
                 var dataDictVariants = new ViewDataDictionary(ViewData);

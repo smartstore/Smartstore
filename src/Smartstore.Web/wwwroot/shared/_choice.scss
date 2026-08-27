@@ -6,9 +6,11 @@
 
 $choice-box-gap:            6px;
 $choice-box-size:           46px;
-$choice-box-size-lg:        64px;
+$choice-box-size-xs:        24px;
 $choice-box-size-sm:        36px;
+$choice-box-size-lg:        64px;
 $choice-box-size-xl:        96px;
+$choice-box-size-xxl:       128px;
 
 .choice {
     margin-bottom: 1rem;
@@ -68,6 +70,7 @@ label.required,
 
 .choice-box-group {
     --choice-box-size: #{$choice-box-size};
+    --choice-box-radius: var(--border-radius-md);
     --choice-box-strike-color: rgba(0, 0, 0, 0.75);
 	margin: 0;
 	padding: 0;
@@ -76,11 +79,19 @@ label.required,
     display: flex;
     flex-wrap: wrap;
     gap: $choice-box-gap;
-    
+
     @include clearfix();
+
+    &.choice-box-group-xs {
+        --choice-box-size: #{$choice-box-size-xs};
+    }
 
     &.choice-box-group-sm {
         --choice-box-size: #{$choice-box-size-sm};
+    }
+
+    &.choice-box-group-md {
+        --choice-box-size: #{$choice-box-size};
     }
 
     &.choice-box-group-lg {
@@ -89,6 +100,25 @@ label.required,
 
     &.choice-box-group-xl {
         --choice-box-size: #{$choice-box-size-xl};
+    }
+
+    &.choice-box-group-xxl {
+        --choice-box-size: #{$choice-box-size-xxl};
+    }
+
+    // Shape modifiers. All shapes are driven by a single radius variable,
+    // which .choice-box-element and .choice-box-content both consume.
+    &.choice-box-group-rect {
+        --choice-box-radius: 0;
+    }
+
+    &.choice-box-group-circle {
+        --choice-box-radius: 50%;
+
+        .choice-box-element {
+            // Keeps a text-only chip ("M") round regardless of label length.
+            aspect-ratio: 1;
+        }
     }
 }
 
@@ -146,7 +176,7 @@ label.required,
     position: relative;
     display: inline-block;
     border: 1px solid rgba(0,0,0, .125);
-    border-radius: var(--border-radius-md);
+    border-radius: var(--choice-box-radius);
     background-color: #fff;
 
     height: var(--choice-box-size);
@@ -233,5 +263,166 @@ label.required,
     &:after {
         opacity: 1;
         transform: scale(1);
+    }
+}
+
+
+//
+// Selected value next to the choice label ("Color: red")
+// ------------------------------------------------------
+
+.choice-label-inline {
+    display: inline;
+}
+
+.choice-selected-value {
+    font-weight: $font-weight-medium;
+
+    &:before {
+        content: ':';
+        margin-inline-end: 0.25rem;
+    }
+
+    &.choice-selected-value-empty {
+        color: $text-muted;
+        font-weight: $font-weight-normal;
+    }
+}
+
+
+//
+// Portrait & stacked boxes (caption below the box content)
+// ------------------------------------------------------
+
+.choice-box-group-portrait,
+.choice-box-group-stacked {
+    // All boxes of a group share one width, so captions of differing length still line up.
+    --choice-box-width: var(--choice-box-size);
+
+    align-items: stretch;
+
+    // Chain the height down so that boxes in one row share the same height.
+    .choice-box,
+    .choice-box-label {
+        height: 100%;
+    }
+
+    // The content wrapper becomes the actual box, so that swatch and caption
+    // share one border, one radius and one selection state.
+    .choice-box-content {
+        display: flex;
+        flex-direction: column;
+        width: var(--choice-box-width);
+        height: 100%;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0, .125);
+        border-radius: var(--choice-box-radius);
+        background-color: #fff;
+    }
+
+    .choice-box-element {
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        flex: 0 0 auto;
+    }
+
+    .choice-box-caption {
+        display: flex;
+        flex-direction: column;
+        gap: 0.1rem;
+        padding: 0.35rem 0.5rem 0.4rem;
+        text-align: start;
+        line-height: 1.25;
+    }
+
+    .choice-box-name {
+        font-size: $font-size-sm;
+        font-weight: $font-weight-medium;
+
+        // Two lines cover most variant names ("Dunkelblau meliert") without letting a single
+        // long name blow up the row. The full name stays available in the caption label above.
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: var(--choice-box-name-lines, 2);
+        line-clamp: var(--choice-box-name-lines, 2);
+        overflow: hidden;
+    }
+
+    .choice-box-price,
+    .choice-box-note {
+        font-size: $font-size-xs;
+        font-weight: $font-weight-normal;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .choice-box-price {
+        color: $text-muted;
+    }
+
+    .choice-box-note {
+        color: $warning;
+    }
+
+    // Selection state moves from the swatch to the box itself.
+    .choice-box-control-native:checked + .choice-box-label .choice-box-content {
+        border-color: $gray-700;
+        box-shadow: inset 0 0 0 2px rgba($white, 1), inset 0 0 0 3px $gray-700;
+    }
+
+    .choice-box-control-native:focus-visible + .choice-box-label .choice-box-content {
+        box-shadow: $focus-ring-box-shadow !important;
+    }
+
+    .choice-box.disabled .choice-box-content,
+    .choice-box.unavailable .choice-box-caption {
+        opacity: .5;
+    }
+}
+
+.choice-box-group.choice-box-group-portrait {
+    .choice-box-element {
+        // Square swatch spanning the full box width.
+        width: 100%;
+        min-width: 0;
+        height: auto;
+        aspect-ratio: 1;
+        line-height: 0;
+    }
+}
+
+.choice-box-group.choice-box-group-stacked {
+    .choice-box-content {
+        justify-content: center;
+    }
+
+    .choice-box-element {
+        min-width: 0;
+        height: auto;
+        line-height: 1.25;
+        padding: 0.4rem 0.5rem 0;
+        text-align: start;
+        aspect-ratio: auto;
+
+        // Mixed lists: values that do have a swatch keep swatch metrics.
+        &.choice-box-color,
+        &.choice-box-image {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 1;
+            padding: 0;
+        }
+    }
+
+    .choice-box-text {
+        padding: 0;
+        font-size: $font-size-sm;
+        font-weight: $font-weight-medium;
+    }
+
+    .choice-box-caption {
+        padding-top: 0.1rem;
     }
 }

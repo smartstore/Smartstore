@@ -77,8 +77,47 @@
             });
 
             self.initAssociatedProducts(associatedProducts);
+            self.initChoiceBoxLabels(el);
 
             return this;
+        };
+
+        // Reflects the hovered or selected value in the caption label above the box list ("Color: red").
+        this.initChoiceBoxLabels = function (root) {
+            function getValueLabel(elBox) {
+                var id = $(elBox).closest('.choice-boxes').attr('id');
+                return id ? $('#' + id.replace('choice-boxes-', 'choice-value-')) : $();
+            }
+
+            function getSelectedName(elBoxes) {
+                return elBoxes
+                    .find('.choice-box-control-native:checked')
+                    .closest('.choice-box')
+                    .find('.choice-box-content')
+                    .data('value-name') || '';
+            }
+
+            function setValue(elLabel, name) {
+                if (!elLabel.length) {
+                    return;
+                }
+
+                elLabel
+                    .text(name || elLabel.data('placeholder') || '')
+                    .toggleClass('choice-selected-value-empty', !name);
+            }
+
+            $(root)
+                .on('mouseenter focusin', '.pd-variants .choice-box', function () {
+                    setValue(getValueLabel(this), $(this).find('.choice-box-content').data('value-name'));
+                })
+                .on('mouseleave focusout', '.pd-variants .choice-box', function () {
+                    setValue(getValueLabel(this), getSelectedName($(this).closest('.choice-boxes')));
+                })
+                .on('change', '.pd-variants .choice-box-control-native', function () {
+                    // Instant feedback. The AJAX update re-renders the partial server-side afterwards.
+                    setValue(getValueLabel(this), getSelectedName($(this).closest('.choice-boxes')));
+                });
         };
 
         this.initAssociatedProducts = function (associatedProducts) {

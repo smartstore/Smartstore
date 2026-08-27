@@ -90,7 +90,7 @@ public partial class ProductVariantAttribute : BaseEntity, ILocalizedEntity, IDi
     /// <summary>
     /// Gets or sets the attribute control type.
     /// </summary>
-		[NotMapped]
+	[NotMapped]
     public AttributeControlType AttributeControlType
     {
         get => (AttributeControlType)AttributeControlTypeId;

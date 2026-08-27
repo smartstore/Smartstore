@@ -8,6 +8,9 @@
 	var description = Model.GetDescription();
 
 	var isTextInput = Model.AttributeControlType == AttributeControlType.TextBox || Model.AttributeControlType == AttributeControlType.MultilineTextbox;
+	var isBoxes = Model.AttributeControlType == AttributeControlType.Boxes;
+	var placeholder = T("Common.PleaseSelect").Value;
+	var selectedValueName = Model.SelectedValue?.Name;
 	string templateSuffix = null;
 	switch (Model.AttributeControlType)
 	{
@@ -51,7 +54,8 @@
 }
 
 <div class="form-group choice">
-    <label class="choice-label@(Model.IsRequired ? " required" : "")" for="@controlId">@label</label>
+    @*  INFO: label and selected value must not be separated by whitespace, otherwise the colon gets detached.  *@
+    <label class="choice-label@(Model.IsRequired ? " required" : "")@(isBoxes ? " choice-label-inline" : null)" id="choice-label-@Model.Id" for="@controlId">@label</label><span sm-if="isBoxes" class="choice-selected-value" attr-class='(selectedValueName.IsEmpty(), "choice-selected-value-empty")' id="choice-value-@Model.Id" data-placeholder="@placeholder">@(selectedValueName.NullEmpty() ?? placeholder)</span>
     <div sm-if="!isTextInput && description.HasValue()" class="choice-description">
         @Html.Raw(description)
     </div>
