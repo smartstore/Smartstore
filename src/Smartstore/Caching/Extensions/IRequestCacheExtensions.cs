@@ -72,7 +72,7 @@ public static class IRequestCacheExtensions
         {
             var wildcard = pattern.IsEmpty() || pattern == "*"
                 ? null
-                : new Wildcard(pattern, RegexOptions.IgnoreCase);
+                : new Wildcard(pattern, RegexOptions.IgnoreCase | Wildcard.DefaultOptions);
 
             return SelectKeys(cache, x => KeyMatcher(x, wildcard)).Cast<string>();
 

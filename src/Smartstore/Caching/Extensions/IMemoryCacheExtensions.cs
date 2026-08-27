@@ -47,7 +47,7 @@ public static class IMemoryCacheExtensions
             return allKeys;
         }
 
-        var wildcard = new Wildcard(pattern, RegexOptions.IgnoreCase);
+        var wildcard = new Wildcard(pattern, RegexOptions.IgnoreCase | Wildcard.DefaultOptions);
         return allKeys.OfType<string>().Where(x => wildcard.IsMatch(x));
     }
 

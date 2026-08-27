@@ -15,17 +15,13 @@ public sealed class Wildcard : Regex
         new(@"[0-9]+-[0-9]+", RegexOptions.Compiled | RegexOptions.NonBacktracking | RegexOptions.CultureInvariant);
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Wildcard"/> class.
+    /// The options applied when no options are passed explicitly.
+    /// Culture-sensitive casing is never appropriate for matching keys, paths or
+    /// identifiers, so <see cref="RegexOptions.CultureInvariant"/> is the default.
+    /// Combine it with your own options (e.g. <c>RegexOptions.IgnoreCase | Wildcard.DefaultOptions</c>)
+    /// instead of dropping it, unless culture-aware matching is what you actually want.
     /// </summary>
-    /// <param name="pattern">The wildcard pattern.</param>
-    /// <param name="parseNumberRanges">
-    /// Specifies whether number ranges (e.g. 1234-5678) should
-    /// be converted to a regular expression pattern.
-    /// </param>
-    public Wildcard(string pattern, bool parseNumberRanges = false)
-        : this(pattern, RegexOptions.None, parseNumberRanges)
-    {
-    }
+    public const RegexOptions DefaultOptions = RegexOptions.CultureInvariant;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Wildcard"/> class.
@@ -35,15 +31,49 @@ public sealed class Wildcard : Regex
     /// Specifies whether number ranges (e.g. 1234-5678) should
     /// be converted to a regular expression pattern.
     /// </param>
+    public Wildcard(string pattern, bool parseNumberRanges = false)
+        : this(pattern, DefaultOptions, parseNumberRanges)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Wildcard"/> class.
+    /// </summary>
+    /// <param name="pattern">The wildcard pattern.</param>
     /// <param name="options">The regular expression options.</param>
+    /// <param name="parseNumberRanges">
+    /// Specifies whether number ranges (e.g. 1234-5678) should
+    /// be converted to a regular expression pattern.
+    /// </param>
     public Wildcard(string pattern, RegexOptions options, bool parseNumberRanges = false)
-        : this(WildcardToRegex(pattern, parseNumberRanges), options, Timeout.InfiniteTimeSpan)
+        : this(pattern, options, Timeout.InfiniteTimeSpan, parseNumberRanges)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Wildcard"/> class.
+    /// </summary>
+    /// <param name="pattern">The wildcard pattern.</param>
+    /// <param name="options">The regular expression options.</param>
+    /// <param name="matchTimeout">
+    /// Timeout for a single match operation. Pass a finite value when matching
+    /// against input of unbounded length (e.g. user content).
+    /// </param>
+    /// <param name="parseNumberRanges">
+    /// Specifies whether number ranges (e.g. 1234-5678) should
+    /// be converted to a regular expression pattern.
+    /// </param>
+    public Wildcard(string pattern, RegexOptions options, TimeSpan matchTimeout, bool parseNumberRanges)
+        : this(WildcardToRegex(pattern, parseNumberRanges), options, matchTimeout)
     {
         RawPattern = pattern;
     }
 
     internal Wildcard(string parsedPattern, RegexOptions options, TimeSpan matchTimeout)
-        : base(parsedPattern, options, matchTimeout)
+        // ExplicitCapture is not negotiable: parentheses are escaped in glob patterns, so a
+        // caller cannot define a group at all. The only capture groups that ever occur are
+        // artifacts of the number range generator, and nobody reads them.
+        : base(parsedPattern, options | RegexOptions.ExplicitCapture, matchTimeout)
     {
         Pattern = parsedPattern;
     }

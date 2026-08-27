@@ -343,7 +343,7 @@ public class MemoryCacheStore : Disposable, IMemoryCacheStore
             return [.. _keys];
         }
 
-        var wildcard = new Wildcard(pattern, RegexOptions.IgnoreCase);
+        var wildcard = new Wildcard(pattern, RegexOptions.IgnoreCase | Wildcard.DefaultOptions);
         return _keys
             .Where(x => wildcard.IsMatch(x))
             .ToArray();
