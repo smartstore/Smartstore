@@ -16,6 +16,10 @@
 
 - SSRF guard for media downloads.
 - Withdrawal: Case-insensitive email check.
+- **GeoBlocker**: 
+  - A whitelisted IP address was still blocked when its country was blocked, although IP addresses take precedence.
+  - Literal IP addresses are matched directly instead of by regex, which makes large lists cheap.
+- (DEV) `Wildcard`: Matching is culture-invariant by default (override via `Wildcard.DefaultOptions`), number ranges no longer capture, and a match timeout can be passed for untrusted input.
 - Checkout: The updated total is displayed immediately when the shipping or payment method is changed.
 - **Theming**: 
   - Made `.prose` font-size and line-height configurable.
