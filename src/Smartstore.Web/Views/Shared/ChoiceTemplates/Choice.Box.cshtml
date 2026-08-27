@@ -4,90 +4,15 @@
     var controlId = Model.BuildControlId();
     var items = Model.Values ?? new List<ChoiceItemModel>();
     var srLabelTemplate = T("Aria.Label.Choice");
-    var priceRangeFormat = T("Products.PriceRangeFrom").Value;
-
-    var boxSize = Model.BoxSize;
-    var boxShape = Model.BoxShape;
-    var showValueName = Model.ShowValueName;
-    var priceDisplay = Model.PriceDisplay;
-
-    // >>>>> PROTOTYPE ONLY <<<<<
-    // The box options have no entity columns yet, so they are taken from the playground cookie
-    // written by Product.Variants.Playground.cshtml. Delete this block together with that partial.
-    var playground = Context.Request.Cookies["sm-box-playground"];
-    if (playground.HasValue())
-    {
-        foreach (var pair in playground.SplitSafe('|'))
-        {
-            var kv = pair.SplitSafe(':').ToArray();
-            if (kv.Length != 2)
-            {
-                continue;
-            }
-
-            switch (kv[0].ToLowerInvariant())
-            {
-                case "size":
-                    if (Enum.TryParse<ChoiceBoxSize>(kv[1], true, out var parsedSize))
-                    {
-                        boxSize = parsedSize;
-                    }
-                    break;
-                case "shape":
-                    if (Enum.TryParse<ChoiceBoxShape>(kv[1], true, out var parsedShape))
-                    {
-                        boxShape = parsedShape;
-                    }
-                    break;
-                case "price":
-                    if (Enum.TryParse<ChoiceBoxPriceDisplay>(kv[1], true, out var parsedPrice))
-                    {
-                        priceDisplay = parsedPrice;
-                    }
-                    break;
-                case "name":
-                    showValueName = kv[1] == "1";
-                    break;
-            }
-        }
-    }
-    // >>>>> END PROTOTYPE <<<<<
-
-    // Rule 5: portrait requires every value to provide a swatch.
-    var isPortrait = Model.CanUsePortraitLayout && (showValueName || priceDisplay != ChoiceBoxPriceDisplay.None);
-    var isStacked = !Model.CanUsePortraitLayout && priceDisplay != ChoiceBoxPriceDisplay.None;
-
-    // Rules 6 and 7: a circle only holds a single line of content.
-    if ((isPortrait || isStacked) && boxShape == ChoiceBoxShape.Circle)
-    {
-        boxShape = ChoiceBoxShape.Rounded;
-    }
-
-    var showPrice = priceDisplay != ChoiceBoxPriceDisplay.None;
-    var showName = isPortrait && showValueName;
-
-    var groupClass = "choice-box-group choice-box-group-{0} choice-box-group-{1}".FormatInvariant(
-        boxSize.ToCssSuffix(),
-        boxShape.ToCssSuffix());
-
-    if (isPortrait)
-    {
-        groupClass += " choice-box-group-portrait";
-    }
-    else if (isStacked)
-    {
-        groupClass += " choice-box-group-stacked";
-    }
 }
 
-<div class="choice-boxes"
-     id="choice-boxes-@Model.Id"
-     role="radiogroup"
+<div class="choice-boxes" 
+     id="choice-boxes-@Model.Id" 
+     role="radiogroup"      
      data-manualselect="true"
-     aria-orientation="horizontal"
-     aria-labelledby="choice-label-@Model.Id choice-value-@Model.Id"
+     aria-orientation="horizontal"  
      attr-aria-required='(Model.IsRequired, "true")'>
-    <ul class="@groupClass">
+    <ul class="choice-box-group">
         @foreach (var item in items)
         {
             string css = null;
@@ -137,18 +62,6 @@
                 label += " - " + item.Title;
             }
 
-            // INFO: (prototype) as long as final prices are not calculated, fall back to the
-            // preformatted price adjustment, e.g. " (+5.00 €)".
-            var priceText = item.Price.NullEmpty() ?? item.PriceAdjustment?.Trim().Trim('(', ')').NullEmpty();
-            if (priceText.HasValue() && item.IsPriceEstimate)
-            {
-                priceText = priceRangeFormat.FormatInvariant(priceText);
-            }
-
-            var hasPriceLine = showPrice && priceText.HasValue();
-            var hasNoteLine = isPortrait && item.Title.HasValue();
-            var hasCaption = showName || hasPriceLine || hasNoteLine;
-
             <li class="@boxClass">
                 <input type="radio"
                        class="choice-box-control-native"
@@ -160,14 +73,9 @@
                        attr-disabled='(item.IsDisabled, "disabled")' />
 
                 <label class="choice-box-label" for="@(controlId)_@(item.Id)">
-                    <span class="choice-box-content tooltip-toggle tooltip-toggle-touch" title="@label" data-value-name="@item.Name">
+                    <span class="choice-box-content tooltip-toggle tooltip-toggle-touch" title="@label">
                         <span class="@elClass" attr-style="(css.HasValue(), css)">
                             <span sm-if="!css.HasValue()" class="choice-box-text">@item.Name</span>
-                        </span>
-                        <span sm-if="hasCaption" class="choice-box-caption">
-                            <span sm-if="showName" class="choice-box-name">@item.Name</span>
-                            <span sm-if="hasPriceLine" class="choice-box-price">@priceText</span>
-                            <span sm-if="hasNoteLine" class="choice-box-note">@item.Title</span>
                         </span>
                     </span>
                 </label>
