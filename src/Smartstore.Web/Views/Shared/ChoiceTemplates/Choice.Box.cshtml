@@ -4,15 +4,75 @@
     var controlId = Model.BuildControlId();
     var items = Model.Values ?? new List<ChoiceItemModel>();
     var srLabelTemplate = T("Aria.Label.Choice");
+
+    var allItemsHaveMedia = items.Count > 0 && items.All(x =>
+        x.ImageUrl.HasValue() || (x.Color.HasValue() && x.Color != "transparent"));
+
+    // TEST
+    if (allItemsHaveMedia)
+    {
+        // Model.ChoiceBoxSize = ChoiceBoxSize.ExtraExtraLarge;
+        // Model.ChoiceBoxShape = ChoiceBoxShape.Rounded;
+        // Model.SwatchAspectRatio = 0.5m;
+        // Model.ShowValueNameInChoiceBox = true;
+        // Model.ShowPriceInChoiceBox = true;
+    }
+    // TEST
+
+    var sizeClass = Model.ChoiceBoxSize switch
+    {
+        ChoiceBoxSize.ExtraSmall => "xs",
+        ChoiceBoxSize.Small => "sm",
+        ChoiceBoxSize.Large => "lg",
+        ChoiceBoxSize.ExtraLarge => "xl",
+        ChoiceBoxSize.ExtraExtraLarge => "xxl",
+        _ => "md"
+    };
+
+    var anyItemHasMedia = items.Any(x =>
+        x.ImageUrl.HasValue() || (x.Color.HasValue() && x.Color != "transparent"));
+    var hasTextOnlyItems = items.Any(x =>
+        x.ImageUrl.IsEmpty() && (x.Color.IsEmpty() || x.Color == "transparent"));
+    var wantsMediaCard = Model.ShowValueNameInChoiceBox || Model.ShowPriceInChoiceBox;
+    var isMediaCardSize = Model.ChoiceBoxSize >= ChoiceBoxSize.Large;
+    var isMediaCard = allItemsHaveMedia && wantsMediaCard && isMediaCardSize;
+
+    var effectiveShape = Model.ChoiceBoxShape;
+    if (effectiveShape == ChoiceBoxShape.Circle && (isMediaCard || hasTextOnlyItems))
+    {
+        effectiveShape = ChoiceBoxShape.Rounded;
+    }
+
+    var shapeClass = effectiveShape switch
+    {
+        ChoiceBoxShape.Rect => "rect",
+        ChoiceBoxShape.Circle => "circle",
+        _ => "rounded"
+    };
+
+    var swatchAspectRatio = Model.SwatchAspectRatio > 0 ? Model.SwatchAspectRatio : 1m;
+
+    var groupClass = $"choice-box-group choice-box-group-{sizeClass} choice-box-shape-{shapeClass}";
+    if (anyItemHasMedia)
+    {
+        groupClass += " choice-box-group-fixed";
+    }
+    if (isMediaCard)
+    {
+        groupClass += " choice-box-group-media-card";
+    }
 }
 
 <div class="choice-boxes" 
      id="choice-boxes-@Model.Id" 
      role="radiogroup"      
      data-manualselect="true"
+     data-choice-box-size="@sizeClass"
+     data-choice-box-shape="@shapeClass"
+     data-media-card="@isMediaCard.ToString().ToLowerInvariant()"
      aria-orientation="horizontal"  
      attr-aria-required='(Model.IsRequired, "true")'>
-    <ul class="choice-box-group">
+    <ul class="@groupClass" style="--choice-box-swatch-aspect-ratio: @swatchAspectRatio.ToStringInvariant()">
         @foreach (var item in items)
         {
             string css = null;
@@ -31,7 +91,7 @@
             {
                 css = "background-color: " + item.Color + ";";
                 isDark = ImagingHelper.GetPerceivedBrightness(item.Color) < 200;
-                if (isDark)
+                if (isDark && !isMediaCard)
                 {
                     boxClass += " dark";
                 }
@@ -40,12 +100,18 @@
             var hasImage = item.ImageUrl.HasValue();
             if (hasImage)
             {
-                elClass += " choice-box-image";
+                if (!isMediaCard)
+                {
+                    elClass += " choice-box-image";
+                }
                 css += "background-image: url('" + item.ImageUrl + "');";
             }
             else if (hasColor)
             {
-                elClass += " choice-box-color";
+                if (!isMediaCard)
+                {
+                    elClass += " choice-box-color";
+                }
             }
 
             if (item.IsDisabled)
@@ -62,7 +128,16 @@
                 label += " - " + item.Title;
             }
 
-            <li class="@boxClass">
+            var boxPrice = item.ChoiceBoxPrice.NullEmpty() ?? item.PriceAdjustment;
+
+            // TEST
+            if (boxPrice.IsEmpty())
+            {
+                boxPrice = "199,99 EUR";
+            }
+            // TEST
+
+            <li class="@boxClass" data-choice-value-name="@item.Name">
                 <input type="radio"
                        class="choice-box-control-native"
                        id="@(controlId)_@(item.Id)"
@@ -73,10 +148,23 @@
                        attr-disabled='(item.IsDisabled, "disabled")' />
 
                 <label class="choice-box-label" for="@(controlId)_@(item.Id)">
-                    <span class="choice-box-content tooltip-toggle tooltip-toggle-touch" title="@label">
-                        <span class="@elClass" attr-style="(css.HasValue(), css)">
-                            <span sm-if="!css.HasValue()" class="choice-box-text">@item.Name</span>
-                        </span>
+                    <span class="choice-box-content">
+                        @if (isMediaCard)
+                        {
+                            <span class="@elClass choice-box-media-card">
+                                <span class="choice-box-swatch@(hasImage ? " choice-box-image" : " choice-box-color")" attr-style="(css.HasValue(), css)"></span>
+                                <span class="choice-box-details">
+                                    <span sm-if="Model.ShowValueNameInChoiceBox" class="choice-box-value-name">@item.Name</span>
+                                    <span sm-if="Model.ShowPriceInChoiceBox" class="choice-box-price">@boxPrice</span>
+                                </span>
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="@elClass" attr-style="(css.HasValue(), css)">
+                                <span sm-if="!css.HasValue()" class="choice-box-text">@item.Name</span>
+                            </span>
+                        }
                     </span>
                 </label>
             </li>

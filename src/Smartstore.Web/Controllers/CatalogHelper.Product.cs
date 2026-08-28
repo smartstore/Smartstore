@@ -597,7 +597,14 @@ public partial class CatalogHelper
                 CustomData = attribute.CustomData,
                 IsRequired = attribute.IsRequired,
                 AttributeControlType = attribute.AttributeControlType,
-                AllowedFileExtensions = _catalogSettings.FileUploadAllowedExtensions
+                AllowedFileExtensions = _catalogSettings.FileUploadAllowedExtensions,
+
+                // Frontend prototype controls. Set these per attribute while testing the ChoiceBox presentation.
+                ChoiceBoxSize = ChoiceBoxSize.Medium,
+                ChoiceBoxShape = ChoiceBoxShape.Rounded,
+                SwatchAspectRatio = 1m,
+                ShowValueNameInChoiceBox = false,
+                ShowPriceInChoiceBox = false
             };
 
             // Copy queried variant data (entered by customer) to model.

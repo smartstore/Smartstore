@@ -16,6 +16,15 @@ public abstract class ChoiceModel : EntityModelBase
     public bool IsRequired { get; set; }
     public bool IsDisabled { get; set; }
 
+    /// <summary>
+    /// Frontend presentation options for box choices.
+    /// </summary>
+    public ChoiceBoxSize ChoiceBoxSize { get; set; } = ChoiceBoxSize.Medium;
+    public ChoiceBoxShape ChoiceBoxShape { get; set; } = ChoiceBoxShape.Rounded;
+    public decimal SwatchAspectRatio { get; set; } = 1m;
+    public bool ShowValueNameInChoiceBox { get; set; }
+    public bool ShowPriceInChoiceBox { get; set; }
+
     public string CustomData { get; set; }
 
     /// <summary>

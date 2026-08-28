@@ -32,6 +32,20 @@
                 }
             });
 
+            $(el)
+                .on('mouseenter focusin', '.choice-box', function () {
+                    updateChoiceLabel($(this));
+                })
+                .on('mouseleave focusout', '.choice-box', function (e) {
+                    if (e.type === 'focusout' && e.relatedTarget && $.contains(this, e.relatedTarget)) {
+                        return;
+                    }
+
+                    const choice = $(this).closest('.choice');
+                    const group = $(this).closest('.choice-box-group');
+                    updateChoiceLabel(group.find('.choice-box-control-native:checked').closest('.choice-box'), choice);
+                });
+
             // Update product data and gallery
             $(el).on('change', ':input:not(.skip-pd-ajax-update)', function (e) {
                 if (updating) {
@@ -80,6 +94,19 @@
 
             return this;
         };
+
+        function updateChoiceLabel(box, choice) {
+            choice = choice || box.closest('.choice');
+            const selection = choice.find('.choice-label-selection').first();
+
+            if (!selection.length) {
+                return;
+            }
+
+            const valueName = box.data('choice-value-name') || '';
+            selection.toggleClass('d-none', !valueName);
+            selection.find('strong').text(valueName);
+        }
 
         this.initAssociatedProducts = function (associatedProducts) {
             if (!associatedProducts.length || !associatedProducts.find('.pd-assoc-list').length) {
