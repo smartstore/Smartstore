@@ -61,7 +61,7 @@ This is the temporary directory. The content is removed on a regular basis.
 
 ### DbBackups
 
-This directory contains all database backups, created in the maintanance tab.
+This directory contains all database backups, created in the maintenance tab.
 
 {% hint style="info" %}
 If you need to share your database for debugging, this is the place to go.
