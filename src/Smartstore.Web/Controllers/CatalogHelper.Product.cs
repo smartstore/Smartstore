@@ -599,12 +599,12 @@ public partial class CatalogHelper
                 AttributeControlType = attribute.AttributeControlType,
                 AllowedFileExtensions = _catalogSettings.FileUploadAllowedExtensions,
 
-                // Frontend prototype controls. Set these per attribute while testing the ChoiceBox presentation.
-                ChoiceBoxSize = ChoiceBoxSize.Medium,
-                ChoiceBoxShape = ChoiceBoxShape.Rounded,
+                // Frontend prototype controls. Set these per attribute while testing the swatch presentation.
+                SwatchSize = SwatchSize.Medium,
+                SwatchShape = SwatchShape.Rounded,
                 SwatchAspectRatio = 1m,
-                ShowValueNameInChoiceBox = false,
-                ShowPriceInChoiceBox = false
+                ShowValueNameInSwatch = false,
+                ShowPriceInSwatch = false
             };
 
             // Copy queried variant data (entered by customer) to model.

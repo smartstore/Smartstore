@@ -17,13 +17,13 @@ public abstract class ChoiceModel : EntityModelBase
     public bool IsDisabled { get; set; }
 
     /// <summary>
-    /// Frontend presentation options for box choices.
+    /// Frontend presentation options for swatch choices.
     /// </summary>
-    public ChoiceBoxSize ChoiceBoxSize { get; set; } = ChoiceBoxSize.Medium;
-    public ChoiceBoxShape ChoiceBoxShape { get; set; } = ChoiceBoxShape.Rounded;
+    public SwatchSize SwatchSize { get; set; } = SwatchSize.Medium;
+    public SwatchShape SwatchShape { get; set; } = SwatchShape.Rounded;
     public decimal SwatchAspectRatio { get; set; } = 1m;
-    public bool ShowValueNameInChoiceBox { get; set; }
-    public bool ShowPriceInChoiceBox { get; set; }
+    public bool ShowValueNameInSwatch { get; set; }
+    public bool ShowPriceInSwatch { get; set; }
 
     public string CustomData { get; set; }
 

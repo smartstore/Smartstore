@@ -12,7 +12,7 @@
         var meta = $.metadata ? $.metadata.get(element) : {};
         var opts = this.options = $.extend(true, {}, options, meta || {});
         var updating = false;
-        const choiceLabelRestoreDelay = 150;
+        const swatchLabelRestoreDelay = 150;
 
         this.init = function () {
             var opts = this.options;
@@ -34,36 +34,36 @@
             });
 
             $(el)
-                .on('mouseenter focusin', '.choice-box', function () {
-                    const box = $(this);
-                    const choice = box.closest('.choice');
-                    clearChoiceLabelRestore(choice);
+                .on('mouseenter focusin', '.swatch', function () {
+                    const swatch = $(this);
+                    const choice = swatch.closest('.choice');
+                    clearSwatchLabelRestore(choice);
 
-                    if (supportsChoiceLabelPreview(box)) {
-                        updateChoiceLabel(box);
+                    if (supportsSwatchLabelPreview(swatch)) {
+                        updateSwatchLabel(swatch);
                     }
                     else {
-                        restoreChoiceLabel(choice);
+                        restoreSwatchLabel(choice);
                     }
                 })
-                .on('mouseleave focusout', '.choice-box', function (e) {
+                .on('mouseleave focusout', '.swatch', function (e) {
                     if (e.type === 'focusout' && e.relatedTarget && $.contains(this, e.relatedTarget)) {
                         return;
                     }
 
-                    const box = $(this);
-                    if (supportsChoiceLabelPreview(box)) {
-                        const choice = box.closest('.choice');
+                    const swatch = $(this);
+                    if (supportsSwatchLabelPreview(swatch)) {
+                        const choice = swatch.closest('.choice');
                         if (e.type === 'mouseleave') {
-                            scheduleChoiceLabelRestore(choice);
+                            scheduleSwatchLabelRestore(choice);
                         }
                         else {
-                            restoreChoiceLabel(choice);
+                            restoreSwatchLabel(choice);
                         }
                     }
                 })
-                .on('change', '.choice-box-control-native', function () {
-                    updateChoiceLabel($(this).closest('.choice-box'));
+                .on('change', '.swatch-input', function () {
+                    updateSwatchLabel($(this).closest('.swatch'));
                 });
 
             // Update product data and gallery
@@ -115,14 +115,14 @@
             return this;
         };
 
-        function updateChoiceLabel(box) {
-            const selection = box.closest('.choice').find('.choice-label-selection').first();
+        function updateSwatchLabel(swatch) {
+            const selection = swatch.closest('.choice').find('.swatch-group-label-value').first();
 
             if (!selection.length) {
                 return;
             }
 
-            const valueName = box.data('choice-value-name') || '';
+            const valueName = swatch.data('swatch-value') || '';
             if (valueName) {
                 selection
                     .removeClass('text-danger text-muted')
@@ -130,45 +130,45 @@
             }
         }
 
-        function supportsChoiceLabelPreview(box) {
-            return !box.find('.choice-box-media-card, .choice-box-text').length;
+        function supportsSwatchLabelPreview(swatch) {
+            return !swatch.find('.swatch-card, .swatch-value').length;
         }
 
-        function clearChoiceLabelRestore(choice) {
-            const timer = choice.data('choice-label-restore-timer');
+        function clearSwatchLabelRestore(choice) {
+            const timer = choice.data('swatch-label-restore-timer');
 
             if (timer) {
                 window.clearTimeout(timer);
-                choice.removeData('choice-label-restore-timer');
+                choice.removeData('swatch-label-restore-timer');
             }
         }
 
-        function scheduleChoiceLabelRestore(choice) {
-            clearChoiceLabelRestore(choice);
+        function scheduleSwatchLabelRestore(choice) {
+            clearSwatchLabelRestore(choice);
 
             const timer = window.setTimeout(function () {
-                choice.removeData('choice-label-restore-timer');
-                restoreChoiceLabel(choice);
-            }, choiceLabelRestoreDelay);
+                choice.removeData('swatch-label-restore-timer');
+                restoreSwatchLabel(choice);
+            }, swatchLabelRestoreDelay);
 
-            choice.data('choice-label-restore-timer', timer);
+            choice.data('swatch-label-restore-timer', timer);
         }
 
-        function restoreChoiceLabel(choice) {
-            const selectedBox = choice.find('.choice-box-control-native:checked').closest('.choice-box');
+        function restoreSwatchLabel(choice) {
+            const selectedSwatch = choice.find('.swatch-input:checked').closest('.swatch');
 
-            if (selectedBox.length) {
-                updateChoiceLabel(selectedBox);
+            if (selectedSwatch.length) {
+                updateSwatchLabel(selectedSwatch);
                 return;
             }
 
-            const selection = choice.find('.choice-label-selection').first();
-            const emptyClass = selection.attr('data-choice-empty-class');
+            const selection = choice.find('.swatch-group-label-value').first();
+            const emptyClass = selection.attr('data-swatch-empty-class');
 
             selection
                 .removeClass('text-danger text-muted')
                 .addClass(emptyClass || '')
-                .text(selection.attr('data-choice-empty-value') || '');
+                .text(selection.attr('data-swatch-empty-value') || '');
         }
 
         this.initAssociatedProducts = function (associatedProducts) {

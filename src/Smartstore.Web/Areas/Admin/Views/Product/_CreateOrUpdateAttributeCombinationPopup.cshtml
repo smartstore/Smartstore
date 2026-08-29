@@ -75,14 +75,14 @@
                     <smart-label asp-for="AssignedPictureIds" />
                 </div>
                 <div class="adminData">
-                    <ul class="choice-box-group choice-box-group-xl mb-1" id="assigned-pictures">
+                    <ul class="swatch-group swatch-group-xl mb-1" id="assigned-pictures">
                         @foreach (var x in Model.AssignablePictures)
                         {
-                            <li class="choice-box choice-box-mediafile">
-                                <label class="choice-box-label">
-                                    <input type="checkbox" class="choice-box-control-native" name="AssignedPictureIds" value="@x.Id" attr-checked='(x.IsAssigned, "checked")' />
-                                    <span class="choice-box-content">
-                                        <img sm-file="x.Media" sm-size="MediaSettings.ThumbnailSizeMd" class="choice-box-element" />
+                            <li class="swatch swatch-mediafile">
+                                <label class="swatch-label">
+                                    <input type="checkbox" class="swatch-input" name="AssignedPictureIds" value="@x.Id" attr-checked='(x.IsAssigned, "checked")' />
+                                    <span class="swatch-content">
+                                        <img sm-file="x.Media" sm-size="MediaSettings.ThumbnailSizeMd" class="swatch-element" />
                                     </span>
                                 </label>
                             </li>

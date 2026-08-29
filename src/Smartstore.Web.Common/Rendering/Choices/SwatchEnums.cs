@@ -1,6 +1,6 @@
 namespace Smartstore.Web.Rendering.Choices;
 
-public enum ChoiceBoxSize
+public enum SwatchSize
 {
     ExtraSmall = 0,
     Small = 10,
@@ -10,7 +10,7 @@ public enum ChoiceBoxSize
     ExtraExtraLarge = 50
 }
 
-public enum ChoiceBoxShape
+public enum SwatchShape
 {
     Rounded = 0,
     Rect = 10,

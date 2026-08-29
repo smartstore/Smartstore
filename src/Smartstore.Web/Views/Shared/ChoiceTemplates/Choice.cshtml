@@ -6,19 +6,19 @@
 	var controlId = Model.BuildControlId();
 	var label = Model.GetLabel();
 	var description = Model.GetDescription();
-	var isBox = Model.AttributeControlType == AttributeControlType.Boxes;
-	var selectedBoxValue = isBox
+	var isSwatch = Model.AttributeControlType == AttributeControlType.Boxes;
+	var selectedSwatchValue = isSwatch
 		? Model.Values?.FirstOrDefault(x => x.IsPreSelected)?.Name
 		: null;
-	var emptyBoxValueText = Model.IsRequired ? T("Common.PleaseSelect").Value : T("Common.Unspecified").Value;
-	var boxValueText = selectedBoxValue.NullEmpty() ?? emptyBoxValueText;
-	var boxValueStateClass = selectedBoxValue.HasValue()
+	var emptySwatchValueText = Model.IsRequired ? T("Common.PleaseSelect").Value : T("Common.Unspecified").Value;
+	var swatchValueText = selectedSwatchValue.NullEmpty() ?? emptySwatchValueText;
+	var swatchValueStateClass = selectedSwatchValue.HasValue()
 		? null
 		: Model.IsRequired ? "text-danger" : "text-muted";
 	var choiceLabelClass = "choice-label";
-	if (isBox)
+	if (isSwatch)
 	{
-		choiceLabelClass += " choice-label-box";
+		choiceLabelClass += " swatch-group-label";
 	}
 	else if (Model.IsRequired)
 	{
@@ -62,7 +62,7 @@
 		}
 		case AttributeControlType.Boxes:
 		{
-			templateSuffix = "Box";
+			templateSuffix = "Swatch";
 			break;
 		}
 	}
@@ -70,12 +70,12 @@
 
 <div class="form-group choice">
     <label class="@choiceLabelClass" for="@controlId">
-        @if (isBox)
+        @if (isSwatch)
         {
-            <span class="choice-label-name">@(label?.Trim()):</span>
-            <span class="choice-label-selection @boxValueStateClass"
-                  data-choice-empty-value="@emptyBoxValueText"
-                  data-choice-empty-class="@boxValueStateClass">@boxValueText</span>
+            <span class="swatch-group-label-name">@(label?.Trim()):</span>
+            <span class="swatch-group-label-value @swatchValueStateClass"
+                  data-swatch-empty-value="@emptySwatchValueText"
+                  data-swatch-empty-class="@swatchValueStateClass">@swatchValueText</span>
         }
         else
         {

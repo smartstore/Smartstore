@@ -11,7 +11,7 @@ public abstract class ChoiceItemModel : EntityModelBase
     public string Color { get; set; }
     public string PriceAdjustment { get; set; }
     public decimal PriceAdjustmentValue { get; set; }
-    public string ChoiceBoxPrice { get; set; }
+    public string SwatchPrice { get; set; }
     public int QuantityInfo { get; set; }
     public bool IsPreSelected { get; set; }
     public bool IsDisabled { get; set; }

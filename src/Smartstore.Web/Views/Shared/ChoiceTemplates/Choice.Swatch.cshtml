@@ -11,21 +11,21 @@
     // TEST
     if (allItemsHaveMedia)
     {
-        Model.ChoiceBoxSize = ChoiceBoxSize.Medium;
-        Model.ChoiceBoxShape = ChoiceBoxShape.Rounded;
+        Model.SwatchSize = SwatchSize.ExtraExtraLarge;
+        Model.SwatchShape = SwatchShape.Rounded;
         // Model.SwatchAspectRatio = 0.5m;
-        // Model.ShowValueNameInChoiceBox = true;
-        // Model.ShowPriceInChoiceBox = true;
+        // Model.ShowValueNameInSwatch = true;
+        // Model.ShowPriceInSwatch = true;
     }
     // TEST
 
-    var sizeClass = Model.ChoiceBoxSize switch
+    var sizeClass = Model.SwatchSize switch
     {
-        ChoiceBoxSize.ExtraSmall => "xs",
-        ChoiceBoxSize.Small => "sm",
-        ChoiceBoxSize.Large => "lg",
-        ChoiceBoxSize.ExtraLarge => "xl",
-        ChoiceBoxSize.ExtraExtraLarge => "xxl",
+        SwatchSize.ExtraSmall => "xs",
+        SwatchSize.Small => "sm",
+        SwatchSize.Large => "lg",
+        SwatchSize.ExtraLarge => "xl",
+        SwatchSize.ExtraExtraLarge => "xxl",
         _ => "md"
     };
 
@@ -33,57 +33,57 @@
         x.ImageUrl.HasValue() || (x.Color.HasValue() && x.Color != "transparent"));
     var hasTextOnlyItems = items.Any(x =>
         x.ImageUrl.IsEmpty() && (x.Color.IsEmpty() || x.Color == "transparent"));
-    var wantsMediaCard = Model.ShowValueNameInChoiceBox || Model.ShowPriceInChoiceBox;
-    var isMediaCardSize = Model.ChoiceBoxSize >= ChoiceBoxSize.Large;
+    var wantsMediaCard = Model.ShowValueNameInSwatch || Model.ShowPriceInSwatch;
+    var isMediaCardSize = Model.SwatchSize >= SwatchSize.Large;
     var isMediaCard = allItemsHaveMedia && wantsMediaCard && isMediaCardSize;
 
-    var effectiveShape = Model.ChoiceBoxShape;
-    if (effectiveShape == ChoiceBoxShape.Circle && (isMediaCard || hasTextOnlyItems))
+    var effectiveShape = Model.SwatchShape;
+    if (effectiveShape == SwatchShape.Circle && (isMediaCard || hasTextOnlyItems))
     {
-        effectiveShape = ChoiceBoxShape.Rounded;
+        effectiveShape = SwatchShape.Rounded;
     }
 
     var shapeClass = effectiveShape switch
     {
-        ChoiceBoxShape.Rect => "rect",
-        ChoiceBoxShape.Circle => "circle",
+        SwatchShape.Rect => "rect",
+        SwatchShape.Circle => "circle",
         _ => "rounded"
     };
 
     var swatchAspectRatio = Model.SwatchAspectRatio > 0 ? Model.SwatchAspectRatio : 1m;
 
-    var groupClass = $"choice-box-group choice-box-group-{sizeClass} choice-box-shape-{shapeClass}";
+    var groupClass = $"swatch-group swatch-group-{sizeClass} swatch-shape-{shapeClass}";
     if (anyItemHasMedia)
     {
-        groupClass += " choice-box-group-fixed";
+        groupClass += " swatch-group-fixed";
     }
     if (isMediaCard)
     {
-        groupClass += " choice-box-group-media-card";
+        groupClass += " swatch-group-cards";
     }
 }
 
-<div class="choice-boxes" 
-     id="choice-boxes-@Model.Id" 
+<div class="swatches" 
+     id="swatches-@Model.Id" 
      role="radiogroup"      
      data-manualselect="true"
-     data-choice-box-size="@sizeClass"
-     data-choice-box-shape="@shapeClass"
+     data-swatch-size="@sizeClass"
+     data-swatch-shape="@shapeClass"
      data-media-card="@isMediaCard.ToString().ToLowerInvariant()"
      aria-orientation="horizontal"  
      attr-aria-required='(Model.IsRequired, "true")'>
-    <ul class="@groupClass" style="--choice-box-swatch-aspect-ratio: @swatchAspectRatio.ToStringInvariant()">
+    <ul class="@groupClass" style="--swatch-aspect-ratio: @swatchAspectRatio.ToStringInvariant()">
         @foreach (var item in items)
         {
             string css = null;
-            string boxClass = "choice-box";
-            string elClass = "choice-box-element";
+            string swatchClass = "swatch";
+            string elementClass = "swatch-element";
             string label = item.GetItemLabel();
             bool isDark = false;
 
             if (item.IsPreSelected)
             {
-                boxClass += " selected";
+                swatchClass += " selected";
             }
 
             var hasColor = item.Color.HasValue() && item.Color != "transparent";
@@ -93,7 +93,7 @@
                 isDark = ImagingHelper.GetPerceivedBrightness(item.Color) < 200;
                 if (isDark && !isMediaCard)
                 {
-                    boxClass += " dark";
+                    swatchClass += " dark";
                 }
             }
 
@@ -102,7 +102,7 @@
             {
                 if (!isMediaCard)
                 {
-                    elClass += " choice-box-image";
+                    elementClass += " swatch-image";
                 }
                 css += "background-image: url('" + item.ImageUrl + "');";
             }
@@ -110,17 +110,17 @@
             {
                 if (!isMediaCard)
                 {
-                    elClass += " choice-box-color";
+                    elementClass += " swatch-color";
                 }
             }
 
             if (item.IsDisabled)
             {
-                boxClass += " disabled";
+                swatchClass += " disabled";
             }
             else if (item.IsUnavailable)
             {
-                boxClass += " unavailable";
+                swatchClass += " unavailable";
             }
 
             if (item.Title.HasValue())
@@ -128,18 +128,18 @@
                 label += " - " + item.Title;
             }
 
-            var boxPrice = item.ChoiceBoxPrice.NullEmpty() ?? item.PriceAdjustment;
+            var swatchPrice = item.SwatchPrice.NullEmpty() ?? item.PriceAdjustment;
 
             // TEST
-            if (boxPrice.IsEmpty())
+            if (swatchPrice.IsEmpty())
             {
-                boxPrice = "199,99 EUR";
+                swatchPrice = "199,99 EUR";
             }
             // TEST
 
-            <li class="@boxClass" data-choice-value-name="@item.Name">
+            <li class="@swatchClass" data-swatch-value="@item.Name">
                 <input type="radio"
-                       class="choice-box-control-native"
+                       class="swatch-input"
                        id="@(controlId)_@(item.Id)"
                        name="@(controlId)"
                        value="@item.Id"
@@ -147,22 +147,22 @@
                        attr-checked='(item.IsPreSelected, "checked")'
                        attr-disabled='(item.IsDisabled, "disabled")' />
 
-                <label class="choice-box-label" for="@(controlId)_@(item.Id)">
-                    <span class="choice-box-content">
+                <label class="swatch-label" for="@(controlId)_@(item.Id)">
+                    <span class="swatch-content">
                         @if (isMediaCard)
                         {
-                            <span class="@elClass choice-box-media-card">
-                                <span class="choice-box-swatch@(hasImage ? " choice-box-image" : " choice-box-color")" attr-style="(css.HasValue(), css)"></span>
-                                <span class="choice-box-details">
-                                    <span sm-if="Model.ShowValueNameInChoiceBox" class="choice-box-value-name">@item.Name</span>
-                                    <span sm-if="Model.ShowPriceInChoiceBox" class="choice-box-price">@boxPrice</span>
+                            <span class="@elementClass swatch-card">
+                                <span class="swatch-media@(hasImage ? " swatch-image" : " swatch-color")" attr-style="(css.HasValue(), css)"></span>
+                                <span class="swatch-details">
+                                    <span sm-if="Model.ShowValueNameInSwatch" class="swatch-value">@item.Name</span>
+                                    <span sm-if="Model.ShowPriceInSwatch" class="swatch-price">@swatchPrice</span>
                                 </span>
                             </span>
                         }
                         else
                         {
-                            <span class="@elClass" attr-style="(css.HasValue(), css)">
-                                <span sm-if="!css.HasValue()" class="choice-box-text">@item.Name</span>
+                            <span class="@elementClass" attr-style="(css.HasValue(), css)">
+                                <span sm-if="!css.HasValue()" class="swatch-value">@item.Name</span>
                             </span>
                         }
                     </span>

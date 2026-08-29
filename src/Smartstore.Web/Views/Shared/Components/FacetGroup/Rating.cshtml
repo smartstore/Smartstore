@@ -18,7 +18,7 @@
     @foreach (var facet in facets)
     {
         <div class="facet-item facet-radio" title="@facet.Value.Label">
-            <label class="choice-box-label" for="optradio-@(facet.Value.Key)">
+            <label class="swatch-label" for="optradio-@(facet.Value.Key)">
                 <input class="facet-control-native"
                        type="radio"
                        name="optradio-@(Model.Key)"
