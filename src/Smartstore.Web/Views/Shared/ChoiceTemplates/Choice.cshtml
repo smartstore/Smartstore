@@ -6,9 +6,24 @@
 	var controlId = Model.BuildControlId();
 	var label = Model.GetLabel();
 	var description = Model.GetDescription();
-	var selectedBoxValue = Model.AttributeControlType == AttributeControlType.Boxes
+	var isBox = Model.AttributeControlType == AttributeControlType.Boxes;
+	var selectedBoxValue = isBox
 		? Model.Values?.FirstOrDefault(x => x.IsPreSelected)?.Name
 		: null;
+	var emptyBoxValueText = Model.IsRequired ? T("Common.PleaseSelect").Value : T("Common.Unspecified").Value;
+	var boxValueText = selectedBoxValue.NullEmpty() ?? emptyBoxValueText;
+	var boxValueStateClass = selectedBoxValue.HasValue()
+		? null
+		: Model.IsRequired ? "text-danger" : "text-muted";
+	var choiceLabelClass = "choice-label";
+	if (isBox)
+	{
+		choiceLabelClass += " choice-label-box";
+	}
+	else if (Model.IsRequired)
+	{
+		choiceLabelClass += " required";
+	}
 
 	var isTextInput = Model.AttributeControlType == AttributeControlType.TextBox || Model.AttributeControlType == AttributeControlType.MultilineTextbox;
 	string templateSuffix = null;
@@ -54,10 +69,17 @@
 }
 
 <div class="form-group choice">
-    <label class="choice-label@(Model.IsRequired ? " required" : "")" for="@controlId">
-        @label@if (Model.AttributeControlType == AttributeControlType.Boxes)
+    <label class="@choiceLabelClass" for="@controlId">
+        @if (isBox)
         {
-            <span class="choice-label-selection@(selectedBoxValue.IsEmpty() ? " d-none" : "")">: <strong>@selectedBoxValue</strong></span>
+            <span class="choice-label-name">@(label?.Trim()):</span>
+            <span class="choice-label-selection @boxValueStateClass"
+                  data-choice-empty-value="@emptyBoxValueText"
+                  data-choice-empty-class="@boxValueStateClass">@boxValueText</span>
+        }
+        else
+        {
+            @label
         }
     </label>
     <div sm-if="!isTextInput && description.HasValue()" class="choice-description">

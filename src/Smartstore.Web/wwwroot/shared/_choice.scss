@@ -4,13 +4,13 @@
 // Choice Styles (Variants etc.)
 // ------------------------------------------------------
 
-$choice-box-gap:            6px;
-$choice-box-size-xs:        24px;
-$choice-box-size-sm:        36px;
-$choice-box-size:           46px;
-$choice-box-size-lg:        76px;
-$choice-box-size-xl:        92px;
-$choice-box-size-xxl:       118px;
+$choice-box-gap:            12px;
+$choice-box-size-xs:        18px;
+$choice-box-size-sm:        28px;
+$choice-box-size:           38px;
+$choice-box-size-lg:        70px;
+$choice-box-size-xl:        86px;
+$choice-box-size-xxl:       112px;
 
 .choice {
     margin-bottom: 1rem;
@@ -24,12 +24,19 @@ label.required,
 	&:after { content: ' *' }
 }
 
-.choice-label-selection {
+.choice-label-box {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.25rem;
     font-weight: $font-weight-normal;
+}
 
-    > strong {
-        font-weight: $font-weight-medium;
-    }
+.choice-label-name {
+    font-weight: $font-weight-normal;
+}
+
+.choice-label-selection {
+    font-weight: $font-weight-semibold;
 }
 
 .choice-item {
@@ -78,20 +85,34 @@ label.required,
 
 .choice-box-group {
     --choice-box-size: #{$choice-box-size};
+    --choice-box-gap: #{$choice-box-gap};
     --choice-box-strike-color: rgba(0, 0, 0, 0.75);
     --choice-box-swatch-aspect-ratio: 1;
-	margin: 0;
-	padding: 0;
-	list-style-type: none;
+    --swatch-outline-width: 2px;
+    --swatch-outline-style: solid;
+    --swatch-outline-offset: 2px;
+    --swatch-outline-color: rgba(0, 0, 0, 0.125);
+    --swatch-outline-color-hover: rgba(0, 0, 0, 0.25);
+    --swatch-outline-color-selected: #{$focus-ring-color};
+    --swatch-border-radius: var(--border-radius-md);
+    //--swatch-outline-color-selected: var(--primary);
+
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
     position: relative;
     display: flex;
     flex-wrap: wrap;
-    gap: $choice-box-gap;
-    
+    gap: var(--choice-box-gap);
+
     @include clearfix();
 
     &.choice-box-group-xs {
         --choice-box-size: #{$choice-box-size-xs};
+        --swatch-outline-width: 1px;
+        --swatch-outline-offset: 2px;
+        --swatch-border-radius: var(--border-radius-sm);
+        --choice-box-gap: #{$choice-box-gap / 1.5};
     }
 
     &.choice-box-group-sm {
@@ -112,6 +133,14 @@ label.required,
 
     &.choice-box-group-xxl {
         --choice-box-size: #{$choice-box-size-xxl};
+    }
+
+    &.choice-box-shape-rect {
+        --swatch-border-radius: 0 !important;
+    }
+
+    &.choice-box-shape-circle {
+        --swatch-border-radius: 50% !important;
     }
 
     &.choice-box-group-fixed {
@@ -197,10 +226,12 @@ label.required,
 .choice-box-element {
     position: relative;
     display: inline-block;
-    border: 1px solid rgba(0,0,0, .125);
-    border-radius: var(--border-radius-md);
+    border-radius: var(--swatch-border-radius);
     background-color: #fff;
-
+    outline-width: var(--swatch-outline-width);
+    outline-style: var(--swatch-outline-style);
+    outline-offset: var(--swatch-outline-offset);
+    outline-color: var(--swatch-outline-color);
     height: var(--choice-box-size);
     line-height: var(--choice-box-size);
     min-width: var(--choice-box-size);
@@ -208,13 +239,15 @@ label.required,
     text-align: center;
     overflow: hidden;
     font-weight: $font-weight-medium;
-
     background-size: cover;
     background-repeat: no-repeat;
     background-position: 50% 50%;
     background-clip: padding-box;
+    transition: outline-color ease 0.1s;
 
-    //&:hover { border-color: $gray-700; }
+    &:hover {
+        outline-color: var(--swatch-outline-color-hover);
+    }
 
     .choice-box-text {
         padding: 0 0.4rem;
@@ -245,14 +278,6 @@ label.required,
     }
 }
 
-.choice-box-shape-rect .choice-box-element {
-    border-radius: 0;
-}
-
-.choice-box-shape-circle .choice-box-element {
-    border-radius: 50%;
-}
-
 .choice-box-media-card {
     display: flex;
     flex-direction: column;
@@ -267,7 +292,7 @@ label.required,
     width: var(--choice-box-size);
     height: calc(var(--choice-box-size) * var(--choice-box-swatch-aspect-ratio));
     background-color: #fff;
-    background-size: contain;
+    background-size: cover;
     background-repeat: no-repeat;
     background-position: 50% 50%;
     background-clip: padding-box;
@@ -344,8 +369,7 @@ label.required,
 
 .choice-box-control-native:checked + :is(.choice-box-label, .choice-box-content) {
     .choice-box-element {
-        border-color: $gray-700;
-        box-shadow: inset 0 0 0 2px rgba($white, 1);
+        outline-color: var(--swatch-outline-color-selected);
     }
 
     &:after {

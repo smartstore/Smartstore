@@ -12,6 +12,7 @@
         var meta = $.metadata ? $.metadata.get(element) : {};
         var opts = this.options = $.extend(true, {}, options, meta || {});
         var updating = false;
+        const choiceLabelRestoreDelay = 150;
 
         this.init = function () {
             var opts = this.options;
@@ -34,16 +35,35 @@
 
             $(el)
                 .on('mouseenter focusin', '.choice-box', function () {
-                    updateChoiceLabel($(this));
+                    const box = $(this);
+                    const choice = box.closest('.choice');
+                    clearChoiceLabelRestore(choice);
+
+                    if (supportsChoiceLabelPreview(box)) {
+                        updateChoiceLabel(box);
+                    }
+                    else {
+                        restoreChoiceLabel(choice);
+                    }
                 })
                 .on('mouseleave focusout', '.choice-box', function (e) {
                     if (e.type === 'focusout' && e.relatedTarget && $.contains(this, e.relatedTarget)) {
                         return;
                     }
 
-                    const choice = $(this).closest('.choice');
-                    const group = $(this).closest('.choice-box-group');
-                    updateChoiceLabel(group.find('.choice-box-control-native:checked').closest('.choice-box'), choice);
+                    const box = $(this);
+                    if (supportsChoiceLabelPreview(box)) {
+                        const choice = box.closest('.choice');
+                        if (e.type === 'mouseleave') {
+                            scheduleChoiceLabelRestore(choice);
+                        }
+                        else {
+                            restoreChoiceLabel(choice);
+                        }
+                    }
+                })
+                .on('change', '.choice-box-control-native', function () {
+                    updateChoiceLabel($(this).closest('.choice-box'));
                 });
 
             // Update product data and gallery
@@ -95,17 +115,60 @@
             return this;
         };
 
-        function updateChoiceLabel(box, choice) {
-            choice = choice || box.closest('.choice');
-            const selection = choice.find('.choice-label-selection').first();
+        function updateChoiceLabel(box) {
+            const selection = box.closest('.choice').find('.choice-label-selection').first();
 
             if (!selection.length) {
                 return;
             }
 
             const valueName = box.data('choice-value-name') || '';
-            selection.toggleClass('d-none', !valueName);
-            selection.find('strong').text(valueName);
+            if (valueName) {
+                selection
+                    .removeClass('text-danger text-muted')
+                    .text(valueName);
+            }
+        }
+
+        function supportsChoiceLabelPreview(box) {
+            return !box.find('.choice-box-media-card, .choice-box-text').length;
+        }
+
+        function clearChoiceLabelRestore(choice) {
+            const timer = choice.data('choice-label-restore-timer');
+
+            if (timer) {
+                window.clearTimeout(timer);
+                choice.removeData('choice-label-restore-timer');
+            }
+        }
+
+        function scheduleChoiceLabelRestore(choice) {
+            clearChoiceLabelRestore(choice);
+
+            const timer = window.setTimeout(function () {
+                choice.removeData('choice-label-restore-timer');
+                restoreChoiceLabel(choice);
+            }, choiceLabelRestoreDelay);
+
+            choice.data('choice-label-restore-timer', timer);
+        }
+
+        function restoreChoiceLabel(choice) {
+            const selectedBox = choice.find('.choice-box-control-native:checked').closest('.choice-box');
+
+            if (selectedBox.length) {
+                updateChoiceLabel(selectedBox);
+                return;
+            }
+
+            const selection = choice.find('.choice-label-selection').first();
+            const emptyClass = selection.attr('data-choice-empty-class');
+
+            selection
+                .removeClass('text-danger text-muted')
+                .addClass(emptyClass || '')
+                .text(selection.attr('data-choice-empty-value') || '');
         }
 
         this.initAssociatedProducts = function (associatedProducts) {
