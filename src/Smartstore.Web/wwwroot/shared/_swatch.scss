@@ -1,135 +1,97 @@
 /// <reference path="references.scss" />
 
 //
-// Swatch Styles (Variants etc.)
+// Swatches
 // ------------------------------------------------------
 
-$swatch-gap:            12px;
-$swatch-size-xs:        18px;
-$swatch-size-sm:        28px;
-$swatch-size:           38px;
-$swatch-size-lg:        58px;
-$swatch-size-xl:        84px;
-$swatch-size-xxl:       108px;
-
-.swatch-group-label {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 0.25rem;
-    font-weight: $font-weight-normal;
-}
-
-.swatch-group-label-name {
-    font-weight: $font-weight-normal;
-}
-
-.swatch-group-label-value {
-    font-weight: $font-weight-semibold;
-}
-
 .swatch-group {
-    --swatch-size: #{$swatch-size};
-    --swatch-gap: #{$swatch-gap};
-    --swatch-strike-color: rgba(0, 0, 0, 0.75);
+    --swatch-size: 38px;
+    --swatch-gap: 12px;
     --swatch-aspect-ratio: 1;
+    --swatch-border-radius: var(--border-radius-md);
     --swatch-outline-width: 2px;
-    --swatch-outline-style: solid;
     --swatch-outline-offset: 2px;
     --swatch-outline-color: rgba(0, 0, 0, 0.125);
     --swatch-outline-color-hover: rgba(0, 0, 0, 0.25);
     --swatch-outline-color-selected: #{$focus-ring-color};
-    --swatch-border-radius: var(--border-radius-md);
-    //--swatch-outline-color-selected: var(--primary);
+    --swatch-strike-color: rgba(0, 0, 0, 0.75);
 
-    margin: 0;
-    padding: 0;
-    list-style-type: none;
     position: relative;
     display: flex;
     flex-wrap: wrap;
     gap: var(--swatch-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
 
-    @include clearfix();
+.swatch-group-xs {
+    --swatch-size: 18px;
+    --swatch-gap: 8px;
+    --swatch-border-radius: var(--border-radius-sm);
+    --swatch-outline-width: 1px;
+}
 
-    &.swatch-group-xs {
-        --swatch-size: #{$swatch-size-xs};
-        --swatch-outline-width: 1px;
-        --swatch-outline-offset: 2px;
-        --swatch-border-radius: var(--border-radius-sm);
-        --swatch-gap: #{$swatch-gap / 1.5};
+.swatch-group-sm {
+    --swatch-size: 28px;
+}
+
+.swatch-group-lg {
+    --swatch-size: 58px;
+}
+
+.swatch-group-xl {
+    --swatch-size: 84px;
+    --swatch-gap: 15px;
+    --swatch-outline-offset: 3px;
+}
+
+.swatch-group-xxl {
+    --swatch-size: 108px;
+    --swatch-gap: 18px;
+    --swatch-outline-offset: 4px;
+}
+
+.swatch-shape-rect {
+    --swatch-border-radius: 0;
+}
+
+.swatch-shape-circle {
+    --swatch-border-radius: 50%;
+}
+
+.swatch-group-fixed {
+    .swatch,
+    .swatch-label,
+    .swatch-content,
+    .swatch-element {
+        width: var(--swatch-size);
     }
 
-    &.swatch-group-sm {
-        --swatch-size: #{$swatch-size-sm};
+    .swatch {
+        flex: 0 0 var(--swatch-size);
+    }
+}
+
+.swatch-group-cards {
+    align-items: stretch;
+
+    .swatch {
+        display: flex;
     }
 
-    &.swatch-group-md {
-        --swatch-size: #{$swatch-size};
-    }
-
-    &.swatch-group-lg {
-        --swatch-size: #{$swatch-size-lg};
-    }
-
-    &.swatch-group-xl {
-        --swatch-size: #{$swatch-size-xl};
-        --swatch-gap: #{$swatch-gap * 1.25};
-        --swatch-outline-offset: 3px;
-    }
-
-    &.swatch-group-xxl {
-        --swatch-size: #{$swatch-size-xxl};
-        --swatch-gap: #{$swatch-gap * 1.5};
-        --swatch-outline-offset: 4px;
-    }
-
-    &.swatch-shape-rect {
-        --swatch-border-radius: 0 !important;
-    }
-
-    &.swatch-shape-circle {
-        --swatch-border-radius: 50% !important;
-    }
-
-    &.swatch-group-fixed {
-        .swatch,
-        .swatch-label,
-        .swatch-content,
-        .swatch-element {
-            width: var(--swatch-size);
-        }
-
-        .swatch {
-            flex: 0 0 var(--swatch-size);
-        }
-    }
-
-    &.swatch-group-cards {
-        align-items: stretch;
-
-        .swatch {
-            display: flex;
-        }
-
-        .swatch-label,
-        .swatch-content,
-        .swatch-card {
-            display: flex;
-            flex: 1 1 auto;
-            min-width: 0;
-        }
+    .swatch-label,
+    .swatch-content,
+    .swatch-card {
+        display: flex;
+        flex: 1 1 auto;
+        min-width: 0;
     }
 }
 
 .swatch {
     position: relative;
     display: block;
-    --swatch-gradient: linear-gradient(
-        145deg,
-        rgba(255,255,255, 0.16) 0%,
-        transparent 48%,
-        rgba(0,0,0, 0.055) 100%
-    );
 
     &.dark {
         --swatch-strike-color: #fff;
@@ -142,88 +104,61 @@ $swatch-size-xxl:       108px;
 
 .swatch-content {
     position: relative;
-	display: block;
+    display: block;
     cursor: pointer;
-
-    &:after {
-        box-sizing: content-box;
-        position: absolute;
-        display: block;
-        inset-inline-end: -6px;
-        top: -6px;
-        background-color: $warning;
-        border-radius: 50%;
-        border: 1px solid #fff;
-
-        width: 16px;
-        height: 16px;
-        line-height: 16px;
-        text-align: center;
-        vertical-align: middle;
-
-        @include fontawesome-font("\f00c", regular); // check
-        color: #fff;
-        font-size: 10px;
-
-        opacity: 0;
-        transform: scale(0);
-        transition: all 0.1s ease-in;
-    }
 }
 
 .swatch-element {
     position: relative;
     display: inline-block;
-    border-radius: var(--swatch-border-radius);
-    background-color: #fff;
-    outline-width: var(--swatch-outline-width);
-    outline-style: var(--swatch-outline-style);
-    outline-offset: var(--swatch-outline-offset);
-    outline-color: var(--swatch-outline-color);
-    height: var(--swatch-size);
-    line-height: var(--swatch-size);
     min-width: var(--swatch-size);
-    vertical-align: middle;
-    text-align: center;
+    height: var(--swatch-size);
     overflow: hidden;
-    font-weight: $font-weight-medium;
-    background-size: cover;
+    border-radius: var(--swatch-border-radius);
+    outline: var(--swatch-outline-width) solid var(--swatch-outline-color);
+    outline-offset: var(--swatch-outline-offset);
+    background-color: #fff;
     background-repeat: no-repeat;
     background-position: 50% 50%;
+    background-size: cover;
     background-clip: padding-box;
-    transition: outline-color ease 0.1s;
+    font-weight: $font-weight-medium;
+    line-height: var(--swatch-size);
+    text-align: center;
+    vertical-align: middle;
+    transition: outline-color 0.1s ease;
 
     &:hover {
         outline-color: var(--swatch-outline-color-hover);
     }
 
     &:not(.swatch-card) > .swatch-value {
-        padding: 0 0.4rem;
+        padding-inline: 0.4rem;
+    }
+}
+
+.swatch.unavailable .swatch-element {
+    border: 1px dashed rgba($black, 0.3);
+
+    &:not(.swatch-color) {
+        opacity: 0.5;
     }
 
-    .swatch.unavailable & {
-        border: 1px dashed rgba($black, .3);
-
-        &:not(.swatch-color) {
-            opacity: .5;
-        }
-
-        &:after {
-            position: absolute;
-            content: '';
-            background-color: var(--swatch-strike-color);
-            height: 1px;
-            left: 0;
-            right: 0;
-            top: calc(50% - 1px);
-            margin-inline: -8px;
-            transform: rotate(-45deg);
-        }
+    &:after {
+        position: absolute;
+        top: calc(50% - 1px);
+        right: 0;
+        left: 0;
+        height: 1px;
+        margin-inline: -8px;
+        background-color: var(--swatch-strike-color);
+        content: "";
+        transform: rotate(-45deg);
     }
+}
 
-    .swatch.disabled & {
-        opacity: .5;
-    }
+.swatch.disabled .swatch-element {
+    opacity: 0.5;
 }
 
 .swatch-card {
@@ -240,9 +175,9 @@ $swatch-size-xxl:       108px;
     width: var(--swatch-size);
     height: calc(var(--swatch-size) * var(--swatch-aspect-ratio));
     background-color: #fff;
-    background-size: cover;
     background-repeat: no-repeat;
     background-position: 50% 50%;
+    background-size: cover;
     background-clip: padding-box;
 }
 
@@ -255,22 +190,22 @@ $swatch-size-xxl:       108px;
     justify-content: flex-start;
     gap: 2px;
     padding: 4px;
-    border-top: 1px solid rgba($black, .125);
+    border-top: 1px solid rgba($black, 0.125);
     background-color: #fff;
     color: $body-color;
     text-align: start;
-}
 
-.swatch-details > .swatch-value {
-    display: -webkit-box;
-    max-width: 100%;
-    overflow: hidden;
-    font-size: 12px;
-    font-weight: $font-weight-semibold;
-    line-height: 1.05;
-    overflow-wrap: anywhere;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    > .swatch-value {
+        display: -webkit-box;
+        max-width: 100%;
+        overflow: hidden;
+        font-size: 12px;
+        font-weight: $font-weight-semibold;
+        line-height: 1.05;
+        overflow-wrap: anywhere;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
 }
 
 .swatch-price {
@@ -286,32 +221,38 @@ $swatch-size-xxl:       108px;
 
 .swatch-color:before {
     position: absolute;
-    content: "";
     inset: 0;
     border-radius: inherit;
-    background: var(--swatch-gradient);
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.16) 0%,
+            transparent 48%,
+            rgba(0, 0, 0, 0.055) 100%
+        );
+    content: "";
     pointer-events: none;
 }
 
 .swatch-mediafile .swatch-content {
-    max-width: $swatch-size-xl !important;
+    max-width: var(--swatch-size) !important;
 
     .file-img {
+        max-width: 100%;
         object-fit: cover;
-        max-width: 100%
     }
 }
 
 .swatch-input {
     position: absolute;
-    opacity: 0;
     width: 1px;
     height: 1px;
+    opacity: 0;
+}
 
-    &:focus-visible + .swatch-label {
-        .swatch-element {
-            box-shadow: $focus-ring-box-shadow !important;
-        }
+.swatch-input:focus-visible + :is(.swatch-label, .swatch-content) {
+    .swatch-element {
+        box-shadow: $focus-ring-box-shadow !important;
     }
 }
 
@@ -319,9 +260,10 @@ $swatch-size-xxl:       108px;
     .swatch-element {
         outline-color: var(--swatch-outline-color-selected);
     }
+}
 
-    &:after {
-        opacity: 1;
-        transform: scale(1);
-    }
+.swatch-input:checked + .swatch-label .swatch-content::after,
+.swatch-input:checked + .swatch-content::after {
+    opacity: 1;
+    transform: scale(1);
 }

@@ -18,7 +18,7 @@
 	var choiceLabelClass = "choice-label";
 	if (isSwatch)
 	{
-		choiceLabelClass += " swatch-group-label";
+		choiceLabelClass += " choice-label-swatch";
 	}
 	else if (Model.IsRequired)
 	{
@@ -72,8 +72,8 @@
     <label class="@choiceLabelClass" for="@controlId">
         @if (isSwatch)
         {
-            <span class="swatch-group-label-name">@(label?.Trim()):</span>
-            <span class="swatch-group-label-value @swatchValueStateClass"
+            <span class="choice-label-name">@(label?.Trim()):</span>
+            <span class="choice-label-value @swatchValueStateClass"
                   data-swatch-empty-value="@emptySwatchValueText"
                   data-swatch-empty-class="@swatchValueStateClass">@swatchValueText</span>
         }

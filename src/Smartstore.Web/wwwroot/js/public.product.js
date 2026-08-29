@@ -116,7 +116,7 @@
         };
 
         function updateSwatchLabel(swatch) {
-            const selection = swatch.closest('.choice').find('.swatch-group-label-value').first();
+            const selection = swatch.closest('.choice').find('.choice-label-value').first();
 
             if (!selection.length) {
                 return;
@@ -162,7 +162,7 @@
                 return;
             }
 
-            const selection = choice.find('.swatch-group-label-value').first();
+            const selection = choice.find('.choice-label-value').first();
             const emptyClass = selection.attr('data-swatch-empty-class');
 
             selection

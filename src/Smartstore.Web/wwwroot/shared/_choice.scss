@@ -16,6 +16,21 @@ label.required,
 	&:after { content: ' *' }
 }
 
+.choice-label-swatch {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    font-weight: $font-weight-normal;
+}
+
+.choice-label-name {
+    font-weight: $font-weight-normal;
+}
+
+.choice-label-value {
+    font-weight: $font-weight-semibold;
+}
+
 .choice-item {
     --choice-item-line-height: #{$line-height-base};
     --choice-item-size: max(1rem, 1em);
