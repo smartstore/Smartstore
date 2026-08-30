@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Language Name="Deutsch" IsRightToLeft="false">
+  <LocaleResource Name="Plugins.Payment.Klarna.DisplayName">
+    <Value>Klarna</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.Admin.Configure">
+    <Value>Klarna Payments konfigurieren</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.ApiKey">
+    <Value>API-Schlüssel</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.ApiKey.Hint">
+    <Value>Geben Sie Ihren Klarna API-Schlüssel ein.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.ApiSecret">
+    <Value>API-Geheimnis</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.ApiSecret.Hint">
+    <Value>Geben Sie Ihr Klarna API-Geheimnis ein.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.UseSandbox">
+    <Value>Sandbox verwenden</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.UseSandbox.Hint">
+    <Value>Aktivieren Sie diese Option, um die Klarna Sandbox-Umgebung zum Testen zu verwenden.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.Region">
+    <Value>Region</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.Region.Hint">
+    <Value>Wählen Sie die Klarna API-Region (z.B. Europa, Nordamerika, Ozeanien).</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.PaymentMethodDescription">
+    <Value>Mit Klarna bezahlen (Rechnung, Ratenkauf, etc.)</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.CannotProcessPayment">
+    <Value>Die Klarna-Zahlung konnte nicht verarbeitet werden. Bitte versuchen Sie eine andere Zahlungsmethode oder kontaktieren Sie uns.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.PaymentFailed">
+    <Value>Klarna-Zahlung fehlgeschlagen.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.Admin.Info">
+    <Value><![CDATA[
+        <p>Um Klarna Payments nutzen zu können, benötigen Sie ein Klarna Händlerkonto. Besuchen Sie <a href="https://www.klarna.com/sell-with-klarna/" target="_blank">www.klarna.com</a>, um sich anzumelden.</p>
+        <p><b>Konfigurationsschritte:</b></p>
+        <ol>
+            <li>Geben Sie Ihren von Klarna bereitgestellten API-Schlüssel und Ihr API-Geheimnis ein.</li>
+            <li>Wählen Sie Ihre API-Region aus.</li>
+            <li>Wenn Sie testen, aktivieren Sie die Option "Sandbox verwenden". Stellen Sie sicher, dass Ihre API-Anmeldeinformationen mit der ausgewählten Umgebung übereinstimmen.</li>
+            <li>Konfigurieren Sie Ihre Händler-URLs in Ihrem Klarna Merchant Portal:
+                <ul>
+                    <li><b>Bestätigungs-URL:</b> <code>{0}klarna/confirmation</code></li>
+                    <li><b>Benachrichtigungs-URL (Push-URL):</b> <code>{0}klarna/notification</code></li>
+                    <li>Ersetzen Sie <code>{0}</code> durch die Basis-URL Ihres Shops (z.B. https://www.ihrshop.de/).</li>
+                </ul>
+            </li>
+            <li>Stellen Sie sicher, dass die Klarna-Zahlungsmethode unter "Konfiguration > Zahlungsarten" aktiviert ist.</li>
+        </ol>
+        <p>Klarna bietet verschiedene Zahlungsoptionen wie Rechnungskauf, Ratenkauf und Sofortüberweisung. Die verfügbaren Optionen für Kunden hängen von deren Land und dem Bestellbetrag ab und werden über das Klarna-Widget gesteuert.</p>
+    ]]></Value>
+  </LocaleResource>
+</Language>
