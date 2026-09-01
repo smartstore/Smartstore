@@ -124,11 +124,14 @@ img.slick-loading {
 // ------------------------------------------------------
 
 .slick-dots {
+    --slick-dot-size: 8px;
+    --slick-dot-color: var(--gray-400);
+    --slick-dot-color-active: var(--gray-800);
     position: relative;
     display: flex !important;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 10px;
     width: 100%;
     padding: 0.75rem 0.5rem;
     margin: 0;
@@ -137,13 +140,13 @@ img.slick-loading {
     line-height: 0;
 }
 
-.slick-dots li {
+.slick-dots > li {
     position: relative;
     display: inline-block;
     cursor: pointer;
-    height: 10px;
+    height: var(--slick-dot-size);
 
-    button {
+    > button {
         font-size: 0;
         line-height: 0;
         cursor: pointer;
@@ -151,15 +154,17 @@ img.slick-loading {
         outline: 0 none;
         padding: 0;
         display: block;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: $gray-300;
-        border: 1px solid $gray-500;
+        width: var(--slick-dot-size);
+        height: var(--slick-dot-size);
+        border-radius: var(--border-radius-pill);
+        background: var(--slick-dot-color);
+        border: none;
+        transition: width 0.2s ease-in-out; 
     }
 
     &.slick-active button {
-        background: $gray-500;
+        background: var(--slick-dot-color-active);
+        width: calc(var(--slick-dot-size) * 3);
     }
 
     button:hover,
