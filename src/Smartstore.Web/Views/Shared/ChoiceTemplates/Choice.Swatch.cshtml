@@ -1,6 +1,10 @@
 ﻿@model ChoiceModel
 
 @{
+    // TODO: Default swatch size for bundle items should be "Small"
+}
+
+@{
     var controlId = Model.BuildControlId();
     var items = Model.Values ?? new List<ChoiceItemModel>();
     var srLabelTemplate = T("Aria.Label.Choice");
@@ -89,7 +93,7 @@
             var hasColor = item.Color.HasValue() && item.Color != "transparent";
             if (hasColor)
             {
-                css = "background-color: " + item.Color + ";";
+                css = item.GetSwatchColorCss();
                 isDark = ImagingHelper.GetPerceivedBrightness(item.Color) < 200;
                 if (isDark && !isMediaCard)
                 {

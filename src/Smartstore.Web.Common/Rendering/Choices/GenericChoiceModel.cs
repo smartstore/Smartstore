@@ -6,7 +6,7 @@ public class GenericChoiceModel : ChoiceModel
 
     public GenericChoiceModel(Func<ChoiceModel, string> controlIdFn)
     {
-        Guard.NotNull(controlIdFn, nameof(controlIdFn));
+        Guard.NotNull(controlIdFn);
 
         _controlIdFn = controlIdFn;
     }
@@ -23,7 +23,7 @@ public class GenericChoiceItemModel : ChoiceItemModel
 
     public GenericChoiceItemModel(Func<ChoiceItemModel, string> itemLabelFn)
     {
-        Guard.NotNull(itemLabelFn, nameof(itemLabelFn));
+        Guard.NotNull(itemLabelFn);
 
         _itemLabelFn = itemLabelFn;
     }
