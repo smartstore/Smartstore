@@ -261,11 +261,11 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
 
                             if (priceAdjustment > 0)
                             {
-                                m.PriceAdjustment = "+" + priceAdjustment.WithPostFormat(taxFormat).ToString();
+                                m.PriceAdjustment = priceAdjustment.WithPostFormat(taxFormat);
                             }
                             else if (priceAdjustment < 0)
                             {
-                                m.PriceAdjustment = "-" + (priceAdjustment * -1).WithPostFormat(taxFormat).ToString();
+                                m.PriceAdjustment = priceAdjustment.WithPostFormat(taxFormat);
                             }
                         }
 

@@ -132,14 +132,7 @@
                 label += " - " + item.Title;
             }
 
-            var swatchPrice = item.SwatchPrice.NullEmpty() ?? item.PriceAdjustment;
-
-            // TEST
-            if (swatchPrice.IsEmpty())
-            {
-                swatchPrice = "199,99 EUR";
-            }
-            // TEST
+            var swatchPrice = item.SwatchPrice?.ToString() ?? item.GetPriceAdjustmentText();
 
             <li class="@swatchClass" data-swatch-value="@item.Name">
                 <input type="radio"

@@ -287,9 +287,10 @@ public partial class ProductDetailsModel : EntityModelBase
                 label = "{0} x {1}".FormatCurrentUI(QuantityInfo, label);
             }
 
-            if (PriceAdjustment.HasValue())
+            var priceAdjustment = GetPriceAdjustmentText();
+            if (priceAdjustment.HasValue())
             {
-                label += PriceAdjustment;
+                label += $" ({priceAdjustment})";
             }
 
             return label;

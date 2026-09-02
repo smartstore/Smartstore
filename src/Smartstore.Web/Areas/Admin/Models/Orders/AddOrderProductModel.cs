@@ -68,9 +68,10 @@ public partial class AddOrderProductModel : ModelBase
                 ? $"{QuantityInfo} x {Name}"
                 : Name;
 
-            if (PriceAdjustment.HasValue())
+            var priceAdjustment = GetPriceAdjustmentText();
+            if (priceAdjustment.HasValue())
             {
-                label += PriceAdjustment;
+                label += $" ({priceAdjustment})";
             }
 
             return label;

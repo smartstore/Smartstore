@@ -671,7 +671,6 @@ public partial class CatalogHelper
                         {
                             Id = val.Id,
                             ProductAttributeValue = val,
-                            PriceAdjustment = string.Empty,
                             Name = val.GetLocalized(x => x.Name),
                             Alias = val.Alias,
                             Color = val.Color, // Used with "Boxes" attribute type.
@@ -689,17 +688,11 @@ public partial class CatalogHelper
                         {
                             if (priceAdjustments.TryGetValue(val.Id, out var priceAdjustment))
                             {
-                                m.PriceAdjustmentValue = priceAdjustment.Price.Amount;
-
                                 if (_priceSettings.ShowVariantCombinationPriceAdjustment && !product.CallForPrice)
                                 {
-                                    if (priceAdjustment.Price > 0)
+                                    if (priceAdjustment.Price != 0)
                                     {
-                                        m.PriceAdjustment = $" (+{priceAdjustment.Price})";
-                                    }
-                                    else if (priceAdjustment.Price < 0)
-                                    {
-                                        m.PriceAdjustment = $" (-{priceAdjustment.Price * -1})";
+                                        m.PriceAdjustment = priceAdjustment.Price;
                                     }
                                 }
                             }
@@ -899,7 +892,7 @@ public partial class CatalogHelper
 
                 if (!_priceSettings.ShowVariantCombinationPriceAdjustment)
                 {
-                    value.PriceAdjustment = string.Empty;
+                    value.PriceAdjustment = null;
                 }
 
                 if (checkAvailability)

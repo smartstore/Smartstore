@@ -148,7 +148,6 @@ internal class AddProductToOrderMapper : IMapper<AddOrderProductModel, MapperRes
                         var m = new AddOrderProductModel.ProductVariantAttributeValueModel
                         {
                             Id = x.Id,
-                            PriceAdjustment = string.Empty,
                             Name = x.GetLocalized(x => x.Name),
                             Alias = x.Alias,
                             Color = x.Color,

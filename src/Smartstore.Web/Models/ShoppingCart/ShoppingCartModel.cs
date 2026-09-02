@@ -75,9 +75,10 @@ public partial class ShoppingCartModel : CartModelBase
         {
             var label = Name;
 
-            if (PriceAdjustment.HasValue())
+            var priceAdjustment = GetPriceAdjustmentText();
+            if (priceAdjustment.HasValue())
             {
-                label += " ({0})".FormatCurrent(PriceAdjustment);
+                label += " ({0})".FormatCurrent(priceAdjustment);
             }
 
             return label;

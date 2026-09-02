@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using Smartstore.Core.Common;
 using Smartstore.Web.Rendering.Choices;
 
 namespace Smartstore.Web.Tests.Common.Rendering.Choices;
@@ -58,6 +59,36 @@ public class ChoiceItemModelTests
         };
 
         Assert.That(item.GetSwatchColorCss(), Is.Null);
+    }
+
+    [TestCase(12.5, "+€12.50")]
+    [TestCase(-12.5, "-€12.50")]
+    public void Can_format_signed_price_adjustment(decimal amount, string expected)
+    {
+        var currency = new Currency
+        {
+            CurrencyCode = "EUR",
+            DisplayLocale = "en-US",
+            CustomFormatting = "€0.00"
+        };
+        var item = new TestChoiceItemModel
+        {
+            PriceAdjustment = new Money(amount, currency)
+        };
+
+        Assert.That(item.GetPriceAdjustmentText(), Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void Does_not_format_missing_or_zero_price_adjustment()
+    {
+        var item = new TestChoiceItemModel();
+
+        Assert.That(item.GetPriceAdjustmentText(), Is.Null);
+
+        item.PriceAdjustment = new Money(0, new Currency());
+
+        Assert.That(item.GetPriceAdjustmentText(), Is.Null);
     }
 
     private sealed class TestChoiceItemModel : ChoiceItemModel

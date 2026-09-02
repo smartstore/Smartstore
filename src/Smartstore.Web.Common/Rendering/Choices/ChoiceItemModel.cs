@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using Smartstore.Core.Common;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Rendering.Choices;
@@ -10,9 +11,8 @@ public abstract class ChoiceItemModel : EntityModelBase
     public string Title { get; set; }
     public string Alias { get; set; }
     public string Color { get; set; }
-    public string PriceAdjustment { get; set; }
-    public decimal PriceAdjustmentValue { get; set; }
-    public string SwatchPrice { get; set; }
+    public Money? PriceAdjustment { get; set; }
+    public Money? SwatchPrice { get; set; }
     public int QuantityInfo { get; set; }
     public bool IsPreSelected { get; set; }
     public bool IsDisabled { get; set; }
@@ -65,6 +65,17 @@ public abstract class ChoiceItemModel : EntityModelBase
         }
 
         return $"{css}background-image: linear-gradient(135deg, {string.Join(", ", stops)});";
+    }
+
+    public string GetPriceAdjustmentText()
+    {
+        if (PriceAdjustment is not { Amount: not 0 } priceAdjustment)
+        {
+            return null;
+        }
+
+        var sign = priceAdjustment.Amount > 0 ? "+" : "-";
+        return sign + priceAdjustment.WithAmount(Math.Abs(priceAdjustment.Amount));
     }
 
     public abstract string GetItemLabel();
