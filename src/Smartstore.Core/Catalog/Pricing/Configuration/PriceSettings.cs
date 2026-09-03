@@ -173,5 +173,11 @@ public class PriceSettings : ISettings
     /// </summary>
     public bool ApplyDiscountsOfLinkedProducts { get; set; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether rule builder rules calculate prices including or excluding tax.
+    /// If <c>null</c> (default), it will be obtained via <see cref="IWorkContext.TaxDisplayType" />.
+    /// </summary>
+    public bool? RulesCalculateIncludingTax { get; set; }
+
     #endregion
 }
