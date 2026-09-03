@@ -54,7 +54,8 @@ public class StripeElementsViewComponent : SmartViewComponent
         {
             PublicApiKey = _settings.PublicApiKey,
             IsPaymentSelectionPage = isPaymentSelectionPage,
-            IsCartPage = routeIdent == "ShoppingCart.Cart" || routeIdent == "ShoppingCart.UpdateCartItem"
+            IsCartPage = routeIdent == "ShoppingCart.Cart" || routeIdent == "ShoppingCart.UpdateCartItem",
+            CurrencyMinorUnitFactor = _roundingHelper.ToSmallestCurrencyUnit(1M, Services.WorkContext.WorkingCurrency)
         };
 
         if (isPaymentSelectionPage)
