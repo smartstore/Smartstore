@@ -420,16 +420,13 @@ public class StripeController : ModuleController
                 {
                     var settings = await Services.SettingFactory.LoadSettingsAsync<StripeSettings>(order.StoreId);
 
-                    // TODO: Resolve the currency-specific minor-unit exponent. Dividing by 100 is invalid
-                    // for zero-decimal currencies such as JPY.
-                    decimal convertedAmount = paymentIntent.Amount / 100M;
                     var orderTotal = _currencyService.ConvertToExchangeRate(
                         order.OrderTotal,
                         order.CurrencyRate,
                         order.CustomerCurrencyCode);
 
                     // Check if full order amount was captured.
-                    if (orderTotal.Amount == convertedAmount)
+                    if (_roundingHelper.ToSmallestCurrencyUnit(orderTotal) == paymentIntent.Amount)
                     {
                         if (settings.CaptureMethod == "automatic" && order.CanMarkOrderAsPaid())
                         {
@@ -459,9 +456,11 @@ public class StripeController : ModuleController
 
                 if (order != null)
                 {
-                    // TODO: Resolve the currency-specific minor-unit exponent. Dividing by 100 is invalid
-                    // for zero-decimal currencies such as JPY.
-                    decimal amountInCustomerCurrency = charge.AmountRefunded / 100M;
+                    var customerCurrency = _currencyService.CreateMoney(decimal.Zero, order.CustomerCurrencyCode).Currency;
+
+                    // Stripe amounts use currency-specific integer minor units, e.g. factor 1 for JPY and 100 for EUR.
+                    var factor = _roundingHelper.ToSmallestCurrencyUnit(1M, customerCurrency);
+                    decimal amountInCustomerCurrency = charge.AmountRefunded / (decimal)factor;
                     var totalRefunded = _roundingHelper.Round(amountInCustomerCurrency / order.CurrencyRate, _currencyService.PrimaryCurrency);
                     var amountToRefund = Math.Min(totalRefunded - order.RefundedAmount, order.OrderTotal - order.RefundedAmount);
 

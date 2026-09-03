@@ -28,6 +28,11 @@ public class PublicStripeElementsModel : ModelBase
     public int Amount { get; set; }
 
     /// <summary>
+    /// Factor used to convert a major currency amount to Stripe's integer minor unit.
+    /// </summary>
+    public int CurrencyMinorUnitFactor { get; set; }
+
+    /// <summary>
     /// Influences available payment methods.
     /// </summary>
     public string CaptureMethod { get; set; }
