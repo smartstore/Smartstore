@@ -23,7 +23,8 @@
 - Checkout: The updated total is displayed immediately when the shipping or payment method is changed.
 - **Theming**: 
   - Made `.prose` font-size and line-height configurable.
-  - New theme variable `$enable-alert-icons` (`false` by default)
+  - Refined the appearance of media gallery slider dots on mobile devices.
+  - New theme variable `$enable-alert-icons` (`false` by default).
 
 ### Bugfixes
 
