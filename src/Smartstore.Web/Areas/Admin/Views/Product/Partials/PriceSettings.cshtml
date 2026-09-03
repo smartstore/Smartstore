@@ -252,6 +252,7 @@
         </div>
     </div>
 </div>
+
 <div class="pnlPriceBadges">
     @(Html.LocalizedEditor<CatalogSettingsModel, PriceSettingsLocalizedModel>("setting-price-localized",
         @<div class="adminContent">
@@ -330,6 +331,23 @@
                 <setting-editor asp-for="PriceSettings.ShowOfferBadgeInLists" />
                 <span asp-validation-for="PriceSettings.ShowOfferBadgeInLists"></span>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="adminContent">
+    <div class="adminRow">
+        <div class="admin-config-group">
+            <div class="title">@T("Common.Misc")</div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="PriceSettings.RulesCalculateIncludingTax" />
+        </div>
+        <div class="adminData">
+            <setting-editor asp-for="PriceSettings.RulesCalculateIncludingTax" />
+            <span asp-validation-for="PriceSettings.RulesCalculateIncludingTax"></span>
         </div>
     </div>
 </div>

@@ -101,10 +101,13 @@ public partial class OrderCalculationService : IOrderCalculationService
         bool includeRewardPoints = true,
         bool includePaymentFee = true,
         bool includeCreditBalance = true,
+        bool? includeTax = null,
         ProductBatchContext batchContext = null,
         bool cache = true)
     {
         Guard.NotNull(cart);
+
+        includeTax ??= _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
 
         var cacheKey = $"ordercalculation:carttotal:{cart.GetHashCode()}-{includeRewardPoints}-{includePaymentFee}-{includeCreditBalance}";
 
@@ -115,19 +118,18 @@ public partial class OrderCalculationService : IOrderCalculationService
         }
 
         var customer = cart.Customer;
-        var includeTax = _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
         var paymentMethodSystemName = customer != null ? customer.GenericAttributes.SelectedPaymentMethod : string.Empty;
 
         var (cartTaxTotal, _) = await GetCartTaxTotalAsync(cart, includePaymentFee);
-        var cartTax = Round(includeTax ? 0m : cartTaxTotal);
+        var cartTax = Round(includeTax.Value ? 0m : cartTaxTotal);
 
         var subtotal = await GetCartSubtotalAsync(cart, false, batchContext);
-        var subtotalWithDiscount = Round(includeTax ? subtotal.SubtotalWithDiscountGross : subtotal.SubtotalWithDiscountNet);
-        var subtotalWithoutDiscount = Round(includeTax ? subtotal.SubtotalWithoutDiscountGross : subtotal.SubtotalWithoutDiscountNet);
-        var subtotalDiscount = Round(includeTax ? subtotal.DiscountAmountGross : subtotal.DiscountAmountNet);
+        var subtotalWithDiscount = Round(includeTax.Value ? subtotal.SubtotalWithDiscountGross : subtotal.SubtotalWithDiscountNet);
+        var subtotalWithoutDiscount = Round(includeTax.Value ? subtotal.SubtotalWithoutDiscountGross : subtotal.SubtotalWithoutDiscountNet);
+        var subtotalDiscount = Round(includeTax.Value ? subtotal.DiscountAmountGross : subtotal.DiscountAmountNet);
 
         var cartShipping = await GetCartShippingTotalAsync(cart, false);
-        var shipping = cartShipping != null ? Round(includeTax ? cartShipping.Tax.PriceGross : cartShipping.Tax.PriceNet) : Round(0m);
+        var shipping = cartShipping != null ? Round(includeTax.Value ? cartShipping.Tax.PriceGross : cartShipping.Tax.PriceNet) : Round(0m);
 
         var paymentFee = Round(0m);
         if (includePaymentFee && paymentMethodSystemName.HasValue())
@@ -136,7 +138,7 @@ public partial class OrderCalculationService : IOrderCalculationService
             if (fee.Amount != 0m)
             {
                 var tax = await _taxCalculator.CalculatePaymentFeeTaxAsync(fee.Amount, false, null, customer);
-                paymentFee = Round(includeTax ? tax.PriceGross : tax.PriceNet);
+                paymentFee = Round(includeTax.Value ? tax.PriceGross : tax.PriceNet);
             }
         }
 

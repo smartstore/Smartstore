@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Checkout.Orders;
+﻿using Smartstore.Core.Catalog.Pricing;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Rules;
 using Smartstore.Threading;
@@ -9,11 +10,16 @@ internal class CartTotalRule : IRule<CartRuleContext>
 {
     private readonly IOrderCalculationService _orderCalculationService;
     private readonly IRoundingHelper _roundingHelper;
+    private readonly PriceSettings _priceSettings;
 
-    public CartTotalRule(IOrderCalculationService orderCalculationService, IRoundingHelper roundingHelper)
+    public CartTotalRule(
+        IOrderCalculationService orderCalculationService, 
+        IRoundingHelper roundingHelper,
+        PriceSettings priceSettings)
     {
         _orderCalculationService = orderCalculationService;
         _roundingHelper = roundingHelper;
+        _priceSettings = priceSettings;
     }
 
     public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
@@ -33,7 +39,7 @@ internal class CartTotalRule : IRule<CartRuleContext>
 
             // Do not cache because otherwise subsequent calls of 'GetShoppingCartTotalAsync' may get
             // an incorrect result where this rule is not taken into account.
-            var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, cache: false);
+            var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, includeTax: _priceSettings.RulesCalculateIncludingTax, cache: false);
 
             // Currency values must be rounded here because otherwise unexpected results may occur.
             var roundedTotal = _roundingHelper.Round(cartTotal.Total?.Amount ?? decimal.Zero);

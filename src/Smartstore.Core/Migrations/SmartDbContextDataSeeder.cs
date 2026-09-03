@@ -134,5 +134,11 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("ActivityLog.DeleteProduct",
             "Product ('{0}') has been moved to the recycle bin",
             "Produkt ('{0}') in den Papierkorb verschoben");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Price.RulesCalculateIncludingTax",
+            "Cart rules calculate amounts including tax",
+            "Warenkorbregeln berechnen Beträge inklusive Steuer",
+            "Specifies whether shopping cart rules calculate amounts as inclusive of or exclusive of tax. If not specified (default), the tax settings for the respective shopping cart or customer apply.",
+            "Legt fest, ob Warenkorbregeln die Beträge inklusive oder exklusive Umsatzsteuer berechnen. Falls nicht festgelegt (Standard), gelten die Steuereinstellungen des jeweiligen Warenkorbs bzw. Kunden.");
     }
 }

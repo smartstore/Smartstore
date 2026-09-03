@@ -104,6 +104,9 @@ public class PriceSettingsModel : ModelBase
     [LocalizedDisplay("*ApplyDiscountsOfLinkedProducts")]
     public bool ApplyDiscountsOfLinkedProducts { get; set; }
 
+    [LocalizedDisplay("*RulesCalculateIncludingTax")]
+    public bool? RulesCalculateIncludingTax { get; set; }
+
     #endregion
 }
 
