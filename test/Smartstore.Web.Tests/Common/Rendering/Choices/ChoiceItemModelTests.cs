@@ -91,6 +91,44 @@ public class ChoiceItemModelTests
         Assert.That(item.GetPriceAdjustmentText(), Is.Null);
     }
 
+    [Test]
+    public void Resolves_swatch_price_according_to_display_mode()
+    {
+        var currency = new Currency
+        {
+            CurrencyCode = "EUR",
+            DisplayLocale = "en-US",
+            CustomFormatting = "€0.00"
+        };
+        var item = new TestChoiceItemModel
+        {
+            PriceAdjustment = new Money(12.5m, currency),
+            SwatchPrice = new Money(99m, currency)
+        };
+
+        Assert.That(item.GetSwatchPriceText(SwatchPriceDisplayMode.None), Is.Null);
+        Assert.That(item.GetSwatchPriceText(SwatchPriceDisplayMode.Adjustment), Is.EqualTo("+€12.50"));
+        Assert.That(item.GetSwatchPriceText(SwatchPriceDisplayMode.FinalPrice), Is.EqualTo("€99.00"));
+    }
+
+    [Test]
+    public void Adds_unavailability_reason_to_swatch_display_name()
+    {
+        var item = new TestChoiceItemModel
+        {
+            Name = "Red",
+            Title = "Out of stock"
+        };
+
+        Assert.That(item.GetSwatchDisplayName(), Is.EqualTo("Red"));
+        Assert.That(item.UnavailableReason, Is.Null);
+
+        item.IsUnavailable = true;
+
+        Assert.That(item.GetSwatchDisplayName(), Is.EqualTo("Red — Out of stock"));
+        Assert.That(item.UnavailableReason, Is.EqualTo("Out of stock"));
+    }
+
     private sealed class TestChoiceItemModel : ChoiceItemModel
     {
         public override string GetItemLabel() => Name;

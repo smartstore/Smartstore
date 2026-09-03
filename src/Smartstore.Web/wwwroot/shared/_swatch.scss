@@ -94,7 +94,7 @@
     display: block;
 
     &.dark {
-        --swatch-strike-color: #fff;
+        --swatch-strike-color: rgba(255,255,255, 0.75);
     }
 }
 
@@ -137,28 +137,39 @@
     }
 }
 
-.swatch.unavailable .swatch-element {
-    border: 1px dashed rgba($black, 0.3);
-
-    &:not(.swatch-color) {
-        opacity: 0.5;
+.swatch.unavailable {
+    .swatch-element {
+        outline-color: var(--swatch-outline-color-hover);
+        //outline-style: dotted;
+        outline-style: dashed;
     }
 
-    &:after {
-        position: absolute;
-        top: calc(50% - 1px);
-        right: 0;
-        left: 0;
-        height: 1px;
-        margin-inline: -8px;
-        background-color: var(--swatch-strike-color);
-        content: "";
-        transform: rotate(-45deg);
+    .swatch-visual {
+        opacity: 0.6;
+
+        &:after {
+            position: absolute;
+            content: "";
+            inset-inline-start: calc(50% - 1px);
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background-color: var(--swatch-strike-color);
+            transform: rotate(45deg);
+        }
     }
 }
 
-.swatch.disabled .swatch-element {
-    opacity: 0.5;
+.swatch.disabled {
+    .swatch-content {
+        cursor: not-allowed;
+    }
+
+    .swatch-element {
+        outline-width: 1px;
+        filter: grayscale(0.6);
+        opacity: 0.4;
+    }
 }
 
 .swatch-card {
@@ -219,19 +230,29 @@
     white-space: nowrap;
 }
 
+.swatch-status {
+    display: block;
+    max-width: 100%;
+    color: $text-muted;
+    font-size: 11px;
+    font-weight: $font-weight-normal;
+    line-height: 1.05;
+    overflow-wrap: anywhere;
+}
+
 .swatch-color:before {
     position: absolute;
+    content: "";
     inset: 0;
     border-radius: inherit;
+    pointer-events: none;
     background:
         linear-gradient(
             145deg,
-            rgba(255, 255, 255, 0.16) 0%,
+            rgba(255,255,255, 0.16) 0%,
             transparent 48%,
-            rgba(0, 0, 0, 0.055) 100%
+            rgba(0,0,0, 0.055) 100%
         );
-    content: "";
-    pointer-events: none;
 }
 
 .swatch-mediafile .swatch-content {

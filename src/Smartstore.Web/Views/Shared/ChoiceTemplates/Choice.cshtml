@@ -8,7 +8,7 @@
 	var description = Model.GetDescription();
 	var isSwatch = Model.AttributeControlType == AttributeControlType.Boxes;
 	var selectedSwatchValue = isSwatch
-		? Model.Values?.FirstOrDefault(x => x.IsPreSelected)?.Name
+		? Model.Values?.FirstOrDefault(x => x.IsPreSelected)?.GetSwatchDisplayName()
 		: null;
 	var emptySwatchValueText = Model.IsRequired ? T("Common.PleaseSelect").Value : T("Common.Unspecified").Value;
 	var swatchValueText = selectedSwatchValue.NullEmpty() ?? emptySwatchValueText;

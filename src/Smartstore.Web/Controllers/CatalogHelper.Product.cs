@@ -604,7 +604,7 @@ public partial class CatalogHelper
                 SwatchShape = SwatchShape.Rounded,
                 SwatchAspectRatio = 1m,
                 ShowValueNameInSwatch = false,
-                ShowPriceInSwatch = false
+                SwatchPriceDisplay = SwatchPriceDisplayMode.None
             };
 
             // Copy queried variant data (entered by customer) to model.

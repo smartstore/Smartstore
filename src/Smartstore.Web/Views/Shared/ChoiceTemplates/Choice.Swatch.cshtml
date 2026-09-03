@@ -8,60 +8,30 @@
     var controlId = Model.BuildControlId();
     var items = Model.Values ?? new List<ChoiceItemModel>();
     var srLabelTemplate = T("Aria.Label.Choice");
-
-    var allItemsHaveMedia = items.Count > 0 && items.All(x =>
-        x.ImageUrl.HasValue() || (x.Color.HasValue() && x.Color != "transparent"));
+    var canUseCardLayout = Model.CanUseCardLayout;
 
     // TEST
-    if (allItemsHaveMedia)
+    if (canUseCardLayout)
     {
         Model.SwatchSize = SwatchSize.Medium;
         Model.SwatchShape = SwatchShape.Rounded;
-        // Model.SwatchAspectRatio = 0.5m;
-        // Model.ShowValueNameInSwatch = true;
-        // Model.ShowPriceInSwatch = true;
+        Model.SwatchAspectRatio = 0.75m;
+        Model.ShowValueNameInSwatch = true;
+        Model.SwatchPriceDisplay = SwatchPriceDisplayMode.FinalPrice;
     }
     // TEST
 
-    var sizeClass = Model.SwatchSize switch
-    {
-        SwatchSize.ExtraSmall => "xs",
-        SwatchSize.Small => "sm",
-        SwatchSize.Large => "lg",
-        SwatchSize.ExtraLarge => "xl",
-        SwatchSize.ExtraExtraLarge => "xxl",
-        _ => "md"
-    };
+    var useCardLayout = Model.UseCardLayout;
 
-    var anyItemHasMedia = items.Any(x =>
-        x.ImageUrl.HasValue() || (x.Color.HasValue() && x.Color != "transparent"));
-    var hasTextOnlyItems = items.Any(x =>
-        x.ImageUrl.IsEmpty() && (x.Color.IsEmpty() || x.Color == "transparent"));
-    var wantsMediaCard = Model.ShowValueNameInSwatch || Model.ShowPriceInSwatch;
-    var isMediaCardSize = Model.SwatchSize >= SwatchSize.Large;
-    var isMediaCard = allItemsHaveMedia && wantsMediaCard && isMediaCardSize;
-
-    var effectiveShape = Model.SwatchShape;
-    if (effectiveShape == SwatchShape.Circle && (isMediaCard || hasTextOnlyItems))
-    {
-        effectiveShape = SwatchShape.Rounded;
-    }
-
-    var shapeClass = effectiveShape switch
-    {
-        SwatchShape.Rect => "rect",
-        SwatchShape.Circle => "circle",
-        _ => "rounded"
-    };
-
-    var swatchAspectRatio = Model.SwatchAspectRatio > 0 ? Model.SwatchAspectRatio : 1m;
+    var sizeClass = Model.SwatchSize.ToCssToken();
+    var shapeClass = Model.EffectiveSwatchShape.ToCssToken();
 
     var groupClass = $"swatch-group swatch-group-{sizeClass} swatch-shape-{shapeClass}";
-    if (anyItemHasMedia)
+    if (canUseCardLayout)
     {
         groupClass += " swatch-group-fixed";
     }
-    if (isMediaCard)
+    if (useCardLayout)
     {
         groupClass += " swatch-group-cards";
     }
@@ -73,68 +43,31 @@
      data-manualselect="true"
      data-swatch-size="@sizeClass"
      data-swatch-shape="@shapeClass"
-     data-media-card="@isMediaCard.ToString().ToLowerInvariant()"
+     data-media-card="@useCardLayout.ToString().ToLowerInvariant()"
      aria-orientation="horizontal"  
      attr-aria-required='(Model.IsRequired, "true")'>
-    <ul class="@groupClass" style="--swatch-aspect-ratio: @swatchAspectRatio.ToStringInvariant()">
+    <ul class="@groupClass" style="--swatch-aspect-ratio: @Model.EffectiveSwatchAspectRatio.ToStringInvariant()">
         @foreach (var item in items)
         {
-            string css = null;
-            string swatchClass = "swatch";
-            string elementClass = "swatch-element";
-            string label = item.GetItemLabel();
-            bool isDark = false;
+            var css = item.GetSwatchStyle();
+            var label = item.GetAccessibleLabel();
+            var hasColor = item.HasColor;
+            var hasImage = item.HasImage;
+            var isDark = hasColor && !useCardLayout && ImagingHelper.GetPerceivedBrightness(item.Color) < 200;
 
-            if (item.IsPreSelected)
-            {
-                swatchClass += " selected";
-            }
+            item.IsUnavailable = label.Contains("a") || hasImage;
 
-            var hasColor = item.Color.HasValue() && item.Color != "transparent";
-            if (hasColor)
-            {
-                css = item.GetSwatchColorCss();
-                isDark = ImagingHelper.GetPerceivedBrightness(item.Color) < 200;
-                if (isDark && !isMediaCard)
-                {
-                    swatchClass += " dark";
-                }
-            }
+            var swatchClass = "swatch"
+                + (item.IsPreSelected ? " selected" : null)
+                + (isDark ? " dark" : null)
+                + (item.IsDisabled ? " disabled" : item.IsUnavailable ? " unavailable" : null);
 
-            var hasImage = item.ImageUrl.HasValue();
-            if (hasImage)
-            {
-                if (!isMediaCard)
-                {
-                    elementClass += " swatch-image";
-                }
-                css += "background-image: url('" + item.ImageUrl + "');";
-            }
-            else if (hasColor)
-            {
-                if (!isMediaCard)
-                {
-                    elementClass += " swatch-color";
-                }
-            }
+            var elementClass = "swatch-element"
+                + (useCardLayout ? null : hasImage ? " swatch-image" : hasColor ? " swatch-color" : null);
 
-            if (item.IsDisabled)
-            {
-                swatchClass += " disabled";
-            }
-            else if (item.IsUnavailable)
-            {
-                swatchClass += " unavailable";
-            }
+            var swatchPrice = item.GetSwatchPriceText(Model.SwatchPriceDisplay);
 
-            if (item.Title.HasValue())
-            {
-                label += " - " + item.Title;
-            }
-
-            var swatchPrice = item.SwatchPrice?.ToString() ?? item.GetPriceAdjustmentText();
-
-            <li class="@swatchClass" data-swatch-value="@item.Name">
+            <li class="@swatchClass" data-swatch-value="@item.GetSwatchDisplayName()">
                 <input type="radio"
                        class="swatch-input"
                        id="@(controlId)_@(item.Id)"
@@ -146,19 +79,20 @@
 
                 <label class="swatch-label" for="@(controlId)_@(item.Id)">
                     <span class="swatch-content">
-                        @if (isMediaCard)
+                        @if (useCardLayout)
                         {
                             <span class="@elementClass swatch-card">
-                                <span class="swatch-media@(hasImage ? " swatch-image" : " swatch-color")" attr-style="(css.HasValue(), css)"></span>
+                                <span class="swatch-media swatch-visual@(hasImage ? " swatch-image" : " swatch-color")" attr-style="(css.HasValue(), css)"></span>
                                 <span class="swatch-details">
                                     <span sm-if="Model.ShowValueNameInSwatch" class="swatch-value">@item.Name</span>
-                                    <span sm-if="Model.ShowPriceInSwatch" class="swatch-price">@swatchPrice</span>
+                                    <span sm-if="Model.SwatchPriceDisplay != SwatchPriceDisplayMode.None" class="swatch-price">@swatchPrice</span>
+                                    <span sm-if="item.UnavailableReason.HasValue()" class="swatch-status">@item.UnavailableReason</span>
                                 </span>
                             </span>
                         }
                         else
                         {
-                            <span class="@elementClass" attr-style="(css.HasValue(), css)">
+                            <span class="@elementClass swatch-visual" attr-style="(css.HasValue(), css)">
                                 <span sm-if="!css.HasValue()" class="swatch-value">@item.Name</span>
                             </span>
                         }
