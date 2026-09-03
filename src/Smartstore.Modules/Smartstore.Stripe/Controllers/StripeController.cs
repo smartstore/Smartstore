@@ -420,11 +420,16 @@ public class StripeController : ModuleController
                 {
                     var settings = await Services.SettingFactory.LoadSettingsAsync<StripeSettings>(order.StoreId);
 
-                    // INFO: This can also be a partial capture.
+                    // TODO: Resolve the currency-specific minor-unit exponent. Dividing by 100 is invalid
+                    // for zero-decimal currencies such as JPY.
                     decimal convertedAmount = paymentIntent.Amount / 100M;
+                    var orderTotal = _currencyService.ConvertToExchangeRate(
+                        order.OrderTotal,
+                        order.CurrencyRate,
+                        order.CustomerCurrencyCode);
 
                     // Check if full order amount was captured.
-                    if (order.OrderTotal == convertedAmount)
+                    if (orderTotal.Amount == convertedAmount)
                     {
                         if (settings.CaptureMethod == "automatic" && order.CanMarkOrderAsPaid())
                         {
@@ -454,18 +459,30 @@ public class StripeController : ModuleController
 
                 if (order != null)
                 {
-                    decimal convertedAmount = charge.Amount / 100M;
+                    // TODO: Resolve the currency-specific minor-unit exponent. Dividing by 100 is invalid
+                    // for zero-decimal currencies such as JPY.
+                    decimal amountInCustomerCurrency = charge.AmountRefunded / 100M;
+                    var totalRefunded = _roundingHelper.Round(amountInCustomerCurrency / order.CurrencyRate, _currencyService.PrimaryCurrency);
+                    var amountToRefund = Math.Min(totalRefunded - order.RefundedAmount, order.OrderTotal - order.RefundedAmount);
 
-                    if (order.OrderTotal == convertedAmount)
+                    if (amountToRefund <= decimal.Zero)
                     {
-                        if (order.CanRefundOffline())
-                        {
-                            await _orderProcessingService.RefundOfflineAsync(order);
-                        }
+                        return Ok();
                     }
-                    else if (order.CanPartiallyRefundOffline(convertedAmount))
+
+                    if (charge.Refunded && order.CanRefundOffline())
                     {
-                        await _orderProcessingService.PartiallyRefundOfflineAsync(order, convertedAmount);
+                        await _orderProcessingService.RefundOfflineAsync(order);
+                    }
+                    else if (order.CanPartiallyRefundOffline(amountToRefund))
+                    {
+                        await _orderProcessingService.PartiallyRefundOfflineAsync(order, amountToRefund);
+
+                        if (charge.Refunded)
+                        {
+                            order.PaymentStatus = PaymentStatus.Refunded;
+                            await _db.SaveChangesAsync();
+                        }
                     }
                 }
             }
