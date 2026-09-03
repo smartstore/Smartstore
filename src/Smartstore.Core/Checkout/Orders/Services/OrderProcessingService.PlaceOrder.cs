@@ -176,7 +176,7 @@ public partial class OrderProcessingService : IOrderProcessingService
         }
 
         // Check if the current cart total matches the total that was paid.
-        var total = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
+        var total = await _orderCalculationService.GetShoppingCartTotalAsync(cart, ShoppingCartTotalOptions.Default);
         if (total.Total == null)
         {
             return CreateFailure(T("Order.CannotCalculateOrderTotal"));
@@ -332,7 +332,7 @@ public partial class OrderProcessingService : IOrderProcessingService
                 return (warnings, cart);
             }
 
-            Money? cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, batchContext: batchContext);
+            Money? cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, ShoppingCartTotalOptions.Default, batchContext);
             if (!cartTotal.HasValue)
             {
                 warnings.Add(T("Order.CannotCalculateOrderTotal"));
@@ -620,7 +620,7 @@ public partial class OrderProcessingService : IOrderProcessingService
             order.TaxRates = FormatTaxRates(taxRates);
 
             // Order total.
-            ctx.CartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(ctx.Cart, batchContext: ctx.BatchContext);
+            ctx.CartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(ctx.Cart, ShoppingCartTotalOptions.Default, ctx.BatchContext);
             order.OrderTotal = ctx.CartTotal.Total.Value.Amount;
             order.OrderTotalRounding = ctx.CartTotal.ToNearestRounding.Amount;
             order.RefundedAmount = decimal.Zero;

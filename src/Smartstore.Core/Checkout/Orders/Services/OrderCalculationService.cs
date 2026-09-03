@@ -96,7 +96,8 @@ public partial class OrderCalculationService : IOrderCalculationService
 
     public Localizer T { get; set; } = NullLocalizer.Instance;
 
-    public virtual async Task<ShoppingCartTotal> GetShoppingCartTotalAsync(
+    [Obsolete("Use the overload accepting ShoppingCartTotalOptions instead.")]
+    public virtual Task<ShoppingCartTotal> GetShoppingCartTotalAsync(
         ShoppingCart cart,
         bool includeRewardPoints = true,
         bool includePaymentFee = true,
@@ -105,14 +106,33 @@ public partial class OrderCalculationService : IOrderCalculationService
         ProductBatchContext batchContext = null,
         bool cache = true)
     {
+        return GetShoppingCartTotalAsync(
+            cart,
+            new ShoppingCartTotalOptions
+            {
+                ApplyRewardPoints = includeRewardPoints,
+                IncludePaymentFee = includePaymentFee,
+                ApplyCreditBalance = includeCreditBalance,
+                IncludeTax = includeTax,
+                UseRequestCache = cache
+            },
+            batchContext);
+    }
+
+    public virtual async Task<ShoppingCartTotal> GetShoppingCartTotalAsync(
+        ShoppingCart cart,
+        ShoppingCartTotalOptions options,
+        ProductBatchContext batchContext = null)
+    {
         Guard.NotNull(cart);
+        Guard.NotNull(options);
 
-        includeTax ??= _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
+        var includeTax = options.IncludeTax ?? _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
 
-        var cacheKey = $"ordercalculation:carttotal:{cart.GetHashCode()}-{includeRewardPoints}-{includePaymentFee}-{includeCreditBalance}";
+        var cacheKey = $"ordercalculation:carttotal:{cart.GetHashCode()}-{options.ApplyRewardPoints}-{options.IncludePaymentFee}-{options.ApplyCreditBalance}-{includeTax}";
 
         // INFO: CartTotalRule uses AsyncLock on this method! IRequestCache.Get would deadlock cart page.
-        if (cache && _requestCache.Contains(cacheKey))
+        if (options.UseRequestCache && _requestCache.Contains(cacheKey))
         {
             return _requestCache.Get<ShoppingCartTotal>(cacheKey, null);
         }
@@ -120,25 +140,25 @@ public partial class OrderCalculationService : IOrderCalculationService
         var customer = cart.Customer;
         var paymentMethodSystemName = customer != null ? customer.GenericAttributes.SelectedPaymentMethod : string.Empty;
 
-        var (cartTaxTotal, _) = await GetCartTaxTotalAsync(cart, includePaymentFee);
-        var cartTax = Round(includeTax.Value ? 0m : cartTaxTotal);
+        var (cartTaxTotal, _) = await GetCartTaxTotalAsync(cart, options.IncludePaymentFee);
+        var cartTax = Round(includeTax ? 0m : cartTaxTotal);
 
         var subtotal = await GetCartSubtotalAsync(cart, false, batchContext);
-        var subtotalWithDiscount = Round(includeTax.Value ? subtotal.SubtotalWithDiscountGross : subtotal.SubtotalWithDiscountNet);
-        var subtotalWithoutDiscount = Round(includeTax.Value ? subtotal.SubtotalWithoutDiscountGross : subtotal.SubtotalWithoutDiscountNet);
-        var subtotalDiscount = Round(includeTax.Value ? subtotal.DiscountAmountGross : subtotal.DiscountAmountNet);
+        var subtotalWithDiscount = Round(includeTax ? subtotal.SubtotalWithDiscountGross : subtotal.SubtotalWithDiscountNet);
+        var subtotalWithoutDiscount = Round(includeTax ? subtotal.SubtotalWithoutDiscountGross : subtotal.SubtotalWithoutDiscountNet);
+        var subtotalDiscount = Round(includeTax ? subtotal.DiscountAmountGross : subtotal.DiscountAmountNet);
 
         var cartShipping = await GetCartShippingTotalAsync(cart, false);
-        var shipping = cartShipping != null ? Round(includeTax.Value ? cartShipping.Tax.PriceGross : cartShipping.Tax.PriceNet) : Round(0m);
+        var shipping = cartShipping != null ? Round(includeTax ? cartShipping.Tax.PriceGross : cartShipping.Tax.PriceNet) : Round(0m);
 
         var paymentFee = Round(0m);
-        if (includePaymentFee && paymentMethodSystemName.HasValue())
+        if (options.IncludePaymentFee && paymentMethodSystemName.HasValue())
         {
             var fee = await GetShoppingCartPaymentFeeAsync(cart, paymentMethodSystemName);
             if (fee.Amount != 0m)
             {
                 var tax = await _taxCalculator.CalculatePaymentFeeTaxAsync(fee.Amount, false, null, customer);
-                paymentFee = Round(includeTax.Value ? tax.PriceGross : tax.PriceNet);
+                paymentFee = Round(includeTax ? tax.PriceGross : tax.PriceNet);
             }
         }
 
@@ -203,7 +223,7 @@ public partial class OrderCalculationService : IOrderCalculationService
         var rewardPointsAmountConverted = 0m;
 
         if (_rewardPointsSettings.Enabled &&
-            includeRewardPoints &&
+            options.ApplyRewardPoints &&
             total > 0m &&
             customer != null &&
             customer.GenericAttributes.UseRewardPointsDuringCheckout)
@@ -239,7 +259,7 @@ public partial class OrderCalculationService : IOrderCalculationService
             totalConverted -= _roundingHelper.Round(rewardPointsAmountConverted);
 
             // Credit balance.
-            if (includeCreditBalance && customer != null && total > 0m)
+            if (options.ApplyCreditBalance && customer != null && total > 0m)
             {
                 var creditBalance = Round(customer.GenericAttributes.UseCreditBalanceDuringCheckout);
                 if (creditBalance.Amount > 0m)
@@ -295,7 +315,7 @@ public partial class OrderCalculationService : IOrderCalculationService
             }
         };
 
-        if (cache)
+        if (options.UseRequestCache)
         {
             _requestCache.Put(cacheKey, shoppingCartTotal);
         }
@@ -539,7 +559,7 @@ public partial class OrderCalculationService : IOrderCalculationService
                     switch (discount.DiscountType)
                     {
                         case DiscountType.AssignedToOrderTotal:
-                            cartTotal ??= await GetShoppingCartTotalAsync(cart);
+                            cartTotal ??= await GetShoppingCartTotalAsync(cart, ShoppingCartTotalOptions.Default);
                             appliedDiscount = cartTotal.AppliedDiscount;
                             apply = cartTotal.Total == null || appliedDiscount?.Id == discount.Id;
                             break;
@@ -1150,7 +1170,7 @@ public partial class OrderCalculationService : IOrderCalculationService
                 if (usePercentage)
                 {
                     // Percentage.
-                    Money? orderTotalWithoutPaymentFee = await GetShoppingCartTotalAsync(cart, includePaymentFee: false);
+                    Money? orderTotalWithoutPaymentFee = await GetShoppingCartTotalAsync(cart, new ShoppingCartTotalOptions { IncludePaymentFee = false });
                     if (orderTotalWithoutPaymentFee.HasValue)
                     {
                         paymentFee = orderTotalWithoutPaymentFee.Value.Amount * fixedFeeOrPercentage / 100m;

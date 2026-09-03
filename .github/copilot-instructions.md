@@ -9,6 +9,7 @@
 - Tolerate minimal false positives for bot detection (around 0.5% real users affected acceptable) if it helps prevent DB junk.
 - Account for dynamic asset pipelines; do not assume static stylesheet links when CSS is generated dynamically. Prefer referencing generated asset manifests, pipeline helper functions, or runtime-injected links.
 - This project still uses libsass, not Dart Sass. Do not suggest modern Sass module features like @use or @forward; stick to @import syntax and libsass-compatible constructs when imports are needed.
+- For service APIs, technical optimization contexts like `ProductBatchContext` should not be included in business option objects; instead, they should be treated as separate direct inputs consistently. Small API types like `ShoppingCartTotalOptions` and `TaxDisplayMode` should be defined directly in the contract file `IOrderCalculationService.cs` when necessary. For simple three-tier tax calculations, do not introduce a separate enum type; instead, use a nullable bool `IncludeTax` in `ShoppingCartTotalOptions`, expressing calculation semantics rather than display or UI semantics.
 
 ### AI Model Metadata
 - In AI model metadata, levels mean 0 = Instant, 1 = Balanced, 2 = Deep Reasoning.
@@ -30,4 +31,4 @@
 - Treat `TValue` as nullable in `Multimap<TKey, TValue>` under nullable reference types, allowing null values.
 - LazyMultimap<T> is used only scoped and never shared; it does not need to be thread-safe. Prefer variant 1 changes (lightweight, minimal, avoid heavy locking).
 - This codebase uses FluentMigrator (not EF Core migrations). New translations are added via `src/Smartstore.Core/Migrations/SmartDbContextDataSeeder.cs`.
-- User prefers .NET naming conventions where acronyms of 2+ letters are fully capitalized (e.g., IPAddress, HTTP, XML) following BCL standards like System.Net.IPAddress.
+- User prefers .NET naming conventions where acronyms of 2+ letters are fully capitalized (e.g., IPAddress, HTTP, XML) following BCL standards like System.Net.IPAddress.- User prefers .NET naming conventions where acronyms of 2+ letters are fully capitalized (e.g., IPAddress, HTTP, XML) following BCL standards like System.Net.IPAddress.

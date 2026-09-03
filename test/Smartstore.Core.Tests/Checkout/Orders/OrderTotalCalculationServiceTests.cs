@@ -1408,7 +1408,7 @@ public class OrderTotalCalculationServiceTests : ServiceTestBase
 
         // 56 - items, 10 - shipping (fixed), 20 - payment fee, 8.6 - tax, [-3] - discount = 91.6
         // 56 - items, 10 - shipping (fixed), 6.6 - tax, [-3] - discount = 69.6
-        var cartTotal = await _orderCalcService.GetShoppingCartTotalAsync(cart);
+        var cartTotal = await _orderCalcService.GetShoppingCartTotalAsync(cart, ShoppingCartTotalOptions.Default);
         cartTotal.Total.Value.Amount.ShouldEqual(69.6M);
         cartTotal.DiscountAmount.Amount.ShouldEqual(3);
         cartTotal.AppliedDiscount.ShouldNotBeNull();

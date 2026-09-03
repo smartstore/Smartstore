@@ -710,7 +710,7 @@ public class PayPalHttpClient
         // INFO: We must execute the following code also for cart pages in case of customer backward navigation,
         // where shipping method might be set or discounts might be applied
 
-        var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
+        var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, ShoppingCartTotalOptions.Default);
 
         // Discount
         var orderTotalDiscountAmount = new Money();

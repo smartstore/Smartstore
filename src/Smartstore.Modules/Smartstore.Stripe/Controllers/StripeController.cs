@@ -240,7 +240,7 @@ public class StripeController : ModuleController
                 if (await _orderProcessingService.IsMinimumOrderPlacementIntervalValidAsync(customer, store))
                 {
                     var state = _checkoutStateAccessor.CheckoutState.GetCustomState<StripeCheckoutState>();
-                    var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, true);
+                    var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, ShoppingCartTotalOptions.Default);
                     var convertedTotal = cartTotal.ConvertedAmount.Total.Value;
 
                     var paymentIntentService = new PaymentIntentService();

@@ -53,7 +53,7 @@ public class PaymentMethodHandler : CheckoutHandlerBase
             return await SavePaymentMethod(systemName, true, context);
         }
 
-        var cartTotal = (Money?)await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
+        var cartTotal = (Money?)await _orderCalculationService.GetShoppingCartTotalAsync(cart, new ShoppingCartTotalOptions { ApplyRewardPoints = false });
         state.IsPaymentRequired = cartTotal.GetValueOrDefault() != decimal.Zero;
 
         if (!state.IsPaymentRequired)

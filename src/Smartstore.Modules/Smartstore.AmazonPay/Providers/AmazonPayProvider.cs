@@ -115,7 +115,7 @@ public class AmazonPayProvider : PaymentMethodBase, IConfigurable
         var protocol = _webHelper.IsCurrentConnectionSecured() ? "https" : "http";
         var settings = await _settingFactory.LoadSettingsAsync<AmazonPaySettings>(cart.StoreId);
         var amazonState = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
-        var cartTotal = (Money?)await _orderCalculationService.GetShoppingCartTotalAsync(cart);
+        var cartTotal = (Money?)await _orderCalculationService.GetShoppingCartTotalAsync(cart, ShoppingCartTotalOptions.Default);
         var updateRequest = new UpdateCheckoutSessionRequest();
 
         updateRequest.PaymentDetails.ChargeAmount.Amount = _roundingHelper.Round(cartTotal.Value);

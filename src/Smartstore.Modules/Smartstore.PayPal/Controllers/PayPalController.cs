@@ -714,7 +714,7 @@ public class PayPalController : PublicController
             Type = GooglePayItemType.LineItem
         };
 
-        var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
+        var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, ShoppingCartTotalOptions.Default);
         var cartTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartTotal.Total != null ? cartTotal.Total.Value.Amount : 0, _primaryCurrency);
         Money orderTotalDiscountAmount = default;
         if (cartTotal.DiscountAmount > decimal.Zero)

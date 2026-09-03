@@ -61,7 +61,7 @@ public class PayButtonViewComponent : SmartViewComponent
 
         // Do not render AmazonPay button if there's nothing to pay.
         // Avoids InvalidParameterValue: The value '0' provided for 'chargeAmount.Amount' is invalid.
-        var cartTotal = (Money?)await _orderCalculationService.Value.GetShoppingCartTotalAsync(cart);
+        var cartTotal = (Money?)await _orderCalculationService.Value.GetShoppingCartTotalAsync(cart, ShoppingCartTotalOptions.Default);
         if (cartTotal.HasValue && cartTotal.Value == decimal.Zero)
         {
             return Empty();
