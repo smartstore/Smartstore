@@ -65,6 +65,10 @@
 - **Select2**: 
   - Clear the search input after adding a custom tag to a multiselect.
   - Clicking "Add rule" selects itself rather than opening the page to create a rule.
+- #1582 Cookie-notice filter lists could hide the required GDPR consent checkbox.
+- **Stripe**:
+  - #1584 Multi-currency payments could remain pending and partial refunds used the wrong currency amount.
+  - Fixed amount conversion for zero-decimal currencies.
 
 
 ## Smartstore 6.4.0
