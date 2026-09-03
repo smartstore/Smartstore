@@ -11,6 +11,7 @@
 - Automated tax and total calculations now ensure that gross and net prices, as well as line and order totals, update instantly when editing orders or order items.
 - Enforce `MaxDownloadFileSize` in `DownloadManager` via the global `appsettings.json` setting (default: 50 MB).
 - Added generic reverse-proxy-based bot detection support to improve bot/human classification in proxied setups.
+- Added a setting to control whether rules calculate prices inclusive or exclusive of tax.
 
 ### Improvements
 
