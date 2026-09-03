@@ -58,6 +58,11 @@
 	<ItemGroup>
 		<None Include="App_Data\icons.json" CopyToPublishDirectory="PreserveNewest" />
 		<None Include="App_Data\widgetzones.json" CopyToPublishDirectory="PreserveNewest" />
+		<None Include="Themes\HausLuxe\theme.config" />
+		<None Include="Themes\HausLuxe\Views\Shared\ConfigureTheme.cshtml" />
+		<None Include="Themes\HausLuxe\Views\_ViewImports.cshtml" />
+		<None Include="Themes\HausLuxe\Views\_ViewStart.cshtml" />
+		<None Include="Themes\HausLuxe\wwwroot\_custom.scss" />
 		<None Include="App_Data\dashboard.*.json" CopyToPublishDirectory="PreserveNewest" />
 		<None Include="App_Data\EmailTemplates\**" CopyToPublishDirectory="PreserveNewest" />
 		<None Include="App_Data\Geo\**" CopyToPublishDirectory="PreserveNewest" />
@@ -80,9 +85,9 @@
 
 	<!-- Copy publishable files in Themes directory -->
 	<ItemGroup>
-        <Content CopyToPublishDirectory="PreserveNewest" Exclude="Themes\*\Views\**\*.cshtml" Include="Themes\Flex\**; Themes\FlexBlack\**; Themes\FlexBlue\**" />
-        <None CopyToPublishDirectory="PreserveNewest" Include="Themes\Flex\Views\**\*.cshtml; Themes\FlexBlack\Views\**\*.cshtml; Themes\FlexBlue\Views\**\*.cshtml" />	
-    </ItemGroup>
+		<Content CopyToPublishDirectory="PreserveNewest" Exclude="Themes\*\Views\**\*.cshtml" Include="Themes\Flex\**; Themes\FlexBlack\**; Themes\FlexBlue\**; Themes\HausLuxe\**" />
+		<None CopyToPublishDirectory="PreserveNewest" Include="Themes\Flex\Views\**\*.cshtml; Themes\FlexBlack\Views\**\*.cshtml; Themes\FlexBlue\Views\**\*.cshtml; Themes\HausLuxe\Views\**\*.cshtml" />	
+	</ItemGroup>
 
 	<!-- Copy publishable files in Views directory -->
 	<ItemGroup>

@@ -1,0 +1,50 @@
+@using Smartstore.Web.Theming
+
+@model IDictionary<string, object>
+
+@addTagHelper Smartstore.Web.TagHelpers.Admin.*, Smartstore.Web.Common
+
+@{
+    Layout = null;
+}
+
+<tabstrip id="theme-hausluxe-edit" sm-nav-style="Material" class="theme-edit">
+    <tab sm-title="@T("Common.General")" sm-selected="true">
+        <div class="adminContent">
+            @{
+                ThemeVarEditor("primary", "Brand");
+                ThemeVarEditor("secondary");
+                ThemeVarEditor("success");
+                ThemeVarEditor("danger");
+                ThemeVarEditor("warning");
+                ThemeVarEditor("info");
+
+                ThemeVarEditor("body-bg", "Site Colors");
+                ThemeVarEditor("site-bg");
+                ThemeVarEditor("body-color");
+                ThemeVarEditor("link-color");
+                ThemeVarEditor("header-bg");
+                ThemeVarEditor("header-color");
+                ThemeVarEditor("footer-bg");
+                ThemeVarEditor("footer-color");
+            }
+        </div>
+    </tab>
+    <tab sm-title="@T("Admin.Themes.Fonts")">
+        <div class="adminContent">
+            @{
+                ThemeVarEditor("font-family-sans-serif", "Typo");
+                ThemeVarEditor("font-size-base");
+                ThemeVarEditor("font-size-lg");
+                ThemeVarEditor("font-size-sm");
+                ThemeVarEditor("font-size-xs");
+                ThemeVarEditor("headings-font-family", "Headings");
+                ThemeVarEditor("headings-font-weight");
+                ThemeVarEditor("headings-color");
+                ThemeVarEditor("h1-font-size");
+                ThemeVarEditor("h2-font-size");
+                ThemeVarEditor("h3-font-size");
+            }
+        </div>
+    </tab>
+</tabstrip>

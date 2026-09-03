@@ -1,0 +1,84 @@
+@{
+    Assets.BodyAttributes.AppendCssClass("home hausluxe-home");
+    Assets.AppendTitleParts((string)ViewBag.MetaTitle);
+    Assets.AppendMetaDescriptionParts((string)ViewBag.MetaDescription);
+    Assets.AppendMetaKeywordsParts((string)ViewBag.MetaKeywords);
+}
+
+<div class="page home-page hausluxe-home-page">
+    <div class="page-body">
+        <section class="hausluxe-hero">
+            <div class="hausluxe-hero__content">
+                <span class="hausluxe-eyebrow">Curated living</span>
+                <h1>Luxury essentials for refined everyday living.</h1>
+                <p>
+                    Thoughtful design, premium materials and warm sophistication for the spaces and rituals that matter most.
+                </p>
+                <div class="hausluxe-hero__actions">
+                    <a href="@Url.RouteUrl("ProductSearch")" class="btn btn-primary">Shop collection</a>
+                    <a href="@Url.RouteUrl("Home")" class="btn btn-secondary">Explore rooms</a>
+                </div>
+                <ul class="hausluxe-promise">
+                    <li>Free delivery over €100</li>
+                    <li>Handpicked design finds</li>
+                    <li>Curated lifestyle advice</li>
+                </ul>
+            </div>
+
+            <div class="hausluxe-hero__visual">
+                <div class="hero-card hero-card--main">
+                    <span class="hero-card__label">Featured curation</span>
+                    <h3>Modern Heritage</h3>
+                    <p>Warm neutrals, artisan textures and elevated comfort.</p>
+                    <div class="hero-card__meta">
+                        <span>From €149</span>
+                        <strong>New arrival</strong>
+                    </div>
+                </div>
+                <div class="hero-badge">
+                    <strong>4.9/5</strong>
+                    <span>Client-loved favorites</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="hausluxe-trustbar">
+            <div>Free shipping</div>
+            <div>Premium quality</div>
+            <div>Easy returns</div>
+            <div>Luxury support</div>
+        </section>
+
+        <zone name="home_page_top" />
+
+        @await Component.InvokeAsync("TopicBlock", new { systemName = "HomePageText", isLead = true })
+        <zone name="home_page_after_intro" />
+
+        <div class="hausluxe-section">
+            @await Component.InvokeAsync("HomeCategories")
+        </div>
+        <zone name="home_page_after_categories" />
+
+        <div class="hausluxe-section">
+            @await Component.InvokeAsync("HomeProducts")
+        </div>
+        <zone name="home_page_after_products" />
+
+        <div class="hausluxe-section">
+            @await Component.InvokeAsync("HomeBestsellers")
+        </div>
+        <zone name="home_page_after_bestsellers" />
+
+        <div class="hausluxe-section">
+            @await Component.InvokeAsync("HomeBrands")
+        </div>
+        <zone name="home_page_after_manufacturers" />
+
+        @await Component.InvokeAsync("PopularProductTags")
+        <zone name="home_page_after_tags" />
+
+        @await Component.InvokeAsync("RecentlyViewedProducts")
+
+        <zone name="home_page_bottom" />
+    </div>
+</div>
