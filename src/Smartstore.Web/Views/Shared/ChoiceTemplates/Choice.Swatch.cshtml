@@ -11,14 +11,14 @@
     var canUseCardLayout = Model.CanUseCardLayout;
 
     // TEST
-    if (canUseCardLayout)
-    {
-        Model.SwatchSize = SwatchSize.Medium;
-        Model.SwatchShape = SwatchShape.Rounded;
-        Model.SwatchAspectRatio = 0.75m;
-        Model.ShowValueNameInSwatch = true;
-        Model.SwatchPriceDisplay = SwatchPriceDisplayMode.FinalPrice;
-    }
+    // if (canUseCardLayout)
+    // {
+    //     Model.SwatchSize = SwatchSize.XXLarge;
+    //     Model.SwatchShape = SwatchShape.Circle;
+    //     Model.SwatchAspectRatio = 0.5m;
+    //     Model.ShowValueNameInSwatch = true;
+    //     Model.SwatchPriceDisplay = SwatchPriceDisplayMode.FinalPrice;
+    // }
     // TEST
 
     var useCardLayout = Model.UseCardLayout;
@@ -55,7 +55,9 @@
             var hasImage = item.HasImage;
             var isDark = hasColor && !useCardLayout && ImagingHelper.GetPerceivedBrightness(item.Color) < 200;
 
-            item.IsUnavailable = label.Contains("a") || hasImage;
+            // TEST
+            //item.IsUnavailable = label.Contains("a") || hasImage;
+            // TEST
 
             var swatchClass = "swatch"
                 + (item.IsPreSelected ? " selected" : null)
@@ -66,6 +68,10 @@
                 + (useCardLayout ? null : hasImage ? " swatch-image" : hasColor ? " swatch-color" : null);
 
             var swatchPrice = item.GetSwatchPriceText(Model.SwatchPriceDisplay);
+
+            // TEST
+            //swatchPrice ??= "199,59 €";
+            // TEST
 
             <li class="@swatchClass" data-swatch-value="@item.GetSwatchDisplayName()">
                 <input type="radio"
@@ -85,7 +91,7 @@
                                 <span class="swatch-media swatch-visual@(hasImage ? " swatch-image" : " swatch-color")" attr-style="(css.HasValue(), css)"></span>
                                 <span class="swatch-details">
                                     <span sm-if="Model.ShowValueNameInSwatch" class="swatch-value">@item.Name</span>
-                                    <span sm-if="Model.SwatchPriceDisplay != SwatchPriceDisplayMode.None" class="swatch-price">@swatchPrice</span>
+                                    <span sm-if="Model.SwatchPriceDisplay != SwatchPriceDisplayMode.None" class="swatch-price text-truncate">@swatchPrice</span>
                                     <span sm-if="item.UnavailableReason.HasValue()" class="swatch-status">@item.UnavailableReason</span>
                                 </span>
                             </span>

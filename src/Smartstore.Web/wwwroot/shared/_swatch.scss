@@ -53,11 +53,11 @@
 }
 
 .swatch-shape-rect {
-    --swatch-border-radius: 0;
+    --swatch-border-radius: 0 !important;
 }
 
 .swatch-shape-circle {
-    --swatch-border-radius: 50%;
+    --swatch-border-radius: 50% !important;
 }
 
 .swatch-group-fixed {
@@ -74,6 +74,7 @@
 }
 
 .swatch-group-cards {
+    //--swatch-border-radius: var(--border-radius-sm);
     align-items: stretch;
 
     .swatch {
@@ -201,18 +202,19 @@
     justify-content: flex-start;
     gap: 2px;
     padding: 4px;
-    border-top: 1px solid rgba($black, 0.125);
+    padding-top: 6px;
+    //border-top: 1px solid rgba($black, 0.125);
     background-color: #fff;
     color: $body-color;
     text-align: start;
+    line-height: 1.15;
 
     > .swatch-value {
         display: -webkit-box;
         max-width: 100%;
         overflow: hidden;
-        font-size: 12px;
+        font-size: $font-size-xs;
         font-weight: $font-weight-semibold;
-        line-height: 1.05;
         overflow-wrap: anywhere;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
@@ -223,11 +225,8 @@
     display: block;
     max-width: 100%;
     overflow: hidden;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: $font-weight-normal;
-    line-height: 1.05;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 .swatch-status {
@@ -280,6 +279,7 @@
 .swatch-input:checked + :is(.swatch-label, .swatch-content) {
     .swatch-element {
         outline-color: var(--swatch-outline-color-selected);
+        outline-width: calc(var(--swatch-outline-width) + 1px);
     }
 }
 
