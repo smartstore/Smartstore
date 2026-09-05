@@ -216,11 +216,14 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     --pd-offer-font-size-base: inherit;
     --pd-offer-font-size-sm: #{$font-size-sm};
 
-    background: $pd-offer-bg;
-    padding: $pd-offer-spacing;
     line-height: $pd-line-height;
     width: 100%;
-    border-radius: var(--border-radius-lg);
+
+    @include media-breakpoint-up(md) {
+        background: $pd-offer-bg;
+        padding: $pd-offer-spacing;
+        border-radius: var(--border-radius-lg);
+    }
 }
 
 .row.pd-offer-actions {
