@@ -15,6 +15,7 @@
     --swatch-outline-color-hover: rgba(0, 0, 0, 0.25);
     --swatch-outline-color-selected: #{$focus-ring-color};
     --swatch-strike-color: rgba(0, 0, 0, 0.75);
+    --swatch-strike-width: 1px;
 
     position: relative;
     display: flex;
@@ -77,6 +78,16 @@
     //--swatch-border-radius: var(--border-radius-sm);
     align-items: stretch;
 
+    @include media-breakpoint-down(sm) {
+        // Make cards scrollable on small screens, but only on touch devices.
+        .touchevents & {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: calc(var(--swatch-outline-width) + var(--swatch-outline-offset));
+        }
+    }
+
     .swatch {
         display: flex;
     }
@@ -138,26 +149,56 @@
     }
 }
 
+.swatch-color:before {
+    // Nice glossy effect for color swatches
+    position: absolute;
+    content: "";
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255, 0.16) 0%,
+            transparent 48%,
+            rgba(0,0,0, 0.055) 100%
+        );
+}
+
 .swatch.unavailable {
     .swatch-element {
         outline-color: var(--swatch-outline-color-hover);
-        //outline-style: dotted;
-        outline-style: dashed;
+        outline-style: dotted;
     }
 
     .swatch-visual {
         opacity: 0.6;
-
         &:after {
             position: absolute;
+            inset: 0;
             content: "";
-            inset-inline-start: calc(50% - 1px);
-            top: 0;
-            bottom: 0;
-            width: 1px;
-            background-color: var(--swatch-strike-color);
-            transform: rotate(45deg);
+            pointer-events: none;
+            opacity: 0.75;
+            clip-path: inset(10%);
+            --ssw: calc(var(--swatch-strike-width) / 2);
+            background: linear-gradient(
+                to bottom right,
+                transparent calc(50% - var(--ssw)),
+                var(--swatch-strike-color) calc(50% - var(--ssw)),
+                var(--swatch-strike-color) calc(50% + var(--ssw)),
+                transparent calc(50% + var(--ssw))
+            );
         }
+    }
+
+    .swatch-color:before {
+        // No glossy effect for unavailable color swatches
+        display: none;
+    }
+
+    .swatch-details {
+        background-color: var(--gray-200);
+        opacity: 0.7;
     }
 }
 
@@ -219,39 +260,24 @@
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
     }
-}
 
-.swatch-price {
-    display: block;
-    max-width: 100%;
-    overflow: hidden;
-    font-size: 12px;
-    font-weight: $font-weight-normal;
-}
+    > .swatch-price {
+        display: block;
+        max-width: 100%;
+        overflow: hidden;
+        font-size: 12px;
+        font-weight: $font-weight-normal;
+    }
 
-.swatch-status {
-    display: block;
-    max-width: 100%;
-    color: $text-muted;
-    font-size: 11px;
-    font-weight: $font-weight-normal;
-    line-height: 1.05;
-    overflow-wrap: anywhere;
-}
-
-.swatch-color:before {
-    position: absolute;
-    content: "";
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    background:
-        linear-gradient(
-            145deg,
-            rgba(255,255,255, 0.16) 0%,
-            transparent 48%,
-            rgba(0,0,0, 0.055) 100%
-        );
+    > .swatch-status {
+        display: block;
+        max-width: 100%;
+        color: $text-muted;
+        font-size: 11px;
+        font-weight: $font-weight-normal;
+        line-height: 1.05;
+        overflow-wrap: anywhere;
+    }
 }
 
 .swatch-mediafile .swatch-content {
@@ -279,7 +305,8 @@
 .swatch-input:checked + :is(.swatch-label, .swatch-content) {
     .swatch-element {
         outline-color: var(--swatch-outline-color-selected);
-        outline-width: calc(var(--swatch-outline-width) + 1px);
+        // TODO: Hmmm, not sure about this
+        //outline-width: calc(var(--swatch-outline-width) + 1px);
     }
 }
 

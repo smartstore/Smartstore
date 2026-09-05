@@ -13,6 +13,7 @@
         var opts = this.options = $.extend(true, {}, options, meta || {});
         var updating = false;
         const swatchLabelRestoreDelay = 150;
+        const swatchScrollPositions = new Map();
 
         this.init = function () {
             var opts = this.options;
@@ -104,7 +105,13 @@
 
                         if (inputId) {
                             inputCtrl = ctx.find('#' + inputId);
-                            inputCtrl.trigger('focus');
+                            if (inputCtrl.is('.swatch-input')) {
+                                // Restoring focus must not override the row's restored scroll position.
+                                inputCtrl[0].focus({ preventScroll: true });
+                            }
+                            else {
+                                inputCtrl.trigger('focus');
+                            }
                         }
                     }
                 });
@@ -112,8 +119,56 @@
 
             self.initAssociatedProducts(associatedProducts);
 
+            // Track user scrolling so replacement markup can resume at the same position.
+            el[0].addEventListener('scroll', function (event) {
+                if (event.target.matches?.('.swatch-group-cards')) {
+                    const key = getSwatchScrollKey(event.target);
+                    key && swatchScrollPositions.set(key, event.target.scrollLeft);
+                }
+            }, true);
+
+            restoreSwatchScrollPositions(el);
+
+            el.on('shown.bs.collapse', function (event) {
+                // Hidden rows can only be measured after opening.
+                restoreSwatchScrollPositions($(event.target));
+            });
+
             return this;
         };
+
+        function getSwatchScrollKey(group) {
+            // Input names survive partial replacement and distinguish product/bundle attribute mappings.
+            return group.querySelector('.swatch-input')?.name;
+        }
+
+        function restoreSwatchScrollPositions(ctx) {
+            ctx.find('.swatch-group-cards').each(function () {
+                const key = getSwatchScrollKey(this);
+                if (!key || this.scrollWidth <= this.clientWidth) {
+                    return;
+                }
+
+                const savedPosition = swatchScrollPositions.get(key);
+                if (savedPosition !== undefined) {
+                    this.scrollLeft = savedPosition;
+                    return;
+                }
+
+                const selected = this.querySelector('.swatch-input:checked')?.closest('.swatch');
+                if (!selected) {
+                    return;
+                }
+
+                const viewport = this.getBoundingClientRect();
+                const bounds = selected.getBoundingClientRect();
+                const style = getComputedStyle(this);
+                // Keep the selected outline inside the row padding and move only as far as needed.
+                const left = viewport.left + parseFloat(style.paddingLeft);
+                const right = viewport.right - parseFloat(style.paddingRight);
+                this.scrollLeft += bounds.left < left ? bounds.left - left : Math.max(0, bounds.right - right);
+            });
+        }
 
         function updateSwatchLabel(swatch) {
             const selection = swatch.closest('.choice').find('.choice-label-value').first();
@@ -256,6 +311,8 @@
             });
 
             applyCommonPlugins(ctx);
+            // Restore after plugins have initialized the replacement markup and its layout.
+            restoreSwatchScrollPositions(ctx);
 
             ctx.find(".pd-tierprices").html(data.Partials["TierPrices"]);
 

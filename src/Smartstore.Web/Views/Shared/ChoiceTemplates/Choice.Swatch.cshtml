@@ -14,8 +14,8 @@
     // if (canUseCardLayout)
     // {
     //     Model.SwatchSize = SwatchSize.XXLarge;
-    //     Model.SwatchShape = SwatchShape.Circle;
-    //     Model.SwatchAspectRatio = 0.5m;
+    //     Model.SwatchShape = SwatchShape.Rounded;
+    //     Model.SwatchAspectRatio = 0.75m;
     //     Model.ShowValueNameInSwatch = true;
     //     Model.SwatchPriceDisplay = SwatchPriceDisplayMode.FinalPrice;
     // }
@@ -53,7 +53,7 @@
             var label = item.GetAccessibleLabel();
             var hasColor = item.HasColor;
             var hasImage = item.HasImage;
-            var isDark = hasColor && !useCardLayout && ImagingHelper.GetPerceivedBrightness(item.Color) < 200;
+            var isDark = hasColor && ImagingHelper.GetPerceivedBrightness(item.Color) < 200;
 
             // TEST
             //item.IsUnavailable = label.Contains("a") || hasImage;
