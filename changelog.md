@@ -27,6 +27,7 @@
   - Refined the appearance of media gallery slider dots on mobile devices.
   - Removed the product offer background and padding on small screens to provide a cleaner, wider mobile layout.
   - New theme variable `$enable-alert-icons` (`false` by default).
+- Improved server-side JavaScript minification with `NUglify`, correct block-scoped const handling, and automatic bundle cache invalidation. Files that fail minification now retain their original content with file-specific diagnostics.
 - (DEV) Refactored shopping cart total calculation options into `ShoppingCartTotalOptions` and marked the legacy overload as obsolete.
 
 ### Bugfixes
