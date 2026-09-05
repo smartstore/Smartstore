@@ -25,6 +25,7 @@
 - **Theming**: 
   - Made `.prose` font-size and line-height configurable.
   - Refined the appearance of media gallery slider dots on mobile devices.
+  - Removed the product offer background and padding on small screens to provide a cleaner, wider mobile layout.
   - New theme variable `$enable-alert-icons` (`false` by default).
 - (DEV) Refactored shopping cart total calculation options into `ShoppingCartTotalOptions` and marked the legacy overload as obsolete.
 
