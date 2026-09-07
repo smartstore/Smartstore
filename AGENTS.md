@@ -61,6 +61,7 @@ Architecture follows Domain-Driven Design. See
 | Database migrations | `dev-docs/framework/platform/database-migrations.md` |
 | Modules & providers | `dev-docs/framework/platform/modularity-and-providers.md` |
 | Building a module | `dev-docs/compose/modules/getting-started-with-modules.md` |
+| Packaging & deploying a module | `dev-docs/compose/modules/deploying-modules.md` |
 | Localization | `dev-docs/framework/content/localization.md` |
 | Hooks & events | `dev-docs/framework/platform/hooks.md`, `dev-docs/framework/platform/events.md` |
 | Caching & output cache | `dev-docs/framework/platform/caching.md`, `dev-docs/framework/platform/output-cache.md` |
