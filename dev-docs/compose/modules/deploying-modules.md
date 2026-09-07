@@ -53,7 +53,7 @@ This packaged module can now be uploaded by any store owner. There is no need to
 
 For automated builds the same packages can be created without a user interface. Build the `Smartstore.Packager.Cli` project from the _Tools_ directory of `Smartstore.Tools.sln` and call the resulting `Smartstore.Packager.Cli.exe` with the `pack` command. GUI and CLI share their extension discovery and packaging code, so both produce identical packages.
 
-```
+```bash
 Smartstore.Packager.Cli pack --root <path> --output <path> --extension <name> [--extension <name>...]
 Smartstore.Packager.Cli pack --root <path> --output <path> --all
 Smartstore.Packager.Cli --help
