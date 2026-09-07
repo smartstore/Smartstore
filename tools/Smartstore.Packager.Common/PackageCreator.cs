@@ -4,12 +4,20 @@ using Smartstore.IO;
 
 namespace Smartstore.Packager
 {
-    internal class PackageCreator
+    /// <summary>
+    /// Creates deployable extension packages and writes them to an output directory.
+    /// </summary>
+    public class PackageCreator
     {
         private readonly IFileSystem _contentRoot;
         private readonly IPackageBuilder _packageBuilder;
         private readonly string _outputPath;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PackageCreator"/> class.
+        /// </summary>
+        /// <param name="rootPath">Physical path of the build artifact root directory.</param>
+        /// <param name="outputPath">Physical path of the directory to write package files to.</param>
         public PackageCreator(string rootPath, string outputPath)
         {
             _outputPath = outputPath;
@@ -17,6 +25,11 @@ namespace Smartstore.Packager
             _packageBuilder = new PackageBuilder(_contentRoot);
         }
 
+        /// <summary>
+        /// Builds a package for the given extension and saves it to the output directory.
+        /// </summary>
+        /// <param name="descriptor">The extension to package.</param>
+        /// <returns>The created package file.</returns>
         public async Task<FileInfo> CreateExtensionPackageAsync(IExtensionDescriptor descriptor)
         {
             var package = await _packageBuilder.BuildPackageAsync(descriptor);

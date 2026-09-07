@@ -48,3 +48,59 @@ This can be done using the **Smartstore Packager**. To use it, open the `Smartst
 The packager creates a zip file using the naming pattern `Smartstore.Module.{module systemname}.{current module version}.zip` which will result in something like `Smartstore.Module.MyOrg.MyModule.5.0.zip`.
 
 This packaged module can now be uploaded by any store owner. There is no need to stop the app pool, when using this method and Smartstore will automatically restart the application.
+
+### Packager CLI
+
+For automated builds the same packages can be created without a user interface. Build the `Smartstore.Packager.Cli` project from the _Tools_ directory of `Smartstore.Tools.sln` and call the resulting `Smartstore.Packager.Cli.exe` with the `pack` command. GUI and CLI share their extension discovery and packaging code, so both produce identical packages.
+
+```
+Smartstore.Packager.Cli pack --root <path> --output <path> --extension <name> [--extension <name>...]
+Smartstore.Packager.Cli pack --root <path> --output <path> --all
+Smartstore.Packager.Cli --help
+```
+
+| Option | Description |
+| --- | --- |
+| `--root <path>` | Root directory of a build artifact. Either contains `Modules` and/or `Themes` subdirectories, or the extension directories themselves. Required. |
+| `--output <path>` | Directory the package files are written to. It is created if it does not exist. Required. |
+| `--extension <name>` | Name of a module or theme to package, matched case-insensitively against its directory name. May be repeated. |
+| `--all` | Packages every module and theme found below the root directory. |
+| `-h`, `--help` | Prints the usage text. |
+
+Exactly one of `--extension` and `--all` must be given.
+
+Packaging a single extension:
+
+```powershell
+Smartstore.Packager.Cli.exe pack `
+  --root "D:\Build\Community.6.5.0.win-x64" `
+  --output "D:\Build\packages" `
+  --extension "Smartstore.PayPal"
+```
+
+Packaging several extensions by repeating `--extension`:
+
+```powershell
+Smartstore.Packager.Cli.exe pack `
+  --root "D:\Build\Community.6.5.0.win-x64" `
+  --output "D:\Build\packages" `
+  --extension "Smartstore.PayPal" `
+  --extension "Smartstore.Stripe"
+```
+
+Packaging every module and theme that was found:
+
+```powershell
+Smartstore.Packager.Cli.exe pack `
+  --root "D:\Build\Community.6.5.0.win-x64" `
+  --output "D:\Build\packages" `
+  --all
+```
+
+The full path of every package that was created is written to _stdout_, one per line; error messages go to _stderr_. When several extensions are requested, a failing one does not abort the run — the remaining extensions are still packaged and the failure is reported through the exit code.
+
+| Exit code | Meaning |
+| --- | --- |
+| `0` | All requested packages were created. |
+| `1` | A runtime, discovery or packaging error occurred, for example an unknown extension name or an unreadable manifest. |
+| `2` | The command line was invalid. |
