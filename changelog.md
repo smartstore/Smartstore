@@ -73,6 +73,7 @@
 - **Stripe**:
   - #1584 Multi-currency payments could remain pending and partial refunds used the wrong currency amount.
   - Fixed amount conversion for zero-decimal currencies.
+  - Redirect-based 3D Secure was already supported, but Stripe next actions handled through the client SDK, such as those required by Link, were not processed.
 
 
 ## Smartstore 6.4.0
