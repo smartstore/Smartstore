@@ -21,6 +21,17 @@ public abstract class ChoiceItemModel : EntityModelBase
     /// Gets or sets the calculated final price for this choice item.
     /// </summary>
     public Money? SwatchPrice { get; set; }
+
+    /// <summary>
+    /// Gets or sets the optional comparison price displayed as a struck-through amount in a swatch card.
+    /// </summary>
+    public Money? SwatchComparePrice { get; set; }
+
+    /// <summary>
+    /// Gets or sets the base price information associated with <see cref="SwatchPrice"/>.
+    /// </summary>
+    public string SwatchBasePriceInfo { get; set; }
+
     public int QuantityInfo { get; set; }
     public bool IsPreSelected { get; set; }
     public bool IsDisabled { get; set; }
@@ -52,6 +63,12 @@ public abstract class ChoiceItemModel : EntityModelBase
     /// </summary>
     public bool HasSwatch
         => HasImage || HasColor;
+
+    /// <summary>
+    /// Gets the value text displayed in a swatch card, including linked-product quantity information.
+    /// </summary>
+    public string SwatchValueText
+        => QuantityInfo > 1 ? $"{QuantityInfo} x {Name}" : Name;
 
     /// <summary>
     /// Gets the inline CSS for a swatch color, which may be a single color or a multicolor gradient.
@@ -142,6 +159,41 @@ public abstract class ChoiceItemModel : EntityModelBase
             SwatchPriceDisplayMode.FinalPrice => SwatchPrice?.ToString(),
             _ => throw new ArgumentOutOfRangeException(nameof(displayMode), displayMode, null)
         };
+
+    /// <summary>
+    /// Gets the accessible label for a swatch card, including all information displayed in its detail panel.
+    /// </summary>
+    /// <param name="displayMode">The price display mode.</param>
+    /// <returns>The accessible swatch card label.</returns>
+    public string GetSwatchCardLabel(SwatchPriceDisplayMode displayMode)
+    {
+        var parts = new List<string> { SwatchValueText };
+        var price = GetSwatchPriceText(displayMode);
+
+        if (price.HasValue())
+        {
+            parts.Add(price);
+        }
+
+        if (displayMode == SwatchPriceDisplayMode.FinalPrice)
+        {
+            if (SwatchComparePrice.HasValue)
+            {
+                parts.Add(SwatchComparePrice.Value.ToString());
+            }
+            if (SwatchBasePriceInfo.HasValue())
+            {
+                parts.Add(SwatchBasePriceInfo);
+            }
+        }
+
+        if (UnavailableReason.HasValue())
+        {
+            parts.Add(UnavailableReason);
+        }
+
+        return string.Join(", ", parts);
+    }
 
     /// <summary>
     /// Gets the reason why this item is unavailable.

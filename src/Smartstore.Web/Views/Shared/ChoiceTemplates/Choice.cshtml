@@ -7,9 +7,10 @@
 	var label = Model.GetLabel();
 	var description = Model.GetDescription();
 	var isSwatch = Model.AttributeControlType == AttributeControlType.Boxes;
-	var selectedSwatchValue = isSwatch
-		? Model.Values?.FirstOrDefault(x => x.IsPreSelected)?.GetSwatchDisplayName()
-		: null;
+	var selectedSwatch = isSwatch ? Model.Values?.FirstOrDefault(x => x.IsPreSelected) : null;
+	var selectedSwatchValue = selectedSwatch == null
+		? null
+		: Model.UseCardLayout ? selectedSwatch.GetSwatchDisplayName() : selectedSwatch.GetAccessibleLabel();
 	var emptySwatchValueText = Model.IsRequired ? T("Common.PleaseSelect").Value : T("Common.Unspecified").Value;
 	var swatchValueText = selectedSwatchValue.NullEmpty() ?? emptySwatchValueText;
 	var swatchValueStateClass = selectedSwatchValue.HasValue()

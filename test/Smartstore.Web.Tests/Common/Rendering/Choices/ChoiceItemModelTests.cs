@@ -112,6 +112,40 @@ public class ChoiceItemModelTests
     }
 
     [Test]
+    public void Builds_swatch_card_value_with_quantity()
+    {
+        var item = new TestChoiceItemModel
+        {
+            Name = "Red",
+            QuantityInfo = 2
+        };
+
+        Assert.That(item.SwatchValueText, Is.EqualTo("2 x Red"));
+    }
+
+    [Test]
+    public void Adds_compare_and_base_price_only_to_final_price_card_label()
+    {
+        var currency = new Currency
+        {
+            CurrencyCode = "EUR",
+            DisplayLocale = "en-US",
+            CustomFormatting = "€0.00"
+        };
+        var item = new TestChoiceItemModel
+        {
+            Name = "Red",
+            PriceAdjustment = new Money(12.5m, currency),
+            SwatchPrice = new Money(99m, currency),
+            SwatchComparePrice = new Money(119m, currency),
+            SwatchBasePriceInfo = "€9.90 / kg"
+        };
+
+        Assert.That(item.GetSwatchCardLabel(SwatchPriceDisplayMode.Adjustment), Is.EqualTo("Red, +€12.50"));
+        Assert.That(item.GetSwatchCardLabel(SwatchPriceDisplayMode.FinalPrice), Is.EqualTo("Red, €99.00, €119.00, €9.90 / kg"));
+    }
+
+    [Test]
     public void Adds_unavailability_reason_to_swatch_display_name()
     {
         var item = new TestChoiceItemModel

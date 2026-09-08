@@ -9,6 +9,8 @@
     --swatch-gap: 12px;
     --swatch-aspect-ratio: 1;
     --swatch-border-radius: var(--border-radius-md);
+    --swatch-bg: #fff;
+    --swatch-bg-selected: #fff; // rgba(var(--primary-bg-subtle-rgb), 0.5);
     --swatch-outline-width: 2px;
     --swatch-outline-offset: 2px;
     --swatch-outline-color: rgba(0, 0, 0, 0.125);
@@ -104,6 +106,7 @@
 .swatch {
     position: relative;
     display: block;
+    background-color: var(--swatch-bg);
 
     &.dark {
         --swatch-strike-color: rgba(255,255,255, 0.75);
@@ -129,7 +132,7 @@
     border-radius: var(--swatch-border-radius);
     outline: var(--swatch-outline-width) solid var(--swatch-outline-color);
     outline-offset: var(--swatch-outline-offset);
-    background-color: #fff;
+    background-color: var(--swatch-bg);
     background-repeat: no-repeat;
     background-position: 50% 50%;
     background-size: cover;
@@ -245,7 +248,7 @@
     padding: 4px;
     padding-top: 6px;
     //border-top: 1px solid rgba($black, 0.125);
-    background-color: #fff;
+    //background-color: #fff;
     color: $body-color;
     text-align: start;
     line-height: 1.15;
@@ -261,22 +264,18 @@
         -webkit-line-clamp: 2;
     }
 
-    > .swatch-price {
+    > :is(.swatch-price, .swatch-compare-price, .swatch-base-price, .swatch-status) {
         display: block;
         max-width: 100%;
         overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
         font-size: 12px;
         font-weight: $font-weight-normal;
     }
 
-    > .swatch-status {
-        display: block;
-        max-width: 100%;
-        color: $text-muted;
+    > .swatch-base-price {
         font-size: 11px;
-        font-weight: $font-weight-normal;
-        line-height: 1.05;
-        overflow-wrap: anywhere;
     }
 }
 
@@ -304,6 +303,7 @@
 
 .swatch-input:checked + :is(.swatch-label, .swatch-content) {
     .swatch-element {
+        background-color: var(--swatch-bg-selected);
         outline-color: var(--swatch-outline-color-selected);
         // TODO: Hmmm, not sure about this
         //outline-width: calc(var(--swatch-outline-width) + 1px);

@@ -186,7 +186,8 @@
         }
 
         function supportsSwatchLabelPreview(swatch) {
-            return !swatch.find('.swatch-card, .swatch-value').length;
+            // Non-card swatches use the dynamic label as their visible replacement for the former tooltip.
+            return !swatch.find('.swatch-card').length;
         }
 
         function clearSwatchLabelRestore(choice) {
