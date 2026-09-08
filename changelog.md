@@ -16,7 +16,9 @@
 ### Improvements
 
 - SSRF guard for media downloads.
-- Withdrawal: Case-insensitive email check.
+- **Withdrawal**: 
+  - Case-insensitive email check.
+  - Added the order as a liquid placeholder to the withdrawal message templates.
 - **GeoBlocker**: 
   - A whitelisted IP address was still blocked when its country was blocked, although IP addresses take precedence.
   - Literal IP addresses are matched directly instead of by regex, which makes large lists cheap.
