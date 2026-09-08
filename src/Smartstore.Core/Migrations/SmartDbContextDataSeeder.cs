@@ -11,10 +11,34 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
     {
         await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
         await MigrateSettingsAsync(context, cancelToken);
+        await MigrateMessageTemplatesAsync(context, cancelToken);
     }
 
     public async Task MigrateSettingsAsync(SmartDbContext context, CancellationToken cancelToken = default)
     {
+    }
+
+    public async Task MigrateMessageTemplatesAsync(SmartDbContext context, CancellationToken cancelToken = default)
+    {
+        var save = false;
+        var withdrawalTemplates = await context.MessageTemplates
+            .Where(x => x.Name == "Withdrawal.CustomerNotification" || x.Name == "Withdrawal.MerchantNotification" || x.Name == "Withdrawal.ProceedLink")
+            .ToListAsync(cancelToken);
+
+        foreach (var template in withdrawalTemplates)
+        {
+            var modelNames = template.ModelTypes.SplitSafe(',').Distinct().ToArray();
+            if (!modelNames.Contains("Order"))
+            {
+                template.ModelTypes = template.ModelTypes.Grow("Order", ", ");
+                save = true;
+            }
+        }
+
+        if (save)
+        {
+            await context.SaveChangesAsync(cancelToken);
+        }
     }
 
     public void MigrateLocaleResources(LocaleResourcesBuilder builder)
