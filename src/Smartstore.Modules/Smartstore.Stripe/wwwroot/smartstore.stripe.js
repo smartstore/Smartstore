@@ -103,6 +103,13 @@
                 }
             });
         },
+        handleNextAction: function (publicApiKey, apiVersion, clientSecret) {
+            if (!stripe) {
+                stripe = Stripe(publicApiKey, { apiVersion: apiVersion });
+            }
+
+            return stripe.handleNextAction({ clientSecret: clientSecret });
+        },
         initWalletButtonElement: function (publicApiKey, requestData, isCartPage, apiVersion, currencyMinorUnitFactor) {
             stripe = Stripe(publicApiKey, {
                 apiVersion: apiVersion,
