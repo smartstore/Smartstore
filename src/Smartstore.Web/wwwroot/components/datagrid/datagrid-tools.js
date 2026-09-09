@@ -55,8 +55,8 @@
                 <div class="dropdown-divider"></div>
                 <div class="dg-tools-group dg-tools-columns px-3 pb-1">
                     <div v-for="(column, columnIndex) in columns" class="dg-column-toggle form-check my-1">
-                        <input class="form-check-input" type="checkbox" v-model="column.visible" :id="'dg-column-toggle-' + columnIndex" :disabled="column.hideable ? null : true">
-                        <label class="form-check-label d-block text-truncate" :for="'dg-column-toggle-' + columnIndex">{{ column.name }}</label>
+                        <input class="form-check-input" type="checkbox" v-model="column.visible" :id="columnToggleIdPrefix + columnIndex" :disabled="column.hideable ? null : true">
+                        <label class="form-check-label d-block text-truncate" :for="columnToggleIdPrefix + columnIndex">{{ column.name }}</label>
                     </div>
                 </div>
             </div>
@@ -67,6 +67,12 @@
         options: Object,
         paging: Object,
         columns: Array
+    },
+
+    data() {
+        return {
+            columnToggleIdPrefix: 'dg-column-toggle-' + this._uid + '-'
+        };
     },
 
     created() {
