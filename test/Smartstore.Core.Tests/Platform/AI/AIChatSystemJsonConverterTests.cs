@@ -44,6 +44,7 @@ public class AIChatSystemJsonConverterTests
             Orientation = ImageOrientation.Landscape,
             AspectRatio = ImageAspectRatio.Ratio16x9,
             Resolution = AIImageResolution.QHD,
+            Quality = AIImageQuality.Max,
             OutputFormat = AIImageOutputFormat.Png
         });
 
@@ -82,6 +83,7 @@ public class AIChatSystemJsonConverterTests
             obj.Metadata.TryGetAndConvertValue<AIImageChatContext>(KnownAIChatMetadataKeys.ImageChatContext, out var ctx);
             Assert.That(ctx.AspectRatio, Is.EqualTo(ImageAspectRatio.Ratio16x9));
             Assert.That(ctx.Resolution, Is.EqualTo(AIImageResolution.QHD));
+            Assert.That(ctx.Quality, Is.EqualTo(AIImageQuality.Max));
             Assert.That(ctx.OutputFormat, Is.EqualTo(AIImageOutputFormat.Png));
             Assert.That(ctx.OutputFormat.Value.MimeType, Is.EqualTo(MediaTypeNames.Image.Png));
         });
