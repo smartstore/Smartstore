@@ -152,7 +152,7 @@ input.form-control-plaintext {
         top: 0;
         background-color: var(--dg-header-bg);
         border-bottom: 2px solid var(--dg-border-color);
-        z-index: 2;
+        z-index: 8;
         user-select: none;
         overflow-x: hidden; // Removes annoying x-scrollbar
     }
@@ -452,7 +452,7 @@ input.form-control-plaintext {
         z-index: 9;
 
         &.dg-th {
-            z-index: 10;
+            z-index: 12;
         }
 
         &.alpha {
@@ -548,6 +548,14 @@ input.form-control-plaintext {
 .dg-edit-row {
     .dg-cell {
         border-color: $primary;
+    }
+
+    .dg-cell.dg-commands {
+        overflow: visible;
+    }
+
+    > .dg-col-pinned.omega {
+        z-index: 11;
     }
 
     .field-validation-valid {
@@ -683,18 +691,21 @@ span.dg-page {
 // -----------------------------------------
 
 .dg-row-edit-commands {
-    width: 100%;
-    height: 100%;
+    --btnsize: 28px;
+    --padding: 4px;
+    --gap: 4px;
+    position: absolute;
+    z-index: 13;
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+    padding: var(--padding);
+    width: calc(var(--btnsize) + calc(var(--padding) * 2) + 2px);
+    height: calc(calc(var(--btnsize) * 2) + calc(var(--padding) * 2) + var(--gap) + 2px);
+    box-shadow: var(--box-shadow-sm);
 
-    > .btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        --btn-height: 50%;
-        padding: 0 !important;
-        > i {
-            font-size: 10px !important;
-        }
+    > .btn-row-command {
+        --btn-height: var(--btnsize);
     }
 }
 

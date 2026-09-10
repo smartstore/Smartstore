@@ -171,12 +171,12 @@ Vue.component("sm-datagrid", {
                                                 <slot name="rowcommands" v-bind="{ row, activateEdit, deleteRows }"></slot> 
                                             </div>
 
-                                            <div v-show="editing.active && row == editing.row" class="dg-row-edit-commands btn-group-vertical">
-                                                <a href="#" @click.prevent.stop="saveChanges()" class="btn btn-primary btn-sm btn-flat rounded-0" :title="T.saveChanges">
-                                                    <i class="fa fa-check"></i>
+                                            <div v-show="editing.active && row == editing.row" class="dg-row-edit-commands bg-white rounded-pill border">
+                                                <a href="#" @click.prevent.stop="saveChanges()" class="btn btn-primary btn-sm btn-flat btn-icon rounded-circle btn-row-command" :title="T.saveChanges">
+                                                    <i class="fa fa-check" style="font-size: 11px"></i>
                                                 </a>
-                                                <a href="#" @click.prevent.stop="cancelEdit()" class="btn btn-secondary btn-sm btn-flat rounded-0" :title="T.cancel">
-                                                    <i class="fa fa-times"></i>
+                                                <a href="#" @click.prevent.stop="cancelEdit()" class="btn btn-secondary btn-sm btn-flat btn-icon rounded-circle btn-row-command" :title="T.cancel">
+                                                    <i class="fa fa-times" style="font-size: 11px"></i>
                                                 </a>
                                             </div>
                                         </div>
@@ -490,6 +490,10 @@ Vue.component("sm-datagrid", {
 
     updated() {
         this.initializeEditRow();
+    },
+
+    beforeDestroy() {
+        this.destroyRowEditPopper();
     },
 
     computed: {
@@ -1250,6 +1254,7 @@ Vue.component("sm-datagrid", {
                 return;
             }
 
+            this.destroyRowEditPopper();
             this.destroyRowValidator();
 
             if (this.editing.insertMode && this.rows.length && this.rows[0] === this.editing.row) {
@@ -1295,7 +1300,55 @@ Vue.component("sm-datagrid", {
                     elFocus = $(editing.tr).find('.dg-cell-edit :input:visible');
                 }
                 elFocus.first().trigger('focus');
+
+                this.createRowEditPopper();
             });
+        },
+
+        createRowEditPopper() {
+            const cell = this.editing.tr?.querySelector(".dg-col-pinned.omega");
+            const commands = cell?.querySelector(".dg-row-edit-commands");
+
+            if (!cell || !commands) {
+                return;
+            }
+
+            this._rowEditCommands = commands;
+            this._rowEditCommandsParent = commands.parentNode;
+            this.$refs.tableWrapper.appendChild(commands);
+
+            const centerOffset = -((cell.offsetHeight + commands.offsetHeight) / 2);
+
+            this._rowEditPopper = new Popper(cell, commands, {
+                placement: "top",
+                modifiers: {
+                    offset: {
+                        offset: `0, ${centerOffset}`
+                    },
+                    flip: {
+                        enabled: false
+                    },
+                    preventOverflow: {
+                        boundariesElement: this.$refs.tableWrapper,
+                        padding: 4
+                    },
+                    computeStyle: {
+                        gpuAcceleration: false
+                    }
+                }
+            });
+        },
+
+        destroyRowEditPopper() {
+            this._rowEditPopper?.destroy();
+            this._rowEditPopper = null;
+
+            if (this._rowEditCommands && this._rowEditCommandsParent) {
+                this._rowEditCommandsParent.appendChild(this._rowEditCommands);
+            }
+
+            this._rowEditCommands = null;
+            this._rowEditCommandsParent = null;
         },
 
         rememberColumnWidths() {
