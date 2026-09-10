@@ -351,7 +351,8 @@ public class GridTagHelper : SmartTagHelper
     private string GenerateVueData(GridCommand command)
     {
         var modelType = Columns.FirstOrDefault()?.For?.Metadata?.ContainerType;
-        var defaultDataRow = modelType != null && modelType.HasDefaultConstructor()
+        var canInsertRows = AllowEdit && DataSource?.Insert.HasValue() == true;
+        var defaultDataRow = canInsertRows && modelType != null && modelType.HasDefaultConstructor()
             ? Activator.CreateInstance(modelType)
             : null;
 
