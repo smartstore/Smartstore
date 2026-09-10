@@ -10,15 +10,47 @@ const DATAGRID_VALIDATION_SETTINGS = {
     }
 };
 
-// https://dev.to/loilo92/an-approach-to-vuejs-template-variables-5aik
-// TODO: (core) Move Vue.pass component to a central location.
-Vue.component("pass", {
-    render() {
-        return this.$scopedSlots.default(this.$attrs);
-    }
-});
+Smartstore.Admin.DataGridVue = {
+    components: Object.create(null),
+    nextComponentId: 0,
 
-Vue.component("sm-datagrid", {
+    mount(selector, data) {
+        const app = Vue.createApp({
+            data() {
+                return data;
+            }
+        });
+
+        Object.keys(this.components).forEach(name => app.component(name, this.components[name]));
+
+        const root = app.mount(selector);
+        const refs = new Proxy(root.$refs, {
+            get(target, name) {
+                const value = Reflect.get(target, name);
+                return Array.isArray(value) && value.length === 1 ? value[0] : value;
+            }
+        });
+
+        // Preserve the public Vue 2 grid handle used by existing modules and custom views.
+        return new Proxy(root, {
+            get(target, name) {
+                if (name === "$children") {
+                    return [target.$refs.grid];
+                }
+                if (name === "$refs") {
+                    return refs;
+                }
+                if (name === "grid") {
+                    return target.$refs.grid;
+                }
+
+                return Reflect.get(target, name);
+            }
+        });
+    }
+};
+
+Smartstore.Admin.DataGridVue.components["sm-datagrid"] = {
     template: `
         <div class="datagrid" 
             :style="{ maxHeight: options.maxHeight }" 
@@ -118,8 +150,8 @@ Vue.component("sm-datagrid", {
                                 </td>
                             </tr>                            
                             
-                            <template v-for="(row, rowIndex) in rows">
-                                <tr class="dg-tr" :class="getDataRowClass(row, rowIndex)" :data-key="row[options.keyMemberName]" :key="'row-' + row[options.keyMemberName]">
+                            <template v-for="(row, rowIndex) in rows" :key="'row-' + row[options.keyMemberName]">
+                                <tr class="dg-tr" :class="getDataRowClass(row, rowIndex)" :data-key="row[options.keyMemberName]">
 
                                     <td v-if="allowRowSelection || hasDetailView" class="dg-td dg-col-selector dg-col-pinned alpha">
                                         <div v-if="hasDetailView" class="dg-cell dg-cell-detail-toggle" :class="{ 'expanded': getRowDetailState(row) === true }" @click="toggleDetailView(row)">
@@ -232,7 +264,7 @@ Vue.component("sm-datagrid", {
         options: {
             type: Object,
             required: false,
-            default: {}
+            default() { return {}; }
         },
 
         dataSource: {
@@ -263,6 +295,16 @@ Vue.component("sm-datagrid", {
             default() { return { enabled: false, descriptors: [] } }
         }
     },
+
+    emits: [
+        "data-binding",
+        "data-bound",
+        "row-selected",
+        "deleting-rows",
+        "deleted-rows",
+        "saving-changes",
+        "saved-changes"
+    ],
 
     data() {
         return {
@@ -401,18 +443,6 @@ Vue.component("sm-datagrid", {
             this.userPrefs = userPrefs?.version === this.options.version ? userPrefs : null;
         }  
 
-        this.$on('data-binding', command => {
-            this._callHandler(this.options, 'onDataBinding', command);
-        });
-
-        this.$on('data-bound', (command, rows) => {
-            this.setMasterSelectorState(this.getMasterSelectorState());
-            this._callHandler(this.options, 'onDataBound', command, rows);
-        });
-
-        this.$on('row-selected', (selectedRows, row, selected) => {
-            this._callHandler(this.options, 'onRowSelected', selectedRows, row, selected);
-        });
     },
 
     mounted () {
@@ -477,9 +507,9 @@ Vue.component("sm-datagrid", {
         });
 
         this.hasEditableVisibleColumn = this.columns.some(this.isEditableVisibleColumn);
-        this.hasFooterTemplate = this.columns.some(c => this.$scopedSlots["colfooter-" + c.member.toLowerCase()]);
-        this.hasRowCommands = !!(this.$scopedSlots.rowcommands);
-        this.hasDetailView = !!(this.$scopedSlots.detailview);
+        this.hasFooterTemplate = this.columns.some(c => this.$slots["colfooter-" + c.member.toLowerCase()]);
+        this.hasRowCommands = !!(this.$slots.rowcommands);
+        this.hasDetailView = !!(this.$slots.detailview);
         
         //this.destroyRowValidator();
 
@@ -492,7 +522,7 @@ Vue.component("sm-datagrid", {
         this.initializeEditRow();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.destroyRowEditPopper();
     },
 
@@ -506,7 +536,7 @@ Vue.component("sm-datagrid", {
         },
 
         hasSearchPanel() {
-            return !!(this.$scopedSlots.search);
+            return !!(this.$slots.search);
         },
 
         canEditRow() {
@@ -848,6 +878,7 @@ Vue.component("sm-datagrid", {
 
             self.isBusy = true;
             self.$emit("data-binding", command);
+            self._callHandler(self.options, "onDataBinding", command);
 
             $.ajax({
                 url: this.dataSource.read,
@@ -869,6 +900,8 @@ Vue.component("sm-datagrid", {
                     else {
                         self.aggregates = result.aggregates !== undefined ? result.aggregates : {};
                         self.$emit("data-bound", command, self.rows);
+                        self.setMasterSelectorState(self.getMasterSelectorState());
+                        self._callHandler(self.options, "onDataBound", command, self.rows);
                         self.ready = true;
                         self.isBusy = false;
                     }
@@ -1098,12 +1131,14 @@ Vue.component("sm-datagrid", {
             const key = row[this.options.keyMemberName];
             const selectedRow = this.selectedRows[key];
             if (selectedRow && !select) {
-                this.$delete(this.selectedRows, key);
+                delete this.selectedRows[key];
                 this.$emit('row-selected', this.selectedRows, row, false);
+                this._callHandler(this.options, "onRowSelected", this.selectedRows, row, false);
             }
             else if (!selectedRow) {
-                this.$set(this.selectedRows, key, row);
+                this.selectedRows[key] = row;
                 this.$emit('row-selected', this.selectedRows, row, true);
+                this._callHandler(this.options, "onRowSelected", this.selectedRows, row, true);
             }
         },
 
@@ -1590,7 +1625,7 @@ Vue.component("sm-datagrid", {
         toggleDetailView(row) {
             const key = row[this.options.keyMemberName];
             const entry = this.detailRows[key];
-            Vue.set(this.detailRows, key, entry === undefined ? true : !entry);
+            this.detailRows[key] = entry === undefined ? true : !entry;
         },
 
         getRowDetailState(row) {
@@ -1599,4 +1634,4 @@ Vue.component("sm-datagrid", {
 
         // #endregion
     }
-});
+};

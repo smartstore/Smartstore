@@ -1,4 +1,4 @@
-﻿Vue.component("sm-datagrid-tools", {
+﻿Smartstore.Admin.DataGridVue.components["sm-datagrid-tools"] = {
     template: `
         <div class="dg-tools dropdown text-align-center border-left pl-1 ml-1">
             <a href="#" class="dg-tools-toggle btn btn-light btn-flat btn-icon btn-sm dropdown-toggle no-chevron" data-toggle="dropdown" data-boundary="window">
@@ -54,7 +54,7 @@
                 </div>
                 <div class="dropdown-divider"></div>
                 <div class="dg-tools-group dg-tools-columns px-3 pb-1">
-                    <div v-for="(column, columnIndex) in columns" class="dg-column-toggle form-check my-1">
+                    <div v-for="(column, columnIndex) in columns" :key="column.member || columnIndex" class="dg-column-toggle form-check my-1">
                         <input class="form-check-input" type="checkbox" v-model="column.visible" :id="columnToggleIdPrefix + columnIndex" :disabled="column.hideable ? null : true">
                         <label class="form-check-label d-block text-truncate" :for="columnToggleIdPrefix + columnIndex">{{ column.name }}</label>
                     </div>
@@ -71,11 +71,11 @@
 
     data() {
         return {
-            columnToggleIdPrefix: 'dg-column-toggle-' + this._uid + '-'
+            columnToggleIdPrefix: 'dg-column-toggle-' + (++Smartstore.Admin.DataGridVue.nextComponentId) + '-'
         };
     },
 
     created() {
         this.T = window.Res.DataGrid;
     }
-});
+};

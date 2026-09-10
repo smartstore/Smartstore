@@ -1,4 +1,4 @@
-﻿Vue.component("sm-datagrid-pager", {
+﻿Smartstore.Admin.DataGridVue.components["sm-datagrid-pager"] = {
     template: `
         <div class="dg-pager btn-toolbar hstack">
             <div class="dg-page-refresh-wrapper">
@@ -11,7 +11,7 @@
                 <a href="#" class="dg-page dg-page-arrow btn btn-light btn-sm" @click.prevent="pageTo(1)" :class="{ disabled: !hasPrevPage }"><i class="fa fa-angle-double-left"></i></a>
                 <a href="#" class="dg-page dg-page-arrow btn btn-light btn-sm" @click.prevent="pageTo(currentPageIndex - 1)" :class="{ disabled: !hasPrevPage }"><i class="fa fa-angle-left"></i></a>
             
-                <a v-for="item in pageItems" href="#" @click.prevent="pageTo(item.page)" class="dg-page dg-page-number btn btn-light py-1 btn-sm d-none d-lg-inline" :class="{ active: item.active }">
+                <a v-for="item in pageItems" :key="item.page" href="#" @click.prevent="pageTo(item.page)" class="dg-page dg-page-number btn btn-light py-1 btn-sm d-none d-lg-inline" :class="{ active: item.active }">
                     {{ item.label || item.page }}
                 </a>
             
@@ -29,7 +29,7 @@
                         <a href="#" v-html="T.xPerPage.format(command.pageSize)" class="dg-page dg-page-size-chooser btn btn-light btn-sm dropdown-toggle text-truncate px-2" data-toggle="dropdown">
                         </a>
                         <div class="dropdown-menu" style="min-width: 6rem">
-                            <a v-for="size in paging.availableSizes" href="#" class="dropdown-item" @click.prevent="setPageSize(size)">{{ size }}</a>
+                            <a v-for="size in paging.availableSizes" :key="size" href="#" class="dropdown-item" @click.prevent="setPageSize(size)">{{ size }}</a>
                         </div>
                     </div>
                 </div>
@@ -142,4 +142,4 @@
             }
         }
     }
-});
+};
