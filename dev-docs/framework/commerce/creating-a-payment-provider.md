@@ -4,7 +4,7 @@
 
 A payment provider represents a payment method with which an order can be paid in the frontend. Furthermore, it contains other optional methods, e.g. capturing the payment amount later, when the goods are shipped or to perform a refund. It is recommended to learn about the general functioning of a [provider](../platform/modularity-and-providers.md#providers) before going on.
 
-If no SDK is provided for a payment gateway or you do not want to use it for whatever reason, it is recommended to write your own HTTP client to communicate with the gateway. See the [PayPal HTTP client](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Modules/Smartstore.PayPal/Client/PayPalHttpClient.cs) as an example.
+If no SDK is provided for a payment gateway or you do not want to use it for whatever reason, it is recommended to write your own HTTP client to communicate with the gateway. See the [PayPal HTTP client](../../../src/Smartstore.Modules/Smartstore.PayPal/Client/PayPalHttpClient.cs) as an example.
 
 ## Payment provider
 
@@ -67,7 +67,7 @@ For details about `SystemName` etc. see [providers](../platform/modularity-and-p
 
 ## Payment method filter
 
-Payment methods can be filtered using [IPaymentMethodFilter](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Checkout/Payment/Service/IPaymentMethodFilter.cs). Such an implementation can be useful when a payment method should only be offered if a certain shopping cart amount is exceeded.
+Payment methods can be filtered using [IPaymentMethodFilter](../../../src/Smartstore.Core/Checkout/Payment/Service/IPaymentMethodFilter.cs). Such an implementation can be useful when a payment method should only be offered if a certain shopping cart amount is exceeded.
 
 {% code title="Example of a payment filter" %}
 ```csharp
@@ -146,7 +146,7 @@ public partial class MyCustomPaymentFilter : IPaymentMethodFilter
 
 ## Custom checkout state
 
-In most cases, session-based data must be stored during checkout in order to communicate with the payment provider's API. This includes the ID of the payment transaction or session. Use the `CheckoutState` property of [ICheckoutStateAccessor](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Checkout/Orders/Services/ICheckoutStateAccessor.cs) to store any custom session data during checkout. Your state object must inherit from `ObservableObject`.
+In most cases, session-based data must be stored during checkout in order to communicate with the payment provider's API. This includes the ID of the payment transaction or session. Use the `CheckoutState` property of [ICheckoutStateAccessor](../../../src/Smartstore.Core/Checkout/Orders/Services/ICheckoutStateAccessor.cs) to store any custom session data during checkout. Your state object must inherit from `ObservableObject`.
 
 {% code title="Custom checkout state object example" %}
 ```csharp

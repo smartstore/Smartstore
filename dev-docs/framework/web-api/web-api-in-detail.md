@@ -46,7 +46,7 @@ The API can fulfill the following properties:
 
 ## Web API and modules
 
-If a module extends the domain model with its own entities, these can also be integrated into the Web API using [ODataModelProviderBase](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Web.Common/Api/ODataModelProviderBase.cs) or [IODataModelProvider](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Web.Common/Api/IODataModelProvider.cs). This allows the module developer to make their entities externally accessible without having to create their own Web API.
+If a module extends the domain model with its own entities, these can also be integrated into the Web API using [ODataModelProviderBase](../../../src/Smartstore.Web.Common/Api/ODataModelProviderBase.cs) or [IODataModelProvider](../../../src/Smartstore.Web.Common/Api/IODataModelProvider.cs). This allows the module developer to make their entities externally accessible without having to create their own Web API.
 
 The _Smartstore.Blog_ module registers two entities `BlogComment` and `BlogPost` through the `ODataModelBuilder` using the following `BlogODataModelProvider`.
 
@@ -68,7 +68,7 @@ internal class BlogODataModelProvider : ODataModelProviderBase
 Use plural for the name of the entity set. For example, _BlogComments_, not _BlogComment_.
 {% endhint %}
 
-Next, you need to add an API controller for each entity. It is recommended that you create a subfolder called _Api_ in the controller folder of the module. Inherit your controller from [WebApiController](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Web.Common/Api/WebApiController.cs), as shown in the example.
+Next, you need to add an API controller for each entity. It is recommended that you create a subfolder called _Api_ in the controller folder of the module. Inherit your controller from [WebApiController](../../../src/Smartstore.Web.Common/Api/WebApiController.cs), as shown in the example.
 
 ```csharp
 /// <summary>
@@ -136,6 +136,6 @@ public class BlogCommentsController : WebApiController<BlogComment>
 Use the`Smartstore.Web.Api.Controllers` namespace for all Web API controllers!
 {% endhint %}
 
-The `BlogCommentsController` defines OData Web API endpoints to get, create, update, patch (partially update), and delete blog comments. It also defines an endpoint to get the associated blog post through the `BlogPost` navigation property. See the Web API module [controllers](../../../src/Smartstore.Modules/Smartstore.WebApi/Controllers) for more endpoint definitions.
+The `BlogCommentsController` defines OData Web API endpoints to get, create, update, patch (partially update), and delete blog comments. It also defines an endpoint to get the associated blog post through the `BlogPost` navigation property. See the Web API module [controllers](https://github.com/smartstore/Smartstore/tree/main/src/Smartstore.Modules/Smartstore.WebApi/Controllers) for more endpoint definitions.
 
 Override `ODataModelProviderBase.GetXmlCommentsStream` to automatically include your code comments in the Swagger documentation of the Web API. To do this, the **Documentation File** option must also be enabled in the module project settings. The path to the **XML documentation file** should be left empty. This will export your code comments to an XML file with the same name as the module at compile time (_Smartstore.Blog.xml_ in the example above), which will then be used by the Web API.

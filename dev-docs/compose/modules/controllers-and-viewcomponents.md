@@ -48,7 +48,7 @@ Provides the `ICommonServices` service collection using the `Services` shortcut.
 var customer = Services.WorkContext.CurrentCustomer;
 ```
 
-For more information, see [ICommonServices](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Common/ICommonServices.cs).
+For more information, see [ICommonServices](../../../src/Smartstore.Core/Platform/Common/ICommonServices.cs).
 
 </details>
 
@@ -263,7 +263,7 @@ Provides the `ICommonServices` service collection using the `Services` shortcut.
 var customer = Services.WorkContext.CurrentCustomer;
 ```
 
-For more information, see [ICommonServices](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Common/ICommonServices.cs).
+For more information, see [ICommonServices](../../../src/Smartstore.Core/Platform/Common/ICommonServices.cs).
 
 </details>
 

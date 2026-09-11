@@ -5,7 +5,7 @@ icon: code-branch
 
 # Changelog
 
-Smartstore maintains human‑readable release notes to track new features, improvements, and bug fixes. The full history lives in the repository root as [`changelog.md`](https://github.com/smartstore/Smartstore/blob/main/changelog.md) and follows a simple structure:
+Smartstore maintains human‑readable release notes to track new features, improvements, and bug fixes. The full history lives in the repository root as [`changelog.md`](../../changelog.md) and follows a simple structure:
 
 ```markdown
 ## Smartstore 6.2.1

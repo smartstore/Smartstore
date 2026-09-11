@@ -10,8 +10,8 @@ The application publishes event messages on various occasions, such as when a cu
 
 However, there are two interfaces that are important for consuming and publishing events (which we will discuss in more detail later in this topic):
 
-* The [IEventPublisher](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Events/IEventPublisher.cs) interface is responsible for dispatching event messages to subscribers.
-* The [IConsumer](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Events/IConsumer.cs) interface makes a class a _consumer_ (aka handler or subscriber) for one or more events.
+* The [IEventPublisher](../../../src/Smartstore/Events/IEventPublisher.cs) interface is responsible for dispatching event messages to subscribers.
+* The [IConsumer](../../../src/Smartstore/Events/IConsumer.cs) interface makes a class a _consumer_ (aka handler or subscriber) for one or more events.
 
 ## Consuming Events
 
@@ -24,13 +24,13 @@ Event handler methods are used to perform pre- or post-processing tasks for an e
   * For async handlers: `HandleAsync`, `HandleEventAsync`, or `ConsumeAsync`
   * For sync handlers: `Handle`, `HandleEvent`, or `Consume`
 
-The first parameter of the method must **always** be the event message or an instance of [IConsumeContext\<TMessage>](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Events/ConsumeContext.cs).
+The first parameter of the method must **always** be the event message or an instance of [IConsumeContext\<TMessage>](../../../src/Smartstore/Events/ConsumeContext.cs).
 
-The [IConsumerInvoker](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Events/IConsumerInvoker.cs) interface decides how to call the method based on its signature:
+The [IConsumerInvoker](../../../src/Smartstore/Events/IConsumerInvoker.cs) interface decides how to call the method based on its signature:
 
 * `void` methods are invoked synchronously — compatible with both `Publish` and `PublishAsync`.
 * `Task` methods are invoked asynchronously and awaited — **only** compatible with `PublishAsync`. Calling `Publish` when such a handler is registered for the message type throws an `InvalidOperationException`.
-* With the [FireForgetAttribute](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Events/FireForgetAttribute.cs), the method is executed in the background without awaiting. This can be advantageous in long-running processes, because the current request thread is not _blocked_. Fire-and-forget handlers are compatible with both `Publish` and `PublishAsync`.
+* With the [FireForgetAttribute](../../../src/Smartstore/Events/FireForgetAttribute.cs), the method is executed in the background without awaiting. This can be advantageous in long-running processes, because the current request thread is not _blocked_. Fire-and-forget handlers are compatible with both `Publish` and `PublishAsync`.
 
 {% hint style="warning" %}
 Use `FireForgetAttribute` with caution and only if you know what you are doing 😊. A class that includes a _Fire & forget_ consumer should **not** take dependencies on request scoped services, because task continuation happens on another thread, and context gets lost. Instead, pass the required dependencies as method parameters. The consumer invoker spawns a new private context for the unit of work and resolves dependencies from this context.
@@ -56,7 +56,7 @@ All types that implement the `IConsumer` interface are automatically detected on
 **TIP:** If there are multiple handler methods present in the consumer class, you can pass shared dependencies in the class constructor. Otherwise, use method parameters.
 {% endhint %}
 
-For example, the [ValidatingCartEventConsumer](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Checkout/Cart/Consumers/ValidatingCartEventConsumer.cs) class contains a `HandleEventAsync` implementation. The method receives a `ValidatingCartEvent` message that contains the shopping cart context as well as any warnings. The method validates the cart context and adds warnings to the message whenever the cart total is below the minimum or above the maximum allowed amount.
+For example, the [ValidatingCartEventConsumer](../../../src/Smartstore.Core/Checkout/Cart/Consumers/ValidatingCartEventConsumer.cs) class contains a `HandleEventAsync` implementation. The method receives a `ValidatingCartEvent` message that contains the shopping cart context as well as any warnings. The method validates the cart context and adds warnings to the message whenever the cart total is below the minimum or above the maximum allowed amount.
 
 ```csharp
 internal class ValidatingCartEventConsumer : IConsumer
@@ -120,7 +120,7 @@ public void Handle(OrderEventBase message)
 
 When several handlers match (e.g. one for `OrderPlacedEvent` and one for `OrderEventBase`), they are all invoked — starting with the most specific type first.
 
-To receive request context alongside the message, declare the parameter as [IConsumeContext\<TMessage>](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Events/ConsumeContext.cs). Base types work here too:
+To receive request context alongside the message, declare the parameter as [IConsumeContext\<TMessage>](../../../src/Smartstore/Events/ConsumeContext.cs). Base types work here too:
 
 ```csharp
 // Receives request context for OrderPlacedEvent, OrderShippedEvent, etc.
@@ -136,13 +136,13 @@ public void Handle(IConsumeContext<OrderEventBase> context)
 
 ## Publishing events
 
-To publish an event, create an event message of any type and populate it with the necessary data. Use the [IEventPublisher](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Events/IEventPublisher.cs) service, which provides the `PublishAsync` method for publishing an event and dispatching the message to all subscribers.
+To publish an event, create an event message of any type and populate it with the necessary data. Use the [IEventPublisher](../../../src/Smartstore/Events/IEventPublisher.cs) service, which provides the `PublishAsync` method for publishing an event and dispatching the message to all subscribers.
 
 {% hint style="warning" %}
 Don't call the synchronous `Publish` method unless you absolutely cannot avoid it. It throws an `InvalidOperationException` if any registered subscriber for that message type has a real asynchronous handler (i.e. a `Task`-returning, non-fire-and-forget method). Only use `Publish` when you are certain that all handlers for the given message are synchronous.
 {% endhint %}
 
-In the following example, the `ValidatingCartEvent` is published in the `Index` method of the [CheckoutController](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Web/Controllers/CheckoutController.cs). The event carries the current cart state and a list of any warnings that may have occurred. The same event is also handled in the previously mentioned example.
+In the following example, the `ValidatingCartEvent` is published in the `Index` method of the [CheckoutController](../../../src/Smartstore.Web/Controllers/CheckoutController.cs). The event carries the current cart state and a list of any warnings that may have occurred. The same event is also handled in the previously mentioned example.
 
 <pre class="language-csharp"><code class="lang-csharp">// ...
 var storeId = _storeContext.CurrentStore.Id;
@@ -181,7 +181,7 @@ It activates when, for example, the Redis plugin is installed, because the plugi
 
 Messages sent through a message bus must be simple `string` values and do not support complex data types. It is guaranteed that the server that published a message will not consume it, meaning that the message will only be passed along to other nodes for processing.
 
-The following example shows the [MemoryCacheStore](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Caching/MemoryCacheStore.cs) class. The constructor subscribes to a channel in the message bus called _cache_.
+The following example shows the [MemoryCacheStore](../../../src/Smartstore/Caching/MemoryCacheStore.cs) class. The constructor subscribes to a channel in the message bus called _cache_.
 
 <pre class="language-csharp"><code class="lang-csharp">public MemoryCacheStore(IOptions&#x3C;MemoryCacheOptions> optionsAccessor, 
     IMessageBus bus, 
