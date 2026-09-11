@@ -112,6 +112,10 @@
 
 ## Appendix
 
+* [Developer Tools](appendix/developer-tools/README.md)
+  * [Smartstore Icon Generator](appendix/developer-tools/icon-generator.md)
+  * [Smartstore Packager](appendix/developer-tools/packager.md)
+  * [Smartstore Web API Clients](appendix/developer-tools/web-api-clients.md)
 * [Tips & Tricks](appendix/tips-and-tricks/README.md)
   * [Tenants](appendix/tips-and-tricks/tenants.md)
 * [Glossary](appendix/glossary.md)
