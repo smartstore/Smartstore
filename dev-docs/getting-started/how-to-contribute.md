@@ -63,4 +63,4 @@ A branch named `6.1.x.x` therefore contains all changes compatible with Smartsto
 
 ## Code of conduct
 
-See [Code of Conduct](../../CODE_OF_CONDUCT.md)
+See [Code of Conduct](https://github.com/smartstore/Smartstore/blob/main/CODE_OF_CONDUCT.md)

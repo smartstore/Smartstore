@@ -84,6 +84,10 @@
   * [Native libraries](framework/advanced/native-libraries.md)
   * [Cookie Consent](framework/advanced/cookie-consent.md)
   * [Troubleshooting](framework/advanced/troubleshooting.md)
+* [Developer Tools](framework/developer-tools/README.md)
+  * [Web API Clients](framework/developer-tools/web-api-clients.md)
+  * [Extension Packager](framework/developer-tools/packager.md)
+  * [Icon Generator](framework/developer-tools/icon-generator.md)
 
 ## Compose
 
@@ -112,10 +116,6 @@
 
 ## Appendix
 
-* [Developer Tools](appendix/developer-tools/README.md)
-  * [Smartstore Icon Generator](appendix/developer-tools/icon-generator.md)
-  * [Smartstore Packager](appendix/developer-tools/packager.md)
-  * [Smartstore Web API Clients](appendix/developer-tools/web-api-clients.md)
 * [Tips & Tricks](appendix/tips-and-tricks/README.md)
   * [Tenants](appendix/tips-and-tricks/tenants.md)
 * [Glossary](appendix/glossary.md)

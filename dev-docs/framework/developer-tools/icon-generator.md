@@ -1,8 +1,8 @@
-# Smartstore Icon Generator
+# Icon Generator
 
 The Smartstore Icon Generator is a browser-based developer tool for creating and updating Smartstore's reduced Bootstrap Icons sprite. It compares different versions of the icon collection and lets you select which icons should be included in the application.
 
-The [source code is available on GitHub](https://github.com/smartstore/Smartstore/tree/main/tools/Smartstore.IconGenerator).
+The [source code is available on GitHub](../../../tools/Smartstore.IconGenerator).
 
 {% hint style="info" %}
 The tool runs locally in your browser. Selected files are not uploaded.
@@ -14,18 +14,18 @@ Open [`tools/Smartstore.IconGenerator/index.html`](../../../tools/Smartstore.Ico
 
 Smartstore keeps two SVG sprites under `src/Smartstore.Web/wwwroot/lib/bi/`:
 
-| File | Purpose |
-| --- | --- |
+| File                      | Purpose                                                                           |
+| ------------------------- | --------------------------------------------------------------------------------- |
 | `bootstrap-icons-all.svg` | Complete locally distributed Bootstrap Icons collection; excluded from publishing |
-| `bootstrap-icons.svg` | Reduced sprite used by the application |
+| `bootstrap-icons.svg`     | Reduced subset used by the application                                            |
 
 The generator compares three files:
 
-| Input | Meaning in the Smartstore workflow |
-| --- | --- |
+| Input      | Meaning in the Smartstore workflow                                    |
+| ---------- | --------------------------------------------------------------------- |
 | **Remote** | The latest complete Bootstrap Icons SVG sprite obtained from upstream |
-| **Local** | Smartstore's current `bootstrap-icons-all.svg` |
-| **Subset** | Smartstore's current `bootstrap-icons.svg` |
+| **Local**  | Smartstore's current `bootstrap-icons-all.svg`                        |
+| **Subset** | Smartstore's current `bootstrap-icons.svg`                            |
 
 "Remote" refers to the newest external version of the icon collection. It is still selected through a regular local file picker; the generator does not download it.
 
@@ -53,13 +53,13 @@ After rebuilding Smartstore, the updated icons are available to the application.
 
 An icon's appearance indicates where it was found:
 
-| Indicator | Meaning |
-| --- | --- |
-| Blue selection outline | Included in the loaded Subset file or selected manually |
-| **NEW** | Present only in Remote |
-| **LOCAL** | Present only in Local |
-| **SUBSET** | Present in Remote and Subset, but missing from Local |
-| No badge | Shared by multiple collections without a special difference |
+| Indicator              | Meaning                                                     |
+| ---------------------- | ----------------------------------------------------------- |
+| Blue selection outline | Included in the loaded Subset file or selected manually     |
+| **NEW**                | Present only in Remote                                      |
+| **LOCAL**              | Present only in Local                                       |
+| **SUBSET**             | Present in Remote and Subset, but missing from Local        |
+| No badge               | Shared by multiple collections without a special difference |
 
 The counts beside the three file inputs show how many symbols were read from each file.
 

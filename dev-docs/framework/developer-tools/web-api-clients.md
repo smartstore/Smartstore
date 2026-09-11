@@ -1,11 +1,11 @@
-# Smartstore Web API Clients
+# Web API Clients
 
-Smartstore provides two reference clients for testing and exploring the [Web API](../../framework/web-api/README.md):
+Smartstore provides two reference clients for testing and exploring the [Web API](../web-api/):
 
 * `Smartstore.WebApi.Client`: a Windows desktop application for composing and executing individual requests.
 * `Smartstore.WebApi.Client.JavaScript`: a small browser-based example that demonstrates API consumption with JavaScript and jQuery.
 
-The source code is available on GitHub for the [.NET client](https://github.com/smartstore/Smartstore/tree/main/tools/Smartstore.WebApi.Client) and the [JavaScript client](https://github.com/smartstore/Smartstore/tree/main/tools/Smartstore.WebApi.Client.JavaScript).
+The source code is available on GitHub for the [.NET client](../../../tools/Smartstore.WebApi.Client) and the [JavaScript client](../../../tools/Smartstore.WebApi.Client.JavaScript).
 
 Both clients use HTTP Basic Authentication and communicate with the versioned OData service.
 
@@ -23,11 +23,11 @@ Before using either client:
 4. Ensure the customer has the roles and permissions required by the requested resources.
 5. Use HTTPS when connecting to anything other than a local development environment.
 
-See the [Web API prerequisites](../../framework/web-api/prerequisites.md) and the [Web API module documentation](../../../src/Smartstore.Modules/Smartstore.WebApi/Readme.md) for module setup. The [authentication reference](../../framework/web-api/authentication.md) explains the credentials and API denial reasons in detail.
+See the [Web API prerequisites](../web-api/prerequisites.md) and the [Web API module documentation](../../../src/Smartstore.Modules/Smartstore.WebApi/) for module setup. The [authentication reference](../web-api/authentication.md) explains the credentials and API denial reasons in detail.
 
 The clients send the credentials in this form:
 
-```text
+```
 Authorization: Basic <base64(publicKey:secretKey)>
 ```
 
@@ -35,13 +35,13 @@ Basic Authentication encodes the credentials but does not encrypt them. HTTPS is
 
 The default OData service URL follows this pattern:
 
-```text
+```
 https://<store-host>/odata/v1/<resource>
 ```
 
 For example:
 
-```text
+```
 https://shop.example.com/odata/v1/Customers
 ```
 
@@ -53,28 +53,28 @@ The application provides separate fields for the service URL, credentials, reque
 
 ### Configure the connection
 
-| Field | Description |
-| --- | --- |
-| **Public-Key** | Public API key assigned to the customer. |
-| **Secret-Key** | Secret API key assigned to the customer. |
-| **Store URL** | Base URL of the store, such as `https://shop.example.com/`. |
+| Field          | Description                                                              |
+| -------------- | ------------------------------------------------------------------------ |
+| **Public-Key** | Public API key assigned to the customer.                                 |
+| **Secret-Key** | Secret API key assigned to the customer.                                 |
+| **Store URL**  | Base URL of the store, such as `https://shop.example.com/`.              |
 | **Proxy Port** | Optional external port when the API is accessed through a reverse proxy. |
-| **Version** | API version without the `odata/` prefix, normally `v1`. |
+| **Version**    | API version without the `odata/` prefix, normally `v1`.                  |
 
 The client constructs the request URL from the following values:
 
-```text
+```
 <Store URL>/odata/<Version><Path>?<Query>
 ```
 
 For example:
 
-| Field | Value |
-| --- | --- |
+| Field     | Value                       |
+| --------- | --------------------------- |
 | Store URL | `https://shop.example.com/` |
-| Version | `v1` |
-| Path | `/Customers` |
-| Query | `$top=3&$select=Id,Email` |
+| Version   | `v1`                        |
+| Path      | `/Customers`                |
+| Query     | `$top=3&$select=Id,Email`   |
 
 Result:
 
@@ -102,11 +102,11 @@ The available inputs change according to the method:
 
 Enter OData query options in **Query** without the leading question mark:
 
-```text
+```
 $filter=Email ne null&$select=Id,Email&$top=10
 ```
 
-For more information about headers, paging, query options, and request bodies, see [Web API in detail](../../framework/web-api/web-api-in-detail.md).
+For more information about headers, paging, query options, and request bodies, see [Web API in detail](../web-api/web-api-in-detail.md).
 
 Enter request bodies as JSON:
 
@@ -154,12 +154,12 @@ The request display contains the Basic Authentication header. Treat copied outpu
 
 To retrieve three customers:
 
-| Field | Value |
-| --- | --- |
-| Method | `GET` |
-| Path | `/Customers` |
-| Query | `$top=3` |
-| JSON Body | Empty |
+| Field     | Value        |
+| --------- | ------------ |
+| Method    | `GET`        |
+| Path      | `/Customers` |
+| Query     | `$top=3`     |
+| JSON Body | Empty        |
 
 The resulting request is:
 
@@ -171,11 +171,11 @@ GET https://shop.example.com/odata/v1/Customers?$top=3
 
 To update the email address of customer `42`:
 
-| Field | Value |
-| --- | --- |
-| Method | `PATCH` |
-| Path | `/Customers(42)` |
-| Headers | `{"Prefer":"return=representation"}` |
+| Field     | Value                                 |
+| --------- | ------------------------------------- |
+| Method    | `PATCH`                               |
+| Path      | `/Customers(42)`                      |
+| Headers   | `{"Prefer":"return=representation"}`  |
 | JSON Body | `{"Email":"new-address@example.com"}` |
 
 The resulting request is:
@@ -190,7 +190,7 @@ Prefer: return=representation
 }
 ```
 
-Additional request patterns are available in the [Web API examples](../../framework/web-api/examples/README.md).
+Additional request patterns are available in the [Web API examples](../web-api/examples/).
 
 ### Upload files
 
@@ -215,13 +215,13 @@ Select **Open file** to add one or more files. The client represents the upload 
 
 Each file supports:
 
-| Property | Description |
-| --- | --- |
-| `Id` | Existing media-file identifier when updating a file. Use `0` for a new file. |
-| `LocalPath` | Absolute path of the local file to upload. |
-| `Path` | Optional target path in the Smartstore media system. |
-| `IsTransient` | Whether Smartstore should initially mark the uploaded file as transient. |
-| `DuplicateFileHandling` | `0` throws an error, `1` overwrites, and `2` creates a unique name. |
+| Property                | Description                                                                  |
+| ----------------------- | ---------------------------------------------------------------------------- |
+| `Id`                    | Existing media-file identifier when updating a file. Use `0` for a new file. |
+| `LocalPath`             | Absolute path of the local file to upload.                                   |
+| `Path`                  | Optional target path in the Smartstore media system.                         |
+| `IsTransient`           | Whether Smartstore should initially mark the uploaded file as transient.     |
+| `DuplicateFileHandling` | `0` throws an error, `1` overwrites, and `2` creates a unique name.          |
 
 `CustomProperties` adds ordinary form-data fields required by a particular endpoint:
 
@@ -266,12 +266,12 @@ Because the credentials are stored in the current user's application settings, u
 
 `Smartstore.WebApi.Client.JavaScript` is a static example consisting of:
 
-| File | Purpose |
-| --- | --- |
-| `index.html` | Example page and connection configuration. |
+| File                 | Purpose                                      |
+| -------------------- | -------------------------------------------- |
+| `index.html`         | Example page and connection configuration.   |
 | `smwapi-consumer.js` | Reusable request wrapper around jQuery AJAX. |
-| `smwapi-client.js` | Demo requests and user-interface handling. |
-| `styles.css` | Minimal example styling. |
+| `smwapi-client.js`   | Demo requests and user-interface handling.   |
+| `styles.css`         | Minimal example styling.                     |
 
 The example loads jQuery from a public CDN, so an internet connection is required unless the dependency is replaced with a local copy.
 
@@ -299,7 +299,7 @@ The credentials are stored in plain text and are visible to anyone who can inspe
 
 The page contains a service path and resource path:
 
-```text
+```
 Service:  /odata/v1
 Resource: /Customers?$top=3
 ```
@@ -364,7 +364,7 @@ smApiConsumer.startRequest({
 
 The consumer serializes object content to JSON and sends:
 
-```text
+```
 Content-Type: application/json
 Accept: application/json
 Authorization: Basic <credentials>
@@ -372,11 +372,11 @@ Authorization: Basic <credentials>
 
 Supported callbacks are:
 
-| Callback | Arguments | Purpose |
-| --- | --- | --- |
-| `beforeSend` | `jqXHR`, AJAX settings | Inspect or modify the request before it is sent. |
-| `done` | Response data, text status, `jqXHR` | Handle a successful response. |
-| `fail` | `jqXHR`, text status, error | Handle a failed response. |
+| Callback     | Arguments                           | Purpose                                          |
+| ------------ | ----------------------------------- | ------------------------------------------------ |
+| `beforeSend` | `jqXHR`, AJAX settings              | Inspect or modify the request before it is sent. |
+| `done`       | Response data, text status, `jqXHR` | Handle a successful response.                    |
+| `fail`       | `jqXHR`, text status, error         | Handle a failed response.                        |
 
 ## Resolve common errors
 
@@ -387,7 +387,7 @@ Inspect these response headers:
 * `Smartstore-Api-AuthResultId`
 * `Smartstore-Api-AuthResultDesc`
 
-They distinguish invalid credentials from a disabled API, unknown customer, or disabled API user. See [Authentication](../../framework/web-api/authentication.md) for all denial reasons.
+They distinguish invalid credentials from a disabled API, unknown customer, or disabled API user. See [Authentication](../web-api/authentication.md) for all denial reasons.
 
 ### 421 Misdirected Request
 
@@ -406,7 +406,7 @@ Check that:
 * The requested entity or operation exists.
 * The installed Web API version exposes the endpoint.
 
-Use `/odata/v1/$metadata` or `/docs/api` to inspect the endpoints supported by the target store. See [Help & Tools](../../framework/web-api/help-and-tools.md) for details.
+Use `/odata/v1/$metadata` or `/docs/api` to inspect the endpoints supported by the target store. See [Help & Tools](../web-api/help-and-tools.md) for details.
 
 ### Browser request blocked
 

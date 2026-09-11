@@ -4,7 +4,7 @@ Razor views are compiled at runtime by default. The first request after deployme
 
 ## Default configuration
 
-Smartstore ships with [`Smartstore.Razor.props`](../../src/Smartstore.Build/Smartstore.Razor.props) which enables build- and publish-time compilation for all projects referencing it. The props file turns on the modern Razor SDK switches and disables the build server:
+Smartstore ships with [`Smartstore.Razor.props`](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Build/Smartstore.Razor.props) which enables build- and publish-time compilation for all projects referencing it. The props file turns on the modern Razor SDK switches and disables the build server:
 
 ```xml
 <PropertyGroup>

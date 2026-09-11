@@ -6,7 +6,7 @@ Migrations are a structured way to alter a database schema and are required when
 
 Smartstore uses [Fluent Migrator](https://fluentmigrator.github.io/) as a database migrations framework. Fluent Migrator supports many database systems such as SQL Server, MySQL or PostgreSQL, where migrations are described in C# classes that can be checked into the Fluent Migrator version control system.
 
-Fluent Migrator can also write data to the database or update existing data, but this is more convenient using [IDataSeeder](../../../src/Smartstore/Data/Migrations/IDataSeeder.cs) or its abstract implementation [DataSeeder](../../../src/Smartstore.Core/Data/Migrations/DataSeeder%60T.cs).
+Fluent Migrator can also write data to the database or update existing data, but this is more convenient using [IDataSeeder](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore/Data/Migrations/IDataSeeder.cs) or its abstract implementation [DataSeeder](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Data/Migrations/DataSeeder%60T.cs).
 
 {% hint style="info" %}
 Smartstore prefers Fluent Migrator over EF Core Migrations, because EF Migrations does not support database provider agnostic tooling and schema definition.
@@ -14,7 +14,7 @@ Smartstore prefers Fluent Migrator over EF Core Migrations, because EF Migration
 
 ## Database Migrator
 
-[DbMigrator](../../../src/Smartstore.Core/Data/Migrations/DbMigrator%60T.cs) is responsible for performing migrations. `MigrateAsync` is used to migrate the database to a specified version, or to the latest, if none is specified.
+[DbMigrator](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Data/Migrations/DbMigrator%60T.cs) is responsible for performing migrations. `MigrateAsync` is used to migrate the database to a specified version, or to the latest, if none is specified.
 
 {% hint style="warning" %}
 `MigrateAsync` has an assembly parameter to perform only those migrations of a specific module. This should always be set. If it is `null`, the migrations of _all_ modules are executed!
@@ -44,13 +44,13 @@ internal class Module : ModuleBase
 
 A migration is an internal class inherited from the Fluent Migrator's abstract `Migration` class. The migration files should be named using the pattern `YYYYMMDDHHMMSS_<migration name>.cs`, so that they are ordered by date in ascending order.
 
-The migration class must be decorated with the [MigrationVersionAttribute](../../../src/Smartstore.Core/Data/Migrations/MigrationVersionAttribute.cs) to specify a version and a short description. The version is determined by a timestamp, that typically represents the date when the migration was created. The timestamp can have one of the following formats:
+The migration class must be decorated with the [MigrationVersionAttribute](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Data/Migrations/MigrationVersionAttribute.cs) to specify a version and a short description. The version is determined by a timestamp, that typically represents the date when the migration was created. The timestamp can have one of the following formats:
 
 * yyyy-MM-dd HH:mm:ss (recommended)
 * yyyy/MM/dd HH:mm:ss
 * yyyy.MM.dd HH:mm:ss
 
-To make the short description more uniform, we recommend the format `<module name>:<migration name>`, e.g. _Core: ProductComparePriceLabel_. The very first migration is usually named _Initial_, e.g. _MegaSearch: Initial_. A good example of a typical migration is [ProductComparePriceLabel](../../../src/Smartstore.Core/Migrations/20221103091500_ProductComparePriceLabel.cs).
+To make the short description more uniform, we recommend the format `<module name>:<migration name>`, e.g. _Core: ProductComparePriceLabel_. The very first migration is usually named _Initial_, e.g. _MegaSearch: Initial_. A good example of a typical migration is [ProductComparePriceLabel](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Migrations/20221103091500_ProductComparePriceLabel.cs).
 
 {% code title="20221103091500_ProductComparePriceLabel.cs" %}
 ```csharp
@@ -87,13 +87,13 @@ internal class ProductComparePriceLabel : Migration, ILocaleResourcesProvider, I
 
 <table><thead><tr><th width="352">Method or property</th><th>Description</th></tr></thead><tbody><tr><td><code>IMigration.Up</code></td><td>Collects the <em>up</em> migration expressions.</td></tr><tr><td><code>IMigration.Down</code></td><td>Collects the <em>down</em> migration expressions.</td></tr><tr><td><code>IDataSeeder.Stage</code></td><td>Gets a value that indicates the stage at which migration seeding is performed. Possible values are <code>Early</code> and <code>Late</code>.</td></tr><tr><td><code>IDataSeeder.AbortOnFailure</code></td><td>Gets a value indicating whether the migration should be completely rolled back if an error occurs during migration seeding.</td></tr><tr><td><code>IDataSeeder.SeedAsync</code></td><td>Seeds any data in the database.</td></tr><tr><td><code>ILocaleResourcesProvider.</code><br><code>MigrateLocaleResources</code></td><td>Seeds new or updated locale resources after a migration has been performed.</td></tr></tbody></table>
 
-More examples can be found in the [DevTools](https://github.com/smartstore/Smartstore/tree/main/src/Smartstore.Modules/Smartstore.DevTools/Migrations) module. They are for illustrative purposes only and are therefore commented out so that they are not executed.
+More examples can be found in the [DevTools](../../../src/Smartstore.Modules/Smartstore.DevTools/Migrations) module. They are for illustrative purposes only and are therefore commented out so that they are not executed.
 
 {% hint style="info" %}
 In the `ProductComparePriceLabel` migration, each statement is preceded by an existence check of the related resource (for a table, column, foreign key, field index, etc.). This is not mandatory but it is recommended. It makes your migration less vulnerable and ensures that in case of unpredictable events, the migration will still execute correctly, regardless of how many times it is executed. If your migration was only partially executed due to an error, it will not be able to run successfully again without these existence checks, and manual changes to of the database schema would be required.
 {% endhint %}
 
-In most cases, modules create migrations to extend the [domain model](../../compose/modules/examples/creating-a-domain-entity.md), i.e. to add their own entities. For example, the [Google Merchant Center](https://github.com/smartstore/Smartstore/tree/main/src/Smartstore.Modules/Smartstore.Google.MerchantCenter) module adds the `GoogleProduct` entity to the domain model and allows it to be edited via a data grid and a tab on the product editing page.
+In most cases, modules create migrations to extend the [domain model](../../compose/modules/examples/creating-a-domain-entity.md), i.e. to add their own entities. For example, the [Google Merchant Center](../../../src/Smartstore.Modules/Smartstore.Google.MerchantCenter) module adds the `GoogleProduct` entity to the domain model and allows it to be edited via a data grid and a tab on the product editing page.
 
 A migration can also inherit from `AutoReversingMigration`. In this case, no `Down` method is necessary, because FluentMigrator generates the necessary expressions automatically from the expressions of the `Up` method. This only works for some expressions like `CREATE TABLE`, but not for `DROP TABLE`.
 

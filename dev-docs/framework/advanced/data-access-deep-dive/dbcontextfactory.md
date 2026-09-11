@@ -16,7 +16,7 @@ Smartstore registers a scoped service factory for the `SmartDbContext` service t
 
 However, there may be situations where working with `IDbContextFactory` is beneficial:
 
-* If your code does not run within the scope of an HTTP request like the [SmartDbContextSink](../../../../src/Smartstore.Core/Platform/Logging/Serilog/SmartDbContextSink.cs) that resolves a `SmartDbContext` instance periodically, triggered by a timer.
+* If your code does not run within the scope of an HTTP request like the [SmartDbContextSink](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Logging/Serilog/SmartDbContextSink.cs) that resolves a `SmartDbContext` instance periodically, triggered by a timer.
 
 ```csharp
 public async Task EmitBatchAsync(IEnumerable<LogEvent> batch)
@@ -47,7 +47,7 @@ private static SmartDbContext CreateDbContext()
 }
 ```
 
-* If you need to access `SmartDbContext` inside a singleton class like the [SettingFactory](../../../../src/Smartstore.Core/Platform/Configuration/Services/SettingFactory.cs).
+* If you need to access `SmartDbContext` inside a singleton class like the [SettingFactory](https://github.com/smartstore/Smartstore/blob/main/src/Smartstore.Core/Platform/Configuration/Services/SettingFactory.cs).
 
 ```csharp
 private readonly IDbContextFactory<SmartDbContext> _dbContextFactory;
