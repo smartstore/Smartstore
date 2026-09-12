@@ -1107,7 +1107,7 @@ Smartstore.Admin.DataGridVue.components["sm-datagrid"] = {
             }
 
             if (descriptor && !multiMode) {
-                this.sorting.descriptors = this.sorting.descriptors.filter(x => x === descriptor);
+                this.sorting.descriptors = [descriptor];
             }
         },
 
