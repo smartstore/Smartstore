@@ -34,7 +34,7 @@
     </sorting>
     <toolbar>
         <toolbar-group>
-            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-plain btn-icon">
                 <bootstrap-icon name="funnel" />
             </button>
         </toolbar-group>
@@ -44,7 +44,7 @@
                     <bootstrap-icon name="check-lg" />
                     <span>@T("Admin.Common.SaveChanges")</span>
                 </button>
-                <button type="button" class="btn btn-light btn-flat mr-auto" v-bind:class="{ disabled: !grid.editing.active }" v-on:click.prevent="grid.cancelEdit">
+                <button type="button" class="btn btn-plain mr-auto" v-bind:class="{ disabled: !grid.editing.active }" v-on:click.prevent="grid.cancelEdit">
                     <span>@T("Common.Cancel")</span>
                 </button>
             </fragment>

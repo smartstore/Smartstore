@@ -37,13 +37,13 @@
             </a>
         </toolbar-group>
         <toolbar-group sm-if="!isOrderEditPage">
-            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-plain btn-icon">
                 <bootstrap-icon name="funnel" />
             </button>
         </toolbar-group>
         <toolbar-group class="dropdown" sm-if="!isOrderEditPage">
             <fragment>
-                <button type="button" class="btn btn-flat btn-light dropdown-toggle" data-toggle="dropdown">
+                <button type="button" class="btn btn-plain dropdown-toggle" data-toggle="dropdown">
                     <bootstrap-icon name="printer" />
                     <span>@T("Admin.Common.Print")</span>
                 </button>
