@@ -25,7 +25,7 @@
                 <span>@T("Admin.Catalog.Categories.Products.AddNew")</span>
             </button>
             <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
-                <i class="fa fa-check"></i>
+                <bootstrap-icon name="check-lg" />
                 <span>@T("Admin.Common.SaveChanges")</span>
             </button>
             <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
@@ -34,7 +34,7 @@
         </toolbar-group>
         <toolbar-group sm-if="showRuleApplyButton">
             <button datagrid-action="DataGridToolAction.Custom" type="button" id="reapply-rules" class="btn btn-primary btn-flat" data-url="@Url.Action("ApplyRules", new { id = parentModel.Id })">
-                <i class="fa fa-play"></i>
+                <bootstrap-icon name="play-fill" />
                 <span>@T("Admin.Rules.ReapplyRules")</span>
             </button>
         </toolbar-group>

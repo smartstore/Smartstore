@@ -41,7 +41,7 @@
         <toolbar-group>
             <fragment>
                 <button type="button" class="btn btn-warning no-anims btn-flat" v-bind:class="{ disabled: !grid.editing.active }" v-on:click.prevent="grid.saveChanges">
-                    <i class="fa fa-check"></i>
+                    <bootstrap-icon name="check-lg" />
                     <span>@T("Admin.Common.SaveChanges")</span>
                 </button>
                 <button type="button" class="btn btn-light btn-flat mr-auto" v-bind:class="{ disabled: !grid.editing.active }" v-on:click.prevent="grid.cancelEdit">

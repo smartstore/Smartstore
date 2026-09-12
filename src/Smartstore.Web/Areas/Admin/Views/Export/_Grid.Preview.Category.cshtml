@@ -12,12 +12,12 @@
 	<paging position="Bottom" show-size-chooser="true" />
 	<toolbar>
         <button datagrid-action="DataGridToolAction.ReactToSelection" type="button" id="ExportSelected" class="btn btn-primary btn-flat">
-			<i class="far fa-upload"></i>
+			<bootstrap-icon name="upload" />
 			<span>@T("Admin.Common.ExportSelected")</span>
         </button>
 		<fragment>
 			<button type="button" id="ExportAll" class="btn btn-primary btn-flat" v-bind:class="{ disabled: grid.rows.length == 0 }">
-				<i class="far fa-upload"></i>
+				<bootstrap-icon name="upload" />
 				<span>@T("Admin.Common.ExportAll")</span>
 			</button>
 		</fragment>

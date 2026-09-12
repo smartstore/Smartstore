@@ -34,11 +34,11 @@
                 </button>
                 <div class="dropdown-menu">
                     <a href="javascript:;" class="dropdown-item process-orders" v-bind:class="{ disabled: !grid.hasSelection }" data-url="@Url.Action("ExportPdf", "Order")">
-                        <i class="far fa-fw fa-file-pdf"></i>
+                        <bootstrap-icon name="file-earmark-pdf" class="bi-fw" />
                         <span class="order-process-title">@T("Admin.Common.ExportToPdf.Selected")</span>
                     </a>
                     <a href="javascript:;" class="dropdown-item process-orders all-allowed" data-url="@Url.Action("ExportPdf", "Order")" data-msg="@T("Admin.Common.AskToProceed")">
-                        <i class="far fa-fw fa-file-pdf"></i>
+                        <bootstrap-icon name="file-earmark-pdf" class="bi-fw" />
                         <span class="order-process-title">@T("Admin.Common.ExportToPdf.All")</span>
                     </a>
                 </div>
@@ -49,7 +49,7 @@
         <zone name="datagrid_toolbar_omega"></zone>
         <toolbar-group class="dropdown">
             <button datagrid-action="DataGridToolAction.ReactToSelection" class="btn btn-light btn-flat dropdown-toggle no-chevron" data-toggle="dropdown" data-boundary="window">
-                <i class="fa fa-fw fa-ellipsis-h"></i>
+                <bootstrap-icon name="three-dots" class="bi-fw" />
             </button>
             <fragment>
                 <div class="dropdown-menu dropdown-menu-right">

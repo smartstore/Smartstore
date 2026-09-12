@@ -24,7 +24,7 @@
         </toolbar-group>
         <toolbar-group sm-if="showRuleApplyButton">
             <button datagrid-action="DataGridToolAction.Custom" type="button" id="reapply-rules" class="btn btn-primary btn-flat" data-url="@Url.Action("ApplyRules", new { id = parentModel.Id })">
-                <i class="fa fa-play"></i>
+                <bootstrap-icon name="play-fill" />
                 <span>@T("Admin.Rules.ReapplyRules")</span>
             </button>
         </toolbar-group>
