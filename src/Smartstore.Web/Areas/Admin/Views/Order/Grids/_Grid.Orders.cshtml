@@ -108,7 +108,7 @@
         <column for="OrderTotalString" entity-member="OrderTotal" halign="flex-end">
             <display-template>
                 <div class="dg-cell-value text-right">
-                    <div class="pr-2 text-truncate">
+                    <div class="d-flex align-items-center justify-content-end gap-1 text-truncate">
                         <big class="fwm">{{ item.row.OrderTotalString }}</big>
                         <i :class="item.row.PaymentStatusLabelClass" :title="item.row.PaymentStatusString"></i>
                     </div>

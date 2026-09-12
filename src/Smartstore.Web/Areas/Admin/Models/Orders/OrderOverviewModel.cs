@@ -101,11 +101,11 @@ public class OrderOverviewModel : TabbableModel
         {
             return ShippingStatus switch
             {
-                ShippingStatus.ShippingNotRequired => "fa fa-fw fa-download muted",
-                ShippingStatus.NotYetShipped => "fa fa-fw fa-circle text-danger",
-                ShippingStatus.PartiallyShipped => "fa fa-fw fa-truck fa-flip-horizontal text-warning",
-                ShippingStatus.Shipped => "fa fa-fw fa-truck fa-flip-horizontal text-success",
-                ShippingStatus.Delivered => "fa fa-fw fa-check text-success",
+                ShippingStatus.ShippingNotRequired => "fa fa-fw fa-download muted mr-1",
+                ShippingStatus.NotYetShipped => "fa fa-fw fa-circle text-danger mr-1",
+                ShippingStatus.PartiallyShipped => "fa fa-fw fa-truck fa-flip-horizontal text-warning mr-1",
+                ShippingStatus.Shipped => "fa fa-fw fa-truck fa-flip-horizontal text-success mr-1",
+                ShippingStatus.Delivered => "fa fa-fw fa-check text-success mr-1",
                 _ => string.Empty,
             };
         }
