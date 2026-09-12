@@ -2,7 +2,7 @@
     template: `
         <div class="dg-tools dropdown text-align-center border-left pl-1 ml-1">
             <a href="#" class="dg-tools-toggle btn btn-plain btn-icon btn-sm dropdown-toggle no-chevron" data-toggle="dropdown" data-boundary="window">
-                <i class="fa fa-cog"></i>
+                <bootstrap-icon name="gear"></bootstrap-icon>
             </a>
             <div class="dg-tools-dropdown dropdown-menu dropdown-menu-right" v-on:click="$event.stopPropagation()">
                 <div class="dg-tools-group px-3 pt-1">
@@ -46,7 +46,7 @@
                         </div>
                         <div class="col">
                             <button type="button" class="btn btn-sm btn-block btn-secondary text-truncate mt-2" @click="$parent.$parent.autoSizeAllColumns()">
-                                <i class="fa fa-arrows-left-right-to-line"></i>
+                                <bootstrap-icon name="arrows-expand-vertical"></bootstrap-icon>
                                 <span>{{ T.fitColumns }}</span>
                             </button>
                         </div>

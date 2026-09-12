@@ -748,15 +748,9 @@ public static class HtmlHelperRenderingExtensions
             svg.Attributes["focusable"] = "false";
         }
 
-        var httpContext = helper.ViewContext.HttpContext;
-        var urlHelper = httpContext.RequestServices.GetService<IUrlHelper>();
-        var fileVersionProvider = httpContext.RequestServices.GetRequiredService<IFileVersionProvider>();
-
         // Use tag (with file version appended)
-        var filePath = urlHelper.Content("~/lib/bi/bootstrap-icons.svg");
-        var href = fileVersionProvider.AddFileVersionToPath(httpContext.Request.PathBase, filePath) + "#" + name;
         var symbol = new TagBuilder("use");
-        symbol.Attributes["xlink:href"] = href;
+        symbol.Attributes["xlink:href"] = helper.BootstrapIconUrl() + "#" + name;
 
         var el = symbol;
 
@@ -796,6 +790,16 @@ public static class HtmlHelperRenderingExtensions
         svg.InnerHtml.AppendHtml(el);
 
         return svg;
+    }
+
+    internal static string BootstrapIconUrl(this IHtmlHelper helper)
+    {
+        var httpContext = helper.ViewContext.HttpContext;
+        var urlHelper = httpContext.RequestServices.GetService<IUrlHelper>();
+        var fileVersionProvider = httpContext.RequestServices.GetRequiredService<IFileVersionProvider>();
+        var filePath = urlHelper.Content("~/lib/bi/bootstrap-icons.svg");
+
+        return fileVersionProvider.AddFileVersionToPath(httpContext.Request.PathBase, filePath);
     }
 
     #endregion

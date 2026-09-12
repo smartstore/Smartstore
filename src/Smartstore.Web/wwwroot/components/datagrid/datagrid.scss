@@ -215,7 +215,7 @@ input.form-control-plaintext {
     justify-content: var(--dg-cell-justify);
 
     &.dg-cell-header {
-        padding-block: calc(var(--dg-cell-padding-y) * 0.75);
+        padding-block: calc(var(--dg-cell-padding-y) * 1);
     }
 
     &.dg-cell-wrap {

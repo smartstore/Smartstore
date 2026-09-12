@@ -3,20 +3,28 @@
         <div class="dg-pager btn-toolbar hstack">
             <div class="dg-page-refresh-wrapper">
                 <a href="#" class="dg-page dg-page-refresh btn btn-plain btn-icon btn-sm" @click.prevent="refresh">
-                    <i class="fa fa-rotate" :class="{ 'fa-spin text-success': $parent.isBusy }"></i>
+                    <bootstrap-icon name="arrow-repeat" :class="{ 'fa-spin text-success': $parent.isBusy }"></bootstrap-icon>
                 </a>
             </div>
             
             <template v-if="paging.enabled">
-                <a href="#" class="dg-page dg-page-arrow btn btn-plain btn-sm" @click.prevent="pageTo(1)" :class="{ disabled: !hasPrevPage }"><i class="fa fa-angle-double-left"></i></a>
-                <a href="#" class="dg-page dg-page-arrow btn btn-plain btn-sm" @click.prevent="pageTo(currentPageIndex - 1)" :class="{ disabled: !hasPrevPage }"><i class="fa fa-angle-left"></i></a>
+                <a href="#" class="dg-page dg-page-arrow btn btn-plain btn-sm" @click.prevent="pageTo(1)" :class="{ disabled: !hasPrevPage }">
+                    <bootstrap-icon name="chevron-double-left"></bootstrap-icon>
+                </a>
+                <a href="#" class="dg-page dg-page-arrow btn btn-plain btn-sm" @click.prevent="pageTo(currentPageIndex - 1)" :class="{ disabled: !hasPrevPage }">
+                    <bootstrap-icon name="chevron-left"></bootstrap-icon>
+                </a>
             
-                <a v-for="item in pageItems" :key="item.page" href="#" @click.prevent="pageTo(item.page)" class="dg-page dg-page-number btn btn-plain py-1 btn-sm d-none d-lg-inline" :class="{ active: item.active }">
+                <a v-for="item in pageItems" :key="item.page" href="#" @click.prevent="pageTo(item.page)" class="dg-page dg-page-number btn btn-plain py-1 btn-sm d-none d-lg-flex" :class="{ active: item.active }">
                     {{ item.label || item.page }}
                 </a>
             
-                <a href="#" class="dg-page dg-page-arrow btn btn-plain btn-sm" @click.prevent="pageTo(currentPageIndex + 1)" :class="{ disabled: !hasNextPage }"><i class="fa fa-angle-right"></i></a>
-                <a href="#" class="dg-page dg-page-arrow btn btn-plain btn-sm" @click.prevent="pageTo(totalPages)" :class="{ disabled: !hasNextPage }"><i class="fa fa-angle-double-right"></i></a>
+                <a href="#" class="dg-page dg-page-arrow btn btn-plain btn-sm" @click.prevent="pageTo(currentPageIndex + 1)" :class="{ disabled: !hasNextPage }">
+                    <bootstrap-icon name="chevron-right"></bootstrap-icon>
+                </a>
+                <a href="#" class="dg-page dg-page-arrow btn btn-plain btn-sm" @click.prevent="pageTo(totalPages)" :class="{ disabled: !hasNextPage }">
+                    <bootstrap-icon name="chevron-double-right"></bootstrap-icon>
+                </a>
             </template>
 
             <div class="ml-auto d-flex">

@@ -50,6 +50,24 @@ Smartstore.Admin.DataGridVue = {
     }
 };
 
+Smartstore.Admin.DataGridVue.components["bootstrap-icon"] = {
+    template: `
+        <svg class="bi" fill="currentColor" width="1em" height="1em" role="img" focusable="false">
+            <use :xlink:href="href"></use>
+        </svg>
+    `,
+
+    props: {
+        name: { type: String, required: true }
+    },
+
+    computed: {
+        href() {
+            return this.$root.options.iconSpriteUrl + '#' + this.name;
+        }
+    }
+};
+
 Smartstore.Admin.DataGridVue.components["sm-datagrid"] = {
     template: `
         <div class="datagrid" 
@@ -125,7 +143,8 @@ Smartstore.Admin.DataGridVue.components["sm-datagrid"] = {
                                         :class="{ 'dg-sortable': sorting.enabled && column.sortable }"
                                         :title="column.hint"
                                         v-on:click="onSort($event, column)">
-                                        <i v-if="column.icon" class="dg-icon" :class="column.icon"></i>
+                                        <bootstrap-icon v-if="column.icon?.startsWith('bi:')" class="dg-icon" :name="column.icon.substring(3)"></bootstrap-icon>
+                                        <i v-else-if="column.icon" class="dg-icon" :class="column.icon"></i>
                                         <span v-if="column.title" class="dg-cell-value">{{ column.title }}</span>
                                         <i v-if="isSortedAsc(column)" class="fa fa-fw fa-sm fa-arrow-up mx-1"></i>
                                         <i v-if="isSortedDesc(column)" class="fa fa-fw fa-sm fa-arrow-down mx-1"></i>
