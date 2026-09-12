@@ -222,7 +222,7 @@ Smartstore.Admin.DataGridVue.components["sm-datagrid"] = {
                                                 <slot name="rowcommands" v-bind="{ row, activateEdit, deleteRows }"></slot> 
                                             </div>
 
-                                            <div v-show="editing.active && row == editing.row" class="dg-row-edit-commands bg-white rounded-pill border">
+                                            <div v-if="editing.active && row == editing.row" class="dg-row-edit-commands bg-white rounded-pill border">
                                                 <a href="#" @click.prevent.stop="saveChanges()" class="btn btn-primary btn-sm btn-flat btn-icon rounded-circle btn-row-command" :title="T.saveChanges">
                                                     <i class="fa fa-check" style="font-size: 11px"></i>
                                                 </a>
