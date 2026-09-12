@@ -282,7 +282,7 @@ button:where(.reset) {
     --btn-disabled-bg: var(--btn-bg);
     --btn-disabled-border-color: var(--btn-border-color);
     --btn-hover-color: #{darken($yiq-text-dark, 8%)};
-    --btn-hover-bg: #{rgba(#000, 0.06)};
+    --btn-hover-bg: #{rgba(#000, 0.05)};
     --btn-hover-border-color: #{rgba(#000, 0.1)};
     --btn-active-color: var(--btn-hover-color);
     --btn-active-bg: #{rgba(#000, 0.08)};

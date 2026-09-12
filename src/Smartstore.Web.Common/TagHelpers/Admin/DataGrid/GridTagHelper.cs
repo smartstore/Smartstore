@@ -289,7 +289,7 @@ public class GridTagHelper : SmartTagHelper
                 else
                 {
                     // No custom edit template specified
-                    editorSlot.InnerHtml.AppendHtml(HtmlHelper.EditorFor(column.For));
+                    editorSlot.InnerHtml.AppendHtml(HtmlHelper.EditorFor(column.For, new { size = "sm", htmlAttributes = new { @class = "form-control-sm" } }));
                     //editorSlot.InnerHtml.AppendHtml(HtmlHelper.ValidationMessageFor(column.For));
                 }
 

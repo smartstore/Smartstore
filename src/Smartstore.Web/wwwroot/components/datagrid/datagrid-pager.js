@@ -2,21 +2,21 @@
     template: `
         <div class="dg-pager btn-toolbar hstack">
             <div class="dg-page-refresh-wrapper">
-                <a href="#" class="dg-page dg-page-refresh btn btn-light btn-icon btn-sm" @click.prevent="refresh">
+                <a href="#" class="dg-page dg-page-refresh btn btn-plain btn-icon btn-sm" @click.prevent="refresh">
                     <i class="fa fa-rotate" :class="{ 'fa-spin text-success': $parent.isBusy }"></i>
                 </a>
             </div>
             
             <template v-if="paging.enabled">
-                <a href="#" class="dg-page dg-page-arrow btn btn-light btn-sm" @click.prevent="pageTo(1)" :class="{ disabled: !hasPrevPage }"><i class="fa fa-angle-double-left"></i></a>
-                <a href="#" class="dg-page dg-page-arrow btn btn-light btn-sm" @click.prevent="pageTo(currentPageIndex - 1)" :class="{ disabled: !hasPrevPage }"><i class="fa fa-angle-left"></i></a>
+                <a href="#" class="dg-page dg-page-arrow btn btn-plain btn-sm" @click.prevent="pageTo(1)" :class="{ disabled: !hasPrevPage }"><i class="fa fa-angle-double-left"></i></a>
+                <a href="#" class="dg-page dg-page-arrow btn btn-plain btn-sm" @click.prevent="pageTo(currentPageIndex - 1)" :class="{ disabled: !hasPrevPage }"><i class="fa fa-angle-left"></i></a>
             
-                <a v-for="item in pageItems" :key="item.page" href="#" @click.prevent="pageTo(item.page)" class="dg-page dg-page-number btn btn-light py-1 btn-sm d-none d-lg-inline" :class="{ active: item.active }">
+                <a v-for="item in pageItems" :key="item.page" href="#" @click.prevent="pageTo(item.page)" class="dg-page dg-page-number btn btn-plain py-1 btn-sm d-none d-lg-inline" :class="{ active: item.active }">
                     {{ item.label || item.page }}
                 </a>
             
-                <a href="#" class="dg-page dg-page-arrow btn btn-light btn-sm" @click.prevent="pageTo(currentPageIndex + 1)" :class="{ disabled: !hasNextPage }"><i class="fa fa-angle-right"></i></a>
-                <a href="#" class="dg-page dg-page-arrow btn btn-light btn-sm" @click.prevent="pageTo(totalPages)" :class="{ disabled: !hasNextPage }"><i class="fa fa-angle-double-right"></i></a>
+                <a href="#" class="dg-page dg-page-arrow btn btn-plain btn-sm" @click.prevent="pageTo(currentPageIndex + 1)" :class="{ disabled: !hasNextPage }"><i class="fa fa-angle-right"></i></a>
+                <a href="#" class="dg-page dg-page-arrow btn btn-plain btn-sm" @click.prevent="pageTo(totalPages)" :class="{ disabled: !hasNextPage }"><i class="fa fa-angle-double-right"></i></a>
             </template>
 
             <div class="ml-auto d-flex">
@@ -26,7 +26,7 @@
                         <span class="d-inline d-xl-none">{{ T.displayingItemsShort.format(firstItemIndex.toLocaleString(), lastItemIndex.toLocaleString(), total.toLocaleString()) }}</span>
                     </span>
                     <div v-if="paging.enabled && paging.showSizeChooser && paging.availableSizes?.length" class="dropdown d-flex align-items-center border-left pl-1 ml-2">
-                        <a href="#" v-html="T.xPerPage.format(command.pageSize)" class="dg-page dg-page-size-chooser btn btn-light btn-sm dropdown-toggle text-truncate px-2" data-toggle="dropdown">
+                        <a href="#" v-html="T.xPerPage.format(command.pageSize)" class="dg-page dg-page-size-chooser btn btn-plain btn-sm dropdown-toggle text-truncate px-2" data-toggle="dropdown">
                         </a>
                         <div class="dropdown-menu" style="min-width: 6rem">
                             <a v-for="size in paging.availableSizes" :key="size" href="#" class="dropdown-item" @click.prevent="setPageSize(size)">{{ size }}</a>
