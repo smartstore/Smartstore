@@ -18,8 +18,8 @@
 </widget>
 
 @* INFO: "Id" may be 0 here, so it cannot be the key, because a key must be unique. *@
-<datagrid id="gmc-products-grid"
-          version="2"
+<datagrid id="gmc-products-grid" class="h-100"
+          version="3"
           key-member="ProductId"
           allow-resize="true"
           allow-row-selection="true"
@@ -28,7 +28,7 @@
     <datasource read="@Url.Action("GoogleProductList", "GoogleMerchantCenter")"
                 update="@Url.Action("GoogleProductUpsert", "GoogleMerchantCenter")"
                 delete="@Url.Action("GoogleProductDelete", "GoogleMerchantCenter")" />
-    <paging position="Both" page-index="1" show-size-chooser="true" />
+    <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
         <sort by="Name" />
     </sorting>
@@ -38,17 +38,13 @@
                 <bootstrap-icon name="funnel" />
             </button>
         </toolbar-group>
-        <toolbar-group>
-            <fragment>
-                <button type="button" class="btn btn-warning no-anims btn-flat" v-bind:class="{ disabled: !grid.editing.active }" v-on:click.prevent="grid.saveChanges">
-                    <bootstrap-icon name="check-lg" />
-                    <span>@T("Admin.Common.SaveChanges")</span>
-                </button>
-                <button type="button" class="btn btn-plain mr-auto" v-bind:class="{ disabled: !grid.editing.active }" v-on:click.prevent="grid.cancelEdit">
-                    <span>@T("Common.Cancel")</span>
-                </button>
-            </fragment>
-        </toolbar-group>
+        <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
+            <bootstrap-icon name="check-lg" />
+            <span>@T("Admin.Common.SaveChanges")</span>
+        </button>
+        <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-plain mr-auto">
+            <span>@T("Common.Cancel")</span>
+        </button>
         <zone name="datagrid_toolbar_alpha"></zone>
         <toolbar-group class="omega"></toolbar-group>
         <zone name="datagrid_toolbar_omega"></zone>

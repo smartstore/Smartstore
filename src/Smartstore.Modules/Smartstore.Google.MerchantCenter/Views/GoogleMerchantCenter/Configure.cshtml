@@ -4,22 +4,18 @@
     Layout = "_ConfigureModule";
 }
 
-<div class="plugin-configuration">
-    <div>
-        <div class="alert alert-info alert-dismissible">
-            @Html.Raw(@T("Plugins.Feed.Froogle.AdminInstruction"))
-            <button class="btn-close" data-dismiss="alert"></button>
-        </div>
-    </div>
-    <div>
+<div class="alert alert-info alert-dismissible">
+    <div class="mb-2">
         <a href="http://www.google.com/merchants/" rel="nofollow" target="_blank">
-            <img src="@Url.Content("~/Modules/Smartstore.Google.MerchantCenter/branding.png")" alt="Google Merchant Center" />
+            <img src="@Url.Content("~/Modules/Smartstore.Google.MerchantCenter/branding.png")" style="max-width: 250px" alt="Google Merchant Center" />
         </a>
     </div>
+    @Html.Raw(@T("Plugins.Feed.Froogle.AdminInstruction"))
+    <button class="btn-close" data-dismiss="alert"></button>
 </div>
 
 <tabstrip id="gmc-config" sm-nav-style="Material" sm-nav-position="Top">
-    <tab sm-title="@T("Plugins.Feed.Froogle.TabTitleGrid")" sm-selected="true">
+    <tab sm-title="@T("Plugins.Feed.Froogle.TabTitleGrid")" sm-adaptive-height="true" sm-selected="true">
         <partial name="_Grid.GoogleProducts" model="null" />
     </tab>
     <tab sm-title="@T("Plugins.Feed.Froogle.TabTitleProfiles")">
