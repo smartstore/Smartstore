@@ -146,8 +146,8 @@ Smartstore.Admin.DataGridVue.components["sm-datagrid"] = {
                                         <bootstrap-icon v-if="column.icon?.startsWith('bi:')" class="dg-icon" :name="column.icon.substring(3)"></bootstrap-icon>
                                         <i v-else-if="column.icon" class="dg-icon" :class="column.icon"></i>
                                         <span v-if="column.title" class="dg-cell-value">{{ column.title }}</span>
-                                        <i v-if="isSortedAsc(column)" class="fa fa-fw fa-sm fa-arrow-up mx-1"></i>
-                                        <i v-if="isSortedDesc(column)" class="fa fa-fw fa-sm fa-arrow-down mx-1"></i>
+                                        <bootstrap-icon name="arrow-up-short" v-if="isSortedAsc(column)" class="mx-1"></bootstrap-icon>
+                                        <bootstrap-icon name="arrow-up-short" v-if="isSortedDesc(column)" class="mx-1 flip-v"></bootstrap-icon>
                                     </div>
                                     <div v-if="options.allowResize && column.resizable" 
                                         class="dg-resize-handle"
