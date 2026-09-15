@@ -94,6 +94,9 @@ public class CatalogSettingsModel : ILocalizedModel<PriceSettingsLocalizedModel>
     [LocalizedDisplay("*ShowProductCondition")]
     public bool ShowProductCondition { get; set; }
 
+    [LocalizedDisplay("*LegalInfoInProductDetail")]
+    public int[] LegalInfoInProductDetail { get; set; }
+
     #endregion
 
     #region Product lists
@@ -120,7 +123,7 @@ public class CatalogSettingsModel : ILocalizedModel<PriceSettingsLocalizedModel>
 
     #endregion
 
-    #region Product list
+    #region Product list general
 
     [LocalizedDisplay("*AllowProductSorting")]
     public bool AllowProductSorting { get; set; }
@@ -155,6 +158,9 @@ public class CatalogSettingsModel : ILocalizedModel<PriceSettingsLocalizedModel>
     #endregion
 
     #region Products
+
+    [LocalizedDisplay("*LegalInfoInLists")]
+    public int[] LegalInfoInLists { get; set; }
 
     [LocalizedDisplay("*ShowShortDescriptionInGridStyleLists")]
     public bool ShowShortDescriptionInGridStyleLists { get; set; }

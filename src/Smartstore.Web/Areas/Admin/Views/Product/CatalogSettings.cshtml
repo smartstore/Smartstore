@@ -388,6 +388,17 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
+                        <smart-label asp-for="LegalInfoInLists" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="LegalInfoInLists">
+                            <select asp-for="LegalInfoInLists" asp-items="ViewBag.ProductLegalInfos" multiple="multiple"></select>
+                        </setting-editor>
+                        <span asp-validation-for="LegalInfoInLists"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
                         <smart-label asp-for="ShowShortDescriptionInGridStyleLists" />
                     </div>
                     <div class="adminData">
@@ -602,6 +613,17 @@
                     <div class="adminData">
                         <setting-editor asp-for="DisplayAllImagesNumber"></setting-editor>
                         <span asp-validation-for="DisplayAllImagesNumber"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="LegalInfoInProductDetail" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="LegalInfoInProductDetail">
+                            <select asp-for="LegalInfoInProductDetail" asp-items="ViewBag.ProductLegalInfos" multiple="multiple"></select>
+                        </setting-editor>
+                        <span asp-validation-for="LegalInfoInProductDetail"></span>
                     </div>
                 </div>
                 <div class="adminRow">

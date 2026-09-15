@@ -1,4 +1,8 @@
+using Smartstore.Core.Catalog;
+using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Configuration;
 using Smartstore.Data.Migrations;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Data.Migrations;
 
@@ -16,6 +20,49 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
     public async Task MigrateSettingsAsync(SmartDbContext context, CancellationToken cancelToken = default)
     {
+        var settings = context.Set<Setting>();
+        const string oldName1 = "TaxSettings.ShowLegalHintsInProductDetails";
+        const string oldName2 = "TaxSettings.ShowLegalHintsInProductList";
+
+        var oldSettings = await settings
+            .Where(x => x.Name == oldName1 || x.Name == oldName2)
+            .ToListAsync(cancelToken);
+        var oldSettings1 = oldSettings.Where(x => x.Name == oldName1).ToList();
+        var oldSettings2 = oldSettings.Where(x => x.Name == oldName2).ToList();
+
+        await MigrateLegalInfo(oldSettings1, TypeHelper.NameOf<CatalogSettings>(x => x.LegalInfoInProductDetail, true));
+        await MigrateLegalInfo(oldSettings2, TypeHelper.NameOf<CatalogSettings>(x => x.LegalInfoInLists, true));
+
+        if (oldSettings1.Count > 0 || oldSettings2.Count > 0)
+        {
+            await context.SaveChangesAsync(cancelToken);
+        }
+
+        async Task MigrateLegalInfo(List<Setting> oldSettings, string newName)
+        {
+            if (oldSettings.Count == 0)
+            {
+                return;
+            }
+
+            var storeIds = oldSettings.ToDistinctArray(x => x.StoreId);
+            var existingNewSettings = await settings
+                .Where(x => x.Name == newName && storeIds.Contains(x.StoreId))
+                .Select(x => x.StoreId)
+                .ToListAsync(cancelToken);
+
+            foreach (var oldSetting in oldSettings.Where(x => !existingNewSettings.Contains(x.StoreId)))
+            {
+                settings.Add(new()
+                {
+                    Name = newName,
+                    StoreId = oldSetting.StoreId,
+                    Value = (oldSetting.Value.Convert<bool>() ? ProductLegalInfo.All : ProductLegalInfo.None).Convert(string.Empty)
+                });
+            }
+
+            settings.RemoveRange(oldSettings);
+        }
     }
 
     public async Task MigrateMessageTemplatesAsync(SmartDbContext context, CancellationToken cancelToken = default)
@@ -164,5 +211,61 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Warenkorbregeln berechnen Beträge inklusive Steuer",
             "Specifies whether shopping cart rules calculate amounts as inclusive of or exclusive of tax. If not specified (default), the tax settings for the respective shopping cart or customer apply.",
             "Legt fest, ob Warenkorbregeln die Beträge inklusive oder exklusive Umsatzsteuer berechnen. Falls nicht festgelegt (Standard), gelten die Steuereinstellungen des jeweiligen Warenkorbs bzw. Kunden.");
+
+        #region product legal info
+
+        builder.AddOrUpdate("Products.ShippingInfo", 
+            "plus shipping", 
+            "zzgl. Versandkosten");
+
+        builder.AddOrUpdate("Products.ShippingInfoUrl", 
+            "plus <a href=\"{0}\">shipping</a>",
+            "zzgl. <a href=\"{0}\">Versandkosten</a>");
+
+        builder.AddOrUpdate("Products.ShippingInfoWithSurcharge",
+            "plus shipping costs and a <b>{0}</b> surcharge",
+            "zzgl. Versandkosten und <b>{0}</b> Aufschlag");
+
+        builder.AddOrUpdate("Products.ShippingInfoUrlWithSurcharge",
+            "plus <a href=\"{0}\">shipping</a> and a <b>{1}</b> surcharge",
+            "zzgl. <a href=\"{0}\">Versandkosten</a> und <b>{1}</b> Aufschlag");
+
+        builder.AddOrUpdate("Tax.LegalInfoShort", "Prices {0}", "Preise {0}");
+
+        builder.AddOrUpdate("Common.AdditionalShippingSurcharge",
+            "plus <b>{0}</b> shipping surcharge",
+            "zzgl. <b>{0}</b> Versandaufschlag");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.LegalInfoInProductDetail",
+            "Legal information",
+            "Rechtliche Hinweise",
+            "Specifies the legal information displayed on the product detail page. Depending on the selected option, this includes either tax information"
+            + " (whether prices include or exclude tax, and if applicable, the tax rate), or shipping information (shipping page link, and if applicable, an additional shipping surcharge).",
+            "Legt die auf der Produktdetailseite angezeigten rechtlichen Hinweise fest. Je nach gewählter Option umfasst dies Steuerinformationen, d.h. ob die Preise"
+            + " inklusive oder exklusive Steuer angezeigt werden, sowie den Steuersatz, sofern dieser aktiviert ist. Außerdem umfasst dies Versandinformationen,"
+            + "d.h. Link zur Versandseite sowie gegebenenfalls einen zusätzlichen Versandaufschlag.");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.LegalInfoInLists",
+            "Legal information",
+            "Rechtliche Hinweise",
+            "Specifies the legal information displayed in product lists. Depending on the option selected, this includes whether prices are displayed with or without tax,"
+            + " and a link to the shipping page.",
+            "Legt die in Produktlisten angezeigten rechtlichen Hinweise fest. Je nach gewählter Option umfasst dies, ob die Preise inklusive oder exklusive Steuer"
+            + " angezeigt werden, und einen Link zur Versandseite.");
+
+        builder.AddOrUpdate("Enums.ProductLegalInfo.Tax", "Tax", "Steuer");
+        builder.AddOrUpdate("Enums.ProductLegalInfo.Shipping", "Shipping", "Versand");
+
+        builder.Delete(
+            "Tax.LegalInfoProductDetail",
+            "Tax.LegalInfoProductDetail2",
+            "Tax.LegalInfoShort2",
+            "Tax.LegalInfoShort3",
+            "Admin.Configuration.Settings.Tax.ShowLegalHintsInProductDetails",
+            "Admin.Configuration.Settings.Tax.ShowLegalHintsInProductDetails.Hint",
+            "Admin.Configuration.Settings.Tax.ShowLegalHintsInProductList",
+            "Admin.Configuration.Settings.Tax.ShowLegalHintsInProductList.Hint");
+
+        #endregion
     }
 }

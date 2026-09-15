@@ -34,12 +34,6 @@ public partial class FinanceSettingsModel : ModelBase
         [LocalizedDisplay("*HideTaxInOrderSummary")]
         public bool HideTaxInOrderSummary { get; set; }
 
-        [LocalizedDisplay("*ShowLegalHintsInProductList")]
-        public bool ShowLegalHintsInProductList { get; set; }
-
-        [LocalizedDisplay("*ShowLegalHintsInProductDetails")]
-        public bool ShowLegalHintsInProductDetails { get; set; }
-
         [LocalizedDisplay("*ShowLegalHintsInFooter")]
         public bool ShowLegalHintsInFooter { get; set; }
 

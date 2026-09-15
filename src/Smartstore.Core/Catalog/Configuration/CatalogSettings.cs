@@ -79,8 +79,8 @@ public class CatalogSettings : ISettings
     public bool ShowProductTags { get; set; } = true;
 
     /// <summary>
-		/// Gets or sets a value indicating how many menu items will be displayed
-		/// </summary>
+	/// Gets or sets a value indicating how many menu items will be displayed
+	/// </summary>
     public int? MaxItemsToDisplayInCatalogMenu { get; set; }
 
     /// <summary>
@@ -254,9 +254,9 @@ public class CatalogSettings : ISettings
     public bool ShowManufacturerPictures { get; set; } = true;
 
     /// <summary>
-		/// Gets or sets a value indicating whether to display manufacturer detail links in product detail pages
-		/// </summary>
-		public bool ShowManufacturerInProductDetail { get; set; } = true;
+	/// Gets or sets a value indicating whether to display manufacturer detail links in product detail pages
+	/// </summary>
+	public bool ShowManufacturerInProductDetail { get; set; } = true;
 
     /// <summary>
     /// Gets or sets a value indicating whether to display pictures or textual links to manufacturer pages in product detail pages
@@ -269,9 +269,9 @@ public class CatalogSettings : ISettings
     public bool HideManufacturerDefaultPictures { get; set; }
 
     /// <summary>
-		/// Gets or sets a value indicating whether to hide manufacturer default pictures
-		/// </summary>
-		public bool SortManufacturersAlphabetically { get; set; }
+	/// Gets or sets a value indicating whether to hide manufacturer default pictures
+	/// </summary>
+	public bool SortManufacturersAlphabetically { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether to sort attributes naturally. Default is <c>true</c>.
@@ -355,6 +355,16 @@ public class CatalogSettings : ISettings
     public bool ShowDefaultDeliveryTime { get; set; }
 
     public bool ShowPopularProductTagsOnHomepage { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets a value indicating which parts of the legal information should be displayed in product detail.
+    /// </summary>
+    public ProductLegalInfo LegalInfoInProductDetail { get; set; } = ProductLegalInfo.All;
+
+    /// <summary>
+    /// Gets or sets a value indicating which parts of the legal information should be displayed in product lists.
+    /// </summary>
+    public ProductLegalInfo LegalInfoInLists { get; set; } = ProductLegalInfo.All;
 
     /// <summary>
     /// Gets or sets the available customer selectable default page size options

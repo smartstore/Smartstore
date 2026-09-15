@@ -139,12 +139,12 @@
             <partial name="Product.TierPrices" model="Model.Price.TierPrices" />
         </div>
 
-        <div class="pd-group" sm-if="(basePriceEnabled && pm.BasePriceInfo.HasValue()) || (Model.ShowLegalInfo && Model.LegalInfo.HasValue())">
+        <div class="pd-group" sm-if="(basePriceEnabled && pm.BasePriceInfo.HasValue()) || Model.ShowLegalInfo">
             <!-- Pangv & legal info -->
             <div class="pd-pangv" sm-if="basePriceEnabled && pm.BasePriceInfo.HasValue()">
                 @Html.Raw(LocalizedValue.FixBrackets(pm.BasePriceInfo, WorkContext.WorkingLanguage))
             </div>
-            <div class="pd-legalinfo" sm-if="Model.ShowLegalInfo && Model.LegalInfo.HasValue() && pm.FinalPrice != 0">
+            <div class="pd-legalinfo" sm-if="Model.ShowLegalInfo && pm.FinalPrice != 0">
                 @Html.Raw(Model.LegalInfo)
             </div>
         </div>

@@ -21,7 +21,7 @@ public class ProductSummaryItemContext
     public Dictionary<int, MediaFileInfo> MediaFiles { get; set; } = [];
     public Dictionary<string, LocalizedString> Resources { get; set; }
     public string LegalInfo { get; set; }
-    public string TaxExemptLegalInfo { get; set; }
+    public string ShippingLegalInfo { get; set; }
     public Currency PrimaryCurrency { get; set; }
 
     public bool AllowPrices { get; set; }

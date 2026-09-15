@@ -55,14 +55,10 @@ public class TaxSettings : ISettings
     /// </summary>
     public bool HideTaxInOrderSummary { get; set; }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether to show legal info in product list
-    /// </summary>
+    [Obsolete("Use CatalogSettings.LegalInfoInLists instead.")]
     public bool ShowLegalHintsInProductList { get; set; } = true;
 
-    /// <summary>
-    /// Gets or sets a value indicating whether to show legal info in product detail
-    /// </summary>
+    [Obsolete("Use CatalogSettings.LegalInfoInProductDetail instead.")]
     public bool ShowLegalHintsInProductDetails { get; set; } = true;
 
     /// <summary>
