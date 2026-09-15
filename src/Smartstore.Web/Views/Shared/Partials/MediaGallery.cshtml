@@ -73,9 +73,18 @@
                     var file = Model.Files[i];
                     var url = file.GetUrl();
                     var thumbUrl = file.GetUrl(Model.ThumbSize);
-                    var attrName = (i == Model.GalleryStartIndex ? "src" : "data-lazy");
+
                     var attrValue = file.GetUrl(Model.ImageSize);
-                    var srcAttributes = new AttributeDictionary { [attrName] = attrValue };
+                    var srcAttributes = new AttributeDictionary
+                    {
+                        ["src"] = attrValue
+                    };
+
+                    if (i != Model.GalleryStartIndex)
+                    {
+                        srcAttributes["data-lazy"] = attrValue;
+                        srcAttributes["loading"] = "lazy";
+                    }
 
                     <div class="gal-item" role="listitem">
                         <a href="@url"
