@@ -1,7 +1,7 @@
 ﻿Smartstore.Admin.DataGridVue.components["sm-datagrid-tools"] = {
     template: `
         <div class="dg-tools dropdown text-align-center border-left pl-1 ml-1">
-            <a href="#" class="dg-tools-toggle btn btn-plain btn-icon btn-sm dropdown-toggle no-chevron" data-toggle="dropdown" data-boundary="window">
+            <a href="#" class="dg-tools-toggle btn btn-plain btn-sm dropdown-toggle" data-toggle="dropdown" data-boundary="window">
                 <bootstrap-icon name="gear"></bootstrap-icon>
             </a>
             <div class="dg-tools-dropdown dropdown-menu dropdown-menu-right" v-on:click="$event.stopPropagation()">

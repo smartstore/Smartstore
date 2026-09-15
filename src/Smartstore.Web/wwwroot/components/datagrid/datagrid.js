@@ -21,6 +21,7 @@ Smartstore.Admin.DataGridVue = {
             }
         });
 
+        app.use(Smartstore.Vue.BootstrapIcon, { spriteUrl: data.options.iconSpriteUrl });
         Object.keys(this.components).forEach(name => app.component(name, this.components[name]));
 
         const root = app.mount(selector);
@@ -47,24 +48,6 @@ Smartstore.Admin.DataGridVue = {
                 return Reflect.get(target, name);
             }
         });
-    }
-};
-
-Smartstore.Admin.DataGridVue.components["bootstrap-icon"] = {
-    template: `
-        <svg class="bi" fill="currentColor" width="1em" height="1em" role="img" focusable="false">
-            <use :xlink:href="href"></use>
-        </svg>
-    `,
-
-    props: {
-        name: { type: String, required: true }
-    },
-
-    computed: {
-        href() {
-            return this.$root.options.iconSpriteUrl + '#' + this.name;
-        }
     }
 };
 

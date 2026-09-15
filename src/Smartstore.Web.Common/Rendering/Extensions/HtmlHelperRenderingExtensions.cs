@@ -792,7 +792,10 @@ public static class HtmlHelperRenderingExtensions
         return svg;
     }
 
-    internal static string BootstrapIconUrl(this IHtmlHelper helper)
+    /// <summary>
+    /// Gets the versioned URL of the Bootstrap Icons sprite.
+    /// </summary>
+    public static string BootstrapIconUrl(this IHtmlHelper helper)
     {
         var httpContext = helper.ViewContext.HttpContext;
         var urlHelper = httpContext.RequestServices.GetService<IUrlHelper>();
