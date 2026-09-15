@@ -25,6 +25,7 @@
 - (DEV) Updated **Vue** from 2.6 to 3.5 and migrated the DataGrid and MediaManager integrations to the Vue 3 application API.
 - (DEV) `Wildcard`: Matching is culture-invariant by default (override via `Wildcard.DefaultOptions`), number ranges no longer capture, and a match timeout can be passed for untrusted input.
 - Checkout: The updated total is displayed immediately when the shipping or payment method is changed.
+- #1563 Product legal information improvements.
 - **Theming**: 
   - Made `.prose` font-size and line-height configurable.
   - Refined the appearance of media gallery slider dots on mobile devices.
