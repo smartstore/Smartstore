@@ -355,6 +355,16 @@ pre {
     }
 }
 
+kbd {
+    border: 1px solid rgba($black, 0.12);
+    border-bottom-width: 2px;
+
+    kbd {
+        border: none;
+        background-color: transparent;
+    }
+}
+
 .html-editor-content {
 	margin-bottom: 1.5rem;
 }

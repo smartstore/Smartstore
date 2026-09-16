@@ -119,26 +119,20 @@
 		flex-grow: 1;
 	}
 
-	> em {
+    > :is(em, kbd) {
 		font-style: normal;
 		text-align: end;
+        margin-inline-start: auto;
+    }
+
+	> em {
 		padding-inline-start: 2rem;
-		margin-inline-start: auto;
 		font-size: 90%;
 		opacity: 0.8;
 	}
 
 	> kbd {
-		font-style: normal;
-		text-align: end;
-        color: inherit;
-		padding: 0 6px;
-		margin-inline-start: auto;
-		font-size: 80%;
-        background: var(--gray-100);
-		border: 1px solid rgba($black, 0.12);
-        border-bottom-width: 2px;
-        border-radius: 4px;
+        padding-block: 0;
         transform: translateX(8px);
 	}
 }
