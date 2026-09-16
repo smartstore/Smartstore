@@ -38,25 +38,28 @@
                             <option value="both">{{ T.pagerBoth }}</option>
                         </select>
                     </label>
+                </div>
+                <div class="dropdown-divider mt-2"></div>
+                <div class="dg-tools-group dg-tools-columns px-3 pb-1">
+                    <div v-for="(column, columnIndex) in columns" :key="column.member || columnIndex" class="dg-column-toggle form-check form-check-gray my-1">
+                        <input class="form-check-input" type="checkbox" v-model="column.visible" :id="columnToggleIdPrefix + columnIndex" :disabled="column.hideable ? null : true">
+                        <label class="form-check-label d-block text-truncate" :for="columnToggleIdPrefix + columnIndex">{{ column.name }}</label>
+                    </div>
+                </div>
+                <div class="dropdown-divider"></div>
+                <div class="dg-tools-group px-2 py-1">
                     <div class="row xs-gutters">
                         <div class="col">
-                            <button type="button" class="btn btn-sm btn-block btn-secondary mt-2" @click="$parent.$parent.resetState()">
+                            <button type="button" class="btn btn-sm btn-block btn-secondary" @click="$parent.$parent.resetState()">
                                 <span>{{ T.resetState }}</span>
                             </button>
                         </div>
                         <div class="col">
-                            <button type="button" class="btn btn-sm btn-block btn-secondary text-truncate mt-2" @click="$parent.$parent.autoSizeAllColumns()">
+                            <button type="button" class="btn btn-sm btn-block btn-secondary text-truncate" @click="$parent.$parent.autoSizeAllColumns()">
                                 <bootstrap-icon name="arrows-expand-vertical"></bootstrap-icon>
                                 <span>{{ T.fitColumns }}</span>
                             </button>
                         </div>
-                    </div>
-                </div>
-                <div class="dropdown-divider"></div>
-                <div class="dg-tools-group dg-tools-columns px-3 pb-1">
-                    <div v-for="(column, columnIndex) in columns" :key="column.member || columnIndex" class="dg-column-toggle form-check my-1">
-                        <input class="form-check-input" type="checkbox" v-model="column.visible" :id="columnToggleIdPrefix + columnIndex" :disabled="column.hideable ? null : true">
-                        <label class="form-check-label d-block text-truncate" :for="columnToggleIdPrefix + columnIndex">{{ column.name }}</label>
                     </div>
                 </div>
             </div>
