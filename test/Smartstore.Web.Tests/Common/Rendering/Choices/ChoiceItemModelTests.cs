@@ -25,7 +25,7 @@ public class ChoiceItemModelTests
         };
 
         Assert.That(item.GetSwatchColorCss(), Is.EqualTo(
-            "background-color: #ff0000;background-image: linear-gradient(135deg, " +
+            "background-color: #ff0000;background-image: linear-gradient(var(--swatch-multicolor-angle, 135deg), " +
             "#ff0000 0%, #ff0000 33.3333%, " +
             "#00ff00 33.3333%, #00ff00 66.6667%, " +
             "#0000ff 66.6667%, #0000ff 100%);"));

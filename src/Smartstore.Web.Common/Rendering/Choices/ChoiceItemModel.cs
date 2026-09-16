@@ -112,7 +112,7 @@ public abstract class ChoiceItemModel : EntityModelBase
             stops.Add($"{colors[i]} {end}%");
         }
 
-        return $"{css}background-image: linear-gradient(135deg, {string.Join(", ", stops)});";
+        return $"{css}background-image: linear-gradient(var(--swatch-multicolor-angle, 135deg), {string.Join(", ", stops)});";
     }
 
     /// <summary>

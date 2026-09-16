@@ -15,7 +15,7 @@
     // {
     //     Model.SwatchSize = SwatchSize.XLarge;
     //     Model.SwatchShape = SwatchShape.Rounded;
-    //     Model.SwatchAspectRatio = 0.75m;
+    //     Model.SwatchAspectRatio = 1m;
     //     Model.ShowValueNameInSwatch = true;
     //     Model.SwatchPriceDisplay = SwatchPriceDisplayMode.FinalPrice;
     // }
@@ -47,9 +47,15 @@
      data-media-card="@useCardLayout.ToString().ToLowerInvariant()"
      aria-orientation="horizontal"  
      attr-aria-required='(Model.IsRequired, "true")'>
-    <ul class="@groupClass" style="--swatch-aspect-ratio: @Model.EffectiveSwatchAspectRatio.ToStringInvariant()">
+    <ul class="@groupClass"
+        style="--swatch-aspect-ratio: @Model.EffectiveSwatchAspectRatio.ToStringInvariant(); --swatch-multicolor-angle: @(Model.MulticolorGradientAngle.ToStringInvariant())deg">
         @foreach (var item in items)
         {
+            // TEST
+            // item.AdditionalColors.Add("#f9c");
+            // item.AdditionalColors.Add("red");
+            // TEST
+
             var css = item.GetSwatchStyle();
             var hasColor = item.HasColor;
             var hasImage = item.HasImage;
@@ -75,9 +81,9 @@
                 + (useCardLayout ? null : hasImage ? " swatch-image" : hasColor ? " swatch-color" : null);
 
             // TEST
-            //swatchPrice ??= "199,59 €";
-            //item.SwatchComparePrice ??= new Money(299, WorkContext.WorkingCurrency);
-            //item.SwatchBasePriceInfo ??= "(299,13 € / 100 ml)";
+            @* swatchPrice ??= "199,59 €";
+            item.SwatchComparePrice ??= new Money(299, WorkContext.WorkingCurrency);
+            item.SwatchBasePriceInfo ??= "(299,13 € / 100 ml)"; *@
             // TEST
 
             <li class="@swatchClass" data-swatch-value="@dynamicLabel">

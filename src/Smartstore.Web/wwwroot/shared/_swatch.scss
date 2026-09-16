@@ -8,16 +8,18 @@
     --swatch-size: 38px;
     --swatch-gap: 12px;
     --swatch-aspect-ratio: 1;
+    --swatch-multicolor-angle: 135deg;
     --swatch-border-radius: var(--border-radius-md);
-    --swatch-bg: #fff;
-    --swatch-bg-selected: #fff; // rgba(var(--primary-bg-subtle-rgb), 0.5);
+    --swatch-border-color: transparent;
+    --swatch-border-color-selected: #fff;
     --swatch-outline-width: 2px;
     --swatch-outline-offset: 2px;
     --swatch-outline-color: rgba(0, 0, 0, 0.125);
     --swatch-outline-color-hover: rgba(0, 0, 0, 0.25);
     --swatch-outline-color-selected: #{$focus-ring-color};
-    --swatch-strike-color: rgba(0, 0, 0, 0.75);
-    --swatch-strike-width: 1px;
+    --swatch-strike-color-1: #000;
+    --swatch-strike-color-2: #fff;
+    --swatch-strike-width: 2px;
 
     position: relative;
     display: flex;
@@ -106,11 +108,7 @@
 .swatch {
     position: relative;
     display: block;
-    background-color: var(--swatch-bg);
-
-    &.dark {
-        --swatch-strike-color: rgba(255,255,255, 0.75);
-    }
+    background-color: transparent;
 }
 
 .swatch-label {
@@ -130,9 +128,9 @@
     height: var(--swatch-size);
     overflow: hidden;
     border-radius: var(--swatch-border-radius);
+    box-shadow: 0 0 0 var(--swatch-outline-offset) var(--swatch-border-color);
     outline: var(--swatch-outline-width) solid var(--swatch-outline-color);
     outline-offset: var(--swatch-outline-offset);
-    background-color: var(--swatch-bg);
     background-repeat: no-repeat;
     background-position: 50% 50%;
     background-size: cover;
@@ -181,14 +179,16 @@
             inset: 0;
             content: "";
             pointer-events: none;
-            opacity: 0.75;
             clip-path: inset(10%);
+            opacity: 1;
             --ssw: calc(var(--swatch-strike-width) / 2);
             background: linear-gradient(
-                to bottom right,
+                to bottom left,
                 transparent calc(50% - var(--ssw)),
-                var(--swatch-strike-color) calc(50% - var(--ssw)),
-                var(--swatch-strike-color) calc(50% + var(--ssw)),
+                var(--swatch-strike-color-2) calc(50% - var(--ssw)),
+                var(--swatch-strike-color-2) 50%,
+                var(--swatch-strike-color-1) 50%,
+                var(--swatch-strike-color-1) calc(50% + var(--ssw)),
                 transparent calc(50% + var(--ssw))
             );
         }
@@ -303,7 +303,7 @@
 
 .swatch-input:checked + :is(.swatch-label, .swatch-content) {
     .swatch-element {
-        background-color: var(--swatch-bg-selected);
+        box-shadow: 0 0 0 var(--swatch-outline-offset) var(--swatch-border-color-selected);
         outline-color: var(--swatch-outline-color-selected);
         // TODO: Hmmm, not sure about this
         //outline-width: calc(var(--swatch-outline-width) + 1px);
