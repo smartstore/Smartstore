@@ -214,47 +214,50 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
         #region product legal info
 
-        builder.AddOrUpdate("Products.ShippingInfo", 
-            "plus shipping", 
+        builder.AddOrUpdate("Products.ShippingInfo",
+            "plus shipping",
             "zzgl. Versandkosten");
 
-        builder.AddOrUpdate("Products.ShippingInfoUrl", 
+        builder.AddOrUpdate("Products.ShippingInfoUrl",
             "plus <a href=\"{0}\">shipping</a>",
             "zzgl. <a href=\"{0}\">Versandkosten</a>");
 
         builder.AddOrUpdate("Products.ShippingInfoWithSurcharge",
-            "plus shipping costs and a <b>{0}</b> surcharge",
-            "zzgl. Versandkosten und <b>{0}</b> Aufschlag");
+            "plus shipping and a <b>{0}</b> shipping surcharge",
+            "zzgl. Versandkosten und <b>{0}</b> Versandaufschlag");
 
         builder.AddOrUpdate("Products.ShippingInfoUrlWithSurcharge",
-            "plus <a href=\"{0}\">shipping</a> and a <b>{1}</b> surcharge",
-            "zzgl. <a href=\"{0}\">Versandkosten</a> und <b>{1}</b> Aufschlag");
+            "plus <a href=\"{0}\">shipping</a> and a <b>{1}</b> shipping surcharge",
+            "zzgl. <a href=\"{0}\">Versandkosten</a> und <b>{1}</b> Versandaufschlag");
+
+        builder.AddOrUpdate("Products.ShippingSurchargeInfo",
+            "plus <b>{0}</b> shipping surcharge",
+            "zzgl. <b>{0}</b> Versandaufschlag");
+
+        builder.AddOrUpdate("Products.FreeShippingInfo",
+            "free shipping",
+            "versandkostenfrei");
 
         builder.AddOrUpdate("Products.TaxLegalInfo", "Prices {0}", "Preise {0}");
 
         builder.AddOrUpdate("Common.AdditionalShippingSurcharge",
-            "plus <b>{0}</b> shipping surcharge",
+            "Plus <b>{0}</b> shipping surcharge",
             "zzgl. <b>{0}</b> Versandaufschlag");
 
         builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.LegalInfoInProductDetail",
-            "Legal information",
-            "Rechtliche Hinweise",
-            "Specifies the legal information displayed on the product detail page. Depending on the selected option, this includes either tax information"
-            + " (whether prices include or exclude tax, and if applicable, the tax rate), or shipping information (shipping page link, and if applicable, an additional shipping surcharge).",
-            "Legt die auf der Produktdetailseite angezeigten rechtlichen Hinweise fest. Je nach gewählter Option umfasst dies Steuerinformationen, d.h. ob die Preise"
-            + " inklusive oder exklusive Steuer angezeigt werden, sowie den Steuersatz, sofern dieser aktiviert ist. Außerdem umfasst dies Versandinformationen,"
-            + "d.h. Link zur Versandseite sowie gegebenenfalls einen zusätzlichen Versandaufschlag.");
+            "Legal information on product page",
+            "Rechtliche Hinweise auf der Produktseite",
+            "Specifies which tax and shipping cost notes are displayed on the product page. If nothing is selected, no note is displayed. An additional shipping charge is always displayed.",
+            "Legt fest, welche Hinweise zu Steuer und Versandkosten auf der Produktseite angezeigt werden. Ohne Auswahl wird kein Hinweis angezeigt. Ein Transportzuschlag wird immer angezeigt.");
 
         builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.LegalInfoInLists",
-            "Legal information",
-            "Rechtliche Hinweise",
-            "Specifies the legal information displayed in product lists. Depending on the option selected, this includes whether prices are displayed with or without tax,"
-            + " and a link to the shipping page.",
-            "Legt die in Produktlisten angezeigten rechtlichen Hinweise fest. Je nach gewählter Option umfasst dies, ob die Preise inklusive oder exklusive Steuer"
-            + " angezeigt werden, und einen Link zur Versandseite.");
+            "Legal information in product lists",
+            "Rechtliche Hinweise in Produktlisten",
+            "Specifies which tax and shipping cost notes are displayed in the list view and in the product comparison. If nothing is selected, no note is displayed.",
+            "Legt fest, welche Hinweise zu Steuer und Versandkosten in der Listenansicht und im Produktvergleich angezeigt werden. Ohne Auswahl wird kein Hinweis angezeigt.");
 
-        builder.AddOrUpdate("Enums.ProductLegalInfo.Tax", "Tax", "Steuer");
-        builder.AddOrUpdate("Enums.ProductLegalInfo.Shipping", "Shipping", "Versand");
+        builder.AddOrUpdate("Enums.ProductLegalInfo.Tax", "Tax note (incl./excl. VAT)", "Steuerhinweis (inkl./zzgl. MwSt.)");
+        builder.AddOrUpdate("Enums.ProductLegalInfo.Shipping", "Shipping cost note", "Versandkostenhinweis");
 
         builder.Delete(
             "Tax.LegalInfoProductDetail",
@@ -265,7 +268,9 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Admin.Configuration.Settings.Tax.ShowLegalHintsInProductDetails",
             "Admin.Configuration.Settings.Tax.ShowLegalHintsInProductDetails.Hint",
             "Admin.Configuration.Settings.Tax.ShowLegalHintsInProductList",
-            "Admin.Configuration.Settings.Tax.ShowLegalHintsInProductList.Hint");
+            "Admin.Configuration.Settings.Tax.ShowLegalHintsInProductList.Hint",
+            "Admin.Configuration.Settings.Tax.ShowLegalHintsInProductGrid",
+            "Admin.Configuration.Settings.Tax.ShowLegalHintsInProductGrid.Hint");
 
         #endregion
     }
