@@ -220,7 +220,7 @@ public partial class CatalogHelper
 
             if (_catalogSettings.LegalInfoInLists.HasFlag(ProductLegalInfo.Tax))
             {
-                legalInfo = T("Tax.LegalInfoShort", T(calculationOptions.TaxInclusive ? "Tax.InclVAT" : "Tax.ExclVAT"));
+                legalInfo = T("Products.TaxLegalInfo", T(calculationOptions.TaxInclusive ? "Tax.InclVAT" : "Tax.ExclVAT"));
             }
             if (_catalogSettings.LegalInfoInLists.HasFlag(ProductLegalInfo.Shipping))
             {
@@ -529,7 +529,7 @@ public partial class CatalogHelper
         {
             if (!product.IsTaxExempt && _catalogSettings.LegalInfoInLists.HasFlag(ProductLegalInfo.Tax))
             {
-                item.LegalInfo = T("Tax.LegalInfoShort", T(options.TaxInclusive ? "Tax.InclVAT" : "Tax.ExclVAT"));
+                item.LegalInfo = T("Products.TaxLegalInfo", T(options.TaxInclusive ? "Tax.InclVAT" : "Tax.ExclVAT"));
             }
             if (_catalogSettings.LegalInfoInLists.HasFlag(ProductLegalInfo.Shipping))
             {

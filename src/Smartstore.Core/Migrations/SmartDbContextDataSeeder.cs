@@ -230,7 +230,7 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "plus <a href=\"{0}\">shipping</a> and a <b>{1}</b> surcharge",
             "zzgl. <a href=\"{0}\">Versandkosten</a> und <b>{1}</b> Aufschlag");
 
-        builder.AddOrUpdate("Tax.LegalInfoShort", "Prices {0}", "Preise {0}");
+        builder.AddOrUpdate("Products.TaxLegalInfo", "Prices {0}", "Preise {0}");
 
         builder.AddOrUpdate("Common.AdditionalShippingSurcharge",
             "plus <b>{0}</b> shipping surcharge",
@@ -259,6 +259,7 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.Delete(
             "Tax.LegalInfoProductDetail",
             "Tax.LegalInfoProductDetail2",
+            "Tax.LegalInfoShort",
             "Tax.LegalInfoShort2",
             "Tax.LegalInfoShort3",
             "Admin.Configuration.Settings.Tax.ShowLegalHintsInProductDetails",
