@@ -57,6 +57,38 @@ public partial class ProductAttribute : EntityWithAttributes, ILocalizedEntity, 
     public bool IndexOptionNames { get; set; }
 
     /// <summary>
+    /// Gets or sets the effective swatch size.
+    /// <c>null</c> means "use the global default" which is effectively a medium swatch size.
+    /// </summary>
+    public int? SwatchSizeId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the swatch shape.
+    /// <c>null</c> means "use the global default" which is effectively a square swatch shape.
+    /// </summary>
+    public int? SwatchShapeId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the swatch aspect ratio.
+    /// Controls the rendered swatch width-to-height ratio.
+    /// Default is 1.0 (square).
+    /// </summary>
+    public decimal SwatchAspectRatio { get; set; } = 1m;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the value name is shown in the swatch.
+    /// If <c>true</c>, shows the option text together with the rendered swatch.
+    /// Default is <c>false</c> (only the swatch is shown).
+    /// </summary>
+    public bool ShowValueNameInSwatch { get; set; }
+
+    /// <summary>
+    /// Gets or sets which price information is displayed in the swatch.
+    /// Default is 0 (no price information is shown).
+    /// </summary>
+    public int SwatchPriceDisplayId { get; set; }
+
+    /// <summary>
     /// Gets or sets optional export mappings.
     /// </summary>
     [MaxLength]

@@ -47,6 +47,22 @@ public class ProductAttributeModel : EntityModelBase, ILocalizedModel<ProductAtt
     [LocalizedDisplay("*IndexOptionNames")]
     public bool IndexOptionNames { get; set; }
 
+    [LocalizedDisplay("*SwatchSizeId")]
+    [UIHint("SwatchSize")]
+    public int? SwatchSizeId { get; set; }
+
+    [LocalizedDisplay("*SwatchShapeId")]
+    public int? SwatchShapeId { get; set; }
+
+    [LocalizedDisplay("*SwatchAspectRatio")]
+    public decimal SwatchAspectRatio { get; set; } = 1m;
+
+    [LocalizedDisplay("*ShowValueNameInSwatch")]
+    public bool ShowValueNameInSwatch { get; set; }
+
+    [LocalizedDisplay("*SwatchPriceDisplayId")]
+    public int SwatchPriceDisplayId { get; set; }
+
     [UIHint("Textarea")]
     [AdditionalMetadata("rows", 6)]
     [LocalizedDisplay("*ExportMappings")]

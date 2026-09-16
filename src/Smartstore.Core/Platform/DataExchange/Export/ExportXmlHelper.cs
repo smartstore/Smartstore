@@ -984,6 +984,12 @@ public class ExportXmlHelper : Disposable
                 _writer.WriteElementString(nameof(ProductAttribute.DisplayOrder), entityPa.DisplayOrder.ToString());
                 _writer.WriteElementString(nameof(ProductAttribute.FacetTemplateHint), ((int)entityPa.FacetTemplateHint).ToString());
                 _writer.WriteElementString(nameof(ProductAttribute.IndexOptionNames), entityPa.IndexOptionNames.ToString());
+                _writer.WriteElementString(nameof(ProductAttribute.SwatchSizeId), entityPa.SwatchSizeId?.ToString(_culture) ?? string.Empty);
+                _writer.WriteElementString(nameof(ProductAttribute.SwatchShapeId), entityPa.SwatchShapeId?.ToString(_culture) ?? string.Empty);
+                _writer.WriteElementString(nameof(ProductAttribute.SwatchAspectRatio), entityPa.SwatchAspectRatio.ToString(_culture));
+                _writer.WriteElementString(nameof(ProductAttribute.ShowValueNameInSwatch), entityPa.ShowValueNameInSwatch.ToString());
+                _writer.WriteElementString(nameof(ProductAttribute.SwatchPriceDisplayId), entityPa.SwatchPriceDisplayId.ToString());
+                _writer.WriteElementString(nameof(ProductAttribute.ExportMappings), entityPa.ExportMappings);
 
                 WriteLocalized(pva.Attribute);
                 _writer.WriteEndElement();  // Attribute

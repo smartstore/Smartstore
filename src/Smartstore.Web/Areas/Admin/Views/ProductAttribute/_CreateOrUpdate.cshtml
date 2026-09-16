@@ -147,6 +147,21 @@
                     </div>
                 </div>
             </div>
+
+            <div class="adminRow">
+                <div class="admin-config-group">
+                    <div class="title">@T("Admin.Catalog.Attributes.ProductAttributes.Swatches")</div>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SwatchSizeId" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="SwatchSizeId" />
+                    <span asp-validation-for="SwatchSizeId"></span>
+                </div>
+            </div>
         </div>
     </tab>
     <tab sm-title="@T("Admin.Catalog.Attributes.OptionsSets")" sm-adaptive-height="true">

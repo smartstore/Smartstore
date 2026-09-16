@@ -1,0 +1,155 @@
+@using Smartstore.Utilities
+@using Smartstore.Web.Rendering.Choices
+
+@model int?
+
+@{
+    var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    var fieldName = ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
+    var fieldId = Html.IdForModel().ToString();
+    var hasOverride = Model.HasValue;
+    var value = Model ?? (int)SwatchSize.Medium;
+}
+
+<style>
+    .swatch-size-preview {
+        flex: 0 0 72px;
+        width: 72px;
+    }
+
+    .swatch-size-labels {
+        height: 1.5rem;
+    }
+
+    .swatch-size-label {
+        position: absolute;
+        top: 0;
+        transform: translateX(-50%);
+        white-space: nowrap;
+    }
+</style>
+
+<div class="swatch-size-editor d-flex align-items-start" data-editor="swatch-size">
+    <div class="flex-grow-1 mr-3">
+        <div class="form-check form-check-solo form-switch form-switch-lg mb-2">
+            <input id="@(fieldId)_Override"
+                   type="checkbox"
+                   class="form-check-input swatch-size-toggle"
+                   attr-checked='(hasOverride, "checked")' />
+        </div>
+
+        <input id="@fieldId"
+               name="@fieldName"
+               type="hidden"
+               value="@(hasOverride ? value.ToStringInvariant() : string.Empty)"
+               attrs="attributes" />
+
+        <input id="@(fieldId)_Slider"
+               type="range"
+               class="form-control-range px-0 custom-range swatch-size-slider"
+               min="0"
+               max="50"
+               step="10"
+               value="@value"
+               attr-disabled='(!hasOverride, "disabled")' />
+
+        <div class="swatch-size-labels position-relative mx-2 small text-muted text-center">
+            <span class="swatch-size-label" style="left:0">
+                @T("Enums.SwatchSize.XSmall")
+            </span>
+            <span class="swatch-size-label" style="left:20%">
+                @T("Enums.SwatchSize.Small")
+            </span>
+            <span class="swatch-size-label" style="left:40%">
+                @T("Enums.SwatchSize.Medium")
+            </span>
+            <span class="swatch-size-label" style="left:60%">
+                @T("Enums.SwatchSize.Large")
+            </span>
+            <span class="swatch-size-label" style="left:80%">
+                @T("Enums.SwatchSize.XLarge")
+            </span>
+            <span class="swatch-size-label"  style="left:100%">
+                @T("Enums.SwatchSize.XXLarge")
+            </span>
+        </div>
+
+        <div class="small text-muted mt-1 swatch-size-global-text"
+             attr-style='(hasOverride, "display: none")'>
+            TODO: Den Wert der globalen Einstellung anzeigen.
+        </div>
+    </div>
+
+    <div class="swatch-size-preview text-center flex-shrink-0">
+        <div class="small text-muted mb-1 swatch-size-preview-label"></div>
+        <div class="swatch-size-preview-chip border rounded-circle mx-auto"></div>
+    </div>
+</div>
+
+<script>
+(function ($) {
+    var $editor = $('#@fieldId').closest('.swatch-size-editor');
+
+    if (!$editor.length || $editor.data('bound')) {
+        return;
+    }
+
+    var labels = {
+        0: @T("Enums.SwatchSize.XSmall").JsValue,
+        10: @T("Enums.SwatchSize.Small").JsValue,
+        20: @T("Enums.SwatchSize.Medium").JsValue,
+        30: @T("Enums.SwatchSize.Large").JsValue,
+        40: @T("Enums.SwatchSize.XLarge").JsValue,
+        50: @T("Enums.SwatchSize.XXLarge").JsValue
+    };
+
+    var previewSizes = {
+        0: 16,
+        10: 20,
+        20: 24,
+        30: 30,
+        40: 36,
+        50: 42
+    };
+
+    var $toggle = $editor.find('.swatch-size-toggle');
+    var $slider = $editor.find('.swatch-size-slider');
+    var $hidden = $editor.find('input[type="hidden"]');
+    var $globalText = $editor.find('.swatch-size-global-text');
+    var $label = $editor.find('.swatch-size-preview-label');
+    var $chip = $editor.find('.swatch-size-preview-chip');
+
+    function sync() {
+        var isOverridden = $toggle.prop('checked');
+        var sliderValue = parseInt($slider.val(), 10);
+
+        if (isNaN(sliderValue)) {
+            sliderValue = 20;
+        }
+
+        $slider.prop('disabled', !isOverridden);
+
+        $hidden
+            .val(isOverridden ? sliderValue.toString() : '')
+            .trigger('change');
+
+        $globalText.toggle(!isOverridden);
+
+        $label.text(labels[sliderValue] || sliderValue);
+
+        var size = previewSizes[sliderValue] || 24;
+
+        $chip.css({
+            width: size,
+            height: size
+        });
+    }
+
+    $editor.data('bound', true);
+
+    $toggle.on('change', sync);
+    $slider.on('input change', sync);
+
+    sync();
+})(jQuery);
+</script>
