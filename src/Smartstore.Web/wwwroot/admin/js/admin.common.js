@@ -95,50 +95,39 @@ Smartstore.Admin = {
 
         if (reverse) show = !show;
 
-        var duration = animate ? 200 : 0;
-
-        function afterShow() { $(this).addClass('expanded'); }
-        function afterHide() { $(this).removeClass('expanded'); }
-
         $(ctl.data('toggler-for')).each(function (i, cel) {
             var pnl = $(cel),
-                isGroup = pnl.is('tbody, .collapsible-group'),
+                isTableGroup = pnl.is('tbody'),
                 reversePanel = pnl.data('panel-reverse'),
                 showPanel = show;
 
             if (reversePanel) showPanel = !showPanel;
 
             pnl.addClass('collapsible');
-            if (isGroup) pnl.addClass('collapsible-group');
+            if (isTableGroup) pnl.addClass('collapsible-group');
 
-            //if (!pnl.data('bs.collapse')) {
-            //    pnl.collapse();
-            //}
+            if (!pnl.data('bs.collapse')) {
+                // Existing views don't provide Bootstrap's initial collapse state. Establish it
+                // before creating the instance and prevent the constructor from toggling it.
+                pnl
+                    .addClass('collapse')
+                    .toggleClass('show expanded', showPanel)
+                    .collapse({ toggle: false });
+            }
 
-            if (showPanel) {
-                if (!isGroup) {
-                    pnl.show(duration, afterShow);
-                    //pnl.collapse('show');
-                }
-                else {
-                    var targets = pnl.children()
-                        .hide() // initially hide all children asap
-                        .filter(':not(.collapsible), .collapsible.expanded'); // fetch only expandable items
-                    pnl.show(0, afterShow); // first, show panel group asap (otherwise we won't see any animation)
-                    targets.show(duration); // animate all items
-                }
+            if (!animate || isTableGroup) {
+                // Initial setup must not animate. Bootstrap's height transition also cannot
+                // reliably animate a table row group, but its collapse state still works.
+                pnl
+                    .removeClass('collapsing')
+                    .addClass('collapse')
+                    .toggleClass('show expanded', showPanel)
+                    .css('height', '');
             }
             else {
-                if (!isGroup) {
-                    pnl.hide(duration, afterHide);
-                    //pnl.collapse('hide');
-                }
-                else {
-                    // hide all children (animated)
-                    pnl.children().hide(duration).promise().done(function () {
-                        pnl.hide(0, afterHide); // last, hide panel group asap
-                    });
-                }
+                pnl
+                    .toggleClass('expanded', showPanel)
+                    .collapse(showPanel ? 'show' : 'hide');
             }
         });
     },

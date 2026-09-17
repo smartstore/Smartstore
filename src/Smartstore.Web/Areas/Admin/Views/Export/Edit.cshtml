@@ -33,12 +33,12 @@
             {
                 if (Model.Id != 0)
                 {
-                    <button type="button" id="ProfileExportButton" class="btn btn-primary" data-url="@Url.Action("Execute", "Export", new { area = "Admin", id = Model.Id })">
+                    <button type="button" id="ProfileExportButton" class="btn btn-outline-secondary btn-to-primary" data-url="@Url.Action("Execute", "Export", new { area = "Admin", id = Model.Id })">
                         <i class="far fa-upload"></i>
                         <span>@T("Common.Export")</span>
                     </button>
                 }
-                <a asp-action="Preview" asp-route-id="@Model.Id" class="btn btn-secondary">
+                <a asp-action="Preview" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
                     <i class="far fa-eye"></i>
                     <span>@T("Admin.Common.Preview")</span>
                 </a>
@@ -46,12 +46,12 @@
 
             @if (Model.LogFileExists)
             {
-                <a asp-action="DownloadLogFile" asp-route-id="@Model.Id" class="btn btn-secondary" target="LogFile">
+                <a asp-action="DownloadLogFile" asp-route-id="@Model.Id" class="btn btn-outline-secondary" target="LogFile">
                     <i class="far fa-file-lines"></i>
                     <span>@T("Admin.Configuration.ActivityLog")</span>
                 </a>
             }
-
+            <span class="vr"></span>
             <button type="submit" name="save" value="save" class="btn btn-warning">
                 <i class="fa fa-check"></i>
                 <span>@T("Admin.Common.Save")</span>
