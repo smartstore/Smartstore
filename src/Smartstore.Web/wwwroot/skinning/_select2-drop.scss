@@ -33,19 +33,6 @@
     padding: var(--select2-drop-padding-y) var(--select2-drop-padding-x);
 }
 
-
-&.select2-container--open {
-    .select2-selection,
-    .select2-selection__arrow {
-        background-color: $dropdown-bg;
-    }
-
-    .select2-selection__arrow {
-        border-color: transparent;
-        box-shadow: none;
-    }
-}
-
 .select2-results {
     background: $dropdown-bg;
 }

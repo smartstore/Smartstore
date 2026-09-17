@@ -1,7 +1,7 @@
 /// <reference path="references.scss" />
 
 .select2-selection--single {
-    --select2-padding-end: calc(var(--select2-caret-width) + calc(var(--select2-padding-x) / 2));
+    --select2-padding-end: calc(var(--select2-caret-width) * 0.85);
 
     border-radius: var(--border-radius);
     padding-block: var(--select2-padding-y);
@@ -15,19 +15,16 @@
         inset-block-start: 1px;
         inset-block-end: 1px;
         inset-inline-end: 1px;
-        border: 0 solid $input-border-color;
-        border-inline-start-width: 1px;
+        border: none;
         width: var(--select2-caret-width);
         border-radius: var(--border-radius);
-        background-color: var(--gray-100);
-        //border-top-left-radius: 0;
+        background-color: transparent;
         border-start-start-radius: 0;
-        //border-bottom-left-radius: 0;
         border-end-start-radius: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: if($enable-shadows, $btn-box-shadow, null);
+        box-shadow: none;
 
         b {
             width: 10px;
@@ -58,7 +55,7 @@
         }
 
         .select2-selection__clear {
-            margin-inline-end: 0.25em;
+            margin-inline-end: 0;
         }
     }
 
