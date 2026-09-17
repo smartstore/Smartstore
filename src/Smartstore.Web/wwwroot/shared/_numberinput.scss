@@ -87,8 +87,9 @@
     align-items: center;
     flex-wrap: nowrap;
     z-index: 6;
-    background-color: $input-bg;
-    color: $gray-600;
+    background-color: transparent;
+    color: inherit;
+    opacity: 0.5;
     font-size: var(--ni-font-size);
     line-height: var(--ni-line-height);
     cursor: default;
