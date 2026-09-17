@@ -226,7 +226,7 @@ public partial class CatalogHelper
                 var taxLegalInfo = string.Empty;
                 if (_catalogSettings.LegalInfoInLists.HasFlag(ProductLegalInfo.Tax))
                 {
-                    taxLegalInfo = T("Tax.LegalInfoShort", T(calculationOptions.TaxInclusive ? "Tax.InclVAT" : "Tax.ExclVAT"));
+                    taxLegalInfo = T("Products.TaxLegalInfo", T(calculationOptions.TaxInclusive ? "Tax.InclVAT" : "Tax.ExclVAT"));
                 }
 
                 if (_catalogSettings.LegalInfoInLists.HasFlag(ProductLegalInfo.Shipping))
