@@ -10,7 +10,7 @@
         top: 50%;
         font-size: 85%;
         transform: translateY(-50%) rotate(180deg);
-        transition: transform 0.35s ease;
+        transition: transform var(--collapse-duration, .2s) var(--collapse-easing, ease-out);
     }
 
     &.collapsed:after {

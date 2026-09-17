@@ -285,3 +285,14 @@
         @content;
     }
 }
+
+@mixin collapse-hidden() {
+    opacity: 0;
+    transform: translate(0, $collapse-offset);
+    //transform: translate($collapse-offset, $collapse-offset);
+}
+
+@mixin collapse-expanded() {
+    opacity: 1;
+    transform: translate(0, 0);
+}

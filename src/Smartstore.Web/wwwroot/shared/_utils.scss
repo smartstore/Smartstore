@@ -477,6 +477,33 @@ table th {
 // Animations
 // ------------------------------------------------------
 
+:is(.collapse, .collapsing) {
+    // Closed accordion state
+    [aria-expanded="false"] + &,
+    .card:has(> .card-header [aria-expanded="false"]) > &,
+    .nav-toggler:has(> [aria-expanded="false"]) + & {
+        @include collapse-hidden();
+    }
+
+    // Open accordion state
+    [aria-expanded="true"] + &,
+    .card:has(> .card-header [aria-expanded="true"]) > &,
+    .nav-toggler:has(> [aria-expanded="true"]) + & {
+        @include collapse-expanded();
+    }
+}
+
+@starting-style {
+    // Without this, opacity will not animate on expand.
+    .collapsing {
+        [aria-expanded="true"] + &,
+        .card:has(> .card-header [aria-expanded="true"]) > &,
+        .nav-toggler:has(> [aria-expanded="true"]) + & {
+            @include collapse-hidden();
+        }
+    }
+}
+
 .no-anims,
 .no-anims * {
     transition-property: none !important;

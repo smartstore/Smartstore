@@ -116,8 +116,11 @@ $focus-ring-blur:             0 !default;
 $focus-ring-box-shadow:       0 0 $focus-ring-blur $focus-ring-width $focus-ring-color, inset 0 0 0 $focus-ring-width hsla(0,0%,100%, 0.92) !default;
 
 $transition-base:             all 0.125s ease-in-out !default;
-$transition-collapse:         height .2s ease-out, opacity .2s ease-out !default;
-$transition-collapse-width:   width .2s ease-out, opacity .2s ease-out !default;
+$transition-collapse:         height var(--collapse-duration, .2s) var(--collapse-easing, ease-out), 
+                              opacity var(--collapse-duration, .2s) var(--collapse-easing, ease-out), 
+                              transform var(--collapse-duration, .2s) var(--collapse-easing, ease-out) !default;
+$transition-collapse-width:   width var(--collapse-duration, .2s) var(--collapse-easing, ease-out), 
+                              opacity var(--collapse-duration, .2s) var(--collapse-easing, ease-out) !default;
 
 
 // Typo

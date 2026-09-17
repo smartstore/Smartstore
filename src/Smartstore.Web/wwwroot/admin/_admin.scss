@@ -1157,7 +1157,7 @@ legend {
         inset-inline-end: 0;
         top: 50%;
         margin-top: -7px;
-        transition: transform 0.25s ease-in-out;
+        transition: transform var(--collapse-duration, .2s) var(--collapse-easing, ease-out);
     }
 
     &.collapsed:after {
