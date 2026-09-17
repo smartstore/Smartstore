@@ -363,6 +363,11 @@ kbd {
         border: none;
         background-color: transparent;
     }
+
+    .btn & {
+        padding-block: 0;
+        border-bottom-width: 1px;
+    }
 }
 
 .html-editor-content {
