@@ -1,5 +1,6 @@
 ﻿using Smartstore.Admin.Models.Catalog;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Localization;
@@ -16,13 +17,18 @@ public class ProductAttributeController : AdminController
 {
     private readonly SmartDbContext _db;
     private readonly ILocalizedEntityService _localizedEntityService;
+    private readonly CatalogSettings _catalogSettings;
 
-    public ProductAttributeController(SmartDbContext db, ILocalizedEntityService localizedEntityService)
+    public ProductAttributeController(
+        SmartDbContext db, 
+        ILocalizedEntityService localizedEntityService,
+        CatalogSettings catalogSettings)
     {
         _db = db;
         _localizedEntityService = localizedEntityService;
+        _catalogSettings = catalogSettings;
     }
-
+    
     // AJAX.
     public async Task<IActionResult> AllProductAttributes(string label, int selectedId)
     {
@@ -175,6 +181,7 @@ public class ProductAttributeController : AdminController
         };
 
         AddLocales(model.Locales);
+        PrepareAttributeViewBag();
 
         return View(model);
     }
@@ -209,6 +216,8 @@ public class ProductAttributeController : AdminController
             }
         }
 
+        PrepareAttributeViewBag();
+
         return View(model);
     }
 
@@ -230,6 +239,7 @@ public class ProductAttributeController : AdminController
             locale.Alias = attribute.GetLocalized(x => x.Alias, languageId, false, false);
             locale.Description = attribute.GetLocalized(x => x.Description, languageId, false, false);
         });
+        PrepareAttributeViewBag();
 
         return View(model);
     }
@@ -267,6 +277,8 @@ public class ProductAttributeController : AdminController
                 ModelState.AddModelError(string.Empty, ex.Message);
             }
         }
+
+        PrepareAttributeViewBag();
 
         return View(model);
     }
@@ -590,6 +602,12 @@ public class ProductAttributeController : AdminController
                 }
             }
         }
+    }
+
+    private void PrepareAttributeViewBag()
+    {
+        ViewData[nameof(ProductAttributeModel.SwatchSizeId) + "DefaultValue"] = _catalogSettings.DefaultSwatchSizeId;
+        ViewData[nameof(ProductAttributeModel.SwatchShapeId) + "DefaultValue"] = _catalogSettings.DefaultSwatchShapeId;
     }
 
     private async Task ApplyLocales(ProductAttributeModel model, ProductAttribute attribute)

@@ -446,6 +446,18 @@ public class CatalogSettings : ISettings
     /// </summary>
     public GridColumnSpan GridStyleListColumnSpan { get; set; } = GridColumnSpan.Max4Cols;
 
+    /// <summary>
+    /// Gets or sets the identifier of the default swatch size.
+    /// The default value is "XLarge".
+    /// </summary>
+    public int DefaultSwatchSizeId { get; set; } = 40;
+
+    /// <summary>
+    /// Gets or sets the identifier of the default swatch shape.
+    /// The default value is "rounded".
+    /// </summary>
+    public int DefaultSwatchShapeId { get; set; } = 0;
+
     #region Grouped product configuration
 
     /// <summary>

@@ -89,8 +89,13 @@
             color: $gray-500;
         }
 
-        &:first-child:after { transform: none; }
-        &:last-child:after  { transform: translateX(-100%); }
+        &:first-child:after {
+            transform: none;
+        }
+
+        &:last-child:after {
+            transform: translateX(-100%);
+        }
     }
 
     .range-value {
@@ -117,8 +122,8 @@
             top: 50%;
             left: 1px;
             transform: translate3d(-100%, -50%, 0);
-            width: 0; 
-            height: 0; 
+            width: 0;
+            height: 0;
             border: 6px solid transparent;
             border-right-color: $gray-800;
         }
@@ -141,6 +146,18 @@
         .form-control-range:focus + .range-value,
         .range-track {
             opacity: 1;
+        }
+    }
+    /* Distinct visually inherited state without using muted opacity */
+    &.is-inherited .custom-range {
+        &::-webkit-slider-thumb {
+            background-color: $gray-500;
+            border-color: $gray-500;
+        }
+
+        &::-moz-range-thumb {
+            background-color: $gray-500;
+            border-color: $gray-500;
         }
     }
 }

@@ -57,13 +57,13 @@ public partial class ProductAttribute : EntityWithAttributes, ILocalizedEntity, 
     public bool IndexOptionNames { get; set; }
 
     /// <summary>
-    /// Gets or sets the effective swatch size.
+    /// Gets or sets the identifier of the swatch size.
     /// <c>null</c> means "use the global default" which is effectively a medium swatch size.
     /// </summary>
     public int? SwatchSizeId { get; set; }
 
     /// <summary>
-    /// Gets or sets the swatch shape.
+    /// Gets or sets the identifier of the swatch shape.
     /// <c>null</c> means "use the global default" which is effectively a square swatch shape.
     /// </summary>
     public int? SwatchShapeId { get; set; }

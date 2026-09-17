@@ -95,12 +95,17 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
 
     public void MigrateLocaleResources(LocaleResourcesBuilder builder)
     {
-        builder.AddOrUpdate("Enums.SwatchSize.XSmall", "XS", "XS");
-        builder.AddOrUpdate("Enums.SwatchSize.Small", "S", "S");
-        builder.AddOrUpdate("Enums.SwatchSize.Medium", "M", "M");
-        builder.AddOrUpdate("Enums.SwatchSize.Large", "L", "L");
-        builder.AddOrUpdate("Enums.SwatchSize.XLarge", "XL", "XL");
-        builder.AddOrUpdate("Enums.SwatchSize.XXLarge", "XXL", "XXL");
+        builder.AddOrUpdate("Admin.Common.ResetToDefault",
+            "Reset to default value.",
+            "Auf den Standardwert zurücksetzen.");
+
+        builder.AddOrUpdate("Admin.Common.ClickToSetDifferentValue",
+            "Set a value that differs from the default by clicking.",
+            "Klicken, um einen vom Standard abweichenden Wert festzulegen.");
+
+        builder.AddOrUpdate("Admin.Common.ClickToSetValue",
+            "No value set (default). Click to set a value.",
+            "Kein Wert gesetzt (Standard). Klicken, um einen Wert festzulegen.");
 
         builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.Swatches",
             "Color and Image Swatches",

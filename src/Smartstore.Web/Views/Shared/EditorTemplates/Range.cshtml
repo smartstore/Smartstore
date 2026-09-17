@@ -1,55 +1,148 @@
-﻿@using System.Globalization
-@using Smartstore.Utilities
+﻿@using Smartstore.Utilities
 
 @model object
 
 @{
-    if (Model == null || !Model.GetType().IsNumericType() || Model.GetType().IsGenericType)
-    {
-        //throw new InvalidOperationException("The model item to be used in a range editor must be numeric and non-nullable.");
-    }
-
-    var containerCssClass = "range-slider edit-control";
-    if (ViewData.ContainsKey("size"))
-    {
-        containerCssClass += " range-slider-" + ViewData["size"].ToString();
-    }
-    if (ViewData.ContainsKey("class"))
-    {
-        containerCssClass += " " + ViewData["class"].ToString();
-    }
-
-    var sliderCssClass = "form-control-range px-0 custom-range";
-
+    var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
     var name = ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
     var id = Html.GenerateIdFromName(name);
-
-    var min = (GetMetadata<decimal?>("min") ?? 0m).ToStringInvariant();
+    var rawMin = GetMetadata<decimal?>("min") ?? 0m;
+    var min = rawMin.ToStringInvariant();
     var max = (GetMetadata<decimal?>("max") ?? 100m).ToStringInvariant();
     var step = (GetMetadata<decimal?>("step") ?? 1m).ToStringInvariant();
     var ticks = GetMetadata<string>("ticks").SplitSafe(',').Select(x => x.Trim()).ToArray();
     var format = GetMetadata<string>("format") ?? "{0}";
+    var isNullable = Nullable.GetUnderlyingType(ViewData.ModelMetadata.ModelType) != null;
+    var hasValue = Model != null;
+    decimal? defaultValue = null;
 
-    var invariantValue = ViewData.Model.Convert<decimal>().ToStringInvariant();
-    var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    if (isNullable)
+    {
+        // Retrieve default value from ViewData using convention "{PropertyName}DefaultValue".
+        var defaultValueKey = (ViewData.ModelMetadata.PropertyName ?? name) + "DefaultValue";
+        if (!ViewData.TryGetAndConvertValue<decimal?>(defaultValueKey, out defaultValue))
+        {
+            defaultValue = GetMetadata<decimal?>("defaultValue");
+        }
+    }
+
+    var hasDefaultValue = defaultValue != null;
+    defaultValue ??= rawMin;
+
+    var value = (hasValue ? ViewData.Model.Convert<decimal>() : defaultValue).ToStringInvariant();
+
+    var containerCssClass = "range-slider edit-control";
+    if (ViewData.ContainsKey("size"))
+    {
+        containerCssClass = containerCssClass.Grow($"range-slider-" + ViewData["size"].ToString());
+    }
+    if (ViewData.ContainsKey("class"))
+    {
+        containerCssClass = containerCssClass.Grow(ViewData["class"].ToString());
+    }
+    if (isNullable && !hasValue)
+    {
+        containerCssClass = containerCssClass.Grow("is-inherited");
+    }
+
+    async Task RenderRangeControl()
+    {
+        <input type="hidden" asp-for="@Model" attrs="attributes" />
+        <input type="range" class="form-control-range px-0 custom-range" data-target="#@id" min="@min" max="@max" step="@step" value="@value" />
+
+        <div sm-if="format.HasValue()" class="range-value" data-placement="left">
+            <div class="arrow"></div>
+            <div class="range-value-inner text-nowrap"></div>
+        </div>
+
+        <div sm-if="ticks.Length > 0" class="range-ticks">
+            @foreach (var tick in ticks)
+            {
+                <div class="range-tick" data-value="@Html.Raw(tick)"></div>
+            }
+        </div>        
+    }
 }
 
-<div class="@containerCssClass" data-format="@Html.Raw(format)" data-editor="range">
-    @*TODO: (mh) (core) Default validation was inserted by this*@
-    @*@Html.Hidden(string.Empty, ViewData.Model)*@
-
-    <input type="hidden" asp-for="@Model" attrs="attributes" />
-    <input type="range" class="@sliderCssClass" data-target="#@id" min="@min" max="@max" step="@step" value="@invariantValue" />
-
-    <div class="range-value" data-placement="left">
-        <div class="arrow"></div>
-        <div class="range-value-inner text-nowrap"></div>
-    </div>
-
-    <div sm-if="ticks.Length > 0" class="range-ticks">
-        @foreach (var tick in ticks)
-        {
-            <div class="range-tick" data-value="@Html.Raw(tick)"></div>
-        }
-    </div>
+<div id="range-container-@id" class="@containerCssClass" data-format="@Html.Raw(format)" data-editor="range" data-default-value="@defaultValue">
+    @* INFO: We have to distinguish here because the HTML wrapping for nullable properties will break the sliders in PageBuilder. *@
+    @if (!isNullable)
+    {
+        await RenderRangeControl();
+    }
+    else
+    {
+        <div class="d-flex align-items-start">
+            <div class="range-control-wrapper flex-grow-1 position-relative">
+                @{
+                    await RenderRangeControl();
+                }
+            </div>
+            <div class="ml-3 d-flex align-items-center" style="min-width: 64px; height: 24px;">
+                @* Clickable default badge *@
+                <span role="button"
+                      class="badge badge-secondary range-badge"
+                      attr-class='(hasValue, "d-none")'
+                      title="@T(hasDefaultValue ? "Admin.Common.ClickToSetDifferentValue" : "Admin.Common.ClickToSetValue")">
+                    @T("Admin.Common.Standard")
+                </span>
+                @* Reset to default button *@
+                <button type="button"
+                        class="btn btn-sm btn-light btn-flat btn-no-border btn-icon range-reset"
+                        attr-class='(!hasValue, "d-none")'
+                        title="@T("Admin.Common.ResetToDefault")">
+                    <i class="fa fa-undo"></i>
+                </button>
+            </div>
+        </div>
+    }
 </div>
+
+<script sm-if="isNullable" sm-target-zone="scripts" data-origin="range-template">
+    $(function () {
+        let $container = $('#range-container-@id');
+        let $hiddenInput = $container.find('input[type="hidden"]');
+        let $rangeInput = $container.find('.form-control-range');
+        let $resetBtn = $container.find('.range-reset');
+        let $badge = $container.find('.range-badge');
+
+        // Helper: Switch to explicit override state (non-null)
+        function activateOverride(val) {
+            $container.removeClass('is-inherited');
+            $hiddenInput.val(val);
+            $rangeInput.val(val);
+            $resetBtn.removeClass('d-none');
+            $badge.addClass('d-none');
+        }
+
+        // Helper: Switch back to inherited state (null)
+        function resetToDefault() {
+            $container.addClass('is-inherited');
+            // Clears value for MVC model binding (null)
+            $hiddenInput.val('');
+            $rangeInput.val($container.data('default-value'));
+            $resetBtn.addClass('d-none');
+            $badge.removeClass('d-none');
+        }
+
+        // Event 1: Interaction with range input (drag or click)
+        $rangeInput.on('input change', (e) => {
+            if ($container.hasClass('is-inherited')) {
+                activateOverride($(e.currentTarget).val());
+            } else {
+                $hiddenInput.val($(e.currentTarget).val());
+            }
+        });
+
+        // Event 2: Click on badge activates explicit override
+        $badge.on('click', () => {
+            activateOverride($rangeInput.val());
+        });
+
+        // Event 3: Click on reset restores null state
+        $resetBtn.on('click', (e) => {
+            e.preventDefault();
+            resetToDefault();
+        });
+    });
+</script>

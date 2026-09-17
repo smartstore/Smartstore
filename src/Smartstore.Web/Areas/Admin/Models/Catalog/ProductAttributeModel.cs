@@ -47,8 +47,13 @@ public class ProductAttributeModel : EntityModelBase, ILocalizedModel<ProductAtt
     [LocalizedDisplay("*IndexOptionNames")]
     public bool IndexOptionNames { get; set; }
 
+    [UIHint("Range"), Range(0, 50)]
+    [AdditionalMetadata("min", 0)]
+    [AdditionalMetadata("max", 50)]
+    [AdditionalMetadata("step", 10)]
+    [AdditionalMetadata("ticks", "XS,S,M,L,XL,XXL")]
+    [AdditionalMetadata("format", "")]
     [LocalizedDisplay("*SwatchSizeId")]
-    [UIHint("SwatchSize")]
     public int? SwatchSizeId { get; set; }
 
     [LocalizedDisplay("*SwatchShapeId")]
