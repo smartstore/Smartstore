@@ -24,15 +24,24 @@
 - **GeoBlocker**: 
   - A whitelisted IP address was still blocked when its country was blocked, although IP addresses take precedence.
   - Literal IP addresses are matched directly instead of by regex, which makes large lists cheap.
-- (DEV) Updated **Vue** from 2.6 to 3.5 and migrated the DataGrid and MediaManager integrations to the Vue 3 application API.
-- (DEV) `Wildcard`: Matching is culture-invariant by default (override via `Wildcard.DefaultOptions`), number ranges no longer capture, and a match timeout can be passed for untrusted input.
-- Checkout: The updated total is displayed immediately when the shipping or payment method is changed.
-- #1563 Product legal information improvements.
 - **Theming**: 
   - Made `.prose` font-size and line-height configurable.
   - Refined the appearance of media gallery slider dots on mobile devices.
   - Removed the product offer background and padding on small screens to provide a cleaner, wider mobile layout.
   - New theme variable `$enable-alert-icons` (`false` by default).
+  - Modernized the **text expander** with background-independent fading, an accessible toggle and reliable resizing for dynamic content.
+  - Integrated responsive **scroll fades** into touch-friendly swatches and the **MegaMenu** navigation.
+  - Modernized **MegaMenu navigation** with native horizontal scrolling, edge-aware controls and safer navigation buttons.
+  - Refined **border radii** across frontend and backend components, including better spacing for rounded **Select2** options.
+  - Simplified the appearance and interaction of **Select2** single-select controls and dropdowns.
+  - Added smoother, configurable **collapse transitions** and standard collapse behavior for backend subcontrol groups.
+  - Improved **keyboard shortcut styling** in dropdowns and buttons.
+  - Refined **swatch selection states** and the presentation of unavailable values.
+  - Improved the layout and controls of the **DataGrid configuration dropdown**.
+- (DEV) Updated **Vue** from 2.6 to 3.5 and migrated the DataGrid and MediaManager integrations to the Vue 3 application API.
+- (DEV) `Wildcard`: Matching is culture-invariant by default (override via `Wildcard.DefaultOptions`), number ranges no longer capture, and a match timeout can be passed for untrusted input.
+- Checkout: The updated total is displayed immediately when the shipping or payment method is changed.
+- #1563 Product legal information improvements.
 - Improved server-side JavaScript minification with `NUglify`, correct block-scoped const handling, and automatic bundle cache invalidation. Files that fail minification now retain their original content with file-specific diagnostics.
 - (DEV) Refactored shopping cart total calculation options into `ShoppingCartTotalOptions` and marked the legacy overload as obsolete.
 
