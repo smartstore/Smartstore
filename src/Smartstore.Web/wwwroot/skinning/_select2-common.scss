@@ -68,7 +68,7 @@
     --select2-option-padding-x-start: #{$input-btn-padding-x};
     --select2-option-padding-x-end: #{$input-btn-padding-x};
     --select2-option-padding-y: 0.375em;
-    --select2-option-border-radius: 0;
+    --select2-option-border-radius: var(--border-radius-sm);
 
     padding-inline-start: calc(var(--select2-option-padding-x-start) * var(--select2-option-indent));
     padding-inline-end: var(--select2-option-padding-x-end);

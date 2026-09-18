@@ -4,6 +4,10 @@
 // Add nested dropdown support to Bootstrap
 // ==============================================================
 
+.dropdown-menu {
+    --dropdown-item-border-radius: var(--border-radius-sm);
+}
+
 .dropdown-group {
 	position: relative;
 
