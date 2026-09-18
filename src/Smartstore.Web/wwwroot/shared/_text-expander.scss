@@ -1,69 +1,61 @@
 /// <reference path="references.scss" />
 
-.more-less {
+.text-expander {
     display: block;
     position: relative;
     margin-bottom: 1.5rem;
 
-    --text-expander-max-height: 260px;
-    --text-expander-fade-height: var(--text-expander-height, #{($font-size-base * $line-height-base) * 3});
-    --text-expander-button-height: #{$font-size-base * $line-height-base};
+    // TODO: Remove these legacy variable fallbacks after external themes have
+    // migrated to the canonical custom properties.
+    --text-expander-collapsed-height: var(--text-expander-max-height, 260px);
+    --text-expander-fade-size: var(--text-expander-fade-height, var(--text-expander-height, #{($font-size-base * $line-height-base) * 3}));
+    --text-expander-clearance: var(--text-expander-button-height, calc(#{($font-size-base * $line-height-base)} + #{$btn-padding-y * 2}));
+    --text-expander-clearance: 30px;
 
-    .btn-text-expander {
+    .text-expander-toggle {
         display: none;
-        align-items: center;
-        justify-content: var(--text-expander-justify-content, initial);
-        padding: 0;
-        border: 0;
-        background: none;
-        color: inherit;
-        font-size: $font-size-base;
-        font-weight: $font-weight-medium;
-        line-height: $line-height-base;
-        text-decoration: none !important;
-        cursor: pointer;
+        margin-inline: auto;
     }
 
-    .btn-text-expander-label--less {
+    .text-expander-label-less {
         display: none;
     }
 
-    .btn-text-expander[aria-expanded=true] {
-        font-weight: normal;
-
-        .btn-text-expander-label--more { display: none; }
-        .btn-text-expander-label--less { display: inline; }
+    .text-expander-toggle[aria-expanded=true] {
+        .text-expander-label-more { display: none; }
+        .text-expander-label-less { display: inline; }
     }
 
     &.collapsed {
-        max-height: var(--text-expander-max-height);
+        max-height: var(--text-expander-collapsed-height);
         overflow: hidden;
 
-        > .more-block {
+        > .text-expander-content {
             mask-image: linear-gradient(
                 to bottom,
-                #000 calc(100% - var(--text-expander-fade-height) - var(--text-expander-button-height)),
-                transparent calc(100% - var(--text-expander-button-height)),
+                #000 calc(100% - var(--text-expander-fade-size) - var(--text-expander-clearance)),
+                transparent calc(100% - var(--text-expander-clearance)),
                 transparent 100%
             );
             mask-repeat: no-repeat;
-            mask-size: 100% var(--text-expander-max-height);
+            mask-size: 100% var(--text-expander-collapsed-height);
         }
 
-        > .btn-text-expander {
+        > .text-expander-toggle {
             position: absolute;
             z-index: 2;
-            inset-inline: 0;
+            inset-inline-start: 50%;
             inset-block-end: 0;
+            transform: translateX(-50%);
         }
     }
 
-    &.is-collapsible > .btn-text-expander {
+    &.is-collapsible > .text-expander-toggle {
         display: flex;
     }
 
-    &.expanded > .btn-text-expander {
+    &.expanded > .text-expander-toggle {
         position: relative;
-        margin-top: $spacer * .5;
+        margin-block-start: $spacer * .5;
     }
 }

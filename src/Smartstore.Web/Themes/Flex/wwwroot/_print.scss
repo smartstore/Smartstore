@@ -16,9 +16,9 @@
         display: none !important;
     }
 
-    .more-less {
+    .text-expander {
         max-height: none !important;
-        > .more-block { mask-image: none !important; }
-        .btn-text-expander { display: none !important; }
+        > .text-expander-content { mask-image: none !important; }
+        .text-expander-toggle { display: none !important; }
     }
 }

@@ -5,7 +5,7 @@
 (function ($) {
 
     var $w = $(window);
-    var moreLessId = 0;
+    var textExpanderId = 0;
     var scrollFadeId = 0;
 
     $.extend({
@@ -226,26 +226,31 @@
                 return clientSize && hVisible;
         },
 
-        moreLess: function () {
+        textExpander: function () {
             return this.each(function () {
                 var el = $(this);
 
-                if (el.data('more-less-initialized')) {
+                if (el.data('text-expander-initialized')) {
                     return;
                 }
+
+                // TODO: Remove the `.more-block` fallback and class migration after
+                // stored HtmlEditor content has been migrated to text-expander markup.
+                var inner = el.children('.text-expander-content, .more-block').first();
+                if (inner.length === 0) {
+                    return;
+                }
+
+                el.removeClass('more-less').addClass('text-expander');
+                inner.removeClass('more-block').addClass('text-expander-content');
 
                 // iOS Safari can lose a playing YouTube video when its containing block is clipped.
                 if (window.touchable && /iPhone|iPad/.test(navigator.userAgent)) {
                     var containsToxicEmbed = el.find("iframe[src*='youtube.com']").length > 0;
                     if (containsToxicEmbed) {
-                        el.removeClass('more-less');
+                        el.removeClass('text-expander');
                         return;
                     }
-                }
-
-                var inner = el.find('> .more-block');
-                if (inner.length === 0) {
-                    return;
                 }
 
                 function getActualHeight() {
@@ -254,17 +259,17 @@
 
                 const maxHeight = el.data('max-height') || 260;
                 const innerId = inner.attr('id')
-                    || (el.attr('id') ? el.attr('id') + '-content' : 'more-less-content-' + (++moreLessId));
+                    || (el.attr('id') ? el.attr('id') + '-content' : 'text-expander-content-' + (++textExpanderId));
                 var expanded = false;
 
                 inner.attr('id', innerId);
-                el[0].style.setProperty('--text-expander-max-height', maxHeight + 'px');
+                el[0].style.setProperty('--text-expander-collapsed-height', maxHeight + 'px');
 
-                var toggle = $(`<button type="button" class="btn-text-expander link-dnn focus-inset" aria-expanded="false" aria-controls="${innerId}">`
-                    + `<span class="btn-text-expander-label--more"><i class="fa fa-angle-double-down pr-2" aria-hidden="true"></i>${Res['Products.Longdesc.More']}</span>`
-                    + `<span class="btn-text-expander-label--less"><i class="fa fa-angle-double-up pr-2" aria-hidden="true"></i>${Res['Products.Longdesc.Less']}</span></button>`);
+                var toggle = $(`<button type="button" class="text-expander-toggle btn btn-plain rounded-pill px-4" aria-expanded="false" aria-controls="${innerId}">`
+                    + `<span class="text-expander-label-more"><i class="fa fa-angle-double-down pr-2" aria-hidden="true"></i>${Res['Products.Longdesc.More']}</span>`
+                    + `<span class="text-expander-label-less"><i class="fa fa-angle-double-up pr-2" aria-hidden="true"></i>${Res['Products.Longdesc.Less']}</span></button>`);
 
-                el.append(toggle).data('more-less-initialized', true);
+                el.append(toggle).data('text-expander-initialized', true);
 
                 function refresh() {
                     var actualHeight = getActualHeight();
@@ -283,12 +288,12 @@
                     toggle.aria('expanded', expanded);
                 }
 
-                toggle.on('click.moreLess', function () {
+                toggle.on('click.textExpander', function () {
                     expanded = !expanded;
                     refresh();
                 });
 
-                inner.on('focusin.moreLess', function (e) {
+                inner.on('focusin.textExpander', function (e) {
                     if (!expanded && el.hasClass('collapsed')) {
                         const containerRect = el[0].getBoundingClientRect();
                         const targetRect = e.target.getBoundingClientRect();
@@ -305,9 +310,15 @@
                 if (window.ResizeObserver) {
                     const resizeObserver = new ResizeObserver(refresh);
                     resizeObserver.observe(inner[0]);
-                    el.data('more-less-resize-observer', resizeObserver);
+                    el.data('text-expander-resize-observer', resizeObserver);
                 }
             });
+        },
+
+        // TODO: Remove after stored HtmlEditor content and external callers have
+        // migrated to `.text-expander` and `.textExpander()`.
+        moreLess: function () {
+            return this.textExpander();
         },
 
         scrollFade: function () {

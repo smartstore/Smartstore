@@ -42,8 +42,8 @@
     --scroll-fade-axis: none;
     --scroll-fade-direction: to right;
     --scroll-fade-mask: none;
-    --scroll-fade-offset-x: 0px;
-    --scroll-fade-offset-y: 0px;
+    --scroll-fade-bleed-x: 0px;
+    --scroll-fade-bleed-y: 0px;
     --scroll-fade-padding-x: 0px;
     --scroll-fade-padding-y: 0px;
     --scroll-fade-gradient: linear-gradient(
@@ -77,10 +77,10 @@
     mask-repeat: no-repeat;
 
     &.scroll-fade-bleed {
-        margin-inline: calc(0px - var(--scroll-fade-offset-x));
-        margin-block: calc(0px - var(--scroll-fade-offset-y));
-        padding-inline: calc(var(--scroll-fade-padding-x) + var(--scroll-fade-offset-x));
-        padding-block: calc(var(--scroll-fade-padding-y) + var(--scroll-fade-offset-y));
+        margin-inline: calc(0px - var(--scroll-fade-bleed-x));
+        margin-block: calc(0px - var(--scroll-fade-bleed-y));
+        padding-inline: calc(var(--scroll-fade-padding-x) + var(--scroll-fade-bleed-x));
+        padding-block: calc(var(--scroll-fade-padding-y) + var(--scroll-fade-bleed-y));
     }
 
     &.scroll-fade-observable {
@@ -113,23 +113,23 @@
         --scroll-fade-axis: x;
         --scroll-fade-direction: to right;
         --scroll-fade-mask: var(--scroll-fade-state-mask);
-        --scroll-fade-offset-x: var(--scroll-fade-size);
-        --scroll-fade-offset-y: 0px;
+        --scroll-fade-bleed-x: var(--scroll-fade-size);
+        --scroll-fade-bleed-y: 0px;
     }
 
     .scroll-fade#{$infix}-y {
         --scroll-fade-axis: y;
         --scroll-fade-direction: to bottom;
         --scroll-fade-mask: var(--scroll-fade-state-mask);
-        --scroll-fade-offset-x: 0px;
-        --scroll-fade-offset-y: var(--scroll-fade-size);
+        --scroll-fade-bleed-x: 0px;
+        --scroll-fade-bleed-y: var(--scroll-fade-size);
     }
 
     .scroll-fade#{$infix}-none {
         --scroll-fade-axis: none;
         --scroll-fade-mask: none;
-        --scroll-fade-offset-x: 0px;
-        --scroll-fade-offset-y: 0px;
+        --scroll-fade-bleed-x: 0px;
+        --scroll-fade-bleed-y: 0px;
     }
 }
 
@@ -143,15 +143,15 @@
 html:not(.touchevents) .scroll-fade-touch {
     --scroll-fade-axis: none;
     --scroll-fade-mask: none;
-    --scroll-fade-offset-x: 0px;
-    --scroll-fade-offset-y: 0px;
+    --scroll-fade-bleed-x: 0px;
+    --scroll-fade-bleed-y: 0px;
 }
 
 @media print {
     .scroll-fade {
         --scroll-fade-axis: none !important;
         --scroll-fade-mask: none !important;
-        --scroll-fade-offset-x: 0px !important;
-        --scroll-fade-offset-y: 0px !important;
+        --scroll-fade-bleed-x: 0px !important;
+        --scroll-fade-bleed-y: 0px !important;
     }
 }

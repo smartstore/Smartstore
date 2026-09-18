@@ -33,8 +33,8 @@ public class CollapsedContentTagHelper : TagHelper
         if (_catalogSettings.EnableHtmlTextCollapser && (MaxHeight == null || MaxHeight > 0))
         {
             var maxHeight = MaxHeight ?? _catalogSettings.HtmlTextCollapsedHeight;
-            var classes = output.Attributes.TryGetAttribute("class", out var attr) ? $"more-less {attr.Value}" : "more-less";
-            var id = "more-less" + CommonHelper.GenerateRandomInteger();
+            var classes = output.Attributes.TryGetAttribute("class", out var attr) ? $"text-expander {attr.Value}" : "text-expander";
+            var id = "text-expander" + CommonHelper.GenerateRandomInteger();
 
             var outer = new TagBuilder("div");
             outer.MergeAttribute("id", id);
@@ -43,7 +43,7 @@ public class CollapsedContentTagHelper : TagHelper
 
             var inner = new TagBuilder("div");
             inner.Attributes.Add("id", id + "-content");
-            inner.Attributes.Add("class", "more-block");
+            inner.Attributes.Add("class", "text-expander-content");
 
             output.WrapContentWith(outer, inner);
         }
