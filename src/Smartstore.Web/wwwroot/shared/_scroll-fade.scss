@@ -1,0 +1,100 @@
+/// <reference path="references.scss" />
+
+//
+// Scroll fades
+// ------------------------------------------------------
+//
+// Usage:
+// - Always add `.scroll-fade` as the base class.
+// - Add `.scroll-fade-x` or `.scroll-fade-y` to select the scroll axis.
+// - All axis and `none` utilities are responsive and mobile-first, e.g.
+//   `.scroll-fade-x.scroll-fade-md-none` enables a horizontal fade below `md`.
+// - Add `.scroll-fade-touch` to show the fade only on touch devices.
+// - Override `--scroll-fade-size` on the element to adjust the fade width.
+//
+// The mask always fades both edges. Ensure that the scroll container has enough
+// padding so that its first and last items can move out of the faded areas.
+// `.scroll-fade-bleed` can provide that space without changing the visual content
+// alignment: it adds edge padding and compensates it with negative margins.
+// Components with pre-existing padding can preserve it through
+// `--scroll-fade-padding-x` and `--scroll-fade-padding-y`.
+//
+// Examples:
+// <div class="scroll-fade scroll-fade-x">
+// <div class="scroll-fade scroll-fade-y scroll-fade-lg-none">
+// <div class="scroll-fade scroll-fade-x scroll-fade-bleed scroll-fade-touch">
+//
+// If multiple direction utilities apply at the same breakpoint, the declaration
+// order below determines precedence: `none` wins over `y`, and `y` wins over `x`.
+
+.scroll-fade {
+    --scroll-fade-size: 1.5rem;
+    --scroll-fade-direction: to right;
+    --scroll-fade-mask: none;
+    --scroll-fade-offset-x: 0px;
+    --scroll-fade-offset-y: 0px;
+    --scroll-fade-padding-x: 0px;
+    --scroll-fade-padding-y: 0px;
+    --scroll-fade-gradient: linear-gradient(
+        var(--scroll-fade-direction),
+        transparent 0,
+        #000 var(--scroll-fade-size),
+        #000 calc(100% - var(--scroll-fade-size)),
+        transparent 100%
+    );
+
+    -webkit-mask-image: var(--scroll-fade-mask);
+    mask-image: var(--scroll-fade-mask);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+
+    &.scroll-fade-bleed {
+        margin-inline: calc(0px - var(--scroll-fade-offset-x));
+        margin-block: calc(0px - var(--scroll-fade-offset-y));
+        padding-inline: calc(var(--scroll-fade-padding-x) + var(--scroll-fade-offset-x));
+        padding-block: calc(var(--scroll-fade-padding-y) + var(--scroll-fade-offset-y));
+    }
+}
+
+@mixin make-scroll-fade-utilities($infix: null) {
+    .scroll-fade#{$infix}-x {
+        --scroll-fade-direction: to right;
+        --scroll-fade-mask: var(--scroll-fade-gradient);
+        --scroll-fade-offset-x: var(--scroll-fade-size);
+        --scroll-fade-offset-y: 0px;
+    }
+
+    .scroll-fade#{$infix}-y {
+        --scroll-fade-direction: to bottom;
+        --scroll-fade-mask: var(--scroll-fade-gradient);
+        --scroll-fade-offset-x: 0px;
+        --scroll-fade-offset-y: var(--scroll-fade-size);
+    }
+
+    .scroll-fade#{$infix}-none {
+        --scroll-fade-mask: none;
+        --scroll-fade-offset-x: 0px;
+        --scroll-fade-offset-y: 0px;
+    }
+}
+
+@each $breakpoint in map-keys($grid-breakpoints) {
+    @include media-breakpoint-up($breakpoint) {
+        $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
+        @include make-scroll-fade-utilities($infix);
+    }
+}
+
+.no-touchevents .scroll-fade-touch {
+    --scroll-fade-mask: none;
+    --scroll-fade-offset-x: 0px;
+    --scroll-fade-offset-y: 0px;
+}
+
+@media print {
+    .scroll-fade {
+        --scroll-fade-mask: none !important;
+        --scroll-fade-offset-x: 0px !important;
+        --scroll-fade-offset-y: 0px !important;
+    }
+}

@@ -85,10 +85,12 @@
     @include media-breakpoint-down(sm) {
         // Make cards scrollable on small screens, but only on touch devices.
         .touchevents & {
+            --scroll-fade-padding-x: calc(var(--swatch-outline-width) + var(--swatch-outline-offset));
+            --scroll-fade-padding-y: calc(var(--swatch-outline-width) + var(--swatch-outline-offset));
+
             flex-wrap: nowrap;
             overflow-x: auto;
             overflow-y: hidden;
-            padding: calc(var(--swatch-outline-width) + var(--swatch-outline-offset));
         }
     }
 
