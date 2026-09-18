@@ -44,7 +44,7 @@
         font-size: $font-size-sm;
         word-break: break-word;
         // padding for checkmark
-        padding-inline-start: 20px;
+        padding-inline-start: 17px;
     }
 
     .select2-item-description {
@@ -52,18 +52,18 @@
         display: block;
     }
 
-    > .select2-option {
-        &:after {
-            position: absolute;
-            inset-inline-start: 0;
-            top: 1px;
-            @include fontawesome("\f00c");
-            color: $success;
-            text-align: start;
-            width: 18px;
-            line-height: $line-height-base;
-            visibility: hidden;
-        }
+    > .select2-option:after {
+        position: absolute;
+        inset-inline-start: 0;
+        top: 1px;
+        @include fontawesome("\f00c");
+        font-size: 12px;
+        width: 14px;
+        color: $success;
+        text-align: start;
+        width: 18px;
+        line-height: $line-height-base;
+        visibility: hidden;
     }
 
     > .select2-item-description {

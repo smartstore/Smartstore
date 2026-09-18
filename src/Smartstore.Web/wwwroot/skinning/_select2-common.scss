@@ -65,7 +65,7 @@
 // Bootstrap's default dropdown styles.
 .select2-results__option {
     --select2-option-indent: 1;
-    --select2-option-padding-x-start: #{$input-btn-padding-x};
+    --select2-option-padding-x-start: 0.5rem; // #{$input-btn-padding-x};
     --select2-option-padding-x-end: #{$input-btn-padding-x};
     --select2-option-padding-y: 0.375em;
     --select2-option-border-radius: var(--border-radius-sm);
