@@ -3,63 +3,67 @@
 .more-less {
     display: block;
     position: relative;
-    max-height: 260px;
-    overflow: hidden;
     margin-bottom: 1.5rem;
 
-    $c: $body-bg;
-    @if alpha($body-bg) == 0 {
-        $c: $site-bg;
-    }
-
-    --tebg-start: rgba(var(--bg-color-rgb, #{to-rgb($c)}), 0);
-    --tebg-end: var(--bg-color, #{$c});
+    --text-expander-max-height: 260px;
+    --text-expander-fade-height: var(--text-expander-height, #{($font-size-base * $line-height-base) * 3});
+    --text-expander-button-height: #{$font-size-base * $line-height-base};
 
     .btn-text-expander {
         display: none;
-		align-items: center;
+        align-items: center;
         justify-content: var(--text-expander-justify-content, initial);
-        position: absolute;
+        padding: 0;
+        border: 0;
+        background: none;
         color: inherit;
         font-size: $font-size-base;
         font-weight: $font-weight-medium;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 2;
+        line-height: $line-height-base;
         text-decoration: none !important;
+        cursor: pointer;
     }
 
-    .btn-text-expander--expand {
-        &:before {
-            content: '';
-            position: absolute;
-            z-index: -1;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: var(--text-expander-height, #{($font-size-base * $line-height-base) * 3});
-            background: linear-gradient(to bottom, var(--tebg-start), var(--tebg-end) 70%, var(--tebg-end) 100%);
-        }
-
-        &:focus-visible {
-            box-shadow: none;
-            outline: $focus-ring-width solid $focus-ring-color;
-            outline-offset: -$focus-ring-width;
-        }
+    .btn-text-expander-label--less {
+        display: none;
     }
 
-    .btn-text-expander--collapse {
-        position: relative;
+    .btn-text-expander[aria-expanded=true] {
         font-weight: normal;
+
+        .btn-text-expander-label--more { display: none; }
+        .btn-text-expander-label--less { display: inline; }
     }
 
     &.collapsed {
-        .btn-text-expander--expand { display: flex; }
+        max-height: var(--text-expander-max-height);
+        overflow: hidden;
+
+        > .more-block {
+            mask-image: linear-gradient(
+                to bottom,
+                #000 calc(100% - var(--text-expander-fade-height) - var(--text-expander-button-height)),
+                transparent calc(100% - var(--text-expander-button-height)),
+                transparent 100%
+            );
+            mask-repeat: no-repeat;
+            mask-size: 100% var(--text-expander-max-height);
+        }
+
+        > .btn-text-expander {
+            position: absolute;
+            z-index: 2;
+            inset-inline: 0;
+            inset-block-end: 0;
+        }
     }
 
-    &.expanded {
-        max-height: none !important;
-        .btn-text-expander--collapse { display: flex; }
+    &.is-collapsible > .btn-text-expander {
+        display: flex;
+    }
+
+    &.expanded > .btn-text-expander {
+        position: relative;
+        margin-top: $spacer * .5;
     }
 }

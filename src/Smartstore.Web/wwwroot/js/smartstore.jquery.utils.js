@@ -5,6 +5,7 @@
 (function ($) {
 
     var $w = $(window);
+    var moreLessId = 0;
 
     $.extend({
 
@@ -228,9 +229,11 @@
             return this.each(function () {
                 var el = $(this);
 
-                // iOS Safari freaks out when a YouTube video starts playing while the block is collapsed:
-                // the video disapperars after a while! Other video embeds like Vimeo seem to behave correctly.
-                // So: shit on moreLess in this case.
+                if (el.data('more-less-initialized')) {
+                    return;
+                }
+
+                // iOS Safari can lose a playing YouTube video when its containing block is clipped.
                 if (window.touchable && /iPhone|iPad/.test(navigator.userAgent)) {
                     var containsToxicEmbed = el.find("iframe[src*='youtube.com']").length > 0;
                     if (containsToxicEmbed) {
@@ -240,51 +243,68 @@
                 }
 
                 var inner = el.find('> .more-block');
-
-                function getActualHeight() {
-                    return inner.length > 0 ? inner.outerHeight(false) : el.outerHeight(false);
-                }
-
-                var actualHeight = getActualHeight();
-
-                if (actualHeight === 0) {
-                    el.evenIfHidden(function () {
-                        actualHeight = getActualHeight();
-                    });
-                }
-
-                const elId = el.attr('id') || '';
-                const maxHeight = el.data('max-height') || 260;
-
-                if (actualHeight <= maxHeight) {
-                    el.css('max-height', 'none');
+                if (inner.length === 0) {
                     return;
                 }
-                else {
-                    el.css('max-height', maxHeight + 'px');
-                    el.addClass('collapsed');
+
+                function getActualHeight() {
+                    return inner.outerHeight(false);
                 }
 
-                el.on('click', '.btn-text-expander', function (e) {
-                    e.preventDefault();
-                    const expanding = $(this).hasClass('btn-text-expander--expand');
+                const maxHeight = el.data('max-height') || 260;
+                const innerId = inner.attr('id')
+                    || (el.attr('id') ? el.attr('id') + '-content' : 'more-less-content-' + (++moreLessId));
+                var expanded = false;
 
-                    el.toggleClass('expanded', expanding).toggleClass('collapsed', !expanding);
-                    el.find('.btn-text-expander--expand').aria('expanded', expanding);
-                    el.find('.btn-text-expander--collapse').aria('expanded', !expanding);
-                    return false;
+                inner.attr('id', innerId);
+                el[0].style.setProperty('--text-expander-max-height', maxHeight + 'px');
+
+                var toggle = $(`<button type="button" class="btn-text-expander link-dnn focus-inset" aria-expanded="false" aria-controls="${innerId}">`
+                    + `<span class="btn-text-expander-label--more"><i class="fa fa-angle-double-down pr-2" aria-hidden="true"></i>${Res['Products.Longdesc.More']}</span>`
+                    + `<span class="btn-text-expander-label--less"><i class="fa fa-angle-double-up pr-2" aria-hidden="true"></i>${Res['Products.Longdesc.Less']}</span></button>`);
+
+                el.append(toggle).data('more-less-initialized', true);
+
+                function refresh() {
+                    var actualHeight = getActualHeight();
+
+                    if (actualHeight === 0) {
+                        el.evenIfHidden(function () {
+                            actualHeight = getActualHeight();
+                        });
+                    }
+
+                    const isCollapsible = actualHeight > maxHeight;
+
+                    el.toggleClass('is-collapsible', isCollapsible)
+                        .toggleClass('expanded', isCollapsible && expanded)
+                        .toggleClass('collapsed', isCollapsible && !expanded);
+                    toggle.aria('expanded', expanded);
+                }
+
+                toggle.on('click.moreLess', function () {
+                    expanded = !expanded;
+                    refresh();
                 });
 
-                var expander = el.find('.btn-text-expander--expand');
-                if (expander.length === 0) {
-                    el.append(`<a href="#" class="btn-text-expander btn-text-expander--expand link-dnn" aria-expanded="false" aria-controls="${elId}">`
-                        + `<i class="fa fa fa-angle-double-down pr-2" aria-hidden="true"></i><span>${Res['Products.Longdesc.More']}</span></a>`);
-                }
+                inner.on('focusin.moreLess', function (e) {
+                    if (!expanded && el.hasClass('collapsed')) {
+                        const containerRect = el[0].getBoundingClientRect();
+                        const targetRect = e.target.getBoundingClientRect();
 
-                var collapser = el.find('.btn-text-expander--collapse');
-                if (collapser.length === 0) {
-                    el.append(`<a href="#" class="btn-text-expander btn-text-expander--collapse link-dnn focus-inset" aria-expanded="true" aria-controls="${elId}">`
-                        + `<i class="fa fa fa-angle-double-up pr-2" aria-hidden="true"></i><span>${Res['Products.Longdesc.Less']}</span></a>`);
+                        if (targetRect.top < containerRect.top || targetRect.bottom > containerRect.bottom) {
+                            expanded = true;
+                            refresh();
+                        }
+                    }
+                });
+
+                refresh();
+
+                if (window.ResizeObserver) {
+                    const resizeObserver = new ResizeObserver(refresh);
+                    resizeObserver.observe(inner[0]);
+                    el.data('more-less-resize-observer', resizeObserver);
                 }
             });
         },

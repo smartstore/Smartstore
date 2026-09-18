@@ -18,6 +18,7 @@
 
     .more-less {
         max-height: none !important;
+        > .more-block { mask-image: none !important; }
         .btn-text-expander { display: none !important; }
     }
 }
