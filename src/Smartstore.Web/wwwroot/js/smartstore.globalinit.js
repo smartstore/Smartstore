@@ -345,6 +345,11 @@ jQuery(function () {
         $('.more-less').moreLess();
     }
 
+    // Observable scroll edge fades
+    if ($.fn.scrollFade) {
+        $('.scroll-fade-observable').scrollFade();
+    }
+
     // Toggle grouped buttons
     $(document).on('mouseup', '.btn-group-toggle.unselectable > .btn', function (e) {
         let btn = $(this);

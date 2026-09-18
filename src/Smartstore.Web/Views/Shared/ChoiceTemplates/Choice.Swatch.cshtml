@@ -11,14 +11,14 @@
     var canUseCardLayout = Model.CanUseCardLayout;
 
     // TEST
-    if (canUseCardLayout)
-    {
-        Model.SwatchSize = SwatchSize.XXLarge;
-        Model.SwatchShape = SwatchShape.Rounded;
-        Model.SwatchAspectRatio = 0.5m;
-        Model.ShowValueNameInSwatch = true;
-        Model.SwatchPriceDisplay = SwatchPriceDisplayMode.FinalPrice;
-    }
+    // if (canUseCardLayout)
+    // {
+    //     Model.SwatchSize = SwatchSize.XXLarge;
+    //     Model.SwatchShape = SwatchShape.Rounded;
+    //     Model.SwatchAspectRatio = 0.5m;
+    //     Model.ShowValueNameInSwatch = true;
+    //     Model.SwatchPriceDisplay = SwatchPriceDisplayMode.FinalPrice;
+    // }
     // TEST
 
     var useCardLayout = Model.UseCardLayout;
@@ -81,9 +81,9 @@
                 + (useCardLayout ? null : hasImage ? " swatch-image" : hasColor ? " swatch-color" : null);
 
             // TEST
-            swatchPrice ??= "199,59 €";
+            @* swatchPrice ??= "199,59 €";
             item.SwatchComparePrice ??= new Money(299, WorkContext.WorkingCurrency);
-            item.SwatchBasePriceInfo ??= "(299,13 € / 100 ml)";
+            item.SwatchBasePriceInfo ??= "(299,13 € / 100 ml)"; *@
             // TEST
 
             <li class="@swatchClass" data-swatch-value="@dynamicLabel">

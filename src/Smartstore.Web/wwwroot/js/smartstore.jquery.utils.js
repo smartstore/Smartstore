@@ -6,6 +6,7 @@
 
     var $w = $(window);
     var moreLessId = 0;
+    var scrollFadeId = 0;
 
     $.extend({
 
@@ -306,6 +307,123 @@
                     resizeObserver.observe(inner[0]);
                     el.data('more-less-resize-observer', resizeObserver);
                 }
+            });
+        },
+
+        scrollFade: function () {
+            return this.each(function () {
+                const node = this;
+                const el = $(node);
+                const existingInstance = el.data('scroll-fade-instance');
+
+                if (existingInstance) {
+                    existingInstance.refresh();
+                    return;
+                }
+
+                const namespace = '.scrollFade' + (++scrollFadeId);
+                const edgeTolerance = 1;
+                let frameId;
+                let lastState;
+                let resizeObserver;
+                let mutationObserver;
+
+                function scheduleRefresh() {
+                    if (frameId) {
+                        return;
+                    }
+
+                    frameId = window.requestAnimationFrame(refresh);
+                }
+
+                function refresh() {
+                    frameId = null;
+
+                    const style = window.getComputedStyle(node);
+                    const axisValue = style.getPropertyValue('--scroll-fade-axis').trim();
+                    const axis = axisValue === 'x' || axisValue === 'y' ? axisValue : null;
+                    const reverse = axis === 'x' && style.direction === 'rtl';
+                    let atStart = true;
+                    let atEnd = true;
+
+                    if (axis === 'x') {
+                        const maxScroll = Math.max(0, node.scrollWidth - node.clientWidth);
+                        const scrollPosition = Math.min(maxScroll, Math.max(0, reverse ? Math.abs(node.scrollLeft) : node.scrollLeft));
+
+                        atStart = scrollPosition <= edgeTolerance;
+                        atEnd = maxScroll - scrollPosition <= edgeTolerance;
+                    }
+                    else if (axis === 'y') {
+                        const maxScroll = Math.max(0, node.scrollHeight - node.clientHeight);
+                        const scrollPosition = Math.min(maxScroll, Math.max(0, node.scrollTop));
+
+                        atStart = scrollPosition <= edgeTolerance;
+                        atEnd = maxScroll - scrollPosition <= edgeTolerance;
+                    }
+
+                    el.toggleClass('scroll-fade-reverse', reverse)
+                        .toggleClass('scroll-fade-at-start', atStart)
+                        .toggleClass('scroll-fade-at-end', atEnd)
+                        .addClass('scroll-fade-ready');
+
+                    const state = [axis, atStart, atEnd, reverse].join(':');
+                    if (state !== lastState) {
+                        lastState = state;
+                        el.trigger('scrollfadechange', [{ axis, atStart, atEnd, reverse }]);
+                    }
+                }
+
+                function observeResizeTargets() {
+                    if (!resizeObserver) {
+                        return;
+                    }
+
+                    resizeObserver.disconnect();
+                    resizeObserver.observe(node);
+                    Array.from(node.children).forEach(function (child) {
+                        resizeObserver.observe(child);
+                        Array.from(child.children).forEach(function (grandchild) {
+                            resizeObserver.observe(grandchild);
+                        });
+                    });
+                }
+
+                node.addEventListener('scroll', scheduleRefresh, { passive: true });
+                node.addEventListener('load', scheduleRefresh, true);
+                $w.on('resize' + namespace, scheduleRefresh);
+
+                if (window.ResizeObserver) {
+                    resizeObserver = new ResizeObserver(scheduleRefresh);
+                    observeResizeTargets();
+                }
+
+                if (window.MutationObserver) {
+                    mutationObserver = new MutationObserver(function () {
+                        observeResizeTargets();
+                        scheduleRefresh();
+                    });
+                    mutationObserver.observe(node, { childList: true, subtree: true });
+                }
+
+                if (document.fonts?.ready) {
+                    document.fonts.ready.then(scheduleRefresh);
+                }
+
+                el.data('scroll-fade-instance', {
+                    refresh: scheduleRefresh,
+                    destroy: function () {
+                        window.cancelAnimationFrame(frameId);
+                        node.removeEventListener('scroll', scheduleRefresh);
+                        node.removeEventListener('load', scheduleRefresh, true);
+                        $w.off(namespace);
+                        resizeObserver?.disconnect();
+                        mutationObserver?.disconnect();
+                        el.removeData('scroll-fade-instance')
+                            .removeClass('scroll-fade-ready scroll-fade-at-start scroll-fade-at-end scroll-fade-reverse');
+                    }
+                });
+
+                refresh();
             });
         },
 

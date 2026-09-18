@@ -10,7 +10,12 @@
 // - All axis and `none` utilities are responsive and mobile-first, e.g.
 //   `.scroll-fade-x.scroll-fade-md-none` enables a horizontal fade below `md`.
 // - Add `.scroll-fade-touch` to show the fade only on touch devices.
+// - Add `.scroll-fade-observable` to adapt the mask to the current scroll
+//   position. It is initialized automatically on page load and does not require
+//   edge padding. Call `.scrollFade()` for dynamically injected markup.
 // - Override `--scroll-fade-size` on the element to adjust the fade width.
+// - Override `--scroll-fade-clearance` to keep content completely hidden next
+//   to an edge before the gradual fade begins, e.g. below overlay controls.
 //
 // The mask always fades both edges. Ensure that the scroll container has enough
 // padding so that its first and last items can move out of the faded areas.
@@ -23,12 +28,18 @@
 // <div class="scroll-fade scroll-fade-x">
 // <div class="scroll-fade scroll-fade-y scroll-fade-lg-none">
 // <div class="scroll-fade scroll-fade-x scroll-fade-bleed scroll-fade-touch">
+// <div class="scroll-fade scroll-fade-x scroll-fade-observable">
 //
 // If multiple direction utilities apply at the same breakpoint, the declaration
 // order below determines precedence: `none` wins over `y`, and `y` wins over `x`.
+// Observable fades receive `.scroll-fade-at-start` and `.scroll-fade-at-end`
+// at their respective boundaries. Both classes are present when there is no
+// overflow; neither is present while scrolling between the boundaries.
 
 .scroll-fade {
     --scroll-fade-size: 1.5rem;
+    --scroll-fade-clearance: 0px;
+    --scroll-fade-axis: none;
     --scroll-fade-direction: to right;
     --scroll-fade-mask: none;
     --scroll-fade-offset-x: 0px;
@@ -38,10 +49,27 @@
     --scroll-fade-gradient: linear-gradient(
         var(--scroll-fade-direction),
         transparent 0,
-        #000 var(--scroll-fade-size),
-        #000 calc(100% - var(--scroll-fade-size)),
+        transparent var(--scroll-fade-clearance),
+        #000 calc(var(--scroll-fade-clearance) + var(--scroll-fade-size)),
+        #000 calc(100% - var(--scroll-fade-clearance) - var(--scroll-fade-size)),
+        transparent calc(100% - var(--scroll-fade-clearance)),
         transparent 100%
     );
+    --scroll-fade-gradient-start: linear-gradient(
+        var(--scroll-fade-direction),
+        transparent 0,
+        transparent var(--scroll-fade-clearance),
+        #000 calc(var(--scroll-fade-clearance) + var(--scroll-fade-size)),
+        #000 100%
+    );
+    --scroll-fade-gradient-end: linear-gradient(
+        var(--scroll-fade-direction),
+        #000 0,
+        #000 calc(100% - var(--scroll-fade-clearance) - var(--scroll-fade-size)),
+        transparent calc(100% - var(--scroll-fade-clearance)),
+        transparent 100%
+    );
+    --scroll-fade-state-mask: var(--scroll-fade-gradient);
 
     -webkit-mask-image: var(--scroll-fade-mask);
     mask-image: var(--scroll-fade-mask);
@@ -54,24 +82,51 @@
         padding-inline: calc(var(--scroll-fade-padding-x) + var(--scroll-fade-offset-x));
         padding-block: calc(var(--scroll-fade-padding-y) + var(--scroll-fade-offset-y));
     }
+
+    &.scroll-fade-observable {
+        --scroll-fade-state-mask: none;
+
+        &.scroll-fade-ready {
+            --scroll-fade-state-mask: var(--scroll-fade-gradient);
+        }
+
+        &.scroll-fade-ready.scroll-fade-at-start {
+            --scroll-fade-state-mask: var(--scroll-fade-gradient-end);
+        }
+
+        &.scroll-fade-ready.scroll-fade-at-end {
+            --scroll-fade-state-mask: var(--scroll-fade-gradient-start);
+        }
+
+        &.scroll-fade-ready.scroll-fade-at-start.scroll-fade-at-end {
+            --scroll-fade-state-mask: none;
+        }
+
+        &.scroll-fade-reverse {
+            --scroll-fade-direction: to left;
+        }
+    }
 }
 
 @mixin make-scroll-fade-utilities($infix: null) {
     .scroll-fade#{$infix}-x {
+        --scroll-fade-axis: x;
         --scroll-fade-direction: to right;
-        --scroll-fade-mask: var(--scroll-fade-gradient);
+        --scroll-fade-mask: var(--scroll-fade-state-mask);
         --scroll-fade-offset-x: var(--scroll-fade-size);
         --scroll-fade-offset-y: 0px;
     }
 
     .scroll-fade#{$infix}-y {
+        --scroll-fade-axis: y;
         --scroll-fade-direction: to bottom;
-        --scroll-fade-mask: var(--scroll-fade-gradient);
+        --scroll-fade-mask: var(--scroll-fade-state-mask);
         --scroll-fade-offset-x: 0px;
         --scroll-fade-offset-y: var(--scroll-fade-size);
     }
 
     .scroll-fade#{$infix}-none {
+        --scroll-fade-axis: none;
         --scroll-fade-mask: none;
         --scroll-fade-offset-x: 0px;
         --scroll-fade-offset-y: 0px;
@@ -85,7 +140,8 @@
     }
 }
 
-.no-touchevents .scroll-fade-touch {
+html:not(.touchevents) .scroll-fade-touch {
+    --scroll-fade-axis: none;
     --scroll-fade-mask: none;
     --scroll-fade-offset-x: 0px;
     --scroll-fade-offset-y: 0px;
@@ -93,6 +149,7 @@
 
 @media print {
     .scroll-fade {
+        --scroll-fade-axis: none !important;
         --scroll-fade-mask: none !important;
         --scroll-fade-offset-x: 0px !important;
         --scroll-fade-offset-y: 0px !important;
