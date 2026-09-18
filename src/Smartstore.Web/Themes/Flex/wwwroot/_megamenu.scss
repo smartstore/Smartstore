@@ -161,6 +161,11 @@ $mixed-megamenu-bg:             $megamenu-bg;
         &::-webkit-scrollbar {
             display: none;
         }
+
+        // Keep the dropdown pointer opaque and prevent the mask from isolating its z-index.
+        &:has(.nav-item.active) {
+            --scroll-fade-mask: none;
+        }
     }
 }
 
