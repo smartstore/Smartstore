@@ -8,6 +8,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Rendering;
+using Smartstore.Web.Rendering.Choices;
 
 namespace Smartstore.Admin.Controllers;
 
@@ -88,6 +89,8 @@ public partial class ProductController : AdminController
 
     private async Task PrepareCatalogConfigurationModel(CatalogSettingsModel model, CatalogSettings settings)
     {
+        var localization = Services.Localization;
+
         ViewBag.AvailableDefaultViewModes = new List<SelectListItem>
         {
             new() { Value = "grid", Text = T("Common.Grid"), Selected = model.DefaultViewMode.EqualsNoCase("grid") },
@@ -141,8 +144,12 @@ public partial class ProductController : AdminController
             .Select(x => new SelectListItem
             {
                 Value = ((int)x).ToString(),
-                Text = Services.Localization.GetLocalizedEnum(x)
+                Text = localization.GetLocalizedEnum(x)
             })
+            .ToList();
+
+        ViewData[nameof(CatalogSettingsModel.DefaultSwatchSizeId) + "RangeTicks"] = Enum.GetValues<SwatchSize>()
+            .Select(x => localization.GetLocalizedEnum(x))
             .ToList();
 
         static List<SelectListItem> AddBadgeStyles(string value)

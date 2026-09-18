@@ -148,8 +148,8 @@
             opacity: 1;
         }
     }
-    /* Distinct visually inherited state without using muted opacity */
-    &.is-inherited .custom-range {
+    /* Distinct visually unspecified state (nullable properties) */
+    &.unspecified .custom-range {
         &::-webkit-slider-thumb {
             background-color: $gray-500;
             border-color: $gray-500;

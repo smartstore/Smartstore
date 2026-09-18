@@ -162,6 +162,42 @@
                     <span asp-validation-for="SwatchSizeId"></span>
                 </div>
             </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SwatchAspectRatio" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="SwatchAspectRatio" />
+                    <span asp-validation-for="SwatchAspectRatio"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SwatchShapeId" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="SwatchShapeId" asp-items="Html.GetLocalizedEnumSelectList(typeof(SwatchShape))" asp-placeholder="@ViewBag.DefaultSwatchShape"></select>
+                    <span asp-validation-for="SwatchShapeId"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="ShowValueNameInSwatch" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="ShowValueNameInSwatch" />
+                    <span asp-validation-for="ShowValueNameInSwatch"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SwatchPriceDisplayId" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="SwatchPriceDisplayId" asp-items="Html.GetLocalizedEnumSelectList(typeof(SwatchPriceDisplayMode))"></select>
+                    <span asp-validation-for="SwatchPriceDisplayId"></span>
+                </div>
+            </div>
         </div>
     </tab>
     <tab sm-title="@T("Admin.Catalog.Attributes.OptionsSets")" sm-adaptive-height="true">

@@ -2,6 +2,7 @@
 using FluentValidation;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Web.Rendering.Choices;
 
 namespace Smartstore.Admin.Models.Catalog;
 
@@ -284,6 +285,17 @@ public class CatalogSettingsModel : ILocalizedModel<PriceSettingsLocalizedModel>
 
     [LocalizedDisplay("*ShowProductTags")]
     public bool ShowProductTags { get; set; }
+
+    [UIHint("Range"), Range(0, 50)]
+    [AdditionalMetadata("min", 0)]
+    [AdditionalMetadata("max", 50)]
+    [AdditionalMetadata("step", 10)]
+    [AdditionalMetadata("format", "")]
+    [LocalizedDisplay("*DefaultSwatchSize")]
+    public int DefaultSwatchSizeId { get; set; } = (int)SwatchSize.XLarge;
+
+    [LocalizedDisplay("*DefaultSwatchShape")]
+    public int DefaultSwatchShapeId { get; set; } = (int)SwatchShape.Rounded;
 
     public GroupedProductSettingsModel GroupedProductSettings { get; set; } = new();
 

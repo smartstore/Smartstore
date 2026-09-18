@@ -448,9 +448,9 @@ public class CatalogSettings : ISettings
 
     /// <summary>
     /// Gets or sets the identifier of the default swatch size.
-    /// The default value is "XLarge".
+    /// The default value is "Medium".
     /// </summary>
-    public int DefaultSwatchSizeId { get; set; } = 40;
+    public int DefaultSwatchSizeId { get; set; } = 20;
 
     /// <summary>
     /// Gets or sets the identifier of the default swatch shape.

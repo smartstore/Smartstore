@@ -10,6 +10,7 @@ using Smartstore.Core.Security;
 using Smartstore.Data;
 using Smartstore.Web.Models;
 using Smartstore.Web.Models.DataGrid;
+using Smartstore.Web.Rendering.Choices;
 
 namespace Smartstore.Admin.Controllers;
 
@@ -606,8 +607,16 @@ public class ProductAttributeController : AdminController
 
     private void PrepareAttributeViewBag()
     {
+        var localization = Services.Localization;
+
         ViewData[nameof(ProductAttributeModel.SwatchSizeId) + "DefaultValue"] = _catalogSettings.DefaultSwatchSizeId;
-        ViewData[nameof(ProductAttributeModel.SwatchShapeId) + "DefaultValue"] = _catalogSettings.DefaultSwatchShapeId;
+        ViewData[nameof(ProductAttributeModel.SwatchSizeId) + "RangeTicks"] = Enum.GetValues<SwatchSize>()
+            .Select(x => localization.GetLocalizedEnum(x))
+            .ToList();
+
+        ViewBag.DefaultSwatchShape = localization.GetLocalizedEnum(Enum.IsDefined(typeof(SwatchShape), _catalogSettings.DefaultSwatchShapeId) 
+            ? (SwatchShape)_catalogSettings.DefaultSwatchShapeId 
+            : SwatchShape.Rounded);
     }
 
     private async Task ApplyLocales(ProductAttributeModel model, ProductAttribute attribute)
