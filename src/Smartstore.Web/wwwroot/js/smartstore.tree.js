@@ -30,7 +30,7 @@
         defaultExpandededIconClass: null,
         defaultCollapsedIconUrl: null,
         defaultExpandededIconUrl: null,
-        expandedClass: 'fas fa-chevron-down',
+        expandedClass: null,
         collapsedClass: 'fas fa-chevron-right',
         leafClass: 'tree-leaf',
         stateTitles: ['', '', '', ''],
@@ -301,7 +301,7 @@
             }
 
             if (numChildren > 0) {
-                html += `<span class="tree-expander-container tree-expander"><i class="${opt.collapsedClass}"></i></span>`;
+                html += `<span class="tree-expander-container tree-expander"><i class="${getExpanderIconClass(opt, false)}"></i></span>`;
             }
             else {
                 html += '<span class="tree-expander-container"></span>';
@@ -402,18 +402,25 @@
         opt.expanded = expand;
     }
 
-    function expandNode(node, expand, opt, slide) {
+    function expandNode(node, expand, opt, animate) {
         var childNodes = node.children('ul');
+
+        if (!childNodes.length || childNodes.hasClass('collapsing')) {
+            return;
+        }
+
+        childNodes.addClass('collapse');
+        var stateChanged = childNodes.hasClass('show') !== expand;
 
         if (expand) {
             // Expand.
             node.removeClass('tree-collapsed').addClass('tree-expanded');
 
-            if (slide) {
-                childNodes.hide().slideDown(200);
+            if (animate && stateChanged) {
+                childNodes.collapse('show');
             }
             else {
-                childNodes.show();
+                childNodes.toggleClass('show', true).css('height', '');
             }
 
             finalizeExpanding('tree.expanded');
@@ -422,14 +429,14 @@
             // Collapse.
             node.removeClass('tree-expanded').addClass('tree-collapsed');
 
-            if (slide) {
-                childNodes.slideUp(200, function () {
-                    childNodes.hide();
+            if (animate && stateChanged) {
+                childNodes.one('hidden.bs.collapse.tree', function () {
                     finalizeExpanding('tree.collapsed');
                 });
+                childNodes.collapse('hide');
             }
             else {
-                childNodes.hide();
+                childNodes.toggleClass('show', false).css('height', '');
                 finalizeExpanding('tree.collapsed');
             }
         }
@@ -445,8 +452,11 @@
                 nodeInner.find('.tree-icon img').attr('src', expand ? opt.defaultExpandededIconUrl : opt.defaultCollapsedIconUrl);
             }
 
-            // Toggle expander icon.
-            nodeInner.find('.tree-expander').html(`<i class="${expand ? opt.expandedClass : opt.collapsedClass}"></i>`);
+            // Toggle custom expander icons. The default chevron keeps the same element and class
+            // so its transform can transition continuously.
+            if (opt.expandedClass && opt.expandedClass !== opt.collapsedClass) {
+                nodeInner.find('.tree-expander > i').attr('class', getExpanderIconClass(opt, expand));
+            }
 
             EventBroker.publishSync(eventName, { node });
         }
@@ -456,9 +466,14 @@
         var container = node.find('.tree-inner').first().find('.tree-expander-container');
 
         if (!container.hasClass('tree-expander')) {
-            container.addClass('tree-expander').html(`<i class="${opt.collapsedClass}"></i>`);
+            container.addClass('tree-expander').html(`<i class="${getExpanderIconClass(opt, false)}"></i>`);
             node.addClass('tree-collapsed tree-noleaf').removeClass('tree-leaf');
         }
+    }
+
+    function getExpanderIconClass(opt, expanded) {
+        var iconClass = expanded && opt.expandedClass ? opt.expandedClass : opt.collapsedClass;
+        return `${!opt.expandedClass || opt.expandedClass === opt.collapsedClass ? 'tree-chevron ' : ''}${iconClass}`;
     }
 
     function setInheritedState(node, inheritedState, opt) {
@@ -572,8 +587,9 @@
             data: { parentId: parentId },
             beforeSend: function () {
                 if (expander) {
-                    expander.find('i').hide();
-                    expander.prepend(window.createCircularSpinner(12, true));
+                    expander
+                        .addClass('loading')
+                        .prepend(window.createCircularSpinner(12, true));
                 }
 
                 EventBroker.publishSync('tree.loading', { node });
@@ -584,18 +600,22 @@
 
                 (node ?? root).append(`<ul class="tree-list">${items}</ul>`);
 
+                resetExpander();
                 callback(data);
                 EventBroker.publishSync('tree.loaded', { node });
             },
             complete: function () {
-                if (expander) {
-                    expander.find('.spinner').remove();
-                    expander.find('i').show();
-                }
+                resetExpander();
             }
         });
 
         return true;
+
+        function resetExpander() {
+            if (expander) {
+                expander.removeClass('loading').find('.spinner').remove();
+            }
+        }
     }
 
     function initializeDragAndDrop(root, opt) {
