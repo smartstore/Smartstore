@@ -78,7 +78,7 @@
                 + (item.IsDisabled ? " disabled" : item.IsUnavailable ? " unavailable" : null);
 
             var elementClass = "swatch-element"
-                + (useCardLayout ? null : hasImage ? " swatch-image" : hasColor ? " swatch-color" : null);
+                + (useCardLayout ? " swatch-card" : hasImage ? " swatch-image" : hasColor ? " swatch-color" : " swatch-text");
 
             // TEST
             @* swatchPrice ??= "199,59 €";
@@ -100,7 +100,7 @@
                     <span class="swatch-content">
                         @if (useCardLayout)
                         {
-                            <span class="@elementClass swatch-card">
+                            <span class="@elementClass">
                                 <span class="swatch-media swatch-visual@(hasImage ? " swatch-image" : " swatch-color")" attr-style="(css.HasValue(), css)"></span>
                                 <span class="swatch-details">
                                     <span class="swatch-value">@item.SwatchValueText</span>
