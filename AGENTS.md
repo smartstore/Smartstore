@@ -203,6 +203,4 @@ Do not "fix" these; they are deliberate:
   be thread-safe. Prefer lightweight changes over heavy locking.
 - AI model metadata levels are `0 = Instant`, `1 = Balanced`, `2 = Deep Reasoning`.
   Favour common, cost-efficient text-generation models and keep at least one preferred
-  level-0 model listed. Never mark a level-2 model as preferred. Remove deprecated
-  model IDs rather than leaving placeholders. When reasoning about what a model can
-  actually do, trust the vendor's official API documentation over this local metadata.
+  level-0 model listed. Never mark a level-2 model as preferred. Keep retired models as `deprecated` entries with an `alias` pointing to a current, non-deprecated replacement, so stored settings keep working; aliases are not resolved transitively. Remove IDs that never existed or only served as moving pointers (e.g. `*-latest`). When reasoning about what a model can actually do, trust the vendor's official API documentation over this local metadata.
