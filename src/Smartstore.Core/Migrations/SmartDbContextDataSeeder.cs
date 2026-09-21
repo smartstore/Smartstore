@@ -273,5 +273,9 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Admin.Configuration.Settings.Tax.ShowLegalHintsInProductGrid.Hint");
 
         #endregion
+
+        builder.AddOrUpdate("Products.EmailAFriend.LoginNote",
+            "Please log in to use this function. <a href=\"{0}\" rel=\"nofollow\">Login now</a>",
+            "Bitte melden Sie sich an, um diese Funktion nutzen zu können. <a href=\"{0}\" rel=\"nofollow\">Jetzt anmelden</a>");
     }
 }
