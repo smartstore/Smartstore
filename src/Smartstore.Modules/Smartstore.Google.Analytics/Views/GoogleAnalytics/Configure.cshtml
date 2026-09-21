@@ -83,6 +83,15 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
+                <smart-label asp-for="ItemIdentifier" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ItemIdentifier" />
+                <span asp-validation-for="ItemIdentifier"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="TrackingScript" />
             </div>
             <div class="adminData wide">

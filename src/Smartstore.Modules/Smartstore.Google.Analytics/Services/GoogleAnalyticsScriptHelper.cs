@@ -107,7 +107,7 @@ public class GoogleAnalyticsScriptHelper
 
         var productsScript = GetItemScript(
             model.Id,
-            model.Sku,
+            GetItemId(model.Id, model.SelectedCombination?.Id, model.Sku),
             model.Name,
             !model.Price.HasDiscount ? "''" : _roundingHelper.Round(model.Price.Saving.SavingAmount.Value).ToStringInvariant(),
             brand != null ? brand.Name : string.Empty,
@@ -141,7 +141,8 @@ public class GoogleAnalyticsScriptHelper
     {
         var cart = await _shoppingCartService.GetCartAsync(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
         var subtotal = await GetSubtotal(cart);
-        var cartItemsScript = GetShoppingCartItemsScript(model.Items.ToList());
+        var combinationIds = await GetCombinationIdsAsync(cart);
+        var cartItemsScript = GetShoppingCartItemsScript(model.Items.ToList(), combinationIds);
 
         return @$"
                 let cartItems = {cartItemsScript};
@@ -174,7 +175,8 @@ public class GoogleAnalyticsScriptHelper
         var subtotal = await GetSubtotal(cart);
 
         var model = await cart.MapAsync();
-        var cartItemsScript = GetShoppingCartItemsScript(model.Items.ToList());
+        var combinationIds = await GetCombinationIdsAsync(cart);
+        var cartItemsScript = GetShoppingCartItemsScript(model.Items.ToList(), combinationIds);
 
         var shippingMethod = addShippingInfo ? customer.GenericAttributes.SelectedShippingOption?.Name : null;
         string paymentMethod = null;
@@ -223,8 +225,9 @@ public class GoogleAnalyticsScriptHelper
     /// Will be rendered for checkout events begin_checkout, add_shipping_info, add_payment_info & view_cart.
     /// </summary>
     /// <param name="products">List of ShoppingCartItemModel</param>
+    /// <param name="combinationIds">Attribute combination IDs by shopping cart item ID.</param>
     /// <returns>e.g.: items: [{item_id: "SKU_12345",...}, {...}, n] </returns>
-    private string GetShoppingCartItemsScript(List<ShoppingCartModel.ShoppingCartItemModel> products)
+    private string GetShoppingCartItemsScript(List<ShoppingCartModel.ShoppingCartItemModel> products, Dictionary<int, int> combinationIds)
     {
         var productsScript = string.Empty;
 
@@ -233,7 +236,7 @@ public class GoogleAnalyticsScriptHelper
         {
             productsScript += GetItemScript(
                 product.Id,
-                product.Sku,
+                GetItemId(product.ProductId, combinationIds.GetValueOrDefault(product.Id), product.Sku),
                 product.ProductName,
                 product.Price.Saving.SavingAmount.HasValue ? _roundingHelper.Round(product.Price.Saving.SavingAmount.Value).ToStringInvariant() : "0",
                 string.Empty,
@@ -322,7 +325,7 @@ public class GoogleAnalyticsScriptHelper
 
             productsScript += GetItemScript(
                 product.Id,
-                product.Sku,
+                GetItemId(product.Id, null, product.Sku),
                 product.Name,
                 discount != null ? _roundingHelper.Round(discount.Value).ToStringInvariant() : "0",
                 product.Brand != null ? product.Brand.Name : string.Empty,
@@ -336,12 +339,52 @@ public class GoogleAnalyticsScriptHelper
     }
 
     /// <summary>
+    /// Gets the item_id according to <see cref="GoogleAnalyticsSettings.ItemIdentifier"/>.
+    /// The ID formats match those of the Google Merchant Center feed.
+    /// </summary>
+    private string GetItemId(int productId, int? combinationId, string sku)
+    {
+        return _settings.ItemIdentifier switch
+        {
+            AnalyticsItemIdentifier.ProductId => productId.ToStringInvariant(),
+            AnalyticsItemIdentifier.ProductIdWithCombinationId => combinationId > 0
+                ? $"{productId.ToStringInvariant()}-{combinationId.Value.ToStringInvariant()}"
+                : productId.ToStringInvariant(),
+            _ => sku
+        };
+    }
+
+    /// <summary>
+    /// Gets the attribute combination IDs by shopping cart item ID.
+    /// Only loaded if the combination is part of the item_id.
+    /// </summary>
+    private async Task<Dictionary<int, int>> GetCombinationIdsAsync(ShoppingCart cart)
+    {
+        var result = new Dictionary<int, int>();
+
+        if (_settings.ItemIdentifier == AnalyticsItemIdentifier.ProductIdWithCombinationId)
+        {
+            foreach (var cartItem in cart.Items)
+            {
+                var item = cartItem.Item;
+                var combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(item.ProductId, item.AttributeSelection);
+                if (combination != null)
+                {
+                    result[item.Id] = combination.Id;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>
     /// Generates partial script for one item of items property. Inclusive comma.
     /// </summary>
     /// <returns>e.g.: {item_id: "SKU_12345",...},</returns>
     private string GetItemScript(
         int entityId,
-        string sku,
+        string itemId,
         string productName,
         string discount,
         string brandName,
@@ -353,7 +396,7 @@ public class GoogleAnalyticsScriptHelper
     {
         var itemScript = @$"{{
               entity_id: {entityId},
-              item_id: '{sku.EncodeJsStringUnquoted()}',
+              item_id: '{itemId.EncodeJsStringUnquoted()}',
               item_name: '{productName.EncodeJsStringUnquoted()}',
               currency: '{_workContext.WorkingCurrency.CurrencyCode}',
               discount: {discount},
@@ -423,6 +466,7 @@ public class GoogleAnalyticsScriptHelper
                     var itemTokens = new Dictionary<string, Func<string>>
                     {
                         ["ORDERID"] = order.GetOrderNumber,
+                        ["ITEMID"] = () => GetItemId(item.ProductId, attributeCombination?.Id, sku).EncodeJsStringUnquoted(),
                         ["PRODUCTSKU"] = () => sku.EncodeJsStringUnquoted(),
                         ["PRODUCTNAME"] = () => item.Product.Name.EncodeJsStringUnquoted(),
                         ["CATEGORYNAME"] = () => categoryName.EncodeJsStringUnquoted(),
