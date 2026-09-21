@@ -240,7 +240,7 @@
                 if (!$(e.target).closest('.pd-interaction').length) {
                     $($(this).data('target')).collapse('toggle');
                 }
-            }).on('show.bs.collapse shown.bs.collapse hide.bs.collapse', function (e) {
+            }).on('show.bs.collapse shown.bs.collapse hide.bs.collapse', '.pd-assoc > .collapse', function (e) {
                 if (e.type === 'shown') {
                     if (elError !== null) {
                         scrollToCard(elError);
@@ -248,8 +248,19 @@
                     }
                 }
                 else {
-                    // Toggle 'collapsed' class to display correct chevron.
-                    $(e.target).prev().toggleClass('collapsed', e.type === 'hide');
+                    const expanded = e.type === 'show';
+                    const header = $(e.target).prev('.pd-assoc-header');
+                    const syncHeader = () => header
+                        .toggleClass('collapsed', !expanded)
+                        .attr('aria-expanded', expanded);
+
+                    // Bootstrap adds .collapsing after the hide event. Defer the closed state so opacity can transition.
+                    if (expanded) {
+                        syncHeader();
+                    }
+                    else {
+                        requestAnimationFrame(syncHeader);
+                    }
                 }
             });
 
