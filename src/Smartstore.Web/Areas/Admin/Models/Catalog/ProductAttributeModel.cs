@@ -64,12 +64,12 @@ public class ProductAttributeModel : EntityModelBase, ILocalizedModel<ProductAtt
     [LocalizedDisplay("*SwatchSize")]
     public int? SwatchSize { get; set; }
 
-    [UIHint("Range"), Range(0.1, 4.0)]
+    [UIHint("Range"), Range(0.1, 3.0)]
     [AdditionalMetadata("min", 0.1)]
-    [AdditionalMetadata("max", 4.0)]
+    [AdditionalMetadata("max", 3.0)]
     [AdditionalMetadata("step", 0.05)]
     [AdditionalMetadata("format", "{0:F2}")]
-    [AdditionalMetadata("ticks", "1:10, 1:1, 2:1, 3:1, 4:1")]
+    [AdditionalMetadata("ticks", "0.1|1:10, 1|1:1, 2|2:1, 3|3:1")]
     [LocalizedDisplay("*SwatchAspectRatio")]
     public decimal SwatchAspectRatio { get; set; } = 1m;
 

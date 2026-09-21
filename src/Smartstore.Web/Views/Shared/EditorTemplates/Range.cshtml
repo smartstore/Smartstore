@@ -8,8 +8,9 @@
     var propertyName = ViewData.ModelMetadata.PropertyName ?? name;
     var id = Html.GenerateIdFromName(name);
     var rawMin = GetMetadata<decimal?>("min") ?? 0m;
+    var rawMax = GetMetadata<decimal?>("max") ?? 100m;
     var min = rawMin.ToStringInvariant();
-    var max = (GetMetadata<decimal?>("max") ?? 100m).ToStringInvariant();
+    var max = rawMax.ToStringInvariant();
     var step = (GetMetadata<decimal?>("step") ?? 1m).ToStringInvariant();
     var format = GetMetadata<string>("format") ?? "{0}";
     var isNullable = Nullable.GetUnderlyingType(ViewData.ModelMetadata.ModelType) != null;
@@ -27,9 +28,31 @@
         ticks = GetMetadata<string>("ticks").SplitSafe(',').Select(x => x.Trim()).ToList();
     }
 
+    // An optional invariant "value|label" format positions non-equidistant ticks accurately.
+    // Plain labels retain the legacy evenly distributed layout.
+    var tickLabels = new List<string>(ticks.Count);
+    var tickPositions = new List<decimal?>(ticks.Count);
+    foreach (var tick in ticks)
+    {
+        var separatorIndex = tick.IndexOf('|');
+        if (rawMax > rawMin
+            && separatorIndex > 0
+            && ConvertUtility.TryConvert<decimal>(tick[..separatorIndex].Trim(), out var tickValue))
+        {
+            tickLabels.Add(tick[(separatorIndex + 1)..].Trim());
+            tickPositions.Add(Math.Clamp((tickValue - rawMin) / (rawMax - rawMin), 0m, 1m));
+        }
+        else
+        {
+            tickLabels.Add(tick);
+            tickPositions.Add(null);
+        }
+    }
+
+    var hasPositionedTicks = rawMax > rawMin && tickPositions.Count > 0 && tickPositions.All(x => x.HasValue);
+
     var hasDefaultValue = defaultValue != null;
     defaultValue ??= rawMin;
-
     var value = (hasValue ? ViewData.Model.Convert<decimal>() : defaultValue).ToStringInvariant();
 
     var containerCssClass = "range-slider edit-control";
@@ -56,12 +79,17 @@
             <div class="range-value-inner text-nowrap"></div>
         </div>
 
-        <div sm-if="ticks.Count > 0" class="range-ticks">
-            @foreach (var tick in ticks)
+        <div sm-if="ticks.Count > 0" class="range-ticks" attr-class='(hasPositionedTicks, "range-ticks-positioned")'>
+            @for (var i = 0; i < ticks.Count; i++)
             {
-                <div class="range-tick" data-value="@Html.Raw(tick)"></div>
+                var label = hasPositionedTicks ? tickLabels[i] : ticks[i];
+                var style = hasPositionedTicks
+                    ? $"--tick-position: {(tickPositions[i]!.Value * 100m).ToStringInvariant()}%"
+                    : null;
+
+                <div class="range-tick" data-value="@Html.Raw(label)" attr-style='(hasPositionedTicks, style)'></div>
             }
-        </div>        
+        </div>
     }
 }
 

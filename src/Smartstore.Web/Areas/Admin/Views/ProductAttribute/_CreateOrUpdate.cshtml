@@ -167,8 +167,17 @@
                     <smart-label asp-for="SwatchAspectRatio" />
                 </div>
                 <div class="adminData">
-                    <editor asp-for="SwatchAspectRatio" />
-                    <span asp-validation-for="SwatchAspectRatio"></span>
+                    <div class="row xs-gutters aspect-ratio-container">
+                        <div class="col">
+                            <editor asp-for="SwatchAspectRatio" class="aspect-ratio-range" />
+                            <span asp-validation-for="SwatchAspectRatio"></span>
+                        </div>
+                        <div class="col-auto">
+                            <div class="ml-2" style="width: 20px; height: 60px;">
+                                <div class="aspect-ratio-preview" style="width: 20px; background-color: var(--gray-600); transition: height 0.08s linear;"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="adminRow">
@@ -213,3 +222,25 @@
         }
     </tab>
 </tabstrip>
+
+<script sm-target-zone="scripts">
+    $(function() {
+        const $input = $('#@Html.IdFor(x => x.SwatchAspectRatio)');
+        const $preview = $input.closest('.aspect-ratio-container').find('.aspect-ratio-preview');
+
+        $input.on('input change', () => {
+            let rawVal = $input.val();
+            if (typeof rawVal === 'string') {
+                rawVal = rawVal.replace(',', '.');
+            }
+
+            let val = parseFloat(rawVal);
+            if (isNaN(val) || val <= 0) {
+                val = 1.0;
+            }
+
+            const previewWidth = parseFloat($preview.css('width'));
+            $preview.css('height', (previewWidth * val) + 'px');
+        }).trigger('change');
+    });
+</script>

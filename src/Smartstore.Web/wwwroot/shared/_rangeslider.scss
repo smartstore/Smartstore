@@ -69,6 +69,22 @@
         margin-top: -2px;
     }
 
+    .range-ticks-positioned {
+        display: block;
+        width: calc(100% - #{$custom-range-thumb-width});
+        margin-inline: $custom-range-thumb-width / 2;
+
+        .range-tick {
+            position: absolute;
+            inset-inline-start: var(--tick-position);
+            inset-block-start: 0;
+
+            &:first-child {
+                position: relative;
+            }
+        }
+    }
+
     .range-tick {
         position: relative;
         color: $gray-600;
