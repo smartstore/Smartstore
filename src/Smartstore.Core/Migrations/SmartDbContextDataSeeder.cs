@@ -144,6 +144,10 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
         builder.AddOrUpdate("Footer.Info", "Information", "Informationen");
 
+        builder.AddOrUpdate("Smartstore.AI.Prompts.DontUseHtml",
+            "Return plain text only. Do not use HTML tags.",
+            "Gib ausschließlich Klartext zurück. Verwende keine HTML-Tags.");
+
         builder.AddOrUpdate("ReturnCase.WithdrawEntireOrder",
             "I want to withdraw the contract for the entire order:",
             "Ich möchte den Vertrag für die gesamte Bestellung widerrufen:");

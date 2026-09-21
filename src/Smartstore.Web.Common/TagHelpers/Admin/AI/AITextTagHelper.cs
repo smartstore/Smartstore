@@ -92,6 +92,11 @@ public class AITextTagHelper() : AITagHelperBase()
         attrs["data-char-limit"] = CharLimit.ToStringInvariant();
         attrs["data-is-richtext"] = "false";
 
+        if (WordCount > 0)
+        {
+            attrs["data-word-limit"] = WordCount.ToStringInvariant();
+        }
+
         return attrs;
     }
 }
