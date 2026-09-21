@@ -4,6 +4,9 @@
 
 ### New Features
 
+- Dimension Pricing plugin
+	- Calculates product and shipping prices based on customer-entered dimensions and weight.
+	- Supports formulas, packing rules, girth and volumetric limits, rate tiers and surcharges.
 - (DEV) Added an extensible admin dashboard widget infrastructure with responsive layouts.
 - **AI**
   - Added configurable **reasoning effort levels** for supported AI models across providers, including model-specific defaults and automatic persistence of user selections.
@@ -89,7 +92,7 @@
   - #1584 Multi-currency payments could remain pending and partial refunds used the wrong currency amount.
   - Fixed amount conversion for zero-decimal currencies.
   - Redirect-based 3D Secure was already supported, but Stripe next actions handled through the client SDK, such as those required by Link, were not processed.
-
+- #1556 AI text optimization now distinguishes between rich and plain text, prevents unwanted HTML/Markdown output and respects configured word limits.
 
 ## Smartstore 6.4.0
 
