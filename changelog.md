@@ -93,6 +93,7 @@
   - Fixed amount conversion for zero-decimal currencies.
   - Redirect-based 3D Secure was already supported, but Stripe next actions handled through the client SDK, such as those required by Link, were not processed.
 - #1556 AI text optimization now distinguishes between rich and plain text, prevents unwanted HTML/Markdown output and respects configured word limits.
+- #1576 GoogleAnalytics: purchase event has no product-ID token (mismatch with Merchant Center feed id)
 
 ## Smartstore 6.4.0
 
