@@ -1,7 +1,6 @@
-﻿@using Smartstore.Core.Catalog
-@using Smartstore.Core.Catalog.Products
-@using Smartstore.Core.Catalog.Pricing
-@using Smartstore.Admin.Models.Catalog
+﻿@using Smartstore.Admin.Models.Catalog
+@using Smartstore.Core.Catalog
+@using Smartstore.Core.Catalog.Attributes
 
 @model CatalogSettingsModel
 
@@ -691,24 +690,24 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="DefaultSwatchSizeId" />
+                        <smart-label asp-for="DefaultSwatchSize" />
                     </div>
                     <div class="adminData">
-                        <setting-editor asp-for="DefaultSwatchSizeId">
-                            <editor asp-for="DefaultSwatchSizeId" />
+                        <setting-editor asp-for="DefaultSwatchSize">
+                            <editor asp-for="DefaultSwatchSize" />
                         </setting-editor>
-                        <span asp-validation-for="DefaultSwatchSizeId"></span>
+                        <span asp-validation-for="DefaultSwatchSize"></span>
                     </div>
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="DefaultSwatchShapeId" />
+                        <smart-label asp-for="DefaultSwatchShape" />
                     </div>
                     <div class="adminData">
-                        <setting-editor asp-for="DefaultSwatchShapeId">
-                            <select asp-for="DefaultSwatchShapeId" asp-items="Html.GetLocalizedEnumSelectList(typeof(SwatchShape))"></select>
+                        <setting-editor asp-for="DefaultSwatchShape">
+                            <select asp-for="DefaultSwatchShape" asp-items="Html.GetLocalizedEnumSelectList(typeof(SwatchShape))"></select>
                         </setting-editor>
-                        <span asp-validation-for="DefaultSwatchShapeId"></span>
+                        <span asp-validation-for="DefaultSwatchShape"></span>
                     </div>
                 </div>
             </div>

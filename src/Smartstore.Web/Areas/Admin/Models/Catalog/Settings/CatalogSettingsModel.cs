@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Smartstore.Core.Catalog;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Web.Rendering.Choices;
 
 namespace Smartstore.Admin.Models.Catalog;
 
@@ -292,10 +292,10 @@ public class CatalogSettingsModel : ILocalizedModel<PriceSettingsLocalizedModel>
     [AdditionalMetadata("step", 10)]
     [AdditionalMetadata("format", "")]
     [LocalizedDisplay("*DefaultSwatchSize")]
-    public int DefaultSwatchSizeId { get; set; } = (int)SwatchSize.XLarge;
+    public int DefaultSwatchSize { get; set; } = (int)SwatchSize.Medium;
 
     [LocalizedDisplay("*DefaultSwatchShape")]
-    public int DefaultSwatchShapeId { get; set; } = (int)SwatchShape.Rounded;
+    public SwatchShape DefaultSwatchShape { get; set; } = SwatchShape.Rounded;
 
     public GroupedProductSettingsModel GroupedProductSettings { get; set; } = new();
 

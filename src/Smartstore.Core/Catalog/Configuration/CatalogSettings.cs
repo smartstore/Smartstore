@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Catalog.Products;
+﻿using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Localization;
@@ -414,7 +415,7 @@ public class CatalogSettings : ISettings
     /// <summary>
     /// Gets or sets a list of allowed file extensions for customer uploaded files
     /// </summary>
-    public List<string> FileUploadAllowedExtensions { get; set; } = new List<string>();
+    public List<string> FileUploadAllowedExtensions { get; set; } = [];
 
     /// <summary>
     /// Gets or sets a value indicating if html long text should be collapsed
@@ -447,16 +448,16 @@ public class CatalogSettings : ISettings
     public GridColumnSpan GridStyleListColumnSpan { get; set; } = GridColumnSpan.Max4Cols;
 
     /// <summary>
-    /// Gets or sets the identifier of the default swatch size.
-    /// The default value is "Medium".
+    /// Gets or sets the default size of product attribute swatches.
+    /// The default value is <see cref="SwatchSize.Medium"/>.
     /// </summary>
-    public int DefaultSwatchSizeId { get; set; } = 20;
+    public SwatchSize DefaultSwatchSize { get; set; } = SwatchSize.Medium;
 
     /// <summary>
-    /// Gets or sets the identifier of the default swatch shape.
-    /// The default value is "rounded".
+    /// Gets or sets the default shape of product attribute swatches.
+    /// The default value is <see cref="SwatchShape.Rounded"/>.
     /// </summary>
-    public int DefaultSwatchShapeId { get; set; } = 0;
+    public SwatchShape DefaultSwatchShape { get; set; } = SwatchShape.Rounded;
 
     #region Grouped product configuration
 

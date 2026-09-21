@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Common;
 using Smartstore.Web.Rendering.Choices;
 

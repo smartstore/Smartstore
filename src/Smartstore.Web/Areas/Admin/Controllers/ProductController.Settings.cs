@@ -2,13 +2,13 @@
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Rendering;
-using Smartstore.Web.Rendering.Choices;
 
 namespace Smartstore.Admin.Controllers;
 
@@ -148,7 +148,7 @@ public partial class ProductController : AdminController
             })
             .ToList();
 
-        ViewData[nameof(CatalogSettingsModel.DefaultSwatchSizeId) + "RangeTicks"] = Enum.GetValues<SwatchSize>()
+        ViewData[nameof(CatalogSettingsModel.DefaultSwatchSize) + "RangeTicks"] = Enum.GetValues<SwatchSize>()
             .Select(x => localization.GetLocalizedEnum(x))
             .ToList();
 

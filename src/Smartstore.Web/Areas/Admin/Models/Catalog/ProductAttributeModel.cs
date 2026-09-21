@@ -62,7 +62,7 @@ public class ProductAttributeModel : EntityModelBase, ILocalizedModel<ProductAtt
     [AdditionalMetadata("step", 10)]
     [AdditionalMetadata("format", "")]
     [LocalizedDisplay("*SwatchSize")]
-    public int? SwatchSizeId { get; set; }
+    public int? SwatchSize { get; set; }
 
     [UIHint("Range"), Range(0.1, 4.0)]
     [AdditionalMetadata("min", 0.1)]
@@ -74,13 +74,13 @@ public class ProductAttributeModel : EntityModelBase, ILocalizedModel<ProductAtt
     public decimal SwatchAspectRatio { get; set; } = 1m;
 
     [LocalizedDisplay("*SwatchShape")]
-    public int? SwatchShapeId { get; set; }
+    public SwatchShape? SwatchShape { get; set; }
 
     [LocalizedDisplay("*ShowValueNameInSwatch")]
     public bool ShowValueNameInSwatch { get; set; }
 
     [LocalizedDisplay("*SwatchPriceDisplay")]
-    public int SwatchPriceDisplayId { get; set; }
+    public SwatchPriceDisplayMode SwatchPriceDisplay { get; set; }
 
     public List<ProductAttributeLocalizedModel> Locales { get; set; } = [];
     public string EditUrl { get; set; }

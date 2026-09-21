@@ -10,11 +10,11 @@ namespace Smartstore.Core.Migrations;
 internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, IDataSeeder<SmartDbContext>
 {
     const string TableName = nameof(ProductAttribute);
-    const string SwatchSizeIdColumn = nameof(ProductAttribute.SwatchSizeId);
-    const string SwatchShapeIdColumn = nameof(ProductAttribute.SwatchShapeId);
+    const string SwatchSizeIdColumn = nameof(ProductAttribute.SwatchSize);
+    const string SwatchShapeIdColumn = nameof(ProductAttribute.SwatchShape);
     const string SwatchAspectRatioColumn = nameof(ProductAttribute.SwatchAspectRatio);
     const string ShowValueNameInSwatchColumn = nameof(ProductAttribute.ShowValueNameInSwatch);
-    const string SwatchPriceDisplayIdColumn = nameof(ProductAttribute.SwatchPriceDisplayId);
+    const string SwatchPriceDisplayIdColumn = nameof(ProductAttribute.SwatchPriceDisplay);
 
     public override void Up()
     {
@@ -102,8 +102,8 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
         builder.AddOrUpdate("Enums.SwatchSize.XLarge", "XL", "XL");
         builder.AddOrUpdate("Enums.SwatchSize.XXLarge", "XXL", "XXL");
 
-        builder.AddOrUpdate("Enums.SwatchShape.Rounded", "Rounded corners", "Ecken abgerundet");
-        builder.AddOrUpdate("Enums.SwatchShape.Rect", "Sharp corners", "Eckig");
+        builder.AddOrUpdate("Enums.SwatchShape.Rounded", "Pill", "Abgerundet");
+        builder.AddOrUpdate("Enums.SwatchShape.Rect", "Rectangular", "Rechteckig");
         builder.AddOrUpdate("Enums.SwatchShape.Circle", "Circle", "Rund");
 
         builder.AddOrUpdate("Enums.SwatchPriceDisplayMode.None", "None", "Keine");
@@ -139,8 +139,8 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
         builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.Fields.SwatchAspectRatio",
             "Swatch Aspect Ratio",
             "Muster-Seitenverhältnis",
-            "Specifies the height-to-width ratio of color and image swatches. Default is 1:1.",
-            "Legt das Höhen-Breiten-Verhältnis von Farb- und Bildmustern fest. Standard ist 1:1.");
+            "Specifies the height-to-width ratio of color and image swatches. Default is 1:1 (square).",
+            "Legt das Höhen-Breiten-Verhältnis von Farb- und Bildmustern fest. Standard ist 1:1 (quadratisch).");
 
         builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.Fields.SwatchShape",
             "Swatch Shape",
@@ -163,15 +163,15 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
         builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.DefaultSwatchSize",
             "Default size of swatches",
             "Standardgröße von Farb- und Bildmustern",
-            "Specifies the default size for product attribute swatches. This setting can be overridden at both the attribute and product levels. Default is M.",
+            "Specifies the default size for product attribute swatches. This setting can be overridden at both the attribute and product levels. The recommended size is M.",
             "Legt die Standardgröße von Farb- und Bildmustern bei Produktattributen fest. Diese Einstellung kann sowohl beim Attribut als auch beim Produkt überschrieben werden."
-             + " Der Standardwert ist M.");
+             + " Die empfohlene Größe ist M.");
 
         builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.DefaultSwatchShape",
             "Default shape of swatches",
             "Standardform von Farb- und Bildmustern",
-            "Specifies the default shape for product attribute swatches. This setting can be overridden at both the attribute and product levels. Default is \"Rounded corners\".",
+            "Specifies the default shape for product attribute swatches. This setting can be overridden at both the attribute and product levels. Default is \"Pill\".",
             "Legt die Standardform von Farb- und Bildmustern bei Produktattributen fest. Diese Einstellung kann sowohl beim Attribut als auch beim Produkt überschrieben werden."
-            + " Standard ist \"Ecken abgerundet\".");
+            + " Standard ist \"Abgerundet\".");
     }
 }

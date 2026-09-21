@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Common;
 using Smartstore.Web.Modelling;
 

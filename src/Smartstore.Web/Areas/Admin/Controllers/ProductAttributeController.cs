@@ -609,13 +609,13 @@ public class ProductAttributeController : AdminController
     {
         var localization = Services.Localization;
 
-        ViewData[nameof(ProductAttributeModel.SwatchSizeId) + "DefaultValue"] = _catalogSettings.DefaultSwatchSizeId;
-        ViewData[nameof(ProductAttributeModel.SwatchSizeId) + "RangeTicks"] = Enum.GetValues<SwatchSize>()
+        ViewData[nameof(ProductAttributeModel.SwatchSize) + "DefaultValue"] = (int)_catalogSettings.DefaultSwatchSize;
+        ViewData[nameof(ProductAttributeModel.SwatchSize) + "RangeTicks"] = Enum.GetValues<SwatchSize>()
             .Select(x => localization.GetLocalizedEnum(x))
             .ToList();
 
-        ViewBag.DefaultSwatchShape = localization.GetLocalizedEnum(Enum.IsDefined(typeof(SwatchShape), _catalogSettings.DefaultSwatchShapeId) 
-            ? (SwatchShape)_catalogSettings.DefaultSwatchShapeId 
+        ViewBag.DefaultSwatchShape = localization.GetLocalizedEnum(Enum.IsDefined(_catalogSettings.DefaultSwatchShape) 
+            ? _catalogSettings.DefaultSwatchShape 
             : SwatchShape.Rounded);
     }
 

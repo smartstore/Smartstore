@@ -155,11 +155,11 @@
             </div>
             <div class="adminRow">
                 <div class="adminTitle">
-                    <smart-label asp-for="SwatchSizeId" />
+                    <smart-label asp-for="SwatchSize" />
                 </div>
                 <div class="adminData">
-                    <editor asp-for="SwatchSizeId" />
-                    <span asp-validation-for="SwatchSizeId"></span>
+                    <editor asp-for="SwatchSize" />
+                    <span asp-validation-for="SwatchSize"></span>
                 </div>
             </div>
             <div class="adminRow">
@@ -173,11 +173,11 @@
             </div>
             <div class="adminRow">
                 <div class="adminTitle">
-                    <smart-label asp-for="SwatchShapeId" />
+                    <smart-label asp-for="SwatchShape" />
                 </div>
                 <div class="adminData">
-                    <select asp-for="SwatchShapeId" asp-items="Html.GetLocalizedEnumSelectList(typeof(SwatchShape))" asp-placeholder="@ViewBag.DefaultSwatchShape"></select>
-                    <span asp-validation-for="SwatchShapeId"></span>
+                    <select asp-for="SwatchShape" asp-items="Html.GetLocalizedEnumSelectList(typeof(SwatchShape))" asp-placeholder="@ViewBag.DefaultSwatchShape"></select>
+                    <span asp-validation-for="SwatchShape"></span>
                 </div>
             </div>
             <div class="adminRow">
@@ -191,11 +191,11 @@
             </div>
             <div class="adminRow">
                 <div class="adminTitle">
-                    <smart-label asp-for="SwatchPriceDisplayId" />
+                    <smart-label asp-for="SwatchPriceDisplay" />
                 </div>
                 <div class="adminData">
-                    <select asp-for="SwatchPriceDisplayId" asp-items="Html.GetLocalizedEnumSelectList(typeof(SwatchPriceDisplayMode))"></select>
-                    <span asp-validation-for="SwatchPriceDisplayId"></span>
+                    <select asp-for="SwatchPriceDisplay" asp-items="Html.GetLocalizedEnumSelectList(typeof(SwatchPriceDisplayMode))"></select>
+                    <span asp-validation-for="SwatchPriceDisplay"></span>
                 </div>
             </div>
         </div>
