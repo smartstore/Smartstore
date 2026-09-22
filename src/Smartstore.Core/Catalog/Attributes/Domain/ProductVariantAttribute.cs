@@ -90,7 +90,7 @@ public partial class ProductVariantAttribute : BaseEntity, ILocalizedEntity, IDi
     /// <summary>
     /// Gets or sets the attribute control type.
     /// </summary>
-		[NotMapped]
+    [NotMapped]
     public AttributeControlType AttributeControlType
     {
         get => (AttributeControlType)AttributeControlTypeId;
@@ -106,7 +106,8 @@ public partial class ProductVariantAttribute : BaseEntity, ILocalizedEntity, IDi
     /// Gets or sets a value indicating whether the selection of multiple values is supported.
     /// </summary>
     [NotMapped]
-    public bool IsMultipleChoice => AttributeControlType == AttributeControlType.Checkboxes;
+    public bool IsMultipleChoice 
+        => AttributeControlType == AttributeControlType.Checkboxes;
 
     /// <summary>
     /// Gets a value indicating whether the attribute has a list of values.
