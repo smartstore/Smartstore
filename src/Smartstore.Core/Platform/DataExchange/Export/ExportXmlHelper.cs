@@ -974,6 +974,11 @@ public class ExportXmlHelper : Disposable
                 _writer.WriteElementString(nameof(ProductVariantAttribute.IsRequired), entityPva.IsRequired.ToString());
                 _writer.WriteElementString(nameof(ProductVariantAttribute.AttributeControlTypeId), entityPva.AttributeControlTypeId.ToString());
                 _writer.WriteElementString(nameof(ProductVariantAttribute.DisplayOrder), entityPva.DisplayOrder.ToString());
+                _writer.WriteElementString(nameof(ProductVariantAttribute.SwatchSize), entityPva.SwatchSize != null ? ((int)entityPva.SwatchSize).ToString() : string.Empty);
+                _writer.WriteElementString(nameof(ProductVariantAttribute.SwatchShape), entityPva.SwatchShape != null ? ((int)entityPva.SwatchShape).ToString() : string.Empty);
+                _writer.WriteElementString(nameof(ProductVariantAttribute.SwatchAspectRatio), entityPva.SwatchAspectRatio?.ToString(_culture) ?? string.Empty);
+                _writer.WriteElementString(nameof(ProductVariantAttribute.ShowValueNameInSwatch), entityPva.ShowValueNameInSwatch?.ToString() ?? string.Empty);
+                _writer.WriteElementString(nameof(ProductVariantAttribute.SwatchPriceDisplay), entityPva.SwatchPriceDisplay != null ? ((int)entityPva.SwatchPriceDisplay).ToString() : string.Empty);
 
                 _writer.WriteStartElement("Attribute");
                 _writer.WriteElementString(nameof(ProductAttribute.Id), entityPa.Id.ToString());

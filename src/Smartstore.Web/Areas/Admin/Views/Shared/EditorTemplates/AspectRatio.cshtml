@@ -20,7 +20,7 @@
     };
 }
 
-<div id="swatch-aspect-ratio-@id" class="row xs-gutters swatch-aspect-ratio-editor">
+<div id="aspect-ratio-@id" class="row xs-gutters aspect-ratio-editor">
     <div class="col">
         <partial name="~/Views/Shared/EditorTemplates/Range.cshtml" model="@Model" view-data="ViewData" />
     </div>
@@ -38,37 +38,37 @@
                 <div class="dropdown-menu dropdown-menu-right">
                     @foreach (var preset in landscapePresets)
                     {
-                        <button type="button" class="dropdown-item swatch-aspect-ratio-preset" data-value="@preset.Value.ToStringInvariant()">
+                        <button type="button" class="dropdown-item aspect-ratio-preset" data-value="@preset.Value.ToStringInvariant()">
                             @preset.Label
                         </button>
                     }
                     <div class="dropdown-divider"></div>
-                    <button type="button" class="dropdown-item swatch-aspect-ratio-preset" data-value="1">
+                    <button type="button" class="dropdown-item aspect-ratio-preset" data-value="1">
                         1:1
                     </button>
                     <div class="dropdown-divider"></div>
                     @foreach (var preset in portraitPresets)
                     {
-                        <button type="button" class="dropdown-item swatch-aspect-ratio-preset" data-value="@preset.Value.ToStringInvariant()">
+                        <button type="button" class="dropdown-item aspect-ratio-preset" data-value="@preset.Value.ToStringInvariant()">
                             @preset.Label
                         </button>
                     }
                 </div>
             </div>
             <div class="ml-2" style="width: 20px; height: 60px;">
-                <div class="swatch-aspect-ratio-preview"
+                <div class="aspect-ratio-preview"
                      style="width: 20px; background-color: var(--gray-600); transition: height 0.08s linear;"></div>
             </div>
         </div>
     </div>
 </div>
 
-<script sm-target-zone="scripts" data-origin="swatch-aspect-ratio-template">
+<script sm-target-zone="scripts" data-origin="aspect-ratio-template">
     $(function() {
-        const $container = $('#swatch-aspect-ratio-@id');
+        const $container = $('#aspect-ratio-@id');
         const $range = $container.find('.form-control-range');
-        const $preview = $container.find('.swatch-aspect-ratio-preview');
-        const $presets = $container.find('.swatch-aspect-ratio-preset');
+        const $preview = $container.find('.aspect-ratio-preview');
+        const $presets = $container.find('.aspect-ratio-preset');
 
         function updatePreview() {
             let val = parseFloat($range.val());

@@ -50,7 +50,10 @@
         </column>
         <column for="AttributeControlTypeId" width="2fr">
             <display-template>
-                <div class="dg-cell-value">{{ item.row.AttributeControlType }}</div>
+                <div class="dg-cell-value">
+                    <a v-if="item.row.IsSwatch" href="javascript:;" class="grid-edit-attribute-swatch text-truncate" :data-key="item.row.Id">{{ item.row.AttributeControlTypeStr }}</a>
+                    <div v-if="!item.row.IsSwatch" class="text-truncate">{{ item.row.AttributeControlTypeStr }}</div>
+                </div>
             </display-template>
         </column>
         <column for="TextPrompt" width="1fr" visible="false" />
@@ -72,6 +75,29 @@
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Custom" 
+           class="grid-edit-attribute-swatch" 
+           :data-key="item.row.Id"
+           v-bind:class="{ disabled: !item.row.IsSwatch }">
+           @T("Admin.Catalog.Attributes.ProductAttributes.EditSwatches")
+        </a>
+        <fragment><div class="dropdown-divider"></div></fragment>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>
+
+<script>
+    $(function() {
+        $(document).on('click', '.grid-edit-attribute-swatch', (e) =>  {
+            e.preventDefault();
+            const self = $(e.currentTarget);
+
+            openPopup({
+                id: "attribute-swatch",
+                url: '@(Url.Action("ProductAttributeSwatchEditPopup").EnsureEndsWith('/'))' + self.data('key')
+            });
+
+            return false;
+        });
+    });
+</script>

@@ -614,9 +614,8 @@ public class ProductAttributeController : AdminController
             .Select(x => localization.GetLocalizedEnum(x))
             .ToList();
 
-        ViewBag.DefaultSwatchShape = localization.GetLocalizedEnum(Enum.IsDefined(_catalogSettings.DefaultSwatchShape) 
-            ? _catalogSettings.DefaultSwatchShape 
-            : SwatchShape.Rounded);
+        ViewBag.DefaultSwatchShape = localization.GetLocalizedEnum(_catalogSettings.DefaultSwatchShape).NullEmpty()
+            ?? localization.GetLocalizedEnum(SwatchShape.Rounded);
     }
 
     private async Task ApplyLocales(ProductAttributeModel model, ProductAttribute attribute)

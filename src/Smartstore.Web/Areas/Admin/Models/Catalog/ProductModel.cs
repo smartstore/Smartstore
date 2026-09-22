@@ -536,10 +536,39 @@ public class ProductModel : ProductOverviewModel, ILocalizedModel<ProductLocaliz
         [LocalizedDisplay("Admin.Catalog.Attributes.AttributeControlType")]
         [UIHint("AttributeControlType")]
         public int AttributeControlTypeId { get; set; }
-        public string AttributeControlType { get; set; }
+        public string AttributeControlTypeStr { get; set; }
+
+        public bool IsSwatch =>
+            AttributeControlTypeId == (int)AttributeControlType.Boxes;
 
         [LocalizedDisplay("Common.DisplayOrder")]
         public int DisplayOrder { get; set; }
+
+        [UIHint("Range"), Range(0, 50)]
+        [AdditionalMetadata("min", 0)]
+        [AdditionalMetadata("max", 50)]
+        [AdditionalMetadata("step", 10)]
+        [AdditionalMetadata("format", "")]
+        [LocalizedDisplay("Admin.Catalog.Attributes.ProductAttributes.Fields.SwatchSize")]
+        public int? SwatchSize { get; set; }
+
+        [UIHint("AspectRatio"), Range(0.1, 3.0)]
+        [AdditionalMetadata("min", 0.1)]
+        [AdditionalMetadata("max", 3.0)]
+        [AdditionalMetadata("step", 0.0001)]
+        [AdditionalMetadata("format", "{0:F2}")]
+        [AdditionalMetadata("ticks", "0.1|10:1, 1|1:1, 2|1:2, 3|1:3")]
+        [LocalizedDisplay("Admin.Catalog.Attributes.ProductAttributes.Fields.SwatchAspectRatio")]
+        public decimal? SwatchAspectRatio { get; set; }
+
+        [LocalizedDisplay("Admin.Catalog.Attributes.ProductAttributes.Fields.SwatchShape")]
+        public SwatchShape? SwatchShape { get; set; }
+        
+        [LocalizedDisplay("Admin.Catalog.Attributes.ProductAttributes.Fields.ShowValueNameInSwatch")]
+        public bool? ShowValueNameInSwatch { get; set; }
+
+        [LocalizedDisplay("Admin.Catalog.Attributes.ProductAttributes.Fields.SwatchPriceDisplay")]
+        public SwatchPriceDisplayMode? SwatchPriceDisplay { get; set; }
 
         [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values")]
         public string EditUrl { get; set; }

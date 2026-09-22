@@ -103,6 +103,38 @@ public partial class ProductVariantAttribute : BaseEntity, ILocalizedEntity, IDi
     public int DisplayOrder { get; set; }
 
     /// <summary>
+    /// Gets or sets the swatch size.
+    /// <c>null</c> to apply the value of the product attribute.
+    /// </summary>
+    public SwatchSize? SwatchSize { get; set; }
+
+    /// <summary>
+    /// Gets or sets the swatch aspect ratio.
+    /// Controls the rendered swatch width-to-height ratio.
+    /// <c>null</c> to apply the value of the product attribute.
+    /// </summary>
+    public decimal? SwatchAspectRatio { get; set; }
+
+    /// <summary>
+    /// Gets or sets the swatch shape.
+    /// <c>null</c> to apply the value of the product attribute.
+    /// </summary>
+    public SwatchShape? SwatchShape { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the value name is shown in the swatch.
+    /// If <c>true</c>, shows the option text together with the rendered swatch.
+    /// <c>null</c> to apply the value of the product attribute.
+    /// </summary>
+    public bool? ShowValueNameInSwatch { get; set; }
+
+    /// <summary>
+    /// Gets or sets which price information is displayed in the swatch.
+    /// <c>null</c> to apply the value of the product attribute.
+    /// </summary>
+    public SwatchPriceDisplayMode? SwatchPriceDisplay { get; set; }
+
+    /// <summary>
     /// Gets or sets a value indicating whether the selection of multiple values is supported.
     /// </summary>
     [NotMapped]

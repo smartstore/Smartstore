@@ -1,0 +1,77 @@
+﻿@using Smartstore.Core.Catalog.Attributes
+
+@model ProductModel.ProductVariantAttributeModel
+
+@{
+    Layout = "_AdminPopupLayout";
+    ViewBag.Title = T("Admin.Catalog.Attributes.ProductAttributes.Swatches").Value;
+}
+
+<form asp-action="ProductAttributeSwatchEditPopup">
+    <div class="section-header">
+        <div class="title">
+            @ViewBag.Title
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
+
+    <div asp-validation-summary="ModelOnly"></div>
+    <input type="hidden" asp-for="Id" />
+
+    <div class="alert alert-info">
+        @Html.Raw(T("Admin.Catalog.Products.ProductVariantAttributes.SwatchInfo"))
+    </div>
+
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="SwatchSize" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="SwatchSize" />
+                <span asp-validation-for="SwatchSize"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="SwatchAspectRatio" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="SwatchAspectRatio" />
+                <span asp-validation-for="SwatchAspectRatio"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="SwatchShape" />
+            </div>
+            <div class="adminData">
+                <select asp-for="SwatchShape" asp-items="Html.GetLocalizedEnumSelectList(typeof(SwatchShape))" asp-placeholder="@ViewBag.DefaultSwatchShape"></select>
+                <span asp-validation-for="SwatchShape"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ShowValueNameInSwatch" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="ShowValueNameInSwatch" />
+                <span asp-validation-for="ShowValueNameInSwatch"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="SwatchPriceDisplay" />
+            </div>
+            <div class="adminData">
+                <select asp-for="SwatchPriceDisplay" asp-items="Html.GetLocalizedEnumSelectList(typeof(SwatchPriceDisplayMode))"></select>
+                <span asp-validation-for="SwatchPriceDisplay"></span>
+            </div>
+        </div>
+    </div>
+</form>
