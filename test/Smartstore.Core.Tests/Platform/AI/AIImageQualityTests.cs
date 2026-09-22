@@ -16,7 +16,7 @@ public class AIImageQualityTests
         AIImageQuality quality = AIImageQuality.FromString(value)
             ?? throw new AssertionException($"Could not convert '{value}' to an image quality.");
 
-        ((string)quality).ShouldEqual(value);
+        ((string?)quality).ShouldEqual(value);
         Assert.That(AIImageQuality.All, Does.Contain(quality));
     }
 }

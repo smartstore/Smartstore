@@ -6,6 +6,7 @@ using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 using Smartstore.Web.Bundling;
 using Smartstore.Web.Bundling.Processors;
+using Smartstore.Web.Sass;
 
 namespace Smartstore.Web.Bootstrapping;
 
@@ -25,6 +26,7 @@ internal class BundlingStarter : StarterBase
         builder.RegisterType<DefaultBundleBuilder>().As<IBundleBuilder>().SingleInstance();
         builder.RegisterType<BundleCache>().As<IBundleCache>().SingleInstance();
         builder.RegisterType<BundleDiskCache>().As<IBundleDiskCache>().SingleInstance();
+        builder.RegisterType<SharpScssCompiler>().As<ISassCompiler>().SingleInstance();
         builder.RegisterType<BundleTagGenerator>().As<IAssetTagGenerator>().InstancePerLifetimeScope();
     }
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Smartstore.Diagnostics;
+using Smartstore.Web.Sass;
 
 namespace Smartstore.Web.Bundling;
 
@@ -32,17 +33,20 @@ public class DefaultBundleBuilder : IBundleBuilder
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IOptionsMonitor<BundlingOptions> _bundlingOptions;
     private readonly IChronometer _chronometer;
+    private readonly ISassCompiler _sassCompiler;
 
     public DefaultBundleBuilder(
         IBundleContextAccessor bundleContextAccessor,
         IHttpContextAccessor httpContextAccessor,
         IOptionsMonitor<BundlingOptions> bundlingOptions,
-        IChronometer chronometer)
+        IChronometer chronometer,
+        ISassCompiler sassCompiler)
     {
         _bundleContextAccessor = bundleContextAccessor;
         _httpContextAccessor = httpContextAccessor;
         _bundlingOptions = bundlingOptions;
         _chronometer = chronometer;
+        _sassCompiler = sassCompiler;
     }
 
     public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -75,6 +79,7 @@ public class DefaultBundleBuilder : IBundleBuilder
 
         var context = new BundleContext
         {
+            SassCompiler = _sassCompiler,
             Bundle = bundle,
             CacheKey = cacheKey,
             HttpContext = httpContext,
