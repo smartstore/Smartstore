@@ -1,6 +1,8 @@
 /// <reference path="../lib/bootstrap/scss/bootstrap-reboot.scss" />
 
 //
+@use "sass:map";
+
 // General
 // --------------------------------------------------
 
@@ -137,14 +139,14 @@ $box-shadow-xs:                 0 calc(1px * var(--shadow-yoffset, 1)) 8px -2px 
 $box-shadow-xl:                 0 calc(17px * var(--shadow-yoffset, 1)) 70px -7px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.14)), 
                                 0 calc(20px * var(--shadow-yoffset, 1)) 48px -12px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.22)) !default;
 
-$utilities: map-merge(
+$utilities: map.merge(
     $utilities,
     (
-        "shadow": map-merge(
-            map-get($utilities, "shadow"),
+        "shadow": map.merge(
+            map.get($utilities, "shadow"),
             (
-                values: map-merge(
-                    map-get(map-get($utilities, "shadow"), "values"),
+                values: map.merge(
+                    map.get(map.get($utilities, "shadow"), "values"),
                     ( 
                         xs: $box-shadow-xs,
                         xl: $box-shadow-xl,
@@ -180,7 +182,7 @@ $icon-font-variant-default:     regular !default;
 $icon-font-weight-default:      900 !default;
 
 $icon-font-variants: () !default;
-$icon-font-variants: map-merge(
+$icon-font-variants: map.merge(
   (
     "light":    300,
     "regular":  400,

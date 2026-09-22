@@ -1,5 +1,7 @@
 /// <reference path="references.scss" />
 
+@use "sass:color";
+
 $btn-wide-padding-x: 1.8rem;
 $btn-wide-padding-x-lg: 2.5rem;
 $btn-wide-padding-x-sm: 1.2rem;
@@ -481,7 +483,7 @@ button:where(.reset) {
     .btn-3d.btn-#{$color},
     .btn-3d.btn-outline-#{$color} {
         @if $color != "secondary" and $color != "light" {
-            $c: mix($value, $black, 50%);
+            $c: color.mix($value, $black, 50%);
             --shadow-color-rgb: #{to-rgb($c)};
             --shadow-intensity: 1.8;
         }

@@ -1,5 +1,7 @@
 /// <reference path="references.scss" />
 
+@use "sass:color";
+
 // Forms
 // ------------------------------------------------------
 
@@ -40,7 +42,7 @@ fieldset.content-group {
             position: relative;
             display: inline-block;
 
-            @if alpha($body-bg) == 0 {
+            @if color.alpha($body-bg) == 0 {
                 background: $site-bg;
             }
             @else {

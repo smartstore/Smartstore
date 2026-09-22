@@ -1,6 +1,8 @@
 /// <reference path="references.scss" />
 
 
+@use "sass:color";
+
 // COMMON
 // ------------------------------------------------------------
 
@@ -37,7 +39,7 @@
     --modal-backdrop-blur: 4px;
 
     &.modal-backdrop-inverse {
-        --modal-backdrop-bg: #{invert($modal-backdrop-bg)};
+        --modal-backdrop-bg: #{color.invert($modal-backdrop-bg)};
     }
 
     &.modal-backdrop-invisible {

@@ -1,6 +1,8 @@
 /// <reference path="references.scss" />
 
 //
+@use "sass:math";
+
 // Mixins
 // --------------------------------------------------
 
@@ -25,7 +27,7 @@
     --select2-padding-y: #{$input-btn-padding-y};
     --select2-font-size: #{$font-size-base};
     --select2-multiple-padding: 0.2em;
-    --select2-choice-padding-x: #{$input-btn-padding-x / 2};
+    --select2-choice-padding-x: #{math.div($input-btn-padding-x, 2)};
     --select2-choice-padding-y: 0;
     --select2-choice-line-height: 1.7;
 

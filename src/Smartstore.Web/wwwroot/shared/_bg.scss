@@ -1,5 +1,9 @@
 ﻿/// <reference path="references.scss" />
 
+@use "sass:math";
+@use "sass:string";
+@use "sass:color";
+
 // Common
 // ------------------------------------
 
@@ -45,33 +49,33 @@
     @if $mode == "hue" or $mode == "hue-rev" {
         $mindeg: 30;
         $maxdeg: 60;
-        $deg: ($maxdeg - $mindeg) / 360 * (hue($value) - 360) + $maxdeg;
+        $deg: math.div($maxdeg - $mindeg, 360) * (color.hue($value) - 360) + $maxdeg;
         $cshade: theme-color-level($state, 2);
         $cstart: adjust-hue($cshade, $deg);
     }
     @else if $mode == "lighten" or $mode == "lighten-rev" {
         $minlevel: -4;
         $maxlevel: -2;
-        $level: ($maxlevel - $minlevel) / 100 * (lightness($value) - 100) + $maxlevel;
+        $level: math.div($maxlevel - $minlevel, 100) * (color.lightness($value) - 100) + $maxlevel;
         $cstart: theme-color-level($state, $level);
     }
     @else {
         $minlevel: 4;
         $maxlevel: 2;
-        $level: ($maxlevel - $minlevel) / 100 * (lightness($value) - 100) + $maxlevel;
+        $level: math.div($maxlevel - $minlevel, 100) * (color.lightness($value) - 100) + $maxlevel;
         $cend: theme-color-level($state, $level);
     }
 
-    @if (str-index($mode, "-rev")) {
+    @if (string.index($mode, "-rev")) {
         $cend2: $cend;
         $cend: $cstart;
         $cstart: $cend2;
     }
 
     --cstart: #{$cstart};
-    --cstart-rgb: #{red($cstart)}, #{green($cstart)}, #{blue($cstart)};
+    --cstart-rgb: #{color.red($cstart)}, #{color.green($cstart)}, #{color.blue($cstart)};
     --cend: #{$cend};
-    --cend-rgb: #{red($cend)}, #{green($cend)}, #{blue($cend)};
+    --cend-rgb: #{color.red($cend)}, #{color.green($cend)}, #{color.blue($cend)};
 }
 
 

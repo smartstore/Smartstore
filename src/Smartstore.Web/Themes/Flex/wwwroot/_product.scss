@@ -1,12 +1,15 @@
 /// <reference path="references.scss" />
 
+@use "sass:math";
+@use "sass:color";
+
 $pd-offer-bg:                   $product-detail-addtocart-box-bg;
 $pd-price-color:                $product-price-color;
 $pd-price-offer-color:          $product-price-color;
 $pd-line-height:                1.3;
 
-$pd-offer-muted-color:          mix($body-color, $pd-offer-bg, 76%);
-$pd-offer-spacing:              $grid-gutter-width / 2;
+$pd-offer-muted-color:          color.mix($body-color, $pd-offer-bg, 76%);
+$pd-offer-spacing:              math.div($grid-gutter-width, 2);
 
 //
 // Article Detail Styles
@@ -546,7 +549,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 
 .pd-actions-primary:not(:empty) {
     margin-bottom: $pd-offer-spacing;
-    > *:not(:last-child) { margin-bottom: $pd-offer-spacing / 2;  }
+    > *:not(:last-child) { margin-bottom: math.div($pd-offer-spacing, 2);  }
 }
 
 .pd-actions {

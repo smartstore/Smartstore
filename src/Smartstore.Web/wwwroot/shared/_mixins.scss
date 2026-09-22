@@ -1,5 +1,7 @@
 /// <reference path="references.scss" />
 
+@use "sass:map";
+
 // Mixins
 // ========================================================================
 
@@ -134,7 +136,7 @@
     }
     
     @if $fa-use-pro == false and $variant == "regular" {
-        @if not(map-has-key($fa-free-regular-icons, $content)) {
+        @if not(map.has-key($fa-free-regular-icons, $content)) {
             $variant: solid;
         }
     }
@@ -144,7 +146,7 @@
         font-weight: 400;
     }
     @else {
-        font-weight: map-get($icon-font-variants, $variant);
+        font-weight: map.get($icon-font-variants, $variant);
         @if $fa-use-pro {
             font-family: $fa-font-family-pro;
         }

@@ -1,5 +1,7 @@
 ﻿/// <reference path="references.scss" />
 
+@use "sass:math";
+
 .costeps {
     --costep-ring-width: 0px;
 
@@ -289,7 +291,7 @@
         margin-inline-start: 4px !important;
 
         @include media-breakpoint-up(md) {
-            margin-inline-start: ($grid-gutter-width / 2) !important;
+            margin-inline-start: math.div($grid-gutter-width, 2) !important;
         }
     }
 

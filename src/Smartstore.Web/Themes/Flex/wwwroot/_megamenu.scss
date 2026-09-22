@@ -1,20 +1,24 @@
 ﻿/// <reference path="references.scss" />
 
+@use "sass:list";
+@use "sass:string";
+@use "sass:color";
+
 $megamenu-zindex-base:          ($zindex-dropdown - 20);
 $color-layers:                  $megamenu-bg $header-bg $site-bg $body-bg;
 $mixed-megamenu-bg:             $megamenu-bg;
 
 @each $color in $color-layers {
-    $i: index($color-layers, $color);
+    $i: list.index($color-layers, $color);
 
     $next-color: $color;
 
-    @if length($color-layers) < $i  {
-        $next-color: nth($color-layers, $i + 1);    
+    @if list.length($color-layers) < $i  {
+        $next-color: list.nth($color-layers, $i + 1);
     }    
     
-    @if (alpha($next-color) < 1 and $next-color != transparent)  {
-        $mixed-megamenu-bg: mix(rgba($color, 1), rgba($next-color, 1), alpha($color) * 100%);
+    @if (color.alpha($next-color) < 1 and $next-color != transparent)  {
+        $mixed-megamenu-bg: color.mix(rgba($color, 1), rgba($next-color, 1), color.alpha($color) * 100%);
     }
 }
 
@@ -228,7 +232,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
     display: none !important;
 }
 
-.navbar:is(#{unquote(":hover, :focus-within")}) > .megamenu-container .megamenu-nav-btn {
+.navbar:is(#{string.unquote(":hover, :focus-within")}) > .megamenu-container .megamenu-nav-btn {
     opacity: 1;
 }
 

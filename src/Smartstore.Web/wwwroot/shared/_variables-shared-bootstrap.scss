@@ -232,7 +232,7 @@ $form-switch-checked-bg-image:          $form-switch-bg-image;
 
 // Badge
 
-$badge-padding-y:               (1 / 6) * 1em !default;
+$badge-padding-y:               calc(1 / 6) * 1em !default;
 $badge-padding-x:               0.5em !default;
 $badge-pill-padding-x:          0.85em !default;
 $badge-pill-border-radius:      $border-radius-pill !default;

@@ -1,6 +1,8 @@
 ﻿/// <reference path="references.scss" />
 
 
+@use "sass:math";
+
 // Add nested dropdown support to Bootstrap
 // ==============================================================
 
@@ -18,7 +20,7 @@
 		&:before {
 			// make caret
 			position: absolute;
-			inset-inline-end: $dropdown-item-padding-x / 2;
+			inset-inline-end: math.div($dropdown-item-padding-x, 2);
 			top: 50%;
 			transform: translateY(-40%);
             color: $gray-500;

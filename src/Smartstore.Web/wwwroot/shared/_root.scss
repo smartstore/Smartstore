@@ -1,6 +1,8 @@
 /// <reference path="references.scss" />
 
 //
+@use "sass:color";
+
 // CSS vars
 // -------------------------------------------------
 
@@ -25,7 +27,7 @@
     --muted: #{$text-muted};
     --body: var(--body-color); // shim
 
-    @if alpha($body-bg) == 0 {
+    @if color.alpha($body-bg) == 0 {
         --body-bg: #{$site-bg};
     }
     @else {
