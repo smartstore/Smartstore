@@ -20,8 +20,8 @@ already documented.
   while changing code. Preserve them verbatim; touch them only when the documentation
   itself is wrong. New public members do get docs.
 - **Database changes use FluentMigrator, not EF Core migrations.**
-- **Sass is compiled with libsass.** Use `@import`. Never `@use` or `@forward`, and no
-  other Dart-Sass-only feature.
+- **Sass is compiled with native embedded Dart Sass.** Existing stylesheets use
+  `@import`; keep that style until the Sass module-system migration is planned.
 - **No new heavy client-side dependency** without asking first.
 - **Do not add eager O(n) work to constructors.** Where work was previously deferred,
   keep it deferred; justify any new up-front cost.
@@ -48,7 +48,7 @@ Architecture follows Domain-Driven Design. See
 - **.NET 10 / C#**, **ASP.NET Core 10**, **EF Core 10** (`net10.0`, set centrally in
   `src/Smartstore.Build/Smartstore.Common.props`)
 - **Nuke** for build automation (`build.cmd` / `build.ps1` / `build.sh`)
-- Bootstrap (4/5 hybrid), Sass via libsass, jQuery, Select2, Vue.js
+- Bootstrap (4/5 hybrid), native embedded Dart Sass, jQuery, Select2, Vue.js
 - DotLiquid (Liquid) for email and content templates
 - Docker / Docker Compose for app and database containers
 

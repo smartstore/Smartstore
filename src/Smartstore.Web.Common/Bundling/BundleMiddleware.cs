@@ -141,10 +141,14 @@ internal class BundleMiddleware
     private static ValueTask ServerErrorResponse(Exception ex, Bundle bundle, HttpContext httpContext)
     {
         var response = httpContext.Response;
-        response.ContentType = bundle.ContentType;
+        response.ContentType = bundle.ContentType.Contains("charset=", StringComparison.OrdinalIgnoreCase)
+            ? bundle.ContentType
+            : bundle.ContentType + "; charset=utf-8";
         response.StatusCode = 500;
 
-        var content = $"/*\n{ex.ToAllMessages()}\n*/";
+        // The public response uses the top-level message. The complete exception chain
+        // remains available to logging; including it here can duplicate formatted errors.
+        var content = $"/*\n{ex.Message.Replace("*/", "* /")}\n*/";
         var buffer = content.GetBytes();
         return response.Body.WriteAsync(buffer.AsMemory(0, buffer.Length));
     }

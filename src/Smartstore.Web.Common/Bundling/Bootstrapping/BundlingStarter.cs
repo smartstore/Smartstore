@@ -26,8 +26,10 @@ internal class BundlingStarter : StarterBase
         builder.RegisterType<DefaultBundleBuilder>().As<IBundleBuilder>().SingleInstance();
         builder.RegisterType<BundleCache>().As<IBundleCache>().SingleInstance();
         builder.RegisterType<BundleDiskCache>().As<IBundleDiskCache>().SingleInstance();
-        builder.RegisterType<SharpScssCompiler>().As<ISassCompiler>().SingleInstance();
         builder.RegisterType<BundleTagGenerator>().As<IAssetTagGenerator>().InstancePerLifetimeScope();
+
+        // Sass compiler
+        builder.RegisterType<DartSassCompiler>().As<ISassCompiler>().SingleInstance();
     }
 
     public override void BuildPipeline(RequestPipelineBuilder builder)

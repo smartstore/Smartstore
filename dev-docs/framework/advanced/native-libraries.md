@@ -9,7 +9,6 @@ Some Smartstore features rely on OS‑specific binaries such as PDF engines or i
 ```csharp
 var manager = services.Resolve<INativeLibraryManager>();
 
-var lib = manager.GetNativeLibrary("libsass", minVersion: "3.6");
 var exe = manager.GetNativeExecutable("wkhtmltopdf");
 ```
 
