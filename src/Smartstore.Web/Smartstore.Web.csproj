@@ -37,6 +37,7 @@
 			<!-- Prevents BuildHost folders from being copied into the project -->
 			<ExcludeAssets>contentFiles</ExcludeAssets>
 		</PackageReference>
+		<PackageReference Include="Smartstore.LightningCss.Native" Version="1.33.0" />
 		<PackageReference Include="System.Runtime.Caching" Version="10.0.8" />
 		<PackageReference Include="SourceGear.sqlite3" Version="3.50.4.5" />
 	</ItemGroup>
