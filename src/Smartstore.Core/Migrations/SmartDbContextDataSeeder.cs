@@ -1,5 +1,6 @@
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Configuration;
 using Smartstore.Data.Migrations;
 using Smartstore.Utilities;
@@ -20,6 +21,11 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
     public async Task MigrateSettingsAsync(SmartDbContext context, CancellationToken cancelToken = default)
     {
+        await context.MigrateSettingsAsync(builder =>
+        {
+            builder.Add(TypeHelper.NameOf<PerformanceSettings>(x => x.KeepSassCompilerInMemory, true), "False");
+        });
+
         var settings = context.Set<Setting>();
         const string oldName1 = "TaxSettings.ShowLegalHintsInProductDetails";
         const string oldName2 = "TaxSettings.ShowLegalHintsInProductList";
@@ -90,6 +96,16 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
     public void MigrateLocaleResources(LocaleResourcesBuilder builder)
     {
+        builder.AddOrUpdate("Admin.Configuration.Themes.Option.KeepSassCompilerInMemory",
+            "Keep Sass compiler in memory",
+            "Sass-Compiler im Arbeitsspeicher halten",
+            "Recommended while actively editing Sass files or changing theme variables in the admin area. Keeping the Dart Sass compiler running speeds up repeated compilations but uses additional memory. Otherwise, leave this disabled; an unused compiler is stopped after a short idle period.",
+            "Empfohlen, wenn Sie gerade intensiv Sass-Dateien bearbeiten oder Theme-Variablen im Backend ändern. Der Dart-Sass-Compiler bleibt aktiv und beschleunigt wiederholte Kompilierungen, benötigt aber zusätzlichen Arbeitsspeicher. Ansonsten deaktiviert lassen; ein ungenutzter Compiler wird nach kurzer Zeit beendet.");
+
+        builder.Delete(
+            "Admin.Configuration.Settings.Performance.KeepSassCompilerInMemory",
+            "Admin.Configuration.Settings.Performance.KeepSassCompilerInMemory.Hint");
+
         builder.Delete(
             "Admin.Orders.Products.AddNew.UnitPriceInclTax.Hint",
             "Admin.Orders.Products.AddNew.UnitPriceExclTax.Hint",

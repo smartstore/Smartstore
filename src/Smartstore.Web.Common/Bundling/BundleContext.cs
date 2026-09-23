@@ -24,7 +24,7 @@ public class AssetContent
 
 public class BundleContext
 {
-    public ISassCompiler SassCompiler { get; init; }
+    public ISassCompilerFactory SassCompilerFactory { get; init; }
     public Bundle Bundle { get; init; }
     public BundleCacheKey CacheKey { get; init; }
     public HttpContext HttpContext { get; init; }

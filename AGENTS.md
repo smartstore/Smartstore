@@ -91,6 +91,7 @@ Beyond formatting:
 - **Async:** use `async`/`await`, suffix async methods with `Async`, never `.Result`
   or `.Wait()`.
 - **DI:** constructor injection. No service locator.
+- **Logging:** Smartstore property-injects `ILogger`; use `public ILogger Logger { get; set; } = NullLogger.Instance;` instead of adding a logger constructor parameter.
 - **Validation:** guard clauses for arguments; `ArgumentException` family for argument
   errors, domain-specific exceptions for domain errors.
 - **Reuse existing utilities** before writing your own — e.g.

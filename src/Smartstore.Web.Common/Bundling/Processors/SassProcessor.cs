@@ -11,14 +11,19 @@ public class SassProcessor : BundleProcessor
 
     public override async Task ProcessAsync(BundleContext context)
     {
-        foreach (var asset in context.Content)
-        {
-            if (!asset.Path.EndsWith(".scss", StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
+        var sassAssets = context.Content
+            .Where(x => x.Path.EndsWith(".scss", StringComparison.OrdinalIgnoreCase))
+            .ToArray();
 
-            var result = await context.SassCompiler.CompileAsync(new SassCompilationRequest
+        if (sassAssets.Length == 0)
+        {
+            return;
+        }
+
+        await using var lease = await context.SassCompilerFactory.GetCompilerAsync();
+        foreach (var asset in sassAssets)
+        {
+            var result = await lease.Value.CompileAsync(new SassCompilationRequest
             {
                 Source = asset.Content,
                 SourcePath = asset.Path,

@@ -19,8 +19,7 @@ internal sealed class DartSassCompiler : ISassCompiler, IAsyncDisposable
     private const string VirtualScheme = "smsass";
     private static readonly string[] RequestScopedImports = ["/.app/themevars.scss", "/.app/moduleimports.scss"];
 
-    // Keep one Embedded Sass connection for all compilations. The compiler starts its native
-    // process on demand and reuses it; the bundled executable is resolved from the app output.
+    // The factory owns this instance's lifetime; this class only translates compile requests.
     private readonly EmbeddedSass.SassCompiler _compiler = new(new SassCompilerOptions().UseBundledDartSass());
 
     public async Task<SassCompilationResult> CompileAsync(SassCompilationRequest request, CancellationToken cancellationToken = default)

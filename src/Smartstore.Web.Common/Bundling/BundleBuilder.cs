@@ -33,20 +33,20 @@ public class DefaultBundleBuilder : IBundleBuilder
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IOptionsMonitor<BundlingOptions> _bundlingOptions;
     private readonly IChronometer _chronometer;
-    private readonly ISassCompiler _sassCompiler;
+    private readonly ISassCompilerFactory _sassCompilerFactory;
 
     public DefaultBundleBuilder(
         IBundleContextAccessor bundleContextAccessor,
         IHttpContextAccessor httpContextAccessor,
         IOptionsMonitor<BundlingOptions> bundlingOptions,
         IChronometer chronometer,
-        ISassCompiler sassCompiler)
+        ISassCompilerFactory sassCompilerFactory)
     {
         _bundleContextAccessor = bundleContextAccessor;
         _httpContextAccessor = httpContextAccessor;
         _bundlingOptions = bundlingOptions;
         _chronometer = chronometer;
-        _sassCompiler = sassCompiler;
+        _sassCompilerFactory = sassCompilerFactory;
     }
 
     public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -79,7 +79,7 @@ public class DefaultBundleBuilder : IBundleBuilder
 
         var context = new BundleContext
         {
-            SassCompiler = _sassCompiler,
+            SassCompilerFactory = _sassCompilerFactory,
             Bundle = bundle,
             CacheKey = cacheKey,
             HttpContext = httpContext,
