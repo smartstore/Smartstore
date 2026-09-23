@@ -134,6 +134,10 @@ public partial class ProductVariantAttribute : BaseEntity, ILocalizedEntity, IDi
     /// </summary>
     public SwatchPriceDisplayMode? SwatchPriceDisplay { get; set; }
 
+    [NotMapped]
+    public bool HasSwatchOverrides
+        => SwatchSize.HasValue || SwatchAspectRatio.HasValue || SwatchShape.HasValue || ShowValueNameInSwatch.HasValue || SwatchPriceDisplay.HasValue;
+
     /// <summary>
     /// Gets or sets a value indicating whether the selection of multiple values is supported.
     /// </summary>

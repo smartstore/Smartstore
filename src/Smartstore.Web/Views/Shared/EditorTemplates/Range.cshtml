@@ -14,6 +14,7 @@
     var step = (GetMetadata<decimal?>("step") ?? 1m).ToStringInvariant();
     var format = GetMetadata<string>("format") ?? "{0}";
     var isNullable = Nullable.GetUnderlyingType(ViewData.ModelMetadata.ModelType) != null;
+    var hasTools = isNullable && GetMetadata<bool?>("tools", true) == true;
     var hasValue = Model != null;
     decimal? defaultValue = null;
 
@@ -95,7 +96,7 @@
 
 <div id="range-container-@id" class="@containerCssClass" data-format="@Html.Raw(format)" data-editor="range" data-default-value="@defaultValue">
     @* INFO: We have to distinguish here because the HTML wrapping for nullable properties will break the sliders in PageBuilder. *@
-    @if (!isNullable)
+    @if (!isNullable || !hasTools)
     {
         await RenderRangeControl();
     }
@@ -127,26 +128,26 @@
     }
 </div>
 
-<script sm-if="isNullable" sm-target-zone="scripts" data-origin="range-template">
+<script sm-if="isNullable && hasTools" sm-target-zone="scripts" data-origin="range-template">
     $(function () {
         const $container = $('#range-container-@id');
         const $hiddenInput = $container.find('input[type="hidden"]');
-        const $rangeInput = $container.find('.form-control-range');
+        const $range = $container.find('.form-control-range');
         const $resetBtn = $container.find('.range-reset');
         const $badge = $container.find('.range-badge');
 
-        function toggleTools(reset, val) {
+        function update(reset, val) {
             $container.toggleClass('unspecified', reset);
             $resetBtn.toggleClass('d-none', reset);
             $badge.toggleClass('d-none', !reset);
             $hiddenInput.val(reset ? '' : val);
-            $rangeInput.val(val);
+            $range.val(val);
         }
 
         // Interaction with range input (drag or click).
-        $rangeInput.on('input change', (e) => {
+        $range.on('input change', (e) => {
             if ($container.hasClass('unspecified')) {
-                toggleTools(false, $(e.currentTarget).val());
+                update(false, $(e.currentTarget).val());
             } else {
                 $hiddenInput.val($(e.currentTarget).val());
             }
@@ -154,13 +155,13 @@
 
         // Click on badge activates explicit override.
         $badge.on('click', () => {
-            toggleTools(false, $rangeInput.val());
+            update(false, $range.val());
         });
 
         // Click on reset restores null state.
         $resetBtn.on('click', (e) => {
             e.preventDefault();
-            toggleTools(true, $container.data('default-value'));
+            update(true, $container.data('default-value'));
         });
     });
 </script>

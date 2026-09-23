@@ -2,19 +2,25 @@
 
 @{
     var name = ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
+    var propertyName = ViewData.ModelMetadata.PropertyName ?? name;
     var id = Html.GenerateIdFromName(name);
-    var landscapePresets = new[]
+    var isNullable = Nullable.GetUnderlyingType(ViewData.ModelMetadata.ModelType) != null;
+    var hasValue = Model != null;
+
+    // INFO: These values represent a practical compromise designed to avoid a "step" that is too fine.
+    // The deviation from the mathematically exact ratio remains below approximately 0.5%.
+    var presets = new[]
     {
         (Value: 0.5m, Label: "2:1"),
-        (Value: 0.5625m, Label: "16:9"),
-        (Value: 0.6667m, Label: "3:2"),
-        (Value: 0.75m, Label: "4:3")
-    };
-    var portraitPresets = new[]
-    {
-        (Value: 1.3333m, Label: "3:4"),
+        (Value: 0.56m, Label: "16:9"),
+        (Value: 0.67m, Label: "3:2"),
+        (Value: 0.75m, Label: "4:3"),
+        (Value: 0m, Label: string.Empty),
+        (Value: 1m, Label: "1:1"),
+        (Value: 0m, Label: string.Empty),
+        (Value: 1.33m, Label: "3:4"),
         (Value: 1.5m, Label: "2:3"),
-        (Value: 1.7778m, Label: "9:16"),
+        (Value: 1.78m, Label: "9:16"),
         (Value: 2m, Label: "1:2"),
         (Value: 3m, Label: "1:3")
     };
@@ -30,27 +36,31 @@
                 <button type="button"
                         class="btn btn-sm btn-light btn-flat btn-no-border btn-icon dropdown-toggle no-chevron"
                         data-toggle="dropdown"
-                        title="@ViewData.ModelMetadata.GetDisplayName()"
-                        aria-label="@ViewData.ModelMetadata.GetDisplayName()"
-                        aria-haspopup="true">
+                        title="@ViewData.ModelMetadata.GetDisplayName()">
                     <bootstrap-icon name="aspect-ratio" />
                 </button>
                 <div class="dropdown-menu dropdown-menu-right">
-                    @foreach (var preset in landscapePresets)
+                    @foreach (var preset in presets)
                     {
-                        <button type="button" class="dropdown-item aspect-ratio-preset" data-value="@preset.Value.ToStringInvariant()">
-                            @preset.Label
-                        </button>
+                        if (preset.Value == 0m)
+                        {
+                            <div class="dropdown-divider"></div>
+                        }
+                        else
+                        {
+                            <button type="button" class="dropdown-item aspect-ratio-preset" data-value="@preset.Value.ToStringInvariant()">
+                                @preset.Label
+                            </button>
+                        }
                     }
-                    <div class="dropdown-divider"></div>
-                    <button type="button" class="dropdown-item aspect-ratio-preset" data-value="1">
-                        1:1
-                    </button>
-                    <div class="dropdown-divider"></div>
-                    @foreach (var preset in portraitPresets)
+                    @if (isNullable)
                     {
-                        <button type="button" class="dropdown-item aspect-ratio-preset" data-value="@preset.Value.ToStringInvariant()">
-                            @preset.Label
+                        <div class="dropdown-divider"></div>
+                        <button type="button"
+                                class="dropdown-item range-reset"
+                                title="@T("Admin.Common.ResetToDefault")"
+                                attr-disabled='(!hasValue, "disabled")'>
+                            @T("Admin.Common.Clear")
                         </button>
                     }
                 </div>
@@ -66,9 +76,12 @@
 <script sm-target-zone="scripts" data-origin="aspect-ratio-template">
     $(function() {
         const $container = $('#aspect-ratio-@id');
+        const $rangeContainer = $container.find('[data-editor="range"]');
+        const $hiddenInput = $container.find('input[type="hidden"]');
         const $range = $container.find('.form-control-range');
         const $preview = $container.find('.aspect-ratio-preview');
         const $presets = $container.find('.aspect-ratio-preset');
+        const $resetBtn = $container.find('.range-reset');
 
         function updatePreview() {
             let val = parseFloat($range.val());
@@ -86,11 +99,36 @@
             });
         }
 
-        $range.on('input change', updatePreview);
-        $presets.on('click', (e) => {
-            $range.val($(e.currentTarget).data('value')).trigger('input').trigger('change');
+        function update(reset, val) {
+            $rangeContainer.toggleClass('unspecified', reset);
+            $resetBtn.prop('disabled', reset);
+            $range.val(val);
+
+            if (reset) {
+                $hiddenInput.val('');
+            }
+        }
+
+        // Interaction with range input (drag or click).
+        $range.on('input change', (e) => {
+            const val = $(e.currentTarget).val();
+            if ($rangeContainer.hasClass('unspecified')) {
+                update(false, val);
+            }
+
+            updatePreview();
         });
-        $container.on('click', '.range-reset', () => setTimeout(updatePreview));
+
+        $presets.on('click', (e) => {
+            update(false, $(e.currentTarget).data('value'));
+            $range.trigger('input').trigger('change');
+        });
+
+        $resetBtn.on('click', (e) => {
+            e.preventDefault();
+            update(true, $rangeContainer.data('default-value'));
+            updatePreview();
+        });
 
         updatePreview();
     });

@@ -213,7 +213,7 @@ public partial class ProductController : AdminController
         var rows = attributes
             .Select(x =>
             {
-                var model = CreateProductVariantAttributeModel(x);
+                var model = CreateProductVariantAttributeModel(x, true);
                 model.NumberOfRules = rulesCount.Get(x.Id);
 
                 if (x.IsListTypeAttribute())
@@ -461,7 +461,7 @@ public partial class ProductController : AdminController
     }
 
     [Permission(Permissions.Catalog.Product.Read)]
-    public async Task<IActionResult> ProductAttributeSwatchEditPopup(int id)
+    public async Task<IActionResult> ProductAttributeSwatchEditPopup(string btnId, string formId, int id)
     {
         var pva = await _db.ProductVariantAttributes
             .Include(x => x.ProductAttribute)
@@ -471,19 +471,20 @@ public partial class ProductController : AdminController
             return NotFound();
         }
 
-        var model = CreateProductVariantAttributeModel(pva);
+        var model = CreateProductVariantAttributeModel(pva, false);
 
-        ViewBag.DefaultSwatchShape = Services.Localization.GetLocalizedEnum(pva.SwatchShape ?? _catalogSettings.DefaultSwatchShape).NullEmpty() 
-            ?? Services.Localization.GetLocalizedEnum(SwatchShape.Rounded);
+        PrepareSwatchPopupViewBag(btnId, formId, pva);
 
         return View(model);
     }
 
     [HttpPost]
     [Permission(Permissions.Catalog.Product.EditVariant)]
-    public async Task<IActionResult> ProductAttributeSwatchEditPopup(ProductModel.ProductVariantAttributeModel model)
+    public async Task<IActionResult> ProductAttributeSwatchEditPopup(string btnId, string formId, ProductModel.ProductVariantAttributeModel model)
     {
-        var pva = await _db.ProductVariantAttributes.FindByIdAsync(model.Id);
+        var pva = await _db.ProductVariantAttributes
+            .Include(x => x.ProductAttribute)
+            .FindByIdAsync(model.Id);
         if (pva == null)
         {
             return NotFound();
@@ -491,7 +492,9 @@ public partial class ProductController : AdminController
 
         if (ModelState.IsValid)
         {
-            pva.SwatchSize = Enum.IsDefined(typeof(SwatchSize), model.SwatchSize) ? (SwatchSize)model.SwatchSize : pva.SwatchSize;
+            pva.SwatchSize = model.SwatchSize != null && Enum.IsDefined(typeof(SwatchSize), model.SwatchSize)
+                ? (SwatchSize)model.SwatchSize
+                : null;
             pva.SwatchAspectRatio = model.SwatchAspectRatio;
             pva.SwatchShape = model.SwatchShape;
             pva.ShowValueNameInSwatch = model.ShowValueNameInSwatch;
@@ -506,9 +509,117 @@ public partial class ProductController : AdminController
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return View(model);
             }
+
+            ViewBag.RefreshPage = true;
+            ViewBag.formId = formId;
+            ViewBag.btnId = btnId;
+        }
+        else
+        {
+            PrepareSwatchPopupViewBag(btnId, formId, pva);
         }
 
         return View(model);
+    }
+
+    private ProductModel.ProductVariantAttributeModel CreateProductVariantAttributeModel(ProductVariantAttribute pva, bool forList)
+    {
+        var localization = Services.Localization;
+        var language = _workContext.WorkingLanguage;
+
+        var model = new ProductModel.ProductVariantAttributeModel
+        {
+            Id = pva.Id,
+            ProductId = pva.ProductId,
+            ProductAttribute = pva.ProductAttribute.GetLocalized(y => y.Name, language, true, false),
+            ProductAttributeId = pva.ProductAttributeId,
+            TextPrompt = pva.TextPrompt,
+            CustomData = pva.CustomData,
+            IsRequired = pva.IsRequired,
+            AttributeControlTypeStr = localization.GetLocalizedEnum(pva.AttributeControlType, language.Id),
+            AttributeControlTypeId = pva.AttributeControlTypeId,
+            DisplayOrder = pva.DisplayOrder,
+            SwatchSize = pva.SwatchSize != null ? (int?)pva.SwatchSize : null,
+            SwatchAspectRatio = pva.SwatchAspectRatio,
+            SwatchShape = pva.SwatchShape,
+            ShowValueNameInSwatch = pva.ShowValueNameInSwatch,
+            SwatchPriceDisplay = pva.SwatchPriceDisplay,
+            HasSwatchOverrides = pva.HasSwatchOverrides,
+            EditUrl = Url.Action(nameof(EditAttributeValues), new { productVariantAttributeId = pva.Id })
+        };
+
+        if (forList && model.HasSwatchOverrides)
+        {
+            const string resKey = "Admin.Catalog.Attributes.ProductAttributes.Fields.";
+            var overrides = new List<string>(5);
+
+            if (pva.SwatchSize is { } size)
+            {
+                overrides.Add(localization.GetLocalizedEnum(size, language.Id));
+            }
+
+            if (pva.SwatchAspectRatio is { } ratio)
+            {
+                ratio = Math.Round(ratio, 2, MidpointRounding.AwayFromZero);
+                var ratioText = ratio switch
+                {
+                    0.5m => "2:1",
+                    0.56m => "16:9",
+                    0.67m => "3:2",
+                    0.75m => "4:3",
+                    1m => "1:1",
+                    1.33m => "3:4",
+                    1.5m => "2:3",
+                    1.78m => "9:16",
+                    2m => "1:2",
+                    3m => "1:3",
+                    < 1m => (1m / ratio).ToStringInvariant("0.##") + ":1",
+                    _ => "1:" + ratio.ToStringInvariant("0.##")
+                };                
+
+                overrides.Add(ratioText);
+            }
+
+            if (pva.SwatchShape is { } shape)
+            {
+                overrides.Add(localization.GetLocalizedEnum(shape, language.Id));
+            }
+
+            if (pva.ShowValueNameInSwatch is { } showName)
+            {
+                overrides.Add($"{T(resKey + nameof(pva.ShowValueNameInSwatch))}: {T(showName ? "Common.Yes" : "Common.No")}");
+            }
+
+            if (pva.SwatchPriceDisplay is { } priceDisplay)
+            {
+                overrides.Add($"{T(resKey + nameof(pva.SwatchPriceDisplay))}: {localization.GetLocalizedEnum(priceDisplay, language.Id)}");
+            }
+
+            model.SwatchOverridesInfo = T("Admin.Catalog.Products.ProductVariantAttributes.SwatchOverridesInfo", string.Join(", ", overrides));
+        }
+
+        return model;
+    }
+
+    private void PrepareSwatchPopupViewBag(string btnId, string formId, ProductVariantAttribute pva)
+    {
+        var localization = Services.Localization;
+        var attribute = pva.ProductAttribute;
+
+        ViewData[nameof(ProductAttributeModel.SwatchSize) + "DefaultValue"] = (int)(pva.SwatchSize ?? attribute.SwatchSize ?? _catalogSettings.DefaultSwatchSize);
+        ViewData[nameof(ProductAttributeModel.SwatchSize) + "RangeTicks"] = Enum.GetValues<SwatchSize>()
+            .Select(x => localization.GetLocalizedEnum(x))
+            .ToList();
+
+        ViewData[nameof(ProductAttributeModel.SwatchAspectRatio) + "DefaultValue"] = pva.SwatchAspectRatio ?? attribute.SwatchAspectRatio;
+
+        ViewBag.DefaultSwatchShape = localization.GetLocalizedEnum(pva.SwatchShape ?? attribute.SwatchShape ?? _catalogSettings.DefaultSwatchShape).NullEmpty()
+            ?? localization.GetLocalizedEnum(SwatchShape.Rounded);
+
+        ViewBag.DefaultPriceDisplayMode = localization.GetLocalizedEnum(pva.SwatchPriceDisplay ?? attribute.SwatchPriceDisplay);
+
+        ViewBag.formId = formId;
+        ViewBag.btnId = btnId;
     }
 
     #endregion
@@ -1212,33 +1323,6 @@ public partial class ProductController : AdminController
             Message = message,
             HasWarning = foundCombination != null
         });
-    }
-
-    private ProductModel.ProductVariantAttributeModel CreateProductVariantAttributeModel(ProductVariantAttribute pva)
-    {
-        var language = _workContext.WorkingLanguage;
-
-        var model = new ProductModel.ProductVariantAttributeModel
-        {
-            Id = pva.Id,
-            ProductId = pva.ProductId,
-            ProductAttribute = pva.ProductAttribute.GetLocalized(y => y.Name, language, true, false),
-            ProductAttributeId = pva.ProductAttributeId,
-            TextPrompt = pva.TextPrompt,
-            CustomData = pva.CustomData,
-            IsRequired = pva.IsRequired,
-            AttributeControlTypeStr = Services.Localization.GetLocalizedEnum(pva.AttributeControlType, language.Id),
-            AttributeControlTypeId = pva.AttributeControlTypeId,
-            DisplayOrder = pva.DisplayOrder,
-            SwatchSize = pva.SwatchSize != null ? (int?)pva.SwatchSize : null,
-            SwatchAspectRatio = pva.SwatchAspectRatio,
-            SwatchShape = pva.SwatchShape,
-            ShowValueNameInSwatch = pva.ShowValueNameInSwatch,
-            SwatchPriceDisplay = pva.SwatchPriceDisplay,
-            EditUrl = Url.Action(nameof(EditAttributeValues), new { productVariantAttributeId = pva.Id })
-        };
-
-        return model;
     }
 
     private async Task<ProductVariantAttributeCombinationModel> PrepareProductAttributeCombinationModel(int id)

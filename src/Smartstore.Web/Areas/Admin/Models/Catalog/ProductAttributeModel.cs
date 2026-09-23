@@ -67,7 +67,7 @@ public class ProductAttributeModel : EntityModelBase, ILocalizedModel<ProductAtt
     [UIHint("AspectRatio"), Range(0.1, 3.0)]
     [AdditionalMetadata("min", 0.1)]
     [AdditionalMetadata("max", 3.0)]
-    [AdditionalMetadata("step", 0.0001)]
+    [AdditionalMetadata("step", 0.01)]
     [AdditionalMetadata("format", "{0:F2}")]
     [AdditionalMetadata("ticks", "0.1|10:1, 1|1:1, 2|1:2, 3|1:3")]
     [LocalizedDisplay("*SwatchAspectRatio")]

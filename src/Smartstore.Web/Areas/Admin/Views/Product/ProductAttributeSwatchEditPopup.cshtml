@@ -7,7 +7,7 @@
     ViewBag.Title = T("Admin.Catalog.Attributes.ProductAttributes.Swatches").Value;
 }
 
-<form asp-action="ProductAttributeSwatchEditPopup">
+<form asp-action="ProductAttributeSwatchEditPopup" asp-route-btnId="@ViewBag.btnId" asp-route-formId="@ViewBag.formId">
     <div class="section-header">
         <div class="title">
             @ViewBag.Title
@@ -51,7 +51,9 @@
                 <smart-label asp-for="SwatchShape" />
             </div>
             <div class="adminData">
-                <select asp-for="SwatchShape" asp-items="Html.GetLocalizedEnumSelectList(typeof(SwatchShape))" asp-placeholder="@ViewBag.DefaultSwatchShape"></select>
+                <select asp-for="SwatchShape" 
+                        asp-items="Html.GetLocalizedEnumSelectList(typeof(SwatchShape))" 
+                        asp-placeholder="@ViewBag.DefaultSwatchShape"></select>
                 <span asp-validation-for="SwatchShape"></span>
             </div>
         </div>
@@ -69,7 +71,9 @@
                 <smart-label asp-for="SwatchPriceDisplay" />
             </div>
             <div class="adminData">
-                <select asp-for="SwatchPriceDisplay" asp-items="Html.GetLocalizedEnumSelectList(typeof(SwatchPriceDisplayMode))"></select>
+                <select asp-for="SwatchPriceDisplay" 
+                        asp-items="Html.GetLocalizedEnumSelectList(typeof(SwatchPriceDisplayMode))"
+                        asp-placeholder="@ViewBag.DefaultPriceDisplayMode"></select>
                 <span asp-validation-for="SwatchPriceDisplay"></span>
             </div>
         </div>

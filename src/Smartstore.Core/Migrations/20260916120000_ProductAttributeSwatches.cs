@@ -155,7 +155,12 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
 
 
         builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.SwatchInfo",
-            "These settings for swatches allow you to specify values for this product that differ from the attribute.",
-            "Diese Einstellungen für Farb- und Bildmuster ermöglichen es, zum Attribut abweichende Werte für dieses Produkt festzulegen.");
+            "Use these settings to override the default attribute values for this product.",
+            "Legen Sie hier abweichende Einstellungen fest, wenn Sie die Vorgaben des Attributs für dieses Produkt überschreiben möchten.");
+
+        builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.SwatchOverridesInfo",
+            "Overwritten: {0}.",
+            "Abweichend: {0}.");
+
     }
 }

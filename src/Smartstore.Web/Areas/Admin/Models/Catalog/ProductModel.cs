@@ -555,9 +555,10 @@ public class ProductModel : ProductOverviewModel, ILocalizedModel<ProductLocaliz
         [UIHint("AspectRatio"), Range(0.1, 3.0)]
         [AdditionalMetadata("min", 0.1)]
         [AdditionalMetadata("max", 3.0)]
-        [AdditionalMetadata("step", 0.0001)]
+        [AdditionalMetadata("step", 0.01)]
         [AdditionalMetadata("format", "{0:F2}")]
         [AdditionalMetadata("ticks", "0.1|10:1, 1|1:1, 2|1:2, 3|1:3")]
+        [AdditionalMetadata("tools", false)]
         [LocalizedDisplay("Admin.Catalog.Attributes.ProductAttributes.Fields.SwatchAspectRatio")]
         public decimal? SwatchAspectRatio { get; set; }
 
@@ -569,6 +570,9 @@ public class ProductModel : ProductOverviewModel, ILocalizedModel<ProductLocaliz
 
         [LocalizedDisplay("Admin.Catalog.Attributes.ProductAttributes.Fields.SwatchPriceDisplay")]
         public SwatchPriceDisplayMode? SwatchPriceDisplay { get; set; }
+
+        public bool HasSwatchOverrides { get; set; }
+        public string SwatchOverridesInfo { get; set; }
 
         [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values")]
         public string EditUrl { get; set; }

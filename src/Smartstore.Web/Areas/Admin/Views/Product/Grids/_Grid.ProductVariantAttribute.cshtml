@@ -51,7 +51,16 @@
         <column for="AttributeControlTypeId" width="2fr">
             <display-template>
                 <div class="dg-cell-value">
-                    <a v-if="item.row.IsSwatch" href="javascript:;" class="grid-edit-attribute-swatch text-truncate" :data-key="item.row.Id">{{ item.row.AttributeControlTypeStr }}</a>
+                    <a v-if="item.row.IsSwatch"
+                       href="javascript:;" 
+                       class="grid-edit-attribute-swatch" 
+                       :data-key="item.row.Id"
+                       :title="item.row.SwatchOverridesInfo">
+                        <span class="text-truncate">
+                            {{ item.row.AttributeControlTypeStr }}
+                        </span>
+                        <i v-if="item.row.HasSwatchOverrides" class="fa fa-sliders-h text-muted ml-1"></i>
+                    </a>
                     <div v-if="!item.row.IsSwatch" class="text-truncate">{{ item.row.AttributeControlTypeStr }}</div>
                 </div>
             </display-template>
@@ -86,17 +95,20 @@
     </row-commands>
 </datagrid>
 
+<input type="submit" id="btnRefreshProductVariants" name="btnRefreshProductVariants" class="d-none" />
+
 <script>
     $(function() {
         $(document).on('click', '.grid-edit-attribute-swatch', (e) =>  {
             e.preventDefault();
-            const self = $(e.currentTarget);
+            const id = $(e.currentTarget).data('key');
+            openPopup('@(Url.Action("ProductAttributeSwatchEditPopup").EnsureEndsWith('/'))' + id + '?btnId=btnRefreshProductVariants&formId=product-form');
+            return false;
+        });
 
-            openPopup({
-                id: "attribute-swatch",
-                url: '@(Url.Action("ProductAttributeSwatchEditPopup").EnsureEndsWith('/'))' + self.data('key')
-            });
-
+        // Refresh grid after popup edit dialog was closed.
+        $(document).on('click', '#btnRefreshProductVariants', () => {
+            window["productvariantattributes-grid"].$children[0].read();
             return false;
         });
     });
