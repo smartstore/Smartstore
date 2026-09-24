@@ -558,7 +558,6 @@ public class ProductModel : ProductOverviewModel, ILocalizedModel<ProductLocaliz
         [AdditionalMetadata("step", 0.01)]
         [AdditionalMetadata("format", "{0:F2}")]
         [AdditionalMetadata("ticks", "0.1|10:1, 1|1:1, 2|1:2, 3|1:3")]
-        [AdditionalMetadata("tools", false)]
         [LocalizedDisplay("Admin.Catalog.Attributes.ProductAttributes.Fields.SwatchAspectRatio")]
         public decimal? SwatchAspectRatio { get; set; }
 

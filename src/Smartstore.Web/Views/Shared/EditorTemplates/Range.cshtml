@@ -7,11 +7,9 @@
     var name = ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
     var propertyName = ViewData.ModelMetadata.PropertyName ?? name;
     var id = Html.GenerateIdFromName(name);
-    var rawMin = GetMetadata<decimal?>("min") ?? 0m;
-    var rawMax = GetMetadata<decimal?>("max") ?? 100m;
-    var min = rawMin.ToStringInvariant();
-    var max = rawMax.ToStringInvariant();
-    var step = (GetMetadata<decimal?>("step") ?? 1m).ToStringInvariant();
+    var min = GetMetadata<decimal?>("min") ?? 0m;
+    var max = GetMetadata<decimal?>("max") ?? 100m;
+    var step = GetMetadata<decimal?>("step") ?? 1m;
     var format = GetMetadata<string>("format") ?? "{0}";
     var isNullable = Nullable.GetUnderlyingType(ViewData.ModelMetadata.ModelType) != null;
     var hasTools = isNullable && GetMetadata<bool?>("tools", true) == true;
@@ -29,6 +27,10 @@
         ticks = GetMetadata<string>("ticks").SplitSafe(',').Select(x => x.Trim()).ToList();
     }
 
+    var hasDefaultValue = defaultValue != null;
+    defaultValue ??= min;
+    var value = (hasValue ? ViewData.Model.Convert<decimal>() : defaultValue).ToStringInvariant();
+
     // An optional invariant "value|label" format positions non-equidistant ticks accurately.
     // Plain labels retain the legacy evenly distributed layout.
     var tickLabels = new List<string>(ticks.Count);
@@ -36,12 +38,12 @@
     foreach (var tick in ticks)
     {
         var separatorIndex = tick.IndexOf('|');
-        if (rawMax > rawMin
+        if (max > min
             && separatorIndex > 0
             && ConvertUtility.TryConvert<decimal>(tick[..separatorIndex].Trim(), out var tickValue))
         {
             tickLabels.Add(tick[(separatorIndex + 1)..].Trim());
-            tickPositions.Add(Math.Clamp((tickValue - rawMin) / (rawMax - rawMin), 0m, 1m));
+            tickPositions.Add(Math.Clamp((tickValue - min) / (max - min), 0m, 1m));
         }
         else
         {
@@ -50,11 +52,7 @@
         }
     }
 
-    var hasPositionedTicks = rawMax > rawMin && tickPositions.Count > 0 && tickPositions.All(x => x.HasValue);
-
-    var hasDefaultValue = defaultValue != null;
-    defaultValue ??= rawMin;
-    var value = (hasValue ? ViewData.Model.Convert<decimal>() : defaultValue).ToStringInvariant();
+    var hasPositionedTicks = max > min && tickPositions.Count > 0 && tickPositions.All(x => x.HasValue);
 
     var containerCssClass = "range-slider edit-control";
     if (ViewData.ContainsKey("size"))
@@ -73,7 +71,13 @@
     async Task RenderRangeControl()
     {
         <input type="hidden" asp-for="@Model" attrs="attributes" />
-        <input type="range" class="form-control-range px-0 custom-range" data-target="#@id" min="@min" max="@max" step="@step" value="@value" />
+        <input type="range" 
+               class="form-control-range px-0 custom-range" 
+               data-target="#@id" 
+               min="@min.ToStringInvariant()" 
+               max="@max.ToStringInvariant()" 
+               step="@step.ToStringInvariant()"
+               value="@value" />
 
         <div sm-if="format.HasValue()" class="range-value" data-placement="left">
             <div class="arrow"></div>
@@ -94,7 +98,12 @@
     }
 }
 
-<div id="range-container-@id" class="@containerCssClass" data-format="@Html.Raw(format)" data-editor="range" data-default-value="@defaultValue">
+<div id="range-container-@id"
+     class="@containerCssClass"
+     data-format="@Html.Raw(format)"
+     data-editor="range"
+     data-nullable="@isNullable.ToString().ToLowerInvariant()"
+     data-default-value="@defaultValue.Value.ToStringInvariant()">
     @* INFO: We have to distinguish here because the HTML wrapping for nullable properties will break the sliders in PageBuilder. *@
     @if (!isNullable || !hasTools)
     {
@@ -127,41 +136,3 @@
         </div>
     }
 </div>
-
-<script sm-if="isNullable && hasTools" sm-target-zone="scripts" data-origin="range-template">
-    $(function () {
-        const $container = $('#range-container-@id');
-        const $hiddenInput = $container.find('input[type="hidden"]');
-        const $range = $container.find('.form-control-range');
-        const $resetBtn = $container.find('.range-reset');
-        const $badge = $container.find('.range-badge');
-
-        function update(reset, val) {
-            $container.toggleClass('unspecified', reset);
-            $resetBtn.toggleClass('d-none', reset);
-            $badge.toggleClass('d-none', !reset);
-            $hiddenInput.val(reset ? '' : val);
-            $range.val(val);
-        }
-
-        // Interaction with range input (drag or click).
-        $range.on('input change', (e) => {
-            if ($container.hasClass('unspecified')) {
-                update(false, $(e.currentTarget).val());
-            } else {
-                $hiddenInput.val($(e.currentTarget).val());
-            }
-        });
-
-        // Click on badge activates explicit override.
-        $badge.on('click', () => {
-            update(false, $range.val());
-        });
-
-        // Click on reset restores null state.
-        $resetBtn.on('click', (e) => {
-            e.preventDefault();
-            update(true, $container.data('default-value'));
-        });
-    });
-</script>

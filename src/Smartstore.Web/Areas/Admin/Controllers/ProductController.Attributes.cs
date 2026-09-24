@@ -606,14 +606,14 @@ public partial class ProductController : AdminController
         var localization = Services.Localization;
         var attribute = pva.ProductAttribute;
 
-        ViewData[nameof(ProductAttributeModel.SwatchSize) + "DefaultValue"] = (int)(pva.SwatchSize ?? attribute.SwatchSize ?? _catalogSettings.DefaultSwatchSize);
+        ViewData[nameof(ProductAttributeModel.SwatchSize) + "DefaultValue"] = (int)(attribute.SwatchSize ?? _catalogSettings.DefaultSwatchSize);
         ViewData[nameof(ProductAttributeModel.SwatchSize) + "RangeTicks"] = Enum.GetValues<SwatchSize>()
             .Select(x => localization.GetLocalizedEnum(x))
             .ToList();
 
-        ViewData[nameof(ProductAttributeModel.SwatchAspectRatio) + "DefaultValue"] = pva.SwatchAspectRatio ?? attribute.SwatchAspectRatio;
+        ViewData[nameof(ProductAttributeModel.SwatchAspectRatio) + "DefaultValue"] = attribute.SwatchAspectRatio;
 
-        ViewBag.DefaultSwatchShape = localization.GetLocalizedEnum(pva.SwatchShape ?? attribute.SwatchShape ?? _catalogSettings.DefaultSwatchShape).NullEmpty()
+        ViewBag.DefaultSwatchShape = localization.GetLocalizedEnum(attribute.SwatchShape ?? _catalogSettings.DefaultSwatchShape).NullEmpty()
             ?? localization.GetLocalizedEnum(SwatchShape.Rounded);
 
         ViewBag.DefaultPriceDisplayMode = localization.GetLocalizedEnum(pva.SwatchPriceDisplay ?? attribute.SwatchPriceDisplay);

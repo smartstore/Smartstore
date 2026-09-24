@@ -1,8 +1,9 @@
 @model object
 
 @{
+    ViewData["tools"] = false;
+
     var name = ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
-    var propertyName = ViewData.ModelMetadata.PropertyName ?? name;
     var id = Html.GenerateIdFromName(name);
     var isNullable = Nullable.GetUnderlyingType(ViewData.ModelMetadata.ModelType) != null;
     var hasValue = Model != null;
@@ -77,17 +78,21 @@
     $(function() {
         const $container = $('#aspect-ratio-@id');
         const $rangeContainer = $container.find('[data-editor="range"]');
-        const $hiddenInput = $container.find('input[type="hidden"]');
         const $range = $container.find('.form-control-range');
         const $preview = $container.find('.aspect-ratio-preview');
         const $presets = $container.find('.aspect-ratio-preset');
         const $resetBtn = $container.find('.range-reset');
 
-        function updatePreview() {
-            let val = parseFloat($range.val());
+        $rangeContainer.rangeSlider();
+        const rangeSlider = $rangeContainer.data('rangeSlider');
+
+        function updatePreview(e, value) {
+            let val = parseFloat(value ?? $range.val());
             if (isNaN(val) || val <= 0) {
                 val = 1;
             }
+
+            $resetBtn.prop('disabled', rangeSlider.isUnspecified());
 
             const previewWidth = parseFloat($preview.css('width'));
             $preview.css('height', (previewWidth * val) + 'px');
@@ -99,35 +104,15 @@
             });
         }
 
-        function update(reset, val) {
-            $rangeContainer.toggleClass('unspecified', reset);
-            $resetBtn.prop('disabled', reset);
-            $range.val(val);
-
-            if (reset) {
-                $hiddenInput.val('');
-            }
-        }
-
-        // Interaction with range input (drag or click).
-        $range.on('input change', (e) => {
-            const val = $(e.currentTarget).val();
-            if ($rangeContainer.hasClass('unspecified')) {
-                update(false, val);
-            }
-
-            updatePreview();
-        });
+        $rangeContainer.on('rangeslider:change', updatePreview);
 
         $presets.on('click', (e) => {
-            update(false, $(e.currentTarget).data('value'));
-            $range.trigger('input').trigger('change');
+            rangeSlider.setValue($(e.currentTarget).data('value'));
         });
 
         $resetBtn.on('click', (e) => {
             e.preventDefault();
-            update(true, $rangeContainer.data('default-value'));
-            updatePreview();
+            rangeSlider.reset();
         });
 
         updatePreview();
