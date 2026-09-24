@@ -12,6 +12,8 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
 {
     const string AttrTableName = "ProductAttribute";
     const string ProductAttrTableName = "Product_ProductAttribute_Mapping";
+    const string ProductVariantValueTableName = "ProductVariantAttributeValue";
+    const string ProductAttributeOptionTableName = "ProductAttributeOption";
 
     public override void Up()
     {
@@ -26,6 +28,9 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
         Migrate(ProductAttrTableName, nameof(ProductVariantAttribute.SwatchShape), c => c.AsInt32().Nullable());
         Migrate(ProductAttrTableName, nameof(ProductVariantAttribute.ShowValueNameInSwatch), c => c.AsBoolean().Nullable());
         Migrate(ProductAttrTableName, nameof(ProductVariantAttribute.SwatchPriceDisplay), c => c.AsInt32().Nullable());
+
+        Migrate(ProductVariantValueTableName, nameof(ProductVariantAttributeValue.AdditionalColors), c => c.AsString(100).Nullable());
+        Migrate(ProductAttributeOptionTableName, nameof(ProductAttributeOption.AdditionalColors), c => c.AsString(100).Nullable());
     }
 
     public override void Down()
@@ -41,6 +46,9 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
         Migrate(ProductAttrTableName, nameof(ProductVariantAttribute.SwatchShape), null);
         Migrate(ProductAttrTableName, nameof(ProductVariantAttribute.ShowValueNameInSwatch), null);
         Migrate(ProductAttrTableName, nameof(ProductVariantAttribute.SwatchPriceDisplay), null);
+
+        Migrate(ProductVariantValueTableName, nameof(ProductVariantAttributeValue.AdditionalColors), null);
+        Migrate(ProductAttributeOptionTableName, nameof(ProductAttributeOption.AdditionalColors), null);
     }
 
     private void Migrate(string table, string column, Action<ICreateColumnAsTypeSyntax> configure)
@@ -113,7 +121,7 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
             "Standardgröße von Farb- und Bildmustern",
             "Specifies the default size for product attribute swatches. This setting can be overridden at both the attribute and product levels. The recommended size is M.",
             "Legt die Standardgröße von Farb- und Bildmustern bei Produktattributen fest. Diese Einstellung kann sowohl beim Attribut als auch beim Produkt überschrieben werden."
-             + " Die empfohlene Größe ist M.");
+             + " Standard ist die Größe M.");
 
         builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.DefaultSwatchShape",
             "Default shape of swatches",

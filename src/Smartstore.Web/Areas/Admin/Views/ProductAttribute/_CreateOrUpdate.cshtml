@@ -130,23 +130,6 @@
                     <span asp-validation-for="IndexOptionNames"></span>
                 </div>
             </div>
-            <div class="adminRow">
-                <div class="adminTitle">
-                    <smart-label asp-for="ExportMappings" />
-                </div>
-                <div class="adminData">
-                    <editor asp-for="ExportMappings" />
-                    <span asp-validation-for="ExportMappings"></span>
-                </div>
-            </div>
-            <div class="adminRow">
-                <div class="adminTitle">&nbsp;</div>
-                <div class="adminData">
-                    <div class="alert alert-info">
-                        @Html.Raw(T("Admin.Catalog.Attributes.ProductAttributes.Fields.ExportMappings.Note"))
-                    </div>
-                </div>
-            </div>
 
             <div class="adminRow">
                 <div class="admin-config-group">
@@ -198,6 +181,30 @@
                     <span asp-validation-for="SwatchPriceDisplay"></span>
                 </div>
             </div>
+
+            <div class="adminRow">
+                <div class="admin-config-group">
+                    <div class="title">@T("Common.Misc")</div>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="ExportMappings" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="ExportMappings" />
+                    <span asp-validation-for="ExportMappings"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">&nbsp;</div>
+                <div class="adminData">
+                    <div class="alert alert-info">
+                        @Html.Raw(T("Admin.Catalog.Attributes.ProductAttributes.Fields.ExportMappings.Note"))
+                    </div>
+                </div>
+            </div>
+
         </div>
     </tab>
     <tab sm-title="@T("Admin.Catalog.Attributes.OptionsSets")" sm-adaptive-height="true">

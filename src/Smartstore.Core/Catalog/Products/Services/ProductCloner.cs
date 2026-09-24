@@ -310,6 +310,7 @@ public partial class ProductCloner : IProductCloner
                     ProductVariantAttributeId = attributeClone.Id,
                     Name = value.Name,
                     Color = value.Color,
+                    AdditionalColors = value.AdditionalColors,
                     PriceAdjustment = value.PriceAdjustment,
                     WeightAdjustment = value.WeightAdjustment,
                     IsPreSelected = value.IsPreSelected,

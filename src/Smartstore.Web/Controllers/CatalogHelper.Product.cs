@@ -581,7 +581,6 @@ public partial class CatalogHelper
             }
         }
 
-
         foreach (var attribute in attributes)
         {
             var preSelectedValueId = 0;
@@ -600,13 +599,11 @@ public partial class CatalogHelper
                 IsRequired = attribute.IsRequired,
                 AttributeControlType = attribute.AttributeControlType,
                 AllowedFileExtensions = _catalogSettings.FileUploadAllowedExtensions,
-
-                // Frontend prototype controls. Set these per attribute while testing the swatch presentation.
-                SwatchSize = SwatchSize.Medium,
-                SwatchShape = SwatchShape.Rounded,
-                SwatchAspectRatio = 1m,
-                ShowValueNameInSwatch = false,
-                SwatchPriceDisplay = SwatchPriceDisplayMode.None
+                SwatchSize = attribute.SwatchSize ?? attribute.ProductAttribute.SwatchSize ?? _catalogSettings.DefaultSwatchSize,
+                SwatchAspectRatio = Math.Max(attribute.SwatchAspectRatio ?? attribute.ProductAttribute.SwatchAspectRatio, 0),
+                SwatchShape = attribute.SwatchShape ?? attribute.ProductAttribute.SwatchShape ?? _catalogSettings.DefaultSwatchShape,
+                ShowValueNameInSwatch = attribute.ShowValueNameInSwatch ?? attribute.ProductAttribute.ShowValueNameInSwatch,
+                SwatchPriceDisplay = attribute.SwatchPriceDisplay ?? attribute.ProductAttribute.SwatchPriceDisplay,
             };
 
             // Copy queried variant data (entered by customer) to model.
@@ -675,7 +672,7 @@ public partial class CatalogHelper
                             ProductAttributeValue = val,
                             Name = val.GetLocalized(x => x.Name),
                             Alias = val.Alias,
-                            Color = val.Color, // Used with "Boxes" attribute type.
+                            Color = val.Color,
                             IsPreSelected = val.IsPreSelected,
                             DisplayOrder = val.DisplayOrder,
                         };

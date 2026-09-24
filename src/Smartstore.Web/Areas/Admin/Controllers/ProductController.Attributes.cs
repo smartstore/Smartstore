@@ -655,7 +655,7 @@ public partial class ProductController : AdminController
                 NameString = (x.Color.IsEmpty() ? x.Name : $"{x.Name} - {x.Color}").HtmlEncode(),
                 Alias = x.Alias,
                 Color = x.Color,
-                HasColor = !x.Color.IsEmpty(),
+                HasColor = x.Color.HasValue(),
                 PictureId = x.MediaFileId,
                 PriceAdjustment = x.PriceAdjustment,
                 WeightAdjustment = x.WeightAdjustment,

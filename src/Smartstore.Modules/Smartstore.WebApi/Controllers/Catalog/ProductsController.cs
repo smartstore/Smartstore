@@ -598,6 +598,7 @@ public class ProductsController : WebApiController<Product>
                                 Name = val.Name,
                                 Alias = val.Alias,
                                 Color = val.Color,
+                                AdditionalColors = val.AdditionalColors,
                                 PriceAdjustment = val.PriceAdjustment,
                                 WeightAdjustment = val.WeightAdjustment,
                                 IsPreSelected = val.IsPreSelected,
@@ -611,6 +612,7 @@ public class ProductsController : WebApiController<Product>
                         {
                             value.Alias = val.Alias;
                             value.Color = val.Color;
+                            value.AdditionalColors = val.AdditionalColors;
                             value.PriceAdjustment = val.PriceAdjustment;
                             value.WeightAdjustment = val.WeightAdjustment;
                             value.IsPreSelected = val.IsPreSelected;

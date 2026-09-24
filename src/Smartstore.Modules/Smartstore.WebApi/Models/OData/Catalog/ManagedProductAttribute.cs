@@ -55,11 +55,17 @@ public class ManagedProductAttribute
         public string Alias { get; set; }
 
         /// <summary>
-        /// The color RGB value (used with "Boxes" attribute type).
+        /// Gets or sets the color RGB value for swatches.
         /// </summary>
         /// <example>#00ff00</example>
         [JsonPropertyName("color")]
         public string Color { get; set; }
+
+        /// <summary>
+        /// List of additional color RGB values for multicolor swatches.
+        /// </summary>
+        [JsonPropertyName("additionalColors")]
+        public string[] AdditionalColors { get; set; }
 
         /// <summary>
         /// A price adjustment\surcharge.

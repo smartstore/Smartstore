@@ -1161,6 +1161,7 @@ public class ProductImporter : EntityImporterBase
                     row.SetProperty(context.Result, (x) => x.Alias);
                     row.SetProperty(context.Result, (x) => x.Name);
                     row.SetProperty(context.Result, (x) => x.Color);
+                    row.SetProperty(context.Result, (x) => x.AdditionalColors);
                     row.SetProperty(context.Result, (x) => x.PriceAdjustment);
                     row.SetProperty(context.Result, (x) => x.WeightAdjustment);
                     row.SetProperty(context.Result, (x) => x.Quantity, 10000);
