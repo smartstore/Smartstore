@@ -74,7 +74,7 @@
         <Value>Tracking-Code für {DETAILS}-Teil</Value>
     </LocaleResource>
     <LocaleResource Name="EcommerceDetailScript.Hint">
-        <Value>Kopieren Sie den von Google erzeugten Tracking-Code in dieses Feld. {ORDERID}, {PRODUCTSKU}, {PRODUCTNAME}, {CATEGORYNAME}, {UNITPRICE} und {QUANTITY} werden automatisch ersetzt.</Value>
+        <Value>Kopieren Sie den von Google erzeugten Tracking-Code in dieses Feld. {ORDERID}, {ITEMID}, {PRODUCTSKU}, {PRODUCTNAME}, {CATEGORYNAME}, {UNITPRICE} und {QUANTITY} werden automatisch ersetzt. {ITEMID} wird durch den unter "Artikel-ID" gewählten Wert ersetzt.</Value>
     </LocaleResource>
     <LocaleResource Name="OptOutNotification">
         <Value>Das Tracking ist jetzt deaktiviert</Value>
@@ -111,5 +111,25 @@
     </LocaleResource>
     <LocaleResource Name="MinifyScripts.Hint">
         <Value>Bestimmt, ob die erzeugten Scripte minimiert werden (empfohlen).</Value>
+    </LocaleResource>
+    <LocaleResource Name="ItemIdentifier">
+        <Value>Artikel-ID</Value>
+    </LocaleResource>
+    <LocaleResource Name="ItemIdentifier.Hint">
+        <Value>
+            Legt fest, welcher Wert als item_id an Google Analytics übermittelt wird. Für Google Ads und dynamisches Remarketing muss er der ID im Google-Merchant-Center-Feed entsprechen:
+            "Produkt-ID", wenn Attributkombinationen nicht als Produkte exportiert werden, sonst "Produkt-ID mit Varianten-ID".
+            Eine Änderung trennt die Artikelstatistik in Google Analytics in ein Vorher und ein Nachher.
+            Wenn Sie einen eigenen Tracking-Code für den {DETAILS}-Teil verwenden, muss dieser {ITEMID} statt {PRODUCTSKU} enthalten.
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Enums.AnalyticsItemIdentifier.Sku" AppendRootKey="false">
+        <Value>SKU</Value>
+    </LocaleResource>
+    <LocaleResource Name="Enums.AnalyticsItemIdentifier.ProductId" AppendRootKey="false">
+        <Value>Produkt-ID</Value>
+    </LocaleResource>
+    <LocaleResource Name="Enums.AnalyticsItemIdentifier.ProductIdWithCombinationId" AppendRootKey="false">
+        <Value>Produkt-ID mit Varianten-ID</Value>
     </LocaleResource>
 </Language>

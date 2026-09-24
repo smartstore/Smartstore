@@ -50,4 +50,10 @@ public class PerformanceSettings : ISettings
     /// and the <see cref="MediaFile"/> entities are loaded directly from the database.
     /// </summary>
     public int MediaDupeDetectorMaxCacheSize { get; set; } = 10000;
+
+    /// <summary>
+    /// Keeps the native Dart Sass compiler in memory between compilations.
+    /// When disabled, the unused compiler is released after a short idle period.
+    /// </summary>
+    public bool KeepSassCompilerInMemory { get; set; }
 }

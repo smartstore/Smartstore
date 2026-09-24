@@ -209,6 +209,8 @@ public partial class CatalogHelper
             var allProductIds = prefetchSlugs || prefetchTranslations ? products.Select(x => x.Id).ToArray() : [];
             var legalInfo = string.Empty;
             var shippingLegalInfo = string.Empty;
+            var freeShippingLegalInfo = string.Empty;
+            var taxExemptFreeShippingLegalInfo = string.Empty;
 
             var res = new Dictionary<string, LocalizedString>(StringComparer.OrdinalIgnoreCase)
             {
@@ -218,22 +220,33 @@ public partial class CatalogHelper
                 { "Common.AdditionalShippingSurcharge", T("Common.AdditionalShippingSurcharge") }
             };
 
-            if (_catalogSettings.LegalInfoInLists.HasFlag(ProductLegalInfo.Tax))
+            if (settings.MapLegalInfo)
             {
-                legalInfo = T("Tax.LegalInfoShort", T(calculationOptions.TaxInclusive ? "Tax.InclVAT" : "Tax.ExclVAT"));
-            }
-            if (_catalogSettings.LegalInfoInLists.HasFlag(ProductLegalInfo.Shipping))
-            {
-                var shippingInfoUrl = await _urlHelper.TopicAsync("ShippingInfo");
-                if (shippingInfoUrl.HasValue())
+                // Prepare legal info once per list. The product mapping only selects the suitable variant.
+                var taxLegalInfo = string.Empty;
+                if (_catalogSettings.LegalInfoInLists.HasFlag(ProductLegalInfo.Tax))
                 {
-                    shippingLegalInfo = T("Products.ShippingInfoUrl", shippingInfoUrl);
-                    legalInfo = legalInfo.Grow(shippingLegalInfo, ", ");
+                    taxLegalInfo = T("Products.TaxLegalInfo", T(calculationOptions.TaxInclusive ? "Tax.InclVAT" : "Tax.ExclVAT"));
+                }
+
+                if (_catalogSettings.LegalInfoInLists.HasFlag(ProductLegalInfo.Shipping))
+                {
+                    var shippingInfoUrl = await _urlHelper.TopicAsync("ShippingInfo");
+                    shippingLegalInfo = shippingInfoUrl.HasValue()
+                        ? T("Products.ShippingInfoUrl", shippingInfoUrl)
+                        : T("Products.ShippingInfo");
+
+                    taxExemptFreeShippingLegalInfo = T("Common.FreeShipping");
+                    freeShippingLegalInfo = taxLegalInfo.HasValue()
+                        ? taxLegalInfo.Grow(T("Products.FreeShippingInfo"), ", ")
+                        : taxExemptFreeShippingLegalInfo;
                 }
                 else
                 {
-                    legalInfo = legalInfo.Grow(T("Products.ShippingInfo"), ", ");
+                    freeShippingLegalInfo = taxLegalInfo;
                 }
+
+                legalInfo = taxLegalInfo.Grow(shippingLegalInfo, ", ");
             }
 
             if (prefetchSlugs)
@@ -330,6 +343,8 @@ public partial class CatalogHelper
                 PrimaryCurrency = _currencyService.PrimaryCurrency,
                 LegalInfo = legalInfo,
                 ShippingLegalInfo = shippingLegalInfo,
+                FreeShippingLegalInfo = freeShippingLegalInfo,
+                TaxExemptFreeShippingLegalInfo = taxExemptFreeShippingLegalInfo,
                 Model = model,
                 Resources = res,
                 MappingSettings = settings,
@@ -525,21 +540,17 @@ public partial class CatalogHelper
         item.TotalReviews = product.ApprovedTotalReviews;
         item.IsShippingEnabled = contextProduct.IsShippingEnabled;
 
-        if (!product.IsShippingEnabled || product.IsFreeShipping)
+        if (settings.MapLegalInfo)
         {
-            if (!product.IsTaxExempt && _catalogSettings.LegalInfoInLists.HasFlag(ProductLegalInfo.Tax))
+            if (!product.IsShippingEnabled || product.IsFreeShipping)
             {
-                item.LegalInfo = T("Tax.LegalInfoShort", T(options.TaxInclusive ? "Tax.InclVAT" : "Tax.ExclVAT"));
+                item.LegalInfo = product.IsTaxExempt ? ctx.TaxExemptFreeShippingLegalInfo : ctx.FreeShippingLegalInfo;
             }
-            if (_catalogSettings.LegalInfoInLists.HasFlag(ProductLegalInfo.Shipping))
+            else
             {
-                item.LegalInfo += item.LegalInfo.Grow(T("Common.FreeShipping"), ", ");
+                item.LegalInfo = product.IsTaxExempt ? ctx.ShippingLegalInfo : ctx.LegalInfo;
             }
         }
-        else
-        {
-            item.LegalInfo = product.IsTaxExempt ? ctx.ShippingLegalInfo : ctx.LegalInfo;
-        }        
 
         // INFO: We cannot include ManageInventoryMethod.ManageStockByAttributes here because it's only functional with MergeWithCombination.
         item.DeliveryTime = await PrepareDeliveryTimeModel(product, settings, product.ManageInventoryMethod == ManageInventoryMethod.ManageStock);

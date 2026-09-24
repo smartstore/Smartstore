@@ -4,6 +4,8 @@
 /// <reference path="_variables-configured.scss" />
 /// <reference path="_variables-custom.scss" />
 
+@use "sass:color";
+
 // Theme specific (non-bootstrap) variables
 // ========================================
 
@@ -56,8 +58,8 @@ $yiq-contrasted-threshold:	    164;
 $color-contrast-dark:           $yiq-text-dark;
 $color-contrast-light:          $yiq-text-light;
 
-$gray-150:                      mix($gray-100, $gray-200) !default;
-$gray-650:                      mix($gray-600, $gray-700) !default;
+$gray-150:                      color.mix($gray-100, $gray-200) !default;
+$gray-650:                      color.mix($gray-600, $gray-700) !default;
 
 $grays:  ( 
     "150": $gray-150,
@@ -110,14 +112,14 @@ $display4-weight:               $font-weight-light;
 
 $input-btn-font-size:           $font-size-base;
 $input-btn-line-height:         1.6;        // --> 24px - 42px
-$input-btn-line-height-sm:      22 / 14;    // --> 22px - 36px
+$input-btn-line-height-sm:      calc(22 / 14);    // --> 22px - 36px
 $input-btn-line-height-lg:      1.625;      // --> 26px - 48px
 $input-btn-focus-color:			rgba($primary, .25);
 $input-btn-font-size-sm:        $font-size-sm; // --> 14px
 $input-btn-border-width:        $border-width;
 $input-border-radius:           $border-radius;
-$input-border-radius-lg:        $border-radius;
-$input-border-radius-sm:        $border-radius;
+$input-border-radius-lg:        $border-radius-lg;
+$input-border-radius-sm:        $border-radius-sm;
 $input-focus-border-color:		lighten($primary, 30%);
 $input-group-addon-bg:		    $gray-100;
 $input-border-color:            $gray-300;
@@ -136,7 +138,7 @@ $btn-border-radius-sm:          $input-border-radius-sm;
 
 // Badge
 
-$badge-font-size:               (12 / 15) * 1em !default;
+$badge-font-size:               calc(12 / 15) * 1em !default;
 $badge-font-weight:             $font-weight-medium;
 $badge-border-radius:           $border-radius-sm;
 

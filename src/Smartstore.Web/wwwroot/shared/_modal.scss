@@ -1,6 +1,8 @@
 /// <reference path="references.scss" />
 
 
+@use "sass:color";
+
 // COMMON
 // ------------------------------------------------------------
 
@@ -37,7 +39,7 @@
     --modal-backdrop-blur: 4px;
 
     &.modal-backdrop-inverse {
-        --modal-backdrop-bg: #{invert($modal-backdrop-bg)};
+        --modal-backdrop-bg: #{color.invert($modal-backdrop-bg)};
     }
 
     &.modal-backdrop-invisible {
@@ -169,10 +171,7 @@
 		flex-wrap: wrap;
 		flex-direction: column;
 		position: absolute;
-		left: 0;
-		right: 0;
-		top: 0;
-		bottom: 0;
+        inset: 0;
 	}
 
 	.modal-body {

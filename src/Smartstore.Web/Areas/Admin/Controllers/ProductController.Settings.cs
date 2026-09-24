@@ -67,10 +67,10 @@ public partial class ProductController : AdminController
         await MapperFactory.MapAsync(model.PriceSettings, priceSettings);
 
         catalogSettings.LegalInfoInProductDetail = ProductLegalInfo.None;
-        model?.LegalInfoInProductDetail?.Each(x => catalogSettings.LegalInfoInProductDetail |= (ProductLegalInfo)x);
+        model.LegalInfoInProductDetail?.Each(x => catalogSettings.LegalInfoInProductDetail |= (ProductLegalInfo)x);
 
         catalogSettings.LegalInfoInLists = ProductLegalInfo.None;
-        model?.LegalInfoInLists?.Each(x => catalogSettings.LegalInfoInLists |= (ProductLegalInfo)x);
+        model.LegalInfoInLists?.Each(x => catalogSettings.LegalInfoInLists |= (ProductLegalInfo)x);
 
         foreach (var localized in model.Locales)
         {

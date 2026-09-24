@@ -20,8 +20,8 @@ already documented.
   while changing code. Preserve them verbatim; touch them only when the documentation
   itself is wrong. New public members do get docs.
 - **Database changes use FluentMigrator, not EF Core migrations.**
-- **Sass is compiled with libsass.** Use `@import`. Never `@use` or `@forward`, and no
-  other Dart-Sass-only feature.
+- **Sass is compiled with native embedded Dart Sass.** Existing stylesheets use
+  `@import`; keep that style until the Sass module-system migration is planned.
 - **No new heavy client-side dependency** without asking first.
 - **Do not add eager O(n) work to constructors.** Where work was previously deferred,
   keep it deferred; justify any new up-front cost.
@@ -48,7 +48,7 @@ Architecture follows Domain-Driven Design. See
 - **.NET 10 / C#**, **ASP.NET Core 10**, **EF Core 10** (`net10.0`, set centrally in
   `src/Smartstore.Build/Smartstore.Common.props`)
 - **Nuke** for build automation (`build.cmd` / `build.ps1` / `build.sh`)
-- Bootstrap (4/5 hybrid), Sass via libsass, jQuery, Select2, Vue.js
+- Bootstrap (4/5 hybrid), native embedded Dart Sass, jQuery, Select2, Vue.js
 - DotLiquid (Liquid) for email and content templates
 - Docker / Docker Compose for app and database containers
 
@@ -91,6 +91,7 @@ Beyond formatting:
 - **Async:** use `async`/`await`, suffix async methods with `Async`, never `.Result`
   or `.Wait()`.
 - **DI:** constructor injection. No service locator.
+- **Logging:** Smartstore property-injects `ILogger`; use `public ILogger Logger { get; set; } = NullLogger.Instance;` instead of adding a logger constructor parameter.
 - **Validation:** guard clauses for arguments; `ArgumentException` family for argument
   errors, domain-specific exceptions for domain errors.
 - **Reuse existing utilities** before writing your own — e.g.
@@ -203,6 +204,4 @@ Do not "fix" these; they are deliberate:
   be thread-safe. Prefer lightweight changes over heavy locking.
 - AI model metadata levels are `0 = Instant`, `1 = Balanced`, `2 = Deep Reasoning`.
   Favour common, cost-efficient text-generation models and keep at least one preferred
-  level-0 model listed. Never mark a level-2 model as preferred. Remove deprecated
-  model IDs rather than leaving placeholders. When reasoning about what a model can
-  actually do, trust the vendor's official API documentation over this local metadata.
+  level-0 model listed. Never mark a level-2 model as preferred. Keep retired models as `deprecated` entries with an `alias` pointing to a current, non-deprecated replacement, so stored settings keep working; aliases are not resolved transitively. Remove IDs that never existed or only served as moving pointers (e.g. `*-latest`). When reasoning about what a model can actually do, trust the vendor's official API documentation over this local metadata.

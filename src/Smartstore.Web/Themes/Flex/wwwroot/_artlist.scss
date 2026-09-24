@@ -1,12 +1,15 @@
 /// <reference path="references.scss" />
 
 //
+@use "sass:math";
+@use "sass:color";
+
 // CSS variables
 // --------------------------------------------------
 
 .artlist {
-    --art-padding: #{$grid-gutter-width / 2};
-    --art-gutter: #{$grid-gutter-width / 2};
+    --art-padding: #{math.div($grid-gutter-width, 2)};
+    --art-gutter: #{math.div($grid-gutter-width, 2)};
     --art-line-height: 1.25;
     --art-font-size: #{$font-size-sm};
     --art-font-size-sm: #{$font-size-xs};
@@ -15,11 +18,11 @@
     --art-finalprice-font-size: 1rem;
     --art-finalprice-color: #{$product-price-color};
     --art-finalprice-offer-color: #{$product-price-color};
-    --art-muted-color: #{mix($body-color, $white, 67%)};
+    --art-muted-color: #{color.mix($body-color, $white, 67%)};
     --art-muted-color-2: #{$text-muted};
     --art-border-color: transparent;
     --art-divider-color: #{$gray-300};
-    --art-border-radius: var(--border-radius-md);
+    --art-border-radius: var(--border-radius-lg);
     --art-box-shadow: var(--box-shadow-sm);
     --art-active-bg-color: #{$art-active-bg-color};
     --art-active-border-color: #{$art-active-border-color};
@@ -471,7 +474,7 @@
 
     .art-data-block {
         @include make-art-row();
-        padding-inline-start: $grid-gutter-width / 1.5;
+        padding-inline-start: math.div($grid-gutter-width, 1.5);
         padding-inline-end: 0;
         margin-inline-start: 0;
         margin-inline-end: 0;
@@ -492,7 +495,7 @@
 
     .art-actions-block {
         width: 220px;
-        padding-inline-start: $grid-gutter-width / 1.5;
+        padding-inline-start: math.div($grid-gutter-width, 1.5);
     }
 
     .art-description {

@@ -101,7 +101,7 @@
                 @await Component.InvokeAsync("TopicBlock", new { systemName = "CheckoutAsGuestOrRegister", bodyOnly = true })
                 <div class="row g-2">
                     <div class="col-12">
-                        <a class="btn btn-warning btn-lg btn-block register-button" href="@registerUrl">
+                        <a class="btn btn-warning btn-lg btn-block register-button" href="@registerUrl" rel="nofollow">
                             @T("Account.Register.Button")
                         </a>
                     </div>
@@ -117,7 +117,7 @@
             {
                 <div class="row">
                     <div class="col-12 col-lg-auto">
-                        <a class="btn btn-warning btn-lg btn-block register-button" href="@registerUrl">
+                        <a class="btn btn-warning btn-lg btn-block register-button" href="@registerUrl" rel="nofollow">
                             @T("Account.Register.Button")
                         </a>
                     </div>

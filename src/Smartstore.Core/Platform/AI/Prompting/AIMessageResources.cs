@@ -32,6 +32,15 @@ public partial class AIMessageResources(ILocalizationService localizationService
         => P("DontUseMarkdown");
 
     /// <summary>
+    /// Prevents the AI from generating HTML.
+    /// </summary>
+    /// <returns>
+    /// AI instruction: Return plain text only. Do not use HTML tags.
+    /// </returns>
+    public virtual string DontUseHtml()
+        => P("DontUseHtml");
+
+    /// <summary>
     /// Prevents the AI from generating markdown.
     /// </summary>
     /// <returns>

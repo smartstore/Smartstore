@@ -46,102 +46,104 @@
 }
 
 <div class="cms-menu cms-menu-navbar" data-menu-name="@(Model.Name?.ToLower())">
+    <div class="nav-slider position-relative scroll-fade scroll-fade-x scroll-fade-observable">
+        <ul class="navbar-nav nav flex-row flex-nowrap" id="menu-main" role="menubar">
+
+            @foreach (var node in root.Children)
+            {
+                var item = node.Value;
+                if (!item.Visible || node.GetMetadata<bool>("spare", false))
+                {
+                    if (node.GetMetadata<bool>("spare", false))
+                    {
+                        renderMoreItem = true;
+                    }
+                    continue;
+                }
+
+                var itemState = node.GetNodePathState(Model.Path);
+                var isMegaMenuActive = node.GetMetadata<bool?>("IsMegaMenuActive", false);
+                var isDropDownActive = (isMegaMenuActive == null ? true : (bool)isMegaMenuActive) && node.HasChildren;
+                var itemText = node.GetItemText(T);
+                var itemUrl = item.GenerateUrl(this.ViewContext);
+
+                if (item.IsGroupHeader)
+                {
+                    if (!isFirst)
+                    {
+                        <li role="none"><hr /></li>
+                    }
+                    if (itemText.HasValue() && item.Text != "[SKIP]")
+                    {
+                        <li class="menu-header h4 mt-2">@itemText</li>
+                    }
+                    isFirst = false;
+                    continue;
+                }
+
+                var attrs = new AttributeDictionary();
+                attrs.AddRange(item.HtmlAttributes);
+                attrs.PrependCssClass(GetCssClassForNode(node, itemState));
+                var linkAttrs = new AttributeDictionary();
+                linkAttrs.AddRange(item.LinkHtmlAttributes);
+                linkAttrs.PrependCssClass("nav-link menu-link" + (isDropDownActive ? " dropdown-toggle" : ""));
+
+                if (isDropDownActive)
+                {
+                    var dropdownMenuId = "dropdown-menu-{0}".FormatInvariant(item.Id);
+                    linkAttrs["aria-controls"] = dropdownMenuId;
+                    linkAttrs["aria-haspopup"] = "menu";
+                    linkAttrs["aria-expanded"] = "false";
+                    linkAttrs["data-target"] = "#" + dropdownMenuId;
+                }
+
+                // INFO: Only the first visible element should be focusable. Actual navigation will be handled by '->', '<-', etc
+                linkAttrs["tabindex"] = isFirst ? "0" : "-1";
+                linkAttrs["role"] = "menuitem";
+
+                <li id="main-nav-item-@item.Id" data-id="@item.Id" attrs="attrs" role="none">
+                    <a id="main-nav-item-link-@item.Id" href="@itemUrl" attrs="linkAttrs">
+                        @if (item.Icon.HasValue())
+                        {
+                            <i class="@item.Icon"></i>
+                        }
+                        else if (item.ImageUrl.HasValue())
+                        {
+                            <img class="sm-icon" src="@Url.Content(item.ImageUrl)" alt="@itemText" />
+                        }
+                        <span sm-language-attributes-for="item">@itemText</span>
+                    </a>
+                    @if (item.BadgeText.HasValue())
+                    {
+                        <span class="badge badge-@(((BadgeStyle)item.BadgeStyle).ToString().ToLower())" attrs="item.BadgeHtmlAttributes" style="--badge-content-shift: 0px">
+                            @item.BadgeText
+                        </span>
+                    }
+                </li>
+
+                isFirst = false;
+            }
+
+            <li sm-if="renderMoreItem" class="nav-item dropdown" data-id="-1" role="none">
+                <a href="#"
+                   class="nav-link dropdown-toggle"
+                   data-target="#dropdown-menu--1"
+                   aria-expanded="false"
+                   aria-controls="dropdown-menu--1"
+                   aria-haspopup="menu"
+                   role="menuitem"
+                   tabindex="-1">
+                    @T("CatalogMenu.MoreLink")
+                </a>
+            </li>
+        </ul>
+    </div>
+
     <div class="megamenu-nav megamenu-nav--prev @(rtl ? "omega" : "alpha")">
         <a href="#" class="megamenu-nav-btn btn btn-clear-dark btn-icon btn-sm" tabindex="-1" aria-hidden="true">
             <i class="far fa-chevron-left megamenu-nav-btn-icon"></i>
         </a>
     </div>
-
-    <ul class="navbar-nav nav flex-row flex-nowrap" id="menu-main" role="menubar">
-
-        @foreach (var node in root.Children)
-        {
-            var item = node.Value;
-            if (!item.Visible || node.GetMetadata<bool>("spare", false))
-            {
-                if (node.GetMetadata<bool>("spare", false))
-                {
-                    renderMoreItem = true;
-                }
-                continue;
-            }
-
-            var itemState = node.GetNodePathState(Model.Path);
-            var isMegaMenuActive = node.GetMetadata<bool?>("IsMegaMenuActive", false);
-            var isDropDownActive = (isMegaMenuActive == null ? true : (bool)isMegaMenuActive) && node.HasChildren;
-            var itemText = node.GetItemText(T);
-            var itemUrl = item.GenerateUrl(this.ViewContext);
-
-            if (item.IsGroupHeader)
-            {
-                if (!isFirst)
-                {
-                    <li role="none"><hr /></li>
-                }
-                if (itemText.HasValue() && item.Text != "[SKIP]")
-                {
-                    <li class="menu-header h4 mt-2">@itemText</li>
-                }
-                isFirst = false;
-                continue;
-            }
-
-            var attrs = new AttributeDictionary();
-            attrs.AddRange(item.HtmlAttributes);
-            attrs.PrependCssClass(GetCssClassForNode(node, itemState));
-            var linkAttrs = new AttributeDictionary();
-            linkAttrs.AddRange(item.LinkHtmlAttributes);
-            linkAttrs.PrependCssClass("nav-link menu-link" + (isDropDownActive ? " dropdown-toggle" : ""));
-
-            if (isDropDownActive)
-            {
-                var dropdownMenuId = "dropdown-menu-{0}".FormatInvariant(item.Id);
-                linkAttrs["aria-controls"] = dropdownMenuId;
-                linkAttrs["aria-haspopup"] = "menu";
-                linkAttrs["aria-expanded"] = "false";
-                linkAttrs["data-target"] = "#" + dropdownMenuId;
-            }
-
-            // INFO: Only the first visible element should be focusable. Actual navigation will be handled by '->', '<-', etc
-            linkAttrs["tabindex"] = isFirst ? "0" : "-1";
-            linkAttrs["role"] = "menuitem";
-
-            <li id="main-nav-item-@item.Id" data-id="@item.Id" attrs="attrs" role="none">
-                <a id="main-nav-item-link-@item.Id" href="@itemUrl" attrs="linkAttrs">
-                    @if (item.Icon.HasValue())
-                    {
-                        <i class="@item.Icon"></i>
-                    }
-                    else if (item.ImageUrl.HasValue())
-                    {
-                        <img class="sm-icon" src="@Url.Content(item.ImageUrl)" alt="@itemText" />
-                    }
-                    <span sm-language-attributes-for="item">@itemText</span>
-                </a>
-                @if (item.BadgeText.HasValue())
-                {
-                    <span class="badge badge-@(((BadgeStyle)item.BadgeStyle).ToString().ToLower())" attrs="item.BadgeHtmlAttributes" style="--badge-content-shift: 0px">
-                        @item.BadgeText
-                    </span>
-                }
-            </li>
-
-            isFirst = false;
-        }
-
-        <li sm-if="renderMoreItem" class="nav-item dropdown" data-id="-1" role="none">
-            <a href="#" 
-               class="nav-link dropdown-toggle" 
-               data-target="#dropdown-menu--1"
-               aria-expanded="false" 
-               aria-controls="dropdown-menu--1"
-               aria-haspopup="menu"
-               role="menuitem"
-               tabindex="-1">
-                @T("CatalogMenu.MoreLink")
-            </a>
-        </li>
-    </ul>
 
     <div class="megamenu-nav megamenu-nav--next @(rtl ? "alpha" : "omega")">
         <a href="#" class="megamenu-nav-btn btn btn-clear-dark btn-icon btn-sm" tabindex="-1" aria-hidden="true">

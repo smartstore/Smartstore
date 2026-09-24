@@ -84,10 +84,10 @@ $border-style:                null !default;
 $border-color:                null !default;
 $border-color-translucent:    rgba($black, .125) !default;
 
-$border-radius:               .375rem !default;
-$border-radius-sm:            .25rem !default;
-$border-radius-lg:            .5rem !default;
-$border-radius-xl:            .75rem !default;
+$border-radius:               .5rem !default;
+$border-radius-sm:            .375rem !default;
+$border-radius-lg:            .75rem !default;
+$border-radius-xl:            1rem !default;
 $border-radius-xxl:           1.5rem !default;
 $border-radius-pill:          50rem !default;
 $rounded-pill:                50rem !default;
@@ -116,6 +116,11 @@ $focus-ring-blur:             0 !default;
 $focus-ring-box-shadow:       0 0 $focus-ring-blur $focus-ring-width $focus-ring-color, inset 0 0 0 $focus-ring-width hsla(0,0%,100%, 0.92) !default;
 
 $transition-base:             all 0.125s ease-in-out !default;
+$transition-collapse:         height var(--collapse-duration, .2s) var(--collapse-easing, ease-out), 
+                              opacity var(--collapse-duration, .2s) var(--collapse-easing, ease-out), 
+                              transform var(--collapse-duration, .2s) var(--collapse-easing, ease-out) !default;
+$transition-collapse-width:   width var(--collapse-duration, .2s) var(--collapse-easing, ease-out), 
+                              opacity var(--collapse-duration, .2s) var(--collapse-easing, ease-out) !default;
 
 
 // Typo
@@ -146,6 +151,13 @@ $code-font-size:              85% !default;
 $code-color:                  inherit !default;
 
 $hr-opacity:                  .12 !default;
+
+$kbd-padding-y:               .075em !default;
+$kbd-padding-x:               .5em !default;
+$kbd-color:                   inherit !default;
+$kbd-bg:                      rgba($black, 0.03) !default;
+$kbd-box-shadow:              none !default;
+
 
 
 // Tables
@@ -194,6 +206,7 @@ $btn-active-border-tint-amount:   10% !default;
 
 // Form Check
 
+$form-check-input-border-radius:        .25em;
 $form-check-input-border:               1px solid rgba($black, .15);
 $form-check-input-focus-border:         rgba(var(--form-check-checked-bg-rgb), 0.5);
 $form-check-input-focus-box-shadow:     0 0 0 0.2rem rgba(var(--form-check-checked-bg-rgb), 0.25);
@@ -219,9 +232,10 @@ $form-switch-checked-bg-image:          $form-switch-bg-image;
 
 // Badge
 
-$badge-padding-y:               (1 / 6) * 1em !default;
+$badge-padding-y:               calc(1 / 6) * 1em !default;
 $badge-padding-x:               0.5em !default;
 $badge-pill-padding-x:          0.85em !default;
+$badge-pill-border-radius:      $border-radius-pill !default;
 $badge-content-shift:           0px !default;
 
 
@@ -231,6 +245,16 @@ $dropdown-min-width:            10rem !default;
 $dropdown-font-size:            14px !default;
 $dropdown-bg:                   $white !default;
 $dropdown-border-width:         1px !default;
+
+
+// Cards
+
+$card-border-radius:            $border-radius-lg !default;
+
+
+// Toasts
+
+$toast-border-radius:           $border-radius !default;
 
 
 // Placeholders

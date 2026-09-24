@@ -1,65 +1,61 @@
 /// <reference path="references.scss" />
 
-.more-less {
+.text-expander {
     display: block;
     position: relative;
-    max-height: 260px;
-    overflow: hidden;
     margin-bottom: 1.5rem;
 
-    $c: $body-bg;
-    @if alpha($body-bg) == 0 {
-        $c: $site-bg;
-    }
+    // TODO: Remove these legacy variable fallbacks after external themes have
+    // migrated to the canonical custom properties.
+    --text-expander-collapsed-height: var(--text-expander-max-height, 260px);
+    --text-expander-fade-size: var(--text-expander-fade-height, var(--text-expander-height, #{($font-size-base * $line-height-base) * 3}));
+    --text-expander-clearance: var(--text-expander-button-height, calc(#{($font-size-base * $line-height-base)} + #{$btn-padding-y * 2}));
+    --text-expander-clearance: 30px;
 
-    --tebg-start: rgba(var(--bg-color-rgb, #{to-rgb($c)}), 0);
-    --tebg-end: var(--bg-color, #{$c});
-
-    .btn-text-expander {
+    .text-expander-toggle {
         display: none;
-		align-items: center;
-        justify-content: var(--text-expander-justify-content, initial);
-        position: absolute;
-        color: inherit;
-        font-size: $font-size-base;
-        font-weight: $font-weight-medium;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 2;
-        text-decoration: none !important;
+        margin-inline: auto;
     }
 
-    .btn-text-expander--expand {
-        &:before {
-            content: '';
-            position: absolute;
-            z-index: -1;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: var(--text-expander-height, #{($font-size-base * $line-height-base) * 3});
-            background: linear-gradient(to bottom, var(--tebg-start), var(--tebg-end) 70%, var(--tebg-end) 100%);
-        }
-
-        &:focus-visible {
-            box-shadow: none;
-            outline: $focus-ring-width solid $focus-ring-color;
-            outline-offset: -$focus-ring-width;
-        }
+    .text-expander-label-less {
+        display: none;
     }
 
-    .btn-text-expander--collapse {
-        position: relative;
-        font-weight: normal;
+    .text-expander-toggle[aria-expanded=true] {
+        .text-expander-label-more { display: none; }
+        .text-expander-label-less { display: inline; }
     }
 
     &.collapsed {
-        .btn-text-expander--expand { display: flex; }
+        max-height: var(--text-expander-collapsed-height);
+        overflow: hidden;
+
+        > .text-expander-content {
+            mask-image: linear-gradient(
+                to bottom,
+                #000 calc(100% - var(--text-expander-fade-size) - var(--text-expander-clearance)),
+                transparent calc(100% - var(--text-expander-clearance)),
+                transparent 100%
+            );
+            mask-repeat: no-repeat;
+            mask-size: 100% var(--text-expander-collapsed-height);
+        }
+
+        > .text-expander-toggle {
+            position: absolute;
+            z-index: 2;
+            inset-inline-start: 50%;
+            inset-block-end: 0;
+            transform: translateX(-50%);
+        }
     }
 
-    &.expanded {
-        max-height: none !important;
-        .btn-text-expander--collapse { display: flex; }
+    &.is-collapsible > .text-expander-toggle {
+        display: flex;
+    }
+
+    &.expanded > .text-expander-toggle {
+        position: relative;
+        margin-block-start: $spacer * .5;
     }
 }

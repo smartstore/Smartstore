@@ -1545,14 +1545,15 @@ public partial class CatalogHelper
     }
 
     private async Task<string> GetLegalInfo(
-        Product product, 
-        Customer customer, 
+        Product product,
+        Customer customer,
         Store store,
         Money? shippingSurcharge)
     {
         using var psb = StringBuilderPool.Instance.Get(out var sb);
+        var legalInfo = _catalogSettings.LegalInfoInProductDetail;
 
-        if (!product.IsTaxExempt && _catalogSettings.LegalInfoInProductDetail.HasFlag(ProductLegalInfo.Tax))
+        if (!product.IsTaxExempt && legalInfo.HasFlag(ProductLegalInfo.Tax))
         {
             var taxDisplayType = await _services.WorkContext.GetTaxDisplayTypeAsync(customer, store.Id);
             sb.Append(T(taxDisplayType == TaxDisplayType.IncludingTax ? "Tax.InclVAT" : "Tax.ExclVAT"));
@@ -1568,34 +1569,42 @@ public partial class CatalogHelper
             }
         }
 
-        if (_catalogSettings.LegalInfoInProductDetail.HasFlag(ProductLegalInfo.Shipping))
+        var surcharge = shippingSurcharge.GetValueOrDefault() > 0
+            ? shippingSurcharge.Value.WithPostFormat("{0}").ToString(true)
+            : null;
+
+        if (!product.IsShippingEnabled || product.IsFreeShipping)
         {
-            if (!product.IsShippingEnabled || product.IsFreeShipping)
+            if (legalInfo.HasFlag(ProductLegalInfo.Shipping))
             {
-                sb.Grow(T("Common.FreeShipping"), ", ");
+                // Lowercase variant when appended to the tax info.
+                sb.Grow(T(sb.Length > 0 ? "Products.FreeShippingInfo" : "Common.FreeShipping"), ", ");
+            }
+        }
+        else if (legalInfo.HasFlag(ProductLegalInfo.Shipping))
+        {
+            var shippingInfoUrl = await _urlHelper.TopicAsync("ShippingInfo");
+            string shippingInfo;
+
+            if (surcharge != null)
+            {
+                shippingInfo = shippingInfoUrl.HasValue()
+                    ? T("Products.ShippingInfoUrlWithSurcharge", shippingInfoUrl, surcharge)
+                    : T("Products.ShippingInfoWithSurcharge", surcharge);
             }
             else
             {
-                var shippingInfoUrl = await _urlHelper.TopicAsync("ShippingInfo");
-                string shippingInfo = null;
-
-                if (shippingSurcharge.GetValueOrDefault() > 0)
-                {
-                    var surcharge = shippingSurcharge.Value.WithPostFormat("{0}").ToString(true);
-
-                    shippingInfo = shippingInfoUrl.HasValue()
-                        ? T("Products.ShippingInfoUrlWithSurcharge", shippingInfoUrl, surcharge)
-                        : T("Products.ShippingInfoWithSurcharge", surcharge);
-                }
-                else
-                {
-                    shippingInfo = shippingInfoUrl.HasValue()
-                        ? T("Products.ShippingInfoUrl", shippingInfoUrl)
-                        : T("Products.ShippingInfo");
-                }
-
-                sb.Grow(shippingInfo, ", ");
+                shippingInfo = shippingInfoUrl.HasValue()
+                    ? T("Products.ShippingInfoUrl", shippingInfoUrl)
+                    : T("Products.ShippingInfo");
             }
+
+            sb.Grow(shippingInfo, ", ");
+        }
+        else if (surcharge != null)
+        {
+            // The shipping surcharge affects the price, so always display it, even if the shipping note is turned off.
+            sb.Grow(T(sb.Length > 0 ? "Products.ShippingSurchargeInfo" : "Common.AdditionalShippingSurcharge", surcharge), ", ");
         }
 
         return sb.ToString();

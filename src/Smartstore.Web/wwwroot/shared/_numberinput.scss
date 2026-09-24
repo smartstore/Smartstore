@@ -87,8 +87,9 @@
     align-items: center;
     flex-wrap: nowrap;
     z-index: 6;
-    background-color: $input-bg;
-    color: $gray-600;
+    background-color: transparent;
+    color: inherit;
+    opacity: 0.5;
     font-size: var(--ni-font-size);
     line-height: var(--ni-line-height);
     cursor: default;
@@ -141,7 +142,9 @@
         width: var(--ni-addon-width);
         border-start-end-radius: var(--ni-border-radius);
         border-end-end-radius: var(--ni-border-radius);
-        box-shadow: if($enable-shadows, $btn-box-shadow, null);
+        @if $enable-shadows {
+            box-shadow: $btn-box-shadow;
+        }
     }
 
     > .numberinput-formatted {

@@ -4,9 +4,14 @@
 
 ### New Features
 
+- Dimension Pricing plugin
+	- Calculates product and shipping prices based on customer-entered dimensions and weight.
+	- Supports formulas, packing rules, girth and volumetric limits, rate tiers and surcharges.
 - (DEV) Added an extensible admin dashboard widget infrastructure with responsive layouts.
 - **AI**
   - Added configurable **reasoning effort levels** for supported AI models across providers, including model-specific defaults and automatic persistence of user selections.
+- **Theming**
+  - `.scroll-fade`: reusable responsive edge fades for horizontal and vertical scroll containers.
 - #1530 If a product is subsequently added to an order, update all price input controls with the price of the selected attribute combination.
 - Automated tax and total calculations now ensure that gross and net prices, as well as line and order totals, update instantly when editing orders or order items.
 - Enforce `MaxDownloadFileSize` in `DownloadManager` via the global `appsettings.json` setting (default: 50 MB).
@@ -22,15 +27,24 @@
 - **GeoBlocker**: 
   - A whitelisted IP address was still blocked when its country was blocked, although IP addresses take precedence.
   - Literal IP addresses are matched directly instead of by regex, which makes large lists cheap.
-- (DEV) Updated **Vue** from 2.6 to 3.5 and migrated the DataGrid and MediaManager integrations to the Vue 3 application API.
-- (DEV) `Wildcard`: Matching is culture-invariant by default (override via `Wildcard.DefaultOptions`), number ranges no longer capture, and a match timeout can be passed for untrusted input.
-- Checkout: The updated total is displayed immediately when the shipping or payment method is changed.
-- #1563 Product legal information improvements.
 - **Theming**: 
   - Made `.prose` font-size and line-height configurable.
   - Refined the appearance of media gallery slider dots on mobile devices.
   - Removed the product offer background and padding on small screens to provide a cleaner, wider mobile layout.
   - New theme variable `$enable-alert-icons` (`false` by default).
+  - Modernized the **text expander** with background-independent fading, an accessible toggle and reliable resizing for dynamic content.
+  - Integrated responsive **scroll fades** into touch-friendly swatches and the **MegaMenu** navigation.
+  - Modernized **MegaMenu navigation** with native horizontal scrolling, edge-aware controls and safer navigation buttons.
+  - Refined **border radii** across frontend and backend components, including better spacing for rounded **Select2** options.
+  - Simplified the appearance and interaction of **Select2** single-select controls and dropdowns.
+  - Added smoother, configurable **collapse transitions** and standard collapse behavior for backend subcontrol groups.
+  - Improved **keyboard shortcut styling** in dropdowns and buttons.
+  - Refined **swatch selection states** and the presentation of unavailable values.
+  - Improved the layout and controls of the **DataGrid configuration dropdown**.
+- (DEV) Updated **Vue** from 2.6 to 3.5 and migrated the DataGrid and MediaManager integrations to the Vue 3 application API.
+- (DEV) `Wildcard`: Matching is culture-invariant by default (override via `Wildcard.DefaultOptions`), number ranges no longer capture, and a match timeout can be passed for untrusted input.
+- Checkout: The updated total is displayed immediately when the shipping or payment method is changed.
+- #1563 Product legal information improvements.
 - Improved server-side JavaScript minification with `NUglify`, correct block-scoped const handling, and automatic bundle cache invalidation. Files that fail minification now retain their original content with file-specific diagnostics.
 - (DEV) Refactored shopping cart total calculation options into `ShoppingCartTotalOptions` and marked the legacy overload as obsolete.
 
@@ -78,7 +92,8 @@
   - #1584 Multi-currency payments could remain pending and partial refunds used the wrong currency amount.
   - Fixed amount conversion for zero-decimal currencies.
   - Redirect-based 3D Secure was already supported, but Stripe next actions handled through the client SDK, such as those required by Link, were not processed.
-
+- #1556 AI text optimization now distinguishes between rich and plain text, prevents unwanted HTML/Markdown output and respects configured word limits.
+- #1576 GoogleAnalytics: purchase event has no product-ID token (mismatch with Merchant Center feed id)
 
 ## Smartstore 6.4.0
 

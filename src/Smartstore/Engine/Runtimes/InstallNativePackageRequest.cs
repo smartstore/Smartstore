@@ -5,7 +5,7 @@ public class InstallNativePackageRequest
     /// <summary>
     /// Creates a new <see cref="InstallNativePackageRequest"/> instance.
     /// </summary>
-    /// <param name="libraryName">The extension-less file name of the library or executable, e.g. "libsass", "ffmpeg" etc.</param>
+    /// <param name="libraryName">The extension-less file name of the library or executable, e.g. "ffmpeg".</param>
     /// <param name="isExecutable">Whether given <paramref name="libraryName"/> is an executable or a dynamic library.</param>
     /// <param name="packageId">The NuGet package id that contains <paramref name="libraryName"/> file.</param>
     public InstallNativePackageRequest(string libraryName, bool isExecutable, string packageId)

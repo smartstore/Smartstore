@@ -5,6 +5,8 @@
 (function ($) {
 
     var $w = $(window);
+    var textExpanderId = 0;
+    var scrollFadeId = 0;
 
     $.extend({
 
@@ -224,68 +226,215 @@
                 return clientSize && hVisible;
         },
 
-        moreLess: function () {
+        textExpander: function () {
             return this.each(function () {
                 var el = $(this);
 
-                // iOS Safari freaks out when a YouTube video starts playing while the block is collapsed:
-                // the video disapperars after a while! Other video embeds like Vimeo seem to behave correctly.
-                // So: shit on moreLess in this case.
+                if (el.data('text-expander-initialized')) {
+                    return;
+                }
+
+                // TODO: Remove the `.more-block` fallback and class migration after
+                // stored HtmlEditor content has been migrated to text-expander markup.
+                var inner = el.children('.text-expander-content, .more-block').first();
+                if (inner.length === 0) {
+                    return;
+                }
+
+                el.removeClass('more-less').addClass('text-expander');
+                inner.removeClass('more-block').addClass('text-expander-content');
+
+                // iOS Safari can lose a playing YouTube video when its containing block is clipped.
                 if (window.touchable && /iPhone|iPad/.test(navigator.userAgent)) {
                     var containsToxicEmbed = el.find("iframe[src*='youtube.com']").length > 0;
                     if (containsToxicEmbed) {
-                        el.removeClass('more-less');
+                        el.removeClass('text-expander');
                         return;
                     }
                 }
 
-                var inner = el.find('> .more-block');
-
                 function getActualHeight() {
-                    return inner.length > 0 ? inner.outerHeight(false) : el.outerHeight(false);
+                    return inner.outerHeight(false);
                 }
 
-                var actualHeight = getActualHeight();
+                const maxHeight = el.data('max-height') || 260;
+                const innerId = inner.attr('id')
+                    || (el.attr('id') ? el.attr('id') + '-content' : 'text-expander-content-' + (++textExpanderId));
+                var expanded = false;
 
-                if (actualHeight === 0) {
-                    el.evenIfHidden(function () {
-                        actualHeight = getActualHeight();
+                inner.attr('id', innerId);
+                el[0].style.setProperty('--text-expander-collapsed-height', maxHeight + 'px');
+
+                var toggle = $(`<button type="button" class="text-expander-toggle btn btn-plain rounded-pill px-4" aria-expanded="false" aria-controls="${innerId}">`
+                    + `<span class="text-expander-label-more"><i class="fa fa-angle-double-down pr-2" aria-hidden="true"></i>${Res['Products.Longdesc.More']}</span>`
+                    + `<span class="text-expander-label-less"><i class="fa fa-angle-double-up pr-2" aria-hidden="true"></i>${Res['Products.Longdesc.Less']}</span></button>`);
+
+                el.append(toggle).data('text-expander-initialized', true);
+
+                function refresh() {
+                    var actualHeight = getActualHeight();
+
+                    if (actualHeight === 0) {
+                        el.evenIfHidden(function () {
+                            actualHeight = getActualHeight();
+                        });
+                    }
+
+                    const isCollapsible = actualHeight > maxHeight;
+
+                    el.toggleClass('is-collapsible', isCollapsible)
+                        .toggleClass('expanded', isCollapsible && expanded)
+                        .toggleClass('collapsed', isCollapsible && !expanded);
+                    toggle.aria('expanded', expanded);
+                }
+
+                toggle.on('click.textExpander', function () {
+                    expanded = !expanded;
+                    refresh();
+                });
+
+                inner.on('focusin.textExpander', function (e) {
+                    if (!expanded && el.hasClass('collapsed')) {
+                        const containerRect = el[0].getBoundingClientRect();
+                        const targetRect = e.target.getBoundingClientRect();
+
+                        if (targetRect.top < containerRect.top || targetRect.bottom > containerRect.bottom) {
+                            expanded = true;
+                            refresh();
+                        }
+                    }
+                });
+
+                refresh();
+
+                if (window.ResizeObserver) {
+                    const resizeObserver = new ResizeObserver(refresh);
+                    resizeObserver.observe(inner[0]);
+                    el.data('text-expander-resize-observer', resizeObserver);
+                }
+            });
+        },
+
+        // TODO: Remove after stored HtmlEditor content and external callers have
+        // migrated to `.text-expander` and `.textExpander()`.
+        moreLess: function () {
+            return this.textExpander();
+        },
+
+        scrollFade: function () {
+            return this.each(function () {
+                const node = this;
+                const el = $(node);
+                const existingInstance = el.data('scroll-fade-instance');
+
+                if (existingInstance) {
+                    existingInstance.refresh();
+                    return;
+                }
+
+                const namespace = '.scrollFade' + (++scrollFadeId);
+                const edgeTolerance = 1;
+                let frameId;
+                let lastState;
+                let resizeObserver;
+                let mutationObserver;
+
+                function scheduleRefresh() {
+                    if (frameId) {
+                        return;
+                    }
+
+                    frameId = window.requestAnimationFrame(refresh);
+                }
+
+                function refresh() {
+                    frameId = null;
+
+                    const style = window.getComputedStyle(node);
+                    const axisValue = style.getPropertyValue('--scroll-fade-axis').trim();
+                    const axis = axisValue === 'x' || axisValue === 'y' ? axisValue : null;
+                    const reverse = axis === 'x' && style.direction === 'rtl';
+                    let atStart = true;
+                    let atEnd = true;
+
+                    if (axis === 'x') {
+                        const maxScroll = Math.max(0, node.scrollWidth - node.clientWidth);
+                        const scrollPosition = Math.min(maxScroll, Math.max(0, reverse ? Math.abs(node.scrollLeft) : node.scrollLeft));
+
+                        atStart = scrollPosition <= edgeTolerance;
+                        atEnd = maxScroll - scrollPosition <= edgeTolerance;
+                    }
+                    else if (axis === 'y') {
+                        const maxScroll = Math.max(0, node.scrollHeight - node.clientHeight);
+                        const scrollPosition = Math.min(maxScroll, Math.max(0, node.scrollTop));
+
+                        atStart = scrollPosition <= edgeTolerance;
+                        atEnd = maxScroll - scrollPosition <= edgeTolerance;
+                    }
+
+                    el.toggleClass('scroll-fade-reverse', reverse)
+                        .toggleClass('scroll-fade-at-start', atStart)
+                        .toggleClass('scroll-fade-at-end', atEnd)
+                        .addClass('scroll-fade-ready');
+
+                    const state = [axis, atStart, atEnd, reverse].join(':');
+                    if (state !== lastState) {
+                        lastState = state;
+                        el.trigger('scrollfadechange', [{ axis, atStart, atEnd, reverse }]);
+                    }
+                }
+
+                function observeResizeTargets() {
+                    if (!resizeObserver) {
+                        return;
+                    }
+
+                    resizeObserver.disconnect();
+                    resizeObserver.observe(node);
+                    Array.from(node.children).forEach(function (child) {
+                        resizeObserver.observe(child);
+                        Array.from(child.children).forEach(function (grandchild) {
+                            resizeObserver.observe(grandchild);
+                        });
                     });
                 }
 
-                const elId = el.attr('id') || '';
-                const maxHeight = el.data('max-height') || 260;
+                node.addEventListener('scroll', scheduleRefresh, { passive: true });
+                node.addEventListener('load', scheduleRefresh, true);
+                $w.on('resize' + namespace, scheduleRefresh);
 
-                if (actualHeight <= maxHeight) {
-                    el.css('max-height', 'none');
-                    return;
-                }
-                else {
-                    el.css('max-height', maxHeight + 'px');
-                    el.addClass('collapsed');
+                if (window.ResizeObserver) {
+                    resizeObserver = new ResizeObserver(scheduleRefresh);
+                    observeResizeTargets();
                 }
 
-                el.on('click', '.btn-text-expander', function (e) {
-                    e.preventDefault();
-                    const expanding = $(this).hasClass('btn-text-expander--expand');
+                if (window.MutationObserver) {
+                    mutationObserver = new MutationObserver(function () {
+                        observeResizeTargets();
+                        scheduleRefresh();
+                    });
+                    mutationObserver.observe(node, { childList: true, subtree: true });
+                }
 
-                    el.toggleClass('expanded', expanding).toggleClass('collapsed', !expanding);
-                    el.find('.btn-text-expander--expand').aria('expanded', expanding);
-                    el.find('.btn-text-expander--collapse').aria('expanded', !expanding);
-                    return false;
+                if (document.fonts?.ready) {
+                    document.fonts.ready.then(scheduleRefresh);
+                }
+
+                el.data('scroll-fade-instance', {
+                    refresh: scheduleRefresh,
+                    destroy: function () {
+                        window.cancelAnimationFrame(frameId);
+                        node.removeEventListener('scroll', scheduleRefresh);
+                        node.removeEventListener('load', scheduleRefresh, true);
+                        $w.off(namespace);
+                        resizeObserver?.disconnect();
+                        mutationObserver?.disconnect();
+                        el.removeData('scroll-fade-instance')
+                            .removeClass('scroll-fade-ready scroll-fade-at-start scroll-fade-at-end scroll-fade-reverse');
+                    }
                 });
 
-                var expander = el.find('.btn-text-expander--expand');
-                if (expander.length === 0) {
-                    el.append(`<a href="#" class="btn-text-expander btn-text-expander--expand link-dnn" aria-expanded="false" aria-controls="${elId}">`
-                        + `<i class="fa fa fa-angle-double-down pr-2" aria-hidden="true"></i><span>${Res['Products.Longdesc.More']}</span></a>`);
-                }
-
-                var collapser = el.find('.btn-text-expander--collapse');
-                if (collapser.length === 0) {
-                    el.append(`<a href="#" class="btn-text-expander btn-text-expander--collapse link-dnn focus-inset" aria-expanded="true" aria-controls="${elId}">`
-                        + `<i class="fa fa fa-angle-double-up pr-2" aria-hidden="true"></i><span>${Res['Products.Longdesc.Less']}</span></a>`);
-                }
+                refresh();
             });
         },
 

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileProviders;
+using Smartstore.Web.Sass;
 
 namespace Smartstore.Web.Bundling;
 
@@ -23,6 +24,7 @@ public class AssetContent
 
 public class BundleContext
 {
+    public ISassCompilerFactory SassCompilerFactory { get; init; }
     public Bundle Bundle { get; init; }
     public BundleCacheKey CacheKey { get; init; }
     public HttpContext HttpContext { get; init; }

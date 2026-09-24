@@ -382,7 +382,7 @@ body {
       --dropdown-item-padding-x: 1rem;
       --dropdown-item-padding-y: 0.5rem;
       --dropdown-divider-margin-y: 0.5rem;
-      --dropdown-border-radius: 8px;
+      --dropdown-border-radius: var(--border-radius-lg);
       --shadow-intensity: 0.7;
       --dropdown-box-shadow: #{$box-shadow-lg};
         margin-top: -2px;
@@ -1157,7 +1157,7 @@ legend {
         inset-inline-end: 0;
         top: 50%;
         margin-top: -7px;
-        transition: transform 0.25s ease-in-out;
+        transition: transform var(--collapse-duration, .2s) var(--collapse-easing, ease-out);
     }
 
     &.collapsed:after {

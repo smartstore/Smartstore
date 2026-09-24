@@ -15,6 +15,9 @@ public class ThemeListModel : TabbableModel
     [LocalizedDisplay("*AssetCachingEnabled")]
     public int AssetCachingEnabled { get; set; }
 
+    [LocalizedDisplay("*KeepSassCompilerInMemory")]
+    public bool KeepSassCompilerInMemory { get; set; }
+
     [LocalizedDisplay("*DefaultDesktopTheme")]
     public string DefaultTheme { get; set; }
     public List<ThemeDescriptorModel> Themes { get; set; } = [];

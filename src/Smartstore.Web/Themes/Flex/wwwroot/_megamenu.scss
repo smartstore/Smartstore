@@ -1,20 +1,24 @@
 ﻿/// <reference path="references.scss" />
 
+@use "sass:list";
+@use "sass:string";
+@use "sass:color";
+
 $megamenu-zindex-base:          ($zindex-dropdown - 20);
 $color-layers:                  $megamenu-bg $header-bg $site-bg $body-bg;
 $mixed-megamenu-bg:             $megamenu-bg;
 
 @each $color in $color-layers {
-    $i: index($color-layers, $color);
+    $i: list.index($color-layers, $color);
 
     $next-color: $color;
 
-    @if length($color-layers) < $i  {
-        $next-color: nth($color-layers, $i + 1);    
+    @if list.length($color-layers) < $i  {
+        $next-color: list.nth($color-layers, $i + 1);
     }    
     
-    @if (alpha($next-color) < 1 and $next-color != transparent)  {
-        $mixed-megamenu-bg: mix(rgba($color, 1), rgba($next-color, 1), alpha($color) * 100%);
+    @if (color.alpha($next-color) < 1 and $next-color != transparent)  {
+        $mixed-megamenu-bg: color.mix(rgba($color, 1), rgba($next-color, 1), color.alpha($color) * 100%);
     }
 }
 
@@ -46,7 +50,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
 }
 
 .megamenu {
-    overflow: hidden;
+    overflow: visible;
     position: relative;
     width: 100%;
 
@@ -56,8 +60,6 @@ $mixed-megamenu-bg:             $megamenu-bg;
         white-space: nowrap;
         /* overwrites inline width */
         width: auto !important;
-        transition: margin-inline-start 0.12s ease-in-out;
-        margin-inline-start: 0;
         line-height: $megamenu-line-height;
         gap: var(--mm-link-gap);
         padding-block: var(--mm-nav-padding-y);
@@ -150,22 +152,24 @@ $mixed-megamenu-bg:             $megamenu-bg;
         height: auto;
         vertical-align: middle;
     }
-}
 
-.touchevents .megamenu .nav-slider {
-    overflow-x: auto !important;
-}
+    .nav-slider {
+        --scroll-fade-size: 2rem;
 
-@include media-breakpoint-up(xl) {
-    .touchevents .megamenu .nav-slider {
-        overflow-x: auto !important;
-        overflow: -moz-scrollbars-none;
-        -ms-overflow-style: none;
-    }
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-x: contain;
+        scroll-padding-inline: var(--scroll-fade-size);
+        scrollbar-width: none;
 
-    .touchevents .megamenu .nav-slider::-webkit-scrollbar {
-        width: 0 !important;
-        height: 0 !important;
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        // Keep the dropdown pointer opaque and prevent the mask from isolating its z-index.
+        &:has(.nav-item.active) {
+            --scroll-fade-mask: none;
+        }
     }
 }
 
@@ -184,14 +188,12 @@ $mixed-megamenu-bg:             $megamenu-bg;
     // INFO: No logical CSS here, else directions change.
     &.alpha {
         left: 0;
-        padding-right: 1rem;
-        background-image: linear-gradient(to left, rgba($mixed-megamenu-bg, 0), $mixed-megamenu-bg 40%, $mixed-megamenu-bg 100%);
+        transform: translateX(-100%);
     }
 
     &.omega {
         right: 0;
-        padding-left: 1rem;
-        background-image: linear-gradient(to right, rgba($mixed-megamenu-bg, 0), $mixed-megamenu-bg 40%, $mixed-megamenu-bg 100%);
+        transform: translateX(100%);
     }
 }
 
@@ -220,14 +222,17 @@ $mixed-megamenu-bg:             $megamenu-bg;
     font-size: 1.5em;
 }
 
-.megamenu-blend--next .megamenu-nav--next,
-.megamenu-blend--prev .megamenu-nav--prev {
+.nav-slider.scroll-fade-ready:not(.scroll-fade-at-start) ~ .megamenu-nav--prev,
+.nav-slider.scroll-fade-ready:not(.scroll-fade-at-end) ~ .megamenu-nav--next {
     opacity: 1;
     display: flex;
 }
 
+.touchevents .megamenu-nav {
+    display: none !important;
+}
 
-.navbar:is(#{unquote(":hover, :focus-within")}) > .megamenu-container.show-scroll-buttons .megamenu-nav-btn {
+.navbar:is(#{string.unquote(":hover, :focus-within")}) > .megamenu-container .megamenu-nav-btn {
     opacity: 1;
 }
 

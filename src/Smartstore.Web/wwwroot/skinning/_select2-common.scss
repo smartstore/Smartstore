@@ -23,7 +23,7 @@
         --select2-line-height: #{$input-btn-line-height-sm};
         --select2-font-size: #{$font-size-sm};
         --select2-multiple-padding: 0.125rem;
-        --select2-choice-padding-x: #{$input-btn-padding-x-sm / 2};
+        --select2-choice-padding-x: #{calc($input-btn-padding-x-sm / 2)};
         --select2-choice-line-height: inherit;
     }
 
@@ -35,7 +35,7 @@
         --select2-height: #{$input-height-lg};
         --select2-line-height: #{$input-btn-line-height-lg};
         --select2-font-size: #{$font-size-lg};
-        --select2-choice-padding-x: #{$input-btn-padding-x-lg / 2};
+        --select2-choice-padding-x: #{calc($input-btn-padding-x-lg / 2)};
     }
 }
 
@@ -65,10 +65,10 @@
 // Bootstrap's default dropdown styles.
 .select2-results__option {
     --select2-option-indent: 1;
-    --select2-option-padding-x-start: #{$input-btn-padding-x};
+    --select2-option-padding-x-start: 0.5rem; // #{$input-btn-padding-x};
     --select2-option-padding-x-end: #{$input-btn-padding-x};
     --select2-option-padding-y: 0.375em;
-    --select2-option-border-radius: 0;
+    --select2-option-border-radius: var(--border-radius-sm);
 
     padding-inline-start: calc(var(--select2-option-padding-x-start) * var(--select2-option-indent));
     padding-inline-end: var(--select2-option-padding-x-end);
@@ -158,6 +158,7 @@
     order: 2;
     margin-inline-start: auto;
     font-size: 14px;
+    z-index: 1;
 }
 
 &.select2-container--disabled {

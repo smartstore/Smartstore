@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Smartstore.Admin.Models.Themes;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Content.Media.Icons;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Security;
@@ -56,6 +57,10 @@ public class ThemeController : AdminController
         var selectedStoreId = storeId ?? Services.StoreContext.CurrentStore.Id;
         var themeSettings = await Services.SettingFactory.LoadSettingsAsync<ThemeSettings>(selectedStoreId);
         var model = await MapperFactory.MapAsync<ThemeSettings, ThemeListModel>(themeSettings);
+
+        // Unlike the selected theme, the Sass process belongs to the application, not a store.
+        var performanceSettings = await Services.SettingFactory.LoadSettingsAsync<PerformanceSettings>();
+        model.KeepSassCompilerInMemory = performanceSettings.KeepSassCompilerInMemory;
 
         var bundlingOptions = new List<SelectListItem>
         {
@@ -140,6 +145,15 @@ public class ThemeController : AdminController
 
         await MapperFactory.MapAsync(model, themeSettings);
         await Services.SettingFactory.SaveSettingsAsync(themeSettings, model.StoreId);
+
+        // Save this global setting separately from the store-scoped theme options.
+        var performanceSettings = await Services.SettingFactory.LoadSettingsAsync<PerformanceSettings>();
+        if (performanceSettings.KeepSassCompilerInMemory != model.KeepSassCompilerInMemory)
+        {
+            performanceSettings.KeepSassCompilerInMemory = model.KeepSassCompilerInMemory;
+            await Services.SettingFactory.SaveSettingsAsync(performanceSettings);
+        }
+
         await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, themeSettings, form, model.StoreId));
 
         NotifySuccess(T("Admin.Configuration.Updated"));

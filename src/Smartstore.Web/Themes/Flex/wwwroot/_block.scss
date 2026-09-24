@@ -7,9 +7,8 @@
 
     .block-title {
         @include font-size($h3-font-size);
-        border-bottom: 1px solid rgba(0,0,0, 0.12);
-        padding-top: 0.75em;
-        padding-bottom: 0.75em;
+        border-bottom: 1px solid rgba($black, 0.12);
+        padding-block: 0.75em;
 
         > * {
             // Most probably a heading tag
@@ -27,15 +26,14 @@
     }
 
     &.block-boxed {
-        border: 1px dotted rgba(0,0,0, 0.2);
-        border-radius: var(--border-radius-md);
+        border: 1px dotted rgba($black, 0.2);
+        border-radius: var(--border-radius-lg);
         .block-title > * { font-weight: $font-weight-normal; }
     }
 
     &.block-boxed .block-title {
         color: $gray-600;
-        margin-left: 1.5rem;
-        margin-right: 1.5rem;
+        margin-inline: 1.5rem;
     }
 }
 

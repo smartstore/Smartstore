@@ -51,6 +51,9 @@
             <display-template>
                 <div class="dg-cell-value">{{ item.row.CalculationMethod }}</div>
             </display-template>
+            <edit-template>
+                @Html.EditorFor(model => model.CalculationMethodId, new { size = "sm" })
+            </edit-template>
         </column>
         <column for="StoreId" width="1fr">
             <display-template>

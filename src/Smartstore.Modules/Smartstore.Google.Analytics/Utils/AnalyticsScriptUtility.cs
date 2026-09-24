@@ -52,9 +52,9 @@ internal static class AnalyticsScriptUtility
     internal static string GetEcommerceDetailScript()
     {
         return @"{
-	'id': '{PRODUCTSKU}',
-	'name': '{PRODUCTNAME}',
-	'category': '{CATEGORYNAME}',
+	'item_id': '{ITEMID}',
+	'item_name': '{PRODUCTNAME}',
+	'item_category': '{CATEGORYNAME}',
 	'quantity': {QUANTITY},
 	'price': '{UNITPRICE}'
 },";

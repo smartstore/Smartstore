@@ -24,26 +24,13 @@
 }
 
 .select2-results > .select2-results__options {
-    --select2-drop-padding-x: 0;
-    --select2-drop-padding-y: 0;
-
+    --select2-drop-padding-x: #{$dropdown-padding-x};
+    --select2-drop-padding-y: #{$dropdown-padding-y};
     // Limit the dropdown height.
     max-height: 320px;
     overflow-y: auto;
     padding: var(--select2-drop-padding-y) var(--select2-drop-padding-x);
-}
-
-
-&.select2-container--open {
-    .select2-selection,
-    .select2-selection__arrow {
-        background-color: $dropdown-bg;
-    }
-
-    .select2-selection__arrow {
-        border-color: transparent;
-        box-shadow: none;
-    }
+    scrollbar-width: thin;
 }
 
 .select2-results {
@@ -57,7 +44,7 @@
         font-size: $font-size-sm;
         word-break: break-word;
         // padding for checkmark
-        padding-inline-start: 20px;
+        padding-inline-start: 17px;
     }
 
     .select2-item-description {
@@ -65,18 +52,18 @@
         display: block;
     }
 
-    > .select2-option {
-        &:after {
-            position: absolute;
-            inset-inline-start: 0;
-            top: 1px;
-            @include fontawesome("\f00c");
-            color: $success;
-            text-align: start;
-            width: 18px;
-            line-height: $line-height-base;
-            visibility: hidden;
-        }
+    > .select2-option:after {
+        position: absolute;
+        inset-inline-start: 0;
+        top: 1px;
+        @include fontawesome("\f00c");
+        font-size: 12px;
+        width: 14px;
+        color: $success;
+        text-align: start;
+        width: 18px;
+        line-height: $line-height-base;
+        visibility: hidden;
     }
 
     > .select2-item-description {

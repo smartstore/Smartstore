@@ -340,9 +340,15 @@ jQuery(function () {
         });
     })();
 
-    // HTML text collapser
-    if ($.fn.moreLess) {
-        $('.more-less').moreLess();
+    // Text expander
+    if ($.fn.textExpander) {
+        // TODO: Remove `.more-less` after stored HtmlEditor content has been migrated.
+        $('.text-expander, .more-less').textExpander();
+    }
+
+    // Observable scroll edge fades
+    if ($.fn.scrollFade) {
+        $('.scroll-fade-observable').scrollFade();
     }
 
     // Toggle grouped buttons

@@ -25,6 +25,20 @@ $default-state-color: $gray-400;
     }
 }
 
+.tree-list.collapsing {
+    @include collapse-hidden();
+
+    .tree-expanded > & {
+        @include collapse-expanded();
+    }
+}
+
+@starting-style {
+    .tree-expanded > .tree-list.collapsing {
+        @include collapse-hidden();
+    }
+}
+
 .tree-node-content {
     display: inherit;
     border-radius: var(--border-radius-md);
@@ -85,8 +99,35 @@ $default-state-color: $gray-400;
 }
 
 .tree-expander {
+    position: relative;
     cursor: pointer;
     font-size: 12px;
+
+    &.loading {
+        > i {
+            visibility: hidden;
+        }
+
+        > .spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    }
+}
+
+.tree-chevron {
+    transform: rotate(0deg);
+    transition: transform var(--collapse-duration, .2s) var(--collapse-easing, ease-out);
+}
+
+.tree-expanded > .tree-inner > .tree-expander > .tree-chevron {
+    transform: rotate(90deg);
+
+    [dir=rtl] & {
+        transform: rotate(-90deg);
+    }
 }
 
 .tree-leaf-left {

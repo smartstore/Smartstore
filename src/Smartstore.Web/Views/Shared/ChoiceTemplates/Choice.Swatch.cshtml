@@ -15,9 +15,9 @@
     // TEST
     // if (canUseCardLayout)
     // {
-    //     Model.SwatchSize = SwatchSize.XLarge;
+    //     Model.SwatchSize = SwatchSize.XXLarge;
     //     Model.SwatchShape = SwatchShape.Rounded;
-    //     Model.SwatchAspectRatio = 1m;
+    //     Model.SwatchAspectRatio = 0.5m;
     //     Model.ShowValueNameInSwatch = true;
     //     Model.SwatchPriceDisplay = SwatchPriceDisplayMode.FinalPrice;
     // }
@@ -36,7 +36,7 @@
     }
     if (useCardLayout)
     {
-        groupClass += " swatch-group-cards";
+        groupClass += " swatch-group-cards scroll-fade scroll-fade-x scroll-fade-md-none scroll-fade-touch scroll-fade-bleed";
     }
 }
 
@@ -80,7 +80,7 @@
                 + (item.IsDisabled ? " disabled" : item.IsUnavailable ? " unavailable" : null);
 
             var elementClass = "swatch-element"
-                + (useCardLayout ? null : hasImage ? " swatch-image" : hasColor ? " swatch-color" : null);
+                + (useCardLayout ? " swatch-card" : hasImage ? " swatch-image" : hasColor ? " swatch-color" : " swatch-text");
 
             // TEST
             @* swatchPrice ??= "199,59 €";
@@ -102,7 +102,7 @@
                     <span class="swatch-content">
                         @if (useCardLayout)
                         {
-                            <span class="@elementClass swatch-card">
+                            <span class="@elementClass">
                                 <span class="swatch-media swatch-visual@(hasImage ? " swatch-image" : " swatch-color")" attr-style="(css.HasValue(), css)"></span>
                                 <span class="swatch-details">
                                     <span class="swatch-value">@item.SwatchValueText</span>

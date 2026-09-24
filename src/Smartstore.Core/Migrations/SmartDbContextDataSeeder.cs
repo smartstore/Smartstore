@@ -1,5 +1,6 @@
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Configuration;
 using Smartstore.Data.Migrations;
 using Smartstore.Utilities;
@@ -20,6 +21,11 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
     public async Task MigrateSettingsAsync(SmartDbContext context, CancellationToken cancelToken = default)
     {
+        await context.MigrateSettingsAsync(builder =>
+        {
+            builder.Add(TypeHelper.NameOf<PerformanceSettings>(x => x.KeepSassCompilerInMemory, true), "False");
+        });
+
         var settings = context.Set<Setting>();
         const string oldName1 = "TaxSettings.ShowLegalHintsInProductDetails";
         const string oldName2 = "TaxSettings.ShowLegalHintsInProductList";
@@ -90,6 +96,16 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
     public void MigrateLocaleResources(LocaleResourcesBuilder builder)
     {
+        builder.AddOrUpdate("Admin.Configuration.Themes.Option.KeepSassCompilerInMemory",
+            "Keep Sass compiler in memory",
+            "Sass-Compiler im Arbeitsspeicher halten",
+            "Recommended while actively editing Sass files or changing theme variables in the admin area. Keeping the Dart Sass compiler running speeds up repeated compilations but uses additional memory. Otherwise, leave this disabled; an unused compiler is stopped after a short idle period.",
+            "Empfohlen, wenn Sie gerade intensiv Sass-Dateien bearbeiten oder Theme-Variablen im Backend ändern. Der Dart-Sass-Compiler bleibt aktiv und beschleunigt wiederholte Kompilierungen, benötigt aber zusätzlichen Arbeitsspeicher. Ansonsten deaktiviert lassen; ein ungenutzter Compiler wird nach kurzer Zeit beendet.");
+
+        builder.Delete(
+            "Admin.Configuration.Settings.Performance.KeepSassCompilerInMemory",
+            "Admin.Configuration.Settings.Performance.KeepSassCompilerInMemory.Hint");
+
         builder.Delete(
             "Admin.Orders.Products.AddNew.UnitPriceInclTax.Hint",
             "Admin.Orders.Products.AddNew.UnitPriceExclTax.Hint",
@@ -143,6 +159,10 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Legt fest, ob nur Objekte, die veröffentlicht wurden, exportiert werden, sofern das Objekt eine Einstellung zur Veröffentlichung besitzt.");
 
         builder.AddOrUpdate("Footer.Info", "Information", "Informationen");
+
+        builder.AddOrUpdate("Smartstore.AI.Prompts.DontUseHtml",
+            "Return plain text only. Do not use HTML tags.",
+            "Gib ausschließlich Klartext zurück. Verwende keine HTML-Tags.");
 
         builder.AddOrUpdate("ReturnCase.WithdrawEntireOrder",
             "I want to withdraw the contract for the entire order:",
@@ -214,58 +234,68 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
         #region product legal info
 
-        builder.AddOrUpdate("Products.ShippingInfo", 
-            "plus shipping", 
+        builder.AddOrUpdate("Products.ShippingInfo",
+            "plus shipping",
             "zzgl. Versandkosten");
 
-        builder.AddOrUpdate("Products.ShippingInfoUrl", 
+        builder.AddOrUpdate("Products.ShippingInfoUrl",
             "plus <a href=\"{0}\">shipping</a>",
             "zzgl. <a href=\"{0}\">Versandkosten</a>");
 
         builder.AddOrUpdate("Products.ShippingInfoWithSurcharge",
-            "plus shipping costs and a <b>{0}</b> surcharge",
-            "zzgl. Versandkosten und <b>{0}</b> Aufschlag");
+            "plus shipping and a <b>{0}</b> shipping surcharge",
+            "zzgl. Versandkosten und <b>{0}</b> Versandaufschlag");
 
         builder.AddOrUpdate("Products.ShippingInfoUrlWithSurcharge",
-            "plus <a href=\"{0}\">shipping</a> and a <b>{1}</b> surcharge",
-            "zzgl. <a href=\"{0}\">Versandkosten</a> und <b>{1}</b> Aufschlag");
+            "plus <a href=\"{0}\">shipping</a> and a <b>{1}</b> shipping surcharge",
+            "zzgl. <a href=\"{0}\">Versandkosten</a> und <b>{1}</b> Versandaufschlag");
 
-        builder.AddOrUpdate("Tax.LegalInfoShort", "Prices {0}", "Preise {0}");
-
-        builder.AddOrUpdate("Common.AdditionalShippingSurcharge",
+        builder.AddOrUpdate("Products.ShippingSurchargeInfo",
             "plus <b>{0}</b> shipping surcharge",
             "zzgl. <b>{0}</b> Versandaufschlag");
 
+        builder.AddOrUpdate("Products.FreeShippingInfo",
+            "free shipping",
+            "versandkostenfrei");
+
+        builder.AddOrUpdate("Products.TaxLegalInfo", "Prices {0}", "Preise {0}");
+
+        builder.AddOrUpdate("Common.AdditionalShippingSurcharge",
+            "Plus <b>{0}</b> shipping surcharge",
+            "zzgl. <b>{0}</b> Versandaufschlag");
+
         builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.LegalInfoInProductDetail",
-            "Legal information",
-            "Rechtliche Hinweise",
-            "Specifies the legal information displayed on the product detail page. Depending on the selected option, this includes either tax information"
-            + " (whether prices include or exclude tax, and if applicable, the tax rate), or shipping information (shipping page link, and if applicable, an additional shipping surcharge).",
-            "Legt die auf der Produktdetailseite angezeigten rechtlichen Hinweise fest. Je nach gewählter Option umfasst dies Steuerinformationen, d.h. ob die Preise"
-            + " inklusive oder exklusive Steuer angezeigt werden, sowie den Steuersatz, sofern dieser aktiviert ist. Außerdem umfasst dies Versandinformationen,"
-            + "d.h. Link zur Versandseite sowie gegebenenfalls einen zusätzlichen Versandaufschlag.");
+            "Legal information on product page",
+            "Rechtliche Hinweise auf der Produktseite",
+            "Specifies which tax and shipping cost notes are displayed on the product page. If nothing is selected, no note is displayed. An additional shipping charge is always displayed.",
+            "Legt fest, welche Hinweise zu Steuer und Versandkosten auf der Produktseite angezeigt werden. Ohne Auswahl wird kein Hinweis angezeigt. Ein Transportzuschlag wird immer angezeigt.");
 
         builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.LegalInfoInLists",
-            "Legal information",
-            "Rechtliche Hinweise",
-            "Specifies the legal information displayed in product lists. Depending on the option selected, this includes whether prices are displayed with or without tax,"
-            + " and a link to the shipping page.",
-            "Legt die in Produktlisten angezeigten rechtlichen Hinweise fest. Je nach gewählter Option umfasst dies, ob die Preise inklusive oder exklusive Steuer"
-            + " angezeigt werden, und einen Link zur Versandseite.");
+            "Legal information in product lists",
+            "Rechtliche Hinweise in Produktlisten",
+            "Specifies which tax and shipping cost notes are displayed in the list view and in the product comparison. If nothing is selected, no note is displayed.",
+            "Legt fest, welche Hinweise zu Steuer und Versandkosten in der Listenansicht und im Produktvergleich angezeigt werden. Ohne Auswahl wird kein Hinweis angezeigt.");
 
-        builder.AddOrUpdate("Enums.ProductLegalInfo.Tax", "Tax", "Steuer");
-        builder.AddOrUpdate("Enums.ProductLegalInfo.Shipping", "Shipping", "Versand");
+        builder.AddOrUpdate("Enums.ProductLegalInfo.Tax", "Tax note (incl./excl. VAT)", "Steuerhinweis (inkl./zzgl. MwSt.)");
+        builder.AddOrUpdate("Enums.ProductLegalInfo.Shipping", "Shipping cost note", "Versandkostenhinweis");
 
         builder.Delete(
             "Tax.LegalInfoProductDetail",
             "Tax.LegalInfoProductDetail2",
+            "Tax.LegalInfoShort",
             "Tax.LegalInfoShort2",
             "Tax.LegalInfoShort3",
             "Admin.Configuration.Settings.Tax.ShowLegalHintsInProductDetails",
             "Admin.Configuration.Settings.Tax.ShowLegalHintsInProductDetails.Hint",
             "Admin.Configuration.Settings.Tax.ShowLegalHintsInProductList",
-            "Admin.Configuration.Settings.Tax.ShowLegalHintsInProductList.Hint");
+            "Admin.Configuration.Settings.Tax.ShowLegalHintsInProductList.Hint",
+            "Admin.Configuration.Settings.Tax.ShowLegalHintsInProductGrid",
+            "Admin.Configuration.Settings.Tax.ShowLegalHintsInProductGrid.Hint");
 
         #endregion
+
+        builder.AddOrUpdate("Products.EmailAFriend.LoginNote",
+            "Please log in to use this function. <a href=\"{0}\" rel=\"nofollow\">Login now</a>",
+            "Bitte melden Sie sich an, um diese Funktion nutzen zu können. <a href=\"{0}\" rel=\"nofollow\">Jetzt anmelden</a>");
     }
 }

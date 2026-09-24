@@ -1,6 +1,8 @@
 /// <reference path="references.scss" />
 
 //
+@use "sass:color";
+
 // Bidi
 // --------------------------------------------------
 
@@ -242,10 +244,10 @@ table th {
 @each $color, $value in $theme-colors {
     @if $color != "secondary" and $color != "light" { 
         .shadow-#{$color} { 
-            $c: mix($value, #000, 50%);
-            --lightness: #{lightness($value)};
+            $c: color.mix($value, #000, 50%);
+            --lightness: #{color.lightness($value)};
             --shadow-intensity: 1.25 !important;
-            --shadow-color-rgb: #{red($c)}, #{green($c)}, #{blue($c)} !important;
+            --shadow-color-rgb: #{color.red($c)}, #{color.green($c)}, #{color.blue($c)} !important;
             --shadow-colorbase-rgb: var(--shadow-color-rgb) !important;
         }
     }
@@ -476,6 +478,46 @@ table th {
 
 // Animations
 // ------------------------------------------------------
+
+:is(.collapse, .collapsing) {
+    // Closed accordion state
+    [aria-expanded="false"] + &,
+    .card:has(> .card-header [aria-expanded="false"]) > &,
+    .nav-toggler:has(> [aria-expanded="false"]) + & {
+        @include collapse-hidden();
+    }
+
+    // Open accordion state
+    [aria-expanded="true"] + &,
+    .card:has(> .card-header [aria-expanded="true"]) > &,
+    .nav-toggler:has(> [aria-expanded="true"]) + & {
+        @include collapse-expanded();
+    }
+}
+
+// Programmatically controlled collapse without a structurally related trigger.
+.collapsing.collapsible {
+    @include collapse-hidden();
+
+    &.expanded {
+        @include collapse-expanded();
+    }
+}
+
+@starting-style {
+    // Without this, opacity will not animate on expand.
+    .collapsing {
+        [aria-expanded="true"] + &,
+        .card:has(> .card-header [aria-expanded="true"]) > &,
+        .nav-toggler:has(> [aria-expanded="true"]) + & {
+            @include collapse-hidden();
+        }
+    }
+
+    .collapsing.collapsible.expanded {
+        @include collapse-hidden();
+    }
+}
 
 .no-anims,
 .no-anims * {
