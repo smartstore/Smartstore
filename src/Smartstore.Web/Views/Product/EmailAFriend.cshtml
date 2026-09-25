@@ -43,7 +43,7 @@
                            type="email" 
                            sm-required="true" 
                            autocomplete="email"
-                           attr-readonly='(Model.AllowChangedCustomerEmail, "readonly")' 
+                           attr-readonly='(!Model.AllowChangedCustomerEmail, "readonly")' 
                            placeholder="@T("Products.EmailAFriend.YourEmailAddress.Hint")" 
                            class="fullname" />
                     <span asp-validation-for="YourEmailAddress"></span>
