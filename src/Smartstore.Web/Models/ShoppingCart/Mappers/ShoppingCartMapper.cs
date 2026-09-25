@@ -248,6 +248,11 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
                             DisplayOrder = x.DisplayOrder
                         };
 
+                        if (!x.AdditionalColors.IsNullOrEmpty())
+                        {
+                            m.AdditionalColors.AddRange(x.AdditionalColors);
+                        }
+
                         if (x.MediaFileId.HasValue && x.MediaFile != null)
                         {
                             m.ImageUrl = _services.MediaService.GetUrl(x.MediaFile, _mediaSettings.VariantValueThumbPictureSize, null, false);

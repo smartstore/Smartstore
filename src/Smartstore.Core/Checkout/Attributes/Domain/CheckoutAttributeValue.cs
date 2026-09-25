@@ -15,6 +15,9 @@ internal class CheckoutAttributeValueMap : IEntityTypeConfiguration<CheckoutAttr
             .WithMany()
             .HasForeignKey(x => x.MediaFileId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        builder.Property(x => x.AdditionalColors)
+            .HasJsonConversion();
     }
 }
 
@@ -54,10 +57,16 @@ public partial class CheckoutAttributeValue : BaseEntity, ILocalizedEntity
     public int DisplayOrder { get; set; }
 
     /// <summary>
-    /// Gets or sets the color RGB value (used with "Boxes" attribute type).
+    /// Gets or sets the color RGB value for swatches.
     /// </summary>
     [StringLength(100)]
     public string Color { get; set; }
+
+    /// <summary>
+    /// Gets or sets a list of additional color RGB values for multicolor swatches.
+    /// </summary>
+    [StringLength(100)]
+    public string[] AdditionalColors { get; set; }
 
     /// <summary>
     /// Gets or sets the checkout attribute mapping identifier

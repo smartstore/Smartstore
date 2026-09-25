@@ -41,7 +41,7 @@ public class CheckoutAttributeModel : EntityModelBase, ILocalizedModel<CheckoutA
     [LocalizedDisplay("Common.DisplayOrder")]
     public int DisplayOrder { get; set; }
 
-    public List<CheckoutAttributeLocalizedModel> Locales { get; set; } = new();
+    public List<CheckoutAttributeLocalizedModel> Locales { get; set; } = [];
 
     [UIHint("Stores")]
     [AdditionalMetadata("multiple", true)]

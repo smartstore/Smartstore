@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using FluentValidation;
+using Smartstore.Admin.Models.Common;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
@@ -596,10 +597,12 @@ public class ProductModel : ProductOverviewModel, ILocalizedModel<ProductLocaliz
         public string Name { get; set; }
         public string NameString { get; set; }
 
+        [UIHint("ColorPalette")]
+        [AdditionalMetadata("maxColors", ColorPaletteModel.DefaultMaxColors)]
         [LocalizedDisplay("*ColorSquaresRgb")]
-        [UIHint("Color")]
-        public string Color { get; set; }
-        public bool HasColor { get; set; }
+        public ColorPaletteModel Colors { get; set; } = new();
+        public string Color => Colors?.Color;
+        public bool HasColor => Color.HasValue();
         public bool IsListTypeAttribute { get; set; }
 
         [LocalizedDisplay("*Picture")]
@@ -762,12 +765,18 @@ public partial class ProductModelValidator : SmartValidator<ProductModel>
 
 public partial class ProductVariantAttributeValueModelValidator : SmartValidator<ProductModel.ProductVariantAttributeValueModel>
 {
-    public ProductVariantAttributeValueModelValidator(SmartDbContext db)
+    public ProductVariantAttributeValueModelValidator(SmartDbContext db, Localizer T)
     {
-        ApplyEntityRules<ProductVariantAttributeValue>(db);
+        ApplyEntityRules<ProductVariantAttributeValue>(db, nameof(ProductVariantAttributeValue.Color));
 
         RuleFor(x => x.Name).NotEmpty();
         RuleFor(x => x.Quantity).GreaterThanOrEqualTo(1).When(x => x.ValueTypeId == (int)ProductVariantAttributeValueType.ProductLinkage);
+        RuleFor(x => x.Colors)
+            .Must(x => x == null || (x.AdditionalColors?.Count(y => y.HasValue()) ?? 0) < ColorPaletteModel.DefaultMaxColors)
+            .WithMessage(T("Admin.Common.ColorPalette.TooManyColors", ColorPaletteModel.DefaultMaxColors));
+        RuleFor(x => x.Colors)
+            .Must(x => x?.AdditionalColors?.Any(y => y.HasValue()) != true || x.Color.HasValue())
+            .WithMessage(T("Admin.Common.ColorPalette.PrimaryColorRequired"));
     }
 }
 

@@ -155,6 +155,11 @@ internal class AddProductToOrderMapper : IMapper<AddOrderProductModel, MapperRes
                             DisplayOrder = x.DisplayOrder
                         };
 
+                        if (!x.AdditionalColors.IsNullOrEmpty())
+                        {
+                            m.AdditionalColors.AddRange(x.AdditionalColors);
+                        }
+
                         if (x.ValueType == ProductVariantAttributeValueType.ProductLinkage &&
                             linkedProducts.TryGetValue(x.LinkedProductId, out var linkedProduct))
                         {

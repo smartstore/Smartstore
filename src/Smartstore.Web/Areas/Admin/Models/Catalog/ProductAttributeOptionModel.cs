@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using Smartstore.Admin.Models.Common;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Localization;
 
 namespace Smartstore.Admin.Models.Catalog;
 
@@ -20,9 +22,11 @@ public class ProductAttributeOptionModel : EntityModelBase, ILocalizedModel<Prod
     [LocalizedDisplay("*Alias")]
     public string Alias { get; set; }
 
+    [UIHint("ColorPalette")]
+    [AdditionalMetadata("maxColors", ColorPaletteModel.DefaultMaxColors)]
     [LocalizedDisplay("*ColorSquaresRgb")]
-    [UIHint("Color")]
-    public string Color { get; set; }
+    public ColorPaletteModel Colors { get; set; } = new();
+    public string Color => Colors?.Color;
     public bool HasColor => Color.HasValue();
 
     [LocalizedDisplay("*Picture")]
@@ -81,12 +85,18 @@ public class ProductAttributeOptionLocalizedModel : ILocalizedLocaleModel
 
 public partial class ProductAttributeOptionModelValidator : SmartValidator<ProductAttributeOptionModel>
 {
-    public ProductAttributeOptionModelValidator(SmartDbContext db)
+    public ProductAttributeOptionModelValidator(SmartDbContext db, Localizer T)
     {
-        ApplyEntityRules<ProductAttributeOption>(db);
+        ApplyEntityRules<ProductAttributeOption>(db, nameof(ProductAttributeOption.Color));
 
         RuleFor(x => x.Name).NotEmpty();
         RuleFor(x => x.Quantity).GreaterThan(0).When(x => x.ValueTypeId == (int)ProductVariantAttributeValueType.ProductLinkage);
+        RuleFor(x => x.Colors)
+            .Must(x => x == null || (x.AdditionalColors?.Count(y => y.HasValue()) ?? 0) < ColorPaletteModel.DefaultMaxColors)
+            .WithMessage(T("Admin.Common.ColorPalette.TooManyColors", ColorPaletteModel.DefaultMaxColors));
+        RuleFor(x => x.Colors)
+            .Must(x => x?.AdditionalColors?.Any(y => y.HasValue()) != true || x.Color.HasValue())
+            .WithMessage(T("Admin.Common.ColorPalette.PrimaryColorRequired"));
     }
 }
 
@@ -99,6 +109,7 @@ public class ProductAttributeOptionMapper :
     {
         MiniMapper.Map(from, to);
         to.PictureId = from.MediaFileId;
+        to.Colors = ColorPaletteModel.Create(from.Color, from.AdditionalColors);
 
         return Task.CompletedTask;
     }
@@ -108,6 +119,8 @@ public class ProductAttributeOptionMapper :
         MiniMapper.Map(from, to);
         to.MediaFileId = from.PictureId;
         to.LinkedProductId = to.ValueType == ProductVariantAttributeValueType.Simple ? 0 : from.LinkedProductId;
+        to.Color = from.Colors?.Color.NullEmpty();
+        to.AdditionalColors = from.Colors?.GetAdditionalColors();
 
         return Task.CompletedTask;
     }

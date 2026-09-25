@@ -409,7 +409,7 @@ public class ProductAttributeController : AdminController
 
         var linkedProducts = linkedProductIds.Any()
             ? await _db.Products.AsNoTracking().Where(x => linkedProductIds.Contains(x.Id)).ToDictionaryAsync(x => x.Id)
-            : new Dictionary<int, Product>();
+            : [];
 
         var rows = await options
             .SelectAwait(async x =>
@@ -463,7 +463,6 @@ public class ProductAttributeController : AdminController
         var model = new ProductAttributeOptionModel
         {
             Quantity = 1,
-            Color = string.Empty,
             DisplayOrder = ++maxDisplayOrder
         };
 

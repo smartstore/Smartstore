@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Catalog;
+using Smartstore.Admin.Models.Common;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
@@ -654,8 +655,7 @@ public partial class ProductController : AdminController
                 Name = x.Name,
                 NameString = (x.Color.IsEmpty() ? x.Name : $"{x.Name} - {x.Color}").HtmlEncode(),
                 Alias = x.Alias,
-                Color = x.Color,
-                HasColor = x.Color.HasValue(),
+                Colors = ColorPaletteModel.Create(x.Color, x.AdditionalColors),
                 PictureId = x.MediaFileId,
                 PriceAdjustment = x.PriceAdjustment,
                 WeightAdjustment = x.WeightAdjustment,
@@ -794,7 +794,6 @@ public partial class ProductController : AdminController
             ProductId = pva.ProductId,
             ProductVariantAttributeId = productVariantAttributeId,
             IsListTypeAttribute = pva.IsListTypeAttribute(),
-            Color = string.Empty,
             Quantity = 1,
             DisplayOrder = ++maxDisplayOrder
         };
@@ -830,6 +829,8 @@ public partial class ProductController : AdminController
             var pvav = await MapperFactory.MapAsync<ProductModel.ProductVariantAttributeValueModel, ProductVariantAttributeValue>(model);
             pvav.MediaFileId = model.PictureId;
             pvav.LinkedProductId = pvav.ValueType == ProductVariantAttributeValueType.Simple ? 0 : model.LinkedProductId;
+            pvav.Color = model.Colors?.Color.NullEmpty();
+            pvav.AdditionalColors = model.Colors?.GetAdditionalColors();
 
             try
             {
@@ -875,7 +876,7 @@ public partial class ProductController : AdminController
             ProductVariantAttributeId = pvav.ProductVariantAttributeId,
             Name = pvav.Name,
             Alias = pvav.Alias,
-            Color = pvav.Color,
+            Colors = ColorPaletteModel.Create(pvav.Color, pvav.AdditionalColors),
             PictureId = pvav.MediaFileId,
             IsListTypeAttribute = pvav.ProductVariantAttribute.IsListTypeAttribute(),
             PriceAdjustment = pvav.PriceAdjustment,
@@ -940,6 +941,8 @@ public partial class ProductController : AdminController
             await MapperFactory.MapAsync(model, pvav);
             pvav.MediaFileId = model.PictureId;
             pvav.LinkedProductId = pvav.ValueType == ProductVariantAttributeValueType.Simple ? 0 : model.LinkedProductId;
+            pvav.Color = model.Colors?.Color.NullEmpty();
+            pvav.AdditionalColors = model.Colors?.GetAdditionalColors();
 
             try
             {

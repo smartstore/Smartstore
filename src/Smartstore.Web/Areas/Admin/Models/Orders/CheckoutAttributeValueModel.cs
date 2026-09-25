@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using Smartstore.Admin.Models.Common;
 using Smartstore.Core.Checkout.Attributes;
+using Smartstore.Core.Localization;
 
 namespace Smartstore.Admin.Models.Orders;
 
@@ -32,11 +34,14 @@ public class CheckoutAttributeValueModel : EntityModelBase, ILocalizedModel<Chec
     [LocalizedDisplay("*MediaFile")]
     public int? MediaFileId { get; set; }
 
+    [UIHint("ColorPalette")]
+    [AdditionalMetadata("maxColors", ColorPaletteModel.DefaultMaxColors)]
     [LocalizedDisplay("*Color")]
-    [UIHint("Color")]
-    public string Color { get; set; }
+    public ColorPaletteModel Colors { get; set; } = new();
+    public string Color => Colors?.Color;
+    public bool HasColor => Color.HasValue();
 
-    public List<CheckoutAttributeValueLocalizedModel> Locales { get; set; } = new();
+    public List<CheckoutAttributeValueLocalizedModel> Locales { get; set; } = [];
 }
 
 [LocalizedDisplay("Admin.Catalog.Attributes.CheckoutAttributes.Values.Fields.")]
@@ -50,8 +55,14 @@ public class CheckoutAttributeValueLocalizedModel : ILocalizedLocaleModel
 
 public partial class CheckoutAttributeValueValidator : AbstractValidator<CheckoutAttributeValueModel>
 {
-    public CheckoutAttributeValueValidator()
+    public CheckoutAttributeValueValidator(Localizer T)
     {
         RuleFor(x => x.Name).NotEmpty();
+        RuleFor(x => x.Colors)
+            .Must(x => x == null || (x.AdditionalColors?.Count(y => y.HasValue()) ?? 0) < ColorPaletteModel.DefaultMaxColors)
+            .WithMessage(T("Admin.Common.ColorPalette.TooManyColors", ColorPaletteModel.DefaultMaxColors));
+        RuleFor(x => x.Colors)
+            .Must(x => x?.AdditionalColors?.Any(y => y.HasValue()) != true || x.Color.HasValue())
+            .WithMessage(T("Admin.Common.ColorPalette.PrimaryColorRequired"));
     }
 }

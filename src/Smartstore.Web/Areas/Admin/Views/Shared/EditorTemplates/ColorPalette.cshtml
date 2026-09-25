@@ -1,0 +1,59 @@
+@using Smartstore.Admin.Models.Common
+
+@model ColorPaletteModel
+
+@{
+    var maxColors = Math.Max(1, GetMetadata<int>("maxColors", ColorPaletteModel.DefaultMaxColors));
+    var name = ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
+    var id = Html.GenerateIdFromName(name);
+    var additionalColors = (Model?.AdditionalColors ?? [])
+        .Where(x => x.HasValue())
+        .ToArray();
+    var additionalName = nameof(Model.AdditionalColors);
+    var fullAdditionalName = ViewData.TemplateInfo.GetFullHtmlFieldName(additionalName);
+}
+
+<div id="color-palette-@id"
+     class="color-palette edit-control row xs-gutters flex-nowrap align-items-start"
+     data-editor="color-palette"
+     data-max-colors="@maxColors"
+     data-additional-name="@fullAdditionalName">
+    <div class="color-palette-primary col-3">
+        <colorbox asp-for="Color" />
+    </div>
+    @for (var i = 0; i < additionalColors.Length; i++)
+    {
+        <div class="color-palette-item col-3">
+            <div class="row no-gutters flex-nowrap align-items-center">
+                <div class="col">
+                    <colorbox name="@($"{additionalName}[{i}]")" value="@additionalColors[i]" />
+                </div>
+                <div class="col-auto pl-1">
+                    <button type="button" class="btn btn-sm btn-light btn-flat btn-no-border px-1 color-palette-remove" title="@T("Common.Remove")">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+    <div class="col-auto color-palette-add-container">
+        <button type="button" class="btn btn-light btn-icon color-palette-add" title="@T("Common.AddNew")">
+            <i class="fa fa-plus"></i>
+        </button>
+    </div>
+    <template class="color-palette-template">
+        <div class="color-palette-item col-3">
+            <div class="row no-gutters flex-nowrap align-items-center">
+                <div class="col">
+                    <colorbox name="@($"{additionalName}[__index__]")" value="" />
+                </div>
+                <div class="col-auto pl-1">
+                    <button type="button" class="btn btn-sm btn-light btn-flat btn-no-border px-1 color-palette-remove" title="@T("Common.Remove")">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+</div>
+<span asp-validation-for="Color"></span>

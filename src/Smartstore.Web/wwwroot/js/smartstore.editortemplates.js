@@ -11,6 +11,8 @@
         "range": function (el) { $(el).rangeSlider() },
         // ColorBox
         "color": function (el) { $(el).colorpickerWrapper() },
+        // ColorPalette
+        "color-palette": function (el) { $(el).colorPalette() },
         // Select2: AccessPermissions, CustomerRoles, DeliveryTimes, Discounts, Stores
         "select": function (el) {
             if ($.fn.select2 === undefined || $.fn.selectWrapper === undefined)
@@ -95,6 +97,69 @@
         };
 
         $.extend(widget.style, pos);
+    };
+
+    $.fn.colorPalette = function () {
+        return this.each(function () {
+            const $editor = $(this);
+
+            if ($editor.data("colorPalette")) {
+                return;
+            }
+
+            const maxColors = Math.max(1, parseInt($editor.data("max-colors")) || 1);
+            const additionalName = $editor.data("additional-name");
+            const $addContainer = $editor.children(".color-palette-add-container");
+            const $addButton = $addContainer.children(".color-palette-add");
+            const template = $editor.children(".color-palette-template").html();
+
+            function updateInputTitle(input) {
+                input.title = input.value;
+            }
+
+            function update() {
+                const $items = $editor.children(".color-palette-item");
+                const $inputs = $editor.find('.colorpicker-component > input');
+
+                $items.each((index, item) => {
+                    const $input = $(item).find("input").first();
+                    $input.attr("name", `${additionalName}[${index}]`);
+                    $input.attr("id", `${$editor.attr("id")}_AdditionalColors_${index}_`);
+                });
+
+                // Avoid having the color value appear cut off.
+                $inputs.addClass("p-2");
+                $inputs.each((_, input) => updateInputTitle(input));
+                $addContainer.toggleClass("d-none", $items.length >= maxColors - 1);
+            }
+
+            $addButton.on("click", () => {
+                const index = $editor.children(".color-palette-item").length;
+                if (index >= maxColors - 1) {
+                    return;
+                }
+
+                const $item = $(template.replace(/__index__/g, index));
+                $addContainer.before($item);
+                initializeEditControls($item);
+                update();
+                $item.find("input").trigger("focus");
+            });
+
+            $editor.on("click", ".color-palette-remove", (e) => {
+                const $item = $(e.currentTarget).closest(".color-palette-item");
+                const colorpicker = $item.find('[data-editor="color"]').data("colorpicker");
+
+                colorpicker?.destroy();
+                $item.remove();
+                update();
+            });
+
+            $editor.on("input change", '.colorpicker-component > input', (e) => updateInputTitle(e.currentTarget));
+
+            $editor.data("colorPalette", true);
+            update();
+        });
     };
 
     function initConfirmationDialogs(context) {

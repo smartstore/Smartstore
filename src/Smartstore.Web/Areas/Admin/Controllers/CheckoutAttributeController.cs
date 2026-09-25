@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Smartstore.Admin.Models.Common;
 using Smartstore.Admin.Models.Orders;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Attributes;
@@ -269,6 +270,7 @@ public class CheckoutAttributeController : AdminController
             {
                 var model = await mapper.MapAsync(x);
                 model.NameString = (x.Color.IsEmpty() ? x.Name : $"{x.Name} - {x.Color}").HtmlEncode();
+                model.Colors = ColorPaletteModel.Create(x.Color, x.AdditionalColors);
 
                 return model;
             })
@@ -335,6 +337,8 @@ public class CheckoutAttributeController : AdminController
         if (ModelState.IsValid)
         {
             var checkoutAttributeValue = await MapperFactory.MapAsync<CheckoutAttributeValueModel, CheckoutAttributeValue>(model);
+            checkoutAttributeValue.AdditionalColors = model.Colors?.GetAdditionalColors();
+
             _db.CheckoutAttributeValues.Add(checkoutAttributeValue);
             await _db.SaveChangesAsync();
 
@@ -358,6 +362,8 @@ public class CheckoutAttributeController : AdminController
         }
 
         var model = await MapperFactory.MapAsync<CheckoutAttributeValue, CheckoutAttributeValueModel>(checkoutAttributeValue);
+        model.Colors = ColorPaletteModel.Create(checkoutAttributeValue.Color, checkoutAttributeValue.AdditionalColors);
+
         await PrepareCheckoutAttributeValueModel(model, checkoutAttributeValue.CheckoutAttribute);
 
         AddLocales(model.Locales, (locale, languageId) =>
@@ -387,6 +393,8 @@ public class CheckoutAttributeController : AdminController
         if (ModelState.IsValid)
         {
             await MapperFactory.MapAsync(model, checkoutAttributeValue);
+            checkoutAttributeValue.AdditionalColors = model.Colors?.GetAdditionalColors();
+
             await UpdateValueLocales(checkoutAttributeValue, model);
             await _db.SaveChangesAsync();
 

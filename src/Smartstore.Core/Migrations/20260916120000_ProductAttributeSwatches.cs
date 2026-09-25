@@ -1,6 +1,7 @@
 using FluentMigrator;
 using FluentMigrator.Builders.Create.Column;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Data.Migrations;
@@ -14,6 +15,7 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
     const string ProductAttrTableName = "Product_ProductAttribute_Mapping";
     const string ProductVariantValueTableName = "ProductVariantAttributeValue";
     const string ProductAttributeOptionTableName = "ProductAttributeOption";
+    const string CheckoutAttributeValueTableName = "CheckoutAttributeValue";
 
     public override void Up()
     {
@@ -31,6 +33,7 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
 
         Migrate(ProductVariantValueTableName, nameof(ProductVariantAttributeValue.AdditionalColors), c => c.AsString(100).Nullable());
         Migrate(ProductAttributeOptionTableName, nameof(ProductAttributeOption.AdditionalColors), c => c.AsString(100).Nullable());
+        Migrate(CheckoutAttributeValueTableName, nameof(CheckoutAttributeValue.AdditionalColors), c => c.AsString(100).Nullable());
     }
 
     public override void Down()
@@ -49,6 +52,7 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
 
         Migrate(ProductVariantValueTableName, nameof(ProductVariantAttributeValue.AdditionalColors), null);
         Migrate(ProductAttributeOptionTableName, nameof(ProductAttributeOption.AdditionalColors), null);
+        Migrate(CheckoutAttributeValueTableName, nameof(CheckoutAttributeValue.AdditionalColors), null);
     }
 
     private void Migrate(string table, string column, Action<ICreateColumnAsTypeSyntax> configure)
@@ -170,5 +174,12 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
             "Overwritten: {0}.",
             "Abweichend: {0}.");
 
+        builder.AddOrUpdate("Admin.Common.ColorPalette.TooManyColors",
+            "A maximum of {0} colors can be specified.",
+            "Es können maximal {0} Farben angegeben werden.");
+
+        builder.AddOrUpdate("Admin.Common.ColorPalette.PrimaryColorRequired",
+            "Select the primary color before adding more colors.",
+            "Wählen Sie zuerst die Hauptfarbe aus, bevor Sie weitere Farben hinzufügen.");
     }
 }

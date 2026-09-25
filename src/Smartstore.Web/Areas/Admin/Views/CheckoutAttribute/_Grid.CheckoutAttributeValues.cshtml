@@ -46,17 +46,15 @@
         <column for="Name" width="2fr" hideable="false">
             <display-template>
                 <div class="d-block">
-                    <span v-if="item.row.Color" class='color-container'>
-                        <span class='color' :style='{background: item.row.Color}'>&nbsp;</span>
-                    </span>
+                    @Html.ColorPalette()
                     <a href="#" class="grid-edit-checkout-attribute-value text-truncate" :data-key="item.row.Id">
                         {{ item.value }}
                     </a>
                 </div>
             </display-template>
         </column>
-        <column for="PriceAdjustment" />
-        <column for="WeightAdjustment" />
+        <column for="PriceAdjustment" halign="center" />
+        <column for="WeightAdjustment" halign="center" />
         <column for="IsPreSelected" halign="center" />
         <column for="DisplayOrder" halign="center" />
     </columns>
@@ -73,15 +71,15 @@
         $(document).on('click', '.add-checkout-attribute-value', function (e) {
             e.preventDefault();
 
-            openPopup('@(Url.Action("ValueCreatePopup", new { checkoutAttributeId }))&btnId=btnRefresh&formId=checkout-attribute-values');
+            openPopup('@(Url.Action("ValueCreatePopup", new { checkoutAttributeId }))&btnId=btnRefresh&formId=checkout-attribute-values', true);
             return false;
         });
 
         $(document).on('click', '.grid-edit-checkout-attribute-value', function (e) {
             e.preventDefault();
 
-            var id = $(this).data('key');
-            openPopup('@(Url.Action("ValueEditPopup").EnsureEndsWith('/'))' + id + '?btnId=btnRefresh&formId=checkout-attribute-values');
+            const id = $(this).data('key');
+            openPopup('@(Url.Action("ValueEditPopup").EnsureEndsWith('/'))' + id + '?btnId=btnRefresh&formId=checkout-attribute-values', true);
             return true;
         });
 

@@ -677,6 +677,11 @@ public partial class CatalogHelper
                             DisplayOrder = val.DisplayOrder,
                         };
 
+                        if (!val.AdditionalColors.IsNullOrEmpty())
+                        {
+                            m.AdditionalColors.AddRange(val.AdditionalColors);
+                        }
+
                         if (val.ValueType == ProductVariantAttributeValueType.ProductLinkage &&
                             linkedProducts.TryGetValue(val.LinkedProductId, out var linkedProduct))
                         {
