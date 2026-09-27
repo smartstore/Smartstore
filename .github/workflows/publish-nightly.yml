@@ -36,6 +36,14 @@ jobs:
       with:
         dotnet-version: 10.x
 
+    - name: Set up QEMU
+      if: matrix.os == 'ubuntu-latest'
+      uses: docker/setup-qemu-action@v3
+
+    - name: Set up Docker Buildx
+      if: matrix.os == 'ubuntu-latest'
+      uses: docker/setup-buildx-action@v3
+
     - name: Build
       run: dotnet build Smartstore.sln -c Release
 
@@ -58,9 +66,9 @@ jobs:
     - name: Publish and Push for Linux
       if: matrix.os == 'ubuntu-latest'
       run: | 
-        dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release -o ./.build/release --no-restore --no-build --no-self-contained
-        docker build --provenance=false --build-arg SOURCE=./.build/release -f NoBuild.Dockerfile -t ghcr.io/smartstore/smartstore-linux:nightly .
-        docker push ghcr.io/smartstore/smartstore-linux:nightly
+        docker buildx build --platform linux/amd64,linux/arm64 -f Dockerfile \
+          -t ghcr.io/smartstore/smartstore-linux:nightly \
+          --push .
         #docker build --build-arg VERSION=nightly -f NoBuild.Dockerfile -t smartstore/smartstore-linux:nightly .
         #docker push smartstore/smartstore-linux:nightly
 

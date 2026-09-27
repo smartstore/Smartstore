@@ -9,7 +9,7 @@ services:
     depends_on:
       - db
     volumes:
-      - "D:/mount/smtenants/postgres-db:/app/App_Data/Tenants"
+      - "./postgres-db:/app/App_Data/Tenants"
   db:
     image: postgres:latest
     environment:

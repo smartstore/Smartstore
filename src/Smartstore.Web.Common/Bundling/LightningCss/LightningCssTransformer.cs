@@ -165,14 +165,17 @@ public sealed class LightningCssCli
 
     private static string GetExecutablePath()
     {
-        if (RuntimeInformation.ProcessArchitecture != Architecture.X64)
+        var architecture = RuntimeInformation.ProcessArchitecture switch
         {
-            throw new PlatformNotSupportedException("The Lightning CSS package contains x64 executables only.");
-        }
+            Architecture.X64 => "x64",
+            Architecture.Arm64 => "arm64",
+            _ => throw new PlatformNotSupportedException(
+                $"No Lightning CSS executable is packaged for processor architecture '{RuntimeInformation.ProcessArchitecture}'.")
+        };
 
-        var rid = OperatingSystem.IsWindows() ? "win-x64"
-            : OperatingSystem.IsLinux() ? "linux-x64"
-            : OperatingSystem.IsMacOS() ? "osx-x64"
+        var rid = OperatingSystem.IsWindows() ? $"win-{architecture}"
+            : OperatingSystem.IsLinux() ? $"linux-{architecture}"
+            : OperatingSystem.IsMacOS() ? $"osx-{architecture}"
             : throw new PlatformNotSupportedException("No Lightning CSS executable is packaged for this operating system.");
 
         var fileName = OperatingSystem.IsWindows() ? "lightningcss.exe" : "lightningcss";
