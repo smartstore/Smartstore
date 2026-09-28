@@ -90,6 +90,37 @@ public partial class CheckoutAttribute : EntityWithAttributes, ILocalizedEntity,
         _ => false
     };
 
+    /// <summary>
+    /// Gets or sets the swatch size.
+    /// <c>null</c> means "use the global default" which defaults to <see cref="SwatchSize.Medium"/>.
+    /// </summary>
+    public SwatchSize? SwatchSize { get; set; }
+
+    /// <summary>
+    /// Gets or sets the swatch aspect ratio.
+    /// Controls the rendered swatch width-to-height ratio.
+    /// Default is 1.0 (square).
+    /// </summary>
+    public decimal SwatchAspectRatio { get; set; } = 1m;
+
+    /// <summary>
+    /// Gets or sets the swatch shape.
+    /// <c>null</c> means "use the global default" which defaults to <see cref="SwatchShape.Rounded"/>.
+    /// </summary>
+    public SwatchShape? SwatchShape { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the value name is shown in the swatch.
+    /// If <c>true</c>, shows the option text together with the rendered swatch. Default is <c>false</c>.
+    /// </summary>
+    public bool ShowValueNameInSwatch { get; set; }
+
+    /// <summary>
+    /// Gets or sets which price information is displayed in the swatch.
+    /// Default is <see cref="SwatchPriceDisplayMode.None"/>. <see cref="SwatchPriceDisplayMode.FinalPrice"/> is not applicable.
+    /// </summary>
+    public SwatchPriceDisplayMode SwatchPriceDisplay { get; set; }
+
     private ICollection<CheckoutAttributeValue> _checkoutAttributeValues;
     /// <summary>
     /// Gets or sets the checkout attributes collection

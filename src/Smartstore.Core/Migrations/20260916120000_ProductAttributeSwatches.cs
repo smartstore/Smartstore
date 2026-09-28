@@ -15,6 +15,7 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
     const string ProductAttrTableName = "Product_ProductAttribute_Mapping";
     const string ProductVariantValueTableName = "ProductVariantAttributeValue";
     const string ProductAttributeOptionTableName = "ProductAttributeOption";
+    const string CheckoutAttributeTableName = "CheckoutAttribute";
     const string CheckoutAttributeValueTableName = "CheckoutAttributeValue";
 
     public override void Up()
@@ -30,6 +31,12 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
         Migrate(ProductAttrTableName, nameof(ProductVariantAttribute.SwatchShape), c => c.AsInt32().Nullable());
         Migrate(ProductAttrTableName, nameof(ProductVariantAttribute.ShowValueNameInSwatch), c => c.AsBoolean().Nullable());
         Migrate(ProductAttrTableName, nameof(ProductVariantAttribute.SwatchPriceDisplay), c => c.AsInt32().Nullable());
+
+        Migrate(CheckoutAttributeTableName, nameof(CheckoutAttribute.SwatchSize), c => c.AsInt32().Nullable());
+        Migrate(CheckoutAttributeTableName, nameof(CheckoutAttribute.SwatchAspectRatio), c => c.AsDecimal(18, 4).NotNullable().WithDefaultValue(1m));
+        Migrate(CheckoutAttributeTableName, nameof(CheckoutAttribute.SwatchShape), c => c.AsInt32().Nullable());
+        Migrate(CheckoutAttributeTableName, nameof(CheckoutAttribute.ShowValueNameInSwatch), c => c.AsBoolean().NotNullable().WithDefaultValue(false));
+        Migrate(CheckoutAttributeTableName, nameof(CheckoutAttribute.SwatchPriceDisplay), c => c.AsInt32().NotNullable().WithDefaultValue(0));
 
         Migrate(ProductVariantValueTableName, nameof(ProductVariantAttributeValue.AdditionalColors), c => c.AsString(100).Nullable());
         Migrate(ProductAttributeOptionTableName, nameof(ProductAttributeOption.AdditionalColors), c => c.AsString(100).Nullable());
@@ -49,6 +56,12 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
         Migrate(ProductAttrTableName, nameof(ProductVariantAttribute.SwatchShape), null);
         Migrate(ProductAttrTableName, nameof(ProductVariantAttribute.ShowValueNameInSwatch), null);
         Migrate(ProductAttrTableName, nameof(ProductVariantAttribute.SwatchPriceDisplay), null);
+
+        Migrate(CheckoutAttributeTableName, nameof(CheckoutAttribute.SwatchSize), null);
+        Migrate(CheckoutAttributeTableName, nameof(CheckoutAttribute.SwatchAspectRatio), null);
+        Migrate(CheckoutAttributeTableName, nameof(CheckoutAttribute.SwatchShape), null);
+        Migrate(CheckoutAttributeTableName, nameof(CheckoutAttribute.ShowValueNameInSwatch), null);
+        Migrate(CheckoutAttributeTableName, nameof(CheckoutAttribute.SwatchPriceDisplay), null);
 
         Migrate(ProductVariantValueTableName, nameof(ProductVariantAttributeValue.AdditionalColors), null);
         Migrate(ProductAttributeOptionTableName, nameof(ProductAttributeOption.AdditionalColors), null);

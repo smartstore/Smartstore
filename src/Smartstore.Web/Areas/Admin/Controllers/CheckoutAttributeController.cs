@@ -2,6 +2,8 @@
 using Smartstore.Admin.Models.Common;
 using Smartstore.Admin.Models.Orders;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Catalog;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
@@ -21,21 +23,24 @@ public class CheckoutAttributeController : AdminController
     private readonly ICurrencyService _currencyService;
     private readonly IStoreMappingService _storeMappingService;
     private readonly MeasureSettings _measureSettings;
+    private readonly CatalogSettings _catalogSettings;
 
     public CheckoutAttributeController(
         SmartDbContext db,
         IActivityLogger activityLogger,
         ILocalizedEntityService localizedEntityService,
         ICurrencyService currencyService,
+        IStoreMappingService storeMappingService,
         MeasureSettings measureSettings,
-        IStoreMappingService storeMappingService)
+        CatalogSettings catalogSettings)
     {
         _db = db;
         _activityLogger = activityLogger;
         _localizedEntityService = localizedEntityService;
         _currencyService = currencyService;
-        _measureSettings = measureSettings;
         _storeMappingService = storeMappingService;
+        _measureSettings = measureSettings;
+        _catalogSettings = catalogSettings;
     }
 
     #region Checkout attributes
@@ -452,6 +457,8 @@ public class CheckoutAttributeController : AdminController
     {
         Guard.NotNull(model);
 
+        var localization = Services.Localization;
+
         var taxCategories = await _db.TaxCategories
             .AsNoTracking()
             .OrderBy(x => x.DisplayOrder)
@@ -463,6 +470,23 @@ public class CheckoutAttributeController : AdminController
                 Text = x.Name,
                 Value = x.Id.ToString(),
                 Selected = checkoutAttribute != null && !excludeProperties && x.Id == checkoutAttribute.TaxCategoryId
+            })
+            .ToList();
+
+        ViewData[nameof(CheckoutAttributeModel.SwatchSize) + "DefaultValue"] = (int)_catalogSettings.DefaultSwatchSize;
+        ViewData[nameof(CheckoutAttributeModel.SwatchSize) + "RangeTicks"] = Enum.GetValues<SwatchSize>()
+            .Select(x => localization.GetLocalizedEnum(x))
+            .ToList();
+
+        ViewBag.DefaultSwatchShape = localization.GetLocalizedEnum(_catalogSettings.DefaultSwatchShape).NullEmpty()
+            ?? localization.GetLocalizedEnum(SwatchShape.Rounded);
+
+        ViewBag.SwatchPriceDisplayModes = Enum.GetValues<SwatchPriceDisplayMode>()
+            .Where(x => x != SwatchPriceDisplayMode.FinalPrice)
+            .Select(x => new SelectListItem
+            {
+                Text = localization.GetLocalizedEnum(x),
+                Value = ((int)x).ToString()
             })
             .ToList();
 
