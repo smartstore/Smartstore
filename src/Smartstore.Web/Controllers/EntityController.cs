@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -67,10 +68,13 @@ public partial class EntityController : PublicController
 
             ViewBag.AvailableStores = Services.StoreContext.GetAllStores().ToSelectListItems([]);
         }
-        else if (model.EntityType.EqualsNoCase("customer") 
-            && await HasPermission(Permissions.Customer.Read)
-            && Services.WorkContext.CurrentCustomer.IsAdmin())
+        else if (model.EntityType.EqualsNoCase("customer"))
         {
+            if (!await CanAccessCustomerPicker())
+            {
+                return StatusCode(StatusCodes.Status403Forbidden);
+            }
+
             ViewBag.AvailableCustomerSearchTypes = new List<SelectListItem>
             {
                 new() { Text = "Name", Value = "Name", Selected = true },
@@ -90,6 +94,12 @@ public partial class EntityController : PublicController
     [ActionName("Picker")]
     public async Task<IActionResult> PickerPost(EntityPickerModel model)
     {
+        var isCustomerPicker = model.EntityType.EqualsNoCase("customer");
+        if (isCustomerPicker && !await CanAccessCustomerPicker())
+        {
+            return StatusCode(StatusCodes.Status403Forbidden);
+        }
+
         try
         {
             model.PageSize = Math.Max(Math.Min(model.PageSize, 96), 1);
@@ -99,7 +109,6 @@ public partial class EntityController : PublicController
             var disableIds = model.DisableIds.SplitSafe(',').Select(x => x.ToInt()).ToList();
             var selected = model.Selected.SplitSafe(',');
             var returnSku = model.ReturnField.EqualsNoCase("sku");
-            var customer = Services.WorkContext.CurrentCustomer;
             var language = Services.WorkContext.WorkingLanguage;
 
             using var scope = new DbContextScope(_db, autoDetectChanges: false, forceNoTracking: true);
@@ -129,7 +138,7 @@ public partial class EntityController : PublicController
 
                 if (!hasPermission)
                 {
-                    searchQuery = searchQuery.VisibleOnly(customer);
+                    searchQuery = searchQuery.VisibleOnly(Services.WorkContext.CurrentCustomer);
                 }
 
                 if (model.ProductTypeId > 0)
@@ -339,9 +348,7 @@ public partial class EntityController : PublicController
                     })
                     .ToList();
             }
-            else if (model.EntityType.EqualsNoCase("customer") 
-                && await HasPermission(Permissions.Customer.Read)
-                && customer.IsAdmin())
+            else if (isCustomerPicker)
             {
                 var customerQuery = _db.Customers
                     .AsNoTracking()
@@ -399,6 +406,9 @@ public partial class EntityController : PublicController
 
         return PartialView("Picker.List", model);
     }
+
+    private async Task<bool> CanAccessCustomerPicker()
+        => await HasPermission(Permissions.System.AccessBackend) && await HasPermission(Permissions.Customer.Read);
 
     private Task<bool> HasPermission(string permissionSystemName)
         => Services.Permissions.AuthorizeAsync(permissionSystemName);
