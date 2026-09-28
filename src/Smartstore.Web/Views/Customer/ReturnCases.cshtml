@@ -72,7 +72,7 @@
                         @if (rc.CustomerComments.HasValue())
                         {
                             <dt class="col-sm-4 fwn text-muted">@T("Account.CustomerReturnRequests.Comments")</dt>
-                            <dd class="col-sm-8" dir="auto">@Html.Raw(HtmlUtility.ConvertPlainTextToHtml(rc.CustomerComments))</dd>
+                            <dd class="col-sm-8" dir="auto">@Html.Raw(HtmlUtility.ConvertPlainTextToHtml(rc.CustomerComments.HtmlEncode()))</dd>
                         }
                     </dl>
                 </div>
