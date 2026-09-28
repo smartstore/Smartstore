@@ -65,7 +65,9 @@
         <Value>
             <![CDATA[
 				A buy now, pay later payment method that allows the buyer to place an order, 
-                receive the goods, try them, verify they are in good order, and then pay the invoice within 30 days.
+                receive the goods, try them, verify they are in good order, and then pay the invoice later.
+                The 30-day payment term is only available to small and medium-sized enterprises (SMEs) as defined by the EU.
+                Large enterprises can alternatively use a 14-day payment term if separately agreed with PayPal.
             ]]>
         </Value>
     </LocaleResource>
@@ -171,7 +173,7 @@
             <LocaleResource Name="PayPalPayUponInvoice" AppendRootKey="false">
                 <Value>
                     <![CDATA[
-                        Place an order, receive the goods, try them, verify they are in good order, and then pay the invoice within 30 days.
+                        Place an order, receive the goods, try them, verify they are in good order, and then pay the invoice within the payment term specified by Ratepay.
                       ]]>
                 </Value>
             </LocaleResource>
