@@ -65,9 +65,11 @@ public partial class EntityController : PublicController
                 .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })
                 .ToList();
 
-            ViewBag.AvailableStores = Services.StoreContext.GetAllStores().ToSelectListItems(Array.Empty<int>());
+            ViewBag.AvailableStores = Services.StoreContext.GetAllStores().ToSelectListItems([]);
         }
-        else if (model.EntityType.EqualsNoCase("customer"))
+        else if (model.EntityType.EqualsNoCase("customer") 
+            && await HasPermission(Permissions.Customer.Read)
+            && Services.WorkContext.CurrentCustomer.IsAdmin())
         {
             ViewBag.AvailableCustomerSearchTypes = new List<SelectListItem>
             {
@@ -90,18 +92,22 @@ public partial class EntityController : PublicController
     {
         try
         {
+            model.PageSize = Math.Max(Math.Min(model.PageSize, 96), 1);
+
             var form = Request.Form;
             var disableIf = model.DisableIf.SplitSafe(',').Select(x => x.ToLower().Trim()).ToList();
             var disableIds = model.DisableIds.SplitSafe(',').Select(x => x.ToInt()).ToList();
             var selected = model.Selected.SplitSafe(',');
             var returnSku = model.ReturnField.EqualsNoCase("sku");
+            var customer = Services.WorkContext.CurrentCustomer;
+            var language = Services.WorkContext.WorkingLanguage;
 
-            using var scope = new DbContextScope(Services.DbContext, autoDetectChanges: false, forceNoTracking: true);
+            using var scope = new DbContextScope(_db, autoDetectChanges: false, forceNoTracking: true);
             if (model.EntityType.EqualsNoCase("product"))
             {
                 model.SearchTerm = model.SearchTerm.TrimSafe();
 
-                var hasPermission = await Services.Permissions.AuthorizeAsync(Permissions.Catalog.Product.Read);
+                var hasPermission = await HasPermission(Permissions.Catalog.Product.Read);
                 var disableIfNotSimpleProduct = disableIf.Contains("notsimpleproduct");
                 var disableIfGroupedProduct = disableIf.Contains("groupedproduct");
                 var labelTextGrouped = T("Admin.Catalog.Products.ProductType.GroupedProduct.Label").Value;
@@ -123,7 +129,7 @@ public partial class EntityController : PublicController
 
                 if (!hasPermission)
                 {
-                    searchQuery = searchQuery.VisibleOnly(Services.WorkContext.CurrentCustomer);
+                    searchQuery = searchQuery.VisibleOnly(customer);
                 }
 
                 if (model.ProductTypeId > 0)
@@ -153,7 +159,7 @@ public partial class EntityController : PublicController
                     searchQuery = searchQuery
                         .Slice(skip, model.PageSize)
                         .SortBy(ProductSortingEnum.NameAsc)
-                        .WithLanguage(Services.WorkContext.WorkingLanguage);
+                        .WithLanguage(language);
 
                     var searchResult = await _catalogSearchService.SearchAsync(searchQuery);
                     products = (await searchResult.GetHitsAsync())
@@ -189,10 +195,8 @@ public partial class EntityController : PublicController
                 }
 
                 var fileIds = products
-                    .Select(x => x.MainPictureId ?? 0)
-                    .Where(x => x != 0)
-                    .Distinct()
-                    .ToArray();
+                    .Where(x => x != null && x.MainPictureId > 0)
+                    .ToDistinctArray(x => x.MainPictureId.Value);
 
                 var files = (await _mediaService.GetFilesByIdsAsync(fileIds)).ToDictionarySafe(x => x.Id);
 
@@ -245,9 +249,10 @@ public partial class EntityController : PublicController
             }
             else if (model.EntityType.EqualsNoCase("category"))
             {
+                var includeHidden = await HasPermission(Permissions.Catalog.Category.Read);
                 var categoryQuery = _db.Categories
                     .AsNoTracking()
-                    .ApplyStandardFilter(includeHidden: true)
+                    .ApplyStandardFilter(includeHidden)
                     .AsQueryable();
 
                 if (model.SearchTerm.HasValue())
@@ -258,17 +263,15 @@ public partial class EntityController : PublicController
                 var categories = await categoryQuery.ToListAsync();
 
                 var fileIds = categories
-                    .Select(x => x.MediaFileId ?? 0)
-                    .Where(x => x != 0)
-                    .Distinct()
-                    .ToArray();
+                    .Where(x => x != null && x.MediaFileId > 0)
+                    .ToDistinctArray(x => x.MediaFileId.Value);
 
                 var files = (await _mediaService.GetFilesByIdsAsync(fileIds)).ToDictionarySafe(x => x.Id);
 
                 model.SearchResult = await categories
                     .SelectAwait(async x =>
                     {
-                        var path = await _categoryService.GetCategoryPathAsync(x, Services.WorkContext.WorkingLanguage.Id, "({0})");
+                        var path = await _categoryService.GetCategoryPathAsync(x, language.Id, "({0})");
                         var item = new EntityPickerModel.SearchResultModel
                         {
                             Id = x.Id,
@@ -295,9 +298,10 @@ public partial class EntityController : PublicController
             }
             else if (model.EntityType.EqualsNoCase("manufacturer"))
             {
+                var includeHidden = await HasPermission(Permissions.Catalog.Manufacturer.Read);
                 var manufacturerQuery = _db.Manufacturers
                     .AsNoTracking()
-                    .ApplyStandardFilter(includeHidden: true)
+                    .ApplyStandardFilter(includeHidden)
                     .AsQueryable();
 
                 if (model.SearchTerm.HasValue())
@@ -310,10 +314,8 @@ public partial class EntityController : PublicController
                     .ToListAsync();
 
                 var fileIds = manufacturers
-                    .Select(x => x.MediaFileId ?? 0)
-                    .Where(x => x != 0)
-                    .Distinct()
-                    .ToArray();
+                    .Where(x => x != null && x.MediaFileId > 0)
+                    .ToDistinctArray(x => x.MediaFileId.Value);
 
                 var files = (await _mediaService.GetFilesByIdsAsync(fileIds)).ToDictionarySafe(x => x.Id);
 
@@ -337,14 +339,10 @@ public partial class EntityController : PublicController
                     })
                     .ToList();
             }
-            else if (model.EntityType.EqualsNoCase("customer"))
+            else if (model.EntityType.EqualsNoCase("customer") 
+                && await HasPermission(Permissions.Customer.Read)
+                && customer.IsAdmin())
             {
-                var registeredRole = await _db.CustomerRoles
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(x => x.SystemName == SystemCustomerRoleNames.Registered);
-
-                var registeredRoleId = registeredRole.Id;
-
                 var customerQuery = _db.Customers
                     .AsNoTracking()
                     .AsQueryable();
@@ -365,8 +363,12 @@ public partial class EntityController : PublicController
                     }
                 }
 
+                var registeredRole = await _db.CustomerRoles
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.SystemName == SystemCustomerRoleNames.Registered);
+
                 var customers = await customerQuery
-                    .ApplyRolesFilter([registeredRoleId])
+                    .ApplyRolesFilter([registeredRole.Id])
                     .ApplyPaging(model.PageIndex, model.PageSize)
                     .ToListAsync();
 
@@ -375,7 +377,7 @@ public partial class EntityController : PublicController
                     {
                         var fullName = x.GetFullName();
 
-                        var item = new EntityPickerModel.SearchResultModel
+                        return new EntityPickerModel.SearchResultModel
                         {
                             Id = x.Id,
                             ReturnValue = x.Id.ToString(),
@@ -386,8 +388,6 @@ public partial class EntityController : PublicController
                             Selected = selected.Contains(x.Id.ToString()),
                             Disable = disableIds.Contains(x.Id)
                         };
-
-                        return item;
                     })
                     .ToList();
             }
@@ -399,6 +399,9 @@ public partial class EntityController : PublicController
 
         return PartialView("Picker.List", model);
     }
+
+    private Task<bool> HasPermission(string permissionSystemName)
+        => Services.Permissions.AuthorizeAsync(permissionSystemName);
 
     // INFO: The route attribute had to be added to avoid a 404 error which occurred under certain undetermined conditions.
     [HttpPost]
