@@ -14,7 +14,7 @@ public class EncodingTests
     [TestCase("before <&> after", "before <span class=\"highlight\">&lt;&amp;&gt;</span> after", "<&>")]
     [TestCase("foo<img src=x onerror=alert(1)>", "foo&lt;img src=x onerror=alert(1)&gt;", null, false)]
     [TestCase("test<img src=x onerror=alert(1)>", "test&lt;img src=x onerror=alert(1)&gt;", null)]
-    public void Encodes_entity_picker_title(string title, string result, string term = "test", bool highlight = true)
+    public void Encodes_entity_picker_title(string title, string expected, string term = "test", bool highlight = true)
     {
         var model = new EntityPickerModel
         {
@@ -26,6 +26,6 @@ public class EncodingTests
         var content = model.HighlightTitle(title);
         content.WriteTo(writer, HtmlEncoder.Default);
 
-        Assert.That(writer.ToString(), Is.EqualTo(result));
+        Assert.That(writer.ToString(), Is.EqualTo(expected));
     }
 }

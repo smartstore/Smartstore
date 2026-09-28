@@ -417,7 +417,7 @@ public class ExportController : AdminController
     {
         if (PathUtility.HasInvalidFileNameChars(name))
         {
-            throw new BadHttpRequestException("Invalid file name: " + name.NaIfEmpty());
+            throw new BadHttpRequestException(T("Admin.Common.InvalidFileName", name.NaIfEmpty()));
         }
 
         string message = null;

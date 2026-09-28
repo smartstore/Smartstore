@@ -11,6 +11,8 @@ public class DataProviderTests : ServiceTestBase
     [TestCase("test_database-5.1.0.0-20220323102033", false, 5, 1, 2022, 3, 23)]
     [TestCase("test_database-5.1.0.0-20220323102033.log", false, 5, 1, 2022, 3, 23)]
     [TestCase("test_database-20220323102033.bak", false, 5, 1, 2022, 3, 23)]
+    [TestCase("../../../test_database-5.1.0.0-20220323102033.bak", false, 5, 1, 2022, 3, 23)]
+    [TestCase("..\\..\\..\\test_database-5.1.0.0-20220323102033.bak", false, 5, 1, 2022, 3, 23)]
     public void Can_validate_db_backup_filename(string name, bool valid, int major, int minor, int year, int month, int day)
     {
         var result = DbContext.DataProvider.ValidateBackupFileName(name);

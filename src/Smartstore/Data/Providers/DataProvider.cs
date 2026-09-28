@@ -848,7 +848,7 @@ public abstract partial class DataProvider : Disposable
     /// <param name="fileName">File name of a database backup.</param>
     public virtual DbBackupValidationResult ValidateBackupFileName(string fileName)
     {
-        if (fileName.HasValue())
+        if (PathUtility.IsFileName(fileName))
         {
             var match = _rgDbName.Match(fileName.Trim());
 

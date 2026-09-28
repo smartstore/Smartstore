@@ -956,7 +956,7 @@ public class MaintenanceController : AdminController
     {
         if (PathUtility.HasInvalidFileNameChars(name))
         {
-            throw new BadHttpRequestException("Invalid file name: " + name.NaIfEmpty());
+            throw new BadHttpRequestException(T("Admin.Common.InvalidFileName", name.NaIfEmpty()));
         }
 
         try
@@ -993,8 +993,15 @@ public class MaintenanceController : AdminController
     {
         var numDeleted = 0;
         var root = Services.ApplicationContext.TenantRoot;
+        var fileNames = selection.SelectedKeys;
 
-        foreach (var fileName in selection.SelectedKeys)
+        var invalidFileName = fileNames.FirstOrDefault(x => !PathUtility.IsFileName(x));
+        if (invalidFileName.HasValue())
+        {
+            throw new BadHttpRequestException(T("Admin.Common.InvalidFileName", invalidFileName));
+        }
+
+        foreach (var fileName in fileNames)
         {
             var file = root.GetFile(PathUtility.Join(BackupDir, fileName));
             if (file.Exists)
@@ -1019,7 +1026,7 @@ public class MaintenanceController : AdminController
     {
         if (PathUtility.HasInvalidFileNameChars(name))
         {
-            throw new BadHttpRequestException("Invalid file name: " + name.NaIfEmpty());
+            throw new BadHttpRequestException(T("Admin.Common.InvalidFileName", name.NaIfEmpty()));
         }
 
         var root = Services.ApplicationContext.TenantRoot;
