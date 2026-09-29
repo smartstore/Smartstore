@@ -3,6 +3,8 @@
 @model ChoiceModel
 
 @{
+	Assets.AppendScriptFiles("~/js/smartstore.choice.js");
+
 	var controlId = Model.BuildControlId();
 	var label = Model.GetLabel();
 	var description = Model.GetDescription();

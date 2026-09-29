@@ -225,8 +225,18 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
                 AttributeControlType = attribute.AttributeControlType
             };
 
+            if (attribute.AttributeControlType == AttributeControlType.Boxes)
+            {
+                caModel.SwatchSize = attribute.SwatchSize ?? _catalogSettings.DefaultSwatchSize;
+                caModel.SwatchAspectRatio = Math.Max(attribute.SwatchAspectRatio, 0);
+                caModel.SwatchShape = attribute.SwatchShape ?? _catalogSettings.DefaultSwatchShape;
+                caModel.ShowValueNameInSwatch = attribute.ShowValueNameInSwatch;
+                caModel.SwatchPriceDisplay = attribute.SwatchPriceDisplay;
+            }
+
             if (attribute.IsListTypeAttribute)
             {
+                var showPrices = await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice);
                 var taxFormat = _taxService.GetTaxFormat(null, null, PricingTarget.Product);
                 var caValues = await _db.CheckoutAttributeValues
                     .Include(x => x.MediaFile)
@@ -258,8 +268,7 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
                             m.ImageUrl = _services.MediaService.GetUrl(x.MediaFile, _mediaSettings.VariantValueThumbPictureSize, null, false);
                         }
 
-                        // Display price if allowed.
-                        if (await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice))
+                        if (showPrices)
                         {
                             var priceAdjustmentBase = await _taxCalculator.CalculateCheckoutAttributeTaxAsync(x);
                             var priceAdjustment = _currencyService.ConvertFromPrimaryCurrency(priceAdjustmentBase.Price, currency);

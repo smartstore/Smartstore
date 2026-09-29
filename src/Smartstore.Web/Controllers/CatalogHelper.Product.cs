@@ -598,13 +598,17 @@ public partial class CatalogHelper
                 CustomData = attribute.CustomData,
                 IsRequired = attribute.IsRequired,
                 AttributeControlType = attribute.AttributeControlType,
-                AllowedFileExtensions = _catalogSettings.FileUploadAllowedExtensions,
-                SwatchSize = attribute.SwatchSize ?? attribute.ProductAttribute.SwatchSize ?? _catalogSettings.DefaultSwatchSize,
-                SwatchAspectRatio = Math.Max(attribute.SwatchAspectRatio ?? attribute.ProductAttribute.SwatchAspectRatio, 0),
-                SwatchShape = attribute.SwatchShape ?? attribute.ProductAttribute.SwatchShape ?? _catalogSettings.DefaultSwatchShape,
-                ShowValueNameInSwatch = attribute.ShowValueNameInSwatch ?? attribute.ProductAttribute.ShowValueNameInSwatch,
-                SwatchPriceDisplay = attribute.SwatchPriceDisplay ?? attribute.ProductAttribute.SwatchPriceDisplay,
+                AllowedFileExtensions = _catalogSettings.FileUploadAllowedExtensions
             };
+
+            if (attribute.AttributeControlType == AttributeControlType.Boxes)
+            {
+                attributeModel.SwatchSize = attribute.SwatchSize ?? attribute.ProductAttribute.SwatchSize ?? _catalogSettings.DefaultSwatchSize;
+                attributeModel.SwatchAspectRatio = Math.Max(attribute.SwatchAspectRatio ?? attribute.ProductAttribute.SwatchAspectRatio, 0);
+                attributeModel.SwatchShape = attribute.SwatchShape ?? attribute.ProductAttribute.SwatchShape ?? _catalogSettings.DefaultSwatchShape;
+                attributeModel.ShowValueNameInSwatch = attribute.ShowValueNameInSwatch ?? attribute.ProductAttribute.ShowValueNameInSwatch;
+                attributeModel.SwatchPriceDisplay = attribute.SwatchPriceDisplay ?? attribute.ProductAttribute.SwatchPriceDisplay;
+            }
 
             // Copy queried variant data (entered by customer) to model.
             if (query.Variants.Count > 0)

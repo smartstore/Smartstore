@@ -136,47 +136,45 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
         builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.DefaultSwatchSize",
             "Default size of swatches",
             "Standardgröße von Farb- und Bildmustern",
-            "Specifies the default size for product attribute swatches. This setting can be overridden at both the attribute and product levels. The recommended size is M.",
-            "Legt die Standardgröße von Farb- und Bildmustern bei Produktattributen fest. Diese Einstellung kann sowohl beim Attribut als auch beim Produkt überschrieben werden."
-             + " Standard ist die Größe M.");
+            "Sets the default swatch size. It can be overridden for product and checkout attributes and for individual products. Recommended size is M.",
+            "Legt die Standardgröße der Muster fest. Sie kann bei Produkt- und Checkoutattributen sowie bei einzelnen Produkten überschrieben werden. Empfohlen wird Größe M.");
 
         builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.DefaultSwatchShape",
             "Default shape of swatches",
             "Standardform von Farb- und Bildmustern",
-            "Specifies the default shape for product attribute swatches. This setting can be overridden at both the attribute and product levels. Default is \"Pill\".",
-            "Legt die Standardform von Farb- und Bildmustern bei Produktattributen fest. Diese Einstellung kann sowohl beim Attribut als auch beim Produkt überschrieben werden."
-            + " Standard ist \"Abgerundet\".");
+            "Sets the default swatch shape. It can be overridden for product and checkout attributes and for individual products. Default is \"Pill\".",
+            "Legt die Standardform der Muster fest. Sie kann bei Produkt- und Checkoutattributen sowie bei einzelnen Produkten überschrieben werden. Standard ist \"Abgerundet\".");
 
 
         builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.Fields.SwatchSize",
             "Swatch Size",
             "Mustergröße",
-            "Specifies the size of color and image swatches.",
-            "Legt die Größe von Farb- und Bildmustern fest.");
+            "Sets the swatch size. Names and prices appear inside the swatch from size L when every option has a color or image.",
+            "Legt die Mustergröße fest. Namen und Preise erscheinen ab Größe L im Muster, wenn jede Option eine Farbe oder ein Bild besitzt.");
 
         builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.Fields.SwatchAspectRatio",
             "Swatch Aspect Ratio",
             "Muster-Seitenverhältnis",
-            "Specifies the height-to-width ratio of color and image swatches. Default is 1:1 (square).",
-            "Legt das Höhen-Breiten-Verhältnis von Farb- und Bildmustern fest. Standard ist 1:1 (quadratisch).");
+            "Sets the height-to-width ratio; 1:1 is square. It only affects card-style swatches, used from size L when name or price display is enabled and every option has a color or image.",
+            "Legt das Höhen-Breiten-Verhältnis fest; 1:1 ist quadratisch. Es wirkt nur im Kartenformat, das ab Größe L bei aktivierter Namens- oder Preisanzeige verwendet wird, wenn jede Option eine Farbe oder ein Bild besitzt.");
 
         builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.Fields.SwatchShape",
             "Swatch Shape",
             "Musterform",
-            "Specifies the shape of color and image swatches.",
-            "Legt die Form von Farb- und Bildmustern fest.");
+            "Sets the swatch shape. Circle is replaced by Pill when names or prices are shown inside the swatch or an option has no color or image.",
+            "Legt die Musterform fest. Rund wird durch Abgerundet ersetzt, wenn Namen oder Preise im Muster erscheinen oder eine Option keine Farbe und kein Bild besitzt.");
 
         builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.Fields.ShowValueNameInSwatch",
             "Show option name",
             "Optionsnamen anzeigen",
-            "Specifies whether to display the option name in color and image swatches.",
-            "Legt fest, ob der Optionsname in Farb- und Bildmustern angezeigt wird.");
+            "Shows the option name inside the swatch. This requires size L or larger and a color or image for every option.",
+            "Zeigt den Optionsnamen im Muster an. Dafür ist mindestens Größe L sowie eine Farbe oder ein Bild für jede Option erforderlich.");
 
         builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.Fields.SwatchPriceDisplay",
             "Swatch Price Display",
             "Preisanzeige im Muster",
-            "Specifies which price information is shown in color and image swatches.",
-            "Legt fest, welche Preisinformationen in Farb- und Bildmustern angezeigt werden.");
+            "Shows available price information inside the swatch. This requires visible prices, size L or larger, and a color or image for every option.",
+            "Zeigt verfügbare Preisinformationen im Muster an. Dafür müssen Preise sichtbar sein, mindestens Größe L eingestellt sein und jede Option eine Farbe oder ein Bild besitzen.");
 
 
         builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.SwatchInfo",
