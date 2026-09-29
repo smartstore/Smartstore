@@ -64,6 +64,7 @@ internal sealed class DartSassCompiler : ISassCompiler, IAsyncDisposable
         {
             OutputStyle = request.Minify ? SassOutputStyle.Compressed : SassOutputStyle.Expanded,
             UseAsciiDiagnostics = true,
+            SilencedDeprecations = ["import", "global-builtin"],
             LogHandler = (logEvent, _) =>
             {
                 diagnostics.Enqueue(ToDiagnostic(logEvent));

@@ -39,7 +39,7 @@ public class DartSassCompilerTests
         {
             Assert.That(result.Css, Does.Contain(minify ? "color:red" : "color: red"));
             Assert.That(result.IncludedFiles, Is.EquivalentTo(new[] { "/shared/_color.scss", "/styles/_local.scss" }));
-            Assert.That(result.Diagnostics, Has.Some.Matches<SassDiagnostic>(x => x.Severity == SassDiagnosticSeverity.DeprecationWarning && x.Code == "import"));
+            Assert.That(result.Diagnostics, Has.None.Matches<SassDiagnostic>(x => x.Severity == SassDiagnosticSeverity.DeprecationWarning && x.Code == "import"));
             if (minify)
             {
                 Assert.That(result.Css, Does.Not.Contain("color: red;"));
