@@ -105,9 +105,7 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
         builder.AddOrUpdate("Enums.SwatchShape.Circle", "Circle", "Rund");
 
         builder.AddOrUpdate("Enums.SwatchPriceDisplayMode.None", "None", "Keine");
-        builder.AddOrUpdate("Enums.SwatchPriceDisplayMode.Adjustment",
-            "Price adjustment or product price", 
-            "Preisanpassung oder Produktpreis");
+        builder.AddOrUpdate("Enums.SwatchPriceDisplayMode.Adjustment", "Price adjustment", "Preisanpassung");
         builder.AddOrUpdate("Enums.SwatchPriceDisplayMode.FinalPrice",
             "Product, Comparison, and Base Price",
             "Produkt-, Vergleichs- und Grundpreis");
@@ -155,8 +153,8 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
         builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.Fields.SwatchAspectRatio",
             "Swatch Aspect Ratio",
             "Muster-Seitenverhältnis",
-            "Sets the height-to-width ratio; 1:1 is square. It only affects card-style swatches, used from size L when name or price display is enabled and every option has a color or image.",
-            "Legt das Höhen-Breiten-Verhältnis fest; 1:1 ist quadratisch. Es wirkt nur im Kartenformat, das ab Größe L bei aktivierter Namens- oder Preisanzeige verwendet wird, wenn jede Option eine Farbe oder ein Bild besitzt.");
+            "Sets the height-to-width ratio. Default is 1:1 (square). It only affects card-style swatches, used from size L when name or price display is enabled and every option has a color or image.",
+            "Legt das Höhen-Breiten-Verhältnis fest. Standard ist 1:1 (quadratisch). Es wirkt nur im Kartenformat, das ab Größe L bei aktivierter Namens- oder Preisanzeige verwendet wird, wenn jede Option eine Farbe oder ein Bild besitzt.");
 
         builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.Fields.SwatchShape",
             "Swatch Shape",
@@ -167,8 +165,8 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
         builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.Fields.ShowValueNameInSwatch",
             "Show option name",
             "Optionsnamen anzeigen",
-            "Shows the option name inside the swatch. This requires size L or larger and a color or image for every option.",
-            "Zeigt den Optionsnamen im Muster an. Dafür ist mindestens Größe L sowie eine Farbe oder ein Bild für jede Option erforderlich.");
+            "Shows the option name inside the swatch. The name is always shown with price information. Card layout requires size L or larger and a color or image for every option.",
+            "Zeigt den Optionsnamen im Muster an. Bei eingeblendeten Preisinformationen wird der Name immer angezeigt. Das Kartenformat erfordert mindestens Größe L sowie eine Farbe oder ein Bild für jede Option.");
 
         builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.Fields.SwatchPriceDisplay",
             "Swatch Price Display",
