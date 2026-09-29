@@ -9,7 +9,7 @@ using Smartstore.Threading;
 namespace Smartstore.Tests.Threading;
 
 [TestFixture]
-public class IdleResourceTests
+public class EphemeralTests
 {
     private static readonly TimeSpan IdleTimeout = TimeSpan.FromMilliseconds(100);
 
@@ -18,7 +18,7 @@ public class IdleResourceTests
     {
         var created = 0;
         var disposed = 0;
-        await using var resource = new IdleResource<object>(
+        await using var resource = new Ephemeral<object>(
             () => { Interlocked.Increment(ref created); return new object(); },
             _ => { Interlocked.Increment(ref disposed); return ValueTask.CompletedTask; },
             IdleTimeout);
@@ -43,7 +43,7 @@ public class IdleResourceTests
     public async Task Reacquisition_invalidates_the_old_idle_timeout()
     {
         var disposed = 0;
-        await using var resource = new IdleResource<object>(
+        await using var resource = new Ephemeral<object>(
             () => new object(),
             _ => { Interlocked.Increment(ref disposed); return ValueTask.CompletedTask; },
             IdleTimeout);
@@ -61,7 +61,7 @@ public class IdleResourceTests
     public async Task Retention_choice_is_applied_on_the_next_acquisition()
     {
         var disposed = 0;
-        await using var resource = new IdleResource<object>(
+        await using var resource = new Ephemeral<object>(
             () => new object(),
             _ => { Interlocked.Increment(ref disposed); return ValueTask.CompletedTask; },
             IdleTimeout);
@@ -81,7 +81,7 @@ public class IdleResourceTests
     public async Task Shutdown_waits_for_active_leases()
     {
         var disposed = 0;
-        var resource = new IdleResource<object>(
+        var resource = new Ephemeral<object>(
             () => new object(),
             _ => { Interlocked.Increment(ref disposed); return ValueTask.CompletedTask; },
             IdleTimeout);

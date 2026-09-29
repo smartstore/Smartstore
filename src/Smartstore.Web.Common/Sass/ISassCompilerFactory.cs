@@ -14,5 +14,5 @@ public interface ISassCompilerFactory
     /// </summary>
     /// <param name="cancellationToken">Cancels waiting to acquire the compiler lease.</param>
     /// <returns>A lease that keeps the shared compiler alive until disposed.</returns>
-    ValueTask<ResourceLease<ISassCompiler>> GetCompilerAsync(CancellationToken cancellationToken = default);
+    ValueTask<ValueLease<ISassCompiler>> GetCompilerAsync(CancellationToken cancellationToken = default);
 }

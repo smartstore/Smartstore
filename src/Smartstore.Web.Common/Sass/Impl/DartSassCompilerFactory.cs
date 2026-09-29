@@ -13,10 +13,10 @@ internal sealed class DartSassCompilerFactory : ISassCompilerFactory, IAsyncDisp
     private static readonly TimeSpan IdleTimeout = TimeSpan.FromMinutes(3);
 
     private readonly Work<PerformanceSettings> _settings;
-    private readonly IdleResource<ISassCompiler> _compiler;
+    private readonly Ephemeral<ISassCompiler> _compiler;
 
     /// <summary>
-    /// Creates the Sass-specific facade over the shared resource lifetime manager.
+    /// Creates the Sass-specific facade over the shared compiler lifetime manager.
     /// </summary>
     /// <param name="settings">Resolves the current performance setting at each compiler acquisition.</param>
     public DartSassCompilerFactory(Work<PerformanceSettings> settings)
@@ -25,7 +25,7 @@ internal sealed class DartSassCompilerFactory : ISassCompilerFactory, IAsyncDisp
 
         // Keep the generic lifetime owner unaware of Sass; this factory supplies creation,
         // native-process disposal and logging for failures in its background idle task.
-        _compiler = new IdleResource<ISassCompiler>(
+        _compiler = new Ephemeral<ISassCompiler>(
             () => new DartSassCompiler(),
             compiler => ((DartSassCompiler)compiler).DisposeAsync(),
             IdleTimeout,
@@ -36,7 +36,7 @@ internal sealed class DartSassCompilerFactory : ISassCompilerFactory, IAsyncDisp
 
     internal bool HasCompiler => _compiler.HasValue;
 
-    public ValueTask<ResourceLease<ISassCompiler>> GetCompilerAsync(CancellationToken cancellationToken = default)
+    public ValueTask<ValueLease<ISassCompiler>> GetCompilerAsync(CancellationToken cancellationToken = default)
     {
         // The setting is resolved on acquisition, so an idle change needs no background polling.
         var keepInMemory = _settings.Value.KeepSassCompilerInMemory;

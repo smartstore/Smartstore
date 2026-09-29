@@ -3,11 +3,11 @@
 namespace Smartstore.Threading;
 
 /// <summary>
-/// Shares one lazily created resource among concurrent leases. After the final lease is released,
-/// the resource is either retained or disposed after the configured idle period.
+/// Shares one lazily created value among concurrent leases. After the final lease is released,
+/// the value is either retained or disposed after the configured idle period.
 /// </summary>
-/// <typeparam name="T">The resource type.</typeparam>
-public sealed class IdleResource<T> : IAsyncDisposable where T : class
+/// <typeparam name="T">The value type.</typeparam>
+public sealed class Ephemeral<T> : IAsyncDisposable where T : class
 {
     private readonly Func<T> _create;
     private readonly Func<T, ValueTask> _dispose;
@@ -30,13 +30,13 @@ public sealed class IdleResource<T> : IAsyncDisposable where T : class
     private bool _disposed;
 
     /// <summary>
-    /// Creates an idle resource owner. The factory is called only when a new resource is needed.
+    /// Creates an ephemeral value owner. The factory is called only when a new value is needed.
     /// </summary>
-    /// <param name="create">Creates the shared resource on first acquisition or after idle disposal. Must return a non-null value.</param>
-    /// <param name="dispose">Releases a resource when its idle period ends or this owner is disposed.</param>
-    /// <param name="idleTimeout">Time to wait after the last lease is released before disposing the resource; zero disposes without a grace period.</param>
+    /// <param name="create">Creates the shared value on first acquisition or after idle disposal. Must return a non-null value.</param>
+    /// <param name="dispose">Releases a value when its idle period ends or this owner is disposed.</param>
+    /// <param name="idleTimeout">Time to wait after the last lease is released before disposing the value; zero disposes without a grace period.</param>
     /// <param name="onIdleDisposeError">Optional handler for disposal errors in the background idle task. Explicit shutdown errors are propagated to the caller instead.</param>
-    public IdleResource(Func<T> create, Func<T, ValueTask> dispose, TimeSpan idleTimeout, Action<Exception>? onIdleDisposeError = null)
+    public Ephemeral(Func<T> create, Func<T, ValueTask> dispose, TimeSpan idleTimeout, Action<Exception>? onIdleDisposeError = null)
     {
         _create = Guard.NotNull(create);
         _dispose = Guard.NotNull(dispose);
@@ -46,17 +46,17 @@ public sealed class IdleResource<T> : IAsyncDisposable where T : class
     }
 
     /// <summary>
-    /// Gets whether a resource currently exists. Intended for diagnostics; it does not acquire a lease.
+    /// Gets whether a value currently exists. Intended for diagnostics; it does not acquire a lease.
     /// </summary>
     public bool HasValue => Volatile.Read(ref _value) is not null;
 
     /// <summary>
-    /// Acquires a lease, creating the resource if needed. The most recent retention choice applies after the last lease ends.
+    /// Acquires a lease, creating the value if needed. The most recent retention choice applies after the last lease ends.
     /// </summary>
-    /// <param name="retainWhenIdle">If true, keep the resource after the last lease ends; otherwise dispose it after <c>idleTimeout</c>.</param>
-    /// <param name="cancellationToken">Cancels waiting to acquire the state gate. It does not cancel use of an acquired resource.</param>
-    /// <returns>A lease whose disposal releases one reference to the shared resource.</returns>
-    public async ValueTask<ResourceLease<T>> AcquireAsync(bool retainWhenIdle = false, CancellationToken cancellationToken = default)
+    /// <param name="retainWhenIdle">If true, keep the value after the last lease ends; otherwise dispose it after <c>idleTimeout</c>.</param>
+    /// <param name="cancellationToken">Cancels waiting to acquire the state gate. It does not cancel use of an acquired value.</param>
+    /// <returns>A lease whose disposal releases one reference to the shared value.</returns>
+    public async ValueTask<ValueLease<T>> AcquireAsync(bool retainWhenIdle = false, CancellationToken cancellationToken = default)
     {
         await _gate.WaitAsync(cancellationToken);
         try
@@ -68,7 +68,7 @@ public sealed class IdleResource<T> : IAsyncDisposable where T : class
             _idleGeneration++;
             _retainWhenIdle = retainWhenIdle;
             _leaseCount++;
-            return new ResourceLease<T>(_value, this);
+            return new ValueLease<T>(_value, this);
         }
         finally
         {
@@ -99,7 +99,7 @@ public sealed class IdleResource<T> : IAsyncDisposable where T : class
     }
 
     /// <summary>
-    /// Stops accepting leases, waits for active leases, and disposes the resource.
+    /// Stops accepting leases, waits for active leases, and disposes the value.
     /// </summary>
     public async ValueTask DisposeAsync()
     {
@@ -117,7 +117,7 @@ public sealed class IdleResource<T> : IAsyncDisposable where T : class
             // Prevent a pending idle task from disposing in parallel with explicit shutdown.
             _idleGeneration++;
 
-            // Active leases may still be using the resource, so do not dispose it yet.
+            // Active leases may still be using the value, so do not dispose it yet.
             waitForLeases = _leaseCount == 0
                 ? null
                 : (_leasesReleased ??= new(TaskCreationOptions.RunContinuationsAsynchronously)).Task;
