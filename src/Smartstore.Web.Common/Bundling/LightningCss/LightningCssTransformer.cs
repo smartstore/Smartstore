@@ -12,16 +12,16 @@ namespace Smartstore.Web.Bundling.LightningCss;
 /// Runs the native Lightning CSS CLI shipped with Smartstore.LightningCss.Native.
 /// This class only handles process execution; bundle integration belongs to a bundle processor.
 /// </summary>
-public sealed class LightningCssCli
+public sealed class LightningCssTransformer
 {
     private readonly string? _executablePath;
 
     /// <summary>Creates a CLI wrapper that resolves the executable from the application output directory.</summary>
-    public LightningCssCli()
+    public LightningCssTransformer()
     {
     }
 
-    internal LightningCssCli(string executablePath)
+    internal LightningCssTransformer(string executablePath)
     {
         _executablePath = executablePath;
     }
