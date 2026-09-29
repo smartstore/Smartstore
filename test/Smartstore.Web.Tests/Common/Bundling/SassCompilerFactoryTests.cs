@@ -7,7 +7,7 @@ using Autofac;
 using Microsoft.Extensions.FileProviders;
 using Moq;
 using NUnit.Framework;
-using Smartstore.Core.Common.Configuration;
+using Smartstore.Core.Theming;
 using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
 using Smartstore.Web.Sass;
@@ -109,13 +109,13 @@ public class SassCompilerFactoryTests
     private static (DartSassCompilerFactory Factory, IContainer Container) CreateFactory(Func<bool> keepInMemory)
     {
         var builder = new ContainerBuilder();
-        builder.Register(_ => new PerformanceSettings { KeepSassCompilerInMemory = keepInMemory() });
+        builder.Register(_ => new ThemeSettings { KeepSassCompilerInMemory = keepInMemory() });
         var container = builder.Build();
 
         var scopeAccessor = new Mock<ILifetimeScopeAccessor>();
         scopeAccessor.SetupGet(x => x.LifetimeScope).Returns(container);
 
-        return (new DartSassCompilerFactory(new Work<PerformanceSettings>(scopeAccessor.Object), IdleTimeout), container);
+        return (new DartSassCompilerFactory(new Work<ThemeSettings>(scopeAccessor.Object), IdleTimeout), container);
     }
 
     private static SassCompilationRequest CreateRequest()

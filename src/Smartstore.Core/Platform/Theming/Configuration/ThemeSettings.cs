@@ -27,6 +27,13 @@ public class ThemeSettings : ISettings
     public int AssetCachingEnabled { get; set; } = 2;
 
     /// <summary>
+    /// Keeps the native Dart Sass compiler in memory between compilations.
+    /// When disabled, the unused compiler is released after a short idle period.
+    /// </summary>
+    [GlobalSetting]
+    public bool KeepSassCompilerInMemory { get; set; }
+
+    /// <summary>
     /// Gets or sets a default store theme for desktops
     /// </summary>
     public string DefaultTheme { get; set; } = "Flex";

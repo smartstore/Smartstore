@@ -1,6 +1,6 @@
 #nullable enable
 
-using Smartstore.Core.Common.Configuration;
+using Smartstore.Core.Theming;
 using Smartstore.Threading;
 
 namespace Smartstore.Web.Sass;
@@ -12,19 +12,19 @@ internal sealed class DartSassCompilerFactory : ISassCompilerFactory, IAsyncDisp
 {
     private static readonly TimeSpan DefaultIdleTimeout = TimeSpan.FromMinutes(3);
 
-    private readonly Work<PerformanceSettings> _settings;
+    private readonly Work<ThemeSettings> _settings;
     private readonly Ephemeral<ISassCompiler> _compiler;
 
     /// <summary>
     /// Creates the Sass-specific facade over the shared compiler lifetime manager.
     /// </summary>
-    /// <param name="settings">Resolves the current performance setting at each compiler acquisition.</param>
-    public DartSassCompilerFactory(Work<PerformanceSettings> settings)
+    /// <param name="settings">Resolves the current theme setting at each compiler acquisition.</param>
+    public DartSassCompilerFactory(Work<ThemeSettings> settings)
         : this(settings, DefaultIdleTimeout)
     {
     }
 
-    internal DartSassCompilerFactory(Work<PerformanceSettings> settings, TimeSpan idleTimeout)
+    internal DartSassCompilerFactory(Work<ThemeSettings> settings, TimeSpan idleTimeout)
     {
         _settings = Guard.NotNull(settings);
 
