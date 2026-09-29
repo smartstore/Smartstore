@@ -10,7 +10,7 @@ namespace Smartstore.Web.Sass;
 /// </summary>
 internal sealed class DartSassCompilerFactory : ISassCompilerFactory, IAsyncDisposable
 {
-    private static readonly TimeSpan IdleTimeout = TimeSpan.FromMinutes(3);
+    private static readonly TimeSpan DefaultIdleTimeout = TimeSpan.FromMinutes(3);
 
     private readonly Work<PerformanceSettings> _settings;
     private readonly Ephemeral<ISassCompiler> _compiler;
@@ -20,6 +20,11 @@ internal sealed class DartSassCompilerFactory : ISassCompilerFactory, IAsyncDisp
     /// </summary>
     /// <param name="settings">Resolves the current performance setting at each compiler acquisition.</param>
     public DartSassCompilerFactory(Work<PerformanceSettings> settings)
+        : this(settings, DefaultIdleTimeout)
+    {
+    }
+
+    internal DartSassCompilerFactory(Work<PerformanceSettings> settings, TimeSpan idleTimeout)
     {
         _settings = Guard.NotNull(settings);
 
@@ -28,7 +33,7 @@ internal sealed class DartSassCompilerFactory : ISassCompilerFactory, IAsyncDisp
         _compiler = new Ephemeral<ISassCompiler>(
             () => new DartSassCompiler(),
             compiler => ((DartSassCompiler)compiler).DisposeAsync(),
-            IdleTimeout,
+            idleTimeout,
             ex => Logger.Error(ex, "Failed to stop the idle Dart Sass compiler process."));
     }
 

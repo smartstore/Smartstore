@@ -17,6 +17,8 @@ namespace Smartstore.Web.Tests.Common.Bundling;
 [TestFixture]
 public class SassCompilerFactoryTests
 {
+    private static readonly TimeSpan IdleTimeout = TimeSpan.FromMilliseconds(250);
+
     [Test]
     public async Task Retires_idle_compiler_and_creates_another_on_demand()
     {
@@ -52,7 +54,7 @@ public class SassCompilerFactoryTests
             await lease.Value.CompileAsync(CreateRequest());
         }
 
-        await Task.Delay(TimeSpan.FromSeconds(5.2));
+        await Task.Delay(IdleTimeout + TimeSpan.FromMilliseconds(100));
         Assert.That(factory.HasCompiler, Is.True);
 
         keepInMemory = false;
@@ -76,7 +78,7 @@ public class SassCompilerFactoryTests
         Assert.That(second.Value, Is.SameAs(first.Value));
         await first.DisposeAsync();
         await first.DisposeAsync(); // Releasing a lease twice must not affect another holder.
-        await Task.Delay(TimeSpan.FromSeconds(5.2));
+        await Task.Delay(IdleTimeout + TimeSpan.FromMilliseconds(100));
         Assert.That(factory.HasCompiler, Is.True);
 
         await second.DisposeAsync();
@@ -93,13 +95,13 @@ public class SassCompilerFactoryTests
         var compiler = first.Value;
         await first.DisposeAsync();
 
-        await Task.Delay(200);
+        await Task.Delay(TimeSpan.FromMilliseconds(50));
         await using (var second = await factory.GetCompilerAsync())
         {
             Assert.That(second.Value, Is.SameAs(compiler));
 
             // The first lease's timeout must not retire a compiler held by a later lease.
-            await Task.Delay(TimeSpan.FromSeconds(5.2));
+            await Task.Delay(IdleTimeout + TimeSpan.FromMilliseconds(100));
             Assert.That(factory.HasCompiler, Is.True);
         }
     }
@@ -113,7 +115,7 @@ public class SassCompilerFactoryTests
         var scopeAccessor = new Mock<ILifetimeScopeAccessor>();
         scopeAccessor.SetupGet(x => x.LifetimeScope).Returns(container);
 
-        return (new DartSassCompilerFactory(new Work<PerformanceSettings>(scopeAccessor.Object)), container);
+        return (new DartSassCompilerFactory(new Work<PerformanceSettings>(scopeAccessor.Object), IdleTimeout), container);
     }
 
     private static SassCompilationRequest CreateRequest()
