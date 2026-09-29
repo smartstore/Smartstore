@@ -101,6 +101,9 @@
                     <span class="swatch-content">
                         @if (useCardLayout)
                         {
+                            var basePriceInfo = showFinalPrice && item.SwatchBasePriceInfo.HasValue()
+                                ? LocalizedValue.FixBrackets(item.SwatchBasePriceInfo, WorkContext.WorkingLanguage)
+                                : null;
                             <span class="@elementClass">
                                 <span class="swatch-media swatch-visual@(hasImage ? " swatch-image" : " swatch-color")" attr-style="(css.HasValue(), css)"></span>
                                 <span class="swatch-details">
@@ -108,8 +111,9 @@
                                     <span sm-if="swatchPrice.HasValue()" class="swatch-price">@swatchPrice</span>
                                     <del sm-if="showFinalPrice && item.SwatchComparePrice.HasValue"
                                          class="swatch-compare-price">@item.SwatchComparePrice</del>
-                                    <span sm-if="showFinalPrice && item.SwatchBasePriceInfo.HasValue()"
-                                          class="swatch-base-price text-muted">@Html.Raw(LocalizedValue.FixBrackets(item.SwatchBasePriceInfo, WorkContext.WorkingLanguage))</span>
+                                    <span sm-if="basePriceInfo != null"
+                                          title="@basePriceInfo"
+                                          class="swatch-base-price text-muted">@Html.Raw(basePriceInfo)</span>
                                     <span sm-if="item.UnavailableReason.HasValue()" class="swatch-status">@item.UnavailableReason</span>
                                 </span>
                             </span>
