@@ -295,6 +295,33 @@ public class PriceCalculationServiceTests : ServiceTestBase
     }
 
     [Test]
+    public async Task Can_get_negative_attribute_price_adjustment()
+    {
+        var productAttribute = new ProductAttribute { Name = "Attribute" };
+        var variantAttribute = new ProductVariantAttribute
+        {
+            Product = _product,
+            ProductAttribute = productAttribute
+        };
+        variantAttribute.ProductVariantAttributeValues.Add(new()
+        {
+            Name = "Value",
+            PriceAdjustment = -2m
+        });
+        _product.ProductVariantAttributes.Add(variantAttribute);
+
+        DbContext.Products.Add(_product);
+        await DbContext.SaveChangesAsync();
+
+        _priceCalculationContext.Options.DeterminePriceAdjustments = true;
+
+        var price = await _priceCalcService.CalculatePriceAsync(_priceCalculationContext);
+
+        price.AttributePriceAdjustments.Single().Price.Amount.ShouldEqual(-2m);
+        price.FinalPrice.Amount.ShouldEqual(12.34m);
+    }
+
+    [Test]
     public async Task Can_get_final_product_price_with_tier_prices()
     {
         InitTierPrices();
@@ -331,7 +358,7 @@ public class PriceCalculationServiceTests : ServiceTestBase
     }
 
     [Test]
-    public async Task Can_get_final_product_price_with_tier_prices_by_customerRole()
+    public async Task Can_get_final_product_price_with_tier_prices_by_customer_role()
     {
         InitTierPricesForCustomerRoles();
 
@@ -397,7 +424,7 @@ public class PriceCalculationServiceTests : ServiceTestBase
     }
 
     [Test]
-    public async Task Can_get_final_product_price_with_custom_additionalCharge()
+    public async Task Can_get_final_product_price_with_custom_additional_charge()
     {
         _priceCalculationContext.Metadata[CustomAdditionalChargeCalculator.AdditionalChargeKey] = 5m;
 
@@ -530,14 +557,14 @@ public class PriceCalculationServiceTests : ServiceTestBase
     }
 
     [Test]
-    public async Task Ensure_discount_is_not_applied_to_products_with_prices_entered_by_customer()
+    public async Task Discount_is_not_applied_to_customer_priced_products()
     {
         _priceCalculationContext.Options.IgnoreDiscounts = false;
         _priceCalculationContext.Options.DiscountValidationFlags = DiscountValidationFlags.None;
 
         _product.CustomerEntersPrice = true;
 
-        var discount1 = new Discount()
+        var discount1 = new Discount
         {
             Id = 1,
             Name = "Discount 1",

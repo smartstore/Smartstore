@@ -401,7 +401,7 @@ public partial class PriceCalculationService : IPriceCalculationService
         }
 
         // Convert attribute price adjustments.
-        context.AttributePriceAdjustments.Each(x => x.Price = ConvertAmount(x.RawPriceAdjustment, context, taxRate, false, out _).Value);
+        context.AttributePriceAdjustments.Each(x => x.Price = ConvertPriceAdjustment(x.RawPriceAdjustment, context, taxRate));
 
         // Detect retail & regular price.
         DetectComparePrices(context, result, taxRate);
@@ -434,6 +434,13 @@ public partial class PriceCalculationService : IPriceCalculationService
         }
 
         return result;
+    }
+
+    protected virtual Money ConvertPriceAdjustment(decimal amount, CalculatorContext context, TaxRate taxRate)
+    {
+        var converted = ConvertAmount(Math.Abs(amount), context, taxRate, false, out _).Value;
+
+        return amount < 0m ? converted.WithAmount(-converted.Amount) : converted;
     }
 
     protected virtual Money? ConvertAmount(decimal? amount, CalculatorContext context, TaxRate taxRate, bool isFinalPrice, out Tax? tax, int subtotalQuantity = 1)
