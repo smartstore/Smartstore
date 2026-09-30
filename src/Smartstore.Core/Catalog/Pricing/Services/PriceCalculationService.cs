@@ -508,40 +508,5 @@ public partial class PriceCalculationService : IPriceCalculationService
              : _taxCalculator.CalculateTaxFromNet(amount, taxRate, options.TaxInclusive, roundingCurrency);
     }
 
-    //private Tax CalculateTax_Old(PriceCalculationOptions options, decimal amount, TaxRate taxRate, int subtotalQuantity = 1)
-    //{
-    //    var roundingCurrency = options.RoundingCurrency;
-
-    //    if (subtotalQuantity <= 1)
-    //    {
-    //        // Round.
-    //        return options.IsGrossPrice
-    //             ? _taxCalculator.CalculateTaxFromGross(amount, taxRate, options.TaxInclusive, roundingCurrency)
-    //             : _taxCalculator.CalculateTaxFromNet(amount, taxRate, options.TaxInclusive, roundingCurrency);
-    //    }
-
-    //    // Do not round.
-    //    var t = options.IsGrossPrice
-    //         ? _taxCalculator.CalculateTaxFromGross(amount, taxRate, options.TaxInclusive)
-    //         : _taxCalculator.CalculateTaxFromNet(amount, taxRate, options.TaxInclusive);
-
-    //    // Round.
-    //    return new(
-    //        t.Rate,
-    //        t.Amount * subtotalQuantity,
-    //        GetSubtotal(t.Price),
-    //        GetSubtotal(t.PriceNet),
-    //        GetSubtotal(t.PriceGross),
-    //        t.IsGrossPrice,
-    //        t.Inclusive);
-
-    //    decimal GetSubtotal(decimal value)
-    //    {
-    //        return roundingCurrency.RoundUnitPrices ?? _currencySettings.RoundUnitPrices
-    //            ? _roundingHelper.RoundIfEnabledFor(value, roundingCurrency) * subtotalQuantity
-    //            : _roundingHelper.RoundIfEnabledFor(value * subtotalQuantity, roundingCurrency);
-    //    }
-    //}
-
     #endregion
 }
