@@ -1,7 +1,6 @@
 #nullable enable
 
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Smartstore.Web.Bundling.LightningCss;
@@ -157,18 +156,10 @@ internal sealed class LightningCssTransformer
 
     private static string GetExecutablePath()
     {
-        if (RuntimeInformation.ProcessArchitecture != Architecture.X64)
-        {
-            throw new PlatformNotSupportedException("The Lightning CSS package contains x64 executables only.");
-        }
+        var runtimeInfo = EngineContext.Current.Application.RuntimeInfo;
+        var fileName = runtimeInfo.IsWindows ? "lightningcss.exe" : "lightningcss";
 
-        var rid = OperatingSystem.IsWindows() ? "win-x64"
-            : OperatingSystem.IsLinux() ? "linux-x64"
-            : OperatingSystem.IsMacOS() ? "osx-x64"
-            : throw new PlatformNotSupportedException("No Lightning CSS executable is packaged for this operating system.");
-
-        var fileName = OperatingSystem.IsWindows() ? "lightningcss.exe" : "lightningcss";
-        return Path.Combine(AppContext.BaseDirectory, "runtimes", rid, "native", fileName);
+        return Path.Combine(runtimeInfo.NativeLibraryDirectory, fileName);
     }
 
     private static void ValidateOptions(string? css, string[] inputFiles, LightningCssOptions options)
