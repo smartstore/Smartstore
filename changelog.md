@@ -4,6 +4,7 @@
 
 ### Breaking Changes
 
+- (DEV) Removed the obsolete `win-x86` build target.
 - (DEV) Custom bundling configuration must use `EnableCssTranspilation` instead of `EnableAutoprefixer` and `CssTranspiler:Targets` (a Browserslist query string) instead of `Autoprefixer:Browsers`. The old Autoprefixer-specific switches have been removed.
 
 ### New Features
