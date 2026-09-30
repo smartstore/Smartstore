@@ -181,7 +181,7 @@ The ready-made wrappers in `build/` are one-liners around the same command:
 
 | Script | Purpose |
 |---|---|
-| `build/build.{win-x64,win-x86,linux-x64,osx-x64}.cmd` | Self-contained release build for that runtime |
+| `build/build.{win-x64,linux-x64,osx-x64}.cmd` | Self-contained release build for that runtime |
 | `build/dockerize.{linux,windows}[.nobuild].sh` | Build a Docker image; `.nobuild` reuses an existing artifact |
 | `build/compose.{mysql,sqlserver,postgres}.sh` | Compose app plus database container |
 | `build/create-bom-cyclonedx.bat` | CycloneDX SBOM |

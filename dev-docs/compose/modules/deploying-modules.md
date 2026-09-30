@@ -21,7 +21,6 @@ Alternatively, you can run the file that builds the entire solution in **release
 * `build/build.linux-x64.cmd`
 * `build/build.osx-x64`
 * `build/build.win-x64.cmd`
-* `build/build.win-x86.cmd`
 
 If you are just building a module, the version of the batch file is irrelevant because modules are built platform-independently.
 
