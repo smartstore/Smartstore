@@ -9,6 +9,9 @@
 
 ### New Features
 
+- Enhanced color and image swatches for attributes
+  - Added configurable swatch presentation settings for product and checkout attributes, including size, shape, aspect ratio, value labels, and optional display of price adjustments or final prices.
+  - Swatch values now support images and up to four colors per option.
 - Dimension Pricing plugin
 	- Calculates product and shipping prices based on customer-entered dimensions and weight.
 	- Supports formulas, packing rules, girth and volumetric limits, rate tiers and surcharges.
@@ -73,6 +76,8 @@
   - #1550 Clearly distinguish between the terms "withdrawal" and "return", and do not use "withdrawal" when referring to returns.
   - Fixed missing order number in JSON deserialization of `WithdrawalRequest`.
   - "Challenge" instead of "Forbid" for a customer who has already logged in but has not been authorized.
+- Weight adjustments for preselected products attributes were not taken into account on the product detail page.
+- Negative price adjustments for checkout attributes were not taken into account on the checkout confirm page.  
 - #1575 Newsletter reward points are not awarded during customer registration.
 - MegaSearch: A single letter in the search term may incorrectly result in 0 search results if "Hits contain all searched terms" is enabled.
 - Currency: Edit page did not select/display the saved denominator for order total rounding.
