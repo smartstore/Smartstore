@@ -53,7 +53,7 @@ internal class NativeLibraryInstaller : Disposable, INativeLibraryInstaller
         }
 
         // Find local package
-        var localPackage = _explorer.FindLocalPackage(packageId);
+        var localPackage = _explorer.FindLocalPackage(packageId, request.MinVersion, request.MaxVersion);
 
         if (localPackage == null)
         {
@@ -72,7 +72,7 @@ internal class NativeLibraryInstaller : Disposable, INativeLibraryInstaller
             CopyRuntimeFiles(localPackage, request);
         }
 
-        return _manager.GetNativeFileInfo(request.LibraryName, null, null, request.IsExecutable);
+        return _manager.GetNativeFileInfo(request.LibraryName, request.MinVersion, request.MaxVersion, request.IsExecutable);
     }
 
     private void CopyRuntimeFiles(LocalPackageInfo package, InstallNativePackageRequest request)
@@ -107,6 +107,19 @@ internal class NativeLibraryInstaller : Disposable, INativeLibraryInstaller
             _logger.Info($"Copy native library file from '{source}' to '{target}'.");
 
             File.Copy(source, target, true);
+
+            if (request.IsExecutable && !OperatingSystem.IsWindows())
+            {
+                // NuGet packages do not preserve Unix file modes. Without this, lazily deployed tools fail with "Permission denied".
+                File.SetUnixFileMode(
+                    target,
+                    UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
+                    UnixFileMode.GroupRead | UnixFileMode.GroupExecute |
+                    UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
+            }
+
+            // The sidecar tracks the package version because native executables don't necessarily expose portable file-version metadata.
+            File.WriteAllText(NativeLibraryManager.GetVersionFilePath(target), package.Identity.Version.ToNormalizedString());
 
             // TODO: ErrHandling
         }

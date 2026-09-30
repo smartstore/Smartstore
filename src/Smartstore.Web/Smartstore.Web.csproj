@@ -7,7 +7,7 @@
 	<PropertyGroup>
 		<UserSecretsId>b35c0f56-dfa8-4120-b29b-a677578afcd1</UserSecretsId>
 		<CopyRefAssembliesToPublishDirectory>true</CopyRefAssembliesToPublishDirectory>
-		<RuntimeIdentifiers>win-x64; linux-x64; osx-x64</RuntimeIdentifiers>
+		<RuntimeIdentifiers>win-x64; linux-x64; linux-arm64; osx-x64</RuntimeIdentifiers>
         <ProvideApplicationPartFactoryAttributeTypeName>Smartstore.Engine.Modularity.ApplicationParts.HostRazorAssemblyPartFactory, Smartstore</ProvideApplicationPartFactoryAttributeTypeName>
 		<!--<PublishReadyToRun>true</PublishReadyToRun>-->
 	</PropertyGroup>
@@ -32,7 +32,7 @@
 			<!-- Prevents BuildHost folders from being copied into the project -->
 			<ExcludeAssets>contentFiles</ExcludeAssets>
 		</PackageReference>
-		<PackageReference Include="Smartstore.LightningCss.Native" Version="1.33.0" />
+		<PackageReference Include="Smartstore.LightningCss.Native" Version="1.33.0.1" />
 		<PackageReference Include="System.Runtime.Caching" Version="10.0.8" />
 		<PackageReference Include="SourceGear.sqlite3" Version="3.50.4.5" />
 	</ItemGroup>

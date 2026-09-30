@@ -49,38 +49,60 @@ public class NativeLibraryManager : INativeLibraryManager
             fileName = fileName.EnsureEndsWith(".dylib");
         }
 
-        if (isExecutable && TryStartProcess(fileName, out var fi))
+        var requiredVersionRange = NuGetExplorer.BuildVersionRange(minVersion, maxVersion);
+
+        if (isExecutable && TryStartProcess(fileName, out var systemFile) && IsVersionCompatible(systemFile, requiredVersionRange))
         {
-            return fi;
+            return systemFile;
         }
 
         var baseDirectory = _appContext.RuntimeInfo.IsWindows && CommonHelper.IsDevEnvironment
             ? _appContext.RuntimeInfo.NativeLibraryDirectory
             : _appContext.RuntimeInfo.BaseDirectory;
-        fi = new FileInfo(Path.Combine(baseDirectory, fileName));
+        var fi = new FileInfo(Path.Combine(baseDirectory, fileName));
 
         if (fi.Exists)
         {
-            var requiredVersionRange = NuGetExplorer.BuildVersionRange(minVersion, maxVersion);
-            if (requiredVersionRange != null)
+            if (IsVersionCompatible(fi, requiredVersionRange))
             {
-                // Check version of found file
-                var fileVersionInfo = FileVersionInfo.GetVersionInfo(fi.FullName);
-                var fileVersion = fileVersionInfo.FileVersion ?? fileVersionInfo.ProductVersion;
-
-                if (fileVersion != null && NuGetVersion.TryParse(fileVersion, out var nugetVersion))
-                {
-                    if (!requiredVersionRange.Satisfies(nugetVersion))
-                    {
-                        // Exisiting file's version does not meet version requirement: delete file.
-                        fi.WaitForUnlockAndExecute(f => f.Delete());
-                        fi.Refresh();
-                    }
-                }
+                return fi;
             }
+
+            // Existing file's version does not meet the requirement: delete it and its package-version sidecar.
+            fi.WaitForUnlockAndExecute(f => f.Delete());
+            File.Delete(GetVersionFilePath(fi.FullName));
+            fi.Refresh();
         }
 
         return fi;
+    }
+
+    internal static string GetVersionFilePath(string filePath)
+    {
+        return filePath + ".version";
+    }
+
+    internal static bool IsVersionCompatible(FileInfo file, VersionRange requiredVersionRange)
+    {
+        if (requiredVersionRange == null)
+        {
+            return true;
+        }
+
+        var versionFile = GetVersionFilePath(file.FullName);
+        string version;
+
+        if (File.Exists(versionFile))
+        {
+            version = File.ReadAllText(versionFile).Trim();
+        }
+        else
+        {
+            var versionInfo = FileVersionInfo.GetVersionInfo(file.FullName);
+            version = versionInfo.FileVersion ?? versionInfo.ProductVersion;
+        }
+
+        return NuGetVersion.TryParse(version, out var nativeVersion) && requiredVersionRange.Satisfies(nativeVersion);
     }
 
     public INativeLibraryInstaller CreateLibraryInstaller()

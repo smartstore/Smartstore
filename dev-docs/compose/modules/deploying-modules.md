@@ -19,6 +19,7 @@ Modules that are to be deployed, must be built in **release mode**. If only a si
 Alternatively, you can run the file that builds the entire solution in **release mode**. Depending on the target platform, one of the following batch files can be used.
 
 * `build/build.linux-x64.cmd`
+* `build/build.linux-arm64.cmd`
 * `build/build.osx-x64`
 * `build/build.win-x64.cmd`
 

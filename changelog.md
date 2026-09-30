@@ -9,6 +9,7 @@
 
 ### New Features
 
+- (DEV) Added `linux-arm64` builds and lazy deployment support for native ARM64 tools.
 - Enhanced color and image swatches for attributes
   - Added configurable swatch presentation settings for product and checkout attributes, including size, shape, aspect ratio, value labels, and optional display of price adjustments or final prices.
   - Swatch values now support images and up to four colors per option.

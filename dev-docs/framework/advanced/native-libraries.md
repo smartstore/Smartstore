@@ -4,7 +4,7 @@ Some Smartstore features rely on OS‑specific binaries such as PDF engines or i
 
 ## Runtime directory
 
-`RuntimeInfo` exposes the current runtime identifier (RID) like `win-x64` or `linux-x64` and the path to `runtimes/<rid>/native` inside the application root. `INativeLibraryManager` searches this folder and returns `FileInfo` objects for libraries or executables:
+`RuntimeInfo` exposes the current runtime identifier (RID) like `win-x64`, `linux-x64` or `linux-arm64` and the path to `runtimes/<rid>/native` inside the application root. `INativeLibraryManager` searches this folder and returns `FileInfo` objects for libraries or executables:
 
 ```csharp
 var manager = services.Resolve<INativeLibraryManager>();
@@ -40,11 +40,9 @@ if (!wkhtml.Exists)
 Native libraries are distributed as regular NuGet packages. Each RID contains its own `native` folder:
 
 ```
-Smartstore.wkhtmltopdf.Native.nupkg
+Smartstore.TinyImage.Png.Native.linux-arm64.nupkg
  └─ runtimes/
-    ├─ win-x64/native/wkhtmltopdf.exe
-    ├─ linux-x64/native/wkhtmltopdf
-    └─ osx-x64/native/wkhtmltopdf
+    └─ linux-arm64/native/pngquant
 ```
 
-When the installer runs, the appropriate file is copied to the application's `runtimes/<rid>/native` directory. Subsequent calls to `GetNativeExecutable` or `GetNativeLibrary` then resolve immediately without additional downloads.
+When the installer runs, the appropriate file is copied to the application directory together with a `.version` sidecar containing the native package version. Executables are made executable on Unix during deployment, because NuGet packages do not preserve Unix file modes. Subsequent calls to `GetNativeExecutable` or `GetNativeLibrary` then resolve immediately without additional downloads.
