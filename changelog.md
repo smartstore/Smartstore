@@ -2,6 +2,11 @@
 
 ## Smartstore 6.5.0
 
+### Breaking Changes
+
+- (DEV) Removed the obsolete `win-x86` build target.
+- (DEV) Custom bundling configuration must use `EnableCssTranspilation` instead of `EnableAutoprefixer` and `CssTranspiler:Targets` (a Browserslist query string) instead of `Autoprefixer:Browsers`. The old Autoprefixer-specific switches have been removed.
+
 ### New Features
 
 - Dimension Pricing plugin
@@ -28,6 +33,9 @@
   - A whitelisted IP address was still blocked when its country was blocked, although IP addresses take precedence.
   - Literal IP addresses are matched directly instead of by regex, which makes large lists cheap.
 - **Theming**: 
+  - **Engine:**
+    - Replaced `LibSass/SharpScss` with native embedded `Dart Sass`. In internal tests, Sass compilation was slightly faster than LibSass. The compiler starts on demand; a new theme setting can keep it in memory during active Sass editing for faster repeated compilations.
+    - Replaced CSS minification and the JavaScript-based `Autoprefixer` with native `Lightning CSS` for minification, optimization and browser-targeted transpilation. Internal tests showed substantially faster CSS minification and transpilation; the CSS pipeline no longer requires `ClearScript` or `JavaScriptEngineSwitcher`.
   - Made `.prose` font-size and line-height configurable.
   - Refined the appearance of media gallery slider dots on mobile devices.
   - Removed the product offer background and padding on small screens to provide a cleaner, wider mobile layout.

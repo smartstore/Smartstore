@@ -1,7 +1,7 @@
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Configuration;
+using Smartstore.Core.Theming;
 using Smartstore.Data.Migrations;
 using Smartstore.Utilities;
 
@@ -23,7 +23,7 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
     {
         await context.MigrateSettingsAsync(builder =>
         {
-            builder.Add(TypeHelper.NameOf<PerformanceSettings>(x => x.KeepSassCompilerInMemory, true), "False");
+            builder.Add(TypeHelper.NameOf<ThemeSettings>(x => x.KeepSassCompilerInMemory, true), "False");
         });
 
         var settings = context.Set<Setting>();
@@ -297,5 +297,7 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Products.EmailAFriend.LoginNote",
             "Please log in to use this function. <a href=\"{0}\" rel=\"nofollow\">Login now</a>",
             "Bitte melden Sie sich an, um diese Funktion nutzen zu können. <a href=\"{0}\" rel=\"nofollow\">Jetzt anmelden</a>");
+
+        builder.AddOrUpdate("Admin.Common.InvalidFileName", "Invalid file name \"{0}\".", "Ungültiger Dateiname \"{0}\".");
     }
 }

@@ -66,7 +66,9 @@
             <![CDATA[
 				Diese Zahlungsmethode ermöglicht es dem Käufer eine Bestellung aufzugeben, 
                 die Ware in Empfang zu nehmen, sie auszuprobieren, zu prüfen, ob sie in Ordnung ist, 
-                und dann die Rechnung innerhalb von 30 Tagen zu bezahlen.
+                und dann die Rechnung später zu bezahlen.
+                Das Zahlungsziel von 30 Tagen steht ausschließlich kleinen und mittleren Unternehmen (KMU) im Sinne der EU-Definition zur Verfügung.
+                Großunternehmen können alternativ ein Zahlungsziel von 14 Tagen nutzen, sofern dies gesondert mit PayPal vereinbart wurde.
               ]]>
         </Value>
     </LocaleResource>
@@ -171,7 +173,7 @@
             <LocaleResource Name="PayPalPayUponInvoice" AppendRootKey="false">
                 <Value>
                     <![CDATA[
-                        Sie geben die Bestellung auf, erhalten die Ware und bezahlen dann die Rechnung innerhalb von 30 Tagen.
+                        Sie geben die Bestellung auf, erhalten die Ware und bezahlen dann die Rechnung innerhalb der von Ratepay genannten Zahlungsfrist.
                       ]]>
                 </Value>
             </LocaleResource>

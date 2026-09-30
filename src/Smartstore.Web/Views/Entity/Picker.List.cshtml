@@ -1,19 +1,5 @@
 ﻿@model EntityPickerModel
 
-@{
-    async Task HighlightSearchTermInTitle(EntityPickerModel.SearchResultModel item)
-    {
-        if (Model.HighlightSearchTerm && Model.SearchTerm.HasValue() && item.Title.HasValue())
-        {
-            @Html.Raw(item.Title.Replace(Model.SearchTerm, $"<span class='highlight'>{Model.SearchTerm}</span>", StringComparison.OrdinalIgnoreCase))
-        }
-        else
-        {
-            @item.Title
-        }
-    }
-}
-
 @foreach (var item in Model.SearchResult ?? Enumerable.Empty<EntityPickerModel.SearchResultModel>())
 {
     <div class="col-xl-3 col-lg-4 col-sm-6">
@@ -36,7 +22,7 @@
                         {
                             <span class="badge @item.LabelClassName">@item.LabelText</span>
                         }
-                        <span>@{ await HighlightSearchTermInTitle(item); }</span>
+                        <span>@Model.HighlightTitle(item.Title)</span>
                     </div>
                     <div class="text-truncate">
                         @if (item.Published.HasValue)

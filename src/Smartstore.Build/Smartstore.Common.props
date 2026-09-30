@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
-        <!--<RuntimeIdentifiers>win-x64; win-x86; osx-x64; linux-x64</RuntimeIdentifiers>-->
+        <!--<RuntimeIdentifiers>win-x64; osx-x64; linux-x64</RuntimeIdentifiers>-->
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<SatelliteResourceLanguages>ar; de; de-DE; es; fa; fr; it; ja; nl; pt; pt-BR; ru; sv; tr; vi; zh-CN</SatelliteResourceLanguages>
 		<CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>

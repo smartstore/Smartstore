@@ -50,22 +50,24 @@ internal class BundlingOptionsConfigurer : Disposable, IConfigureOptions<Bundlin
             diskCachingEnabled = themeSettings.AssetCachingEnabled > 1;
         }
 
-        if (options.EnableAutoprefixer == null && options.Autoprefixer.AlwaysDisableInDevMode && env.IsDevelopment())
+        if (options.EnableCssTranspilation == null && options.CssTranspiler.AlwaysDisableInDevMode && env.IsDevelopment())
         {
-            options.EnableAutoprefixer = false;
+            options.EnableCssTranspilation = false;
         }
 
         options.EnableBundling ??= bundlingEnabled ?? !env.IsDevelopment();
         options.EnableClientCache ??= !env.IsDevelopment();
         options.EnableDiskCache ??= diskCachingEnabled ?? !env.IsDevelopment();
         options.EnableMinification ??= bundlingEnabled ?? !env.IsDevelopment();
-        options.EnableAutoprefixer ??= bundlingEnabled ?? !env.IsDevelopment();
+        options.EnableCssTranspilation ??= bundlingEnabled ?? !env.IsDevelopment();
         options.FileProvider ??= _fileProvider;
 
         if (_prevOptions != null)
         {
             // It's an appsettings.json change. Check if we need to invalidate the cache.
-            if (_prevOptions.EnableMinification != options.EnableMinification || _prevOptions.EnableAutoprefixer != options.EnableAutoprefixer)
+            if (_prevOptions.EnableMinification != options.EnableMinification ||
+                _prevOptions.EnableCssTranspilation != options.EnableCssTranspilation ||
+                !string.Equals(_prevOptions.CssTranspiler.Targets, options.CssTranspiler.Targets, StringComparison.Ordinal))
             {
                 // Cannot pass in ctor --> circular dependency exception!
                 _appContext.Services.Resolve<IBundleCache>().ClearAsync().Await();

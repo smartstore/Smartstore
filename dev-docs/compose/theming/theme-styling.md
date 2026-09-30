@@ -18,9 +18,9 @@ For example, it's possible to use the mixins provided by Bootstrap for responsiv
 } 
 ```
 
-## AutoPrefixer
+## CSS transpilation
 
-Smartstore has an integrated CSS autoprefixer to ensure compatibility with different browsers. It is enabled in production mode, but not in debug mode. This allows writing CSS code without vendor prefixes, because the Autoprefixer adds them automatically. It uses the latest available [Can I Use](https://caniuse.com/) data to add the prefix to each corresponding CSS property and value.
+Smartstore uses Lightning CSS to transpile style bundles for the browsers configured in `Bundling:CssTranspiler:Targets`. This includes vendor prefixes and syntax fallbacks where needed. Transpilation can be controlled independently of minification with `Bundling:EnableCssTranspilation`.
 
 ## All `.scss` files in Flex
 

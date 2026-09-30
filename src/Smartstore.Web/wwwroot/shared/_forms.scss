@@ -270,7 +270,7 @@ fieldset.content-group {
 // ------------------------------------------------------
 
 .custom-range {
-    // INFO: Autoprefixer does not run in debug mode
+    // Keep these prefixes for the development mode where CSS transpilation may be disabled.
     -webkit-appearance: none;
     -moz-appearance: none;
 

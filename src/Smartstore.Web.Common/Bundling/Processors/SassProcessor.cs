@@ -27,14 +27,13 @@ public class SassProcessor : BundleProcessor
             {
                 Source = asset.Content,
                 SourcePath = asset.Path,
-                FileProvider = asset.FileProvider,
-                Minify = context.Options.EnableMinification == true
+                FileProvider = asset.FileProvider
             });
 
             context.IncludedFiles.AddRange(result.IncludedFiles);
 
             asset.Content = result.Css;
-            asset.IsMinified = context.Options.EnableMinification == true;
+            asset.IsMinified = false;
         }
     }
 

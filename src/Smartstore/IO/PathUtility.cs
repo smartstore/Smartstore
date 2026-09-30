@@ -516,6 +516,24 @@ public static class PathUtility
             || (checkWildcardChars && ContainsWildcardChars(fileName, 0));
     }
 
+    /// <summary>
+    /// Gets a value indicating whether <paramref name="value"/> is a plain file name without directory or navigation segments.
+    /// </summary>
+    /// <param name="value">The value to validate.</param>
+    /// <returns><c>true</c> if the value is a plain file name; otherwise <c>false</c>.</returns>
+    public static bool IsFileName(string? value)
+    {
+        if (value.IsEmpty() || value is CurrentDirectoryToken or ParentDirectoryToken)
+        {
+            return false;
+        }
+
+        var fileName = value.AsSpan();
+
+        return fileName.IndexOfAny('/', '\\') < 0
+            && !HasInvalidFileNameChars(fileName);
+    }
+
     public static bool HasInvalidFilterChars(string? path)
     {
         return path != null && path!.AsSpan().IndexOfAny(_invalidFilterChars) >= 0;

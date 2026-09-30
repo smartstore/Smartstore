@@ -2,7 +2,7 @@
 
 ## Overview
 
-JavaScript, Sass and CSS files are minified in Smartstore. In the case of Sass, an autoprefixer is also active, which adds vendor-specific prefixes to the CSS declarations. To do this, the files must be exposed to the system using a `BundleProvider`, as bundles are provided by `BundleProviders` that inherit the `IBundleProvider` interface.
+JavaScript, Sass and CSS files can be minified in Smartstore. Style bundles also support browser-targeted CSS transpilation, including vendor prefixes and syntax fallbacks. To do this, the files must be exposed to the system using a `BundleProvider`, as bundles are provided by `BundleProviders` that inherit the `IBundleProvider` interface.
 
 ## JavaScript
 
@@ -52,7 +52,7 @@ internal class Bundles : IBundleProvider
 }
 ```
 
-When a request is made, all included Sass or CSS files are now combined into one (`my-module.css`) and returned in a minified form. In addition, the autoprefixer adds vendor-specific prefixes to the CSS declarations.
+When a request is made, all included Sass or CSS files are combined into one (`my-module.css`) and can be minified. The CSS transpiler also applies browser-targeted compatibility transforms when enabled.
 
 ### Settings
 

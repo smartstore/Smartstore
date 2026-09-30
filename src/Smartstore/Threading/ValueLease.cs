@@ -3,21 +3,21 @@
 namespace Smartstore.Threading;
 
 /// <summary>
-/// Keeps a shared resource alive until the lease is disposed.
+/// Keeps a shared value alive until the lease is disposed.
 /// </summary>
-/// <typeparam name="T">The resource type.</typeparam>
-public sealed class ResourceLease<T> : IAsyncDisposable where T : class
+/// <typeparam name="T">The value type.</typeparam>
+public sealed class ValueLease<T> : IAsyncDisposable where T : class
 {
-    private IdleResource<T>? _owner;
+    private Ephemeral<T>? _owner;
 
-    internal ResourceLease(T value, IdleResource<T> owner)
+    internal ValueLease(T value, Ephemeral<T> owner)
     {
         Value = value;
         _owner = owner;
     }
 
     /// <summary>
-    /// Gets the resource protected by this lease. Do not use it after disposing the lease.
+    /// Gets the value protected by this lease. Do not use it after disposing the lease.
     /// </summary>
     public T Value { get; }
 

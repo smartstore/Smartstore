@@ -3,8 +3,6 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Smartstore.Web.Bundling.LightningCss;
 
@@ -12,22 +10,18 @@ namespace Smartstore.Web.Bundling.LightningCss;
 /// Runs the native Lightning CSS CLI shipped with Smartstore.LightningCss.Native.
 /// This class only handles process execution; bundle integration belongs to a bundle processor.
 /// </summary>
-public sealed class LightningCssCli
+internal sealed class LightningCssTransformer
 {
     private readonly string? _executablePath;
 
-    /// <summary>Creates a CLI wrapper that resolves the executable from the application output directory.</summary>
-    public LightningCssCli()
+    internal LightningCssTransformer()
     {
     }
 
-    internal LightningCssCli(string executablePath)
+    internal LightningCssTransformer(string executablePath)
     {
         _executablePath = executablePath;
     }
-
-    /// <summary>Gets or sets the logger used for process diagnostics.</summary>
-    public ILogger Logger { get; set; } = NullLogger.Instance;
 
     /// <summary>
     /// Transforms CSS passed to the CLI through standard input.
@@ -42,7 +36,7 @@ public sealed class LightningCssCli
         CancellationToken cancelToken = default)
     {
         Guard.NotNull(css);
-        return RunAsync(css, [], options ?? new LightningCssOptions(), cancelToken);
+        return RunAsync(css, [], options ?? LightningCssOptions.Default, cancelToken);
     }
 
     /// <summary>
@@ -65,7 +59,7 @@ public sealed class LightningCssCli
             throw new ArgumentException("At least one non-empty input file is required.", nameof(inputFiles));
         }
 
-        return RunAsync(null, files, options ?? new LightningCssOptions(), cancelToken);
+        return RunAsync(null, files, options ?? LightningCssOptions.Default, cancelToken);
     }
 
     private async Task<LightningCssResult> RunAsync(
@@ -101,8 +95,6 @@ public sealed class LightningCssCli
         };
 
         AddArguments(startInfo.ArgumentList, inputFiles, options);
-        Logger.Debug($"Starting Lightning CSS process '{executablePath}'.");
-
         using var process = new Process { StartInfo = startInfo };
         process.Start();
 

@@ -8,7 +8,7 @@ A lot of effort has gone into the development of the Theming Engine to make crea
 
 * Multi-level theme inheritance
 * An integrated Sass compiler, that automatically translates all changes made to Sass files into CSS at runtime in an intelligent and highly performant way.
-* CSS _Autoprefixer_
+* Browser-targeted CSS transpilation
 * Modern CSS and icon libraries
 * And many more
 
@@ -24,7 +24,7 @@ Sass files are automatically compiled at runtime using the **built-in Sass parse
 
 To keep static files as small as possible, Smartstore minifies JavaScript, Sass, and CSS files. Multiple physical files of a web project are combined into one file and then minified to create a bundle.
 
-The _Autoprefixer_ adds vendor-specific prefixes to CSS declarations coming from the Sass parser.
+Lightning CSS adds browser-targeted compatibility transforms to the generated style bundle, including vendor prefixes when needed.
 
 Smartstore is built using the [MVC-Pattern](https://learn.microsoft.com/en-us/aspnet/core/mvc/overview?view=aspnetcore-7.0). This pattern specifies that the HTML output is provided by views. Views are Razor files located in the subdirectories of the web project's _Views_ directory. They can be easily overwritten at the theme level without having to worry about preparing the model or implementing actions.
 
@@ -74,15 +74,13 @@ Smartstore uses `.scss` files for CSS declarations. They provide a way to use Sa
 
 Smartstore's built-in file watcher keeps track of all changes made to the included Sass files while the application is running. When a change is detected, the cache is automatically cleared and the Sass files are retranslated into CSS. This provides you with a convenient, time-saving way to check for CSS changes on page refresh without having to restart the application.
 
-### Autoprefixer
+### CSS transpilation
 
 [Vendor prefixes](https://developer.mozilla.org/en-US/docs/Glossary/Vendor_Prefix) are a part of CSS that is added to certain properties and values. They enable experimental, non-standard features in different browsers. For example, the `-webkit-` prefix is used for properties and values supported by WebKit browsers (Google, Safari, etc.), and Mozilla Firefox uses the `-moz-` prefix.
 
-Without using a tool like CSS Autoprefixer, you would have to take care of adding the correct prefixes yourself. This can be tedious and error-prone.
+Smartstore uses Lightning CSS to transform style bundles for the browsers specified by `Bundling:CssTranspiler:Targets`. This includes vendor prefixes and syntax fallbacks where needed, so styles can generally be written without browser-specific declarations.
 
-To ensure compatibility with different browsers, Smartstore has a built-in CSS Autoprefixer. It is enabled in production mode, but not in debug mode. This allows you to write CSS code without having to add vendor prefixes yourself, as the tool will add them automatically. It uses the latest available [Can I Use](https://caniuse.com/) data to add the prefix to each corresponding CSS property and value.
-
-By using CSS Autoprefixer, developers can rest assured that all CSS styles will display correctly in all major browsers. They can focus on designing the site without worrying about compatibility.
+CSS transpilation is controlled by `Bundling:EnableCssTranspilation`, independently of minification. In development, `Bundling:CssTranspiler:AlwaysDisableInDevMode` disables it by default when no explicit value is set for `EnableCssTranspilation`.
 
 ### Cache & DiskCache
 

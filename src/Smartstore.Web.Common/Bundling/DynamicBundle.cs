@@ -52,7 +52,7 @@ public class DynamicScriptBundle : DynamicBundle
 }
 
 /// <summary>
-/// Represents a dynamic stylesheet bundle that does CSS minification, URL rewrite & Autoprefixing.
+/// Represents a dynamic stylesheet bundle that does CSS minification, URL rewriting and transpilation.
 /// </summary>
 public class DynamicStyleBundle : DynamicBundle
 {

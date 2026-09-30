@@ -5,8 +5,14 @@ namespace Smartstore.Web.Bundling.LightningCss;
 /// <summary>
 /// Options supported by the Lightning CSS command-line tool.
 /// </summary>
-public sealed class LightningCssOptions
+internal sealed class LightningCssOptions
 {
+    /// <summary>
+    /// Creates conservative options for a standalone transform. Minification, bundling,
+    /// browser targets, and optional CSS features are selected by the caller when needed.
+    /// </summary>
+    public static LightningCssOptions Default => new();
+
     /// <summary>Minifies the generated CSS.</summary>
     public bool Minify { get; set; }
 
