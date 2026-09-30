@@ -596,7 +596,7 @@ public partial class ProductController : AdminController
                 overrides.Add($"{T(resKey + nameof(pva.SwatchPriceDisplay))}: {localization.GetLocalizedEnum(priceDisplay, language.Id)}");
             }
 
-            model.SwatchOverridesInfo = T("Admin.Catalog.Products.ProductVariantAttributes.SwatchOverridesInfo", string.Join(", ", overrides));
+            model.SwatchOverridesInfo = T("Admin.Common.Overwritten", string.Join(", ", overrides));
         }
 
         return model;

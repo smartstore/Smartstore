@@ -186,9 +186,7 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
             "Use these settings to override the default attribute values for this product.",
             "Legen Sie hier abweichende Einstellungen fest, wenn Sie die Vorgaben des Attributs für dieses Produkt überschreiben möchten.");
 
-        builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.SwatchOverridesInfo",
-            "Overwritten: {0}.",
-            "Abweichend: {0}.");
+        builder.AddOrUpdate("Admin.Common.Overwritten", "Overwritten: {0}.", "Abweichend: {0}.");
 
         builder.AddOrUpdate("Admin.Common.ColorPalette.TooManyColors",
             "A maximum of {0} colors can be specified.",
