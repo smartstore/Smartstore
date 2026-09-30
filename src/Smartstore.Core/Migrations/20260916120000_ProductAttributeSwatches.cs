@@ -122,6 +122,13 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
             "No value set (default). Click to set a value.",
             "Kein Wert gesetzt (Standard). Klicken, um einen Wert festzulegen.");
 
+        builder.AddOrUpdate("Enums.AttributeControlType.Boxes",
+            "Color and Image Swatches",
+            "Farb- und Bildmuster");
+        builder.AddOrUpdate("Enums.FacetTemplateHint.Custom",
+            "Color and Image Swatches",
+            "Farb- und Bildmuster");
+
         builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.Swatches",
             "Color and Image Swatches",
             "Farb- und Bildmuster");
