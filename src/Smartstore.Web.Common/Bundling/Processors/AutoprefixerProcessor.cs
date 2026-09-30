@@ -12,22 +12,26 @@ public class AutoprefixerProcessor : BundleProcessor
 
     public override Task ProcessAsync(BundleContext context)
     {
-        if (context.Options.EnableAutoprefixer == false || context.ProcessorCodes.Contains(Code))
+        if (context.Options.EnableCssTranspilation == false || context.ProcessorCodes.Contains(Code))
         {
             return Task.CompletedTask;
         }
 
-        var apo = context.Options.Autoprefixer;
+        var targets = context.Options.CssTranspiler.Targets;
+        // Retained for pipeline comparisons. The old Autoprefixer-specific switches are no
+        // longer public settings; these values match the former appsettings defaults.
         var options = new ProcessingOptions
         {
-            Browsers = apo.Browsers?.Count > 0 ? apo.Browsers : new List<string> { "defaults", "not IE 11" },
-            Cascade = apo.Cascade,
-            Add = apo.Add,
-            Remove = apo.Remove,
-            Supports = apo.Supports,
-            Flexbox = apo.Flexbox ? FlexboxMode.No2009 : FlexboxMode.None,
-            Grid = apo.Grid ? GridMode.NoAutoplace : GridMode.None,
-            IgnoreUnknownVersions = apo.IgnoreUnknownVersions
+            Browsers = string.IsNullOrWhiteSpace(targets)
+                ? ["defaults", "not IE 11"]
+                : targets.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries),
+            Cascade = false,
+            Add = true,
+            Remove = true,
+            Supports = false,
+            Flexbox = FlexboxMode.None,
+            Grid = GridMode.None,
+            IgnoreUnknownVersions = false
         };
 
         try

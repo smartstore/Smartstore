@@ -172,11 +172,11 @@ public class BundleDiskCache : IBundleDiskCache
             {
                 // First check if pcodes match, this one is faster than file hash check.
                 var enableMinification = _options.CurrentValue.EnableMinification == true;
-                var enableAutoprefixer = bundle.ContentType == "text/css" && _options.CurrentValue.EnableAutoprefixer == true;
+                var enableCssTranspilation = bundle.ContentType == "text/css" && _options.CurrentValue.EnableCssTranspilation == true;
                 var isMinified = pcodes.Contains(BundleProcessorCodes.Minify);
-                var isAutoprefixed = pcodes.Contains(BundleProcessorCodes.Autoprefix);
+                var isCssTranspiled = pcodes.Contains(BundleProcessorCodes.Autoprefix);
 
-                valid = isMinified == enableMinification && isAutoprefixed == enableAutoprefixer;
+                valid = isMinified == enableMinification && isCssTranspiled == enableCssTranspilation;
 
                 if (valid)
                 {

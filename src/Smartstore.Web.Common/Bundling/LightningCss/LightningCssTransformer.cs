@@ -3,8 +3,6 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Smartstore.Web.Bundling.LightningCss;
 
@@ -12,12 +10,11 @@ namespace Smartstore.Web.Bundling.LightningCss;
 /// Runs the native Lightning CSS CLI shipped with Smartstore.LightningCss.Native.
 /// This class only handles process execution; bundle integration belongs to a bundle processor.
 /// </summary>
-public sealed class LightningCssTransformer
+internal sealed class LightningCssTransformer
 {
     private readonly string? _executablePath;
 
-    /// <summary>Creates a CLI wrapper that resolves the executable from the application output directory.</summary>
-    public LightningCssTransformer()
+    internal LightningCssTransformer()
     {
     }
 
@@ -26,7 +23,6 @@ public sealed class LightningCssTransformer
         _executablePath = executablePath;
     }
 
-    /// <summary>Gets or sets the logger used for process diagnostics.</summary>
     public ILogger Logger { get; set; } = NullLogger.Instance;
 
     /// <summary>
@@ -42,7 +38,7 @@ public sealed class LightningCssTransformer
         CancellationToken cancelToken = default)
     {
         Guard.NotNull(css);
-        return RunAsync(css, [], options ?? new LightningCssOptions(), cancelToken);
+        return RunAsync(css, [], options ?? LightningCssOptions.Default, cancelToken);
     }
 
     /// <summary>
@@ -65,7 +61,7 @@ public sealed class LightningCssTransformer
             throw new ArgumentException("At least one non-empty input file is required.", nameof(inputFiles));
         }
 
-        return RunAsync(null, files, options ?? new LightningCssOptions(), cancelToken);
+        return RunAsync(null, files, options ?? LightningCssOptions.Default, cancelToken);
     }
 
     private async Task<LightningCssResult> RunAsync(

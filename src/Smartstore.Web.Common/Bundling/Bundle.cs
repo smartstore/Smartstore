@@ -126,6 +126,7 @@ public class Bundle
     internal static IBundleProcessor[] DefaultStyleProcessors
     {
         get => [SassProcessor.Instance, CssRewriteUrlProcessor.Instance, ConcatProcessor.Instance, NUglifyCssMinProcessor.Instance, AutoprefixerProcessor.Instance];
+        //get => [SassProcessor.Instance, CssRewriteUrlProcessor.Instance, ConcatProcessor.Instance, LightningCssProcessor.Instance];
     }
 
     #endregion
