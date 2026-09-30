@@ -257,6 +257,46 @@ public class OrderTotalCalculationServiceTests : ServiceTestBase
         subTotal.TaxRates[10].ShouldEqual(8.939);
     }
 
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task Can_apply_negative_checkout_attribute_price_adjustment(bool isTaxExempt)
+    {
+        var product = new Product
+        {
+            Id = 1,
+            Price = 100m,
+            Published = true
+        };
+        var cartItem = new ShoppingCartItem
+        {
+            Product = product,
+            ProductId = product.Id,
+            Customer = _customer,
+            CustomerId = _customer.Id,
+            Quantity = 1
+        };
+        var attributeValue = new CheckoutAttributeValue
+        {
+            PriceAdjustment = -10m,
+            CheckoutAttribute = new CheckoutAttribute
+            {
+                IsTaxExempt = isTaxExempt
+            }
+        };
+
+        Mock.Get(_checkoutAttributeMaterializer)
+            .Setup(x => x.MaterializeCheckoutAttributeValuesAsync(It.IsAny<CheckoutAttributeSelection>()))
+            .ReturnsAsync([attributeValue]);
+
+        var cart = new ShoppingCart(_customer, 0, [new(cartItem)]);
+        _productBatchContext = new ProductBatchContext([product], DbContext, LifetimeScope, _store, _customer, false);
+
+        var subtotal = await _orderCalcService.GetShoppingCartSubtotalAsync(cart, false, _productBatchContext);
+
+        subtotal.SubtotalWithoutDiscount.Amount.ShouldEqual(90m);
+        subtotal.SubtotalWithDiscount.Amount.ShouldEqual(90m);
+    }
+
     [Test]
     public async Task Can_get_shopping_cart_subTotal_including_tax()
     {

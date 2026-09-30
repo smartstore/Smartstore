@@ -273,11 +273,7 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
                             var priceAdjustmentBase = await _taxCalculator.CalculateCheckoutAttributeTaxAsync(x);
                             var priceAdjustment = _currencyService.ConvertFromPrimaryCurrency(priceAdjustmentBase.Price, currency);
 
-                            if (priceAdjustment > 0)
-                            {
-                                m.PriceAdjustment = priceAdjustment.WithPostFormat(taxFormat);
-                            }
-                            else if (priceAdjustment < 0)
+                            if (priceAdjustment != 0)
                             {
                                 m.PriceAdjustment = priceAdjustment.WithPostFormat(taxFormat);
                             }

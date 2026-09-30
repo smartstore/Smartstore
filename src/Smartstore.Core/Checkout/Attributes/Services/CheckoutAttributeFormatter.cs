@@ -55,7 +55,9 @@ public partial class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
         using var psb = StringBuilderPool.Instance.Get(out var sb);
         var attributesList = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributesAsync(selection);
         if (attributesList.IsNullOrEmpty())
+        {
             return null;
+        }
 
         var attributeValues = attributesList
             .Where(x => x.IsListTypeAttribute)
@@ -86,7 +88,7 @@ public partial class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
                     }
                     else if (currentAttribute.AttributeControlType is AttributeControlType.FileUpload)
                     {
-                        Guid.TryParse(currentValue, out var downloadGuid);
+                        _ = Guid.TryParse(currentValue, out Guid downloadGuid);
 
                         var download = await _db.Downloads
                             .Include(x => x.MediaFile)
@@ -144,7 +146,7 @@ public partial class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
                 {
                     if (int.TryParse(currentValue, out var id))
                     {
-                        var attributeValue = attributeValues.Where(x => x.Id == id).FirstOrDefault();
+                        var attributeValue = attributeValues.FirstOrDefault(x => x.Id == id);
                         if (attributeValue != null)
                         {
                             attributeStr = $"{currentAttribute.GetLocalized(x => x.Name, language)}: {attributeValue.GetLocalized(x => x.Name, language)}";
@@ -152,10 +154,11 @@ public partial class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
                             if (renderPrices)
                             {
                                 var adjustment = await _taxCalculator.CalculateCheckoutAttributeTaxAsync(attributeValue, customer: customer);
-                                if (adjustment.Price > 0m)
+                                if (adjustment.Price != 0m)
                                 {
                                     var convertedAdjustment = _currencyService.ConvertToWorkingCurrency(adjustment.Price);
-                                    attributeStr += $" [+{_taxService.ApplyTaxFormat(convertedAdjustment).ToString()}]";
+                                    var sign = adjustment.Price > 0m ? "+" : string.Empty;
+                                    attributeStr += $" [{sign}{_taxService.ApplyTaxFormat(convertedAdjustment)}]";
                                 }
                             }
                         }

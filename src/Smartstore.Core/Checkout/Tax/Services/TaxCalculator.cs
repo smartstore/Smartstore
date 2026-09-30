@@ -54,7 +54,16 @@ public class TaxCalculator : ITaxCalculator
         var attribute = attributeValue.CheckoutAttribute;
         if (attribute.IsTaxExempt)
         {
-            return CreateTax(TaxRate.Zero, 0m, 0m, true, true, currency);
+            currency ??= _workContext.WorkingCurrency;
+            inclusive ??= _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
+
+            return CreateTax(
+                TaxRate.Zero,
+                0m,
+                attributeValue.PriceAdjustment,
+                _taxSettings.PricesIncludeTax,
+                inclusive.Value,
+                currency);
         }
 
         return await CalculateTaxAsync(null, attributeValue.PriceAdjustment, _taxSettings.PricesIncludeTax, attribute.TaxCategoryId, inclusive, customer, currency);
