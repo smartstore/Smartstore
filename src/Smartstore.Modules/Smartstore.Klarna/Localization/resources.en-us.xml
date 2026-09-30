@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Language Name="English" IsRightToLeft="false">
+  <LocaleResource Name="Plugins.Payment.Klarna.DisplayName">
+    <Value>Klarna</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.Admin.Configure">
+    <Value>Configure Klarna Payments</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.ApiKey">
+    <Value>API Key</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.ApiKey.Hint">
+    <Value>Enter your Klarna API Key.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.ApiSecret">
+    <Value>API Secret</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.ApiSecret.Hint">
+    <Value>Enter your Klarna API Secret.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.UseSandbox">
+    <Value>Use Sandbox</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.UseSandbox.Hint">
+    <Value>Check to use the Klarna sandbox environment for testing.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.Region">
+    <Value>Region</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.Region.Hint">
+    <Value>Select the Klarna API region (e.g., Europe, North America, Oceania).</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.PaymentMethodDescription">
+    <Value>Pay with Klarna (Slice it, Pay later, etc.)</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.CannotProcessPayment">
+    <Value>Could not process Klarna payment. Please try another payment method or contact us.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Klarna.PaymentFailed">
+    <Value>Klarna payment failed.</Value>
+  </LocaleResource>
+   <LocaleResource Name="Plugins.Payment.Klarna.Admin.Info">
+    <Value><![CDATA[
+        <p>To use Klarna Payments, you need a Klarna merchant account. Visit <a href="https://www.klarna.com/sell-with-klarna/" target="_blank">www.klarna.com</a> to sign up.</p>
+        <p><b>Configuration steps:</b></p>
+        <ol>
+            <li>Enter your API Key and API Secret provided by Klarna.</li>
+            <li>Select your API Region.</li>
+            <li>If you are testing, enable the "Use Sandbox" option. Ensure your API credentials match the selected environment.</li>
+            <li>Configure your Merchant URLs in your Klarna Merchant Portal:
+                <ul>
+                    <li><b>Confirmation URL:</b> <code>{0}klarna/confirmation</code></li>
+                    <li><b>Notification URL (Push URL):</b> <code>{0}klarna/notification</code></li>
+                    <li>Replace <code>{0}</code> with your store's base URL (e.g., https://www.yourstore.com/).</li>
+                </ul>
+            </li>
+            <li>Ensure the Klarna payment method is active in "Configuration > Payment Methods".</li>
+        </ol>
+        <p>Klarna offers various payment options like Pay Later, Slice It (financing), and direct payments. The available options for customers depend on their country and the order amount, managed by Klarna's widget.</p>
+    ]]></Value>
+  </LocaleResource>
+</Language>

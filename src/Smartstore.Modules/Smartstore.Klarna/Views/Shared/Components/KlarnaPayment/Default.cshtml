@@ -1,0 +1,20 @@
+@*@model KlarnaPaymentInfoModel*@
+
+<div id="klarna-payment-container">
+    <p>Klarna Payments</p>
+    @*
+        In a real implementation, this is where Klarna's JavaScript SDK would be initialized.
+        Example (conceptual):
+        <script src="https://x.klarnacdn.net/kp/lib/v1/api.js" async></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // const clientToken = Model.ClientToken; // Get client token from model
+                // Klarna.Payments.init({ client_token: clientToken });
+                // Klarna.Payments.load({ container: '#klarna-payment-container' }, function (res) {
+                //     console.log(res);
+                // });
+            });
+        </script>
+    *@
+    <p><i>Klarna payment form will be rendered here.</i></p>
+</div>
