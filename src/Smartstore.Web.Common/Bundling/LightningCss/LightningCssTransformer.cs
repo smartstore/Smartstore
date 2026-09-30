@@ -23,8 +23,6 @@ internal sealed class LightningCssTransformer
         _executablePath = executablePath;
     }
 
-    public ILogger Logger { get; set; } = NullLogger.Instance;
-
     /// <summary>
     /// Transforms CSS passed to the CLI through standard input.
     /// </summary>
@@ -97,8 +95,6 @@ internal sealed class LightningCssTransformer
         };
 
         AddArguments(startInfo.ArgumentList, inputFiles, options);
-        Logger.Debug($"Starting Lightning CSS process '{executablePath}'.");
-
         using var process = new Process { StartInfo = startInfo };
         process.Start();
 

@@ -32,7 +32,7 @@ public class ScriptBundle : Bundle
 }
 
 /// <summary>
-/// Represents a stylesheet bundle that does CSS minification, URL rewrite & Autoprefixing.
+/// Represents a stylesheet bundle that does CSS minification, URL rewriting and transpilation.
 /// </summary>
 [DebuggerDisplay("StyleBundle: {Route}")]
 public class StyleBundle : Bundle
@@ -125,8 +125,7 @@ public class Bundle
 
     internal static IBundleProcessor[] DefaultStyleProcessors
     {
-        get => [SassProcessor.Instance, CssRewriteUrlProcessor.Instance, ConcatProcessor.Instance, NUglifyCssMinProcessor.Instance, AutoprefixerProcessor.Instance];
-        //get => [SassProcessor.Instance, CssRewriteUrlProcessor.Instance, ConcatProcessor.Instance, LightningCssProcessor.Instance];
+        get => [SassProcessor.Instance, CssRewriteUrlProcessor.Instance, ConcatProcessor.Instance, LightningCssProcessor.Instance];
     }
 
     #endregion

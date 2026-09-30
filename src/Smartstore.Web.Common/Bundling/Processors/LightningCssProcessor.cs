@@ -14,9 +14,9 @@ internal sealed class LightningCssProcessor : BundleProcessor
 
     private readonly LightningCssTransformer _transformer = new();
 
-    // Keep the existing processor identity while Autoprefixer remains available for
-    // comparisons. Successful runs record minification and transpilation separately.
-    public override string Code => BundleProcessorCodes.Autoprefix;
+    // Successful runs record minification and transpilation separately so the disk cache
+    // can validate both options independently.
+    public override string Code => BundleProcessorCodes.Transpile;
 
     public override async Task ProcessAsync(BundleContext context)
     {
@@ -81,9 +81,9 @@ internal sealed class LightningCssProcessor : BundleProcessor
             context.ProcessorCodes.Add(BundleProcessorCodes.Minify);
         }
 
-        if (transpile && !context.ProcessorCodes.Contains(BundleProcessorCodes.Autoprefix))
+        if (transpile && !context.ProcessorCodes.Contains(BundleProcessorCodes.Transpile))
         {
-            context.ProcessorCodes.Add(BundleProcessorCodes.Autoprefix);
+            context.ProcessorCodes.Add(BundleProcessorCodes.Transpile);
         }
     }
 }

@@ -174,7 +174,7 @@ public class BundleDiskCache : IBundleDiskCache
                 var enableMinification = _options.CurrentValue.EnableMinification == true;
                 var enableCssTranspilation = bundle.ContentType == "text/css" && _options.CurrentValue.EnableCssTranspilation == true;
                 var isMinified = pcodes.Contains(BundleProcessorCodes.Minify);
-                var isCssTranspiled = pcodes.Contains(BundleProcessorCodes.Autoprefix);
+                var isCssTranspiled = pcodes.Contains(BundleProcessorCodes.Transpile);
 
                 valid = isMinified == enableMinification && isCssTranspiled == enableCssTranspilation;
 
