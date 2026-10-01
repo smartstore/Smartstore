@@ -58,6 +58,11 @@ public partial class ProductDetailsModelContext
     public ProductVariantAttributeSelection SelectedAttributes { get; set; }
 
     /// <summary>
+    /// Gets or sets the prepared product variant selection and its related data.
+    /// </summary>
+    public ProductVariantEvaluationResult VariantEvaluation { get; set; }
+
+    /// <summary>
     /// Gets a value indicating whether processing was started with initially selected variants.
     /// </summary>
     public bool HasInitiallySelectedVariants { get; init; }

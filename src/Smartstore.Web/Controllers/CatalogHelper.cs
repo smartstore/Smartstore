@@ -18,7 +18,6 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Rules;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Web;
@@ -39,8 +38,8 @@ public partial class CatalogHelper
     private readonly IProductService _productService;
     private readonly IProductAttributeService _productAttributeService;
     private readonly IProductAttributeMaterializer _productAttributeMaterializer;
+    private readonly IProductVariantEvaluationService _productVariantEvaluationService;
     private readonly IProductAttributeFormatter _productAttributeFormatter;
-    private readonly IRuleProviderFactory _ruleProviderFactory;
     private readonly ITaxService _taxService;
     private readonly ITaxCalculator _taxCalculator;
     private readonly ICurrencyService _currencyService;
@@ -84,8 +83,8 @@ public partial class CatalogHelper
         IProductService productService,
         IProductAttributeService productAttributeService,
         IProductAttributeMaterializer productAttributeMaterializer,
+        IProductVariantEvaluationService productVariantEvaluationService,
         IProductAttributeFormatter productAttributeFormatter,
-        IRuleProviderFactory ruleProviderFactory,
         ITaxService taxService,
         ITaxCalculator taxCalculator,
         ICurrencyService currencyService,
@@ -128,8 +127,8 @@ public partial class CatalogHelper
         _productService = productService;
         _productAttributeService = productAttributeService;
         _productAttributeMaterializer = productAttributeMaterializer;
+        _productVariantEvaluationService = productVariantEvaluationService;
         _productAttributeFormatter = productAttributeFormatter;
-        _ruleProviderFactory = ruleProviderFactory;
         _taxService = taxService;
         _taxCalculator = taxCalculator;
         _currencyService = currencyService;
