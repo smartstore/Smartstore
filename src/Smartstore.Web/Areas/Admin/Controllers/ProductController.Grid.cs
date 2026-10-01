@@ -118,7 +118,7 @@ public partial class ProductController : AdminController
                     case nameof(ProductModel.Price):
                         query = query.SortBy(sort.Descending ? ProductSortingEnum.PriceDesc : ProductSortingEnum.PriceAsc);
                         break;
-                    case nameof(ProductModel.CreatedOn):
+                    case "CreatedOnUtc":
                         query = query.SortBy(sort.Descending ? ProductSortingEnum.CreatedOn : ProductSortingEnum.CreatedOnAsc);
                         break;
                 }
