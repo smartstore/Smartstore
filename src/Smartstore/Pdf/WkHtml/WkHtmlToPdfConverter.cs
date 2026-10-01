@@ -62,17 +62,22 @@ public class WkHtmlToPdfConverter : IPdfConverter
         var services = EngineContext.Current.Application.Services;
         var message = @"Unable to install PDF processor tool 'wkhtmltopdf'. PDF documents may not be generated unless you manually install 'wkhtmltopdf' on your web server. Please contact your hosting provider or system administrator to install the appropriate package for your operating system. See: https://wkhtmltopdf.org/downloads.html";
         var toolName = "wkhtmltopdf";
+        // Linux packages before this revision require obsolete OpenSSL 1.1 libraries.
+        var minVersion = OperatingSystem.IsLinux() ? "0.12.6.1" : null;
 
         try
         {
             var libraryManager = services.Resolve<INativeLibraryManager>();
 
-            var fi = libraryManager.GetNativeExecutable("wkhtmltopdf");
+            var fi = libraryManager.GetNativeExecutable("wkhtmltopdf", minVersion);
 
             if (!fi.Exists)
             {
                 using var libraryInstaller = libraryManager.CreateLibraryInstaller();
-                fi = await libraryInstaller.InstallFromPackageAsync(new InstallNativePackageRequest("wkhtmltopdf", true, "Smartstore.wkhtmltopdf.Native"));
+                fi = await libraryInstaller.InstallFromPackageAsync(new InstallNativePackageRequest("wkhtmltopdf", true, "Smartstore.wkhtmltopdf.Native")
+                {
+                    MinVersion = minVersion
+                });
             }
 
             if (!fi.Exists)
@@ -82,6 +87,7 @@ public class WkHtmlToPdfConverter : IPdfConverter
             else
             {
                 toolName = fi.FullName;
+                GetLogger().Info($"Using wkhtmltopdf executable '{toolName}'.");
             }
         }
         catch (Exception ex)

@@ -244,3 +244,6 @@ src/Tools/Smartstore.WebApi.Client/Smartstore.WebApi.Client.sln
 
 src/Smartstore.Packager.sln
 Log.txt
+
+# Local native-package and Docker test scratch space.
+/.temp/
