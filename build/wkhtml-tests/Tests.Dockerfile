@@ -1,12 +1,15 @@
-FROM mcr.microsoft.com/dotnet/sdk:10.0-noble AS build
+# Build on the host CPU; only the runtime stage needs target-platform emulation.
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0-noble AS build
+ARG TARGETARCH
 WORKDIR /src
 COPY src/ ./src/
 COPY build/wkhtml-tests/ ./build/wkhtml-tests/
 COPY .temp/wkhtml-tests/packages/ /packages/
 ENV NUGET_PACKAGES=/packages/.temp/nuget
-RUN dotnet publish build/wkhtml-tests/Probe/Probe.csproj -c Release -o /probe
-RUN architecture=$(dpkg --print-architecture) && \
-    if [ "$architecture" = amd64 ]; then rid=linux-x64; else rid=linux-arm64; fi && \
+RUN case "$TARGETARCH" in amd64) rid=linux-x64 ;; arm64) rid=linux-arm64 ;; *) exit 1 ;; esac && \
+    dotnet publish build/wkhtml-tests/Probe/Probe.csproj -c Release -o /probe \
+        --runtime "$rid" --self-contained false -p:UseAppHost=false
+RUN case "$TARGETARCH" in amd64) rid=linux-x64 ;; arm64) rid=linux-arm64 ;; *) exit 1 ;; esac && \
     dotnet restore build/wkhtml-tests/seed.csproj -p:ProbeRID=$rid --source /packages --source https://api.nuget.org/v3/index.json
 
 # A test image, not the production image: Poppler/Python are test dependencies only.

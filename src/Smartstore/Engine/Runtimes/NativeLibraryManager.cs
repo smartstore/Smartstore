@@ -119,24 +119,33 @@ public class NativeLibraryManager : INativeLibraryManager
 
         try
         {
+            // Under binfmt/QEMU, MainModule points to the emulator, not the requested tool.
+            // Resolve Unix executables before starting them so version checks use the actual file.
+            var executablePath = OperatingSystem.IsWindows() ? null : ResolveUnixExecutablePath(fileName);
+            if (!OperatingSystem.IsWindows() && executablePath == null)
+            {
+                return false;
+            }
+
             process = Process.Start(new ProcessStartInfo
             {
-                FileName = fileName,
+                FileName = executablePath ?? fileName,
                 WindowStyle = ProcessWindowStyle.Hidden,
                 UseShellExecute = false,
                 CreateNoWindow = true
             });
 
-            if (process.MainModule != null)
+            var startedFilePath = executablePath ?? process.MainModule?.FileName;
+            if (startedFilePath != null)
             {
-                fi = new FileInfo(process.MainModule.FileName);
+                fi = new FileInfo(startedFilePath);
                 if (fi.Exists)
                 {
                     _logger.Info($"'{Path.GetFileNameWithoutExtension(fileName)}' library is ready.");
                 }
             }
 
-            return fi != null;
+            return fi?.Exists == true;
         }
         catch
         {
@@ -145,6 +154,37 @@ public class NativeLibraryManager : INativeLibraryManager
         finally
         {
             process?.EnsureStopped();
+        }
+    }
+
+    internal static string ResolveUnixExecutablePath(string fileName)
+    {
+        if (fileName.Contains('/'))
+        {
+            var path = Path.GetFullPath(fileName);
+            return IsExecutable(path) ? path : null;
+        }
+
+        foreach (var directory in (Environment.GetEnvironmentVariable("PATH") ?? string.Empty).Split(Path.PathSeparator))
+        {
+            var path = Path.GetFullPath(Path.Combine(directory, fileName));
+            if (IsExecutable(path))
+            {
+                return path;
+            }
+        }
+
+        return null;
+
+        static bool IsExecutable(string path)
+        {
+            if (!File.Exists(path) || OperatingSystem.IsWindows())
+            {
+                return false;
+            }
+
+            var mode = File.GetUnixFileMode(path);
+            return (mode & (UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute)) != 0;
         }
     }
 }
