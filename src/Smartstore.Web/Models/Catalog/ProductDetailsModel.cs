@@ -53,14 +53,50 @@ public partial class ProductDetailsModelContext
     public ProductBundleItem ProductBundleItem { get; set; }
 
     /// <summary>
-    /// The selected attributes based on <see cref="VariantQuery"/>. <c>null</c> if none have been selected (then the preselected attributes are used).
+    /// Gets or sets the prepared product variant selection and its related data.
     /// </summary>
-    public ProductVariantAttributeSelection SelectedAttributes { get; set; }
+    public ProductVariantEvaluation VariantEvaluation { get; set; }
 
     /// <summary>
     /// Gets a value indicating whether processing was started with initially selected variants.
     /// </summary>
     public bool HasInitiallySelectedVariants { get; init; }
+}
+
+/// <summary>
+/// Contains the prepared product variant selection and its related data.
+/// </summary>
+public partial class ProductVariantEvaluation
+{
+    /// <summary>
+    /// Gets a value indicating whether queried or preselected variant data exists.
+    /// </summary>
+    public bool HasSelection { get; init; }
+
+    /// <summary>
+    /// Gets the selection after inactive attributes have been removed.
+    /// </summary>
+    public ProductVariantAttributeSelection Selection { get; init; } = new(null);
+
+    /// <summary>
+    /// Gets the selection before inactive attributes have been removed.
+    /// </summary>
+    public ProductVariantAttributeSelection UnfilteredSelection { get; init; } = new(null);
+
+    /// <summary>
+    /// Gets the selected list-type attribute values.
+    /// </summary>
+    public IReadOnlyCollection<ProductVariantAttributeValue> SelectedValues { get; init; } = [];
+
+    /// <summary>
+    /// Gets the identifiers of inactive product variant attributes.
+    /// </summary>
+    public IReadOnlyCollection<int> InactiveAttributeIds { get; init; } = [];
+
+    /// <summary>
+    /// Gets the attribute combination matching the selection.
+    /// </summary>
+    public ProductVariantAttributeCombination Combination { get; init; }
 }
 
 public partial class ProductDetailsModel : EntityModelBase

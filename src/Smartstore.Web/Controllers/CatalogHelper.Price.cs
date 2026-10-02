@@ -54,15 +54,15 @@ public partial class CatalogHelper
         };
 
         // Apply price adjustments of attributes.
-        if (ctx.SelectedAttributes != null)
+        if (ctx.VariantEvaluation?.HasSelection == true)
         {
             // Apply price adjustments of selected attributes.
-            calculationContext.AddSelectedAttributes(ctx.SelectedAttributes, product.Id, bundleItem?.Id);
+            calculationContext.AddSelectedAttributes(ctx.VariantEvaluation.Selection, product.Id, bundleItem?.Id);
         }
         else if (isBundle && product.BundlePerItemPricing && ctx.VariantQuery.Variants.Count > 0)
         {
             // Apply price adjustments of selected bundle items attributes.
-            // INFO: bundles themselves don't have attributes, that's why ctx.SelectedAttributes is null.
+            // INFO: bundles themselves don't have attributes, that's why ctx.VariantEvaluation is null.
             calculationContext.BundleItems = await ctx.BatchContext.ProductBundleItems.GetOrLoadAsync(product.Id);
 
             ctx.BatchContext.Collect(calculationContext.BundleItems.Select(x => x.ProductId).ToArray());
@@ -211,7 +211,7 @@ public partial class CatalogHelper
             BundleItem = modelContext.ProductBundleItem
         };
 
-        calculationContext.AddSelectedAttributes(modelContext.SelectedAttributes, product.Id, modelContext.ProductBundleItem?.Id);
+        calculationContext.AddSelectedAttributes(modelContext.VariantEvaluation?.Selection, product.Id, modelContext.ProductBundleItem?.Id);
 
         var tierPriceModels = await tierPrices
             .SelectAwait(async (tierPrice) =>
