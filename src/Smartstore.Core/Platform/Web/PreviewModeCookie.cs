@@ -19,15 +19,15 @@ public class PreviewModeCookie : IPreviewModeCookie
 
     public string GetOverride(string key)
     {
-        Guard.NotEmpty(key, nameof(key));
+        Guard.NotEmpty(key);
 
         return GetCookie()[key].ToString().NullEmpty();
     }
 
     public void SetOverride(string key, string value)
     {
-        Guard.NotEmpty(key, nameof(key));
-        Guard.NotNull(value, nameof(value));
+        Guard.NotEmpty(key);
+        Guard.NotNull(value);
 
         GetCookie().Add(key, value, true);
         _changed = true;
@@ -35,7 +35,7 @@ public class PreviewModeCookie : IPreviewModeCookie
 
     public bool RemoveOverride(string key)
     {
-        Guard.NotEmpty(key, nameof(key));
+        Guard.NotEmpty(key);
 
         var cookie = GetCookie();
         var exists = cookie.ContainsKey(key);
