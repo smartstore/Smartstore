@@ -83,6 +83,16 @@ that matter most:
 - Acronyms of two or more letters are fully capitalized, following BCL precedent
   (`IPAddress`, `HTTP`, `XML`) — not `IpAddress`.
 
+### Line endings
+
+- Preserve CRLF line endings in every modified text file unless `.gitattributes`
+  explicitly marks the path with `eol=lf`.
+- After editing, run `git ls-files --eol -- <modified-paths>` and verify that source
+  files report `w/crlf`. `w/mixed` and unexpected `w/lf` are not allowed.
+- If an editing tool changes line endings, normalize only the files touched by the
+  task. Preserve their existing BOM and final-newline state, and do not reformat
+  unrelated files.
+
 Beyond formatting:
 
 - **Nullability:** enable `#nullable enable` at file level in new or modified files,
