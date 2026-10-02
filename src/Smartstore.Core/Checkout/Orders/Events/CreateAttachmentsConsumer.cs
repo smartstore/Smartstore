@@ -1,9 +1,15 @@
-﻿using Smartstore.Core.Common.Configuration;
+﻿#nullable enable
+
+using System.Net.Mime;
+using Microsoft.AspNetCore.Mvc;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Messaging.Events;
 using Smartstore.Events;
+using Smartstore.Http;
+using Smartstore.Pdf;
 
 namespace Smartstore.Core.Checkout.Orders.Events;
 
@@ -13,25 +19,37 @@ internal class CreateAttachmentsConsumer : IConsumer
     public Localizer T { get; set; } = NullLocalizer.Instance;
 
     public async Task HandleEventAsync(MessageQueuingEvent message,
-        Lazy<PdfInvoiceHttpClient> client,
+        Lazy<PdfHttpClient> client,
+        Lazy<IUrlHelper> urlHelper,
         PdfSettings pdfSettings)
     {
         var messageName = message.MessageContext.MessageTemplate.Name;
-        var processMessage = (pdfSettings.AttachOrderPdfToOrderPlacedEmail && messageName.EqualsNoCase(MessageTemplateNames.OrderPlacedCustomer))
-            || (pdfSettings.AttachOrderPdfToOrderCompletedEmail && messageName.EqualsNoCase(MessageTemplateNames.OrderCompletedCustomer));
 
-        if (processMessage
+        bool attachPdf =
+            (pdfSettings.AttachOrderPdfToOrderPlacedEmail
+                && messageName.EqualsNoCase(MessageTemplateNames.OrderPlacedCustomer))
+            || (pdfSettings.AttachOrderPdfToOrderCompletedEmail
+                && messageName.EqualsNoCase(MessageTemplateNames.OrderCompletedCustomer));
+
+        if (attachPdf
             && message.MessageModel.Get("Order") is IDictionary<string, object> order
             && order.Get("ID") is int orderId)
         {
             try
             {
-                var result = await client.Value.GetPdfInvoiceAsync(orderId);
+                // Resolve the MVC helper only when a PDF is needed; unrelated messages may be
+                // queued outside an MVC request.
+                var helper = urlHelper.Value;
+                var request = helper.ActionContext.HttpContext.Request;
+                var path = helper.Action("Print", "Order", new { id = orderId, pdf = true, area = string.Empty });
+                var url = WebHelper.GetAbsoluteUrl(path!, request);
+                var requestSnapshot = request.CreateSnapshot();
+                var result = await client.Value.GetPdfAsync(url, requestSnapshot);
 
                 message.QueuedEmail.Attachments.Add(new()
                 {
                     StorageLocation = EmailAttachmentStorageLocation.Blob,
-                    MimeType = result.MimeType,
+                    MimeType = MediaTypeNames.Application.Pdf,
                     Name = result.FileName,
                     MediaStorage = new MediaStorage { Data = result.Buffer }
                 });
