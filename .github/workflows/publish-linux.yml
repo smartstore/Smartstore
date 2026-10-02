@@ -61,8 +61,9 @@ jobs:
           RID: ${{ matrix.rid }}
         run: |
           mkdir -p .temp/linux-image
-          # Use the same RID as restore/build; the solution build also supplies modules/providers.
-          dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release --runtime "$RID" \
+          # Match build/test: --runtime alone is stripped from RID-agnostic project references.
+          # SmartstoreBuildRuntime keeps Core reference paths aligned with the existing RID build.
+          dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release -p:SmartstoreBuildRuntime="$RID" \
             --no-self-contained --no-build --no-restore -o .temp/linux-image/publish
           python3 .github/verify-linux-publish.py .temp/linux-image/publish "$RID"
           # A minimal context keeps .temp ignored in normal repository-root Docker builds.
