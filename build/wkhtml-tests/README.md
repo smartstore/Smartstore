@@ -5,6 +5,32 @@ This tests the actual Smartstore `NativeLibraryManager`, `NativeLibraryInstaller
 No running shop/database is required for the technical probe. Host/DI interfaces
 are mocked; the PDF/native implementations are real.
 
+## GitHub Actions publication
+
+Release and nightly publication share `.github/workflows/publish-linux.yml`.
+It builds `linux-x64` on `ubuntu-24.04` and `linux-arm64` on `ubuntu-24.04-arm`,
+without QEMU. Restore/build/publish use the same explicit RID. Because .NET rejects
+`--runtime` on a solution build, `SmartstoreBuildRuntime` forwards the target RID
+through `Smartstore.Common.props` to the application/module/provider/test projects;
+the build tools remain portable. Web publication uses the corresponding `--runtime`.
+A packaging check
+rejects missing Community modules/data providers and wrong-architecture apphosts
+or Lightning CSS executables.
+
+Each candidate production image must pass an application startup and native-tool
+smoke test before a disposable `PublishedImage.Dockerfile` image runs this PDF probe.
+That test image extends the candidate and adds Python/Poppler only for verification.
+CI exercises the system wkhtml path; the four-mode test below still covers lazy
+deployment separately. Reports/PDFs/page PNGs are retained as seven-day workflow
+artifacts. These technical checks do not replace real-template or visual acceptance.
+
+Verified architecture images are pushed by digest. Only after both jobs succeed
+does the merge job update `latest`/the release branch label, or `nightly`, as one
+multi-platform manifest. Linux untagged-package cleanup is deliberately disabled:
+architecture manifests can be untagged while still referenced by published tags.
+Windows publication and untagged-package cleanup remain separate, x64-only jobs.
+All publication contexts and test results stay under `.temp/`.
+
 ## Run on a working Docker host
 
 Use a checkout of this Smartstore revision and the two locally packed native

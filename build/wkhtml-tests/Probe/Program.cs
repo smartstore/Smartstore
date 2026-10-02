@@ -1,4 +1,5 @@
 using Autofac;
+using System.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -33,6 +34,16 @@ contentRoot.SetupGet(x => x.Root).Returns("/work");
 var tempDirectory = new Mock<IDirectory>();
 tempDirectory.SetupGet(x => x.PhysicalPath).Returns(work);
 var app = new Mock<IApplicationContext>();
+// The real NuGet installer checks cache permissions against the current OS user.
+// Supply the container identity rather than leaving this hosting property null.
+var identity = new Mock<IOSIdentity>();
+identity.SetupGet(x => x.UserId).Returns(ReadIdentity("-u"));
+identity.SetupGet(x => x.Groups).Returns(ReadIdentity("-G").Split(' ', StringSplitOptions.RemoveEmptyEntries));
+app.SetupGet(x => x.OSIdentity).Returns(identity.Object);
+var appDataPath = Path.Combine(work, "app-data");
+Directory.CreateDirectory(appDataPath);
+using var appData = new LocalFileSystem(appDataPath);
+app.SetupGet(x => x.AppDataRoot).Returns(appData);
 app.SetupGet(x => x.RuntimeInfo).Returns(runtime);
 app.SetupGet(x => x.ContentRoot).Returns(contentRoot.Object);
 app.Setup(x => x.GetTempDirectory(It.IsAny<string>())).Returns(tempDirectory.Object);
@@ -104,4 +115,20 @@ foreach (var input in inputs)
     await using var pdf = await converter.GeneratePdfAsync(settings);
     await using var output = File.Create(Path.Combine(work, Path.ChangeExtension(input, ".pdf")));
     await pdf.CopyToAsync(output);
+}
+
+static string ReadIdentity(string arguments)
+{
+    using var process = Process.Start(new ProcessStartInfo("id", arguments)
+    {
+        RedirectStandardOutput = true,
+        UseShellExecute = false
+    }) ?? throw new InvalidOperationException("Could not read the container OS identity.");
+    var output = process.StandardOutput.ReadToEnd().Trim();
+    process.WaitForExit();
+    if (process.ExitCode != 0 || output.Length == 0)
+    {
+        throw new InvalidOperationException("Could not read the container OS identity.");
+    }
+    return output;
 }
