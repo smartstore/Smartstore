@@ -21,6 +21,20 @@ public class PreselectedPriceCalculator : IPriceCalculator
     {
         var options = context.Options;
 
+        if (context.AttributeCombination != null)
+        {
+            var combination = context.AttributeCombination;
+            if (combination.IsActive && combination.Price.HasValue)
+            {
+                context.FinalPrice = combination.Price.Value;
+                context.RegularPrice = combination.Price.Value;
+                context.AppliedAttributeCombination = combination;
+            }
+
+            await next(context);
+            return;
+        }
+
         if (!options.DeterminePreselectedPrice)
         {
             // Proceed with pipeline and omit this calculator, it is made for preselected price calculation only.
@@ -32,7 +46,7 @@ public class PreselectedPriceCalculator : IPriceCalculator
             .Where(x => x.ProductVariantAttribute.IsListTypeAttribute())
             .ToList();
 
-        if (selectedValues.Any())
+        if (selectedValues.Count > 0)
         {
             // Create attribute selection of preselected values.
             var query = new ProductVariantQuery();

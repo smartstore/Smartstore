@@ -420,7 +420,8 @@ public partial class PriceCalculationService : IPriceCalculationService
 
         // In product lists, show the base price of the preselected attribute combination (instead of the base price set on product level).
         var ac = context.AppliedAttributeCombination;
-        if (ac != null
+        if (context.AttributeCombination == null
+            && ac != null
             && (ac.BasePriceAmount.HasValue || ac.BasePriceBaseAmount.HasValue)
             && _priceSettings.ShowBasePriceInProductLists)
         {

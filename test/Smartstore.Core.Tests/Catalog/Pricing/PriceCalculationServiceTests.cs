@@ -491,14 +491,16 @@ public class PriceCalculationServiceTests : ServiceTestBase
         {
             Id = 1,
             Price = 18.90M,
-            ProductId = 1
+            ProductId = 1,
+            IsActive = true
         };
 
-        // TODO: (mh) (core) Now the product is merged and is never unmerged for the following tests. Learn to ISOLATE each test, this is SOUP!!!!
-        _product.MergeWithCombination(combination);
+        _priceCalculationContext.AttributeCombination = combination;
 
         var price = await _priceCalcService.CalculatePriceAsync(_priceCalculationContext);
+
         price.FinalPrice.Amount.ShouldEqual(18.90M);
+        _product.Price.ShouldEqual(12.34M);
     }
 
     [Test]

@@ -50,6 +50,7 @@ public class PriceCalculationContext
         AssociatedProducts = context.AssociatedProducts;
         BundleItems = context.BundleItems;
         BundleItem = context.BundleItem;
+        AttributeCombination = context.AttributeCombination;
         Quantity = context.Quantity;
         Options = context.Options;
         Metadata = context.Metadata;
@@ -91,7 +92,7 @@ public class PriceCalculationContext
     /// <summary>
     /// Custom input metadata that can be evaluated by custom calculators.
     /// </summary>
-    public Dictionary<string, object> Metadata { get; } = new();
+    public Dictionary<string, object> Metadata { get; } = [];
 
     /// <summary>
     /// Contains all associated child products of a grouped product (<see cref="ProductType.GroupedProduct"/>).
@@ -116,13 +117,18 @@ public class PriceCalculationContext
     public ProductBundleItem BundleItem { get; set; }
 
     /// <summary>
+    /// Gets or sets an attribute combination whose price is to be applied in the price calculation.
+    /// </summary>
+    public ProductVariantAttributeCombination AttributeCombination { get; set; }
+
+    /// <summary>
     /// Gets or sets the selected product attributes to be included in the price calculation.
     /// For example required to take into account price adjustments of attributes selected by the customer.
     /// It is recommended to use the <see cref="PriceCalculationContext"/> extension methods to apply these attributes, 
     /// e.g. <see cref="PriceCalculationContextExtensions.AddSelectedAttributes(PriceCalculationContext, OrganizedShoppingCartItem)"/>
     /// to apply selected attributes of all products indcluded in a shopping cart.
     /// </summary>
-    public List<PriceCalculationAttributes> SelectedAttributes { get; set; } = new();
+    public List<PriceCalculationAttributes> SelectedAttributes { get; set; } = [];
 
     /// <summary>
     /// Gets tier prices for <see cref="Product"/>. Tier prices with duplicate quantities are removed.
