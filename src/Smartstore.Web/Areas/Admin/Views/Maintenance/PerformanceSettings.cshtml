@@ -230,6 +230,15 @@
                         <span asp-validation-for="PerformanceSettings.MaxUnavailableAttributeCombinations"></span>
                     </div>
                 </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PerformanceSettings.MaxVariantPriceCalculations" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="PerformanceSettings.MaxVariantPriceCalculations" />
+                        <span asp-validation-for="PerformanceSettings.MaxVariantPriceCalculations"></span>
+                    </div>
+                </div>
             </div>
         </tab>
     </tabstrip>

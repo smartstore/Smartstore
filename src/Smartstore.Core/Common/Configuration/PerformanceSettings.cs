@@ -38,6 +38,11 @@ public class PerformanceSettings : ISettings
     public int MaxUnavailableAttributeCombinations { get; set; } = 10000;
 
     /// <summary>
+    /// Maximum number of full pricing pipeline executions used to calculate variant prices on the product detail page.
+    /// </summary>
+    public int MaxVariantPriceCalculations { get; set; } = 50;
+
+    /// <summary>
     /// Enables response compression for text-based static and dynamic responses
     /// (html, css, js, svg etc.). Turn this off if the webserver handles response
     /// compression already. Changing the value requires an application restart to take effect.

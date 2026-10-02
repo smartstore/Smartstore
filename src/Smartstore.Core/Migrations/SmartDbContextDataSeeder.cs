@@ -299,5 +299,11 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Bitte melden Sie sich an, um diese Funktion nutzen zu können. <a href=\"{0}\" rel=\"nofollow\">Jetzt anmelden</a>");
 
         builder.AddOrUpdate("Admin.Common.InvalidFileName", "Invalid file name \"{0}\".", "Ungültiger Dateiname \"{0}\".");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Performance.MaxVariantPriceCalculations",
+            "Maximum number of price calculations for color and image swatches",
+            "Maximale Anzahl an Preisberechnungen bei Farb- und Bildmustern",
+            "Limits full price calculations for swatch values when fixed combination prices exist. Swatch prices are hidden when the limit is exceeded.",
+            "Begrenzt vollständige Preisberechnungen für Swatch-Werte, wenn feste Kombinationspreise vorhanden sind. Bei Überschreitung werden die Swatch-Preise ausgeblendet.");
     }
 }

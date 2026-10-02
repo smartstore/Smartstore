@@ -6,6 +6,7 @@ using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Catalog.Rules;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Tax;
@@ -13,6 +14,7 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
@@ -542,19 +544,10 @@ public partial class CatalogHelper
 
         using var chronometer = _services.Chronometer.Step("PrepareProductAttributesModel");
 
+        var query = ctx.VariantQuery;
         var productBundleItem = ctx.ProductBundleItem;
         var isBundlePricing = productBundleItem != null && !productBundleItem.BundleProduct.BundlePerItemPricing;
         var attributes = await ctx.BatchContext.Attributes.GetOrLoadAsync(product.Id);
-        var evaluationContext = new ProductVariantEvaluationContext(product, ctx.VariantQuery, ctx.BatchContext)
-        {
-            BundleItem = productBundleItem
-        };
-
-        ctx.VariantEvaluation = await _productVariantEvaluationService.EvaluateCurrentAsync(evaluationContext);
-        ctx.SelectedAttributes = ctx.VariantEvaluation.IsSelectionSpecified
-            ? ctx.VariantEvaluation.Selection
-            : null;
-
         var linkedProducts = new Dictionary<int, Product>();
         var linkedMediaFiles = new Multimap<int, ProductMediaFile>();
         // Key: ProductVariantAttributeValue.Id, value: attribute price adjustment.
@@ -576,8 +569,6 @@ public partial class CatalogHelper
             swatchPrice = await _priceCalculationService.CalculatePriceAsync(pricingContext);
             priceAdjustments = swatchPrice.AttributePriceAdjustments.ToDictionarySafe(x => x.AttributeValue.Id);
         }
-
-        await PrepareSwatchPriceCandidates(ctx, evaluationContext, attributes, isBundlePricing);
 
         var linkedProductIds = attributes
             .SelectMany(x => x.ProductVariantAttributeValues)
@@ -619,47 +610,11 @@ public partial class CatalogHelper
             model.ProductVariantAttributes.Add(attributeModel);
         }
 
-        if (ctx.VariantEvaluation.IsSelectionSpecified)
+        if (query.Variants.Count > 0 || query.VariantCombinationId != 0)
         {
             // Apply attribute combination if any.
             await PrepareProductAttributeCombinationsModelAsync(model, ctx);
         }
-    }
-
-    private async Task PrepareSwatchPriceCandidates(
-        ProductDetailsModelContext ctx,
-        ProductVariantEvaluationContext evaluationContext,
-        IEnumerable<ProductVariantAttribute> attributes,
-        bool isBundlePricing)
-    {
-        if (!ctx.DisplayPrices || isBundlePricing || ctx.Product.CallForPrice)
-        {
-            return;
-        }
-
-        var swatchAttributes = attributes
-            .Where(x => x.AttributeControlType == AttributeControlType.Boxes)
-            .Where(x => (x.SwatchPriceDisplay ?? x.ProductAttribute.SwatchPriceDisplay) == SwatchPriceDisplayMode.FinalPrice)
-            .Where(x => !ctx.VariantEvaluation.InactiveAttributeIds.Contains(x.Id))
-            .ToArray();
-        if (swatchAttributes.Length == 0)
-        {
-            return;
-        }
-
-        var candidateValues = swatchAttributes
-            .SelectMany(x => x.ProductVariantAttributeValues)
-            .Where(x => !(ctx.ProductBundleItem?.IsFilteredOut(x, out _) ?? false))
-            .ToArray();
-        if (candidateValues.Length == 0)
-        {
-            return;
-        }
-
-        ctx.VariantEvaluation.Candidates = await _productVariantEvaluationService.EvaluateCandidatesAsync(
-            evaluationContext,
-            ctx.VariantEvaluation,
-            candidateValues);
     }
 
     private async Task<ProductDetailsModel.ProductVariantAttributeModel> CreateProductVariantAttributeModel(
@@ -675,6 +630,7 @@ public partial class CatalogHelper
         var productBundleItem = ctx.ProductBundleItem;
         var bundleItemId = productBundleItem?.Id ?? 0;
         var isBundlePricing = productBundleItem != null && !productBundleItem.BundleProduct.BundlePerItemPricing;
+        var preSelectedValueId = 0;
 
         var attributeModel = new ProductDetailsModel.ProductVariantAttributeModel
         {
@@ -751,10 +707,16 @@ public partial class CatalogHelper
             var valuesModels = await attribute.ProductVariantAttributeValues
                 .SelectAwait(async val =>
                 {
-                    if (productBundleItem?.IsFilteredOut(val, out _) ?? false)
+                    ProductBundleItemAttributeFilter attributeFilter = null;
+                    if (productBundleItem?.IsFilteredOut(val, out attributeFilter) ?? false)
                     {
                         return null;
                     }
+                    if (preSelectedValueId == 0 && attributeFilter != null && attributeFilter.IsPreSelected)
+                    {
+                        preSelectedValueId = attributeFilter.AttributeValueId;
+                    }
+
                     var m = new ProductDetailsModel.ProductVariantAttributeValueModel
                     {
                         Id = val.Id,
@@ -851,6 +813,52 @@ public partial class CatalogHelper
                     .ThenNaturalBy(_catalogSettings.SortAttributesNaturally ? x => x.Name : null)];
         }
 
+        // Add selected attributes for initially displayed combination images and multiple selected checkbox values.
+        if (query.VariantCombinationId == 0)
+        {
+            ProductDetailsModel.ProductVariantAttributeValueModel defaultValue = null;
+
+            if (preSelectedValueId != 0)
+            {
+                // Value preselected by a bundle item filter discards the default preselection.
+                attributeModel.Values.Each(x => x.IsPreSelected = false);
+
+                defaultValue = attributeModel.Values.OfType<ProductDetailsModel.ProductVariantAttributeValueModel>().FirstOrDefault(v => v.Id == preSelectedValueId);
+                if (defaultValue != null)
+                {
+                    defaultValue.IsPreSelected = true;
+                    query.AddVariant(new()
+                    {
+                        Value = defaultValue.Id.ToString(),
+                        ProductId = product.Id,
+                        BundleItemId = bundleItemId,
+                        AttributeId = attribute.ProductAttributeId,
+                        VariantAttributeId = attribute.Id,
+                        Alias = attribute.ProductAttribute.Alias,
+                        ValueAlias = defaultValue.Alias
+                    });
+                }
+            }
+
+            if (defaultValue == null)
+            {
+                // Apply attributes preselected by merchant.
+                foreach (var value in attributeModel.Values.Where(x => x.IsPreSelected))
+                {
+                    query.AddVariant(new()
+                    {
+                        Value = value.Id.ToString(),
+                        ProductId = product.Id,
+                        BundleItemId = bundleItemId,
+                        AttributeId = attribute.ProductAttributeId,
+                        VariantAttributeId = attribute.Id,
+                        Alias = attribute.ProductAttribute.Alias,
+                        ValueAlias = value.Alias
+                    });
+                }
+            }
+        }
+
         return attributeModel;
     }
 
@@ -859,10 +867,18 @@ public partial class CatalogHelper
         using var chronometer = _services.Chronometer.Step("PrepareProductAttributeCombinationsModel");
 
         var product = ctx.Product;
+        var query = ctx.VariantQuery;
         var productBundleItem = ctx.ProductBundleItem;
+        var bundleItemId = productBundleItem?.Id ?? 0;
+        var language = _workContext.WorkingLanguage;
         var isBundlePricing = productBundleItem != null && !productBundleItem.BundleProduct.BundlePerItemPricing;
         var checkAvailability = product.AttributeChoiceBehaviour == AttributeChoiceBehaviour.GrayOutUnavailable;
         var attributes = await ctx.BatchContext.Attributes.GetOrLoadAsync(product.Id);
+
+        var ruleProvider = _ruleProviderFactory.GetProvider<IAttributeRuleProvider>(RuleScope.ProductAttribute, new AttributeRuleProviderContext(product.Id)
+        {
+            BatchContext = ctx.BatchContext
+        });
 
         var res = new Dictionary<string, LocalizedString>(StringComparer.OrdinalIgnoreCase)
         {
@@ -871,15 +887,32 @@ public partial class CatalogHelper
             { "Products.Availability.Backordering", T("Products.Availability.Backordering") }
         };
 
-        if (ctx.VariantEvaluation.InactiveAttributeIds.Count > 0)
+        if (query.VariantCombinationId != 0)
         {
+            var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(query.VariantCombinationId, false);
+            ctx.SelectedAttributes = new ProductVariantAttributeSelection(combination?.RawAttributes);
+        }
+        else
+        {
+            var (selection, _) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, attributes, product.Id, bundleItemId);
+            ctx.SelectedAttributes = selection;
+        }
+
+        var inactiveAttributes = await ruleProvider.GetInactiveAttributesAsync(product, ctx.SelectedAttributes);
+        if (inactiveAttributes.Length > 0)
+        {
+            var inactiveAttributesIds = inactiveAttributes.Select(x => x.Id).ToArray();
+
+            // Remove inactive attributes so that they are excluded from price calculation.
+            ctx.SelectedAttributes.RemoveAttributes(inactiveAttributesIds);
+
             // Hide inactive attributes on product page.
             model.ProductVariantAttributes
-                .Where(x => ctx.VariantEvaluation.InactiveAttributeIds.Contains(x.Id))
+                .Where(x => inactiveAttributesIds.Contains(x.Id))
                 .Each(x => x.IsActive = false);
         }
 
-        var selectedValues = ctx.VariantEvaluation.SelectedValues;
+        var selectedValues = ctx.SelectedAttributes.MaterializeProductVariantAttributeValues(attributes);
         var selectedValueIds = selectedValues.Select(x => x.Id).ToArray();
 
         if (isBundlePricing)
@@ -891,7 +924,7 @@ public partial class CatalogHelper
                 ctx.Customer);
         }
 
-        model.SelectedCombination = ctx.VariantEvaluation.Combination;
+        model.SelectedCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, ctx.SelectedAttributes);
         model.ProductUrl = await _productUrlHelper.GetProductPathAsync(product.Id, model.SeName, ctx.SelectedAttributes);
 
         if ((model.SelectedCombination != null && !model.SelectedCombination.IsActive) ||

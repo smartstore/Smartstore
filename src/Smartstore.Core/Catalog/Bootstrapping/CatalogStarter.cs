@@ -41,7 +41,6 @@ internal class CatalogStarter : StarterBase
             .InstancePerLifetimeScope();
 
         builder.RegisterType<ProductAttributeMaterializer>().As<IProductAttributeMaterializer>().InstancePerLifetimeScope();
-        builder.RegisterType<ProductVariantEvaluationService>().As<IProductVariantEvaluationService>().InstancePerLifetimeScope();
         builder.RegisterType<ProductAttributeService>().As<IProductAttributeService>().InstancePerLifetimeScope();
         builder.RegisterType<ProductAttributeFormatter>().As<IProductAttributeFormatter>().InstancePerLifetimeScope();
 
