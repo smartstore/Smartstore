@@ -49,6 +49,7 @@ internal class CoreStarter : StarterBase
         services.AddDbMigrator(appContext);
         services.AddDisplayControl();
         services.AddWkHtmlToPdf();
+        services.AddPdfHttpClient();
 
         if (appContext.IsInstalled && config.UsePooledDbContextFactory)
         {
