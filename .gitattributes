@@ -1,4 +1,6 @@
 # Docker runs this script directly; preserve its Unix line endings on Windows.
 /install-wkhtmltopdf.sh text eol=lf
+/.github/*.sh text eol=lf
+/.github/*.py text eol=lf
 /build/wkhtml-tests/*.sh text eol=lf
 /build/wkhtml-tests/*.py text eol=lf

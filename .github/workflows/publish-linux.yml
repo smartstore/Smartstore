@@ -1,0 +1,204 @@
+name: Publish multi-platform Linux Docker image
+
+on:
+  workflow_call:
+    inputs:
+      channel:
+        description: Release or nightly tags
+        required: true
+        type: string
+      run-tests:
+        description: Run the solution tests before publishing
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  MSBUILDTERMINALLOGGER: 'off'
+  IMAGE: ghcr.io/smartstore/smartstore-linux
+
+jobs:
+  build:
+    name: Build and verify ${{ matrix.rid }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            rid: linux-x64
+            platform: linux/amd64
+          - runner: ubuntu-24.04-arm
+            rid: linux-arm64
+            platform: linux/arm64
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.x
+
+      - name: Build solution for the target runtime
+        # The checked-in ModuleBuilder still targets .NET 9; allow it to run on .NET 10.
+        env:
+          DOTNET_ROLL_FORWARD: Major
+        # Smartstore.Common.props sets the RID per project; --runtime on a solution triggers NETSDK1134.
+        run: dotnet build Smartstore.sln -c Release -p:SmartstoreBuildRuntime=${{ matrix.rid }} --no-self-contained
+
+      - name: Test
+        if: inputs.run-tests
+        run: dotnet test Smartstore.sln -c Release -p:SmartstoreBuildRuntime=${{ matrix.rid }} --no-restore --no-build
+
+      - name: Publish and stage the Docker context
+        env:
+          RID: ${{ matrix.rid }}
+        run: |
+          mkdir -p .temp/linux-image
+          # Use the same RID as restore/build; the solution build also supplies modules/providers.
+          dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release --runtime "$RID" \
+            --no-self-contained --no-build --no-restore -o .temp/linux-image/publish
+          python3 .github/verify-linux-publish.py .temp/linux-image/publish "$RID"
+          # A minimal context keeps .temp ignored in normal repository-root Docker builds.
+          cp NoBuild.Dockerfile install-wkhtmltopdf.sh .temp/linux-image/
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build candidate image
+        uses: docker/build-push-action@v7
+        with:
+          context: .temp/linux-image
+          file: .temp/linux-image/NoBuild.Dockerfile
+          platforms: ${{ matrix.platform }}
+          build-args: |
+            SOURCE=publish
+            RUNTIME=${{ matrix.rid }}
+          tags: smartstore-linux:test
+          load: true
+          provenance: false
+
+      - name: Smoke-test the production image
+        timeout-minutes: 10
+        run: bash .github/verify-linux-image.sh smartstore-linux:test ${{ matrix.platform }}
+
+      - name: Build the real Smartstore PDF probe
+        run: |
+          dotnet publish build/wkhtml-tests/Probe/Probe.csproj -c Release --runtime ${{ matrix.rid }} \
+            --no-self-contained -p:UseAppHost=false -o .temp/linux-image/probe
+          mkdir -p .temp/linux-image/tests .temp/wkhtml-tests/results
+          cp build/wkhtml-tests/verify.py .temp/linux-image/tests/
+          cp src/Smartstore.Web/wwwroot/admin/images/bg-mobile.jpg .temp/linux-image/tests/fixture.jpg
+
+      - name: Test PDF rendering against the published image
+        timeout-minutes: 15
+        env:
+          WKHTML_HTTPS_IMAGE_URL: https://smartstore.com/media/8761/pagebuilder/Startseite-CMS-1.png
+        run: |
+          # Only the disposable probe image receives Python/Poppler, never the shipped image.
+          docker build --platform ${{ matrix.platform }} --build-arg IMAGE=smartstore-linux:test \
+            -f build/wkhtml-tests/PublishedImage.Dockerfile -t smartstore-linux:probe .temp/linux-image
+          docker run --rm --platform ${{ matrix.platform }} \
+            --mount "type=bind,source=$PWD/.temp/wkhtml-tests/results,target=/work/.temp/results" \
+            -e WKHTML_HTTPS_IMAGE_URL smartstore-linux:probe
+
+      - name: Retain PDF reports and visual-review artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wkhtml-${{ inputs.channel }}-${{ matrix.rid }}
+          path: .temp/wkhtml-tests/results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Log in to the GitHub Container registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push verified image by digest
+        id: push
+        uses: docker/build-push-action@v7
+        with:
+          context: .temp/linux-image
+          file: .temp/linux-image/NoBuild.Dockerfile
+          platforms: ${{ matrix.platform }}
+          build-args: |
+            SOURCE=publish
+            RUNTIME=${{ matrix.rid }}
+          # Reuse the candidate build's local BuildKit cache; do not move public tags here.
+          outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=true
+          provenance: false
+
+      - name: Export image digest
+        env:
+          DIGEST: ${{ steps.push.outputs.digest }}
+        run: |
+          [[ "$DIGEST" =~ ^sha256:[a-f0-9]{64}$ ]]
+          mkdir -p .temp/digests
+          printf '%s\n' "$DIGEST" > ".temp/digests/${{ matrix.rid }}"
+
+      - name: Upload image digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-digest-${{ inputs.channel }}-${{ matrix.rid }}
+          path: .temp/digests/*
+          retention-days: 1
+
+  merge:
+    name: Publish shared Linux tags
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Format branch label
+        id: format-branch-label
+        run: bash .github/FormatBranchLabel.sh
+
+      - name: Download image digests
+        uses: actions/download-artifact@v4
+        with:
+          path: .temp/digests
+          pattern: linux-digest-${{ inputs.channel }}-*
+          merge-multiple: true
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to the GitHub Container registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create and verify the multi-platform manifest
+        env:
+          CHANNEL: ${{ inputs.channel }}
+          BRANCH_LABEL: ${{ steps.format-branch-label.outputs.branch-label }}
+        run: |
+          refs=()
+          for rid in linux-x64 linux-arm64; do
+            digest=$(cat ".temp/digests/$rid")
+            [[ "$digest" =~ ^sha256:[a-f0-9]{64}$ ]]
+            refs+=("$IMAGE@$digest")
+          done
+          case "$CHANNEL" in
+            release) tags=(-t "$IMAGE:latest" -t "$IMAGE:$BRANCH_LABEL"); tag=latest ;;
+            nightly) tags=(-t "$IMAGE:nightly"); tag=nightly ;;
+            *) echo "Unsupported publish channel: $CHANNEL" >&2; exit 1 ;;
+          esac
+          # Both native jobs must succeed before any shared tag is replaced.
+          docker buildx imagetools create "${tags[@]}" "${refs[@]}"
+          docker buildx imagetools inspect "$IMAGE:$tag" --raw | \
+            jq -e '[.manifests[].platform | .os + "/" + .architecture] | sort == ["linux/amd64", "linux/arm64"]'
