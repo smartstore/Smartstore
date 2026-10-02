@@ -11,6 +11,7 @@ using Smartstore.Web.Rendering.Choices;
 
 namespace Smartstore.Web.Models.Catalog;
 
+// TODO: (mg) Move this to a new file ProductDetailsModelContext when ready.
 public partial class ProductDetailsModelContext
 {
     public ProductDetailsModelContext()
@@ -95,6 +96,32 @@ public partial class ProductVariantEvaluation
 
     /// <summary>
     /// Gets the attribute combination matching the selection.
+    /// </summary>
+    public ProductVariantAttributeCombination Combination { get; init; }
+
+    /// <summary>
+    /// Gets the candidates prepared for variant price calculation.
+    /// </summary>
+    public IReadOnlyCollection<ProductVariantCandidate> Candidates { get; init; } = [];
+}
+
+/// <summary>
+/// Contains a candidate product variant selection and its related data.
+/// </summary>
+public partial class ProductVariantCandidate
+{
+    /// <summary>
+    /// Gets the attribute value applied to the candidate selection.
+    /// </summary>
+    public ProductVariantAttributeValue AttributeValue { get; init; }
+
+    /// <summary>
+    /// Gets the effective candidate selection after inactive attributes have been removed.
+    /// </summary>
+    public ProductVariantAttributeSelection Selection { get; init; }
+
+    /// <summary>
+    /// Gets the attribute combination matching the candidate selection.
     /// </summary>
     public ProductVariantAttributeCombination Combination { get; init; }
 }

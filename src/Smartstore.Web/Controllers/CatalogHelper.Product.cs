@@ -825,19 +825,14 @@ public partial class CatalogHelper
         }
 
         var hasSelection = query.VariantCombinationId != 0 || query.Variants.Count > 0;
-        if (!hasSelection)
-        {
-            return new();
-        }
-
         ProductVariantAttributeSelection selection;
 
         if (query.VariantCombinationId != 0)
         {
-            var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(query.VariantCombinationId, false);
-            selection = new ProductVariantAttributeSelection(combination?.RawAttributes);
+            var selectedCombination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(query.VariantCombinationId, false);
+            selection = new ProductVariantAttributeSelection(selectedCombination?.RawAttributes);
         }
-        else
+        else if (hasSelection)
         {
             (selection, _) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(
                 query,
@@ -845,28 +840,128 @@ public partial class CatalogHelper
                 product.Id,
                 bundleItemId);
         }
+        else
+        {
+            selection = new(null);
+        }
 
         var unfilteredSelection = new ProductVariantAttributeSelection(selection.AsJson());
         var ruleProvider = _ruleProviderFactory.GetProvider<IAttributeRuleProvider>(
             RuleScope.ProductAttribute,
             new AttributeRuleProviderContext(product.Id) { BatchContext = ctx.BatchContext });
-        var inactiveAttributes = await ruleProvider.GetInactiveAttributesAsync(product, selection);
-        var inactiveAttributeIds = inactiveAttributes.Select(x => x.Id).ToArray();
+        int[] inactiveAttributeIds = [];
+        ProductVariantAttributeCombination combination = null;
 
-        if (inactiveAttributeIds.Length > 0)
+        if (hasSelection)
         {
-            selection.RemoveAttributes(inactiveAttributeIds);
+            var inactiveAttributes = await ruleProvider.GetInactiveAttributesAsync(product, selection);
+            inactiveAttributeIds = inactiveAttributes.Select(x => x.Id).ToArray();
+
+            if (inactiveAttributeIds.Length > 0)
+            {
+                selection.RemoveAttributes(inactiveAttributeIds);
+            }
+
+            combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, selection);
         }
+
+        var candidates = await PrepareProductVariantCandidatesAsync(
+            ctx,
+            attributes,
+            unfilteredSelection,
+            ruleProvider);
 
         return new()
         {
-            HasSelection = true,
+            HasSelection = hasSelection,
             Selection = selection,
             UnfilteredSelection = unfilteredSelection,
             SelectedValues = selection.MaterializeProductVariantAttributeValues(attributes).ToArray(),
             InactiveAttributeIds = inactiveAttributeIds,
-            Combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, selection)
+            Combination = combination,
+            Candidates = candidates
         };
+    }
+
+    protected virtual async Task<IReadOnlyCollection<ProductVariantCandidate>> PrepareProductVariantCandidatesAsync(
+        ProductDetailsModelContext ctx,
+        ICollection<ProductVariantAttribute> attributes,
+        ProductVariantAttributeSelection selection,
+        IAttributeRuleProvider ruleProvider)
+    {
+        var product = ctx.Product;
+        var productBundleItem = ctx.ProductBundleItem;
+        var isBundlePricing = productBundleItem != null && !productBundleItem.BundleProduct.BundlePerItemPricing;
+
+        if (!ctx.DisplayPrices || isBundlePricing || product.CallForPrice)
+        {
+            return [];
+        }
+
+        var priceAttributes = attributes
+            .Where(x => x.AttributeControlType == AttributeControlType.Boxes
+                && (x.SwatchPriceDisplay ?? x.ProductAttribute.SwatchPriceDisplay) == SwatchPriceDisplayMode.FinalPrice)
+            .ToArray();
+
+        if (priceAttributes.Length == 0)
+        {
+            return [];
+        }
+
+        var combinations = await ctx.BatchContext.AttributeCombinations.GetOrLoadAsync(product.Id);
+        var combinationsByHashCode = combinations.ToMultimap(x => x.HashCode, x => x);
+        var nonListAttributeIds = attributes.Where(x => !x.IsListTypeAttribute()).Select(x => x.Id).ToArray();
+        var requiredAttributes = attributes.Where(x => x.IsRequired).ToArray();
+        var candidates = new List<ProductVariantCandidate>();
+
+        foreach (var attribute in priceAttributes)
+        {
+            foreach (var value in attribute.ProductVariantAttributeValues)
+            {
+                if (productBundleItem?.IsFilteredOut(value, out _) ?? false)
+                {
+                    continue;
+                }
+
+                var candidate = new ProductVariantAttributeSelection(selection.AsJson());
+                candidate.RemoveAttribute(value.ProductVariantAttributeId);
+                candidate.AddAttributeValue(value.ProductVariantAttributeId, value.Id);
+
+                var inactiveAttributes = await ruleProvider.GetInactiveAttributesAsync(product, candidate);
+                var inactiveAttributeIds = inactiveAttributes.Select(x => x.Id).ToHashSet();
+
+                if (inactiveAttributeIds.Contains(attribute.Id))
+                {
+                    continue;
+                }
+
+                candidate.RemoveAttributes(inactiveAttributeIds);
+
+                var hasMissingRequiredAttribute = requiredAttributes.Any(x =>
+                    !inactiveAttributeIds.Contains(x.Id) && !(candidate.GetAttributeValues(x.Id)?.Any() ?? false));
+
+                if (hasMissingRequiredAttribute)
+                {
+                    continue;
+                }
+
+                var combinationSelection = new ProductVariantAttributeSelection(candidate.AsJson());
+                combinationSelection.RemoveAttributes(nonListAttributeIds);
+
+                var combination = combinationsByHashCode.TryGetValues(combinationSelection.GetHashCode(), out var matchingCombinations)
+                    ? matchingCombinations.FirstOrDefault(x => x.AttributeSelection.Equals(combinationSelection))
+                    : null;
+
+                candidates.Add(new()
+                {
+                    AttributeValue = value,
+                    Selection = candidate,
+                    Combination = combination
+                });
+            }
+        }
+
+        return candidates;
     }
 
     protected virtual void AddPreselectedAttributeValues(
