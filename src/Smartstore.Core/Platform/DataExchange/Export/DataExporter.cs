@@ -60,6 +60,7 @@ public partial class DataExporter : IDataExporter
     private readonly IGenericAttributeService _genericAttributeService;
     private readonly IUrlService _urlService;
     private readonly IMailService _mailService;
+    private readonly IQueuedEmailService _queuedEmailService;
     private readonly Lazy<IUrlHelper> _urlHelper;
     private readonly ProductUrlHelper _productUrlHelper;
     private readonly ITaxCalculator _taxCalculator;
@@ -91,6 +92,7 @@ public partial class DataExporter : IDataExporter
         IGenericAttributeService genericAttributeService,
         IUrlService urlService,
         IMailService mailService,
+        IQueuedEmailService queuedEmailService,
         Lazy<IUrlHelper> urlHelper,
         ProductUrlHelper productUrlHelper,
         ITaxCalculator taxCalculator,
@@ -120,6 +122,7 @@ public partial class DataExporter : IDataExporter
         _genericAttributeService = genericAttributeService;
         _urlService = urlService;
         _mailService = mailService;
+        _queuedEmailService = queuedEmailService;
         _urlHelper = urlHelper;
         _productUrlHelper = productUrlHelper;
         _taxCalculator = taxCalculator;
@@ -1417,7 +1420,8 @@ public partial class DataExporter : IDataExporter
                     case ExportDeploymentType.Email:
                         publisher = new EmailFilePublisher(_db,
                             (DatabaseMediaStorageProvider)_providerManager.GetProvider<IMediaStorageProvider>(DatabaseMediaStorageProvider.SystemName).Value,
-                            _exportProfileService);
+                            _exportProfileService,
+                            _queuedEmailService);
                         break;
                     case ExportDeploymentType.FileSystem:
                         publisher = new FileSystemFilePublisher(_services.ApplicationContext);

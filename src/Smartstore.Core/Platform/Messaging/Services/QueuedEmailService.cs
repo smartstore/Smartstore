@@ -1,8 +1,12 @@
-﻿using Smartstore.Core.Content.Media;
+﻿#nullable enable annotations
+
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Messaging.Events;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
+using Smartstore.Events;
 using Smartstore.Http;
 using Smartstore.IO;
 using Smartstore.Net.Mail;
@@ -15,6 +19,7 @@ public partial class QueuedEmailService : IQueuedEmailService
     private readonly SmartDbContext _db;
     private readonly IMailService _mailService;
     private readonly IMediaService _mediaService;
+    private readonly IEventPublisher _eventPublisher;
     private readonly EmailAccountSettings _emailAccountSettings;
 
     private bool? _shouldSaveToDisk;
@@ -23,16 +28,48 @@ public partial class QueuedEmailService : IQueuedEmailService
         SmartDbContext db,
         IMailService mailService,
         IMediaService mediaService,
-        EmailAccountSettings emailAccountSettings)
+        EmailAccountSettings emailAccountSettings,
+        IEventPublisher eventPublisher)
     {
         _db = db;
         _mailService = mailService;
         _mediaService = mediaService;
         _emailAccountSettings = emailAccountSettings;
+        _eventPublisher = eventPublisher;
     }
 
     public Localizer T { get; set; } = NullLocalizer.Instance;
     public ILogger Logger { get; set; } = NullLogger.Instance;
+
+    /// <inheritdoc/>
+    public virtual async Task QueueEmailAsync(
+        QueuedEmail queuedEmail,
+        MessageContext? messageContext = null,
+        bool saveChanges = true,
+        CancellationToken cancelToken = default)
+    {
+        Guard.NotNull(queuedEmail);
+        cancelToken.ThrowIfCancellationRequested();
+
+        // Message consumers require the original template context. Raw emails, such as
+        // export notifications and requeued copies, are added without publishing this event.
+        if (messageContext != null)
+        {
+            await _eventPublisher.PublishAsync(new MessageQueuingEvent
+            {
+                QueuedEmail = queuedEmail,
+                MessageContext = messageContext,
+                MessageModel = messageContext.Model
+            }, cancelToken);
+        }
+
+        _db.QueuedEmails.Add(queuedEmail);
+
+        if (saveChanges)
+        {
+            await _db.SaveChangesAsync(cancelToken);
+        }
+    }
 
     public virtual async Task<int> DeleteAllQueuedMailsAsync(DateTime? olderThan = null, CancellationToken cancelToken = default)
     {
