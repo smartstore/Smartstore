@@ -92,6 +92,7 @@ public partial class CampaignService : ICampaignService
                         result.Email,
                         result.MessageContext,
                         saveChanges: false,
+                        allowDeferredAttachments: false,
                         cancelToken: cancelToken);
                 }
             }

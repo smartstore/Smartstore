@@ -28,6 +28,25 @@ public partial class QueuedMessagesSendTask : ITask
         int pageIndex = 0;
         int totalProcessed = 0;
 
+        // Recover from interrupted background work without letting abandoned placeholders block delivery indefinitely.
+        var abandonedBeforeUtc = DateTime.UtcNow.AddMinutes(-10);
+        var abandonedAttachments = _db.QueuedEmailAttachments
+            .Where(x => x.IsPending && x.QueuedEmail.CreatedOnUtc < abandonedBeforeUtc);
+
+        var abandonedAttachmentIds = await abandonedAttachments
+            .OrderBy(x => x.Id)
+            .Select(x => x.Id)
+            .Take(maxPageSize)
+            .ToArrayAsync(cancelToken);
+
+        if (abandonedAttachmentIds.Length > 0)
+        {
+            // Recheck IsPending so a completed attachment is preserved if generation finishes during cleanup.
+            await abandonedAttachments
+                .Where(x => abandonedAttachmentIds.Contains(x.Id))
+                .ExecuteDeleteAsync(cancelToken);
+        }
+
         while (true)
         {
             var allowedCount = _rateLimiter.GetAllowedSendCount(maxPageSize);
@@ -40,6 +59,7 @@ public partial class QueuedMessagesSendTask : ITask
 
             var queuedEmails = await _db.QueuedEmails
                 .Where(x => x.SentTries < 3 && x.SendManually == false)
+                .Where(x => !x.Attachments.Any(a => a.IsPending))
                 .ApplyTimeFilter(null, null, true)
                 .ApplySorting(true)
                 .Include(x => x.Attachments)

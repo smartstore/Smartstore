@@ -17,6 +17,10 @@ public partial interface IQueuedEmailService
     /// Whether to save changes in the current database context. If <c>false</c>, the caller
     /// must save changes later, for example after queuing a batch of campaign emails.
     /// </param>
+    /// <param name="allowDeferredAttachments">
+    /// Whether event consumers may register deferred attachments. If <c>false</c>, emails
+    /// containing pending attachments are rejected.
+    /// </param>
     /// <param name="cancelToken">The cancellation token.</param>
     /// <remarks>
     /// With a message context, event consumers can alter the email and add attachments before
@@ -27,6 +31,7 @@ public partial interface IQueuedEmailService
         QueuedEmail queuedEmail,
         MessageContext? messageContext = null,
         bool saveChanges = true,
+        bool allowDeferredAttachments = true,
         CancellationToken cancelToken = default);
 
     /// <summary>
@@ -41,5 +46,6 @@ public partial interface IQueuedEmailService
     /// </summary>
     /// <param name="queuedEmails">Queued emails. Entities must be tracked.</param>
     /// <returns>Whether the operation succeeded</returns>
+    /// <remarks>Emails with pending attachments are skipped without counting a send attempt.</remarks>
     Task<bool> SendMailsAsync(IEnumerable<QueuedEmail> queuedEmails, CancellationToken cancelToken = default);
 }

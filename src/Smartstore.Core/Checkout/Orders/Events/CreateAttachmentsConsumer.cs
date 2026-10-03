@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using System.Net.Mime;
+﻿using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Content.Media;
@@ -18,8 +16,7 @@ internal class CreateAttachmentsConsumer : IConsumer
     public ILogger Logger { get; set; } = NullLogger.Instance;
     public Localizer T { get; set; } = NullLocalizer.Instance;
 
-    public async Task HandleEventAsync(MessageQueuingEvent message,
-        Lazy<PdfHttpClient> client,
+    public void HandleEvent(MessageQueuingEvent message,
         Lazy<IUrlHelper> urlHelper,
         PdfSettings pdfSettings)
     {
@@ -42,17 +39,24 @@ internal class CreateAttachmentsConsumer : IConsumer
                 var helper = urlHelper.Value;
                 var request = helper.ActionContext.HttpContext.Request;
                 var path = helper.Action("Print", "Order", new { id = orderId, pdf = true, area = string.Empty });
-                var url = WebHelper.GetAbsoluteUrl(path!, request);
+                var url = WebHelper.GetAbsoluteUrl(path, request);
                 var requestSnapshot = request.CreateSnapshot();
-                var result = await client.Value.GetPdfAsync(url, requestSnapshot);
 
-                message.QueuedEmail.Attachments.Add(new()
+                var work = AttachmentWork.Create<PdfHttpClient, (string Url, HttpRequestSnapshot Snapshot)>(
+                    (url, requestSnapshot),
+                    static async (client, state, attachment, cancelToken) =>
+                    {
+                        var result = await client.GetPdfAsync(state.Url, state.Snapshot, cancelToken);
+                        attachment.Name = result.FileName;
+                        attachment.MediaStorage = new MediaStorage { Data = result.Buffer };
+                    });
+
+                message.AddDeferredAttachment(new QueuedEmailAttachment
                 {
                     StorageLocation = EmailAttachmentStorageLocation.Blob,
                     MimeType = MediaTypeNames.Application.Pdf,
-                    Name = result.FileName,
-                    MediaStorage = new MediaStorage { Data = result.Buffer }
-                });
+                    Name = $"order-{orderId}.pdf"
+                }, work);
             }
             catch (Exception ex)
             {

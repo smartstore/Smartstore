@@ -46,6 +46,7 @@ public partial class QueuedEmailService : IQueuedEmailService
         QueuedEmail queuedEmail,
         MessageContext? messageContext = null,
         bool saveChanges = true,
+        bool allowDeferredAttachments = true,
         CancellationToken cancelToken = default)
     {
         Guard.NotNull(queuedEmail);
@@ -55,12 +56,25 @@ public partial class QueuedEmailService : IQueuedEmailService
         // export notifications and requeued copies, are added without publishing this event.
         if (messageContext != null)
         {
-            await _eventPublisher.PublishAsync(new MessageQueuingEvent
+            var message = new MessageQueuingEvent
             {
                 QueuedEmail = queuedEmail,
                 MessageContext = messageContext,
-                MessageModel = messageContext.Model
-            }, cancelToken);
+                MessageModel = messageContext.Model,
+                AllowDeferredAttachments = allowDeferredAttachments
+            };
+
+            await _eventPublisher.PublishAsync(message, cancelToken);
+
+            if (message.DeferredAttachments.Count > 0)
+            {
+                queuedEmail.AddHookState(nameof(MessageQueuingEvent.DeferredAttachments), message.DeferredAttachments.ToArray());
+            }
+        }
+
+        if (!allowDeferredAttachments && queuedEmail.Attachments.Any(x => x.IsPending))
+        {
+            throw new InvalidOperationException("This queue operation does not accept deferred attachments.");
         }
 
         _db.QueuedEmails.Add(queuedEmail);
@@ -115,7 +129,9 @@ public partial class QueuedEmailService : IQueuedEmailService
     {
         var result = false;
         var saveToDisk = ShouldSaveToDisk();
-        var groupedQueuedEmails = queuedEmails.GroupBy(x => x.EmailAccountId);
+        var groupedQueuedEmails = queuedEmails
+            .Where(x => !x.Attachments.Any(a => a.IsPending))
+            .GroupBy(x => x.EmailAccountId);
 
         foreach (var group in groupedQueuedEmails)
         {

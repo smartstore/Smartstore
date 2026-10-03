@@ -95,9 +95,10 @@ that matter most:
 
 Beyond formatting:
 
-- **Nullability:** enable `#nullable enable` at file level in new or modified files,
-  primarily in interfaces and contracts for IntelliSense — but only where it earns its
-  keep. Avoid `!` except at clearly justified boundaries.
+- **Nullability:** use file-level `#nullable enable` for interfaces and other contracts.
+  Do not enable it in implementation classes, except utilities/tools. Never enable
+  nullability in an existing implementation class without explicit user instruction.
+  Avoid `!` except at clearly justified boundaries.
 - **Async:** use `async`/`await`, suffix async methods with `Async`, never `.Result`
   or `.Wait()`.
 - **DI:** constructor injection. No service locator.
