@@ -47,6 +47,15 @@ public sealed class HttpRequestSnapshot
     /// <remarks>This is the raw path and query received by the server (PathBase + Path + QueryString), rather than an absolute URL.</remarks>
     public string RawUrl { get; set; } = string.Empty;
 
+    /// <summary>Gets or sets the captured action, controller, and route values.</summary>
+    /// <remarks>
+    /// The route value dictionary is copied when capturing the request. This property is
+    /// <see langword="null"/> and omitted from JSON when no action is available, such as before
+    /// routing or for a non-MVC endpoint.
+    /// </remarks>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public RouteInfo? RouteInfo { get; set; }
+
     /// <summary>Gets or sets the captured request headers, preserving multiple values per header.</summary>
     /// <remarks>
     /// Header names remain case-insensitive after JSON deserialization. Capturing a request copies

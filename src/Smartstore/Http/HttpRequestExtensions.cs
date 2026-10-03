@@ -3,6 +3,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Smartstore.Http;
@@ -29,6 +30,7 @@ public static class HttpRequestExtensions
         Guard.NotNull(request);
 
         var context = request.HttpContext;
+        string? action = context.GetRouteValueAs<string>("action");
 
         return new()
         {
@@ -40,6 +42,9 @@ public static class HttpRequestExtensions
             QueryString = request.QueryString.Value.EmptyNull(),
             Protocol = request.Protocol,
             RawUrl = request.RawUrl(),
+            RouteInfo = action.HasValue()
+                ? new RouteInfo(action, context.GetRouteValueAs<string>("controller"), new RouteValueDictionary(request.RouteValues))
+                : null,
             Headers = request.Headers.ToDictionary(
                 header => header.Key,
                 header => header.Value.Select(value => value.EmptyNull()).ToArray(),
