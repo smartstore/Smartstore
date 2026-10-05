@@ -554,9 +554,11 @@ public partial class CatalogHelper
         var linkedMediaFiles = new Multimap<int, ProductMediaFile>();
         // Key: ProductVariantAttributeValue.Id, value: attribute price adjustment.
         Dictionary<int, CalculatedPriceAdjustment> priceAdjustments = [];
-        CalculatedPrice swatchPrice = null;
 
-        if (ctx.DisplayPrices && !isBundlePricing)
+        if (ctx.DisplayPrices
+            && !isBundlePricing
+            && !product.CallForPrice
+            && _priceSettings.ShowVariantCombinationPriceAdjustment)
         {
             var pricingOptions = _priceCalculationService.CreateDefaultOptions(false, ctx.Customer, null, ctx.BatchContext);
             pricingOptions.DeterminePriceAdjustments = true;
@@ -568,8 +570,8 @@ public partial class CatalogHelper
                 BundleItem = productBundleItem
             };
 
-            swatchPrice = await _priceCalculationService.CalculatePriceAsync(pricingContext);
-            priceAdjustments = swatchPrice.AttributePriceAdjustments.ToDictionarySafe(x => x.AttributeValue.Id);
+            var price = await _priceCalculationService.CalculatePriceAsync(pricingContext);
+            priceAdjustments = price.AttributePriceAdjustments.ToDictionarySafe(x => x.AttributeValue.Id);
         }
 
         var linkedProductIds = attributes
@@ -605,7 +607,6 @@ public partial class CatalogHelper
                 attribute,
                 linkedProducts,
                 priceAdjustments,
-                swatchPrice,
                 linkedMediaFiles,
                 ctx);
 
@@ -623,7 +624,6 @@ public partial class CatalogHelper
         ProductVariantAttribute attribute,
         Dictionary<int, Product> linkedProducts,
         Dictionary<int, CalculatedPriceAdjustment> priceAdjustments,
-        CalculatedPrice swatchBasePrice,
         Multimap<int, ProductMediaFile> linkedMediaFiles,
         ProductDetailsModelContext ctx)
     {
@@ -736,35 +736,28 @@ public partial class CatalogHelper
 
                     if (ctx.DisplayPrices && !isBundlePricing)
                     {
-                        priceAdjustments.TryGetValue(val.Id, out var priceAdjustment);
-
-                        if (priceAdjustment != null
-                            && _priceSettings.ShowVariantCombinationPriceAdjustment
-                            && !product.CallForPrice
-                            && priceAdjustment.Price != 0)
+                        if (priceAdjustments.TryGetValue(val.Id, out var priceAdjustment) && priceAdjustment.Price != 0)
                         {
                             m.PriceAdjustment = priceAdjustment.Price;
                         }
 
-                        // Apply swatch prices.
+                        // Apply evaluated candidate price.
                         if (attributeModel.SwatchPriceDisplay == SwatchPriceDisplayMode.FinalPrice
-                            && swatchBasePrice?.PricingType == PricingType.Calculated)
+                            && ctx.VariantEvaluation.Prices.TryGetValue(val.Id, out var price)
+                            && price.PricingType == PricingType.Calculated)
                         {
-                            var adjustment = priceAdjustment?.Price.Amount ?? 0m;
+                            m.SwatchPrice = price.FinalPrice;
 
-                            m.SwatchPrice = swatchBasePrice.FinalPrice + adjustment;
-
-                            if (swatchBasePrice.Saving.HasSaving && swatchBasePrice.RegularPrice.HasValue)
+                            if (price.Saving.HasSaving && price.RegularPrice != null)
                             {
-                                m.SwatchComparePrice = swatchBasePrice.RegularPrice.Value + adjustment;
+                                m.SwatchComparePrice = price.RegularPrice.Value;
                             }
-                            else if (swatchBasePrice.RetailPrice.HasValue &&
-                                (!swatchBasePrice.RegularPrice.HasValue || _priceSettings.AlwaysDisplayRetailPrice))
+                            else if (price.RetailPrice != null && (price.RegularPrice == null || _priceSettings.AlwaysDisplayRetailPrice))
                             {
-                                m.SwatchComparePrice = swatchBasePrice.RetailPrice.Value + adjustment;
+                                m.SwatchComparePrice = price.RetailPrice.Value;
                             }
 
-                            if (product.BasePriceEnabled && m.SwatchPrice.Value != 0m)
+                            if (product.BasePriceEnabled && m.SwatchPrice.Value != 0)
                             {
                                 m.SwatchBasePriceInfo = _priceCalculationService.GetBasePriceInfo(
                                     product,
