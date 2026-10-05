@@ -3,10 +3,6 @@
 @model ChoiceModel
 
 @{
-    // TODO: Default swatch size for bundle items should be "Small"
-}
-
-@{
     var controlId = Model.BuildControlId();
     var items = Model.Values ?? new List<ChoiceItemModel>();
     var srLabelTemplate = T("Aria.Label.Choice");
@@ -57,7 +53,6 @@
                 + (item.IsPreSelected ? " selected" : null)
                 + (isDark ? " dark" : null)
                 + (item.IsDisabled ? " disabled" : item.IsUnavailable ? " unavailable" : null);
-
             var elementClass = "swatch-element"
                 + (useCardLayout ? " swatch-card" : hasImage ? " swatch-image" : hasColor ? " swatch-color" : " swatch-text");
 

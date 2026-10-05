@@ -651,7 +651,9 @@ public partial class CatalogHelper
 
         if (attribute.AttributeControlType == AttributeControlType.Boxes)
         {
-            attributeModel.SwatchSize = attribute.SwatchSize ?? attribute.ProductAttribute.SwatchSize ?? _catalogSettings.DefaultSwatchSize;
+            attributeModel.SwatchSize = productBundleItem != null
+                ? SwatchSize.Small
+                : attribute.SwatchSize ?? attribute.ProductAttribute.SwatchSize ?? _catalogSettings.DefaultSwatchSize;
             attributeModel.SwatchAspectRatio = Math.Max(attribute.SwatchAspectRatio ?? attribute.ProductAttribute.SwatchAspectRatio, 0);
             attributeModel.SwatchShape = attribute.SwatchShape ?? attribute.ProductAttribute.SwatchShape ?? _catalogSettings.DefaultSwatchShape;
             attributeModel.ShowValueNameInSwatch = attribute.ShowValueNameInSwatch ?? attribute.ProductAttribute.ShowValueNameInSwatch;
