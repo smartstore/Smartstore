@@ -236,7 +236,7 @@ public partial class CatalogHelper
         }
     }
 
-    protected virtual async Task<IReadOnlyDictionary<int, CalculatedPrice>> CalculateProductVariantPricesAsync(
+    protected internal virtual async Task<IReadOnlyDictionary<int, CalculatedPrice>> CalculateProductVariantPricesAsync(
         ProductDetailsModelContext ctx,
         IReadOnlyCollection<ProductVariantCandidate> candidates,
         int selectedQuantity)
