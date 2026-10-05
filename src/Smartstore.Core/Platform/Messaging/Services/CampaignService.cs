@@ -1,9 +1,7 @@
 ﻿using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Messaging.Events;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Events;
 
 namespace Smartstore.Core.Messaging;
 
@@ -13,20 +11,20 @@ public partial class CampaignService : ICampaignService
     private readonly IMessageFactory _messageFactory;
     private readonly IStoreContext _storeContext;
     private readonly IStoreMappingService _storeMappingService;
-    private readonly IEventPublisher _eventPublisher;
+    private readonly IQueuedEmailService _queuedEmailService;
 
     public CampaignService(
         SmartDbContext db,
         IMessageFactory messageFactory,
         IStoreContext storeContext,
         IStoreMappingService storeMappingService,
-        IEventPublisher eventPublisher)
+        IQueuedEmailService queuedEmailService)
     {
         _db = db;
         _messageFactory = messageFactory;
         _storeContext = storeContext;
         _storeMappingService = storeMappingService;
-        _eventPublisher = eventPublisher;
+        _queuedEmailService = queuedEmailService;
     }
 
     public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -89,16 +87,13 @@ public partial class CampaignService : ICampaignService
                     alreadyProcessedEmails.Add(subscriber.Subscription.Email);
                     ++totalEmailsSent;
 
-                    // Publish event so that integrators can add attachments, alter the email etc.
-                    await _eventPublisher.PublishAsync(new MessageQueuingEvent
-                    {
-                        QueuedEmail = result.Email,
-                        MessageContext = result.MessageContext,
-                        MessageModel = result.MessageContext.Model
-                    }, cancelToken);
-
                     // Queue emails so they can be saved later in one go.
-                    _db.QueuedEmails.Add(result.Email);
+                    await _queuedEmailService.QueueEmailAsync(
+                        result.Email,
+                        result.MessageContext,
+                        saveChanges: false,
+                        allowDeferredAttachments: false,
+                        cancelToken: cancelToken);
                 }
             }
 

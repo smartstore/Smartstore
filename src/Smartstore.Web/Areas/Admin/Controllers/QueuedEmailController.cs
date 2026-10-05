@@ -276,8 +276,7 @@ public class QueuedEmailController : AdminController
             SendManually = queuedEmail.SendManually
         };
 
-        _db.QueuedEmails.Add(requeuedEmail);
-        await _db.SaveChangesAsync();
+        await _queuedEmailService.QueueEmailAsync(requeuedEmail);
 
         NotifySuccess(T("Admin.System.QueuedEmails.Requeued"));
 

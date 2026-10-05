@@ -196,16 +196,7 @@ public partial class MessageFactory : IMessageFactory
         Guard.NotNull(messageContext);
         Guard.NotNull(queuedEmail);
 
-        // Publish event so that integrators can add attachments, alter the email etc.
-        await _eventPublisher.PublishAsync(new MessageQueuingEvent
-        {
-            QueuedEmail = queuedEmail,
-            MessageContext = messageContext,
-            MessageModel = messageContext.Model
-        });
-
-        _db.QueuedEmails.Add(queuedEmail);
-        await _db.SaveChangesAsync();
+        await _queuedEmailService.QueueEmailAsync(queuedEmail, messageContext);
     }
 
     private async Task<List<MailAddress>> RenderEmailAddressAsync(string email, MessageContext ctx, bool required = true)
