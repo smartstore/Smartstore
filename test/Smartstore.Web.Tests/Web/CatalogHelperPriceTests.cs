@@ -52,7 +52,7 @@ public class CatalogHelperPriceTests
     }
 
     [Test]
-    public async Task Can_calculate_product_variant_prices_with_limit_exceeded()
+    public async Task Can_calculate_product_variant_prices_with_exceeded_limit()
     {
         using var fixture = new CatalogHelperFixture(maxCalculations: 1);
         var selection1 = new ProductVariantAttributeSelection(null);
@@ -75,12 +75,43 @@ public class CatalogHelperPriceTests
         }
     }
 
-    private static ProductVariantCandidate CreateCandidate(int attributeValueId, ProductVariantAttributeSelection selection)
+    [Test]
+    public async Task Can_calculate_product_variant_prices_with_combination()
+    {
+        using var fixture = new CatalogHelperFixture(maxCalculations: 1);
+        var selection = new ProductVariantAttributeSelection(null);
+        var combination = new ProductVariantAttributeCombination { Id = 7, Price = 19.90M };
+
+        await fixture.Helper.CalculateProductVariantPricesAsync(
+            fixture.Context,
+            [CreateCandidate(42, selection, combination)],
+            5);
+
+        var calculationContext = fixture.CalculationContexts[0];
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(calculationContext.Product, Is.SameAs(fixture.Context.Product));
+            Assert.That(calculationContext.Quantity, Is.EqualTo(5));
+            Assert.That(calculationContext.AttributeCombination, Is.SameAs(combination));
+            Assert.That(calculationContext.AssociatedProducts, Is.SameAs(fixture.Context.AssociatedProducts));
+            Assert.That(calculationContext.BundleItem, Is.SameAs(fixture.Context.ProductBundleItem));
+            Assert.That(calculationContext.Options.Customer, Is.SameAs(fixture.Context.Customer));
+            Assert.That(calculationContext.Options.TargetCurrency, Is.SameAs(fixture.Context.Currency));
+            Assert.That(calculationContext.Options.TaxFormat, Is.Null);
+        }
+    }
+
+    private static ProductVariantCandidate CreateCandidate(
+        int attributeValueId,
+        ProductVariantAttributeSelection selection,
+        ProductVariantAttributeCombination combination = null)
     {
         return new()
         {
             AttributeValue = new ProductVariantAttributeValue { Id = attributeValueId },
-            Selection = selection
+            Selection = selection,
+            Combination = combination
         };
     }
 
@@ -136,7 +167,9 @@ public class CatalogHelperPriceTests
                 BatchContext = batchContext,
                 Customer = customer,
                 Store = store,
-                Currency = currency
+                Currency = currency,
+                AssociatedProducts = [new Product { Id = 2 }],
+                ProductBundleItem = new ProductBundleItem { Id = 3 }
             };
         }
 

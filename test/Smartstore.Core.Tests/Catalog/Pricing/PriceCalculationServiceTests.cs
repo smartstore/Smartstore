@@ -533,6 +533,57 @@ public class PriceCalculationServiceTests : ServiceTestBase
     }
 
     [Test]
+    public async Task Can_calculate_multiple_product_prices_with_linked_products()
+    {
+        var linkedProduct = new Product
+        {
+            Id = 2,
+            Name = "Linked product",
+            Price = 5M,
+            Published = true,
+            ProductType = ProductType.SimpleProduct
+        };
+        var attribute = new ProductVariantAttribute
+        {
+            Product = _product,
+            ProductAttribute = new ProductAttribute { Name = "Linked product" },
+            AttributeControlType = AttributeControlType.DropdownList
+        };
+        var attributeValue = new ProductVariantAttributeValue
+        {
+            ProductVariantAttribute = attribute,
+            Name = "Linked product",
+            ValueType = ProductVariantAttributeValueType.ProductLinkage,
+            LinkedProductId = linkedProduct.Id,
+            Quantity = 2
+        };
+        attribute.ProductVariantAttributeValues.Add(attributeValue);
+
+        DbContext.Products.AddRange(_product, linkedProduct);
+        DbContext.ProductVariantAttributes.Add(attribute);
+        await DbContext.SaveChangesAsync();
+
+        var selection = new ProductVariantAttributeSelection(null);
+        selection.AddAttributeValue(attribute.Id, attributeValue.Id);
+        _priceCalculationContext.AddSelectedAttributes(selection, _product.Id);
+
+        var expectedPrice = new CalculatedPrice(_product);
+        var priceCalculationService = new Mock<IPriceCalculationService>();
+        priceCalculationService
+            .Setup(x => x.CalculatePriceAsync(_priceCalculationContext))
+            .ReturnsAsync(expectedPrice);
+
+        var prices = await priceCalculationService.Object.CalculatePricesAsync([_priceCalculationContext], DbContext);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(prices[0], Is.SameAs(expectedPrice));
+            Assert.That(_priceCalculationContext.LinkedProducts, Contains.Key(linkedProduct.Id));
+            Assert.That(_priceCalculationContext.LinkedProducts[linkedProduct.Id].Price, Is.EqualTo(linkedProduct.Price));
+        }
+    }
+
+    [Test]
     public async Task Can_get_product_discount()
     {
         _priceCalculationContext.Options.IgnoreDiscounts = false;
