@@ -51,6 +51,7 @@ public class PriceCalculationContext
         BundleItems = context.BundleItems;
         BundleItem = context.BundleItem;
         AttributeCombination = context.AttributeCombination;
+        LinkedProducts = context.LinkedProducts;
         Quantity = context.Quantity;
         Options = context.Options;
         Metadata = context.Metadata;
@@ -120,6 +121,12 @@ public class PriceCalculationContext
     /// Gets or sets an attribute combination whose price is to be applied in the price calculation.
     /// </summary>
     public ProductVariantAttributeCombination AttributeCombination { get; set; }
+
+    /// <summary>
+    /// Gets or sets preloaded products linked by selected product attribute values.
+    /// Missing products are loaded on demand during price calculation.
+    /// </summary>
+    public Dictionary<int, Product> LinkedProducts { get; set; }
 
     /// <summary>
     /// Gets or sets the selected product attributes to be included in the price calculation.

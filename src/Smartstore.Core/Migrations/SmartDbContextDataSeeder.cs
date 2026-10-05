@@ -303,7 +303,7 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.Configuration.Settings.Performance.MaxVariantPriceCalculations",
             "Maximum number of price calculations for color and image swatches",
             "Maximale Anzahl an Preisberechnungen bei Farb- und Bildmustern",
-            "Limits full price calculations for swatch values when fixed combination prices exist. Swatch prices are hidden when the limit is exceeded.",
-            "Begrenzt vollständige Preisberechnungen für Swatch-Werte, wenn feste Kombinationspreise vorhanden sind. Bei Überschreitung werden die Swatch-Preise ausgeblendet.");
+            "Maximum number of full price calculations for color and image swatches, provided that attribute combinations with fixed prices exist. If this limit is exceeded, the prices for swatches are hidden.",
+            "Maximale Anzahl vollständiger Preisberechnungen bei Farb- und Bildmustern, sofern Attributkombinationen mit festen Preisen existieren. Bei Überschreitung dieser Grenze werden die Preise für Farb- und Bildmuster ausgeblendet.");
     }
 }

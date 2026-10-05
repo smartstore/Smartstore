@@ -548,7 +548,7 @@ public partial class CatalogHelper
         var isBundlePricing = productBundleItem != null && !productBundleItem.BundleProduct.BundlePerItemPricing;
         var attributes = await ctx.BatchContext.Attributes.GetOrLoadAsync(product.Id);
 
-        ctx.VariantEvaluation = await PrepareProductVariantEvaluationAsync(ctx, attributes);
+        ctx.VariantEvaluation = await PrepareProductVariantEvaluationAsync(ctx, attributes, selectedQuantity);
 
         var linkedProducts = new Dictionary<int, Product>();
         var linkedMediaFiles = new Multimap<int, ProductMediaFile>();
@@ -813,7 +813,8 @@ public partial class CatalogHelper
 
     protected virtual async Task<ProductVariantEvaluation> PrepareProductVariantEvaluationAsync(
         ProductDetailsModelContext ctx,
-        ICollection<ProductVariantAttribute> attributes)
+        ICollection<ProductVariantAttribute> attributes,
+        int selectedQuantity)
     {
         var product = ctx.Product;
         var query = ctx.VariantQuery;
@@ -849,8 +850,9 @@ public partial class CatalogHelper
         var ruleProvider = _ruleProviderFactory.GetProvider<IAttributeRuleProvider>(
             RuleScope.ProductAttribute,
             new AttributeRuleProviderContext(product.Id) { BatchContext = ctx.BatchContext });
-        int[] inactiveAttributeIds = [];
+
         ProductVariantAttributeCombination combination = null;
+        int[] inactiveAttributeIds = [];
 
         if (hasSelection)
         {
@@ -865,11 +867,8 @@ public partial class CatalogHelper
             combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, selection);
         }
 
-        var candidates = await PrepareProductVariantCandidatesAsync(
-            ctx,
-            attributes,
-            unfilteredSelection,
-            ruleProvider);
+        var candidates = await PrepareProductVariantCandidatesAsync(ctx, attributes, unfilteredSelection, ruleProvider);
+        var prices = await CalculateProductVariantPricesAsync(ctx, candidates, selectedQuantity);
 
         return new()
         {
@@ -879,7 +878,8 @@ public partial class CatalogHelper
             SelectedValues = selection.MaterializeProductVariantAttributeValues(attributes).ToArray(),
             InactiveAttributeIds = inactiveAttributeIds,
             Combination = combination,
-            Candidates = candidates
+            Candidates = candidates,
+            Prices = prices
         };
     }
 

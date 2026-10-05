@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Identity;
@@ -103,6 +104,11 @@ public partial class ProductVariantEvaluation
     /// Gets the candidates prepared for variant price calculation.
     /// </summary>
     public IReadOnlyCollection<ProductVariantCandidate> Candidates { get; init; } = [];
+
+    /// <summary>
+    /// Gets the calculated candidate prices by product variant attribute value identifier.
+    /// </summary>
+    public IReadOnlyDictionary<int, CalculatedPrice> Prices { get; init; } = new Dictionary<int, CalculatedPrice>();
 }
 
 /// <summary>

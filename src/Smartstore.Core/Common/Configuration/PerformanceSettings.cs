@@ -38,7 +38,7 @@ public class PerformanceSettings : ISettings
     public int MaxUnavailableAttributeCombinations { get; set; } = 10000;
 
     /// <summary>
-    /// Maximum number of full pricing pipeline executions used to calculate variant prices on the product detail page.
+    /// Maximum number of full price calculations for color and image swatches on the product detail page.
     /// </summary>
     public int MaxVariantPriceCalculations { get; set; } = 50;
 

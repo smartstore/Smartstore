@@ -504,6 +504,35 @@ public class PriceCalculationServiceTests : ServiceTestBase
     }
 
     [Test]
+    public async Task Can_calculate_multiple_product_prices()
+    {
+        var contexts = new[]
+        {
+            new PriceCalculationContext(_priceCalculationContext.Product, _priceCalculationContext.Options)
+            {
+                AttributeCombination = new ProductVariantAttributeCombination
+                {
+                    Price = 18.90M,
+                    IsActive = true
+                }
+            },
+            new PriceCalculationContext(_priceCalculationContext.Product, _priceCalculationContext.Options)
+            {
+                AttributeCombination = new ProductVariantAttributeCombination
+                {
+                    Price = 21.50M,
+                    IsActive = true
+                }
+            }
+        };
+
+        var prices = await _priceCalcService.CalculatePricesAsync(contexts, DbContext);
+
+        prices.Select(x => x.FinalPrice.Amount).ShouldSequenceEqual([18.90M, 21.50M]);
+        _product.Price.ShouldEqual(12.34M);
+    }
+
+    [Test]
     public async Task Can_get_product_discount()
     {
         _priceCalculationContext.Options.IgnoreDiscounts = false;

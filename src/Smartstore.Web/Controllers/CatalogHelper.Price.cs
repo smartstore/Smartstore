@@ -187,13 +187,13 @@ public partial class CatalogHelper
         _services.DisplayControl.AnnounceRange(product.ProductCategories.Select(x => x.Category));
     }
 
-    private async Task PrepareTierPriceModelAsync(ProductDetailsPriceModel model, ProductDetailsModelContext modelContext)
+    private async Task PrepareTierPriceModelAsync(ProductDetailsPriceModel model, ProductDetailsModelContext ctx)
     {
-        var product = modelContext.Product;
+        var product = ctx.Product;
 
         var tierPrices = product.TierPrices
-            .FilterByStore(modelContext.Store.Id)
-            .FilterForCustomer(modelContext.Customer)
+            .FilterByStore(ctx.Store.Id)
+            .FilterForCustomer(ctx.Customer)
             .OrderBy(x => x.Quantity)
             .ToList()
             .RemoveDuplicatedQuantities();
@@ -202,16 +202,16 @@ public partial class CatalogHelper
             return;
         }
 
-        var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, modelContext.Customer, modelContext.Currency, modelContext.BatchContext);
+        var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, ctx.Customer, ctx.Currency, ctx.BatchContext);
         calculationOptions.TaxFormat = null;
 
         var calculationContext = new PriceCalculationContext(product, 1, calculationOptions)
         {
-            AssociatedProducts = modelContext.AssociatedProducts,
-            BundleItem = modelContext.ProductBundleItem
+            AssociatedProducts = ctx.AssociatedProducts,
+            BundleItem = ctx.ProductBundleItem
         };
 
-        calculationContext.AddSelectedAttributes(modelContext.VariantEvaluation?.Selection, product.Id, modelContext.ProductBundleItem?.Id);
+        calculationContext.AddSelectedAttributes(ctx.VariantEvaluation?.Selection, product.Id, ctx.ProductBundleItem?.Id);
 
         var tierPriceModels = await tierPrices
             .SelectAwait(async (tierPrice) =>
@@ -234,6 +234,54 @@ public partial class CatalogHelper
         {
             model.TierPrices.AddRange(tierPriceModels);
         }
+    }
+
+    protected virtual async Task<IReadOnlyDictionary<int, CalculatedPrice>> CalculateProductVariantPricesAsync(
+        ProductDetailsModelContext ctx,
+        IReadOnlyCollection<ProductVariantCandidate> candidates,
+        int selectedQuantity)
+    {
+        var candidatesBySelection = candidates.ToMultimap(x => x.Selection, x => x);
+        if (candidatesBySelection.Count == 0 || candidatesBySelection.Count > _performanceSettings.MaxVariantPriceCalculations)
+        {
+            return new Dictionary<int, CalculatedPrice>();
+        }
+
+        var product = ctx.Product;
+        var pricingOptions = _priceCalculationService.CreateDefaultOptions(false, ctx.Customer, null, ctx.BatchContext);
+        pricingOptions.TaxFormat = null;
+
+        var calculationContexts = new List<PriceCalculationContext>(candidatesBySelection.Count);
+
+        foreach (var group in candidatesBySelection)
+        {
+            var candidate = group.Value.First();
+            var calculationContext = new PriceCalculationContext(product, selectedQuantity, pricingOptions)
+            {
+                AssociatedProducts = ctx.AssociatedProducts,
+                BundleItem = ctx.ProductBundleItem,
+                AttributeCombination = candidate.Combination
+            };
+
+            calculationContext.AddSelectedAttributes(group.Key, product.Id, ctx.ProductBundleItem?.Id);
+            calculationContexts.Add(calculationContext);
+        }
+
+        var calculatedPrices = await _priceCalculationService.CalculatePricesAsync(calculationContexts, _db);
+        var prices = new Dictionary<int, CalculatedPrice>();
+        var index = 0;
+
+        foreach (var group in candidatesBySelection)
+        {
+            var price = calculatedPrices[index++];
+
+            foreach (var candidate in group.Value)
+            {
+                prices[candidate.AttributeValue.Id] = price;
+            }
+        }
+
+        return prices;
     }
 
     #endregion
