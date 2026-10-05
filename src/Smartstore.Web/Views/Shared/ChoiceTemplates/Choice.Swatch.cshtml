@@ -12,17 +12,6 @@
     var srLabelTemplate = T("Aria.Label.Choice");
     var canUseCardLayout = Model.CanUseCardLayout;
 
-    // TEST
-    // if (canUseCardLayout)
-    // {
-    //     Model.SwatchSize = SwatchSize.XXLarge;
-    //     Model.SwatchShape = SwatchShape.Rounded;
-    //     Model.SwatchAspectRatio = 0.5m;
-    //     Model.ShowValueNameInSwatch = true;
-    //     Model.SwatchPriceDisplay = SwatchPriceDisplayMode.FinalPrice;
-    // }
-    // TEST
-
     var useCardLayout = Model.UseCardLayout;
     var sizeClass = Model.SwatchSize.ToCssToken();
     var shapeClass = Model.EffectiveSwatchShape.ToCssToken();
@@ -52,11 +41,6 @@
         style="--swatch-aspect-ratio: @Model.EffectiveSwatchAspectRatio.ToStringInvariant(); --swatch-multicolor-angle: @(Model.MulticolorGradientAngle.ToStringInvariant())deg">
         @foreach (var item in items)
         {
-            // TEST
-            // item.AdditionalColors.Add("#f9c");
-            // item.AdditionalColors.Add("red");
-            // TEST
-
             var css = item.GetSwatchStyle();
             var hasColor = item.HasColor;
             var hasImage = item.HasImage;
@@ -69,10 +53,6 @@
                 ? item.GetSwatchDisplayName()
                 : item.GetAccessibleLabel();
 
-            // TEST
-            //item.IsUnavailable = label.Contains("a") || hasImage;
-            // TEST
-
             var swatchClass = "swatch"
                 + (item.IsPreSelected ? " selected" : null)
                 + (isDark ? " dark" : null)
@@ -80,12 +60,6 @@
 
             var elementClass = "swatch-element"
                 + (useCardLayout ? " swatch-card" : hasImage ? " swatch-image" : hasColor ? " swatch-color" : " swatch-text");
-
-            // TEST
-            @* swatchPrice ??= "199,59 €";
-            item.SwatchComparePrice ??= new Money(299, WorkContext.WorkingCurrency);
-            item.SwatchBasePriceInfo ??= "(299,13 € / 100 ml)"; *@
-            // TEST
 
             <li class="@swatchClass" data-swatch-value="@dynamicLabel">
                 <input type="radio"
