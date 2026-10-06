@@ -1011,7 +1011,7 @@ public class ExportXmlHelper : Disposable
                     _writer.WriteElementString(nameof(ProductVariantAttributeValue.Alias), (string)value.Alias);
                     _writer.WriteElementString(nameof(ProductVariantAttributeValue.Name), (string)value.Name);
                     _writer.WriteElementString(nameof(ProductVariantAttributeValue.Color), (string)value.Color);
-                    _writer.WriteElementString(nameof(ProductVariantAttributeValue.AdditionalColors), (string)value.AdditionalColors);
+                    _writer.WriteElementString(nameof(ProductVariantAttributeValue.AdditionalColors), string.Join(',', entityPvav.AdditionalColors ?? []));
                     _writer.WriteElementString(nameof(ProductVariantAttributeValue.PriceAdjustment), ((decimal)value.PriceAdjustment).ToString(_culture));
                     _writer.WriteElementString(nameof(ProductVariantAttributeValue.WeightAdjustment), ((decimal)value.WeightAdjustment).ToString(_culture));
                     _writer.WriteElementString(nameof(ProductVariantAttributeValue.IsPreSelected), entityPvav.IsPreSelected.ToString());
