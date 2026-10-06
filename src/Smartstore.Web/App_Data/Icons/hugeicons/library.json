@@ -6,8 +6,8 @@
     "variants": {
         "stroke-rounded": {
             "gridSize": 24,
-            "strokeWidth": 1.5,
-    		"strokeLinecap": "round"
+            "stroke": "currentColor",
+            "strokeWidthScale": 1.0666667
         }
     }
 }

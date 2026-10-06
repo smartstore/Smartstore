@@ -10,8 +10,8 @@ All paths below are relative to `App_Data/Icons`. These source assets live outsi
 
 > Integration status: local discovery, icon resolution, search and SVG caching
 > are available through `IIconService`. The existing FontAwesome explorer remains
-> available alongside it. Bundling, the new TagHelper/HtmlHelper and browser
-> component will follow separately.
+> available alongside it. A minimal `icon` TagHelper renders inline SVG. Bundling,
+> the HtmlHelper and browser component will follow separately.
 
 <!-- Update this guide and its examples whenever the concept, configuration format,
      or resolution rules change. Keep variant-specific documentation consistent. -->
@@ -81,8 +81,8 @@ Each library contains a `library.json`:
         "stroke-rounded": {
             "shortName": "sr",
             "gridSize": 24,
-            "strokeWidth": 1.5,
-            "strokeLinecap": "round"
+            "stroke": "currentColor",
+            "strokeWidthScale": 1.0666667
         }
     }
 }
@@ -99,10 +99,15 @@ Each library contains a `library.json`:
   unique within that library and must not shadow another variant's name.
 - `gridSize` describes the nominal design grid. The SVG's actual `viewBox`
   remains authoritative when rendering.
-- `fill`, `stroke`, `strokeWidth` and `strokeLinecap` are optional paint defaults.
+- `fill` is reserved for future paint configuration.
   Stroke width is measured in SVG coordinates; caps accept `butt`, `round` or `square`.
-  Omitted defaults preserve source values, including multicolor icons. Explicit
-  `none` paint values remain unpainted.
+  These settings are currently not applied.
+- `stroke` optionally replaces explicit source stroke colors (for example, `currentColor`).
+  Omission preserves original colors. Explicit `none` remains unpainted.
+- `strokeWidthScale` multiplies original stroke widths once, including inherited widths.
+  It defaults to 1 and must be finite and non-negative. For example, 1.0666667 turns
+  1.5 into approximately 1.6 while preserving relative differences between widths.
+  Numeric SVG lengths retain their units; unsupported expressions fail explicitly when scaling.
 
 A declared variant must contain `icons.zip` or at least one SVG override.
 Only declared variants are loaded. Configuration describes variants; their
@@ -151,11 +156,17 @@ IconSearchResult results = await icons.SearchAsync(new IconSearchQuery
 ```
 
 `mapping.json` must contain the example `cart` assignment for those calls to find
-the cart icon. Each lookup applies exactly one mapping first, then finds the
+the cart icon. Each address lookup applies exactly one mapping first, then finds the
 actual icon. Without a mapping, the supplied name is used directly. A mapping
 whose target is missing returns null; it does not fall back to the conceptual name.
 Unknown requested libraries, variants and icons also return null. Invalid address
 syntax and invalid configuration raise exceptions.
+
+`IIconService.GetSvgAsync(IconInfo)` consumes an already resolved icon from
+`GetIconAsync` or search, without mapping its name again. The string overload is
+an extension method that resolves the address and forwards the resulting `IconInfo`.
+Preparation uses the current library, variant and actual name; it derives the
+canonical address again rather than trusting a caller-modified `Address` property.
 
 Persist strings as `[library:]name[@variant]`: `cart`, `hi:cart`,
 `cart@stroke-rounded` or `hi:cart@stroke-rounded`. `IconAddress.Parse` parses this
@@ -181,13 +192,13 @@ persisted strings that use them; persist full names when that stability is neede
 
 `IconLibrary.SystemName` and `IconVariant.Name` come from directory names and
 manifest keys. Library and variant manifests are immutable and shared; their variants dictionary
-is frozen. SVG payloads remain detached copies at the cache boundary. Search
+is frozen. SVG payloads are also immutable, with frozen root attributes, and are shared without cache-boundary copies. Search
 matches every query word against icon names, supplemental tags or conceptual
 mapping names, and returns a page plus the total count.
 
-`IconSvg` is a plain serializable payload: canonical `Address`, source `Revision`,
+`IconSvg` is an immutable serializable payload: canonical `Address`, source `Revision`,
 `Library`, `Variant`, `Name`, the original `ViewBox`, `RootAttributes` and child
-`Content`. Width and height are omitted from root attributes. It contains no
+`Content`. Root width and height are currently set to 1em. It contains no
 HTML helper, XML DOM or presentation state such as size, transforms or animation.
 Consumers must encode root attribute values when rendering them. Source IDs and
 local references are preserved; a renderer that repeats icons with IDs must
@@ -197,31 +208,56 @@ SVG sources support static geometry, groups, local references, gradients, clips
 and masks. Scripts, event handlers, external references, embedded HTML and source
 style declarations are rejected. Each SVG is limited to 1 MiB, and each archive
 to 256 MiB both before and after decompression. Use presentation attributes in
-custom SVGs. Stroke/fill attributes are prepared with CSS variable fallbacks,
-including attributes on child paths: `--icon-fill`, `--icon-stroke`,
-`--icon-stroke-width` and `--icon-stroke-linecap`. Explicit per-render variables
-override variant defaults, which override source values; `none` remains preserved.
+custom SVGs. The renderer sets root width/height to 1em and moves root stroke attributes to children, preserving inheritance and leaving the root free of stroke attributes. The optional stroke setting supplies the stroke color fallback. Stroke widths are multiplied by the variant strokeWidthScale; inherited values are not multiplied again. Changes to library.json invalidate the SVG cache revision. Geometry, descendant line caps and all source fill attributes remain unchanged. Generated inline styles expose `--icon-stroke` and `--icon-stroke-width`. Corresponding presentation attributes are removed only after their fallback is stored in the generated style; `none` and inherited declarations that are not converted remain intact. A CSS variable overrides the configured/source fallback; `--icon-stroke-width` is an absolute width, not an additional multiplier. Explicit `none` strokes remain untouched. For example, `<icon name="hi:search-01" style="--icon-stroke: red; --icon-stroke-width: 2" />` overrides both for one render without changing the cached payload.
 
-Configuration and icon names are loaded lazily into an in-process index. File changes
-under `Icons` cause the next operation to reload it when the file provider reports
-the change. The index retains provider-relative paths and fingerprints, not file objects, SVG
-contents or open archive handles. Each cache miss resolves a fresh file object
-through the application data provider. Discovery reads ZIP
-central-directory entries without extracting their bodies. Source revisions are
-hashed through a bounded pooled buffer. On a cache miss, only the requested ZIP
-entry or override is streamed into the XML parser; all handles are then closed.
-Cache hits perform no SVG or archive reads. Local providers must supply seekable
-file streams so ZIP handling cannot silently buffer an entire archive. Source
-replacement detected during a miss fails that lookup rather than caching a payload
-under an outdated revision; retry after the file watcher reloads the index.
+The first catalog access reads only root configuration and library manifests. All
+manifests are needed to resolve short names and reject ambiguous selectors. Mappings
+load on the first lookup in a library; metadata loads only when `IconInfo.Tags` is accessed or during
+search, never for SVG rendering. Each variant's ZIP central directory loads on
+its first archive lookup or search. Unused libraries and variants incur no archive
+or metadata reads. Invalid deferred files are reported when first used.
+
+Overrides are resolved directly by name before consulting the archive. Search
+only enumerates their filenames. Only requested sources retain a small descriptor
+(path and fingerprint); no complete override index, file objects, SVG contents or
+open handles are retained. Override fingerprints use SHA-256; archived icons use
+the ZIP entry CRC. Archive bodies are not scanned for hashing. Each miss reopens
+and checks the requested source, then streams it into the XML parser. Warm cache
+hits need no file access. Local providers must supply seekable file streams.
+
+File changes under `Icons` invalidate the generation when the provider reports the
+change. Deferred indexes and requested-source descriptors are then rebuilt on demand.
+Source replacement detected during preparation fails the lookup rather than caching
+under an outdated revision; retry after the watcher invalidates the generation.
 `IIconCache` uses Smartstore's configured cache manager, including Redis when
 enabled. Its key is the canonical address plus an internal content revision,
 such as `hi:shopping-cart-02@sr:<revision>`. The revision covers the library
-manifest, variant archive, overrides and SVG preparation version. It is never
+manifest, the requested source fingerprint and SVG preparation version. It is never
 part of persisted icon addresses. Unused revisions expire after seven days.
 `InvalidateLibraryAsync` accepts the canonical library selector (short name if
 configured, otherwise system name). Every application node needs the same source
 files; a distributed cache does not distribute library packages.
+
+## Render an icon in Razor
+
+The shared `IconTagHelper` renders an inline SVG with the `icon` CSS class:
+
+```cshtml
+<icon name="hi:search-01" />
+<icon name="shopping-cart-02" library="hugeicons" variant="stroke-rounded"
+      class="icon-2x" aria-label="Cart" />
+```
+
+`name` accepts the same addresses and conceptual mappings as `IIconService`.
+`library` and `variant` fill missing address selectors. An unavailable icon emits
+no markup. Ordinary HTML attributes pass through to the SVG. The data-icon`r
+attribute exposes the resolved canonical address. Size, animation and transforms use
+existing CSS utilities and variables. Icons are decorative by default; supply
+`aria-label` or `aria-labelledby` for an accessible standalone icon.
+
+The Razor tag is replaced on the server, so the browser receives no `icon` host.
+A future native custom element needs a hyphenated name, such as `sm-icon`, because
+`icon` is not a valid name for registration with `customElements.define`.
 
 ## Define bundles
 
