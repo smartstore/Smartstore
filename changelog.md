@@ -6,13 +6,10 @@
 
 - (DEV) Removed the obsolete `win-x86` build target.
 - (DEV) Custom bundling configuration must use `EnableCssTranspilation` instead of `EnableAutoprefixer` and `CssTranspiler:Targets` (a Browserslist query string) instead of `Autoprefixer:Browsers`. The old Autoprefixer-specific switches have been removed.
-- (DEV) `ICheckoutHandler` and `ICheckoutWorkflow` now expose `RefreshAsync` for partial checkout-page updates. Custom checkout handlers should derive from `CheckoutHandlerBase` or implement the new method.
-- (DEV) `CustomerExtensions.ResetCheckoutData` now accepts `CheckoutDataResetFlags` instead of individual Boolean parameters.
 
 ### New Features
 
 - (DEV) Added `linux-arm64` builds and lazy deployment support for native ARM64 tools.
-- (DEV) Added `IOrderProcessingService.RecoverOrderAsync` and `OrderRecoveryData` to safely recover paid transactions for which no order was created.
 - Enhanced color and image swatches for attributes
   - Added configurable swatch presentation settings for product and checkout attributes, including size, shape, aspect ratio, value labels, and optional display of price adjustments or final prices.
   - Swatch values now support images and up to four colors per option.
