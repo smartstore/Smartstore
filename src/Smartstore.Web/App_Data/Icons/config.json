@@ -1,0 +1,8 @@
+{
+    "defaultLibrary": "hugeicons",
+    "defaultVariant": "stroke-rounded",
+    "bundles": {
+        "frontend": ["cart", "search", "heart", "account"],
+        "admin": ["search", "save", "delete", "settings"]
+    }
+}

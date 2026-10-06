@@ -1,0 +1,460 @@
+# Customizing icon libraries
+
+Smartstore's icon configuration separates application concepts, such as `cart`
+or `search`, from the SVG files used to display them. You can replace individual
+icons, select another style, or provide your own library while keeping the same
+conceptual names in your integration.
+
+All paths below are relative to `App_Data/Icons`. These source assets live outside
+`wwwroot` and are not normal publicly served static files.
+
+> Integration status: local discovery, icon resolution, search and SVG caching
+> are available through `IIconService`. The existing FontAwesome explorer remains
+> available alongside it. Bundling, the new TagHelper/HtmlHelper and browser
+> component will follow separately.
+
+<!-- Update this guide and its examples whenever the concept, configuration format,
+     or resolution rules change. Keep variant-specific documentation consistent. -->
+
+## File structure
+
+```text
+Icons/
+    config.json
+    hugeicons/
+        library.json
+        mapping.json
+        metadata.json
+        stroke-rounded/
+            icons.zip
+            overrides/
+                shopping-cart-02.svg
+```
+
+The override SVG above is an example of a custom replacement.
+
+| File | Purpose |
+| --- | --- |
+| `config.json` | Application-wide defaults and bundles |
+| `<library>/library.json` | Library identity and variant settings |
+| `<library>/mapping.json` | Conceptual names mapped to concrete icon IDs |
+| `<library>/metadata.json` | Icon inventory and additional English search terms |
+| `<library>/<variant>/icons.zip` | Original SVG files for one variant |
+| `<library>/<variant>/overrides/*.svg` | Your replacement or additional icons |
+
+## Select a library and variant
+
+Configure the defaults in `config.json`:
+
+```json
+{
+    "defaultLibrary": "hugeicons",
+    "defaultVariant": "stroke-rounded",
+    "bundles": {
+        "frontend": ["cart", "search", "heart", "account"],
+        "admin": ["search", "save", "delete", "settings"]
+    }
+}
+```
+
+`defaultLibrary` identifies a library by its **system name: its directory name**.
+Here, `hugeicons` refers to the `hugeicons/` directory. Use the directory name,
+not the display name or short name. The system name is derived from the
+folder; there is no separate `systemName` field to maintain.
+
+`defaultVariant` is an optional override for that default library. If omitted,
+the library's own `defaultVariant` applies. The global override does not apply
+to other libraries. An unavailable configured variant is a configuration error;
+it does not silently select a different style.
+
+## Configure a library
+
+Each library contains a `library.json`:
+
+```json
+{
+    "displayName": "HugeIcons",
+    "version": "4.3.5",
+    "shortName": "hi",
+    "defaultVariant": "stroke-rounded",
+    "variants": {
+        "stroke-rounded": {
+            "shortName": "sr",
+            "gridSize": 24,
+            "strokeWidth": 1.5,
+            "strokeLinecap": "round"
+        }
+    }
+}
+```
+
+- `displayName` is the human-readable library name.
+- `version` identifies the installed library version.
+- `shortName` is optional, for example `hi`, `bi`, or `fa`. It must be unique
+  across libraries and must not shadow another library's system name.
+- `defaultVariant` selects the library's default style, unless overridden by
+  the global configuration for the default library.
+- `variants` holds technical settings keyed by variant directory name.
+- Each variant may also have an optional `shortName`, such as `sr`. It must be
+  unique within that library and must not shadow another variant's name.
+- `gridSize` describes the nominal design grid. The SVG's actual `viewBox`
+  remains authoritative when rendering.
+- `fill`, `stroke`, `strokeWidth` and `strokeLinecap` are optional paint defaults.
+  Stroke width is measured in SVG coordinates; caps accept `butt`, `round` or `square`.
+  Omitted defaults preserve source values, including multicolor icons. Explicit
+  `none` paint values remain unpainted.
+
+A declared variant must contain `icons.zip` or at least one SVG override.
+Only declared variants are loaded. Configuration describes variants; their
+archives and overrides establish the available icons.
+Keep variant settings in `library.json`, not in `metadata.json`.
+
+## Map application concepts to icons
+
+Edit `mapping.json` to choose which icon represents each concept:
+
+```json
+{
+    "cart": "shopping-cart-02",
+    "search": "search-01"
+}
+```
+
+An icon ID is the exact SVG filename without `.svg`. For example,
+`shopping-cart-02` refers to `shopping-cart-02.svg`.
+
+When switching libraries, keep the conceptual keys and change their values to
+IDs provided by the new library. Mappings are shared across all variants of a
+library. Check that mapped IDs exist in each variant you intend to use. Variant
+selection is independent of mapping; there is no additional per-icon alias layer.
+
+An empty mapping file (`{}`) contains no assignments. Populate mappings for all
+concepts used by your bundles before relying on icon resolution.
+
+## Use the .NET API
+
+Inject `IIconService` from `Smartstore.Core.Content.Media.Icons`. Its implementation
+currently lives under `Media/Icons/Svg`, using the parent namespace, so it can run
+alongside the existing FontAwesome `IIconExplorer`.
+
+```csharp
+IconLibrary library = icons.DefaultLibrary;
+IconLibrary hugeicons = icons.GetLibrary("hi"); // Also accepts "hugeicons".
+IconInfo icon = await icons.GetIconAsync("cart");
+IconSvg svg = await icons.GetSvgAsync("hi:cart@stroke-rounded");
+IconSearchResult results = await icons.SearchAsync(new IconSearchQuery
+{
+    Term = "basket",
+    Library = "hugeicons",
+    Take = 50
+});
+```
+
+`mapping.json` must contain the example `cart` assignment for those calls to find
+the cart icon. Each lookup applies exactly one mapping first, then finds the
+actual icon. Without a mapping, the supplied name is used directly. A mapping
+whose target is missing returns null; it does not fall back to the conceptual name.
+Unknown requested libraries, variants and icons also return null. Invalid address
+syntax and invalid configuration raise exceptions.
+
+Persist strings as `[library:]name[@variant]`: `cart`, `hi:cart`,
+`cart@stroke-rounded` or `hi:cart@stroke-rounded`. `IconAddress.Parse` parses this
+syntax without accessing configuration. Library and variant selectors accept
+their full names or optional short names, case-insensitively. Icon names and
+mapping keys are exact and case-sensitive; even spaces in source names are retained.
+Names of libraries, variants and their short names use letters, digits, `-` and `_`.
+
+`IconAddress` is an immutable `readonly record struct` with value equality and
+implicit conversions in both directions: `IconAddress address = "hi:cart";`
+and `string persisted = address;`. String conversion into an address parses the
+syntax and throws `FormatException` for invalid input; use `TryParse` for unchecked
+input. `default(IconAddress)` is empty (`IsEmpty`) and cannot resolve an icon.
+
+The service fills missing selectors from the configured defaults. Optional
+`library` and `variant` method arguments can fill missing selectors too. Explicit
+conflicting selectors are rejected; a full name and its equivalent short name
+do not conflict. Canonical result addresses contain the actual mapped icon name
+and both selectors, preferring each short name when present. For example, with
+the manifest above: `hi:shopping-cart-02@sr`. Without short names:
+`hugeicons:shopping-cart-02@stroke-rounded`. Changing short names requires updating
+persisted strings that use them; persist full names when that stability is needed.
+
+`IconLibrary.SystemName` and `IconVariant.Name` come from directory names and
+manifest keys. Library and variant manifests are immutable and shared; their variants dictionary
+is frozen. SVG payloads remain detached copies at the cache boundary. Search
+matches every query word against icon names, supplemental tags or conceptual
+mapping names, and returns a page plus the total count.
+
+`IconSvg` is a plain serializable payload: canonical `Address`, source `Revision`,
+`Library`, `Variant`, `Name`, the original `ViewBox`, `RootAttributes` and child
+`Content`. Width and height are omitted from root attributes. It contains no
+HTML helper, XML DOM or presentation state such as size, transforms or animation.
+Consumers must encode root attribute values when rendering them. Source IDs and
+local references are preserved; a renderer that repeats icons with IDs must
+scope those IDs per rendered instance.
+
+SVG sources support static geometry, groups, local references, gradients, clips
+and masks. Scripts, event handlers, external references, embedded HTML and source
+style declarations are rejected. Each SVG is limited to 1 MiB, and each archive
+to 256 MiB both before and after decompression. Use presentation attributes in
+custom SVGs. Stroke/fill attributes are prepared with CSS variable fallbacks,
+including attributes on child paths: `--icon-fill`, `--icon-stroke`,
+`--icon-stroke-width` and `--icon-stroke-linecap`. Explicit per-render variables
+override variant defaults, which override source values; `none` remains preserved.
+
+Configuration and icon names are loaded lazily into an in-process index. File changes
+under `Icons` cause the next operation to reload it when the file provider reports
+the change. The index retains provider-relative paths and fingerprints, not file objects, SVG
+contents or open archive handles. Each cache miss resolves a fresh file object
+through the application data provider. Discovery reads ZIP
+central-directory entries without extracting their bodies. Source revisions are
+hashed through a bounded pooled buffer. On a cache miss, only the requested ZIP
+entry or override is streamed into the XML parser; all handles are then closed.
+Cache hits perform no SVG or archive reads. Local providers must supply seekable
+file streams so ZIP handling cannot silently buffer an entire archive. Source
+replacement detected during a miss fails that lookup rather than caching a payload
+under an outdated revision; retry after the file watcher reloads the index.
+`IIconCache` uses Smartstore's configured cache manager, including Redis when
+enabled. Its key is the canonical address plus an internal content revision,
+such as `hi:shopping-cart-02@sr:<revision>`. The revision covers the library
+manifest, variant archive, overrides and SVG preparation version. It is never
+part of persisted icon addresses. Unused revisions expire after seven days.
+`InvalidateLibraryAsync` accepts the canonical library selector (short name if
+configured, otherwise system name). Every application node needs the same source
+files; a distributed cache does not distribute library packages.
+
+## Define bundles
+
+The `bundles` object in `config.json` groups conceptual names by area of use,
+such as `frontend`, `admin`, or a custom `media` bundle. Add names to the relevant
+arrays and provide their assignments in each library's `mapping.json`.
+
+Bundle generation is not implemented yet; the service currently ignores this section.
+
+Bundles remain the same when changing libraries. Their conceptual names resolve
+through the selected library's mapping. Overlap is allowed; resolved icons are
+deduplicated when bundles are combined.
+
+## Replace or add an SVG
+
+To replace the HugeIcons cart icon, place your SVG at:
+
+```text
+hugeicons/stroke-rounded/overrides/shopping-cart-02.svg
+```
+
+A matching filename replaces the archived icon for this variant. A new filename
+adds an icon. Place SVGs directly in `overrides`, without subdirectories.
+Non-SVG files, including README files, are not icon assets.
+
+Keep customizations in `overrides` instead of modifying `icons.zip`, so replacing
+the upstream archive preserves your changes. Overrides are variant-specific;
+provide a separate SVG for each style you want to customize.
+
+## Add search terms
+
+`metadata.json` is shared across a library's variants:
+
+```json
+{
+    "icons": {
+        "cabinet-01": {},
+        "cactus": {},
+        "search-01": {
+            "tags": ["find", "lookup", "magnifier"]
+        }
+    }
+}
+```
+
+Keep an entry for every icon, including custom additions. Use an empty object
+when no extra terms are needed. Names are already searchable, so tags add terms
+that the name does not cover. For example, `cabinet` is redundant for `cabinet-01`.
+
+Omit `tags` when empty. Do not add `label` or `aliases` fields. Search terms are
+English and are not localized at this layer. Preserve exact icon IDs, including
+unusual spelling in source filenames.
+
+Metadata enriches search; it does not determine availability. Icons missing from
+metadata can still be discovered from archives or overrides and found by name.
+You can generate metadata locally and maintain additional terms manually. This
+workflow does not require a HugeIcons API connection.
+
+## Install another library
+
+1. Create a library directory. Its name becomes the library's system name.
+2. Add `library.json` with a default variant, variant settings and optional short names.
+3. Place each variant's SVGs at the root of its `icons.zip`, inside the matching
+   variant directory. The current HugeIcons archive uses uncompressed ZIP entries.
+4. Populate `mapping.json` for your concepts and `metadata.json` for the icon
+   inventory and additional search terms.
+5. Place custom SVGs in the relevant variant's `overrides` directory.
+6. To select this library by default, set `config.json`'s `defaultLibrary` to its
+   directory name. Update or remove the global `defaultVariant` override to match.
+
+## Update and deploy customizations
+
+For a library update, replace the upstream archives and update the version in
+`library.json`. Preserve overrides, mappings, and custom search terms. Reconcile
+metadata with the updated inventory and check that mapped IDs still exist.
+
+Include the entire `App_Data/Icons` directory in your deployment. Smartstore's
+web project includes it recursively in publish output.
+
+Use four spaces per JSON indentation level and CRLF line endings. Keep tag arrays
+on one line.
+
+## Shared icon CSS
+
+`wwwroot/shared/_icons.scss` provides library-independent SVG layout and utility
+classes. It is included in the Admin and Flex themes after `shared/_utils.scss`,
+whose animation keyframes it reuses. Custom themes should import both in that
+order. This CSS is available independently of the future icon loader and helpers.
+
+### Markup and color
+
+Apply `.icon` either to the SVG itself or to a host containing one direct child
+SVG. The latter also supports a future web component using light DOM:
+
+```html
+<svg class="icon icon-fw" viewBox="0 0 24 24"
+     fill="none" stroke="currentColor" aria-hidden="true" focusable="false">
+    <path d="M4 12h16M12 4v16" />
+</svg>
+
+<span class="icon icon-2x" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" focusable="false">
+        <path d="M4 12h16M12 4v16" />
+    </svg>
+</span>
+```
+
+Place utility classes on the host; do not also add `.icon` to its child SVG.
+Each SVG must retain its own `viewBox` and appropriate fill/stroke attributes.
+Use `currentColor` for paint that should follow text or button color. The CSS
+does not force a fill or stroke, rewrite hardcoded source colors, or assume a
+16-unit grid. A shadow-DOM component would need these styles inside its shadow
+root; global styles do not cross that boundary.
+
+Decorative icons should be hidden from assistive technology. For an icon-only
+button, label the button itself. Meaningful standalone icons need an accessible
+name, for example `role="img"` and `aria-label` on their host. CSS cannot infer
+these semantics. Existing `.sr-only` utilities remain available.
+
+### Utility classes
+
+| Purpose | Classes |
+| --- | --- |
+| Relative size | `icon-1x` through `icon-10x` |
+| Text-aligned sizes | `icon-2xs`, `icon-xs`, `icon-sm`, `icon-lg`, `icon-xl`, `icon-2xl` |
+| Width | `icon-fw` (1.25em), `icon-aw` (automatic width) |
+| Lists | `icon-ul`, `icon-li` |
+| Stacks | `icon-stack`, `icon-stack-1x`, `icon-stack-2x` |
+| Appearance | `icon-inverse` |
+| Rotation | `icon-rotate-90`, `icon-rotate-180`, `icon-rotate-270`, `icon-rotate-by` |
+| Mirroring | `icon-flip-h`, `icon-flip-v`, `icon-flip-hv` |
+| Animation | `icon-spin`, `icon-pulse`, `icon-spin-pulse`, `icon-beat`, `icon-fade`, `icon-bounce`, `icon-beat-fade`, `icon-flip`, `icon-shake` |
+| Additional shared effects | `icon-throb`, `icon-cylon`, `icon-cylon-vertical` |
+
+The base size follows the surrounding font size, with a minimum of 16px. Size
+utilities scale this base after the minimum is applied: at 14px or 15px text,
+the normal icon is 16px, `icon-sm` is 14px, `icon-xs` is 12px, and `icon-2xs` is
+10px. `icon-2x` is 32px. Set `--icon-min-size: 0px` to disable the base minimum.
+Stack layers scale the already-sized stack without applying the minimum again.
+Fixed width is explicit; add
+`icon-fw` when replacing layouts that relied on FA7's default fixed width.
+`icon-aw` allows the SVG's intrinsic aspect ratio to determine its width.
+
+For migration, use the corresponding icon utilities listed above and provide SVG markup
+with the base `.icon` class. Glyph classes such as `fa-cart-shopping` still need
+to be resolved through the icon integration; CSS alone does not replace them.
+Existing FA and BI markup and helpers continue to use their existing styles.
+
+### Lists and stacks
+
+Keep the list marker separate from the icon so sizing does not change its indent:
+
+```html
+<ul class="icon-ul">
+    <li>
+        <span class="icon-li" aria-hidden="true">
+            <svg class="icon" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" focusable="false">
+                <path d="m5 12 4 4 10-10" />
+            </svg>
+        </span>
+        Item text
+    </li>
+</ul>
+```
+
+List indents adapt to RTL. Stack independent SVGs inside an
+HTML host; each layer keeps its own coordinate system:
+
+```html
+<span class="icon-stack icon-2x" aria-hidden="true">
+    <svg class="icon icon-stack-2x" viewBox="0 0 24 24"
+         fill="currentColor" focusable="false">
+        <circle cx="12" cy="12" r="11" />
+    </svg>
+    <svg class="icon icon-stack-1x icon-inverse" viewBox="0 0 24 24"
+         fill="none" stroke="currentColor" focusable="false">
+        <path d="M4 12h16M12 4v16" />
+    </svg>
+</span>
+```
+
+The stack defaults to 2.5em by 2em. Layers are centered and paint in DOM order
+unless given `--icon-stack-z-index`. Scale or animate the host for the entire
+stack, or individual layers for independent effects. The existing BI helper's
+single-SVG stack output is not automatically converted to this HTML structure.
+
+### CSS variables and composition
+
+| Variable | Meaning / default |
+| --- | --- |
+| `--icon-size` | Base size as a CSS length, `1em` (surrounding font size) |
+| `--icon-min-size` | Minimum base size before scaling, `16px`; set to `0px` to disable |
+| `--icon-size-factor` | Multiplier applied after the base minimum, `1`; set by size utilities |
+| `--icon-width` | Layout width, `1em` |
+| `--icon-align` | Inline vertical alignment, `-0.125em` |
+| `--icon-color` | Text color; inherits by default |
+| `--icon-rotate` | Static angle, `0deg` |
+| `--icon-rotate-angle` | Angle used by `icon-rotate-by` |
+| `--icon-scale` | Visual scale without changing layout, `1` |
+| `--icon-flip-x`, `--icon-flip-y` | Axis multipliers, `1`; use `-1` to mirror |
+| `--icon-shift-x`, `--icon-shift-y` | Visual displacement as CSS lengths, `0` |
+| `--icon-li-margin`, `--icon-li-width` | List indent and marker width, `2.5em` and `2em` |
+| `--icon-stack-width`, `--icon-stack-height` | Stack dimensions, `2.5em` and `2em` |
+| `--icon-stack-align`, `--icon-stack-z-index` | Stack alignment and layer order, `middle` and `auto` |
+| `--icon-inverse` | Inverse color, defaults to the theme's `$yiq-text-light` |
+
+For example, `style="--icon-size: calc(1rem + 4px); --icon-rotate: 30deg"`
+sets a custom size and angle. Use existing Bootstrap border, spacing, and float
+utilities for decoration and surrounding layout; there are no icon-specific
+border or pull classes.
+
+Static transforms use the individual CSS `translate`, `rotate`, and `scale`
+properties. Animations use `transform`, so spinning an icon does not discard
+its static rotation or flip. Existing `rotate-90/180/270`, `flip-h/v/hv`, and
+`animate-*` classes also work on `.icon` and `.icon-stack` hosts. Existing offset
+variables `--offset-x/y` remain supported with those generic transform classes.
+
+Icon animation utilities accept `--icon-animation-duration`, `--icon-animation-delay`,
+`--icon-animation-direction`, `--icon-animation-timing`,
+`--icon-animation-iteration-count`, and `--icon-animation-play-state`.
+Duration also falls back to the existing `--animation-duration` variable.
+Use `icon-spin icon-spin-reverse` for reverse spin; `icon-spin-reverse` is a
+modifier, not an animation by itself. `icon-pulse` means stepped rotation, as in FA.
+
+Existing spin, beat, fade, throb, and cylon keyframes are reused. Bounce,
+beat-fade, animated flip, and shake have icon-specific keyframes. These effects
+provide equivalent purposes, not frame-for-frame copies of every FA animation.
+Their adjustable parameters include `--icon-beat-scale`, `--icon-bounce-height`,
+`--icon-bounce-rebound`, `--icon-beat-fade-opacity`, `--icon-beat-fade-scale`,
+`--icon-flip-axis-x/y/z`, `--icon-flip-angle`, and `--icon-shake-angle`.
+Use one animation effect per host; separate stack layers can animate independently.
+
+With `prefers-reduced-motion: reduce`, animations and transitions on icon and
+stack hosts are disabled, including existing `animate-*` effects on those hosts.
+Static rotation, mirroring, and positioning remain in place.
