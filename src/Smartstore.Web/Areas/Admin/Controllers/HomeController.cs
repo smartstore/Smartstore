@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Web;
+﻿using System.Xml.Linq;
+using Smartstore.Core.Web;
 
 namespace Smartstore.Admin.Controllers;
 
@@ -21,6 +22,17 @@ public class HomeController : AdminController
     public IActionResult About()
     {
         return View();
+    }
+
+    /// <summary>
+    /// Displays an unlisted comparison of icon libraries for admin UI evaluation.
+    /// </summary>
+    [HttpGet]
+    public IActionResult IconCheatsheet()
+    {
+        var file = Services.ApplicationContext.ContentRoot.GetFile("/Areas/Admin/sitemap.xml");
+        var sitemap = XDocument.Load(file.PhysicalPath);
+        return View(sitemap.Root.Element("siteMapNode"));
     }
 
     public IActionResult UaTester(string ua = null)

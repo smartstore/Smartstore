@@ -1,0 +1,1382 @@
+﻿@using System.Xml.Linq
+@model XElement
+
+@{
+    ViewBag.Title = "Icon cheatsheet";
+
+    var navbarItems = new (string Label, string Huge, string Tabler)[]
+    {
+        ("Übersicht", "home-01", "home"),
+        ("Katalog", "cube", "cube"),
+        ("Verkauf", "chart-increase", "chart-bar"),
+        ("Kunden", "user-group", "users"),
+        ("Marketing", "megaphone-01", "speakerphone"),
+        ("CMS", "hierarchy-square-02", "sitemap"),
+        ("Konfiguration", "sliders-vertical", "adjustments"),
+        ("System", "database", "database"),
+        ("Plugins", "puzzle", "puzzle")
+    };
+    var navbarTools = new (string Label, string Huge, string Tabler, string Text)[]
+    {
+        ("Aktionen", "settings-01", "settings", null),
+        ("Sprache", "globe", "world", "DE"),
+        ("Hilfe", "bubble-chat-question", "message-circle-question", null),
+        ("Benutzerkonto", "user-02", "user", null)
+    };
+
+    var frontendLibraries = new[] { "FA", "HI", "Tabler" };
+    var productTabs = new (string Label, string Bootstrap, string Huge, string Tabler)[]
+    {
+        ("Allgemein", "pencil", "edit-02", "pencil"),
+        ("Inventar", "archive", "archive-02", "archive"),
+        ("Preis", "currency-euro", "euro", "currency-euro"),
+        ("Bilder", "card-image", "image-02", "photo"),
+        ("Warengruppen", "diagram-3", "hierarchy-square-02", "sitemap"),
+        ("Hersteller", "building", "factory-02", "building-factory-2"),
+        ("Promotion", "megaphone", "megaphone-01", "speakerphone"),
+        ("Attribute", "card-checklist", "list-setting", "checklist"),
+        ("Spezifikationsattribute", "list-check", "task-01", "list-check"),
+        ("Suchmaschinen (SEO)", "search", "seo", "seo"),
+        ("Downloads", "download", "download-02", "download"),
+        ("Aufträge", "graph-up", "chart-analysis", "file-invoice"),
+        ("GMC", "google", "google", "brand-google"),
+        ("EU-Garantielabel", null, "legal-document-01", "section-sign"),
+        ("Suche", "search", "search-01", "search"),
+        ("GPSR", "shield-check", "shield-check", "shield-check")
+    };
+    var toolbarButtons = new (int Group, string Label, string Title, string FontAwesome, string Huge, string Tabler, string Css, bool Disabled)[]
+    {
+        (0, "Speichern", "Speichern und fortsetzen (Strg+S)", "fa fa-save", "floppy-disk", "device-floppy", "btn-story-save", false),
+        (1, null, "Rückgängig (Strg+Z)", "fa fa-undo", "undo-02", "arrow-back-up", "btn-icon", false),
+        (1, null, "Wiederholen (Strg+Y)", "fa fa-redo", "redo-02", "arrow-forward-up", "btn-icon", true),
+        (2, null, "Klonen", "fa fa-clone", "copy-02", "copy", null, false),
+        (2, null, "Exportieren", "fa-fw fa fa-upload", "database-export", "upload", null, false),
+        (3, null, "Vorschaumodus (Strg+Alt+P)", "fa fa-eye", "eye", "eye", "btn-icon", false),
+        (3, null, "Vollbild (Strg+F11)", "fa fa-expand", "full-screen", "maximize", "btn-icon", false),
+        (4, null, "Löschen", "far fa-trash-can", "delete-02", "trash", "btn-to-danger", false)
+    };
+    var productActionLibraries = new[] { "HI", "Tabler" };
+    var productActions = new (string Label, string Huge, string Tabler)[]
+    {
+        ("Merken", "heart-add", "heart-plus"),
+        ("Vergleichen", "git-compare-arrows", "git-compare"),
+        ("Fragen?", "bubble-chat-question", "message-circle-question"),
+        ("Weitersagen", "megaphone-01", "speakerphone")
+    };
+    var frontendItems = new (string Label, string FontAwesome, string Huge, string Tabler)[]
+    {
+        ("Mein Konto", "fa-user", "user-circle", "user-circle"),
+        ("Meine Bestellungen", "fa-file-lines", "file-box", "file-text"),
+        ("Admin", "fa-cog", "settings-01", "settings"),
+        ("Wunschliste", "fa-heart", "favourite", "heart"),
+        ("Warenkorb", "fa-shopping-bag", "shopping-bag-01", "shopping-bag"),
+        ("Private Nachrichten", "fa-envelope", "chat", "message-circle-user"),
+        ("Abmelden", "fa-right-from-bracket", "logout-02", "logout-2")
+    };
+
+    // Snapshot of literal BI references in Areas/Admin (2026-10-05), including
+    // the settings menu and store dashboard data. Counts are source occurrences,
+    // not runtime usage. Keep this evaluation page independent of source-file scans.
+    var icons = new Dictionary<string, (string Tabler, string Huge, string Concept, int Uses, string Note)>
+    {
+        ["trash"] = ("trash", "delete-02", "Delete", 59, ""),
+        ["funnel"] = ("filter", "filter", "Filter / rules", 37, ""),
+        ["check-lg"] = ("check", "tick-02", "Confirm / activate", 33, ""),
+        ["upload"] = ("upload", "upload-02", "Upload / export preview", 15, ""),
+        ["card-checklist"] = ("checklist", "task-01", "Product attributes", 5, ""),
+        ["pencil"] = ("pencil", "edit-02", "Edit", 4, ""),
+        ["box"] = ("box", "package-01", "Products / package", 4, ""),
+        ["list-check"] = ("list-check", "check-list", "Specification attributes", 3, ""),
+        ["search"] = ("search", "search-01", "Search", 4, ""),
+        ["play-fill"] = ("player-play", "play", "Run", 2, "BI filled; compared with outline alternatives."),
+        ["eye"] = ("eye", "view", "View / activity log", 2, ""),
+        ["shop-window"] = ("building-store", "store-01", "Stores", 2, ""),
+        ["info-circle"] = ("info-circle", "information-circle", "Information", 2, ""),
+        ["percent"] = ("percentage", "percent", "Discounts", 3, ""),
+        ["cart-check"] = ("shopping-cart-check", "shopping-cart-check-01", "Shopping carts", 3, ""),
+        ["building"] = ("building", "building-03", "Manufacturers", 3, ""),
+        ["megaphone"] = ("speakerphone", "megaphone-01", "Campaigns", 2, ""),
+        ["truck"] = ("truck", "delivery-truck-01", "Shipments", 3, "Returns have a separate menu mapping."),
+        ["diagram-3"] = ("sitemap", "hierarchy-square-02", "Categories / hierarchy", 3, ""),
+        ["graph-up-arrow"] = ("chart-line", "chart-increase", "Orders / growth", 3, ""),
+        ["link-45deg"] = ("link", "link-01", "Link", 2, ""),
+        ["file-earmark-pdf"] = ("file-type-pdf", "pdf-01", "PDF document", 2, ""),
+        ["shuffle"] = ("arrows-shuffle", "shuffle", "Shuffle", 2, ""),
+        ["envelope-paper"] = ("mail-opened", "mail-open-01", "Message templates", 1, "Closest envelope alternative; paper detail differs."),
+        ["x-lg"] = ("x", "cancel-01", "Close / reject", 1, ""),
+        ["database-down"] = ("database-export", "database-export", "Export", 1, ""),
+        ["bar-chart-line"] = ("chart-bar", "chart-column", "Customer reports", 1, ""),
+        ["power"] = ("power", "power", "Power / enable", 1, ""),
+        ["gift"] = ("gift", "gift", "Gift cards", 1, ""),
+        ["archive"] = ("archive", "archive-02", "Archive", 1, ""),
+        ["globe-americas"] = ("world", "earth", "Regional settings", 1, "Globe outlines differ from the BI Americas silhouette."),
+        ["text-wrap"] = ("text-wrap", "text-wrap", "Wrap text", 1, ""),
+        ["card-image"] = ("photo", "image-02", "Image", 1, ""),
+        ["arrow-repeat"] = ("repeat", "repeat", "Recurring payments", 1, ""),
+        ["people"] = ("users", "user-group", "Customer roles", 2, ""),
+        ["exclamation-triangle"] = ("alert-triangle", "alert-02", "Warnings", 1, ""),
+        ["recycle"] = ("recycle", "recycle-01", "Recycle bin", 1, ""),
+        ["envelope"] = ("mail", "mail-01", "Email", 1, ""),
+        ["box-arrow-in-right"] = ("login", "login-01", "Login / online customers", 2, ""),
+        ["envelope-open-heart"] = ("mail-heart", "mail-open-love", "Newsletter subscriptions", 1, "Tabler uses a closed envelope with a heart."),
+        ["columns-gap"] = ("layout-dashboard", "layout-01", "Widgets", 1, ""),
+        ["tags"] = ("tags", "tags", "Product tags", 1, ""),
+        ["database-up"] = ("database-import", "database-import", "Import", 1, ""),
+        ["tools"] = ("tools", "tools", "Maintenance", 1, ""),
+        ["hand-thumbs-down"] = ("thumb-down", "thumbs-down", "Products never purchased", 1, ""),
+        ["palette"] = ("palette", "paint-board", "Themes / colors", 1, ""),
+        ["box-arrow-left"] = ("logout", "logout-01", "Logout", 1, ""),
+        ["graph-up"] = ("chart-line", "chart-up", "Sales trend", 2, ""),
+        ["clock"] = ("clock", "clock-01", "Scheduled tasks", 1, ""),
+        ["receipt"] = ("receipt", "invoice-01", "Receipt / invoice", 1, ""),
+        ["credit-card"] = ("credit-card", "credit-card", "Payment methods", 3, ""),
+        ["sliders2-vertical"] = ("adjustments", "filter-vertical", "Settings / adjustments", 1, ""),
+        ["shield"] = ("shield", "shield-01", "Permissions / security", 1, ""),
+        ["inboxes"] = ("inbox", "inbox", "Queued emails", 1, "Closest single-tray alternative to stacked inboxes."),
+        ["menu-button-fill"] = ("menu-2", "menu-01", "Menus", 1, "BI filled button; outline menu alternatives."),
+        ["chat-dots"] = ("message-dots", "message-01", "Chat / comments", 1, ""),
+        ["lightning"] = ("bolt", "flash", "Log / events", 1, ""),
+        ["database-add"] = ("database-plus", "database-add", "Add database", 1, ""),
+        ["aspect-ratio"] = ("aspect-ratio", "aspect-ratio", "Aspect ratio", 1, ""),
+        ["geo-alt"] = ("map-pin", "location-01", "Address / location", 1, ""),
+        ["arrow-90deg-up"] = ("corner-right-up", "arrow-turn-up", "Turn upward", 1, ""),
+        ["person-circle"] = ("user-circle", "user-circle", "User account", 1, ""),
+        ["sort-numeric-down"] = ("sort-ascending-numbers", "sorting-one-9", "Low stock / numeric sort", 1, ""),
+        ["circle-fill"] = ("circle", "circle", "Status dot / background", 1, "BI solid circle; outline alternatives."),
+        ["list-ul"] = ("list", "list-view", "Checkout attributes / list", 1, ""),
+        ["view-list"] = ("list-details", "view-agenda", "Lists", 1, ""),
+        ["three-dots"] = ("dots", "more-horizontal", "More actions", 1, ""),
+        ["arrow-clockwise"] = ("refresh", "refresh", "Refresh", 1, ""),
+        ["facebook"] = ("brand-facebook", "facebook-01", "Facebook authentication", 1, ""),
+        ["eye-fill"] = ("eye", "view", "Activity types", 1, "BI filled; compared with outline alternatives."),
+        ["star-half"] = ("star-half", "star-half", "Reviews / rating", 1, ""),
+        ["people-fill"] = ("users", "user-group", "Affiliates", 1, "BI filled; compared with outline alternatives."),
+        ["currency-euro"] = ("currency-euro", "euro", "Euro", 1, ""),
+        ["person"] = ("user", "user", "Customer", 2, ""),
+        ["copy"] = ("copy", "copy-01", "Copy", 1, ""),
+        ["puzzle-fill"] = ("puzzle", "puzzle", "Plugins", 1, "BI filled; compared with outline alternatives."),
+        ["printer"] = ("printer", "printer", "Print", 1, ""),
+        ["clipboard"] = ("clipboard", "clipboard", "Clipboard", 1, ""),
+        ["gear"] = ("settings", "settings-01", "Configuration", 2, ""),
+        ["stickies"] = ("notes", "note-01", "Notes", 1, "Closest note alternative; stacking differs."),
+        ["hand-thumbs-up"] = ("thumb-up", "thumbs-up", "Bestsellers", 1, ""),
+        ["person-badge"] = ("id-badge", "user-account", "Impersonation / identity", 1, ""),
+        ["heart"] = ("heart", "favourite", "Wishlist / favorites", 2, ""),
+        ["trophy"] = ("trophy", "award-01", "Reward points", 2, ""),
+        ["file-earmark-richtext"] = ("file-text", "file-02", "Pages / rich text", 1, "Closest document alternative; image detail differs."),
+        ["download"] = ("download", "download-02", "Download", 1, ""),
+        ["question-circle-fill"] = ("help-circle", "help-circle", "Help", 1, "BI filled; compared with outline alternatives."),
+        ["boxes"] = ("packages", "package-03", "Product inventory", 1, ""),
+        ["stack"] = ("stack-2", "layers-01", "Attribute combinations", 1, ""),
+        ["images"] = ("library-photo", "images", "Media library", 2, ""),
+        ["hdd"] = ("server", "hdd", "Storage", 1, "Tabler uses a server drive enclosure."),
+        ["sliders"] = ("adjustments-horizontal", "filter-horizontal", "General settings", 1, ""),
+        ["cart"] = ("shopping-cart", "shopping-cart-01", "Cart settings", 1, ""),
+        ["arrow-left-right"] = ("arrows-left-right", "arrow-left-right", "Data exchange", 1, ""),
+        ["speedometer2"] = ("gauge", "dashboard-speed-01", "Performance", 1, ""),
+        ["chevron-right"] = ("chevron-right", "arrow-right-01", "Submenu indicator", 0, "Included for the nested menu previews."),
+        ["file-earmark"] = ("file", "file-empty-01", "Document / number formatting", 0, "Plugins menu snapshot."),
+        ["stars"] = ("sparkles", "sparkles", "AI settings", 0, "Plugins menu snapshot."),
+        ["sort-down"] = ("sort-descending", "sort-descending", "Image optimization", 0, "Plugins menu snapshot."),
+        ["terminal"] = ("terminal-2", "computer-terminal-01", "Developer tools", 0, "Plugins menu snapshot."),
+        ["menu-down"] = ("menu-4", "menu-09", "Mega menu", 0, "Plugins menu snapshot; closest menu layout alternatives."),
+        ["incognito"] = ("spy", "incognito", "Privacy / GDPR", 0, "Plugins menu snapshot."),
+        ["plus-square-fill"] = ("square-plus", "add-square", "Sharing / add", 0, "Plugins menu snapshot; BI filled with outline alternatives."),
+        ["google"] = ("brand-google", "google", "Google product feed", 0, "Plugins menu snapshot."),
+        ["search-heart"] = ("search", "search-01", "Search logging", 0, "Plugins menu snapshot; Tabler and HI use plain magnifiers."),
+        ["plus-lg"] = ("plus", "add-01", "Add", 0, "Button comparison."),
+        ["arrow-counterclockwise"] = ("restore", "refresh-ccw", "Restore", 0, "Button comparison."),
+        ["database"] = ("database-export", "database-backup", "Backup", 0, "Button comparison; BI uses a plain database."),
+        ["arrow-90deg-left"] = ("arrow-back-up", "undo-02", "Undo", 0, "Button comparison."),
+        ["arrow-90deg-right"] = ("arrow-forward-up", "redo-02", "Redo", 0, "Button comparison."),
+        ["arrow-down-up"] = ("arrows-sort", "sorting-01", "Sort", 0, "Button comparison."),
+    };
+    // FA equivalents use the locally installed Free styles; composite BI motifs may be approximated.
+    var fontAwesomeIcons = new Dictionary<string, string>
+    {
+        ["trash"] = "far fa-trash-can",
+        ["funnel"] = "fa fa-filter",
+        ["check-lg"] = "fa fa-check",
+        ["upload"] = "fa fa-upload",
+        ["card-checklist"] = "far fa-rectangle-list",
+        ["pencil"] = "far fa-pen-to-square",
+        ["box"] = "fa fa-box",
+        ["list-check"] = "fa fa-list-check",
+        ["search"] = "fa fa-magnifying-glass",
+        ["play-fill"] = "fa fa-play",
+        ["eye"] = "far fa-eye",
+        ["shop-window"] = "fa fa-store",
+        ["info-circle"] = "fa fa-circle-info",
+        ["percent"] = "fa fa-percent",
+        ["cart-check"] = "fa fa-cart-shopping",
+        ["building"] = "far fa-building",
+        ["megaphone"] = "fa fa-bullhorn",
+        ["truck"] = "fa fa-truck",
+        ["diagram-3"] = "fa fa-sitemap",
+        ["graph-up-arrow"] = "fa fa-chart-line",
+        ["link-45deg"] = "fa fa-link",
+        ["file-earmark-pdf"] = "far fa-file-pdf",
+        ["shuffle"] = "fa fa-shuffle",
+        ["envelope-paper"] = "far fa-envelope-open",
+        ["x-lg"] = "fa fa-xmark",
+        ["database-down"] = "fa fa-file-export",
+        ["bar-chart-line"] = "far fa-chart-bar",
+        ["power"] = "fa fa-power-off",
+        ["gift"] = "fa fa-gift",
+        ["archive"] = "fa fa-box-archive",
+        ["globe-americas"] = "fa fa-earth-americas",
+        ["text-wrap"] = "fa fa-align-left",
+        ["card-image"] = "far fa-image",
+        ["arrow-repeat"] = "fa fa-repeat",
+        ["people"] = "fa fa-users",
+        ["exclamation-triangle"] = "fa fa-triangle-exclamation",
+        ["recycle"] = "fa fa-recycle",
+        ["envelope"] = "far fa-envelope",
+        ["box-arrow-in-right"] = "fa fa-right-to-bracket",
+        ["envelope-open-heart"] = "fa fa-envelope-open-text",
+        ["columns-gap"] = "fa fa-table-cells-large",
+        ["tags"] = "fa fa-tags",
+        ["database-up"] = "fa fa-file-import",
+        ["tools"] = "fa fa-screwdriver-wrench",
+        ["hand-thumbs-down"] = "far fa-thumbs-down",
+        ["palette"] = "fa fa-palette",
+        ["box-arrow-left"] = "fa fa-right-from-bracket",
+        ["graph-up"] = "fa fa-chart-line",
+        ["clock"] = "far fa-clock",
+        ["receipt"] = "fa fa-receipt",
+        ["credit-card"] = "far fa-credit-card",
+        ["sliders2-vertical"] = "fa fa-sliders",
+        ["shield"] = "fa fa-shield-halved",
+        ["inboxes"] = "fa fa-inbox",
+        ["menu-button-fill"] = "fa fa-bars",
+        ["chat-dots"] = "far fa-comment-dots",
+        ["lightning"] = "fa fa-bolt",
+        ["database-add"] = "fa fa-database",
+        ["aspect-ratio"] = "fa fa-up-right-and-down-left-from-center",
+        ["geo-alt"] = "fa fa-location-dot",
+        ["arrow-90deg-up"] = "fa fa-arrow-turn-up",
+        ["person-circle"] = "far fa-circle-user",
+        ["sort-numeric-down"] = "fa fa-arrow-down-1-9",
+        ["circle-fill"] = "fa fa-circle",
+        ["list-ul"] = "fa fa-list-ul",
+        ["view-list"] = "fa fa-list",
+        ["three-dots"] = "fa fa-ellipsis",
+        ["arrow-clockwise"] = "fa fa-rotate-right",
+        ["facebook"] = "fab fa-facebook",
+        ["eye-fill"] = "fa fa-eye",
+        ["star-half"] = "far fa-star-half-stroke",
+        ["people-fill"] = "fa fa-users",
+        ["currency-euro"] = "fa fa-euro-sign",
+        ["person"] = "far fa-user",
+        ["copy"] = "far fa-copy",
+        ["puzzle-fill"] = "fa fa-puzzle-piece",
+        ["printer"] = "fa fa-print",
+        ["clipboard"] = "far fa-clipboard",
+        ["gear"] = "fa fa-gear",
+        ["stickies"] = "far fa-note-sticky",
+        ["hand-thumbs-up"] = "far fa-thumbs-up",
+        ["person-badge"] = "far fa-id-badge",
+        ["heart"] = "far fa-heart",
+        ["trophy"] = "fa fa-trophy",
+        ["file-earmark-richtext"] = "far fa-file-lines",
+        ["download"] = "fa fa-download",
+        ["question-circle-fill"] = "fa fa-circle-question",
+        ["boxes"] = "fa fa-boxes-stacked",
+        ["stack"] = "fa fa-layer-group",
+        ["images"] = "far fa-images",
+        ["hdd"] = "far fa-hard-drive",
+        ["sliders"] = "fa fa-sliders",
+        ["cart"] = "fa fa-cart-shopping",
+        ["arrow-left-right"] = "fa fa-arrow-right-arrow-left",
+        ["speedometer2"] = "fa fa-gauge-high",
+        ["chevron-right"] = "fa fa-chevron-right",
+        ["file-earmark"] = "far fa-file",
+        ["stars"] = "fa fa-wand-magic-sparkles",
+        ["sort-down"] = "fa fa-arrow-down-wide-short",
+        ["terminal"] = "fa fa-terminal",
+        ["menu-down"] = "fa fa-bars",
+        ["incognito"] = "fa fa-user-secret",
+        ["plus-square-fill"] = "fa fa-square-plus",
+        ["google"] = "fab fa-google",
+        ["search-heart"] = "fa fa-magnifying-glass",
+        ["plus-lg"] = "fa fa-plus",
+        ["arrow-counterclockwise"] = "fa fa-rotate-left",
+        ["database"] = "fa fa-database",
+        ["arrow-90deg-left"] = "fa fa-undo",
+        ["arrow-90deg-right"] = "fa fa-redo",
+        ["arrow-down-up"] = "fa fa-sort",
+        ["columns"] = "fa fa-table-columns",
+        ["card-text"] = "fa fa-align-left",
+        ["front"] = "far fa-images",
+        ["newspaper"] = "far fa-newspaper",
+        ["rss"] = "fa fa-rss",
+        ["chat-square-text"] = "far fa-comments",
+        ["check2-circle"] = "far fa-circle-check"
+    };
+
+    // Map menu functions separately when the same BI icon serves different purposes.
+    // Plugin keys use the literal titles from the supplied snapshot below.
+    var menuIcons = new Dictionary<string, (string Bootstrap, string Tabler, string Huge, string Concept)>
+    {
+        ["products"] = ("box", "box", "boxes", "Product management"),
+        ["attributes"] = ("card-checklist", "checklist", "list-setting", "Product attributes"),
+        ["specification-attributes"] = ("list-check", "list-check", "task-01", "Specification attributes"),
+        ["checkout-attributes"] = ("list-ul", "list", "file-sliders", "Checkout attributes"),
+        ["recurring-payments"] = ("arrow-repeat", "repeat", "calendar-sync", "Recurring payments"),
+        ["recycle-bin"] = ("recycle", "recycle", "restore-bin", "Recycle bin"),
+        ["product-rules"] = ("funnel", "filter", "filter-edit", "Product rules"),
+        ["customer-rules"] = ("funnel", "filter", "filter-edit", "Customer rules"),
+        ["cart-rules"] = ("funnel", "filter", "filter-edit", "Cart rules"),
+        ["rulesets"] = ("funnel", "filter", "filter-edit", "Rules"),
+        ["wishlists"] = ("heart", "heart", "heart-check", "Current wishlists"),
+        ["customers"] = ("person", "user", "user-02", "Customers"),
+        ["menus"] = ("menu-button-fill", "menu-2", "dashboard-square-setting", "Menus"),
+        ["widgets"] = ("columns-gap", "layout-dashboard", "layout-dashboard", "Widgets"),
+        ["cms-page-builder"] = ("columns", "layout-board-split", "web-design-01", "Page Builder"),
+        ["cms-text-blocks"] = ("card-text", "blockquote", "text-square", "Text blocks"),
+        ["cms-content-slider"] = ("front", "carousel-horizontal", "carousel-horizontal", "Content Slider"),
+        ["cms-news"] = ("newspaper", "news", "news-01", "News"),
+        ["cms-blogs"] = ("rss", "writing", "quill-write-01", "Blogs"),
+        ["cms-forums"] = ("chat-square-text", "messages", "message-multiple-01", "Forums"),
+        ["cms-polls"] = ("check2-circle", "list-check", "vote", "Polls"),
+        ["manufacturers"] = ("building", "building-factory-2", "factory-02", "Manufacturers"),
+        ["stockreport"] = ("sort-numeric-down", "package-off", "package-out-of-stock", "Low stock"),
+        ["orders"] = ("graph-up-arrow", "file-invoice", "chart-analysis", "Orders"),
+        ["return-cases"] = ("truck", "truck-return", "return-request", "Returns"),
+        ["customer-roles"] = ("people", "user-shield", "user-group-02", "Customer roles"),
+        ["online-customers"] = ("box-arrow-in-right", "login", "user-status", "Online customers"),
+        ["external-auth"] = ("facebook", "brand-facebook", "login-method", "External authentication"),
+        ["activity-log"] = ("eye", "eye", "audit-02", "Activity log"),
+        ["discounts"] = ("percent", "percentage", "discount", "Discounts"),
+        ["affiliates"] = ("people-fill", "affiliate", "affiliate", "Affiliates"),
+        ["message-templates"] = ("envelope-paper", "mail-opened", "mail-edit-01", "Message templates"),
+        ["email-accounts"] = ("envelope", "mail", "mail-account-01", "Email accounts"),
+        ["system-log"] = ("lightning", "logs", "flash", "System log"),
+        ["scheduled tasks"] = ("clock", "calendar-clock", "time-schedule", "Scheduled tasks"),
+        ["seo-names"] = ("search", "search", "link-01", "SEO names"),
+        ["Nummernkreis-Formatierer"] = ("file-earmark", "file", "text-number-sign", "Number formatting"),
+        ["KI-Einstellungen"] = ("stars", "sparkles", "ai-setting", "AI settings"),
+        ["TinyImage"] = ("sort-down", "sort-descending", "image-down", "Image optimization"),
+        ["GeoBlocker"] = ("geo-alt", "map-pin", "location-offline-01", "Geo blocking"),
+        ["DSGVO"] = ("incognito", "shield-lock", "shield-user", "Privacy / GDPR"),
+        ["AddToAny"] = ("plus-square-fill", "share", "share-08", "Sharing"),
+        ["Suchprotokollierung"] = ("search-heart", "list-search", "search-list-01", "Search logging")
+    };
+    var mappedIcons = icons.Select(x => (
+        Bootstrap: x.Key, x.Value.Tabler, x.Value.Huge, x.Value.Concept, x.Value.Uses, x.Value.Note, MenuKey: (string)null))
+        .Concat(menuIcons.Select(x => (
+            x.Value.Bootstrap, x.Value.Tabler, x.Value.Huge, x.Value.Concept, Uses: 0, Note: "Menu-specific mapping.", MenuKey: x.Key)));
+
+    var libraries = new[] { "BI", "HI", "Tabler" };
+    var tableLibraries = new[] { "FA", "BI", "HI", "Tabler" };
+    var buttonLibraries = new[] { "FA", "HI", "Tabler", "BI" };
+    var buttons = new (string Label, string Bootstrap, string FontAwesome, string Style)[]
+    {
+        ("Add", "plus-lg", "fa fa-plus", "primary"),
+        ("Delete", "trash", "far fa-trash-can", "secondary btn-to-danger"),
+        ("Edit", "pencil", "far fa-edit", "warning"),
+        ("Check", "check-lg", "fa fa-check", "secondary"),
+        ("Clone", "copy", "far fa-copy", "secondary"),
+        ("Preview", "eye", "far fa-eye", "secondary"),
+        ("Filter", "funnel", "fa fa-filter", "secondary"),
+        ("Restore", "arrow-counterclockwise", "fa fa-undo", "secondary"),
+        ("Backup", "database", "fa fa-database", "secondary"),
+        ("Configure", "gear", "fa fa-cog", "secondary"),
+        ("Undo", "arrow-90deg-left", "fa fa-undo", "secondary"),
+        ("Redo", "arrow-90deg-right", "fa fa-redo", "secondary"),
+        ("Upload", "upload", "fa fa-upload", "secondary"),
+        ("Download", "download", "fa fa-download", "secondary"),
+        ("Sort", "arrow-down-up", "fa fa-sort", "secondary"),
+        ("Refresh", "arrow-clockwise", "fa fa-sync", "secondary")
+    };
+    // Snapshot of the supplied, fully populated Plugins dropdown; available without controller reloads.
+    var pluginItems = new (string Title, string Icon)[]
+    {
+        ("MegaSearch", "search"),
+        ("Nummernkreis-Formatierer", "file-earmark"),
+        ("KI-Einstellungen", "stars"),
+        ("TinyImage", "sort-down"),
+        ("Developer Tools", "terminal"),
+        ("Mega Menu", "menu-down"),
+        ("Output Cache", "hdd"),
+        ("GeoBlocker", "geo-alt"),
+        ("DSGVO", "incognito"),
+        ("AddToAny", "plus-square-fill"),
+        ("Google Merchant Center Feed", "google"),
+        ("Suchprotokollierung", "search-heart"),
+        ("Plugins verwalten", "puzzle-fill")
+    };
+    var plugins = Model.Elements("siteMapNode").First(x => (string)x.Attribute("id") == "modules");
+    plugins.ReplaceNodes(pluginItems.Select(item => new XElement("siteMapNode",
+        new XAttribute("title", item.Title),
+        new XAttribute("icon", "bi:" + item.Icon))));
+    var managePlugins = plugins.Elements("siteMapNode").Last();
+    managePlugins.SetAttributeValue("id", "modules-manage");
+    managePlugins.AddBeforeSelf(new XElement("siteMapNode",
+        new XAttribute("isGroupHeader", true),
+        new XAttribute("title", "[SKIP]")));
+
+    // Keep only the top level of the supplied final CMS menu, without nested menus.
+    var cmsItems = new (string Id, string Title, string Icon)[]
+    {
+        ("cms-page-builder", "Page Builder", "columns"),
+        ("topics", "Seiten & Inhalte", "file-earmark-richtext"),
+        ("cms-text-blocks", "Textbausteine", "card-text"),
+        ("cms-content-slider", "Content Slider", "front"),
+        ("cms-media", "Medien", "images"),
+        ("menus", "Menüs", "menu-button-fill"),
+        ("cms-news", "News", "newspaper"),
+        ("cms-blogs", "Blogs", "rss"),
+        ("cms-forums", "Foren", "chat-square-text"),
+        ("message-templates", "Nachrichtenvorlagen", "envelope-paper"),
+        ("cms-polls", "Umfragen", "check2-circle"),
+        ("widgets", "Widgets", "columns-gap")
+    };
+    var cms = Model.Elements("siteMapNode").First(x => (string)x.Attribute("id") == "cms");
+    cms.ReplaceNodes(cmsItems.Select(item => new XElement("siteMapNode",
+        new XAttribute("id", item.Id),
+        new XAttribute("title", item.Title),
+        new XAttribute("icon", "bi:" + item.Icon))));
+
+    var menus = Model.Descendants("siteMapNode")
+        .Where(x => x.Elements("siteMapNode").Any(item => GetBootstrapIcon(item) != null))
+        .ToList();
+}
+
+@* These fonts belong only to this evaluation view. BI uses the existing admin SVG sprite. *@
+<link rel="stylesheet" href="https://use.hugeicons.com/font/icons.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/icons-webfont@@3.48.0/dist/tabler-icons.min.css" />
+
+<style>
+    #icon-cheatsheet .comparison-heading {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    #icon-cheatsheet .comparison-mute-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        font-size: 14px;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+    #icon-cheatsheet .comparison-mute-toggle:focus-visible {
+        outline: 2px solid currentColor;
+        outline-offset: 2px;
+    }
+
+    #icon-cheatsheet .comparison-muted {
+        opacity: 0.15;
+    }
+
+    #icon-cheatsheet .admin-navbar-preview {
+        display: flex;
+        align-items: center;
+        min-width: 1030px;
+        height: 72px;
+        padding: 0 32px;
+        background: #24539b;
+        color: #c8d9f2;
+    }
+
+    #icon-cheatsheet .admin-navbar-logo {
+        flex: 0 0 160px;
+        width: 160px;
+        height: 28px;
+        margin-right: 16px;
+    }
+
+    #icon-cheatsheet .admin-navbar-links,
+    #icon-cheatsheet .admin-navbar-tools {
+        display: flex;
+        align-items: center;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    #icon-cheatsheet .admin-navbar-tools {
+        margin-left: auto;
+        padding-left: 24px;
+    }
+
+    #icon-cheatsheet .admin-navbar-item,
+    #icon-cheatsheet .admin-navbar-tool {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 72px;
+        padding: 0 8px;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        white-space: nowrap;
+    }
+
+    #icon-cheatsheet .admin-navbar-item {
+        flex-direction: column;
+        gap: 4px;
+        font-size: 12px;
+        line-height: 18px;
+    }
+
+    #icon-cheatsheet .admin-navbar-tool {
+        gap: 8px;
+        padding-inline: 10px;
+    }
+
+    #icon-cheatsheet .admin-navbar-tools > li:last-child {
+        margin-left: 16px;
+    }
+
+    #icon-cheatsheet .admin-navbar-preview button:hover {
+        background: rgba(255, 255, 255, .15);
+        color: #fff;
+    }
+
+    #icon-cheatsheet .admin-navbar-preview i {
+        display: block;
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+        font-size: 20px;
+        text-align: center;
+    }
+
+    #icon-cheatsheet .admin-navbar-preview .hgi-stroke {
+        font-size: 24px;
+    }
+
+    #icon-cheatsheet .comparison-scroll {
+        overflow-x: auto;
+        padding: 2px 2px 12px;
+    }
+
+    #icon-cheatsheet .comparison-dropdowns {
+        overflow: visible;
+    }
+
+    #icon-cheatsheet .comparison-grid {
+        display: grid;
+        grid-template-columns: repeat(3, max-content);
+        gap: 24px;
+        justify-content: start;
+    }
+
+    #icon-cheatsheet .comparison-menu {
+        display: block;
+        position: static;
+        float: none;
+        width: max-content;
+        min-width: 0;
+        margin: 0;
+        transform: none;
+    }
+
+    #icon-cheatsheet .comparison-menu .dropdown-item {
+        cursor: default;
+        white-space: nowrap;
+        min-height: 36px;
+    }
+
+    #icon-cheatsheet .comparison-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 16px;
+        width: 16px;
+        height: 16px;
+        min-width: 16px;
+        min-height: 16px;
+        font-size: 16px;
+        line-height: 1;
+        vertical-align: middle;
+    }
+
+    #icon-cheatsheet .comparison-icon > i,
+    #icon-cheatsheet .comparison-icon > svg {
+        display: block;
+        width: 16px;
+        height: 16px;
+        min-width: 16px;
+        min-height: 16px;
+        font-size: 16px;
+        line-height: 1;
+        margin: 0;
+    }
+
+    #icon-cheatsheet .hgi-stroke {
+        /* The CDN does not reset font weight; prevent inherited button weight from synthesizing bold glyphs. */
+        font-weight: 400;
+        font-synthesis: none;
+    }
+
+    #icon-cheatsheet .account-comparison .comparison-icon > .fal {
+        font-size: 14px;
+    }
+
+    #icon-cheatsheet .button-comparison .btn > :is(i, svg) {
+        font-size: 16px;
+    }
+
+    #icon-cheatsheet .button-comparison .btn > .comparison-icon-fa {
+        font-size: 14px;
+    }
+
+    #icon-cheatsheet [data-comparison-library="HI"] :is(.btn-secondary, .btn-light),
+    #icon-cheatsheet [data-comparison-library="HI"]:is(.btn-secondary, .btn-light) {
+        --btn-icon-color: inherit;
+    }
+
+    #icon-cheatsheet .toolbar-comparison .options {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: max-content;
+    }
+
+    #icon-cheatsheet .product-tabs-comparison .nav-aside {
+        width: 250px;
+    }
+
+    #icon-cheatsheet .product-tabs-comparison .nav-icon {
+        width: 16px;
+        min-width: 16px;
+        height: 16px;
+        font-size: 16px;
+        line-height: 16px;
+    }
+
+    #icon-cheatsheet .toolbar-comparison .btn > i {
+        font-size: 16px;
+    }
+
+    #icon-cheatsheet .toolbar-comparison [data-library="FA"] .btn > i {
+        font-size: 14px;
+    }
+
+    #icon-cheatsheet .cart-comparison .btn {
+        --btn-bg: #3f51b5;
+        --btn-disabled-bg: #3f51b5;
+        --btn-disabled-border-color: #59616726;
+        --btn-hover-bg: #36459a;
+        --btn-hover-shadow: 0 1px 0 #22262a0a, inset 0 1px 0 #ffffff40;
+        --btn-focus-shadow-rgb: 203, 205, 207;
+        --btn-active-bg: #324191;
+        --btn-active-shadow: inset 0 3px 5px #00000020;
+        width: 350px;
+    }
+
+    #icon-cheatsheet .cart-comparison .btn > i {
+        font-size: 16px;
+    }
+
+    #icon-cheatsheet .cart-comparison .btn > .hgi-stroke,
+    #icon-cheatsheet .cart-comparison .btn > .ti {
+        font-size: 20px;
+    }
+
+    #icon-cheatsheet .comparison-table {
+        min-width: 856px;
+        table-layout: fixed;
+    }
+
+    #icon-cheatsheet .mapped-icons-details > summary {
+        cursor: pointer;
+    }
+
+    #icon-cheatsheet .comparison-table .comparison-icon > .comparison-icon-fa {
+        font-size: 14px;
+    }
+
+    #icon-cheatsheet .product-actions-comparison {
+        grid-template-columns: repeat(2, max-content);
+    }
+
+    #icon-cheatsheet .product-actions-panel {
+        width: 520px;
+        padding: 15px;
+        border-radius: 0 0 16px 16px;
+        background: var(--gray-100);
+    }
+
+    #icon-cheatsheet .product-actions-bar {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        border-top: 1px solid rgba(0, 0, 0, .15);
+        padding-top: 15px;
+    }
+
+    #icon-cheatsheet .product-action {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 0 4px;
+        border: 0;
+        border-inline-end: 1px solid rgba(0, 0, 0, .15);
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        font-size: 14px;
+        line-height: 20px;
+    }
+
+    #icon-cheatsheet .product-action:last-child {
+        border-inline-end: 0;
+    }
+
+    #icon-cheatsheet .product-action > i {
+        display: block;
+        font-size: 20px;
+        line-height: 20px;
+        height: 20px;
+    }
+
+    #icon-cheatsheet .product-action > .hgi-stroke {
+        font-size: 24px;
+        line-height: 24px;
+        height: 24px;
+    }
+
+    #icon-cheatsheet .button-comparison {
+        display: grid;
+        grid-template-columns: repeat(4, max-content);
+        gap: 12px 24px;
+        width: max-content;
+    }
+
+    #icon-cheatsheet .comparison-table th:nth-child(-n+4) {
+        width: 96px;
+    }
+
+    #icon-cheatsheet .comparison-table td {
+        vertical-align: middle;
+        padding-top: 16px;
+        padding-bottom: 16px;
+    }
+
+    #icon-cheatsheet .icon-name {
+        display: block;
+        margin-top: 8px;
+        font-size: 11px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: var(--gray-600);
+    }
+</style>
+
+<div id="icon-cheatsheet">
+    <div class="section-header">
+        <div class="title">Icon cheatsheet <small class="text-muted">16 px</small></div>
+    </div>
+
+    <div class="px-3 pb-5">
+        <section class="mb-5 d-none" aria-labelledby="navbar-comparison-title">
+            <h2 id="navbar-comparison-title" class="h4">Backend / Main menu</h2>
+            @foreach (string library in new[] { "HI", "Tabler" })
+            {
+                <h3 class="h6 text-muted comparison-heading mb-2">@LibraryLabel(library) @{ await RenderMuteButton(library); }</h3>
+                <div class="comparison-scroll mb-2" data-comparison-library="@library">
+                    <nav class="admin-navbar-preview" aria-label="@($"{library} admin menu preview")">
+                        <img class="admin-navbar-logo" src="~/images/smartstore.svg" alt="Smartstore" width="160" height="28" />
+                        <ul class="admin-navbar-links">
+                            @foreach (var item in navbarItems)
+                            {
+                                <li>
+                                    <button type="button" class="admin-navbar-item">
+                                        <i class="@(library == "HI" ? "hgi-stroke hgi-" + item.Huge : "ti ti-" + item.Tabler)" aria-hidden="true"></i>
+                                        <span>@item.Label</span>
+                                    </button>
+                                </li>
+                            }
+                        </ul>
+                        <ul class="admin-navbar-tools">
+                            @foreach (var item in navbarTools)
+                            {
+                                <li>
+                                    <button type="button" class="admin-navbar-tool" aria-label="@item.Label" title="@item.Label">
+                                        <i class="@(library == "HI" ? "hgi-stroke hgi-" + item.Huge : "ti ti-" + item.Tabler)" aria-hidden="true"></i>
+                                        @if (item.Text != null)
+                                        {
+                                            <span>@item.Text</span>
+                                        }
+                                    </button>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                </div>
+            }
+        </section>
+
+        <section class="mb-5 account-comparison" aria-labelledby="frontend-comparison-title">
+            <h2 id="frontend-comparison-title" class="h4">Frontend / Account menu</h2>
+            <div class="comparison-scroll comparison-dropdowns">
+                <div class="comparison-grid">
+                    @foreach (string library in frontendLibraries)
+                    {
+                        <div>
+                            <h3 class="h6 text-muted comparison-heading mb-2">@(library == "FA" ? "FontAwesome / Current" : LibraryLabel(library)) @{ await RenderMuteButton(library); }</h3>
+                            <div class="dropdown-menu dropdown-menu-right show comparison-menu" data-comparison-library="@library">
+                                @foreach (var item in frontendItems)
+                                {
+                                    if (item.FontAwesome == "fa-right-from-bracket")
+                                    {
+                                        <div class="dropdown-divider" role="separator"></div>
+                                    }
+                                    <span class="dropdown-item">
+                                        <span class="comparison-icon" aria-hidden="true">
+                                            @if (library == "FA")
+                                            {
+                                                <i class="fal @item.FontAwesome fa-fw"></i>
+                                            }
+                                            else if (library == "HI")
+                                            {
+                                                <i class="hgi-stroke hgi-@item.Huge"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="ti ti-@item.Tabler"></i>
+                                            }
+                                        </span>
+                                        <span>@item.Label</span>
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-5" aria-labelledby="cart-comparison-title">
+            <h2 id="cart-comparison-title" class="h4">Frontend / Add to cart</h2>
+            <div class="comparison-scroll">
+                <div class="comparison-grid cart-comparison">
+                    @foreach (string library in frontendLibraries)
+                    {
+                        <div>
+                            <h3 class="h6 text-muted comparison-heading mb-2">@(library == "FA" ? "FontAwesome / Current" : LibraryLabel(library)) @{ await RenderMuteButton(library); }</h3>
+                            <button type="button" class="btn btn-primary btn-lg btn-block btn-add-to-cart" data-comparison-library="@library" aria-label="@($"In den Warenkorb / {library} preview")">
+                                @if (library == "FA")
+                                {
+                                    <i class="fa fa-cart-arrow-down" aria-hidden="true"></i>
+                                }
+                                else if (library == "HI")
+                                {
+                                    <i class="hgi-stroke hgi-shopping-cart-add-01" aria-hidden="true"></i>
+                                }
+                                else
+                                {
+                                    <i class="ti ti-shopping-cart-down" aria-hidden="true"></i>
+                                }
+                                <span>In den Warenkorb</span>
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-5" aria-labelledby="product-actions-comparison-title">
+            <h2 id="product-actions-comparison-title" class="h4">Frontend / Product actions</h2>
+            <div class="comparison-scroll">
+                <div class="comparison-grid product-actions-comparison">
+                    @foreach (string library in productActionLibraries)
+                    {
+                        <div>
+                            <h3 class="h6 text-muted comparison-heading mb-2">@LibraryLabel(library) @{ await RenderMuteButton(library); }</h3>
+                            <div class="product-actions-panel" data-comparison-library="@library">
+                                <div class="product-actions-bar">
+                                    @foreach (var action in productActions)
+                                    {
+                                        <button type="button" class="product-action" aria-label="@($"{action.Label} / {library} preview")">
+                                            @if (library == "HI")
+                                            {
+                                                <i class="hgi-stroke hgi-@action.Huge" aria-hidden="true"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="ti ti-@action.Tabler" aria-hidden="true"></i>
+                                            }
+                                            <span>@action.Label</span>
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <p class="text-muted">
+            HugeIcons Stroke Rounded, Tabler Outline and the current Bootstrap Icons.
+            BI, HI and Tabler are shown at 16 px in the same color, with each library's native stroke weight.
+            Menus are static previews of the admin sitemap; Plugins and CMS use the supplied menu snapshots.
+        </p>
+        <p id="icon-font-status" class="small text-muted" role="status" aria-live="polite">Loading comparison fonts...</p>
+
+        @foreach (var menu in menus)
+        {
+            var path = string.Join(" / ", menu.AncestorsAndSelf("siteMapNode")
+                .TakeWhile(x => x != Model).Reverse().Select(GetLabel));
+            <section class="mb-5" aria-label="@path">
+                <h2 class="h5 mb-3">@path</h2>
+                <div class="comparison-scroll comparison-dropdowns">
+                    <div class="comparison-grid">
+                        @foreach (string library in libraries)
+                        {
+                            <div>
+                                <h3 class="h6 text-muted comparison-heading mb-2">@LibraryLabel(library) @{ await RenderMuteButton(library); }</h3>
+                                <ul class="dropdown-menu comparison-menu" data-comparison-library="@library">
+                                    @{
+                                        bool isFirst = true;
+                                        bool hasIcons = menu.Elements("siteMapNode").Any(x => GetBootstrapIcon(x) != null);
+                                    }
+                                    @foreach (var item in menu.Elements("siteMapNode"))
+                                    {
+                                        if ((bool?)item.Attribute("isGroupHeader") == true)
+                                        {
+                                            if (!isFirst)
+                                            {
+                                                <li class="dropdown-divider" role="separator"></li>
+                                            }
+                                            if ((string)item.Attribute("title") != "[SKIP]")
+                                            {
+                                                <li class="dropdown-header h6">@GetLabel(item)</li>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <li>
+                                                <span class="dropdown-item @((string)item.Attribute("id") == "modules-manage" ? "font-weight-bold" : null)">
+                                                    @if (hasIcons)
+                                                    {
+                                                        await RenderIcon(GetBootstrapIcon(item), library, (string)item.Attribute("iconClass"),
+                                                            (string)item.Attribute("id") ?? (string)item.Attribute("title"));
+                                                    }
+                                                    <span>@GetLabel(item)</span>
+                                                    @if (item.Elements("siteMapNode").Any())
+                                                    {
+                                                        <span class="ml-auto">
+                                                            @{ await RenderIcon("chevron-right", library); }
+                                                        </span>
+                                                    }
+                                                </span>
+                                            </li>
+                                        }
+                                        isFirst = false;
+                                    }
+                                </ul>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </section>
+        }
+
+        <section class="mb-5 product-tabs-comparison" aria-labelledby="product-tabs-comparison-title">
+            <h2 id="product-tabs-comparison-title" class="h4">Product-Edit Tab menu comparison</h2>
+            <div class="comparison-scroll">
+                <div class="comparison-grid">
+                    @foreach (string library in libraries)
+                    {
+                        <div>
+                            <h3 class="h6 text-muted comparison-heading mb-2">@(library == "BI" ? "Original (BI)" : LibraryLabel(library)) @{ await RenderMuteButton(library); }</h3>
+                            <aside class="nav-aside" data-comparison-library="@library" aria-label="@($"{library} product tabs preview")">
+                                <ul class="nav nav-tabs nav-tabs-line nav-tabs-line-dense nav-stacked flex-column nav-left">
+                                    @for (int index = 0; index < productTabs.Length; index++)
+                                    {
+                                        var tab = productTabs[index];
+                                        <li class="nav-item">
+                                            <span class="nav-link @(index == 0 ? "active" : null)" aria-current="@(index == 0 ? "page" : null)">
+                                                @if (library == "BI")
+                                                {
+                                                    if (tab.Bootstrap != null)
+                                                    {
+                                                        <bootstrap-icon name="@tab.Bootstrap" class="bi-fw nav-icon" aria-hidden="true" />
+                                                    }
+                                                    else
+                                                    {
+                                                        @* Preserve the original FA exception for the warranty tab. *@
+                                                        <i class="far fa-section bi-fw nav-icon" aria-hidden="true"></i>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <i class="@(library == "HI" ? "hgi-stroke hgi-" + tab.Huge : "ti ti-" + tab.Tabler) nav-icon" aria-hidden="true"></i>
+                                                }
+                                                <span class="tab-caption">@tab.Label</span>
+                                            </span>
+                                        </li>
+                                    }
+                                </ul>
+                            </aside>
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-5 toolbar-comparison" aria-labelledby="product-edit-toolbar-comparison-title">
+            <h2 id="product-edit-toolbar-comparison-title" class="h4">ProductEdit Toolbar comparison</h2>
+            @foreach (string library in frontendLibraries)
+            {
+                <div class="mb-4" data-library="@library">
+                    <h3 class="h6 text-muted comparison-heading mb-2">@(library == "FA" ? "Original / FA" : LibraryLabel(library)) @{ await RenderMuteButton(library); }</h3>
+                    <div class="options" role="group" data-comparison-library="@library" aria-label="@($"{library} product edit toolbar preview")">
+                        <button type="button" class="btn btn-outline-secondary">
+                            <i class="@(library == "FA" ? "far fa-eye" : library == "HI" ? "hgi-stroke hgi-eye" : "ti ti-eye")" aria-hidden="true"></i>
+                            <span>Vorschau</span>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary">
+                            <i class="@(library == "FA" ? "far fa-copy" : library == "HI" ? "hgi-stroke hgi-copy-02" : "ti ti-copy")" aria-hidden="true"></i>
+                            <span>Produkt kopieren</span>
+                        </button>
+                        <span class="vr" aria-hidden="true"></span>
+                        <button type="button" class="btn btn-warning">
+                            <i class="@(library == "FA" ? "fa fa-check" : library == "HI" ? "hgi-stroke hgi-tick-02" : "ti ti-check")" aria-hidden="true"></i>
+                            <span>Speichern</span>
+                        </button>
+                        <button type="button" class="btn btn-secondary">
+                            Speichern und fortsetzen
+                        </button>
+                        <button type="button" class="btn btn-danger">
+                            <i class="@(library == "FA" ? "far fa-trash-can" : library == "HI" ? "hgi-stroke hgi-delete-02" : "ti ti-trash")" aria-hidden="true"></i>
+                            <span>Löschen</span>
+                        </button>
+                    </div>
+                </div>
+            }
+        </section>
+
+        <section class="mb-5 toolbar-comparison" aria-labelledby="toolbar-comparison-title">
+            <h2 id="toolbar-comparison-title" class="h4">PageBuilder Toolbar comparison</h2>
+            @foreach (string library in frontendLibraries)
+            {
+                <div class="mb-4" data-library="@library">
+                    <h3 class="h6 text-muted comparison-heading mb-2">@(library == "FA" ? "FA / Original" : LibraryLabel(library)) @{ await RenderMuteButton(library); }</h3>
+                    <div class="options" role="group" data-comparison-library="@library" aria-label="@($"{library} toolbar preview")">
+                        @foreach (var group in toolbarButtons.GroupBy(x => x.Group))
+                        {
+                            <div class="btn-group" role="group">
+                                @foreach (var button in group)
+                                {
+                                    <button type="button" class="btn btn-secondary @button.Css" title="@button.Title" aria-label="@button.Title" disabled="@button.Disabled">
+                                        <i class="@(library == "FA" ? button.FontAwesome : library == "HI" ? "hgi-stroke hgi-" + button.Huge : "ti ti-" + button.Tabler)" aria-hidden="true"></i>
+                                        @if (button.Label != null)
+                                        {
+                                            <span>@button.Label</span>
+                                        }
+                                    </button>
+                                }
+                                @if (group.Key == 0)
+                                {
+                                    <button type="button" id="toolbar-save-split-@library" class="btn btn-secondary dropdown-toggle dropdown-toggle-split"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Weitere Speicheroptionen"></button>
+                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="toolbar-save-split-@library">
+                                        <button type="button" class="dropdown-item">Als Vorlage speichern...</button>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </section>
+
+        <section class="mb-5" aria-labelledby="html-editor-toolbar-comparison-title">
+            <h2 id="html-editor-toolbar-comparison-title" class="h4">HtmlEditor Toolbar comparison</h2>
+            @foreach (string library in new[] { "Original", "HI", "Tabler" })
+            {
+                <div class="mb-4">
+                    <h3 class="h6 text-muted comparison-heading mb-2">@(library == "Original" ? "Original / Embedded SVG" : LibraryLabel(library)) @{ await RenderMuteButton(library); }</h3>
+                    @await Html.PartialAsync("_IconCheatsheetHtmlEditorToolbar", library)
+                </div>
+            }
+        </section>
+
+        <section class="mb-5" aria-labelledby="button-comparison-title">
+            <h2 id="button-comparison-title" class="h4">Button comparison</h2>
+            <p class="text-muted">Common admin actions: FontAwesome at 14 px; BI, HI and Tabler at 16 px. Preview buttons have no actions.</p>
+            <div class="comparison-scroll">
+                <div class="button-comparison">
+                    @foreach (string library in buttonLibraries)
+                    {
+                        <h3 class="h6 text-muted comparison-heading mb-1">@(library == "FA" ? "FontAwesome" : library) @{ await RenderMuteButton(library); }</h3>
+                    }
+                    @foreach (var button in buttons)
+                    {
+                        @foreach (string library in buttonLibraries)
+                        {
+                            <div data-comparison-library="@library">
+                                <button type="button" class="btn btn-@button.Style" aria-label="@($"{button.Label} / {library} preview")">
+                                    @if (library == "FA")
+                                    {
+                                        <i class="@button.FontAwesome comparison-icon-fa" aria-hidden="true" title="@button.FontAwesome"></i>
+                                    }
+                                    else if (library == "HI")
+                                    {
+                                        <i class="hgi-stroke hgi-@icons[button.Bootstrap].Huge" aria-hidden="true"></i>
+                                    }
+                                    else if (library == "Tabler")
+                                    {
+                                        <i class="ti ti-@icons[button.Bootstrap].Tabler" aria-hidden="true"></i>
+                                    }
+                                    else
+                                    {
+                                        string spriteName = GetSpriteName(button.Bootstrap);
+                                        <bootstrap-icon name="@spriteName" flip-h="@(spriteName != button.Bootstrap)" aria-hidden="true" />
+                                    }
+                                    <span>@button.Label</span>
+                                </button>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </section>
+
+        <section aria-labelledby="icon-table-title">
+            <details class="mapped-icons-details">
+                <summary class="mb-3"><h2 id="icon-table-title" class="h4 d-inline">All mapped icons</h2></summary>
+                <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
+                    <div>
+                        <p class="text-muted mb-2">@mappedIcons.Count() mappings, ordered by source occurrences in the admin area. FA equivalents use available Free icons, with approximations for composite motifs. FA: 14 px; BI, HI and Tabler: 16 px.</p>
+                    </div>
+                    <div>
+                        <label for="icon-search" class="sr-only">Filter icons by concept or icon name</label>
+                        <input id="icon-search" type="search" class="form-control" placeholder="Filter concept or icon name" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover comparison-table">
+                        <thead>
+                            <tr>
+                                @foreach (string library in tableLibraries)
+                                {
+                                    <th scope="col" class="text-center">@library @{ await RenderMuteButton(library); }</th>
+                                }
+                                <th scope="col">Concept</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var icon in mappedIcons.OrderByDescending(x => x.Uses).ThenBy(x => x.Concept))
+                            {
+                                string fontAwesome = GetFontAwesomeIcon(icon.Bootstrap, icon.MenuKey);
+                                <tr data-icon-search="@($"{fontAwesome} {icon.Bootstrap} {icon.Tabler} {icon.Huge} {icon.Concept}")">
+                                    @foreach (string library in tableLibraries)
+                                    {
+                                        string name = library == "FA" ? fontAwesome : library == "HI" ? icon.Huge : library == "Tabler" ? icon.Tabler : icon.Bootstrap;
+                                        <td class="text-center" data-comparison-library="@library">
+                                            @if (library == "FA")
+                                            {
+                                                <span class="comparison-icon" aria-hidden="true"><i class="@fontAwesome comparison-icon-fa"></i></span>
+                                            }
+                                            else
+                                            {
+                                                await RenderIcon(icon.Bootstrap, library, icon.MenuKey == "return-cases" ? "flip-h" : null, icon.MenuKey);
+                                            }
+                                            <code class="icon-name" title="@name">@name</code>
+                                        </td>
+                                    }
+                                    <td>
+                                        <div class="font-weight-medium">@icon.Concept</div>
+                                        @if (icon.Uses > 0)
+                                        {
+                                            <small class="text-muted">@icon.Uses source occurrences</small>
+                                        }
+                                        @if (icon.Note.HasValue())
+                                        {
+                                            <div class="small text-muted mt-1">@icon.Note</div>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <p id="icon-no-results" class="text-muted" hidden>No matching icons.</p>
+            </details>
+        </section>
+    </div>
+</div>
+
+@{
+    string GetFontAwesomeIcon(string bootstrap, string menuKey) => menuKey switch
+    {
+        "products" => "fa fa-boxes-stacked",
+        "attributes" => "fa fa-sliders",
+        "checkout-attributes" => "far fa-rectangle-list",
+        "recurring-payments" => "fa fa-arrows-rotate",
+        "recycle-bin" => "fa fa-trash-arrow-up",
+        "menus" => "fa fa-bars",
+        "manufacturers" => "fa fa-industry",
+        "stockreport" => "fa fa-box-open",
+        "orders" => "fa fa-file-invoice",
+        "return-cases" => "fa fa-rotate-left",
+        "customer-roles" => "fa fa-users-gear",
+        "online-customers" => "fa fa-user-check",
+        "external-auth" => "fa fa-right-to-bracket",
+        "activity-log" => "fa fa-clock-rotate-left",
+        "affiliates" => "far fa-handshake",
+        "message-templates" => "fa fa-envelope-open-text",
+        "email-accounts" => "fa fa-at",
+        "scheduled tasks" => "far fa-calendar-days",
+        "seo-names" => "fa fa-link",
+        "Nummernkreis-Formatierer" => "fa fa-hashtag",
+        "TinyImage" => "far fa-image",
+        "GeoBlocker" => "fa fa-earth-europe",
+        "DSGVO" => "fa fa-user-shield",
+        "AddToAny" => "fa fa-share-nodes",
+        "Suchprotokollierung" => "fa fa-magnifying-glass-chart",
+        "cms-blogs" => "fa fa-pen-nib",
+        "cms-polls" => "fa fa-square-poll-vertical",
+        _ => fontAwesomeIcons[bootstrap]
+    };
+
+    async Task RenderMuteButton(string library)
+    {
+        <button type="button" class="comparison-mute-toggle" data-mute-library="@library"
+                aria-pressed="false" aria-label="@($"Mute {library}")" title="@($"Mute {library}")">
+            <i class="far fa-eye" aria-hidden="true"></i>
+        </button>
+    }
+
+    string LibraryLabel(string library) => library switch
+    {
+        "HI" => "HI / Stroke Rounded",
+        "Tabler" => "Tabler / Outline",
+        _ => "BI / Current admin icons"
+    };
+
+    string GetLabel(XElement node)
+    {
+        string resourceKey = (string)node.Attribute("resKey");
+        return resourceKey.HasValue() ? T(resourceKey).Value : (string)node.Attribute("title");
+    }
+
+    string GetBootstrapIcon(XElement node)
+    {
+        string icon = ((string)node.Attribute("icon"))?.Trim();
+        return icon?.StartsWith("bi:", StringComparison.Ordinal) == true ? icon[3..] : null;
+    }
+
+    // The admin sprite contains only the right-facing variants of these two icons.
+    string GetSpriteName(string bootstrap) => bootstrap switch
+    {
+        "arrow-counterclockwise" => "arrow-clockwise",
+        "arrow-90deg-left" => "arrow-90deg-right",
+        _ => bootstrap
+    };
+
+    async Task RenderIcon(string bootstrap, string library, string cssClass = null, string menuKey = null)
+    {
+        // Dedicated return icons already convey direction; only mirror the original BI truck.
+        if (menuKey == "return-cases" && library != "BI")
+        {
+            cssClass = null;
+        }
+
+        <span class="comparison-icon @cssClass" aria-hidden="true">
+            @if (bootstrap.HasValue())
+            {
+                if (library == "BI")
+                {
+                    string spriteName = GetSpriteName(bootstrap);
+                    <bootstrap-icon name="@spriteName" flip-h="@(spriteName != bootstrap)" />
+                }
+                else if (menuKey != null && menuIcons.TryGetValue(menuKey, out var menuIcon))
+                {
+                    if (library == "HI")
+                    {
+                        <i class="hgi-stroke hgi-@menuIcon.Huge"></i>
+                    }
+                    else
+                    {
+                        <i class="ti ti-@menuIcon.Tabler"></i>
+                    }
+                }
+                else if (icons.TryGetValue(bootstrap, out var icon))
+                {
+                    if (library == "HI")
+                    {
+                        <i class="hgi-stroke hgi-@icon.Huge"></i>
+                    }
+                    else
+                    {
+                        <i class="ti ti-@icon.Tabler"></i>
+                    }
+                }
+                else
+                {
+                    <span title="No mapping available">?</span>
+                }
+            }
+        </span>
+    }
+}
+
+<script sm-target-zone="scripts" data-origin="IconCheatsheet">
+    (() => {
+        const root = document.getElementById('icon-cheatsheet');
+        root.addEventListener('click', event => {
+            const button = event.target.closest('[data-mute-library]');
+            if (!button) return;
+
+            const library = button.dataset.muteLibrary;
+            const muted = button.getAttribute('aria-pressed') !== 'true';
+            button.closest('section').querySelectorAll('[data-comparison-library]').forEach(variant => {
+                if (variant.dataset.comparisonLibrary === library) {
+                    variant.classList.toggle('comparison-muted', muted);
+                }
+            });
+            button.setAttribute('aria-pressed', String(muted));
+            const label = `${muted ? 'Show' : 'Mute'} ${library}`;
+            button.setAttribute('aria-label', label);
+            button.title = label;
+            const icon = button.querySelector('i');
+            icon.classList.toggle('fa-eye', !muted);
+            icon.classList.toggle('fa-eye-slash', muted);
+        });
+
+        const rows = Array.from(root.querySelectorAll('[data-icon-search]'));
+        document.getElementById('icon-search').addEventListener('input', event => {
+            const query = event.target.value.trim().toLowerCase();
+            let count = 0;
+            rows.forEach(row => {
+                row.hidden = !row.dataset.iconSearch.toLowerCase().includes(query);
+                if (!row.hidden) count++;
+            });
+            document.getElementById('icon-no-results').hidden = count > 0;
+        });
+
+        const status = document.getElementById('icon-font-status');
+        Promise.all([
+            document.fonts.load('16px "hugeicons-stroke-rounded"'),
+            document.fonts.load('16px "tabler-icons"')
+        ]).then(fonts => {
+            const loaded = fonts.every(faces => faces.length > 0);
+            status.textContent = loaded
+                ? 'Both comparison fonts loaded. BI, HI and Tabler: 16 px.'
+                : 'A comparison font could not be loaded. Check CDN access before comparing.';
+            status.classList.toggle('text-danger', !loaded);
+        }).catch(() => {
+            status.textContent = 'A comparison font could not be loaded. Check CDN access before comparing.';
+            status.classList.add('text-danger');
+        });
+    })();
+</script>
