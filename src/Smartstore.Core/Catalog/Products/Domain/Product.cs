@@ -848,6 +848,16 @@ public partial class Product : EntityWithDiscounts, IAuditable, ISoftDeletable, 
     public int? WithdrawalPeriodDays { get; set; }
 
     /// <summary>
+    /// Gets or sets a value indicating whether the product can be withdrawn before shipping,
+    /// even if it is otherwise not eligible for withdrawal.
+    /// </summary>
+    /// <remarks>
+    /// Only effective in accordance with the Withdrawal module if the effective withdrawal period is 0
+    /// and <see cref="IsShippingEnabled"/> is <c>true</c>.
+    /// </remarks>
+    public bool? AllowWithdrawalBeforeShipping { get; set; }
+
+    /// <summary>
     /// Gets or sets the duration of the product's durability guarantee in years.
     /// </summary>
     /// <remarks>Only effective in accordance with Warranty module.</remarks>

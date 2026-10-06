@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -254,6 +255,16 @@ public partial class Category :
     /// </summary>
     /// <remarks>Only effective in accordance with Withdrawal module.</remarks>
     public int? WithdrawalPeriodDays { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether products in the category can be withdrawn before shipping,
+    /// even if they are otherwise not eligible for withdrawal.
+    /// </summary>
+    /// <remarks>
+    /// Only effective in accordance with the Withdrawal module if the effective withdrawal period is 0
+    /// and <see cref="Product.IsShippingEnabled"/> is <c>true</c>.
+    /// </remarks>
+    public bool? AllowWithdrawalBeforeShipping { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the entity has been deleted.

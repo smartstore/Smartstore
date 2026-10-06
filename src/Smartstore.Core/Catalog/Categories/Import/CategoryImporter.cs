@@ -247,6 +247,7 @@ public class CategoryImporter : EntityImporterBase
             row.SetProperty(context.Result, (x) => x.Published, true);
             row.SetProperty(context.Result, (x) => x.IgnoreInMenus);
             row.SetProperty(context.Result, (x) => x.WithdrawalPeriodDays);
+            row.SetProperty(context.Result, (x) => x.AllowWithdrawalBeforeShipping);
             row.SetProperty(context.Result, (x) => x.DisplayOrder);
             row.SetProperty(context.Result, (x) => x.Alias);
             row.SetProperty(context.Result, (x) => x.DefaultViewMode);

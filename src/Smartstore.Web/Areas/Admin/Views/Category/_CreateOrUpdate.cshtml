@@ -17,7 +17,9 @@
     var productCategoriesViewData = new ViewDataDictionary(ViewData);
     productCategoriesViewData["Parent"] = Model;
 
-    var withdrawalPeriodDays = await CommonServices.Settings.GetSettingByKeyAsync<string>("WithdrawalSettings.WithdrawalPeriodDays");
+    var settings = CommonServices.Settings;
+    var withdrawalPeriodDays = await settings.GetSettingByKeyAsync<string>("WithdrawalSettings.WithdrawalPeriodDays");
+    var allowWithdrawalBeforeShipping = await settings.GetSettingByKeyAsync<bool>("WithdrawalSettings.AllowWithdrawalBeforeShipping");
 }
 
 <div asp-validation-summary="All"></div>
@@ -323,15 +325,26 @@
                     <span asp-validation-for="CategoryTemplateId"></span>
                 </div>
             </div>
-            <div class="adminRow" sm-if="@(moduleCatalog.GetModuleByName("Smartstore.Withdrawal") != null)">
-                <div class="adminTitle">
-                    <smart-label asp-for="WithdrawalPeriodDays" />
+            <div sm-if="@(moduleCatalog.GetModuleByName("Smartstore.Withdrawal") != null)">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="WithdrawalPeriodDays" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="WithdrawalPeriodDays"
+                                sm-postfix="@T("Time.Days")"
+                                placeholder="@(withdrawalPeriodDays.NullEmpty() ?? T("Common.Unlimited"))" />
+                        <span asp-validation-for="WithdrawalPeriodDays"></span>
+                    </div>
                 </div>
-                <div class="adminData">
-                    <editor asp-for="WithdrawalPeriodDays" 
-                            sm-postfix="@T("Time.Days")" 
-                            placeholder="@(withdrawalPeriodDays.NullEmpty() ?? T("Common.Unlimited"))" />
-                    <span asp-validation-for="WithdrawalPeriodDays"></span>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AllowWithdrawalBeforeShipping" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="AllowWithdrawalBeforeShipping" placeholder="@T(allowWithdrawalBeforeShipping ? "Common.Yes" : "Common.No")" />
+                        <span asp-validation-for="AllowWithdrawalBeforeShipping"></span>
+                    </div>
                 </div>
             </div>
             <div class="adminRow">

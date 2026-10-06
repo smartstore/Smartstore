@@ -2162,6 +2162,7 @@ public partial class ProductController : AdminController
         p.HomePageDisplayOrder = m.HomePageDisplayOrder;
         p.Published = m.Published;
         p.WithdrawalPeriodDays = m.WithdrawalPeriodDays;
+        p.AllowWithdrawalBeforeShipping = m.AllowWithdrawalBeforeShipping;
         p.RequireOtherProducts = m.RequireOtherProducts;
         p.RequiredProductIds = m.RequiredProductIds;
         p.AutomaticallyAddRequiredProducts = m.AutomaticallyAddRequiredProducts;

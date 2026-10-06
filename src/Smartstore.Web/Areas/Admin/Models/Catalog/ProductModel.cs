@@ -310,6 +310,9 @@ public class ProductModel : ProductOverviewModel, ILocalizedModel<ProductLocaliz
     [LocalizedDisplay("*WithdrawalPeriodDays")]
     public int? WithdrawalPeriodDays { get; set; }
 
+    [LocalizedDisplay("*AllowWithdrawalBeforeShipping")]
+    public bool? AllowWithdrawalBeforeShipping { get; set; }
+
     public string ProductSelectCheckboxClass { get; set; }
     public bool IsSystemProduct { get; set; }
     public string SystemName { get; set; }
