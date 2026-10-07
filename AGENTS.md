@@ -111,11 +111,16 @@ Beyond formatting:
 ## Data and localization
 
 - Schema changes are **FluentMigrator** migrations. EF Core migrations are not used.
-- New or changed locale resources go into
+- New or changed core and platform locale resources go into
   `src/Smartstore.Core/Migrations/SmartDbContextDataSeeder.cs`, using the `AddOrUpdate`
   overload `(key, value, deValue, hint, deHint)` — `value`/`deValue` are the short
   visible labels, `hint`/`deHint` the help tooltips. That overload appends `.Hint` to
   the key itself, so pass the bare key and never write the suffix yourself.
+- Plugin locale resources are an exception: add or change them only in the plugin's
+  `Localization/resources.<culture>.xml` files under
+  `src/Smartstore.Modules/<Name>/` (including `en-us` and `de-de`). Do not put
+  plugin resources in `SmartDbContextDataSeeder.cs`. Define labels and `.Hint`
+  entries as separate `LocaleResource` nodes in each relevant XML file.
 - Every new admin model property must carry `[LocalizedDisplay]` with a resource key.
   Set the shared prefix once on the class and use `*` on each property, so the keys
   cannot drift apart:
