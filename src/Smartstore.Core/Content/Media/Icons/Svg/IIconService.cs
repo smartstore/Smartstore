@@ -28,7 +28,7 @@ public interface IIconService
     /// <summary>
     /// Gets an icon after one mapping lookup, or null if unavailable. Parameters fill missing address qualifiers; conflicting qualifiers are rejected.
     /// </summary>
-    /// <param name="name">An icon or conceptual name, optionally qualified as library:name@variant. Icon names are case-sensitive.</param>
+    /// <param name="name">An icon or conceptual name, optionally qualified as library:name@variant. Append ! to the name to bypass mapping. Icon names are case-sensitive.</param>
     /// <param name="library">The library system name or short name. Fills a missing address qualifier; null uses the configured default.</param>
     /// <param name="variant">The variant name or short name. Fills a missing address qualifier; null uses the selected library's effective default.</param>
     /// <returns>The mapped icon with its canonical address, or null when the library, variant or target icon is unavailable.</returns>
@@ -62,7 +62,7 @@ public static class IIconServiceExtensions
     /// Resolves an icon address with one mapping lookup and gets its cached SVG payload.
     /// </summary>
     /// <param name="service">The icon service used for resolution and preparation.</param>
-    /// <param name="name">An icon or conceptual name, optionally qualified as library:name@variant.</param>
+    /// <param name="name">An icon or conceptual name, optionally qualified as library:name@variant. Append ! to the name to bypass mapping.</param>
     /// <param name="library">The library system name or short name. Fills a missing address qualifier; null uses the default.</param>
     /// <param name="variant">The variant name or short name. Fills a missing address qualifier; null uses the effective default.</param>
     /// <returns>An immutable shared SVG payload, or null when the icon is unavailable.</returns>

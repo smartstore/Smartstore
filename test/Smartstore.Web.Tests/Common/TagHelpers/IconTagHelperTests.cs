@@ -40,11 +40,17 @@ public class IconTagHelperTests
     /// <summary>
     /// Preserves caller presentation, encodes attributes and leaves cached payloads unchanged.
     /// </summary>
-    [Test]
-    public async Task Renders_Svg_Without_Mutating_Payload()
+    /// <param name="librarySelector">The canonical library short name or system name fallback.</param>
+    /// <param name="variantSelector">The canonical variant short name or name fallback.</param>
+    [TestCase("hi", "sr")]
+    [TestCase("hi", "rounded")]
+    [TestCase("hugeicons", "sr")]
+    [TestCase("hugeicons", "rounded")]
+    public async Task Renders_Svg_Without_Mutating_Payload(string librarySelector, string variantSelector)
     {
         var svg = new IconSvg
         {
+            Address = librarySelector + ":cart-01@" + variantSelector,
             ViewBox = "0 0 24 24",
             Content = "<path d=\"M0 0L1 1\" />",
             RootAttributes = new Dictionary<string, string>
@@ -56,7 +62,14 @@ public class IconTagHelperTests
         };
         var service = new Mock<IIconService>();
         using var cancellation = new CancellationTokenSource();
-        var icon = new IconInfo { Name = "cart-01", Library = "hugeicons", Variant = "rounded" };
+        var icon = new IconInfo
+        {
+            Name = "cart-01",
+            LibraryName = "hugeicons",
+            LibraryShortName = librarySelector == "hi" ? "hi" : null,
+            VariantName = "rounded",
+            VariantShortName = variantSelector == "sr" ? "sr" : null
+        };
         service.Setup(x => x.GetIconAsync("cart", "hi", "rounded", cancellation.Token)).ReturnsAsync(icon);
         service.Setup(x => x.GetSvgAsync(icon, cancellation.Token)).ReturnsAsync(svg);
         var helper = new IconTagHelper(service.Object)
@@ -83,6 +96,8 @@ public class IconTagHelperTests
         Assert.That(output.Attributes.ContainsName("library"), Is.False);
         Assert.That(output.Attributes.ContainsName("variant"), Is.False);
         Assert.That(output.Attributes["class"].Value.ToString(), Does.Contain("icon-2x").And.Contain("source-icon").And.Contain("icon"));
+        Assert.That(output.Attributes["class"].Value.ToString().Split(' '), Does.Contain("icon-" + librarySelector));
+        Assert.That(output.Attributes["class"].Value.ToString().Split(' '), Does.Contain("icon-" + librarySelector + "-" + variantSelector));
         Assert.That(output.Attributes["style"].Value.ToString(), Is.EqualTo("stroke-width:var(--icon-stroke-width,1.5); --icon-stroke-width:2"));
         Assert.That(output.Attributes.ContainsName("aria-hidden"), Is.False);
         Assert.That(output.Attributes["role"].Value, Is.EqualTo("img"));
@@ -103,11 +118,11 @@ public class IconTagHelperTests
     public async Task Handles_Missing_And_Decorative_Icons(bool found)
     {
         var service = new Mock<IIconService>();
-        var icon = new IconInfo { Name = "cart-01", Library = "hugeicons", Variant = "rounded" };
+        var icon = new IconInfo { Name = "cart-01", LibraryName = "hugeicons", VariantName = "rounded" };
         service.Setup(x => x.GetIconAsync("cart", null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(found ? icon : null);
         service.Setup(x => x.GetSvgAsync(icon, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new IconSvg { ViewBox = "0 0 24 24", Content = "<path/>" });
+            .ReturnsAsync(new IconSvg { Address = "hi:cart-01@rounded", ViewBox = "0 0 24 24", Content = "<path/>" });
         var helper = new IconTagHelper(service.Object)
         {
             Name = "cart",

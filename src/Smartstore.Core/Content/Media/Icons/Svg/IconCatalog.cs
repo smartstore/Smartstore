@@ -109,7 +109,10 @@ internal sealed class IconCatalog
         /// <summary>
         /// Gets available names for search, enumerating override filenames without reading their contents.
         /// </summary>
-        internal IEnumerable<string> Names => _archive.Value.Keys.Concat(GetOverrideNames()).Distinct(StringComparer.Ordinal);
+        internal IEnumerable<string> Names => GetOverrideNames("user")
+            .Concat(GetOverrideNames("overrides"))
+            .Concat(_archive.Value.Keys)
+            .Distinct(StringComparer.Ordinal);
 
         /// <summary>
         /// Resolves and fingerprints a requested source once per catalog generation.
@@ -164,23 +167,42 @@ internal sealed class IconCatalog
         }
 
         /// <summary>
-        /// Resolves an override before consulting the archive, retaining only its path and fingerprint.
+        /// Resolves user customizations, then system overrides, then the original archive.
         /// </summary>
         /// <param name="name">The exact, validated icon name.</param>
         private Source LoadSource(string name)
         {
-            var path = _root + "/overrides/" + name + ".svg";
-            var file = _files.GetFileInfo(path);
-            if (file.Exists)
+            // Stop at the first existing source: lower layers must not incur file reads or hashing.
+            var source = LoadOverride(name, "user") ?? LoadOverride(name, "overrides");
+            if (source != null)
             {
-                using var stream = file.CreateReadStream();
-                var hash = HashSource(stream, IconSvgParser.MaxLength);
-                return new Source(path, _manifestRevision + ":override:" + hash, hash, 0);
+                return source;
             }
 
             return _archive.Value.TryGetValue(name, out var checksum)
                 ? new Source(_root + "/icons.zip", _manifestRevision + ":zip:" + checksum.ToString("x8"), null, checksum)
                 : null;
+        }
+
+        /// <summary>
+        /// Fingerprints a requested loose SVG without retaining its file object or contents.
+        /// </summary>
+        /// <param name="name">The exact, validated icon name.</param>
+        /// <param name="layer">The variant-relative user or overrides directory.</param>
+        /// <returns>The selected source, or null when this layer has no matching file.</returns>
+        private Source LoadOverride(string name, string layer)
+        {
+            var path = _root + "/" + layer + "/" + name + ".svg";
+            var file = _files.GetFileInfo(path);
+            if (!file.Exists)
+            {
+                return null;
+            }
+
+            using var stream = file.CreateReadStream();
+            var hash = HashSource(stream, IconSvgParser.MaxLength);
+            // Include the layer so moving an identical file also changes the source revision.
+            return new Source(path, _manifestRevision + ":" + layer + ":" + hash, hash, 0);
         }
 
         /// <summary>
@@ -192,6 +214,7 @@ internal sealed class IconCatalog
             var file = _files.GetFileInfo(_root + "/icons.zip");
             if (!file.Exists)
             {
+                // Libraries may consist entirely of loose SVGs; an absent archive is an empty layer.
                 return result;
             }
 
@@ -226,9 +249,10 @@ internal sealed class IconCatalog
         /// <summary>
         /// Enumerates custom filenames directly from the provider without caching the directory.
         /// </summary>
-        private IEnumerable<string> GetOverrideNames()
+        /// <param name="layer">The variant-relative user or overrides directory.</param>
+        private IEnumerable<string> GetOverrideNames(string layer)
         {
-            foreach (var file in _files.GetDirectoryContents(_root + "/overrides"))
+            foreach (var file in _files.GetDirectoryContents(_root + "/" + layer))
             {
                 if (!file.IsDirectory && file.Name.EndsWith(".svg", StringComparison.Ordinal))
                 {

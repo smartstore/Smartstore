@@ -1,13 +1,14 @@
 {
-    "displayName": "HugeIcons",
-    "version": "4.3.5",
-    "shortName": "hi",
-    "defaultVariant": "stroke-rounded",
-    "variants": {
-        "stroke-rounded": {
-            "gridSize": 24,
-            "stroke": "currentColor",
-            "strokeWidthScale": 1.0666667
-        }
+  "displayName": "HugeIcons",
+  "version": "4.3.5",
+  "shortName": "hi",
+  "defaultVariant": "stroke-rounded",
+  "variants": {
+    "stroke-rounded": {
+      "shortName": "sr",
+      "gridSize": 24,
+      "stroke": "currentColor",
+      "strokeWidthScale": 1.0666667
     }
+  }
 }

@@ -100,6 +100,10 @@ public class IconServiceTests
     [TestCase("hi:cart@sr")]
     [TestCase("hi:package-add-01 @rounded")]
     [TestCase("c++")]
+    [TestCase("cart!")]
+    [TestCase("hi:cart!")]
+    [TestCase("cart!@sr")]
+    [TestCase("hi:cart!@sr")]
     public void Address_Roundtrips(string value)
     {
         Assert.That(IconAddress.Parse(value).ToString(), Is.EqualTo(value));
@@ -115,9 +119,57 @@ public class IconServiceTests
     [TestCase("cart@a@b")]
     [TestCase("../cart")]
     [TestCase("cart@a:hi")]
+    [TestCase("!")]
+    [TestCase("hi:!@sr")]
+    [TestCase("cart!!")]
+    [TestCase("ca!rt")]
+    [TestCase("cart@sr!")]
     public void Address_Rejects_Malformed_Input(string value)
     {
         Assert.That(IconAddress.TryParse(value, out _), Is.False);
+    }
+
+    /// <summary>
+    /// The bypass marker is address state rather than part of the source filename.
+    /// </summary>
+    [Test]
+    public void Address_Preserves_Mapping_Bypass()
+    {
+        IconAddress address = "HI:cart!@SR";
+        Assert.That(address.Name, Is.EqualTo("cart"));
+        Assert.That(address.SkipMapping, Is.True);
+        Assert.That(address, Is.EqualTo(new IconAddress("cart", "hi", "sr", skipMapping: true)));
+        Assert.That(address, Is.Not.EqualTo(new IconAddress("cart", "hi", "sr")));
+        Assert.That((string)address, Is.EqualTo("hi:cart!@sr"));
+    }
+
+    /// <summary>
+    /// Direct lookup ignores mappings, including mappings whose target is missing.
+    /// </summary>
+    /// <param name="address">The direct address with optional qualifiers.</param>
+    [TestCase("direct!")]
+    [TestCase("hi:direct!@sr")]
+    public async Task Direct_Address_Skips_Mapping(string address)
+    {
+        var icon = await _service.GetIconAsync(address);
+        Assert.That(icon.Name, Is.EqualTo("direct"));
+        Assert.That(icon.Address, Is.EqualTo("hi:direct@sr"));
+        Assert.That(await _service.GetIconAsync("cart!"), Is.Null);
+        Mock.Get(_context.Object.AppDataRoot).Verify(x => x.GetFileInfo("Icons/hugeicons/mapping.json"), Times.Never);
+    }
+
+    /// <summary>
+    /// Mapped and direct addresses share the same prepared payload cache entry.
+    /// </summary>
+    [Test]
+    public async Task Direct_Address_Uses_Canonical_Cache_Key()
+    {
+        var mapped = await _service.GetSvgAsync("cart");
+        var direct = await _service.GetSvgAsync("hi:cart-01!@sr");
+        Assert.That(direct.Address, Is.EqualTo(mapped.Address));
+        Assert.That(direct.Revision, Is.EqualTo(mapped.Revision));
+        Assert.That(_entries.Count, Is.EqualTo(1));
+        Assert.That(_entries.Keys.Single(), Does.Not.Contain("!"));
     }
 
     /// <summary>
@@ -191,7 +243,7 @@ public class IconServiceTests
     {
         var icon = await _service.GetIconAsync(address, library, variant);
         Assert.That(icon.Address, Is.EqualTo("hi:cart-01@sr"));
-        Assert.That(icon.Variant, Is.EqualTo("rounded"));
+        Assert.That(icon.VariantName, Is.EqualTo("rounded"));
         Assert.That(_service.DefaultLibrary.SystemName, Is.EqualTo("hugeicons"));
         Assert.That(_service.GetLibrary("hi").Variants["rounded"].ShortName, Is.EqualTo("sr"));
     }
@@ -239,7 +291,7 @@ public class IconServiceTests
         WriteZip("bootstrap", "rounded", ("cart", _svg));
         WriteZip("bootstrap", "sharp", ("cart", _svg));
         var icon = await _service.GetIconAsync("bi:cart");
-        Assert.That(icon.Variant, Is.EqualTo("sharp"));
+        Assert.That(icon.VariantName, Is.EqualTo("sharp"));
     }
 
     /// <summary>
@@ -303,8 +355,8 @@ public class IconServiceTests
     {
         var svg = await _service.GetSvgAsync("cart");
         Assert.That(svg.ViewBox, Is.EqualTo("-1 -2 24 25"));
-        Assert.That(svg.RootAttributes["width"], Is.EqualTo("1em"));
-        Assert.That(svg.RootAttributes["height"], Is.EqualTo("1em"));
+        Assert.That(svg.RootAttributes.ContainsKey("width"), Is.False);
+        Assert.That(svg.RootAttributes.ContainsKey("height"), Is.False);
         Assert.That(svg.RootAttributes.Keys.Any(x => x == "stroke" || x.StartsWith("stroke-", StringComparison.Ordinal)), Is.False);
         Assert.That(svg.RootAttributes["fill"], Is.EqualTo("none"));
         Assert.That(svg.Content, Does.Not.Contain("stroke-width="));
@@ -431,14 +483,114 @@ public class IconServiceTests
     /// <summary>
     /// Discovers new override icons even without metadata entries.
     /// </summary>
-    [Test]
-    public async Task Override_Can_Add_An_Icon()
+    /// <param name="layer">The loose-file layer containing the additional icon.</param>
+    [TestCase("user")]
+    [TestCase("overrides")]
+    public async Task Override_Can_Add_An_Icon(string layer)
     {
-        Write("Icons/hugeicons/rounded/overrides/custom.svg", _svg);
+        Write($"Icons/hugeicons/rounded/{layer}/custom.svg", _svg);
         Assert.That(await _service.GetSvgAsync("custom"), Is.Not.Null);
         var result = await _service.SearchAsync(new IconSearchQuery { Term = "custom" });
         Assert.That(result.TotalCount, Is.EqualTo(1));
         Assert.That(result.Items[0].Tags, Is.Empty);
+    }
+
+    /// <summary>
+    /// A custom library needs no archive, mapping or metadata files to resolve and search loose icons.
+    /// </summary>
+    /// <param name="layer">The directory supplying the custom SVG.</param>
+    [TestCase("user")]
+    [TestCase("overrides")]
+    public async Task Library_Without_Archive_Supports_Lookup_And_Search(string layer)
+    {
+        WriteLibrary("system", "sys", null);
+        Write($"Icons/system/sharp/{layer}/custom.svg", _svg);
+        Write("Icons/config.json", """{"defaultLibrary":"system"}""");
+
+        Assert.That(_service.DefaultLibrary.SystemName, Is.EqualTo("system"));
+        var icon = await _service.GetIconAsync("custom");
+        Assert.That(icon.Address, Is.EqualTo("sys:custom@sharp"));
+        Assert.That(await _service.GetSvgAsync(icon), Is.Not.Null);
+        var result = await _service.SearchAsync(new IconSearchQuery());
+        Assert.That(result.TotalCount, Is.EqualTo(1));
+        Assert.That(result.Items[0].Name, Is.EqualTo("custom"));
+        Assert.That(await _service.GetIconAsync("missing"), Is.Null);
+        Assert.That(await _service.GetSvgAsync("missing"), Is.Null);
+
+        // Even a declared variant with no source files is simply empty.
+        Assert.That((await _service.SearchAsync(new IconSearchQuery { Variant = "rounded" })).TotalCount, Is.Zero);
+    }
+
+    /// <summary>
+    /// Layer priority survives additions and removals while search returns each name only once.
+    /// </summary>
+    [Test]
+    public async Task User_Overrides_System_Then_Archive()
+    {
+        var archived = await _service.GetSvgAsync("cart");
+        var systemPath = "Icons/hugeicons/rounded/overrides/cart-01.svg";
+        var userPath = "Icons/hugeicons/rounded/user/cart-01.svg";
+        Write(systemPath, _svg.Replace("M0 0L1 1", "M0 0L2 2"));
+        SignalChanges();
+        var system = await _service.GetSvgAsync("cart");
+        Assert.That(system.Content, Does.Contain("M0 0L2 2"));
+        Assert.That(system.Revision, Is.Not.EqualTo(archived.Revision));
+
+        Write(userPath, _svg.Replace("M0 0L1 1", "M0 0L3 3"));
+        SignalChanges();
+        var user = await _service.GetSvgAsync("cart");
+        Assert.That(user.Content, Does.Contain("M0 0L3 3"));
+        Assert.That(user.Revision, Is.Not.EqualTo(system.Revision));
+        var result = await _service.SearchAsync(new IconSearchQuery { Term = "cart-01" });
+        Assert.That(result.TotalCount, Is.EqualTo(1));
+
+        File.Delete(Path.Combine(_root, userPath));
+        SignalChanges();
+        Assert.That((await _service.GetSvgAsync("cart")).Revision, Is.EqualTo(system.Revision));
+        File.Delete(Path.Combine(_root, systemPath));
+        SignalChanges();
+        Assert.That((await _service.GetSvgAsync("cart")).Revision, Is.EqualTo(archived.Revision));
+    }
+
+    /// <summary>
+    /// A user SVG prevents reads of broken lower layers and carries its own source revision.
+    /// </summary>
+    [Test]
+    public async Task User_Lookup_Does_Not_Read_Lower_Layers()
+    {
+        Write("Icons/hugeicons/rounded/user/cart-01.svg", _svg);
+        Write("Icons/hugeicons/rounded/overrides/cart-01.svg", "not SVG");
+        Write("Icons/hugeicons/rounded/icons.zip", "not ZIP");
+        Assert.That(await _service.GetSvgAsync("cart"), Is.Not.Null);
+        var files = Mock.Get(_context.Object.AppDataRoot);
+        files.Verify(x => x.GetFileInfo("Icons/hugeicons/rounded/overrides/cart-01.svg"), Times.Never);
+        files.Verify(x => x.GetFileInfo("Icons/hugeicons/rounded/icons.zip"), Times.Never);
+    }
+
+    /// <summary>
+    /// Identical bytes in different loose-file layers still have distinct source revisions.
+    /// </summary>
+    [Test]
+    public async Task Loose_File_Revision_Includes_Layer()
+    {
+        Write("Icons/hugeicons/rounded/overrides/cart-01.svg", _svg);
+        var system = await _service.GetSvgAsync("cart");
+        Write("Icons/hugeicons/rounded/user/cart-01.svg", _svg);
+        SignalChanges();
+        var user = await _service.GetSvgAsync("cart");
+        Assert.That(user.Content, Is.EqualTo(system.Content));
+        Assert.That(user.Revision, Is.Not.EqualTo(system.Revision));
+    }
+
+    /// <summary>
+    /// An invalid user customization cannot silently fall back to a valid system icon.
+    /// </summary>
+    [Test]
+    public void Invalid_User_Icon_Does_Not_Fall_Back()
+    {
+        Write("Icons/hugeicons/rounded/user/cart-01.svg", "<svg><script/></svg>");
+        Write("Icons/hugeicons/rounded/overrides/cart-01.svg", _svg);
+        Assert.ThrowsAsync<InvalidDataException>(() => _service.GetSvgAsync("cart"));
     }
 
     /// <summary>

@@ -11,7 +11,7 @@
     justify-content: center;
     flex: none;
     box-sizing: content-box;
-    width: var(--icon-width, 1em);
+    width: 1em;
     height: 1em;
     // Clamp the base before applying size utilities, not the final dimensions.
     font-size: calc(max(var(--icon-size, 1em), var(--icon-min-size, 16px)) * var(--icon-size-factor, 1));
@@ -41,11 +41,7 @@ svg.icon > :is(use, g) {
 
 // Keep fill/stroke on the SVG artwork: a global fill would break stroke icons.
 .icon-fw {
-    --icon-width: 1.25em;
-}
-
-.icon-aw {
-    --icon-width: auto;
+    width: 1.25em;
 }
 
 // Sizing remains relative to the surrounding text, like the FA utilities.
@@ -96,7 +92,6 @@ svg.icon > :is(use, g) {
         --icon-size: 1em;
         --icon-size-factor: 1;
         --icon-min-size: 0px;
-        --icon-width: initial;
         --icon-rotate: initial;
         --icon-scale: initial;
         --icon-flip-x: initial;
@@ -231,4 +226,10 @@ $icon-animations: (
     10%, 30%, 50% { transform: rotate(var(--icon-shake-angle, -15deg)); }
     20%, 40%, 60% { transform: rotate(calc(-1 * var(--icon-shake-angle, -15deg))); }
     70% { transform: rotate(0deg); }
+}
+
+
+// Specific overrides
+.btn-lg .icon-hi {
+    --icon-min-size: 20px;
 }

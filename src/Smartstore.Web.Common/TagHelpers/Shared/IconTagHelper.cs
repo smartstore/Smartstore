@@ -41,7 +41,9 @@ public class IconTagHelper(IIconService iconService) : SmartTagHelper
     {
         Guard.NotEmpty(Name);
 
-        var svg = await iconService.GetSvgAsync(Name, Library, Variant, ViewContext.HttpContext.RequestAborted);
+        var cancelToken = ViewContext.HttpContext.RequestAborted;
+        var icon = await iconService.GetIconAsync(Name, Library, Variant, cancelToken);
+        var svg = icon == null ? null : await iconService.GetSvgAsync(icon, cancelToken);
         if (svg == null)
         {
             output.SuppressOutput();
@@ -80,7 +82,10 @@ public class IconTagHelper(IIconService iconService) : SmartTagHelper
             }
         }
 
-        output.AppendCssClass("icon");
+        // Resolution supplies both identities; do not parse the formatted address again.
+        var library = icon.LibraryKey;
+        var variant = icon.VariantKey;
+        output.AppendCssClass($"icon icon-{library} icon-{library}-{variant}");
         output.Attributes.SetAttribute("xmlns", "http://www.w3.org/2000/svg");
         output.Attributes.SetAttribute("viewBox", svg.ViewBox);
         output.Attributes.SetAttribute("focusable", "false");

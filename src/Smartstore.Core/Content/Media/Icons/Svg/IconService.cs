@@ -61,14 +61,14 @@ public sealed class IconService(IApplicationContext applicationContext, IIconCac
     public async Task<IconSvg> GetSvgAsync(IconInfo icon, CancellationToken cancelToken = default)
     {
         Guard.NotNull(icon);
-        Guard.NotEmpty(icon.Library);
-        Guard.NotEmpty(icon.Variant);
+        Guard.NotEmpty(icon.LibraryName);
+        Guard.NotEmpty(icon.VariantName);
 
         cancelToken.ThrowIfCancellationRequested();
 
         // Validate the supplied identity before using its name in provider-relative paths.
         // IconInfo can come from search or a previous generation; do not remap its actual name.
-        var address = new IconAddress(icon.Name, icon.Library, icon.Variant);
+        var address = new IconAddress(icon.Name, icon.LibraryName, icon.VariantName);
         var catalog = Catalog;
         var library = SelectLibrary(catalog, address.Library);
         var variant = SelectVariant(catalog, library, address.Variant);
@@ -182,7 +182,10 @@ public sealed class IconService(IApplicationContext applicationContext, IIconCac
 
         // Resolve exactly one mapping, not an alias chain. If its target is absent, return null;
         // falling back to the original name would silently ignore a broken customization.
-        var actualName = library.Mapping.GetValueOrDefault(address.Name) ?? address.Name;
+        // Explicit direct addresses also avoid loading mapping.json.
+        var actualName = address.SkipMapping
+            ? address.Name
+            : library.Mapping.GetValueOrDefault(address.Name) ?? address.Name;
         var source = variant.GetSource(actualName);
         return source != null ? CreateInfo(library, variant, actualName) : null;
     }
@@ -206,8 +209,10 @@ public sealed class IconService(IApplicationContext applicationContext, IIconCac
     private static IconInfo CreateInfo(IconCatalog.Library library, IconCatalog.Variant variant, string name, bool includeTags = true) => new()
     {
         Address = new IconAddress(name, library.Manifest.ShortName ?? library.Manifest.SystemName, variant.Manifest.ShortName ?? variant.Manifest.Name).ToString(),
-        Library = library.Manifest.SystemName,
-        Variant = variant.Manifest.Name,
+        LibraryName = library.Manifest.SystemName,
+        LibraryShortName = library.Manifest.ShortName,
+        VariantName = variant.Manifest.Name,
+        VariantShortName = variant.Manifest.ShortName,
         Name = name,
         DeferredTags = includeTags
             ? new Lazy<string[]>(() => library.Tags.TryGetValue(name, out var tags) ? (string[])tags.Clone() : [])

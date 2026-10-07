@@ -21,7 +21,7 @@ internal static class IconSvgParser
     /// <summary>
     /// The preparation format version included in cache revisions independently of source content.
     /// </summary>
-    internal const string Revision = "12";
+    internal const string Revision = "13";
     private const string _svgNamespace = "http://www.w3.org/2000/svg";
     // Support static icon graphics only. This is deliberately not a general SVG document
     // renderer: executable content, external resources and arbitrary source CSS are excluded.
@@ -155,8 +155,9 @@ internal static class IconSvgParser
             }
         }
 
-        root.SetAttributeValue("width", "1em");
-        root.SetAttributeValue("height", "1em");
+        // CSS owns the rendered dimensions; viewBox retains the artwork coordinate system.
+        root.Attribute("width")?.Remove();
+        root.Attribute("height")?.Remove();
 
         // Normalize namespaces so child markup can be inserted into any normal SVG root.
         foreach (var element in root.DescendantsAndSelf())
@@ -180,8 +181,8 @@ internal static class IconSvgParser
         return new IconSvg
         {
             Address = info.Address,
-            Library = info.Library,
-            Variant = info.Variant,
+            Library = info.LibraryName,
+            Variant = info.VariantName,
             Name = info.Name,
             Revision = revision,
             ViewBox = viewBox,

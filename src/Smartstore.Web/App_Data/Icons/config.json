@@ -1,8 +1,8 @@
 {
-    "defaultLibrary": "hugeicons",
-    "defaultVariant": "stroke-rounded",
-    "bundles": {
-        "frontend": ["cart", "search", "heart", "account"],
-        "admin": ["search", "save", "delete", "settings"]
-    }
+  "defaultLibrary": "hugeicons",
+  "defaultVariant": "stroke-rounded",
+  "kits": {
+    "frontend": ["cart", "search", "heart", "account"],
+    "admin": ["search", "save", "delete", "settings"]
+  }
 }

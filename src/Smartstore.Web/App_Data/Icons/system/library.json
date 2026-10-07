@@ -1,0 +1,12 @@
+{
+  "displayName": "System",
+  "version": "1.0.0",
+  "shortName": "sys",
+  "defaultVariant": "default",
+  "variants": {
+    "default": {
+      "gridSize": 16,
+      "stroke": "currentColor"
+    }
+  }
+}

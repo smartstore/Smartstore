@@ -3,18 +3,19 @@
 namespace Smartstore.Core.Content.Media.Icons;
 
 /// <summary>
-/// A persistent icon address in the form [library:]name[@variant].
+/// A persistent icon address in the form [library:]name[!][@variant].
 /// </summary>
 public readonly record struct IconAddress
 {
     /// <summary>
     /// Creates an address. Missing qualifiers are resolved by the icon service.
     /// </summary>
-    /// <param name="name">The exact icon or conceptual name without qualifiers or a file extension. Whitespace and casing are preserved.</param>
+    /// <param name="name">The exact icon or conceptual name without qualifiers, a bypass marker or a file extension. Whitespace and casing are preserved.</param>
     /// <param name="library">An optional library system name or short name, normalized to lowercase.</param>
     /// <param name="variant">An optional variant name or short name, normalized to lowercase.</param>
+    /// <param name="skipMapping">Whether to address the icon directly instead of applying a conceptual mapping.</param>
     /// <exception cref="ArgumentException">A component is empty or contains characters forbidden in an icon address.</exception>
-    public IconAddress(string name, string? library = null, string? variant = null)
+    public IconAddress(string name, string? library = null, string? variant = null, bool skipMapping = false)
     {
         if (!IsName(name))
         {
@@ -31,6 +32,7 @@ public readonly record struct IconAddress
             throw new ArgumentException("Invalid variant selector.", nameof(variant));
         }
 
+        SkipMapping = skipMapping;
         Name = name;
         Library = library?.ToLowerInvariant();
         Variant = variant?.ToLowerInvariant();
@@ -52,6 +54,11 @@ public readonly record struct IconAddress
     public string? Variant { get; private init; }
 
     /// <summary>
+    /// Gets whether the name must be resolved directly, bypassing conceptual mappings.
+    /// </summary>
+    public bool SkipMapping { get; private init; }
+
+    /// <summary>
     /// Gets whether this is the uninitialized default value, which cannot identify an icon.
     /// </summary>
     public bool IsEmpty => string.IsNullOrEmpty(Name);
@@ -64,7 +71,7 @@ public readonly record struct IconAddress
     /// <summary>
     /// Parses an address without resolving defaults or mappings.
     /// </summary>
-    /// <param name="value">An address in the form [library:]name[@variant].</param>
+    /// <param name="value">An address in the form [library:]name[!][@variant].</param>
     /// <returns>The parsed address with any omitted selectors left unset.</returns>
     /// <exception cref="FormatException">The value is empty or has invalid address syntax.</exception>
     public static IconAddress Parse(string value)
@@ -102,6 +109,11 @@ public readonly record struct IconAddress
         var nameStart = colon + 1;
         var nameEnd = at < 0 ? text.Length : at;
         var name = text[nameStart..nameEnd];
+        var skipMapping = !name.IsEmpty && name[^1] == '!';
+        if (skipMapping)
+        {
+            name = name[..^1];
+        }
         var library = colon < 0 ? default : text[..colon];
         var variant = at < 0 ? default : text[(at + 1)..];
 
@@ -116,7 +128,8 @@ public readonly record struct IconAddress
         // Preserve exact source names, including casing and trailing spaces.
         address = new IconAddress
         {
-            Name = colon < 0 && at < 0 ? value : name.ToString(),
+            Name = colon < 0 && at < 0 && !skipMapping ? value : name.ToString(),
+            SkipMapping = skipMapping,
             Library = colon < 0 ? null : NormalizeQualifier(value, 0, colon),
             Variant = at < 0 ? null : NormalizeQualifier(value, at + 1, value.Length - at - 1)
         };
@@ -125,6 +138,10 @@ public readonly record struct IconAddress
 
     /// <inheritdoc />
     public override string ToString() => IsEmpty ? string.Empty
+        : SkipMapping
+            ? Library == null
+                ? Variant == null ? string.Concat(Name, "!") : $"{Name}!@{Variant}"
+                : Variant == null ? $"{Library}:{Name}!" : $"{Library}:{Name}!@{Variant}"
         : Library == null
             ? Variant == null ? Name : string.Concat(Name, "@", Variant)
             : Variant == null ? string.Concat(Library, ":", Name)
@@ -133,7 +150,7 @@ public readonly record struct IconAddress
     /// <summary>
     /// Parses a string without resolving defaults or mappings. Invalid syntax throws a FormatException.
     /// </summary>
-    /// <param name="value">An address in the form [library:]name[@variant].</param>
+    /// <param name="value">An address in the form [library:]name[!][@variant].</param>
     /// <returns>The parsed address without configuration-dependent resolution.</returns>
     /// <exception cref="FormatException">The value has invalid address syntax.</exception>
     public static implicit operator IconAddress(string value) => Parse(value);
@@ -227,7 +244,7 @@ public readonly record struct IconAddress
         var hasContent = false;
         foreach (var c in value)
         {
-            if (char.IsControl(c) || c is ':' or '@' or '/' or '\\')
+            if (char.IsControl(c) || c is ':' or '@' or '!' or '/' or '\\')
             {
                 return false;
             }

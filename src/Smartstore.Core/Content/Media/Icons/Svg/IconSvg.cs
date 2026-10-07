@@ -42,7 +42,7 @@ public sealed class IconSvg
     public string ViewBox { get; init; } = string.Empty;
 
     /// <summary>
-    /// Gets root attributes excluding xmlns and viewBox.
+    /// Gets root attributes excluding xmlns, viewBox, width and height.
     /// </summary>
     public IReadOnlyDictionary<string, string> RootAttributes
     {
@@ -84,12 +84,32 @@ public sealed class IconInfo
     /// <summary>
     /// Gets or sets the library system name.
     /// </summary>
-    public string Library { get; set; } = string.Empty;
+    public string LibraryName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the optional library short name used for CSS selectors.
+    /// </summary>
+    public string? LibraryShortName { get; set; }
+
+    /// <summary>
+    /// Gets the library short name when configured, otherwise its system name.
+    /// </summary>
+    public string LibraryKey => LibraryShortName ?? LibraryName;
 
     /// <summary>
     /// Gets or sets the variant name.
     /// </summary>
-    public string Variant { get; set; } = string.Empty;
+    public string VariantName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the optional variant short name used for CSS selectors.
+    /// </summary>
+    public string? VariantShortName { get; set; }
+
+    /// <summary>
+    /// Gets the variant short name when configured, otherwise its name.
+    /// </summary>
+    public string VariantKey => VariantShortName ?? VariantName;
 
     /// <summary>
     /// Gets or sets the actual icon name.
