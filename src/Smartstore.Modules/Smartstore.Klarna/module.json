@@ -1,0 +1,15 @@
+{
+  "SystemName": "Smartstore.Klarna",
+  "FriendlyName": "Klarna",
+  "Author": "Smartstore AG",
+  "Version": "1.0.0",
+  "Description": "Provides Klarna payment services.",
+  "ResourceRootKey": "Plugins.Payment.Klarna",
+  "Order": 100,
+  "DependsOn": [],
+  "IncompatibleWith": [],
+  "LimitedToStores": [],
+  "LimitedToCustomerRoles": [],
+  "ProjectUrl": "https://www.smartstore.com/",
+  "MinAppVersion": "5.0.0"
+}
