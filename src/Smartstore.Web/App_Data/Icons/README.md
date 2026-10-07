@@ -55,8 +55,9 @@ Configure the defaults in `config.json`:
   "defaultLibrary": "hugeicons",
   "defaultVariant": "stroke-rounded",
   "kits": {
-    "frontend": ["cart", "search", "heart", "account"],
-    "admin": ["search", "save", "delete", "settings"]
+    "shared": ["cart", "heart", "search"],
+    "frontend": ["handshake"],
+    "backend": ["barcode"]
   }
 }
 ```
@@ -312,8 +313,18 @@ requested icons are prepared; opening the picker must not process all icons.
 ## Define kits
 
 The `kits` object in `config.json` groups conceptual names by area of use,
-such as `frontend`, `admin`, or a custom `media` kit. Add names to the relevant
+such as `shared`, `frontend`, `backend`, or a custom `media` kit. Add names to the relevant
 arrays and provide their assignments in each library's `mapping.json`.
+
+The supplied kit memberships and HugeIcons mappings are a work in progress.
+Edit `config.json` to move concepts between kits and `hugeicons/mapping.json` to
+change their icons. Keep both files alphabetically ordered within each object or
+kit array. The initial assignments were imported from the cheatsheet migration
+review; subsequent edits to these JSON files must be preserved when importing
+further review changes.
+
+`shared` contains concepts used by both areas. Combine it with `frontend` or
+`backend`; shared concepts do not need to be repeated in those kits.
 
 Kit generation is not implemented yet; the service currently ignores this section.
 
