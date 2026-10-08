@@ -348,6 +348,14 @@ requested icons are prepared; opening the picker must not process all icons.
 
 ## Define kits
 
+The supplied `brands` kit contains selected brand logos and explicitly selects
+`fontawesome-free` / `brands`. This kit overrides the global HI default for its
+concepts. Its members include payment, commerce, shipping, social and platform logos.
+Competing shop/CMS platforms are excluded from this curated kit. Square logo
+concepts use a `-square` suffix and map to the corresponding FA source names.
+Browser logo concepts use `browser-`, such as `browser-chrome` and `browser-firefox`.
+See [MIGRATION.md](MIGRATION.md) for the `twitter-x` and `windows-logo` conventions.
+
 The root object in `kits.json` groups conceptual names by area of use,
 such as `shared`, `frontend`, `backend`, or a custom `media` kit. Add names to the relevant
 `icons` arrays and provide their assignments in each library's `mapping.json`.
@@ -374,6 +382,40 @@ Both are optional. Array-only definitions remain supported as shorthand.
 }
 ```
 
+`icons` is the complete list of unqualified concept names. The optional `sources`
+object assigns concrete SVG addresses to members that differ from the defaults:
+
+```json
+"brands": {
+  "defaultLibrary": "fontawesome-free",
+  "defaultVariant": "brands",
+  "icons": ["alexa", "apple", "microsoft-teams"],
+  "sources": {
+    "alexa": "bi:alexa@light",
+    "microsoft-teams": "bi:microsoft-teams@light"
+  }
+}
+```
+
+Every source key must occur in `icons`; it never adds a member. Unknown keys,
+duplicate concepts, qualified names in `icons`, and invalid source addresses are
+configuration errors. Library and variant selectors accept system or short names.
+Missing source qualifiers are completed from the kit context; a foreign library
+uses its own default variant unless the source names one explicitly.
+
+Source values identify concrete artwork and are never run through library mapping
+again. The concept and actual source name can differ, for example
+`"assistant": "bi:alexa@light"`; the public symbol remains `#assistant`. A trailing
+`!` on a source name is accepted but unnecessary. Query modifiers belong in library
+mappings, not source addresses. Members without a source override retain ordinary
+library mapping, including its modifiers.
+
+The resulting sprite may combine libraries and variants. Source overrides stay fixed
+when the kit is requested with alternate defaults. An explicit library or variant
+on an individual icon request still wins: when it selects a different source
+selection, that request uses the chosen library's mapping of the original concept.
+Caller addresses ending in `!` bypass both kit routing and library mapping.
+
 There is no enclosing `kits` property. If `kits.json` is absent, no kits are
 registered and icons render inline. Changes, creation and deletion of this file
 invalidate the catalog through the file watcher. Keeping kit definitions separate
@@ -382,7 +424,7 @@ updates; update conflicts in `kits.json` still require merging.
 
 For conceptual lookups, the preferred kit is selected before library mapping:
 `shared` first, then kit names in ordinal order. Explicit address components or
-method arguments take precedence over kit defaults, followed by global defaults.
+method arguments take precedence over source qualifiers, then kit defaults and global defaults.
 A kit's variant applies only to its effective default library; selecting another
 library never carries that variant across. A kit that changes the library without
 specifying a variant uses that library's default (or the global variant override
@@ -416,13 +458,19 @@ revision independently. The endpoint returns a physical file; ASP.NET Core handl
 ETag revalidation and HEAD without transferring a response body. A first request,
 including HEAD, generates a missing current revision before serving it.
 
-Generated sprites are global, tenant-independent files in `App_Data/.cache/IconKits`, with flat
+Generated sprites are global, tenant-independent files in `App_Data/.cache/icons/kits`, with flat
 names such as `shared-<revision>.svg`. Library and variant selectors are not exposed
 in URLs or filenames; the revision includes library, variant and kit identity. It uses the
 first 96 bits of SHA-256, represented as 24 lowercase hexadecimal characters. Existing files
 are served without loading their contents into the multilevel or Redis cache.
 
-A cache miss opens the ZIP once for the kit and processes SVGs individually; no
+The icon file cache is organized below `App_Data/.cache/icons`:
+
+- `kits/` contains generated kit sprites and revisioned browser manifests.
+- `browser/` is reserved for the future icon picker; it is not used yet.
+
+A cache miss opens each participating variant ZIP once, one variant at a time,
+and processes SVGs individually; no
 archive handle or drawing collection survives generation. It streams symbols into
 a temporary file beside the destination and
 publishes the complete file atomically. Failed writes remove the temporary file.
@@ -445,8 +493,8 @@ Use classes and CSS variables on the outer `.icon` element for presentation.
 Descendant selectors cannot style paths inside an external sprite. Presentation
 attributes belonging to source SVG roots remain inside the sprite.
 
-Kits remain the same when changing libraries. Their conceptual names resolve
-through the selected library's mapping. Overlap is allowed; resolved icons are
+Members without source overrides resolve through the selected library's mapping when
+changing libraries. Source overrides keep their configured library and variant. Overlap is allowed; resolved icons are
 deduplicated when kits are combined.
 
 ## Replace or add an SVG
@@ -763,11 +811,47 @@ loaded in the head, so it uses the existing bundle minification and versioning.
 Other layouts must provide these two meta elements and include the jQuery bundle;
 no separate icon script is needed.
 
-`IconKitService` creates the small resolution manifest once per catalog generation.
-The browser builds the reverse kit index once, omitting redundant identity mappings
-and any search metadata or SVG drawings. Only effective kit-default library/variant
-combinations are advertised. Other selections are resolved through `/icons/render`.
-Generated manifests live in `App_Data/.cache/IconKits/manifest-{revision}.json` and are
+`IconKitService` creates the concept manifest once per catalog generation. The
+server resolves kit priority, defaults, source overrides and library mappings. The
+manifest contains kit URLs, directly renderable concepts and compact DOM identity metadata:
+
+```json
+{
+  "schemaVersion": 6,
+  "kits": {
+    "brands": {
+      "url": "icons/brands-<revision>.svg",
+      "defaultLibrary": "fa",
+      "defaultVariant": "b",
+      "icons": ["alexa", "apple", "browser-chrome"],
+      "sources": {
+        "alexa": "bi:alexa@l",
+        "browser-chrome": "chrome"
+      }
+    }
+  }
+}
+```
+
+The component builds a single concept-to-URL lookup and renders a matching concept
+as `<use href="kit-url#concept">`. Per-kit `defaultLibrary` and `defaultVariant` are
+resolved CSS keys (short names when available, otherwise system names). `sources`
+contains only identities differing from `defaultLibrary:concept@defaultVariant`.
+These are final metadata patches, not mappings to apply: omitted qualifiers inherit
+the kit's metadata defaults, even when the library differs. Source names are exact;
+qualifiers in `data-icon` are lowercased to match the server's canonical address.
+For example, `alexa` renders the `#alexa` symbol but carries `bi:alexa@l` and the
+classes `icon-bi icon-bi-l`. Library catalogs, resolution rules, SVG drawings and
+search tags remain server-side. Each concept appears only in its preferred kit. Concepts requiring a stroke multiplier and unavailable kits are omitted.
+Mapping rotations and flips are already baked into the symbols.
+
+Unknown concepts, explicit library/variant selections, direct names (`!`), query
+modifiers and drawing attributes (`rotate`, `flip-h`, `flip-v`, `stroke-scale`) use
+`/icons/render`. The endpoint owns resolution and may return either inline SVG or a
+kit reference. Presentation options such as sizing, color and animation stay local.
+Old or unavailable manifests also fall back to the endpoint while cached pages and
+script bundles roll over during an update.
+Generated manifests live in `App_Data/.cache/icons/kits/manifest-{revision}.json` and are
 served by `IconController` at `/icons/manifest/{revision}.json` with immutable caching.
 Historical files remain available; a missing old revision returns 404, never newer data.
 The manifest revision is path-base independent; source/configuration watchers invalidate
@@ -782,6 +866,11 @@ collisions. Presentation-only changes require no request. Failed requests are ev
 a later attribute change or reconnection can retry. An older response never replaces a
 newer icon selection. Components emit bubbling `icon-load` and `icon-error` events;
 the latter exposes the error in `event.detail.error`.
+
+Manifest hits and endpoint responses both provide the same canonical `data-icon`
+and `icon-[lib]` / `icon-[lib]-[variant]` classes as the server renderer. The component
+places these classes on the host and retains `data-icon` on both host and child SVG.
+Identity metadata never changes the concept-based kit URL or symbol selection.
 
 The custom element owns sizing, animation and accessibility; its child SVG is
 decorative. Author classes and styles remain on the host and explicit styles follow
@@ -814,7 +903,7 @@ A future developer-facing backend page will help organize kits by showing alread
 generated kits alongside cached inline icons, including those requested by plugins.
 This UI is planned, not implemented.
 
-- List only existing kit SVG files in `App_Data/.cache/IconKits`. Do not enumerate
+- List only existing kit SVG files in `App_Data/.cache/icons/kits`. Do not enumerate
   configured kits to generate missing sprites. Exclude browser manifest JSON files
   and temporary files. Historical kit revisions may initially appear separately.
 - Read each existing sprite's `symbol` IDs and `viewBox` attributes to list its icons.

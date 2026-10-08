@@ -412,6 +412,62 @@ solid variant, but this table keeps the old names for migration lookup.
 
 ## Kits and plugin integration
 
+### Brand logos use Font Awesome
+
+The `brands` kit selects `fontawesome-free` / `brands`, overriding the global HI
+default for its concepts. The HI columns above still document HI equivalents;
+brand concepts in this kit now resolve to the original FA logos unless callers
+explicitly select another library.
+
+The kit declares `alexa`, `anthropic`, `apple-music`, `bing` and `microsoft-teams`
+in `icons`, with concrete BI/light addresses in its `sources` object.
+These explicit BI selections share the same generated sprite as the FA members.
+Use the bare concepts (`alexa`, `anthropic`, `apple-music`, `bing`, `microsoft-teams`)
+in views, or their full addresses when BI must be selected explicitly. Source
+qualifiers override kit defaults; explicit caller selectors remain authoritative.
+
+When customizing a kit, keep every concept in `icons`. Add only exceptional concrete
+addresses to `sources`; source keys outside the member list are errors. Source target
+names are not passed through library mapping. Renaming a target never changes the
+public concept or symbol ID. The browser references concepts directly:
+`alexa` uses `brands-<revision>.svg#alexa`. Compact per-kit identity defaults and
+`sources` patches also supply canonical `data-icon` and library classes, matching
+server-rendered output. These patches only describe the resolved identity; they
+never change the symbol reference. Explicit addresses, modifiers and concepts absent
+from the manifest go to the render endpoint. Plugins do not need library mappings
+or source resolution in JavaScript.
+
+Existing concepts moved into this kit: `css3`, `facebook`, `github`, `google`,
+`html5`, `instagram`, `linkedin`, `twitter-x` and `youtube`.
+Use `twitter-x` for the existing concept mapped to FA `x-twitter`.
+Use `windows-logo` for the Microsoft Windows logo (FA `windows`). The existing
+`windows` concept continues to mean overlapping application windows and keeps its
+FA `window-restore` mapping; do not use it for the brand logo.
+
+Browser logo concepts use the `browser-` prefix while retaining their FA sources:
+
+| FA source | Concept |
+| --- | --- |
+| `chrome` | `browser-chrome` |
+| `edge` | `browser-edge` |
+| `firefox-browser` | `browser-firefox` |
+| `firefox` | `browser-firefox-alt` |
+| `safari` | `browser-safari` |
+
+Square logo concepts use a `-square` suffix, for example `facebook-square`
+maps to FA `square-facebook` and `twitter-x-square` maps to
+`square-x-twitter`. Keep this suffix convention when adding further square logos.
+
+The supplied kit deliberately excludes competing shop/CMS platforms and keeps
+a curated social selection. Tumblr remains included. Removing a logo from the
+kit does not remove it from the FA library; it remains available through an
+explicit library and variant selection.
+
+Other kit members use their FA brand names directly, for example `paypal`,
+`cc-visa`, `amazon` or `dhl`. Explicitly selecting a library or variant still
+takes precedence over these kit defaults.
+
+
 Rendering automatically selects kit references or inline SVG. Plugin callers do not
 need to decide which form to output. Kit definitions live in `kits.json`; mappings
 live per library. Plugin icons rendered through the shared foundation participate

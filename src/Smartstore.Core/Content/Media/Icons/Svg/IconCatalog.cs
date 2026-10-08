@@ -376,7 +376,7 @@ internal sealed class IconCatalog
     internal static IconCatalog Load(IFileProvider files)
     {
         // Watch before reading so a change during any deferred load invalidates this generation.
-        // Watch source locations explicitly: generated files in App_Data/.cache/IconKits must never
+        // Watch source locations explicitly: generated files in App_Data/.cache/icons/kits must never
         // invalidate their own catalog. Wildcards still discover new libraries and variants.
         var catalog = new IconCatalog
         {
@@ -459,12 +459,20 @@ internal sealed class IconCatalog
 
                 var names = (isObject ? definition.GetProperty("icons") : definition)
                     .EnumerateArray().Select(x => x.GetString()).ToArray();
-                if (names.Any(x => !IconAddress.IsName(x)) || names.Distinct(StringComparer.Ordinal).Count() != names.Length)
+                var sources = isObject && definition.TryGetProperty("sources", out var kitSources)
+                    ? kitSources.EnumerateObject().ToDictionary(x => x.Name, x => x.Value.GetString(), StringComparer.Ordinal)
+                    : null;
+                var iconKit = new IconKit(kit.Name, names, libraryName, variantName, sources);
+                foreach (var address in iconKit.SourceAddresses.Values)
                 {
-                    throw new InvalidDataException($"Invalid or duplicate concepts in icon kit '{kit.Name}'.");
+                    var entryLibrary = IconService.SelectLibrary(catalog, address.Library ?? libraryName);
+                    if (entryLibrary == null || IconService.SelectVariant(catalog, entryLibrary, address.Variant, iconKit) == null)
+                    {
+                        throw new InvalidDataException($"Unknown library or variant in icon kit '{kit.Name}': '{address}'.");
+                    }
                 }
 
-                if (!catalog.Kits.TryAdd(kit.Name, new IconKit(kit.Name, names, libraryName, variantName)))
+                if (!catalog.Kits.TryAdd(kit.Name, iconKit))
                 {
                     throw new InvalidDataException($"Duplicate icon kit '{kit.Name}'.");
                 }

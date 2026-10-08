@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Security.Cryptography;
 using System.Text.Json;
 using Smartstore.Json;
@@ -9,7 +8,7 @@ using Smartstore.Threading;
 namespace Smartstore.Core.Content.Media.Icons;
 
 /// <summary>
-/// Resolves external sprite URLs and publishes immutable sprite files in App_Data/.cache/IconKits.
+/// Resolves external sprite URLs and publishes immutable sprite files in App_Data/.cache/icons/kits.
 /// </summary>
 /// <param name="icons">Provides the shared source catalog.</param>
 /// <param name="applicationContext">Provides the physical application data root.</param>
@@ -30,7 +29,7 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
             return null;
         }
 
-        var directory = Path.Combine(applicationContext.AppDataRoot.Root, ".cache", "IconKits");
+        var directory = Path.Combine(applicationContext.AppDataRoot.Root, ".cache", "icons", "kits");
         var path = Path.Combine(directory, "manifest-" + revision + ".json");
         if (File.Exists(path))
         {
@@ -89,92 +88,66 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
         return lazy.Value;
     }
 
+    /// <summary>
+    /// Publishes directly renderable concepts, kit URLs and compact DOM identities.
+    /// Source resolution stays server-side; identity patches never change symbol references.
+    /// </summary>
+    /// <param name="catalog">The immutable source generation supplying mappings and kit plans.</param>
     private static (string Revision, byte[] Content) CreateManifest(IconCatalog catalog)
     {
-        // Export only resolution data. Search tags and SVG drawings stay server-side.
-        var libraries = new SortedDictionary<string, object>(StringComparer.Ordinal);
-        foreach (var library in catalog.Libraries.Values.Distinct().OrderBy(x => x.Manifest.SystemName, StringComparer.Ordinal))
-        {
-            var mapping = new SortedDictionary<string, string>(StringComparer.Ordinal);
-            foreach (var pair in library.Mapping)
-            {
-                var target = pair.Value.Name;
-                var modifiers = new List<string>();
-                var transform = pair.Value.Transform;
-                if (transform.FlipX || transform.FlipY)
-                {
-                    modifiers.Add("flip=" + (transform.FlipX ? "x" : string.Empty) + (transform.FlipY ? "y" : string.Empty));
-                }
-                if (transform.Rotation != 0)
-                {
-                    modifiers.Add("rotate=" + transform.Rotation.ToString("R", CultureInfo.InvariantCulture));
-                }
-                if (pair.Value.StrokeScale != 1)
-                {
-                    modifiers.Add("stroke-scale=" + pair.Value.StrokeScale.ToString("R", CultureInfo.InvariantCulture));
-                }
-                if (modifiers.Count != 0)
-                {
-                    target += "?" + string.Join('&', modifiers);
-                }
-                if (target != pair.Key)
-                {
-                    mapping.Add(pair.Key, target);
-                }
-            }
-
-            libraries.Add(library.Manifest.SystemName, new
-            {
-                library.Manifest.ShortName,
-                library.Manifest.DefaultVariant,
-                Variants = library.Variants.Values.Distinct().OrderBy(x => x.Manifest.Name, StringComparer.Ordinal)
-                    .ToDictionary(x => x.Manifest.Name, x => new { x.Manifest.ShortName }),
-                Mapping = mapping
-            });
-        }
-
-        var kits = catalog.Kits.Values.OrderBy(x => x.Name, StringComparer.Ordinal).ToDictionary(x => x.Name,
-            x => new { x.DefaultLibrary, x.DefaultVariant, Concepts = x.Icons.OrderBy(n => n, StringComparer.Ordinal).ToArray() });
-        var urls = new SortedDictionary<string, SortedDictionary<string, string>>(StringComparer.Ordinal);
-        // Only effective kit defaults are advertised. Other combinations use the render endpoint.
-        // This avoids multiplying startup work by every installed library and variant.
-        foreach (var kit in catalog.Kits.Values)
+        var kits = new SortedDictionary<string, object>(StringComparer.Ordinal);
+        foreach (var kit in catalog.Kits.Values.OrderBy(x => x.Name, StringComparer.Ordinal))
         {
             var library = IconService.SelectLibrary(catalog, kit.DefaultLibrary);
             var variant = IconService.SelectVariant(catalog, library, null, kit);
-            if (variant == null)
-            {
-                continue;
-            }
-
-            var key = (library.Manifest.ShortName ?? library.Manifest.SystemName) + "@" + (variant.Manifest.ShortName ?? variant.Manifest.Name);
-            if (urls.ContainsKey(key))
-            {
-                continue;
-            }
-
-            var kitUrls = new SortedDictionary<string, string>(StringComparer.Ordinal);
-            urls.Add(key, kitUrls);
             var index = GetIndex(catalog, library, variant);
-            foreach (var candidate in catalog.Kits.Values)
+            // Every concept has its own symbol, even when several concepts share artwork.
+            // Mapping transforms are baked into symbols; stroke multipliers require inline SVG.
+            var entries = index.Entries[kit.Name]
+                .Where(x => catalog.ConceptKits[x.Concept] == kit && x.Mapping.StrokeScale == 1)
+                .ToArray();
+            if (entries.Length == 0 || !index.CanGenerate(kit.Name))
             {
-                if (candidate.Icons.All(name => variant.GetSource(library.Mapping.GetValueOrDefault(name)?.Name ?? name) != null))
+                // Do not substitute a lower-priority kit for an unavailable preferred kit.
+                // The render endpoint still resolves individual concepts with their defaults.
+                continue;
+            }
+
+            var defaultLibrary = library.Manifest.ShortName ?? library.Manifest.SystemName;
+            var defaultVariant = variant.Manifest.ShortName ?? variant.Manifest.Name;
+            var sources = new SortedDictionary<string, string>(StringComparer.Ordinal);
+            foreach (var entry in entries)
+            {
+                var libraryKey = entry.Library.Manifest.ShortName ?? entry.Library.Manifest.SystemName;
+                var variantKey = entry.Variant.Manifest.ShortName ?? entry.Variant.Manifest.Name;
+                if (entry.Mapping.Name != entry.Concept || libraryKey != defaultLibrary || variantKey != defaultVariant)
                 {
-                    kitUrls.Add(candidate.Name, "icons/" + Uri.EscapeDataString(candidate.Name) + "-" + index.Plans[candidate.Name].Value.Revision + ".svg");
+                    // These are final identities, not mappings for the client to resolve.
+                    // Missing qualifiers inherit this kit's defaults, even across libraries.
+                    sources.Add(entry.Concept, string.Concat(
+                        libraryKey != defaultLibrary ? libraryKey + ":" : string.Empty,
+                        entry.Mapping.Name,
+                        variantKey != defaultVariant ? "@" + variantKey : string.Empty));
                 }
             }
+
+            // Fingerprint source descriptors only. Manifest requests neither generate sprites
+            // nor read SVG drawings into the individual icon cache.
+            kits.Add(kit.Name, new
+            {
+                Url = "icons/" + Uri.EscapeDataString(kit.Name) + "-" + index.Plans[kit.Name].Value.Revision + ".svg",
+                DefaultLibrary = defaultLibrary,
+                DefaultVariant = defaultVariant,
+                Icons = entries.Select(x => x.Concept).ToArray(),
+                Sources = sources
+            });
         }
 
         var content = JsonSerializer.SerializeToUtf8Bytes(new
         {
-            SchemaVersion = 2,
-            DefaultLibrary = catalog.DefaultLibrary.Manifest.SystemName,
-            catalog.DefaultVariant,
-            Libraries = libraries,
-            Kits = kits,
-            Urls = urls
+            SchemaVersion = 6,
+            Kits = kits
         }, SmartJsonOptions.CamelCased);
-        // Hash exact UTF-8 bytes so different nodes agree on immutable file identities.
         return (Convert.ToHexStringLower(SHA256.HashData(content).AsSpan(0, 12)), content);
     }
 
@@ -186,10 +159,21 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
     {
         Guard.NotNull(icon);
 
-        var index = GetIndex(icon.LibraryName, icon.VariantName);
+        var catalog = icons.Catalog;
+        var index = GetIndex(catalog, icon.LibraryName, icon.VariantName);
         if (index == null || !index.Memberships.TryGetValue((icon.Name, icon.Transform), out var member))
         {
             return null;
+        }
+
+        // A pinned BI member of an FA kit must reference that kit's default mixed sprite,
+        // not try to regenerate all of its ordinary FA concepts with BI defaults.
+        if (member.Pinned)
+        {
+            var kit = catalog.Kits[member.Kit];
+            var library = IconService.SelectLibrary(catalog, kit.DefaultLibrary);
+            var variant = IconService.SelectVariant(catalog, library, null, kit);
+            index = GetIndex(catalog, library, variant);
         }
 
         var plan = index.Plans[member.Kit].Value;
@@ -228,7 +212,7 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
             return null;
         }
 
-        var directory = Path.Combine(applicationContext.AppDataRoot.Root, ".cache", "IconKits");
+        var directory = Path.Combine(applicationContext.AppDataRoot.Root, ".cache", "icons", "kits");
         var path = Path.Combine(directory, $"{kitName}-{revision}.svg");
         // Retain historical revisions for already rendered pages, even after sources change.
         // Nothing is read into memory and no source plan is needed for an existing file.
@@ -305,13 +289,13 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
     {
         foreach (var library in catalog.Libraries.Values.Distinct())
         {
-            var names = catalog.Kits[kit].Icons.Select(x => library.Mapping.GetValueOrDefault(x)?.Name ?? x).ToArray();
             foreach (var variant in library.Variants.Values.Distinct())
             {
-                if (names.All(x => variant.GetSource(x) != null))
+                var index = GetIndex(catalog, library, variant);
+                if (index.CanGenerate(kit))
                 {
                     // Evaluating a plan registers its fingerprint in the owning catalog.
-                    _ = GetIndex(catalog, library, variant).Plans[kit].Value;
+                    _ = index.Plans[kit].Value;
                 }
             }
         }
@@ -322,11 +306,11 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
     /// <summary>
     /// Selects only registered manifests, bounding index entries to configured variants.
     /// </summary>
+    /// <param name="catalog">The source generation retained for the entire lookup.</param>
     /// <param name="library">The library selector.</param>
     /// <param name="variant">The variant selector.</param>
-    private IconKitIndex GetIndex(string library, string variant)
+    private static IconKitIndex GetIndex(IconCatalog catalog, string library, string variant)
     {
-        var catalog = icons.Catalog;
         var selectedLibrary = IconService.SelectLibrary(catalog, library);
         var selectedVariant = IconService.SelectVariant(catalog, selectedLibrary, variant);
         return selectedVariant == null ? null : GetIndex(catalog, selectedLibrary, selectedVariant);

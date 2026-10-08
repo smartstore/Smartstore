@@ -190,7 +190,9 @@ public sealed class IconService(IApplicationContext applicationContext, IIconCac
         // Explicit address components take precedence; method arguments fill missing components.
         // Compare resolved objects so a full name and its short name are not treated as a conflict.
         var kit = address.SkipMapping ? null : catalog.ConceptKits.GetValueOrDefault(address.Name);
-        var library = SelectLibrary(catalog, address.Library ?? libraryName ?? kit?.DefaultLibrary);
+        var entry = kit?.SourceAddresses.GetValueOrDefault(address.Name) ?? default;
+        var entryLibrary = SelectLibrary(catalog, entry.Library ?? kit?.DefaultLibrary);
+        var library = SelectLibrary(catalog, address.Library ?? libraryName ?? entry.Library ?? kit?.DefaultLibrary);
         if (address.Library != null && libraryName != null && library != SelectLibrary(catalog, libraryName))
         {
             throw new ArgumentException("The address and library parameter select different libraries.", nameof(libraryName));
@@ -202,7 +204,10 @@ public sealed class IconService(IApplicationContext applicationContext, IIconCac
             throw new ArgumentException("The address and variant parameter select different variants.", nameof(variantName));
         }
 
-        var variant = SelectVariant(catalog, library, address.Variant ?? variantName, kit);
+        // Source overrides supply defaults for this concept only. Caller selectors still win,
+        // and a variant from a different library must never leak into that caller selection.
+        var variant = SelectVariant(catalog, library,
+            address.Variant ?? variantName ?? (library == entryLibrary ? entry.Variant : null), kit);
         if (variant == null)
         {
             return default;
@@ -211,8 +216,10 @@ public sealed class IconService(IApplicationContext applicationContext, IIconCac
         // Resolve exactly one mapping, not an alias chain. If its target is absent, return null;
         // falling back to the original name would silently ignore a broken customization.
         // Explicit direct addresses also avoid loading mapping.json.
-        var mapping = address.SkipMapping ? null : library.Mapping.GetValueOrDefault(address.Name);
-        var actualName = mapping?.Name ?? address.Name;
+        var useSource = !entry.IsEmpty && library == entryLibrary
+            && variant == SelectVariant(catalog, entryLibrary, entry.Variant, kit);
+        var mapping = address.SkipMapping || useSource ? null : library.Mapping.GetValueOrDefault(address.Name);
+        var actualName = useSource ? entry.Name : mapping?.Name ?? address.Name;
         var source = variant.GetSource(actualName);
         if (source == null)
         {

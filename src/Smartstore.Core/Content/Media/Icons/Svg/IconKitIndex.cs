@@ -16,12 +16,17 @@ internal sealed class IconKitIndex
     /// <summary>
     /// Gets the preferred kit and symbol for each actual icon and mapping transformation.
     /// </summary>
-    internal Dictionary<(string Name, IconTransform Transform), (string Kit, string Symbol)> Memberships { get; } = new();
+    internal Dictionary<(string Name, IconTransform Transform), (string Kit, string Symbol, bool Pinned)> Memberships { get; } = new();
 
     /// <summary>
     /// Gets deferred source plans keyed by configured kit name.
     /// </summary>
     internal Dictionary<string, Lazy<Plan>> Plans { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Gets resolved source selections without opening SVG bodies or evaluating sprite plans.
+    /// </summary>
+    internal Dictionary<string, Entry[]> Entries { get; } = new(StringComparer.Ordinal);
 
     /// <summary>
     /// Maps concepts without parsing SVG bodies. Shared wins over ordinal kit-name order.
@@ -33,11 +38,25 @@ internal sealed class IconKitIndex
     {
         foreach (var kit in catalog.Kits.Values.OrderBy(x => x.Name == "shared" ? 0 : 1).ThenBy(x => x.Name, StringComparer.Ordinal))
         {
-            var entries = kit.Icons.OrderBy(x => x, StringComparer.Ordinal)
-                .Select(concept => (Concept: concept, Mapping: library.Mapping.GetValueOrDefault(concept) ?? new IconMapping(concept, default))).ToArray();
+            var entries = kit.Icons.OrderBy(x => x, StringComparer.Ordinal).Select(concept =>
+            {
+                // Source overrides are concrete and stay fixed when the kit is requested
+                // with alternate defaults. Ordinary concepts still use the selected mapping.
+                var address = kit.SourceAddresses.GetValueOrDefault(concept);
+                var pinned = !address.IsEmpty;
+                var entryLibrary = pinned ? IconService.SelectLibrary(catalog, address.Library ?? kit.DefaultLibrary) : library;
+                var entryVariant = pinned ? IconService.SelectVariant(catalog, entryLibrary, address.Variant, kit) : variant;
+                var mapping = pinned ? new IconMapping(address.Name, default)
+                    : entryLibrary.Mapping.GetValueOrDefault(concept) ?? new IconMapping(concept, default);
+                return new Entry(concept, entryLibrary, entryVariant, mapping, pinned);
+            }).ToArray();
+            Entries.Add(kit.Name, entries);
             foreach (var entry in entries)
             {
-                Memberships.TryAdd((entry.Mapping.Name, entry.Mapping.Transform), (kit.Name, entry.Concept));
+                if (entry.Library == library && entry.Variant == variant)
+                {
+                    Memberships.TryAdd((entry.Mapping.Name, entry.Mapping.Transform), (kit.Name, entry.Concept, entry.Pinned));
+                }
             }
 
             Plans.Add(kit.Name, new Lazy<Plan>(() => new Plan(catalog, library, variant, kit.Name, entries)));
@@ -45,13 +64,28 @@ internal sealed class IconKitIndex
     }
 
     /// <summary>
+    /// Identifies the source of a public symbol before any drawing data is read.
+    /// </summary>
+    /// <param name="Concept">The unqualified name used as the public symbol ID.</param>
+    /// <param name="Library">The library supplying this symbol.</param>
+    /// <param name="Variant">The variant supplying this symbol.</param>
+    /// <param name="Mapping">The actual source name and its mapping modifiers.</param>
+    /// <param name="Pinned">Whether a source override fixes this symbol's selection.</param>
+    internal sealed record Entry(string Concept, IconCatalog.Library Library, IconCatalog.Variant Variant, IconMapping Mapping, bool Pinned);
+
+    /// <summary>
+    /// Checks source availability across every library used by one kit, without parsing SVGs.
+    /// </summary>
+    /// <param name="kit">The configured kit name.</param>
+    internal bool CanGenerate(string kit) => Entries[kit].All(x => x.Variant.GetSource(x.Mapping.Name) != null);
+
+    /// <summary>
     /// Captures only the source descriptors required by one kit and fingerprints the final output inputs.
     /// </summary>
     internal sealed class Plan
     {
         private readonly IconCatalog _catalog;
-        private readonly IconCatalog.Variant _variant;
-        private readonly List<(string Concept, IconInfo Info, IconCatalog.Source Source)> _entries = [];
+        private readonly List<(string Concept, IconInfo Info, IconCatalog.Variant Variant, IconCatalog.Source Source)> _entries = [];
 
         /// <summary>
         /// Gets the output revision, including mapping, membership, source and preparation changes.
@@ -67,12 +101,11 @@ internal sealed class IconKitIndex
         /// <param name="kit">The configured kit name.</param>
         /// <param name="entries">Concepts and their actual mapped names.</param>
         internal Plan(IconCatalog catalog, IconCatalog.Library library, IconCatalog.Variant variant,
-            string kit, (string Concept, IconMapping Mapping)[] entries)
+            string kit, Entry[] entries)
         {
             _catalog = catalog;
-            _variant = variant;
             // Bump the sprite version whenever symbol preparation changes.
-            var fingerprint = new StringBuilder("sprite-3:").Append(IconSvgParser.Revision);
+            var fingerprint = new StringBuilder("sprite-4:").Append(IconSvgParser.Revision);
             // System identities prevent ambiguous flat filenames and distinguish empty kits.
             foreach (var identity in new[] { library.Manifest.SystemName, variant.Manifest.Name, kit })
             {
@@ -80,11 +113,11 @@ internal sealed class IconKitIndex
             }
             foreach (var entry in entries)
             {
-                var source = variant.GetSource(entry.Mapping.Name)
-                    ?? throw new InvalidDataException($"Icon kit '{kit}': concept '{entry.Concept}' targets missing icon '{entry.Mapping.Name}' in {library.Manifest.SystemName}/{variant.Manifest.Name}.");
-                var info = IconService.CreateInfo(library, variant, entry.Mapping.Name, false);
+                var source = entry.Variant.GetSource(entry.Mapping.Name)
+                    ?? throw new InvalidDataException($"Icon kit '{kit}': concept '{entry.Concept}' targets missing icon '{entry.Mapping.Name}' in {entry.Library.Manifest.SystemName}/{entry.Variant.Manifest.Name}.");
+                var info = IconService.CreateInfo(entry.Library, entry.Variant, entry.Mapping.Name, false);
                 info.Transform = entry.Mapping.Transform;
-                _entries.Add((entry.Concept, info, source));
+                _entries.Add((entry.Concept, info, entry.Variant, source));
                 fingerprint.Append('|').Append(entry.Concept.Length).Append(':').Append(entry.Concept)
                     .Append('|').Append(info.Address.Length).Append(':').Append(info.Address)
                     .Append('|').Append(source.Revision)
@@ -112,92 +145,97 @@ internal sealed class IconKitIndex
                 OmitXmlDeclaration = true,
                 CloseOutput = false
             });
-            using var sources = _variant.OpenReader();
             writer.WriteStartElement("svg", ns.NamespaceName);
             var rendered = new Dictionary<string, (string Symbol, string ViewBox, string AspectRatio)>(StringComparer.Ordinal);
-            foreach (var entry in _entries)
+            // Process each variant as a group so only one archive is open at a time.
+            // Readers never escape this write operation, including when preparation fails.
+            foreach (var group in _entries.GroupBy(x => x.Variant))
             {
-                cancelToken.ThrowIfCancellationRequested();
-                if (!rendered.TryGetValue(entry.Info.Name, out var original))
+                using var sources = group.Key.OpenReader();
+                foreach (var entry in group)
                 {
-                    // Store original artwork once, independent of concept transformations.
-                    var sourceId = "source:" + rendered.Count.ToString(CultureInfo.InvariantCulture);
-                    var symbol = new XElement(ns + "g", new XAttribute("id", sourceId));
-                    string aspectRatio = null;
-                    var svg = sources.Prepare(entry.Info, entry.Source, IconSvgParser.Revision + entry.Source.Revision);
-                    if (svg == null)
+                    cancelToken.ThrowIfCancellationRequested();
+                    if (!rendered.TryGetValue(entry.Info.Address, out var original))
                     {
-                        // Missing source and default viewBox: omit this symbol without failing the kit.
-                        continue;
-                    }
-
-                    // This XML tree exists only on a sprite cache miss. Prefix all original IDs
-                    // and references before combining unrelated SVG documents into one sprite.
-                    var drawing = XElement.Parse("<g>" + svg.Content + "</g>", LoadOptions.PreserveWhitespace);
-                    foreach (var attribute in svg.RootAttributes)
-                    {
-                        if (attribute.Key == "preserveAspectRatio")
+                        // Store original artwork once, independent of concept transformations.
+                        var sourceId = "source:" + rendered.Count.ToString(CultureInfo.InvariantCulture);
+                        var symbol = new XElement(ns + "g", new XAttribute("id", sourceId));
+                        string aspectRatio = null;
+                        var svg = sources.Prepare(entry.Info, entry.Source, IconSvgParser.Revision + entry.Source.Revision);
+                        if (svg == null)
                         {
-                            aspectRatio = attribute.Value;
+                            // Missing source and default viewBox: omit this symbol without failing the kit.
+                            continue;
                         }
-                        else
-                        {
-                            drawing.SetAttributeValue(attribute.Key, attribute.Value);
-                        }
-                    }
 
-                    // Prefix with a character forbidden in conceptual addresses, avoiding collisions
-                    // between source IDs and the public concept symbol IDs.
-                    var prefix = "source:" + rendered.Count.ToString(CultureInfo.InvariantCulture) + ":";
-                    var ids = drawing.DescendantsAndSelf().Attributes("id")
-                        .ToDictionary(x => x.Value, x => prefix + x.Value, StringComparer.Ordinal);
-                    foreach (var element in drawing.DescendantsAndSelf())
-                    {
-                        element.Name = ns + element.Name.LocalName;
-                        foreach (var attribute in element.Attributes())
+                        // This XML tree exists only on a sprite cache miss. Prefix all original IDs
+                        // and references before combining unrelated SVG documents into one sprite.
+                        var drawing = XElement.Parse("<g>" + svg.Content + "</g>", LoadOptions.PreserveWhitespace);
+                        foreach (var attribute in svg.RootAttributes)
                         {
-                            if (attribute.Name.LocalName == "id")
+                            if (attribute.Key == "preserveAspectRatio")
                             {
-                                attribute.Value = ids[attribute.Value];
-                            }
-                            else if (attribute.Name.LocalName == "href" && attribute.Value.StartsWith('#'))
-                            {
-                                attribute.Value = "#" + ids.GetValueOrDefault(attribute.Value[1..], prefix + attribute.Value[1..]);
-                            }
-                            else if (attribute.Name.LocalName == "aria-labelledby")
-                            {
-                                attribute.Value = string.Join(" ", attribute.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                                    .Select(x => ids.GetValueOrDefault(x, prefix + x)));
+                                aspectRatio = attribute.Value;
                             }
                             else
                             {
-                                attribute.Value = Regex.Replace(attribute.Value, @"url\(#([^)]+)\)",
-                                    m => "url(#" + ids.GetValueOrDefault(m.Groups[1].Value, prefix + m.Groups[1].Value) + ")");
+                                drawing.SetAttributeValue(attribute.Key, attribute.Value);
                             }
                         }
+
+                        // Prefix with a character forbidden in conceptual addresses, avoiding collisions
+                        // between source IDs and the public concept symbol IDs.
+                        var prefix = "source:" + rendered.Count.ToString(CultureInfo.InvariantCulture) + ":";
+                        var ids = drawing.DescendantsAndSelf().Attributes("id")
+                            .ToDictionary(x => x.Value, x => prefix + x.Value, StringComparer.Ordinal);
+                        foreach (var element in drawing.DescendantsAndSelf())
+                        {
+                            element.Name = ns + element.Name.LocalName;
+                            foreach (var attribute in element.Attributes())
+                            {
+                                if (attribute.Name.LocalName == "id")
+                                {
+                                    attribute.Value = ids[attribute.Value];
+                                }
+                                else if (attribute.Name.LocalName == "href" && attribute.Value.StartsWith('#'))
+                                {
+                                    attribute.Value = "#" + ids.GetValueOrDefault(attribute.Value[1..], prefix + attribute.Value[1..]);
+                                }
+                                else if (attribute.Name.LocalName == "aria-labelledby")
+                                {
+                                    attribute.Value = string.Join(" ", attribute.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                                        .Select(x => ids.GetValueOrDefault(x, prefix + x)));
+                                }
+                                else
+                                {
+                                    attribute.Value = Regex.Replace(attribute.Value, @"url\(#([^)]+)\)",
+                                        m => "url(#" + ids.GetValueOrDefault(m.Groups[1].Value, prefix + m.Groups[1].Value) + ")");
+                                }
+                            }
+                        }
+
+                        // The wrapper preserves root transforms, presentation and referenced root IDs.
+                        symbol.Add(drawing);
+                        // Reuse a group, not a nested symbol viewport: original viewBox offsets
+                        // must not translate or scale the artwork a second time through <use>.
+                        new XElement(ns + "defs", symbol).WriteTo(writer);
+                        original = (sourceId, svg.ViewBox, aspectRatio);
+                        rendered.Add(entry.Info.Address, original);
                     }
 
-                    // The wrapper preserves root transforms, presentation and referenced root IDs.
-                    symbol.Add(drawing);
-                    // Reuse a group, not a nested symbol viewport: original viewBox offsets
-                    // must not translate or scale the artwork a second time through <use>.
-                    new XElement(ns + "defs", symbol).WriteTo(writer);
-                    original = (sourceId, svg.ViewBox, aspectRatio);
-                    rendered.Add(entry.Info.Name, original);
-                }
+                    var conceptSymbol = new XElement(ns + "symbol", new XAttribute("id", entry.Concept),
+                        new XAttribute("viewBox", original.ViewBox));
+                    if (original.AspectRatio != null)
+                    {
+                        conceptSymbol.SetAttributeValue("preserveAspectRatio", original.AspectRatio);
+                    }
 
-                var conceptSymbol = new XElement(ns + "symbol", new XAttribute("id", entry.Concept),
-                    new XAttribute("viewBox", original.ViewBox));
-                if (original.AspectRatio != null)
-                {
-                    conceptSymbol.SetAttributeValue("preserveAspectRatio", original.AspectRatio);
+                    var use = new XElement(ns + "use", new XAttribute("href", "#" + original.Symbol));
+                    conceptSymbol.Add(entry.Info.Transform.IsIdentity
+                        ? use
+                        : new XElement(ns + "g", new XAttribute("transform", entry.Info.Transform.ToSvg(original.ViewBox)), use));
+                    conceptSymbol.WriteTo(writer);
                 }
-
-                var use = new XElement(ns + "use", new XAttribute("href", "#" + original.Symbol));
-                conceptSymbol.Add(entry.Info.Transform.IsIdentity
-                    ? use
-                    : new XElement(ns + "g", new XAttribute("transform", entry.Info.Transform.ToSvg(original.ViewBox)), use));
-                conceptSymbol.WriteTo(writer);
             }
 
             if (_catalog.ChangeToken.HasChanged)

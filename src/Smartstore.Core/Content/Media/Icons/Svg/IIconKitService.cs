@@ -1,5 +1,7 @@
 #nullable enable
 
+using System.Collections.ObjectModel;
+
 namespace Smartstore.Core.Content.Media.Icons;
 
 /// <summary>
@@ -49,7 +51,7 @@ public interface IIconKitService
 }
 
 /// <summary>
-/// Describes a library-independent group of conceptual icon names.
+/// Describes a group of conceptual names with optional concrete source overrides.
 /// </summary>
 public sealed class IconKit
 {
@@ -57,10 +59,12 @@ public sealed class IconKit
     /// Creates an immutable kit definition.
     /// </summary>
     /// <param name="name">The configured kit name.</param>
-    /// <param name="icons">The conceptual icon names.</param>
+    /// <param name="icons">The complete list of unique, unqualified conceptual names.</param>
     /// <param name="defaultLibrary">The optional default library system name.</param>
     /// <param name="defaultVariant">The optional default variant within the kit default library.</param>
-    public IconKit(string name, IEnumerable<string> icons, string? defaultLibrary = null, string? defaultVariant = null)
+    /// <param name="sources">Optional concrete source addresses keyed by names present in <paramref name="icons"/>. Source names are not mapped again.</param>
+    public IconKit(string name, IEnumerable<string> icons, string? defaultLibrary = null, string? defaultVariant = null,
+        IReadOnlyDictionary<string, string>? sources = null)
     {
         Guard.NotEmpty(name);
 
@@ -68,6 +72,33 @@ public sealed class IconKit
 
         Name = name;
         Icons = Array.AsReadOnly(icons.ToArray());
+        var names = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var value in Icons)
+        {
+            if (!IconAddress.IsName(value) || !names.Add(value))
+            {
+                throw new InvalidDataException($"Invalid or duplicate icon name '{value}' in kit '{name}'.");
+            }
+        }
+
+        var addresses = new Dictionary<string, IconAddress>(StringComparer.Ordinal);
+        var sourceValues = new Dictionary<string, string>(StringComparer.Ordinal);
+        if (sources != null)
+        {
+            foreach (var pair in sources)
+            {
+                if (!names.Contains(pair.Key) || !IconAddress.TryParse(pair.Value, out var address))
+                {
+                    throw new InvalidDataException($"Invalid source '{pair.Key}' in kit '{name}'. Source keys must belong to icons and values must be icon addresses.");
+                }
+
+                sourceValues.Add(pair.Key, pair.Value);
+                addresses.Add(pair.Key, address);
+            }
+        }
+
+        Sources = new ReadOnlyDictionary<string, string>(sourceValues);
+        SourceAddresses = addresses;
         DefaultLibrary = defaultLibrary;
         DefaultVariant = defaultVariant;
     }
@@ -78,9 +109,19 @@ public sealed class IconKit
     public string Name { get; }
 
     /// <summary>
-    /// Gets the conceptual names belonging to this kit.
+    /// Gets the complete list of conceptual names belonging to this kit.
     /// </summary>
     public IReadOnlyList<string> Icons { get; }
+
+    /// <summary>
+    /// Gets concrete source overrides keyed by kit concept. An override never adds a kit member.
+    /// </summary>
+    public IReadOnlyDictionary<string, string> Sources { get; }
+
+    /// <summary>
+    /// Gets source addresses parsed once per definition, keyed by the public concept and symbol name.
+    /// </summary>
+    internal IReadOnlyDictionary<string, IconAddress> SourceAddresses { get; }
 
     /// <summary>
     /// Gets the optional library system name overriding the global default.

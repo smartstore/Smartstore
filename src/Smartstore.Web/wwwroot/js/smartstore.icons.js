@@ -11,10 +11,6 @@
     const waiting = [];
     let active = 0, manifestPromise, cloneId = 0;
 
-    function own(object, key) {
-        return object && Object.prototype.hasOwnProperty.call(object, key) ? object[key] : undefined;
-    }
-
     function rootUrl() {
         return new URL(document.querySelector('meta[property="sm:root"]')?.content || './', document.baseURI);
     }
@@ -41,76 +37,44 @@
         }
     }
 
-    function modifiers(value) {
-        const result = {};
-        if (value === undefined) return result;
-        const seen = new Set();
-        for (const pair of value.split('&')) {
-            const parts = pair.split('=');
-            const [key, text] = parts;
-            if (parts.length !== 2 || seen.has(key)) throw new Error('Invalid icon modifier.');
-            seen.add(key);
-            if (key === 'flip' && ['x', 'y', 'xy', 'none'].includes(text)) {
-                result.x = text.includes('x'); result.y = text.includes('y');
-            } else if (['rotate', 'stroke-scale'].includes(key) && /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(text) && Number.isFinite(Number(text))) {
-                if (key === 'stroke-scale' && Number(text) <= 0) throw new Error('Invalid stroke multiplier.');
-                result[key === 'rotate' ? 'rotation' : 'stroke'] = key === 'rotate' ? ((Number(text) % 360) + 360) % 360 : Number(text);
-            } else throw new Error('Unknown or invalid icon modifier.');
-        }
-        return result;
-    }
-
-    function target(value) {
-        const index = value.indexOf('?');
-        return { name: index < 0 ? value : value.slice(0, index), ...modifiers(index < 0 ? undefined : value.slice(index + 1)) };
-    }
-
-    function transformKey(name, value) {
-        return JSON.stringify([name, value.x ?? false, value.y ?? false, value.rotation ?? 0]);
-    }
-
     function prepareManifest(data) {
-        if (data.schemaVersion !== 2) throw new Error('Unsupported icon manifest.');
-        const aliases = new Map(), concepts = new Map(), symbols = new Map();
-        const kitNames = Object.keys(data.kits).sort((a, b) => a === b ? 0 : a === 'shared' ? -1 : b === 'shared' ? 1 : a < b ? -1 : 1);
-        for (const [name, library] of Object.entries(data.libraries)) {
-            library.name = name; library.key = library.shortName || name;
-            library.aliases = new Map();
-            aliases.set(name.toLowerCase(), library);
-            if (library.shortName) aliases.set(library.shortName.toLowerCase(), library);
-            for (const [variantName, variant] of Object.entries(library.variants)) {
-                variant.name = variantName; variant.key = variant.shortName || variantName;
-                library.aliases.set(variantName.toLowerCase(), variant);
-                if (variant.shortName) library.aliases.set(variant.shortName.toLowerCase(), variant);
+        // Old cached pages fall back to the endpoint while scripts and manifests roll over.
+        if (data.schemaVersion !== 6) return null;
+        const concepts = new Map();
+        for (const kit of Object.values(data.kits)) {
+            const url = new URL(kit.url, rootUrl()).href;
+            for (const name of kit.icons) {
+                // The server has resolved these identities already. Fill omitted fields from
+                // kit defaults; do not remap names or use patches to choose a sprite/symbol.
+                const source = Object.hasOwn(kit.sources, name) ? kit.sources[name] : name;
+                const colon = source.indexOf(':'), at = source.indexOf('@');
+                const library = colon < 0 ? kit.defaultLibrary : source.slice(0, colon);
+                const variant = at < 0 ? kit.defaultVariant : source.slice(at + 1);
+                const icon = source.slice(colon + 1, at < 0 ? source.length : at);
+                concepts.set(name, {
+                    href: url + '#' + encodeURIComponent(name),
+                    address: `${library.toLowerCase()}:${icon}@${variant.toLowerCase()}`,
+                    classes: ['icon-' + library, 'icon-' + library + '-' + variant]
+                });
             }
         }
-        for (const kitName of kitNames) {
-            for (const concept of data.kits[kitName].concepts) if (!concepts.has(concept)) concepts.set(concept, data.kits[kitName]);
-        }
-        for (const [selection, urls] of Object.entries(data.urls)) {
-            const [libKey] = selection.split('@');
-            const library = aliases.get(libKey.toLowerCase());
-            const index = new Map();
-            for (const kitName of kitNames) {
-                // Preserve server priority even when the winning kit isn't advertised.
-                for (const concept of data.kits[kitName].concepts) {
-                    const mapped = target(own(library.mapping, concept) ?? concept);
-                    const key = transformKey(mapped.name, mapped);
-                    if (!index.has(key)) index.set(key, urls[kitName] ? new URL(urls[kitName], rootUrl()).href + '#' + encodeURIComponent(concept) : null);
-                }
-            }
-            symbols.set(selection, index);
-        }
-        return { data, aliases, concepts, symbols };
+        return concepts;
+    }
+
+    // Only plain concepts use the manifest. The server owns address parsing, selections
+    // and modifier precedence, including explicit false/zero overrides of mapping defaults.
+    function isConcept(input) {
+        return !/[:@!?]/.test(input.name) && drawing.every((key, i) => i === 0 || input[key] == null);
     }
 
     function manifest() {
         if (!manifestPromise) {
             const path = document.querySelector('meta[property="sm:icons"]')?.content;
-            if (!path) return Promise.reject(new Error('Missing sm:icons manifest URL.'));
-            manifestPromise = request(new URL(path, rootUrl()).href, true).then(prepareManifest).catch(error => {
+            if (!path) return Promise.resolve(null);
+            manifestPromise = request(new URL(path, rootUrl()).href, true).then(prepareManifest).catch(() => {
+                // A missing historical manifest must not prevent server-side resolution.
                 manifestPromise = null;
-                throw error;
+                return null;
             });
         }
         return manifestPromise;
@@ -128,41 +92,6 @@
         if (value == null) return undefined;
         if (!value.trim() || !Number.isFinite(Number(value)) || (integer && (!Number.isInteger(Number(value)) || Number(value) < -2147483648 || Number(value) > 2147483647))) throw new Error('Invalid numeric icon attribute.');
         return Number(value);
-    }
-
-    function resolve(index, input) {
-        const expression = target(input.name);
-        const match = /^(?:([a-zA-Z0-9_-]+):)?([^:@!?]+?)(!)?(?:@([a-zA-Z0-9_-]+))?$/.exec(expression.name);
-        if (!match) throw new Error('Invalid icon address.');
-        const [, lib, concept, direct, variantName] = match;
-        if (!concept.trim() || ['.', '..'].includes(concept) || /[\x00-\x1f\x7f-\x9f/\\]/.test(concept)) throw new Error('Invalid icon name.');
-        const kit = direct ? null : index.concepts.get(concept);
-        const library = index.aliases.get((lib ?? input.lib ?? kit?.defaultLibrary ?? index.data.defaultLibrary).toLowerCase());
-        if (!library) throw new Error('Unknown icon library.');
-        if (lib != null && input.lib != null && index.aliases.get(input.lib.toLowerCase()) !== library) throw new Error('Conflicting icon libraries.');
-        const kitLibrary = index.aliases.get((kit?.defaultLibrary ?? index.data.defaultLibrary).toLowerCase());
-        const selected = variantName ?? input.variant ?? (kitLibrary === library ? kit?.defaultVariant : null)
-            ?? (library.name === index.data.defaultLibrary ? index.data.defaultVariant : null) ?? library.defaultVariant;
-        const variant = library.aliases.get(selected.toLowerCase());
-        if (!variant) throw new Error('Unknown icon variant.');
-        if (variantName != null && input.variant != null && library.aliases.get(input.variant.toLowerCase()) !== variant) throw new Error('Conflicting icon variants.');
-        const mapped = target(direct ? concept : own(library.mapping, concept) ?? concept);
-        const inherited = { x: mapped.x ?? false, y: mapped.y ?? false, rotation: mapped.rotation ?? 0, stroke: mapped.stroke ?? 1 };
-        const effective = { ...inherited };
-        for (const key of ['x', 'y', 'rotation', 'stroke']) if (expression[key] !== undefined) effective[key] = expression[key];
-        const addressChanged = transformKey(mapped.name, effective) !== transformKey(mapped.name, inherited);
-        for (const [attribute, key] of [['flip-h', 'x'], ['flip-v', 'y']]) {
-            const value = boolean(input[attribute]);
-            if (value !== undefined) effective[key] = value;
-        }
-        const rotate = number(input.rotate, true), stroke = number(input['stroke-scale']);
-        if (rotate !== undefined) effective.rotation = ((rotate % 360) + 360) % 360;
-        if (stroke !== undefined) effective.stroke = stroke;
-        if (effective.stroke <= 0) throw new Error('Stroke scale must be positive.');
-        const selection = library.key + '@' + variant.key;
-        const href = !addressChanged && effective.stroke === 1 && transformKey(mapped.name, inherited) === transformKey(mapped.name, effective)
-            ? index.symbols.get(selection)?.get(transformKey(mapped.name, effective)) : null;
-        return { address: `${library.key}:${mapped.name}@${variant.key}`, library: library.key, variant: variant.key, href };
     }
 
     function svgTemplate(text) {
@@ -311,18 +240,22 @@
             if (!input.name) { this.replaceChildren(); this._drawingKey = null; this.removeAttribute('data-icon'); return; }
             // Do not show the old icon under a newly requested name while loading.
             this.replaceChildren(); this._drawingKey = null; this._identity = []; this.removeAttribute('data-icon');
-            const index = await manifest();
-            const resolved = resolve(index, input);
+            const reference = isConcept(input) ? (await manifest())?.get(input.name) : null;
             let template;
-            if (resolved.href) {
+            if (reference) {
                 template = document.createElementNS(ns, 'svg');
+                template.setAttribute('data-icon', reference.address);
+                template.setAttribute('class', reference.classes.join(' '));
                 const use = document.createElementNS(ns, 'use');
-                use.setAttribute('href', resolved.href); template.append(use);
+                use.setAttribute('href', reference.href); template.append(use);
             } else template = await loadDrawing(input);
             if (!this.isConnected || this._sequence !== sequence) return;
-            this._identity = ['icon-' + resolved.library, 'icon-' + resolved.library + '-' + resolved.variant];
+            // Manifest hits and endpoint responses carry the same server-resolved identity.
+            // Presentation classes belong to the host; the child keeps data-icon for inspection.
+            const address = template.getAttribute('data-icon') || input.name;
+            this._identity = [...template.classList].filter(name => name.startsWith('icon-'));
             this.present(false);
-            this.setAttribute('data-icon', template.getAttribute('data-icon') || resolved.address);
+            this.setAttribute('data-icon', address);
             this.replaceChildren(cloneDrawing(template));
             this._drawingKey = key;
             this.dispatchEvent(new CustomEvent('icon-load', { bubbles: true }));
