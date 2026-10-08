@@ -494,7 +494,7 @@ public partial class MessageFactory : IMessageFactory
             { nameof(NewsletterSubscription), () => GetRandomEntity<NewsletterSubscription>(x => true) },
             { nameof(Campaign), () => GetRandomEntity<Campaign>(x => true) },
             { nameof(ReturnCase), () => GetRandomEntity<ReturnCase>(x => true) },
-            { nameof(OrderItem), () => GetRandomEntity<OrderItem>(x => !x.Order.Deleted) },
+            { nameof(OrderItem), () => GetRandomEntity<OrderItem>(x => !x.Order.Deleted && !x.Product.Deleted) },
             { nameof(GiftCard), () => GetRandomEntity<GiftCard>(x => true) },
             { nameof(ProductReview), () => GetRandomEntity<ProductReview>(x => !x.Product.Deleted && !x.Product.IsSystemProduct && x.Product.Visibility != ProductVisibility.Hidden && x.Product.Published) },
             { nameof(WalletHistory), () => GetRandomEntity<WalletHistory>(x => true) }

@@ -269,9 +269,12 @@ public partial class MessageModelProvider
         var downloadService = _services.Resolve<IDownloadService>();
         var order = part.Order;
         var isNet = order.CustomerTaxDisplayType == TaxDisplayType.ExcludingTax;
-        var product = part.Product;
-        var attributeCombination = await productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, part.AttributeSelection);
+        var product = part.Product ?? await _db.Products
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == part.ProductId);
 
+        var attributeCombination = await productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, part.AttributeSelection);
         product.MergeWithCombination(attributeCombination);
 
         var downloadUrl = downloadService.IsDownloadAllowed(part)
@@ -297,7 +300,7 @@ public partial class MessageModelProvider
         if (product.ProductType == ProductType.BundledProduct && part.BundleData.HasValue())
         {
             var bundleData = part.GetBundleData();
-            if (bundleData.Any())
+            if (bundleData.Count > 0)
             {
                 var productIds = bundleData.Select(x => x.ProductId).ToArray();
                 var products = await _db.Products.GetManyAsync(productIds);
@@ -506,11 +509,85 @@ public partial class MessageModelProvider
             { "RefundToWallet", part.RefundToWallet },
             { "Url", _helper.BuildActionUrl("Edit", "ReturnCase", new { id = part.Id, area = "Admin" }, messageContext) },
             { "CreatedOn", _helper.ToUserDate(part.CreatedOnUtc, messageContext) },
-            { "NextStep", nextStep }
+            { "NextStep", nextStep },
+            { "Shipping", await CreateReturnCaseShippingModelAsync(part, messageContext) }
         };
 
         await _helper.PublishModelPartCreatedEventAsync(part, m);
 
         return m;
+    }
+
+    protected virtual async Task<object> CreateReturnCaseShippingModelAsync(ReturnCase part, MessageContext messageContext)
+    {
+        var orderItem = await _db.OrderItems
+            .IgnoreQueryFilters()
+            .Where(x => x.Id == part.OrderItemId)
+            .Select(x => new
+            {
+                x.Quantity,
+                ShippingRequired = x.Product.IsShippingEnabled
+            })
+            .FirstOrDefaultAsync();
+
+        var shipmentItems = await _db.ShipmentItems
+            .Where(x => x.OrderItemId == part.OrderItemId)
+            .Select(x => new
+            {
+                x.ShipmentId,
+                x.Quantity,
+                x.Shipment.ShippedDateUtc,
+                x.Shipment.DeliveryDateUtc,
+                x.Shipment.TrackingNumber,
+                x.Shipment.TrackingUrl
+            })
+            .ToListAsync();
+
+        var shipments = shipmentItems
+            .GroupBy(x => new
+            {
+                x.ShipmentId,
+                x.ShippedDateUtc,
+                x.DeliveryDateUtc,
+                x.TrackingNumber,
+                x.TrackingUrl
+            })
+            .OrderBy(x => x.Key.ShipmentId)
+            .Select(x => new Dictionary<string, object>
+            {
+                ["Id"] = x.Key.ShipmentId,
+                ["Quantity"] = x.Sum(y => y.Quantity),
+                ["ShippedOn"] = _helper.ToUserDate(x.Key.ShippedDateUtc, messageContext),
+                ["DeliveredOn"] = _helper.ToUserDate(x.Key.DeliveryDateUtc, messageContext),
+                ["TrackingNumber"] = x.Key.TrackingNumber.NullEmpty(),
+                ["TrackingUrl"] = x.Key.TrackingUrl.NullEmpty()
+            })
+            .ToList();
+
+        var quantity = orderItem?.Quantity ?? 0;
+        var shippedQuantity = shipmentItems
+            .Where(x => x.ShippedDateUtc.HasValue)
+            .Sum(x => x.Quantity);
+        var deliveredQuantity = shipmentItems
+            .Where(x => x.DeliveryDateUtc.HasValue)
+            .Sum(x => x.Quantity);
+        var shippingRequired = orderItem?.ShippingRequired == true || shipmentItems.Count > 0;
+
+        return new Dictionary<string, object>
+        {
+            ["Required"] = shippingRequired,
+            ["Quantity"] = quantity,
+            ["ShippedQuantity"] = shippedQuantity,
+            ["IsNotShipped"] = shippingRequired && shippedQuantity == 0,
+            ["IsPartiallyShipped"] = shippingRequired && shippedQuantity > 0 && shippedQuantity < quantity,
+            ["IsFullyShipped"] = shippingRequired && quantity > 0 && shippedQuantity >= quantity,
+            ["ShippedOn"] = _helper.ToUserDate(shipmentItems.Max(x => x.ShippedDateUtc), messageContext),
+            ["DeliveredQuantity"] = deliveredQuantity,
+            ["IsNotDelivered"] = shippingRequired && deliveredQuantity == 0,
+            ["IsPartiallyDelivered"] = shippingRequired && deliveredQuantity > 0 && deliveredQuantity < quantity,
+            ["IsFullyDelivered"] = shippingRequired && quantity > 0 && deliveredQuantity >= quantity,
+            ["DeliveredOn"] = _helper.ToUserDate(shipmentItems.Max(x => x.DeliveryDateUtc), messageContext),
+            ["Shipments"] = shipments
+        };
     }
 }
