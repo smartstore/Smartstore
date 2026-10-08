@@ -5,6 +5,7 @@
   "defaultVariant": "default",
   "variants": {
     "default": {
+      "displayName": "Default",
       "defaultViewBox": "0 0 16 16",
       "stroke": "currentColor"
     }

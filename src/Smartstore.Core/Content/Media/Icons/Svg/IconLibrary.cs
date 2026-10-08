@@ -67,6 +67,11 @@ public sealed record IconVariant
     public string Name { get; init; } = string.Empty;
 
     /// <summary>
+    /// Gets the optional display name for variant selection. Null when no display name is configured.
+    /// </summary>
+    public string? DisplayName { get; init; }
+
+    /// <summary>
     /// Gets an optional short name, unique within its library.
     /// </summary>
     public string? ShortName { get; init; }

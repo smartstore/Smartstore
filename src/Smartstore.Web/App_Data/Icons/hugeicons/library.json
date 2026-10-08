@@ -5,6 +5,7 @@
   "defaultVariant": "stroke-rounded",
   "variants": {
     "stroke-rounded": {
+      "displayName": "Stroke Rounded",
       "shortName": "sr",
       "defaultViewBox": "0 0 24 24",
       "stroke": "currentColor",

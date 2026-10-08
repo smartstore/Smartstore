@@ -91,7 +91,8 @@ public class IconServiceTests
     [Test]
     public async Task Browser_Manifest_Is_Compact_Immutable_And_PathBase_Independent()
     {
-        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"shared":["cart"]}}""");
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded"}""");
+        Write("Icons/kits.json", """{"shared":["cart"]}""");
         Write("Icons/hugeicons/mapping.json", """{"cart":"cart-01?flip=x&stroke-scale=1.1","same":"same"}""");
         var http = new DefaultHttpContext();
         http.Request.PathBase = "/shop";
@@ -544,7 +545,7 @@ public class IconServiceTests
     {
         var variants = new Dictionary<string, IconVariant>
         {
-            ["rounded"] = new IconVariant { DefaultViewBox = "0 0 24 24", ShortName = "sr", StrokeWidthScale = 1.5 }
+            ["rounded"] = new IconVariant { DisplayName = "Stroke Rounded", DefaultViewBox = "0 0 24 24", ShortName = "sr", StrokeWidthScale = 1.5 }
         };
         var library = new IconLibrary { ShortName = "hi", DefaultVariant = "rounded", Variants = variants };
         variants.Clear();
@@ -552,6 +553,7 @@ public class IconServiceTests
         var restored = JsonSerializer.Deserialize<IconLibrary>(JsonSerializer.Serialize(library));
         Assert.That(restored.ShortName, Is.EqualTo("hi"));
         Assert.That(restored.Variants["ROUNDED"].StrokeWidthScale, Is.EqualTo(1.5));
+        Assert.That(restored.Variants["ROUNDED"].DisplayName, Is.EqualTo("Stroke Rounded"));
         Assert.Throws<NotSupportedException>(() => ((IDictionary<string, IconVariant>)restored.Variants).Clear());
     }
 
@@ -733,7 +735,8 @@ public class IconServiceTests
     {
         Write("Icons/hugeicons/library.json", """{"defaultVariant":"rounded","variants":{"rounded":{}}}""");
         Write("Icons/hugeicons/rounded/icons/cart-01.svg", "<svg><path d=\"M0 0L1 1\"/></svg>");
-        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"shared":["cart"]}}}""");
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded"}""");
+        Write("Icons/kits.json", """{"shared":["cart"]}""");
         Assert.That(await _service.GetSvgAsync("cart"), Is.Null);
         _cache.Verify(x => x.PutAsync(It.IsAny<string>(), It.IsAny<IconSvg>(), It.IsAny<CancellationToken>()), Times.Never);
         var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
@@ -1081,12 +1084,40 @@ public class IconServiceTests
     }
 
     /// <summary>
+    /// Optional kit configuration can be created, changed and removed between catalog generations.
+    /// </summary>
+    [Test]
+    public async Task Kit_File_Is_Optional_And_Reloaded_After_Changes()
+    {
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        var renderer = new IconRenderer(_service, kits);
+        Assert.That(kits.Kits, Is.Empty);
+        var icon = await _service.GetIconAsync("cart");
+        Assert.That((await renderer.RenderAsync(icon)).Attributes["viewBox"], Is.EqualTo("-1 -2 24 25"));
+        Mock.Get(_context.Object.AppDataRoot).Verify(x => x.Watch("Icons/kits.json"), Times.Once);
+
+        Write("Icons/kits.json", """{"shared":["cart"]}""");
+        SignalChanges();
+        Assert.That(kits.GetReference(await _service.GetIconAsync("cart")), Is.Not.Null);
+
+        Write("Icons/kits.json", """{"shared":[]}""");
+        SignalChanges();
+        Assert.That(kits.GetReference(await _service.GetIconAsync("cart")), Is.Null);
+
+        File.Delete(Path.Combine(_root, "Icons", "kits.json"));
+        SignalChanges();
+        Assert.That(kits.Kits, Is.Empty);
+        Assert.That((await renderer.RenderAsync(await _service.GetIconAsync("cart"))).Attributes["viewBox"], Is.EqualTo("-1 -2 24 25"));
+    }
+
+    /// <summary>
     /// Resolves shared membership without parsing artwork or writing individual cache entries.
     /// </summary>
     [Test]
     public async Task Kit_Rendering_Uses_Shared_Reference_And_PathBase()
     {
-        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"backend":["cart"],"shared":["cart"]}}""");
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded"}""");
+        Write("Icons/kits.json", """{"backend":["cart"],"shared":["cart"]}""");
         var http = new DefaultHttpContext();
         http.Request.PathBase = "/store";
         var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor { HttpContext = http });
@@ -1114,7 +1145,8 @@ public class IconServiceTests
     public async Task Kit_Sprites_Are_Cached_And_Revisioned_Without_Individual_Cache_Entries()
     {
         const string drawing = """<svg viewBox="0 0 16 16" fill="none"><defs><linearGradient id="paint"><stop stop-color="red"/></linearGradient></defs><path id="shape" fill="url(#paint)" d="M0 0L1 1"/></svg>""";
-        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"shared":["cart","copy","alias"]}}""");
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded"}""");
+        Write("Icons/kits.json", """{"shared":["cart","copy","alias"]}""");
         Write("Icons/hugeicons/mapping.json", """{"cart":"cart-01","copy":"direct","alias":"cart-01"}""");
         Write("Icons/hugeicons/rounded/user/cart-01.svg", drawing);
         Write("Icons/hugeicons/rounded/user/direct.svg", drawing);
@@ -1157,7 +1189,8 @@ public class IconServiceTests
     [Test]
     public async Task Kit_Index_Reloads_After_Configuration_Changes()
     {
-        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"shared":["cart"]}}""");
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded"}""");
+        Write("Icons/kits.json", """{"shared":["cart"]}""");
         var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
         var cart = await _service.GetIconAsync("cart");
         Assert.That(kits.GetReference(cart), Is.Not.Null);
@@ -1175,7 +1208,8 @@ public class IconServiceTests
     [Test]
     public async Task Kit_Files_Are_Published_Atomically_And_Failures_Are_Cleaned_Up()
     {
-        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"shared":["cart"]}}""");
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded"}""");
+        Write("Icons/kits.json", """{"shared":["cart"]}""");
         var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
         var revision = kits.GetUrl("shared")[^28..^4];
         var paths = await Task.WhenAll(Enumerable.Range(0, 8)
@@ -1198,7 +1232,8 @@ public class IconServiceTests
     [Test]
     public async Task Kit_Generation_Reuses_One_Archive_And_Releases_It()
     {
-        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"shared":["cart","copy"]}}""");
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded"}""");
+        Write("Icons/kits.json", """{"shared":["cart","copy"]}""");
         Write("Icons/hugeicons/mapping.json", """{"cart":"cart-01","copy":"direct"}""");
         var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
         var revision = kits.GetUrl("shared")[^28..^4];
@@ -1220,7 +1255,8 @@ public class IconServiceTests
     [Test]
     public async Task Opaque_Kit_Urls_Survive_Restarts_And_Distinguish_Variants()
     {
-        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"shared":["cart"]}}""");
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded"}""");
+        Write("Icons/kits.json", """{"shared":["cart"]}""");
         var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
         var roundedUrl = kits.GetUrl("shared", "hi", "sr");
         var sharpUrl = kits.GetUrl("shared", "hi", "sharp");
@@ -1278,7 +1314,8 @@ public class IconServiceTests
     [Test]
     public async Task Mapping_Modifiers_Are_Part_Of_Kit_Identity_And_Revision()
     {
-        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"shared":["left","up"]}}""");
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded"}""");
+        Write("Icons/kits.json", """{"shared":["left","up"]}""");
         Write("Icons/hugeicons/mapping.json", """{"left":"cart-01?flip=x","up":"cart-01?rotate=-90"}""");
         var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
         var left = await _service.GetIconAsync("left");
@@ -1321,7 +1358,8 @@ public class IconServiceTests
     [Test]
     public async Task Address_And_Renderer_Modifiers_Override_Mapping_Without_Changing_Kits()
     {
-        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","kits":{"shared":["left"]}}""");
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons"}""");
+        Write("Icons/kits.json", """{"shared":["left"]}""");
         Write("Icons/hugeicons/mapping.json", """{"left":"cart-01?flip=xy&rotate=90&stroke-scale=1.2"}""");
         var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
         var renderer = new IconRenderer(_service, kits);
@@ -1365,7 +1403,8 @@ public class IconServiceTests
     [Test]
     public async Task Presentation_Options_Keep_Kit_Rendering()
     {
-        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","kits":{"shared":["cart"]}}""");
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons"}""");
+        Write("Icons/kits.json", """{"shared":["cart"]}""");
         var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
         var renderer = new IconRenderer(_service, kits);
         var options = new IconOptions { Size = "3x", Animation = "beat-fade", FontScale = 2, ShiftX = 2, AnimationReverse = false };
@@ -1462,7 +1501,8 @@ public class IconServiceTests
         WriteZip("other", "rounded", ("cart-01", _svg));
         WriteZip("other", "sharp", ("cart-01", _svg));
         Write("Icons/other/mapping.json", """{"cart":"cart-01"}""");
-        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"backend":{"defaultLibrary":"other","defaultVariant":"sharp","icons":["cart","cart-01"]}}}""");
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded"}""");
+        Write("Icons/kits.json", """{"backend":{"defaultLibrary":"other","defaultVariant":"sharp","icons":["cart","cart-01"]}}""");
         var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
         var icon = await _service.GetIconAsync("cart");
         Assert.That(icon.LibraryName, Is.EqualTo("other"));
@@ -1495,7 +1535,8 @@ public class IconServiceTests
         WriteLibrary("other", "ot", "rd");
         WriteZip("other", "sharp", ("cart-01", _svg));
         Write("Icons/other/mapping.json", """{"cart":"cart-01"}""");
-        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"backend":{"defaultLibrary":"other","icons":["cart"]}}}""");
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded"}""");
+        Write("Icons/kits.json", """{"backend":{"defaultLibrary":"other","icons":["cart"]}}""");
         Assert.That((await _service.GetIconAsync("cart")).VariantName, Is.EqualTo("sharp"));
     }
 
@@ -1505,9 +1546,11 @@ public class IconServiceTests
     [Test]
     public async Task Kit_Default_Precedence_And_Invalidation_Are_Deterministic()
     {
-        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"backend":{"defaultVariant":"sharp","icons":["cart"]},"shared":{"icons":["cart"]}}}""");
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded"}""");
+        Write("Icons/kits.json", """{"backend":{"defaultVariant":"sharp","icons":["cart"]},"shared":{"icons":["cart"]}}""");
         Assert.That((await _service.GetIconAsync("cart")).VariantName, Is.EqualTo("rounded"));
-        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"zulu":{"icons":["cart"]},"alpha":{"defaultVariant":"sharp","icons":["cart"]}}}""");
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded"}""");
+        Write("Icons/kits.json", """{"zulu":{"icons":["cart"]},"alpha":{"defaultVariant":"sharp","icons":["cart"]}}""");
         SignalChanges();
         Assert.That((await _service.GetIconAsync("cart")).VariantName, Is.EqualTo("sharp"));
         Assert.That((await _service.GetIconAsync("cart", variant: "rounded")).VariantName, Is.EqualTo("rounded"));
@@ -1522,7 +1565,7 @@ public class IconServiceTests
     [TestCase("\"defaultVariant\":\"missing\"")]
     public void Kit_Defaults_Must_Reference_Registered_System_Identities(string defaults)
     {
-        Write("Icons/config.json", "{\"defaultLibrary\":\"hugeicons\",\"kits\":{\"backend\":{" + defaults + ",\"icons\":[\"cart\"]}}}");
+        Write("Icons/kits.json", "{\"backend\":{" + defaults + ",\"icons\":[\"cart\"]}}");
         var error = Assert.Throws<InvalidDataException>(() => _ = _service.DefaultLibrary);
         Assert.That(error.Message, Does.Contain("backend"));
     }

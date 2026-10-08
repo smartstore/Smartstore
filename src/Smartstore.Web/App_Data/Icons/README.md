@@ -21,6 +21,7 @@ All paths below are relative to `App_Data/Icons`. These source assets live outsi
 ```text
 Icons/
     config.json
+    kits.json
     hugeicons/
         library.json
         mapping.json
@@ -38,7 +39,8 @@ with the same name. Resolution uses **user > icons > icons.zip**, per icon.
 
 | File | Purpose |
 | --- | --- |
-| `config.json` | Application-wide defaults and kits |
+| `config.json` | Application-wide defaults |
+| `kits.json` | Optional kit definitions, memberships and per-kit defaults |
 | `<library>/library.json` | Library identity and variant settings |
 | `<library>/mapping.json` | Conceptual names mapped to concrete icon IDs |
 | `<library>/metadata.json` | Icon inventory and additional English search terms |
@@ -53,16 +55,7 @@ Configure the defaults in `config.json`:
 ```json
 {
   "defaultLibrary": "hugeicons",
-  "defaultVariant": "stroke-rounded",
-  "kits": {
-    "shared": { "icons": ["cart", "heart", "search"] },
-    "frontend": { "icons": ["handshake"] },
-    "backend": {
-      "defaultLibrary": "hugeicons",
-      "defaultVariant": "stroke-rounded",
-      "icons": ["barcode"]
-    }
-  }
+  "defaultVariant": "stroke-rounded"
 }
 ```
 
@@ -88,6 +81,7 @@ Each library contains a `library.json`:
   "defaultVariant": "stroke-rounded",
   "variants": {
     "stroke-rounded": {
+      "displayName": "Stroke Rounded",
       "shortName": "sr",
       "defaultViewBox": "0 0 24 24",
       "stroke": "currentColor",
@@ -104,6 +98,8 @@ Each library contains a `library.json`:
 - `defaultVariant` selects the library's default style, unless overridden by
   the global configuration for the default library.
 - `variants` holds technical settings keyed by variant directory name.
+- Each variant may have an optional English `displayName` for picker labels, such as
+  `Stroke Rounded`. It does not affect icon addressing and defaults to null.
 - Each variant may also have an optional `shortName`, such as `sr`. It must be
   unique within that library and must not shadow another variant's name.
 - `defaultViewBox` supplies an optional fallback when the SVG has no `viewBox`
@@ -346,11 +342,37 @@ requested icons are prepared; opening the picker must not process all icons.
 
 ## Define kits
 
-The `kits` object in `config.json` groups conceptual names by area of use,
+The root object in `kits.json` groups conceptual names by area of use,
 such as `shared`, `frontend`, `backend`, or a custom `media` kit. Add names to the relevant
 `icons` arrays and provide their assignments in each library's `mapping.json`.
 Kit objects may specify `defaultLibrary` (a library system name) and `defaultVariant`.
 Both are optional. Array-only definitions remain supported as shorthand.
+
+```json
+{
+  "shared": {
+    "defaultLibrary": null,
+    "defaultVariant": null,
+    "icons": ["cart", "heart", "search"]
+  },
+  "frontend": {
+    "defaultLibrary": null,
+    "defaultVariant": null,
+    "icons": ["handshake"]
+  },
+  "backend": {
+    "defaultLibrary": "hugeicons",
+    "defaultVariant": "stroke-rounded",
+    "icons": ["gear", "trash"]
+  }
+}
+```
+
+There is no enclosing `kits` property. If `kits.json` is absent, no kits are
+registered and icons render inline. Changes, creation and deletion of this file
+invalidate the catalog through the file watcher. Keeping kit definitions separate
+lets integrators maintain their memberships independently of global configuration
+updates; update conflicts in `kits.json` still require merging.
 
 For conceptual lookups, the preferred kit is selected before library mapping:
 `shared` first, then kit names in ordinal order. Explicit address components or
@@ -366,7 +388,7 @@ uses its explicitly selected library or the system default, independently of kit
 Changes to kit defaults are picked up by the configuration watcher.
 
 The supplied kit memberships and HugeIcons mappings are a work in progress.
-Edit `config.json` to move concepts between kits and `hugeicons/mapping.json` to
+Edit `kits.json` to move concepts between kits and `hugeicons/mapping.json` to
 change their icons. Keep both files alphabetically ordered within each object or
 kit array. The initial assignments were imported from the cheatsheet migration
 review; subsequent edits to these JSON files must be preserved when importing

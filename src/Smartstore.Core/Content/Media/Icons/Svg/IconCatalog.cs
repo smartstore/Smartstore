@@ -21,7 +21,7 @@ internal sealed class IconCatalog
     internal Lazy<(string Revision, byte[] Content)> BrowserManifest;
 
     /// <summary>
-    /// Gets kit definitions from the root configuration, without loading artwork.
+    /// Gets definitions from kits.json, without loading artwork.
     /// </summary>
     internal Dictionary<string, IconKit> Kits { get; } = new(StringComparer.Ordinal);
 
@@ -383,6 +383,7 @@ internal sealed class IconCatalog
             ChangeToken = new CompositeChangeToken(new[]
             {
                 files.Watch("Icons/config.json"),
+                files.Watch("Icons/kits.json"),
                 files.Watch("Icons/*/library.json"),
                 files.Watch("Icons/*/mapping.json"),
                 files.Watch("Icons/*/metadata.json"),
@@ -425,9 +426,12 @@ internal sealed class IconCatalog
             throw new InvalidDataException("Unknown defaultVariant in Icons/config.json.");
         }
 
-        if (config.RootElement.TryGetProperty("kits", out var kits))
+        // Kit definitions are optional and maintained separately from global defaults.
+        // Watch registration above also catches a kits.json created after startup.
+        using var kits = ReadJson(files, "Icons/kits.json", false);
+        if (kits != null)
         {
-            foreach (var kit in kits.EnumerateObject())
+            foreach (var kit in kits.RootElement.EnumerateObject())
             {
                 if (!IconAddress.IsQualifier(kit.Name))
                 {
