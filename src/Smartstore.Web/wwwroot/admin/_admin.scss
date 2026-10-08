@@ -57,18 +57,6 @@ b, strong {
 
 
 //
-// Buttons
-// -----------------------------------------------------
-
-// Light button icons lighter (looks nice).
-.btn-secondary:not(.btn-flat-light),
-.btn-light:not(.btn-flat-light) {
-    --btn-icon-color: #{lighten($body-color, 16%)};
-    --btn-icon-hover-color: inherit;
-}
-
-
-//
 // Layout
 // -----------------------------------------------------
 
@@ -213,7 +201,8 @@ body {
         flex-grow: 1;
         max-width: 100%;
 
-        > i {
+        > i,
+        > .icon {
             display: none; // Turn off for now, seems to look nicer
             font-size: 28px;
             vertical-align: text-top;

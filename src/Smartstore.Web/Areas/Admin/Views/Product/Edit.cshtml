@@ -18,25 +18,25 @@
             <zone name="admin_button_toolbar_before"></zone>
 
             <button type="submit" name="preview" value="preview" onclick="javascript:openWindow('@Model.ProductUrl', 1000, 600, true); return false;" class="btn btn-outline-secondary">
-                <i class="far fa-eye"></i>
+                <icon name="eye" />
                 <span>@T("Admin.Common.Preview")</span>
             </button>
             <a href="#copyproduct-window" data-toggle="modal" class="btn btn-outline-secondary">
-                <i class="far fa-copy"></i>
+                <icon name="copy" />
                 <span>@T("Admin.Catalog.Products.Copy")</span>
             </a>
 
             <span class="vr"></span>
 
             <button type="submit" value="save" class="btn btn-warning entity-commit-trigger" data-commit-type="product" data-commit-action="update" data-commit-id="@Model.Id">
-                <i class="fa fa-check"></i>
+                <icon name="check" />
                 <span>@T("Admin.Common.Save")</span>
             </button>
             <button type="submit" value="save-continue" class="btn btn-secondary entity-commit-trigger" data-commit-type="product" data-commit-action="update" data-commit-id="@Model.Id">
                 @T("Admin.Common.SaveContinue")
             </button>
             <button type="submit" id="product-delete" class="btn btn-danger">
-                <i class="far fa-trash-can"></i>
+                <icon name="trash" />
                 <span>@T("Admin.Common.Delete")</span>
             </button>
             <confirm button-id="product-delete" />

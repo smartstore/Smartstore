@@ -10,19 +10,19 @@
     <div class="section-header">
         <div class="title">
             <a sm-backto asp-action="List"></a>
-            <i class="fa fa-envelope"></i>
+            <icon name="envelope" />
             <span>@ViewBag.Title - @Model.DisplayName</span>
         </div>
         <div class="options">
             <button type="submit" name="save" value="save" class="btn btn-warning">
-                <i class="fa fa-check"></i>
+                <icon name="check" />
                 <span>@T("Admin.Common.Save")</span>
             </button>
             <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
                 <span>@T("Admin.Common.SaveContinue")</span>
             </button>
             <span id="email-account-delete" class="btn btn-danger">
-                <i class="far fa-trash-can"></i>
+                <icon name="trash" />
                 <span>@T("Admin.Common.Delete")</span>
             </span>
             <confirm button-id="email-account-delete" />

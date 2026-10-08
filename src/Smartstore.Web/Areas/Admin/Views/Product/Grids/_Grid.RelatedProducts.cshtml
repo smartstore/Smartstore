@@ -29,12 +29,12 @@
                         data-url="@Url.Action("CreateAllMutuallyRelatedProducts", new { productId = parentModel.Id })"
                         data-ask="@T("Admin.Common.AskCreateMutuallyAssociations")"
                         class="btn btn-plain">
-                    <bootstrap-icon name="shuffle" />
+                    <icon name="shuffle" />
                     <span>@T("Admin.Common.CreateMutuallyAssociations")</span>
                 </button>
             </fragment>
             <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
-                <bootstrap-icon name="check-lg" />
+                <icon name="check" />
                 <span>@T("Admin.Common.SaveChanges")</span>
             </button>
             <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-plain mr-auto">
@@ -46,7 +46,7 @@
         <zone name="datagrid_toolbar_omega"></zone>
         <toolbar-group>
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
-                <bootstrap-icon name="trash" />
+                <icon name="trash" />
                 <span>@T("Admin.Common.Delete.Selected")</span>
             </button>
         </toolbar-group>

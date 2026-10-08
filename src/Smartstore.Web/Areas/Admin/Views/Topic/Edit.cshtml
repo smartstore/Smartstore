@@ -10,19 +10,19 @@
     <div class="section-header">
         <div class="title">
             <a sm-backto asp-action="List"></a>
-            <i class="far fa-file"></i>
+            <icon name="file" />
             <span>@ViewBag.Title</span>
         </div>
         <div class="options">
             <button type="submit" name="save" value="save" class="btn btn-warning">
-                <i class="fa fa-check"></i>
+                <icon name="check" />
                 <span>@T("Admin.Common.Save")</span>
             </button>
             <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
                 <span>@T("Admin.Common.SaveContinue")</span>
             </button>
             <button type="submit" name="topic-delete" value="topic-delete" id="topic-delete" class="btn btn-danger">
-                <i class="far fa-trash-can"></i>
+                <icon name="trash" />
                 <span>@T("Admin.Common.Delete")</span>
             </button>
             <confirm button-id="topic-delete" />

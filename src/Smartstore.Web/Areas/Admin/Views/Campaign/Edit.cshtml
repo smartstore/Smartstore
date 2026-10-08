@@ -16,24 +16,24 @@
             @if (Model.Id > 0)
             {
                 <button type="submit" id="send-campaign" name="send-campaign" value="send-campaign" class="btn btn-outline-secondary btn-to-primary px-5 mr-3">
-                    <i class="fa fa fa-envelope"></i>
+                    <icon name="envelope" />
                     <span>@T("Common.Send")</span>
                 </button>
                 <confirm message="@T("Common.AreYouSure")" button-id="send-campaign" icon="fas fa-question-circle" action="SendCampaign" type="Action" />
                 <a id="btn-preview-template" class="btn btn-secondary" asp-action="Preview" asp-controller="MessageTemplate" asp-route-id="@Model.Id" asp-route-isCampaign="true">
-                    <i class="far fa-eye"></i>
+                    <icon name="eye" />
                     <span>@T("Admin.Common.Preview")</span>
                 </a>
             }
             <button type="submit" name="save" value="save" class="btn btn-warning">
-                <i class="fa fa-check"></i>
+                <icon name="check" />
                 <span>@T("Admin.Common.Save")</span>
             </button>
             <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
                 <span>@T("Admin.Common.SaveContinue")</span>
             </button>
             <button type="submit" name="campaign-delete" id="campaign-delete" class="btn btn-danger">
-                <i class="far fa-trash-can"></i>
+                <icon name="trash" />
                 <span>@T("Admin.Common.Delete")</span>
             </button>
             <confirm button-id="campaign-delete" />

@@ -8,12 +8,12 @@
 <form asp-action="GeneralCommon">
     <div class="section-header">
         <div class="title">
-            <i class="fa fa-sliders-h"></i>
+            <icon name="sliders" />
             @T("Admin.Configuration.Settings.GeneralCommon")
         </div>
         <div class="options">
             <button type="submit" name="save" value="save" class="btn btn-warning">
-                <i class="fa fa-check"></i>
+                <icon name="check" />
                 <span>@T("Admin.Common.Save")</span>
             </button>
         </div>
@@ -455,7 +455,7 @@
                                 <div class="col-auto">
                                     <button type="button" class="d-none" id="btn-refresh-captcha"></button>
                                     <button type="button" id="btn-configure-captcha" class="btn btn-secondary">
-                                        <bootstrap-icon name="gear" />
+                                        <icon name="gear" />
                                         <span>@T("Admin.Common.Configure")...</span>
                                     </button>
                                 </div>

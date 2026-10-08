@@ -19,24 +19,24 @@
 
     <div class="section-header">
         <div class="title">
-            <i class="fa fa-puzzle-piece"></i>
+            <icon name="puzzle-piece" />
             @T("Admin.Configuration.Plugins")
         </div>
         <div class="options">
             <div class="has-icon">
                 <input type="text" id="filter-query" class="form-control my-0" style="width: 350px" placeholder="@T("Common.Search")" />
                 <span class="input-group-icon">
-                    <i class="fa fa-search text-muted"></i>
+                    <icon name="search" class="text-muted" />
                 </span>
             </div>
             <button id="btn-execute-tasks" type="submit" class="btn btn-secondary" disabled="disabled">
-                <i class="fa fa-cogs"></i>
+                <icon name="settings-multiple" />
                 <span>@T("Admin.Configuration.Plugins.ExecuteTasks")</span>
                 <span class="badge badge-dark label-uninstall-count hide">0</span>
                 <span class="badge badge-warning label-install-count hide">0</span>
             </button>
             <a id="uploadpackage" href="#uploadpackage-window" data-toggle="modal" class="btn btn-secondary" role="button">
-                <i class="fa fa-upload"></i>
+                <icon name="upload" />
                 <span>@T("Admin.Packaging.UploadPlugin")</span>
             </a>
             <div class="dropdown">
@@ -45,11 +45,11 @@
                 </a>
                 <div class="dropdown-menu dropdown-menu-right">
                     <a asp-action="ReloadList" class="dropdown-item">
-                        <i class="fa fa-fw fa-sync"></i>
+                        <icon name="refresh" fw="true" />
                         <span>@T("Admin.Configuration.Plugins.ReloadList")</span>
                     </a>
                     <a asp-action="UpdateAllStringResources" class="module-update-allresources dropdown-item">
-                        <i class="fa fa-fw fa-language"></i>
+                        <icon name="language" fw="true" />
                         <span>@T("Admin.Configuration.Plugins.Resources.UpdateAll")</span>
                     </a>
                 </div>
@@ -539,7 +539,7 @@
                             @T("Admin.Configuration.Plugins.Fields.Uninstall")
                         </a>
                         <a sm-if="!module.Installed" class="btn btn-primary btn-sm module-install" data-toggle="button" href="#">
-                            <bootstrap-icon name="database-add" />
+                            <icon name="database-add" />
                             <span>@T("Admin.Configuration.Plugins.Fields.Install")</span>
                         </a>
 

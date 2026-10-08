@@ -25,7 +25,7 @@
             @if (isWithdrawal)
             {
                 <button type="submit" name="convert" value="convert" class="btn btn-outline-secondary btn-convert-returncase confirm" title="@T("ReturnCase.StartProcessing.Hint")">
-                    <i class="fa fa-reply-all"></i>
+                    <icon name="reply-all" />
                     <span>@T("ReturnCase.StartProcessing")</span>
                 </button>   
                 <span class="vr"></span>
@@ -35,24 +35,24 @@
                 <button sm-if="Model.CanAccept" type="button" name="accept" class="btn btn-primary btn-to-danger accept-returncase-button"
                     data-toggle="modal"
                     data-target="#update-orderitem-dialog">
-                    <i class="fa fa-check"></i>
+                    <icon name="check" />
                     <span>@T("Admin.ReturnRequests.Accept")…</span>
                 </button>
                 <button sm-if="Model.CustomerEmail.HasValue()" type="submit" name="notify-customer" value="notify-customer" class="btn btn-secondary btn-to-danger confirm">
-                    <i class="fa fa-envelope"></i>
+                    <icon name="envelope" />
                     <span>@T("Admin.ReturnRequests.NotifyCustomer")</span>
                 </button>
                 <span class="vr"></span>
             }
             <button type="submit" name="save" value="save" class="btn btn-warning">
-                <i class="fa fa-check"></i>
+                <icon name="check" />
                 <span>@T("Admin.Common.Save")</span>
             </button>
             <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
                 <span>@T("Admin.Common.SaveContinue")</span>
             </button>
             <button type="submit" id="returncase-delete" name="returncase-delete" class="btn btn-danger">
-                <i class="far fa-trash-can"></i>
+                <icon name="trash" />
                 <span>@T("Admin.Common.Delete")</span>
             </button>
             <confirm button-id="returncase-delete" />

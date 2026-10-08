@@ -13,12 +13,12 @@
     <div class="section-header">
         <div class="title">
             <a sm-backto asp-action="List"></a>
-            <i class="fa fa-fire"></i>
+            <icon name="fire" />
             <span>@T("Admin.System.Log.ViewLogDetails")</span>
         </div>
         <div class="options">
             <button type="submit" id="log-delete" class="btn btn-danger">
-                <i class="far fa-trash-can"></i>
+                <icon name="trash" />
                 <span>@T("Admin.Common.Delete")</span>
             </button>
             <confirm button-id="log-delete" />
@@ -136,10 +136,10 @@
                     <div class="stacktrace-header pl-3 p-2 d-flex align-items-center" style="gap: 2px">
                         <smart-label asp-for="FullMessage" class="mb-0" />
                         <button id="FullMessage-copy" type="button" class="btn-clipboard btn btn-plain btn-icon rounded-circle ml-auto" data-copy-from="#FullMessage">
-                            <bootstrap-icon name="copy" />
+                            <icon name="copy" />
                         </button>
                         <button id="FullMessage-wrap" type="button" class="btn-stacktrace-wrap btn btn-plain btn-icon rounded-circle" title="Wrap">
-                            <bootstrap-icon name="text-wrap" />
+                            <icon name="text-wrap" />
                         </button>
                     </div>
                     @*No whitespace within pre tag*@

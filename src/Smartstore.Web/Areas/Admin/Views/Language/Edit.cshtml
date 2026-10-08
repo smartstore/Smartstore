@@ -12,14 +12,14 @@
     <div class="section-header">
         <div class="title">
             <a sm-backto asp-action="List"></a>
-            <i class="fa fa-language"></i>
+            <icon name="language" />
             <span>@ViewBag.Title</span>
         </div>
         <div class="options">
             <zone name="admin_button_toolbar_before" />
 
             <button type="submit" name="save" value="save" class="btn btn-warning">
-                <i class="fa fa-check"></i>
+                <icon name="check" />
                 <span>@T("Admin.Common.Save")</span>
             </button>
             <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
@@ -32,23 +32,23 @@
                 </button>
                 <div class="dropdown-menu">
                     <a asp-action="Resources" asp-route-languageId="@Model.Id" class="dropdown-item">
-                        <i class="far fa-fw fa-edit"></i>
+                        <icon name="edit" fw="true" />
                         <span>@T("Admin.Configuration.Languages.Resources.View")</span>
                     </a>
                     <div class="dropdown-divider"></div>
                     <a asp-action="ExportXml" asp-route-id="@Model.Id" class="dropdown-item confirm">
-                        <i class="fa fa-fw fa-upload"></i>
+                        <icon name="upload" fw="true" />
                         <span>@T("Admin.Configuration.Languages.Export")</span>
                     </a>
                     <a href="#importxml-window" data-toggle="modal" class="dropdown-item">
-                        <i class="fa fa-fw fa-download"></i>
+                        <icon name="download" fw="true" />
                         <span>@T("Admin.Configuration.Languages.Import")</span>
                     </a>
                 </div>
             </div>
 
             <button type="submit" id="language-delete" name="language-delete" class="btn btn-danger">
-                <i class="far fa-trash-can"></i>
+                <icon name="trash" />
                 <span>@T("Admin.Common.Delete")</span>
             </button>
             <confirm button-id="language-delete" />

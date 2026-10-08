@@ -85,7 +85,8 @@
 
 	&:not(.disabled) {
         > :is(i, svg) {
-			color: $dropdown-link-color;
+			//color: $dropdown-link-color;
+            color: inherit;
 		}
 
 		.dropdown-group.show > & > :is(i, svg),
