@@ -1,0 +1,20 @@
+{
+  "displayName": "Font Awesome Free",
+  "version": "7.3.1",
+  "shortName": "fa",
+  "defaultVariant": "solid",
+  "variants": {
+    "solid": {
+      "displayName": "Solid",
+      "shortName": "s"
+    },
+    "regular": {
+      "displayName": "Regular",
+      "shortName": "r"
+    },
+    "brands": {
+      "displayName": "Brands",
+      "shortName": "b"
+    }
+  }
+}

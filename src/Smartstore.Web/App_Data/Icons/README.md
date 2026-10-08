@@ -14,12 +14,17 @@ All paths below are relative to `App_Data/Icons`. These source assets live outsi
 > renderer for inline SVG and kit output; browser components are also available.
 
 <!-- Update this guide and its examples whenever the concept, configuration format,
-     or resolution rules change. Keep variant-specific documentation consistent. -->
+     or resolution rules change. Keep variant-specific documentation consistent.
+     Update MIGRATION.md whenever migration mappings, rules or exceptions change. -->
+
+For legacy FA/BI replacements and plugin migration, use [MIGRATION.md](MIGRATION.md).
+Keep that reference current throughout the migration.
 
 ## File structure
 
 ```text
 Icons/
+    MIGRATION.md
     config.json
     kits.json
     hugeicons/
@@ -39,6 +44,7 @@ with the same name. Resolution uses **user > icons > icons.zip**, per icon.
 
 | File | Purpose |
 | --- | --- |
+| `MIGRATION.md` | Maintained FA/BI-to-HI migration reference for developers and plugin vendors |
 | `config.json` | Application-wide defaults |
 | `kits.json` | Optional kit definitions, memberships and per-kit defaults |
 | `<library>/library.json` | Library identity and variant settings |
@@ -390,9 +396,9 @@ Changes to kit defaults are picked up by the configuration watcher.
 The supplied kit memberships and HugeIcons mappings are a work in progress.
 Edit `kits.json` to move concepts between kits and `hugeicons/mapping.json` to
 change their icons. Keep both files alphabetically ordered within each object or
-kit array. The initial assignments were imported from the cheatsheet migration
-review; subsequent edits to these JSON files must be preserved when importing
-further review changes.
+kit array. [MIGRATION.md](MIGRATION.md) records the reviewed legacy FA/BI replacements.
+Keep its HI targets synchronized with mapping changes and preserve manual edits to
+these JSON files during future imports.
 
 `shared` contains concepts used by both areas. Combine it with `frontend` or
 `backend`; shared concepts do not need to be repeated in those kits.
