@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 using Moq;
@@ -34,6 +35,7 @@ public class IconServiceTests
     private Mock<IIconCache> _cache;
     private ConcurrentDictionary<string, string> _entries;
     private IconService _service;
+    private ConcurrentDictionary<string, int> _sourceLookups;
 
     /// <summary>
     /// Creates an isolated source tree and a serialized cache.
@@ -53,7 +55,13 @@ public class IconServiceTests
         _provider = new PhysicalFileProvider(_root);
         _changes = new CancellationTokenSource();
         var files = new Mock<IFileSystem>();
-        files.Setup(x => x.GetFileInfo(It.IsAny<string>())).Returns((string path) => _provider.GetFileInfo(path));
+        files.SetupGet(x => x.Root).Returns(_root);
+        _sourceLookups = new ConcurrentDictionary<string, int>();
+        files.Setup(x => x.GetFileInfo(It.IsAny<string>())).Returns((string path) =>
+        {
+            _sourceLookups.AddOrUpdate(path, 1, (_, count) => count + 1);
+            return _provider.GetFileInfo(path);
+        });
         files.Setup(x => x.GetDirectoryContents(It.IsAny<string>())).Returns((string path) => _provider.GetDirectoryContents(path));
         files.Setup(x => x.Watch(It.IsAny<string>())).Returns(() => new CancellationChangeToken(_changes.Token));
         _context = new Mock<IApplicationContext>();
@@ -949,6 +957,453 @@ public class IconServiceTests
     {
         Write("Icons/hugeicons/rounded/overrides/injection.svg", """<svg><path stroke="red;opacity:0"/></svg>""");
         Assert.ThrowsAsync<InvalidDataException>(async () => await _service.GetSvgAsync("injection"));
+    }
+
+    /// <summary>
+    /// Resolves shared membership without parsing artwork or writing individual cache entries.
+    /// </summary>
+    [Test]
+    public async Task Kit_Rendering_Uses_Shared_Reference_And_PathBase()
+    {
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"backend":["cart"],"shared":["cart"]}}""");
+        var http = new DefaultHttpContext();
+        http.Request.PathBase = "/store";
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor { HttpContext = http });
+        var icon = await _service.GetIconAsync("cart");
+        var reference = kits.GetReference(icon);
+        Assert.That(reference.Href, Does.StartWith("/store/icons/shared-").And.EndWith("#cart"));
+
+        var renderer = new IconRenderer(_service, kits);
+        var options = new IconOptions();
+        options.Attributes["class"] = "icon-3x";
+        options.Attributes["aria-label"] = "Cart";
+        var rendered = await renderer.RenderAsync(icon, options);
+        Assert.That(rendered.Attributes["class"], Does.Contain("icon-hi-sr").And.Contain("icon-3x"));
+        Assert.That(rendered.Attributes["role"], Is.EqualTo("img"));
+        using var writer = new StringWriter();
+        rendered.WriteTo(writer, System.Text.Encodings.Web.HtmlEncoder.Default);
+        Assert.That(writer.ToString(), Does.Contain("<use").And.Not.Contain("<path"));
+        _cache.VerifyNoOtherCalls();
+    }
+
+    /// <summary>
+    /// Caches whole sprites, isolates source IDs and invalidates URLs after an override changes.
+    /// </summary>
+    [Test]
+    public async Task Kit_Sprites_Are_Cached_And_Revisioned_Without_Individual_Cache_Entries()
+    {
+        const string drawing = """<svg viewBox="0 0 16 16" fill="none"><defs><linearGradient id="paint"><stop stop-color="red"/></linearGradient></defs><path id="shape" fill="url(#paint)" d="M0 0L1 1"/></svg>""";
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"shared":["cart","copy","alias"]}}""");
+        Write("Icons/hugeicons/mapping.json", """{"cart":"cart-01","copy":"direct","alias":"cart-01"}""");
+        Write("Icons/hugeicons/rounded/user/cart-01.svg", drawing);
+        Write("Icons/hugeicons/rounded/user/direct.svg", drawing);
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        var url = kits.GetUrl("shared");
+        var revision = url[^28..^4];
+        Assert.That(revision, Has.Length.EqualTo(24));
+        var path = await kits.GetSpriteFileAsync("shared", revision);
+        Assert.That(Path.GetFileName(path), Is.EqualTo($"shared-{revision}.svg"));
+        Assert.That(Path.GetDirectoryName(path), Is.EqualTo(Path.Combine(_root, ".cache", "IconKits")));
+        var sprite = File.ReadAllText(path);
+        var tree = XElement.Parse(sprite);
+        XNamespace ns = "http://www.w3.org/2000/svg";
+        Assert.That(tree.Elements(ns + "symbol").Count(x => !((string)x.Attribute("id")).StartsWith("source:")), Is.EqualTo(3));
+        Assert.That(tree.Descendants(ns + "path").Count(), Is.EqualTo(2));
+        var ids = tree.Descendants().Attributes("id").Select(x => x.Value).ToArray();
+        Assert.That(ids.Distinct().Count(), Is.EqualTo(ids.Length));
+        Assert.That(sprite, Does.Not.Contain("url(#paint)"));
+        Assert.That(await kits.GetSpriteFileAsync("shared", revision), Is.EqualTo(path));
+        Assert.That(Directory.GetFiles(Path.GetDirectoryName(path)), Has.Length.EqualTo(1));
+        _cache.VerifyNoOtherCalls();
+
+        Write("Icons/hugeicons/rounded/user/cart-01.svg", drawing.Replace("red", "blue"));
+        SignalChanges();
+        Assert.That(kits.GetUrl("shared"), Is.Not.EqualTo(url));
+        Assert.That(await kits.GetSpriteFileAsync("shared", revision), Is.EqualTo(path));
+        Assert.That(File.ReadAllText(path), Is.EqualTo(sprite));
+        var newRevision = kits.GetUrl("shared")[^28..^4];
+        var newPath = await kits.GetSpriteFileAsync("shared", newRevision);
+        Assert.That(File.ReadAllText(newPath), Does.Contain("blue"));
+        Assert.That(Directory.GetFiles(Path.GetDirectoryName(path), "*.svg"), Has.Length.EqualTo(2));
+        Assert.That(Directory.GetFiles(Path.GetDirectoryName(path), "*.tmp"), Is.Empty);
+        Assert.That(await kits.GetSpriteFileAsync("shared", "../invalid"), Is.Null);
+        Assert.That(await kits.GetSpriteFileAsync("shared", new string('0', 24)), Is.Null);
+    }
+
+    /// <summary>
+    /// Changes membership and mappings without leaving a stale reverse lookup behind.
+    /// </summary>
+    [Test]
+    public async Task Kit_Index_Reloads_After_Configuration_Changes()
+    {
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"shared":["cart"]}}""");
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        var cart = await _service.GetIconAsync("cart");
+        Assert.That(kits.GetReference(cart), Is.Not.Null);
+        Write("Icons/hugeicons/mapping.json", """{"cart":"direct"}""");
+        SignalChanges();
+        Assert.That(kits.GetReference(cart), Is.Null);
+        Assert.That(kits.GetReference(await _service.GetIconAsync("cart")), Is.Not.Null);
+        Assert.That(kits.GetUrl("unknown"), Is.Null);
+        Assert.That(kits.GetUrl("shared", "unknown"), Is.Null);
+    }
+
+    /// <summary>
+    /// Coalesces concurrent file generation and removes incomplete output after preparation fails.
+    /// </summary>
+    [Test]
+    public async Task Kit_Files_Are_Published_Atomically_And_Failures_Are_Cleaned_Up()
+    {
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"shared":["cart"]}}""");
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        var revision = kits.GetUrl("shared")[^28..^4];
+        var paths = await Task.WhenAll(Enumerable.Range(0, 8)
+            .Select(_ => Task.Run(() => kits.GetSpriteFileAsync("shared", revision))));
+        Assert.That(paths.Distinct().Count(), Is.EqualTo(1));
+        Assert.That(Directory.GetFiles(Path.Combine(_root, ".cache", "IconKits")), Has.Length.EqualTo(1));
+
+        Write("Icons/hugeicons/rounded/user/cart-01.svg", "<svg><script/></svg>");
+        SignalChanges();
+        var invalidRevision = kits.GetUrl("shared")[^28..^4];
+        Assert.ThrowsAsync<InvalidDataException>(() => kits.GetSpriteFileAsync("shared", invalidRevision));
+        Assert.That(Directory.GetFiles(Path.Combine(_root, ".cache", "IconKits")), Has.Length.EqualTo(1));
+        _cache.VerifyNoOtherCalls();
+    }
+
+    /// <summary>
+    /// Reads ZIP metadata once for discovery and opens one archive for the whole sprite batch.
+    /// Verifies that generation releases the archive rather than retaining a singleton handle.
+    /// </summary>
+    [Test]
+    public async Task Kit_Generation_Reuses_One_Archive_And_Releases_It()
+    {
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"shared":["cart","copy"]}}""");
+        Write("Icons/hugeicons/mapping.json", """{"cart":"cart-01","copy":"direct"}""");
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        var revision = kits.GetUrl("shared")[^28..^4];
+        const string archivePath = "Icons/hugeicons/rounded/icons.zip";
+        Assert.That(_sourceLookups[archivePath], Is.EqualTo(1));
+        var path = await kits.GetSpriteFileAsync("shared", revision);
+        Assert.That(_sourceLookups[archivePath], Is.EqualTo(2));
+        XNamespace ns = "http://www.w3.org/2000/svg";
+        Assert.That(XElement.Load(path).Elements(ns + "symbol").Count(x => !((string)x.Attribute("id")).StartsWith("source:")), Is.EqualTo(2));
+        using var exclusive = File.Open(Path.Combine(_root, archivePath), FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+        Assert.That(exclusive.CanRead, Is.True);
+        _cache.VerifyNoOtherCalls();
+    }
+
+    /// <summary>
+    /// Resolves opaque URLs after a restart, both for existing files and ungenerated current revisions.
+    /// Distinct variants retain distinct revisions without exposing their selectors in the URL.
+    /// </summary>
+    [Test]
+    public async Task Opaque_Kit_Urls_Survive_Restarts_And_Distinguish_Variants()
+    {
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"shared":["cart"]}}""");
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        var roundedUrl = kits.GetUrl("shared", "hi", "sr");
+        var sharpUrl = kits.GetUrl("shared", "hi", "sharp");
+        Assert.That(roundedUrl, Does.StartWith("/icons/shared-").And.EndWith(".svg"));
+        Assert.That(roundedUrl, Does.Not.Contain("hugeicons").And.Not.Contain("rounded"));
+        Assert.That(sharpUrl, Is.Not.EqualTo(roundedUrl));
+        var roundedRevision = roundedUrl[^28..^4];
+        var roundedPath = await kits.GetSpriteFileAsync("shared", roundedRevision);
+
+        // The endpoint is the first consumer after restart: no preceding GetUrl call.
+        var restarted = new IconKitService(new IconService(_context.Object, _cache.Object), _context.Object, new HttpContextAccessor());
+        Assert.That(await restarted.GetSpriteFileAsync("shared", roundedRevision), Is.EqualTo(roundedPath));
+        var sharpPath = await restarted.GetSpriteFileAsync("shared", sharpUrl[^28..^4]);
+        Assert.That(File.Exists(sharpPath), Is.True);
+        Assert.That(sharpPath, Is.Not.EqualTo(roundedPath));
+        Assert.That(await restarted.GetSpriteFileAsync("../shared", roundedRevision), Is.Null);
+        Assert.That(await restarted.GetSpriteFileAsync("unknown", roundedRevision), Is.Null);
+        _cache.VerifyNoOtherCalls();
+    }
+
+    /// <summary>
+    /// Applies mapping transforms around an offset viewBox without changing the shared source payload.
+    /// Explicit direct addresses skip both name mapping and its transformation.
+    /// </summary>
+    [Test]
+    public async Task Mapping_Modifiers_Render_Inline_And_Keep_Source_Cache_Shared()
+    {
+        Write("Icons/hugeicons/mapping.json", """{"left":"cart-01?flip=x&rotate=-90","up":"cart-01?rotate=-90&flip=x","cart-01":"direct?flip=y"}""");
+        var left = await _service.GetIconAsync("left");
+        var up = await _service.GetIconAsync("up");
+        var direct = await _service.GetIconAsync("cart-01!");
+        Assert.That(left.Name, Is.EqualTo("cart-01"));
+        Assert.That(left.Transform, Is.EqualTo(up.Transform));
+        Assert.That(left.Transform.Rotation, Is.EqualTo(270));
+        Assert.That(direct.Transform.IsIdentity, Is.True);
+        Assert.That(direct.Name, Is.EqualTo("cart-01"));
+        var renderer = new IconRenderer(_service, Mock.Of<IIconKitService>());
+        var output = await renderer.RenderAsync(left);
+        using var writer = new StringWriter();
+        output.WriteTo(writer, System.Text.Encodings.Web.HtmlEncoder.Default);
+        var xml = XElement.Parse(writer.ToString());
+        var transform = xml.Descendants().Attributes("transform").Single().Value;
+        Assert.That(transform, Is.EqualTo("translate(11 10.5) rotate(270) scale(-1 1) translate(-11 -10.5)"));
+        Assert.That(xml.Elements().Single().Attribute("transform"), Is.Null);
+        var source = await _service.GetSvgAsync(direct);
+        Assert.That(source.Content, Does.Not.Contain("rotate(").And.Not.Contain("scale("));
+        Assert.That(_entries.Count, Is.EqualTo(1));
+        var search = await _service.SearchAsync(new IconSearchQuery { Term = "left" });
+        Assert.That(search.Items.Single().Name, Is.EqualTo("cart-01"));
+    }
+
+    /// <summary>
+    /// Produces independent transformed symbols with one drawing and prevents double transforms at render time.
+    /// </summary>
+    [Test]
+    public async Task Mapping_Modifiers_Are_Part_Of_Kit_Identity_And_Revision()
+    {
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"shared":["left","up"]}}""");
+        Write("Icons/hugeicons/mapping.json", """{"left":"cart-01?flip=x","up":"cart-01?rotate=-90"}""");
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        var left = await _service.GetIconAsync("left");
+        var up = await _service.GetIconAsync("up");
+        Assert.That(kits.GetReference(left).Href, Does.EndWith("#left"));
+        Assert.That(kits.GetReference(up).Href, Does.EndWith("#up"));
+        Assert.That(kits.GetReference(await _service.GetIconAsync("cart-01!")), Is.Null);
+        var url = kits.GetUrl("shared");
+        var path = await kits.GetSpriteFileAsync("shared", url[^28..^4]);
+        var xml = XElement.Load(path);
+        XNamespace ns = "http://www.w3.org/2000/svg";
+        Assert.That(xml.Descendants(ns + "path").Count(), Is.EqualTo(1));
+        Assert.That(xml.Element(ns + "defs").Element(ns + "g").Attribute("viewBox"), Is.Null);
+        var leftSymbol = xml.Elements(ns + "symbol").Single(x => (string)x.Attribute("id") == "left");
+        var upSymbol = xml.Elements(ns + "symbol").Single(x => (string)x.Attribute("id") == "up");
+        Assert.That(leftSymbol.Element(ns + "g").Attribute("transform").Value, Does.Contain("scale(-1 1)"));
+        Assert.That(upSymbol.Element(ns + "g").Attribute("transform").Value, Does.Contain("rotate(270)"));
+        var renderer = new IconRenderer(_service, kits);
+        var output = await renderer.RenderAsync(left);
+        using var writer = new StringWriter();
+        output.WriteTo(writer, System.Text.Encodings.Web.HtmlEncoder.Default);
+        Assert.That(writer.ToString(), Does.Contain("#left").And.Not.Contain("transform="));
+        _cache.VerifyNoOtherCalls();
+
+        Write("Icons/hugeicons/mapping.json", """{"left":"cart-01?flip=y","up":"cart-01?rotate=-90"}""");
+        SignalChanges();
+        Assert.That(kits.GetUrl("shared"), Is.Not.EqualTo(url));
+    }
+
+    private static string RenderMarkup(Microsoft.AspNetCore.Html.IHtmlContent content)
+    {
+        using var writer = new StringWriter();
+        content.WriteTo(writer, System.Text.Encodings.Web.HtmlEncoder.Default);
+        return writer.ToString();
+    }
+
+    /// <summary>
+    /// Merges individual overrides and falls back to the source without changing the kit or cache identity.
+    /// </summary>
+    [Test]
+    public async Task Address_And_Renderer_Modifiers_Override_Mapping_Without_Changing_Kits()
+    {
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","kits":{"shared":["left"]}}""");
+        Write("Icons/hugeicons/mapping.json", """{"left":"cart-01?flip=xy&rotate=90&stroke-scale=1.2"}""");
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        var renderer = new IconRenderer(_service, kits);
+        var url = kits.GetUrl("shared");
+        var icon = await _service.GetIconAsync("hi:left@sr?rotate=180&stroke-scale=1.1");
+        Assert.That(icon.Transform, Is.EqualTo(new IconTransform(true, true, 180)));
+        Assert.That(icon.StrokeScale, Is.EqualTo(1.1));
+        var output = await renderer.RenderAsync(icon, new IconOptions { Rotate = 0, FlipHorizontal = false, StrokeScale = 1 });
+        var drawing = RenderMarkup(output.InnerHtml);
+        Assert.That(drawing, Does.Contain("rotate(0)").And.Contain("scale(1 -1)").And.Not.Contain("<use"));
+        Assert.That(icon.Transform.Rotation, Is.EqualTo(180), "Rendering must not mutate the resolved identity.");
+        Assert.That(kits.GetUrl("shared"), Is.EqualTo(url));
+        var direct = await _service.GetIconAsync("hi:cart-01!@sr?flip=none&rotate=0");
+        await renderer.RenderAsync(direct);
+        Assert.That(_entries.Count, Is.EqualTo(1));
+    }
+
+    /// <summary>
+    /// Scales individual stroke fallbacks without reparsing XML or changing the prepared source.
+    /// </summary>
+    [Test]
+    public async Task Stroke_Modifier_Preserves_Different_Source_Widths()
+    {
+        Write("Icons/hugeicons/rounded/user/cart-01.svg",
+            """<svg viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="1.5" d="M0 0L1 1"/><path stroke="currentColor" stroke-width="2" d="M2 2L3 3"/></svg>""");
+        var icon = await _service.GetIconAsync("cart?stroke-scale=1.1");
+        var source = await _service.GetSvgAsync(icon);
+        var original = source.Content;
+        var renderer = new IconRenderer(_service, Mock.Of<IIconKitService>());
+        var output = await renderer.RenderAsync(icon);
+        Assert.That(RenderMarkup(output.InnerHtml), Does.Contain("calc(var(--icon-stroke-width,2.4) * var(--icon-stroke-scale,1))")
+            .And.Contain("calc(var(--icon-stroke-width,3.2) * var(--icon-stroke-scale,1))"));
+        Assert.That(output.Attributes["style"], Does.Contain("--icon-stroke-scale:1.1"));
+        Assert.That(source.Content, Is.EqualTo(original));
+        Assert.That(_entries.Count, Is.EqualTo(1));
+    }
+
+    /// <summary>
+    /// Presentation-only options preserve external kit rendering and caller style precedence.
+    /// </summary>
+    [Test]
+    public async Task Presentation_Options_Keep_Kit_Rendering()
+    {
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","kits":{"shared":["cart"]}}""");
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        var renderer = new IconRenderer(_service, kits);
+        var options = new IconOptions { Size = "3x", Animation = "beat-fade", FontScale = 2, ShiftX = 2, AnimationReverse = false };
+        options.Attributes["style"] = "--icon-size-factor:4";
+        var output = await renderer.RenderAsync(await _service.GetIconAsync("cart"), options);
+        Assert.That(RenderMarkup(output.InnerHtml), Does.Contain("<use"));
+        Assert.That(output.Attributes["class"], Does.Contain("icon-3x").And.Contain("icon-beat-fade"));
+        Assert.That(output.Attributes["style"], Does.Contain("--icon-shift-x:0.125em").And.EndWith("--icon-size-factor:4"));
+        _cache.VerifyNoOtherCalls();
+    }
+
+    /// <summary>
+    /// Rejects unknown, duplicate and malformed modifiers with actionable mapping diagnostics.
+    /// </summary>
+    /// <param name="target">The invalid mapping expression.</param>
+    [TestCase("cart-01?stroke-scale=0")]
+    [TestCase("cart-01?stroke-scale=-1")]
+    [TestCase("cart-01?stroke-scale=NaN")]
+    [TestCase("cart-01?stroke-scale=1&stroke-scale=2")]
+    [TestCase("cart-01?flip=z")]
+    [TestCase("cart-01?rotate=NaN")]
+    [TestCase("cart-01?rotate=Infinity")]
+    [TestCase("cart-01?rotate=1,5")]
+    [TestCase("cart-01?rotate=")]
+    [TestCase("cart-01?flip=x&flip=y")]
+    [TestCase("cart-01?rotate=90&rotate=180")]
+    [TestCase("cart-01?size=2")]
+    [TestCase("cart-01?")]
+    [TestCase("cart-01?flip=x&")]
+    public void Invalid_Mapping_Modifiers_Report_The_Concept(string target)
+    {
+        Write("Icons/hugeicons/mapping.json", JsonSerializer.Serialize(new Dictionary<string, string> { ["left"] = target }));
+        var error = Assert.ThrowsAsync<InvalidDataException>(() => _service.GetIconAsync("left"));
+        Assert.That(error.Message, Does.Contain("mapping.json (left)"));
+    }
+
+    /// <summary>
+    /// Normalizes valid flip axes and decimal angles independently of the process culture.
+    /// </summary>
+    /// <param name="modifiers">The valid mapping query.</param>
+    /// <param name="flipX">The expected horizontal reflection.</param>
+    /// <param name="flipY">The expected vertical reflection.</param>
+    /// <param name="rotation">The expected normalized angle.</param>
+    [TestCase("flip=y&rotate=22.5", false, true, 22.5)]
+    [TestCase("flip=xy&rotate=450", true, true, 90)]
+    [TestCase("rotate=-360", false, false, 0)]
+    public async Task Mapping_Modifiers_Normalize_Valid_Values(string modifiers, bool flipX, bool flipY, double rotation)
+    {
+        Write("Icons/hugeicons/mapping.json", JsonSerializer.Serialize(new Dictionary<string, string> { ["left"] = "cart-01?" + modifiers }));
+        var icon = await _service.GetIconAsync("left");
+        Assert.That(icon.Transform.FlipX, Is.EqualTo(flipX));
+        Assert.That(icon.Transform.FlipY, Is.EqualTo(flipY));
+        Assert.That(icon.Transform.Rotation, Is.EqualTo(rotation));
+    }
+
+    /// <summary>
+    /// Uses real file notifications rather than the fixture's manual change token.
+    /// Mapping writes invalidate the catalog while generated cache files do not.
+    /// </summary>
+    [Test]
+    public async Task Physical_Watcher_Reloads_Mappings_And_Ignores_Generated_Files()
+    {
+        Mock.Get(_context.Object.AppDataRoot).Setup(x => x.Watch(It.IsAny<string>()))
+            .Returns((string filter) => _provider.Watch(filter));
+        var first = await _service.GetIconAsync("cart");
+        var manifest = _service.DefaultLibrary;
+        Assert.That(first.Name, Is.EqualTo("cart-01"));
+        Write(".cache/IconKits/shared-test.svg", "<svg/>");
+        await Task.Delay(300);
+        Assert.That(_service.DefaultLibrary, Is.SameAs(manifest));
+
+        Write("Icons/hugeicons/mapping.json", """{"cart":"direct?flip=x"}""");
+        var timeout = System.Diagnostics.Stopwatch.StartNew();
+        IconInfo updated;
+        do
+        {
+            await Task.Delay(50);
+            updated = await _service.GetIconAsync("cart");
+        }
+        while (updated.Name != "direct" && timeout.Elapsed < TimeSpan.FromSeconds(10));
+
+        Assert.That(updated.Name, Is.EqualTo("direct"));
+        Assert.That(updated.Transform.FlipX, Is.True);
+        Assert.That(_service.DefaultLibrary, Is.Not.SameAs(manifest));
+    }
+
+    /// <summary>
+    /// Applies kit defaults before mapping while explicit selectors and direct addresses retain precedence.
+    /// </summary>
+    [Test]
+    public async Task Kit_Defaults_Select_Library_And_Scope_Variant_Overrides()
+    {
+        WriteLibrary("other", "ot", "rd");
+        WriteZip("other", "rounded", ("cart-01", _svg));
+        WriteZip("other", "sharp", ("cart-01", _svg));
+        Write("Icons/other/mapping.json", """{"cart":"cart-01"}""");
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"backend":{"defaultLibrary":"other","defaultVariant":"sharp","icons":["cart","cart-01"]}}}""");
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        var icon = await _service.GetIconAsync("cart");
+        Assert.That(icon.LibraryName, Is.EqualTo("other"));
+        Assert.That(icon.VariantName, Is.EqualTo("sharp"));
+        Assert.That(icon.Name, Is.EqualTo("cart-01"));
+        Assert.That(kits.GetReference(icon).Href, Does.StartWith(kits.GetUrl("backend") + "#"));
+        Assert.That(kits.Kits.Single().DefaultLibrary, Is.EqualTo("other"));
+
+        var explicitLibrary = await _service.GetIconAsync("hi:cart");
+        Assert.That(explicitLibrary.LibraryName, Is.EqualTo("hugeicons"));
+        Assert.That(explicitLibrary.VariantName, Is.EqualTo("rounded"));
+        Assert.That((await _service.GetIconAsync("cart", "hi")).VariantName, Is.EqualTo("rounded"));
+        Assert.That((await _service.GetIconAsync("cart@rd")).VariantName, Is.EqualTo("rounded"));
+        Assert.That((await _service.GetIconAsync("cart", variant: "rd")).VariantName, Is.EqualTo("rounded"));
+        Assert.That(kits.GetUrl("backend", "hi"), Is.EqualTo(kits.GetUrl("backend", "hi", "rounded")));
+        Assert.That(kits.GetUrl("backend"), Is.Not.EqualTo(kits.GetUrl("backend", "hi")));
+
+        var direct = await _service.GetIconAsync("cart-01!");
+        Assert.That(direct.LibraryName, Is.EqualTo("hugeicons"));
+        Assert.That(direct.VariantName, Is.EqualTo("rounded"));
+        Assert.That(direct.Transform.IsIdentity, Is.True);
+    }
+
+    /// <summary>
+    /// Uses a library's own default when a kit changes libraries without specifying a variant.
+    /// </summary>
+    [Test]
+    public async Task Kit_Default_Library_Does_Not_Inherit_Global_Variant()
+    {
+        WriteLibrary("other", "ot", "rd");
+        WriteZip("other", "sharp", ("cart-01", _svg));
+        Write("Icons/other/mapping.json", """{"cart":"cart-01"}""");
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"backend":{"defaultLibrary":"other","icons":["cart"]}}}""");
+        Assert.That((await _service.GetIconAsync("cart")).VariantName, Is.EqualTo("sharp"));
+    }
+
+    /// <summary>
+    /// Resolves overlapping concepts deterministically and reloads changed kit defaults.
+    /// </summary>
+    [Test]
+    public async Task Kit_Default_Precedence_And_Invalidation_Are_Deterministic()
+    {
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"backend":{"defaultVariant":"sharp","icons":["cart"]},"shared":{"icons":["cart"]}}}""");
+        Assert.That((await _service.GetIconAsync("cart")).VariantName, Is.EqualTo("rounded"));
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"zulu":{"icons":["cart"]},"alpha":{"defaultVariant":"sharp","icons":["cart"]}}}""");
+        SignalChanges();
+        Assert.That((await _service.GetIconAsync("cart")).VariantName, Is.EqualTo("sharp"));
+        Assert.That((await _service.GetIconAsync("cart", variant: "rounded")).VariantName, Is.EqualTo("rounded"));
+    }
+
+    /// <summary>
+    /// Rejects invalid kit defaults when reading configuration rather than failing during rendering.
+    /// </summary>
+    /// <param name="defaults">The invalid kit default properties.</param>
+    [TestCase("\"defaultLibrary\":\"missing\"")]
+    [TestCase("\"defaultLibrary\":\"hi\"")]
+    [TestCase("\"defaultVariant\":\"missing\"")]
+    public void Kit_Defaults_Must_Reference_Registered_System_Identities(string defaults)
+    {
+        Write("Icons/config.json", "{\"defaultLibrary\":\"hugeicons\",\"kits\":{\"backend\":{" + defaults + ",\"icons\":[\"cart\"]}}}");
+        var error = Assert.Throws<InvalidDataException>(() => _ = _service.DefaultLibrary);
+        Assert.That(error.Message, Does.Contain("backend"));
     }
 
     private void WriteLibrary(string name, string shortName, string variantShortName)

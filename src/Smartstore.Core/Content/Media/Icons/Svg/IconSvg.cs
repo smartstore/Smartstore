@@ -72,9 +72,24 @@ public sealed class IconInfo
     private string[]? _tags;
 
     /// <summary>
+    /// Gets whether address modifiers replace a transformation already baked into a kit.
+    /// </summary>
+    internal bool RequiresInline { get; set; }
+
+    /// <summary>
+    /// Gets or sets the per-icon stroke multiplier applied after the library multiplier.
+    /// </summary>
+    public double StrokeScale { get; set; } = 1;
+
+    /// <summary>
     /// Loads supplemental metadata on first access so SVG-only lookups do not read metadata.json.
     /// </summary>
     internal Lazy<string[]>? DeferredTags { get; init; }
+
+    /// <summary>
+    /// Gets or sets the mapping transformation; direct addresses and search results use identity.
+    /// </summary>
+    public IconTransform Transform { get; set; }
 
     /// <summary>
     /// Gets or sets the canonical address.

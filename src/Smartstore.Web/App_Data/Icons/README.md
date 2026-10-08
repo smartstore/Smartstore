@@ -55,9 +55,13 @@ Configure the defaults in `config.json`:
   "defaultLibrary": "hugeicons",
   "defaultVariant": "stroke-rounded",
   "kits": {
-    "shared": ["cart", "heart", "search"],
-    "frontend": ["handshake"],
-    "backend": ["barcode"]
+    "shared": { "icons": ["cart", "heart", "search"] },
+    "frontend": { "icons": ["handshake"] },
+    "backend": {
+      "defaultLibrary": "hugeicons",
+      "defaultVariant": "stroke-rounded",
+      "icons": ["barcode"]
+    }
   }
 }
 ```
@@ -140,6 +144,29 @@ When switching libraries, keep the conceptual keys and change their values to
 IDs provided by the new library. Mappings are shared across all variants of a
 library. Check that mapped IDs exist in each variant you intend to use. Variant
 selection is independent of mapping; there is no additional per-icon alias layer.
+
+Mapping values may append `flip` and `rotate` modifiers:
+
+```json
+{
+  "chevron-left": "chevron-right?flip=x",
+  "chevron-up": "chevron-right?rotate=-90",
+  "example": "some-icon?flip=xy&rotate=22.5"
+}
+```
+
+`flip` accepts `x`, `y`, or `xy`. `rotate` accepts finite decimal degrees using a
+period as the decimal separator; positive angles rotate clockwise. Transformations
+always flip first, then rotate around the source viewBox center, regardless of
+parameter order. Unknown, repeated or malformed parameters are configuration errors.
+These modifiers belong to mapping values, not the public icon-address syntax.
+
+The renderer applies transformations inside the icon, independently of outer CSS
+sizing, animation and transforms. Kit symbols apply the same transformation once,
+sharing original artwork between concepts. Source SVG cache entries remain unchanged.
+A direct `!` address skips mapping and therefore its modifiers. Kit selection matches
+both the source icon and its transformation; a direct icon cannot select a transformed
+symbol accidentally. Modifier changes also change the affected kit revision.
 
 An empty mapping file (`{}`) contains no assignments. Populate mappings for all
 concepts used by your kits before relying on icon resolution.
@@ -314,7 +341,22 @@ requested icons are prepared; opening the picker must not process all icons.
 
 The `kits` object in `config.json` groups conceptual names by area of use,
 such as `shared`, `frontend`, `backend`, or a custom `media` kit. Add names to the relevant
-arrays and provide their assignments in each library's `mapping.json`.
+`icons` arrays and provide their assignments in each library's `mapping.json`.
+Kit objects may specify `defaultLibrary` (a library system name) and `defaultVariant`.
+Both are optional. Array-only definitions remain supported as shorthand.
+
+For conceptual lookups, the preferred kit is selected before library mapping:
+`shared` first, then kit names in ordinal order. Explicit address components or
+method arguments take precedence over kit defaults, followed by global defaults.
+A kit's variant applies only to its effective default library; selecting another
+library never carries that variant across. A kit that changes the library without
+specifying a variant uses that library's default (or the global variant override
+when it selects the global default library).
+
+Direct `!` addresses skip conceptual kit defaults as well as mapping. Search also
+uses its explicitly selected library or the system default, independently of kits.
+`IIconKitService.GetUrl` follows the named kit's defaults unless overridden.
+Changes to kit defaults are picked up by the configuration watcher.
 
 The supplied kit memberships and HugeIcons mappings are a work in progress.
 Edit `config.json` to move concepts between kits and `hugeicons/mapping.json` to
@@ -326,7 +368,47 @@ further review changes.
 `shared` contains concepts used by both areas. Combine it with `frontend` or
 `backend`; shared concepts do not need to be repeated in those kits.
 
-Kit generation is not implemented yet; the service currently ignores this section.
+`IconRenderer` automatically selects an external symbol for resolved icons that
+belong to a kit. Callers still provide only an icon name; the TagHelper delegates
+rendering to the Core renderer. Icons outside kits retain inline SVG output.
+Membership uses the actual mapped icon identity. When several kits contain the
+same icon, `shared` wins, followed by ordinal kit-name order.
+
+Sprites are served by `/icons/{kit}-{revision}.svg`.
+The revision covers kit membership, mapping targets, source fingerprints and SVG
+preparation rules. Request path bases are preserved. The browser caches each
+revision independently. The endpoint returns a physical file; ASP.NET Core handles
+ETag revalidation and HEAD without transferring a response body. A first request,
+including HEAD, generates a missing current revision before serving it.
+
+Generated sprites are global, tenant-independent files in `App_Data/.cache/IconKits`, with flat
+names such as `shared-<revision>.svg`. Library and variant selectors are not exposed
+in URLs or filenames; the revision includes library, variant and kit identity. It uses the
+first 96 bits of SHA-256, represented as 24 lowercase hexadecimal characters. Existing files
+are served without loading their contents into the multilevel or Redis cache.
+
+A cache miss opens the ZIP once for the kit and processes SVGs individually; no
+archive handle or drawing collection survives generation. It streams symbols into
+a temporary file beside the destination and
+publishes the complete file atomically. Failed writes remove the temporary file.
+Concurrent requests share generation; multiple processes may safely publish the
+same revision. Generation does not populate the individual SVG cache. Source IDs and their
+references are namespaced per drawing; concepts sharing artwork reuse a symbol.
+Configuration and source changes invalidate the catalog and produce new URLs.
+The source watcher explicitly excludes generated cache files. Historical files
+remain available for existing pages, even after their source definitions are removed; unavailable historical revisions return 404, never current bytes.
+There is no automatic cleanup yet. The directory can be inspected or cleared;
+URL resolution registers the generation plan internally. After a restart, existing
+files are addressed directly without a directory scan. For a missing file whose
+plan is not registered, current configurations are inspected once per kit and
+catalog generation to recover revision lookups. Incomplete variants are skipped.
+Current revisions regenerate on demand, but deleted historical revisions cannot
+be reconstructed from changed sources.
+Missing mapped sources are reported with their kit and concept names.
+
+Use classes and CSS variables on the outer `.icon` element for presentation.
+Descendant selectors cannot style paths inside an external sprite. Presentation
+attributes belonging to source SVG roots remain inside the sprite.
 
 Kits remain the same when changing libraries. Their conceptual names resolve
 through the selected library's mapping. Overlap is allowed; resolved icons are
@@ -561,3 +643,64 @@ Use one animation effect per host; separate stack layers can animate independent
 With `prefers-reduced-motion: reduce`, animations and transitions on icon and
 stack hosts are disabled, including existing `animate-*` effects on those hosts.
 Static rotation, mirroring, and positioning remain in place.
+
+### Icon TagHelper presentation and modifiers
+
+Use `lib` to select a library by system name or short name. `variant` selects its
+variant. `name` accepts an address with optional `flip`, `rotate`, and `stroke-scale`
+query modifiers. Append `!` to the icon name to bypass conceptual mapping.
+
+```html
+<icon name="hi:cart@sr?rotate=90&amp;stroke-scale=1.1" rotate="0" size="lg" />
+<icon name="refresh" animation="spin" animation-duration="2s" />
+<icon name="arrow-right!" flip-h="true" class="text-muted" />
+```
+
+Explicit helper properties override address modifiers, which override mapping
+modifiers, individually. `rotate="0"`, `flip-h="false"` and `flip-v="false"`
+explicitly reset inherited values; omission retains them. The `flip` query accepts
+`x`, `y`, `xy`, or `none`. Mapping and query rotations retain decimal support;
+the helper's `rotate` property accepts integer degrees.
+
+`stroke-scale` is a finite positive multiplier, applied after the library's
+`strokeWidthScale`. A value of `1` preserves the library appearance. It can also
+be supplied in mapping.json, for example `"arrow": "arrow-right?stroke-scale=1.1"`.
+Different source widths retain their proportions.
+
+Existing kits are not modified for rendering overrides. Replacing a baked-in
+transformation, or requesting an effective stroke multiplier other than `1`,
+renders the cached original source inline. No modifier-specific source cache
+entries or kit variants are created. The stroke multiplier is applied by the
+renderer, not baked into kit files; consumers of raw kit URLs do not receive it.
+
+Presentation attributes include `size`, `font-scale`, `fw`, `color`, `inverse`,
+`animation`, `animation-duration`, `animation-reverse`, `scale`, `shift-x`, and
+`shift-y`. Shifts use sixteenths of an em. `scale` changes drawing size only;
+`font-scale` changes layout size. Size presets are `2xs`, `xs`, `sm`, `lg`, `xl`,
+`2xl`, and `1x` through `10x`. Animations are `spin`, `pulse`, `spin-pulse`, `beat`,
+`fade`, `throb`, `cylon`, `cylon-vertical`, `bounce`, `beat-fade`, `flip`, and `shake`.
+These presentation options do not themselves require inline rendering.
+
+`class`, `style`, `aria-*` and `data-*` are preserved. Explicit CSS declarations
+in `style` follow generated declarations and take precedence. Use `aria-label`
+or `aria-labelledby` for a meaningful standalone icon; unlabeled icons are
+decorative by default. Lists and stacks continue to use the existing CSS hosts.
+
+### Stack TagHelper
+
+`icon-stack` renders a `span.icon-stack` containing direct `icon` children only.
+Razor rejects other child elements, including nested stacks. Layers remain
+independent SVGs; their viewBoxes are never merged. Shared presentation attributes
+(size, animation, color, scale, shift, rotation and mirroring) apply to the host.
+The stroke multiplier belongs to individual icons.
+
+```html
+<icon-stack size="2x" aria-label="Confirmed">
+    <icon name="circle!" class="icon-stack-2x" />
+    <icon name="check" class="icon-stack-1x" />
+</icon-stack>
+```
+
+Use `icon-stack-1x` and `icon-stack-2x` for layer sizes. DOM order determines
+painting order unless `--icon-stack-z-index` is set. Supply the accessible label
+on the host when the layers represent one combined symbol.

@@ -34,6 +34,11 @@
     overflow: visible;
 }
 
+svg.icon > use {
+    width: 100%;
+    height: 100%;
+}
+
 svg.icon > :is(use, g) {
     transform-origin: center;
     transform-box: view-box;

@@ -15,6 +15,31 @@ namespace Smartstore.Core.Content.Media.Icons;
 internal sealed class IconCatalog
 {
     /// <summary>
+    /// Gets kit definitions from the root configuration, without loading artwork.
+    /// </summary>
+    internal Dictionary<string, IconKit> Kits { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Gets the preferred kit by concept before library selection: shared, then ordinal kit name.
+    /// </summary>
+    internal Dictionary<string, IconKit> ConceptKits { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Keeps lazily resolved kit indexes only for this source generation.
+    /// </summary>
+    internal ConcurrentDictionary<string, Lazy<IconKitIndex>> KitIndexes { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Indexes already resolved plans by kit and opaque revision.
+    /// </summary>
+    internal ConcurrentDictionary<string, IconKitIndex.Plan> KitRevisions { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Bounds cold endpoint recovery to one metadata scan per configured kit and generation.
+    /// </summary>
+    internal ConcurrentDictionary<string, Lazy<bool>> RecoveredKits { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>
     /// Gets libraries indexed by both system name and optional short name.
     /// </summary>
     internal Dictionary<string, Library> Libraries { get; } = new(StringComparer.OrdinalIgnoreCase);
@@ -39,7 +64,7 @@ internal sealed class IconCatalog
     /// </summary>
     internal sealed class Library
     {
-        private readonly Lazy<Dictionary<string, string>> _mapping;
+        private readonly Lazy<Dictionary<string, IconMapping>> _mapping;
         private readonly Lazy<Dictionary<string, string[]>> _tags;
 
         /// <summary>
@@ -61,7 +86,7 @@ internal sealed class IconCatalog
         /// <summary>
         /// Gets conceptual mappings, loaded once on the first lookup or search.
         /// </summary>
-        internal Dictionary<string, string> Mapping => _mapping.Value;
+        internal Dictionary<string, IconMapping> Mapping => _mapping.Value;
 
         /// <summary>
         /// Gets supplemental search terms, loaded only when icon metadata is requested.
@@ -141,29 +166,85 @@ internal sealed class IconCatalog
         /// <returns>The prepared payload, with all source handles closed.</returns>
         internal IconSvg Prepare(IconInfo info, Source source, string revision)
         {
-            using var stream = _files.GetFileInfo(source.Path).CreateReadStream();
-            RequireSeekable(stream);
-            if (source.OverrideHash != null)
+            using var reader = OpenReader();
+            return reader.Prepare(info, source, revision);
+        }
+
+        /// <summary>
+        /// Creates a short-lived reader that reuses one archive for a sequential batch.
+        /// No file is opened until the first source is requested.
+        /// </summary>
+        internal SourceReader OpenReader() => new(this);
+
+        /// <summary>
+        /// Owns source handles for one preparation operation, never for a catalog or cache lifetime.
+        /// ZIP metadata is read once; individual SVG streams are closed after each parse.
+        /// This reader is deliberately not shared between concurrent operations.
+        /// </summary>
+        internal sealed class SourceReader : IDisposable
+        {
+            private readonly Variant _variant;
+            private ZipArchive _zip;
+
+            /// <summary>
+            /// Binds the reader to one variant without opening its archive.
+            /// </summary>
+            /// <param name="variant">The selected variant and its source provider.</param>
+            internal SourceReader(Variant variant)
             {
-                // Content, not timestamps, detects replacements that preserve file dates.
-                if (HashSource(stream, IconSvgParser.MaxLength) != source.OverrideHash)
+                _variant = variant;
+            }
+
+            /// <summary>
+            /// Prepares one source, retaining only ZIP metadata between calls.
+            /// </summary>
+            /// <param name="info">The resolved icon identity.</param>
+            /// <param name="source">The source descriptor established during lookup.</param>
+            /// <param name="revision">The prepared payload revision.</param>
+            internal IconSvg Prepare(IconInfo info, Source source, string revision)
+            {
+                if (source.OverrideHash != null)
                 {
-                    throw new IOException("Icon override changed during lookup. Retry after catalog reload.");
+                    using var stream = _variant._files.GetFileInfo(source.Path).CreateReadStream();
+                    RequireSeekable(stream);
+                    if (HashSource(stream, IconSvgParser.MaxLength) != source.OverrideHash)
+                    {
+                        throw new IOException("Icon override changed during lookup. Retry after catalog reload.");
+                    }
+
+                    stream.Position = 0;
+                    return IconSvgParser.Parse(stream, info, _variant.Manifest, revision);
                 }
 
-                stream.Position = 0;
-                return IconSvgParser.Parse(stream, info, Manifest, revision);
+                if (_zip == null)
+                {
+                    var stream = _variant._files.GetFileInfo(source.Path).CreateReadStream();
+                    try
+                    {
+                        RequireSeekable(stream);
+                        _zip = new ZipArchive(stream, ZipArchiveMode.Read);
+                    }
+                    catch
+                    {
+                        stream.Dispose();
+                        throw;
+                    }
+                }
+
+                var entry = _zip.GetEntry(info.Name + ".svg");
+                if (entry == null || entry.Crc32 != source.Checksum || entry.Length > IconSvgParser.MaxLength)
+                {
+                    throw new IOException("Icon archive changed during lookup. Retry after catalog reload.");
+                }
+
+                using var svgStream = entry.Open();
+                return IconSvgParser.Parse(svgStream, info, _variant.Manifest, revision);
             }
 
-            using var zip = new ZipArchive(stream, ZipArchiveMode.Read);
-            var entry = zip.GetEntry(info.Name + ".svg");
-            if (entry == null || entry.Crc32 != source.Checksum || entry.Length > IconSvgParser.MaxLength)
-            {
-                throw new IOException("Icon archive changed during lookup. Retry after catalog reload.");
-            }
-
-            using var svgStream = entry.Open();
-            return IconSvgParser.Parse(svgStream, info, Manifest, revision);
+            /// <summary>
+            /// Closes the archive and its underlying stream, including after a failed preparation.
+            /// </summary>
+            public void Dispose() => _zip?.Dispose();
         }
 
         /// <summary>
@@ -285,7 +366,21 @@ internal sealed class IconCatalog
     internal static IconCatalog Load(IFileProvider files)
     {
         // Watch before reading so a change during any deferred load invalidates this generation.
-        var catalog = new IconCatalog { ChangeToken = files.Watch("Icons/**/*") };
+        // Watch source locations explicitly: generated files in App_Data/.cache/IconKits must never
+        // invalidate their own catalog. Wildcards still discover new libraries and variants.
+        var catalog = new IconCatalog
+        {
+            ChangeToken = new CompositeChangeToken(new[]
+            {
+                files.Watch("Icons/config.json"),
+                files.Watch("Icons/*/library.json"),
+                files.Watch("Icons/*/mapping.json"),
+                files.Watch("Icons/*/metadata.json"),
+                files.Watch("Icons/*/*/icons.zip"),
+                files.Watch("Icons/*/*/user/*.svg"),
+                files.Watch("Icons/*/*/overrides/*.svg")
+            })
+        };
         using var config = ReadJson(files, "Icons/config.json", true);
         foreach (var dir in files.GetDirectoryContents("Icons").Where(x => x.IsDirectory))
         {
@@ -318,6 +413,56 @@ internal sealed class IconCatalog
         if (catalog.DefaultVariant != null && !defaultLibrary.Variants.ContainsKey(catalog.DefaultVariant))
         {
             throw new InvalidDataException("Unknown defaultVariant in Icons/config.json.");
+        }
+
+        if (config.RootElement.TryGetProperty("kits", out var kits))
+        {
+            foreach (var kit in kits.EnumerateObject())
+            {
+                if (!IconAddress.IsQualifier(kit.Name))
+                {
+                    throw new InvalidDataException($"Invalid icon kit name '{kit.Name}'.");
+                }
+
+                // Retain the array shorthand for kits that inherit all defaults.
+                var definition = kit.Value;
+                var isObject = definition.ValueKind == JsonValueKind.Object;
+                var libraryName = isObject && definition.TryGetProperty("defaultLibrary", out var kitLibrary)
+                    ? kitLibrary.GetString() : null;
+                var variantName = isObject && definition.TryGetProperty("defaultVariant", out var kitVariant)
+                    ? kitVariant.GetString() : null;
+                var selectedLibrary = libraryName == null ? catalog.DefaultLibrary : catalog.Libraries.GetValueOrDefault(libraryName);
+                if (selectedLibrary == null || libraryName != null
+                    && !selectedLibrary.Manifest.SystemName.Equals(libraryName, StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new InvalidDataException($"Unknown defaultLibrary in icon kit '{kit.Name}'. Use the library system name.");
+                }
+
+                if (variantName != null && !selectedLibrary.Variants.ContainsKey(variantName))
+                {
+                    throw new InvalidDataException($"Unknown defaultVariant '{variantName}' in icon kit '{kit.Name}' for library '{selectedLibrary.Manifest.SystemName}'.");
+                }
+
+                var names = (isObject ? definition.GetProperty("icons") : definition)
+                    .EnumerateArray().Select(x => x.GetString()).ToArray();
+                if (names.Any(x => !IconAddress.IsName(x)) || names.Distinct(StringComparer.Ordinal).Count() != names.Length)
+                {
+                    throw new InvalidDataException($"Invalid or duplicate concepts in icon kit '{kit.Name}'.");
+                }
+
+                if (!catalog.Kits.TryAdd(kit.Name, new IconKit(kit.Name, names, libraryName, variantName)))
+                {
+                    throw new InvalidDataException($"Duplicate icon kit '{kit.Name}'.");
+                }
+            }
+        }
+
+        foreach (var kit in catalog.Kits.Values.OrderBy(x => x.Name == "shared" ? 0 : 1).ThenBy(x => x.Name, StringComparer.Ordinal))
+        {
+            foreach (var concept in kit.Icons)
+            {
+                catalog.ConceptKits.TryAdd(concept, kit);
+            }
         }
 
         return catalog;
@@ -399,9 +544,9 @@ internal sealed class IconCatalog
     /// </summary>
     /// <param name="files">The application data file provider.</param>
     /// <param name="root">The provider-relative library directory.</param>
-    private static Dictionary<string, string> LoadMapping(IFileProvider files, string root)
+    private static Dictionary<string, IconMapping> LoadMapping(IFileProvider files, string root)
     {
-        var result = new Dictionary<string, string>(StringComparer.Ordinal);
+        var result = new Dictionary<string, IconMapping>(StringComparer.Ordinal);
         using var mapping = ReadJson(files, root + "/mapping.json", false);
         // Mapping targets are icon names within this library, not addresses. Selecting
         // another library or variant remains the caller's responsibility.
@@ -410,12 +555,12 @@ internal sealed class IconCatalog
             foreach (var property in mapping.RootElement.EnumerateObject())
             {
                 var target = property.Value.GetString();
-                if (!IconAddress.IsName(property.Name) || !IconAddress.IsName(target))
+                if (!IconAddress.IsName(property.Name))
                 {
                     throw new InvalidDataException($"Mappings must contain unqualified icon names: {root}/mapping.json.");
                 }
 
-                result.Add(property.Name, target);
+                result.Add(property.Name, IconMapping.Parse(target, $"{root}/mapping.json ({property.Name})"));
             }
         }
 

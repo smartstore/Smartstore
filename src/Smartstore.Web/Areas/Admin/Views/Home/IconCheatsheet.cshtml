@@ -697,7 +697,7 @@
             <h2 id="iconkit-preview-title" class="h4">IconKit / Local SVG</h2>
             <div class="d-flex align-items-center gap-3">
                 <icon name="hi:search-01" aria-label="Search" />
-                <icon name="shopping-cart-02" library="hugeicons" variant="stroke-rounded" class="icon-2x" aria-label="Cart" />
+                <icon name="shopping-cart-02" lib="hugeicons" variant="stroke-rounded" class="icon-2x" aria-label="Cart" />
                 <button type="button" class="btn btn-primary">
                     <icon name="hi:floppy-disk" class="icon-fw mr-1" /> Save
                 </button>
@@ -717,7 +717,7 @@
                             {
                                 <li>
                                     <button type="button" class="admin-navbar-item">
-                                        <icon sm-if='@(library == "HI")' name="@item.Huge" library="hi" aria-hidden="true" />
+                                        <icon sm-if='@(library == "HI")' name="@item.Huge" lib="hi" aria-hidden="true" />
                                         <i sm-if='@(library != "HI")' class="@("hgi-stroke hgi-" + HugeFontName(item.Huge))" aria-hidden="true"></i>
                                         <span>@item.Label</span>
                                     </button>
@@ -729,7 +729,7 @@
                             {
                                 <li>
                                     <button type="button" class="admin-navbar-tool" aria-label="@item.Label" title="@item.Label">
-                                        <icon sm-if='@(library == "HI")' name="@item.Huge" library="hi" aria-hidden="true" />
+                                        <icon sm-if='@(library == "HI")' name="@item.Huge" lib="hi" aria-hidden="true" />
                                         <i sm-if='@(library != "HI")' class="@("hgi-stroke hgi-" + HugeFontName(item.Huge))" aria-hidden="true"></i>
                                         @if (item.Text != null)
                                         {
@@ -767,7 +767,7 @@
                                             }
                                             else if (library == "HI")
                                             {
-                                                <icon name="@item.Huge" library="hi" />
+                                                <icon name="@item.Huge" lib="hi" />
                                             }
                                             else
                                             {
@@ -799,7 +799,7 @@
                                 }
                                 else if (library == "HI")
                                 {
-                                    <icon name="shopping-cart-add-01" library="hi" aria-hidden="true" />
+                                    <icon name="shopping-cart-add-01" lib="hi" aria-hidden="true" />
                                 }
                                 else
                                 {
@@ -828,7 +828,7 @@
                                         <button type="button" class="product-action" aria-label="@($"{action.Label} / {library} preview")">
                                             @if (library == "HI")
                                             {
-                                                <icon name="@action.Huge" library="hi" aria-hidden="true" />
+                                                <icon name="@action.Huge" lib="hi" aria-hidden="true" />
                                             }
                                             else
                                             {
@@ -940,7 +940,7 @@
                                                 }
                                                 else
                                                 {
-                                                    <icon sm-if='@(library == "HI")' name="@tab.Huge" library="hi" class="nav-icon" aria-hidden="true" />
+                                                    <icon sm-if='@(library == "HI")' name="@tab.Huge" lib="hi" class="nav-icon" aria-hidden="true" />
                                                     <i sm-if='@(library != "HI")' class="@("hgi-stroke hgi-" + HugeFontName(tab.Huge)) nav-icon" aria-hidden="true"></i>
                                                 }
                                                 <span class="tab-caption">@tab.Label</span>
@@ -963,18 +963,18 @@
                     <h3 class="h6 text-muted comparison-heading mb-2">@(library == "FA" ? "Original / FA" : LibraryLabel(library)) @{ await RenderMuteButton(library); }</h3>
                     <div class="options" role="group" data-comparison-library="@library" aria-label="@($"{library} product edit toolbar preview")">
                         <button type="button" class="btn btn-outline-secondary">
-                            <icon sm-if='@(library == "HI")' name="eye" library="hi" aria-hidden="true" />
+                            <icon sm-if='@(library == "HI")' name="eye" lib="hi" aria-hidden="true" />
                             <i sm-if='@(library != "HI")' class="@(library == "FA" ? "far fa-eye" : "hgi-stroke hgi-eye")" aria-hidden="true"></i>
                             <span>Vorschau</span>
                         </button>
                         <button type="button" class="btn btn-outline-secondary">
-                            <icon sm-if='@(library == "HI")' name="copy-02" library="hi" aria-hidden="true" />
+                            <icon sm-if='@(library == "HI")' name="copy-02" lib="hi" aria-hidden="true" />
                             <i sm-if='@(library != "HI")' class="@(library == "FA" ? "far fa-copy" : "hgi-stroke hgi-copy-02")" aria-hidden="true"></i>
                             <span>Produkt kopieren</span>
                         </button>
                         <span class="vr" aria-hidden="true"></span>
                         <button type="button" class="btn btn-warning">
-                            <icon sm-if='@(library == "HI")' name="tick-02" library="hi" aria-hidden="true" />
+                            <icon sm-if='@(library == "HI")' name="tick-02" lib="hi" aria-hidden="true" />
                             <i sm-if='@(library != "HI")' class="@(library == "FA" ? "fa fa-check" : "hgi-stroke hgi-tick-02")" aria-hidden="true"></i>
                             <span>Speichern</span>
                         </button>
@@ -982,7 +982,7 @@
                             Speichern und fortsetzen
                         </button>
                         <button type="button" class="btn btn-danger">
-                            <icon sm-if='@(library == "HI")' name="delete-02" library="hi" aria-hidden="true" />
+                            <icon sm-if='@(library == "HI")' name="delete-02" lib="hi" aria-hidden="true" />
                             <i sm-if='@(library != "HI")' class="@(library == "FA" ? "far fa-trash-can" : "hgi-stroke hgi-delete-02")" aria-hidden="true"></i>
                             <span>Löschen</span>
                         </button>
@@ -1004,7 +1004,7 @@
                                 @foreach (var button in group)
                                 {
                                     <button type="button" class="btn btn-secondary @button.Css" title="@button.Title" aria-label="@button.Title" disabled="@button.Disabled">
-                                        <icon sm-if='@(library == "HI")' name="@button.Huge" library="hi" aria-hidden="true" />
+                                        <icon sm-if='@(library == "HI")' name="@button.Huge" lib="hi" aria-hidden="true" />
                                         <i sm-if='@(library != "HI")' class="@(library == "FA" ? button.FontAwesome : "hgi-stroke hgi-" + HugeFontName(button.Huge))" aria-hidden="true"></i>
                                         @if (button.Label != null)
                                         {
@@ -1059,7 +1059,7 @@
                                     }
                                     else if (library == "HI")
                                     {
-                                        <icon name="@icons[button.Bootstrap].Huge" library="hi" aria-hidden="true" />
+                                        <icon name="@icons[button.Bootstrap].Huge" lib="hi" aria-hidden="true" />
                                     }
                                     else if (library == "HI-Font")
                                     {
@@ -1146,7 +1146,7 @@
                 {
                     if (library == "HI")
                     {
-                        <icon name="@menuIcon.Huge" library="hi" />
+                        <icon name="@menuIcon.Huge" lib="hi" />
                     }
                     else
                     {
@@ -1157,7 +1157,7 @@
                 {
                     if (library == "HI")
                     {
-                        <icon name="@icon.Huge" library="hi" />
+                        <icon name="@icon.Huge" lib="hi" />
                     }
                     else
                     {
