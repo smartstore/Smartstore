@@ -21,7 +21,7 @@ internal static class IconSvgParser
     /// <summary>
     /// The preparation format version included in cache revisions independently of source content.
     /// </summary>
-    internal const string Revision = "13";
+    internal const string Revision = "14";
     private const string _svgNamespace = "http://www.w3.org/2000/svg";
     // Support static icon graphics only. This is deliberately not a general SVG document
     // renderer: executable content, external resources and arbitrary source CSS are excluded.
@@ -46,11 +46,11 @@ internal static class IconSvgParser
     /// </summary>
     /// <param name="stream">The SVG source stream. It remains open and is consumed from its current position.</param>
     /// <param name="info">The resolved icon identity after conceptual mapping.</param>
-    /// <param name="variant">The native grid fallback, optional stroke color and source stroke width multiplier.</param>
+    /// <param name="variant">The optional viewBox fallback, stroke color and source stroke width multiplier.</param>
     /// <param name="revision">The combined preparation and source revision to embed in the payload.</param>
-    /// <returns>A detached SVG payload containing root attributes and prepared child markup.</returns>
+    /// <returns>A detached SVG payload, or null when both source viewBox and variant default are absent.</returns>
     /// <exception cref="XmlException">The source is malformed XML or violates XML reader restrictions.</exception>
-    /// <exception cref="InvalidDataException">The source contains unsupported SVG content, coordinates or paint values.</exception>
+    /// <exception cref="InvalidDataException">The source contains unsupported SVG content or paint values.</exception>
     internal static IconSvg Parse(Stream stream, IconInfo info, IconVariant variant, string revision)
     {
         // Read directly from the selected ZIP entry or override. Only this icon's XML tree
@@ -68,6 +68,14 @@ internal static class IconSvgParser
         if (root == null || root.Name.LocalName != "svg")
         {
             throw new InvalidDataException($"Icon '{info.Address}' has no SVG root.");
+        }
+
+        // The source coordinate system takes precedence over the variant fallback.
+        // Keep the attribute verbatim; absent coordinates make this icon unavailable.
+        var viewBox = (string)root.Attribute("viewBox") ?? variant.DefaultViewBox;
+        if (viewBox == null)
+        {
+            return null;
         }
 
         // Validate static SVG content before extracting it. Presentation changes are applied only after validation.
@@ -94,16 +102,6 @@ internal static class IconSvgParser
                     throw new InvalidDataException($"Unsupported SVG attribute '{attribute.Name}' in '{info.Address}'.");
                 }
             }
-        }
-
-        // Preserve the source coordinate system, including offsets and non-square dimensions.
-        // GridSize is only a fallback when viewBox is missing, not a replacement for valid data.
-        var viewBox = (string)root.Attribute("viewBox") ?? $"0 0 {variant.GridSize} {variant.GridSize}";
-        var coordinates = viewBox.Split([' ', ',', '\t', '\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
-        if (coordinates.Length != 4 || coordinates.Any(x => !double.TryParse(x, NumberStyles.Float, CultureInfo.InvariantCulture, out double n) || !double.IsFinite(n))
-            || double.Parse(coordinates[2], CultureInfo.InvariantCulture) <= 0 || double.Parse(coordinates[3], CultureInfo.InvariantCulture) <= 0)
-        {
-            throw new InvalidDataException($"Invalid viewBox in '{info.Address}'.");
         }
 
         // Supply SVG's initial width so CSS overrides also reach strokes without an explicit width.

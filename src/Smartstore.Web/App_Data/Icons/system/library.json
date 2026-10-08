@@ -5,7 +5,7 @@
   "defaultVariant": "default",
   "variants": {
     "default": {
-      "gridSize": 16,
+      "defaultViewBox": "0 0 16 16",
       "stroke": "currentColor"
     }
   }

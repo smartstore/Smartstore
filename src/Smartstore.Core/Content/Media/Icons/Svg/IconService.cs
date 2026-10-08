@@ -103,6 +103,11 @@ public sealed class IconService(IApplicationContext applicationContext, IIconCac
             {
                 cancelToken.ThrowIfCancellationRequested();
                 svg = variant.Prepare(info, source, revision);
+                if (svg == null)
+                {
+                    return null;
+                }
+
                 // Unlike an in-memory source snapshot, files can change while being read.
                 // Do not publish a prepared value after this index generation was invalidated.
                 if (catalog.ChangeToken.HasChanged)
@@ -137,28 +142,43 @@ public sealed class IconService(IApplicationContext applicationContext, IIconCac
         }
 
         var words = (query.Term ?? string.Empty).Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
-        // Reverse the conceptual mapping for search, but enumerate actual available icons.
-        // Multiple concepts pointing to one icon should produce one result, not duplicates.
-        var aliases = library.Mapping.ToLookup(x => x.Value.Name, x => x.Key, StringComparer.Ordinal);
-        var matches = new List<IconInfo>();
-        foreach (var name in variant.Names.OrderBy(x => x, StringComparer.Ordinal))
+        IReadOnlyCollection<string> names = variant.Names;
+        if (words.Length > 0)
         {
-            cancelToken.ThrowIfCancellationRequested();
-            var tags = library.Tags.GetValueOrDefault(name) ?? [];
-            if (words.All(word => name.Contains(word, StringComparison.OrdinalIgnoreCase)
-                || tags.Any(tag => tag.Contains(word, StringComparison.OrdinalIgnoreCase))
-                || aliases[name].Any(alias => alias.Contains(word, StringComparison.OrdinalIgnoreCase))))
+            // Search only available icons. Each word can match a name, tag or
+            // conceptual alias; different words may match different fields.
+            var aliases = library.Mapping.ToLookup(x => x.Value.Name, x => x.Key, StringComparer.Ordinal);
+            var metadata = library.Tags;
+            var matches = new List<string>();
+            foreach (var name in variant.Names)
             {
-                matches.Add(CreateInfo(library, variant, name));
+                var tags = metadata.GetValueOrDefault(name) ?? [];
+                if (words.All(word => name.Contains(word, StringComparison.OrdinalIgnoreCase)
+                    || tags.Any(tag => tag.Contains(word, StringComparison.OrdinalIgnoreCase))
+                    || aliases[name].Any(alias => alias.Contains(word, StringComparison.OrdinalIgnoreCase))))
+                {
+                    matches.Add(name);
+                }
             }
+
+            names = matches;
+        }
+
+        // Empty searches need no tags or mappings. Create metadata only for the
+        // requested page, while retaining the full match count for pagination.
+        var items = new List<IconInfo>();
+        foreach (var name in names.OrderBy(x => x, StringComparer.Ordinal).Skip(query.Skip).Take(query.Take))
+        {
+            items.Add(CreateInfo(library, variant, name));
         }
 
         return Task.FromResult(new IconSearchResult
         {
-            TotalCount = matches.Count,
-            Items = matches.Skip(query.Skip).Take(query.Take).ToArray()
+            TotalCount = names.Count,
+            Items = items.ToArray()
         });
     }
+
 
     private static IconInfo Find(IconCatalog catalog, string name, string libraryName, string variantName)
     {

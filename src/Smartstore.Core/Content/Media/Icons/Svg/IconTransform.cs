@@ -48,7 +48,7 @@ public readonly record struct IconTransform
     /// <summary>
     /// Formats an SVG transform around the actual coordinate rectangle, including its origin offset.
     /// </summary>
-    /// <param name="viewBox">The validated source viewBox.</param>
+    /// <param name="viewBox">The source or fallback viewBox used to calculate the transform center.</param>
     internal string ToSvg(string viewBox)
     {
         var parts = viewBox.Split([' ', ',', '\t', '\r', '\n'], StringSplitOptions.RemoveEmptyEntries);

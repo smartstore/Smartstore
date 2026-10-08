@@ -72,9 +72,9 @@ public sealed record IconVariant
     public string? ShortName { get; init; }
 
     /// <summary>
-    /// Gets the native square grid size, also used when viewBox is absent.
+    /// Gets the optional viewBox fallback used only when the SVG has no viewBox attribute.
     /// </summary>
-    public int GridSize { get; init; } = 16;
+    public string? DefaultViewBox { get; init; }
 
     /// <summary>
     /// Gets the optional fill override. Null preserves source paint.

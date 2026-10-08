@@ -6,7 +6,7 @@
   "variants": {
     "stroke-rounded": {
       "shortName": "sr",
-      "gridSize": 24,
+      "defaultViewBox": "0 0 24 24",
       "stroke": "currentColor",
       "strokeWidthScale": 1.0666667
     }

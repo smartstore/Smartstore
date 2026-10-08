@@ -125,6 +125,12 @@ internal sealed class IconKitIndex
                     var symbol = new XElement(ns + "g", new XAttribute("id", sourceId));
                     string aspectRatio = null;
                     var svg = sources.Prepare(entry.Info, entry.Source, IconSvgParser.Revision + entry.Source.Revision);
+                    if (svg == null)
+                    {
+                        // Missing source and default viewBox: omit this symbol without failing the kit.
+                        continue;
+                    }
+
                     // This XML tree exists only on a sprite cache miss. Prefix all original IDs
                     // and references before combining unrelated SVG documents into one sprite.
                     var drawing = XElement.Parse("<g>" + svg.Content + "</g>", LoadOptions.PreserveWhitespace);

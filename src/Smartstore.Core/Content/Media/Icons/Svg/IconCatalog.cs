@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -113,6 +114,7 @@ internal sealed class IconCatalog
         private readonly string _root;
         private readonly string _manifestRevision;
         private readonly Lazy<Dictionary<string, uint>> _archive;
+        private readonly Lazy<FrozenSet<string>> _names;
         private readonly ConcurrentDictionary<string, Lazy<Source>> _sources = new(StringComparer.Ordinal);
 
         /// <summary>
@@ -129,6 +131,12 @@ internal sealed class IconCatalog
             Manifest = manifest;
             _manifestRevision = manifestRevision;
             _archive = new(LoadArchive);
+            // Cache only names, not file objects or SVG bodies. A new catalog generation
+            // gets a fresh set after the watcher reports changes to any source layer.
+            _names = new(() => GetOverrideNames("user")
+                .Concat(GetOverrideNames("icons"))
+                .Concat(_archive.Value.Keys)
+                .ToFrozenSet(StringComparer.Ordinal));
         }
 
         /// <summary>
@@ -137,12 +145,9 @@ internal sealed class IconCatalog
         internal IconVariant Manifest { get; }
 
         /// <summary>
-        /// Gets available names for search, enumerating override filenames without reading their contents.
+        /// Gets all available names, indexed lazily once per catalog generation without reading SVG contents.
         /// </summary>
-        internal IEnumerable<string> Names => GetOverrideNames("user")
-            .Concat(GetOverrideNames("icons"))
-            .Concat(_archive.Value.Keys)
-            .Distinct(StringComparer.Ordinal);
+        internal FrozenSet<string> Names => _names.Value;
 
         /// <summary>
         /// Resolves and fingerprints a requested source once per catalog generation.
@@ -515,7 +520,7 @@ internal sealed class IconCatalog
         var library = new Library(files, root) { Manifest = manifest };
         foreach (var pair in manifest.Variants)
         {
-            if (!IconAddress.IsQualifier(pair.Key) || pair.Value == null || pair.Value.GridSize <= 0
+            if (!IconAddress.IsQualifier(pair.Key) || pair.Value == null
                 || pair.Value.ShortName != null && !IconAddress.IsQualifier(pair.Value.ShortName)
                 || (!double.IsFinite(pair.Value.StrokeWidthScale) || pair.Value.StrokeWidthScale < 0)
                 || pair.Value.Stroke != null && (!System.Text.RegularExpressions.Regex.IsMatch(pair.Value.Stroke, @"^[A-Za-z0-9#.,% ()+-]+$")

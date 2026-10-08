@@ -429,6 +429,60 @@ public class IconServiceTests
     }
 
     /// <summary>
+    /// Unions shared tag matches, intersects words across fields and excludes unavailable targets before paging.
+    /// </summary>
+    [Test]
+    public async Task Search_Combines_Fields_And_Filters_By_Variant()
+    {
+        Write("Icons/hugeicons/metadata.json", """{"icons":{"cart-01":{"tags":["basket","shared"]},"direct":{"tags":["shared"]},"missing":{"tags":["shared"]}}}""");
+        Write("Icons/hugeicons/mapping.json", """{"shopping":"cart-01","ghost":"missing"}""");
+        var shared = await _service.SearchAsync(new IconSearchQuery { Term = "SHARED", Skip = 1, Take = 1 });
+        Assert.That(shared.TotalCount, Is.EqualTo(2));
+        Assert.That(shared.Items.Single().Name, Is.EqualTo("direct"));
+        var combined = await _service.SearchAsync(new IconSearchQuery { Term = "SHOP bask 01" });
+        Assert.That(combined.Items.Single().Name, Is.EqualTo("cart-01"));
+        Assert.That((await _service.SearchAsync(new IconSearchQuery { Term = "ghost" })).TotalCount, Is.Zero);
+        Assert.That((await _service.SearchAsync(new IconSearchQuery { Term = "shared", Variant = "sharp" })).TotalCount, Is.EqualTo(1));
+    }
+
+    /// <summary>
+    /// Includes substring matches for names, tags and aliases even when an exact match exists.
+    /// </summary>
+    /// <param name="term">An exact searchable name, tag or alias.</param>
+    [TestCase("CART-01")]
+    [TestCase("BASKET")]
+    [TestCase("CART")]
+    public async Task Search_Includes_Exact_And_Partial_Matches(string term)
+    {
+        Write("Icons/hugeicons/rounded/icons/cart-01-extra.svg", _svg);
+        Write("Icons/hugeicons/metadata.json", """{"icons":{"cart-01":{"tags":["basket"]},"cart-01-extra":{"tags":["basket-extra"]}}}""");
+        var exact = await _service.SearchAsync(new IconSearchQuery { Term = term });
+        Assert.That(exact.TotalCount, Is.EqualTo(2));
+        Assert.That(exact.Items.Select(x => x.Name), Is.EqualTo(new[] { "cart-01", "cart-01-extra" }));
+        var partial = await _service.SearchAsync(new IconSearchQuery { Term = "bask" });
+        Assert.That(partial.TotalCount, Is.EqualTo(2));
+        var combined = await _service.SearchAsync(new IconSearchQuery { Term = "cart bask" });
+        Assert.That(combined.TotalCount, Is.EqualTo(2));
+    }
+
+    /// <summary>
+    /// Reuses the name index for repeated searches and rebuilds searchable tags after watcher invalidation.
+    /// </summary>
+    [Test]
+    public async Task Search_Reuses_Names_And_Reloads_Tags_After_Invalidation()
+    {
+        await _service.SearchAsync(new IconSearchQuery { Term = "basket" });
+        await _service.SearchAsync(new IconSearchQuery { Term = "cart" });
+        var files = Mock.Get(_context.Object.AppDataRoot);
+        files.Verify(x => x.GetDirectoryContents("Icons/hugeicons/rounded/user"), Times.Once);
+        files.Verify(x => x.GetDirectoryContents("Icons/hugeicons/rounded/icons"), Times.Once);
+        Write("Icons/hugeicons/metadata.json", """{"icons":{"cart-01":{"tags":["trolley"]}}}""");
+        SignalChanges();
+        Assert.That((await _service.SearchAsync(new IconSearchQuery { Term = "basket" })).TotalCount, Is.Zero);
+        Assert.That((await _service.SearchAsync(new IconSearchQuery { Term = "trolley" })).TotalCount, Is.EqualTo(1));
+    }
+
+    /// <summary>
     /// Reloads overrides and changes revisions even when timestamps and lengths match.
     /// </summary>
     [Test]
@@ -490,7 +544,7 @@ public class IconServiceTests
     {
         var variants = new Dictionary<string, IconVariant>
         {
-            ["rounded"] = new IconVariant { GridSize = 24, ShortName = "sr", StrokeWidthScale = 1.5 }
+            ["rounded"] = new IconVariant { DefaultViewBox = "0 0 24 24", ShortName = "sr", StrokeWidthScale = 1.5 }
         };
         var library = new IconLibrary { ShortName = "hi", DefaultVariant = "rounded", Variants = variants };
         variants.Clear();
@@ -649,13 +703,44 @@ public class IconServiceTests
     }
 
     /// <summary>
-    /// Uses grid coordinates only when no viewBox is supplied.
+    /// Uses the variant default only when no viewBox is supplied.
     /// </summary>
     [Test]
-    public async Task Missing_ViewBox_Uses_Grid()
+    public async Task Missing_ViewBox_Uses_Default()
     {
         Write("Icons/hugeicons/rounded/icons/custom.svg", "<svg><path d=\"M0 0L1 1\"/></svg>");
         Assert.That((await _service.GetSvgAsync("custom")).ViewBox, Is.EqualTo("0 0 24 24"));
+    }
+
+    /// <summary>
+    /// Preserves a supplied viewBox verbatim without validating its coordinate values.
+    /// </summary>
+    /// <param name="viewBox">The source attribute value.</param>
+    [TestCase("0 0 16 16")]
+    [TestCase("not-coordinates")]
+    [TestCase("")]
+    public async Task Source_ViewBox_Takes_Precedence_Without_Validation(string viewBox)
+    {
+        Write("Icons/hugeicons/rounded/icons/custom.svg", $"<svg viewBox=\"{viewBox}\"><path d=\"M0 0L1 1\"/></svg>");
+        Assert.That((await _service.GetSvgAsync("custom")).ViewBox, Is.EqualTo(viewBox));
+    }
+
+    /// <summary>
+    /// Missing source and default coordinates omit inline output and kit symbols without caching null payloads.
+    /// </summary>
+    [Test]
+    public async Task Missing_ViewBox_And_Default_Skip_Icon_And_Kit_Symbol()
+    {
+        Write("Icons/hugeicons/library.json", """{"defaultVariant":"rounded","variants":{"rounded":{}}}""");
+        Write("Icons/hugeicons/rounded/icons/cart-01.svg", "<svg><path d=\"M0 0L1 1\"/></svg>");
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"shared":["cart"]}}}""");
+        Assert.That(await _service.GetSvgAsync("cart"), Is.Null);
+        _cache.Verify(x => x.PutAsync(It.IsAny<string>(), It.IsAny<IconSvg>(), It.IsAny<CancellationToken>()), Times.Never);
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        var url = kits.GetUrl("shared");
+        var path = await kits.GetSpriteFileAsync("shared", url[^28..^4]);
+        var sprite = XElement.Parse(File.ReadAllText(path));
+        Assert.That(sprite.Descendants().Any(x => x.Name.LocalName == "symbol"), Is.False);
     }
 
     /// <summary>
@@ -1451,8 +1536,8 @@ public class IconServiceTests
             defaultVariant = "sharp",
             variants = new
             {
-                rounded = new { gridSize = 24, shortName = variantShortName, strokeWidthScale = 1.6 },
-                sharp = new { gridSize = 24 }
+                rounded = new { defaultViewBox = "0 0 24 24", shortName = variantShortName, strokeWidthScale = 1.6 },
+                sharp = new { defaultViewBox = "0 0 24 24" }
             }
         }));
     }

@@ -89,7 +89,7 @@ Each library contains a `library.json`:
   "variants": {
     "stroke-rounded": {
       "shortName": "sr",
-      "gridSize": 24,
+      "defaultViewBox": "0 0 24 24",
       "stroke": "currentColor",
       "strokeWidthScale": 1.0666667
     }
@@ -106,8 +106,9 @@ Each library contains a `library.json`:
 - `variants` holds technical settings keyed by variant directory name.
 - Each variant may also have an optional `shortName`, such as `sr`. It must be
   unique within that library and must not shadow another variant's name.
-- `gridSize` describes the nominal design grid. The SVG's actual `viewBox`
-  remains authoritative when rendering.
+- `defaultViewBox` supplies an optional fallback when the SVG has no `viewBox`
+  attribute. An existing attribute is preserved verbatim without coordinate validation.
+  If both are absent, the icon is skipped without an error, including in kits.
 - `fill` is reserved for future paint configuration.
   Stroke width is measured in SVG coordinates; caps accept `butt`, `round` or `square`.
   These settings are currently not applied.
@@ -261,9 +262,15 @@ its first archive lookup or search. Unused libraries and variants incur no archi
 or metadata reads. Invalid deferred files are reported when first used.
 
 User files are resolved directly by name, then system icons, then the archive.
-Only the winning layer is read and hashed. Search
-only enumerates their filenames. Only requested sources retain a small descriptor
-(path and fingerprint); no complete override index, file objects, SVG contents or
+Only the winning layer is read and hashed. On the first search or full-name lookup,
+each variant combines filenames from `user`, `icons` and the ZIP directory into a
+`FrozenSet<string>`. This name index is reused for the catalog generation and rebuilt
+lazily after watcher invalidation; SVG contents are not read to build it. Individual
+icon resolution does not require building the full index. Search iterates the available names and checks their tags and mapping aliases
+using case-insensitive substring matching. Every search word must match at least
+one of these fields. Only the requested page is materialized as icon metadata.
+Only requested sources
+retain a small descriptor (path and fingerprint); no file objects, SVG contents or
 open handles are retained. Loose-file revisions include the layer and a SHA-256 fingerprint; archived icons use
 the ZIP entry CRC. Archive bodies are not scanned for hashing. Each miss reopens
 and checks the requested source, then streams it into the XML parser. Warm cache
