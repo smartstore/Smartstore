@@ -101,58 +101,18 @@
                         </div>
                     </div>
                 </div>
-                <div class="adminRow">
+                <div sm-if="!(Model.OrderCancelled && Model.Shipments.IsNullOrEmpty())" class="adminRow">
                     <div class="adminTitle">
                         @Html.SmartLabel(string.Empty, T("Admin.Orders.Shipments"))
                     </div>
                     <div class="adminData">
-                        @if (Model.Shipments.Count > 0)
-                        {
-                            <div class="table-responsive">
-                                <table class="table table-sm table-hover mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th>@T("Admin.Orders.Shipments.ID")</th>
-                                            <th class="text-center">@T("Admin.Orders.Shipments.Products.QtyShipped")</th>
-                                            <th>@T("Admin.Orders.Shipments.ShippedDate")</th>
-                                            <th>@T("Admin.Orders.Shipments.DeliveryDate")</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var shipment in Model.Shipments)
-                                        {
-                                            <tr>
-                                                <td><a href="@Url.Action("Edit", "Shipment", new { id = shipment.Id })">@shipment.Id</a></td>
-                                                <td class="text-center">@shipment.Quantity</td>
-                                                <td>
-                                                    @if (shipment.ShippedOn.HasValue)
-                                                    {
-                                                        @shipment.ShippedOn
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="text-muted">@T("Admin.Orders.Shipments.ShippedDate.NotYet")</span>
-                                                    }
-                                                </td>
-                                                <td>
-                                                    @if (shipment.DeliveredOn.HasValue)
-                                                    {
-                                                        @shipment.DeliveredOn
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="text-muted">@T("Admin.Orders.Shipments.DeliveryDate.NotYet")</span>
-                                                    }
-                                                </td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
-                        }
-                        else if (!Model.OrderCancelled)
+                        @if (Model.Shipments.IsNullOrEmpty())
                         {
                             <div class="form-control-plaintext text-muted">@T("Admin.Orders.Shipments.ShippedDate.NotYet")</div>
+                        }
+                        else
+                        {
+                            <partial name="_ShipmentsTable" />
                         }
                     </div>
                 </div>
@@ -198,87 +158,105 @@
                 }
                 else
                 {
-                <div sm-if="Model.MaxRefundAmount != Money.Zero" class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="MaxRefundAmount" />
-                    </div>
-                    <div class="adminData">
-                        <div class="form-control-plaintext">
-                            @Html.Raw(Model.MaxRefundAmount.ToString())
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="IsCompleted" />
+                        </div>
+                        <div class="adminData">
+                            <editor asp-for="IsCompleted" />
+                            <span asp-validation-for="IsCompleted"></span>
                         </div>
                     </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="Quantity" />
+                    <div sm-if="Model.CompletedOn != null" class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="CompletedOn" />
+                        </div>
+                        <div class="adminData">
+                            <div class="form-control-plaintext">@Model.CompletedOn</div>
+                        </div>
                     </div>
-                    <div class="adminData">
-                        <editor asp-for="Quantity" />
-                        <span asp-validation-for="Quantity"></span>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="ReturnCaseStatusId" />
+                        </div>
+                        <div class="adminData">
+                            <select asp-for="ReturnCaseStatusId">
+                                @foreach (var item in statusItems)
+                                {
+                                    <option value="@item.Value" attr-selected='(item.Selected, "selected")' data-next-step="@item.CustomProperties["NextStep"]">@item.Text</option>
+                                }
+                            </select>
+                            <span asp-validation-for="ReturnCaseStatusId"></span>
+                            <span class="d-inline-block text-muted pt-2">
+                                <span>@T("ReturnCase.NextStep"):</span>
+                                <span id="ReturnCaseNextStep">@Model.NextStep</span>
+                            </span>
+                        </div>
                     </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="ReturnCaseStatusId" />
+
+                    <div sm-if="Model.MaxRefundAmount != Money.Zero" class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="MaxRefundAmount" />
+                        </div>
+                        <div class="adminData">
+                            <div class="form-control-plaintext">
+                                @Html.Raw(Model.MaxRefundAmount.ToString())
+                            </div>
+                        </div>
                     </div>
-                    <div class="adminData">
-                        <select asp-for="ReturnCaseStatusId">
-                            @foreach (var item in statusItems)
-                            {
-                                <option value="@item.Value" attr-selected='(item.Selected, "selected")' data-next-step="@item.CustomProperties["NextStep"]">@item.Text</option>
-                            }
-                        </select>
-                        <span asp-validation-for="ReturnCaseStatusId"></span>
-                        <span class="d-inline-block text-muted pt-2">
-                            <span>@T("ReturnCase.NextStep"):</span>
-                            <span id="ReturnCaseNextStep">@Model.NextStep</span>
-                        </span>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="Quantity" />
+                        </div>
+                        <div class="adminData">
+                            <editor asp-for="Quantity" />
+                            <span asp-validation-for="Quantity"></span>
+                        </div>
                     </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="ReasonForReturn" />
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="ReasonForReturn" />
+                        </div>
+                        <div class="adminData">
+                            <select asp-for="ReasonForReturn" asp-items="ViewBag.ReasonForReturn"></select>
+                            <span asp-validation-for="ReasonForReturn"></span>
+                        </div>
                     </div>
-                    <div class="adminData">
-                        <select asp-for="ReasonForReturn" asp-items="ViewBag.ReasonForReturn"></select>
-                        <span asp-validation-for="ReasonForReturn"></span>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="RequestedAction" />
+                        </div>
+                        <div class="adminData">
+                            <select asp-for="RequestedAction" asp-items="ViewBag.ActionsForReturn"></select>
+                            <span asp-validation-for="RequestedAction"></span>
+                        </div>
                     </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="RequestedAction" />
+                    <div sm-if="Model.RequestedActionUpdated.HasValue" class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="RequestedActionUpdated" />
+                        </div>
+                        <div class="adminData">
+                            <div class="form-control-plaintext">@Model.RequestedActionUpdated</div>
+                        </div>
                     </div>
-                    <div class="adminData">
-                        <select asp-for="RequestedAction" asp-items="ViewBag.ActionsForReturn"></select>
-                        <span asp-validation-for="RequestedAction"></span>
+                    <div sm-if="!originatesFromWithdrawal" class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="CustomerComments" />
+                        </div>
+                        <div class="adminData">
+                            <editor asp-for="CustomerComments" />
+                            <span asp-validation-for="CustomerComments"></span>
+                        </div>
                     </div>
-                </div>
-                <div sm-if="Model.RequestedActionUpdated.HasValue" class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="RequestedActionUpdated" />
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="StaffNotes" />
+                        </div>
+                        <div class="adminData">
+                            <editor asp-for="StaffNotes" />
+                            <span asp-validation-for="StaffNotes"></span>
+                        </div>
                     </div>
-                    <div class="adminData">
-                        <div class="form-control-plaintext">@Model.RequestedActionUpdated</div>
-                    </div>
-                </div>
-                <div sm-if="!originatesFromWithdrawal" class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="CustomerComments" />
-                    </div>
-                    <div class="adminData">
-                        <editor asp-for="CustomerComments" />
-                        <span asp-validation-for="CustomerComments"></span>
-                    </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="StaffNotes" />
-                    </div>
-                    <div class="adminData">
-                        <editor asp-for="StaffNotes" />
-                        <span asp-validation-for="StaffNotes"></span>
-                    </div>
-                </div>
                 }
                 <div class="adminRow">
                     <div class="adminTitle">

@@ -15,6 +15,32 @@ internal class ReturnCaseHook : AsyncDbSaveHook<ReturnCase>
         _eventPublisher = eventPublisher;
     }
 
+    protected override Task<HookResult> OnInsertingAsync(ReturnCase entity, IHookedEntity entry, CancellationToken cancelToken)
+    {
+        if (entity.Kind == ReturnCaseKind.Return
+            && entity.CompletedOn == null
+            && IsFinalStatus(entity.ReturnCaseStatus))
+        {
+            entity.CompletedOn = DateTime.UtcNow;
+        }
+
+        return Task.FromResult(HookResult.Ok);
+    }
+
+    protected override Task<HookResult> OnUpdatingAsync(ReturnCase entity, IHookedEntity entry, CancellationToken cancelToken)
+    {
+        if (entity.Kind == ReturnCaseKind.Return
+            && entity.CompletedOn == null
+            && entry.Entry.TryGetModifiedProperty(nameof(entity.ReturnCaseStatusId), out var previousStatusId)
+            && !IsFinalStatus((ReturnCaseStatus)(int)previousStatusId)
+            && IsFinalStatus(entity.ReturnCaseStatus))
+        {
+            entity.CompletedOn = DateTime.UtcNow;
+        }
+
+        return Task.FromResult(HookResult.Ok);
+    }
+
     protected override Task<HookResult> OnDeletedAsync(ReturnCase entity, IHookedEntity entry, CancellationToken cancelToken)
         => Task.FromResult(HookResult.Ok);
 
@@ -42,4 +68,10 @@ internal class ReturnCaseHook : AsyncDbSaveHook<ReturnCase>
             }
         }
     }
+
+    private static bool IsFinalStatus(ReturnCaseStatus status)
+        => status is ReturnCaseStatus.ItemsRepaired
+            or ReturnCaseStatus.ItemsRefunded
+            or ReturnCaseStatus.RequestRejected
+            or ReturnCaseStatus.Cancelled;
 }

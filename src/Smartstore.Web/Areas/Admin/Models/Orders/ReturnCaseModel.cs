@@ -137,6 +137,12 @@ public class ReturnCaseModel : TabbableModel
         }
     }
 
+    [LocalizedDisplay("ReturnCase.Complete")]
+    public bool IsCompleted { get; set; }
+
+    [LocalizedDisplay("Common.CompletedOn")]
+    public DateTime? CompletedOn { get; set; }
+
     public string ReturnCaseInfo { get; set; }
     public string EditUrl { get; set; }
     public string OrderEditUrl { get; set; }

@@ -15,6 +15,25 @@
     <select asp-for="SearchReturnCaseKind" asp-items="Html.GetLocalizedEnumSelectList(typeof(ReturnCaseKind)).Reverse()" asp-placeholder="@T("Admin.Common.All")" class="form-control-sm"></select>
 </div>
 <div class="form-group">
+    <smart-label asp-for="SearchStatusId" />
+    <select asp-for="SearchStatusId" asp-items="Html.GetLocalizedEnumSelectList(typeof(ReturnCaseStatus))" asp-placeholder="@T("Admin.Common.All")" class="form-control-sm"></select>
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchIsCompleted" sm-ignore-hint="true" />
+    <editor asp-for="SearchIsCompleted" class="form-control-sm" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="CompletedStartDate" sm-ignore-hint="true" />
+    <div class="form-row">
+        <div class="col-6">
+            <editor asp-for="CompletedStartDate" asp-additional-viewdata='new { size = "sm" }' placeholder="@T("Common.From")" />
+        </div>
+        <div class="col-6">
+            <editor asp-for="CompletedEndDate" asp-additional-viewdata='new { size = "sm" }' placeholder="@T("Common.To")" />
+        </div>
+    </div>
+</div>
+<div class="form-group">
     <smart-label sm-text="@T("Common.CreatedOn")" sm-ignore-hint="true" asp-for="StartDate" />
     <div class="form-row">
         <div class="col-6">
@@ -36,10 +55,6 @@
 <div class="form-group">
     <smart-label asp-for="CustomerEmail" />
     <editor asp-for="CustomerEmail" asp-template="SearchExpression" />
-</div>
-<div class="form-group">
-    <smart-label asp-for="SearchStatusId" />
-    <select asp-for="SearchStatusId" asp-items="Html.GetLocalizedEnumSelectList(typeof(ReturnCaseStatus))" asp-placeholder="@T("Admin.Common.All")" class="form-control-sm"></select>
 </div>
 <div sm-if="stores.Count > 1" class="form-group">
     <smart-label asp-for="SearchStoreId" />

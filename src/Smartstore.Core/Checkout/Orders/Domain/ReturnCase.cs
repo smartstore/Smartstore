@@ -94,6 +94,19 @@ public partial class ReturnCase : BaseEntity, IAuditable
     }
 
     /// <summary>
+    /// Gets or sets the date and time (UTC) when the return was completed.
+    /// This value does not apply to cases of kind <see cref="ReturnCaseKind.Withdrawal"/>.
+    /// </summary>
+    public DateTime? CompletedOn { get; set; }
+
+    /// <summary>
+    /// Gets a value indicating whether the return is completed.
+    /// </summary>
+    [NotMapped]
+    public bool IsCompleted
+        => Kind == ReturnCaseKind.Return && CompletedOn != null;
+
+    /// <summary>
     /// Gets or sets whether to refund to wallet.
     /// </summary>
     public bool? RefundToWallet { get; set; }

@@ -62,28 +62,36 @@ public class ReturnCaseController : AdminController
     public async Task<IActionResult> ReturnCaseList(GridCommand command, ReturnCaseListModel model)
     {
         var dtHelper = Services.DateTimeHelper;
-        DateTime? startDateUtc = model.StartDate == null
+        DateTime? startDate = model.StartDate == null
             ? null
             : dtHelper.ConvertToUtcTime(model.StartDate.Value, dtHelper.CurrentTimeZone);
 
-        DateTime? endDateUtc = model.EndDate == null
+        DateTime? endDate = model.EndDate == null
             ? null
             : dtHelper.ConvertToUtcTime(model.EndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
+
+        DateTime? completedStartDate = model.CompletedStartDate == null
+            ? null
+            : dtHelper.ConvertToUtcTime(model.CompletedStartDate.Value, dtHelper.CurrentTimeZone);
+
+        DateTime? completedEndDate = model.CompletedEndDate == null
+            ? null
+            : dtHelper.ConvertToUtcTime(model.CompletedEndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
 
         var query = _db.ReturnCases
             .Include(x => x.Customer).ThenInclude(x => x.BillingAddress)
             .Include(x => x.Customer).ThenInclude(x => x.ShippingAddress)
             .AsNoTracking();
 
-        if (model.SearchId.HasValue)
+        if (model.SearchId != null)
         {
             query = query.Where(x => x.Id == model.SearchId);
         }
-        if (model.SearchReturnCaseKind.HasValue)
+        if (model.SearchReturnCaseKind != null)
         {
             query = query.Where(x => x.Kind == (ReturnCaseKind)model.SearchReturnCaseKind.Value);
         }
-        if (model.SearchStatusId.HasValue)
+        if (model.SearchStatusId != null)
         {
             query = query.Where(x => x.ReturnCaseStatusId == model.SearchStatusId.Value);
         }
@@ -116,9 +124,25 @@ public class ReturnCaseController : AdminController
                 join rc in query on oi.Id equals rc.OrderItemId
                 select rc;
         }
+        if (model.CompletedStartDate != null || model.CompletedEndDate != null || model.SearchIsCompleted != null)
+        {
+            query = query.Where(x => x.Kind == ReturnCaseKind.Return);
+        }
+        if (model.CompletedStartDate != null)
+        {
+            query = query.Where(x => completedStartDate.Value <= x.CompletedOn);
+        }
+        if (model.CompletedEndDate != null)
+        {
+            query = query.Where(x => completedEndDate.Value >= x.CompletedOn);
+        }
+        if (model.SearchIsCompleted != null)
+        {
+            query = query.Where(x => (x.CompletedOn != null) == model.SearchIsCompleted.Value);
+        }
 
         var returnCases = await query
-            .ApplyAuditDateFilter(startDateUtc, endDateUtc)
+            .ApplyAuditDateFilter(startDate, endDate)
             .ApplyStandardFilter(null, null, model.SearchStoreId ?? 0)
             .ApplyGridCommand(command)
             .ToPagedList(command)
@@ -206,6 +230,11 @@ public class ReturnCaseController : AdminController
             returnCase.AdminComment = model.AdminComment;
             returnCase.ReturnCaseStatusId = model.ReturnCaseStatusId;
             returnCase.UpdatedOnUtc = utcNow;
+
+            if (returnCase.Kind == ReturnCaseKind.Return && returnCase.IsCompleted != model.IsCompleted)
+            {
+                returnCase.CompletedOn = model.IsCompleted ? utcNow : null;
+            }
 
             await _db.SaveChangesAsync();
 
@@ -306,6 +335,7 @@ public class ReturnCaseController : AdminController
         {
             returnCase.Kind = ReturnCaseKind.Return;
             returnCase.ReturnCaseStatus = ReturnCaseStatus.Pending;
+            returnCase.CompletedOn = null;
 
             await _db.SaveChangesAsync();
 
@@ -397,6 +427,10 @@ public class ReturnCaseController : AdminController
         model.CreatedOn = dtHelper.ConvertToUserTime(returnCase.CreatedOnUtc, DateTimeKind.Utc);
         model.UpdatedOn = dtHelper.ConvertToUserTime(returnCase.UpdatedOnUtc, DateTimeKind.Utc);
         model.EditUrl = Url.Action(nameof(Edit), "ReturnCase", new { id = returnCase.Id });
+        model.IsCompleted = returnCase.IsCompleted;
+        model.CompletedOn = returnCase.Kind == ReturnCaseKind.Return && returnCase.CompletedOn != null
+            ? dtHelper.ConvertToUserTime(returnCase.CompletedOn.Value, DateTimeKind.Utc)
+            : null;
 
         if (customer != null)
         {
