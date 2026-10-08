@@ -7,7 +7,7 @@ A Smartstore theme is a collection of Sass files, Razor views, images and script
 A lot of effort has gone into the development of the Theming Engine to make creating themes easy, flexible and convenient. In addition, we have managed to make creating themes in Smartstore very easy by using techniques such as:
 
 * Multi-level theme inheritance
-* An integrated Sass compiler, that automatically translates all changes made to Sass files into CSS at runtime in an intelligent and highly performant way.
+* Native embedded Dart Sass, which automatically compiles Sass files into CSS at runtime.
 * Browser-targeted CSS transpilation
 * Modern CSS and icon libraries
 * And many more
@@ -70,7 +70,7 @@ When using **Hot Reload** during debugging, we recommend using the **DebugNoRazo
 
 [Sass](https://sass-lang.com/) is a CSS preprocessor, which means it extends the CSS language by adding features like variables, mixins, functions, and many other techniques. These allow you to create CSS that is more maintainable, themable and extensible.
 
-Smartstore uses `.scss` files for CSS declarations. They provide a way to use Sass variables and functions. At runtime, Sass is automatically translated into CSS by the built-in Sass parser, which, unlike Sass, can be read by any browser.
+Smartstore uses `.scss` files for CSS declarations. At runtime, the native embedded Dart Sass compiler translates them into CSS that browsers can process.
 
 Smartstore's built-in file watcher keeps track of all changes made to the included Sass files while the application is running. When a change is detected, the cache is automatically cleared and the Sass files are retranslated into CSS. This provides you with a convenient, time-saving way to check for CSS changes on page refresh without having to restart the application.
 
