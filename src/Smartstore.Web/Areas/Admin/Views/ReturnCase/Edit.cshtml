@@ -97,8 +97,63 @@
                     </div>
                     <div class="adminData">
                         <div class="form-control-plaintext">
-                            <a href="@Model.OrderEditUrl">@Model.OrderNumber</a>
+                            <a href="@Model.OrderEditUrl" class="@Model.OrderLinkCssClass" title="@Model.OrderStatusStr">@Model.OrderNumber</a>
                         </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        @Html.SmartLabel(string.Empty, T("Admin.Orders.Shipments"))
+                    </div>
+                    <div class="adminData">
+                        @if (Model.Shipments.Count > 0)
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>@T("Admin.Orders.Shipments.ID")</th>
+                                            <th class="text-center">@T("Admin.Orders.Shipments.Products.QtyShipped")</th>
+                                            <th>@T("Admin.Orders.Shipments.ShippedDate")</th>
+                                            <th>@T("Admin.Orders.Shipments.DeliveryDate")</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var shipment in Model.Shipments)
+                                        {
+                                            <tr>
+                                                <td><a href="@Url.Action("Edit", "Shipment", new { id = shipment.Id })">@shipment.Id</a></td>
+                                                <td class="text-center">@shipment.Quantity</td>
+                                                <td>
+                                                    @if (shipment.ShippedOn.HasValue)
+                                                    {
+                                                        @shipment.ShippedOn
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">@T("Admin.Orders.Shipments.ShippedDate.NotYet")</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (shipment.DeliveredOn.HasValue)
+                                                    {
+                                                        @shipment.DeliveredOn
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">@T("Admin.Orders.Shipments.DeliveryDate.NotYet")</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else if (!Model.OrderCancelled)
+                        {
+                            <div class="form-control-plaintext text-muted">@T("Admin.Orders.Shipments.ShippedDate.NotYet")</div>
+                        }
                     </div>
                 </div>
                 <div class="adminRow">

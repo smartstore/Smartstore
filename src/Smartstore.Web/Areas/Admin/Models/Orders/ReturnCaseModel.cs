@@ -19,6 +19,10 @@ public class ReturnCaseModel : TabbableModel
     [LocalizedDisplay("*Order")]
     public int OrderId { get; set; }
     public string OrderNumber { get; set; }
+    public bool OrderCancelled { get; set; }
+    public string OrderStatusStr { get; set; }
+    public string OrderLinkCssClass
+        => OrderCancelled ? "text-muted" : string.Empty;
 
     [LocalizedDisplay("*Customer")]
     public int CustomerId { get; set; }
@@ -97,6 +101,22 @@ public class ReturnCaseModel : TabbableModel
     [LocalizedDisplay("Common.UpdatedOn")]
     public DateTime UpdatedOn { get; set; }
 
+    [LocalizedDisplay("Admin.Orders.Shipments.ShippedDate")]
+    public DateTime? ShippedOn { get; set; }
+    public string ShippedOnStr { get; set; }
+    public string ShippedOnSummary { get; set; }
+    public int ShippedShipmentCount { get; set; }
+
+    [LocalizedDisplay("Admin.Orders.Shipments.DeliveryDate")]
+    public DateTime? DeliveredOn { get; set; }
+    public string DeliveredOnStr { get; set; }
+    public string DeliveredOnSummary { get; set; }
+    public int DeliveredShipmentCount { get; set; }
+
+    public List<ReturnCaseShipmentModel> Shipments { get; set; } = [];
+    public int ShipmentCount 
+        => Shipments.Count;
+
     public bool CanAccept
         => Id != 0 && (ReturnCaseStatus)ReturnCaseStatusId < ReturnCaseStatus.ReturnAuthorized;
 
@@ -125,4 +145,11 @@ public class ReturnCaseModel : TabbableModel
 
     [NotMapped, IgnoreDataMember]
     public UpdateOrderItemModel UpdateOrderItem { get; set; }
+
+    public class ReturnCaseShipmentModel : EntityModelBase
+    {
+        public int Quantity { get; set; }
+        public DateTime? ShippedOn { get; set; }
+        public DateTime? DeliveredOn { get; set; }
+    }
 }

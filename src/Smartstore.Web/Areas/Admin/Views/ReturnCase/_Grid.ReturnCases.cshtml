@@ -2,11 +2,11 @@
 
 @{
     var parentModel = ViewData["Parent"] as ReturnCaseListModel;
-    var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
+    var stores = ViewBag.Stores as IList<SelectListItem>;
 }
 
 <datagrid id="returncases-grid"
-          version="2"
+          version="3"
           allow-resize="true"
           preserve-grid-state="true" preserve-command-state="true"
           allow-column-reordering="true">
@@ -29,8 +29,20 @@
     <columns>
         <column for="Id" halign="center" hideable="false">
             <display-template>
-                <span class="badge rounded-pill px-2 mr-1" :class="item.row.KindLabelClass" style="width: 78px; max-width: 78px">{{ item.row.KindStr }}</span>
+                <span class="badge rounded-pill px-2 mr-1" v-bind:class="item.row.KindLabelClass" style="width: 78px; max-width: 78px">{{ item.row.KindStr }}</span>
                 <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate fwm">{{ item.value }}</a></div>
+            </display-template>
+        </column>
+        <column for="ReturnCaseStatusId">
+            <display-template>
+                <div v-bind:class="item.row.ReturnCaseStatusLabelClass" class="text-truncate">{{ item.row.ReturnCaseStatusStr }}</div>
+            </display-template>
+        </column>
+        <column for="OrderId" sortable="false">
+            <display-template>
+                <div class="text-truncate">
+                    <a :href="item.row.OrderEditUrl" v-bind:class="item.row.OrderLinkCssClass" :title="item.row.OrderStatusStr" class="text-truncate">{{ item.row.OrderNumber }}</a>
+                </div>
             </display-template>
         </column>
         <column for="ProductName" width="2fr" sortable="false">
@@ -41,23 +53,25 @@
         <column for="Quantity" halign="center" />
         <column for="CustomerId" sortable="false">
             <display-template>
-                <div class="text-truncate"><a :href="item.row.CustomerEditUrl" class="text-truncate">{{ item.row.CustomerName }}</a></div>
+                <div class="text-truncate">
+                    <a :href="item.row.CustomerEditUrl" class="text-truncate">{{ item.row.CustomerName }}</a>
+                </div>
             </display-template>
         </column>
         <column for="CustomerEmail" sortable="false" />
-        <column for="OrderId" sortable="false" halign="center">
+        <column for="ShippedOn" sortable="false">
             <display-template>
-                <div class="text-truncate"><a :href="item.row.OrderEditUrl" class="text-truncate">{{ item.row.OrderNumber }}</a></div>
+                <span v-if="item.row.ShippedOnStr" :title="item.row.ShippedOnSummary" class="text-truncate">{{ item.row.ShippedOnStr }}</span>
             </display-template>
         </column>
-        <column for="ReturnCaseStatusStr" entity-member="ReturnCaseStatusId">
+        <column for="DeliveredOn" sortable="false">
             <display-template>
-                <span v-bind:class="item.row.ReturnCaseStatusLabelClass" class="text-truncate">{{ item.row.ReturnCaseStatusStr }}</span>
+                <span v-if="item.row.DeliveredOnStr" :title="item.row.DeliveredOnSummary" class="text-truncate">{{ item.row.DeliveredOnStr }}</span>
             </display-template>
         </column>
         <column for="CreatedOn" entity-member="CreatedOnUtc" />
         <column for="UpdatedOn" entity-member="UpdatedOnUtc" visible="false" />
-        <column for="StoreName" sortable="false" sm-if="!isSingleStoreMode" />
+        <column for="StoreName" sortable="false" sm-if="stores.Count > 1" />
         <column for="StaffNotes" visible="false" wrap="true" />
         <column for="AdminComment" visible="false" wrap="true" />
         <column for="CustomerComments" visible="false" wrap="true" />

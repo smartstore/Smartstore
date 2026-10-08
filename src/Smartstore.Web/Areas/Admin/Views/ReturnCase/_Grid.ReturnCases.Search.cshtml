@@ -3,7 +3,7 @@
 @model ReturnCaseListModel
 
 @{
-    var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
+    var stores = ViewBag.Stores as IList<SelectListItem>;
 }
 
 <div class="form-group">
@@ -41,7 +41,7 @@
     <smart-label asp-for="SearchStatusId" />
     <select asp-for="SearchStatusId" asp-items="Html.GetLocalizedEnumSelectList(typeof(ReturnCaseStatus))" asp-placeholder="@T("Admin.Common.All")" class="form-control-sm"></select>
 </div>
-<div sm-if="!isSingleStoreMode" class="form-group">
+<div sm-if="stores.Count > 1" class="form-group">
     <smart-label asp-for="SearchStoreId" />
-    <editor asp-for="SearchStoreId" class="form-control-sm" />
+    <select asp-for="SearchStoreId" asp-items="stores" asp-placeholder="@T("Admin.Common.All")" class="form-control-sm"></select>
 </div>

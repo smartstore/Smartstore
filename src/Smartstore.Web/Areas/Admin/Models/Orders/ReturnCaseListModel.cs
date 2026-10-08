@@ -29,5 +29,5 @@ public class ReturnCaseListModel : ModelBase
 
     [UIHint("Stores")]
     [LocalizedDisplay("Admin.Common.Store.SearchFor")]
-    public int SearchStoreId { get; set; }
+    public int? SearchStoreId { get; set; }
 }
