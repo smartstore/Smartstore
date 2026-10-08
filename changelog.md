@@ -13,7 +13,7 @@
 - Enhanced color and image swatches for attributes
   - Added configurable swatch presentation settings for product and checkout attributes, including size, shape, aspect ratio, value labels, and optional display of price adjustments or final prices.
   - Swatch values now support images and up to four colors per option.
-- Dimension Pricing plugin
+- Dimension Pricing plugin (commercial module)
 	- Calculates product and shipping prices based on customer-entered dimensions and weight.
 	- Supports formulas, packing rules, girth and volumetric limits, rate tiers and surcharges.
 - (DEV) Added an extensible admin dashboard widget infrastructure with responsive layouts.
@@ -26,6 +26,7 @@
 - Enforce `MaxDownloadFileSize` in `DownloadManager` via the global `appsettings.json` setting (default: 50 MB).
 - Added generic reverse-proxy-based bot detection support to improve bot/human classification in proxied setups.
 - Added a setting to control whether rules calculate prices inclusive or exclusive of tax.
+- Stripe: Added option to enable enforced wallet button on payment selection page (this enables e.g. Apply Pay on Windows).
 
 ### Improvements
 
