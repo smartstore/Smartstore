@@ -107,7 +107,9 @@ public partial class MyCustomPaymentFilter : IPaymentMethodFilter
 
                 if (request.Cart != null)
                 {
-                    Money? cartTotal = await _orderCalculationService.Value.GetShoppingCartTotalAsync(request.Cart);
+                    Money? cartTotal = await _orderCalculationService.Value.GetShoppingCartTotalAsync(
+                        request.Cart,
+                        ShoppingCartTotalOptions.Default);
                     if (cartTotal == null || cartTotal.Value <= decimal.Zero || cartTotal.Value < settings.FinancingMin || cartTotal.Value > settings.FinancingMax)
                     {
                         // Cart total is not financeable.
