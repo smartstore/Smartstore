@@ -10,8 +10,8 @@ All paths below are relative to `App_Data/Icons`. These source assets live outsi
 
 > Integration status: local discovery, icon resolution, search and SVG caching
 > are available through `IIconService`. The existing FontAwesome explorer remains
-> available alongside it. A minimal `icon` TagHelper renders inline SVG. Bundling,
-> the HtmlHelper and browser component will follow separately.
+> available alongside it. The `icon` TagHelper and `Html.IconAsync()` share the Core
+> renderer for inline SVG and kit output; browser components are also available.
 
 <!-- Update this guide and its examples whenever the concept, configuration format,
      or resolution rules change. Keep variant-specific documentation consistent. -->
@@ -802,9 +802,71 @@ are not a complete usage history: unused or expired icons are absent, and direct
 requests can populate the cache without rendering. Entries do not record which plugin
 or page requested them.
 
-Kit contents come from `IIconKitService.Kits`, not from the inline cache. Compare
-resolved icon identities and library/variant selections against current kit membership
-to identify kitless icons. A cached icon may already belong to a kit but have required
-inline rendering for presentation overrides. Maintenance previews should use existing
-cached payloads or kit references so that browsing the UI does not populate the cache
-with unrelated icons.
+## Planned backend icon maintenance UI
+
+A future developer-facing backend page will help organize kits by showing already
+generated kits alongside cached inline icons, including those requested by plugins.
+This UI is planned, not implemented.
+
+- List only existing kit SVG files in `App_Data/.cache/IconKits`. Do not enumerate
+  configured kits to generate missing sprites. Exclude browser manifest JSON files
+  and temporary files. Historical kit revisions may initially appear separately.
+- Read each existing sprite's `symbol` IDs and `viewBox` attributes to list its icons.
+  Preview them through the existing kit URL and symbol fragment. Do not generate
+  kits or populate the individual SVG cache merely to display the maintenance page.
+- List cached inline icons through `IIconCache.GetEntriesAsync()` and retrieve
+  existing payloads with `GetAsync()` for previews, tolerating expired entries.
+- Help developers identify cached icons not covered by kits and refine kit membership.
+  Cached does not automatically mean kitless: presentation overrides can also force
+  a kit icon to render inline. Cache entries do not identify the requesting plugin.
+
+The generated-kit file listing still needs to be added to `IconKitService` when
+implementing this UI. `IIconKitService.Kits` describes configuration and is not an
+inventory of already generated files.
+
+## Open follow-up: coordinated cache invalidation
+
+Revisit library invalidation when implementing backend maintenance. A single
+operation should be able to invalidate both cached SVG payloads and generated
+file artifacts, including kit sprites and affected browser manifests.
+
+`IconCache.InvalidateLibraryAsync` currently removes only SVG cache entries.
+Keep file-artifact cleanup in `IconKitService` and coordinate the two operations
+rather than making `IconCache` responsible for kit storage.
+
+Before implementing targeted cleanup, establish a reliable association between
+artifacts and libraries, including historical revisions. The opaque kit filenames
+do not reveal the library, and the current catalog alone does not identify every
+historical artifact. Clearing the entire directory would also affect unrelated
+libraries. Define retention and deletion behavior with already-open pages in mind:
+current artifacts can be regenerated, but deleted historical URLs may return 404.
+
+This is an open design item to revisit later; coordinated invalidation and automatic
+artifact cleanup are not implemented yet.
+
+## Render icons with the HTML helper
+
+`Html.IconAsync()` uses the same resolution and rendering as the `icon` TagHelper:
+
+```cshtml
+@await Html.IconAsync("trash")
+
+@await Html.IconAsync("cart", lib: "hi", variant: "sr", options: new()
+{
+    Size = "2x",
+    StrokeScale = 1.1,
+    Attributes = { ["class"] = "mr-2", ["title"] = "Cart" }
+})
+```
+
+Addresses support the same mapping bypass and modifiers as the TagHelper. Explicit
+presentation options override address modifiers. Supply HTML attributes directly through
+`IconOptions.Attributes`, using their actual HTML names (for example, `aria-label`).
+The helper passes options unchanged to the renderer. `IconOptions.Clone()` creates an
+independent copy, including a separate attribute dictionary, when customization of
+reusable options is needed.
+Missing icons produce empty HTML. Kit selection, inline fallback, CSS classes and
+accessibility remain the renderer's responsibility.
+
+The existing synchronous `Html.Icon()` and `Html.BootstrapIcon()` remain available
+during migration and are intended for removal after their callers have migrated.

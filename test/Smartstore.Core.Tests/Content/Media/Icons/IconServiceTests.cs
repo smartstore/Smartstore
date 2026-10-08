@@ -558,6 +558,34 @@ public class IconServiceTests
     }
 
     /// <summary>
+    /// Clones options with an independent case-insensitive attribute dictionary through both contracts.
+    /// </summary>
+    /// <param name="untyped">Whether to clone through the non-generic interface.</param>
+    [TestCase(false)]
+    [TestCase(true)]
+    public void Options_Clone_Detaches_Attributes(bool untyped)
+    {
+        var original = new IconOptions { Size = "2x", Rotate = 0, FlipHorizontal = false, StrokeScale = 1.1 };
+        original.Attributes["class"] = "original";
+        var clone = untyped ? (IconOptions)((ICloneable)original).Clone() : original.Clone();
+        Assert.That(clone, Is.Not.SameAs(original));
+        Assert.That(clone.Attributes, Is.Not.SameAs(original.Attributes));
+        Assert.That(clone.Size, Is.EqualTo("2x"));
+        Assert.That(clone.Rotate, Is.Zero);
+        Assert.That(clone.FlipHorizontal, Is.False);
+        Assert.That(clone.StrokeScale, Is.EqualTo(1.1));
+
+        clone.Size = "3x";
+        clone.Attributes["CLASS"] = "clone";
+        Assert.That(clone.Attributes.Count, Is.EqualTo(1));
+        Assert.That(clone.Attributes["class"], Is.EqualTo("clone"));
+        Assert.That(original.Size, Is.EqualTo("2x"));
+        Assert.That(original.Attributes["class"], Is.EqualTo("original"));
+        original.Attributes["title"] = "Original";
+        Assert.That(clone.Attributes.ContainsKey("title"), Is.False);
+    }
+
+    /// <summary>
     /// Coalesces concurrent cache misses for the same canonical icon.
     /// </summary>
     [Test]
