@@ -435,7 +435,7 @@ public class IconServiceTests
     public async Task Source_Changes_Invalidate_Revision()
     {
         var original = await _service.GetSvgAsync("cart");
-        string overridePath = "Icons/hugeicons/rounded/overrides/cart-01.svg";
+        string overridePath = "Icons/hugeicons/rounded/icons/cart-01.svg";
         Write(overridePath, _svg.Replace("M0 0L1 1", "M0 0L2 2"));
         SignalChanges();
         var overridden = await _service.GetSvgAsync("cart");
@@ -462,7 +462,7 @@ public class IconServiceTests
     [TestCase("<svg><path fill=\"url(https://example.com/image)\"/></svg>")]
     public void Unsafe_Svg_Is_Rejected(string svg)
     {
-        Write("Icons/hugeicons/rounded/overrides/cart-01.svg", svg);
+        Write("Icons/hugeicons/rounded/icons/cart-01.svg", svg);
         Assert.ThrowsAsync<InvalidDataException>(() => _service.GetSvgAsync("cart"));
     }
 
@@ -529,7 +529,7 @@ public class IconServiceTests
     /// </summary>
     /// <param name="layer">The loose-file layer containing the additional icon.</param>
     [TestCase("user")]
-    [TestCase("overrides")]
+    [TestCase("icons")]
     public async Task Override_Can_Add_An_Icon(string layer)
     {
         Write($"Icons/hugeicons/rounded/{layer}/custom.svg", _svg);
@@ -544,7 +544,7 @@ public class IconServiceTests
     /// </summary>
     /// <param name="layer">The directory supplying the custom SVG.</param>
     [TestCase("user")]
-    [TestCase("overrides")]
+    [TestCase("icons")]
     public async Task Library_Without_Archive_Supports_Lookup_And_Search(string layer)
     {
         WriteLibrary("system", "sys", null);
@@ -572,7 +572,7 @@ public class IconServiceTests
     public async Task User_Overrides_System_Then_Archive()
     {
         var archived = await _service.GetSvgAsync("cart");
-        var systemPath = "Icons/hugeicons/rounded/overrides/cart-01.svg";
+        var systemPath = "Icons/hugeicons/rounded/icons/cart-01.svg";
         var userPath = "Icons/hugeicons/rounded/user/cart-01.svg";
         Write(systemPath, _svg.Replace("M0 0L1 1", "M0 0L2 2"));
         SignalChanges();
@@ -603,11 +603,11 @@ public class IconServiceTests
     public async Task User_Lookup_Does_Not_Read_Lower_Layers()
     {
         Write("Icons/hugeicons/rounded/user/cart-01.svg", _svg);
-        Write("Icons/hugeicons/rounded/overrides/cart-01.svg", "not SVG");
+        Write("Icons/hugeicons/rounded/icons/cart-01.svg", "not SVG");
         Write("Icons/hugeicons/rounded/icons.zip", "not ZIP");
         Assert.That(await _service.GetSvgAsync("cart"), Is.Not.Null);
         var files = Mock.Get(_context.Object.AppDataRoot);
-        files.Verify(x => x.GetFileInfo("Icons/hugeicons/rounded/overrides/cart-01.svg"), Times.Never);
+        files.Verify(x => x.GetFileInfo("Icons/hugeicons/rounded/icons/cart-01.svg"), Times.Never);
         files.Verify(x => x.GetFileInfo("Icons/hugeicons/rounded/icons.zip"), Times.Never);
     }
 
@@ -617,7 +617,7 @@ public class IconServiceTests
     [Test]
     public async Task Loose_File_Revision_Includes_Layer()
     {
-        Write("Icons/hugeicons/rounded/overrides/cart-01.svg", _svg);
+        Write("Icons/hugeicons/rounded/icons/cart-01.svg", _svg);
         var system = await _service.GetSvgAsync("cart");
         Write("Icons/hugeicons/rounded/user/cart-01.svg", _svg);
         SignalChanges();
@@ -633,7 +633,7 @@ public class IconServiceTests
     public void Invalid_User_Icon_Does_Not_Fall_Back()
     {
         Write("Icons/hugeicons/rounded/user/cart-01.svg", "<svg><script/></svg>");
-        Write("Icons/hugeicons/rounded/overrides/cart-01.svg", _svg);
+        Write("Icons/hugeicons/rounded/icons/cart-01.svg", _svg);
         Assert.ThrowsAsync<InvalidDataException>(() => _service.GetSvgAsync("cart"));
     }
 
@@ -654,7 +654,7 @@ public class IconServiceTests
     [Test]
     public async Task Missing_ViewBox_Uses_Grid()
     {
-        Write("Icons/hugeicons/rounded/overrides/custom.svg", "<svg><path d=\"M0 0L1 1\"/></svg>");
+        Write("Icons/hugeicons/rounded/icons/custom.svg", "<svg><path d=\"M0 0L1 1\"/></svg>");
         Assert.That((await _service.GetSvgAsync("custom")).ViewBox, Is.EqualTo("0 0 24 24"));
     }
 
@@ -664,7 +664,7 @@ public class IconServiceTests
     [Test]
     public async Task Local_References_Are_Preserved()
     {
-        Write("Icons/hugeicons/rounded/overrides/custom.svg", """
+        Write("Icons/hugeicons/rounded/icons/custom.svg", """
             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                 <defs><path id="shape" d="M0 0L1 1"/></defs><use xlink:href="#shape"/>
             </svg>
@@ -736,9 +736,9 @@ public class IconServiceTests
     [Test]
     public async Task Override_Content_Is_Not_Retained_By_Discovery()
     {
-        Write("Icons/hugeicons/rounded/overrides/custom.svg", _svg);
+        Write("Icons/hugeicons/rounded/icons/custom.svg", _svg);
         Assert.That(await _service.GetIconAsync("custom"), Is.Not.Null);
-        File.Delete(Path.Combine(_root, "Icons/hugeicons/rounded/overrides/custom.svg"));
+        File.Delete(Path.Combine(_root, "Icons/hugeicons/rounded/icons/custom.svg"));
         Assert.ThrowsAsync<FileNotFoundException>(() => _service.GetSvgAsync("custom"));
     }
 
@@ -748,9 +748,9 @@ public class IconServiceTests
     [Test]
     public async Task Changed_Override_Is_Rejected_Before_Caching()
     {
-        Write("Icons/hugeicons/rounded/overrides/custom.svg", _svg);
+        Write("Icons/hugeicons/rounded/icons/custom.svg", _svg);
         Assert.That(await _service.GetIconAsync("custom"), Is.Not.Null);
-        Write("Icons/hugeicons/rounded/overrides/custom.svg", _svg.Replace("M0 0L1 1", "M0 0L2 2"));
+        Write("Icons/hugeicons/rounded/icons/custom.svg", _svg.Replace("M0 0L1 1", "M0 0L2 2"));
         Assert.ThrowsAsync<IOException>(() => _service.GetSvgAsync("custom"));
         _cache.Verify(x => x.PutAsync(It.IsAny<string>(), It.IsAny<IconSvg>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -777,7 +777,7 @@ public class IconServiceTests
     public async Task Source_File_Is_Resolved_Again_Only_On_Cache_Miss(bool useOverride)
     {
         string path = useOverride
-            ? "Icons/hugeicons/rounded/overrides/custom.svg"
+            ? "Icons/hugeicons/rounded/icons/custom.svg"
             : "Icons/hugeicons/rounded/icons.zip";
         string name = useOverride ? "custom" : "cart";
         if (useOverride)
@@ -826,7 +826,7 @@ public class IconServiceTests
     {
         var icon = await _service.GetIconAsync("cart");
         var original = await _service.GetSvgAsync(icon);
-        Write("Icons/hugeicons/rounded/overrides/cart-01.svg", _svg.Replace("M0 0L1 1", "M0 0L3 3"));
+        Write("Icons/hugeicons/rounded/icons/cart-01.svg", _svg.Replace("M0 0L1 1", "M0 0L3 3"));
         SignalChanges();
         var changed = await _service.GetSvgAsync(icon);
         Assert.That(changed.Revision, Is.Not.EqualTo(original.Revision));
@@ -877,15 +877,15 @@ public class IconServiceTests
     [Test]
     public async Task Override_Lookup_Is_Independent_Of_Archive_And_Other_Overrides()
     {
-        Write("Icons/hugeicons/rounded/overrides/custom.svg", _svg);
-        Write("Icons/hugeicons/rounded/overrides/broken.svg", "not SVG");
+        Write("Icons/hugeicons/rounded/icons/custom.svg", _svg);
+        Write("Icons/hugeicons/rounded/icons/broken.svg", "not SVG");
         Write("Icons/hugeicons/rounded/icons.zip", "not a ZIP");
         Write("Icons/hugeicons/metadata.json", "not JSON");
         Assert.That(await _service.GetSvgAsync("custom"), Is.Not.Null);
         var files = Mock.Get(_context.Object.AppDataRoot);
         files.Verify(x => x.GetFileInfo("Icons/hugeicons/rounded/icons.zip"), Times.Never);
-        files.Verify(x => x.GetFileInfo("Icons/hugeicons/rounded/overrides/broken.svg"), Times.Never);
-        files.Verify(x => x.GetDirectoryContents(It.Is<string>(p => p.EndsWith("overrides"))), Times.Never);
+        files.Verify(x => x.GetFileInfo("Icons/hugeicons/rounded/icons/broken.svg"), Times.Never);
+        files.Verify(x => x.GetDirectoryContents(It.Is<string>(p => p.EndsWith("icons"))), Times.Never);
     }
 
     /// <summary>
@@ -894,9 +894,9 @@ public class IconServiceTests
     [Test]
     public async Task Search_Does_Not_Read_Override_Contents()
     {
-        Write("Icons/hugeicons/rounded/overrides/custom.svg", "not SVG");
+        Write("Icons/hugeicons/rounded/icons/custom.svg", "not SVG");
         Assert.That((await _service.SearchAsync(new IconSearchQuery { Term = "custom" })).TotalCount, Is.EqualTo(1));
-        Mock.Get(_context.Object.AppDataRoot).Verify(x => x.GetFileInfo("Icons/hugeicons/rounded/overrides/custom.svg"), Times.Never);
+        Mock.Get(_context.Object.AppDataRoot).Verify(x => x.GetFileInfo("Icons/hugeicons/rounded/icons/custom.svg"), Times.Never);
     }
 
     /// <summary>
@@ -905,7 +905,7 @@ public class IconServiceTests
     [Test]
     public async Task Stroke_Width_Scale_Preserves_Inheritance_And_Units()
     {
-        Write("Icons/hugeicons/rounded/overrides/scaled.svg", """
+        Write("Icons/hugeicons/rounded/icons/scaled.svg", """
             <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
                 <g><path d="M0 0L1 1"/><path d="M0 0L2 2" stroke-width="3"/></g>
                 <g stroke-width="2px"><circle r="1"/><path d="M0 0L1 1" stroke-width="inherit"/></g>
@@ -932,10 +932,10 @@ public class IconServiceTests
     [Test]
     public async Task Stroke_Width_Scale_Handles_Default_Width_And_Default_Factor()
     {
-        Write("Icons/hugeicons/rounded/overrides/initial.svg", """<svg><path stroke="black" d="M0 0L1 1"/></svg>""");
+        Write("Icons/hugeicons/rounded/icons/initial.svg", """<svg><path stroke="black" d="M0 0L1 1"/></svg>""");
         var scaled = await _service.GetSvgAsync("initial");
         Assert.That(scaled.Content, Does.Contain("stroke-width:var(--icon-stroke-width,1.6)"));
-        Write("Icons/hugeicons/sharp/overrides/unscaled.svg", _svg);
+        Write("Icons/hugeicons/sharp/icons/unscaled.svg", _svg);
         SignalChanges();
         var original = await _service.GetSvgAsync("unscaled", variant: "sharp");
         Assert.That(original.Content, Does.Contain("stroke-width:var(--icon-stroke-width,1)"));
@@ -963,7 +963,7 @@ public class IconServiceTests
     [Test]
     public async Task Stroke_Color_Configuration_And_Css_Fallbacks_Preserve_None()
     {
-        Write("Icons/hugeicons/rounded/overrides/colors.svg", """
+        Write("Icons/hugeicons/rounded/icons/colors.svg", """
             <svg fill="none"><path stroke="#141B34" stroke-width="1.5"/>
             <path stroke="none"/><path fill="red"/><circle stroke="blue" stroke-width="2"/></svg>
             """);
@@ -991,7 +991,7 @@ public class IconServiceTests
     [Test]
     public void Stroke_Fallback_Rejects_Declaration_Injection()
     {
-        Write("Icons/hugeicons/rounded/overrides/injection.svg", """<svg><path stroke="red;opacity:0"/></svg>""");
+        Write("Icons/hugeicons/rounded/icons/injection.svg", """<svg><path stroke="red;opacity:0"/></svg>""");
         Assert.ThrowsAsync<InvalidDataException>(async () => await _service.GetSvgAsync("injection"));
     }
 

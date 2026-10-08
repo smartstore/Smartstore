@@ -27,14 +27,14 @@ Icons/
         metadata.json
         stroke-rounded/
             icons.zip
-            overrides/
+            icons/
                 shopping-cart-02.svg
             user/
                 shopping-cart-02.svg
 ```
 
-The example shows a system replacement in `overrides` and a user customization
-with the same name. Resolution uses **user > overrides > icons.zip**, per icon.
+The example shows a system replacement in `icons` and a user customization
+with the same name. Resolution uses **user > icons > icons.zip**, per icon.
 
 | File | Purpose |
 | --- | --- |
@@ -43,7 +43,7 @@ with the same name. Resolution uses **user > overrides > icons.zip**, per icon.
 | `<library>/mapping.json` | Conceptual names mapped to concrete icon IDs |
 | `<library>/metadata.json` | Icon inventory and additional English search terms |
 | `<library>/<variant>/icons.zip` | Optional archive of original SVG files for one variant |
-| `<library>/<variant>/overrides/*.svg` | Smartstore-supplied replacements or additional icons |
+| `<library>/<variant>/icons/*.svg` | Smartstore-supplied replacements or additional icons |
 | `<library>/<variant>/user/*.svg` | Integrator replacements or additional icons; highest priority |
 
 ## Select a library and variant
@@ -118,12 +118,12 @@ Each library contains a `library.json`:
   1.5 into approximately 1.6 while preserving relative differences between widths.
   Numeric SVG lengths retain their units; unsupported expressions fail explicitly when scaling.
 
-`icons.zip` is optional. A variant can consist entirely of loose SVGs in `overrides`
+`icons.zip` is optional. A variant can consist entirely of loose SVGs in `icons`
 or `user`; a variant without any sources is empty. A missing archive does not cause
 an error, and unavailable icons return null. An existing invalid archive still
 raises an error when accessed.
 Only declared variants are loaded. Configuration describes variants; their
-archives and overrides establish the available icons.
+archives and loose SVG files establish the available icons.
 Keep variant settings in `library.json`, not in `metadata.json`.
 
 ## Map application concepts to icons
@@ -260,7 +260,7 @@ search, never for SVG rendering. Each variant's ZIP central directory loads on
 its first archive lookup or search. Unused libraries and variants incur no archive
 or metadata reads. Invalid deferred files are reported when first used.
 
-User files are resolved directly by name, then system overrides, then the archive.
+User files are resolved directly by name, then system icons, then the archive.
 Only the winning layer is read and hashed. Search
 only enumerates their filenames. Only requested sources retain a small descriptor
 (path and fingerprint); no complete override index, file objects, SVG contents or
@@ -322,7 +322,7 @@ library/variant selection and paginated Select2 AJAX search and scrolling.
   `hasMore` indicator. Use the same validation and preparation rules as normal
   rendering, but do not populate `IIconCache` for picker previews.
 - Open a variant ZIP once per preview batch and process one SVG at a time.
-  Preserve `user > overrides > icons.zip` resolution, including ZIP-free libraries.
+  Preserve `user > icons > icons.zip` resolution, including ZIP-free libraries.
 - Return previews in the page response rather than issuing one request per icon.
   Debounce search and cancel or discard obsolete requests when selections change.
   Bound retained browser results; infinite scrolling must not accumulate the
@@ -423,12 +423,12 @@ hugeicons/stroke-rounded/user/shopping-cart-02.svg
 ```
 
 A matching filename in `user` replaces both a system override and the archived
-icon for this variant. Smartstore supplies corrections and additions in `overrides`.
+icon for this variant. Smartstore supplies corrections and additions in `icons`.
 Both directories can add new icons. Search lists each name only once across all
 three layers. Place SVGs directly in these directories, without subdirectories.
 Non-SVG files, including README files, are not icon assets.
 
-Keep customizations in `user`; `overrides` and `icons.zip` are maintained by
+Keep customizations in `user`; `icons` and `icons.zip` are maintained by
 Smartstore and may be replaced during updates. Removing a user file reveals the
 system override, or the archived icon if no system override exists. An invalid
 higher-priority SVG raises an error rather than silently using a lower layer.
@@ -460,7 +460,7 @@ English and are not localized at this layer. Preserve exact icon IDs, including
 unusual spelling in source filenames.
 
 Metadata enriches search; it does not determine availability. Icons missing from
-metadata can still be discovered from archives or overrides and found by name.
+metadata can still be discovered from archives or loose SVG files and found by name.
 You can generate metadata locally and maintain additional terms manually. This
 workflow does not require a HugeIcons API connection.
 
@@ -470,7 +470,7 @@ workflow does not require a HugeIcons API connection.
 2. Add `library.json` with a default variant, variant settings and optional short names.
 3. Optionally package each variant's SVGs at the root of its `icons.zip`, inside
    the matching variant directory. For small custom libraries, omit the archive
-   and place Smartstore-supplied SVGs directly in the variant's `overrides` folder.
+   and place Smartstore-supplied SVGs directly in the variant's `icons` folder.
 4. Populate `mapping.json` for your concepts and `metadata.json` for the icon
    inventory and additional search terms.
 5. Place custom SVGs in the relevant variant's `user` directory.

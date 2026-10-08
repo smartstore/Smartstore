@@ -2,9 +2,9 @@
 
 This folder contains integrator SVG replacements and additions for this library
 variant. Preserve its contents during application and icon library updates.
-Smartstore-supplied corrections belong in the sibling `../overrides/` folder.
+Smartstore-supplied corrections belong in the sibling `../icons/` folder.
 
-Icons resolve by filename in this order: **user > overrides > icons.zip**.
+Icons resolve by filename in this order: **user > icons > icons.zip**.
 
 - A matching SVG filename replaces both the system override and the archived icon.
 - A new SVG filename adds an icon to this variant.

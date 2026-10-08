@@ -140,7 +140,7 @@ internal sealed class IconCatalog
         /// Gets available names for search, enumerating override filenames without reading their contents.
         /// </summary>
         internal IEnumerable<string> Names => GetOverrideNames("user")
-            .Concat(GetOverrideNames("overrides"))
+            .Concat(GetOverrideNames("icons"))
             .Concat(_archive.Value.Keys)
             .Distinct(StringComparer.Ordinal);
 
@@ -259,7 +259,7 @@ internal sealed class IconCatalog
         private Source LoadSource(string name)
         {
             // Stop at the first existing source: lower layers must not incur file reads or hashing.
-            var source = LoadOverride(name, "user") ?? LoadOverride(name, "overrides");
+            var source = LoadOverride(name, "user") ?? LoadOverride(name, "icons");
             if (source != null)
             {
                 return source;
@@ -274,7 +274,7 @@ internal sealed class IconCatalog
         /// Fingerprints a requested loose SVG without retaining its file object or contents.
         /// </summary>
         /// <param name="name">The exact, validated icon name.</param>
-        /// <param name="layer">The variant-relative user or overrides directory.</param>
+        /// <param name="layer">The variant-relative user or icons directory.</param>
         /// <returns>The selected source, or null when this layer has no matching file.</returns>
         private Source LoadOverride(string name, string layer)
         {
@@ -335,7 +335,7 @@ internal sealed class IconCatalog
         /// <summary>
         /// Enumerates custom filenames directly from the provider without caching the directory.
         /// </summary>
-        /// <param name="layer">The variant-relative user or overrides directory.</param>
+        /// <param name="layer">The variant-relative user or icons directory.</param>
         private IEnumerable<string> GetOverrideNames(string layer)
         {
             foreach (var file in _files.GetDirectoryContents(_root + "/" + layer))
@@ -383,7 +383,7 @@ internal sealed class IconCatalog
                 files.Watch("Icons/*/metadata.json"),
                 files.Watch("Icons/*/*/icons.zip"),
                 files.Watch("Icons/*/*/user/*.svg"),
-                files.Watch("Icons/*/*/overrides/*.svg")
+                files.Watch("Icons/*/*/icons/*.svg")
             })
         };
         using var config = ReadJson(files, "Icons/config.json", true);

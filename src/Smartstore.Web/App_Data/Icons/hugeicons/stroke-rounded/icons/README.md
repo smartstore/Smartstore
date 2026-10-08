@@ -1,10 +1,10 @@
-# System icon overrides
+# System icons
 
 This folder contains SVG corrections and additions supplied by Smartstore for
 this library variant. It is maintained with the application and may be replaced
 during updates. Put integrator customizations in the sibling `../user/` folder.
 
-Icons resolve by filename in this order: **user > overrides > icons.zip**.
+Icons resolve by filename in this order: **user > icons > icons.zip**.
 
 - A matching SVG filename replaces the archived icon unless a user file takes priority.
 - A new SVG filename adds an icon to this variant.
