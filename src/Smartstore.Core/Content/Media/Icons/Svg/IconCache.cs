@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Smartstore.Caching;
 
 namespace Smartstore.Core.Content.Media.Icons;
@@ -9,6 +10,25 @@ namespace Smartstore.Core.Content.Media.Icons;
 public sealed class IconCache(ICacheManager cache) : IIconCache
 {
     private const string _keyPrefix = "icons:svg:";
+
+    /// <inheritdoc />
+    public async IAsyncEnumerable<IconCacheEntry> GetEntriesAsync([EnumeratorCancellation] CancellationToken cancelToken = default)
+    {
+        // Inspect the backing cache on demand instead of maintaining a second index
+        // that could drift after expiration, eviction or writes from other nodes.
+        await foreach (var storedKey in cache.KeysAsync(BuildCacheKey("*")).WithCancellation(cancelToken))
+        {
+            var key = storedKey[_keyPrefix.Length..];
+            // The revision can contain colons of its own. Its boundary is the first
+            // colon after the canonical variant, not the last colon in the key.
+            var separator = key.IndexOf(':', key.IndexOf('@') + 1);
+            if (separator > 0 && separator < key.Length - 1
+                && IconAddress.TryParse(key[..separator], out var address) && address.IsQualified)
+            {
+                yield return new IconCacheEntry(key, address, key[(separator + 1)..]);
+            }
+        }
+    }
 
     /// <inheritdoc />
     public async Task<IconSvg> GetAsync(string key, CancellationToken cancelToken = default)

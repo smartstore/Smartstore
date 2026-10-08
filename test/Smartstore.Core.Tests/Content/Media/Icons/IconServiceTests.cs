@@ -804,6 +804,39 @@ public class IconServiceTests
     }
 
     /// <summary>
+    /// Cache inspection exposes parsed identities, preserves compound revisions and never loads SVG payloads.
+    /// </summary>
+    [Test]
+    public async Task Cache_Entries_Expose_Identity_Without_Loading_Payloads()
+    {
+        var manager = new Mock<ICacheManager>(MockBehavior.Strict);
+        manager.Setup(x => x.KeysAsync("icons:svg:*")).Returns(Keys());
+        var entries = new List<IconCacheEntry>();
+        await foreach (var entry in new IconCache(manager.Object).GetEntriesAsync())
+        {
+            entries.Add(entry);
+        }
+
+        Assert.That(entries.Count, Is.EqualTo(2));
+        Assert.That(entries[0].Key, Is.EqualTo("hi:cart-01@sr:14hash:zip:abcd"));
+        Assert.That(entries[0].Address.Name, Is.EqualTo("cart-01"));
+        Assert.That(entries[0].Address.Library, Is.EqualTo("hi"));
+        Assert.That(entries[0].Address.Variant, Is.EqualTo("sr"));
+        Assert.That(entries[0].Revision, Is.EqualTo("14hash:zip:abcd"));
+        Assert.That(entries[1].Address, Is.EqualTo(entries[0].Address));
+        Assert.That(entries[1].Revision, Is.EqualTo("14hash:user:ef01"));
+        manager.Verify(x => x.KeysAsync("icons:svg:*"), Times.Once);
+        manager.VerifyNoOtherCalls();
+
+        static async IAsyncEnumerable<string> Keys()
+        {
+            await Task.CompletedTask;
+            yield return "icons:svg:hi:cart-01@sr:14hash:zip:abcd";
+            yield return "icons:svg:hi:cart-01@sr:14hash:user:ef01";
+        }
+    }
+
+    /// <summary>
     /// A warm cache needs no archive handle; an uncached icon still reads its source on demand.
     /// </summary>
     [Test]

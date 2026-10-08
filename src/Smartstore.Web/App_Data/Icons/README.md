@@ -786,3 +786,25 @@ and reports invalid children through `icon-error`.
 Vue applications can call `app.use(Smartstore.Icons)` before mounting. The plugin
 recognizes only these two custom-element names and preserves existing compiler rules.
 The DataGrid already installs it. No Vue dependency is required by the components.
+
+## Inspect cached inline icons
+
+`IIconCache.GetEntriesAsync()` enumerates existing SVG cache entries without reading
+their payloads or generating icons. Each entry exposes `Address` (an `IconAddress`
+with `Name`, `Library` and `Variant`), `Revision` and an opaque `Key` accepted by
+`GetAsync` and `RemoveAsync`. Callers never need to parse cache keys. Enumeration uses the cache
+manager's last backing store: the distributed store when configured, otherwise
+memory. It is intended for maintenance, not the normal rendering path.
+
+Entries may expire between enumeration and retrieval; ignore cache misses. Group
+historical revisions by canonical address when displaying unique icons. Cache entries
+are not a complete usage history: unused or expired icons are absent, and direct SVG
+requests can populate the cache without rendering. Entries do not record which plugin
+or page requested them.
+
+Kit contents come from `IIconKitService.Kits`, not from the inline cache. Compare
+resolved icon identities and library/variant selections against current kit membership
+to identify kitless icons. A cached icon may already belong to a kit but have required
+inline rendering for presentation overrides. Maintenance previews should use existing
+cached payloads or kit references so that browsing the UI does not populate the cache
+with unrelated icons.
