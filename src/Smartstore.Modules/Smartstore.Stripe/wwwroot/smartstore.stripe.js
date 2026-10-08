@@ -1,10 +1,12 @@
 ﻿Smartstore.Stripe = (function () {
     let elements;
     let stripe;
+    let createdPaymentMethod = false;
     
     const paymentRequestButtonId = "stripe-payment-request-button";
     const paymentRequestButtonSelector = "#" + paymentRequestButtonId;
     const paymentElementSelector = "#stripe-payment-element";
+    const expressCheckoutElementSelector = "#stripe-express-checkout-element";
     const moduleSystemName = "Payments.StripeElements";
 
     function validateCart(container) {
@@ -30,8 +32,24 @@
         });
     }
 
+    async function storePaymentMethod(paymentMethodId) {
+        const data = await $.ajax({
+            type: 'POST',
+            data: { paymentMethodId: paymentMethodId },
+            url: $(paymentElementSelector).data('store-payment-selection-url'),
+            dataType: 'json'
+        });
+
+        if (!data.success) {
+            throw new Error('Unable to store the selected payment method.');
+        }
+
+        createdPaymentMethod = true;
+        $('.payment-method-next-step-button').prop('disabled', false).trigger('click');
+    }
+
     return {
-        initPaymentElement: function (publicApiKey, apiVersion, amount, currency, captureMethod) {
+        initPaymentElement: function (publicApiKey, apiVersion, amount, currency, captureMethod, paymentPageButtonMethods = []) {
             stripe = Stripe(publicApiKey, { apiVersion: apiVersion });
 
             const options = {
@@ -46,6 +64,12 @@
             elements = stripe.elements(options);
 
             const paymentElementOptions = { layout: "tabs" };
+            if (paymentPageButtonMethods.length > 0) {
+                paymentElementOptions.wallets = {
+                    applePay: paymentPageButtonMethods.includes('applePay') ? 'never' : 'auto',
+                    googlePay: paymentPageButtonMethods.includes('googlePay') ? 'never' : 'auto'
+                };
+            }
             const paymentElement = elements.create("payment", paymentElementOptions);
             paymentElement.mount(paymentElementSelector);
 
@@ -56,8 +80,50 @@
                     btnNext[0].disabled = false;
                 }
             });
+
+            if (paymentPageButtonMethods.length > 0) {
+                const walletElements = stripe.elements(options);
+                const paymentMethods = {};
+                for (const method of ['applePay', 'googlePay', 'link', 'paypal', 'amazonPay', 'klarna']) {
+                    paymentMethods[method] = paymentPageButtonMethods.includes(method)
+                        ? (method === 'applePay' || method === 'googlePay' ? 'always' : 'auto')
+                        : 'never';
+                }
+
+                const expressCheckoutElement = walletElements.create('expressCheckout', {
+                    paymentMethods: paymentMethods,
+                    layout: { maxColumns: 2 }
+                });
+
+                expressCheckoutElement.on('availablepaymentmethodschange', function (event) {
+                    $(expressCheckoutElementSelector).css('visibility', event.paymentMethods ? 'visible' : 'hidden');
+                });
+
+                expressCheckoutElement.on('confirm', async function (event) {
+                    try {
+                        const { error: submitError } = await walletElements.submit();
+                        if (submitError) {
+                            throw submitError;
+                        }
+
+                        const { error, paymentMethod } = await stripe.createPaymentMethod({ elements: walletElements });
+                        if (error) {
+                            throw error;
+                        }
+
+                        await storePaymentMethod(paymentMethod.id);
+                    }
+                    catch (error) {
+                        event.paymentFailed({ reason: 'fail' });
+                        displayNotification(error.message, 'error');
+                    }
+                });
+
+                expressCheckoutElement.mount(expressCheckoutElementSelector);
+            }
         },
         initPaymentSelectionPage: function (publicApiKey) {
+            createdPaymentMethod = false;
             var btnNext = $(".payment-method-next-step-button");
 
             // Listen for changes to the radio input elements.
@@ -71,8 +137,6 @@
             }
 
             // Complete payment (must be done like this in order to be redirected correctly)
-            var createdPaymentMethod = false;
-
             $("form").on("submit", async e => {
                 if ($("input[name='paymentmethod']:checked").val() == moduleSystemName && !createdPaymentMethod) {
                     e.preventDefault();
@@ -84,22 +148,17 @@
                         return;
                     }
 
-                    (async () => {
+                    try {
                         const { error, paymentMethod } = await stripe.createPaymentMethod({ elements });
+                        if (error) {
+                            throw error;
+                        }
 
-                        $.ajax({
-                            type: 'POST',
-                            data: {
-                                paymentMethodId: paymentMethod.id
-                            },
-                            url: $(paymentElementSelector).data("store-payment-selection-url"),
-                            dataType: 'json',
-                            success: function (data) {
-                                createdPaymentMethod = true;
-                                btnNext.trigger('click');
-                            }
-                        });
-                    })();
+                        await storePaymentMethod(paymentMethod.id);
+                    }
+                    catch (error) {
+                        displayNotification(error.message, 'error');
+                    }
                 }
             });
         },

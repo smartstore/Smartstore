@@ -28,4 +28,7 @@ public class ConfigurationModel : ModelBase
 
     [LocalizedDisplay("*ShowButtonInMiniShoppingCart")]
     public bool ShowButtonInMiniShoppingCart { get; set; }
+
+    [LocalizedDisplay("*PaymentPageButtonMethods")]
+    public string[] PaymentPageButtonMethods { get; set; } = [];
 }

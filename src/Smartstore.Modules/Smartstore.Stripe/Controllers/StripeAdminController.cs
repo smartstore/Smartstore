@@ -56,6 +56,16 @@ public class StripeAdminController : ModuleController
             }
         };
 
+        ViewBag.AvailablePaymentPageButtonMethods = new List<SelectListItem>
+        {
+            new() { Text = "Apple Pay", Value = "applePay" },
+            new() { Text = "Google Pay", Value = "googlePay" },
+            new() { Text = "Link", Value = "link" },
+            new() { Text = "PayPal", Value = "paypal" },
+            new() { Text = "Amazon Pay", Value = "amazonPay" },
+            new() { Text = "Klarna", Value = "klarna" }
+        };
+
         ViewBag.CurrentCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
 
         return View(model);
@@ -71,6 +81,7 @@ public class StripeAdminController : ModuleController
 
         ModelState.Clear();
         MiniMapper.Map(model, settings);
+        settings.PaymentPageButtonMethods = model.PaymentPageButtonMethods ?? [];
 
         return RedirectToAction(nameof(Configure));
     }
