@@ -27,18 +27,32 @@
                 },
                 error: function (xhr, status, error) {
                     displayNotification(error, 'error');
+                    resolve(false);
                 }
             });
         });
     }
 
-    async function storePaymentMethod(paymentMethodId) {
+    async function storePaymentMethod(paymentMethodId, paymentContainer) {
+        // Ignore results after switching payment methods or replacing the Stripe panel.
+        const isCurrent = () => paymentContainer
+            && $(paymentElementSelector)[0] === paymentContainer
+            && $("input[name='paymentmethod']:checked").val() === moduleSystemName;
+
+        if (!isCurrent()) {
+            return;
+        }
+
         const data = await $.ajax({
             type: 'POST',
             data: { paymentMethodId: paymentMethodId },
-            url: $(paymentElementSelector).data('store-payment-selection-url'),
+            url: $(paymentContainer).data('store-payment-selection-url'),
             dataType: 'json'
         });
+
+        if (!isCurrent()) {
+            return;
+        }
 
         if (!data.success) {
             throw new Error('Unable to store the selected payment method.');
@@ -62,6 +76,7 @@
             };
 
             elements = stripe.elements(options);
+            const paymentContainer = $(paymentElementSelector)[0];
 
             const paymentElementOptions = { layout: "tabs" };
             if (paymentPageButtonMethods.length > 0) {
@@ -111,7 +126,7 @@
                             throw error;
                         }
 
-                        await storePaymentMethod(paymentMethod.id);
+                        await storePaymentMethod(paymentMethod.id, paymentContainer);
                     }
                     catch (error) {
                         event.paymentFailed({ reason: 'fail' });
@@ -137,9 +152,10 @@
             }
 
             // Complete payment (must be done like this in order to be redirected correctly)
-            $("form").on("submit", async e => {
+            $("form").off("submit.stripe").on("submit.stripe", async e => {
                 if ($("input[name='paymentmethod']:checked").val() == moduleSystemName && !createdPaymentMethod) {
                     e.preventDefault();
+                    const paymentContainer = $(paymentElementSelector)[0];
 
                     // Trigger form validation and wallet collection
                     const { error: submitError } = await elements.submit();
@@ -154,7 +170,7 @@
                             throw error;
                         }
 
-                        await storePaymentMethod(paymentMethod.id);
+                        await storePaymentMethod(paymentMethod.id, paymentContainer);
                     }
                     catch (error) {
                         displayNotification(error.message, 'error');
@@ -235,10 +251,17 @@
                                     // Display error in stripe terminal.
                                     ev.complete('fail');
                                 }
+                            },
+                            error: function (xhr, status, error) {
+                                ev.complete('fail');
+                                displayNotification(error, 'error');
                             }
                         });
                     }
-                })
+                    else {
+                        ev.complete('fail');
+                    }
+                });
             });
 
             if (isCartPage) {
