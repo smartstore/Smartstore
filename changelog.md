@@ -58,7 +58,7 @@
 - (DEV) Updated **Vue** from 2.6 to 3.5 and migrated the DataGrid and MediaManager integrations to the Vue 3 application API.
 - (DEV) `Wildcard`: Matching is culture-invariant by default (override via `Wildcard.DefaultOptions`), number ranges no longer capture, and a match timeout can be passed for untrusted input.
 - Checkout: The updated total is displayed immediately when the shipping or payment method is changed.
-- #1563 Product legal information improvements.
+- #1563 Added separate controls for tax and shipping-cost notices on product pages, product lists and product comparison.
 - Improved server-side JavaScript minification with `NUglify`, correct block-scoped const handling, and automatic bundle cache invalidation. Files that fail minification now retain their original content with file-specific diagnostics.
 - (DEV) Refactored shopping cart total calculation options into `ShoppingCartTotalOptions` and marked the legacy overload as obsolete.
 - SEO: Product-gallery images now expose valid `src` attributes and use native lazy loading, improving crawler visibility.
