@@ -8,6 +8,17 @@ namespace Smartstore.Core.Content.Media.Icons;
 public interface IIconKitService
 {
     /// <summary>
+    /// Gets the current revisioned browser manifest URL, including the request path base.
+    /// </summary>
+    string GetManifestUrl();
+
+    /// <summary>
+    /// Gets the physical manifest file, publishing it on demand. Unknown historical revisions return null.
+    /// </summary>
+    /// <param name="revision">The manifest content fingerprint.</param>
+    Task<string?> GetManifestFileAsync(string revision, CancellationToken cancelToken = default);
+
+    /// <summary>
     /// Gets configured kits without reading SVG drawing data.
     /// </summary>
     IReadOnlyCollection<IconKit> Kits { get; }

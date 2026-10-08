@@ -1,3 +1,7 @@
+using System.Globalization;
+using System.Security.Cryptography;
+using System.Text.Json;
+using Smartstore.Json;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Engine;
 using Smartstore.Threading;
@@ -12,6 +16,168 @@ namespace Smartstore.Core.Content.Media.Icons;
 /// <param name="httpContextAccessor">Supplies the application's request path base.</param>
 public sealed class IconKitService(IconService icons, IApplicationContext applicationContext, IHttpContextAccessor httpContextAccessor) : IIconKitService
 {
+    /// <inheritdoc />
+    public string GetManifestUrl()
+        => (httpContextAccessor.HttpContext?.Request.PathBase.Value ?? string.Empty)
+            + "/icons/manifest/" + GetManifest(icons.Catalog).Revision + ".json";
+
+    /// <inheritdoc />
+    public async Task<string> GetManifestFileAsync(string revision, CancellationToken cancelToken = default)
+    {
+        cancelToken.ThrowIfCancellationRequested();
+        if (revision == null || revision.Length != 24 || revision.Any(c => !(c is >= '0' and <= '9' or >= 'a' and <= 'f')))
+        {
+            return null;
+        }
+
+        var directory = Path.Combine(applicationContext.AppDataRoot.Root, ".cache", "IconKits");
+        var path = Path.Combine(directory, "manifest-" + revision + ".json");
+        if (File.Exists(path))
+        {
+            return path;
+        }
+
+        var catalog = icons.Catalog;
+        var manifest = GetManifest(catalog);
+        if (manifest.Revision != revision)
+        {
+            return null;
+        }
+
+        using (await AsyncLock.KeyedAsync("icons:manifest:" + path, cancelToken: cancelToken))
+        {
+            if (!File.Exists(path))
+            {
+                Directory.CreateDirectory(directory);
+                var temporary = Path.Combine(directory, Guid.NewGuid().ToString("N") + ".tmp");
+                try
+                {
+                    await File.WriteAllBytesAsync(temporary, manifest.Content, cancelToken);
+                    if (catalog.ChangeToken.HasChanged)
+                    {
+                        throw new IOException("Icon sources changed during manifest creation. Retry after catalog reload.");
+                    }
+
+                    try
+                    {
+                        File.Move(temporary, path);
+                    }
+                    catch (IOException) when (File.Exists(path))
+                    {
+                        // Another process published the same immutable revision.
+                    }
+                }
+                finally
+                {
+                    File.Delete(temporary);
+                }
+            }
+        }
+
+        return path;
+    }
+
+    private static (string Revision, byte[] Content) GetManifest(IconCatalog catalog)
+    {
+        var lazy = Volatile.Read(ref catalog.BrowserManifest);
+        if (lazy == null)
+        {
+            lazy = new Lazy<(string, byte[])>(() => CreateManifest(catalog));
+            lazy = Interlocked.CompareExchange(ref catalog.BrowserManifest, lazy, null) ?? lazy;
+        }
+
+        return lazy.Value;
+    }
+
+    private static (string Revision, byte[] Content) CreateManifest(IconCatalog catalog)
+    {
+        // Export only resolution data. Search tags and SVG drawings stay server-side.
+        var libraries = new SortedDictionary<string, object>(StringComparer.Ordinal);
+        foreach (var library in catalog.Libraries.Values.Distinct().OrderBy(x => x.Manifest.SystemName, StringComparer.Ordinal))
+        {
+            var mapping = new SortedDictionary<string, string>(StringComparer.Ordinal);
+            foreach (var pair in library.Mapping)
+            {
+                var target = pair.Value.Name;
+                var modifiers = new List<string>();
+                var transform = pair.Value.Transform;
+                if (transform.FlipX || transform.FlipY)
+                {
+                    modifiers.Add("flip=" + (transform.FlipX ? "x" : string.Empty) + (transform.FlipY ? "y" : string.Empty));
+                }
+                if (transform.Rotation != 0)
+                {
+                    modifiers.Add("rotate=" + transform.Rotation.ToString("R", CultureInfo.InvariantCulture));
+                }
+                if (pair.Value.StrokeScale != 1)
+                {
+                    modifiers.Add("stroke-scale=" + pair.Value.StrokeScale.ToString("R", CultureInfo.InvariantCulture));
+                }
+                if (modifiers.Count != 0)
+                {
+                    target += "?" + string.Join('&', modifiers);
+                }
+                if (target != pair.Key)
+                {
+                    mapping.Add(pair.Key, target);
+                }
+            }
+
+            libraries.Add(library.Manifest.SystemName, new
+            {
+                library.Manifest.ShortName,
+                library.Manifest.DefaultVariant,
+                Variants = library.Variants.Values.Distinct().OrderBy(x => x.Manifest.Name, StringComparer.Ordinal)
+                    .ToDictionary(x => x.Manifest.Name, x => new { x.Manifest.ShortName }),
+                Mapping = mapping
+            });
+        }
+
+        var kits = catalog.Kits.Values.OrderBy(x => x.Name, StringComparer.Ordinal).ToDictionary(x => x.Name,
+            x => new { x.DefaultLibrary, x.DefaultVariant, Concepts = x.Icons.OrderBy(n => n, StringComparer.Ordinal).ToArray() });
+        var urls = new SortedDictionary<string, SortedDictionary<string, string>>(StringComparer.Ordinal);
+        // Only effective kit defaults are advertised. Other combinations use the render endpoint.
+        // This avoids multiplying startup work by every installed library and variant.
+        foreach (var kit in catalog.Kits.Values)
+        {
+            var library = IconService.SelectLibrary(catalog, kit.DefaultLibrary);
+            var variant = IconService.SelectVariant(catalog, library, null, kit);
+            if (variant == null)
+            {
+                continue;
+            }
+
+            var key = (library.Manifest.ShortName ?? library.Manifest.SystemName) + "@" + (variant.Manifest.ShortName ?? variant.Manifest.Name);
+            if (urls.ContainsKey(key))
+            {
+                continue;
+            }
+
+            var kitUrls = new SortedDictionary<string, string>(StringComparer.Ordinal);
+            urls.Add(key, kitUrls);
+            var index = GetIndex(catalog, library, variant);
+            foreach (var candidate in catalog.Kits.Values)
+            {
+                if (candidate.Icons.All(name => variant.GetSource(library.Mapping.GetValueOrDefault(name)?.Name ?? name) != null))
+                {
+                    kitUrls.Add(candidate.Name, "icons/" + Uri.EscapeDataString(candidate.Name) + "-" + index.Plans[candidate.Name].Value.Revision + ".svg");
+                }
+            }
+        }
+
+        var content = JsonSerializer.SerializeToUtf8Bytes(new
+        {
+            SchemaVersion = 2,
+            DefaultLibrary = catalog.DefaultLibrary.Manifest.SystemName,
+            catalog.DefaultVariant,
+            Libraries = libraries,
+            Kits = kits,
+            Urls = urls
+        }, SmartJsonOptions.CamelCased);
+        // Hash exact UTF-8 bytes so different nodes agree on immutable file identities.
+        return (Convert.ToHexStringLower(SHA256.HashData(content).AsSpan(0, 12)), content);
+    }
+
     /// <inheritdoc />
     public IReadOnlyCollection<IconKit> Kits => icons.Catalog.Kits.Values;
 

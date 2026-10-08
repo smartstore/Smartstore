@@ -138,6 +138,40 @@
     <label for="hi-demo-bounds">Show icon bounds</label>
     <p class="hi-demo-motion-note text-muted">Your reduced-motion preference is active. Icon animations are disabled.</p>
     <div class="hi-demo-content">
+        <details open>
+            <summary>Web components</summary>
+            <p class="text-muted">Rendered in the browser with sm-icon. The cart pair shares its resources; stroke-scale forces inline SVG. Use the controls above to pause animations or show bounds.</p>
+            <div class="hi-demo-grid">
+                <figure>
+                    <div class="hi-demo-stage gap-2">
+                        <sm-icon name="cart" lib="hi" variant="sr" size="3x" aria-label="Cart"></sm-icon>
+                        <sm-icon name="cart" lib="hi" variant="sr" size="3x" aria-label="Cart duplicate"></sm-icon>
+                    </div>
+                    <figcaption><strong>Kit / repeated icon</strong><code>&lt;sm-icon name="cart" size="3x"&gt;&lt;/sm-icon&gt;</code></figcaption>
+                </figure>
+                <figure>
+                    <div class="hi-demo-stage">
+                        <sm-icon name="cart" lib="hi" variant="sr" size="3x" stroke-scale="1.1" aria-label="Cart with thicker strokes"></sm-icon>
+                    </div>
+                    <figcaption><strong>Inline SVG</strong><code>name="cart" stroke-scale="1.1"</code></figcaption>
+                </figure>
+                <figure>
+                    <div class="hi-demo-stage">
+                        <sm-icon name="refresh" lib="hi" variant="sr" size="3x" animation="spin" animation-duration="3s" aria-label="Refresh"></sm-icon>
+                    </div>
+                    <figcaption><strong>Animation</strong><code>animation="spin" animation-duration="3s"</code></figcaption>
+                </figure>
+                <figure>
+                    <div class="hi-demo-stage">
+                        <sm-icon-stack size="2x" aria-label="Confirmed">
+                            <sm-icon name="circle" lib="hi" variant="sr" class="icon-stack-2x"></sm-icon>
+                            <sm-icon name="check" lib="hi" variant="sr" class="icon-stack-1x"></sm-icon>
+                        </sm-icon-stack>
+                    </div>
+                    <figcaption><strong>Stack</strong><code>&lt;sm-icon-stack size="2x"&gt;</code><span>Independent circle and check layers.</span></figcaption>
+                </figure>
+            </div>
+        </details>
         @foreach (var group in utilityGroups)
         {
             <details open>

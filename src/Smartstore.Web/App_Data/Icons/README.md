@@ -704,3 +704,56 @@ The stroke multiplier belongs to individual icons.
 Use `icon-stack-1x` and `icon-stack-2x` for layer sizes. DOM order determines
 painting order unless `--icon-stack-z-index` is set. Supply the accessible label
 on the host when the layers represent one combined symbol.
+
+### Browser components
+
+`sm-icon` and `sm-icon-stack` are native custom elements with light DOM. They
+use the same presentation attributes as the Razor helpers, including `lib`,
+`variant`, nullable `rotate` / `flip-h` / `flip-v`, and `stroke-scale`. Use explicit
+closing tags in browser HTML; `<sm-icon ... />` is not a self-closing HTML element.
+
+```html
+<sm-icon name="cart" size="lg" aria-label="Cart"></sm-icon>
+<sm-icon-stack size="2x" aria-label="Confirmed">
+    <sm-icon name="circle!" class="icon-stack-2x"></sm-icon>
+    <sm-icon name="check" class="icon-stack-1x"></sm-icon>
+</sm-icon-stack>
+```
+
+The storefront and admin layouts expose the immutable manifest URL through
+`meta[property="sm:icons"]`. Relative URLs are resolved against
+`meta[property="sm:root"]`, including the application's PathBase. Both layouts preload the manifest as a same-origin fetch.
+`smartstore.icons.js` is included in the shared `/bundle/js/jquery.js` bundle,
+loaded in the head, so it uses the existing bundle minification and versioning.
+Other layouts must provide these two meta elements and include the jQuery bundle;
+no separate icon script is needed.
+
+`IconKitService` creates the small resolution manifest once per catalog generation.
+The browser builds the reverse kit index once, omitting redundant identity mappings
+and any search metadata or SVG drawings. Only effective kit-default library/variant
+combinations are advertised. Other selections are resolved through `/icons/render`.
+Generated manifests live in `App_Data/.cache/IconKits/manifest-{revision}.json` and are
+served by `IconController` at `/icons/manifest/{revision}.json` with immutable caching.
+Historical files remain available; a missing old revision returns 404, never newer data.
+The manifest revision is path-base independent; source/configuration watchers invalidate
+its owning catalog. Already open pages retain their current manifest until reloaded.
+
+Kit hits create `use` elements without an individual resolution request. Inline
+fallbacks use the Core renderer through `/icons/render`, preserving mapping modifier
+precedence and the existing source cache. Matching in-flight requests share one promise.
+Up to six fetches run concurrently; up to 256 settled SVG templates are retained per page.
+Each instance clones its template and rewrites local SVG IDs to avoid gradient/mask
+collisions. Presentation-only changes require no request. Failed requests are evicted;
+a later attribute change or reconnection can retry. An older response never replaces a
+newer icon selection. Components emit bubbling `icon-load` and `icon-error` events;
+the latter exposes the error in `event.detail.error`.
+
+The custom element owns sizing, animation and accessibility; its child SVG is
+decorative. Author classes and styles remain on the host and explicit styles follow
+generated styles. Set nullable booleans to the strings `true` or `false`; removing the
+attribute restores mapping defaults. `sm-icon-stack` accepts direct `sm-icon` children
+and reports invalid children through `icon-error`.
+
+Vue applications can call `app.use(Smartstore.Icons)` before mounting. The plugin
+recognizes only these two custom-element names and preserves existing compiler rules.
+The DataGrid already installs it. No Vue dependency is required by the components.

@@ -86,6 +86,42 @@ public class IconServiceTests
     }
 
     /// <summary>
+    /// Exports compact resolution data once, preserves PathBase and leaves individual SVG caching untouched.
+    /// </summary>
+    [Test]
+    public async Task Browser_Manifest_Is_Compact_Immutable_And_PathBase_Independent()
+    {
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","kits":{"shared":["cart"]}}""");
+        Write("Icons/hugeicons/mapping.json", """{"cart":"cart-01?flip=x&stroke-scale=1.1","same":"same"}""");
+        var http = new DefaultHttpContext();
+        http.Request.PathBase = "/shop";
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor { HttpContext = http });
+        var url = kits.GetManifestUrl();
+        Assert.That(url, Does.StartWith("/shop/icons/manifest/"));
+        var revision = Path.GetFileNameWithoutExtension(url);
+        var paths = await Task.WhenAll(Enumerable.Range(0, 5).Select(_ => kits.GetManifestFileAsync(revision)));
+        Assert.That(paths.Distinct().Count(), Is.EqualTo(1));
+        Assert.That(Path.GetDirectoryName(paths[0]), Is.EqualTo(Path.Combine(_root, ".cache", "IconKits")));
+        Assert.That(Path.GetFileName(paths[0]), Is.EqualTo("manifest-" + revision + ".json"));
+        using var json = JsonDocument.Parse(await File.ReadAllTextAsync(paths[0]));
+        var library = json.RootElement.GetProperty("libraries").GetProperty("hugeicons");
+        Assert.That(library.GetProperty("mapping").GetProperty("cart").GetString(), Is.EqualTo("cart-01?flip=x&stroke-scale=1.1"));
+        Assert.That(library.GetProperty("mapping").TryGetProperty("same", out _), Is.False);
+        Assert.That(json.RootElement.TryGetProperty("symbols", out _), Is.False);
+        Assert.That(json.RootElement.GetProperty("urls").GetProperty("hi@sr").GetProperty("shared").GetString(), Does.StartWith("icons/shared-"));
+        http.Request.PathBase = "/other";
+        Assert.That(kits.GetManifestUrl(), Is.EqualTo("/other/icons/manifest/" + revision + ".json"));
+        _cache.VerifyNoOtherCalls();
+
+        Write("Icons/hugeicons/mapping.json", """{"cart":"cart-01?rotate=90"}""");
+        SignalChanges();
+        Assert.That(kits.GetManifestUrl(), Does.Not.EndWith(revision + ".json"));
+        Assert.That(await kits.GetManifestFileAsync(revision), Is.EqualTo(paths[0]));
+        Assert.That(await kits.GetManifestFileAsync(new string('0', 24)), Is.Null);
+        Assert.That(await kits.GetManifestFileAsync("../escape"), Is.Null);
+    }
+
+    /// <summary>
     /// Removes only the fixture's generated directory.
     /// </summary>
     [TearDown]

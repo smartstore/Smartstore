@@ -34,7 +34,8 @@
     overflow: visible;
 }
 
-svg.icon > use {
+svg.icon > use,
+.icon > svg > use {
     width: 100%;
     height: 100%;
 }

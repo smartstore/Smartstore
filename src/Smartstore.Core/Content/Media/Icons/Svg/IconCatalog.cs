@@ -15,6 +15,11 @@ namespace Smartstore.Core.Content.Media.Icons;
 internal sealed class IconCatalog
 {
     /// <summary>
+    /// Holds the small browser index once per catalog generation, without request-specific URLs.
+    /// </summary>
+    internal Lazy<(string Revision, byte[] Content)> BrowserManifest;
+
+    /// <summary>
     /// Gets kit definitions from the root configuration, without loading artwork.
     /// </summary>
     internal Dictionary<string, IconKit> Kits { get; } = new(StringComparer.Ordinal);
