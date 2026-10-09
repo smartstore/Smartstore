@@ -536,7 +536,12 @@ a temporary file beside the destination and
 publishes the complete file atomically. Failed writes remove the temporary file.
 Concurrent requests share generation; multiple processes may safely publish the
 same revision. Generation does not populate the individual SVG cache. Source IDs and their
-references are namespaced per drawing; concepts sharing artwork reuse a symbol.
+references are namespaced per drawing. A source used by one concept is embedded
+directly in its public symbol, preserving source root attributes on an inner group.
+Sources used by multiple concepts are written once as groups in `defs`; each public
+symbol references its group through `use`. Mapping transforms wrap either the direct
+drawing or the reference, while only the public symbol establishes the viewport.
+Complete variant sprites use the same writer and embed their unique sources directly.
 Configuration and source changes invalidate the catalog and produce new URLs.
 The source watcher explicitly excludes generated cache files. Historical files
 remain available for existing pages, even after their source definitions are removed; unavailable historical revisions return 404, never current bytes.
@@ -942,10 +947,53 @@ Vue applications can call `app.use(Smartstore.Icons)` before mounting. The plugi
 recognizes only these two custom-element names and preserves existing compiler rules.
 The DataGrid already installs it. No Vue dependency is required by the components.
 
-## IconBrowser preview picker
+## IconBrowser editor
 
-The admin `IconBrowser` partial is currently used only by the icon cheatsheet. It does
-not replace the existing Font Awesome picker or change persisted application values.
+The admin `IconModel` editor template binds an icon address and presentation overrides
+in edit forms. The cheatsheet demonstrates it; existing Font Awesome pickers are not
+migrated automatically. Add an `IconModel` property to your view model and render it:
+
+```csharp
+// Configure on GET and again when redisplaying a failed POST.
+model.Icon = new IconModel
+{
+    IconAddress = "cart",
+    Rotate = 90,
+    VisibleOptions = IconOptionFields.Size | IconOptionFields.Rotate
+};
+```
+
+```cshtml
+@Html.EditorFor(x => x.Icon)
+```
+
+`IconModel` and `IconOptionFields` belong to `Smartstore.Web.Models.Media`.
+`IconAddress` preserves the input expression, including optional library, variant,
+`!` and query modifiers. `Size`, `Animation`, nullable `FlipHorizontal`,
+`FlipVertical`, `Rotate` and `StrokeScale` are posted under the same MVC field prefix.
+Use `model.Icon.ToOptions()` together with `model.Icon.IconAddress` for rendering.
+Null options inherit address/mapping defaults; explicit `false`, `0` and `1` remain
+meaningful overrides. ModelState attempted values take precedence when redisplaying
+an invalid form. Persist the address and option values in your application's storage;
+the editor does not add database fields.
+
+`VisibleOptions` is trusted editor configuration, excluded from form binding and JSON
+serialization. Its default `None` hides the options button; flags or `All` show the
+ellipsis button. The dropdown currently contains a TODO placeholder; individual
+controls will be added later. All option values are preserved in hidden inputs even
+when their controls are disabled by configuration. A small red dot indicates explicit
+option values, including restored values. Selecting a different icon or clearing the
+selection resets every option. Changing only the source retains both selection and
+options and opens the results automatically only when no icon is selected.
+
+`IIconBrowser.GetSource` selects the initial source from the catalog without generating
+artwork: an explicit library/variant wins, otherwise a concept selects its preferred
+kit using the same priority as the manifest. Direct addresses (`!`) and non-kit names
+use the selected/default library. Empty editors prefer Shared when available.
+Unknown selectors keep the saved address without silently selecting another source.
+The selection preview resolves the original address separately from its browsing source,
+so fallback artwork cannot overwrite the requested address or source.
+
 The source dropdown has two groups: Kits and Libraries. Library variants are flat entries
 such as "HugeIcons Stroke Rounded", with the default library first. A variant named
 `default` adds no variant label; BI therefore appears as "Bootstrap Icons" in both the dropdown and button. Without a variant display name, the button retains the full library name. Each entry shows its icon count as small, semibold text using `text-success`.

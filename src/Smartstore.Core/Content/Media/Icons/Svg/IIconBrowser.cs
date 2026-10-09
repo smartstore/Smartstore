@@ -8,6 +8,14 @@ namespace Smartstore.Core.Content.Media.Icons;
 public interface IIconBrowser
 {
     /// <summary>
+    /// Selects the initial picker source from a persisted address, without reading artwork or generating sprites.
+    /// Explicit libraries retain their requested variant even when icon rendering uses a fallback.
+    /// </summary>
+    /// <param name="address">The original address including optional modifiers, or null for an empty editor.</param>
+    /// <returns>The requested source, or null for invalid, unknown or excluded selectors.</returns>
+    IconBrowserSource? GetSource(string? address);
+
+    /// <summary>
     /// Gets a page of concepts or literal icon names and ensures its preview sprite exists.
     /// </summary>
     /// <param name="query">Search terms, library/variant selection and page boundaries.</param>
@@ -43,3 +51,11 @@ public sealed record IconBrowserResult(string SpriteUrl, int TotalCount, IReadOn
 /// <param name="VariantKey">The short or system variant name used for CSS classes.</param>
 /// <param name="InlineName">An explicit address with modifiers for exceptions that require inline rendering.</param>
 public sealed record IconBrowserItem(string Name, string Value, string Address, string LibraryKey, string VariantKey, string? InlineName = null);
+
+/// <summary>
+/// Identifies a picker source independently of the selected icon and its resolved fallback artwork.
+/// </summary>
+/// <param name="Kit">The preferred conceptual kit, or null for library browsing.</param>
+/// <param name="Library">The library system name, or null for kit browsing.</param>
+/// <param name="Variant">The requested effective variant name, or null for kit browsing.</param>
+public sealed record IconBrowserSource(string? Kit, string? Library, string? Variant);

@@ -33,7 +33,7 @@ internal sealed class IconSprite
     {
         _catalog = catalog;
         // Bump the sprite version whenever symbol preparation changes.
-        var fingerprint = new StringBuilder("sprite-5:").Append(IconSvgParser.Revision);
+        var fingerprint = new StringBuilder("sprite-6:").Append(IconSvgParser.Revision);
         // System identities prevent ambiguous flat filenames and distinguish empty kits.
         foreach (var identity in new[] { library.Manifest.SystemName, variant.Manifest.Name, kit })
         {
@@ -83,6 +83,10 @@ internal sealed class IconSprite
             CloseOutput = false
         });
         writer.WriteStartElement("svg", ns.NamespaceName);
+        // Count metadata only; artwork is still read one source at a time.
+        var sourceCounts = _entries.GroupBy(x => x.Info.Address, StringComparer.Ordinal)
+            .ToDictionary(x => x.Key, x => x.Count(), StringComparer.Ordinal);
+        int sourceIndex = 0;
         var rendered = new Dictionary<string, (string Symbol, string ViewBox, string AspectRatio)>(StringComparer.Ordinal);
         // Process each variant as a group so only one archive is open at a time.
         // Readers never escape this write operation, including when preparation fails.
@@ -92,11 +96,11 @@ internal sealed class IconSprite
             foreach (var entry in group)
             {
                 cancelToken.ThrowIfCancellationRequested();
+                XElement artwork = null;
+                bool shared = sourceCounts[entry.Info.Address] > 1;
                 if (!rendered.TryGetValue(entry.Info.Address, out var original))
                 {
-                    // Store original artwork once, independent of concept transformations.
-                    var sourceId = "source:" + rendered.Count.ToString(CultureInfo.InvariantCulture);
-                    var symbol = new XElement(ns + "g", new XAttribute("id", sourceId));
+                    var sourceId = "source:" + (sourceIndex++).ToString(CultureInfo.InvariantCulture);
                     var drawing = sources.Read(entry.Info, entry.Source);
                     if (drawing == null)
                     {
@@ -114,7 +118,7 @@ internal sealed class IconSprite
 
                     // Prefix with a character forbidden in conceptual addresses, avoiding collisions
                     // between source IDs and the public concept symbol IDs.
-                    var prefix = "source:" + rendered.Count.ToString(CultureInfo.InvariantCulture) + ":";
+                    var prefix = sourceId + ":";
                     var ids = drawing.DescendantsAndSelf().Attributes("id")
                         .ToDictionary(x => x.Value, x => prefix + x.Value, StringComparer.Ordinal);
                     foreach (var element in drawing.DescendantsAndSelf())
@@ -143,13 +147,19 @@ internal sealed class IconSprite
                         }
                     }
 
-                    // The wrapper preserves root transforms, presentation and referenced root IDs.
-                    symbol.Add(drawing);
-                    // Reuse a group, not a nested symbol viewport: original viewBox offsets
-                    // must not translate or scale the artwork a second time through <use>.
-                    new XElement(ns + "defs", symbol).WriteTo(writer);
                     original = (sourceId, viewBox, aspectRatio);
-                    rendered.Add(entry.Info.Address, original);
+                    if (shared)
+                    {
+                        // Reuse a group, not a nested symbol viewport, to avoid applying
+                        // viewBox offsets twice. The inner group preserves source root attributes.
+                        var source = new XElement(ns + "g", new XAttribute("id", sourceId), drawing);
+                        new XElement(ns + "defs", source).WriteTo(writer);
+                        rendered.Add(entry.Info.Address, original);
+                    }
+                    else
+                    {
+                        artwork = drawing;
+                    }
                 }
 
                 var conceptSymbol = new XElement(ns + "symbol", new XAttribute("id", entry.Concept),
@@ -159,10 +169,10 @@ internal sealed class IconSprite
                     conceptSymbol.SetAttributeValue("preserveAspectRatio", original.AspectRatio);
                 }
 
-                var use = new XElement(ns + "use", new XAttribute("href", "#" + original.Symbol));
+                var content = artwork ?? new XElement(ns + "use", new XAttribute("href", "#" + original.Symbol));
                 conceptSymbol.Add(entry.Info.Transform.IsIdentity
-                    ? use
-                    : new XElement(ns + "g", new XAttribute("transform", entry.Info.Transform.ToSvg(original.ViewBox)), use));
+                    ? content
+                    : new XElement(ns + "g", new XAttribute("transform", entry.Info.Transform.ToSvg(original.ViewBox)), content));
                 conceptSymbol.WriteTo(writer);
             }
         }

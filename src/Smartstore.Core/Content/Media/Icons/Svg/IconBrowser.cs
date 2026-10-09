@@ -11,6 +11,37 @@ namespace Smartstore.Core.Content.Media.Icons;
 public sealed class IconBrowser(IconService icons, IconKitService kits, IHttpContextAccessor httpContextAccessor) : IIconBrowser
 {
     /// <inheritdoc />
+    public IconBrowserSource GetSource(string address)
+    {
+        var catalog = icons.Catalog;
+        IconAddress parsed = default;
+        if (!string.IsNullOrEmpty(address))
+        {
+            var separator = address.IndexOf('?');
+            if (!IconAddress.TryParse(separator < 0 ? address : address[..separator], out parsed))
+            {
+                return null;
+            }
+        }
+
+        // Use the same concept priority as resolution and the manifest, including
+        // concepts omitted from the client manifest because they need inline rendering.
+        if (parsed.IsEmpty && catalog.Kits.ContainsKey("shared"))
+        {
+            return new IconBrowserSource("shared", null, null);
+        }
+        if (!parsed.IsEmpty && parsed.Library == null && !parsed.SkipMapping
+            && catalog.ConceptKits.TryGetValue(parsed.Name, out var kit))
+        {
+            return new IconBrowserSource(kit.Name, null, null);
+        }
+
+        var source = SelectSource(catalog, parsed.Library, parsed.Variant);
+        return source.Variant == null ? null
+            : new IconBrowserSource(null, source.Library.Manifest.SystemName, source.Variant.Manifest.Name);
+    }
+
+    /// <inheritdoc />
     public async Task<IconBrowserResult> SearchAsync(IconSearchQuery query, string kit = null, CancellationToken cancelToken = default)
     {
         Guard.NotNull(query);

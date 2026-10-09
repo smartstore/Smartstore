@@ -1349,6 +1349,12 @@ public class IconServiceTests
         XNamespace ns = "http://www.w3.org/2000/svg";
         Assert.That(tree.Elements(ns + "symbol").Count(x => !((string)x.Attribute("id")).StartsWith("source:")), Is.EqualTo(3));
         Assert.That(tree.Descendants(ns + "path").Count(), Is.EqualTo(2));
+        Assert.That(tree.Elements(ns + "defs").Count(), Is.EqualTo(1));
+        var symbols = tree.Elements(ns + "symbol").ToDictionary(x => (string)x.Attribute("id"));
+        Assert.That((string)symbols["cart"].Element(ns + "use").Attribute("href"),
+            Is.EqualTo((string)symbols["alias"].Element(ns + "use").Attribute("href")));
+        Assert.That(symbols["copy"].Element(ns + "use"), Is.Null);
+        Assert.That(symbols["copy"].Descendants(ns + "path").Count(), Is.EqualTo(1));
         var ids = tree.Descendants().Attributes("id").Select(x => x.Value).ToArray();
         Assert.That(ids.Distinct().Count(), Is.EqualTo(ids.Length));
         Assert.That(sprite, Does.Not.Contain("url(#paint)"));
@@ -1800,7 +1806,7 @@ public class IconServiceTests
         Assert.That((string)symbols["foreign"].Attribute("viewBox"), Is.EqualTo("0 0 16 16"));
         Assert.That((string)symbols["sharp-only"].Attribute("viewBox"), Is.EqualTo("0 0 32 32"));
         Assert.That(symbols["foreign"].Element(ns + "g"), Is.Null, "Concrete sources must not inherit a library mapping or transformation.");
-        Assert.That(svg.Root.Elements(ns + "defs").Count(), Is.EqualTo(4), "Only identical canonical sources may share artwork.");
+        Assert.That(svg.Root.Elements(ns + "defs").Count(), Is.EqualTo(1), "Only the repeated canonical source needs shared artwork.");
         Assert.That(_sourceLookups["Icons/other/rounded/icons.zip"], Is.EqualTo(2), "One directory lookup and one archive open for all foreign SVGs.");
         using (var exclusive = File.Open(Path.Combine(_root, "Icons/other/rounded/icons.zip"), FileMode.Open, FileAccess.ReadWrite, FileShare.None))
         {
@@ -1902,6 +1908,49 @@ public class IconServiceTests
         Assert.That((await _service.GetIconAsync("assistant")).Name, Is.EqualTo("cart-01"));
         Assert.That(kits.GetManifestUrl(), Is.Not.EqualTo(before));
         Assert.That(kits.GetUrl("shared"), Is.Not.EqualTo(beforeSprite));
+        _cache.VerifyNoOtherCalls();
+    }
+
+    /// <summary>
+    /// Restores source context without resolving artwork, generating sprites or losing explicit selectors.
+    /// </summary>
+    [TestCase(null, "shared", null, null)]
+    [TestCase("", "shared", null, null)]
+    [TestCase("cart", "shared", null, null)]
+    [TestCase("cart?rotate=90", "shared", null, null)]
+    [TestCase("direct", "backend", null, null)]
+    [TestCase("cart!", null, "hugeicons", "rounded")]
+    [TestCase("unlisted", null, "hugeicons", "rounded")]
+    [TestCase("hi:cart@sr", null, "hugeicons", "rounded")]
+    [TestCase("hi:missing!@sharp?flip=x", null, "hugeicons", "sharp")]
+    [TestCase("unknown:cart", null, null, null)]
+    [TestCase("hi:cart@unknown", null, null, null)]
+    [TestCase("system:cart", null, null, null)]
+    public void Browser_Restores_Source(string address, string kit, string library, string variant)
+    {
+        Write("Icons/kits.json", """{"backend":["cart","direct"],"shared":["cart"]}""");
+        var accessor = new HttpContextAccessor();
+        var browser = new IconBrowser(_service, new IconKitService(_service, _context.Object, accessor), accessor);
+
+        var source = browser.GetSource(address);
+
+        Assert.That(source, Is.EqualTo(kit == null && library == null ? null : new IconBrowserSource(kit, library, variant)));
+        Assert.That(Directory.Exists(Path.Combine(_root, ".cache")), Is.False);
+        _cache.VerifyNoOtherCalls();
+    }
+
+    /// <summary>
+    /// An empty editor without Shared and unqualified names honor the global variant override.
+    /// </summary>
+    [TestCase(null)]
+    [TestCase("unlisted")]
+    public void Browser_Restores_Global_Variant_Without_Kit(string address)
+    {
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"sharp"}""");
+        var accessor = new HttpContextAccessor();
+        var browser = new IconBrowser(_service, new IconKitService(_service, _context.Object, accessor), accessor);
+
+        Assert.That(browser.GetSource(address), Is.EqualTo(new IconBrowserSource(null, "hugeicons", "sharp")));
         _cache.VerifyNoOtherCalls();
     }
 
@@ -2102,9 +2151,13 @@ public class IconServiceTests
     /// <summary>
     /// Direct XML composition preserves root presentation, local references and either source or fallback coordinates.
     /// </summary>
-    [TestCase(null)]
-    [TestCase("-2 -3 16 16")]
-    public async Task Sprite_Xml_Preserves_Source_Root_And_References(string viewBox)
+    [TestCase(null, false, false)]
+    [TestCase(null, true, false)]
+    [TestCase("-2 -3 16 16", false, false)]
+    [TestCase("-2 -3 16 16", true, false)]
+    [TestCase("-2 -3 16 16", false, true)]
+    [TestCase("-2 -3 16 16", true, true)]
+    public async Task Sprite_Xml_Preserves_Source_Root_And_References(string viewBox, bool shared, bool transformed)
     {
         var coordinates = viewBox == null ? string.Empty : $"viewBox=\"{viewBox}\"";
         Write("Icons/hugeicons/rounded/user/cart-01.svg", $$"""
@@ -2118,13 +2171,29 @@ public class IconServiceTests
                 <use xlink:href="#shape"/>
             </svg>
             """);
-        Write("Icons/kits.json", """{"shared":["first","second"]}""");
-        Write("Icons/hugeicons/mapping.json", """{"first":"cart-01","second":"cart-01"}""");
+        Write("Icons/kits.json", shared ? """{"shared":["first","second"]}""" : """{"shared":["first"]}""");
+        Write("Icons/hugeicons/mapping.json", transformed
+            ? """{"first":"cart-01?rotate=90","second":"cart-01"}"""
+            : """{"first":"cart-01","second":"cart-01"}""");
         var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
         var path = await kits.GetSpriteFileAsync("shared", kits.GetUrl("shared")[^28..^4]);
         XNamespace ns = "http://www.w3.org/2000/svg";
         var xml = XElement.Load(path);
-        var root = xml.Element(ns + "defs").Element(ns + "g").Element(ns + "g");
+        var first = xml.Elements(ns + "symbol").Single(x => (string)x.Attribute("id") == "first");
+        var content = transformed ? first.Element(ns + "g").Elements().Single() : first.Elements().Single();
+        Assert.That(xml.Elements(ns + "defs").Count(), Is.EqualTo(shared ? 1 : 0));
+        Assert.That(content.Name, Is.EqualTo(ns + (shared ? "use" : "g")));
+        if (transformed)
+        {
+            Assert.That((string)first.Element(ns + "g").Attribute("transform"), Does.Contain("rotate(90)"));
+        }
+        if (shared)
+        {
+            Assert.That((string)content.Attribute("href"), Is.EqualTo("#source:0"));
+            Assert.That((string)xml.Elements(ns + "symbol").Single(x => (string)x.Attribute("id") == "second")
+                .Element(ns + "use").Attribute("href"), Is.EqualTo("#source:0"));
+        }
+        var root = shared ? xml.Element(ns + "defs").Element(ns + "g").Element(ns + "g") : content;
         Assert.That((string)root.Attribute("id"), Is.EqualTo("source:0:root"));
         Assert.That((string)root.Attribute("transform"), Is.EqualTo("translate(2 3)"));
         Assert.That((string)root.Attribute("fill"), Is.EqualTo("url(#source:0:paint)"));
@@ -2137,7 +2206,7 @@ public class IconServiceTests
             Does.Not.Contain("viewBox").And.Not.Contain("preserveAspectRatio").And.Not.Contain("class").And.Not.Contain("width").And.Not.Contain("height"));
         Assert.That(xml.DescendantNodes().OfType<XComment>(), Is.Empty);
         var symbols = xml.Elements(ns + "symbol").ToArray();
-        Assert.That(symbols, Has.Length.EqualTo(2));
+        Assert.That(symbols, Has.Length.EqualTo(shared ? 2 : 1));
         Assert.That(symbols.All(x => (string)x.Attribute("viewBox") == (viewBox ?? "0 0 24 24")), Is.True);
         Assert.That(symbols.All(x => (string)x.Attribute("preserveAspectRatio") == "xMinYMin meet"), Is.True);
         _cache.VerifyNoOtherCalls();
