@@ -58,6 +58,29 @@ public class ReturnCaseController : AdminController
         return View(new ReturnCaseListModel());
     }
 
+    [HttpPost, ActionName("List")]
+    [FormValueRequired("go-to-returncase")]
+    [Permission(Permissions.Order.ReturnCase.Read)]
+    public async Task<IActionResult> GoToReturnCase(ReturnCaseListModel model)
+    {
+        var returnCaseId = model.ReturnCaseId.TrimSafe().ToInt();
+        var id = returnCaseId > 0
+            ? await _db.ReturnCases
+                .Where(x => x.Id == returnCaseId)
+                .Select(x => x.Id)
+                .FirstOrDefaultAsync()
+            : 0;
+
+        if (id != 0)
+        {
+            return RedirectToAction(nameof(Edit), new { id });
+        }
+
+        NotifyWarning(T("Admin.ReturnRequests.NotFound", model.ReturnCaseId));
+
+        return RedirectToAction(nameof(List));
+    }
+
     [Permission(Permissions.Order.ReturnCase.Read)]
     public async Task<IActionResult> ReturnCaseList(GridCommand command, ReturnCaseListModel model)
     {
@@ -83,10 +106,6 @@ public class ReturnCaseController : AdminController
             .Include(x => x.Customer).ThenInclude(x => x.ShippingAddress)
             .AsNoTracking();
 
-        if (model.SearchId != null)
-        {
-            query = query.Where(x => x.Id == model.SearchId);
-        }
         if (model.SearchReturnCaseKind != null)
         {
             query = query.Where(x => x.Kind == (ReturnCaseKind)model.SearchReturnCaseKind.Value);

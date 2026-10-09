@@ -7,10 +7,6 @@
 }
 
 <div class="form-group">
-    <smart-label asp-for="SearchId" />
-    <editor asp-for="SearchId" class="form-control-sm" />
-</div>
-<div class="form-group">
     <smart-label asp-for="SearchReturnCaseKind" />
     <select asp-for="SearchReturnCaseKind" asp-items="Html.GetLocalizedEnumSelectList(typeof(ReturnCaseKind)).Reverse()" asp-placeholder="@T("Admin.Common.All")" class="form-control-sm"></select>
 </div>

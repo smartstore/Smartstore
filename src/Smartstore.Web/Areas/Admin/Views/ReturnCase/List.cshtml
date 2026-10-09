@@ -9,15 +9,40 @@
     gridViewData["Parent"] = Model;
 }
 
-<div class="section-header">
-    <div class="title">
-        <i class="fa fa-truck-moving"></i>
-        <span>@ViewBag.Title</span>
+<form method="post" asp-action="List">
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-truck-moving"></i>
+            <span>@ViewBag.Title</span>
+        </div>
+        <div class="options d-flex">
+            <zone name="admin_button_toolbar_before" />
+
+            <div class="input-group d-inline-flex flex-nowrap" style="width: clamp(150px, 30vw, 250px)">
+                <input asp-for="ReturnCaseId" class="form-control" inputmode="numeric" placeholder="@T("Admin.ReturnRequests.GoDirectlyToReturnCase")" />
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-secondary"
+                            id="go-to-returncase"
+                            name="go-to-returncase"
+                            value="go-to-returncase"
+                            disabled="disabled"
+                            title="@T("Admin.ReturnRequests.GoDirectlyToReturnCase.Hint")">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <zone name="admin_button_toolbar_after" />
+        </div>
     </div>
-    <div class="options">
-        <zone name="admin_button_toolbar_before" />
-        <zone name="admin_button_toolbar_after" />
-    </div>
-</div>
+</form>
 
 <partial name="_Grid.ReturnCases" model="null" view-data="gridViewData" />
+
+<script sm-target-zone="scripts" data-origin="returncase-list">
+    $(function() {
+        $('#@Html.IdFor(x => x.ReturnCaseId)').on('input change', (e) => {
+            $('#go-to-returncase').prop('disabled', $(e.currentTarget).val().isEmpty());
+        });
+    });
+</script>

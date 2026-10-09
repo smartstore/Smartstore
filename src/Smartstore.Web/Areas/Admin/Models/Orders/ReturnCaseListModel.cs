@@ -5,9 +5,7 @@ namespace Smartstore.Admin.Models.Orders;
 [LocalizedDisplay("Admin.ReturnRequests.Fields.")]
 public class ReturnCaseListModel : ModelBase
 {
-    [LocalizedDisplay("*ID")]
-    [AdditionalMetadata("invariant", true)]
-    public int? SearchId { get; set; }
+    public string ReturnCaseId { get; set; }
 
     [LocalizedDisplay("Common.Type")]
     public int? SearchReturnCaseKind { get; set; }
