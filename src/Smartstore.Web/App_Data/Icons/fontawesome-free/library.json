@@ -1,0 +1,26 @@
+{
+  "displayName": "Font Awesome Free",
+  "icon": "fa:font-awesome@b",
+  "version": "7.3.1",
+  "shortName": "fa",
+  "defaultVariant": "regular",
+  "variants": {
+     "regular": {
+      "displayName": "Regular",
+      "icon": "fa:square-font-awesome-stroke@b",
+      "shortName": "r",
+      "fallbacks": ["solid"]
+    },
+    "solid": {
+      "displayName": "Solid",
+      "icon": "fa:square-font-awesome@b",
+      "shortName": "s",
+      "fallbacks": ["regular"]
+    },
+    "brands": {
+      "displayName": "Brands",
+      "icon": "fa:font-awesome@b",
+      "shortName": "b"
+    }
+  }
+}

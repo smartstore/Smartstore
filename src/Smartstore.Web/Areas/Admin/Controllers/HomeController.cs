@@ -35,6 +35,22 @@ public class HomeController : AdminController
         return View(sitemap.Root.Element("siteMapNode"));
     }
 
+    /// <summary>
+    /// Renders a HugeIcons preview for the migration comparison editor.
+    /// </summary>
+    /// <param name="name">The literal HugeIcons name, without library or variant qualifiers.</param>
+    [HttpGet]
+    public IActionResult IconCheatsheetPreview(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name) || name.Length > 128
+            || name.Any(c => !char.IsAsciiLetterOrDigit(c) && c != '-'))
+        {
+            return BadRequest();
+        }
+
+        return PartialView("_IconCheatsheetPreview", name);
+    }
+
     public IActionResult UaTester(string ua = null)
     {
         if (ua.HasValue())

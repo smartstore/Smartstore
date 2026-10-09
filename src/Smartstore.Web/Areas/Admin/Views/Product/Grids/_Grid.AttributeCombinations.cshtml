@@ -27,7 +27,7 @@
                 <button type="button" id="btnCreateAllCombinations" class="btn btn-warning no-anims btn-flat"
                         data-url='@Url.Action("CreateAllAttributeCombinations", new { productId = parentModel.Id })'
                         data-ask="@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.AskToCombineAll")">
-                    <bootstrap-icon name="list-check" />
+                    <icon name="tasks" />
                     <span>@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.CreateAllCombinations")</span>
                 </button>
             </fragment>
@@ -39,11 +39,11 @@
             <button datagrid-action="DataGridToolAction.Custom" type="button" id="btnDeleteAllCombinations" class="btn btn-plain mr-auto" v-if="grid.rows.length > 0"
                     data-url='@Url.Action("DeleteAllAttributeCombinations", new { productId = parentModel.Id })'
                     data-ask="@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.AskToDeleteAll")">
-                <bootstrap-icon name="trash" />
+                <icon name="trash" />
                 <span>@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.DeleteAllCombinations")</span>
             </button>
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
-                <bootstrap-icon name="trash" />
+                <icon name="trash" />
                 <span>@T("Admin.Common.Delete.Selected")</span>
             </button>
         </toolbar-group>

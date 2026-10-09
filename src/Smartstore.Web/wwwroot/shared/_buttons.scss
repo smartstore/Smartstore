@@ -59,13 +59,13 @@ button:where(.reset) {
     gap: 0.5em;
     min-height: var(--btn-height);
 
-    > :is(i, svg) {
+    > :is(i, svg, :where(.icon, .icon-stack)) {
         color: var(--btn-icon-color);
         transition: var(--btn-icon-transition);
     }
 
     &:hover {
-        > :is(i, svg) {
+        > :is(i, svg, :where(.icon, .icon-stack)) {
             color: var(--btn-icon-hover-color);
         }
     }
@@ -73,7 +73,7 @@ button:where(.reset) {
     &.disabled,
     &:disabled,
     fieldset:disabled & {
-        > :is(i, svg) {
+        > :is(i, svg, :where(.icon, .icon-stack)) {
             color: var(--btn-icon-color);
         }
     }
@@ -81,7 +81,7 @@ button:where(.reset) {
     &:active,
     &.active,
     .show > &.dropdown-toggle {
-        > :is(i, svg) {
+        > :is(i, svg, :where(.icon, .icon-stack)) {
             color: var(--btn-icon-active-color);
         }
     }

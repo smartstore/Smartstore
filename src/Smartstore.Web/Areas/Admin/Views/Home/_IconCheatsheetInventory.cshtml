@@ -1,0 +1,481 @@
+﻿@{
+    // Static inventory of platform, enterprise and internal Razor/JavaScript sources (2026-10-07).
+    // Counts describe source occurrences, not runtime frequency. Literal aliases are kept separately.
+    // HI names are review candidates; changing them here does not change production mappings.
+    var inventory = new (string Group, string FontAwesome, string Bootstrap, string Huge, int Uses, string Sources, string Note)[]
+    {
+        ("Shared", "fa fa-check|far fa-check|fas fa-check", "", "tick-02", 295, "Enterprise, Internal, Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-plus", "", "add-01", 121, "Enterprise, Internal, Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-trash-can|fal fa-trash-can|far fa-trash-can", "", "delete-02", 96, "Enterprise, Internal, Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-angle-right", "", "arrow-right-01", 31, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-envelope|fal fa-envelope|far fa-envelope|fas fa-envelope", "", "mail-01", 28, "Enterprise, Internal, Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-times|fal fa-times|fas fa-times", "", "cancel-01", 24, "Enterprise, Internal, Platform", "HI candidate; review visually."),
+        ("Shared", "far fa-file-lines|fas fa-file-lines", "", "file-02", 23, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-chevron-down|fas fa-chevron-down", "", "chevron-down", 22, "Enterprise, Internal, Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-cog|fal fa-cog|far fa-cog", "", "cog", 22, "Enterprise, Internal, Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-download|fal fa-download", "", "download-02", 21, "Enterprise, Internal, Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-eye|fal fa-eye|far fa-eye", "", "view", 20, "Enterprise, Internal, Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-search|far fa-search", "", "search-01", 18, "Enterprise, Internal, Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-edit|far fa-edit", "", "edit-02", 17, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-angle-down|fal fa-angle-down|fas fa-angle-down", "", "arrow-down-01", 15, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-angle-up|fas fa-angle-up", "", "arrow-up-01", 14, "Enterprise, Internal, Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-chevron-up", "", "chevron-up", 13, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-spinner|fas fa-spinner", "", "loading-03", 13, "Enterprise, Internal, Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-cart-arrow-down", "", "shopping-cart-add-01", 11, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-clock|far fa-clock", "", "clock-01", 11, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-copy|far fa-copy", "", "copy-01", 11, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-angle-left", "", "arrow-left-01", 10, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-chevron-right|far fa-chevron-right|fas fa-chevron-right", "", "arrow-right-01", 10, "Enterprise, Internal, Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-rss", "", "rss", 8, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-unlink|fas fa-unlink", "", "link-backward", 8, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-bolt|far fa-bolt", "", "flash", 7, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-circle|fas fa-circle", "", "circle", 7, "Enterprise, Internal, Platform", "Existing comparison mapping."),
+        ("Shared", "far fa-file", "", "file-empty-01", 7, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Shared", "fal fa-heart", "", "favourite", 7, "Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-rectangle-list|far fa-rectangle-list", "", "task-01", 7, "Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-exclamation-circle", "", "alert-circle", 6, "Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-exclamation-triangle", "", "alert-02", 6, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-eye-slash|far fa-eye-slash", "", "view-off", 6, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Shared", "far fa-file-pdf", "", "pdf-01", 6, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-plus-square|fal fa-plus-square", "", "add-square", 6, "Internal, Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-question-circle|far fa-question-circle|fas fa-question-circle", "", "help-circle", 6, "Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-list", "", "view-agenda", 5, "Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-play", "", "play", 5, "Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-print", "", "printer", 5, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-share|far fa-share", "", "share-01", 5, "Enterprise, Internal, Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-tablet-screen-button|far fa-tablet-screen-button|fas fa-tablet-screen-button", "", "tablet-01", 5, "Enterprise", "HI candidate; review visually."),
+        ("Shared", "fa fa-truck|fal fa-truck", "", "delivery-truck-01", 5, "Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-calendar|far fa-calendar", "", "calendar-01", 4, "Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-chevron-left|far fa-chevron-left", "", "chevron-left", 4, "Internal, Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-database", "", "database-backup", 4, "Internal, Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-desktop|far fa-desktop", "", "computer", 4, "Enterprise, Internal", "HI candidate; review visually."),
+        ("Shared", "fa fa-ellipsis", "", "more-horizontal", 4, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-ellipsis-h", "", "more-horizontal", 4, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-image|far fa-image", "", "image-02", 4, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-info", "", "info", 4, "Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-lock", "", "lock", 4, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-sliders-h", "", "filter-horizontal", 4, "Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-thumbs-up", "", "thumbs-up", 4, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-ban|far fa-ban|fas fa-ban", "", "ban", 3, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-question|fas fa-question", "", "question", 3, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-reply-all|fal fa-reply-all", "", "reply-all", 3, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-shopping-cart|fal fa-shopping-cart", "", "shopping-cart-01", 3, "Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-thumbs-down", "", "thumbs-down", 3, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-arrow-down", "", "arrow-down-02", 2, "Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-arrow-up", "", "arrow-up-02", 2, "Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-blog", "", "blogger", 2, "Enterprise", "HI candidate; review visually."),
+        ("Shared", "fa fa-delete", "", "delete-02", 2, "Platform", "HI candidate; review visually. FA name is unavailable in the installed Free set."),
+        ("Shared", "far fa-file-archive", "", "file-archive", 2, "Platform", "HI candidate; review visually."),
+        ("Shared", "far fa-file-audio", "", "file-audio", 2, "Platform", "HI candidate; review visually."),
+        ("Shared", "far fa-file-code", "", "file-code", 2, "Platform", "HI candidate; review visually."),
+        ("Shared", "far fa-file-excel", "", "file-02", 2, "Platform", "HI candidate; review visually."),
+        ("Shared", "far fa-file-image", "", "file-image", 2, "Platform", "HI candidate; review visually."),
+        ("Shared", "far fa-file-powerpoint", "", "file-02", 2, "Platform", "HI candidate; review visually."),
+        ("Shared", "far fa-file-video", "", "file-video", 2, "Platform", "HI candidate; review visually."),
+        ("Shared", "far fa-file-word", "", "file-02", 2, "Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-folder-open|fas fa-folder-open", "", "folder-open", 2, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-font", "", "text-font", 2, "Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-quote-left", "", "quote-up", 2, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-tags|fad fa-tags", "", "tags", 2, "Internal, Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-user|fal fa-user", "", "user", 2, "Internal, Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-angle-double-down", "", "arrow-down-double", 1, "Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-angle-double-up", "", "arrow-up-double", 1, "Platform", "HI candidate; review visually."),
+        ("Shared", "far fa-calendar-check", "", "calendar-check", 1, "Platform", "HI candidate; review visually."),
+        ("Shared", "fas fa-file-csv", "", "csv-01", 1, "Platform", "HI candidate; review visually."),
+        ("Shared", "far fa-layer-group", "", "layers-01", 1, "Platform", "Existing comparison mapping."),
+        ("Shared", "fa fa-pause", "", "pause", 1, "Platform", "HI candidate; review visually."),
+        ("Shared", "fa fa-warning", "", "alert-02", 1, "Platform", "HI candidate; review visually."),
+        ("Frontend", "fa fa-angles-left", "", "arrow-left-double", 3, "Enterprise", "HI candidate; review visually."),
+        ("Frontend", "far fa-comment-dots", "", "message-01", 3, "Enterprise", "Existing comparison mapping."),
+        ("Frontend", "fa fa-retweet", "", "repeat", 3, "Platform", "HI candidate; review visually."),
+        ("Frontend", "fa fa-angles-right", "", "arrow-right-double", 2, "Enterprise", "HI candidate; review visually."),
+        ("Frontend", "fas fa-arrow-right", "", "arrow-right-02", 2, "Platform", "HI candidate; review visually."),
+        ("Frontend", "far fa-bell|fas fa-bell", "", "bell", 2, "Enterprise", "HI candidate; review visually."),
+        ("Frontend", "fa fa-circle-info", "", "information-circle", 2, "Platform", "Existing comparison mapping."),
+        ("Frontend", "fa fa-inbox", "", "inbox", 2, "Enterprise", "Existing comparison mapping."),
+        ("Frontend", "fa fa-magnifying-glass", "", "search-01", 2, "Platform", "Existing comparison mapping."),
+        ("Frontend", "fa fa-mail-forward", "", "mail-send-01", 2, "Enterprise", "HI candidate; review visually."),
+        ("Frontend", "fal fa-right-from-bracket|fas fa-right-from-bracket", "", "logout-01", 2, "Platform", "Existing comparison mapping."),
+        ("Frontend", "far fa-tablet-alt", "", "tablet-01", 2, "Internal", "HI candidate; review visually."),
+        ("Frontend", "fa fa-xmark", "", "cancel-01", 2, "Platform", "Existing comparison mapping."),
+        ("Frontend", "fa fa-arrow-left", "", "arrow-left-02", 1, "Platform", "HI candidate; review visually."),
+        ("Frontend", "fa fa-award", "", "award-01", 1, "Platform", "HI candidate; review visually."),
+        ("Frontend", "fal fa-brackets-curly", "", "source-code", 1, "Internal", "HI candidate; review visually. FA name is unavailable in the installed Free set."),
+        ("Frontend", "fa fa-caret-right", "", "arrow-right-01", 1, "Platform", "HI candidate; review visually."),
+        ("Frontend", "far fa-certificate", "", "certificate-01", 1, "Platform", "HI candidate; review visually."),
+        ("Frontend", "fal fa-envelope-open-text", "", "mail-open-love", 1, "Internal", "Existing comparison mapping."),
+        ("Frontend", "fab fa-facebook", "", "facebook-01", 1, "Internal", "Existing comparison mapping."),
+        ("Frontend", "fa fa-file-text", "", "file-text", 1, "Enterprise", "HI candidate; review visually."),
+        ("Frontend", "fab fa-github", "", "github", 1, "Internal", "HI candidate; review visually."),
+        ("Frontend", "fa fa-grip", "", "grip", 1, "Platform", "HI candidate; review visually."),
+        ("Frontend", "fas fa-grip-vertical", "", "grip-vertical", 1, "Platform", "HI candidate; review visually."),
+        ("Frontend", "fa fa-home", "", "home-01", 1, "Platform", "HI candidate; review visually."),
+        ("Frontend", "fab fa-instagram", "", "instagram", 1, "Internal", "HI candidate; review visually."),
+        ("Frontend", "far fa-laptop|fas fa-laptop", "", "laptop", 1, "Enterprise", "HI candidate; review visually."),
+        ("Frontend", "fab fa-linkedin", "", "linkedin-01", 1, "Internal", "HI candidate; review visually."),
+        ("Frontend", "fa fa-location-dot", "", "location-01", 1, "Enterprise", "Existing comparison mapping."),
+        ("Frontend", "far fa-mobile-alt", "", "smart-phone-01", 1, "Internal", "HI candidate; review visually."),
+        ("Frontend", "fal fa-phone", "", "phone", 1, "Internal", "HI candidate; review visually."),
+        ("Frontend", "fas fa-phone-flip", "", "call", 1, "Platform", "HI candidate; review visually."),
+        ("Frontend", "fa fa-phone-laptop", "", "computer-phone-sync", 1, "Internal", "HI candidate; review visually. FA name is unavailable in the installed Free set."),
+        ("Frontend", "fa fa-plus-circle", "", "add-circle", 1, "Enterprise", "HI candidate; review visually."),
+        ("Frontend", "fa fa-reply", "", "reply", 1, "Platform", "HI candidate; review visually."),
+        ("Frontend", "far fa-share-square", "", "share-01", 1, "Platform", "HI candidate; review visually."),
+        ("Frontend", "fa fa-shopping-basket", "", "shopping-basket-01", 1, "Platform", "HI candidate; review visually."),
+        ("Frontend", "fa fa-th-list", "", "list-view", 1, "Enterprise", "HI candidate; review visually."),
+        ("Frontend", "far fa-trash", "", "trash", 1, "Enterprise", "HI candidate; review visually."),
+        ("Frontend", "far fa-tv|fas fa-tv", "", "tv-01", 1, "Enterprise", "HI candidate; review visually."),
+        ("Frontend", "fa fa-up-down-left-right", "", "arrow-all-direction", 1, "Enterprise", "HI candidate; review visually."),
+        ("Frontend", "fal fa-user-circle|fas fa-user-circle", "", "user-circle", 1, "Platform", "HI candidate; review visually."),
+        ("Frontend", "fab fa-x-twitter", "", "new-twitter", 1, "Internal", "HI candidate; review visually."),
+        ("Frontend", "fab fa-youtube", "", "youtube", 1, "Internal", "HI candidate; review visually."),
+        ("Backend", "", "trash", "delete-02", 90, "Enterprise, Internal, Platform", "Existing comparison mapping."),
+        ("Backend", "", "funnel", "filter", 57, "Enterprise, Internal, Platform", "Existing comparison mapping."),
+        ("Backend", "", "check-lg", "tick-02", 49, "Enterprise, Internal, Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-globe|far fa-globe", "", "globe", 16, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Backend", "", "upload", "upload-02", 16, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-code", "", "code", 14, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-link|fal fa-link", "", "link-01", 14, "Enterprise, Internal, Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-upload|far fa-upload", "", "upload-02", 13, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Backend", "", "clipboard", "clipboard", 12, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-sync", "", "refresh", 11, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-users", "", "user-group", 10, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Backend", "far fa-chart-bar", "", "chart-column", 8, "Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-rotate-right", "", "refresh", 8, "Enterprise, Internal", "Existing comparison mapping."),
+        ("Backend", "far fa-trash-alt", "", "delete-02", 8, "Internal", "HI candidate; review visually."),
+        ("Backend", "fa fa-sitemap", "", "hierarchy-square-02", 7, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-language", "", "language-circle", 6, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "pencil", "edit-02", 6, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-right-left", "", "arrow-left-right", 6, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "card-checklist", "task-01", 5, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "download", "download-02", 5, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-mobile-screen-button", "", "smart-phone-01", 5, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-pencil|fas fa-pencil", "", "pencil", 5, "Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-save", "", "save", 5, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Backend", "far fa-building", "", "building-03", 4, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-clipboard|far fa-clipboard", "", "clipboard", 4, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Backend", "", "copy", "copy-01", 4, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-filter", "", "filter", 4, "Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-fire", "", "fire", 4, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "gear", "settings-01", 4, "Enterprise, Internal, Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-paper-plane|far fa-paper-plane", "", "sent", 4, "Enterprise, Internal, Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-redo", "", "redo-02", 4, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-star", "", "star", 4, "Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-truck-moving", "", "delivery-truck-01", 4, "Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-bars|fas fa-bars", "", "menu-09", 3, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "box", "package-01", 3, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "building", "building-03", 3, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "cart-check", "shopping-cart-check-01", 3, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "diagram-3", "hierarchy-square-02", 3, "Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-expand", "", "expand", 3, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "", "eye", "view", 3, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-gifts", "", "gift", 3, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "graph-up-arrow", "chart-increase", 3, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "link-45deg", "link-01", 3, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Backend", "", "list-check", "check-list", 3, "Platform", "Existing comparison mapping."),
+        ("Backend", "far fa-money-bill-1", "", "money-01", 3, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "pencil-square", "edit-02", 3, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "", "recycle", "recycle-01", 3, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-right-to-bracket", "", "login-01", 3, "Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-rotate", "", "refresh", 3, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Backend", "", "search", "search-01", 3, "Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-signal", "", "signal", 3, "Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-up-right-from-square", "", "link-square-01", 3, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Backend", "fas fa-adjust", "", "transition-left", 2, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Backend", "", "arrow-clockwise", "refresh", 2, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Backend", "", "arrow-repeat", "repeat", 2, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "arrow-up-short", "arrow-up-02", 2, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "box-arrow-in-right", "login-01", 2, "Platform", "Existing comparison mapping."),
+        ("Backend", "far fa-circle-down", "", "circle-arrow-down-01", 2, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-circle-question|far fa-circle-question", "", "help-circle", 2, "Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-comments", "", "message-multiple-01", 2, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "fa fa-compress", "", "arrow-shrink", 2, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "far fa-credit-card", "", "credit-card", 2, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "credit-card", "credit-card", 2, "Platform", "Existing comparison mapping."),
+        ("Backend", "fab fa-css3", "", "css-file-01", 2, "Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-cube", "", "cube", 2, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-cut", "", "scissor", 2, "Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-display", "", "computer", 2, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "far fa-droplet-slash", "", "droplet-off", 2, "Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-ellipsis-v", "", "more-vertical", 2, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-exclamation", "", "alert-01", 2, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-eye-dropper", "", "droplet", 2, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "file-earmark-pdf", "pdf-01", 2, "Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-fill-drip|fas fa-fill-drip", "", "paint-bucket", 2, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Backend", "far fa-folder|fas fa-folder", "", "folder-01", 2, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Backend", "", "heart", "favourite", 2, "Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-hourglass-start", "", "hourglass", 2, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "fab fa-html5", "", "html-file-01", 2, "Enterprise, Platform", "HI candidate; review visually."),
+        ("Backend", "", "image", "image-02", 2, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "", "images", "images", 2, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-info-circle", "", "information-circle", 2, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "info-circle", "information-circle", 2, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "lightning", "flash", 2, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Backend", "", "list-ul", "list-view", 2, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Backend", "", "megaphone", "megaphone-01", 2, "Platform", "Existing comparison mapping."),
+        ("Backend", "far fa-newspaper", "", "newspaper", 2, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "fa fa-paint-brush", "", "paint-brush-01", 2, "Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-paperclip", "", "paperclip", 2, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "people", "user-group", 2, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "percent", "percent", 2, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "play-fill", "play", 2, "Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-puzzle-piece", "", "puzzle", 2, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-recycle", "", "recycle-01", 2, "Enterprise", "Existing comparison mapping."),
+        ("Backend", "", "repeat", "repeat", 2, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "", "scissors", "scissors", 2, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "", "send", "send", 2, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "", "shop-window", "store-01", 2, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "shuffle", "shuffle", 2, "Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-star-half", "", "star-half", 2, "Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-stop|fas fa-stop", "", "stop", 2, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "fa fa-th-large", "", "grid-view", 2, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "", "truck", "delivery-truck-01", 2, "Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-turn-up", "", "arrow-turn-up", 2, "Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-undo", "", "undo-02", 2, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Backend", "", "view-list", "view-agenda", 2, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Backend", "", "x-lg", "cancel-01", 2, "Enterprise, Platform", "Existing comparison mapping."),
+        ("Backend", "", "archive", "archive-02", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "arrow-90deg-up", "arrow-turn-up", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "arrow-left-right", "arrow-left-right", 1, "Enterprise", "Existing comparison mapping."),
+        ("Backend", "fa fa-arrow-up-from-bracket", "", "upload-02", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "arrows-expand-vertical", "arrow-vertical", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "aspect-ratio", "aspect-ratio", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "fas fa-balance-scale", "", "balance-scale", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "bar-chart-line", "chart-column", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-barcode", "", "barcode", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "far fa-bars-staggered", "", "menu-02", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-bold", "", "text-bold", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-book", "", "book-01", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "box-arrow-left", "logout-01", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "fas fa-box-open", "", "package-open", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "boxes", "package-03", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "braces-asterisk", "source-code", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "fa fa-bullhorn", "", "megaphone-01", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "camera-video", "camera-video", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "", "card-image", "image-02", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-caret-down", "", "arrow-down-01", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "chat-dots", "message-01", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "chat-square-text", "message-01", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "", "chat-square-text-fill", "message-01", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "", "check", "check", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "fa fa-check-double", "", "tick-double-02", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "chevron-double-left", "arrow-left-double", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "chevron-double-right", "arrow-right-double", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "chevron-left", "chevron-left", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "chevron-right", "arrow-right-01", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "circle-fill", "circle", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "far fa-circle-up", "", "circle-arrow-up-01", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "clock", "clock-01", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-clone", "", "copy-01", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "fas fa-cloud-arrow-up", "", "cloud-upload", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "fa fa-cogs", "", "settings-02", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "columns-gap", "layout-01", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "currency-euro", "euro", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "database-add", "database-add", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "database-down", "database-export", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "database-up", "database-import", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-dolly", "", "delivery-truck-01", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "emoji-wink", "winking", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "", "envelope", "mail-01", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "envelope-open-heart", "mail-open-love", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "envelope-paper", "mail-open-01", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "eraser", "eraser", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "fas fa-euro-sign", "", "euro", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "exclamation-triangle", "alert-02", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "eye-fill", "view", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "facebook", "facebook-01", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "file-earmark-richtext", "file-02", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "fas fa-film", "", "film-01", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "", "floppy", "floppy-disk", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "fa fa-forward", "", "forward-01", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "", "geo-alt", "location-01", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-gift", "", "gift", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "gift", "gift", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "globe-americas", "earth", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "fab fa-google", "", "google", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "graph-up", "chart-up", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "grid-3x3-gap", "grid", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "fa fa-group", "", "user-group", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "far fa-hammer", "", "hammer", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "hand-thumbs-down", "thumbs-down", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "hand-thumbs-up", "thumbs-up", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "hdd", "hdd", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "inboxes", "inbox", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "input-cursor-text", "input-cursor-text", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "fa fa-italic", "", "text-italic", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-key", "", "key-01", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "layers-half", "layers-01", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "", "lightbulb", "lightbulb", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "fa fa-lock-open", "", "lock-open", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "menu-button-fill", "menu-01", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-minus", "", "minus", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-paintbrush", "", "paintbrush", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "palette", "paint-board", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "far fa-pause-circle", "", "pause-circle", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "", "pencil-fill", "edit-02", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "", "people-fill", "user-group", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "person", "user", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "person-badge", "user-account", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "person-circle", "user-circle", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "far fa-play-circle", "", "play-circle", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "power", "power", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-power-off", "", "power", 1, "Enterprise", "Existing comparison mapping."),
+        ("Backend", "", "printer", "printer", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "puzzle-fill", "puzzle", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "question-circle-fill", "help-circle", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "receipt", "invoice-01", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-robot", "", "bot", 1, "Internal", "HI candidate; review visually."),
+        ("Backend", "fas fa-rotate-left", "", "refresh-ccw", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "fas fa-ruler-combined", "", "ruler", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-send", "", "sent", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "shield", "shield-01", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "fas fa-shield-halved", "", "shield-01", 1, "Enterprise", "Existing comparison mapping."),
+        ("Backend", "", "sliders", "filter-horizontal", 1, "Enterprise", "Existing comparison mapping."),
+        ("Backend", "", "sliders2-vertical", "filter-vertical", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "sort-down-alt", "sort-by-down-01", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "", "sort-numeric-down", "sorting-1-9", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "sort-up-alt", "sort-by-up-01", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "far fa-square", "", "square", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "stack", "layers-01", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "star-half", "star-half", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "stars-tricolor", "sparkles", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "", "stickies", "note-01", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "far fa-stream", "", "list-view", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "fas fa-tag", "", "tag-01", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "", "tags", "tags", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-tasks", "", "task-01", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "", "text-wrap", "text-wrap", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "textarea-resize", "resize-field", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "fa fa-th", "", "grid", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "three-dots", "more-horizontal", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "tools", "tools", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-triangle-exclamation", "", "alert-02", 1, "Enterprise", "Existing comparison mapping."),
+        ("Backend", "fa fa-trophy", "", "award-01", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "", "trophy", "award-01", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "fa fa-underline", "", "text-underline", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-unlock-keyhole", "", "square-unlock-01", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-user-check", "", "user-check-01", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "far fa-user-edit", "", "user-edit-01", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-user-plus", "", "user-plus", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-user-shield", "", "user-shield-01", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "", "vector-pen", "pen-tool-01", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "fa fa-wand-magic-sparkles", "", "sparkles", 1, "Platform", "Existing comparison mapping."),
+        ("Backend", "far fa-window-restore", "", "copy-01", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "fa fa-wrench", "", "wrench-01", 1, "Platform", "HI candidate; review visually."),
+        ("Backend", "", "x", "x", 1, "Enterprise", "HI candidate; review visually."),
+        ("Backend", "", "x-circle", "cancel-circle", 1, "Enterprise", "HI candidate; review visually."),
+    };
+    var groups = new[] { "Shared", "Frontend", "Backend" };
+}
+
+<section aria-labelledby="icon-table-title">
+    <details class="mapped-icons-details" open>
+        <summary class="mb-3"><h2 id="icon-table-title" class="h4 d-inline">All mapped icons</h2></summary>
+        <p class="text-muted">
+            @inventory.Length source names from platform, enterprise and internal modules.
+            Shared contains FA names found in both frontend and backend, exclusively.
+            Aliases and observed FA styles are retained; Pro-only styles may be unavailable locally. BI is backend-only.
+            HI mappings are provisional; filled and outline shapes may differ.
+        </p>
+        <p class="small text-muted">
+            Static snapshot: 1,498 Razor views, 114 JavaScript files and the admin sitemap.
+            Includes literal alternatives in dynamic bindings and editor integrations; database-driven names cannot be fully enumerated.
+            Areas are inferred from views, controller areas and script bundles. Counts are source occurrences, not runtime usage.
+            A dash means no source entry in that library for this row. FA: 14 px; BI, HI SVG and HI Font: 16 px.
+        </p>
+        <label for="icon-search" class="sr-only">Filter icons</label>
+        <input id="icon-search" type="search" class="form-control mb-4" placeholder="Filter icon name, group or repository" autocomplete="off" />
+        @foreach (var group in groups)
+        {
+            var entries = inventory.Where(x => x.Group == group).ToArray();
+            var libraries = group == "Backend" ? new[] { "FA", "BI", "HI" } : new[] { "FA", "HI" };
+            <section class="mb-4 d-none" data-inventory-group aria-label="@group">
+                <details class="mapped-icons-details" open>
+                    <summary class="mb-3"><h3 class="h5 d-inline">@group <small class="text-muted">(@entries.Length)</small></h3></summary>
+                    <div class="table-responsive">
+                        <table class="table table-hover comparison-table">
+                            <thead>
+                                <tr>
+                                    @foreach (var library in libraries)
+                                    {
+                                        <th scope="col" class="text-center">
+                                            @(library == "HI" ? "HI / HI Font" : library)
+                                            <button type="button" class="comparison-mute-toggle" data-mute-library="@library"
+                                                    aria-pressed="false" aria-label="@($"Mute {library}")" title="@($"Mute {library}")">
+                                                <i class="far fa-eye" aria-hidden="true"></i>
+                                            </button>
+                                        </th>
+                                    }
+                                    <th scope="col">Source / mapping</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var entry in entries)
+                                {
+                                    var fontName = entry.Huge == "sorting-1-9" ? "sorting-one-9" : entry.Huge;
+                                    <tr data-icon-search="@($"{group} {entry.FontAwesome} {entry.Bootstrap} {entry.Huge} {entry.Sources}")">
+                                        <td class="text-center" data-comparison-library="FA">
+                                            @if (entry.FontAwesome.Length > 0)
+                                            {
+                                                var variants = entry.FontAwesome.Split('|');
+                                                var name = variants[0][(variants[0].IndexOf(" fa-", StringComparison.Ordinal) + 4)..];
+                                                var variantNames = string.Join("/", variants.Select(x => x[..x.IndexOf(' ')]));
+                                                <span class="inventory-icon-row">
+                                                    @foreach (var cssClass in variants)
+                                                    {
+                                                        <span class="comparison-icon" aria-hidden="true" title="@cssClass"><i class="@cssClass comparison-icon-fa"></i></span>
+                                                    }
+                                                </span>
+                                                <code class="icon-name">@name @variantNames</code>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">—</span>
+                                            }
+                                        </td>
+                                        @if (group == "Backend")
+                                        {
+                                            <td class="text-center" data-comparison-library="BI">
+                                                @if (entry.Bootstrap.Length > 0)
+                                                {
+                                                    <span class="comparison-icon" aria-hidden="true"><bootstrap-icon name="@entry.Bootstrap" /></span>
+                                                    <code class="icon-name">@entry.Bootstrap</code>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">—</span>
+                                                }
+                                            </td>
+                                        }
+                                        <td class="text-center" data-comparison-library="HI">
+                                            <span class="inventory-icon-row">
+                                                <span class="comparison-icon" aria-hidden="true" title="HI SVG"><icon name="@(entry.Huge + "!")" lib="hi" variant="stroke-rounded" /></span>
+                                                <span class="comparison-icon" aria-hidden="true" title="HI Font"><i class="hgi-stroke hgi-@fontName"></i></span>
+                                            </span>
+                                            <code class="icon-name">@entry.Huge</code>
+                                        </td>
+                                        <td>
+                                            <div class="font-weight-medium">@entry.Uses source occurrences</div>
+                                            <small class="text-muted">@entry.Sources</small>
+                                            <div class="small text-muted mt-1">@entry.Note</div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </details>
+            </section>
+        }
+        @{
+            // Each inventory row counts one source name, independently of its FA styles.
+            var sourceIcons = inventory.ToDictionary(
+                x => x.Bootstrap.Length > 0
+                    ? "bi:" + x.Bootstrap
+                    : "fa:" + x.FontAwesome.Split('|')[0].Split(' ')[1][3..],
+                x => (x.Uses, x.Group));
+        }
+        @await Html.PartialAsync("_IconCheatsheetMigration", sourceIcons)
+        <p id="icon-no-results" class="text-muted" hidden>No matching icons.</p>
+    </details>
+</section>

@@ -24,7 +24,7 @@
         ("Benutzerkonto", "user-02", "user", null)
     };
 
-    var frontendLibraries = new[] { "FA", "HI", "Tabler" };
+    var frontendLibraries = new[] { "FA", "HI", "HI-Font" };
     var productTabs = new (string Label, string Bootstrap, string Huge, string Tabler)[]
     {
         ("Allgemein", "pencil", "edit-02", "pencil"),
@@ -55,7 +55,7 @@
         (3, null, "Vollbild (Strg+F11)", "fa fa-expand", "full-screen", "maximize", "btn-icon", false),
         (4, null, "Löschen", "far fa-trash-can", "delete-02", "trash", "btn-to-danger", false)
     };
-    var productActionLibraries = new[] { "HI", "Tabler" };
+    var productActionLibraries = new[] { "HI", "HI-Font" };
     var productActions = new (string Label, string Huge, string Tabler)[]
     {
         ("Merken", "heart-add", "heart-plus"),
@@ -118,7 +118,7 @@
         ["recycle"] = ("recycle", "recycle-01", "Recycle bin", 1, ""),
         ["envelope"] = ("mail", "mail-01", "Email", 1, ""),
         ["box-arrow-in-right"] = ("login", "login-01", "Login / online customers", 2, ""),
-        ["envelope-open-heart"] = ("mail-heart", "mail-open-love", "Newsletter subscriptions", 1, "Tabler uses a closed envelope with a heart."),
+        ["envelope-open-heart"] = ("mail-heart", "mail-open-love", "Newsletter subscriptions", 1, ""),
         ["columns-gap"] = ("layout-dashboard", "layout-01", "Widgets", 1, ""),
         ["tags"] = ("tags", "tags", "Product tags", 1, ""),
         ["database-up"] = ("database-import", "database-import", "Import", 1, ""),
@@ -141,7 +141,7 @@
         ["geo-alt"] = ("map-pin", "location-01", "Address / location", 1, ""),
         ["arrow-90deg-up"] = ("corner-right-up", "arrow-turn-up", "Turn upward", 1, ""),
         ["person-circle"] = ("user-circle", "user-circle", "User account", 1, ""),
-        ["sort-numeric-down"] = ("sort-ascending-numbers", "sorting-one-9", "Low stock / numeric sort", 1, ""),
+        ["sort-numeric-down"] = ("sort-ascending-numbers", "sorting-1-9", "Low stock / numeric sort", 1, ""),
         ["circle-fill"] = ("circle", "circle", "Status dot / background", 1, "BI solid circle; outline alternatives."),
         ["list-ul"] = ("list", "list-view", "Checkout attributes / list", 1, ""),
         ["view-list"] = ("list-details", "view-agenda", "Lists", 1, ""),
@@ -169,7 +169,7 @@
         ["boxes"] = ("packages", "package-03", "Product inventory", 1, ""),
         ["stack"] = ("stack-2", "layers-01", "Attribute combinations", 1, ""),
         ["images"] = ("library-photo", "images", "Media library", 2, ""),
-        ["hdd"] = ("server", "hdd", "Storage", 1, "Tabler uses a server drive enclosure."),
+        ["hdd"] = ("server", "hdd", "Storage", 1, ""),
         ["sliders"] = ("adjustments-horizontal", "filter-horizontal", "General settings", 1, ""),
         ["cart"] = ("shopping-cart", "shopping-cart-01", "Cart settings", 1, ""),
         ["arrow-left-right"] = ("arrows-left-right", "arrow-left-right", "Data exchange", 1, ""),
@@ -183,135 +183,13 @@
         ["incognito"] = ("spy", "incognito", "Privacy / GDPR", 0, "Plugins menu snapshot."),
         ["plus-square-fill"] = ("square-plus", "add-square", "Sharing / add", 0, "Plugins menu snapshot; BI filled with outline alternatives."),
         ["google"] = ("brand-google", "google", "Google product feed", 0, "Plugins menu snapshot."),
-        ["search-heart"] = ("search", "search-01", "Search logging", 0, "Plugins menu snapshot; Tabler and HI use plain magnifiers."),
+        ["search-heart"] = ("search", "search-01", "Search logging", 0, "Plugins menu snapshot; HI uses a plain magnifier."),
         ["plus-lg"] = ("plus", "add-01", "Add", 0, "Button comparison."),
         ["arrow-counterclockwise"] = ("restore", "refresh-ccw", "Restore", 0, "Button comparison."),
         ["database"] = ("database-export", "database-backup", "Backup", 0, "Button comparison; BI uses a plain database."),
         ["arrow-90deg-left"] = ("arrow-back-up", "undo-02", "Undo", 0, "Button comparison."),
         ["arrow-90deg-right"] = ("arrow-forward-up", "redo-02", "Redo", 0, "Button comparison."),
         ["arrow-down-up"] = ("arrows-sort", "sorting-01", "Sort", 0, "Button comparison."),
-    };
-    // FA equivalents use the locally installed Free styles; composite BI motifs may be approximated.
-    var fontAwesomeIcons = new Dictionary<string, string>
-    {
-        ["trash"] = "far fa-trash-can",
-        ["funnel"] = "fa fa-filter",
-        ["check-lg"] = "fa fa-check",
-        ["upload"] = "fa fa-upload",
-        ["card-checklist"] = "far fa-rectangle-list",
-        ["pencil"] = "far fa-pen-to-square",
-        ["box"] = "fa fa-box",
-        ["list-check"] = "fa fa-list-check",
-        ["search"] = "fa fa-magnifying-glass",
-        ["play-fill"] = "fa fa-play",
-        ["eye"] = "far fa-eye",
-        ["shop-window"] = "fa fa-store",
-        ["info-circle"] = "fa fa-circle-info",
-        ["percent"] = "fa fa-percent",
-        ["cart-check"] = "fa fa-cart-shopping",
-        ["building"] = "far fa-building",
-        ["megaphone"] = "fa fa-bullhorn",
-        ["truck"] = "fa fa-truck",
-        ["diagram-3"] = "fa fa-sitemap",
-        ["graph-up-arrow"] = "fa fa-chart-line",
-        ["link-45deg"] = "fa fa-link",
-        ["file-earmark-pdf"] = "far fa-file-pdf",
-        ["shuffle"] = "fa fa-shuffle",
-        ["envelope-paper"] = "far fa-envelope-open",
-        ["x-lg"] = "fa fa-xmark",
-        ["database-down"] = "fa fa-file-export",
-        ["bar-chart-line"] = "far fa-chart-bar",
-        ["power"] = "fa fa-power-off",
-        ["gift"] = "fa fa-gift",
-        ["archive"] = "fa fa-box-archive",
-        ["globe-americas"] = "fa fa-earth-americas",
-        ["text-wrap"] = "fa fa-align-left",
-        ["card-image"] = "far fa-image",
-        ["arrow-repeat"] = "fa fa-repeat",
-        ["people"] = "fa fa-users",
-        ["exclamation-triangle"] = "fa fa-triangle-exclamation",
-        ["recycle"] = "fa fa-recycle",
-        ["envelope"] = "far fa-envelope",
-        ["box-arrow-in-right"] = "fa fa-right-to-bracket",
-        ["envelope-open-heart"] = "fa fa-envelope-open-text",
-        ["columns-gap"] = "fa fa-table-cells-large",
-        ["tags"] = "fa fa-tags",
-        ["database-up"] = "fa fa-file-import",
-        ["tools"] = "fa fa-screwdriver-wrench",
-        ["hand-thumbs-down"] = "far fa-thumbs-down",
-        ["palette"] = "fa fa-palette",
-        ["box-arrow-left"] = "fa fa-right-from-bracket",
-        ["graph-up"] = "fa fa-chart-line",
-        ["clock"] = "far fa-clock",
-        ["receipt"] = "fa fa-receipt",
-        ["credit-card"] = "far fa-credit-card",
-        ["sliders2-vertical"] = "fa fa-sliders",
-        ["shield"] = "fa fa-shield-halved",
-        ["inboxes"] = "fa fa-inbox",
-        ["menu-button-fill"] = "fa fa-bars",
-        ["chat-dots"] = "far fa-comment-dots",
-        ["lightning"] = "fa fa-bolt",
-        ["database-add"] = "fa fa-database",
-        ["aspect-ratio"] = "fa fa-up-right-and-down-left-from-center",
-        ["geo-alt"] = "fa fa-location-dot",
-        ["arrow-90deg-up"] = "fa fa-arrow-turn-up",
-        ["person-circle"] = "far fa-circle-user",
-        ["sort-numeric-down"] = "fa fa-arrow-down-1-9",
-        ["circle-fill"] = "fa fa-circle",
-        ["list-ul"] = "fa fa-list-ul",
-        ["view-list"] = "fa fa-list",
-        ["three-dots"] = "fa fa-ellipsis",
-        ["arrow-clockwise"] = "fa fa-rotate-right",
-        ["facebook"] = "fab fa-facebook",
-        ["eye-fill"] = "fa fa-eye",
-        ["star-half"] = "far fa-star-half-stroke",
-        ["people-fill"] = "fa fa-users",
-        ["currency-euro"] = "fa fa-euro-sign",
-        ["person"] = "far fa-user",
-        ["copy"] = "far fa-copy",
-        ["puzzle-fill"] = "fa fa-puzzle-piece",
-        ["printer"] = "fa fa-print",
-        ["clipboard"] = "far fa-clipboard",
-        ["gear"] = "fa fa-gear",
-        ["stickies"] = "far fa-note-sticky",
-        ["hand-thumbs-up"] = "far fa-thumbs-up",
-        ["person-badge"] = "far fa-id-badge",
-        ["heart"] = "far fa-heart",
-        ["trophy"] = "fa fa-trophy",
-        ["file-earmark-richtext"] = "far fa-file-lines",
-        ["download"] = "fa fa-download",
-        ["question-circle-fill"] = "fa fa-circle-question",
-        ["boxes"] = "fa fa-boxes-stacked",
-        ["stack"] = "fa fa-layer-group",
-        ["images"] = "far fa-images",
-        ["hdd"] = "far fa-hard-drive",
-        ["sliders"] = "fa fa-sliders",
-        ["cart"] = "fa fa-cart-shopping",
-        ["arrow-left-right"] = "fa fa-arrow-right-arrow-left",
-        ["speedometer2"] = "fa fa-gauge-high",
-        ["chevron-right"] = "fa fa-chevron-right",
-        ["file-earmark"] = "far fa-file",
-        ["stars"] = "fa fa-wand-magic-sparkles",
-        ["sort-down"] = "fa fa-arrow-down-wide-short",
-        ["terminal"] = "fa fa-terminal",
-        ["menu-down"] = "fa fa-bars",
-        ["incognito"] = "fa fa-user-secret",
-        ["plus-square-fill"] = "fa fa-square-plus",
-        ["google"] = "fab fa-google",
-        ["search-heart"] = "fa fa-magnifying-glass",
-        ["plus-lg"] = "fa fa-plus",
-        ["arrow-counterclockwise"] = "fa fa-rotate-left",
-        ["database"] = "fa fa-database",
-        ["arrow-90deg-left"] = "fa fa-undo",
-        ["arrow-90deg-right"] = "fa fa-redo",
-        ["arrow-down-up"] = "fa fa-sort",
-        ["columns"] = "fa fa-table-columns",
-        ["card-text"] = "fa fa-align-left",
-        ["front"] = "far fa-images",
-        ["newspaper"] = "far fa-newspaper",
-        ["rss"] = "fa fa-rss",
-        ["chat-square-text"] = "far fa-comments",
-        ["check2-circle"] = "far fa-circle-check"
     };
 
     // Map menu functions separately when the same BI icon serves different purposes.
@@ -362,14 +240,8 @@
         ["AddToAny"] = ("plus-square-fill", "share", "share-08", "Sharing"),
         ["Suchprotokollierung"] = ("search-heart", "list-search", "search-list-01", "Search logging")
     };
-    var mappedIcons = icons.Select(x => (
-        Bootstrap: x.Key, x.Value.Tabler, x.Value.Huge, x.Value.Concept, x.Value.Uses, x.Value.Note, MenuKey: (string)null))
-        .Concat(menuIcons.Select(x => (
-            x.Value.Bootstrap, x.Value.Tabler, x.Value.Huge, x.Value.Concept, Uses: 0, Note: "Menu-specific mapping.", MenuKey: x.Key)));
-
-    var libraries = new[] { "BI", "HI", "Tabler" };
-    var tableLibraries = new[] { "FA", "BI", "HI", "Tabler" };
-    var buttonLibraries = new[] { "FA", "HI", "Tabler", "BI" };
+    var libraries = new[] { "BI", "HI", "HI-Font" };
+    var buttonLibraries = new[] { "FA", "HI", "HI-Font", "BI" };
     var buttons = new (string Label, string Bootstrap, string FontAwesome, string Style)[]
     {
         ("Add", "plus-lg", "fa fa-plus", "primary"),
@@ -443,11 +315,29 @@
         .ToList();
 }
 
-@* These fonts belong only to this evaluation view. BI uses the existing admin SVG sprite. *@
+@* Compare local HI SVGs with the matching HI webfont; BI keeps the existing admin sprite. *@
+
 <link rel="stylesheet" href="https://use.hugeicons.com/font/icons.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/icons-webfont@@3.48.0/dist/tabler-icons.min.css" />
 
 <style>
+    #icon-cheatsheet .dropdown-item {
+        --dropdown-link-color: #393f46;
+        --dropdown-link-hover-color: #393f46;
+    }
+
+    #icon-cheatsheet .nav-link {
+        --nav-link-color: #393f46;
+        --nav-link-hover-color: #393f46;
+    }
+
+    /* The shared vertical tabs assign a fixed icon color; use the link's variable here. */
+    #icon-cheatsheet .nav-link:not(.active) > :is(i, svg) {
+        color: var(--nav-link-color);
+    }
+    .hgi-stroke {
+        font-weight: 400;
+    }
+
     #icon-cheatsheet .comparison-heading {
         display: flex;
         align-items: center;
@@ -544,7 +434,7 @@
         color: #fff;
     }
 
-    #icon-cheatsheet .admin-navbar-preview i {
+    #icon-cheatsheet .admin-navbar-preview :is(i, svg.icon) {
         display: block;
         width: 24px;
         height: 24px;
@@ -553,7 +443,7 @@
         text-align: center;
     }
 
-    #icon-cheatsheet .admin-navbar-preview .hgi-stroke {
+    #icon-cheatsheet .admin-navbar-preview :is(.icon, .hgi-stroke) {
         font-size: 24px;
     }
 
@@ -615,10 +505,10 @@
         margin: 0;
     }
 
-    #icon-cheatsheet .hgi-stroke {
-        /* The CDN does not reset font weight; prevent inherited button weight from synthesizing bold glyphs. */
-        font-weight: 400;
-        font-synthesis: none;
+
+    /* Summernote's SVG fill rule targets filled toolbar icons; preserve HI outline geometry. */
+    #icon-cheatsheet svg.icon[fill="none"] {
+        fill: none;
     }
 
     #icon-cheatsheet .account-comparison .comparison-icon > .fal {
@@ -633,8 +523,8 @@
         font-size: 14px;
     }
 
-    #icon-cheatsheet [data-comparison-library="HI"] :is(.btn-secondary, .btn-light),
-    #icon-cheatsheet [data-comparison-library="HI"]:is(.btn-secondary, .btn-light) {
+    #icon-cheatsheet :is([data-comparison-library="HI"], [data-comparison-library="HI-Font"]) :is(.btn-secondary, .btn-light),
+    #icon-cheatsheet :is([data-comparison-library="HI"], [data-comparison-library="HI-Font"]):is(.btn-secondary, .btn-light) {
         --btn-icon-color: inherit;
     }
 
@@ -657,7 +547,7 @@
         line-height: 16px;
     }
 
-    #icon-cheatsheet .toolbar-comparison .btn > i {
+    #icon-cheatsheet .toolbar-comparison .btn > :is(i, svg.icon) {
         font-size: 16px;
     }
 
@@ -666,6 +556,7 @@
     }
 
     #icon-cheatsheet .cart-comparison .btn {
+        --icon-min-size: 20px;
         --btn-bg: #3f51b5;
         --btn-disabled-bg: #3f51b5;
         --btn-disabled-border-color: #59616726;
@@ -677,18 +568,12 @@
         width: 350px;
     }
 
-    #icon-cheatsheet .cart-comparison .btn > i {
-        font-size: 16px;
+    #icon-cheatsheet .cart-comparison .btn > .hgi-stroke {
+        font-size: max(1em, var(--icon-min-size, 16px));
     }
-
-    #icon-cheatsheet .cart-comparison .btn > .hgi-stroke,
-    #icon-cheatsheet .cart-comparison .btn > .ti {
-        font-size: 20px;
-    }
-
     #icon-cheatsheet .comparison-table {
-        min-width: 856px;
-        table-layout: fixed;
+        width: auto;
+        table-layout: auto;
     }
 
     #icon-cheatsheet .mapped-icons-details > summary {
@@ -736,14 +621,14 @@
         border-inline-end: 0;
     }
 
-    #icon-cheatsheet .product-action > i {
+    #icon-cheatsheet .product-action > :is(i, svg.icon) {
         display: block;
         font-size: 20px;
         line-height: 20px;
         height: 20px;
     }
 
-    #icon-cheatsheet .product-action > .hgi-stroke {
+    #icon-cheatsheet .product-action > :is(.icon, .hgi-stroke) {
         font-size: 24px;
         line-height: 24px;
         height: 24px;
@@ -756,8 +641,31 @@
         width: max-content;
     }
 
-    #icon-cheatsheet .comparison-table th:nth-child(-n+4) {
-        width: 96px;
+    #icon-cheatsheet .comparison-table th {
+        white-space: nowrap;
+    }
+
+    #icon-cheatsheet .inventory-icon-row {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    #icon-cheatsheet .migration-hi-name {
+        max-height: 24px;
+        width: 24ch;
+        margin-inline: auto;
+        font-size: 11px;
+        text-align: center;
+    }
+
+    #icon-cheatsheet .migration-source-icons {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 12px 16px;
+        max-width: 440px;
     }
 
     #icon-cheatsheet .comparison-table td {
@@ -777,15 +685,45 @@
     }
 </style>
 
-<div id="icon-cheatsheet">
-    <div class="section-header">
-        <div class="title">Icon cheatsheet <small class="text-muted">16 px</small></div>
+<div class="section-header">
+    <div class="title">Icon cheatsheet <small class="text-muted">16 px</small></div>
+    <div class="options">
+        <div class="form-check form-check-inline mb-0">
+            <input type="checkbox" id="hi-demo-pause" class="form-check-input" />
+            <label for="hi-demo-pause" class="form-check-label">Pause animations</label>
+        </div>
+        <div class="form-check form-check-inline mb-0">
+            <input type="checkbox" id="hi-demo-bounds" class="form-check-input" />
+            <label for="hi-demo-bounds" class="form-check-label">Show icon bounds</label>
+        </div>
     </div>
+</div>
 
+<div id="icon-cheatsheet">
     <div class="px-3 pb-5">
+        <section class="mb-5" aria-labelledby="icon-browser-title">
+            <h2 id="icon-browser-title" class="h4">IconBrowser</h2>
+            <div style="max-width: 600px">
+                @await Html.PartialAsync("IconBrowser")
+            </div>
+        </section>
+
+        @await Html.PartialAsync("_IconCheatsheetUtilities")
+
+        <section class="mb-5" aria-labelledby="iconkit-preview-title">
+            <h2 id="iconkit-preview-title" class="h4">IconKit / Local SVG</h2>
+            <div class="d-flex align-items-center gap-3">
+                <icon name="hi:search-01" aria-label="Search" />
+                <icon name="shopping-cart-02" lib="hugeicons" variant="stroke-rounded" class="icon-2x" aria-label="Cart" />
+                <button type="button" class="btn btn-primary">
+                    <icon name="hi:floppy-disk" class="icon-fw mr-1" /> Save
+                </button>
+            </div>
+        </section>
+
         <section class="mb-5 d-none" aria-labelledby="navbar-comparison-title">
             <h2 id="navbar-comparison-title" class="h4">Backend / Main menu</h2>
-            @foreach (string library in new[] { "HI", "Tabler" })
+            @foreach (string library in new[] { "HI", "HI-Font" })
             {
                 <h3 class="h6 text-muted comparison-heading mb-2">@LibraryLabel(library) @{ await RenderMuteButton(library); }</h3>
                 <div class="comparison-scroll mb-2" data-comparison-library="@library">
@@ -796,7 +734,8 @@
                             {
                                 <li>
                                     <button type="button" class="admin-navbar-item">
-                                        <i class="@(library == "HI" ? "hgi-stroke hgi-" + item.Huge : "ti ti-" + item.Tabler)" aria-hidden="true"></i>
+                                        <icon sm-if='@(library == "HI")' name="@item.Huge" lib="hi" aria-hidden="true" />
+                                        <i sm-if='@(library != "HI")' class="@("hgi-stroke hgi-" + HugeFontName(item.Huge))" aria-hidden="true"></i>
                                         <span>@item.Label</span>
                                     </button>
                                 </li>
@@ -807,7 +746,8 @@
                             {
                                 <li>
                                     <button type="button" class="admin-navbar-tool" aria-label="@item.Label" title="@item.Label">
-                                        <i class="@(library == "HI" ? "hgi-stroke hgi-" + item.Huge : "ti ti-" + item.Tabler)" aria-hidden="true"></i>
+                                        <icon sm-if='@(library == "HI")' name="@item.Huge" lib="hi" aria-hidden="true" />
+                                        <i sm-if='@(library != "HI")' class="@("hgi-stroke hgi-" + HugeFontName(item.Huge))" aria-hidden="true"></i>
                                         @if (item.Text != null)
                                         {
                                             <span>@item.Text</span>
@@ -844,11 +784,11 @@
                                             }
                                             else if (library == "HI")
                                             {
-                                                <i class="hgi-stroke hgi-@item.Huge"></i>
+                                                <icon name="@item.Huge" lib="hi" />
                                             }
                                             else
                                             {
-                                                <i class="ti ti-@item.Tabler"></i>
+                                                <i class="hgi-stroke hgi-@(HugeFontName(item.Huge))"></i>
                                             }
                                         </span>
                                         <span>@item.Label</span>
@@ -876,11 +816,11 @@
                                 }
                                 else if (library == "HI")
                                 {
-                                    <i class="hgi-stroke hgi-shopping-cart-add-01" aria-hidden="true"></i>
+                                    <icon name="shopping-cart-add-01" lib="hi" aria-hidden="true" />
                                 }
                                 else
                                 {
-                                    <i class="ti ti-shopping-cart-down" aria-hidden="true"></i>
+                                    <i class="hgi-stroke hgi-shopping-cart-add-01" aria-hidden="true"></i>
                                 }
                                 <span>In den Warenkorb</span>
                             </button>
@@ -905,11 +845,11 @@
                                         <button type="button" class="product-action" aria-label="@($"{action.Label} / {library} preview")">
                                             @if (library == "HI")
                                             {
-                                                <i class="hgi-stroke hgi-@action.Huge" aria-hidden="true"></i>
+                                                <icon name="@action.Huge" lib="hi" aria-hidden="true" />
                                             }
                                             else
                                             {
-                                                <i class="ti ti-@action.Tabler" aria-hidden="true"></i>
+                                                <i class="hgi-stroke hgi-@(HugeFontName(action.Huge))" aria-hidden="true"></i>
                                             }
                                             <span>@action.Label</span>
                                         </button>
@@ -923,11 +863,11 @@
         </section>
 
         <p class="text-muted">
-            HugeIcons Stroke Rounded, Tabler Outline and the current Bootstrap Icons.
-            BI, HI and Tabler are shown at 16 px in the same color, with each library's native stroke weight.
+            HugeIcons Stroke Rounded as local SVGs and webfonts alongside the current Bootstrap Icons.
+            BI, HI SVG and HI webfont are shown at 16 px in the same color, with each library's native stroke weight.
             Menus are static previews of the admin sitemap; Plugins and CMS use the supplied menu snapshots.
         </p>
-        <p id="icon-font-status" class="small text-muted" role="status" aria-live="polite">Loading comparison fonts...</p>
+        <p id="icon-font-status" class="small text-muted" role="status" aria-live="polite">Loading HugeIcons comparison font...</p>
 
         @foreach (var menu in menus)
         {
@@ -1017,7 +957,8 @@
                                                 }
                                                 else
                                                 {
-                                                    <i class="@(library == "HI" ? "hgi-stroke hgi-" + tab.Huge : "ti ti-" + tab.Tabler) nav-icon" aria-hidden="true"></i>
+                                                    <icon sm-if='@(library == "HI")' name="@tab.Huge" lib="hi" class="nav-icon" aria-hidden="true" />
+                                                    <i sm-if='@(library != "HI")' class="@("hgi-stroke hgi-" + HugeFontName(tab.Huge)) nav-icon" aria-hidden="true"></i>
                                                 }
                                                 <span class="tab-caption">@tab.Label</span>
                                             </span>
@@ -1039,23 +980,27 @@
                     <h3 class="h6 text-muted comparison-heading mb-2">@(library == "FA" ? "Original / FA" : LibraryLabel(library)) @{ await RenderMuteButton(library); }</h3>
                     <div class="options" role="group" data-comparison-library="@library" aria-label="@($"{library} product edit toolbar preview")">
                         <button type="button" class="btn btn-outline-secondary">
-                            <i class="@(library == "FA" ? "far fa-eye" : library == "HI" ? "hgi-stroke hgi-eye" : "ti ti-eye")" aria-hidden="true"></i>
+                            <icon sm-if='@(library == "HI")' name="eye" lib="hi" aria-hidden="true" />
+                            <i sm-if='@(library != "HI")' class="@(library == "FA" ? "far fa-eye" : "hgi-stroke hgi-eye")" aria-hidden="true"></i>
                             <span>Vorschau</span>
                         </button>
                         <button type="button" class="btn btn-outline-secondary">
-                            <i class="@(library == "FA" ? "far fa-copy" : library == "HI" ? "hgi-stroke hgi-copy-02" : "ti ti-copy")" aria-hidden="true"></i>
+                            <icon sm-if='@(library == "HI")' name="copy-02" lib="hi" aria-hidden="true" />
+                            <i sm-if='@(library != "HI")' class="@(library == "FA" ? "far fa-copy" : "hgi-stroke hgi-copy-02")" aria-hidden="true"></i>
                             <span>Produkt kopieren</span>
                         </button>
                         <span class="vr" aria-hidden="true"></span>
                         <button type="button" class="btn btn-warning">
-                            <i class="@(library == "FA" ? "fa fa-check" : library == "HI" ? "hgi-stroke hgi-tick-02" : "ti ti-check")" aria-hidden="true"></i>
+                            <icon sm-if='@(library == "HI")' name="tick-02" lib="hi" aria-hidden="true" />
+                            <i sm-if='@(library != "HI")' class="@(library == "FA" ? "fa fa-check" : "hgi-stroke hgi-tick-02")" aria-hidden="true"></i>
                             <span>Speichern</span>
                         </button>
                         <button type="button" class="btn btn-secondary">
                             Speichern und fortsetzen
                         </button>
                         <button type="button" class="btn btn-danger">
-                            <i class="@(library == "FA" ? "far fa-trash-can" : library == "HI" ? "hgi-stroke hgi-delete-02" : "ti ti-trash")" aria-hidden="true"></i>
+                            <icon sm-if='@(library == "HI")' name="delete-02" lib="hi" aria-hidden="true" />
+                            <i sm-if='@(library != "HI")' class="@(library == "FA" ? "far fa-trash-can" : "hgi-stroke hgi-delete-02")" aria-hidden="true"></i>
                             <span>Löschen</span>
                         </button>
                     </div>
@@ -1076,7 +1021,8 @@
                                 @foreach (var button in group)
                                 {
                                     <button type="button" class="btn btn-secondary @button.Css" title="@button.Title" aria-label="@button.Title" disabled="@button.Disabled">
-                                        <i class="@(library == "FA" ? button.FontAwesome : library == "HI" ? "hgi-stroke hgi-" + button.Huge : "ti ti-" + button.Tabler)" aria-hidden="true"></i>
+                                        <icon sm-if='@(library == "HI")' name="@button.Huge" lib="hi" aria-hidden="true" />
+                                        <i sm-if='@(library != "HI")' class="@(library == "FA" ? button.FontAwesome : "hgi-stroke hgi-" + HugeFontName(button.Huge))" aria-hidden="true"></i>
                                         @if (button.Label != null)
                                         {
                                             <span>@button.Label</span>
@@ -1100,7 +1046,7 @@
 
         <section class="mb-5" aria-labelledby="html-editor-toolbar-comparison-title">
             <h2 id="html-editor-toolbar-comparison-title" class="h4">HtmlEditor Toolbar comparison</h2>
-            @foreach (string library in new[] { "Original", "HI", "Tabler" })
+            @foreach (string library in new[] { "Original", "HI", "HI-Font" })
             {
                 <div class="mb-4">
                     <h3 class="h6 text-muted comparison-heading mb-2">@(library == "Original" ? "Original / Embedded SVG" : LibraryLabel(library)) @{ await RenderMuteButton(library); }</h3>
@@ -1111,7 +1057,7 @@
 
         <section class="mb-5" aria-labelledby="button-comparison-title">
             <h2 id="button-comparison-title" class="h4">Button comparison</h2>
-            <p class="text-muted">Common admin actions: FontAwesome at 14 px; BI, HI and Tabler at 16 px. Preview buttons have no actions.</p>
+            <p class="text-muted">Common admin actions: FontAwesome at 14 px; BI, HI SVG and HI webfont at 16 px. Preview buttons have no actions.</p>
             <div class="comparison-scroll">
                 <div class="button-comparison">
                     @foreach (string library in buttonLibraries)
@@ -1130,11 +1076,11 @@
                                     }
                                     else if (library == "HI")
                                     {
-                                        <i class="hgi-stroke hgi-@icons[button.Bootstrap].Huge" aria-hidden="true"></i>
+                                        <icon name="@icons[button.Bootstrap].Huge" lib="hi" aria-hidden="true" />
                                     }
-                                    else if (library == "Tabler")
+                                    else if (library == "HI-Font")
                                     {
-                                        <i class="ti ti-@icons[button.Bootstrap].Tabler" aria-hidden="true"></i>
+                                        <i class="hgi-stroke hgi-@(HugeFontName(icons[button.Bootstrap].Huge))" aria-hidden="true"></i>
                                     }
                                     else
                                     {
@@ -1150,104 +1096,11 @@
             </div>
         </section>
 
-        <section aria-labelledby="icon-table-title">
-            <details class="mapped-icons-details">
-                <summary class="mb-3"><h2 id="icon-table-title" class="h4 d-inline">All mapped icons</h2></summary>
-                <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
-                    <div>
-                        <p class="text-muted mb-2">@mappedIcons.Count() mappings, ordered by source occurrences in the admin area. FA equivalents use available Free icons, with approximations for composite motifs. FA: 14 px; BI, HI and Tabler: 16 px.</p>
-                    </div>
-                    <div>
-                        <label for="icon-search" class="sr-only">Filter icons by concept or icon name</label>
-                        <input id="icon-search" type="search" class="form-control" placeholder="Filter concept or icon name" autocomplete="off" />
-                    </div>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-hover comparison-table">
-                        <thead>
-                            <tr>
-                                @foreach (string library in tableLibraries)
-                                {
-                                    <th scope="col" class="text-center">@library @{ await RenderMuteButton(library); }</th>
-                                }
-                                <th scope="col">Concept</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var icon in mappedIcons.OrderByDescending(x => x.Uses).ThenBy(x => x.Concept))
-                            {
-                                string fontAwesome = GetFontAwesomeIcon(icon.Bootstrap, icon.MenuKey);
-                                <tr data-icon-search="@($"{fontAwesome} {icon.Bootstrap} {icon.Tabler} {icon.Huge} {icon.Concept}")">
-                                    @foreach (string library in tableLibraries)
-                                    {
-                                        string name = library == "FA" ? fontAwesome : library == "HI" ? icon.Huge : library == "Tabler" ? icon.Tabler : icon.Bootstrap;
-                                        <td class="text-center" data-comparison-library="@library">
-                                            @if (library == "FA")
-                                            {
-                                                <span class="comparison-icon" aria-hidden="true"><i class="@fontAwesome comparison-icon-fa"></i></span>
-                                            }
-                                            else
-                                            {
-                                                await RenderIcon(icon.Bootstrap, library, icon.MenuKey == "return-cases" ? "flip-h" : null, icon.MenuKey);
-                                            }
-                                            <code class="icon-name" title="@name">@name</code>
-                                        </td>
-                                    }
-                                    <td>
-                                        <div class="font-weight-medium">@icon.Concept</div>
-                                        @if (icon.Uses > 0)
-                                        {
-                                            <small class="text-muted">@icon.Uses source occurrences</small>
-                                        }
-                                        @if (icon.Note.HasValue())
-                                        {
-                                            <div class="small text-muted mt-1">@icon.Note</div>
-                                        }
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-                <p id="icon-no-results" class="text-muted" hidden>No matching icons.</p>
-            </details>
-        </section>
+        @await Html.PartialAsync("_IconCheatsheetInventory")
     </div>
 </div>
 
 @{
-    string GetFontAwesomeIcon(string bootstrap, string menuKey) => menuKey switch
-    {
-        "products" => "fa fa-boxes-stacked",
-        "attributes" => "fa fa-sliders",
-        "checkout-attributes" => "far fa-rectangle-list",
-        "recurring-payments" => "fa fa-arrows-rotate",
-        "recycle-bin" => "fa fa-trash-arrow-up",
-        "menus" => "fa fa-bars",
-        "manufacturers" => "fa fa-industry",
-        "stockreport" => "fa fa-box-open",
-        "orders" => "fa fa-file-invoice",
-        "return-cases" => "fa fa-rotate-left",
-        "customer-roles" => "fa fa-users-gear",
-        "online-customers" => "fa fa-user-check",
-        "external-auth" => "fa fa-right-to-bracket",
-        "activity-log" => "fa fa-clock-rotate-left",
-        "affiliates" => "far fa-handshake",
-        "message-templates" => "fa fa-envelope-open-text",
-        "email-accounts" => "fa fa-at",
-        "scheduled tasks" => "far fa-calendar-days",
-        "seo-names" => "fa fa-link",
-        "Nummernkreis-Formatierer" => "fa fa-hashtag",
-        "TinyImage" => "far fa-image",
-        "GeoBlocker" => "fa fa-earth-europe",
-        "DSGVO" => "fa fa-user-shield",
-        "AddToAny" => "fa fa-share-nodes",
-        "Suchprotokollierung" => "fa fa-magnifying-glass-chart",
-        "cms-blogs" => "fa fa-pen-nib",
-        "cms-polls" => "fa fa-square-poll-vertical",
-        _ => fontAwesomeIcons[bootstrap]
-    };
-
     async Task RenderMuteButton(string library)
     {
         <button type="button" class="comparison-mute-toggle" data-mute-library="@library"
@@ -1256,10 +1109,17 @@
         </button>
     }
 
+    // The SVG package and webfont use different names for these equivalent glyphs.
+    string HugeFontName(string name) => name switch
+    {
+        "sorting-1-9" => "sorting-one-9",
+        _ => name
+    };
+
     string LibraryLabel(string library) => library switch
     {
-        "HI" => "HI / Stroke Rounded",
-        "Tabler" => "Tabler / Outline",
+        "HI" => "HI / SVG",
+        "HI-Font" => "HI / Webfont",
         _ => "BI / Current admin icons"
     };
 
@@ -1303,22 +1163,22 @@
                 {
                     if (library == "HI")
                     {
-                        <i class="hgi-stroke hgi-@menuIcon.Huge"></i>
+                        <icon name="@menuIcon.Huge" lib="hi" />
                     }
                     else
                     {
-                        <i class="ti ti-@menuIcon.Tabler"></i>
+                        <i class="hgi-stroke hgi-@(HugeFontName(menuIcon.Huge))"></i>
                     }
                 }
                 else if (icons.TryGetValue(bootstrap, out var icon))
                 {
                     if (library == "HI")
                     {
-                        <i class="hgi-stroke hgi-@icon.Huge"></i>
+                        <icon name="@icon.Huge" lib="hi" />
                     }
                     else
                     {
-                        <i class="ti ti-@icon.Tabler"></i>
+                        <i class="hgi-stroke hgi-@(HugeFontName(icon.Huge))"></i>
                     }
                 }
                 else
@@ -1361,21 +1221,23 @@
                 row.hidden = !row.dataset.iconSearch.toLowerCase().includes(query);
                 if (!row.hidden) count++;
             });
+            root.querySelectorAll('[data-inventory-group]').forEach(group => {
+                group.hidden = !Array.from(group.querySelectorAll('[data-icon-search]')).some(row => !row.hidden);
+            });
             document.getElementById('icon-no-results').hidden = count > 0;
         });
 
         const status = document.getElementById('icon-font-status');
         Promise.all([
-            document.fonts.load('16px "hugeicons-stroke-rounded"'),
-            document.fonts.load('16px "tabler-icons"')
+            document.fonts.load('16px "hugeicons-stroke-rounded"')
         ]).then(fonts => {
             const loaded = fonts.every(faces => faces.length > 0);
             status.textContent = loaded
-                ? 'Both comparison fonts loaded. BI, HI and Tabler: 16 px.'
-                : 'A comparison font could not be loaded. Check CDN access before comparing.';
+                ? 'HugeIcons font loaded. HI uses local SVGs. BI, HI SVG and HI webfont: 16 px.'
+                : 'The HugeIcons font could not be loaded. Check CDN access before comparing.';
             status.classList.toggle('text-danger', !loaded);
         }).catch(() => {
-            status.textContent = 'A comparison font could not be loaded. Check CDN access before comparing.';
+            status.textContent = 'The HugeIcons font could not be loaded. Check CDN access before comparing.';
             status.classList.add('text-danger');
         });
     })();

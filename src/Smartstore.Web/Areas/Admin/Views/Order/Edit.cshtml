@@ -21,26 +21,26 @@
     <div class="section-header">
         <div class="title">
             <a sm-backto asp-action="List"></a>
-            <i class="far fa-chart-bar"></i>
+            <icon name="bar-chart" />
             <span>@ViewBag.Title</span>
         </div>
         <div class="options">
             <zone name="admin_button_toolbar_before" />
 
             <a asp-action="Print" asp-route-orderId="@Model.Id" asp-route-pdf="false" target="print" class="btn btn-secondary print-order-button">
-                <i class="fa fa-print"></i>
+                <icon name="printer" />
                 <span>@T("Order.Print")</span>
             </a>
             @if (displayPdfInvoice)
             {
                 <a asp-action="Print" asp-route-orderId="@Model.Id" asp-route-pdf="true" class="btn btn-secondary">
-                    <i class="far fa-file-pdf"></i>
+                    <icon name="file-pdf" />
                     <span>@T("Admin.Orders.PdfInvoice")</span>
                 </a>
             }
 
             <button type="submit" id="order-delete" name="order-delete" class="btn btn-danger">
-                <i class="far fa-trash-can"></i>
+                <icon name="trash" />
                 <span>@T("Admin.Common.Delete")</span>
             </button>
             <confirm button-id="order-delete" />

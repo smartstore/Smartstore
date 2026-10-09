@@ -1,0 +1,17 @@
+{
+  "displayName": "HugeIcons",
+  "icon": "hi:hugeicons@sr",
+  "version": "4.3.5",
+  "shortName": "hi",
+  "defaultVariant": "stroke-rounded",
+  "variants": {
+    "stroke-rounded": {
+      "displayName": "Stroke Rounded",
+      "icon": "hi:hugeicons@sr",
+      "shortName": "sr",
+      "defaultViewBox": "0 0 24 24",
+      "stroke": "currentColor",
+      "strokeWidthScale": 1.0666667
+    }
+  }
+}

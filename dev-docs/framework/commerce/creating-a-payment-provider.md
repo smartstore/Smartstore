@@ -107,7 +107,9 @@ public partial class MyCustomPaymentFilter : IPaymentMethodFilter
 
                 if (request.Cart != null)
                 {
-                    Money? cartTotal = await _orderCalculationService.Value.GetShoppingCartTotalAsync(request.Cart);
+                    Money? cartTotal = await _orderCalculationService.Value.GetShoppingCartTotalAsync(
+                        request.Cart,
+                        ShoppingCartTotalOptions.Default);
                     if (cartTotal == null || cartTotal.Value <= decimal.Zero || cartTotal.Value < settings.FinancingMin || cartTotal.Value > settings.FinancingMax)
                     {
                         // Cart total is not financeable.
@@ -243,6 +245,39 @@ public override async Task PostProcessPaymentAsync(
     await order.GenericAttributes.SaveChangesAsync();    
 }
 ```
+
+## Recovering a paid order
+
+A customer can complete a payment at an external gateway without returning to the shop, leaving a paid transaction without an order. After authenticating the gateway callback and confirming that no order exists, call `IOrderProcessingService.RecoverOrderAsync` with the original payment data:
+
+```csharp
+var result = await _orderProcessingService.RecoverOrderAsync(new OrderRecoveryData
+{
+    StoreId = storeId,
+    CustomerId = customerId,
+    OrderGuid = orderGuid,
+    PaymentMethodSystemName = SystemName,
+    PaidAmount = paidAmount,
+    CartHash = paidCartHash
+});
+```
+
+`OrderRecoveryData` contains the following values:
+
+| Property | Description |
+| --- | --- |
+| `StoreId` | Store in which the original checkout took place. |
+| `CustomerId` | Customer who paid for the order. |
+| `OrderGuid` | Original order GUID, or `Guid.Empty` to generate a new one. |
+| `PaymentMethodSystemName` | System name of the payment provider. |
+| `PaidAmount` | Amount confirmed by the gateway. It must equal the rounded total of the current cart. |
+| `CartHash` | Hash captured from the cart before payment. It must match the customer's current cart. |
+
+The service rejects recovery when the customer or cart no longer exists, the cart hash differs, or the paid amount does not match the current cart total. It places the order with `ProcessPaymentRequest.IsOrderRecovery` set to `true` and returns validation failures through `OrderPlacementResult.Errors`.
+
+{% hint style="warning" %}
+Never recover an order from unverified callback data. First validate the callback with the payment provider and check whether the order or payment reference has already been processed.
+{% endhint %}
 
 ## Webhooks and IPNs
 

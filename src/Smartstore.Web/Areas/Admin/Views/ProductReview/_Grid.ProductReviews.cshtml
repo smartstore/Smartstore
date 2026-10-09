@@ -18,7 +18,7 @@
     <toolbar>
         <toolbar-group>
             <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-plain btn-icon">
-                <bootstrap-icon name="funnel" />
+                <icon name="filter" />
             </button>
         </toolbar-group>
         <toolbar-group>
@@ -27,7 +27,7 @@
                     id="approve-selected"
                     class="btn btn-warning btn-flat"
                     data-url="@Url.Action("ApproveSelected")">
-                <bootstrap-icon name="check-lg" />
+                <icon name="check" />
                 <span>@T("Admin.Catalog.ProductReviews.ApproveSelected")</span>
             </button>
             <button datagrid-action="DataGridToolAction.ReactToSelection"
@@ -35,7 +35,7 @@
                     id="disapprove-selected"
                     class="btn btn-secondary btn-to-danger btn-flat"
                     data-url="@Url.Action("DisapproveSelected")">
-                <bootstrap-icon name="x-lg" />
+                <icon name="close" />
                 <span>@T("Admin.Catalog.ProductReviews.DisapproveSelected")</span>
             </button>
             <button datagrid-action="DataGridToolAction.ReactToSelection"
@@ -43,7 +43,7 @@
                     id="verify-selected"
                     class="btn btn-secondary btn-to-danger btn-flat"
                     data-url="@Url.Action("VerifySelected")">
-                <bootstrap-icon name="check-lg" />
+                <icon name="check" />
                 <span>@T("Admin.Catalog.ProductReviews.VerifySelected")</span>
             </button>
         </toolbar-group>
@@ -52,7 +52,7 @@
         <zone name="datagrid_toolbar_omega"></zone>
         <toolbar-group>
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
-                <bootstrap-icon name="trash" />
+                <icon name="trash" />
                 <span>@T("Admin.Common.Delete.Selected")</span>
             </button>
         </toolbar-group>

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Content.Blocks;
+using Smartstore.Core.Content.Media.Icons;
 using Smartstore.Core.Localization;
 using Smartstore.Utilities;
 using Smartstore.Web.Modelling;
@@ -667,6 +668,37 @@ public static class HtmlHelperRenderingExtensions
     #endregion
 
     #region Icon
+
+    /// <summary>
+    /// Renders an SVG icon through the shared renderer, which selects inline or kit output.
+    /// </summary>
+    /// <param name="name">The icon or conceptual address, including optional selectors, mapping bypass and modifiers.</param>
+    /// <param name="lib">The optional library system name or short name.</param>
+    /// <param name="variant">The optional variant name or short name.</param>
+    /// <param name="options">Presentation options. Explicit options override address modifiers; the object is not modified.</param>
+    /// <returns>The rendered SVG, or empty content when the icon cannot be resolved or rendered.</returns>
+    public static async Task<IHtmlContent> IconAsync(this IHtmlHelper helper,
+        string name,
+        string lib = null,
+        string variant = null,
+        IconOptions options = null)
+    {
+        Guard.NotNull(helper);
+        Guard.NotEmpty(name);
+
+        var httpContext = helper.ViewContext.HttpContext;
+        var services = httpContext.RequestServices;
+        var iconService = services.GetRequiredService<IIconService>();
+        var icon = await iconService.GetIconAsync(name, lib, variant, httpContext.RequestAborted);
+        if (icon == null)
+        {
+            return HtmlString.Empty;
+        }
+
+        var renderer = services.GetRequiredService<IIconRenderer>();
+        var svg = await renderer.RenderAsync(icon, options, httpContext.RequestAborted);
+        return (IHtmlContent)svg ?? HtmlString.Empty;
+    }
 
     /// <summary>
     /// Generates HTML for a <c>FontAwesome (fa)</c> or a <c>Bootstrap (bi)</c> icon.

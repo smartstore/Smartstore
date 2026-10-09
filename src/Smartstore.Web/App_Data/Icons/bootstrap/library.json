@@ -1,0 +1,13 @@
+{
+  "displayName": "Bootstrap Icons",
+  "icon": "bi:bootstrap@default",
+  "version": "1.13.2",
+  "shortName": "bi",
+  "defaultVariant": "default",
+  "variants": {
+    "default": {
+      "icon": null,
+      "defaultViewBox": "0 0 16 16"
+    }
+  }
+}

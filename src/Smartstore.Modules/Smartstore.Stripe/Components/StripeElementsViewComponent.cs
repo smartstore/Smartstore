@@ -60,16 +60,27 @@ public class StripeElementsViewComponent : SmartViewComponent
 
         if (isPaymentSelectionPage)
         {
+            var paymentPageButtonMethods = _settings.PaymentPageButtonMethods ?? [];
+            model.PaymentPageButtonMethodsJson = JsonSerializer.Serialize(paymentPageButtonMethods);
+
             var store = Services.StoreContext.CurrentStore;
             var customer = Services.WorkContext.CurrentCustomer;
             var currency = Services.WorkContext.WorkingCurrency;
             var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
-            // Get subtotal
-            var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, true);
-            var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithDiscount.Amount, currency);
+            if (paymentPageButtonMethods.Length > 0)
+            {
+                var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, ShoppingCartTotalOptions.Default);
+                model.Amount = _roundingHelper.ToSmallestCurrencyUnit(cartTotal.ConvertedAmount.Total.Value);
+            }
+            else
+            {
+                // Get subtotal
+                var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, true);
+                var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithDiscount.Amount, currency);
 
-            model.Amount = _roundingHelper.ToSmallestCurrencyUnit(subTotalConverted);
+                model.Amount = _roundingHelper.ToSmallestCurrencyUnit(subTotalConverted);
+            }
             model.Currency = currency.CurrencyCode.ToLower();
             model.CaptureMethod = _settings.CaptureMethod;
 

@@ -8,33 +8,33 @@
     <div class="section-header">
         <div class="title">
             <a sm-backto asp-action="List"></a>
-            <i class="fa fa-download"></i>
+            <icon name="download" />
             <span>@ViewBag.Title - @Model.Name</span>
         </div>
         <div class="options">
 			@if (Model.Id != 0)
             {
 				<button type="button" id="ProfileImportButton" data-url="@Url.Action("Execute", "Import", new { area = "Admin", id = Model.Id })" class="btn btn-secondary">
-					<i class="fa fa-download"></i>
+					<icon name="download" />
 					<span>@T("Common.Import")</span>
 				</button>
             }
             @if (Model.LogFileExists)
             {
                 <a asp-action="DownloadLogFile" asp-route-id="@Model.Id" class="btn btn-secondary" target="LogFile">
-                    <i class="far fa-file-lines"></i>
+                    <icon name="file-text" />
                     <span>@T("Admin.Configuration.ActivityLog")</span>
                 </a>
             }
 			<button type="submit" name="save" value="save" class="btn btn-warning">
-				<i class="fa fa-check"></i>
+				<icon name="check" />
 				<span>@T("Admin.Common.Save")</span>
 			</button>
 			<button type="submit" name="save" value="save-continue" class="btn btn-secondary">
 				<span>@T("Admin.Common.SaveContinue")</span>
 			</button>
 			<button type="submit" name="import-profile-delete" id="import-profile-delete" value="import-profile-delete" class="btn btn-danger">
-				<i class="far fa-trash-can"></i>
+				<icon name="trash" />
 				<span>@T("Admin.Common.Delete")</span>
 			</button>
 			<confirm button-id="import-profile-delete" />

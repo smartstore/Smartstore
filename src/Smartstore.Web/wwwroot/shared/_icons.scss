@@ -1,0 +1,241 @@
+/// <reference path="references.scss" />
+
+@use "sass:list";
+
+// Library-independent SVG icons. Animation keyframes shared with _utils.scss.
+// Apply .icon to an SVG or a light-DOM host containing one direct child SVG.
+.icon,
+.icon-stack {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    box-sizing: content-box;
+    width: 1em;
+    height: 1em;
+    // Clamp the base before applying size utilities, not the final dimensions.
+    font-size: calc(max(var(--icon-size, 1em), var(--icon-min-size, 16px)) * var(--icon-size-factor, 1));
+    line-height: 1;
+    vertical-align: var(--icon-align, -0.125em);
+    overflow: visible;
+    color: var(--icon-color, inherit);
+    text-align: center;
+    transform-origin: center;
+    // Individual transforms compose with the transform used by animations.
+    translate: var(--icon-shift-x, 0) var(--icon-shift-y, 0);
+    rotate: var(--icon-rotate, 0deg);
+    scale: calc(var(--icon-scale, 1) * var(--icon-flip-x, 1)) calc(var(--icon-scale, 1) * var(--icon-flip-y, 1));
+}
+
+.icon > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+svg.icon > use,
+.icon > svg > use {
+    width: 100%;
+    height: 100%;
+}
+
+svg.icon > :is(use, g) {
+    transform-origin: center;
+    transform-box: view-box;
+}
+
+// Keep fill/stroke on the SVG artwork: a global fill would break stroke icons.
+.icon-fw {
+    width: 1.25em;
+}
+
+// Sizing remains relative to the surrounding text, like the FA utilities.
+@for $i from 1 through 10 {
+    .icon-#{$i}x {
+        --icon-size-factor: #{$i};
+    }
+}
+
+@each $name, $size in (2xs: 10, xs: 12, sm: 14, lg: 20, xl: 24, 2xl: 32) {
+    .icon-#{$name} {
+        --icon-size-factor: calc(#{$size} / 16);
+        --icon-align: calc((6 / #{$size} - 3 / 8) * 1em);
+    }
+}
+
+// Lists use logical properties so the same markup also works in RTL layouts.
+.icon-ul {
+    list-style-type: none;
+    margin-inline-start: var(--icon-li-margin, 2.5em);
+    padding-inline-start: 0;
+
+    > li {
+        position: relative;
+    }
+}
+
+// Use a separate marker host to keep its position independent of icon sizing.
+.icon-li {
+    position: absolute;
+    inset-inline-start: calc(-1 * var(--icon-li-width, 2em));
+    top: 0;
+    width: var(--icon-li-width, 2em);
+    text-align: center;
+    line-height: inherit;
+}
+
+// HTML stacks center independent SVG layers without assuming a library grid.
+.icon-stack {
+    position: relative;
+    isolation: isolate;
+    width: var(--icon-stack-width, 2.5em);
+    height: var(--icon-stack-height, 2em);
+    vertical-align: var(--icon-stack-align, middle);
+
+    > :where(.icon) {
+        // Do not apply the host's sizing and transforms a second time.
+        --icon-size: 1em;
+        --icon-size-factor: 1;
+        --icon-min-size: 0px;
+        --icon-rotate: initial;
+        --icon-scale: initial;
+        --icon-flip-x: initial;
+        --icon-flip-y: initial;
+        --icon-shift-x: initial;
+        --icon-shift-y: initial;
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        z-index: var(--icon-stack-z-index, auto);
+    }
+}
+
+.icon-stack > .icon-stack-1x {
+    --icon-size-factor: 1;
+}
+
+.icon-stack > .icon-stack-2x {
+    --icon-size-factor: 2;
+}
+
+.icon-inverse {
+    color: var(--icon-inverse, #{$yiq-text-light});
+}
+
+// Icon utilities and bridges for existing Smartstore transform classes.
+// Scope the bridges to icon hosts; other users of _utils.scss stay unchanged.
+:is(.icon, .icon-stack) {
+    @each $angle in (90, 180, 270) {
+        &.icon-rotate-#{$angle},
+        &.rotate-#{$angle} {
+            --icon-rotate: #{$angle}deg;
+        }
+    }
+
+    &.icon-rotate-by {
+        --icon-rotate: var(--icon-rotate-angle, 0deg);
+    }
+
+    &.icon-flip-h,
+    &.flip-h {
+        --icon-flip-x: -1;
+    }
+
+    &.icon-flip-v,
+    &.flip-v {
+        --icon-flip-y: -1;
+    }
+
+    &.icon-flip-hv,
+    &.flip-hv {
+        --icon-flip-x: -1;
+        --icon-flip-y: -1;
+    }
+
+    &:is(.rotate-90, .rotate-180, .rotate-270, .flip-h, .flip-v, .flip-hv) {
+        transform: none;
+        translate: var(--icon-shift-x, var(--offset-x, 0)) var(--icon-shift-y, var(--offset-y, 0));
+    }
+}
+
+// Reuse shared keyframes for existing effects; only missing effects are defined
+// below. --animation-duration remains supported for existing call sites.
+$icon-animations: (
+    spin: (spin, 2s, linear, normal),
+    pulse: (spin, 1s, steps(8), normal),
+    spin-pulse: (spin, 1s, steps(8), normal),
+    beat: (beat, 1s, ease-in-out, normal),
+    fade: (fade, 1s, ease-in-out, alternate),
+    throb: (throb, 0.75s, ease-in-out, alternate),
+    cylon: (cylon, 0.75s, ease-in-out, alternate),
+    cylon-vertical: (cylon-vertical, 0.75s, ease-in-out, alternate),
+    bounce: (icon-bounce, 1s, cubic-bezier(0.28, 0.84, 0.42, 1), normal),
+    beat-fade: (icon-beat-fade, 1s, ease-in-out, normal),
+    flip: (icon-flip, 1s, ease-in-out, normal),
+    shake: (icon-shake, 1s, linear, normal)
+);
+
+@each $name, $settings in $icon-animations {
+    .icon-#{$name} {
+        animation-name: list.nth($settings, 1);
+        animation-duration: var(--icon-animation-duration, var(--animation-duration, list.nth($settings, 2)));
+        animation-timing-function: var(--icon-animation-timing, list.nth($settings, 3));
+        animation-direction: var(--icon-animation-direction, list.nth($settings, 4));
+        animation-delay: var(--icon-animation-delay, 0s);
+        animation-iteration-count: var(--icon-animation-iteration-count, infinite);
+        animation-play-state: var(--icon-animation-play-state, running);
+    }
+}
+
+.icon-beat {
+    --beat-scale: var(--icon-beat-scale, 1.25);
+}
+
+.icon-spin-reverse {
+    --icon-animation-direction: reverse;
+}
+
+// Includes existing animate-* classes when applied to new icon hosts.
+@media (prefers-reduced-motion: reduce) {
+    .icon,
+    .icon-stack {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+@keyframes icon-bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(var(--icon-bounce-height, -0.5em)); }
+    60% { transform: translateY(var(--icon-bounce-rebound, -0.25em)); }
+}
+
+@keyframes icon-beat-fade {
+    0%, 100% {
+        opacity: var(--icon-beat-fade-opacity, 0.4);
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(var(--icon-beat-fade-scale, 1.125));
+    }
+}
+
+@keyframes icon-flip {
+    0%, 100% { transform: rotateY(0deg); }
+    50% { transform: rotate3d(var(--icon-flip-axis-x, 0), var(--icon-flip-axis-y, 1), var(--icon-flip-axis-z, 0), var(--icon-flip-angle, -180deg)); }
+}
+
+@keyframes icon-shake {
+    0%, 100% { transform: rotate(0deg); }
+    10%, 30%, 50% { transform: rotate(var(--icon-shake-angle, -15deg)); }
+    20%, 40%, 60% { transform: rotate(calc(-1 * var(--icon-shake-angle, -15deg))); }
+    70% { transform: rotate(0deg); }
+}
+
+
+// Specific overrides
+.btn-lg .icon-hi {
+    --icon-min-size: 20px;
+}

@@ -57,18 +57,6 @@ b, strong {
 
 
 //
-// Buttons
-// -----------------------------------------------------
-
-// Light button icons lighter (looks nice).
-.btn-secondary:not(.btn-flat-light),
-.btn-light:not(.btn-flat-light) {
-    --btn-icon-color: #{lighten($body-color, 16%)};
-    --btn-icon-hover-color: inherit;
-}
-
-
-//
 // Layout
 // -----------------------------------------------------
 
@@ -213,7 +201,8 @@ body {
         flex-grow: 1;
         max-width: 100%;
 
-        > i {
+        > i,
+        > .icon {
             display: none; // Turn off for now, seems to look nicer
             font-size: 28px;
             vertical-align: text-top;
@@ -1283,6 +1272,7 @@ legend {
     justify-content: center;
     flex: 0 0 auto;
     max-width: none;
+    --icon-size: 48px;
 
     > .icon, > i {
         max-width: 48px;
@@ -1724,3 +1714,39 @@ a.editable {
 .st-param-name      { color: var(--st-param-name-color); }
 .st-file            { color: var(--st-file-color); }
 .st-line            { color: var(--st-line-color); font-weight: 600 !important; }
+
+
+// Icon browser
+// --------------------------------------------------------------
+
+.icon-browser-source-menu {
+    max-height: min(32rem, 70vh);
+}
+
+// Only dropdown results use the grid; the selection uses the standard Select2 styles.
+.icon-browser-dropdown {
+    .select2-results > .select2-results__options {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(72px, 100%), 1fr));
+        gap: 0.25rem;
+        max-height: min(24rem, 60vh);
+    }
+
+    .select2-results__option {
+        min-width: 0;
+
+        &[aria-selected] {
+            min-height: 64px;
+            padding: 0.5rem 0.25rem;
+        }
+
+        // Search feedback and the infinite-scroll sentinel must span the whole grid.
+        &:not([aria-selected]) {
+            grid-column: 1 / -1;
+        }
+    }
+
+    .icon-browser-choice > .icon {
+        --icon-size: var(--icon-browser-size, 24px);
+    }
+}

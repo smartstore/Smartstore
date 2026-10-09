@@ -10,26 +10,26 @@
     <div class="section-header">
         <div class="title">
             <a sm-backto href="@returnUrl" title="@T("Common.Back")"></a>
-            <i class="fa fa-filter"></i>
+            <icon name="filter" />
             <span>@ViewBag.Title</span>
         </div>
         <div class="options">
 			@if (Model.Id != 0 && (Model.Scope == RuleScope.Customer || Model.Scope == RuleScope.Product))
 			{
 				<a id="btn-preview-ruleset" asp-action="Preview" asp-route-id="@Model.Id" class="btn btn-secondary">
-					<i class="far fa-eye"></i>
+					<icon name="eye" />
 					<span>@T("Admin.Common.Preview")</span>
 				</a>
 			}
             <button type="submit" name="save" value="save" class="btn btn-warning">
-                <i class="fa fa-check"></i>
+                <icon name="check" />
                 <span>@T("Admin.Common.Save")</span>
             </button>
             <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
                 <span>@T("Admin.Common.SaveContinue")</span>
             </button>
             <button type="submit" id="rule-delete" name="rule-delete" class="btn btn-danger">
-                <i class="far fa-trash-can"></i>
+                <icon name="trash" />
                 <span>@T("Admin.Common.Delete")</span>
             </button>
             <confirm button-id="rule-delete" />

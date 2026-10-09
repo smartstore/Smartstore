@@ -96,6 +96,16 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
     public void MigrateLocaleResources(LocaleResourcesBuilder builder)
     {
+        builder.AddOrUpdate("Admin.IconBrowser.SelectSource", "Select source", "Quelle wählen",
+            "Select an icon source", "Icon-Quelle wählen");
+        builder.AddOrUpdate("Admin.IconBrowser.Kits", "Kits", "Kits");
+        builder.AddOrUpdate("Admin.IconBrowser.Libraries", "Libraries", "Bibliotheken");
+        builder.AddOrUpdate("Admin.IconBrowser.KitTitle", "Kit: {0}", "Kit: {0}");
+        builder.AddOrUpdate("Admin.IconBrowser.LibraryTitle", "Library: {0}", "Bibliothek: {0}");
+        builder.AddOrUpdate("Admin.IconBrowser.Icon", "Icon", "Icon");
+        builder.AddOrUpdate("Admin.IconBrowser.Search", "Search icons", "Icons suchen");
+        builder.AddOrUpdate("Admin.IconBrowser.Size", "Icon size", "Icon-Größe");
+
         builder.AddOrUpdate("Admin.Configuration.Themes.Option.KeepSassCompilerInMemory",
             "Keep Sass compiler in memory",
             "Sass-Compiler im Arbeitsspeicher halten",

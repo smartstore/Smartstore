@@ -82,6 +82,12 @@
 			<LocaleResource Name="AdditionalFeePercentage.Hint">
 				<Value>Specifies whether to apply a additional percentage fee to the order total. If not enabled, a fixed value is used.</Value>
 			</LocaleResource>
+            <LocaleResource Name="PaymentPageButtonMethods">
+                <Value>Wallet buttons on payment page</Value>
+            </LocaleResource>
+            <LocaleResource Name="PaymentPageButtonMethods.Hint">
+                <Value>Specifies which payment methods appear as Express Checkout buttons on the payment page. If no methods are selected, the button row is hidden. The selected Express Checkout buttons also enable cross-platform payments, such as Apple Pay on a Windows PC or Google Pay on a Mac. Actual availability depends on the Stripe configuration, browser, country and currency.</Value>
+            </LocaleResource>
             <LocaleResource Name="ShowButtonInMiniShoppingCart">
                 <Value>Show button in mini shopping cart</Value>
             </LocaleResource>

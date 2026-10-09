@@ -10,7 +10,7 @@
     <div class="section-header">
         <div class="title">
             <a sm-backto asp-action="List"></a>
-            <i class="far fa-edit"></i>
+            <icon name="edit" />
             <span>@T("Admin.ContentManagement.MessageTemplates.EditMessageTemplateDetails") - @Model.Name</span>
         </div>
         <div class="options">
@@ -20,11 +20,11 @@
             @*<button type="submit" name="save-in-file" value="save-in-file" class="btn btn-danger"><i class="fa fa-floppy-o"></i><span>Save as XML</span></button>*@
             <a id="btn-preview-template" class="btn btn-outline-secondary"
                asp-action="Preview" asp-route-id="@Model.Id" asp-route-isCampaign="false">
-                <i class="far fa-eye"></i>
+                <icon name="eye" />
                 <span>@T("Admin.Common.Preview")</span>
             </a>
             <button type="submit" name="message-template-copy" id="message-template-copy" class="btn btn-outline-secondary" value="@T("Admin.ContentManagement.MessageTemplates.Copy")">
-                <i class="far fa-copy"></i>
+                <icon name="copy" />
                 <span>@T("Admin.ContentManagement.MessageTemplates.Copy")</span>
             </button>
             <confirm button-id="message-template-copy" action="CopyTemplate" type="Action" />
@@ -32,12 +32,12 @@
             <span class="vr"></span>
 
             <button type="submit" name="save" value="save" class="btn btn-warning">
-                <i class="fa fa-check"></i>
+                <icon name="check" />
                 <span>@T("Admin.Common.Save")</span>
             </button>
             <button type="submit" name="save" value="save-continue" class="btn btn-secondary">@T("Admin.Common.SaveContinue")</button>
             <button type="submit" name="message-template-delete" id="message-template-delete" class="btn btn-danger">
-                <i class="far fa-trash-can"></i>
+                <icon name="trash" />
                 <span>@T("Admin.Common.Delete")</span>
             </button>
             <confirm button-id="message-template-delete" />

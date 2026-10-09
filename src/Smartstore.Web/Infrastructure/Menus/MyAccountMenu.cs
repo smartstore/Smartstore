@@ -104,7 +104,7 @@ public partial class MyAccountMenu : IMenu
             {
                 Id = "info",
                 Text = T("Account.CustomerInfo"),
-                Icon = "fal fa-user",
+                Icon = "user",
                 ActionName = "Info",
                 ControllerName = "Customer"
             },
@@ -112,7 +112,7 @@ public partial class MyAccountMenu : IMenu
             {
                 Id = "addresses",
                 Text = T("Account.CustomerAddresses"),
-                Icon = "fal fa-address-book",
+                Icon = "address-book",
                 ActionName = "Addresses",
                 ControllerName = "Customer"
             }
@@ -124,7 +124,7 @@ public partial class MyAccountMenu : IMenu
             {
                 Id = "orders",
                 Text = T("Account.CustomerOrders"),
-                Icon = "fal fa-file-lines",
+                Icon = "file-text",
                 ActionName = "Orders",
                 ControllerName = "Customer"
             });
@@ -137,7 +137,7 @@ public partial class MyAccountMenu : IMenu
             {
                 Id = "returncases",
                 Text = T("Account.CustomerReturnRequests"),
-                Icon = "fal fa-truck",
+                Icon = "truck",
                 ActionName = "ReturnCases",
                 ControllerName = "Customer"
             });
@@ -149,7 +149,7 @@ public partial class MyAccountMenu : IMenu
             {
                 Id = "downloads",
                 Text = T("Account.DownloadableProducts"),
-                Icon = "fal fa-download",
+                Icon = "download",
                 ActionName = "DownloadableProducts",
                 ControllerName = "Customer"
             });
@@ -161,7 +161,7 @@ public partial class MyAccountMenu : IMenu
             {
                 Id = "backinstock",
                 Text = T("Account.BackInStockSubscriptions"),
-                Icon = "fal fa-truck-loading",
+                Icon = "truck-loading",
                 ActionName = "StockSubscriptions",
                 ControllerName = "Customer"
             });
@@ -173,7 +173,7 @@ public partial class MyAccountMenu : IMenu
             {
                 Id = "rewardpoints",
                 Text = T("Account.RewardPoints"),
-                Icon = "fal fa-certificate",
+                Icon = "certificate",
                 ActionName = "RewardPoints",
                 ControllerName = "Customer"
             });
@@ -183,7 +183,7 @@ public partial class MyAccountMenu : IMenu
         {
             Id = "changepassword",
             Text = T("Account.ChangePassword"),
-            Icon = "fal fa-unlock-keyhole",
+            Icon = "unlock",
             ActionName = "ChangePassword",
             ControllerName = "Identity"
         });
@@ -194,7 +194,7 @@ public partial class MyAccountMenu : IMenu
             {
                 Id = "avatar",
                 Text = T("Account.Avatar"),
-                Icon = "fal fa-user-circle",
+                Icon = "avatar",
                 ActionName = "Avatar",
                 ControllerName = "Customer"
             });

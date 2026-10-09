@@ -1,0 +1,498 @@
+﻿@model IReadOnlyDictionary<string, (int Uses, string Group)>
+
+@{
+    // Flat mapping proposals using familiar icon names, with trash, check and disk as explicit conventions.
+    // Equivalent aliases and filled/outline variants share a row; distinct modifiers stay separate.
+    // This is a review aid only and does not modify any library's mapping.json.
+    var mappings = new (string Concept, string Huge, string FontAwesome, string Bootstrap, string Note)[]
+    {
+        ("archive", "archive-02", "", "archive", ""),
+        ("arrow-down", "arrow-down-02", "fa fa-arrow-down", "", ""),
+        ("arrow-down-circle", "circle-arrow-down-01", "far fa-circle-down", "", ""),
+        ("arrow-left", "arrow-left-02", "fa fa-arrow-left", "", ""),
+        ("arrow-right", "arrow-right-02", "fas fa-arrow-right", "", ""),
+        ("arrow-turn-up", "arrow-turn-up", "fa fa-turn-up", "arrow-90deg-up", ""),
+        ("arrow-up", "arrow-up-02", "fa fa-arrow-up", "arrow-up-short", ""),
+        ("arrow-up-circle", "circle-arrow-up-01", "far fa-circle-up", "", ""),
+        ("aspect-ratio", "aspect-ratio", "", "aspect-ratio", ""),
+        ("award", "star-award-01", "fa fa-award", "", ""),
+        ("ban", "ban", "fa fa-ban|far fa-ban|fas fa-ban", "", ""),
+        ("bar-chart", "chart-column", "far fa-chart-bar", "bar-chart-line", ""),
+        ("barcode", "barcode", "fa fa-barcode", "", ""),
+        ("bars", "menu-09", "fa fa-bars|fas fa-bars", "", ""),
+        ("bars-staggered", "menu-02", "far fa-bars-staggered", "", ""),
+        ("basket", "shopping-basket-01", "fa fa-shopping-basket", "", ""),
+        ("bell", "bell", "far fa-bell|fas fa-bell", "", ""),
+        ("blog", "rss", "fa fa-blog", "", "Approximation: HI RSS omits the pen."),
+        ("bold", "text-bold", "fa fa-bold", "", ""),
+        ("bolt", "zap", "fa fa-bolt|far fa-bolt", "lightning", ""),
+        ("book", "book-01", "fa fa-book", "", ""),
+        ("box", "package-01", "", "box", ""),
+        ("box-open", "package-open", "fas fa-box-open", "", ""),
+        ("boxes", "package-03", "", "boxes", ""),
+        ("braces", "braces", "fal fa-brackets-curly", "", ""),
+        ("braces-asterisk", "source-code", "", "braces-asterisk", "Approximation: code symbol; asterisk detail is missing."),
+        ("building", "building-03", "far fa-building", "building", ""),
+        ("calendar", "calendar-03", "fa fa-calendar|far fa-calendar", "", ""),
+        ("calendar-check", "calendar-check", "far fa-calendar-check", "", ""),
+        ("camera-video", "camera-video", "", "camera-video", ""),
+        ("caret-down", "arrow-down-01", "fa fa-caret-down", "", "Approximation: HI uses a chevron instead of a filled triangle."),
+        ("cart", "shopping-cart-02", "fa fa-shopping-cart|fal fa-shopping-cart", "", ""),
+        ("cart-add", "shopping-cart-add-02", "fa fa-cart-arrow-down", "", ""),
+        ("cart-check", "shopping-cart-check-01", "", "cart-check", ""),
+        ("certificate", "certificate-01", "far fa-certificate", "", ""),
+        ("check", "check", "fa fa-check|far fa-check|fas fa-check", "check|check-lg", ""),
+        ("check-double", "tick-double-02", "fa fa-check-double", "", ""),
+        ("chevron-down", "chevron-down", "fa fa-angle-down|fal fa-angle-down|fas fa-angle-down|fa fa-chevron-down|fas fa-chevron-down", "", ""),
+        ("chevron-left", "chevron-left", "fa fa-angle-left|fa fa-chevron-left|far fa-chevron-left", "chevron-left", ""),
+        ("chevron-right", "chevron-right", "fa fa-angle-right|fa fa-chevron-right|far fa-chevron-right|fas fa-chevron-right", "chevron-right", ""),
+        ("chevron-up", "chevron-up", "fa fa-angle-up|fas fa-angle-up|fa fa-chevron-up", "", ""),
+        ("chevrons-down", "arrow-down-double", "fa fa-angle-double-down", "", ""),
+        ("chevrons-left", "arrow-left-double", "fa fa-angles-left", "chevron-double-left", ""),
+        ("chevrons-right", "arrow-right-double", "fa fa-angles-right", "chevron-double-right", ""),
+        ("chevrons-up", "arrow-up-double", "fa fa-angle-double-up", "", ""),
+        ("circle", "circle", "fa fa-circle|fas fa-circle", "circle-fill", ""),
+        ("clipboard", "clipboard", "fa fa-clipboard|far fa-clipboard", "clipboard", ""),
+        ("clock", "clock-04", "fa fa-clock|far fa-clock", "clock", ""),
+        ("close", "cancel-01", "fa fa-times|fal fa-times|fas fa-times|fa fa-xmark", "x|x-lg", ""),
+        ("close-circle", "cancel-circle", "", "x-circle", ""),
+        ("cloud-upload", "cloud-upload", "fas fa-cloud-arrow-up", "", ""),
+        ("code", "code", "fa fa-code", "", ""),
+        ("columns", "layout-01", "", "columns-gap", ""),
+        ("comment", "message-02", "far fa-comment-dots", "chat-dots", ""),
+        ("comment-text", "message-square-text", "", "chat-square-text|chat-square-text-fill", ""),
+        ("comments", "message-multiple-01", "fa fa-comments", "", ""),
+        ("contrast", "contrast", "fas fa-adjust", "", ""),
+        ("copy", "copy-02", "fa fa-clone|fa fa-copy|far fa-copy", "copy", ""),
+        ("creditcard", "credit-card", "far fa-credit-card", "credit-card", ""),
+        ("css3", "css-3", "fab fa-css3", "", ""),
+        ("cube", "cube", "fa fa-cube", "", ""),
+        ("database", "database", "fa fa-database", "", ""),
+        ("database-add", "database-add", "", "database-add", ""),
+        ("database-export", "database-export", "", "database-down", ""),
+        ("database-import", "database-import", "", "database-up", ""),
+        ("devices", "computer-phone-sync", "fa fa-phone-laptop", "", ""),
+        ("disk", "floppy-disk", "fa fa-save", "floppy", ""),
+        ("download", "download-01", "fa fa-download|fal fa-download", "download", ""),
+        ("droplet-slash", "droplet-off", "far fa-droplet-slash", "", ""),
+        ("edit", "pencil-edit-02", "fa fa-edit|far fa-edit", "pencil-square", ""),
+        ("ellipsis", "ellipsis", "fa fa-ellipsis|fa fa-ellipsis-h", "three-dots", ""),
+        ("ellipsis-vertical", "more-vertical", "fa fa-ellipsis-v", "", ""),
+        ("envelope", "mail-01", "fa fa-envelope|fal fa-envelope|far fa-envelope|fas fa-envelope", "envelope", ""),
+        ("envelope-heart", "mail-open-love", "", "envelope-open-heart", ""),
+        ("envelope-open", "mail-open-01", "", "envelope-paper", ""),
+        ("envelope-open-text", "mail-open-01", "fal fa-envelope-open-text", "", ""),
+        ("eraser", "eraser", "", "eraser", ""),
+        ("euro", "euro", "fas fa-euro-sign", "currency-euro", ""),
+        ("exchange", "arrow-left-right", "fa fa-right-left", "arrow-left-right", ""),
+        ("exclamation", "alert-01", "fa fa-exclamation", "", ""),
+        ("alert-circle", "alert-circle", "fa fa-exclamation-circle", "", ""),
+        ("external-link", "link-square-01", "fa fa-up-right-from-square", "", ""),
+        ("eye", "view", "fa fa-eye|fal fa-eye|far fa-eye", "eye|eye-fill", ""),
+        ("eye-off", "view-off-slash", "fa fa-eye-slash|far fa-eye-slash", "", ""),
+        ("facebook", "facebook-01", "fab fa-facebook", "facebook", ""),
+        ("file", "file-empty-01", "far fa-file", "", ""),
+        ("file-archive", "file-archive", "far fa-file-archive", "", ""),
+        ("file-audio", "file-audio", "far fa-file-audio", "", ""),
+        ("file-code", "file-code", "far fa-file-code", "", ""),
+        ("file-csv", "csv-01", "fas fa-file-csv", "", ""),
+        ("file-image", "file-image", "far fa-file-image", "", ""),
+        ("file-pdf", "pdf-01", "far fa-file-pdf", "file-earmark-pdf", ""),
+        ("file-presentation", "file-02", "far fa-file-powerpoint", "", "Approximation: generic document; presentation detail is missing."),
+        ("file-richtext", "file-02", "", "file-earmark-richtext", "Approximation: generic document; image detail differs."),
+        ("file-spreadsheet", "file-spreadsheet", "far fa-file-excel", "", ""),
+        ("file-text", "file-02", "far fa-file-lines|fas fa-file-lines|fa fa-file-text", "", ""),
+        ("file-video", "file-video", "far fa-file-video", "", ""),
+        ("file-word", "file-02", "far fa-file-word", "", "Approximation: generic document; W detail is missing."),
+        ("film", "film-01", "fas fa-film", "", ""),
+        ("filter", "filter", "fa fa-filter", "funnel", ""),
+        ("fire", "fire", "fa fa-fire", "", ""),
+        ("folder", "folder-01", "far fa-folder|fas fa-folder", "", ""),
+        ("folder-open", "folder-open", "fa fa-folder-open|fas fa-folder-open", "", ""),
+        ("font", "text-font", "fa fa-font", "", ""),
+        ("forward", "forward-01", "fa fa-forward", "", ""),
+        ("gift", "gift", "fa fa-gift|fa fa-gifts", "gift", ""),
+        ("github", "github", "fab fa-github", "", ""),
+        ("globe", "globe", "fa fa-globe|far fa-globe", "", ""),
+        ("globe-americas", "earth", "", "globe-americas", ""),
+        ("google", "google", "fab fa-google", "", ""),
+        ("grid", "grid", "fa fa-th", "grid-3x3-gap", ""),
+        ("grid-large", "grid-view", "fa fa-th-large", "", ""),
+        ("grip", "grip", "fa fa-grip", "", ""),
+        ("grip-vertical", "grip-vertical", "fas fa-grip-vertical", "", ""),
+        ("hammer", "hammer", "far fa-hammer", "", ""),
+        ("hand-truck", "delivery-truck-01", "fa fa-dolly", "", "Approximation: truck candidate; a hand truck is still needed."),
+        ("hdd", "hdd", "", "hdd", ""),
+        ("heart", "favourite", "fal fa-heart", "heart", ""),
+        ("home", "home-02", "fa fa-home", "", ""),
+        ("hourglass", "hourglass", "fa fa-hourglass-start", "", ""),
+        ("html5", "html-5", "fab fa-html5", "", ""),
+        ("image", "image-02", "fa fa-image|far fa-image", "card-image|image", ""),
+        ("images", "images", "", "images", ""),
+        ("inbox", "inbox", "fa fa-inbox", "inboxes", ""),
+        ("info", "info", "fa fa-info", "", ""),
+        ("info-circle", "information-circle", "fa fa-circle-info|fa fa-info-circle", "info-circle", ""),
+        ("input-cursor-text", "input-cursor-text", "", "input-cursor-text", ""),
+        ("instagram", "instagram", "fab fa-instagram", "", ""),
+        ("italic", "text-italic", "fa fa-italic", "", ""),
+        ("key", "key-01", "fa fa-key", "", ""),
+        ("language", "language-circle", "fa fa-language", "", ""),
+        ("laptop", "laptop", "far fa-laptop|fas fa-laptop", "", ""),
+        ("layers", "layers-01", "far fa-layer-group", "stack", ""),
+        ("layers-half", "layers-01", "", "layers-half", "Approximation: full layers instead of a half-layer motif."),
+        ("lightbulb", "lightbulb", "", "lightbulb", ""),
+        ("line-chart", "chart-up", "", "graph-up", ""),
+        ("line-chart-arrow", "chart-increase", "", "graph-up-arrow", ""),
+        ("link", "link", "fa fa-link|fal fa-link", "link-45deg", ""),
+        ("linkedin", "linkedin-01", "fab fa-linkedin", "", ""),
+        ("list", "left-to-right-list-dash", "fa fa-list|far fa-stream|fa fa-th-list", "list-ul|view-list", ""),
+        ("list-square", "clipboard-list", "fa fa-rectangle-list|far fa-rectangle-list", "", ""),
+        ("location", "location-01", "fa fa-location-dot", "geo-alt", ""),
+        ("lock", "lock-keyhole", "fa fa-lock", "", ""),
+        ("lock-open", "lock-open", "fa fa-lock-open", "", ""),
+        ("magic-wand", "magic-wand-01", "fa fa-wand-magic-sparkles", "", ""),
+        ("mail-forward", "mail-send-01", "fa fa-mail-forward", "", ""),
+        ("maximize", "expand", "fa fa-expand", "", ""),
+        ("megaphone", "megaphone-01", "fa fa-bullhorn", "megaphone", ""),
+        ("menu-button", "menu-01", "", "menu-button-fill", ""),
+        ("minimize", "arrow-shrink", "fa fa-compress", "", ""),
+        ("minus", "minus", "fa fa-minus", "", ""),
+        ("mobile", "smart-phone-01", "far fa-mobile-alt|fa fa-mobile-screen-button", "", ""),
+        ("money", "money-01", "far fa-money-bill-1", "", ""),
+        ("monitor", "computer", "fa fa-desktop|far fa-desktop|fa fa-display", "", ""),
+        ("move", "arrow-all-direction", "fa fa-up-down-left-right", "", ""),
+        ("newspaper", "newspaper", "far fa-newspaper", "", ""),
+        ("paint-bucket", "paint-bucket", "fa fa-fill-drip|fas fa-fill-drip", "", ""),
+        ("paintbrush", "paint-brush-01", "fa fa-paint-brush|fa fa-paintbrush", "", ""),
+        ("palette", "paint-board", "", "palette", ""),
+        ("paperclip", "paperclip", "fa fa-paperclip", "", ""),
+        ("pause", "pause", "fa fa-pause", "", ""),
+        ("pause-circle", "pause-circle", "far fa-pause-circle", "", ""),
+        ("pen-nib", "pen-tool-01", "", "vector-pen", ""),
+        ("pencil", "edit-02", "fa fa-pencil|fas fa-pencil", "pencil|pencil-fill", ""),
+        ("percent", "percent", "", "percent", ""),
+        ("phone", "call", "fal fa-phone|fas fa-phone-flip", "", ""),
+        ("pipette", "pipette", "fa fa-eye-dropper", "", ""),
+        ("play", "play", "fa fa-caret-right|fa fa-play", "play-fill", ""),
+        ("play-circle", "play-circle", "far fa-play-circle", "", ""),
+        ("plus", "plus", "fa fa-plus", "", ""),
+        ("plus-circle", "add-circle", "fa fa-plus-circle", "", ""),
+        ("plus-square", "add-square", "fa fa-plus-square|fal fa-plus-square", "", ""),
+        ("power", "power", "fa fa-power-off", "power", ""),
+        ("printer", "printer", "fa fa-print", "printer", ""),
+        ("puzzle-piece", "puzzle", "fa fa-puzzle-piece", "puzzle-fill", ""),
+        ("question", "chat-question", "fa fa-question|fas fa-question", "", ""),
+        ("question-circle", "circle-question-mark", "fa fa-circle-question|far fa-circle-question|fa fa-question-circle|far fa-question-circle|fas fa-question-circle", "question-circle-fill", ""),
+        ("quotes", "quote", "fa fa-quote-left", "", ""),
+        ("receipt", "invoice-01", "", "receipt", ""),
+        ("recycle", "recycle-01", "fa fa-recycle", "recycle", ""),
+        ("redo", "redo-02", "fa fa-redo", "", ""),
+        ("refresh", "refresh", "fa fa-rotate|fa fa-sync", "", ""),
+        ("repeat", "repeat", "fa fa-retweet", "arrow-repeat|repeat", ""),
+        ("reply", "reply", "fa fa-reply", "", ""),
+        ("reply-all", "reply-all", "fa fa-reply-all|fal fa-reply-all", "", ""),
+        ("resize-vertical", "arrow-vertical", "", "arrows-expand-vertical", ""),
+        ("robot", "bot", "fa fa-robot", "", ""),
+        ("rotate-left", "rotate-left-01", "fas fa-rotate-left", "", ""),
+        ("rotate-right", "rotate-right-01", "fa fa-rotate-right", "arrow-clockwise", ""),
+        ("rss", "rss", "fa fa-rss", "", ""),
+        ("ruler", "ruler", "fas fa-ruler-combined", "", ""),
+        ("scales", "balance-scale", "fas fa-balance-scale", "", ""),
+        ("scissors", "scissor", "fa fa-cut", "scissors", ""),
+        ("search", "search-01", "fa fa-magnifying-glass|fa fa-search|far fa-search", "search", ""),
+        ("send", "sent", "fa fa-paper-plane|far fa-paper-plane|fa fa-send", "send", ""),
+        ("gear", "settings-01", "fa fa-cog|fal fa-cog|far fa-cog", "gear", ""),
+        ("settings-multiple", "settings-02", "fa fa-cogs", "", ""),
+        ("share", "share-01", "fa fa-share|far fa-share", "", ""),
+        ("share-square", "share-01", "far fa-share-square", "", ""),
+        ("shield", "shield-01", "", "shield", ""),
+        ("shield-half", "shield-half", "fas fa-shield-halved", "", ""),
+        ("shuffle", "shuffle", "", "shuffle", ""),
+        ("signal", "signal", "fa fa-signal", "", ""),
+        ("login", "login-02", "fa fa-right-to-bracket", "box-arrow-in-right", ""),
+        ("logout", "logout-02", "fal fa-right-from-bracket|fas fa-right-from-bracket", "box-arrow-left", ""),
+        ("sitemap", "hierarchy-square-02", "fa fa-sitemap", "diagram-3", ""),
+        ("sliders", "sliders-horizontal", "fa fa-sliders-h", "sliders", ""),
+        ("sliders-vertical", "sliders-vertical", "", "sliders2-vertical", ""),
+        ("sort-down", "sort-by-down-01", "", "sort-down-alt", ""),
+        ("sort-numeric", "sorting-1-9", "", "sort-numeric-down", ""),
+        ("sort-up", "sort-by-up-01", "", "sort-up-alt", ""),
+        ("sparkles", "sparkles", "", "stars-tricolor", ""),
+        ("spinner", "loader-circle", "fa fa-spinner|fas fa-spinner", "", ""),
+        ("square", "square", "far fa-square|fa fa-stop|fas fa-stop", "", ""),
+        ("star", "star", "fa fa-star", "", ""),
+        ("star-half", "star-half", "fa fa-star-half", "star-half", ""),
+        ("sticky-notes", "note-01", "", "stickies", ""),
+        ("store", "store-01", "", "shop-window", ""),
+        ("tablet", "tablet-02", "far fa-tablet-alt|fa fa-tablet-screen-button|far fa-tablet-screen-button|fas fa-tablet-screen-button", "", ""),
+        ("tag", "tag-01", "fas fa-tag", "", ""),
+        ("tags", "tags", "fa fa-tags|fad fa-tags", "tags", ""),
+        ("tasks", "task-01", "fa fa-tasks", "card-checklist|list-check", ""),
+        ("text-wrap", "text-wrap", "", "text-wrap", ""),
+        ("textarea-resize", "resize-field", "", "textarea-resize", ""),
+        ("thumbs-down", "thumbs-down", "fa fa-thumbs-down", "hand-thumbs-down", ""),
+        ("thumbs-up", "thumbs-up", "fa fa-thumbs-up", "hand-thumbs-up", ""),
+        ("tools", "tools", "", "tools", ""),
+        ("trash", "delete-02", "fa fa-delete|far fa-trash|far fa-trash-alt|fa fa-trash-can|fal fa-trash-can|far fa-trash-can", "trash", ""),
+        ("trophy", "trophy", "fa fa-trophy", "trophy", ""),
+        ("truck", "delivery-truck-01", "fa fa-truck|fal fa-truck|fa fa-truck-moving", "truck", ""),
+        ("tv", "tv-01", "far fa-tv|fas fa-tv", "", ""),
+        ("twitter-x", "new-twitter", "fab fa-x-twitter", "", ""),
+        ("underline", "text-underline", "fa fa-underline", "", ""),
+        ("undo", "undo-02", "fa fa-undo", "", ""),
+        ("unlink", "link-off", "fa fa-unlink|fas fa-unlink", "", ""),
+        ("unlock", "lock-keyhole-open", "fa fa-unlock-keyhole", "", ""),
+        ("upload", "upload-02", "fa fa-arrow-up-from-bracket|fa fa-upload|far fa-upload", "upload", ""),
+        ("user", "user-02", "fa fa-user|fal fa-user", "person", ""),
+        ("user-add", "user-plus", "fa fa-user-plus", "", ""),
+        ("user-badge", "user-account", "", "person-badge", ""),
+        ("user-check", "user-check-01", "fa fa-user-check", "", ""),
+        ("user-circle", "user-circle", "fal fa-user-circle|fas fa-user-circle", "person-circle", ""),
+        ("user-edit", "user-edit-01", "far fa-user-edit", "", ""),
+        ("user-shield", "user-shield-01", "fa fa-user-shield", "", ""),
+        ("users", "user-group", "fa fa-group|fa fa-users", "people|people-fill", ""),
+        ("warning", "alert-02", "fa fa-exclamation-triangle|fa fa-triangle-exclamation|fa fa-warning", "exclamation-triangle", ""),
+        ("windows", "copy-01", "far fa-window-restore", "", "Approximation: overlapping sheets instead of window frames."),
+        ("wink", "winking", "", "emoji-wink", ""),
+        ("wrench", "wrench-01", "fa fa-wrench", "", ""),
+        ("youtube", "youtube", "fab fa-youtube", "", ""),
+    };
+
+    // Manual kit choices from the migration review take precedence over source usage.
+    var kitOverrides = new Dictionary<string, string>(StringComparer.Ordinal)
+    {
+        ["archive"] = "Shared",
+        ["arrow-left"] = "Shared",
+        ["arrow-right"] = "Shared",
+        ["arrow-turn-up"] = "Shared",
+        ["award"] = "Shared",
+        ["basket"] = "Shared",
+        ["braces"] = "Shared",
+        ["building"] = "Shared",
+        ["envelope-open-text"] = "Shared",
+        ["github"] = "Shared",
+        ["grip"] = "Shared",
+        ["grip-vertical"] = "Shared",
+        ["home"] = "Shared",
+        ["instagram"] = "Shared",
+        ["linkedin"] = "Shared",
+        ["mail-forward"] = "Shared",
+        ["move"] = "Shared",
+        ["reply"] = "Shared",
+        ["share-square"] = "Shared",
+        ["twitter-x"] = "Shared",
+        ["youtube"] = "Shared",
+    };
+
+    // Resolve the kit once, then order by kit priority and concept name.
+    var orderedMappings = mappings.Select(mapping =>
+    {
+        var aliases = mapping.FontAwesome.Split('|', StringSplitOptions.RemoveEmptyEntries)
+            .GroupBy(x => x[(x.IndexOf(" fa-", StringComparison.Ordinal) + 4)..]).ToArray();
+        var bootstrapNames = mapping.Bootstrap.Split('|', StringSplitOptions.RemoveEmptyEntries);
+        var sourceGroups = aliases.Select(x => Model["fa:" + x.Key].Group)
+            .Concat(bootstrapNames.Select(x => Model["bi:" + x].Group)).ToHashSet();
+        // A concept is shared even when separate FA/BI names supply the two areas.
+        var kit = sourceGroups.Contains("Shared") || (sourceGroups.Contains("Frontend") && sourceGroups.Contains("Backend"))
+            ? "Shared"
+            : sourceGroups.Contains("Frontend") ? "Frontend" : "Backend";
+        if (kitOverrides.TryGetValue(mapping.Concept, out var selectedKit))
+        {
+            kit = selectedKit;
+        }
+
+        return new { Mapping = mapping, Aliases = aliases, BootstrapNames = bootstrapNames, Kit = kit };
+    })
+    .OrderBy(x => x.Kit == "Shared" ? 0 : x.Kit == "Frontend" ? 1 : 2)
+    .ThenBy(x => x.Mapping.Concept, StringComparer.OrdinalIgnoreCase);
+}
+
+<section class="mb-4" data-inventory-group aria-labelledby="icon-migration-title"
+         data-icon-preview-url="@Url.Action("IconCheatsheetPreview", "Home", new { area = "Admin" })">
+    <details class="mapped-icons-details" open>
+        <summary class="mb-3"><h3 id="icon-migration-title" class="h5 d-inline">Migration <small class="text-muted">(@mappings.Length)</small></h3></summary>
+        <p class="small text-muted">
+            Flat mapping proposals across all three inventory groups, using familiar names such as upload, send and refresh.
+            Explicit naming conventions: trash for the bin, check for the checkmark and disk for the floppy disk.
+            Filled and outline variants share a concept. HI SVG and font are shown side by side.
+            These proposals do not change the library mappings.
+        </p>
+        <div class="table-responsive">
+            <table class="table table-hover comparison-table">
+                <thead>
+                    <tr>
+                        <th scope="col" class="text-center">FA / BI</th>
+                        <th scope="col" class="text-center">HI / HI Font</th>
+                        <th scope="col">Proposed concept</th>
+                        <th scope="col">Proposed Kit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in orderedMappings)
+                    {
+                        var mapping = row.Mapping;
+                        var aliases = row.Aliases;
+                        var bootstrapNames = row.BootstrapNames;
+                        var kit = row.Kit;
+                        var fontName = mapping.Huge == "sorting-1-9" ? "sorting-one-9" : mapping.Huge;
+                        <tr data-migration-key="@mapping.Concept" data-icon-search="@($"Migration {mapping.Concept} {mapping.FontAwesome} {mapping.Bootstrap} {mapping.Huge} {kit}")">
+                            <td class="text-center">
+                                <div class="migration-source-icons">
+                                    @if (mapping.FontAwesome.Length > 0)
+                                    {
+                                        // Preserve each source alias while sharing its label across FA styles.
+                                        foreach (var alias in aliases)
+                                        {
+                                            var variants = string.Join("/", alias.Select(x => x[..x.IndexOf(' ')]));
+                                            <div>
+                                                <span class="inventory-icon-row">
+                                                    @foreach (var cssClass in alias)
+                                                    {
+                                                        <span class="comparison-icon" aria-hidden="true" title="@cssClass"><i class="@cssClass comparison-icon-fa"></i></span>
+                                                    }
+                                                </span>
+                                                <code class="icon-name">@alias.Key @variants <strong>@Model["fa:" + alias.Key].Uses</strong></code>
+                                            </div>
+                                        }
+                                    }
+                                    @if (mapping.Bootstrap.Length > 0)
+                                    {
+                                        foreach (var name in bootstrapNames)
+                                        {
+                                            <div>
+                                                <span class="comparison-icon" aria-hidden="true" title="@($"BI {name}")"><bootstrap-icon name="@name" /></span>
+                                                <code class="icon-name">@name bi <strong>@Model["bi:" + name].Uses</strong></code>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span class="inventory-icon-row">
+                                    <span class="comparison-icon" aria-hidden="true" title="HI SVG" data-migration-svg><icon name="@(mapping.Huge + "!")" lib="hi" variant="stroke-rounded" /></span>
+                                    <span class="comparison-icon" aria-hidden="true" title="HI Font" data-migration-font><i class="hgi-stroke hgi-@fontName"></i></span>
+                                </span>
+                                <input type="text" class="form-control form-control-sm migration-hi-name mt-2" size="24"
+                                       value="@mapping.Huge" data-migration-hi data-valid-name="@mapping.Huge"
+                                       aria-label="@($"HI proposal for {mapping.Concept}")" aria-invalid="false"
+                                       aria-describedby="@($"hi-error-{mapping.Concept}")" autocomplete="off" spellcheck="false" />
+                                <div id="@($"hi-error-{mapping.Concept}")" class="invalid-feedback" aria-live="polite" data-migration-hi-error></div>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control form-control-sm w-auto" size="24"
+                                       value="@mapping.Concept" data-migration-concept
+                                       aria-label="@($"Proposed concept for {mapping.Concept}")" autocomplete="off" spellcheck="false" />
+                                @if (mapping.Note.Length > 0)
+                                {
+                                    <div class="small text-muted mt-1">@mapping.Note</div>
+                                }
+                            </td>
+                            <td>
+                                <select class="form-control form-control-sm noskin w-auto" data-migration-kit
+                                        aria-label="@($"Proposed Kit for {mapping.Concept}")">
+                                    <option value="Shared" selected="@(kit == "Shared")">Shared</option>
+                                    <option value="Frontend" selected="@(kit == "Frontend")">Frontend</option>
+                                    <option value="Backend" selected="@(kit == "Backend")">Backend</option>
+                                </select>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </details>
+</section>
+
+<script sm-target-zone="scripts" data-origin="IconCheatsheetMigration">
+    (() => {
+        const root = document.querySelector('[data-icon-preview-url]');
+        const requests = new WeakMap();
+
+        function showError(input, message) {
+            input.classList.toggle('is-invalid', !!message);
+            input.setAttribute('aria-invalid', String(!!message));
+            input.parentElement.querySelector('[data-migration-hi-error]').textContent = message;
+        }
+
+        async function updatePreview(input) {
+            const name = input.value.trim();
+            input.value = name;
+            if (requests.has(input)) return;
+            if (name === input.dataset.validName) {
+                showError(input, '');
+                return;
+            }
+            if (!/^[a-zA-Z0-9-]{1,128}$/.test(name)) {
+                showError(input, 'Enter a valid HI icon name.');
+                return;
+            }
+
+            const request = new AbortController();
+            requests.set(input, request);
+            input.setAttribute('aria-busy', 'true');
+            const row = input.closest('[data-migration-key]');
+            try {
+                const url = new URL(root.dataset.iconPreviewUrl, location.href);
+                url.searchParams.set('name', name);
+                const response = await fetch(url, { signal: request.signal });
+                if (response.status === 404) {
+                    throw new Error('Preview endpoint unavailable. Rebuild and restart the application.');
+                }
+                if (!response.ok) throw new Error(`Preview could not be loaded (HTTP ${response.status}).`);
+                const documentPreview = new DOMParser().parseFromString(await response.text(), 'text/html');
+                const svg = documentPreview.body.firstElementChild;
+                if (!svg || svg.localName !== 'svg' || !svg.hasAttribute('data-icon')) {
+                    throw new Error('HI icon not found.');
+                }
+
+                // Check the loaded font stylesheet before replacing either preview.
+                const fontName = name === 'sorting-1-9' ? 'sorting-one-9' : name;
+                const font = document.createElement('i');
+                font.className = `hgi-stroke hgi-${fontName}`;
+                font.style.display = 'none';
+                const fontPreview = row.querySelector('[data-migration-font]');
+                fontPreview.append(font);
+                const content = getComputedStyle(font, '::before').content;
+                font.remove();
+                font.style.removeProperty('display');
+                if (!content || ['none', 'normal', '""', "''"].includes(content)) {
+                    throw new Error('HI font icon unavailable. Check the name and font stylesheet.');
+                }
+
+                // An edit during the request must never replace the newer selection.
+                if (request.signal.aborted || input.value.trim() !== name) return;
+                row.querySelector('[data-migration-svg]').replaceChildren(svg);
+                fontPreview.replaceChildren(font);
+                input.dataset.validName = name;
+                showError(input, '');
+            }
+            catch (error) {
+                if (!request.signal.aborted) showError(input, error.message);
+            }
+            finally {
+                if (requests.get(input) === request) {
+                    requests.delete(input);
+                    input.removeAttribute('aria-busy');
+                }
+            }
+        }
+
+        root.addEventListener('input', event => {
+            const input = event.target.closest('[data-migration-hi]');
+            if (!input) return;
+            requests.get(input)?.abort();
+            requests.delete(input);
+            input.removeAttribute('aria-busy');
+            showError(input, '');
+        });
+        root.addEventListener('focusout', event => {
+            if (event.target.matches('[data-migration-hi]')) updatePreview(event.target);
+        });
+        root.addEventListener('keydown', event => {
+            if (event.key === 'Enter' && event.target.matches('[data-migration-hi]')) {
+                event.preventDefault();
+                updatePreview(event.target);
+            }
+        });
+    })();
+</script>

@@ -10,23 +10,23 @@
     <div class="section-header">
         <div class="title">
             <a sm-backto asp-action="List"></a>
-            <i class="fa fa-search"></i>
+            <icon name="search" />
             <span>@ViewBag.Title</span>
         </div>
         <div class="options">
             <a href="@Model.EntityUrl" class="btn btn-secondary">
-                <i class="fa fa-up-right-from-square"></i>
+                <icon name="external-link" />
                 <span>@T("Admin.Common.Entity")</span>
             </a>
             <button type="submit" name="save" value="save" class="btn btn-warning">
-                <i class="fa fa-check"></i>
+                <icon name="check" />
                 <span>@T("Admin.Common.Save")</span>
             </button>
             <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
                 <span>@T("Admin.Common.SaveContinue")</span>
             </button>
             <button type="submit" id="urlrecord-delete" name="urlrecord-delete" class="btn btn-danger">
-                <i class="far fa-trash-can"></i>
+                <icon name="trash" />
                 <span>@T("Admin.Common.Delete")</span>
             </button>
             <confirm button-id="urlrecord-delete" />

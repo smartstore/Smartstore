@@ -29,7 +29,7 @@ Once the bundle is registered this way, you can include it using a standard scri
 <script src="~/bundle/js/my-module.js" sm-target-zone="scripts" sm-key="my-module"></script>
 ```
 
-When a request is made, all included script files are now combined into one (`my-module.js`) and returned in a minified form.
+When a request is made, all included script files are combined into one (`my-module.js`). If minification is enabled, Smartstore minifies each file before adding it to the bundle. If a file cannot be minified, its original content is preserved and prefixed with a diagnostic comment. The remaining files continue to be processed.
 
 ## CSS
 

@@ -23,7 +23,7 @@
     <toolbar>
         <toolbar-group sm-if="isOrderListPage">
             <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-plain btn-icon">
-                <bootstrap-icon name="funnel" />
+                <icon name="filter" />
             </button>
         </toolbar-group>
 
@@ -34,11 +34,11 @@
                 </button>
                 <div class="dropdown-menu">
                     <a href="javascript:;" class="dropdown-item process-orders" v-bind:class="{ disabled: !grid.hasSelection }" data-url="@Url.Action("ExportPdf", "Order")">
-                        <bootstrap-icon name="file-earmark-pdf" class="bi-fw" />
+                        <icon name="file-pdf" class="icon-fw" />
                         <span class="order-process-title">@T("Admin.Common.ExportToPdf.Selected")</span>
                     </a>
                     <a href="javascript:;" class="dropdown-item process-orders all-allowed" data-url="@Url.Action("ExportPdf", "Order")" data-msg="@T("Admin.Common.AskToProceed")">
-                        <bootstrap-icon name="file-earmark-pdf" class="bi-fw" />
+                        <icon name="file-pdf" class="icon-fw" />
                         <span class="order-process-title">@T("Admin.Common.ExportToPdf.All")</span>
                     </a>
                 </div>
@@ -49,7 +49,7 @@
         <zone name="datagrid_toolbar_omega"></zone>
         <toolbar-group class="dropdown">
             <button datagrid-action="DataGridToolAction.ReactToSelection" class="btn btn-plain dropdown-toggle no-chevron" data-toggle="dropdown" data-boundary="window">
-                <bootstrap-icon name="three-dots" class="bi-fw" />
+                <icon name="ellipsis" class="icon-fw" />
             </button>
             <fragment>
                 <div class="dropdown-menu dropdown-menu-right">

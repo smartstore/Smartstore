@@ -10,7 +10,7 @@
 
 <div class="section-header">
     <div class="title">
-        <i class="far fa-trash-can"></i>
+        <icon name="trash" />
         <span>@ViewBag.Title</span>
     </div>
     <div class="options">
@@ -18,7 +18,7 @@
 
         <form asp-action="EmptyRecycleBin" method="post">
             <button type="button" id="empty-recyclebin" class="btn btn-danger">
-                <i class="far fa-trash-can"></i>
+                <icon name="trash" />
                 <span>@T("Admin.Catalog.Products.RecycleBin.Clear")</span>
             </button>
             <confirm button-id="empty-recyclebin" action="EmptyRecycleBin" message="@T("Admin.Catalog.Products.RecycleBin.ClearConfirm")" />

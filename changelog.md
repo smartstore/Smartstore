@@ -9,11 +9,12 @@
 
 ### New Features
 
+- (DEV) Added `Smartstore.Packager.Cli` for scriptable packaging of modules and themes, including batch processing and automation-friendly exit codes.
 - (DEV) Added `linux-arm64` builds and lazy deployment support for native ARM64 tools.
 - Enhanced color and image swatches for attributes
   - Added configurable swatch presentation settings for product and checkout attributes, including size, shape, aspect ratio, value labels, and optional display of price adjustments or final prices.
   - Swatch values now support images and up to four colors per option.
-- Dimension Pricing plugin
+- Dimension Pricing plugin (commercial module)
 	- Calculates product and shipping prices based on customer-entered dimensions and weight.
 	- Supports formulas, packing rules, girth and volumetric limits, rate tiers and surcharges.
 - (DEV) Added an extensible admin dashboard widget infrastructure with responsive layouts.
@@ -26,6 +27,7 @@
 - Enforce `MaxDownloadFileSize` in `DownloadManager` via the global `appsettings.json` setting (default: 50 MB).
 - Added generic reverse-proxy-based bot detection support to improve bot/human classification in proxied setups.
 - Added a setting to control whether rules calculate prices inclusive or exclusive of tax.
+- Stripe: Added option to enable enforced wallet button on payment selection page (this enables e.g. Apply Pay on Windows).
 
 ### Improvements
 
@@ -56,9 +58,10 @@
 - (DEV) Updated **Vue** from 2.6 to 3.5 and migrated the DataGrid and MediaManager integrations to the Vue 3 application API.
 - (DEV) `Wildcard`: Matching is culture-invariant by default (override via `Wildcard.DefaultOptions`), number ranges no longer capture, and a match timeout can be passed for untrusted input.
 - Checkout: The updated total is displayed immediately when the shipping or payment method is changed.
-- #1563 Product legal information improvements.
+- #1563 Added separate controls for tax and shipping-cost notices on product pages, product lists and product comparison.
 - Improved server-side JavaScript minification with `NUglify`, correct block-scoped const handling, and automatic bundle cache invalidation. Files that fail minification now retain their original content with file-specific diagnostics.
 - (DEV) Refactored shopping cart total calculation options into `ShoppingCartTotalOptions` and marked the legacy overload as obsolete.
+- SEO: Product-gallery images now expose valid `src` attributes and use native lazy loading, improving crawler visibility.
 
 ### Bugfixes
 
@@ -107,6 +110,7 @@
   - Fixed amount conversion for zero-decimal currencies.
   - Redirect-based 3D Secure was already supported, but Stripe next actions handled through the client SDK, such as those required by Link, were not processed.
 - #1556 AI text optimization now distinguishes between rich and plain text, prevents unwanted HTML/Markdown output and respects configured word limits.
+- **AI:** Fixed web search not being used during AI-assisted product creation.
 - #1576 GoogleAnalytics: purchase event has no product-ID token (mismatch with Merchant Center feed id).
 - Sorting by creation date in the product grid did not work when the catalog search was enabled in the backend.
 

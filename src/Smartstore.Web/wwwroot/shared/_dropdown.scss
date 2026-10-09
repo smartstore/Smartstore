@@ -84,17 +84,18 @@
 	}
 
 	&:not(.disabled) {
-        > :is(i, svg) {
-			color: $dropdown-link-color;
+        > :is(i, svg, .icon) {
+			//color: $dropdown-link-color;
+            color: inherit;
 		}
 
-		.dropdown-group.show > & > :is(i, svg),
-        &:hover > :is(i, svg) {
+		.dropdown-group.show > & > :is(i, svg, .icon),
+        &:hover > :is(i, svg, .icon) {
 			color: $dropdown-link-hover-color;
 		}
 
-        &:active > :is(i, svg),
-        &:focus > :is(i, svg) {
+        &:active > :is(i, svg, .icon),
+        &:focus > :is(i, svg, .icon) {
 			color: $dropdown-link-active-color;
 		}
 	}

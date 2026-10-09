@@ -13,7 +13,9 @@ internal class CommonBundles : IBundleProvider
 
         /*´jQuery --> /bundle/js/jquery.js
         -----------------------------------------------------*/
-        bundles.Add(new ScriptBundle("/bundle/js/jquery.js").Include(lib + "jquery/jquery-3.7.1.js"));
+        bundles.Add(new ScriptBundle("/bundle/js/jquery.js").Include(
+            js + "smartstore.icons.js",
+            lib + "jquery/jquery-3.7.1.js"));
 
         if (!appContext.IsInstalled)
         {

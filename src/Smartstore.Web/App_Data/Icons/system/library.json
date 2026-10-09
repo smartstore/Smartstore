@@ -1,0 +1,15 @@
+{
+  "displayName": "System",
+  "icon": "hi:layers-01!@sr",
+  "version": "1.0.0",
+  "shortName": "sys",
+  "defaultVariant": "default",
+  "variants": {
+    "default": {
+      "displayName": "Default",
+      "icon": null,
+      "defaultViewBox": "0 0 16 16",
+      "stroke": "currentColor"
+    }
+  }
+}

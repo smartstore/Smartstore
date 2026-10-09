@@ -8,7 +8,7 @@
     <div class="section-header">
         <div class="title">
             <a sm-backto asp-action="List"></a>
-            <i class="far fa-building"></i>
+            <icon name="building" />
             <span>@ViewBag.Title</span>
         </div>
         <div class="options">
@@ -16,18 +16,18 @@
 
             <button type="submit" name="preview" value="preview" class="btn btn-secondary"
                 onclick="javascript:openWindow('@Model.ManufacturerUrl', 1000, 600, true); return false;">
-                <i class="far fa-eye"></i>
+                <icon name="eye" />
                 <span>@T("Admin.Common.Preview")</span>
             </button>
             <button type="submit" name="save" value="save" class="btn btn-warning">
-                <i class="fa fa-check"></i>
+                <icon name="check" />
                 <span>@T("Admin.Common.Save")</span>
             </button>
             <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
                 <span>@T("Admin.Common.SaveContinue")</span>
             </button>
             <button type="submit" id="manufacturer-delete" name="manufacturer-delete" class="btn btn-danger">
-                <i class="far fa-trash-can"></i>
+                <icon name="trash" />
                 <span>@T("Admin.Common.Delete")</span>
             </button>
             <confirm button-id="manufacturer-delete" />

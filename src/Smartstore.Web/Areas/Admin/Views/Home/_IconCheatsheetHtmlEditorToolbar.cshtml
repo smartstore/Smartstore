@@ -15,7 +15,8 @@
             }
             else
             {
-                <i class="@(Model == "HI" ? "hgi-stroke hgi-undo-02" : "ti ti-arrow-back-up")" aria-hidden="true"></i>
+                <icon sm-if='@(Model == "HI")' name="undo-02" lib="hi" aria-hidden="true" />
+                <i sm-if='@(Model != "HI")' class="hgi-stroke hgi-undo-02" aria-hidden="true"></i>
             }
         </button>
         <button type="button" class="note-btn btn btn-light btn-sm note-redo" title="Wiederholen (CTRL+Y)" aria-label="Wiederholen (CTRL+Y)">
@@ -25,7 +26,8 @@
             }
             else
             {
-                <i class="@(Model == "HI" ? "hgi-stroke hgi-redo-02" : "ti ti-arrow-forward-up")" aria-hidden="true"></i>
+                <icon sm-if='@(Model == "HI")' name="redo-02" lib="hi" aria-hidden="true" />
+                <i sm-if='@(Model != "HI")' class="hgi-stroke hgi-redo-02" aria-hidden="true"></i>
             }
         </button>
     </div>
@@ -37,7 +39,8 @@
             }
             else
             {
-                <i class="@(Model == "HI" ? "hgi-stroke hgi-text-bold" : "ti ti-bold")" aria-hidden="true"></i>
+                <icon sm-if='@(Model == "HI")' name="text-bold" lib="hi" aria-hidden="true" />
+                <i sm-if='@(Model != "HI")' class="hgi-stroke hgi-text-bold" aria-hidden="true"></i>
             }
         </button>
         <button type="button" class="note-btn btn btn-light btn-sm note-btn-italic" title="Kursiv (CTRL+I)" aria-label="Kursiv (CTRL+I)">
@@ -47,7 +50,8 @@
             }
             else
             {
-                <i class="@(Model == "HI" ? "hgi-stroke hgi-text-italic" : "ti ti-italic")" aria-hidden="true"></i>
+                <icon sm-if='@(Model == "HI")' name="text-italic" lib="hi" aria-hidden="true" />
+                <i sm-if='@(Model != "HI")' class="hgi-stroke hgi-text-italic" aria-hidden="true"></i>
             }
         </button>
         <button type="button" class="note-btn btn btn-light btn-sm note-btn-underline" title="Unterstrichen (CTRL+U)" aria-label="Unterstrichen (CTRL+U)">
@@ -57,7 +61,8 @@
             }
             else
             {
-                <i class="@(Model == "HI" ? "hgi-stroke hgi-text-underline" : "ti ti-underline")" aria-hidden="true"></i>
+                <icon sm-if='@(Model == "HI")' name="text-underline" lib="hi" aria-hidden="true" />
+                <i sm-if='@(Model != "HI")' class="hgi-stroke hgi-text-underline" aria-hidden="true"></i>
             }
         </button>
         <div class="note-btn-group btn-group note-color btn-group-split note-color-all">
@@ -75,7 +80,8 @@
                 }
                 else
                 {
-                    <i class="@(Model == "HI" ? "hgi-stroke hgi-more-horizontal" : "ti ti-dots")" aria-hidden="true"></i>
+                    <icon sm-if='@(Model == "HI")' name="more-horizontal" lib="hi" aria-hidden="true" />
+                    <i sm-if='@(Model != "HI")' class="hgi-stroke hgi-more-horizontal" aria-hidden="true"></i>
                 }
             </button>
         </div>
@@ -94,7 +100,8 @@
                 }
                 else
                 {
-                    <i class="@(Model == "HI" ? "hgi-stroke hgi-pilcrow" : "ti ti-typography")" aria-hidden="true"></i>
+                    <icon sm-if='@(Model == "HI")' name="pilcrow" lib="hi" aria-hidden="true" />
+                    <i sm-if='@(Model != "HI")' class="hgi-stroke hgi-pilcrow" aria-hidden="true"></i>
                 }
             </button>
         </div>
@@ -106,7 +113,8 @@
                 }
                 else
                 {
-                    <i class="@(Model == "HI" ? "hgi-stroke hgi-css-3" : "ti ti-brand-css3")" aria-hidden="true"></i>
+                    <icon sm-if='@(Model == "HI")' name="css-3" lib="hi" aria-hidden="true" />
+                    <i sm-if='@(Model != "HI")' class="hgi-stroke hgi-css-3" aria-hidden="true"></i>
                 }
             </button>
         </div>
@@ -117,7 +125,8 @@
             }
             else
             {
-                <i class="@(Model == "HI" ? "hgi-stroke hgi-left-to-right-list-bullet" : "ti ti-list")" aria-hidden="true"></i>
+                <icon sm-if='@(Model == "HI")' name="left-to-right-list-bullet" lib="hi" aria-hidden="true" />
+                <i sm-if='@(Model != "HI")' class="hgi-stroke hgi-left-to-right-list-bullet" aria-hidden="true"></i>
             }
         </button>
         <button type="button" class="note-btn btn btn-light btn-sm" title="Nummerierung (CTRL+SHIFT+NUM8)" aria-label="Nummerierung (CTRL+SHIFT+NUM8)">
@@ -127,7 +136,8 @@
             }
             else
             {
-                <i class="@(Model == "HI" ? "hgi-stroke hgi-left-to-right-list-number" : "ti ti-list-numbers")" aria-hidden="true"></i>
+                <icon sm-if='@(Model == "HI")' name="left-to-right-list-number" lib="hi" aria-hidden="true" />
+                <i sm-if='@(Model != "HI")' class="hgi-stroke hgi-left-to-right-list-number" aria-hidden="true"></i>
             }
         </button>
         <div class="note-btn-group btn-group">
@@ -138,7 +148,8 @@
                 }
                 else
                 {
-                    <i class="@(Model == "HI" ? "hgi-stroke hgi-text-align-left" : "ti ti-align-left")" aria-hidden="true"></i>
+                    <icon sm-if='@(Model == "HI")' name="text-align-left" lib="hi" aria-hidden="true" />
+                    <i sm-if='@(Model != "HI")' class="hgi-stroke hgi-text-align-left" aria-hidden="true"></i>
                 }
             </button>
         </div>
@@ -149,7 +160,8 @@
             }
             else
             {
-                <i class="@(Model == "HI" ? "hgi-stroke hgi-remove-formatting" : "ti ti-clear-formatting")" aria-hidden="true"></i>
+                <icon sm-if='@(Model == "HI")' name="remove-formatting" lib="hi" aria-hidden="true" />
+                <i sm-if='@(Model != "HI")' class="hgi-stroke hgi-remove-formatting" aria-hidden="true"></i>
             }
         </button>
     </div>
@@ -161,7 +173,8 @@
             }
             else
             {
-                <i class="@(Model == "HI" ? "hgi-stroke hgi-link-01" : "ti ti-link")" aria-hidden="true"></i>
+                <icon sm-if='@(Model == "HI")' name="link-01" lib="hi" aria-hidden="true" />
+                <i sm-if='@(Model != "HI")' class="hgi-stroke hgi-link-01" aria-hidden="true"></i>
             }
         </button>
         <button type="button" class="note-btn btn btn-light btn-sm" title="Bild" aria-label="Bild">
@@ -171,7 +184,8 @@
             }
             else
             {
-                <i class="@(Model == "HI" ? "hgi-stroke hgi-image-02" : "ti ti-photo")" aria-hidden="true"></i>
+                <icon sm-if='@(Model == "HI")' name="image-02" lib="hi" aria-hidden="true" />
+                <i sm-if='@(Model != "HI")' class="hgi-stroke hgi-image-02" aria-hidden="true"></i>
             }
         </button>
         <button type="button" class="note-btn btn btn-light btn-sm" title="Video" aria-label="Video">
@@ -181,7 +195,8 @@
             }
             else
             {
-                <i class="@(Model == "HI" ? "hgi-stroke hgi-video-02" : "ti ti-movie")" aria-hidden="true"></i>
+                <icon sm-if='@(Model == "HI")' name="video-02" lib="hi" aria-hidden="true" />
+                <i sm-if='@(Model != "HI")' class="hgi-stroke hgi-video-02" aria-hidden="true"></i>
             }
         </button>
         <button type="button" class="note-btn btn btn-light btn-sm note-btn-emoji" title="Emoji" aria-label="Emoji">
@@ -191,7 +206,8 @@
             }
             else
             {
-                <i class="@(Model == "HI" ? "hgi-stroke hgi-happy-01" : "ti ti-mood-smile")" aria-hidden="true"></i>
+                <icon sm-if='@(Model == "HI")' name="happy-01" lib="hi" aria-hidden="true" />
+                <i sm-if='@(Model != "HI")' class="hgi-stroke hgi-happy-01" aria-hidden="true"></i>
             }
         </button>
         <div class="note-btn-group btn-group">
@@ -202,7 +218,8 @@
                 }
                 else
                 {
-                    <i class="@(Model == "HI" ? "hgi-stroke hgi-grid-table" : "ti ti-table")" aria-hidden="true"></i>
+                    <icon sm-if='@(Model == "HI")' name="grid-table" lib="hi" aria-hidden="true" />
+                    <i sm-if='@(Model != "HI")' class="hgi-stroke hgi-grid-table" aria-hidden="true"></i>
                 }
             </button>
         </div>
@@ -213,7 +230,8 @@
             }
             else
             {
-                <i class="@(Model == "HI" ? "hgi-stroke hgi-minus-sign" : "ti ti-minus")" aria-hidden="true"></i>
+                <icon sm-if='@(Model == "HI")' name="minus-sign" lib="hi" aria-hidden="true" />
+                <i sm-if='@(Model != "HI")' class="hgi-stroke hgi-minus-sign" aria-hidden="true"></i>
             }
         </button>
     </div>
@@ -225,7 +243,8 @@
             }
             else
             {
-                <i class="@(Model == "HI" ? "hgi-stroke hgi-code-xml" : "ti ti-code")" aria-hidden="true"></i>
+                <icon sm-if='@(Model == "HI")' name="code-xml" lib="hi" aria-hidden="true" />
+                <i sm-if='@(Model != "HI")' class="hgi-stroke hgi-code-xml" aria-hidden="true"></i>
             }
         </button>
         <button type="button" class="note-btn btn btn-light btn-sm btn-fullscreen note-codeview-keep" title="Vollbild" aria-label="Vollbild">
@@ -235,7 +254,8 @@
             }
             else
             {
-                <i class="@(Model == "HI" ? "hgi-stroke hgi-full-screen" : "ti ti-maximize")" aria-hidden="true"></i>
+                <icon sm-if='@(Model == "HI")' name="full-screen" lib="hi" aria-hidden="true" />
+                <i sm-if='@(Model != "HI")' class="hgi-stroke hgi-full-screen" aria-hidden="true"></i>
             }
         </button>
         <button type="button" class="note-btn btn btn-light btn-sm" title="Hilfe" aria-label="Hilfe">
@@ -245,7 +265,8 @@
             }
             else
             {
-                <i class="@(Model == "HI" ? "hgi-stroke hgi-help-circle" : "ti ti-question-mark")" aria-hidden="true"></i>
+                <icon sm-if='@(Model == "HI")' name="help-circle" lib="hi" aria-hidden="true" />
+                <i sm-if='@(Model != "HI")' class="hgi-stroke hgi-help-circle" aria-hidden="true"></i>
             }
         </button>
     </div>

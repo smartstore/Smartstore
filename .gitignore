@@ -213,6 +213,9 @@ build/artifacts
 build/packages
 src/Smartstore.Web/Modules/*
 src/Smartstore.Web/App_Data/*
+!src/Smartstore.Web/App_Data/Icons/
+# Shared runtime cache space; never commit generated component caches.
+src/Smartstore.Web/App_Data/.cache/
 !src/Smartstore.Web/App_Data/EmailTemplates/*
 !src/Smartstore.Web/App_Data/Geo/*
 !src/Smartstore.Web/App_Data/Localization/*

@@ -57,6 +57,7 @@
 		<None Include="App_Data\dashboard.*.json" CopyToPublishDirectory="PreserveNewest" />
 		<None Include="App_Data\EmailTemplates\**" CopyToPublishDirectory="PreserveNewest" />
 		<None Include="App_Data\Geo\**" CopyToPublishDirectory="PreserveNewest" />
+		<None Include="App_Data\Icons\**" CopyToPublishDirectory="PreserveNewest" />
 		<None Include="App_Data\Localization\**" CopyToPublishDirectory="PreserveNewest" />
 		<None Include="App_Data\Samples\**" CopyToPublishDirectory="PreserveNewest" />
 	</ItemGroup>

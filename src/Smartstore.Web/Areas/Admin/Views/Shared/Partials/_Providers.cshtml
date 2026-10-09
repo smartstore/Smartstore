@@ -101,7 +101,7 @@
                     {
                         <a class="activate-provider btn btn-sm btn-@(activatable.IsActive ? "outline-secondary btn-to-danger" : "success")"
                            data-href='@Url.Action("ActivateProvider")' href="javascript:;" data-systemname="@item.SystemName" data-activate="@(!activatable.IsActive ? "true" : "false")">
-                            <bootstrap-icon name="check-lg" attr-class='(activatable.IsActive, "d-none")' />
+                            <icon name="check" attr-class='(activatable.IsActive, "d-none")' />
                             <span>@T("Admin.Common.{0}".FormatInvariant(activatable.IsActive ? "Deactivate" : "Activate"))</span>
                         </a>
                     }

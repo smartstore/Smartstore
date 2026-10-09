@@ -82,6 +82,12 @@
 			<LocaleResource Name="AdditionalFeePercentage.Hint">
 				<Value>Zusätzliche prozentuale Gebühr. Die konfigurierte Gebühr wird als fester Wert verwendet, falls diese Option nicht aktiviert ist.</Value>
 			</LocaleResource>
+            <LocaleResource Name="PaymentPageButtonMethods">
+                <Value>Wallet-Buttons auf Zahlartseite</Value>
+            </LocaleResource>
+            <LocaleResource Name="PaymentPageButtonMethods.Hint">
+                <Value>Legt fest, welche Zahlungsarten auf der Zahlartseite als Express-Buttons erscheinen. Ohne Auswahl entfällt die Button-Zeile. Die gewählten Express-Buttons ermöglichen auch plattformübergreifende Zahlungen, etwa mit Apple Pay auf einem Windows-PC oder Google Pay auf einem Mac. Die tatsächliche Verfügbarkeit hängt von Stripe-Konfiguration, Browser, Land und Währung ab.</Value>
+            </LocaleResource>
             <LocaleResource Name="ShowButtonInMiniShoppingCart">
                 <Value>Buttons im Miniwarenkorb anzeigen</Value>
             </LocaleResource>

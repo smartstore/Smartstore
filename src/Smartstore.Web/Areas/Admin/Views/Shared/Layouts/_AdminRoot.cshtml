@@ -1,4 +1,6 @@
-﻿@using Smartstore.Core;
+﻿@inject Smartstore.Core.Content.Media.Icons.IIconKitService IconKits
+@{ var iconManifestUrl = IconKits.GetManifestUrl(); }
+@using Smartstore.Core;
 
 @{
     // Page title
@@ -18,6 +20,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="HandheldFriendly" content="true">
     <meta property="sm:root" content="@Url.Content("~/")" />
+    <meta property="sm:icons" content="@iconManifestUrl" />
+    <link rel="preload" as="fetch" href="@iconManifestUrl" type="application/json" crossorigin="anonymous" />
     @await Component.InvokeAsync("AntiForgeryToken") 
 
     <partial name="ConditionalComments" />
