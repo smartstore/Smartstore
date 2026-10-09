@@ -54,6 +54,21 @@ Do not transfer FA style classes (`fa`, `fas`, `far`, `fal`, `fab`) onto the new
 They describe the old font renderer. A filled/outline or brand distinction may need
 visual review because the default HI variant is stroke-based.
 
+## Testing a partially mapped library
+
+A non-default library can be tried before its mapping is complete. Resolution tries
+its mapped target (or the concept name when unmapped), then its configured variant
+fallbacks. With `fallbackToDefaultLibrary` enabled in `config.json`, unresolved
+concepts are mapped again in the system default library. The shipped configuration
+enables this and links FA regular and solid as mutual variant fallbacks.
+
+Keep conceptual names in migrated code so this works across libraries. A `!` address
+skips mapping and library fallback, but still permits configured variant fallbacks.
+`data-icon` and library/variant CSS classes identify the actual resolved artwork,
+which can differ from the requested variant. Kit sprites and client identity patches
+follow the same server-side resolution. Library browsing shows only native icons.
+See [README.md](README.md#resolve-missing-icons) for the configuration and precedence.
+
 ## Font Awesome to HugeIcons
 
 | Source FA icon classes | HI target | Concept |

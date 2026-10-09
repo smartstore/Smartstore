@@ -34,9 +34,9 @@ public interface IIconService
     int GetIconCount(string? library = null, string? variant = null);
 
     /// <summary>
-    /// Gets an icon after one mapping lookup, or null if unavailable. Parameters fill missing address qualifiers; conflicting qualifiers are rejected.
+    /// Gets an icon after mapping and configured fallbacks, or null if unavailable. Parameters fill missing address qualifiers; conflicting qualifiers are rejected.
     /// </summary>
-    /// <param name="name">An icon or conceptual name, optionally qualified as library:name@variant. Append ! to the name to bypass mapping. Icon names are case-sensitive. An optional query accepts flip, rotate and stroke-scale modifiers.</param>
+    /// <param name="name">An icon or conceptual name, optionally qualified as library:name@variant. Append ! to the name to bypass mapping and library fallback; variant fallbacks still apply. Icon names are case-sensitive. An optional query accepts flip, rotate and stroke-scale modifiers.</param>
     /// <param name="library">The library system name or short name. Fills a missing address qualifier; null uses the configured default.</param>
     /// <param name="variant">The variant name or short name. Fills a missing address qualifier; null uses the selected library's effective default.</param>
     /// <returns>The mapped icon with its canonical address, or null when the library, variant or target icon is unavailable.</returns>
@@ -68,7 +68,7 @@ public interface IIconService
 public static class IIconServiceExtensions
 {
     /// <summary>
-    /// Resolves an icon address with one mapping lookup and gets its cached SVG payload.
+    /// Resolves an icon address with mapping and configured fallbacks and gets its cached SVG payload.
     /// </summary>
     /// <param name="service">The icon service used for resolution and preparation.</param>
     /// <param name="name">An icon or conceptual name, optionally qualified as library:name@variant. Append ! to the name to bypass mapping.</param>

@@ -46,7 +46,7 @@
                 @foreach (var library in libraries)
                 {
                     var libraryLabel = library.DisplayName.HasValue() ? library.DisplayName : library.SystemName.Titleize();
-                    @foreach (var variant in library.Variants.Values.OrderBy(x => x.DisplayName ?? x.Name))
+                    @foreach (var variant in library.Variants.Values)
                     {
                         var variantLabel = variant.Name.EqualsNoCase("default")
                             ? null : (variant.DisplayName ?? variant.Name).Titleize();

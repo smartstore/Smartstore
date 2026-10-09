@@ -136,8 +136,8 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
         Guard.NotNull(icon);
 
         var catalog = icons.Catalog;
-        var index = GetIndex(catalog, icon.LibraryName, icon.VariantName);
-        if (index == null || !index.Memberships.TryGetValue((icon.Name, icon.Transform), out var member))
+        var index = GetIndex(catalog, icon.SelectionLibraryName ?? icon.LibraryName, icon.SelectionVariantName ?? icon.VariantName);
+        if (index == null || !index.Memberships.TryGetValue((icon.Address, icon.Transform), out var member))
         {
             return null;
         }

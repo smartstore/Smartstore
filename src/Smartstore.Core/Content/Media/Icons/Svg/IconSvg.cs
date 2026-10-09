@@ -77,6 +77,18 @@ public sealed class IconInfo
     internal bool RequiresInline { get; set; }
 
     /// <summary>
+    /// Gets or sets the requested library context for kit membership before artwork fallbacks.
+    /// Null uses the actual library, as for native search results.
+    /// </summary>
+    internal string? SelectionLibraryName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the requested variant context for kit membership before artwork fallbacks.
+    /// Null uses the actual variant, as for native search results.
+    /// </summary>
+    internal string? SelectionVariantName { get; set; }
+
+    /// <summary>
     /// Gets or sets the per-icon stroke multiplier applied after the library multiplier.
     /// </summary>
     public double StrokeScale { get; set; } = 1;

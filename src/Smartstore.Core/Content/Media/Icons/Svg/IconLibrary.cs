@@ -1,6 +1,6 @@
 #nullable enable
 
-using System.Collections.Frozen;
+using System.Collections.ObjectModel;
 using System.Text.Json.Serialization;
 
 namespace Smartstore.Core.Content.Media.Icons;
@@ -10,7 +10,8 @@ namespace Smartstore.Core.Content.Media.Icons;
 /// </summary>
 public sealed record IconLibrary
 {
-    private readonly FrozenDictionary<string, IconVariant> _variants = FrozenDictionary<string, IconVariant>.Empty;
+    private readonly IReadOnlyDictionary<string, IconVariant> _variants =
+        new ReadOnlyDictionary<string, IconVariant>(new OrderedDictionary<string, IconVariant>(StringComparer.OrdinalIgnoreCase));
 
     /// <summary>
     /// Gets the library directory name.
@@ -44,7 +45,7 @@ public sealed record IconLibrary
     public string DefaultVariant { get; init; } = string.Empty;
 
     /// <summary>
-    /// Gets locally available variants, keyed by name.
+    /// Gets locally available variants in definition order, keyed by name.
     /// </summary>
     public IReadOnlyDictionary<string, IconVariant> Variants
     {
@@ -55,7 +56,9 @@ public sealed record IconLibrary
 
             // Take immutable ownership at initialization. A read-only interface over a caller's
             // mutable dictionary would still allow the published manifest to change indirectly.
-            _variants = value.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
+            // FrozenDictionary may reorder entries; the picker follows the manifest's order.
+            _variants = new ReadOnlyDictionary<string, IconVariant>(
+                new OrderedDictionary<string, IconVariant>(value, StringComparer.OrdinalIgnoreCase));
         }
     }
 }
@@ -65,6 +68,23 @@ public sealed record IconLibrary
 /// </summary>
 public sealed record IconVariant
 {
+    private readonly IReadOnlyList<string> _fallbacks = Array.Empty<string>();
+
+    /// <summary>
+    /// Gets ordered fallback variant names or short names within this library.
+    /// Chains are followed depth-first, visiting each variant at most once.
+    /// </summary>
+    public IReadOnlyList<string> Fallbacks
+    {
+        get => _fallbacks;
+        init
+        {
+            Guard.NotNull(value);
+
+            _fallbacks = Array.AsReadOnly(value.ToArray());
+        }
+    }
+
     /// <summary>
     /// Gets the variant directory name.
     /// </summary>

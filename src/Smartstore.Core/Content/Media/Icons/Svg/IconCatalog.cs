@@ -67,6 +67,11 @@ internal sealed class IconCatalog
     internal string DefaultVariant { get; private set; }
 
     /// <summary>
+    /// Gets whether unresolved concepts may be retried in the system default library.
+    /// </summary>
+    internal bool FallbackToDefaultLibrary { get; private set; }
+
+    /// <summary>
     /// Gets the token that marks this generation stale when source files change.
     /// </summary>
     internal IChangeToken ChangeToken { get; private set; }
@@ -149,6 +154,12 @@ internal sealed class IconCatalog
         /// Gets the native grid and paint settings for this variant.
         /// </summary>
         internal IconVariant Manifest { get; }
+
+        /// <summary>
+        /// Gets the precomputed resolution order, beginning with this variant and excluding cycles.
+        /// Built from manifests only; source name indexes remain deferred.
+        /// </summary>
+        internal Variant[] ResolutionOrder { get; set; } = [];
 
         /// <summary>
         /// Gets all available names, indexed lazily once per catalog generation without reading SVG contents.
@@ -425,6 +436,8 @@ internal sealed class IconCatalog
         }
 
         catalog.DefaultLibrary = defaultLibrary;
+        catalog.FallbackToDefaultLibrary = config.RootElement.TryGetProperty("fallbackToDefaultLibrary", out var fallback)
+            && fallback.GetBoolean();
         catalog.DefaultVariant = config.RootElement.TryGetProperty("defaultVariant", out var defaultVariant)
             ? defaultVariant.GetString() : null;
         if (catalog.DefaultVariant != null && !defaultLibrary.Variants.ContainsKey(catalog.DefaultVariant))
@@ -526,7 +539,7 @@ internal sealed class IconCatalog
         }
 
         // Complete derived identities once, before publication. Record initialization
-        // and the frozen variant dictionary make all returned manifests safe to share.
+        // and the read-only variant dictionary make all returned manifests safe to share.
         manifest = manifest with
         {
             SystemName = name,
@@ -564,6 +577,35 @@ internal sealed class IconCatalog
         if (!library.Variants.ContainsKey(manifest.DefaultVariant ?? string.Empty))
         {
             throw new InvalidDataException($"Unknown default variant in {root}/library.json.");
+        }
+
+        // Expand these small manifest-only graphs once. Repeated icon lookups need neither
+        // recursion nor a visited set, and mutual fallbacks such as regular/solid are safe.
+        foreach (var variant in library.Variants.Values.Distinct())
+        {
+            var order = new List<Variant>();
+            var visited = new HashSet<Variant>();
+            Visit(variant);
+            variant.ResolutionOrder = order.ToArray();
+
+            void Visit(Variant current)
+            {
+                if (!visited.Add(current))
+                {
+                    return;
+                }
+
+                order.Add(current);
+                foreach (var fallbackName in current.Manifest.Fallbacks)
+                {
+                    if (fallbackName == null || !library.Variants.TryGetValue(fallbackName, out var next))
+                    {
+                        throw new InvalidDataException($"Unknown fallback variant '{fallbackName}' in {root}/library.json ({current.Manifest.Name}).");
+                    }
+
+                    Visit(next);
+                }
+            }
         }
 
         return library;

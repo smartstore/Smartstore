@@ -1,4 +1,5 @@
 {
   "defaultLibrary": "hugeicons",
-  "defaultVariant": "stroke-rounded"
+  "defaultVariant": "stroke-rounded",
+  "fallbackToDefaultLibrary": true
 }

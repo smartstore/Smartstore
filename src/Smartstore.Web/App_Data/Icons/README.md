@@ -61,7 +61,8 @@ Configure the defaults in `config.json`:
 ```json
 {
   "defaultLibrary": "hugeicons",
-  "defaultVariant": "stroke-rounded"
+  "defaultVariant": "stroke-rounded",
+  "fallbackToDefaultLibrary": true
 }
 ```
 
@@ -74,6 +75,61 @@ folder; there is no separate `systemName` field to maintain.
 the library's own `defaultVariant` applies. The global override does not apply
 to other libraries. An unavailable configured variant is a configuration error;
 it does not silently select a different style.
+
+## Resolve missing icons
+
+Variants can have unequal inventories. Configure ordered `fallbacks` in `library.json`:
+
+```json
+"variants": {
+  "regular": { "fallbacks": ["solid"] },
+  "solid": { "fallbacks": ["regular"] },
+  "brands": {}
+}
+```
+
+Entries accept variant names or short names within the same library. The requested
+variant is checked first, followed by each fallback and its own fallbacks in
+listed order (depth-first). Each variant is visited at most once, so mutual
+fallbacks are safe. Omission means no variant fallback; unknown fallback selectors
+are configuration errors. No implicit fallback to the library's default variant
+is added. The supplied Font Awesome configuration links regular and solid only.
+
+Resolution follows these rules:
+
+1. Apply the selected library's mapping once. If no mapping exists, try the
+   original concept as a concrete name. Mapping targets are not mapped again.
+2. Find that name in the requested variant and its fallback chain. A mapping
+   whose target is absent does not retry the concept as a different local name.
+3. If `fallbackToDefaultLibrary` is true and the initial library differs from the
+   system default, retry the **original concept** there, using that library's
+   mapping, effective default variant and fallback chain. Kit defaults and the
+   first library's mapped name or modifiers do not carry across.
+4. Return null if no candidate exists. Unknown requested libraries or variants
+   still return null rather than hiding a misspelled selector.
+
+`fallbackToDefaultLibrary` is false when omitted and enabled in the supplied
+`config.json`. A new non-default library can therefore be tested with an empty
+or missing `mapping.json`: same-name icons work directly and missing concepts use
+the system default. This is not a second baseline library: if you change
+`defaultLibrary` itself, it becomes the fallback destination too.
+
+A `!` address skips mapping and library fallback, but still follows configured
+variant fallbacks. Concrete kit `sources` follow the same direct-name rule; their
+library remains fixed. A broken SVG raises its normal preparation error and is
+not treated as a missing icon.
+
+`IconInfo`, cache keys, CSS classes and `data-icon` always identify the actual
+source. Kits use the same resolution pipeline and can mix fallback variants and
+libraries in one sprite. The client manifest contains the resulting identity
+patches, not a client-side fallback algorithm. The requested kit context is kept
+separately so server output references the same mixed sprite. Configuration and
+source changes rebuild the resolution state through the existing watcher.
+
+Library browsing, counts and full-variant sprites still contain only the native
+inventory. They never include fallback icons. Kit browsing shows the resolved
+concepts. Resolving fallbacks does not populate the individual SVG cache; kit
+membership uses name indexes without reading artwork.
 
 ## Configure a library
 
@@ -106,7 +162,8 @@ Each library contains a `library.json`:
   across libraries and must not shadow another library's system name.
 - `defaultVariant` selects the library's default style, unless overridden by
   the global configuration for the default library.
-- `variants` holds technical settings keyed by variant directory name.
+- `variants` holds technical settings keyed by variant directory name. The IconBrowser
+  displays variants in their definition order in `library.json`, without alphabetic sorting.
 - Each variant may have an optional English `displayName` for picker labels, such as
   `Stroke Rounded`. It does not affect icon addressing and defaults to null.
 - Each variant may also have an optional `shortName`, such as `sr`. It must be
@@ -148,8 +205,8 @@ An icon ID is the exact SVG filename without `.svg`. For example,
 
 When switching libraries, keep the conceptual keys and change their values to
 IDs provided by the new library. Mappings are shared across all variants of a
-library. Check that mapped IDs exist in each variant you intend to use. Variant
-selection is independent of mapping; there is no additional per-icon alias layer.
+library. Mapped IDs can be supplied by the selected variant or its configured
+fallbacks; there is no additional per-icon alias layer.
 
 Mapping values may append `flip` and `rotate` modifiers:
 
@@ -413,8 +470,8 @@ again. The concept and actual source name can differ, for example
 mappings, not source addresses. Members without a source override retain ordinary
 library mapping, including its modifiers.
 
-The resulting sprite may combine libraries and variants. Source overrides stay fixed
-when the kit is requested with alternate defaults. An explicit library or variant
+The resulting sprite may combine libraries and variants. Source overrides keep their library and initial variant
+when the kit is requested with alternate defaults; their variant fallback chain still applies. An explicit library or variant
 on an individual icon request still wins: when it selects a different source
 selection, that request uses the chosen library's mapping of the original concept.
 Caller addresses ending in `!` bypass both kit routing and library mapping.

@@ -5,15 +5,17 @@
   "shortName": "fa",
   "defaultVariant": "solid",
   "variants": {
+     "regular": {
+      "displayName": "Regular",
+      "icon": "fa:square-font-awesome-stroke@b",
+      "shortName": "r",
+      "fallbacks": ["solid"]
+    },
     "solid": {
       "displayName": "Solid",
       "icon": "fa:square-font-awesome@b",
-      "shortName": "s"
-    },
-    "regular": {
-      "displayName": "Regular",
-      "icon": "fa:square-font-awesome-stroke@b",
-      "shortName": "r"
+      "shortName": "s",
+      "fallbacks": ["regular"]
     },
     "brands": {
       "displayName": "Brands",

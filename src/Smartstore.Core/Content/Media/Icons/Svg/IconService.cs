@@ -227,25 +227,71 @@ public sealed partial class IconService(IApplicationContext applicationContext, 
             return default;
         }
 
-        // Resolve exactly one mapping, not an alias chain. If its target is absent, return null;
-        // falling back to the original name would silently ignore a broken customization.
-        // Explicit direct addresses also avoid loading mapping.json.
+        // Concrete kit sources and ! addresses bypass mapping. Ordinary concepts share
+        // the same fallback resolution as kit planning and browser manifest generation.
         var useSource = !entry.IsEmpty && library == entryLibrary
             && variant == SelectVariant(catalog, entryLibrary, entry.Variant, kit);
-        var mapping = address.SkipMapping || useSource ? null : library.Mapping.GetValueOrDefault(address.Name);
-        var actualName = useSource ? entry.Name : mapping?.Name ?? address.Name;
-        var source = variant.GetSource(actualName);
-        if (source == null)
+        var resolved = Resolve(catalog, library, variant, useSource ? entry.Name : address.Name, address.SkipMapping || useSource);
+        if (resolved == null)
         {
             return null;
         }
 
-        var info = CreateInfo(library, variant, actualName);
-        var mappingTransform = mapping?.Transform ?? default;
+        var selected = resolved.Value;
+        var info = CreateInfo(selected.Library, selected.Variant, selected.Mapping.Name);
+        // Keep the requested kit context separate from the actual artwork identity. A mixed
+        // regular kit must stay regular even when this particular symbol came from solid.
+        info.SelectionLibraryName = library.Manifest.SystemName;
+        info.SelectionVariantName = variant.Manifest.Name;
+        var mappingTransform = selected.Mapping.Transform;
         info.Transform = modifiers.Apply(mappingTransform);
         info.RequiresInline = info.Transform != mappingTransform;
-        info.StrokeScale = modifiers.StrokeScale ?? mapping?.StrokeScale ?? 1;
+        info.StrokeScale = modifiers.StrokeScale ?? selected.Mapping.StrokeScale;
         return info;
+    }
+
+    /// <summary>
+    /// Resolves artwork through configured variant fallbacks, then optionally remaps the
+    /// original concept in the system default library. Does not parse artwork or populate the SVG cache.
+    /// </summary>
+    /// <param name="catalog">The source generation and global fallback policy.</param>
+    /// <param name="library">The requested library.</param>
+    /// <param name="variant">The requested variant.</param>
+    /// <param name="name">The original concept, or an exact name when mapping is bypassed.</param>
+    /// <param name="skipMapping">Whether to bypass mapping and prohibit library changes.</param>
+    /// <param name="indexOnly">Whether to use name indexes only, deferring source fingerprints until kit planning.</param>
+    /// <returns>The actual source identity and its mapping modifiers, or null if unavailable.</returns>
+    internal static (IconCatalog.Library Library, IconCatalog.Variant Variant, IconMapping Mapping)? Resolve(
+        IconCatalog catalog, IconCatalog.Library library, IconCatalog.Variant variant, string name, bool skipMapping = false, bool indexOnly = false)
+    {
+        var result = FindInLibrary(library, variant);
+        if (result == null && !skipMapping && catalog.FallbackToDefaultLibrary && library != catalog.DefaultLibrary)
+        {
+            // Do not carry a foreign concrete name, mapping modifiers, or kit variant across
+            // libraries. The system default resolves the original concept independently.
+            result = FindInLibrary(catalog.DefaultLibrary, SelectVariant(catalog, catalog.DefaultLibrary, null));
+        }
+
+        return result;
+
+        (IconCatalog.Library Library, IconCatalog.Variant Variant, IconMapping Mapping)? FindInLibrary(
+            IconCatalog.Library candidateLibrary, IconCatalog.Variant candidateVariant)
+        {
+            var mapping = (!skipMapping ? candidateLibrary.Mapping.GetValueOrDefault(name) : null)
+                ?? new IconMapping(name, default);
+            foreach (var candidate in candidateVariant.ResolutionOrder)
+            {
+                // Individual lookups retain the direct override fast path: no directory scan
+                // or archive access when a loose override exists. Kits use name indexes so
+                // resolving memberships does not fingerprint unrelated kits' loose sources.
+                if (indexOnly ? candidate.Names.Contains(mapping.Name) : candidate.GetSource(mapping.Name) != null)
+                {
+                    return (candidateLibrary, candidate, mapping);
+                }
+            }
+
+            return null;
+        }
     }
 
     /// <summary>

@@ -643,6 +643,27 @@ public class IconServiceTests
     }
 
     /// <summary>
+    /// Preserves JSON variant order through catalog normalization and serialization for picker display.
+    /// </summary>
+    [Test]
+    public void Library_Variants_Retain_Definition_Order()
+    {
+        Write("Icons/other/library.json", """
+            {"defaultVariant":"solid","variants":{
+              "solid":{"displayName":"Solid"},
+              "regular":{"displayName":"Regular"},
+              "brands":{"displayName":"Brands"}}}
+            """);
+        var library = _service.GetLibrary("other");
+        var expected = new[] { "solid", "regular", "brands" };
+        Assert.That(library.Variants.Keys, Is.EqualTo(expected));
+        Assert.That(library.Variants.Values.Select(x => x.Name), Is.EqualTo(expected));
+        var restored = JsonSerializer.Deserialize<IconLibrary>(JsonSerializer.Serialize(library));
+        Assert.That(restored.Variants.Keys, Is.EqualTo(expected));
+        Assert.That(restored.Variants["REGULAR"].DisplayName, Is.EqualTo("Regular"));
+    }
+
+    /// <summary>
     /// Freezes input collections and supports System.Text.Json with init-only manifest properties.
     /// </summary>
     [Test]
@@ -2127,6 +2148,206 @@ public class IconServiceTests
         Assert.That(payload.RootAttributes["id"], Is.EqualTo("root"));
         Assert.That(payload.RootAttributes["preserveAspectRatio"], Is.EqualTo("xMinYMin meet"));
         Assert.That(payload.Content, Does.Contain("href=\"#shape\"").And.Not.Contain("source:0:"));
+    }
+
+    /// <summary>
+    /// Cyclic variant fallbacks retain mapping modifiers, report actual identities and share SVG cache entries.
+    /// </summary>
+    [Test]
+    public async Task Variant_Fallbacks_Resolve_Cycles_And_Use_Actual_Cache_Identity()
+    {
+        WriteFallbackLibrary();
+        Write("Icons/other/mapping.json", """{"cart":"cart-01?flip=x&rotate=90"}""");
+        Write("Icons/other/solid/icons/cart-01.svg", _svg);
+        var icon = await _service.GetIconAsync("ot:cart@r");
+        Assert.That(icon.Address, Is.EqualTo("ot:cart-01@s"));
+        Assert.That(icon.VariantName, Is.EqualTo("solid"));
+        Assert.That(icon.Transform, Is.EqualTo(new IconTransform(true, false, 90)));
+        Assert.That(await _service.GetIconAsync("ot:missing@r"), Is.Null, "A mutual fallback must terminate.");
+        Assert.That((await _service.GetIconAsync("ot:cart-01!@r")).Address, Is.EqualTo(icon.Address));
+        Assert.That(await _service.GetIconAsync("ot:cart@b"), Is.Null, "Brands must not implicitly use regular or solid.");
+        var payload = await _service.GetSvgAsync(icon);
+        var direct = await _service.GetSvgAsync("ot:cart-01!@s");
+        Assert.That(payload.Address, Is.EqualTo(direct.Address));
+        Assert.That(_entries.Count, Is.EqualTo(1));
+        Assert.That(_entries.Keys.Single(), Does.StartWith("ot:cart-01@s:"));
+    }
+
+    /// <summary>
+    /// Fallbacks follow declared depth-first order, collapse duplicate aliases and reload after manifest edits.
+    /// </summary>
+    [Test]
+    public async Task Variant_Fallback_Order_And_Watcher_Invalidation_Are_Deterministic()
+    {
+        Write("Icons/other/library.json", """
+            {"shortName":"ot","defaultVariant":"regular","variants":{
+              "regular":{"shortName":"r","fallbacks":["s","third","solid"]},
+              "solid":{"shortName":"s","fallbacks":["r","deep"]},
+              "deep":{},"third":{}}}
+            """);
+        Write("Icons/other/deep/icons/direct.svg", _svg);
+        Write("Icons/other/third/icons/direct.svg", _svg);
+        Assert.That((await _service.GetIconAsync("ot:direct")).VariantName, Is.EqualTo("deep"));
+        Write("Icons/other/solid/user/direct.svg", _svg);
+        SignalChanges();
+        Assert.That((await _service.GetIconAsync("ot:direct")).VariantName, Is.EqualTo("solid"));
+        Write("Icons/other/regular/icons/direct.svg", _svg);
+        SignalChanges();
+        Assert.That((await _service.GetIconAsync("ot:direct")).VariantName, Is.EqualTo("regular"));
+        Write("Icons/other/library.json", """
+            {"shortName":"ot","defaultVariant":"third","variants":{
+              "regular":{"fallbacks":["third","solid"]},"solid":{},"third":{}}}
+            """);
+        SignalChanges();
+        Assert.That((await _service.GetIconAsync("ot:direct")).VariantName, Is.EqualTo("third"));
+    }
+
+    /// <summary>
+    /// A missing or incomplete mapping can use the system default, while direct addresses and unknown selectors stay local.
+    /// </summary>
+    [Test]
+    public async Task Library_Fallback_Remaps_Original_Concept_And_Is_Opt_In()
+    {
+        WriteFallbackLibrary();
+        Assert.That(await _service.GetIconAsync("ot:cart"), Is.Null);
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","fallbackToDefaultLibrary":true}""");
+        SignalChanges();
+        Assert.That((await _service.GetIconAsync("ot:cart")).Address, Is.EqualTo("hi:cart-01@sr"), "No mapping.json is required in the new library.");
+        Write("Icons/other/mapping.json", """{"cart":"foreign-cart?flip=y&stroke-scale=2"}""");
+        Write("Icons/hugeicons/mapping.json", """{"cart":"cart-01?rotate=90&stroke-scale=1.1"}""");
+        SignalChanges();
+        var fallback = await _service.GetIconAsync("ot:cart?flip=x");
+        Assert.That(fallback.Address, Is.EqualTo("hi:cart-01@sr"));
+        Assert.That(fallback.Transform, Is.EqualTo(new IconTransform(true, false, 90)));
+        Assert.That(fallback.StrokeScale, Is.EqualTo(1.1));
+        Assert.That(await _service.GetIconAsync("ot:cart!"), Is.Null);
+        Assert.That(await _service.GetIconAsync("ot:cart-01!"), Is.Null);
+        Assert.That(await _service.GetIconAsync("ot:cart@missing"), Is.Null);
+        Assert.That(await _service.GetIconAsync("missing:cart"), Is.Null);
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","fallbackToDefaultLibrary":false}""");
+        SignalChanges();
+        Assert.That(await _service.GetIconAsync("ot:cart"), Is.Null);
+    }
+
+    /// <summary>
+    /// Same-name local artwork wins without a mapping; an existing broken mapping cannot silently select another local name.
+    /// </summary>
+    [Test]
+    public async Task Direct_Name_Precedes_System_Fallback_But_Does_Not_Override_A_Mapping()
+    {
+        WriteFallbackLibrary();
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","fallbackToDefaultLibrary":true}""");
+        Write("Icons/other/solid/icons/cart.svg", _svg);
+        Assert.That((await _service.GetIconAsync("ot:cart")).Address, Is.EqualTo("ot:cart@s"));
+        Write("Icons/other/mapping.json", """{"cart":"missing"}""");
+        SignalChanges();
+        Assert.That((await _service.GetIconAsync("ot:cart")).Address, Is.EqualTo("hi:cart-01@sr"));
+        Assert.That((await _service.GetIconAsync("ot:cart!@r")).Address, Is.EqualTo("ot:cart@s"));
+        Write("Icons/other/regular/icons/missing.svg", "<not-svg />");
+        SignalChanges();
+        Assert.That((await _service.GetIconAsync("ot:cart")).LibraryName, Is.EqualTo("other"));
+        Assert.ThrowsAsync<InvalidDataException>(() => _service.GetSvgAsync("ot:cart"));
+    }
+
+    /// <summary>
+    /// Mixed fallback kits keep server references, browser manifest identities and native variant inventories consistent.
+    /// </summary>
+    [Test]
+    public async Task Fallback_Kit_And_Manifest_Use_The_Same_Resolved_Sources()
+    {
+        WriteFallbackLibrary();
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","fallbackToDefaultLibrary":true}""");
+        Write("Icons/kits.json", """{"shared":{"defaultLibrary":"other","defaultVariant":"regular","icons":["cart","local","remote"]}}""");
+        Write("Icons/other/mapping.json", """{"cart":"cart-01","local":"local-solid?rotate=90","remote":"not-here?flip=y"}""");
+        Write("Icons/hugeicons/mapping.json", """{"remote":"direct"}""");
+        Write("Icons/other/regular/icons/cart-01.svg", _svg);
+        Write("Icons/other/solid/icons/local-solid.svg", _svg);
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        var url = kits.GetUrl("shared");
+        var path = await kits.GetSpriteFileAsync("shared", url[^28..^4]);
+        XNamespace ns = "http://www.w3.org/2000/svg";
+        Assert.That(XElement.Load(path).Elements(ns + "symbol").Select(x => (string)x.Attribute("id")),
+            Is.EquivalentTo(new[] { "cart", "local", "remote" }));
+        var expected = new[] { "ot:cart-01@r", "ot:local-solid@s", "hi:direct@sr" };
+        var concepts = new[] { "cart", "local", "remote" };
+        for (var i = 0; i < concepts.Length; i++)
+        {
+            var info = await _service.GetIconAsync(concepts[i]);
+            Assert.That(info.Address, Is.EqualTo(expected[i]));
+            Assert.That(kits.GetReference(info)?.Href, Is.EqualTo(url + "#" + concepts[i]));
+            var output = await new IconRenderer(_service, kits).RenderAsync(info);
+            Assert.That(output.Attributes["data-icon"], Is.EqualTo(expected[i]));
+            Assert.That(output.Attributes["class"], Does.Contain("icon-" + info.LibraryKey + "-" + info.VariantKey));
+        }
+        var manifestPath = await kits.GetManifestFileAsync(Path.GetFileNameWithoutExtension(kits.GetManifestUrl()));
+        using var manifest = JsonDocument.Parse(await File.ReadAllTextAsync(manifestPath));
+        var kit = manifest.RootElement.GetProperty("kits").GetProperty("shared");
+        Assert.That(kit.GetProperty("url").GetString(), Is.EqualTo(url.TrimStart('/')));
+        Assert.That(kit.GetProperty("sources").GetProperty("local").GetString(), Is.EqualTo("local-solid@s"));
+        Assert.That(kit.GetProperty("sources").GetProperty("remote").GetString(), Is.EqualTo("hi:direct@sr"));
+        Assert.That(_service.GetIconCount("ot", "r"), Is.EqualTo(1));
+        var search = await _service.SearchAsync(new IconSearchQuery { Library = "ot", Variant = "r" });
+        Assert.That(search.Items.Select(x => x.Name), Is.EqualTo(new[] { "cart-01" }));
+        _cache.VerifyNoOtherCalls();
+
+        // Availability changes must rebuild both the mixed sprite revision and its identity patches.
+        Write("Icons/other/regular/user/local-solid.svg", _svg);
+        SignalChanges();
+        var newUrl = kits.GetUrl("shared");
+        Assert.That(newUrl, Is.Not.EqualTo(url));
+        var local = await _service.GetIconAsync("local");
+        Assert.That(local.Address, Is.EqualTo("ot:local-solid@r"));
+        Assert.That(kits.GetReference(local)?.Href, Is.EqualTo(newUrl + "#local"));
+        Assert.That(await kits.GetSpriteFileAsync("shared", url[^28..^4]), Is.EqualTo(path));
+    }
+
+    /// <summary>
+    /// A concrete kit source may use another variant but must never switch libraries or follow mappings.
+    /// </summary>
+    [Test]
+    public async Task Pinned_Kit_Sources_Use_Only_Variant_Fallbacks()
+    {
+        WriteFallbackLibrary();
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","fallbackToDefaultLibrary":true}""");
+        Write("Icons/other/mapping.json", """{"cart-01":"missing"}""");
+        Write("Icons/other/solid/icons/cart-01.svg", _svg);
+        Write("Icons/kits.json", """{"shared":{"icons":["cart"],"sources":{"cart":"ot:cart-01@r"}}}""");
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        var info = await _service.GetIconAsync("cart");
+        Assert.That(info.Address, Is.EqualTo("ot:cart-01@s"));
+        Assert.That(kits.GetReference(info)?.Href, Is.EqualTo(kits.GetUrl("shared") + "#cart"));
+        Write("Icons/kits.json", """{"shared":{"icons":["cart"],"sources":{"cart":"ot:direct@r"}}}""");
+        SignalChanges();
+        Assert.That(await _service.GetIconAsync("cart"), Is.Null);
+        Assert.Throws<InvalidDataException>(() => kits.GetUrl("shared"));
+    }
+
+    /// <summary>
+    /// Invalid variant references are rejected at manifest load, while caller-owned fallback collections cannot mutate manifests.
+    /// </summary>
+    [Test]
+    public void Fallback_Configuration_Is_Validated_And_Immutable()
+    {
+        var values = new[] { "solid" };
+        var variant = new IconVariant { Fallbacks = values };
+        values[0] = "other";
+        Assert.That(variant.Fallbacks, Is.EqualTo(new[] { "solid" }));
+        Assert.Throws<NotSupportedException>(() => ((IList<string>)variant.Fallbacks)[0] = "other");
+        Write("Icons/other/library.json", """{"defaultVariant":"regular","variants":{"regular":{"fallbacks":["missing"]}}}""");
+        Assert.Throws<InvalidDataException>(() => _service.GetLibrary("other"));
+    }
+
+    /// <summary>
+    /// Defines an unequal library with mutually linked regular/solid variants and an isolated brands variant.
+    /// </summary>
+    private void WriteFallbackLibrary()
+    {
+        Write("Icons/other/library.json", """
+            {"shortName":"ot","defaultVariant":"regular","variants":{
+              "regular":{"shortName":"r","fallbacks":["s"]},
+              "solid":{"shortName":"s","fallbacks":["r"]},
+              "brands":{"shortName":"b"}}}
+            """);
     }
 
     private void WriteLibrary(string name, string shortName, string variantShortName)

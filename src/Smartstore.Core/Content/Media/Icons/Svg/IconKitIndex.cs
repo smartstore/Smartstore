@@ -13,7 +13,7 @@ internal sealed class IconKitIndex
     /// <summary>
     /// Gets the preferred kit and symbol for each actual icon and mapping transformation.
     /// </summary>
-    internal Dictionary<(string Name, IconTransform Transform), (string Kit, string Symbol, bool Pinned)> Memberships { get; } = new();
+    internal Dictionary<(string Address, IconTransform Transform), (string Kit, string Symbol, bool Pinned)> Memberships { get; } = new();
 
     /// <summary>
     /// Gets deferred source plans keyed by configured kit name.
@@ -43,18 +43,25 @@ internal sealed class IconKitIndex
                 var pinned = !address.IsEmpty;
                 var entryLibrary = pinned ? IconService.SelectLibrary(catalog, address.Library ?? kit.DefaultLibrary) : library;
                 var entryVariant = pinned ? IconService.SelectVariant(catalog, entryLibrary, address.Variant, kit) : variant;
+                var resolved = IconService.Resolve(catalog, entryLibrary, entryVariant, pinned ? address.Name : concept, pinned, indexOnly: true);
+                if (resolved is { } source)
+                {
+                    return new Entry(concept, source.Library, source.Variant, source.Mapping, pinned);
+                }
+
+                // Retain missing entries for the existing kit diagnostics. CanGenerate prevents
+                // advertising incomplete sprites in the manifest or using them from the renderer.
                 var mapping = pinned ? new IconMapping(address.Name, default)
                     : entryLibrary.Mapping.GetValueOrDefault(concept) ?? new IconMapping(concept, default);
                 return new Entry(concept, entryLibrary, entryVariant, mapping, pinned);
             }).ToArray();
             Entries.Add(kit.Name, entries);
-            _availability.Add(kit.Name, new Lazy<bool>(() => entries.All(x => x.Variant.GetSource(x.Mapping.Name) != null)));
+            _availability.Add(kit.Name, new Lazy<bool>(() => entries.All(x => x.Variant.Names.Contains(x.Mapping.Name))));
             foreach (var entry in entries)
             {
-                if (entry.Library == library && entry.Variant == variant)
-                {
-                    Memberships.TryAdd((entry.Mapping.Name, entry.Mapping.Transform), (kit.Name, entry.Concept, entry.Pinned));
-                }
+                // Mixed kits can contain identical names from different libraries or variants.
+                // Match the actual canonical identity, not just the unqualified source name.
+                Memberships.TryAdd((entry.CreateInfo().Address, entry.Mapping.Transform), (kit.Name, entry.Concept, entry.Pinned));
             }
 
             Plans.Add(kit.Name, new Lazy<IconSprite>(() =>
