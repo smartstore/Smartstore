@@ -258,7 +258,9 @@ public class IconTagHelper(IIconService iconService, IIconRenderer iconRenderer)
         Guard.NotEmpty(Name);
 
         var cancelToken = ViewContext.HttpContext.RequestAborted;
-        var icon = await iconService.GetIconAsync(Name, Library, Variant, cancelToken);
+        // Razor binds null string attribute values as empty strings. Treat optional
+        // selectors as omitted so configured defaults and qualified names still apply.
+        var icon = await iconService.GetIconAsync(Name, Library.NullEmpty(), Variant.NullEmpty(), cancelToken);
         if (icon == null)
         {
             output.SuppressOutput();

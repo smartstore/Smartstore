@@ -209,6 +209,12 @@ table th {
 
 		.list-group-item-icon {
 			margin-inline-end: 0.75rem;
+
+			&.icon {
+				// Align SVG artwork with the first text line without affecting the baseline.
+				position: relative;
+				top: 0.125em;
+			}
 		}
 	}
 }

@@ -11,6 +11,7 @@
       "arrow-right",
       "arrow-turn-up",
       "arrow-up",
+      "avatar",
       "award",
       "ban",
       "basket",
@@ -101,6 +102,7 @@
       "trash",
       "truck",
       "unlink",
+      "unlock",
       "user",
       "user-circle",
       "warning"
@@ -111,13 +113,17 @@
     "defaultLibrary": null,
     "defaultVariant": null,
     "icons": [
+      "address-book",
       "bell",
       "certificate",
       "devices",
       "laptop",
       "phone",
       "plus-circle",
-      "tv"
+      "truck-loading",
+      "tv",
+      "user-secret",
+      "wallet"
     ]
   },
   "backend": {
@@ -248,7 +254,6 @@
       "trophy",
       "underline",
       "undo",
-      "unlock",
       "upload",
       "user-add",
       "user-badge",

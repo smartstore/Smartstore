@@ -3,7 +3,7 @@
   "icon": "fa:font-awesome@b",
   "version": "7.3.1",
   "shortName": "fa",
-  "defaultVariant": "solid",
+  "defaultVariant": "regular",
   "variants": {
      "regular": {
       "displayName": "Regular",

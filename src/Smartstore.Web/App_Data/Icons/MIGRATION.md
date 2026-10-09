@@ -54,6 +54,39 @@ Do not transfer FA style classes (`fa`, `fas`, `far`, `fal`, `fab`) onto the new
 They describe the old font renderer. A filled/outline or brand distinction may need
 visual review because the default HI variant is stroke-based.
 
+## My Account menu and menu extensions
+
+The platform My Account menu and the extensions migrated in this workspace now
+store concept names in `MenuItem.Icon`. Plugin integrations should likewise use,
+for example, `Icon = "cart"` or `.Icon("cart")`, without FA style or utility classes.
+Leave `IconLibrary` unset to follow configured kit/system defaults; set it only
+when an explicit library is intended. The TagHelper treats empty `lib` and `variant`
+attributes as omitted, including null model values bound by Razor.
+
+The shared `ListGroup` menu template renders concept names through the `icon`
+TagHelper with `fw` and the existing `list-group-item-icon` class. It preserves
+empty icon slots and still recognizes legacy FA class strings for configured menus
+and plugins that have not migrated. Other menu templates are not migrated by this
+change; check the consumer before replacing their icon strings.
+
+`address-book`, `truck-loading`, `user-secret` and `wallet` belong to the Frontend
+kit. `address-book` resolves directly by name; the other three use the mappings
+listed below. `unlock` moved from Backend to Shared because it is also used for
+changing the customer password. The Wallet balance badge uses the `check` concept
+through the Core icon service and renderer, including its configured stroke scale.
+Badges containing HTML need explicit migration too; `MenuItem.Icon` does not cover them.
+
+The Avatar menu entry uses the `avatar` concept from the Shared kit, following
+the configured library and variant defaults without a pinned source. Library mappings:
+
+| Library | Icon | Concept |
+| --- | --- | --- |
+| HugeIcons | `user-square` | `avatar` |
+| Bootstrap Icons | `person-circle` | `avatar` |
+| Font Awesome | `circle-user` | `avatar` |
+
+The existing `user-circle` concept remains available for other uses.
+
 ## Testing a partially mapped library
 
 A non-default library can be tried before its mapping is complete. Resolution tries
@@ -73,6 +106,7 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 
 | Source FA icon classes | HI target | Concept |
 | --- | --- | --- |
+| `fal fa-address-book` | `address-book` | `address-book` |
 | `fa fa-exclamation-circle` | `alert-circle` | `alert-circle` |
 | `fa fa-arrow-down` | `arrow-down-02` | `arrow-down` |
 | `far fa-circle-down` | `circle-arrow-down-01` | `arrow-down-circle` |
@@ -88,7 +122,7 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 | `fa fa-bars`<br>`fas fa-bars` | `menu-09` | `bars` |
 | `far fa-bars-staggered` | `menu-02` | `bars-staggered` |
 | `fa fa-shopping-basket` | `shopping-basket-01` | `basket` |
-| `far fa-bell`<br>`fas fa-bell` | `bell` | `bell` |
+| `fal fa-bell`<br>`far fa-bell`<br>`fas fa-bell` | `bell` | `bell` |
 | `fa fa-blog` | `rss`<br>Approximation: HI RSS omits the pen. | `blog` |
 | `fa fa-bold` | `text-bold` | `bold` |
 | `fa fa-bolt`<br>`far fa-bolt` | `zap` | `bolt` |
@@ -96,12 +130,12 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 | `fas fa-box-open` | `package-open` | `box-open` |
 | `fal fa-brackets-curly` | `braces` | `braces` |
 | `far fa-building` | `building-03` | `building` |
-| `fa fa-calendar`<br>`far fa-calendar` | `calendar-03` | `calendar` |
+| `fa fa-calendar`<br>`far fa-calendar`<br>`far fa-calendar-days` | `calendar-03` | `calendar` |
 | `far fa-calendar-check` | `calendar-check` | `calendar-check` |
 | `fa fa-caret-down` | `arrow-down-01`<br>Approximation: HI uses a chevron instead of a filled triangle. | `caret-down` |
-| `fa fa-shopping-cart`<br>`fal fa-shopping-cart` | `shopping-cart-02` | `cart` |
+| `fa fa-shopping-cart`<br>`fal fa-shopping-cart`<br>`far fa-shopping-cart` | `shopping-cart-02` | `cart` |
 | `fa fa-cart-arrow-down` | `shopping-cart-add-02` | `cart-add` |
-| `far fa-certificate` | `certificate-01` | `certificate` |
+| `fal fa-certificate`<br>`far fa-certificate` | `certificate-01` | `certificate` |
 | `fa fa-check`<br>`far fa-check`<br>`fas fa-check` | `check?stroke-scale=1.5` | `check` |
 | `fa fa-check-double` | `tick-double-02` | `check-double` |
 | `fa fa-angle-down`<br>`fal fa-angle-down`<br>`fas fa-angle-down`<br>`fa fa-chevron-down`<br>`fas fa-chevron-down` | `chevron-down` | `chevron-down` |
@@ -151,7 +185,7 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 | `far fa-file-pdf` | `pdf-01` | `file-pdf` |
 | `far fa-file-powerpoint` | `file-02`<br>Approximation: generic document; presentation detail is missing. | `file-presentation` |
 | `far fa-file-excel` | `file-spreadsheet` | `file-spreadsheet` |
-| `far fa-file-lines`<br>`fas fa-file-lines`<br>`fa fa-file-text` | `file-02` | `file-text` |
+| `fal fa-file-lines`<br>`far fa-file-lines`<br>`fas fa-file-lines`<br>`fa fa-file-text` | `file-02` | `file-text` |
 | `far fa-file-video` | `file-video` | `file-video` |
 | `far fa-file-word` | `file-02`<br>Approximation: generic document; W detail is missing. | `file-word` |
 | `fas fa-film` | `film-01` | `film` |
@@ -260,20 +294,23 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 | `fa fa-delete`<br>`far fa-trash`<br>`far fa-trash-alt`<br>`fa fa-trash-can`<br>`fal fa-trash-can`<br>`far fa-trash-can` | `delete-02` | `trash` |
 | `fa fa-trophy` | `trophy` | `trophy` |
 | `fa fa-truck`<br>`fal fa-truck`<br>`fa fa-truck-moving` | `delivery-truck-01` | `truck` |
+| `fal fa-truck-loading` | `shipping-loading` | `truck-loading` |
 | `far fa-tv`<br>`fas fa-tv` | `tv-01` | `tv` |
 | `fab fa-x-twitter` | `new-twitter` | `twitter-x` |
 | `fa fa-underline` | `text-underline` | `underline` |
 | `fa fa-undo` | `undo-02` | `undo` |
 | `fa fa-unlink`<br>`fas fa-unlink` | `link-off` | `unlink` |
-| `fa fa-unlock-keyhole` | `lock-keyhole-open` | `unlock` |
+| `fa fa-unlock-keyhole`<br>`fal fa-unlock-keyhole` | `lock-keyhole-open` | `unlock` |
 | `fa fa-arrow-up-from-bracket`<br>`fa fa-upload`<br>`far fa-upload` | `upload-02` | `upload` |
 | `fa fa-user`<br>`fal fa-user` | `user-02` | `user` |
 | `fa fa-user-plus` | `user-plus` | `user-add` |
 | `fa fa-user-check` | `user-check-01` | `user-check` |
 | `fal fa-user-circle`<br>`fas fa-user-circle` | `user-circle` | `user-circle` |
 | `far fa-user-edit` | `user-edit-01` | `user-edit` |
+| `fa fa-user-secret` | `incognito` | `user-secret` |
 | `fa fa-user-shield` | `user-shield-01` | `user-shield` |
 | `fa fa-group`<br>`fa fa-users` | `user-group` | `users` |
+| `fa fa-wallet` | `wallet-01` | `wallet` |
 | `fa fa-exclamation-triangle`<br>`fa fa-triangle-exclamation`<br>`fa fa-warning` | `alert-02` | `warning` |
 | `far fa-window-restore` | `copy-01`<br>Approximation: overlapping sheets instead of window frames. | `windows` |
 | `fa fa-wrench` | `wrench-01` | `wrench` |

@@ -110,6 +110,37 @@ public class IconTagHelperTests
     }
 
     /// <summary>
+    /// Uses configured defaults when Razor binds null selectors as empty strings.
+    /// </summary>
+    [Test]
+    public async Task Empty_Selectors_Use_Defaults()
+    {
+        var icon = new IconInfo { Name = "user-02", LibraryName = "hugeicons", VariantName = "stroke-rounded" };
+        var service = new Mock<IIconService>(MockBehavior.Strict);
+        service.Setup(x => x.GetIconAsync("user", null, null, It.IsAny<CancellationToken>())).ReturnsAsync(icon);
+        service.Setup(x => x.GetSvgAsync(icon, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IconSvg { ViewBox = "0 0 24 24", Content = "<path/>" });
+        var helper = new IconTagHelper(service.Object, new IconRenderer(service.Object, Mock.Of<IIconKitService>()))
+        {
+            Name = "user",
+            Library = string.Empty,
+            Variant = string.Empty,
+            ViewContext = new ViewContext { HttpContext = new DefaultHttpContext() }
+        };
+        var attributes = new TagHelperAttributeList { { "lib", string.Empty }, { "variant", string.Empty } };
+        var context = new TagHelperContext(attributes, new Dictionary<object, object>(), "test");
+        var output = new TagHelperOutput("icon", attributes, (_, _) => Task.FromResult<TagHelperContent>(new DefaultTagHelperContent()));
+
+        await helper.ProcessAsync(context, output);
+
+        Assert.That(output.TagName, Is.EqualTo("svg"));
+        Assert.That(output.Content.GetContent(), Does.Contain("<path/>"));
+        Assert.That(output.Attributes.ContainsName("lib"), Is.False);
+        Assert.That(output.Attributes.ContainsName("variant"), Is.False);
+        service.VerifyAll();
+    }
+
+    /// <summary>
     /// Transfers explicit false and zero overrides and consumes all bound presentation attributes.
     /// </summary>
     [Test]
