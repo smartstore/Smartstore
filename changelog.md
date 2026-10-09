@@ -14,6 +14,13 @@
 - Enhanced color and image swatches for attributes
   - Added configurable swatch presentation settings for product and checkout attributes, including size, shape, aspect ratio, value labels, and optional display of price adjustments or final prices.
   - Swatch values now support images and up to four colors per option.
+- **Withdrawal**: 
+  - #1552 Added an option that allows users to withdraw non-withdrawable items that have not yet been shipped.
+  - #1560 Added an option to block online withdrawal for certain B2B customer roles.
+  - #1594 Added an option that allows to show guests a link to the contact form if they don't have their order number.
+  - #1571 Returns can be filtered in the data grid by the date they were completed.
+  - #1571 The message templates of returns have been extended to provide shipping information (placeholder `ReturnCase.Shipping.xyz`).
+  - #1571 Display shipping and delivery dates in the withdrawal and returns grid and on the edit page, along with whether the associated order has been canceled.
 - Dimension Pricing plugin (commercial module)
 	- Calculates product and shipping prices based on customer-entered dimensions and weight.
 	- Supports formulas, packing rules, girth and volumetric limits, rate tiers and surcharges.
