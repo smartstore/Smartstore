@@ -26,6 +26,14 @@ public interface IIconService
     Task<IReadOnlyList<IconLibrary>> GetLibrariesAsync(CancellationToken cancelToken = default);
 
     /// <summary>
+    /// Gets the number of available icons in a variant from its name index, without loading SVG content or tags.
+    /// </summary>
+    /// <param name="library">The library system name or short name. Null uses the configured default.</param>
+    /// <param name="variant">The variant name or short name. Null uses the selected library's effective default.</param>
+    /// <returns>The unique icon count, or zero when the library or variant is unknown.</returns>
+    int GetIconCount(string? library = null, string? variant = null);
+
+    /// <summary>
     /// Gets an icon after one mapping lookup, or null if unavailable. Parameters fill missing address qualifiers; conflicting qualifiers are rejected.
     /// </summary>
     /// <param name="name">An icon or conceptual name, optionally qualified as library:name@variant. Append ! to the name to bypass mapping. Icon names are case-sensitive. An optional query accepts flip, rotate and stroke-scale modifiers.</param>

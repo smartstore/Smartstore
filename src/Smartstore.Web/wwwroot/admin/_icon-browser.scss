@@ -1,0 +1,57 @@
+.icon-browser-sources {
+    max-height: min(32rem, 70vh);
+    overflow-y: auto;
+}
+
+.icon-browser-choice {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+
+    > .icon {
+        --icon-size: 24px;
+        flex: 0 0 auto;
+    }
+}
+
+// Scope the grid to the detached dropdown; the closed selection keeps its row layout.
+.icon-browser-dropdown {
+    .select2-results > .select2-results__options {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(72px, 100%), 1fr));
+        gap: 0.25rem;
+        max-height: min(24rem, 60vh);
+    }
+
+    .select2-results__option {
+        min-width: 0;
+
+        &[aria-selected] {
+            min-height: 64px;
+            padding: 0.5rem 0.25rem;
+        }
+
+        // Search feedback and the infinite-scroll sentinel must span the whole grid.
+        &:not([aria-selected]) {
+            grid-column: 1 / -1;
+        }
+    }
+
+    .icon-browser-choice {
+        flex-direction: column;
+        justify-content: center;
+        gap: 0.375rem;
+
+        > .icon {
+            --icon-size: var(--icon-browser-size, 24px);
+        }
+
+        > .text-truncate {
+            width: 100%;
+            font-size: 11px;
+            line-height: 1.25;
+            text-align: center;
+        }
+    }
+}

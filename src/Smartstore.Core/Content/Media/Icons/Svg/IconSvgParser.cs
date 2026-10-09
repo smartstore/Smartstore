@@ -5,10 +5,10 @@ using System.Xml.Linq;
 
 namespace Smartstore.Core.Content.Media.Icons;
 
-// Converts source XML into a cacheable payload: validate and extract
-// root attributes/child markup. Per-render sizing, animation and transforms do not belong here.
+// Prepare one XML tree for either immediate sprite composition or cache serialization.
+// Per-render sizing, animation and transforms do not belong here.
 /// <summary>
-/// Validates static SVG sources and prepares serializable payloads with configurable stroke fallbacks and CSS variable overrides.
+/// Validates static SVG sources and prepares XML with configurable stroke fallbacks and CSS variable overrides.
 /// </summary>
 internal static class IconSvgParser
 {
@@ -21,7 +21,7 @@ internal static class IconSvgParser
     /// <summary>
     /// The preparation format version included in cache revisions independently of source content.
     /// </summary>
-    internal const string Revision = "14";
+    internal const string Revision = "15";
     private const string _svgNamespace = "http://www.w3.org/2000/svg";
     // Support static icon graphics only. This is deliberately not a general SVG document
     // renderer: executable content, external resources and arbitrary source CSS are excluded.
@@ -42,16 +42,15 @@ internal static class IconSvgParser
     };
 
     /// <summary>
-    /// Parses an SVG, validates supported content and extracts a presentation-independent payload.
+    /// Parses an SVG once and prepares a detached XML tree owned by the caller.
     /// </summary>
     /// <param name="stream">The SVG source stream. It remains open and is consumed from its current position.</param>
     /// <param name="info">The resolved icon identity after conceptual mapping.</param>
     /// <param name="variant">The optional viewBox fallback, stroke color and source stroke width multiplier.</param>
-    /// <param name="revision">The combined preparation and source revision to embed in the payload.</param>
-    /// <returns>A detached SVG payload, or null when both source viewBox and variant default are absent.</returns>
+    /// <returns>A prepared SVG root, or null when both source viewBox and variant default are absent.</returns>
     /// <exception cref="XmlException">The source is malformed XML or violates XML reader restrictions.</exception>
     /// <exception cref="InvalidDataException">The source contains unsupported SVG content or paint values.</exception>
-    internal static IconSvg Parse(Stream stream, IconInfo info, IconVariant variant, string revision)
+    internal static XElement Parse(Stream stream, IconInfo info, IconVariant variant)
     {
         // Read directly from the selected ZIP entry or override. Only this icon's XML tree
         // is materialized; no intermediate SVG byte buffer or archive buffer is needed.
@@ -157,6 +156,10 @@ internal static class IconSvgParser
         root.Attribute("width")?.Remove();
         root.Attribute("height")?.Remove();
 
+        // The renderer owns root classes. Source-library classes must not activate
+        // unrelated host styles; classes inside the drawing remain untouched.
+        root.Attribute("class")?.Remove();
+
         // Normalize namespaces so child markup can be inserted into any normal SVG root.
         foreach (var element in root.DescendantsAndSelf())
         {
@@ -174,8 +177,23 @@ internal static class IconSvgParser
             }
         }
 
-        // Store data, not a live XML tree or a complete HTML element. The renderer supplies the
-        // outer SVG namespace and must encode root attribute values.
+        // Carry the effective coordinate system with the XML, including the variant fallback.
+        // Detach so sprite composition can move this tree without LINQ to XML cloning it.
+        root.SetAttributeValue("viewBox", viewBox);
+        root.Remove();
+        return root;
+    }
+
+    /// <summary>
+    /// Serializes prepared XML for the individual SVG cache. Sprite generation skips this step entirely.
+    /// </summary>
+    /// <param name="root">The prepared SVG root, left unchanged.</param>
+    /// <param name="info">The resolved icon identity.</param>
+    /// <param name="revision">The combined source and preparation revision.</param>
+    internal static IconSvg CreatePayload(XElement root, IconInfo info, string revision)
+    {
+        // Keep live XML out of shared/distributed caches. The renderer supplies the outer SVG
+        // namespace and encodes these root attribute values when building the DOM element.
         return new IconSvg
         {
             Address = info.Address,
@@ -183,7 +201,7 @@ internal static class IconSvgParser
             Variant = info.VariantName,
             Name = info.Name,
             Revision = revision,
-            ViewBox = viewBox,
+            ViewBox = (string)root.Attribute("viewBox"),
             RootAttributes = root.Attributes().Where(x => x.Name.LocalName != "viewBox")
                 .ToDictionary(x => x.Name.LocalName, x => x.Value),
             Content = string.Concat(root.Nodes().Select(x => x.ToString(SaveOptions.DisableFormatting)))

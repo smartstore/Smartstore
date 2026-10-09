@@ -24,6 +24,11 @@ public sealed record IconLibrary
     public string DisplayName { get; init; } = string.Empty;
 
     /// <summary>
+    /// Gets the optional icon address representing this library in pickers. Null uses the generic library icon.
+    /// </summary>
+    public string? Icon { get; init; }
+
+    /// <summary>
     /// Gets the installed library version.
     /// </summary>
     public string Version { get; init; } = string.Empty;
@@ -70,6 +75,11 @@ public sealed record IconVariant
     /// Gets the optional display name for variant selection. Null when no display name is configured.
     /// </summary>
     public string? DisplayName { get; init; }
+
+    /// <summary>
+    /// Gets the optional icon address representing this variant in pickers. Null inherits the library icon.
+    /// </summary>
+    public string? Icon { get; init; }
 
     /// <summary>
     /// Gets an optional short name, unique within its library.

@@ -267,8 +267,10 @@ visual review because the default HI variant is stroke-based.
 ## Bootstrap Icons to HugeIcons
 
 Source names refer to the legacy Bootstrap TagHelper or sprite, including original
-`-fill` suffixes. The imported BI library removes that terminal suffix within its
-solid variant, but this table keeps the old names for migration lookup.
+`fill` tokens. The imported BI library preserves all upstream names unchanged in its
+single `default` variant, including both terminal `-fill` and interior `-fill-` names.
+Use `bi:alarm-fill@default`, for example. The former synthetic `light` and `solid`
+variants no longer exist. See the [BI import recipe](bootstrap/README.md).
 
 | Source BI icon name | HI target | Concept |
 | --- | --- | --- |

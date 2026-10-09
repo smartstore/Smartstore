@@ -1,17 +1,12 @@
 {
   "displayName": "Bootstrap Icons",
+  "icon": "bi:bootstrap@default",
   "version": "1.13.2",
   "shortName": "bi",
-  "defaultVariant": "light",
+  "defaultVariant": "default",
   "variants": {
-    "light": {
-      "displayName": "Light",
-      "shortName": "l",
-      "defaultViewBox": "0 0 16 16"
-    },
-    "solid": {
-      "displayName": "Solid",
-      "shortName": "s",
+    "default": {
+      "icon": null,
       "defaultViewBox": "0 0 16 16"
     }
   }

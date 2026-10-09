@@ -1,0 +1,74 @@
+@using Smartstore.Core.Content.Media.Icons
+@inject IIconService Icons
+@inject IIconKitService Kits
+
+@{
+    var defaultLibraryName = Icons.DefaultLibrary.SystemName;
+    var libraries = (await Icons.GetLibrariesAsync())
+        .Where(x => !x.SystemName.Equals("system", StringComparison.OrdinalIgnoreCase))
+        .OrderBy(x => x.SystemName.Equals(defaultLibraryName, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+        .ThenBy(x => x.DisplayName).ToArray();
+    var kits = Kits.Kits.OrderBy(x => x.Name == "shared" ? 0 : 1).ThenBy(x => x.Name).ToArray();
+    var defaultLibrary = libraries.FirstOrDefault();
+    var initialKit = kits.FirstOrDefault(x => x.Name == "shared");
+}
+
+<script src="~/admin/js/smartstore.iconbrowser.js" sm-target-zone="scripts" sm-key="iconbrowser"></script>
+
+<div class="icon-browser" data-search-url="@Url.Action("Browse", "Icon", new { area = "" })">
+    <div class="row gx-2">
+        <div class="col-3 dropdown icon-browser-source">
+            <button type="button" class="btn btn-secondary dropdown-toggle btn-block"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Select an icon source">
+                <span class="text-truncate icon-browser-source-label">Select source</span>
+            </button>
+            <div class="dropdown-menu icon-browser-sources scrollbar-thin">
+                @if (kits.Length > 0)
+                {
+                    <h6 class="dropdown-header">Kits</h6>
+                    @foreach (var kit in kits)
+                    {
+                        var kitLabel = kit.Name.Titleize();
+                        var kitIcon = kit.Icon ?? "box";
+                        <button type="button" class="dropdown-item" data-kit="@kit.Name" data-label="@kitLabel"
+                                data-initial="@(kit == initialKit ? "true" : null)" title="@kitLabel">
+                            <icon name="@kitIcon" aria-hidden="true" />
+                            <span>@kitLabel</span>
+                            <span class="small text-success fwm pl-3 ml-auto">@kit.Icons.Count.ToString("N0")</span>
+                        </button>
+                    }
+                }
+                @if (libraries.Length > 0)
+                {
+                    <h6 class="dropdown-header @(kits.Length > 0 ? "mt-2" : null)">Libraries</h6>
+                }
+                @foreach (var library in libraries)
+                {
+                    var libraryLabel = library.DisplayName.HasValue() ? library.DisplayName : library.SystemName.Titleize();
+                    @foreach (var variant in library.Variants.Values.OrderBy(x => x.DisplayName ?? x.Name))
+                    {
+                        var variantLabel = variant.Name.EqualsNoCase("default")
+                            ? null : (variant.DisplayName ?? variant.Name).Titleize();
+                        var variantSuffix = variantLabel.HasValue() ? " " + variantLabel : string.Empty;
+                        var sourceLabel = libraryLabel + variantSuffix;
+                        var buttonLabel = (variantLabel.HasValue() && variant.DisplayName.HasValue() && library.ShortName.HasValue()
+                            ? library.ShortName.ToUpperInvariant() : libraryLabel) + variantSuffix;
+                        var sourceIcon = variant.Icon ?? library.Icon ?? "layers";
+                        <button type="button" class="dropdown-item" data-lib="@library.SystemName" data-variant="@variant.Name"
+                                data-label="@sourceLabel" data-button-label="@buttonLabel" title="@sourceLabel"
+                                data-initial="@(initialKit == null && library == defaultLibrary && variant.Name == library.DefaultVariant ? "true" : null)">
+                            <icon name="@sourceIcon" aria-hidden="true" />
+                            <span>@sourceLabel</span>
+                            <span class="small text-success fwm pl-3 ml-auto">@Icons.GetIconCount(library.SystemName, variant.Name).ToString("N0")</span>
+                        </button>
+                    }
+                }
+            </div>
+        </div>
+        <div class="col-9">
+            <select class="icon-browser-select noskin" aria-label="Icon" data-placeholder="Search icons" disabled>
+                <option></option>
+            </select>
+        </div>
+    </div>
+</div>

@@ -63,8 +63,9 @@ public sealed class IconKit
     /// <param name="defaultLibrary">The optional default library system name.</param>
     /// <param name="defaultVariant">The optional default variant within the kit default library.</param>
     /// <param name="sources">Optional concrete source addresses keyed by names present in <paramref name="icons"/>. Source names are not mapped again.</param>
+    /// <param name="icon">The optional icon address representing this kit in pickers. Null uses the generic kit icon.</param>
     public IconKit(string name, IEnumerable<string> icons, string? defaultLibrary = null, string? defaultVariant = null,
-        IReadOnlyDictionary<string, string>? sources = null)
+        IReadOnlyDictionary<string, string>? sources = null, string? icon = null)
     {
         Guard.NotEmpty(name);
 
@@ -101,12 +102,18 @@ public sealed class IconKit
         SourceAddresses = addresses;
         DefaultLibrary = defaultLibrary;
         DefaultVariant = defaultVariant;
+        Icon = icon;
     }
 
     /// <summary>
     /// Gets the configured name.
     /// </summary>
     public string Name { get; }
+
+    /// <summary>
+    /// Gets the optional icon address representing this kit in pickers. It does not add a kit member.
+    /// </summary>
+    public string? Icon { get; }
 
     /// <summary>
     /// Gets the complete list of conceptual names belonging to this kit.

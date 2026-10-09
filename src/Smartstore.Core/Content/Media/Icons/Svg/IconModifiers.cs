@@ -37,6 +37,25 @@ internal readonly record struct IconModifiers
         => new(FlipX ?? fallback.FlipX, FlipY ?? fallback.FlipY, Rotation ?? fallback.Rotation);
 
     /// <summary>
+    /// Formats an explicit source address, optionally retaining its resolved presentation modifiers.
+    /// </summary>
+    /// <param name="icon">The resolved source and presentation.</param>
+    /// <param name="includeModifiers">Whether to include transforms and the stroke multiplier.</param>
+    internal static string FormatAddress(IconInfo icon, bool includeModifiers = false)
+    {
+        var address = new IconAddress(icon.Name, icon.LibraryKey, icon.VariantKey, skipMapping: true).ToString();
+        if (!includeModifiers)
+        {
+            return address;
+        }
+
+        var flip = icon.Transform.FlipX ? (icon.Transform.FlipY ? "xy" : "x") : (icon.Transform.FlipY ? "y" : "none");
+        return address + "?flip=" + flip
+            + "&rotate=" + icon.Transform.Rotation.ToString("R", CultureInfo.InvariantCulture)
+            + "&stroke-scale=" + icon.StrokeScale.ToString("R", CultureInfo.InvariantCulture);
+    }
+
+    /// <summary>
     /// Parses a modifier query without allocating parameter arrays or a duplicate-key set.
     /// </summary>
     /// <param name="query">The query following the question mark.</param>

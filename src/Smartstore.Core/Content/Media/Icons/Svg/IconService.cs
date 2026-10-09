@@ -8,7 +8,7 @@ namespace Smartstore.Core.Content.Media.Icons;
 /// </summary>
 /// <param name="applicationContext">Provides the application data file system containing the Icons source directory.</param>
 /// <param name="cache">Stores prepared SVG payloads by canonical address and content revision.</param>
-public sealed class IconService(IApplicationContext applicationContext, IIconCache cache) : IIconService
+public sealed partial class IconService(IApplicationContext applicationContext, IIconCache cache) : IIconService
 {
     private readonly Lock _sync = new();
     private IconCatalog _catalog;
@@ -51,6 +51,13 @@ public sealed class IconService(IApplicationContext applicationContext, IIconCac
         cancelToken.ThrowIfCancellationRequested();
         IReadOnlyList<IconLibrary> result = Catalog.Libraries.Values.Distinct().Select(x => x.Manifest).ToArray();
         return Task.FromResult(result);
+    }
+
+    /// <inheritdoc />
+    public int GetIconCount(string library = null, string variant = null)
+    {
+        var catalog = Catalog;
+        return SelectVariant(catalog, SelectLibrary(catalog, library), variant)?.Names.Count ?? 0;
     }
 
     /// <inheritdoc />
@@ -141,44 +148,51 @@ public sealed class IconService(IApplicationContext applicationContext, IIconCac
             return Task.FromResult(new IconSearchResult());
         }
 
-        var words = (query.Term ?? string.Empty).Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
-        IReadOnlyCollection<string> names = variant.Names;
-        if (words.Length > 0)
-        {
-            // Search only available icons. Each word can match a name, tag or
-            // conceptual alias; different words may match different fields.
-            var aliases = library.Mapping.ToLookup(x => x.Value.Name, x => x.Key, StringComparer.Ordinal);
-            var metadata = library.Tags;
-            var matches = new List<string>();
-            foreach (var name in variant.Names)
-            {
-                var tags = metadata.GetValueOrDefault(name) ?? [];
-                if (words.All(word => name.Contains(word, StringComparison.OrdinalIgnoreCase)
-                    || tags.Any(tag => tag.Contains(word, StringComparison.OrdinalIgnoreCase))
-                    || aliases[name].Any(alias => alias.Contains(word, StringComparison.OrdinalIgnoreCase))))
-                {
-                    matches.Add(name);
-                }
-            }
-
-            names = matches;
-        }
-
-        // Empty searches need no tags or mappings. Create metadata only for the
-        // requested page, while retaining the full match count for pagination.
-        var items = new List<IconInfo>();
-        foreach (var name in names.OrderBy(x => x, StringComparer.Ordinal).Skip(query.Skip).Take(query.Take))
-        {
-            items.Add(CreateInfo(library, variant, name));
-        }
-
-        return Task.FromResult(new IconSearchResult
-        {
-            TotalCount = names.Count,
-            Items = items.ToArray()
-        });
+        return Task.FromResult(Search(query, library, variant));
     }
 
+    /// <summary>
+    /// Searches a selected variant from the caller's catalog snapshot without reading SVGs.
+    /// </summary>
+    /// <param name="query">The validated search and pagination options.</param>
+    /// <param name="library">The selected library.</param>
+    /// <param name="variant">The selected variant.</param>
+    internal static IconSearchResult Search(IconSearchQuery query, IconCatalog.Library library, IconCatalog.Variant variant)
+    {
+        ILookup<string, string> aliases = null;
+        var page = FindPage(query, variant.Names, (name, word) =>
+        {
+            // Empty searches do not invoke this predicate or load tags and mappings.
+            aliases ??= library.Mapping.ToLookup(x => x.Value.Name, x => x.Key, StringComparer.Ordinal);
+            return name.Contains(word, StringComparison.OrdinalIgnoreCase)
+                || (library.Tags.GetValueOrDefault(name) ?? []).Any(tag => tag.Contains(word, StringComparison.OrdinalIgnoreCase))
+                || aliases[name].Any(alias => alias.Contains(word, StringComparison.OrdinalIgnoreCase));
+        }, name => name);
+
+        return new IconSearchResult
+        {
+            TotalCount = page.TotalCount,
+            Items = page.Items.Select(name => CreateInfo(library, variant, name)).ToArray()
+        };
+    }
+
+    /// <summary>
+    /// Applies the same word matching and pagination to library names and resolved kit entries.
+    /// Each word may match a different field; only the requested page needs full icon metadata.
+    /// </summary>
+    /// <typeparam name="T">The lightweight source entry.</typeparam>
+    /// <param name="query">The validated search and pagination options.</param>
+    /// <param name="entries">The available entries.</param>
+    /// <param name="matches">Checks one word against an entry's searchable fields.</param>
+    /// <param name="orderBy">The ordinal sort key, or null when entries are already ordered.</param>
+    internal static (int TotalCount, T[] Items) FindPage<T>(IconSearchQuery query, IReadOnlyCollection<T> entries,
+        Func<T, string, bool> matches, Func<T, string> orderBy = null)
+    {
+        var words = (query.Term ?? string.Empty).Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
+        var filtered = words.Length == 0 ? entries : entries.Where(entry => words.All(word => matches(entry, word))).ToArray();
+        IEnumerable<T> ordered = orderBy == null ? filtered : filtered.OrderBy(orderBy, StringComparer.Ordinal);
+        return (filtered.Count, ordered.Skip(query.Skip).Take(query.Take).ToArray());
+    }
 
     private static IconInfo Find(IconCatalog catalog, string name, string libraryName, string variantName)
     {

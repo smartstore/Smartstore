@@ -98,6 +98,9 @@ Each library contains a `library.json`:
 ```
 
 - `displayName` is the human-readable library name.
+- `icon` optionally supplies an icon address for the library's picker entry. Each
+  variant can override it with its own `icon`. Omission or null inherits the library
+  icon; without either setting, the picker uses `layers`.
 - `version` identifies the installed library version.
 - `shortName` is optional, for example `hi`, `bi`, or `fa`. It must be unique
   across libraries and must not shadow another library's system name.
@@ -254,7 +257,7 @@ SVG sources support static geometry, groups, local references, gradients, clips
 and masks. Scripts, event handlers, external references, embedded HTML and source
 style declarations are rejected. Each SVG is limited to 1 MiB, and each archive
 to 256 MiB both before and after decompression. Use presentation attributes in
-custom SVGs. The renderer removes root width/height attributes and moves root stroke attributes to children, preserving inheritance and leaving the root free of stroke attributes. The optional stroke setting supplies the stroke color fallback. Stroke widths are multiplied by the variant strokeWidthScale; inherited values are not multiplied again. Changes to library.json invalidate the SVG cache revision. Geometry, descendant line caps and all source fill attributes remain unchanged. Generated inline styles expose `--icon-stroke` and `--icon-stroke-width`. Corresponding presentation attributes are removed only after their fallback is stored in the generated style; `none` and inherited declarations that are not converted remain intact. A CSS variable overrides the configured/source fallback; `--icon-stroke-width` is an absolute width, not an additional multiplier. Explicit `none` strokes remain untouched. For example, `<icon name="hi:search-01" style="--icon-stroke: red; --icon-stroke-width: 2" />` overrides both for one render without changing the cached payload.
+custom SVGs. The parser removes source root `class` attributes for all libraries; descendant classes remain intact, and renderer/caller classes are applied afterwards. The parser removes root width/height attributes and moves root stroke attributes to children, preserving inheritance and leaving the root free of stroke attributes. The optional stroke setting supplies the stroke color fallback. Stroke widths are multiplied by the variant strokeWidthScale; inherited values are not multiplied again. Changes to library.json invalidate the SVG cache revision. Geometry, descendant line caps and all source fill attributes remain unchanged. Generated inline styles expose `--icon-stroke` and `--icon-stroke-width`. Corresponding presentation attributes are removed only after their fallback is stored in the generated style; `none` and inherited declarations that are not converted remain intact. A CSS variable overrides the configured/source fallback; `--icon-stroke-width` is an absolute width, not an additional multiplier. Explicit `none` strokes remain untouched. For example, `<icon name="hi:search-01" style="--icon-stroke: red; --icon-stroke-width: 2" />` overrides both for one render without changing the cached payload.
 
 The first catalog access reads only root configuration and library manifests. All
 manifests are needed to resolve short names and reject ambiguous selectors. Mappings
@@ -391,8 +394,8 @@ object assigns concrete SVG addresses to members that differ from the defaults:
   "defaultVariant": "brands",
   "icons": ["alexa", "apple", "microsoft-teams"],
   "sources": {
-    "alexa": "bi:alexa@light",
-    "microsoft-teams": "bi:microsoft-teams@light"
+    "alexa": "bi:alexa@default",
+    "microsoft-teams": "bi:microsoft-teams@default"
   }
 }
 ```
@@ -405,7 +408,7 @@ uses its own default variant unless the source names one explicitly.
 
 Source values identify concrete artwork and are never run through library mapping
 again. The concept and actual source name can differ, for example
-`"assistant": "bi:alexa@light"`; the public symbol remains `#assistant`. A trailing
+`"assistant": "bi:alexa@default"`; the public symbol remains `#assistant`. A trailing
 `!` on a source name is accepted but unnecessary. Query modifiers belong in library
 mappings, not source addresses. Members without a source override retain ordinary
 library mapping, including its modifiers.
@@ -467,7 +470,7 @@ are served without loading their contents into the multilevel or Redis cache.
 The icon file cache is organized below `App_Data/.cache/icons`:
 
 - `kits/` contains generated kit sprites and revisioned browser manifests.
-- `browser/` is reserved for the future icon picker; it is not used yet.
+- `browser/` contains complete variant sprites generated on demand by IconBrowser.
 
 A cache miss opens each participating variant ZIP once, one variant at a time,
 and processes SVGs individually; no
@@ -825,7 +828,7 @@ manifest contains kit URLs, directly renderable concepts and compact DOM identit
       "defaultVariant": "b",
       "icons": ["alexa", "apple", "browser-chrome"],
       "sources": {
-        "alexa": "bi:alexa@l",
+        "alexa": "bi:alexa@default",
         "browser-chrome": "chrome"
       }
     }
@@ -840,8 +843,8 @@ contains only identities differing from `defaultLibrary:concept@defaultVariant`.
 These are final metadata patches, not mappings to apply: omitted qualifiers inherit
 the kit's metadata defaults, even when the library differs. Source names are exact;
 qualifiers in `data-icon` are lowercased to match the server's canonical address.
-For example, `alexa` renders the `#alexa` symbol but carries `bi:alexa@l` and the
-classes `icon-bi icon-bi-l`. Library catalogs, resolution rules, SVG drawings and
+For example, `alexa` renders the `#alexa` symbol but carries `bi:alexa@default` and the
+classes `icon-bi icon-bi-default`. Library catalogs, resolution rules, SVG drawings and
 search tags remain server-side. Each concept appears only in its preferred kit. Concepts requiring a stroke multiplier and unavailable kits are omitted.
 Mapping rotations and flips are already baked into the symbols.
 
@@ -881,6 +884,65 @@ and reports invalid children through `icon-error`.
 Vue applications can call `app.use(Smartstore.Icons)` before mounting. The plugin
 recognizes only these two custom-element names and preserves existing compiler rules.
 The DataGrid already installs it. No Vue dependency is required by the components.
+
+## IconBrowser preview picker
+
+The admin `IconBrowser` partial is currently used only by the icon cheatsheet. It does
+not replace the existing Font Awesome picker or change persisted application values.
+The source dropdown has two groups: Kits and Libraries. Library variants are flat entries
+such as "HugeIcons Stroke Rounded", with the default library first. A variant named
+`default` adds no variant label; BI therefore appears as "Bootstrap Icons" in both the dropdown and button. Without a variant display name, the button retains the full library name. Each entry shows its icon count as small, semibold text using `text-success`.
+Option icons come from `variants.<name>.icon`, then the library-level `icon`, then
+the generic `layers` concept. Kit objects in `kits.json` accept the same optional
+`icon` property and fall back to `box`. These presentation icons do not add members
+to a kit. Addresses use normal icon resolution, including mappings and modifiers;
+omitted qualifiers use system defaults, not the represented kit or library's defaults.
+Prefer fully qualified addresses such as `hi:settings-01!@sr` for stable shipped
+defaults. The optional `!` bypasses mapping. Configuration changes are picked up
+by the catalog watcher; reopen the page to refresh the server-rendered dropdown.
+The `system` library is excluded. Library and variant display names are used when
+available, with name fallbacks; the compact source button carries the full selection
+in its `title`. The adjacent Select2 displays a responsive icon grid with 24px previews
+by default. A 16/24/32 size switch beside the search field updates previews without requests
+and retains its selection for the lifetime of the picker instance. The grid shows icons
+and small, truncated names below them. Tooltips show the full names. Search feedback
+and pagination messages span the grid; the closed selection keeps icon and name in one row.
+
+`IIconBrowser.SearchAsync` prepares the selected source and returns metadata for one
+page. `/icons/browser/search` adapts it to Select2's 50-item AJAX pages, with search
+and infinite scrolling. Choosing a source prepares its sprite immediately; it does
+not wait for the results dropdown to open. Source changes discard previous searches
+and results. A loading state covers first-time generation; failures can be retried
+by selecting the source again.
+
+Kit options display and return concept names. Library options display literal icon
+names and return qualified direct addresses such as `hi:shopping-cart-01!@sr`, so a
+later mapping cannot silently replace the selected artwork. Kits search concept
+names, actual source names and tags within the selected kit. Library search uses the
+existing name, conceptual alias and tag search. Only the requested page is returned.
+
+Kits use their normal sprites in `.cache/icons/kits`. Library browsing generates a
+complete sprite for the selected variant in `App_Data/.cache/icons/browser`, using
+all discovered names from `user`, `icons` and `icons.zip` with normal override priority.
+The same SVG preparation and sprite writer serve kits and browser variants. Prepared
+XML trees go directly into sprite composition without serialization and reparsing.
+Only the individual SVG cache path serializes prepared drawings into `IconSvg`. Each
+archive is opened once for the sequential write, and individual SVG payloads never
+enter `IIconCache`. Only source descriptors and name indexes survive generation.
+
+`IconBrowser` only selects a source and adapts results for the picker. Library search
+and complete variant preparation belong to `IconService`; kit search and preparation
+belong to `IconKitService`. Both searches share word matching and pagination. The
+shared sprite writer and atomic file publisher also keep file handling out of the
+browser adapter. A browsing request retains one catalog generation throughout.
+
+Variant sprites are served at `/icons/browser/{library}/{variant}/{revision}.svg`.
+They are published atomically, shared by concurrent requests and cached by the browser
+using immutable revision URLs. Source changes create a new revision; historical files
+remain available while the source selection is registered. Automatic cleanup is deferred.
+Search responses use `no-store`; each result page shares one sprite URL. Mapping stroke
+multipliers are the existing exception: those kit rows use the web component's inline
+rendering path, preserving the modifier without altering the kit sprite.
 
 ## Inspect cached inline icons
 

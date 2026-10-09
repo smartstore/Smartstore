@@ -3,6 +3,7 @@ using System.Collections.Frozen;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Xml.Linq;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 using Smartstore.Json;
@@ -38,12 +39,17 @@ internal sealed class IconCatalog
     /// <summary>
     /// Indexes already resolved plans by kit and opaque revision.
     /// </summary>
-    internal ConcurrentDictionary<string, IconKitIndex.Plan> KitRevisions { get; } = new(StringComparer.Ordinal);
+    internal ConcurrentDictionary<string, IconSprite> KitRevisions { get; } = new(StringComparer.Ordinal);
 
     /// <summary>
     /// Bounds cold endpoint recovery to one metadata scan per configured kit and generation.
     /// </summary>
     internal ConcurrentDictionary<string, Lazy<bool>> RecoveredKits { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Keeps full-variant sprite plans deferred until a picker source is selected.
+    /// </summary>
+    internal ConcurrentDictionary<string, Lazy<IconSprite>> VariantSprites { get; } = new(StringComparer.Ordinal);
 
     /// <summary>
     /// Gets libraries indexed by both system name and optional short name.
@@ -177,7 +183,8 @@ internal sealed class IconCatalog
         internal IconSvg Prepare(IconInfo info, Source source, string revision)
         {
             using var reader = OpenReader();
-            return reader.Prepare(info, source, revision);
+            var root = reader.Read(info, source);
+            return root == null ? null : IconSvgParser.CreatePayload(root, info, revision);
         }
 
         /// <summary>
@@ -206,12 +213,11 @@ internal sealed class IconCatalog
             }
 
             /// <summary>
-            /// Prepares one source, retaining only ZIP metadata between calls.
+            /// Reads and prepares one source as XML owned by the caller, retaining only ZIP metadata between calls.
             /// </summary>
             /// <param name="info">The resolved icon identity.</param>
             /// <param name="source">The source descriptor established during lookup.</param>
-            /// <param name="revision">The prepared payload revision.</param>
-            internal IconSvg Prepare(IconInfo info, Source source, string revision)
+            internal XElement Read(IconInfo info, Source source)
             {
                 if (source.OverrideHash != null)
                 {
@@ -223,7 +229,7 @@ internal sealed class IconCatalog
                     }
 
                     stream.Position = 0;
-                    return IconSvgParser.Parse(stream, info, _variant.Manifest, revision);
+                    return IconSvgParser.Parse(stream, info, _variant.Manifest);
                 }
 
                 if (_zip == null)
@@ -248,7 +254,7 @@ internal sealed class IconCatalog
                 }
 
                 using var svgStream = entry.Open();
-                return IconSvgParser.Parse(svgStream, info, _variant.Manifest, revision);
+                return IconSvgParser.Parse(svgStream, info, _variant.Manifest);
             }
 
             /// <summary>
@@ -462,7 +468,9 @@ internal sealed class IconCatalog
                 var sources = isObject && definition.TryGetProperty("sources", out var kitSources)
                     ? kitSources.EnumerateObject().ToDictionary(x => x.Name, x => x.Value.GetString(), StringComparer.Ordinal)
                     : null;
-                var iconKit = new IconKit(kit.Name, names, libraryName, variantName, sources);
+                var icon = isObject && definition.TryGetProperty("icon", out var kitIcon)
+                    ? kitIcon.GetString() : null;
+                var iconKit = new IconKit(kit.Name, names, libraryName, variantName, sources, icon);
                 foreach (var address in iconKit.SourceAddresses.Values)
                 {
                     var entryLibrary = IconService.SelectLibrary(catalog, address.Library ?? libraryName);

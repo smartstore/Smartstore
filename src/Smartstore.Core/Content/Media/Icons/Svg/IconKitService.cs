@@ -3,7 +3,6 @@ using System.Text.Json;
 using Smartstore.Json;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Engine;
-using Smartstore.Threading;
 
 namespace Smartstore.Core.Content.Media.Icons;
 
@@ -24,7 +23,7 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
     public async Task<string> GetManifestFileAsync(string revision, CancellationToken cancelToken = default)
     {
         cancelToken.ThrowIfCancellationRequested();
-        if (revision == null || revision.Length != 24 || revision.Any(c => !(c is >= '0' and <= '9' or >= 'a' and <= 'f')))
+        if (!IconFileCache.IsRevision(revision))
         {
             return null;
         }
@@ -43,37 +42,14 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
             return null;
         }
 
-        using (await AsyncLock.KeyedAsync("icons:manifest:" + path, cancelToken: cancelToken))
+        return await IconFileCache.PublishAsync(path, async (stream, token) =>
         {
-            if (!File.Exists(path))
+            await stream.WriteAsync(manifest.Content, token);
+            if (catalog.ChangeToken.HasChanged)
             {
-                Directory.CreateDirectory(directory);
-                var temporary = Path.Combine(directory, Guid.NewGuid().ToString("N") + ".tmp");
-                try
-                {
-                    await File.WriteAllBytesAsync(temporary, manifest.Content, cancelToken);
-                    if (catalog.ChangeToken.HasChanged)
-                    {
-                        throw new IOException("Icon sources changed during manifest creation. Retry after catalog reload.");
-                    }
-
-                    try
-                    {
-                        File.Move(temporary, path);
-                    }
-                    catch (IOException) when (File.Exists(path))
-                    {
-                        // Another process published the same immutable revision.
-                    }
-                }
-                finally
-                {
-                    File.Delete(temporary);
-                }
+                throw new IOException("Icon sources changed during manifest creation. Retry after catalog reload.");
             }
-        }
-
-        return path;
+        }, cancelToken);
     }
 
     private static (string Revision, byte[] Content) GetManifest(IconCatalog catalog)
@@ -176,6 +152,13 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
             index = GetIndex(catalog, library, variant);
         }
 
+        if (!index.CanGenerate(member.Kit))
+        {
+            // Explicit selections can match one symbol without being able to supply
+            // the whole kit. Let the renderer use the individual source in that case.
+            return null;
+        }
+
         var plan = index.Plans[member.Kit].Value;
         return new IconKitReference(BuildUrl(member.Kit, plan.Revision)
             + "#" + Uri.EscapeDataString(member.Symbol));
@@ -207,7 +190,7 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
         cancelToken.ThrowIfCancellationRequested();
         // Only revision hashes may enter physical filenames; arbitrary request input must
         // neither escape the cache directory nor trigger generation for invented revisions.
-        if (!IconAddress.IsQualifier(kitName) || revision == null || revision.Length != 24 || revision.Any(c => !(c is >= '0' and <= '9' or >= 'a' and <= 'f')))
+        if (!IconAddress.IsQualifier(kitName) || !IconFileCache.IsRevision(revision))
         {
             return null;
         }
@@ -241,41 +224,38 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
             }
         }
 
-        using (await AsyncLock.KeyedAsync("icons:kit:" + path, cancelToken: cancelToken))
+        return await plan.PublishAsync(path, cancelToken);
+    }
+
+    /// <summary>
+    /// Prepares a kit and searches its own resolved concepts, source names and tags.
+    /// </summary>
+    /// <param name="catalog">The source generation retained for the entire operation.</param>
+    /// <param name="kitName">The configured kit name.</param>
+    /// <param name="query">The validated search and pagination options.</param>
+    internal async Task<(string Url, int TotalCount, (string Concept, IconInfo Info)[] Items)?> SearchAsync(
+        IconCatalog catalog, string kitName, IconSearchQuery query, CancellationToken cancelToken)
+    {
+        if (!catalog.Kits.TryGetValue(kitName, out var kit))
         {
-            if (File.Exists(path))
-            {
-                return path;
-            }
-
-            Directory.CreateDirectory(directory);
-            var temporaryPath = Path.Combine(directory, Guid.NewGuid().ToString("N") + ".tmp");
-            try
-            {
-                // Write beside the destination so publication is an atomic rename on the same volume.
-                // Only the current icon's XML tree is held while the sprite streams to disk.
-                using (var stream = new FileStream(temporaryPath, FileMode.CreateNew, FileAccess.Write, FileShare.None))
-                {
-                    plan.Write(stream, cancelToken);
-                }
-
-                cancelToken.ThrowIfCancellationRequested();
-                try
-                {
-                    File.Move(temporaryPath, path);
-                }
-                catch (IOException) when (File.Exists(path))
-                {
-                    // Another process sharing this directory published the identical revision first.
-                }
-            }
-            finally
-            {
-                File.Delete(temporaryPath);
-            }
+            return null;
         }
 
-        return path;
+        var library = IconService.SelectLibrary(catalog, kit.DefaultLibrary);
+        var variant = IconService.SelectVariant(catalog, library, null, kit);
+        var index = GetIndex(catalog, library, variant);
+        var sprite = index.Plans[kitName].Value;
+        var path = Path.Combine(applicationContext.AppDataRoot.Root, ".cache", "icons", "kits", kitName + "-" + sprite.Revision + ".svg");
+        await sprite.PublishAsync(path, cancelToken);
+
+        // Search the selected kit, not global concept precedence. Empty searches load no tags.
+        var page = IconService.FindPage(query, index.Entries[kitName], (entry, word) =>
+            entry.Concept.Contains(word, StringComparison.OrdinalIgnoreCase)
+            || entry.Mapping.Name.Contains(word, StringComparison.OrdinalIgnoreCase)
+            || (entry.Library.Tags.GetValueOrDefault(entry.Mapping.Name) ?? [])
+                .Any(tag => tag.Contains(word, StringComparison.OrdinalIgnoreCase)));
+        return (BuildUrl(kitName, sprite.Revision), page.TotalCount,
+            page.Items.Select(entry => (entry.Concept, entry.CreateInfo())).ToArray());
     }
 
     /// <summary>
@@ -322,7 +302,7 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
     /// <param name="catalog">The current source generation.</param>
     /// <param name="library">The selected library.</param>
     /// <param name="variant">The selected variant.</param>
-    private static IconKitIndex GetIndex(IconCatalog catalog, IconCatalog.Library library, IconCatalog.Variant variant)
+    internal static IconKitIndex GetIndex(IconCatalog catalog, IconCatalog.Library library, IconCatalog.Variant variant)
         => catalog.KitIndexes.GetOrAdd(library.Manifest.SystemName + ":" + variant.Manifest.Name,
             _ => new Lazy<IconKitIndex>(() => new IconKitIndex(catalog, library, variant))).Value;
 

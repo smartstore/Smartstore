@@ -691,6 +691,13 @@
     </div>
 
     <div class="px-3 pb-5">
+        <section class="mb-5" aria-labelledby="icon-browser-title">
+            <h2 id="icon-browser-title" class="h4">IconBrowser</h2>
+            <div style="max-width: 600px">
+                @await Html.PartialAsync("IconBrowser")
+            </div>
+        </section>
+
         @await Html.PartialAsync("_IconCheatsheetUtilities")
 
         <section class="mb-5" aria-labelledby="iconkit-preview-title">

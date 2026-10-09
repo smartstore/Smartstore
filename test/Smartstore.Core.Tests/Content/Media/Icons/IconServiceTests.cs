@@ -510,6 +510,19 @@ public class IconServiceTests
     }
 
     /// <summary>
+    /// Removes source root classes while retaining classes inside the drawing.
+    /// </summary>
+    [Test]
+    public async Task Svg_Drops_Source_Root_Classes_Only()
+    {
+        Write("Icons/hugeicons/rounded/icons/cart-01.svg",
+            """<svg viewBox="0 0 24 24" class="vendor vendor-cart"><path class="drawing" d="M0 0L1 1"/></svg>""");
+        var svg = await _service.GetSvgAsync("cart");
+        Assert.That(svg.RootAttributes.ContainsKey("class"), Is.False);
+        Assert.That(XElement.Parse("<svg>" + svg.Content + "</svg>").Element("path").Attribute("class").Value, Is.EqualTo("drawing"));
+    }
+
+    /// <summary>
     /// Finds actual names, tags and conceptual names, with total count before paging.
     /// </summary>
     [TestCase("basket")]
@@ -1869,6 +1882,251 @@ public class IconServiceTests
         Assert.That(kits.GetManifestUrl(), Is.Not.EqualTo(before));
         Assert.That(kits.GetUrl("shared"), Is.Not.EqualTo(beforeSprite));
         _cache.VerifyNoOtherCalls();
+    }
+
+    /// <summary>
+    /// The first small result page prepares all variant icons once, retaining override priority and literal names.
+    /// </summary>
+    [Test]
+    public async Task Browser_Prepares_Complete_Variant_Once_Without_Individual_Cache()
+    {
+        Write("Icons/hugeicons/rounded/icons/custom.svg", _svg);
+        Write("Icons/hugeicons/rounded/user/cart-01.svg", """<svg viewBox="0 0 16 16"><path d="M3 3L9 9"/></svg>""");
+        var http = new DefaultHttpContext();
+        http.Request.PathBase = "/shop";
+        var accessor = new HttpContextAccessor { HttpContext = http };
+        var kits = new IconKitService(_service, _context.Object, accessor);
+        var browser = new IconBrowser(_service, kits, accessor);
+        var query = new IconSearchQuery { Library = "hi", Variant = "sr", Take = 1 };
+        var pages = await Task.WhenAll(Enumerable.Range(0, 4).Select(_ => browser.SearchAsync(query)));
+        var first = pages[0];
+        Assert.That(first.TotalCount, Is.EqualTo(4));
+        Assert.That(first.Items, Has.Count.EqualTo(1));
+        Assert.That(first.Items[0].Value, Is.EqualTo("hi:cart-01!@sr"));
+        Assert.That(first.SpriteUrl, Does.StartWith("/shop/icons/browser/hugeicons/rounded/"));
+        Assert.That(pages.Select(x => x.SpriteUrl).Distinct().Count(), Is.EqualTo(1));
+        var revision = Path.GetFileNameWithoutExtension(first.SpriteUrl);
+        var path = await browser.GetSpriteFileAsync("hi", "sr", revision);
+        Assert.That(Path.GetDirectoryName(path), Is.EqualTo(Path.Combine(_root, ".cache", "icons", "browser")));
+        XNamespace ns = "http://www.w3.org/2000/svg";
+        var sprite = XDocument.Load(path);
+        var symbols = sprite.Root.Elements(ns + "symbol").ToDictionary(x => (string)x.Attribute("id"));
+        Assert.That(symbols.Keys, Is.EquivalentTo(new[] { "cart-01", "custom", "direct", "package-add-01 " }));
+        Assert.That((string)symbols["cart-01"].Attribute("viewBox"), Is.EqualTo("0 0 16 16"));
+        Assert.That(_sourceLookups["Icons/hugeicons/rounded/icons.zip"], Is.EqualTo(2), "One index read and one archive open for the entire sprite.");
+        query.Skip = 2;
+        var next = await browser.SearchAsync(query);
+        Assert.That(next.Items[0].Value, Is.EqualTo("hi:direct!@sr"), "The direct -> missing mapping must not affect library browsing.");
+        query.Skip = 0;
+        query.Term = "basket";
+        Assert.That((await browser.SearchAsync(query)).Items[0].Name, Is.EqualTo("cart-01"));
+        Assert.That(_sourceLookups["Icons/hugeicons/rounded/icons.zip"], Is.EqualTo(2));
+        Assert.That(Directory.GetFiles(Path.GetDirectoryName(path)), Has.Length.EqualTo(1));
+        _cache.VerifyNoOtherCalls();
+    }
+
+    /// <summary>
+    /// Kit browsing uses its own sources and tags, preserving conceptual values and inline exceptions.
+    /// </summary>
+    [Test]
+    public async Task Browser_Kit_Preview_Uses_Selected_Kit_And_Only_Stroke_Exceptions_Need_Inline()
+    {
+        Write("Icons/kits.json", """{"shared":{"icons":["cart"],"sources":{"cart":"hi:direct@sr"}},"backend":["cart","thick"]}""");
+        Write("Icons/hugeicons/mapping.json", """{"cart":"cart-01?flip=x","thick":"cart-01?rotate=90&stroke-scale=1.2"}""");
+        var accessor = new HttpContextAccessor();
+        var kits = new IconKitService(_service, _context.Object, accessor);
+        var browser = new IconBrowser(_service, kits, accessor);
+        var result = await browser.SearchAsync(new IconSearchQuery { Term = "basket" }, "backend");
+        Assert.That(result.TotalCount, Is.EqualTo(2));
+        Assert.That(result.Items[0].Name, Is.EqualTo("cart"));
+        Assert.That(result.Items[0].Value, Is.EqualTo("cart"));
+        Assert.That(result.Items[0].Address, Is.EqualTo("hi:cart-01@sr"), "The selected kit, not shared, determines the preview.");
+        Assert.That(result.Items[0].InlineName, Is.Null);
+        var inline = await _service.GetIconAsync(result.Items[1].InlineName);
+        Assert.That(inline.Name, Is.EqualTo("cart-01"));
+        Assert.That(inline.StrokeScale, Is.EqualTo(1.2));
+        Assert.That(inline.Transform.Rotation, Is.EqualTo(90));
+        Assert.That(Directory.GetFiles(Path.Combine(_root, ".cache", "icons", "kits"), "*.svg"), Has.Length.EqualTo(1));
+        Assert.That(Directory.Exists(Path.Combine(_root, ".cache", "icons", "browser")), Is.False);
+        _cache.VerifyNoOtherCalls();
+    }
+
+    /// <summary>
+    /// A source change produces a new picker sprite without replacing historical bytes.
+    /// </summary>
+    [Test]
+    public async Task Browser_Revisions_Follow_Source_Changes_And_Reject_Unknown_Revisions()
+    {
+        var accessor = new HttpContextAccessor();
+        var kits = new IconKitService(_service, _context.Object, accessor);
+        var browser = new IconBrowser(_service, kits, accessor);
+        var query = new IconSearchQuery { Library = "hi", Variant = "sr" };
+        var first = await browser.SearchAsync(query);
+        var revision = Path.GetFileNameWithoutExtension(first.SpriteUrl);
+        var oldPath = await browser.GetSpriteFileAsync("hi", "sr", revision);
+        var bytes = File.ReadAllBytes(oldPath);
+        Write("Icons/hugeicons/rounded/user/new.svg", _svg);
+        SignalChanges();
+        var second = await browser.SearchAsync(query);
+        Assert.That(second.SpriteUrl, Is.Not.EqualTo(first.SpriteUrl));
+        Assert.That(second.TotalCount, Is.EqualTo(first.TotalCount + 1));
+        Assert.That(await browser.GetSpriteFileAsync("hi", "sr", revision), Is.EqualTo(oldPath));
+        Assert.That(File.ReadAllBytes(oldPath), Is.EqualTo(bytes));
+        Assert.That(await browser.GetSpriteFileAsync("hi", "sr", "../invalid"), Is.Null);
+        Assert.That(await browser.GetSpriteFileAsync("hi", "sr", new string('0', 24)), Is.Null);
+        _cache.VerifyNoOtherCalls();
+    }
+
+    /// <summary>
+    /// Hidden system libraries, unknown sources and conflicting source selectors cannot generate sprites.
+    /// </summary>
+    [Test]
+    public async Task Browser_Rejects_Excluded_And_Invalid_Selections()
+    {
+        WriteLibrary("system", "sys", "s");
+        var accessor = new HttpContextAccessor();
+        var browser = new IconBrowser(_service, new IconKitService(_service, _context.Object, accessor), accessor);
+        foreach (var library in new[] { "system", "sys", "unknown" })
+        {
+            Assert.That(await browser.SearchAsync(new IconSearchQuery { Library = library }), Is.Null);
+            Assert.That(await browser.GetSpriteFileAsync(library, "sharp", new string('0', 24)), Is.Null);
+        }
+        Assert.That(await browser.SearchAsync(new IconSearchQuery { Library = "hi", Variant = "unknown" }), Is.Null);
+        Assert.That(await browser.SearchAsync(new IconSearchQuery(), "unknown"), Is.Null);
+        Assert.ThrowsAsync<ArgumentException>(() => browser.SearchAsync(new IconSearchQuery { Library = "hi" }, "shared"));
+        Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => browser.SearchAsync(new IconSearchQuery { Take = 501 }));
+        Assert.That(Directory.Exists(Path.Combine(_root, ".cache")), Is.False);
+        _cache.VerifyNoOtherCalls();
+    }
+
+    /// <summary>
+    /// One matching alternate-library icon must not force generation of an incomplete kit.
+    /// </summary>
+    [Test]
+    public async Task Incomplete_Alternate_Kit_Falls_Back_To_Individual_Rendering()
+    {
+        WriteLibrary("other", "ot", "rd");
+        WriteZip("other", "rounded", ("cart", _svg), ("foreign", _svg));
+        Write("Icons/kits.json", """{"brands":{"defaultLibrary":"other","defaultVariant":"rounded","icons":["cart","foreign"]}}""");
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        var selected = await _service.GetIconAsync("hi:cart@sr");
+        Assert.That(kits.GetReference(selected), Is.Null);
+        var normal = await _service.GetIconAsync("cart");
+        Assert.That(kits.GetReference(normal), Is.Not.Null);
+        _cache.VerifyNoOtherCalls();
+    }
+
+    /// <summary>
+    /// Kit and library searches share word combination, total counts and paging while retaining their own labels.
+    /// </summary>
+    [Test]
+    public async Task Browser_Search_Combines_Fields_And_Pages_Both_Source_Types()
+    {
+        Write("Icons/kits.json", """{"backend":["z-cart","a-cart"]}""");
+        Write("Icons/hugeicons/mapping.json", """{"z-cart":"cart-01","a-cart":"direct"}""");
+        Write("Icons/hugeicons/metadata.json", """{"icons":{"cart-01":{"tags":["basket"]},"direct":{"tags":["basket"]}}}""");
+        var accessor = new HttpContextAccessor();
+        var browser = new IconBrowser(_service, new IconKitService(_service, _context.Object, accessor), accessor);
+        var query = new IconSearchQuery { Term = "CART bask", Skip = 1, Take = 1 };
+        var kit = await browser.SearchAsync(query, "backend");
+        var library = await browser.SearchAsync(query);
+        Assert.That(kit.TotalCount, Is.EqualTo(2));
+        Assert.That(library.TotalCount, Is.EqualTo(2));
+        Assert.That(kit.Items.Single().Name, Is.EqualTo("z-cart"));
+        Assert.That(library.Items.Single().Name, Is.EqualTo("direct"));
+        query.Skip = 2;
+        foreach (var source in new[] { "backend", null })
+        {
+            var page = await browser.SearchAsync(query, source);
+            Assert.That(page.TotalCount, Is.EqualTo(2));
+            Assert.That(page.Items, Is.Empty);
+        }
+        _cache.VerifyNoOtherCalls();
+    }
+
+    /// <summary>
+    /// Empty picker searches must not load supplemental tags for either source type.
+    /// </summary>
+    [TestCase(null)]
+    [TestCase("shared")]
+    public async Task Browser_Empty_Search_Does_Not_Load_Tags(string kit)
+    {
+        Write("Icons/kits.json", """{"shared":["cart"]}""");
+        Write("Icons/hugeicons/metadata.json", "invalid JSON that must remain unread");
+        var accessor = new HttpContextAccessor();
+        var browser = new IconBrowser(_service, new IconKitService(_service, _context.Object, accessor), accessor);
+        var page = await browser.SearchAsync(new IconSearchQuery { Term = "  ", Take = 1 }, kit);
+        Assert.That(page.Items, Has.Count.EqualTo(1));
+        Assert.That(page.TotalCount, Is.EqualTo(kit == null ? 3 : 1));
+        _cache.VerifyNoOtherCalls();
+    }
+
+    /// <summary>
+    /// Failed sprite generation removes temporary files and never exposes a partial kit or variant sprite.
+    /// </summary>
+    [TestCase(null)]
+    [TestCase("shared")]
+    public void Browser_Failed_Sprite_Publication_Leaves_No_Files(string kit)
+    {
+        Write("Icons/kits.json", """{"shared":["cart"]}""");
+        Write("Icons/hugeicons/rounded/user/cart-01.svg", "<svg><path");
+        var accessor = new HttpContextAccessor();
+        var browser = new IconBrowser(_service, new IconKitService(_service, _context.Object, accessor), accessor);
+        Assert.ThrowsAsync<System.Xml.XmlException>(() => browser.SearchAsync(new IconSearchQuery(), kit));
+        var directory = Path.Combine(_root, ".cache", "icons", kit == null ? "browser" : "kits");
+        Assert.That(Directory.GetFiles(directory), Is.Empty);
+        _cache.VerifyNoOtherCalls();
+    }
+
+    /// <summary>
+    /// Direct XML composition preserves root presentation, local references and either source or fallback coordinates.
+    /// </summary>
+    [TestCase(null)]
+    [TestCase("-2 -3 16 16")]
+    public async Task Sprite_Xml_Preserves_Source_Root_And_References(string viewBox)
+    {
+        var coordinates = viewBox == null ? string.Empty : $"viewBox=\"{viewBox}\"";
+        Write("Icons/hugeicons/rounded/user/cart-01.svg", $$"""
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                 id="root" {{coordinates}} preserveAspectRatio="xMinYMin meet" transform="translate(2 3)"
+                 fill="url(#paint)" aria-labelledby="caption" class="bi bi-test" width="16" height="16">
+                <!-- Source comment must be removed. -->
+                <title id="caption">A &amp; B</title>
+                <defs><linearGradient id="paint"><stop offset="0" stop-color="red"/></linearGradient></defs>
+                <g id="shape"><path class="inner" d="M0 0L1 1"/></g>
+                <use xlink:href="#shape"/>
+            </svg>
+            """);
+        Write("Icons/kits.json", """{"shared":["first","second"]}""");
+        Write("Icons/hugeicons/mapping.json", """{"first":"cart-01","second":"cart-01"}""");
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        var path = await kits.GetSpriteFileAsync("shared", kits.GetUrl("shared")[^28..^4]);
+        XNamespace ns = "http://www.w3.org/2000/svg";
+        var xml = XElement.Load(path);
+        var root = xml.Element(ns + "defs").Element(ns + "g").Element(ns + "g");
+        Assert.That((string)root.Attribute("id"), Is.EqualTo("source:0:root"));
+        Assert.That((string)root.Attribute("transform"), Is.EqualTo("translate(2 3)"));
+        Assert.That((string)root.Attribute("fill"), Is.EqualTo("url(#source:0:paint)"));
+        Assert.That((string)root.Attribute("aria-labelledby"), Is.EqualTo("source:0:caption"));
+        Assert.That(root.Element(ns + "title").Value, Is.EqualTo("A & B"));
+        Assert.That((string)root.Element(ns + "use").Attribute("href"), Is.EqualTo("#source:0:shape"));
+        Assert.That(root.Descendants(ns + "path").Count(), Is.EqualTo(1));
+        Assert.That((string)root.Descendants(ns + "path").Single().Attribute("class"), Is.EqualTo("inner"));
+        Assert.That(root.Attributes().Select(x => x.Name.LocalName),
+            Does.Not.Contain("viewBox").And.Not.Contain("preserveAspectRatio").And.Not.Contain("class").And.Not.Contain("width").And.Not.Contain("height"));
+        Assert.That(xml.DescendantNodes().OfType<XComment>(), Is.Empty);
+        var symbols = xml.Elements(ns + "symbol").ToArray();
+        Assert.That(symbols, Has.Length.EqualTo(2));
+        Assert.That(symbols.All(x => (string)x.Attribute("viewBox") == (viewBox ?? "0 0 24 24")), Is.True);
+        Assert.That(symbols.All(x => (string)x.Attribute("preserveAspectRatio") == "xMinYMin meet"), Is.True);
+        _cache.VerifyNoOtherCalls();
+
+        // Sprite composition must not leak its ID prefixes or moved attributes into cached single icons.
+        var payload = await _service.GetSvgAsync("first");
+        Assert.That(payload.ViewBox, Is.EqualTo(viewBox ?? "0 0 24 24"));
+        Assert.That(payload.RootAttributes["id"], Is.EqualTo("root"));
+        Assert.That(payload.RootAttributes["preserveAspectRatio"], Is.EqualTo("xMinYMin meet"));
+        Assert.That(payload.Content, Does.Contain("href=\"#shape\"").And.Not.Contain("source:0:"));
     }
 
     private void WriteLibrary(string name, string shortName, string variantShortName)

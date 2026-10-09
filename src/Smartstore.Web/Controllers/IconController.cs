@@ -13,8 +13,9 @@ namespace Smartstore.Web.Controllers;
 /// <param name="kits">Resolves revisions and generates cached sprites on demand.</param>
 /// <param name="icons">Resolves requested icon addresses and modifiers.</param>
 /// <param name="renderer">Creates kit-backed or inline SVG output.</param>
+/// <param name="browser">Prepares picker sprites and searches available sources.</param>
 [AllowAnonymous]
-public class IconController(IIconKitService kits, IIconService icons, IIconRenderer renderer) : Controller
+public class IconController(IIconKitService kits, IIconService icons, IIconRenderer renderer, IIconBrowser browser) : Controller
 {
     /// <summary>
     /// Serves exactly one kit. Old revisions are never replaced with current content.
@@ -60,6 +61,82 @@ public class IconController(IIconKitService kits, IIconService icons, IIconRende
         Response.Headers.CacheControl = "public,max-age=31536000,immutable";
         Response.Headers["X-Content-Type-Options"] = "nosniff";
         return new PhysicalFileResult(path, "application/json")
+        {
+            EntityTag = new EntityTagHeaderValue('"' + revision + '"')
+        };
+    }
+
+    /// <summary>
+    /// Returns one Select2 page after preparing the selected kit or full-variant sprite.
+    /// </summary>
+    /// <param name="kit">The optional selected kit.</param>
+    /// <param name="lib">The selected library when browsing a variant.</param>
+    /// <param name="variant">The selected library variant.</param>
+    /// <param name="term">The optional search words.</param>
+    /// <param name="page">The one-based page number.</param>
+    [HttpGet("/icons/browser/search")]
+    public async Task<IActionResult> Browse(string kit, string lib, string variant, string term, int page = 1, CancellationToken cancelToken = default)
+    {
+        Response.Headers.CacheControl = "no-store";
+        const int pageSize = 50;
+        if (!ModelState.IsValid || page < 1 || page > int.MaxValue / pageSize || term?.Length > 512)
+        {
+            return BadRequest();
+        }
+
+        try
+        {
+            var result = await browser.SearchAsync(new IconSearchQuery
+            {
+                Library = lib, Variant = variant, Term = term, Skip = (page - 1) * pageSize, Take = pageSize
+            }, kit, cancelToken);
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            return Json(new
+            {
+                spriteUrl = result.SpriteUrl,
+                results = result.Items.Select(x => new
+                {
+                    id = x.Value, text = x.Name, address = x.Address,
+                    library = x.LibraryKey, variant = x.VariantKey, inlineName = x.InlineName
+                }),
+                pagination = new { more = (long)page * pageSize < result.TotalCount },
+                total = result.TotalCount
+            });
+        }
+        catch (ArgumentException)
+        {
+            return BadRequest();
+        }
+        catch (InvalidDataException)
+        {
+            return BadRequest();
+        }
+    }
+
+    /// <summary>
+    /// Serves a complete variant sprite from the independent icon browser file cache.
+    /// </summary>
+    /// <param name="library">The registered library selector.</param>
+    /// <param name="variant">The registered variant selector.</param>
+    /// <param name="revision">The exact sprite content revision.</param>
+    [HttpGet("/icons/browser/{library}/{variant}/{revision:length(24)}.svg")]
+    [HttpHead("/icons/browser/{library}/{variant}/{revision:length(24)}.svg")]
+    public async Task<IActionResult> BrowserSprite(string library, string variant, string revision, CancellationToken cancelToken)
+    {
+        var path = await browser.GetSpriteFileAsync(library, variant, revision, cancelToken);
+        if (path == null)
+        {
+            Response.Headers.CacheControl = "no-store";
+            return NotFound();
+        }
+
+        Response.Headers.CacheControl = "public,max-age=31536000,immutable";
+        Response.Headers["X-Content-Type-Options"] = "nosniff";
+        return new PhysicalFileResult(path, "image/svg+xml")
         {
             EntityTag = new EntityTagHeaderValue('"' + revision + '"')
         };
