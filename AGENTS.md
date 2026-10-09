@@ -112,10 +112,14 @@ Beyond formatting:
 
 - Schema changes are **FluentMigrator** migrations. EF Core migrations are not used.
 - New or changed core and platform locale resources go into
-  `src/Smartstore.Core/Migrations/SmartDbContextDataSeeder.cs`, using the `AddOrUpdate`
-  overload `(key, value, deValue, hint, deHint)` — `value`/`deValue` are the short
-  visible labels, `hint`/`deHint` the help tooltips. That overload appends `.Hint` to
-  the key itself, so pass the bare key and never write the suffix yourself.
+  `src/Smartstore.Core/Migrations/SmartDbContextDataSeeder.cs`.
+  - Without hints, use `AddOrUpdate(key, value, deValue)`; omit the hint arguments
+    instead of passing `null`. Keep calls with two short EN/DE texts on one line.
+  - With hints, use `AddOrUpdate(key, value, deValue, hint, deHint)`. Put the key on
+    the opening line and each of the four text arguments on its own following line.
+    Never put EN and DE texts side by side in a call that includes hints.
+  - `value`/`deValue` are the visible labels; `hint`/`deHint` are the help tooltips.
+    The hint overload appends `.Hint` itself, so pass the bare resource key.
 - Plugin locale resources are an exception: add or change them only in the plugin's
   `Localization/resources.<culture>.xml` files under
   `src/Smartstore.Modules/<Name>/` (including `en-us` and `de-de`). Do not put

@@ -5,10 +5,11 @@
 /// </summary>
 public enum QuantizationMethod
 {
-    Octree,
-    WebSafePalette,
-    WernerPalette,
-    Wu
+    // Keep persisted names and values stable. ImageSharp implements Octree with Hexadecatree.
+    Octree = 0,
+    WebSafePalette = 1,
+    WernerPalette = 2,
+    Wu = 3
 }
 
 /// <summary>
@@ -74,7 +75,22 @@ public enum JpegColorType : byte
     /// <summary>
     /// The pixel data will be preserved as RGB without any sub sampling.
     /// </summary>
-    Rgb = 6
+    Rgb = 6,
+
+    /// <summary>
+    /// YCbCr with half horizontal chroma resolution and full vertical chroma resolution.
+    /// </summary>
+    YCbCrRatio422 = 2,
+
+    /// <summary>
+    /// YCbCr with quarter horizontal chroma resolution and full vertical chroma resolution.
+    /// </summary>
+    YCbCrRatio411 = 3,
+
+    /// <summary>
+    /// YCbCr with quarter horizontal chroma resolution and half vertical chroma resolution.
+    /// </summary>
+    YCbCrRatio410 = 4
 }
 
 /// <summary>

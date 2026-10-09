@@ -96,6 +96,23 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
     public void MigrateLocaleResources(LocaleResourcesBuilder builder)
     {
+        builder.AddOrUpdate("Enums.QuantizationMethod.Octree", "Hexadecatree (formerly Octree)", "Hexadecatree (vormals Octree)");
+        builder.AddOrUpdate("Enums.JpegColorType.YCbCrRatio422", "YCbCr 4:2:2", "YCbCr 4:2:2");
+        builder.AddOrUpdate("Enums.JpegColorType.YCbCrRatio411", "YCbCr 4:1:1", "YCbCr 4:1:1");
+        builder.AddOrUpdate("Enums.JpegColorType.YCbCrRatio410", "YCbCr 4:1:0", "YCbCr 4:1:0");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Media.GifQuantizationMethod", "GIF palette quantization", "GIF-Palettenquantisierung");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Media.JpegColorType",
+            "JPEG color type",
+            "JPEG-Farbtyp",
+            "Leave empty for automatic selection.",
+            "Leer lassen für automatische Auswahl.");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Media.PngQuantizationMethod",
+            "PNG palette quantization",
+            "PNG-Palettenquantisierung",
+            "Only affects palette-based PNG images. Has no effect on RGB or RGBA images.",
+            "Wirkt nur auf PNG-Bilder mit Farbpalette. Hat bei RGB- und RGBA-Bildern keine Wirkung.");
+
         builder.AddOrUpdate("Admin.IconBrowser.SelectSource", "Select source", "Quelle wählen",
             "Select an icon source", "Icon-Quelle wählen");
         builder.AddOrUpdate("Admin.IconBrowser.Kits", "Kits", "Kits");

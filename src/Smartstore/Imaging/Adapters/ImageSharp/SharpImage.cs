@@ -40,7 +40,7 @@ internal sealed class SharpImage : Disposable, IProcessableImage
 
     /// <inheritdoc/>
     public byte BitDepth
-        => (byte)(_image.PixelType?.BitsPerPixel);
+        => (byte)(_image.PixelType.BitsPerPixel);
 
     /// <inheritdoc/>
     public IImageFormat Format

@@ -114,16 +114,20 @@ public class MediaSettingsModel : ModelBase
     [AdditionalMetadata("max", 100)]
     public int DefaultImageQuality { get; set; }
 
+    [LocalizedDisplay("*JpegColorType")]
     public JpegColorType? JpegColorType { get; set; }
 
     public PngCompressionLevel PngCompressionLevel { get; set; }
 
+    [LocalizedDisplay("*PngQuantizationMethod")]
     public QuantizationMethod PngQuantizationMethod { get; set; }
 
+    [LocalizedDisplay("*PngInterlaced")]
     public bool PngInterlaced { get; set; }
 
     public bool PngIgnoreMetadata { get; set; }
 
+    [LocalizedDisplay("*GifQuantizationMethod")]
     public QuantizationMethod GifQuantizationMethod { get; set; }
 
     [LocalizedDisplay("*OffloadEmbeddedImagesOnSave")]

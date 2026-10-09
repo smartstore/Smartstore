@@ -49,7 +49,7 @@ internal static class ImageSharpUtility
 
         return method.Value switch
         {
-            QuantizationMethod.Octree => new OctreeQuantizer(),
+            QuantizationMethod.Octree => new HexadecatreeQuantizer(),
             QuantizationMethod.WebSafePalette => new WebSafePaletteQuantizer(),
             QuantizationMethod.WernerPalette => new WernerPaletteQuantizer(),
             _ => new WuQuantizer(),

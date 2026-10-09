@@ -172,7 +172,7 @@ public class DefaultImageProcessor : IImageProcessor
         {
             pngFormat.CompressionLevel = _mediaSettings.PngCompressionLevel;
             pngFormat.QuantizationMethod = _mediaSettings.PngQuantizationMethod;
-            pngFormat.InterlaceMode = _mediaSettings.PngInterlaced ? PngInterlaceMode.None : PngInterlaceMode.Adam7;
+            pngFormat.InterlaceMode = _mediaSettings.PngInterlaced ? PngInterlaceMode.Adam7 : PngInterlaceMode.None;
             pngFormat.IgnoreMetadata = _mediaSettings.PngIgnoreMetadata;
         }
         else if (image.Format is IGifFormat gifFormat)
