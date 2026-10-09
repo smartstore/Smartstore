@@ -35,19 +35,20 @@
         <a href="@itemUrl" attrs="attrs" role="menuitem">
             @if (hasIcons)
             {
-                if (!item.Icon.HasValue())
-                {
-                    <span class="icon icon-fw list-group-item-icon" aria-hidden="true"></span>
-                }
-                else if (item.Icon.StartsWith("fa-", StringComparison.Ordinal) || item.Icon.Contains(" fa-", StringComparison.Ordinal))
-                {
-                    @* Retain legacy font icons for configured menus and extensions not yet migrated. *@
-                    <i class="fal fa-fw @item.Icon list-group-item-icon" aria-hidden="true"></i>
-                }
-                else
-                {
-                    <icon name="@item.Icon" lib="@item.IconLibrary" fw="true" class="list-group-item-icon @item.IconClass" aria-hidden="true" />
-                }
+                <span class="list-group-item-icon" aria-hidden="true">
+                    @if (item.Icon.HasValue())
+                    {
+                        if (item.Icon.StartsWith("fa-", StringComparison.Ordinal) || item.Icon.Contains(" fa-", StringComparison.Ordinal))
+                        {
+                            @* Retain legacy font icons for configured menus and extensions not yet migrated. *@
+                            <i class="fal fa-fw @item.Icon" aria-hidden="true"></i>
+                        }
+                        else
+                        {
+                            <icon name="@item.Icon" lib="@item.IconLibrary" class="@item.IconClass" aria-hidden="true" />
+                        }
+                    }
+                </span>
             }
             else if (hasImages && item.ImageUrl.HasValue())
             {

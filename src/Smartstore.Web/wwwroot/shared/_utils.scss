@@ -204,17 +204,18 @@ table th {
 	&.has-icons {
 		.list-group-item {
 			display: inline-flex;
-			align-items: baseline;
+			align-items: flex-start;
 		}
 
 		.list-group-item-icon {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			flex: none;
+			width: 1.25em;
+			// Center the artwork within the first text line, including multiline labels.
+			height: 1lh;
 			margin-inline-end: 0.75rem;
-
-			&.icon {
-				// Align SVG artwork with the first text line without affecting the baseline.
-				position: relative;
-				top: 0.125em;
-			}
 		}
 	}
 }

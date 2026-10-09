@@ -64,9 +64,10 @@ when an explicit library is intended. The TagHelper treats empty `lib` and `vari
 attributes as omitted, including null model values bound by Razor.
 
 The shared `ListGroup` menu template renders concept names through the `icon`
-TagHelper with `fw` and the existing `list-group-item-icon` class. It preserves
-empty icon slots and still recognizes legacy FA class strings for configured menus
-and plugins that have not migrated. Other menu templates are not migrated by this
+TagHelper inside a fixed-width `list-group-item-icon` wrapper. The wrapper is one
+text line high (`1lh`) and centers the artwork with flex layout beside the first
+line of multiline labels. It also preserves empty icon slots and wraps legacy FA
+icons for configured menus and plugins that have not migrated. Other menu templates are not migrated by this
 change; check the consumer before replacing their icon strings.
 
 `address-book`, `truck-loading`, `user-secret` and `wallet` belong to the Frontend
