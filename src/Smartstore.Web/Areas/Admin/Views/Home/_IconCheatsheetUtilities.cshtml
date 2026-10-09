@@ -119,8 +119,8 @@
     #hi-utility-demo figcaption { display: grid; gap: 4px; font-size: 12px; }
     #hi-utility-demo details { margin-top: 24px; }
     #hi-utility-demo summary { cursor: pointer; font-weight: 600; font-size: 16px; margin-bottom: 12px; }
-    #hi-demo-bounds:checked ~ .hi-demo-content .icon { outline: 1px dashed var(--gray-500); background-color: rgba(127, 127, 127, .08); }
-    #hi-demo-pause:checked ~ .hi-demo-content :is(.icon, .icon-stack) { animation-play-state: paused !important; }
+    .section-header:has(#hi-demo-bounds:checked) + #icon-cheatsheet .hi-demo-content .icon { outline: 1px dashed var(--gray-500); background-color: rgba(127, 127, 127, .08); }
+    .section-header:has(#hi-demo-pause:checked) + #icon-cheatsheet .hi-demo-content :is(.icon, .icon-stack) { animation-play-state: paused !important; }
     #hi-utility-demo .hi-demo-line { padding: 8px; border-bottom: 1px solid var(--gray-300); }
     #hi-utility-demo .hi-demo-dark { background: #393f46; border-radius: 4px; }
     #hi-utility-demo .hi-demo-motion-note { display: none; }
@@ -132,10 +132,6 @@
 <section id="hi-utility-demo" class="mb-5 border rounded p-3" aria-labelledby="hi-utility-title">
     <h2 id="hi-utility-title" class="h4">HugeIcons / CSS utilities</h2>
     <p class="text-muted">Live SVG examples using the stroke-rounded variant. Effects use icon-3x (48px); size and text-layout examples retain their own scale. Open or close each group to compare effects.</p>
-    <input type="checkbox" id="hi-demo-pause" />
-    <label for="hi-demo-pause" class="mr-4">Pause animations</label>
-    <input type="checkbox" id="hi-demo-bounds" />
-    <label for="hi-demo-bounds">Show icon bounds</label>
     <p class="hi-demo-motion-note text-muted">Your reduced-motion preference is active. Icon animations are disabled.</p>
     <div class="hi-demo-content">
         <details open>

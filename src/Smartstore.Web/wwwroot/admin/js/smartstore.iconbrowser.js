@@ -9,7 +9,7 @@
             if (root.data('iconBrowser')) return;
             root.data('iconBrowser', true);
             const select = root.find('.icon-browser-select');
-            const button = root.find('.icon-browser-source > button');
+            const button = root.find('.icon-browser-source-dropdown > button');
             const pending = new Set();
             let source, generation = 0, firstPage;
 
@@ -31,10 +31,12 @@
                 return xhr;
             }
 
-            function format(item) {
+            function format(item, isResult) {
                 if (!item.id || item.loading) return item.text;
                 const row = document.createElement('span');
-                row.className = 'icon-browser-choice';
+                row.className = isResult
+                    ? 'icon-browser-choice d-flex flex-column align-items-center justify-content-center gap-1'
+                    : 'select2-option w-100';
                 let icon;
                 if (item.inlineName) {
                     // Only mapping stroke multipliers need the shared component's inline fallback.
@@ -47,13 +49,21 @@
                     icon.append(use);
                 }
                 icon.setAttribute('class', `icon icon-${item.library} icon-${item.library}-${item.variant}`);
+                if (!isResult) icon.classList.add('icon-fw', 'mr-2');
                 icon.setAttribute('data-icon', item.address);
                 icon.setAttribute('aria-hidden', 'true');
                 const label = document.createElement('span');
-                label.className = 'text-truncate';
+                label.className = isResult ? 'text-truncate w-100 fs-xs lh-sm text-center' : 'text-truncate';
                 label.textContent = item.text;
                 row.title = item.text;
-                row.append(icon, label);
+                if (isResult) {
+                    row.append(icon, label);
+                } else {
+                    const choice = document.createElement('span');
+                    choice.className = 'choice-item text-truncate';
+                    choice.append(icon, label);
+                    row.append(choice);
+                }
                 return $(row);
             }
 
@@ -61,7 +71,8 @@
                 width: '100%', allowClear: true, minimumInputLength: 0, minimumResultsForSearch: 0,
                 placeholder: select.data('placeholder'),
                 dropdownCssClass: 'icon-browser-dropdown',
-                templateResult: format, templateSelection: format,
+                templateResult: item => format(item, true),
+                templateSelection: item => format(item, false),
                 ajax: {
                     delay: 250,
                     data: params => ({ term: params.term || '', page: params.page || 1 }),
@@ -85,7 +96,8 @@
             // Select2 detaches its dropdown from the picker. Keep the size variable and
             // controls on that instance's dropdown so multiple browsers remain independent.
             const dropdown = select.data('select2').$dropdown.find('.icon-browser-dropdown');
-            const sizes = $('<div class="btn-group btn-group-sm flex-shrink-0" role="group" aria-label="Icon size"></div>');
+            const sizes = $('<div class="btn-group btn-group-sm flex-shrink-0" role="group"></div>')
+                .attr('aria-label', root.data('size-label'));
             for (const size of [16, 24, 32]) {
                 $('<button type="button" class="btn btn-secondary"></button>')
                     .text(size).attr({ 'data-size': size, title: `${size} px`, 'aria-pressed': size === 24 ? 'true' : 'false' })
@@ -111,8 +123,7 @@
                 source = option.dataset.kit ? { kit: option.dataset.kit }
                     : { lib: option.dataset.lib, variant: option.dataset.variant };
                 const label = option.dataset.label;
-                const title = (option.dataset.kit ? 'Kit: ' : 'Library: ') + label;
-                button.attr('title', title).find('.icon-browser-source-label').text(option.dataset.buttonLabel || label);
+                button.attr('title', option.title).find('.icon-browser-source-label').text(option.dataset.buttonLabel || label);
                 // Reuse the server-rendered option icon without another resolution request.
                 button.children('svg.icon').remove();
                 $(option).children('svg.icon').first().clone().prependTo(button);
@@ -133,7 +144,7 @@
                 });
             }
 
-            root.on('click', '.icon-browser-sources .dropdown-item', function () { choose(this, true); });
+            root.on('click', '.icon-browser-source-menu .dropdown-item', function () { choose(this, true); });
             const initial = root.find('[data-initial="true"]')[0] || root.find('.dropdown-item')[0];
             if (initial) choose(initial, false);
         });
