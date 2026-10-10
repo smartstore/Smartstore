@@ -415,27 +415,72 @@ internal sealed class IconCatalog
             })
         };
         using var config = ReadJson(files, "Icons/config.json", true);
+        var installed = new Dictionary<string, Library>(StringComparer.OrdinalIgnoreCase);
         foreach (var dir in files.GetDirectoryContents("Icons").Where(x => x.IsDirectory))
         {
             var library = LoadLibrary(files, dir.Name);
-            if (library == null)
+            if (library != null)
+            {
+                installed.Add(dir.Name, library);
+            }
+        }
+
+        // Resolve replacements before registering short names, so compatible editions may
+        // share a short name. Retain replaced system names as aliases, never as sources.
+        var replacements = new Dictionary<string, Library>(StringComparer.OrdinalIgnoreCase);
+        foreach (var library in installed.Values)
+        {
+            if (library.Manifest.Replaces is { } target && !replacements.TryAdd(target, library))
+            {
+                throw new InvalidDataException($"Multiple icon libraries replace '{target}'.");
+            }
+        }
+
+        var systemNames = installed.Keys.Concat(replacements.Keys).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        foreach (var name in systemNames)
+        {
+            var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var current = name;
+            while (replacements.TryGetValue(current, out var replacement))
+            {
+                if (!visited.Add(current))
+                {
+                    throw new InvalidDataException($"Cyclic icon library replacement involving '{current}'.");
+                }
+
+                current = replacement.Manifest.SystemName;
+            }
+
+            var active = installed[current];
+            if (installed.TryGetValue(name, out var original) && original != active
+                && original.Variants.Keys.Any(key => !active.Variants.ContainsKey(key)))
+            {
+                throw new InvalidDataException($"Icon library '{current}' must support all variant names and short names of replaced library '{name}'.");
+            }
+
+            catalog.Libraries.Add(name, active);
+        }
+
+        foreach (var library in installed.Values)
+        {
+            if (library.Manifest.ShortName is not { } key)
             {
                 continue;
             }
 
-            foreach (var key in new[] { library.Manifest.SystemName, library.Manifest.ShortName }.Where(x => x != null).Distinct(StringComparer.OrdinalIgnoreCase))
+            var active = catalog.Libraries[library.Manifest.SystemName];
+            if (catalog.Libraries.TryGetValue(key, out var existing) && existing != active)
             {
-                if (!catalog.Libraries.TryAdd(key, library))
-                {
-                    throw new InvalidDataException($"Duplicate or ambiguous icon library name/short name '{key}'.");
-                }
+                throw new InvalidDataException($"Duplicate or ambiguous icon library name/short name '{key}'.");
             }
+
+            catalog.Libraries[key] = active;
         }
 
         var defaultName = config.RootElement.GetProperty("defaultLibrary").GetString();
         // Root defaults use a stable directory name, not a customizable short name.
         if (defaultName == null || !catalog.Libraries.TryGetValue(defaultName, out var defaultLibrary)
-            || !defaultLibrary.Manifest.SystemName.Equals(defaultName, StringComparison.OrdinalIgnoreCase))
+            || !systemNames.Contains(defaultName))
         {
             throw new InvalidDataException("Icons/config.json must select an existing library by its system name.");
         }
@@ -474,7 +519,7 @@ internal sealed class IconCatalog
                     ? kitVariant.GetString() : null;
                 var selectedLibrary = libraryName == null ? catalog.DefaultLibrary : catalog.Libraries.GetValueOrDefault(libraryName);
                 if (selectedLibrary == null || libraryName != null
-                    && !selectedLibrary.Manifest.SystemName.Equals(libraryName, StringComparison.OrdinalIgnoreCase))
+                    && !systemNames.Contains(libraryName))
                 {
                     throw new InvalidDataException($"Unknown defaultLibrary in icon kit '{kit.Name}'. Use the library system name.");
                 }
@@ -543,7 +588,7 @@ internal sealed class IconCatalog
             ?? throw new InvalidDataException($"Empty manifest: {root}/library.json.");
         // Identity comes from the containing directory, not a user-supplied JSON field.
         // Short names share the lookup namespace with full names (see registration below).
-        if (!IconAddress.IsQualifier(name) || manifest.ShortName != null && !IconAddress.IsQualifier(manifest.ShortName) || manifest.Variants == null)
+        if (!IconAddress.IsQualifier(name) || manifest.ShortName != null && !IconAddress.IsQualifier(manifest.ShortName) || manifest.Replaces != null && !IconAddress.IsQualifier(manifest.Replaces) || manifest.Variants == null)
         {
             throw new InvalidDataException($"Invalid library manifest: {root}/library.json.");
         }

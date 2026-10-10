@@ -98,6 +98,50 @@ public class IconServiceTests
         Assert.That(new IconVariant().SupportsStrokeScaling, Is.False);
     }
 
+    /// <summary>
+    /// Replacement editions share short names, retain old system selectors and expose additional variants.
+    /// </summary>
+    [Test]
+    public async Task Replacement_Library_Resolves_Existing_Selectors_And_Kit_Defaults()
+    {
+        Write("Icons/pro/library.json", """{"shortName":"hi","replaces":"hugeicons","defaultVariant":"rounded","variants":{"rounded":{"shortName":"sr"},"sharp":{},"extra":{}}}""");
+        Write("Icons/pro/rounded/icons/pro-cart.svg", _svg);
+        Write("Icons/pro/mapping.json", """{"cart":"pro-cart"}""");
+        Write("Icons/kits.json", """{"shared":{"defaultLibrary":"hugeicons","icons":["cart"]}}""");
+        Assert.That(_service.DefaultLibrary.SystemName, Is.EqualTo("pro"));
+        foreach (var selector in new[] { "hugeicons", "hi", "pro" })
+        {
+            Assert.That(_service.GetLibrary(selector).SystemName, Is.EqualTo("pro"));
+            Assert.That((await _service.GetIconAsync(selector + ":cart/sr")).Name, Is.EqualTo("pro-cart"));
+        }
+        Assert.That((await _service.GetLibrariesAsync()).Select(x => x.SystemName), Does.Not.Contain("hugeicons"));
+        Assert.That(_service.GetLibrary("hi").Variants.ContainsKey("extra"), Is.True);
+        Assert.That(await _service.GetIconAsync("hugeicons:cart-01!/sr"), Is.Null, "Do not read the replaced library's sources.");
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        Assert.That(kits.GetReference(await _service.GetIconAsync("cart")), Is.Not.Null);
+    }
+
+    /// <summary>
+    /// Ambiguous and cyclic replacement graphs fail independently of directory enumeration order.
+    /// </summary>
+    [TestCase(false)]
+    [TestCase(true)]
+    public void Invalid_Library_Replacements_Are_Rejected(bool cycle)
+    {
+        Write("Icons/pro/library.json", """{"shortName":"hi","replaces":"hugeicons","defaultVariant":"rounded","variants":{"rounded":{"shortName":"sr"},"sharp":{}}}""");
+        if (cycle)
+        {
+            var path = Path.Combine(_root, "Icons/hugeicons/library.json");
+            var json = File.ReadAllText(path);
+            File.WriteAllText(path, json.Insert(json.IndexOf('{') + 1, "\"replaces\":\"pro\","));
+        }
+        else
+        {
+            Write("Icons/alternative/library.json", """{"replaces":"hugeicons","defaultVariant":"rounded","variants":{"rounded":{}}}""");
+        }
+        Assert.Throws<InvalidDataException>(() => _service.GetLibrary("hi"));
+    }
+
     private const string _svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"-1 -2 24 25\" width=\"24\" height=\"25\" fill=\"none\"><path d=\"M0 0L1 1\" stroke=\"currentColor\" stroke-width=\"1\" stroke-linecap=\"butt\"/></svg>";
     private string _root;
     private PhysicalFileProvider _provider;

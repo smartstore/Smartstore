@@ -1195,3 +1195,32 @@ Missing icons render the `system:not-found!/default` placeholder from the system
 `text-danger`, shared by Razor, HTML helpers and `sm-icon`. System artwork lives
 in `system/default/icons`. Lookup and search still report missing sources as absent.
 If the placeholder itself is unavailable, rendering returns no output without recursion.
+
+### Replacing a library
+
+A separately installed edition can replace another library by its directory name:
+
+```json
+{
+  "displayName": "Font Awesome Pro",
+  "shortName": "fa",
+  "replaces": "fontawesome-free",
+  "defaultVariant": "solid",
+  "variants": {
+    "regular": { "shortName": "r" },
+    "solid": { "shortName": "s" },
+    "brands": { "shortName": "b" }
+  }
+}
+```
+
+Place this manifest and the licensed sources in a separate library directory, such
+as `fontawesome-pro`. Extend its variant definitions with the additional styles.
+The replaced directory may remain installed. Existing system-name and short-name
+selectors, including root and kit defaults, resolve to the active replacement.
+Only active libraries are listed. Sources, mappings and metadata are not merged;
+the replacement must provide its own complete files. All installed predecessor
+variant names and short names must remain available; additional variants are allowed.
+The replaced directory is optional, and its system name remains an alias even when absent.
+Replacement chains are supported; cycles and competing replacements are configuration
+errors. Removing the replacement restores the original library on catalog reload.

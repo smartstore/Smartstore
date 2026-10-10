@@ -214,6 +214,8 @@ build/packages
 src/Smartstore.Web/Modules/*
 src/Smartstore.Web/App_Data/*
 !src/Smartstore.Web/App_Data/Icons/
+# Licensed local-only Font Awesome Pro assets.
+/src/Smartstore.Web/App_Data/Icons/fontawesome-pro/
 # Shared runtime cache space; never commit generated component caches.
 src/Smartstore.Web/App_Data/.cache/
 !src/Smartstore.Web/App_Data/EmailTemplates/*

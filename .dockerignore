@@ -62,3 +62,6 @@ src/Smartstore.Web/Themes/*
 !src/Smartstore.Web/Themes/Flex/
 !src/Smartstore.Web/Themes/FlexBlue/
 !src/Smartstore.Web/Themes/FlexBlack/
+
+# Never send licensed local-only Font Awesome Pro assets to a Docker build.
+**/fontawesome-pro

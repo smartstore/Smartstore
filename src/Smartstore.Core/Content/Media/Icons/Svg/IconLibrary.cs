@@ -40,6 +40,12 @@ public sealed record IconLibrary
     public string? ShortName { get; init; }
 
     /// <summary>
+    /// Gets the optional system name of the library replaced by this library.
+    /// Existing selectors resolve to this library without merging sources or metadata.
+    /// </summary>
+    public string? Replaces { get; init; }
+
+    /// <summary>
     /// Gets the default variant name.
     /// </summary>
     public string DefaultVariant { get; init; } = string.Empty;
