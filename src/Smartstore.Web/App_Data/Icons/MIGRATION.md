@@ -648,3 +648,9 @@ Mapping-level `stroke-scale` is now baked into kit artwork, included in manifest
 memberships and available in IconBrowser sprite previews. Per-call values differing
 from the mapping still render inline. Sprite revisions include the stroke scale;
 existing immutable files remain untouched.
+
+
+## Product comparison concept
+
+The Shared kit includes `compare`, mapped to HI `git-compare-arrows`. Product-detail
+`.action-compare` uses this concept; `repeat` remains available for repetition.

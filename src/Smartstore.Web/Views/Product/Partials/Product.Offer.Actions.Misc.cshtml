@@ -8,6 +8,18 @@
         return;
     }
 
+    async Task RenderActionIconAsync(ProductDetailsModel.ActionItemModel action, string cssClass = null)
+    {
+        if (action.Icon.HasValue())
+        {
+            <icon name="@action.Icon" class="@cssClass" />
+        }
+        else if (action.IconCssClass.HasValue())
+        {
+            <i class="@cssClass @action.IconCssClass" aria-hidden="true"></i>
+        }
+    }
+
     var primaryActions = Model.ActionItems.Values.Where(x => x.IsPrimary).OrderBy(x => x.Priority).ToList();
     var actions = Model.ActionItems.Values.Where(x => !x.IsPrimary).OrderBy(x => x.Priority).ToList();
 }
@@ -17,7 +29,7 @@
         @foreach (var action in primaryActions)
         {
             <a href="@action.Href" class="btn btn-@action.PrimaryActionColor btn-block @action.CssClass">
-                <i class="@action.IconCssClass" aria-hidden="true"></i>
+                @{ await RenderActionIconAsync(action); }
                 <span>@action.Title</span>
             </a>
         }
@@ -47,7 +59,7 @@
                                 class="reset pd-action-link@(isSpecial ? " pd-action-link-special" : string.Empty) @action.CssClass"
                                 data-type="@key"
                                 data-action="add">
-                            <i class="pd-action-icon @action.IconCssClass" aria-hidden="true"></i>
+                            @{ await RenderActionIconAsync(action, "pd-action-icon"); }
                             <span sm-if="actions.Count < 7" class="pd-action-label@(actions.Count > 4 ? " fs-sm" : string.Empty)">@action.Title</span>
                         </button>
                     }
@@ -59,7 +71,7 @@
                                 data-form-selector="#pd-form" 
                                 title="@action.Tooltip"
                                 aria-label="@action.Tooltip">
-                            <i class="pd-action-icon @action.IconCssClass" aria-hidden="true"></i>
+                            @{ await RenderActionIconAsync(action, "pd-action-icon"); }
                             <span sm-if="actions.Count < 7" class="pd-action-label@(actions.Count > 4 ? " fs-sm" : string.Empty)">@action.Title</span>
                         </button>
                     }
@@ -72,7 +84,7 @@
                            aria-label="@action.Tooltip"
                            attr-class='(isSpecial, "pd-action-link-special")'
                            attr-target="(action.Target.HasValue(), action.Target)">
-                            <i class="pd-action-icon @action.IconCssClass" aria-hidden="true"></i>
+                            @{ await RenderActionIconAsync(action, "pd-action-icon"); }
                             <span sm-if="actions.Count < 7" class="pd-action-label@(actions.Count > 4 ? " fs-sm" : string.Empty)">@action.Title</span>
                         </a>
                     }

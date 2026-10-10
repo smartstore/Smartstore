@@ -48,7 +48,7 @@ internal class SampleProductDetailActionFilter : IActionFilter
             Title = _services.Localization.GetResource("Dev"),
             Tooltip = _services.Localization.GetResource("Dev.Hint"),
             CssClass = "action-dev ajax-cart-link",
-            IconCssClass = "icm icm-server",
+            Icon = "fa:server!@s",
             //Href = _urlHelper.Action("MyOwnAction", "MyPlugin", new { id = model.Id })
             Href = "https://www.smartstore.com"
         };

@@ -592,9 +592,12 @@ $pd-offer-spacing:              math.div($grid-gutter-width, 2);
         height: 100%;
 
         .pd-action-icon {
+            --icon-size: 24px;
+            font-size: 24px;
+            align-self: center;
             display: block;
-            height: 20px;
-            line-height: 20px;
+            height: 24px;
+            line-height: 24px;
             vertical-align: middle;
             color: $pd-offer-muted-color;
             transition: all 0.125s ease-out;

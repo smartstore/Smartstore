@@ -349,7 +349,7 @@ public partial class CatalogHelper
                     Title = T("ShoppingCart.AddToWishlist.Short"),
                     Tooltip = T("ShoppingCart.AddToWishlist"),
                     CssClass = "ajax-cart-link action-add-to-wishlist",
-                    IconCssClass = "icm icm-heart",
+                    Icon = "heart",
                     Href = _urlHelper.Action("AddProduct", "ShoppingCart", new { productId = model.Id, shoppingCartTypeId = (int)ShoppingCartType.Wishlist })
                 };
             }
@@ -362,7 +362,7 @@ public partial class CatalogHelper
                     Title = T("Common.Shopbar.Compare"),
                     Tooltip = T("Products.Compare.AddToCompareList"),
                     CssClass = "action-compare ajax-cart-link",
-                    IconCssClass = "icm icm-repeat",
+                    Icon = "compare",
                     Href = _urlHelper.Action("AddProductToCompare", "Catalog", new { id = model.Id })
                 };
             }
@@ -375,7 +375,7 @@ public partial class CatalogHelper
                     Title = T("Products.AskQuestion.Short"),
                     Tooltip = T("Products.AskQuestion"),
                     CssClass = "action-ask-question",
-                    IconCssClass = "icm icm-envelope",
+                    Icon = "mail",
                     Href = _urlHelper.Action("AskQuestion", new { id = model.Id })
                 };
             }
@@ -387,7 +387,7 @@ public partial class CatalogHelper
                     Key = "tell",
                     Title = T("Products.EmailAFriend"),
                     CssClass = "action-bullhorn",
-                    IconCssClass = "icm icm-bullhorn",
+                    Icon = "megaphone",
                     Href = _urlHelper.Action("EmailAFriend", new { id = model.Id })
                 };
             }
