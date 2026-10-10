@@ -72,18 +72,7 @@ public partial class AdminMenu : MenuBase
 
         var root = new TreeNode<MenuItem>(item, id);
 
-        if (icon.HasValue())
-        {
-            if (icon.StartsWith("bi:"))
-            {
-                item.IconLibrary = "bi";
-                item.Icon = icon[3..];
-            }
-            else
-            {
-                item.Icon = icon;
-            }
-        }
+        item.Icon = icon;
 
         if (node.HasAttribute("isGroupHeader"))
         {

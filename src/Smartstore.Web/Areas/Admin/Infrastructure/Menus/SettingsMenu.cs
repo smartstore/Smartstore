@@ -35,7 +35,6 @@ public partial class SettingsMenu : MenuBase
             {
                 Id = "general",
                 Text = T("Admin.Common.General"),
-                IconLibrary = "bi",
                 Icon = "sliders",
                 PermissionNames = perm,
                 ControllerName = "Setting",
@@ -45,7 +44,6 @@ public partial class SettingsMenu : MenuBase
             {
                 Id = "catalog",
                 Text = T("Admin.Catalog"),
-                IconLibrary = "bi",
                 Icon = "box",
                 PermissionNames = perm,
                 ControllerName = "Product",
@@ -55,7 +53,6 @@ public partial class SettingsMenu : MenuBase
             {
                 Id = "search",
                 Text = T("Search.Title"),
-                IconLibrary = "bi",
                 Icon = "search",
                 PermissionNames = perm,
                 ControllerName = "Search",
@@ -65,8 +62,7 @@ public partial class SettingsMenu : MenuBase
             {
                 Id = "customer",
                 Text = T("Admin.Customers"),
-                IconLibrary = "bi",
-                Icon = "person",
+                Icon = "user",
                 PermissionNames = perm,
                 ControllerName = "Customer",
                 ActionName = "CustomerUserSettings"
@@ -75,7 +71,6 @@ public partial class SettingsMenu : MenuBase
             {
                 Id = "cart",
                 Text = T("ShoppingCart"),
-                IconLibrary = "bi",
                 Icon = "cart",
                 PermissionNames = perm,
                 ControllerName = "ShoppingCart",
@@ -85,8 +80,7 @@ public partial class SettingsMenu : MenuBase
             {
                 Id = "order",
                 Text = T("Admin.Orders"),
-                IconLibrary = "bi",
-                Icon = "graph-up",
+                Icon = "chart-up",
                 PermissionNames = perm,
                 ControllerName = "Order",
                 ActionName = "OrderSettings"
@@ -95,8 +89,7 @@ public partial class SettingsMenu : MenuBase
             {
                 Id = "payment",
                 Text = T("Admin.Configuration.Payment"),
-                IconLibrary = "bi",
-                Icon = "credit-card",
+                Icon = "creditcard",
                 PermissionNames = perm,
                 ControllerName = "Payment",
                 ActionName = "PaymentSettings"
@@ -105,8 +98,7 @@ public partial class SettingsMenu : MenuBase
             {
                 Id = "finance",
                 Text = T("Common.Finance"),
-                IconLibrary = "bi",
-                Icon = "percent",
+                Icon = "discount",
                 PermissionNames = perm,
                 ControllerName = "Tax",
                 ActionName = "FinanceSettings"
@@ -115,7 +107,6 @@ public partial class SettingsMenu : MenuBase
             {
                 Id = "shipping",
                 Text = T("Admin.Configuration.Shipping"),
-                IconLibrary = "bi",
                 Icon = "truck",
                 PermissionNames = perm,
                 ControllerName = "Shipping",
@@ -125,7 +116,6 @@ public partial class SettingsMenu : MenuBase
             {
                 Id = "reward-points",
                 Text = T("Account.RewardPoints"),
-                IconLibrary = "bi",
                 Icon = "trophy",
                 PermissionNames = perm,
                 ControllerName = "Customer",
@@ -135,7 +125,6 @@ public partial class SettingsMenu : MenuBase
             {
                 Id = "media",
                 Text = T("Admin.Plugins.KnownGroup.Media"),
-                IconLibrary = "bi",
                 Icon = "images",
                 PermissionNames = perm,
                 ControllerName = "Media",
@@ -145,8 +134,7 @@ public partial class SettingsMenu : MenuBase
             {
                 Id = "dataexchange",
                 Text = T("Admin.Common.DataExchange"),
-                IconLibrary = "bi",
-                Icon = "arrow-left-right",
+                Icon = "exchange",
                 PermissionNames = perm,
                 ControllerName = "Import",
                 ActionName = "DataExchangeSettings"
@@ -155,8 +143,7 @@ public partial class SettingsMenu : MenuBase
             {
                 Id = "performance",
                 Text = T("Admin.Configuration.Settings.Performance"),
-                IconLibrary = "bi",
-                Icon = "speedometer2",
+                Icon = "bi:speedometer2!",
                 PermissionNames = perm,
                 ControllerName = "Maintenance",
                 ActionName = "PerformanceSettings"
@@ -166,7 +153,6 @@ public partial class SettingsMenu : MenuBase
                 IsGroupHeader = true,
                 Id = "all",
                 Text = T("Admin.Configuration.Settings.AllSettings"),
-                IconLibrary = "bi",
                 Icon = "gear",
                 PermissionNames = perm,
                 ControllerName = "Setting",

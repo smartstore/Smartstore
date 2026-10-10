@@ -15,7 +15,7 @@ public class RouteMenuItemProvider : MenuItemProviderBase
             var item = node.Value;
 
             item.Summary = T("Providers.MenuItems.FriendlyName.Route");
-            item.Icon = "fas fa-route";
+            item.Icon = "fa:route!@s";
 
             if (!item.HasRoute)
             {

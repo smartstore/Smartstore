@@ -74,7 +74,14 @@
                 <a href="@itemUrl" attrs="attrs" role="option">
                     @if (hasIcons)
                     {
-                        <i class="fa-fw@(item.Icon.HasValue() ? item.Icon.EnsureStartsWith(" ") : " fas")"></i>
+                        @if (item.Icon.HasValue())
+                        {
+                            <icon name="@item.Icon" class="icon-fw" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
+                        }
+                        else
+                        {
+                            <span class="icon icon-fw" aria-hidden="true"></span>
+                        }
                     }
                     else if (hasImages && item.ImageUrl.HasValue())
                     {
@@ -82,7 +89,7 @@
                     }
                     else if (hasImages)
                     {
-                        <i class="fa-fw fas"></i>
+                        <span class="icon icon-fw" aria-hidden="true"></span>
                     }
                     <span sm-language-attributes-for="item">@itemText</span>
                 </a>

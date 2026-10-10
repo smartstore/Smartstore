@@ -1,4 +1,5 @@
 ﻿using Smartstore.Collections;
+using Smartstore.Core.Content.Media.Icons;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Content.Menus;
@@ -48,6 +49,16 @@ public class EntityMenuItemProvider : MenuItemProviderBase
             {
                 item.Summary = T(info.ResKey);
                 item.Icon = info.Icon;
+                if (info.Icon.HasValue())
+                {
+                    var parts = info.Icon.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    var name = parts.FirstOrDefault(x => x.StartsWith("fa-", StringComparison.Ordinal));
+                    if (name != null)
+                    {
+                        var variant = parts.Contains("fab") ? "b" : parts.Contains("far") ? "r" : "s";
+                        item.Icon = new IconAddress(name[3..], "fa", variant, skipMapping: true).ToString();
+                    }
+                }
             }
 
             if (info == null || item.Url.IsEmpty())

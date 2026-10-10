@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Content.Media.Icons;
 using Smartstore.Events;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Rendering;
@@ -162,7 +163,7 @@ public class TabStripTagHelper : SmartTagHelper
                 await e.TabFactory.AppendAsync(builder => builder
                     .Text(EngineContext.Current.ResolveService<IText>().Get("Admin.Plugins"))
                     .Name("tab-special-module-widgets")
-                    .Icon("puzzle", "bi")
+                    .Icon("puzzle")
                     .LinkHtmlAttributes(new { data_tab_name = "MODULE_WIDGETS" })
                     .Content(widgetContent)
                     .Ajax(false));
@@ -241,7 +242,7 @@ public class TabStripTagHelper : SmartTagHelper
         }
 
         // nav/items
-        RenderNav(output.Content, isStacked);
+        await RenderNavAsync(output.Content, isStacked);
 
         // tab-content below nav
         if (Position != TabsPosition.Below && hasContent)
@@ -273,7 +274,7 @@ public class TabStripTagHelper : SmartTagHelper
 
     #region TabStrip
 
-    private void RenderNav(TagHelperContent content, bool isStacked)
+    private async Task RenderNavAsync(TagHelperContent content, bool isStacked)
     {
         TagBuilder ul = new("ul");
         var classList = ul.GetClassList();
@@ -325,7 +326,7 @@ public class TabStripTagHelper : SmartTagHelper
         {
             if (tab.MustRender)
             {
-                content.AppendHtml(BuildTabItem(tab, isStacked, hasIcons));
+                content.AppendHtml(await BuildTabItemAsync(tab, isStacked, hasIcons));
             }
         }
 
@@ -453,7 +454,7 @@ public class TabStripTagHelper : SmartTagHelper
         return paneDiv;
     }
 
-    private TagBuilder BuildTabItem(TabTagHelper tab, bool isStacked, bool hasIcons)
+    private async Task<TagBuilder> BuildTabItemAsync(TabTagHelper tab, bool isStacked, bool hasIcons)
     {
         // <li [class="nav-item [d-none]"]><a href="#{id}" class="nav-link [active]" data-toggle="tab">{text}</a></li>
         TagBuilder li = new("li");
@@ -535,7 +536,7 @@ public class TabStripTagHelper : SmartTagHelper
             // Icon/Image
             if (hasIcons)
             {
-                BuildTabIcon(tab, a, isStacked);
+                await BuildTabIconAsync(tab, a, isStacked);
             }
 
             // Caption
@@ -550,24 +551,22 @@ public class TabStripTagHelper : SmartTagHelper
         return li;
     }
 
-    private void BuildTabIcon(TabTagHelper tab, TagBuilder a, bool isStacked)
+    private async Task BuildTabIconAsync(TabTagHelper tab, TagBuilder a, bool isStacked)
     {
         if (tab.Icon.HasValue())
         {
-            var el = (TagBuilder)HtmlHelper.Icon(tab.Icon);
-
+            var options = new IconOptions();
+            var classes = new List<string> { "nav-icon" };
             if (isStacked)
             {
-                el.AppendCssClass("bi-fw");
+                classes.Add("icon-fw");
             }
-
-            el.AppendCssClass("nav-icon");
             if (tab.IconClass.HasValue())
             {
-                el.AppendCssClass(tab.IconClass);
+                classes.Add(tab.IconClass);
             }
-
-            a.InnerHtml.AppendHtml(el);
+            options.Attributes["class"] = string.Join(" ", classes);
+            a.InnerHtml.AppendHtml(await HtmlHelper.IconAsync(tab.Icon, options: options));
         }
         else if (tab.ImageUrl.HasValue())
         {
@@ -578,7 +577,7 @@ public class TabStripTagHelper : SmartTagHelper
         }
         else if (isStacked)
         {
-            a.InnerHtml.AppendHtml("<i class=\"fa fa-fw\"></i>");
+            a.InnerHtml.AppendHtml("<span class=\"icon icon-fw\" aria-hidden=\"true\"></span>");
         }
     }
 

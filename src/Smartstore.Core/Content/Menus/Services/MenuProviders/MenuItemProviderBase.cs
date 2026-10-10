@@ -117,11 +117,16 @@ public abstract class MenuItemProviderBase : IMenuItemProvider
         // Icon
         if (entity.Icon.HasValue() && !request.IsEditMode)
         {
-            menuItem.Icon = IconExplorer.GetIconByName(entity.Icon)?.GetCssClass(entity.Style);
+            var icon = IconExplorer.GetIconByName(entity.Icon);
+            if (icon != null)
+            {
+                var variant = icon.IsBrandIcon ? "b" : entity.Style is "regular" or "far" ? "r" : "s";
+                menuItem.Icon = new IconAddress(icon.Name, "fa", variant, skipMapping: true).ToString();
+            }
 
             if (entity.IconColor.HasValue())
             {
-                menuItem.Icon += " text-" + entity.IconColor;
+                menuItem.IconClass = "text-" + entity.IconColor;
             }
         }
 

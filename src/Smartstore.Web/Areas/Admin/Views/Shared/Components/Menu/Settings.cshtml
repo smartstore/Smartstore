@@ -50,7 +50,6 @@
 
             var itemText = node.GetItemText(T);
             var itemUrl = GetNodeLink(node);
-            var icon = item.Icon.NullEmpty() ?? "fas fa-fw";
 
             if (node.Next == null)
             {
@@ -59,23 +58,19 @@
 
             <a class="list-group-item list-group-item-action rounded-pill" attr-class='(isSelected, "active")' href="@itemUrl">
                 <span class="list-group-item-icon">
-                    @if (item.IconLibrary == "bi")
+                    @if (item.Icon.HasValue())
                     {
                         if (colorIndex >= iconColors.Length)
                         {
                             colorIndex = 0;
                         }
 
-                        <bootstrap-iconstack>
-                            <bootstrap-icon name="circle-fill" class="bi-circle" scale="2" fill="@(isSelected ? $"var(--{iconColors[colorIndex]})" : "var(--gray-300)")" />
-                            <bootstrap-icon name="@icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)' fill="@(isSelected ? "#fff" : "currentcolor")" />
-                        </bootstrap-iconstack>
+                        <icon-stack>
+                            <icon name="bi:circle-fill!" class="bi-circle" scale="2" color="@(isSelected ? $"var(--{iconColors[colorIndex]})" : "var(--gray-300)")" />
+                            <icon name="@item.Icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)' color="@(isSelected ? "#fff" : "currentColor")" />
+                        </icon-stack>
 
                         colorIndex++;
-                    }
-                    else
-                    {
-                        <i class="@icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)'></i>
                     }
                 </span>
                 <span class="fwm">@itemText</span>

@@ -11,7 +11,7 @@ public class AdminMenu : AdminMenuProvider
         var menuItem = new MenuItem().ToBuilder()
             .Text("Clickatell SMS Provider")
             .ResKey("Plugins.FriendlyName.SmartStore.Clickatell")
-            .Icon("send", "bi")
+            .Icon("send")
             .Action("Configure", "Clickatell", new { area = "Admin" })
             .AsItem();
 

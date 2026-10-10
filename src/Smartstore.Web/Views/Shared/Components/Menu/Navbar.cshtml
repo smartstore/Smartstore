@@ -105,7 +105,7 @@
                     <a id="main-nav-item-link-@item.Id" href="@itemUrl" attrs="linkAttrs">
                         @if (item.Icon.HasValue())
                         {
-                            <i class="@item.Icon"></i>
+                            <icon name="@item.Icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
                         }
                         else if (item.ImageUrl.HasValue())
                         {

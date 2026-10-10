@@ -38,9 +38,13 @@
 
 	.nav-link > :is(img, i, svg) {
         position: relative;
-		font-size: inherit;
 		color: var(--nav-link-icon-color);
 	}
+
+    // SVG icons keep their shared minimum size and size modifiers.
+    .nav-link > :is(img, i, svg):not(.icon) {
+        font-size: inherit;
+    }
 
     .nav-link:hover > :is(i, svg),
     .nav-link.active > :is(i, svg) {
@@ -117,6 +121,7 @@
 // ==============================================================
 
 .nav-tabs-line {
+    --nav-link-icon-color: currentColor;
     --nav-link-padding-x: 1rem;
     --nav-link-padding-y: 0.825rem;
     --nav-link-color: #{$mtab-color};
@@ -317,8 +322,7 @@
                     transition: all ease 0.15s;
                 }
 
-                &:not(.active) > :is(i, svg) {
-                    color: $dropdown-icon-color;
+                > :is(i, svg) {
                     transition: transform ease 0.15s;
                 }
 
@@ -335,7 +339,6 @@
                     }
 
                     > :is(i, svg) {
-                        color: $gray-700;
                         transform: scale(1.2);
                     }
                 }

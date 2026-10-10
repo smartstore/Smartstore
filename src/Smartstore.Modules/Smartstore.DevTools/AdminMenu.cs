@@ -11,7 +11,7 @@ public class AdminMenu : AdminMenuProvider
         var menuItem = new MenuItem().ToBuilder()
             .Text("Developer Tools")
             .ResKey("Plugins.FriendlyName.SmartStore.DevTools")
-            .Icon("terminal", "bi")
+            .Icon("bi:terminal!")
             .PermissionNames(DevToolsPermissions.Read)
             .Action("Configure", "DevTools", new { area = "Admin" })
             .AsItem();

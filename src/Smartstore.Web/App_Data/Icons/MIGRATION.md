@@ -56,37 +56,66 @@ visual review because the default HI variant is stroke-based.
 
 ## My Account menu and menu extensions
 
-The platform My Account menu and the extensions migrated in this workspace now
-store concept names in `MenuItem.Icon`. Plugin integrations should likewise use,
-for example, `Icon = "cart"` or `.Icon("cart")`, without FA style or utility classes.
-Leave `IconLibrary` unset to follow configured kit/system defaults; set it only
-when an explicit library is intended. The TagHelper treats empty `lib` and `variant`
-attributes as omitted, including null model values bound by Razor.
+All built-in menu templates render `NavigationItem.Icon` through the `icon`
+TagHelper. Use a concept name such as `cart` or a qualified address such as
+`bi:terminal!`; no separate library is needed. `NavigationItem.IconLibrary` is obsolete. The two-argument fluent
+`Icon(value, library)` overload remains compatible and produces an address. The property
+still qualifies an unqualified name for older extensions; an explicit address wins.
 
-The shared `ListGroup` menu template renders concept names through the `icon`
-TagHelper inside a fixed-width `list-group-item-icon` wrapper. The wrapper is one
-text line high (`1lh`) and centers the artwork with flex layout beside the first
-line of multiline labels. It also preserves empty icon slots and wraps legacy FA
-icons for configured menus and plugins that have not migrated. Other menu templates are not migrated by this
-change; check the consumer before replacing their icon strings.
+`IconClass` supplies presentation classes independently of the address. Use
+`icon-fw`, `icon-lg` and the shared transform utilities instead of FA utilities.
+The admin sitemap stores concepts/addresses directly; its `iconClass` attribute is
+preserved. The return-case menu retains `flip-h`.
 
-`address-book`, `truck-loading`, `user-secret` and `wallet` belong to the Frontend
-kit. `address-book` resolves directly by name; the other three use the mappings
-listed below. `unlock` moved from Backend to Shared because it is also used for
-changing the customer password. The Wallet balance badge uses the `check` concept
-through the Core icon service and renderer, including its configured stroke scale.
-Badges containing HTML need explicit migration too; `MenuItem.Icon` does not cover them.
+The settings menu retains its circular backgrounds through `icon-stack`. Empty
+icon slots retain their width. Standard menu templates, the HP menu templates and
+the menu editor list all preserve `IconClass`.
 
-The Avatar menu entry uses the `avatar` concept from the Shared kit, following
-the configured library and variant defaults without a pinned source. Library mappings:
+Existing database menu selections remain stored as legacy FA names. Their provider
+emits concrete FA SVG addresses at runtime and moves the selected color into
+`IconClass`; no database migration is performed. Legacy light/duotone selections
+use the available solid SVG variant. FA Pro-only artwork may still require a
+custom source. Edit-mode link metadata is adapted at the menu provider boundary.
 
-| Library | Icon | Concept |
-| --- | --- | --- |
-| HugeIcons | `user-square` | `avatar` |
-| Bootstrap Icons | `person-circle` | `avatar` |
-| Font Awesome | `circle-user` | `avatar` |
+Script-swapped font icons and other non-menu consumers remain outside the menu
+migration. See [MENU-MIGRATION.md](MENU-MIGRATION.md) for the audit.
 
-The existing `user-circle` concept remains available for other uses.
+## TabStrip icons
+
+`TabTagHelper.Icon` (`sm-icon`) accepts concepts and qualified addresses.
+The parent `TabStripTagHelper` renders them asynchronously through `Html.IconAsync`.
+`IconClass` (`sm-icon-class`) is preserved, including values supplied by
+`TabFactory`. Stacked tabs use `icon-fw`; empty slots retain their width without
+FA markup. Image-based tabs retain their existing rendering.
+Line-tab icons follow the link text color through currentColor. Stacked line-tab
+icons retain the shared icon sizing (including its 16px minimum) and hover scaling
+without muted inactive icon colors. The legacy nav font-size inheritance excludes
+.icon so it cannot override the shared minimum or size modifiers.
+
+Template inputs and TabStrip extensions in the public, enterprise, internal and
+customer repositories were audited. Known FA/BI names now use reviewed concepts.
+The following unmatched drawings retain explicit addresses with mapping bypassed:
+
+- `bi:building-check!`
+- `bi:calendar-event!`
+- `bi:car-front!`
+- `bi:currency-dollar!`
+- `bi:menu-down!`
+- `bi:phone-vibrate!`
+- `bi:shield-check!`
+- `fa:calendar-days!@r`
+- `fa:ruler-horizontal!@s`
+- `fa:section!@r`
+
+All ten sources exist in the installed libraries. DimensionPricing's embedded
+`fa-lg fa-fw` classes became `IconClass("icon-lg icon-fw")`.
+PageBuilder block metadata still supplies FA classes to other editor surfaces;
+its tab input alone converts those dynamic values to explicit FA addresses.
+
+Validation: the Debug platform build passed with zero warnings and errors.
+Three rendering regression cases passed for a concept, a concrete address and
+an unavailable icon, including class forwarding and empty stacked slots.
+Private module builds and browser appearance were not verified in this step.
 
 ## Testing a partially mapped library
 
@@ -554,3 +583,6 @@ The migration table preview field accepts full addresses such as `bi:telephone`,
 remain literal HugeIcons stroke-rounded proposals. Qualified addresses use normal
 icon resolution. The optional HI font comparison is hidden for other libraries,
 query modifiers or unavailable font glyphs; it never blocks a valid SVG preview.
+
+The admin sitemap root nodes retain their original Fontastic (`icm`) icons and
+legacy rendering by request. Only their descendants participate in this migration.

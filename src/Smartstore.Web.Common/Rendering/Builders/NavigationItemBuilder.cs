@@ -151,11 +151,15 @@ public abstract class NavigationItemBuilder<TItem, TBuilder> : IHideObjectMember
         return (this as TBuilder);
     }
 
-    public TBuilder Icon(string value, string libary = null)
+    public TBuilder Icon(string value)
     {
-        Item.IconLibrary = libary;
         Item.Icon = value;
         return (this as TBuilder);
+    }
+
+    public TBuilder Icon(string value, string libary)
+    {
+        return Icon(value.HasValue() && libary.HasValue() && !value.Contains(':') ? $"{libary}:{value}" : value);
     }
 
     public TBuilder IconClass(string value)

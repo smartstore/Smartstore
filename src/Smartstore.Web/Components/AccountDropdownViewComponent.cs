@@ -28,7 +28,8 @@ public class AccountDropdownViewComponent(CustomerSettings customerSettings) : S
         model.MenuItems.Add(new MenuItem().ToBuilder()
             .Action("Info", "Customer")
             .LinkHtmlAttributes(new { @class = "dropdown-item", rel = "nofollow" })
-            .Icon("fal fa-user fa-fw")
+            .Icon("user")
+            .IconClass("icon-fw")
             .Text(T("Account.MyAccount"))
             .AsItem());
 
@@ -37,7 +38,8 @@ public class AccountDropdownViewComponent(CustomerSettings customerSettings) : S
             model.MenuItems.Add(new MenuItem().ToBuilder()
             .Action("Orders", "Customer")
             .LinkHtmlAttributes(new { @class = "dropdown-item", rel = "nofollow" })
-            .Icon("fal fa-file-lines fa-fw")
+            .Icon("file-text")
+            .IconClass("icon-fw")
             .Text(T("Account.MyOrders"))
             .AsItem());
         }
@@ -47,7 +49,8 @@ public class AccountDropdownViewComponent(CustomerSettings customerSettings) : S
             model.MenuItems.Add(new MenuItem().ToBuilder()
                 .Url("~/admin")
                 .LinkHtmlAttributes(new { @class = "dropdown-item", rel = "nofollow", target = "_admin" })
-                .Icon("fal fa-cog fa-fw")
+                .Icon("gear")
+                .IconClass("icon-fw")
                 .Text(T("Account.Administration"))
                 .AsItem());
         }
@@ -57,7 +60,8 @@ public class AccountDropdownViewComponent(CustomerSettings customerSettings) : S
             model.MenuItems.Add(new MenuItem().ToBuilder()
                 .Route("Wishlist")
                 .LinkHtmlAttributes(new { @class = "dropdown-item" })
-                .Icon("fal fa-heart fa-fw")
+                .Icon("heart")
+                .IconClass("icon-fw")
                 .Text(T("Wishlist"))
                 .Badge(model.WishlistItems.ToString(), BadgeStyle.Success)
                 .BadgeHtmlAttributes("class", "wishlist-qty " + (model.WishlistItems > 0 ? "label-success" : "d-none"))
@@ -69,7 +73,8 @@ public class AccountDropdownViewComponent(CustomerSettings customerSettings) : S
             model.MenuItems.Add(new MenuItem().ToBuilder()
                 .Route("ShoppingCart")
                 .LinkHtmlAttributes(new { @class = "dropdown-item", id = "topcartlink" })
-                .Icon("fal fa-shopping-bag fa-fw")
+                .Icon("basket")
+                .IconClass("icon-fw")
                 .Text(T("ShoppingCart"))
                 .Badge(model.ShoppingCartItems.ToString(), BadgeStyle.Success)
                 .BadgeHtmlAttributes("class", "cart-qty " + (model.ShoppingCartItems > 0 ? "label-success" : "d-none"))
@@ -81,7 +86,8 @@ public class AccountDropdownViewComponent(CustomerSettings customerSettings) : S
         model.MenuItems.Add(new MenuItem().ToBuilder()
             .Route("Logout")
             .LinkHtmlAttributes(new { @class = "dropdown-item", rel = "nofollow" })
-            .Icon("fal fa-right-from-bracket fa-fw")
+            .Icon("logout")
+            .IconClass("icon-fw")
             .Text(T("Account.Logout"))
             .AsItem());
 

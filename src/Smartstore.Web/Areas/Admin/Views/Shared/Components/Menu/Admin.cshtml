@@ -41,13 +41,13 @@
             <a class="nav-link@(node.HasChildren ? " dropdown-toggle" : "")" href="@itemUrl" attr-data-toggle='(node.HasChildren, "dropdown")'>
                 @if (item.Icon.HasValue())
                 {
-                    if (item.IconLibrary == "bi")
+                    if (item.Icon.StartsWith("icm ", StringComparison.Ordinal))
                     {
-                        <bootstrap-icon name="@item.Icon" class="navbar-icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
+                        <i class="@item.Icon navbar-icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)'></i>
                     }
                     else
                     {
-                        <i class="@item.Icon navbar-icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)'></i>
+                        <icon name="@item.Icon" class="navbar-icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
                     }
                 }
                 else
@@ -107,18 +107,11 @@
                         {
                             if (item.Icon.HasValue())
                             {
-                                if (item.IconLibrary == "bi")
-                                {
-                                    <bootstrap-icon name="@item.Icon" class="dropdown-icon bi-fw" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
-                                }
-                                else
-                                {
-                                    <i class="@item.Icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)'></i>
-                                }
+                                <icon name="@item.Icon" class="dropdown-icon icon-fw" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
                             }
                             else
                             {
-                                <i class="bi bi-fw"></i>
+                                <span class="icon icon-fw" aria-hidden="true"></span>
                             }
                         }
                         @itemText

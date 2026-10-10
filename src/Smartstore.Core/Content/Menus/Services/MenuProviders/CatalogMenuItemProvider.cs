@@ -30,7 +30,7 @@ public class CatalogMenuItemProvider : MenuItemProviderBase
         {
             var item = ConvertToMenuItem(request);
             item.Summary = T("Providers.MenuItems.FriendlyName.Catalog");
-            item.Icon = "fa fa-cubes";
+            item.Icon = "boxes";
 
             AppendToParent(request, item);
         }

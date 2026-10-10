@@ -567,7 +567,7 @@ public static class HtmlHelperRenderingExtensions
                     Selected = true,
                     Text = localizationService.GetResource("Admin.Common.Standard"),
                     Content = masterTemplate(helper.ViewData.Model).ToHtmlString(),
-                    Icon = "fa fa-globe"
+                    Icon = "globe"
                 };
 
                 tabItem.HtmlAttributes.Merge("class", "nav-item-master");

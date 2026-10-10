@@ -48,7 +48,7 @@
                 <a href="@itemUrl" attrs="attrs">
                     @if (hasIcons)
                     {
-                        <i class="fa-fw@(item.Icon.HasValue() ? item.Icon.LeftPad() : " fas fa-arrow-right")"></i>
+                        <icon name="@(item.Icon.NullEmpty() ?? "arrow-right")" class="icon-fw" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
                     }
                     else if (hasImages && item.ImageUrl.HasValue())
                     {
@@ -56,7 +56,7 @@
                     }
                     else if (hasImages)
                     {
-                        <i class="fa-fw fas fa-arrow-right"></i>
+                        <icon name="arrow-right" class="icon-fw" />
                     }
 
                     <span sm-language-attributes-for="item">@itemText</span>

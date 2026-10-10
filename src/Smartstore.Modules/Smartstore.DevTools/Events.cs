@@ -20,7 +20,7 @@ public class Events : IConsumer
             //await message.TabFactory.AddAsync(builder => builder
             //    .Text("My custom tab")
             //    .Name("tab-mycustom")
-            //    .Icon("code", "bi")
+            //    .Icon("code-xml")
             //    .LinkHtmlAttributes(new { data_tab_name = "DevTools" })
             //    .Action("ProductEditTab", "DevTools", new { productId })
             //    .Ajax());

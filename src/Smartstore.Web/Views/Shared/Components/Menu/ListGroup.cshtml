@@ -38,15 +38,7 @@
                 <span class="list-group-item-icon" aria-hidden="true">
                     @if (item.Icon.HasValue())
                     {
-                        if (item.Icon.StartsWith("fa-", StringComparison.Ordinal) || item.Icon.Contains(" fa-", StringComparison.Ordinal))
-                        {
-                            @* Retain legacy font icons for configured menus and extensions not yet migrated. *@
-                            <i class="fal fa-fw @item.Icon" aria-hidden="true"></i>
-                        }
-                        else
-                        {
-                            <icon name="@item.Icon" lib="@item.IconLibrary" class="@item.IconClass" aria-hidden="true" />
-                        }
+                        <icon name="@item.Icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)' aria-hidden="true" />
                     }
                 </span>
             }

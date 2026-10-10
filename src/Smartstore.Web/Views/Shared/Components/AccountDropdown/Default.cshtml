@@ -18,8 +18,8 @@
             <zone name="account_dropdown_logout_divider_after"></zone>
         }
 
-        <a href="@item.GenerateUrl(Url)" attrs="item.LinkHtmlAttributes">
-            <i class="@item.Icon"></i>
+        <a sm-if="!item.IsGroupHeader" href="@item.GenerateUrl(Url)" attrs="item.LinkHtmlAttributes">
+            <icon sm-if="item.Icon.HasValue()" name="@item.Icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
             <span>@item.Text</span>
             @if (item.BadgeText != null)
             {

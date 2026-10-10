@@ -111,7 +111,7 @@ public class TabTagHelper : SmartTagHelper
     public string LinkClass { get; set; }
 
     /// <summary>
-    /// Icon (class) name (e.g. "fa fa-user", or "bi:user" for Bootstrap icons)
+    /// Icon concept or address (e.g. "user" or "bi:person!").
     /// </summary>
     [HtmlAttributeName(IconAttributeName)]
     public string Icon { get; set; }

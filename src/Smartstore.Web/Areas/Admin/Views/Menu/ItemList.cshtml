@@ -50,7 +50,7 @@
             <div class="item-text" @Html.Raw(indentStyle)>
                 @if (item.Icon.HasValue())
                 {
-                    <i class="mr-1 fa-fw fs-h6 @item.Icon" title="@item.Summary"></i>
+                    <icon name="@item.Icon" class="mr-1 icon-fw fs-h6" attr-class='@(item.IconClass.HasValue(), item.IconClass)' title="@item.Summary" />
                 }
                 <a attr-class='(!item.Visible, "muted")' asp-action="EditItem" asp-route-id="@item.EntityId">
                     @if (item.Text.HasValue())

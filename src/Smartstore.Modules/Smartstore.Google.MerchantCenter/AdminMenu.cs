@@ -11,7 +11,7 @@ public class AdminMenu : AdminMenuProvider
         var menuItem = new MenuItem().ToBuilder()
             .Text("Google Merchant Center")
             .ResKey("Plugins.FriendlyName.SmartStore.Google.MerchantCenter")
-            .Icon("google", "bi")
+            .Icon("google")
             .Action("Configure", "GoogleMerchantCenter", new { area = "Admin" })
             .AsItem();
 
