@@ -115,13 +115,14 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
                 DefaultLibrary = defaultLibrary,
                 DefaultVariant = defaultVariant,
                 Icons = entries.Select(x => x.Concept).ToArray(),
+                SupportsStrokeScaling = entries.Where(x => x.Variant.Manifest.SupportsStrokeScaling).Select(x => x.Concept).ToArray(),
                 Sources = sources
             });
         }
 
         var content = JsonSerializer.SerializeToUtf8Bytes(new
         {
-            SchemaVersion = 8,
+            SchemaVersion = 9,
             MirrorInRtl = catalog.MirrorInRtl.OrderBy(x => x, StringComparer.Ordinal).ToArray(),
             Kits = kits
         }, SmartJsonOptions.CamelCased);

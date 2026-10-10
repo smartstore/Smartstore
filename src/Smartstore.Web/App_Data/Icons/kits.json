@@ -1,9 +1,13 @@
 {
   "system": {
+    "icon": "smartstore",
+    "showInPicker": false,
     "defaultLibrary": "system",
     "defaultVariant": "default",
     "icons": [
-      "not-found"
+      "not-found",
+      "smartstore",
+      "stars-tricolor"
     ]
   },
   "shared": {
@@ -139,6 +143,7 @@
     }
   },
   "backend": {
+    "showInPicker": false,
     "icon": "hi:settings-01!/sr",
     "defaultLibrary": null,
     "defaultVariant": null,

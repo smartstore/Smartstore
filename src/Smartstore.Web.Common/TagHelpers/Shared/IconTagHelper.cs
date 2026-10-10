@@ -217,7 +217,7 @@ public abstract class IconTagHelperBase : SmartTagHelper
 /// </summary>
 /// <param name="iconService">Resolves icon addresses and supplies validated, cached SVG payloads.</param>
 /// <param name="iconRenderer">Owns complete SVG rendering, including automatic kit references.</param>
-[HtmlTargetElement("icon", Attributes = NameAttributeName, TagStructure = TagStructure.WithoutEndTag)]
+[HtmlTargetElement("icon", TagStructure = TagStructure.WithoutEndTag)]
 [OutputElementHint("svg")]
 public class IconTagHelper(IIconService iconService, IIconRenderer iconRenderer) : IconTagHelperBase
 {

@@ -27,7 +27,7 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
         cancelToken.ThrowIfCancellationRequested();
         var transform = new IconTransform(options?.FlipHorizontal ?? icon.Transform.FlipX,
             options?.FlipVertical ?? icon.Transform.FlipY, options?.Rotate ?? icon.Transform.Rotation);
-        var strokeScale = options?.StrokeScale ?? icon.StrokeScale;
+        var strokeScale = icon.SupportsStrokeScaling ? options?.StrokeScale ?? icon.StrokeScale : 1;
         if (!double.IsFinite(strokeScale) || strokeScale <= 0)
         {
             throw new ArgumentOutOfRangeException(nameof(options), "Stroke scale must be finite and positive.");
@@ -117,6 +117,7 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
             svg.AddCssClass("icon-not-found text-danger");
         }
 
+        svg.Attributes["data-supports-stroke-scaling"] = icon.SupportsStrokeScaling ? "true" : "false";
         svg.Attributes["data-icon"] = icon.Address;
         svg.Attributes["xmlns"] = "http://www.w3.org/2000/svg";
         svg.Attributes["focusable"] = "false";

@@ -39,11 +39,12 @@
 
     function prepareManifest(data) {
         // Old cached pages fall back to the endpoint while scripts and manifests roll over.
-        if (data.schemaVersion !== 8) return null;
+        if (data.schemaVersion !== 9) return null;
         const mirrorInRtl = new Set(data.mirrorInRtl);
         const concepts = new Map();
         for (const kit of Object.values(data.kits)) {
             const url = new URL(kit.url, rootUrl()).href;
+            const strokeScaling = new Set(kit.supportsStrokeScaling);
             for (const name of kit.icons) {
                 // The server has resolved these identities already. Fill omitted fields from
                 // kit defaults; do not remap names or use patches to choose a sprite/symbol.
@@ -53,6 +54,7 @@
                 const variant = slash < 0 ? kit.defaultVariant : source.slice(slash + 1);
                 const icon = source.slice(colon + 1, slash < 0 ? source.length : slash);
                 concepts.set(name, {
+                    supportsStrokeScaling: strokeScaling.has(name),
                     href: url + '#' + encodeURIComponent(name),
                     address: `${library.toLowerCase()}:${icon}/${variant.toLowerCase()}`,
                     classes: ['icon-' + library, 'icon-' + library + '-' + variant,
@@ -247,6 +249,7 @@
             if (reference) {
                 template = document.createElementNS(ns, 'svg');
                 template.setAttribute('data-icon', reference.address);
+                template.setAttribute('data-supports-stroke-scaling', String(reference.supportsStrokeScaling));
                 template.setAttribute('class', reference.classes.join(' '));
                 const use = document.createElementNS(ns, 'use');
                 use.setAttribute('href', reference.href); template.append(use);

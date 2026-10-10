@@ -59,6 +59,45 @@ public class IconServiceTests
         Assert.That(await renderer.RenderAsync(null), Is.Null);
     }
 
+    /// <summary>
+    /// Source capabilities govern mappings, query overrides, renderer options and mixed-kit browser metadata.
+    /// </summary>
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task Stroke_Scaling_Uses_Resolved_Variant_Capability(bool supported)
+    {
+        Write("Icons/other/library.json", JsonSerializer.Serialize(new
+        {
+            defaultVariant = "default",
+            variants = new { @default = new { supportsStrokeScaling = supported } }
+        }));
+        Write("Icons/other/default/icons/foreign.svg", _svg);
+        Write("Icons/other/mapping.json", """{"foreign":"foreign?stroke-scale=1.5"}""");
+        Write("Icons/kits.json", """{"shared":{"icons":["cart","foreign"],"sources":{"foreign":"other:foreign!/default"}}}""");
+        var icon = await _service.GetIconAsync("other:foreign/default?stroke-scale=2");
+        Assert.That(icon.SupportsStrokeScaling, Is.EqualTo(supported));
+        Assert.That(icon.StrokeScale, Is.EqualTo(supported ? 2 : 1));
+        var mapped = await _service.GetIconAsync("other:foreign/default");
+        Assert.That(mapped.StrokeScale, Is.EqualTo(supported ? 1.5 : 1));
+        var accessor = new HttpContextAccessor();
+        var kits = new IconKitService(_service, _context.Object, accessor);
+        var renderer = new IconRenderer(_service, kits);
+        var output = await renderer.RenderAsync(icon, new IconOptions { StrokeScale = 3 });
+        Assert.That(output.Attributes["data-supports-stroke-scaling"], Is.EqualTo(supported ? "true" : "false"));
+        Assert.That(output.Attributes.TryGetValue("style", out var style) && style.Contains("--icon-stroke-scale:3"), Is.EqualTo(supported));
+        var browser = new IconBrowser(_service, kits, accessor);
+        var page = await browser.SearchAsync(new IconSearchQuery(), "shared");
+        Assert.That(page.Items.Single(x => x.Name == "foreign").SupportsStrokeScaling, Is.EqualTo(supported));
+        Assert.That(page.Items.Single(x => x.Name == "cart").SupportsStrokeScaling, Is.True);
+        var path = await kits.GetManifestFileAsync(Path.GetFileNameWithoutExtension(kits.GetManifestUrl()));
+        using var manifest = JsonDocument.Parse(await File.ReadAllTextAsync(path));
+        var scalable = manifest.RootElement.GetProperty("kits").GetProperty("shared")
+            .GetProperty("supportsStrokeScaling").EnumerateArray().Select(x => x.GetString()).ToArray();
+        Assert.That(scalable.Contains("foreign"), Is.EqualTo(supported));
+        Assert.That(scalable, Does.Contain("cart"));
+        Assert.That(new IconVariant().SupportsStrokeScaling, Is.False);
+    }
+
     private const string _svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"-1 -2 24 25\" width=\"24\" height=\"25\" fill=\"none\"><path d=\"M0 0L1 1\" stroke=\"currentColor\" stroke-width=\"1\" stroke-linecap=\"butt\"/></svg>";
     private string _root;
     private PhysicalFileProvider _provider;
@@ -219,9 +258,9 @@ public class IconServiceTests
         Assert.That(Path.GetFileName(paths[0]), Is.EqualTo("manifest-" + revision + ".json"));
         using var json = JsonDocument.Parse(await File.ReadAllTextAsync(paths[0]));
         Assert.That(json.RootElement.EnumerateObject().Select(x => x.Name), Is.EquivalentTo(new[] { "schemaVersion", "mirrorInRtl", "kits" }));
-        Assert.That(json.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(8));
+        Assert.That(json.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(9));
         var shared = json.RootElement.GetProperty("kits").GetProperty("shared");
-        Assert.That(shared.EnumerateObject().Select(x => x.Name), Is.EquivalentTo(new[] { "url", "defaultLibrary", "defaultVariant", "icons", "sources" }));
+        Assert.That(shared.EnumerateObject().Select(x => x.Name), Is.EquivalentTo(new[] { "url", "defaultLibrary", "defaultVariant", "icons", "supportsStrokeScaling", "sources" }));
         Assert.That(shared.GetProperty("icons").EnumerateArray().Select(x => x.GetString()), Is.EqualTo(new[] { "cart", "thick" }),
             "Mapping flips and stroke multipliers are baked into kit symbols.");
         Assert.That(shared.GetProperty("url").GetString(), Does.StartWith("icons/shared-"));
@@ -1933,7 +1972,7 @@ public class IconServiceTests
 
         var manifestPath = await kits.GetManifestFileAsync(Path.GetFileNameWithoutExtension(kits.GetManifestUrl()));
         using var manifest = JsonDocument.Parse(await File.ReadAllTextAsync(manifestPath));
-        Assert.That(manifest.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(8));
+        Assert.That(manifest.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(9));
         var brands = manifest.RootElement.GetProperty("kits").GetProperty("brands");
         Assert.That(brands.GetProperty("icons").EnumerateArray().Select(x => x.GetString()), Is.EquivalentTo(symbols.Keys),
             "Each concept references its own symbol, including aliases sharing one source.");
@@ -2542,7 +2581,7 @@ public class IconServiceTests
             defaultVariant = "sharp",
             variants = new
             {
-                rounded = new { defaultViewBox = "0 0 24 24", shortName = variantShortName, strokeWidthScale = 1.6 },
+                rounded = new { defaultViewBox = "0 0 24 24", shortName = variantShortName, supportsStrokeScaling = true, strokeWidthScale = 1.6 },
                 sharp = new { defaultViewBox = "0 0 24 24" }
             }
         }));

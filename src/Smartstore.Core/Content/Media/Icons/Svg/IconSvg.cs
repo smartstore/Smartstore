@@ -94,6 +94,11 @@ public sealed class IconInfo
     public double StrokeScale { get; set; } = 1;
 
     /// <summary>
+    /// Gets or sets whether the resolved source variant supports per-icon stroke scaling.
+    /// </summary>
+    public bool SupportsStrokeScaling { get; set; }
+
+    /// <summary>
     /// Gets or sets whether this concept mirrors horizontally in an RTL context.
     /// Explicit source selections do not inherit this policy.
     /// </summary>

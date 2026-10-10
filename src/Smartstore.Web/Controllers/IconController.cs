@@ -101,7 +101,7 @@ public class IconController(IIconKitService kits, IIconService icons, IIconRende
                 results = result.Items.Select(x => new
                 {
                     id = x.Value, text = x.Name, address = x.Address,
-                    library = x.LibraryKey, variant = x.VariantKey, inlineName = x.InlineName
+                    library = x.LibraryKey, variant = x.VariantKey, inlineName = x.InlineName, supportsStrokeScaling = x.SupportsStrokeScaling
                 }),
                 pagination = new { more = (long)page * pageSize < result.TotalCount },
                 total = result.TotalCount

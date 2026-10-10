@@ -64,8 +64,9 @@ public sealed class IconKit
     /// <param name="defaultVariant">The optional default variant within the kit default library.</param>
     /// <param name="sources">Optional concrete source addresses keyed by names present in <paramref name="icons"/>. Source names are not mapped again.</param>
     /// <param name="icon">The optional icon address representing this kit in pickers. Null uses the generic kit icon.</param>
+    /// <param name="showInPicker">Whether the kit is listed in the icon picker by default.</param>
     public IconKit(string name, IEnumerable<string> icons, string? defaultLibrary = null, string? defaultVariant = null,
-        IReadOnlyDictionary<string, string>? sources = null, string? icon = null)
+        IReadOnlyDictionary<string, string>? sources = null, string? icon = null, bool showInPicker = true)
     {
         Guard.NotEmpty(name);
 
@@ -103,12 +104,18 @@ public sealed class IconKit
         DefaultLibrary = defaultLibrary;
         DefaultVariant = defaultVariant;
         Icon = icon;
+        ShowInPicker = showInPicker;
     }
 
     /// <summary>
     /// Gets the configured name.
     /// </summary>
     public string Name { get; }
+
+    /// <summary>
+    /// Gets whether the kit is listed in the icon picker by default. Does not restrict icon usage.
+    /// </summary>
+    public bool ShowInPicker { get; }
 
     /// <summary>
     /// Gets the optional icon address representing this kit in pickers. It does not add a kit member.

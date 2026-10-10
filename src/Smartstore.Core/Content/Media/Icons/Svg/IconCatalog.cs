@@ -491,7 +491,9 @@ internal sealed class IconCatalog
                     : null;
                 var icon = isObject && definition.TryGetProperty("icon", out var kitIcon)
                     ? kitIcon.GetString() : null;
-                var iconKit = new IconKit(kit.Name, names, libraryName, variantName, sources, icon);
+                var showInPicker = !isObject || !definition.TryGetProperty("showInPicker", out var kitVisibility)
+                    || kitVisibility.GetBoolean();
+                var iconKit = new IconKit(kit.Name, names, libraryName, variantName, sources, icon, showInPicker);
                 foreach (var address in iconKit.SourceAddresses.Values)
                 {
                     var entryLibrary = IconService.SelectLibrary(catalog, address.Library ?? libraryName);

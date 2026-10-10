@@ -12,10 +12,12 @@
             const button = root.find('.icon-browser-source-dropdown > button');
             const optionFields = root.find('[data-icon-option]');
             const toolbar = root.find('.icon-browser-toolbar');
+            let supportsStrokeScaling = false;
             let selectedAddress = select.val() || '';
             const pending = new Set();
 
             function updateToolbarState() {
+                toolbar.find('[data-option="stroke-scale"]').toggleClass('d-none', !supportsStrokeScaling);
                 let overflowChanged = false;
                 toolbar.find('[data-option]').each(function () {
                     const field = optionFields.toArray().find(field => field.dataset.iconOption === this.dataset.option);
@@ -23,16 +25,17 @@
                     const active = changed && (!this.dataset.option.startsWith('flip-') || field.value.toLowerCase() === 'true');
                     $(this).toggleClass('active', !!active);
                     if (this.hasAttribute('aria-pressed')) this.setAttribute('aria-pressed', active ? 'true' : 'false');
-                    if (changed && this.hasAttribute('data-overflow')) overflowChanged = true;
+                    if (changed && !this.classList.contains('d-none') && this.hasAttribute('data-overflow')) overflowChanged = true;
                 });
-                toolbar.find('[data-more]').toggleClass('active', overflowChanged);
+                toolbar.find('[data-more]').toggleClass('active', overflowChanged)
+                    .toggleClass('d-none', !toolbar.find('[data-overflow]:not(.d-none)').length);
             }
 
             function applyPreviewOptions(icon) {
                 for (const field of optionFields) {
                     const option = field.dataset.iconOption;
                     // Keep the picker stable; size and animation belong to a separate options preview.
-                    if (field.value === '' || option === 'size' || option === 'animation') continue;
+                    if (field.value === '' || option === 'size' || option === 'animation' || (option === 'stroke-scale' && !supportsStrokeScaling)) continue;
                     let value = field.value;
                     if (option.startsWith('flip-')) value = value.toLowerCase();
                     // Hidden MVC decimal values follow the form culture; SVG queries use a decimal point.
@@ -116,6 +119,9 @@
             }
             function ToolbarSelection() {}
             ToolbarSelection.prototype.update = function (decorated, data) {
+                const item = data[0];
+                supportsStrokeScaling = !!item?.id && (item.supportsStrokeScaling ?? item.element?.dataset.supportsStrokeScaling === 'true');
+                updateToolbarState();
                 toolbar.detach();
                 decorated.call(this, data);
                 if (toolbar.length) {

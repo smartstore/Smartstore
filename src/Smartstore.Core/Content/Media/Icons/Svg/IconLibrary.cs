@@ -125,4 +125,9 @@ public sealed record IconVariant
     /// Gets the multiplier applied once to source stroke widths. Defaults to 1 (unchanged).
     /// </summary>
     public double StrokeWidthScale { get; init; } = 1;
+
+    /// <summary>
+    /// Gets whether this variant supports per-icon stroke scaling. Defaults to false.
+    /// </summary>
+    public bool SupportsStrokeScaling { get; init; }
 }

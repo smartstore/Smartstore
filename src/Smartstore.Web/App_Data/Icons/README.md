@@ -147,6 +147,7 @@ Each library contains a `library.json`:
       "shortName": "sr",
       "defaultViewBox": "0 0 24 24",
       "stroke": "currentColor",
+      "supportsStrokeScaling": true,
       "strokeWidthScale": 1.0666667
     }
   }
@@ -176,6 +177,12 @@ Each library contains a `library.json`:
   These settings are currently not applied.
 - `stroke` optionally replaces explicit source stroke colors (for example, `currentColor`).
   Omission preserves original colors. Explicit `none` remains unpainted.
+- `supportsStrokeScaling` defaults to `false`. Enable it for variants whose artwork
+  supports per-icon stroke adjustments. The resolved source variant controls this
+  capability, including fallback and mixed-kit selections. Unsupported variants ignore
+  mapping, query and rendering-option stroke multipliers. The IconBrowser hides the
+  stroke tool for them. The manifest lists supported concepts per kit in
+  `supportsStrokeScaling`; browser results expose the corresponding boolean.
 - `strokeWidthScale` multiplies original stroke widths once, including inherited widths.
   It defaults to 1 and must be finite and non-negative. For example, 1.0666667 turns
   1.5 into approximately 1.6 while preserving relative differences between widths.
@@ -419,6 +426,12 @@ See [MIGRATION.md](MIGRATION.md) for the `twitter-x` and `windows-logo` conventi
 The root object in `kits.json` groups conceptual names by area of use,
 such as `shared`, `frontend`, `backend`, or a custom `media` kit. Add names to the relevant
 `icons` arrays and provide their assignments in each library's `mapping.json`.
+Kit objects may set `showInPicker` to `false` to hide them from the default icon
+picker source list. The default is `true`, including array shorthand definitions.
+This does not restrict resolution, rendering or kit access. Set
+`IconModel.ShowHiddenKits = true` for developer pickers that should list all kits.
+Existing selections from hidden kits retain their preview and source label.
+
 Kit objects may specify `defaultLibrary` (a library system name) and `defaultVariant`.
 Both are optional. Array-only definitions remain supported as shorthand.
 
@@ -888,7 +901,7 @@ manifest contains kit URLs, directly renderable concepts and compact DOM identit
 
 ```json
 {
-  "schemaVersion": 8,
+  "schemaVersion": 9,
   "mirrorInRtl": ["arrow-left", "arrow-right", "chevron-left", "chevron-right", "chevrons-left", "chevrons-right"],
   "kits": {
     "brands": {
@@ -896,6 +909,7 @@ manifest contains kit URLs, directly renderable concepts and compact DOM identit
       "defaultLibrary": "fa",
       "defaultVariant": "b",
       "icons": ["alexa", "apple", "browser-chrome"],
+      "supportsStrokeScaling": [],
       "sources": {
         "alexa": "bi:alexa/default",
         "browser-chrome": "chrome"

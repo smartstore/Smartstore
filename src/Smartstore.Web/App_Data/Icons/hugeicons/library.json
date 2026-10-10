@@ -11,6 +11,7 @@
       "shortName": "sr",
       "defaultViewBox": "0 0 24 24",
       "stroke": "currentColor",
+      "supportsStrokeScaling": true,
       "strokeWidthScale": 1.0666667
     }
   }

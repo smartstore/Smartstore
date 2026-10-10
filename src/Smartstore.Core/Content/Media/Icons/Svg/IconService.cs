@@ -243,8 +243,8 @@ public sealed partial class IconService(IApplicationContext applicationContext, 
         var mappingTransform = selected.Mapping.Transform;
         info.Transform = modifiers.Apply(mappingTransform);
         info.RequiresInline = info.Transform != mappingTransform
-            || (modifiers.StrokeScale.HasValue && modifiers.StrokeScale.Value != selected.Mapping.StrokeScale);
-        info.StrokeScale = modifiers.StrokeScale ?? selected.Mapping.StrokeScale;
+            || (info.SupportsStrokeScaling && modifiers.StrokeScale.HasValue && modifiers.StrokeScale.Value != selected.Mapping.StrokeScale);
+        info.StrokeScale = info.SupportsStrokeScaling ? modifiers.StrokeScale ?? selected.Mapping.StrokeScale : 1;
         info.MirrorInRtl = !address.SkipMapping && address.Library == null && address.Variant == null
             && libraryName == null && variantName == null && catalog.MirrorInRtl.Contains(address.Name);
         return info;
@@ -286,7 +286,7 @@ public sealed partial class IconService(IApplicationContext applicationContext, 
                 // resolving memberships does not fingerprint unrelated kits' loose sources.
                 if (indexOnly ? candidate.Names.Contains(mapping.Name) : candidate.GetSource(mapping.Name) != null)
                 {
-                    return (candidateLibrary, candidate, mapping);
+                    return (candidateLibrary, candidate, candidate.Manifest.SupportsStrokeScaling ? mapping : mapping with { StrokeScale = 1 });
                 }
             }
 
@@ -343,6 +343,7 @@ public sealed partial class IconService(IApplicationContext applicationContext, 
         LibraryName = library.Manifest.SystemName,
         LibraryShortName = library.Manifest.ShortName,
         VariantName = variant.Manifest.Name,
+        SupportsStrokeScaling = variant.Manifest.SupportsStrokeScaling,
         VariantShortName = variant.Manifest.ShortName,
         Name = name,
         DeferredTags = includeTags

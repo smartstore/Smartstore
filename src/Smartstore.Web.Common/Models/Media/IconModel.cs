@@ -54,6 +54,13 @@ public class IconModel : ModelBase
     public IconOptionFields VisibleOptions { get; set; }
 
     /// <summary>
+    /// Gets or sets whether the picker lists kits hidden by their default configuration.
+    /// Controllers must restore this editor configuration on redisplay.
+    /// </summary>
+    [BindNever, JsonIgnore]
+    public bool ShowHiddenKits { get; set; }
+
+    /// <summary>
     /// Creates rendering options without changing the persisted address or omitted values.
     /// </summary>
     public IconOptions ToOptions() => new()
