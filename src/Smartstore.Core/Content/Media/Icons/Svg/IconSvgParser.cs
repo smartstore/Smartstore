@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
+using System.Xml.XPath;
 
 namespace Smartstore.Core.Content.Media.Icons;
 
@@ -30,7 +31,7 @@ internal static partial class IconSvgParser
     /// <summary>
     /// The preparation format version included in cache revisions independently of source content.
     /// </summary>
-    internal const string Revision = "15";
+    internal const string Revision = "17";
     private const string _svgNamespace = "http://www.w3.org/2000/svg";
     // Support static icon graphics only. This is deliberately not a general SVG document
     // renderer: executable content, external resources and arbitrary source CSS are excluded.
@@ -112,8 +113,35 @@ internal static partial class IconSvgParser
             }
         }
 
-        // Supply SVG's initial width so CSS overrides also reach strokes without an explicit width.
-        if (root.Attribute("stroke-width") == null)
+        // Resolve stroke inheritance before converting attributes into generated styles.
+        // Ancestors of stroked elements still carry shared width declarations.
+        var strokeBranches = new HashSet<XElement>();
+        CollectStrokeBranches(root, "none");
+
+        bool CollectStrokeBranches(XElement element, string inheritedStroke)
+        {
+            var stroke = (string)element.Attribute("stroke");
+            if (stroke == null || stroke.Equals("inherit", StringComparison.OrdinalIgnoreCase))
+            {
+                stroke = inheritedStroke;
+            }
+
+            var hasStroke = !stroke.Equals("none", StringComparison.OrdinalIgnoreCase);
+            foreach (var child in element.Elements())
+            {
+                hasStroke |= CollectStrokeBranches(child, stroke);
+            }
+
+            if (hasStroke)
+            {
+                strokeBranches.Add(element);
+            }
+
+            return hasStroke;
+        }
+
+        // Supply SVG's initial width only when the drawing actually uses strokes.
+        if (strokeBranches.Contains(root) && root.Attribute("stroke-width") == null)
         {
             root.SetAttributeValue("stroke-width", "1");
         }
@@ -126,6 +154,11 @@ internal static partial class IconSvgParser
         {
             foreach (var child in root.Elements())
             {
+                if (attribute.Name.LocalName == "stroke-width" && !strokeBranches.Contains(child))
+                {
+                    continue;
+                }
+
                 if (child.Attribute(attribute.Name) == null || (string)child.Attribute(attribute.Name) == "inherit")
                 {
                     child.SetAttributeValue(attribute.Name, attribute.Value);
@@ -144,20 +177,20 @@ internal static partial class IconSvgParser
                 // A missing manifest override preserves the source color. Deliberately
                 // unstroked shapes stay unstroked even when the caller sets --icon-stroke.
                 var fallback = variant.Stroke ?? stroke.Value;
-                AppendStrokeStyle(element, "stroke", fallback);
+                AppendVariableStyle(element, "stroke", fallback);
             }
 
             // Scale declarations, not effective values: children inherit the already scaled
             // parent width, while explicit child widths are multiplied independently once.
             var width = element.Attribute("stroke-width");
-            if (width != null && width.Value != "inherit")
+            if (width != null && width.Value != "inherit" && strokeBranches.Contains(element))
             {
                 if (variant.StrokeWidthScale != 1)
                 {
                     width.Value = ScaleStrokeWidth(width.Value, variant.StrokeWidthScale);
                 }
 
-                AppendStrokeStyle(element, "stroke-width", width.Value);
+                AppendVariableStyle(element, "stroke-width", width.Value);
             }
         }
 
@@ -186,11 +219,62 @@ internal static partial class IconSvgParser
             }
         }
 
+        if (variant.IsDuotone)
+        {
+            PrepareDuotone(root, variant, info.Address);
+        }
+
         // Carry the effective coordinate system with the XML, including the variant fallback.
         // Detach so sprite composition can move this tree without LINQ to XML cloning it.
         root.SetAttributeValue("viewBox", viewBox);
         root.Remove();
         return root;
+    }
+
+    /// <summary>
+    /// Resolves both layers before mutation and preserves their source paint as CSS variable fallbacks.
+    /// </summary>
+    /// <param name="root">The namespace-normalized SVG root.</param>
+    /// <param name="variant">The layer selectors from the source variant.</param>
+    /// <param name="address">The source identity used in diagnostics.</param>
+    private static void PrepareDuotone(XElement root, IconVariant variant, string address)
+    {
+        XElement[] primary;
+        XElement[] secondary;
+        try
+        {
+            primary = root.XPathSelectElements(variant.PrimaryPathSelector).ToArray();
+            secondary = root.XPathSelectElements(variant.SecondaryPathSelector).ToArray();
+        }
+        catch (XPathException ex)
+        {
+            throw new InvalidDataException($"Invalid duotone selectors for '{address}'.", ex);
+        }
+
+        var layers = primary.Concat(secondary).ToArray();
+        if (primary.Length == 0 || secondary.Length == 0 || layers.Distinct().Count() != layers.Length
+            || layers.Any(x => x == root || !x.Ancestors().Contains(root)
+                || x.Ancestors().Any(layers.Contains)))
+        {
+            throw new InvalidDataException($"Duotone selectors for '{address}' must match separate, non-overlapping drawing elements.");
+        }
+
+        Prepare(primary, "primary");
+        Prepare(secondary, "secondary");
+
+        void Prepare(IEnumerable<XElement> elements, string layer)
+        {
+            foreach (var element in elements)
+            {
+                var fill = element.AncestorsAndSelf().Select(x => (string)x.Attribute("fill"))
+                    .FirstOrDefault(x => x != null && x != "inherit") ?? "black";
+                var opacity = (string)element.Attribute("opacity") ?? "1";
+                AppendVariableStyle(element, "fill", fill, layer + "-color");
+                AppendVariableStyle(element, "opacity", opacity, layer + "-opacity");
+                var classes = (string)element.Attribute("class");
+                element.SetAttributeValue("class", (classes == null ? string.Empty : classes + " ") + "icon-" + layer);
+            }
+        }
     }
 
     /// <summary>
@@ -220,11 +304,12 @@ internal static partial class IconSvgParser
     /// <summary>
     /// Replaces a presentation attribute with a CSS variable declaration retaining its prepared fallback.
     /// </summary>
-    /// <param name="element">The element declaring the stroke property.</param>
-    /// <param name="property">The stroke property controlled by the corresponding icon variable.</param>
+    /// <param name="element">The element declaring the presentation property.</param>
+    /// <param name="property">The presentation property controlled by the corresponding icon variable.</param>
     /// <param name="fallback">The configured or original value used when the CSS variable is absent.</param>
+    /// <param name="variable">The variable suffix, or null to use the property name.</param>
     /// <exception cref="InvalidDataException">The fallback contains CSS declaration delimiters.</exception>
-    private static void AppendStrokeStyle(XElement element, string property, string fallback)
+    private static void AppendVariableStyle(XElement element, string property, string fallback, string variable = null)
     {
         // Source styles are rejected during validation. Do not let an attribute or manifest
         // value introduce additional declarations when it is embedded in our generated CSS.
@@ -235,7 +320,7 @@ internal static partial class IconSvgParser
         }
 
         var style = (string)element.Attribute("style") ?? string.Empty;
-        element.SetAttributeValue("style", style + $"{property}:var(--icon-{property},{fallback});");
+        element.SetAttributeValue("style", style + $"{property}:var(--icon-{variable ?? property},{fallback});");
         // The fallback now lives in CSS; retaining the presentation attribute would duplicate it.
         element.Attribute(property)?.Remove();
     }

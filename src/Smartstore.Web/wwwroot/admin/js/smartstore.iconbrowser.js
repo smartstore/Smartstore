@@ -88,6 +88,7 @@
                     icon.append(use);
                 }
                 icon.setAttribute('class', 'icon');
+                if (isResult && item.isDuotone) icon.classList.add('icon-duotone');
                 if (isResult && item.library && item.variant) {
                     icon.classList.add(`icon-${item.library}`, `icon-${item.library}-${item.variant}`);
                 }

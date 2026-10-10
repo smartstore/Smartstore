@@ -39,11 +39,12 @@
 
     function prepareManifest(data) {
         // Old cached pages fall back to the endpoint while scripts and manifests roll over.
-        if (data.schemaVersion !== 9) return null;
+        if (data.schemaVersion !== 10) return null;
         const mirrorInRtl = new Set(data.mirrorInRtl);
         const concepts = new Map();
         for (const kit of Object.values(data.kits)) {
             const url = new URL(kit.url, rootUrl()).href;
+            const duotone = new Set(kit.duotone);
             const strokeScaling = new Set(kit.supportsStrokeScaling);
             for (const name of kit.icons) {
                 // The server has resolved these identities already. Fill omitted fields from
@@ -58,7 +59,8 @@
                     href: url + '#' + encodeURIComponent(name),
                     address: `${library.toLowerCase()}:${icon}/${variant.toLowerCase()}`,
                     classes: ['icon-' + library, 'icon-' + library + '-' + variant,
-                        ...(mirrorInRtl.has(name) ? ['icon-mirror-rtl'] : [])]
+                        ...(mirrorInRtl.has(name) ? ['icon-mirror-rtl'] : []),
+                        ...(duotone.has(name) ? ['icon-duotone'] : [])]
                 });
             }
         }

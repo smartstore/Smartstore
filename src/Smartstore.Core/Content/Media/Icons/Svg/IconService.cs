@@ -344,6 +344,7 @@ public sealed partial class IconService(IApplicationContext applicationContext, 
         LibraryShortName = library.Manifest.ShortName,
         VariantName = variant.Manifest.Name,
         SupportsStrokeScaling = variant.Manifest.SupportsStrokeScaling,
+        IsDuotone = variant.Manifest.IsDuotone,
         VariantShortName = variant.Manifest.ShortName,
         Name = name,
         DeferredTags = includeTags

@@ -136,4 +136,19 @@ public sealed record IconVariant
     /// Gets whether this variant supports per-icon stroke scaling. Defaults to false.
     /// </summary>
     public bool SupportsStrokeScaling { get; init; }
+
+    /// <summary>
+    /// Gets whether this variant has independently configurable primary and secondary layers.
+    /// </summary>
+    public bool IsDuotone { get; init; }
+
+    /// <summary>
+    /// Gets the primary layer XPath relative to the namespace-normalized SVG root. Positions are one-based.
+    /// </summary>
+    public string? PrimaryPathSelector { get; init; }
+
+    /// <summary>
+    /// Gets the secondary layer XPath relative to the namespace-normalized SVG root. Positions are one-based.
+    /// </summary>
+    public string? SecondaryPathSelector { get; init; }
 }

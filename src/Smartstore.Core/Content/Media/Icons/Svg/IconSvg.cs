@@ -99,6 +99,11 @@ public sealed class IconInfo
     public bool SupportsStrokeScaling { get; set; }
 
     /// <summary>
+    /// Gets or sets whether the resolved source variant has primary and secondary layers.
+    /// </summary>
+    public bool IsDuotone { get; set; }
+
+    /// <summary>
     /// Gets or sets whether this concept mirrors horizontally in an RTL context.
     /// Explicit source selections do not inherit this policy.
     /// </summary>

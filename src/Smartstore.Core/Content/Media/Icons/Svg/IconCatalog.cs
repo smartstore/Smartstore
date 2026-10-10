@@ -610,6 +610,7 @@ internal sealed class IconCatalog
         {
             if (!IconAddress.IsQualifier(pair.Key) || pair.Value == null
                 || pair.Value.ShortName != null && !IconAddress.IsQualifier(pair.Value.ShortName)
+                || pair.Value.IsDuotone && (string.IsNullOrWhiteSpace(pair.Value.PrimaryPathSelector) || string.IsNullOrWhiteSpace(pair.Value.SecondaryPathSelector))
                 || (!double.IsFinite(pair.Value.StrokeWidthScale) || pair.Value.StrokeWidthScale < 0)
                 || pair.Value.Stroke != null && (!System.Text.RegularExpressions.Regex.IsMatch(pair.Value.Stroke, @"^[A-Za-z0-9#.,% ()+-]+$")
                     || pair.Value.Stroke.Contains("url", StringComparison.OrdinalIgnoreCase)))

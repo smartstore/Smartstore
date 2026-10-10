@@ -107,6 +107,11 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
         }
 
         svg.AddCssClass($"icon icon-{icon.LibraryKey} icon-{icon.LibraryKey}-{icon.VariantKey}");
+        if (icon.IsDuotone)
+        {
+            svg.AddCssClass("icon-duotone");
+        }
+
         if (icon.MirrorInRtl)
         {
             svg.AddCssClass("icon-mirror-rtl");

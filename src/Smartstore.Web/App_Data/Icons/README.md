@@ -901,7 +901,7 @@ manifest contains kit URLs, directly renderable concepts and compact DOM identit
 
 ```json
 {
-  "schemaVersion": 9,
+  "schemaVersion": 10,
   "mirrorInRtl": ["arrow-left", "arrow-right", "chevron-left", "chevron-right", "chevrons-left", "chevrons-right"],
   "kits": {
     "brands": {
@@ -910,6 +910,7 @@ manifest contains kit URLs, directly renderable concepts and compact DOM identit
       "defaultVariant": "b",
       "icons": ["alexa", "apple", "browser-chrome"],
       "supportsStrokeScaling": [],
+      "duotone": [],
       "sources": {
         "alexa": "bi:alexa/default",
         "browser-chrome": "chrome"
@@ -1012,6 +1013,11 @@ option. Changing only the source retains both selection and options and opens th
 results automatically only when no icon is selected. A decorated Select2 selection
 adapter preserves the toolbar across selection updates and isolates button events
 from the icon dropdown.
+
+TODO: Add styling tools for duotone icons: separate color controls for the primary
+and secondary layers, plus an opacity control for one layer. Offer these controls
+only when the resolved variant is duotone; the layer receiving the opacity control
+is still to be decided.
 
 `IIconBrowser.GetSource` selects the initial source from the catalog without generating
 artwork: an explicit library/variant wins, otherwise a concept selects its preferred
@@ -1224,3 +1230,21 @@ variant names and short names must remain available; additional variants are all
 The replaced directory is optional, and its system name remains an alias even when absent.
 Replacement chains are supported; cycles and competing replacements are configuration
 errors. Removing the replacement restores the original library on catalog reload.
+
+### Duotone variants
+
+Variants opt in using `isDuotone: true`, `primaryPathSelector` and
+`secondaryPathSelector`. Selectors are XPath expressions relative to the SVG root
+and evaluated after namespace normalization; positional predicates are one-based.
+For Font Awesome Pro 7.3.1 use `path[2]` for primary and `path[1]` for secondary.
+Both selectors must match non-overlapping drawing elements. Missing or invalid
+selections produce an error instead of guessing the layer assignment.
+
+Preparation adds `icon-primary` / `icon-secondary` classes and generated inline
+styles for `--icon-primary-color`, `--icon-secondary-color`,
+`--icon-primary-opacity` and `--icon-secondary-opacity`. Original fill (including
+inherited fill) and opacity remain the fallbacks. Source files are not modified.
+The styles are stored in prepared payloads and sprites, so inherited variables
+also work through external `use` references. Renderers and client manifest hits
+add `icon-duotone` based on the actual resolved variant, including fallbacks.
+The manifest lists duotone concepts per kit in `duotone`.

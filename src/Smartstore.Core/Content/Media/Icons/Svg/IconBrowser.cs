@@ -120,5 +120,5 @@ public sealed class IconBrowser(IconService icons, IconKitService kits, IHttpCon
     /// <param name="concept">The kit concept, or null for a literal library selection.</param>
     private static IconBrowserItem CreateItem(IconInfo info, string concept = null)
         => new(concept ?? info.Name, concept ?? IconModifiers.FormatAddress(info), info.Address, info.LibraryKey, info.VariantKey,
-            null, info.SupportsStrokeScaling);
+            null, info.SupportsStrokeScaling, info.IsDuotone);
 }

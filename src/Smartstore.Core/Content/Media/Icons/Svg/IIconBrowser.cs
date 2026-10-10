@@ -50,8 +50,9 @@ public sealed record IconBrowserResult(string SpriteUrl, int TotalCount, IReadOn
 /// <param name="LibraryKey">The short or system library name used for CSS classes.</param>
 /// <param name="VariantKey">The short or system variant name used for CSS classes.</param>
 /// <param name="SupportsStrokeScaling">Whether the resolved source variant supports per-icon stroke scaling.</param>
+/// <param name="IsDuotone">Whether the resolved source variant has primary and secondary layers.</param>
 /// <param name="InlineName">An explicit address with modifiers for exceptions that require inline rendering.</param>
-public sealed record IconBrowserItem(string Name, string Value, string Address, string LibraryKey, string VariantKey, string? InlineName = null, bool SupportsStrokeScaling = false);
+public sealed record IconBrowserItem(string Name, string Value, string Address, string LibraryKey, string VariantKey, string? InlineName = null, bool SupportsStrokeScaling = false, bool IsDuotone = false);
 
 /// <summary>
 /// Identifies a picker source independently of the selected icon and its resolved fallback artwork.

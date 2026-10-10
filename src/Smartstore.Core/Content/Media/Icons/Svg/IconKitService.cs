@@ -115,6 +115,7 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
                 DefaultLibrary = defaultLibrary,
                 DefaultVariant = defaultVariant,
                 Icons = entries.Select(x => x.Concept).ToArray(),
+                Duotone = entries.Where(x => x.Variant.Manifest.IsDuotone).Select(x => x.Concept).ToArray(),
                 SupportsStrokeScaling = entries.Where(x => x.Variant.Manifest.SupportsStrokeScaling).Select(x => x.Concept).ToArray(),
                 Sources = sources
             });
@@ -122,7 +123,7 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
 
         var content = JsonSerializer.SerializeToUtf8Bytes(new
         {
-            SchemaVersion = 9,
+            SchemaVersion = 10,
             MirrorInRtl = catalog.MirrorInRtl.OrderBy(x => x, StringComparer.Ordinal).ToArray(),
             Kits = kits
         }, SmartJsonOptions.CamelCased);

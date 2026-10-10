@@ -142,6 +142,81 @@ public class IconServiceTests
         Assert.Throws<InvalidDataException>(() => _service.GetLibrary("hi"));
     }
 
+    /// <summary>
+    /// Duotone variables preserve source defaults in both prepared payloads and external sprites.
+    /// </summary>
+    [Test]
+    public async Task Duotone_Layers_Are_Prepared_For_Inline_And_Sprite_Rendering()
+    {
+        Write("Icons/hugeicons/library.json", """{"shortName":"hi","defaultVariant":"rounded","variants":{"rounded":{"isDuotone":true,"primaryPathSelector":"path[2]","secondaryPathSelector":"path[1]"}}}""");
+        Write("Icons/hugeicons/rounded/user/cart-01.svg", """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" opacity=".4" d="M0 0L1 1"/><path fill="#123456" d="M2 2L3 3"/></svg>""");
+        Write("Icons/kits.json", """{"shared":["cart"]}""");
+        var icon = await _service.GetIconAsync("cart");
+        Assert.That(icon.IsDuotone, Is.True);
+        var source = await _service.GetSvgAsync(icon);
+        Assert.That(source.Content, Does.Contain("fill:var(--icon-primary-color,#123456)")
+            .And.Contain("opacity:var(--icon-primary-opacity,1)")
+            .And.Contain("fill:var(--icon-secondary-color,currentColor)")
+            .And.Contain("opacity:var(--icon-secondary-opacity,.4)"));
+        var inline = await new IconRenderer(_service, Mock.Of<IIconKitService>()).RenderAsync(icon);
+        Assert.That(inline.Attributes["class"], Does.Contain("icon-duotone"));
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        var output = await new IconRenderer(_service, kits).RenderAsync(icon);
+        Assert.That(output.Attributes["class"], Does.Contain("icon-duotone"));
+        Assert.That(RenderMarkup(output.InnerHtml), Does.Contain("<use"));
+        var revision = Path.GetFileNameWithoutExtension(kits.GetUrl("shared")).Substring("shared-".Length);
+        var path = await kits.GetSpriteFileAsync("shared", revision);
+        Assert.That(await File.ReadAllTextAsync(path), Does.Contain("--icon-primary-color,#123456")
+            .And.Contain("--icon-secondary-opacity,.4"));
+        var browser = new IconBrowser(_service, kits, new HttpContextAccessor());
+        Assert.That((await browser.SearchAsync(new IconSearchQuery(), "shared")).Items.Single().IsDuotone, Is.True);
+        var manifestPath = await kits.GetManifestFileAsync(Path.GetFileNameWithoutExtension(kits.GetManifestUrl()));
+        using var manifest = JsonDocument.Parse(await File.ReadAllTextAsync(manifestPath));
+        Assert.That(manifest.RootElement.GetProperty("kits").GetProperty("shared").GetProperty("duotone")[0].GetString(), Is.EqualTo("cart"));
+    }
+
+    /// <summary>
+    /// Invalid, empty and overlapping layer selectors fail with icon diagnostics.
+    /// </summary>
+    [TestCase("path[", "path[1]")]
+    [TestCase("path[2]", "path[1]")]
+    [TestCase("path[1]", "path[1]")]
+    public void Invalid_Duotone_Selectors_Are_Rejected(string primary, string secondary)
+    {
+        Write("Icons/hugeicons/library.json", JsonSerializer.Serialize(new
+        {
+            defaultVariant = "rounded",
+            variants = new { rounded = new { isDuotone = true, primaryPathSelector = primary, secondaryPathSelector = secondary } }
+        }));
+        Write("Icons/hugeicons/rounded/user/cart-01.svg", _svg);
+        Assert.ThrowsAsync<InvalidDataException>(async () => await _service.GetSvgAsync(await _service.GetIconAsync("cart")));
+    }
+
+    /// <summary>
+    /// Fill-only drawings need no generated stroke styles, including beside stroked branches.
+    /// </summary>
+    [TestCase("<path fill='currentColor' d='M0 0L1 1'/>")]
+    [TestCase("<path fill='currentColor' stroke='none' stroke-width='2' d='M0 0L1 1'/>")]
+    public async Task Fill_Only_Icons_Do_Not_Generate_Stroke_Styles(string drawing)
+    {
+        Write("Icons/hugeicons/rounded/icons/fill-only.svg", "<svg viewBox='0 0 24 24'>" + drawing + "</svg>");
+        var svg = await _service.GetSvgAsync("fill-only");
+        Assert.That(svg.Content, Does.Not.Contain("--icon-stroke"));
+    }
+
+    /// <summary>
+    /// Default stroke widths are supplied only to branches needing them.
+    /// </summary>
+    [Test]
+    public async Task Mixed_Icons_Keep_Stroke_Defaults_Off_Fill_Branches()
+    {
+        Write("Icons/hugeicons/rounded/icons/mixed.svg", """<svg viewBox="0 0 24 24"><path fill="red"/><g><path stroke="black"/></g></svg>""");
+        var svg = await _service.GetSvgAsync("mixed");
+        var tree = XElement.Parse("<svg>" + svg.Content + "</svg>");
+        Assert.That(tree.Element("path").Attribute("style"), Is.Null);
+        Assert.That((string)tree.Element("g").Attribute("style"), Does.Contain("--icon-stroke-width,1.6"));
+    }
+
     private const string _svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"-1 -2 24 25\" width=\"24\" height=\"25\" fill=\"none\"><path d=\"M0 0L1 1\" stroke=\"currentColor\" stroke-width=\"1\" stroke-linecap=\"butt\"/></svg>";
     private string _root;
     private PhysicalFileProvider _provider;
@@ -302,9 +377,9 @@ public class IconServiceTests
         Assert.That(Path.GetFileName(paths[0]), Is.EqualTo("manifest-" + revision + ".json"));
         using var json = JsonDocument.Parse(await File.ReadAllTextAsync(paths[0]));
         Assert.That(json.RootElement.EnumerateObject().Select(x => x.Name), Is.EquivalentTo(new[] { "schemaVersion", "mirrorInRtl", "kits" }));
-        Assert.That(json.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(9));
+        Assert.That(json.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(10));
         var shared = json.RootElement.GetProperty("kits").GetProperty("shared");
-        Assert.That(shared.EnumerateObject().Select(x => x.Name), Is.EquivalentTo(new[] { "url", "defaultLibrary", "defaultVariant", "icons", "supportsStrokeScaling", "sources" }));
+        Assert.That(shared.EnumerateObject().Select(x => x.Name), Is.EquivalentTo(new[] { "url", "defaultLibrary", "defaultVariant", "icons", "duotone", "supportsStrokeScaling", "sources" }));
         Assert.That(shared.GetProperty("icons").EnumerateArray().Select(x => x.GetString()), Is.EqualTo(new[] { "cart", "thick" }),
             "Mapping flips and stroke multipliers are baked into kit symbols.");
         Assert.That(shared.GetProperty("url").GetString(), Does.StartWith("icons/shared-"));
@@ -2016,7 +2091,7 @@ public class IconServiceTests
 
         var manifestPath = await kits.GetManifestFileAsync(Path.GetFileNameWithoutExtension(kits.GetManifestUrl()));
         using var manifest = JsonDocument.Parse(await File.ReadAllTextAsync(manifestPath));
-        Assert.That(manifest.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(9));
+        Assert.That(manifest.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(10));
         var brands = manifest.RootElement.GetProperty("kits").GetProperty("brands");
         Assert.That(brands.GetProperty("icons").EnumerateArray().Select(x => x.GetString()), Is.EquivalentTo(symbols.Keys),
             "Each concept references its own symbol, including aliases sharing one source.");
