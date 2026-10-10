@@ -8,7 +8,7 @@
             @T("ShoppingCart.Mini.EmptyCompare.Title")
         </h4>
         <p class="no-item-icon">
-            <i class="fa fa-retweet fa-4x" aria-hidden="true"></i>
+            <icon name="repeat" class="icon-4x" aria-hidden="true" />
         </p>
         <p class="no-item-info text-muted">
             @Html.Raw(T("ShoppingCart.Mini.EmptyCompare.Info", "fa fa-lg fa-retweet"))
@@ -72,7 +72,7 @@
     <div class="offcanvas-cart-footer-row no-gutters">
         <div class="col pr-2">
             <a class="btn btn-clear btn-block btn-action" asp-route="CompareProducts">
-                <i class="fa fa-check" aria-hidden="true"></i>
+                <icon name="check"  aria-hidden="true" />
                 <span>@T("Products.Compare.CompareNow")</span>
             </a>
         </div>

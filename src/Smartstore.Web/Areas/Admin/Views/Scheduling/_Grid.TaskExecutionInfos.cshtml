@@ -47,7 +47,7 @@
         <column for="Succeeded" sortable="false" width="2fr" hideable="false">
             <display-template>
                 <div v-if="item.row.Succeeded" class="dg-cell-value">
-                    <i class="fa fa-fw icon-active-true"></i>
+                    <icon name="check" class="icon-fw icon-active-true" />
                     <span class="ml-1 text-truncate">@T("Common.Succeeded")</span>
                 </div>
                 <div v-if="!item.row.Succeeded" class="dg-cell-value">

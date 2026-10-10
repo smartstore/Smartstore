@@ -53,7 +53,7 @@
                         value="@T("Enums.OrderStatus.Complete")"
                         data-confirm-message="@(Model.IsPaid ? askToProceed : T("Admin.Orders.CompleteUnpaidOrder", Model.PaymentStatusString))"
                         class="btn btn-sm btn-warning confirm2">
-                    <i class="fa fa-check"></i>
+                    <icon name="check"  />
                     <span>@T("Enums.OrderStatus.Complete")</span>
                 </button>
             </div>

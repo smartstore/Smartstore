@@ -15,7 +15,7 @@
             @T("ShoppingCart.Mini.EmptyWishlist.Title")
         </h4>
         <p class="no-item-icon">
-            <i class="fal fa-heart fa-4x" aria-hidden="true"></i>
+            <icon name="heart" class="icon-4x" aria-hidden="true" />
         </p>
         <p class="no-item-info text-muted">
             @Html.Raw(T("ShoppingCart.Mini.EmptyWishlist.Info", "fal fa-lg fa-heart"))
@@ -39,7 +39,7 @@
 <div sm-if="hasItems" class="offcanvas-cart-footer">
     <div class="offcanvas-cart-footer-row">
         <a class="btn btn-clear btn-block btn-action" asp-route="Wishlist">
-            <i class="fa fa-check" aria-hidden="true"></i>
+            <icon name="check"  aria-hidden="true" />
             <span>@T("Wishlist.Mini.ViewWishlist")</span>
         </a>
     </div>

@@ -36,6 +36,6 @@ public class BackToTagHelper(Localizer localizer) : TagHelper
         }
 
         output.Content.Clear();
-        output.Content.SetHtmlContent("<i class=\"fa fa-arrow-left\"></i>");
+        output.Content.SetHtmlContent("<sm-icon name=\"arrow-left\"></sm-icon>");
     }
 }

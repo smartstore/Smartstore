@@ -37,11 +37,11 @@
             </div>
             <p class="pt-3 mb-5">
                 <a asp-action="Details" asp-controller="Order" asp-route-id="@Model.OrderId" class="btn btn-warning" rel="nofollow">
-                    @*<i class="far fa-rectangle-list" aria-hidden="true"></i>*@
+                    @*<icon name="list-square"  aria-hidden="true" />*@
                     <span>@T("Checkout.PlacedOrderDetails")</span>
                 </a>
                 <a asp-route="Homepage" class="btn btn-secondary order-completed-continue-button">
-                    @*<i class="fa fa-home" aria-hidden="true"></i>*@
+                    @*<icon name="home"  aria-hidden="true" />*@
                     <span>@T("Checkout.Continue")</span>
                 </a>
             </p>

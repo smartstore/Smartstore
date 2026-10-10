@@ -3,7 +3,7 @@
 @{
     var id = "rule-value-" + Model.Id;
     var format = (Model.Descriptor.Metadata.Get("DateTimeFormat") as string).NullEmpty() ?? "L LT";
-    var iconClass = format == "LT" ? "fa-clock" : "fa-calendar";
+    var iconName = format == "LT" ? "clock" : "calendar";
 
     DateTime? value = null;
     if (Model.Value != null)
@@ -40,7 +40,7 @@
            data-format="@format" />
     <div class="input-group-append" data-target="#@(id)-parent" data-toggle="datetimepicker">
         <button type="button" class="btn btn-light btn-icon">
-            <i class="far @iconClass"></i>
+            <icon name="@iconName" />
         </button>
     </div>
 </div>

@@ -1,6 +1,5 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Html;
-using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Smartstore.Core.Content.Media.Icons;
@@ -28,7 +27,7 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
 
         // Kit symbols already contain mapping transforms. Replacing one requires the
         // original source, not another transform around the existing symbol.
-        var reference = icon.RequiresInline || transform != icon.Transform || strokeScale != 1
+        var reference = icon.RequiresInline || transform != icon.Transform || strokeScale != icon.StrokeScale
             ? null
             : kits.GetReference(icon);
         var svg = new TagBuilder("svg");
@@ -54,8 +53,7 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
             svg.Attributes["viewBox"] = source.ViewBox;
             // Only the inline rendering copy receives multiplier support. The prepared
             // payload and existing kit files remain untouched, including their revisions.
-            var content = strokeScale == 1 ? source.Content : StrokeWidthDeclaration().Replace(source.Content,
-                "stroke-width:calc($1 * var(--icon-stroke-scale,1));");
+            var content = strokeScale == 1 ? source.Content : IconSvgParser.ScaleStrokeWidths(source.Content, "var(--icon-stroke-scale,1)");
             if (strokeScale != 1)
             {
                 AddStyle(svg, "--icon-stroke-scale", strokeScale.ToString("R", CultureInfo.InvariantCulture));
@@ -100,6 +98,11 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
         }
 
         svg.AddCssClass($"icon icon-{icon.LibraryKey} icon-{icon.LibraryKey}-{icon.VariantKey}");
+        if (icon.MirrorInRtl)
+        {
+            svg.AddCssClass("icon-mirror-rtl");
+        }
+
         svg.Attributes["data-icon"] = icon.Address;
         svg.Attributes["xmlns"] = "http://www.w3.org/2000/svg";
         svg.Attributes["focusable"] = "false";
@@ -175,11 +178,6 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
             }
         }
     }
-
-    // Match only stroke declarations emitted by IconSvgParser. No XML tree is reparsed
-    // and heterogeneous source widths keep their individual prepared fallbacks.
-    [GeneratedRegex(@"stroke-width:(var\(--icon-stroke-width,[^;]*\));", RegexOptions.CultureInvariant | RegexOptions.NonBacktracking)]
-    private static partial Regex StrokeWidthDeclaration();
 
     private static void ApplyPresentation(TagBuilder svg, IconOptions options)
     {

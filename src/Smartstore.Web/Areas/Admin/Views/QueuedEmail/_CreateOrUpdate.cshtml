@@ -79,7 +79,7 @@
                 @foreach (var attach in Model.Attachments)
                 {
                     <span class="mr-3 d-block text-truncate" style="max-width: 17.5rem">
-                        <i class="fa fa-paperclip pr-1"></i>
+                        <icon name="paperclip" class="pr-1" />
                         <a asp-action="DownloadAttachment" asp-route-id="@attach.Id">@attach.Name</a>
                     </span>
                 }

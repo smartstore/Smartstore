@@ -62,7 +62,7 @@
                         @if (item.IsDownloadAllowed)
                         {
                             <a class="btn btn-light btn-sm btn-flat" asp-action="GetDownload" asp-controller="Download" asp-route-id="@item.OrderItemGuid" rel="nofollow">
-                                <i class="fa fa-download" aria-hidden="true"></i>
+                                <icon name="download"  aria-hidden="true" />
                                 <span>@T("DownloadableProducts.Fields.Download")</span>
                                 <span class="sr-only"> @item.ProductName</span>
                             </a>
@@ -72,7 +72,7 @@
                                data-target="#download-versions-@item.OrderId"
                                aria-controls="download-versions-@item.OrderId"
                                aria-expanded="false">
-                                <i class="fa fa-info" aria-hidden="true"></i>
+                                <icon name="info"  aria-hidden="true" />
                                 <span>@T("Common.Download.Versions")</span>
                                 <span class="sr-only"> @item.ProductName</span>
                             </button>

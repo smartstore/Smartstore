@@ -65,10 +65,10 @@
         line-height: 18px;
         vertical-align: sub;
     }
-    .published.fa-globe {
+    .published:is(.fa-globe, .is-published) {
         color: inherit;
     }
-    .published.fa-eye-slash {
+    .published:is(.fa-eye-slash, .is-unpublished) {
         color: $gray-600;
     }
 

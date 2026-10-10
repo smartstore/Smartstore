@@ -66,7 +66,7 @@
             <div class="adminTitle"></div>
             <div class="adminData">
                 <a href="#change-password-dialog" data-toggle="modal" class="btn btn-sm btn-to-danger btn-secondary">
-                    <i class="fa fa-unlock-keyhole"></i>
+                    <icon name="unlock"  />
                     <span>@T("Account.ChangePassword")</span>
                 </a>
             </div>
@@ -361,7 +361,7 @@
                 </span>
                 <div class="dropdown d-inline-block">
                     <button type="button" class="btn btn-secondary btn-sm btn-icon dropdown-toggle no-chevron" data-toggle="dropdown">
-                        <i class="fa fa-ellipsis-h"></i>
+                        <icon name="ellipsis"  />
                     </button>
                     <div class="dropdown-menu">
                         <div class="dropdown-header">@T("Admin.Customers.Customers.Fields.VatNumber.MarkAs")...</div>
@@ -370,7 +370,7 @@
                                 class="btn btn-sm btn-plain btn-block justify-content-start m-0"
                                 disabled="@Model.VatNumberStatus.Equals(VatNumberStatus.Valid)"
                                 title="@T("Admin.Customers.Customers.Fields.VatNumber.MarkAsValid")">
-                            <i class="fa fa-fw fa-check"></i>
+                            <icon name="check" class="icon-fw" />
                             <span>@VatNumberStatus.Valid.GetLocalizedEnum()</span>
                         </button>
                         <button type="submit" name="updateVatNumberStatus" value="true"
@@ -378,7 +378,7 @@
                                 class="btn btn-sm btn-plain btn-block justify-content-start m-0"
                                 disabled="@Model.VatNumberStatus.Equals(VatNumberStatus.Invalid)"
                                 title="@T("Admin.Customers.Customers.Fields.VatNumber.MarkAsInvalid")">
-                            <i class="fa fa-fw fa-ban"></i>
+                            <icon name="ban" class="icon-fw" />
                             <span>@VatNumberStatus.Invalid.GetLocalizedEnum()</span>
                         </button>
 
@@ -389,7 +389,7 @@
                                 class="btn btn-sm btn-plain btn-block justify-content-start m-0"
                                 disabled="@Model.VatNumber.IsEmpty()"
                                 title="@T("Admin.Customers.CheckVatNumber.Hint")">
-                            <i class="fa fa-fw fa-check-double"></i>
+                            <icon name="check-double" class="icon-fw" />
                             <span>@T("Admin.Customers.CheckVatNumber")</span>
                         </button>
                     </div>

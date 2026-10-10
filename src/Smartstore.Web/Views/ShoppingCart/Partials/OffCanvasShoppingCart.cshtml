@@ -18,7 +18,7 @@
             @T("ShoppingCart.Mini.EmptyCart.Title")
         </h4>
         <p class="no-item-icon">
-            <i class="fa fa-shopping-basket fa-4x" aria-hidden="true"></i>
+            <icon name="basket" class="icon-4x" aria-hidden="true" />
         </p>
         <p class="no-item-info text-muted">
             @Html.Raw(T("ShoppingCart.Mini.EmptyCart.Info", "fa fa-lg fa-cart-arrow-down"))
@@ -63,7 +63,7 @@
                     </div>
                     <div class="col">
                         <a class="btn btn-clear btn-block btn-action" href="@checkoutUrl" rel="nofollow">
-                            <i class="fa fa-check" aria-hidden="true"></i>
+                            <icon name="check"  aria-hidden="true" />
                             <span>@T("Checkout.Button")</span>
                         </a>
                     </div>
@@ -72,7 +72,7 @@
                 {
                     <div class="col">
                         <a class="btn btn-clear btn-block btn-action" asp-route="ShoppingCart">
-                            <i class="fa fa-check" aria-hidden="true"></i>
+                            <icon name="check"  aria-hidden="true" />
                             <span>@T("ShoppingCart.Mini.ViewCart")</span>
                         </a>
                     </div>
@@ -82,7 +82,7 @@
         else if (Model.DisplayShoppingCartButton)
         {
             <a class="btn btn-clear btn-block btn-action" asp-route="ShoppingCart">
-                <i class="fa fa-check" aria-hidden="true"></i>
+                <icon name="check"  aria-hidden="true" />
                 <span>@T("ShoppingCart.Mini.ViewCart")</span>
             </a>
         }

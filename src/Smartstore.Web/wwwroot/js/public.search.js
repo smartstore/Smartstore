@@ -364,7 +364,7 @@
                 let offcanvas =
                     $(`<aside id="filter-widget" class="offcanvas offcanvas-${placement} offcanvas-shadow offcanvas-lg offcanvas-rounded" data-overlay="true">
                             <div class="offcanvas-header">
-                                <h5 class="offcanvas-title"><i class="fa fa-sliders-h mr-2"></i><span>${btn.data("title")}</span></h5>
+                                <h5 class="offcanvas-title"><sm-icon name="sliders" class="mr-2"></sm-icon><span>${btn.data("title")}</span></h5>
                                 <button type="button" class="btn-close" data-dismiss="offcanvas"></button>
                             </div>
                             <div class="offcanvas-content offcanvas-scrollable"></div>

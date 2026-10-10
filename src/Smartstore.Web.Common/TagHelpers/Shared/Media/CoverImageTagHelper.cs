@@ -103,14 +103,14 @@ public class CoverImageTagHelper : ImageTagHelper
         toggle.Attributes["data-toggle"] = "dropdown";
         toggle.Attributes["data-placement"] = "top";
 
-        var icon = new HtmlString("<i class=\"fa fa-arrow-down-up-across-line\"></i>");
+        var icon = new HtmlString("<sm-icon name=\"fa:arrow-down-up-across-line!@s\"></sm-icon>");
         toggle.InnerHtml.AppendHtml(icon);
 
         var dropdownUl = new TagBuilder("ul");
         dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-check dropdown-menu-right media-edit-dropdown";
-        dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem("center top", "Admin.Media.Editing.AlignTop", "fa-long-arrow-up"));
-        dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem(string.Empty, "Admin.Media.Editing.AlignMiddle", "fa-arrows-v"));
-        dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem("center bottom", "Admin.Media.Editing.AlignBottom", "fa-long-arrow-down"));
+        dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem("center top", "Admin.Media.Editing.AlignTop", "arrow-up"));
+        dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem(string.Empty, "Admin.Media.Editing.AlignMiddle", "unfold"));
+        dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem("center bottom", "Admin.Media.Editing.AlignBottom", "arrow-down"));
 
         var rootDiv = new TagBuilder("div");
         rootDiv.Attributes["data-media-edit-url"] = EditUrl;
@@ -145,7 +145,7 @@ public class CoverImageTagHelper : ImageTagHelper
         }
 
         a.InnerHtml.AppendHtml(iconName.HasValue()
-            ? $"<i class=\"fa fa-fw {iconName}\"></i><span>{T(resourceKey)}</span>"
+            ? $"<sm-icon name=\"{iconName}\" fw></sm-icon><span>{T(resourceKey)}</span>"
             : T(resourceKey).Value);
 
         var li = new TagBuilder("li");

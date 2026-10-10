@@ -133,7 +133,7 @@
                             }
                         </td>
                         <td class="text-center">
-                            <i class="fa fa-fw icon-active-@deployment.Enabled.ToString().ToLower()"></i>
+                            <icon name="@(deployment.Enabled ? "check" : "minus")" fw class="icon-active-@deployment.Enabled.ToString().ToLowerInvariant()" />
                         </td>
                         <td class="text-center">
                             <partial name="ProfileFileCount" model="deployment.FileCount" />
@@ -165,7 +165,7 @@
         </table>
     </div>
 	<a asp-action="CreateDeployment" asp-route-id="@Model.Id" class="btn btn-warning">
-		<i class="fa fa-plus"></i>
+		<icon name="plus"  />
 		<span>@T("Admin.DataExchange.AddNewProfile")</span>
 	</a>
 </div>

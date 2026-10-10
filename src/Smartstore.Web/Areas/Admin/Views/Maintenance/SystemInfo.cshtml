@@ -182,8 +182,8 @@
             <div class="form-control-plaintext">
                 <span class="sysmetric">
                     <span id="used-ram" data-raw="@Model.UsedMemorySize.ToStringInvariant()">@Model.UsedMemorySizeString.NaIfEmpty()</span>
-                    <i id="used-ram-up" class="fa fa-arrow-up text-danger pl-1" style="display: none"></i>
-                    <i id="used-ram-down" class="fa fa-arrow-down text-success pl-1" style="display: none"></i>
+                    <icon name="arrow-up" id="used-ram-up" class="text-danger pl-1" style="display: none" />
+                    <icon name="arrow-down" id="used-ram-down" class="text-success pl-1" style="display: none" />
                 </span>
                 <a href='@Url.Action("GarbageCollect")' class="fwm">@T("Admin.System.SystemInfo.GarbageCollect")</a>
             </div>

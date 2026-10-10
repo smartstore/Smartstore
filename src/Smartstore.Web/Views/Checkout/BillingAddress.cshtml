@@ -45,7 +45,7 @@
                                             data-url="@Url.Action("SelectBillingAddress", new { addressId = item.Id })"
                                             aria-label="@T("Checkout.BillToThisAddress"): @(item.FormattedAddress.Replace("<br>", ", ").RemoveHtml())">
                                         <span>@T("Checkout.BillToThisAddress")</span>
-                                        <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        <icon name="chevron-right"  aria-hidden="true" />
                                     </button>
 
                                     <div class="address-data mt-3">
@@ -101,13 +101,13 @@
 
                     <div class="buttons">
                         <a href="@Model.PreviousStepUrl" class="btn btn-secondary btn-lg">
-                            <i class="fa fa-angle-left" aria-hidden="true"></i>
+                            <icon name="chevron-left"  aria-hidden="true" />
                             <span>@T("Common.Back")</span>
                         </a>
                         <input type="submit" id="nextstep" name="nextstep" class="d-none" />
                         <button type="button" class="btn btn-primary btn-lg new-address-next-step-button">
                             <span>@T("Checkout.NextButton")</span>
-                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                            <icon name="chevron-right"  aria-hidden="true" />
                         </button>
                     </div>
                 </div>

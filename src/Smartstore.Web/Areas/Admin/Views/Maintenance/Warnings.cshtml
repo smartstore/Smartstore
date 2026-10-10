@@ -14,7 +14,7 @@
 </div>
 
 <div class="system-warnings fs-h6">
-    <ul class="fa-ul">
+    <ul class="icon-ul">
         @foreach (var warning in Model)
         {
             <li class="pb-2">
@@ -22,19 +22,19 @@
                 {
                     case SystemWarningLevel.Pass:
                         {
-                            <i class="fa-li fa fa-check text-success"></i>
+                            <icon name="check" class="icon-li text-success" />
                             <span>@Html.Raw(warning.Text)</span>
                         }
                         break;
                     case SystemWarningLevel.Warning:
                         {
-                            <i class="fa-li fa fa-question-circle text-success"></i>
+                            <icon name="question-circle" class="icon-li text-success" />
                             <span class="fwm">@Html.Raw(warning.Text)</span>
                         }
                         break;
                     case SystemWarningLevel.Fail:
                         {
-                            <i class="fa-li fa fa-exclamation-triangle text-danger"></i>
+                            <icon name="warning" class="icon-li text-danger" />
                             <span class="fwm text-danger">@Html.Raw(warning.Text)</span>
                         }
                         break;

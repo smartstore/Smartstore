@@ -13,7 +13,7 @@ internal sealed class IconKitIndex
     /// <summary>
     /// Gets the preferred kit and symbol for each actual icon and mapping transformation.
     /// </summary>
-    internal Dictionary<(string Address, IconTransform Transform), (string Kit, string Symbol, bool Pinned)> Memberships { get; } = new();
+    internal Dictionary<(string Address, IconTransform Transform, double StrokeScale), (string Kit, string Symbol, bool Pinned)> Memberships { get; } = new();
 
     /// <summary>
     /// Gets deferred source plans keyed by configured kit name.
@@ -61,7 +61,7 @@ internal sealed class IconKitIndex
             {
                 // Mixed kits can contain identical names from different libraries or variants.
                 // Match the actual canonical identity, not just the unqualified source name.
-                Memberships.TryAdd((entry.CreateInfo().Address, entry.Mapping.Transform), (kit.Name, entry.Concept, entry.Pinned));
+                Memberships.TryAdd((entry.CreateInfo().Address, entry.Mapping.Transform, entry.Mapping.StrokeScale), (kit.Name, entry.Concept, entry.Pinned));
             }
 
             Plans.Add(kit.Name, new Lazy<IconSprite>(() =>

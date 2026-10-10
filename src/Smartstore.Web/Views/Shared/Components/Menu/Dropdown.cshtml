@@ -25,7 +25,7 @@
     <div class="dropdown">
         <a id="@(menuName)-opener" data-toggle="dropdown" aria-haspopup="listbox" aria-expanded="false" href="#" rel="nofollow" attrs="@item.GetCombinedAttributes().PrependCssClass("menubar-link")">
             <span sm-language-attributes-for="item">@root.GetItemText(T)</span>
-            <i class="fal fa-angle-down menubar-caret"></i>
+            <icon name="chevron-down" class="menubar-caret" />
         </a>
         @{ await CreateDropdown(root.Children); }
     </div>

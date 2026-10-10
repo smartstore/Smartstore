@@ -43,14 +43,14 @@
                         @if (Model.IsEditable && Model.EmailWishlistEnabled)
                         {
                             <a asp-action="EmailWishlist" rel="nofollow" class="btn btn-secondary">
-                                <i class="fa fa-share" aria-hidden="true"></i>
+                                <icon name="share"  aria-hidden="true" />
                                 <span>@T("Wishlist.EmailAFriend")</span>
                             </a>
                         }
                         @if (!Model.IsEditable && Model.DisplayAddToCart)
                         {
                             <button type="submit" name="addtocartbutton" value="addtocartbutton" class="btn btn-primary">
-                                <i class="fa fa-cart-arrow-down" aria-hidden="true"></i>
+                                <icon name="cart-add"  aria-hidden="true" />
                                 <span>@T("ShoppingCart.AddToCart")</span>
                             </button>
                         }
@@ -67,7 +67,7 @@
 
         <div sm-if="Model.IsEditable && hasItems" class="share-info my-4">
             <div id="your-wishlist-url" class="share-label mb-1 h5">
-                <i class="far fa-share-square" aria-hidden="true"></i>
+                <icon name="share-square"  aria-hidden="true" />
                 <span>@T("Wishlist.YourWishlistURL")</span>
             </div>
             <a asp-route="Wishlist" asp-route-customerGuid="@Model.CustomerGuid" class="share-link" aria-labelledby="your-wishlist-url">

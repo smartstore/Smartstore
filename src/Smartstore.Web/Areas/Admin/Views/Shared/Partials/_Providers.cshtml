@@ -109,7 +109,7 @@
                     <!-- Actions dropdown -->
                     <div sm-if="item.IsEditable || item.IsConfigurable" class="module-actions dropdown">
                         <button class="btn btn-light btn-flat btn-sm btn-icon dropdown-toggle" type="button" data-toggle="dropdown">
-                            <i class="fa fa-cog"></i>
+                            <icon name="gear"  />
                         </button>
                         <div class="dropdown-menu dropdown-menu-right">
                             @if (item.IsEditable)
@@ -117,14 +117,14 @@
                                 if (item.IsPaymentMethod)
                                 {
                                     <a class="dropdown-item" href='@Url.Action("Edit", "Payment", new { systemName = item.SystemName })'>
-                                        <i class="far fa-fw fa-edit"></i>
+                                        <icon name="edit" class="icon-fw" />
                                         <span>@T("Admin.Common.Edit")</span>
                                     </a>
                                 }
                                 else
                                 {
                                     <a class="dropdown-item module-edit" href='@Url.Action("EditProviderPopup", "Module", new { systemName = item.SystemName, btnId = "btnRefresh" })'>
-                                        <i class="far fa-fw fa-edit"></i>
+                                        <icon name="edit" class="icon-fw" />
                                         <span>@T("Admin.Common.Edit")</span>
                                     </a>
                                 }
@@ -132,7 +132,7 @@
                             @if (item.IsConfigurable)
                             {
                                 <a class="dropdown-item module-configure" href="@Url.Action("ConfigureProvider", "Module", new { systemName = item.SystemName })">
-                                    <i class="fa fa-fw fa-cog"></i>
+                                    <icon name="gear" class="icon-fw" />
                                     <span>@T("Admin.Common.Configure")</span>
                                 </a>
                             }

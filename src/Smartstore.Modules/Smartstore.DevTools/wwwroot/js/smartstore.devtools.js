@@ -145,7 +145,7 @@ export class DevTools {
         $('.wz-zone-group[data-group="' + groupName + '"]')
             .append('<div class="wz-zone-pointer-container"><a href="#" class="wz-zone-pointer text-truncate" title="' + zone.name + '">' + zone.name + '</a>' +
                 '<a href="#" class="wz-copy text-secondary" data-value="' + zone.name + '" title="' + this.Res['Common.CopyToClipboard'] +
-                '"><i class="far fa-copy"></i><a></div>')
+                '"><sm-icon name="copy" ></sm-icon><a></div>')
             .removeClass('d-none');
     }
 

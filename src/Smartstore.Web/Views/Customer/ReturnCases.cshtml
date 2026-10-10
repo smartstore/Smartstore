@@ -23,7 +23,7 @@
             <div class="card">
                 <div class="card-body">
                     <h2 id="returncase-title@(rc.Id)" class="card-title h5 mb-4">
-                        <i class="fal fa-fw fal @(isWithdrawal ? "fa-reply-all" : "fa-truck") mr-1" aria-hidden="true"></i>
+                        <icon name="@(isWithdrawal ? "reply-all" : "truck")" fw class="mr-1" aria-hidden="true" />
                         <span>@(rc.KindStr) &middot; @T("ReturnCase.Case", rc.Id)</span>
                     </h2>
                     <dl class="row mb-0" role="presentation">
@@ -78,7 +78,7 @@
                 </div>
                 <div class="card-footer d-flex p-2">
                     <a href="@Url.Action("Details", "Order", new { id = rc.OrderId })" class="btn btn-light btn-sm btn-flat" rel="nofollow">
-                        <i class="far fa-rectangle-list" aria-hidden="true"></i>
+                        <icon name="list-square"  aria-hidden="true" />
                         <span>@T("Order.OrderDetails")</span>
                         <span class="sr-only"> @rc.OrderNumber</span>
                     </a>

@@ -91,7 +91,7 @@
         <tab sm-title="@T("Admin.Customers.Customers.Addresses")" sm-icon="location">
             <div>
                 <a asp-action="AddressCreate" asp-route-customerId="@Model.Id" class="btn btn-primary mb-3">
-                    <i class="fa fa-plus"></i>
+                    <icon name="plus"  />
                     <span>@T("Account.CustomerAddresses.AddNew")</span>
                 </a>
             </div>
@@ -118,7 +118,7 @@
             </div>
             <p>
                 <button type="submit" name="impersonate" value="impersonate" class="btn btn-secondary">
-                    <i class="far fa-play-circle"></i>
+                    <icon name="play-circle"  />
                     <span>@T("Admin.Customers.Customers.Impersonate.Button")</span>
                 </button>
             </p>

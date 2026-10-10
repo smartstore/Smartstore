@@ -72,6 +72,11 @@ internal sealed class IconCatalog
     internal bool FallbackToDefaultLibrary { get; private set; }
 
     /// <summary>
+    /// Gets concepts whose horizontal direction follows the surrounding writing direction.
+    /// </summary>
+    internal FrozenSet<string> MirrorInRtl { get; private set; } = FrozenSet<string>.Empty;
+
+    /// <summary>
     /// Gets the token that marks this generation stale when source files change.
     /// </summary>
     internal IChangeToken ChangeToken { get; private set; }
@@ -435,6 +440,9 @@ internal sealed class IconCatalog
             throw new InvalidDataException("Icons/config.json must select an existing library by its system name.");
         }
 
+        catalog.MirrorInRtl = config.RootElement.TryGetProperty("mirrorInRtl", out var mirrorInRtl)
+            ? mirrorInRtl.EnumerateArray().Select(x => x.GetString()).ToFrozenSet(StringComparer.Ordinal)
+            : FrozenSet<string>.Empty;
         catalog.DefaultLibrary = defaultLibrary;
         catalog.FallbackToDefaultLibrary = config.RootElement.TryGetProperty("fallbackToDefaultLibrary", out var fallback)
             && fallback.GetBoolean();

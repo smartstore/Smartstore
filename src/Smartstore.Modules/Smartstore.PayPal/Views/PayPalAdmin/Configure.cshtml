@@ -32,11 +32,11 @@
 
 <widget target-zone="admin_button_toolbar_before">
     <button id="support-tools" type="button" name="save" class="btn btn-secondary">
-        <i class="fa fa-wrench"></i>
+        <icon name="wrench"  />
         <span>@T("Plugins.Smartstore.PayPal.SupportTools")</span>
     </button>
     <button id="SaveConfigButton" type="submit" name="save" class="btn btn-warning" value="save">
-        <i class="fa fa-check"></i>
+        <icon name="check"  />
         <span>@T("Admin.Common.Save")</span>
     </button>
 </widget>
@@ -256,7 +256,7 @@
                     <span class="input-group-append">
                         <button type="submit" id="createwebhook" name="createwebhook" value="createwebhook" class="btn btn-light"
                                 attr-disabled='(!Model.ClientId.HasValue() || !Model.Secret.HasValue(), "disabled")'>
-                            <i class="fa fa-cog"></i>
+                            <icon name="gear"  />
                             <span>@T("Plugins.Smartstore.PayPal.CreateWebhook")</span>
                         </button>
                     </span>

@@ -21,7 +21,7 @@
             aria-label="@T("Aria.Label.CurrencySelector", activeCurr.Name)">
         <span aria-hidden="true">@activeCurr.ISOCode</span>
         <span aria-hidden="true" class="lrm">(@activeCurr.Symbol)</span>
-        <i class="fa fa-angle-down" aria-hidden="true"></i>
+        <icon name="chevron-down"  aria-hidden="true" />
     </button>
     <div id="currency-options" class="dropdown-menu" aria-labelledby="currency-selector" role="listbox">
         @foreach (var curr in currencies)

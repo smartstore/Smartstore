@@ -48,7 +48,7 @@ public static class ThemingHtmlHelper
         if (currentTheme != info.ThemeDescriptor)
         {
             // the variable is inherited from a base theme: display an info badge
-            var chainInfo = "<span class='themevar-chain-info'><i class='fa fa-link fa-flip-horizontal'></i><span class='pl-1'>{0}</span></span>".FormatCurrent(info.ThemeDescriptor.Name);
+            var chainInfo = "<span class='themevar-chain-info'><sm-icon name='link' class='flip-h'></sm-icon><span class='pl-1'>{0}</span></span>".FormatCurrent(info.ThemeDescriptor.Name);
             return new HtmlString(chainInfo);
         }
 

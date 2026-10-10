@@ -14,7 +14,7 @@
 
 <div class="add-address">
     <a asp-action="AddressAdd" class="btn btn-primary btn-lg add-address-button mb-4" rel="nofollow">
-        <i class="fa fa-plus" aria-hidden="true"></i>
+        <icon name="plus"  aria-hidden="true" />
         <span>@T("Common.AddNew")</span>
     </a>
 </div>
@@ -76,7 +76,7 @@
                        aria-labelledby="caddr-edit-label caddr-fullname@(id)"
                        aria-describedby="caddr-empty"
                        rel="nofollow">
-                        <i class="far fa-edit" aria-hidden="true"></i>
+                        <icon name="edit"  aria-hidden="true" />
                     </a>
                     <button type="button" 
                             class="btn btn-light btn-flat btn-icon btn-sm btn-to-danger ml-1 delete-address-button"
@@ -91,7 +91,7 @@
                         @if (address.IsDefaultBillingAddress && address.IsDefaultShippingAddress)
                         {
                             <span id="caddr-hint@(id)" class="badge badge-success align-self-center p-1 pr-2">
-                                <i class="fa fa-check mx-1" aria-hidden="true"></i>
+                                <icon name="check" class="mx-1" aria-hidden="true" />
                                 <span>@T("Address.IsDefaultAddress")</span>
                             </span>
                         }

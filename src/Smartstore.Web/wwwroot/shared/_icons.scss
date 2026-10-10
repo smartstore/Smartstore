@@ -21,10 +21,16 @@
     color: var(--icon-color, inherit);
     text-align: center;
     transform-origin: center;
+    // Reset direction on every host so nested icons never mirror twice.
+    --icon-direction-x: 1;
     // Individual transforms compose with the transform used by animations.
     translate: var(--icon-shift-x, 0) var(--icon-shift-y, 0);
     rotate: var(--icon-rotate, 0deg);
-    scale: calc(var(--icon-scale, 1) * var(--icon-flip-x, 1)) calc(var(--icon-scale, 1) * var(--icon-flip-y, 1));
+    scale: calc(var(--icon-scale, 1) * var(--icon-flip-x, 1) * var(--icon-direction-x)) calc(var(--icon-scale, 1) * var(--icon-flip-y, 1));
+}
+
+.icon-mirror-rtl:dir(rtl) {
+    --icon-direction-x: -1;
 }
 
 .icon > svg {

@@ -82,7 +82,7 @@
                     <input asp-for="TrackingUrl" />
                     <span class="input-group-append">
                         <a id="btn-tracking-url" href="@Model.TrackingUrl" target="_blank" class="btn btn-secondary" title="@T("Common.OpenUrl")">
-                            <i class="fa fa-link"></i>
+                            <icon name="link"  />
                         </a>
                     </span>
                 </div>
@@ -114,7 +114,7 @@
                     @if (Model.CanShip)
                     {
                         <button id="btn-setasshipped" type="button" class="btn btn-sm btn-secondary ml-2" data-url="@Url.Action("SetAsShipped", new { id = Model.Id })">
-                            <i class="fa fa-check"></i>
+                            <icon name="check"  />
                             <span>@T("Admin.Orders.Shipments.ShippedDate.Button")</span>
                         </button>
                     }
@@ -138,7 +138,7 @@
                     @if (Model.CanDeliver)
                     {
                         <button id="btn-setasdelivered" type="button" class="btn btn-sm btn-secondary ml-2" data-url="@Url.Action("SetAsDelivered", new { id = Model.Id })">
-                            <i class="fa fa-check"></i>
+                            <icon name="check"  />
                             <span>@T("Admin.Orders.Shipments.DeliveryDate.Button")</span>
                         </button>
                     }

@@ -94,6 +94,12 @@ public sealed class IconInfo
     public double StrokeScale { get; set; } = 1;
 
     /// <summary>
+    /// Gets or sets whether this concept mirrors horizontally in an RTL context.
+    /// Explicit source selections do not inherit this policy.
+    /// </summary>
+    public bool MirrorInRtl { get; set; }
+
+    /// <summary>
     /// Loads supplemental metadata on first access so SVG-only lookups do not read metadata.json.
     /// </summary>
     internal Lazy<string[]>? DeferredTags { get; init; }

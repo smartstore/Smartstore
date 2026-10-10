@@ -14,7 +14,7 @@
         <div class="list-group-item menu-item d-flex align-items-center px-2@(level > 0 ? " bg-light" : "")" attr-class='(level == 0, "sub-item")' data-id="@item.EntityId" data-parentid="@parentId">
             <div class="item-commands dropdown">
                 <button type="button" class="btn btn-secondary btn-flat btn-icon btn-sm btn-item-menu dropdown-toggle no-chevron" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fa fa-ellipsis-v"></i>
+                    <icon name="ellipsis-v"  />
                 </button>
                 <div class="dropdown-menu">
                     <div class="dropdown-header h6 text-uppercase">
@@ -23,21 +23,21 @@
                     @foreach (var provider in Model.AllProviders)
                     {
                         <a class="dropdown-item" asp-action="CreateItem" asp-route-providerName="@provider.Value" asp-route-menuId="@Model.Id" asp-route-parentItemId="@item.EntityId">
-                            <i class="fa fa-fw fa-plus"></i>
+                            <icon name="plus" class="icon-fw" />
                             <span>@provider.Text</span>
                         </a>
                     }
                     <div class="dropdown-divider"></div>
                     <a class="menu-item-command dropdown-item@(node.Previous == null ? " disabled" : "")" href="#" data-action="move-item-up" data-url="@Url.Action("MoveItem", new { menuId = Model.Id, sourceId = item.EntityId, direction = "up" })">
-                        <i class="fa fa-fw fa-angle-up"></i>
+                        <icon name="chevron-up" class="icon-fw" />
                         <span>@T("Common.MoveUp")</span>
                     </a>
                     <a class="menu-item-command dropdown-item@(node.Next == null ? " disabled" : "")" href="#" data-action="move-item-down" data-url="@Url.Action("MoveItem", new { menuId = Model.Id, sourceId = item.EntityId, direction = "down" })">
-                        <i class="fa fa-fw fa-angle-down"></i>
+                        <icon name="chevron-down" class="icon-fw" />
                         <span>@T("Common.MoveDown")</span>
                     </a>
                     <a class="dropdown-item" asp-action="EditItem" asp-route-id="@item.EntityId">
-                        <i class="far fa-fw fa-edit"></i>
+                        <icon name="edit" class="icon-fw" />
                         <span>@T("Common.Edit")</span>
                     </a>
                     <div class="dropdown-divider"></div>

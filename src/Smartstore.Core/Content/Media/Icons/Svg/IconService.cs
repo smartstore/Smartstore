@@ -245,8 +245,11 @@ public sealed partial class IconService(IApplicationContext applicationContext, 
         info.SelectionVariantName = variant.Manifest.Name;
         var mappingTransform = selected.Mapping.Transform;
         info.Transform = modifiers.Apply(mappingTransform);
-        info.RequiresInline = info.Transform != mappingTransform;
+        info.RequiresInline = info.Transform != mappingTransform
+            || (modifiers.StrokeScale.HasValue && modifiers.StrokeScale.Value != selected.Mapping.StrokeScale);
         info.StrokeScale = modifiers.StrokeScale ?? selected.Mapping.StrokeScale;
+        info.MirrorInRtl = !address.SkipMapping && address.Library == null && address.Variant == null
+            && libraryName == null && variantName == null && catalog.MirrorInRtl.Contains(address.Name);
         return info;
     }
 

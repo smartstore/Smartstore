@@ -42,7 +42,7 @@
             @Html.Raw(T("Admin.CheckUpdate.AutoUpdatePossibleInfo"))
             <p class="mt-4">
                 <a id="install-update" class="btn btn-primary confirm" href="#" data-url='@Url.Action("InstallUpdate")'>
-                    <i class="fa fa-turn-up"></i>
+                    <icon name="arrow-turn-up"  />
                     <span>@T("Admin.CheckUpdate.UpdateNow")</span>
                 </a>
             </p>
@@ -59,7 +59,7 @@
             </a>
 
             <a sm-if="Model.DownloadUrl.HasValue()" class="btn btn-secondary ml-2" href='@Model.DownloadUrl'>
-                <i class="fa fa-download"></i>
+                <icon name="download"  />
                 <span>@T("Common.Download")</span>
             </a>
 

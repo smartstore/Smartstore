@@ -36,8 +36,8 @@
         <column for="Id" visible="false" width="max-content" resizable="false" type="string" />
         <column for="Subject" hideable="false">
             <display-template>
-                <i v-if="item.row.SentOn" class="far fa-paper-plane mr-2"></i>
-                <i v-else class="far fa-envelope mr-2"></i>
+                <icon name="send" v-if="item.row.SentOn" class="mr-2" />
+                <icon name="mail" v-else class="mr-2" />
                 <a :href="item.row.ViewUrl" class="text-truncate">
                     {{ item.value }}
                 </a>

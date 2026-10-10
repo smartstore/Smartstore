@@ -53,26 +53,26 @@ public class FileIconTagHelper : TagHelper
         {
             var ext = FileExtension.EmptyNull().TrimStart('.');
 
-            var iconClass = ext.ToLowerInvariant() switch
+            var iconName = ext.ToLowerInvariant() switch
             {
-                "pdf" => "far fa-file-pdf",
-                "doc" or "docx" or "docm" or "odt" or "dot" or "dotx" or "dotm" => "far fa-file-word",
-                "xls" or "xlsx" or "xlsm" or "xlsb" or "ods" => "far fa-file-excel",
-                "csv" or "tab" => "fa fa-file-csv",
-                "ppt" or "pptx" or "pptm" or "ppsx" or "odp" or "potx" or "pot" or "potm" or "pps" or "ppsm" => "far fa-file-powerpoint",
-                "zip" or "rar" or "7z" => "far fa-file-archive",
-                "png" or "jpg" or "jpeg" or "bmp" or "psd" => "far fa-file-image",
-                "mp3" or "wav" or "ogg" or "wma" => "far fa-file-audio",
-                "mp4" or "mkv" or "wmv" or "avi" or "asf" or "mpg" or "mpeg" => "far fa-file-video",
-                "txt" => "far fa-file-lines",
-                "exe" => "fa fa-cog",
-                "xml" or "html" or "htm" => "far fa-file-code",
-                _ => "far fa-file",
+                "pdf" => "file-pdf",
+                "doc" or "docx" or "docm" or "odt" or "dot" or "dotx" or "dotm" => "file-word",
+                "xls" or "xlsx" or "xlsm" or "xlsb" or "ods" => "file-spreadsheet",
+                "csv" or "tab" => "file-csv",
+                "ppt" or "pptx" or "pptm" or "ppsx" or "odp" or "potx" or "pot" or "potm" or "pps" or "ppsm" => "file-presentation",
+                "zip" or "rar" or "7z" => "file-archive",
+                "png" or "jpg" or "jpeg" or "bmp" or "psd" => "file-image",
+                "mp3" or "wav" or "ogg" or "wma" => "file-audio",
+                "mp4" or "mkv" or "wmv" or "avi" or "asf" or "mpg" or "mpeg" => "file-video",
+                "txt" => "file-text",
+                "exe" => "gear",
+                "xml" or "html" or "htm" => "file-code",
+                _ => "file",
             };
 
             ext = ext.NaIfEmpty().ToUpper();
 
-            output.Content.AppendHtml($"<i class='fa-fw {iconClass}' title='{ext}'></i>");
+            output.Content.AppendHtml($"<sm-icon name='{iconName}' fw title='{ext}'></sm-icon>");
 
             if (ShowLabel)
             {

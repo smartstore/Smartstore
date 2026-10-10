@@ -64,13 +64,13 @@
                     <input asp-for="SearchTerm" class="entpicker-searchterm" placeholder="@T("Search.SearchTerm")" />
                     <span class="input-group-append">
                         <button type="button" class="btn btn-warning" name="SearchEntities" data-loading-text="@(T("Common.Loading"))&hellip;" title="@T("Admin.Common.Search")">
-                            <i class="fa fa-search"></i>
+                            <icon name="search"  />
                         </button>
                     </span>
                 </div>
 
                 <button sm-if='Model.EntityType.EqualsNoCase("product")' type="button" class="btn btn-secondary" name="FilterEntities" data-toggle="button">
-                    <i class="fa fa-filter"></i>
+                    <icon name="filter"  />
                 </button>
             </div>
         </div>

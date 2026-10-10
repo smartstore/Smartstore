@@ -25,7 +25,7 @@
 	}
 	<div sm-if="canRead || canExecute" class="dropdown btn-actions ml-3">
 		<a href="#" class="btn btn-sm btn-secondary dropdown-toggle" data-toggle="dropdown">
-			<i class="fa fa-cog"></i>
+			<icon name="gear"  />
 			<span>@T("Admin.Common.Actions")</span>
 		</a>
 		<div class="dropdown-menu">
@@ -34,18 +34,18 @@
 				<a asp-action="Edit" asp-controller="Scheduling" asp-area="Admin" asp-route-id="@Model.Id" asp-route-returnUrl="@returnUrl" class="dropdown-item">
 					@if (Model.Enabled)
                     {
-						<i class="fa fa-fw fa-edit"></i>
+						<icon name="edit" class="icon-fw" />
 						<span>@T("Admin.System.ScheduleTasks.EditTask")</span>
                     }
                     else
                     {
-						<i class="far fa-fw fa-clock"></i>
+						<icon name="clock" class="icon-fw" />
 						<span>@T("Admin.System.ScheduleTasks.ScheduleExecution")</span>
                     }
 				</a>
             }
 			<a sm-if="canExecute" href="@Model.ExecuteUrl" class="dropdown-item confirm">
-				<i class="fa fa-fw fa-play"></i>
+				<icon name="play" class="icon-fw" />
 				<span>@T("Admin.System.ScheduleTasks.RunNow")</span>
 			</a>
 		</div>

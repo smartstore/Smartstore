@@ -8,19 +8,19 @@
             @Html.DisplayFor(x => x.ConsentOn)
 
             <label class="fwm" asp-for="AllowRequired"></label>
-            <span><i class="fa fa-fw icon-active-@Model.AllowRequired.ToString().ToLower()"></i></span>
+            <span><icon name="@(Model.AllowRequired ? "check" : "minus")" fw class="icon-active-@Model.AllowRequired.ToString().ToLowerInvariant()" /></span>
 
             <label class="fwm" asp-for="AllowAnalytics"></label>
-            <span><i class="fa fa-fw icon-active-@Model.AllowAnalytics.ToString().ToLower()"></i></span>
+            <span><icon name="@(Model.AllowAnalytics ? "check" : "minus")" fw class="icon-active-@Model.AllowAnalytics.ToString().ToLowerInvariant()" /></span>
 
             <label class="fwm" asp-for="AllowThirdParty"></label>
-            <span><i class="fa fa-fw icon-active-@Model.AllowThirdParty.ToString().ToLower()"></i></span>
+            <span><icon name="@(Model.AllowThirdParty ? "check" : "minus")" fw class="icon-active-@Model.AllowThirdParty.ToString().ToLowerInvariant()" /></span>
 
             <label class="fwm" asp-for="AdUserDataConsent"></label>
-            <span><i class="fa fa-fw icon-active-@Model.AdUserDataConsent.ToString().ToLower()"></i></span>
+            <span><icon name="@(Model.AdUserDataConsent ? "check" : "minus")" fw class="icon-active-@Model.AdUserDataConsent.ToString().ToLowerInvariant()" /></span>
 
             <label class="fwm" asp-for="AdPersonalizationConsent"></label>
-            <span><i class="fa fa-fw icon-active-@Model.AdPersonalizationConsent.ToString().ToLower()"></i></span>
+            <span><icon name="@(Model.AdPersonalizationConsent ? "check" : "minus")" fw class="icon-active-@Model.AdPersonalizationConsent.ToString().ToLowerInvariant()" /></span>
         </div>
     </modal-body>
     <modal-footer>

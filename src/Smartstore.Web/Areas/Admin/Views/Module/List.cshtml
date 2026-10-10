@@ -135,8 +135,8 @@
                                 ${checkboxes.join("")}
                             </div>
                             <div class="col-auto editable-buttons">
-                                <button type="button" class="btn btn-warning btn-icon btn-sm editable-submit" data-module="${systemName}"><i class="fa fa-check"></i></button>
-                                <button type="button" class="btn btn-secondary btn-icon btn-sm editable-cancel"><i class="fa fa-times"></i></button>
+                                <button type="button" class="btn btn-warning btn-icon btn-sm editable-submit" data-module="${systemName}"><sm-icon name="check" ></sm-icon></button>
+                                <button type="button" class="btn btn-secondary btn-icon btn-sm editable-cancel"><sm-icon name="close" ></sm-icon></button>
                             </div>
                         </div>`;
                 }
@@ -551,19 +551,19 @@
                         <!-- Actions dropdown -->
                         <div sm-if="module.Installed" class="module-actions dropdown">
                             <button class="btn btn-light btn-flat btn-sm btn-icon dropdown-toggle" type="button" data-toggle="dropdown">
-                                <i class="fa fa-cog"></i>
+                                <icon name="gear"  />
                             </button>
                             <div class="dropdown-menu dropdown-menu-right">
                                 <a asp-action="UpdateStringResources" class="dropdown-item module-update-resources" data-module="@module.SystemName">
-                                    <i class="fa fa-fw fa-language"></i>
+                                    <icon name="language" class="icon-fw" />
                                     <span>@T("Admin.Configuration.Plugins.Resources.Update")</span>
                                 </a>
                                 <a sm-if="module.LicenseLabel.LicenseUrl.HasValue()" class="dropdown-item module-licence" href="@module.LicenseLabel.LicenseUrl">
-                                    <i class="fa fa-fw fa-key"></i>
+                                    <icon name="key" class="icon-fw" />
                                     <span>@T("Admin.Common.License")</span>
                                 </a>
                                 <a sm-if="module.ConfigurationUrl.HasValue()" class="dropdown-item module-configure" href="@module.ConfigurationUrl">
-                                    <i class="fa fa-fw fa-cog"></i>
+                                    <icon name="gear" class="icon-fw" />
                                     <span>@T("Admin.Configuration.Plugins.Fields.Configure")</span>
                                 </a>
                             </div>

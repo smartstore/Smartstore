@@ -22,7 +22,7 @@
             aria-controls="language-options"
             aria-label="@T("Aria.Label.LanguageSelector", activeLang.LocalizedShortName)">
         <span aria-hidden="true">@activeLang.UniqueSeoCode.ToUpper()</span>
-        <i class="fa fa-angle-down" aria-hidden="true"></i>
+        <icon name="chevron-down"  aria-hidden="true" />
     </button>
     <div id="language-options" class="dropdown-menu" aria-labelledby="language-selector" role="listbox">
         @foreach (var localizedUrl in localizedUrls)

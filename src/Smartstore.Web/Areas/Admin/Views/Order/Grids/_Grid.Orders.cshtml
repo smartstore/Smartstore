@@ -140,7 +140,7 @@
     <row-commands>
         <fragment>
             @{
-                OrdersGridMenu(true);
+                await OrdersGridMenu(true);
             }
         </fragment>
     </row-commands>
@@ -148,18 +148,18 @@
 
 @functions
 {
-    void OrdersGridMenu(bool isRowCommand)
+    async Task OrdersGridMenu(bool isRowCommand)
     {
         var key = isRowCommand ? " :data-key='item.row.Id'" : string.Empty;
         <div class="dropdown-header h6 text-uppercase">
             @T("Admin.Orders.Fields.OrderStatus")
         </div>
         <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "complete" })"@Html.Raw(key)>
-            <i class="fa fa-fw fa-check"></i>
+            <icon name="check" class="icon-fw" />
             <span class="order-process-title">@T("Enums.OrderStatus.Complete")</span>
         </a>
         <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "cancel" })"@Html.Raw(key)>
-            <i class="fa fa-fw fa-times"></i>
+            <icon name="close" class="icon-fw" />
             <span class="order-process-title">@T("Admin.Orders.Fields.OrderStatus.Cancel")</span>
         </a>
         <div class="dropdown-divider"></div>
@@ -167,7 +167,7 @@
             @T("Admin.Orders.Fields.ShippingStatus")
         </div>
         <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "ship" })"@Html.Raw(key)>
-            <i class="fa fa-fw fa-truck fa-flip-horizontal"></i>
+            <icon name="truck" class="icon-fw flip-h" />
             <span class="order-process-title">@T("Enums.ShippingStatus.Shipped")</span>
         </a>
         <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "deliver" })"@Html.Raw(key)>
@@ -185,7 +185,7 @@
         </a>
         <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "capture" })" 
            title="@T("Admin.Orders.Fields.Capture.Hint")"@Html.Raw(key)>
-            <i class="fas fa-fw fa-euro-sign"></i>
+            <icon name="euro" class="icon-fw" />
             <span class="order-process-title">@T("Admin.Orders.Fields.Capture")</span>
         </a>
         <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "refundoffline" })" 
@@ -195,7 +195,7 @@
         </a>
         <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "refund" })" 
            title="@T("Admin.Orders.Fields.Refund.Hint")"@Html.Raw(key)>
-            <i class="fas fa-fw fa-rotate-left"></i>
+            <icon name="rotate-left" class="icon-fw" />
             <span class="order-process-title">@T("Admin.Orders.Fields.Refund")</span>
         </a>
         <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "voidoffline" })" 
@@ -205,7 +205,7 @@
         </a>
         <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "void" })" 
            title="@T("Admin.Orders.Fields.Void.Hint")"@Html.Raw(key)>
-            <i class="fa fa-fw fa-times"></i>
+            <icon name="close" class="icon-fw" />
             <span class="order-process-title">@T("Admin.Orders.Fields.Void")</span>
         </a>
     }

@@ -10,8 +10,17 @@ namespace Smartstore.Core.Content.Media.Icons;
 /// <summary>
 /// Validates static SVG sources and prepares XML with configurable stroke fallbacks and CSS variable overrides.
 /// </summary>
-internal static class IconSvgParser
+internal static partial class IconSvgParser
 {
+    /// <summary>
+    /// Multiplies prepared stroke declarations while preserving heterogeneous source widths.
+    /// </summary>
+    internal static string ScaleStrokeWidths(string content, string multiplier)
+        => StrokeWidthDeclaration().Replace(content, "stroke-width:calc($1 * " + multiplier + ");");
+
+    [GeneratedRegex(@"stroke-width:(var\(--icon-stroke-width,[^;]*\));", RegexOptions.CultureInvariant | RegexOptions.NonBacktracking)]
+    private static partial Regex StrokeWidthDeclaration();
+
     /// <summary>
     /// The per-icon source byte limit and XML reader character limit.
     /// </summary>

@@ -93,7 +93,7 @@
                                                 <input type="submit" name="startcheckout" value="startcheckout" id="startcheckout" class="d-none" />
                                                 <button type="button" id="checkout" name="checkout" class="btn btn-primary btn-lg btn-block btn-checkout">
                                                     <span>@T("Checkout.Button")</span>
-                                                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                                    <icon name="chevron-right"  aria-hidden="true" />
                                                 </button>
                                             </div>
                                             <div sm-if="!Model.HasItemsWithRecurringPayment" id="cart-payment-buttons">
@@ -112,7 +112,7 @@
                 @* Back Button *@
                 <div sm-if="Model.IsEditable" class="col-12 col-md-6 col-lg-7 col-xl-4 col-xxl-3 my-3">
                     <button class="btn btn-secondary btn-lg btn-block btn-continue-shopping" type="submit" name="continueshopping" value="continueshopping">
-                        <i class="fa fa-angle-left mr-3" aria-hidden="true"></i>
+                        <icon name="chevron-left" class="mr-3" aria-hidden="true" />
                         <span>@T("ShoppingCart.ContinueShopping")</span>
                     </button>
                 </div>

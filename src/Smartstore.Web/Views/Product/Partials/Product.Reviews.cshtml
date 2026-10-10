@@ -96,12 +96,12 @@
                  aria-labelledby="sr-review-washelpful-@id">
                 <span id="sr-review-washelpful-@id" class="review-vote-label pr-2">@res["WasHelpful"]</span>
                 <button type="button" class="reset review-vote-link review-vote-link-yes mr-1" title="@res["Yes"]" data-toggle="tooltip" aria-describedby="review-yes-count-@id">
-                    <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                    <icon name="thumbs-up"  aria-hidden="true" />
                     <span class="sr-only">@res["Yes"] - @res["Helpful"]</span>
                     <span id="review-yes-count-@id" class="review-vote-count" data-bind-to="TotalYes" aria-label="@res["Count"]">@(helpfulness.HelpfulYesTotal)</span>
                 </button>
                 <button type="button" class="reset review-vote-link review-vote-link-no mr-1" title="@res["No"]" data-toggle="tooltip" aria-describedby="review-no-count-@id">
-                    <i class="fa fa-thumbs-down" aria-hidden="true"></i>
+                    <icon name="thumbs-down"  aria-hidden="true" />
                     <span class="sr-only">@res["No"] - @res["NotHelpful"]</span>
                     <span id="review-no-count-@id" class="review-vote-count" data-bind-to="TotalNo">@(helpfulness.HelpfulNoTotal)</span>
                 </button>

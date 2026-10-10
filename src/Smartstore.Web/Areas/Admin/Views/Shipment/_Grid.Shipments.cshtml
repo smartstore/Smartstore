@@ -32,7 +32,7 @@
     <toolbar>
         <toolbar-group sm-if="isOrderEditPage && canAddNewShipments">
             <a asp-action="Create" asp-controller="Shipment" asp-route-orderId="@orderId" class="btn btn-primary btn-flat">
-                <i class="fa fa-plus"></i>
+                <icon name="plus"  />
                 <span>@T("Admin.Orders.Shipments.AddNew")</span>
             </a>
         </toolbar-group>

@@ -542,22 +542,22 @@ public class PaginationTagHelper : SmartTagHelper
     /// </summary>
     protected virtual TagBuilder GetItemInnerContent(PagerItem item, TagBuilder innerAOrSpan)
     {
-        var iconI = new TagBuilder("i");
+        var iconI = new TagBuilder("sm-icon");
         iconI.Attributes.Add("aria-hidden", "true");
 
         switch (item.Type)
         {
             case PagerItemType.FirstPage:
-                iconI.AddCssClass("fa fa-angle-double-left");
+                iconI.Attributes["name"] = "chevrons-left";
                 break;
             case PagerItemType.PreviousPage:
-                iconI.AddCssClass("fa fa-angle-left");
+                iconI.Attributes["name"] = "chevron-left";
                 break;
             case PagerItemType.NextPage:
-                iconI.AddCssClass("fa fa-angle-right");
+                iconI.Attributes["name"] = "chevron-right";
                 break;
             case PagerItemType.LastPage:
-                iconI.AddCssClass("fa fa-angle-double-right");
+                iconI.Attributes["name"] = "chevrons-right";
                 break;
             default:
                 innerAOrSpan.InnerHtml.AppendHtml(item.Text);

@@ -206,20 +206,20 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 | `far fa-building` | `building-03` | `building` |
 | `fa fa-calendar`<br>`far fa-calendar`<br>`far fa-calendar-days` | `calendar-03` | `calendar` |
 | `far fa-calendar-check` | `calendar-check` | `calendar-check` |
-| `fa fa-caret-down` | `chevron-down`<br>Approximation: HI uses a chevron instead of a filled triangle. | `caret-down` |
+| `fa fa-caret-down` | `chevron-down?stroke-scale=1.25`<br>Approximation: HI uses a chevron instead of a filled triangle. | `caret-down` |
 | `fa fa-shopping-cart`<br>`fal fa-shopping-cart`<br>`far fa-shopping-cart` | `shopping-cart-02` | `cart` |
 | `fa fa-cart-arrow-down` | `shopping-cart-add-02` | `cart-add` |
 | `fal fa-certificate`<br>`far fa-certificate` | `certificate-01` | `certificate` |
 | `fa fa-check`<br>`far fa-check`<br>`fas fa-check` | `check?stroke-scale=1.5` | `check` |
 | `fa fa-check-double` | `check-check` | `check-double` |
-| `fa fa-angle-down`<br>`fal fa-angle-down`<br>`fas fa-angle-down`<br>`fa fa-chevron-down`<br>`fas fa-chevron-down` | `chevron-down` | `chevron-down` |
-| `fa fa-angle-left`<br>`fa fa-chevron-left`<br>`far fa-chevron-left` | `chevron-left` | `chevron-left` |
-| `fa fa-angle-right`<br>`fa fa-chevron-right`<br>`far fa-chevron-right`<br>`fas fa-chevron-right` | `chevron-right` | `chevron-right` |
-| `fa fa-angle-up`<br>`fas fa-angle-up`<br>`fa fa-chevron-up` | `chevron-up` | `chevron-up` |
-| `fa fa-angle-double-down` | `arrow-down-double` | `chevrons-down` |
-| `fa fa-angles-left` | `arrow-left-double` | `chevrons-left` |
-| `fa fa-angles-right` | `arrow-right-double` | `chevrons-right` |
-| `fa fa-angle-double-up` | `arrow-up-double` | `chevrons-up` |
+| `fa fa-angle-down`<br>`fal fa-angle-down`<br>`fas fa-angle-down`<br>`fa fa-chevron-down`<br>`fas fa-chevron-down` | `chevron-down?stroke-scale=1.25` | `chevron-down` |
+| `fa fa-angle-left`<br>`fa fa-chevron-left`<br>`far fa-chevron-left` | `chevron-left?stroke-scale=1.25` | `chevron-left` |
+| `fa fa-angle-right`<br>`fa fa-chevron-right`<br>`far fa-chevron-right`<br>`fas fa-chevron-right` | `chevron-right?stroke-scale=1.25` | `chevron-right` |
+| `fa fa-angle-up`<br>`fas fa-angle-up`<br>`fa fa-chevron-up` | `chevron-up?stroke-scale=1.25` | `chevron-up` |
+| `fa fa-angle-double-down` | `arrow-down-double?stroke-scale=1.25` | `chevrons-down` |
+| `fa fa-angles-left` | `arrow-left-double?stroke-scale=1.25` | `chevrons-left` |
+| `fa fa-angles-right` | `arrow-right-double?stroke-scale=1.25` | `chevrons-right` |
+| `fa fa-angle-double-up` | `arrow-up-double?stroke-scale=1.25` | `chevrons-up` |
 | `fa fa-circle`<br>`fas fa-circle` | `circle` | `circle` |
 | `fa fa-clipboard`<br>`far fa-clipboard` | `clipboard-check` | `clipboard` |
 | `fa fa-clock`<br>`far fa-clock` | `clock-04` | `clock` |
@@ -413,10 +413,10 @@ variants no longer exist. See the [BI import recipe](bootstrap/README.md).
 | `camera-video` | `video-02` | `camera-video` |
 | `cart-check` | `shopping-cart-check-02` | `cart-check` |
 | `check`<br>`check-lg` | `check?stroke-scale=1.5` | `check` |
-| `chevron-left` | `chevron-left` | `chevron-left` |
-| `chevron-right` | `chevron-right` | `chevron-right` |
-| `chevron-double-left` | `arrow-left-double` | `chevrons-left` |
-| `chevron-double-right` | `arrow-right-double` | `chevrons-right` |
+| `chevron-left?stroke-scale=1.25` | `chevron-left` | `chevron-left` |
+| `chevron-right?stroke-scale=1.25` | `chevron-right` | `chevron-right` |
+| `chevron-double-left` | `arrow-left-double?stroke-scale=1.25` | `chevrons-left` |
+| `chevron-double-right` | `arrow-right-double?stroke-scale=1.25` | `chevrons-right` |
 | `circle-fill` | `circle` | `circle` |
 | `clipboard` | `clipboard-check` | `clipboard` |
 | `clock` | `clock-04` | `clock` |
@@ -630,3 +630,21 @@ query modifiers or unavailable font glyphs; it never blocks a valid SVG preview.
 
 The admin sitemap root nodes retain their original Fontastic (`icm`) icons and
 legacy rendering by request. Only their descendants participate in this migration.
+
+
+## RTL concept policy
+
+`config.json` now owns a kit-independent `mirrorInRtl` array. Server rendering and
+manifest schema 7 apply `icon-mirror-rtl` automatically to listed, unqualified
+concepts. The initial policy covers left/right arrows and single/double chevrons.
+Explicit source selections remain unchanged. CSS follows the element's writing
+direction, so sprite artwork and cache references stay shared between LTR and RTL.
+See [Direction-sensitive concepts](README.md#direction-sensitive-concepts).
+
+
+## Mapping stroke scales in kit sprites
+
+Mapping-level `stroke-scale` is now baked into kit artwork, included in manifest
+memberships and available in IconBrowser sprite previews. Per-call values differing
+from the mapping still render inline. Sprite revisions include the stroke scale;
+existing immutable files remain untouched.

@@ -165,7 +165,7 @@
                                     @if (theme.BaseTheme.HasValue())
                                     {
                                         <small class="fs-sm text-muted" title='@T("Admin.Configuration.Themes.IsBasedOn"): @theme.BaseTheme'>
-                                            <i class="fa fa-@(isBroken ? "unlink" : "link") fa-flip-horizontal"></i>
+                                            <icon name="@(isBroken ? "unlink" : "link")" class="flip-h" />
                                             @theme.BaseTheme
                                         </small>
                                     }
@@ -187,7 +187,7 @@
                                     else
                                     {
                                         <a href="#" class="btn btn-secondary btn-sm disabled">
-                                            <i class="fa fa-check"></i>
+                                            <icon name="check"  />
                                             @T("Common.Active")
                                         </a>
                                     }
@@ -198,12 +198,12 @@
                                             <a class="btn btn-outline-secondary btn-sm tooltip-toggle" 
                                                href='@Url.Action("Preview", "Theme", new { theme = theme.Name, storeId = Model.StoreId })' 
                                                title="@T("Admin.Configuration.Themes.Preview")">
-                                                <i class="far fa-fw fa-eye"></i>
+                                                <icon name="eye" class="icon-fw" />
                                             </a>
                                             @if (theme.IsConfigurable)
                                             {
                                                 <a class="btn btn-outline-secondary btn-sm tooltip-toggle" href='@Url.Action("Configure", "Theme", new { theme = theme.Name, storeId = Model.StoreId })' title="@T("Admin.Common.Configure")">
-                                                    <i class="fa fa-fw fa-paint-brush"></i>
+                                                    <icon name="paint-brush" class="icon-fw" />
                                                 </a>
                                             }
                                         </div>
@@ -215,7 +215,7 @@
                             @if (isBroken)
                             {
                                 <div class="theme-broken-badge" title='@T("Admin.Configuration.Themes.MissingBaseTheme", theme.BaseTheme).Value'>
-                                    <i class="fa fa-exclamation"></i>
+                                    <icon name="exclamation"  />
                                 </div>
                             }
                         </div>

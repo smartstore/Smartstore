@@ -400,8 +400,8 @@ public static class HtmlHelperRenderingExtensions
         a.Attributes.Add("class", "hint");
 
         // Create symbol
-        var img = new TagBuilder("i");
-        img.Attributes.Add("class", "fa fa-question-circle");
+        var img = new TagBuilder("sm-icon");
+        img.Attributes.Add("name", "question-circle");
 
         a.InnerHtml.SetHtmlContent(img);
 

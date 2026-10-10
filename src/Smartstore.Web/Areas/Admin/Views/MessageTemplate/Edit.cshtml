@@ -17,7 +17,7 @@
             <zone name="admin_button_toolbar_before"></zone>
 
             @* CAUTION: saving a template to XML overwrites the original raw content *@
-            @*<button type="submit" name="save-in-file" value="save-in-file" class="btn btn-danger"><i class="fa fa-floppy-o"></i><span>Save as XML</span></button>*@
+            @*<button type="submit" name="save-in-file" value="save-in-file" class="btn btn-danger"><icon name="disk"  /><span>Save as XML</span></button>*@
             <a id="btn-preview-template" class="btn btn-outline-secondary"
                asp-action="Preview" asp-route-id="@Model.Id" asp-route-isCampaign="false">
                 <icon name="eye" />

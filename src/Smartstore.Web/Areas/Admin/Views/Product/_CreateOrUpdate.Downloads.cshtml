@@ -130,7 +130,7 @@
                                     </td>
                                     <td align="right">
                                         <a href="#" data-download-id="@download.DownloadId" class="btn btn-outline-secondary btn-sm btn-icon add-changelog-btn" title="@T("Admin.Catalog.Products.Download.AddChangelog")">
-                                            <i class="fa fa-edit"></i>
+                                            <icon name="edit"  />
                                         </a>
                                         <a data-url="@Url.Action("DeleteDownloadVersion", "Product", new { downloadId = download.DownloadId, productId = Model.Id })"
                                             class="delete-download-version btn btn-outline-secondary btn-to-danger btn-sm btn-icon" title="@T("Common.Download.Delete")">
@@ -242,7 +242,7 @@
             <span>@T("Admin.Common.Cancel")</span>
         </button>
         <button id="add-changelog" type="submit" class="btn btn-primary" data-dismiss="modal">
-            <i class="fa fa-check"></i>
+            <icon name="check"  />
             <span>@T("Common.AddNew")</span>
         </button>
     </modal-footer>

@@ -42,7 +42,7 @@
                                 onclick="return false;"
                                 aria-describedby="sr-buy-hint">
                             <span>@T("Checkout.ConfirmButton")</span>
-                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                            <icon name="chevron-right"  aria-hidden="true" />
                         </button>
                     }
                     else
@@ -50,7 +50,7 @@
                         <input type="submit" id="nextstep" name="nextstep" class="d-none" />
                         <button type="button" class="btn btn-primary btn-lg btn-block @Model.NextStepClass" onclick="return false;">
                             <span>@T("Checkout.NextButton")</span>
-                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                            <icon name="chevron-right"  aria-hidden="true" />
                         </button>
 
                         if (Model.ActionName == CheckoutActionNames.PaymentMethod)

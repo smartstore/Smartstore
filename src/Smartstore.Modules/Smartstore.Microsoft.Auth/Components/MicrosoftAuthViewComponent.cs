@@ -24,7 +24,7 @@ public class MicrosoftAuthViewComponent : SmartViewComponent
         var href = Url.Action("ExternalLogin", "Identity", new { provider = "Microsoft", returnUrl });
         var title = T("Plugins.Smartstore.Microsoft.Auth.Login").Value;
         var html = $"<a class='btn btn-primary btn-block btn-lg btn-extauth btn-brand-microsoft' href='{href}' rel='nofollow'>" +
-                   $"<i class='fab fa-fw fa-lg fa-microsoft font-weight-100' aria-hidden='true'></i><span>{title}</span></a>";
+                   $"<sm-icon name='fa:microsoft!@b' class='icon-fw icon-lg font-weight-100' aria-hidden='true'></sm-icon><span>{title}</span></a>";
 
         return HtmlContent(html);
     }

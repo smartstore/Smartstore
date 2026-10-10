@@ -10,7 +10,7 @@
     string artDetailUrl = ViewBag.ArtDetailUrl;
     var detailsTitle = T("Products.Details");
 
-    void RenderBuyButton(bool blockStyle)
+    async Task RenderBuyButton(bool blockStyle)
     {
         var cssClasses = blockStyle ? "btn-block d-none d-md-block" : "btn-lg art-btn focus-inset col";
         if (!blockStyle && isLinesMode)
@@ -33,7 +33,7 @@
                     data-boundary="window"
                     data-type="cart" 
                     data-action="add">
-                <i class="fa fa-cart-arrow-down" aria-hidden="true"></i>
+                <icon name="cart-add"  aria-hidden="true" />
                 @if (blockStyle)
                 {
                     <span>@title</span>
@@ -56,7 +56,7 @@
                rel="nofollow"
                title="@callForPriceTitle"
                aria-label="@callForPriceTitle - @Model.Name">
-                <i class="fa fa-question" aria-hidden="true"></i>
+                <icon name="question"  aria-hidden="true" />
 
                 @if (blockStyle)
                 {
@@ -75,14 +75,14 @@
 @if (isLinesMode && !price.DisableBuyButton && list.BuyEnabled)
 {
     <div class="mt-3">
-        @{ RenderBuyButton(true); }
+        @{ await RenderBuyButton(true); }
     </div>
 }
 
 <div class="row no-gutters art-btn-group" attr-class='(isLinesMode, "mt-3")'>
     @if (!price.DisableBuyButton && list.BuyEnabled)
     {
-        RenderBuyButton(false);
+        await RenderBuyButton(false);
     }
 
     @if (!price.DisableWishlistButton && list.WishlistEnabled)
@@ -99,7 +99,7 @@
                 data-boundary="window"
                 data-type="wishlist" 
                 data-action="add">
-            <i class="fal fa-heart" aria-hidden="true"></i>
+            <icon name="heart"  aria-hidden="true" />
         </button>
     }
     else if (isLinesMode)
@@ -121,7 +121,7 @@
                 data-boundary="window"
                 data-type="compare" 
                 data-action="add">
-            <i class="fa fa-retweet" aria-hidden="true"></i>
+            <icon name="repeat"  aria-hidden="true" />
         </button>
     }
     else if (isLinesMode)
@@ -137,6 +137,6 @@
        data-placement="bottom"
        data-fallback-placement="clockwise"
        data-boundary="window">
-        <i class="fa fa-info" aria-hidden="true"></i>
+        <icon name="info"  aria-hidden="true" />
     </a>
 </div>

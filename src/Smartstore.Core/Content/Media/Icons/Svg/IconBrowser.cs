@@ -114,11 +114,11 @@ public sealed class IconBrowser(IconService icons, IconKitService kits, IHttpCon
     }
 
     /// <summary>
-    /// Keeps kit selections conceptual and library selections literal. Stroke exceptions need inline previews.
+    /// Keeps kit selections conceptual and library selections literal. Mapping modifiers are baked into sprites.
     /// </summary>
     /// <param name="info">The resolved source metadata.</param>
     /// <param name="concept">The kit concept, or null for a literal library selection.</param>
     private static IconBrowserItem CreateItem(IconInfo info, string concept = null)
         => new(concept ?? info.Name, concept ?? IconModifiers.FormatAddress(info), info.Address, info.LibraryKey, info.VariantKey,
-            info.StrokeScale == 1 ? null : IconModifiers.FormatAddress(info, includeModifiers: true));
+            null);
 }

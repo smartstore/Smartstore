@@ -30,7 +30,7 @@
     <toolbar>
         <toolbar-group>
             <button datagrid-action="DataGridToolAction.InsertRow" type="button" class="btn btn-primary btn-flat no-anims mr-auto">
-                <i class="fa fa-plus"></i>
+                <icon name="plus"  />
                 <span>@T("Admin.Common.AddNew")</span>
             </button>
             <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
@@ -89,7 +89,7 @@
                         <div class="dg-toolbar-group">
                             <button type="button" class="btn btn-primary btn-sm btn-flat no-anims mr-auto insert-attribute-option" 
                                 :data-setid="item.row.Id" v-if="!grid.editing.active" v-on:click.prevent="grid.insertRow">
-                                <i class="fa fa-plus"></i>
+                                <icon name="plus"  />
                                 <span>@T("Admin.Common.AddNew")</span>
                             </button>
                         </div>

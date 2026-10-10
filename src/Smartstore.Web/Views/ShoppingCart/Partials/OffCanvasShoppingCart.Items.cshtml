@@ -60,7 +60,7 @@
                                     aria-describedby="sr-desc-empty">
                                 <img sm-model="bundleItem.ImageModel" alt="" />
                             </a>
-                            <i sm-if="(i + 1) < bundleItemsWithImages.Length" class="fa fa-plus"></i>
+                            <icon name="plus" sm-if="(i + 1) < bundleItemsWithImages.Length" />
                         }
                     </div>
 
@@ -115,7 +115,7 @@
                                 data-name="@item.ProductName"
                                 data-type="cart"
                                 data-action="addfromcart">
-                            <i class="fal fa-heart" aria-hidden="true"></i>
+                            <icon name="heart"  aria-hidden="true" />
                         </button>
                     }
 

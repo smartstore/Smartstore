@@ -87,7 +87,7 @@
                        href="@Url.Action("GetDownload", "Download", new { id = item.OrderItemGuid })"
                        class="btn btn-secondary btn-sm" 
                        rel="nofollow">
-                        <i class="fa fa-download" aria-hidden="true"></i>
+                        <icon name="download"  aria-hidden="true" />
                         <span>@T("DownloadableProducts.Fields.Download")</span>
                         <span class="sr-only"> @item.ProductName</span>
                     </a>
@@ -183,13 +183,13 @@
 
         <div class="print-buttons col col-auto">
             <a asp-action="Print" asp-route-id="@Model.Id" asp-route-pdf="false" target="print" class="btn btn-secondary btn-sm print-order-button" rel="nofollow">
-                <i class="fa fa-print" aria-hidden="true"></i>
+                <icon name="printer"  aria-hidden="true" />
                 <span>@T("Order.Print")</span>
             </a>
             @if (Model.DisplayPdfInvoice)
             {
                 <a asp-action="Print" asp-route-id="@Model.Id" asp-route-pdf="true" class="btn btn-secondary btn-sm pdf-order-button" rel="nofollow">
-                    <i class="far fa-file-pdf" aria-hidden="true"></i>
+                    <icon name="file-pdf"  aria-hidden="true" />
                     <span>@T("Order.GetPDFInvoice")</span>
                 </a>
             }
@@ -428,12 +428,12 @@
                                     <zone name="orderdetails_buttons_before" />
 
                                     <a sm-if="Model.CanReturnItems" asp-action="ReturnCase" asp-controller="ReturnCase" asp-route-id="@Model.Id" class="btn btn-secondary btn-block" rel="nofollow">
-                                        <i class="fa fa-reply" aria-hidden="true"></i>
+                                        <icon name="reply"  aria-hidden="true" />
                                         <span>@T("Order.ReturnItems")</span>
                                     </a>
 
                                     <a sm-if="Model.IsReOrderAllowed" asp-action="ReOrder" asp-route-id="@Model.Id" class="btn btn-primary btn-block" rel="nofollow">
-                                        <i class="fal fa-shopping-cart" aria-hidden="true"></i>
+                                        <icon name="cart"  aria-hidden="true" />
                                         <span>@T("Order.Reorder")</span>
                                     </a>
 

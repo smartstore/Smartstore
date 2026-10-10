@@ -130,8 +130,8 @@
                 lazyLoad: "ondemand",
                 dots: true,
                 arrows: false,
-                //prevArrow: '<button type="button" class="btn btn-secondary btn-flat btn-icon rounded-circle slick-prev"><i class="fa fa-angle-left"></i></button>',
-                //nextArrow: '<button type="button" class="btn btn-secondary btn-flat btn-icon rounded-circle slick-next"><i class="fa fa-angle-right"></i></button>',
+                //prevArrow: '<button type="button" class="btn btn-secondary btn-flat btn-icon rounded-circle slick-prev"><sm-icon name="chevron-left" ></sm-icon></button>',
+                //nextArrow: '<button type="button" class="btn btn-secondary btn-flat btn-icon rounded-circle slick-next"><sm-icon name="chevron-right" ></sm-icon></button>',
                 cssEase: 'ease-in-out',
                 speed: isTouch ? 250 : 0,
                 useCSS: true,
@@ -201,8 +201,8 @@
             if (items.length > self.options.thumbsToShow) {
                 if (!isInitialized) {
                     const cssClass = 'btn btn-secondary btn-no-border btn-icon rounded-circle btn-sm gal-arrow gal-disabled';
-                    self.navPrevArrow = $(`<button type="button" class="${cssClass} gal-prev" aria-label="${Res['Common.MoveUp']}" aria-disabled="true"><i class="fa fa-chevron-up" style="vertical-align: top" aria-hidden="true"></i></button>`).prependTo(nav);
-                    self.navNextArrow = $(`<button type="button" class="${cssClass} gal-next" aria-label="${Res['Common.MoveDown']}" aria-disabled="true"><i class="fa fa-chevron-down" aria-hidden="true"></i></button>`).appendTo(nav);
+                    self.navPrevArrow = $(`<button type="button" class="${cssClass} gal-prev" aria-label="${Res['Common.MoveUp']}" aria-disabled="true"><sm-icon name="chevron-up"  style="vertical-align: top" aria-hidden="true"></sm-icon></button>`).prependTo(nav);
+                    self.navNextArrow = $(`<button type="button" class="${cssClass} gal-next" aria-label="${Res['Common.MoveDown']}" aria-disabled="true"><sm-icon name="chevron-down"  aria-hidden="true"></sm-icon></button>`).appendTo(nav);
                 }
 
                 list.height(itemHeight * self.options.thumbsToShow);

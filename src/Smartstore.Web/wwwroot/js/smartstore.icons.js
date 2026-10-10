@@ -39,7 +39,8 @@
 
     function prepareManifest(data) {
         // Old cached pages fall back to the endpoint while scripts and manifests roll over.
-        if (data.schemaVersion !== 6) return null;
+        if (data.schemaVersion !== 7) return null;
+        const mirrorInRtl = new Set(data.mirrorInRtl);
         const concepts = new Map();
         for (const kit of Object.values(data.kits)) {
             const url = new URL(kit.url, rootUrl()).href;
@@ -54,7 +55,8 @@
                 concepts.set(name, {
                     href: url + '#' + encodeURIComponent(name),
                     address: `${library.toLowerCase()}:${icon}@${variant.toLowerCase()}`,
-                    classes: ['icon-' + library, 'icon-' + library + '-' + variant]
+                    classes: ['icon-' + library, 'icon-' + library + '-' + variant,
+                        ...(mirrorInRtl.has(name) ? ['icon-mirror-rtl'] : [])]
                 });
             }
         }

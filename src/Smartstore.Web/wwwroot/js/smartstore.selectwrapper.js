@@ -328,7 +328,7 @@
                             else {
                                 // Add small item button to open detail page.
                                 // From inner to outer.
-                                preResult = $('<i class="fa fa-ellipsis fa-fw prevent-selection"></i>')
+                                preResult = $('<sm-icon name="ellipsis" class="icon-fw prevent-selection"></sm-icon>')
                                     .wrap('<a/>')
                                     .parent()
                                     .attr('href', item.url.replace('__id__', item.id))

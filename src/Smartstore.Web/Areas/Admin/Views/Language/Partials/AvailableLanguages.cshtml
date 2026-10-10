@@ -51,7 +51,7 @@
                             @language.UniqueSeoCode
                         </td>
                         <td class="text-center">
-                            <i class="fa fa-fw icon-active-@language.Published.ToString().ToLower()"></i>
+                            <icon name="@(language.Published ? "check" : "minus")" fw class="icon-active-@language.Published.ToString().ToLowerInvariant()" />
                         </td>
                         <td>
                             <span title="@language.UpdatedOn.ToString()">@language.UpdatedOnString</span>
@@ -77,7 +77,7 @@
                                 {
                                     <a href="@Url.Action("Download", new { setId = language.Id })"
                                        class="btn btn-sm btn-warning confirm download-language@(language.IsDownloadRunning ? " d-none" : "")">
-                                        <i class="fa fa-sync"></i>
+                                        <icon name="refresh"  />
                                         <span>@T("Common.Refresh")</span>
                                     </a>
                                 }
@@ -85,7 +85,7 @@
                                 {
                                     <a href="@Url.Action("Download", new { setId = language.Id })"
                                        class="btn btn-sm btn-primary confirm download-language@(language.IsDownloadRunning ? " d-none" : "")">
-                                        <i class="fa fa-download"></i>
+                                        <icon name="download"  />
                                         <span>@T("Common.Download")</span>
                                     </a>
                                 }

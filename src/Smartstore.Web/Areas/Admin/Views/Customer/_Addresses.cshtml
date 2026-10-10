@@ -22,7 +22,7 @@
                 <a asp-action="AddressEdit" asp-controller="Customer" asp-route-customerId="@Model.Id" asp-route-addressId="@address.Id"
                     class="btn btn-sm btn-flat btn-icon btn-secondary"
                     title="@T("Common.Edit")">
-                    <i class="far fa-edit"></i>
+                    <icon name="edit"  />
                 </a>
                 <button id="address-delete-@address.Id" type="button" class="btn btn-sm btn-flat btn-icon btn-danger ml-1 delete-address"
                         title="@T("Common.Delete")"
@@ -34,7 +34,7 @@
                     @if (address.IsDefaultBillingAddress && address.IsDefaultShippingAddress)
                     {
                         <span class="badge badge-success align-self-center p-1 pr-2">
-                            <i class="fa fa-check mx-1"></i>
+                            <icon name="check" class="mx-1" />
                             <span>@T("Address.IsDefaultAddress")</span>
                         </span>
                     }

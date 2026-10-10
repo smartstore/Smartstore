@@ -24,7 +24,7 @@
 		</div>
 		<div sm-if="columnMappings.Count > 0" class="adminRow">
 			<button id="ResetColumnMappings" type="button" class="btn btn-secondary btn-to-danger" data-url="@Url.Action("ResetColumnMappings", new { id = Model.Id })">
-				<i class="fa fa-sync"></i>
+				<icon name="refresh"  />
 				<span>@T("Admin.Common.Clear")</span>
 			</button>
 		</div>
@@ -42,8 +42,8 @@
 			</select>
 		</div>
 		<div class="col-auto">
-			<button type="button" class="btn btn-warning mapping-apply btn-icon"><i class="fa fa-check"></i></button>
-			<button type="button" class="btn btn-outline-secondary btn-to-danger mapping-cancel btn-icon"><i class="fa fa-times"></i></button>
+			<button type="button" class="btn btn-warning mapping-apply btn-icon"><icon name="check"  /></button>
+			<button type="button" class="btn btn-outline-secondary btn-to-danger mapping-cancel btn-icon"><icon name="close"  /></button>
 		</div>
 	</div>
 </div>
@@ -60,8 +60,8 @@
 			</select>
 		</div>
 		<div class="col-auto">
-			<button type="button" class="btn btn-warning mapping-apply btn-icon"><i class="fa fa-check"></i></button>
-			<button type="button" class="btn btn-outline-secondary btn-to-danger mapping-cancel btn-icon"><i class="fa fa-times"></i></button>
+			<button type="button" class="btn btn-warning mapping-apply btn-icon"><icon name="check"  /></button>
+			<button type="button" class="btn btn-outline-secondary btn-to-danger mapping-cancel btn-icon"><icon name="close"  /></button>
 		</div>
 	</div>
 </div>
@@ -110,7 +110,7 @@
 				</td>
 				<td class="omega">
 					<button type="button" class="btn btn-block btn-primary mapping-add" disabled="disabled" title="@T("Common.AddNew")">
-						<i class="fa fa-plus"></i>
+						<icon name="plus"  />
 						<span class="mapping-button-label">
 							@T("Common.AddNew")
 						</span>

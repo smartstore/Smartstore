@@ -61,7 +61,7 @@
                             @language.UniqueSeoCode
                         </td>
                         <td class="text-center">
-                            <i class="fa fa-fw icon-active-@language.Published.ToString().ToLower()"></i>
+                            <icon name="@(language.Published ? "check" : "minus")" fw class="icon-active-@language.Published.ToString().ToLowerInvariant()" />
                         </td>
                         <td>
                             @if (language.LastResourcesImportOn.HasValue)
@@ -70,11 +70,11 @@
                             }
                             else
                             {
-                                <i class="fa fa-fw icon-active-false"></i>
+                                <icon name="minus" class="icon-fw icon-active-false" />
                             }
                         </td>
                         <td class="text-center">
-                            <i class="fa fa-fw icon-active-@language.LimitedToStores.ToString().ToLower()"></i>
+                            <icon name="@(language.LimitedToStores ? "check" : "minus")" fw class="icon-active-@language.LimitedToStores.ToString().ToLowerInvariant()" />
                         </td>
                         <td class="text-center">
                             @language.DisplayOrder

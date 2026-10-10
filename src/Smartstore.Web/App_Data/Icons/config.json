@@ -1,5 +1,13 @@
 {
   "defaultLibrary": "hugeicons",
   "defaultVariant": "stroke-rounded",
-  "fallbackToDefaultLibrary": true
+  "fallbackToDefaultLibrary": true,
+  "mirrorInRtl": [
+    "arrow-left",
+    "arrow-right",
+    "chevron-left",
+    "chevron-right",
+    "chevrons-left",
+    "chevrons-right"
+  ]
 }

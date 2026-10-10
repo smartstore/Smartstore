@@ -86,6 +86,87 @@ public class IconServiceTests
     }
 
     /// <summary>
+    /// Applies direction policy to concepts only, for inline and kit rendering alike.
+    /// </summary>
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task Rtl_Policy_Follows_Concept_Without_Changing_Artwork(bool useKit)
+    {
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","mirrorInRtl":["cart"]}""");
+        if (useKit)
+        {
+            Write("Icons/kits.json", """{"shared":["cart"]}""");
+        }
+
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        var renderer = new IconRenderer(_service, kits);
+        var concept = await _service.GetIconAsync("cart");
+        Assert.That(concept.MirrorInRtl, Is.True);
+        var svg = await renderer.RenderAsync(concept);
+        Assert.That(svg.Attributes["class"], Does.Contain("icon-mirror-rtl"));
+        Assert.That((await _service.GetIconAsync("cart?rotate=90")).MirrorInRtl, Is.True);
+        Assert.That((await _service.GetIconAsync("hi:cart")).MirrorInRtl, Is.False);
+        Assert.That((await _service.GetIconAsync("cart@sr")).MirrorInRtl, Is.False);
+        Assert.That((await _service.GetIconAsync("cart-01!")).MirrorInRtl, Is.False);
+        Assert.That((await _service.GetIconAsync("cart-01")).MirrorInRtl, Is.False);
+    }
+
+    /// <summary>
+    /// Versions the direction policy independently of immutable sprite artwork.
+    /// </summary>
+    [Test]
+    public async Task Rtl_Policy_Changes_Manifest_But_Not_Kit_Reference()
+    {
+        Write("Icons/kits.json", """{"shared":["cart"]}""");
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        var originalManifest = kits.GetManifestUrl();
+        var originalHref = kits.GetReference(await _service.GetIconAsync("cart")).Href;
+        Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","mirrorInRtl":["cart"]}""");
+        SignalChanges();
+
+        Assert.That(kits.GetManifestUrl(), Is.Not.EqualTo(originalManifest));
+        Assert.That(kits.GetReference(await _service.GetIconAsync("cart")).Href, Is.EqualTo(originalHref));
+        var path = await kits.GetManifestFileAsync(Path.GetFileNameWithoutExtension(kits.GetManifestUrl()));
+        using var json = JsonDocument.Parse(await File.ReadAllTextAsync(path));
+        Assert.That(json.RootElement.GetProperty("mirrorInRtl").EnumerateArray().Select(x => x.GetString()),
+            Is.EqualTo(new[] { "cart" }));
+    }
+
+    /// <summary>
+    /// Bakes mapping widths into independent drawings, preserving kit hits and inline overrides.
+    /// </summary>
+    [Test]
+    public async Task Kit_Bakes_Stroke_Scale_And_Versions_Changes()
+    {
+        Write("Icons/kits.json", """{"shared":["cart","thick","thick-alias"]}""");
+        Write("Icons/hugeicons/mapping.json", """{"cart":"cart-01","thick":"cart-01?stroke-scale=1.25","thick-alias":"cart-01?stroke-scale=1.25"}""");
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        var renderer = new IconRenderer(_service, kits);
+        var icon = await _service.GetIconAsync("thick");
+        var reference = kits.GetReference(icon);
+        var output = await renderer.RenderAsync(icon);
+        Assert.That(RenderMarkup(output.InnerHtml), Does.Contain("<use"));
+        Assert.That(await renderer.RenderAsync(icon, new IconOptions { StrokeScale = 1.25 }), Is.Not.Null);
+        var reset = await renderer.RenderAsync(icon, new IconOptions { StrokeScale = 1 });
+        Assert.That(RenderMarkup(reset.InnerHtml), Does.Not.Contain("<use"));
+        Assert.That(RenderMarkup((await renderer.RenderAsync(await _service.GetIconAsync("thick?stroke-scale=1"))).InnerHtml),
+            Does.Not.Contain("<use"));
+
+        var path = await kits.GetSpriteFileAsync("shared", Path.GetFileNameWithoutExtension(reference.Href.Split('#')[0]).Substring("shared-".Length));
+        var text = await File.ReadAllTextAsync(path);
+        Assert.That(text, Does.Contain("calc(var(--icon-stroke-width,1.6) * 1.25)"));
+        XNamespace ns = "http://www.w3.org/2000/svg";
+        var sprite = XDocument.Parse(text);
+        Assert.That(sprite.Descendants(ns + "symbol").Single(x => (string)x.Attribute("id") == "cart").ToString(),
+            Does.Not.Contain(" * 1.25"));
+        Assert.That(sprite.Descendants(ns + "defs").Count(), Is.EqualTo(1), "Equal stroke scales share artwork.");
+
+        Write("Icons/hugeicons/mapping.json", """{"cart":"cart-01","thick":"cart-01?stroke-scale=1.5","thick-alias":"cart-01?stroke-scale=1.25"}""");
+        SignalChanges();
+        Assert.That(kits.GetReference(await _service.GetIconAsync("thick")).Href, Is.Not.EqualTo(reference.Href));
+    }
+
+    /// <summary>
     /// Exports compact resolution data once, preserves PathBase and leaves individual SVG caching untouched.
     /// </summary>
     [Test]
@@ -105,18 +186,18 @@ public class IconServiceTests
         Assert.That(Path.GetDirectoryName(paths[0]), Is.EqualTo(Path.Combine(_root, ".cache", "icons", "kits")));
         Assert.That(Path.GetFileName(paths[0]), Is.EqualTo("manifest-" + revision + ".json"));
         using var json = JsonDocument.Parse(await File.ReadAllTextAsync(paths[0]));
-        Assert.That(json.RootElement.EnumerateObject().Select(x => x.Name), Is.EquivalentTo(new[] { "schemaVersion", "kits" }));
-        Assert.That(json.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(6));
+        Assert.That(json.RootElement.EnumerateObject().Select(x => x.Name), Is.EquivalentTo(new[] { "schemaVersion", "mirrorInRtl", "kits" }));
+        Assert.That(json.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(7));
         var shared = json.RootElement.GetProperty("kits").GetProperty("shared");
         Assert.That(shared.EnumerateObject().Select(x => x.Name), Is.EquivalentTo(new[] { "url", "defaultLibrary", "defaultVariant", "icons", "sources" }));
-        Assert.That(shared.GetProperty("icons").EnumerateArray().Select(x => x.GetString()), Is.EqualTo(new[] { "cart" }),
-            "Mapping flips are baked into kit symbols; stroke multipliers require the render endpoint.");
+        Assert.That(shared.GetProperty("icons").EnumerateArray().Select(x => x.GetString()), Is.EqualTo(new[] { "cart", "thick" }),
+            "Mapping flips and stroke multipliers are baked into kit symbols.");
         Assert.That(shared.GetProperty("url").GetString(), Does.StartWith("icons/shared-"));
         Assert.That(shared.GetProperty("defaultLibrary").GetString(), Is.EqualTo("hi"));
         Assert.That(shared.GetProperty("defaultVariant").GetString(), Is.EqualTo("sr"));
         Assert.That(shared.GetProperty("sources").GetProperty("cart").GetString(), Is.EqualTo("cart-01"),
             "Only the differing source name is needed; transforms are already baked into the symbol.");
-        Assert.That(shared.GetProperty("sources").TryGetProperty("thick", out _), Is.False);
+        Assert.That(shared.GetProperty("sources").GetProperty("thick").GetString(), Is.EqualTo("cart-01"));
         Assert.That(Directory.GetFiles(Path.GetDirectoryName(paths[0]), "*.svg"), Is.Empty,
             "Manifest creation must not generate sprites.");
         http.Request.PathBase = "/other";
@@ -1817,7 +1898,7 @@ public class IconServiceTests
 
         var manifestPath = await kits.GetManifestFileAsync(Path.GetFileNameWithoutExtension(kits.GetManifestUrl()));
         using var manifest = JsonDocument.Parse(await File.ReadAllTextAsync(manifestPath));
-        Assert.That(manifest.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(6));
+        Assert.That(manifest.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(7));
         var brands = manifest.RootElement.GetProperty("kits").GetProperty("brands");
         Assert.That(brands.GetProperty("icons").EnumerateArray().Select(x => x.GetString()), Is.EquivalentTo(symbols.Keys),
             "Each concept references its own symbol, including aliases sharing one source.");
@@ -1996,10 +2077,10 @@ public class IconServiceTests
     }
 
     /// <summary>
-    /// Kit browsing uses its own sources and tags, preserving conceptual values and inline exceptions.
+    /// Kit browsing uses its own sources and tags, preserving conceptual values and baked modifiers.
     /// </summary>
     [Test]
-    public async Task Browser_Kit_Preview_Uses_Selected_Kit_And_Only_Stroke_Exceptions_Need_Inline()
+    public async Task Browser_Kit_Preview_Uses_Selected_Kit_With_Baked_Stroke_Scale()
     {
         Write("Icons/kits.json", """{"shared":{"icons":["cart"],"sources":{"cart":"hi:direct@sr"}},"backend":["cart","thick"]}""");
         Write("Icons/hugeicons/mapping.json", """{"cart":"cart-01?flip=x","thick":"cart-01?rotate=90&stroke-scale=1.2"}""");
@@ -2012,10 +2093,8 @@ public class IconServiceTests
         Assert.That(result.Items[0].Value, Is.EqualTo("cart"));
         Assert.That(result.Items[0].Address, Is.EqualTo("hi:cart-01@sr"), "The selected kit, not shared, determines the preview.");
         Assert.That(result.Items[0].InlineName, Is.Null);
-        var inline = await _service.GetIconAsync(result.Items[1].InlineName);
-        Assert.That(inline.Name, Is.EqualTo("cart-01"));
-        Assert.That(inline.StrokeScale, Is.EqualTo(1.2));
-        Assert.That(inline.Transform.Rotation, Is.EqualTo(90));
+        Assert.That(result.Items[1].InlineName, Is.Null);
+        Assert.That(result.Items[1].Name, Is.EqualTo("thick"));
         Assert.That(Directory.GetFiles(Path.Combine(_root, ".cache", "icons", "kits"), "*.svg"), Has.Length.EqualTo(1));
         Assert.That(Directory.Exists(Path.Combine(_root, ".cache", "icons", "browser")), Is.False);
         _cache.VerifyNoOtherCalls();

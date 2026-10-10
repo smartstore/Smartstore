@@ -27,7 +27,7 @@
                     <div class="text-truncate">
                         @if (item.Published.HasValue)
                         {
-                            <i class="published @(item.Published.Value ? "fa fa-globe" : "far fa-eye-slash")" title="@T(item.Published.Value ? "Common.Published" : "Common.Unpublished")"></i>
+                            <icon name="@(item.Published.Value ? "globe" : "eye-slash")" class="published @(item.Published.Value ? "is-published" : "is-unpublished")" title="@T(item.Published.Value ? "Common.Published" : "Common.Unpublished")" />
                         }
                         <span class="summary" title="@item.SummaryTitle">@item.Summary</span>
                     </div>

@@ -821,11 +821,11 @@ the helper's `rotate` property accepts integer degrees.
 be supplied in mapping.json, for example `"arrow": "arrow-right?stroke-scale=1.1"`.
 Different source widths retain their proportions.
 
-Existing kits are not modified for rendering overrides. Replacing a baked-in
-transformation, or requesting an effective stroke multiplier other than `1`,
-renders the cached original source inline. No modifier-specific source cache
-entries or kit variants are created. The stroke multiplier is applied by the
-renderer, not baked into kit files; consumers of raw kit URLs do not receive it.
+Mapping transformations and stroke multipliers are baked into kit symbols and
+participate in sprite revisioning. Equal source/width combinations share artwork;
+different widths keep separate prepared drawings. Replacing a baked-in transformation
+or stroke multiplier at a call site renders the cached original source inline.
+No modifier-specific source cache entries or request-specific kit variants are created.
 
 Presentation attributes include `size`, `font-scale`, `fw`, `color`, `inverse`,
 `animation`, `animation-duration`, `animation-reverse`, `scale`, `shift-x`, and
@@ -888,7 +888,8 @@ manifest contains kit URLs, directly renderable concepts and compact DOM identit
 
 ```json
 {
-  "schemaVersion": 6,
+  "schemaVersion": 7,
+  "mirrorInRtl": ["arrow-left", "arrow-right", "chevron-left", "chevron-right", "chevrons-left", "chevrons-right"],
   "kits": {
     "brands": {
       "url": "icons/brands-<revision>.svg",
@@ -913,7 +914,7 @@ the kit's metadata defaults, even when the library differs. Source names are exa
 qualifiers in `data-icon` are lowercased to match the server's canonical address.
 For example, `alexa` renders the `#alexa` symbol but carries `bi:alexa@default` and the
 classes `icon-bi icon-bi-default`. Library catalogs, resolution rules, SVG drawings and
-search tags remain server-side. Each concept appears only in its preferred kit. Concepts requiring a stroke multiplier and unavailable kits are omitted.
+search tags remain server-side. Each concept appears only in its preferred kit. Unavailable kits are omitted; mapping stroke multipliers are included in the sprites.
 Mapping rotations and flips are already baked into the symbols.
 
 Unknown concepts, explicit library/variant selections, direct names (`!`), query
@@ -1060,9 +1061,8 @@ Variant sprites are served at `/icons/browser/{library}/{variant}/{revision}.svg
 They are published atomically, shared by concurrent requests and cached by the browser
 using immutable revision URLs. Source changes create a new revision; historical files
 remain available while the source selection is registered. Automatic cleanup is deferred.
-Search responses use `no-store`; each result page shares one sprite URL. Mapping stroke
-multipliers are the existing exception: those kit rows use the web component's inline
-rendering path, preserving the modifier without altering the kit sprite.
+Search responses use `no-store`; each result page shares one sprite URL, including
+kit rows with baked mapping stroke multipliers.
 
 ## Inspect cached inline icons
 
@@ -1147,3 +1147,25 @@ accessibility remain the renderer's responsibility.
 
 The existing synchronous `Html.Icon()` and `Html.BootstrapIcon()` remain available
 during migration and are intended for removal after their callers have migrated.
+
+
+## Direction-sensitive concepts
+
+The optional `mirrorInRtl` array in `config.json` lists exact, case-sensitive concept
+names that mirror horizontally in RTL layouts, independently of kit or mapped library.
+The initial list contains `arrow-left`, `arrow-right`, `chevron-left`, `chevron-right`,
+`chevrons-left` and `chevrons-right`. Add concepts deliberately: a horizontal motif
+such as a logo, chart or play button does not necessarily follow reading direction.
+
+Resolution exposes this policy as `IconInfo.MirrorInRtl`. The server renderer and
+manifest-backed `sm-icon` both add `icon-mirror-rtl` automatically. CSS evaluates
+`:dir(rtl)` at the element, including local direction overrides. The additional
+horizontal factor composes with existing flips, scale and animations. Source SVGs
+and kit symbols remain direction-independent; no RTL sprite copy is generated.
+
+The policy applies to unqualified concepts, including their query modifiers.
+Explicit library/variant selectors (in addresses or service arguments) and `!`
+bypasses are excluded. Native library browsing therefore keeps the original artwork.
+Manifest schema 7 publishes the sorted `mirrorInRtl` list; changing the list revises
+the manifest without changing sprite artwork. Older manifests fall back to the render
+endpoint when used with the updated client.

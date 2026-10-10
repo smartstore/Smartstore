@@ -29,7 +29,7 @@
                                class="btn btn-icon rounded-circle btn-flat btn-social btn-brand-@link.CssClass" 
                                title="@link.DisplayName"
                                aria-label="@link.DisplayName">
-                                <i class="fab fa-@link.CssClass" aria-hidden="true"></i>
+                                <icon name="@(link.CssClass == "x-twitter" ? "twitter-x" : "fa:" + link.CssClass + "!@b")" aria-hidden="true" />
                             </a>
                         }
                     </div>
@@ -122,7 +122,7 @@
                                                        aria-label="@T("Newsletter.Email")"
                                                        autocomplete="email" />
                                                 <span class="input-group-icon text-muted" style="--inline-icon-offset: 4px">
-                                                    <i class="far fa-envelope" aria-hidden="true"></i>
+                                                    <icon name="mail"  aria-hidden="true" />
                                                 </span>
                                                 <span class="input-group-append">
                                                     <span class="input-group-inline-addon rounded-end-pill">

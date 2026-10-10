@@ -78,9 +78,9 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
             var variant = IconService.SelectVariant(catalog, library, null, kit);
             var index = GetIndex(catalog, library, variant);
             // Every concept has its own symbol, even when several concepts share artwork.
-            // Mapping transforms are baked into symbols; stroke multipliers require inline SVG.
+            // Mapping transforms and stroke multipliers are baked into symbols.
             var entries = index.Entries[kit.Name]
-                .Where(x => catalog.ConceptKits[x.Concept] == kit && x.Mapping.StrokeScale == 1)
+                .Where(x => catalog.ConceptKits[x.Concept] == kit)
                 .ToArray();
             if (entries.Length == 0 || !index.CanGenerate(kit.Name))
             {
@@ -121,7 +121,8 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
 
         var content = JsonSerializer.SerializeToUtf8Bytes(new
         {
-            SchemaVersion = 6,
+            SchemaVersion = 7,
+            MirrorInRtl = catalog.MirrorInRtl.OrderBy(x => x, StringComparer.Ordinal).ToArray(),
             Kits = kits
         }, SmartJsonOptions.CamelCased);
         return (Convert.ToHexStringLower(SHA256.HashData(content).AsSpan(0, 12)), content);
@@ -137,7 +138,7 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
 
         var catalog = icons.Catalog;
         var index = GetIndex(catalog, icon.SelectionLibraryName ?? icon.LibraryName, icon.SelectionVariantName ?? icon.VariantName);
-        if (index == null || !index.Memberships.TryGetValue((icon.Address, icon.Transform), out var member))
+        if (index == null || !index.Memberships.TryGetValue((icon.Address, icon.Transform, icon.StrokeScale), out var member))
         {
             return null;
         }

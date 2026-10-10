@@ -69,7 +69,7 @@
                 <input type="text" class="form-control" id="linked-product-name" placeholder="@T("Common.Unspecified")" value="@Model.LinkedProductName" readonly>
                 <div class="input-group-append">
                     <button type="button" class="btn btn-outline-secondary btn-to-danger rounded-right btn-remove-product-linkage">
-                        <i class="fa fa-times"></i>
+                        <icon name="close"  />
                         <span>@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.UnlinkProduct")</span>
                     </button>
                     <entity-picker asp-for="LinkedProductId"
