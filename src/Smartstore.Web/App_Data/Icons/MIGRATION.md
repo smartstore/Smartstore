@@ -80,6 +80,30 @@ custom source. Edit-mode link metadata is adapted at the menu provider boundary.
 Script-swapped font icons and other non-menu consumers remain outside the menu
 migration. See [MENU-MIGRATION.md](MENU-MIGRATION.md) for the audit.
 
+All workspace AdminMenuProvider implementations and MenuBuiltEvent consumers
+have also been audited. Remaining source-only HI names use explicit addresses:
+`hi:alarm-clock!@sr`, `hi:bell-plus!@sr` and `hi:chat!@sr`.
+CartApproval uses `cart-check`; GDPR uses `user-secret`.
+See the provider/consumer audit in [MENU-MIGRATION.md](MENU-MIGRATION.md).
+
+## Store dashboard report
+
+StoreDashboardReport uses the icon TagHelper and reviewed concepts for all 13
+statistics icons, replacing its Bootstrap-specific names and renderer.
+
+## DataGrid Vue icons
+
+Built-in grid, pager and tools icons use `sm-icon` with concept names. Column
+header Icon values now accept concepts or full addresses; FA class strings must
+be migrated (for example, `fa fa-paperclip` becomes `paperclip`).
+Boolean cells use check/minus SVGs with the existing state colors and no font
+pseudo-glyphs; null values keep an empty slot. The detail toggle retains its CSS
+rotation, and refresh uses `icon-spin` while busy.
+
+The legacy `bootstrap-icon` Vue registration and sprite option remain available
+for externally supplied display templates. Migrating those templates is separate
+from migrating the built-in DataGrid UI.
+
 ## TabStrip icons
 
 `TabTagHelper.Icon` (`sm-icon`) accepts concepts and qualified addresses.

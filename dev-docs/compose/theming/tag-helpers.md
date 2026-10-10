@@ -810,19 +810,19 @@ Here is an excerpt from _Smartstore.Web/Areas/Admin/Views/ActivityLog\_Grid.Acti
 ```
 {% endcode %}
 
-Bootstrap icons can be used in column headers with the `bi:` prefix:
+Icon concepts or explicit addresses can be used in column headers:
 
 ```cshtml
-<column for="AttachmentsCount" icon="bi:paperclip" title="" />
+<column for="AttachmentsCount" icon="paperclip" title="" />
 ```
 
-For dynamic icons in a display template, bind the icon name to the DataGrid's
-`bootstrap-icon` Vue component. Use an explicit closing tag so the browser preserves
+For dynamic icons in a display template, bind the concept or address to the
+`sm-icon` custom element. Use an explicit closing tag so the browser preserves
 the surrounding template markup correctly:
 
 ```cshtml
 <display-template>
-    <bootstrap-icon :name="item.row.Icon"></bootstrap-icon>
+    <sm-icon :name="item.row.Icon"></sm-icon>
 </display-template>
 ```
 

@@ -2,28 +2,28 @@
     var arr = new[]
     {
         new { Part = "ProductsCount", Label = T("Admin.Catalog.Products").Value, Title = T("Admin.Catalog.Products").Value, Icon = "boxes" },
-        new { Part = "AttributesCount", Label = T("Admin.Catalog.Attributes").Value, Title = T("Admin.Catalog.Attributes.ProductAttributes").Value, Icon = "card-checklist" },
+        new { Part = "AttributesCount", Label = T("Admin.Catalog.Attributes").Value, Title = T("Admin.Catalog.Attributes.ProductAttributes").Value, Icon = "tasks" },
         new
         {
             Part = "AttributeCombinationsCount",
             Label = T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.Short").Value,
             Title = T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations").Value,
-            Icon = "stack"
+            Icon = "layers"
         },
-        new { Part = "CategoriesCount", Label = T("Admin.Catalog.Categories").Value, Title = T("Admin.Catalog.Categories").Value, Icon = "diagram-3" },
+        new { Part = "CategoriesCount", Label = T("Admin.Catalog.Categories").Value, Title = T("Admin.Catalog.Categories").Value, Icon = "sitemap" },
         new { Part = "ManufacturersCount", Label = T("Admin.Catalog.Manufacturers").Value, Title = T("Admin.Catalog.Manufacturers").Value, Icon = "building" },
         new { Part = "MediaCount", Label = T("Admin.Catalog.Products.Pictures").Value, Title = T("Admin.Catalog.Products.Pictures").Value, Icon = "images" },
         new { Part = "MediaSize", Label = T("Admin.Report.MediaFilesSize").Value, Title = T("Admin.Report.MediaFilesSize").Value, Icon = "hdd" },
-        new { Part = "CustomersCount", Label = T("Admin.Customers.Customers").Value, Title = T("Admin.Customers.Reports.RegisteredCustomers").Value, Icon = "people" },
-        new { Part = "OrdersCount", Label = T("Admin.Orders").Value, Title = T("Admin.Orders.Overall").Value, Icon = "graph-up-arrow" },
+        new { Part = "CustomersCount", Label = T("Admin.Customers.Customers").Value, Title = T("Admin.Customers.Reports.RegisteredCustomers").Value, Icon = "user-group" },
+        new { Part = "OrdersCount", Label = T("Admin.Orders").Value, Title = T("Admin.Orders.Overall").Value, Icon = "chart-line-arrow" },
         new
         {
             Part = "Sales",
             Label = T("Admin.SalesReport.Sales").Value,
             Title = T("Admin.SalesReport.Sales.Hint").Value + " " + T("Enums.TaxDisplayType.IncludingTax").Value,
-            Icon = "credit-card"
+            Icon = "creditcard"
         },
-        new { Part = "OnlineCustomersCount", Label = T("Admin.Customers.OnlineCustomers").Value, Title = T("Admin.Report.OnlineCustomers").Value, Icon = "box-arrow-in-right" },
+        new { Part = "OnlineCustomersCount", Label = T("Admin.Customers.OnlineCustomers").Value, Title = T("Admin.Report.OnlineCustomers").Value, Icon = "login" },
         new
         {
             Part = "CartsValue",
@@ -62,7 +62,7 @@
                             </div>
                         </div>
                         <div class="statistics-icon">
-                            <bootstrap-icon name="@arr[i].Icon" />
+                            <icon name="@arr[i].Icon" />
                         </div>
                     </div>
                 </div>

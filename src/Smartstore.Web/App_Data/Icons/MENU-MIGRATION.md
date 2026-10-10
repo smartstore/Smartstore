@@ -26,6 +26,31 @@ uses IconClass instead of being appended to the icon name.
 Existing third-party extensions and persisted custom classes cannot be exhaustively
 checked by a source audit. Update any FA sizing/animation classes there separately.
 
+## Admin providers and menu event consumers
+
+A follow-up audit covered all 34 AdminMenuProvider implementations and 11
+MenuBuiltEvent consumers in the public, enterprise, internal and customer source
+repositories. Admin providers already used concepts or concrete addresses.
+Five remaining unqualified source names in consumers were corrected:
+
+| Consumer | Previous value | Address / concept |
+| --- | --- | --- |
+| CartApproval | shopping-cart-check-02 | cart-check |
+| GDPR | incognito | user-secret |
+| EmailReminder | alarm-clock | hi:alarm-clock!@sr |
+| Forums (subscriptions) | bell-plus | hi:bell-plus!@sr |
+| Forums (private messages) | chat | hi:chat!@sr |
+
+The three explicit HI addresses preserve the existing artwork; no new mappings
+were introduced. All 51 literal menu icon assignments resolve to installed SVG
+sources using the current kit and library mappings. No FA-specific IconClass
+values, separate IconLibrary assignments or two-argument Icon calls remain in
+these provider/consumer scopes. MegaMenu, MainMenuShrinker and the HP consumer
+do not assign menu icons; HP's commented-out metadata Icon case stays disabled.
+
+This follow-up changed icon strings only. Source availability, diffs and CRLF were
+checked; no additional build or browser verification was performed.
+
 ## Deferred consumers
 
 Script-swapped icons remain deferred. TabStrip extensions were migrated in the

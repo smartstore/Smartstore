@@ -63,7 +63,7 @@ Smartstore.Admin.DataGridVue.components["sm-datagrid"] = {
                 <div class="dg-search-header d-flex py-3 mx-3">
                     <h6 class="m-0 text-muted">{{ T.filter }}</h6>
                     <button v-show="numSearchFilters > 0" type="button" class="dg-filter-reset btn btn-plain btn-sm ml-auto" @click.prevent.stop="resetSearchFilters()">
-                        <bootstrap-icon name="eraser"></bootstrap-icon>
+                        <sm-icon name="eraser"></sm-icon>
                         <span>{{ T.resetState }}</span>
                     </button>
                 </div>
@@ -127,11 +127,10 @@ Smartstore.Admin.DataGridVue.components["sm-datagrid"] = {
                                         :class="{ 'dg-sortable': sorting.enabled && column.sortable }"
                                         :title="column.hint"
                                         v-on:click="onSort($event, column)">
-                                        <bootstrap-icon v-if="column.icon?.startsWith('bi:')" class="dg-icon" :name="column.icon.substring(3)"></bootstrap-icon>
-                                        <i v-else-if="column.icon" class="dg-icon" :class="column.icon"></i>
+                                        <sm-icon v-if="column.icon" class="dg-icon" :name="column.icon"></sm-icon>
                                         <span v-if="column.title" class="dg-cell-value">{{ column.title }}</span>
-                                        <bootstrap-icon name="arrow-up-short" v-if="isSortedAsc(column)" class="mx-1"></bootstrap-icon>
-                                        <bootstrap-icon name="arrow-up-short" v-if="isSortedDesc(column)" class="mx-1 flip-v"></bootstrap-icon>
+                                        <sm-icon name="arrow-up" v-if="isSortedAsc(column)" class="mx-1"></sm-icon>
+                                        <sm-icon name="arrow-up" v-if="isSortedDesc(column)" class="mx-1 flip-v"></sm-icon>
                                     </div>
                                     <div v-if="options.allowResize && column.resizable" 
                                         class="dg-resize-handle"
@@ -158,7 +157,7 @@ Smartstore.Admin.DataGridVue.components["sm-datagrid"] = {
 
                                     <td v-if="allowRowSelection || hasDetailView" class="dg-td dg-col-selector dg-col-pinned alpha">
                                         <div v-if="hasDetailView" class="dg-cell dg-cell-detail-toggle" :class="{ 'expanded': getRowDetailState(row) === true }" @click="toggleDetailView(row)">
-                                            <i class="fa fa-chevron-right fa-sm"></i>
+                                            <sm-icon name="chevron-right" size="sm"></sm-icon>
                                         </div>
                                         <label v-if="allowRowSelection" class="dg-cell dg-cell-selector w-100">
                                             <span v-if="!isInlineEditRow(row) || !editing.insertMode" class="dg-cell-value" style="overflow: initial">
@@ -178,7 +177,7 @@ Smartstore.Admin.DataGridVue.components["sm-datagrid"] = {
                                         <div class="dg-cell" :class="getCellClass(row, column)" :style="getCellStyles(row, column, false)">
                                             <slot v-if="!isInlineEditCell(row, column)" :name="'display-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: getColumnValue(column, row) }">
                                                 <template v-if="column.type === 'boolean'">
-                                                    <div class="dg-cell-value"><i class="fa fa-fw" :class="'icon-active-' + getColumnValue(column, row)"></i></div>
+                                                    <div class="dg-cell-value"><sm-icon :name="getColumnValue(column, row) === true ? 'check' : getColumnValue(column, row) === false ? 'minus' : null" fw :class="'icon-active-' + getColumnValue(column, row)"></sm-icon></div>
                                                 </template>
                                                 <template v-else>
                                                     <div class="dg-cell-value" v-if="column.encoded" v-html="renderCellValue(getColumnValue(column, row), column, row)"></div>
@@ -201,17 +200,17 @@ Smartstore.Admin.DataGridVue.components["sm-datagrid"] = {
                                         <div class="dg-cell dg-commands p-0">
                                             <div v-show="hasRowCommands && (!editing.active || row != editing.row)" class="dg-commands-toggle w-100 h-100 align-items-center justify-content-center dropdown">
                                                 <a href="#" class="dg-commands-toggle-button dropdown-toggle no-chevron btn btn-secondary btn-flat btn-icon btn-sm" data-toggle="dropdown" data-boundary="window">
-                                                    <i class="fa fa-ellipsis-h"></i>
+                                                    <sm-icon name="ellipsis"></sm-icon>
                                                 </a>
                                                 <slot name="rowcommands" v-bind="{ row, activateEdit, deleteRows }"></slot> 
                                             </div>
 
                                             <div v-if="editing.active && row == editing.row" class="dg-row-edit-commands bg-white rounded-pill border">
                                                 <a href="#" @click.prevent.stop="saveChanges()" class="btn btn-primary btn-sm btn-flat btn-icon rounded-circle btn-row-command" :title="T.saveChanges">
-                                                    <i class="fa fa-check" style="font-size: 11px"></i>
+                                                    <sm-icon name="check" size="xs"></sm-icon>
                                                 </a>
                                                 <a href="#" @click.prevent.stop="cancelEdit()" class="btn btn-secondary btn-sm btn-flat btn-icon rounded-circle btn-row-command" :title="T.cancel">
-                                                    <i class="fa fa-times" style="font-size: 11px"></i>
+                                                    <sm-icon name="close" size="xs"></sm-icon>
                                                 </a>
                                             </div>
                                         </div>

@@ -182,8 +182,8 @@ public class GridColumnTagHelper : TagHelper
     public string EntityMember { get; set; }
 
     /// <summary>
-    /// Icon to use in the column header. Use a Bootstrap icon name prefixed with <c>bi:</c>,
-    /// e.g. <c>bi:envelope</c>, or a CSS class name such as <c>far fa-envelope</c>.
+    /// Icon concept or address to use in the column header,
+    /// e.g. <c>mail</c> or <c>bi:envelope!</c>.
     /// </summary>
     [HtmlAttributeName(IconAttributeName)]
     public string Icon { get; set; }

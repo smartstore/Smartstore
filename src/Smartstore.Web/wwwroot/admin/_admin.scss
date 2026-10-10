@@ -1389,7 +1389,7 @@ a.editable {
     color: $green;
     text-shadow: 0 -1px 0 #fff;
 
-    &::before {
+    &:not(.icon)::before {
         content: '\f00c';
     }
 }
@@ -1398,7 +1398,7 @@ a.editable {
     color: $gray-400;
     text-shadow: 0 -1px 0 #fff;
 
-    &::before {
+    &:not(.icon)::before {
         content: '\f068';
     }
 }
