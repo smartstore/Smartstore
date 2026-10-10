@@ -471,7 +471,7 @@
                 let font = null;
                 if (svg.classList.contains('icon-hi-sr') && !name.includes('?')) {
                     const identity = svg.getAttribute('data-icon');
-                    const resolvedName = identity.slice(identity.indexOf(':') + 1, identity.lastIndexOf('@@'));
+                    const resolvedName = identity.slice(identity.indexOf(':') + 1, identity.lastIndexOf('/'));
                     const fontName = resolvedName === 'sorting-1-9' ? 'sorting-one-9' : resolvedName;
                     const candidate = document.createElement('i');
                     candidate.className = `hgi-stroke hgi-${fontName}`;

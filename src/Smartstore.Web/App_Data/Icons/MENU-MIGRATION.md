@@ -37,9 +37,9 @@ Five remaining unqualified source names in consumers were corrected:
 | --- | --- | --- |
 | CartApproval | shopping-cart-check-02 | cart-check |
 | GDPR | incognito | user-secret |
-| EmailReminder | alarm-clock | hi:alarm-clock!@sr |
-| Forums (subscriptions) | bell-plus | hi:bell-plus!@sr |
-| Forums (private messages) | chat | hi:chat!@sr |
+| EmailReminder | alarm-clock | hi:alarm-clock!/sr |
+| Forums (subscriptions) | bell-plus | hi:bell-plus!/sr |
+| Forums (private messages) | chat | hi:chat!/sr |
 
 The three explicit HI addresses preserve the existing artwork; no new mappings
 were introduced. All 51 literal menu icon assignments resolve to installed SVG
@@ -55,7 +55,7 @@ checked; no additional build or browser verification was performed.
 
 Script-swapped icons remain deferred. TabStrip extensions were migrated in the
 following step; see the TabStrip section in [MIGRATION.md](MIGRATION.md).
-Smartstore.DimensionPricing now uses `fa:ruler-horizontal!@s` with
+Smartstore.DimensionPricing now uses `fa:ruler-horizontal!/s` with
 `IconClass = "icon-lg icon-fw"` for its two tabs.
 
 The menu dropdown caret and navbar scrolling arrows are template controls, not

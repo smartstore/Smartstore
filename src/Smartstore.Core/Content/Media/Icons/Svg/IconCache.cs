@@ -21,7 +21,7 @@ public sealed class IconCache(ICacheManager cache) : IIconCache
             var key = storedKey[_keyPrefix.Length..];
             // The revision can contain colons of its own. Its boundary is the first
             // colon after the canonical variant, not the last colon in the key.
-            var separator = key.IndexOf(':', key.IndexOf('@') + 1);
+            var separator = key.IndexOf(':', key.IndexOf('/') + 1);
             if (separator > 0 && separator < key.Length - 1
                 && IconAddress.TryParse(key[..separator], out var address) && address.IsQualified)
             {

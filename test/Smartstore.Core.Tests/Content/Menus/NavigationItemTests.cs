@@ -7,7 +7,7 @@ namespace Smartstore.Core.Tests.Content.Menus;
 public class NavigationItemTests
 {
     [TestCase("phone", "bi", "bi:phone")]
-    [TestCase("hi:phone!@sr", "bi", "hi:phone!@sr")]
+    [TestCase("hi:phone!/sr", "bi", "hi:phone!/sr")]
     [TestCase("phone", null, "phone")]
     [TestCase(null, "bi", null)]
     [TestCase("", "bi", "")]

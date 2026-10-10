@@ -69,7 +69,7 @@ public class IconControllerTests
         var browser = new Mock<IIconBrowser>();
         browser.Setup(x => x.SearchAsync(It.Is<IconSearchQuery>(q => q.Skip == 50 && q.Take == 50 && q.Term == "cart"),
             "shared", It.IsAny<CancellationToken>())).ReturnsAsync(new IconBrowserResult("/shop/icons/shared-revision.svg", 51,
-                [new IconBrowserItem("cart", "cart", "hi:cart-01@sr", "hi", "sr")]));
+                [new IconBrowserItem("cart", "cart", "hi:cart-01/sr", "hi", "sr")]));
         var controller = new IconController(Mock.Of<IIconKitService>(), Mock.Of<IIconService>(), Mock.Of<IIconRenderer>(), browser.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }

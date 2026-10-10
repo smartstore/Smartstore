@@ -228,7 +228,7 @@ public class IconTagHelper(IIconService iconService, IIconRenderer iconRenderer)
     private const string StrokeScaleAttributeName = "stroke-scale";
 
     /// <summary>
-    /// Gets or sets the icon or conceptual name, optionally qualified as library:name@variant.
+    /// Gets or sets the icon or conceptual name, optionally qualified as library:name/variant.
     /// Supports flip, rotate and stroke-scale query modifiers; explicit helper properties override them.
     /// </summary>
     [HtmlAttributeName(NameAttributeName)]

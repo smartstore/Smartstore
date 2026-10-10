@@ -22,6 +22,7 @@ public interface IIconService
     /// <summary>
     /// Gets locally configured libraries.
     /// </summary>
+    /// <param name="cancelToken">Reserved for asynchronous implementations; synchronous metadata resolution does not observe cancellation.</param>
     /// <returns>Immutable manifests, with one entry per library regardless of its short name.</returns>
     Task<IReadOnlyList<IconLibrary>> GetLibrariesAsync(CancellationToken cancelToken = default);
 
@@ -36,9 +37,10 @@ public interface IIconService
     /// <summary>
     /// Gets an icon after mapping and configured fallbacks, or null if unavailable. Parameters fill missing address qualifiers; conflicting qualifiers are rejected.
     /// </summary>
-    /// <param name="name">An icon or conceptual name, optionally qualified as library:name@variant. Append ! to the name to bypass mapping and library fallback; variant fallbacks still apply. Icon names are case-sensitive. An optional query accepts flip, rotate and stroke-scale modifiers.</param>
+    /// <param name="name">An icon or conceptual name, optionally qualified as library:name/variant. Append ! to the name to bypass mapping and library fallback; variant fallbacks still apply. Icon names are case-sensitive. An optional query accepts flip, rotate and stroke-scale modifiers.</param>
     /// <param name="library">The library system name or short name. Fills a missing address qualifier; null uses the configured default.</param>
     /// <param name="variant">The variant name or short name. Fills a missing address qualifier; null uses the selected library's effective default.</param>
+    /// <param name="cancelToken">Reserved for asynchronous implementations; synchronous metadata resolution does not observe cancellation.</param>
     /// <returns>The mapped icon with its canonical address, or null when the library, variant or target icon is unavailable.</returns>
     /// <exception cref="FormatException">The address syntax is invalid.</exception>
     /// <exception cref="InvalidDataException">A modifier is unknown, duplicated or invalid.</exception>
@@ -60,6 +62,7 @@ public interface IIconService
     /// Searches available icons by actual name, conceptual name and supplemental tags.
     /// </summary>
     /// <param name="query">The search words, library and variant selectors, and page boundaries. Every word must match a name or tag.</param>
+    /// <param name="cancelToken">Reserved for asynchronous implementations; synchronous metadata resolution does not observe cancellation.</param>
     /// <returns>The requested page in icon-name order and the total matching count before pagination.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Skip is negative or Take is outside the range 1 through 500.</exception>
     Task<IconSearchResult> SearchAsync(IconSearchQuery query, CancellationToken cancelToken = default);
@@ -71,7 +74,7 @@ public static class IIconServiceExtensions
     /// Resolves an icon address with mapping and configured fallbacks and gets its cached SVG payload.
     /// </summary>
     /// <param name="service">The icon service used for resolution and preparation.</param>
-    /// <param name="name">An icon or conceptual name, optionally qualified as library:name@variant. Append ! to the name to bypass mapping.</param>
+    /// <param name="name">An icon or conceptual name, optionally qualified as library:name/variant. Append ! to the name to bypass mapping.</param>
     /// <param name="library">The library system name or short name. Fills a missing address qualifier; null uses the default.</param>
     /// <param name="variant">The variant name or short name. Fills a missing address qualifier; null uses the effective default.</param>
     /// <returns>An immutable shared SVG payload, or null when the icon is unavailable.</returns>

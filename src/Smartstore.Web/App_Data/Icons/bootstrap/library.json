@@ -1,6 +1,6 @@
 {
   "displayName": "Bootstrap Icons",
-  "icon": "bi:bootstrap@default",
+  "icon": "bi:bootstrap/default",
   "version": "1.13.2",
   "shortName": "bi",
   "defaultVariant": "default",

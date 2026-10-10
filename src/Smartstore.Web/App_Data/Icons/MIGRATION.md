@@ -82,7 +82,7 @@ migration. See [MENU-MIGRATION.md](MENU-MIGRATION.md) for the audit.
 
 All workspace AdminMenuProvider implementations and MenuBuiltEvent consumers
 have also been audited. Remaining source-only HI names use explicit addresses:
-`hi:alarm-clock!@sr`, `hi:bell-plus!@sr` and `hi:chat!@sr`.
+`hi:alarm-clock!/sr`, `hi:bell-plus!/sr` and `hi:chat!/sr`.
 CartApproval uses `cart-check`; GDPR uses `user-secret`.
 See the provider/consumer audit in [MENU-MIGRATION.md](MENU-MIGRATION.md).
 
@@ -147,9 +147,9 @@ The following unmatched drawings retain explicit addresses with mapping bypassed
 - `bi:menu-down!`
 - `bi:phone-vibrate!`
 - `bi:shield-check!`
-- `fa:calendar-days!@r`
-- `fa:ruler-horizontal!@s`
-- `fa:section!@r`
+- `fa:calendar-days!/r`
+- `fa:ruler-horizontal!/s`
+- `fa:section!/r`
 
 All ten sources exist in the installed libraries. DimensionPricing's embedded
 `fa-lg fa-fw` classes became `IconClass("icon-lg icon-fw")`.
@@ -395,7 +395,7 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 Source names refer to the legacy Bootstrap TagHelper or sprite, including original
 `fill` tokens. The imported BI library preserves all upstream names unchanged in its
 single `default` variant, including both terminal `-fill` and interior `-fill-` names.
-Use `bi:alarm-fill@default`, for example. The former synthetic `light` and `solid`
+Use `bi:alarm-fill/default`, for example. The former synthetic `light` and `solid`
 variants no longer exist. See the [BI import recipe](bootstrap/README.md).
 
 | Source BI icon name | Target | Concept |
@@ -623,7 +623,7 @@ The Backend kit includes these HI mappings for the icon editor toolbar:
 ## Reviewing icon addresses
 
 The migration table preview field accepts full addresses such as `bi:telephone`,
-`fa:phone!@solid` or `hi:rotate-top-right!@sr?rotate=15`. Unqualified names
+`fa:phone!/solid` or `hi:rotate-top-right!/sr?rotate=15`. Unqualified names
 remain literal HugeIcons stroke-rounded proposals. Qualified addresses use normal
 icon resolution. The optional HI font comparison is hidden for other libraries,
 query modifiers or unavailable font glyphs; it never blocks a valid SVG preview.
@@ -635,7 +635,7 @@ legacy rendering by request. Only their descendants participate in this migratio
 ## RTL concept policy
 
 `config.json` now owns a kit-independent `mirrorInRtl` array. Server rendering and
-manifest schema 7 apply `icon-mirror-rtl` automatically to listed, unqualified
+manifest schema 8 apply `icon-mirror-rtl` automatically to listed, unqualified
 concepts. The initial policy covers left/right arrows and single/double chevrons.
 Explicit source selections remain unchanged. CSS follows the element's writing
 direction, so sprite artwork and cache references stay shared between LTR and RTL.
@@ -654,3 +654,11 @@ existing immutable files remain untouched.
 
 The Shared kit includes `compare`, mapped to HI `git-compare-arrows`. Product-detail
 `.action-compare` uses this concept; `repeat` remains available for repetition.
+
+
+## Slash variant separator
+
+Icon addresses now use `[library:]name[!][/variant]`, for example `hi:cart!/sr`.
+The former at-sign separator is rejected; there is no compatibility parser.
+Manifest schema 8 publishes slash-qualified identities. Razor attributes can use
+plain literal addresses without an explicit string expression or doubled at-sign.

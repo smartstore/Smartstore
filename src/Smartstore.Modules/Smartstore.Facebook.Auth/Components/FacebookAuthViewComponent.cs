@@ -23,7 +23,7 @@ public class FacebookAuthViewComponent : SmartViewComponent
         var href = Url.Action("ExternalLogin", "Identity", new { provider = "Facebook", returnUrl });
         var title = T("Plugins.ExternalAuth.Facebook.Login").Value;
         var html = $"<a class='btn btn-primary btn-block btn-lg btn-extauth btn-brand-facebook' href='{href}' rel='nofollow'>" +
-                   $"<sm-icon name='fa:facebook-f!@b' class='icon-fw icon-lg' aria-hidden='true'></sm-icon><span>{title}</span></a>";
+                   $"<sm-icon name='facebook-f' class='icon-fw icon-lg' aria-hidden='true'></sm-icon><span>{title}</span></a>";
 
         return HtmlContent(html);
     }

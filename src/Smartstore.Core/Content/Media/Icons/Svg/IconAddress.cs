@@ -3,7 +3,7 @@
 namespace Smartstore.Core.Content.Media.Icons;
 
 /// <summary>
-/// A persistent icon address in the form [library:]name[!][@variant].
+/// A persistent icon address in the form [library:]name[!][/variant].
 /// </summary>
 public readonly record struct IconAddress
 {
@@ -71,7 +71,7 @@ public readonly record struct IconAddress
     /// <summary>
     /// Parses an address without resolving defaults or mappings.
     /// </summary>
-    /// <param name="value">An address in the form [library:]name[!][@variant].</param>
+    /// <param name="value">An address in the form [library:]name[!][/variant].</param>
     /// <returns>The parsed address with any omitted selectors left unset.</returns>
     /// <exception cref="FormatException">The value is empty or has invalid address syntax.</exception>
     public static IconAddress Parse(string value)
@@ -100,14 +100,14 @@ public readonly record struct IconAddress
 
         var text = value.AsSpan();
         var colon = text.IndexOf(':');
-        var at = text.IndexOf('@');
-        if (at >= 0 && at < colon)
+        var slash = text.IndexOf('/');
+        if (slash >= 0 && slash < colon)
         {
             return false;
         }
 
         var nameStart = colon + 1;
-        var nameEnd = at < 0 ? text.Length : at;
+        var nameEnd = slash < 0 ? text.Length : slash;
         var name = text[nameStart..nameEnd];
         var skipMapping = !name.IsEmpty && name[^1] == '!';
         if (skipMapping)
@@ -115,11 +115,11 @@ public readonly record struct IconAddress
             name = name[..^1];
         }
         var library = colon < 0 ? default : text[..colon];
-        var variant = at < 0 ? default : text[(at + 1)..];
+        var variant = slash < 0 ? default : text[(slash + 1)..];
 
         // Validate spans before allocating substrings. Invalid input allocates nothing,
         // and the common unqualified name reuses the original string unchanged.
-        if (!IsName(name) || (colon >= 0 && !IsQualifier(library)) || (at >= 0 && !IsQualifier(variant)))
+        if (!IsName(name) || (colon >= 0 && !IsQualifier(library)) || (slash >= 0 && !IsQualifier(variant)))
         {
             return false;
         }
@@ -128,10 +128,10 @@ public readonly record struct IconAddress
         // Preserve exact source names, including casing and trailing spaces.
         address = new IconAddress
         {
-            Name = colon < 0 && at < 0 && !skipMapping ? value : name.ToString(),
+            Name = colon < 0 && slash < 0 && !skipMapping ? value : name.ToString(),
             SkipMapping = skipMapping,
             Library = colon < 0 ? null : NormalizeQualifier(value, 0, colon),
-            Variant = at < 0 ? null : NormalizeQualifier(value, at + 1, value.Length - at - 1)
+            Variant = slash < 0 ? null : NormalizeQualifier(value, slash + 1, value.Length - slash - 1)
         };
         return true;
     }
@@ -140,17 +140,17 @@ public readonly record struct IconAddress
     public override string ToString() => IsEmpty ? string.Empty
         : SkipMapping
             ? Library == null
-                ? Variant == null ? string.Concat(Name, "!") : $"{Name}!@{Variant}"
-                : Variant == null ? $"{Library}:{Name}!" : $"{Library}:{Name}!@{Variant}"
+                ? Variant == null ? string.Concat(Name, "!") : $"{Name}!/{Variant}"
+                : Variant == null ? $"{Library}:{Name}!" : $"{Library}:{Name}!/{Variant}"
         : Library == null
-            ? Variant == null ? Name : string.Concat(Name, "@", Variant)
+            ? Variant == null ? Name : string.Concat(Name, "/", Variant)
             : Variant == null ? string.Concat(Library, ":", Name)
-            : $"{Library}:{Name}@{Variant}";
+            : $"{Library}:{Name}/{Variant}";
 
     /// <summary>
     /// Parses a string without resolving defaults or mappings. Invalid syntax throws a FormatException.
     /// </summary>
-    /// <param name="value">An address in the form [library:]name[!][@variant].</param>
+    /// <param name="value">An address in the form [library:]name[!][/variant].</param>
     /// <returns>The parsed address without configuration-dependent resolution.</returns>
     /// <exception cref="FormatException">The value has invalid address syntax.</exception>
     public static implicit operator IconAddress(string value) => Parse(value);

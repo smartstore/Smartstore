@@ -106,7 +106,7 @@ public class IconServiceTests
         Assert.That(svg.Attributes["class"], Does.Contain("icon-mirror-rtl"));
         Assert.That((await _service.GetIconAsync("cart?rotate=90")).MirrorInRtl, Is.True);
         Assert.That((await _service.GetIconAsync("hi:cart")).MirrorInRtl, Is.False);
-        Assert.That((await _service.GetIconAsync("cart@sr")).MirrorInRtl, Is.False);
+        Assert.That((await _service.GetIconAsync("cart/sr")).MirrorInRtl, Is.False);
         Assert.That((await _service.GetIconAsync("cart-01!")).MirrorInRtl, Is.False);
         Assert.That((await _service.GetIconAsync("cart-01")).MirrorInRtl, Is.False);
     }
@@ -187,7 +187,7 @@ public class IconServiceTests
         Assert.That(Path.GetFileName(paths[0]), Is.EqualTo("manifest-" + revision + ".json"));
         using var json = JsonDocument.Parse(await File.ReadAllTextAsync(paths[0]));
         Assert.That(json.RootElement.EnumerateObject().Select(x => x.Name), Is.EquivalentTo(new[] { "schemaVersion", "mirrorInRtl", "kits" }));
-        Assert.That(json.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(7));
+        Assert.That(json.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(8));
         var shared = json.RootElement.GetProperty("kits").GetProperty("shared");
         Assert.That(shared.EnumerateObject().Select(x => x.Name), Is.EquivalentTo(new[] { "url", "defaultLibrary", "defaultVariant", "icons", "sources" }));
         Assert.That(shared.GetProperty("icons").EnumerateArray().Select(x => x.GetString()), Is.EqualTo(new[] { "cart", "thick" }),
@@ -237,7 +237,7 @@ public class IconServiceTests
     [Test]
     public async Task Browser_Manifest_Omits_Concepts_From_Unavailable_Preferred_Kits()
     {
-        Write("Icons/kits.json", """{"shared":["cart","missing"],"backend":{"icons":["cart"],"sources":{"cart":"hi:direct@sr"}}}""");
+        Write("Icons/kits.json", """{"shared":["cart","missing"],"backend":{"icons":["cart"],"sources":{"cart":"hi:direct/sr"}}}""");
         var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
         var path = await kits.GetManifestFileAsync(Path.GetFileNameWithoutExtension(kits.GetManifestUrl()));
         using var json = JsonDocument.Parse(await File.ReadAllTextAsync(path));
@@ -276,7 +276,7 @@ public class IconServiceTests
         Write("Icons/Original/Outline/icons/plain.svg", _svg);
         Write("Icons/other/Outline/icons/plain.svg", _svg);
         Write("Icons/other/library.json", """{"defaultVariant":"Outline","variants":{"Outline":{"defaultViewBox":"0 0 16 16"}}}""");
-        Write("Icons/kits.json", """{"shared":{"defaultLibrary":"Original","icons":["plain","renamed","foreign"],"sources":{"renamed":"plain","foreign":"other:plain@Outline"}}}""");
+        Write("Icons/kits.json", """{"shared":{"defaultLibrary":"Original","icons":["plain","renamed","foreign"],"sources":{"renamed":"plain","foreign":"other:plain/Outline"}}}""");
         var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
         var path = await kits.GetManifestFileAsync(Path.GetFileNameWithoutExtension(kits.GetManifestUrl()));
         using var json = JsonDocument.Parse(await File.ReadAllTextAsync(path));
@@ -289,7 +289,7 @@ public class IconServiceTests
         Assert.That(sources.GetProperty("foreign").GetString(), Is.EqualTo("other:plain"),
             "Unspecified patch qualifiers inherit kit metadata even across libraries.");
         var icon = await _service.GetIconAsync("renamed");
-        Assert.That(icon.Address, Is.EqualTo("original:plain@outline"));
+        Assert.That(icon.Address, Is.EqualTo("original:plain/outline"));
         Assert.That(icon.LibraryKey, Is.EqualTo("Original"));
         Assert.That(icon.VariantKey, Is.EqualTo("Outline"));
         _cache.VerifyNoOtherCalls();
@@ -314,14 +314,14 @@ public class IconServiceTests
     /// </summary>
     [TestCase("cart")]
     [TestCase("hi:cart")]
-    [TestCase("cart@sr")]
-    [TestCase("hi:cart@sr")]
-    [TestCase("hi:package-add-01 @rounded")]
+    [TestCase("cart/sr")]
+    [TestCase("hi:cart/sr")]
+    [TestCase("hi:package-add-01 /rounded")]
     [TestCase("c++")]
     [TestCase("cart!")]
     [TestCase("hi:cart!")]
-    [TestCase("cart!@sr")]
-    [TestCase("hi:cart!@sr")]
+    [TestCase("cart!/sr")]
+    [TestCase("hi:cart!/sr")]
     public void Address_Roundtrips(string value)
     {
         Assert.That(IconAddress.Parse(value).ToString(), Is.EqualTo(value));
@@ -332,16 +332,19 @@ public class IconServiceTests
     /// </summary>
     [TestCase("")]
     [TestCase(":cart")]
+    [TestCase("cart/")]
     [TestCase("cart@")]
+    [TestCase("cart@sr")]
+    [TestCase("hi:cart!@sr")]
     [TestCase("hi:cart:other")]
-    [TestCase("cart@a@b")]
+    [TestCase("cart/a/b")]
     [TestCase("../cart")]
-    [TestCase("cart@a:hi")]
+    [TestCase("cart/a:hi")]
     [TestCase("!")]
-    [TestCase("hi:!@sr")]
+    [TestCase("hi:!/sr")]
     [TestCase("cart!!")]
     [TestCase("ca!rt")]
-    [TestCase("cart@sr!")]
+    [TestCase("cart/sr!")]
     public void Address_Rejects_Malformed_Input(string value)
     {
         Assert.That(IconAddress.TryParse(value, out _), Is.False);
@@ -353,12 +356,12 @@ public class IconServiceTests
     [Test]
     public void Address_Preserves_Mapping_Bypass()
     {
-        IconAddress address = "HI:cart!@SR";
+        IconAddress address = "HI:cart!/SR";
         Assert.That(address.Name, Is.EqualTo("cart"));
         Assert.That(address.SkipMapping, Is.True);
         Assert.That(address, Is.EqualTo(new IconAddress("cart", "hi", "sr", skipMapping: true)));
         Assert.That(address, Is.Not.EqualTo(new IconAddress("cart", "hi", "sr")));
-        Assert.That((string)address, Is.EqualTo("hi:cart!@sr"));
+        Assert.That((string)address, Is.EqualTo("hi:cart!/sr"));
     }
 
     /// <summary>
@@ -366,12 +369,12 @@ public class IconServiceTests
     /// </summary>
     /// <param name="address">The direct address with optional qualifiers.</param>
     [TestCase("direct!")]
-    [TestCase("hi:direct!@sr")]
+    [TestCase("hi:direct!/sr")]
     public async Task Direct_Address_Skips_Mapping(string address)
     {
         var icon = await _service.GetIconAsync(address);
         Assert.That(icon.Name, Is.EqualTo("direct"));
-        Assert.That(icon.Address, Is.EqualTo("hi:direct@sr"));
+        Assert.That(icon.Address, Is.EqualTo("hi:direct/sr"));
         Assert.That(await _service.GetIconAsync("cart!"), Is.Null);
         Mock.Get(_context.Object.AppDataRoot).Verify(x => x.GetFileInfo("Icons/hugeicons/mapping.json"), Times.Never);
     }
@@ -383,7 +386,7 @@ public class IconServiceTests
     public async Task Direct_Address_Uses_Canonical_Cache_Key()
     {
         var mapped = await _service.GetSvgAsync("cart");
-        var direct = await _service.GetSvgAsync("hi:cart-01!@sr");
+        var direct = await _service.GetSvgAsync("hi:cart-01!/sr");
         Assert.That(direct.Address, Is.EqualTo(mapped.Address));
         Assert.That(direct.Revision, Is.EqualTo(mapped.Revision));
         Assert.That(_entries.Count, Is.EqualTo(1));
@@ -396,7 +399,7 @@ public class IconServiceTests
     [Test]
     public void Address_Normalizes_Only_Selectors()
     {
-        Assert.That(IconAddress.Parse("HI:Cart Name @Stroke-Rounded").ToString(), Is.EqualTo("hi:Cart Name @stroke-rounded"));
+        Assert.That(IconAddress.Parse("HI:Cart Name /Stroke-Rounded").ToString(), Is.EqualTo("hi:Cart Name /stroke-rounded"));
         var name = new string('x', 20);
         Assert.That(IconAddress.Parse(name).Name, Is.SameAs(name));
     }
@@ -410,14 +413,14 @@ public class IconServiceTests
         for (var i = 0; i < 1000; i++)
         {
             IconAddress.TryParse("cart", out _);
-            IconAddress.TryParse("hi:cart@bad/variant", out _);
+            IconAddress.TryParse("hi:cart/bad/variant", out _);
         }
 
         var before = GC.GetAllocatedBytesForCurrentThread();
         for (var i = 0; i < 1000; i++)
         {
             IconAddress.TryParse("cart", out _);
-            IconAddress.TryParse("hi:cart@bad/variant", out _);
+            IconAddress.TryParse("hi:cart/bad/variant", out _);
         }
 
         var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
@@ -430,9 +433,9 @@ public class IconServiceTests
     [Test]
     public async Task Address_Is_A_Value_With_String_Conversions()
     {
-        IconAddress address = "hi:cart@sr";
+        IconAddress address = "hi:cart/sr";
         string text = address;
-        Assert.That(text, Is.EqualTo("hi:cart@sr"));
+        Assert.That(text, Is.EqualTo("hi:cart/sr"));
         Assert.That(address, Is.EqualTo(new IconAddress("cart", "hi", "sr")));
         Assert.That((await _service.GetIconAsync(address)).Name, Is.EqualTo("cart-01"));
         Assert.That(default(IconAddress).IsEmpty, Is.True);
@@ -455,12 +458,12 @@ public class IconServiceTests
     /// Resolves both kinds of library and variant identifiers to a canonical address.
     /// </summary>
     [TestCase("cart", null, null)]
-    [TestCase("hi:cart@sr", "hugeicons", "rounded")]
-    [TestCase("hugeicons:cart@rounded", "hi", "sr")]
+    [TestCase("hi:cart/sr", "hugeicons", "rounded")]
+    [TestCase("hugeicons:cart/rounded", "hi", "sr")]
     public async Task Mapping_And_Short_Names_Are_Implicit(string address, string library, string variant)
     {
         var icon = await _service.GetIconAsync(address, library, variant);
-        Assert.That(icon.Address, Is.EqualTo("hi:cart-01@sr"));
+        Assert.That(icon.Address, Is.EqualTo("hi:cart-01/sr"));
         Assert.That(icon.VariantName, Is.EqualTo("rounded"));
         Assert.That(_service.DefaultLibrary.SystemName, Is.EqualTo("hugeicons"));
         Assert.That(_service.GetLibrary("hi").Variants["rounded"].ShortName, Is.EqualTo("sr"));
@@ -474,7 +477,7 @@ public class IconServiceTests
     {
         WriteLibrary("hugeicons", null, null);
         var icon = await _service.GetIconAsync("cart");
-        Assert.That(icon.Address, Is.EqualTo("hugeicons:cart-01@rounded"));
+        Assert.That(icon.Address, Is.EqualTo("hugeicons:cart-01/rounded"));
     }
 
     /// <summary>
@@ -485,7 +488,7 @@ public class IconServiceTests
     {
         Assert.That(await _service.GetIconAsync("direct"), Is.Null);
         Assert.That(await _service.GetSvgAsync("unknown:cart"), Is.Null);
-        Assert.That(await _service.GetIconAsync("cart@missing"), Is.Null);
+        Assert.That(await _service.GetIconAsync("cart/missing"), Is.Null);
         Assert.That(await _service.GetIconAsync("package-add-01 "), Is.Not.Null);
     }
 
@@ -495,7 +498,7 @@ public class IconServiceTests
     [Test]
     public void Conflicting_Qualifiers_Are_Rejected()
     {
-        Assert.ThrowsAsync<ArgumentException>(() => _service.GetSvgAsync("hi:cart@sr", variant: "sharp"));
+        Assert.ThrowsAsync<ArgumentException>(() => _service.GetSvgAsync("hi:cart/sr", variant: "sharp"));
         Assert.ThrowsAsync<ArgumentException>(() => _service.GetSvgAsync("hi:cart", library: "missing"));
     }
 
@@ -584,7 +587,7 @@ public class IconServiceTests
         Assert.That(svg.Content, Does.Contain("stroke-width:var(--icon-stroke-width,1.6);"));
         Assert.That(svg.RootAttributes.ContainsKey("style"), Is.False);
         Assert.Throws<NotSupportedException>(() => ((IDictionary<string, string>)svg.RootAttributes)["fill"] = "red");
-        var cached = await _service.GetSvgAsync("hi:cart-01@sr");
+        var cached = await _service.GetSvgAsync("hi:cart-01/sr");
         Assert.That(cached.RootAttributes["fill"], Is.EqualTo("none"));
         Assert.That(cached.Content, Is.EqualTo(svg.Content));
         _cache.Verify(x => x.PutAsync(It.IsAny<string>(), It.IsAny<IconSvg>(), It.IsAny<CancellationToken>()), Times.Once);
@@ -809,7 +812,7 @@ public class IconServiceTests
             });
         Task<IconSvg> first = _service.GetSvgAsync("cart");
         await started.Task.WaitAsync(TimeSpan.FromSeconds(5));
-        Task<IconSvg>[] following = Enumerable.Range(0, 8).Select(_ => _service.GetSvgAsync("hi:cart-01@sr")).ToArray();
+        Task<IconSvg>[] following = Enumerable.Range(0, 8).Select(_ => _service.GetSvgAsync("hi:cart-01/sr")).ToArray();
         release.SetResult();
         await Task.WhenAll(following.Append(first)).WaitAsync(TimeSpan.FromSeconds(5));
         _cache.Verify(x => x.PutAsync(It.IsAny<string>(), It.IsAny<IconSvg>(), It.IsAny<CancellationToken>()), Times.Once);
@@ -844,7 +847,7 @@ public class IconServiceTests
 
         Assert.That(_service.DefaultLibrary.SystemName, Is.EqualTo("system"));
         var icon = await _service.GetIconAsync("custom");
-        Assert.That(icon.Address, Is.EqualTo("sys:custom@sharp"));
+        Assert.That(icon.Address, Is.EqualTo("sys:custom/sharp"));
         Assert.That(await _service.GetSvgAsync(icon), Is.Not.Null);
         var result = await _service.SearchAsync(new IconSearchQuery());
         Assert.That(result.TotalCount, Is.EqualTo(1));
@@ -1024,11 +1027,11 @@ public class IconServiceTests
         var attributes = new Dictionary<string, string> { ["fill"] = "none" };
         var payload = new IconSvg { RootAttributes = attributes };
         attributes["fill"] = "red";
-        await cache.PutAsync("hi:cart@sr:abcd", payload);
+        await cache.PutAsync("hi:cart/sr:abcd", payload);
         Assert.That(stored, Is.SameAs(payload));
-        var first = await cache.GetAsync("hi:cart@sr:abcd");
+        var first = await cache.GetAsync("hi:cart/sr:abcd");
         Assert.That(first, Is.SameAs(payload));
-        Assert.That(await cache.GetAsync("hi:cart@sr:abcd"), Is.SameAs(payload));
+        Assert.That(await cache.GetAsync("hi:cart/sr:abcd"), Is.SameAs(payload));
         Assert.That(first.RootAttributes["fill"], Is.EqualTo("none"));
         Assert.Throws<NotSupportedException>(() => ((IDictionary<string, string>)first.RootAttributes)["fill"] = "blue");
         var restored = JsonSerializer.Deserialize<IconSvg>(JsonSerializer.Serialize(payload));
@@ -1053,7 +1056,7 @@ public class IconServiceTests
         }
 
         Assert.That(entries.Count, Is.EqualTo(2));
-        Assert.That(entries[0].Key, Is.EqualTo("hi:cart-01@sr:14hash:zip:abcd"));
+        Assert.That(entries[0].Key, Is.EqualTo("hi:cart-01/sr:14hash:zip:abcd"));
         Assert.That(entries[0].Address.Name, Is.EqualTo("cart-01"));
         Assert.That(entries[0].Address.Library, Is.EqualTo("hi"));
         Assert.That(entries[0].Address.Variant, Is.EqualTo("sr"));
@@ -1066,8 +1069,8 @@ public class IconServiceTests
         static async IAsyncEnumerable<string> Keys()
         {
             await Task.CompletedTask;
-            yield return "icons:svg:hi:cart-01@sr:14hash:zip:abcd";
-            yield return "icons:svg:hi:cart-01@sr:14hash:user:ef01";
+            yield return "icons:svg:hi:cart-01/sr:14hash:zip:abcd";
+            yield return "icons:svg:hi:cart-01/sr:14hash:user:ef01";
         }
     }
 
@@ -1166,9 +1169,9 @@ public class IconServiceTests
         Write("Icons/hugeicons/mapping.json", """{"cart":"cart-01","cart-01":"missing"}""");
         var icon = await _service.GetIconAsync("cart");
         Assert.That((await _service.GetSvgAsync("cart")).Name, Is.EqualTo("cart-01"));
-        icon.Address = "untrusted:other@variant";
+        icon.Address = "untrusted:other/variant";
         var svg = await _service.GetSvgAsync(icon);
-        Assert.That(svg.Address, Is.EqualTo("hi:cart-01@sr"));
+        Assert.That(svg.Address, Is.EqualTo("hi:cart-01/sr"));
 
         var result = await _service.SearchAsync(new IconSearchQuery { Term = "basket" });
         Assert.That((await _service.GetSvgAsync(result.Items[0])).Name, Is.EqualTo("cart-01"));
@@ -1638,7 +1641,7 @@ public class IconServiceTests
         var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
         var renderer = new IconRenderer(_service, kits);
         var url = kits.GetUrl("shared");
-        var icon = await _service.GetIconAsync("hi:left@sr?rotate=180&stroke-scale=1.1");
+        var icon = await _service.GetIconAsync("hi:left/sr?rotate=180&stroke-scale=1.1");
         Assert.That(icon.Transform, Is.EqualTo(new IconTransform(true, true, 180)));
         Assert.That(icon.StrokeScale, Is.EqualTo(1.1));
         var output = await renderer.RenderAsync(icon, new IconOptions { Rotate = 0, FlipHorizontal = false, StrokeScale = 1 });
@@ -1646,7 +1649,7 @@ public class IconServiceTests
         Assert.That(drawing, Does.Contain("rotate(0)").And.Contain("scale(1 -1)").And.Not.Contain("<use"));
         Assert.That(icon.Transform.Rotation, Is.EqualTo(180), "Rendering must not mutate the resolved identity.");
         Assert.That(kits.GetUrl("shared"), Is.EqualTo(url));
-        var direct = await _service.GetIconAsync("hi:cart-01!@sr?flip=none&rotate=0");
+        var direct = await _service.GetIconAsync("hi:cart-01!/sr?flip=none&rotate=0");
         await renderer.RenderAsync(direct);
         Assert.That(_entries.Count, Is.EqualTo(1));
     }
@@ -1790,7 +1793,7 @@ public class IconServiceTests
         Assert.That(explicitLibrary.LibraryName, Is.EqualTo("hugeicons"));
         Assert.That(explicitLibrary.VariantName, Is.EqualTo("rounded"));
         Assert.That((await _service.GetIconAsync("cart", "hi")).VariantName, Is.EqualTo("rounded"));
-        Assert.That((await _service.GetIconAsync("cart@rd")).VariantName, Is.EqualTo("rounded"));
+        Assert.That((await _service.GetIconAsync("cart/rd")).VariantName, Is.EqualTo("rounded"));
         Assert.That((await _service.GetIconAsync("cart", variant: "rd")).VariantName, Is.EqualTo("rounded"));
         Assert.That(kits.GetUrl("backend", "hi"), Is.EqualTo(kits.GetUrl("backend", "hi", "rounded")));
         Assert.That(kits.GetUrl("backend"), Is.Not.EqualTo(kits.GetUrl("backend", "hi")));
@@ -1858,7 +1861,7 @@ public class IconServiceTests
         Write("Icons/other/mapping.json", """{"foreign":"missing","cart-01":"missing","raw":"missing"}""");
         Write("Icons/hugeicons/sharp/icons/sharp-only.svg", """<svg viewBox="0 0 32 32"><path d="M2 2L8 8"/></svg>""");
         Write("Icons/hugeicons/rounded/icons/foreign.svg", _svg);
-        Write("Icons/kits.json", """{"brands":{"icons":["cart","foreign","second","raw","sharp-only"],"sources":{"foreign":"ot:cart-01@rd","second":"ot:cart-01@rd","raw":"ot:raw@rd","sharp-only":"hi:sharp-only@sharp"}}}""");
+        Write("Icons/kits.json", """{"brands":{"icons":["cart","foreign","second","raw","sharp-only"],"sources":{"foreign":"ot:cart-01/rd","second":"ot:cart-01/rd","raw":"ot:raw/rd","sharp-only":"hi:sharp-only/sharp"}}}""");
         var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
         var url = kits.GetUrl("brands");
         var revision = Path.GetFileNameWithoutExtension(url)["brands-".Length..];
@@ -1869,14 +1872,14 @@ public class IconServiceTests
             Assert.That(kits.GetReference(icon)?.Href, Is.EqualTo(url + "#" + (name == "second" ? "foreign" : name)));
         }
 
-        var foreign = await _service.GetIconAsync("OTHER:foreign@ROUNDED");
+        var foreign = await _service.GetIconAsync("OTHER:foreign/ROUNDED");
         Assert.That(foreign.LibraryName, Is.EqualTo("other"));
         Assert.That(foreign.Name, Is.EqualTo("cart-01"));
         Assert.That(kits.GetReference(foreign)?.Href, Is.EqualTo(url + "#foreign"));
         var overridden = await _service.GetIconAsync("foreign", library: "hi");
         Assert.That(overridden.LibraryName, Is.EqualTo("hugeicons"));
         Assert.That(kits.GetReference(overridden), Is.Null);
-        Assert.That(kits.GetReference(await _service.GetIconAsync("ot:raw!@rd"))?.Href, Is.EqualTo(url + "#raw"));
+        Assert.That(kits.GetReference(await _service.GetIconAsync("ot:raw!/rd"))?.Href, Is.EqualTo(url + "#raw"));
 
         var path = await kits.GetSpriteFileAsync("brands", revision);
         var svg = XDocument.Load(path);
@@ -1898,16 +1901,16 @@ public class IconServiceTests
 
         var manifestPath = await kits.GetManifestFileAsync(Path.GetFileNameWithoutExtension(kits.GetManifestUrl()));
         using var manifest = JsonDocument.Parse(await File.ReadAllTextAsync(manifestPath));
-        Assert.That(manifest.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(7));
+        Assert.That(manifest.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(8));
         var brands = manifest.RootElement.GetProperty("kits").GetProperty("brands");
         Assert.That(brands.GetProperty("icons").EnumerateArray().Select(x => x.GetString()), Is.EquivalentTo(symbols.Keys),
             "Each concept references its own symbol, including aliases sharing one source.");
         Assert.That(brands.GetProperty("url").GetString(), Is.EqualTo(url.TrimStart('/')));
         var sources = brands.GetProperty("sources");
         Assert.That(sources.GetProperty("cart").GetString(), Is.EqualTo("cart-01"));
-        Assert.That(sources.GetProperty("foreign").GetString(), Is.EqualTo("ot:cart-01@rd"));
-        Assert.That(sources.GetProperty("second").GetString(), Is.EqualTo("ot:cart-01@rd"));
-        Assert.That(sources.GetProperty("sharp-only").GetString(), Is.EqualTo("sharp-only@sharp"));
+        Assert.That(sources.GetProperty("foreign").GetString(), Is.EqualTo("ot:cart-01/rd"));
+        Assert.That(sources.GetProperty("second").GetString(), Is.EqualTo("ot:cart-01/rd"));
+        Assert.That(sources.GetProperty("sharp-only").GetString(), Is.EqualTo("sharp-only/sharp"));
 
         // Recover a missing mixed sprite from its public revision after a process restart.
         File.Delete(path);
@@ -1932,7 +1935,7 @@ public class IconServiceTests
         Write("Icons/other/mapping.json", """{"direct":"missing"}""");
         Write("Icons/hugeicons/sharp/icons/variant-only.svg", _svg);
         Write("Icons/hugeicons/rounded/icons/variant-only.svg", _svg);
-        Write("Icons/kits.json", """{"brands":{"icons":["foreign","variant-only","direct"],"sources":{"foreign":"ot:foreign","variant-only":"variant-only@sharp","direct":"direct"}}}""");
+        Write("Icons/kits.json", """{"brands":{"icons":["foreign","variant-only","direct"],"sources":{"foreign":"ot:foreign","variant-only":"variant-only/sharp","direct":"direct"}}}""");
         Assert.That((await _service.GetIconAsync("foreign")).VariantName, Is.EqualTo("sharp"));
         Assert.That((await _service.GetIconAsync("variant-only")).VariantName, Is.EqualTo("sharp"));
         Assert.That((await _service.GetIconAsync("variant-only", variant: "sr")).VariantName, Is.EqualTo("rounded"));
@@ -1944,10 +1947,10 @@ public class IconServiceTests
     /// Rejects ambiguous symbol IDs and unknown qualifiers before a sprite is requested.
     /// </summary>
     /// <param name="entries">The invalid kit entries as a JSON array.</param>
-    [TestCase("[\"cart\",\"hi:cart@sr\"]")]
+    [TestCase("[\"cart\",\"hi:cart/sr\"]")]
     [TestCase("[\"missing:cart\"]")]
-    [TestCase("[\"hi:cart@missing\"]")]
-    [TestCase("[\"hi:cart@sr?flip=x\"]")]
+    [TestCase("[\"hi:cart/missing\"]")]
+    [TestCase("[\"hi:cart/sr?flip=x\"]")]
     public void Kit_Entries_Reject_Invalid_Or_Ambiguous_Addresses(string entries)
     {
         Write("Icons/kits.json", "{\"brands\":{\"icons\":" + entries + "}}");
@@ -1958,10 +1961,10 @@ public class IconServiceTests
     /// Source assignments cannot add members, recurse through mappings or select unknown variants.
     /// </summary>
     /// <param name="sources">The invalid source dictionary as JSON.</param>
-    [TestCase("{\"orphan\":\"hi:cart-01@sr\"}")]
+    [TestCase("{\"orphan\":\"hi:cart-01/sr\"}")]
     [TestCase("{\"cart\":\"missing:cart-01\"}")]
-    [TestCase("{\"cart\":\"hi:cart-01@missing\"}")]
-    [TestCase("{\"cart\":\"hi:cart-01@sr?flip=x\"}")]
+    [TestCase("{\"cart\":\"hi:cart-01/missing\"}")]
+    [TestCase("{\"cart\":\"hi:cart-01/sr?flip=x\"}")]
     [TestCase("{\"cart\":null}")]
     public void Kit_Sources_Must_Target_Registered_Selections_And_Declared_Members(string sources)
     {
@@ -1976,7 +1979,7 @@ public class IconServiceTests
     [Test]
     public async Task Kit_Source_Renames_Resolve_Once_And_Invalidate_The_Manifest()
     {
-        Write("Icons/kits.json", """{"shared":{"icons":["assistant"],"sources":{"assistant":"hi:direct@sr"}}}""");
+        Write("Icons/kits.json", """{"shared":{"icons":["assistant"],"sources":{"assistant":"hi:direct/sr"}}}""");
         var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
         var icon = await _service.GetIconAsync("assistant");
         Assert.That(icon.Name, Is.EqualTo("direct"), "The library's direct -> missing mapping must not be followed.");
@@ -1984,7 +1987,7 @@ public class IconServiceTests
         Assert.That(await _service.GetIconAsync("assistant!"), Is.Null, "A caller bypass skips kit routing as well.");
         var before = kits.GetManifestUrl();
         var beforeSprite = kits.GetUrl("shared");
-        Write("Icons/kits.json", """{"shared":{"icons":["assistant"],"sources":{"assistant":"hi:cart-01@sr"}}}""");
+        Write("Icons/kits.json", """{"shared":{"icons":["assistant"],"sources":{"assistant":"hi:cart-01/sr"}}}""");
         SignalChanges();
         Assert.That((await _service.GetIconAsync("assistant")).Name, Is.EqualTo("cart-01"));
         Assert.That(kits.GetManifestUrl(), Is.Not.EqualTo(before));
@@ -2002,10 +2005,10 @@ public class IconServiceTests
     [TestCase("direct", "backend", null, null)]
     [TestCase("cart!", null, "hugeicons", "rounded")]
     [TestCase("unlisted", null, "hugeicons", "rounded")]
-    [TestCase("hi:cart@sr", null, "hugeicons", "rounded")]
-    [TestCase("hi:missing!@sharp?flip=x", null, "hugeicons", "sharp")]
+    [TestCase("hi:cart/sr", null, "hugeicons", "rounded")]
+    [TestCase("hi:missing!/sharp?flip=x", null, "hugeicons", "sharp")]
     [TestCase("unknown:cart", null, null, null)]
-    [TestCase("hi:cart@unknown", null, null, null)]
+    [TestCase("hi:cart/unknown", null, null, null)]
     [TestCase("system:cart", null, null, null)]
     public void Browser_Restores_Source(string address, string kit, string library, string variant)
     {
@@ -2053,7 +2056,7 @@ public class IconServiceTests
         var first = pages[0];
         Assert.That(first.TotalCount, Is.EqualTo(4));
         Assert.That(first.Items, Has.Count.EqualTo(1));
-        Assert.That(first.Items[0].Value, Is.EqualTo("hi:cart-01!@sr"));
+        Assert.That(first.Items[0].Value, Is.EqualTo("hi:cart-01!/sr"));
         Assert.That(first.SpriteUrl, Does.StartWith("/shop/icons/browser/hugeicons/rounded/"));
         Assert.That(pages.Select(x => x.SpriteUrl).Distinct().Count(), Is.EqualTo(1));
         var revision = Path.GetFileNameWithoutExtension(first.SpriteUrl);
@@ -2067,7 +2070,7 @@ public class IconServiceTests
         Assert.That(_sourceLookups["Icons/hugeicons/rounded/icons.zip"], Is.EqualTo(2), "One index read and one archive open for the entire sprite.");
         query.Skip = 2;
         var next = await browser.SearchAsync(query);
-        Assert.That(next.Items[0].Value, Is.EqualTo("hi:direct!@sr"), "The direct -> missing mapping must not affect library browsing.");
+        Assert.That(next.Items[0].Value, Is.EqualTo("hi:direct!/sr"), "The direct -> missing mapping must not affect library browsing.");
         query.Skip = 0;
         query.Term = "basket";
         Assert.That((await browser.SearchAsync(query)).Items[0].Name, Is.EqualTo("cart-01"));
@@ -2082,7 +2085,7 @@ public class IconServiceTests
     [Test]
     public async Task Browser_Kit_Preview_Uses_Selected_Kit_With_Baked_Stroke_Scale()
     {
-        Write("Icons/kits.json", """{"shared":{"icons":["cart"],"sources":{"cart":"hi:direct@sr"}},"backend":["cart","thick"]}""");
+        Write("Icons/kits.json", """{"shared":{"icons":["cart"],"sources":{"cart":"hi:direct/sr"}},"backend":["cart","thick"]}""");
         Write("Icons/hugeicons/mapping.json", """{"cart":"cart-01?flip=x","thick":"cart-01?rotate=90&stroke-scale=1.2"}""");
         var accessor = new HttpContextAccessor();
         var kits = new IconKitService(_service, _context.Object, accessor);
@@ -2091,7 +2094,7 @@ public class IconServiceTests
         Assert.That(result.TotalCount, Is.EqualTo(2));
         Assert.That(result.Items[0].Name, Is.EqualTo("cart"));
         Assert.That(result.Items[0].Value, Is.EqualTo("cart"));
-        Assert.That(result.Items[0].Address, Is.EqualTo("hi:cart-01@sr"), "The selected kit, not shared, determines the preview.");
+        Assert.That(result.Items[0].Address, Is.EqualTo("hi:cart-01/sr"), "The selected kit, not shared, determines the preview.");
         Assert.That(result.Items[0].InlineName, Is.Null);
         Assert.That(result.Items[1].InlineName, Is.Null);
         Assert.That(result.Items[1].Name, Is.EqualTo("thick"));
@@ -2158,7 +2161,7 @@ public class IconServiceTests
         WriteZip("other", "rounded", ("cart", _svg), ("foreign", _svg));
         Write("Icons/kits.json", """{"brands":{"defaultLibrary":"other","defaultVariant":"rounded","icons":["cart","foreign"]}}""");
         var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
-        var selected = await _service.GetIconAsync("hi:cart@sr");
+        var selected = await _service.GetIconAsync("hi:cart/sr");
         Assert.That(kits.GetReference(selected), Is.Null);
         var normal = await _service.GetIconAsync("cart");
         Assert.That(kits.GetReference(normal), Is.Not.Null);
@@ -2307,18 +2310,18 @@ public class IconServiceTests
         WriteFallbackLibrary();
         Write("Icons/other/mapping.json", """{"cart":"cart-01?flip=x&rotate=90"}""");
         Write("Icons/other/solid/icons/cart-01.svg", _svg);
-        var icon = await _service.GetIconAsync("ot:cart@r");
-        Assert.That(icon.Address, Is.EqualTo("ot:cart-01@s"));
+        var icon = await _service.GetIconAsync("ot:cart/r");
+        Assert.That(icon.Address, Is.EqualTo("ot:cart-01/s"));
         Assert.That(icon.VariantName, Is.EqualTo("solid"));
         Assert.That(icon.Transform, Is.EqualTo(new IconTransform(true, false, 90)));
-        Assert.That(await _service.GetIconAsync("ot:missing@r"), Is.Null, "A mutual fallback must terminate.");
-        Assert.That((await _service.GetIconAsync("ot:cart-01!@r")).Address, Is.EqualTo(icon.Address));
-        Assert.That(await _service.GetIconAsync("ot:cart@b"), Is.Null, "Brands must not implicitly use regular or solid.");
+        Assert.That(await _service.GetIconAsync("ot:missing/r"), Is.Null, "A mutual fallback must terminate.");
+        Assert.That((await _service.GetIconAsync("ot:cart-01!/r")).Address, Is.EqualTo(icon.Address));
+        Assert.That(await _service.GetIconAsync("ot:cart/b"), Is.Null, "Brands must not implicitly use regular or solid.");
         var payload = await _service.GetSvgAsync(icon);
-        var direct = await _service.GetSvgAsync("ot:cart-01!@s");
+        var direct = await _service.GetSvgAsync("ot:cart-01!/s");
         Assert.That(payload.Address, Is.EqualTo(direct.Address));
         Assert.That(_entries.Count, Is.EqualTo(1));
-        Assert.That(_entries.Keys.Single(), Does.StartWith("ot:cart-01@s:"));
+        Assert.That(_entries.Keys.Single(), Does.StartWith("ot:cart-01/s:"));
     }
 
     /// <summary>
@@ -2360,17 +2363,17 @@ public class IconServiceTests
         Assert.That(await _service.GetIconAsync("ot:cart"), Is.Null);
         Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","fallbackToDefaultLibrary":true}""");
         SignalChanges();
-        Assert.That((await _service.GetIconAsync("ot:cart")).Address, Is.EqualTo("hi:cart-01@sr"), "No mapping.json is required in the new library.");
+        Assert.That((await _service.GetIconAsync("ot:cart")).Address, Is.EqualTo("hi:cart-01/sr"), "No mapping.json is required in the new library.");
         Write("Icons/other/mapping.json", """{"cart":"foreign-cart?flip=y&stroke-scale=2"}""");
         Write("Icons/hugeicons/mapping.json", """{"cart":"cart-01?rotate=90&stroke-scale=1.1"}""");
         SignalChanges();
         var fallback = await _service.GetIconAsync("ot:cart?flip=x");
-        Assert.That(fallback.Address, Is.EqualTo("hi:cart-01@sr"));
+        Assert.That(fallback.Address, Is.EqualTo("hi:cart-01/sr"));
         Assert.That(fallback.Transform, Is.EqualTo(new IconTransform(true, false, 90)));
         Assert.That(fallback.StrokeScale, Is.EqualTo(1.1));
         Assert.That(await _service.GetIconAsync("ot:cart!"), Is.Null);
         Assert.That(await _service.GetIconAsync("ot:cart-01!"), Is.Null);
-        Assert.That(await _service.GetIconAsync("ot:cart@missing"), Is.Null);
+        Assert.That(await _service.GetIconAsync("ot:cart/missing"), Is.Null);
         Assert.That(await _service.GetIconAsync("missing:cart"), Is.Null);
         Write("Icons/config.json", """{"defaultLibrary":"hugeicons","fallbackToDefaultLibrary":false}""");
         SignalChanges();
@@ -2386,11 +2389,11 @@ public class IconServiceTests
         WriteFallbackLibrary();
         Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","fallbackToDefaultLibrary":true}""");
         Write("Icons/other/solid/icons/cart.svg", _svg);
-        Assert.That((await _service.GetIconAsync("ot:cart")).Address, Is.EqualTo("ot:cart@s"));
+        Assert.That((await _service.GetIconAsync("ot:cart")).Address, Is.EqualTo("ot:cart/s"));
         Write("Icons/other/mapping.json", """{"cart":"missing"}""");
         SignalChanges();
-        Assert.That((await _service.GetIconAsync("ot:cart")).Address, Is.EqualTo("hi:cart-01@sr"));
-        Assert.That((await _service.GetIconAsync("ot:cart!@r")).Address, Is.EqualTo("ot:cart@s"));
+        Assert.That((await _service.GetIconAsync("ot:cart")).Address, Is.EqualTo("hi:cart-01/sr"));
+        Assert.That((await _service.GetIconAsync("ot:cart!/r")).Address, Is.EqualTo("ot:cart/s"));
         Write("Icons/other/regular/icons/missing.svg", "<not-svg />");
         SignalChanges();
         Assert.That((await _service.GetIconAsync("ot:cart")).LibraryName, Is.EqualTo("other"));
@@ -2416,7 +2419,7 @@ public class IconServiceTests
         XNamespace ns = "http://www.w3.org/2000/svg";
         Assert.That(XElement.Load(path).Elements(ns + "symbol").Select(x => (string)x.Attribute("id")),
             Is.EquivalentTo(new[] { "cart", "local", "remote" }));
-        var expected = new[] { "ot:cart-01@r", "ot:local-solid@s", "hi:direct@sr" };
+        var expected = new[] { "ot:cart-01/r", "ot:local-solid/s", "hi:direct/sr" };
         var concepts = new[] { "cart", "local", "remote" };
         for (var i = 0; i < concepts.Length; i++)
         {
@@ -2431,8 +2434,8 @@ public class IconServiceTests
         using var manifest = JsonDocument.Parse(await File.ReadAllTextAsync(manifestPath));
         var kit = manifest.RootElement.GetProperty("kits").GetProperty("shared");
         Assert.That(kit.GetProperty("url").GetString(), Is.EqualTo(url.TrimStart('/')));
-        Assert.That(kit.GetProperty("sources").GetProperty("local").GetString(), Is.EqualTo("local-solid@s"));
-        Assert.That(kit.GetProperty("sources").GetProperty("remote").GetString(), Is.EqualTo("hi:direct@sr"));
+        Assert.That(kit.GetProperty("sources").GetProperty("local").GetString(), Is.EqualTo("local-solid/s"));
+        Assert.That(kit.GetProperty("sources").GetProperty("remote").GetString(), Is.EqualTo("hi:direct/sr"));
         Assert.That(_service.GetIconCount("ot", "r"), Is.EqualTo(1));
         var search = await _service.SearchAsync(new IconSearchQuery { Library = "ot", Variant = "r" });
         Assert.That(search.Items.Select(x => x.Name), Is.EqualTo(new[] { "cart-01" }));
@@ -2444,7 +2447,7 @@ public class IconServiceTests
         var newUrl = kits.GetUrl("shared");
         Assert.That(newUrl, Is.Not.EqualTo(url));
         var local = await _service.GetIconAsync("local");
-        Assert.That(local.Address, Is.EqualTo("ot:local-solid@r"));
+        Assert.That(local.Address, Is.EqualTo("ot:local-solid/r"));
         Assert.That(kits.GetReference(local)?.Href, Is.EqualTo(newUrl + "#local"));
         Assert.That(await kits.GetSpriteFileAsync("shared", url[^28..^4]), Is.EqualTo(path));
     }
@@ -2459,12 +2462,12 @@ public class IconServiceTests
         Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded","fallbackToDefaultLibrary":true}""");
         Write("Icons/other/mapping.json", """{"cart-01":"missing"}""");
         Write("Icons/other/solid/icons/cart-01.svg", _svg);
-        Write("Icons/kits.json", """{"shared":{"icons":["cart"],"sources":{"cart":"ot:cart-01@r"}}}""");
+        Write("Icons/kits.json", """{"shared":{"icons":["cart"],"sources":{"cart":"ot:cart-01/r"}}}""");
         var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
         var info = await _service.GetIconAsync("cart");
-        Assert.That(info.Address, Is.EqualTo("ot:cart-01@s"));
+        Assert.That(info.Address, Is.EqualTo("ot:cart-01/s"));
         Assert.That(kits.GetReference(info)?.Href, Is.EqualTo(kits.GetUrl("shared") + "#cart"));
-        Write("Icons/kits.json", """{"shared":{"icons":["cart"],"sources":{"cart":"ot:direct@r"}}}""");
+        Write("Icons/kits.json", """{"shared":{"icons":["cart"],"sources":{"cart":"ot:direct/r"}}}""");
         SignalChanges();
         Assert.That(await _service.GetIconAsync("cart"), Is.Null);
         Assert.Throws<InvalidDataException>(() => kits.GetUrl("shared"));

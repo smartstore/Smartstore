@@ -39,7 +39,7 @@
 
     function prepareManifest(data) {
         // Old cached pages fall back to the endpoint while scripts and manifests roll over.
-        if (data.schemaVersion !== 7) return null;
+        if (data.schemaVersion !== 8) return null;
         const mirrorInRtl = new Set(data.mirrorInRtl);
         const concepts = new Map();
         for (const kit of Object.values(data.kits)) {
@@ -48,13 +48,13 @@
                 // The server has resolved these identities already. Fill omitted fields from
                 // kit defaults; do not remap names or use patches to choose a sprite/symbol.
                 const source = Object.hasOwn(kit.sources, name) ? kit.sources[name] : name;
-                const colon = source.indexOf(':'), at = source.indexOf('@');
+                const colon = source.indexOf(':'), slash = source.indexOf('/');
                 const library = colon < 0 ? kit.defaultLibrary : source.slice(0, colon);
-                const variant = at < 0 ? kit.defaultVariant : source.slice(at + 1);
-                const icon = source.slice(colon + 1, at < 0 ? source.length : at);
+                const variant = slash < 0 ? kit.defaultVariant : source.slice(slash + 1);
+                const icon = source.slice(colon + 1, slash < 0 ? source.length : slash);
                 concepts.set(name, {
                     href: url + '#' + encodeURIComponent(name),
-                    address: `${library.toLowerCase()}:${icon}@${variant.toLowerCase()}`,
+                    address: `${library.toLowerCase()}:${icon}/${variant.toLowerCase()}`,
                     classes: ['icon-' + library, 'icon-' + library + '-' + variant,
                         ...(mirrorInRtl.has(name) ? ['icon-mirror-rtl'] : [])]
                 });
@@ -66,7 +66,7 @@
     // Only plain concepts use the manifest. The server owns address parsing, selections
     // and modifier precedence, including explicit false/zero overrides of mapping defaults.
     function isConcept(input) {
-        return !/[:@!?]/.test(input.name) && drawing.every((key, i) => i === 0 || input[key] == null);
+        return !/[:\/@!?]/.test(input.name) && drawing.every((key, i) => i === 0 || input[key] == null);
     }
 
     function manifest() {

@@ -50,7 +50,7 @@ public class IconTagHelperTests
     {
         var svg = new IconSvg
         {
-            Address = librarySelector + ":cart-01@" + variantSelector,
+            Address = librarySelector + ":cart-01/" + variantSelector,
             ViewBox = "0 0 24 24",
             Content = "<path d=\"M0 0L1 1\" />",
             RootAttributes = new Dictionary<string, string>
@@ -215,7 +215,7 @@ public class IconTagHelperTests
         service.Setup(x => x.GetIconAsync("cart", null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(found ? icon : null);
         service.Setup(x => x.GetSvgAsync(icon, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new IconSvg { Address = "hi:cart-01@rounded", ViewBox = "0 0 24 24", Content = "<path/>" });
+            .ReturnsAsync(new IconSvg { Address = "hi:cart-01/rounded", ViewBox = "0 0 24 24", Content = "<path/>" });
         var helper = new IconTagHelper(service.Object, new IconRenderer(service.Object, Mock.Of<IIconKitService>()))
         {
             Name = "cart",

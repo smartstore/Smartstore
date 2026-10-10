@@ -48,7 +48,7 @@ a low compression level.
 Update `library.json` to the confirmed release version. Preserve its display name,
 short name, icon address and custom settings. Keep `defaultVariant: "default"` and
 only the `default` entry under `variants`. Do not give that variant a display name
-or short name. The library icon can be addressed as `bi:bootstrap@default`.
+or short name. The library icon can be addressed as `bi:bootstrap/default`.
 
 `mapping.json` maps shared concepts to exact upstream names. Preserve assignments;
 use names ending in `-fill` where a concept should display the filled drawing.
@@ -86,7 +86,7 @@ Preserve metadata for removed icons in the backup/report rather than discarding 
 2. Entry names are unique and flat, and all entries use Stored compression.
 3. ZIP integrity passes; SHA-256 hashes of extracted bytes match the sources.
 4. JSON parses, metadata covers the available names, and mapping targets exist.
-5. Configured icon addresses and kit sources use `@default` or omit the variant.
+5. Configured icon addresses and kit sources use `/default` or omit the variant.
 6. Source files have not changed during staging and verification.
 
 Publish the verified archive and JSON. Delete only verified loose upstream files
@@ -105,8 +105,8 @@ and manifests receive new revisions. Do not build without user authorization.
 
 The former light/solid archives were consolidated without changing SVG bytes.
 Their shared metadata was expanded to the original names, preserving tags.
-Explicit old addresses must be migrated: for example, `bi:alarm@solid` becomes
-`bi:alarm-fill@default`, while `bi:alarm@light` becomes `bi:alarm@default`.
+Explicit old addresses must be migrated: for example, `bi:alarm/solid` becomes
+`bi:alarm-fill/default`, while `bi:alarm/light` becomes `bi:alarm/default`.
 Recover exact original names from the source SVG's `bi-*` class or the official
 release when an old interior-fill name was normalized. Do not assume that adding
 `-fill` to the end always recovers the correct upstream name.

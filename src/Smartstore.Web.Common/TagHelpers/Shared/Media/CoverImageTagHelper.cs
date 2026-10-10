@@ -103,7 +103,7 @@ public class CoverImageTagHelper : ImageTagHelper
         toggle.Attributes["data-toggle"] = "dropdown";
         toggle.Attributes["data-placement"] = "top";
 
-        var icon = new HtmlString("<sm-icon name=\"fa:arrow-down-up-across-line!@s\"></sm-icon>");
+        var icon = new HtmlString("<sm-icon name=\"fa:arrow-down-up-across-line!/s\"></sm-icon>");
         toggle.InnerHtml.AppendHtml(icon);
 
         var dropdownUl = new TagBuilder("ul");

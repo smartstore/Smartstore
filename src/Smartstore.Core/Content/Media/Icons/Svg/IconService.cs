@@ -48,7 +48,6 @@ public sealed partial class IconService(IApplicationContext applicationContext, 
     /// <inheritdoc />
     public Task<IReadOnlyList<IconLibrary>> GetLibrariesAsync(CancellationToken cancelToken = default)
     {
-        cancelToken.ThrowIfCancellationRequested();
         IReadOnlyList<IconLibrary> result = Catalog.Libraries.Values.Distinct().Select(x => x.Manifest).ToArray();
         return Task.FromResult(result);
     }
@@ -63,7 +62,6 @@ public sealed partial class IconService(IApplicationContext applicationContext, 
     /// <inheritdoc />
     public Task<IconInfo> GetIconAsync(string name, string library = null, string variant = null, CancellationToken cancelToken = default)
     {
-        cancelToken.ThrowIfCancellationRequested();
         return Task.FromResult(Find(Catalog, name, library, variant));
     }
 
@@ -135,7 +133,6 @@ public sealed partial class IconService(IApplicationContext applicationContext, 
     {
         Guard.NotNull(query);
 
-        cancelToken.ThrowIfCancellationRequested();
         Guard.NotNegative(query.Skip);
 
         Guard.InRange(query.Take, 1, 500);

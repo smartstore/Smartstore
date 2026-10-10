@@ -1,6 +1,6 @@
 {
   "shared": {
-    "icon": "hi:layers-01!@sr",
+    "icon": "hi:layers-01!/sr",
     "defaultLibrary": null,
     "defaultVariant": null,
     "icons": [
@@ -110,7 +110,7 @@
     ]
   },
   "frontend": {
-    "icon": "hi:store-01!@sr",
+    "icon": "hi:store-01!/sr",
     "defaultLibrary": null,
     "defaultVariant": null,
     "icons": [
@@ -132,7 +132,7 @@
     }
   },
   "backend": {
-    "icon": "hi:settings-01!@sr",
+    "icon": "hi:settings-01!/sr",
     "defaultLibrary": null,
     "defaultVariant": null,
     "icons": [
@@ -283,7 +283,7 @@
     }
   },
   "brands": {
-    "icon": "hi:badge!@sr",
+    "icon": "hi:badge!/sr",
     "defaultLibrary": "fontawesome-free",
     "defaultVariant": "brands",
     "icons": [
@@ -444,11 +444,11 @@
       "zoom"
     ],
     "sources": {
-      "alexa": "bi:alexa@default",
-      "anthropic": "bi:anthropic@default",
-      "apple-music": "bi:apple-music@default",
-      "bing": "bi:bing@default",
-      "microsoft-teams": "bi:microsoft-teams@default"
+      "alexa": "bi:alexa/default",
+      "anthropic": "bi:anthropic/default",
+      "apple-music": "bi:apple-music/default",
+      "bing": "bi:bing/default",
+      "microsoft-teams": "bi:microsoft-teams/default"
     }
   }
 }

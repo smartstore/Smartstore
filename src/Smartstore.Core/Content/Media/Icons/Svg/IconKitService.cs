@@ -103,7 +103,7 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
                     sources.Add(entry.Concept, string.Concat(
                         libraryKey != defaultLibrary ? libraryKey + ":" : string.Empty,
                         entry.Mapping.Name,
-                        variantKey != defaultVariant ? "@" + variantKey : string.Empty));
+                        variantKey != defaultVariant ? "/" + variantKey : string.Empty));
                 }
             }
 
@@ -121,7 +121,7 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
 
         var content = JsonSerializer.SerializeToUtf8Bytes(new
         {
-            SchemaVersion = 7,
+            SchemaVersion = 8,
             MirrorInRtl = catalog.MirrorInRtl.OrderBy(x => x, StringComparer.Ordinal).ToArray(),
             Kits = kits
         }, SmartJsonOptions.CamelCased);

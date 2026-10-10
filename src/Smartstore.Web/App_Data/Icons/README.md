@@ -244,7 +244,7 @@ alongside the existing FontAwesome `IIconExplorer`.
 IconLibrary library = icons.DefaultLibrary;
 IconLibrary hugeicons = icons.GetLibrary("hi"); // Also accepts "hugeicons".
 IconInfo icon = await icons.GetIconAsync("cart");
-IconSvg svg = await icons.GetSvgAsync("hi:cart@stroke-rounded");
+IconSvg svg = await icons.GetSvgAsync("hi:cart/stroke-rounded");
 IconSearchResult results = await icons.SearchAsync(new IconSearchQuery
 {
     Term = "basket",
@@ -266,14 +266,14 @@ an extension method that resolves the address and forwards the resulting `IconIn
 Preparation uses the current library, variant and actual name; it derives the
 canonical address again rather than trusting a caller-modified `Address` property.
 
-Persist strings as `[library:]name[!][@variant]`: `cart`, `hi:cart`,
-`cart@stroke-rounded` or `hi:cart@stroke-rounded`. `IconAddress.Parse` parses this
+Persist strings as `[library:]name[!][/variant]`: `cart`, `hi:cart`,
+`cart/stroke-rounded` or `hi:cart/stroke-rounded`. `IconAddress.Parse` parses this
 syntax without accessing configuration. Library and variant selectors accept
 their full names or optional short names, case-insensitively. Icon names and
 mapping keys are exact and case-sensitive; even spaces in source names are retained.
 Names of libraries, variants and their short names use letters, digits, `-` and `_`.
 
-Append `!` to the name to skip mapping: `cart!` or `hi:cart!@sr` addresses the
+Append `!` to the name to skip mapping: `cart!` or `hi:cart!/sr` addresses the
 actual icon directly. A missing direct icon returns null without a mapping fallback.
 `IconAddress.SkipMapping` retains this flag, and `ToString()` preserves it for
 persistence. Component-based construction uses `new IconAddress("cart", "hi", "sr",
@@ -292,8 +292,8 @@ The service fills missing selectors from the configured defaults. Optional
 conflicting selectors are rejected; a full name and its equivalent short name
 do not conflict. Canonical result addresses contain the actual mapped icon name
 and both selectors, preferring each short name when present. For example, with
-the manifest above: `hi:shopping-cart-02@sr`. Without short names:
-`hugeicons:shopping-cart-02@stroke-rounded`. Changing short names requires updating
+the manifest above: `hi:shopping-cart-02/sr`. Without short names:
+`hugeicons:shopping-cart-02/stroke-rounded`. Changing short names requires updating
 persisted strings that use them; persist full names when that stability is needed.
 
 `IconLibrary.SystemName` and `IconVariant.Name` come from directory names and
@@ -344,7 +344,7 @@ Source replacement detected during preparation fails the lookup rather than cach
 under an outdated revision; retry after the watcher invalidates the generation.
 `IIconCache` uses Smartstore's configured cache manager, including Redis when
 enabled. Its key is the canonical address plus an internal content revision,
-such as `hi:shopping-cart-02@sr:<revision>`. The revision covers the library
+such as `hi:shopping-cart-02/sr:<revision>`. The revision covers the library
 manifest, the requested source fingerprint and SVG preparation version. It is never
 part of persisted icon addresses. Unused revisions expire after seven days.
 `InvalidateLibraryAsync` accepts the canonical library selector (short name if
@@ -401,7 +401,7 @@ library/variant selection and paginated Select2 AJAX search and scrolling.
   query. Do not create an unbounded cache of search combinations or eagerly
   generate a complete library sprite.
 - Persist concrete picker selections with the mapping bypass, for example
-  `hi:cart-01!@sr`, so conceptual mappings cannot redirect the selected icon.
+  `hi:cart-01!/sr`, so conceptual mappings cannot redirect the selected icon.
 
 The initial approach is paginated search with batched, uncached previews. Only
 requested icons are prepared; opening the picker must not process all icons.
@@ -451,8 +451,8 @@ object assigns concrete SVG addresses to members that differ from the defaults:
   "defaultVariant": "brands",
   "icons": ["alexa", "apple", "microsoft-teams"],
   "sources": {
-    "alexa": "bi:alexa@default",
-    "microsoft-teams": "bi:microsoft-teams@default"
+    "alexa": "bi:alexa/default",
+    "microsoft-teams": "bi:microsoft-teams/default"
   }
 }
 ```
@@ -471,7 +471,7 @@ uses its own default variant unless the source names one explicitly.
 
 Source values identify concrete artwork and are never run through library mapping
 again. The concept and actual source name can differ, for example
-`"assistant": "bi:alexa@default"`; the public symbol remains `#assistant`. A trailing
+`"assistant": "bi:alexa/default"`; the public symbol remains `#assistant`. A trailing
 `!` on a source name is accepted but unnecessary. Query modifiers belong in library
 mappings, not source addresses. Members without a source override retain ordinary
 library mapping, including its modifiers.
@@ -805,7 +805,7 @@ variant. `name` accepts an address with optional `flip`, `rotate`, and `stroke-s
 query modifiers. Append `!` to the icon name to bypass conceptual mapping.
 
 ```html
-<icon name="hi:cart@sr?rotate=90&amp;stroke-scale=1.1" rotate="0" size="lg" />
+<icon name="hi:cart/sr?rotate=90&amp;stroke-scale=1.1" rotate="0" size="lg" />
 <icon name="refresh" animation="spin" animation-duration="2s" />
 <icon name="arrow-right!" flip-h="true" class="text-muted" />
 ```
@@ -888,7 +888,7 @@ manifest contains kit URLs, directly renderable concepts and compact DOM identit
 
 ```json
 {
-  "schemaVersion": 7,
+  "schemaVersion": 8,
   "mirrorInRtl": ["arrow-left", "arrow-right", "chevron-left", "chevron-right", "chevrons-left", "chevrons-right"],
   "kits": {
     "brands": {
@@ -897,7 +897,7 @@ manifest contains kit URLs, directly renderable concepts and compact DOM identit
       "defaultVariant": "b",
       "icons": ["alexa", "apple", "browser-chrome"],
       "sources": {
-        "alexa": "bi:alexa@default",
+        "alexa": "bi:alexa/default",
         "browser-chrome": "chrome"
       }
     }
@@ -908,11 +908,11 @@ manifest contains kit URLs, directly renderable concepts and compact DOM identit
 The component builds a single concept-to-URL lookup and renders a matching concept
 as `<use href="kit-url#concept">`. Per-kit `defaultLibrary` and `defaultVariant` are
 resolved CSS keys (short names when available, otherwise system names). `sources`
-contains only identities differing from `defaultLibrary:concept@defaultVariant`.
+contains only identities differing from `defaultLibrary:concept/defaultVariant`.
 These are final metadata patches, not mappings to apply: omitted qualifiers inherit
 the kit's metadata defaults, even when the library differs. Source names are exact;
 qualifiers in `data-icon` are lowercased to match the server's canonical address.
-For example, `alexa` renders the `#alexa` symbol but carries `bi:alexa@default` and the
+For example, `alexa` renders the `#alexa` symbol but carries `bi:alexa/default` and the
 classes `icon-bi icon-bi-default`. Library catalogs, resolution rules, SVG drawings and
 search tags remain server-side. Each concept appears only in its preferred kit. Unavailable kits are omitted; mapping stroke multipliers are included in the sprites.
 Mapping rotations and flips are already baked into the symbols.
@@ -1018,7 +1018,7 @@ the generic `layers` concept. Kit objects in `kits.json` accept the same optiona
 `icon` property and fall back to `box`. These presentation icons do not add members
 to a kit. Addresses use normal icon resolution, including mappings and modifiers;
 omitted qualifiers use system defaults, not the represented kit or library's defaults.
-Prefer fully qualified addresses such as `hi:settings-01!@sr` for stable shipped
+Prefer fully qualified addresses such as `hi:settings-01!/sr` for stable shipped
 defaults. The optional `!` bypasses mapping. Configuration changes are picked up
 by the catalog watcher; reopen the page to refresh the server-rendered dropdown.
 The `system` library is excluded. Library and variant display names are used when
@@ -1037,7 +1037,7 @@ and results. A loading state covers first-time generation; failures can be retri
 by selecting the source again.
 
 Kit options display and return concept names. Library options display literal icon
-names and return qualified direct addresses such as `hi:shopping-cart-01!@sr`, so a
+names and return qualified direct addresses such as `hi:shopping-cart-01!/sr`, so a
 later mapping cannot silently replace the selected artwork. Kits search concept
 names, actual source names and tags within the selected kit. Library search uses the
 existing name, conceptual alias and tag search. Only the requested page is returned.
@@ -1166,6 +1166,13 @@ and kit symbols remain direction-independent; no RTL sprite copy is generated.
 The policy applies to unqualified concepts, including their query modifiers.
 Explicit library/variant selectors (in addresses or service arguments) and `!`
 bypasses are excluded. Native library browsing therefore keeps the original artwork.
-Manifest schema 7 publishes the sorted `mirrorInRtl` list; changing the list revises
+Manifest schema 8 publishes the sorted `mirrorInRtl` list; changing the list revises
 the manifest without changing sprite artwork. Older manifests fall back to the render
 endpoint when used with the updated client.
+
+
+Prefer unqualified kit concepts in `sm-icon`, including brand names such as
+`facebook-f`, `apple` and `microsoft`. Explicit library or variant selectors bypass
+the client manifest fast path and require the render endpoint, even when the same
+artwork is already included in a kit. Use explicit addresses only when no suitable
+concept exists or a specific source selection is intentional.

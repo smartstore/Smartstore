@@ -30,7 +30,7 @@ public class AppleAuthViewComponent : SmartViewComponent
         var href = Url.Action("ExternalLogin", "Identity", new { provider = "Apple", returnUrl });
         var title = T("Plugins.Smartstore.Apple.Auth.Login").Value;
         var html = $"<a class='btn btn-secondary btn-block btn-lg btn-extauth' href='{href}' rel='nofollow'>" +
-                   $"<sm-icon name='fa:apple!@b' class='icon-fw icon-lg' aria-hidden='true'></sm-icon><span>{title}</span></a>";
+                   $"<sm-icon name='apple' class='icon-fw icon-lg' aria-hidden='true'></sm-icon><span>{title}</span></a>";
 
         return HtmlContent(html);
     }
