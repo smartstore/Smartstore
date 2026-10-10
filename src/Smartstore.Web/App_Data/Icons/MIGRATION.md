@@ -91,6 +91,26 @@ See the provider/consumer audit in [MENU-MIGRATION.md](MENU-MIGRATION.md).
 StoreDashboardReport uses the icon TagHelper and reviewed concepts for all 13
 statistics icons, replacing its Bootstrap-specific names and renderer.
 
+## MediaManager Vue icons
+
+MediaManager's built-in Vue templates use `sm-icon`; album overlays use
+`sm-icon-stack`. Folder and sort states bind concept names. The upload status
+chevron follows Vue state, while pause/resume artwork is pre-rendered and switched
+by CSS. Special folders and album overlay metadata are normalized at the
+MediaManager controller boundary; other album consumers keep their current contract.
+
+`Smartstore.media.getIconHint` now supplies `address` alongside the legacy `name`.
+SVG consumers use address, while existing font-based previews continue using name.
+The shared Dropzone wrapper supports both SVG custom elements and legacy font
+elements for preview and completion status. Existing confirmation-dialog icon
+options and the server-rendered MediaEditorCommand extension API remain legacy;
+their migration is separate from the Vue component.
+
+Validation: seven Vue templates compiled, JavaScript syntax checks passed, and all
+48 referenced concepts/addresses resolved to installed SVG sources. The targeted
+MediaManager Debug build passed with zero warnings and errors. Browser rendering
+and real upload interactions have not been verified.
+
 ## DataGrid Vue icons
 
 Built-in grid, pager and tools icons use `sm-icon` with concept names. Column

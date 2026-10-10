@@ -242,7 +242,7 @@
                 else if (displayPreviewInList) {
                     var template = $(file.previewTemplate);
                     template.removeClass("dz-image-preview");
-                    var icon = template.find(".upload-status > i");
+                    var icon = template.find(".upload-status > :is(i, sm-icon)");
                     icon.removeClass("d-none");
                     template.find(".circular-progress").addClass("d-none");
                 }
@@ -578,7 +578,12 @@
                 var elImage = el.find('.file-figure > img').addClass(icon.mediaType == "image" ? "hide" : "d-none");
 
                 elFigure.attr("data-type", icon.mediaType);
-                elIcon.attr("class", "file-icon show " + icon.name + (small ? " fa-2x" : " fa-4x")).css("color", icon.color);
+                if (elIcon.is("sm-icon")) {
+                    elIcon.attr({ name: icon.address, size: small ? "2x" : "4x" }).addClass("show").css("color", icon.color);
+                }
+                else {
+                    elIcon.attr("class", "file-icon show " + icon.name + (small ? " fa-2x" : " fa-4x")).css("color", icon.color);
+                }
 
                 if (small)
                     return;
@@ -1019,7 +1024,7 @@
         if (elStatusWindow.length > 0) {
             var el = $(file.previewElement);
             window.setCircularProgressValue(el, 0);
-            el.find(".upload-status > i").addClass("d-none");
+            el.find(".upload-status > :is(i, sm-icon)").addClass("d-none");
             el.find(".fu-item-canceled").addClass("d-none");
             el.find(".circular-progress").removeClass("d-none");
             el.removeClass("dz-processing dz-complete canceled");
