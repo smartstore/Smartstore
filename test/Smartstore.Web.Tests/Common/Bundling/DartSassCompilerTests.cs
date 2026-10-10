@@ -4,6 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Xml.Linq;
+using Smartstore.Core.Content.Media.Icons;
 using System.Threading.Tasks;
 using Microsoft.Extensions.FileProviders;
 using Moq;
@@ -16,6 +19,79 @@ namespace Smartstore.Web.Tests.Common.Bundling;
 [TestFixture]
 public class DartSassCompilerTests
 {
+    [Test]
+    public async Task Icon_url_embeds_standalone_svg_with_mapping_modifiers()
+    {
+        var icons = new Mock<IIconService>();
+        var icon = new IconInfo { Transform = new IconTransform(false, false, 90), SupportsStrokeScaling = true, StrokeScale = 1.5 };
+        var source = new IconSvg
+        {
+            ViewBox = "0 0 24 24",
+            RootAttributes = new Dictionary<string, string> { ["fill"] = "none", ["stroke"] = "currentColor", ["transform"] = "translate(1 2)" },
+            Content = "<path d=\"M1 1L20 20\" style=\"stroke-width:var(--icon-stroke-width,2);\" />"
+        };
+        icons.Setup(x => x.GetIconAsync("chevron-down", null, null, It.IsAny<CancellationToken>())).ReturnsAsync(icon);
+        icons.Setup(x => x.GetSvgAsync(icon, It.IsAny<CancellationToken>())).ReturnsAsync(source);
+
+        await using var compiler = new DartSassCompiler();
+        var result = await compiler.CompileAsync(new SassCompilationRequest
+        {
+            Source = ".target::after { mask-image: icon-url('chevron-down'); }",
+            SourcePath = "/styles/site.scss",
+            FileProvider = CreateAssetFileProvider(new Dictionary<string, string>()),
+            Functions = [IconSassFunctions.CreateUrl(icons.Object)]
+        });
+
+        var marker = "data:image/svg+xml,";
+        var start = result.Css.IndexOf(marker, StringComparison.Ordinal) + marker.Length;
+        var end = result.Css.IndexOf('"', start);
+        var svg = XElement.Parse(Uri.UnescapeDataString(result.Css[start..end]));
+        XNamespace ns = "http://www.w3.org/2000/svg";
+        Assert.Multiple(() =>
+        {
+            Assert.That(svg.Name, Is.EqualTo(ns + "svg"));
+            Assert.That((string?)svg.Attribute("viewBox"), Is.EqualTo("0 0 24 24"));
+            Assert.That(svg.Element(ns + "g")?.Attribute("transform")?.Value, Does.Contain("rotate(90)"));
+            Assert.That(svg.Element(ns + "g")?.Element(ns + "g")?.Attribute("transform")?.Value, Is.EqualTo("translate(1 2)"));
+            Assert.That(svg.ToString(), Does.Contain("calc(var(--icon-stroke-width,2) * 1.5)"));
+            Assert.That(source.Content, Does.Not.Contain("calc("));
+            Assert.That(result.IncludedFiles, Is.Empty);
+        });
+    }
+
+    [TestCase(false, true)]
+    [TestCase(true, true)]
+    [TestCase(false, false)]
+    [TestCase(true, false)]
+    public async Task Missing_icon_urls_use_placeholder_or_transparent_mask(bool knownIcon, bool hasPlaceholder)
+    {
+        var icons = new Mock<IIconService>();
+        var missing = knownIcon ? new IconInfo { Name = "missing" } : null;
+        var placeholder = new IconInfo { Name = "not-found" };
+        icons.Setup(x => x.GetIconAsync("missing", null, null, It.IsAny<CancellationToken>())).ReturnsAsync(missing);
+        icons.Setup(x => x.GetIconAsync("system:not-found!/default", null, null, It.IsAny<CancellationToken>())).ReturnsAsync(placeholder);
+        icons.Setup(x => x.GetSvgAsync(placeholder, It.IsAny<CancellationToken>())).ReturnsAsync(hasPlaceholder
+            ? new IconSvg { ViewBox = "0 0 24 24", Content = "<path d=\"M1 1L20 20\" />" }
+            : null);
+
+        await using var compiler = new DartSassCompiler();
+        var result = await compiler.CompileAsync(new SassCompilationRequest
+        {
+            Source = ".target { mask-image: icon-url('missing'); color: red; }",
+            SourcePath = "/styles/site.scss",
+            FileProvider = CreateAssetFileProvider(new Dictionary<string, string>()),
+            Functions = [IconSassFunctions.CreateUrl(icons.Object)]
+        });
+
+        var marker = "data:image/svg+xml,";
+        var start = result.Css.IndexOf(marker, StringComparison.Ordinal) + marker.Length;
+        var end = result.Css.IndexOf('"', start);
+        var svg = XElement.Parse(Uri.UnescapeDataString(result.Css[start..end]));
+        Assert.That(svg.HasElements, Is.EqualTo(hasPlaceholder));
+        Assert.That(result.Css, Does.Contain("color: red"));
+        icons.Verify(x => x.GetIconAsync("system:not-found!/default", null, null, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
     [TestCase(false)]
     [TestCase(true)]
     // EmbeddedSass.Net 1.2.1 can reject valid callback ID reuse before its sender resumes.

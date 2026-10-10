@@ -43,13 +43,13 @@
     }
 
     &.show[data-type=video]:after {
-        @include fontawesome("\f04b", inherit, solid); // fas fa-play
+        @include icon-mask("play", 1em);
         position: absolute;
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
         color: #fff;
-        text-shadow: 1px 1px 1px rgba(#000, 0.5);
+        filter: drop-shadow(1px 1px 1px rgba(#000, 0.5));
         z-index: 2;
     }
 }

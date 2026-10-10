@@ -186,7 +186,7 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 | `far fa-circle-down` | `circle-arrow-down-02` | `arrow-down-circle` |
 | `fa fa-arrow-left` | `arrow-left-02` | `arrow-left` |
 | `fas fa-arrow-right` | `arrow-right-02` | `arrow-right` |
-| `fa fa-turn-up` | `arrow-turn-up` | `arrow-turn-up` |
+| `fa fa-turn-up` | `corner-right-up` | `arrow-turn-up` |
 | `fa fa-arrow-up` | `arrow-up-02` | `arrow-up` |
 | `far fa-circle-up` | `circle-arrow-up-02` | `arrow-up-circle` |
 | `fa fa-award` | `star-award-01` | `award` |
@@ -401,7 +401,7 @@ variants no longer exist. See the [BI import recipe](bootstrap/README.md).
 | Source BI icon name | Target | Concept |
 | --- | --- | --- |
 | `archive` | `archive-02` | `archive` |
-| `arrow-90deg-up` | `arrow-turn-up` | `arrow-turn-up` |
+| `arrow-90deg-up` | `corner-right-up` | `arrow-turn-up` |
 | `arrow-up-short` | `arrow-up-02` | `arrow-up` |
 | `aspect-ratio` | `aspect-ratio` | `aspect-ratio` |
 | `bar-chart-line` | `chart-bar-increasing` | `chart-bar` |
@@ -662,3 +662,22 @@ Icon addresses now use `[library:]name[!][/variant]`, for example `hi:cart!/sr`.
 The former at-sign separator is rejected; there is no compatibility parser.
 Manifest schema 8 publishes slash-qualified identities. Razor attributes can use
 plain literal addresses without an explicit string expression or doubled at-sign.
+
+## Category path arrow-turn-up mask
+
+The expanded category path now uses `icon-mask("arrow-turn-up", 1rem)` instead of
+the FA webfont glyph. This uses the existing Shared kit concept and its library mappings.
+
+## Sass pseudo-element migration
+
+FA mixin consumers now use SVG masks across shared/admin styles, Flex, ContentSlider,
+MediaManager and the HP theme. Frequent chevrons, plus and check reuse curated CSS
+variables. Angle directions use chevron concepts; state and RTL overrides change
+masks instead of Unicode glyphs. The offcanvas loading state uses `spinner`.
+
+`maximize` and `minimize` moved from Backend to Shared for PhotoSwipe fullscreen
+controls. PhotoSwipe's close button uses the `close` icon TagHelper.
+
+Caret-down, exclamation, info, star and triangle-exclamation remain on the legacy
+font path. Alert masks only override enabled icon boxes, preserving the opt-in
+behavior when alert icons are disabled globally.

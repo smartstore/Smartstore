@@ -300,16 +300,13 @@ $facet-selection-glyph-color:   darken($success, 10%);
 
 .facet-toggle {
     &:after {
-	    display: block;
-	    position: absolute;
-        @include fontawesome-font("\f077", light); // chevron-up
-	    font-size: $font-size-base;
-	    line-height: 1;
+        @include icon-mask(var(--icon-mask-chevron-up), 1rem);
+        position: absolute;
         color: $body-color;
         inset-inline-end: 0;
-	    top: 50%;
-	    margin-top: -7px;
-	    transition: transform 0.3s ease;
+        top: 50%;
+        translate: 0 -50%;
+        transition: transform 0.3s ease;
     }
 
     &.collapsed:after {
@@ -378,16 +375,10 @@ $facet-selection-glyph-color:   darken($success, 10%);
     box-shadow: none;
 
     &:after {
-        @include fontawesome("\f00c");
+        @include icon-mask(var(--icon-mask-check), $facet-control-size - 1px);
         display: block;
         opacity: 0;
         transition: all 0.2s ease-in;
-        width: $facet-control-size - 1px;
-        height: $facet-control-size - 1px;
-        line-height: $facet-control-size - 1px;
-        text-align: center;
-        vertical-align: middle;
-        font-size: 14px;
         color: $facet-selection-glyph-color;
     }
 

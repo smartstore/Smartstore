@@ -2,6 +2,17 @@
 
 @use "sass:list";
 
+// Shared SVG masks for frequently used pseudo-element icons.
+:root {
+    --icon-mask-chevron-down: #{icon-url("chevron-down")};
+    --icon-mask-chevron-left: #{icon-url("chevron-left")};
+    --icon-mask-chevron-right: #{icon-url("chevron-right")};
+    --icon-mask-chevron-up: #{icon-url("chevron-up")};
+    --icon-mask-plus: #{icon-url("plus")};
+    --icon-mask-check: #{icon-url("check")};
+    --icon-mask-info: #{icon-url("info")};
+}
+
 // Library-independent SVG icons. Animation keyframes shared with _utils.scss.
 // Apply .icon to an SVG or a light-DOM host containing one direct child SVG.
 .icon,

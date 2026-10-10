@@ -36,10 +36,9 @@ $pswp__background-color: #fff;
 /* <button> css reset */
 .pswp__button {
     position: relative;
-    display: inline-block;
-    @include fontawesome-font("", regular);
-    text-rendering: auto;
-    -webkit-font-smoothing: antialiased;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     line-height: 1;
     width: 40px;
     height: 40px;
@@ -65,42 +64,39 @@ $pswp__background-color: #fff;
     }
 }
 
-.pswp__button--close {
+// Keep PhotoSwipe's delegated hit testing on the button itself.
+.pswp__button > .icon {
+    pointer-events: none;
+}
+
+.pswp__top-bar .pswp__button {
     font-size: 20px;
-    font-weight: $font-weight-medium;
+}
+
+.pswp__button--close {
     margin-left: auto;
 }
 
-.pswp__button--fs {
+.pswp__button--fs,
+.pswp__button--zoom,
+.pswp__button > .pswp-icon-active {
     display: none;
 }
 
-.pswp--supports-fs .pswp__button--fs {
-    display: block;
-
-    &:before {
-        content: "\f065"; /* expand */
-    }
-}
-
-.pswp--fs .pswp__button--fs:before {
-    content: "\f066"; /* compress */
-}
-
-.pswp__button--zoom {
-    display: none;
-
-    &:before {
-        content: "\f067"; /* plus */
-    }
-}
-
+.pswp--supports-fs .pswp__button--fs,
 .pswp--zoom-allowed .pswp__button--zoom {
-    display: block;
+    display: inline-flex;
 }
 
-.pswp--zoomed-in .pswp__button--zoom:before {
-    content: "\f068"; /* minus */
+.pswp--fs .pswp__button--fs,
+.pswp--zoomed-in .pswp__button--zoom {
+    > .pswp-icon-default {
+        display: none;
+    }
+
+    > .pswp-icon-active {
+        display: inline-flex;
+    }
 }
 
 /* no arrows on touch screens */
@@ -110,7 +106,6 @@ $pswp__background-color: #fff;
 
 /*
 	Arrow buttons hit area
-	(icon is added to :before pseudo-element)
 */
 
 .pswp__arrow {
@@ -119,7 +114,7 @@ $pswp__background-color: #fff;
     width: 60px;
     height: 60px;
     margin-top: -30px;
-    font-size: 30px;
+    font-size: 36px;
     margin-inline: .5rem;
     will-change: transform;
 }
@@ -127,17 +122,11 @@ $pswp__background-color: #fff;
 .pswp__button--arrow--left {
     left: 0;
 
-    &:before {
-        content: "\f053"; /* angle-left */
-    }
 }
 
 .pswp__button--arrow--right {
     right: 0;
 
-    &:before {
-        content: "\f054"; /* angle-right */
-    }
 }
 
 

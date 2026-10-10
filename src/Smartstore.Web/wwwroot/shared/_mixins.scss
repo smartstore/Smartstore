@@ -1,6 +1,7 @@
 /// <reference path="references.scss" />
 
 @use "sass:map";
+@use "sass:string";
 
 // Mixins
 // ========================================================================
@@ -112,6 +113,22 @@
     content: $content;
 }
 
+// Accept an icon address or a CSS variable containing a prepared mask.
+// icon-url is supplied by the server-side Sass compiler.
+@mixin icon-mask($address, $size: 1em) {
+    content: "";
+    display: inline-block;
+    width: $size;
+    height: $size;
+    background-color: currentColor;
+    $image: $address;
+    @if string.index($address, "var(") != 1 {
+        $image: icon-url($address);
+    }
+    mask: $image center / contain no-repeat;
+    mask-mode: alpha;
+}
+
 @mixin fontawesome($content, $size: $icon-font-size-base, $variant: $icon-font-variant-default) {
     // Copied over from FA's core stylesheet. We don't want to customize the FA core.
     -webkit-font-smoothing: antialiased;
@@ -197,6 +214,15 @@
 		transform: translateY(-50%);
 		z-index: 2;
 	}
+}
+
+// Override the glyph of an alert that already uses alert-icon-box.
+@mixin alert-icon-mask($image) {
+    &:after {
+        @include icon-mask($image, 24px);
+        width: 3rem;
+        mask-size: 24px;
+    }
 }
 
 @mixin active-list-item($size: 4px, $color: theme-color("warning")) {

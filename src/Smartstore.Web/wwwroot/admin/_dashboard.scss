@@ -273,7 +273,7 @@
         color: var(--success);
 
         &:after {
-            @include fontawesome-font("\f077", regular);
+            @include icon-mask(var(--icon-mask-chevron-up), 1rem);
             position: absolute;
         }
 

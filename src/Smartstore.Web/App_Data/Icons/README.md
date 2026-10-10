@@ -1248,3 +1248,27 @@ The styles are stored in prepared payloads and sprites, so inherited variables
 also work through external `use` references. Renderers and client manifest hits
 add `icon-duotone` based on the actual resolved variant, including fallbacks.
 The manifest lists duotone concepts per kit in `duotone`.
+
+### Sass masks
+
+Style bundles provide `icon-url($address)`, which resolves concepts through the same
+kit defaults, source overrides, mappings and fallbacks as `IIconService`. It embeds
+a complete SVG as a data URL; no icon request or kit sprite is required. Mapping
+transforms and stroke scaling are included. Missing icons use the system
+`not-found` drawing; if that is also unavailable, the mask is transparent.
+
+```scss
+.toggle::after {
+    @include icon-mask("chevron-down", .75rem);
+}
+
+.toggle.open::after {
+    mask-image: icon-url("chevron-up");
+}
+```
+
+Masks use `currentColor` on the host and preserve source alpha, but do not offer
+independent layer colors or inherit page CSS variables inside the SVG. RTL mirroring
+must be applied by the consuming stylesheet. Icon changes do not invalidate CSS
+bundles automatically: regenerate the bundle to update embedded SVGs. Existing
+Font Awesome mixins and their consumers remain unchanged during migration.

@@ -87,27 +87,17 @@
             position: absolute;
             inset-inline-end: 1rem;
             top: 50%;
-            // Don't use transform here... the animation will overwrite it.
-            margin-top: calc(var(--ocm-item-font-size) * -0.5);
-            @include fontawesome('\f054', var(--ocm-item-font-size));
+            // Keep centering independent of the spinner's transform animation.
+            translate: 0 -50%;
+            @include icon-mask(var(--icon-mask-chevron-right), 1rem);
             color: var(--gray-700);
-            font-size: 14px;
-            width: var(--ocm-item-font-size);
-            height: var(--ocm-item-font-size);
-            min-height: var(--ocm-item-font-size);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
         }
 
         &.has-children.animating:after {
             animation: fa-spin .6s infinite linear;
-            //margin-top: -9px;
             transform: none;
             transform-origin: center;
-            font-family: fontastic;
-            content: '\e8d3' !important;
+            mask-image: icon-url("spinner");
         }
 
         &.selected:before,
@@ -270,7 +260,7 @@
     }
 
     .openend .menubar-caret:before {
-        content: "\f106";
+        @include icon-mask(var(--icon-mask-chevron-up), 1rem);
     }
 
     .dropdown-menu {

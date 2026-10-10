@@ -44,7 +44,7 @@
         font-size: $font-size-sm;
         word-break: break-word;
         // padding for checkmark
-        padding-inline-start: 17px;
+        padding-inline-start: calc(1rem + 0.25rem);
     }
 
     .select2-item-description {
@@ -55,14 +55,10 @@
     > .select2-option:after {
         position: absolute;
         inset-inline-start: 0;
-        top: 1px;
-        @include fontawesome("\f00c");
-        font-size: 12px;
-        width: 14px;
+        top: 50%;
+        translate: 0 -50%;
+        @include icon-mask(var(--icon-mask-check), 1rem);
         color: $success;
-        text-align: start;
-        width: 18px;
-        line-height: $line-height-base;
         visibility: hidden;
     }
 

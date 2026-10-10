@@ -1,6 +1,8 @@
 #nullable enable
 
 using System.Collections.Frozen;
+using System.Globalization;
+using System.Xml.Linq;
 
 namespace Smartstore.Core.Content.Media.Icons;
 
@@ -61,6 +63,49 @@ public sealed class IconSvg
     /// Gets validated SVG child markup. Contains no outer svg element.
     /// </summary>
     public string Content { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Creates a self-contained SVG image from this payload without changing the cached source.
+    /// </summary>
+    /// <param name="transform">The resolved mapping or address transformation.</param>
+    /// <param name="strokeScale">The resolved stroke multiplier, or one for variants without stroke scaling.</param>
+    public string ToStandaloneSvg(IconTransform transform = default, double strokeScale = 1)
+    {
+        if (!double.IsFinite(strokeScale) || strokeScale <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(strokeScale));
+        }
+
+        var content = strokeScale == 1 ? Content : IconSvgParser.ScaleStrokeWidths(
+            Content, strokeScale.ToString("R", CultureInfo.InvariantCulture));
+        XNamespace ns = "http://www.w3.org/2000/svg";
+        var svg = XElement.Parse("<svg xmlns=\"" + ns + "\">" + content + "</svg>");
+        foreach (var attribute in RootAttributes)
+        {
+            svg.SetAttributeValue(attribute.Key, attribute.Value);
+        }
+        svg.SetAttributeValue("viewBox", ViewBox);
+
+        if (!transform.IsIdentity)
+        {
+            var drawing = svg.Nodes().ToArray();
+            svg.RemoveNodes();
+            var group = new XElement(ns + "g", new XAttribute("transform", transform.ToSvg(ViewBox)));
+            var originalTransform = svg.Attribute("transform");
+            if (originalTransform != null)
+            {
+                group.Add(new XElement(ns + "g", new XAttribute(originalTransform), drawing));
+                originalTransform.Remove();
+            }
+            else
+            {
+                group.Add(drawing);
+            }
+            svg.Add(group);
+        }
+
+        return svg.ToString(SaveOptions.DisableFormatting);
+    }
 
 }
 

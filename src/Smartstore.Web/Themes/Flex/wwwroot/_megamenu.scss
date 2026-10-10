@@ -147,9 +147,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
 
     .dropdown-toggle:after {
         border: none !important;
-        @include fontawesome("\f107", $font-size-base);
-        width: auto;
-        height: auto;
+        @include icon-mask(var(--icon-mask-chevron-down), 1rem);
         vertical-align: middle;
     }
 

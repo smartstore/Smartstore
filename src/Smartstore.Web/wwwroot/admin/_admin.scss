@@ -1137,15 +1137,13 @@ legend {
     cursor: pointer;
 
     &:after {
-        @include fontawesome-font("\f078", regular); // chevron-down
+        @include icon-mask(var(--icon-mask-chevron-down), 1rem);
         display: block;
         position: absolute;
-        font-size: 0.85rem;
-        line-height: 1;
         color: $body-color;
         inset-inline-end: 0;
         top: 50%;
-        margin-top: -7px;
+        translate: 0 -50%;
         transition: transform var(--collapse-duration, .2s) var(--collapse-easing, ease-out);
     }
 
@@ -1390,7 +1388,7 @@ a.editable {
     text-shadow: 0 -1px 0 #fff;
 
     &:not(.icon)::before {
-        content: '\f00c';
+        @include icon-mask(var(--icon-mask-check), 1rem);
     }
 }
 
@@ -1399,7 +1397,7 @@ a.editable {
     text-shadow: 0 -1px 0 #fff;
 
     &:not(.icon)::before {
-        content: '\f068';
+        @include icon-mask("minus", 1rem);
     }
 }
 

@@ -445,7 +445,7 @@
         margin: 0;
 
         &:after {
-            @include fontawesome("\f106");
+            @include icon-mask(var(--icon-mask-chevron-up), 1rem);
             position: absolute;
             inset-inline-end: 0;
             top: 50%;

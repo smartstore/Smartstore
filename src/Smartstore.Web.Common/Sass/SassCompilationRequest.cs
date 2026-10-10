@@ -1,5 +1,6 @@
 #nullable enable
 
+using EmbeddedSass.Functions;
 using Microsoft.Extensions.FileProviders;
 
 namespace Smartstore.Web.Sass;
@@ -28,4 +29,9 @@ public sealed class SassCompilationRequest
     /// Gets whether the compiler should produce compressed CSS.
     /// </summary>
     public bool Minify { get; init; }
+
+    /// <summary>
+    /// Gets custom functions available during this compilation.
+    /// </summary>
+    public IReadOnlyList<ISassFunction> Functions { get; init; } = [];
 }

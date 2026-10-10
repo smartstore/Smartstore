@@ -51,7 +51,14 @@
 }
 
 .alert-success {
-    --alert-icon-content: "\f00c"; // check
+    @if $enable-alert-icons {
+        @include alert-icon-mask(var(--icon-mask-check));
+    }
+    @else {
+        &.alert-iconic {
+            @include alert-icon-mask(var(--icon-mask-check));
+        }
+    }
     @include bg-color-vars(success-bg-subtle);
 }
 

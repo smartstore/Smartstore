@@ -136,7 +136,7 @@
         
     // Make the dropdown arrow point up while the dropdown is visible.
     .select2-selection .select2-selection__arrow b:after {
-        content: '\f077'; // chevron-up
+        mask-image: var(--icon-mask-chevron-up);
     }
     // Handle border radii of the container when the dropdown is showing.
     &.select2-container--below .select2-selection {

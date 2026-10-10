@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Smartstore.Core.Content.Media.Icons;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Theming;
 using Smartstore.Web.Sass;
@@ -27,7 +28,8 @@ public class SassProcessor : BundleProcessor
             {
                 Source = asset.Content,
                 SourcePath = asset.Path,
-                FileProvider = asset.FileProvider
+                FileProvider = asset.FileProvider,
+                Functions = [IconSassFunctions.CreateUrl(context.HttpContext.RequestServices.GetRequiredService<IIconService>())]
             });
 
             context.IncludedFiles.AddRange(result.IncludedFiles);

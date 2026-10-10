@@ -4,11 +4,10 @@
     position: relative;
 
     &:after {
-        @include fontawesome("\f077", $variant: light); // chevron-up
+        @include icon-mask(var(--icon-mask-chevron-up), 1rem);
         position: absolute;
         inset-inline-end: var(--nav-collapsible-padding-x, 1rem);
         top: 50%;
-        font-size: 85%;
         transform: translateY(-50%) rotate(180deg);
         transition: transform var(--collapse-duration, .2s) var(--collapse-easing, ease-out);
     }

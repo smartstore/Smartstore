@@ -202,8 +202,9 @@ $pd-offer-spacing:              math.div($grid-gutter-width, 2);
 
 .pd-review-amount {
     flex-basis: 100%;
-    // Award icon (.fa-award)
-    --alert-icon-content: '\f559';
+    &.alert-iconic {
+        @include alert-icon-mask("award");
+    }
 }
 
 
@@ -450,9 +451,9 @@ $pd-offer-spacing:              math.div($grid-gutter-width, 2);
         text-decoration: none;
     }
     &:after {
-        display: inline-block;
-        @include fontawesome-font("\f067", regular);
-        padding: 0 0.2rem;
+        @include icon-mask(var(--icon-mask-plus), 1rem);
+        margin-inline: 0.2rem;
+        vertical-align: middle;
     }
     &:last-child:after {
         display: none;

@@ -22,13 +22,13 @@
 			position: absolute;
 			inset-inline-end: math.div($dropdown-item-padding-x, 2);
 			top: 50%;
-			transform: translateY(-40%);
+			transform: translateY(-50%);
             color: $gray-500;
-			@include fontawesome("\f054", 10px); // chevron-right
+			@include icon-mask(var(--icon-mask-chevron-right), 1rem);
 
             [dir=rtl] & {
                 // RTL: Swap the icon direction
-                content: '\f053';
+                mask-image: var(--icon-mask-chevron-left);
             }
 		}
 	}
@@ -51,8 +51,9 @@
 // ==============================================================
 
 .dropdown-toggle:after {
-	// better centering
-	vertical-align: 0.175em;
+    @include icon-mask(var(--icon-mask-chevron-down), 1rem);
+    border: 0;
+    vertical-align: middle;
 }
 
 .dropdown-toggle.no-chevron:after {
@@ -184,11 +185,8 @@
     .dropdown-item.checked:after {
         position: absolute;
         inset-inline-end: 8px;
-        display: inline-block;
-        @include fontawesome("\f00c"); // check
+        @include icon-mask(var(--icon-mask-check), 1rem);
         color: var(--success);
-        text-align: start;
-        line-height: $line-height-base;
     }
 }
 

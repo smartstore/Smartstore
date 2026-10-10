@@ -51,7 +51,7 @@
 		.nav-collapsible {
             .nav-toggler {
                 &:after {
-                    content: "\f053"; // chevron-left
+                    mask-image: var(--icon-mask-chevron-left);
                     transform: translateY(-50%) rotate(-90deg);
                 }
                 &.collapsed:after {

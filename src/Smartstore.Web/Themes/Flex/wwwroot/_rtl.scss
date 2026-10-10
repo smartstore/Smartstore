@@ -69,19 +69,24 @@
     // Category Menu
     // -------------
 
-    .catmenu-path-item.expanded,
-    .catmenu-item.parent {
-        &:after {
-            content: "\f053"; // chevron-left
-        }
+    .catmenu-item.parent:after {
+        mask-image: var(--icon-mask-chevron-left);
+    }
+
+    .catmenu-path-item.expanded:after {
+        scale: -1 1;
     }
 
     #offcanvas-menu {
         .menubar-link,
         .ocm-item {
             &.has-children:after {
-                content: "\f104";
+                mask-image: var(--icon-mask-chevron-left);
             }
+        }
+
+        .has-children.animating:after {
+            mask-image: icon-url("spinner");
         }
 
         .layer {
