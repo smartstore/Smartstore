@@ -1,0 +1,160 @@
+@using Smartstore.Core.Content.Media.Icons
+@using Smartstore.Web.Models.Media
+@model IconModel
+@inject IIconBrowser Browser
+@inject IIconService Icons
+@inject IIconKitService Kits
+
+@{
+    var defaultLibraryName = Icons.DefaultLibrary.SystemName;
+    var libraries = (await Icons.GetLibrariesAsync())
+        .Where(x => !x.SystemName.Equals("system", StringComparison.OrdinalIgnoreCase))
+        .OrderBy(x => x.SystemName.Equals(defaultLibraryName, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+        .ThenBy(x => x.DisplayName).ToArray();
+    var kits = Kits.Kits.OrderBy(x => x.Name == "shared" ? 0 : 1).ThenBy(x => x.Name).ToArray();
+    var fieldName = ViewData.TemplateInfo.GetFullHtmlFieldName(nameof(Model.IconAddress));
+    var selectedAddress = ViewData.ModelState.TryGetValue(fieldName, out var state)
+        ? state.AttemptedValue : Model?.IconAddress;
+    var selectedLabel = selectedAddress;
+    var modifierStart = selectedAddress?.IndexOf('?') ?? -1;
+    var addressPart = modifierStart < 0 ? selectedAddress : selectedAddress[..modifierStart];
+    if (IconAddress.TryParse(addressPart, out var parsedAddress))
+    {
+        selectedLabel = parsedAddress.Name;
+    }
+    var initialSource = Browser.GetSource(selectedAddress);
+    var visibleOptions = Model?.VisibleOptions ?? IconOptionFields.None;
+}
+
+<script src="~/admin/js/smartstore.iconbrowser.js" sm-target-zone="scripts" sm-key="iconbrowser"></script>
+
+<div class="icon-browser" data-search-url="@Url.Action("Browse", "Icon", new { area = "" })"
+     data-size-label="@T("Admin.IconBrowser.Size")" data-visible-options="@((int)visibleOptions)">
+    <div class="icon-browser-option-values">
+        @Html.HiddenFor(x => x.Size, new { data_icon_option = "size" })
+        @Html.HiddenFor(x => x.Animation, new { data_icon_option = "animation" })
+        @Html.HiddenFor(x => x.FlipHorizontal, new { data_icon_option = "flip-h" })
+        @Html.HiddenFor(x => x.FlipVertical, new { data_icon_option = "flip-v" })
+        @Html.HiddenFor(x => x.Rotate, new { data_icon_option = "rotate" })
+        @Html.HiddenFor(x => x.StrokeScale, new { data_icon_option = "stroke-scale" })
+    </div>
+    <div class="row gx-2">
+        <div class="col-3 dropdown icon-browser-source-dropdown">
+            <button type="button" class="btn btn-secondary dropdown-toggle btn-block"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="@T("Admin.IconBrowser.SelectSource.Hint")">
+                <span class="text-truncate icon-browser-source-label">@T("Admin.IconBrowser.SelectSource")</span>
+            </button>
+            <div class="dropdown-menu icon-browser-source-menu scrollbar-thin overflow-y-auto">
+                @if (kits.Length > 0)
+                {
+                    <h6 class="dropdown-header">@T("Admin.IconBrowser.Kits")</h6>
+                    @foreach (var kit in kits)
+                    {
+                        var kitLabel = kit.Name.Titleize();
+                        var kitIcon = kit.Icon ?? "box";
+                        <button type="button" class="dropdown-item" data-kit="@kit.Name" data-label="@kitLabel"
+                                data-initial="@(kit.Name == initialSource?.Kit ? "true" : null)" title="@T("Admin.IconBrowser.KitTitle", kitLabel)">
+                            <icon name="@kitIcon" aria-hidden="true" />
+                            <span>@kitLabel</span>
+                            <span class="small text-success fwm pl-3 ml-auto">@kit.Icons.Count.ToString("N0")</span>
+                        </button>
+                    }
+                }
+                @if (libraries.Length > 0)
+                {
+                    <h6 class="dropdown-header @(kits.Length > 0 ? "mt-2" : null)">@T("Admin.IconBrowser.Libraries")</h6>
+                }
+                @foreach (var library in libraries)
+                {
+                    var libraryLabel = library.DisplayName.HasValue() ? library.DisplayName : library.SystemName.Titleize();
+                    @foreach (var variant in library.Variants.Values)
+                    {
+                        var variantLabel = variant.Name.EqualsNoCase("default")
+                            ? null : (variant.DisplayName ?? variant.Name).Titleize();
+                        var variantSuffix = variantLabel.HasValue() ? " " + variantLabel : string.Empty;
+                        var sourceLabel = libraryLabel + variantSuffix;
+                        var buttonLabel = (variantLabel.HasValue() && variant.DisplayName.HasValue() && library.ShortName.HasValue()
+                            ? library.ShortName.ToUpperInvariant() : libraryLabel) + variantSuffix;
+                        var sourceIcon = variant.Icon ?? library.Icon ?? "layers";
+                        <button type="button" class="dropdown-item" data-lib="@library.SystemName" data-variant="@variant.Name"
+                                data-label="@sourceLabel" data-button-label="@buttonLabel" title="@T("Admin.IconBrowser.LibraryTitle", sourceLabel)"
+                                data-initial="@(initialSource?.Kit == null && library.SystemName == initialSource?.Library && variant.Name == initialSource?.Variant ? "true" : null)">
+                            <icon name="@sourceIcon" aria-hidden="true" />
+                            <span>@sourceLabel</span>
+                            <span class="small text-success fwm pl-3 ml-auto">@Icons.GetIconCount(library.SystemName, variant.Name).ToString("N0")</span>
+                        </button>
+                    }
+                }
+            </div>
+        </div>
+        <div class="col-9">
+            <div class="icon-browser-selection">
+                <select id="@Html.IdFor(x => x.IconAddress)" name="@fieldName"
+                        class="form-control icon-browser-select noskin" aria-label="@T("Admin.IconBrowser.Icon")"
+                        data-placeholder="@T("Admin.IconBrowser.Search")">
+                    <option></option>
+                    @if (selectedAddress.HasValue())
+                    {
+                        <option value="@selectedAddress" selected>@selectedLabel</option>
+                    }
+                </select>
+                @if (visibleOptions != IconOptionFields.None)
+                {
+                    @* Visual prototype: option actions and popovers will be implemented separately. *@
+                    <div class="icon-browser-toolbar d-inline-flex align-items-center align-self-center flex-shrink-0 order-1 ml-auto d-none" role="group" aria-label="@T("Admin.IconBrowser.Options")">
+                        @if (visibleOptions.HasFlag(IconOptionFields.Flip))
+                        {
+                            <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron"
+                                    data-option="flip-h" title="Flip horizontally" aria-label="Flip horizontally" aria-disabled="true" aria-pressed="false">
+                                <icon name="flip-h" aria-hidden="true" />
+                            </button>
+                        }
+                        @if (visibleOptions.HasFlag(IconOptionFields.Flip))
+                        {
+                            <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron"
+                                    data-option="flip-v" title="Flip vertically" aria-label="Flip vertically" aria-disabled="true" aria-pressed="false">
+                                <icon name="flip-v" aria-hidden="true" />
+                            </button>
+                        }
+                        @if (visibleOptions.HasFlag(IconOptionFields.Rotate))
+                        {
+                            <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron dropdown-toggle"
+                                    data-option="rotate" title="Rotation" aria-label="Rotation" aria-disabled="true">
+                                <icon name="rotate" aria-hidden="true" />
+                            </button>
+                        }
+                        @if (visibleOptions.HasFlag(IconOptionFields.Size))
+                        {
+                            <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron dropdown-toggle" data-overflow="true"
+                                    data-option="size" title="Size" aria-label="Size" aria-disabled="true">
+                                <icon name="upscale" aria-hidden="true" />
+                            </button>
+                        }
+                        @if (visibleOptions.HasFlag(IconOptionFields.Animation))
+                        {
+                            <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron dropdown-toggle" data-overflow="true"
+                                    data-option="animation" title="Animation" aria-label="Animation" aria-disabled="true">
+                                <icon name="animation" aria-hidden="true" />
+                            </button>
+                        }
+                        @if (visibleOptions.HasFlag(IconOptionFields.StrokeScale))
+                        {
+                            <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron dropdown-toggle" data-overflow="true"
+                                    data-option="stroke-scale" title="Stroke width" aria-label="Stroke width" aria-disabled="true">
+                                <icon name="bi:distribute-vertical" aria-hidden="true" />
+                            </button>
+                        }
+                        @if ((visibleOptions & (IconOptionFields.Size | IconOptionFields.Animation | IconOptionFields.StrokeScale)) != IconOptionFields.None)
+                        {
+                            <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron" data-more="true"
+                                    title="More options" aria-label="More options" aria-disabled="true">
+                                <icon name="@("hi:more-horizontal!@sr")" aria-hidden="true" />
+                            </button>
+                        }
+                    </div>
+                }
+            </div>
+            @Html.ValidationMessageFor(x => x.IconAddress)
+        </div>
+    </div>
+</div>

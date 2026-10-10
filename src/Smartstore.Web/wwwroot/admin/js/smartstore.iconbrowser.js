@@ -10,10 +10,44 @@
             root.data('iconBrowser', true);
             const select = root.find('.icon-browser-select');
             const button = root.find('.icon-browser-source-dropdown > button');
+            const optionFields = root.find('[data-icon-option]');
+            const toolbar = root.find('.icon-browser-toolbar');
+            let selectedAddress = select.val() || '';
             const pending = new Set();
+
+            function updateToolbarState() {
+                let overflowChanged = false;
+                toolbar.find('[data-option]').each(function () {
+                    const field = optionFields.toArray().find(field => field.dataset.iconOption === this.dataset.option);
+                    const changed = field && field.value !== '';
+                    const active = changed && (!this.dataset.option.startsWith('flip-') || field.value.toLowerCase() === 'true');
+                    $(this).toggleClass('active', !!active);
+                    if (this.hasAttribute('aria-pressed')) this.setAttribute('aria-pressed', active ? 'true' : 'false');
+                    if (changed && this.hasAttribute('data-overflow')) overflowChanged = true;
+                });
+                toolbar.find('[data-more]').toggleClass('active', overflowChanged);
+            }
+
+            function applyPreviewOptions(icon) {
+                for (const field of optionFields) {
+                    const option = field.dataset.iconOption;
+                    // Keep the picker stable; size and animation belong to a separate options preview.
+                    if (field.value === '' || option === 'size' || option === 'animation') continue;
+                    let value = field.value;
+                    if (option.startsWith('flip-')) value = value.toLowerCase();
+                    // Hidden MVC decimal values follow the form culture; SVG queries use a decimal point.
+                    if (option === 'stroke-scale') value = value.replace(',', '.');
+                    icon.setAttribute(option, value);
+                }
+            }
+            updateToolbarState();
             let source, generation = 0, firstPage;
 
             function request(term, page, success, failure) {
+                if (!source) {
+                    queueMicrotask(() => success({ results: [], pagination: { more: false } }));
+                    return { abort() {} };
+                }
                 const version = generation;
                 const xhr = $.ajax({
                     url: root.data('search-url'), global: false, dataType: 'json',
@@ -36,21 +70,26 @@
                 const row = document.createElement('span');
                 row.className = isResult
                     ? 'icon-browser-choice d-flex flex-column align-items-center justify-content-center gap-1'
-                    : 'select2-option w-100';
+                    : 'select2-option w-100 align-items-center';
                 let icon;
-                if (item.inlineName) {
-                    // Only mapping stroke multipliers need the shared component's inline fallback.
+                if (!isResult || item.inlineName) {
+                    // The selection renders its original address and persisted overrides;
+                    // result tiles retain the shared sprite optimization.
                     icon = document.createElement('sm-icon');
-                    icon.setAttribute('name', item.inlineName);
+                    icon.setAttribute('name', isResult ? item.inlineName : item.id);
+                    if (!isResult) applyPreviewOptions(icon);
                 } else {
                     icon = document.createElementNS(ns, 'svg');
                     const use = document.createElementNS(ns, 'use');
                     use.setAttribute('href', item.spriteUrl + '#' + encodeURIComponent(item.text));
                     icon.append(use);
                 }
-                icon.setAttribute('class', `icon icon-${item.library} icon-${item.library}-${item.variant}`);
+                icon.setAttribute('class', 'icon');
+                if (isResult && item.library && item.variant) {
+                    icon.classList.add(`icon-${item.library}`, `icon-${item.library}-${item.variant}`);
+                }
                 if (!isResult) icon.classList.add('icon-fw', 'mr-2');
-                icon.setAttribute('data-icon', item.address);
+                if (isResult && item.address) icon.setAttribute('data-icon', item.address);
                 icon.setAttribute('aria-hidden', 'true');
                 const label = document.createElement('span');
                 label.className = isResult ? 'text-truncate w-100 fs-xs lh-sm text-center' : 'text-truncate';
@@ -67,7 +106,33 @@
                 return $(row);
             }
 
+            // Decorate the regular single selection so the toolbar survives Select2 updates.
+            // Keep the standard placeholder, clear button and relayed selection events.
+            const amd = $.fn.select2.amd;
+            const utils = amd.require('select2/utils');
+            let selectionAdapter = amd.require('select2/selection/single');
+            for (const decorator of ['placeholder', 'allowClear', 'eventRelay']) {
+                selectionAdapter = utils.Decorate(selectionAdapter, amd.require('select2/selection/' + decorator));
+            }
+            function ToolbarSelection() {}
+            ToolbarSelection.prototype.update = function (decorated, data) {
+                toolbar.detach();
+                decorated.call(this, data);
+                if (toolbar.length) {
+                    this.$selection.addClass('icon-browser-selection-with-tools d-flex align-items-center');
+                    this.$selection.find('.select2-selection__clear').addClass('flex-shrink-0 ml-2');
+                    this.$selection.find('.select2-selection__rendered').addClass('w-100').append(toolbar.removeClass('d-none'));
+                }
+            };
+            selectionAdapter = utils.Decorate(selectionAdapter, ToolbarSelection);
+            toolbar.on('mousedown click dblclick', event => event.stopPropagation());
+            toolbar.on('keydown', event => {
+                event.stopPropagation();
+                if (event.key === 'Enter' || event.key === ' ') event.preventDefault();
+            });
+
             select.select2({
+                selectionAdapter,
                 width: '100%', allowClear: true, minimumInputLength: 0, minimumResultsForSearch: 0,
                 placeholder: select.data('placeholder'),
                 dropdownCssClass: 'icon-browser-dropdown',
@@ -91,6 +156,20 @@
                     },
                     processResults: data => data
                 }
+            });
+
+            select.on('change.iconBrowser', function () {
+                const address = select.val() || '';
+                if (address === selectedAddress) return;
+                selectedAddress = address;
+                // Reset even options whose controls are hidden. Null restores mapping defaults.
+                optionFields.val('');
+                updateToolbarState();
+                select.trigger('change.select2');
+            });
+            optionFields.on('change.iconBrowser', function () {
+                updateToolbarState();
+                select.trigger('change.select2');
             });
 
             // Select2 detaches its dropdown from the picker. Keep the size variable and
@@ -119,7 +198,8 @@
                 pending.clear();
                 firstPage = null;
                 select.select2('close');
-                select.empty().append(new Option('', '')).val(null).prop('disabled', true).trigger('change');
+                // Browsing another source never changes the bound selection or its options.
+                open = open && !select.val();
                 source = option.dataset.kit ? { kit: option.dataset.kit }
                     : { lib: option.dataset.lib, variant: option.dataset.variant };
                 const label = option.dataset.label;
@@ -133,11 +213,9 @@
                 request('', 1, data => {
                     firstPage = data;
                     root.attr('aria-busy', 'false');
-                    select.prop('disabled', false);
-                    // Select2 observes the disabled attribute asynchronously. Open only
-                    // after that observer has applied the new enabled state.
+                    // Do not interrupt a selection made while this source was loading.
                     if (open) queueMicrotask(() => {
-                        if (version === generation) select.select2('open');
+                        if (version === generation && !select.val()) select.select2('open');
                     });
                 }, () => {
                     root.attr('aria-busy', 'false');
@@ -145,7 +223,7 @@
             }
 
             root.on('click', '.icon-browser-source-menu .dropdown-item', function () { choose(this, true); });
-            const initial = root.find('[data-initial="true"]')[0] || root.find('.dropdown-item')[0];
+            const initial = root.find('[data-initial="true"]')[0];
             if (initial) choose(initial, false);
         });
     };

@@ -10,7 +10,7 @@
     <div class="section-header">
         <div class="title">
             <a sm-backto asp-action="List"></a>
-            <icon name="envelope" />
+            <icon name="mail" />
             <span>@ViewBag.Title</span>
         </div>
         <div class="options">
@@ -28,7 +28,7 @@
             @if (Model.SendManually)
             {
                 <button type="submit" name="sendnow" value="sendnow" class="btn btn-primary confirm">
-                    <icon name="envelope" />
+                    <icon name="mail" />
                     <span>@T("Admin.Common.SendNow")</span>
                 </button>
             }

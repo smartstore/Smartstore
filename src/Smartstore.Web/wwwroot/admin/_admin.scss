@@ -1719,6 +1719,50 @@ a.editable {
 // Icon browser
 // --------------------------------------------------------------
 
+.icon-browser-selection {
+    min-width: 0;
+    container-type: inline-size;
+}
+
+.icon-browser-selection-with-tools {
+    .select2-selection__rendered {
+        overflow: visible;
+    }
+
+    .select2-option,
+    .select2-selection__placeholder {
+        flex: 1 1 0;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+.icon-browser-toolbar {
+    gap: 2px;
+
+    > .btn {
+        --btn-height: 26px;
+        --btn-font-size: 0.875rem;
+        --btn-color: var(--gray-650);
+        --btn-box-shadow: none;
+        --btn-hover-shadow: none;
+        --btn-active-shadow: none;
+        --btn-focus-box-shadow: none;
+    }
+
+    [data-more] {
+        display: none;
+    }
+}
+
+@container (max-width: 360px) {
+    .icon-browser-toolbar {
+        [data-overflow] { display: none; }
+        [data-more] { display: inline-flex; }
+    }
+}
+
 .icon-browser-source-menu {
     max-height: min(32rem, 70vh);
 }

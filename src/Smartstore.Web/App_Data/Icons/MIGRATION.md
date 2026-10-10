@@ -13,7 +13,7 @@ corrected mappings, presentation rules, exceptions and helper replacements.
 Preserve reviewed decisions when importing new library versions. Do not regenerate
 this document blindly or treat a temporary comparison page as its source of truth.
 
-- `hugeicons/mapping.json` is authoritative for current concept-to-HI targets.
+- `hugeicons/mapping.json` defines concept-to-HI targets; `kits.json` defines concrete cross-library overrides.
 - This file preserves the legacy FA/BI-to-concept relationships needed by integrators.
 - When a concept or HI assignment changes, update every affected table row here.
 - Record uncertain visual approximations and exceptions instead of implying exact equivalence.
@@ -22,12 +22,12 @@ this document blindly or treat a temporary comparison page as its source of trut
 ## Use concepts in application code
 
 The first column lists existing FA CSS classes or BI names. The second column gives
-the actual HI target, and the third gives the concept to use with the new API. Multiple source
+the current target (HI name or qualified source address), and the third gives the concept to use with the new API. Multiple source
 styles or aliases in a cell share the same destination. Repeated concept names
 across the FA and BI tables are intentional.
 
 Prefer the **concept** in views and plugins so a configured library can supply its
-own mapping. The HI target documents the current default artwork; do not hard-code
+own mapping. The target documents the current default artwork; do not hard-code
 it unless that specific library and drawing are intentional.
 
 ```cshtml
@@ -105,40 +105,40 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 
 ## Font Awesome to HugeIcons
 
-| Source FA icon classes | HI target | Concept |
+| Source FA icon classes | Target | Concept |
 | --- | --- | --- |
 | `fal fa-address-book` | `address-book` | `address-book` |
 | `fa fa-exclamation-circle` | `alert-circle` | `alert-circle` |
 | `fa fa-arrow-down` | `arrow-down-02` | `arrow-down` |
-| `far fa-circle-down` | `circle-arrow-down-01` | `arrow-down-circle` |
+| `far fa-circle-down` | `circle-arrow-down-02` | `arrow-down-circle` |
 | `fa fa-arrow-left` | `arrow-left-02` | `arrow-left` |
 | `fas fa-arrow-right` | `arrow-right-02` | `arrow-right` |
 | `fa fa-turn-up` | `arrow-turn-up` | `arrow-turn-up` |
 | `fa fa-arrow-up` | `arrow-up-02` | `arrow-up` |
-| `far fa-circle-up` | `circle-arrow-up-01` | `arrow-up-circle` |
+| `far fa-circle-up` | `circle-arrow-up-02` | `arrow-up-circle` |
 | `fa fa-award` | `star-award-01` | `award` |
 | `fa fa-ban`<br>`far fa-ban`<br>`fas fa-ban` | `ban` | `ban` |
-| `far fa-chart-bar` | `chart-column` | `bar-chart` |
-| `fa fa-barcode` | `barcode` | `barcode` |
-| `fa fa-bars`<br>`fas fa-bars` | `menu-09` | `bars` |
-| `far fa-bars-staggered` | `menu-02` | `bars-staggered` |
+| `far fa-chart-bar` | `chart-bar-increasing` | `chart-bar` |
+| `fa fa-barcode` | `bar-code-01` | `barcode` |
+| `fa fa-bars`<br>`fas fa-bars` | `menu-01` | `bars` |
+| `far fa-bars-staggered` | `menu-03` | `bars-staggered` |
 | `fa fa-shopping-basket` | `shopping-basket-01` | `basket` |
 | `fal fa-bell`<br>`far fa-bell`<br>`fas fa-bell` | `bell` | `bell` |
 | `fa fa-blog` | `rss`<br>Approximation: HI RSS omits the pen. | `blog` |
-| `fa fa-bold` | `text-bold` | `bold` |
+| `fa fa-bold` | `bold` | `bold` |
 | `fa fa-bolt`<br>`far fa-bolt` | `zap` | `bolt` |
-| `fa fa-book` | `book-01` | `book` |
+| `fa fa-book` | `book-02` | `book` |
 | `fas fa-box-open` | `package-open` | `box-open` |
 | `fal fa-brackets-curly` | `braces` | `braces` |
 | `far fa-building` | `building-03` | `building` |
 | `fa fa-calendar`<br>`far fa-calendar`<br>`far fa-calendar-days` | `calendar-03` | `calendar` |
 | `far fa-calendar-check` | `calendar-check` | `calendar-check` |
-| `fa fa-caret-down` | `arrow-down-01`<br>Approximation: HI uses a chevron instead of a filled triangle. | `caret-down` |
+| `fa fa-caret-down` | `chevron-down`<br>Approximation: HI uses a chevron instead of a filled triangle. | `caret-down` |
 | `fa fa-shopping-cart`<br>`fal fa-shopping-cart`<br>`far fa-shopping-cart` | `shopping-cart-02` | `cart` |
 | `fa fa-cart-arrow-down` | `shopping-cart-add-02` | `cart-add` |
 | `fal fa-certificate`<br>`far fa-certificate` | `certificate-01` | `certificate` |
 | `fa fa-check`<br>`far fa-check`<br>`fas fa-check` | `check?stroke-scale=1.5` | `check` |
-| `fa fa-check-double` | `tick-double-02` | `check-double` |
+| `fa fa-check-double` | `check-check` | `check-double` |
 | `fa fa-angle-down`<br>`fal fa-angle-down`<br>`fas fa-angle-down`<br>`fa fa-chevron-down`<br>`fas fa-chevron-down` | `chevron-down` | `chevron-down` |
 | `fa fa-angle-left`<br>`fa fa-chevron-left`<br>`far fa-chevron-left` | `chevron-left` | `chevron-left` |
 | `fa fa-angle-right`<br>`fa fa-chevron-right`<br>`far fa-chevron-right`<br>`fas fa-chevron-right` | `chevron-right` | `chevron-right` |
@@ -148,11 +148,11 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 | `fa fa-angles-right` | `arrow-right-double` | `chevrons-right` |
 | `fa fa-angle-double-up` | `arrow-up-double` | `chevrons-up` |
 | `fa fa-circle`<br>`fas fa-circle` | `circle` | `circle` |
-| `fa fa-clipboard`<br>`far fa-clipboard` | `clipboard` | `clipboard` |
+| `fa fa-clipboard`<br>`far fa-clipboard` | `clipboard-check` | `clipboard` |
 | `fa fa-clock`<br>`far fa-clock` | `clock-04` | `clock` |
 | `fa fa-times`<br>`fal fa-times`<br>`fas fa-times`<br>`fa fa-xmark` | `cancel-01` | `close` |
 | `fas fa-cloud-arrow-up` | `cloud-upload` | `cloud-upload` |
-| `fa fa-code` | `code` | `code` |
+| `fa fa-code` | `code-xml` | `code-xml` |
 | `far fa-comment-dots` | `message-02` | `comment` |
 | `fa fa-comments` | `message-multiple-01` | `comments` |
 | `fas fa-adjust` | `contrast` | `contrast` |
@@ -164,15 +164,15 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 | `fa fa-phone-laptop` | `computer-phone-sync` | `devices` |
 | `fa fa-save` | `floppy-disk` | `disk` |
 | `fa fa-download`<br>`fal fa-download` | `download-01` | `download` |
-| `far fa-droplet-slash` | `droplet-off` | `droplet-slash` |
+| `far fa-droplet-slash` | `droplet-off` | `droplet-off` |
 | `fa fa-edit`<br>`far fa-edit` | `pencil-edit-02` | `edit` |
 | `fa fa-ellipsis`<br>`fa fa-ellipsis-h` | `ellipsis` | `ellipsis` |
-| `fa fa-ellipsis-v` | `more-vertical` | `ellipsis-vertical` |
-| `fa fa-envelope`<br>`fal fa-envelope`<br>`far fa-envelope`<br>`fas fa-envelope` | `mail-01` | `envelope` |
-| `fal fa-envelope-open-text` | `mail-open-01` | `envelope-open-text` |
+| `fa fa-ellipsis-v` | `ellipsis-vertical` | `ellipsis-v` |
+| `fa fa-envelope`<br>`fal fa-envelope`<br>`far fa-envelope`<br>`fas fa-envelope` | `mail-01` | `mail` |
+| `fal fa-envelope-open-text` | `mail-open` | `mail-open-text` |
 | `fas fa-euro-sign` | `euro` | `euro` |
 | `fa fa-right-left` | `arrow-left-right` | `exchange` |
-| `fa fa-exclamation` | `alert-01` | `exclamation` |
+| `fa fa-exclamation` | `bi:exclamation-lg` | `exclamation` |
 | `fa fa-up-right-from-square` | `link-square-01` | `external-link` |
 | `fa fa-eye`<br>`fal fa-eye`<br>`far fa-eye` | `view` | `eye` |
 | `fa fa-eye-slash`<br>`far fa-eye-slash` | `view-off-slash` | `eye-off` |
@@ -199,17 +199,17 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 | `fa fa-cog`<br>`fal fa-cog`<br>`far fa-cog` | `settings-01` | `gear` |
 | `fa fa-gift`<br>`fa fa-gifts` | `gift` | `gift` |
 | `fab fa-github` | `github` | `github` |
-| `fa fa-globe`<br>`far fa-globe` | `globe` | `globe` |
+| `fa fa-globe`<br>`far fa-globe` | `globe-02` | `globe` |
 | `fab fa-google` | `google` | `google` |
-| `fa fa-th` | `grid` | `grid` |
+| `fa fa-th` | `dialpad-square-01` | `grid` |
 | `fa fa-th-large` | `grid-view` | `grid-large` |
 | `fa fa-grip` | `grip` | `grip` |
-| `fas fa-grip-vertical` | `grip-vertical` | `grip-vertical` |
+| `fas fa-grip-vertical` | `grip-vertical` | `grip-v` |
 | `far fa-hammer` | `hammer` | `hammer` |
-| `fa fa-dolly` | `delivery-truck-01`<br>Approximation: truck candidate; a hand truck is still needed. | `hand-truck` |
+| `fa fa-dolly` | `folder-transfer` | `folder-transfer` |
 | `fal fa-heart` | `favourite` | `heart` |
-| `fa fa-home` | `home-02` | `home` |
-| `fa fa-hourglass-start` | `hourglass` | `hourglass` |
+| `fa fa-home` | `home-05` | `home` |
+| `fa fa-hourglass-start` | `loading-01` | `hourglass` |
 | `fab fa-html5` | `html-5` | `html5` |
 | `fa fa-image`<br>`far fa-image` | `image-02` | `image` |
 | `fa fa-inbox` | `inbox` | `inbox` |
@@ -218,7 +218,7 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 | `fab fa-instagram` | `instagram` | `instagram` |
 | `fa fa-italic` | `text-italic` | `italic` |
 | `fa fa-key` | `key-01` | `key` |
-| `fa fa-language` | `language-circle` | `language` |
+| `fa fa-language` | `languages` | `language` |
 | `far fa-laptop`<br>`fas fa-laptop` | `laptop` | `laptop` |
 | `far fa-layer-group` | `layers-01` | `layers` |
 | `fa fa-link`<br>`fal fa-link` | `link` | `link` |
@@ -230,33 +230,33 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 | `fa fa-lock-open` | `lock-open` | `lock-open` |
 | `fa fa-right-to-bracket` | `login-02` | `login` |
 | `fal fa-right-from-bracket`<br>`fas fa-right-from-bracket` | `logout-02` | `logout` |
-| `fa fa-wand-magic-sparkles` | `magic-wand-01` | `magic-wand` |
+| `fa fa-wand-magic-sparkles` | `magic-wand-04` | `sparkles` |
 | `fa fa-mail-forward` | `mail-send-01` | `mail-forward` |
-| `fa fa-expand` | `expand` | `maximize` |
-| `fa fa-bullhorn` | `megaphone-01` | `megaphone` |
-| `fa fa-compress` | `arrow-shrink` | `minimize` |
-| `fa fa-minus` | `minus` | `minus` |
+| `fa fa-expand` | `full-screen` | `maximize` |
+| `fa fa-bullhorn` | `megaphone-02` | `megaphone` |
+| `fa fa-compress` | `minimize` | `minimize` |
+| `fa fa-minus` | `minus?stroke-scale=1.5` | `minus` |
 | `far fa-mobile-alt`<br>`fa fa-mobile-screen-button` | `smart-phone-01` | `mobile` |
-| `far fa-money-bill-1` | `money-01` | `money` |
+| `far fa-money-bill-1` | `hand-coins` | `money` |
 | `fa fa-desktop`<br>`far fa-desktop`<br>`fa fa-display` | `computer` | `monitor` |
 | `fa fa-up-down-left-right` | `arrow-all-direction` | `move` |
 | `far fa-newspaper` | `newspaper` | `newspaper` |
 | `fa fa-fill-drip`<br>`fas fa-fill-drip` | `paint-bucket` | `paint-bucket` |
-| `fa fa-paint-brush`<br>`fa fa-paintbrush` | `paint-brush-01` | `paintbrush` |
+| `fa fa-paint-brush`<br>`fa fa-paintbrush` | `brush` | `paint-brush` |
 | `fa fa-paperclip` | `paperclip` | `paperclip` |
 | `fa fa-pause` | `pause` | `pause` |
 | `far fa-pause-circle` | `pause-circle` | `pause-circle` |
-| `fa fa-pencil`<br>`fas fa-pencil` | `edit-02` | `pencil` |
-| `fal fa-phone`<br>`fas fa-phone-flip` | `call` | `phone` |
-| `fa fa-eye-dropper` | `pipette` | `pipette` |
+| `fa fa-pencil`<br>`fas fa-pencil` | `edit-02` | `pen` |
+| `fal fa-phone`<br>`fas fa-phone-flip` | `bi:telephone` | `phone` |
+| `fa fa-eye-dropper` | `dropper` | `dropper` |
 | `fa fa-caret-right`<br>`fa fa-play` | `play` | `play` |
-| `far fa-play-circle` | `play-circle` | `play-circle` |
+| `far fa-play-circle` | `play-circle-02` | `play-circle` |
 | `fa fa-plus` | `plus?stroke-scale=1.5` | `plus` |
-| `fa fa-plus-circle` | `add-circle` | `plus-circle` |
+| `fa fa-plus-circle` | `bi:plus-circle` | `plus-circle` |
 | `fa fa-plus-square`<br>`fal fa-plus-square` | `add-square` | `plus-square` |
 | `fa fa-power-off` | `power` | `power` |
 | `fa fa-print` | `printer` | `printer` |
-| `fa fa-puzzle-piece` | `puzzle` | `puzzle-piece` |
+| `fa fa-puzzle-piece` | `puzzle` | `puzzle` |
 | `fa fa-question`<br>`fas fa-question` | `chat-question` | `question` |
 | `fa fa-circle-question`<br>`far fa-circle-question`<br>`fa fa-question-circle`<br>`far fa-question-circle`<br>`fas fa-question-circle` | `circle-question-mark` | `question-circle` |
 | `fa fa-quote-left` | `quote` | `quotes` |
@@ -266,21 +266,21 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 | `fa fa-retweet` | `repeat` | `repeat` |
 | `fa fa-reply` | `reply` | `reply` |
 | `fa fa-reply-all`<br>`fal fa-reply-all` | `reply-all` | `reply-all` |
-| `fa fa-robot` | `bot` | `robot` |
-| `fas fa-rotate-left` | `rotate-left-01` | `rotate-left` |
-| `fa fa-rotate-right` | `rotate-right-01` | `rotate-right` |
+| `fa fa-robot` | `robotic` | `robot` |
+| `fas fa-rotate-left` | `rotate-ccw-square` | `rotate-left` |
+| `fa fa-rotate-right` | `rotate-cw-square` | `rotate-right` |
 | `fa fa-rss` | `rss` | `rss` |
 | `fas fa-ruler-combined` | `ruler` | `ruler` |
-| `fas fa-balance-scale` | `balance-scale` | `scales` |
-| `fa fa-cut` | `scissor` | `scissors` |
+| `fas fa-balance-scale` | `balance-scale` | `balance` |
+| `fa fa-cut` | `scissors` | `cut` |
 | `fa fa-magnifying-glass`<br>`fa fa-search`<br>`far fa-search` | `search-01` | `search` |
 | `fa fa-paper-plane`<br>`far fa-paper-plane`<br>`fa fa-send` | `sent` | `send` |
-| `fa fa-cogs` | `settings-02` | `settings-multiple` |
+| `fa fa-cogs` | `gears` | `gears` |
 | `fa fa-share`<br>`far fa-share` | `share-01` | `share` |
 | `far fa-share-square` | `share-01` | `share-square` |
 | `fas fa-shield-halved` | `shield-half` | `shield-half` |
-| `fa fa-signal` | `signal` | `signal` |
-| `fa fa-sitemap` | `hierarchy-square-02` | `sitemap` |
+| `fa fa-signal` | `signal-full-02` | `signal` |
+| `fa fa-sitemap` | `bi:diagram-3` | `sitemap` |
 | `fa fa-sliders-h` | `sliders-horizontal` | `sliders` |
 | `fa fa-spinner`<br>`fas fa-spinner` | `loader-circle` | `spinner` |
 | `far fa-square`<br>`fa fa-stop`<br>`fas fa-stop` | `square` | `square` |
@@ -289,7 +289,7 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 | `far fa-tablet-alt`<br>`fa fa-tablet-screen-button`<br>`far fa-tablet-screen-button`<br>`fas fa-tablet-screen-button` | `tablet-02` | `tablet` |
 | `fas fa-tag` | `tag-01` | `tag` |
 | `fa fa-tags`<br>`fad fa-tags` | `tags` | `tags` |
-| `fa fa-tasks` | `task-01` | `tasks` |
+| `fa fa-tasks` | `clipboard-list` | `tasks` |
 | `fa fa-thumbs-down` | `thumbs-down` | `thumbs-down` |
 | `fa fa-thumbs-up` | `thumbs-up` | `thumbs-up` |
 | `fa fa-delete`<br>`far fa-trash`<br>`far fa-trash-alt`<br>`fa fa-trash-can`<br>`fal fa-trash-can`<br>`far fa-trash-can` | `delete-02` | `trash` |
@@ -302,18 +302,18 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 | `fa fa-undo` | `undo-02` | `undo` |
 | `fa fa-unlink`<br>`fas fa-unlink` | `link-off` | `unlink` |
 | `fa fa-unlock-keyhole`<br>`fal fa-unlock-keyhole` | `lock-keyhole-open` | `unlock` |
-| `fa fa-arrow-up-from-bracket`<br>`fa fa-upload`<br>`far fa-upload` | `upload-02` | `upload` |
+| `fa fa-arrow-up-from-bracket`<br>`fa fa-upload`<br>`far fa-upload` | `upload-01` | `upload` |
 | `fa fa-user`<br>`fal fa-user` | `user-02` | `user` |
-| `fa fa-user-plus` | `user-plus` | `user-add` |
+| `fa fa-user-plus` | `user-add-01` | `user-add` |
 | `fa fa-user-check` | `user-check-01` | `user-check` |
 | `fal fa-user-circle`<br>`fas fa-user-circle` | `user-circle` | `user-circle` |
 | `far fa-user-edit` | `user-edit-01` | `user-edit` |
 | `fa fa-user-secret` | `incognito` | `user-secret` |
 | `fa fa-user-shield` | `user-shield-01` | `user-shield` |
-| `fa fa-group`<br>`fa fa-users` | `user-group` | `users` |
+| `fa fa-group`<br>`fa fa-users` | `user-group-02` | `user-group` |
 | `fa fa-wallet` | `wallet-01` | `wallet` |
 | `fa fa-exclamation-triangle`<br>`fa fa-triangle-exclamation`<br>`fa fa-warning` | `alert-02` | `warning` |
-| `far fa-window-restore` | `copy-01`<br>Approximation: overlapping sheets instead of window frames. | `windows` |
+| `far fa-window-restore` | `browser` | `browser` |
 | `fa fa-wrench` | `wrench-01` | `wrench` |
 | `fab fa-youtube` | `youtube` | `youtube` |
 
@@ -325,31 +325,31 @@ single `default` variant, including both terminal `-fill` and interior `-fill-` 
 Use `bi:alarm-fill@default`, for example. The former synthetic `light` and `solid`
 variants no longer exist. See the [BI import recipe](bootstrap/README.md).
 
-| Source BI icon name | HI target | Concept |
+| Source BI icon name | Target | Concept |
 | --- | --- | --- |
 | `archive` | `archive-02` | `archive` |
 | `arrow-90deg-up` | `arrow-turn-up` | `arrow-turn-up` |
 | `arrow-up-short` | `arrow-up-02` | `arrow-up` |
 | `aspect-ratio` | `aspect-ratio` | `aspect-ratio` |
-| `bar-chart-line` | `chart-column` | `bar-chart` |
+| `bar-chart-line` | `chart-bar-increasing` | `chart-bar` |
 | `lightning` | `zap` | `bolt` |
-| `box` | `package-01` | `box` |
-| `boxes` | `package-03` | `boxes` |
-| `braces-asterisk` | `source-code`<br>Approximation: code symbol; asterisk detail is missing. | `braces-asterisk` |
+| `box` | `bi:box!` | `box` |
+| `boxes` | `boxes` | `boxes` |
+| `braces-asterisk` | `bi:braces-asterisk` | `braces-asterisk` |
 | `building` | `building-03` | `building` |
-| `camera-video` | `camera-video` | `camera-video` |
-| `cart-check` | `shopping-cart-check-01` | `cart-check` |
+| `camera-video` | `video-02` | `camera-video` |
+| `cart-check` | `shopping-cart-check-02` | `cart-check` |
 | `check`<br>`check-lg` | `check?stroke-scale=1.5` | `check` |
 | `chevron-left` | `chevron-left` | `chevron-left` |
 | `chevron-right` | `chevron-right` | `chevron-right` |
 | `chevron-double-left` | `arrow-left-double` | `chevrons-left` |
 | `chevron-double-right` | `arrow-right-double` | `chevrons-right` |
 | `circle-fill` | `circle` | `circle` |
-| `clipboard` | `clipboard` | `clipboard` |
+| `clipboard` | `clipboard-check` | `clipboard` |
 | `clock` | `clock-04` | `clock` |
 | `x`<br>`x-lg` | `cancel-01` | `close` |
 | `x-circle` | `cancel-circle` | `close-circle` |
-| `columns-gap` | `layout-01` | `columns` |
+| `columns-gap` | `layout-dashboard` | `dashboard` |
 | `chat-dots` | `message-02` | `comment` |
 | `chat-square-text`<br>`chat-square-text-fill` | `message-square-text` | `comment-text` |
 | `copy` | `copy-02` | `copy` |
@@ -361,84 +361,84 @@ variants no longer exist. See the [BI import recipe](bootstrap/README.md).
 | `download` | `download-01` | `download` |
 | `pencil-square` | `pencil-edit-02` | `edit` |
 | `three-dots` | `ellipsis` | `ellipsis` |
-| `envelope` | `mail-01` | `envelope` |
-| `envelope-open-heart` | `mail-open-love` | `envelope-heart` |
-| `envelope-paper` | `mail-open-01` | `envelope-open` |
+| `envelope` | `mail-01` | `mail` |
+| `envelope-open-heart` | `mail-open-love` | `mail-heart` |
+| `envelope-paper` | `mail-open-01` | `mail-open` |
 | `eraser` | `eraser` | `eraser` |
 | `currency-euro` | `euro` | `euro` |
 | `arrow-left-right` | `arrow-left-right` | `exchange` |
 | `eye`<br>`eye-fill` | `view` | `eye` |
 | `facebook` | `facebook-01` | `facebook` |
 | `file-earmark-pdf` | `pdf-01` | `file-pdf` |
-| `file-earmark-richtext` | `file-02`<br>Approximation: generic document; image detail differs. | `file-richtext` |
+| `file-earmark-richtext` | `file-pen` | `file-pen` |
 | `funnel` | `filter` | `filter` |
 | `gear` | `settings-01` | `gear` |
 | `gift` | `gift` | `gift` |
-| `globe-americas` | `earth` | `globe-americas` |
-| `grid-3x3-gap` | `grid` | `grid` |
-| `hdd` | `hdd` | `hdd` |
+| `globe-americas` | `earth` | `earth` |
+| `grid-3x3-gap` | `dialpad-square-01` | `grid` |
+| `hdd` | `hard-drive` | `hdd` |
 | `heart` | `favourite` | `heart` |
 | `card-image`<br>`image` | `image-02` | `image` |
 | `images` | `images` | `images` |
 | `inboxes` | `inbox` | `inbox` |
 | `info-circle` | `information-circle` | `info-circle` |
-| `input-cursor-text` | `input-cursor-text` | `input-cursor-text` |
+| `input-cursor-text` | `input-cursor-text` | `input-cursor` |
 | `stack` | `layers-01` | `layers` |
-| `layers-half` | `layers-01`<br>Approximation: full layers instead of a half-layer motif. | `layers-half` |
+| `layers-half` | `background` | `background` |
 | `lightbulb` | `lightbulb` | `lightbulb` |
-| `graph-up` | `chart-up` | `line-chart` |
-| `graph-up-arrow` | `chart-increase` | `line-chart-arrow` |
+| `graph-up` | `chart-analysis` | `chart-up` |
+| `graph-up-arrow` | `chart-analysis` | `chart-line-arrow` |
 | `link-45deg` | `link` | `link` |
 | `list-ul`<br>`view-list` | `left-to-right-list-dash` | `list` |
 | `geo-alt` | `location-01` | `location` |
 | `box-arrow-in-right` | `login-02` | `login` |
 | `box-arrow-left` | `logout-02` | `logout` |
-| `megaphone` | `megaphone-01` | `megaphone` |
-| `menu-button-fill` | `menu-01` | `menu-button` |
+| `megaphone` | `megaphone-02` | `megaphone` |
+| `menu-button-fill` | `dropdown-field-type` | `menu-button` |
 | `palette` | `paint-board` | `palette` |
-| `vector-pen` | `pen-tool-01` | `pen-nib` |
-| `pencil`<br>`pencil-fill` | `edit-02` | `pencil` |
-| `percent` | `percent` | `percent` |
+| `vector-pen` | `pen-tool-03` | `pen-nib` |
+| `pencil`<br>`pencil-fill` | `edit-02` | `pen` |
+| `percent` | `badge-percent` | `discount` |
 | `play-fill` | `play` | `play` |
 | `power` | `power` | `power` |
 | `printer` | `printer` | `printer` |
-| `puzzle-fill` | `puzzle` | `puzzle-piece` |
+| `puzzle-fill` | `puzzle` | `puzzle` |
 | `question-circle-fill` | `circle-question-mark` | `question-circle` |
 | `receipt` | `invoice-01` | `receipt` |
 | `recycle` | `recycle-01` | `recycle` |
 | `arrow-repeat`<br>`repeat` | `repeat` | `repeat` |
-| `arrows-expand-vertical` | `arrow-vertical` | `resize-vertical` |
-| `arrow-clockwise` | `rotate-right-01` | `rotate-right` |
-| `scissors` | `scissor` | `scissors` |
+| `arrows-expand-vertical` | `unfold-horizontal` | `unfold` |
+| `arrow-clockwise` | `rotate-cw-square` | `rotate-right` |
+| `scissors` | `scissors` | `cut` |
 | `search` | `search-01` | `search` |
 | `send` | `sent` | `send` |
 | `shield` | `shield-01` | `shield` |
 | `shuffle` | `shuffle` | `shuffle` |
-| `diagram-3` | `hierarchy-square-02` | `sitemap` |
+| `diagram-3` | `bi:diagram-3` | `sitemap` |
 | `sliders` | `sliders-horizontal` | `sliders` |
-| `sliders2-vertical` | `sliders-vertical` | `sliders-vertical` |
-| `sort-down-alt` | `sort-by-down-01` | `sort-down` |
+| `sliders2-vertical` | `sliders-vertical` | `sliders-v` |
+| `sort-down-alt` | `sorting-02` | `sort-down` |
 | `sort-numeric-down` | `sorting-1-9` | `sort-numeric` |
-| `sort-up-alt` | `sort-by-up-01` | `sort-up` |
-| `stars-tricolor` | `sparkles`<br>Alternative only. Preserve the existing multicolor icon; see exceptions below. | `sparkles` |
+| `sort-up-alt` | `arrow-up-narrow-wide` | `sort-up` |
+| `stars-tricolor` | `stars` | `stars` |
 | `star-half` | `star-half` | `star-half` |
-| `stickies` | `note-01` | `sticky-notes` |
+| `stickies` | `sticky-note-02` | `sticky-note` |
 | `shop-window` | `store-01` | `store` |
 | `tags` | `tags` | `tags` |
-| `card-checklist`<br>`list-check` | `task-01` | `tasks` |
+| `card-checklist`<br>`list-check` | `clipboard-list` | `tasks` |
 | `text-wrap` | `text-wrap` | `text-wrap` |
-| `textarea-resize` | `resize-field` | `textarea-resize` |
+| `textarea-resize` | `resize-field-rectangle` | `text-resize` |
 | `hand-thumbs-down` | `thumbs-down` | `thumbs-down` |
 | `hand-thumbs-up` | `thumbs-up` | `thumbs-up` |
-| `tools` | `tools` | `tools` |
+| `tools` | `repair` | `tools` |
 | `trash` | `delete-02` | `trash` |
 | `trophy` | `trophy` | `trophy` |
 | `truck` | `delivery-truck-01` | `truck` |
-| `upload` | `upload-02` | `upload` |
+| `upload` | `upload-01` | `upload` |
 | `person` | `user-02` | `user` |
 | `person-badge` | `user-account` | `user-badge` |
 | `person-circle` | `user-circle` | `user-circle` |
-| `people`<br>`people-fill` | `user-group` | `users` |
+| `people`<br>`people-fill` | `user-group-02` | `user-group` |
 | `exclamation-triangle` | `alert-02` | `warning` |
 | `emoji-wink` | `winking` | `wink` |
 
@@ -534,3 +534,23 @@ of dynamic icon names and client rendering, then visually verify the result.
 
 See [README.md](README.md) for addressing, mapping modifiers, styling, kits,
 customization layers and the planned backend maintenance tools.
+
+## Icon editor toolbar concepts
+
+The Backend kit includes these HI mappings for the icon editor toolbar:
+
+| Concept | HI source |
+| --- | --- |
+| `flip-h` | `flip-horizontal-01` |
+| `flip-v` | `flip-vertical-01` |
+| `rotate` | `rotate-top-right?rotate=15` |
+| `upscale` | `image-upscale` |
+| `animation` | `ease-out-control-point` |
+
+## Reviewing icon addresses
+
+The migration table preview field accepts full addresses such as `bi:telephone`,
+`fa:phone!@solid` or `hi:rotate-top-right!@sr?rotate=15`. Unqualified names
+remain literal HugeIcons stroke-rounded proposals. Qualified addresses use normal
+icon resolution. The optional HI font comparison is hidden for other libraries,
+query modifiers or unavailable font glyphs; it never blocks a valid SVG preview.

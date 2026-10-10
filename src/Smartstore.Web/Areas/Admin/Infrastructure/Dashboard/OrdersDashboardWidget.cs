@@ -22,7 +22,7 @@ public sealed class OrdersDashboardWidget : DashboardViewComponentWidget<Dashboa
     {
         Description = ResolvableText.Resource("Admin.Orders"),
         Group = KnownDashboardWidgetGroups.Sales,
-        IconName = "graph-up",
+        IconName = "graph-up-arrow",
         CssClass = "report-orders",
         Order = 200,
         DefaultSize = new DashboardWidgetSize(7, 1),

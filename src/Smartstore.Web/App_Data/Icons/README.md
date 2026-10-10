@@ -457,6 +457,12 @@ object assigns concrete SVG addresses to members that differ from the defaults:
 }
 ```
 
+The frontend kit uses Bootstrap sources for `phone` (`bi:telephone`) and
+`plus-circle`; the backend kit uses them for `box`, `braces-asterisk`, `exclamation`
+and `sitemap`.
+Callers continue to use the public concept names. HI mappings remain available
+for explicit HI requests.
+
 Every source key must occur in `icons`; it never adds a member. Unknown keys,
 duplicate concepts, qualified names in `icons`, and invalid source addresses are
 configuration errors. Library and variant selectors accept system or short names.
@@ -949,7 +955,7 @@ The DataGrid already installs it. No Vue dependency is required by the component
 
 ## IconBrowser editor
 
-The admin `IconModel` editor template binds an icon address and presentation overrides
+The admin `IconBrowser` editor template binds an icon address and presentation overrides
 in edit forms. The cheatsheet demonstrates it; existing Font Awesome pickers are not
 migrated automatically. Add an `IconModel` property to your view model and render it:
 
@@ -964,7 +970,7 @@ model.Icon = new IconModel
 ```
 
 ```cshtml
-@Html.EditorFor(x => x.Icon)
+@Html.EditorFor(x => x.Icon, "IconBrowser")
 ```
 
 `IconModel` and `IconOptionFields` belong to `Smartstore.Web.Models.Media`.
@@ -978,13 +984,19 @@ an invalid form. Persist the address and option values in your application's sto
 the editor does not add database fields.
 
 `VisibleOptions` is trusted editor configuration, excluded from form binding and JSON
-serialization. Its default `None` hides the options button; flags or `All` show the
-ellipsis button. The dropdown currently contains a TODO placeholder; individual
-controls will be added later. All option values are preserved in hidden inputs even
-when their controls are disabled by configuration. A small red dot indicates explicit
-option values, including restored values. Selecting a different icon or clearing the
-selection resets every option. Changing only the source retains both selection and
-options and opens the results automatically only when no icon is selected.
+serialization. Its default `None` hides the options toolbar; flags or `All` select
+which buttons appear inside the Select2 selection, before the clear action. The
+transparent toolbar currently provides a visual prototype only: Flip H/V state
+buttons and rotation, size, animation and stroke-width menu buttons. Actions and
+popovers are not implemented yet. Temporary button labels are English. At narrow
+widths, size, animation and stroke width collapse behind a More button.
+Existing overrides highlight their corresponding buttons; enabled flips appear
+pressed. All option values remain in hidden inputs, including options not offered
+by the toolbar. Selecting a different icon or clearing the selection resets every
+option. Changing only the source retains both selection and options and opens the
+results automatically only when no icon is selected. A decorated Select2 selection
+adapter preserves the toolbar across selection updates and isolates button events
+from the icon dropdown.
 
 `IIconBrowser.GetSource` selects the initial source from the catalog without generating
 artwork: an explicit library/variant wins, otherwise a concept selects its preferred
@@ -993,6 +1005,9 @@ use the selected/default library. Empty editors prefer Shared when available.
 Unknown selectors keep the saved address without silently selecting another source.
 The selection preview resolves the original address separately from its browsing source,
 so fallback artwork cannot overwrite the requested address or source.
+Size and animation values never affect the picker previews. They remain bound and
+contribute to toolbar state, but preview rendering omits them to keep
+the control stable. A separate preview in the option popovers is deferred.
 
 The source dropdown has two groups: Kits and Libraries. Library variants are flat entries
 such as "HugeIcons Stroke Rounded", with the default library first. A variant named

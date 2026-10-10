@@ -161,7 +161,7 @@ public partial class MyAccountMenu : IMenu
             {
                 Id = "backinstock",
                 Text = T("Account.BackInStockSubscriptions"),
-                Icon = "truck-loading",
+                Icon = "message-notification-02",
                 ActionName = "StockSubscriptions",
                 ControllerName = "Customer"
             });
@@ -173,7 +173,7 @@ public partial class MyAccountMenu : IMenu
             {
                 Id = "rewardpoints",
                 Text = T("Account.RewardPoints"),
-                Icon = "certificate",
+                Icon = "award",
                 ActionName = "RewardPoints",
                 ControllerName = "Customer"
             });

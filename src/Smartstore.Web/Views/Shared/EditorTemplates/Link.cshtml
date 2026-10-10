@@ -140,7 +140,7 @@
                             data-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="false">
-                        <i class="far fa-window-restore @(linkTarget.HasValue() ? "text-success" : "text-muted")"></i>
+                        <icon name="browser" class="@(linkTarget.HasValue() ? "text-success" : "text-muted")" />
                     </button>
                     <div class="dropdown-menu dropdown-menu-check dropdown-menu-right dropdown-link-target">
                         <a class="dropdown-item" href="#" data-value="" attr-class='(linkTarget.IsNullOrEmpty(), "checked")'>@T("Common.Unspecified")</a>
