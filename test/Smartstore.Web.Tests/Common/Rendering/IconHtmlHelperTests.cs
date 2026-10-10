@@ -68,10 +68,7 @@ public class IconHtmlHelperTests
         var service = new Mock<IIconService>(MockBehavior.Strict);
         var renderer = new Mock<IIconRenderer>(MockBehavior.Strict);
         service.Setup(x => x.GetIconAsync("cart", null, null, CancellationToken.None)).ReturnsAsync(icon);
-        if (resolved)
-        {
-            renderer.Setup(x => x.RenderAsync(icon, null, CancellationToken.None)).ReturnsAsync((TagBuilder)null);
-        }
+        renderer.Setup(x => x.RenderAsync(icon, null, CancellationToken.None)).ReturnsAsync((TagBuilder)null);
 
         using var services = new ServiceCollection().AddSingleton(service.Object).AddSingleton(renderer.Object).BuildServiceProvider();
         var helper = new Mock<IHtmlHelper>();
@@ -81,6 +78,6 @@ public class IconHtmlHelperTests
         });
         Assert.That(await helper.Object.IconAsync("cart"), Is.SameAs(HtmlString.Empty));
         renderer.Verify(x => x.RenderAsync(It.IsAny<IconInfo>(), It.IsAny<IconOptions>(), It.IsAny<CancellationToken>()),
-            resolved ? Times.Once() : Times.Never());
+            Times.Once());
     }
 }

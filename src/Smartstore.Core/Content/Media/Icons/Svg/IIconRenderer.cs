@@ -11,11 +11,11 @@ namespace Smartstore.Core.Content.Media.Icons;
 public interface IIconRenderer
 {
     /// <summary>
-    /// Creates a complete SVG element, or null if the source is no longer available.
+    /// Creates a complete SVG element, using the system placeholder for missing icons. Returns null if the placeholder is also unavailable.
     /// </summary>
-    /// <param name="icon">The resolved icon identity.</param>
+    /// <param name="icon">The resolved icon identity, or null to render the missing-icon placeholder.</param>
     /// <param name="options">Caller-owned DOM attributes and presentation options.</param>
-    Task<TagBuilder?> RenderAsync(IconInfo icon, IconOptions? options = null, CancellationToken cancelToken = default);
+    Task<TagBuilder?> RenderAsync(IconInfo? icon, IconOptions? options = null, CancellationToken cancelToken = default);
 
     /// <summary>
     /// Creates an HTML stack host for independently rendered icon layers.

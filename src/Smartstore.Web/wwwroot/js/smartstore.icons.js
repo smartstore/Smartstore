@@ -255,11 +255,14 @@
             // Manifest hits and endpoint responses carry the same server-resolved identity.
             // Presentation classes belong to the host; the child keeps data-icon for inspection.
             const address = template.getAttribute('data-icon') || input.name;
-            this._identity = [...template.classList].filter(name => name.startsWith('icon-'));
+            this._identity = [...template.classList].filter(name => name.startsWith('icon-') || name === 'text-danger');
             this.present(false);
             this.setAttribute('data-icon', address);
             this.replaceChildren(cloneDrawing(template));
             this._drawingKey = key;
+            if (template.classList.contains('icon-not-found')) {
+                throw new Error('Icon not found: ' + input.name);
+            }
             this.dispatchEvent(new CustomEvent('icon-load', { bubbles: true }));
         }
     }

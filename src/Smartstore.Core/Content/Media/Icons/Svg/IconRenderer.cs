@@ -14,7 +14,15 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
     /// <inheritdoc />
     public async Task<TagBuilder> RenderAsync(IconInfo icon, IconOptions options = null, CancellationToken cancelToken = default)
     {
-        Guard.NotNull(icon);
+        var missing = icon == null;
+        if (missing)
+        {
+            icon = await icons.GetIconAsync("system:not-found!/default", cancelToken: cancelToken);
+            if (icon == null)
+            {
+                return null;
+            }
+        }
 
         cancelToken.ThrowIfCancellationRequested();
         var transform = new IconTransform(options?.FlipHorizontal ?? icon.Transform.FlipX,
@@ -43,7 +51,8 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
             var source = await icons.GetSvgAsync(icon, cancelToken);
             if (source == null)
             {
-                return null;
+                // Never recurse if the system placeholder itself is unavailable.
+                return missing ? null : await RenderAsync(null, options, cancelToken);
             }
 
             foreach (var attribute in source.RootAttributes)
@@ -101,6 +110,11 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
         if (icon.MirrorInRtl)
         {
             svg.AddCssClass("icon-mirror-rtl");
+        }
+
+        if (missing)
+        {
+            svg.AddCssClass("icon-not-found text-danger");
         }
 
         svg.Attributes["data-icon"] = icon.Address;

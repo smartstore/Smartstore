@@ -27,6 +27,38 @@ namespace Smartstore.Core.Tests.Content.Media.Icons;
 [TestFixture]
 public class IconServiceTests
 {
+    /// <summary>
+    /// Missing identities and unavailable sources use the system kit placeholder.
+    /// </summary>
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task Missing_Icons_Render_System_Placeholder(bool staleIdentity)
+    {
+        Write("Icons/system/library.json", """{"defaultVariant":"default","variants":{"default":{"stroke":"currentColor"}}}""");
+        Write("Icons/system/default/icons/not-found.svg", _svg);
+        Write("Icons/kits.json", """{"system":{"defaultLibrary":"system","defaultVariant":"default","icons":["not-found"]}}""");
+        var icon = staleIdentity
+            ? new IconInfo { Name = "missing", LibraryName = "hugeicons", VariantName = "rounded" }
+            : await _service.GetIconAsync("missing");
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        var renderer = new IconRenderer(_service, kits);
+        var output = await renderer.RenderAsync(icon);
+        Assert.That(output, Is.Not.Null);
+        Assert.That(output.Attributes["data-icon"], Is.EqualTo("system:not-found/default"));
+        Assert.That(output.Attributes["class"], Does.Contain("icon-not-found").And.Contain("text-danger"));
+        Assert.That(RenderMarkup(output.InnerHtml), Does.Contain("<use").And.Contain("system-"));
+    }
+
+    /// <summary>
+    /// A missing system source terminates fallback resolution without recursion.
+    /// </summary>
+    [Test]
+    public async Task Missing_Placeholder_Does_Not_Recurse()
+    {
+        var renderer = new IconRenderer(_service, Mock.Of<IIconKitService>());
+        Assert.That(await renderer.RenderAsync(null), Is.Null);
+    }
+
     private const string _svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"-1 -2 24 25\" width=\"24\" height=\"25\" fill=\"none\"><path d=\"M0 0L1 1\" stroke=\"currentColor\" stroke-width=\"1\" stroke-linecap=\"butt\"/></svg>";
     private string _root;
     private PhysicalFileProvider _provider;

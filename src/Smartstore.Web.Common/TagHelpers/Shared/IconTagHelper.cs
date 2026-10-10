@@ -261,12 +261,6 @@ public class IconTagHelper(IIconService iconService, IIconRenderer iconRenderer)
         // Razor binds null string attribute values as empty strings. Treat optional
         // selectors as omitted so configured defaults and qualified names still apply.
         var icon = await iconService.GetIconAsync(Name, Library.NullEmpty(), Variant.NullEmpty(), cancelToken);
-        if (icon == null)
-        {
-            output.SuppressOutput();
-            return;
-        }
-
         var options = CreateOptions(output);
         options.StrokeScale = StrokeScale;
         options.Attributes.Remove(NameAttributeName);

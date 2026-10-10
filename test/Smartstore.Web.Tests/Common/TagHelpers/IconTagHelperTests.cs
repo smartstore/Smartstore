@@ -203,7 +203,7 @@ public class IconTagHelperTests
     }
 
     /// <summary>
-    /// Suppresses unavailable icons and makes unlabeled icons decorative.
+    /// Renders missing icons with the system placeholder and makes unlabeled icons decorative.
     /// </summary>
     /// <param name="found">Whether the service resolves an icon.</param>
     [TestCase(false)]
@@ -216,6 +216,8 @@ public class IconTagHelperTests
             .ReturnsAsync(found ? icon : null);
         service.Setup(x => x.GetSvgAsync(icon, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new IconSvg { Address = "hi:cart-01/rounded", ViewBox = "0 0 24 24", Content = "<path/>" });
+        service.Setup(x => x.GetIconAsync("system:not-found!/default", null, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(icon);
         var helper = new IconTagHelper(service.Object, new IconRenderer(service.Object, Mock.Of<IIconKitService>()))
         {
             Name = "cart",
@@ -231,8 +233,9 @@ public class IconTagHelperTests
         }
         else
         {
-            Assert.That(output.TagName, Is.Null);
-            Assert.That(output.Content.GetContent(), Is.Empty);
+            Assert.That(output.TagName, Is.EqualTo("svg"));
+            Assert.That(output.Attributes["class"].Value.ToString(), Does.Contain("text-danger"));
+            Assert.That(output.Content.GetContent(), Does.Contain("<path"));
         }
     }
 }

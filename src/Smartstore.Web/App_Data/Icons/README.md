@@ -1176,3 +1176,8 @@ Prefer unqualified kit concepts in `sm-icon`, including brand names such as
 the client manifest fast path and require the render endpoint, even when the same
 artwork is already included in a kit. Use explicit addresses only when no suitable
 concept exists or a specific source selection is intentional.
+
+Missing icons render the `system:not-found!/default` placeholder from the system kit with
+`text-danger`, shared by Razor, HTML helpers and `sm-icon`. System artwork lives
+in `system/default/icons`. Lookup and search still report missing sources as absent.
+If the placeholder itself is unavailable, rendering returns no output without recursion.

@@ -165,7 +165,7 @@ public class IconController(IIconKitService kits, IIconService icons, IIconRende
         try
         {
             var icon = await icons.GetIconAsync(name, lib, variant, cancelToken);
-            var svg = icon == null ? null : await renderer.RenderAsync(icon, new IconOptions
+            var svg = await renderer.RenderAsync(icon, new IconOptions
             {
                 Rotate = rotate, FlipHorizontal = flipH, FlipVertical = flipV, StrokeScale = strokeScale
             }, cancelToken);

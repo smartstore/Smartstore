@@ -1,4 +1,11 @@
 {
+  "system": {
+    "defaultLibrary": "system",
+    "defaultVariant": "default",
+    "icons": [
+      "not-found"
+    ]
+  },
   "shared": {
     "icon": "hi:layers-01!/sr",
     "defaultLibrary": null,
