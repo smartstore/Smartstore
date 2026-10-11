@@ -4,13 +4,16 @@
 
 // Shared SVG masks for frequently used pseudo-element icons.
 :root {
+    --icon-mask-alert-danger: #{icon-url("alert-danger")};
+    --icon-mask-alert-info: #{icon-url("alert-info")};
+    --icon-mask-alert-success: #{icon-url("alert-success")};
+    --icon-mask-alert-warning: #{icon-url("alert-warning")};
     --icon-mask-chevron-down: #{icon-url("chevron-down")};
     --icon-mask-chevron-left: #{icon-url("chevron-left")};
     --icon-mask-chevron-right: #{icon-url("chevron-right")};
     --icon-mask-chevron-up: #{icon-url("chevron-up")};
     --icon-mask-plus: #{icon-url("plus")};
     --icon-mask-check: #{icon-url("check")};
-    --icon-mask-info: #{icon-url("info")};
 }
 
 // Library-independent SVG icons. Animation keyframes shared with _utils.scss.

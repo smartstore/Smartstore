@@ -601,11 +601,10 @@ button:where(.reset) {
     }
 
     .btn.has-caret:after {
-        @include fontawesome("\f0d7");
+        @include icon-mask(var(--icon-mask-chevron-down), 1rem);
         position: absolute;
         display: block;
         inset-inline-end: $input-btn-padding-x;
-        line-height: 1;
         top: 50%;
         transform: translate3d(50%, -50%, 0);
     }

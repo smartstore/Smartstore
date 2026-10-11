@@ -114,7 +114,7 @@ public class PaginationTagHelper : SmartTagHelper
     [HtmlAttributeName(ContentTargetNameAttribute)]
     public string ContentTarget { get; set; }
 
-    protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
+    protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
     {
         if (!ShowPaginator || ListItems == null || ListItems.TotalCount == 0 || ListItems.TotalPages <= 1)
         {
@@ -178,7 +178,7 @@ public class PaginationTagHelper : SmartTagHelper
         var itemsCount = items.Count;
         foreach (var item in items)
         {
-            AppendItem(itemsUl, item, itemsCount);
+            await AppendItemAsync(itemsUl, item, itemsCount);
         }
 
         output.TagName = "nav";
@@ -415,7 +415,7 @@ public class PaginationTagHelper : SmartTagHelper
     /// <summary>
     /// Creates li tag from <see cref="PagerItem"/> and appends it to ul tag.
     /// </summary>
-    protected virtual void AppendItem(TagBuilder itemsUl, PagerItem item, int itemsCount)
+    protected virtual async Task AppendItemAsync(TagBuilder itemsUl, PagerItem item, int itemsCount)
     {
         var itemLi = new TagBuilder("li");
 
@@ -533,31 +533,30 @@ public class PaginationTagHelper : SmartTagHelper
         }
 
         innerAOrSpan.AddCssClass("page-link");
-        itemLi.InnerHtml.AppendHtml(GetItemInnerContent(item, innerAOrSpan));
+        itemLi.InnerHtml.AppendHtml(await GetItemInnerContentAsync(item, innerAOrSpan));
         itemsUl.InnerHtml.AppendHtml(itemLi);
     }
 
     /// <summary>
     /// Sets inner content for for pager item.
     /// </summary>
-    protected virtual TagBuilder GetItemInnerContent(PagerItem item, TagBuilder innerAOrSpan)
+    protected virtual async Task<TagBuilder> GetItemInnerContentAsync(PagerItem item, TagBuilder innerAOrSpan)
     {
-        var iconI = new TagBuilder("sm-icon");
-        iconI.Attributes.Add("aria-hidden", "true");
+        string iconName = null;
 
         switch (item.Type)
         {
             case PagerItemType.FirstPage:
-                iconI.Attributes["name"] = "chevrons-left";
+                iconName = "chevrons-left";
                 break;
             case PagerItemType.PreviousPage:
-                iconI.Attributes["name"] = "chevron-left";
+                iconName = "chevron-left";
                 break;
             case PagerItemType.NextPage:
-                iconI.Attributes["name"] = "chevron-right";
+                iconName = "chevron-right";
                 break;
             case PagerItemType.LastPage:
-                iconI.Attributes["name"] = "chevrons-right";
+                iconName = "chevrons-right";
                 break;
             default:
                 innerAOrSpan.InnerHtml.AppendHtml(item.Text);
@@ -571,7 +570,7 @@ public class PaginationTagHelper : SmartTagHelper
                 innerAOrSpan.InnerHtml.AppendHtml($"<span class='nav-label d-sm-none'>{item.Text}</span>");
             }
 
-            innerAOrSpan.InnerHtml.AppendHtml(iconI);
+            innerAOrSpan.InnerHtml.AppendHtml(await HtmlHelper.IconAsync(iconName));
 
             if (ShowNavLabel && item.Type is (PagerItemType.FirstPage or PagerItemType.PreviousPage))
             {

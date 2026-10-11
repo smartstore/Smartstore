@@ -117,6 +117,11 @@ public sealed class IconInfo
     private string[]? _tags;
 
     /// <summary>
+    /// Gets or sets the requested concept for rendered diagnostics; null for explicit sources.
+    /// </summary>
+    internal string? ConceptName { get; set; }
+
+    /// <summary>
     /// Gets whether address modifiers replace a transformation already baked into a kit.
     /// </summary>
     internal bool RequiresInline { get; set; }

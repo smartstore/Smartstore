@@ -22,7 +22,7 @@ public class MediaTagHelper : BaseImageTagHelper
         _tagHelperFactory = tagHelperFactory;
     }
 
-    protected override void ProcessMedia(TagHelperContext context, TagHelperOutput output)
+    protected override async Task ProcessMediaAsync(TagHelperContext context, TagHelperOutput output)
     {
         if (Src.IsEmpty() || File == null)
         {
@@ -33,7 +33,7 @@ public class MediaTagHelper : BaseImageTagHelper
         var tagHelper = CreateInnerTagHelper(context, output);
         if (tagHelper != null)
         {
-            tagHelper.Process(context, output);
+            await tagHelper.ProcessAsync(context, output);
         }
         else
         {

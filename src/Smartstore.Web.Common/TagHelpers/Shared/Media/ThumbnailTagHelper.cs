@@ -19,7 +19,7 @@ public class ThumbnailTagHelper : BaseImageTagHelper
 {
     const string ThumbnailTagName = "media-thumbnail";
 
-    protected override void ProcessMedia(TagHelperContext context, TagHelperOutput output)
+    protected override async Task ProcessMediaAsync(TagHelperContext context, TagHelperOutput output)
     {
         if (Src.IsEmpty())
         {
@@ -41,10 +41,13 @@ public class ThumbnailTagHelper : BaseImageTagHelper
 
         // Build the icon
         var iconHint = GetIconHint(mediaType);
-        var ic = new TagBuilder("sm-icon");
-        ic.Attributes["class"] = "file-icon show icon-5x icon-fw";
-        ic.Attributes["name"] = iconHint.Name;
-        ic.Attributes["style"] = "color: " + iconHint.Color;
+        var ic = await HtmlHelper.IconAsync(iconHint.Name, options: new()
+        {
+            Size = "5x",
+            FixedWidth = true,
+            Color = iconHint.Color,
+            Attributes = { ["class"] = "file-icon show" }
+        });
 
         // Append the icon to the root <figure/>
         output.Content.AppendHtml(ic);

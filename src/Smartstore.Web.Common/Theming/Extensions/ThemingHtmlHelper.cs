@@ -39,7 +39,7 @@ public static class ThemingHtmlHelper
         return builder;
     }
 
-    public static IHtmlContent ThemeVarChainInfo(this IHtmlHelper helper, ThemeVariableInfo info)
+    public static async Task<IHtmlContent> ThemeVarChainInfoAsync(this IHtmlHelper helper, ThemeVariableInfo info)
     {
         Guard.NotNull(info, "info");
 
@@ -48,8 +48,15 @@ public static class ThemingHtmlHelper
         if (currentTheme != info.ThemeDescriptor)
         {
             // the variable is inherited from a base theme: display an info badge
-            var chainInfo = "<span class='themevar-chain-info'><sm-icon name='link' class='flip-h'></sm-icon><span class='pl-1'>{0}</span></span>".FormatCurrent(info.ThemeDescriptor.Name);
-            return new HtmlString(chainInfo);
+            var icon = await helper.IconAsync("link", options: new() { FlipHorizontal = true });
+            var chainInfo = new TagBuilder("span");
+            chainInfo.AddCssClass("themevar-chain-info");
+            chainInfo.InnerHtml.AppendHtml(icon);
+            var label = new TagBuilder("span");
+            label.AddCssClass("pl-1");
+            label.InnerHtml.Append(info.ThemeDescriptor.Name);
+            chainInfo.InnerHtml.AppendHtml(label);
+            return chainInfo;
         }
 
         return HtmlString.Empty;

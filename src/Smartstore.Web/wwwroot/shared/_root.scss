@@ -34,10 +34,6 @@
         --body-bg: #{$body-bg};
     }
 
-    @if ($fa-use-pro == true) {
-        --fa-font-family: 'Font Awesome 7 Pro';
-    }
-
     // Shadow variables
     --box-shadow-xs: #{$box-shadow-xs};
     --box-shadow-xl: #{$box-shadow-xl};

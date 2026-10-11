@@ -1,6 +1,5 @@
 ﻿using System.Text.Encodings.Web;
 using Autofac;
-using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.AspNetCore.Razor.TagHelpers;
@@ -43,7 +42,7 @@ public class CoverImageTagHelper : ImageTagHelper
     [HtmlAttributeName(EditUrlAttributeName)]
     public string EditUrl { get; set; }
 
-    protected override void ProcessMedia(TagHelperContext context, TagHelperOutput output)
+    protected override async Task ProcessMediaAsync(TagHelperContext context, TagHelperOutput output)
     {
         if (Src.IsEmpty())
         {
@@ -77,7 +76,7 @@ public class CoverImageTagHelper : ImageTagHelper
             figure.Attributes["id"] = id;
 
             var widgetProvider = ViewContext.HttpContext.RequestServices.GetRequiredService<IWidgetProvider>();
-            var dropdown = CreateDropdown(id);
+            var dropdown = await CreateDropdownAsync(id);
             widgetProvider.RegisterHtml("admin_actions", dropdown);
         }
 
@@ -94,7 +93,7 @@ public class CoverImageTagHelper : ImageTagHelper
         output.WrapElementWith(InnerHtmlPosition.Append, figure);
     }
 
-    protected virtual TagBuilder CreateDropdown(string id)
+    protected virtual async Task<TagBuilder> CreateDropdownAsync(string id)
     {
         var toggle = new TagBuilder("a");
         toggle.Attributes["href"] = "javascript:;";
@@ -103,14 +102,14 @@ public class CoverImageTagHelper : ImageTagHelper
         toggle.Attributes["data-toggle"] = "dropdown";
         toggle.Attributes["data-placement"] = "top";
 
-        var icon = new HtmlString("<sm-icon name=\"fa:arrow-down-up-across-line!/s\"></sm-icon>");
+        var icon = await HtmlHelper.IconAsync("fa:arrow-down-up-across-line!/s");
         toggle.InnerHtml.AppendHtml(icon);
 
         var dropdownUl = new TagBuilder("ul");
         dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-check dropdown-menu-right media-edit-dropdown";
-        dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem("center top", "Admin.Media.Editing.AlignTop", "arrow-up"));
-        dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem(string.Empty, "Admin.Media.Editing.AlignMiddle", "unfold"));
-        dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem("center bottom", "Admin.Media.Editing.AlignBottom", "arrow-down"));
+        dropdownUl.InnerHtml.AppendHtml(await CreateDropdownItemAsync("center top", "Admin.Media.Editing.AlignTop", "arrow-up"));
+        dropdownUl.InnerHtml.AppendHtml(await CreateDropdownItemAsync(string.Empty, "Admin.Media.Editing.AlignMiddle", "unfold"));
+        dropdownUl.InnerHtml.AppendHtml(await CreateDropdownItemAsync("center bottom", "Admin.Media.Editing.AlignBottom", "arrow-down"));
 
         var rootDiv = new TagBuilder("div");
         rootDiv.Attributes["data-media-edit-url"] = EditUrl;
@@ -122,7 +121,7 @@ public class CoverImageTagHelper : ImageTagHelper
         return rootDiv;
     }
 
-    protected virtual TagBuilder CreateDropdownItem(string position, string resourceKey, string iconName = null)
+    protected virtual async Task<TagBuilder> CreateDropdownItemAsync(string position, string resourceKey, string iconName = null)
     {
         var model = new MediaEditModel
         {
@@ -144,9 +143,17 @@ public class CoverImageTagHelper : ImageTagHelper
             a.Attributes["aria-pressed"] = "true";
         }
 
-        a.InnerHtml.AppendHtml(iconName.HasValue()
-            ? $"<sm-icon name=\"{iconName}\" fw></sm-icon><span>{T(resourceKey)}</span>"
-            : T(resourceKey).Value);
+        if (iconName.HasValue())
+        {
+            a.InnerHtml.AppendHtml(await HtmlHelper.IconAsync(iconName, options: new() { FixedWidth = true }));
+            var label = new TagBuilder("span");
+            label.InnerHtml.Append(T(resourceKey).Value);
+            a.InnerHtml.AppendHtml(label);
+        }
+        else
+        {
+            a.InnerHtml.Append(T(resourceKey).Value);
+        }
 
         var li = new TagBuilder("li");
         li.InnerHtml.AppendHtml(a);

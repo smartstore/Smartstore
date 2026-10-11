@@ -31,14 +31,9 @@ public partial class MediaEditorCommand
     public string? ItemClass { get; set; }
 
     /// <summary>
-    /// Gets or sets one or more CSS classes for the command icon (if any).
+    /// Gets or sets the icon concept name or address for the command (if any).
     /// </summary>
-    public string? IconClass { get; set; }
-
-    /// <summary>
-    /// Gets or sets the name of the icon library used for rendering icons (fa or bi). Default: fa.
-    /// </summary>
-    public string IconLibrary { get; set; } = "fa";
+    public string? Icon { get; set; }
 
     /// <summary>
     /// Gets or sets the URL for the command icon.

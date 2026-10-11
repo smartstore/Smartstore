@@ -122,33 +122,15 @@ Font Awesome is fully integrated into Smartstore and can be used in all Razor vi
 For more information, see [Font Awesome](https://fontawesome.com/icons).
 {% endhint %}
 
-#### Icon variants
+#### Legacy font icons
 
-Font Awesome icons have light, regular, and solid variants. The displayed variant is specified by a CSS class (.fa, .fas, .far, or .fal), which sets the corresponding `font-weight` value. The `font-weight` values for the variant classes are defined by `$icon-font-weight-default` and `$icon-font-variants`. Changing these values has no effect when using the free version of Font Awesome.
+Remaining font-based icons use the bundled Font Awesome Free stylesheet. The legacy
+`.fal` and `.far` classes fall back to solid, except for icons available as regular.
+The old Pro theme switch and hosted CSS kit integration have been removed.
 
-<table><thead><tr><th width="182">Variant</th><th width="87.33333333333331">Class</th><th width="342">Sass variable</th><th>font-weight</th></tr></thead><tbody><tr><td>Fallback to Solid</td><td>fa</td><td>$icon-font-weight-default</td><td>900</td></tr><tr><td>Solid</td><td>fa<strong>s</strong></td><td>$icon-font-variants["solid"]</td><td>900</td></tr><tr><td>Regular</td><td>fa<strong>r</strong></td><td>$icon-font-variants["regular"]</td><td>400</td></tr><tr><td>Light</td><td>fa<strong>l</strong></td><td>$icon-font-variants["light"]</td><td>300</td></tr></tbody></table>
-
-#### Font Awesome Free
-
-The free version of Font Awesome contains a subset of icons. All solid and few regular icons are included, but none of the light icons.
-
-To keep the store's look consistent, the `font-weight` of all icons is set to `900`, then all supported regular icons and their light counterparts are set to `400`. This will ensure that all supported icons are displayed, even when using classes (like fal) whose icons are not available in the free version.
-
-#### Font Awesome Pro
-
-The professional version of Font Awesome removes the icon limitations and includes all solid, regular and light icons.
-
-Solid, regular and light icons all follow their font-weight values from `$icon-font-variants`. The `font-weight` of the .`fa` class is set to `$icon-font-weight-default`, unless it is 900.
-
-For licensing reasons, we cannot ship Font Awesome Pro directly. In order to use Font Awesome Pro after you bought a license, you must complete the following steps.
-
-* The `fa-use-pro` theme variable must be set to `true` in the `theme.config` file.
-* The Font Awesome Pro includes must be added to a view that is rendered globally for each page, such as `Head.cshtml`:
-
-```cshtml
-<link sm-target-zone="head_links" rel="preconnect" href="https://pro.fontawesome.com" />
-<link sm-target-zone="stylesheets" rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.1/css/all.css" integrity="your key" crossorigin="anonymous" />
-```
+New icons use the SVG icon framework. Install licensed Pro SVG sources as a separate
+library that replaces Font Awesome Free; configure variants in library metadata.
+See the [icon framework documentation](../../../src/Smartstore.Web/App_Data/Icons/README.md#replacing-a-library).
 
 ### Bootstrap Icons
 

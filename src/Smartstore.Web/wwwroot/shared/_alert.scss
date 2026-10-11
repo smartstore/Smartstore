@@ -29,7 +29,7 @@
 }
 
 .alert-info {
-    --alert-icon-content: "\f129"; // info
+    --alert-icon-mask: var(--icon-mask-alert-info);
 
     @if $alert-info-is-primary {
         // info should have primary color
@@ -46,24 +46,17 @@
 }
 
 .alert-danger {
-    --alert-icon-content: "\f071"; // exclamation-triangle
+    --alert-icon-mask: var(--icon-mask-alert-danger);
     @include bg-color-vars(danger-bg-subtle);
 }
 
 .alert-success {
-    @if $enable-alert-icons {
-        @include alert-icon-mask(var(--icon-mask-check));
-    }
-    @else {
-        &.alert-iconic {
-            @include alert-icon-mask(var(--icon-mask-check));
-        }
-    }
+    --alert-icon-mask: var(--icon-mask-alert-success);
     @include bg-color-vars(success-bg-subtle);
 }
 
 .alert-warning {
-    --alert-icon-content: "\f12a"; // exclamation
+    --alert-icon-mask: var(--icon-mask-alert-warning);
     @include bg-color-vars(warning-bg-subtle);
 }
 

@@ -1,4 +1,5 @@
 {
+  "view-tiles": "gallery-vertical",
   "alert-circle": "alert-circle",
   "animation": "ease-out-control-point",
   "archive": "archive-02",
@@ -77,6 +78,7 @@
   "ellipsis-v": "ellipsis-vertical",
   "flip-h": "flip-horizontal-01",
   "flip-v": "flip-vertical-01",
+  "form": "form",
   "mail": "mail-01",
   "mail-heart": "mail-open-love",
   "mail-open": "mail-open-01",
@@ -253,6 +255,7 @@
   "user-secret": "incognito",
   "user-shield": "user-shield-01",
   "user-group": "user-group-02",
+  "variants": "geometric-shapes-01",
   "wallet": "wallet-01",
   "warning": "alert-02",
   "browser": "browser",

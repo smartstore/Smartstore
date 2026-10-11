@@ -131,4 +131,4 @@ This function takes the name of the variable for which an editor is to be genera
 
 The HTML helper `ThemeVarLabel` is used to render the label. The actual variable control is rendered by the HTML helper `ThemeVarEditor`. It determines the control to render based on the variable type (e.g. color picker for color type variables, dropdown box for select types & simple input elements for the rest).
 
-Finally, the HTML helper `ThemeVarChainInfo` is used to display information about the theme's inheritance chain, so that the user knows where the value of the variable comes from.
+Finally, the HTML helper `ThemeVarChainInfoAsync` is awaited to display information about the theme's inheritance chain, so that the user knows where the value of the variable comes from.

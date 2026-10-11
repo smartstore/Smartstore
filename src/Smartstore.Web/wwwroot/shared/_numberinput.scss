@@ -168,8 +168,8 @@
         height: calc(50% - 1px);
         color: inherit;
 
-        > i {
-            font-size: 10px;
+        > .icon {
+            font-size: 1rem;
         }
 
         &.numberinput-up {
@@ -279,6 +279,11 @@
             opacity: 1;
         }
     }
+}
+
+.numberinput-group.input-group-sm > .numberinput-stepper > .icon,
+.numberinput.form-control-sm ~ .numberinput-stepper > .icon {
+    font-size: 14px;
 }
 
 // Text prepend

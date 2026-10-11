@@ -377,6 +377,12 @@ body {
         margin-top: -2px;
     }
 
+    .navbar-icon.icon {
+        --icon-size: 24px;
+        width: var(--icon-size);
+        height: var(--icon-size);
+    }
+
     #navbar-menu .nav-item > .dropdown-menu {
         @include bubble("top", "near", 8, var(--dropdown-bg), var(--dropdown-border-color), 10px);
 

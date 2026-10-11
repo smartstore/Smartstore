@@ -57,7 +57,7 @@
         <div sm-if="showStatusLabel" class="deliverytime-group d-flex">
             <span class="deliverytime-label">@T("Products.DeliveryTime")</span>
             <span class="delivery-time" title="@T("Products.DeliveryTime") @statusLabel" attr-style='(statusColor.HasValue(), "color:" + statusColor)'>
-                <icon name="circle" class="delivery-time-status" style="color: @Model.DeliveryTimeHexValue" aria-hidden="true" />
+                <icon name="circle-fill" class="delivery-time-status" style="color: @Model.DeliveryTimeHexValue" aria-hidden="true" />
                 @statusLabel
             </span>
         </div>

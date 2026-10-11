@@ -238,6 +238,7 @@ public sealed partial class IconService(IApplicationContext applicationContext, 
         var info = CreateInfo(selected.Library, selected.Variant, selected.Mapping.Name);
         // Keep the requested kit context separate from the actual artwork identity. A mixed
         // regular kit must stay regular even when this particular symbol came from solid.
+        info.ConceptName = address.SkipMapping ? null : address.Name;
         info.SelectionLibraryName = library.Manifest.SystemName;
         info.SelectionVariantName = variant.Manifest.Name;
         var mappingTransform = selected.Mapping.Transform;

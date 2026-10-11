@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Json;
 using Smartstore.Utilities;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Shared;
 
@@ -12,7 +13,7 @@ public class EntityPickerTagHelper : BaseFormTagHelper
     const string EntityTypeAttributeName = "entity-type";
     const string TargetInputSelectorAttributeName = "target-input-selector";
     const string CaptionAttributeName = "caption";
-    const string IconCssClassAttributeName = "icon-css-class";
+    const string IconAttributeName = "icon";
     const string DialogTitleAttributeName = "dialog-title";
     const string DisableGroupedProductsAttributeName = "disable-grouped-products";
     const string DisableBundleProductsAttributeName = "disable-bundle-products";
@@ -47,10 +48,10 @@ public class EntityPickerTagHelper : BaseFormTagHelper
     public string Caption { get; set; }
 
     /// <summary>
-    /// Sets the icon of the button which opens the dialog, Default: "fa fa-search"
+    /// Sets the icon address of the button which opens the dialog. Default: "search". Empty hides the icon.
     /// </summary>
-    [HtmlAttributeName(IconCssClassAttributeName)]
-    public string IconCssClass { get; set; } = "fa fa-search";
+    [HtmlAttributeName(IconAttributeName)]
+    public string Icon { get; set; } = "search";
 
     /// <summary>
     /// Sets the title of the dialog.
@@ -136,7 +137,7 @@ public class EntityPickerTagHelper : BaseFormTagHelper
     [HtmlAttributeName(OnSelectionCompletedAttributeName)]
     public string OnSelectionCompletedHandler { get; set; }
 
-    protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
+    protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
     {
         if (For != null)
         {
@@ -171,9 +172,9 @@ public class EntityPickerTagHelper : BaseFormTagHelper
         output.MergeAttribute("type", "button");
         output.AppendCssClass("btn btn-secondary");
 
-        if (IconCssClass.HasValue())
+        if (Icon.HasValue())
         {
-            output.Content.AppendHtml($"<i class='{IconCssClass}'></i>");
+            output.Content.AppendHtml(await HtmlHelper.IconAsync(Icon));
 
             if (Caption.IsEmpty())
             {

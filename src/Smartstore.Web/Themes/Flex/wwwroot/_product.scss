@@ -202,9 +202,7 @@ $pd-offer-spacing:              math.div($grid-gutter-width, 2);
 
 .pd-review-amount {
     flex-basis: 100%;
-    &.alert-iconic {
-        @include alert-icon-mask("award");
-    }
+    --alert-icon-mask: #{icon-url("award")};
 }
 
 

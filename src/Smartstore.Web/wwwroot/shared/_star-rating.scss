@@ -51,12 +51,10 @@
 	    color: #bbb;
         padding-block: 0;
         padding-inline: var(--star-padding-x);
-	    font-size: var(--star-size);
-	    line-height: var(--star-size);
 
         &:before {
-            @include fontawesome-font("\f005", regular); // star solid
-	        font-style: normal;
+            @include icon-mask("star-outline", var(--star-size));
+            display: block;
         }
 
         &:hover, 
@@ -74,7 +72,7 @@
 .star-rating > input:checked ~ label:before,
 .star-rating > input:checked ~ label:hover:before,
 .star-rating > input:checked ~ label:hover ~ label:before {
-    @include fontawesome-font("\f005", solid); // star outline
+    mask-image: icon-url("star-fill");
 }
 	
 // CURRENT STATE

@@ -20,3 +20,9 @@ variants of this library. Conceptual mappings belong in `../../mapping.json`.
 
 See [the icon library concept](../../../README.md) for configuration, supported
 SVG content, discovery and metadata conventions.
+
+## Included corrections
+
+- hierarchy-square-02.svg: derived from the archived HI drawing with three lower
+  nodes instead of two. The lower nodes retain the original rounded contour at a
+  smaller size; the top node and 1.5-unit stroke are preserved. Used by sitemap.

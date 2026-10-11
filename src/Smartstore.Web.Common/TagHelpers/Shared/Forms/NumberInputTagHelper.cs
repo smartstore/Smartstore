@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Core.Content.Media.Icons;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Rendering;
 
@@ -29,10 +30,14 @@ public class NumberInputTagHelper : TagHelper
     const string NativeAttributeName = "sm-native";
 
     private readonly ILocalizationService _localizationService;
+    private readonly IIconService _icons;
+    private readonly IIconRenderer _iconRenderer;
 
-    public NumberInputTagHelper(ILocalizationService localizationService)
+    public NumberInputTagHelper(ILocalizationService localizationService, IIconService icons, IIconRenderer iconRenderer)
     {
         _localizationService = localizationService;
+        _icons = icons;
+        _iconRenderer = iconRenderer;
     }
 
     // Must come before FormControlTagHelper because of sizing issues.
@@ -72,7 +77,7 @@ public class NumberInputTagHelper : TagHelper
     [ViewContext]
     public ViewContext ViewContext { get; set; }
 
-    public override void Process(TagHelperContext context, TagHelperOutput output)
+    public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
         if (Native || context.ShouldSuppressChildContent())
         {
@@ -113,14 +118,23 @@ public class NumberInputTagHelper : TagHelper
             output.PostElement.AppendHtml($"<span class='numberinput-postfix'>{Postfix}</span>");
         }
 
-        // Step down
-        var stepperTemplate = "<a href='javascript:;' class='numberinput-stepper numberinput-{0}' tabindex='-1' aria-hidden='true'><i class='{1}'></i></a>";
-        var stepDownIcon = "fas fa-" + (Style == NumberInputStyle.Centered ? "minus" : "chevron-down");
-        output.PostElement.AppendHtml(stepperTemplate.FormatInvariant("down", stepDownIcon));
-
-        // Step up
-        var stepUpIcon = "fas fa-" + (Style == NumberInputStyle.Centered ? "plus" : "chevron-up");
-        output.PostElement.AppendHtml(stepperTemplate.FormatInvariant("up", stepUpIcon));
+        foreach (var direction in new[] { "down", "up" })
+        {
+            var name = Style == NumberInputStyle.Centered
+                ? (direction == "down" ? "minus" : "plus")
+                : "chevron-" + direction;
+            var icon = await _iconRenderer.RenderAsync(await _icons.GetIconAsync(name));
+            var stepper = new TagBuilder("a");
+            stepper.Attributes["href"] = "javascript:;";
+            stepper.Attributes["class"] = "numberinput-stepper numberinput-" + direction;
+            stepper.Attributes["tabindex"] = "-1";
+            stepper.Attributes["aria-hidden"] = "true";
+            if (icon != null)
+            {
+                stepper.InnerHtml.AppendHtml(icon);
+            }
+            output.PostElement.AppendHtml(stepper);
+        }
 
         // Parent wrapper tag
         var group = new TagBuilder("div");

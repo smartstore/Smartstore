@@ -129,57 +129,10 @@
     mask-mode: alpha;
 }
 
-@mixin fontawesome($content, $size: $icon-font-size-base, $variant: $icon-font-variant-default) {
-    // Copied over from FA's core stylesheet. We don't want to customize the FA core.
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    display: inline-block;
-    font-feature-settings: normal;
-    font-style: normal;
-    font-synthesis: none;
-    font-variant: normal;
-    line-height: 1;
-    text-align: center;
-    text-rendering: auto;
-    width: 1.25em;
-
-    font-size: $size;
-    @include fontawesome-font($content, $variant);
-}
-
-@mixin fontawesome-font($content, $variant: $icon-font-variant-default) {
-    @if $fa-use-pro == false and $variant == "light" {
-        $variant: regular;
-    }
-    
-    @if $fa-use-pro == false and $variant == "regular" {
-        @if not(map.has-key($fa-free-regular-icons, $content)) {
-            $variant: solid;
-        }
-    }
-
-    @if $variant == "brand" {
-        font-family: $fa-font-family-brands;
-        font-weight: 400;
-    }
-    @else {
-        font-weight: map.get($icon-font-variants, $variant);
-        @if $fa-use-pro {
-            font-family: $fa-font-family-pro;
-        }
-        @else {
-            font-family: $fa-font-family-free;
-        }
-    }
-
-    content: $content;
-}
-
 @mixin alert-iconic() {
     --alert-icon-bg: rgba(var(--alert-base-rgb), 1);
     --alert-icon-bg-rgb: var(--alert-base-rgb);
     --alert-icon-color: var(--alert-bg);
-    --alert-icon-content: "\f129"; // info
     padding-inline-start: 4rem;
 	border-width: 0;
     @include alert-icon-box;
@@ -201,27 +154,16 @@
 	}
 
     // Icon
-	&:after {
-		display: block;
-		position: absolute;
-		color: var(--alert-icon-color);
-        @include fontawesome-font(var(--alert-icon-content), regular);
-		inset-inline-start: 0;
-		top: 50%;
-		font-size: 24px;
-		width: 3rem;
-		text-align: center;
-		transform: translateY(-50%);
-		z-index: 2;
-	}
-}
-
-// Override the glyph of an alert that already uses alert-icon-box.
-@mixin alert-icon-mask($image) {
     &:after {
-        @include icon-mask($image, 24px);
+        @include icon-mask(var(--alert-icon-mask, var(--icon-mask-alert-info)), 28px);
+        position: absolute;
+        color: var(--alert-icon-color);
+        inset-inline-start: 0;
+        top: 50%;
         width: 3rem;
-        mask-size: 24px;
+        mask-size: 28px;
+        translate: 0 -50%;
+        z-index: 2;
     }
 }
 

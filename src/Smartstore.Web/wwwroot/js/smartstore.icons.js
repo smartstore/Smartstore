@@ -250,7 +250,7 @@
             let template;
             if (reference) {
                 template = document.createElementNS(ns, 'svg');
-                template.setAttribute('data-icon', reference.address);
+                template.setAttribute('data-icon', input.name + ' -> ' + reference.address);
                 template.setAttribute('data-supports-stroke-scaling', String(reference.supportsStrokeScaling));
                 template.setAttribute('class', reference.classes.join(' '));
                 const use = document.createElementNS(ns, 'use');

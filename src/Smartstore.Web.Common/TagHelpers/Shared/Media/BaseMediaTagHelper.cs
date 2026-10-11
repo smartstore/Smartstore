@@ -87,7 +87,9 @@ public abstract class BaseMediaTagHelper : SmartTagHelper
         return Task.CompletedTask;
     }
 
-    protected abstract void ProcessMedia(TagHelperContext context, TagHelperOutput output);
+    protected virtual void ProcessMedia(TagHelperContext context, TagHelperOutput output)
+    {
+    }
 
     protected virtual string GenerateMediaUrl()
     {

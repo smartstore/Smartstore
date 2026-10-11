@@ -7,9 +7,9 @@
         Root nodes retain Fontastic icons; child nodes use concepts or qualified SVG addresses.
         -->
 
-        <siteMapNode id="dashboard" title="Dashboard" resKey="Admin.Dashboard" controller="Home" action="Index" area="Admin" icon="icm icm-home" />
+        <siteMapNode id="dashboard" title="Dashboard" resKey="Admin.Dashboard" controller="Home" action="Index" area="Admin" icon="home" />
 
-        <siteMapNode id="catalog" title="Catalog" resKey="Admin.Catalog" icon="icm icm-cube" permissionNames="catalog.product, catalog.productreview, catalog.category, catalog.manufacturer, catalog.variant, catalog.attribute, cart.checkoutattribute, system.rule">
+        <siteMapNode id="catalog" title="Catalog" resKey="Admin.Catalog" icon="catalog" permissionNames="catalog.product, catalog.productreview, catalog.category, catalog.manufacturer, catalog.variant, catalog.attribute, cart.checkoutattribute, system.rule">
             <siteMapNode id="categories-list" icon="sitemap" title="List" resKey="Admin.Catalog.Categories" controller="Category" action="Index" area="Admin" permissionNames="catalog.category" />
             <siteMapNode id="products" icon="box" title="Manage products" resKey="Admin.Catalog.Products.Manage" controller="Product" action="List" area="Admin" permissionNames="catalog.product" />
             <siteMapNode id="product-rules" icon="filter" title="Product rules" resKey="Common.ProductRules" permissionNames="system.rule" controller="Rule" action="ProductRules" area="Admin" />
@@ -20,12 +20,12 @@
             <siteMapNode id="recycle-bin" icon="recycle" title="Recycle bin" resKey="Common.RecycleBin" permissionNames="catalog.product" controller="Product" action="RecycleBin" area="Admin" />
 
             <siteMapNode id="attributes-header" isGroupHeader="true" title="Attributes" resKey="Admin.Catalog.Attributes" />
-            <siteMapNode id="attributes" icon="tasks" title="Products attributes" resKey="Admin.Catalog.Attributes.ProductAttributes" controller="ProductAttribute" action="List" area="Admin" permissionNames="catalog.variant" />
+            <siteMapNode id="attributes" icon="variants" title="Products attributes" resKey="Admin.Catalog.Attributes.ProductAttributes" controller="ProductAttribute" action="List" area="Admin" permissionNames="catalog.variant" />
             <siteMapNode id="specification-attributes" icon="tasks" title="Specification attributes" resKey="Admin.Catalog.Attributes.SpecificationAttributes" controller="SpecificationAttribute" action="List" area="Admin" permissionNames="catalog.attribute" />
-            <siteMapNode id="checkout-attributes" icon="list" title="Checkout attributes" resKey="Admin.Catalog.Attributes.CheckoutAttributes" permissionNames="cart.checkoutattribute" controller="CheckoutAttribute" action="List" area="Admin" />
+            <siteMapNode id="checkout-attributes" icon="form" title="Checkout attributes" resKey="Admin.Catalog.Attributes.CheckoutAttributes" permissionNames="cart.checkoutattribute" controller="CheckoutAttribute" action="List" area="Admin" />
         </siteMapNode>
 
-        <siteMapNode id="sales" title="Sales" resKey="Admin.Sales" permissionNames="order" icon="icm icm-chart-growth">
+        <siteMapNode id="sales" title="Sales" resKey="Admin.Sales" permissionNames="order" icon="chart-up">
             <siteMapNode id="orders" icon="chart-line-arrow" title="Orders" resKey="Admin.Orders" permissionNames="order" controller="Order" action="List" area="Admin" />
             <siteMapNode id="shipments" icon="truck" title="Shipments" resKey="Admin.Orders.Shipments.List" permissionNames="order" controller="Shipment" action="List" area="Admin" />
             <siteMapNode id="recurring-payments" icon="repeat" title="Recurring payments" resKey="Admin.RecurringPayments" permissionNames="order" controller="RecurringPayment" action="List" area="Admin" />
@@ -39,7 +39,7 @@
             <siteMapNode id="flopsellers" icon="thumbs-down" title="Products never purchased" resKey="Admin.SalesReport.NeverSold" permissionNames="order" controller="Order" action="NeverSoldReport" area="Admin" />
         </siteMapNode>
 
-        <siteMapNode id="users" title="Customers" resKey="Admin.Customers" permissionNames="customer, system.rule, configuration.authentication, configuration.activitylog" icon="icm icm-users2">
+        <siteMapNode id="users" title="Customers" resKey="Admin.Customers" permissionNames="customer, system.rule, configuration.authentication, configuration.activitylog" icon="customers">
             <siteMapNode id="customers" icon="user" title="Customers" resKey="Admin.Customers.Customers" permissionNames="customer" controller="Customer" action="List" area="Admin" />
             <siteMapNode id="customer-roles" icon="user-group" title="Customer roles" resKey="Admin.Customers.CustomerRoles" permissionNames="customer.role" controller="CustomerRole" action="List" area="Admin" />
             <siteMapNode id="customer-rules" icon="filter" title="Customer rules" resKey="Common.CustomerRules" permissionNames="system.rule" controller="Rule" action="CustomerRules" area="Admin" />
@@ -51,7 +51,7 @@
             <siteMapNode id="activity-log" icon="eye" title="Activity Log" resKey="Admin.Configuration.ActivityLog.ActivityLog" permissionNames="configuration.activitylog" controller="ActivityLog" action="ActivityLogs" area="Admin" />
         </siteMapNode>
 
-        <siteMapNode id="promotions" title="Promotions" resKey="Admin.Promotions" permissionNames="promotion, system.rule" icon="icm icm-bullhorn">
+        <siteMapNode id="promotions" title="Promotions" resKey="Admin.Promotions" permissionNames="promotion, system.rule" icon="marketing">
             <siteMapNode id="discounts" icon="discount" title="Discounts" resKey="Admin.Promotions.Discounts" permissionNames="promotion.discount" controller="Discount" action="List" area="Admin" />
             <siteMapNode id="cart-rules" icon="filter" title="Cart rules" resKey="Common.CartRules" permissionNames="system.rule" controller="Rule" action="CartRules" area="Admin" />
             <siteMapNode id="affiliates" icon="user-group" title="Affiliates" resKey="Admin.Affiliates" permissionNames="promotion.affiliate" controller="Affiliate" action="List" area="Admin" />
@@ -60,7 +60,7 @@
         </siteMapNode>
 
 
-        <siteMapNode id="cms" title="CMS" resKey="Admin.ContentManagement" permissionNames="cms" icon="icm icm-site-map">
+        <siteMapNode id="cms" title="CMS" resKey="Admin.ContentManagement" permissionNames="cms" icon="cms">
             <siteMapNode id="topics" icon="file-pen" title="Pages &amp; Topics" resKey="Admin.ContentManagement.Topics" permissionNames="cms.topic" controller="Topic" action="List" area="Admin" />
             <siteMapNode id="menus" icon="menu-button" title="Menus" resKey="Admin.ContentManagement.Menus" permissionNames="cms.menu" controller="Menu" action="List" area="Admin" />
             <siteMapNode id="message-templates" icon="mail-open" title="Message templates" resKey="Admin.ContentManagement.MessageTemplates" permissionNames="cms.messagetemplate" controller="MessageTemplate" action="List" area="Admin" />
@@ -68,7 +68,7 @@
         </siteMapNode>
 
 
-        <siteMapNode id="configuration" title="Configuration" resKey="Admin.Configuration" icon="icm icm-equalizer" permissionNames="configuration.setting, configuration.store, configuration.country, configuration.language, configuration.currency, configuration.shipping, configuration.tax, configuration.paymentmethod, configuration.deliverytime, configuration.measure, configuration.emailaccount, configuration.activitylog, configuration.import, configuration.export, configuration.theme">
+        <siteMapNode id="configuration" title="Configuration" resKey="Admin.Configuration" icon="sliders-v" permissionNames="configuration.setting, configuration.store, configuration.country, configuration.language, configuration.currency, configuration.shipping, configuration.tax, configuration.paymentmethod, configuration.deliverytime, configuration.measure, configuration.emailaccount, configuration.activitylog, configuration.import, configuration.export, configuration.theme">
             <siteMapNode id="settings" icon="sliders-v" title="Settings" resKey="Admin.Configuration.Settings" permissionNames="configuration.setting" controller="Setting" action="GeneralCommon" area="Admin">
                 <!--<siteMapNode id="general-settings" title="General and common settings" resKey="Admin.Configuration.Settings.GeneralCommon" controller="Setting" action="GeneralCommon" area="Admin" />
                 <siteMapNode id="catalog-settings" title="Catalog settings" resKey="Admin.Configuration.Settings.Catalog" controller="Setting" action="Catalog" area="Admin" />
@@ -126,7 +126,7 @@
             <siteMapNode id="themes" icon="palette" title="Themes" resKey="Admin.Configuration.Themes" permissionNames="configuration.theme" controller="Theme" action="List" area="Admin"/>
         </siteMapNode>
 
-        <siteMapNode id="system" title="System" resKey="Admin.System" icon="icm icm-database" permissionNames="system">
+        <siteMapNode id="system" title="System" resKey="Admin.System" icon="database" permissionNames="system">
             <siteMapNode id="rulesets" icon="filter" title="Rules" resKey="Common.Rules" permissionNames="system.rule" controller="Rule" action="List" area="Admin" />
             <siteMapNode id="system-log" icon="bolt" title="Log" resKey="Admin.System.Log" permissionNames="system.log" controller="Log" action="List" area="Admin" />
             <siteMapNode id="queued-emails" icon="inbox" title="Queued emails" resKey="Admin.System.QueuedEmails" permissionNames="system.message" controller="QueuedEmail" action="List" area="Admin" />
@@ -139,7 +139,7 @@
             <siteMapNode id="system-info" icon="info-circle" title="System information" resKey="Admin.System.SystemInfo" permissionNames="system.maintenance" controller="Maintenance" action="SystemInfo" area="Admin" />
         </siteMapNode>
 
-        <siteMapNode id="modules" title="Plugins" resKey="Admin.Plugins" icon="icm icm-puzzle" permissionNames="configuration.plugin.read">
+        <siteMapNode id="modules" title="Plugins" resKey="Admin.Plugins" icon="puzzle" permissionNames="configuration.plugin.read">
             <siteMapNode id="modules-sep-1" isGroupHeader="true" title="[SKIP]" />
             <siteMapNode id="modules-manage" icon="puzzle" title="Manage plugins" resKey="Admin.Plugins.Manage" permissionNames="configuration.plugin.read" controller="Module" action="List" area="Admin"/>
         </siteMapNode>

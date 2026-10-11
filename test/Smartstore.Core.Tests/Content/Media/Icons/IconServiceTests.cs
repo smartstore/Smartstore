@@ -2617,7 +2617,7 @@ public class IconServiceTests
             Assert.That(info.Address, Is.EqualTo(expected[i]));
             Assert.That(kits.GetReference(info)?.Href, Is.EqualTo(url + "#" + concepts[i]));
             var output = await new IconRenderer(_service, kits).RenderAsync(info);
-            Assert.That(output.Attributes["data-icon"], Is.EqualTo(expected[i]));
+            Assert.That(output.Attributes["data-icon"], Is.EqualTo($"{concepts[i]} -> {expected[i]}"));
             Assert.That(output.Attributes["class"], Does.Contain("icon-" + info.LibraryKey + "-" + info.VariantKey));
         }
         var manifestPath = await kits.GetManifestFileAsync(Path.GetFileNameWithoutExtension(kits.GetManifestUrl()));

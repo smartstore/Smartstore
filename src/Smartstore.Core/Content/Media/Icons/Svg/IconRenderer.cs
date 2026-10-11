@@ -123,7 +123,7 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
         }
 
         svg.Attributes["data-supports-stroke-scaling"] = icon.SupportsStrokeScaling ? "true" : "false";
-        svg.Attributes["data-icon"] = icon.Address;
+        svg.Attributes["data-icon"] = icon.ConceptName == null ? icon.Address : $"{icon.ConceptName} -> {icon.Address}";
         svg.Attributes["xmlns"] = "http://www.w3.org/2000/svg";
         svg.Attributes["focusable"] = "false";
 

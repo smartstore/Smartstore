@@ -119,7 +119,7 @@ variant fallbacks. Concrete kit `sources` follow the same direct-name rule; thei
 library remains fixed. A broken SVG raises its normal preparation error and is
 not treated as a missing icon.
 
-`IconInfo`, cache keys, CSS classes and `data-icon` always identify the actual
+`IconInfo.Address`, cache keys and CSS classes always identify the actual
 source. Kits use the same resolution pipeline and can mix fallback variants and
 libraries in one sprite. The client manifest contains the resulting identity
 patches, not a client-side fallback algorithm. The requested kit context is kept
@@ -376,8 +376,8 @@ names with `LibraryName` and `VariantName` as fallbacks, without parsing the add
 
 `name` accepts the same addresses and conceptual mappings as `IIconService`.
 `library` and `variant` fill missing address selectors. An unavailable icon emits
-no markup. Ordinary HTML attributes pass through to the SVG. The data-icon`r
-attribute exposes the resolved canonical address. Size, animation and transforms use
+the system placeholder. Ordinary HTML attributes pass through to the SVG.
+The `data-icon` attribute exposes the concept and resolved source address. Size, animation and transforms use
 existing CSS utilities and variables. Icons are decorative by default; supply
 `aria-label` or `aria-labelledby` for an accessible standalone icon.
 
@@ -954,9 +954,12 @@ a later attribute change or reconnection can retry. An older response never repl
 newer icon selection. Components emit bubbling `icon-load` and `icon-error` events;
 the latter exposes the error in `event.detail.error`.
 
-Manifest hits and endpoint responses both provide the same canonical `data-icon`
+Manifest hits and endpoint responses both provide the same diagnostic `data-icon`
 and `icon-[lib]` / `icon-[lib]-[variant]` classes as the server renderer. The component
 places these classes on the host and retains `data-icon` on both host and child SVG.
+For concept lookups, `data-icon` contains `concept -> library:source/variant`.
+Explicit sources selected with `!` contain only the resolved address. Treat this
+attribute as diagnostic text, not as an icon address to parse.
 Identity metadata never changes the concept-based kit URL or symbol selection.
 
 The custom element owns sizing, animation and accessibility; its child SVG is

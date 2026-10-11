@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Core.Content.Media.Icons;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Web.TagHelpers.Admin;
 
 [HtmlTargetElement("a", Attributes = BackToAttributeName)]
-public class BackToTagHelper(Localizer localizer) : TagHelper
+public class BackToTagHelper(Localizer localizer, IIconService icons, IIconRenderer iconRenderer) : TagHelper
 {
     const string BackToAttributeName = "sm-backto";
 
@@ -16,7 +17,7 @@ public class BackToTagHelper(Localizer localizer) : TagHelper
     [HtmlAttributeName(BackToAttributeName)]
     public bool IsBackButton { get; set; }
 
-    public override void Process(TagHelperContext context, TagHelperOutput output)
+    public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
         if (context.ShouldSuppressChildContent())
         {
@@ -35,7 +36,7 @@ public class BackToTagHelper(Localizer localizer) : TagHelper
             output.Attributes.SetAttribute("title", T("Admin.Common.BackToList"));
         }
 
-        output.Content.Clear();
-        output.Content.SetHtmlContent("<sm-icon name=\"arrow-left\"></sm-icon>");
+        var icon = await iconRenderer.RenderAsync(await icons.GetIconAsync("arrow-left"), new IconOptions { Size = "lg" });
+        output.Content.SetHtmlContent(icon);
     }
 }
