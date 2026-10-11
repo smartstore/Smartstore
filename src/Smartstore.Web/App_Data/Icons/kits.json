@@ -1,15 +1,4 @@
 {
-  "system": {
-    "icon": "smartstore",
-    "showInPicker": false,
-    "defaultLibrary": "system",
-    "defaultVariant": "default",
-    "icons": [
-      "not-found",
-      "smartstore",
-      "stars-tricolor"
-    ]
-  },
   "shared": {
     "icon": "hi:layers-01!/sr",
     "defaultLibrary": null,
@@ -100,6 +89,7 @@
       "mobile",
       "monitor",
       "move",
+      "not-found",
       "pause",
       "play",
       "plus",
@@ -122,12 +112,14 @@
       "share",
       "share-square",
       "sliders",
+      "smartstore",
       "spinner",
       "square-fill",
       "square-outline",
       "star-fill",
       "star-half",
       "star-outline",
+      "stars-tricolor",
       "tablet",
       "tags",
       "thumbs-down",
@@ -143,6 +135,9 @@
       "warning"
     ],
     "sources": {
+      "not-found": "sys:not-found!/default",
+      "smartstore": "sys:smartstore!/default",
+      "stars-tricolor": "sys:stars-tricolor!/default",
       "alert-danger": "sys:alert-danger!/default",
       "alert-info": "sys:alert-info!/default",
       "alert-success": "sys:alert-success!/default",
@@ -172,7 +167,7 @@
       "triangle-outline": "sys:triangle-outline!/default"
     }
   },
-  "frontend": {
+  "public": {
     "icon": "hi:store-01!/sr",
     "defaultLibrary": null,
     "defaultVariant": null,
@@ -194,7 +189,7 @@
       "phone": "bi:telephone"
     }
   },
-  "backend": {
+  "admin": {
     "showInPicker": false,
     "icon": "hi:settings-01!/sr",
     "defaultLibrary": null,

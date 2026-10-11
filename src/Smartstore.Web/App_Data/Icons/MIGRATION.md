@@ -36,6 +36,12 @@ and uses `share` as its fallback. Additional brands and SMS temporarily use
 explicit FA addresses instead of extending the platform kits. A future
 `IIconProvider` will let the module contribute these icons to kits externally.
 
+## System library icons
+
+The system library has no separate kit. `not-found`, `smartstore` and
+`stars-tricolor` belong to `shared`, each pinned to `sys:<name>!/default`.
+Missing icons continue to use an external shared sprite symbol in danger color.
+
 ## Explicit shape concepts
 
 The shared kit provides `-outline` and `-fill` concepts for `bubble-round`,
@@ -43,7 +49,7 @@ The shared kit provides `-outline` and `-fill` concepts for `bubble-round`,
 `square`, `star` and `triangle`. Each concept pins its source to
 `sys:<concept>!/default`, independently of the configured default library.
 The SVG files live in the system library, but these 22 concepts belong only to
-the shared kit, not the system kit. Existing unsuffixed concepts remain unchanged.
+the shared kit. Existing unsuffixed concepts remain unchanged.
 Use, for example, `<icon name="star-outline" />` or `<icon name="star-fill" />`.
 Delivery-time status indicators use `circle-fill`, including cart and StorageDisplay views.
 AI and Shopware import stop buttons use `square-fill`. Admin review headings use
@@ -52,7 +58,7 @@ AI and Shopware import stop buttons use `square-fill`. Admin review headings use
 
 The shared `star-half` concept pins `sys:star-half!/default`: the same star geometry
 as `star-outline` and `star-fill`, with a complete outline and the fill clipped to
-the left half of the viewBox. It replaces the former backend-kit membership.
+the left half of the viewBox. It replaces the former admin-kit membership.
 
 ## Use concepts in application code
 
@@ -762,7 +768,7 @@ callers are migrated. Pro SVG libraries use library replacement independently.
 
 ## MediaManager kit icons
 
-The hidden backend kit now owns file-archive, file-code, file-csv, file-presentation,
+The hidden admin kit now owns file-archive, file-code, file-csv, file-presentation,
 file-spreadsheet and file-word (moved from shared). Existing callers keep their
 concept names. Shared file, file-text, file-pdf, file-image, file-audio and file-video
 remain shared for frontend and common thumbnail consumers. General folder concepts
@@ -772,14 +778,14 @@ MediaManager uses media-folder/media-folder-open (explicit HI outlines),
 media-folder-fill/media-folder-open-fill (System artwork) and media-overlay-*
 (explicit FA Solid) for product, category, download, mail and user overlays.
 The media library node uses images. Folder stacks retain outline backgrounds.
-These concepts all belong to backend; normal file hints reuse their existing kits.
-The backend view-tiles concept maps to HI gallery-vertical, BI view-list and FA
+These concepts all belong to admin; normal file hints reuse their existing kits.
+The admin view-tiles concept maps to HI gallery-vertical, BI view-list and FA
 table-list. MediaManager no longer registers the legacy Bootstrap Vue icon plugin
 or emits its sprite URL.
 
 MediaEditorCommand now exposes Icon (concept name or address) instead of IconClass
 and IconLibrary. Its Razor template renders icons server-side with the icon
-TagHelper. The AI commands use stars-tricolor from the system kit. IconUrl retains
+TagHelper. The AI commands use stars-tricolor from the shared kit. IconUrl retains
 precedence for image-based providers such as Pixlr. External providers must migrate
 their command initializers to Icon; legacy CSS-class properties have been removed.
 
@@ -790,7 +796,7 @@ cms, sliders-v, database and puzzle. The temporary template mapping
 has been removed. Main navigation and right-hand toolbar icons render at 24px
 with stroke-scale 0.85; toolbar concepts are gear, earth, question-circle and user-circle.
 
-The backend kit pins catalog to hi:delivery-box-01!/sr and customers to
+The admin kit pins catalog to hi:delivery-box-01!/sr and customers to
 hi:user-group-03!/sr. The cms concept pins hi:layout-dashboard!/sr, retaining the dashboard motif.
 The marketing concept pins hi:megaphone-02!/sr, retaining the megaphone motif.
 The sitemap uses these concepts instead of explicit sources.

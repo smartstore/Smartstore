@@ -424,7 +424,7 @@ Browser logo concepts use `browser-`, such as `browser-chrome` and `browser-fire
 See [MIGRATION.md](MIGRATION.md) for the `twitter-x` and `windows-logo` conventions.
 
 The root object in `kits.json` groups conceptual names by area of use,
-such as `shared`, `frontend`, `backend`, or a custom `media` kit. Add names to the relevant
+such as `shared`, `public`, `admin`, or a custom `media` kit. Add names to the relevant
 `icons` arrays and provide their assignments in each library's `mapping.json`.
 Kit objects may set `showInPicker` to `false` to hide them from the default icon
 picker source list. The default is `true`, including array shorthand definitions.
@@ -442,12 +442,12 @@ Both are optional. Array-only definitions remain supported as shorthand.
     "defaultVariant": null,
     "icons": ["cart", "heart", "search"]
   },
-  "frontend": {
+  "public": {
     "defaultLibrary": null,
     "defaultVariant": null,
     "icons": ["handshake"]
   },
-  "backend": {
+  "admin": {
     "defaultLibrary": "hugeicons",
     "defaultVariant": "stroke-rounded",
     "icons": ["gear", "trash"]
@@ -470,8 +470,8 @@ object assigns concrete SVG addresses to members that differ from the defaults:
 }
 ```
 
-The frontend kit uses Bootstrap sources for `phone` (`bi:telephone`) and
-`plus-circle`; the backend kit uses them for `box`, `braces-asterisk`, `exclamation`
+The public kit uses Bootstrap sources for `phone` (`bi:telephone`) and
+`plus-circle`; the admin kit uses them for `box`, `braces-asterisk`, `exclamation`
 and `sitemap`.
 Callers continue to use the public concept names. HI mappings remain available
 for explicit HI requests.
@@ -521,8 +521,8 @@ kit array. [MIGRATION.md](MIGRATION.md) records the reviewed legacy FA/BI replac
 Keep its HI targets synchronized with mapping changes and preserve manual edits to
 these JSON files during future imports.
 
-`shared` contains concepts used by both areas. Combine it with `frontend` or
-`backend`; shared concepts do not need to be repeated in those kits.
+`shared` contains concepts used by both areas. Combine it with `public` or
+`admin`; shared concepts do not need to be repeated in those kits.
 
 `IconRenderer` automatically selects an external symbol for resolved icons that
 belong to a kit. Callers still provide only an icon name; the TagHelper delegates
@@ -1200,7 +1200,7 @@ the client manifest fast path and require the render endpoint, even when the sam
 artwork is already included in a kit. Use explicit addresses only when no suitable
 concept exists or a specific source selection is intentional.
 
-Missing icons render the `system:not-found!/default` placeholder from the system kit with
+Missing icons render the `system:not-found!/default` placeholder from the shared kit with
 `text-danger`, shared by Razor, HTML helpers and `sm-icon`. System artwork lives
 in `system/default/icons`. Lookup and search still report missing sources as absent.
 If the placeholder itself is unavailable, rendering returns no output without recursion.
