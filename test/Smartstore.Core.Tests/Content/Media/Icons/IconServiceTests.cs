@@ -1,4 +1,5 @@
 using System;
+using Autofac;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -27,6 +28,248 @@ namespace Smartstore.Core.Tests.Content.Media.Icons;
 [TestFixture]
 public class IconServiceTests
 {
+    private readonly List<IContainer> _providerContainers = [];
+
+    private IconService CreateProviderService(IIconProvider provider)
+    {
+        var containerBuilder = new ContainerBuilder();
+        containerBuilder.RegisterInstance(provider).As<IIconProvider>().ExternallyOwned();
+        var container = containerBuilder.Build();
+        _providerContainers.Add(container);
+        var scanner = new Mock<ITypeScanner>();
+        scanner.Setup(x => x.FindTypes(typeof(IIconProvider), true)).Returns([typeof(ForwardingIconProvider)]);
+        var context = new Mock<IApplicationContext>();
+        context.SetupGet(x => x.AppDataRoot).Returns(_context.Object.AppDataRoot);
+        context.SetupGet(x => x.TypeScanner).Returns(scanner.Object);
+        context.SetupGet(x => x.Services).Returns(container);
+        return new IconService(context.Object, _cache.Object, new IconAreaResolver(), new HttpContextAccessor());
+    }
+
+    public class ForwardingIconProvider(IIconProvider provider) : IIconProvider
+    {
+        public void Configure(IconKitBuilder builder) => provider.Configure(builder);
+    }
+
+    public class ProviderLifetime
+    {
+        public int Created;
+        public int Disposed;
+        public int DependenciesDisposed;
+        public bool Fail;
+    }
+
+    public class ProviderDependency(ProviderLifetime lifetime) : IDisposable
+    {
+        public void Dispose() => lifetime.DependenciesDisposed++;
+    }
+
+    public class ScopedIconProvider : IIconProvider, IDisposable
+    {
+        private readonly ProviderLifetime _lifetime;
+
+        public ScopedIconProvider(ProviderLifetime lifetime, ProviderDependency dependency)
+        {
+            _lifetime = lifetime;
+            _lifetime.Created++;
+        }
+
+        public void Configure(IconKitBuilder builder)
+        {
+            if (_lifetime.Fail)
+            {
+                throw new InvalidDataException("Provider failed.");
+            }
+
+            builder.AddKit(new IconKit("plugin", []))
+                .Add("first", "hi:direct/sr");
+            builder.Kit("plugin").Add("second", "hi:direct/sr");
+        }
+
+        public void Dispose() => _lifetime.Disposed++;
+    }
+
+    /// <summary>
+    /// Discovery is lazy; provider instances and scoped dependencies are released on success and failure.
+    /// </summary>
+    [TestCase(false)]
+    [TestCase(true)]
+    public void Discovered_Providers_Are_Short_Lived(bool fail)
+    {
+        var lifetime = new ProviderLifetime { Fail = fail };
+        var builder = new ContainerBuilder();
+        builder.RegisterInstance(lifetime);
+        builder.RegisterType<ProviderDependency>().InstancePerLifetimeScope();
+        using var container = builder.Build();
+        var scanner = new Mock<ITypeScanner>();
+        scanner.Setup(x => x.FindTypes(typeof(IIconProvider), true)).Returns([typeof(ScopedIconProvider)]);
+        _context.SetupGet(x => x.TypeScanner).Returns(scanner.Object);
+        _context.SetupGet(x => x.Services).Returns(container);
+        Assert.That(lifetime.Created, Is.Zero);
+        scanner.Verify(x => x.FindTypes(typeof(IIconProvider), true), Times.Never);
+
+        for (var generation = 1; generation <= 2; generation++)
+        {
+            if (fail)
+            {
+                Assert.Throws<InvalidDataException>(() => _service.GetLibrary("hi"));
+            }
+            else
+            {
+                _service.GetLibrary("hi");
+                _service.GetLibrary("hi");
+                var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+                Assert.That(kits.Kits.Single().Icons, Is.EquivalentTo(new[] { "first", "second" }));
+            }
+
+            Assert.That(lifetime.Created, Is.EqualTo(generation));
+            Assert.That(lifetime.Disposed, Is.EqualTo(generation));
+            Assert.That(lifetime.DependenciesDisposed, Is.EqualTo(generation));
+            SignalChanges();
+        }
+    }
+
+    /// <summary>
+    /// Provider members use the existing resolution, sprite and browser manifest pipeline.
+    /// </summary>
+    [Test]
+    public async Task Provider_Concept_Uses_Kit_Sprite_And_Manifest()
+    {
+        Write("Icons/kits.json", """{"brands":{"areas":["admin"],"icons":[]}}""");
+        var provider = new Mock<IIconProvider>();
+        provider.Setup(x => x.Configure(It.IsAny<IconKitBuilder>()))
+            .Callback<IconKitBuilder>(b => b.Kit("brands").Add("plugin-icon", "hi:direct/sr"));
+        var service = CreateProviderService(provider.Object);
+        provider.Verify(x => x.Configure(It.IsAny<IconKitBuilder>()), Times.Never);
+        var kits = new IconKitService(service, _context.Object, new HttpContextAccessor());
+        var icon = await service.GetIconAsync("plugin-icon", area: "admin");
+        Assert.That(icon.Name, Is.EqualTo("direct"));
+        Assert.That(await service.GetIconAsync("plugin-icon", area: "public"), Is.Null);
+        Assert.That(kits.GetReference(icon).Href, Does.Contain("/brands-").And.EndsWith("#plugin-icon"));
+        var url = kits.GetUrl("brands");
+        var path = await kits.GetSpriteFileAsync("brands", url[^28..^4]);
+        Assert.That(XDocument.Load(path).Descendants().Any(x => (string)x.Attribute("id") == "plugin-icon"), Is.True);
+        using var manifest = JsonDocument.Parse(await File.ReadAllTextAsync(
+            await kits.GetManifestFileAsync(Path.GetFileNameWithoutExtension(kits.GetManifestUrl()))));
+        Assert.That(manifest.RootElement.GetProperty("areas").GetProperty("admin").GetProperty("plugin-icon").GetString(), Is.EqualTo("brands"));
+        provider.Verify(x => x.Configure(It.IsAny<IconKitBuilder>()), Times.Once);
+
+        var withoutProvider = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        Assert.That(withoutProvider.GetManifestUrl(), Is.Not.EqualTo(kits.GetManifestUrl()));
+        Assert.That(withoutProvider.Kits.Single().Icons, Does.Not.Contain("plugin-icon"));
+    }
+
+    /// <summary>
+    /// Collections contributed by modules inherit each area's kit defaults independently.
+    /// </summary>
+    [Test]
+    public async Task Provider_Collection_Uses_Each_Kit_Defaults_And_Reloads()
+    {
+        Write("Icons/kits.json", """{"public":{"areas":["public"],"use":["plugin"]},"admin":{"areas":["admin"],"defaultVariant":"sharp","use":["plugin"]}}""");
+        var provider = new Mock<IIconProvider>();
+        provider.Setup(x => x.Configure(It.IsAny<IconKitBuilder>()))
+            .Callback<IconKitBuilder>(b => b.Collection("plugin").Add("cart"));
+        var service = CreateProviderService(provider.Object);
+        Assert.That((await service.GetIconAsync("cart")).VariantName, Is.EqualTo("rounded"));
+        Assert.That((await service.GetIconAsync("cart", area: "admin")).VariantName, Is.EqualTo("sharp"));
+        var kits = new IconKitService(service, _context.Object, new HttpContextAccessor());
+        Assert.That(kits.Kits.Select(x => x.Name), Is.EqualTo(new[] { "public", "admin" }));
+        SignalChanges();
+        await service.GetIconAsync("cart");
+        provider.Verify(x => x.Configure(It.IsAny<IconKitBuilder>()), Times.Exactly(2));
+    }
+
+    /// <summary>
+    /// Explicit local members and sources override provider defaults without losing added concepts.
+    /// </summary>
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task Local_Json_Overrides_Provider_Sources(bool collection)
+    {
+        Write("Icons/kits.json", collection
+            ? """{"public":{"use":["shared"]}}"""
+            : """{"public":{"icons":["cart"],"sources":{"extra":"hi:cart-01/sr"}}}""");
+        if (collection)
+        {
+            Write("Icons/collections.json", """{"shared":{"icons":["cart"],"sources":{"extra":"hi:cart-01/sr"}}}""");
+        }
+        var provider = new Mock<IIconProvider>();
+        provider.Setup(x => x.Configure(It.IsAny<IconKitBuilder>())).Callback<IconKitBuilder>(b =>
+        {
+            if (collection)
+                b.Collection("shared").Add("cart", "hi:direct/sr").Add("extra", "hi:direct/sr");
+            else
+                b.Kit("public").Add("cart", "hi:direct/sr").Add("extra", "hi:direct/sr");
+        });
+        var service = CreateProviderService(provider.Object);
+        Assert.That((await service.GetIconAsync("cart")).Name, Is.EqualTo("cart-01"));
+        Assert.That((await service.GetIconAsync("extra")).Name, Is.EqualTo("cart-01"));
+    }
+
+    /// <summary>
+    /// Provider kits follow JSON priorities, and local settings replace provider kit defaults.
+    /// </summary>
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task Provider_Kit_Respects_Local_Priority_And_Settings(bool localOverride)
+    {
+        Write("Icons/kits.json", localOverride
+            ? """{"first":["cart"],"plugin":{"areas":["public"],"showInPicker":true}}"""
+            : """{"first":["cart"]}""");
+        var provider = new Mock<IIconProvider>();
+        provider.Setup(x => x.Configure(It.IsAny<IconKitBuilder>())).Callback<IconKitBuilder>(b =>
+            b.AddKit(new IconKit("plugin", ["cart"], defaultVariant: "sharp", showInPicker: false, areas: ["admin"])));
+        var service = CreateProviderService(provider.Object);
+        var kits = new IconKitService(service, _context.Object, new HttpContextAccessor());
+        Assert.That(kits.Kits.Select(x => x.Name), Is.EqualTo(new[] { "first", "plugin" }));
+        var plugin = kits.Kits.Single(x => x.Name == "plugin");
+        Assert.That(plugin.ShowInPicker, Is.EqualTo(localOverride));
+        Assert.That(plugin.Areas, Is.EqualTo(new[] { localOverride ? "public" : "admin" }));
+        Assert.That(plugin.DefaultVariant, Is.EqualTo(localOverride ? null : "sharp"));
+        Assert.That(kits.GetReference(await service.GetIconAsync("cart", area: "admin")).Href, Does.Contain("/first-"));
+    }
+
+    /// <summary>
+    /// Modules can supply complete kits without a local kits.json file.
+    /// </summary>
+    [Test]
+    public async Task Provider_Kit_Works_Without_Json_Configuration()
+    {
+        var provider = new Mock<IIconProvider>();
+        provider.Setup(x => x.Configure(It.IsAny<IconKitBuilder>())).Callback<IconKitBuilder>(b =>
+            b.AddKit(new IconKit("plugin", ["custom"], sources: new Dictionary<string, string> { ["custom"] = "hi:direct/sr" })));
+        var service = CreateProviderService(provider.Object);
+        var kits = new IconKitService(service, _context.Object, new HttpContextAccessor());
+        Assert.That(kits.GetReference(await service.GetIconAsync("custom")).Href, Does.Contain("/plugin-").And.EndsWith("#custom"));
+    }
+
+    /// <summary>
+    /// Misspelled kit names and invalid source selectors cannot silently create unusable contributions.
+    /// </summary>
+    [TestCase("typo", "hi:direct/sr")]
+    [TestCase("public", "missing:direct/sr")]
+    [TestCase("public", "hi:direct/missing")]
+    public void Invalid_Provider_Targets_Are_Rejected(string kit, string source)
+    {
+        Write("Icons/kits.json", """{"public":[]}""");
+        var provider = new Mock<IIconProvider>();
+        provider.Setup(x => x.Configure(It.IsAny<IconKitBuilder>()))
+            .Callback<IconKitBuilder>(b => b.Kit(kit).Add("extra", source));
+        var service = CreateProviderService(provider.Object);
+        Assert.Throws<InvalidDataException>(() => service.GetLibrary("hi"));
+    }
+
+    /// <summary>
+    /// Duplicate contributions are idempotent, but conflicting sources fail independent of provider order.
+    /// </summary>
+    [Test]
+    public void Conflicting_Provider_Contributions_Are_Rejected()
+    {
+        var builder = new IconKitBuilder();
+        builder.Kit("public").Add("extra", "hi:direct/sr").Add("extra", "hi:direct/sr");
+        Assert.Throws<InvalidDataException>(() => builder.Kit("public").Add("extra", "hi:cart-01/sr"));
+        Assert.Throws<InvalidDataException>(() => builder.Collection("shared").Add("../invalid"));
+    }
+
     [Test]
     public async Task Singleton_Resolves_Current_Request_Area_And_Explicit_Override()
     {
@@ -335,6 +578,7 @@ public class IconServiceTests
         files.Setup(x => x.GetDirectoryContents(It.IsAny<string>())).Returns((string path) => _provider.GetDirectoryContents(path));
         files.Setup(x => x.Watch(It.IsAny<string>())).Returns(() => new CancellationChangeToken(_changes.Token));
         _context = new Mock<IApplicationContext>();
+        _context.SetupGet(x => x.TypeScanner).Returns(NullTypeScanner.Instance);
         _context.SetupGet(x => x.AppDataRoot).Returns(files.Object);
         _entries = new ConcurrentDictionary<string, string>();
         _cache = new Mock<IIconCache>();
@@ -572,6 +816,11 @@ public class IconServiceTests
     [TearDown]
     public void TearDown()
     {
+        foreach (var container in _providerContainers)
+        {
+            container.Dispose();
+        }
+        _providerContainers.Clear();
         _provider?.Dispose();
         _changes?.Dispose();
         if (_root != null && Path.GetFileName(_root).Length == 32 && Directory.Exists(_root))
@@ -817,6 +1066,7 @@ public class IconServiceTests
         var workspace = new DirectoryInfo(_root).Parent.Parent.Parent.Parent;
         using var files = new LocalFileSystem(Path.Combine(workspace.FullName, "Smartstore", "src", "Smartstore.Web", "App_Data"));
         var context = new Mock<IApplicationContext>();
+        context.SetupGet(x => x.TypeScanner).Returns(NullTypeScanner.Instance);
         context.SetupGet(x => x.AppDataRoot).Returns(files);
         var service = new IconService(context.Object, _cache.Object, new IconAreaResolver(), new HttpContextAccessor());
         int count = 0;

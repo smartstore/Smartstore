@@ -1,4 +1,6 @@
 {
+  "video": "film",
+  "audio": "music",
   "view-tiles": "table-list",
   "alert-circle": "circle-exclamation",
   "archive": "box-archive",

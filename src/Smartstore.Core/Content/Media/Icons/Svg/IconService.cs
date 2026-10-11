@@ -30,10 +30,35 @@ public sealed partial class IconService(IApplicationContext applicationContext, 
                 // Existing requests retain their generation while the next request sees changes.
                 if (_catalog == null || _catalog.ChangeToken.HasChanged)
                 {
-                    _catalog = IconCatalog.Load(applicationContext.AppDataRoot);
+                    _catalog = IconCatalog.Load(applicationContext.AppDataRoot, CreateProviders());
                 }
 
                 return _catalog;
+            }
+        }
+    }
+
+    private IEnumerable<IIconProvider> CreateProviders()
+    {
+        var types = applicationContext.TypeScanner.FindTypes<IIconProvider>()
+            .OrderBy(x => x.FullName, StringComparer.Ordinal).ToArray();
+        if (types.Length == 0)
+        {
+            yield break;
+        }
+
+        using var scope = applicationContext.Services.BeginLifetimeScope();
+        foreach (var type in types)
+        {
+            var provider = (IIconProvider)scope.ResolveUnregistered(type);
+            try
+            {
+                yield return provider;
+            }
+            finally
+            {
+                // ResolveUnregistered does not enroll the instance in Autofac's disposal tracking.
+                (provider as IDisposable)?.Dispose();
             }
         }
     }

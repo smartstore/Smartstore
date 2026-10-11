@@ -32,9 +32,9 @@ Custom formatters, including the legacy FontAwesome chooser, retain their own co
 Export deployment icons use `folder-open`, `mail`, `hi:cloud-server!/sr` (HTTP POST),
 `database-export` (FTP), and `hi:folder-upload!/sr` (public folder).
 AddToAny reuses existing kit concepts where available, including `twitter-x`,
-and uses `share` as its fallback. Additional brands and SMS temporarily use
-explicit FA addresses instead of extending the platform kits. A future
-`IIconProvider` will let the module contribute these icons to kits externally.
+and uses `share` as its fallback. AddToAny's `Icons` provider contributes 19 additional
+brand concepts and SMS exclusively to the admin kit for the service picker.
+Callers use these concepts instead of explicit FA addresses.
 
 ## Collections and areas
 
@@ -138,7 +138,7 @@ migration. See [MENU-MIGRATION.md](MENU-MIGRATION.md) for the audit.
 All workspace AdminMenuProvider implementations and MenuBuiltEvent consumers
 have also been audited. Remaining source-only HI names use explicit addresses:
 `hi:alarm-clock!/sr`, `hi:bell-plus!/sr` and `hi:chat!/sr`.
-CartApproval uses `cart-check`; GDPR uses `user-secret`.
+CartApproval uses `cart-check`; GDPR uses `privacy`.
 See the provider/consumer audit in [MENU-MIGRATION.md](MENU-MIGRATION.md).
 
 ## Store dashboard report
@@ -360,9 +360,9 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 | `fal fa-right-from-bracket`<br>`fas fa-right-from-bracket` | `logout-02` | `logout` |
 | `fa fa-wand-magic-sparkles` | `magic-wand-04` | `sparkles` |
 | `fa fa-mail-forward` | `mail-send-01` | `mail-forward` |
-| `fa fa-expand` | `full-screen` | `maximize` |
+| `fa fa-expand` | `maximize-screen` | `maximize` |
 | `fa fa-bullhorn` | `megaphone-02` | `megaphone` |
-| `fa fa-compress` | `minimize` | `minimize` |
+| `fa fa-compress` | `minimize-screen` | `minimize` |
 | `fa fa-minus` | `minus?stroke-scale=1.5` | `minus` |
 | `far fa-mobile-alt`<br>`fa fa-mobile-screen-button` | `smart-phone-01` | `mobile` |
 | `far fa-money-bill-1` | `hand-coins` | `money` |
@@ -436,7 +436,7 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 | `fa fa-user-check` | `user-check-01` | `user-check` |
 | `fal fa-user-circle`<br>`fas fa-user-circle` | `user-circle` | `user-circle` |
 | `far fa-user-edit` | `user-edit-01` | `user-edit` |
-| `fa fa-user-secret` | `incognito` | `user-secret` |
+| `fa fa-user-secret` | `incognito` | `privacy` |
 | `fa fa-user-shield` | `user-shield-01` | `user-shield` |
 | `fa fa-group`<br>`fa fa-users` | `user-group-02` | `user-group` |
 | `fa fa-wallet` | `wallet-01` | `wallet` |
@@ -740,7 +740,7 @@ hover and checked-state settings. Both legacy `fontawesome` and
 `alert-success` and `alert-warning`, with `award` for review rewards.
 The four alert SVGs live in the system library and keep their appearance across
 library changes. Info is unframed; success is a heavier HI check;
-warning uses an HI-derived outline triangle and danger an outline circle, both with the same solid exclamation mark.
+warning uses an HI-derived outline triangle and danger an outline circle, both with the same filled exclamation mark.
 All use a 24-unit viewBox and the existing 28px alert viewport. The shared icon-box mixin renders masks only when
 alert icons are enabled.
 
@@ -814,3 +814,27 @@ The admin kit pins catalog to hi:delivery-box-01!/sr and customers to
 hi:user-group-03!/sr. The cms concept pins hi:layout-dashboard!/sr, retaining the dashboard motif.
 The marketing concept pins hi:megaphone-02!/sr, retaining the megaphone motif.
 The sitemap uses these concepts instead of explicit sources.
+
+## Block metadata icons
+
+BlockAttribute.Icon now contains a concept or explicit icon address instead of FA CSS
+classes. All block handlers, including private modules and the module template, use
+this contract. PageBuilder renders palette and dialog icons on the server; the
+dynamic block list assigns addresses to sm-icon. Icons without a concept use default-library motif names and do not require
+additional kit entries. No BlockAttribute retains an explicit FA address.
+
+The audio block uses the shared `audio` concept (HI `audio-lines`, FA `music`,
+BI `soundwave`). The text block uses `text-firstline-right`; the default block
+icon is `block-game`.
+
+The story block uses `cms`. The video block uses the shared `video` concept, mapped
+to HI `film-01` and FA/BI `film`.
+
+## Icon provider foundation
+
+Installed modules can implement `IIconProvider.Configure(IconKitBuilder)` to
+extend kits or collections and declare new kits using existing library sources.
+Local JSON keeps priority. Provider concepts use the existing sprite and manifest
+pipeline. Providers are auto-discovered and instantiated through `ResolveUnregistered`
+in a temporary scope for each catalog generation, without singleton registrations.
+AddToAny contributes all its additional service-picker icons exclusively to the admin kit.

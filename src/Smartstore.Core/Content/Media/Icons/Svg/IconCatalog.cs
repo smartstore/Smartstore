@@ -397,8 +397,9 @@ internal sealed class IconCatalog
     /// Loads configuration and library manifests, deferring icon sources and supplementary JSON.
     /// </summary>
     /// <param name="files">The application data file provider.</param>
+    /// <param name="providers">Application-wide contributions from installed modules.</param>
     /// <returns>A manifest snapshot with its change token established before source reads.</returns>
-    internal static IconCatalog Load(IFileProvider files)
+    internal static IconCatalog Load(IFileProvider files, IEnumerable<IIconProvider> providers)
     {
         // Watch before reading so a change during any deferred load invalidates this generation.
         // Watch source locations explicitly: generated files in App_Data/.cache/icons/kits must never
@@ -502,61 +503,92 @@ internal sealed class IconCatalog
             throw new InvalidDataException("Unknown defaultVariant in Icons/config.json.");
         }
 
+        var contributions = new IconKitBuilder();
+        foreach (var provider in providers)
+        {
+            provider.Configure(contributions);
+        }
+
         // Kit definitions are optional and maintained separately from global defaults.
         // Watch registration above also catches a kits.json created after startup.
         using var collections = ReadJson(files, "Icons/collections.json", false);
         var collectionDefinitions = collections?.RootElement.EnumerateObject().ToDictionary(x => x.Name, x => x.Value, StringComparer.Ordinal)
             ?? new Dictionary<string, JsonElement>(StringComparer.Ordinal);
         using var kits = ReadJson(files, "Icons/kits.json", false);
+        var kitDefinitions = new Dictionary<string, JsonElement>(StringComparer.Ordinal);
         if (kits != null)
         {
             foreach (var kit in kits.RootElement.EnumerateObject())
             {
-                if (!IconAddress.IsQualifier(kit.Name))
-                {
-                    throw new InvalidDataException($"Invalid icon kit name '{kit.Name}'.");
-                }
-
-                // Retain the array shorthand for kits that inherit all defaults.
-                var definition = kit.Value;
-                var isObject = definition.ValueKind == JsonValueKind.Object;
-                var libraryName = isObject && definition.TryGetProperty("defaultLibrary", out var kitLibrary)
-                    ? kitLibrary.GetString() : null;
-                var variantName = isObject && definition.TryGetProperty("defaultVariant", out var kitVariant)
-                    ? kitVariant.GetString() : null;
-                var selectedLibrary = libraryName == null ? catalog.DefaultLibrary : catalog.Libraries.GetValueOrDefault(libraryName);
-                if (selectedLibrary == null || libraryName != null
-                    && !systemNames.Contains(libraryName))
-                {
-                    throw new InvalidDataException($"Unknown defaultLibrary in icon kit '{kit.Name}'. Use the library system name.");
-                }
-
-                if (variantName != null && !selectedLibrary.Variants.ContainsKey(variantName))
-                {
-                    throw new InvalidDataException($"Unknown defaultVariant '{variantName}' in icon kit '{kit.Name}' for library '{selectedLibrary.Manifest.SystemName}'.");
-                }
-
-                var (names, sources) = ExpandDefinition(definition, collectionDefinitions, new HashSet<string>(StringComparer.Ordinal));
-                var areas = isObject && definition.TryGetProperty("areas", out var kitAreas)
-                    ? kitAreas.EnumerateArray().Select(x => x.GetString()).ToArray() : null;
-                var icon = isObject && definition.TryGetProperty("icon", out var kitIcon)
-                    ? kitIcon.GetString() : null;
-                var showInPicker = !isObject || !definition.TryGetProperty("showInPicker", out var kitVisibility)
-                    || kitVisibility.GetBoolean();
-                var iconKit = new IconKit(kit.Name, names, libraryName, variantName, sources, icon, showInPicker, areas);
-                foreach (var address in iconKit.SourceAddresses.Values)
-                {
-                    var entryLibrary = IconService.SelectLibrary(catalog, address.Library ?? libraryName);
-                    if (entryLibrary == null || IconService.SelectVariant(catalog, entryLibrary, address.Variant, iconKit) == null)
-                    {
-                        throw new InvalidDataException($"Unknown library or variant in icon kit '{kit.Name}': '{address}'.");
-                    }
-                }
-
-                if (!catalog.Kits.TryAdd(kit.Name, iconKit))
+                if (!kitDefinitions.TryAdd(kit.Name, kit.Value))
                 {
                     throw new InvalidDataException($"Duplicate icon kit '{kit.Name}'.");
                 }
+            }
+        }
+        foreach (var kit in contributions.Kits.Values)
+        {
+            kitDefinitions.TryAdd(kit.Name, IconKitBuilder.GetDefinition(kit));
+        }
+        foreach (var name in contributions.KitIcons.Keys)
+        {
+            if (!kitDefinitions.ContainsKey(name))
+            {
+                throw new InvalidDataException($"Icon provider targets unknown kit '{name}'.");
+            }
+        }
+        foreach (var name in contributions.CollectionIcons.Keys)
+        {
+            collectionDefinitions.TryAdd(name, default);
+        }
+
+        foreach (var kit in kitDefinitions)
+        {
+            if (!IconAddress.IsQualifier(kit.Key))
+            {
+                throw new InvalidDataException($"Invalid icon kit name '{kit.Key}'.");
+            }
+
+            // Retain the array shorthand for kits that inherit all defaults.
+            var definition = kit.Value;
+            var isObject = definition.ValueKind == JsonValueKind.Object;
+            var libraryName = isObject && definition.TryGetProperty("defaultLibrary", out var kitLibrary)
+                ? kitLibrary.GetString() : null;
+            var variantName = isObject && definition.TryGetProperty("defaultVariant", out var kitVariant)
+                ? kitVariant.GetString() : null;
+            var selectedLibrary = libraryName == null ? catalog.DefaultLibrary : catalog.Libraries.GetValueOrDefault(libraryName);
+            if (selectedLibrary == null || libraryName != null
+                && !systemNames.Contains(libraryName))
+            {
+                throw new InvalidDataException($"Unknown defaultLibrary in icon kit '{kit.Key}'. Use the library system name.");
+            }
+
+            if (variantName != null && !selectedLibrary.Variants.ContainsKey(variantName))
+            {
+                throw new InvalidDataException($"Unknown defaultVariant '{variantName}' in icon kit '{kit.Key}' for library '{selectedLibrary.Manifest.SystemName}'.");
+            }
+
+            var (names, sources) = ExpandDefinition(definition, collectionDefinitions, contributions.CollectionIcons,
+                contributions.KitIcons.GetValueOrDefault(kit.Key), new HashSet<string>(StringComparer.Ordinal));
+            var areas = isObject && definition.TryGetProperty("areas", out var kitAreas)
+                ? kitAreas.EnumerateArray().Select(x => x.GetString()).ToArray() : null;
+            var icon = isObject && definition.TryGetProperty("icon", out var kitIcon)
+                ? kitIcon.GetString() : null;
+            var showInPicker = !isObject || !definition.TryGetProperty("showInPicker", out var kitVisibility)
+                || kitVisibility.GetBoolean();
+            var iconKit = new IconKit(kit.Key, names, libraryName, variantName, sources, icon, showInPicker, areas);
+            foreach (var address in iconKit.SourceAddresses.Values)
+            {
+                var entryLibrary = IconService.SelectLibrary(catalog, address.Library ?? libraryName);
+                if (entryLibrary == null || IconService.SelectVariant(catalog, entryLibrary, address.Variant, iconKit) == null)
+                {
+                    throw new InvalidDataException($"Unknown library or variant in icon kit '{kit.Key}': '{address}'.");
+                }
+            }
+
+            if (!catalog.Kits.TryAdd(kit.Key, iconKit))
+            {
+                throw new InvalidDataException($"Duplicate icon kit '{kit.Key}'.");
             }
         }
 
@@ -576,7 +608,8 @@ internal sealed class IconCatalog
 
     // Collections contribute definitions only. First use wins; local declarations override it.
     private static (List<string> Names, Dictionary<string, string> Sources) ExpandDefinition(
-        JsonElement definition, Dictionary<string, JsonElement> collections, HashSet<string> visiting)
+        JsonElement definition, Dictionary<string, JsonElement> collections,
+        Dictionary<string, Dictionary<string, string>> collectionIcons, Dictionary<string, string> additions, HashSet<string> visiting)
     {
         var names = new List<string>();
         var sources = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -592,7 +625,7 @@ internal sealed class IconCatalog
                     throw new InvalidDataException($"Unknown or cyclic icon collection '{name}'.");
                 }
 
-                var expanded = ExpandDefinition(collection, collections, visiting);
+                var expanded = ExpandDefinition(collection, collections, collectionIcons, collectionIcons.GetValueOrDefault(name), visiting);
                 visiting.Remove(name);
                 foreach (var concept in expanded.Names)
                 {
@@ -604,6 +637,19 @@ internal sealed class IconCatalog
                             sources.Add(concept, source);
                         }
                     }
+                }
+            }
+        }
+
+        // Inherited JSON declarations win over provider defaults; local declarations below win too.
+        if (additions != null)
+        {
+            foreach (var entry in additions)
+            {
+                if (seen.Add(entry.Key))
+                {
+                    names.Add(entry.Key);
+                    if (entry.Value != null) sources.Add(entry.Key, entry.Value);
                 }
             }
         }

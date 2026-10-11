@@ -474,7 +474,7 @@ in the expanded membership. Collections can include other collections; unknown
 references and cycles are configuration errors. Both JSON files are watched.
 
 `showInPicker: false` only hides a kit from the default picker list. It does not
-restrict area membership or rendering. `IconModel.ShowHiddenKits` reveals it.
+restrict area membership or rendering. `IconBrowserModel.ShowHiddenKits` reveals it.
 
 `IIconAreaResolver.ResolveArea(HttpContext? context)` lives in Core and is registered
 as a stateless singleton. It uses `Request.IsAdminArea()` and otherwise returns `public`.
@@ -518,8 +518,8 @@ on an individual icon request still wins: when it selects a different source
 selection, that request uses the chosen library's mapping of the original concept.
 Caller addresses ending in `!` bypass both kit routing and library mapping.
 
-There is no enclosing `kits` property. If `kits.json` is absent, no kits are
-registered and icons render inline. Changes, creation and deletion of this file
+There is no enclosing `kits` property. If `kits.json` is absent, only provider-defined
+kits are registered; other icons render inline. Changes, creation and deletion of this file
 invalidate the catalog through the file watcher. Keeping kit definitions separate
 lets integrators maintain their memberships independently of global configuration
 updates; update conflicts in `kits.json` still require merging.
@@ -536,6 +536,66 @@ Direct `!` addresses skip conceptual kit defaults as well as mapping. Search als
 uses its explicitly selected library or the system default, independently of kits.
 `IIconKitService.GetUrl` follows the named kit's defaults unless overridden.
 Changes to kit defaults are picked up by the configuration watcher.
+
+### Module contributions with IIconProvider
+
+Modules can contribute concepts to existing kits and collections or define their own
+kits without modifying the platform JSON files. Implement `IIconProvider` in the module;
+the type scanner discovers it automatically in installed modules when the catalog loads.
+`ResolveUnregistered` creates each provider in a temporary DI scope. Providers and their
+scope are released after configuration; no manual registration or `IProvider` metadata
+is required. Only the contributed definitions remain in the catalog.
+
+For example, an AddToAny provider could contribute additional services to the existing
+admin kit, keeping service-picker icons out of storefront sprites:
+
+```csharp
+using Smartstore.Core.Content.Media.Icons;
+
+internal sealed class Icons : IIconProvider
+{
+    public void Configure(IconKitBuilder builder)
+    {
+        builder.Kit("admin")
+            .Add("blogger", "fa:blogger/b")
+            .Add("buffer", "fa:buffer/b")
+            .Add("pocket", "fa:get-pocket/b")
+            .Add("sms", "fa:comment-sms/s");
+    }
+}
+```
+
+The caller then uses `blogger`, `buffer`, `pocket` or `sms` as its icon address,
+including in Select2 `data-icon` attributes and `sm-icon`. The usual area rules
+apply, so these concepts belong only to admin. This is a usage
+excerpt of the provider implemented in the AddToAny module.
+
+- `Kit(kit).Add(concept, source)` extends a kit declared in JSON or by `AddKit`.
+  Unknown kit names fail with a configuration error rather than creating typo kits.
+- `Collection(collection).Add(concept, source)` creates or extends a collection.
+  For example, `builder.Collection("shared").Add("plugin-action", "action-motif")`
+  contributes to both public and admin through their existing `use` declarations.
+- `AddKit(new IconKit("my-plugin", ["cart"], showInPicker: false, areas: ["admin"]))`
+  declares an independent kit using the existing immutable kit contract.
+- A missing source uses normal library mapping. A supplied source identifies concrete
+  artwork, just like JSON `sources`; it does not introduce a global library mapping.
+  Providers cannot add libraries, variants or SVG drawings.
+
+Contributions are collected lazily once per catalog generation. Provider classes are
+processed in ordinal full-type-name order; definitions within a provider keep their
+insertion order. JSON kit order remains authoritative, with provider-only kits appended.
+A JSON kit of the same name supplies all kit settings, while provider members are additive.
+Inherited collection entries take precedence over provider additions to the including set.
+Local JSON `icons` reset provider sources to normal mapping; local `sources` override them.
+Identical provider contributions are idempotent. Conflicting sources for the same target
+and concept, or multiple provider definitions of the same kit, are configuration errors.
+
+Providers must be deterministic and must not use request/scoped dependencies or resolve
+`IIconService` from `Configure`. They must not retain the builder. File invalidation reruns
+them for the next generation; provider code or module installation changes require an
+application restart. Published definitions are copied into immutable kits and participate
+in the existing sprite revisions, manifest, picker and area resolution. There is no
+separate provider cache or publication path.
 
 The supplied kit memberships and HugeIcons mappings are a work in progress.
 Edit `kits.json` to move concepts between kits and `hugeicons/mapping.json` to
@@ -1004,11 +1064,11 @@ The DataGrid already installs it. No Vue dependency is required by the component
 
 The admin `IconBrowser` editor template binds an icon address and presentation overrides
 in edit forms. The cheatsheet demonstrates it; existing Font Awesome pickers are not
-migrated automatically. Add an `IconModel` property to your view model and render it:
+migrated automatically. Add an `IconBrowserModel` property to your view model and render it:
 
 ```csharp
 // Configure on GET and again when redisplaying a failed POST.
-model.Icon = new IconModel
+model.Icon = new IconBrowserModel
 {
     IconAddress = "cart",
     Rotate = 90,
@@ -1020,7 +1080,7 @@ model.Icon = new IconModel
 @Html.EditorFor(x => x.Icon, "IconBrowser")
 ```
 
-`IconModel` and `IconOptionFields` belong to `Smartstore.Web.Models.Media`.
+`IconBrowserModel` and `IconOptionFields` belong to `Smartstore.Web.Models.Media`.
 `IconAddress` preserves the input expression, including optional library, variant,
 `!` and query modifiers. `Size`, `Animation`, nullable `FlipHorizontal`,
 `FlipVertical`, `Rotate` and `StrokeScale` are posted under the same MVC field prefix.

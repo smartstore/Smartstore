@@ -9,7 +9,7 @@ namespace Smartstore.Web.Models.Media;
 /// Edits a persistent icon address and optional presentation overrides.
 /// Null option values preserve address and mapping defaults.
 /// </summary>
-public class IconModel : ModelBase
+public class IconBrowserModel : ModelBase
 {
     /// <summary>
     /// Gets or sets the original address, including optional library, variant and query modifiers.

@@ -36,7 +36,7 @@ Five remaining unqualified source names in consumers were corrected:
 | Consumer | Previous value | Address / concept |
 | --- | --- | --- |
 | CartApproval | shopping-cart-check-02 | cart-check |
-| GDPR | incognito | user-secret |
+| GDPR | incognito | privacy |
 | EmailReminder | alarm-clock | hi:alarm-clock!/sr |
 | Forums (subscriptions) | bell-plus | hi:bell-plus!/sr |
 | Forums (private messages) | chat | hi:chat!/sr |

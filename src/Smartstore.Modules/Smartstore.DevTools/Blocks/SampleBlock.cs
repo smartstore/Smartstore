@@ -10,7 +10,7 @@ namespace Smartstore.DevTools.Blocks;
 /// The <see cref="BlockHandlerBase{T}"/> abstract class already implements important parts.
 /// You can, however, overwrite any method to fulfill your custom needs.
 /// </summary>
-[Block("sample", Icon = "far fa-terminal", FriendlyName = "Sample", DisplayOrder = 50, IsInternal = true)] // REMOVE IsInternal = true to display the block in the page builder
+[Block("sample", Icon = "terminal", FriendlyName = "Sample", DisplayOrder = 50, IsInternal = true)] // REMOVE IsInternal = true to display the block in the page builder
 public class SampleBlockHandler : BlockHandlerBase<SampleBlock>
 {
     public override Task<SampleBlock> LoadAsync(IBlockEntity entity, StoryViewMode viewMode)
