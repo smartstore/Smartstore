@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Smartstore.Engine;
 using Smartstore.Threading;
 
@@ -8,7 +9,10 @@ namespace Smartstore.Core.Content.Media.Icons;
 /// </summary>
 /// <param name="applicationContext">Provides the application data file system containing the Icons source directory.</param>
 /// <param name="cache">Stores prepared SVG payloads by canonical address and content revision.</param>
-public sealed partial class IconService(IApplicationContext applicationContext, IIconCache cache) : IIconService
+/// <param name="areaResolver">Resolves omitted areas without retaining request state.</param>
+/// <param name="httpContextAccessor">Supplies the current context for each resolution call.</param>
+public sealed partial class IconService(IApplicationContext applicationContext, IIconCache cache,
+    IIconAreaResolver areaResolver, IHttpContextAccessor httpContextAccessor) : IIconService
 {
     private readonly Lock _sync = new();
     private IconCatalog _catalog;
@@ -60,9 +64,9 @@ public sealed partial class IconService(IApplicationContext applicationContext, 
     }
 
     /// <inheritdoc />
-    public Task<IconInfo> GetIconAsync(string name, string library = null, string variant = null, CancellationToken cancelToken = default)
+    public Task<IconInfo> GetIconAsync(string name, string library = null, string variant = null, string area = null, CancellationToken cancelToken = default)
     {
-        return Task.FromResult(Find(Catalog, name, library, variant));
+        return Task.FromResult(Find(Catalog, name, library, variant, area ?? areaResolver.ResolveArea(httpContextAccessor.HttpContext)));
     }
 
     /// <inheritdoc />
@@ -191,7 +195,7 @@ public sealed partial class IconService(IApplicationContext applicationContext, 
         return (filtered.Count, ordered.Skip(query.Skip).Take(query.Take).ToArray());
     }
 
-    private static IconInfo Find(IconCatalog catalog, string name, string libraryName, string variantName)
+    private static IconInfo Find(IconCatalog catalog, string name, string libraryName, string variantName, string area)
     {
         Guard.NotEmpty(name);
 
@@ -200,7 +204,7 @@ public sealed partial class IconService(IApplicationContext applicationContext, 
         var address = IconAddress.Parse(separator < 0 ? name : name[..separator]);
         // Explicit address components take precedence; method arguments fill missing components.
         // Compare resolved objects so a full name and its short name are not treated as a conflict.
-        var kit = address.SkipMapping ? null : catalog.ConceptKits.GetValueOrDefault(address.Name);
+        var kit = address.SkipMapping ? null : catalog.FindKit(address.Name, area);
         var entry = kit?.SourceAddresses.GetValueOrDefault(address.Name) ?? default;
         var entryLibrary = SelectLibrary(catalog, entry.Library ?? kit?.DefaultLibrary);
         var library = SelectLibrary(catalog, address.Library ?? libraryName ?? entry.Library ?? kit?.DefaultLibrary);
@@ -238,6 +242,7 @@ public sealed partial class IconService(IApplicationContext applicationContext, 
         var info = CreateInfo(selected.Library, selected.Variant, selected.Mapping.Name);
         // Keep the requested kit context separate from the actual artwork identity. A mixed
         // regular kit must stay regular even when this particular symbol came from solid.
+        info.Area = area ?? "public";
         info.ConceptName = address.SkipMapping ? null : address.Name;
         info.SelectionLibraryName = library.Manifest.SystemName;
         info.SelectionVariantName = variant.Manifest.Name;

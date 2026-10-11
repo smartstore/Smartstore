@@ -1,11 +1,15 @@
 ﻿using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Content.Media.Icons;
 
+using Smartstore.Web.Rendering;
+
 namespace Smartstore.Web.TagHelpers.Shared;
 
 [HtmlTargetElement("file-icon", Attributes = FileExtensionAttributeName, TagStructure = TagStructure.WithoutEndTag)]
-public class FileIconTagHelper(IIconService icons, IIconRenderer iconRenderer) : TagHelper
+public class FileIconTagHelper : SmartTagHelper
 {
+    protected override string GenerateTagId(TagHelperContext context) => null;
+
     const string FileExtensionAttributeName = "file-extension";
     const string LabelAttributeName = "label";
     const string ShowLabelAttributeName = "show-label";
@@ -35,13 +39,8 @@ public class FileIconTagHelper(IIconService icons, IIconRenderer iconRenderer) :
     [HtmlAttributeName(BadgeClassAttributeName)]
     public string BadgeClass { get; set; }
 
-    public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
+    protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
     {
-        if (context.ShouldSuppressChildContent())
-        {
-            return;
-        }
-
         output.TagName = null;
         output.TagMode = TagMode.StartTagAndEndTag;
 
@@ -73,7 +72,7 @@ public class FileIconTagHelper(IIconService icons, IIconRenderer iconRenderer) :
 
             ext = ext.NaIfEmpty().ToUpper();
 
-            output.Content.AppendHtml(await iconRenderer.RenderAsync(await icons.GetIconAsync(iconName), new IconOptions
+            output.Content.AppendHtml(await HtmlHelper.IconAsync(iconName, options: new IconOptions
             {
                 FixedWidth = true,
                 Attributes = { ["title"] = ext }

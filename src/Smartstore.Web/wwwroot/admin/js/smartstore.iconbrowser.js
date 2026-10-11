@@ -75,11 +75,14 @@
                     ? 'icon-browser-choice d-flex flex-column align-items-center justify-content-center gap-1'
                     : 'select2-option w-100 align-items-center';
                 let icon;
-                if (!isResult || item.inlineName) {
-                    // The selection renders its original address and persisted overrides;
-                    // result tiles retain the shared sprite optimization.
+                const hasPreviewOptions = !isResult && optionFields.toArray().some(field =>
+                    field.value !== '' && field.dataset.iconOption !== 'size' && field.dataset.iconOption !== 'animation'
+                    && (field.dataset.iconOption !== 'stroke-scale' || supportsStrokeScaling));
+                if (!item.spriteUrl || item.inlineName || hasPreviewOptions) {
+                    // Preserve the chosen source even when its kit belongs to another area.
+                    // Unmodified selections and result tiles use that kit's sprite directly.
                     icon = document.createElement('sm-icon');
-                    icon.setAttribute('name', isResult ? item.inlineName : item.id);
+                    icon.setAttribute('name', isResult ? item.inlineName : (item.previewAddress || item.id));
                     if (!isResult) applyPreviewOptions(icon);
                 } else {
                     icon = document.createElementNS(ns, 'svg');
@@ -88,8 +91,8 @@
                     icon.append(use);
                 }
                 icon.setAttribute('class', 'icon');
-                if (isResult && item.isDuotone) icon.classList.add('icon-duotone');
-                if (isResult && item.library && item.variant) {
+                if (item.isDuotone) icon.classList.add('icon-duotone');
+                if (item.library && item.variant) {
                     icon.classList.add(`icon-${item.library}`, `icon-${item.library}-${item.variant}`);
                 }
                 if (!isResult) icon.classList.add('icon-fw', 'mr-2');

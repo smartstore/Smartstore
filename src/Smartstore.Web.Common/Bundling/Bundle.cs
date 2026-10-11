@@ -37,6 +37,11 @@ public class ScriptBundle : Bundle
 [DebuggerDisplay("StyleBundle: {Route}")]
 public class StyleBundle : Bundle
 {
+    /// <summary>
+    /// Gets or sets the icon area used by Sass icon-url calls. Asset requests do not carry an MVC page area.
+    /// </summary>
+    public string IconArea { get; set; } = "public";
+
     public StyleBundle(string route)
         : base(route, "text/css", DefaultStyleProcessors)
     {

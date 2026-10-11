@@ -1,3 +1,6 @@
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using Smartstore.Web.Rendering;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Encodings.Web;
@@ -26,7 +29,7 @@ public class IconTagHelperTests
     public async Task Suppressed_Icon_Does_Not_Resolve_Svg()
     {
         var service = new Mock<IIconService>(MockBehavior.Strict);
-        var helper = new IconTagHelper(service.Object, new IconRenderer(service.Object, Mock.Of<IIconKitService>())) { Name = "cart" };
+        var helper = new TestIconTagHelper(service.Object, new IconRenderer(service.Object, Mock.Of<IIconKitService>())) { Name = "cart" };
         var context = new TagHelperContext(new TagHelperAttributeList(), new Dictionary<object, object>(), "test");
         var output = new TagHelperOutput("icon", new TagHelperAttributeList(), (_, _) => Task.FromResult<TagHelperContent>(new DefaultTagHelperContent()));
         var condition = new IfTagHelper { Condition = false };
@@ -70,9 +73,9 @@ public class IconTagHelperTests
             VariantName = "rounded",
             VariantShortName = variantSelector == "sr" ? "sr" : null
         };
-        service.Setup(x => x.GetIconAsync("cart", "hi", "rounded", cancellation.Token)).ReturnsAsync(icon);
+        service.Setup(x => x.GetIconAsync("cart", "hi", "rounded", null, cancellation.Token)).ReturnsAsync(icon);
         service.Setup(x => x.GetSvgAsync(icon, cancellation.Token)).ReturnsAsync(svg);
-        var helper = new IconTagHelper(service.Object, new IconRenderer(service.Object, Mock.Of<IIconKitService>()))
+        var helper = new TestIconTagHelper(service.Object, new IconRenderer(service.Object, Mock.Of<IIconKitService>()))
         {
             Name = "cart",
             Library = "hi",
@@ -117,10 +120,10 @@ public class IconTagHelperTests
     {
         var icon = new IconInfo { Name = "user-02", LibraryName = "hugeicons", VariantName = "stroke-rounded" };
         var service = new Mock<IIconService>(MockBehavior.Strict);
-        service.Setup(x => x.GetIconAsync("user", null, null, It.IsAny<CancellationToken>())).ReturnsAsync(icon);
+        service.Setup(x => x.GetIconAsync("user", null, null, null, It.IsAny<CancellationToken>())).ReturnsAsync(icon);
         service.Setup(x => x.GetSvgAsync(icon, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new IconSvg { ViewBox = "0 0 24 24", Content = "<path/>" });
-        var helper = new IconTagHelper(service.Object, new IconRenderer(service.Object, Mock.Of<IIconKitService>()))
+        var helper = new TestIconTagHelper(service.Object, new IconRenderer(service.Object, Mock.Of<IIconKitService>()))
         {
             Name = "user",
             Library = string.Empty,
@@ -148,13 +151,13 @@ public class IconTagHelperTests
     {
         var icon = new IconInfo { Name = "cart-01" };
         var service = new Mock<IIconService>();
-        service.Setup(x => x.GetIconAsync("cart?flip=x", "hi", null, It.IsAny<CancellationToken>())).ReturnsAsync(icon);
+        service.Setup(x => x.GetIconAsync("cart?flip=x", "hi", null, null, It.IsAny<CancellationToken>())).ReturnsAsync(icon);
         IconOptions captured = null;
         var renderer = new Mock<IIconRenderer>();
         renderer.Setup(x => x.RenderAsync(icon, It.IsAny<IconOptions>(), It.IsAny<CancellationToken>()))
             .Callback<IconInfo, IconOptions, CancellationToken>((_, options, _) => captured = options)
             .ReturnsAsync(new TagBuilder("svg"));
-        var helper = new IconTagHelper(service.Object, renderer.Object)
+        var helper = new TestIconTagHelper(service.Object, renderer.Object)
         {
             Name = "cart?flip=x", Library = "hi", Rotate = 0, FlipHorizontal = false,
             StrokeScale = 1, Size = "3x", Animation = "beat-fade", CssClass = "custom", Style = "color:red",
@@ -212,13 +215,13 @@ public class IconTagHelperTests
     {
         var service = new Mock<IIconService>();
         var icon = new IconInfo { Name = "cart-01", LibraryName = "hugeicons", VariantName = "rounded" };
-        service.Setup(x => x.GetIconAsync("cart", null, null, It.IsAny<CancellationToken>()))
+        service.Setup(x => x.GetIconAsync("cart", null, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(found ? icon : null);
         service.Setup(x => x.GetSvgAsync(icon, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new IconSvg { Address = "hi:cart-01/rounded", ViewBox = "0 0 24 24", Content = "<path/>" });
-        service.Setup(x => x.GetIconAsync("system:not-found!/default", null, null, It.IsAny<CancellationToken>()))
+        service.Setup(x => x.GetIconAsync("system:not-found!/default", null, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(icon);
-        var helper = new IconTagHelper(service.Object, new IconRenderer(service.Object, Mock.Of<IIconKitService>()))
+        var helper = new TestIconTagHelper(service.Object, new IconRenderer(service.Object, Mock.Of<IIconKitService>()))
         {
             Name = "cart",
             ViewContext = new ViewContext { HttpContext = new DefaultHttpContext() }
@@ -238,4 +241,20 @@ public class IconTagHelperTests
             Assert.That(output.Content.GetContent(), Does.Contain("<path"));
         }
     }
+    private sealed class TestIconTagHelper(IIconService icons, IIconRenderer renderer) : IconTagHelper
+    {
+        protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
+        {
+            var html = new Mock<IHtmlHelper>();
+            html.SetupGet(x => x.ViewContext).Returns(() => ViewContext);
+            var builder = new ContainerBuilder();
+            builder.RegisterInstance(icons);
+            builder.RegisterInstance(renderer);
+            builder.RegisterInstance(html.Object);
+                using var container = builder.Build();
+            ViewContext.HttpContext.RequestServices = new AutofacServiceProvider(container);
+            await base.ProcessCoreAsync(context, output);
+        }
+    }
+
 }

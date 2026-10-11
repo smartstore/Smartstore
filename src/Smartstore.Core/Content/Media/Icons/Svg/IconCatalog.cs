@@ -27,9 +27,12 @@ internal sealed class IconCatalog
     internal Dictionary<string, IconKit> Kits { get; } = new(StringComparer.Ordinal);
 
     /// <summary>
-    /// Gets the preferred kit by concept before library selection: shared, then ordinal kit name.
+    /// Gets the first declared kit for each area and concept before library selection.
     /// </summary>
-    internal Dictionary<string, IconKit> ConceptKits { get; } = new(StringComparer.Ordinal);
+    internal Dictionary<(string Area, string Concept), IconKit> ConceptKits { get; } = new();
+
+    internal IconKit FindKit(string concept, string area = "public")
+        => ConceptKits.GetValueOrDefault((area ?? "public", concept));
 
     /// <summary>
     /// Keeps lazily resolved kit indexes only for this source generation.
@@ -406,6 +409,7 @@ internal sealed class IconCatalog
             {
                 files.Watch("Icons/config.json"),
                 files.Watch("Icons/kits.json"),
+                files.Watch("Icons/collections.json"),
                 files.Watch("Icons/*/library.json"),
                 files.Watch("Icons/*/mapping.json"),
                 files.Watch("Icons/*/metadata.json"),
@@ -500,6 +504,9 @@ internal sealed class IconCatalog
 
         // Kit definitions are optional and maintained separately from global defaults.
         // Watch registration above also catches a kits.json created after startup.
+        using var collections = ReadJson(files, "Icons/collections.json", false);
+        var collectionDefinitions = collections?.RootElement.EnumerateObject().ToDictionary(x => x.Name, x => x.Value, StringComparer.Ordinal)
+            ?? new Dictionary<string, JsonElement>(StringComparer.Ordinal);
         using var kits = ReadJson(files, "Icons/kits.json", false);
         if (kits != null)
         {
@@ -529,16 +536,14 @@ internal sealed class IconCatalog
                     throw new InvalidDataException($"Unknown defaultVariant '{variantName}' in icon kit '{kit.Name}' for library '{selectedLibrary.Manifest.SystemName}'.");
                 }
 
-                var names = (isObject ? definition.GetProperty("icons") : definition)
-                    .EnumerateArray().Select(x => x.GetString()).ToArray();
-                var sources = isObject && definition.TryGetProperty("sources", out var kitSources)
-                    ? kitSources.EnumerateObject().ToDictionary(x => x.Name, x => x.Value.GetString(), StringComparer.Ordinal)
-                    : null;
+                var (names, sources) = ExpandDefinition(definition, collectionDefinitions, new HashSet<string>(StringComparer.Ordinal));
+                var areas = isObject && definition.TryGetProperty("areas", out var kitAreas)
+                    ? kitAreas.EnumerateArray().Select(x => x.GetString()).ToArray() : null;
                 var icon = isObject && definition.TryGetProperty("icon", out var kitIcon)
                     ? kitIcon.GetString() : null;
                 var showInPicker = !isObject || !definition.TryGetProperty("showInPicker", out var kitVisibility)
                     || kitVisibility.GetBoolean();
-                var iconKit = new IconKit(kit.Name, names, libraryName, variantName, sources, icon, showInPicker);
+                var iconKit = new IconKit(kit.Name, names, libraryName, variantName, sources, icon, showInPicker, areas);
                 foreach (var address in iconKit.SourceAddresses.Values)
                 {
                     var entryLibrary = IconService.SelectLibrary(catalog, address.Library ?? libraryName);
@@ -555,15 +560,74 @@ internal sealed class IconCatalog
             }
         }
 
-        foreach (var kit in catalog.Kits.Values.OrderBy(x => x.Name == "shared" ? 0 : 1).ThenBy(x => x.Name, StringComparer.Ordinal))
+        foreach (var kit in catalog.Kits.Values)
         {
             foreach (var concept in kit.Icons)
             {
-                catalog.ConceptKits.TryAdd(concept, kit);
+                foreach (var area in kit.Areas)
+                {
+                    catalog.ConceptKits.TryAdd((area, concept), kit);
+                }
             }
         }
 
         return catalog;
+    }
+
+    // Collections contribute definitions only. First use wins; local declarations override it.
+    private static (List<string> Names, Dictionary<string, string> Sources) ExpandDefinition(
+        JsonElement definition, Dictionary<string, JsonElement> collections, HashSet<string> visiting)
+    {
+        var names = new List<string>();
+        var sources = new Dictionary<string, string>(StringComparer.Ordinal);
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        var isObject = definition.ValueKind == JsonValueKind.Object;
+        if (isObject && definition.TryGetProperty("use", out var uses))
+        {
+            foreach (var use in uses.EnumerateArray())
+            {
+                var name = use.GetString();
+                if (!collections.TryGetValue(name, out var collection) || !visiting.Add(name))
+                {
+                    throw new InvalidDataException($"Unknown or cyclic icon collection '{name}'.");
+                }
+
+                var expanded = ExpandDefinition(collection, collections, visiting);
+                visiting.Remove(name);
+                foreach (var concept in expanded.Names)
+                {
+                    if (seen.Add(concept))
+                    {
+                        names.Add(concept);
+                        if (expanded.Sources.TryGetValue(concept, out var source))
+                        {
+                            sources.Add(concept, source);
+                        }
+                    }
+                }
+            }
+        }
+
+        var local = isObject ? (definition.TryGetProperty("icons", out var icons) ? icons : default) : definition;
+        var localNames = new HashSet<string>(StringComparer.Ordinal);
+        if (local.ValueKind != JsonValueKind.Undefined)
+        {
+            foreach (var item in local.EnumerateArray())
+            {
+                var name = item.GetString();
+                if (!localNames.Add(name))
+                {
+                    throw new InvalidDataException($"Duplicate icon concept '{name}'.");
+                }
+                if (seen.Add(name)) names.Add(name);
+                sources.Remove(name);
+            }
+        }
+        if (isObject && definition.TryGetProperty("sources", out var overrides))
+        {
+            foreach (var source in overrides.EnumerateObject()) sources[source.Name] = source.Value.GetString();
+        }
+        return (names, sources);
     }
 
     /// <summary>

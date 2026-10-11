@@ -1,3 +1,4 @@
+@inject Smartstore.Core.Content.Media.Icons.IIconAreaResolver IconAreaResolver
 @using Smartstore.Core.Content.Media.Icons
 @using Smartstore.Web.Models.Media
 @model IconModel
@@ -23,11 +24,11 @@
         selectedLabel = parsedAddress.Name;
     }
     var selectedIcon = selectedAddress.HasValue() ? await Icons.GetIconAsync(selectedAddress) : null;
-    var initialSource = Browser.GetSource(selectedAddress);
+    var initialSource = Browser.GetSource(selectedAddress, IconAreaResolver.ResolveArea(Context));
     var showHiddenKits = Model?.ShowHiddenKits == true;
     // Retain the selected hidden source for label initialization, without listing it.
     var kits = Kits.Kits.Where(x => x.ShowInPicker || showHiddenKits || x.Name == initialSource?.Kit)
-        .OrderBy(x => x.Name == "shared" ? 0 : 1).ThenBy(x => x.Name).ToArray();
+        .OrderBy(x => x.Name).ToArray();
     var visibleOptions = Model?.VisibleOptions ?? IconOptionFields.None;
 }
 
@@ -147,7 +148,7 @@
                         {
                             <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron dropdown-toggle" data-overflow="true"
                                     data-option="stroke-scale" title="Stroke width" aria-label="Stroke width" aria-disabled="true">
-                                <icon name="bi:distribute-vertical" aria-hidden="true" />
+                                <icon name="hi:pencil" aria-hidden="true" />
                             </button>
                         }
                         @if ((visibleOptions & (IconOptionFields.Size | IconOptionFields.Animation | IconOptionFields.StrokeScale)) != IconOptionFields.None)

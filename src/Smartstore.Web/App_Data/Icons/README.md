@@ -423,52 +423,75 @@ concepts use a `-square` suffix and map to the corresponding FA source names.
 Browser logo concepts use `browser-`, such as `browser-chrome` and `browser-firefox`.
 See [MIGRATION.md](MIGRATION.md) for the `twitter-x` and `windows-logo` conventions.
 
-The root object in `kits.json` groups conceptual names by area of use,
-such as `shared`, `public`, `admin`, or a custom `media` kit. Add names to the relevant
-`icons` arrays and provide their assignments in each library's `mapping.json`.
-Kit objects may set `showInPicker` to `false` to hide them from the default icon
-picker source list. The default is `true`, including array shorthand definitions.
-This does not restrict resolution, rendering or kit access. Set
-`IconModel.ShowHiddenKits = true` for developer pickers that should list all kits.
-Existing selections from hidden kits retain their preview and source label.
+### Collections, kits and areas
 
-Kit objects may specify `defaultLibrary` (a library system name) and `defaultVariant`.
-Both are optional. Array-only definitions remain supported as shorthand.
+`collections.json` defines reusable concept lists and optional concrete `sources`.
+Collections never produce sprites and have no library or variant defaults:
 
 ```json
 {
   "shared": {
-    "defaultLibrary": null,
-    "defaultVariant": null,
-    "icons": ["cart", "heart", "search"]
-  },
-  "public": {
-    "defaultLibrary": null,
-    "defaultVariant": null,
-    "icons": ["handshake"]
-  },
-  "admin": {
-    "defaultLibrary": "hugeicons",
-    "defaultVariant": "stroke-rounded",
-    "icons": ["gear", "trash"]
+    "icons": ["cart", "search", "not-found"],
+    "sources": { "not-found": "sys:not-found!/default" }
   }
 }
 ```
 
-`icons` is the complete list of unqualified concept names. The optional `sources`
-object assigns concrete SVG addresses to members that differ from the defaults:
+Kits in `kits.json` include collections with `use`. They resolve those concepts
+using their own `defaultLibrary` and `defaultVariant`, then global defaults:
 
 ```json
-"brands": {
-  "defaultLibrary": "fontawesome-free",
-  "defaultVariant": "brands",
-  "icons": ["alexa", "apple", "microsoft-teams"],
-  "sources": {
-    "alexa": "bi:alexa/default",
-    "microsoft-teams": "bi:microsoft-teams/default"
+{
+  "public": {
+    "areas": ["public"],
+    "use": ["shared"],
+    "icons": ["phone"]
+  },
+  "admin": {
+    "areas": ["admin"],
+    "use": ["shared"],
+    "showInPicker": false,
+    "icons": ["catalog"]
+  },
+  "brands": {
+    "areas": ["public", "admin"],
+    "defaultLibrary": "fontawesome-free",
+    "defaultVariant": "brands",
+    "icons": ["apple"]
   }
 }
 ```
+
+The first declared kit containing a concept in the selected area wins. Do not
+alphabetically reorder kit definitions: their order is significant. An omitted
+`areas` defaults to `["public", "admin"]`; an empty list opts out of automatic
+area selection while retaining explicit kit access for pickers.
+
+Within `use`, the first collection defining a concept wins. Local `icons` entries
+replace inherited source assignments with normal kit mapping; local `sources`
+override inherited source assignments directly. Sources can target any concept
+in the expanded membership. Collections can include other collections; unknown
+references and cycles are configuration errors. Both JSON files are watched.
+
+`showInPicker: false` only hides a kit from the default picker list. It does not
+restrict area membership or rendering. `IconModel.ShowHiddenKits` reveals it.
+
+`IIconAreaResolver.ResolveArea(HttpContext? context)` lives in Core and is registered
+as a stateless singleton. It uses `Request.IsAdminArea()` and otherwise returns `public`.
+`IconService` resolves an omitted area on each call using `IHttpContextAccessor`;
+an explicit area wins. Web TagHelpers render through `Html.IconAsync`, which simply
+forwards the optional area. No request area is retained in the singleton.
+`<icon area="public" ... />` and `IconOptions.Area` override that default. Core
+calls accept an explicit `area`, otherwise use the current request and default to
+`public` when no HTTP context exists.
+Both layouts set `data-area` on the `sm:icons` manifest meta element. `sm-icon`
+inherits it, or uses its own `area` attribute. There is no kit attribute.
+The manifest publishes the server's area/concept priorities, and render-endpoint
+requests include the area in both their URL and client cache key.
+
+Sass asset requests have no page area. `StyleBundle` and `DynamicStyleBundle` specify `IconArea` (default `public`);
+the main Admin theme bundles use `admin`, including their `icon-url` masks.
+Dynamic matches retain the original definition and use its `IconArea` during Sass compilation.
 
 The public kit uses Bootstrap sources for `phone` (`bi:telephone`) and
 `plus-circle`; the admin kit uses them for `box`, `braces-asterisk`, `exclamation`
@@ -476,7 +499,7 @@ and `sitemap`.
 Callers continue to use the public concept names. HI mappings remain available
 for explicit HI requests.
 
-Every source key must occur in `icons`; it never adds a member. Unknown keys,
+Every source key must occur in the expanded `icons`; it never adds a member. Unknown keys,
 duplicate concepts, qualified names in `icons`, and invalid source addresses are
 configuration errors. Library and variant selectors accept system or short names.
 Missing source qualifiers are completed from the kit context; a foreign library
@@ -502,7 +525,7 @@ lets integrators maintain their memberships independently of global configuratio
 updates; update conflicts in `kits.json` still require merging.
 
 For conceptual lookups, the preferred kit is selected before library mapping:
-`shared` first, then kit names in ordinal order. Explicit address components or
+the first declared kit applicable to the area wins. Explicit address components or
 method arguments take precedence over source qualifiers, then kit defaults and global defaults.
 A kit's variant applies only to its effective default library; selecting another
 library never carries that variant across. A kit that changes the library without
@@ -516,19 +539,22 @@ Changes to kit defaults are picked up by the configuration watcher.
 
 The supplied kit memberships and HugeIcons mappings are a work in progress.
 Edit `kits.json` to move concepts between kits and `hugeicons/mapping.json` to
-change their icons. Keep both files alphabetically ordered within each object or
-kit array. [MIGRATION.md](MIGRATION.md) records the reviewed legacy FA/BI replacements.
+change their icons. Keep concept arrays ordered for readability, but preserve kit declaration order. [MIGRATION.md](MIGRATION.md) records the reviewed legacy FA/BI replacements.
 Keep its HI targets synchronized with mapping changes and preserve manual edits to
 these JSON files during future imports.
 
-`shared` contains concepts used by both areas. Combine it with `public` or
-`admin`; shared concepts do not need to be repeated in those kits.
+`shared` is a collection included independently by `public` and `admin`. It has no sprite.
 
 `IconRenderer` automatically selects an external symbol for resolved icons that
 belong to a kit. Callers still provide only an icon name; the TagHelper delegates
 rendering to the Core renderer. Icons outside kits retain inline SVG output.
+
+In the admin area, kit membership is optional. Direct library addresses and inline SVG
+are appropriate for occasionally used icons, for example a plugin icon displayed once
+or twice in a modal dialog. Add icons to kits selectively when reuse warrants it;
+plugins do not need to register every icon in a kit.
 Membership uses the actual mapped icon identity. When several kits contain the
-same icon, `shared` wins, followed by ordinal kit-name order.
+same icon, declaration order within the selected area determines priority.
 
 Sprites are served by `/icons/{kit}-{revision}.svg`.
 The revision covers kit membership, mapping targets, source fingerprints and SVG
@@ -538,7 +564,7 @@ ETag revalidation and HEAD without transferring a response body. A first request
 including HEAD, generates a missing current revision before serving it.
 
 Generated sprites are global, tenant-independent files in `App_Data/.cache/icons/kits`, with flat
-names such as `shared-<revision>.svg`. Library and variant selectors are not exposed
+names such as `public-<revision>.svg`. Library and variant selectors are not exposed
 in URLs or filenames; the revision includes library, variant and kit identity. It uses the
 first 96 bits of SHA-256, represented as 24 lowercase hexadecimal characters. Existing files
 are served without loading their contents into the multilevel or Redis cache.
@@ -553,6 +579,8 @@ and processes SVGs individually; no
 archive handle or drawing collection survives generation. It streams symbols into
 a temporary file beside the destination and
 publishes the complete file atomically. Failed writes remove the temporary file.
+Request cancellation can stop waiting for the publication lock, but does not interrupt
+a write already in progress: the completed artifact remains available to other requests.
 Concurrent requests share generation; multiple processes may safely publish the
 same revision. Generation does not populate the individual SVG cache. Source IDs and their
 references are namespaced per drawing. A source used by one concept is embedded
@@ -1200,7 +1228,7 @@ the client manifest fast path and require the render endpoint, even when the sam
 artwork is already included in a kit. Use explicit addresses only when no suitable
 concept exists or a specific source selection is intentional.
 
-Missing icons render the `system:not-found!/default` placeholder from the shared kit with
+Missing icons render the `system:not-found!/default` placeholder from the area's kit with
 `text-danger`, shared by Razor, HTML helpers and `sm-icon`. System artwork lives
 in `system/default/icons`. Lookup and search still report missing sources as absent.
 If the placeholder itself is unavailable, rendering returns no output without recursion.

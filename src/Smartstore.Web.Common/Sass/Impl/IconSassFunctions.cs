@@ -9,7 +9,7 @@ internal static class IconSassFunctions
 {
     // Each compilation owns its callbacks and cache. Concurrent calls for the same
     // address share preparation without retaining results across catalog changes.
-    internal static SassFunction CreateUrl(IIconService icons)
+    internal static SassFunction CreateUrl(IIconService icons, string area = "public")
     {
         var urls = new ConcurrentDictionary<string, Lazy<Task<string>>>(StringComparer.Ordinal);
 
@@ -29,11 +29,11 @@ internal static class IconSassFunctions
         async Task<string> CreateUrlAsync(string address, CancellationToken cancelToken)
         {
             const string placeholderAddress = "system:not-found!/default";
-            var icon = await icons.GetIconAsync(address, cancelToken: cancelToken);
+            var icon = await icons.GetIconAsync(address, area: area, cancelToken: cancelToken);
             var source = icon == null ? null : await icons.GetSvgAsync(icon, cancelToken);
             if (source == null && address != placeholderAddress)
             {
-                icon = await icons.GetIconAsync(placeholderAddress, cancelToken: cancelToken);
+                icon = await icons.GetIconAsync(placeholderAddress, area: area, cancelToken: cancelToken);
                 source = icon == null ? null : await icons.GetSvgAsync(icon, cancelToken);
             }
 

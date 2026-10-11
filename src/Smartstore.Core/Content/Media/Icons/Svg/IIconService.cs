@@ -45,7 +45,8 @@ public interface IIconService
     /// <exception cref="FormatException">The address syntax is invalid.</exception>
     /// <exception cref="InvalidDataException">A modifier is unknown, duplicated or invalid.</exception>
     /// <exception cref="ArgumentException">An explicit method selector conflicts with a resolved address selector.</exception>
-    Task<IconInfo?> GetIconAsync(string name, string? library = null, string? variant = null, CancellationToken cancelToken = default);
+    /// <param name="area">The area selecting kit defaults and declaration priority. Null resolves the current request area, or public outside a request.</param>
+    Task<IconInfo?> GetIconAsync(string name, string? library = null, string? variant = null, string? area = null, CancellationToken cancelToken = default);
 
     /// <summary>
     /// Gets a cached, validated SVG payload for an already resolved icon, without applying mapping again.
@@ -86,7 +87,7 @@ public static class IIconServiceExtensions
         Guard.NotNull(service);
 
         cancelToken.ThrowIfCancellationRequested();
-        var icon = await service.GetIconAsync(name, library, variant, cancelToken);
+        var icon = await service.GetIconAsync(name, library, variant, cancelToken: cancelToken);
         return icon == null ? null : await service.GetSvgAsync(icon, cancelToken);
     }
 }

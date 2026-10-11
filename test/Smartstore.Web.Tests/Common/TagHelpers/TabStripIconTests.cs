@@ -10,6 +10,7 @@ using Moq;
 using NUnit.Framework;
 using Smartstore.Core.Content.Media.Icons;
 using Smartstore.Web.TagHelpers.Shared;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Tests.Common.TagHelpers;
 
@@ -25,7 +26,7 @@ public class TabStripIconTests
         var icon = new IconInfo { Name = "source" };
         var service = new Mock<IIconService>(MockBehavior.Strict);
         var renderer = new Mock<IIconRenderer>(MockBehavior.Strict);
-        service.Setup(x => x.GetIconAsync(address, null, null, cancellation.Token)).ReturnsAsync(found ? icon : null);
+        service.Setup(x => x.GetIconAsync(address, null, null, null, cancellation.Token)).ReturnsAsync(found ? icon : null);
         IconOptions received = null;
         if (found)
         {
@@ -33,6 +34,8 @@ public class TabStripIconTests
                 .Callback((IconInfo _, IconOptions options, CancellationToken _) => received = options)
                 .ReturnsAsync(new TagBuilder("svg"));
         }
+
+        if (!found) renderer.Setup(x => x.RenderAsync(null, It.IsAny<IconOptions>(), cancellation.Token)).ReturnsAsync((TagBuilder)null);
 
         var viewContext = new ViewContext { HttpContext = new DefaultHttpContext { RequestAborted = cancellation.Token } };
         var html = new Mock<IHtmlHelper>();

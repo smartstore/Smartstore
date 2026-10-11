@@ -117,6 +117,11 @@ public sealed class IconInfo
     private string[]? _tags;
 
     /// <summary>
+    /// Gets or sets the area used when selecting kit membership.
+    /// </summary>
+    public string Area { get; set; } = "public";
+
+    /// <summary>
     /// Gets or sets the requested concept for rendered diagnostics; null for explicit sources.
     /// </summary>
     internal string? ConceptName { get; set; }

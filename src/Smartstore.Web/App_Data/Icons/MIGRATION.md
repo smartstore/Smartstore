@@ -36,27 +36,41 @@ and uses `share` as its fallback. Additional brands and SMS temporarily use
 explicit FA addresses instead of extending the platform kits. A future
 `IIconProvider` will let the module contribute these icons to kits externally.
 
+## Collections and areas
+
+The former shared kit is now the `shared` collection in `collections.json`.
+Both `public` and `admin` include it through `use` and resolve its concepts
+independently. `brands` applies to both areas. First kit declaration wins within
+an area; first collection in `use` wins, followed by local kit overrides.
+Collections never produce sprites. Existing `shared-*.svg` cache files are only
+historical artifacts. Server helpers derive the MVC area, while `sm-icon` uses
+the area declared on the manifest meta element or its explicit `area` attribute.
+
+IconBrowser kit visibility is independent of area membership: only `showInPicker`
+and `ShowHiddenKits` govern its source list. Selected previews retain the chosen
+kit sprite, or its concrete source with modifiers, even across areas.
+
 ## System library icons
 
 The system library has no separate kit. `not-found`, `smartstore` and
-`stars-tricolor` belong to `shared`, each pinned to `sys:<name>!/default`.
-Missing icons continue to use an external shared sprite symbol in danger color.
+`stars-tricolor` belong to collection `shared`, each pinned to `sys:<name>!/default`.
+Missing icons continue to use an external area-kit sprite symbol in danger color.
 
 ## Explicit shape concepts
 
-The shared kit provides `-outline` and `-fill` concepts for `bubble-round`,
+The shared collection provides `-outline` and `-fill` concepts for `bubble-round`,
 `bubble-square`, `circle`, `diamond`, `hexagon`, `polygon`, `rect`, `seal`,
 `square`, `star` and `triangle`. Each concept pins its source to
 `sys:<concept>!/default`, independently of the configured default library.
 The SVG files live in the system library, but these 22 concepts belong only to
-the shared kit. Existing unsuffixed concepts remain unchanged.
+the shared collection. Existing unsuffixed concepts remain unchanged.
 Use, for example, `<icon name="star-outline" />` or `<icon name="star-fill" />`.
 Delivery-time status indicators use `circle-fill`, including cart and StorageDisplay views.
 AI and Shopware import stop buttons use `square-fill`. Admin review headings use
 `star-fill`; ProductSpecificationTable uses `star-fill` for earned stars and
 `star-outline` for remaining stars. Legacy PageBuilder icon choices remain unchanged.
 
-The shared `star-half` concept pins `sys:star-half!/default`: the same star geometry
+The shared collection's `star-half` concept pins `sys:star-half!/default`: the same star geometry
 as `star-outline` and `star-fill`, with a complete outline and the fill clipped to
 the left half of the viewBox. It replaces the former admin-kit membership.
 
@@ -390,7 +404,7 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 | `fa fa-magnifying-glass`<br>`fa fa-search`<br>`far fa-search` | `search-01` | `search` |
 | `fa fa-paper-plane`<br>`far fa-paper-plane`<br>`fa fa-send` | `sent` | `send` |
 | `fa fa-cogs` | `gears` | `gears` |
-| `fa fa-share`<br>`far fa-share` | `share-01` | `share` |
+| `fa fa-share`<br>`far fa-share` | `share-08` | `share` |
 | `far fa-share-square` | `share-01` | `share-square` |
 | `fas fa-shield-halved` | `shield-half` | `shield-half` |
 | `fa fa-signal` | `signal-full-02` | `signal` |
@@ -693,7 +707,7 @@ existing immutable files remain untouched.
 
 ## Product comparison concept
 
-The Shared kit includes `compare`, mapped to HI `git-compare-arrows`. Product-detail
+The Shared kit includes `compare`, mapped to HI `repost`. Product-detail
 `.action-compare` uses this concept; `repeat` remains available for repetition.
 
 
@@ -785,7 +799,7 @@ or emits its sprite URL.
 
 MediaEditorCommand now exposes Icon (concept name or address) instead of IconClass
 and IconLibrary. Its Razor template renders icons server-side with the icon
-TagHelper. The AI commands use stars-tricolor from the shared kit. IconUrl retains
+TagHelper. The AI commands use stars-tricolor from the shared collection. IconUrl retains
 precedence for image-based providers such as Pixlr. External providers must migrate
 their command initializers to Icon; legacy CSS-class properties have been removed.
 

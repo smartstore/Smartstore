@@ -27,7 +27,7 @@ public interface IIconKitService
 
     /// <summary>
     /// Gets a sprite reference for a resolved icon, or null when it belongs to no kit.
-    /// Shared takes precedence, followed by kit name in ordinal order.
+    /// Kit declaration order determines precedence within the resolved area.
     /// </summary>
     /// <param name="icon">The resolved icon, including its library and variant.</param>
     IconKitReference? GetReference(IconInfo icon);
@@ -65,13 +65,19 @@ public sealed class IconKit
     /// <param name="sources">Optional concrete source addresses keyed by names present in <paramref name="icons"/>. Source names are not mapped again.</param>
     /// <param name="icon">The optional icon address representing this kit in pickers. Null uses the generic kit icon.</param>
     /// <param name="showInPicker">Whether the kit is listed in the icon picker by default.</param>
+    /// <param name="areas">Applicable areas. Omission allows public and admin.</param>
     public IconKit(string name, IEnumerable<string> icons, string? defaultLibrary = null, string? defaultVariant = null,
-        IReadOnlyDictionary<string, string>? sources = null, string? icon = null, bool showInPicker = true)
+        IReadOnlyDictionary<string, string>? sources = null, string? icon = null, bool showInPicker = true, IEnumerable<string>? areas = null)
     {
         Guard.NotEmpty(name);
 
         Guard.NotNull(icons);
 
+        Areas = Array.AsReadOnly((areas ?? ["public", "admin"]).ToArray());
+        if (Areas.Any(area => !IconAddress.IsQualifier(area)) || Areas.Distinct(StringComparer.Ordinal).Count() != Areas.Count)
+        {
+            throw new InvalidDataException($"Invalid or duplicate area in icon kit '{name}'.");
+        }
         Name = name;
         Icons = Array.AsReadOnly(icons.ToArray());
         var names = new HashSet<string>(StringComparer.Ordinal);
@@ -111,6 +117,11 @@ public sealed class IconKit
     /// Gets the configured name.
     /// </summary>
     public string Name { get; }
+
+    /// <summary>
+    /// Gets the areas in which this kit participates, in declaration order.
+    /// </summary>
+    public IReadOnlyList<string> Areas { get; }
 
     /// <summary>
     /// Gets whether the kit is listed in the icon picker by default. Does not restrict icon usage.

@@ -38,13 +38,12 @@
 }
 
 .select2-results__option {
+    --select2-check-space: 0px;
     position: relative;
 
     > :is(.select2-option, .select2-item-description) {
         font-size: $font-size-sm;
         word-break: break-word;
-        // padding for checkmark
-        padding-inline-start: calc(1rem + 0.25rem);
     }
 
     .select2-item-description {
@@ -52,9 +51,13 @@
         display: block;
     }
 
+    > .select2-option {
+        padding-inline-end: var(--select2-check-space);
+    }
+
     > .select2-option:after {
         position: absolute;
-        inset-inline-start: 0;
+        inset-inline-end: 0;
         top: 50%;
         translate: 0 -50%;
         @include icon-mask(var(--icon-mask-check), 1rem);
@@ -66,21 +69,25 @@
         font-weight: normal;
     }
 
-    &[aria-selected=true] > .select2-option:after {
-        visibility: visible;
+    &[aria-selected=true] {
+        --select2-check-space: 1.5rem;
+
+        > .select2-option:after {
+            visibility: visible;
+        }
     }
 
     .select2-item-btn {
         position: absolute;
         z-index: $zindex-popover;
         inset-block-start: 2px;
-        inset-inline-end: 6px;
+        inset-inline-end: calc(6px + var(--select2-check-space));
         opacity: 0;
         transition: opacity 0.05s linear;
 
         + .select2-option {
             // Padding for edit button
-            padding-inline-end: 22px;
+            padding-inline-end: calc(22px + var(--select2-check-space));
         }
 
         > a.prevent-selection {

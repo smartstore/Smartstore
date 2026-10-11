@@ -13,7 +13,7 @@ internal sealed class IconKitIndex
     /// <summary>
     /// Gets the preferred kit and symbol for each actual icon and mapping transformation.
     /// </summary>
-    internal Dictionary<(string Address, IconTransform Transform, double StrokeScale), (string Kit, string Symbol, bool Pinned)> Memberships { get; } = new();
+    internal Dictionary<(string Area, string Concept, string Address, IconTransform Transform, double StrokeScale), (string Kit, string Symbol, bool Pinned)> Memberships { get; } = new();
 
     /// <summary>
     /// Gets deferred source plans keyed by configured kit name.
@@ -26,14 +26,14 @@ internal sealed class IconKitIndex
     internal Dictionary<string, Entry[]> Entries { get; } = new(StringComparer.Ordinal);
 
     /// <summary>
-    /// Maps concepts without parsing SVG bodies. Shared wins over ordinal kit-name order.
+    /// Maps concepts without parsing SVG bodies. Kit declaration order determines precedence.
     /// </summary>
     /// <param name="catalog">The owning source generation.</param>
     /// <param name="library">The selected library.</param>
     /// <param name="variant">The selected variant.</param>
     internal IconKitIndex(IconCatalog catalog, IconCatalog.Library library, IconCatalog.Variant variant)
     {
-        foreach (var kit in catalog.Kits.Values.OrderBy(x => x.Name == "shared" ? 0 : 1).ThenBy(x => x.Name, StringComparer.Ordinal))
+        foreach (var kit in catalog.Kits.Values)
         {
             var entries = kit.Icons.OrderBy(x => x, StringComparer.Ordinal).Select(concept =>
             {
@@ -61,7 +61,16 @@ internal sealed class IconKitIndex
             {
                 // Mixed kits can contain identical names from different libraries or variants.
                 // Match the actual canonical identity, not just the unqualified source name.
-                Memberships.TryAdd((entry.CreateInfo().Address, entry.Mapping.Transform, entry.Mapping.StrokeScale), (kit.Name, entry.Concept, entry.Pinned));
+                var address = entry.CreateInfo().Address;
+                foreach (var area in kit.Areas)
+                {
+                    var member = (kit.Name, entry.Concept, entry.Pinned);
+                    Memberships.TryAdd((area, null, address, entry.Mapping.Transform, entry.Mapping.StrokeScale), member);
+                    if (catalog.FindKit(entry.Concept, area) == kit)
+                    {
+                        Memberships.TryAdd((area, entry.Concept, address, entry.Mapping.Transform, entry.Mapping.StrokeScale), member);
+                    }
+                }
             }
 
             Plans.Add(kit.Name, new Lazy<IconSprite>(() =>

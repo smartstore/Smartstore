@@ -87,6 +87,7 @@ internal class MediaStarter : StarterBase
         // Icons
         builder.RegisterType<IconExplorer>().As<IIconExplorer>().SingleInstance();
         builder.RegisterType<IconCache>().As<IIconCache>().SingleInstance();
+        builder.RegisterType<IconAreaResolver>().As<IIconAreaResolver>().SingleInstance();
         builder.RegisterType<IconService>().AsSelf().As<IIconService>().SingleInstance();
         builder.RegisterType<IconKitService>().AsSelf().As<IIconKitService>().SingleInstance();
         builder.RegisterType<IconBrowser>().As<IIconBrowser>().SingleInstance();

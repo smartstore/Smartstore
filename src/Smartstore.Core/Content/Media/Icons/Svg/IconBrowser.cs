@@ -11,7 +11,7 @@ namespace Smartstore.Core.Content.Media.Icons;
 public sealed class IconBrowser(IconService icons, IconKitService kits, IHttpContextAccessor httpContextAccessor) : IIconBrowser
 {
     /// <inheritdoc />
-    public IconBrowserSource GetSource(string address)
+    public IconBrowserSource GetSource(string address, string area = "public")
     {
         var catalog = icons.Catalog;
         IconAddress parsed = default;
@@ -26,15 +26,10 @@ public sealed class IconBrowser(IconService icons, IconKitService kits, IHttpCon
 
         // Use the same concept priority as resolution and the manifest, including
         // concepts omitted from the client manifest because they need inline rendering.
-        if (parsed.IsEmpty && catalog.Kits.ContainsKey("shared"))
-        {
-            return new IconBrowserSource("shared", null, null);
-        }
-        if (!parsed.IsEmpty && parsed.Library == null && !parsed.SkipMapping
-            && catalog.ConceptKits.TryGetValue(parsed.Name, out var kit))
-        {
-            return new IconBrowserSource(kit.Name, null, null);
-        }
+        var kit = parsed.IsEmpty
+            ? catalog.Kits.Values.FirstOrDefault(x => x.Areas.Contains(area) && x.ShowInPicker)
+            : parsed.Library == null && !parsed.SkipMapping ? catalog.FindKit(parsed.Name, area) : null;
+        if (kit != null) return new IconBrowserSource(kit.Name, null, null);
 
         var source = SelectSource(catalog, parsed.Library, parsed.Variant);
         return source.Variant == null ? null
@@ -120,5 +115,5 @@ public sealed class IconBrowser(IconService icons, IconKitService kits, IHttpCon
     /// <param name="concept">The kit concept, or null for a literal library selection.</param>
     private static IconBrowserItem CreateItem(IconInfo info, string concept = null)
         => new(concept ?? info.Name, concept ?? IconModifiers.FormatAddress(info), info.Address, info.LibraryKey, info.VariantKey,
-            null, info.SupportsStrokeScaling, info.IsDuotone);
+            null, info.SupportsStrokeScaling, info.IsDuotone, IconModifiers.FormatAddress(info, includeModifiers: true));
 }

@@ -14,10 +14,11 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
     /// <inheritdoc />
     public async Task<TagBuilder> RenderAsync(IconInfo icon, IconOptions options = null, CancellationToken cancelToken = default)
     {
+        var area = options?.Area ?? icon?.Area;
         var missing = icon == null;
         if (missing)
         {
-            icon = await icons.GetIconAsync("system:not-found!/default", cancelToken: cancelToken);
+            icon = await icons.GetIconAsync("system:not-found!/default", area: area, cancelToken: cancelToken);
             if (icon == null)
             {
                 return null;
@@ -52,7 +53,10 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
             if (source == null)
             {
                 // Never recurse if the system placeholder itself is unavailable.
-                return missing ? null : await RenderAsync(null, options, cancelToken);
+                if (missing) return null;
+                var fallbackOptions = options?.Clone() ?? new IconOptions();
+                fallbackOptions.Area = area;
+                return await RenderAsync(null, fallbackOptions, cancelToken);
             }
 
             foreach (var attribute in source.RootAttributes)

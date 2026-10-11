@@ -1,4 +1,5 @@
-﻿@inject Smartstore.Core.Content.Media.Icons.IIconKitService IconKits
+﻿@inject Smartstore.Core.Content.Media.Icons.IIconAreaResolver IconAreaResolver
+@inject Smartstore.Core.Content.Media.Icons.IIconKitService IconKits
 @{ var iconManifestUrl = IconKits.GetManifestUrl(); }
 @using Smartstore.Core;
 
@@ -20,7 +21,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="HandheldFriendly" content="true">
     <meta property="sm:root" content="@Url.Content("~/")" />
-    <meta property="sm:icons" content="@iconManifestUrl" />
+    <meta property="sm:icons" content="@iconManifestUrl" data-area="@IconAreaResolver.ResolveArea(Context)" />
     <link rel="preload" as="fetch" href="@iconManifestUrl" type="application/json" crossorigin="anonymous" />
     @await Component.InvokeAsync("AntiForgeryToken") 
 

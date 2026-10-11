@@ -6,7 +6,7 @@
     const sizes = new Set(['2xs', 'xs', 'sm', 'lg', 'xl', '2xl', ...Array.from({ length: 10 }, (_, i) => `${i + 1}x`)]);
     const animations = new Set(['spin', 'pulse', 'spin-pulse', 'beat', 'fade', 'throb', 'cylon', 'cylon-vertical', 'bounce', 'beat-fade', 'flip', 'shake']);
     const presentation = ['size', 'font-scale', 'fw', 'color', 'inverse', 'animation', 'animation-duration', 'animation-reverse', 'scale', 'shift-x', 'shift-y'];
-    const drawing = ['name', 'lib', 'variant', 'rotate', 'flip-h', 'flip-v', 'stroke-scale'];
+    const drawing = ['name', 'area', 'lib', 'variant', 'rotate', 'flip-h', 'flip-v', 'stroke-scale'];
     const cache = new Map();
     const waiting = [];
     let active = 0, manifestPromise, cloneId = 0;
@@ -39,10 +39,14 @@
 
     function prepareManifest(data) {
         // Old cached pages fall back to the endpoint while scripts and manifests roll over.
-        if (data.schemaVersion !== 10) return null;
+        if (data.schemaVersion !== 11) return null;
         const mirrorInRtl = new Set(data.mirrorInRtl);
         const concepts = new Map();
-        for (const kit of Object.values(data.kits)) {
+        for (const [kitName, kit] of Object.entries(data.kits)) {
+            const areaMaps = kit.areas.map(area => {
+                if (!concepts.has(area)) concepts.set(area, new Map());
+                return concepts.get(area);
+            });
             const url = new URL(kit.url, rootUrl()).href;
             const duotone = new Set(kit.duotone);
             const strokeScaling = new Set(kit.supportsStrokeScaling);
@@ -54,14 +58,17 @@
                 const library = colon < 0 ? kit.defaultLibrary : source.slice(0, colon);
                 const variant = slash < 0 ? kit.defaultVariant : source.slice(slash + 1);
                 const icon = source.slice(colon + 1, slash < 0 ? source.length : slash);
-                concepts.set(name, {
+                const reference = {
                     supportsStrokeScaling: strokeScaling.has(name),
                     href: url + '#' + encodeURIComponent(name),
                     address: `${library.toLowerCase()}:${icon}/${variant.toLowerCase()}`,
                     classes: ['icon-' + library, 'icon-' + library + '-' + variant,
                         ...(mirrorInRtl.has(name) ? ['icon-mirror-rtl'] : []),
                         ...(duotone.has(name) ? ['icon-duotone'] : [])]
-                });
+                };
+                for (let i = 0; i < kit.areas.length; i++) {
+                    if (data.areas[kit.areas[i]]?.[name] === kitName) areaMaps[i].set(name, reference);
+                }
             }
         }
         return concepts;
@@ -70,7 +77,7 @@
     // Only plain concepts use the manifest. The server owns address parsing, selections
     // and modifier precedence, including explicit false/zero overrides of mapping defaults.
     function isConcept(input) {
-        return !/[:\/@!?]/.test(input.name) && drawing.every((key, i) => i === 0 || input[key] == null);
+        return !/[:\/@!?]/.test(input.name) && drawing.every((key, i) => i === 0 || key === 'area' || input[key] == null);
     }
 
     function manifest() {
@@ -241,12 +248,13 @@
             const sequence = this._sequence;
             this.present(false);
             const input = Object.fromEntries(drawing.map(key => [key, this.getAttribute(key)]));
+            input.area = input.area || document.querySelector('meta[property="sm:icons"]')?.dataset.area || 'public';
             const key = JSON.stringify(input);
             if (this._drawingKey === key) return;
             if (!input.name) { this.replaceChildren(); this._drawingKey = null; this.removeAttribute('data-icon'); return; }
             // Do not show the old icon under a newly requested name while loading.
             this.replaceChildren(); this._drawingKey = null; this._identity = []; this.removeAttribute('data-icon');
-            const reference = isConcept(input) ? (await manifest())?.get(input.name) : null;
+            const reference = isConcept(input) ? (await manifest())?.get(input.area)?.get(input.name) : null;
             let template;
             if (reference) {
                 template = document.createElementNS(ns, 'svg');

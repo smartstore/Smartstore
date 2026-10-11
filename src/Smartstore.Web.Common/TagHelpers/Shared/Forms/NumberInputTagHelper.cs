@@ -21,7 +21,7 @@ public enum NumberInputStyle
 }
 
 [HtmlTargetElement("input", Attributes = "[type=number]")]
-public class NumberInputTagHelper : TagHelper
+public class NumberInputTagHelper : SmartTagHelper
 {
     const string PostfixAttributeName = "sm-postfix";
     const string DecimalsAttributeName = "sm-decimals";
@@ -30,14 +30,10 @@ public class NumberInputTagHelper : TagHelper
     const string NativeAttributeName = "sm-native";
 
     private readonly ILocalizationService _localizationService;
-    private readonly IIconService _icons;
-    private readonly IIconRenderer _iconRenderer;
 
-    public NumberInputTagHelper(ILocalizationService localizationService, IIconService icons, IIconRenderer iconRenderer)
+    public NumberInputTagHelper(ILocalizationService localizationService)
     {
         _localizationService = localizationService;
-        _icons = icons;
-        _iconRenderer = iconRenderer;
     }
 
     // Must come before FormControlTagHelper because of sizing issues.
@@ -73,13 +69,11 @@ public class NumberInputTagHelper : TagHelper
     [HtmlAttributeName(NativeAttributeName)]
     public bool Native { get; set; }
 
-    [HtmlAttributeNotBound]
-    [ViewContext]
-    public ViewContext ViewContext { get; set; }
+    protected override string GenerateTagId(TagHelperContext context) => null;
 
-    public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
+    protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
     {
-        if (Native || context.ShouldSuppressChildContent())
+        if (Native)
         {
             return;
         }
@@ -123,7 +117,7 @@ public class NumberInputTagHelper : TagHelper
             var name = Style == NumberInputStyle.Centered
                 ? (direction == "down" ? "minus" : "plus")
                 : "chevron-" + direction;
-            var icon = await _iconRenderer.RenderAsync(await _icons.GetIconAsync(name));
+            var icon = await HtmlHelper.IconAsync(name);
             var stepper = new TagBuilder("a");
             stepper.Attributes["href"] = "javascript:;";
             stepper.Attributes["class"] = "numberinput-stepper numberinput-" + direction;

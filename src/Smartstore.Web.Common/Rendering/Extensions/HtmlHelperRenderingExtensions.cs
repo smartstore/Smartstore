@@ -689,7 +689,7 @@ public static class HtmlHelperRenderingExtensions
         var httpContext = helper.ViewContext.HttpContext;
         var services = httpContext.RequestServices;
         var iconService = services.GetRequiredService<IIconService>();
-        var icon = await iconService.GetIconAsync(name, lib, variant, httpContext.RequestAborted);
+        var icon = await iconService.GetIconAsync(name, lib, variant, options?.Area, httpContext.RequestAborted);
         var renderer = services.GetRequiredService<IIconRenderer>();
         var svg = await renderer.RenderAsync(icon, options, httpContext.RequestAborted);
         return (IHtmlContent)svg ?? HtmlString.Empty;

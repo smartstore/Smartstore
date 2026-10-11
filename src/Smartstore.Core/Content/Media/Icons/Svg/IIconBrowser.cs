@@ -13,7 +13,7 @@ public interface IIconBrowser
     /// </summary>
     /// <param name="address">The original address including optional modifiers, or null for an empty editor.</param>
     /// <returns>The requested source, or null for invalid, unknown or excluded selectors.</returns>
-    IconBrowserSource? GetSource(string? address);
+    IconBrowserSource? GetSource(string? address, string area = "public");
 
     /// <summary>
     /// Gets a page of concepts or literal icon names and ensures its preview sprite exists.
@@ -52,7 +52,8 @@ public sealed record IconBrowserResult(string SpriteUrl, int TotalCount, IReadOn
 /// <param name="SupportsStrokeScaling">Whether the resolved source variant supports per-icon stroke scaling.</param>
 /// <param name="IsDuotone">Whether the resolved source variant has primary and secondary layers.</param>
 /// <param name="InlineName">An explicit address with modifiers for exceptions that require inline rendering.</param>
-public sealed record IconBrowserItem(string Name, string Value, string Address, string LibraryKey, string VariantKey, string? InlineName = null, bool SupportsStrokeScaling = false, bool IsDuotone = false);
+/// <param name="PreviewAddress">The concrete source address including mapping modifiers, independent of the current page area.</param>
+public sealed record IconBrowserItem(string Name, string Value, string Address, string LibraryKey, string VariantKey, string? InlineName = null, bool SupportsStrokeScaling = false, bool IsDuotone = false, string? PreviewAddress = null);
 
 /// <summary>
 /// Identifies a picker source independently of the selected icon and its resolved fallback artwork.

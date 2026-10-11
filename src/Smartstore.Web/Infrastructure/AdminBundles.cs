@@ -11,8 +11,8 @@ internal class AdminBundles : IBundleProvider
         /* Admin Main Sass theme --> /admin/theme[-rtl].scss
          * Also required during install.
         -----------------------------------------------------*/
-        bundles.Add(new StyleBundle("/bundle/css/admin-theme.css").Include("/admin/theme.scss"));
-        bundles.Add(new StyleBundle("/bundle/css/admin-theme-rtl.css").Include("/admin/theme-rtl.scss"));
+        bundles.Add(new StyleBundle("/bundle/css/admin-theme.css") { IconArea = "admin" }.Include("/admin/theme.scss"));
+        bundles.Add(new StyleBundle("/bundle/css/admin-theme-rtl.css") { IconArea = "admin" }.Include("/admin/theme-rtl.scss"));
 
         if (!appContext.IsInstalled)
         {

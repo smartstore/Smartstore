@@ -100,7 +100,7 @@ public class IconController(IIconKitService kits, IIconService icons, IIconRende
                 spriteUrl = result.SpriteUrl,
                 results = result.Items.Select(x => new
                 {
-                    id = x.Value, text = x.Name, address = x.Address,
+                    id = x.Value, text = x.Name, address = x.Address, previewAddress = x.PreviewAddress,
                     library = x.LibraryKey, variant = x.VariantKey, inlineName = x.InlineName, supportsStrokeScaling = x.SupportsStrokeScaling, isDuotone = x.IsDuotone
                 }),
                 pagination = new { more = (long)page * pageSize < result.TotalCount },
@@ -154,7 +154,7 @@ public class IconController(IIconKitService kits, IIconService icons, IIconRende
     /// <param name="strokeScale">An explicit stroke multiplier override.</param>
     [HttpGet("/icons/render")]
     public async Task<IActionResult> Render(string name, string lib, string variant, int? rotate,
-        bool? flipH, bool? flipV, double? strokeScale, CancellationToken cancelToken)
+        bool? flipH, bool? flipV, double? strokeScale, string area = null, CancellationToken cancelToken = default)
     {
         Response.Headers.CacheControl = "no-store";
         if (!ModelState.IsValid || string.IsNullOrEmpty(name) || name.Length > 512)
@@ -164,10 +164,10 @@ public class IconController(IIconKitService kits, IIconService icons, IIconRende
 
         try
         {
-            var icon = await icons.GetIconAsync(name, lib, variant, cancelToken);
+            var icon = await icons.GetIconAsync(name, lib, variant, area, cancelToken);
             var svg = await renderer.RenderAsync(icon, new IconOptions
             {
-                Rotate = rotate, FlipHorizontal = flipH, FlipVertical = flipV, StrokeScale = strokeScale
+                Area = area, Rotate = rotate, FlipHorizontal = flipH, FlipVertical = flipV, StrokeScale = strokeScale
             }, cancelToken);
             if (svg == null)
             {

@@ -8,6 +8,11 @@ namespace Smartstore.Core.Content.Media.Icons;
 /// </summary>
 public sealed class IconOptions : ICloneable<IconOptions>
 {
+    /// <summary>
+    /// Gets or sets the rendering area; null uses the caller's area.
+    /// </summary>
+    public string? Area { get; set; }
+
     private Dictionary<string, string> _attributes = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>

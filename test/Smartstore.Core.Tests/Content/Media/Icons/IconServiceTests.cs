@@ -27,6 +27,86 @@ namespace Smartstore.Core.Tests.Content.Media.Icons;
 [TestFixture]
 public class IconServiceTests
 {
+    [Test]
+    public async Task Singleton_Resolves_Current_Request_Area_And_Explicit_Override()
+    {
+        Write("Icons/kits.json", """{"public":{"areas":["public"],"icons":["cart"]},"admin":{"areas":["admin"],"defaultVariant":"sharp","icons":["cart"]}}""");
+        var accessor = new HttpContextAccessor { HttpContext = new DefaultHttpContext() };
+        var service = new IconService(_context.Object, _cache.Object, new IconAreaResolver(), accessor);
+        try
+        {
+            accessor.HttpContext.Request.Path = "/admin/products";
+            Assert.That((await service.GetIconAsync("cart")).VariantName, Is.EqualTo("sharp"));
+            Assert.That((await service.GetIconAsync("cart", area: "public")).VariantName, Is.EqualTo("rounded"));
+            accessor.HttpContext = new DefaultHttpContext();
+            Assert.That((await service.GetIconAsync("cart")).VariantName, Is.EqualTo("rounded"));
+            accessor.HttpContext = null;
+            Assert.That((await service.GetIconAsync("cart")).VariantName, Is.EqualTo("rounded"));
+        }
+        finally
+        {
+            accessor.HttpContext = null;
+        }
+    }
+
+    [Test]
+    public async Task Collections_Resolve_Per_Area_And_Keep_Kit_Priority()
+    {
+        Write("Icons/collections.json", """{"shared":{"icons":["cart"]}}""");
+        Write("Icons/kits.json", """{"z-public":{"areas":["public"],"use":["shared"]},"a-admin":{"areas":["admin"],"defaultVariant":"sharp","use":["shared"]},"brands":{"areas":["public","admin"],"icons":["direct"],"sources":{"direct":"hi:direct!/sr"}}}""");
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        var publicIcon = await _service.GetIconAsync("cart");
+        var adminIcon = await _service.GetIconAsync("cart", area: "admin");
+        Assert.That(publicIcon.VariantName, Is.EqualTo("rounded"));
+        Assert.That(adminIcon.VariantName, Is.EqualTo("sharp"));
+        Assert.That(kits.GetReference(publicIcon).Href, Does.Contain("/z-public-"));
+        Assert.That(kits.GetReference(adminIcon).Href, Does.Contain("/a-admin-"));
+        Assert.That(kits.GetUrl("shared"), Is.Null);
+        Assert.That(kits.Kits.Select(x => x.Name), Is.EqualTo(new[] { "z-public", "a-admin", "brands" }));
+        Assert.That(kits.GetReference(await _service.GetIconAsync("direct", area: "admin")).Href, Does.Contain("/brands-"));
+        using var manifest = JsonDocument.Parse(await File.ReadAllTextAsync(
+            await kits.GetManifestFileAsync(Path.GetFileNameWithoutExtension(kits.GetManifestUrl()))));
+        Assert.That(manifest.RootElement.GetProperty("areas").GetProperty("admin").GetProperty("cart").GetString(), Is.EqualTo("a-admin"));
+
+        Write("Icons/collections.json", """{"shared":{"icons":["cart"],"sources":{"cart":"hi:direct/sr"}}}""");
+        SignalChanges();
+        Assert.That((await _service.GetIconAsync("cart", area: "admin")).Name, Is.EqualTo("direct"));
+    }
+
+    [Test]
+    public async Task Collection_Order_And_Local_Overrides_Are_Deterministic()
+    {
+        Write("Icons/collections.json", """{"first":{"icons":["cart"],"sources":{"cart":"hi:direct/sr"}},"second":{"icons":["cart"],"sources":{"cart":"hi:cart-01/sr"}}}""");
+        Write("Icons/kits.json", """{"public":{"use":["first","second"]}}""");
+        Assert.That((await _service.GetIconAsync("cart")).Name, Is.EqualTo("direct"));
+        Write("Icons/kits.json", """{"public":{"use":["first","second"],"sources":{"cart":"hi:cart-01/sr"}}}""");
+        SignalChanges();
+        Assert.That((await _service.GetIconAsync("cart")).Name, Is.EqualTo("cart-01"));
+    }
+
+    [TestCase("missing")]
+    [TestCase("cycle")]
+    public void Invalid_Collection_References_Are_Rejected(string name)
+    {
+        Write("Icons/collections.json", """{"cycle":{"use":["cycle"]}}""");
+        Write("Icons/kits.json", "{\"public\":{\"use\":[\"" + name + "\"]}}");
+        Assert.ThrowsAsync<InvalidDataException>(async () => await _service.GetIconAsync("cart"));
+    }
+
+    [TestCase("public")]
+    [TestCase("admin")]
+    public async Task Missing_Icons_Use_Their_Area_Sprite(string area)
+    {
+        Write("Icons/system/library.json", """{"defaultVariant":"default","variants":{"default":{}}}""");
+        Write("Icons/system/default/icons/not-found.svg", _svg);
+        Write("Icons/collections.json", """{"shared":{"icons":["not-found"],"sources":{"not-found":"system:not-found!/default"}}}""");
+        Write("Icons/kits.json", """{"public":{"areas":["public"],"use":["shared"]},"admin":{"areas":["admin"],"use":["shared"]}}""");
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        var output = await new IconRenderer(_service, kits).RenderAsync(null, new IconOptions { Area = area });
+        Assert.That(RenderMarkup(output.InnerHtml), Does.Contain(kits.GetUrl(area) + "#not-found"));
+        Assert.That(output.Attributes["class"], Does.Contain("text-danger"));
+    }
+
     /// <summary>
     /// Missing identities and unavailable sources use the shared kit placeholder from the system library.
     /// </summary>
@@ -72,12 +152,12 @@ public class IconServiceTests
             variants = new { @default = new { supportsStrokeScaling = supported } }
         }));
         Write("Icons/other/default/icons/foreign.svg", _svg);
-        Write("Icons/other/mapping.json", """{"foreign":"foreign?stroke-scale=1.5"}""");
+        Write("Icons/other/mapping.json", """{"foreign":"foreign?stroke-scale=1.5","scaled":"foreign?stroke-scale=1.5"}""");
         Write("Icons/kits.json", """{"shared":{"icons":["cart","foreign"],"sources":{"foreign":"other:foreign!/default"}}}""");
         var icon = await _service.GetIconAsync("other:foreign/default?stroke-scale=2");
         Assert.That(icon.SupportsStrokeScaling, Is.EqualTo(supported));
         Assert.That(icon.StrokeScale, Is.EqualTo(supported ? 2 : 1));
-        var mapped = await _service.GetIconAsync("other:foreign/default");
+        var mapped = await _service.GetIconAsync("other:scaled/default");
         Assert.That(mapped.StrokeScale, Is.EqualTo(supported ? 1.5 : 1));
         var accessor = new HttpContextAccessor();
         var kits = new IconKitService(_service, _context.Object, accessor);
@@ -272,7 +352,7 @@ public class IconServiceTests
         WriteZip("hugeicons", "sharp", ("cart-01", _svg));
         Write("Icons/hugeicons/mapping.json", """{"cart":"cart-01","direct":"missing"}""");
         Write("Icons/hugeicons/metadata.json", """{"icons":{"cart-01":{"tags":["basket"]},"direct":{}}}""");
-        _service = new IconService(_context.Object, _cache.Object);
+        _service = new IconService(_context.Object, _cache.Object, new IconAreaResolver(), new HttpContextAccessor());
     }
 
     /// <summary>
@@ -376,10 +456,10 @@ public class IconServiceTests
         Assert.That(Path.GetDirectoryName(paths[0]), Is.EqualTo(Path.Combine(_root, ".cache", "icons", "kits")));
         Assert.That(Path.GetFileName(paths[0]), Is.EqualTo("manifest-" + revision + ".json"));
         using var json = JsonDocument.Parse(await File.ReadAllTextAsync(paths[0]));
-        Assert.That(json.RootElement.EnumerateObject().Select(x => x.Name), Is.EquivalentTo(new[] { "schemaVersion", "mirrorInRtl", "kits" }));
-        Assert.That(json.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(10));
+        Assert.That(json.RootElement.EnumerateObject().Select(x => x.Name), Is.EquivalentTo(new[] { "schemaVersion", "mirrorInRtl", "areas", "kits" }));
+        Assert.That(json.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(11));
         var shared = json.RootElement.GetProperty("kits").GetProperty("shared");
-        Assert.That(shared.EnumerateObject().Select(x => x.Name), Is.EquivalentTo(new[] { "url", "defaultLibrary", "defaultVariant", "icons", "duotone", "supportsStrokeScaling", "sources" }));
+        Assert.That(shared.EnumerateObject().Select(x => x.Name), Is.EquivalentTo(new[] { "areas", "url", "defaultLibrary", "defaultVariant", "icons", "duotone", "supportsStrokeScaling", "sources" }));
         Assert.That(shared.GetProperty("icons").EnumerateArray().Select(x => x.GetString()), Is.EqualTo(new[] { "cart", "thick" }),
             "Mapping flips and stroke multipliers are baked into kit symbols.");
         Assert.That(shared.GetProperty("url").GetString(), Does.StartWith("icons/shared-"));
@@ -403,12 +483,12 @@ public class IconServiceTests
     }
 
     /// <summary>
-    /// Publishes each concept once using server kit priority, independently of dictionary order.
+    /// Publishes kit contents with a separate area index following declaration order.
     /// </summary>
     /// <param name="configuration">The configured kits and overlapping concepts.</param>
     /// <param name="preferred">The kit selected for the shared concept.</param>
-    [TestCase("{\"admin\":[\"cart\"],\"shared\":[\"cart\"]}", "shared")]
-    [TestCase("{\"public\":[\"cart\"],\"admin\":[\"cart\"]}", "admin")]
+    [TestCase("{\"admin\":[\"cart\"],\"shared\":[\"cart\"]}", "admin")]
+    [TestCase("{\"public\":[\"cart\"],\"admin\":[\"cart\"]}", "public")]
     public async Task Browser_Manifest_Uses_Preferred_Concept_Kit(string configuration, string preferred)
     {
         Write("Icons/kits.json", configuration);
@@ -416,7 +496,7 @@ public class IconServiceTests
         var path = await kits.GetManifestFileAsync(Path.GetFileNameWithoutExtension(kits.GetManifestUrl()));
         using var json = JsonDocument.Parse(await File.ReadAllTextAsync(path));
         var published = json.RootElement.GetProperty("kits");
-        Assert.That(published.EnumerateObject().Select(x => x.Name), Is.EqualTo(new[] { preferred }));
+        Assert.That(json.RootElement.GetProperty("areas").GetProperty("public").GetProperty("cart").GetString(), Is.EqualTo(preferred));
         Assert.That(published.GetProperty(preferred).GetProperty("icons")[0].GetString(), Is.EqualTo("cart"));
         _cache.VerifyNoOtherCalls();
     }
@@ -431,7 +511,8 @@ public class IconServiceTests
         var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
         var path = await kits.GetManifestFileAsync(Path.GetFileNameWithoutExtension(kits.GetManifestUrl()));
         using var json = JsonDocument.Parse(await File.ReadAllTextAsync(path));
-        Assert.That(json.RootElement.GetProperty("kits").EnumerateObject(), Is.Empty);
+        Assert.That(json.RootElement.GetProperty("areas").GetProperty("public").GetProperty("cart").GetString(), Is.EqualTo("shared"));
+        Assert.That(json.RootElement.GetProperty("kits").TryGetProperty("shared", out _), Is.False);
         Assert.That((await _service.GetIconAsync("cart")).Name, Is.EqualTo("cart-01"));
         _cache.VerifyNoOtherCalls();
     }
@@ -640,7 +721,7 @@ public class IconServiceTests
     public void Constructor_Is_Lazy()
     {
         var context = new Mock<IApplicationContext>(MockBehavior.Strict);
-        _ = new IconService(context.Object, _cache.Object);
+        _ = new IconService(context.Object, _cache.Object, new IconAreaResolver(), new HttpContextAccessor());
         context.VerifyNoOtherCalls();
     }
 
@@ -737,7 +818,7 @@ public class IconServiceTests
         using var files = new LocalFileSystem(Path.Combine(workspace.FullName, "Smartstore", "src", "Smartstore.Web", "App_Data"));
         var context = new Mock<IApplicationContext>();
         context.SetupGet(x => x.AppDataRoot).Returns(files);
-        var service = new IconService(context.Object, _cache.Object);
+        var service = new IconService(context.Object, _cache.Object, new IconAreaResolver(), new HttpContextAccessor());
         int count = 0;
         for (int skip = 0; ; skip += 500)
         {
@@ -882,7 +963,7 @@ public class IconServiceTests
         var modified = await _service.GetSvgAsync("cart");
         Assert.That(modified.Revision, Is.Not.EqualTo(overridden.Revision));
         Assert.That(modified.Content, Does.Contain("M0 0L3 3"));
-        var otherService = new IconService(_context.Object, _cache.Object);
+        var otherService = new IconService(_context.Object, _cache.Object, new IconAreaResolver(), new HttpContextAccessor());
         Assert.That((await otherService.GetSvgAsync("cart")).Revision, Is.EqualTo(modified.Revision));
     }
 
@@ -1197,7 +1278,7 @@ public class IconServiceTests
     public void Cancellation_Precedes_Discovery()
     {
         var context = new Mock<IApplicationContext>(MockBehavior.Strict);
-        var service = new IconService(context.Object, _cache.Object);
+        var service = new IconService(context.Object, _cache.Object, new IconAreaResolver(), new HttpContextAccessor());
         Assert.ThrowsAsync<OperationCanceledException>(() => service.GetSvgAsync("cart", cancelToken: new CancellationToken(true)));
         context.VerifyNoOtherCalls();
     }
@@ -1528,7 +1609,7 @@ public class IconServiceTests
         Assert.That(configured.Revision, Is.Not.EqualTo(original.Revision));
         Assert.That((string)children[0].Attribute("style"), Does.Contain("stroke:var(--icon-stroke,currentColor)"));
         Assert.That((string)children[1].Attribute("stroke"), Is.EqualTo("none"));
-        Assert.That((string)children[1].Attribute("style"), Does.Not.Contain("stroke:var"));
+        Assert.That((string)children[1].Attribute("style") ?? string.Empty, Does.Not.Contain("stroke:var"));
         Assert.That(children[2].Attribute("stroke"), Is.Null);
         Assert.That((string)children[2].Attribute("fill"), Is.EqualTo("red"));
         Assert.That((string)children[3].Attribute("style"), Does.Contain("stroke-width:var(--icon-stroke-width,3.2)"));
@@ -1572,10 +1653,10 @@ public class IconServiceTests
     }
 
     /// <summary>
-    /// Resolves shared membership without parsing artwork or writing individual cache entries.
+    /// Resolves first declared membership without parsing artwork or writing individual cache entries.
     /// </summary>
     [Test]
-    public async Task Kit_Rendering_Uses_Shared_Reference_And_PathBase()
+    public async Task Kit_Rendering_Uses_First_Reference_And_PathBase()
     {
         Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded"}""");
         Write("Icons/kits.json", """{"admin":["cart"],"shared":["cart"]}""");
@@ -1584,7 +1665,7 @@ public class IconServiceTests
         var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor { HttpContext = http });
         var icon = await _service.GetIconAsync("cart");
         var reference = kits.GetReference(icon);
-        Assert.That(reference.Href, Does.StartWith("/store/icons/shared-").And.EndWith("#cart"));
+        Assert.That(reference.Href, Does.StartWith("/store/icons/admin-").And.EndWith("#cart"));
 
         var renderer = new IconRenderer(_service, kits);
         var options = new IconOptions();
@@ -1693,6 +1774,26 @@ public class IconServiceTests
     }
 
     /// <summary>
+    /// A disconnected request must not discard a shared artifact once its writer has started.
+    /// </summary>
+    [Test]
+    public async Task Artifact_Publication_Completes_When_Request_Is_Cancelled_During_Write()
+    {
+        using var request = new CancellationTokenSource();
+        var path = Path.Combine(_root, ".cache", "icons", "cancelled-request.svg");
+        var content = Encoding.UTF8.GetBytes("<svg/>");
+        var result = await IconFileCache.PublishAsync(path, async (stream, token) =>
+        {
+            request.Cancel();
+            await stream.WriteAsync(content, token);
+        }, request.Token);
+
+        Assert.That(result, Is.EqualTo(path));
+        Assert.That(File.ReadAllBytes(path), Is.EqualTo(content));
+        Assert.That(Directory.GetFiles(Path.GetDirectoryName(path)), Has.Length.EqualTo(1));
+    }
+
+    /// <summary>
     /// Reads ZIP metadata once for discovery and opens one archive for the whole sprite batch.
     /// Verifies that generation releases the archive rather than retaining a singleton handle.
     /// </summary>
@@ -1734,7 +1835,7 @@ public class IconServiceTests
         var roundedPath = await kits.GetSpriteFileAsync("shared", roundedRevision);
 
         // The endpoint is the first consumer after restart: no preceding GetUrl call.
-        var restarted = new IconKitService(new IconService(_context.Object, _cache.Object), _context.Object, new HttpContextAccessor());
+        var restarted = new IconKitService(new IconService(_context.Object, _cache.Object, new IconAreaResolver(), new HttpContextAccessor()), _context.Object, new HttpContextAccessor());
         Assert.That(await restarted.GetSpriteFileAsync("shared", roundedRevision), Is.EqualTo(roundedPath));
         var sharpPath = await restarted.GetSpriteFileAsync("shared", sharpUrl[^28..^4]);
         Assert.That(File.Exists(sharpPath), Is.True);
@@ -2016,11 +2117,11 @@ public class IconServiceTests
     {
         Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded"}""");
         Write("Icons/kits.json", """{"admin":{"defaultVariant":"sharp","icons":["cart"]},"shared":{"icons":["cart"]}}""");
-        Assert.That((await _service.GetIconAsync("cart")).VariantName, Is.EqualTo("rounded"));
+        Assert.That((await _service.GetIconAsync("cart")).VariantName, Is.EqualTo("sharp"));
         Write("Icons/config.json", """{"defaultLibrary":"hugeicons","defaultVariant":"rounded"}""");
         Write("Icons/kits.json", """{"zulu":{"icons":["cart"]},"alpha":{"defaultVariant":"sharp","icons":["cart"]}}""");
         SignalChanges();
-        Assert.That((await _service.GetIconAsync("cart")).VariantName, Is.EqualTo("sharp"));
+        Assert.That((await _service.GetIconAsync("cart")).VariantName, Is.EqualTo("rounded"));
         Assert.That((await _service.GetIconAsync("cart", variant: "rounded")).VariantName, Is.EqualTo("rounded"));
     }
 
@@ -2059,7 +2160,7 @@ public class IconServiceTests
         {
             var icon = await _service.GetIconAsync(name);
             Assert.That(icon, Is.Not.Null, name);
-            Assert.That(kits.GetReference(icon)?.Href, Is.EqualTo(url + "#" + (name == "second" ? "foreign" : name)));
+            Assert.That(kits.GetReference(icon)?.Href, Is.EqualTo(url + "#" + name));
         }
 
         var foreign = await _service.GetIconAsync("OTHER:foreign/ROUNDED");
@@ -2091,7 +2192,7 @@ public class IconServiceTests
 
         var manifestPath = await kits.GetManifestFileAsync(Path.GetFileNameWithoutExtension(kits.GetManifestUrl()));
         using var manifest = JsonDocument.Parse(await File.ReadAllTextAsync(manifestPath));
-        Assert.That(manifest.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(10));
+        Assert.That(manifest.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(11));
         var brands = manifest.RootElement.GetProperty("kits").GetProperty("brands");
         Assert.That(brands.GetProperty("icons").EnumerateArray().Select(x => x.GetString()), Is.EquivalentTo(symbols.Keys),
             "Each concept references its own symbol, including aliases sharing one source.");
@@ -2104,7 +2205,7 @@ public class IconServiceTests
 
         // Recover a missing mixed sprite from its public revision after a process restart.
         File.Delete(path);
-        var restarted = new IconKitService(new IconService(_context.Object, _cache.Object), _context.Object, new HttpContextAccessor());
+        var restarted = new IconKitService(new IconService(_context.Object, _cache.Object, new IconAreaResolver(), new HttpContextAccessor()), _context.Object, new HttpContextAccessor());
         Assert.That(await restarted.GetSpriteFileAsync("brands", revision), Is.EqualTo(path));
         Assert.That(File.Exists(path), Is.True);
 
@@ -2188,10 +2289,10 @@ public class IconServiceTests
     /// <summary>
     /// Restores source context without resolving artwork, generating sprites or losing explicit selectors.
     /// </summary>
-    [TestCase(null, "shared", null, null)]
-    [TestCase("", "shared", null, null)]
-    [TestCase("cart", "shared", null, null)]
-    [TestCase("cart?rotate=90", "shared", null, null)]
+    [TestCase(null, "admin", null, null)]
+    [TestCase("", "admin", null, null)]
+    [TestCase("cart", "admin", null, null)]
+    [TestCase("cart?rotate=90", "admin", null, null)]
     [TestCase("direct", "admin", null, null)]
     [TestCase("cart!", null, "hugeicons", "rounded")]
     [TestCase("unlisted", null, "hugeicons", "rounded")]

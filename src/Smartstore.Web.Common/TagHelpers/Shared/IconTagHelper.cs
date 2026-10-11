@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Content.Media.Icons;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Shared;
 
@@ -215,12 +216,16 @@ public abstract class IconTagHelperBase : SmartTagHelper
 /// <summary>
 /// Renders a local IconKit icon through the shared renderer. Presentation is controlled by icon CSS classes and variables.
 /// </summary>
-/// <param name="iconService">Resolves icon addresses and supplies validated, cached SVG payloads.</param>
-/// <param name="iconRenderer">Owns complete SVG rendering, including automatic kit references.</param>
 [HtmlTargetElement("icon", TagStructure = TagStructure.WithoutEndTag)]
 [OutputElementHint("svg")]
-public class IconTagHelper(IIconService iconService, IIconRenderer iconRenderer) : IconTagHelperBase
+public class IconTagHelper : IconTagHelperBase
 {
+    /// <summary>
+    /// Gets or sets the icon area. Omission derives it from the current MVC area.
+    /// </summary>
+    [HtmlAttributeName("area")]
+    public string Area { get; set; }
+
     const string NameAttributeName = "name";
     const string LibraryAttributeName = "lib";
     const string VariantAttributeName = "variant";
@@ -257,18 +262,18 @@ public class IconTagHelper(IIconService iconService, IIconRenderer iconRenderer)
     {
         Guard.NotEmpty(Name);
 
-        var cancelToken = ViewContext.HttpContext.RequestAborted;
         // Razor binds null string attribute values as empty strings. Treat optional
         // selectors as omitted so configured defaults and qualified names still apply.
-        var icon = await iconService.GetIconAsync(Name, Library.NullEmpty(), Variant.NullEmpty(), cancelToken);
         var options = CreateOptions(output);
+        options.Area = Area.NullEmpty();
+        options.Attributes.Remove("area");
         options.StrokeScale = StrokeScale;
         options.Attributes.Remove(NameAttributeName);
         options.Attributes.Remove(LibraryAttributeName);
         options.Attributes.Remove(VariantAttributeName);
         options.Attributes.Remove(StrokeScaleAttributeName);
 
-        var svg = await iconRenderer.RenderAsync(icon, options, cancelToken);
+        var svg = await HtmlHelper.IconAsync(Name, Library.NullEmpty(), Variant.NullEmpty(), options) as TagBuilder;
         if (svg == null)
         {
             output.SuppressOutput();

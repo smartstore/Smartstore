@@ -71,8 +71,8 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
     /// <param name="catalog">The immutable source generation supplying mappings and kit plans.</param>
     private static (string Revision, byte[] Content) CreateManifest(IconCatalog catalog)
     {
-        var kits = new SortedDictionary<string, object>(StringComparer.Ordinal);
-        foreach (var kit in catalog.Kits.Values.OrderBy(x => x.Name, StringComparer.Ordinal))
+        var kits = new Dictionary<string, object>(StringComparer.Ordinal);
+        foreach (var kit in catalog.Kits.Values)
         {
             var library = IconService.SelectLibrary(catalog, kit.DefaultLibrary);
             var variant = IconService.SelectVariant(catalog, library, null, kit);
@@ -80,7 +80,6 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
             // Every concept has its own symbol, even when several concepts share artwork.
             // Mapping transforms and stroke multipliers are baked into symbols.
             var entries = index.Entries[kit.Name]
-                .Where(x => catalog.ConceptKits[x.Concept] == kit)
                 .ToArray();
             if (entries.Length == 0 || !index.CanGenerate(kit.Name))
             {
@@ -111,6 +110,7 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
             // nor read SVG drawings into the individual icon cache.
             kits.Add(kit.Name, new
             {
+                Areas = kit.Areas,
                 Url = "icons/" + Uri.EscapeDataString(kit.Name) + "-" + index.Plans[kit.Name].Value.Revision + ".svg",
                 DefaultLibrary = defaultLibrary,
                 DefaultVariant = defaultVariant,
@@ -123,8 +123,10 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
 
         var content = JsonSerializer.SerializeToUtf8Bytes(new
         {
-            SchemaVersion = 10,
+            SchemaVersion = 11,
             MirrorInRtl = catalog.MirrorInRtl.OrderBy(x => x, StringComparer.Ordinal).ToArray(),
+            Areas = catalog.ConceptKits.GroupBy(x => x.Key.Area).ToDictionary(
+                group => group.Key, group => group.ToDictionary(x => x.Key.Concept, x => x.Value.Name)),
             Kits = kits
         }, SmartJsonOptions.CamelCased);
         return (Convert.ToHexStringLower(SHA256.HashData(content).AsSpan(0, 12)), content);
@@ -140,30 +142,20 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
 
         var catalog = icons.Catalog;
         var index = GetIndex(catalog, icon.SelectionLibraryName ?? icon.LibraryName, icon.SelectionVariantName ?? icon.VariantName);
-        if (index == null || !index.Memberships.TryGetValue((icon.Address, icon.Transform, icon.StrokeScale), out var member))
+        if (index == null || !index.Memberships.TryGetValue(
+            (icon.Area, icon.ConceptName, icon.Address, icon.Transform, icon.StrokeScale), out var member))
         {
             return null;
         }
 
-        // A pinned BI member of an FA kit must reference that kit's default mixed sprite,
-        // not try to regenerate all of its ordinary FA concepts with BI defaults.
         if (member.Pinned)
         {
             var kit = catalog.Kits[member.Kit];
             var library = IconService.SelectLibrary(catalog, kit.DefaultLibrary);
-            var variant = IconService.SelectVariant(catalog, library, null, kit);
-            index = GetIndex(catalog, library, variant);
+            index = GetIndex(catalog, library, IconService.SelectVariant(catalog, library, null, kit));
         }
-
-        if (!index.CanGenerate(member.Kit))
-        {
-            // Explicit selections can match one symbol without being able to supply
-            // the whole kit. Let the renderer use the individual source in that case.
-            return null;
-        }
-
-        var plan = index.Plans[member.Kit].Value;
-        return new IconKitReference(BuildUrl(member.Kit, plan.Revision)
+        if (!index.CanGenerate(member.Kit)) return null;
+        return new IconKitReference(BuildUrl(member.Kit, index.Plans[member.Kit].Value.Revision)
             + "#" + Uri.EscapeDataString(member.Symbol));
     }
 

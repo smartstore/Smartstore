@@ -21,6 +21,15 @@ public class SassProcessor : BundleProcessor
             return;
         }
 
+        // Dynamic matches wrap the definition; retain its style-specific options.
+        var definition = context.Bundle is DynamicBundleMatch match ? match.DynamicBundleContext.Bundle : context.Bundle;
+        var iconArea = definition switch
+        {
+            StyleBundle style => style.IconArea,
+            DynamicStyleBundle style => style.IconArea,
+            _ => "public"
+        };
+
         await using var lease = await context.SassCompilerFactory.GetCompilerAsync();
         foreach (var asset in sassAssets)
         {
@@ -29,7 +38,7 @@ public class SassProcessor : BundleProcessor
                 Source = asset.Content,
                 SourcePath = asset.Path,
                 FileProvider = asset.FileProvider,
-                Functions = [IconSassFunctions.CreateUrl(context.HttpContext.RequestServices.GetRequiredService<IIconService>())]
+                Functions = [IconSassFunctions.CreateUrl(context.HttpContext.RequestServices.GetRequiredService<IIconService>(), iconArea)]
             });
 
             context.IncludedFiles.AddRange(result.IncludedFiles);

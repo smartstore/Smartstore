@@ -16,7 +16,8 @@ internal static class IconFileCache
 
     /// <summary>
     /// Returns an existing file or writes it beside the destination before an atomic rename.
-    /// Failed or cancelled writes leave no partial artifact. The writer must reject stale source generations.
+    /// Cancellation applies only while waiting for the write lock. Once started, publication completes independently
+    /// of the request. Failed writes leave no partial artifact. The writer must reject stale source generations.
     /// </summary>
     /// <param name="path">The immutable destination path.</param>
     /// <param name="write">Writes the artifact to the supplied stream without closing it.</param>
@@ -43,10 +44,10 @@ internal static class IconFileCache
                 using (var stream = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None,
                     4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
                 {
-                    await write(stream, cancelToken);
+                    // The artifact is shared by subsequent requests, even if this request disconnects.
+                    await write(stream, CancellationToken.None);
                 }
 
-                cancelToken.ThrowIfCancellationRequested();
                 try
                 {
                     File.Move(temporary, path);

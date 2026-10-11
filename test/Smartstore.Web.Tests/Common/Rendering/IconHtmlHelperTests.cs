@@ -18,17 +18,19 @@ namespace Smartstore.Web.Tests.Common.Rendering;
 public class IconHtmlHelperTests
 {
     /// <summary>
-    /// Forwards selectors, cancellation and caller-owned options without copying or changing them.
+    /// Forwards selectors, cancellation and caller-owned options without changing caller-owned options.
     /// </summary>
-    [Test]
-    public async Task Delegates_Rendering_Without_Mutating_Options()
+    [TestCase(null)]
+    [TestCase("public")]
+    [TestCase("admin")]
+    public async Task Delegates_Rendering_Without_Mutating_Options(string explicitArea)
     {
         using var cancellation = new CancellationTokenSource();
         var icon = new IconInfo { Name = "cart-01" };
         var svg = new TagBuilder("svg");
         var service = new Mock<IIconService>(MockBehavior.Strict);
         var renderer = new Mock<IIconRenderer>(MockBehavior.Strict);
-        service.Setup(x => x.GetIconAsync("cart?rotate=90", "hi", "sr", cancellation.Token)).ReturnsAsync(icon);
+        service.Setup(x => x.GetIconAsync("cart?rotate=90", "hi", "sr", explicitArea, cancellation.Token)).ReturnsAsync(icon);
         IconOptions received = null;
         renderer.Setup(x => x.RenderAsync(icon, It.IsAny<IconOptions>(), cancellation.Token))
             .Callback((IconInfo _, IconOptions options, CancellationToken _) => received = options)
@@ -39,13 +41,15 @@ public class IconHtmlHelperTests
         {
             HttpContext = new DefaultHttpContext { RequestServices = services, RequestAborted = cancellation.Token }
         });
-        var options = new IconOptions { Size = "2x", Rotate = 0, FlipHorizontal = false, StrokeScale = 1.1, Animation = "spin" };
+        var options = new IconOptions { Area = explicitArea, Size = "2x", Rotate = 0, FlipHorizontal = false, StrokeScale = 1.1, Animation = "spin" };
         options.Attributes["class"] = "original";
         options.Attributes["style"] = "color:red";
         options.Attributes["aria-label"] = "Cart";
         var result = await helper.Object.IconAsync("cart?rotate=90", "hi", "sr", options);
         Assert.That(result, Is.SameAs(svg));
         Assert.That(received, Is.SameAs(options));
+        Assert.That(received.Area, Is.EqualTo(explicitArea));
+        Assert.That(options.Area, Is.EqualTo(explicitArea));
         Assert.That(received.Size, Is.EqualTo("2x"));
         Assert.That(received.Rotate, Is.Zero);
         Assert.That(received.FlipHorizontal, Is.False);
@@ -67,7 +71,7 @@ public class IconHtmlHelperTests
         var icon = resolved ? new IconInfo { Name = "cart-01" } : null;
         var service = new Mock<IIconService>(MockBehavior.Strict);
         var renderer = new Mock<IIconRenderer>(MockBehavior.Strict);
-        service.Setup(x => x.GetIconAsync("cart", null, null, CancellationToken.None)).ReturnsAsync(icon);
+        service.Setup(x => x.GetIconAsync("cart", null, null, null, CancellationToken.None)).ReturnsAsync(icon);
         renderer.Setup(x => x.RenderAsync(icon, null, CancellationToken.None)).ReturnsAsync((TagBuilder)null);
 
         using var services = new ServiceCollection().AddSingleton(service.Object).AddSingleton(renderer.Object).BuildServiceProvider();
