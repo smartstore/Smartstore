@@ -32,13 +32,13 @@ namespace Smartstore.Admin.Controllers;
 
 public class ExportController : AdminController
 {
-    private static readonly IReadOnlyDictionary<ExportDeploymentType, string> DeploymentTypeIconClasses = new Dictionary<ExportDeploymentType, string>()
+    private static readonly IReadOnlyDictionary<ExportDeploymentType, string> DeploymentTypeIcons = new Dictionary<ExportDeploymentType, string>()
     {
-        { ExportDeploymentType.FileSystem, "far fa-folder-open" },
-        { ExportDeploymentType.Email, "far fa-envelope" },
-        { ExportDeploymentType.Http, "fa fa-globe" },
-        { ExportDeploymentType.Ftp, "far fa-copy" },
-        { ExportDeploymentType.PublicFolder, "fa fa-unlock" },
+        { ExportDeploymentType.FileSystem, "folder-open" },
+        { ExportDeploymentType.Email, "mail" },
+        { ExportDeploymentType.Http, "hi:cloud-server!/sr" },
+        { ExportDeploymentType.Ftp, "database-export" },
+        { ExportDeploymentType.PublicFolder, "hi:folder-upload!/sr" },
     }.ToFrozenDictionary();
 
     private readonly SmartDbContext _db;
@@ -906,7 +906,7 @@ public class ExportController : AdminController
             .Select(y => new SelectListItem { Text = y.GetLocalized(x => x.Name), Value = y.Id.ToString() })
             .ToList();
 
-        ViewBag.DeploymentTypeIconClasses = DeploymentTypeIconClasses;
+        ViewBag.DeploymentTypeIcons = DeploymentTypeIcons;
 
         // Projection.
         model.Projection = await MapperFactory.MapAsync<ExportProjection, ExportProjectionModel>(projection);
@@ -1052,7 +1052,7 @@ public class ExportController : AdminController
         {
             model.CreateZip = profile.CreateZipArchive;
 
-            ViewBag.DeploymentTypeIconClasses = DeploymentTypeIconClasses;
+            ViewBag.DeploymentTypeIcons = DeploymentTypeIcons;
 
             if (ViewBag.EmailAccounts == null)
             {

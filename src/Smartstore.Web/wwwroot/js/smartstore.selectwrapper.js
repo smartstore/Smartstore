@@ -36,6 +36,7 @@
                 select.empty();
                 _.each(data, function (item) {
                     var option = new Option(item.text, item.id, item.selected, item.selected);
+                    $(option).data('icon', item.icon);
                     select.append(option);
                 });
             }
@@ -75,13 +76,15 @@
                         });
 
                         if ($option.length === 0) {
-                            $option = this.option({ id: initId, text: initText, selected: true });
+                            $option = this.option({ id: initId, text: initText, icon: init.icon, selected: true });
                             this.addOptions($option);
                         }
 
                         callback([{
                             id: initId,
-                            text: initText || ''
+                            text: initText || '',
+                            element: $option[0],
+                            icon: init.icon
                         }]);
 
                         return;
@@ -260,9 +263,9 @@
             }
 
             if (window.touchable && !sel.hasClass("skin") && !sel.data("select-url") && !sel.data("remote-url")) {
-                if (sel.find('option[data-color], option[data-imageurl]').length === 0
+                if (sel.find('option[data-color], option[data-imageurl], option[data-icon]').length === 0
                     || (sel.data("tags") && window.document.documentElement.classList.contains("mobile-device"))) {
-                    // Skip skinning if device is mobile and no rich content exists (color & image)
+                    // Skip skinning if device is mobile and no rich content exists (color, image & icon)
                     // or if device is mobile and no data tags exist.
                     return;
                 }
@@ -287,7 +290,7 @@
                         hint = item.hint || option.attr('data-hint'),
                         hintClass = item.hintClass || option.attr('data-hint-class') || 'text-muted',
                         description = item.description || option.attr('data-description'),
-                        icon = option.data('icon'),
+                        icon = item.icon ?? option.data('icon'),
                         truncateText = options.maxTextLength > 0 && text.length > options.maxTextLength,
                         appendHint = !isResult && hint && hint.length > 0;
 
@@ -379,14 +382,15 @@
                     else if (icon) {
                         // Icon
                         preResult = null;
-                        let icons = _.isArray(icon) ? icon : [icon];
-                        let len = icons.length;
-                        for (i = 0; i < len; i++) {
-                            let iconClass = icons[i] + " fa-fw mr-2 fs-h6";
-                            $('<i/>')
-                                .addClass(iconClass)
-                                .css('font-size', '16px')
-                                .appendTo(result);
+                        const icons = _.isArray(icon) ? icon : [icon];
+                        for (const address of icons) {
+                            $('<sm-icon/>')
+                                .attr('name', address)
+                                .attr('fw', '')
+                                .addClass('mr-1')
+                                .appendTo($('<span class="d-inline-flex align-items-center flex-shrink-0"/>')
+                                    .css('height', '1lh')
+                                    .appendTo(result));
                         }
 
                         // Text

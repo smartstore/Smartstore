@@ -2,7 +2,7 @@
 
 @{
     var deploymentTypes = Html.GetLocalizedEnumSelectList(typeof(ExportDeploymentType));
-    var deploymentTypeIconClasses = (IReadOnlyDictionary<ExportDeploymentType, string>)ViewBag.DeploymentTypeIconClasses;
+    var deploymentTypeIcons = (IReadOnlyDictionary<ExportDeploymentType, string>)ViewBag.DeploymentTypeIcons;
     // Backward compatibility. Numeric values, not strings!
     var fileSystemType = (int)ExportDeploymentType.FileSystem;
     var publicFolderType = (int)ExportDeploymentType.PublicFolder;
@@ -30,7 +30,7 @@
                 {
                     var type = (ExportDeploymentType)item.Value.ToInt();
                     <option value="@item.Value"
-                            data-icon="@(deploymentTypeIconClasses.GetValueOrDefault(type))"
+                            data-icon="@(deploymentTypeIcons.GetValueOrDefault(type))"
                             attr-selected='(Model.DeploymentType == type, "selected")'>
                         @item.Text
                     </option>

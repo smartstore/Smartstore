@@ -1,7 +1,7 @@
 ﻿@model ExportProfileModel
 
 @{
-    var deploymentTypeIconClasses = (IReadOnlyDictionary<ExportDeploymentType, string>)ViewBag.DeploymentTypeIconClasses;
+    var deploymentTypeIcons = (IReadOnlyDictionary<ExportDeploymentType, string>)ViewBag.DeploymentTypeIcons;
 }
 
 <div sm-if="!Model.Provider.IsFileBasedExport">
@@ -110,7 +110,7 @@
                                 <a asp-action="EditDeployment" asp-route-id="@deployment.Id">@deployment.Name</a>
 							</div>
 							<div class="muted">
-                                <i class="@(deploymentTypeIconClasses.GetValueOrDefault(deployment.DeploymentType))"></i>
+                                <icon name="@(deploymentTypeIcons.GetValueOrDefault(deployment.DeploymentType))" />
                                 <span>@deployment.DeploymentTypeName</span>
 							</div>
 						</td>

@@ -19,6 +19,23 @@ this document blindly or treat a temporary comparison page as its source of trut
 - Record uncertain visual approximations and exceptions instead of implying exact equivalence.
 - Keep this guide in English. Display names and search tags are not localized here.
 
+## Select option icons
+
+The default `selectWrapper` formatter accepts an icon concept/address in an
+option's `data-icon`, or an array of addresses. AJAX items use `icon` with the
+same contract, including initial loading and lazy selections (`init.icon`).
+For example, use `data-icon="mail"` or `data-icon='["mail", "lock"]'`.
+Icons render through `sm-icon` in both results and selections; prefer kit concepts
+to avoid individual SVG requests. Icons count as rich content on touch devices.
+Custom formatters, including the legacy FontAwesome chooser, retain their own contracts.
+
+Export deployment icons use `folder-open`, `mail`, `hi:cloud-server!/sr` (HTTP POST),
+`database-export` (FTP), and `hi:folder-upload!/sr` (public folder).
+AddToAny reuses existing kit concepts where available, including `twitter-x`,
+and uses `share` as its fallback. Additional brands and SMS temporarily use
+explicit FA addresses instead of extending the platform kits. A future
+`IIconProvider` will let the module contribute these icons to kits externally.
+
 ## Explicit shape concepts
 
 The shared kit provides `-outline` and `-fill` concepts for `bubble-round`,
