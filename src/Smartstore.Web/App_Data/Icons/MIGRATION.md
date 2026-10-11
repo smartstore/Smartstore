@@ -838,3 +838,91 @@ Local JSON keeps priority. Provider concepts use the existing sprite and manifes
 pipeline. Providers are auto-discovered and instantiated through `ResolveUnregistered`
 in a temporary scope for each catalog generation, without singleton registrations.
 AddToAny contributes all its additional service-picker icons exclusively to the admin kit.
+
+
+## Module-owned icon contributions
+
+Module providers live in each module root as `Icons.cs` (`internal sealed class Icons`).
+They extend the existing area kits; module-only concepts are no longer unconditional
+members of the core admin kit or shared collection. Global library mappings remain
+available so source-less contributions can follow the selected kit library and variant.
+
+Removed the nine MediaManager-specific folder and overlay concepts from the core memberships.
+Generic motifs remain in core kits and shared even if only one module currently uses them;
+a single caller is not enough to classify an icon as module-owned. The obsolete `caret-down`
+entry was also removed; DimensionPricing now uses `chevron-down`. File-type concepts
+remain in the core because FileIconTagHelper, ThumbnailTagHelper and other platform
+callers use them independently of MediaManager.
+
+| Module | Provider target | Contributed concepts |
+|---|---|---|
+| Smartstore.MediaManager | admin kit | `media-folder`, `media-folder-open`, `media-folder-fill`, `media-folder-open-fill`, `media-overlay-product`, `media-overlay-category`, `media-overlay-download`, `media-overlay-mail`, `media-overlay-user` |
+| Smartstore.PageBuilder | admin kit | `gallery-thumbnails`, `text-firstline-right`, `bug-01`, `block-game` |
+| Smartstore.Forums | public kit | `forum-subscriptions`, `forum-messages` |
+| Smartstore.Polls | admin kit | `list-checks` |
+| Smartstore.AdditionalBlocks | admin kit | `advertisement` |
+| Smartstore.ContentSlider | admin kit | `content-slider` |
+| Smartstore.EmailReminder | public kit | `email-reminder` |
+| Smartstore.SearchLog | admin kit | `search-log` |
+| Smartstore.UrlRewriter | admin kit | `url-rewriter` |
+| Smartstore.MegaMenu | admin kit | `mega-menu` |
+| Smartstore.DependingPrices | admin kit | `depending-prices` |
+| Smartstore.Warranty | admin kit | `warranty` |
+| Smartstore.GPSR | admin kit | `gpsr` |
+| Smartstore.Timeline | admin kit | `timeline` |
+| Smartstore.GeoConfigurator | admin kit | `geo-configurator` |
+| Smartstore.LinkMobility | admin kit | `sms-notifications` |
+| Smartstore.StorageDisplay | admin kit | `storage-display` |
+| Smartstore.Tyre24 | admin kit | `tyre24` |
+| Smartstore.UmamiAnalytics | admin kit | `traffic-chart` |
+| Smartstore.TopM.R6Connector | admin kit | `r6-connector` |
+| Smartstore.SupportAgent | admin kit | `support-agent`, `support-import`, `support-history` |
+| Smartstore.ShopwareImport | admin kit | `import-history` |
+| Smartstore.DevTools | admin kit | `devtools-server`, `terminal` |
+| Smartstore.CartApproval | public kit | `cart-approved` |
+| Smartstore.CartApprovalWithBudget | public kit | `cart-approved` |
+| Smartstore.EventFlow | shared collection | `event-flow`, `ticket-scan`, `ticket-holder`, `ticket-valid` |
+| Smartstore.Homepage | public kit | `feature-catalog`, `feature-payment`, `feature-shipping`, `feature-security`, `feature-performance`, `chart-bar`, `discount`, `user-group`, `megaphone`, `sitemap`, `globe`, `images`, `chart-up`, `palette` |
+| Smartstore.Themes.HP | public kit | `feature-catalog`, `feature-payment`, `feature-shipping`, `feature-security`, `feature-performance`, `chart-bar`, `discount`, `user-group`, `megaphone`, `sitemap`, `globe`, `images`, `chart-up`, `palette` |
+| Smartstore.Themes.HP | admin kit | `hp-home`, `hp-features` |
+| Smartstore.TyreCommerce | admin kit | `tire` |
+| Smartstore.TyreCommerce | public kit | `tyre-summer`, `tyre-winter`, `tyre-all-season`, `tyre-offroad`, `tyre-season-unknown`, `tyre-efficiency`, `tyre-wet-grip`, `tyre-noise` |
+
+New motif selections prefer HugeIcons. UrlRewriter, MegaMenu, StorageDisplay and the
+HP administration menu retain their original BI sources pending visual review.
+MediaManager retains its deliberately filled FA overlays and system folder drawings.
+Homepage and HP contribute identical feature concepts; duplicate identical contributions
+are idempotent. Public feature lists also contribute the general admin concepts they use
+to the public kit. EventFlow contributes to shared because its concepts serve both areas.
+
+Callers use concept names. TyreCommerce's legacy Html.Icon calls now use the SVG icon
+TagHelper. Remaining Bootstrap icon tags for filter, trash, check and stars-tricolor in
+the inspected modules were replaced with the corresponding existing concepts.
+
+The DataGrid search reset uses the admin kit concept `filter-remove`, mapped to
+the HugeIcons motif of the same name, instead of `eraser`.
+
+### Brands kit curation
+
+Keep major platform and AI brands, payment/shipping logos, and the curated technical
+logos bootstrap, css, css3, css3-alt, git and markdown in core. Removed memberships
+retain their library sources and mappings. PageBuilder contributes soundcloud to
+the admin kit.
+
+Removed fixed brands memberships: `airbnb`, `browser-chrome`, `browser-edge`, `browser-firefox`, `browser-firefox-alt`, `browser-safari`, `dart-lang`, `docker`, `facebook-square`, `font-awesome`, `github-square`, `gitlab-square`, `imdb`, `instagram-square`, `java`, `js`, `kickstarter`, `ko-fi`, `kubernetes`, `linkedin-square`, `node-js`, `npm`, `php`, `pinterest-square`, `playstation`, `postgresql`, `python`, `react`, `reddit-square`, `sass`, `soundcloud`, `steam`, `swift`, `threads-square`, `twitter-square`, `twitter-x-square`, `typescript`, `uber`, `vimeo-square`, `vuejs`, `whatsapp-square`, `xing-square`, `youtube-square`, `zoom`.
+
+### AI command menu
+
+The platform AI menu generator renders admin kit concepts server-side through
+HtmlHelper.IconAsync. Text menu entry points and their callers are asynchronous. Generate: ai-auto-rotate; style: ai-editing;
+tone: wink; summarize: reduce-paragraph; improve: ai-magic; simplify: menu-08;
+extend: expand-paragraph; organize: layout-list; continue: arrow-big-right-dash.
+The AI module provider contributes the menu concepts to admin; the generic wink
+concept remains in core. Source declarations live in the module provider rather
+than global mappings. Kit sprites avoid individual icon rendering requests.
+
+AI dialogs reuse ai-editing for style/prompt editing and ai-auto-rotate for
+regeneration. The optimization menu button retains sliders. The module additionally contributes ai-image for
+image generation and ai-idea for reasoning effort. General actions retain core
+concepts. The mock provider renders its file-image placeholder server-side once
+per rich-text answer and reuses that markup for each paragraph.

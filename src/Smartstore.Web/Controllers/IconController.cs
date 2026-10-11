@@ -98,6 +98,7 @@ public class IconController(IIconKitService kits, IIconService icons, IIconRende
             return Json(new
             {
                 spriteUrl = result.SpriteUrl,
+                external = result.Items.Select((item, i) => (item, i)).Where(x => x.item.IsExternal).Select(x => x.i).ToArray(),
                 results = result.Items.Select(x => new
                 {
                     id = x.Value, text = x.Name, address = x.Address, previewAddress = x.PreviewAddress,

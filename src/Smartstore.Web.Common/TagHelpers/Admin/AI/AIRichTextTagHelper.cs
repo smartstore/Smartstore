@@ -47,7 +47,7 @@ public class AIRichTextTagHelper() : AITagHelperBase()
     [HtmlAttributeName(DisplayImageOptionsAttributeName)]
     public bool DisplayImageOptions { get; set; } = true;
 
-    protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
+    protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
     {
         output.TagMode = TagMode.StartTagAndEndTag;
         output.TagName = null;
@@ -59,7 +59,7 @@ public class AIRichTextTagHelper() : AITagHelperBase()
 
         var enabled = !HtmlUtility.IsEmptyHtml(For?.Model?.ToString());
         var attributes = GetTagHelperAttributes();
-        var tool = AIToolHtmlGenerator.GenerateTextTool(attributes, AICommandLocation.HtmlPreview, enabled);
+        var tool = await AIToolHtmlGenerator.GenerateTextToolAsync(attributes, AICommandLocation.HtmlPreview, enabled);
         if (tool == null)
         {
             return;

@@ -59,7 +59,7 @@ public class AITextTagHelper() : AITagHelperBase()
     [HtmlAttributeName(WordCountAttributeName)]
     public int WordCount { get; set; }
 
-    protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
+    protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
     {
         output.TagMode = TagMode.StartTagAndEndTag;
         output.TagName = null;
@@ -72,7 +72,7 @@ public class AITextTagHelper() : AITagHelperBase()
         var enabled = For?.Model?.ToString()?.HasValue() ?? false;
         var attributes = GetTagHelperAttributes();
 
-        var tool = AIToolHtmlGenerator.GenerateTextTool(attributes, AICommandLocation.TextInput, enabled);
+        var tool = await AIToolHtmlGenerator.GenerateTextToolAsync(attributes, AICommandLocation.TextInput, enabled);
         if (tool == null)
         {
             return;

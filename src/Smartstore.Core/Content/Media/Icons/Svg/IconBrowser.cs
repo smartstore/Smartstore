@@ -29,7 +29,7 @@ public sealed class IconBrowser(IconService icons, IconKitService kits, IHttpCon
         var kit = parsed.IsEmpty
             ? catalog.Kits.Values.FirstOrDefault(x => x.Areas.Contains(area) && x.ShowInPicker)
             : parsed.Library == null && !parsed.SkipMapping ? catalog.FindKit(parsed.Name, area) : null;
-        if (kit != null) return new IconBrowserSource(kit.Name, null, null);
+        if (kit != null) return new IconBrowserSource(kit.Name, null, null, !parsed.IsEmpty && catalog.ExternalIcons[kit.Name].Contains(parsed.Name));
 
         var source = SelectSource(catalog, parsed.Library, parsed.Variant);
         return source.Variant == null ? null
@@ -60,7 +60,7 @@ public sealed class IconBrowser(IconService icons, IconKitService kits, IHttpCon
             }
 
             result = new IconBrowserResult(page.Value.Url, page.Value.TotalCount,
-                page.Value.Items.Select(entry => CreateItem(entry.Info, entry.Concept)).ToArray());
+                page.Value.Items.Select(entry => CreateItem(entry.Info, entry.Concept, catalog.ExternalIcons[kit].Contains(entry.Concept))).ToArray());
         }
         else
         {
@@ -113,7 +113,8 @@ public sealed class IconBrowser(IconService icons, IconKitService kits, IHttpCon
     /// </summary>
     /// <param name="info">The resolved source metadata.</param>
     /// <param name="concept">The kit concept, or null for a literal library selection.</param>
-    private static IconBrowserItem CreateItem(IconInfo info, string concept = null)
+    /// <param name="isExternal">Whether kit membership depends on a provider.</param>
+    private static IconBrowserItem CreateItem(IconInfo info, string concept = null, bool isExternal = false)
         => new(concept ?? info.Name, concept ?? IconModifiers.FormatAddress(info), info.Address, info.LibraryKey, info.VariantKey,
-            null, info.SupportsStrokeScaling, info.IsDuotone, IconModifiers.FormatAddress(info, includeModifiers: true));
+            null, info.SupportsStrokeScaling, info.IsDuotone, IconModifiers.FormatAddress(info, includeModifiers: true), isExternal);
 }

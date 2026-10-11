@@ -108,17 +108,25 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
 
             // Fingerprint source descriptors only. Manifest requests neither generate sprites
             // nor read SVG drawings into the individual icon cache.
-            kits.Add(kit.Name, new
+            var manifestKit = new Dictionary<string, object>
             {
-                Areas = kit.Areas,
-                Url = "icons/" + Uri.EscapeDataString(kit.Name) + "-" + index.Plans[kit.Name].Value.Revision + ".svg",
-                DefaultLibrary = defaultLibrary,
-                DefaultVariant = defaultVariant,
-                Icons = entries.Select(x => x.Concept).ToArray(),
-                Duotone = entries.Where(x => x.Variant.Manifest.IsDuotone).Select(x => x.Concept).ToArray(),
-                SupportsStrokeScaling = entries.Where(x => x.Variant.Manifest.SupportsStrokeScaling).Select(x => x.Concept).ToArray(),
-                Sources = sources
-            });
+                ["areas"] = kit.Areas,
+                ["url"] = "icons/" + Uri.EscapeDataString(kit.Name) + "-" + index.Plans[kit.Name].Value.Revision + ".svg",
+                ["defaultLibrary"] = defaultLibrary,
+                ["defaultVariant"] = defaultVariant,
+                ["icons"] = entries.Select(x => x.Concept).ToArray(),
+                ["duotone"] = entries.Where(x => x.Variant.Manifest.IsDuotone).Select(x => x.Concept).ToArray(),
+                ["supportsStrokeScaling"] = entries.Where(x => x.Variant.Manifest.SupportsStrokeScaling).Select(x => x.Concept).ToArray(),
+                ["sources"] = sources
+            };
+            var external = catalog.ExternalIcons[kit.Name];
+            if (external.Count > 0)
+            {
+                // Zero-based positions in this kit's sorted icons array; never repeat concept names.
+                manifestKit.Add("external", entries.Select((entry, i) => (entry, i))
+                    .Where(x => external.Contains(x.entry.Concept)).Select(x => x.i).ToArray());
+            }
+            kits.Add(kit.Name, manifestKit);
         }
 
         var content = JsonSerializer.SerializeToUtf8Bytes(new

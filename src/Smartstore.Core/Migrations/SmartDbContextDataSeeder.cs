@@ -123,6 +123,7 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.IconBrowser.Search", "Search icons", "Icons suchen");
         builder.AddOrUpdate("Admin.IconBrowser.Size", "Icon size", "Icon-Größe");
         builder.AddOrUpdate("Admin.IconBrowser.Options", "Icon options", "Icon-Optionen");
+        builder.AddOrUpdate("Admin.IconBrowser.External", "provided by a module", "von einem Modul bereitgestellt");
 
         builder.AddOrUpdate("Admin.Configuration.Themes.Option.KeepSassCompilerInMemory",
             "Keep Sass compiler in memory",

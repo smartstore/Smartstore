@@ -53,7 +53,8 @@ public sealed record IconBrowserResult(string SpriteUrl, int TotalCount, IReadOn
 /// <param name="IsDuotone">Whether the resolved source variant has primary and secondary layers.</param>
 /// <param name="InlineName">An explicit address with modifiers for exceptions that require inline rendering.</param>
 /// <param name="PreviewAddress">The concrete source address including mapping modifiers, independent of the current page area.</param>
-public sealed record IconBrowserItem(string Name, string Value, string Address, string LibraryKey, string VariantKey, string? InlineName = null, bool SupportsStrokeScaling = false, bool IsDuotone = false, string? PreviewAddress = null);
+/// <param name="IsExternal">Whether kit membership depends on an installed module provider.</param>
+public sealed record IconBrowserItem(string Name, string Value, string Address, string LibraryKey, string VariantKey, string? InlineName = null, bool SupportsStrokeScaling = false, bool IsDuotone = false, string? PreviewAddress = null, bool IsExternal = false);
 
 /// <summary>
 /// Identifies a picker source independently of the selected icon and its resolved fallback artwork.
@@ -61,4 +62,5 @@ public sealed record IconBrowserItem(string Name, string Value, string Address, 
 /// <param name="Kit">The preferred conceptual kit, or null for library browsing.</param>
 /// <param name="Library">The library system name, or null for kit browsing.</param>
 /// <param name="Variant">The requested effective variant name, or null for kit browsing.</param>
-public sealed record IconBrowserSource(string? Kit, string? Library, string? Variant);
+/// <param name="IsExternal">Whether the selected concept depends on a provider in this kit.</param>
+public sealed record IconBrowserSource(string? Kit, string? Library, string? Variant, bool IsExternal = false);

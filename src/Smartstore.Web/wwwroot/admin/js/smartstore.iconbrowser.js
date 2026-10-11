@@ -61,6 +61,7 @@
                     if (version !== generation) return;
                     // Store the shared URL on each page item locally, not repeatedly on the wire.
                     for (const item of data.results) item.spriteUrl = data.spriteUrl;
+                    for (const index of data.external || []) data.results[index].isExternal = true;
                     success(data);
                 }).fail((xhr, reason) => {
                     if (version === generation && reason !== 'abort') failure(xhr);
@@ -102,6 +103,20 @@
                 label.className = isResult ? 'text-truncate w-100 fs-xs lh-sm text-center' : 'text-truncate';
                 label.textContent = item.text;
                 row.title = item.text;
+                if (root.attr('data-show-provider-indicators') === 'true' && (item.isExternal ?? item.element?.dataset.external === 'true')) {
+                    const hint = root.attr('data-external-label');
+                    if (isResult) {
+                        const dot = document.createElement('span');
+                        row.classList.add('position-relative');
+                        dot.className = 'position-absolute rounded-circle bg-warning';
+                        dot.style.cssText = 'width:6px;height:6px;top:-2px;left:calc(50% + var(--icon-browser-size, 24px) / 2 + 1px)';
+                        dot.setAttribute('role', 'img');
+                        dot.setAttribute('aria-label', hint);
+                        dot.title = hint;
+                        row.append(dot);
+                    }
+                    row.title += ' (' + hint + ')';
+                }
                 if (isResult) {
                     row.append(icon, label);
                 } else {

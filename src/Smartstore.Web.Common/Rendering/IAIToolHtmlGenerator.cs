@@ -35,7 +35,7 @@ public partial interface IAIToolHtmlGenerator : IViewContextAware
     /// The icon button inclusive dropdown to choose a rewrite command from.
     /// <c>null</c> if there is no active <see cref="IAIProvider"/>.
     /// </returns>
-    TagBuilder? GenerateTextTool(AttributeDictionary? attributes, AICommandLocation location, bool enabled = true);
+    Task<TagBuilder?> GenerateTextToolAsync(AttributeDictionary? attributes, AICommandLocation location, bool enabled = true);
 
     /// <summary>
     /// Creates the icon button to open the suggestion dialog.
@@ -64,7 +64,7 @@ public partial interface IAIToolHtmlGenerator : IViewContextAware
     /// <param name="forHtml">Whether the text input is HTML formatted.</param>
     /// <param name="enabled">Whether to initially enable the command dropdown items.</param>
     /// <returns>The dropdown menu as HTML content.</returns>
-    IHtmlContent GenerateCommandMenuItems(AICommandLocation location, bool forHtml = false, bool enabled = true);
+    Task<IHtmlContent> GenerateCommandMenuItemsAsync(AICommandLocation location, bool forHtml = false, bool enabled = true);
 
     /// <summary>
     /// Gets the URL of the dialog.

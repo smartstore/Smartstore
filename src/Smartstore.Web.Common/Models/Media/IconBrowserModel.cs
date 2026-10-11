@@ -61,6 +61,13 @@ public class IconBrowserModel : ModelBase
     public bool ShowHiddenKits { get; set; }
 
     /// <summary>
+    /// Gets or sets whether provider-dependent concepts display a developer indicator and tooltip.
+    /// Disabled by default. Controllers must restore this editor configuration on redisplay.
+    /// </summary>
+    [BindNever, JsonIgnore]
+    public bool ShowProviderIndicators { get; set; }
+
+    /// <summary>
     /// Creates rendering options without changing the persisted address or omitted values.
     /// </summary>
     public IconOptions ToOptions() => new()

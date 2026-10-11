@@ -537,6 +537,24 @@ uses its explicitly selected library or the system default, independently of kit
 `IIconKitService.GetUrl` follows the named kit's defaults unless overridden.
 Changes to kit defaults are picked up by the configuration watcher.
 
+### Provider indicators in the icon picker
+
+`IconBrowserModel.ShowProviderIndicators` defaults to `false`. Enable it for developer
+pickers to show a small yellow dot and explanatory tooltip on provider-dependent kit
+concepts. It is editor configuration, not a persisted icon option. The cheatsheet enables it.
+
+Each manifest kit may contain `"external":[0,3,12]`: zero-based indices into that kit's
+sorted `icons` array. The field is omitted when empty; names and per-icon boolean objects
+are not repeated. It is additive to manifest schema 11. Search responses use the same
+index representation relative to their current result page. Literal library results
+are never marked, even when a kit uses the same drawing.
+
+Provenance follows nested collection contributions per kit. A local JSON `icons`
+declaration removes the marker, including an inherited local collection declaration.
+A `sources` override alone does not guarantee membership without the provider and
+therefore retains the marker. Provenance changes invalidate the manifest revision;
+unchanged drawings retain their sprite revision.
+
 ### Module contributions with IIconProvider
 
 Modules can contribute concepts to existing kits and collections or define their own
@@ -989,7 +1007,7 @@ manifest contains kit URLs, directly renderable concepts and compact DOM identit
 
 ```json
 {
-  "schemaVersion": 10,
+  "schemaVersion": 11,
   "mirrorInRtl": ["arrow-left", "arrow-right", "chevron-left", "chevron-right", "chevrons-left", "chevrons-right"],
   "kits": {
     "brands": {

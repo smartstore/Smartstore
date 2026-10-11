@@ -26,6 +26,9 @@ internal sealed class IconCatalog
     /// </summary>
     internal Dictionary<string, IconKit> Kits { get; } = new(StringComparer.Ordinal);
 
+    // Memberships that disappear when the contributing providers are unavailable.
+    internal Dictionary<string, HashSet<string>> ExternalIcons { get; } = new(StringComparer.Ordinal);
+
     /// <summary>
     /// Gets the first declared kit for each area and concept before library selection.
     /// </summary>
@@ -568,7 +571,7 @@ internal sealed class IconCatalog
                 throw new InvalidDataException($"Unknown defaultVariant '{variantName}' in icon kit '{kit.Key}' for library '{selectedLibrary.Manifest.SystemName}'.");
             }
 
-            var (names, sources) = ExpandDefinition(definition, collectionDefinitions, contributions.CollectionIcons,
+            var (names, sources, external) = ExpandDefinition(definition, collectionDefinitions, contributions.CollectionIcons,
                 contributions.KitIcons.GetValueOrDefault(kit.Key), new HashSet<string>(StringComparer.Ordinal));
             var areas = isObject && definition.TryGetProperty("areas", out var kitAreas)
                 ? kitAreas.EnumerateArray().Select(x => x.GetString()).ToArray() : null;
@@ -576,6 +579,7 @@ internal sealed class IconCatalog
                 ? kitIcon.GetString() : null;
             var showInPicker = !isObject || !definition.TryGetProperty("showInPicker", out var kitVisibility)
                 || kitVisibility.GetBoolean();
+            catalog.ExternalIcons.Add(kit.Key, external);
             var iconKit = new IconKit(kit.Key, names, libraryName, variantName, sources, icon, showInPicker, areas);
             foreach (var address in iconKit.SourceAddresses.Values)
             {
@@ -607,13 +611,14 @@ internal sealed class IconCatalog
     }
 
     // Collections contribute definitions only. First use wins; local declarations override it.
-    private static (List<string> Names, Dictionary<string, string> Sources) ExpandDefinition(
+    private static (List<string> Names, Dictionary<string, string> Sources, HashSet<string> External) ExpandDefinition(
         JsonElement definition, Dictionary<string, JsonElement> collections,
         Dictionary<string, Dictionary<string, string>> collectionIcons, Dictionary<string, string> additions, HashSet<string> visiting)
     {
         var names = new List<string>();
         var sources = new Dictionary<string, string>(StringComparer.Ordinal);
         var seen = new HashSet<string>(StringComparer.Ordinal);
+        var external = new HashSet<string>(StringComparer.Ordinal);
         var isObject = definition.ValueKind == JsonValueKind.Object;
         if (isObject && definition.TryGetProperty("use", out var uses))
         {
@@ -632,11 +637,13 @@ internal sealed class IconCatalog
                     if (seen.Add(concept))
                     {
                         names.Add(concept);
+                        if (expanded.External.Contains(concept)) external.Add(concept);
                         if (expanded.Sources.TryGetValue(concept, out var source))
                         {
                             sources.Add(concept, source);
                         }
                     }
+                    if (!expanded.External.Contains(concept)) external.Remove(concept);
                 }
             }
         }
@@ -649,6 +656,7 @@ internal sealed class IconCatalog
                 if (seen.Add(entry.Key))
                 {
                     names.Add(entry.Key);
+                    external.Add(entry.Key);
                     if (entry.Value != null) sources.Add(entry.Key, entry.Value);
                 }
             }
@@ -667,13 +675,14 @@ internal sealed class IconCatalog
                 }
                 if (seen.Add(name)) names.Add(name);
                 sources.Remove(name);
+                external.Remove(name);
             }
         }
         if (isObject && definition.TryGetProperty("sources", out var overrides))
         {
             foreach (var source in overrides.EnumerateObject()) sources[source.Name] = source.Value.GetString();
         }
-        return (names, sources);
+        return (names, sources, external);
     }
 
     /// <summary>

@@ -63,7 +63,7 @@ Smartstore.Admin.DataGridVue.components["sm-datagrid"] = {
                 <div class="dg-search-header d-flex py-3 mx-3">
                     <h6 class="m-0 text-muted">{{ T.filter }}</h6>
                     <button v-show="numSearchFilters > 0" type="button" class="dg-filter-reset btn btn-plain btn-sm ml-auto" @click.prevent.stop="resetSearchFilters()">
-                        <sm-icon name="eraser"></sm-icon>
+                        <sm-icon name="filter-remove"></sm-icon>
                         <span>{{ T.resetState }}</span>
                     </button>
                 </div>

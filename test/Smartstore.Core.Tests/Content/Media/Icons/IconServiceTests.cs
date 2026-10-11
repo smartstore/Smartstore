@@ -129,6 +129,64 @@ public class IconServiceTests
     }
 
     /// <summary>
+    /// Compact provenance follows nested collections, local membership and the selected kit, not the area winner.
+    /// </summary>
+    [Test]
+    public async Task Provider_Provenance_Uses_Sorted_Indices_And_Local_Membership()
+    {
+        Write("Icons/collections.json", """{"module":{"use":["nested"],"icons":["cart"]},"nested":{}}""");
+        Write("Icons/kits.json", """{"public":{"areas":["public"],"use":["module"],"icons":["zeta"],"sources":{"zeta":"hi:direct/sr","alpha":"hi:direct/sr"}},"admin":{"areas":["admin"],"use":["module"]}}""");
+        var provider = new Mock<IIconProvider>();
+        provider.Setup(x => x.Configure(It.IsAny<IconKitBuilder>())).Callback<IconKitBuilder>(b =>
+        {
+            b.Collection("nested").Add("zeta", "hi:direct/sr").Add("alpha", "hi:direct/sr");
+            b.Collection("module").Add("cart", "hi:direct/sr");
+        });
+        var service = CreateProviderService(provider.Object);
+        var kits = new IconKitService(service, _context.Object, new HttpContextAccessor());
+        var browser = new IconBrowser(service, kits, new HttpContextAccessor());
+        using var manifest = JsonDocument.Parse(await File.ReadAllTextAsync(
+            await kits.GetManifestFileAsync(Path.GetFileNameWithoutExtension(kits.GetManifestUrl()))));
+        var publicKit = manifest.RootElement.GetProperty("kits").GetProperty("public");
+        var adminKit = manifest.RootElement.GetProperty("kits").GetProperty("admin");
+        Assert.That(publicKit.GetProperty("icons").EnumerateArray().Select(x => x.GetString()), Is.EqualTo(new[] { "alpha", "cart", "zeta" }));
+        Assert.That(publicKit.GetProperty("external").EnumerateArray().Select(x => x.GetInt32()), Is.EqualTo(new[] { 0 }));
+        Assert.That(adminKit.GetProperty("external").EnumerateArray().Select(x => x.GetInt32()), Is.EqualTo(new[] { 0, 2 }));
+        Assert.That(browser.GetSource("zeta", "public").IsExternal, Is.False);
+        Assert.That(browser.GetSource("zeta", "admin").IsExternal, Is.True);
+        Assert.That(browser.GetSource("hi:direct!/sr").IsExternal, Is.False);
+        var page = await browser.SearchAsync(new IconSearchQuery { Term = "zeta" }, "admin");
+        Assert.That(page.Items.Single().IsExternal, Is.True);
+        page = await browser.SearchAsync(new IconSearchQuery { Term = "zeta" }, "public");
+        Assert.That(page.Items.Single().IsExternal, Is.False);
+        var literal = await browser.SearchAsync(new IconSearchQuery { Library = "hi", Variant = "sr", Term = "direct" });
+        Assert.That(literal.Items.All(x => !x.IsExternal), Is.True);
+    }
+
+    /// <summary>
+    /// Adopting a provider concept locally changes manifest provenance without changing sprite content.
+    /// </summary>
+    [Test]
+    public async Task Local_Adoption_Changes_Manifest_Without_Changing_Sprite()
+    {
+        Write("Icons/kits.json", """{"public":[]}""");
+        var provider = new Mock<IIconProvider>();
+        provider.Setup(x => x.Configure(It.IsAny<IconKitBuilder>()))
+            .Callback<IconKitBuilder>(b => b.Kit("public").Add("cart"));
+        var service = CreateProviderService(provider.Object);
+        var kits = new IconKitService(service, _context.Object, new HttpContextAccessor());
+        var oldManifest = kits.GetManifestUrl();
+        var oldSprite = kits.GetUrl("public");
+        Write("Icons/kits.json", """{"public":["cart"]}""");
+        SignalChanges();
+        Assert.That(kits.GetManifestUrl(), Is.Not.EqualTo(oldManifest));
+        Assert.That(kits.GetUrl("public"), Is.EqualTo(oldSprite));
+        using var manifest = JsonDocument.Parse(await File.ReadAllTextAsync(
+            await kits.GetManifestFileAsync(Path.GetFileNameWithoutExtension(kits.GetManifestUrl()))));
+        Assert.That(manifest.RootElement.GetProperty("kits").GetProperty("public").TryGetProperty("external", out _), Is.False);
+    }
+
+    /// <summary>
     /// Provider members use the existing resolution, sprite and browser manifest pipeline.
     /// </summary>
     [Test]
@@ -151,6 +209,7 @@ public class IconServiceTests
         using var manifest = JsonDocument.Parse(await File.ReadAllTextAsync(
             await kits.GetManifestFileAsync(Path.GetFileNameWithoutExtension(kits.GetManifestUrl()))));
         Assert.That(manifest.RootElement.GetProperty("areas").GetProperty("admin").GetProperty("plugin-icon").GetString(), Is.EqualTo("brands"));
+        Assert.That(manifest.RootElement.GetProperty("kits").GetProperty("brands").GetProperty("external")[0].GetInt32(), Is.Zero);
         provider.Verify(x => x.Configure(It.IsAny<IconKitBuilder>()), Times.Once);
 
         var withoutProvider = new IconKitService(_service, _context.Object, new HttpContextAccessor());

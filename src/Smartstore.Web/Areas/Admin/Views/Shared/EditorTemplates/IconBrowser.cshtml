@@ -35,7 +35,8 @@
 <script src="~/admin/js/smartstore.iconbrowser.js" sm-target-zone="scripts" sm-key="iconbrowser"></script>
 
 <div class="icon-browser" data-search-url="@Url.Action("Browse", "Icon", new { area = "" })"
-     data-size-label="@T("Admin.IconBrowser.Size")" data-visible-options="@((int)visibleOptions)">
+     data-show-provider-indicators="@(Model?.ShowProviderIndicators == true ? "true" : "false")"
+     data-external-label="@(Model?.ShowProviderIndicators == true ? T("Admin.IconBrowser.External").ToString() : null)" data-size-label="@T("Admin.IconBrowser.Size")" data-visible-options="@((int)visibleOptions)">
     <div class="icon-browser-option-values">
         @Html.HiddenFor(x => x.Size, new { data_icon_option = "size" })
         @Html.HiddenFor(x => x.Animation, new { data_icon_option = "animation" })
@@ -102,7 +103,7 @@
                     <option></option>
                     @if (selectedAddress.HasValue())
                     {
-                        <option value="@selectedAddress" data-supports-stroke-scaling="@(selectedIcon?.SupportsStrokeScaling == true ? "true" : "false")" selected>@selectedLabel</option>
+                        <option value="@selectedAddress" data-external="@(initialSource?.IsExternal == true ? "true" : "false")" data-supports-stroke-scaling="@(selectedIcon?.SupportsStrokeScaling == true ? "true" : "false")" selected>@selectedLabel</option>
                     }
                 </select>
                 @if (visibleOptions != IconOptionFields.None)
