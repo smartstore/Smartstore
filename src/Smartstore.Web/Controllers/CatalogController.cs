@@ -1,4 +1,5 @@
 ﻿using System.ServiceModel.Syndication;
+using Microsoft.AspNetCore.Routing;
 using Smartstore.Caching;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Brands;
@@ -109,7 +110,7 @@ public partial class CatalogController : PublicController
 
         if (_seoSettings.CanonicalUrlsEnabled)
         {
-            model.CanonicalUrl = Url.RouteUrl("Category", new { model.SeName }, Request.Scheme);
+            model.CanonicalUrl = CanonicalUrl("Category", new { model.SeName }, query.PageIndex + 1);
         }
 
         if (query.IsSubPage && !_catalogSettings.ShowDescriptionInSubPages)
@@ -247,7 +248,7 @@ public partial class CatalogController : PublicController
         model.Path = Url.RouteUrl("Manufacturer", new { model.SeName });
         if (_seoSettings.CanonicalUrlsEnabled)
         {
-            model.CanonicalUrl = Url.RouteUrl("Manufacturer", new { model.SeName }, Request.Scheme);
+            model.CanonicalUrl = CanonicalUrl("Manufacturer", new { model.SeName }, query.PageIndex + 1);
         }
 
         if (query.IsSubPage && !_catalogSettings.ShowDescriptionInSubPages)
@@ -376,7 +377,7 @@ public partial class CatalogController : PublicController
 
         if (_seoSettings.CanonicalUrlsEnabled)
         {
-            model.CanonicalUrl = Url.RouteUrl("ProductsByTag", new { productTagId, path = model.TagName }, Request.Scheme);
+            model.CanonicalUrl = CanonicalUrl("ProductsByTag", new { productTagId, path = model.TagName }, query.PageIndex + 1);
         }
 
         query.WithProductTagIds(productTagId);
@@ -700,5 +701,22 @@ public partial class CatalogController : PublicController
         return query.CustomData.Get("ViewMode") is string viewMode && viewMode.EqualsNoCase("list")
             ? ProductSummaryViewMode.List
             : ProductSummaryViewMode.Grid;
+    }
+
+    private string CanonicalUrl(string routeName, object values, int pageNumber)
+    {
+        if (pageNumber > 1)
+        {
+            var routeValues = new RouteValueDictionary(values)
+            {
+                ["i"] = pageNumber
+            };
+
+            return Url.RouteUrl(routeName, routeValues, Request.Scheme);
+        }
+        else
+        {
+            return Url.RouteUrl(routeName, values, Request.Scheme);
+        }
     }
 }
