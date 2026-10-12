@@ -1117,6 +1117,11 @@ public partial class ProductController : AdminController
             warnings.Add(T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.CombiExists"));
         }
 
+        if (!selection.HasAttributes)
+        {
+            warnings.Add(T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.SelectAttributes"));
+        }
+
         if (warnings.Count == 0)
         {
             var combination = await MapperFactory.MapAsync<ProductVariantAttributeCombinationModel, ProductVariantAttributeCombination>(model);
