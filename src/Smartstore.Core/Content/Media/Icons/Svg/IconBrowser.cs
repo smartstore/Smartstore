@@ -11,7 +11,7 @@ namespace Smartstore.Core.Content.Media.Icons;
 public sealed class IconBrowser(IconService icons, IconKitService kits, IHttpContextAccessor httpContextAccessor) : IIconBrowser
 {
     /// <inheritdoc />
-    public IconBrowserSource GetSource(string address, string area = "public")
+    public IconBrowserSource GetSource(string address, string area = "public", bool showHiddenKits = false)
     {
         var catalog = icons.Catalog;
         IconAddress parsed = default;
@@ -27,7 +27,7 @@ public sealed class IconBrowser(IconService icons, IconKitService kits, IHttpCon
         // Use the same concept priority as resolution and the manifest, including
         // concepts omitted from the client manifest because they need inline rendering.
         var kit = parsed.IsEmpty
-            ? catalog.Kits.Values.FirstOrDefault(x => x.Areas.Contains(area) && x.ShowInPicker)
+            ? catalog.Kits.Values.FirstOrDefault(x => x.Areas.Contains(area) && (x.ShowInPicker || showHiddenKits))
             : parsed.Library == null && !parsed.SkipMapping ? catalog.FindKit(parsed.Name, area) : null;
         if (kit != null) return new IconBrowserSource(kit.Name, null, null, !parsed.IsEmpty && catalog.ExternalIcons[kit.Name].Contains(parsed.Name));
 

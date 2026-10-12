@@ -352,6 +352,27 @@ public class IconServiceTests
     }
 
     [Test]
+    public void Kit_Source_Addresses_Include_Collections_Providers_And_Configured_Variants()
+    {
+        Write("Icons/hugeicons/mapping.json", """{"cart":"cart-01?stroke-scale=1.5"}""");
+        Write("Icons/collections.json", """{"shared":{"icons":["cart"]}}""");
+        Write("Icons/kits.json", """{"public":{"areas":["public"],"use":["shared"]},"admin":{"areas":["admin"],"showInPicker":false,"defaultVariant":"sharp","use":["shared"]}}""");
+        var provider = new Mock<IIconProvider>();
+        provider.Setup(x => x.Configure(It.IsAny<IconKitBuilder>())).Callback<IconKitBuilder>(b =>
+            b.Kit("admin").Add("plugin-icon", "hi:direct/sr"));
+        var service = CreateProviderService(provider.Object);
+        var kits = new IconKitService(service, _context.Object, new HttpContextAccessor());
+
+        Assert.That(kits.GetSourceAddresses(), Is.EquivalentTo(new[] { "hi:cart-01/sr", "hi:cart-01/sharp", "hi:direct/sr" }));
+        Assert.That(Directory.Exists(Path.Combine(_root, ".cache")), Is.False);
+        _cache.VerifyNoOtherCalls();
+
+        Write("Icons/kits.json", """{"admin":{"areas":["admin"],"use":["shared"]}}""");
+        SignalChanges();
+        Assert.That(kits.GetSourceAddresses(), Is.EquivalentTo(new[] { "hi:cart-01/sr", "hi:direct/sr" }));
+    }
+
+    [Test]
     public async Task Collections_Resolve_Per_Area_And_Keep_Kit_Priority()
     {
         Write("Icons/collections.json", """{"shared":{"icons":["cart"]}}""");
@@ -2620,6 +2641,22 @@ public class IconServiceTests
 
         Assert.That(source, Is.EqualTo(kit == null && library == null ? null : new IconBrowserSource(kit, library, variant)));
         Assert.That(Directory.Exists(Path.Combine(_root, ".cache")), Is.False);
+        _cache.VerifyNoOtherCalls();
+    }
+
+    [TestCase(false, "brands")]
+    [TestCase(true, "admin")]
+    public void Browser_Initial_Source_Respects_Hidden_Kits(bool showHiddenKits, string expectedKit)
+    {
+        Write("Icons/kits.json", """{"public":{"areas":["public"],"icons":["cart"]},"admin":{"areas":["admin"],"showInPicker":false,"icons":["cart"]},"brands":{"areas":["public","admin"],"icons":["direct"]}}""");
+        var accessor = new HttpContextAccessor();
+        var browser = new IconBrowser(_service, new IconKitService(_service, _context.Object, accessor), accessor);
+
+        Assert.That(browser.GetSource(null, "admin", showHiddenKits).Kit, Is.EqualTo(expectedKit));
+        Assert.That(browser.GetSource(null, "public", showHiddenKits).Kit, Is.EqualTo("public"));
+        Assert.That(browser.GetSource("cart", "admin", showHiddenKits).Kit, Is.EqualTo("admin"));
+        Assert.That(browser.GetSource("direct", "admin", showHiddenKits).Kit, Is.EqualTo("brands"));
+        Assert.That(browser.GetSource("hi:cart/sr", "admin", showHiddenKits).Library, Is.EqualTo("hugeicons"));
         _cache.VerifyNoOtherCalls();
     }
 

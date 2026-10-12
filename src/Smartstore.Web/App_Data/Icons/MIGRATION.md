@@ -986,3 +986,14 @@ Smartstore still renders SVG icons and does not import this font.
   tax/shipping and payment modules); removed 11 unused icon.png files. Provider-specific
   payment images remain. TinyImage admin navigation uses hi:image-down. Added admin
   tax concept: HI taxes, BI receipt, FA file-invoice-dollar.
+
+- DevTools configuration now includes an Icons group with the existing IconBrowser
+  editor, all kits and provider indicators. The migration
+  cheatsheet remains unchanged.
+
+- DevTools shows a read-only grid of cached inline icon drawings, deduplicated by
+  address. The grid reads existing payloads without populating or refreshing the cache.
+
+- Cache diagnostics now exclude source addresses covered by configured kit variants
+  across all areas, including collections and providers. Added behance/ello to brands,
+  migrated their footer references, and moved privacy to the shared collection.

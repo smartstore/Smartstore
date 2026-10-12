@@ -9,3 +9,13 @@
         display: inline-flex;
     }
 }
+.devtools-icon-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(160px, 100%), 1fr));
+    gap: 1rem;
+}
+
+.devtools-cached-icon {
+    border-radius: 0.75rem;
+    aspect-ratio: 6 / 5;
+    min-width: 0;
+}

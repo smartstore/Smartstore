@@ -12,8 +12,10 @@ public interface IIconBrowser
     /// Explicit libraries retain their requested variant even when icon rendering uses a fallback.
     /// </summary>
     /// <param name="address">The original address including optional modifiers, or null for an empty editor.</param>
+    /// <param name="area">The area whose kit priority determines the initial selection.</param>
+    /// <param name="showHiddenKits">Whether hidden kits are eligible for selection in an empty editor.</param>
     /// <returns>The requested source, or null for invalid, unknown or excluded selectors.</returns>
-    IconBrowserSource? GetSource(string? address, string area = "public");
+    IconBrowserSource? GetSource(string? address, string area = "public", bool showHiddenKits = false);
 
     /// <summary>
     /// Gets a page of concepts or literal icon names and ensures its preview sprite exists.

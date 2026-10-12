@@ -1,4 +1,5 @@
-﻿@model ConfigurationModel
+﻿@using Smartstore.Web.Models.Media
+@model ConfigurationModel
 
 @{
     Layout = "_ConfigureModule"; 
@@ -51,6 +52,80 @@
             <div class="adminData">
                 <setting-editor asp-for="DisplayMachineName"></setting-editor>
                 <span asp-validation-for="DisplayMachineName"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="admin-config-group">
+                <div class="title">@T("Plugins.Developer.DevTools.Icons")</div>
+                <div class="info adminContainer">
+                    <p class="mb-0">@T("Plugins.Developer.DevTools.IconBrowser.Hint")</p>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminData wide">
+                <div class="adminContainer">
+                    @{
+                        var browserModel = new IconBrowserModel
+                        {
+                            ShowHiddenKits = true,
+                            ShowProviderIndicators = true,
+                            VisibleOptions = IconOptionFields.All
+                        };
+                    }
+                    @Html.EditorFor(_ => browserModel, "IconBrowser", "BrowserIcon")
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="admin-config-group">
+                <div class="title">@T("Plugins.Developer.DevTools.KitFiles")</div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminData wide">
+                <div class="adminContainer">
+                    <div class="table-responsive">
+                        <table class="table admin-table">
+                            <thead>
+                                <tr>
+                                    <th>@T("Plugins.Developer.DevTools.KitFiles.Name")</th>
+                                    <th>@T("Plugins.Developer.DevTools.KitFiles.FileName")</th>
+                                    <th class="text-right">@T("Plugins.Developer.DevTools.KitFiles.Size")</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var kit in Model.KitFiles)
+                                {
+                                    <tr>
+                                        <td>@kit.Name</td>
+                                        <td>@kit.FileName</td>
+                                        <td class="text-right text-nowrap">@Smartstore.Utilities.Prettifier.HumanizeBytes(kit.Size)</td>
+                                    </tr>
+                                }
+                                @if (Model.KitFiles.Count == 0)
+                                {
+                                    <tr><td colspan="3" class="text-muted">@T("Plugins.Developer.DevTools.KitFiles.Empty")</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="admin-config-group">
+                <div class="title">@T("Plugins.Developer.DevTools.CachedIcons") <span class="badge badge-secondary ml-2">@Model.CachedIcons.Count</span></div>
+                <div class="info adminContainer">
+                    <p>@T("Plugins.Developer.DevTools.CachedIcons.Hint")</p>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminData wide">
+                <div class="adminContainer">
+                    <partial name="_CachedIcons" model="Model.CachedIcons" />
+                </div>
             </div>
         </div>
     </div>

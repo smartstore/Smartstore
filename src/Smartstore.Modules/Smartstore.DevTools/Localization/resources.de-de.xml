@@ -65,4 +65,37 @@
     <LocaleResource Name="DisplayMachineName.Hint">
         <Value>Stellt den Rechnernamen unterhalb des Footers dar. Mit dieser Funktion können Sie in einer verteilten Anwendung den gerade genutzten Rechner ermitteln.</Value>
     </LocaleResource>
+    <LocaleResource Name="Icons">
+        <Value>Icons</Value>
+    </LocaleResource>
+    <LocaleResource Name="IconBrowser">
+        <Value>Icon Browser</Value>
+    </LocaleResource>
+    <LocaleResource Name="IconBrowser.Hint">
+        <Value>Hier finden Sie die verfügbaren Icons aus allen Kits und Bibliotheken. Wählen Sie eine Quelle, suchen Sie nach einem Motiv und probieren Sie die verschiedenen Varianten aus. Ein kleiner Punkt kennzeichnet Icons, die von einem Plugin bereitgestellt werden.</Value>
+    </LocaleResource>
+    <LocaleResource Name="CachedIcons">
+        <Value>Icons im Cache</Value>
+    </LocaleResource>
+    <LocaleResource Name="CachedIcons.Hint">
+        <Value>Diese Übersicht zeigt einzeln angeforderte Icons aus dem Cache, deren konkrete Bibliothek und Variante derzeit in keinem Kit enthalten sind. Nutzen Sie die Adressen, um häufig verwendete Motive als Konzepte in einem Kit oder über einen Icon-Provider zu bündeln. Bereits durch Kits abgedeckte Zeichnungen werden ausgeblendet, auch wenn ihr Konzept anders heißt. Jede Adresse erscheint einmal; abgelaufene oder gelöschte Cache-Einträge verschwinden.</Value>
+    </LocaleResource>
+    <LocaleResource Name="CachedIcons.Empty">
+        <Value>Keine Icons außerhalb der Kits im Cache vorhanden.</Value>
+    </LocaleResource>
+    <LocaleResource Name="KitFiles">
+        <Value>Erstellte Icon Kits / Sprites</Value>
+    </LocaleResource>
+    <LocaleResource Name="KitFiles.Name">
+        <Value>Kitname</Value>
+    </LocaleResource>
+    <LocaleResource Name="KitFiles.FileName">
+        <Value>Dateiname</Value>
+    </LocaleResource>
+    <LocaleResource Name="KitFiles.Size">
+        <Value>Größe</Value>
+    </LocaleResource>
+    <LocaleResource Name="KitFiles.Empty">
+        <Value>Derzeit sind keine aktuellen Kit-Sprites vorhanden.</Value>
+    </LocaleResource>
 </Language>

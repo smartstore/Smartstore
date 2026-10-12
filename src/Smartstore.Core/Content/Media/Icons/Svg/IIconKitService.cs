@@ -26,6 +26,13 @@ public interface IIconKitService
     IReadOnlyCollection<IconKit> Kits { get; }
 
     /// <summary>
+    /// Gets the canonical drawing addresses included in available kits with their configured defaults,
+    /// across all areas. Mapping transformations do not change drawing identity.
+    /// Does not read SVG bodies or generate sprites.
+    /// </summary>
+    IReadOnlySet<string> GetSourceAddresses();
+
+    /// <summary>
     /// Gets a sprite reference for a resolved icon, or null when it belongs to no kit.
     /// Kit declaration order determines precedence within the resolved area.
     /// </summary>

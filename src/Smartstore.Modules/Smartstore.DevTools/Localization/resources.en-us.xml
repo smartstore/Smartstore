@@ -65,4 +65,37 @@
     <LocaleResource Name="DisplayMachineName.Hint">
         <Value>Displays the current machine name below the footer. With this function you can determine the current machine within a distributed application.</Value>
     </LocaleResource>
+    <LocaleResource Name="Icons">
+        <Value>Icons</Value>
+    </LocaleResource>
+    <LocaleResource Name="IconBrowser">
+        <Value>Icon Browser</Value>
+    </LocaleResource>
+    <LocaleResource Name="IconBrowser.Hint">
+        <Value>Explore the available icons from all kits and libraries. Select a source, search for an icon and try the different variants. A small dot marks icons provided by a plugin.</Value>
+    </LocaleResource>
+    <LocaleResource Name="CachedIcons">
+        <Value>Cached icons</Value>
+    </LocaleResource>
+    <LocaleResource Name="CachedIcons.Hint">
+        <Value>This overview shows individually requested cached icons whose specific library and variant are not currently included in any kit. Use their addresses to organize frequently used icons as concepts in a kit or through an icon provider. Drawings already covered by kits are hidden, even when their concept has a different name. Each address appears once; expired or deleted cache entries disappear.</Value>
+    </LocaleResource>
+    <LocaleResource Name="CachedIcons.Empty">
+        <Value>There are no cached icons outside the kits.</Value>
+    </LocaleResource>
+    <LocaleResource Name="KitFiles">
+        <Value>Generated Icon Kits / Sprites</Value>
+    </LocaleResource>
+    <LocaleResource Name="KitFiles.Name">
+        <Value>Kit name</Value>
+    </LocaleResource>
+    <LocaleResource Name="KitFiles.FileName">
+        <Value>File name</Value>
+    </LocaleResource>
+    <LocaleResource Name="KitFiles.Size">
+        <Value>Size</Value>
+    </LocaleResource>
+    <LocaleResource Name="KitFiles.Empty">
+        <Value>No current kit sprites have been generated yet.</Value>
+    </LocaleResource>
 </Language>

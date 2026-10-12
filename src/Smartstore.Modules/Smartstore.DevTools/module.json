@@ -5,6 +5,7 @@
   "FriendlyName": "Smartstore Developer Tools (MiniProfiler and other goodies)",
   "Description": "",
   "Icon": "bi:terminal",
+  "IconColor": "#0891B2",
   "Version": "6.4.0",
   "MinAppVersion": "6.4.0",
   "Author": "SmartStore AG",

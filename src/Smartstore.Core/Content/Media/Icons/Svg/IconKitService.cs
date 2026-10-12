@@ -144,6 +144,33 @@ public sealed class IconKitService(IconService icons, IApplicationContext applic
     public IReadOnlyCollection<IconKit> Kits => icons.Catalog.Kits.Values;
 
     /// <inheritdoc />
+    public IReadOnlySet<string> GetSourceAddresses()
+    {
+        var catalog = icons.Catalog;
+        var addresses = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var kit in catalog.Kits.Values)
+        {
+            var library = IconService.SelectLibrary(catalog, kit.DefaultLibrary);
+            var variant = IconService.SelectVariant(catalog, library, null, kit);
+            if (variant == null)
+            {
+                continue;
+            }
+
+            var index = GetIndex(catalog, library, variant);
+            if (index.CanGenerate(kit.Name))
+            {
+                foreach (var entry in index.Entries[kit.Name])
+                {
+                    addresses.Add(entry.CreateInfo().Address);
+                }
+            }
+        }
+
+        return addresses;
+    }
+
+    /// <inheritdoc />
     public IconKitReference GetReference(IconInfo icon)
     {
         Guard.NotNull(icon);

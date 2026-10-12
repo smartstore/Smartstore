@@ -29,7 +29,7 @@
                                class="btn btn-icon rounded-circle btn-flat btn-social btn-brand-@link.CssClass" 
                                title="@link.DisplayName"
                                aria-label="@link.DisplayName">
-                                <icon name="@(link.CssClass switch { "x-twitter" => "twitter-x", "ello" or "behance" => "fa:" + link.CssClass + "!/b", _ => link.CssClass })" aria-hidden="true" />
+                                <icon name="@(link.CssClass == "x-twitter" ? "twitter-x" : link.CssClass)" aria-hidden="true" />
                             </a>
                         }
                     </div>

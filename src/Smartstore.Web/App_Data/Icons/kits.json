@@ -13,7 +13,6 @@
       "plus-circle",
       "truck-loading",
       "tv",
-      "privacy",
       "wallet"
     ],
     "sources": {
@@ -198,7 +197,7 @@
   },
   "htmledit": {
     "showInPicker": false,
-    "icon": "font",
+    "icon": "hi:html-5",
     "defaultLibrary": null,
     "defaultVariant": null,
     "icons": [
@@ -248,6 +247,7 @@
       "apple-pay",
       "audible",
       "aws",
+      "behance",
       "bing",
       "bitcoin",
       "bootstrap",
@@ -279,6 +279,7 @@
       "dribbble",
       "dropbox",
       "ebay",
+      "ello",
       "ethereum",
       "etsy",
       "facebook",

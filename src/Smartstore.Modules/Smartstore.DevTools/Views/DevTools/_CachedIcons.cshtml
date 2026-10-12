@@ -1,0 +1,53 @@
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using Smartstore.Core.Content.Media.Icons
+@model IReadOnlyList<IconSvg>
+@inject IIconService Icons
+
+@if (Model.Count == 0)
+{
+    <p class="text-muted">@T("Plugins.Developer.DevTools.CachedIcons.Empty")</p>
+}
+else
+{
+    <div class="text-expander" data-max-height="400">
+        <div class="text-expander-content icon-grid devtools-icon-grid">
+            @foreach (var icon in Model)
+            {
+                var library = Icons.GetLibrary(icon.Library);
+                var variant = library?.Variants.GetValueOrDefault(icon.Variant);
+                var sourceLabel = library?.DisplayName ?? icon.Library;
+                if (variant?.DisplayName.HasValue() == true)
+                {
+                    sourceLabel += " " + variant.DisplayName;
+                }
+                else if (icon.Variant != "default")
+                {
+                    sourceLabel += " " + icon.Variant.Humanize();
+                }
+
+                var svg = new TagBuilder("svg");
+                foreach (var attribute in icon.RootAttributes)
+                {
+                    svg.Attributes[attribute.Key] = attribute.Value;
+                }
+                svg.AddCssClass("icon");
+                svg.Attributes["viewBox"] = icon.ViewBox;
+                svg.Attributes["width"] = "28";
+                svg.Attributes["height"] = "28";
+                svg.Attributes["style"] = "width:28px;height:28px";
+                svg.Attributes["aria-hidden"] = "true";
+                svg.Attributes["focusable"] = "false";
+                svg.InnerHtml.AppendHtml(icon.Content);
+
+                <div class="devtools-cached-icon border d-flex flex-column align-items-center justify-content-center p-3" title="@icon.Address">
+                    @svg
+                    <span class="small d-block text-truncate text-center w-100 mt-2" title="@icon.Name">@icon.Name</span>
+                    <span class="small text-muted d-flex align-items-center mw-100 mt-1" title="@sourceLabel">
+                        <icon name="@(variant?.Icon ?? library?.Icon ?? "layers")" class="mr-1 flex-shrink-0" aria-hidden="true" />
+                        <span class="text-truncate">@sourceLabel</span>
+                    </span>
+                </div>
+            }
+        </div>
+    </div>
+}

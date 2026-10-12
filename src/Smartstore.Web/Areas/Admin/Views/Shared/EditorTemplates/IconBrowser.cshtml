@@ -24,8 +24,8 @@
         selectedLabel = parsedAddress.Name;
     }
     var selectedIcon = selectedAddress.HasValue() ? await Icons.GetIconAsync(selectedAddress) : null;
-    var initialSource = Browser.GetSource(selectedAddress, IconAreaResolver.ResolveArea(Context));
     var showHiddenKits = Model?.ShowHiddenKits == true;
+    var initialSource = Browser.GetSource(selectedAddress, IconAreaResolver.ResolveArea(Context), showHiddenKits);
     // Retain the selected hidden source for label initialization, without listing it.
     var kits = Kits.Kits.Where(x => x.ShowInPicker || showHiddenKits || x.Name == initialSource?.Kit)
         .OrderBy(x => x.Name).ToArray();

@@ -1772,12 +1772,16 @@ a.editable {
     max-height: min(36rem, 75vh);
 }
 
+.icon-grid,
+.icon-browser-dropdown .select2-results > .select2-results__options {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(72px, 100%), 1fr));
+    gap: 0.25rem;
+}
+
 // Only dropdown results use the grid; the selection uses the standard Select2 styles.
 .icon-browser-dropdown {
     .select2-results > .select2-results__options {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(min(72px, 100%), 1fr));
-        gap: 0.25rem;
         max-height: min(24rem, 60vh);
     }
 
