@@ -38,7 +38,7 @@ public sealed partial class IconService(IApplicationContext applicationContext, 
                 // Existing requests retain their generation while the next request sees changes.
                 if (_catalog == null || _catalog.ChangeToken.HasChanged)
                 {
-                    _catalog = IconCatalog.Load(files, CreateProviders());
+                    _catalog = IconCatalog.Load(files, CreateProviders(), applicationContext.ContentRoot);
                 }
 
                 return _catalog;
@@ -85,7 +85,7 @@ public sealed partial class IconService(IApplicationContext applicationContext, 
     /// <inheritdoc />
     public Task<IReadOnlyList<IconLibrary>> GetLibrariesAsync(CancellationToken cancelToken = default)
     {
-        IReadOnlyList<IconLibrary> result = Catalog.Libraries.Values.Distinct().Select(x => x.Manifest).ToArray();
+        IReadOnlyList<IconLibrary> result = Catalog.Libraries.Values.Distinct().Where(x => !x.IsProvider).Select(x => x.Manifest).ToArray();
         return Task.FromResult(result);
     }
 

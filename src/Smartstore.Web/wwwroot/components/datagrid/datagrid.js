@@ -22,7 +22,6 @@ Smartstore.Admin.DataGridVue = {
         });
 
         app.use(Smartstore.Icons);
-        app.use(Smartstore.Vue.BootstrapIcon, { spriteUrl: data.options.iconSpriteUrl });
         Object.keys(this.components).forEach(name => app.component(name, this.components[name]));
 
         const root = app.mount(selector);

@@ -59,7 +59,7 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
         }
     }
 
-    public virtual TagBuilder GenerateTranslationTool(ILocalizedModel model, string localizedEditorName)
+    public virtual async Task<TagBuilder> GenerateTranslationToolAsync(ILocalizedModel model, string localizedEditorName)
     {
         Guard.NotNull(model);
 
@@ -121,7 +121,7 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
 
         string[] additionalItemClasses = ["ai-translator"];
         var dialogUrl = GetDialogUrl(AIChatTopic.Translation);
-        var div = CreateDialogOpener(true, title: GetOpenerTitle(AIChatTopic.Translation));
+        var div = await CreateDialogOpenerAsync(true, title: GetOpenerTitle(AIChatTopic.Translation));
 
         var ul = new TagBuilder("ul");
         ul.Attributes["class"] = "dropdown-menu dropdown-menu-right ai-translator-menu";
@@ -177,7 +177,7 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
             return null;
         }
 
-        var div = CreateDialogOpener(true, title: GetOpenerTitle(AIChatTopic.Text));
+        var div = await CreateDialogOpenerAsync(true, title: GetOpenerTitle(AIChatTopic.Text));
         div.Attributes["data-modal-url"] = GetDialogUrl(AIChatTopic.Text);
         div.MergeAttributes(attributes);
 
@@ -297,11 +297,11 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
         return subDropdown;
     }
 
-    public virtual TagBuilder GenerateSuggestionTool(AttributeDictionary attributes)
-        => GenerateOutput(attributes, AIProviderFeatures.TextGeneration, AIChatTopic.Suggestion);
+    public virtual Task<TagBuilder> GenerateSuggestionToolAsync(AttributeDictionary attributes)
+        => GenerateOutputAsync(attributes, AIProviderFeatures.TextGeneration, AIChatTopic.Suggestion);
 
-    public virtual TagBuilder GenerateImageCreationTool(AttributeDictionary attributes)
-        => GenerateOutput(attributes, AIProviderFeatures.ImageGeneration, AIChatTopic.Image);
+    public virtual Task<TagBuilder> GenerateImageCreationToolAsync(AttributeDictionary attributes)
+        => GenerateOutputAsync(attributes, AIProviderFeatures.ImageGeneration, AIChatTopic.Image);
 
     /// <summary>
     /// Generates the output for the AI dialog openers.
@@ -312,7 +312,7 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
     /// <returns>
     /// The TagBuilder for the AI dialog opener.
     /// </returns>
-    protected virtual TagBuilder GenerateOutput(AttributeDictionary attributes, AIProviderFeatures feature, AIChatTopic topic)
+    protected virtual async Task<TagBuilder> GenerateOutputAsync(AttributeDictionary attributes, AIProviderFeatures feature, AIChatTopic topic)
     {
         CheckContextualized();
 
@@ -322,7 +322,7 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
             return null;
         }
 
-        var openerDiv = CreateDialogOpener(false, GetDialogIdentifierClass(topic), GetOpenerTitle(topic));
+        var openerDiv = await CreateDialogOpenerAsync(false, GetDialogIdentifierClass(topic), GetOpenerTitle(topic));
         openerDiv.Attributes["data-modal-url"] = GetDialogUrl(topic);
         openerDiv.MergeAttributes(attributes);
 
@@ -336,7 +336,7 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
     /// <param name="additionalClasses">Additional CSS classes to add to the opener icon.</param>
     /// <param name="title">The title of the opener.</param>
     /// <returns>The dialog opener.</returns>
-    protected virtual TagBuilder CreateDialogOpener(bool isDropdown, string additionalClasses = "", string title = "")
+    protected virtual async Task<TagBuilder> CreateDialogOpenerAsync(bool isDropdown, string additionalClasses = "", string title = "")
     {
         var div = new TagBuilder("div");
         div.Attributes["class"] = "has-icon has-icon-right ai-dialog-opener-root";
@@ -347,7 +347,7 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
             div.AppendCssClass("dropdown");
         }
 
-        var iconA = GenerateOpenerIcon(isDropdown, additionalClasses, title);
+        var iconA = await GenerateOpenerIconAsync(isDropdown, additionalClasses, title);
         div.InnerHtml.AppendHtml(iconA);
 
         return div;
@@ -360,11 +360,12 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
     /// <param name="additionalClasses">Additional CSS classes to add to the opener icon.</param>
     /// <param name="title">The title of the opener.</param>
     /// <returns>The dialog opener icon.</returns>
-    protected virtual TagBuilder GenerateOpenerIcon(bool isDropdown, string additionalClasses = "", string title = "")
+    protected virtual async Task<TagBuilder> GenerateOpenerIconAsync(bool isDropdown, string additionalClasses = "", string title = "")
     {
-        var icon = (TagBuilder)HtmlHelper.BootstrapIcon("stars-tricolor", htmlAttributes: new Dictionary<string, object>
+        var icon = await HtmlHelper.IconAsync("stars-tricolor", options: new IconOptions
         {
-            ["class"] = "dropdown-icon ai-icon-stars-tricolor bi-fw bi"
+            FixedWidth = true,
+            Attributes = { ["class"] = "dropdown-icon ai-icon-stars-tricolor" }
         });
 
         var btnTag = new TagBuilder("a");

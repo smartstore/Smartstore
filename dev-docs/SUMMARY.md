@@ -87,7 +87,6 @@
 * [Developer Tools](framework/developer-tools/README.md)
   * [Web API Clients](framework/developer-tools/web-api-clients.md)
   * [Extension Packager](framework/developer-tools/packager.md)
-  * [Icon Generator](framework/developer-tools/icon-generator.md)
 
 ## Compose
 

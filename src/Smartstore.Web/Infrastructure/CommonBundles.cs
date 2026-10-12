@@ -25,8 +25,7 @@ internal class CommonBundles : IBundleProvider
         /* Vue --> /bundle/js/vue.js
         -----------------------------------------------------*/
         bundles.Add(new ScriptBundle("/bundle/js/vue.js").Include(
-            lib + "vue/vue.js",
-            "/components/vue/bootstrap-icon.js"));
+            lib + "vue/vue.js"));
 
 
         /* File uploader --> /bundle/js/fileuploader.js

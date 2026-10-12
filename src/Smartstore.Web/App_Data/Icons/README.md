@@ -602,7 +602,43 @@ excerpt of the provider implemented in the AddToAny module.
   declares an independent kit using the existing immutable kit contract.
 - A missing source uses normal library mapping. A supplied source identifies concrete
   artwork, just like JSON `sources`; it does not introduce a global library mapping.
-  Providers cannot add libraries, variants or SVG drawings.
+  Providers cannot add public libraries or variants. Private drawings can be supplied
+  with `AddSvg` and `AddSvgFile` on a kit or collection.
+
+
+### Provider-owned SVG drawings
+
+Use `AddSvg` for a complete SVG string or `AddSvgFile` for a file shipped with the
+module. Both methods add a normal concept directly to the selected kit or collection:
+
+```csharp
+builder.Kit("admin")
+    .AddSvg("myplugin-action", """
+        <svg viewBox="0 0 24 24" fill="none">
+            <path d="M4 12h16" stroke="currentColor" stroke-width="1.5" />
+        </svg>
+        """)
+    .AddSvgFile("myplugin-logo", "~/Modules/MyCompany.MyPlugin/wwwroot/icons/logo.svg");
+```
+
+Callers use `myplugin-action` or `myplugin-logo` like any other concept. The existing
+SVG parser, cache and sprite pipeline handle these drawings; they do not create an
+additional selectable library or require a separate request when used from a kit.
+Provider indicators remain available in the developer picker. Per-icon stroke scaling
+is not supported for these sources.
+
+File paths must start with `~/` and refer to SVG files beneath the application's
+content root, not the module's source project. URLs, physical paths and traversal
+segments are not accepted. Ensure the file is included in the deployed module.
+Files are opened on demand and are **not watched**. A catalog rebuild, for example
+after an application restart, picks up changed file content and produces a new sprite
+revision. Changes during an in-progress read use the same consistency checks as other
+SVG sources.
+
+Identical contributions are idempotent. Conflicting provider sources for the same
+concept and target are rejected. Local JSON declarations retain their existing
+precedence over provider defaults. Include a `viewBox` in each SVG; there are no
+variant metadata defaults for private drawings.
 
 Contributions are collected lazily once per catalog generation. Provider classes are
 processed in ordinal full-type-name order; definitions within a provider keep their
@@ -1279,8 +1315,8 @@ reusable options is needed.
 Missing icons produce empty HTML. Kit selection, inline fallback, CSS classes and
 accessibility remain the renderer's responsibility.
 
-The existing synchronous `Html.Icon()` and `Html.BootstrapIcon()` remain available
-during migration and are intended for removal after their callers have migrated.
+The legacy synchronous `Html.Icon()` and `Html.BootstrapIcon()` helpers have been
+removed. Use `await Html.IconAsync(...)` for server-side rendering.
 
 
 ## Direction-sensitive concepts

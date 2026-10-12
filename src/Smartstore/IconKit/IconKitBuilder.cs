@@ -4,7 +4,7 @@ namespace Smartstore.IconKit;
 
 /// <summary>
 /// Collects additive provider definitions. Local JSON declarations retain precedence.
-/// Does not register libraries, variants or SVG drawings.
+/// Supports existing library addresses and private SVG drawings without registering public libraries or variants.
 /// </summary>
 public sealed class IconKitBuilder
 {
@@ -13,6 +13,8 @@ public sealed class IconKitBuilder
     internal Dictionary<string, Dictionary<string, string>> KitIcons { get; } = new(StringComparer.Ordinal);
 
     internal Dictionary<string, Dictionary<string, string>> CollectionIcons { get; } = new(StringComparer.Ordinal);
+
+    internal Dictionary<string, IconProviderDrawing> Drawings { get; } = new(StringComparer.Ordinal);
 
     /// <summary>
     /// Defines a kit, or contributes its members to a locally configured kit of the same name.
@@ -52,7 +54,7 @@ public sealed class IconKitBuilder
     /// <param name="name">The target collection name.</param>
     public IconSetBuilder Collection(string name) => Select(CollectionIcons, name);
 
-    private static IconSetBuilder Select(Dictionary<string, Dictionary<string, string>> definitions, string name)
+    private IconSetBuilder Select(Dictionary<string, Dictionary<string, string>> definitions, string name)
     {
         ValidateName(name);
         if (!definitions.TryGetValue(name, out var icons))
@@ -61,7 +63,7 @@ public sealed class IconKitBuilder
             definitions.Add(name, icons);
         }
 
-        return new IconSetBuilder(name, icons);
+        return new IconSetBuilder(name, icons, Drawings);
     }
 
     private static void ValidateName(string name)

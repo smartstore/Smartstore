@@ -397,7 +397,6 @@ public class GridTagHelper : SmartTagHelper
                 onRowSelected = OnRowSelected,
                 onRowClass = OnRowClass,
                 onCellClass = OnCellClass,
-                iconSpriteUrl = HtmlHelper.BootstrapIconUrl(),
                 antiforgeryToken
             },
             dataSource = DataSource?.ToPlainObject(),

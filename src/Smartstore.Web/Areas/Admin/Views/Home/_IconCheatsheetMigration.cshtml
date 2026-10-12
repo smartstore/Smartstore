@@ -380,7 +380,7 @@
                                         foreach (var name in bootstrapNames)
                                         {
                                             <div>
-                                                <span class="comparison-icon" aria-hidden="true" title="@($"BI {name}")"><bootstrap-icon name="@name" /></span>
+                                                <span class="comparison-icon" aria-hidden="true" title="@($"BI {name}")"><icon name="@($"bi:{name}!")" /></span>
                                                 <code class="icon-name">@name bi <strong>@Model["bi:" + name].Uses</strong></code>
                                             </div>
                                         }

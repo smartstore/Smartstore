@@ -41,6 +41,7 @@ public class IconServiceTests
         scanner.Setup(x => x.FindTypes(typeof(IIconProvider), true)).Returns([typeof(ForwardingIconProvider)]);
         var context = new Mock<IApplicationContext>();
         context.SetupGet(x => x.AppDataRoot).Returns(_context.Object.AppDataRoot);
+        context.SetupGet(x => x.ContentRoot).Returns(_context.Object.ContentRoot);
         context.SetupGet(x => x.TypeScanner).Returns(scanner.Object);
         context.SetupGet(x => x.Services).Returns(container);
         return new IconService(context.Object, _cache.Object, new IconAreaResolver(), new HttpContextAccessor(), _options, _sourceFiles);
@@ -73,6 +74,124 @@ public class IconServiceTests
         Assert.That(result.SpriteUrl, Does.StartWith("/shop/assets/glyphs/browser/"));
         var sprite = await browser.GetSpriteFileAsync("hi", "sr", Path.GetFileNameWithoutExtension(result.SpriteUrl));
         Assert.That(Path.GetDirectoryName(sprite), Is.EqualTo(Path.Combine(_root, "artifacts", "browser")));
+    }
+
+    /// <summary>
+    /// Provider artwork participates in shared collections, rendering and picker manifests without a public library.
+    /// </summary>
+    [Test]
+    public async Task Provider_Svg_Is_Shared_By_Kits_And_Rendered_From_Sprites()
+    {
+        Write("Icons/collections.json", """{"shared":[]}""");
+        Write("Icons/kits.json", """{"public":{"use":["shared"],"areas":["public"]},"admin":{"use":["shared"],"areas":["admin"]}}""");
+        var provider = new Mock<IIconProvider>();
+        provider.Setup(x => x.Configure(It.IsAny<IconKitBuilder>())).Callback<IconKitBuilder>(b =>
+            b.Collection("shared").AddSvg("plugin-logo", _svg));
+        var service = CreateProviderService(provider.Object);
+        Assert.That((await service.GetLibrariesAsync()).Select(x => x.SystemName), Does.Not.Contain(IconProviderFiles.LibraryName));
+        var kits = new IconKitService(service, new HttpContextAccessor());
+        var renderer = new IconRenderer(service, kits);
+        foreach (var area in new[] { "public", "admin" })
+        {
+            var info = await service.GetIconAsync("plugin-logo", area: area);
+            Assert.That(info, Is.Not.Null);
+            Assert.That(info.SupportsStrokeScaling, Is.False);
+            var output = await renderer.RenderAsync(info);
+            Assert.That(RenderMarkup(output.InnerHtml), Does.Contain("<use").And.Contain("#plugin-logo"));
+            var url = kits.GetUrl(area);
+            var path = await kits.GetSpriteFileAsync(area, url[^28..^4]);
+            var svg = XElement.Parse(File.ReadAllText(path));
+            Assert.That(svg.Descendants().Any(x => (string)x.Attribute("id") == "plugin-logo"), Is.True);
+            var browser = new IconBrowser(service, kits, new HttpContextAccessor());
+            var page = await browser.SearchAsync(new IconSearchQuery(), area);
+            Assert.That(page.Items.Single().IsExternal, Is.True);
+        }
+        var manifestUrl = kits.GetManifestUrl();
+        var manifestPath = await kits.GetManifestFileAsync(Path.GetFileNameWithoutExtension(manifestUrl));
+        using var manifest = JsonDocument.Parse(File.ReadAllText(manifestPath));
+        Assert.That(manifest.RootElement.GetProperty("kits").GetProperty("admin").GetProperty("external")[0].GetInt32(), Is.Zero);
+    }
+
+    /// <summary>
+    /// Application-relative files are read lazily and never watched; a rebuilt catalog fingerprints updated content.
+    /// </summary>
+    [Test]
+    public async Task Provider_Svg_File_Uses_App_Path_Without_Watching()
+    {
+        const string relativePath = "Modules/MyPlugin/wwwroot/icons/logo.svg";
+        Write(relativePath, _svg);
+        Write("Icons/kits.json", """{"admin":[]}""");
+        var provider = new Mock<IIconProvider>();
+        provider.Setup(x => x.Configure(It.IsAny<IconKitBuilder>())).Callback<IconKitBuilder>(b =>
+            b.Kit("admin").AddSvgFile("plugin-logo", "~/" + relativePath));
+        var service = CreateProviderService(provider.Object);
+        await service.GetLibrariesAsync();
+        var files = Mock.Get(_context.Object.ContentRoot);
+        files.Verify(x => x.GetFileInfo(It.IsAny<string>()), Times.Never);
+        files.Verify(x => x.Watch(It.IsAny<string>()), Times.Never);
+        var kits = new IconKitService(service, new HttpContextAccessor());
+        var url = kits.GetUrl("admin");
+        var path = await kits.GetSpriteFileAsync("admin", url[^28..^4]);
+        Assert.That(File.ReadAllText(path), Does.Contain("plugin-logo"));
+        files.Verify(x => x.GetFileInfo(relativePath), Times.AtLeastOnce);
+        files.Verify(x => x.Watch(It.IsAny<string>()), Times.Never);
+        Write(relativePath, """<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>""");
+        Assert.That(kits.GetUrl("admin"), Is.EqualTo(url));
+        var restarted = new IconKitService(CreateProviderService(provider.Object), new HttpContextAccessor());
+        Assert.That(restarted.GetUrl("admin"), Is.Not.EqualTo(url));
+    }
+
+    [Test]
+    public async Task Missing_Provider_File_Returns_No_Icon()
+    {
+        Write("Icons/kits.json", """{"admin":[]}""");
+        var provider = new Mock<IIconProvider>();
+        provider.Setup(x => x.Configure(It.IsAny<IconKitBuilder>())).Callback<IconKitBuilder>(b =>
+            b.Kit("admin").AddSvgFile("plugin-logo", "~/Modules/MyPlugin/missing.svg"));
+        var service = CreateProviderService(provider.Object);
+        Assert.That(await service.GetIconAsync("plugin-logo", area: "admin"), Is.Null);
+    }
+
+    [Test]
+    public async Task Provider_Svg_Uses_Existing_Sanitizer()
+    {
+        Write("Icons/kits.json", """{"admin":[]}""");
+        var provider = new Mock<IIconProvider>();
+        provider.Setup(x => x.Configure(It.IsAny<IconKitBuilder>())).Callback<IconKitBuilder>(b =>
+            b.Kit("admin").AddSvg("plugin-logo", """<svg viewBox="0 0 24 24"><script>alert(1)</script></svg>"""));
+        var service = CreateProviderService(provider.Object);
+        var info = await service.GetIconAsync("plugin-logo", area: "admin");
+        Assert.ThrowsAsync<InvalidDataException>(() => service.GetSvgAsync(info));
+        var kits = new IconKitService(service, new HttpContextAccessor());
+        var url = kits.GetUrl("admin");
+        Assert.ThrowsAsync<InvalidDataException>(() => kits.GetSpriteFileAsync("admin", url[^28..^4]));
+    }
+
+    [Test]
+    public void Provider_Drawings_Reject_Conflicts_And_Deduplicate_Identical_Sources()
+    {
+        var builder = new IconKitBuilder();
+        var set = builder.Kit("admin");
+        set.AddSvg("plugin-logo", _svg).AddSvg("plugin-logo", _svg);
+        builder.Collection("shared").AddSvg("another-logo", _svg);
+        Assert.That(builder.Drawings, Has.Count.EqualTo(1));
+        Assert.Throws<InvalidDataException>(() => set.AddSvg("plugin-logo", "<svg/>"));
+        Assert.Throws<InvalidDataException>(() => set.Add("plugin-logo", "hi:cart"));
+        Assert.Throws<InvalidDataException>(() => set.AddSvgFile("plugin-logo", "~/Modules/MyPlugin/logo.svg"));
+        Assert.Throws<InvalidDataException>(() => set.AddSvg("too-large", new string('x', IconSvgParser.MaxLength + 1)));
+    }
+
+    [TestCase("logo.svg")]
+    [TestCase("/Modules/MyPlugin/logo.svg")]
+    [TestCase("C:/Modules/MyPlugin/logo.svg")]
+    [TestCase("https://example.com/logo.svg")]
+    [TestCase("~/../logo.svg")]
+    [TestCase("~/Modules/../logo.svg")]
+    [TestCase("~/Modules/*.svg")]
+    [TestCase("~/Modules/logo.png")]
+    public void Provider_File_Requires_An_Application_Relative_Svg_Path(string path)
+    {
+        Assert.Throws<ArgumentException>(() => new IconKitBuilder().Kit("admin").AddSvgFile("plugin-logo", path));
     }
 
     public class ForwardingIconProvider(IIconProvider provider) : IIconProvider
@@ -732,6 +851,9 @@ public class IconServiceTests
         _context = new Mock<IApplicationContext>();
         _context.SetupGet(x => x.TypeScanner).Returns(NullTypeScanner.Instance);
         _context.SetupGet(x => x.AppDataRoot).Returns(files.Object);
+        var appFiles = new Mock<IFileSystem>();
+        appFiles.Setup(x => x.GetFileInfo(It.IsAny<string>())).Returns((string path) => _provider.GetFileInfo(path));
+        _context.SetupGet(x => x.ContentRoot).Returns(appFiles.Object);
         _entries = new ConcurrentDictionary<string, string>();
         _cache = new Mock<IIconCache>();
         _cache.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))

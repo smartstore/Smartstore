@@ -111,6 +111,9 @@ internal sealed class IconCatalog
         /// </summary>
         internal IconLibrary Manifest;
 
+        // Private provider drawings use the normal pipeline but are not offered as a picker library.
+        internal bool IsProvider;
+
         /// <summary>
         /// Gets conceptual mappings, loaded once on the first lookup or search.
         /// </summary>
@@ -401,8 +404,9 @@ internal sealed class IconCatalog
     /// </summary>
     /// <param name="files">The icon source directory file provider.</param>
     /// <param name="providers">Application-wide contributions from installed modules.</param>
+    /// <param name="appFiles">Application content files used by provider SVG file contributions.</param>
     /// <returns>A manifest snapshot with its change token established before source reads.</returns>
-    internal static IconCatalog Load(IFileProvider files, IEnumerable<IIconProvider> providers)
+    internal static IconCatalog Load(IFileProvider files, IEnumerable<IIconProvider> providers, IFileProvider appFiles)
     {
         // Watch before reading so a change during any deferred load invalidates this generation.
         // Watch source locations explicitly: generated files in App_Data/.cache/icons/kits must never
@@ -510,6 +514,30 @@ internal sealed class IconCatalog
         foreach (var provider in providers)
         {
             provider.Configure(contributions);
+        }
+
+        if (contributions.Drawings.Count > 0)
+        {
+            var providerFiles = new IconProviderFiles(contributions.Drawings, appFiles);
+            var variantManifest = new IconVariant { Name = "default" };
+            var library = new Library(providerFiles, string.Empty)
+            {
+                IsProvider = true,
+                Manifest = new IconLibrary
+                {
+                    SystemName = IconProviderFiles.LibraryName,
+                    DisplayName = "Provider SVG",
+                    DefaultVariant = "default",
+                    Variants = new Dictionary<string, IconVariant> { ["default"] = variantManifest }
+                }
+            };
+            var variant = new Variant(providerFiles, "default", variantManifest, "provider-1");
+            variant.ResolutionOrder = [variant];
+            library.Variants.Add("default", variant);
+            if (!catalog.Libraries.TryAdd(IconProviderFiles.LibraryName, library))
+            {
+                throw new InvalidDataException($"Library name '{IconProviderFiles.LibraryName}' is reserved for provider drawings.");
+            }
         }
 
         // Kit definitions are optional and maintained separately from global defaults.

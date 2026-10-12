@@ -959,12 +959,12 @@
                                                 {
                                                     if (tab.Bootstrap != null)
                                                     {
-                                                        <bootstrap-icon name="@tab.Bootstrap" class="bi-fw nav-icon" aria-hidden="true" />
+                                                        <icon name="@($"bi:{tab.Bootstrap}!")" fw="true" class="nav-icon" aria-hidden="true" />
                                                     }
                                                     else
                                                     {
                                                         @* Preserve the original FA exception for the warranty tab. *@
-                                                        <i class="far fa-section bi-fw nav-icon" aria-hidden="true"></i>
+                                                        <i class="far fa-section icon-fw nav-icon" aria-hidden="true"></i>
                                                     }
                                                 }
                                                 else
@@ -1096,8 +1096,7 @@
                                     }
                                     else
                                     {
-                                        string spriteName = GetSpriteName(button.Bootstrap);
-                                        <bootstrap-icon name="@spriteName" flip-h="@(spriteName != button.Bootstrap)" aria-hidden="true" />
+                                        <icon name="@($"bi:{button.Bootstrap}!")" aria-hidden="true" />
                                     }
                                     <span>@button.Label</span>
                                 </button>
@@ -1147,14 +1146,6 @@
         return icon?.StartsWith("bi:", StringComparison.Ordinal) == true ? icon[3..] : null;
     }
 
-    // The admin sprite contains only the right-facing variants of these two icons.
-    string GetSpriteName(string bootstrap) => bootstrap switch
-    {
-        "arrow-counterclockwise" => "arrow-clockwise",
-        "arrow-90deg-left" => "arrow-90deg-right",
-        _ => bootstrap
-    };
-
     async Task RenderIcon(string bootstrap, string library, string cssClass = null, string menuKey = null)
     {
         // Dedicated return icons already convey direction; only mirror the original BI truck.
@@ -1168,8 +1159,7 @@
             {
                 if (library == "BI")
                 {
-                    string spriteName = GetSpriteName(bootstrap);
-                    <bootstrap-icon name="@spriteName" flip-h="@(spriteName != bootstrap)" />
+                    <icon name="@($"bi:{bootstrap}!")" />
                 }
                 else if (menuKey != null && menuIcons.TryGetValue(menuKey, out var menuIcon))
                 {

@@ -28,13 +28,13 @@ public class AISuggestionTagHelper() : AITagHelperBase()
     [HtmlAttributeName(CharLimitAttributeName)]
     public int CharLimit { get; set; }
 
-    protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
+    protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
     {
         output.TagMode = TagMode.StartTagAndEndTag;
         output.TagName = null;
 
         var attributes = GetTagHelperAttributes();
-        var tool = AIToolHtmlGenerator.GenerateSuggestionTool(attributes);
+        var tool = await AIToolHtmlGenerator.GenerateSuggestionToolAsync(attributes);
         if (tool == null)
         {
             return;

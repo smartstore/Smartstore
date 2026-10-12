@@ -3,7 +3,7 @@
 namespace Smartstore.IconKit;
 
 /// <summary>
-/// Contributes icon concepts to kits and collections using existing library sources.
+/// Contributes icon concepts to kits and collections using existing library sources or private SVG drawings.
 /// Implementations are discovered in installed modules and created in a temporary scope per catalog generation.
 /// </summary>
 public interface IIconProvider

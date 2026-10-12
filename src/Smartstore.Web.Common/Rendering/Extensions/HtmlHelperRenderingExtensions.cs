@@ -648,7 +648,9 @@ public static class HtmlHelperRenderingExtensions
             var aiHtmlGenerator = services.GetRequiredService<IAIToolHtmlGenerator>();
             aiHtmlGenerator.Contextualize(helper.ViewContext);
 
-            var translationTool = aiHtmlGenerator.GenerateTranslationTool(helper.ViewData.Model, name);
+            // Deliberate sync bridge: keep LocalizedEditor and its many Razor callers synchronous
+            // while rendering the translation icon server-side. This blocks if the task is incomplete.
+            var translationTool = aiHtmlGenerator.GenerateTranslationToolAsync(helper.ViewData.Model, name).Await();
             if (translationTool != null)
             {
                 wrapper.InnerHtml.AppendHtml(translationTool);
@@ -693,143 +695,6 @@ public static class HtmlHelperRenderingExtensions
         var renderer = services.GetRequiredService<IIconRenderer>();
         var svg = await renderer.RenderAsync(icon, options, httpContext.RequestAborted);
         return (IHtmlContent)svg ?? HtmlString.Empty;
-    }
-
-    /// <summary>
-    /// Generates HTML for a <c>FontAwesome (fa)</c> or a <c>Bootstrap (bi)</c> icon.
-    /// </summary>
-    /// <param name="name">
-    /// If <c>fa</c>: the fully qualified CSS class, e.g. "far fa-envelope fa-fw".
-    /// If <c>bi</c>: The icon name prefixed with <c>bi:</c>, e.g. "bi:envelope".
-    /// </param>
-    public static IHtmlContent Icon(this IHtmlHelper helper, string name, object htmlAttributes = null)
-    {
-        Guard.NotNull(name);
-
-        if (name.StartsWith("bi:"))
-        {
-            return helper.BootstrapIcon(
-                name[3..],
-                fill: "currentColor",
-                fontScale: null,
-                animation: null,
-                transforms: null,
-                htmlAttributes: htmlAttributes);
-        }
-
-        var i = new TagBuilder("i");
-        i.Attributes["class"] = name;
-
-        if (htmlAttributes != null)
-        {
-            i.Attributes.Merge(ConvertUtility.ObjectToStringDictionary(htmlAttributes));
-        }
-
-        return i;
-    }
-
-    public static IHtmlContent BootstrapIcon(this IHtmlHelper helper,
-        string name,
-        string fill = "currentColor",
-        float? fontScale = null,
-        CssAnimation? animation = null,
-        string transforms = null,
-        object htmlAttributes = null)
-    {
-        return helper.BootstrapIconInternal(
-            name,
-            false,
-            fill,
-            fontScale,
-            animation,
-            transforms,
-            htmlAttributes);
-    }
-
-    internal static IHtmlContent BootstrapIconInternal(this IHtmlHelper helper,
-        string name,
-        bool isStackItem = false,
-        string fill = null,
-        float? fontScale = null,
-        CssAnimation? animation = null,
-        string transforms = null,
-        object htmlAttributes = null)
-    {
-        Guard.NotNull(name);
-
-        var svg = new TagBuilder("svg");
-
-        // Root attributes
-        svg.Attributes["fill"] = fill.NullEmpty() ?? "currentColor";
-
-        if (!isStackItem)
-        {
-            if (fontScale > 0)
-            {
-                svg.AddCssStyle("font-size", $"{fontScale.Value * 100}%");
-            }
-
-            svg.Attributes["width"] = "1em";
-            svg.Attributes["height"] = "1em";
-            svg.Attributes["role"] = "img";
-            svg.Attributes["focusable"] = "false";
-        }
-
-        // Use tag (with file version appended)
-        var symbol = new TagBuilder("use");
-        symbol.Attributes["xlink:href"] = helper.BootstrapIconUrl() + "#" + name;
-
-        var el = symbol;
-
-        if (htmlAttributes != null)
-        {
-            svg.Attributes.Merge(ConvertUtility.ObjectToStringDictionary(htmlAttributes));
-        }
-
-        svg.AppendCssClass("bi");
-
-        // Animation
-        if (animation != null)
-        {
-            var animClass = $"animate-{animation.Value.ToString().Kebaberize()}";
-            if (isStackItem)
-            {
-                el.AppendCssClass(animClass);
-            }
-            else
-            {
-                svg.AppendCssClass(animClass);
-            }
-        }
-
-        if (transforms.HasValue())
-        {
-            if (isStackItem)
-            {
-                // Apply transforms to inner <g> when stacked item.
-                el = new TagBuilder("g");
-                el.InnerHtml.AppendHtml(symbol);
-            }
-
-            el.Attributes["transform"] = string.Join(' ', transforms);
-        }
-
-        svg.InnerHtml.AppendHtml(el);
-
-        return svg;
-    }
-
-    /// <summary>
-    /// Gets the versioned URL of the Bootstrap Icons sprite.
-    /// </summary>
-    public static string BootstrapIconUrl(this IHtmlHelper helper)
-    {
-        var httpContext = helper.ViewContext.HttpContext;
-        var urlHelper = httpContext.RequestServices.GetService<IUrlHelper>();
-        var fileVersionProvider = httpContext.RequestServices.GetRequiredService<IFileVersionProvider>();
-        var filePath = urlHelper.Content("~/lib/bi/bootstrap-icons.svg");
-
-        return fileVersionProvider.AddFileVersionToPath(httpContext.Request.PathBase, filePath);
     }
 
     #endregion

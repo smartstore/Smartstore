@@ -56,6 +56,16 @@ The system library has no separate kit. `not-found`, `smartstore` and
 `stars-tricolor` belong to collection `shared`, each pinned to `sys:<name>!/default`.
 Missing icons continue to use an external area-kit sprite symbol in danger color.
 
+## Legacy Bootstrap assets removed
+
+The old `wwwroot/lib/bi` sprites and `_bootstrap-icons.scss` have been removed.
+Bootstrap drawings remain available through the IconKit `bi` library. DevTools
+widget-zone controls now use server-rendered concepts (`power`, `eye`, `eye-off`,
+`arrow-right`), preserving the existing visibility selectors. Empty fixed-width
+slots use `icon icon-fw`; legacy `.bi` selectors must target `.icon` instead.
+SupportAgent and TopM icon markup also uses IconKit; unmapped drawings use explicit
+BI addresses. The menu-specific `bi-circle` class is independent and remains.
+
 ## Explicit shape concepts
 
 The shared collection provides `-outline` and `-fill` concepts for `bubble-round`,
@@ -73,6 +83,19 @@ AI and Shopware import stop buttons use `square-fill`. Admin review headings use
 The shared collection's `star-half` concept pins `sys:star-half!/default`: the same star geometry
 as `star-outline` and `star-fill`, with a complete outline and the fill clipped to
 the left half of the viewBox. It replaces the former admin-kit membership.
+
+## Bootstrap TagHelper removal
+
+The `bootstrap-icon` and `bootstrap-iconstack` Razor TagHelpers have been removed.
+Use `<icon name="bi:trash!" />` for an original Bootstrap drawing, and `<icon-stack>`
+for stacks. Replace `bi-fw` with `fw="true"`. The cheatsheet uses explicit BI
+addresses to preserve its library comparisons; its old reduced-sprite mirroring
+workarounds are no longer needed. The synchronous `Html.Icon()`, `Html.BootstrapIcon()`,
+`BootstrapIconInternal()` and `BootstrapIconUrl()` helpers have also been removed.
+Use `await Html.IconAsync(...)`. AI dialog openers render the shared `stars-tricolor`
+concept server-side. Their generators are asynchronous. `Html.LocalizedEditor()`
+retains its synchronous API through one deliberate, documented `.Await()` bridge
+to `GenerateTranslationToolAsync()`; its Razor callers remain unchanged.
 
 ## Use concepts in application code
 
@@ -175,9 +198,9 @@ Boolean cells use check/minus SVGs with the existing state colors and no font
 pseudo-glyphs; null values keep an empty slot. The detail toggle retains its CSS
 rotation, and refresh uses `icon-spin` while busy.
 
-The legacy `bootstrap-icon` Vue registration and sprite option remain available
-for externally supplied display templates. Migrating those templates is separate
-from migrating the built-in DataGrid UI.
+The legacy `bootstrap-icon` Vue component, its bundle inclusion, DataGrid
+registration and `iconSpriteUrl` option have been removed. External display
+templates must use `sm-icon` with a concept or explicit address instead.
 
 ## TabStrip icons
 
@@ -587,11 +610,10 @@ variants no longer exist. See the [BI import recipe](bootstrap/README.md).
 - Client code is a separate migration step. Use the supported `sm-icon` and
   `sm-icon-stack` web components where appropriate; do not emit server TagHelper
   markup from JavaScript and expect it to execute in the browser.
-- `stars-tricolor` is an explicit exception. Keep the existing multicolor rendering
-  until deliberately migrated to the custom `sys:stars-tricolor` icon. The table's
-  monochrome HI `sparkles` alternative is not an approved automatic replacement.
-- The legacy synchronous `Html.Icon()` and `Html.BootstrapIcon()` remain during the
-  transition. Their intended replacement is `await Html.IconAsync(...)`.
+- `stars-tricolor` uses the shared concept pinned to `sys:stars-tricolor`. Keep its
+  multicolor rendering; the table's monochrome HI `sparkles` alternative is not an
+  approved automatic replacement.
+- The legacy synchronous icon helpers have been removed. Use `await Html.IconAsync(...)`.
 
 ## Kits and plugin integration
 
@@ -1045,3 +1067,5 @@ Smartstore still renders SVG icons and does not import this font.
   Source concepts match LinkBuilder; removed the duplicated FA-class mapping in JS.
 
 - Moved the SVG foundation to Smartstore/IconKit (namespace Smartstore.IconKit). Added AddIconKit options for source/cache paths and route prefix, a dedicated IconKitStarter, and MapIconKit endpoints replacing IconController. Source data remains in App_Data/Icons; module providers, Razor imports and tests use the new namespace.
+
+- Providers can contribute private drawings with AddSvg and AddSvgFile on kits or collections. File arguments use ~/ application paths and are read lazily without file watching. Existing SVG parsing, cache revisions, sprites and provider indicators are reused; no public library or stroke-scaling option is added.
