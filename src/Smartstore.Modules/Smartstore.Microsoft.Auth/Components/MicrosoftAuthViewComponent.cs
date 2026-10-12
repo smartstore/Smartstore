@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Content.Media.Icons;
+using Smartstore.IconKit;
 using Smartstore.Web.Components;
 
 namespace Smartstore.Microsoft.Auth.Components;

@@ -141,7 +141,9 @@
             cache.delete(key); cache.set(key, existing);
             return existing;
         }
-        const promise = request(new URL('icons/render?' + key, rootUrl()).href).then(svgTemplate);
+        const manifestPath = document.querySelector('meta[property="sm:icons"]')?.content || 'icons/manifest/';
+        const renderUrl = new URL('../render?' + key, new URL(manifestPath, rootUrl()));
+        const promise = request(renderUrl.href).then(svgTemplate);
         cache.set(key, promise);
         promise.then(() => {
             // Evict settled entries only; in-flight requests always remain shared.

@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Core.Content.Media.Icons;
+using Smartstore.IconKit;
 
 using Smartstore.Web.Rendering;
 

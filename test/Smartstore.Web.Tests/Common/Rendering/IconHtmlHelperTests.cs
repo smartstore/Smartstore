@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
-using Smartstore.Core.Content.Media.Icons;
+using Smartstore.IconKit;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Tests.Common.Rendering;

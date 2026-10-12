@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Smartstore.ComponentModel;
 using Smartstore.Core.AI;
-using Smartstore.Core.Content.Media.Icons;
+using Smartstore.IconKit;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Web.Modelling;

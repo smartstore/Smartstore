@@ -1043,3 +1043,5 @@ Smartstore still renders SVG icons and does not import this font.
 
 - PageBuilder target rows reuse server-rendered icons from the Add Target dropdown.
   Source concepts match LinkBuilder; removed the duplicated FA-class mapping in JS.
+
+- Moved the SVG foundation to Smartstore/IconKit (namespace Smartstore.IconKit). Added AddIconKit options for source/cache paths and route prefix, a dedicated IconKitStarter, and MapIconKit endpoints replacing IconController. Source data remains in App_Data/Icons; module providers, Razor imports and tests use the new namespace.

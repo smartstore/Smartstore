@@ -243,7 +243,7 @@ concepts used by your kits before relying on icon resolution.
 
 ## Use the .NET API
 
-Inject `IIconService` from `Smartstore.Core.Content.Media.Icons`. Its implementation
+Inject `IIconService` from `Smartstore.IconKit`. Its implementation
 currently lives under `Media/Icons/Svg`, using the parent namespace, so it can run
 alongside the existing FontAwesome `IIconExplorer`.
 
@@ -476,7 +476,7 @@ references and cycles are configuration errors. Both JSON files are watched.
 `displayName` optionally supplies a kit label for the Icon Browser and DevTools.
 Without it, the unchanged kit name is displayed. Labels are not titleized and do
 not change kit identity, area resolution or sprite filenames. Providers can pass
-`displayName` to `new IconKit(...)`; local JSON kit settings retain precedence.
+`displayName` to `new Smartstore.IconKit.IconKit(...)`; local JSON kit settings retain precedence.
 
 `showInPicker: false` only hides a kit from the default picker list. It does not
 restrict area membership or rendering. `IconBrowserModel.ShowHiddenKits` reveals it.
@@ -573,7 +573,7 @@ For example, an AddToAny provider could contribute additional services to the ex
 admin kit, keeping service-picker icons out of storefront sprites:
 
 ```csharp
-using Smartstore.Core.Content.Media.Icons;
+using Smartstore.IconKit;
 
 internal sealed class Icons : IIconProvider
 {
@@ -598,7 +598,7 @@ excerpt of the provider implemented in the AddToAny module.
 - `Collection(collection).Add(concept, source)` creates or extends a collection.
   For example, `builder.Collection("shared").Add("plugin-action", "action-motif")`
   contributes to both public and admin through their existing `use` declarations.
-- `AddKit(new IconKit("my-plugin", ["cart"], showInPicker: false, areas: ["admin"]))`
+- `AddKit(new Smartstore.IconKit.IconKit("my-plugin", ["cart"], showInPicker: false, areas: ["admin"]))`
   declares an independent kit using the existing immutable kit contract.
 - A missing source uses normal library mapping. A supplied source identifies concrete
   artwork, just like JSON `sources`; it does not introduce a global library mapping.
@@ -630,7 +630,7 @@ these JSON files during future imports.
 
 `IconRenderer` automatically selects an external symbol for resolved icons that
 belong to a kit. Callers still provide only an icon name; the TagHelper delegates
-rendering to the Core renderer. Icons outside kits retain inline SVG output.
+rendering to the IconKit renderer. Icons outside kits retain inline SVG output.
 
 In the admin area, kit membership is optional. Direct library addresses and inline SVG
 are appropriate for occasionally used icons, for example a plugin icon displayed once
@@ -1050,7 +1050,7 @@ kit reference. Presentation options such as sizing, color and animation stay loc
 Old or unavailable manifests also fall back to the endpoint while cached pages and
 script bundles roll over during an update.
 Generated manifests live in `App_Data/.cache/icons/kits/manifest-{revision}.json` and are
-served by `IconController` at `/icons/manifest/{revision}.json` with immutable caching.
+served by `MapIconKit()` endpoints at `/icons/manifest/{revision}.json` with immutable caching.
 Historical files remain available; a missing old revision returns 404, never newer data.
 The manifest revision is path-base independent; source/configuration watchers invalidate
 its owning catalog. Already open pages retain their current manifest until reloaded.
@@ -1440,3 +1440,41 @@ requests across colors. Other modifiers can be combined using `&` (`&amp;` in HT
 Colors may be literal CSS values or percent-encoded values. When sending an address
 as a URL query parameter, encode the entire parameter (including `#`). Colors belong
 to rendering addresses, not library mappings or kit sources.
+
+
+## Hosting and registration
+
+The foundation lives in `Smartstore/IconKit` under the `Smartstore.IconKit` namespace.
+The legacy font explorer remains in Core. Icon sources are data and do not move with
+this assembly change.
+
+```csharp
+using Smartstore.Bootstrapping;
+
+services.AddIconKit(options =>
+{
+    options.SourcePath = "App_Data/Icons";
+    options.CachePath = "App_Data/.cache/icons";
+    options.RoutePrefix = "/icons";
+});
+
+app.MapIconKit();
+```
+
+Relative source and cache paths resolve against `IHostEnvironment.ContentRootPath`;
+absolute paths are also supported. `SourcePath` points directly to the directory
+containing `config.json`, `kits.json`, `collections.json` and library directories.
+`CachePath` holds the generated `kits` and `browser` subdirectories.
+
+App-start components live in `IconKit/Bootstrapping`, with the shared
+`Smartstore.Bootstrapping` namespace used by the other foundation modules.
+Smartstore's `IconKitStarter` registers the services using the application's existing
+App_Data directories and maps the endpoints automatically. A later call to
+`AddIconKit` can override these options without registering duplicate services.
+Applications using this starter must not map the endpoints a second time.
+The foundation still uses Smartstore's cache and provider discovery infrastructure.
+
+`MapIconKit` replaces the MVC icon controller and preserves its default URLs,
+GET/HEAD support for revisioned files, ETags and cache headers. The `IconKit.Browse`
+endpoint name supplies the picker's search URL. Client-side rendering derives its
+endpoint from the manifest URL, so a custom prefix also applies to `sm-icon`.

@@ -6,7 +6,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Xml.Linq;
-using Smartstore.Core.Content.Media.Icons;
+using Smartstore.IconKit;
 using System.Threading.Tasks;
 using Microsoft.Extensions.FileProviders;
 using Moq;

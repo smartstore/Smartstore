@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Moq;
 using NUnit.Framework;
-using Smartstore.Core.Content.Media.Icons;
+using Smartstore.IconKit;
 using Smartstore.Web.TagHelpers.Shared;
 using Smartstore.Web.Rendering;
 

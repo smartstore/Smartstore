@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Smartstore.Core.Content.Media.Icons;
+using Smartstore.IconKit;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Theming;
 using Smartstore.Web.Sass;

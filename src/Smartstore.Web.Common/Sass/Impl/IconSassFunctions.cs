@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using EmbeddedSass.Functions;
 using EmbeddedSass.Values;
-using Smartstore.Core.Content.Media.Icons;
+using Smartstore.IconKit;
 
 namespace Smartstore.Web.Sass;
 

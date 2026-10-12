@@ -1,6 +1,6 @@
 ﻿using System.Text.Encodings.Web;
 using System.Xml.Linq;
-using Smartstore.Core.Content.Media.Icons;
+using Smartstore.IconKit;
 using Smartstore.Core.Web;
 
 namespace Smartstore.Admin.Controllers;

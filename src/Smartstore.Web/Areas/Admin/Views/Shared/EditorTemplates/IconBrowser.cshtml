@@ -1,5 +1,5 @@
-@inject Smartstore.Core.Content.Media.Icons.IIconAreaResolver IconAreaResolver
-@using Smartstore.Core.Content.Media.Icons
+@inject Smartstore.IconKit.IIconAreaResolver IconAreaResolver
+@using Smartstore.IconKit
 @using Smartstore.Web.Models.Media
 @model IconBrowserModel
 @inject IIconBrowser Browser
@@ -34,7 +34,7 @@
 
 <script src="~/admin/js/smartstore.iconbrowser.js" sm-target-zone="scripts" sm-key="iconbrowser"></script>
 
-<div class="icon-browser" data-search-url="@Url.Action("Browse", "Icon", new { area = "" })"
+<div class="icon-browser" data-search-url="@Url.RouteUrl("IconKit.Browse")"
      data-show-provider-indicators="@(Model?.ShowProviderIndicators == true ? "true" : "false")"
      data-external-label="@(Model?.ShowProviderIndicators == true ? T("Admin.IconBrowser.External").ToString() : null)" data-size-label="@T("Admin.IconBrowser.Size")" data-visible-options="@((int)visibleOptions)">
     <div class="icon-browser-option-values">

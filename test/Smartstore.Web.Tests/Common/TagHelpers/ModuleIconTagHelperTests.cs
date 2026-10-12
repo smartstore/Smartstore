@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Moq;
 using NUnit.Framework;
-using Smartstore.Core.Content.Media.Icons;
+using Smartstore.IconKit;
 using Smartstore.Engine.Modularity;
 using Smartstore.Web.TagHelpers.Shared;
 

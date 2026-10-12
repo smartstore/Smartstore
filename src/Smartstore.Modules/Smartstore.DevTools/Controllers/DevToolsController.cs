@@ -1,9 +1,9 @@
 ﻿using System.IO;
 using Microsoft.AspNetCore.Mvc;
-using Smartstore.Engine;
+using Microsoft.Extensions.Options;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Security;
-using Smartstore.Core.Content.Media.Icons;
+using Smartstore.IconKit;
 using Smartstore.DevTools.Models;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
@@ -12,7 +12,7 @@ namespace Smartstore.DevTools.Controllers;
 
 [Area("Admin")]
 //[Route("module/[area]/[action]/{id?}", Name = "Smartstore.DevTools")]
-public class DevToolsController(IIconCache iconCache, IIconKitService iconKits, IIconService icons, IApplicationContext applicationContext) : ModuleController
+public class DevToolsController(IIconCache iconCache, IIconKitService iconKits, IIconService icons, IOptions<IconKitOptions> iconOptions) : ModuleController
 {
     [AuthorizeAdmin, Permission(DevToolsPermissions.Read)]
     [LoadSetting]
@@ -20,7 +20,7 @@ public class DevToolsController(IIconCache iconCache, IIconKitService iconKits, 
     {
         var model = MiniMapper.Map<ProfilerSettings, ConfigurationModel>(settings);
         var kitFiles = new List<IconKitFileModel>();
-        var kitDirectory = Path.Combine(applicationContext.AppDataRoot.Root, ".cache", "icons", "kits");
+        var kitDirectory = Path.Combine(iconOptions.Value.CachePath, "kits");
         foreach (var kit in iconKits.Kits.OrderBy(x => x.Name, StringComparer.Ordinal))
         {
             var url = iconKits.GetUrl(kit.Name);
