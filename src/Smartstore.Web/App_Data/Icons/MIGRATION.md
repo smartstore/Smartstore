@@ -926,3 +926,40 @@ regeneration. The optimization menu button retains sliders. The module additiona
 image generation and ai-idea for reasoning effort. General actions retain core
 concepts. The mock provider renders its file-image placeholder server-side once
 per rich-text answer and reuses that markup for each paragraph.
+
+### Summernote adapter
+
+Override all built-in icon slots and the AI extension in Smartstore's Summernote
+configuration with kit-backed sm-icon markup, except the save slot, whose original
+disk SVG is preserved directly in globalinit.js. Restore the original note-icon font defaults in the fork. Move bold, italic and underline from admin to shared and add strikethrough,
+subscript, superscript, text alignment, indentation, ordered/unordered lists and code
+there. Add the admin-only htmledit kit for 18 editor-specific concepts. Shared and
+existing admin concepts are reused rather than duplicated in htmledit.
+
+Smartstore-specific icon styling lives in wwwroot/skinning/_summernote.scss,
+imported directly after the vendor stylesheet. Dropdown checks support sm-icon and
+SVG icons; chevrons use 13px and stroke-scale 1.4. The vendor Sass stays unchanged. The fork now routes the color picker through colorReset/colorPicker and reuses
+css/menuCheck in CssClass/TableStyles. Smartstore overrides all four slots. The
+InlineEmoji fixed-width wrapper no longer depends on FA. Embedded SVG defaults have been removed; additional fork slots use font-based fallbacks. The rebuilt editor JS bundle and source map are deployed in
+Smartstore; vendor Sass was not copied.
+
+The HI row-insert and column-insert drawings now have local overrides with one
+solid and one dashed block, preserving the middle arrow. Existing htmledit mappings
+use the solid new bottom/right block directly and mirror it for above/before.
+The existing top/left block is dashed.
+
+The forum BBEditor toolbar now uses shared kit concepts through sm-icon for bold,
+italic, underline, link, code and quotes. Move link from admin to shared so every
+toolbar icon is available in the public sprite. BBCode insertion remains unchanged.
+
+The rebuilt Summernote JS bundle uses note-icon font defaults instead of embedded
+SVG drawings. Smartstore still overrides every slot, preserving its original save
+disk SVG exclusively in globalinit.js. The delivered JS shrank by 30,775 bytes
+(11,183 bytes with gzip).
+
+The standalone Summernote demo font now uses outlined copies of the current editor
+icon sources, including transforms and dashed table insertion blocks. Existing
+glyph names/codepoints are preserved; extra fork slots have dedicated glyphs.
+The fork records source addresses and stable codepoints and versions font URLs by
+content hash. Its font CSS explicitly uses weight 400 and disables font synthesis.
+Smartstore still renders SVG icons and does not import this font.

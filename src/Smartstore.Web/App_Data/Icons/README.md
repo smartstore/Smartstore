@@ -1381,3 +1381,27 @@ independent layer colors or inherit page CSS variables inside the SVG. RTL mirro
 must be applied by the consuming stylesheet. Icon changes do not invalidate CSS
 bundles automatically: regenerate the bundle to update embedded SVGs. Existing
 Font Awesome mixins and their consumers remain unchanged during migration.
+
+## Summernote icon adapter
+
+Smartstore overrides Summernote's existing `icons` option in
+`wwwroot/lib/editors/summernote/globalinit.js`. The local `iconConcepts` map translates
+The editor icon slots plus the AI extension into `sm-icon` markup. The save slot keeps
+its original disk SVG as an explicit override in the same configuration. The existing
+Summernote HTML icon renderer accepts this markup unchanged; no callback or
+Smartstore dependency in the editor fork is required. Per-instance `icons` overrides
+remain supported through the usual options merge.
+
+Generic formatting concepts live in the shared collection. The separate `htmledit`
+kit is hidden in the picker by default and applies only to admin. It contains the
+editor-specific concepts, without including the shared collection again. Other
+existing concepts are resolved from the area's normal kits.
+
+The Summernote fork and distributed editor bundle use the original note-icon font defaults. Additional fork slots retain font-based fallbacks; all are overridden by the adapter. Embedded SVG defaults have been removed. The fork routes color reset/picker buttons, CSS-class buttons and table-style
+checkmarks through `options.icons` as well. `colorReset` and `colorPicker` are new
+slots; `css` and `menuCheck` reuse existing slots. Their Smartstore overrides apply
+after rebuilding and copying the editor bundle from the fork.
+
+Smartstore icon styles live in `wwwroot/skinning/_summernote.scss`, imported directly
+after the vendor stylesheet in the admin theme. Keep integration overrides there so
+updates from the fork do not overwrite them.

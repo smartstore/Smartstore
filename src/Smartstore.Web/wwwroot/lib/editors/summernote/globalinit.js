@@ -2,6 +2,80 @@ let summernote_global_config;
 let summernote_image_upload_url;
 
 (function () {
+    // Summernote accepts trusted HTML in its icon slots, including custom elements.
+    const iconConcepts = {
+        align: 'text-align-left',
+        alignCenter: 'text-align-center',
+        alignJustify: 'text-align-justify',
+        alignLeft: 'text-align-left',
+        alignRight: 'text-align-right',
+        floatLeft: 'image-float-left',
+        floatRight: 'image-float-right',
+        floatNone: 'image-float-none',
+        flipV: 'flip-v',
+        flipH: 'flip-h',
+        rowBelow: 'table-row-below',
+        colBefore: 'table-column-before',
+        colAfter: 'table-column-after',
+        rowAbove: 'table-row-above',
+        rowRemove: 'table-row-remove',
+        colRemove: 'table-column-remove',
+        indent: 'text-indent',
+        outdent: 'text-outdent',
+        arrowsAlt: 'maximize',
+        arrowsAltCollapse: 'minimize',
+        bold: 'bold',
+        caret: 'chevron-down',
+        circle: 'circle-outline',
+        close: 'close',
+        code: 'code',
+        inlineCode: 'code',
+        eraser: 'eraser',
+        paintbrush: 'paint-brush',
+        colorReset: 'droplet-off',
+        colorPicker: 'dropper',
+        font: 'font',
+        frame: 'editor-frame',
+        italic: 'italic',
+        link: 'link',
+        unlink: 'unlink',
+        magic: 'text-style',
+        paragraph: 'paragraph',
+        menuCheck: 'check',
+        minus: 'minus',
+        orderedlist: 'list-ordered',
+        pencil: 'pen',
+        picture: 'image',
+        question: 'question-circle',
+        redo: 'redo',
+        square: 'square-outline',
+        strikethrough: 'strikethrough',
+        subscript: 'subscript',
+        superscript: 'superscript',
+        table: 'table',
+        textHeight: 'line-height',
+        trash: 'trash',
+        underline: 'underline',
+        undo: 'undo',
+        rollback: 'image-actual-size',
+        unorderedlist: 'list-unordered',
+        video: 'video',
+        css: 'css-3',
+        ellipsis: 'ellipsis',
+        spellCheck: 'spell-check',
+        gear: 'gears',
+        fill: 'paint-bucket',
+        face: 'smile',
+        omega: 'special-character',
+        layout: 'editor-layout',
+        smiley: 'smile',
+        ai: 'stars-tricolor',
+    };
+    const editorIcons = Object.fromEntries(Object.entries(iconConcepts).map(([key, concept]) =>
+        [key, '<sm-icon name="' + concept + '" aria-hidden="true"></sm-icon>']));
+    // Preserve the editor's original save icon.
+    editorIcons.disk = '<svg viewBox="0 0 448 512" style="width: 18px; height: 18px;"><path class="note-duotone-secondary" d="M48 96l0 320c0 8.8 7.2 16 16 16l320 0c8.8 0 16-7.2 16-16l0-245.5c0-4.2-1.7-8.3-4.7-11.3L320.8 84.7c-.3-.3-.5-.5-.8-.8L320 184c0 13.3-10.7 24-24 24l-192 0c-13.3 0-24-10.7-24-24L80 80 64 80c-8.8 0-16 7.2-16 16zM288 320a64 64 0 1 1 -128 0 64 64 0 1 1 128 0z"/><path class="note-duotone-primary" d="M48 96l0 320c0 8.8 7.2 16 16 16l320 0c8.8 0 16-7.2 16-16l0-245.5c0-4.2-1.7-8.3-4.7-11.3l33.9-33.9c12 12 18.7 28.3 18.7 45.3L448 416c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 96C0 60.7 28.7 32 64 32l245.5 0c17 0 33.3 6.7 45.3 18.7l74.5 74.5-33.9 33.9L320.8 84.7c-.3-.3-.5-.5-.8-.8L320 184c0 13.3-10.7 24-24 24l-192 0c-13.3 0-24-10.7-24-24L80 80 64 80c-8.8 0-16 7.2-16 16zm80-16l0 80 144 0 0-80L128 80zm32 240a64 64 0 1 1 128 0 64 64 0 1 1 -128 0z"/></svg>';
+
     const beautifyOpts = {
         indent_size: 2,
         indent_with_tabs: true,
@@ -74,9 +148,7 @@ let summernote_image_upload_url;
                 return html;
             }
         },
-        icons: {
-            'ai': window.ai_icon_svg || 'fa fa-wand-magic-sparkles',
-        },
+        icons: editorIcons,
         toolbar: [
             ['edit', ['undo', 'redo']],
             ['text', ['bold', 'italic', 'underline', 'color', 'moreFontStyles']],
@@ -116,7 +188,7 @@ let summernote_image_upload_url;
             { title: 'Blockquote', tag: 'blockquote', className: 'blockquote', value: 'blockquote' }
         ],
         imageAttributes: {
-            icon: '<i class="fa fa-pencil"/>',
+            icon: editorIcons.pencil,
             removeEmpty: true, // true = remove attributes | false = leave empty if present
             disableUpload: true // true = don't display Upload Options | Display Upload Options
         }

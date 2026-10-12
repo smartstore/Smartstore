@@ -1,6 +1,22 @@
 {
   "shared": {
     "icons": [
+      "bold",
+      "italic",
+      "underline",
+      "strikethrough",
+      "subscript",
+      "superscript",
+      "text-align-left",
+      "text-align-center",
+      "text-align-right",
+      "text-align-justify",
+      "text-indent",
+      "text-outdent",
+      "list-ordered",
+      "list-unordered",
+      "code",
+      "link",
       "alert-circle",
       "alert-danger",
       "alert-info",

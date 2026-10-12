@@ -41,7 +41,6 @@
       "barcode",
       "bars",
       "bars-staggered",
-      "bold",
       "book",
       "box",
       "box-open",
@@ -103,14 +102,12 @@
       "hourglass",
       "images",
       "input-cursor",
-      "italic",
       "key",
       "language",
       "background",
       "lightbulb",
       "chart-up",
       "chart-line-arrow",
-      "link",
       "lock-open",
       "login",
       "sparkles",
@@ -166,7 +163,6 @@
       "text-resize",
       "tools",
       "trophy",
-      "underline",
       "undo",
       "upload",
       "upscale",
@@ -189,13 +185,48 @@
       "marketing": "hi:megaphone-02!/sr",
       "exclamation": "bi:exclamation-lg",
       "box": "bi:box!",
-      "braces-asterisk": "bi:braces-asterisk"
+      "braces-asterisk": "bi:braces-asterisk",
+      "paint-brush": "bi:pencil-fill"
     },
     "areas": [
       "admin"
     ],
     "use": [
       "shared"
+    ]
+  },
+  "htmledit": {
+    "showInPicker": false,
+    "icon": "font",
+    "defaultLibrary": null,
+    "defaultVariant": null,
+    "icons": [
+      "editor-frame",
+      "editor-layout",
+      "css-3",
+      "image-actual-size",
+      "image-float-left",
+      "image-float-right",
+      "image-float-none",
+      "line-height",
+      "paragraph",
+      "smile",
+      "special-character",
+      "spell-check",
+      "table",
+      "table-column-after",
+      "table-column-before",
+      "table-column-remove",
+      "table-row-above",
+      "table-row-below",
+      "table-row-remove",
+      "text-style"
+    ],
+    "sources": {
+      "image-float-none": "system:image-float-none"
+    },
+    "areas": [
+      "admin"
     ]
   },
   "brands": {
