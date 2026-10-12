@@ -259,3 +259,22 @@ $icon-animations: (
 .btn-lg .icon-hi {
     --icon-min-size: 20px;
 }
+
+// Shared presentation for module/provider SVG icons and legacy image logos.
+.module-icon-display {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: var(--module-icon-size, 32px);
+    height: var(--module-icon-size, 32px);
+    vertical-align: middle;
+    line-height: 1;
+
+    > img,
+    > svg {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+}

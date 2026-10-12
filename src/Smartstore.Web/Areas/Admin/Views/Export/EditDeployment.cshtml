@@ -8,7 +8,7 @@
     <div class="section-header">
         <div class="title">
             <a sm-backto asp-action="Edit" asp-route-id="@Model.ProfileId" title="@T("Common.Back")"></a>
-            <img src="@Model.ThumbnailUrl" />
+            <module-icon model="Model.Icon" />
             <span>@ViewBag.Title - @Model.Name</span>
         </div>
         <div class="options">

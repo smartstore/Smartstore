@@ -2,6 +2,8 @@
   "$schema": "../module.schema.json",
   "Group": "Security",
   "SystemName": "Smartstore.Apple.Auth",
+  "Icon": "fa:apple/b",
+  "IconColor": "#000000",
   "FriendlyName": "Apple Authentication",
   "Description": "Enables login with Apple account.",
   "Version": "6.4.0",

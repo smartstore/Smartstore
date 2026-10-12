@@ -16,6 +16,14 @@
       "type": "string",
       "description": "Module system name (usually the assembly name without extension)."
     },
+    "Icon": {
+      "type": "string",
+      "description": "Optional icon address. Replaces icon.svg or icon.png; provider-specific image files take precedence."
+    },
+    "IconColor": {
+      "type": "string",
+      "description": "Optional CSS color for Icon. Does not recolor SVG or PNG image files."
+    },
     "Theme": {
       "type": "string",
       "description": "Theme name (if the module is a theme companion). On build a symbolic link will be created in /Themes/[Theme] to /Modules/[Module]."

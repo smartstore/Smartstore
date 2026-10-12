@@ -2,6 +2,8 @@
   "$schema": "../module.schema.json",
   "Group": "Security",
   "SystemName": "Smartstore.Facebook.Auth",
+  "Icon": "fa:facebook/b",
+  "IconColor": "#0866FF",
   "FriendlyName": "Facebook Authentication",
   "Description": "Enables login with Facebook account.",
   "Version": "6.4.0",

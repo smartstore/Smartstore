@@ -123,25 +123,68 @@ public partial class ModuleManager
     /// <returns>The icon's absolute path</returns>
     public string GetIconUrl(IModuleDescriptor descriptor, string providerSystemName = null)
     {
-        if (providerSystemName.HasValue())
+        var providerIconUrl = providerSystemName.HasValue() ? FindIconUrl(descriptor, $"icon-{providerSystemName}") : null;
+        return providerIconUrl ?? FindIconUrl(descriptor, "icon") ?? GetDefaultIconUrl(descriptor.Group);
+    }
+
+    private static string FindIconUrl(IModuleDescriptor descriptor, string name)
+    {
+        var fileName = name + ".svg";
+        if (!descriptor.WebRoot.GetFileInfo(fileName).Exists)
         {
-            var fileName = "icon-{0}.png".FormatInvariant(providerSystemName);
-            var fileInfo = descriptor.WebRoot.GetFileInfo(fileName);
-            if (fileInfo.Exists)
+            fileName = name + ".png";
+            if (!descriptor.WebRoot.GetFileInfo(fileName).Exists)
             {
-                return "~{0}/{1}".FormatInvariant(descriptor.Path, fileName);
+                return null;
             }
         }
 
-        if (descriptor.WebRoot.GetFileInfo("icon.png").Exists)
-        {
-            return "~{0}{1}".FormatInvariant(descriptor.Path.EnsureEndsWith('/'), "icon.png");
-        }
-        else
-        {
-            return GetDefaultIconUrl(descriptor.Group);
-        }
+        return $"~{descriptor.Path.EnsureEndsWith('/')}{fileName}";
     }
+
+    /// <summary>
+    /// Resolves an icon, preferring a provider-specific SVG or PNG, then the manifest
+    /// address, then the module image and default icon.
+    /// </summary>
+    /// <param name="descriptor">The module descriptor.</param>
+    /// <param name="providerSystemName">The optional provider system name.</param>
+    public virtual ModuleIcon GetIcon(IModuleDescriptor descriptor, string providerSystemName = null)
+    {
+        Guard.NotNull(descriptor);
+
+        var providerIconUrl = providerSystemName.HasValue() ? FindIconUrl(descriptor, $"icon-{providerSystemName}") : null;
+        if (providerIconUrl != null)
+        {
+            return new ModuleIcon { ImageUrl = providerIconUrl };
+        }
+
+        if (descriptor.Icon.HasValue())
+        {
+            return new ModuleIcon { Address = descriptor.Icon, Color = descriptor.IconColor };
+        }
+
+        var imageUrl = FindIconUrl(descriptor, "icon");
+        return imageUrl != null ? new ModuleIcon { ImageUrl = imageUrl } : GetDefaultIcon();
+    }
+
+    /// <summary>
+    /// Resolves a provider's icon, including the default icon for built-in providers.
+    /// </summary>
+    /// <param name="metadata">The provider metadata.</param>
+    public virtual ModuleIcon GetIcon(ProviderMetadata metadata)
+    {
+        Guard.NotNull(metadata);
+
+        return metadata.ModuleDescriptor == null
+            ? GetDefaultIcon()
+            : GetIcon(metadata.ModuleDescriptor, metadata.SystemName);
+    }
+
+    /// <summary>
+    /// Gets the fallback for modules and providers without an icon address or image.
+    /// </summary>
+    public virtual ModuleIcon GetDefaultIcon()
+        => new() { Address = "hi:plug-02" };
 
     public string GetDefaultIconUrl(string groupName)
     {

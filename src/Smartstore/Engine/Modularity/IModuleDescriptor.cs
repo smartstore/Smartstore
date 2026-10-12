@@ -11,6 +11,16 @@ public interface IModuleDescriptor : IExtensionDescriptor, IExtensionLocation
     string SystemName { get; }
 
     /// <summary>
+    /// Gets the optional icon address used instead of the module's icon.svg or icon.png.
+    /// </summary>
+    string Icon { get; }
+
+    /// <summary>
+    /// Gets the optional CSS color for the module's SVG icon.
+    /// </summary>
+    string IconColor { get; }
+
+    /// <summary>
     /// Gets the module system names the module depends on (or <c>null</c>)
     /// </summary>
     string[] DependsOn { get; }

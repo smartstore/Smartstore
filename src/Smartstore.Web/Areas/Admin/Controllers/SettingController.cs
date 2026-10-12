@@ -294,10 +294,9 @@ public partial class SettingController : AdminController
                 ConfigureUrl = x.Metadata.IsConfigurable
                     ? Url.Action(((IConfigurable)x.Value).GetConfigurationRoute())
                     : null,
-                IconUrl = x.Metadata.ModuleDescriptor != null
-                    ? _moduleManager.Value.GetIconUrl(x.Metadata.ModuleDescriptor, x.Metadata.SystemName)
-                    // Is "Captcha.GoogleRecaptcha" built-in provider
-                    : "https://www.gstatic.com/images/icons/material/product/2x/recaptcha_16dp.png"
+                Icon = x.Metadata.ModuleDescriptor != null
+                    ? _moduleManager.Value.GetIcon(x.Metadata)
+                    : new ModuleIcon { ImageUrl = "https://www.gstatic.com/images/icons/material/product/2x/recaptcha_16dp.png" }
             })
             .ToList();
 

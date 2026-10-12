@@ -144,9 +144,13 @@ button:where(.reset) {
     }
     // Move caret to bottom right corner
     &.dropdown-toggle:after {
+        mask-image: icon-url("bi:caret-down-fill!");
         position: absolute;
         inset-inline-end: 3px;
-        bottom: 0.5em;
+        bottom: 3px;
+        width: 8px;
+        height: 8px;
+        margin: 0;
     }
 
     &.btn-sm {

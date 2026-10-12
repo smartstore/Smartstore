@@ -34,7 +34,7 @@
 				{
 					<tr id="export-profile-@profile.Id" data-profile-id="@profile.Id" data-task-id="@profile.TaskId" class="profile-row" attr-class='(!profile.Enabled, "disabled")'>
 						<td class="text-center">
-							<img src="@profile.Provider.ThumbnailUrl" alt="@profile.Provider.FriendlyName" attr-class='(profile.Enabled, "o40")' />
+							<module-icon model="profile.Provider.Icon" alt="@profile.Provider.FriendlyName" attr-class='(profile.Enabled, "o40")' />
 						</td>
 						<td>
 							<a asp-action="Edit" asp-route-id="@profile.Id"><strong>@profile.Name</strong></a>

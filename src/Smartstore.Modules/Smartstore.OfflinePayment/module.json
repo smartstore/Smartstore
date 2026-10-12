@@ -2,6 +2,8 @@
   "$schema": "../module.schema.json",
   "Group": "Payment",
   "SystemName": "Smartstore.OfflinePayment",
+  "Icon": "hi:cashier-02",
+  "IconColor": "#00695C",
   "FriendlyName": "Adds offline payment methods to the store",
   "Description": "",
   "Version": "6.4.0",

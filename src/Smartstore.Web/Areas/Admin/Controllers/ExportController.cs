@@ -163,7 +163,7 @@ public class ExportController : AdminController
             {
                 Id = ++num,
                 SystemName = x.Metadata.SystemName,
-                ImageUrl = GetThumbnailUrl(x),
+                Icon = _moduleManager.GetIcon(x.Metadata),
                 FriendlyName = _moduleManager.GetLocalizedFriendlyName(x.Metadata),
                 Description = _moduleManager.GetLocalizedDescription(x.Metadata)
             })
@@ -175,7 +175,7 @@ public class ExportController : AdminController
                 Id = x.Id,
                 SystemName = x.ProviderSystemName,
                 FriendlyName = x.Name,
-                ImageUrl = GetThumbnailUrl(providers.Get(x.ProviderSystemName))
+                Icon = GetProviderIcon(providers.Get(x.ProviderSystemName))
             })
             .ToList();
 
@@ -502,7 +502,7 @@ public class ExportController : AdminController
             Id = profile.Id,
             Name = profile.Name,
             EntityType = provider.Value.EntityType,
-            ThumbnailUrl = GetThumbnailUrl(provider),
+            Icon = GetProviderIcon(provider),
             LogFileExists = logFile.Exists,
             UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email
         };
@@ -849,7 +849,7 @@ public class ExportController : AdminController
             EntityType = provider.Value.EntityType,
             EntityTypeName = Services.Localization.GetLocalizedEnum(provider.Value.EntityType),
             FileExtension = provider.Value.FileExtension,
-            ThumbnailUrl = GetThumbnailUrl(provider),
+            Icon = GetProviderIcon(provider),
             FriendlyName = _moduleManager.GetLocalizedFriendlyName(provider.Metadata),
             Description = _moduleManager.GetLocalizedDescription(provider.Metadata),
             Url = moduleDescriptor?.ProjectUrl,
@@ -1065,7 +1065,7 @@ public class ExportController : AdminController
 
             if (provider != null)
             {
-                model.ThumbnailUrl = GetThumbnailUrl(provider);
+                model.Icon = GetProviderIcon(provider);
             }
         }
         else
@@ -1263,20 +1263,10 @@ public class ExportController : AdminController
         return (null, null);
     }
 
-    private string GetThumbnailUrl(Provider<IExportProvider> provider)
-    {
-        string url = null;
-
-        if (provider != null)
-            url = _moduleManager.GetIconUrl(provider.Metadata);
-
-        if (url.IsEmpty())
-            url = _moduleManager.GetDefaultIconUrl(null);
-
-        url = Url.Content(url);
-
-        return url;
-    }
+    private ModuleIcon GetProviderIcon(Provider<IExportProvider> provider)
+        => provider == null
+            ? _moduleManager.GetDefaultIcon()
+            : _moduleManager.GetIcon(provider.Metadata);
 
     #endregion
 }

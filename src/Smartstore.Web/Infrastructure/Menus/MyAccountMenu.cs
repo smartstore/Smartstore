@@ -137,7 +137,7 @@ public partial class MyAccountMenu : IMenu
             {
                 Id = "returncases",
                 Text = T("Account.CustomerReturnRequests"),
-                Icon = "truck",
+                Icon = "return",
                 ActionName = "ReturnCases",
                 ControllerName = "Customer"
             });

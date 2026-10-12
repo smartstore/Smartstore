@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.DataExchange;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Admin.Models.Export;
 
@@ -6,7 +7,8 @@ public class ExportPreviewModel : EntityModelBase
 {
     public string Name { get; set; }
     public ExportEntityType EntityType { get; set; }
-    public string ThumbnailUrl { get; set; }
+
+    public ModuleIcon Icon { get; set; }
     public bool LogFileExists { get; set; }
     public bool UsernamesEnabled { get; set; }
 }

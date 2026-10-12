@@ -1405,3 +1405,14 @@ after rebuilding and copying the editor bundle from the fork.
 Smartstore icon styles live in `wwwroot/skinning/_summernote.scss`, imported directly
 after the vendor stylesheet in the admin theme. Keep integration overrides there so
 updates from the fork do not overwrite them.
+
+## Module manifest icons
+
+Modules may set `Icon` and optional `IconColor` in `module.json` instead of shipping
+an image. `ModuleManager.GetIcon()` returns a `ModuleIcon` value for
+`<module-icon model="..." />`, which renders addresses server-side.
+Provider-specific SVG/PNG files take precedence over the manifest address. Without
+an address, `icon.svg`, `icon.png` and the default icon `hi:plug-02` are tried
+in that order. SVG files are rendered as images and carry their own colors;
+`IconColor` only applies to icon addresses. Select2 module/provider choices use
+`data-icon` and `data-icon-color`, or `data-imageurl` for images.

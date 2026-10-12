@@ -24,7 +24,7 @@
 <div class="section-header">
     <div class="title">
         <a sm-backto asp-action="Edit" asp-route-id="@Model.Id" title="@T("Common.Back")"></a>
-        <img src="@Url.Content(Model.ThumbnailUrl)" />
+        <module-icon model="Model.Icon" />
         <span>@ViewBag.Title - @Model.Name</span>
     </div>
     <div class="options">

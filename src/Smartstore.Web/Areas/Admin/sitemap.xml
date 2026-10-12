@@ -12,7 +12,7 @@
         <siteMapNode id="catalog" title="Catalog" resKey="Admin.Catalog" icon="catalog" permissionNames="catalog.product, catalog.productreview, catalog.category, catalog.manufacturer, catalog.variant, catalog.attribute, cart.checkoutattribute, system.rule">
             <siteMapNode id="categories-list" icon="sitemap" title="List" resKey="Admin.Catalog.Categories" controller="Category" action="Index" area="Admin" permissionNames="catalog.category" />
             <siteMapNode id="products" icon="box" title="Manage products" resKey="Admin.Catalog.Products.Manage" controller="Product" action="List" area="Admin" permissionNames="catalog.product" />
-            <siteMapNode id="product-rules" icon="filter" title="Product rules" resKey="Common.ProductRules" permissionNames="system.rule" controller="Rule" action="ProductRules" area="Admin" />
+            <siteMapNode id="product-rules" icon="hi:filter-edit" title="Product rules" resKey="Common.ProductRules" permissionNames="system.rule" controller="Rule" action="ProductRules" area="Admin" />
             <siteMapNode id="reviews" icon="star-half" title="Product reviews" resKey="Admin.Catalog.ProductReviews" controller="ProductReview" action="List" area="Admin" permissionNames="catalog.productreview" />
             <siteMapNode id="manufacturers" icon="building" title="Manufacturers" resKey="Admin.Catalog.Manufacturers" controller="Manufacturer" action="List" area="Admin" permissionNames="catalog.manufacturer" />
             <siteMapNode id="tags" icon="tags" title="Product tags" resKey="Admin.Catalog.ProductTags" controller="Product" action="ProductTags" area="Admin" permissionNames="catalog.product" />
@@ -29,7 +29,7 @@
             <siteMapNode id="orders" icon="chart-line-arrow" title="Orders" resKey="Admin.Orders" permissionNames="order" controller="Order" action="List" area="Admin" />
             <siteMapNode id="shipments" icon="truck" title="Shipments" resKey="Admin.Orders.Shipments.List" permissionNames="order" controller="Shipment" action="List" area="Admin" />
             <siteMapNode id="recurring-payments" icon="repeat" title="Recurring payments" resKey="Admin.RecurringPayments" permissionNames="order" controller="RecurringPayment" action="List" area="Admin" />
-            <siteMapNode id="return-cases" icon="truck" iconClass="flip-h" title="Return cases" resKey="Admin.ReturnRequests" permissionNames="order.returncase" controller="ReturnCase" action="List" area="Admin" />
+            <siteMapNode id="return-cases" icon="return" title="Return cases" resKey="Admin.ReturnRequests" permissionNames="order.returncase" controller="ReturnCase" action="List" area="Admin" />
             <siteMapNode id="gift-cards" icon="gift" title="Gift cards" resKey="Admin.GiftCards" permissionNames="order.giftcard" controller="GiftCard" action="List" area="Admin" />
             <siteMapNode id="sales-sep-1" isGroupHeader="true" title="[SKIP]" />
             <siteMapNode id="shopping-carts" icon="cart-check" title="Current shopping carts" resKey="Admin.CurrentCarts" permissionNames="order" controller="ShoppingCart" action="CurrentCarts" area="Admin" />
@@ -42,7 +42,7 @@
         <siteMapNode id="users" title="Customers" resKey="Admin.Customers" permissionNames="customer, system.rule, configuration.authentication, configuration.activitylog" icon="customers">
             <siteMapNode id="customers" icon="user" title="Customers" resKey="Admin.Customers.Customers" permissionNames="customer" controller="Customer" action="List" area="Admin" />
             <siteMapNode id="customer-roles" icon="user-group" title="Customer roles" resKey="Admin.Customers.CustomerRoles" permissionNames="customer.role" controller="CustomerRole" action="List" area="Admin" />
-            <siteMapNode id="customer-rules" icon="filter" title="Customer rules" resKey="Common.CustomerRules" permissionNames="system.rule" controller="Rule" action="CustomerRules" area="Admin" />
+            <siteMapNode id="customer-rules" icon="hi:filter-edit" title="Customer rules" resKey="Common.CustomerRules" permissionNames="system.rule" controller="Rule" action="CustomerRules" area="Admin" />
             <siteMapNode id="online-customers" icon="login" title="Online customers" resKey="Admin.Customers.OnlineCustomers" permissionNames="customer" controller="Customer" action="OnlineCustomers" area="Admin" />
             <siteMapNode id="customer-reports" icon="chart-bar" title="Customer reports" resKey="Admin.Customers.Reports" permissionNames="customer" controller="Customer" action="Reports" area="Admin" />
             <siteMapNode id="external-auth" icon="facebook" title="External authentication methods" resKey="Admin.Configuration.ExternalAuthenticationMethods" permissionNames="configuration.authentication" controller="ExternalAuthentication" action="Providers" area="Admin"/>
@@ -53,7 +53,7 @@
 
         <siteMapNode id="promotions" title="Promotions" resKey="Admin.Promotions" permissionNames="promotion, system.rule" icon="marketing">
             <siteMapNode id="discounts" icon="discount" title="Discounts" resKey="Admin.Promotions.Discounts" permissionNames="promotion.discount" controller="Discount" action="List" area="Admin" />
-            <siteMapNode id="cart-rules" icon="filter" title="Cart rules" resKey="Common.CartRules" permissionNames="system.rule" controller="Rule" action="CartRules" area="Admin" />
+            <siteMapNode id="cart-rules" icon="hi:filter-edit" title="Cart rules" resKey="Common.CartRules" permissionNames="system.rule" controller="Rule" action="CartRules" area="Admin" />
             <siteMapNode id="affiliates" icon="user-group" title="Affiliates" resKey="Admin.Affiliates" permissionNames="promotion.affiliate" controller="Affiliate" action="List" area="Admin" />
             <siteMapNode id="newsletter-subscribers" icon="mail-heart" title="Newsletter subscriptions" resKey="Admin.Promotions.NewsletterSubscriptions" permissionNames="promotion.newsletter" controller="NewsletterSubscription" action="List" area="Admin" />
             <siteMapNode id="campaigns" icon="megaphone" title="Campaigns" resKey="Admin.Promotions.Campaigns" permissionNames="promotion.campaign" controller="Campaign" action="List" area="Admin" />
@@ -127,7 +127,7 @@
         </siteMapNode>
 
         <siteMapNode id="system" title="System" resKey="Admin.System" icon="database" permissionNames="system">
-            <siteMapNode id="rulesets" icon="filter" title="Rules" resKey="Common.Rules" permissionNames="system.rule" controller="Rule" action="List" area="Admin" />
+            <siteMapNode id="rulesets" icon="hi:filter-edit" title="Rules" resKey="Common.Rules" permissionNames="system.rule" controller="Rule" action="List" area="Admin" />
             <siteMapNode id="system-log" icon="bolt" title="Log" resKey="Admin.System.Log" permissionNames="system.log" controller="Log" action="List" area="Admin" />
             <siteMapNode id="queued-emails" icon="inbox" title="Queued emails" resKey="Admin.System.QueuedEmails" permissionNames="system.message" controller="QueuedEmail" action="List" area="Admin" />
             <siteMapNode id="scheduled tasks" icon="clock" title="Schedule tasks" resKey="Admin.System.ScheduleTasks" permissionNames="system.scheduletask" controller="Scheduling" action="List" area="Admin" />

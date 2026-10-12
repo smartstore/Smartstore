@@ -963,3 +963,26 @@ glyph names/codepoints are preserved; extra fork slots have dedicated glyphs.
 The fork records source addresses and stable codepoints and versions font URLs by
 content hash. Its font CSS explicitly uses weight 400 and disables font synthesis.
 Smartstore still renders SVG icons and does not import this font.
+
+### Module and provider representations
+
+- Added optional manifest `Icon`/`IconColor`, the `ModuleIcon` value and server-side
+  `module-icon` helper. Module/provider lists, configuration headers, payment,
+  export, CAPTCHA and AI provider choices use the resolved representation.
+- Image compatibility remains: provider-specific SVG/PNG first, then manifest
+  address, module SVG/PNG and `hi:plug-02`. `GetIconUrl()` retains its legacy group/default
+  image fallback and remains an image
+  URL API and now prefers SVG to PNG. Image files are not recolored by `IconColor`.
+
+- Migrated 23 module manifests to explicit HI/system icon addresses and saturated
+  colors (official brands use their brand colors; system stars retain their own colors).
+  Removed 22 unused module icon.png files; AI also uses sys:stars-tricolor as its controller fallback. The four
+  rule/filter entries in the admin sitemap now use hi:filter-edit.
+
+- Added shared return concept (HI delivery-return-01, BI box-arrow-left, FA rotate-left).
+  Withdrawal and return-case menus, headings and actions use this concept.
+
+- Migrated 15 further module manifests (Gemini, search/media/security, authentication,
+  tax/shipping and payment modules); removed 11 unused icon.png files. Provider-specific
+  payment images remain. TinyImage admin navigation uses hi:image-down. Added admin
+  tax concept: HI taxes, BI receipt, FA file-invoice-dollar.

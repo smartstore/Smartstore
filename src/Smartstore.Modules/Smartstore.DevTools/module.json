@@ -4,6 +4,7 @@
   "SystemName": "Smartstore.DevTools",
   "FriendlyName": "Smartstore Developer Tools (MiniProfiler and other goodies)",
   "Description": "",
+  "Icon": "bi:terminal",
   "Version": "6.4.0",
   "MinAppVersion": "6.4.0",
   "Author": "SmartStore AG",

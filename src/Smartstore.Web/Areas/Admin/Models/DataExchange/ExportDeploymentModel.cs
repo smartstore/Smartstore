@@ -2,6 +2,7 @@
 using FluentValidation;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.Localization;
+using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 
 namespace Smartstore.Admin.Models.Export;
@@ -16,7 +17,7 @@ public class ExportDeploymentModel : EntityModelBase
     public bool Enabled { get; set; }
 
     [LocalizedDisplay("Common.Image")]
-    public string ThumbnailUrl { get; set; }
+    public ModuleIcon Icon { get; set; }
 
     [LocalizedDisplay("*DeploymentType")]
     public ExportDeploymentType DeploymentType { get; set; }

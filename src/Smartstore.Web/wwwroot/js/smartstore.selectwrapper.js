@@ -291,6 +291,7 @@
                         hintClass = item.hintClass || option.attr('data-hint-class') || 'text-muted',
                         description = item.description || option.attr('data-description'),
                         icon = item.icon ?? option.data('icon'),
+                        iconColor = item.iconColor ?? option.attr('data-icon-color'),
                         truncateText = options.maxTextLength > 0 && text.length > options.maxTextLength,
                         appendHint = !isResult && hint && hint.length > 0;
 
@@ -386,6 +387,7 @@
                         for (const address of icons) {
                             $('<sm-icon/>')
                                 .attr('name', address)
+                                .attr('color', iconColor || null)
                                 .attr('fw', '')
                                 .addClass('mr-1')
                                 .appendTo($('<span class="d-inline-flex align-items-center flex-shrink-0"/>')

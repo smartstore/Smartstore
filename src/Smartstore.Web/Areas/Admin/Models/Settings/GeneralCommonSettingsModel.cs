@@ -4,6 +4,7 @@ using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Admin.Models;
 
@@ -205,7 +206,8 @@ public partial class GeneralCommonSettingsModel : ModelBase
         public string FriendlyName { get; set; }
         public bool IsConfigured { get; set; }
         public string ConfigureUrl { get; set; }
-        public string IconUrl { get; set; }
+
+        public ModuleIcon Icon { get; set; }
     }
 
     [LocalizedDisplay("Admin.Configuration.Settings.GeneralCommon.")]

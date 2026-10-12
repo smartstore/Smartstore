@@ -10,9 +10,9 @@
 <form asp-antiforgery="true">
     <div class="section-header">
         <div class="title">
-            @if (Model.IconUrl.HasValue())
+            @if (Model.Icon != null)
             {
-                <img src="@Url.Content(Model.IconUrl)" class="img-responsive" alt="@Model.FriendlyName" />
+                <module-icon model="Model.Icon" alt="@Model.FriendlyName" />
             }
 
             @ViewBag.Title

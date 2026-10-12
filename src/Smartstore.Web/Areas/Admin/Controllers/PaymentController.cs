@@ -111,7 +111,7 @@ public class PaymentController : AdminController
         var pageTitle = providerModel.FriendlyName;
 
         model.SystemName = providerModel.SystemName;
-        model.IconUrl = providerModel.IconUrl;
+        model.Icon = providerModel.Icon;
         model.FriendlyName = providerModel.FriendlyName;
         model.Description = providerModel.Description;
         model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(paymentMethod);
