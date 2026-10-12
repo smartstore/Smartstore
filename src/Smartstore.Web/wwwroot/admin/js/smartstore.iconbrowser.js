@@ -115,7 +115,6 @@
                         dot.title = hint;
                         row.append(dot);
                     }
-                    row.title += ' (' + hint + ')';
                 }
                 if (isResult) {
                     row.append(icon, label);

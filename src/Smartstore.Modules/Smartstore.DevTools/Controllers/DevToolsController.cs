@@ -34,7 +34,7 @@ public class DevToolsController(IIconCache iconCache, IIconKitService iconKits, 
             var file = new FileInfo(Path.Combine(kitDirectory, fileName));
             if (file.Exists)
             {
-                kitFiles.Add(new IconKitFileModel(kit.Name, fileName, file.Length));
+                kitFiles.Add(new IconKitFileModel(kit.DisplayName ?? kit.Name, fileName, file.Length));
             }
         }
         model.KitFiles = kitFiles;

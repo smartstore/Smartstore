@@ -57,7 +57,7 @@
                     <h6 sm-if="kits.Any(x => x.ShowInPicker || showHiddenKits)" class="dropdown-header">@T("Admin.IconBrowser.Kits")</h6>
                     @foreach (var kit in kits)
                     {
-                        var kitLabel = kit.Name.Titleize();
+                        var kitLabel = kit.DisplayName ?? kit.Name;
                         var kitIcon = kit.Icon ?? "box";
                         <button type="button" class="dropdown-item" data-kit="@kit.Name" data-label="@kitLabel"
                                 attr-class='(!kit.ShowInPicker && !showHiddenKits, "d-none")'

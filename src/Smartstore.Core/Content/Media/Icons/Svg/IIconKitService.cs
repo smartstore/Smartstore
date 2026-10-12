@@ -73,8 +73,9 @@ public sealed class IconKit
     /// <param name="icon">The optional icon address representing this kit in pickers. Null uses the generic kit icon.</param>
     /// <param name="showInPicker">Whether the kit is listed in the icon picker by default.</param>
     /// <param name="areas">Applicable areas. Omission allows public and admin.</param>
+    /// <param name="displayName">Optional display label. Omission uses the unchanged kit name.</param>
     public IconKit(string name, IEnumerable<string> icons, string? defaultLibrary = null, string? defaultVariant = null,
-        IReadOnlyDictionary<string, string>? sources = null, string? icon = null, bool showInPicker = true, IEnumerable<string>? areas = null)
+        IReadOnlyDictionary<string, string>? sources = null, string? icon = null, bool showInPicker = true, IEnumerable<string>? areas = null, string? displayName = null)
     {
         Guard.NotEmpty(name);
 
@@ -86,6 +87,7 @@ public sealed class IconKit
             throw new InvalidDataException($"Invalid or duplicate area in icon kit '{name}'.");
         }
         Name = name;
+        DisplayName = string.IsNullOrWhiteSpace(displayName) ? null : displayName;
         Icons = Array.AsReadOnly(icons.ToArray());
         var names = new HashSet<string>(StringComparer.Ordinal);
         foreach (var value in Icons)
@@ -124,6 +126,11 @@ public sealed class IconKit
     /// Gets the configured name.
     /// </summary>
     public string Name { get; }
+
+    /// <summary>
+    /// Gets the optional display label. Null uses the unchanged kit name.
+    /// </summary>
+    public string? DisplayName { get; }
 
     /// <summary>
     /// Gets the areas in which this kit participates, in declaration order.

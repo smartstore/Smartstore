@@ -1,5 +1,6 @@
 {
   "public": {
+    "displayName": "Public",
     "icon": "hi:store-01!/sr",
     "defaultLibrary": null,
     "defaultVariant": null,
@@ -27,6 +28,7 @@
     ]
   },
   "admin": {
+    "displayName": "Admin",
     "showInPicker": false,
     "icon": "hi:settings-01!/sr",
     "defaultLibrary": null,
@@ -196,6 +198,7 @@
     ]
   },
   "htmledit": {
+    "displayName": "HTML Editor",
     "showInPicker": false,
     "icon": "hi:html-5",
     "defaultLibrary": null,
@@ -230,6 +233,7 @@
     ]
   },
   "brands": {
+    "displayName": "Brands",
     "icon": "hi:badge!/sr",
     "defaultLibrary": "fontawesome-free",
     "defaultVariant": "brands",

@@ -78,6 +78,7 @@ public sealed class IconKitBuilder
         defaultLibrary = kit.DefaultLibrary,
         defaultVariant = kit.DefaultVariant,
         icon = kit.Icon,
+        displayName = kit.DisplayName,
         showInPicker = kit.ShowInPicker,
         areas = kit.Areas
     });

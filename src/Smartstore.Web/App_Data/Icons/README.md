@@ -473,6 +473,11 @@ override inherited source assignments directly. Sources can target any concept
 in the expanded membership. Collections can include other collections; unknown
 references and cycles are configuration errors. Both JSON files are watched.
 
+`displayName` optionally supplies a kit label for the Icon Browser and DevTools.
+Without it, the unchanged kit name is displayed. Labels are not titleized and do
+not change kit identity, area resolution or sprite filenames. Providers can pass
+`displayName` to `new IconKit(...)`; local JSON kit settings retain precedence.
+
 `showInPicker: false` only hides a kit from the default picker list. It does not
 restrict area membership or rendering. `IconBrowserModel.ShowHiddenKits` reveals it.
 

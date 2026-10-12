@@ -308,16 +308,18 @@ public class IconServiceTests
     public async Task Provider_Kit_Respects_Local_Priority_And_Settings(bool localOverride)
     {
         Write("Icons/kits.json", localOverride
-            ? """{"first":["cart"],"plugin":{"areas":["public"],"showInPicker":true}}"""
+            ? """{"first":["cart"],"plugin":{"areas":["public"],"showInPicker":true,"displayName":"Local Kit"}}"""
             : """{"first":["cart"]}""");
         var provider = new Mock<IIconProvider>();
         provider.Setup(x => x.Configure(It.IsAny<IconKitBuilder>())).Callback<IconKitBuilder>(b =>
-            b.AddKit(new IconKit("plugin", ["cart"], defaultVariant: "sharp", showInPicker: false, areas: ["admin"])));
+            b.AddKit(new IconKit("plugin", ["cart"], defaultVariant: "sharp", showInPicker: false, areas: ["admin"], displayName: "Plugin Kit")));
         var service = CreateProviderService(provider.Object);
         var kits = new IconKitService(service, _context.Object, new HttpContextAccessor());
         Assert.That(kits.Kits.Select(x => x.Name), Is.EqualTo(new[] { "first", "plugin" }));
         var plugin = kits.Kits.Single(x => x.Name == "plugin");
         Assert.That(plugin.ShowInPicker, Is.EqualTo(localOverride));
+        Assert.That(plugin.DisplayName, Is.EqualTo(localOverride ? "Local Kit" : "Plugin Kit"));
+        Assert.That(kits.Kits.Single(x => x.Name == "first").DisplayName, Is.Null);
         Assert.That(plugin.Areas, Is.EqualTo(new[] { localOverride ? "public" : "admin" }));
         Assert.That(plugin.DefaultVariant, Is.EqualTo(localOverride ? null : "sharp"));
         Assert.That(kits.GetReference(await service.GetIconAsync("cart", area: "admin")).Href, Does.Contain("/first-"));

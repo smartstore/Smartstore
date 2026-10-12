@@ -577,10 +577,12 @@ internal sealed class IconCatalog
                 ? kitAreas.EnumerateArray().Select(x => x.GetString()).ToArray() : null;
             var icon = isObject && definition.TryGetProperty("icon", out var kitIcon)
                 ? kitIcon.GetString() : null;
+            var displayName = isObject && definition.TryGetProperty("displayName", out var kitDisplayName)
+                ? kitDisplayName.GetString() : null;
             var showInPicker = !isObject || !definition.TryGetProperty("showInPicker", out var kitVisibility)
                 || kitVisibility.GetBoolean();
             catalog.ExternalIcons.Add(kit.Key, external);
-            var iconKit = new IconKit(kit.Key, names, libraryName, variantName, sources, icon, showInPicker, areas);
+            var iconKit = new IconKit(kit.Key, names, libraryName, variantName, sources, icon, showInPicker, areas, displayName);
             foreach (var address in iconKit.SourceAddresses.Values)
             {
                 var entryLibrary = IconService.SelectLibrary(catalog, address.Library ?? libraryName);

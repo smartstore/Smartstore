@@ -1012,3 +1012,9 @@ Smartstore still renders SVG icons and does not import this font.
 - Colors do not change sprite selection or source cache identity. The client strips
   color before manifest lookup and drawing requests, then applies it to the host.
 - Library mapping colors are rejected because they are rendering-only values.
+
+## Optional kit display names
+
+- Kits accept `displayName` in JSON and provider definitions.
+- Icon Browser and DevTools use the label, falling back to the unchanged kit name.
+- Removed kit-name titleizing; core kits declare explicit display labels.
