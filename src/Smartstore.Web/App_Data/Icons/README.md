@@ -1404,7 +1404,9 @@ The manifest lists duotone concepts per kit in `duotone`.
 Style bundles provide `icon-url($address)`, which resolves concepts through the same
 kit defaults, source overrides, mappings and fallbacks as `IIconService`. It embeds
 a complete SVG as a data URL; no icon request or kit sprite is required. Mapping
-transforms and stroke scaling are included. Missing icons use the system
+transforms and stroke scaling are included. For background images, an explicit
+`color` modifier sets the SVG color, for example `icon-url("check?color=#fff")`.
+Missing icons use the system
 `not-found` drawing; if that is also unavailable, the mask is transparent.
 
 ```scss

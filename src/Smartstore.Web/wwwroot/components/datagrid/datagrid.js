@@ -631,7 +631,7 @@ Smartstore.Admin.DataGridVue.components["sm-datagrid"] = {
             },
             deep: true
         },
-        selectedRows() {
+        selectedRowsInCurrentPage() {
             this.setMasterSelectorState(this.getMasterSelectorState());
         },
         userPrefs(value) {

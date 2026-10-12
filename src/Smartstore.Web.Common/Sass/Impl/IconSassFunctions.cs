@@ -41,7 +41,7 @@ internal static class IconSassFunctions
             // Returning 'none' would paint the entire pseudo-element in its background color.
             var svg = source == null
                 ? "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"/>"
-                : source.ToStandaloneSvg(icon.Transform, icon.SupportsStrokeScaling ? icon.StrokeScale : 1);
+                : source.ToStandaloneSvg(icon.Transform, icon.SupportsStrokeScaling ? icon.StrokeScale : 1, icon.Color);
 
             return "data:image/svg+xml," + Uri.EscapeDataString(svg);
         }

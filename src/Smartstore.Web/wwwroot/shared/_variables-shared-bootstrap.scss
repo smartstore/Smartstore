@@ -206,11 +206,15 @@ $btn-active-border-tint-amount:   10% !default;
 
 // Form Check
 
+$form-check-input-checked-bg-image:     icon-url("check?color=#fff");
+$form-check-input-indeterminate-bg-image: icon-url("minus?color=#fff");
+
 $form-check-input-border-radius:        .25em;
 $form-check-input-border:               1px solid rgba($black, .15);
 $form-check-input-focus-border:         rgba(var(--form-check-checked-bg-rgb), 0.5);
 $form-check-input-focus-box-shadow:     0 0 0 0.2rem rgba(var(--form-check-checked-bg-rgb), 0.25);
 $form-check-transition:                 box-shadow 0.12s ease-in-out;
+$form-check-radio-checked-bg-image:             url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='2' fill='#fff' opacity='0.9'/></svg>");
 
 
 // Form Switch

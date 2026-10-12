@@ -69,7 +69,8 @@ public sealed class IconSvg
     /// </summary>
     /// <param name="transform">The resolved mapping or address transformation.</param>
     /// <param name="strokeScale">The resolved stroke multiplier, or one for variants without stroke scaling.</param>
-    public string ToStandaloneSvg(IconTransform transform = default, double strokeScale = 1)
+    /// <param name="color">An optional color for drawings that use currentColor.</param>
+    public string ToStandaloneSvg(IconTransform transform = default, double strokeScale = 1, string? color = null)
     {
         if (!double.IsFinite(strokeScale) || strokeScale <= 0)
         {
@@ -85,6 +86,10 @@ public sealed class IconSvg
             svg.SetAttributeValue(attribute.Key, attribute.Value);
         }
         svg.SetAttributeValue("viewBox", ViewBox);
+        if (color.HasValue())
+        {
+            svg.SetAttributeValue("color", color);
+        }
 
         if (!transform.IsIdentity)
         {
