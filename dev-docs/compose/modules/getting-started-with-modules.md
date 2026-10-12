@@ -143,18 +143,17 @@ The following table explains the schema.
 A module can declare an icon address and an optional CSS color in `module.json`:
 
 ```json
-"Icon": "hi:puzzle/sr",
-"IconColor": "#546e7a"
+"Icon": "hi:puzzle/sr?color=#546e7a"
 ```
 
 `Icon` accepts the same concepts, explicit library addresses and modifiers as the
-`icon` TagHelper. A kit entry is optional. `IconColor` applies only to this rendered
+`icon` TagHelper. A kit entry is optional. The `color` modifier applies only to this rendered
 icon, not to image files.
 
 `ModuleManager.GetIcon()` resolves the representation in this order:
 
 1. Provider-specific `wwwroot/icon-{providerSystemName}.svg`, then `.png`.
-2. The manifest's `Icon` and `IconColor`.
+2. The manifest's `Icon`, including optional rendering modifiers.
 3. `wwwroot/icon.svg`, then `wwwroot/icon.png`.
 4. The default icon address `hi:plug-02`.
 

@@ -76,6 +76,21 @@
 
     // Only plain concepts use the manifest. The server owns address parsing, selections
     // and modifier precedence, including explicit false/zero overrides of mapping defaults.
+    // Rendering-only color must not create separate drawing requests or bypass kit lookup.
+    function splitColor(name) {
+        const separator = name?.indexOf('?') ?? -1;
+        if (separator < 0) return { name, color: null };
+        let color = null;
+        const modifiers = [];
+        for (const pair of name.slice(separator + 1).split('&')) {
+            if (pair.split('=', 1)[0] !== 'color') { modifiers.push(pair); continue; }
+            const value = decodeURIComponent(pair.slice(6));
+            if (color !== null || !value.trim() || /[;{}]/.test(value)) throw new Error('Invalid or duplicate icon color.');
+            color = value;
+        }
+        return { name: name.slice(0, separator) + (modifiers.length ? '?' + modifiers.join('&') : ''), color };
+    }
+
     function isConcept(input) {
         return !/[:\/@!?]/.test(input.name) && drawing.every((key, i) => i === 0 || key === 'area' || input[key] == null);
     }
@@ -216,7 +231,7 @@
                 if (value !== undefined) styles.set(css, String(value * factor) + unit);
             }
             for (const [attribute, css] of [['color', '--icon-color'], ['animation-duration', '--icon-animation-duration']]) {
-                const value = this.getAttribute(attribute);
+                const value = this.getAttribute(attribute) ?? (attribute === 'color' ? this._addressColor : null);
                 if (value != null) { if (/[;{}]/.test(value)) throw new Error('Invalid CSS value.'); styles.set(css, value); }
             }
             const reverse = boolean(this.getAttribute('animation-reverse'));
@@ -246,8 +261,11 @@
     class IconElement extends IconElementBase {
         async update() {
             const sequence = this._sequence;
-            this.present(false);
             const input = Object.fromEntries(drawing.map(key => [key, this.getAttribute(key)]));
+            const parsed = splitColor(input.name);
+            input.name = parsed.name;
+            this._addressColor = parsed.color;
+            this.present(false);
             input.area = input.area || document.querySelector('meta[property="sm:icons"]')?.dataset.area || 'public';
             const key = JSON.stringify(input);
             if (this._drawingKey === key) return;

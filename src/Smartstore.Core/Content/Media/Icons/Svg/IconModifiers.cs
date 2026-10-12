@@ -30,6 +30,11 @@ internal readonly record struct IconModifiers
     internal double? StrokeScale { get; init; }
 
     /// <summary>
+    /// Gets the optional rendering color, independent of artwork identity.
+    /// </summary>
+    internal string? Color { get; init; }
+
+    /// <summary>
     /// Replaces only explicitly supplied transform components.
     /// </summary>
     /// <param name="fallback">The lower-priority transformation.</param>
@@ -52,7 +57,8 @@ internal readonly record struct IconModifiers
         var flip = icon.Transform.FlipX ? (icon.Transform.FlipY ? "xy" : "x") : (icon.Transform.FlipY ? "y" : "none");
         return address + "?flip=" + flip
             + "&rotate=" + icon.Transform.Rotation.ToString("R", CultureInfo.InvariantCulture)
-            + "&stroke-scale=" + icon.StrokeScale.ToString("R", CultureInfo.InvariantCulture);
+            + "&stroke-scale=" + icon.StrokeScale.ToString("R", CultureInfo.InvariantCulture)
+            + (icon.Color == null ? string.Empty : "&color=" + Uri.EscapeDataString(icon.Color));
     }
 
     /// <summary>
@@ -70,7 +76,7 @@ internal readonly record struct IconModifiers
             var separator = pair.IndexOf('=');
             var key = separator < 0 ? pair : pair[..separator];
             var value = separator < 0 ? default : pair[(separator + 1)..];
-            var flag = key switch { "flip" => 1, "rotate" => 2, "stroke-scale" => 4, _ => 0 };
+            var flag = key switch { "flip" => 1, "rotate" => 2, "stroke-scale" => 4, "color" => 8, _ => 0 };
             if (flag == 0 || (seen & flag) != 0 || value.IsEmpty)
             {
                 throw new InvalidDataException($"Invalid or duplicate icon modifier '{pair.ToString()}' in {location}.");
@@ -80,6 +86,16 @@ internal readonly record struct IconModifiers
             if (flag == 1 && value is "x" or "y" or "xy" or "none")
             {
                 result = result with { FlipX = value.Contains('x'), FlipY = value.Contains('y') };
+            }
+            else if (flag == 8)
+            {
+                var color = Uri.UnescapeDataString(value.ToString());
+                if (string.IsNullOrWhiteSpace(color) || color.IndexOfAny([';', '{', '}']) >= 0)
+                {
+                    throw new InvalidDataException($"Invalid icon color in {location}.");
+                }
+
+                result = result with { Color = color };
             }
             else if (flag != 1 && double.TryParse(value, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint,
                 CultureInfo.InvariantCulture, out var number) && double.IsFinite(number) && (flag != 4 || number > 0))

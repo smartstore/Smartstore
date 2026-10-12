@@ -920,7 +920,7 @@ Static rotation, mirroring, and positioning remain in place.
 ### Icon TagHelper presentation and modifiers
 
 Use `lib` to select a library by system name or short name. `variant` selects its
-variant. `name` accepts an address with optional `flip`, `rotate`, and `stroke-scale`
+variant. `name` accepts an address with optional `flip`, `rotate`, `stroke-scale`, and `color`
 query modifiers. Append `!` to the icon name to bypass conceptual mapping.
 
 ```html
@@ -1408,11 +1408,21 @@ updates from the fork do not overwrite them.
 
 ## Module manifest icons
 
-Modules may set `Icon` and optional `IconColor` in `module.json` instead of shipping
+Modules may set `Icon` (for example `"hi:cart?color=#f90"`) in `module.json` instead of shipping
 an image. `ModuleManager.GetIcon()` returns a `ModuleIcon` value for
 `<module-icon model="..." />`, which renders addresses server-side.
 Provider-specific SVG/PNG files take precedence over the manifest address. Without
 an address, `icon.svg`, `icon.png` and the default icon `hi:plug-02` are tried
 in that order. SVG files are rendered as images and carry their own colors;
-`IconColor` only applies to icon addresses. Select2 module/provider choices use
-`data-icon` and `data-icon-color`, or `data-imageurl` for images.
+The `color` modifier only applies to icon addresses. Select2 module/provider choices use
+`data-icon` with the complete address, or `data-imageurl` for images.
+
+### Address colors
+
+`cart?color=#f90` sets the outer SVG color without changing artwork, cache identity
+or kit selection. Explicit `IconOptions.Color` and the `color` attribute take precedence.
+`sm-icon` handles this modifier locally, retaining manifest lookup and sharing drawing
+requests across colors. Other modifiers can be combined using `&` (`&amp;` in HTML).
+Colors may be literal CSS values or percent-encoded values. When sending an address
+as a URL query parameter, encode the entire parameter (including `#`). Colors belong
+to rendering addresses, not library mappings or kit sources.

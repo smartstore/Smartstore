@@ -11,11 +11,6 @@ public sealed record ModuleIcon
     public string Address { get; init; }
 
     /// <summary>
-    /// Gets the optional CSS color for the SVG icon.
-    /// </summary>
-    public string Color { get; init; }
-
-    /// <summary>
     /// Gets the image URL; null when an SVG address is used.
     /// </summary>
     public string ImageUrl { get; init; }

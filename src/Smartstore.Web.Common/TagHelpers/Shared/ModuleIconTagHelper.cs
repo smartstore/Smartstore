@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Core.Content.Media.Icons;
 using Smartstore.Engine.Modularity;
 using Smartstore.Web.Rendering;
 
@@ -50,8 +49,7 @@ public class ModuleIconTagHelper : SmartTagHelper
 
         if (Model.Address.HasValue())
         {
-            output.Content.SetHtmlContent(await HtmlHelper.IconAsync(Model.Address,
-                options: new IconOptions { Color = Model.Color }));
+            output.Content.SetHtmlContent(await HtmlHelper.IconAsync(Model.Address));
         }
         else if (Model.ImageUrl.HasValue())
         {

@@ -997,3 +997,18 @@ Smartstore still renders SVG icons and does not import this font.
 - Cache diagnostics now exclude source addresses covered by configured kit variants
   across all areas, including collections and providers. Added behance/ello to brands,
   migrated their footer references, and moved privacy to the shared collection.
+
+- Added system file-stack and folder-stack drawings from HI file-edit and
+  folder-add, retaining their lower-right gaps without the overlay paths.
+
+- MediaManager tree uses shared folder-stack/folder-open-stack for folders with
+  overlays, with HI stroke-rounded overlays positioned inside the lower-right gap.
+  Existing base/overlay colors and plain filled folders remain unchanged.
+
+## Module icon colors as address modifiers
+
+- Replaced module `IconColor` and `ModuleIcon.Color` with `?color=...` in all module manifests.
+- SVG rendering honors address colors; explicit presentation colors take precedence.
+- Colors do not change sprite selection or source cache identity. The client strips
+  color before manifest lookup and drawing requests, then applies it to the host.
+- Library mapping colors are rejected because they are rendering-only values.

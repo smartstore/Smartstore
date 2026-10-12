@@ -50,6 +50,42 @@ public class IconServiceTests
         public void Configure(IconKitBuilder builder) => provider.Configure(builder);
     }
 
+    [Test]
+    public async Task Address_Color_Preserves_Kit_And_Source_Identity_And_Options_Take_Precedence()
+    {
+        Write("Icons/kits.json", """{"shared":["cart"]}""");
+        var kits = new IconKitService(_service, _context.Object, new HttpContextAccessor());
+        var renderer = new IconRenderer(_service, kits);
+        var plain = await _service.GetIconAsync("cart");
+        var orange = await _service.GetIconAsync("cart?color=#f90");
+        var blue = await _service.GetIconAsync("cart?color=%2300f");
+        Assert.That(orange.Color, Is.EqualTo("#f90"));
+        Assert.That(blue.Color, Is.EqualTo("#00f"));
+        Assert.That(orange.Address, Is.EqualTo(plain.Address));
+        Assert.That(kits.GetReference(orange).Href, Is.EqualTo(kits.GetReference(plain).Href));
+        var output = await renderer.RenderAsync(orange);
+        Assert.That(RenderMarkup(output.InnerHtml), Does.Contain("<use"));
+        Assert.That(output.Attributes["style"], Does.Contain("--icon-color:#f90;"));
+        var overridden = await renderer.RenderAsync(orange, new IconOptions { Color = "red" });
+        Assert.That(overridden.Attributes["style"], Does.Contain("--icon-color:red;").And.Not.Contain("#f90"));
+        await _service.GetSvgAsync(plain);
+        await _service.GetSvgAsync(orange);
+        await _service.GetSvgAsync(blue);
+        Assert.That(_entries.Count, Is.EqualTo(1));
+        var inline = await new IconRenderer(_service, Mock.Of<IIconKitService>()).RenderAsync(blue);
+        Assert.That(inline.Attributes["style"], Does.Contain("--icon-color:#00f;"));
+    }
+
+    [TestCase("cart?color=")]
+    [TestCase("cart?color=red&color=blue")]
+    [TestCase("cart?color=red;background:black")]
+    [TestCase("cart?color=%3Bbackground:black")]
+    [TestCase("cart?color=%20")]
+    public void Address_Color_Rejects_Invalid_Or_Duplicate_Values(string address)
+    {
+        Assert.ThrowsAsync<InvalidDataException>(async () => await _service.GetIconAsync(address));
+    }
+
     public class ProviderLifetime
     {
         public int Created;
@@ -2318,6 +2354,7 @@ public class IconServiceTests
     /// Rejects unknown, duplicate and malformed modifiers with actionable mapping diagnostics.
     /// </summary>
     /// <param name="target">The invalid mapping expression.</param>
+    [TestCase("cart-01?color=red")]
     [TestCase("cart-01?stroke-scale=0")]
     [TestCase("cart-01?stroke-scale=-1")]
     [TestCase("cart-01?stroke-scale=NaN")]

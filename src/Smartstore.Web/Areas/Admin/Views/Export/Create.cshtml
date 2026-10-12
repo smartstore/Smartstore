@@ -19,7 +19,7 @@
                     <select asp-for="ProviderSystemName" class="form-control-lg select-customtemplate drop-customtemplate">
                         @foreach (var provider in providers.OrderBy(x => x.FriendlyName))
                         {
-                            <option value="@provider.SystemName" data-id="@provider.Id" data-imageurl="@Url.Content(provider.Icon?.ImageUrl)" data-icon="@provider.Icon?.Address" data-icon-color="@provider.Icon?.Color">@provider.FriendlyName</option>
+                            <option value="@provider.SystemName" data-id="@provider.Id" data-imageurl="@Url.Content(provider.Icon?.ImageUrl)" data-icon="@provider.Icon?.Address">@provider.FriendlyName</option>
                         }
                     </select>
                 </div>
@@ -33,7 +33,7 @@
                     <select asp-for="CloneProfileId" class="form-control-lg select-customtemplate drop-customtemplate" asp-placeholder="@T("Common.Unspecified")">
 						@foreach (var profile in profiles.OrderBy(x => x.FriendlyName))
 						{
-							<option value="@profile.Id" data-systemname="@profile.SystemName" data-imageurl="@Url.Content(profile.Icon?.ImageUrl)" data-icon="@profile.Icon?.Address" data-icon-color="@profile.Icon?.Color">@profile.FriendlyName</option>
+							<option value="@profile.Id" data-systemname="@profile.SystemName" data-imageurl="@Url.Content(profile.Icon?.ImageUrl)" data-icon="@profile.Icon?.Address">@profile.FriendlyName</option>
 						}
                     </select>
                 </div>

@@ -82,6 +82,9 @@
       "file-text",
       "file-video",
       "folder-open",
+      "file-stack",
+      "folder-stack",
+      "folder-open-stack",
       "font",
       "gear",
       "grip",
@@ -152,6 +155,9 @@
       "warning"
     ],
     "sources": {
+      "file-stack": "sys:file-stack!/default",
+      "folder-stack": "sys:folder-stack!/default",
+      "folder-open-stack": "sys:folder-open-stack!/default",
       "not-found": "sys:not-found!/default",
       "smartstore": "sys:smartstore!/default",
       "stars-tricolor": "sys:stars-tricolor!/default",

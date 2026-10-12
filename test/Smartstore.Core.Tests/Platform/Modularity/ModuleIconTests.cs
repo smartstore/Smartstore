@@ -12,6 +12,7 @@ public class ModuleIconTests
     [TestCase("icon-P.svg,icon-P.png,icon.svg,icon.png", "cart", "~/Modules/Test/icon-P.svg", null)]
     [TestCase("icon-P.png,icon.svg", "cart", "~/Modules/Test/icon-P.png", null)]
     [TestCase("icon.svg,icon.png", "cart", null, "cart")]
+    [TestCase("icon.svg,icon.png", "cart?color=#123456", null, "cart?color=#123456")]
     [TestCase("icon.svg,icon.png", null, "~/Modules/Test/icon.svg", null)]
     [TestCase("icon.png", null, "~/Modules/Test/icon.png", null)]
     [TestCase("", null, null, "hi:plug-02")]
@@ -24,7 +25,6 @@ public class ModuleIconTests
 
         Assert.That(icon.ImageUrl, Is.EqualTo(imageUrl));
         Assert.That(icon.Address, Is.EqualTo(expectedAddress));
-        Assert.That(icon.Color, Is.EqualTo(expectedAddress == address && address != null ? "#123456" : null));
     }
 
     [Test]
@@ -41,16 +41,14 @@ public class ModuleIconTests
     public void Manifest_Parses_Optional_Icon_Properties()
     {
         var descriptor = ModuleDescriptor.ParseManifest("""
-            { "SystemName": "Test", "FriendlyName": "Test", "Version": "1.0", "Icon": "hi:puzzle/sr", "IconColor": "#123456" }
+            { "SystemName": "Test", "FriendlyName": "Test", "Version": "1.0", "Icon": "hi:puzzle/sr?color=#123456" }
             """);
         var legacy = ModuleDescriptor.ParseManifest("""
             { "SystemName": "Test", "FriendlyName": "Test", "Version": "1.0" }
             """);
 
-        Assert.That(descriptor.Icon, Is.EqualTo("hi:puzzle/sr"));
-        Assert.That(descriptor.IconColor, Is.EqualTo("#123456"));
+        Assert.That(descriptor.Icon, Is.EqualTo("hi:puzzle/sr?color=#123456"));
         Assert.That(legacy.Icon, Is.Null);
-        Assert.That(legacy.IconColor, Is.Null);
     }
 
     private static IModuleDescriptor CreateDescriptor(string files, string address)
@@ -63,7 +61,6 @@ public class ModuleIconTests
         descriptor.SetupGet(x => x.Path).Returns("/Modules/Test/");
         descriptor.SetupGet(x => x.Group).Returns("Admin");
         descriptor.SetupGet(x => x.Icon).Returns(address);
-        descriptor.SetupGet(x => x.IconColor).Returns("#123456");
         return descriptor.Object;
     }
 }

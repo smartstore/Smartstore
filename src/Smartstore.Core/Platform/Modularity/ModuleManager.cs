@@ -160,7 +160,7 @@ public partial class ModuleManager
 
         if (descriptor.Icon.HasValue())
         {
-            return new ModuleIcon { Address = descriptor.Icon, Color = descriptor.IconColor };
+            return new ModuleIcon { Address = descriptor.Icon };
         }
 
         var imageUrl = FindIconUrl(descriptor, "icon");

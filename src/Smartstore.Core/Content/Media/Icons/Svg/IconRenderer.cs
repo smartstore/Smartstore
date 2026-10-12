@@ -104,6 +104,11 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
             }
         }
 
+        if (options?.Color == null)
+        {
+            AddStyle(svg, "--icon-color", icon.Color);
+        }
+
         if (options != null)
         {
             ApplyPresentation(svg, options);

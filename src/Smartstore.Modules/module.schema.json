@@ -18,11 +18,7 @@
     },
     "Icon": {
       "type": "string",
-      "description": "Optional icon address. Replaces icon.svg or icon.png; provider-specific image files take precedence."
-    },
-    "IconColor": {
-      "type": "string",
-      "description": "Optional CSS color for Icon. Does not recolor SVG or PNG image files."
+      "description": "Optional icon address with rendering modifiers (e.g. hi:cart?color=#f90). Replaces icon.svg or icon.png; provider-specific image files take precedence."
     },
     "Theme": {
       "type": "string",

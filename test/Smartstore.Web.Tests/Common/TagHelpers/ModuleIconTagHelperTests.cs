@@ -31,8 +31,8 @@ public class ModuleIconTagHelperTests
         var icon = new IconInfo { Name = "cart" };
         if (useAddress)
         {
-            service.Setup(x => x.GetIconAsync("cart", null, null, null, It.IsAny<CancellationToken>())).ReturnsAsync(icon);
-            renderer.Setup(x => x.RenderAsync(icon, It.Is<IconOptions>(o => o.Color == "#123456"), It.IsAny<CancellationToken>()))
+            service.Setup(x => x.GetIconAsync("cart?color=#123456", null, null, null, It.IsAny<CancellationToken>())).ReturnsAsync(icon);
+            renderer.Setup(x => x.RenderAsync(icon, It.IsAny<IconOptions>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new TagBuilder("svg"));
         }
         var url = new Mock<IUrlHelper>();
@@ -49,7 +49,7 @@ public class ModuleIconTagHelperTests
         var helper = new ModuleIconTagHelper
         {
             ViewContext = viewContext,
-            Model = useAddress ? new ModuleIcon { Address = "cart", Color = "#123456" }
+            Model = useAddress ? new ModuleIcon { Address = "cart?color=#123456" }
                 : new ModuleIcon { ImageUrl = "~/Modules/Test/icon.svg" },
             Alt = "Test module"
         };

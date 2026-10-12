@@ -149,6 +149,12 @@ public sealed class IconInfo
     public double StrokeScale { get; set; } = 1;
 
     /// <summary>
+    /// Gets or sets the address color used for rendering, not source or sprite identity.
+    /// Explicit rendering options take precedence.
+    /// </summary>
+    public string? Color { get; set; }
+
+    /// <summary>
     /// Gets or sets whether the resolved source variant supports per-icon stroke scaling.
     /// </summary>
     public bool SupportsStrokeScaling { get; set; }

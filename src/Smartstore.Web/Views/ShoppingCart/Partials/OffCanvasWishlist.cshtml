@@ -23,7 +23,7 @@
     </div>
     @if (hasItems)
     {
-        <div sm-if="currentItem != null" class="alert alert-success alert-dismissible rounded-0 fade show" role="alert">
+        <div sm-if="currentItem != null" class="alert alert-success alert-iconic alert-dismissible rounded-0 fade show" role="alert">
             <button type="button" class="btn-close" data-dismiss="alert" aria-label="@T("Common.Close")"></button>
             <span sm-language-attributes-for="currentItem.ProductName">
                 @Html.Raw(T("ShoppingCart.Mini.AddedItemToWishlist", $"<strong>{currentItem.ProductName.Value.Truncate(50, "…")}</strong>"))
