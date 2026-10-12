@@ -350,7 +350,7 @@
             <smart-label asp-for="ProductTagNames" />
         </div>
         <div class="adminData">
-            <select asp-for="ProductTagNames" asp-items="ViewBag.SelectedProductTags" class="noskin" multiple="multiple" data-tags="true"></select>
+            <select asp-for="ProductTagNames" data-icon="tag" asp-items="ViewBag.SelectedProductTags" class="noskin" multiple="multiple" data-tags="true"></select>
             <span asp-validation-for="ProductTagNames"></span>
         </div>
     </div>

@@ -89,7 +89,7 @@
             <smart-label asp-for="EmailAddresses" />
         </div>
         <div class="adminData">
-            <select asp-for="EmailAddresses" asp-items="new MultiSelectList(Model.EmailAddresses)" multiple="multiple" data-tags="true"></select>
+            <select asp-for="EmailAddresses" data-icon="mail" asp-items="new MultiSelectList(Model.EmailAddresses)" multiple="multiple" data-tags="true"></select>
             <span asp-validation-for="EmailAddresses"></span>
         </div>
     </div>

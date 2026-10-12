@@ -241,7 +241,7 @@
             </div>
         </div>
 	</tab>
-	<tab sm-title="@T("Admin.Common.SEO")">
+	<tab sm-title="@T("Admin.Common.SEO")" sm-icon="seo">
     @(Html.LocalizedEditor<ManufacturerModel, ManufacturerLocalizedModel>("manufacturer-seo-localized",
 	    @<text>
             <div class="adminContent">
@@ -352,7 +352,7 @@
 	        </div>
 	    </text>))
 	</tab>
-	<tab sm-title="@T("Admin.Catalog.Manufacturers.Products")" sm-adaptive-height="true">
+	<tab sm-title="@T("Admin.Catalog.Manufacturers.Products")" sm-icon="box" sm-adaptive-height="true">
         @if (Model.Id > 0)
         {
             <partial name="_Grid.ProductManufacturers" model="null" view-data="productManufacturersViewData" />   

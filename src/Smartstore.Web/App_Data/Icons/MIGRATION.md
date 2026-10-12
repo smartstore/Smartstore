@@ -1018,3 +1018,28 @@ Smartstore still renders SVG icons and does not import this font.
 - Kits accept `displayName` in JSON and provider definitions.
 - Icon Browser and DevTools use the label, falling back to the unchanged kit name.
 - Removed kit-name titleizing; core kits declare explicit display labels.
+
+## Select2 choice icons
+
+- Added select-level icon defaults for tags, stores, customer roles, discounts,
+  rule sets, widget zones, delivery times and email recipients. Shared templates
+  and direct selections use existing kit concepts, including dynamic choices.
+- Option-specific icons and images retain precedence; default icons preserve
+  existing item actions. No changes to vendor Select2 code.
+
+- Added admin concept `customer-roles` mapped to HI `user-multiple-02` for all
+  customer-role selections, including grid editors. The main-menu `customers`
+  concept retains its existing artwork.
+
+- Added admin concept `seo` (HI `seo`) and applied it to all SEO tabs
+  in platform and module Razor views, including tabs without a previous icon.
+
+- MegaMenu tabs in category and menu-item editing now reuse `menu-button`, matching
+  the module menu. Removed the unused `mega-menu` concept and its icon provider.
+
+- LinkBuilder metadata now carries icon addresses instead of FA classes. Core, Blog
+  and News sources use kit concepts; the source selector renders SVGs server-side
+  and clones them into its button. Updated query/target state selectors for SVGs.
+
+- PageBuilder target rows reuse server-rendered icons from the Add Target dropdown.
+  Source concepts match LinkBuilder; removed the duplicated FA-class mapping in JS.

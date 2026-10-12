@@ -61,13 +61,13 @@
          sm-adaptive-height="true">
     </tab>
     <tab sm-title="@T("Admin.Catalog.Products.Promotion")"
-         sm-icon="megaphone"
+         sm-icon="marketing"
          sm-ajax="true"
          href="@Url.Action("LoadEditTab", "Product", new { id = Model.Id, tabName = "Promotion" })"
          sm-name="Promotion">
     </tab>
     <tab sm-if="Model.ProductTypeId != (int)ProductType.BundledProduct" sm-title="@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes")"
-        sm-icon="tasks"
+        sm-icon="variants"
         sm-ajax="true"
         href="@Url.Action("LoadEditTab", "Product", new { id = Model.Id, tabName = "Attributes" })"
         sm-name="Attributes">
@@ -80,7 +80,7 @@
          sm-name="SpecificationAttributes">
     </tab>
     <tab sm-title="@T("Admin.Common.SEO")"
-         sm-icon="search"
+         sm-icon="seo"
          sm-name="SEO">
         <partial name="_CreateOrUpdate.SEO" model="Model" />
     </tab>
@@ -91,7 +91,7 @@
     </tab>
     <tab sm-if="Model.Id > 0" 
         sm-title="@T("Admin.Orders")"
-        sm-icon="chart-up"
+        sm-icon="chart-line-arrow"
         sm-ajax="true"
         href="@Url.Action("LoadEditTab", "Product", new { id = Model.Id, tabName = "Orders" })"
         sm-name="Orders"

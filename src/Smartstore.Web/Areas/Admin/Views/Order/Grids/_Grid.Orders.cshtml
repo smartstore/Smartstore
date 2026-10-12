@@ -171,7 +171,7 @@
             <span class="order-process-title">@T("Enums.ShippingStatus.Shipped")</span>
         </a>
         <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "deliver" })"@Html.Raw(key)>
-            <i class="fa fa-fw"></i>
+            <span class="icon icon-fw" aria-hidden="true"></span>
             <span class="order-process-title">@T("Enums.ShippingStatus.Delivered")</span>
         </a>
         <div class="dropdown-divider"></div>
@@ -180,7 +180,7 @@
         </div>
         <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "markpaid" })" 
            title="@T("Admin.Orders.Fields.MarkAsPaid.Hint")"@Html.Raw(key)>
-            <i class="fa fa-fw"></i>
+            <span class="icon icon-fw" aria-hidden="true"></span>
             <span class="order-process-title">@T("Admin.Orders.Fields.MarkAsPaid")</span>
         </a>
         <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "capture" })" 
@@ -190,17 +190,17 @@
         </a>
         <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "refundoffline" })" 
            title="@T("Admin.Orders.Fields.RefundOffline.Hint")"@Html.Raw(key)>
-            <i class="fa fa-fw"></i>
+            <icon name="refund" class="icon-fw" />
             <span class="order-process-title">@T("Admin.Orders.Fields.RefundOffline")</span>
         </a>
         <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "refund" })" 
            title="@T("Admin.Orders.Fields.Refund.Hint")"@Html.Raw(key)>
-            <icon name="rotate-left" class="icon-fw" />
+            <icon name="refund" class="icon-fw" />
             <span class="order-process-title">@T("Admin.Orders.Fields.Refund")</span>
         </a>
         <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "voidoffline" })" 
            title="@T("Admin.Orders.Fields.VoidOffline.Hint")"@Html.Raw(key)>
-            <i class="fa fa-fw"></i>
+            <span class="icon icon-fw" aria-hidden="true"></span>
             <span class="order-process-title">@T("Admin.Orders.Fields.VoidOffline")</span>
         </a>
         <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "void" })" 

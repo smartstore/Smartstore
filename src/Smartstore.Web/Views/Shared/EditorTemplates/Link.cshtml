@@ -1,6 +1,4 @@
-﻿@addTagHelper Smartstore.Web.TagHelpers.Admin.BootstrapIconTagHelper, Smartstore.Web.Common
-
-@using Smartstore.Utilities
+﻿@using Smartstore.Utilities
 
 @functions
 {
@@ -44,7 +42,7 @@
                 {
                     var info = metadata[schema];
                     <a class="dropdown-item link-type" href="#" data-type="@schema">
-                        <i class="fa-fw @info.Icon"></i>
+                        <icon sm-if="info.Icon.HasValue()" name="@info.Icon" class="icon-fw" />
                         <span>@T(info.ResKey)</span>
                     </a>
                 }

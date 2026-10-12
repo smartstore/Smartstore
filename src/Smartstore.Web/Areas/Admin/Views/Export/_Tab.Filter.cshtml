@@ -111,7 +111,7 @@
             <smart-label asp-for="Filter.ProductTagId" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.ProductTagId" asp-items="ViewBag.ProductTags" asp-placeholder="@allString"></select>
+            <select asp-for="Filter.ProductTagId" data-icon="tag" asp-items="ViewBag.ProductTags" asp-placeholder="@allString"></select>
             <span asp-validation-for="Filter.ProductTagId"></span>
         </div>
     </div>

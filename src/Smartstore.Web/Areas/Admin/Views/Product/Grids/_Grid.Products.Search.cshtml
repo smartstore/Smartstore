@@ -37,7 +37,7 @@
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchDeliveryTimeIds" />
-    <select asp-for="SearchDeliveryTimeIds" asp-items="ViewBag.DeliveryTimes" multiple="multiple"></select>
+    <select asp-for="SearchDeliveryTimeIds" data-icon="clock" asp-items="ViewBag.DeliveryTimes" multiple="multiple"></select>
 </div>
 <div sm-if="!Model.IsSingleStoreMode" class="form-group">
     <smart-label asp-for="SearchStoreId" />

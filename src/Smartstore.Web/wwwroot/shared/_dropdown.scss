@@ -80,6 +80,11 @@
     font-size: $dropdown-font-size;
     gap:  cssmax(8px, calc(var(--dropdown-item-padding-x) * 0.75));
 
+    &:has(> :is(i, svg, .icon, .icon-stack, sm-icon)) {
+        --dropdown-item-padding-x: var(--dropdown-icon-item-padding-x, 12px);
+        gap: var(--dropdown-icon-item-gap, 10px);
+    }
+
 	&.disabled {
 		cursor: default;
 	}

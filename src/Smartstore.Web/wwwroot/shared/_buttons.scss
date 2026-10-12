@@ -142,15 +142,18 @@ button:where(.reset) {
     > span {
         //display: none;
     }
-    // Move caret to bottom right corner
-    &.dropdown-toggle:after {
-        mask-image: icon-url("bi:caret-down-fill!");
-        position: absolute;
-        inset-inline-end: 3px;
-        bottom: 3px;
-        width: 8px;
-        height: 8px;
-        margin: 0;
+    &.dropdown-toggle:not(.no-chevron):not(.dropdown-toggle-split) {
+        padding-inline-end: 8px;
+
+        &::after {
+            position: absolute;
+            inset-inline-end: 3px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            margin: 0;
+        }
     }
 
     &.btn-sm {

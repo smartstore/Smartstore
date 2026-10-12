@@ -6,7 +6,12 @@ public partial class LinkBuilderMetadata
 {
     public int Order { get; init; }
     public string Schema { get; init; }
+
+    /// <summary>
+    /// Gets the icon concept or qualified icon address used in the link source selector.
+    /// </summary>
     public string Icon { get; init; }
+
     public string ResKey { get; init; }
     public Widget Widget { get; init; }
 }

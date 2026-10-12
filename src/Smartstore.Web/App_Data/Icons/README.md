@@ -1422,6 +1422,15 @@ in that order. SVG files are rendered as images and carry their own colors;
 The `color` modifier only applies to icon addresses. Select2 module/provider choices use
 `data-icon` with the complete address, or `data-imageurl` for images.
 
+### Select2 option icons
+
+Set `data-icon="tag"` on a `select` to supply a default icon for its choices,
+including AJAX results and newly entered tags. Defaults render at 16px in `var(--gray-700)`,
+in both the dropdown and selection chips. Option-level `data-icon` or an
+AJAX item's `icon` takes precedence; an empty icon suppresses the default. Images
+and color swatches keep precedence over icons. Placeholders, group headings,
+loading messages and add-entity actions do not receive the default icon.
+
 ### Address colors
 
 `cart?color=#f90` sets the outer SVG color without changing artwork, cache identity

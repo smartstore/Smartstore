@@ -345,6 +345,11 @@ body {
 #navbar {
     padding: 0 var(--content-padding-x);
 
+    #navbar-menu {
+        --dropdown-icon-item-padding-x: 1rem;
+        --dropdown-icon-item-gap: 12px;
+    }
+
     .dropdown-toggle:after {
         display: none;
     }

@@ -262,8 +262,11 @@
                 firstOption.text("");
             }
 
+            // Select-level fallback also covers AJAX results and newly created tags.
+            const defaultIcon = sel.attr("data-icon");
+
             if (window.touchable && !sel.hasClass("skin") && !sel.data("select-url") && !sel.data("remote-url")) {
-                if (sel.find('option[data-color], option[data-imageurl], option[data-icon]').length === 0
+                if (!defaultIcon && sel.find('option[data-color], option[data-imageurl], option[data-icon]').length === 0
                     || (sel.data("tags") && window.document.documentElement.classList.contains("mobile-device"))) {
                     // Skip skinning if device is mobile and no rich content exists (color, image & icon)
                     // or if device is mobile and no data tags exist.
@@ -290,7 +293,8 @@
                         hint = item.hint || option.attr('data-hint'),
                         hintClass = item.hintClass || option.attr('data-hint-class') || 'text-muted',
                         description = item.description || option.attr('data-description'),
-                        icon = item.icon ?? option.data('icon'),
+                        icon = item.icon ?? option.data('icon')
+                            ?? (!item.loading && !item.children && item.id != null && item.id !== '' && item.id !== '-1' ? defaultIcon : null),
                         iconColor = item.iconColor ?? option.attr('data-icon-color'),
                         truncateText = options.maxTextLength > 0 && text.length > options.maxTextLength,
                         appendHint = !isResult && hint && hint.length > 0;
@@ -382,12 +386,16 @@
                     }
                     else if (icon) {
                         // Icon
-                        preResult = null;
+                        // A default icon must not hide the item's existing action button.
+                        if (item.icon != null || option.data('icon') != null) {
+                            preResult = null;
+                        }
                         const icons = _.isArray(icon) ? icon : [icon];
                         for (const address of icons) {
                             $('<sm-icon/>')
                                 .attr('name', address)
-                                .attr('color', iconColor || null)
+                                .attr('color', iconColor || (defaultIcon && item.icon == null && option.data('icon') == null ? 'var(--gray-700)' : null))
+                                .css('--icon-size', defaultIcon ? '16px' : null)
                                 .attr('fw', '')
                                 .addClass('mr-1')
                                 .appendTo($('<span class="d-inline-flex align-items-center flex-shrink-0"/>')
@@ -524,6 +532,22 @@
             sel.select2(opts);
 
             const select2 = sel.data("select2");
+            // An explicit empty value disables the default hint for this instance.
+            const searchPlaceholder = sel.attr('data-search-placeholder') ?? window.Res?.['Common.Select.AddPlaceholder'];
+
+            if (sel.prop('multiple') && searchPlaceholder && select2.selection.$search) {
+                const selection = select2.selection;
+                const applySearchPlaceholder = () => {
+                    // Select2 clears the search placeholder whenever the selection changes.
+                    selection.$search.attr('placeholder', searchPlaceholder);
+                    selection.resizeSearch();
+                };
+
+                // Keep enough room beside chips for the hint, bounded by the control width.
+                selection.$searchContainer.css({ minWidth: `min(100%, ${searchPlaceholder.length + 1}ch)`, maxWidth: '100%' });
+                select2.on('selection:update', applySearchPlaceholder);
+                applySearchPlaceholder();
+            }
 
             if (sel.prop("multiple") && select2.options.get("tags")) {
                 sel.on("select2:select", (e) => {

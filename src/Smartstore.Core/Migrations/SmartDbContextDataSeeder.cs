@@ -96,6 +96,8 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
     public void MigrateLocaleResources(LocaleResourcesBuilder builder)
     {
+        builder.AddOrUpdate("Common.Select.AddPlaceholder", "＋ Add…", "＋ Hinzufügen…");
+
         builder.AddOrUpdate("Enums.QuantizationMethod.Octree", "Hexadecatree (formerly Octree)", "Hexadecatree (vormals Octree)");
         builder.AddOrUpdate("Enums.JpegColorType.YCbCrRatio422", "YCbCr 4:2:2", "YCbCr 4:2:2");
         builder.AddOrUpdate("Enums.JpegColorType.YCbCrRatio411", "YCbCr 4:1:1", "YCbCr 4:1:1");

@@ -3,6 +3,7 @@
 <select asp-for="@Model"
         class="edit-control form-control-sm"
         data-editor="select"
+        data-icon="customer-roles"
         v-bind:data-select-selected-id="item.value"
         v-bind:data-select-init-text="item.row.CustomerRole"
         data-placeholder='@T("Admin.Catalog.Products.TierPrices.Fields.CustomerRole.AllRoles")'
