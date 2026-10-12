@@ -359,6 +359,8 @@
 }
 
 .art-btn-group {
+    --icon-size: 20px;
+
     margin: 0;
 
     .art-btn {
@@ -374,7 +376,7 @@
         }
 
         &.btn-secondary {
-            color: #666;
+            color: var(--gray-800);
         }
     }
 }

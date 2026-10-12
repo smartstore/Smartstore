@@ -413,7 +413,7 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 | `fa fa-quote-left` | `quote` | `quotes` |
 | `fa fa-recycle` | `recycle-01` | `recycle` |
 | `fa fa-redo` | `redo-02` | `redo` |
-| `fa fa-rotate`<br>`fa fa-sync` | `refresh` | `refresh` |
+| `fa fa-rotate`<br>`fa fa-sync` | `refresh-01` | `refresh` |
 | `fa fa-retweet` | `repeat` | `repeat` |
 | `fa fa-reply` | `reply` | `reply` |
 | `fa fa-reply-all`<br>`fal fa-reply-all` | `reply-all` | `reply-all` |
