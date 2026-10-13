@@ -25,7 +25,7 @@ SVG content, discovery and metadata conventions.
 
 - hierarchy-square-02.svg: derived from the archived HI drawing with three lower
   nodes instead of two. The lower nodes retain the original rounded contour at a
-  smaller size; the top node and 1.5-unit stroke are preserved. Used by sitemap.
+  smaller size; the top node and 1.5-unit stroke are preserved. Used by nodes.
 
 - row-insert.svg and column-insert.svg: retain the archived HI contours and middle
   arrow, with a dashed top row or left column marking the existing block.

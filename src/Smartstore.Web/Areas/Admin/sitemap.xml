@@ -6,7 +6,7 @@
         <siteMapNode id="dashboard" title="Dashboard" resKey="Admin.Dashboard" controller="Home" action="Index" area="Admin" icon="home" />
 
         <siteMapNode id="catalog" title="Catalog" resKey="Admin.Catalog" icon="catalog" permissionNames="catalog.product, catalog.productreview, catalog.category, catalog.manufacturer, catalog.variant, catalog.attribute, cart.checkoutattribute, system.rule">
-            <siteMapNode id="categories-list" icon="sitemap" title="List" resKey="Admin.Catalog.Categories" controller="Category" action="Index" area="Admin" permissionNames="catalog.category" />
+            <siteMapNode id="categories-list" icon="nodes" title="List" resKey="Admin.Catalog.Categories" controller="Category" action="Index" area="Admin" permissionNames="catalog.category" />
             <siteMapNode id="products" icon="box" title="Manage products" resKey="Admin.Catalog.Products.Manage" controller="Product" action="List" area="Admin" permissionNames="catalog.product" />
             <siteMapNode id="product-rules" icon="hi:filter-edit" title="Product rules" resKey="Common.ProductRules" permissionNames="system.rule" controller="Rule" action="ProductRules" area="Admin" />
             <siteMapNode id="reviews" icon="star-half" title="Product reviews" resKey="Admin.Catalog.ProductReviews" controller="ProductReview" action="List" area="Admin" permissionNames="catalog.productreview" />

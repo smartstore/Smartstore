@@ -431,7 +431,7 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 | `far fa-share-square` | `share-01` | `share-square` |
 | `fas fa-shield-halved` | `shield-half` | `shield-half` |
 | `fa fa-signal` | `signal-full-02` | `signal` |
-| `fa fa-sitemap` | `bi:diagram-3` | `sitemap` |
+| `fa fa-sitemap` | `bi:diagram-3` | `nodes` |
 | `fa fa-sliders-h` | `sliders-horizontal` | `sliders` |
 | `fa fa-spinner`<br>`fas fa-spinner` | `loader-circle` | `spinner` |
 | `far fa-square`<br>`fa fa-stop`<br>`fas fa-stop` | `square` | `square` |
@@ -565,7 +565,7 @@ variants no longer exist. See the [BI import recipe](bootstrap/README.md).
 | `send` | `sent` | `send` |
 | `shield` | `shield-01` | `shield` |
 | `shuffle` | `shuffle` | `shuffle` |
-| `diagram-3` | `bi:diagram-3` | `sitemap` |
+| `diagram-3` | `bi:diagram-3` | `nodes` |
 | `sliders` | `sliders-horizontal` | `sliders` |
 | `sliders2-vertical` | `sliders-vertical` | `sliders-v` |
 | `sort-down-alt` | `sorting-02` | `sort-down` |
@@ -903,8 +903,8 @@ callers use them independently of MediaManager.
 | Smartstore.CartApproval | public kit | `cart-approved` |
 | Smartstore.CartApprovalWithBudget | public kit | `cart-approved` |
 | Smartstore.EventFlow | shared collection | `event-flow`, `ticket-scan`, `ticket-holder`, `ticket-valid` |
-| Smartstore.Homepage | public kit | `feature-catalog`, `feature-payment`, `feature-shipping`, `feature-security`, `feature-performance`, `chart-bar`, `discount`, `user-group`, `megaphone`, `sitemap`, `globe`, `images`, `chart-up`, `palette` |
-| Smartstore.Themes.HP | public kit | `feature-catalog`, `feature-payment`, `feature-shipping`, `feature-security`, `feature-performance`, `chart-bar`, `discount`, `user-group`, `megaphone`, `sitemap`, `globe`, `images`, `chart-up`, `palette` |
+| Smartstore.Homepage | public kit | `feature-catalog`, `feature-payment`, `feature-shipping`, `feature-security`, `feature-performance`, `chart-bar`, `discount`, `user-group`, `megaphone`, `nodes`, `globe`, `images`, `chart-up`, `palette` |
+| Smartstore.Themes.HP | public kit | `feature-catalog`, `feature-payment`, `feature-shipping`, `feature-security`, `feature-performance`, `chart-bar`, `discount`, `user-group`, `megaphone`, `nodes`, `globe`, `images`, `chart-up`, `palette` |
 | Smartstore.Themes.HP | admin kit | `hp-home`, `hp-features` |
 | Smartstore.TyreCommerce | admin kit | `tire` |
 | Smartstore.TyreCommerce | public kit | `tyre-summer`, `tyre-winter`, `tyre-all-season`, `tyre-offroad`, `tyre-season-unknown`, `tyre-efficiency`, `tyre-wet-grip`, `tyre-noise` |

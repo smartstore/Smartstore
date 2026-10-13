@@ -31,7 +31,7 @@ public partial class DefaultLinkProvider : ILinkProvider
         return new[]
         {
             new LinkBuilderMetadata { Schema = SchemaProduct, Icon = "box", ResKey = "Common.Entity.Product" },
-            new LinkBuilderMetadata { Schema = SchemaCategory, Icon = "sitemap", ResKey = "Common.Entity.Category" },
+            new LinkBuilderMetadata { Schema = SchemaCategory, Icon = "nodes", ResKey = "Common.Entity.Category" },
             new LinkBuilderMetadata { Schema = SchemaManufacturer, Icon = "building", ResKey = "Common.Entity.Manufacturer" },
             new LinkBuilderMetadata { Schema = SchemaTopic, Icon = "file-pen", ResKey = "Common.Entity.Topic" },
         };

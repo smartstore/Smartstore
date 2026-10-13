@@ -24,7 +24,7 @@ public sealed class BlockAttribute : Attribute
     public string FriendlyName { get; set; }
 
     /// <summary>
-    /// The icon concept or explicit library address of the block, e.g. 'sitemap' or 'fa:music!/s'.
+    /// The icon concept or explicit library address of the block, e.g. 'nodes' or 'fa:music!/s'.
     /// </summary>
     public string Icon { get; set; }
 

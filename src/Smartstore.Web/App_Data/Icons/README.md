@@ -500,7 +500,7 @@ Dynamic matches retain the original definition and use its `IconArea` during Sas
 
 The public kit uses Bootstrap sources for `phone` (`bi:telephone`) and
 `plus-circle`; the admin kit uses them for `box`, `braces-asterisk`, `exclamation`
-and `sitemap`.
+and `nodes`.
 Callers continue to use the public concept names. HI mappings remain available
 for explicit HI requests.
 
