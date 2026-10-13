@@ -31,6 +31,20 @@ public class IconServiceTests
 {
     private readonly List<IContainer> _providerContainers = [];
 
+    [Test]
+    public async Task Uninstalled_Application_Loads_Local_Icons_Without_Provider_Discovery()
+    {
+        _context.SetupGet(x => x.IsInstalled).Returns(false);
+        _context.SetupGet(x => x.TypeScanner).Throws(new InvalidOperationException("Provider discovery is unavailable during installation."));
+
+        var icon = await _service.GetIconAsync("hi:cart-01!/sr");
+        var svg = await _service.GetSvgAsync(icon);
+
+        Assert.That(svg, Is.Not.Null);
+        _context.VerifyGet(x => x.TypeScanner, Times.Never);
+        _context.VerifyGet(x => x.Services, Times.Never);
+    }
+
     private IconService CreateProviderService(IIconProvider provider)
     {
         var containerBuilder = new ContainerBuilder();
@@ -42,6 +56,7 @@ public class IconServiceTests
         var context = new Mock<IApplicationContext>();
         context.SetupGet(x => x.AppDataRoot).Returns(_context.Object.AppDataRoot);
         context.SetupGet(x => x.ContentRoot).Returns(_context.Object.ContentRoot);
+        context.SetupGet(x => x.IsInstalled).Returns(true);
         context.SetupGet(x => x.TypeScanner).Returns(scanner.Object);
         context.SetupGet(x => x.Services).Returns(container);
         return new IconService(context.Object, _cache.Object, new IconAreaResolver(), new HttpContextAccessor(), _options, _sourceFiles);
@@ -849,6 +864,7 @@ public class IconServiceTests
         _sourceFiles = files.Object;
         _options = Options.Create(new IconKitOptions { SourcePath = Path.Combine(_root, "Icons"), CachePath = Path.Combine(_root, ".cache", "icons") });
         _context = new Mock<IApplicationContext>();
+        _context.SetupGet(x => x.IsInstalled).Returns(true);
         _context.SetupGet(x => x.TypeScanner).Returns(NullTypeScanner.Instance);
         _context.SetupGet(x => x.AppDataRoot).Returns(files.Object);
         var appFiles = new Mock<IFileSystem>();

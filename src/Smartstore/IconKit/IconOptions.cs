@@ -13,6 +13,11 @@ public sealed class IconOptions : ICloneable<IconOptions>
     /// </summary>
     public string? Area { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether to embed the drawing even when a kit sprite is available.
+    /// </summary>
+    public bool ForceInline { get; set; }
+
     private Dictionary<string, string> _attributes = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>

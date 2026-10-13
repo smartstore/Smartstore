@@ -75,8 +75,7 @@ NavigationItemTests passed all six cases covering address precedence, initialize
 order and empty/legacy inputs. Private module projects and browser appearance have
 not been verified by a build or visual run in this step.
 
-The admin sitemap root nodes retain their original Fontastic (`icm`) icons and
-legacy rendering by request. Only their descendants participate in this migration.
+Admin sitemap root nodes now use SVG concepts; the legacy menu rendering branch has been removed.
 
 The final Debug build of Smartstore.sln passed with zero warnings and zero errors,
-including the root-node exception and conditional attribute changes.
+including the conditional attribute changes.

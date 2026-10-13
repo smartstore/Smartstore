@@ -89,7 +89,6 @@
     
     <!-- Don't publish static/raw files -->
 	<ItemGroup>
-        <Content Remove="wwwroot\lib\fontastic\icomoon\**" CopyToPublishDirectory="Never" />
         <Content Remove="wwwroot\exchange\**" CopyToPublishDirectory="Never" />
         <Content Remove="wwwroot\.well-known\**" CopyToPublishDirectory="Never" />
         <Content Remove="wwwroot\css\compiled\**" CopyToPublishDirectory="Never" />

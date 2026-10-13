@@ -41,14 +41,7 @@
             <a class="nav-link@(node.HasChildren ? " dropdown-toggle" : "")" href="@itemUrl" attr-data-toggle='(node.HasChildren, "dropdown")'>
                 @if (item.Icon.HasValue())
                 {
-                    if (item.Icon.StartsWith("icm ", StringComparison.Ordinal))
-                    {
-                        <i class="@item.Icon navbar-icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)'></i>
-                    }
-                    else
-                    {
-                        <icon name="@item.Icon" class="navbar-icon" stroke-scale="0.85" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
-                    }
+                    <icon name="@item.Icon" class="navbar-icon" stroke-scale="0.85" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
                 }
                 else
                 {

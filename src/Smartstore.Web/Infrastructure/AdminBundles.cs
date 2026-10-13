@@ -27,7 +27,6 @@ internal class AdminBundles : IBundleProvider
         /* Admin Common CSS --> /bundle/css/admin-common.css
         -----------------------------------------------------*/
         bundles.Add(new StyleBundle("/bundle/css/admin-common.css").Include(
-            lib + "fontastic/fontastic.css",
             lib + "fa7/css/all.css",
             lib + "pnotify/css/pnotify.css",
             lib + "pnotify/css/pnotify.mobile.css",

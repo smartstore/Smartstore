@@ -111,10 +111,10 @@
         <Value>Installation</Value>
     </LocaleResource>
     <LocaleResource Name="Tooltip1">
-        <Value>Smartstore is a powerful e-commerce solution for companies of any size. This wizard will guide you through the process of configuring Smartstore</Value>
+        <Value>Welcome to Smartstore! This wizard helps you set up your store. Create your administrator account and choose the appropriate database and basic settings</Value>
     </LocaleResource>
     <LocaleResource Name="Tooltip2">
-        <Value>To complete this wizard, you must know some information regarding your database server ("connection string"). Please contact your ISP if necessary. If you're installing on a local machine or server, you might need information from your System Admin</Value>
+        <Value>Depending on your database system, you may need the credentials for your database server. If you do not have them, contact your hosting provider or IT administrator for assistance</Value>
     </LocaleResource>
     <LocaleResource Name="UseIntegratedAuthentication">
         <Value>Use integrated Windows authentication</Value>

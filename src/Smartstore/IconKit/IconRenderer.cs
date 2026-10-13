@@ -36,7 +36,7 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
 
         // Kit symbols already contain mapping transforms. Replacing one requires the
         // original source, not another transform around the existing symbol.
-        var reference = icon.RequiresInline || transform != icon.Transform || strokeScale != icon.StrokeScale
+        var reference = options?.ForceInline == true || icon.RequiresInline || transform != icon.Transform || strokeScale != icon.StrokeScale
             ? null
             : kits.GetReference(icon);
         var svg = new TagBuilder("svg");

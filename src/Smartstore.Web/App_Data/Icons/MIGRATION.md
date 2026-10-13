@@ -705,8 +705,7 @@ remain literal HugeIcons stroke-rounded proposals. Qualified addresses use norma
 icon resolution. The optional HI font comparison is hidden for other libraries,
 query modifiers or unavailable font glyphs; it never blocks a valid SVG preview.
 
-The admin sitemap root nodes retain their original Fontastic (`icm`) icons and
-legacy rendering by request. Only their descendants participate in this migration.
+Admin sitemap root nodes now use SVG concepts; the legacy menu rendering branch has been removed.
 
 
 ## RTL concept policy
@@ -1069,3 +1068,24 @@ Smartstore still renders SVG icons and does not import this font.
 - Moved the SVG foundation to Smartstore/IconKit (namespace Smartstore.IconKit). Added AddIconKit options for source/cache paths and route prefix, a dedicated IconKitStarter, and MapIconKit endpoints replacing IconController. Source data remains in App_Data/Icons; module providers, Razor imports and tests use the new namespace.
 
 - Providers can contribute private drawings with AddSvg and AddSvgFile on kits or collections. File arguments use ~/ application paths and are read lazily without file watching. Existing SVG parsing, cache revisions, sprites and provider indicators are reused; no public library or stroke-scaling option is added.
+
+## Checkout progress icons
+
+- Replaced font-based pseudo-elements with server-rendered kit icons: cart, home,
+  truck, creditcard, thumbs-up and check. Icons are 24px and hidden below sm;
+  existing progress circles and state colors are preserved.
+- Moved creditcard from admin into shared for both public and admin sprites.
+
+- Password recovery now renders mail-open through the icon TagHelper instead of
+  the legacy icon font. Moved mail-open from admin into shared for public sprite availability.
+
+- Installation uses explicit HI stroke-rounded addresses with mapping bypass in
+  server-rendered icon TagHelpers. Removed its legacy icon stylesheet; the existing
+  FA password visibility toggle and its stylesheet remain unchanged.
+
+- Installation explicitly enables IconTagHelper and AttributesTagHelper in its
+  restricted Razor imports. All install icons force inline rendering to avoid
+  sprite requests being redirected by the installation middleware.
+
+- Removed the unused legacy icon font assets, bundle/report imports, Sass utilities,
+  mixin and project exclusion after migrating all remaining callers to IconKit.

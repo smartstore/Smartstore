@@ -48,6 +48,11 @@ public sealed partial class IconService(IApplicationContext applicationContext, 
 
     private IEnumerable<IIconProvider> CreateProviders()
     {
+        if (!applicationContext.IsInstalled)
+        {
+            yield break;
+        }
+
         var types = applicationContext.TypeScanner.FindTypes<IIconProvider>()
             .OrderBy(x => x.FullName, StringComparer.Ordinal).ToArray();
         if (types.Length == 0)

@@ -22,6 +22,35 @@ namespace Smartstore.Web.Tests.Common.TagHelpers;
 [TestFixture]
 public class IconTagHelperTests
 {
+    [Test]
+    public async Task Force_Inline_Icon_Does_Not_Request_A_Kit_Reference()
+    {
+        var icon = new IconInfo { Name = "database", LibraryName = "hugeicons", VariantName = "stroke-rounded" };
+        var service = new Mock<IIconService>();
+        service.Setup(x => x.GetIconAsync("hi:database!/sr", null, null, null, It.IsAny<CancellationToken>())).ReturnsAsync(icon);
+        service.Setup(x => x.GetSvgAsync(icon, It.IsAny<CancellationToken>())).ReturnsAsync(new IconSvg
+        {
+            ViewBox = "0 0 24 24",
+            Content = "<path d=\"M0 0L1 1\" />"
+        });
+        var kits = new Mock<IIconKitService>(MockBehavior.Strict);
+        var helper = new TestIconTagHelper(service.Object, new IconRenderer(service.Object, kits.Object))
+        {
+            Name = "hi:database!/sr",
+            ForceInline = true,
+            ViewContext = new ViewContext { HttpContext = new DefaultHttpContext() }
+        };
+        var attributes = new TagHelperAttributeList { { "force-inline", true } };
+        var context = new TagHelperContext(attributes, new Dictionary<object, object>(), "test");
+        var output = new TagHelperOutput("icon", attributes, (_, _) => Task.FromResult<TagHelperContent>(new DefaultTagHelperContent()));
+
+        await helper.ProcessAsync(context, output);
+
+        Assert.That(output.Content.GetContent(), Does.Contain("<path").And.Not.Contain("<use"));
+        Assert.That(output.Attributes.ContainsName("force-inline"), Is.False);
+        kits.VerifyNoOtherCalls();
+    }
+
     /// <summary>
     /// Skips resolution when the cheatsheet selects another library through sm-if.
     /// </summary>

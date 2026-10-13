@@ -141,11 +141,3 @@ _Bootstrap Icons_ is only available in Smartstore's backend, as the CSS for the 
 {% hint style="info" %}
 For more information, see [Bootstrap Icons](https://icons.getbootstrap.com/).
 {% endhint %}
-
-### Fontastic
-
-We’ve used Fontastic to integrate a special selection of icons that are relevant to e-commerce.
-
-{% hint style="info" %}
-A full list of all available icons can be found in [fontastic.css](../../../src/Smartstore.Web/wwwroot/lib/fontastic/fontastic.css).
-{% endhint %}

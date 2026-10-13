@@ -112,15 +112,6 @@
     }
 }
 
-@mixin fontastic($content, $size: 20px) {
-    display: inline-block;
-    font: normal normal normal 16px/1 'fontastic';
-    font-size: $size;
-    speak: none;
-    text-transform: none;
-    content: $content;
-}
-
 // Accept an icon address or a CSS variable containing a prepared mask.
 // icon-url is supplied by the server-side Sass compiler.
 @mixin icon-mask($address, $size: 1em) {

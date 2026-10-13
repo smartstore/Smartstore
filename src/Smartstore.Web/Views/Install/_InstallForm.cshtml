@@ -16,33 +16,34 @@
 
 <header id="header">
     <nav id="navbar" class="navbar navbar-dark navbar-expand-sm content p-0">
-        <a class="navbar-brand mx-0 mr-3" href="https://www.smartstore.com">
+        <a class="navbar-brand d-flex align-items-center mx-0 mr-3" href="https://www.smartstore.com">
             <img class="navbar-img" src="~/images/smartstore.svg" alt="Smartstore" />
         </a>
-        <div class="navbar-text h5 p-0 m-0 pl-1" style="height: 20px; vertical-align: bottom">
+        <div class="navbar-text h5 p-0 m-0 pl-1" style="transform: translateY(3px)">
             @T("Title")
         </div>
 
         <div class="collapse navbar-collapse ml-auto">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle navbar-tool" href="javascript:void(0)" title="Deutsch" data-toggle="dropdown" style="max-width: none">
-                        <i class="icm icm-earth navbar-icon pr-1"></i>
+                    <a class="nav-link dropdown-toggle navbar-tool rounded my-2" href="javascript:void(0)" title="Deutsch" data-toggle="dropdown" style="max-width: none">
+                        <icon force-inline="true" name="hi:earth!/sr" class="navbar-icon pr-1" />
                         <span style="text-transform: uppercase">@availableLanguages.First(x => x.Selected).Text</span>
+                        <icon force-inline="true" name="hi:chevron-down!/sr" class="ml-1" />
                     </a>
                     <div class="dropdown-menu dropdown-menu-right">
                         @foreach (var lang in availableLanguages)
                         {
                             <a class="dropdown-item" href="@lang.Value">
-                                <i class="icm icm-check@(!lang.Selected ? " invisible" : "")"></i>
+                                <icon force-inline="true" name="hi:check!/sr" attr-class='(!lang.Selected, "invisible")' />
                                 <span>@lang.Text</span>
                             </a>
                         }
                     </div>
                 </li>
                 <li class="nav-item">
-                    <a id="restart-install" class="nav-link navbar-tool" href="javascript:;" title="@T("RestartInstallation")" rel="nofollow">
-                        <i class="icm icm-refresh navbar-icon"></i>
+                    <a id="restart-install" class="nav-link navbar-tool rounded my-2" href="javascript:;" title="@T("RestartInstallation")" rel="nofollow">
+                        <icon force-inline="true" name="hi:database-restore!/sr" class="navbar-icon" />
                     </a>
                 </li>
             </ul>
@@ -66,11 +67,8 @@
                         <div asp-validation-summary="All"></div>
                     }
 
-                    <p class="fs-h6 text-muted">
-                        @T("Tooltip1").
-                    </p>
                     <p class="fs-h6 text-muted mb-5">
-                        @T("Tooltip2").
+                        @T("Tooltip1").
                     </p>
 
                     <!-- GENERAL -->
@@ -106,6 +104,9 @@
                         <div class="heading mb-3">
                             <h2 class="heading-title text-muted">@T("DatabaseInformation")</h2>
                         </div>
+                        <div class="alert alert-info">
+                            @T("Tooltip2").
+                        </div>
                         <div class="form-group row">
                             <label class="col-md-3 col-form-label" asp-for="DataProvider">@T("DbSystem")</label>
                             <div class="col-md-9">
@@ -135,14 +136,14 @@
                                             <div id="DbServerCol" class="col">
                                                 <div class="has-icon">
                                                     <input asp-for="DbServer" class="form-control remember" placeholder="@T("DbServer")" />
-                                                    <span class="input-group-icon text-muted"><i class="icm icm-server" style="line-height: inherit"></i></span>
+                                                    <span class="input-group-icon text-muted"><icon force-inline="true" name="hi:server!/sr" /></span>
                                                 </div>
                                                 <span asp-validation-for="DbServer"></span>
                                             </div>
                                             <div class="col">
                                                 <div class="has-icon">
                                                     <input asp-for="DbName" class="form-control remember" placeholder="@T("DbName")" />
-                                                    <span class="input-group-icon text-muted"><i class="icm icm-database" style="line-height: inherit"></i></span>
+                                                    <span class="input-group-icon text-muted"><icon force-inline="true" name="hi:database!/sr" /></span>
                                                 </div>
                                                 <span asp-validation-for="DbName"></span>
                                             </div>
@@ -167,7 +168,7 @@
                                                 <div class="col">
                                                     <div class="has-icon">
                                                         <input asp-for="DbUserId" class="form-control remember" placeholder="@T("DbUserId")" />
-                                                        <span class="input-group-icon text-muted"><i class="icm icm-user" style="line-height: inherit"></i></span>
+                                                        <span class="input-group-icon text-muted"><icon force-inline="true" name="hi:user-02!/sr" /></span>
                                                     </div>
                                                     <span asp-validation-for="DbUserId"></span>
                                                 </div>
@@ -177,7 +178,7 @@
                                                         <button type="button" class="btn-toggle-pwd" tabindex="-1">
                                                             <i class="far fa-fw fa-eye-slash"></i>
                                                         </button>
-                                                        <span class="input-group-icon text-muted"><i class="icm icm-shield" style="line-height: inherit"></i></span>
+                                                        <span class="input-group-icon text-muted"><icon force-inline="true" name="hi:shield-01!/sr" /></span>
                                                     </div>
                                                     <span asp-validation-for="DbPassword"></span>
                                                 </div>
@@ -276,7 +277,7 @@
                                 </ul>
                             </div>
                             <button type="submit" id="install-button" class="btn btn-primary btn-lg btn-block btn-install fs-h4 font-weight-normal">
-                                <i class="icm icm-download2"></i>
+                                <icon force-inline="true" name="hi:installing-updates-01!/sr" />
                                 <span>@T("Install")</span>
                             </button>
                         </div>

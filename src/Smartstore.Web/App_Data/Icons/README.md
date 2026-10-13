@@ -1516,3 +1516,10 @@ The foundation still uses Smartstore's cache and provider discovery infrastructu
 GET/HEAD support for revisioned files, ETags and cache headers. The `IconKit.Browse`
 endpoint name supplies the picker's search URL. Client-side rendering derives its
 endpoint from the manifest URL, so a custom prefix also applies to `sm-icon`.
+
+Use `<icon name="hi:database!/sr" force-inline="true" />` (or `IconOptions.ForceInline`)
+to embed a drawing even when a matching kit symbol exists. This is useful during
+installation, where external sprite endpoints are redirected to the setup page.
+The `!` address suffix only bypasses mapping; it does not force inline rendering.
+Provider discovery is skipped while `IApplicationContext.IsInstalled` is false;
+local library and kit definitions remain available during installation.

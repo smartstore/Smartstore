@@ -48,7 +48,6 @@ internal class PublicBundles : IBundleProvider
         /* Public Common CSS --> /bundle/css/site-common.css
         -----------------------------------------------------*/
         bundles.Add(new StyleBundle("/bundle/css/site-common.css").Include(
-            lib + "fontastic/fontastic.css",
             lib + "pnotify/css/pnotify.css",
             lib + "pnotify/css/pnotify.mobile.css",
             lib + "pnotify/css/pnotify.buttons.css"));

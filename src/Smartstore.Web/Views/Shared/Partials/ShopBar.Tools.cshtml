@@ -38,7 +38,7 @@
            data-target="#offcanvas-menu"
            aria-controls="offcanvas-menu">
             <span class="shopbar-button-icon" aria-hidden="true">
-                <i class="icm icm-menu"></i>
+                <icon name="bars" stroke-scale="0.85" />
             </span>
             <span class="shopbar-button-label-sm">
                 @T("Common.Menu")
@@ -52,7 +52,7 @@
     <div class="shopbar-tool d-lg-none" id="shopbar-user">
         <a class="shopbar-button" href="@accountUrl" rel="nofollow">
             <span class="shopbar-button-icon" aria-hidden="true">
-                <i class="icm icm-user"></i>
+                <icon name="user" stroke-scale="0.85" />
             </span>
             <span class="shopbar-button-label-sm">
                 @T(Model.IsAuthenticated ? "Account.MyAccount" : "Account.Login")
@@ -63,7 +63,7 @@
     <div sm-if="Model.CompareProductsEnabled" class="shopbar-tool" id="shopbar-compare" data-target="#compare-tab">
         <a asp-action="CompareProducts" asp-controller="Catalog" asp-area="" attrs="cartTogglerAttributes" data-summary-href="@Url.Action("CartSummary", "ShoppingCart", new { compare = true })">
             <span class="shopbar-button-icon" aria-hidden="true">
-                <i class="icm icm-repeat"></i>
+                <icon name="compare" stroke-scale="0.85" />
                 <span class='@badgeCssClasses' attr-style='(Model.CompareItemsCount == 0, "display: none")' data-bind-to="CompareItemsCount">
                     @Model.CompareItemsCount
                 </span>
@@ -81,7 +81,7 @@
     <div sm-if="Model.WishlistEnabled" class="shopbar-tool" id="shopbar-wishlist" data-target="#wishlist-tab">
         <a asp-route="Wishlist" attrs="cartTogglerAttributes" data-summary-href="@Url.Action("CartSummary", "ShoppingCart", new { wishlist = true })">
             <span class="shopbar-button-icon" aria-hidden="true">
-                <i class="icm icm-heart"></i>
+                <icon name="heart" stroke-scale="0.85" />
                 <span class='@badgeCssClasses' attr-style='(Model.WishlistItemsCount == 0, "display: none")' data-bind-to="WishlistItemsCount">
                     @Model.WishlistItemsCount
                 </span>
@@ -99,7 +99,7 @@
     <div sm-if="Model.ShoppingCartEnabled" class="shopbar-tool" id="shopbar-cart" data-target="#cart-tab">
         <a asp-route="ShoppingCart" attrs="cartTogglerAttributes" data-summary-href="@Url.Action("CartSummary", "ShoppingCart", new { cart = true })">
             <span class="shopbar-button-icon" aria-hidden="true">
-                <i class="icm icm-bag"></i>
+                <icon name="cart" stroke-scale="0.85" />
                 <span class='@badgeCssClasses' attr-style='(Model.CartItemsCount == 0, "display: none")' data-bind-to="CartItemsCount">
                     @Model.CartItemsCount
                 </span>

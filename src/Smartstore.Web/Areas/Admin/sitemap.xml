@@ -3,10 +3,6 @@
 
     <siteMapNode id="home" title="Home" controller="Home" action="Overview" area="Admin">
 
-        <!--
-        Root nodes retain Fontastic icons; child nodes use concepts or qualified SVG addresses.
-        -->
-
         <siteMapNode id="dashboard" title="Dashboard" resKey="Admin.Dashboard" controller="Home" action="Index" area="Admin" icon="home" />
 
         <siteMapNode id="catalog" title="Catalog" resKey="Admin.Catalog" icon="catalog" permissionNames="catalog.product, catalog.productreview, catalog.category, catalog.manufacturer, catalog.variant, catalog.attribute, cart.checkoutattribute, system.rule">

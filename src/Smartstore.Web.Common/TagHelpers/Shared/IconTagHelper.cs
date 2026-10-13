@@ -226,6 +226,12 @@ public class IconTagHelper : IconTagHelperBase
     [HtmlAttributeName("area")]
     public string Area { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether to embed the drawing instead of referencing a kit sprite.
+    /// </summary>
+    [HtmlAttributeName("force-inline")]
+    public bool ForceInline { get; set; }
+
     const string NameAttributeName = "name";
     const string LibraryAttributeName = "lib";
     const string VariantAttributeName = "variant";
@@ -266,6 +272,8 @@ public class IconTagHelper : IconTagHelperBase
         // selectors as omitted so configured defaults and qualified names still apply.
         var options = CreateOptions(output);
         options.Area = Area.NullEmpty();
+        options.ForceInline = ForceInline;
+        options.Attributes.Remove("force-inline");
         options.Attributes.Remove("area");
         options.StrokeScale = StrokeScale;
         options.Attributes.Remove(NameAttributeName);

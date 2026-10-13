@@ -83,13 +83,12 @@
     min-width: 60px;
 
     .shopbar-button-icon {
+        --icon-size: 24px;
         font-size: 20px;
         line-height: 1;
         width: 1.25em;
         height: 1.25em;
         text-align: center;
-
-        > i { font-size: inherit !important; }
     }
 
     .shopbar-button-label-sm {
@@ -105,7 +104,10 @@
 
     @include media-breakpoint-up(lg) {
         height: $input-height;
-        .shopbar-button-icon { font-size: 28px; }
+        .shopbar-button-icon {
+            --icon-size: 28px;
+            font-size: 28px;
+        }
     }
 }
 
@@ -124,6 +126,10 @@
 
     .shopbar-button {
         text-align: center;
+
+        .shopbar-button-icon > .icon {
+            --icon-stroke-scale: 0.75 !important;
+        }
 
         .shopbar-button-label {
             display: none !important;
