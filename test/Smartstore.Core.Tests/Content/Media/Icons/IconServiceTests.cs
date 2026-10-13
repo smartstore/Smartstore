@@ -840,14 +840,8 @@ public class IconServiceTests
     [SetUp]
     public void SetUp()
     {
-        var directory = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
-        while (directory != null && !File.Exists(Path.Combine(directory.FullName, "Smartstore.Full.sln")))
-        {
-            directory = directory.Parent;
-        }
-
-        Assert.That(directory, Is.Not.Null);
-        _root = Path.Combine(directory.FullName, ".temp", "icon-api", "tests", Guid.NewGuid().ToString("N"));
+        // The fixture owns its files and does not require a source checkout or private workspace.
+        _root = Path.Combine(TestContext.CurrentContext.TestDirectory, ".temp", "icon-api", "tests", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_root);
         _provider = new PhysicalFileProvider(_root);
         _changes = new CancellationTokenSource();

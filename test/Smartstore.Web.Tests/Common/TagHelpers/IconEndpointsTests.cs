@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,11 +25,12 @@ public class IconEndpointsTests
     public async Task Manifest_Uses_Immutable_Physical_File()
     {
         var kits = new Mock<IIconKitService>();
+        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "cache", "manifest.json");
         var revision = new string('a', 24);
-        kits.Setup(x => x.GetManifestFileAsync(revision, It.IsAny<CancellationToken>())).ReturnsAsync("C:/cache/manifest.json");
+        kits.Setup(x => x.GetManifestFileAsync(revision, It.IsAny<CancellationToken>())).ReturnsAsync(path);
         var controller = Create(kits.Object, Mock.Of<IIconService>(), Mock.Of<IIconRenderer>());
         var result = (PhysicalFileHttpResult)await controller.Manifest(revision, default);
-        Assert.That(result.FileName, Is.EqualTo("C:/cache/manifest.json"));
+        Assert.That(result.FileName, Is.EqualTo(path));
         Assert.That(result.ContentType, Is.EqualTo("application/json"));
         Assert.That(result.EntityTag.ToString(), Is.EqualTo('"' + revision + '"'));
         Assert.That(controller.Response.Headers.CacheControl.ToString(), Does.Contain("immutable"));
@@ -88,11 +90,12 @@ public class IconEndpointsTests
     public async Task Browser_Sprite_Uses_Immutable_Physical_File()
     {
         var browser = new Mock<IIconBrowser>();
+        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "cache", "browser.svg");
         var revision = new string('a', 24);
-        browser.Setup(x => x.GetSpriteFileAsync("hi", "sr", revision, It.IsAny<CancellationToken>())).ReturnsAsync("C:/cache/browser.svg");
+        browser.Setup(x => x.GetSpriteFileAsync("hi", "sr", revision, It.IsAny<CancellationToken>())).ReturnsAsync(path);
         var controller = new IconEndpoints(new DefaultHttpContext(), Mock.Of<IIconKitService>(), Mock.Of<IIconService>(), Mock.Of<IIconRenderer>(), browser.Object);
         var result = (PhysicalFileHttpResult)await controller.BrowserSprite("hi", "sr", revision, default);
-        Assert.That(result.FileName, Is.EqualTo("C:/cache/browser.svg"));
+        Assert.That(result.FileName, Is.EqualTo(path));
         Assert.That(result.EntityTag.ToString(), Is.EqualTo('"' + revision + '"'));
         Assert.That(controller.Response.Headers.CacheControl.ToString(), Does.Contain("immutable"));
         Assert.That(await controller.BrowserSprite("hi", "sr", new string('b', 24), default), Is.TypeOf<NotFound>());
