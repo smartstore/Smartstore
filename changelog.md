@@ -28,6 +28,11 @@
 - **AI**
   - Added configurable **reasoning effort levels** for supported AI models across providers, including model-specific defaults and automatic persistence of user selections.
 - **Theming**
+  - Added four new Flex themes:
+    - **Sorbet:** Warm porcelain, aubergine and botanical accents with serif headings.
+    - **Tidal:** Atlantic blue, coral accents and crisp white surfaces.
+    - **Afterglow:** A dark graphite theme with mint, orchid and apricot accents.
+    - **Lumen:** Bright white with iris-blue, lavender and petrol accents.
   - `.scroll-fade`: reusable responsive edge fades for horizontal and vertical scroll containers.
 - #1530 If a product is subsequently added to an order, update all price input controls with the price of the selected attribute combination.
 - Automated tax and total calculations now ensure that gross and net prices, as well as line and order totals, update instantly when editing orders or order items.
@@ -47,6 +52,8 @@
   - A whitelisted IP address was still blocked when its country was blocked, although IP addresses take precedence.
   - Literal IP addresses are matched directly instead of by regex, which makes large lists cheap.
 - **Theming**: 
+  - Refreshed **Black** and **Blue** with refined palettes, typography and controls, preserving Black's boxed layout and Blue's signature blue header.
+  - Improved the **theme selector** with a responsive card grid, larger 4:3 previews and localized descriptions.
   - **Engine:**
     - Replaced `LibSass/SharpScss` with native embedded `Dart Sass`. In internal tests, Sass compilation was slightly faster than LibSass. The compiler starts on demand; a new theme setting can keep it in memory during active Sass editing for faster repeated compilations.
     - Replaced CSS minification and the JavaScript-based `Autoprefixer` with native `Lightning CSS` for minification, optimization and browser-targeted transpilation. Internal tests showed substantially faster CSS minification and transpilation; the CSS pipeline no longer requires `ClearScript` or `JavaScriptEngineSwitcher`.
