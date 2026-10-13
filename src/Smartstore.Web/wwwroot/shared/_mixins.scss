@@ -6,6 +6,14 @@
 // Mixins
 // ========================================================================
 
+// Repeating checkerboard background; size is the edge length of one square.
+@mixin bg-checkerboard($size: 8px, $foreground: #d9d9d9, $background: #fff) {
+    background-color: $background;
+    background-image: repeating-conic-gradient(from 90deg, $foreground 0% 25%, transparent 25% 50%);
+    background-repeat: repeat;
+    background-size: ($size * 2) ($size * 2);
+}
+
 @mixin bg-color-vars($state) {
     --bg-color: var(--#{$state});
     --bg-color-rgb: var(--#{$state}-rgb);
