@@ -47,6 +47,7 @@ public class OrderController : AdminController
     private readonly Lazy<IProductAttributeFormatter> _productAttributeFormatter;
     private readonly Lazy<IGiftCardService> _giftCardService;
     private readonly IProductAttributeMaterializer _productAttributeMaterializer;
+    private readonly Lazy<IProductService> _productService;
     private readonly IPaymentService _paymentService;
     private readonly ILocalizedEntityService _localizedEntityService;
     private readonly ITaxService _taxService;
@@ -69,6 +70,7 @@ public class OrderController : AdminController
         Lazy<IProductAttributeFormatter> productAttributeFormatter,
         Lazy<IGiftCardService> giftCardService,
         IProductAttributeMaterializer productAttributeMaterializer,
+        Lazy<IProductService> productService,
         IPaymentService paymentService,
         ILocalizedEntityService localizedEntityService,
         ICurrencyService currencyService,
@@ -90,6 +92,7 @@ public class OrderController : AdminController
         _productAttributeFormatter = productAttributeFormatter;
         _giftCardService = giftCardService;
         _productAttributeMaterializer = productAttributeMaterializer;
+        _productService = productService;
         _paymentService = paymentService;
         _localizedEntityService = localizedEntityService;
         _taxService = taxService;
@@ -1583,8 +1586,17 @@ public class OrderController : AdminController
             return View(model);
         }
 
-        var attributeDescription = await _productAttributeFormatter.Value.FormatAttributesAsync(selection, product, ProductAttributeFormatOptions.Default, order.Customer);
+        var attributesInfo = await _productAttributeFormatter.Value.FormatAttributesAsync(
+            selection,
+            product,
+            ProductAttributeFormatOptions.Default,
+            order.Customer);
         var productCost = await _priceCalculationService.Value.CalculateProductCostAsync(product, selection);
+
+        var batchContext = _productService.Value.CreateProductBatchContext([product]);
+        var essentialSpecAttributesInfo = _productAttributeFormatter.Value.FormatSpecificationAttributes(
+            await batchContext.EssentialAttributes.GetOrLoadAsync(product.Id),
+            ProductAttributeFormatOptions.Default);
 
         var orderItem = new OrderItem
         {
@@ -1597,7 +1609,8 @@ public class OrderController : AdminController
             PriceInclTax = model.PriceInclTax,
             PriceExclTax = model.PriceExclTax,
             TaxRate = model.TaxRate,
-            AttributeDescription = attributeDescription,
+            AttributeDescription = attributesInfo,
+            EssentialSpecificationAttributesInfo = essentialSpecAttributesInfo,
             RawAttributes = selection.AsJson(),
             Quantity = model.Quantity,
             DiscountAmountInclTax = decimal.Zero,

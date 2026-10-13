@@ -48,12 +48,14 @@ public static partial class ProductBundleItemExtensions
     /// <param name="priceWithDiscount">The price with discount.</param>
     /// <param name="rawAttributes">The raw attributes string in XML or JSON format.</param>
     /// <param name="attributesInfo">A localized and formatted description of selected attributes.</param>
+    /// <param name="essentialSpecAttributesInfo">A localized, formatted information of essential specification attributes.</param>
     /// <returns><see cref="ProductBundleItemOrderData"/>.</returns>
     public static ProductBundleItemOrderData ToOrderData(
         this ProductBundleItem bundleItem,
         decimal priceWithDiscount = decimal.Zero,
         string rawAttributes = null,
-        string attributesInfo = null)
+        string attributesInfo = null,
+        string essentialSpecAttributesInfo = null)
     {
         if (bundleItem == null)
         {
@@ -75,6 +77,7 @@ public static partial class ProductBundleItemExtensions
             PriceWithDiscount = priceWithDiscount,
             RawAttributes = rawAttributes,
             AttributesInfo = attributesInfo,
+            EssentialSpecAttributesInfo = essentialSpecAttributesInfo,
             PerItemShoppingCart = bundleItem.BundleProduct.BundlePerItemShoppingCart
         };
 

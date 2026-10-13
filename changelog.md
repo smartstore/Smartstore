@@ -35,6 +35,7 @@
 - Added generic reverse-proxy-based bot detection support to improve bot/human classification in proxied setups.
 - Added a setting to control whether rules calculate prices inclusive or exclusive of tax.
 - Stripe: Added option to enable enforced wallet button on payment selection page (this enables e.g. Apply Pay on Windows).
+- #1566 Add essential specification attributes to the order message templates.
 
 ### Improvements
 

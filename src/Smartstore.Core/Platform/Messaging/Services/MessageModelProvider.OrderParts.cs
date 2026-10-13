@@ -285,6 +285,7 @@ public partial class MessageModelProvider
         {
             { "DownloadUrl", downloadUrl },
             { "AttributeDescription", part.AttributeDescription.NullEmpty() },
+            { "EssentialSpecificationAttributesInfo", part.EssentialSpecificationAttributesInfo.NullEmpty() },
             { "Weight", part.ItemWeight },
             { "TaxRate", part.TaxRate },
             { "Qty", part.Quantity },
@@ -346,6 +347,7 @@ public partial class MessageModelProvider
         var m = new Dictionary<string, object>
         {
             { "AttributeDescription", part.AttributesInfo.NullEmpty() },
+            { "EssentialSpecificationAttributesInfo", part.EssentialSpecAttributesInfo.NullEmpty() },
             { "Quantity", part.Quantity > 1 && part.PerItemShoppingCart ? part.Quantity.ToString() : null },
             { "PerItemShoppingCart", part.PerItemShoppingCart },
             { "PriceWithDiscount", priceWithDiscount },

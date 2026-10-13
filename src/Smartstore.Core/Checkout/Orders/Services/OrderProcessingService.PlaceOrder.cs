@@ -820,13 +820,15 @@ public partial class OrderProcessingService : IOrderProcessingService
                     product,
                     ProductAttributeFormatOptions.Default,
                     ctx.Customer);
+                var essentialSpecAttributesInfo = _productAttributeFormatter.FormatSpecificationAttributes(
+                    await ctx.BatchContext.EssentialAttributes.GetOrLoadAsync(product.Id),
+                    ProductAttributeFormatOptions.Default);
 
                 var itemWeight = await _shippingService.GetCartItemWeightAsync(cartItem, false);
-                var displayDeliveryTime =
-                    _shoppingCartSettings.DeliveryTimesInShoppingCart != DeliveryTimesPresentation.None &&
-                    product.DeliveryTimeId.HasValue &&
-                    product.IsShippingEnabled &&
-                    product.DisplayDeliveryTimeAccordingToStock(_catalogSettings);
+                var displayDeliveryTime = _shoppingCartSettings.DeliveryTimesInShoppingCart != DeliveryTimesPresentation.None
+                    && product.DeliveryTimeId.HasValue
+                    && product.IsShippingEnabled
+                    && product.DisplayDeliveryTimeAccordingToStock(_catalogSettings);
 
                 // Product cost always in primary currency without tax.
                 var productCost = await _priceCalculationService.CalculateProductCostAsync(product, item.AttributeSelection);
@@ -851,6 +853,7 @@ public partial class OrderProcessingService : IOrderProcessingService
                     DiscountAmountInclTax = discountTax.PriceGross,
                     DiscountAmountExclTax = discountTax.PriceNet,
                     AttributeDescription = attributeDescription,
+                    EssentialSpecificationAttributesInfo = essentialSpecAttributesInfo,
                     RawAttributes = item.RawAttributes,
                     Quantity = item.Quantity,
                     DownloadCount = 0,
@@ -877,8 +880,15 @@ public partial class OrderProcessingService : IOrderProcessingService
                             childItem.Item.Product,
                             new() { IncludePrices = false },
                             ctx.Customer);
+                        var childEssentialSpecAttributesInfo = _productAttributeFormatter.FormatSpecificationAttributes(
+                            await ctx.BatchContext.EssentialAttributes.GetOrLoadAsync(childItem.Item.ProductId),
+                            ProductAttributeFormatOptions.Default);
 
-                        var bundleItemData = childItem.Item.BundleItem.ToOrderData(childSubtotal.FinalPrice.Amount, childItem.Item.RawAttributes, attributesInfo);
+                        var bundleItemData = childItem.Item.BundleItem.ToOrderData(
+                            childSubtotal.FinalPrice.Amount,
+                            childItem.Item.RawAttributes,
+                            attributesInfo,
+                            childEssentialSpecAttributesInfo);
                         if (bundleItemData != null)
                         {
                             bundleItemDataList.Add(bundleItemData);
@@ -933,6 +943,7 @@ public partial class OrderProcessingService : IOrderProcessingService
                     PriceExclTax = oi.PriceExclTax,
                     TaxRate = oi.TaxRate,
                     AttributeDescription = oi.AttributeDescription,
+                    EssentialSpecificationAttributesInfo = oi.EssentialSpecificationAttributesInfo,
                     RawAttributes = oi.RawAttributes,
                     Quantity = oi.Quantity,
                     DiscountAmountInclTax = oi.DiscountAmountInclTax,

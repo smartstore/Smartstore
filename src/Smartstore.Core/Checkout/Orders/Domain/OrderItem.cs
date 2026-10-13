@@ -101,6 +101,12 @@ public partial class OrderItem : BaseEntity, IAttributeAware
     public string AttributeDescription { get; set; }
 
     /// <summary>
+    /// Gets or sets the localized, formatted information of essential specification attributes.
+    /// </summary>
+    [MaxLength]
+    public string EssentialSpecificationAttributesInfo { get; set; }
+
+    /// <summary>
     /// Gets or sets the product variant attributes in XML or JSON format
     /// </summary>
     [Column("AttributesXml"), MaxLength]
