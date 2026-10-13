@@ -21,6 +21,8 @@ These are the attributes you can use in the `Theme`-node:
 
 In addition to the above attributes, a preview file must be stored to display the theme as a preview image in the theme configurator. This file must be located in the _wwwroot/images_ directory and be named `preview.png`. Any changes to `theme.config` will invalidate the cached stylesheet and cause Sass to recompile. As a result, changed variable values are applied right after a browser refresh at runtime, and the changes are immediately visible.
 
+The admin theme list resolves descriptions from the locale resource `Admin.Themes.Info.{ThemeName}`, where `ThemeName` is the technical theme directory name (for example, `FlexBlack`). If the resource is missing, the `description` attribute remains the fallback. Translations belong in locale resources, not in `theme.config`.
+
 ## Variables
 
 Theme variables are configurable values provided by a theme that can be customized by the end user in the Theme Configurator. This allows you to quickly customize the look and feel of your store by defining colors, fonts, font sizes and weights, margins, border radius, and more. Each theme can define its own variables, with default values stored to best match the look and feel of the theme.

@@ -18,7 +18,7 @@
                 <span>@T("Admin.Common.Save")</span>
             </button>
             <a asp-action="ReloadThemes" asp-route-storeId="@Model.StoreId" class="btn btn-secondary">
-                <icon name="refresh" />
+                <icon name="sync" />
                 <span>@T("Admin.Configuration.Themes.Reload")</span>
             </a>
             <a id="uploadpackage" href="#uploadpackage-window" data-toggle="modal" class="btn btn-secondary" role="button">
@@ -148,77 +148,81 @@
         <fieldset>
             <legend class="mb-3">@caption</legend>
 
-            <div id="theme-list" class="row g-3">
+            <div id="theme-list">
                 @foreach (var theme in themes)
                 {
                     var isActive = theme.IsActive;
                     var isBroken = theme.State != ThemeDescriptorState.Active;
 
-                    <div class="col-auto" style="width: 280px">
+                    <div class="card shadow-sm theme-item@(isActive ? " active" : "")@(isBroken ? " broken" : "")">
+                        <div class="card-img-top theme-thumbnail" style="background-image: url('@Url.Content(theme.PreviewImageUrl)')"></div>
 
-                        <div class="card shadow-sm theme-item@(isActive ? " active" : "")@(isBroken ? " broken" : "")" attr-title='(theme.Description.HasValue(), theme.Description)'>
-                            <div class="card-img-top theme-thumbnail" style="background-image: url('@Url.Content(theme.PreviewImageUrl)')"></div>
-
-                            <div class="card-body p-3">
-                                <h4 class="h5 text-truncate">
-                                    @(theme.FriendlyName ?? theme.Name)
-                                    @if (theme.BaseTheme.HasValue())
-                                    {
-                                        <small class="fs-sm text-muted" title='@T("Admin.Configuration.Themes.IsBasedOn"): @theme.BaseTheme'>
-                                            <icon name="@(isBroken ? "unlink" : "link")" class="flip-h" />
-                                            @theme.BaseTheme
-                                        </small>
-                                    }
-                                </h4>
-                                <div class="theme-info fs-xs text-truncate">
-                                    @if (theme.Author.HasValue())
-                                    {
-                                        <span>@T("Admin.Configuration.Themes.Author"): </span><span class="text-muted">@theme.Author, </span>
-                                    }
-                                    <span>@T("Admin.Configuration.Themes.Version"): </span><span class="text-muted">@theme.Version</span>
-                                </div>
-                                <div class="theme-buttons d-flex mt-3">
-                                    @if (!theme.IsActive)
-                                    {
-                                        <a href="#" class="btn btn-primary btn-sm set-as-defaulttheme@(isBroken ? " invisible" : "")" data-name="@theme.Name">
-                                            @T("Admin.Common.Activate")
-                                        </a>
-                                    }
-                                    else
-                                    {
-                                        <a href="#" class="btn btn-secondary btn-sm disabled">
-                                            <icon name="check"  />
-                                            @T("Common.Active")
-                                        </a>
-                                    }
-
-                                    @if (!isBroken)
-                                    {
-                                        <div class="btn-group ml-auto">
-                                            <a class="btn btn-outline-secondary btn-sm tooltip-toggle" 
-                                               href='@Url.Action("Preview", "Theme", new { theme = theme.Name, storeId = Model.StoreId })' 
-                                               title="@T("Admin.Configuration.Themes.Preview")">
-                                                <icon name="eye" class="icon-fw" />
-                                            </a>
-                                            @if (theme.IsConfigurable)
-                                            {
-                                                <a class="btn btn-outline-secondary btn-sm tooltip-toggle" href='@Url.Action("Configure", "Theme", new { theme = theme.Name, storeId = Model.StoreId })' title="@T("Admin.Common.Configure")">
-                                                    <icon name="paint-brush" class="icon-fw" />
-                                                </a>
-                                            }
-                                        </div>
-                                    }
-
-                                </div>
-                            </div>
-
-                            @if (isBroken)
+                        <div class="card-body p-3 d-flex flex-column">
+                            <h4 class="h5 d-flex align-items-center gap-2">
+                                <span class="text-truncate">@(theme.FriendlyName ?? theme.Name)</span>
+                                @if (theme.BaseTheme.HasValue())
+                                {
+                                    <small class="fs-sm text-muted d-inline-flex align-items-center flex-shrink-0 gap-1" title='@T("Admin.Configuration.Themes.IsBasedOn"): @theme.BaseTheme'>
+                                        <icon name="@(isBroken ? "unlink" : "link")" class="flip-h" />
+                                        @theme.BaseTheme
+                                    </small>
+                                }
+                            </h4>
+                            @if (theme.Description.HasValue())
                             {
-                                <div class="theme-broken-badge" title='@T("Admin.Configuration.Themes.MissingBaseTheme", theme.BaseTheme).Value'>
-                                    <icon name="exclamation"  />
-                                </div>
+                                <p class="fs-sm text-muted line-clamp-2 mb-3" title="@theme.Description">@theme.Description</p>
                             }
+                            <div class="theme-info fs-xs text-truncate">
+                                @if (theme.Author.HasValue())
+                                {
+                                    <span>@T("Admin.Configuration.Themes.Author"): </span><span class="text-muted">@theme.Author, </span>
+                                }
+                                <span>@T("Admin.Configuration.Themes.Version"): </span><span class="text-muted">@theme.Version</span>
+                            </div>
+                            <div class="theme-buttons d-flex mt-auto pt-3">
+                                @if (!theme.IsActive)
+                                {
+                                    <a href="#" class="btn btn-primary set-as-defaulttheme@(isBroken ? " invisible" : "")" data-name="@theme.Name">
+                                        @T("Admin.Common.Activate")
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-success badge-pill d-inline-flex align-items-center align-self-center gap-1">
+                                        <icon name="check" />
+                                        @T("Common.Active")
+                                    </span>
+                                }
+
+                                @if (!isBroken)
+                                {
+                                    <div class="btn-group ml-auto">
+                                        <a class="btn btn-outline-secondary tooltip-toggle"
+                                           href='@Url.Action("Preview", "Theme", new { theme = theme.Name, storeId = Model.StoreId })'
+                                           title="@T("Admin.Configuration.Themes.Preview")">
+                                            <icon name="eye" class="icon-fw" />
+                                        </a>
+                                        @if (theme.IsConfigurable)
+                                        {
+                                            <a class="btn btn-outline-secondary tooltip-toggle" href='@Url.Action("Configure", "Theme", new { theme = theme.Name, storeId = Model.StoreId })' title="@T("Admin.Common.Configure")">
+                                                <icon-stack style="--icon-stack-width: 1.25em; --icon-stack-height: 1em;">
+                                                    <icon name="palette" style="--icon-shift-x: -0.15em; --icon-shift-y: -0.1em;" />
+                                                    <icon name="pen" style="--icon-size-factor: 0.8; --icon-shift-x: 0.35em; --icon-shift-y: 0.3em;" />
+                                                </icon-stack>
+                                            </a>
+                                        }
+                                    </div>
+                                }
+
+                            </div>
                         </div>
+
+                        @if (isBroken)
+                        {
+                            <div class="theme-broken-badge" title='@T("Admin.Configuration.Themes.MissingBaseTheme", theme.BaseTheme).Value'>
+                                <icon name="exclamation"  />
+                            </div>
+                        }
                     </div>
                 }
             </div>

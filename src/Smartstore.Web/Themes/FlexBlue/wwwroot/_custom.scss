@@ -4,5 +4,8 @@
 // --------------------------------------------------
 
 .menubar-inverse.menubar-section {
-    border-bottom: 0; 
+    border-bottom: 1px solid rgba(#fff, 0.12);
+}
+#footer.footer-inverse {
+    --footer-link-hover-color: #ffbd8c;
 }

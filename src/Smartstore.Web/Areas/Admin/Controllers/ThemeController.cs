@@ -93,9 +93,11 @@ public class ThemeController : AdminController
         var themes = from m in _themeRegistry.GetThemeDescriptors(includeHidden)
                      select PrepareThemeDescriptorModel(m, themeSettings);
 
-        var sortedThemes = themes.ToArray().SortTopological(StringComparer.OrdinalIgnoreCase).Cast<ThemeDescriptorModel>();
-
-        return sortedThemes.OrderByDescending(x => x.IsActive).ToList();
+        return themes
+            .OrderByDescending(x => x.IsActive)
+            .ThenBy(x => x.FriendlyName ?? x.Name, StringComparer.CurrentCultureIgnoreCase)
+            .ThenBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
 
     protected virtual ThemeDescriptorModel PrepareThemeDescriptorModel(ThemeDescriptor descriptor, ThemeSettings themeSettings)
@@ -105,7 +107,10 @@ public class ThemeController : AdminController
             Name = descriptor.Name,
             BaseTheme = descriptor.BaseThemeName,
             FriendlyName = descriptor.FriendlyName,
-            Description = descriptor.Description,
+            Description = Services.Localization.GetResource($"Admin.Themes.Info.{descriptor.Name}",
+                logIfNotFound: false,
+                defaultValue: descriptor.Description,
+                returnEmptyIfNotFound: true),
             Author = descriptor.Author,
             ProjectUrl = descriptor.ProjectUrl,
             Version = descriptor.Version.ToString(),

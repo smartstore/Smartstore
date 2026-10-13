@@ -1165,8 +1165,21 @@ legend {
 // --------------------------------------------------
 
 #theme-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(cssmin(100%, 340px), 1fr));
+    gap: 1.5rem;
+
+    .theme-item {
+        min-width: 0;
+
+        &.active {
+            background-color: rgba(var(--primary-rgb), 0.04);
+            border-color: var(--primary);
+        }
+    }
+
     .theme-thumbnail {
-        height: 220px;
+        aspect-ratio: 4 / 3;
         background-size: cover;
         background-repeat: no-repeat;
         border-bottom: 1px solid rgba(#000, 0.1);

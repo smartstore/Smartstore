@@ -31,7 +31,7 @@ let summernote_image_upload_url;
         code: 'code',
         inlineCode: 'code',
         eraser: 'eraser',
-        paintbrush: 'paint-brush',
+        paintbrush: 'editor-color',
         colorReset: 'droplet-off',
         colorPicker: 'dropper',
         font: 'font',

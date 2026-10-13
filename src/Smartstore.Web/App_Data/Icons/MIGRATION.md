@@ -393,11 +393,11 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 | `fa fa-up-down-left-right` | `arrow-all-direction` | `move` |
 | `far fa-newspaper` | `newspaper` | `newspaper` |
 | `fa fa-fill-drip`<br>`fas fa-fill-drip` | `paint-bucket` | `paint-bucket` |
-| `fa fa-paint-brush`<br>`fa fa-paintbrush` | `brush` | `paint-brush` |
+| `fa fa-paint-brush`<br>`fa fa-paintbrush` | `paintbrush` | `paint-brush` |
 | `fa fa-paperclip` | `paperclip` | `paperclip` |
 | `fa fa-pause` | `pause` | `pause` |
 | `far fa-pause-circle` | `pause-circle` | `pause-circle` |
-| `fa fa-pencil`<br>`fas fa-pencil` | `edit-02` | `pen` |
+| `fa fa-pencil`<br>`fas fa-pencil` | `pen-01` | `pen` |
 | `fal fa-phone`<br>`fas fa-phone-flip` | `bi:telephone` | `phone` |
 | `fa fa-eye-dropper` | `dropper` | `dropper` |
 | `fa fa-caret-right`<br>`fa fa-play` | `play` | `play` |
@@ -548,7 +548,7 @@ variants no longer exist. See the [BI import recipe](bootstrap/README.md).
 | `menu-button-fill` | `dropdown-field-type` | `menu-button` |
 | `palette` | `paint-board` | `palette` |
 | `vector-pen` | `pen-tool-03` | `pen-nib` |
-| `pencil`<br>`pencil-fill` | `edit-02` | `pen` |
+| `pencil`<br>`pencil-fill` | `pen-01` | `pen` |
 | `percent` | `badge-percent` | `discount` |
 | `play-fill` | `play` | `play` |
 | `power` | `power` | `power` |
@@ -1118,3 +1118,13 @@ Smartstore still renders SVG icons and does not import this font.
   library identity use ElementInternals states, Shadow CSS and internal SVG metadata.
   Generic selectors include sm-icon/sm-icon-stack; library selectors use :state().
   Accessibility defaults no longer generate role/aria-hidden attributes.
+
+- Summernote uses `editor-color` from the `htmledit` kit (`bi:pencil-fill`) for its
+  colorable toolbar icon. The generic `paint-brush` concept uses the library mapping
+  (`hi:paintbrush`) without an admin-kit source override.
+
+The storefront toolbar language selector uses `globe` (`globe-02` in Hugeicons). The concept now belongs to the shared collection instead of the admin kit, making it available in both areas.
+
+The storefront toolbar currency selector uses `curreny` (`coins-02` in Hugeicons). The concept belongs to the shared collection and is available in both areas.
+
+The admin kit includes `sync` mapped to `hi:reload`, used by the theme list reload button.

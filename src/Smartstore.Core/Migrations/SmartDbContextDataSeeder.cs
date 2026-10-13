@@ -127,6 +127,28 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.IconBrowser.Options", "Icon options", "Icon-Optionen");
         builder.AddOrUpdate("Admin.IconBrowser.External", "provided by a module", "von einem Modul bereitgestellt");
 
+        builder.AddOrUpdate("Admin.Themes.Info.Flex",
+            "A clean, versatile storefront with bright surfaces, clear typography and a product-focused layout. The flexible foundation for the Flex theme family.",
+            "Ein klarer, vielseitiger Shop mit hellen Flächen, gut lesbarer Typografie und einem Layout, das Ihre Produkte in den Mittelpunkt stellt. Die flexible Basis der Flex-Theme-Familie.");
+        builder.AddOrUpdate("Admin.Themes.Info.FlexBlack",
+            "A distinctive boxed storefront with slim Barlow Semi Condensed typography, a black service bar and layered graphite navigation. Crisp white content and soft neutral panels create a restrained, contemporary contrast.",
+            "Ein markantes Box-Layout mit schlanker Barlow-Semi-Condensed-Typografie, schwarzer Serviceleiste und abgestuften Graphittönen in der Navigation. Weiße Inhaltsflächen und sanfte Neutraltöne sorgen für einen zurückhaltenden, modernen Kontrast.");
+        builder.AddOrUpdate("Admin.Themes.Info.FlexBlue",
+            "A signature all-blue header, crisp white product surfaces and warm orange actions. Soft blue details and a deep navy footer give this classic a clear, contemporary feel.",
+            "Ein durchgehend blauer Header, klare weiße Produktflächen und warme orangefarbene Akzente. Sanfte Blautöne und ein tiefblauer Footer verleihen diesem Klassiker einen zeitgemäßen Charakter.");
+        builder.AddOrUpdate("Admin.Themes.Info.FlexSorbet",
+            "A fresh editorial palette of aubergine, lime and mint on warm porcelain, with expressive serif headings.",
+            "Eine frische Kombination aus Aubergine, Limette und Mint auf warmem Porzellanweiß. Ausdrucksstarke Serifenschriften setzen die Überschriften in Szene.");
+        builder.AddOrUpdate("Admin.Themes.Info.FlexTidal",
+            "Atlantic ink, vivid coral and glacial blue. Crisp typography, clean geometry and bright product surfaces.",
+            "Atlantikblau, lebendiges Korallrot und kühles Eisblau. Klare Typografie, geradlinige Formen und helle Produktflächen.");
+        builder.AddOrUpdate("Admin.Themes.Info.FlexAfterglow",
+            "Graphite nights with electric mint, soft orchid and apricot accents. A calm dark canvas with luminous details.",
+            "Dunkle Graphittöne mit leuchtendem Mint, sanftem Orchideenlila und Apricot. Ein ruhiges Dark Theme mit strahlenden Akzenten.");
+        builder.AddOrUpdate("Admin.Themes.Info.FlexLumen",
+            "A bright white canvas with iris-blue actions, soft lavender surfaces and petrol accents. Familiar, airy and quietly modern.",
+            "Strahlendes Weiß mit irisblauen Akzenten, sanften Lavendelflächen und Petrol. Vertraut, luftig und dezent modern.");
+
         builder.AddOrUpdate("Admin.Configuration.Themes.Option.KeepSassCompilerInMemory",
             "Keep Sass compiler in memory",
             "Sass-Compiler im Arbeitsspeicher halten",

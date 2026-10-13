@@ -92,7 +92,6 @@
       "folder",
       "forward",
       "gift",
-      "globe",
       "earth",
       "grid",
       "grid-large",
@@ -124,7 +123,6 @@
       "paperclip",
       "pause-circle",
       "pen-nib",
-      "pen",
       "discount",
       "dropper",
       "play-circle",
@@ -160,6 +158,7 @@
       "star",
       "sticky-note",
       "store",
+      "sync",
       "tag",
       "tasks",
       "tax",
@@ -189,8 +188,7 @@
       "marketing": "hi:megaphone-02!/sr",
       "exclamation": "bi:exclamation-lg",
       "box": "bi:box!",
-      "braces-asterisk": "bi:braces-asterisk",
-      "paint-brush": "bi:pencil-fill"
+      "braces-asterisk": "bi:braces-asterisk"
     },
     "areas": [
       "admin"
@@ -206,6 +204,7 @@
     "defaultLibrary": null,
     "defaultVariant": null,
     "icons": [
+      "editor-color",
       "editor-frame",
       "editor-layout",
       "css-3",
@@ -228,6 +227,7 @@
       "text-style"
     ],
     "sources": {
+      "editor-color": "bi:pencil-fill",
       "image-float-none": "system:image-float-none"
     },
     "areas": [
