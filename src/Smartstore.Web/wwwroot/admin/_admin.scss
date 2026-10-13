@@ -202,7 +202,7 @@ body {
         max-width: 100%;
 
         > i,
-        > .icon {
+        > :is(.icon, sm-icon) {
             display: none; // Turn off for now, seems to look nicer
             font-size: 28px;
             vertical-align: text-top;
@@ -382,7 +382,7 @@ body {
         margin-top: -2px;
     }
 
-    .navbar-icon.icon {
+    .navbar-icon:is(.icon, sm-icon) {
         --icon-size: 24px;
         width: var(--icon-size);
         height: var(--icon-size);
@@ -1280,7 +1280,7 @@ legend {
     --icon-size: 48px;
     --module-icon-size: 48px;
 
-    > .icon, > i {
+    > :is(.icon, sm-icon), > i {
         max-width: 48px;
     }
 }
@@ -1395,7 +1395,7 @@ a.editable {
     color: $green;
     text-shadow: 0 -1px 0 #fff;
 
-    &:not(.icon)::before {
+    &:not(.icon, sm-icon)::before {
         @include icon-mask(var(--icon-mask-check), 1rem);
     }
 }
@@ -1404,7 +1404,7 @@ a.editable {
     color: $gray-400;
     text-shadow: 0 -1px 0 #fff;
 
-    &:not(.icon)::before {
+    &:not(.icon, sm-icon)::before {
         @include icon-mask("minus", 1rem);
     }
 }
@@ -1800,7 +1800,7 @@ a.editable {
         }
     }
 
-    .icon-browser-choice > .icon {
+    .icon-browser-choice > :is(.icon, sm-icon) {
         --icon-size: var(--icon-browser-size, 24px);
     }
 }

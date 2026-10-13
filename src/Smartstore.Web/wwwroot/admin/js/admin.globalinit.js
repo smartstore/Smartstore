@@ -119,7 +119,7 @@
                     }
 
                     signal.toggleClass("d-none", !activate);
-                    $el.find("> .icon").toggleClass("d-none", activate);
+                    $el.find("> :is(.icon, sm-icon)").toggleClass("d-none", activate);
 
                     $el.attr("data-activate", !activate);
                 }

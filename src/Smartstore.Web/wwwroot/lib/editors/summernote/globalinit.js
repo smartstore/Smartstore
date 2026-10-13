@@ -194,6 +194,121 @@ let summernote_image_upload_url;
         }
     };
 
+    if (CodeMirror?.htmlSchema) {
+        // Extend CodeMirror's HTML schema without replacing its HTML/Liquid hint helpers.
+        let manifestPromise;
+        function iconManifest() {
+            const meta = document.querySelector('meta[property="sm:icons"]');
+            if (!meta) return Promise.resolve(null);
+            if (!manifestPromise) {
+                const root = new URL(document.querySelector('meta[property="sm:root"]')?.content || './', document.baseURI);
+                manifestPromise = fetch(new URL(meta.content, root), { credentials: 'same-origin' })
+                    .then(response => response.ok ? response.json() : Promise.reject())
+                    .catch(() => { manifestPromise = null; return null; });
+            }
+            return manifestPromise;
+        }
+
+        function iconContext(cm) {
+            // The opening tag may span multiple lines. Content targets the storefront unless the tag explicitly selects another area.
+            const text = cm.getValue(), cursor = cm.indexFromPos(cm.getCursor());
+            const start = text.lastIndexOf('<', cursor), end = text.indexOf('>', cursor);
+            const tag = text.slice(start, end < 0 ? text.length : end);
+            const area = /\sarea\s*=\s*(["'])(.*?)\1/i.exec(tag)?.[2]
+                || 'public';
+            return { area, beforeCursor: text.slice(start, cursor) };
+        }
+
+        function iconNames(cm) {
+            const { area } = iconContext(cm);
+            return iconManifest().then(data => Object.keys(data?.areas?.[area] || {}).sort());
+        }
+
+        const booleans = ['true', 'false'];
+        const presentation = {
+            class: null,
+            style: null,
+            title: null,
+            size: ['2xs', 'xs', 'sm', 'lg', 'xl', '2xl', ...Array.from({ length: 10 }, (_, i) => `${i + 1}x`)],
+            'font-scale': null,
+            fw: booleans,
+            color: null,
+            inverse: booleans,
+            animation: ['spin', 'pulse', 'spin-pulse', 'beat', 'fade', 'throb', 'cylon', 'cylon-vertical', 'bounce', 'beat-fade', 'flip', 'shake'],
+            'animation-duration': null,
+            'animation-reverse': booleans,
+            rotate: ['0', '90', '180', '270'],
+            'flip-h': booleans,
+            'flip-v': booleans,
+            scale: null,
+            'shift-x': null,
+            'shift-y': null,
+            'aria-label': null,
+            'aria-labelledby': null,
+            'aria-hidden': booleans,
+            role: ['img', 'presentation', 'none']
+        };
+        CodeMirror.htmlSchema['sm-icon'] = {
+            attrs: {
+                ...presentation,
+                name: iconNames,
+                area: () => iconManifest().then(data => Object.keys(data?.areas || {})),
+                lib: null,
+                variant: null,
+                'stroke-scale': null
+            },
+            children: []
+        };
+        CodeMirror.htmlSchema['sm-icon-stack'] = { attrs: { ...presentation }, children: ['sm-icon'] };
+
+        const htmlHint = CodeMirror.hint.html;
+        CodeMirror.registerHelper('hint', 'html', function (cm, options) {
+            const result = htmlHint(cm, options);
+            const { area, beforeCursor } = iconContext(cm);
+            if (/^<sm-icon(?:-stack)?\s/i.test(beforeCursor) && result?.list) {
+                result.list = result.list.map(text => {
+                    if (typeof text !== 'string' || !Object.hasOwn(CodeMirror.htmlSchema['sm-icon'].attrs, text)
+                        || ['class', 'style', 'title', 'role'].includes(text) || text.startsWith('aria-')) {
+                        return text;
+                    }
+
+                    return {
+                        text,
+                        render(element) {
+                            const label = document.createElement('strong');
+                            label.textContent = text;
+                            element.append(label);
+                        }
+                    };
+                });
+            }
+
+            if (!/^<sm-icon\s/i.test(beforeCursor) || !/\sname\s*=\s*(?:["'][^"']*)?$/i.test(beforeCursor)) {
+                return result;
+            }
+
+            return Promise.resolve(result).then(hints => {
+                if (hints) {
+                    hints.list = hints.list.map(text => ({
+                        text,
+                        render(element) {
+                            const name = text.slice(1, -1);
+                            const icon = document.createElement('sm-icon');
+                            icon.setAttribute('name', name);
+                            icon.setAttribute('area', area);
+                            icon.setAttribute('aria-hidden', 'true');
+                            icon.className = 'mr-2';
+                            icon.style.cssText = 'width: 16px; height: 16px; flex-shrink: 0;';
+                            element.classList.add('d-flex', 'align-items-center');
+                            element.append(icon, document.createTextNode(name));
+                        }
+                    }));
+                }
+                return hints;
+            });
+        });
+    }
+
     if (CodeMirror?.hint) {
         summernote_global_config.codemirror = {
             mode: "htmlmixed",

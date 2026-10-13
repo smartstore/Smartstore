@@ -9,7 +9,7 @@
     const drawing = ['name', 'area', 'lib', 'variant', 'rotate', 'flip-h', 'flip-v', 'stroke-scale'];
     const cache = new Map();
     const waiting = [];
-    let active = 0, manifestPromise, cloneId = 0;
+    let active = 0, manifestPromise, cloneId = 0, drawingStyles;
 
     function rootUrl() {
         return new URL(document.querySelector('meta[property="sm:root"]')?.content || './', document.baseURI);
@@ -166,8 +166,7 @@
             if (attr.localName === 'href' && value.startsWith('#') && ids.has(value.slice(1))) value = '#' + ids.get(value.slice(1));
             if (value !== attr.value) node.setAttributeNS(attr.namespaceURI, attr.name, value);
         }
-        // Presentation belongs to the host; source styles such as stroke scale stay on the SVG.
-        svg.classList.remove(...[...svg.classList].filter(name => name === 'icon' || name.startsWith('icon-')));
+        // Keep resolved identity and drawing styles inside the shadow root.
         svg.removeAttribute('role'); svg.removeAttribute('aria-label'); svg.removeAttribute('aria-labelledby');
         svg.setAttribute('aria-hidden', 'true'); svg.setAttribute('focusable', 'false');
         return svg;
@@ -176,33 +175,37 @@
     class IconElementBase extends HTMLElement {
         constructor() {
             super();
-            this._generatedClasses = [];
+            this._internals = this.attachInternals();
             this._identity = [];
-            this._internal = false;
             this._sequence = 0;
+            // Per-instance presentation stays in Shadow CSS, never in serialized attributes.
+            const root = this.attachShadow({ mode: 'open' });
+            if (!drawingStyles) {
+                drawingStyles = new CSSStyleSheet();
+                drawingStyles.replaceSync(`
+                    :host {
+                        --_icon-size-factor: initial; --_icon-scale: initial;
+                        --_icon-shift-x: initial; --_icon-shift-y: initial;
+                        --_icon-color: initial; --_icon-animation-duration: initial;
+                        --_icon-animation-direction: initial; --_icon-rotate: initial;
+                        --_icon-flip-x: initial; --_icon-flip-y: initial;
+                    }
+                    svg { display: block; width: 100%; height: 100%; overflow: visible; }
+                    svg > use { width: 100%; height: 100%; }
+                `);
+            }
+            const presentationStyles = new CSSStyleSheet();
+            presentationStyles.replaceSync(':host {}');
+            this._presentationStyle = presentationStyles.cssRules[0].style;
+            root.adoptedStyleSheets = [drawingStyles, presentationStyles];
         }
         static get observedAttributes() {
             return [...presentation, ...drawing, 'class', 'style', 'aria-label', 'aria-labelledby', 'aria-hidden', 'role'];
         }
-        connectedCallback() {
-            if (this._authoredClass === undefined) this._authoredClass = this.getAttribute('class') || '';
-            if (this._authoredStyle === undefined) this._authoredStyle = this.getAttribute('style') || '';
-            this.schedule();
-        }
+        connectedCallback() { this.schedule(); }
         disconnectedCallback() { this._sequence++; }
         attributeChangedCallback(name, oldValue, newValue) {
-            if (this._internal || oldValue === newValue) return;
-            if (name === 'role') this._autoRole = false;
-            if (name === 'aria-hidden') this._autoHidden = false;
-            if (name === 'class') this._authoredClass = (newValue || '').split(/\s+/).filter(x => !this._generatedClasses.includes(x)).join(' ');
-            if (name === 'style') {
-                // Remove only declarations we previously generated; preserve caller edits.
-                const style = document.createElement('span').style;
-                style.cssText = newValue || '';
-                for (const [key, value] of this._generatedStyles || []) if (style.getPropertyValue(key).trim() === value) style.removeProperty(key);
-                this._authoredStyle = style.cssText;
-            }
-            this.schedule();
+            if (oldValue !== newValue) this.schedule();
         }
         schedule() {
             if (!this.isConnected || this._scheduled) return;
@@ -246,17 +249,18 @@
                     if (value !== undefined) styles.set(css, value ? '-1' : '1');
                 }
             }
-            this._internal = true;
-            try {
-                this.setAttribute('class', [...new Set([...classes, ...(this._authoredClass || '').split(/\s+/).filter(Boolean)])].join(' '));
-                this.setAttribute('style', [...styles].map(([key, value]) => `${key}:${value};`).join('') + (this._authoredStyle || ''));
-                this._generatedClasses = classes; this._generatedStyles = styles;
-                const labelled = this.hasAttribute('aria-label') || this.hasAttribute('aria-labelledby');
-                if (this._autoHidden) { this.removeAttribute('aria-hidden'); this._autoHidden = false; }
-                if (this._autoRole) { this.removeAttribute('role'); this._autoRole = false; }
-                if (labelled && !this.hasAttribute('role')) { this.setAttribute('role', 'img'); this._autoRole = true; }
-                if (!stack && !labelled && !this.hasAttribute('aria-hidden')) { this.setAttribute('aria-hidden', 'true'); this._autoHidden = true; }
-            } finally { this._internal = false; }
+            const states = this._internals.states;
+            for (const state of states) if (!classes.includes(state)) states.delete(state);
+            for (const state of classes) states.add(state);
+            this._presentationStyle.cssText = '';
+            for (const [key, value] of styles) {
+                const authored = this.style.getPropertyValue(key);
+                this._presentationStyle.setProperty(key.replace('--icon-', '--_icon-'), authored || value);
+            }
+            const labelled = this.hasAttribute('aria-label') || this.hasAttribute('aria-labelledby');
+            // Explicit author ARIA attributes take precedence over these defaults.
+            this._internals.role = labelled ? 'img' : null;
+            this._internals.ariaHidden = !stack && !labelled ? 'true' : null;
         }
     }
 
@@ -271,9 +275,10 @@
             input.area = input.area || document.querySelector('meta[property="sm:icons"]')?.dataset.area || 'public';
             const key = JSON.stringify(input);
             if (this._drawingKey === key) return;
-            if (!input.name) { this.replaceChildren(); this._drawingKey = null; this.removeAttribute('data-icon'); return; }
             // Do not show the old icon under a newly requested name while loading.
-            this.replaceChildren(); this._drawingKey = null; this._identity = []; this.removeAttribute('data-icon');
+            this.shadowRoot.replaceChildren(); this._drawingKey = null; this._identity = [];
+            this.present(false);
+            if (!input.name) return;
             const reference = isConcept(input) ? (await manifest())?.get(input.area)?.get(input.name) : null;
             let template;
             if (reference) {
@@ -286,12 +291,10 @@
             } else template = await loadDrawing(input);
             if (!this.isConnected || this._sequence !== sequence) return;
             // Manifest hits and endpoint responses carry the same server-resolved identity.
-            // Presentation classes belong to the host; the child keeps data-icon for inspection.
-            const address = template.getAttribute('data-icon') || input.name;
+            // CSS states expose resolved identity without adding host attributes.
             this._identity = [...template.classList].filter(name => name.startsWith('icon-') || name === 'text-danger');
             this.present(false);
-            this.setAttribute('data-icon', address);
-            this.replaceChildren(cloneDrawing(template));
+            this.shadowRoot.replaceChildren(cloneDrawing(template));
             this._drawingKey = key;
             if (template.classList.contains('icon-not-found')) {
                 throw new Error('Icon not found: ' + input.name);
@@ -301,6 +304,10 @@
     }
 
     class IconStackElement extends IconElementBase {
+        constructor() {
+            super();
+            this.shadowRoot.append(document.createElement('slot'));
+        }
         connectedCallback() {
             super.connectedCallback();
             this._observer ??= new MutationObserver(() => this.schedule());

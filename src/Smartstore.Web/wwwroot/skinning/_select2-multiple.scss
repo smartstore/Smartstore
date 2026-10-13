@@ -61,7 +61,7 @@
         white-space: nowrap;
         overflow: hidden;
 
-        &:has(.select2-option .icon, .select2-option sm-icon) {
+        &:has(.select2-option :is(.icon, sm-icon)) {
             padding-inline-start: var(--select2-choice-padding-x);
         }
 
@@ -82,7 +82,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
 
-            > :is(i, img, .icon) {
+            > :is(i, img, .icon, sm-icon) {
                 // Quick fix for icon
                 position: relative;
                 top: 1px;

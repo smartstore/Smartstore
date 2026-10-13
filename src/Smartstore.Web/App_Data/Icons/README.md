@@ -809,12 +809,13 @@ on one line.
 `wwwroot/shared/_icons.scss` provides library-independent SVG layout and utility
 classes. It is included in the Admin and Flex themes after `shared/_utils.scss`,
 whose animation keyframes it reuses. Custom themes should import both in that
-order. This CSS is available independently of the future icon loader and helpers.
+order. This CSS is also available for manually authored SVGs.
 
 ### Markup and color
 
 Apply `.icon` either to the SVG itself or to a host containing one direct child
-SVG. The latter also supports a future web component using light DOM:
+SVG. These manual light-DOM wrappers remain supported; `sm-icon` instead
+encapsulates its generated drawing in Shadow DOM:
 
 ```html
 <svg class="icon icon-fw" viewBox="0 0 24 24"
@@ -1021,7 +1022,23 @@ on the host when the layers represent one combined symbol.
 
 ### Browser components
 
-`sm-icon` and `sm-icon-stack` are native custom elements with light DOM. They
+`sm-icon` renders its SVG in an open Shadow DOM with a shared stylesheet.
+Generated artwork is excluded from HTML serialization (including rich-text editor
+code views). Neither component adds or rewrites host attributes, classes or styles;
+HTML serialization preserves the author's declaration. Diagnostics (`data-icon`)
+and resolved library classes live on the internal SVG. Host CSS targets `sm-icon`
+and `sm-icon-stack` alongside `.icon` and `.icon-stack` for server-rendered markup.
+Generated identity and utility classes are exposed as `ElementInternals` custom
+states instead: for example, `sm-icon:state(icon-hi)` or
+`sm-icon:state(icon-mirror-rtl)`. Author-supplied `icon-*` classes remain supported.
+Presentation attributes use internal states and Shadow CSS; public icon CSS variables
+remain available for caller overrides. Automatic accessibility defaults use
+`ElementInternals` and can be overridden by explicit ARIA attributes. This requires
+a browser supporting Shadow DOM, adopted stylesheets and CSS custom states.
+Color and icon CSS variables inherit into the drawing.
+For inspection, use `element.shadowRoot.querySelector('svg')` instead of querying
+the host's children. `sm-icon-stack` retains its declarative light-DOM `sm-icon`
+children, each with its own shadow root. Both native custom elements
 use the same presentation attributes as the Razor helpers, including `lib`,
 `variant`, nullable `rotate` / `flip-h` / `flip-v`, and `stroke-scale`. Use explicit
 closing tags in browser HTML; `<sm-icon ... />` is not a self-closing HTML element.
@@ -1426,6 +1443,13 @@ bundles automatically: regenerate the bundle to update embedded SVGs. Existing
 Font Awesome mixins and their consumers remain unchanged during migration.
 
 ## Summernote icon adapter
+
+The CodeMirror source editor supports HTML completion for `sm-icon` and
+`sm-icon-stack`, their attributes and common attribute values (Ctrl+Space).
+Name suggestions display an icon preview beside the name and insert only the
+attribute value. Icon names come from the manifest for the `public` area because edited content
+is displayed in the storefront, even when the editor runs in admin. An explicit
+`area` attribute on the edited tag overrides this default.
 
 Smartstore overrides Summernote's existing `icons` option in
 `wwwroot/lib/editors/summernote/globalinit.js`. The local `iconConcepts` map translates

@@ -80,7 +80,7 @@
     font-size: $dropdown-font-size;
     gap:  cssmax(8px, calc(var(--dropdown-item-padding-x) * 0.75));
 
-    &:has(> :is(i, svg, .icon, .icon-stack, sm-icon)) {
+    &:has(> :is(i, svg, .icon, .icon-stack, sm-icon, sm-icon-stack)) {
         --dropdown-item-padding-x: var(--dropdown-icon-item-padding-x, 12px);
         gap: var(--dropdown-icon-item-gap, 10px);
     }
@@ -90,18 +90,18 @@
 	}
 
 	&:not(.disabled) {
-        > :is(i, svg, .icon) {
+        > :is(i, svg, .icon, sm-icon) {
 			//color: $dropdown-link-color;
             color: inherit;
 		}
 
-		.dropdown-group.show > & > :is(i, svg, .icon),
-        &:hover > :is(i, svg, .icon) {
+		.dropdown-group.show > & > :is(i, svg, .icon, sm-icon),
+        &:hover > :is(i, svg, .icon, sm-icon) {
 			color: $dropdown-link-hover-color;
 		}
 
-        &:active > :is(i, svg, .icon),
-        &:focus > :is(i, svg, .icon) {
+        &:active > :is(i, svg, .icon, sm-icon),
+        &:focus > :is(i, svg, .icon, sm-icon) {
 			color: $dropdown-link-active-color;
 		}
 	}

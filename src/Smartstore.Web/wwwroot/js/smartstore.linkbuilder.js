@@ -196,10 +196,10 @@
                 type = elem.data('type');
 
             var btn = cnt.find('.btn-linktype'),
-                icon = elem.children('.icon').clone().removeClass('icon-fw'),
+                icon = elem.children('.icon, sm-icon').clone().removeClass('icon-fw'),
                 name = elem.find('span').text();
 
-            btn.children('.icon').remove();
+            btn.children('.icon, sm-icon').remove();
             btn.prepend(icon);
             btn.attr('title', name);
 
@@ -225,7 +225,7 @@
         },
 
         _updateQueryStringIcon: function (hasQueryString) {
-            $(this.element).find('.btn-query-string > .icon')
+            $(this.element).find('.btn-query-string > :is(.icon, sm-icon)')
                 .removeClass('text-muted text-success')
                 .addClass(hasQueryString ? 'text-success' : 'text-muted');
         },
@@ -233,7 +233,7 @@
         _updateLinkTargetCtrl: function (target) {
             var hasLinkTarget = !_.isEmpty(target);
 
-            $(this.element).find('.btn-link-target > .icon')
+            $(this.element).find('.btn-link-target > :is(.icon, sm-icon)')
                 .removeClass('text-muted text-success')
                 .addClass(hasLinkTarget ? 'text-success' : 'text-muted');
 

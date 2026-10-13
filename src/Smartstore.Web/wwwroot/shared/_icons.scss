@@ -18,34 +18,34 @@
 
 // Shared sizing for SVG icons, image icons and stacks.
 // Animation keyframes are shared with _utils.scss.
-.icon,
-.icon-stack {
+:is(.icon, sm-icon),
+:is(.icon-stack, sm-icon-stack) {
     display: inline-block;
     flex: none;
     box-sizing: content-box;
     width: 1em;
     height: 1em;
     // Clamp the base before applying size utilities, not the final dimensions.
-    font-size: calc(max(var(--icon-size, 1em), var(--icon-min-size, 16px)) * var(--icon-size-factor, 1));
+    font-size: calc(max(var(--icon-size, 1em), var(--icon-min-size, 16px)) * var(--_icon-size-factor, var(--icon-size-factor, 1)));
     vertical-align: var(--icon-align, -0.125em);
     transform-origin: center;
     // Reset direction on every host so nested icons never mirror twice.
     --icon-direction-x: 1;
     // Individual transforms compose with the transform used by animations.
-    translate: var(--icon-shift-x, 0) var(--icon-shift-y, 0);
-    rotate: var(--icon-rotate, 0deg);
-    scale: calc(var(--icon-scale, 1) * var(--icon-flip-x, 1) * var(--icon-direction-x)) calc(var(--icon-scale, 1) * var(--icon-flip-y, 1));
+    translate: var(--icon-shift-x, var(--_icon-shift-x, 0)) var(--icon-shift-y, var(--_icon-shift-y, 0));
+    rotate: var(--icon-rotate, var(--_icon-rotate, 0deg));
+    scale: calc(var(--icon-scale, var(--_icon-scale, 1)) * var(--icon-flip-x, var(--_icon-flip-x, 1)) * var(--icon-direction-x)) calc(var(--icon-scale, var(--_icon-scale, 1)) * var(--icon-flip-y, var(--_icon-flip-y, 1)));
 }
 
-// SVGs and light-DOM hosts need centering and visible drawing overflow.
-.icon:not(img),
-.icon-stack {
+// SVGs and icon hosts need centering and visible drawing overflow.
+:is(.icon, sm-icon):not(img),
+:is(.icon-stack, sm-icon-stack) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
     overflow: visible;
-    color: var(--icon-color, inherit);
+    color: var(--icon-color, var(--_icon-color, inherit));
     text-align: center;
 }
 
@@ -53,10 +53,11 @@ img.icon {
     object-fit: contain;
 }
 
-.icon-mirror-rtl:dir(rtl) {
+:is(.icon-mirror-rtl, sm-icon:state(icon-mirror-rtl), sm-icon-stack:state(icon-mirror-rtl)):dir(rtl) {
     --icon-direction-x: -1;
 }
 
+// Light-DOM SVG wrappers; sm-icon uses equivalent rules in its shared shadow stylesheet.
 .icon > svg {
     display: block;
     width: 100%;
@@ -76,19 +77,19 @@ svg.icon > :is(use, g) {
 }
 
 // Keep fill/stroke on the SVG artwork: a global fill would break stroke icons.
-.icon-fw {
+:is(.icon-fw, sm-icon:state(icon-fw), sm-icon-stack:state(icon-fw)) {
     width: 1.25em;
 }
 
 // Sizing remains relative to the surrounding text, like the FA utilities.
 @for $i from 1 through 10 {
-    .icon-#{$i}x {
+    :is(.icon-#{$i}x, sm-icon:state(icon-#{$i}x), sm-icon-stack:state(icon-#{$i}x)) {
         --icon-size-factor: #{$i};
     }
 }
 
 @each $name, $size in (2xs: 10, xs: 12, sm: 14, lg: 20, xl: 24, 2xl: 32) {
-    .icon-#{$name} {
+    :is(.icon-#{$name}, sm-icon:state(icon-#{$name}), sm-icon-stack:state(icon-#{$name})) {
         --icon-size-factor: calc(#{$size} / 16);
         --icon-align: calc((6 / #{$size} - 3 / 8) * 1em);
     }
@@ -116,17 +117,17 @@ svg.icon > :is(use, g) {
 }
 
 // HTML stacks center independent SVG layers without assuming a library grid.
-.icon-stack {
+:is(.icon-stack, sm-icon-stack) {
     position: relative;
     isolation: isolate;
     width: var(--icon-stack-width, 2.5em);
     height: var(--icon-stack-height, 2em);
     vertical-align: var(--icon-stack-align, middle);
 
-    > :where(.icon) {
+    > :where(.icon, sm-icon) {
         // Do not apply the host's sizing and transforms a second time.
         --icon-size: 1em;
-        --icon-size-factor: 1;
+        --icon-size-factor: initial;
         --icon-min-size: 0px;
         --icon-rotate: initial;
         --icon-scale: initial;
@@ -141,21 +142,21 @@ svg.icon > :is(use, g) {
     }
 }
 
-.icon-stack > .icon-stack-1x {
+:is(.icon-stack, sm-icon-stack) > .icon-stack-1x {
     --icon-size-factor: 1;
 }
 
-.icon-stack > .icon-stack-2x {
+:is(.icon-stack, sm-icon-stack) > .icon-stack-2x {
     --icon-size-factor: 2;
 }
 
-.icon-inverse {
+:is(.icon-inverse, sm-icon:state(icon-inverse), sm-icon-stack:state(icon-inverse)) {
     color: var(--icon-inverse, #{$yiq-text-light});
 }
 
 // Icon utilities and bridges for existing Smartstore transform classes.
 // Scope the bridges to icon hosts; other users of _utils.scss stay unchanged.
-:is(.icon, .icon-stack) {
+:is(.icon, .icon-stack, sm-icon, sm-icon-stack) {
     @each $angle in (90, 180, 270) {
         &.icon-rotate-#{$angle},
         &.rotate-#{$angle} {
@@ -185,7 +186,7 @@ svg.icon > :is(use, g) {
 
     &:is(.rotate-90, .rotate-180, .rotate-270, .flip-h, .flip-v, .flip-hv) {
         transform: none;
-        translate: var(--icon-shift-x, var(--offset-x, 0)) var(--icon-shift-y, var(--offset-y, 0));
+        translate: var(--icon-shift-x, var(--_icon-shift-x, var(--offset-x, 0))) var(--icon-shift-y, var(--_icon-shift-y, var(--offset-y, 0)));
     }
 }
 
@@ -207,18 +208,18 @@ $icon-animations: (
 );
 
 @each $name, $settings in $icon-animations {
-    .icon-#{$name} {
+    :is(.icon-#{$name}, sm-icon:state(icon-#{$name}), sm-icon-stack:state(icon-#{$name})) {
         animation-name: list.nth($settings, 1);
-        animation-duration: var(--icon-animation-duration, var(--animation-duration, list.nth($settings, 2)));
+        animation-duration: var(--icon-animation-duration, var(--_icon-animation-duration, var(--animation-duration, list.nth($settings, 2))));
         animation-timing-function: var(--icon-animation-timing, list.nth($settings, 3));
-        animation-direction: var(--icon-animation-direction, list.nth($settings, 4));
+        animation-direction: var(--icon-animation-direction, var(--_icon-animation-direction, list.nth($settings, 4)));
         animation-delay: var(--icon-animation-delay, 0s);
         animation-iteration-count: var(--icon-animation-iteration-count, infinite);
         animation-play-state: var(--icon-animation-play-state, running);
     }
 }
 
-.icon-beat {
+:is(.icon-beat, sm-icon:state(icon-beat), sm-icon-stack:state(icon-beat)) {
     --beat-scale: var(--icon-beat-scale, 1.25);
 }
 
@@ -229,7 +230,9 @@ $icon-animations: (
 // Includes existing animate-* classes when applied to new icon hosts.
 @media (prefers-reduced-motion: reduce) {
     .icon,
-    .icon-stack {
+    .icon-stack,
+    sm-icon,
+    sm-icon-stack {
         animation: none !important;
         transition: none !important;
     }
@@ -266,7 +269,7 @@ $icon-animations: (
 
 
 // Specific overrides
-.btn-lg .icon-hi {
+.btn-lg :is(.icon-hi, sm-icon:state(icon-hi)) {
     --icon-min-size: 20px;
 }
 
@@ -287,4 +290,9 @@ $icon-animations: (
         height: 100%;
         object-fit: contain;
     }
+}
+
+// Missing-icon color remains independent of caller presentation.
+sm-icon:state(icon-not-found) {
+    color: var(--danger) !important;
 }

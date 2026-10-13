@@ -65,7 +65,7 @@ $pswp__background-color: #fff;
 }
 
 // Keep PhotoSwipe's delegated hit testing on the button itself.
-.pswp__button > .icon {
+.pswp__button > :is(.icon, sm-icon) {
     pointer-events: none;
 }
 
