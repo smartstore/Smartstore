@@ -138,11 +138,10 @@ public partial class ProductDetailsModel : EntityModelBase
         public string Target { get; set; }
         public string CssClass { get; set; }
         /// <summary>
-        /// Gets or sets the icon address, taking precedence over the legacy CSS class.
+        /// Gets or sets the icon address.
         /// </summary>
         public string Icon { get; set; }
 
-        public string IconCssClass { get; set; }
         public bool IsPrimary { get; set; }
         public string PrimaryActionColor { get; set; }
         public int Priority { get; set; }

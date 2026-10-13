@@ -14,10 +14,6 @@
         {
             <icon name="@action.Icon" class="@cssClass" />
         }
-        else if (action.IconCssClass.HasValue())
-        {
-            <i class="@cssClass @action.IconCssClass" aria-hidden="true"></i>
-        }
     }
 
     var primaryActions = Model.ActionItems.Values.Where(x => x.IsPrimary).OrderBy(x => x.Priority).ToList();

@@ -67,8 +67,8 @@
                 url: url,
                 dropUrl: '@Url.Action("TreeDrop")',
                 dragAndDrop: @canEdit.ToString().ToLower(),
-                defaultCollapsedIconClass: 'fas fa-fw fa-folder text-success',
-                defaultExpandededIconClass: 'fas fa-fw fa-folder-open text-success',
+                defaultCollapsedIcon: 'folder?color=var(--success)',
+                defaultExpandedIcon: 'folder-open?color=var(--success)',
                 noDataNote: @T("Admin.Catalog.Categories.NoCategories").JsValue
             });
         }

@@ -96,7 +96,7 @@
         <span class="main-pic-badge badge badge-success">@T("FileUploader.MultiFiles.MainMediaFile")</span>
 
         <figure class="file-figure d-flex m-0 align-items-center justify-content-center file-thumb show loaded" data-type="@dataType">
-            <i class="file-icon fa-fw show d-none"></i>
+            <sm-icon class="file-icon show d-none" fw aria-hidden="true"></sm-icon>
             @*Append number of ticks because otherwise when an image is updated via API or import, the old image will still be displayed.*@
             <img class="file-img" data-dz-thumbnail attr-src='(previewUrl.HasValue(), previewUrl + "&num=" + DateTime.UtcNow.Ticks)' alt="@fileName" />
         </figure>

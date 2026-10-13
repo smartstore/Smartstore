@@ -1089,3 +1089,22 @@ Smartstore still renders SVG icons and does not import this font.
 
 - Removed the unused legacy icon font assets, bundle/report imports, Sass utilities,
   mixin and project exclusion after migrating all remaining callers to IconKit.
+
+- Product actions now use icon addresses exclusively. Sample downloads use download;
+  LinkMobility uses mobile with the shared product-action sizing. Removed the legacy
+  ActionItemModel.IconCssClass property and Razor fallback.
+
+- Media preview hints expose IconKit addresses only. Preview rendering, Dropzone
+  placeholders and FileManager consumers use sm-icon; getPreview accepts iconSize
+  instead of FA-specific iconCssClasses. Existing type colors and size factors remain.
+
+- ConfirmTagHelper and ConfirmModel use Icon addresses instead of IconClass. The
+  dialog renders server-side SVGs with existing theme colors and size utilities.
+  Defaults are alert-circle and trash; Campaign and PersonalPromo use question-circle
+  and rotate-right. The independent client-side confirm2 API remains unchanged.
+
+- TreeItem.Icon and data-icon replace IconClass/data-icon-class. The tree renders
+  sm-icon and accepts defaultCollapsedIcon/defaultExpandedIcon and
+  collapsedIcon/expandedIcon addresses. Default chevrons retain their rotation
+  animation; custom state icons switch names. Category folders use the folder/folder-open kit
+  concepts and retain the success color. Image URL support is unchanged.

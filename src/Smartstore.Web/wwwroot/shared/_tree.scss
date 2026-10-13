@@ -101,10 +101,10 @@ $default-state-color: $gray-400;
 .tree-expander {
     position: relative;
     cursor: pointer;
-    font-size: 12px;
+    --icon-size: 1rem;
 
     &.loading {
-        > i {
+        > sm-icon {
             visibility: hidden;
         }
 

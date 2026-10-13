@@ -15,7 +15,7 @@
     <modal-body>
         <div class="modal-box-body d-flex" attr-class='(Model.CenterContent, "flex-nowrap")'>
             <div class="modal-box-icon">
-                <i class="@(Model.IconClass) text-@(Model.IconColor.ToString().ToLower()) fa-fw fa-3x mb-3"></i>
+                <icon sm-if="Model.Icon.HasValue()" name="@Model.Icon" class="text-@(Model.IconColor.ToString().ToLower()) icon-fw icon-3x mb-3" />
             </div>
             <div class="modal-box-message">@Model.Message</div>
         </div>

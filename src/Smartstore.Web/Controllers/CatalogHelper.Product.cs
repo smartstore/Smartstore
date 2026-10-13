@@ -334,7 +334,7 @@ public partial class CatalogHelper
                     Key = "sample",
                     Title = T("Products.DownloadSample"),
                     CssClass = "action-download-sample",
-                    IconCssClass = "fa fa-download",
+                    Icon = "download",
                     Href = _urlHelper.Action("Sample", "Download", new { productId = model.Id }),
                     IsPrimary = true,
                     PrimaryActionColor = "danger"

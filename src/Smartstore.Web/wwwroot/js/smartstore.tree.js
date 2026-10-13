@@ -26,12 +26,12 @@
         showStateInfo: false,   // true: show number of 'on'(green) descendents for 'on-off' stateType.
         showNumChildren: true,
         showNumChildrenDeep: false,
-        defaultCollapsedIconClass: null,
-        defaultExpandededIconClass: null,
+        defaultCollapsedIcon: null,
+        defaultExpandedIcon: null,
         defaultCollapsedIconUrl: null,
         defaultExpandededIconUrl: null,
-        expandedClass: null,
-        collapsedClass: 'fas fa-chevron-right',
+        expandedIcon: null,
+        collapsedIcon: 'chevron-right',
         leafClass: 'tree-leaf',
         stateTitles: ['', '', '', ''],
         stateInfoTitles: ['', '', ''],
@@ -262,7 +262,7 @@
             var title = nodeData?.Title ? window.htmlEncode(nodeData.Title) : li.data('title');
             var nodeUrl = nodeData?.Url || li.data('url');
             var badgeText = nodeData?.BadgeText || li.data('badge-text');
-            var iconClass = nodeData?.IconClass || li.data('icon-class') || opt.defaultCollapsedIconClass;
+            var icon = nodeData?.Icon || li.data('icon') || opt.defaultCollapsedIcon;
             var iconUrl = nodeData?.IconUrl || li.data('icon-url') || opt.defaultCollapsedIconUrl;
             var dimmed = nodeData ? nodeData.Dimmed : toBool(li.data('dimmed'), false);
             var enabled = nodeData ? nodeData.Enabled : toBool(li.data('enabled'), true);
@@ -301,7 +301,7 @@
             }
 
             if (numChildren > 0) {
-                html += `<span class="tree-expander-container tree-expander"><i class="${getExpanderIconClass(opt, false)}"></i></span>`;
+                html += `<span class="tree-expander-container tree-expander">${renderExpanderIcon(opt)}</span>`;
             }
             else {
                 html += '<span class="tree-expander-container"></span>';
@@ -309,8 +309,8 @@
 
             html += `<label class="tree-label"${!enabled && opt.disabledTitle ? ` title="${opt.disabledTitle}"` : ''}><span class="${contentClass}">`;
 
-            if (iconClass) {
-                html += `<span class="tree-icon"><i class="${iconClass}"></i></span>`;
+            if (icon) {
+                html += `<span class="tree-icon"><sm-icon name="${window.htmlEncode(icon)}" fw aria-hidden="true"></sm-icon></span>`;
             }
             else if (iconUrl) {
                 html += `<span class="tree-icon"><img src="${iconUrl}" alt="${name}" /></span>`;
@@ -445,8 +445,8 @@
             var nodeInner = node.find('.tree-inner').first();
 
             // Toggle node icon.
-            if (opt.defaultCollapsedIconClass && opt.defaultExpandededIconClass) {
-                nodeInner.find('.tree-icon i').attr('class', expand ? opt.defaultExpandededIconClass : opt.defaultCollapsedIconClass);
+            if (opt.defaultCollapsedIcon && opt.defaultExpandedIcon) {
+                nodeInner.find('.tree-icon sm-icon').attr('name', expand ? opt.defaultExpandedIcon : opt.defaultCollapsedIcon);
             }
             else if (opt.defaultCollapsedIconUrl && opt.defaultExpandededIconUrl) {
                 nodeInner.find('.tree-icon img').attr('src', expand ? opt.defaultExpandededIconUrl : opt.defaultCollapsedIconUrl);
@@ -454,8 +454,8 @@
 
             // Toggle custom expander icons. The default chevron keeps the same element and class
             // so its transform can transition continuously.
-            if (opt.expandedClass && opt.expandedClass !== opt.collapsedClass) {
-                nodeInner.find('.tree-expander > i').attr('class', getExpanderIconClass(opt, expand));
+            if (opt.expandedIcon && opt.expandedIcon !== opt.collapsedIcon) {
+                nodeInner.find('.tree-expander > sm-icon').attr('name', expand ? opt.expandedIcon : opt.collapsedIcon);
             }
 
             EventBroker.publishSync(eventName, { node });
@@ -466,14 +466,14 @@
         var container = node.find('.tree-inner').first().find('.tree-expander-container');
 
         if (!container.hasClass('tree-expander')) {
-            container.addClass('tree-expander').html(`<i class="${getExpanderIconClass(opt, false)}"></i>`);
+            container.addClass('tree-expander').html(renderExpanderIcon(opt));
             node.addClass('tree-collapsed tree-noleaf').removeClass('tree-leaf');
         }
     }
 
-    function getExpanderIconClass(opt, expanded) {
-        var iconClass = expanded && opt.expandedClass ? opt.expandedClass : opt.collapsedClass;
-        return `${!opt.expandedClass || opt.expandedClass === opt.collapsedClass ? 'tree-chevron ' : ''}${iconClass}`;
+    function renderExpanderIcon(opt) {
+        const cssClass = !opt.expandedIcon || opt.expandedIcon === opt.collapsedIcon ? 'tree-chevron' : '';
+        return `<sm-icon name="${window.htmlEncode(opt.collapsedIcon)}" class="${cssClass}" aria-hidden="true"></sm-icon>`;
     }
 
     function setInheritedState(node, inheritedState, opt) {

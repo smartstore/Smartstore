@@ -87,9 +87,9 @@ public partial class TreeItem
     public string StateValue { get; set; }
 
     /// <summary>
-    /// Optional icon class.
+    /// Optional icon concept or address.
     /// </summary>
-    public string IconClass { get; set; }
+    public string Icon { get; set; }
 
     /// <summary>
     /// Optional icon URL.

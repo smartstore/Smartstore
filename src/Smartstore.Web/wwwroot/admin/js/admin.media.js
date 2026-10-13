@@ -108,7 +108,7 @@ Smartstore.Admin.Media = (function () {
 
         // Private methods
         _refreshFileDisplay(el, file) {
-            var preview = Smartstore.media.getPreview(file, { iconCssClasses: "fa-4x" });
+            var preview = Smartstore.media.getPreview(file, { iconSize: "4x" });
             el.find(".file-preview").html(preview.thumbHtml);
             Smartstore.media.lazyLoadThumbnails(el);
 

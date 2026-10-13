@@ -16,24 +16,18 @@
     --icon-mask-check: #{icon-url("check")};
 }
 
-// Library-independent SVG icons. Animation keyframes shared with _utils.scss.
-// Apply .icon to an SVG or a light-DOM host containing one direct child SVG.
+// Shared sizing for SVG icons, image icons and stacks.
+// Animation keyframes are shared with _utils.scss.
 .icon,
 .icon-stack {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    display: inline-block;
     flex: none;
     box-sizing: content-box;
     width: 1em;
     height: 1em;
     // Clamp the base before applying size utilities, not the final dimensions.
     font-size: calc(max(var(--icon-size, 1em), var(--icon-min-size, 16px)) * var(--icon-size-factor, 1));
-    line-height: 1;
     vertical-align: var(--icon-align, -0.125em);
-    overflow: visible;
-    color: var(--icon-color, inherit);
-    text-align: center;
     transform-origin: center;
     // Reset direction on every host so nested icons never mirror twice.
     --icon-direction-x: 1;
@@ -41,6 +35,22 @@
     translate: var(--icon-shift-x, 0) var(--icon-shift-y, 0);
     rotate: var(--icon-rotate, 0deg);
     scale: calc(var(--icon-scale, 1) * var(--icon-flip-x, 1) * var(--icon-direction-x)) calc(var(--icon-scale, 1) * var(--icon-flip-y, 1));
+}
+
+// SVGs and light-DOM hosts need centering and visible drawing overflow.
+.icon:not(img),
+.icon-stack {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    overflow: visible;
+    color: var(--icon-color, inherit);
+    text-align: center;
+}
+
+img.icon {
+    object-fit: contain;
 }
 
 .icon-mirror-rtl:dir(rtl) {

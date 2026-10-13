@@ -578,12 +578,7 @@
                 var elImage = el.find('.file-figure > img').addClass(icon.mediaType == "image" ? "hide" : "d-none");
 
                 elFigure.attr("data-type", icon.mediaType);
-                if (elIcon.is("sm-icon")) {
-                    elIcon.attr({ name: icon.address, size: small ? "2x" : "4x" }).addClass("show").css("color", icon.color);
-                }
-                else {
-                    elIcon.attr("class", "file-icon show " + icon.name + (small ? " fa-2x" : " fa-4x")).css("color", icon.color);
-                }
+                elIcon.attr({ name: icon.address, size: small ? "2x" : "4x", color: icon.color }).addClass("show");
 
                 if (small)
                     return;
@@ -947,7 +942,7 @@
 
     // Sets the preview image of a single file upload control after upload or selection (by MM plugin).
     window.displaySingleFilePreview = function (file, fuContainer, options) {
-        var preview = Smartstore.media.getPreview(file, { iconCssClasses: "fa-4x" });
+        var preview = Smartstore.media.getPreview(file, { iconSize: "4x" });
 
         fuContainer.find('.fu-thumb').removeClass("empty").html(preview.thumbHtml);
         Smartstore.media.lazyLoadThumbnails(fuContainer.find('.fu-thumb'));
@@ -988,7 +983,8 @@
 
         icon = icon || Smartstore.media.getIconHint({});
 
-        var html = '<i class="file-icon show fa-2x ' + icon.name + '" aria-hidden="true"></i>';
+        var html = $('<sm-icon class="file-icon show" size="2x" aria-hidden="true"></sm-icon>')
+            .attr("name", icon.address);
         fuContainer.find('.fu-thumb').addClass("empty").html(html);
         fuContainer.find('.fu-message').addClass("empty");
     }

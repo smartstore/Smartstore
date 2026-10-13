@@ -19,6 +19,6 @@ public partial class ConfirmModel : ModelBase
     public bool CenterContent { get; set; }
     public ModalSize Size { get; set; } = ModalSize.Medium;
     public string Message { get; set; }
-    public string IconClass { get; set; }
+    public string Icon { get; set; }
     public ThemeColor IconColor { get; set; }
 }
