@@ -136,7 +136,7 @@ public class MaintenanceController : AdminController
     public async Task<IActionResult> DeleteImageCache()
     {
         await _imageCache.Value.ClearAsync();
-        return RedirectToAction("Index");
+        return RedirectToAction(nameof(Index));
     }
 
     [HttpPost, ActionName("Index")]
@@ -149,26 +149,32 @@ public class MaintenanceController : AdminController
             return View(model);
         }
 
-        var dtHelper = Services.DateTimeHelper;
+        try
+        {
+            var dtHelper = Services.DateTimeHelper;
 
-        DateTime? startDateValue = model.DeleteGuests.StartDate == null
-            ? null
-            : dtHelper.ConvertToUtcTime(model.DeleteGuests.StartDate.Value, dtHelper.CurrentTimeZone);
+            DateTime? startDateValue = model.DeleteGuests.StartDate == null
+                ? null
+                : dtHelper.ConvertToUtcTime(model.DeleteGuests.StartDate.Value, dtHelper.CurrentTimeZone);
 
-        DateTime? endDateValue = model.DeleteGuests.EndDate == null
-            ? null
-            : dtHelper.ConvertToUtcTime(model.DeleteGuests.EndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
+            DateTime? endDateValue = model.DeleteGuests.EndDate == null
+                ? null
+                : dtHelper.ConvertToUtcTime(model.DeleteGuests.EndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
 
-        // Execute
-        var numDeletedCustomers = await _customerService.DeleteGuestCustomersAsync(
-            startDateValue,
-            endDateValue,
-            model.DeleteGuests.OnlyWithoutShoppingCart,
-            _appLifetime.ApplicationStopping);
+            var numDeletedCustomers = await _customerService.DeleteGuestCustomersAsync(
+                startDateValue,
+                endDateValue,
+                model.DeleteGuests.OnlyWithoutShoppingCart,
+                _appLifetime.ApplicationStopping);
 
-        NotifyInfo(T("Admin.System.Maintenance.DeleteGuests.TotalDeleted", numDeletedCustomers));
+            NotifyInfo(T("Admin.System.Maintenance.DeleteGuests.TotalDeleted", numDeletedCustomers));
+        }
+        catch (Exception ex)
+        {
+            NotifyError(ex);
+        }
 
-        return RedirectToAction("Index");
+        return RedirectToAction(nameof(Index));
     }
 
     [HttpPost, ActionName("Index")]
@@ -198,7 +204,7 @@ public class MaintenanceController : AdminController
 
         NotifyInfo(T("Admin.System.Maintenance.DeletedExportFilesAndFolders", numFiles, numFolders));
 
-        return RedirectToAction("Index");
+        return RedirectToAction(nameof(Index));
     }
 
     [HttpPost, ActionName("Index")]
@@ -222,7 +228,7 @@ public class MaintenanceController : AdminController
             }
         }
 
-        return RedirectToAction("Index");
+        return RedirectToAction(nameof(Index));
     }
 
     [MaintenanceAction]
@@ -908,7 +914,7 @@ public class MaintenanceController : AdminController
             NotifyError(ex);
         }
 
-        return RedirectToAction("Index");
+        return RedirectToAction(nameof(Index));
     }
 
     [HttpPost]
@@ -984,7 +990,7 @@ public class MaintenanceController : AdminController
             NotifyError(ex);
         }
 
-        return RedirectToAction("Index");
+        return RedirectToAction(nameof(Index));
     }
 
     [HttpPost]
@@ -1045,7 +1051,7 @@ public class MaintenanceController : AdminController
             NotifyWarning(T("Admin.Common.FileInUse"));
         }
 
-        return RedirectToAction("Index");
+        return RedirectToAction(nameof(Index));
     }
 
     #endregion

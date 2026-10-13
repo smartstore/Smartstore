@@ -28,6 +28,7 @@ public partial class CustomerService : ICustomerService
     private readonly IChronometer _chronometer;
     private readonly RewardPointsSettings _rewardPointsSettings;
     private readonly PrivacySettings _privacySettings;
+    private readonly CustomerSettings _customerSettings;
 
     private Customer _authCustomer;
     private bool _authCustomerResolved;
@@ -41,7 +42,8 @@ public partial class CustomerService : ICustomerService
         IHttpContextAccessor httpContextAccessor,
         IChronometer chronometer,
         RewardPointsSettings rewardPointsSettings,
-        PrivacySettings privacySettings)
+        PrivacySettings privacySettings,
+        CustomerSettings customerSettings)
     {
         _db = db;
         _storeContext = storeContext;
@@ -52,6 +54,7 @@ public partial class CustomerService : ICustomerService
         _chronometer = chronometer;
         _rewardPointsSettings = rewardPointsSettings;
         _privacySettings = privacySettings;
+        _customerSettings = customerSettings;
     }
 
     public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -199,51 +202,70 @@ public partial class CustomerService : ICustomerService
         CancellationToken cancelToken = default)
     {
         var numberOfDeletedCustomers = 0;
-        var numberOfDeletedAttributes = 0;
-        var query = await GetGuestCustomersDeletionQuery(registrationFrom, registrationTo, onlyWithoutShoppingCart, cancelToken);
-        var customerIdsQuery = query
-            .OrderBy(x => x.Id)
-            .Select(x => x.Id)
-            .Take(5000);
-
-        while (true)
+        var previousCmdTimeout = 0;
+        var cmdTimeout = _customerSettings.GuestCustomersDeletionCommandTimeout;
+        if (cmdTimeout > 0)
         {
-            cancelToken.ThrowIfCancellationRequested();
-
-            var customerIds = await customerIdsQuery.ToListAsync(cancelToken);
-            if (customerIds.Count == 0)
-            {
-                break;
-            }
-
-            // Delete generic attributes.
-            var numDeleted = await _db.GenericAttributes
-                .IgnoreQueryFilters()
-                .Where(x => customerIds.Contains(x.EntityId) && x.KeyGroup == nameof(Customer))
-                .ExecuteDeleteAsync(cancelToken);
-
-            numberOfDeletedAttributes += numDeleted;
-
-            // Delete guest customers.
-            numDeleted = await _db.Customers
-                .IgnoreQueryFilters()
-                .Where(x => customerIds.Contains(x.Id))
-                .ExecuteDeleteAsync(cancelToken);
-
-            if (numDeleted == 0)
-            {
-                break;
-            }
-
-            numberOfDeletedCustomers += numDeleted;
+            previousCmdTimeout = _db.Database.GetCommandTimeout() ?? 30;
+            _db.Database.SetCommandTimeout(cmdTimeout);
         }
 
-        if (numberOfDeletedCustomers + numberOfDeletedAttributes > 10000 && !cancelToken.IsCancellationRequested && _db.DataProvider.CanOptimizeTable)
+        try
         {
-            await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync<Customer>(cancelToken));
-        }
+            var numberOfDeletedAttributes = 0;
+            var batchSize = Math.Max(_customerSettings.GuestCustomersDeletionBatchSize, 1);
+            var query = await GetGuestCustomersDeletionQuery(registrationFrom, registrationTo, onlyWithoutShoppingCart, cancelToken);
+            var customerIdsQuery = query
+                .OrderBy(x => x.Id)
+                .Select(x => x.Id)
+                .Take(batchSize);
 
-        Logger.Debug("Deleted {0} guest customers including {1} generic attributes.", numberOfDeletedCustomers, numberOfDeletedAttributes);
+            while (true)
+            {
+                cancelToken.ThrowIfCancellationRequested();
+
+                var customerIds = await customerIdsQuery.ToListAsync(cancelToken);
+                if (customerIds.Count == 0)
+                {
+                    break;
+                }
+
+                // Delete generic attributes.
+                var numDeleted = await _db.GenericAttributes
+                    .IgnoreQueryFilters()
+                    .Where(x => customerIds.Contains(x.EntityId) && x.KeyGroup == nameof(Customer))
+                    .ExecuteDeleteAsync(cancelToken);
+
+                numberOfDeletedAttributes += numDeleted;
+
+                // Delete guest customers.
+                numDeleted = await _db.Customers
+                    .IgnoreQueryFilters()
+                    .Where(x => customerIds.Contains(x.Id))
+                    .ExecuteDeleteAsync(cancelToken);
+
+                if (numDeleted == 0)
+                {
+                    break;
+                }
+
+                numberOfDeletedCustomers += numDeleted;
+            }
+
+            if (numberOfDeletedCustomers + numberOfDeletedAttributes > 10000 && !cancelToken.IsCancellationRequested && _db.DataProvider.CanOptimizeTable)
+            {
+                await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync<Customer>(cancelToken));
+            }
+
+            Logger.Debug("Deleted {0} guest customers including {1} generic attributes.", numberOfDeletedCustomers, numberOfDeletedAttributes);
+        }
+        finally
+        {
+            if (cmdTimeout > 0)
+            {
+                _db.Database.SetCommandTimeout(previousCmdTimeout);
+            }
+        }
 
         return numberOfDeletedCustomers;
     }
