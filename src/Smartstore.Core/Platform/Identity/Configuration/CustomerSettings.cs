@@ -289,6 +289,8 @@ public class CustomerSettings : ISettings
     /// </summary>
     public int? RegisterCustomerRoleId { get; set; }
 
+    // TODO: (mg) These are performance settings. Move to PerformanceSettings.
+
     /// <summary>
     /// The maximum number of guest customers to delete in a single batch.
     /// This hidden setting helps manage performance and timeout issues when cleaning up guest accounts.
