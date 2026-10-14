@@ -1467,6 +1467,16 @@ Font Awesome mixins and their consumers remain unchanged during migration.
 
 ## Summernote icon adapter
 
+The Smartstore-owned `plugins/smartstore.iconpicker.js` plugin adds an Icon tab to the
+emoji picker through the fork's generic `emoji.addTab` API. It lists visible kits
+for the public area and the available library variants, using the existing icon
+browser endpoint for search, paging and sprite previews. Source selection, search
+and preview sizes (16, 24 and 32 pixels) share one toolbar row. Tiles have tooltips
+but no visible labels. Choosing a kit icon inserts its concept; choosing a library
+icon inserts its explicit address. Preview size is never written into the content.
+The editor restores the insertion range and inserts clean `sm-icon` markup.
+
+
 The CodeMirror source editor supports HTML completion for `sm-icon` and
 `sm-icon-stack`, their attributes and common attribute values (Ctrl+Space).
 Name suggestions display an icon preview beside the name and insert only the

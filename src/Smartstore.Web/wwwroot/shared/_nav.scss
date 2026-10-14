@@ -36,18 +36,13 @@
         }
     }
 
-	.nav-link > :is(img, i, svg) {
+	.nav-link > :is(.icon, img) {
         position: relative;
 		color: var(--nav-link-icon-color);
 	}
 
-    // SVG icons keep their shared minimum size and size modifiers.
-    .nav-link > :is(img, i, svg):not(.icon) {
-        font-size: inherit;
-    }
-
-    .nav-link:hover > :is(i, svg),
-    .nav-link.active > :is(i, svg) {
+    .nav-link:hover > .icon,
+    .nav-link.active > .icon {
 		color: inherit;
 	}
 
@@ -155,7 +150,7 @@
 			opacity: 0.4;
 		}
 
-		> :is(i, svg, img) {
+		> :is(.icon, img) {
 			display: none;
 		}
 
@@ -164,7 +159,7 @@
         }
 
 		@include media-breakpoint-up(lg) {
-			> :is(i, svg, img) {
+			> :is(.icon, img) {
 				display: inline-block;
 			}
 		}
@@ -267,7 +262,7 @@
         max-width: 250px;
         min-height: 100%;
 
-	    .nav-link > :is(i, svg, img) {
+	    .nav-link > :is(.icon, img) {
             // Move icon slightly away from label if tabs are placed on left or right
             //inset-inline-start: -0.25em;
             margin-inline: 0.25em;
@@ -322,7 +317,7 @@
                     transition: all ease 0.15s;
                 }
 
-                > :is(i, svg) {
+                > .icon {
                     transition: transform ease 0.15s;
                 }
 
@@ -338,7 +333,7 @@
                         transform: translateX(2px);
                     }
 
-                    > :is(i, svg) {
+                    > .icon {
                         transform: scale(1.2);
                     }
                 }

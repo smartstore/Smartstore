@@ -1,7 +1,10 @@
-﻿@using Smartstore.Utilities
+@using Smartstore.Utilities
 @using Smartstore.Core.AI
 @using Smartstore.Web.Rendering.Events
 @using Smartstore.Utilities.Html
+
+@inject Smartstore.IconKit.IIconService Icons
+@inject Smartstore.IconKit.IIconKitService IconKits
 
 @model string
 
@@ -23,6 +26,17 @@
         var ai_icon_svg = $(".ai-dialog-opener-root:first .ai-icon-stars-tricolor");
     </script>
     <script src="~/bundle/js/summernote.js"></script>
+    <script src="~/lib/editors/summernote/plugins/smartstore.iconpicker.js"
+            data-search-url="@Url.RouteUrl("IconKit.Browse")"
+            data-empty="@T("Search.NoResultsText")"
+            data-more="@T("Common.ShowMore")"
+            data-error="@T("Common.Error")"
+            data-libraries="@System.Text.Json.JsonSerializer.Serialize((await Icons.GetLibrariesAsync()).Where(x => x.SystemName != "system").SelectMany(x => x.Variants.Values.Select(v => new { library = x.SystemName, variant = v.Name, icon = v.Icon ?? x.Icon ?? "layers", label = (x.DisplayName ?? x.SystemName) + (v.Name == "default" ? "" : " " + (v.DisplayName ?? v.Name)) })))"
+            data-label="@T("Admin.IconBrowser.Icon")"
+            data-search="@T("Admin.IconBrowser.Search")"
+            data-source="@T("Admin.IconBrowser.SelectSource")"
+            data-size="@T("Admin.IconBrowser.Size")"
+            data-kits="@System.Text.Json.JsonSerializer.Serialize(IconKits.Kits.Where(x => x.ShowInPicker && x.Areas.Contains("public")).Select(x => new { kit = x.Name, label = x.DisplayName ?? x.Name, icon = x.Icon ?? "box" }))"></script>
 
     @* Find summernote localization file *@
     <script src="~/lib/editors/summernote/lang/summernote-{lang}.js" sm-locale-for="WorkContext.WorkingLanguage" sm-if='WorkContext.WorkingLanguage.LanguageCulture != "en-US"'></script>
