@@ -40,12 +40,11 @@
     $(function () {
         $(document).on('click', '.toggle-panel', function (e) {
 			let btn = $(this);
-            let fa = btn.find('.fa');
+            let icon = btn.find('sm-icon');
             let panel = btn.parent().next();
             let isPressed = btn.is('.active');
 
-            fa.toggleClass('fa-angle-down', !isPressed);
-            fa.toggleClass('fa-angle-up', isPressed);
+            icon.attr('name', isPressed ? 'chevron-up' : 'chevron-down');
             panel.toggleClass('d-none', !isPressed);
 		});
 
@@ -196,7 +195,7 @@
         <div class="adminData wide">
             <div class="toggle-panel-wrapper">
                 <button class="toggle-panel btn btn-secondary btn-sm" data-toggle="button" aria-pressed="false">
-                    <i class="fa fa-angle-down"></i>
+                    <sm-icon name="chevron-down"></sm-icon>
                     <span>@T("Admin.Common.Show")</span>
                 </button>
             </div>
@@ -224,7 +223,7 @@
         <div class="adminData wide">
             <div class="toggle-panel-wrapper">
                 <button class="toggle-panel btn btn-secondary btn-sm" data-toggle="button" aria-pressed="false">
-                    <i class="fa fa-angle-down"></i>
+                    <sm-icon name="chevron-down"></sm-icon>
                     <span>@T("Admin.Common.Show")</span>
                 </button>
             </div>
@@ -252,7 +251,7 @@
         <div class="adminData wide">
             <div class="toggle-panel-wrapper">
                 <button class="toggle-panel btn btn-secondary btn-sm" data-toggle="button" aria-pressed="false">
-                    <i class="fa fa-angle-down"></i>
+                    <sm-icon name="chevron-down"></sm-icon>
                     <span>@T("Admin.Common.Show") (@Model.LoadedAssemblies.Count)</span>
                 </button>
             </div>
@@ -307,7 +306,7 @@
         <div class="adminData">
             <div class="toggle-panel-wrapper">
                 <button class="toggle-panel btn btn-secondary btn-sm" data-toggle="button" aria-pressed="false">
-                    <i class="fa fa-angle-down"></i>
+                    <sm-icon name="chevron-down"></sm-icon>
                     <span>@T("Admin.Common.Show")</span>
                 </button>
             </div>

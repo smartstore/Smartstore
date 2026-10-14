@@ -76,7 +76,7 @@
 						<input type="hidden" class="input-property" value="" />
 						<div class="item-inner d-none">
 							<span class="property-icon pr-2">
-								<i class="text-success fa fa-fw"></i>
+								<sm-icon class="text-success icon-fw"></sm-icon>
 							</span>
 							<span class="left-label"></span>
 							<span class="muted right-label ml-auto"></span>
@@ -147,7 +147,7 @@
 							<input type="hidden" name="ColumnMapping.Property.@(index)" value="@mapping.Property" />
 							<div class="item-inner">
 								<span class="property-icon pr-2">
-									<i class="text-success fa fa-fw @(mapping.Property.EmptyNull().EndsWith("]") ? "fa-globe" : "fa-unlink")"></i>
+									<sm-icon name="@(mapping.Property.EmptyNull().EndsWith("]") ? "globe" : "unlink")" class="text-success icon-fw"></sm-icon>
 								</span>
 								@if (mapping.PropertyDescription.Length > maxMappingLabelTextLength)
 								{

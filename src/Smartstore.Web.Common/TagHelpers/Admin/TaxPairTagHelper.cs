@@ -160,7 +160,13 @@ public class TaxPairTagHelper : SmartTagHelper
                 lockTag.Attributes.Add("type", "button");
                 lockTag.AddCssClass("btn btn-sm border-0 shadow-none bg-transparent text-reset p-1 btn-tax-lock");
                 lockTag.Attributes.Add("title", T(active ? "Admin.Common.TaxCalculator.Disable" : "Admin.Common.TaxCalculator.Enable"));
-                lockTag.InnerHtml.AppendHtml("<i class='fa {0}'></i>".FormatInvariant(active ? "fa-lock" : "fa-lock-open text-muted"));
+                var icon = new TagBuilder("sm-icon");
+                icon.Attributes["name"] = active ? "lock" : "lock-open";
+                if (!active)
+                {
+                    icon.AddCssClass("text-muted");
+                }
+                lockTag.InnerHtml.AppendHtml(icon);
             }
             else
             {
@@ -168,7 +174,7 @@ public class TaxPairTagHelper : SmartTagHelper
                 lockTag = new TagBuilder("span");
                 lockTag.AddCssClass("p-1");
                 lockTag.Attributes.Add("title", T("Admin.Common.TaxCalculator.NoCalculation"));
-                lockTag.InnerHtml.AppendHtml("<i class='fa fa-lock-open text-danger'></i>");
+                lockTag.InnerHtml.AppendHtml("<sm-icon name='lock-open' class='text-danger'></sm-icon>");
             }
 
             return lockTag;

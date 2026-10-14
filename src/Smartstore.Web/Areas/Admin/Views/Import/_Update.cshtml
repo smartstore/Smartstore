@@ -422,7 +422,7 @@
 				leftLabel.attr('title', '');
 			}
 
-			context.find('i').removeClass('fa-globe fa-unlink').addClass(isLocalized ? 'fa-globe' : 'fa-unlink');
+			context.find('sm-icon').attr('name', isLocalized ? 'globe' : 'unlink');
 		}
 
 		function initSelectBox(element, isProperty) {
@@ -490,7 +490,7 @@
 					if (option.length === 0) {
 						html += '<div class="mapping-list-item">';
 						html += '<span class="pr-2 d-inline-block">';
-						html += '	<i class="fa fa-fw ' + (isLocalized ? 'fa-globe' : 'fa-unlink') + ' text-success"></i>';
+						html += '	<sm-icon name="' + (isLocalized ? 'globe' : 'unlink') + '" class="icon-fw text-success"></sm-icon>';
 						html += '</span>';
 					}
 					else {
@@ -512,10 +512,8 @@
 						html += '<div class="mapping-list-item' + (mappingIndex === -1 ? '' : ' muted') + '">';
 
 						html += '<span class="pr-2 d-inline-block">';
-						html += '<i class="fa fa-fw ';
-						html += (isLocalized ? 'fa-globe' : (mappingIndex === -1 ? 'fa-unlink' : 'fa-link'));
-						html += (mappingIndex === -1 ? ' text-success">' : ' text-warning">');
-                        html += '</i></span>';
+						html += '<sm-icon name="' + (isLocalized ? 'globe' : (mappingIndex === -1 ? 'unlink' : 'link')) + '"';
+						html += ' class="icon-fw ' + (mappingIndex === -1 ? 'text-success' : 'text-warning') + '"></sm-icon></span>';
 					}
 
 					html += '<span class="ml-1 d-inline-block"';

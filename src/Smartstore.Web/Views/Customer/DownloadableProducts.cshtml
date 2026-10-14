@@ -117,7 +117,7 @@
                                         aria-expanded="false"
                                         class="download-version">
                                         <td>
-                                            <i class="fa fa-fw fa-angle-right" aria-hidden="true"></i>
+                                            <sm-icon name="chevron-right" class="icon-fw" aria-hidden="true"></sm-icon>
                                         </td>
                                         <td>
                                             @download.FileVersion
@@ -160,8 +160,8 @@
 <script sm-target-zone="scripts" data-origin="downloadable-products">
     $(function () {
         $('.download-versions .download-changelog').on('show.bs.collapse hide.bs.collapse', function (e) {
-            var icon = $(e.target).prev().find("i");
-            icon.toggleClass("fa-angle-down", e.type == "show");
+            var icon = $(e.target).prev().find("sm-icon");
+            icon.attr("name", e.type == "show" ? "chevron-down" : "chevron-right");
         });
 
         $('.download-versions .download-link').on("click", function (e) {

@@ -158,7 +158,7 @@
                         $li.toggleClass('text-success', r.ok);
 
                         const $icon = $li.find('.rule-icon');
-                        $icon.toggleClass('fa-check', r.ok).toggleClass('fa-ban', !r.ok);
+                        $icon.attr('name', r.ok ? 'check' : 'ban');
                     }
                 }
             }

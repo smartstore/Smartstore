@@ -19,6 +19,26 @@ this document blindly or treat a temporary comparison page as its source of trut
 - Record uncertain visual approximations and exceptions instead of implying exact equivalence.
 - Keep this guide in English. Display names and search tags are not localized here.
 
+## Client-side state changes
+
+Dynamic icons use `sm-icon` and change `name` instead of swapping Font Awesome
+classes. Busy indicators also set `animation="spin"` (or `pulse`) and remove the
+attribute when returning to the idle state. Keep state colors in CSS classes
+(`text-muted`, `text-danger`, etc.) and remove them when leaving that state.
+Unchanging icons remain server-rendered.
+
+Migrated callers include checkout/topic submission, password rules, username
+availability, download panels/changelogs, tax locks, import mappings, maintenance
+panels, payment/search settings, PageBuilder fullscreen/block visibility and busy
+indicators, GeoBlocker tests, HP contact submission, CustomDashboard edit mode,
+Shopware import progress and SupportAgent collapse/copy controls.
+
+Use `check` for legacy `circle-check`, `alert-danger` for `exclamation-circle` or
+`circle-exclamation`, `eye-off` for `eye-slash`, and `chevron-*` for `angle-*`.
+These state icons are available in the applicable public/admin kits. The legacy
+PageBuilder IconChooser, the cheatsheet and the independent `confirm2` CSS-class
+contract are excluded from this migration.
+
 ## Select option icons
 
 The default `selectWrapper` formatter accepts an icon concept/address in an
@@ -259,7 +279,7 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 | Source FA icon classes | Target | Concept |
 | --- | --- | --- |
 | `fal fa-address-book` | `address-book` | `address-book` |
-| `fa fa-exclamation-circle` | `alert-circle` | `alert-circle` |
+| `fa fa-exclamation-circle`, `fa-circle-exclamation` | `alert-danger` | `sys:alert-danger!/default` |
 | `fa fa-arrow-down` | `arrow-down-02` | `arrow-down` |
 | `far fa-circle-down` | `circle-arrow-down-02` | `arrow-down-circle` |
 | `fa fa-arrow-left` | `arrow-left-02` | `arrow-left` |

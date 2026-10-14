@@ -47,9 +47,9 @@ Smartstore.Admin.TaxCalculator = class TaxCalculator {
                 const $pair = $btn.closest('[data-tax-pair]');
                 const activate = !$pair.is('[data-tax-active]');
 
-                $btn.find('i')
-                    .toggleClass('fa-lock', activate)
-                    .toggleClass('fa-lock-open text-muted', !activate);
+                $btn.find('sm-icon')
+                    .attr('name', activate ? 'lock' : 'lock-open')
+                    .toggleClass('text-muted', !activate);
 
                 $btn.attr('title', this.#res['Admin.Common.TaxCalculator.' + (activate ? 'Disable' : 'Enable')]);
                 activate ? $pair.attr('data-tax-active', '') : $pair.removeAttr('data-tax-active');

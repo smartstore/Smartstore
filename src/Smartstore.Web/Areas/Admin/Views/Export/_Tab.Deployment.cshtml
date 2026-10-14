@@ -187,7 +187,7 @@
 
             descriptions.slideToggle();
             $(this).find('span').html(isVisible ? @T("Admin.DataExchange.Export.Deployment.ShowPlaceholder").JsValue : @T("Admin.DataExchange.Export.Deployment.HidePlaceholder").JsValue);
-            $(this).find('i').removeClass(isVisible ? 'fa-chevron-up' : 'fa-chevron-down').addClass(isVisible ? 'fa-chevron-down' : 'fa-chevron-up');
+            $(this).find('sm-icon').attr('name', isVisible ? 'chevron-down' : 'chevron-up');
 		});
 
 		// Delete deployment.
