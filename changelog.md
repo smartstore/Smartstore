@@ -30,11 +30,12 @@
 - **AI**
   - Added configurable **reasoning effort levels** for supported AI models across providers, including model-specific defaults and automatic persistence of user selections.
 - **Theming**
-  - Added four new Flex themes:
+  - Added five new Flex themes:
     - **Sorbet:** Warm porcelain, aubergine and botanical accents with serif headings.
     - **Tidal:** Atlantic blue, coral accents and crisp white surfaces.
     - **Afterglow:** A dark graphite theme with mint, orchid and apricot accents.
     - **Lumen:** Bright white with iris-blue, lavender and petrol accents.
+    - **Riso:** Risograph-inspired cobalt, fluorescent pink and sunflower yellow on white, with DIN-style headings.
   - `.scroll-fade`: reusable responsive edge fades for horizontal and vertical scroll containers.
 - #1530 If a product is subsequently added to an order, update all price input controls with the price of the selected attribute combination.
 - Automated tax and total calculations now ensure that gross and net prices, as well as line and order totals, update instantly when editing orders or order items.
@@ -55,6 +56,7 @@
   - Literal IP addresses are matched directly instead of by regex, which makes large lists cheap.
 - **Theming**: 
   - Refreshed **Black** and **Blue** with refined palettes, typography and controls, preserving Black's boxed layout and Blue's signature blue header.
+  - Restyled the **off-canvas cart footer** as a receipt with a torn-off edge, a flat primary action and ghost secondary actions. Light by default, adapts to dark backgrounds.
   - Improved the **theme selector** with a responsive card grid, larger 4:3 previews and localized descriptions.
   - **Engine:**
     - Replaced `LibSass/SharpScss` with native embedded `Dart Sass`. In internal tests, Sass compilation was slightly faster than LibSass. The compiler starts on demand; a new theme setting can keep it in memory during active Sass editing for faster repeated compilations.
