@@ -102,10 +102,17 @@ public class ThemeController : AdminController
 
     protected virtual ThemeDescriptorModel PrepareThemeDescriptorModel(ThemeDescriptor descriptor, ThemeSettings themeSettings)
     {
+        var rootTheme = descriptor;
+        while (rootTheme.BaseTheme != null)
+        {
+            rootTheme = rootTheme.BaseTheme;
+        }
+
         var model = new ThemeDescriptorModel
         {
             Name = descriptor.Name,
             BaseTheme = descriptor.BaseThemeName,
+            RootTheme = rootTheme.BaseThemeName ?? rootTheme.Name,
             FriendlyName = descriptor.FriendlyName,
             Description = Services.Localization.GetResource($"Admin.Themes.Info.{descriptor.Name}",
                 logIfNotFound: false,

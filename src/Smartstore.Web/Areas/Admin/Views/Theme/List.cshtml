@@ -1,4 +1,4 @@
-﻿@model ThemeListModel
+@model ThemeListModel
 
 @{
     ViewBag.Title = T("Admin.Configuration.Themes").Value;
@@ -45,9 +45,13 @@
 
     <tabstrip id="themes-tab" sm-nav-style="Material" sm-smart-tab-selection="Restore">
         <tab sm-title="@T("Admin.Configuration.Themes")" sm-selected="true">
-            @if (Model.Themes.Count > 0)
+            @foreach (var group in Model.Themes
+                .GroupBy(x => x.RootTheme, StringComparer.OrdinalIgnoreCase)
+                .OrderByDescending(x => x.Any(theme => theme.IsActive))
+                .ThenBy(x => x.Key, StringComparer.CurrentCultureIgnoreCase))
             {
-                await ThemeList(Model.Themes, T("Admin.Configuration.Themes.AvailableDesktopThemes"));
+                var rootTheme = Model.Themes.FirstOrDefault(x => x.Name.EqualsNoCase(group.Key));
+                await ThemeList(group.ToList(), rootTheme?.FriendlyName ?? group.Key);
             }
 
             <script>
@@ -145,10 +149,10 @@
 @{ 
     async Task ThemeList(IList<ThemeDescriptorModel> themes, string caption)
     {
-        <fieldset>
-            <legend class="mb-3">@caption</legend>
+        <fieldset class="mb-4">
+            <legend class="mb-3 text-uppercase">@caption</legend>
 
-            <div id="theme-list">
+            <div class="theme-list">
                 @foreach (var theme in themes)
                 {
                     var isActive = theme.IsActive;
