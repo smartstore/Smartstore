@@ -442,6 +442,10 @@ button:where(.reset) {
 // btn-to-[danger|primary]
 // --------------------------------------------------
 
+// .btn-destructive: destructive actions keep their base style and turn red
+// only on hover, focus and active. .btn-to-danger is kept as a legacy alias.
+
+.btn-destructive,
 .btn-to-danger,
 .btn-to-primary {
     --btn-transition: none;
@@ -451,6 +455,7 @@ button:where(.reset) {
     }
 }
 
+.btn-destructive,
 .btn-to-danger {
     @include button-active-variant($danger, rgba($gray-700, 0.15));
 }
