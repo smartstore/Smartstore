@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
@@ -28,7 +29,7 @@ public partial class CustomerService : ICustomerService
     private readonly IChronometer _chronometer;
     private readonly RewardPointsSettings _rewardPointsSettings;
     private readonly PrivacySettings _privacySettings;
-    private readonly CustomerSettings _customerSettings;
+    private readonly PerformanceSettings _performanceSettings;
 
     private Customer _authCustomer;
     private bool _authCustomerResolved;
@@ -43,7 +44,7 @@ public partial class CustomerService : ICustomerService
         IChronometer chronometer,
         RewardPointsSettings rewardPointsSettings,
         PrivacySettings privacySettings,
-        CustomerSettings customerSettings)
+        PerformanceSettings performanceSettings)
     {
         _db = db;
         _storeContext = storeContext;
@@ -54,7 +55,7 @@ public partial class CustomerService : ICustomerService
         _chronometer = chronometer;
         _rewardPointsSettings = rewardPointsSettings;
         _privacySettings = privacySettings;
-        _customerSettings = customerSettings;
+        _performanceSettings = performanceSettings;
     }
 
     public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -203,7 +204,7 @@ public partial class CustomerService : ICustomerService
     {
         var numberOfDeletedCustomers = 0;
         var previousCmdTimeout = 0;
-        var cmdTimeout = _customerSettings.GuestCustomersDeletionCommandTimeout;
+        var cmdTimeout = _performanceSettings.GuestCustomersDeletionCommandTimeout;
         if (cmdTimeout > 0)
         {
             previousCmdTimeout = _db.Database.GetCommandTimeout() ?? 30;
@@ -213,7 +214,7 @@ public partial class CustomerService : ICustomerService
         try
         {
             var numberOfDeletedAttributes = 0;
-            var batchSize = Math.Max(_customerSettings.GuestCustomersDeletionBatchSize, 1);
+            var batchSize = Math.Max(_performanceSettings.GuestCustomersDeletionBatchSize, 1);
             var query = await GetGuestCustomersDeletionQuery(registrationFrom, registrationTo, onlyWithoutShoppingCart, cancelToken);
             var customerIdsQuery = query
                 .OrderBy(x => x.Id)
