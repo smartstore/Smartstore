@@ -1467,6 +1467,11 @@ Font Awesome mixins and their consumers remain unchanged during migration.
 
 ## Summernote icon adapter
 
+The picker plugin is included in the Summernote script bundle. Razor supplies its
+localized labels, endpoint and sources through the `summernote-iconpicker-settings`
+template element, once per page. Each editor instance reads these settings when
+its plugin is created; no translations are duplicated in Summernote language files.
+
 The Smartstore-owned `plugins/smartstore.iconpicker.js` plugin adds an Icon tab to the
 emoji picker through the fork's generic `emoji.addTab` API. It lists visible kits
 for the public area and the available library variants, using the existing icon

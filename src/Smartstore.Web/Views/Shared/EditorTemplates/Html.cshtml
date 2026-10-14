@@ -26,7 +26,7 @@
         var ai_icon_svg = $(".ai-dialog-opener-root:first .ai-icon-stars-tricolor");
     </script>
     <script src="~/bundle/js/summernote.js"></script>
-    <script src="~/lib/editors/summernote/plugins/smartstore.iconpicker.js"
+    <template id="summernote-iconpicker-settings"
             data-search-url="@Url.RouteUrl("IconKit.Browse")"
             data-empty="@T("Search.NoResultsText")"
             data-more="@T("Common.ShowMore")"
@@ -36,7 +36,7 @@
             data-search="@T("Admin.IconBrowser.Search")"
             data-source="@T("Admin.IconBrowser.SelectSource")"
             data-size="@T("Admin.IconBrowser.Size")"
-            data-kits="@System.Text.Json.JsonSerializer.Serialize(IconKits.Kits.Where(x => x.ShowInPicker && x.Areas.Contains("public")).Select(x => new { kit = x.Name, label = x.DisplayName ?? x.Name, icon = x.Icon ?? "box" }))"></script>
+            data-kits="@System.Text.Json.JsonSerializer.Serialize(IconKits.Kits.Where(x => x.ShowInPicker && x.Areas.Contains("public")).Select(x => new { kit = x.Name, label = x.DisplayName ?? x.Name, icon = x.Icon ?? "box" }))"></template>
 
     @* Find summernote localization file *@
     <script src="~/lib/editors/summernote/lang/summernote-{lang}.js" sm-locale-for="WorkContext.WorkingLanguage" sm-if='WorkContext.WorkingLanguage.LanguageCulture != "en-US"'></script>

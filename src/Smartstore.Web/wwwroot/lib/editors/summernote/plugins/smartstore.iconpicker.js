@@ -1,11 +1,13 @@
 // Smartstore-owned picker tab; the editor fork only supplies the generic tab API.
 (function ($) {
     'use strict';
-    const settings = document.currentScript.dataset;
-    const sources = [...JSON.parse(settings.kits), ...JSON.parse(settings.libraries)];
     const ns = 'http://www.w3.org/2000/svg';
 
     $.summernote.plugins.iconPicker = function (context) {
+        const settings = document.getElementById('summernote-iconpicker-settings')?.dataset;
+        if (!settings) return;
+
+        const sources = [...JSON.parse(settings.kits), ...JSON.parse(settings.libraries)];
         let disposed = false, request, timer;
         this.initialize = function () {
             const tabIcon = document.createElement('sm-icon');
