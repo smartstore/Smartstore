@@ -1,5 +1,7 @@
 /// <reference path="references.scss" />
 
+@use "sass:color";
+
 //
 // Footer Styles
 // --------------------------------------------------
@@ -33,7 +35,8 @@
     &.footer-inverse {
         --footer-color: #{$footer-inverse-color};
         --footer-link-color: #{$footer-inverse-color-muted};
-        --footer-link-hover-color: #{opacify($footer-inverse-color-muted, 0.2)};
+        // Translucent muted colors gain opacity on hover; opaque ones switch to the full footer color.
+        --footer-link-hover-color: #{if(color.alpha($footer-inverse-color-muted) < 1, opacify($footer-inverse-color-muted, 0.2), $footer-inverse-color)};
         --footer-social-color: #{$footer-inverse-color-muted};
         --footer-social-bg: transparent;
         --footer-line-color: #{tint-color($footer-bg, 12%)};
@@ -92,7 +95,7 @@
 
 @include media-breakpoint-up(md) {
     .footer-title {
-        pointer-events: none !important;
+        pointer-events: none;
     }
     .footer-bottom {
         margin-top: 1rem;
@@ -110,8 +113,8 @@
 
     .footer-main, 
     .footer-bottom {
-        margin-inline: 0 !important;
-        padding-inline: 0 !important;
+        margin-inline: 0;
+        padding-inline: 0;
         width: 100% !important;
 		max-width: none;
     }

@@ -772,7 +772,7 @@
 
     .art {
         display: inline-block !important;
-        max-width: none !important;
+        max-width: none;
         //width: 180px; // avoids flickering during initial load
     }
 }
@@ -783,7 +783,7 @@
 
 .artlist-no-separators .artlist-grid:not(.artlist-boxed) {
     .art {
-        border-bottom-width: 0 !important;
+        border-bottom-width: 0;
     }
     &:after {
         height: 0 !important;
@@ -795,7 +795,7 @@
 // ---------------------------------------------
 
 .art.show-all-items {
-    padding: 0 !important;
+    padding: 0;
     border-color: transparent !important;
     box-shadow: none !important;
     overflow: hidden;
@@ -808,11 +808,11 @@
         text-align: center;
         align-items: center;
         padding: 1rem;
-        text-decoration: none !important;
+        text-decoration: none;
         font-size: 1.25rem;
         font-weight: $font-weight-normal;
 
-        color: inherit !important;
+        color: inherit;
         background: rgba(#000, 0.06);
         opacity: 0.5;
 

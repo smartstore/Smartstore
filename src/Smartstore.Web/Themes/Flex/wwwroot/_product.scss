@@ -389,7 +389,7 @@ $pd-offer-spacing:              math.div($grid-gutter-width, 2);
 
 .pd-tierprices {
     .table {
-        background-color: #fff;
+        background-color: $card-bg;
         margin-bottom: 0;
         font-size: $font-size-sm;
         overflow-x: auto;

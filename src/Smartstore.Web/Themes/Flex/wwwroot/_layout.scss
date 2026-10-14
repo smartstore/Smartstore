@@ -123,8 +123,8 @@ body {
     width: 42px;
     height: 42px;
     border-radius: 50%;
-    background: #fff;
-    color: var(--body-color) !important;
+    background: $card-bg;
+    color: var(--body-color);
     text-decoration: none;
     opacity: 0;
     transform: scale(0.7);

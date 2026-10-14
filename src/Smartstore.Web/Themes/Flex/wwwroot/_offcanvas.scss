@@ -75,7 +75,7 @@
             font-size: var(--ocm-item-font-size);
             padding: var(--ocm-item-padding-y) var(--ocm-item-padding-x);
             padding-inline-end: 1.5rem;
-            text-decoration: none !important;
+            text-decoration: none;
 
             &:active,
             &:focus {
@@ -194,7 +194,7 @@
 #offcanvas-menu {
     .layer {
         transition: transform 0.3s ease-out;
-        background: #fff;
+        background: $card-bg;
         transform: translateX(-30%);
         z-index: 0;
         border-inline: 1px solid var(--ocm-border-color);
@@ -243,7 +243,7 @@
         padding: var(--ocm-item-padding-y) var(--ocm-item-padding-x);
         font-size: inherit;
         border-bottom: 1px solid var(--ocm-border-color);
-        background-color: #fff;
+        background-color: $card-bg;
         color: $body-color;
         border-radius: 0;
     }

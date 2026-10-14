@@ -59,11 +59,6 @@
     src: url('fonts/BarlowSemiCondensed-700-italic.woff2') format('woff2');
 }
 
-// Opaque muted links need an explicit brighter hover color.
-#footer.footer-inverse {
-    --footer-link-hover-color: var(--footer-color);
-}
-
 .menubar-inverse.menubar-section {
     border-bottom-color: rgba(#fff, 0.12);
 }
