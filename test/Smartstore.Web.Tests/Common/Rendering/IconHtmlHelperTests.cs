@@ -72,7 +72,9 @@ public class IconHtmlHelperTests
         var service = new Mock<IIconService>(MockBehavior.Strict);
         var renderer = new Mock<IIconRenderer>(MockBehavior.Strict);
         service.Setup(x => x.GetIconAsync("cart", null, null, null, CancellationToken.None)).ReturnsAsync(icon);
-        renderer.Setup(x => x.RenderAsync(icon, null, CancellationToken.None)).ReturnsAsync((TagBuilder)null);
+        renderer.Setup(x => x.RenderAsync(icon,
+            It.Is<IconOptions>(options => resolved ? options == null : options.RequestedName == "cart"),
+            CancellationToken.None)).ReturnsAsync((TagBuilder)null);
 
         using var services = new ServiceCollection().AddSingleton(service.Object).AddSingleton(renderer.Object).BuildServiceProvider();
         var helper = new Mock<IHtmlHelper>();

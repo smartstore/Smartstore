@@ -4,8 +4,8 @@
     const ns = 'http://www.w3.org/2000/svg';
     const namespace = window.Smartstore = window.Smartstore || {};
     const sizes = new Set(['2xs', 'xs', 'sm', 'lg', 'xl', '2xl', ...Array.from({ length: 10 }, (_, i) => `${i + 1}x`)]);
-    const animations = new Set(['spin', 'pulse', 'spin-pulse', 'beat', 'fade', 'throb', 'cylon', 'cylon-vertical', 'bounce', 'beat-fade', 'flip', 'shake']);
-    const presentation = ['size', 'font-scale', 'fw', 'color', 'inverse', 'animation', 'animation-duration', 'animation-reverse', 'scale', 'shift-x', 'shift-y'];
+    const animations = new Set(['spin', 'pulse', 'beat', 'fade', 'throb', 'bounce', 'flip', 'shake', 'spin-snap', 'swing', 'wag']);
+    const presentation = ['size', 'font-scale', 'fw', 'color', 'inverse', 'animation', 'animation-duration', 'animation-reverse', 'scale', 'shift-x', 'shift-y', 'mirror-rtl'];
     const drawing = ['name', 'area', 'lib', 'variant', 'rotate', 'flip-h', 'flip-v', 'stroke-scale'];
     const cache = new Map();
     const waiting = [];
@@ -223,6 +223,12 @@
         }
         present(stack) {
             const classes = [stack ? 'icon-stack' : 'icon', ...this._identity];
+            const mirrorRtl = boolean(this.getAttribute('mirror-rtl'));
+            if (mirrorRtl !== undefined) {
+                const index = classes.indexOf('icon-mirror-rtl');
+                if (index >= 0) classes.splice(index, 1);
+                if (mirrorRtl) classes.push('icon-mirror-rtl');
+            }
             const styles = new Map();
             const size = this.getAttribute('size'), animation = this.getAttribute('animation');
             if (size != null) { if (!sizes.has(size)) throw new Error('Unsupported icon size.'); classes.push('icon-' + size); }
@@ -292,7 +298,7 @@
             if (!this.isConnected || this._sequence !== sequence) return;
             // Manifest hits and endpoint responses carry the same server-resolved identity.
             // CSS states expose resolved identity without adding host attributes.
-            this._identity = [...template.classList].filter(name => name.startsWith('icon-') || name === 'text-danger');
+            this._identity = [...template.classList].filter(name => name.startsWith('icon-'));
             this.present(false);
             this.shadowRoot.replaceChildren(cloneDrawing(template));
             this._drawingKey = key;

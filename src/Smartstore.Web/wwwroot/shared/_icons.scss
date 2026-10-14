@@ -1,25 +1,40 @@
 /// <reference path="references.scss" />
 
 @use "sass:list";
+@use "sass:map";
+
+// Centralize light-DOM classes and their custom-element equivalents.
+@function icon-selectors($state: null, $scope: all) {
+    $single: ".icon, sm-icon";
+    $stack: ".icon-stack, sm-icon-stack";
+    $component: "sm-icon";
+
+    @if $state != null and $state != "" {
+        $single: ".icon-#{$state}, sm-icon:state(icon-#{$state})";
+        $stack: "sm-icon-stack:state(icon-#{$state})";
+        $component: "sm-icon:state(icon-#{$state})";
+    }
+
+    @return map.get((all: "#{$single}, #{$stack}", single: $single, stack: $stack, component: $component), $scope);
+}
+
+@mixin icon-selector($state: null) {
+    :is(#{icon-selectors($state)}) {
+        @content;
+    }
+}
 
 // Shared SVG masks for frequently used pseudo-element icons.
 :root {
-    --icon-mask-alert-danger: #{icon-url("alert-danger")};
-    --icon-mask-alert-info: #{icon-url("alert-info")};
-    --icon-mask-alert-success: #{icon-url("alert-success")};
-    --icon-mask-alert-warning: #{icon-url("alert-warning")};
-    --icon-mask-chevron-down: #{icon-url("chevron-down")};
-    --icon-mask-chevron-left: #{icon-url("chevron-left")};
-    --icon-mask-chevron-right: #{icon-url("chevron-right")};
-    --icon-mask-chevron-up: #{icon-url("chevron-up")};
-    --icon-mask-plus: #{icon-url("plus")};
-    --icon-mask-check: #{icon-url("check")};
+    @each $name in (alert-danger, alert-info, alert-success, alert-warning,
+        chevron-down, chevron-left, chevron-right, chevron-up, plus, check) {
+        --icon-mask-#{$name}: #{icon-url($name)};
+    }
 }
 
 // Shared sizing for SVG icons, image icons and stacks.
 // Animation keyframes are shared with _utils.scss.
-:is(.icon, sm-icon),
-:is(.icon-stack, sm-icon-stack) {
+@include icon-selector() {
     display: inline-block;
     flex: none;
     box-sizing: content-box;
@@ -38,8 +53,8 @@
 }
 
 // SVGs and icon hosts need centering and visible drawing overflow.
-:is(.icon, sm-icon):not(img),
-:is(.icon-stack, sm-icon-stack) {
+:is(#{icon-selectors($scope: single)}):not(img),
+:is(#{icon-selectors($scope: stack)}) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -53,8 +68,10 @@ img.icon {
     object-fit: contain;
 }
 
-:is(.icon-mirror-rtl, sm-icon:state(icon-mirror-rtl), sm-icon-stack:state(icon-mirror-rtl)):dir(rtl) {
-    --icon-direction-x: -1;
+@include icon-selector(mirror-rtl) {
+    &:dir(rtl) {
+        --icon-direction-x: -1;
+    }
 }
 
 // Light-DOM SVG wrappers; sm-icon uses equivalent rules in its shared shadow stylesheet.
@@ -77,19 +94,19 @@ svg.icon > :is(use, g) {
 }
 
 // Keep fill/stroke on the SVG artwork: a global fill would break stroke icons.
-:is(.icon-fw, sm-icon:state(icon-fw), sm-icon-stack:state(icon-fw)) {
+@include icon-selector(fw) {
     width: 1.25em;
 }
 
 // Sizing remains relative to the surrounding text, like the FA utilities.
 @for $i from 1 through 10 {
-    :is(.icon-#{$i}x, sm-icon:state(icon-#{$i}x), sm-icon-stack:state(icon-#{$i}x)) {
+    @include icon-selector("#{$i}x") {
         --icon-size-factor: #{$i};
     }
 }
 
 @each $name, $size in (2xs: 10, xs: 12, sm: 14, lg: 20, xl: 24, 2xl: 32) {
-    :is(.icon-#{$name}, sm-icon:state(icon-#{$name}), sm-icon-stack:state(icon-#{$name})) {
+    @include icon-selector($name) {
         --icon-size-factor: calc(#{$size} / 16);
         --icon-align: calc((6 / #{$size} - 3 / 8) * 1em);
     }
@@ -117,14 +134,14 @@ svg.icon > :is(use, g) {
 }
 
 // HTML stacks center independent SVG layers without assuming a library grid.
-:is(.icon-stack, sm-icon-stack) {
+:is(#{icon-selectors($scope: stack)}) {
     position: relative;
     isolation: isolate;
     width: var(--icon-stack-width, 2.5em);
     height: var(--icon-stack-height, 2em);
     vertical-align: var(--icon-stack-align, middle);
 
-    > :where(.icon, sm-icon) {
+    > :where(#{icon-selectors($scope: single)}) {
         // Do not apply the host's sizing and transforms a second time.
         --icon-size: 1em;
         --icon-size-factor: initial;
@@ -142,24 +159,23 @@ svg.icon > :is(use, g) {
     }
 }
 
-:is(.icon-stack, sm-icon-stack) > .icon-stack-1x {
+:is(#{icon-selectors($scope: stack)}) > .icon-stack-1x {
     --icon-size-factor: 1;
 }
 
-:is(.icon-stack, sm-icon-stack) > .icon-stack-2x {
+:is(#{icon-selectors($scope: stack)}) > .icon-stack-2x {
     --icon-size-factor: 2;
 }
 
-:is(.icon-inverse, sm-icon:state(icon-inverse), sm-icon-stack:state(icon-inverse)) {
+@include icon-selector(inverse) {
     color: var(--icon-inverse, #{$yiq-text-light});
 }
 
 // Icon utilities and bridges for existing Smartstore transform classes.
 // Scope the bridges to icon hosts; other users of _utils.scss stay unchanged.
-:is(.icon, .icon-stack, sm-icon, sm-icon-stack) {
+@include icon-selector() {
     @each $angle in (90, 180, 270) {
-        &.icon-rotate-#{$angle},
-        &.rotate-#{$angle} {
+        &:is(.icon-rotate-#{$angle}, .rotate-#{$angle}) {
             --icon-rotate: #{$angle}deg;
         }
     }
@@ -168,19 +184,11 @@ svg.icon > :is(use, g) {
         --icon-rotate: var(--icon-rotate-angle, 0deg);
     }
 
-    &.icon-flip-h,
-    &.flip-h {
+    &:is(.icon-flip-h, .flip-h, .icon-flip-hv, .flip-hv) {
         --icon-flip-x: -1;
     }
 
-    &.icon-flip-v,
-    &.flip-v {
-        --icon-flip-y: -1;
-    }
-
-    &.icon-flip-hv,
-    &.flip-hv {
-        --icon-flip-x: -1;
+    &:is(.icon-flip-v, .flip-v, .icon-flip-hv, .flip-hv) {
         --icon-flip-y: -1;
     }
 
@@ -195,32 +203,47 @@ svg.icon > :is(use, g) {
 $icon-animations: (
     spin: (spin, 2s, linear, normal),
     pulse: (spin, 1s, steps(8), normal),
-    spin-pulse: (spin, 1s, steps(8), normal),
     beat: (beat, 1s, ease-in-out, normal),
     fade: (fade, 1s, ease-in-out, alternate),
-    throb: (throb, 0.75s, ease-in-out, alternate),
-    cylon: (cylon, 0.75s, ease-in-out, alternate),
-    cylon-vertical: (cylon-vertical, 0.75s, ease-in-out, alternate),
+    throb: (icon-throb, 1s, ease-in-out, normal),
     bounce: (icon-bounce, 1s, cubic-bezier(0.28, 0.84, 0.42, 1), normal),
-    beat-fade: (icon-beat-fade, 1s, ease-in-out, normal),
     flip: (icon-flip, 1s, ease-in-out, normal),
-    shake: (icon-shake, 1s, linear, normal)
+    shake: (icon-shake, 1s, linear, normal),
+    spin-snap: (icon-spin-snap, 3s, linear, normal),
+    swing: (icon-swing, 1.2s, ease-out, normal),
+    wag: (icon-wag, 0.9s, ease-out, normal)
 );
 
+.icon-animate {
+    animation-name: var(--icon-animation-name, none);
+    animation-duration: var(--icon-animation-duration, var(--_icon-animation-duration, var(--animation-duration, var(--icon-animation-default-duration, 1s))));
+    animation-timing-function: var(--icon-animation-timing, var(--icon-animation-default-timing, ease-in-out));
+    animation-direction: var(--icon-animation-direction, var(--_icon-animation-direction, var(--icon-animation-default-direction, normal)));
+    animation-delay: var(--icon-animation-delay, 0s);
+    animation-iteration-count: var(--icon-animation-iteration-count, infinite);
+    animation-play-state: var(--icon-animation-play-state, running);
+}
+
 @each $name, $settings in $icon-animations {
-    :is(.icon-#{$name}, sm-icon:state(icon-#{$name}), sm-icon-stack:state(icon-#{$name})) {
-        animation-name: list.nth($settings, 1);
-        animation-duration: var(--icon-animation-duration, var(--_icon-animation-duration, var(--animation-duration, list.nth($settings, 2))));
-        animation-timing-function: var(--icon-animation-timing, list.nth($settings, 3));
-        animation-direction: var(--icon-animation-direction, var(--_icon-animation-direction, list.nth($settings, 4)));
-        animation-delay: var(--icon-animation-delay, 0s);
-        animation-iteration-count: var(--icon-animation-iteration-count, infinite);
-        animation-play-state: var(--icon-animation-play-state, running);
+    @include icon-selector($name) {
+        @extend .icon-animate;
+        --icon-animation-name: #{list.nth($settings, 1)};
+        --icon-animation-default-duration: #{list.nth($settings, 2)};
+        --icon-animation-default-timing: #{list.nth($settings, 3)};
+        --icon-animation-default-direction: #{list.nth($settings, 4)};
     }
 }
 
-:is(.icon-beat, sm-icon:state(icon-beat), sm-icon-stack:state(icon-beat)) {
+@include icon-selector(beat) {
     --beat-scale: var(--icon-beat-scale, 1.25);
+}
+
+@include icon-selector(swing) {
+    transform-origin: top center;
+}
+
+@include icon-selector(wag) {
+    transform-origin: bottom center;
 }
 
 .icon-spin-reverse {
@@ -229,10 +252,7 @@ $icon-animations: (
 
 // Includes existing animate-* classes when applied to new icon hosts.
 @media (prefers-reduced-motion: reduce) {
-    .icon,
-    .icon-stack,
-    sm-icon,
-    sm-icon-stack {
+    #{icon-selectors()} {
         animation: none !important;
         transition: none !important;
     }
@@ -244,14 +264,14 @@ $icon-animations: (
     60% { transform: translateY(var(--icon-bounce-rebound, -0.25em)); }
 }
 
-@keyframes icon-beat-fade {
+@keyframes icon-throb {
     0%, 100% {
-        opacity: var(--icon-beat-fade-opacity, 0.4);
+        opacity: var(--icon-throb-opacity, 0.4);
         transform: scale(1);
     }
     50% {
         opacity: 1;
-        transform: scale(var(--icon-beat-fade-scale, 1.125));
+        transform: scale(var(--icon-throb-scale, 1.125));
     }
 }
 
@@ -261,38 +281,135 @@ $icon-animations: (
 }
 
 @keyframes icon-shake {
-    0%, 100% { transform: rotate(0deg); }
+    0%, 70%, 100% { transform: rotate(0deg); }
     10%, 30%, 50% { transform: rotate(var(--icon-shake-angle, -15deg)); }
     20%, 40%, 60% { transform: rotate(calc(-1 * var(--icon-shake-angle, -15deg))); }
-    70% { transform: rotate(0deg); }
 }
 
-
-// Specific overrides
-.btn-lg :is(.icon-hi, sm-icon:state(icon-hi)) {
-    --icon-min-size: 20px;
-}
-
-// Shared presentation for module/provider SVG icons and legacy image logos.
-.module-icon-display {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: var(--module-icon-size, 32px);
-    height: var(--module-icon-size, 32px);
-    vertical-align: middle;
-    line-height: 1;
-
-    > img,
-    > svg {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
+@keyframes icon-spin-snap {
+    0% {
+        transform: rotate(0deg);
+        animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
+    12% {
+        transform: rotate(60deg);
+        animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+    16.67% {
+        transform: rotate(60deg);
+        animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
+    28.67% {
+        transform: rotate(120deg);
+        animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+    33.33% {
+        transform: rotate(120deg);
+        animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
+    45.33% {
+        transform: rotate(180deg);
+        animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+    50% {
+        transform: rotate(180deg);
+        animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
+    62% {
+        transform: rotate(240deg);
+        animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+    66.67% {
+        transform: rotate(240deg);
+        animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
+    78.67% {
+        transform: rotate(300deg);
+        animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+    83.33% {
+        transform: rotate(300deg);
+        animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
+    95.33% {
+        transform: rotate(360deg);
+        animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+    100% {
+        transform: rotate(360deg);
     }
 }
 
+@keyframes icon-swing {
+    0% {
+        transform: rotate(0deg);
+        animation-timing-function: cubic-bezier(0.2, 0, 0.8, 1);
+    }
+    8% {
+        transform: rotate(var(--icon-swing-angle, 22deg));
+        animation-timing-function: cubic-bezier(0.3, 0, 0.7, 1);
+    }
+    18% {
+        transform: rotate(calc(-1 * var(--icon-swing-angle, 22deg) * 0.85));
+        animation-timing-function: cubic-bezier(0.3, 0, 0.7, 1);
+    }
+    28% {
+        transform: rotate(calc(var(--icon-swing-angle, 22deg) * 0.65));
+        animation-timing-function: cubic-bezier(0.35, 0, 0.65, 1);
+    }
+    38% {
+        transform: rotate(calc(-1 * var(--icon-swing-angle, 22deg) * 0.45));
+        animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
+    }
+    48% {
+        transform: rotate(calc(var(--icon-swing-angle, 22deg) * 0.25));
+        animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
+    }
+    56% {
+        transform: rotate(calc(-1 * var(--icon-swing-angle, 22deg) * 0.1));
+        animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
+    }
+    64%, 100% {
+        transform: rotate(0deg);
+    }
+}
+
+@keyframes icon-wag {
+    0% {
+        transform: rotate(0deg);
+        animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1);
+    }
+    12% {
+        transform: rotate(var(--icon-wag-angle, 12deg));
+        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    24% {
+        transform: rotate(2deg);
+        animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1);
+    }
+    36% {
+        transform: rotate(calc(var(--icon-wag-angle, 12deg) * 0.85));
+        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    48% {
+        transform: rotate(1deg);
+        animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1);
+    }
+    58% {
+        transform: rotate(calc(var(--icon-wag-angle, 12deg) * 0.6));
+        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    68%, 100% {
+        transform: rotate(0deg);
+    }
+}
+
+// Specific overrides
+.btn-lg :is(#{icon-selectors(hi, single)}) {
+    --icon-min-size: 20px;
+}
+
 // Missing-icon color remains independent of caller presentation.
-sm-icon:state(icon-not-found) {
+@include icon-selector(not-found) {
     color: var(--danger) !important;
 }

@@ -693,6 +693,12 @@ public static class HtmlHelperRenderingExtensions
         var iconService = services.GetRequiredService<IIconService>();
         var icon = await iconService.GetIconAsync(name, lib, variant, options?.Area, httpContext.RequestAborted);
         var renderer = services.GetRequiredService<IIconRenderer>();
+        if (icon == null)
+        {
+            options = options?.Clone() ?? new IconOptions();
+            options.RequestedName = name;
+        }
+
         var svg = await renderer.RenderAsync(icon, options, httpContext.RequestAborted);
         return (IHtmlContent)svg ?? HtmlString.Empty;
     }

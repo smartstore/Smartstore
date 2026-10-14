@@ -18,7 +18,7 @@
             <icon name="heart" class="icon-4x" aria-hidden="true" />
         </p>
         <p class="no-item-info text-muted">
-            @Html.Raw(T("ShoppingCart.Mini.EmptyWishlist.Info", "fal fa-lg fa-heart"))
+            @Html.Raw(T("ShoppingCart.Mini.EmptyWishlist.Info", (await Html.IconAsync("heart", options: new Smartstore.IconKit.IconOptions { Size = "lg" })).ToHtmlString()))
         </p>
     </div>
     @if (hasItems)

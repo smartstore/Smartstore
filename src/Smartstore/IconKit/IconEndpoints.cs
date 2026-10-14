@@ -152,7 +152,7 @@ internal class IconEndpoints(HttpContext context, IIconKitService kits, IIconSer
             var icon = await icons.GetIconAsync(name, lib, variant, area, cancelToken);
             var svg = await renderer.RenderAsync(icon, new IconOptions
             {
-                Area = area, Rotate = rotate, FlipHorizontal = flipH, FlipVertical = flipV, StrokeScale = strokeScale
+                Area = area, RequestedName = name, Rotate = rotate, FlipHorizontal = flipH, FlipVertical = flipV, StrokeScale = strokeScale
             }, cancelToken);
             if (svg == null)
             {

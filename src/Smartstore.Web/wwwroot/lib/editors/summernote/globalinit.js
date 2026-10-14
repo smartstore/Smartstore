@@ -234,7 +234,7 @@ let summernote_image_upload_url;
             fw: booleans,
             color: null,
             inverse: booleans,
-            animation: ['spin', 'pulse', 'spin-pulse', 'beat', 'fade', 'throb', 'cylon', 'cylon-vertical', 'bounce', 'beat-fade', 'flip', 'shake'],
+            animation: ['spin', 'pulse', 'beat', 'fade', 'throb', 'bounce', 'flip', 'shake', 'spin-snap', 'swing', 'wag'],
             'animation-duration': null,
             'animation-reverse': booleans,
             rotate: ['0', '90', '180', '270'],
@@ -255,6 +255,7 @@ let summernote_image_upload_url;
                 area: () => iconManifest().then(data => Object.keys(data?.areas || {})),
                 lib: null,
                 variant: null,
+                'mirror-rtl': ['true', 'false'],
                 'stroke-scale': null
             },
             children: []

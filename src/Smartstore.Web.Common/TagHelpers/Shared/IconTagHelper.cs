@@ -21,6 +21,7 @@ public abstract class IconTagHelperBase : SmartTagHelper
     private const string RotateAttributeName = "rotate";
     private const string FlipHorizontalAttributeName = "flip-h";
     private const string FlipVerticalAttributeName = "flip-v";
+    private const string MirrorRtlAttributeName = "mirror-rtl";
     private const string ScaleAttributeName = "scale";
     private const string ShiftXAttributeName = "shift-x";
     private const string ShiftYAttributeName = "shift-y";
@@ -41,6 +42,7 @@ public abstract class IconTagHelperBase : SmartTagHelper
         RotateAttributeName,
         FlipHorizontalAttributeName,
         FlipVerticalAttributeName,
+        MirrorRtlAttributeName,
         ScaleAttributeName,
         ShiftXAttributeName,
         ShiftYAttributeName,
@@ -77,8 +79,8 @@ public abstract class IconTagHelperBase : SmartTagHelper
     public bool Inverse { get; set; }
 
     /// <summary>
-    /// Gets or sets an animation: spin, pulse, spin-pulse, beat, fade, throb, cylon,
-    /// cylon-vertical, bounce, beat-fade, flip, or shake.
+    /// Gets or sets an animation: spin, pulse, beat, fade, throb, bounce, flip, shake,
+    /// spin-snap, swing, or wag.
     /// </summary>
     [HtmlAttributeName(AnimationAttributeName)]
     public string Animation { get; set; }
@@ -112,6 +114,12 @@ public abstract class IconTagHelperBase : SmartTagHelper
     /// </summary>
     [HtmlAttributeName(FlipVerticalAttributeName)]
     public bool? FlipVertical { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether to mirror horizontally in RTL. Null preserves the concept policy.
+    /// </summary>
+    [HtmlAttributeName(MirrorRtlAttributeName)]
+    public bool? MirrorRtl { get; set; }
 
     /// <summary>
     /// Gets or sets the drawing scale without changing its layout size.
@@ -165,6 +173,7 @@ public abstract class IconTagHelperBase : SmartTagHelper
             Rotate = Rotate,
             FlipHorizontal = FlipHorizontal,
             FlipVertical = FlipVertical,
+            MirrorRtl = MirrorRtl,
             Scale = Scale,
             ShiftX = ShiftX,
             ShiftY = ShiftY,

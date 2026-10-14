@@ -15,6 +15,7 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
     public async Task<TagBuilder> RenderAsync(IconInfo icon, IconOptions options = null, CancellationToken cancelToken = default)
     {
         var area = options?.Area ?? icon?.Area;
+        var requestedName = options?.RequestedName.NullEmpty() ?? icon?.ConceptName.NullEmpty() ?? icon?.Address.NullEmpty() ?? icon?.Name;
         var missing = icon == null;
         if (missing)
         {
@@ -56,6 +57,7 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
                 if (missing) return null;
                 var fallbackOptions = options?.Clone() ?? new IconOptions();
                 fallbackOptions.Area = area;
+                fallbackOptions.RequestedName = requestedName;
                 return await RenderAsync(null, fallbackOptions, cancelToken);
             }
 
@@ -121,18 +123,20 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
             svg.AddCssClass("icon-duotone");
         }
 
-        if (icon.MirrorInRtl)
+        if (options?.MirrorRtl ?? icon.MirrorInRtl)
         {
             svg.AddCssClass("icon-mirror-rtl");
         }
 
         if (missing)
         {
-            svg.AddCssClass("icon-not-found text-danger");
+            svg.AddCssClass("icon-not-found");
         }
 
         svg.Attributes["data-supports-stroke-scaling"] = icon.SupportsStrokeScaling ? "true" : "false";
-        svg.Attributes["data-icon"] = icon.ConceptName == null ? icon.Address : $"{icon.ConceptName} -> {icon.Address}";
+        svg.Attributes["data-icon"] = missing && requestedName.HasValue()
+            ? $"{requestedName} -> {icon.Address}"
+            : icon.ConceptName == null ? icon.Address : $"{icon.ConceptName} -> {icon.Address}";
         svg.Attributes["xmlns"] = "http://www.w3.org/2000/svg";
         svg.Attributes["focusable"] = "false";
 
@@ -175,6 +179,10 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
         }
 
         host.AddCssClass("icon-stack");
+        if (options?.MirrorRtl == true)
+        {
+            host.AddCssClass("icon-mirror-rtl");
+        }
         if (host.Attributes.ContainsKey("aria-label") || host.Attributes.ContainsKey("aria-labelledby"))
         {
             host.Attributes.TryAdd("role", "img");
@@ -223,8 +231,8 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
 
         if (options.Animation != null)
         {
-            if (options.Animation is not ("spin" or "pulse" or "spin-pulse" or "beat" or "fade" or "throb"
-                or "cylon" or "cylon-vertical" or "bounce" or "beat-fade" or "flip" or "shake"))
+            if (options.Animation is not ("spin" or "pulse" or "beat" or "fade" or "throb" or "bounce"
+                or "flip" or "shake" or "spin-snap" or "swing" or "wag"))
             {
                 throw new ArgumentException("Unsupported icon animation.", nameof(options));
             }

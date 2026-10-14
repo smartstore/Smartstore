@@ -14,6 +14,11 @@ public sealed class IconOptions : ICloneable<IconOptions>
     public string? Area { get; set; }
 
     /// <summary>
+    /// Gets or sets the requested name or address retained in placeholder diagnostics.
+    /// </summary>
+    public string? RequestedName { get; set; }
+
+    /// <summary>
     /// Gets or sets whether to embed the drawing even when a kit sprite is available.
     /// </summary>
     public bool ForceInline { get; set; }
@@ -46,8 +51,8 @@ public sealed class IconOptions : ICloneable<IconOptions>
     public bool Inverse { get; set; }
 
     /// <summary>
-    /// Gets or sets an animation: spin, pulse, spin-pulse, beat, fade, throb, cylon,
-    /// cylon-vertical, bounce, beat-fade, flip, or shake.
+    /// Gets or sets an animation: spin, pulse, beat, fade, throb, bounce, flip, shake,
+    /// spin-snap, swing, or wag.
     /// </summary>
     public string? Animation { get; set; }
 
@@ -75,6 +80,11 @@ public sealed class IconOptions : ICloneable<IconOptions>
     /// Gets or sets vertical mirroring, replacing the address or mapping value.
     /// </summary>
     public bool? FlipVertical { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether to mirror horizontally in RTL. Null preserves the concept policy.
+    /// </summary>
+    public bool? MirrorRtl { get; set; }
 
     /// <summary>
     /// Gets or sets the drawing scale without changing its layout size.

@@ -18,10 +18,10 @@
             @T("ShoppingCart.Mini.EmptyCart.Title")
         </h4>
         <p class="no-item-icon">
-            <icon name="basket" class="icon-4x" aria-hidden="true" />
+            <icon name="cart" class="icon-4x" aria-hidden="true" />
         </p>
         <p class="no-item-info text-muted">
-            @Html.Raw(T("ShoppingCart.Mini.EmptyCart.Info", "fa fa-lg fa-cart-arrow-down"))
+            @Html.Raw(T("ShoppingCart.Mini.EmptyCart.Info", (await Html.IconAsync("cart-add", options: new Smartstore.IconKit.IconOptions { Size = "lg" })).ToHtmlString()))
         </p>
     </div>
     @if (hasItems)

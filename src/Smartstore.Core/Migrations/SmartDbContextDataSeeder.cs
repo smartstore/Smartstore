@@ -96,6 +96,20 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
     public void MigrateLocaleResources(LocaleResourcesBuilder builder)
     {
+        builder.AddOrUpdate("Smartstore.AI.Prompts.UseImagePlaceholders",
+            "If an image is to be inserted, output this HTML placeholder: <div class=\"mb-3\"><sm-icon name=\"file-image\" size=\"xl\" class=\"ai-preview-file\" title=\"SECTION_HEADING\"></sm-icon></div>. Replace SECTION_HEADING with the associated section heading, escaped for an HTML attribute. Keep the element names and all other attributes exactly as shown. The sm-icon element must remain empty and have an explicit closing tag; do not replace it with an i, img or svg element or add Font Awesome classes.",
+            "Wenn ein Bild einzufügen ist, gib diesen HTML-Platzhalter aus: <div class=\"mb-3\"><sm-icon name=\"file-image\" size=\"xl\" class=\"ai-preview-file\" title=\"ABSCHNITTSÜBERSCHRIFT\"></sm-icon></div>. Ersetze ABSCHNITTSÜBERSCHRIFT durch die zugehörige Abschnittsüberschrift, korrekt für ein HTML-Attribut maskiert. Behalte die Elementnamen und alle anderen Attribute exakt bei. Das sm-icon-Element muss leer bleiben und ein explizites schließendes Tag haben; ersetze es nicht durch ein i-, img- oder svg-Element und ergänze keine Font-Awesome-Klassen.");
+
+        builder.AddOrUpdate("ShoppingCart.Mini.EmptyCart.Info",
+            "You have not added any product to your cart yet. Use the {0} icon to add a product to your cart.",
+            "Sie haben noch keine Produkte in Ihren Warenkorb gelegt.<br /> Benutzen Sie das {0} Symbol, um ein Produkt in den Warenkorb zu legen.");
+        builder.AddOrUpdate("ShoppingCart.Mini.EmptyWishlist.Info",
+            "You have not added any product to your wishlist yet. Use the {0} icon to add a product to your wishlist.",
+            "Sie haben noch keine Produkte auf Ihrer Wunschliste vermerkt.<br /> Benutzen Sie das {0} Symbol, um ein Produkt in Ihrer Wunschliste zu vermerken.");
+        builder.AddOrUpdate("ShoppingCart.Mini.EmptyCompare.Info",
+            "You have not added any product to your compare list yet. Use the {0} icon to add a product to your compare list.",
+            "Sie haben noch keine Produkte in Ihrer Vergleichsliste.<br /> Benutzen Sie das {0} Symbol, um ein Produkt in die Vergleichsliste aufzunehmen.");
+
         builder.AddOrUpdate("Common.Select.AddPlaceholder", "＋ Add…", "＋ Hinzufügen…");
 
         builder.AddOrUpdate("Enums.QuantizationMethod.Octree", "Hexadecatree (formerly Octree)", "Hexadecatree (vormals Octree)");

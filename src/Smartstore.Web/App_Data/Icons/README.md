@@ -854,8 +854,7 @@ these semantics. Existing `.sr-only` utilities remain available.
 | Appearance | `icon-inverse` |
 | Rotation | `icon-rotate-90`, `icon-rotate-180`, `icon-rotate-270`, `icon-rotate-by` |
 | Mirroring | `icon-flip-h`, `icon-flip-v`, `icon-flip-hv` |
-| Animation | `icon-spin`, `icon-pulse`, `icon-spin-pulse`, `icon-beat`, `icon-fade`, `icon-bounce`, `icon-beat-fade`, `icon-flip`, `icon-shake` |
-| Additional shared effects | `icon-throb`, `icon-cylon`, `icon-cylon-vertical` |
+| Animation | `icon-spin`, `icon-pulse`, `icon-beat`, `icon-fade`, `icon-bounce`, `icon-throb`, `icon-flip`, `icon-shake`, `icon-spin-snap`, `icon-swing`, `icon-wag` |
 
 The base size follows the surrounding font size, with a minimum of 16px. Size
 utilities scale this base after the minimum is applied: at 14px or 15px text,
@@ -947,11 +946,11 @@ Duration also falls back to the existing `--animation-duration` variable.
 Use `icon-spin icon-spin-reverse` for reverse spin; `icon-spin-reverse` is a
 modifier, not an animation by itself. `icon-pulse` means stepped rotation, as in FA.
 
-Existing spin, beat, fade, throb, and cylon keyframes are reused. Bounce,
-beat-fade, animated flip, and shake have icon-specific keyframes. These effects
+Existing spin, beat, and fade keyframes are reused. Throb combines scaling and
+opacity in a single effect. Bounce, throb, animated flip, and shake have icon-specific keyframes. These effects
 provide equivalent purposes, not frame-for-frame copies of every FA animation.
 Their adjustable parameters include `--icon-beat-scale`, `--icon-bounce-height`,
-`--icon-bounce-rebound`, `--icon-beat-fade-opacity`, `--icon-beat-fade-scale`,
+`--icon-bounce-rebound`, `--icon-throb-opacity`, `--icon-throb-scale`,
 `--icon-flip-axis-x/y/z`, `--icon-flip-angle`, and `--icon-shake-angle`.
 Use one animation effect per host; separate stack layers can animate independently.
 
@@ -992,8 +991,13 @@ Presentation attributes include `size`, `font-scale`, `fw`, `color`, `inverse`,
 `animation`, `animation-duration`, `animation-reverse`, `scale`, `shift-x`, and
 `shift-y`. Shifts use sixteenths of an em. `scale` changes drawing size only;
 `font-scale` changes layout size. Size presets are `2xs`, `xs`, `sm`, `lg`, `xl`,
-`2xl`, and `1x` through `10x`. Animations are `spin`, `pulse`, `spin-pulse`, `beat`,
-`fade`, `throb`, `cylon`, `cylon-vertical`, `bounce`, `beat-fade`, `flip`, and `shake`.
+`2xl`, and `1x` through `10x`. Animations are `spin`, `pulse`, `beat`, `fade`,
+`throb`, `bounce`, `flip`, `shake`, `spin-snap`, `swing`, and `wag`.
+
+`spin-snap` completes one full rotation with six snapping steps in 3s.
+`swing` pivots from the top in 1.2s; `wag` pivots from the bottom in 0.9s.
+Their amplitudes can be adjusted with `--icon-swing-angle` (22deg) and
+`--icon-wag-angle` (12deg).
 These presentation options do not themselves require inline rendering.
 
 `class`, `style`, `aria-*` and `data-*` are preserved. Explicit CSS declarations
@@ -1353,6 +1357,19 @@ and kit symbols remain direction-independent; no RTL sprite copy is generated.
 The policy applies to unqualified concepts, including their query modifiers.
 Explicit library/variant selectors (in addresses or service arguments) and `!`
 bypasses are excluded. Native library browsing therefore keeps the original artwork.
+
+Use nullable `mirror-rtl` on `<icon>` or `<sm-icon>` (or `IconOptions.MirrorRtl`)
+to override this policy: omission preserves the concept default, `true` enables
+RTL mirroring even for explicit addresses, and `false` suppresses automatic
+mirroring. It composes with `flip-h`, which applies in both directions.
+Changing `mirror-rtl` on `sm-icon` does not fetch a new drawing or alter its host
+attributes. No library-level mirroring list is required.
+
+```html
+<icon name="hi:arrow-left-01" mirror-rtl="true" />
+<sm-icon name="back" mirror-rtl="false"></sm-icon>
+```
+
 Manifest schema 8 publishes the sorted `mirrorInRtl` list; changing the list revises
 the manifest without changing sprite artwork. Older manifests fall back to the render
 endpoint when used with the updated client.
@@ -1365,8 +1382,11 @@ artwork is already included in a kit. Use explicit addresses only when no suitab
 concept exists or a specific source selection is intentional.
 
 Missing icons render the `system:not-found!/default` placeholder from the area's kit with
-`text-danger`, shared by Razor, HTML helpers and `sm-icon`. System artwork lives
+`icon-not-found` and the danger color, shared by Razor, HTML helpers and `sm-icon`. System artwork lives
 in `system/default/icons`. Lookup and search still report missing sources as absent.
+The fallback SVG retains the requested identity in `data-icon`, for example
+`missing-name -> sys:not-found/default`. The `sm-icon` host name remains unchanged.
+Direct renderer callers can supply `IconOptions.RequestedName` when lookup returns null.
 If the placeholder itself is unavailable, rendering returns no output without recursion.
 
 ### Replacing a library

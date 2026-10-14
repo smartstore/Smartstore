@@ -8,10 +8,10 @@
             @T("ShoppingCart.Mini.EmptyCompare.Title")
         </h4>
         <p class="no-item-icon">
-            <icon name="repeat" class="icon-4x" aria-hidden="true" />
+            <icon name="compare" class="icon-4x" aria-hidden="true" />
         </p>
         <p class="no-item-info text-muted">
-            @Html.Raw(T("ShoppingCart.Mini.EmptyCompare.Info", "fa fa-lg fa-retweet"))
+            @Html.Raw(T("ShoppingCart.Mini.EmptyCompare.Info", (await Html.IconAsync("compare", options: new Smartstore.IconKit.IconOptions { Size = "lg" })).ToHtmlString()))
         </p>
     </div>
 

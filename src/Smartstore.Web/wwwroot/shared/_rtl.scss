@@ -45,22 +45,6 @@
         float: right;
     }
 
-	// Nav collapsible
-	// ---
-	@include media-breakpoint-down(sm) {
-		.nav-collapsible {
-            .nav-toggler {
-                &:after {
-                    mask-image: var(--icon-mask-chevron-left);
-                    transform: translateY(-50%) rotate(-90deg);
-                }
-                &.collapsed:after {
-                    transform: translateY(-50%) rotate(0deg);
-                }
-            }
-		}
-	}
-
 	// Pagination
 	// ----------
 

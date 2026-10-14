@@ -629,7 +629,7 @@ public class IconServiceTests
         var kits = new IconKitService(_service, new HttpContextAccessor());
         var output = await new IconRenderer(_service, kits).RenderAsync(null, new IconOptions { Area = area });
         Assert.That(RenderMarkup(output.InnerHtml), Does.Contain(kits.GetUrl(area) + "#not-found"));
-        Assert.That(output.Attributes["class"], Does.Contain("text-danger"));
+        Assert.That(output.Attributes["class"], Does.Contain("icon-not-found").And.Not.Contain("text-danger"));
     }
 
     /// <summary>
@@ -647,10 +647,15 @@ public class IconServiceTests
             : await _service.GetIconAsync("missing");
         var kits = new IconKitService(_service, new HttpContextAccessor());
         var renderer = new IconRenderer(_service, kits);
-        var output = await renderer.RenderAsync(icon);
+        var output = await renderer.RenderAsync(icon, staleIdentity ? null : new IconOptions { RequestedName = "missing" });
         Assert.That(output, Is.Not.Null);
-        Assert.That(output.Attributes["data-icon"], Is.EqualTo("system:not-found/default"));
-        Assert.That(output.Attributes["class"], Does.Contain("icon-not-found").And.Contain("text-danger"));
+        var requestedName = "missing";
+        Assert.That(output.Attributes["data-icon"], Is.EqualTo($"{requestedName} -> system:not-found/default"));
+        if (staleIdentity)
+        {
+            Assert.That(icon.Name, Is.EqualTo("missing"));
+        }
+        Assert.That(output.Attributes["class"], Does.Contain("icon-not-found").And.Not.Contain("text-danger"));
         Assert.That(RenderMarkup(output.InnerHtml), Does.Contain("<use").And.Contain(kits.GetUrl("shared") + "#not-found"));
     }
 
@@ -902,6 +907,14 @@ public class IconServiceTests
         Assert.That(concept.MirrorInRtl, Is.True);
         var svg = await renderer.RenderAsync(concept);
         Assert.That(svg.Attributes["class"], Does.Contain("icon-mirror-rtl"));
+        var suppressed = await renderer.RenderAsync(concept, new IconOptions { MirrorRtl = false });
+        Assert.That(suppressed.Attributes["class"], Does.Not.Contain("icon-mirror-rtl"));
+        Assert.That(RenderMarkup(suppressed.InnerHtml), Is.EqualTo(RenderMarkup(svg.InnerHtml)));
+        Assert.That(concept.MirrorInRtl, Is.True);
+        var explicitIcon = await _service.GetIconAsync("cart-01!");
+        var mirrored = await renderer.RenderAsync(explicitIcon, new IconOptions { MirrorRtl = true });
+        Assert.That(mirrored.Attributes["class"], Does.Contain("icon-mirror-rtl"));
+        Assert.That(explicitIcon.MirrorInRtl, Is.False);
         Assert.That((await _service.GetIconAsync("cart?rotate=90")).MirrorInRtl, Is.True);
         Assert.That((await _service.GetIconAsync("hi:cart")).MirrorInRtl, Is.False);
         Assert.That((await _service.GetIconAsync("cart/sr")).MirrorInRtl, Is.False);
@@ -2502,18 +2515,22 @@ public class IconServiceTests
     /// <summary>
     /// Presentation-only options preserve external kit rendering and caller style precedence.
     /// </summary>
-    [Test]
-    public async Task Presentation_Options_Keep_Kit_Rendering()
+    [TestCase("throb")]
+    [TestCase("spin-snap")]
+    [TestCase("pulse")]
+    [TestCase("swing")]
+    [TestCase("wag")]
+    public async Task Presentation_Options_Keep_Kit_Rendering(string animation)
     {
         Write("Icons/config.json", """{"defaultLibrary":"hugeicons"}""");
         Write("Icons/kits.json", """{"shared":["cart"]}""");
         var kits = new IconKitService(_service, new HttpContextAccessor());
         var renderer = new IconRenderer(_service, kits);
-        var options = new IconOptions { Size = "3x", Animation = "beat-fade", FontScale = 2, ShiftX = 2, AnimationReverse = false };
+        var options = new IconOptions { Size = "3x", Animation = animation, FontScale = 2, ShiftX = 2, AnimationReverse = false };
         options.Attributes["style"] = "--icon-size-factor:4";
         var output = await renderer.RenderAsync(await _service.GetIconAsync("cart"), options);
         Assert.That(RenderMarkup(output.InnerHtml), Does.Contain("<use"));
-        Assert.That(output.Attributes["class"], Does.Contain("icon-3x").And.Contain("icon-beat-fade"));
+        Assert.That(output.Attributes["class"], Does.Contain("icon-3x").And.Contain("icon-" + animation));
         Assert.That(output.Attributes["style"], Does.Contain("--icon-shift-x:0.125em").And.EndWith("--icon-size-factor:4"));
         _cache.VerifyNoOtherCalls();
     }

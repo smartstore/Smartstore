@@ -188,14 +188,14 @@ public class IconTagHelperTests
             .ReturnsAsync(new TagBuilder("svg"));
         var helper = new TestIconTagHelper(service.Object, renderer.Object)
         {
-            Name = "cart?flip=x", Library = "hi", Rotate = 0, FlipHorizontal = false,
-            StrokeScale = 1, Size = "3x", Animation = "beat-fade", CssClass = "custom", Style = "color:red",
+            Name = "cart?flip=x", Library = "hi", Rotate = 0, FlipHorizontal = false, MirrorRtl = false,
+            StrokeScale = 1, Size = "3x", Animation = "throb", CssClass = "custom", Style = "color:red",
             ViewContext = new ViewContext { HttpContext = new DefaultHttpContext() }
         };
         var attributes = new TagHelperAttributeList
         {
-            { "name", helper.Name }, { "lib", "hi" }, { "rotate", 0 }, { "flip-h", false },
-            { "stroke-scale", 1 }, { "size", "3x" }, { "animation", "beat-fade" },
+            { "name", helper.Name }, { "lib", "hi" }, { "rotate", 0 }, { "flip-h", false }, { "mirror-rtl", false },
+            { "stroke-scale", 1 }, { "size", "3x" }, { "animation", "throb" },
             { "class", "custom" }, { "style", "color:red" }, { "data-test", "kept" }
         };
         var context = new TagHelperContext(attributes, new Dictionary<object, object>(), "test");
@@ -203,8 +203,10 @@ public class IconTagHelperTests
         await helper.ProcessAsync(context, output);
         Assert.That(captured.Rotate, Is.EqualTo(0));
         Assert.That(captured.FlipHorizontal, Is.False);
+        Assert.That(captured.MirrorRtl, Is.False);
+        Assert.That(captured.Attributes.ContainsKey("mirror-rtl"), Is.False);
         Assert.That(captured.StrokeScale, Is.EqualTo(1));
-        Assert.That(captured.Animation, Is.EqualTo("beat-fade"));
+        Assert.That(captured.Animation, Is.EqualTo("throb"));
         Assert.That(captured.Attributes, Has.Count.EqualTo(3));
         Assert.That(captured.Attributes["class"], Is.EqualTo("custom"));
         Assert.That(captured.Attributes["style"], Is.EqualTo("color:red"));
@@ -266,7 +268,7 @@ public class IconTagHelperTests
         else
         {
             Assert.That(output.TagName, Is.EqualTo("svg"));
-            Assert.That(output.Attributes["class"].Value.ToString(), Does.Contain("text-danger"));
+            Assert.That(output.Attributes["class"].Value.ToString(), Does.Contain("icon-not-found").And.Not.Contain("text-danger"));
             Assert.That(output.Content.GetContent(), Does.Contain("<path"));
         }
     }
