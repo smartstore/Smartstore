@@ -398,6 +398,73 @@ const themes = {
         ]
     },
 
+    // Porcelain studio: sculpted white objects, graphite and a precise blue accent.
+    FlexPorcelain: {
+        font: SEGOE, headFont: SEGOE,
+        siteBg: '#ffffff', bodyBg: '#ffffff',
+        menubar: { bg: '#f5f5f7', fg: '#86868b', line: '#e8e8ed' },
+        shopbar: { bg: '#ffffff', fg: '#1d1d1f', logo: '#1d1d1f' },
+        search: { bg: '#f5f5f7', border: '#f5f5f7', pill: true, placeholder: '#d2d2d7', icon: '#6e6e73' },
+        badge: { bg: '#0066cc', fg: '#ffffff' },
+        nav: { bg: '#ffffff', fg: '#333336', weight: 400, size: 14, items: ['Discover', 'Objects', 'Audio', 'Workspace', 'Accessories'], selected: '#0066cc', line: '#e8e8ed' },
+        hero: {
+            panel: { fill: '#f5f5f7', rx: 24 },
+            kicker: { text: 'Less, beautifully.', color: '#6e6e73', size: 16, weight: 400 },
+            title: { text: 'Porcelain', size: 94, weight: 600, color: '#1d1d1f', spacing: -4 },
+            lines: '#d2d2d7',
+            btn1: { bg: '#0066cc', label: '#ffffff', rx: 24 },
+            btn2: { bg: '#f5f5f7', stroke: '#0066cc', label: '#0066cc', rx: 24 },
+            art: () => `
+                ${shadow(950, 466, 180, 0.09)}
+                ${R(778, 409, 350, 52, 'url(#pcSilver)', 26)}
+                ${E(953, 410, 175, 30, '#ffffff')}
+                <g transform="rotate(-15 930 324)">
+                    ${R(835, 210, 190, 208, 'url(#pcWhite)', 56, 'stroke="#d2d2d7" stroke-width="1"')}
+                    ${R(855, 230, 150, 168, 'url(#pcFace)', 42)}
+                    ${C(930, 314, 47, 'none', 'stroke="#e8e8ed" stroke-width="2"')}
+                    ${S('M930 281 v33 l25 15', '#1d1d1f', 4)}
+                    ${C(930, 314, 4, '#0066cc')}
+                </g>
+                ${C(1092, 370, 64, 'url(#pcBlue)')}
+                ${E(1074, 345, 22, 11, '#ffffff', 'opacity="0.18" transform="rotate(-30 1074 345)"')}
+                ${C(778, 356, 27, 'url(#pcWhite)', 'stroke="#e8e8ed"')}
+            `
+        },
+        tile: { fill: '#f5f5f7', rx: 20 },
+        items: [
+            (x, y) => `${shadow(x, y + 74, 52, 0.07)}
+                ${S(`M${x - 45} ${y + 4} v-16 a45 45 0 0 1 90 0 v16`, '#d2d2d7', 14)}
+                ${S(`M${x - 45} ${y} v-12 a45 45 0 0 1 90 0 v12`, '#ffffff', 8)}
+                ${R(x - 58, y - 4, 27, 68, 'url(#pcWhite)', 13, 'stroke="#d2d2d7"')}
+                ${R(x + 31, y - 4, 27, 68, 'url(#pcWhite)', 13, 'stroke="#d2d2d7"')}`,
+            (x, y) => `${shadow(x, y + 74, 45, 0.07)}
+                ${R(x - 48, y - 59, 96, 130, 'url(#pcGraphite)', 30)}
+                ${Array.from({length: 15}, (_, i) => S(`M${x - 34} ${y - 38 + i * 6} h68`, '#6e6e73', 1, 'opacity="0.45"')).join('')}
+                ${R(x - 8, y - 50, 16, 3, '#0066cc', 1.5)}`,
+            (x, y) => `${shadow(x, y + 74, 57, 0.07)}
+                ${R(x - 5, y - 30, 10, 92, 'url(#pcSilver)', 5)}
+                ${E(x, y + 65, 45, 9, 'url(#pcSilver)')}
+                ${P(`M${x - 65} ${y - 24} a65 55 0 0 1 130 0 z`, 'url(#pcWhite)', 'stroke="#d2d2d7"')}
+                ${E(x, y - 24, 65, 9, '#e8e8ed')}`,
+            (x, y) => `${shadow(x, y + 74, 50, 0.07)}
+                ${R(x - 48, y - 54, 96, 123, 'url(#pcBlue)', 24)}
+                ${R(x - 40, y - 46, 80, 107, 'none', 18, 'stroke="#ffffff" opacity="0.25"')}
+                ${C(x, y + 6, 25, 'none', 'stroke="#ffffff" stroke-width="2" opacity="0.6"')}
+                ${R(x - 10, y + 39, 20, 3, '#ffffff', 1.5, 'opacity="0.6"')}`
+        ],
+        caption: ['#d2d2d7', '#e8e8ed'],
+        price: { color: '#1d1d1f', font: SEGOE, size: 22, weight: 600, values: ['149.00', '89.00', '129.00', '39.20'], old: '49.00', oldColor: '#86868b' },
+        sale: { bg: '#0066cc', fg: '#ffffff', rx: 15 },
+        footer: { bg: '#f5f5f7', title: '#515154', link: '#b5b5bd', social: '#86868b', bottom: '#e8e8ed', line: '#e8e8ed' },
+        defs: [
+            lin('pcWhite', ['#ffffff', '#f5f5f7', '#d2d2d7'], 1, 1),
+            lin('pcSilver', ['#e8e8ed', '#b5b5bd', '#e8e8ed'], 1, 0),
+            rad('pcFace', ['#ffffff', '#f5f5f7', '#e8e8ed']),
+            rad('pcBlue', ['#69b7ff', '#0066cc', '#003d85']),
+            lin('pcGraphite', ['#515154', '#333336', '#1d1d1f'], 1, 0)
+        ]
+    },
+
     // Editorial botanics: aubergine, lime and mint with serif headlines.
     FlexSorbet: {
         font: '"Trebuchet MS", "Segoe UI", sans-serif', headFont: 'Georgia, "Times New Roman", serif',

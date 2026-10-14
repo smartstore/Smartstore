@@ -12,88 +12,88 @@
     <tab sm-title="@T("Common.General")" sm-selected="true">
         <div class="adminContent">
             @{
-                ThemeVarEditor("gray-100", "Grayscale");
-                ThemeVarEditor("gray-200");
-                ThemeVarEditor("gray-300");
-                ThemeVarEditor("gray-400");
-                ThemeVarEditor("gray-500");
-                ThemeVarEditor("gray-600");
-                ThemeVarEditor("gray-700");
-                ThemeVarEditor("gray-800");
-                ThemeVarEditor("gray-900");
+                await ThemeVarEditorAsync("gray-100", "Grayscale");
+                await ThemeVarEditorAsync("gray-200");
+                await ThemeVarEditorAsync("gray-300");
+                await ThemeVarEditorAsync("gray-400");
+                await ThemeVarEditorAsync("gray-500");
+                await ThemeVarEditorAsync("gray-600");
+                await ThemeVarEditorAsync("gray-700");
+                await ThemeVarEditorAsync("gray-800");
+                await ThemeVarEditorAsync("gray-900");
 
-                ThemeVarEditor("red", "Colors");
-                ThemeVarEditor("orange");
-                ThemeVarEditor("yellow");
-                ThemeVarEditor("green");
-                ThemeVarEditor("blue");
-                ThemeVarEditor("bluegrey");
-                ThemeVarEditor("indigo");
-                ThemeVarEditor("teal");
-                ThemeVarEditor("cyan");
-                ThemeVarEditor("pink");
-                ThemeVarEditor("purple");
+                await ThemeVarEditorAsync("red", "Colors");
+                await ThemeVarEditorAsync("orange");
+                await ThemeVarEditorAsync("yellow");
+                await ThemeVarEditorAsync("green");
+                await ThemeVarEditorAsync("blue");
+                await ThemeVarEditorAsync("bluegrey");
+                await ThemeVarEditorAsync("indigo");
+                await ThemeVarEditorAsync("teal");
+                await ThemeVarEditorAsync("cyan");
+                await ThemeVarEditorAsync("pink");
+                await ThemeVarEditorAsync("purple");
 
-                ThemeVarEditor("primary", "Brand Colors");
-                ThemeVarEditor("secondary");
-                ThemeVarEditor("warning");
-                ThemeVarEditor("danger");
-                ThemeVarEditor("info");
-                ThemeVarEditor("success");
-                ThemeVarEditor("light");
-                ThemeVarEditor("dark");
+                await ThemeVarEditorAsync("primary", "Brand Colors");
+                await ThemeVarEditorAsync("secondary");
+                await ThemeVarEditorAsync("warning");
+                await ThemeVarEditorAsync("danger");
+                await ThemeVarEditorAsync("info");
+                await ThemeVarEditorAsync("success");
+                await ThemeVarEditorAsync("light");
+                await ThemeVarEditorAsync("dark");
 
-                ThemeVarEditor("boxed", "Layout", T("Admin.ThemeVar.Boxed"));
+                await ThemeVarEditorAsync("boxed", "Layout", T("Admin.ThemeVar.Boxed"));
 
-                ThemeVarEditor("body-bg", "Site Colors");
-                ThemeVarEditor("site-bg");
-                ThemeVarEditor("body-color");
-                ThemeVarEditor("yiq-text-dark");
-                ThemeVarEditor("yiq-text-light");
-                ThemeVarEditor("body-secondary-color");
-                ThemeVarEditor("body-tertiary-color");
-                ThemeVarEditor("link-color");
-                ThemeVarEditor("btn-secondary-bg", "");
+                await ThemeVarEditorAsync("body-bg", "Site Colors");
+                await ThemeVarEditorAsync("site-bg");
+                await ThemeVarEditorAsync("body-color");
+                await ThemeVarEditorAsync("yiq-text-dark");
+                await ThemeVarEditorAsync("yiq-text-light");
+                await ThemeVarEditorAsync("body-secondary-color");
+                await ThemeVarEditorAsync("body-tertiary-color");
+                await ThemeVarEditorAsync("link-color");
+                await ThemeVarEditorAsync("btn-secondary-bg", "");
 
-                ThemeVarEditor("border-radius", "Borders");
-                ThemeVarEditor("border-radius-sm");
-                ThemeVarEditor("border-radius-lg");
-                ThemeVarEditor("border-radius-xl");
-                ThemeVarEditor("border-radius-xxl");
+                await ThemeVarEditorAsync("border-radius", "Borders");
+                await ThemeVarEditorAsync("border-radius-sm");
+                await ThemeVarEditorAsync("border-radius-lg");
+                await ThemeVarEditorAsync("border-radius-xl");
+                await ThemeVarEditorAsync("border-radius-xxl");
             }
         </div>
     </tab>
     <tab sm-title="@T("Admin.Themes.Fonts")">
         <div class="adminContent">
             @{
-                ThemeVarEditor("font-family-sans-serif", "Typo");
-                ThemeVarEditor("font-family-monospace");
-                ThemeVarEditor("font-size-base");
-                ThemeVarEditor("font-size-lg");
-                ThemeVarEditor("font-size-sm");
-                ThemeVarEditor("font-size-xs");
-                ThemeVarEditor("font-weight-light");
-                ThemeVarEditor("font-weight-normal");
-                ThemeVarEditor("font-weight-medium");
-                ThemeVarEditor("font-weight-bold");
+                await ThemeVarEditorAsync("font-family-sans-serif", "Typo");
+                await ThemeVarEditorAsync("font-family-monospace");
+                await ThemeVarEditorAsync("font-size-base");
+                await ThemeVarEditorAsync("font-size-lg");
+                await ThemeVarEditorAsync("font-size-sm");
+                await ThemeVarEditorAsync("font-size-xs");
+                await ThemeVarEditorAsync("font-weight-light");
+                await ThemeVarEditorAsync("font-weight-normal");
+                await ThemeVarEditorAsync("font-weight-medium");
+                await ThemeVarEditorAsync("font-weight-bold");
 
-                ThemeVarEditor("headings-font-family", "Headings");
-                ThemeVarEditor("headings-font-weight");
-                ThemeVarEditor("headings-line-height");
-                ThemeVarEditor("headings-color");
-                ThemeVarEditor("lead-font-weight");
+                await ThemeVarEditorAsync("headings-font-family", "Headings");
+                await ThemeVarEditorAsync("headings-font-weight");
+                await ThemeVarEditorAsync("headings-line-height");
+                await ThemeVarEditorAsync("headings-color");
+                await ThemeVarEditorAsync("lead-font-weight");
 
-                ThemeVarEditor("h1-font-size", "Heading Sizes");
-                ThemeVarEditor("h2-font-size");
-                ThemeVarEditor("h3-font-size");
-                ThemeVarEditor("h4-font-size");
-                ThemeVarEditor("h5-font-size");
-                ThemeVarEditor("h6-font-size");
+                await ThemeVarEditorAsync("h1-font-size", "Heading Sizes");
+                await ThemeVarEditorAsync("h2-font-size");
+                await ThemeVarEditorAsync("h3-font-size");
+                await ThemeVarEditorAsync("h4-font-size");
+                await ThemeVarEditorAsync("h5-font-size");
+                await ThemeVarEditorAsync("h6-font-size");
 
-                ThemeVarEditor("prose-font-size", "Prose");
-                ThemeVarEditor("prose-line-height");
-                ThemeVarEditor("prose-headings-lg-font-weight");
-                ThemeVarEditor("prose-headings-sm-font-weight");
+                await ThemeVarEditorAsync("prose-font-size", "Prose");
+                await ThemeVarEditorAsync("prose-line-height");
+                await ThemeVarEditorAsync("prose-headings-lg-font-weight");
+                await ThemeVarEditorAsync("prose-headings-sm-font-weight");
             }
 
             <div class="adminRow">
@@ -116,114 +116,114 @@
             </div>
 
             @{
-                ThemeVarEditor("google-font-1");
-                ThemeVarEditor("google-font-2");
-                ThemeVarEditor("google-font-3");
+                await ThemeVarEditorAsync("google-font-1");
+                await ThemeVarEditorAsync("google-font-2");
+                await ThemeVarEditorAsync("google-font-3");
             }
         </div>
     </tab>
     <tab sm-title="@T("Admin.Themes.Sections")">
         <div class="adminContent">
             @{
-                ThemeVarEditor("header-bg", "Header");
-                ThemeVarEditor("header-color");
-                ThemeVarEditor("shopbar-label");
-                ThemeVarEditor("header-color-muted");
-                ThemeVarEditor("header-selected-color");
+                await ThemeVarEditorAsync("header-bg", "Header");
+                await ThemeVarEditorAsync("header-color");
+                await ThemeVarEditorAsync("shopbar-label");
+                await ThemeVarEditorAsync("header-color-muted");
+                await ThemeVarEditorAsync("header-selected-color");
 
-                ThemeVarEditor("inverse-menubar", "");
-                ThemeVarEditor("menubar-bg");
-                ThemeVarEditor("menubar-color");
-                ThemeVarEditor("menubar-inverse-color");
+                await ThemeVarEditorAsync("inverse-menubar", "");
+                await ThemeVarEditorAsync("menubar-bg");
+                await ThemeVarEditorAsync("menubar-color");
+                await ThemeVarEditorAsync("menubar-inverse-color");
 
-                ThemeVarEditor("inverse-shopbar", "");
-                ThemeVarEditor("shopbar-bg");
-                ThemeVarEditor("shopbar-color");
-                ThemeVarEditor("shopbar-inverse-color");
+                await ThemeVarEditorAsync("inverse-shopbar", "");
+                await ThemeVarEditorAsync("shopbar-bg");
+                await ThemeVarEditorAsync("shopbar-color");
+                await ThemeVarEditorAsync("shopbar-inverse-color");
 
-                ThemeVarEditor("inverse-navbar", "");
-                ThemeVarEditor("megamenu-bg");
-                ThemeVarEditor("megamenu-color");
-                ThemeVarEditor("megamenu-inverse-color");
-                ThemeVarEditor("megamenu-line-height");
+                await ThemeVarEditorAsync("inverse-navbar", "");
+                await ThemeVarEditorAsync("megamenu-bg");
+                await ThemeVarEditorAsync("megamenu-color");
+                await ThemeVarEditorAsync("megamenu-inverse-color");
+                await ThemeVarEditorAsync("megamenu-line-height");
 
-                ThemeVarEditor("megamenu-dropdown-bg");
-                ThemeVarEditor("megamenu-heading-color");
-                ThemeVarEditor("megamenu-subitem-color");
-                ThemeVarEditor("megamenu-text-color");
-                ThemeVarEditor("megamenu-rotator-bg");
+                await ThemeVarEditorAsync("megamenu-dropdown-bg");
+                await ThemeVarEditorAsync("megamenu-heading-color");
+                await ThemeVarEditorAsync("megamenu-subitem-color");
+                await ThemeVarEditorAsync("megamenu-text-color");
+                await ThemeVarEditorAsync("megamenu-rotator-bg");
 
-                ThemeVarEditor("searchbox-pill", "Searchbox");
-                ThemeVarEditor("searchbox-shadow");
-                ThemeVarEditor("searchbox-bg-1");
-                ThemeVarEditor("searchbox-bg-2");
-                ThemeVarEditor("searchbox-bg-mobile");
-                ThemeVarEditor("searchbox-color-1");
-                ThemeVarEditor("searchbox-color-2");
-                ThemeVarEditor("searchbox-border-1");
-                ThemeVarEditor("searchbox-border-2");
-                ThemeVarEditor("searchbox-outline-width");
-                ThemeVarEditor("searchbox-outline-color");
-                ThemeVarEditor("searchbox-border-mobile");
-                ThemeVarEditor("searchbox-hit-tag-color");
+                await ThemeVarEditorAsync("searchbox-pill", "Searchbox");
+                await ThemeVarEditorAsync("searchbox-shadow");
+                await ThemeVarEditorAsync("searchbox-bg-1");
+                await ThemeVarEditorAsync("searchbox-bg-2");
+                await ThemeVarEditorAsync("searchbox-bg-mobile");
+                await ThemeVarEditorAsync("searchbox-color-1");
+                await ThemeVarEditorAsync("searchbox-color-2");
+                await ThemeVarEditorAsync("searchbox-border-1");
+                await ThemeVarEditorAsync("searchbox-border-2");
+                await ThemeVarEditorAsync("searchbox-outline-width");
+                await ThemeVarEditorAsync("searchbox-outline-color");
+                await ThemeVarEditorAsync("searchbox-border-mobile");
+                await ThemeVarEditorAsync("searchbox-hit-tag-color");
 
-                ThemeVarEditor("inverse-footer", "Footer");
-                ThemeVarEditor("footer-bg");
-                ThemeVarEditor("footer-color");
-                ThemeVarEditor("footer-color-muted");
-                ThemeVarEditor("footer-inverse-color");
-                ThemeVarEditor("footer-inverse-color-muted");
-                ThemeVarEditor("footer-social-bg");
-                ThemeVarEditor("footer-social-color");
+                await ThemeVarEditorAsync("inverse-footer", "Footer");
+                await ThemeVarEditorAsync("footer-bg");
+                await ThemeVarEditorAsync("footer-color");
+                await ThemeVarEditorAsync("footer-color-muted");
+                await ThemeVarEditorAsync("footer-inverse-color");
+                await ThemeVarEditorAsync("footer-inverse-color-muted");
+                await ThemeVarEditorAsync("footer-social-bg");
+                await ThemeVarEditorAsync("footer-social-color");
             }
         </div>
     </tab>
     <tab sm-title="@T("Admin.Themes.Components")">
         <div class="adminContent">
             @{
-                ThemeVarEditor("card-border-radius", "Cards");
-                ThemeVarEditor("card-border-color");
-                ThemeVarEditor("card-cap-bg");
-                ThemeVarEditor("card-bg");
+                await ThemeVarEditorAsync("card-border-radius", "Cards");
+                await ThemeVarEditorAsync("card-border-color");
+                await ThemeVarEditorAsync("card-cap-bg");
+                await ThemeVarEditorAsync("card-bg");
 
-                ThemeVarEditor("dropdown-bg", "Dropdowns");
-                ThemeVarEditor("dropdown-color");
-                ThemeVarEditor("dropdown-border-color");
-                ThemeVarEditor("dropdown-border-radius");
-                ThemeVarEditor("dropdown-divider-bg");
-                ThemeVarEditor("dropdown-box-shadow");
-                ThemeVarEditor("dropdown-link-color");
-                ThemeVarEditor("dropdown-link-hover-color");
-                ThemeVarEditor("dropdown-link-hover-bg");
+                await ThemeVarEditorAsync("dropdown-bg", "Dropdowns");
+                await ThemeVarEditorAsync("dropdown-color");
+                await ThemeVarEditorAsync("dropdown-border-color");
+                await ThemeVarEditorAsync("dropdown-border-radius");
+                await ThemeVarEditorAsync("dropdown-divider-bg");
+                await ThemeVarEditorAsync("dropdown-box-shadow");
+                await ThemeVarEditorAsync("dropdown-link-color");
+                await ThemeVarEditorAsync("dropdown-link-hover-color");
+                await ThemeVarEditorAsync("dropdown-link-hover-bg");
 
-                ThemeVarEditor("table-bg", "Tables");
-                ThemeVarEditor("table-accent-bg");
-                ThemeVarEditor("table-hover-bg");
-                ThemeVarEditor("table-active-bg");
-                ThemeVarEditor("table-border-color");
+                await ThemeVarEditorAsync("table-bg", "Tables");
+                await ThemeVarEditorAsync("table-accent-bg");
+                await ThemeVarEditorAsync("table-hover-bg");
+                await ThemeVarEditorAsync("table-active-bg");
+                await ThemeVarEditorAsync("table-border-color");
             }
         </div>
     </tab>
     <tab sm-title="@T("Admin.Themes.Misc")">
         <div class="adminContent">
             @{
-                ThemeVarEditor("nav-tabs-active-link-color");
-                ThemeVarEditor("product-price-color");
-                ThemeVarEditor("product-detail-addtocart-box-bg");
-                ThemeVarEditor("register-box-bg");
-                ThemeVarEditor("cart-footer-bg");
-                ThemeVarEditor("costep-progress-color", null, T("Admin.ThemeVar.CostepPogressColor"));
-                ThemeVarEditor("offcanvas-cart-footer");
-                ThemeVarEditor("art-active-bg-color", null, T("Admin.ThemeVar.ArtActiveBgColor"));
-                ThemeVarEditor("art-active-border-color", null, T("Admin.ThemeVar.ArtActiveBorderColor"));
-                ThemeVarEditor("enable-alert-icons");
+                await ThemeVarEditorAsync("nav-tabs-active-link-color");
+                await ThemeVarEditorAsync("product-price-color");
+                await ThemeVarEditorAsync("product-detail-addtocart-box-bg");
+                await ThemeVarEditorAsync("register-box-bg");
+                await ThemeVarEditorAsync("cart-footer-bg");
+                await ThemeVarEditorAsync("costep-progress-color", null, T("Admin.ThemeVar.CostepPogressColor"));
+                await ThemeVarEditorAsync("offcanvas-cart-footer");
+                await ThemeVarEditorAsync("art-active-bg-color", null, T("Admin.ThemeVar.ArtActiveBgColor"));
+                await ThemeVarEditorAsync("art-active-border-color", null, T("Admin.ThemeVar.ArtActiveBorderColor"));
+                await ThemeVarEditorAsync("enable-alert-icons");
             }
         </div>
     </tab>
 </tabstrip>
 
 @{
-    void ThemeVarEditor(string varName, string groupName = null, string helpText = null)
+    async Task ThemeVarEditorAsync(string varName, string groupName = null, string helpText = null)
     {
         var themeVar = Display.GetThemeDescriptor().Variables[varName];
 

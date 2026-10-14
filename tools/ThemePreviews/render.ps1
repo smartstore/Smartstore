@@ -12,7 +12,7 @@
     ./render.ps1 -OutDir ./out
 #>
 param(
-    [string[]]$Themes = @('Flex', 'FlexAfterglow', 'FlexBlack', 'FlexBlue', 'FlexLumen', 'FlexRiso', 'FlexSorbet', 'FlexTidal'),
+    [string[]]$Themes = @('Flex', 'FlexAfterglow', 'FlexBlack', 'FlexBlue', 'FlexLumen', 'FlexPorcelain', 'FlexRiso', 'FlexSorbet', 'FlexTidal'),
     [string]$OutDir,
     [string]$Browser
 )
