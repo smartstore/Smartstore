@@ -36,13 +36,13 @@
         }
     }
 
-	.nav-link > :is(.icon, img) {
+	.nav-link > :is(.icon, .icon-stack) {
         position: relative;
 		color: var(--nav-link-icon-color);
 	}
 
-    .nav-link:hover > .icon,
-    .nav-link.active > .icon {
+    .nav-link:hover > :is(.icon, .icon-stack),
+    .nav-link.active > :is(.icon, .icon-stack) {
 		color: inherit;
 	}
 
@@ -150,7 +150,7 @@
 			opacity: 0.4;
 		}
 
-		> :is(.icon, img) {
+		> :is(.icon, .icon-stack) {
 			display: none;
 		}
 
@@ -159,7 +159,7 @@
         }
 
 		@include media-breakpoint-up(lg) {
-			> :is(.icon, img) {
+			> :is(.icon, .icon-stack) {
 				display: inline-block;
 			}
 		}
@@ -262,7 +262,7 @@
         max-width: 250px;
         min-height: 100%;
 
-	    .nav-link > :is(.icon, img) {
+	    .nav-link > :is(.icon, .icon-stack) {
             // Move icon slightly away from label if tabs are placed on left or right
             //inset-inline-start: -0.25em;
             margin-inline: 0.25em;
@@ -317,7 +317,7 @@
                     transition: all ease 0.15s;
                 }
 
-                > .icon {
+                > :is(.icon, .icon-stack) {
                     transition: transform ease 0.15s;
                 }
 
@@ -333,7 +333,7 @@
                         transform: translateX(2px);
                     }
 
-                    > .icon {
+                    > :is(.icon, .icon-stack) {
                         transform: scale(1.2);
                     }
                 }

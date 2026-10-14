@@ -571,6 +571,7 @@ public class TabStripTagHelper : SmartTagHelper
         else if (tab.ImageUrl.HasValue())
         {
             TagBuilder img = new("img");
+            img.AddCssClass("icon");
             img.Attributes["src"] = UrlHelper.Content(tab.ImageUrl);
             img.Attributes["alt"] = "Icon";
             a.InnerHtml.AppendHtml(img);
