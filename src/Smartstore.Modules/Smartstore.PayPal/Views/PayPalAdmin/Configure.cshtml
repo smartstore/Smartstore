@@ -35,7 +35,7 @@
         <icon name="wrench"  />
         <span>@T("Plugins.Smartstore.PayPal.SupportTools")</span>
     </button>
-    <button id="SaveConfigButton" type="submit" name="save" class="btn btn-warning" value="save">
+    <button id="SaveConfigButton" type="submit" name="save" class="btn btn-primary" value="save">
         <icon name="check"  />
         <span>@T("Admin.Common.Save")</span>
     </button>
@@ -51,17 +51,15 @@
     });
 </script>
 
-<div class="plugin-configuration">
-    <div>
-        <div class="alert alert-info alert-dismissible">
+<div class="alert alert-info alert-dismissible">
+    <button type="button" class="btn-close" data-dismiss="alert"></button>
+    <a class="d-inline-block mb-3" href="https://www.paypal.com/" target="_blank">
+        <img class="img-fluid alert-branding" src="@Url.Content("~/Modules/Smartstore.PayPal/branding.png")" alt="PayPal" />
+    </a>
+    <div class="text-expander" data-max-height="160">
+        <div class="text-expander-content">
             @Html.Raw(T("Plugins.Smartstore.PayPal.AdminInstruction"))
-            <button class="btn-close" data-dismiss="alert"></button>
         </div>
-    </div>
-    <div class="mt-5">
-        <a href="https://www.paypal.com/" target="_blank">
-            <img src="@Url.Content("~/Modules/Smartstore.PayPal/branding.png")" alt="PayPal" />
-        </a>
     </div>
 </div>
 

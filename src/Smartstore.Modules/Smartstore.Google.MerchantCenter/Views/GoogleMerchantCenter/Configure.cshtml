@@ -7,10 +7,14 @@
 <div class="alert alert-info alert-dismissible">
     <div class="mb-2">
         <a href="http://www.google.com/merchants/" rel="nofollow" target="_blank">
-            <img src="@Url.Content("~/Modules/Smartstore.Google.MerchantCenter/branding.png")" style="max-width: 250px" alt="Google Merchant Center" />
+            <img class="img-fluid alert-branding" src="@Url.Content("~/Modules/Smartstore.Google.MerchantCenter/branding.png")" style="max-width: 250px" alt="Google Merchant Center" />
         </a>
     </div>
-    @Html.Raw(@T("Plugins.Feed.Froogle.AdminInstruction"))
+    <div class="text-expander" data-max-height="160">
+        <div class="text-expander-content">
+            @Html.Raw(@T("Plugins.Feed.Froogle.AdminInstruction"))
+        </div>
+    </div>
     <button class="btn-close" data-dismiss="alert"></button>
 </div>
 

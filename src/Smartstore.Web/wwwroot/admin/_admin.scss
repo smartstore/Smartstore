@@ -1395,6 +1395,11 @@ a.editable {
     display: none;
 }
 
+.alert-branding {
+    max-height: 50px;
+    width: auto;
+}
+
 .plugin-configuration {
     display: flex;
     flex-wrap: nowrap;

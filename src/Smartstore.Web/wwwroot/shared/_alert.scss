@@ -1,9 +1,5 @@
 /// <reference path="references.scss" />
 
-.alert > *:last-child {
-    margin-bottom: 0;
-}
-
 .alert a:not(.btn):not(.link-dnn) {
     @extend .link-duu;
     @extend .link-transition;
@@ -69,6 +65,7 @@
 	margin-top: 0 !important;
 }
 
-.alert > *:last-child {
+.alert > *:last-child,
+.alert .text-expander-content > :last-child {
 	margin-bottom: 0 !important;
 }
