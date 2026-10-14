@@ -162,6 +162,9 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.Themes.Info.FlexLumen",
             "A bright white canvas with iris-blue actions, soft lavender surfaces and petrol accents. Familiar, airy and quietly modern.",
             "Strahlendes Weiß mit irisblauen Akzenten, sanften Lavendelflächen und Petrol. Vertraut, luftig und dezent modern.");
+        builder.AddOrUpdate("Admin.Themes.Info.FlexRiso",
+            "Inspired by risograph prints: cobalt ink, fluorescent pink and sunflower yellow on bright white paper. Condensed DIN-style headings and playful off-register accents.",
+            "Inspiriert vom Risographie-Druck: Kobaltblau, Neonpink und Sonnengelb auf strahlend weißem Papier. Kompakte Überschriften im DIN-Stil und verspielte, leicht versetzte Farbakzente.");
 
         builder.AddOrUpdate("Admin.Configuration.Themes.Option.KeepSassCompilerInMemory",
             "Keep Sass compiler in memory",

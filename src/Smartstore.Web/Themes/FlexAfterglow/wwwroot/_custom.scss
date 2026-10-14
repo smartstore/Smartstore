@@ -1,0 +1,93 @@
+// Theme-specific finishing touches. Shared component styles remain inherited.
+:root {
+    color-scheme: dark;
+    --heading-line-color: #{rgba($body-color, 0.25)};
+}
+
+// Flex assigns white list surfaces independently of its theme variables.
+.list-group {
+    --list-group-bg: #{$card-bg};
+    --list-group-active-bg: #{$card-bg};
+    --list-group-disabled-bg: #{$gray-100};
+    --list-group-border-color: #{$gray-300};
+    --list-group-active-border-color: #{$gray-300};
+}
+
+// Shared light-button tuning assumes a light canvas.
+.btn-outline-secondary {
+    --btn-color: #{$secondary};
+    --btn-disabled-color: #{$secondary};
+}
+
+// Surfaces with fixed light colors in Flex.
+.login-box,
+.offcanvas,
+#offcanvas-menu .layer,
+#ocm-service .menubar-link,
+#offcanvas-cart .throbber,
+.pd-tierprices .table,
+#scroll-top {
+    background-color: $card-bg;
+}
+
+.pwd-policy {
+    --light: #{$gray-200};
+}
+
+// Flat controls have no bright background to support dark labels.
+.btn-toolbar .btn,
+.btn-flat {
+    --btn-color: #{$body-color};
+}
+
+.btn-clear-dark,
+.btn-plain {
+    --btn-color: #{$body-color};
+    --btn-hover-color: #{$gray-900};
+    --btn-hover-bg: #{$gray-200};
+    --btn-active-color: #{$gray-900};
+    --btn-active-bg: #{$gray-300};
+}
+
+// Bright accents need dark foregrounds, including small voting controls.
+.accordion .card-title .card-title-link:not(.collapsed),
+.review-vote .review-vote-link:is(.review-vote-link-yes, .review-vote-link-no):hover {
+    color: $yiq-text-dark;
+}
+
+.nav-pills {
+    --nav-pills-link-active-color: #{$yiq-text-dark};
+}
+
+.costep-icon,
+.costep.active .costep-icon {
+    background-color: $card-bg;
+    color: $body-color;
+}
+
+.costep:not(.visited):not(.active) .costep-icon {
+    border-color: $gray-300;
+}
+
+.costep:not(.visited):after,
+.costep:not(.visited):not(.active):before {
+    background-color: $gray-300;
+}
+
+.costep.visited .costep-icon {
+    color: $yiq-text-dark;
+}
+
+// Opaque footer colors cannot brighten through increased opacity.
+#footer.footer-inverse {
+    --footer-link-hover-color: #{$primary};
+}
+
+// Keep top-bar interactions visible on the dark header, including special links.
+.menubar-section {
+    .menubar-link:is(:hover, :focus-visible, :active),
+    .show > .menubar-link {
+        color: $primary !important;
+        background-color: rgba($primary, 0.08);
+    }
+}

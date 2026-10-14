@@ -1,0 +1,98 @@
+/// <reference path="references.scss" />
+
+//
+// Riso: off-register details for a white-paper storefront.
+// Everything here is decoration; layout and components stay inherited from Flex.
+// --------------------------------------------------
+
+$riso-overprint: rgba($pink, 0.9);
+
+:root {
+    --heading-line-color: #{$pink};
+}
+
+
+// Registration strip: the three spot inks as a thin band above the header.
+// --------------------------------------------------
+
+#header::before {
+    content: "";
+    display: block;
+    height: 5px;
+    background: linear-gradient(90deg,
+        $primary 0 33.333%,
+        $pink 33.333% 66.666%,
+        $yellow 66.666% 100%);
+}
+
+
+// Navigation: poster typography and a single ink rule below the bar.
+// --------------------------------------------------
+
+.megamenu-section .navbar {
+    box-shadow: inset 0 -2px 0 $gray-900;
+}
+
+.megamenu .nav-item > .nav-link {
+    font-family: $headings-font-family;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+
+// Page titles: a sunflower highlighter stroke behind the text.
+// --------------------------------------------------
+
+.page-title:not(.pd-info .page-title) > :where(h1, .h1) {
+    display: inline;
+    padding-inline: 0.08em;
+    background-image: linear-gradient(transparent 60%, rgba($yellow, 0.75) 60%, rgba($yellow, 0.75) 92%, transparent 92%);
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+}
+
+
+// Prices: set in the display face with even figures.
+// --------------------------------------------------
+
+.art-price-value,
+.pd-price {
+    font-family: $headings-font-family;
+    font-variant-numeric: tabular-nums;
+}
+
+
+// Primary buttons: a misregistered pink layer slips out on hover.
+// --------------------------------------------------
+
+.btn-primary:not(:disabled):not(.disabled):not(.input-group > .btn) {
+    transition-property: color, background-color, border-color, box-shadow, transform;
+
+    &:hover {
+        box-shadow: 3px 3px 0 $riso-overprint;
+        transform: translate(-1px, -1px);
+    }
+
+    &:active {
+        box-shadow: 1px 1px 0 $riso-overprint;
+        transform: none;
+    }
+}
+
+
+// Footer: cobalt poster with sunflower titles.
+// --------------------------------------------------
+
+#footer.footer-inverse {
+    --footer-title-color: #{$yellow};
+    --footer-link-hover-color: #{$yellow};
+    --footer-border-top: 0;
+    --footer-bottom-bg: #{rgba($gray-900, 0.2)};
+    --footer-bottom-color: #{$footer-inverse-color-muted};
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .btn-primary:not(:disabled):not(.disabled):not(.input-group > .btn):hover {
+        transform: none;
+    }
+}
