@@ -168,7 +168,7 @@
         height: calc(50% - 1px);
         color: inherit;
 
-        > :is(.icon, sm-icon) {
+        > .icon {
             font-size: 1rem;
         }
 
@@ -281,8 +281,8 @@
     }
 }
 
-.numberinput-group.input-group-sm > .numberinput-stepper > :is(.icon, sm-icon),
-.numberinput.form-control-sm ~ .numberinput-stepper > :is(.icon, sm-icon) {
+.numberinput-group.input-group-sm > .numberinput-stepper > .icon,
+.numberinput.form-control-sm ~ .numberinput-stepper > .icon {
     font-size: 14px;
 }
 

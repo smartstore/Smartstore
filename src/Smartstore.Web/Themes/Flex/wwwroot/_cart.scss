@@ -75,7 +75,7 @@
 
         .no-item-title  { font-size: $h2-font-size; font-weight: 400; }
         .no-item-icon   { color: rgba(0,0,0, 0.15); }
-        .no-item-info   { color: $text-muted; .fa { color: $body-color; } }
+        .no-item-info   { color: $text-muted; :is(.icon, .icon-stack) { color: $body-color; } }
     }
 }
 
@@ -113,11 +113,8 @@
 		border-color: transparent;
 	}
     .mb-bundle-pictures {
-        a, .fa {
+        a, .icon {
             padding-inline-end: 3px;
-        }
-        .fa {
-            font-size: 0.625rem;
         }
         a:hover {
             text-decoration: none;

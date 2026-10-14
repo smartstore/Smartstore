@@ -146,7 +146,7 @@ a.pretty-link {
 
     font-weight: $font-weight-medium;
 
-    > i { padding-inline-end: 1.2rem; }
+    > :is(.icon, .icon-stack) { margin-inline-end: 1.2rem; }
     > span {
         color: var(--gray-600);
         &:hover, &:active { color: inherit; }

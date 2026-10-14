@@ -370,7 +370,7 @@
                             $('<img/>')
                                 .attr('src', imageUrl)
                                 .attr('alt', normalizeText(text))
-                                .addClass('choice-item-img')
+                                .addClass('choice-item-img icon')
                                 .appendTo(choice);
                         }
                         // ... or Color

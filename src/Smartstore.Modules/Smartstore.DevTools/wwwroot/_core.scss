@@ -112,10 +112,6 @@ a.wz-zone-pointer {
     font-size: 1.375rem;
     text-decoration: none;
 
-    > svg {
-        width: 1em;
-        height: 1em;
-    }
 
     &:not(.disabled):hover {
         text-decoration: none;
@@ -130,7 +126,7 @@ a.wz-zone-pointer {
             color: lighten(red, 30%) !important;
         }
 
-        > svg {
+        > .icon {
             filter: drop-shadow(0 0 2px var(--red));
         }
     }
@@ -138,7 +134,7 @@ a.wz-zone-pointer {
     &.show-wz[data-persistent] {
         color: var(--green) !important;
 
-        > svg {
+        > .icon {
             filter: drop-shadow(0 0 2px var(--green));
         }
     }
@@ -146,7 +142,7 @@ a.wz-zone-pointer {
     &.disabled {
         pointer-events: none;
 
-        > svg {
+        > .icon {
             opacity: 0.3;
         }
     }

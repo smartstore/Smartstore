@@ -30,12 +30,13 @@
 - **AI**
   - Added configurable **reasoning effort levels** for supported AI models across providers, including model-specific defaults and automatic persistence of user selections.
 - **Theming**
-  - Added five new Flex themes:
+  - Added six new Flex themes:
     - **Sorbet:** Warm porcelain, aubergine and botanical accents with serif headings.
     - **Tidal:** Atlantic blue, coral accents and crisp white surfaces.
     - **Afterglow:** A dark graphite theme with mint, orchid and apricot accents.
     - **Lumen:** Bright white with iris-blue, lavender and petrol accents.
     - **Riso:** Risograph-inspired cobalt, fluorescent pink and sunflower yellow on white, with DIN-style headings.
+    - **Porcelain:** White and soft gray surfaces, graphite typography and precise blue accents with a compact, light header.
   - `.scroll-fade`: reusable responsive edge fades for horizontal and vertical scroll containers.
 - #1530 If a product is subsequently added to an order, update all price input controls with the price of the selected attribute combination.
 - Automated tax and total calculations now ensure that gross and net prices, as well as line and order totals, update instantly when editing orders or order items.

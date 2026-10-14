@@ -104,7 +104,7 @@ $default-state-color: $gray-400;
     --icon-size: 1rem;
 
     &.loading {
-        > sm-icon {
+        > .icon {
             visibility: hidden;
         }
 

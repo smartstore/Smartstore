@@ -8,16 +8,3 @@
 .note-btn-group > .note-btn.dropdown-toggle:not(.dropdown-toggle-split) {
     gap: 0.15em;
 }
-
-.note-dropdown-menu.note-check > .dropdown-item {
-    > :is(sm-icon, svg.icon) {
-        color: var(--warning);
-        visibility: hidden;
-        order: 2;
-        margin-inline: 10px -4px !important;
-    }
-
-    &.checked > :is(sm-icon, svg.icon) {
-        visibility: visible;
-    }
-}

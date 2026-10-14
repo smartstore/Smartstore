@@ -59,7 +59,7 @@
     }
 
     &.box-flat-inverse:hover,
-    &.box-flat-inverse:hover .g-icon > i {
+    &.box-flat-inverse:hover .g-icon > :is(i, .icon, .icon-stack) {
         $c2: rgba($yiq-text-light, 0.85);
         --box-color: #{$yiq-text-light};
         --box-color-2: #{$c2};

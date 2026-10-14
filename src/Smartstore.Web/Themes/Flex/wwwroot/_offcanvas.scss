@@ -109,8 +109,8 @@
     .ocm-nav .ocm-back {
         padding-inline-start: 0;
 
-        .fa {
-            padding-inline-end: .425rem;
+        :is(.icon, .icon-stack) {
+            margin-inline-end: .425rem;
         }
     }
 

@@ -470,11 +470,6 @@ $img-margin-right: 10px;
     .modal-footer > .btn {
         min-width: 80px;
 
-        > svg {
-            height: 16px;
-            color: currentColor;
-            fill: currentColor;
-        }
     }
 }
 
@@ -628,7 +623,7 @@ $img-margin-right: 10px;
         > .dropdown-item {
             justify-content: space-between;
 
-            > i {
+            > :is(i, .icon, .icon-stack) {
                 color: var(--warning);
                 visibility: hidden;
                 order: 2;
@@ -638,7 +633,7 @@ $img-margin-right: 10px;
             &.checked {
                 font-weight: 600;
 
-                > i {
+                > :is(i, .icon, .icon-stack) {
                     visibility: visible;
                 }
             }
@@ -745,15 +740,11 @@ $img-margin-right: 10px;
     --btn-active-border-color: transparent;
     --btn-active-shadow: none;
 
-    > i,
-    > svg {
-        font-size: 16px !important;
-        fill: currentColor;
+    > i[class^="note-icon-"],
+    > i[class*=" note-icon-"] {
+        font-size: 16px;
     }
 
-    > svg {
-        height: 16px;
-    }
 
     &:active,
     .note-btn-group.show > & {

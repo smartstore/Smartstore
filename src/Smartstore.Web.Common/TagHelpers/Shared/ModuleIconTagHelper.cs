@@ -54,6 +54,7 @@ public class ModuleIconTagHelper : SmartTagHelper
         else if (Model.ImageUrl.HasValue())
         {
             var image = new TagBuilder("img") { TagRenderMode = TagRenderMode.SelfClosing };
+            image.AddCssClass("icon");
             image.Attributes["src"] = UrlHelper.Content(Model.ImageUrl);
             image.Attributes["alt"] = string.Empty;
             output.Content.SetHtmlContent(image);

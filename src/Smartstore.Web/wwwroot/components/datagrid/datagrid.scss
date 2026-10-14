@@ -286,7 +286,7 @@ input.form-control-plaintext {
         min-height: 54px;
     }
 
-    .dg-toolbar .btn > i + span {
+    .dg-toolbar .btn > :is(.icon, .icon-stack) + span {
         display: none;
     }
 }
@@ -545,7 +545,7 @@ input.form-control-plaintext {
         opacity: 1;
     }
 
-    .dg-tr.expanded & > :is(.icon, sm-icon) {
+    .dg-tr.expanded & > .icon {
         transform: rotate(90deg);
     }
 }

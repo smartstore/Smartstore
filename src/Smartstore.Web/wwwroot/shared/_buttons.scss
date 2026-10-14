@@ -23,15 +23,6 @@ button:where(.reset) {
 }
 
 
-// Make icon font-size 14px in small buttons
-// (looks ugly otherwise)
-// -----------------------------------------------------
-
-.btn-sm > .fa {
-    font-size: 14px;
-}
-
-
 // Generic input clear button
 // -----------------------------------------------------
 
@@ -59,13 +50,13 @@ button:where(.reset) {
     gap: 0.5em;
     min-height: var(--btn-height);
 
-    > :is(i, svg, :where(.icon, .icon-stack, sm-icon, sm-icon-stack)) {
+    > :where(.icon, .icon-stack) {
         color: var(--btn-icon-color);
         transition: var(--btn-icon-transition);
     }
 
     &:hover {
-        > :is(i, svg, :where(.icon, .icon-stack, sm-icon, sm-icon-stack)) {
+        > :where(.icon, .icon-stack) {
             color: var(--btn-icon-hover-color);
         }
     }
@@ -73,7 +64,7 @@ button:where(.reset) {
     &.disabled,
     &:disabled,
     fieldset:disabled & {
-        > :is(i, svg, :where(.icon, .icon-stack, sm-icon, sm-icon-stack)) {
+        > :where(.icon, .icon-stack) {
             color: var(--btn-icon-color);
         }
     }
@@ -81,7 +72,7 @@ button:where(.reset) {
     &:active,
     &.active,
     .show > &.dropdown-toggle {
-        > :is(i, svg, :where(.icon, .icon-stack, sm-icon, sm-icon-stack)) {
+        > :where(.icon, .icon-stack) {
             color: var(--btn-icon-active-color);
         }
     }
@@ -160,18 +151,6 @@ button:where(.reset) {
         --inline-icon-size: #{$input-height-sm};
         --inline-icon-font-size: #{$font-size-sm};
     }
-}
-
-
-// Toggle button with animated chevron
-// --------------------------------------------------
-
-.btn[data-toggle="button"] > .fa-chevron-up {
-    transition: transform 0.35s ease;
-}
-
-.btn.active[data-toggle="button"] > .fa-chevron-up {
-    transform: rotate(180deg);
 }
 
 
@@ -379,7 +358,7 @@ button:where(.reset) {
         transition: transform 0.2s ease-out;
         transform: translate(0, 0);
 
-        > :is(i, svg) {
+        > :is(.icon, .icon-stack) {
             position: absolute;
             display: inline-block;
             vertical-align: middle;
@@ -406,7 +385,7 @@ button:where(.reset) {
 
     &:hover > span {
         transform: translateX(var(--btn-animate-offset));
-        > :is(i, svg) {
+        > :is(.icon, .icon-stack) {
             opacity: 1;
         }
     }
@@ -450,7 +429,7 @@ button:where(.reset) {
 .btn-to-primary {
     --btn-transition: none;
 
-    > :is(i, svg) {
+    > :is(.icon, .icon-stack) {
         opacity: 1;
     }
 }

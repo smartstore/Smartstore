@@ -1,4 +1,4 @@
-﻿@using Smartstore.Web.Rendering.Menus
+@using Smartstore.Web.Rendering.Menus
 @using Smartstore.Collections
 @using Smartstore.Core.Content.Menus
 
@@ -66,7 +66,7 @@
                         }
 
                         <icon-stack>
-                            <icon name="bi:circle-fill!" class="bi-circle" scale="2" color="@(isSelected ? $"var(--{iconColors[colorIndex]})" : "var(--gray-300)")" />
+                            <icon name="circle-fill" class="menu-color-dot" scale="2" color="@(isSelected ? $"var(--{iconColors[colorIndex]})" : "var(--gray-300)")" />
                             <icon name="@item.Icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)' color="@(isSelected ? "#fff" : "currentColor")" />
                         </icon-stack>
 

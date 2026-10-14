@@ -20,7 +20,7 @@
 // Badge icons
 // -----------------------------------------------------
 
-.badge > :is(i, svg, .icon, sm-icon) {
+.badge > :is(.icon, .icon-stack) {
     position: relative;
     top: 1px;
     opacity: 0.6;

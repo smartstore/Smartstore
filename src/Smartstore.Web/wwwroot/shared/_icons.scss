@@ -12,7 +12,7 @@
 
 // Shared sizing for SVG icons, image icons and stacks.
 // Animation keyframes are shared with _utils.scss.
-.icon, .icon-stack {
+:where(.icon, .icon-stack) {
     display: inline-block;
     flex: none;
     box-sizing: content-box;
@@ -41,8 +41,7 @@
 }
 
 // SVGs and icon hosts need centering and visible drawing overflow.
-.icon:not(img),
-.icon-stack {
+:where(.icon:not(img), .icon-stack) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -52,7 +51,7 @@
     text-align: center;
 }
 
-img.icon {
+:where(img.icon) {
     object-fit: contain;
 }
 

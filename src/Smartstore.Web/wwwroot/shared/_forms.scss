@@ -246,6 +246,10 @@ fieldset.content-group {
     background: transparent;
     z-index: 10;
 
+    > .pwd-visible {
+        display: none;
+    }
+
     input[type=password] + & {
         color: var(--gray-700);
     }
@@ -253,8 +257,12 @@ fieldset.content-group {
     input[type=text] + & {
         color: inherit;
 
-        > .far:before {
-            content: '\f06e'; // eye regular
+        > .pwd-hidden {
+            display: none;
+        }
+
+        > .pwd-visible {
+            display: inline-block;
         }
     }
 
