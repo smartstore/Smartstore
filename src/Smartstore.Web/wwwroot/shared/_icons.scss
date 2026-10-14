@@ -1,28 +1,6 @@
 /// <reference path="references.scss" />
 
 @use "sass:list";
-@use "sass:map";
-
-// Centralize light-DOM classes and their custom-element equivalents.
-@function icon-selectors($state: null, $scope: all) {
-    $single: ".icon, sm-icon";
-    $stack: ".icon-stack, sm-icon-stack";
-    $component: "sm-icon";
-
-    @if $state != null and $state != "" {
-        $single: ".icon-#{$state}, sm-icon:state(icon-#{$state})";
-        $stack: "sm-icon-stack:state(icon-#{$state})";
-        $component: "sm-icon:state(icon-#{$state})";
-    }
-
-    @return map.get((all: "#{$single}, #{$stack}", single: $single, stack: $stack, component: $component), $scope);
-}
-
-@mixin icon-selector($state: null) {
-    :is(#{icon-selectors($state)}) {
-        @content;
-    }
-}
 
 // Shared SVG masks for frequently used pseudo-element icons.
 :root {
@@ -34,7 +12,7 @@
 
 // Shared sizing for SVG icons, image icons and stacks.
 // Animation keyframes are shared with _utils.scss.
-@include icon-selector() {
+.icon, .icon-stack {
     display: inline-block;
     flex: none;
     box-sizing: content-box;
@@ -44,6 +22,16 @@
     font-size: calc(max(var(--icon-size, 1em), var(--icon-min-size, 16px)) * var(--_icon-size-factor, var(--icon-size-factor, 1)));
     vertical-align: var(--icon-align, -0.125em);
     transform-origin: center;
+    --_icon-size-factor: initial;
+    --_icon-scale: initial;
+    --_icon-shift-x: initial;
+    --_icon-shift-y: initial;
+    --_icon-color: initial;
+    --_icon-animation-duration: initial;
+    --_icon-animation-direction: initial;
+    --_icon-rotate: initial;
+    --_icon-flip-x: initial;
+    --_icon-flip-y: initial;
     // Reset direction on every host so nested icons never mirror twice.
     --icon-direction-x: 1;
     // Individual transforms compose with the transform used by animations.
@@ -53,8 +41,8 @@
 }
 
 // SVGs and icon hosts need centering and visible drawing overflow.
-:is(#{icon-selectors($scope: single)}):not(img),
-:is(#{icon-selectors($scope: stack)}) {
+.icon:not(img),
+.icon-stack {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -68,13 +56,13 @@ img.icon {
     object-fit: contain;
 }
 
-@include icon-selector(mirror-rtl) {
+.icon-mirror-rtl {
     &:dir(rtl) {
         --icon-direction-x: -1;
     }
 }
 
-// Light-DOM SVG wrappers; sm-icon uses equivalent rules in its shared shadow stylesheet.
+// Drawing wrappers share the same sizing for server-rendered and client icons.
 .icon > svg {
     display: block;
     width: 100%;
@@ -94,19 +82,19 @@ svg.icon > :is(use, g) {
 }
 
 // Keep fill/stroke on the SVG artwork: a global fill would break stroke icons.
-@include icon-selector(fw) {
+.icon-fw {
     width: 1.25em;
 }
 
 // Sizing remains relative to the surrounding text, like the FA utilities.
 @for $i from 1 through 10 {
-    @include icon-selector("#{$i}x") {
+    .icon-#{$i}x {
         --icon-size-factor: #{$i};
     }
 }
 
 @each $name, $size in (2xs: 10, xs: 12, sm: 14, lg: 20, xl: 24, 2xl: 32) {
-    @include icon-selector($name) {
+    .icon-#{$name} {
         --icon-size-factor: calc(#{$size} / 16);
         --icon-align: calc((6 / #{$size} - 3 / 8) * 1em);
     }
@@ -134,14 +122,14 @@ svg.icon > :is(use, g) {
 }
 
 // HTML stacks center independent SVG layers without assuming a library grid.
-:is(#{icon-selectors($scope: stack)}) {
+.icon-stack {
     position: relative;
     isolation: isolate;
     width: var(--icon-stack-width, 2.5em);
     height: var(--icon-stack-height, 2em);
     vertical-align: var(--icon-stack-align, middle);
 
-    > :where(#{icon-selectors($scope: single)}) {
+    > :where(.icon) {
         // Do not apply the host's sizing and transforms a second time.
         --icon-size: 1em;
         --icon-size-factor: initial;
@@ -159,21 +147,21 @@ svg.icon > :is(use, g) {
     }
 }
 
-:is(#{icon-selectors($scope: stack)}) > .icon-stack-1x {
+.icon-stack > .icon-stack-1x {
     --icon-size-factor: 1;
 }
 
-:is(#{icon-selectors($scope: stack)}) > .icon-stack-2x {
+.icon-stack > .icon-stack-2x {
     --icon-size-factor: 2;
 }
 
-@include icon-selector(inverse) {
+.icon-inverse {
     color: var(--icon-inverse, #{$yiq-text-light});
 }
 
 // Icon utilities and bridges for existing Smartstore transform classes.
 // Scope the bridges to icon hosts; other users of _utils.scss stay unchanged.
-@include icon-selector() {
+.icon, .icon-stack {
     @each $angle in (90, 180, 270) {
         &:is(.icon-rotate-#{$angle}, .rotate-#{$angle}) {
             --icon-rotate: #{$angle}deg;
@@ -225,7 +213,7 @@ $icon-animations: (
 }
 
 @each $name, $settings in $icon-animations {
-    @include icon-selector($name) {
+    .icon-#{$name} {
         @extend .icon-animate;
         --icon-animation-name: #{list.nth($settings, 1)};
         --icon-animation-default-duration: #{list.nth($settings, 2)};
@@ -234,15 +222,15 @@ $icon-animations: (
     }
 }
 
-@include icon-selector(beat) {
+.icon-beat {
     --beat-scale: var(--icon-beat-scale, 1.25);
 }
 
-@include icon-selector(swing) {
+.icon-swing {
     transform-origin: top center;
 }
 
-@include icon-selector(wag) {
+.icon-wag {
     transform-origin: bottom center;
 }
 
@@ -252,7 +240,7 @@ $icon-animations: (
 
 // Includes existing animate-* classes when applied to new icon hosts.
 @media (prefers-reduced-motion: reduce) {
-    #{icon-selectors()} {
+    .icon, .icon-stack {
         animation: none !important;
         transition: none !important;
     }
@@ -405,11 +393,11 @@ $icon-animations: (
 }
 
 // Specific overrides
-.btn-lg :is(#{icon-selectors(hi, single)}) {
+.btn-lg .icon-hi {
     --icon-min-size: 20px;
 }
 
 // Missing-icon color remains independent of caller presentation.
-@include icon-selector(not-found) {
+.icon-not-found {
     color: var(--danger) !important;
 }

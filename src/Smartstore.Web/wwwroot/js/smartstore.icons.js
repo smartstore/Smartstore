@@ -9,7 +9,9 @@
     const drawing = ['name', 'area', 'lib', 'variant', 'rotate', 'flip-h', 'flip-v', 'stroke-scale'];
     const cache = new Map();
     const waiting = [];
-    let active = 0, manifestPromise, cloneId = 0, drawingStyles;
+    let active = 0, manifestPromise, cloneId = 0;
+    // Inert nodes never upgrade into custom elements or start drawing requests.
+    const sourceDocument = document.implementation.createHTMLDocument('');
 
     function rootUrl() {
         return new URL(document.querySelector('meta[property="sm:root"]')?.content || './', document.baseURI);
@@ -166,7 +168,8 @@
             if (attr.localName === 'href' && value.startsWith('#') && ids.has(value.slice(1))) value = '#' + ids.get(value.slice(1));
             if (value !== attr.value) node.setAttributeNS(attr.namespaceURI, attr.name, value);
         }
-        // Keep resolved identity and drawing styles inside the shadow root.
+        // Presentation belongs to the host, not to both the host and its drawing.
+        for (const name of [...svg.classList]) if (name === 'icon' || name.startsWith('icon-')) svg.classList.remove(name);
         svg.removeAttribute('role'); svg.removeAttribute('aria-label'); svg.removeAttribute('aria-labelledby');
         svg.setAttribute('aria-hidden', 'true'); svg.setAttribute('focusable', 'false');
         return svg;
@@ -178,34 +181,66 @@
             this._internals = this.attachInternals();
             this._identity = [];
             this._sequence = 0;
-            // Per-instance presentation stays in Shadow CSS, never in serialized attributes.
-            const root = this.attachShadow({ mode: 'open' });
-            if (!drawingStyles) {
-                drawingStyles = new CSSStyleSheet();
-                drawingStyles.replaceSync(`
-                    :host {
-                        --_icon-size-factor: initial; --_icon-scale: initial;
-                        --_icon-shift-x: initial; --_icon-shift-y: initial;
-                        --_icon-color: initial; --_icon-animation-duration: initial;
-                        --_icon-animation-direction: initial; --_icon-rotate: initial;
-                        --_icon-flip-x: initial; --_icon-flip-y: initial;
+            this._generatedClasses = new Set();
+            this._generatedStyles = new Map();
+            this._sourceObserver = new MutationObserver(records => this.captureAttributes(records));
+        }
+        ensureSource() {
+            if (this._source) return;
+            this._source = sourceDocument.createElement(this.localName);
+            for (const attribute of this.attributes) this._source.setAttribute(attribute.name, attribute.value);
+            this.observeSource();
+        }
+        observeSource() {
+            this._sourceObserver.observe(this, { attributes: true });
+        }
+        captureAttributes(records) {
+            for (const name of new Set(records.map(record => record.attributeName))) {
+                if (name === 'class') {
+                    const authored = new Set(this._source.classList);
+                    const classes = [...this.classList].filter(value => !this._generatedClasses.has(value) || authored.has(value));
+                    if (this.hasAttribute(name)) this._source.setAttribute(name, classes.join(' '));
+                    else this._source.removeAttribute(name);
+                } else if (name === 'style') {
+                    const style = sourceDocument.createElement('span').style;
+                    style.cssText = this.getAttribute(name) || '';
+                    for (const [key, value] of this._generatedStyles) {
+                        if (style.getPropertyValue(key) === value) style.removeProperty(key);
                     }
-                    svg { display: block; width: 100%; height: 100%; overflow: visible; }
-                    svg > use { width: 100%; height: 100%; }
-                `);
+                    if (this.hasAttribute(name)) this._source.setAttribute(name, style.cssText);
+                    else this._source.removeAttribute(name);
+                } else if (this.hasAttribute(name)) this._source.setAttribute(name, this.getAttribute(name));
+                else this._source.removeAttribute(name);
             }
-            const presentationStyles = new CSSStyleSheet();
-            presentationStyles.replaceSync(':host {}');
-            this._presentationStyle = presentationStyles.cssRules[0].style;
-            root.adoptedStyleSheets = [drawingStyles, presentationStyles];
+        }
+        render(action) {
+            this.ensureSource();
+            // Drain external changes before disconnecting: same-turn edits must be saved too.
+            this.captureAttributes(this._sourceObserver.takeRecords());
+            this._sourceObserver.disconnect();
+            this._rendering = true;
+            try { action(); }
+            finally { this._rendering = false; this.observeSource(); }
+        }
+        /** Returns an inert copy of authored markup, without generated classes, styles or SVGs. */
+        getSourceNode() {
+            this.ensureSource();
+            this.captureAttributes(this._sourceObserver.takeRecords());
+            const node = this._source.cloneNode(false);
+            if (this.localName === 'sm-icon-stack') {
+                for (const child of this.childNodes) {
+                    node.append(child.getSourceNode ? child.getSourceNode() : sourceDocument.importNode(child, true));
+                }
+            }
+            return node;
         }
         static get observedAttributes() {
             return [...presentation, ...drawing, 'class', 'style', 'aria-label', 'aria-labelledby', 'aria-hidden', 'role'];
         }
-        connectedCallback() { this.schedule(); }
+        connectedCallback() { this.ensureSource(); this.schedule(); }
         disconnectedCallback() { this._sequence++; }
         attributeChangedCallback(name, oldValue, newValue) {
-            if (oldValue !== newValue) this.schedule();
+            if (!this._rendering && oldValue !== newValue) this.schedule();
         }
         schedule() {
             if (!this.isConnected || this._scheduled) return;
@@ -255,14 +290,26 @@
                     if (value !== undefined) styles.set(css, value ? '-1' : '1');
                 }
             }
-            const states = this._internals.states;
-            for (const state of states) if (!classes.includes(state)) states.delete(state);
-            for (const state of classes) states.add(state);
-            this._presentationStyle.cssText = '';
-            for (const [key, value] of styles) {
-                const authored = this.style.getPropertyValue(key);
-                this._presentationStyle.setProperty(key.replace('--icon-', '--_icon-'), authored || value);
-            }
+            this.render(() => {
+                for (const name of this._generatedClasses) {
+                    if (!this._source.classList.contains(name)) this.classList.remove(name);
+                }
+                this._generatedClasses = new Set(classes);
+                this.classList.add(...classes);
+                for (const key of this._generatedStyles.keys()) {
+                    const authored = this._source.style.getPropertyValue(key);
+                    if (authored) this.style.setProperty(key, authored, this._source.style.getPropertyPriority(key));
+                    else this.style.removeProperty(key);
+                }
+                this._generatedStyles.clear();
+                for (const [key, value] of styles) {
+                    const internalKey = key.replace('--icon-', '--_icon-');
+                    if (this._source.style.getPropertyValue(internalKey)) continue;
+                    this.style.setProperty(internalKey, value);
+                    this._generatedStyles.set(internalKey, this.style.getPropertyValue(internalKey));
+                }
+                if (!this.style.length && !this._source.hasAttribute('style')) this.removeAttribute('style');
+            });
             const labelled = this.hasAttribute('aria-label') || this.hasAttribute('aria-labelledby');
             // Explicit author ARIA attributes take precedence over these defaults.
             this._internals.role = labelled ? 'img' : null;
@@ -282,7 +329,7 @@
             const key = JSON.stringify(input);
             if (this._drawingKey === key) return;
             // Do not show the old icon under a newly requested name while loading.
-            this.shadowRoot.replaceChildren(); this._drawingKey = null; this._identity = [];
+            this.replaceChildren(); this._drawingKey = null; this._identity = [];
             this.present(false);
             if (!input.name) return;
             const reference = isConcept(input) ? (await manifest())?.get(input.area)?.get(input.name) : null;
@@ -297,10 +344,10 @@
             } else template = await loadDrawing(input);
             if (!this.isConnected || this._sequence !== sequence) return;
             // Manifest hits and endpoint responses carry the same server-resolved identity.
-            // CSS states expose resolved identity without adding host attributes.
+            // The source snapshot excludes the generated presentation on the host.
             this._identity = [...template.classList].filter(name => name.startsWith('icon-'));
             this.present(false);
-            this.shadowRoot.replaceChildren(cloneDrawing(template));
+            this.replaceChildren(cloneDrawing(template));
             this._drawingKey = key;
             if (template.classList.contains('icon-not-found')) {
                 throw new Error('Icon not found: ' + input.name);
@@ -310,10 +357,6 @@
     }
 
     class IconStackElement extends IconElementBase {
-        constructor() {
-            super();
-            this.shadowRoot.append(document.createElement('slot'));
-        }
         connectedCallback() {
             super.connectedCallback();
             this._observer ??= new MutationObserver(() => this.schedule());

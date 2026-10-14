@@ -115,7 +115,12 @@ let summernote_image_upload_url;
             foreColor: '#424242',
             backColor: '#CEE7F7',
         },
+        serializableElements: ['sm-icon', 'sm-icon-stack'],
+        atomicElements: ['sm-icon', 'sm-icon-stack'],
         callbacks: {
+            onSerializeElement(element) {
+                return element.getSourceNode?.();
+            },
             onBlurCodeview(code, e) {
                 // Summernote does not update WYSIWYG content on codable blur,
                 // only when switched back to editor

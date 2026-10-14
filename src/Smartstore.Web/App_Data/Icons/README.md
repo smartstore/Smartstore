@@ -814,8 +814,7 @@ order. This CSS is also available for manually authored SVGs.
 ### Markup and color
 
 Apply `.icon` either to the SVG itself or to a host containing one direct child
-SVG. These manual light-DOM wrappers remain supported; `sm-icon` instead
-encapsulates its generated drawing in Shadow DOM:
+SVG. The `sm-icon` component uses the same host-and-drawing structure:
 
 ```html
 <svg class="icon icon-fw" viewBox="0 0 24 24"
@@ -1026,26 +1025,30 @@ on the host when the layers represent one combined symbol.
 
 ### Browser components
 
-`sm-icon` renders its SVG in an open Shadow DOM with a shared stylesheet.
-Generated artwork is excluded from HTML serialization (including rich-text editor
-code views). Neither component adds or rewrites host attributes, classes or styles;
-HTML serialization preserves the author's declaration. Diagnostics (`data-icon`)
-and resolved library classes live on the internal SVG. Host CSS targets `sm-icon`
-and `sm-icon-stack` alongside `.icon` and `.icon-stack` for server-rendered markup.
-Generated identity and utility classes are exposed as `ElementInternals` custom
-states instead: for example, `sm-icon:state(icon-hi)` or
-`sm-icon:state(icon-mirror-rtl)`. Author-supplied `icon-*` classes remain supported.
-Presentation attributes use internal states and Shadow CSS; public icon CSS variables
-remain available for caller overrides. Automatic accessibility defaults use
-`ElementInternals` and can be overridden by explicit ARIA attributes. This requires
-a browser supporting Shadow DOM, adopted stylesheets and CSS custom states.
-Color and icon CSS variables inherit into the drawing.
-For inspection, use `element.shadowRoot.querySelector('svg')` instead of querying
-the host's children. `sm-icon-stack` retains its declarative light-DOM `sm-icon`
-children, each with its own shadow root. Both native custom elements
-use the same presentation attributes as the Razor helpers, including `lib`,
-`variant`, nullable `rotate` / `flip-h` / `flip-v`, and `stroke-scale`. Use explicit
-closing tags in browser HTML; `<sm-icon ... />` is not a self-closing HTML element.
+`sm-icon` renders its SVG as a normal child element. Both components use the same
+generated `icon-*` classes as server-rendered icons; no Shadow DOM or CSS custom
+states are involved. Inspect the drawing with `element.querySelector('svg')`.
+Colors and public icon CSS variables inherit into the drawing. Internal
+`--_icon-*` variables are reserved for attribute-based presentation. Accessibility
+defaults use `ElementInternals`; explicit ARIA attributes take precedence.
+
+Each component retains an inert source node containing its authored attributes.
+`element.getSourceNode()` returns a fresh, inert copy without generated SVGs,
+classes or styles. Normal attribute changes, including external class/style edits,
+update this source automatically. Pending changes are flushed when obtaining the
+copy, so same-turn edits are included. Stacks also serialize their current layers.
+Use this API instead of the live element's `outerHTML` when storing authored content.
+
+Summernote's generic `serializableElements` option lists `sm-icon` and
+`sm-icon-stack`; its `onSerializeElement` callback calls `getSourceNode()`.
+Code view, HTML output, saving and undo snapshots use the same serializer, which
+copies into an inert document without changing the live editor. Other integrations
+can use the same component API; the Summernote fork has no Smartstore dependency.
+
+Both native custom elements use the same presentation attributes as the Razor
+helpers, including `lib`, `variant`, nullable `rotate` / `flip-h` / `flip-v`, and
+`stroke-scale`. Use explicit closing tags in browser HTML; `<sm-icon ... />` is
+not a self-closing HTML element.
 
 ```html
 <sm-icon name="cart" size="lg" aria-label="Cart"></sm-icon>

@@ -5,6 +5,7 @@
 ### Breaking Changes
 
 - (DEV) Removed the obsolete `win-x86` build target.
+- (DEV) Removed the Fontastic icon font and its `.icm` / `.icm-*` CSS classes, as well as the `<bootstrap-icon>` TagHelper. Migrate affected themes, modules and views to the new IconKit system.
 - (DEV) Custom bundling configuration must use `EnableCssTranspilation` instead of `EnableAutoprefixer` and `CssTranspiler:Targets` (a Browserslist query string) instead of `Autoprefixer:Browsers`. The old Autoprefixer-specific switches have been removed.
 
 ### New Features

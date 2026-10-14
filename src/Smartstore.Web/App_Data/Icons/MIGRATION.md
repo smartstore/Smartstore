@@ -1129,15 +1129,13 @@ Smartstore still renders SVG icons and does not import this font.
   animation; custom state icons switch names. Category folders use the folder/folder-open kit
   concepts and retain the success color. Image URL support is unchanged.
 
-- sm-icon renders generated SVG artwork in an open Shadow DOM. Host styling and
-  declarative stack children remain unchanged. SVG sizing lives in a shared shadow
-  stylesheet; HTML serialization no longer includes generated artwork. Summernote
-  requires no adapter changes. Direct drawing inspection uses shadowRoot.
-
-- Icon components leave authored host markup unchanged. Generated presentation and
-  library identity use ElementInternals states, Shadow CSS and internal SVG metadata.
-  Generic selectors include sm-icon/sm-icon-stack; library selectors use :state().
-  Accessibility defaults no longer generate role/aria-hidden attributes.
+- sm-icon renders in the light DOM again and shares generated icon classes with
+  server-rendered icons. Removed CSS custom-state selectors and Shadow CSS.
+  Accessibility defaults still use ElementInternals without generating ARIA attributes.
+- Components retain inert authored source nodes and expose getSourceNode(). External
+  attribute/class/style changes are synchronized; generated rendering is excluded.
+  Summernote uses a configurable element-name list and serialization callback for
+  code view, saving and undo/redo. Inspect drawings through the host's children.
 
 - Summernote uses `editor-color` from the `htmledit` kit (`bi:pencil-fill`) for its
   colorable toolbar icon. The generic `paint-brush` concept uses the library mapping
