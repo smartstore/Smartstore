@@ -770,6 +770,9 @@ public partial class DataExporter : IDataExporter
             if (ctx.Projection.CustomerId.HasValue)
                 query = query.Where(x => x.CustomerId == ctx.Projection.CustomerId.Value);
 
+            if (customerIdsByRolesQuery != null)
+                query = query.Where(x => customerIdsByRolesQuery.Contains(x.CustomerId));
+
             result = query
                 .ApplyAuditDateFilter(f.CreatedFrom, f.CreatedTo)
                 .ApplyStatusFilter(f.OrderStatusIds, f.PaymentStatusIds, f.ShippingStatusIds);

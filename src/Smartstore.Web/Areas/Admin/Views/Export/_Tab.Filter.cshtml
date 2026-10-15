@@ -365,6 +365,15 @@
             <span asp-validation-for="Filter.ShippingStatusIds"></span>
         </div>
     </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.CustomerRoleIds" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.CustomerRoleIds" />
+            <span asp-validation-for="Filter.CustomerRoleIds"></span>
+        </div>
+    </div>
 </div>
 
 <div sm-if="Model.Provider.EntityType == ExportEntityType.NewsletterSubscription" class="adminContent">
