@@ -117,11 +117,12 @@ public partial class CatalogSearchQueryFactory : SearchQueryFactoryBase, ICatalo
     {
         var index = Math.Max(1, GetValueFor<int?>("i") ?? 1);
         var size = await GetPageSize(query, origin);
+        var skip = (int)Math.Min((long)(index - 1) * size, int.MaxValue);
 
-        query.Slice((index - 1) * size, size);
+        query.Slice(skip, size);
 
         var orderBy = GetValueFor<ProductSortingEnum?>("o");
-        if (orderBy == null || orderBy == ProductSortingEnum.Initial)
+        if (orderBy == null || orderBy == ProductSortingEnum.Initial || !Enum.IsDefined(orderBy.Value))
         {
             orderBy = query.IsSearchPage() ? _searchSettings.DefaultSortOrder : _catalogSettings.DefaultSortOrder;
         }
@@ -180,26 +181,30 @@ public partial class CatalogSearchQueryFactory : SearchQueryFactoryBase, ICatalo
 
         DetectViewMode(query, sessionKey, entityViewMode);
 
+        var defaultSize = Math.Max(entitySize ?? _catalogSettings.DefaultProductListPageSize, 1);
         var allowChange = entity?.AllowCustomersToSelectPageSize ?? _catalogSettings.AllowCustomersToSelectPageSize;
         if (!allowChange)
         {
-            return entitySize ?? _catalogSettings.DefaultProductListPageSize;
+            return defaultSize;
         }
 
         sessionKey = "PageSize:" + sessionKey;
+
+        var availableSizes = (entity?.PageSizeOptions.NullEmpty() ?? _catalogSettings.DefaultPageSizeOptions)
+            .ToIntArray()
+            .Where(x => x > 0)
+            .ToHashSet();
+        availableSizes.Add(defaultSize);
 
         // Get from form or query.
         var session = _httpContextAccessor.HttpContext?.Session;
         var selectedSize = GetValueFor<int?>("s");
 
-        if (selectedSize.HasValue)
+        if (selectedSize.HasValue && availableSizes.Contains(selectedSize.Value))
         {
             // Save the selection in session. We'll fetch this session value
             // on subsequent requests for this route.
-            if (session != null)
-            {
-                session.SetInt32(sessionKey, selectedSize.Value);
-            }
+            session?.SetInt32(sessionKey, selectedSize.Value);
             return selectedSize.Value;
         }
 
@@ -207,32 +212,29 @@ public partial class CatalogSearchQueryFactory : SearchQueryFactoryBase, ICatalo
         if (session != null)
         {
             var sessionSize = session.GetInt32(sessionKey);
-            if (sessionSize.HasValue)
+            if (sessionSize.HasValue && availableSizes.Contains(sessionSize.Value))
             {
                 return sessionSize.Value;
             }
         }
 
-        // Return default size for entity (IPagingOptions).
-        if (entitySize.HasValue)
-        {
-            return entitySize.Value;
-        }
-
-        // Return default page size.
-        return _catalogSettings.DefaultProductListPageSize;
+        return defaultSize;
     }
 
     private void DetectViewMode(CatalogSearchQuery query, string sessionKey, string entityViewMode = null)
     {
+        var defaultViewMode = Normalize(entityViewMode)
+            ?? Normalize(_catalogSettings.DefaultViewMode)
+            ?? "grid";
+
         if (!_catalogSettings.AllowProductViewModeChanging)
         {
-            query.CustomData["ViewMode"] = entityViewMode.NullEmpty() ?? _catalogSettings.DefaultViewMode;
+            query.CustomData["ViewMode"] = defaultViewMode;
             return;
         }
 
         var session = _httpContextAccessor.HttpContext?.Session;
-        var selectedViewMode = GetValueFor<string>("v");
+        var selectedViewMode = Normalize(GetValueFor<string>("v"));
 
         sessionKey = "ViewMode:" + sessionKey;
 
@@ -248,7 +250,7 @@ public partial class CatalogSearchQueryFactory : SearchQueryFactoryBase, ICatalo
         // Set view mode from session.
         if (session != null)
         {
-            var sessionViewMode = session.GetString(sessionKey);
+            var sessionViewMode = Normalize(session.GetString(sessionKey));
             if (sessionViewMode != null)
             {
                 query.CustomData["ViewMode"] = sessionViewMode;
@@ -256,15 +258,17 @@ public partial class CatalogSearchQueryFactory : SearchQueryFactoryBase, ICatalo
             }
         }
 
-        // Set default view mode for entity.
-        if (entityViewMode != null)
-        {
-            query.CustomData["ViewMode"] = entityViewMode;
-            return;
-        }
+        query.CustomData["ViewMode"] = defaultViewMode;
 
-        // Set default view mode.
-        query.CustomData["ViewMode"] = _catalogSettings.DefaultViewMode;
+        static string Normalize(string viewMode)
+        {
+            if (viewMode.EqualsNoCase("grid"))
+            {
+                return "grid";
+            }
+
+            return viewMode.EqualsNoCase("list") ? "list" : null;
+        }
     }
 
     private void AddFacet(
@@ -360,8 +364,10 @@ public partial class CatalogSearchQueryFactory : SearchQueryFactoryBase, ICatalo
         }
 
         var alias = _catalogSearchQueryAliasMapper.GetCommonFacetAliasByGroupKind(FacetGroupKind.Category, query.LanguageId ?? 0);
+        TryGetValueFor(alias ?? "c", out List<int> ids);
+        ids = ids?.Where(x => x > 0).Distinct().ToList();
 
-        if (TryGetValueFor(alias ?? "c", out List<int> ids) && ids != null && ids.Count > 0)
+        if (!ids.IsNullOrEmpty())
         {
             // TODO: (mc) Get deep ids (???) Make a low-level version of CatalogHelper.GetChildCategoryIds()
             query.WithCategoryIds(_catalogSettings.IncludeFeaturedProductsInNormalLists ? null : false, [.. ids]);
@@ -411,8 +417,10 @@ public partial class CatalogSearchQueryFactory : SearchQueryFactoryBase, ICatalo
         }
 
         var alias = _catalogSearchQueryAliasMapper.GetCommonFacetAliasByGroupKind(FacetGroupKind.Brand, query.LanguageId ?? 0);
+        TryGetValueFor(alias ?? "m", out List<int> ids);
+        ids = ids?.Where(x => x > 0).Distinct().ToList();
 
-        if (TryGetValueFor(alias ?? "m", out List<int> ids) && ids != null && ids.Count > 0)
+        if (!ids.IsNullOrEmpty())
         {
             query.WithManufacturerIds(null, [.. ids]);
         }
@@ -453,7 +461,9 @@ public partial class CatalogSearchQueryFactory : SearchQueryFactoryBase, ICatalo
             //    maxPrice = _currencyService.ConvertToPrimaryStoreCurrency(maxPrice.Value, currency);
             //}
 
-            // Normalization.
+            minPrice = Normalize(minPrice);
+            maxPrice = Normalize(maxPrice);
+
             if (minPrice.HasValue && maxPrice.HasValue && minPrice > maxPrice)
             {
                 (maxPrice, minPrice) = (minPrice, maxPrice);
@@ -482,15 +492,25 @@ public partial class CatalogSearchQueryFactory : SearchQueryFactoryBase, ICatalo
                 });
             }
         });
+
+        static double? Normalize(double? value)
+            => !value.HasValue || !double.IsFinite(value.Value) || value.Value < 0 || value.Value > (double)decimal.MaxValue
+            ? null
+            : value;
     }
 
     protected virtual void ConvertRating(CatalogSearchQuery query, string origin)
     {
         var alias = _catalogSearchQueryAliasMapper.GetCommonFacetAliasByGroupKind(FacetGroupKind.Rating, query.LanguageId ?? 0);
+        TryGetValueFor(alias ?? "r", out double? fromRate);
 
-        if (TryGetValueFor(alias ?? "r", out double? fromRate) && fromRate.HasValue)
+        if (fromRate.HasValue && double.IsFinite(fromRate.Value) && fromRate.Value >= 0 && fromRate.Value <= 5)
         {
             query.WithRating(fromRate, null);
+        }
+        else
+        {
+            fromRate = null;
         }
 
         AddFacet(query, FacetGroupKind.Rating, false, FacetSorting.DisplayOrder, descriptor =>
@@ -589,8 +609,10 @@ public partial class CatalogSearchQueryFactory : SearchQueryFactoryBase, ICatalo
     protected virtual void ConvertDeliveryTime(CatalogSearchQuery query, string origin)
     {
         var alias = _catalogSearchQueryAliasMapper.GetCommonFacetAliasByGroupKind(FacetGroupKind.DeliveryTime, query.LanguageId ?? 0);
+        TryGetValueFor(alias ?? "d", out List<int> ids);
+        ids = ids?.Where(x => x > 0).Distinct().ToList();
 
-        if (TryGetValueFor(alias ?? "d", out List<int> ids) && ids != null && ids.Count > 0)
+        if (!ids.IsNullOrEmpty())
         {
             query.WithDeliveryTimeIds([.. ids]);
         }
