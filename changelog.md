@@ -57,7 +57,9 @@
   - A whitelisted IP address was still blocked when its country was blocked, although IP addresses take precedence.
   - Literal IP addresses are matched directly instead of by regex, which makes large lists cheap.
 - **Theming**: 
-  - Refreshed **Black** and **Blue** with refined palettes, typography and controls, preserving Black's boxed layout and Blue's signature blue header.
+  - Refreshed **Black** with a refined palette, typography and controls while preserving its boxed layout.
+  - Refreshed **Blue** with a subtly shaded blue header, refined typography and softer controls.
+  - Main-menu icons now inherit the link color in all Flex themes, improving visibility on colored headers even without hovering.
   - Restyled the **off-canvas cart footer** as a receipt with a torn-off edge, a flat primary action and ghost secondary actions. Light by default, adapts to dark backgrounds.
   - Improved the **theme selector** with a responsive card grid, larger 4:3 previews and localized descriptions.
   - **Engine:**

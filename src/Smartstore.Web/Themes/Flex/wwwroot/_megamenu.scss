@@ -56,6 +56,8 @@ $mixed-megamenu-bg:             $megamenu-bg;
 
     // horizontal main navbar
     .navbar-nav {
+        --nav-link-icon-color: currentColor;
+
         position: relative;
         white-space: nowrap;
         /* overwrites inline width */
