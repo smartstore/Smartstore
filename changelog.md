@@ -79,6 +79,7 @@
   - Product-gallery images now expose valid `src` attributes and use native lazy loading, improving crawler visibility.
   - #1569 Include page index parameter in canonical URL generation.
 - Checkout: The updated total is displayed immediately when the shipping or payment method is changed.
+- #1555 Cart sorting: the required sub-product must always come directly AFTER the main product.
 - #1563 Added separate controls for tax and shipping-cost notices on product pages, product lists and product comparison.
 - Improved server-side JavaScript minification with `NUglify`, correct block-scoped const handling, and automatic bundle cache invalidation. Files that fail minification now retain their original content with file-specific diagnostics.
 - #1565 Added settings for timeout and batch size when deleting guest accounts.

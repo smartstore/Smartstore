@@ -143,17 +143,8 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
         var validateRequiredProducts = parameters?.ValidateRequiredProducts == true;
         var prepareEstimateShippingIfEnabled = parameters?.PrepareEstimateShippingIfEnabled == true;
         var setEstimateShippingDefaultAddress = parameters?.SetEstimateShippingDefaultAddress == true;
-
-        // INFO: At the moment there is no fixed association between products and required products (see issue #1529).
-        // Consequently, the cart is unable to determine which required product belongs to which main product.
-
-        // Key: Required product ID. Value: Parent cart item.
-        var requiredProducts = new Dictionary<int, OrganizedShoppingCartItem>();
-        foreach (var item in from.Items.Where(x => x.Item.Product.RequireOtherProducts))
-        {
-            var requiredProductIds = item.Item.Product.RequiredProductIdList;
-            requiredProductIds.Each(id => requiredProducts[id] = item);
-        }
+        var sorter = new CartItemSorter(from.Items);
+        var orderedItems = sorter.Sort();
 
         #region Simple properties
 
@@ -431,9 +422,9 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
         itemParameters.CartSubtotal = subtotal;
         itemParameters.Cart = from;
         itemParameters.CachedBrands = new Dictionary<int, BrandOverviewModel>();
-        itemParameters.RequiredProducts = requiredProducts;
+        itemParameters.RequiredProducts = sorter.RequiredProductParents;
 
-        foreach (var cartItem in from.Items)
+        foreach (var cartItem in orderedItems)
         {
             var model = new ShoppingCartModel.ShoppingCartItemModel();
             await cartItem.MapAsync(model, (object)itemParameters);
