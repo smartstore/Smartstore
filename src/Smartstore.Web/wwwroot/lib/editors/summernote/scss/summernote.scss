@@ -480,7 +480,8 @@ $img-margin-right: 10px;
 .note-control-selection {
     position: absolute;
     display: none;
-    border: 1px solid #000;
+    border: 0;
+    outline: 2px solid oklch(from var(--primary) 0.78 0.14 calc(h + 12));
     z-index: 1;
 
     & > div {
@@ -488,59 +489,18 @@ $img-margin-right: 10px;
     }
 }
 
-.note-control-selection-bg {
-    width: 100%;
-    height: 100%;
-    background-color: #000;
-    opacity: 0.3;
-}
-
-.note-control-handle {
-    width: 7px;
-    height: 7px;
-    border: 1px solid #000;
-}
-
-.note-control-holder {
-    @extend .note-control-handle;
-}
-
 .note-control-sizing {
-    @extend .note-control-handle;
-    background-color: #000;
-}
-
-.note-control-nw {
-    top: -5px;
-    left: -5px;
-    border-right: none;
-    border-bottom: none;
-}
-
-.note-control-ne {
-    top: -5px;
-    right: -5px;
-    border-bottom: none;
-    border-left: none;
-}
-
-.note-control-sw {
-    bottom: -5px;
-    left: -5px;
-    border-top: none;
-    border-right: none;
+    box-sizing: border-box;
+    border: 1px solid #fff;
+    width: 10px;
+    height: 10px;
+    background-color: var(--primary);
 }
 
 .note-control-se {
     right: -5px;
     bottom: -5px;
     cursor: se-resize;
-}
-
-.note-control-se.note-control-holder {
-    cursor: default;
-    border-top: none;
-    border-left: none;
 }
 
 .note-control-selection-info {
