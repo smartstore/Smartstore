@@ -151,7 +151,7 @@
                 .attr({ role: 'group', 'aria-label': settings.label }).appendTo(content);
             for (const [option, motif, label] of [
                 ['color', null, settings.color], ['flip-h', 'flip-h', settings.flipHorizontal],
-                ['flip-v', 'flip-v', settings.flipVertical], ['rotate', 'rotate', settings.rotation], ['size', 'upscale', settings.size], ['animation', 'animation', settings.animation], ['stroke-scale', 'hi:pencil', settings.strokeWidth]
+                ['flip-v', 'flip-v', settings.flipVertical], ['rotate', 'rotate', settings.rotation], ['size', 'scaling', settings.size], ['animation', 'animation', settings.animation], ['stroke-scale', 'hi:pencil', settings.strokeWidth]
             ]) {
                 const button = $.summernote.ui.button({}).render().attr({ title: label, 'aria-label': label })[0];
                 const symbol = document.createElement(motif ? 'sm-icon' : 'span');
