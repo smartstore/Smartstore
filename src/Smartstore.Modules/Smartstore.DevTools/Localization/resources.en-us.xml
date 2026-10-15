@@ -98,4 +98,10 @@
     <LocaleResource Name="KitFiles.Empty">
         <Value>No current kit sprites have been generated yet.</Value>
     </LocaleResource>
+    <LocaleResource Name="IconCode">
+        <Value>Icon code</Value>
+    </LocaleResource>
+    <LocaleResource Name="IconCode.Empty">
+        <Value>Select an icon to generate its code.</Value>
+    </LocaleResource>
 </Language>

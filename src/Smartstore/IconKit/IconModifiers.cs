@@ -35,6 +35,24 @@ internal readonly record struct IconModifiers
     internal string? Color { get; init; }
 
     /// <summary>
+    /// Gets the optional rendering size, independent of artwork identity.
+    /// </summary>
+    internal string? Size { get; init; }
+
+    /// <summary>
+    /// Gets the optional rendering animation, independent of artwork identity.
+    /// </summary>
+    internal string? Animation { get; init; }
+
+    internal static bool IsValidSize(ReadOnlySpan<char> value)
+        => value is "2xs" or "xs" or "sm" or "lg" or "xl" or "2xl"
+            or "1x" or "2x" or "3x" or "4x" or "5x" or "6x" or "7x" or "8x" or "9x" or "10x";
+
+    internal static bool IsValidAnimation(ReadOnlySpan<char> value)
+        => value is "spin" or "pulse" or "beat" or "fade" or "throb" or "bounce"
+            or "flip" or "shake" or "spin-snap" or "swing" or "wag";
+
+    /// <summary>
     /// Replaces only explicitly supplied transform components.
     /// </summary>
     /// <param name="fallback">The lower-priority transformation.</param>
@@ -58,7 +76,9 @@ internal readonly record struct IconModifiers
         return address + "?flip=" + flip
             + "&rotate=" + icon.Transform.Rotation.ToString("R", CultureInfo.InvariantCulture)
             + "&stroke-scale=" + icon.StrokeScale.ToString("R", CultureInfo.InvariantCulture)
-            + (icon.Color == null ? string.Empty : "&color=" + Uri.EscapeDataString(icon.Color));
+            + (icon.Color == null ? string.Empty : "&color=" + Uri.EscapeDataString(icon.Color))
+            + (icon.Size == null ? string.Empty : "&size=" + icon.Size)
+            + (icon.Animation == null ? string.Empty : "&animation=" + icon.Animation);
     }
 
     /// <summary>
@@ -76,7 +96,7 @@ internal readonly record struct IconModifiers
             var separator = pair.IndexOf('=');
             var key = separator < 0 ? pair : pair[..separator];
             var value = separator < 0 ? default : pair[(separator + 1)..];
-            var flag = key switch { "flip" => 1, "rotate" => 2, "stroke-scale" => 4, "color" => 8, _ => 0 };
+            var flag = key switch { "flip" => 1, "rotate" => 2, "stroke-scale" => 4, "color" => 8, "size" => 16, "animation" => 32, _ => 0 };
             if (flag == 0 || (seen & flag) != 0 || value.IsEmpty)
             {
                 throw new InvalidDataException($"Invalid or duplicate icon modifier '{pair.ToString()}' in {location}.");
@@ -97,7 +117,15 @@ internal readonly record struct IconModifiers
 
                 result = result with { Color = color };
             }
-            else if (flag != 1 && double.TryParse(value, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint,
+            else if (flag == 16 && IsValidSize(value))
+            {
+                result = result with { Size = value.ToString() };
+            }
+            else if (flag == 32 && IsValidAnimation(value))
+            {
+                result = result with { Animation = value.ToString() };
+            }
+            else if ((flag == 2 || flag == 4) && double.TryParse(value, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint,
                 CultureInfo.InvariantCulture, out var number) && double.IsFinite(number) && (flag != 4 || number > 0))
             {
                 result = flag == 2 ? result with { Rotation = number } : result with { StrokeScale = number };

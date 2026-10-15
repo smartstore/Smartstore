@@ -37,7 +37,7 @@ public interface IIconService
     /// <summary>
     /// Gets an icon after mapping and configured fallbacks, or null if unavailable. Parameters fill missing address qualifiers; conflicting qualifiers are rejected.
     /// </summary>
-    /// <param name="name">An icon or conceptual name, optionally qualified as library:name/variant. Append ! to the name to bypass mapping and library fallback; variant fallbacks still apply. Icon names are case-sensitive. An optional query accepts flip, rotate and stroke-scale modifiers.</param>
+    /// <param name="name">An icon or conceptual name, optionally qualified as library:name/variant. Append ! to the name to bypass mapping and library fallback; variant fallbacks still apply. Icon names are case-sensitive. An optional query accepts flip, rotate, stroke-scale, color, size and animation modifiers.</param>
     /// <param name="library">The library system name or short name. Fills a missing address qualifier; null uses the configured default.</param>
     /// <param name="variant">The variant name or short name. Fills a missing address qualifier; null uses the selected library's effective default.</param>
     /// <param name="cancelToken">Reserved for asynchronous implementations; synchronous metadata resolution does not observe cancellation.</param>

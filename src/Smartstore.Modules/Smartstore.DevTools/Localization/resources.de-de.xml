@@ -98,4 +98,10 @@
     <LocaleResource Name="KitFiles.Empty">
         <Value>Derzeit sind keine aktuellen Kit-Sprites vorhanden.</Value>
     </LocaleResource>
+    <LocaleResource Name="IconCode">
+        <Value>Icon-Code</Value>
+    </LocaleResource>
+    <LocaleResource Name="IconCode.Empty">
+        <Value>Wählen Sie ein Icon, um den Code anzuzeigen.</Value>
+    </LocaleResource>
 </Language>

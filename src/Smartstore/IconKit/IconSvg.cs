@@ -160,6 +160,18 @@ public sealed class IconInfo
     public string? Color { get; set; }
 
     /// <summary>
+    /// Gets or sets the address size used for rendering, not source or sprite identity.
+    /// Explicit rendering options take precedence.
+    /// </summary>
+    public string? Size { get; set; }
+
+    /// <summary>
+    /// Gets or sets the address animation used for rendering, not source or sprite identity.
+    /// Explicit rendering options take precedence.
+    /// </summary>
+    public string? Animation { get; set; }
+
+    /// <summary>
     /// Gets or sets whether the resolved source variant supports per-icon stroke scaling.
     /// </summary>
     public bool SupportsStrokeScaling { get; set; }

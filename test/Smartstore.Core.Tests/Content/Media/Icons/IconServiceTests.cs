@@ -240,6 +240,44 @@ public class IconServiceTests
         Assert.That(inline.Attributes["style"], Does.Contain("--icon-color:#00f;"));
     }
 
+    [Test]
+    public async Task Address_Size_And_Animation_Preserve_Artwork_And_Allow_Explicit_Overrides()
+    {
+        Write("Icons/kits.json", """{"shared":["cart"]}""");
+        var kits = new IconKitService(_service, new HttpContextAccessor());
+        var renderer = new IconRenderer(_service, kits);
+        var plain = await _service.GetIconAsync("cart");
+        var decorated = await _service.GetIconAsync("cart?size=2x&animation=throb&color=%23f90");
+        Assert.That(decorated.Size, Is.EqualTo("2x"));
+        Assert.That(decorated.Animation, Is.EqualTo("throb"));
+        Assert.That(decorated.Address, Is.EqualTo(plain.Address));
+        Assert.That(kits.GetReference(decorated).Href, Is.EqualTo(kits.GetReference(plain).Href));
+        var output = await renderer.RenderAsync(decorated);
+        Assert.That(RenderMarkup(output.InnerHtml), Does.Contain("<use"));
+        Assert.That(output.Attributes["class"], Does.Contain("icon-2x").And.Contain("icon-throb"));
+        var overridden = await renderer.RenderAsync(decorated, new IconOptions { Size = "sm", Animation = "spin" });
+        Assert.That(overridden.Attributes["class"], Does.Contain("icon-sm").And.Contain("icon-spin")
+            .And.Not.Contain("icon-2x").And.Not.Contain("icon-throb"));
+        var inline = await new IconRenderer(_service, Mock.Of<IIconKitService>()).RenderAsync(decorated);
+        Assert.That(inline.Attributes["class"], Does.Contain("icon-2x").And.Contain("icon-throb"));
+        await _service.GetSvgAsync(plain);
+        await _service.GetSvgAsync(decorated);
+        Assert.That(_entries.Count, Is.EqualTo(1));
+    }
+
+    [TestCase("cart?size=")]
+    [TestCase("cart?size=24")]
+    [TestCase("cart?size=2")]
+    [TestCase("cart?size=lg&size=sm")]
+    [TestCase("cart?animation=")]
+    [TestCase("cart?animation=2")]
+    [TestCase("cart?animation=unknown")]
+    [TestCase("cart?animation=spin&animation=throb")]
+    public void Address_Presentation_Rejects_Invalid_Or_Duplicate_Values(string address)
+    {
+        Assert.ThrowsAsync<InvalidDataException>(async () => await _service.GetIconAsync(address));
+    }
+
     [TestCase("cart?color=")]
     [TestCase("cart?color=red&color=blue")]
     [TestCase("cart?color=red;background:black")]
@@ -2540,6 +2578,8 @@ public class IconServiceTests
     /// </summary>
     /// <param name="target">The invalid mapping expression.</param>
     [TestCase("cart-01?color=red")]
+    [TestCase("cart-01?size=lg")]
+    [TestCase("cart-01?animation=spin")]
     [TestCase("cart-01?stroke-scale=0")]
     [TestCase("cart-01?stroke-scale=-1")]
     [TestCase("cart-01?stroke-scale=NaN")]

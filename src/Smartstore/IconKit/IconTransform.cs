@@ -87,9 +87,9 @@ internal sealed record IconMapping(string Name, IconTransform Transform, double 
         }
 
         var modifiers = separator < 0 ? default : IconModifiers.Parse(value.AsSpan(separator + 1), location);
-        if (modifiers.Color != null)
+        if (modifiers.Color != null || modifiers.Size != null || modifiers.Animation != null)
         {
-            throw new InvalidDataException($"Color is a rendering-only modifier and cannot be used in a mapping: {location}.");
+            throw new InvalidDataException($"Color, size and animation are rendering-only modifiers and cannot be used in a mapping: {location}.");
         }
 
         return new IconMapping(name, modifiers.Apply(default), modifiers.StrokeScale ?? 1);

@@ -287,6 +287,8 @@ public sealed partial class IconService(IApplicationContext applicationContext, 
         var mappingTransform = selected.Mapping.Transform;
         info.Transform = modifiers.Apply(mappingTransform);
         info.Color = modifiers.Color;
+        info.Size = modifiers.Size;
+        info.Animation = modifiers.Animation;
         info.RequiresInline = info.Transform != mappingTransform
             || (info.SupportsStrokeScaling && modifiers.StrokeScale.HasValue && modifiers.StrokeScale.Value != selected.Mapping.StrokeScale);
         info.StrokeScale = info.SupportsStrokeScaling ? modifiers.StrokeScale ?? selected.Mapping.StrokeScale : 1;

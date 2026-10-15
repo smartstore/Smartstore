@@ -73,7 +73,32 @@
                             VisibleOptions = IconOptionFields.All
                         };
                     }
-                    @Html.EditorFor(_ => browserModel, "IconBrowser", "BrowserIcon")
+                    <div class="devtools-icon-code">
+                        @Html.EditorFor(_ => browserModel, "IconBrowser", "BrowserIcon")
+                        <div class="row gx-2 mt-3">
+                            <div class="col-3 dropdown">
+                                <button type="button" class="btn btn-outline-secondary dropdown-toggle btn-block" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="text-truncate" data-code-format-label>Tag Helper</span>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <button type="button" class="dropdown-item active" data-code-format="tag-helper">Tag Helper</button>
+                                    <button type="button" class="dropdown-item" data-code-format="component">Web Component</button>
+                                    <button type="button" class="dropdown-item" data-code-format="expression">Icon Expression</button>
+                                </div>
+                            </div>
+                            <div class="col-9">
+                                <div class="has-icon has-icon-right">
+                                    <button type="button" class="btn btn-plain btn-icon btn-clipboard input-group-icon pe-auto bg-transparent border-0 shadow-none" data-copy-from="#icon-code-output" disabled
+                                            aria-label="@T("Common.CopyToClipboard")">
+                                        <icon name="copy" />
+                                    </button>
+                                    <input id="icon-code-output" type="text" class="form-control text-monospace" readonly spellcheck="false"
+                                           aria-label="@T("Plugins.Developer.DevTools.IconCode")" placeholder="@T("Plugins.Developer.DevTools.IconCode.Empty")" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <script src="~/Modules/Smartstore.DevTools/js/smartstore.iconcode.js" sm-target-zone="scripts" sm-key="devtools-icon-code"></script>
                 </div>
             </div>
         </div>

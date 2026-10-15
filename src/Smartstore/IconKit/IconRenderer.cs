@@ -106,6 +106,7 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
             }
         }
 
+        ApplySizeAndAnimation(svg, options?.Size ?? icon.Size, options?.Animation ?? icon.Animation);
         if (options?.Color == null)
         {
             AddStyle(svg, "--icon-color", icon.Color);
@@ -163,6 +164,7 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
         var host = new TagBuilder("span");
         if (options != null)
         {
+            ApplySizeAndAnimation(host, options.Size, options.Animation);
             ApplyPresentation(host, options);
             AddNumber(host, "--icon-rotate", options.Rotate, "deg");
             if (options.FlipHorizontal.HasValue)
@@ -216,30 +218,31 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
         }
     }
 
+    private static void ApplySizeAndAnimation(TagBuilder svg, string size, string animation)
+    {
+        if (size != null)
+        {
+            if (!IconModifiers.IsValidSize(size))
+            {
+                throw new ArgumentException("Unsupported icon size.", nameof(size));
+            }
+
+            svg.AddCssClass("icon-" + size);
+        }
+
+        if (animation != null)
+        {
+            if (!IconModifiers.IsValidAnimation(animation))
+            {
+                throw new ArgumentException("Unsupported icon animation.", nameof(animation));
+            }
+
+            svg.AddCssClass("icon-" + animation);
+        }
+    }
+
     private static void ApplyPresentation(TagBuilder svg, IconOptions options)
     {
-        if (options.Size != null)
-        {
-            if (options.Size is not ("2xs" or "xs" or "sm" or "lg" or "xl" or "2xl"
-                or "1x" or "2x" or "3x" or "4x" or "5x" or "6x" or "7x" or "8x" or "9x" or "10x"))
-            {
-                throw new ArgumentException("Unsupported icon size.", nameof(options));
-            }
-
-            svg.AddCssClass("icon-" + options.Size);
-        }
-
-        if (options.Animation != null)
-        {
-            if (options.Animation is not ("spin" or "pulse" or "beat" or "fade" or "throb" or "bounce"
-                or "flip" or "shake" or "spin-snap" or "swing" or "wag"))
-            {
-                throw new ArgumentException("Unsupported icon animation.", nameof(options));
-            }
-
-            svg.AddCssClass("icon-" + options.Animation);
-        }
-
         if (options.FixedWidth)
         {
             svg.AddCssClass("icon-fw");

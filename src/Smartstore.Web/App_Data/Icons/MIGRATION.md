@@ -1146,3 +1146,9 @@ The storefront toolbar language selector uses `globe` (`globe-02` in Hugeicons).
 The storefront toolbar currency selector uses `curreny` (`coins-02` in Hugeicons). The concept belongs to the shared collection and is available in both areas.
 
 The admin kit includes `sync` mapped to `hi:reload`, used by the theme list reload button.
+
+## Address presentation and DevTools code examples
+
+- Expressions now accept `size` and `animation`, with the same presets as markup attributes.
+- Explicit presentation options override expression values without changing source cache or sprite identity.
+- DevTools provides copyable TagHelper, Web Component and expression output for the current Icon Browser selection.

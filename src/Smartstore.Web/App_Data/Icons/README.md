@@ -960,7 +960,7 @@ Static rotation, mirroring, and positioning remain in place.
 ### Icon TagHelper presentation and modifiers
 
 Use `lib` to select a library by system name or short name. `variant` selects its
-variant. `name` accepts an address with optional `flip`, `rotate`, `stroke-scale`, and `color`
+variant. `name` accepts an address with optional `flip`, `rotate`, `stroke-scale`, `color`, `size`, and `animation`
 query modifiers. Append `!` to the icon name to bypass conceptual mapping.
 
 ```html
@@ -1531,12 +1531,14 @@ AJAX item's `icon` takes precedence; an empty icon suppresses the default. Image
 and color swatches keep precedence over icons. Placeholders, group headings,
 loading messages and add-entity actions do not receive the default icon.
 
-### Address colors
+### Address presentation
 
-`cart?color=#f90` sets the outer SVG color without changing artwork, cache identity
-or kit selection. Explicit `IconOptions.Color` and the `color` attribute take precedence.
-`sm-icon` handles this modifier locally, retaining manifest lookup and sharing drawing
-requests across colors. Other modifiers can be combined using `&` (`&amp;` in HTML).
+`cart?size=lg&animation=throb&color=#f90` sets size and animation classes and the outer SVG color without changing artwork, cache identity
+or kit selection. Explicit `IconOptions` properties and component attributes take precedence individually.
+Size and animation accept the same presets as their corresponding attributes.
+These rendering-only modifiers are not permitted in library mappings.
+`sm-icon` handles these modifiers locally, retaining manifest lookup and sharing drawing
+requests across sizes, animations and colors. Other modifiers can be combined using `&` (`&amp;` in HTML).
 Colors may be literal CSS values or percent-encoded values. When sending an address
 as a URL query parameter, encode the entire parameter (including `#`). Colors belong
 to rendering addresses, not library mappings or kit sources.
@@ -1585,3 +1587,12 @@ installation, where external sprite endpoints are redirected to the setup page.
 The `!` address suffix only bypasses mapping; it does not force inline rendering.
 Provider discovery is skipped while `IApplicationContext.IsInstalled` is false;
 local library and kit definitions remain available during installation.
+
+### Shared icon option editors
+
+`smartstore.icontools.js` exposes `Smartstore.IconTools.bindAnimation(toggle, { getState, onChange, noneLabel })`.
+The host supplies `{ name, area, options, value }` from `getState` and persists the selected animation through `onChange`.
+The shared menu renders the selected artwork in a three-column grid with live 32px animation previews.
+An empty value removes animation. The returned `close()` and `dispose()` methods support editor/popover lifecycles.
+Toolbar layout and editor selection management remain the responsibility of each host.
+The Icon Browser uses this editor; Summernote can use the same API without loading the Icon Browser or Select2.

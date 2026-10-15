@@ -78,19 +78,28 @@
 
     // Only plain concepts use the manifest. The server owns address parsing, selections
     // and modifier precedence, including explicit false/zero overrides of mapping defaults.
-    // Rendering-only color must not create separate drawing requests or bypass kit lookup.
-    function splitColor(name) {
+    // Rendering-only modifiers must not create drawing requests or bypass kit lookup.
+    function splitPresentation(name) {
         const separator = name?.indexOf('?') ?? -1;
-        if (separator < 0) return { name, color: null };
-        let color = null;
+        const result = { name, color: null, size: null, animation: null };
+        if (separator < 0) return result;
         const modifiers = [];
         for (const pair of name.slice(separator + 1).split('&')) {
-            if (pair.split('=', 1)[0] !== 'color') { modifiers.push(pair); continue; }
-            const value = decodeURIComponent(pair.slice(6));
-            if (color !== null || !value.trim() || /[;{}]/.test(value)) throw new Error('Invalid or duplicate icon color.');
-            color = value;
+            const equals = pair.indexOf('=');
+            const key = equals < 0 ? pair : pair.slice(0, equals);
+            if (!['color', 'size', 'animation'].includes(key)) { modifiers.push(pair); continue; }
+            const raw = equals < 0 ? '' : pair.slice(equals + 1);
+            const value = key === 'color' ? decodeURIComponent(raw) : raw;
+            if (result[key] !== null || !value.trim()
+                || (key === 'color' && /[;{}]/.test(value))
+                || (key === 'size' && !sizes.has(value))
+                || (key === 'animation' && !animations.has(value))) {
+                throw new Error('Invalid or duplicate icon ' + key + '.');
+            }
+            result[key] = value;
         }
-        return { name: name.slice(0, separator) + (modifiers.length ? '?' + modifiers.join('&') : ''), color };
+        result.name = name.slice(0, separator) + (modifiers.length ? '?' + modifiers.join('&') : '');
+        return result;
     }
 
     function isConcept(input) {
@@ -265,7 +274,8 @@
                 if (mirrorRtl) classes.push('icon-mirror-rtl');
             }
             const styles = new Map();
-            const size = this.getAttribute('size'), animation = this.getAttribute('animation');
+            const size = this.getAttribute('size') ?? this._addressPresentation?.size;
+            const animation = this.getAttribute('animation') ?? this._addressPresentation?.animation;
             if (size != null) { if (!sizes.has(size)) throw new Error('Unsupported icon size.'); classes.push('icon-' + size); }
             if (animation != null) { if (!animations.has(animation)) throw new Error('Unsupported icon animation.'); classes.push('icon-' + animation); }
             if (boolean(this.getAttribute('fw'))) classes.push('icon-fw');
@@ -277,7 +287,7 @@
                 if (value !== undefined) styles.set(css, String(value * factor) + unit);
             }
             for (const [attribute, css] of [['color', '--icon-color'], ['animation-duration', '--icon-animation-duration']]) {
-                const value = this.getAttribute(attribute) ?? (attribute === 'color' ? this._addressColor : null);
+                const value = this.getAttribute(attribute) ?? (attribute === 'color' ? this._addressPresentation?.color : null);
                 if (value != null) { if (/[;{}]/.test(value)) throw new Error('Invalid CSS value.'); styles.set(css, value); }
             }
             const reverse = boolean(this.getAttribute('animation-reverse'));
@@ -321,9 +331,9 @@
         async update() {
             const sequence = this._sequence;
             const input = Object.fromEntries(drawing.map(key => [key, this.getAttribute(key)]));
-            const parsed = splitColor(input.name);
+            const parsed = splitPresentation(input.name);
             input.name = parsed.name;
-            this._addressColor = parsed.color;
+            this._addressPresentation = parsed;
             this.present(false);
             input.area = input.area || document.querySelector('meta[property="sm:icons"]')?.dataset.area || 'public';
             const key = JSON.stringify(input);
@@ -370,6 +380,7 @@
     }
 
     namespace.Icons = {
+        animations: Object.freeze([...animations]),
         // Explicit registration preserves existing Vue compiler rules and other components.
         install(app) {
             const previous = app.config.compilerOptions.isCustomElement;

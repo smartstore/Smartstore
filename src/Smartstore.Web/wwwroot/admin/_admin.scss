@@ -1751,6 +1751,26 @@ a.editable {
 .st-line            { color: var(--st-line-color); font-weight: 600 !important; }
 
 
+// Shared icon option editors (Icon Browser and editor popovers).
+.icon-tool-animation-menu {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: min(21rem, calc(100vw - 1rem));
+    max-height: calc(100vh - 1rem);
+    overflow-y: auto;
+    gap: 0.25rem;
+    z-index: $zindex-popover + 1;
+
+    > .btn {
+        min-height: 5rem;
+    }
+
+    .icon {
+        --icon-size: 32px;
+        --icon-size-factor: 1;
+    }
+}
+
 // Icon browser
 // --------------------------------------------------------------
 
