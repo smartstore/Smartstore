@@ -113,6 +113,25 @@
                                 if (item.isDuotone) icon.classList.add('icon-duotone');
                                 icon.setAttribute('aria-hidden', 'true');
                                 $button.append(icon).on('click', () => {
+                                    const selected = picker.getSelectedElement?.();
+                                    const editor = context.modules.editor;
+                                    if (selected?.localName === 'sm-icon' && context.layoutInfo.editable[0].contains(selected)) {
+                                        picker.close();
+                                        editor.history.recordUndo();
+                                        editor.beforeCommand();
+                                        // Preserve expression options as well as authored presentation attributes.
+                                        const oldName = selected.getAttribute('name') || '';
+                                        const separator = oldName.indexOf('?');
+                                        const options = separator < 0 ? '' : oldName.slice(separator + 1);
+                                        selected.removeAttribute('lib');
+                                        selected.removeAttribute('variant');
+                                        selected.setAttribute('name', item.id + (options ? (item.id.includes('?') ? '&' : '?') + options : ''));
+                                        const selection = selected.ownerDocument.createRange();
+                                        selection.selectNode(selected);
+                                        editor.selection.setRange($.summernote.range.createFromNativeRange(selection));
+                                        editor.afterCommand();
+                                        return;
+                                    }
                                     // Inert markup avoids upgrading a temporary component before insertion.
                                     const template = document.createElement('template');
                                     template.innerHTML = '<sm-icon></sm-icon>';

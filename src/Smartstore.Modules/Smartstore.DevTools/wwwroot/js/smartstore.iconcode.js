@@ -16,7 +16,7 @@
                 browser.find('[data-icon-option]').each(function () {
                     const key = this.dataset.iconOption;
                     if (!this.value || (key === 'stroke-scale' && browser.find('[data-option="stroke-scale"]').hasClass('d-none'))) return;
-                    options[key] = key.startsWith('flip-') ? this.value.toLowerCase() : this.value.replace(',', '.');
+                    options[key] = key.startsWith('flip-') ? this.value.toLowerCase() : key === 'stroke-scale' ? this.value.replace(',', '.') : this.value;
                 });
                 let code = '';
                 if (address) {
@@ -33,7 +33,7 @@
                         for (const [key, value] of Object.entries(options)) {
                             if (!key.startsWith('flip-')) query.set(key, value);
                         }
-                        const modifiers = [...query].map(([key, value]) => encodeURIComponent(key) + '=' + encodeURIComponent(value)).join('&');
+                        const modifiers = [...query].map(([key, value]) => `${key}=${value}`).join('&');
                         code = name + (modifiers ? '?' + modifiers : '');
                     } else {
                         const attributes = Object.entries({ name: address, ...options })

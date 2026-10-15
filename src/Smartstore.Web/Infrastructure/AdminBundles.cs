@@ -113,7 +113,9 @@ internal class AdminBundles : IBundleProvider
         var summernote = "/lib/editors/summernote/";
         bundles.Add(new ScriptBundle("/bundle/js/summernote.js").Include(
             summernote + "summernote-sm.js",
+            "/js/smartstore.icontools.js",
             summernote + "plugins/smartstore.iconpicker.js",
+            summernote + "plugins/smartstore.iconpopover.js",
             lib + "beautify/beautify.min.js",
             lib + "beautify/beautify-css.min.js",
             lib + "beautify/beautify-html.min.js",

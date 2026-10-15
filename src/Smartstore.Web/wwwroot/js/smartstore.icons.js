@@ -5,8 +5,8 @@
     const namespace = window.Smartstore = window.Smartstore || {};
     const sizes = new Set(['2xs', 'xs', 'sm', 'lg', 'xl', '2xl', ...Array.from({ length: 10 }, (_, i) => `${i + 1}x`)]);
     const animations = new Set(['spin', 'pulse', 'beat', 'fade', 'throb', 'bounce', 'flip', 'shake', 'spin-snap', 'swing', 'wag']);
-    const presentation = ['size', 'font-scale', 'fw', 'color', 'inverse', 'animation', 'animation-duration', 'animation-reverse', 'scale', 'shift-x', 'shift-y', 'mirror-rtl'];
-    const drawing = ['name', 'area', 'lib', 'variant', 'rotate', 'flip-h', 'flip-v', 'stroke-scale'];
+    const presentation = ['stroke-scale', 'rotate', 'size', 'font-scale', 'fw', 'color', 'inverse', 'animation', 'animation-duration', 'animation-reverse', 'scale', 'shift-x', 'shift-y', 'mirror-rtl'];
+    const drawing = ['name', 'area', 'lib', 'variant', 'flip-h', 'flip-v'];
     const cache = new Map();
     const waiting = [];
     let active = 0, manifestPromise, cloneId = 0;
@@ -81,17 +81,19 @@
     // Rendering-only modifiers must not create drawing requests or bypass kit lookup.
     function splitPresentation(name) {
         const separator = name?.indexOf('?') ?? -1;
-        const result = { name, color: null, size: null, animation: null };
+        const result = { name, color: null, size: null, animation: null, rotate: null, 'stroke-scale': null };
         if (separator < 0) return result;
         const modifiers = [];
         for (const pair of name.slice(separator + 1).split('&')) {
             const equals = pair.indexOf('=');
             const key = equals < 0 ? pair : pair.slice(0, equals);
-            if (!['color', 'size', 'animation'].includes(key)) { modifiers.push(pair); continue; }
+            if (!['color', 'size', 'animation', 'rotate', 'stroke-scale'].includes(key)) { modifiers.push(pair); continue; }
             const raw = equals < 0 ? '' : pair.slice(equals + 1);
             const value = key === 'color' ? decodeURIComponent(raw) : raw;
             if (result[key] !== null || !value.trim()
                 || (key === 'color' && /[;{}]/.test(value))
+                || (['rotate', 'stroke-scale'].includes(key) && !Number.isFinite(Number(value)))
+                || (key === 'stroke-scale' && Number(value) <= 0)
                 || (key === 'size' && !sizes.has(value))
                 || (key === 'animation' && !animations.has(value))) {
                 throw new Error('Invalid or duplicate icon ' + key + '.');
@@ -249,7 +251,12 @@
         connectedCallback() { this.ensureSource(); this.schedule(); }
         disconnectedCallback() { this._sequence++; }
         attributeChangedCallback(name, oldValue, newValue) {
-            if (!this._rendering && oldValue !== newValue) this.schedule();
+            if (this._rendering || oldValue === newValue) return;
+            if ((name === 'rotate' || name === 'stroke-scale') && this.isConnected) {
+                // These attributes change presentation only; preserve the drawing and pending load.
+                try { this.present(this.localName === 'sm-icon-stack'); }
+                catch (error) { this.dispatchEvent(new CustomEvent('icon-error', { detail: { error }, bubbles: true })); }
+            } else this.schedule();
         }
         schedule() {
             if (!this.isConnected || this._scheduled) return;
@@ -292,9 +299,14 @@
             }
             const reverse = boolean(this.getAttribute('animation-reverse'));
             if (reverse !== undefined) styles.set('--icon-animation-direction', reverse ? 'reverse' : 'normal');
+            const strokeScale = number(this.getAttribute('stroke-scale') ?? this._addressPresentation?.['stroke-scale']);
+            if (strokeScale !== undefined) {
+                if (strokeScale <= 0) throw new Error('Stroke scale must be positive.');
+                if (!stack) styles.set('--icon-stroke-scale', String(strokeScale));
+            }
+            const rotate = number(this.getAttribute('rotate') ?? this._addressPresentation?.rotate);
+            if (rotate !== undefined) styles.set('--icon-rotate', rotate + 'deg');
             if (stack) {
-                const rotate = number(this.getAttribute('rotate'), true);
-                if (rotate !== undefined) styles.set('--icon-rotate', rotate + 'deg');
                 for (const [attr, css] of [['flip-h', '--icon-flip-x'], ['flip-v', '--icon-flip-y']]) {
                     const value = boolean(this.getAttribute(attr));
                     if (value !== undefined) styles.set(css, value ? '-1' : '1');

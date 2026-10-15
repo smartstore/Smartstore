@@ -581,14 +581,14 @@ internal sealed class Icons : IIconProvider
     {
         builder.Kit("admin")
             .Add("blogger", "fa:blogger/b")
-            .Add("buffer", "fa:buffer/b")
+            .Add("buffer-logo", "fa:buffer/b")
             .Add("pocket", "fa:get-pocket/b")
             .Add("sms", "fa:comment-sms/s");
     }
 }
 ```
 
-The caller then uses `blogger`, `buffer`, `pocket` or `sms` as its icon address,
+The caller then uses `blogger`, `buffer-logo`, `pocket` or `sms` as its icon address,
 including in Select2 `data-icon` attributes and `sm-icon`. The usual area rules
 apply, so these concepts belong only to admin. This is a usage
 excerpt of the provider implemented in the AddToAny module.
@@ -980,7 +980,7 @@ the helper's `rotate` property accepts integer degrees.
 be supplied in mapping.json, for example `"arrow": "arrow-right?stroke-scale=1.1"`.
 Different source widths retain their proportions.
 
-Mapping transformations and stroke multipliers are baked into kit symbols and
+Mapping transformations and stroke multiplier defaults are included in kit symbols and
 participate in sprite revisioning. Equal source/width combinations share artwork;
 different widths keep separate prepared drawings. Replacing a baked-in transformation
 or stroke multiplier at a call site renders the cached original source inline.
@@ -1106,7 +1106,11 @@ Mapping rotations and flips are already baked into the symbols.
 Unknown concepts, explicit library/variant selections, direct names (`!`), query
 modifiers and drawing attributes (`rotate`, `flip-h`, `flip-v`, `stroke-scale`) use
 `/icons/render`. The endpoint owns resolution and may return either inline SVG or a
-kit reference. Presentation options such as sizing, color and animation stay local.
+kit reference. Sizing, color, animation, rotation and stroke scaling stay local.
+Changing the component rotation or stroke scale updates CSS variables without replacing
+its SVG or restarting pending requests. Rotation acts on the resolved drawing, including
+any mapping transform. Stroke scaling overrides the mapping multiplier through an inherited
+CSS variable while preserving the relative widths of individual strokes.
 Old or unavailable manifests also fall back to the endpoint while cached pages and
 script bundles roll over during an update.
 Generated manifests live in `App_Data/.cache/icons/kits/manifest-{revision}.json` and are
@@ -1596,3 +1600,13 @@ The shared menu renders the selected artwork in a three-column grid with live 32
 An empty value removes animation. The returned `close()` and `dispose()` methods support editor/popover lifecycles.
 Toolbar layout and editor selection management remain the responsibility of each host.
 The Icon Browser uses this editor; Summernote can use the same API without loading the Icon Browser or Select2.
+
+The shared `Smartstore.IconTools.bindColor(toggle, { getState, onChange })` editor uses
+the existing application colorpicker with its palette and alpha support. The host supplies
+`{ name, value }` and receives a CSS color or an empty string to restore inheritance.
+`IconBrowserModel.Color` passes the override to rendering options and developer code output.
+
+The Smartstore Summernote `iconPopover` plugin edits selected `sm-icon` elements through
+the shared color, flip and animation tools. Its toolbar belongs to Smartstore; the fork
+only exposes component selection. Changes use Summernote history and authored attributes,
+so undo/redo and source serialization do not persist editor UI or generated SVG markup.

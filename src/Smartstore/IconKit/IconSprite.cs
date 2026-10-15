@@ -33,7 +33,7 @@ internal sealed class IconSprite
     {
         _catalog = catalog;
         // Bump the sprite version whenever symbol preparation changes.
-        var fingerprint = new StringBuilder("sprite-7:").Append(IconSvgParser.Revision);
+        var fingerprint = new StringBuilder("sprite-8:").Append(IconSvgParser.Revision);
         // System identities prevent ambiguous flat filenames and distinguish empty kits.
         foreach (var identity in new[] { library.Manifest.SystemName, variant.Manifest.Name, kit })
         {
@@ -149,9 +149,9 @@ internal sealed class IconSprite
                         }
                     }
 
-                    if (entry.Info.StrokeScale != 1)
+                    if (entry.Info.SupportsStrokeScaling)
                     {
-                        var multiplier = entry.Info.StrokeScale.ToString("R", CultureInfo.InvariantCulture);
+                        var multiplier = "var(--icon-stroke-scale,var(--_icon-stroke-scale," + entry.Info.StrokeScale.ToString("R", CultureInfo.InvariantCulture) + "))";
                         foreach (var style in drawing.DescendantsAndSelf().Attributes("style"))
                         {
                             style.Value = IconSvgParser.ScaleStrokeWidths(style.Value, multiplier);

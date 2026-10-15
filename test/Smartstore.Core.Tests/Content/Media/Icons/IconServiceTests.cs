@@ -732,7 +732,7 @@ public class IconServiceTests
         var renderer = new IconRenderer(_service, kits);
         var output = await renderer.RenderAsync(icon, new IconOptions { StrokeScale = 3 });
         Assert.That(output.Attributes["data-supports-stroke-scaling"], Is.EqualTo(supported ? "true" : "false"));
-        Assert.That(output.Attributes.TryGetValue("style", out var style) && style.Contains("--icon-stroke-scale:3"), Is.EqualTo(supported));
+        Assert.That(RenderMarkup(output).Contains("var(--icon-stroke-scale,var(--_icon-stroke-scale,3))"), Is.EqualTo(supported));
         var browser = new IconBrowser(_service, kits, accessor);
         var page = await browser.SearchAsync(new IconSearchQuery(), "shared");
         Assert.That(page.Items.Single(x => x.Name == "foreign").SupportsStrokeScaling, Is.EqualTo(supported));
@@ -1003,7 +1003,7 @@ public class IconServiceTests
 
         var path = await kits.GetSpriteFileAsync("shared", Path.GetFileNameWithoutExtension(reference.Href.Split('#')[0]).Substring("shared-".Length));
         var text = await File.ReadAllTextAsync(path);
-        Assert.That(text, Does.Contain("calc(var(--icon-stroke-width,1.6) * 1.25)"));
+        Assert.That(text, Does.Contain("calc(var(--icon-stroke-width,1.6) * var(--icon-stroke-scale,var(--_icon-stroke-scale,1.25)))"));
         XNamespace ns = "http://www.w3.org/2000/svg";
         var sprite = XDocument.Parse(text);
         Assert.That(sprite.Descendants(ns + "symbol").Single(x => (string)x.Attribute("id") == "cart").ToString(),
@@ -2533,19 +2533,20 @@ public class IconServiceTests
     /// <summary>
     /// Scales individual stroke fallbacks without reparsing XML or changing the prepared source.
     /// </summary>
-    [Test]
-    public async Task Stroke_Modifier_Preserves_Different_Source_Widths()
+    [TestCase(1)]
+    [TestCase(1.1)]
+    public async Task Stroke_Modifier_Preserves_Different_Source_Widths(double scale)
     {
         Write("Icons/hugeicons/rounded/user/cart-01.svg",
             """<svg viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="1.5" d="M0 0L1 1"/><path stroke="currentColor" stroke-width="2" d="M2 2L3 3"/></svg>""");
-        var icon = await _service.GetIconAsync("cart?stroke-scale=1.1");
+        var icon = await _service.GetIconAsync("cart?stroke-scale=" + scale.ToString(System.Globalization.CultureInfo.InvariantCulture));
         var source = await _service.GetSvgAsync(icon);
         var original = source.Content;
         var renderer = new IconRenderer(_service, Mock.Of<IIconKitService>());
         var output = await renderer.RenderAsync(icon);
-        Assert.That(RenderMarkup(output.InnerHtml), Does.Contain("calc(var(--icon-stroke-width,2.4) * var(--icon-stroke-scale,1))")
-            .And.Contain("calc(var(--icon-stroke-width,3.2) * var(--icon-stroke-scale,1))"));
-        Assert.That(output.Attributes["style"], Does.Contain("--icon-stroke-scale:1.1"));
+        var multiplier = "var(--icon-stroke-scale,var(--_icon-stroke-scale," + scale.ToString(System.Globalization.CultureInfo.InvariantCulture) + "))";
+        Assert.That(RenderMarkup(output.InnerHtml), Does.Contain("calc(var(--icon-stroke-width,2.4) * " + multiplier + ")")
+            .And.Contain("calc(var(--icon-stroke-width,3.2) * " + multiplier + ")"));
         Assert.That(source.Content, Is.EqualTo(original));
         Assert.That(_entries.Count, Is.EqualTo(1));
     }

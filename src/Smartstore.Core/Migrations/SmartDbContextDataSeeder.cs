@@ -137,7 +137,16 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.IconBrowser.LibraryTitle", "Library: {0}", "Bibliothek: {0}");
         builder.AddOrUpdate("Admin.IconBrowser.Icon", "Icon", "Icon");
         builder.AddOrUpdate("Admin.IconBrowser.Search", "Search icons", "Icons suchen");
-        builder.AddOrUpdate("Admin.IconBrowser.Size", "Icon size", "Icon-Größe");
+        builder.AddOrUpdate("Admin.IconBrowser.Size", "Size", "Größe");
+        builder.Delete("Admin.IconBrowser.Color", "Admin.IconBrowser.FlipHorizontal", "Admin.IconBrowser.FlipVertical", "Admin.IconBrowser.Rotation", "Admin.IconBrowser.Animation", "Admin.IconBrowser.StrokeWidth", "Admin.IconBrowser.NoAnimation");
+        builder.AddOrUpdate("Common.MoreOptions", "More options", "Weitere Optionen");
+        builder.AddOrUpdate("Admin.Design.Color", "Color", "Farbe");
+        builder.AddOrUpdate("Admin.Design.FlipHorizontal", "Flip horizontally", "Horizontal spiegeln");
+        builder.AddOrUpdate("Admin.Design.FlipVertical", "Flip vertically", "Vertikal spiegeln");
+        builder.AddOrUpdate("Admin.Design.Rotation", "Rotation", "Rotation");
+        builder.AddOrUpdate("Admin.Design.Animation", "Animation", "Animation");
+        builder.AddOrUpdate("Admin.Design.StrokeWidth", "Stroke width", "Strichstärke");
+        builder.AddOrUpdate("Admin.Design.NoAnimation", "No animation", "Keine Animation");
         builder.AddOrUpdate("Admin.IconBrowser.Options", "Icon options", "Icon-Optionen");
         builder.AddOrUpdate("Admin.IconBrowser.External", "provided by a module", "von einem Modul bereitgestellt");
 

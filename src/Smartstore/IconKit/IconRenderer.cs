@@ -66,12 +66,12 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
                 svg.Attributes[attribute.Key] = attribute.Value;
             }
             svg.Attributes["viewBox"] = source.ViewBox;
-            // Only the inline rendering copy receives multiplier support. The prepared
-            // payload and existing kit files remain untouched, including their revisions.
-            var content = strokeScale == 1 ? source.Content : IconSvgParser.ScaleStrokeWidths(source.Content, "var(--icon-stroke-scale,1)");
-            if (strokeScale != 1)
+            // Inherited CSS overrides the mapping default without rebuilding the drawing.
+            var multiplier = "var(--icon-stroke-scale,var(--_icon-stroke-scale," + strokeScale.ToString("R", CultureInfo.InvariantCulture) + "))";
+            var content = icon.SupportsStrokeScaling ? IconSvgParser.ScaleStrokeWidths(source.Content, multiplier) : source.Content;
+            if (icon.SupportsStrokeScaling && svg.Attributes.TryGetValue("style", out var rootStyle))
             {
-                AddStyle(svg, "--icon-stroke-scale", strokeScale.ToString("R", CultureInfo.InvariantCulture));
+                svg.Attributes["style"] = IconSvgParser.ScaleStrokeWidths(rootStyle, multiplier);
             }
 
             // Only validated source drawing bypasses encoding. Caller attributes never do.

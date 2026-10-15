@@ -17,7 +17,9 @@
             const pending = new Set();
 
             function updateToolbarState() {
+                toolbar.find('[data-option], [data-more]').prop('disabled', !select.val()).attr('aria-disabled', String(!select.val()));
                 toolbar.find('[data-option="stroke-scale"]').toggleClass('d-none', !supportsStrokeScaling);
+                toolbar.find('.icon-tool-color-swatch').css('background-color', optionFields.filter('[data-icon-option="color"]').val() || '#fff');
                 let overflowChanged = false;
                 toolbar.find('[data-option]').each(function () {
                     const field = optionFields.toArray().find(field => field.dataset.iconOption === this.dataset.option);
@@ -195,6 +197,96 @@
                 updateToolbarState();
                 select.trigger('change.select2');
             });
+
+            toolbar.find('[data-option="flip-h"], [data-option="flip-v"]').each(function () {
+                const field = optionFields.filter(`[data-icon-option="${this.dataset.option}"]`);
+                Smartstore.IconTools.bindFlip(this, {
+                    getState: () => ({ name: select.val(), value: field.val() }),
+                    onChange(value) { field.val(String(value)).trigger('change'); }
+                });
+            });
+
+            const strokeToggle = toolbar.find('[data-option="stroke-scale"]')[0];
+            if (strokeToggle) {
+                const strokeTool = Smartstore.IconTools.bindStrokeScale(strokeToggle, {
+                    showPreview: true,
+                    getState() {
+                        if (!supportsStrokeScaling) return null;
+                        const options = {};
+                        optionFields.filter('[data-icon-option="flip-h"], [data-icon-option="flip-v"], [data-icon-option="rotate"]').each(function () {
+                            if (this.value) options[this.dataset.iconOption] = this.value.toLowerCase();
+                        });
+                        return { name: select.select2('data')[0]?.previewAddress || select.val(), options,
+                            value: optionFields.filter('[data-icon-option="stroke-scale"]').val() };
+                    },
+                    onChange(value) {
+                        const separator = Smartstore.globalization.culture.numberFormat['.'];
+                        optionFields.filter('[data-icon-option="stroke-scale"]').val(value.replace('.', separator)).trigger('change');
+                    }
+                });
+                select.on('change.iconTools select2:opening', () => strokeTool.close());
+            }
+
+            const rotateToggle = toolbar.find('[data-option="rotate"]')[0];
+            if (rotateToggle) {
+                const rotateTool = Smartstore.IconTools.bindRotate(rotateToggle, {
+                    showPreview: true,
+                    getState() {
+                        const options = {};
+                        optionFields.filter('[data-icon-option="flip-h"], [data-icon-option="flip-v"], [data-icon-option="stroke-scale"]').each(function () {
+                            if (this.value) options[this.dataset.iconOption] = this.value.toLowerCase();
+                        });
+                        return { name: select.select2('data')[0]?.previewAddress || select.val(), options,
+                            value: optionFields.filter('[data-icon-option="rotate"]').val() };
+                    },
+                    onChange(value) { optionFields.filter('[data-icon-option="rotate"]').val(value).trigger('change'); }
+                });
+                select.on('change.iconTools select2:opening', () => rotateTool.close());
+            }
+
+            const sizeToggle = toolbar.find('[data-option="size"]')[0];
+            if (sizeToggle) {
+                const sizeTool = Smartstore.IconTools.bindSize(sizeToggle, {
+                    getState: () => ({ name: select.val(), value: optionFields.filter('[data-icon-option="size"]').val() }),
+                    onChange(value) { optionFields.filter('[data-icon-option="size"]').val(value).trigger('change'); }
+                });
+                select.on('change.iconTools select2:opening', () => sizeTool.close());
+            }
+
+            const colorToggle = toolbar.find('[data-option="color"]')[0];
+            if (colorToggle) {
+                const colorTool = Smartstore.IconTools.bindColor(colorToggle, {
+                    getState: () => ({ name: select.val(), value: optionFields.filter('[data-icon-option="color"]').val() }),
+                    onChange(value) {
+                        optionFields.filter('[data-icon-option="color"]').val(value).trigger('change');
+                    }
+                });
+                select.on('change.iconTools select2:opening', () => colorTool.close());
+            }
+
+            const animationToggle = toolbar.find('[data-option="animation"]')[0];
+            if (animationToggle) {
+                const animationTool = Smartstore.IconTools.bindAnimation(animationToggle, {
+                    noneLabel: animationToggle.dataset.noneLabel,
+                    getState() {
+                        const item = select.select2('data')[0];
+                        const options = {};
+                        for (const field of optionFields) {
+                            const key = field.dataset.iconOption;
+                            if (!field.value || key === 'size' || key === 'animation' || (key === 'stroke-scale' && !supportsStrokeScaling)) continue;
+                            options[key] = key.startsWith('flip-') ? field.value.toLowerCase() : key === 'stroke-scale' ? field.value.replace(',', '.') : field.value;
+                        }
+                        return {
+                            name: item?.previewAddress || select.val(), options,
+                            value: optionFields.filter('[data-icon-option="animation"]').val()
+                        };
+                    },
+                    onChange(value) {
+                        optionFields.filter('[data-icon-option="animation"]').val(value).trigger('change');
+                    }
+                });
+                select.on('change.iconTools select2:opening', () => animationTool.close());
+            }
 
             // Select2 detaches its dropdown from the picker. Keep the size variable and
             // controls on that instance's dropdown so multiple browsers remain independent.

@@ -27,6 +27,11 @@ public class IconBrowserModel : ModelBase
     public string Animation { get; set; }
 
     /// <summary>
+    /// Gets or sets the rendering color. Null inherits the icon color.
+    /// </summary>
+    public string Color { get; set; }
+
+    /// <summary>
     /// Gets or sets horizontal mirroring. Null inherits the address or mapping value.
     /// </summary>
     public bool? FlipHorizontal { get; set; }
@@ -74,6 +79,7 @@ public class IconBrowserModel : ModelBase
     {
         Size = Size,
         Animation = Animation,
+        Color = Color,
         FlipHorizontal = FlipHorizontal,
         FlipVertical = FlipVertical,
         Rotate = Rotate,
@@ -118,7 +124,12 @@ public enum IconOptionFields
     StrokeScale = 16,
 
     /// <summary>
+    /// Offers rendering color selection.
+    /// </summary>
+    Color = 32,
+
+    /// <summary>
     /// Offers all supported presentation fields.
     /// </summary>
-    All = Size | Animation | Flip | Rotate | StrokeScale
+    All = Size | Animation | Flip | Rotate | StrokeScale | Color
 }

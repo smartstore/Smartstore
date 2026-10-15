@@ -1,4 +1,4 @@
-﻿(function ($, window, document, undefined) {
+(function ($, window, document, undefined) {
 
     function RangeSlider(element, options) {
         const self = this;
@@ -10,7 +10,18 @@
         const resetBtn = el.find('.range-reset');
         const badge = el.find('.range-badge');
         const isNullable = el.data('nullable') === true;
-        this.options = $.extend({}, options);
+        this.options = $.extend({}, { snapValues: hiddenInput.data('snap-values'), snapTolerance: hiddenInput.data('snap-tolerance') }, options);
+        const snapValues = (this.options.snapValues || []).map(Number).filter(Number.isFinite);
+        const snapTolerance = this.options.snapTolerance
+            ?? (Number(slider.prop('max')) - Number(slider.prop('min'))) * 0.015;
+        let dragging = false;
+
+        function snapToTick() {
+            if (!dragging || !snapValues.length) return;
+            const value = Number(slider.val());
+            const nearest = snapValues.reduce((best, tick) => Math.abs(tick - value) < Math.abs(best - value) ? tick : best);
+            if (Math.abs(nearest - value) <= snapTolerance) slider.val(nearest);
+        }
 
         function setUnspecified(reset) {
             el.toggleClass('unspecified', reset);
@@ -101,7 +112,16 @@
                 return;
             }
 
+            if (snapValues.length) {
+                slider.on('pointerdown', (e) => {
+                    dragging = true;
+                    slider[0].setPointerCapture(e.originalEvent.pointerId);
+                }).on('pointerup pointercancel lostpointercapture keydown', () => dragging = false);
+            }
+
             slider.on('input', (e) => {
+                // Keep keyboard and programmatic changes precise; only pointer input snaps.
+                if (e.originalEvent) snapToTick();
                 if (self.isUnspecified()) {
                     setUnspecified(false);
                 }
