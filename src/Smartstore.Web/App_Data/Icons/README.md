@@ -243,14 +243,17 @@ concepts used by your kits before relying on icon resolution.
 
 ## Use the .NET API
 
-Inject `IIconService` from `Smartstore.IconKit`. Its implementation
-currently lives under `Media/Icons/Svg`, using the parent namespace, so it can run
-alongside the existing FontAwesome `IIconExplorer`.
+Inject `IIconService` from `Smartstore.IconKit`. Resolution accepts an `IconAddress`;
+only the area and cancellation token remain separate. Rendering consumes an
+`IconExpression` directly. It combines an address with immutable `IconPresentation`
+values. `IconOptions` contains only rendering context and HTML attributes.
 
 ```csharp
 IconLibrary library = icons.DefaultLibrary;
 IconLibrary hugeicons = icons.GetLibrary("hi"); // Also accepts "hugeicons".
-IconInfo icon = await icons.GetIconAsync("cart");
+IconInfo icon = await icons.GetIconAsync(new IconAddress("cart", "hi", "sr"));
+// Simple names also work through the implicit string conversion:
+IconInfo concept = await icons.GetIconAsync("cart", area: "admin");
 IconSvg svg = await icons.GetSvgAsync("hi:cart/stroke-rounded");
 IconSearchResult results = await icons.SearchAsync(new IconSearchQuery
 {
@@ -269,9 +272,51 @@ syntax and invalid configuration raise exceptions.
 
 `IIconService.GetSvgAsync(IconInfo)` consumes an already resolved icon from
 `GetIconAsync` or search, without mapping its name again. The string overload is
-an extension method that resolves the address and forwards the resulting `IconInfo`.
+an extension method that accepts name, library and variant, resolves an `IconAddress`
+and forwards the resulting `IconInfo`. Neither lookup accepts presentation queries.
 Preparation uses the current library, variant and actual name; it derives the
 canonical address again rather than trusting a caller-modified `Address` property.
+
+For a persistent expression with presentation, parse once and pass only its address
+into resolution. The returned `IconInfo` carries source metadata and mapping defaults,
+not the caller's modifiers. Rendering does not mutate it:
+
+```csharp
+var expression = IconExpression.Parse("cart?size=lg&color=#1459ad&rotate=90");
+var icon = await icons.GetIconAsync(expression.Address, area: "admin");
+var markup = await renderer.RenderAsync(icon, expression.Presentation, new IconOptions { Area = "admin" });
+// Or resolve and render directly:
+var direct = await renderer.RenderAsync(expression, new IconOptions { Area = "admin" });
+string persisted = expression.ToString();
+```
+
+The Razor tag helper accepts a typed expression directly:
+
+```razor
+<icon expression="Model.Icon" />
+<icon expression="Model.Icon" size="lg" rotate="0" />
+```
+
+Populate `Model.Icon` with `IconExpression.Parse(persistedValue)` or an explicit cast
+from the stored string. Explicit presentation attributes override individual expression
+values, including `false` and zero. Do not combine `expression` with `name`, `lib` or
+`variant`; conflicting identity inputs and expressions with empty addresses are rejected.
+
+Construct expressions with `new IconExpression(address, presentation)`; an empty address
+is rejected. The default value represents an absent expression. Stack hosts use
+`RenderStack(content, presentation, options)` without an icon address. Presentation
+fields are declared only on `IconPresentation`, never duplicated in render options.
+`IconPresentation.Parse` and `TryParse` accept modifiers with or without a leading `?`.
+Its `ToString()` returns a query beginning with `?`, or an empty string when no values are set.
+Canonical short tokens are `fw`, `anim`, `anim-dur`, and `anim-rev`; their previous
+long forms remain accepted on input. Other names retain their descriptive spelling.
+Boolean modifiers (`fw`, `inverse`, `anim-rev`, `flip-h`, `flip-v`, `mirror-rtl`)
+accept a bare flag for true, or explicit `true`/`false` and `1`/`0` values.
+Formatting emits true as a bare flag and false as `=false`. An absent modifier
+remains unspecified so mapping defaults can apply; false explicitly overrides them.
+For example: `cart?size=lg&fw&anim=spin&flip-h&mirror-rtl=0`.
+`IconExpression` splits at the first `?` when parsing and concatenates the address
+and presentation strings when formatting; it has no modifier parser of its own.
 
 Persist strings as `[library:]name[!][/variant]`: `cart`, `hi:cart`,
 `cart/stroke-rounded` or `hi:cart/stroke-rounded`. `IconAddress.Parse` parses this
@@ -294,10 +339,10 @@ and `string persisted = address;`. String conversion into an address parses the
 syntax and throws `FormatException` for invalid input; use `TryParse` for unchecked
 input. `default(IconAddress)` is empty (`IsEmpty`) and cannot resolve an icon.
 
-The service fills missing selectors from the configured defaults. Optional
-`library` and `variant` method arguments can fill missing selectors too. Explicit
-conflicting selectors are rejected; a full name and its equivalent short name
-do not conflict. Canonical result addresses contain the actual mapped icon name
+The service fills missing address selectors from kit and library defaults.
+Supply explicit selectors in `IconAddress`. A convenience `GetIconAsync` extension
+also accepts name, library and variant; address qualifiers take precedence over these defaults.
+Canonical result addresses contain the actual mapped icon name
 and both selectors, preferring each short name when present. For example, with
 the manifest above: `hi:shopping-cart-02/sr`. Without short names:
 `hugeicons:shopping-cart-02/stroke-rounded`. Changing short names requires updating
@@ -484,8 +529,8 @@ restrict area membership or rendering. `IconBrowserModel.ShowHiddenKits` reveals
 `IIconAreaResolver.ResolveArea(HttpContext? context)` lives in Core and is registered
 as a stateless singleton. It uses `Request.IsAdminArea()` and otherwise returns `public`.
 `IconService` resolves an omitted area on each call using `IHttpContextAccessor`;
-an explicit area wins. Web TagHelpers render through `Html.IconAsync`, which simply
-forwards the optional area. No request area is retained in the singleton.
+an explicit area wins. The icon TagHelper passes its optional area through the HTML helper to the
+renderer. `Html.IconAsync` uses the current request area unless overridden in its options. No request area is retained in the singleton.
 `<icon area="public" ... />` and `IconOptions.Area` override that default. Core
 calls accept an explicit `area`, otherwise use the current request and default to
 `public` when no HTTP context exists.
@@ -1171,7 +1216,7 @@ model.Icon = new IconBrowserModel
 `IconAddress` preserves the input expression, including optional library, variant,
 `!` and query modifiers. `Size`, `Animation`, nullable `FlipHorizontal`,
 `FlipVertical`, `Rotate` and `StrokeScale` are posted under the same MVC field prefix.
-Use `model.Icon.ToOptions()` together with `model.Icon.IconAddress` for rendering.
+Use `model.Icon.ToExpression()` to combine the persisted address and explicit editor values for rendering.
 Null options inherit address/mapping defaults; explicit `false`, `0` and `1` remain
 meaningful overrides. ModelState attempted values take precedence when redisplaying
 an invalid form. Persist the address and option values in your application's storage;
@@ -1321,27 +1366,31 @@ artifact cleanup are not implemented yet.
 
 ## Render icons with the HTML helper
 
-`Html.IconAsync()` uses the same resolution and rendering as the `icon` TagHelper:
+`Html.IconAsync()` accepts a complete `IconExpression` or its string representation:
 
 ```cshtml
 @await Html.IconAsync("trash")
+@await Html.IconAsync("hi:cart/sr?size=2x&stroke-scale=1.1")
+@await Html.IconAsync(Model.IconExpression)
+```
 
-@await Html.IconAsync("cart", lib: "hi", variant: "sr", options: new()
+The helper delegates to the renderer using the current request context. Both overloads
+accept optional `IconOptions` for an explicit area, inline output or HTML attributes.
+Presentation remains part of the expression; no separate presentation argument is needed.
+Views and HTML generators can use the helper without resolving `IIconRenderer` themselves.
+
+```cshtml
+@await Html.IconAsync("cart?size=lg", new IconOptions
 {
-    Size = "2x",
-    StrokeScale = 1.1,
-    Attributes = { ["class"] = "mr-2", ["title"] = "Cart" }
+    ForceInline = true,
+    CssClass = "mr-2",
+    Attributes = { ["aria-label"] = "Cart" }
 })
 ```
 
-Addresses support the same mapping bypass and modifiers as the TagHelper. Explicit
-presentation options override address modifiers. Supply HTML attributes directly through
-`IconOptions.Attributes`, using their actual HTML names (for example, `aria-label`).
-The helper passes options unchanged to the renderer. `IconOptions.Clone()` creates an
-independent copy, including a separate attribute dictionary, when customization of
-reusable options is needed.
-Missing icons produce empty HTML. Kit selection, inline fallback, CSS classes and
-accessibility remain the renderer's responsibility.
+Kit selection, inline fallback, CSS classes and accessibility remain the renderer's
+responsibility. If neither the requested icon nor its fallback can be rendered,
+the helper returns empty HTML.
 
 The legacy synchronous `Html.Icon()` and `Html.BootstrapIcon()` helpers have been
 removed. Use `await Html.IconAsync(...)` for server-side rendering.
@@ -1365,7 +1414,7 @@ The policy applies to unqualified concepts, including their query modifiers.
 Explicit library/variant selectors (in addresses or service arguments) and `!`
 bypasses are excluded. Native library browsing therefore keeps the original artwork.
 
-Use nullable `mirror-rtl` on `<icon>` or `<sm-icon>` (or `IconOptions.MirrorRtl`)
+Use nullable `mirror-rtl` on `<icon>` or `<sm-icon>` (or `IconPresentation.MirrorRtl`)
 to override this policy: omission preserves the concept default, `true` enables
 RTL mirroring even for explicit addresses, and `false` suppresses automatic
 mirroring. It composes with `flip-h`, which applies in both directions.
@@ -1538,7 +1587,7 @@ loading messages and add-entity actions do not receive the default icon.
 ### Address presentation
 
 `cart?size=lg&animation=throb&color=#f90` sets size and animation classes and the outer SVG color without changing artwork, cache identity
-or kit selection. Explicit `IconOptions` properties and component attributes take precedence individually.
+or kit selection. Explicit `IconPresentation` values and component attributes take precedence individually.
 Size and animation accept the same presets as their corresponding attributes.
 These rendering-only modifiers are not permitted in library mappings.
 `sm-icon` handles these modifiers locally, retaining manifest lookup and sharing drawing

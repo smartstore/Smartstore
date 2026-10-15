@@ -12,7 +12,7 @@ namespace Smartstore.IconKit;
 public sealed partial class IconRenderer(IIconService icons, IIconKitService kits) : IIconRenderer
 {
     /// <inheritdoc />
-    public async Task<TagBuilder> RenderAsync(IconInfo icon, IconOptions options = null, CancellationToken cancelToken = default)
+    public async Task<TagBuilder> RenderAsync(IconInfo icon, IconPresentation presentation = default, IconOptions options = null, CancellationToken cancelToken = default)
     {
         var area = options?.Area ?? icon?.Area;
         var requestedName = options?.RequestedName.NullEmpty() ?? icon?.ConceptName.NullEmpty() ?? icon?.Address.NullEmpty() ?? icon?.Name;
@@ -27,17 +27,17 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
         }
 
         cancelToken.ThrowIfCancellationRequested();
-        var transform = new IconTransform(options?.FlipHorizontal ?? icon.Transform.FlipX,
-            options?.FlipVertical ?? icon.Transform.FlipY, options?.Rotate ?? icon.Transform.Rotation);
-        var strokeScale = icon.SupportsStrokeScaling ? options?.StrokeScale ?? icon.StrokeScale : 1;
+        var transform = new IconTransform(presentation.FlipHorizontal ?? icon.Transform.FlipX,
+            presentation.FlipVertical ?? icon.Transform.FlipY, presentation.Rotate ?? icon.Transform.Rotation);
+        var strokeScale = icon.SupportsStrokeScaling ? presentation.StrokeScale ?? icon.StrokeScale : 1;
         if (!double.IsFinite(strokeScale) || strokeScale <= 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(options), "Stroke scale must be finite and positive.");
+            throw new ArgumentOutOfRangeException(nameof(presentation), "Stroke scale must be finite and positive.");
         }
 
         // Kit symbols already contain mapping transforms. Replacing one requires the
         // original source, not another transform around the existing symbol.
-        var reference = options?.ForceInline == true || icon.RequiresInline || transform != icon.Transform || strokeScale != icon.StrokeScale
+        var reference = options?.ForceInline == true || transform != icon.Transform || strokeScale != icon.StrokeScale
             ? null
             : kits.GetReference(icon);
         var svg = new TagBuilder("svg");
@@ -58,7 +58,7 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
                 var fallbackOptions = options?.Clone() ?? new IconOptions();
                 fallbackOptions.Area = area;
                 fallbackOptions.RequestedName = requestedName;
-                return await RenderAsync(null, fallbackOptions, cancelToken);
+                return await RenderAsync(null, presentation, fallbackOptions, cancelToken);
             }
 
             foreach (var attribute in source.RootAttributes)
@@ -106,15 +106,11 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
             }
         }
 
-        ApplySizeAndAnimation(svg, options?.Size ?? icon.Size, options?.Animation ?? icon.Animation);
-        if (options?.Color == null)
-        {
-            AddStyle(svg, "--icon-color", icon.Color);
-        }
+        ApplySizeAndAnimation(svg, presentation.Size, presentation.Animation);
 
+        ApplyPresentation(svg, presentation);
         if (options != null)
         {
-            ApplyPresentation(svg, options);
             ApplyAttributes(svg, options);
         }
 
@@ -124,7 +120,7 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
             svg.AddCssClass("icon-duotone");
         }
 
-        if (options?.MirrorRtl ?? icon.MirrorInRtl)
+        if (presentation.MirrorRtl ?? icon.MirrorInRtl)
         {
             svg.AddCssClass("icon-mirror-rtl");
         }
@@ -157,31 +153,44 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
     }
 
     /// <inheritdoc />
-    public TagBuilder RenderStack(IHtmlContent content, IconOptions options = null)
+    public async Task<TagBuilder> RenderAsync(IconExpression expression, IconOptions options = null, CancellationToken cancelToken = default)
+    {
+        var icon = await icons.GetIconAsync(expression.Address, area: options?.Area, cancelToken: cancelToken);
+        if (icon == null && options?.RequestedName == null)
+        {
+            options = options?.Clone() ?? new IconOptions();
+            options.RequestedName = expression.ToString();
+        }
+
+        return await RenderAsync(icon, expression.Presentation, options, cancelToken);
+    }
+
+    /// <inheritdoc />
+    public TagBuilder RenderStack(IHtmlContent content, IconPresentation presentation = default, IconOptions options = null)
     {
         Guard.NotNull(content);
 
         var host = new TagBuilder("span");
+        ApplySizeAndAnimation(host, presentation.Size, presentation.Animation);
+        ApplyPresentation(host, presentation);
+        AddNumber(host, "--icon-rotate", presentation.Rotate, "deg");
+        if (presentation.FlipHorizontal.HasValue)
+        {
+            AddNumber(host, "--icon-flip-x", presentation.FlipHorizontal.Value ? -1 : 1);
+        }
+
+        if (presentation.FlipVertical.HasValue)
+        {
+            AddNumber(host, "--icon-flip-y", presentation.FlipVertical.Value ? -1 : 1);
+        }
+
         if (options != null)
         {
-            ApplySizeAndAnimation(host, options.Size, options.Animation);
-            ApplyPresentation(host, options);
-            AddNumber(host, "--icon-rotate", options.Rotate, "deg");
-            if (options.FlipHorizontal.HasValue)
-            {
-                AddNumber(host, "--icon-flip-x", options.FlipHorizontal.Value ? -1 : 1);
-            }
-
-            if (options.FlipVertical.HasValue)
-            {
-                AddNumber(host, "--icon-flip-y", options.FlipVertical.Value ? -1 : 1);
-            }
-
             ApplyAttributes(host, options);
         }
 
         host.AddCssClass("icon-stack");
-        if (options?.MirrorRtl == true)
+        if (presentation.MirrorRtl == true)
         {
             host.AddCssClass("icon-mirror-rtl");
         }
@@ -222,7 +231,7 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
     {
         if (size != null)
         {
-            if (!IconModifiers.IsValidSize(size))
+            if (!IconPresentation.IsValidSize(size))
             {
                 throw new ArgumentException("Unsupported icon size.", nameof(size));
             }
@@ -232,7 +241,7 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
 
         if (animation != null)
         {
-            if (!IconModifiers.IsValidAnimation(animation))
+            if (!IconPresentation.IsValidAnimation(animation))
             {
                 throw new ArgumentException("Unsupported icon animation.", nameof(animation));
             }
@@ -241,35 +250,35 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
         }
     }
 
-    private static void ApplyPresentation(TagBuilder svg, IconOptions options)
+    private static void ApplyPresentation(TagBuilder svg, IconPresentation presentation)
     {
-        if (options.FixedWidth)
+        if (presentation.FixedWidth == true)
         {
             svg.AddCssClass("icon-fw");
         }
 
-        if (options.Inverse)
+        if (presentation.Inverse == true)
         {
             svg.AddCssClass("icon-inverse");
         }
 
-        AddNumber(svg, "--icon-size-factor", options.FontScale);
-        AddNumber(svg, "--icon-scale", options.Scale);
-        AddNumber(svg, "--icon-shift-x", options.ShiftX / 16, "em");
-        AddNumber(svg, "--icon-shift-y", options.ShiftY / 16, "em");
-        AddStyle(svg, "--icon-color", options.Color);
-        AddStyle(svg, "--icon-animation-duration", options.AnimationDuration);
-        if (options.AnimationReverse.HasValue)
+        AddNumber(svg, "--icon-size-factor", presentation.FontScale);
+        AddNumber(svg, "--icon-scale", presentation.Scale);
+        AddNumber(svg, "--icon-shift-x", presentation.ShiftX / 16, "em");
+        AddNumber(svg, "--icon-shift-y", presentation.ShiftY / 16, "em");
+        AddStyle(svg, "--icon-color", presentation.Color);
+        AddStyle(svg, "--icon-animation-duration", presentation.AnimationDuration);
+        if (presentation.AnimationReverse.HasValue)
         {
-            AddStyle(svg, "--icon-animation-direction", options.AnimationReverse.Value ? "reverse" : "normal");
+            AddStyle(svg, "--icon-animation-direction", presentation.AnimationReverse.Value ? "reverse" : "normal");
         }
     }
 
-    private static void AddNumber(TagBuilder svg, string property, float? value, string unit = null)
+    private static void AddNumber(TagBuilder svg, string property, double? value, string unit = null)
     {
         if (value.HasValue)
         {
-            if (!float.IsFinite(value.Value))
+            if (!double.IsFinite(value.Value))
             {
                 throw new ArgumentOutOfRangeException(nameof(value));
             }

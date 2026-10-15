@@ -6,6 +6,25 @@ The current system default is HugeIcons (`hi`), variant `stroke-rounded` (`sr`).
 These tables contain names and mappings only; they do not depend on a diagnostic
 Razor view, generated SVG output or temporary import reports.
 
+## Typed resolution and presentation
+
+- `Html.IconAsync` accepts an `IconExpression` or its string representation, plus optional
+  `IconOptions` for render context, inline output and HTML attributes. Put selectors
+  and presentation in the expression; the helper encapsulates the renderer.
+
+- Replace separate `GetIconAsync(name, library, variant, area, token)` arguments with
+  `GetIconAsync(new IconAddress(name, library, variant), area, token)` for unqualified names.
+- Parse qualified names with `IconAddress.Parse`; parse strings containing modifiers with
+  `IconExpression.Parse` and pass only `.Address` to the icon service.
+- Pass `IconExpression` directly to `RenderAsync`, or pass an already resolved icon
+  and its separate `IconPresentation`. Stack hosts accept presentation without an address.
+  `IconOptions` contains render context and HTML attributes only. `IconInfo` retains
+  mapping defaults and source metadata, but no caller color, size, animation or expression.
+- Convenience extensions accept name, library and variant and forward an `IconAddress`
+  to the service. `GetSvgAsync` returns source artwork; presentation belongs to the renderer
+  or standalone SVG formatting.
+
+
 ## Keep this reference current
 
 Update this file as part of every agreed migration change: new source icons,
@@ -136,11 +155,9 @@ it unless that specific library and drawing are intentional.
 @* After: both become *@
 <icon name="trash" />
 
-@await Html.IconAsync("trash", options: new()
-{
-    Size = "2x",
-    Attributes = { ["class"] = "mr-2", ["title"] = "Trash" }
-})
+@await Html.IconAsync("trash?size=2x")
+@* With additional HTML attributes: *@
+<icon name="trash" size="2x" class="mr-2" title="Trash" />
 ```
 
 `name="trash"` currently maps to HI `delete-02`. Query modifiers shown in an HI

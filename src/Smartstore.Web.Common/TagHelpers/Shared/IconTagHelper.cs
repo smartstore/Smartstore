@@ -10,6 +10,13 @@ namespace Smartstore.Web.TagHelpers.Shared;
 /// </summary>
 public abstract class IconTagHelperBase : SmartTagHelper
 {
+    private bool? _fixedWidth;
+    private bool? _inverse;
+    private bool? _animationReverse;
+    private bool? _flipHorizontal;
+    private bool? _flipVertical;
+    private bool? _mirrorRtl;
+
     private const string SizeAttributeName = "size";
     private const string FontScaleAttributeName = "font-scale";
     private const string FixedWidthAttributeName = "fw";
@@ -64,7 +71,11 @@ public abstract class IconTagHelperBase : SmartTagHelper
     /// Gets or sets whether the icon occupies a fixed-width slot.
     /// </summary>
     [HtmlAttributeName(FixedWidthAttributeName)]
-    public bool FixedWidth { get; set; }
+    public bool FixedWidth
+    {
+        get => _fixedWidth.GetValueOrDefault();
+        set => _fixedWidth = value;
+    }
 
     /// <summary>
     /// Gets or sets a CSS color. Omission preserves inherited color.
@@ -76,7 +87,11 @@ public abstract class IconTagHelperBase : SmartTagHelper
     /// Gets or sets whether the inverse foreground color is used.
     /// </summary>
     [HtmlAttributeName(InverseAttributeName)]
-    public bool Inverse { get; set; }
+    public bool Inverse
+    {
+        get => _inverse.GetValueOrDefault();
+        set => _inverse = value;
+    }
 
     /// <summary>
     /// Gets or sets an animation: spin, pulse, beat, fade, throb, bounce, flip, shake,
@@ -95,7 +110,11 @@ public abstract class IconTagHelperBase : SmartTagHelper
     /// Gets or sets reverse playback. Omission preserves the animation default.
     /// </summary>
     [HtmlAttributeName(AnimationReverseAttributeName)]
-    public bool? AnimationReverse { get; set; }
+    public bool AnimationReverse
+    {
+        get => _animationReverse.GetValueOrDefault();
+        set => _animationReverse = value;
+    }
 
     /// <summary>
     /// Gets or sets clockwise degrees, replacing the address or mapping rotation. Zero resets it.
@@ -107,19 +126,31 @@ public abstract class IconTagHelperBase : SmartTagHelper
     /// Gets or sets horizontal mirroring, replacing the address or mapping value.
     /// </summary>
     [HtmlAttributeName(FlipHorizontalAttributeName)]
-    public bool? FlipHorizontal { get; set; }
+    public bool FlipHorizontal
+    {
+        get => _flipHorizontal.GetValueOrDefault();
+        set => _flipHorizontal = value;
+    }
 
     /// <summary>
     /// Gets or sets vertical mirroring, replacing the address or mapping value.
     /// </summary>
     [HtmlAttributeName(FlipVerticalAttributeName)]
-    public bool? FlipVertical { get; set; }
+    public bool FlipVertical
+    {
+        get => _flipVertical.GetValueOrDefault();
+        set => _flipVertical = value;
+    }
 
     /// <summary>
     /// Gets or sets whether to mirror horizontally in RTL. Null preserves the concept policy.
     /// </summary>
     [HtmlAttributeName(MirrorRtlAttributeName)]
-    public bool? MirrorRtl { get; set; }
+    public bool MirrorRtl
+    {
+        get => _mirrorRtl.GetValueOrDefault();
+        set => _mirrorRtl = value;
+    }
 
     /// <summary>
     /// Gets or sets the drawing scale without changing its layout size.
@@ -155,29 +186,34 @@ public abstract class IconTagHelperBase : SmartTagHelper
     protected override string GenerateTagId(TagHelperContext context) => null;
 
     /// <summary>
-    /// Transfers presentation and caller-owned DOM attributes to the shared renderer.
+    /// Collects explicit presentation values for an icon or stack.
+    /// </summary>
+    protected IconPresentation CreatePresentation() => new()
+    {
+        Size = Size,
+        FontScale = FontScale,
+        FixedWidth = _fixedWidth,
+        Color = Color,
+        Inverse = _inverse,
+        Animation = Animation,
+        AnimationDuration = AnimationDuration,
+        AnimationReverse = _animationReverse,
+        Rotate = Rotate,
+        FlipHorizontal = _flipHorizontal,
+        FlipVertical = _flipVertical,
+        MirrorRtl = _mirrorRtl,
+        Scale = Scale,
+        ShiftX = ShiftX,
+        ShiftY = ShiftY
+    };
+
+    /// <summary>
+    /// Transfers caller-owned DOM attributes to the shared renderer.
     /// </summary>
     /// <param name="output">The current output, including unbound attributes.</param>
     protected IconOptions CreateOptions(TagHelperOutput output)
     {
-        var options = new IconOptions
-        {
-            Size = Size,
-            FontScale = FontScale,
-            FixedWidth = FixedWidth,
-            Color = Color,
-            Inverse = Inverse,
-            Animation = Animation,
-            AnimationDuration = AnimationDuration,
-            AnimationReverse = AnimationReverse,
-            Rotate = Rotate,
-            FlipHorizontal = FlipHorizontal,
-            FlipVertical = FlipVertical,
-            MirrorRtl = MirrorRtl,
-            Scale = Scale,
-            ShiftX = ShiftX,
-            ShiftY = ShiftY,
-        };
+        var options = new IconOptions();
         foreach (var attribute in output.Attributes)
         {
             if (!_boundAttributes.Contains(attribute.Name))
@@ -241,11 +277,19 @@ public class IconTagHelper : IconTagHelperBase
     [HtmlAttributeName("force-inline")]
     public bool ForceInline { get; set; }
 
+    private const string ExpressionAttributeName = "expression";
     const string NameAttributeName = "name";
     const string LibraryAttributeName = "lib";
     const string VariantAttributeName = "variant";
 
     private const string StrokeScaleAttributeName = "stroke-scale";
+
+    /// <summary>
+    /// Gets or sets a complete icon expression instead of name, library and variant.
+    /// Explicit presentation attributes override its presentation values.
+    /// </summary>
+    [HtmlAttributeName(ExpressionAttributeName)]
+    public IconExpression? Expression { get; set; }
 
     /// <summary>
     /// Gets or sets the icon or conceptual name, optionally qualified as library:name/variant.
@@ -275,7 +319,28 @@ public class IconTagHelper : IconTagHelperBase
     /// <inheritdoc />
     protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
     {
-        Guard.NotEmpty(Name);
+        IconExpression parsed;
+        if (Expression.HasValue)
+        {
+            if (Name.HasValue() || Library.HasValue() || Variant.HasValue())
+            {
+                throw new ArgumentException("Expression cannot be combined with name, lib or variant.", nameof(Expression));
+            }
+            parsed = Expression.Value;
+            if (parsed.Address.IsEmpty)
+            {
+                throw new ArgumentException("Expression must contain an icon address.", nameof(Expression));
+            }
+        }
+        else
+        {
+            Guard.NotEmpty(Name);
+            parsed = IconExpression.Parse(Name);
+            var address = parsed.Address;
+            parsed = new IconExpression(
+                new IconAddress(address.Name, address.Library ?? Library.NullEmpty(), address.Variant ?? Variant.NullEmpty(), address.SkipMapping),
+                parsed.Presentation);
+        }
 
         // Razor binds null string attribute values as empty strings. Treat optional
         // selectors as omitted so configured defaults and qualified names still apply.
@@ -284,13 +349,15 @@ public class IconTagHelper : IconTagHelperBase
         options.ForceInline = ForceInline;
         options.Attributes.Remove("force-inline");
         options.Attributes.Remove("area");
-        options.StrokeScale = StrokeScale;
+        options.Attributes.Remove(ExpressionAttributeName);
         options.Attributes.Remove(NameAttributeName);
         options.Attributes.Remove(LibraryAttributeName);
         options.Attributes.Remove(VariantAttributeName);
         options.Attributes.Remove(StrokeScaleAttributeName);
 
-        var svg = await HtmlHelper.IconAsync(Name, Library.NullEmpty(), Variant.NullEmpty(), options) as TagBuilder;
+        var presentation = (CreatePresentation() with { StrokeScale = StrokeScale }).WithDefaults(parsed.Presentation);
+        var expression = parsed with { Presentation = presentation };
+        var svg = await HtmlHelper.IconAsync(expression, options) as TagBuilder;
         if (svg == null)
         {
             output.SuppressOutput();
@@ -315,6 +382,6 @@ public class IconStackTagHelper(IIconRenderer iconRenderer) : IconTagHelperBase
     {
         // Render children normally; they independently choose inline SVG or kit references.
         var content = await output.GetChildContentAsync();
-        ApplyElement(output, iconRenderer.RenderStack(content, CreateOptions(output)));
+        ApplyElement(output, iconRenderer.RenderStack(content, CreatePresentation(), CreateOptions(output)));
     }
 }

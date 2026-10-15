@@ -13,22 +13,21 @@
         .OrderBy(x => x.SystemName.Equals(defaultLibraryName, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
         .ThenBy(x => x.DisplayName).ToArray();
 
-    var fieldName = ViewData.TemplateInfo.GetFullHtmlFieldName(nameof(Model.IconAddress));
-    var selectedAddress = ViewData.ModelState.TryGetValue(fieldName, out var state)
-        ? state.AttemptedValue : Model?.IconAddress;
-    var selectedLabel = selectedAddress;
-    var modifierStart = selectedAddress?.IndexOf('?') ?? -1;
-    var addressPart = modifierStart < 0 ? selectedAddress : selectedAddress[..modifierStart];
-    if (IconAddress.TryParse(addressPart, out var parsedAddress))
+    var fieldName = ViewData.TemplateInfo.GetFullHtmlFieldName(nameof(Model.Expression));
+    var expression = Model?.Expression;
+    if (ViewData.ModelState.TryGetValue(fieldName, out var state))
     {
-        selectedLabel = parsedAddress.Name;
+        expression = IconExpression.TryParse(state.AttemptedValue, out var posted) ? posted : null;
     }
-    var selectedIcon = selectedAddress.HasValue() ? await Icons.GetIconAsync(selectedAddress) : null;
+    var presentation = expression?.Presentation ?? default;
+    var selectedAddress = expression?.Address.ToString();
+    var selectedLabel = expression?.Address.Name;
+    var selectedIcon = expression.HasValue ? await Icons.GetIconAsync(expression.Value.Address) : null;
     var showHiddenKits = Model?.ShowHiddenKits == true;
     var initialSource = Browser.GetSource(selectedAddress, IconAreaResolver.ResolveArea(Context), showHiddenKits);
     // Retain the selected hidden source for label initialization, without listing it.
     var kits = Kits.Kits.Where(x => x.ShowInPicker || showHiddenKits || x.Name == initialSource?.Kit)
-        .OrderBy(x => x.Name).ToArray();
+        .ToArray();
     var visibleOptions = Model?.VisibleOptions ?? IconOptionFields.None;
 }
 
@@ -36,17 +35,9 @@
 <script src="~/admin/js/smartstore.iconbrowser.js" sm-target-zone="scripts" sm-key="iconbrowser"></script>
 
 <div class="icon-browser" data-search-url="@Url.RouteUrl("IconKit.Browse")"
-     data-show-provider-indicators="@(Model?.ShowProviderIndicators == true ? "true" : "false")"
+     data-icon-presentation="@presentation.ToString()" data-show-provider-indicators="@(Model?.ShowProviderIndicators == true ? "true" : "false")"
      data-external-label="@(Model?.ShowProviderIndicators == true ? T("Admin.IconBrowser.External").ToString() : null)" data-size-label="@T("Admin.IconBrowser.Size")" data-visible-options="@((int)visibleOptions)">
-    <div class="icon-browser-option-values">
-        @Html.HiddenFor(x => x.Color, new { data_icon_option = "color" })
-        @Html.HiddenFor(x => x.Size, new { data_icon_option = "size" })
-        @Html.HiddenFor(x => x.Animation, new { data_icon_option = "animation" })
-        @Html.HiddenFor(x => x.FlipHorizontal, new { data_icon_option = "flip-h" })
-        @Html.HiddenFor(x => x.FlipVertical, new { data_icon_option = "flip-v" })
-        @Html.HiddenFor(x => x.Rotate, new { data_icon_option = "rotate" })
-        @Html.HiddenFor(x => x.StrokeScale, new { data_icon_option = "stroke-scale" })
-    </div>
+    @Html.HiddenFor(x => x.Expression, new { @class = "icon-browser-expression" })
     <div class="row gx-2">
         <div class="col-3 dropdown icon-browser-source-dropdown">
             <button type="button" class="btn btn-secondary dropdown-toggle btn-block"
@@ -99,7 +90,7 @@
         </div>
         <div class="col-9">
             <div class="icon-browser-selection">
-                <select id="@Html.IdFor(x => x.IconAddress)" name="@fieldName"
+                <select id="@Html.Id("")"
                         class="form-control icon-browser-select noskin" aria-label="@T("Admin.IconBrowser.Icon")"
                         data-placeholder="@T("Admin.IconBrowser.Search")">
                     <option></option>
@@ -171,7 +162,7 @@
                     </div>
                 }
             </div>
-            @Html.ValidationMessageFor(x => x.IconAddress)
+            @Html.ValidationMessageFor(x => x.Expression)
         </div>
     </div>
 </div>

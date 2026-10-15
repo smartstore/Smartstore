@@ -53,9 +53,9 @@ public class IconKitRegistrationTests
         builder.Services.AddSingleton(Mock.Of<IIconBrowser>());
         var icons = new Mock<IIconService>();
         var icon = new IconInfo { Name = "cart" };
-        icons.Setup(x => x.GetIconAsync("cart", null, null, null, It.IsAny<CancellationToken>())).ReturnsAsync(icon);
+        icons.Setup(x => x.GetIconAsync("cart", null, It.IsAny<CancellationToken>())).ReturnsAsync(icon);
         var renderer = new Mock<IIconRenderer>();
-        renderer.Setup(x => x.RenderAsync(icon, It.IsAny<IconOptions>(), It.IsAny<CancellationToken>())).ReturnsAsync(new TagBuilder("svg"));
+        renderer.Setup(x => x.RenderAsync(icon, It.IsAny<IconPresentation>(), It.IsAny<IconOptions>(), It.IsAny<CancellationToken>())).ReturnsAsync(new TagBuilder("svg"));
         builder.Services.AddSingleton(icons.Object);
         builder.Services.AddSingleton(renderer.Object);
         await using var app = builder.Build();

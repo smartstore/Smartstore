@@ -47,10 +47,10 @@ public class IconEndpointsTests
         var icons = new Mock<IIconService>();
         var renderer = new Mock<IIconRenderer>();
         var icon = new IconInfo { Name = "arrow" };
-        icons.Setup(x => x.GetIconAsync("back?flip=x", "hi", null, "public", It.IsAny<CancellationToken>())).ReturnsAsync(icon);
+        icons.Setup(x => x.GetIconAsync(new IconAddress("back", "hi", null), "public", It.IsAny<CancellationToken>())).ReturnsAsync(icon);
         var svg = new TagBuilder("svg");
         svg.InnerHtml.AppendHtml("<path/>");
-        renderer.Setup(x => x.RenderAsync(icon, It.Is<IconOptions>(o => o.RequestedName == "back?flip=x" && o.Rotate == 0 && o.FlipHorizontal == false && o.StrokeScale == 1.1), It.IsAny<CancellationToken>())).ReturnsAsync(svg);
+        renderer.Setup(x => x.RenderAsync(icon, It.Is<IconPresentation>(p => p.Rotate == 0 && p.FlipHorizontal == false && p.StrokeScale == 1.1), It.Is<IconOptions>(o => o.RequestedName == "back?flip=x"), It.IsAny<CancellationToken>())).ReturnsAsync(svg);
         var controller = Create(Mock.Of<IIconKitService>(), icons.Object, renderer.Object);
         var result = (FileContentHttpResult)await controller.Render("back?flip=x", "hi", null, 0, false, null, 1.1, "public", default);
         Assert.That(result.ContentType, Is.EqualTo("image/svg+xml"));

@@ -86,7 +86,8 @@
         const modifiers = [];
         for (const pair of name.slice(separator + 1).split('&')) {
             const equals = pair.indexOf('=');
-            const key = equals < 0 ? pair : pair.slice(0, equals);
+            const token = equals < 0 ? pair : pair.slice(0, equals);
+            const key = token === 'anim' ? 'animation' : token;
             if (!['color', 'size', 'animation', 'rotate', 'stroke-scale'].includes(key)) { modifiers.push(pair); continue; }
             const raw = equals < 0 ? '' : pair.slice(equals + 1);
             const value = key === 'color' ? decodeURIComponent(raw) : raw;

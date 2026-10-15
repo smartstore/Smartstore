@@ -7,15 +7,13 @@ namespace Smartstore.Apple.Auth.Components;
 
 public class AppleAuthViewComponent : SmartViewComponent
 {
-    private readonly IIconService _icons;
     private readonly IIconRenderer _iconRenderer;
     private readonly AppleAuthenticationOptions _appleOptions;
     private readonly AppleExternalAuthSettings _settings;
 
 
-    public AppleAuthViewComponent(IOptionsMonitor<AppleAuthenticationOptions> appleOptions, AppleExternalAuthSettings settings, IIconService icons, IIconRenderer iconRenderer)
+    public AppleAuthViewComponent(IOptionsMonitor<AppleAuthenticationOptions> appleOptions, AppleExternalAuthSettings settings, IIconRenderer iconRenderer)
     {
-        _icons = icons;
         _iconRenderer = iconRenderer;
         _appleOptions = appleOptions.CurrentValue;
         _settings = settings;
@@ -39,11 +37,7 @@ public class AppleAuthViewComponent : SmartViewComponent
         link.Attributes["class"] = "btn btn-secondary btn-block btn-lg btn-extauth";
         link.Attributes["href"] = href;
         link.Attributes["rel"] = "nofollow";
-        link.InnerHtml.AppendHtml(await _iconRenderer.RenderAsync(await _icons.GetIconAsync("apple"), new IconOptions
-        {
-            FixedWidth = true,
-            Size = "lg"
-        }));
+        link.InnerHtml.AppendHtml(await _iconRenderer.RenderAsync(IconExpression.Parse("apple?fw&size=lg")));
         var label = new TagBuilder("span");
         label.InnerHtml.Append(title);
         link.InnerHtml.AppendHtml(label);

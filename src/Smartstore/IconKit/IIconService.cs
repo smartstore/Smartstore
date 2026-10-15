@@ -35,18 +35,15 @@ public interface IIconService
     int GetIconCount(string? library = null, string? variant = null);
 
     /// <summary>
-    /// Gets an icon after mapping and configured fallbacks, or null if unavailable. Parameters fill missing address qualifiers; conflicting qualifiers are rejected.
+    /// Gets an icon after mapping and configured fallbacks, or null if unavailable.
+    /// Presentation modifiers are applied separately by the renderer.
     /// </summary>
-    /// <param name="name">An icon or conceptual name, optionally qualified as library:name/variant. Append ! to the name to bypass mapping and library fallback; variant fallbacks still apply. Icon names are case-sensitive. An optional query accepts flip, rotate, stroke-scale, color, size and animation modifiers.</param>
-    /// <param name="library">The library system name or short name. Fills a missing address qualifier; null uses the configured default.</param>
-    /// <param name="variant">The variant name or short name. Fills a missing address qualifier; null uses the selected library's effective default.</param>
+    /// <param name="address">The icon or conceptual address. Mapping bypass disables mapping and library fallback; variant fallbacks still apply.</param>
+    /// <param name="area">The area selecting kit defaults and declaration priority. Null resolves the current request area, or public outside a request.</param>
     /// <param name="cancelToken">Reserved for asynchronous implementations; synchronous metadata resolution does not observe cancellation.</param>
     /// <returns>The mapped icon with its canonical address, or null when the library, variant or target icon is unavailable.</returns>
-    /// <exception cref="FormatException">The address syntax is invalid.</exception>
-    /// <exception cref="InvalidDataException">A modifier is unknown, duplicated or invalid.</exception>
-    /// <exception cref="ArgumentException">An explicit method selector conflicts with a resolved address selector.</exception>
-    /// <param name="area">The area selecting kit defaults and declaration priority. Null resolves the current request area, or public outside a request.</param>
-    Task<IconInfo?> GetIconAsync(string name, string? library = null, string? variant = null, string? area = null, CancellationToken cancelToken = default);
+    /// <exception cref="ArgumentException">The address is empty.</exception>
+    Task<IconInfo?> GetIconAsync(IconAddress address, string? area = null, CancellationToken cancelToken = default);
 
     /// <summary>
     /// Gets a cached, validated SVG payload for an already resolved icon, without applying mapping again.
@@ -72,22 +69,45 @@ public interface IIconService
 public static class IIconServiceExtensions
 {
     /// <summary>
+    /// Resolves a name with optional library and variant selectors through the typed service contract.
+    /// </summary>
+    /// <param name="service">The icon service used for resolution.</param>
+    /// <param name="name">The icon or conceptual address, without presentation modifiers.</param>
+    /// <param name="library">Fills a missing library qualifier in the address.</param>
+    /// <param name="variant">Fills a missing variant qualifier in the address.</param>
+    /// <param name="area">The area used for kit selection.</param>
+    /// <param name="cancelToken">The cancellation token.</param>
+    /// <returns>The resolved icon, or null when unavailable.</returns>
+    public static Task<IconInfo?> GetIconAsync(this IIconService service, string name, string? library = null,
+        string? variant = null, string? area = null, CancellationToken cancelToken = default)
+    {
+        Guard.NotNull(service);
+
+        var address = IconAddress.Parse(name);
+        if ((address.Library == null && library != null) || (address.Variant == null && variant != null))
+        {
+            address = new IconAddress(address.Name, address.Library ?? library, address.Variant ?? variant, address.SkipMapping);
+        }
+
+        return service.GetIconAsync(address, area, cancelToken);
+    }
+
+    /// <summary>
     /// Resolves an icon address with mapping and configured fallbacks and gets its cached SVG payload.
     /// </summary>
     /// <param name="service">The icon service used for resolution and preparation.</param>
-    /// <param name="name">An icon or conceptual name, optionally qualified as library:name/variant. Append ! to the name to bypass mapping.</param>
-    /// <param name="library">The library system name or short name. Fills a missing address qualifier; null uses the default.</param>
-    /// <param name="variant">The variant name or short name. Fills a missing address qualifier; null uses the effective default.</param>
+    /// <param name="name">The icon or conceptual address, without presentation modifiers.</param>
+    /// <param name="library">Fills a missing library qualifier in the address.</param>
+    /// <param name="variant">Fills a missing variant qualifier in the address.</param>
+    /// <param name="cancelToken">The cancellation token.</param>
     /// <returns>An immutable shared SVG payload, or null when the icon is unavailable.</returns>
-    /// <exception cref="FormatException">The address syntax is invalid.</exception>
-    /// <exception cref="InvalidDataException">A modifier is unknown, duplicated or invalid.</exception>
-    /// <exception cref="ArgumentException">An explicit selector conflicts with an address selector.</exception>
-    public static async Task<IconSvg?> GetSvgAsync(this IIconService service, string name, string? library = null, string? variant = null, CancellationToken cancelToken = default)
+    public static async Task<IconSvg?> GetSvgAsync(this IIconService service, string name, string? library = null,
+        string? variant = null, CancellationToken cancelToken = default)
     {
         Guard.NotNull(service);
 
         cancelToken.ThrowIfCancellationRequested();
-        var icon = await service.GetIconAsync(name, library, variant, cancelToken: cancelToken);
+        var icon = await GetIconAsync(service, name, library, variant, cancelToken: cancelToken);
         return icon == null ? null : await service.GetSvgAsync(icon, cancelToken);
     }
 }

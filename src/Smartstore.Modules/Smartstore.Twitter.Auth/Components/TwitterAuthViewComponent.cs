@@ -7,13 +7,11 @@ namespace Smartstore.Twitter.Auth.Components;
 
 public class TwitterAuthViewComponent : SmartViewComponent
 {
-    private readonly IIconService _icons;
     private readonly IIconRenderer _iconRenderer;
     private readonly TwitterOptions _twitterOptions;
 
-    public TwitterAuthViewComponent(IOptionsMonitor<TwitterOptions> twitterOptions, IIconService icons, IIconRenderer iconRenderer)
+    public TwitterAuthViewComponent(IOptionsMonitor<TwitterOptions> twitterOptions, IIconRenderer iconRenderer)
     {
-        _icons = icons;
         _iconRenderer = iconRenderer;
         _twitterOptions = twitterOptions.CurrentValue;
     }
@@ -32,11 +30,7 @@ public class TwitterAuthViewComponent : SmartViewComponent
         link.Attributes["class"] = "btn btn-primary btn-block btn-lg btn-extauth btn-brand-x-twitter";
         link.Attributes["href"] = href;
         link.Attributes["rel"] = "nofollow";
-        link.InnerHtml.AppendHtml(await _iconRenderer.RenderAsync(await _icons.GetIconAsync("twitter-x"), new IconOptions
-        {
-            FixedWidth = true,
-            Size = "lg"
-        }));
+        link.InnerHtml.AppendHtml(await _iconRenderer.RenderAsync(IconExpression.Parse("twitter-x?fw&size=lg")));
         var label = new TagBuilder("span");
         label.InnerHtml.Append(title);
         link.InnerHtml.AppendHtml(label);

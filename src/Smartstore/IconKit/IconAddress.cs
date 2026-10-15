@@ -91,14 +91,17 @@ public readonly record struct IconAddress
     /// <param name="address">The parsed address on success; otherwise the empty default value.</param>
     /// <returns>True when the value has valid address syntax; otherwise false.</returns>
     public static bool TryParse(string? value, out IconAddress address)
+        => TryParse(value, value?.Length ?? 0, out address);
+
+    internal static bool TryParse(string? value, int length, out IconAddress address)
     {
         address = default;
-        if (string.IsNullOrEmpty(value))
+        if (string.IsNullOrEmpty(value) || length == 0)
         {
             return false;
         }
 
-        var text = value.AsSpan();
+        var text = value.AsSpan(0, length);
         var colon = text.IndexOf(':');
         var slash = text.IndexOf('/');
         if (slash >= 0 && slash < colon)
@@ -128,10 +131,10 @@ public readonly record struct IconAddress
         // Preserve exact source names, including casing and trailing spaces.
         address = new IconAddress
         {
-            Name = colon < 0 && slash < 0 && !skipMapping ? value : name.ToString(),
+            Name = colon < 0 && slash < 0 && !skipMapping && length == value.Length ? value : name.ToString(),
             SkipMapping = skipMapping,
             Library = colon < 0 ? null : NormalizeQualifier(value, 0, colon),
-            Variant = slash < 0 ? null : NormalizeQualifier(value, slash + 1, value.Length - slash - 1)
+            Variant = slash < 0 ? null : NormalizeQualifier(value, slash + 1, length - slash - 1)
         };
         return true;
     }

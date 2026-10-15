@@ -565,8 +565,8 @@ public class TabStripTagHelper : SmartTagHelper
             {
                 classes.Add(tab.IconClass);
             }
-            options.Attributes["class"] = string.Join(" ", classes);
-            a.InnerHtml.AppendHtml(await HtmlHelper.IconAsync(tab.Icon, options: options));
+            options.CssClass = string.Join(" ", classes);
+            a.InnerHtml.AppendHtml(await HtmlHelper.IconAsync(IconExpression.Parse(tab.Icon), options));
         }
         else if (tab.ImageUrl.HasValue())
         {

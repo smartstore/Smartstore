@@ -72,11 +72,9 @@ public class FileIconTagHelper : SmartTagHelper
 
             ext = ext.NaIfEmpty().ToUpper();
 
-            output.Content.AppendHtml(await HtmlHelper.IconAsync(iconName, options: new IconOptions
-            {
-                FixedWidth = true,
-                Attributes = { ["title"] = ext }
-            }));
+            output.Content.AppendHtml(await HtmlHelper.IconAsync(
+                new IconExpression(new IconAddress(iconName), new IconPresentation { FixedWidth = true }),
+                new IconOptions { Attributes = { ["title"] = ext } }));
 
             if (ShowLabel)
             {

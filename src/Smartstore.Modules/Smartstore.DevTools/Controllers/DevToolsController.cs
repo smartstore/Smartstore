@@ -41,7 +41,7 @@ public class DevToolsController(IIconCache iconCache, IIconKitService iconKits, 
 
         var kitAddresses = iconKits.GetSourceAddresses();
         var logoAddresses = new HashSet<string>(StringComparer.Ordinal);
-        var libraries = await icons.GetLibrariesAsync(HttpContext.RequestAborted);
+        var libraries = await icons.GetLibrariesAsync();
         var logos = libraries.SelectMany(library => library.Variants.Values
             .Select(variant => variant.Icon ?? library.Icon).Append(library.Icon))
             .Where(address => address.HasValue()).Distinct(StringComparer.Ordinal);
@@ -49,7 +49,7 @@ public class DevToolsController(IIconCache iconCache, IIconKitService iconKits, 
         {
             // Resolve metadata only: library aliases and variant fallbacks must match
             // the canonical cache identity without loading or caching any drawing.
-            var icon = await icons.GetIconAsync(logo, cancelToken: HttpContext.RequestAborted);
+            var icon = await icons.GetIconAsync(IconExpression.Parse(logo).Address);
             if (icon != null)
             {
                 logoAddresses.Add(icon.Address);
@@ -57,7 +57,7 @@ public class DevToolsController(IIconCache iconCache, IIconKitService iconKits, 
         }
 
         var cachedIcons = new Dictionary<string, IconSvg>(StringComparer.Ordinal);
-        await foreach (var entry in iconCache.GetEntriesAsync(HttpContext.RequestAborted))
+        await foreach (var entry in iconCache.GetEntriesAsync())
         {
             var address = entry.Address.ToString();
             if (kitAddresses.Contains(address) || logoAddresses.Contains(address) || cachedIcons.ContainsKey(address))
@@ -67,7 +67,7 @@ public class DevToolsController(IIconCache iconCache, IIconKitService iconKits, 
 
             // Entries can expire between enumeration and lookup. Read the cached payload
             // directly so this diagnostic view does not populate or refresh the icon cache.
-            var svg = await iconCache.GetAsync(entry.Key, HttpContext.RequestAborted);
+            var svg = await iconCache.GetAsync(entry.Key);
             if (svg != null)
             {
                 cachedIcons.TryAdd(svg.Address, svg);

@@ -73,18 +73,23 @@ public class IconBrowserModel : ModelBase
     public bool ShowProviderIndicators { get; set; }
 
     /// <summary>
-    /// Creates rendering options without changing the persisted address or omitted values.
+    /// Creates an expression, retaining persisted modifiers unless explicitly overridden.
     /// </summary>
-    public IconOptions ToOptions() => new()
+    public IconExpression ToExpression()
     {
-        Size = Size,
-        Animation = Animation,
-        Color = Color,
-        FlipHorizontal = FlipHorizontal,
-        FlipVertical = FlipVertical,
-        Rotate = Rotate,
-        StrokeScale = StrokeScale
-    };
+        var expression = IconExpression.Parse(IconAddress);
+        var presentation = new IconPresentation
+        {
+            Size = Size,
+            Animation = Animation,
+            Color = Color,
+            FlipHorizontal = FlipHorizontal,
+            FlipVertical = FlipVertical,
+            Rotate = Rotate,
+            StrokeScale = StrokeScale
+        };
+        return expression with { Presentation = presentation.WithDefaults(expression.Presentation) };
+    }
 }
 
 /// <summary>

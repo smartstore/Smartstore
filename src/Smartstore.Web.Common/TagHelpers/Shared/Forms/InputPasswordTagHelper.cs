@@ -67,12 +67,12 @@ public class InputPasswordTagHelper : TagHelper
             var hiddenIcon = await _htmlHelper.IconAsync("eye-off", options: new IconOptions
             {
                 ForceInline = !isInstalled,
-                Attributes = { ["class"] = "pwd-hidden" }
+                CssClass = "pwd-hidden"
             });
             var visibleIcon = await _htmlHelper.IconAsync("eye", options: new IconOptions
             {
                 ForceInline = !isInstalled,
-                Attributes = { ["class"] = "pwd-visible" }
+                CssClass = "pwd-visible"
             });
 
             output.PostElement.AppendHtml($"<button type=\"button\" class=\"btn-toggle-pwd\" tabindex=\"-1\" {htmlAttributes}>");

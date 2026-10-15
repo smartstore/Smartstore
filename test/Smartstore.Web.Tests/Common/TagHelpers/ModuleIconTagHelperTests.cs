@@ -31,8 +31,7 @@ public class ModuleIconTagHelperTests
         var icon = new IconInfo { Name = "cart" };
         if (useAddress)
         {
-            service.Setup(x => x.GetIconAsync("cart?color=#123456", null, null, null, It.IsAny<CancellationToken>())).ReturnsAsync(icon);
-            renderer.Setup(x => x.RenderAsync(icon, It.IsAny<IconOptions>(), It.IsAny<CancellationToken>()))
+            renderer.Setup(x => x.RenderAsync(IconExpression.Parse("cart?color=#123456"), null, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new TagBuilder("svg"));
         }
         var url = new Mock<IUrlHelper>();

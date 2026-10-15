@@ -31,7 +31,11 @@
                             query.set('flip', (horizontal ? 'x' : '') + (vertical ? 'y' : '') || 'none');
                         }
                         for (const [key, value] of Object.entries(options)) {
-                            if (!key.startsWith('flip-')) query.set(key, value);
+                            if (!key.startsWith('flip-')) {
+                                const token = key === 'animation' ? 'anim' : key;
+                                if (token !== key) query.delete(key);
+                                query.set(token, value);
+                            }
                         }
                         const modifiers = [...query].map(([key, value]) => `${key}=${value}`).join('&');
                         code = name + (modifiers ? '?' + modifiers : '');

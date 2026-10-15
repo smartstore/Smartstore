@@ -24,10 +24,10 @@ public sealed class IconBrowser(IconService icons, IconKitService kits, IHttpCon
             }
         }
 
-        // Use the same concept priority as resolution and the manifest, including
-        // concepts omitted from the client manifest because they need inline rendering.
+        // Empty pickers start with the first visible kit in metadata order, regardless of area.
+        // Existing concepts retain their area-specific resolution priority.
         var kit = parsed.IsEmpty
-            ? catalog.Kits.Values.FirstOrDefault(x => x.Areas.Contains(area) && (x.ShowInPicker || showHiddenKits))
+            ? catalog.Kits.Values.FirstOrDefault(x => x.ShowInPicker || showHiddenKits)
             : parsed.Library == null && !parsed.SkipMapping ? catalog.FindKit(parsed.Name, area) : null;
         if (kit != null) return new IconBrowserSource(kit.Name, null, null, !parsed.IsEmpty && catalog.ExternalIcons[kit.Name].Contains(parsed.Name));
 
@@ -115,6 +115,17 @@ public sealed class IconBrowser(IconService icons, IconKitService kits, IHttpCon
     /// <param name="concept">The kit concept, or null for a literal library selection.</param>
     /// <param name="isExternal">Whether kit membership depends on a provider.</param>
     private static IconBrowserItem CreateItem(IconInfo info, string concept = null, bool isExternal = false)
-        => new(concept ?? info.Name, concept ?? IconModifiers.FormatAddress(info), info.Address, info.LibraryKey, info.VariantKey,
-            null, info.SupportsStrokeScaling, info.IsDuotone, IconModifiers.FormatAddress(info, includeModifiers: true), isExternal);
+    {
+        var address = new IconAddress(info.Name, info.LibraryKey, info.VariantKey, skipMapping: true);
+        var expression = new IconExpression(address, new IconPresentation
+        {
+            FlipHorizontal = info.Transform.FlipX,
+            FlipVertical = info.Transform.FlipY,
+            Rotate = info.Transform.Rotation,
+            StrokeScale = info.StrokeScale
+        });
+
+        return new(concept ?? info.Name, concept ?? address.ToString(), info.Address, info.LibraryKey, info.VariantKey,
+            null, info.SupportsStrokeScaling, info.IsDuotone, expression.ToString(), isExternal);
+    }
 }

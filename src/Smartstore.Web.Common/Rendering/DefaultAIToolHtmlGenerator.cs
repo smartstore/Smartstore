@@ -362,11 +362,9 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
     /// <returns>The dialog opener icon.</returns>
     protected virtual async Task<TagBuilder> GenerateOpenerIconAsync(bool isDropdown, string additionalClasses = "", string title = "")
     {
-        var icon = await HtmlHelper.IconAsync("stars-tricolor", options: new IconOptions
-        {
-            FixedWidth = true,
-            Attributes = { ["class"] = "dropdown-icon ai-icon-stars-tricolor" }
-        });
+        var icon = await HtmlHelper.IconAsync(
+            IconExpression.Parse("stars-tricolor?fw"),
+            new IconOptions { CssClass = "dropdown-icon ai-icon-stars-tricolor" });
 
         var btnTag = new TagBuilder("a");
         btnTag.Attributes["href"] = "javascript:;";
@@ -479,9 +477,15 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
         Action<TagBuilder> configureLink,
         params string[] additionalClasses)
     {
-        var icon = iconName.HasValue()
-            ? await HtmlHelper.IconAsync(iconName, options: new IconOptions { FixedWidth = true })
-            : null;
+        IHtmlContent icon = null;
+        if (iconName.HasValue())
+        {
+            var expression = IconExpression.Parse(iconName);
+            icon = await HtmlHelper.IconAsync(expression with
+            {
+                Presentation = expression.Presentation with { FixedWidth = true }
+            });
+        }
 
         return CreateDropdownItem(menuText, enabled, command, icon, isProviderTool, configureLink, additionalClasses);
     }

@@ -102,9 +102,14 @@ public sealed partial class IconService(IApplicationContext applicationContext, 
     }
 
     /// <inheritdoc />
-    public Task<IconInfo> GetIconAsync(string name, string library = null, string variant = null, string area = null, CancellationToken cancelToken = default)
+    public Task<IconInfo> GetIconAsync(IconAddress address, string area = null, CancellationToken cancelToken = default)
     {
-        return Task.FromResult(Find(Catalog, name, library, variant, area ?? areaResolver.ResolveArea(httpContextAccessor.HttpContext)));
+        if (address.IsEmpty)
+        {
+            throw new ArgumentException("An icon address is required.", nameof(address));
+        }
+
+        return Task.FromResult(Find(Catalog, address, area ?? areaResolver.ResolveArea(httpContextAccessor.HttpContext)));
     }
 
     /// <inheritdoc />
@@ -233,34 +238,17 @@ public sealed partial class IconService(IApplicationContext applicationContext, 
         return (filtered.Count, ordered.Skip(query.Skip).Take(query.Take).ToArray());
     }
 
-    private static IconInfo Find(IconCatalog catalog, string name, string libraryName, string variantName, string area)
+    private static IconInfo Find(IconCatalog catalog, IconAddress address, string area)
     {
-        Guard.NotEmpty(name);
-
-        var separator = name.IndexOf('?');
-        var modifiers = separator < 0 ? default : IconModifiers.Parse(name.AsSpan(separator + 1), name);
-        var address = IconAddress.Parse(separator < 0 ? name : name[..separator]);
-        // Explicit address components take precedence; method arguments fill missing components.
-        // Compare resolved objects so a full name and its short name are not treated as a conflict.
         var kit = address.SkipMapping ? null : catalog.FindKit(address.Name, area);
         var entry = kit?.SourceAddresses.GetValueOrDefault(address.Name) ?? default;
         var entryLibrary = SelectLibrary(catalog, entry.Library ?? kit?.DefaultLibrary);
-        var library = SelectLibrary(catalog, address.Library ?? libraryName ?? entry.Library ?? kit?.DefaultLibrary);
-        if (address.Library != null && libraryName != null && library != SelectLibrary(catalog, libraryName))
-        {
-            throw new ArgumentException("The address and library parameter select different libraries.", nameof(libraryName));
-        }
-
-        if (address.Variant != null && variantName != null
-            && SelectVariant(catalog, library, address.Variant) != SelectVariant(catalog, library, variantName))
-        {
-            throw new ArgumentException("The address and variant parameter select different variants.", nameof(variantName));
-        }
+        var library = SelectLibrary(catalog, address.Library ?? entry.Library ?? kit?.DefaultLibrary);
 
         // Source overrides supply defaults for this concept only. Caller selectors still win,
         // and a variant from a different library must never leak into that caller selection.
         var variant = SelectVariant(catalog, library,
-            address.Variant ?? variantName ?? (library == entryLibrary ? entry.Variant : null), kit);
+            address.Variant ?? (library == entryLibrary ? entry.Variant : null), kit);
         if (variant == null)
         {
             return default;
@@ -284,16 +272,10 @@ public sealed partial class IconService(IApplicationContext applicationContext, 
         info.ConceptName = address.SkipMapping ? null : address.Name;
         info.SelectionLibraryName = library.Manifest.SystemName;
         info.SelectionVariantName = variant.Manifest.Name;
-        var mappingTransform = selected.Mapping.Transform;
-        info.Transform = modifiers.Apply(mappingTransform);
-        info.Color = modifiers.Color;
-        info.Size = modifiers.Size;
-        info.Animation = modifiers.Animation;
-        info.RequiresInline = info.Transform != mappingTransform
-            || (info.SupportsStrokeScaling && modifiers.StrokeScale.HasValue && modifiers.StrokeScale.Value != selected.Mapping.StrokeScale);
-        info.StrokeScale = info.SupportsStrokeScaling ? modifiers.StrokeScale ?? selected.Mapping.StrokeScale : 1;
+        info.Transform = selected.Mapping.Transform;
+        info.StrokeScale = info.SupportsStrokeScaling ? selected.Mapping.StrokeScale : 1;
         info.MirrorInRtl = !address.SkipMapping && address.Library == null && address.Variant == null
-            && libraryName == null && variantName == null && catalog.MirrorInRtl.Contains(address.Name);
+            && catalog.MirrorInRtl.Contains(address.Name);
         return info;
     }
 

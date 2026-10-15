@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Rendering;
+using Smartstore.IconKit;
 
 namespace Smartstore.Web.TagHelpers.Shared;
 
@@ -41,13 +42,9 @@ public class ThumbnailTagHelper : BaseImageTagHelper
 
         // Build the icon
         var iconHint = GetIconHint(mediaType);
-        var ic = await HtmlHelper.IconAsync(iconHint.Name, options: new()
-        {
-            Size = "5x",
-            FixedWidth = true,
-            Color = iconHint.Color,
-            Attributes = { ["class"] = "file-icon show" }
-        });
+        var ic = await HtmlHelper.IconAsync(
+            $"{iconHint.Name}?size=5x&fw&color={iconHint.Color}",
+            new IconOptions { CssClass = "file-icon show" });
 
         // Append the icon to the root <figure/>
         output.Content.AppendHtml(ic);

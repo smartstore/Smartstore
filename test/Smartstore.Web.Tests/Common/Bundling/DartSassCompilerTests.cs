@@ -30,7 +30,7 @@ public class DartSassCompilerTests
             RootAttributes = new Dictionary<string, string> { ["fill"] = "none", ["stroke"] = "currentColor", ["transform"] = "translate(1 2)" },
             Content = "<path d=\"M1 1L20 20\" style=\"stroke-width:var(--icon-stroke-width,2);\" />"
         };
-        icons.Setup(x => x.GetIconAsync("chevron-down", null, null, "public", It.IsAny<CancellationToken>())).ReturnsAsync(icon);
+        icons.Setup(x => x.GetIconAsync("chevron-down", "public", It.IsAny<CancellationToken>())).ReturnsAsync(icon);
         icons.Setup(x => x.GetSvgAsync(icon, It.IsAny<CancellationToken>())).ReturnsAsync(source);
 
         await using var compiler = new DartSassCompiler();
@@ -68,8 +68,8 @@ public class DartSassCompilerTests
         var icons = new Mock<IIconService>();
         var missing = knownIcon ? new IconInfo { Name = "missing" } : null;
         var placeholder = new IconInfo { Name = "not-found" };
-        icons.Setup(x => x.GetIconAsync("missing", null, null, "public", It.IsAny<CancellationToken>())).ReturnsAsync(missing);
-        icons.Setup(x => x.GetIconAsync("system:not-found!/default", null, null, "public", It.IsAny<CancellationToken>())).ReturnsAsync(placeholder);
+        icons.Setup(x => x.GetIconAsync("missing", "public", It.IsAny<CancellationToken>())).ReturnsAsync(missing);
+        icons.Setup(x => x.GetIconAsync("system:not-found!/default", "public", It.IsAny<CancellationToken>())).ReturnsAsync(placeholder);
         icons.Setup(x => x.GetSvgAsync(placeholder, It.IsAny<CancellationToken>())).ReturnsAsync(hasPlaceholder
             ? new IconSvg { ViewBox = "0 0 24 24", Content = "<path d=\"M1 1L20 20\" />" }
             : null);
@@ -89,7 +89,7 @@ public class DartSassCompilerTests
         var svg = XElement.Parse(Uri.UnescapeDataString(result.Css[start..end]));
         Assert.That(svg.HasElements, Is.EqualTo(hasPlaceholder));
         Assert.That(result.Css, Does.Contain("color: red"));
-        icons.Verify(x => x.GetIconAsync("system:not-found!/default", null, null, "public", It.IsAny<CancellationToken>()), Times.Once);
+        icons.Verify(x => x.GetIconAsync("system:not-found!/default", "public", It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [TestCase(false)]

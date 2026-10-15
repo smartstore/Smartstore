@@ -145,7 +145,7 @@ public class CoverImageTagHelper : ImageTagHelper
 
         if (iconName.HasValue())
         {
-            a.InnerHtml.AppendHtml(await HtmlHelper.IconAsync(iconName, options: new() { FixedWidth = true }));
+            a.InnerHtml.AppendHtml(await HtmlHelper.IconAsync($"{iconName}?fw"));
             var label = new TagBuilder("span");
             label.InnerHtml.Append(T(resourceKey).Value);
             a.InnerHtml.AppendHtml(label);

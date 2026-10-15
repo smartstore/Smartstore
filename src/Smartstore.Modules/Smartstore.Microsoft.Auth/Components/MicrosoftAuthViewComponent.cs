@@ -7,13 +7,11 @@ namespace Smartstore.Microsoft.Auth.Components;
 
 public class MicrosoftAuthViewComponent : SmartViewComponent
 {
-    private readonly IIconService _icons;
     private readonly IIconRenderer _iconRenderer;
     private readonly MicrosoftAccountOptions _microsoftOptions;
 
-    public MicrosoftAuthViewComponent(IOptionsMonitor<MicrosoftAccountOptions> microsoftOptions, IIconService icons, IIconRenderer iconRenderer)
+    public MicrosoftAuthViewComponent(IOptionsMonitor<MicrosoftAccountOptions> microsoftOptions, IIconRenderer iconRenderer)
     {
-        _icons = icons;
         _iconRenderer = iconRenderer;
         _microsoftOptions = microsoftOptions.CurrentValue;
     }
@@ -33,11 +31,7 @@ public class MicrosoftAuthViewComponent : SmartViewComponent
         link.Attributes["class"] = "btn btn-primary btn-block btn-lg btn-extauth btn-brand-microsoft";
         link.Attributes["href"] = href;
         link.Attributes["rel"] = "nofollow";
-        link.InnerHtml.AppendHtml(await _iconRenderer.RenderAsync(await _icons.GetIconAsync("microsoft"), new IconOptions
-        {
-            FixedWidth = true,
-            Size = "lg"
-        }));
+        link.InnerHtml.AppendHtml(await _iconRenderer.RenderAsync(IconExpression.Parse("microsoft?fw&size=lg")));
         var label = new TagBuilder("span");
         label.InnerHtml.Append(title);
         link.InnerHtml.AppendHtml(label);

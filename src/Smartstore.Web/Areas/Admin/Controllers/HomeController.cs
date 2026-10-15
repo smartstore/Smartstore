@@ -64,8 +64,9 @@ public class HomeController : AdminController
                 name = address.ToString() + (separator < 0 ? string.Empty : name[separator..]);
             }
 
-            var icon = await icons.GetIconAsync(name, cancelToken: cancelToken);
-            var svg = icon == null ? null : await renderer.RenderAsync(icon, cancelToken: cancelToken);
+            var expression = IconExpression.Parse(name);
+            var icon = await icons.GetIconAsync(expression.Address, cancelToken: cancelToken);
+            var svg = icon == null ? null : await renderer.RenderAsync(icon, expression.Presentation, cancelToken: cancelToken);
             if (svg == null)
             {
                 return Content(string.Empty, "text/html");

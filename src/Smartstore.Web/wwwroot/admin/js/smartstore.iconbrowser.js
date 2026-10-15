@@ -7,24 +7,70 @@
         return this.each(function () {
             const root = $(this);
             if (root.data('iconBrowser')) return;
-            root.data('iconBrowser', true);
             const select = root.find('.icon-browser-select');
             const button = root.find('.icon-browser-source-dropdown > button');
-            const optionFields = root.find('[data-icon-option]');
+            let options = Object.create(null);
+            // Razor provides the canonical presentation. Decode it once, never during slider input.
+            const aliases = { anim: 'animation', 'anim-dur': 'animation-duration', 'anim-rev': 'animation-reverse' };
+            const tokens = { animation: 'anim', 'animation-duration': 'anim-dur', 'animation-reverse': 'anim-rev' };
+            for (const pair of (root.attr('data-icon-presentation') || '').slice(1).split('&')) {
+                if (!pair) continue;
+                const equals = pair.indexOf('=');
+                const key = equals < 0 ? pair : pair.slice(0, equals);
+                const value = equals < 0 ? 'true' : decodeURIComponent(pair.slice(equals + 1));
+                if (key === 'flip') {
+                    options['flip-h'] = String(value.includes('x'));
+                    options['flip-v'] = String(value.includes('y'));
+                } else {
+                    options[aliases[key] || key] = value;
+                }
+            }
             const toolbar = root.find('.icon-browser-toolbar');
+            const expressionField = root.find('.icon-browser-expression');
             let supportsStrokeScaling = false;
             let selectedAddress = select.val() || '';
             const pending = new Set();
 
+            function updateExpression() {
+                const address = select.val() || '';
+                const modifiers = [];
+                for (const [option, raw] of Object.entries(options)) {
+                    const key = tokens[option] || option;
+                    if (['flip-h', 'flip-v', 'fw', 'inverse', 'mirror-rtl', 'animation-reverse'].includes(option)) {
+                        modifiers.push(raw === 'true' ? key : key + '=false');
+                        continue;
+                    }
+                    // Match IconPresentation: keep CSS colors readable, escape query delimiters only.
+                    const value = raw.replace(/[%&=?]/g, c => ({ '%': '%25', '&': '%26', '=': '%3D', '?': '%3F' })[c]);
+                    modifiers.push(key + '=' + value);
+                }
+                expressionField.val(address ? address + (modifiers.length ? '?' + modifiers.join('&') : '') : '').trigger('change');
+            }
+
+            function setOption(key, value) {
+                value = value == null ? '' : String(value);
+                if (key === 'stroke-scale') value = value.replace(',', '.');
+                if (value === (options[key] || '')) return;
+                if (value === '') delete options[key];
+                else options[key] = value;
+                updateExpression();
+                select.trigger('change.select2');
+            }
+
+            // Consumers receive a snapshot; the tools own the mutable state.
+            root.data('iconBrowser', {
+                getState: () => ({ name: selectedAddress, options: { ...options }, expression: expressionField.val() || '' })
+            });
+
             function updateToolbarState() {
                 toolbar.find('[data-option], [data-more]').prop('disabled', !select.val()).attr('aria-disabled', String(!select.val()));
                 toolbar.find('[data-option="stroke-scale"]').toggleClass('d-none', !supportsStrokeScaling);
-                toolbar.find('.icon-tool-color-swatch').css('background-color', optionFields.filter('[data-icon-option="color"]').val() || '#fff');
+                toolbar.find('.icon-tool-color-swatch').css('background-color', options.color || '#fff');
                 let overflowChanged = false;
                 toolbar.find('[data-option]').each(function () {
-                    const field = optionFields.toArray().find(field => field.dataset.iconOption === this.dataset.option);
-                    const changed = field && field.value !== '';
-                    const active = changed && (!this.dataset.option.startsWith('flip-') || field.value.toLowerCase() === 'true');
+                    const value = options[this.dataset.option];
+                    const changed = value != null;
+                    const active = changed && (!this.dataset.option.startsWith('flip-') || value === 'true');
                     $(this).toggleClass('active', !!active);
                     if (this.hasAttribute('aria-pressed')) this.setAttribute('aria-pressed', active ? 'true' : 'false');
                     if (changed && !this.classList.contains('d-none') && this.hasAttribute('data-overflow')) overflowChanged = true;
@@ -34,14 +80,9 @@
             }
 
             function applyPreviewOptions(icon) {
-                for (const field of optionFields) {
-                    const option = field.dataset.iconOption;
+                for (const [option, value] of Object.entries(options)) {
                     // Keep the picker stable; size and animation belong to a separate options preview.
-                    if (field.value === '' || option === 'size' || option === 'animation' || (option === 'stroke-scale' && !supportsStrokeScaling)) continue;
-                    let value = field.value;
-                    if (option.startsWith('flip-')) value = value.toLowerCase();
-                    // Hidden MVC decimal values follow the form culture; SVG queries use a decimal point.
-                    if (option === 'stroke-scale') value = value.replace(',', '.');
+                    if (option === 'size' || option === 'animation' || (option === 'stroke-scale' && !supportsStrokeScaling)) continue;
                     icon.setAttribute(option, value);
                 }
             }
@@ -78,9 +119,8 @@
                     ? 'icon-browser-choice d-flex flex-column align-items-center justify-content-center gap-1'
                     : 'select2-option w-100 align-items-center';
                 let icon;
-                const hasPreviewOptions = !isResult && optionFields.toArray().some(field =>
-                    field.value !== '' && field.dataset.iconOption !== 'size' && field.dataset.iconOption !== 'animation'
-                    && (field.dataset.iconOption !== 'stroke-scale' || supportsStrokeScaling));
+                const hasPreviewOptions = !isResult && Object.keys(options).some(key =>
+                    key !== 'size' && key !== 'animation' && (key !== 'stroke-scale' || supportsStrokeScaling));
                 if (!item.spriteUrl || item.inlineName || hasPreviewOptions) {
                     // Preserve the chosen source even when its kit belongs to another area.
                     // Unmodified selections and result tiles use that kit's sprite directly.
@@ -189,20 +229,16 @@
                 if (address === selectedAddress) return;
                 selectedAddress = address;
                 // Reset even options whose controls are hidden. Null restores mapping defaults.
-                optionFields.val('');
+                options = Object.create(null);
+                updateExpression();
                 updateToolbarState();
                 select.trigger('change.select2');
             });
-            optionFields.on('change.iconBrowser', function () {
-                updateToolbarState();
-                select.trigger('change.select2');
-            });
-
             toolbar.find('[data-option="flip-h"], [data-option="flip-v"]').each(function () {
-                const field = optionFields.filter(`[data-icon-option="${this.dataset.option}"]`);
+                const key = this.dataset.option;
                 Smartstore.IconTools.bindFlip(this, {
-                    getState: () => ({ name: select.val(), value: field.val() }),
-                    onChange(value) { field.val(String(value)).trigger('change'); }
+                    getState: () => ({ name: selectedAddress, value: options[key] }),
+                    onChange(value) { setOption(key, value); }
                 });
             });
 
@@ -212,17 +248,14 @@
                     showPreview: true,
                     getState() {
                         if (!supportsStrokeScaling) return null;
-                        const options = {};
-                        optionFields.filter('[data-icon-option="flip-h"], [data-icon-option="flip-v"], [data-icon-option="rotate"]').each(function () {
-                            if (this.value) options[this.dataset.iconOption] = this.value.toLowerCase();
-                        });
-                        return { name: select.select2('data')[0]?.previewAddress || select.val(), options,
-                            value: optionFields.filter('[data-icon-option="stroke-scale"]').val() };
+                        const previewOptions = {};
+                        for (const key of ['flip-h', 'flip-v', 'rotate']) {
+                            if (options[key] != null) previewOptions[key] = options[key];
+                        }
+                        return { name: select.select2('data')[0]?.previewAddress || select.val(), options: previewOptions,
+                            value: options['stroke-scale'] };
                     },
-                    onChange(value) {
-                        const separator = Smartstore.globalization.culture.numberFormat['.'];
-                        optionFields.filter('[data-icon-option="stroke-scale"]').val(value.replace('.', separator)).trigger('change');
-                    }
+                    onChange(value) { setOption('stroke-scale', value); }
                 });
                 select.on('change.iconTools select2:opening', () => strokeTool.close());
             }
@@ -232,14 +265,14 @@
                 const rotateTool = Smartstore.IconTools.bindRotate(rotateToggle, {
                     showPreview: true,
                     getState() {
-                        const options = {};
-                        optionFields.filter('[data-icon-option="flip-h"], [data-icon-option="flip-v"], [data-icon-option="stroke-scale"]').each(function () {
-                            if (this.value) options[this.dataset.iconOption] = this.value.toLowerCase();
-                        });
-                        return { name: select.select2('data')[0]?.previewAddress || select.val(), options,
-                            value: optionFields.filter('[data-icon-option="rotate"]').val() };
+                        const previewOptions = {};
+                        for (const key of ['flip-h', 'flip-v', 'stroke-scale']) {
+                            if (options[key] != null) previewOptions[key] = options[key];
+                        }
+                        return { name: select.select2('data')[0]?.previewAddress || select.val(), options: previewOptions,
+                            value: options['rotate'] };
                     },
-                    onChange(value) { optionFields.filter('[data-icon-option="rotate"]').val(value).trigger('change'); }
+                    onChange(value) { setOption('rotate', value); }
                 });
                 select.on('change.iconTools select2:opening', () => rotateTool.close());
             }
@@ -247,8 +280,8 @@
             const sizeToggle = toolbar.find('[data-option="size"]')[0];
             if (sizeToggle) {
                 const sizeTool = Smartstore.IconTools.bindSize(sizeToggle, {
-                    getState: () => ({ name: select.val(), value: optionFields.filter('[data-icon-option="size"]').val() }),
-                    onChange(value) { optionFields.filter('[data-icon-option="size"]').val(value).trigger('change'); }
+                    getState: () => ({ name: select.val(), value: options['size'] }),
+                    onChange(value) { setOption('size', value); }
                 });
                 select.on('change.iconTools select2:opening', () => sizeTool.close());
             }
@@ -256,9 +289,9 @@
             const colorToggle = toolbar.find('[data-option="color"]')[0];
             if (colorToggle) {
                 const colorTool = Smartstore.IconTools.bindColor(colorToggle, {
-                    getState: () => ({ name: select.val(), value: optionFields.filter('[data-icon-option="color"]').val() }),
+                    getState: () => ({ name: select.val(), value: options.color }),
                     onChange(value) {
-                        optionFields.filter('[data-icon-option="color"]').val(value).trigger('change');
+                        setOption('color', value);
                     }
                 });
                 select.on('change.iconTools select2:opening', () => colorTool.close());
@@ -270,19 +303,18 @@
                     noneLabel: animationToggle.dataset.noneLabel,
                     getState() {
                         const item = select.select2('data')[0];
-                        const options = {};
-                        for (const field of optionFields) {
-                            const key = field.dataset.iconOption;
-                            if (!field.value || key === 'size' || key === 'animation' || (key === 'stroke-scale' && !supportsStrokeScaling)) continue;
-                            options[key] = key.startsWith('flip-') ? field.value.toLowerCase() : key === 'stroke-scale' ? field.value.replace(',', '.') : field.value;
+                        const previewOptions = {};
+                        for (const [key, value] of Object.entries(options)) {
+                            if (key === 'size' || key === 'animation' || (key === 'stroke-scale' && !supportsStrokeScaling)) continue;
+                            previewOptions[key] = value;
                         }
                         return {
-                            name: item?.previewAddress || select.val(), options,
-                            value: optionFields.filter('[data-icon-option="animation"]').val()
+                            name: item?.previewAddress || select.val(), options: previewOptions,
+                            value: options['animation']
                         };
                     },
                     onChange(value) {
-                        optionFields.filter('[data-icon-option="animation"]').val(value).trigger('change');
+                        setOption('animation', value);
                     }
                 });
                 select.on('change.iconTools select2:opening', () => animationTool.close());

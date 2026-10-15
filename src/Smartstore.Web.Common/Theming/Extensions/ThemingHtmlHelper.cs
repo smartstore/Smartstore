@@ -48,7 +48,7 @@ public static class ThemingHtmlHelper
         if (currentTheme != info.ThemeDescriptor)
         {
             // the variable is inherited from a base theme: display an info badge
-            var icon = await helper.IconAsync("link", options: new() { FlipHorizontal = true });
+            var icon = await helper.IconAsync("link?flip=x");
             var chainInfo = new TagBuilder("span");
             chainInfo.AddCssClass("themevar-chain-info");
             chainInfo.InnerHtml.AppendHtml(icon);

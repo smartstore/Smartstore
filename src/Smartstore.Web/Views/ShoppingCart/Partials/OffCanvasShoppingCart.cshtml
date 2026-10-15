@@ -21,7 +21,7 @@
             <icon name="cart" class="icon-4x" aria-hidden="true" />
         </p>
         <p class="no-item-info text-muted">
-            @Html.Raw(T("ShoppingCart.Mini.EmptyCart.Info", (await Html.IconAsync("cart-add", options: new Smartstore.IconKit.IconOptions { Size = "lg" })).ToHtmlString()))
+            @Html.Raw(T("ShoppingCart.Mini.EmptyCart.Info", (await Html.IconAsync("cart-add?size=lg")).ToHtmlString()))
         </p>
     </div>
     @if (hasItems)

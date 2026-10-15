@@ -14,7 +14,7 @@
             tabIcon.setAttribute('name', 'laugh');
             tabIcon.setAttribute('area', 'admin');
             context.invoke('emoji.addTab', {
-                id: 'icons', label: settings.label, icon: tabIcon,
+                id: 'icons', label: settings.label, icon: tabIcon, prepend: true,
                 render(container, picker) {
                     const $pane = $(container);
                     const $tools = $('<div class="d-flex align-items-center gap-2 mb-2 flex-shrink-0"></div>').appendTo($pane);

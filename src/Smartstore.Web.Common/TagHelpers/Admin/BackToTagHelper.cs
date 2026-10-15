@@ -32,7 +32,7 @@ public class BackToTagHelper : SmartTagHelper
             output.Attributes.SetAttribute("title", T("Admin.Common.BackToList"));
         }
 
-        var icon = await HtmlHelper.IconAsync("arrow-left", options: new IconOptions { Size = "lg" });
+        var icon = await HtmlHelper.IconAsync("arrow-left?size=lg");
         output.Content.SetHtmlContent(icon);
     }
 }

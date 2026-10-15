@@ -675,32 +675,29 @@ public static class HtmlHelperRenderingExtensions
     /// Renders an SVG icon through the shared renderer, which selects inline or kit output.
     /// </summary>
     /// <param name="name">The icon or conceptual address, including optional selectors, mapping bypass and modifiers.</param>
-    /// <param name="lib">The optional library system name or short name.</param>
-    /// <param name="variant">The optional variant name or short name.</param>
-    /// <param name="options">Presentation options. Explicit options override address modifiers; the object is not modified.</param>
+    /// <param name="options">Optional rendering context and HTML attributes.</param>
     /// <returns>The rendered SVG, or empty content when the icon cannot be resolved or rendered.</returns>
-    public static async Task<IHtmlContent> IconAsync(this IHtmlHelper helper,
-        string name,
-        string lib = null,
-        string variant = null,
-        IconOptions options = null)
+    public static Task<IHtmlContent> IconAsync(this IHtmlHelper helper, string name, IconOptions options = null)
     {
         Guard.NotNull(helper);
         Guard.NotEmpty(name);
 
-        var httpContext = helper.ViewContext.HttpContext;
-        var services = httpContext.RequestServices;
-        var iconService = services.GetRequiredService<IIconService>();
-        var icon = await iconService.GetIconAsync(name, lib, variant, options?.Area, httpContext.RequestAborted);
-        var renderer = services.GetRequiredService<IIconRenderer>();
-        if (icon == null)
-        {
-            options = options?.Clone() ?? new IconOptions();
-            options.RequestedName = name;
-        }
+        return helper.IconAsync(IconExpression.Parse(name), options);
+    }
 
-        var svg = await renderer.RenderAsync(icon, options, httpContext.RequestAborted);
-        return (IHtmlContent)svg ?? HtmlString.Empty;
+    /// <summary>
+    /// Renders a parsed expression in the current request context.
+    /// </summary>
+    /// <param name="helper">The current HTML helper.</param>
+    /// <param name="expression">The unresolved icon identity and presentation.</param>
+    /// <param name="options">Optional rendering context and HTML attributes.</param>
+    public static async Task<IHtmlContent> IconAsync(this IHtmlHelper helper, IconExpression expression, IconOptions options = null)
+    {
+        Guard.NotNull(helper);
+
+        var httpContext = helper.ViewContext.HttpContext;
+        var renderer = httpContext.RequestServices.GetRequiredService<IIconRenderer>();
+        return (IHtmlContent)await renderer.RenderAsync(expression, options) ?? HtmlString.Empty;
     }
 
     #endregion

@@ -132,11 +132,6 @@ public sealed class IconInfo
     internal string? ConceptName { get; set; }
 
     /// <summary>
-    /// Gets whether address modifiers replace a transformation already baked into a kit.
-    /// </summary>
-    internal bool RequiresInline { get; set; }
-
-    /// <summary>
     /// Gets or sets the requested library context for kit membership before artwork fallbacks.
     /// Null uses the actual library, as for native search results.
     /// </summary>
@@ -152,24 +147,6 @@ public sealed class IconInfo
     /// Gets or sets the per-icon stroke multiplier applied after the library multiplier.
     /// </summary>
     public double StrokeScale { get; set; } = 1;
-
-    /// <summary>
-    /// Gets or sets the address color used for rendering, not source or sprite identity.
-    /// Explicit rendering options take precedence.
-    /// </summary>
-    public string? Color { get; set; }
-
-    /// <summary>
-    /// Gets or sets the address size used for rendering, not source or sprite identity.
-    /// Explicit rendering options take precedence.
-    /// </summary>
-    public string? Size { get; set; }
-
-    /// <summary>
-    /// Gets or sets the address animation used for rendering, not source or sprite identity.
-    /// Explicit rendering options take precedence.
-    /// </summary>
-    public string? Animation { get; set; }
 
     /// <summary>
     /// Gets or sets whether the resolved source variant supports per-icon stroke scaling.

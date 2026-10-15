@@ -12,78 +12,63 @@ using Smartstore.Web.Rendering;
 namespace Smartstore.Web.Tests.Common.Rendering;
 
 /// <summary>
-/// Verifies HTML helper delegation, option forwarding and missing-icon behavior.
+/// Verifies expression delegation and empty rendering output.
 /// </summary>
 [TestFixture]
 public class IconHtmlHelperTests
 {
     /// <summary>
-    /// Forwards selectors, cancellation and caller-owned options without changing caller-owned options.
+    /// Both entry points preserve the expression and optional render context without an explicit cancellation token.
     /// </summary>
-    [TestCase(null)]
-    [TestCase("public")]
-    [TestCase("admin")]
-    public async Task Delegates_Rendering_Without_Mutating_Options(string explicitArea)
+    [TestCase(false, false)]
+    [TestCase(true, false)]
+    [TestCase(false, true)]
+    [TestCase(true, true)]
+    public async Task Delegates_Expression_And_Optional_Render_Options(bool fromString, bool withOptions)
     {
         using var cancellation = new CancellationTokenSource();
-        var icon = new IconInfo { Name = "cart-01" };
+        var expression = IconExpression.Parse("hi:cart!/sr?size=2x&rotate=0&flip-h=false&stroke-scale=1.1&animation=spin");
+        var options = withOptions ? new IconOptions
+        {
+            Area = "admin",
+            ForceInline = true,
+            Attributes = { ["class"] = "custom", ["aria-label"] = "Cart" }
+        } : null;
         var svg = new TagBuilder("svg");
-        var service = new Mock<IIconService>(MockBehavior.Strict);
         var renderer = new Mock<IIconRenderer>(MockBehavior.Strict);
-        service.Setup(x => x.GetIconAsync("cart?rotate=90", "hi", "sr", explicitArea, cancellation.Token)).ReturnsAsync(icon);
-        IconOptions received = null;
-        renderer.Setup(x => x.RenderAsync(icon, It.IsAny<IconOptions>(), cancellation.Token))
-            .Callback((IconInfo _, IconOptions options, CancellationToken _) => received = options)
-            .ReturnsAsync(svg);
-        using var services = new ServiceCollection().AddSingleton(service.Object).AddSingleton(renderer.Object).BuildServiceProvider();
+        renderer.Setup(x => x.RenderAsync(expression, options, CancellationToken.None)).ReturnsAsync(svg);
+        using var services = new ServiceCollection().AddSingleton(renderer.Object).BuildServiceProvider();
         var helper = new Mock<IHtmlHelper>();
         helper.SetupGet(x => x.ViewContext).Returns(new ViewContext
         {
             HttpContext = new DefaultHttpContext { RequestServices = services, RequestAborted = cancellation.Token }
         });
-        var options = new IconOptions { Area = explicitArea, Size = "2x", Rotate = 0, FlipHorizontal = false, StrokeScale = 1.1, Animation = "spin" };
-        options.Attributes["class"] = "original";
-        options.Attributes["style"] = "color:red";
-        options.Attributes["aria-label"] = "Cart";
-        var result = await helper.Object.IconAsync("cart?rotate=90", "hi", "sr", options);
+
+        var result = fromString
+            ? await helper.Object.IconAsync(expression.ToString(), options)
+            : await helper.Object.IconAsync(expression, options);
+
         Assert.That(result, Is.SameAs(svg));
-        Assert.That(received, Is.SameAs(options));
-        Assert.That(received.Area, Is.EqualTo(explicitArea));
-        Assert.That(options.Area, Is.EqualTo(explicitArea));
-        Assert.That(received.Size, Is.EqualTo("2x"));
-        Assert.That(received.Rotate, Is.Zero);
-        Assert.That(received.FlipHorizontal, Is.False);
-        Assert.That(received.StrokeScale, Is.EqualTo(1.1));
-        Assert.That(received.Animation, Is.EqualTo("spin"));
-        Assert.That(received.Attributes["class"], Is.EqualTo("original"));
-        Assert.That(received.Attributes["aria-label"], Is.EqualTo("Cart"));
-        Assert.That(received.Attributes["style"], Is.EqualTo("color:red"));
+        renderer.VerifyAll();
     }
 
     /// <summary>
-    /// Suppresses output when resolution or rendering returns no icon.
+    /// Suppresses output when the renderer returns no icon, including an unavailable fallback.
     /// </summary>
-    /// <param name="resolved">Whether resolution succeeds before rendering returns null.</param>
-    [TestCase(false)]
-    [TestCase(true)]
-    public async Task Missing_Icon_Returns_Empty_Content(bool resolved)
+    [Test]
+    public async Task Missing_Icon_Returns_Empty_Content()
     {
-        var icon = resolved ? new IconInfo { Name = "cart-01" } : null;
-        var service = new Mock<IIconService>(MockBehavior.Strict);
         var renderer = new Mock<IIconRenderer>(MockBehavior.Strict);
-        service.Setup(x => x.GetIconAsync("cart", null, null, null, CancellationToken.None)).ReturnsAsync(icon);
-        renderer.Setup(x => x.RenderAsync(icon,
-            It.Is<IconOptions>(options => resolved ? options == null : options.RequestedName == "cart"),
-            CancellationToken.None)).ReturnsAsync((TagBuilder)null);
-
-        using var services = new ServiceCollection().AddSingleton(service.Object).AddSingleton(renderer.Object).BuildServiceProvider();
+        renderer.Setup(x => x.RenderAsync(IconExpression.Parse("cart"), null, CancellationToken.None))
+            .ReturnsAsync((TagBuilder)null);
+        using var services = new ServiceCollection().AddSingleton(renderer.Object).BuildServiceProvider();
         var helper = new Mock<IHtmlHelper>();
         helper.SetupGet(x => x.ViewContext).Returns(new ViewContext
         {
             HttpContext = new DefaultHttpContext { RequestServices = services }
         });
+
         Assert.That(await helper.Object.IconAsync("cart"), Is.SameAs(HtmlString.Empty));
-        renderer.Verify(x => x.RenderAsync(It.IsAny<IconInfo>(), It.IsAny<IconOptions>(), It.IsAny<CancellationToken>()),
-            Times.Once());
+        renderer.VerifyAll();
     }
 }

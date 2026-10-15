@@ -29,7 +29,8 @@ internal static class IconSassFunctions
         async Task<string> CreateUrlAsync(string address, CancellationToken cancelToken)
         {
             const string placeholderAddress = "system:not-found!/default";
-            var icon = await icons.GetIconAsync(address, area: area, cancelToken: cancelToken);
+            var expression = IconExpression.Parse(address);
+            var icon = await icons.GetIconAsync(expression.Address, area: area, cancelToken: cancelToken);
             var source = icon == null ? null : await icons.GetSvgAsync(icon, cancelToken);
             if (source == null && address != placeholderAddress)
             {
@@ -41,7 +42,9 @@ internal static class IconSassFunctions
             // Returning 'none' would paint the entire pseudo-element in its background color.
             var svg = source == null
                 ? "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"/>"
-                : source.ToStandaloneSvg(icon.Transform, icon.SupportsStrokeScaling ? icon.StrokeScale : 1, icon.Color);
+                : source.ToStandaloneSvg(new IconTransform(expression.Presentation.FlipHorizontal ?? icon.Transform.FlipX,
+                    expression.Presentation.FlipVertical ?? icon.Transform.FlipY, expression.Presentation.Rotate ?? icon.Transform.Rotation),
+                    icon.SupportsStrokeScaling ? expression.Presentation.StrokeScale ?? icon.StrokeScale : 1, expression.Presentation.Color);
 
             return "data:image/svg+xml," + Uri.EscapeDataString(svg);
         }

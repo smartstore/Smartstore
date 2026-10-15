@@ -215,28 +215,56 @@ public class IconServiceTests
     }
 
     [Test]
+    public async Task Expression_Rendering_Uses_Complete_Identity_And_Presentation()
+    {
+        var renderer = new IconRenderer(_service, Mock.Of<IIconKitService>());
+        var expression = new IconExpression("cart", new IconPresentation { Size = "lg", Color = "#1459ad" });
+        var options = new IconOptions { ForceInline = true, Attributes = { ["aria-label"] = "Cart" } };
+        var output = await renderer.RenderAsync(expression, options);
+        Assert.That(output.Attributes["class"], Does.Contain("icon-lg"));
+        Assert.That(output.Attributes["style"], Does.Contain("--icon-color:#1459ad"));
+        Assert.That(output.Attributes["aria-label"], Is.EqualTo("Cart"));
+        Assert.That(options.RequestedName, Is.Null);
+        Assert.That(expression.Address.Name, Is.EqualTo("cart"));
+    }
+
+    [Test]
+    public void Stack_Presentation_Does_Not_Require_An_Expression_Or_Render_Options()
+    {
+        var service = new Mock<IIconService>(MockBehavior.Strict);
+        var renderer = new IconRenderer(service.Object, Mock.Of<IIconKitService>());
+        var output = renderer.RenderStack(new Microsoft.AspNetCore.Html.HtmlString("<svg></svg>"),
+            new IconPresentation { Size = "lg", Rotate = 90, FlipHorizontal = true });
+        Assert.That(output.Attributes["class"], Does.Contain("icon-stack").And.Contain("icon-lg"));
+        Assert.That(output.Attributes["style"], Does.Contain("--icon-rotate:90deg").And.Contain("--icon-flip-x:-1"));
+        service.VerifyNoOtherCalls();
+    }
+
+    [Test]
     public async Task Address_Color_Preserves_Kit_And_Source_Identity_And_Options_Take_Precedence()
     {
         Write("Icons/kits.json", """{"shared":["cart"]}""");
         var kits = new IconKitService(_service, new HttpContextAccessor());
         var renderer = new IconRenderer(_service, kits);
         var plain = await _service.GetIconAsync("cart");
-        var orange = await _service.GetIconAsync("cart?color=#f90");
-        var blue = await _service.GetIconAsync("cart?color=%2300f");
-        Assert.That(orange.Color, Is.EqualTo("#f90"));
-        Assert.That(blue.Color, Is.EqualTo("#00f"));
+        var orangeExpression = IconExpression.Parse("cart?color=#f90");
+        var orange = await _service.GetIconAsync(orangeExpression.Address);
+        var blueExpression = IconExpression.Parse("cart?color=%2300f");
+        var blue = await _service.GetIconAsync(blueExpression.Address);
+        Assert.That(orangeExpression.Presentation.Color, Is.EqualTo("#f90"));
+        Assert.That(blueExpression.Presentation.Color, Is.EqualTo("#00f"));
         Assert.That(orange.Address, Is.EqualTo(plain.Address));
         Assert.That(kits.GetReference(orange).Href, Is.EqualTo(kits.GetReference(plain).Href));
-        var output = await renderer.RenderAsync(orange);
+        var output = await renderer.RenderAsync(orange, orangeExpression.Presentation);
         Assert.That(RenderMarkup(output.InnerHtml), Does.Contain("<use"));
         Assert.That(output.Attributes["style"], Does.Contain("--icon-color:#f90;"));
-        var overridden = await renderer.RenderAsync(orange, new IconOptions { Color = "red" });
+        var overridden = await renderer.RenderAsync(orange, new IconPresentation { Color = "red" });
         Assert.That(overridden.Attributes["style"], Does.Contain("--icon-color:red;").And.Not.Contain("#f90"));
         await _service.GetSvgAsync(plain);
         await _service.GetSvgAsync(orange);
         await _service.GetSvgAsync(blue);
         Assert.That(_entries.Count, Is.EqualTo(1));
-        var inline = await new IconRenderer(_service, Mock.Of<IIconKitService>()).RenderAsync(blue);
+        var inline = await new IconRenderer(_service, Mock.Of<IIconKitService>()).RenderAsync(blue, blueExpression.Presentation);
         Assert.That(inline.Attributes["style"], Does.Contain("--icon-color:#00f;"));
     }
 
@@ -247,45 +275,53 @@ public class IconServiceTests
         var kits = new IconKitService(_service, new HttpContextAccessor());
         var renderer = new IconRenderer(_service, kits);
         var plain = await _service.GetIconAsync("cart");
-        var decorated = await _service.GetIconAsync("cart?size=2x&animation=throb&color=%23f90");
-        Assert.That(decorated.Size, Is.EqualTo("2x"));
-        Assert.That(decorated.Animation, Is.EqualTo("throb"));
+        var expression = IconExpression.Parse("cart?size=2x&animation=throb&color=%23f90");
+        var decorated = await _service.GetIconAsync(expression.Address);
+        Assert.That(expression.Presentation.Size, Is.EqualTo("2x"));
+        Assert.That(expression.Presentation.Animation, Is.EqualTo("throb"));
         Assert.That(decorated.Address, Is.EqualTo(plain.Address));
         Assert.That(kits.GetReference(decorated).Href, Is.EqualTo(kits.GetReference(plain).Href));
-        var output = await renderer.RenderAsync(decorated);
+        var output = await renderer.RenderAsync(decorated, expression.Presentation);
         Assert.That(RenderMarkup(output.InnerHtml), Does.Contain("<use"));
         Assert.That(output.Attributes["class"], Does.Contain("icon-2x").And.Contain("icon-throb"));
-        var overridden = await renderer.RenderAsync(decorated, new IconOptions { Size = "sm", Animation = "spin" });
+        var overridden = await renderer.RenderAsync(decorated, new IconPresentation { Size = "sm", Animation = "spin" });
         Assert.That(overridden.Attributes["class"], Does.Contain("icon-sm").And.Contain("icon-spin")
             .And.Not.Contain("icon-2x").And.Not.Contain("icon-throb"));
-        var inline = await new IconRenderer(_service, Mock.Of<IIconKitService>()).RenderAsync(decorated);
+        var inline = await new IconRenderer(_service, Mock.Of<IIconKitService>()).RenderAsync(decorated, expression.Presentation);
         Assert.That(inline.Attributes["class"], Does.Contain("icon-2x").And.Contain("icon-throb"));
         await _service.GetSvgAsync(plain);
         await _service.GetSvgAsync(decorated);
         Assert.That(_entries.Count, Is.EqualTo(1));
     }
 
-    [TestCase("cart?size=")]
-    [TestCase("cart?size=24")]
-    [TestCase("cart?size=2")]
-    [TestCase("cart?size=lg&size=sm")]
-    [TestCase("cart?animation=")]
-    [TestCase("cart?animation=2")]
-    [TestCase("cart?animation=unknown")]
-    [TestCase("cart?animation=spin&animation=throb")]
-    public void Address_Presentation_Rejects_Invalid_Or_Duplicate_Values(string address)
+    [TestCase("cart?size=", null, null)]
+    [TestCase("cart?size=24", null, null)]
+    [TestCase("cart?size=2", null, null)]
+    [TestCase("cart?size=lg&size=sm", "sm", null)]
+    [TestCase("cart?animation=", null, null)]
+    [TestCase("cart?animation=2", null, null)]
+    [TestCase("cart?animation=unknown", null, null)]
+    [TestCase("cart?animation=spin&animation=throb", null, "throb")]
+    public void Address_Presentation_Tolerates_Invalid_Or_Duplicate_Values(string address, string size, string animation)
     {
-        Assert.ThrowsAsync<InvalidDataException>(async () => await _service.GetIconAsync(address));
+        var expression = IconExpression.Parse(address);
+        Assert.That(expression.Presentation.Size, Is.EqualTo(size));
+        Assert.That(expression.Presentation.Animation, Is.EqualTo(animation));
     }
 
-    [TestCase("cart?color=")]
-    [TestCase("cart?color=red&color=blue")]
+    [TestCase("cart?color=", null)]
+    [TestCase("cart?color=red&color=blue", "blue")]
+    [TestCase("cart?color=%20", null)]
+    public void Address_Color_Tolerates_Empty_Or_Duplicate_Values(string address, string color)
+    {
+        Assert.That(IconExpression.Parse(address).Presentation.Color, Is.EqualTo(color));
+    }
+
     [TestCase("cart?color=red;background:black")]
     [TestCase("cart?color=%3Bbackground:black")]
-    [TestCase("cart?color=%20")]
-    public void Address_Color_Rejects_Invalid_Or_Duplicate_Values(string address)
+    public void Address_Color_Rejects_Declaration_Injection(string address)
     {
-        Assert.ThrowsAsync<InvalidDataException>(async () => await _service.GetIconAsync(address));
+        Assert.Throws<InvalidDataException>(() => IconExpression.Parse(address));
     }
 
     public class ProviderLifetime
@@ -665,7 +701,7 @@ public class IconServiceTests
         Write("Icons/collections.json", """{"shared":{"icons":["not-found"],"sources":{"not-found":"system:not-found!/default"}}}""");
         Write("Icons/kits.json", """{"public":{"areas":["public"],"use":["shared"]},"admin":{"areas":["admin"],"use":["shared"]}}""");
         var kits = new IconKitService(_service, new HttpContextAccessor());
-        var output = await new IconRenderer(_service, kits).RenderAsync(null, new IconOptions { Area = area });
+        var output = await new IconRenderer(_service, kits).RenderAsync(null, options: new IconOptions { Area = area });
         Assert.That(RenderMarkup(output.InnerHtml), Does.Contain(kits.GetUrl(area) + "#not-found"));
         Assert.That(output.Attributes["class"], Does.Contain("icon-not-found").And.Not.Contain("text-danger"));
     }
@@ -685,7 +721,7 @@ public class IconServiceTests
             : await _service.GetIconAsync("missing");
         var kits = new IconKitService(_service, new HttpContextAccessor());
         var renderer = new IconRenderer(_service, kits);
-        var output = await renderer.RenderAsync(icon, staleIdentity ? null : new IconOptions { RequestedName = "missing" });
+        var output = await renderer.RenderAsync(icon, options: staleIdentity ? null : new IconOptions { RequestedName = "missing" });
         Assert.That(output, Is.Not.Null);
         var requestedName = "missing";
         Assert.That(output.Attributes["data-icon"], Is.EqualTo($"{requestedName} -> system:not-found/default"));
@@ -722,15 +758,16 @@ public class IconServiceTests
         Write("Icons/other/default/icons/foreign.svg", _svg);
         Write("Icons/other/mapping.json", """{"foreign":"foreign?stroke-scale=1.5","scaled":"foreign?stroke-scale=1.5"}""");
         Write("Icons/kits.json", """{"shared":{"icons":["cart","foreign"],"sources":{"foreign":"other:foreign!/default"}}}""");
-        var icon = await _service.GetIconAsync("other:foreign/default?stroke-scale=2");
+        var icon = await _service.GetIconAsync("other:foreign/default");
         Assert.That(icon.SupportsStrokeScaling, Is.EqualTo(supported));
-        Assert.That(icon.StrokeScale, Is.EqualTo(supported ? 2 : 1));
+        // The kit selects a concrete source with mapping bypass; only the separate concept below carries a scale.
+        Assert.That(icon.StrokeScale, Is.EqualTo(1));
         var mapped = await _service.GetIconAsync("other:scaled/default");
         Assert.That(mapped.StrokeScale, Is.EqualTo(supported ? 1.5 : 1));
         var accessor = new HttpContextAccessor();
         var kits = new IconKitService(_service, accessor);
         var renderer = new IconRenderer(_service, kits);
-        var output = await renderer.RenderAsync(icon, new IconOptions { StrokeScale = 3 });
+        var output = await renderer.RenderAsync(icon, new IconPresentation { StrokeScale = 3 });
         Assert.That(output.Attributes["data-supports-stroke-scaling"], Is.EqualTo(supported ? "true" : "false"));
         Assert.That(RenderMarkup(output).Contains("var(--icon-stroke-scale,var(--_icon-stroke-scale,3))"), Is.EqualTo(supported));
         var browser = new IconBrowser(_service, kits, accessor);
@@ -945,15 +982,15 @@ public class IconServiceTests
         Assert.That(concept.MirrorInRtl, Is.True);
         var svg = await renderer.RenderAsync(concept);
         Assert.That(svg.Attributes["class"], Does.Contain("icon-mirror-rtl"));
-        var suppressed = await renderer.RenderAsync(concept, new IconOptions { MirrorRtl = false });
+        var suppressed = await renderer.RenderAsync(concept, new IconPresentation { MirrorRtl = false });
         Assert.That(suppressed.Attributes["class"], Does.Not.Contain("icon-mirror-rtl"));
         Assert.That(RenderMarkup(suppressed.InnerHtml), Is.EqualTo(RenderMarkup(svg.InnerHtml)));
         Assert.That(concept.MirrorInRtl, Is.True);
         var explicitIcon = await _service.GetIconAsync("cart-01!");
-        var mirrored = await renderer.RenderAsync(explicitIcon, new IconOptions { MirrorRtl = true });
+        var mirrored = await renderer.RenderAsync(explicitIcon, new IconPresentation { MirrorRtl = true });
         Assert.That(mirrored.Attributes["class"], Does.Contain("icon-mirror-rtl"));
         Assert.That(explicitIcon.MirrorInRtl, Is.False);
-        Assert.That((await _service.GetIconAsync("cart?rotate=90")).MirrorInRtl, Is.True);
+        Assert.That((await _service.GetIconAsync(IconExpression.Parse("cart?rotate=90").Address)).MirrorInRtl, Is.True);
         Assert.That((await _service.GetIconAsync("hi:cart")).MirrorInRtl, Is.False);
         Assert.That((await _service.GetIconAsync("cart/sr")).MirrorInRtl, Is.False);
         Assert.That((await _service.GetIconAsync("cart-01!")).MirrorInRtl, Is.False);
@@ -995,10 +1032,10 @@ public class IconServiceTests
         var reference = kits.GetReference(icon);
         var output = await renderer.RenderAsync(icon);
         Assert.That(RenderMarkup(output.InnerHtml), Does.Contain("<use"));
-        Assert.That(await renderer.RenderAsync(icon, new IconOptions { StrokeScale = 1.25 }), Is.Not.Null);
-        var reset = await renderer.RenderAsync(icon, new IconOptions { StrokeScale = 1 });
+        Assert.That(await renderer.RenderAsync(icon, new IconPresentation { StrokeScale = 1.25 }), Is.Not.Null);
+        var reset = await renderer.RenderAsync(icon, new IconPresentation { StrokeScale = 1 });
         Assert.That(RenderMarkup(reset.InnerHtml), Does.Not.Contain("<use"));
-        Assert.That(RenderMarkup((await renderer.RenderAsync(await _service.GetIconAsync("thick?stroke-scale=1"))).InnerHtml),
+        Assert.That(RenderMarkup((await renderer.RenderAsync(await _service.GetIconAsync("thick"), new IconPresentation { StrokeScale = 1 })).InnerHtml),
             Does.Not.Contain("<use"));
 
         var path = await kits.GetSpriteFileAsync("shared", Path.GetFileNameWithoutExtension(reference.Href.Split('#')[0]).Substring("shared-".Length));
@@ -1312,12 +1349,12 @@ public class IconServiceTests
     /// <summary>
     /// Resolves both kinds of library and variant identifiers to a canonical address.
     /// </summary>
-    [TestCase("cart", null, null)]
-    [TestCase("hi:cart/sr", "hugeicons", "rounded")]
-    [TestCase("hugeicons:cart/rounded", "hi", "sr")]
-    public async Task Mapping_And_Short_Names_Are_Implicit(string address, string library, string variant)
+    [TestCase("cart")]
+    [TestCase("hi:cart/sr")]
+    [TestCase("hugeicons:cart/rounded")]
+    public async Task Mapping_And_Short_Names_Are_Implicit(string address)
     {
-        var icon = await _service.GetIconAsync(address, library, variant);
+        var icon = await _service.GetIconAsync(IconAddress.Parse(address));
         Assert.That(icon.Address, Is.EqualTo("hi:cart-01/sr"));
         Assert.That(icon.VariantName, Is.EqualTo("rounded"));
         Assert.That(_service.DefaultLibrary.SystemName, Is.EqualTo("hugeicons"));
@@ -1347,14 +1384,23 @@ public class IconServiceTests
         Assert.That(await _service.GetIconAsync("package-add-01 "), Is.Not.Null);
     }
 
+    [Test]
+    public async Task Name_Extensions_Forward_Selectors_To_Typed_Resolution()
+    {
+        var expected = await _service.GetIconAsync(new IconAddress("cart", "hi", "sr"));
+        var actual = await _service.GetIconAsync("cart", library: "hi", variant: "sr");
+        Assert.That(actual.Address, Is.EqualTo(expected.Address));
+        Assert.That((await _service.GetSvgAsync("cart", library: "hi", variant: "sr")).Address,
+            Is.EqualTo(expected.Address));
+    }
+
     /// <summary>
-    /// Rejects explicitly conflicting selections.
+    /// Rejects empty identities at the service boundary.
     /// </summary>
     [Test]
-    public void Conflicting_Qualifiers_Are_Rejected()
+    public void Empty_Address_Is_Rejected()
     {
-        Assert.ThrowsAsync<ArgumentException>(() => _service.GetSvgAsync("hi:cart/sr", variant: "sharp"));
-        Assert.ThrowsAsync<ArgumentException>(() => _service.GetSvgAsync("hi:cart", library: "missing"));
+        Assert.ThrowsAsync<ArgumentException>(() => _service.GetIconAsync(default(IconAddress)));
     }
 
     /// <summary>
@@ -1631,21 +1677,18 @@ public class IconServiceTests
     [TestCase(true)]
     public void Options_Clone_Detaches_Attributes(bool untyped)
     {
-        var original = new IconOptions { Size = "2x", Rotate = 0, FlipHorizontal = false, StrokeScale = 1.1 };
+        var original = new IconOptions { Area = "admin", ForceInline = true };
         original.Attributes["class"] = "original";
         var clone = untyped ? (IconOptions)((ICloneable)original).Clone() : original.Clone();
         Assert.That(clone, Is.Not.SameAs(original));
         Assert.That(clone.Attributes, Is.Not.SameAs(original.Attributes));
-        Assert.That(clone.Size, Is.EqualTo("2x"));
-        Assert.That(clone.Rotate, Is.Zero);
-        Assert.That(clone.FlipHorizontal, Is.False);
-        Assert.That(clone.StrokeScale, Is.EqualTo(1.1));
-
-        clone.Size = "3x";
+        Assert.That(clone.Area, Is.EqualTo("admin"));
+        Assert.That(clone.ForceInline, Is.True);
+        clone.Area = "public";
         clone.Attributes["CLASS"] = "clone";
         Assert.That(clone.Attributes.Count, Is.EqualTo(1));
         Assert.That(clone.Attributes["class"], Is.EqualTo("clone"));
-        Assert.That(original.Size, Is.EqualTo("2x"));
+        Assert.That(original.Area, Is.EqualTo("admin"));
         Assert.That(original.Attributes["class"], Is.EqualTo("original"));
         original.Attributes["title"] = "Original";
         Assert.That(clone.Attributes.ContainsKey("title"), Is.False);
@@ -2256,7 +2299,7 @@ public class IconServiceTests
         var options = new IconOptions();
         options.Attributes["class"] = "icon-3x";
         options.Attributes["aria-label"] = "Cart";
-        var rendered = await renderer.RenderAsync(icon, options);
+        var rendered = await renderer.RenderAsync(icon, options: options);
         Assert.That(rendered.Attributes["class"], Does.Contain("icon-hi-sr").And.Contain("icon-3x"));
         Assert.That(rendered.Attributes["role"], Is.EqualTo("img"));
         using var writer = new StringWriter();
@@ -2517,16 +2560,19 @@ public class IconServiceTests
         var kits = new IconKitService(_service, new HttpContextAccessor());
         var renderer = new IconRenderer(_service, kits);
         var url = kits.GetUrl("shared");
-        var icon = await _service.GetIconAsync("hi:left/sr?rotate=180&stroke-scale=1.1");
-        Assert.That(icon.Transform, Is.EqualTo(new IconTransform(true, true, 180)));
-        Assert.That(icon.StrokeScale, Is.EqualTo(1.1));
-        var output = await renderer.RenderAsync(icon, new IconOptions { Rotate = 0, FlipHorizontal = false, StrokeScale = 1 });
+        var expression = IconExpression.Parse("hi:left/sr?rotate=180&stroke-scale=1.1");
+        var icon = await _service.GetIconAsync(expression.Address);
+        Assert.That(icon.Transform, Is.EqualTo(new IconTransform(true, true, 90)));
+        Assert.That(icon.StrokeScale, Is.EqualTo(1.2));
+        var expressionOutput = await renderer.RenderAsync(icon, expression.Presentation);
+        Assert.That(RenderMarkup(expressionOutput.InnerHtml), Does.Contain("rotate(180)").And.Contain("scale(-1 -1)"));
+        var output = await renderer.RenderAsync(icon, expression.Presentation with { Rotate = 0, FlipHorizontal = false, StrokeScale = 1 });
         var drawing = RenderMarkup(output.InnerHtml);
         Assert.That(drawing, Does.Contain("rotate(0)").And.Contain("scale(1 -1)").And.Not.Contain("<use"));
-        Assert.That(icon.Transform.Rotation, Is.EqualTo(180), "Rendering must not mutate the resolved identity.");
+        Assert.That(icon.Transform.Rotation, Is.EqualTo(90), "Rendering must not mutate the resolved identity.");
         Assert.That(kits.GetUrl("shared"), Is.EqualTo(url));
-        var direct = await _service.GetIconAsync("hi:cart-01!/sr?flip=none&rotate=0");
-        await renderer.RenderAsync(direct);
+        var direct = IconExpression.Parse("hi:cart-01!/sr?flip=none&rotate=0");
+        await renderer.RenderAsync(await _service.GetIconAsync(direct.Address), direct.Presentation);
         Assert.That(_entries.Count, Is.EqualTo(1));
     }
 
@@ -2539,11 +2585,12 @@ public class IconServiceTests
     {
         Write("Icons/hugeicons/rounded/user/cart-01.svg",
             """<svg viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="1.5" d="M0 0L1 1"/><path stroke="currentColor" stroke-width="2" d="M2 2L3 3"/></svg>""");
-        var icon = await _service.GetIconAsync("cart?stroke-scale=" + scale.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        var expression = IconExpression.Parse("cart?stroke-scale=" + scale.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        var icon = await _service.GetIconAsync(expression.Address);
         var source = await _service.GetSvgAsync(icon);
         var original = source.Content;
         var renderer = new IconRenderer(_service, Mock.Of<IIconKitService>());
-        var output = await renderer.RenderAsync(icon);
+        var output = await renderer.RenderAsync(icon, expression.Presentation);
         var multiplier = "var(--icon-stroke-scale,var(--_icon-stroke-scale," + scale.ToString(System.Globalization.CultureInfo.InvariantCulture) + "))";
         Assert.That(RenderMarkup(output.InnerHtml), Does.Contain("calc(var(--icon-stroke-width,2.4) * " + multiplier + ")")
             .And.Contain("calc(var(--icon-stroke-width,3.2) * " + multiplier + ")"));
@@ -2565,9 +2612,10 @@ public class IconServiceTests
         Write("Icons/kits.json", """{"shared":["cart"]}""");
         var kits = new IconKitService(_service, new HttpContextAccessor());
         var renderer = new IconRenderer(_service, kits);
-        var options = new IconOptions { Size = "3x", Animation = animation, FontScale = 2, ShiftX = 2, AnimationReverse = false };
+        var presentation = new IconPresentation { Size = "3x", Animation = animation, FontScale = 2, ShiftX = 2, AnimationReverse = false };
+        var options = new IconOptions();
         options.Attributes["style"] = "--icon-size-factor:4";
-        var output = await renderer.RenderAsync(await _service.GetIconAsync("cart"), options);
+        var output = await renderer.RenderAsync(await _service.GetIconAsync("cart"), presentation, options);
         Assert.That(RenderMarkup(output.InnerHtml), Does.Contain("<use"));
         Assert.That(output.Attributes["class"], Does.Contain("icon-3x").And.Contain("icon-" + animation));
         Assert.That(output.Attributes["style"], Does.Contain("--icon-shift-x:0.125em").And.EndWith("--icon-size-factor:4"));
@@ -2676,9 +2724,9 @@ public class IconServiceTests
         var explicitLibrary = await _service.GetIconAsync("hi:cart");
         Assert.That(explicitLibrary.LibraryName, Is.EqualTo("hugeicons"));
         Assert.That(explicitLibrary.VariantName, Is.EqualTo("rounded"));
-        Assert.That((await _service.GetIconAsync("cart", "hi")).VariantName, Is.EqualTo("rounded"));
+        Assert.That((await _service.GetIconAsync(new IconAddress("cart", "hi"))).VariantName, Is.EqualTo("rounded"));
         Assert.That((await _service.GetIconAsync("cart/rd")).VariantName, Is.EqualTo("rounded"));
-        Assert.That((await _service.GetIconAsync("cart", variant: "rd")).VariantName, Is.EqualTo("rounded"));
+        Assert.That((await _service.GetIconAsync(new IconAddress("cart", variant: "rd"))).VariantName, Is.EqualTo("rounded"));
         Assert.That(kits.GetUrl("admin", "hi"), Is.EqualTo(kits.GetUrl("admin", "hi", "rounded")));
         Assert.That(kits.GetUrl("admin"), Is.Not.EqualTo(kits.GetUrl("admin", "hi")));
 
@@ -2715,7 +2763,7 @@ public class IconServiceTests
         Write("Icons/kits.json", """{"zulu":{"icons":["cart"]},"alpha":{"defaultVariant":"sharp","icons":["cart"]}}""");
         SignalChanges();
         Assert.That((await _service.GetIconAsync("cart")).VariantName, Is.EqualTo("rounded"));
-        Assert.That((await _service.GetIconAsync("cart", variant: "rounded")).VariantName, Is.EqualTo("rounded"));
+        Assert.That((await _service.GetIconAsync(new IconAddress("cart", variant: "rounded"))).VariantName, Is.EqualTo("rounded"));
     }
 
     /// <summary>
@@ -2760,7 +2808,7 @@ public class IconServiceTests
         Assert.That(foreign.LibraryName, Is.EqualTo("other"));
         Assert.That(foreign.Name, Is.EqualTo("cart-01"));
         Assert.That(kits.GetReference(foreign)?.Href, Is.EqualTo(url + "#foreign"));
-        var overridden = await _service.GetIconAsync("foreign", library: "hi");
+        var overridden = await _service.GetIconAsync(new IconAddress("foreign", library: "hi"));
         Assert.That(overridden.LibraryName, Is.EqualTo("hugeicons"));
         Assert.That(kits.GetReference(overridden), Is.Null);
         Assert.That(kits.GetReference(await _service.GetIconAsync("ot:raw!/rd"))?.Href, Is.EqualTo(url + "#raw"));
@@ -2822,9 +2870,9 @@ public class IconServiceTests
         Write("Icons/kits.json", """{"brands":{"icons":["foreign","variant-only","direct"],"sources":{"foreign":"ot:foreign","variant-only":"variant-only/sharp","direct":"direct"}}}""");
         Assert.That((await _service.GetIconAsync("foreign")).VariantName, Is.EqualTo("sharp"));
         Assert.That((await _service.GetIconAsync("variant-only")).VariantName, Is.EqualTo("sharp"));
-        Assert.That((await _service.GetIconAsync("variant-only", variant: "sr")).VariantName, Is.EqualTo("rounded"));
+        Assert.That((await _service.GetIconAsync(new IconAddress("variant-only", variant: "sr"))).VariantName, Is.EqualTo("rounded"));
         Assert.That((await _service.GetIconAsync("direct")).Name, Is.EqualTo("direct"), "A source target is concrete even without qualifiers.");
-        Assert.That(await _service.GetIconAsync("direct", library: "ot"), Is.Null, "An explicit caller selection uses that library mapping.");
+        Assert.That(await _service.GetIconAsync(new IconAddress("direct", library: "ot")), Is.Null, "An explicit caller selection uses that library mapping.");
     }
 
     /// <summary>
@@ -2907,9 +2955,9 @@ public class IconServiceTests
         _cache.VerifyNoOtherCalls();
     }
 
-    [TestCase(false, "brands")]
-    [TestCase(true, "admin")]
-    public void Browser_Initial_Source_Respects_Hidden_Kits(bool showHiddenKits, string expectedKit)
+    [TestCase(false, "public")]
+    [TestCase(true, "public")]
+    public void Browser_Initial_Source_Uses_Metadata_Order(bool showHiddenKits, string expectedKit)
     {
         Write("Icons/kits.json", """{"public":{"areas":["public"],"icons":["cart"]},"admin":{"areas":["admin"],"showInPicker":false,"icons":["cart"]},"brands":{"areas":["public","admin"],"icons":["direct"]}}""");
         var accessor = new HttpContextAccessor();
@@ -3267,9 +3315,9 @@ public class IconServiceTests
         Write("Icons/other/mapping.json", """{"cart":"foreign-cart?flip=y&stroke-scale=2"}""");
         Write("Icons/hugeicons/mapping.json", """{"cart":"cart-01?rotate=90&stroke-scale=1.1"}""");
         SignalChanges();
-        var fallback = await _service.GetIconAsync("ot:cart?flip=x");
+        var fallback = await _service.GetIconAsync("ot:cart");
         Assert.That(fallback.Address, Is.EqualTo("hi:cart-01/sr"));
-        Assert.That(fallback.Transform, Is.EqualTo(new IconTransform(true, false, 90)));
+        Assert.That(fallback.Transform, Is.EqualTo(new IconTransform(false, false, 90)));
         Assert.That(fallback.StrokeScale, Is.EqualTo(1.1));
         Assert.That(await _service.GetIconAsync("ot:cart!"), Is.Null);
         Assert.That(await _service.GetIconAsync("ot:cart-01!"), Is.Null);
