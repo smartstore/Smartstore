@@ -2,6 +2,7 @@
 using FluentValidation;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Attributes;
+using Smartstore.Core.Rules;
 
 namespace Smartstore.Admin.Models.Orders;
 
@@ -77,6 +78,12 @@ public class CheckoutAttributeModel : EntityModelBase, ILocalizedModel<CheckoutA
 
     [LocalizedDisplay("Admin.Common.Store.LimitedTo")]
     public bool LimitedToStores { get; set; }
+
+    [UIHint("RuleSets")]
+    [AdditionalMetadata("multiple", true)]
+    [AdditionalMetadata("scope", RuleScope.Cart)]
+    [LocalizedDisplay("*Requirements")]
+    public int[] SelectedRuleSetIds { get; set; }
 
     [LocalizedDisplay("Admin.Catalog.Attributes.CheckoutAttributes.Values")]
     public int NumberOfOptions { get; set; }
