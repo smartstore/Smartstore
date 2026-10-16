@@ -391,6 +391,7 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Set the attributes for the combination.",
             "Legen Sie die Attribute für die Kombination fest");
 
+        builder.AddOrUpdate("Admin.Rules.FilterDescriptor.DiscountApplied", "Discount code applied", "Rabattcode angewendet");
         builder.AddOrUpdate("Admin.Rules.FilterDescriptor.GiftCardApplied", "Gift card applied", "Geschenkgutschein angewendet");
     }
 }

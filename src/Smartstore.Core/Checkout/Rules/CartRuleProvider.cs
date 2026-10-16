@@ -209,7 +209,7 @@ public class CartRuleProvider : RuleProviderBase, ICartRuleProvider
             .Select(x => new RuleValueSelectListOption { Value = x.Id.ToString(), Text = x.Name })
             .ToArray();
 
-        var vatNumberStatus = ((VatNumberStatus[])Enum.GetValues(typeof(VatNumberStatus)))
+        var vatNumberStatus = Enum.GetValues<VatNumberStatus>()
             .Select(x => new RuleValueSelectListOption { Value = ((int)x).ToStringInvariant(), Text = _localizationService.GetLocalizedEnum(x) })
             .ToArray();
 
@@ -312,6 +312,13 @@ public class CartRuleProvider : RuleProviderBase, ICartRuleProvider
                 RuleType = RuleType.StringArray,
                 ProcessorType = typeof(PaymentMethodRule),
                 SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.PaymentMethod) { Multiple = true }
+            },
+            new()
+            {
+                Name = "CartDiscount",
+                DisplayName = T("Admin.Rules.FilterDescriptor.DiscountApplied"),
+                RuleType = RuleType.Boolean,
+                ProcessorType = typeof(DiscountRule)
             },
             new()
             {
