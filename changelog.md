@@ -75,6 +75,7 @@
   - Modernized **MegaMenu navigation** with native horizontal scrolling, edge-aware controls and safer navigation buttons.
   - Refined **border radii** across frontend and backend components, including better spacing for rounded **Select2** options.
   - Simplified the appearance and interaction of **Select2** single-select controls and dropdowns.
+  - Replaced the **Color Picker** with a new Smartstore component featuring a refreshed design and improved mouse, touch and keyboard controls.
   - Added smoother, configurable **collapse transitions** and standard collapse behavior for backend subcontrol groups.
   - Improved **keyboard shortcut styling** in dropdowns and buttons.
   - Refined **swatch selection states** and the presentation of unavailable values.
