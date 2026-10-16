@@ -6,6 +6,7 @@ using Smartstore.Core.Catalog.Products.Utilities;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Configuration;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Data;
@@ -36,6 +37,7 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
     private readonly SeedReferenceResolver _seedResolver = new();
     private SeedDataSource _seedSource;
     private SeedEntityFactory _seedFactory;
+    private SampleMediaUtility _sampleMedia;
 
     private IXmlResourceManager _xmlResourceManager;
     private int _defaultStoreId;
@@ -506,20 +508,29 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
 
     private async Task PopulateCategories()
     {
-        var categoriesFirstLevel = _data.CategoriesFirstLevel();
-        await SaveRangeAsync(categoriesFirstLevel);
-        await PopulateUrlRecordsFor(categoriesFirstLevel);
-
-        var categoriesSecondLevel = _data.CategoriesSecondLevel();
-        await SaveRangeAsync(categoriesSecondLevel);
-        await PopulateUrlRecordsFor(categoriesSecondLevel);
+        var categories = CreateFromSeed(InstallationSeedDescriptors.Categories(CreateSampleMedia));
+        await SaveRangeAsync(categories);
+        await PopulateUrlRecordsFor(categories, x => CreateUrlRecord(x, null, x.Name));
     }
 
     private async Task PopulateManufacturers()
     {
-        var manufacturers = _data.Manufacturers();
+        var manufacturers = CreateFromSeed(InstallationSeedDescriptors.Manufacturers(CreateSampleMedia));
         await SaveRangeAsync(manufacturers);
-        await PopulateUrlRecordsFor(manufacturers);
+        await PopulateUrlRecordsFor(manufacturers, x => CreateUrlRecord(x, null, x.Name));
+    }
+
+    /// <summary>
+    /// Creates a new media file for a media reference (path or { file, name }), like the former CreatePicture().
+    /// Every reference creates its own media file.
+    /// </summary>
+    private MediaFile CreateSampleMedia(JsonNode reference)
+    {
+        var (path, name) = InstallationSeedDescriptors.ParseMediaReference(reference);
+
+        // Sample media still live in "App_Data/Samples" until they move to "App_Data/Seed/media".
+        _sampleMedia ??= new SampleMediaUtility(Context, "/App_Data/Samples");
+        return _sampleMedia.CreateMediaFileAsync(path, name).GetAwaiter().GetResult();
     }
 
     private async Task PopulateProducts()

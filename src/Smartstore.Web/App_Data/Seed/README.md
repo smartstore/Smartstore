@@ -220,6 +220,10 @@ baseline diff before committing it.
 | Menus (`@resource` titles, `publishedWhen`) | `core/menus.json` | Live |
 | Specification and product attributes, option sets | `samples/catalog/specification-attributes.json`, `product-attributes.json`, `product-attribute-option-sets.json` | Live |
 | Campaign, rule sets, discounts | `samples/campaigns.json`, `samples/rule-sets.json`, `samples/discounts.json` | Live |
+| Categories and manufacturers (with pictures and slugs) | `samples/catalog/categories.json`, `samples/catalog/manufacturers.json` | Live |
+
+Pictures referenced by migrated records are still read from `App_Data/Samples` until the sample media
+move to `media/`. Every media reference creates its own media file.
 | All other data | `base/**`, `cultures/{culture}/**` | Exported, not read by the installer yet |
 
 Descriptors (files, keys, references) are defined in

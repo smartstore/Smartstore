@@ -6,7 +6,9 @@ using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
+using System.Text.Json.Nodes;
 using Smartstore.Core.Common;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Identity;
@@ -199,7 +201,55 @@ internal static class InstallationSeedDescriptors
             .FromFiles("samples/discounts.json")
             .References<RuleSetEntity>("ruleSets", (discount, ruleSets) => ruleSets.Each(discount.RuleSets.Add));
 
+    /// <summary>
+    /// Categories with parent, picture, rule sets and applied discounts.
+    /// </summary>
+    /// <param name="media">Creates a media file from a media reference (path or { file, name }).</param>
+    public static SeedEntityDescriptor<Category> Categories(Func<JsonNode, MediaFile> media)
+    {
+        Guard.NotNull(media);
+
+        return new SeedEntityDescriptor<Category>("alias")
+            .FromFiles("samples/catalog/categories.json")
+            .Reference<Category>("parent", (category, parent) => category.Parent = parent)
+            .Bind("mediaFile", (category, node, _) => category.MediaFile = media(node))
+            .References<RuleSetEntity>("ruleSets", (category, ruleSets) => ruleSets.Each(category.RuleSets.Add))
+            .References<Discount>("discounts", (category, discounts) => discounts.Each(category.AppliedDiscounts.Add));
+    }
+
+    /// <summary>
+    /// Manufacturers with picture and applied discounts.
+    /// </summary>
+    /// <param name="media">Creates a media file from a media reference (path or { file, name }).</param>
+    public static SeedEntityDescriptor<Manufacturer> Manufacturers(Func<JsonNode, MediaFile> media)
+    {
+        Guard.NotNull(media);
+
+        return new SeedEntityDescriptor<Manufacturer>("key")
+            .FromFiles("samples/catalog/manufacturers.json")
+            .Bind("mediaFile", (manufacturer, node, _) => manufacturer.MediaFile = media(node))
+            .References<Discount>("discounts", (manufacturer, discounts) => discounts.Each(manufacturer.AppliedDiscounts.Add));
+    }
+
     #endregion
+
+    /// <summary>
+    /// Parses a media reference: a path below the media folder, or { "file": path, "name": seoName }.
+    /// </summary>
+    public static (string Path, string Name) ParseMediaReference(JsonNode node)
+    {
+        if (node is JsonValue value && value.TryGetValue<string>(out var path) && path.HasValue())
+        {
+            return (path, null);
+        }
+
+        if (node is JsonObject obj && obj["file"] is JsonValue file && file.TryGetValue<string>(out path) && path.HasValue())
+        {
+            return (path, obj["name"]?.GetValue<string>());
+        }
+
+        throw new SeedDataFormatException("A media reference must be a path or an object with \"file\" and optional \"name\".");
+    }
 
     /// <summary>
     /// The core file, plus the samples file when sample data is installed.
