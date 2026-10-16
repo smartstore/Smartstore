@@ -141,13 +141,12 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
 
             _config.ProgressMessageCallback("Progress.CreatingSampleData");
 
-            await PopulateAsync("PopulateSpecificationAttributes", _data.SpecificationAttributes());
-            await PopulateAsync("PopulateProductAttributes", _data.ProductAttributes());
-            await PopulateAsync("PopulateProductAttributeOptionsSets", _data.ProductAttributeOptionsSets());
-            await PopulateAsync("PopulateProductAttributeOptions", _data.ProductAttributeOptions());
-            await PopulateAsync("PopulateCampaigns", _data.Campaigns());
-            await PopulateAsync("PopulateRuleSets", _data.RuleSets());
-            await PopulateAsync("PopulateDiscounts", _data.Discounts());
+            await PopulateFromSeedAsync("PopulateSpecificationAttributes", InstallationSeedDescriptors.SpecificationAttributes());
+            await PopulateFromSeedAsync("PopulateProductAttributes", InstallationSeedDescriptors.ProductAttributes());
+            await PopulateFromSeedAsync("PopulateProductAttributeOptionsSets", InstallationSeedDescriptors.ProductAttributeOptionsSets());
+            await PopulateFromSeedAsync("PopulateCampaigns", InstallationSeedDescriptors.Campaigns());
+            await PopulateFromSeedAsync("PopulateRuleSets", InstallationSeedDescriptors.RuleSets());
+            await PopulateFromSeedAsync("PopulateDiscounts", InstallationSeedDescriptors.Discounts());
             await PopulateAsync("PopulateCategories", PopulateCategories);
             await PopulateAsync("PopulateManufacturers", PopulateManufacturers);
             await PopulateAsync("PopulateProducts", PopulateProducts);

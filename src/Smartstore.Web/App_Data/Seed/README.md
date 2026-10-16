@@ -218,6 +218,8 @@ baseline diff before committing it.
 | Store, system customers, admin address | `core/stores.json`, `core/system-customers.json`, `core/admin-address.json` | Live |
 | Settings (`$ref` values) | `core/settings.json` | Live |
 | Menus (`@resource` titles, `publishedWhen`) | `core/menus.json` | Live |
+| Specification and product attributes, option sets | `samples/catalog/specification-attributes.json`, `product-attributes.json`, `product-attribute-option-sets.json` | Live |
+| Campaign, rule sets, discounts | `samples/campaigns.json`, `samples/rule-sets.json`, `samples/discounts.json` | Live |
 | All other data | `base/**`, `cultures/{culture}/**` | Exported, not read by the installer yet |
 
 Descriptors (files, keys, references) are defined in

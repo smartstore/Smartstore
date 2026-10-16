@@ -1,5 +1,7 @@
-﻿using Smartstore.Core.Catalog.Brands;
+﻿using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
+using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Shipping;
@@ -10,6 +12,7 @@ using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Messaging;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Stores;
 using Smartstore.Scheduling;
 
@@ -153,6 +156,50 @@ internal static class InstallationSeedDescriptors
             .FromFiles("core/menus.json")
             .Child("items", x => x.Items, items);
     }
+
+    #region Samples
+
+    /// <summary>
+    /// Specification attributes with their options. Options can be referenced as "{attributeKey}/{optionKey}".
+    /// </summary>
+    public static SeedEntityDescriptor<SpecificationAttribute> SpecificationAttributes()
+        => new SeedEntityDescriptor<SpecificationAttribute>("key")
+            .FromFiles("samples/catalog/specification-attributes.json")
+            .Child("options", x => x.SpecificationAttributeOptions, new SeedEntityDescriptor<SpecificationAttributeOption>("key"));
+
+    public static SeedEntityDescriptor<ProductAttribute> ProductAttributes()
+        => new SeedEntityDescriptor<ProductAttribute>("alias").FromFiles("samples/catalog/product-attributes.json");
+
+    /// <summary>
+    /// Product attribute option sets with their options.
+    /// </summary>
+    public static SeedEntityDescriptor<ProductAttributeOptionsSet> ProductAttributeOptionsSets()
+        => new SeedEntityDescriptor<ProductAttributeOptionsSet>("key")
+            .FromFiles("samples/catalog/product-attribute-option-sets.json")
+            .Reference<ProductAttribute>("productAttribute", (set, attribute) => set.ProductAttributeId = attribute.Id)
+            .Child("options", x => x.ProductAttributeOptions, new SeedEntityDescriptor<ProductAttributeOption>("alias"));
+
+    public static SeedEntityDescriptor<Campaign> Campaigns()
+        => new SeedEntityDescriptor<Campaign>("key")
+            .FromFiles("samples/campaigns.json")
+            .OnCreated((campaign, _) => campaign.CreatedOnUtc = DateTime.UtcNow);
+
+    /// <summary>
+    /// Rule sets with their rules, and the shipping methods and customer roles they apply to.
+    /// </summary>
+    public static SeedEntityDescriptor<RuleSetEntity> RuleSets()
+        => new SeedEntityDescriptor<RuleSetEntity>("key")
+            .FromFiles("samples/rule-sets.json")
+            .Child("rules", x => x.Rules, new SeedEntityDescriptor<RuleEntity>("ruleType"))
+            .References<ShippingMethod>("shippingMethods", (ruleSet, methods) => methods.Each(ruleSet.ShippingMethods.Add))
+            .References<CustomerRole>("customerRoles", (ruleSet, roles) => roles.Each(ruleSet.CustomerRoles.Add));
+
+    public static SeedEntityDescriptor<Discount> Discounts()
+        => new SeedEntityDescriptor<Discount>("key")
+            .FromFiles("samples/discounts.json")
+            .References<RuleSetEntity>("ruleSets", (discount, ruleSets) => ruleSets.Each(discount.RuleSets.Add));
+
+    #endregion
 
     /// <summary>
     /// The core file, plus the samples file when sample data is installed.
