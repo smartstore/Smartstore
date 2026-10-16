@@ -223,8 +223,6 @@ $file-thumbnail-max-width:          calc(#{$file-thumbnail-min-size} / 9 * 16);
         position: absolute;
         z-index: 1000;
         right: 0;
-        border-top-left-radius: 0;
-        border-bottom-right-radius: 0;
     }
 
     #product-edit &:first-child .main-pic-badge {
@@ -280,12 +278,6 @@ $file-thumbnail-max-width:          calc(#{$file-thumbnail-min-size} / 9 * 16);
             width: fit-content;
             cursor: move;
             z-index: 10;
-
-            .drag-icon {
-                width: 2.75rem;
-                height: 2.75rem;
-                line-height: 2.75rem;
-            }
         }
 
         .fu-file-info-name {

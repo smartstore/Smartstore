@@ -94,7 +94,7 @@
 @{
     async Task FilePreviewTemplate(string previewUrl, string fileName, string dataType)
     {
-        <span class="main-pic-badge badge badge-success">@T("FileUploader.MultiFiles.MainMediaFile")</span>
+        <span class="main-pic-badge badge badge-success badge-pill m-2">@T("FileUploader.MultiFiles.MainMediaFile")</span>
 
         <figure class="file-figure d-flex m-0 align-items-center justify-content-center file-thumb show loaded" data-type="@dataType">
             <sm-icon class="file-icon show d-none" fw aria-hidden="true"></sm-icon>
@@ -105,7 +105,7 @@
         <!-- Media gallery preview overlay -->
         <div class="fu-file-info-container d-flex flex-column w-100 h-100 justify-content-between">
             <div class="drag-gripper align-middle">
-                <icon name="grip-v" class="drag-icon fs-h5 text-white p-0 text-center" />
+                <icon name="grip-v" class="drag-icon icon-lg text-white p-2 text-center" />
             </div>
             <div class="fu-file-info h-100 w-100 d-flex position-absolute justify-content-center align-items-center">
                 <div class="fu-file-info-name text-white font-weight-medium text-center">@fileName</div>
