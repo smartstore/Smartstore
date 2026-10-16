@@ -1,19 +1,51 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Caching;
 
 namespace Smartstore.Core.Checkout.Attributes;
+
+internal class CheckoutAttributeMap : IEntityTypeConfiguration<CheckoutAttribute>
+{
+    public void Configure(EntityTypeBuilder<CheckoutAttribute> builder)
+    {
+        builder
+            .HasMany(x => x.RuleSets)
+            .WithMany(x => x.CheckoutAttributes)
+            .UsingEntity<Dictionary<string, object>>(
+                "RuleSet_CheckoutAttribute_Mapping",
+                c => c
+                    .HasOne<RuleSetEntity>()
+                    .WithMany()
+                    .HasForeignKey("RuleSetEntity_Id")
+                    .HasConstraintName("FK_RuleSet_CheckoutAttribute_RuleSetEntity_Id")
+                    .OnDelete(DeleteBehavior.Cascade),
+                c => c
+                    .HasOne<CheckoutAttribute>()
+                    .WithMany()
+                    .HasForeignKey("CheckoutAttribute_Id")
+                    .HasConstraintName("FK_RuleSet_CheckoutAttribute_CheckoutAttribute_Id")
+                    .OnDelete(DeleteBehavior.Cascade),
+                c =>
+                {
+                    c.HasIndex("CheckoutAttribute_Id");
+                    c.HasKey("CheckoutAttribute_Id", "RuleSetEntity_Id");
+                });
+    }
+}
 
 /// <summary>
 /// Represents a checkout attribute
 /// </summary>
 [CacheableEntity]
 [LocalizedEntity("IsActive")]
-public partial class CheckoutAttribute : EntityWithAttributes, ILocalizedEntity, IStoreRestricted
+public partial class CheckoutAttribute : EntityWithAttributes, ILocalizedEntity, IStoreRestricted, IRulesContainer
 {
     /// <summary>
     /// Gets or sets a value indicating whether the checkout attribute is active
@@ -120,6 +152,17 @@ public partial class CheckoutAttribute : EntityWithAttributes, ILocalizedEntity,
     /// Default is <see cref="SwatchPriceDisplayMode.None"/>. <see cref="SwatchPriceDisplayMode.FinalPrice"/> is not applicable.
     /// </summary>
     public SwatchPriceDisplayMode SwatchPriceDisplay { get; set; }
+
+    private ICollection<RuleSetEntity> _ruleSets;
+    /// <summary>
+    /// Gets or sets assigned rule sets.
+    /// </summary>
+    [IgnoreDataMember]
+    public ICollection<RuleSetEntity> RuleSets
+    {
+        get => _ruleSets ?? LazyLoader.Load(this, ref _ruleSets) ?? (_ruleSets ??= new HashSet<RuleSetEntity>());
+        protected set => _ruleSets = value;
+    }
 
     private ICollection<CheckoutAttributeValue> _checkoutAttributeValues;
     /// <summary>
