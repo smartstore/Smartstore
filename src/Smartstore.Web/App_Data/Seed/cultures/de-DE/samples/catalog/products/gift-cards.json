@@ -1,0 +1,22 @@
+{
+  "P-1000": {
+    "name": "10 € Geschenkgutschein",
+    "shortDescription": "5 € Geschenkgutschein. Eine ideale Geschenkidee.",
+    "fullDescription": "<p>Wenn in letzter Minute mal wieder ein Geschenk fehlt oder man nicht weiß, was man schenken soll, dann bietet sich der Kauf eines Geschenkgutscheins an.</p>"
+  },
+  "P-1001": {
+    "name": "25 € Geschenkgutschein",
+    "shortDescription": "25 € Geschenkgutschein. Eine ideale Geschenkidee.",
+    "fullDescription": "<p>Wenn in letzter Minute mal wieder ein Geschenk fehlt oder man nicht weiß, was man schenken soll, dann bietet sich der Kauf eines Geschenkgutscheins an.</p>"
+  },
+  "P-1002": {
+    "name": "50 € Geschenkgutschein",
+    "shortDescription": "50 € Geschenkgutschein. Eine ideale Geschenkidee.",
+    "fullDescription": "<p>Wenn in letzter Minute mal wieder ein Geschenk fehlt oder man nicht weiß, was man schenken soll, dann bietet sich der Kauf eines Geschenkgutscheins an.</p>"
+  },
+  "P-10033": {
+    "name": "100 € Geschenkgutschein",
+    "shortDescription": "100 € Geschenkgutschein. Eine ideale Geschenkidee.",
+    "fullDescription": "<p>Wenn in letzter Minute mal wieder ein Geschenk fehlt oder man nicht weiß, was man schenken soll, dann bietet sich der Kauf eines Geschenkgutscheins an.</p>"
+  }
+}

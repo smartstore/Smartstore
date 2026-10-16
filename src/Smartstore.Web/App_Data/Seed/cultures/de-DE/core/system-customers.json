@@ -1,0 +1,14 @@
+{
+  "SearchEngine": {
+    "adminComment": "System-Gastkonto für Suchmaschinenanfragen."
+  },
+  "BackgroundTask": {
+    "adminComment": "Systemkonto für geplante Aufgaben."
+  },
+  "PdfConverter": {
+    "adminComment": "Systemkonto für den PDF-Konverter."
+  },
+  "WebhookClient": {
+    "adminComment": "Systemkonto für einen Webhook Client."
+  }
+}

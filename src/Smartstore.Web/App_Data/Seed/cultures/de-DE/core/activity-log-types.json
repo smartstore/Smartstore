@@ -1,0 +1,173 @@
+{
+  "AddNewCategory": {
+    "name": "Erstellen einer Warengruppe"
+  },
+  "AddNewCheckoutAttribute": {
+    "name": "Neues Checkout Attribut hinzugefügt"
+  },
+  "AddNewCustomer": {
+    "name": "Neuen Kunden hinzugefügt"
+  },
+  "AddNewCustomerRole": {
+    "name": "Neue Kundengruppe hinzugefügt"
+  },
+  "AddNewDiscount": {
+    "name": "Neuer Rabatt hinzugefügt"
+  },
+  "AddNewGiftCard": {
+    "name": "Neuer Geschenkgutschein hinzugefügt"
+  },
+  "AddNewManufacturer": {
+    "name": "Neuer Hersteller hinzugefügt"
+  },
+  "AddNewProduct": {
+    "name": "Neues Produkt hinzugefügt"
+  },
+  "AddNewProductAttribute": {
+    "name": "Neues Produktattribut hinzugefügt"
+  },
+  "AddNewSetting": {
+    "name": "Neue Einstellung hinzugefügt"
+  },
+  "AddNewSpecAttribute": {
+    "name": "Neues Spezifikationsattribut hinzugefügt"
+  },
+  "AddNewWidget": {
+    "name": "Neues Widget hinzugefügt"
+  },
+  "DeleteCategory": {
+    "name": "Warengruppe gelöscht"
+  },
+  "DeleteCheckoutAttribute": {
+    "name": "Checkout-Attribut gelöscht"
+  },
+  "DeleteCustomer": {
+    "name": "Kunde gelöscht"
+  },
+  "DeleteCustomerRole": {
+    "name": "Kundengruppe gelöscht"
+  },
+  "DeleteDiscount": {
+    "name": "Rabatt gelöscht"
+  },
+  "DeleteGiftCard": {
+    "name": "Geschenkgutschein gelöscht"
+  },
+  "DeleteManufacturer": {
+    "name": "Hersteller gelöscht"
+  },
+  "DeleteProduct": {
+    "name": "Produkt gelöscht"
+  },
+  "DeleteProductAttribute": {
+    "name": "Produktattribut gelöscht"
+  },
+  "DeleteReturnCase": {
+    "name": "Retoure gelöscht"
+  },
+  "DeleteSetting": {
+    "name": "Einstellung gelöscht"
+  },
+  "DeleteSpecAttribute": {
+    "name": "Spezifikationsattribut gelöscht"
+  },
+  "DeleteWidget": {
+    "name": "Widget gelöscht"
+  },
+  "EditCategory": {
+    "name": "Warengruppe bearbeitet"
+  },
+  "EditCheckoutAttribute": {
+    "name": "Checkout-Attribut bearbeitet"
+  },
+  "EditCustomer": {
+    "name": "Kunde bearbeitet"
+  },
+  "EditCustomerRole": {
+    "name": "Kundengruppe bearbeitet"
+  },
+  "EditDiscount": {
+    "name": "Rabatt bearbeitet"
+  },
+  "EditGiftCard": {
+    "name": "Geschenkgutschein bearbeitet"
+  },
+  "EditManufacturer": {
+    "name": "Hersteller bearbeitet"
+  },
+  "EditProduct": {
+    "name": "Produkt bearbeitet"
+  },
+  "EditProductAttribute": {
+    "name": "Produktattribut bearbeitet"
+  },
+  "EditPromotionProviders": {
+    "name": "Promotion-Provider bearbeiten"
+  },
+  "EditReturnCase": {
+    "name": "Retoure bearbeitet"
+  },
+  "EditSettings": {
+    "name": "Einstellungen bearbeitet"
+  },
+  "EditSpecAttribute": {
+    "name": "Spezifikationsattribut bearbeitet"
+  },
+  "EditWidget": {
+    "name": "Widget bearbeitet"
+  },
+  "EditThemeVars": {
+    "name": "Theme-Variablen geändert"
+  },
+  "EditOrder": {
+    "name": "Auftrag bearbeitet"
+  },
+  "ResetThemeVars": {
+    "name": "Theme-Variablen zurückgesetzt"
+  },
+  "ImportThemeVars": {
+    "name": "Theme-Variablen importiert"
+  },
+  "ExportThemeVars": {
+    "name": "Theme-Variablen exportiert"
+  },
+  "PublicStore.ViewCategory": {
+    "name": "Öffentlicher Shop. Hat eine Warengruppen-Detailseite angesehen"
+  },
+  "PublicStore.ViewManufacturer": {
+    "name": "Öffentlicher Shop. Hat eine Hersteller-Detailseite angesehen"
+  },
+  "PublicStore.ViewProduct": {
+    "name": "Öffentlicher Shop. Hat eine Produkt-Detailseite angesehen"
+  },
+  "PublicStore.PlaceOrder": {
+    "name": "Öffentlicher Shop. Hat einen neuen Auftrag erteilt"
+  },
+  "PublicStore.ContactUs": {
+    "name": "Öffentlicher Shop. Kontaktformular benutzt"
+  },
+  "PublicStore.AddToCompareList": {
+    "name": "Öffentlicher Shop. Produkt zur Vergleichsliste hinzugefügt"
+  },
+  "PublicStore.AddToShoppingCart": {
+    "name": "Öffentlicher Shop. Produkt in den Warenkorb gelegt"
+  },
+  "PublicStore.AddToWishlist": {
+    "name": "Öffentlicher Shop. Produkt zur Wunschliste hinzugefügt"
+  },
+  "PublicStore.Login": {
+    "name": "Öffentlicher Shop. Anmeldung"
+  },
+  "PublicStore.Logout": {
+    "name": "Öffentlicher Shop. Abmeldung"
+  },
+  "PublicStore.AddProductReview": {
+    "name": "Öffentlicher Shop. Produktrezension hinzugefügt"
+  },
+  "PublicStore.AddNewsComment": {
+    "name": "Öffentlicher Shop. News-Kommentar hinzugefügt"
+  },
+  "PublicStore.AddBlogComment": {
+    "name": "Öffentlicher Shop. Blogeintrag hinzugefügt"
+  }
+}

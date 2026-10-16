@@ -1,0 +1,362 @@
+// Key field: sku
+[
+  {
+    "name": "Überman: The novel",
+    "shortDescription": "(Hardcover)",
+    "fullDescription": "@file",
+    "metaTitle": "Überman: The novel",
+    "sku": "P-1003",
+    "taxCategory": "books",
+    "price": 16.99,
+    "categories": [
+      "SPIEGEL-Bestseller"
+    ],
+    "pictures": [
+      "product/0000932_uberman-der-roman.jpeg"
+    ],
+    "tags": [
+      "book",
+      "cooking"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "edition/bound",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      },
+      {
+        "specificationAttributeOption": "category/novel",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      },
+      {
+        "specificationAttributeOption": "language/german",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      }
+    ],
+    "manageInventoryMethod": "DontManageStock"
+  },
+  {
+    "name": "The Prisoner of Heaven: A Novel",
+    "shortDescription": "(Hardcover)",
+    "fullDescription": "@file",
+    "metaTitle": "The Prisoner of Heaven: A Novel",
+    "sku": "P-1004",
+    "taxCategory": "books",
+    "price": 22.99,
+    "deliveryTime": "available-and-ready-to-ship",
+    "categories": [
+      "SPIEGEL-Bestseller"
+    ],
+    "pictures": [
+      "product/0000935_der-gefangene-des-himmels-roman_300.jpeg"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "edition/bound",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      },
+      {
+        "specificationAttributeOption": "category/novel",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      },
+      {
+        "specificationAttributeOption": "language/german",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      }
+    ],
+    "manageInventoryMethod": "DontManageStock"
+  },
+  {
+    "name": "Best Grilling Recipes",
+    "shortDescription": "More Than 100 Regional Favorites Tested and Perfected for the Outdoor Cook (Hardcover)",
+    "fullDescription": "@file",
+    "metaTitle": "Best Grilling Recipes",
+    "sku": "P-1005",
+    "taxCategory": "books",
+    "price": 27,
+    "deliveryTime": "available-and-ready-to-ship",
+    "categories": [
+      "Cook and enjoy"
+    ],
+    "pictures": [
+      "product/bestgrillingrecipes.jpg"
+    ],
+    "tags": [
+      "book",
+      "cooking"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "edition/bound",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      },
+      {
+        "specificationAttributeOption": "category/cook-and-bake",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      },
+      {
+        "specificationAttributeOption": "language/english",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      }
+    ],
+    "manageInventoryMethod": "DontManageStock"
+  },
+  {
+    "name": "Cooking for Two",
+    "shortDescription": "More Than 200 Foolproof Recipes for Weeknights and Special Occasions (Hardcover)",
+    "fullDescription": "@file",
+    "metaTitle": "Cooking for Two",
+    "sku": "P-1006",
+    "taxCategory": "books",
+    "price": 27,
+    "deliveryTime": "2-5-woking-days",
+    "categories": [
+      "Cook and enjoy"
+    ],
+    "pictures": [
+      "product/cookingfortwo.jpg"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "edition/bound",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      },
+      {
+        "specificationAttributeOption": "category/cook-and-bake",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      },
+      {
+        "specificationAttributeOption": "language/english",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      }
+    ],
+    "manageInventoryMethod": "DontManageStock"
+  },
+  {
+    "name": "Cars of superlatives: The strongest, the first, the most beautiful, the fastest",
+    "shortDescription": "Hardcover",
+    "fullDescription": "@file",
+    "metaTitle": "Car of superlatives",
+    "sku": "P-1007",
+    "taxCategory": "books",
+    "price": 14.95,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Books"
+    ],
+    "pictures": [
+      "product/0000944_autos-der-superlative-die-starksten-die-ersten-die-schonsten-die-schnellsten.jpeg"
+    ],
+    "tags": [
+      "book"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "edition/bound",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      },
+      {
+        "specificationAttributeOption": "category/cars",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      },
+      {
+        "specificationAttributeOption": "language/german",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      }
+    ],
+    "manageInventoryMethod": "DontManageStock"
+  },
+  {
+    "name": "Picture Atlas Motorcycles: With more than 350 brilliant images",
+    "shortDescription": "Hardcover",
+    "fullDescription": "@file",
+    "metaTitle": "Picture Atlas Motorcycles",
+    "sku": "P-1008",
+    "taxCategory": "books",
+    "price": 14.99,
+    "deliveryTime": "available-and-ready-to-ship",
+    "categories": [
+      "Books"
+    ],
+    "pictures": [
+      "product/0000942_bildatlas-motorrader-mit-mehr-als-350-brillanten-abbildungen.jpeg"
+    ],
+    "tags": [
+      "book"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "edition/bound",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      },
+      {
+        "specificationAttributeOption": "category/non-fiction",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      },
+      {
+        "specificationAttributeOption": "language/german",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      }
+    ],
+    "manageInventoryMethod": "DontManageStock"
+  },
+  {
+    "name": "The Car Book. The great history with over 1200 models",
+    "shortDescription": "Hardcover",
+    "fullDescription": "@file",
+    "metaTitle": "The Car Book",
+    "sku": "P-1009",
+    "taxCategory": "books",
+    "price": 29.95,
+    "deliveryTime": "available-and-ready-to-ship",
+    "categories": [
+      "Books"
+    ],
+    "pictures": [
+      "product/0000947_das-auto-buch-die-grose-chronik-mit-uber-1200-modellen_300.jpeg"
+    ],
+    "tags": [
+      "book",
+      "cars"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "edition/bound",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      },
+      {
+        "specificationAttributeOption": "category/non-fiction",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      },
+      {
+        "specificationAttributeOption": "language/german",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      }
+    ],
+    "manageInventoryMethod": "DontManageStock"
+  },
+  {
+    "name": "Fast Cars, Image Calendar 2013",
+    "shortDescription": "spiral bound",
+    "fullDescription": "@file",
+    "metaTitle": "Fast Cars",
+    "sku": "P-1010",
+    "taxCategory": "books",
+    "price": 16.95,
+    "deliveryTime": "available-and-ready-to-ship",
+    "categories": [
+      "Books"
+    ],
+    "pictures": [
+      "product/0000946_fast-cars-bildkalender-2013_300.jpeg"
+    ],
+    "tags": [
+      "book",
+      "cars",
+      "motorbikes"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "edition/bound",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      },
+      {
+        "specificationAttributeOption": "category/cars",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      },
+      {
+        "specificationAttributeOption": "language/german",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      }
+    ],
+    "manageInventoryMethod": "DontManageStock"
+  },
+  {
+    "name": "Motorcycle Adventures: Riding for travel enduros",
+    "shortDescription": "Hardcover",
+    "fullDescription": "@file",
+    "metaTitle": "Motorcycle Adventures",
+    "sku": "P-1011",
+    "taxCategory": "books",
+    "price": 24.9,
+    "deliveryTime": "2-5-woking-days",
+    "categories": [
+      "Books"
+    ],
+    "pictures": [
+      "product/0000943_motorrad-abenteuer-fahrtechnik-fur-reise-enduros.jpeg"
+    ],
+    "tags": [
+      "book",
+      "motorbikes"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "edition/bound",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      },
+      {
+        "specificationAttributeOption": "category/non-fiction",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      },
+      {
+        "specificationAttributeOption": "language/german",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      }
+    ],
+    "manageInventoryMethod": "DontManageStock"
+  }
+]

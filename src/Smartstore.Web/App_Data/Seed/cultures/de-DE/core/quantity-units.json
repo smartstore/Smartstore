@@ -1,0 +1,88 @@
+{
+  "piece": {
+    "name": "Stück",
+    "namePlural": "Stück",
+    "description": "Stück"
+  },
+  "box": {
+    "name": "Schachtel",
+    "namePlural": "Schachteln",
+    "description": "Schachtel"
+  },
+  "parcel": {
+    "name": "Paket",
+    "namePlural": "Pakete",
+    "description": "Paket"
+  },
+  "palette": {
+    "namePlural": "Paletten"
+  },
+  "unit": {
+    "name": "Einheit",
+    "namePlural": "Einheiten",
+    "description": "Einheit"
+  },
+  "sack": {
+    "namePlural": "Säcke"
+  },
+  "bag": {
+    "name": "Tüte",
+    "namePlural": "Tüten",
+    "description": "Tüte"
+  },
+  "can": {
+    "name": "Dose",
+    "namePlural": "Dosen",
+    "description": "Dose"
+  },
+  "packet": {
+    "name": "Packung",
+    "namePlural": "Packungen",
+    "description": "Packung"
+  },
+  "bar": {
+    "name": "Stange",
+    "namePlural": "Stangen",
+    "description": "Stange"
+  },
+  "bottle": {
+    "name": "Flasche",
+    "namePlural": "Flaschen",
+    "description": "Flasche"
+  },
+  "glass": {
+    "name": "Glas",
+    "namePlural": "Gläser",
+    "description": "Glas"
+  },
+  "bunch": {
+    "name": "Bund",
+    "namePlural": "Bünde",
+    "description": "Bund"
+  },
+  "roll": {
+    "name": "Rolle",
+    "namePlural": "Rollen",
+    "description": "Rolle"
+  },
+  "cup": {
+    "name": "Becher",
+    "namePlural": "Becher",
+    "description": "Becher"
+  },
+  "bundle": {
+    "name": "Bündel",
+    "namePlural": "Bündel",
+    "description": "Bündel"
+  },
+  "barrel": {
+    "name": "Fass",
+    "namePlural": "Fässer",
+    "description": "Fass"
+  },
+  "bucket": {
+    "name": "Eimer",
+    "namePlural": "Eimer",
+    "description": "Eimer"
+  }
+}

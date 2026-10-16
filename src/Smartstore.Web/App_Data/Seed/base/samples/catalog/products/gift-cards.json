@@ -1,0 +1,95 @@
+// Key field: sku
+[
+  {
+    "name": "$10 Virtual Gift Card",
+    "shortDescription": "$10 Gift Card. Gift Cards must be redeemed through our site Web site toward the purchase of eligible products.",
+    "fullDescription": "@file",
+    "metaTitle": "$10 Virtual Gift Card",
+    "sku": "P-1000",
+    "isGiftCard": true,
+    "isEsd": true,
+    "taxCategory": "tax-free",
+    "price": 10,
+    "displayOrder": 1,
+    "categories": [
+      "Gift Cards"
+    ],
+    "pictures": [
+      "product/gift_card_10.png"
+    ],
+    "tags": [
+      "gift"
+    ],
+    "isShippingEnabled": false,
+    "manageInventoryMethod": "DontManageStock"
+  },
+  {
+    "name": "$25 Virtual Gift Card",
+    "shortDescription": "$25 Gift Card. Gift Cards must be redeemed through our site Web site toward the purchase of eligible products.",
+    "fullDescription": "@file",
+    "metaTitle": "$25 Virtual Gift Card",
+    "sku": "P-1001",
+    "isGiftCard": true,
+    "isEsd": true,
+    "taxCategory": "tax-free",
+    "price": 25,
+    "displayOrder": 2,
+    "categories": [
+      "Gift Cards"
+    ],
+    "pictures": [
+      "product/gift_card_25.png"
+    ],
+    "tags": [
+      "gift"
+    ],
+    "isShippingEnabled": false,
+    "manageInventoryMethod": "DontManageStock"
+  },
+  {
+    "name": "$50 Virtual Gift Card",
+    "shortDescription": "$50 Gift Card. Gift Cards must be redeemed through our site Web site toward the purchase of eligible products.",
+    "fullDescription": "@file",
+    "metaTitle": "$50 Virtual Gift Card",
+    "sku": "P-1002",
+    "isGiftCard": true,
+    "isEsd": true,
+    "taxCategory": "tax-free",
+    "price": 50,
+    "displayOrder": 3,
+    "categories": [
+      "Gift Cards"
+    ],
+    "pictures": [
+      "product/gift_card_50.png"
+    ],
+    "tags": [
+      "gift"
+    ],
+    "isShippingEnabled": false,
+    "manageInventoryMethod": "DontManageStock"
+  },
+  {
+    "name": "$100 Virtual Gift Card",
+    "shortDescription": "$100 Gift Card. Gift Cards must be redeemed through our site Web site toward the purchase of eligible products.",
+    "fullDescription": "@file",
+    "metaTitle": "$100 Virtual Gift Card",
+    "sku": "P-10033",
+    "isGiftCard": true,
+    "isEsd": true,
+    "taxCategory": "tax-free",
+    "price": 100,
+    "displayOrder": 4,
+    "categories": [
+      "Gift Cards"
+    ],
+    "pictures": [
+      "product/gift_card_100.png"
+    ],
+    "tags": [
+      "gift"
+    ],
+    "isShippingEnabled": false,
+    "manageInventoryMethod": "DontManageStock"
+  }
+]

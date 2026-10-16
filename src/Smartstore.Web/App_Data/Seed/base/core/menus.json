@@ -1,0 +1,194 @@
+// Key field: systemName
+[
+  {
+    "systemName": "Main",
+    "isSystemMenu": true,
+    "template": "Navbar",
+    "title": "@resource:Admin.Catalog.Categories",
+    "items": [
+      {
+        "key": "catalog",
+        "providerName": "catalog"
+      }
+    ]
+  },
+  {
+    "systemName": "FooterInformation",
+    "isSystemMenu": true,
+    "template": "LinkList",
+    "title": "Footer - {@resource:Footer.Info}",
+    "items": [
+      {
+        "key": "ManufacturerList",
+        "providerName": "route",
+        "model": "{\"routename\":\"ManufacturerList\"}",
+        "title": "@resource:Manufacturers.List",
+        "displayOrder": 1,
+        "publishedWhen": "manufacturers"
+      },
+      {
+        "key": "RecentlyAddedProducts",
+        "providerName": "route",
+        "model": "{\"routename\":\"RecentlyAddedProducts\"}",
+        "title": "@resource:Products.NewProducts",
+        "displayOrder": 2,
+        "publishedWhen": "setting:CatalogSettings.RecentlyAddedProductsEnabled"
+      },
+      {
+        "key": "RecentlyViewedProducts",
+        "providerName": "route",
+        "model": "{\"routename\":\"RecentlyViewedProducts\"}",
+        "title": "@resource:Products.RecentlyViewedProducts",
+        "displayOrder": 3,
+        "publishedWhen": "setting:CatalogSettings.RecentlyViewedProductsEnabled"
+      },
+      {
+        "key": "CompareProducts",
+        "providerName": "route",
+        "model": "{\"routename\":\"CompareProducts\"}",
+        "title": "@resource:Products.Compare.List",
+        "displayOrder": 4,
+        "publishedWhen": "setting:CatalogSettings.CompareProductsEnabled"
+      }
+    ]
+  },
+  {
+    "systemName": "FooterService",
+    "isSystemMenu": true,
+    "template": "LinkList",
+    "title": "Footer - {@resource:Footer.Service}",
+    "items": [
+      {
+        "key": "ContactUs",
+        "providerName": "route",
+        "model": "{\"routename\":\"ContactUs\"}",
+        "title": "@resource:ContactUs",
+        "displayOrder": 1
+      },
+      {
+        "key": "topic:ShippingInfo",
+        "providerName": "entity",
+        "model": "topic:ShippingInfo",
+        "displayOrder": 2
+      },
+      {
+        "key": "topic:PaymentInfo",
+        "providerName": "entity",
+        "model": "topic:PaymentInfo",
+        "displayOrder": 3
+      },
+      {
+        "key": "CookieManager",
+        "providerName": "route",
+        "model": "{\"routename\":\"CookieManager\"}",
+        "title": "Cookie Manager",
+        "displayOrder": 4,
+        "noFollow": true,
+        "cssClass": "cookie-manager"
+      }
+    ]
+  },
+  {
+    "systemName": "FooterCompany",
+    "isSystemMenu": true,
+    "template": "LinkList",
+    "title": "Footer - {@resource:Footer.Company}",
+    "items": [
+      {
+        "key": "topic:AboutUs",
+        "providerName": "entity",
+        "model": "topic:AboutUs",
+        "displayOrder": 1
+      },
+      {
+        "key": "topic:Imprint",
+        "providerName": "entity",
+        "model": "topic:Imprint",
+        "displayOrder": 2
+      },
+      {
+        "key": "topic:Disclaimer",
+        "providerName": "entity",
+        "model": "topic:Disclaimer",
+        "displayOrder": 3
+      },
+      {
+        "key": "topic:PrivacyInfo",
+        "providerName": "entity",
+        "model": "topic:PrivacyInfo",
+        "displayOrder": 4
+      },
+      {
+        "key": "topic:ConditionsOfUse",
+        "providerName": "entity",
+        "model": "topic:ConditionsOfUse",
+        "displayOrder": 5
+      }
+    ]
+  },
+  {
+    "systemName": "HelpAndService",
+    "isSystemMenu": true,
+    "template": "Dropdown",
+    "title": "@resource:Menu.ServiceMenu",
+    "items": [
+      {
+        "key": "RecentlyAddedProducts",
+        "providerName": "route",
+        "model": "{\"routename\":\"RecentlyAddedProducts\"}",
+        "title": "@resource:Products.NewProducts",
+        "displayOrder": 1,
+        "publishedWhen": "setting:CatalogSettings.RecentlyAddedProductsEnabled"
+      },
+      {
+        "key": "ManufacturerList",
+        "providerName": "route",
+        "model": "{\"routename\":\"ManufacturerList\"}",
+        "title": "@resource:Manufacturers.List",
+        "displayOrder": 2,
+        "publishedWhen": "manufacturers"
+      },
+      {
+        "key": "RecentlyViewedProducts",
+        "providerName": "route",
+        "model": "{\"routename\":\"RecentlyViewedProducts\"}",
+        "title": "@resource:Products.RecentlyViewedProducts",
+        "displayOrder": 3,
+        "publishedWhen": "setting:CatalogSettings.RecentlyViewedProductsEnabled"
+      },
+      {
+        "key": "CompareProducts",
+        "providerName": "route",
+        "model": "{\"routename\":\"CompareProducts\"}",
+        "title": "@resource:Products.Compare.List",
+        "displayOrder": 4,
+        "publishedWhen": "setting:CatalogSettings.CompareProductsEnabled"
+      },
+      {
+        "key": "topic:AboutUs",
+        "providerName": "entity",
+        "model": "topic:AboutUs",
+        "displayOrder": 5,
+        "beginGroup": true
+      },
+      {
+        "key": "topic:Disclaimer",
+        "providerName": "entity",
+        "model": "topic:Disclaimer",
+        "displayOrder": 6
+      },
+      {
+        "key": "topic:ShippingInfo",
+        "providerName": "entity",
+        "model": "topic:ShippingInfo",
+        "displayOrder": 7
+      },
+      {
+        "key": "topic:ConditionsOfUse",
+        "providerName": "entity",
+        "model": "topic:ConditionsOfUse",
+        "displayOrder": 8
+      }
+    ]
+  }
+]

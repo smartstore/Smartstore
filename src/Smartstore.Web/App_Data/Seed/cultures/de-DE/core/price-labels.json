@@ -1,0 +1,17 @@
+{
+  "msrp": {
+    "shortName": "UVP",
+    "name": "Unverb. Preisempf.",
+    "description": "Die UVP ist der vorgeschlagene oder empfohlene Verkaufspreis eines Produkts, wie er vom Hersteller angegeben und vom Hersteller, einem Lieferanten oder Händler zur Verfügung gestellt wird."
+  },
+  "lowest": {
+    "shortName": "Niedrigster",
+    "name": "Zuletzt niedrigster Preis",
+    "description": "Es handelt sich um den niedrigsten Preis des Produktes in den letzten 30 Tagen vor der Anwendung der Preisermäßigung."
+  },
+  "regular": {
+    "shortName": "Regulär",
+    "name": "Regulär",
+    "description": "Es handelt sich um den mittleren Verkaufspreis, den Kunden für ein Produkt in unserem Shop zahlen, ausgenommen Aktionspreise."
+  }
+}

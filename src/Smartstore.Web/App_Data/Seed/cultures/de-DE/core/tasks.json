@@ -1,0 +1,35 @@
+{
+  "QueuedMessagesSendTask": {
+    "name": "E-Mail senden"
+  },
+  "QueuedMessagesClearTask": {
+    "name": "E-Mail Queue bereinigen"
+  },
+  "DeleteGuestsTask": {
+    "name": "Gastbenutzer löschen"
+  },
+  "DeleteLogsTask": {
+    "name": "Ereignisse löschen"
+  },
+  "ClearCacheTask": {
+    "name": "Cache bereinigen"
+  },
+  "UpdateExchangeRateTask": {
+    "name": "Wechselkurse aktualisieren"
+  },
+  "TransientMediaClearTask": {
+    "name": "Temporäre Uploads bereinigen"
+  },
+  "TempFileCleanupTask": {
+    "name": "Temporäre Dateien bereinigen"
+  },
+  "RebuildXmlSitemapTask": {
+    "name": "XML-Sitemap erneuern"
+  },
+  "TargetGroupEvaluatorTask": {
+    "name": "Zuordnungen von Kunden zu Kundengruppen aktualisieren"
+  },
+  "ProductRuleEvaluatorTask": {
+    "name": "Zuordnungen von Produkten zu Warengruppen aktualisieren"
+  }
+}

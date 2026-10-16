@@ -1,0 +1,28 @@
+{
+  "oz": {
+    "name": "Unze",
+    "ratio": 0.02835,
+    "displayOrder": 10
+  },
+  "lb": {
+    "name": "Pfund",
+    "ratio": 0.4536,
+    "displayOrder": 10
+  },
+  "kg": {
+    "name": "Kilogramm",
+    "ratio": 1
+  },
+  "g": {
+    "name": "Gramm",
+    "ratio": 0.001
+  },
+  "l": {
+    "name": "Liter",
+    "ratio": 1
+  },
+  "ml": {
+    "name": "Milliliter",
+    "ratio": 0.001
+  }
+}

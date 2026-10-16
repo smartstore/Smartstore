@@ -1,0 +1,67 @@
+// Key field: systemName
+[
+  {
+    "systemName": "AboutUs",
+    "title": "About Us",
+    "body": "<p>Put your &quot;About Us&quot; information here. You can edit this in the admin site.</p>"
+  },
+  {
+    "systemName": "CheckoutAsGuestOrRegister",
+    "title": "",
+    "body": "<p><strong>Register and save time!</strong><br />Register with us for future convenience:</p><ul><li>Fast and easy check out</li><li>Easy access to your order history and status</li></ul>",
+    "renderAsWidget": true,
+    "widgetWrapContent": false
+  },
+  {
+    "systemName": "ConditionsOfUse",
+    "title": "Conditions of use",
+    "body": "<p>Put your conditions of use information here. You can edit this in the admin site.</p>"
+  },
+  {
+    "systemName": "ContactUs",
+    "title": "Contact us",
+    "body": "<p>Put your contact information here. You can edit this in the admin site.</p>",
+    "renderAsWidget": true,
+    "widgetWrapContent": false
+  },
+  {
+    "systemName": "HomePageText",
+    "title": "Welcome to our store",
+    "body": "<p>Online shopping is the process consumers go through to purchase products or services over the Internet. You can edit this in the admin site.</p>",
+    "renderAsWidget": true,
+    "widgetWrapContent": false
+  },
+  {
+    "systemName": "LoginRegistrationInfo",
+    "title": "About login / registration",
+    "body": "@file",
+    "renderAsWidget": true,
+    "widgetWrapContent": false
+  },
+  {
+    "systemName": "PrivacyInfo",
+    "title": "Privacy policy",
+    "shortTitle": "Privacy",
+    "body": "<p><strong></strong></p>"
+  },
+  {
+    "systemName": "ShippingInfo",
+    "title": "Shipping & Returns",
+    "body": "<p>Put your shipping &amp; returns information here. You can edit this in the admin site.</p>"
+  },
+  {
+    "systemName": "Imprint",
+    "title": "Imprint",
+    "body": "<p>Put your imprint information here. You can edit this in the admin site.</p>"
+  },
+  {
+    "systemName": "Disclaimer",
+    "title": "Disclaimer",
+    "body": "<p>Put your disclaimer information here. You can edit this in the admin site.</p>"
+  },
+  {
+    "systemName": "PaymentInfo",
+    "title": "Payment info",
+    "body": "<p>Put your payment information here. You can edit this in the admin site.</p>"
+  }
+]

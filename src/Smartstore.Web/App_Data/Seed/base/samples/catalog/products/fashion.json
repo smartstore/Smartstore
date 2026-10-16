@@ -1,0 +1,3528 @@
+// Key field: sku
+[
+  {
+    "name": "COOGEE LOW M",
+    "shortDescription": "MEN'S LEISURE SHOES",
+    "fullDescription": "@file",
+    "metaTitle": "COOGEE LOW M",
+    "sku": "Wolfskin-4032541",
+    "taxCategory": "apparel",
+    "price": 69.9,
+    "comparePrice": 99.95,
+    "displayOrder": 5,
+    "deliveryTime": "available-and-ready-to-ship",
+    "categories": [
+      "Shoes"
+    ],
+    "manufacturers": [
+      "jack-wolfskin"
+    ],
+    "pictures": [
+      "product/wolfskin_shoes_coogee_1.png"
+    ]
+  },
+  {
+    "name": "SUPERSTAR SHOE",
+    "shortDescription": "THE STREETWEAR CLASSIC WITH THE SHELL TOE.",
+    "fullDescription": "@file",
+    "metaTitle": "SUPERSTAR SHOE",
+    "sku": "Adidas-C77124",
+    "taxCategory": "apparel",
+    "price": 99.95,
+    "displayOrder": 5,
+    "deliveryTime": "available-and-ready-to-ship",
+    "categories": [
+      "Shoes"
+    ],
+    "manufacturers": [
+      "adidas"
+    ],
+    "pictures": [
+      "product/adidas_superstar_schuh_1.png"
+    ]
+  },
+  {
+    "name": "Converse All Star",
+    "shortDescription": "The classical sneaker!",
+    "fullDescription": "<p>Since 1912 and to this day unrivalled: the converse All Star sneaker. A shoe for every occasion.</p>",
+    "showOnHomePage": true,
+    "metaTitle": "Converse All Star",
+    "sku": "Fashion-112355",
+    "taxCategory": "apparel",
+    "price": 79.9,
+    "displayOrder": 1,
+    "deliveryTime": "available-and-ready-to-ship",
+    "categories": [
+      "Shoes"
+    ],
+    "pictures": [
+      "product/allstar_converse.jpg",
+      {
+        "file": "product/allstar_hi_charcoal.jpg",
+        "name": "allstar-converse-charcoal"
+      },
+      {
+        "file": "product/allstar_hi_maroon.jpg",
+        "name": "allstar-converse-maroon"
+      },
+      {
+        "file": "product/allstar_hi_navy.jpg",
+        "name": "allstar-converse-navy"
+      },
+      {
+        "file": "product/allstar_hi_purple.jpg",
+        "name": "allstar-converse-purple"
+      },
+      {
+        "file": "product/allstar_hi_white.jpg",
+        "name": "allstar-converse-white"
+      }
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "material/cotton",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 1
+      }
+    ],
+    "variantAttributes": [
+      {
+        "productAttribute": "color",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "displayOrder": 1,
+        "values": [
+          {
+            "name": "Charcoal",
+            "alias": "charcoal",
+            "mediaFile": "product/allstar_charcoal.jpg",
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "Maroon",
+            "alias": "maroon",
+            "mediaFile": "product/allstar_maroon.jpg",
+            "displayOrder": 2,
+            "quantity": 1
+          },
+          {
+            "name": "Navy",
+            "alias": "navy",
+            "mediaFile": "product/allstar_navy.jpg",
+            "displayOrder": 3,
+            "quantity": 1
+          },
+          {
+            "name": "Purple",
+            "alias": "purple",
+            "mediaFile": "product/allstar_purple.jpg",
+            "displayOrder": 4,
+            "quantity": 1
+          },
+          {
+            "name": "White",
+            "alias": "white",
+            "mediaFile": "product/allstar_white.jpg",
+            "displayOrder": 5,
+            "quantity": 1
+          }
+        ]
+      },
+      {
+        "productAttribute": "size",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "displayOrder": 2,
+        "values": [
+          {
+            "name": "42",
+            "alias": "42",
+            "isPreSelected": true,
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "43",
+            "alias": "43",
+            "displayOrder": 2,
+            "quantity": 1
+          },
+          {
+            "name": "44",
+            "alias": "44",
+            "displayOrder": 3,
+            "quantity": 1
+          }
+        ]
+      }
+    ],
+    "combinations": [
+      {
+        "sku": "Fashion-112355-charcoal-42",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "charcoal",
+          "size": "42"
+        },
+        "pictures": [
+          "product/allstar_hi_charcoal.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-112355-charcoal-43",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "charcoal",
+          "size": "43"
+        },
+        "pictures": [
+          "product/allstar_hi_charcoal.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-112355-charcoal-44",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "charcoal",
+          "size": "44"
+        },
+        "pictures": [
+          "product/allstar_hi_charcoal.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-112355-maroon-42",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "maroon",
+          "size": "42"
+        },
+        "pictures": [
+          "product/allstar_hi_maroon.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-112355-maroon-43",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "maroon",
+          "size": "43"
+        },
+        "pictures": [
+          "product/allstar_hi_maroon.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-112355-maroon-44",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "maroon",
+          "size": "44"
+        },
+        "pictures": [
+          "product/allstar_hi_maroon.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-112355-navy-42",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "navy",
+          "size": "42"
+        },
+        "pictures": [
+          "product/allstar_hi_navy.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-112355-navy-43",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "navy",
+          "size": "43"
+        },
+        "pictures": [
+          "product/allstar_hi_navy.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-112355-navy-44",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "navy",
+          "size": "44"
+        },
+        "pictures": [
+          "product/allstar_hi_navy.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-112355-purple-42",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "purple",
+          "size": "42"
+        },
+        "pictures": [
+          "product/allstar_hi_purple.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-112355-purple-43",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "purple",
+          "size": "43"
+        },
+        "pictures": [
+          "product/allstar_hi_purple.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-112355-purple-44",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "purple",
+          "size": "44"
+        },
+        "pictures": [
+          "product/allstar_hi_purple.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-112355-white-42",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "white",
+          "size": "42"
+        },
+        "pictures": [
+          "product/allstar_hi_white.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-112355-white-43",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "white",
+          "size": "43"
+        },
+        "pictures": [
+          "product/allstar_hi_white.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-112355-white-44",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "white",
+          "size": "44"
+        },
+        "pictures": [
+          "product/allstar_hi_white.jpg"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Ladies Sports Jacket",
+    "fullDescription": "@file",
+    "metaTitle": "Ladies Sports Jacket",
+    "sku": "Fashion-JN1107",
+    "manufacturerPartNumber": "JN1107",
+    "taxCategory": "apparel",
+    "price": 55,
+    "comparePrice": 60,
+    "productCost": 20,
+    "specialPrice": 52.99,
+    "specialPriceStartDateTimeUtc": "2017-05-01T00:00:00",
+    "specialPriceEndDateTimeUtc": "@now+1M",
+    "displayOrder": 2,
+    "deliveryTime": "available-and-ready-to-ship",
+    "categories": [
+      "Jackets"
+    ],
+    "pictures": [
+      "product/ladies_jacket_silver.jpg",
+      "product/ladies_jacket_black.jpg",
+      "product/ladies_jacket_red.jpg",
+      "product/ladies_jacket_orange.jpg",
+      "product/ladies_jacket_green.jpg",
+      "product/ladies_jacket_blue.jpg",
+      "product/ladies_jacket_navy.jpg"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "material/polyamide",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 1
+      }
+    ],
+    "variantAttributes": [
+      {
+        "productAttribute": "color",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "displayOrder": 1,
+        "values": [
+          {
+            "name": "Red",
+            "alias": "red",
+            "color": "#CE1F1C",
+            "isPreSelected": true,
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "Orange",
+            "alias": "orange",
+            "color": "#EB7F01",
+            "displayOrder": 2,
+            "quantity": 1
+          },
+          {
+            "name": "Green",
+            "alias": "green",
+            "color": "#24B87E",
+            "displayOrder": 3,
+            "quantity": 1
+          },
+          {
+            "name": "Blue",
+            "alias": "blue",
+            "color": "#0F8CCE",
+            "displayOrder": 4,
+            "quantity": 1
+          },
+          {
+            "name": "Navy",
+            "alias": "navy",
+            "color": "#525671",
+            "displayOrder": 5,
+            "quantity": 1
+          },
+          {
+            "name": "Silver",
+            "alias": "silver",
+            "color": "#ABB0B3",
+            "displayOrder": 6,
+            "quantity": 1
+          },
+          {
+            "name": "Black",
+            "alias": "black",
+            "color": "#404040",
+            "displayOrder": 7,
+            "quantity": 1
+          }
+        ]
+      },
+      {
+        "productAttribute": "size",
+        "isRequired": true,
+        "attributeControlType": "RadioList",
+        "displayOrder": 2,
+        "values": [
+          {
+            "name": "XS",
+            "alias": "xs",
+            "isPreSelected": true,
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "S",
+            "alias": "s",
+            "displayOrder": 2,
+            "quantity": 1
+          },
+          {
+            "name": "M",
+            "alias": "m",
+            "displayOrder": 3,
+            "quantity": 1
+          },
+          {
+            "name": "L",
+            "alias": "l",
+            "displayOrder": 4,
+            "quantity": 1
+          },
+          {
+            "name": "XL",
+            "alias": "xl",
+            "displayOrder": 5,
+            "quantity": 1
+          }
+        ]
+      }
+    ],
+    "combinations": [
+      {
+        "sku": "Fashion-JN1107-red-xs",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "red",
+          "size": "xs"
+        },
+        "pictures": [
+          "product/ladies_jacket_red.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-red-s",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "red",
+          "size": "s"
+        },
+        "pictures": [
+          "product/ladies_jacket_red.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-red-m",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "red",
+          "size": "m"
+        },
+        "pictures": [
+          "product/ladies_jacket_red.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-red-l",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "red",
+          "size": "l"
+        },
+        "pictures": [
+          "product/ladies_jacket_red.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-red-xl",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "red",
+          "size": "xl"
+        },
+        "pictures": [
+          "product/ladies_jacket_red.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-orange-xs",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "orange",
+          "size": "xs"
+        },
+        "pictures": [
+          "product/ladies_jacket_orange.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-orange-s",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "orange",
+          "size": "s"
+        },
+        "pictures": [
+          "product/ladies_jacket_orange.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-orange-m",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "orange",
+          "size": "m"
+        },
+        "pictures": [
+          "product/ladies_jacket_orange.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-orange-l",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "orange",
+          "size": "l"
+        },
+        "pictures": [
+          "product/ladies_jacket_orange.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-orange-xl",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "orange",
+          "size": "xl"
+        },
+        "pictures": [
+          "product/ladies_jacket_orange.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-green-xs",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "green",
+          "size": "xs"
+        },
+        "pictures": [
+          "product/ladies_jacket_green.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-green-s",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "green",
+          "size": "s"
+        },
+        "pictures": [
+          "product/ladies_jacket_green.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-green-m",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "green",
+          "size": "m"
+        },
+        "pictures": [
+          "product/ladies_jacket_green.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-green-l",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "green",
+          "size": "l"
+        },
+        "pictures": [
+          "product/ladies_jacket_green.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-green-xl",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "green",
+          "size": "xl"
+        },
+        "pictures": [
+          "product/ladies_jacket_green.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-blue-xs",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "blue",
+          "size": "xs"
+        },
+        "pictures": [
+          "product/ladies_jacket_blue.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-blue-s",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "blue",
+          "size": "s"
+        },
+        "pictures": [
+          "product/ladies_jacket_blue.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-blue-m",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "blue",
+          "size": "m"
+        },
+        "pictures": [
+          "product/ladies_jacket_blue.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-blue-l",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "blue",
+          "size": "l"
+        },
+        "pictures": [
+          "product/ladies_jacket_blue.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-blue-xl",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "blue",
+          "size": "xl"
+        },
+        "pictures": [
+          "product/ladies_jacket_blue.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-navy-xs",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "navy",
+          "size": "xs"
+        },
+        "pictures": [
+          "product/ladies_jacket_navy.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-navy-s",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "navy",
+          "size": "s"
+        },
+        "pictures": [
+          "product/ladies_jacket_navy.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-navy-m",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "navy",
+          "size": "m"
+        },
+        "pictures": [
+          "product/ladies_jacket_navy.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-navy-l",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "navy",
+          "size": "l"
+        },
+        "pictures": [
+          "product/ladies_jacket_navy.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-navy-xl",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "navy",
+          "size": "xl"
+        },
+        "pictures": [
+          "product/ladies_jacket_navy.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-silver-xs",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "silver",
+          "size": "xs"
+        },
+        "pictures": [
+          "product/ladies_jacket_silver.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-silver-s",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "silver",
+          "size": "s"
+        },
+        "pictures": [
+          "product/ladies_jacket_silver.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-silver-m",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "silver",
+          "size": "m"
+        },
+        "pictures": [
+          "product/ladies_jacket_silver.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-silver-l",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "silver",
+          "size": "l"
+        },
+        "pictures": [
+          "product/ladies_jacket_silver.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-silver-xl",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "silver",
+          "size": "xl"
+        },
+        "pictures": [
+          "product/ladies_jacket_silver.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-black-xs",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "black",
+          "size": "xs"
+        },
+        "pictures": [
+          "product/ladies_jacket_black.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-black-s",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "black",
+          "size": "s"
+        },
+        "pictures": [
+          "product/ladies_jacket_black.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-black-m",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "black",
+          "size": "m"
+        },
+        "pictures": [
+          "product/ladies_jacket_black.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-black-l",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "black",
+          "size": "l"
+        },
+        "pictures": [
+          "product/ladies_jacket_black.jpg"
+        ]
+      },
+      {
+        "sku": "Fashion-JN1107-black-xl",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "black",
+          "size": "xl"
+        },
+        "pictures": [
+          "product/ladies_jacket_black.jpg"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "KANUKA POINT JACKET M",
+    "shortDescription": "SOFTSHELL JACKET MEN",
+    "fullDescription": "@file",
+    "metaTitle": "KANUKA POINT JACKET M",
+    "sku": "jack-1305851",
+    "taxCategory": "apparel",
+    "price": 83.9,
+    "comparePrice": 119.95,
+    "displayOrder": 5,
+    "deliveryTime": "available-and-ready-to-ship",
+    "categories": [
+      "Jackets"
+    ],
+    "manufacturers": [
+      "jack-wolfskin"
+    ],
+    "pictures": [
+      "product/jack_wolfskin_kanuka_point_1.png"
+    ]
+  },
+  {
+    "name": "Ray-Ban Top Bar RB 3183",
+    "shortDescription": "The Ray-Ban Original Wayfarer is the most famous style in the history of sunglasses. With the original design from 1952 the Wayfarer is popular with celebrities, musicians, artists and fashion experts.",
+    "fullDescription": "@file",
+    "metaTitle": "Ray-Ban Top Bar RB 3183",
+    "sku": "P-3004",
+    "taxCategory": "apparel",
+    "price": 139,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Sunglasses"
+    ],
+    "manufacturers": [
+      "ray-ban"
+    ],
+    "pictures": [
+      {
+        "file": "product/RayBanTopBar_1.jpg",
+        "name": "rayban-top-bar-1"
+      },
+      {
+        "file": "product/RayBanTopBar_2.jpg",
+        "name": "rayban-top-bar-2"
+      },
+      {
+        "file": "product/RayBanTopBar_3.jpg",
+        "name": "rayban-top-bar-3"
+      }
+    ]
+  },
+  {
+    "name": "ORIGINAL WAYFARER AT COLLECTION",
+    "shortDescription": "The Ray-Ban Original Wayfarer is the most famous style in the history of sunglasses. With the original design from 1952 the Wayfarer is popular with celebrities, musicians, artists and fashion experts.",
+    "fullDescription": "@file",
+    "metaTitle": "ORIGINAL WAYFARER AT COLLECTION",
+    "sku": "P-3003",
+    "taxCategory": "apparel",
+    "price": 149,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Sunglasses"
+    ],
+    "manufacturers": [
+      "ray-ban"
+    ],
+    "pictures": [
+      {
+        "file": "product/OriginalWayfarer_1.jpg",
+        "name": "wayfarer-blue-gray-classic-black-1"
+      },
+      {
+        "file": "product/OriginalWayfarer_2.jpg",
+        "name": "wayfarer-blue-gray-classic-black-2"
+      },
+      {
+        "file": "product/OriginalWayfarer_3.jpg",
+        "name": "wayfarer-gray-course-black"
+      },
+      {
+        "file": "product/OriginalWayfarer_4.jpg",
+        "name": "wayfarer-brown-course-havana"
+      },
+      {
+        "file": "product/OriginalWayfarer_5.jpg",
+        "name": "wayfarer-green-classic-havana-black"
+      },
+      {
+        "file": "product/OriginalWayfarer_6.jpg",
+        "name": "wayfarer-blue-gray-classic-black-3"
+      }
+    ],
+    "variantAttributes": [
+      {
+        "productAttribute": "wayfarerlenscolor",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "displayOrder": 3,
+        "values": [
+          {
+            "name": "Blue-Gray classic",
+            "alias": "blue-gray-classic",
+            "color": "#3e4659",
+            "isPreSelected": true,
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "Brown course",
+            "alias": "brown-course",
+            "color": "#3e4659",
+            "displayOrder": 2,
+            "quantity": 1
+          },
+          {
+            "name": "Gray course",
+            "alias": "gray-course",
+            "color": "#727377",
+            "displayOrder": 3,
+            "quantity": 1
+          },
+          {
+            "name": "Green classic",
+            "alias": "green-classic",
+            "color": "#3c432e",
+            "displayOrder": 4,
+            "quantity": 1
+          }
+        ]
+      },
+      {
+        "productAttribute": "wayfarerframecolor",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "displayOrder": 3,
+        "values": [
+          {
+            "name": "Black",
+            "alias": "rayban-black",
+            "mediaFile": "product/wayfarer_rayban-black.png",
+            "isPreSelected": true,
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "Havana; Black",
+            "alias": "havana-black",
+            "mediaFile": "product/wayfarer_havana_black.png",
+            "displayOrder": 2,
+            "quantity": 1
+          },
+          {
+            "name": "Havana",
+            "alias": "havana",
+            "mediaFile": "product/wayfarer_havana.png",
+            "displayOrder": 3,
+            "quantity": 1
+          }
+        ]
+      }
+    ],
+    "combinations": [
+      {
+        "sku": "P-3003_blue-gray-classic-black",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "wayfarerlenscolor": "blue-gray-classic",
+          "wayfarerframecolor": "rayban-black"
+        },
+        "pictures": [
+          "product/OriginalWayfarer_1.jpg"
+        ]
+      },
+      {
+        "sku": "P-3003_gray-course-black",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "wayfarerlenscolor": "gray-course",
+          "wayfarerframecolor": "rayban-black"
+        },
+        "pictures": [
+          "product/OriginalWayfarer_3.jpg"
+        ]
+      },
+      {
+        "sku": "P-3003_brown-course-havana",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "wayfarerlenscolor": "brown-course",
+          "wayfarerframecolor": "havana"
+        },
+        "pictures": [
+          "product/OriginalWayfarer_4.jpg"
+        ]
+      },
+      {
+        "sku": "P-3003_green-classic-havana-black",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "wayfarerlenscolor": "green-classic",
+          "wayfarerframecolor": "havana-black"
+        },
+        "pictures": [
+          "product/OriginalWayfarer_5.jpg"
+        ]
+      },
+      {
+        "sku": "P-3003_blue-gray-classic-havana-black",
+        "isActive": false,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "wayfarerlenscolor": "blue-gray-classic",
+          "wayfarerframecolor": "havana-black"
+        },
+        "pictures": [
+          "product/OriginalWayfarer_1.jpg"
+        ]
+      },
+      {
+        "sku": "P-3003_blue-gray-classic-havana",
+        "isActive": false,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "wayfarerlenscolor": "blue-gray-classic",
+          "wayfarerframecolor": "havana"
+        },
+        "pictures": [
+          "product/OriginalWayfarer_1.jpg"
+        ]
+      },
+      {
+        "sku": "P-3003_gray-course-havana-black",
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "wayfarerlenscolor": "gray-course",
+          "wayfarerframecolor": "havana-black"
+        },
+        "pictures": [
+          "product/OriginalWayfarer_3.jpg"
+        ]
+      },
+      {
+        "sku": "P-3003_gray-course-havana",
+        "isActive": false,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "wayfarerlenscolor": "gray-course",
+          "wayfarerframecolor": "havana"
+        },
+        "pictures": [
+          "product/OriginalWayfarer_3.jpg"
+        ]
+      },
+      {
+        "sku": "P-3003_green-classic-rayban-black",
+        "isActive": false,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "wayfarerlenscolor": "green-classic",
+          "wayfarerframecolor": "rayban-black"
+        },
+        "pictures": [
+          "product/OriginalWayfarer_5.jpg"
+        ]
+      },
+      {
+        "sku": "P-3003_green-classic-havana",
+        "isActive": false,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "wayfarerlenscolor": "green-classic",
+          "wayfarerframecolor": "havana"
+        },
+        "pictures": [
+          "product/OriginalWayfarer_5.jpg"
+        ]
+      },
+      {
+        "sku": "P-3003_brown-course-havana-black",
+        "isActive": false,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "wayfarerlenscolor": "brown-course",
+          "wayfarerframecolor": "havana-black"
+        },
+        "pictures": [
+          "product/OriginalWayfarer_4.jpg"
+        ]
+      },
+      {
+        "sku": "P-3003_brown-course-rayban-black",
+        "isActive": false,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "wayfarerlenscolor": "brown-course",
+          "wayfarerframecolor": "rayban-black"
+        },
+        "pictures": [
+          "product/OriginalWayfarer_4.jpg"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Radar EV Prizm Sports Sunglasses",
+    "shortDescription": "",
+    "fullDescription": "@file",
+    "metaTitle": "Radar EV Prizm Sports Sunglasses",
+    "sku": "P-3001",
+    "taxCategory": "apparel",
+    "price": 149,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Sunglasses"
+    ],
+    "manufacturers": [
+      "oakley"
+    ],
+    "pictures": [
+      "product/radar_ev_prizm.jpg"
+    ]
+  },
+  {
+    "name": "Custom Flak Sunglasses",
+    "shortDescription": "",
+    "fullDescription": "@file",
+    "metaTitle": "Custom Flak Sunglasses",
+    "sku": "P-3002",
+    "taxCategory": "apparel",
+    "price": 179,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Sunglasses"
+    ],
+    "manufacturers": [
+      "oakley"
+    ],
+    "pictures": [
+      {
+        "file": "product/CustomFlakSunglasses.jpg",
+        "name": "customflak"
+      },
+      "product/CustomFlakSunglasses_black_white.jpg",
+      "product/CustomFlak_matteblack_gray.jpg",
+      "product/CustomFlak_matteblack_clear.jpg",
+      "product/CustomFlak_matteblack_jadeiridium.jpg",
+      "product/CustomFlak_matteblack_positiverediridium.jpg",
+      "product/CustomFlak_matteblack_rubyiridium.jpg",
+      "product/CustomFlak_matteblack_sapphireiridium.jpg",
+      "product/CustomFlak_matteblack_violetiridium.jpg",
+      "product/CustomFlak_matteblack_24kiridium.jpg",
+      "product/CustomFlak_matteblack_fireiridium.jpg",
+      "product/CustomFlak_orangeflare_24kiridium.jpg",
+      "product/CustomFlak_orangeflare_clear.jpg",
+      "product/CustomFlak_orangeflare_fireiridium.jpg",
+      "product/CustomFlak_orangeflare_gray.jpg",
+      "product/CustomFlak_orangeflare_jadeiridium.jpg",
+      "product/CustomFlak_orangeflare_positiverediridium.jpg",
+      "product/CustomFlak_orangeflare_rubyiridium.jpg",
+      "product/CustomFlak_orangeflare_sapphireiridium.jpg",
+      "product/CustomFlak_orangeflare_violetiridium.jpg",
+      "product/CustomFlak_polishedwhite_24kiridium.jpg",
+      "product/CustomFlak_polishedwhite_clear.jpg",
+      "product/CustomFlak_polishedwhite_fireiridium.jpg",
+      "product/CustomFlak_polishedwhite_gray.jpg",
+      "product/CustomFlak_polishedwhite_jadeiridium.jpg",
+      "product/CustomFlak_polishedwhite_rubyiridium.jpg",
+      "product/CustomFlak_polishedwhite_sapphireiridium.jpg",
+      "product/CustomFlak_polishedwhite_violetiridium.jpg",
+      "product/CustomFlak_polishedwhite_positiverediridium.jpg",
+      "product/CustomFlak_redline_24kiridium.jpg",
+      "product/CustomFlak_redline_clear.jpg",
+      "product/CustomFlak_redline_fireiridium.jpg",
+      "product/CustomFlak_redline_gray.jpg",
+      "product/CustomFlak_redline_jadeiridium.jpg",
+      "product/CustomFlak_redline_positiverediridium.jpg",
+      "product/CustomFlak_redline_rubyiridium.jpg",
+      "product/CustomFlak_redline_sapphireiridium.jpg",
+      "product/CustomFlak_redline_violetiridium.jpg",
+      "product/CustomFlak_skyblue_24kiridium.jpg",
+      "product/CustomFlak_skyblue_clear.jpg",
+      "product/CustomFlak_skyblue_fireiridium.jpg",
+      "product/CustomFlak_skyblue_gray.jpg",
+      "product/CustomFlak_skyblue_jadeiridium.jpg",
+      "product/CustomFlak_skyblue_positiverediridium.jpg",
+      "product/CustomFlak_skyblue_rubyiridium.jpg",
+      "product/CustomFlak_skyblue_sapphireiridium.jpg",
+      "product/CustomFlak_skyblue_violetiridium.jpg"
+    ],
+    "variantAttributes": [
+      {
+        "productAttribute": "lenstype",
+        "isRequired": true,
+        "attributeControlType": "RadioList",
+        "displayOrder": 1,
+        "values": [
+          {
+            "name": "Standard",
+            "alias": "standard",
+            "priceAdjustment": 100,
+            "isPreSelected": true,
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "Polarized",
+            "alias": "polarized",
+            "priceAdjustment": 200,
+            "displayOrder": 2,
+            "quantity": 1
+          },
+          {
+            "name": "Prizm",
+            "alias": "prizm",
+            "priceAdjustment": 200,
+            "displayOrder": 3,
+            "quantity": 1
+          }
+        ]
+      },
+      {
+        "productAttribute": "framecolor",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "displayOrder": 2,
+        "values": [
+          {
+            "name": "Matte Black",
+            "alias": "matteblack",
+            "color": "#2d2d2d",
+            "isPreSelected": true,
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "Polishedwhite",
+            "alias": "polishedwhite",
+            "color": "#f5f5f5",
+            "displayOrder": 2,
+            "quantity": 1
+          },
+          {
+            "name": "Sky Blue",
+            "alias": "skyblue",
+            "color": "#4187f6",
+            "displayOrder": 3,
+            "quantity": 1
+          },
+          {
+            "name": "Orange Flare",
+            "alias": "orangeflare",
+            "color": "#f55700",
+            "displayOrder": 4,
+            "quantity": 1
+          },
+          {
+            "name": "Redline",
+            "alias": "redline",
+            "color": "#cf0a02",
+            "displayOrder": 5,
+            "quantity": 1
+          }
+        ]
+      },
+      {
+        "productAttribute": "lenscolor",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "displayOrder": 3,
+        "values": [
+          {
+            "name": "Gray",
+            "alias": "gray",
+            "color": "#7A798B",
+            "isPreSelected": true,
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "Sapphire Iridium",
+            "alias": "sapphireiridium",
+            "color": "#4460BB",
+            "displayOrder": 2,
+            "quantity": 1
+          },
+          {
+            "name": "Violet Iridium",
+            "alias": "violetiridium",
+            "color": "#5C5A89",
+            "displayOrder": 3,
+            "quantity": 1
+          },
+          {
+            "name": "Jade Iridium",
+            "alias": "jadeiridium",
+            "color": "#376559",
+            "displayOrder": 4,
+            "quantity": 1
+          },
+          {
+            "name": "Ruby Iridium",
+            "alias": "rubyiridium",
+            "color": "#CCAD12",
+            "displayOrder": 5,
+            "quantity": 1
+          },
+          {
+            "name": "24K Iridium",
+            "alias": "24kiridium",
+            "color": "#CE9D12",
+            "displayOrder": 6,
+            "quantity": 1
+          },
+          {
+            "name": "Positive Red Iridium",
+            "alias": "positiverediridium",
+            "color": "#764CDC",
+            "displayOrder": 7,
+            "quantity": 1
+          },
+          {
+            "name": "Clear",
+            "alias": "clear",
+            "color": "#e2e2e3",
+            "displayOrder": 7,
+            "quantity": 1
+          },
+          {
+            "name": "Fire Iridium",
+            "alias": "fireiridium",
+            "color": "#E2C724",
+            "displayOrder": 7,
+            "quantity": 1
+          }
+        ]
+      }
+    ],
+    "combinations": [
+      {
+        "sku": "P-3002-matteblack-gray-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "gray",
+          "lenstype": "standard",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_gray.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-gray-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "gray",
+          "lenstype": "polarized",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_gray.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-gray-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "gray",
+          "lenstype": "prizm",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_gray.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-gray-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "gray",
+          "lenstype": "standard",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_gray.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-gray-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "gray",
+          "lenstype": "polarized",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_gray.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-gray-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "gray",
+          "lenstype": "prizm",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_gray.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-gray-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "gray",
+          "lenstype": "standard",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_gray.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-gray-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "gray",
+          "lenstype": "polarized",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_gray.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-gray-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "gray",
+          "lenstype": "prizm",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_gray.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-gray-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "gray",
+          "lenstype": "standard",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_gray.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-gray-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "gray",
+          "lenstype": "polarized",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_gray.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-gray-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "gray",
+          "lenstype": "prizm",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_gray.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-gray-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "gray",
+          "lenstype": "standard",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_gray.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-gray-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "gray",
+          "lenstype": "polarized",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_gray.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-gray-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "gray",
+          "lenstype": "prizm",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_gray.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-sapphireiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "sapphireiridium",
+          "lenstype": "standard",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_sapphireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-sapphireiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "sapphireiridium",
+          "lenstype": "polarized",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_sapphireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-sapphireiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "sapphireiridium",
+          "lenstype": "prizm",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_sapphireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-sapphireiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "sapphireiridium",
+          "lenstype": "standard",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_sapphireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-sapphireiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "sapphireiridium",
+          "lenstype": "polarized",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_sapphireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-sapphireiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "sapphireiridium",
+          "lenstype": "prizm",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_sapphireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-sapphireiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "sapphireiridium",
+          "lenstype": "standard",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_sapphireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-sapphireiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "sapphireiridium",
+          "lenstype": "polarized",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_sapphireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-sapphireiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "sapphireiridium",
+          "lenstype": "prizm",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_sapphireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-sapphireiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "sapphireiridium",
+          "lenstype": "standard",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_sapphireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-sapphireiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "sapphireiridium",
+          "lenstype": "polarized",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_sapphireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-sapphireiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "sapphireiridium",
+          "lenstype": "prizm",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_sapphireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-sapphireiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "sapphireiridium",
+          "lenstype": "standard",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_sapphireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-sapphireiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "sapphireiridium",
+          "lenstype": "polarized",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_sapphireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-sapphireiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "sapphireiridium",
+          "lenstype": "prizm",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_sapphireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-violetiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "violetiridium",
+          "lenstype": "standard",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_violetiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-violetiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "violetiridium",
+          "lenstype": "polarized",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_violetiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-violetiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "violetiridium",
+          "lenstype": "prizm",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_violetiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-violetiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "violetiridium",
+          "lenstype": "standard",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_violetiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-violetiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "violetiridium",
+          "lenstype": "polarized",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_violetiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-violetiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "violetiridium",
+          "lenstype": "prizm",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_violetiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-violetiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "violetiridium",
+          "lenstype": "standard",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_violetiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-violetiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "violetiridium",
+          "lenstype": "polarized",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_violetiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-violetiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "violetiridium",
+          "lenstype": "prizm",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_violetiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-violetiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "violetiridium",
+          "lenstype": "standard",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_violetiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-violetiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "violetiridium",
+          "lenstype": "polarized",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_violetiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-violetiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "violetiridium",
+          "lenstype": "prizm",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_violetiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-violetiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "violetiridium",
+          "lenstype": "standard",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_violetiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-violetiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "violetiridium",
+          "lenstype": "polarized",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_violetiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-violetiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "violetiridium",
+          "lenstype": "prizm",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_violetiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-jadeiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "jadeiridium",
+          "lenstype": "standard",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_jadeiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-jadeiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "jadeiridium",
+          "lenstype": "polarized",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_jadeiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-jadeiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "jadeiridium",
+          "lenstype": "prizm",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_jadeiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-jadeiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "jadeiridium",
+          "lenstype": "standard",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_jadeiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-jadeiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "jadeiridium",
+          "lenstype": "polarized",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_jadeiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-jadeiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "jadeiridium",
+          "lenstype": "prizm",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_jadeiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-jadeiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "jadeiridium",
+          "lenstype": "standard",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_jadeiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-jadeiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "jadeiridium",
+          "lenstype": "polarized",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_jadeiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-jadeiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "jadeiridium",
+          "lenstype": "prizm",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_jadeiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-jadeiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "jadeiridium",
+          "lenstype": "standard",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_jadeiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-jadeiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "jadeiridium",
+          "lenstype": "polarized",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_jadeiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-jadeiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "jadeiridium",
+          "lenstype": "prizm",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_jadeiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-jadeiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "jadeiridium",
+          "lenstype": "standard",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_jadeiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-jadeiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "jadeiridium",
+          "lenstype": "polarized",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_jadeiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-jadeiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "jadeiridium",
+          "lenstype": "prizm",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_jadeiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-rubyiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "rubyiridium",
+          "lenstype": "standard",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_rubyiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-rubyiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "rubyiridium",
+          "lenstype": "polarized",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_rubyiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-rubyiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "rubyiridium",
+          "lenstype": "prizm",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_rubyiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-rubyiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "rubyiridium",
+          "lenstype": "standard",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_rubyiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-rubyiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "rubyiridium",
+          "lenstype": "polarized",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_rubyiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-rubyiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "rubyiridium",
+          "lenstype": "prizm",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_rubyiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-rubyiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "rubyiridium",
+          "lenstype": "standard",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_rubyiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-rubyiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "rubyiridium",
+          "lenstype": "polarized",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_rubyiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-rubyiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "rubyiridium",
+          "lenstype": "prizm",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_rubyiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-rubyiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "rubyiridium",
+          "lenstype": "standard",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_rubyiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-rubyiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "rubyiridium",
+          "lenstype": "polarized",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_rubyiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-rubyiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "rubyiridium",
+          "lenstype": "prizm",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_rubyiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-rubyiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "rubyiridium",
+          "lenstype": "standard",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_rubyiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-rubyiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "rubyiridium",
+          "lenstype": "polarized",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_rubyiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-rubyiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "rubyiridium",
+          "lenstype": "prizm",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_rubyiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-24kiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "24kiridium",
+          "lenstype": "standard",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_24kiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-24kiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "24kiridium",
+          "lenstype": "polarized",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_24kiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-24kiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "24kiridium",
+          "lenstype": "prizm",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_24kiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-24kiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "24kiridium",
+          "lenstype": "standard",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_24kiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-24kiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "24kiridium",
+          "lenstype": "polarized",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_24kiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-24kiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "24kiridium",
+          "lenstype": "prizm",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_24kiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-24kiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "24kiridium",
+          "lenstype": "standard",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_24kiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-24kiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "24kiridium",
+          "lenstype": "polarized",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_24kiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-24kiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "24kiridium",
+          "lenstype": "prizm",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_24kiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-24kiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "24kiridium",
+          "lenstype": "standard",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_24kiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-24kiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "24kiridium",
+          "lenstype": "polarized",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_24kiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-24kiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "24kiridium",
+          "lenstype": "prizm",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_24kiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-24kiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "24kiridium",
+          "lenstype": "standard",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_24kiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-24kiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "24kiridium",
+          "lenstype": "polarized",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_24kiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-24kiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "24kiridium",
+          "lenstype": "prizm",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_24kiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-positiverediridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "positiverediridium",
+          "lenstype": "standard",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_positiverediridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-positiverediridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "positiverediridium",
+          "lenstype": "polarized",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_positiverediridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-positiverediridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "positiverediridium",
+          "lenstype": "prizm",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_positiverediridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-positiverediridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "positiverediridium",
+          "lenstype": "standard",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_positiverediridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-positiverediridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "positiverediridium",
+          "lenstype": "polarized",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_positiverediridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-positiverediridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "positiverediridium",
+          "lenstype": "prizm",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_positiverediridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-positiverediridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "positiverediridium",
+          "lenstype": "standard",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_positiverediridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-positiverediridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "positiverediridium",
+          "lenstype": "polarized",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_positiverediridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-positiverediridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "positiverediridium",
+          "lenstype": "prizm",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_positiverediridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-positiverediridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "positiverediridium",
+          "lenstype": "standard",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_positiverediridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-positiverediridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "positiverediridium",
+          "lenstype": "polarized",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_positiverediridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-positiverediridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "positiverediridium",
+          "lenstype": "prizm",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_positiverediridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-positiverediridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "positiverediridium",
+          "lenstype": "standard",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_positiverediridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-positiverediridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "positiverediridium",
+          "lenstype": "polarized",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_positiverediridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-positiverediridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "positiverediridium",
+          "lenstype": "prizm",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_positiverediridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-clear-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "clear",
+          "lenstype": "standard",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_clear.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-clear-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "clear",
+          "lenstype": "polarized",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_clear.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-clear-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "clear",
+          "lenstype": "prizm",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_clear.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-clear-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "clear",
+          "lenstype": "standard",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_clear.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-clear-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "clear",
+          "lenstype": "polarized",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_clear.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-clear-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "clear",
+          "lenstype": "prizm",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_clear.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-clear-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "clear",
+          "lenstype": "standard",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_clear.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-clear-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "clear",
+          "lenstype": "polarized",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_clear.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-clear-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "clear",
+          "lenstype": "prizm",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_clear.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-clear-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "clear",
+          "lenstype": "standard",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_clear.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-clear-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "clear",
+          "lenstype": "polarized",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_clear.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-clear-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "clear",
+          "lenstype": "prizm",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_clear.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-clear-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "clear",
+          "lenstype": "standard",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_clear.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-clear-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "clear",
+          "lenstype": "polarized",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_clear.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-clear-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "clear",
+          "lenstype": "prizm",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_clear.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-fireiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "fireiridium",
+          "lenstype": "standard",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_fireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-fireiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "fireiridium",
+          "lenstype": "polarized",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_fireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-matteblack-fireiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "fireiridium",
+          "lenstype": "prizm",
+          "framecolor": "matteblack"
+        },
+        "pictures": [
+          "product/CustomFlak_matteblack_fireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-fireiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "fireiridium",
+          "lenstype": "standard",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_fireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-fireiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "fireiridium",
+          "lenstype": "polarized",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_fireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-polishedwhite-fireiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "fireiridium",
+          "lenstype": "prizm",
+          "framecolor": "polishedwhite"
+        },
+        "pictures": [
+          "product/CustomFlak_polishedwhite_fireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-fireiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "fireiridium",
+          "lenstype": "standard",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_fireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-fireiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "fireiridium",
+          "lenstype": "polarized",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_fireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-skyblue-fireiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "fireiridium",
+          "lenstype": "prizm",
+          "framecolor": "skyblue"
+        },
+        "pictures": [
+          "product/CustomFlak_skyblue_fireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-fireiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "fireiridium",
+          "lenstype": "standard",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_fireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-fireiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "fireiridium",
+          "lenstype": "polarized",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_fireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-orangeflare-fireiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "fireiridium",
+          "lenstype": "prizm",
+          "framecolor": "orangeflare"
+        },
+        "pictures": [
+          "product/CustomFlak_orangeflare_fireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-fireiridium-standard",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "fireiridium",
+          "lenstype": "standard",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_fireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-fireiridium-polarized",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "fireiridium",
+          "lenstype": "polarized",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_fireiridium.jpg"
+        ]
+      },
+      {
+        "sku": "P-3002-redline-fireiridium-prizm",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "lenscolor": "fireiridium",
+          "lenstype": "prizm",
+          "framecolor": "redline"
+        },
+        "pictures": [
+          "product/CustomFlak_redline_fireiridium.jpg"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Sleeveless shirt Meccanica",
+    "shortDescription": "Woman shirt with trendy imprint",
+    "fullDescription": "@file",
+    "metaTitle": "Sleeveless shirt Meccanica",
+    "sku": "Fashion-987693502",
+    "manufacturerPartNumber": "987693502",
+    "gtin": "987693502",
+    "taxCategory": "apparel",
+    "price": 38,
+    "displayOrder": 4,
+    "deliveryTime": "available-and-ready-to-ship",
+    "categories": [
+      "Fashion"
+    ],
+    "pictures": [
+      "product/shirt_meccanica_black_1.jpg",
+      "product/shirt_meccanica_black_2.jpg",
+      "product/shirt_meccanica_black_3.jpg",
+      "product/shirt_meccanica_red_1.jpg",
+      "product/shirt_meccanica_red_2.jpg",
+      "product/shirt_meccanica_red_3.jpg",
+      "product/shirt_meccanica_red_4.jpg"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "material/cotton",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 1
+      }
+    ],
+    "tierPrices": [
+      {
+        "quantity": 10,
+        "price": 36
+      },
+      {
+        "quantity": 50,
+        "price": 29
+      }
+    ],
+    "variantAttributes": [
+      {
+        "productAttribute": "color",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "displayOrder": 1,
+        "values": [
+          {
+            "name": "Red",
+            "alias": "red",
+            "color": "#fe0000",
+            "isPreSelected": true,
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "Black",
+            "alias": "black",
+            "color": "#000000",
+            "displayOrder": 2,
+            "quantity": 1
+          }
+        ]
+      },
+      {
+        "productAttribute": "size",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "displayOrder": 2,
+        "values": [
+          {
+            "name": "XS",
+            "alias": "xs",
+            "isPreSelected": true,
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "S",
+            "alias": "s",
+            "displayOrder": 2,
+            "quantity": 1
+          },
+          {
+            "name": "M",
+            "alias": "m",
+            "displayOrder": 3,
+            "quantity": 1
+          },
+          {
+            "name": "L",
+            "alias": "l",
+            "displayOrder": 4,
+            "quantity": 1
+          },
+          {
+            "name": "XL",
+            "alias": "xl",
+            "displayOrder": 5,
+            "quantity": 1
+          }
+        ]
+      }
+    ],
+    "combinations": [
+      {
+        "sku": "Fashion-987693502-red-xs",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "red",
+          "size": "xs"
+        }
+      },
+      {
+        "sku": "Fashion-987693502-red-s",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "red",
+          "size": "s"
+        }
+      },
+      {
+        "sku": "Fashion-987693502-red-m",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "red",
+          "size": "m"
+        }
+      },
+      {
+        "sku": "Fashion-987693502-red-l",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "red",
+          "size": "l"
+        }
+      },
+      {
+        "sku": "Fashion-987693502-red-xl",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "red",
+          "size": "xl"
+        }
+      },
+      {
+        "sku": "Fashion-987693502-black-xs",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "black",
+          "size": "xs"
+        }
+      },
+      {
+        "sku": "Fashion-987693502-black-s",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "black",
+          "size": "s"
+        }
+      },
+      {
+        "sku": "Fashion-987693502-black-m",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "black",
+          "size": "m"
+        }
+      },
+      {
+        "sku": "Fashion-987693502-black-l",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "black",
+          "size": "l"
+        }
+      },
+      {
+        "sku": "Fashion-987693502-black-xl",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "black",
+          "size": "xl"
+        }
+      }
+    ]
+  },
+  {
+    "name": "Clark Premium Blue Jeans",
+    "shortDescription": "Modern Jeans in Easy Comfort Fit",
+    "fullDescription": "@file",
+    "metaTitle": "Clark Premium Blue Jeans",
+    "sku": "Fashion-65986524",
+    "taxCategory": "apparel",
+    "price": 109.9,
+    "displayOrder": 5,
+    "deliveryTime": "available-and-ready-to-ship",
+    "categories": [
+      "Trousers"
+    ],
+    "pictures": [
+      "product/clark_premium_jeans.jpg"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "material/cotton",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 1
+      }
+    ],
+    "variantAttributes": [
+      {
+        "productAttribute": "width",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "displayOrder": 1,
+        "values": [
+          {
+            "name": "31",
+            "alias": "31",
+            "isPreSelected": true,
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "32",
+            "alias": "32",
+            "displayOrder": 2,
+            "quantity": 1
+          },
+          {
+            "name": "33",
+            "alias": "33",
+            "displayOrder": 3,
+            "quantity": 1
+          },
+          {
+            "name": "34",
+            "alias": "34",
+            "displayOrder": 4,
+            "quantity": 1
+          },
+          {
+            "name": "35",
+            "alias": "35",
+            "displayOrder": 5,
+            "quantity": 1
+          },
+          {
+            "name": "36",
+            "alias": "36",
+            "displayOrder": 6,
+            "quantity": 1
+          },
+          {
+            "name": "38",
+            "alias": "38",
+            "displayOrder": 7,
+            "quantity": 1
+          },
+          {
+            "name": "40",
+            "alias": "40",
+            "displayOrder": 8,
+            "quantity": 1
+          },
+          {
+            "name": "42",
+            "alias": "42",
+            "displayOrder": 9,
+            "quantity": 1
+          },
+          {
+            "name": "44",
+            "alias": "44",
+            "displayOrder": 10,
+            "quantity": 1
+          },
+          {
+            "name": "46",
+            "alias": "46",
+            "displayOrder": 11,
+            "quantity": 1
+          }
+        ]
+      },
+      {
+        "productAttribute": "length",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "displayOrder": 2,
+        "values": [
+          {
+            "name": "30",
+            "alias": "30",
+            "isPreSelected": true,
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "32",
+            "alias": "32",
+            "displayOrder": 2,
+            "quantity": 1
+          },
+          {
+            "name": "34",
+            "alias": "34",
+            "displayOrder": 3,
+            "quantity": 1
+          }
+        ]
+      }
+    ]
+  }
+]

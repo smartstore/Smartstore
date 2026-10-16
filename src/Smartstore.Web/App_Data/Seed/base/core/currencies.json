@@ -1,0 +1,102 @@
+// Key field: currencyCode
+[
+  {
+    "name": "US Dollar",
+    "currencyCode": "USD",
+    "rate": 1,
+    "displayLocale": "en-US",
+    "customFormatting": "",
+    "published": true
+  },
+  {
+    "name": "British Pound",
+    "currencyCode": "GBP",
+    "rate": 0.787,
+    "displayLocale": "en-GB",
+    "customFormatting": "",
+    "published": true,
+    "displayOrder": 5
+  },
+  {
+    "name": "Australian Dollar",
+    "currencyCode": "AUD",
+    "rate": 1.497,
+    "displayLocale": "en-AU",
+    "customFormatting": "",
+    "displayOrder": 10
+  },
+  {
+    "name": "Canadian Dollar",
+    "currencyCode": "CAD",
+    "rate": 1.315,
+    "displayLocale": "en-CA",
+    "customFormatting": "",
+    "displayOrder": 15
+  },
+  {
+    "name": "Euro",
+    "currencyCode": "EUR",
+    "rate": 0.916,
+    "displayLocale": "de-DE",
+    "customFormatting": "",
+    "published": true,
+    "displayOrder": 20
+  },
+  {
+    "name": "Swiss Franc",
+    "currencyCode": "CHF",
+    "rate": 0.892,
+    "displayLocale": "de-CH",
+    "customFormatting": "CHF #,##0.00",
+    "published": true,
+    "displayOrder": 25
+  },
+  {
+    "name": "Chinese Yuan",
+    "currencyCode": "CNY",
+    "rate": 7.233,
+    "displayLocale": "zh-CN",
+    "customFormatting": "",
+    "displayOrder": 30
+  },
+  {
+    "name": "Hong Kong Dollar",
+    "currencyCode": "HKD",
+    "rate": 7.829,
+    "displayLocale": "zh-HK",
+    "customFormatting": "",
+    "displayOrder": 35
+  },
+  {
+    "name": "Japanese Yen",
+    "currencyCode": "JPY",
+    "rate": 143.259,
+    "displayLocale": "ja-JP",
+    "customFormatting": "",
+    "displayOrder": 40
+  },
+  {
+    "name": "Russian Ruble",
+    "currencyCode": "RUB",
+    "rate": 85.33,
+    "displayLocale": "ru-RU",
+    "customFormatting": "",
+    "displayOrder": 45
+  },
+  {
+    "name": "Turkish Lira",
+    "currencyCode": "TRY",
+    "rate": 25.903,
+    "displayLocale": "tr-TR",
+    "customFormatting": "",
+    "displayOrder": 50
+  },
+  {
+    "name": "Swedish Krona",
+    "currencyCode": "SEK",
+    "rate": 10.7,
+    "displayLocale": "sv-SE",
+    "customFormatting": "",
+    "displayOrder": 55
+  }
+]

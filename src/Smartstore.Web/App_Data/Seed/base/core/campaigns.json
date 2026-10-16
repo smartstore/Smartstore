@@ -1,0 +1,10 @@
+// Key field: key
+[
+  {
+    "key": "reminder-of-inactive-new-customers",
+    "name": "Reminder of inactive new customers",
+    "subject": "New, exciting products are waiting for you to be discovered.",
+    "body": "@file",
+    "subjectToAcl": true
+  }
+]

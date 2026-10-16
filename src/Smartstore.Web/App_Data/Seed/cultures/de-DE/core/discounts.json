@@ -1,0 +1,20 @@
+{
+  "sample-discount-with-coupon-code": {
+    "name": "Beispiel Rabatt mit Coupon-Code"
+  },
+  "20-order-total-discount": {
+    "name": "20% auf den Bestellwert"
+  },
+  "5-on-weekend-orders": {
+    "name": "5% bei Bestellungen am Wochenende"
+  },
+  "10-for-certain-manufacturers": {
+    "name": "10% bei bestimmten Herstellern"
+  },
+  "20-for-certain-categories": {
+    "name": "20% bei bestimmten Warengruppen"
+  },
+  "25-on-certain-products": {
+    "name": "25% auf bestimmte Produkte"
+  }
+}

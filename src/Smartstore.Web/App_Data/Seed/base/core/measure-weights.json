@@ -1,0 +1,39 @@
+// Key field: systemKeyword
+[
+  {
+    "name": "ounce",
+    "systemKeyword": "oz",
+    "ratio": 16,
+    "displayOrder": 5
+  },
+  {
+    "name": "lb",
+    "systemKeyword": "lb",
+    "ratio": 1,
+    "displayOrder": 6
+  },
+  {
+    "name": "kg",
+    "systemKeyword": "kg",
+    "ratio": 0.45359237,
+    "displayOrder": 1
+  },
+  {
+    "name": "gram",
+    "systemKeyword": "g",
+    "ratio": 453.59237,
+    "displayOrder": 2
+  },
+  {
+    "name": "liter",
+    "systemKeyword": "l",
+    "ratio": 0.45359237,
+    "displayOrder": 3
+  },
+  {
+    "name": "milliliter",
+    "systemKeyword": "ml",
+    "ratio": 0.45359237,
+    "displayOrder": 4
+  }
+]

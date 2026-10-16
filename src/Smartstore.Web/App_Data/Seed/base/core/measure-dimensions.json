@@ -1,0 +1,33 @@
+// Key field: systemKeyword
+[
+  {
+    "name": "millimetre",
+    "systemKeyword": "mm",
+    "ratio": 25.4,
+    "displayOrder": 1
+  },
+  {
+    "name": "centimetre",
+    "systemKeyword": "cm",
+    "ratio": 0.254,
+    "displayOrder": 2
+  },
+  {
+    "name": "meter",
+    "systemKeyword": "m",
+    "ratio": 0.0254,
+    "displayOrder": 3
+  },
+  {
+    "name": "in",
+    "systemKeyword": "inch",
+    "ratio": 1,
+    "displayOrder": 4
+  },
+  {
+    "name": "feet",
+    "systemKeyword": "ft",
+    "ratio": 0.08333333,
+    "displayOrder": 5
+  }
+]

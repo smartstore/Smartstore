@@ -1,0 +1,958 @@
+// Key field: key
+[
+  {
+    "key": "cpu-manufacturer",
+    "name": "CPU-Manufacturer",
+    "displayOrder": 1,
+    "options": [
+      {
+        "key": "amd",
+        "name": "AMD",
+        "displayOrder": 1
+      },
+      {
+        "key": "intel",
+        "name": "Intel",
+        "displayOrder": 2
+      },
+      {
+        "key": "arm",
+        "name": "ARM",
+        "displayOrder": 3
+      },
+      {
+        "key": "samsung",
+        "name": "Samsung",
+        "displayOrder": 4
+      },
+      {
+        "key": "apple",
+        "name": "Apple",
+        "displayOrder": 5
+      }
+    ]
+  },
+  {
+    "key": "color",
+    "name": "Color",
+    "displayOrder": 2,
+    "options": [
+      {
+        "key": "white",
+        "name": "white",
+        "displayOrder": 1
+      },
+      {
+        "key": "black",
+        "name": "black",
+        "displayOrder": 2
+      },
+      {
+        "key": "beige",
+        "name": "beige",
+        "displayOrder": 3
+      },
+      {
+        "key": "red",
+        "name": "red",
+        "displayOrder": 4
+      },
+      {
+        "key": "blue",
+        "name": "blue",
+        "displayOrder": 5
+      },
+      {
+        "key": "green",
+        "name": "green",
+        "displayOrder": 6
+      },
+      {
+        "key": "yellow",
+        "name": "yellow",
+        "displayOrder": 7
+      }
+    ]
+  },
+  {
+    "key": "harddisk-capacity",
+    "name": "Harddisk capacity",
+    "displayOrder": 3,
+    "options": [
+      {
+        "key": "250-gb",
+        "name": "250 GB",
+        "displayOrder": 1
+      },
+      {
+        "key": "500-gb",
+        "name": "500 GB",
+        "displayOrder": 2
+      },
+      {
+        "key": "750-gb",
+        "name": "750 GB",
+        "displayOrder": 3
+      },
+      {
+        "key": "1000-gb",
+        "name": "1000 GB",
+        "displayOrder": 4
+      },
+      {
+        "key": "1500-gb",
+        "name": "1500 GB",
+        "displayOrder": 5
+      }
+    ]
+  },
+  {
+    "key": "ram",
+    "name": "RAM",
+    "displayOrder": 4,
+    "options": [
+      {
+        "key": "4-gb",
+        "name": "4 GB",
+        "displayOrder": 1
+      },
+      {
+        "key": "8-gb",
+        "name": "8 GB",
+        "displayOrder": 2
+      },
+      {
+        "key": "13-gb",
+        "name": "13 GB",
+        "displayOrder": 3
+      },
+      {
+        "key": "2-gb",
+        "name": "2 GB",
+        "displayOrder": 4
+      },
+      {
+        "key": "1500-gb",
+        "name": "1500 GB",
+        "displayOrder": 5
+      }
+    ]
+  },
+  {
+    "key": "operating-system",
+    "name": "Operating System",
+    "essential": true,
+    "displayOrder": 5,
+    "options": [
+      {
+        "key": "windows-7-32-bit",
+        "name": "Windows 7 32 Bit",
+        "displayOrder": 1
+      },
+      {
+        "key": "windows-7-64-bit",
+        "name": "Windows 7 64 Bit",
+        "displayOrder": 2
+      },
+      {
+        "key": "windows-8-32-bit",
+        "name": "Windows 8 32 Bit",
+        "displayOrder": 3
+      },
+      {
+        "key": "windows-8-64-bit",
+        "name": "Windows 8 64 Bit",
+        "displayOrder": 4
+      },
+      {
+        "key": "linux",
+        "name": "Linux",
+        "displayOrder": 5
+      },
+      {
+        "key": "mac-os",
+        "name": "Mac OS",
+        "displayOrder": 6
+      },
+      {
+        "key": "android-2",
+        "name": "Android 2",
+        "displayOrder": 7
+      },
+      {
+        "key": "android-4",
+        "name": "Android 4",
+        "displayOrder": 8
+      },
+      {
+        "key": "ios",
+        "name": "iOS",
+        "displayOrder": 9
+      }
+    ]
+  },
+  {
+    "key": "ports",
+    "name": "Ports",
+    "displayOrder": 6,
+    "options": [
+      {
+        "key": "usb-2-0",
+        "name": "USB 2.0",
+        "displayOrder": 1
+      },
+      {
+        "key": "usb-3-0",
+        "name": "USB 3.0",
+        "displayOrder": 2
+      },
+      {
+        "key": "firewire",
+        "name": "Firewire",
+        "displayOrder": 3
+      },
+      {
+        "key": "hdmi",
+        "name": "HDMI",
+        "displayOrder": 4
+      },
+      {
+        "key": "dvi",
+        "name": "DVI",
+        "displayOrder": 5
+      },
+      {
+        "key": "vga",
+        "name": "VGA",
+        "displayOrder": 6
+      },
+      {
+        "key": "ethernetrj45",
+        "name": "Ethernet/RJ45",
+        "displayOrder": 7
+      }
+    ]
+  },
+  {
+    "key": "gender",
+    "name": "Gender",
+    "displayOrder": 7,
+    "options": [
+      {
+        "key": "gentlemen",
+        "name": "gentlemen",
+        "displayOrder": 1
+      },
+      {
+        "key": "ladies",
+        "name": "ladies",
+        "displayOrder": 2
+      },
+      {
+        "key": "unisex",
+        "name": "unisex",
+        "displayOrder": 3
+      }
+    ]
+  },
+  {
+    "key": "material",
+    "name": "Material",
+    "essential": true,
+    "displayOrder": 8,
+    "options": [
+      {
+        "key": "stainless-steel",
+        "name": "stainless steel",
+        "displayOrder": 1
+      },
+      {
+        "key": "titanium",
+        "name": "titanium",
+        "displayOrder": 2
+      },
+      {
+        "key": "plastic",
+        "name": "plastic",
+        "displayOrder": 3
+      },
+      {
+        "key": "aluminium",
+        "name": "aluminium",
+        "displayOrder": 4
+      },
+      {
+        "key": "leather",
+        "name": "leather",
+        "displayOrder": 5
+      },
+      {
+        "key": "nylon",
+        "name": "nylon",
+        "displayOrder": 6
+      },
+      {
+        "key": "silicone",
+        "name": "silicone",
+        "displayOrder": 7
+      },
+      {
+        "key": "ceramic",
+        "name": "ceramic",
+        "displayOrder": 8
+      },
+      {
+        "key": "cotton",
+        "name": "cotton",
+        "displayOrder": 9
+      },
+      {
+        "key": "100-organic-cotton",
+        "name": "100% organic cotton",
+        "displayOrder": 10
+      },
+      {
+        "key": "polyamide",
+        "name": "polyamide",
+        "displayOrder": 11
+      },
+      {
+        "key": "rubber",
+        "name": "rubber",
+        "displayOrder": 12
+      },
+      {
+        "key": "wood",
+        "name": "wood",
+        "displayOrder": 13
+      },
+      {
+        "key": "glass",
+        "name": "glass",
+        "displayOrder": 14
+      },
+      {
+        "key": "spandex",
+        "name": "spandex",
+        "displayOrder": 15
+      },
+      {
+        "key": "polyester",
+        "name": "polyester",
+        "displayOrder": 16
+      }
+    ]
+  },
+  {
+    "key": "movement",
+    "name": "Movement",
+    "displayOrder": 9,
+    "options": [
+      {
+        "key": "mechanical-self-winding",
+        "name": "mechanical, self winding",
+        "displayOrder": 1
+      },
+      {
+        "key": "mechanical",
+        "name": "mechanical",
+        "displayOrder": 2
+      },
+      {
+        "key": "quarz-battery-operated",
+        "name": "quarz, battery operated",
+        "displayOrder": 3
+      }
+    ]
+  },
+  {
+    "key": "clasp",
+    "name": "Clasp",
+    "displayOrder": 10,
+    "options": [
+      {
+        "key": "glidelock",
+        "name": "glidelock",
+        "displayOrder": 1
+      },
+      {
+        "key": "folding-clasp",
+        "name": "folding clasp",
+        "displayOrder": 2
+      },
+      {
+        "key": "thorn-close",
+        "name": "thorn close",
+        "displayOrder": 3
+      }
+    ]
+  },
+  {
+    "key": "window-material",
+    "name": "Window material",
+    "displayOrder": 11,
+    "options": [
+      {
+        "key": "mineral",
+        "name": "mineral",
+        "displayOrder": 1
+      },
+      {
+        "key": "sapphire",
+        "name": "sapphire",
+        "displayOrder": 2
+      }
+    ]
+  },
+  {
+    "key": "language",
+    "name": "Language",
+    "essential": true,
+    "displayOrder": 12,
+    "options": [
+      {
+        "key": "german",
+        "name": "german",
+        "displayOrder": 1
+      },
+      {
+        "key": "english",
+        "name": "english",
+        "displayOrder": 2
+      },
+      {
+        "key": "french",
+        "name": "french",
+        "displayOrder": 3
+      },
+      {
+        "key": "italian",
+        "name": "italian",
+        "displayOrder": 4
+      }
+    ]
+  },
+  {
+    "key": "edition",
+    "name": "Edition",
+    "displayOrder": 13,
+    "options": [
+      {
+        "key": "bound",
+        "name": "bound",
+        "displayOrder": 1
+      },
+      {
+        "key": "paperback",
+        "name": "paperback",
+        "displayOrder": 2
+      }
+    ]
+  },
+  {
+    "key": "category",
+    "name": "Category",
+    "displayOrder": 14,
+    "options": [
+      {
+        "key": "adventure",
+        "name": "adventure",
+        "displayOrder": 1
+      },
+      {
+        "key": "fantasy-and-science-fiction",
+        "name": "fantasy & science fiction",
+        "displayOrder": 2
+      },
+      {
+        "key": "history",
+        "name": "history",
+        "displayOrder": 3
+      },
+      {
+        "key": "internet-and-computer",
+        "name": "internet & computer",
+        "displayOrder": 4
+      },
+      {
+        "key": "thriller",
+        "name": "thriller",
+        "displayOrder": 5
+      },
+      {
+        "key": "cars",
+        "name": "cars",
+        "displayOrder": 6
+      },
+      {
+        "key": "novel",
+        "name": "novel",
+        "displayOrder": 7
+      },
+      {
+        "key": "cook-and-bake",
+        "name": "cook and bake",
+        "displayOrder": 8
+      },
+      {
+        "key": "non-fiction",
+        "name": "non-fiction",
+        "displayOrder": 9
+      }
+    ]
+  },
+  {
+    "key": "computer-type",
+    "name": "Computer-type",
+    "essential": true,
+    "displayOrder": 15,
+    "options": [
+      {
+        "key": "desktop",
+        "name": "desktop",
+        "displayOrder": 1
+      },
+      {
+        "key": "all-in-one",
+        "name": "all-in-one",
+        "displayOrder": 2
+      },
+      {
+        "key": "laptop",
+        "name": "laptop",
+        "displayOrder": 3
+      },
+      {
+        "key": "tablet",
+        "name": "tablet",
+        "displayOrder": 4
+      }
+    ]
+  },
+  {
+    "key": "type-of-mass-storage",
+    "name": "Type of mass-storage",
+    "displayOrder": 16,
+    "options": [
+      {
+        "key": "hdd",
+        "name": "HDD",
+        "displayOrder": 1
+      },
+      {
+        "key": "ssd",
+        "name": "SSD",
+        "displayOrder": 2
+      },
+      {
+        "key": "flash",
+        "name": "Flash",
+        "displayOrder": 3
+      }
+    ]
+  },
+  {
+    "key": "size-ext-hdd-",
+    "name": "Size (ext. HDD)",
+    "displayOrder": 17,
+    "options": [
+      {
+        "key": "3-5",
+        "name": "3.5",
+        "displayOrder": 1
+      },
+      {
+        "key": "2-5",
+        "name": "2.5",
+        "displayOrder": 2
+      }
+    ]
+  },
+  {
+    "key": "mp3-quality",
+    "name": "MP3 quality",
+    "displayOrder": 18,
+    "options": [
+      {
+        "key": "128-kbits",
+        "name": "128 kbit/s",
+        "displayOrder": 1
+      },
+      {
+        "key": "256-kbits",
+        "name": "256 kbit/s",
+        "displayOrder": 2
+      },
+      {
+        "key": "320-kbits",
+        "name": "320 kbit/s",
+        "displayOrder": 3
+      }
+    ]
+  },
+  {
+    "key": "music-genre",
+    "name": "Music genre",
+    "displayOrder": 19,
+    "options": [
+      {
+        "key": "blues",
+        "name": "blues",
+        "displayOrder": 1
+      },
+      {
+        "key": "jazz",
+        "name": "jazz",
+        "displayOrder": 2
+      },
+      {
+        "key": "disco",
+        "name": "disco",
+        "displayOrder": 3
+      },
+      {
+        "key": "pop",
+        "name": "pop",
+        "displayOrder": 4
+      },
+      {
+        "key": "funk",
+        "name": "funk",
+        "displayOrder": 5
+      },
+      {
+        "key": "classical",
+        "name": "classical",
+        "displayOrder": 6
+      },
+      {
+        "key": "randb",
+        "name": "R&B",
+        "displayOrder": 7
+      }
+    ]
+  },
+  {
+    "key": "manufacturer",
+    "name": "Manufacturer",
+    "displayOrder": 20,
+    "options": [
+      {
+        "key": "apple",
+        "name": "Apple",
+        "displayOrder": 1
+      },
+      {
+        "key": "samsung",
+        "name": "Samsung",
+        "displayOrder": 2
+      },
+      {
+        "key": "htc",
+        "name": "HTC",
+        "displayOrder": 3
+      },
+      {
+        "key": "lg",
+        "name": "LG",
+        "displayOrder": 4
+      },
+      {
+        "key": "motorola",
+        "name": "Motorola",
+        "displayOrder": 5
+      },
+      {
+        "key": "nokia",
+        "name": "Nokia",
+        "displayOrder": 6
+      },
+      {
+        "key": "sony",
+        "name": "Sony",
+        "displayOrder": 7
+      },
+      {
+        "key": "blackberry",
+        "name": "Blackberry",
+        "displayOrder": 8
+      },
+      {
+        "key": "microsoft",
+        "name": "Microsoft",
+        "displayOrder": 9
+      },
+      {
+        "key": "hp",
+        "name": "HP",
+        "displayOrder": 10
+      },
+      {
+        "key": "canon",
+        "name": "Canon",
+        "displayOrder": 11
+      },
+      {
+        "key": "casio",
+        "name": "Casio",
+        "displayOrder": 12
+      },
+      {
+        "key": "panasonic",
+        "name": "Panasonic",
+        "displayOrder": 13
+      },
+      {
+        "key": "certina",
+        "name": "Certina",
+        "displayOrder": 14
+      },
+      {
+        "key": "festina",
+        "name": "Festina",
+        "displayOrder": 15
+      },
+      {
+        "key": "seiko",
+        "name": "Seiko",
+        "displayOrder": 16
+      },
+      {
+        "key": "tissot",
+        "name": "Tissot",
+        "displayOrder": 17
+      },
+      {
+        "key": "breitling",
+        "name": "Breitling",
+        "displayOrder": 18
+      },
+      {
+        "key": "adidas",
+        "name": "Adidas",
+        "displayOrder": 19
+      },
+      {
+        "key": "nike",
+        "name": "Nike",
+        "displayOrder": 20
+      },
+      {
+        "key": "puma",
+        "name": "Puma",
+        "displayOrder": 21
+      }
+    ]
+  },
+  {
+    "key": "for-whom",
+    "name": "For whom",
+    "displayOrder": 21,
+    "options": [
+      {
+        "key": "for-him",
+        "name": "For him",
+        "displayOrder": 1
+      },
+      {
+        "key": "for-her",
+        "name": "For her",
+        "displayOrder": 2
+      }
+    ]
+  },
+  {
+    "key": "offer",
+    "name": "Offer",
+    "displayOrder": 22,
+    "options": [
+      {
+        "key": "clearance",
+        "name": "Clearance",
+        "displayOrder": 1
+      },
+      {
+        "key": "permanent-low-price",
+        "name": "Permanent low price",
+        "displayOrder": 2
+      },
+      {
+        "key": "promotion",
+        "name": "Promotion",
+        "displayOrder": 3
+      },
+      {
+        "key": "reduced-price",
+        "name": "Reduced price",
+        "displayOrder": 4
+      },
+      {
+        "key": "special-buy",
+        "name": "Special Buy",
+        "displayOrder": 5
+      },
+      {
+        "key": "offer-of-the-day",
+        "name": "Offer of the day",
+        "displayOrder": 6
+      },
+      {
+        "key": "weekly-offer",
+        "name": "Weekly offer",
+        "displayOrder": 7
+      },
+      {
+        "key": "best-price",
+        "name": "Best Price",
+        "displayOrder": 8
+      }
+    ]
+  },
+  {
+    "key": "size",
+    "name": "Size",
+    "displayOrder": 23,
+    "options": [
+      {
+        "key": "xs",
+        "name": "XS",
+        "displayOrder": 1
+      },
+      {
+        "key": "s",
+        "name": "S",
+        "displayOrder": 2
+      },
+      {
+        "key": "m",
+        "name": "M",
+        "displayOrder": 3
+      },
+      {
+        "key": "l",
+        "name": "L",
+        "displayOrder": 4
+      },
+      {
+        "key": "xl",
+        "name": "XL",
+        "displayOrder": 5
+      },
+      {
+        "key": "xxl",
+        "name": "XXL",
+        "displayOrder": 6
+      }
+    ]
+  },
+  {
+    "key": "diameter",
+    "name": "Diameter",
+    "displayOrder": 24,
+    "options": [
+      {
+        "key": "38mm",
+        "name": "38mm",
+        "displayOrder": 1
+      },
+      {
+        "key": "40mm",
+        "name": "40mm",
+        "displayOrder": 2
+      },
+      {
+        "key": "44mm",
+        "name": "44mm",
+        "displayOrder": 3
+      }
+    ]
+  },
+  {
+    "key": "closure",
+    "name": "Closure",
+    "displayOrder": 25,
+    "options": [
+      {
+        "key": "snap-closure",
+        "name": "snap closure",
+        "displayOrder": 1
+      },
+      {
+        "key": "folding-clasp",
+        "name": "folding clasp",
+        "displayOrder": 2
+      },
+      {
+        "key": "thorn-close",
+        "name": "thorn close",
+        "displayOrder": 3
+      }
+    ]
+  },
+  {
+    "key": "facial-shape",
+    "name": "Facial shape",
+    "displayOrder": 26,
+    "options": [
+      {
+        "key": "oval",
+        "name": "oval",
+        "displayOrder": 1
+      },
+      {
+        "key": "round",
+        "name": "round",
+        "displayOrder": 2
+      },
+      {
+        "key": "heart-shaped",
+        "name": "heart shaped",
+        "displayOrder": 3
+      },
+      {
+        "key": "angular",
+        "name": "angular",
+        "displayOrder": 4
+      }
+    ]
+  },
+  {
+    "key": "storage-capacity",
+    "name": "Storage capacity",
+    "displayOrder": 27,
+    "options": [
+      {
+        "key": "32-gb",
+        "name": "32 GB",
+        "displayOrder": 1
+      },
+      {
+        "key": "64-gb",
+        "name": "64 GB",
+        "displayOrder": 2
+      },
+      {
+        "key": "128-gb",
+        "name": "128 GB",
+        "displayOrder": 3
+      }
+    ]
+  },
+  {
+    "key": "dial-window-material-type",
+    "name": "Dial window material type",
+    "displayOrder": 28,
+    "options": [
+      {
+        "key": "mineral",
+        "name": "Mineral",
+        "displayOrder": 1
+      },
+      {
+        "key": "sapphire",
+        "name": "Sapphire",
+        "displayOrder": 2
+      }
+    ]
+  }
+]

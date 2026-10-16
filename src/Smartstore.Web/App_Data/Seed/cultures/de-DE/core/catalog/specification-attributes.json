@@ -1,0 +1,345 @@
+{
+  "cpu-manufacturer": {
+    "name": "CPU-Hersteller"
+  },
+  "color": {
+    "name": "Farbe",
+    "options": {
+      "white": {
+        "name": "Weiß"
+      },
+      "black": {
+        "name": "Schwarz"
+      },
+      "beige": {
+        "name": "Beige"
+      },
+      "red": {
+        "name": "Rot"
+      },
+      "blue": {
+        "name": "Blau"
+      },
+      "green": {
+        "name": "Grün"
+      },
+      "yellow": {
+        "name": "Gelb"
+      }
+    }
+  },
+  "harddisk-capacity": {
+    "name": "Festplatten-Kapazität"
+  },
+  "ram": {
+    "name": "Arbeitsspeicher"
+  },
+  "operating-system": {
+    "name": "Betriebssystem"
+  },
+  "ports": {
+    "name": "Anschluss"
+  },
+  "gender": {
+    "name": "Geschlecht",
+    "options": {
+      "gentlemen": {
+        "name": "Herren"
+      },
+      "ladies": {
+        "name": "Damen"
+      },
+      "unisex": {
+        "name": "Unisex"
+      }
+    }
+  },
+  "material": {
+    "options": {
+      "stainless-steel": {
+        "name": "Edelstahl"
+      },
+      "titanium": {
+        "name": "Titan"
+      },
+      "plastic": {
+        "name": "Kunststoff"
+      },
+      "aluminium": {
+        "name": "Aluminium"
+      },
+      "leather": {
+        "name": "Leder"
+      },
+      "nylon": {
+        "name": "Nylon"
+      },
+      "silicone": {
+        "name": "Silikon"
+      },
+      "ceramic": {
+        "name": "Keramik"
+      },
+      "cotton": {
+        "name": "Baumwolle"
+      },
+      "100-organic-cotton": {
+        "name": "100% Bio-Baumwolle"
+      },
+      "polyamide": {
+        "name": "Polyamid"
+      },
+      "rubber": {
+        "name": "Gummi"
+      },
+      "wood": {
+        "name": "Holz"
+      },
+      "glass": {
+        "name": "Glas"
+      },
+      "spandex": {
+        "name": "Elasthan"
+      },
+      "polyester": {
+        "name": "Polyester"
+      }
+    }
+  },
+  "movement": {
+    "name": "Technische Ausführung",
+    "options": {
+      "mechanical-self-winding": {
+        "name": "Automatik, selbstaufziehend"
+      },
+      "mechanical": {
+        "name": "Automatik"
+      },
+      "quarz-battery-operated": {
+        "name": "Quarz, batteriebetrieben"
+      }
+    }
+  },
+  "clasp": {
+    "name": "Verschluss",
+    "options": {
+      "glidelock": {
+        "name": "Faltschließe"
+      },
+      "folding-clasp": {
+        "name": "Sicherheitsfaltschließe"
+      },
+      "thorn-close": {
+        "name": "Dornschließe"
+      }
+    }
+  },
+  "window-material": {
+    "name": "Glas",
+    "options": {
+      "mineral": {
+        "name": "Mineral"
+      },
+      "sapphire": {
+        "name": "Saphir"
+      }
+    }
+  },
+  "language": {
+    "name": "Sprache",
+    "options": {
+      "german": {
+        "name": "Deutsch"
+      },
+      "english": {
+        "name": "Englisch"
+      },
+      "french": {
+        "name": "Französisch"
+      },
+      "italian": {
+        "name": "Italienisch"
+      }
+    }
+  },
+  "edition": {
+    "name": "Ausgabe",
+    "options": {
+      "bound": {
+        "name": "Gebunden"
+      },
+      "paperback": {
+        "name": "Taschenbuch"
+      }
+    }
+  },
+  "category": {
+    "name": "Genre",
+    "options": {
+      "adventure": {
+        "name": "Abenteuer"
+      },
+      "fantasy-and-science-fiction": {
+        "name": "Science-Fiction"
+      },
+      "history": {
+        "name": "Geschichte"
+      },
+      "internet-and-computer": {
+        "name": "Internet & Computer"
+      },
+      "thriller": {
+        "name": "Krimi"
+      },
+      "cars": {
+        "name": "Autos"
+      },
+      "novel": {
+        "name": "Roman"
+      },
+      "cook-and-bake": {
+        "name": "Kochen & Backen"
+      },
+      "non-fiction": {
+        "name": "Sachbuch"
+      }
+    }
+  },
+  "computer-type": {
+    "name": "Computer-Typ",
+    "options": {
+      "desktop": {
+        "name": "Desktop"
+      },
+      "all-in-one": {
+        "name": "All-in-One"
+      },
+      "laptop": {
+        "name": "Laptop"
+      },
+      "tablet": {
+        "name": "Tablet"
+      }
+    }
+  },
+  "type-of-mass-storage": {
+    "name": "Massenspeicher-Typ"
+  },
+  "size-ext-hdd-": {
+    "name": "Größe (externe HDD)"
+  },
+  "mp3-quality": {
+    "name": "MP3-Qualität"
+  },
+  "music-genre": {
+    "name": "Genre",
+    "options": {
+      "blues": {
+        "name": "Blues"
+      },
+      "jazz": {
+        "name": "Jazz"
+      },
+      "disco": {
+        "name": "Disko"
+      },
+      "pop": {
+        "name": "Pop"
+      },
+      "funk": {
+        "name": "Funk"
+      },
+      "classical": {
+        "name": "Klassik"
+      }
+    }
+  },
+  "manufacturer": {
+    "name": "Hersteller"
+  },
+  "for-whom": {
+    "name": "Für wen",
+    "options": {
+      "for-him": {
+        "name": "Für ihn"
+      },
+      "for-her": {
+        "name": "Für sie"
+      }
+    }
+  },
+  "offer": {
+    "name": "Angebot",
+    "options": {
+      "clearance": {
+        "name": "Räumung"
+      },
+      "permanent-low-price": {
+        "name": "Permanent günstigster Preis"
+      },
+      "promotion": {
+        "name": "Aktion"
+      },
+      "reduced-price": {
+        "name": "Preisreduzierung"
+      },
+      "special-buy": {
+        "name": "Angebotspreis"
+      },
+      "offer-of-the-day": {
+        "name": "Tagesangebot"
+      },
+      "weekly-offer": {
+        "name": "Wochenangebot"
+      }
+    }
+  },
+  "size": {
+    "name": "Größe"
+  },
+  "diameter": {
+    "name": "Durchmesser"
+  },
+  "closure": {
+    "name": "Verschluss",
+    "options": {
+      "snap-closure": {
+        "name": "Schnappverschluss"
+      },
+      "folding-clasp": {
+        "name": "Faltverschluss"
+      },
+      "thorn-close": {
+        "name": "Stechverschluss"
+      }
+    }
+  },
+  "facial-shape": {
+    "name": "Form",
+    "options": {
+      "oval": {
+        "name": "Oval"
+      },
+      "round": {
+        "name": "Rund"
+      },
+      "heart-shaped": {
+        "name": "Herzförmig"
+      },
+      "angular": {
+        "name": "Winkelförmig"
+      }
+    }
+  },
+  "storage-capacity": {
+    "name": "Speicherkapazität"
+  },
+  "dial-window-material-type": {
+    "name": "Scheibenmaterial",
+    "options": {
+      "sapphire": {
+        "name": "Saphir"
+      }
+    }
+  }
+}

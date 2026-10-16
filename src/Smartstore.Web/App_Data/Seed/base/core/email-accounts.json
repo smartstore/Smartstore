@@ -1,0 +1,13 @@
+// Key field: key
+[
+  {
+    "key": "default",
+    "email": "test@mail.com",
+    "displayName": "Store name",
+    "host": "smtp.mail.com",
+    "port": 25,
+    "username": "123",
+    "password": "123",
+    "mailSecureOption": "Auto"
+  }
+]

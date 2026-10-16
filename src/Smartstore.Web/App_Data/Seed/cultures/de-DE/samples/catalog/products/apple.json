@@ -1,0 +1,26 @@
+{
+  "P-2005-Bundle": {
+    "shortDescription": "Sparen Sie mit diesem Set 5%!",
+    "fullDescription": "@file"
+  },
+  "P-2004": {
+    "shortDescription": "Macht einfach Spaß. Lernen, spielen, surfen, kreativ werden. Mit dem iPad hast du ein unglaubliches Display, großartige Leistung und Apps für alles, was du gerne machst. Überall. Einfach. Magisch.",
+    "fullDescription": "@file"
+  },
+  "P-2003": {
+    "shortDescription": "Einfach. Kabellos. Magisch.Du nimmst sie aus dem Case und sie sind bereit für all deine Geräte. Du steckst sie in die Ohren und sie verbinden sich sofort. Du sprichst hinein und deine Stimme ist klar zu verstehen. Die neuen AirPods. Einfachheit und Technologie, verbunden wie nie zuvor. Für ein Ergebnis, das einfach magisch ist.",
+    "fullDescription": "@file",
+    "variantAttributes": {
+      "color": {
+        "values": {
+          "mint": {
+            "name": "Mintgrün"
+          }
+        }
+      }
+    }
+  },
+  "P-2001": {
+    "shortDescription": "Das ist iPhone. Das iPhone macht vieles von dem, was das iPhone zum iPhone macht, noch einmal viel besser. Es hat fortschrittliche neue Kamerasysteme. Die beste Leistung und Batterielaufzeit, die ein iPhone je hatte. Beeindruckende Stereo-Lautsprecher. Das hellste iPhone Display. Mit noch mehr Farben. Schutz vor Spritzwasser. Und es sieht so großartig aus, wie es ist. Das ist das iPhone."
+  }
+}
