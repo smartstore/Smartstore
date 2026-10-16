@@ -140,7 +140,11 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.IconBrowser.Size", "Size", "Größe");
         builder.Delete("Admin.IconBrowser.Color", "Admin.IconBrowser.FlipHorizontal", "Admin.IconBrowser.FlipVertical", "Admin.IconBrowser.Rotation", "Admin.IconBrowser.Animation", "Admin.IconBrowser.StrokeWidth", "Admin.IconBrowser.NoAnimation");
         builder.AddOrUpdate("Common.MoreOptions", "More options", "Weitere Optionen");
-        builder.AddOrUpdate("Admin.Catalog.Categories.Fields.Icon", "Icon", "Icon");
+        builder.AddOrUpdate("Admin.Catalog.Categories.Fields.Icon",
+            "Icon",
+            "Icon",
+            "The icon appears in the category navigation, in the main menu including dropdowns, in the mobile menu and in the category tree in the administration.",
+            "Das Icon erscheint in der Kategorienavigation, im Hauptmenü einschließlich Dropdowns, im mobilen Menü sowie im Kategoriebaum der Administration.");
 
         builder.AddOrUpdate("Admin.Design.Color", "Color", "Farbe");
         builder.AddOrUpdate("Admin.Design.FlipHorizontal", "Flip horizontally", "Horizontal spiegeln");

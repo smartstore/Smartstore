@@ -14,6 +14,7 @@
 <div attr-class='(Model.MultiFile || !Model.HasTemplatePreview, "dropzone-container")'>
     <div class="dropzone-target" role="button" tabindex="0" aria-labelledby="@(Model.Name)-msg">
         <div class="dropzone-file-info d-flex align-items-center">
+            <icon name="cloud-upload" class="fu-upload-icon icon-xl" aria-hidden="true" />
             <div id="@(Model.Name)-msg" class="fu-message text-truncate empty" title="@Model.UploadText">
                 @if (Model.UploadText.HasValue())
                 {
@@ -30,7 +31,7 @@
                class="fu-remove remove btn btn-plain btn-sm btn-icon rounded-circle ml-1" 
                title="@T("FileUploader.Dropzone.DictRemoveFile")"
                aria-label="@T("FileUploader.Dropzone.DictRemoveFile")">
-                <i class="fu-remove-icon fs-h5 p-0 text-danger" aria-hidden="true">&times;</i>
+                <icon name="close" class="fu-remove-icon text-danger" aria-hidden="true" />
             </a>
         </div>
 
