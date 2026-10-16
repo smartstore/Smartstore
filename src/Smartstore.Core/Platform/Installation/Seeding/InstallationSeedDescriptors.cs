@@ -5,9 +5,11 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
+using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Messaging;
+using Smartstore.Core.Stores;
 using Smartstore.Scheduling;
 
 namespace Smartstore.Core.Installation.Seeding;
@@ -82,6 +84,57 @@ internal static class InstallationSeedDescriptors
         => new SeedEntityDescriptor<Country>("twoLetterIsoCode")
             .FromFiles("core/countries.json")
             .Child("stateProvinces", x => x.StateProvinces, new SeedEntityDescriptor<StateProvince>("abbreviation"));
+
+    /// <summary>
+    /// Topics. The seed-only field "slug" overrides the slug derived from the system name and is collected in <paramref name="slugs"/>.
+    /// </summary>
+    /// <param name="slugs">Receives slug overrides. Must compare by reference (<see cref="ReferenceEqualityComparer"/>).</param>
+    public static SeedEntityDescriptor<Topic> Topics(IDictionary<Topic, string> slugs)
+    {
+        Guard.NotNull(slugs);
+
+        return new SeedEntityDescriptor<Topic>("systemName")
+            .FromFiles("core/topics.json")
+            .Bind("slug", (topic, node, _) => slugs[topic] = node.GetValue<string>());
+    }
+
+    /// <summary>
+    /// The default store. URL and SSL are not seed data; they are taken from the current request.
+    /// </summary>
+    /// <param name="mediaFileId">Gets the ID of a media file by its path below "media/".</param>
+    public static SeedEntityDescriptor<Store> Stores(Func<string, int> mediaFileId)
+    {
+        Guard.NotNull(mediaFileId);
+
+        return new SeedEntityDescriptor<Store>("key")
+            .FromFiles("core/stores.json")
+            .Reference<Currency>("defaultCurrency", (store, currency) => store.DefaultCurrencyId = currency.Id)
+            .Reference<Currency>("primaryExchangeRateCurrency", (store, currency) => store.PrimaryExchangeRateCurrencyId = currency.Id)
+            .Bind("logoMediaFile", (store, node, _) => store.LogoMediaFileId = mediaFileId(node.GetValue<string>()));
+    }
+
+    /// <summary>
+    /// Built-in system customers (search engine, background task, PDF converter, webhook client).
+    /// </summary>
+    public static SeedEntityDescriptor<Customer> SystemCustomers()
+        => new SeedEntityDescriptor<Customer>("systemName")
+            .FromFiles("core/system-customers.json")
+            .OnCreated((customer, _) =>
+            {
+                customer.CustomerGuid = Guid.NewGuid();
+                customer.CreatedOnUtc = DateTime.UtcNow;
+                customer.LastActivityDateUtc = DateTime.UtcNow;
+            });
+
+    /// <summary>
+    /// Address of the admin user.
+    /// </summary>
+    public static SeedEntityDescriptor<Address> AdminAddress()
+        => new SeedEntityDescriptor<Address>("key")
+            .FromFiles("core/admin-address.json")
+            .Reference<Country>("country", (address, country) => address.Country = country)
+            .Reference<StateProvince>("stateProvince", (address, state) => address.StateProvince = state)
+            .OnCreated((address, _) => address.CreatedOnUtc = DateTime.UtcNow);
 
     /// <summary>
     /// The core file, plus the samples file when sample data is installed.

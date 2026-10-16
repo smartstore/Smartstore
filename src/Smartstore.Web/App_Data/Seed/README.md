@@ -214,6 +214,8 @@ baseline diff before committing it.
 | Simple mandatory lists | `core/` `measure-dimensions`, `measure-weights`, `currencies`, `delivery-times`, `quantity-units`, `price-labels`, `shipping-methods` (+ `samples/`), `customer-roles` (+ `samples/`), `email-accounts`, `activity-log-types`, `tasks`, `product-templates`, `category-templates`, `manufacturer-templates` | Live |
 | Tax categories (with `rate`, `$aliases`) | `core/tax-categories.json` | Live |
 | Countries and states | `core/countries.json` | Live |
+| Topics (with `slug` overrides) | `core/topics.json` | Live |
+| Store, system customers, admin address | `core/stores.json`, `core/system-customers.json`, `core/admin-address.json` | Live |
 | All other data | `base/**`, `cultures/{culture}/**` | Exported, not read by the installer yet |
 
 Descriptors (files, keys, references) are defined in

@@ -77,6 +77,24 @@ public sealed class SeedEntityDescriptor<T> : SeedEntityDescriptor
     internal IReadOnlyList<(string Field, Action<T, JsonNode, SeedBindingContext> Handler)> FieldHandlers => _fieldHandlers;
 
     /// <summary>
+    /// Called after an entity has been created and all fields have been bound.
+    /// </summary>
+    internal Action<T, SeedBindingContext> CreatedHandler { get; private set; }
+
+    /// <summary>
+    /// Sets values that are not seed data, e.g. GUIDs or timestamps of the installation.
+    /// Called after an entity has been created and all fields have been bound.
+    /// </summary>
+    public SeedEntityDescriptor<T> OnCreated(Action<T, SeedBindingContext> action)
+    {
+        Guard.NotNull(action);
+
+        var previous = CreatedHandler;
+        CreatedHandler = previous == null ? action : (entity, context) => { previous(entity, context); action(entity, context); };
+        return this;
+    }
+
+    /// <summary>
     /// Adds base files relative to the "base" folder. The last segment may contain wildcards.
     /// </summary>
     public SeedEntityDescriptor<T> FromFiles(params string[] files)

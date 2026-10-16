@@ -183,6 +183,8 @@ public sealed partial class SeedEntityFactory
             }
         }
 
+        descriptor.CreatedHandler?.Invoke(entity, context);
+
         return entity;
     }
 

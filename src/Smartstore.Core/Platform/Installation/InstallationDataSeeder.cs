@@ -1,9 +1,12 @@
 ﻿using System.Xml;
+using Autofac;
+using Microsoft.AspNetCore.Http;
 using Smartstore.Caching;
 using Smartstore.Core.Catalog.Products.Utilities;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Configuration;
+using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
@@ -167,9 +170,56 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
 
     private async Task PopulateStores()
     {
-        var stores = _data.Stores();
+        var stores = CreateFromSeed(InstallationSeedDescriptors.Stores(SampleMediaFileId));
+
+        // URL and SSL of the store are taken from the installation request.
+        var request = ApplicationContext.Services.Resolve<IHttpContextAccessor>().HttpContext?.Request;
+        foreach (var store in stores)
+        {
+            store.Url = request == null
+                ? "http://www.yourstore.com/"
+                : request.Scheme + "://" + request.Host + request.PathBase.Value.EnsureEndsWith('/');
+            store.SslEnabled = request?.IsHttps ?? false;
+        }
+
         await SaveRangeAsync(stores);
         _defaultStoreId = stores.First().Id;
+    }
+
+    /// <summary>
+    /// Gets the ID of a sample media file that has already been created, by its path below "media/".
+    /// </summary>
+    private int SampleMediaFileId(string path)
+    {
+        // Same naming as SampleMediaUtility without SEO name.
+        var name = Path.GetFileName(path).ToLowerInvariant().Replace('_', '-');
+        return Context.MediaFiles.Where(x => x.Name == name).Select(x => x.Id).FirstOrDefault();
+    }
+
+    private static readonly SlugifyOptions SeedSlugifyOptions = new()
+    {
+        CharConversionMap = new Dictionary<char, string> { { 'ä', "ae" }, { 'ö', "oe" }, { 'ü', "ue" }, { 'Ä', "Ae" }, { 'Ö', "Oe" }, { 'Ü', "Ue" }, { 'ß', "ss" } }
+    };
+
+    /// <summary>
+    /// URL record with an explicit slug or a slug derived from <paramref name="name"/>.
+    /// </summary>
+    private static UrlRecord CreateUrlRecord<T>(T entity, string slug, string name) where T : BaseEntity, ISlugSupported
+    {
+        slug = (slug ?? SlugUtility.Slugify(name, SeedSlugifyOptions)).Truncate(400);
+        if (slug.IsEmpty())
+        {
+            return null;
+        }
+
+        return new UrlRecord
+        {
+            EntityId = entity.Id,
+            EntityName = entity.GetEntityName(),
+            LanguageId = 0,
+            Slug = slug,
+            IsActive = true
+        };
     }
 
     private async Task PopulateTaxCategories()
@@ -280,7 +330,7 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
             LastActivityDateUtc = DateTime.UtcNow,
         };
 
-        var adminAddress = _data.AdminAddress();
+        var adminAddress = CreateFromSeed(InstallationSeedDescriptors.AdminAddress()).Single();
 
         adminUser.Addresses.Add(adminAddress);
         adminUser.BillingAddress = adminAddress;
@@ -317,27 +367,14 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
 
         await Context.SaveChangesAsync();
 
-        // Built-in user for search engines (crawlers)
+        // Built-in system users (search engines, background tasks, PDF converter, webhook client)
         var guestRole = customerRoles.FirstOrDefault(x => x.SystemName == SystemCustomerRoleNames.Guests);
 
-        var customer = _data.SearchEngineUser();
-        customer.CustomerRoleMappings.Add(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = guestRole.Id });
-        await SaveAsync(customer);
-
-        // Built-in user for background tasks
-        customer = _data.BackgroundTaskUser();
-        customer.CustomerRoleMappings.Add(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = guestRole.Id });
-        await SaveAsync(customer);
-
-        // Built-in user for the PDF converter
-        customer = _data.PdfConverterUser();
-        customer.CustomerRoleMappings.Add(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = guestRole.Id });
-        await SaveAsync(customer);
-
-        // Built-in user for the webhook client
-        customer = _data.WebhookClientUser();
-        customer.CustomerRoleMappings.Add(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = guestRole.Id });
-        await SaveAsync(customer);
+        foreach (var customer in CreateFromSeed(InstallationSeedDescriptors.SystemCustomers()))
+        {
+            customer.CustomerRoleMappings.Add(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = guestRole.Id });
+            await SaveAsync(customer);
+        }
     }
 
     private async Task HashDefaultCustomerPassword(string defaultUserEmail, string defaultUserPassword)
@@ -404,9 +441,11 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
 
     private async Task PopulateTopics()
     {
-        var topics = _data.Topics();
+        // By reference: entity equality depends on the ID, which changes on save.
+        var slugs = new Dictionary<Topic, string>(ReferenceEqualityComparer.Instance);
+        var topics = CreateFromSeed(InstallationSeedDescriptors.Topics(slugs));
         await SaveRangeAsync(topics);
-        await PopulateUrlRecordsFor(topics);
+        await PopulateUrlRecordsFor(topics, x => CreateUrlRecord(x, slugs.GetValueOrDefault(x), x.SystemName));
     }
 
     private Task PopulateUrlRecordsFor<T>(IEnumerable<T> entities) where T : BaseEntity, ISlugSupported, new()

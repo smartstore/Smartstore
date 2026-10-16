@@ -220,6 +220,20 @@ public class SeedEntityFactoryTests
     }
 
     [Test]
+    public void OnCreated_runs_after_binding_in_registration_order()
+    {
+        var calls = new System.Collections.Generic.List<string>();
+        var descriptor = new SeedEntityDescriptor<Product>("sku")
+            .Bind("pictures", (p, _, _) => calls.Add("bind"))
+            .OnCreated((p, context) => calls.Add("created:" + context.Key + ":" + p.Name))
+            .OnCreated((p, _) => calls.Add("created2"));
+
+        _factory.Create(Record("P-1", """{ "sku": "P-1", "name": "Ball", "pictures": [] }"""), descriptor);
+
+        Assert.That(calls, Is.EqualTo(new[] { "bind", "created:P-1:Ball", "created2" }));
+    }
+
+    [Test]
     public void Binding_a_field_twice_throws()
         => Assert.Throws<System.InvalidOperationException>(() =>
             new SeedEntityDescriptor<Product>("sku").Bind("x", (_, _, _) => { }).Bind("X", (_, _, _) => { }));
