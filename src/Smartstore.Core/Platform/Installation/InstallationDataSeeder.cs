@@ -25,6 +25,10 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
     private readonly SeedDataConfiguration _config;
     private readonly InvariantSeedData _data;
 
+    private readonly SeedReferenceResolver _seedResolver = new();
+    private SeedDataSource _seedSource;
+    private SeedEntityFactory _seedFactory;
+
     private IXmlResourceManager _xmlResourceManager;
     private int _defaultStoreId;
 
@@ -87,33 +91,40 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
         // because SampleMediaUtility depends on it.
         _data.Initialize(Context, _config, EngineContext.Current.Application);
 
+        // File-based seed data (App_Data/Seed). Resource references become available after the locale resources.
+        _seedSource = new SeedDataSource(
+            new LocalFileSystem(PathUtility.Join(ApplicationContext.AppDataRoot.Root, SeedDataSource.AppDataFolder)),
+            _config.Language.LanguageCulture);
+        _seedFactory = new SeedEntityFactory(_seedResolver);
+
         Populate("PopulatePictures", () => _data.Pictures(_config.SeedSampleData));
-        await PopulateAsync("PopulateCurrencies", PopulateCurrencies);
+        await PopulateFromSeedAsync("PopulateCurrencies", InstallationSeedDescriptors.Currencies());
         await PopulateAsync("PopulateStores", PopulateStores);
         await PopulateAsync("InstallLanguages", () => PopulateLanguage(_config.Language));
 
         // Locale resources come right after the language, so that seed data can reference resources.
         await PopulateAsync("PopulateLocaleResources", async () => await PopulateLocaleResources(_config.Language));
+        _seedFactory = new SeedEntityFactory(_seedResolver, await SeedResources.TryLoadAsync(Context, _config.Language, CancelToken));
 
-        await PopulateAsync("PopulateMeasureDimensions", _data.MeasureDimensions());
-        await PopulateAsync("PopulateMeasureWeights", _data.MeasureWeights());
+        await PopulateFromSeedAsync("PopulateMeasureDimensions", InstallationSeedDescriptors.MeasureDimensions());
+        await PopulateFromSeedAsync("PopulateMeasureWeights", InstallationSeedDescriptors.MeasureWeights());
         await PopulateAsync("PopulateTaxCategories", PopulateTaxCategories);
         await PopulateAsync("PopulateCountriesAndStates", PopulateCountriesAndStates);
-        await PopulateAsync("PopulateShippingMethods", PopulateShippingMethods);
-        await PopulateAsync("PopulateDeliveryTimes", _data.DeliveryTimes());
-        await PopulateAsync("PopulateQuantityUnits", _data.QuantityUnits());
+        await PopulateFromSeedAsync("PopulateShippingMethods", InstallationSeedDescriptors.ShippingMethods(_config.SeedSampleData));
+        await PopulateFromSeedAsync("PopulateDeliveryTimes", InstallationSeedDescriptors.DeliveryTimes());
+        await PopulateFromSeedAsync("PopulateQuantityUnits", InstallationSeedDescriptors.QuantityUnits());
         await PopulateAsync("PopulateCustomersAndUsers", async () => await PopulateCustomersAndUsers(_config.DefaultUserName, _config.DefaultUserPassword));
-        await PopulateAsync("PopulateEmailAccounts", _data.EmailAccounts());
+        await PopulateFromSeedAsync("PopulateEmailAccounts", InstallationSeedDescriptors.EmailAccounts());
         await PopulateAsync("PopulateMessageTemplates", PopulateMessageTemplates);
         await PopulateAsync("PopulateTopics", PopulateTopics);
-        await PopulateAsync("PopulatePriceLabels", _data.PriceLabels());
+        await PopulateFromSeedAsync("PopulatePriceLabels", InstallationSeedDescriptors.PriceLabels());
         await PopulateAsync("PopulateSettings", PopulateSettings);
-        await PopulateAsync("PopulateActivityLogTypes", _data.ActivityLogTypes());
+        await PopulateFromSeedAsync("PopulateActivityLogTypes", InstallationSeedDescriptors.ActivityLogTypes());
         await PopulateAsync("PopulateCustomersAndUsers", async () => await HashDefaultCustomerPassword(_config.DefaultUserName, _config.DefaultUserPassword));
-        await PopulateAsync("PopulateProductTemplates", _data.ProductTemplates());
-        await PopulateAsync("PopulateCategoryTemplates", _data.CategoryTemplates());
-        await PopulateAsync("PopulateManufacturerTemplates", _data.ManufacturerTemplates());
-        await PopulateAsync("PopulateScheduleTasks", _data.TaskDescriptors());
+        await PopulateFromSeedAsync("PopulateProductTemplates", InstallationSeedDescriptors.ProductTemplates());
+        await PopulateFromSeedAsync("PopulateCategoryTemplates", InstallationSeedDescriptors.CategoryTemplates());
+        await PopulateFromSeedAsync("PopulateManufacturerTemplates", InstallationSeedDescriptors.ManufacturerTemplates());
+        await PopulateFromSeedAsync("PopulateScheduleTasks", InstallationSeedDescriptors.TaskDescriptors());
         await PopulateAsync("PopulateMenus", _data.Menus());
 
         if (_config.SeedSampleData)
@@ -146,6 +157,12 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
     #endregion
 
     #region Populate
+
+    private List<T> CreateFromSeed<T>(SeedEntityDescriptor<T> descriptor) where T : BaseEntity, new()
+        => _seedFactory.CreateAll<T>(_seedSource.Load(descriptor));
+
+    private Task PopulateFromSeedAsync<T>(string stage, SeedEntityDescriptor<T> descriptor) where T : BaseEntity, new()
+        => PopulateAsync(stage, () => SaveRangeAsync(CreateFromSeed(descriptor)));
 
     private async Task PopulateStores()
     {
@@ -250,25 +267,15 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
         }
     }
 
-    private async Task PopulateCurrencies()
-    {
-        await SaveRangeAsync(_data.Currencies().Where(x => x != null));
-    }
-
     private async Task PopulateCountriesAndStates()
     {
         await SaveRangeAsync(_data.Countries().Where(x => x != null));
     }
 
-    private Task PopulateShippingMethods()
-    {
-        return SaveRangeAsync(_data.ShippingMethods(_config.SeedSampleData).Where(x => x != null));
-    }
-
     private async Task PopulateCustomersAndUsers(string defaultUserEmail, string defaultUserPassword)
     {
-        var customerRoles = _data.CustomerRoles(_config.SeedSampleData);
-        await SaveRangeAsync(customerRoles.Where(x => x != null));
+        var customerRoles = CreateFromSeed(InstallationSeedDescriptors.CustomerRoles(_config.SeedSampleData));
+        await SaveRangeAsync(customerRoles);
 
         //admin user
         var adminUser = new Customer

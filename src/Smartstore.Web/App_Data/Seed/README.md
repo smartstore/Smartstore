@@ -7,10 +7,9 @@ sample catalog (categories, manufacturers, products, …), each in all installab
 It replaces the seed data that used to live in C# (`InvariantSeedData`, `EnUSSeedData`,
 `DeDESeedData` in `src/Smartstore.Core/Platform/Installation`).
 
-> **Status: migration in progress.** The locale resources (`cultures/{culture}/resources`) are
-> live. The data files in `base/` and the overlays are exported from the C# classes and are
-> complete, but the installer does not read them yet: until an area is migrated, its data still
-> comes from C#. The table under [Migrated areas](#migrated-areas) lists what is live.
+> **Status: migration in progress.** The data files in `base/` and the overlays are complete,
+> but the installer reads only the areas listed under [Migrated areas](#migrated-areas) from
+> here. All other areas still come from the C# classes until they are migrated.
 
 ## Folder layout
 
@@ -212,7 +211,11 @@ baseline diff before committing it.
 | Area | Files | Status |
 |---|---|---|
 | Locale resources | `cultures/{culture}/resources/*` | Live |
+| Simple mandatory lists | `core/` `measure-dimensions`, `measure-weights`, `currencies`, `delivery-times`, `quantity-units`, `price-labels`, `shipping-methods` (+ `samples/`), `customer-roles` (+ `samples/`), `email-accounts`, `activity-log-types`, `tasks`, `product-templates`, `category-templates`, `manufacturer-templates` | Live |
 | All other data | `base/**`, `cultures/{culture}/**` | Exported, not read by the installer yet |
+
+Descriptors (files, keys, references) are defined in
+`src/Smartstore.Core/Platform/Installation/Seeding/InstallationSeedDescriptors.cs`.
 
 ## Rules for AI agents
 

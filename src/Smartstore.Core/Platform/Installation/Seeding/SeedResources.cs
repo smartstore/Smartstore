@@ -33,6 +33,16 @@ public sealed class SeedResources
     /// <exception cref="SeedDataFormatException">No resources have been seeded for the language yet.</exception>
     public static async Task<SeedResources> LoadAsync(SmartDbContext db, Language language, CancellationToken cancelToken = default)
     {
+        return await TryLoadAsync(db, language, cancelToken)
+            ?? throw new SeedDataFormatException(
+                $"No locale resources have been seeded for language '{language.LanguageCulture}'. Seed them before records that use resource references.");
+    }
+
+    /// <summary>
+    /// Loads the seeded resources of <paramref name="language"/>, or returns null if none have been seeded yet.
+    /// </summary>
+    public static async Task<SeedResources> TryLoadAsync(SmartDbContext db, Language language, CancellationToken cancelToken = default)
+    {
         Guard.NotNull(db);
         Guard.NotNull(language);
 
@@ -44,8 +54,7 @@ public sealed class SeedResources
 
         if (resources.Count == 0)
         {
-            throw new SeedDataFormatException(
-                $"No locale resources have been seeded for language '{language.LanguageCulture}'. Seed them before records that use resource references.");
+            return null;
         }
 
         var map = resources

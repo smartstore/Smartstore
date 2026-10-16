@@ -33,8 +33,8 @@ namespace Smartstore.Core.Tests.Platform.Installation.SeedSnapshot;
 /// in-memory SQLite database, so that the seeded data can be snapshotted.
 /// </summary>
 /// <remarks>
-/// Only the seed data itself is in scope. Locale resources are imported (without pending migration
-/// resources), so that data referencing them is complete. Message templates are skipped, modules are
+/// Only the seed data itself is in scope. Seed files and locale resources are copied from "App_Data/Seed"
+/// (without pending migration resources), so that data referencing them is complete. Message templates are skipped, modules are
 /// not installed and no DB hooks run.
 /// </remarks>
 internal sealed class SeedSnapshotHarness : IDisposable
@@ -125,16 +125,17 @@ internal sealed class SeedSnapshotHarness : IDisposable
     {
         var harness = new SeedSnapshotHarness(sampleMediaSourceDir);
 
-        // Locale resources of the culture, without "head.txt": pending migration resources need the DB migrator.
-        var resourcesDir = Path.Combine(Path.GetDirectoryName(sampleMediaSourceDir), SeedDataSource.AppDataFolder, SeedDataSource.CulturesFolder, culture, SeedDataSource.ResourcesFolder);
-        if (Directory.Exists(resourcesDir))
+        // Seed data and locale resources, without "head.txt": pending migration resources need the DB migrator.
+        var seedDir = Path.Combine(Path.GetDirectoryName(sampleMediaSourceDir), SeedDataSource.AppDataFolder);
+        if (Directory.Exists(seedDir))
         {
-            var targetDir = Path.Combine(harness._contentRoot, "App_Data", SeedDataSource.AppDataFolder, SeedDataSource.CulturesFolder, culture, SeedDataSource.ResourcesFolder);
-            Directory.CreateDirectory(targetDir);
+            var targetRoot = Path.Combine(harness._contentRoot, "App_Data", SeedDataSource.AppDataFolder);
 
-            foreach (var file in Directory.EnumerateFiles(resourcesDir, "*.smres.xml"))
+            foreach (var file in Directory.EnumerateFiles(seedDir, "*", SearchOption.AllDirectories).Where(x => Path.GetFileName(x) != "head.txt"))
             {
-                File.Copy(file, Path.Combine(targetDir, Path.GetFileName(file)));
+                var target = Path.Combine(targetRoot, Path.GetRelativePath(seedDir, file));
+                Directory.CreateDirectory(Path.GetDirectoryName(target));
+                File.Copy(file, target);
             }
         }
 

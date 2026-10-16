@@ -36,6 +36,10 @@ public class DeDESeedData : InvariantSeedData
     private readonly Dictionary<string, TaxCategory> _taxCategories = [];
     private DeliveryTime _defaultDeliveryTime;
 
+    // Delivery times are seeded from files, so the first one is looked up instead of remembered in Alter().
+    private DeliveryTime DefaultDeliveryTime
+        => _defaultDeliveryTime ??= DbContext.DeliveryTimes.OrderBy(x => x.Id).First();
+
     protected override void Alter(Customer entity)
     {
         base.Alter(entity);
@@ -2790,7 +2794,7 @@ public class DeDESeedData : InvariantSeedData
                 x.ShortDescription = "Dieser 58 cm (23'')-All-in-One-PC mit Full HD, Windows 8 und leistungsstarken Intel® Core™ Prozessoren der dritten Generation ermöglicht eine praktische Interaktion mit einem Touchscreen.";
                 x.FullDescription = "<p>Extrem leistungsstarker All-in-One PC mit Windows 8, Intel® Core™ i7 Prozessor, riesiger 2TB Festplatte und Blu-Ray Laufwerk.  </p>  <p>  Intel® Core™ i7-3770S Prozessor ( 3,1 GHz, 6 MB Cache) Windows 8 64bit , Deutsch<br> 8 GB1 DDR3 SDRAM bei 1600 MHz<br> 2 TB-Serial ATA-Festplatte (7.200 U/min)<br> 1GB AMD Radeon HD 7650<br> </p>";
                 x.Price = 589.00M;
-                x.DeliveryTime = _defaultDeliveryTime;
+                x.DeliveryTime = DefaultDeliveryTime;
                 x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
                 x.OrderMinimumQuantity = 1;
                 x.OrderMaximumQuantity = DefaultMaxOrderQuantity;
@@ -2805,7 +2809,7 @@ public class DeDESeedData : InvariantSeedData
                 x.ShortDescription = "SONDERANGEBOT: Zusätzliche 50 € Rabatt auf alle Dell OptiPlex Desktops ab einem Wert von 549 €. Online-Coupon: W8DWQ0ZRKTM1, gültig bis 4.12.2013";
                 x.FullDescription = "<p>Ebenfalls im Lieferumfang dieses Systems enthalten</p> <p> 1 Jahr Basis-Service - Vor-Ort-Service am nächsten Arbeitstag - kein Upgrade ausgewählt Keine Asset-Tag erforderlich</p> <p> Die folgenden Optionen sind in Ihren Auftrag aufgenommene Standardauswahlen.<br> German (QWERTZ) Dell KB212-B QuietKey USB Keyboard Black<br> X11301001<br> WINDOWS LIVE<br> OptiPlex™ Bestellung - Deutschland<br> OptiPlex™ Intel® Core™ i3 Aufkleber<br> Optische Software nicht erforderlich, Betriebssystemsoftware ausreichend<br> </p>";
                 x.Price = 419.00M;
-                x.DeliveryTime = _defaultDeliveryTime;
+                x.DeliveryTime = DefaultDeliveryTime;
                 x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
                 x.OrderMinimumQuantity = 1;
                 x.OrderMaximumQuantity = DefaultMaxOrderQuantity;
@@ -2821,7 +2825,7 @@ public class DeDESeedData : InvariantSeedData
                 x.ShortDescription = "Acer definiert mit dem Aspire One mobile Konnektivität neu, dem revolutionären Spaß und Power Netbook in der zierlichen 8.9\" Größe. ";
                 x.FullDescription = "<p> Von der Betätigung des Powerknopfes an, ist das Aspire One in nur wenigen Sekunden betriebsbereit. Sobald an, ist die Arbeit sehr einfach: ein Heimarbeitsplatz der die heute benötigten vier Bereiche abdeckt, verbunden bleiben, arbeiten, spielen und Ihr Leben unterwegs organisieren. Und der Aspire One ist etwas Besonderes, Sie können alles so individualisieren das es für Sie das Richtige ist. Schnell, einfach und unbeschreiblich schick. Ihr Style ist Ihre Unterschrift. Es ist Ihre Identität, Ihre Persönlichkeit und Ihre Visitenkarte. Ihr Style zeigt Ihrer Umwelt wie Sie sind und wie Sie Ihr Leben leben, online und offline. Das alles benötigen Sie, um Sie selbst zu sein. Ihr Style kommt in verschiedenen Farben, jede mit einem individuellen Charakter. Kleiner als ein durchschnittliches Tagebuch, das Aspire One bringt Freiheit in Ihre Hände. </p> <p> Allgemein<br> Betriebssystem: Microsoft Windows XP Home Edition, Linux Linpus Lite <br> Herstellergarantie: 1 Jahr Garantie<br> Systemtyp: Netbook<br> MPN: LU.S080B.069, LU.S050B.081, LU.S040B.079, LU.S090B.079, LU.S040B.198, LU.S040A.048, LU.S050A.050, LU.S050B.080, LU.S040B.078, 099915639, LU.S050A.074, LU.S360A.203, LU.S450B.030, LU.S050B.159<br> Speicher<br> RAM: 1 GB ( 1 x 512 MB + 512 MB (integriert) ), 1 GB<br> Max. unterstützter RAM-Speicher: 1.5 GB<br> Technologie: DDR2 SDRAM<br> Geschwindigkeit: 533 MHz   <br> Formfaktor: SO DIMM 200-polig  <br> Anz. Steckplätze: 1<br> Leere Steckplätze: 0, 1<br> Display<br> Typ: 22.6 cm ( 8.9\" )<br> Auflösung: 1024 x 600 ( WSVGA )<br> Breitwand: Ja<br> LCD-Hintergrundbeleuchtung: LED-Hintergrundbeleuchtung     <br> Farbunterstützung: 262.144 Farben, 24 Bit (16,7 Millionen Farben)<br> Besonderheiten: CrystalBrite<br> Batterie<br> Betriebszeit: Bis zu 7 Stunden, Bis zu 3 Stunden<br> Kapazität: 2600 mAh, 2200 mAh<br> Technologie: 6 Zellen Lithium-Ionen, 3 Zellen Lithium-Ionen, Lithium-Ionen<br> Herstellergarantie<br> Service & Support:<br> Reisegarantie - 1 Jahr, Begrenzte Garantie - 1 Jahr, Internationale Garantie - 1 Jahr<br> Begrenzte Garantie - 1 Jahr, Reisegarantie - 1 Jahr<br> Begrenzte Garantie - 1 Jahr, Begrenzte Garantie - 1 Jahr<br> Reisegarantie - 1 Jahr<br> Navigation<br>Empfänger: GPS<br></p>";
                 x.Price = 210.60M;
-                x.DeliveryTime = _defaultDeliveryTime;
+                x.DeliveryTime = DefaultDeliveryTime;
                 x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
                 x.OrderMinimumQuantity = 1;
                 x.OrderMaximumQuantity = DefaultMaxOrderQuantity;
@@ -3056,8 +3060,6 @@ public class DeDESeedData : InvariantSeedData
             .Alter(0, x => x.Name = "sofort lieferbar")
             .Alter(1, x => x.Name = "2-5 Werktage")
             .Alter(2, x => x.Name = "7 Werktage");
-
-        _defaultDeliveryTime = entities.First();
     }
 
     protected override void Alter(IList<QuantityUnit> entities)
