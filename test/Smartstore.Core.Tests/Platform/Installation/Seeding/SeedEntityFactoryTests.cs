@@ -167,6 +167,59 @@ public class SeedEntityFactoryTests
     }
 
     [Test]
+    public void Resource_references_are_resolved_in_fields_and_children()
+    {
+        var resources = new SeedResources("de-DE", new System.Collections.Generic.Dictionary<string, string>(System.StringComparer.OrdinalIgnoreCase)
+        {
+            ["Countries.Germany"] = "Deutschland",
+            ["States.BW"] = "Baden-Württemberg"
+        });
+
+        var factory = new SeedEntityFactory(_resolver, resources);
+        var record = Record("DE", """{ "twoLetterIsoCode": "DE", "name": "@resource:countries.germany", "stateProvinces": [ { "abbreviation": "BW", "name": "@resource:States.BW" } ] }""");
+
+        var country = factory.Create(record, CountryDescriptor());
+
+        Assert.That(country.Name, Is.EqualTo("Deutschland"));
+        Assert.That(country.StateProvinces.Single().Name, Is.EqualTo("Baden-Württemberg"));
+    }
+
+    [Test]
+    public void Embedded_resource_references_are_resolved()
+    {
+        var resources = new SeedResources("de-DE", new System.Collections.Generic.Dictionary<string, string>(System.StringComparer.OrdinalIgnoreCase)
+        {
+            ["Footer.Info"] = "Informationen",
+            ["Footer.Service"] = "Service"
+        });
+
+        var factory = new SeedEntityFactory(_resolver, resources);
+        var country = factory.Create(Record("DE", """{ "twoLetterIsoCode": "DE", "name": "Footer - {@resource:Footer.Info} / {@resource:footer.service}" }"""), CountryDescriptor());
+
+        Assert.That(country.Name, Is.EqualTo("Footer - Informationen / Service"));
+    }
+
+    [Test]
+    public void Resource_reference_without_seeded_resources_throws()
+    {
+        var ex = Assert.Throws<SeedDataFormatException>(() =>
+            _factory.Create(Record("DE", """{ "twoLetterIsoCode": "DE", "name": "@resource:Countries.Germany" }"""), CountryDescriptor()));
+
+        Assert.That(ex.Message, Does.Contain("no locale resources have been seeded"));
+    }
+
+    [Test]
+    public void Unknown_resource_reference_throws()
+    {
+        var factory = new SeedEntityFactory(_resolver, new SeedResources("de-DE", new System.Collections.Generic.Dictionary<string, string>()));
+
+        var ex = Assert.Throws<SeedDataFormatException>(() =>
+            factory.Create(Record("DE", """{ "twoLetterIsoCode": "DE", "name": "@resource:Missing.Key" }"""), CountryDescriptor()));
+
+        Assert.That(ex.Message, Does.Contain("unknown locale resource 'Missing.Key'"));
+    }
+
+    [Test]
     public void Binding_a_field_twice_throws()
         => Assert.Throws<System.InvalidOperationException>(() =>
             new SeedEntityDescriptor<Product>("sku").Bind("x", (_, _, _) => { }).Bind("X", (_, _, _) => { }));

@@ -115,7 +115,7 @@
     "Title": null
   },
   {
-    "$key": "MenuEntity:FooterInformation|route|{\\\"routename\\\":\\\"CompareProducts\\\"}|",
+    "$key": "MenuEntity:FooterInformation|route|{\\\"routename\\\":\\\"CompareProducts\\\"}|Compare products list",
     "BeginGroup": false,
     "CssClass": null,
     "DisplayOrder": 4,
@@ -135,10 +135,10 @@
     "ShowExpanded": false,
     "Style": null,
     "SubjectToAcl": false,
-    "Title": ""
+    "Title": "Compare products list"
   },
   {
-    "$key": "MenuEntity:FooterInformation|route|{\\\"routename\\\":\\\"ManufacturerList\\\"}|",
+    "$key": "MenuEntity:FooterInformation|route|{\\\"routename\\\":\\\"ManufacturerList\\\"}|All Brands",
     "BeginGroup": false,
     "CssClass": null,
     "DisplayOrder": 1,
@@ -158,10 +158,10 @@
     "ShowExpanded": false,
     "Style": null,
     "SubjectToAcl": false,
-    "Title": ""
+    "Title": "All Brands"
   },
   {
-    "$key": "MenuEntity:FooterInformation|route|{\\\"routename\\\":\\\"RecentlyAddedProducts\\\"}|",
+    "$key": "MenuEntity:FooterInformation|route|{\\\"routename\\\":\\\"RecentlyAddedProducts\\\"}|What's New",
     "BeginGroup": false,
     "CssClass": null,
     "DisplayOrder": 2,
@@ -181,10 +181,10 @@
     "ShowExpanded": false,
     "Style": null,
     "SubjectToAcl": false,
-    "Title": ""
+    "Title": "What's New"
   },
   {
-    "$key": "MenuEntity:FooterInformation|route|{\\\"routename\\\":\\\"RecentlyViewedProducts\\\"}|",
+    "$key": "MenuEntity:FooterInformation|route|{\\\"routename\\\":\\\"RecentlyViewedProducts\\\"}|Recently viewed products",
     "BeginGroup": false,
     "CssClass": null,
     "DisplayOrder": 3,
@@ -204,7 +204,7 @@
     "ShowExpanded": false,
     "Style": null,
     "SubjectToAcl": false,
-    "Title": ""
+    "Title": "Recently viewed products"
   },
   {
     "$key": "MenuEntity:FooterService|entity|topic:PaymentInfo|",
@@ -253,7 +253,7 @@
     "Title": null
   },
   {
-    "$key": "MenuEntity:FooterService|route|{\\\"routename\\\":\\\"ContactUs\\\"}|",
+    "$key": "MenuEntity:FooterService|route|{\\\"routename\\\":\\\"ContactUs\\\"}|Contact us",
     "BeginGroup": false,
     "CssClass": null,
     "DisplayOrder": 1,
@@ -273,7 +273,7 @@
     "ShowExpanded": false,
     "Style": null,
     "SubjectToAcl": false,
-    "Title": ""
+    "Title": "Contact us"
   },
   {
     "$key": "MenuEntity:FooterService|route|{\\\"routename\\\":\\\"CookieManager\\\"}|Cookie Manager",
@@ -391,7 +391,7 @@
     "Title": null
   },
   {
-    "$key": "MenuEntity:HelpAndService|route|{\\\"routename\\\":\\\"CompareProducts\\\"}|",
+    "$key": "MenuEntity:HelpAndService|route|{\\\"routename\\\":\\\"CompareProducts\\\"}|Compare products list",
     "BeginGroup": false,
     "CssClass": null,
     "DisplayOrder": 4,
@@ -411,10 +411,10 @@
     "ShowExpanded": false,
     "Style": null,
     "SubjectToAcl": false,
-    "Title": ""
+    "Title": "Compare products list"
   },
   {
-    "$key": "MenuEntity:HelpAndService|route|{\\\"routename\\\":\\\"ManufacturerList\\\"}|",
+    "$key": "MenuEntity:HelpAndService|route|{\\\"routename\\\":\\\"ManufacturerList\\\"}|All Brands",
     "BeginGroup": false,
     "CssClass": null,
     "DisplayOrder": 2,
@@ -434,10 +434,10 @@
     "ShowExpanded": false,
     "Style": null,
     "SubjectToAcl": false,
-    "Title": ""
+    "Title": "All Brands"
   },
   {
-    "$key": "MenuEntity:HelpAndService|route|{\\\"routename\\\":\\\"RecentlyAddedProducts\\\"}|",
+    "$key": "MenuEntity:HelpAndService|route|{\\\"routename\\\":\\\"RecentlyAddedProducts\\\"}|What's New",
     "BeginGroup": false,
     "CssClass": null,
     "DisplayOrder": 1,
@@ -457,10 +457,10 @@
     "ShowExpanded": false,
     "Style": null,
     "SubjectToAcl": false,
-    "Title": ""
+    "Title": "What's New"
   },
   {
-    "$key": "MenuEntity:HelpAndService|route|{\\\"routename\\\":\\\"RecentlyViewedProducts\\\"}|",
+    "$key": "MenuEntity:HelpAndService|route|{\\\"routename\\\":\\\"RecentlyViewedProducts\\\"}|Recently viewed products",
     "BeginGroup": false,
     "CssClass": null,
     "DisplayOrder": 3,
@@ -480,7 +480,7 @@
     "ShowExpanded": false,
     "Style": null,
     "SubjectToAcl": false,
-    "Title": ""
+    "Title": "Recently viewed products"
   },
   {
     "$key": "MenuEntity:Main|catalog||",

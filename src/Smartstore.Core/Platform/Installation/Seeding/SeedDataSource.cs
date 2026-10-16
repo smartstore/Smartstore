@@ -64,10 +64,19 @@ public sealed class SeedCulture
 /// </remarks>
 public sealed class SeedDataSource
 {
+    /// <summary>
+    /// The seed root folder relative to "App_Data".
+    /// </summary>
+    public const string AppDataFolder = "Seed";
     public const string BaseFolder = "base";
     public const string CulturesFolder = "cultures";
     public const string MediaFolder = "media";
     public const string CultureFileName = "culture.json";
+
+    /// <summary>
+    /// Folder of a culture that holds its locale resource files ("*.smres.xml" and "head.txt").
+    /// </summary>
+    public const string ResourcesFolder = "resources";
     public const string FileDirective = "@file";
 
     private static readonly JsonSerializerOptions CultureJsonOptions = new()

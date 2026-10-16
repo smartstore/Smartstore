@@ -2,6 +2,7 @@
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
+using System.Text.RegularExpressions;
 
 namespace Smartstore.Core.Installation.Seeding;
 
@@ -42,7 +43,7 @@ public sealed class SeedBindingContext
 /// Created top-level entities are registered in the <see cref="SeedReferenceResolver"/> under their key,
 /// child entities under "{parentKey}/{childKey}".
 /// </remarks>
-public sealed class SeedEntityFactory
+public sealed partial class SeedEntityFactory
 {
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
@@ -65,12 +66,25 @@ public sealed class SeedEntityFactory
         typeof(Guid), typeof(TimeSpan), typeof(DateOnly), typeof(TimeOnly)
     ];
 
-    public SeedEntityFactory(SeedReferenceResolver resolver)
+    /// <summary>
+    /// Prefix of string values that reference a locale resource, e.g. <c>"@resource:Footer.Info"</c>.
+    /// </summary>
+    public const string ResourceDirective = "@resource:";
+
+    /// <param name="resolver">Resolves keys of other seed records.</param>
+    /// <param name="resources">
+    /// Locale resources of the installed language, used to resolve <c>"@resource:{key}"</c> values.
+    /// Null if resources have not been seeded yet: any resource reference then fails.
+    /// </param>
+    public SeedEntityFactory(SeedReferenceResolver resolver, SeedResources resources = null)
     {
         Resolver = Guard.NotNull(resolver);
+        Resources = resources;
     }
 
     public SeedReferenceResolver Resolver { get; }
+
+    public SeedResources Resources { get; }
 
     /// <summary>
     /// Creates entities for all records of a record set, registers them and the set's aliases in the resolver.
@@ -123,11 +137,13 @@ public sealed class SeedEntityFactory
         return entity;
     }
 
-    private static T CreateEntity<T>(JsonObject data, SeedEntityDescriptor<T> descriptor, SeedBindingContext context)
+    private T CreateEntity<T>(JsonObject data, SeedEntityDescriptor<T> descriptor, SeedBindingContext context)
         where T : BaseEntity, new()
     {
         var path = $"{context.Source} → {descriptor.Name} '{context.Key}'";
         var json = (JsonObject)data.DeepClone();
+
+        ResolveResources(json, path);
 
         // A synthetic key field (e.g. "key") identifies the record only and is not an entity property.
         if (!SerializerOptions.GetTypeInfo(typeof(T)).Properties.Any(x => x.Name.EqualsNoCase(descriptor.KeyField)))
@@ -169,6 +185,86 @@ public sealed class SeedEntityFactory
 
         return entity;
     }
+
+    /// <summary>
+    /// Replaces all <c>"@resource:{key}"</c> string values (also in nested objects and arrays).
+    /// </summary>
+    private void ResolveResources(JsonNode node, string path)
+    {
+        switch (node)
+        {
+            case JsonObject obj:
+                foreach (var (name, value) in obj.ToList())
+                {
+                    if (TryResolveResource(value, $"{path} → {name}", out var resolved))
+                    {
+                        obj[name] = resolved;
+                    }
+                    else
+                    {
+                        ResolveResources(value, $"{path} → {name}");
+                    }
+                }
+                break;
+            case JsonArray array:
+                for (var i = 0; i < array.Count; i++)
+                {
+                    if (TryResolveResource(array[i], path, out var resolved))
+                    {
+                        array[i] = resolved;
+                    }
+                    else
+                    {
+                        ResolveResources(array[i], path);
+                    }
+                }
+                break;
+        }
+    }
+
+    private bool TryResolveResource(JsonNode node, string path, out JsonNode resolved)
+    {
+        resolved = null;
+
+        if (node is not JsonValue value || !value.TryGetValue<string>(out var str))
+        {
+            return false;
+        }
+
+        // Whole value: "@resource:Key"
+        if (str.StartsWith(ResourceDirective, StringComparison.Ordinal))
+        {
+            resolved = GetResource(str[ResourceDirective.Length..].Trim(), str, path);
+            return true;
+        }
+
+        // Embedded: "Footer - {@resource:Key}"
+        if (str.Contains('{' + ResourceDirective, StringComparison.Ordinal))
+        {
+            resolved = EmbeddedResourceRegex().Replace(str, m => GetResource(m.Groups["key"].Value.Trim(), str, path));
+            return true;
+        }
+
+        return false;
+    }
+
+    private string GetResource(string key, string reference, string path)
+    {
+        if (Resources == null)
+        {
+            throw new SeedDataFormatException($"{path}: cannot resolve '{reference}' because no locale resources have been seeded yet.");
+        }
+
+        if (!Resources.TryGetValue(key, out var text))
+        {
+            throw new SeedDataFormatException($"{path}: unknown locale resource '{key}' for language '{Resources.Culture}'.");
+        }
+
+        return text;
+    }
+
+    [GeneratedRegex(@"\{@resource:(?<key>[^}]+)\}")]
+    private static partial Regex EmbeddedResourceRegex();
 
     private static void ScalarEntityPropertiesOnly(JsonTypeInfo typeInfo)
     {

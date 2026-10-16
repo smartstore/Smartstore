@@ -7,6 +7,7 @@ using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Installation.Seeding;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
@@ -90,6 +91,10 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
         await PopulateAsync("PopulateCurrencies", PopulateCurrencies);
         await PopulateAsync("PopulateStores", PopulateStores);
         await PopulateAsync("InstallLanguages", () => PopulateLanguage(_config.Language));
+
+        // Locale resources come right after the language, so that seed data can reference resources.
+        await PopulateAsync("PopulateLocaleResources", async () => await PopulateLocaleResources(_config.Language));
+
         await PopulateAsync("PopulateMeasureDimensions", _data.MeasureDimensions());
         await PopulateAsync("PopulateMeasureWeights", _data.MeasureWeights());
         await PopulateAsync("PopulateTaxCategories", PopulateTaxCategories);
@@ -109,7 +114,6 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
         await PopulateAsync("PopulateCategoryTemplates", _data.CategoryTemplates());
         await PopulateAsync("PopulateManufacturerTemplates", _data.ManufacturerTemplates());
         await PopulateAsync("PopulateScheduleTasks", _data.TaskDescriptors());
-        await PopulateAsync("PopulateLocaleResources", async () => await PopulateLocaleResources(_config.Language));
         await PopulateAsync("PopulateMenus", _data.Menus());
 
         if (_config.SeedSampleData)
@@ -187,15 +191,10 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
     {
         var appDataRoot = EngineContext.Current.Application.AppDataRoot;
 
-        var locDir = appDataRoot.GetDirectory("Localization/App/" + language.LanguageCulture);
+        var locDir = appDataRoot.GetDirectory(PathUtility.Join(SeedDataSource.AppDataFolder, SeedDataSource.CulturesFolder, language.LanguageCulture, SeedDataSource.ResourcesFolder));
         if (!locDir.Exists)
         {
-            // Fallback to neutral language folder (de, en etc.)
-            locDir = appDataRoot.GetDirectory("Localization/App/" + language.UniqueSeoCode);
-        }
-
-        if (!locDir.Exists)
-        {
+            Logger.Warn($"No locale resources found in '{locDir.SubPath}'.");
             return;
         }
 

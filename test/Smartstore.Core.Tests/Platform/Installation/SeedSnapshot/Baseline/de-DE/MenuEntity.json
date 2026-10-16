@@ -8,7 +8,7 @@
     "SubjectToAcl": false,
     "SystemName": "FooterCompany",
     "Template": "LinkList",
-    "Title": "Footer - ",
+    "Title": "Footer - Firma",
     "WidgetZone": null
   },
   {
@@ -20,7 +20,7 @@
     "SubjectToAcl": false,
     "SystemName": "FooterInformation",
     "Template": "LinkList",
-    "Title": "Footer - ",
+    "Title": "Footer - Informationen",
     "WidgetZone": null
   },
   {
@@ -32,7 +32,7 @@
     "SubjectToAcl": false,
     "SystemName": "FooterService",
     "Template": "LinkList",
-    "Title": "Footer - ",
+    "Title": "Footer - Service",
     "WidgetZone": null
   },
   {
@@ -56,7 +56,7 @@
     "SubjectToAcl": false,
     "SystemName": "Main",
     "Template": "Navbar",
-    "Title": "",
+    "Title": "Warengruppen",
     "WidgetZone": null
   }
 ]

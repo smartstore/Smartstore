@@ -99,6 +99,9 @@ internal sealed partial class SeedSnapshotWriter
         ["TaxClass"] = "TaxCategory"
     };
 
+    // Tables that are seeded from other sources than the seed data (resource files).
+    private static readonly HashSet<string> ExcludedTables = new(StringComparer.Ordinal) { "LocaleStringResource" };
+
     private static readonly HashSet<string> SecretProperties = new(StringComparer.Ordinal) { "Password", "PasswordSalt" };
 
     // Settings that get a random value on every installation.
@@ -156,7 +159,7 @@ internal sealed partial class SeedSnapshotWriter
         var loadMethod = typeof(SeedSnapshotWriter).GetMethod(nameof(LoadEntities), BindingFlags.NonPublic | BindingFlags.Instance);
         var loadSharedMethod = typeof(SeedSnapshotWriter).GetMethod(nameof(LoadSharedEntities), BindingFlags.NonPublic | BindingFlags.Instance);
 
-        foreach (var entityType in _db.Model.GetEntityTypes().Where(x => !x.IsOwned() && x.BaseType == null))
+        foreach (var entityType in _db.Model.GetEntityTypes().Where(x => !x.IsOwned() && x.BaseType == null && !ExcludedTables.Contains(x.ClrType.Name)))
         {
             List<object> entities;
             if (entityType.HasSharedClrType)

@@ -15,6 +15,7 @@ using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Installation;
+using Smartstore.Core.Installation.Seeding;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Seo.Routing;
@@ -32,8 +33,9 @@ namespace Smartstore.Core.Tests.Platform.Installation.SeedSnapshot;
 /// in-memory SQLite database, so that the seeded data can be snapshotted.
 /// </summary>
 /// <remarks>
-/// Only the seed data itself is in scope. Locale resources and message templates are skipped,
-/// modules are not installed and no DB hooks run.
+/// Only the seed data itself is in scope. Locale resources are imported (without pending migration
+/// resources), so that data referencing them is complete. Message templates are skipped, modules are
+/// not installed and no DB hooks run.
 /// </remarks>
 internal sealed class SeedSnapshotHarness : IDisposable
 {
@@ -118,9 +120,23 @@ internal sealed class SeedSnapshotHarness : IDisposable
         string culture,
         string languageName,
         string uniqueSeoCode,
-        string flagImageFileName)
+        string flagImageFileName,
+        bool seedSampleData = true)
     {
         var harness = new SeedSnapshotHarness(sampleMediaSourceDir);
+
+        // Locale resources of the culture, without "head.txt": pending migration resources need the DB migrator.
+        var resourcesDir = Path.Combine(Path.GetDirectoryName(sampleMediaSourceDir), SeedDataSource.AppDataFolder, SeedDataSource.CulturesFolder, culture, SeedDataSource.ResourcesFolder);
+        if (Directory.Exists(resourcesDir))
+        {
+            var targetDir = Path.Combine(harness._contentRoot, "App_Data", SeedDataSource.AppDataFolder, SeedDataSource.CulturesFolder, culture, SeedDataSource.ResourcesFolder);
+            Directory.CreateDirectory(targetDir);
+
+            foreach (var file in Directory.EnumerateFiles(resourcesDir, "*.smres.xml"))
+            {
+                File.Copy(file, Path.Combine(targetDir, Path.GetFileName(file)));
+            }
+        }
 
         try
         {
@@ -128,7 +144,7 @@ internal sealed class SeedSnapshotHarness : IDisposable
             {
                 DefaultUserName = AdminEmail,
                 DefaultUserPassword = Guid.NewGuid().ToString("N"),
-                SeedSampleData = true,
+                SeedSampleData = seedSampleData,
                 StoreMediaInDB = true,
                 Data = data,
                 Language = new Language

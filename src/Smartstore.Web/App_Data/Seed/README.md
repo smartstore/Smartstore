@@ -7,10 +7,10 @@ sample catalog (categories, manufacturers, products, …), each in all installab
 It replaces the seed data that used to live in C# (`InvariantSeedData`, `EnUSSeedData`,
 `DeDESeedData` in `src/Smartstore.Core/Platform/Installation`).
 
-> **Status: migration in progress.** The loader infrastructure exists
-> (`src/Smartstore.Core/Platform/Installation/Seeding`), but no entity type reads its data
-> from this folder yet. Until an area is migrated, its data still comes from the C# classes.
-> The table under [Migrated areas](#migrated-areas) lists what is live.
+> **Status: migration in progress.** The locale resources (`cultures/{culture}/resources`) are
+> live. The data files in `base/` and the overlays are exported from the C# classes and are
+> complete, but the installer does not read them yet: until an area is migrated, its data still
+> comes from C#. The table under [Migrated areas](#migrated-areas) lists what is live.
 
 ## Folder layout
 
@@ -22,10 +22,16 @@ App_Data/Seed/
 ├── cultures/
 │   └── {culture}/                e.g. de-DE
 │       ├── culture.json          Makes the culture installable (see below)
+│       ├── resources/            Locale resources (*.smres.xml, head.txt), see below
 │       ├── core/…                Overlays: same relative paths as in base/
 │       └── samples/…
 └── media/                        Sample images and downloads
 ```
+
+`base/core/settings.json` is the only object file: `{ "TaxSettings": { "TaxBasedOn": "ShippingAddress" } }`.
+It lists only values that differ from the defaults of the settings class. Values that hold
+the ID of a seed record are written as `"$ref:{EntityType}:{key}"`, e.g. `"$ref:Currency:EUR"`.
+Its overlay has the same shape and is merged field by field.
 
 - **Base files** are JSON **arrays** of records.
 - **Overlay files** are JSON **objects** and live under the same relative path as their
@@ -123,6 +129,42 @@ base/samples/catalog/products/sports/P-7004.fullDescription.html
 
 Rule of thumb: HTML longer than one line or about 200 characters goes into its own file.
 
+## Locale resources
+
+`cultures/{culture}/resources/` holds the complete UI resources of a language: one or more
+`*.smres.xml` files and `head.txt`. `head.txt` contains the version of the newest migration whose
+resources are included; resources of newer migrations are seeded on top during installation.
+
+The installer imports these files **directly after creating the language** and before any
+other data, so that seed records can reference resources (see below).
+
+> **Release process:** the resource files are updated for each release. They used to live in
+> `App_Data/Localization/App/{de|en}` and now live here.
+
+## Resource references
+
+A string value can reference a locale resource of the installed language:
+
+```jsonc
+"title": "@resource:Menu.ServiceMenu",             // whole value
+"title": "Footer - {@resource:Footer.Info}"       // embedded, any number of times
+```
+
+References are resolved when the record is created, in any field and in child records. An
+unknown key fails the installation. Resolving fails as well if the resources have not been
+seeded yet; the installer guarantees the order.
+
+## Further value conventions
+
+| Convention | Example | Meaning |
+|---|---|---|
+| Relative date | `"specialPriceEndDateTimeUtc": "@now+1M"` | Installation time plus/minus months (`M`) or days (`d`). |
+| Media reference | `"product/allstar_converse.jpg"` or `{ "file": "…", "name": "allstar-converse-charcoal" }` | Path below `media/`. `name` sets the media file name (SEO name) when it differs from the name derived from the path. |
+| Publish condition | `"publishedWhen": "manufacturers"`, `"publishedWhen": "setting:CatalogSettings.CompareProductsEnabled"` | Menu items: published only if manufacturers exist / the setting is true. |
+| Variant value names | `cultures/de-DE/samples/catalog/attribute-value-names.json`: `{ "black": "Schwarz" }` | Translates all variant attribute values with that alias. A product overlay can still override a single value. |
+
+These conventions are interpreted by the loader once the respective area is migrated.
+
 ## Languages
 
 A culture is installable when `cultures/{culture}/culture.json` exists:
@@ -137,9 +179,10 @@ of that culture are applied on top of the base data.
 ### Adding a language
 
 1. Create `cultures/{culture}/culture.json`.
-2. Add overlays for the files that need translation, mirroring the paths in `base/`.
+2. Put the locale resources into `cultures/{culture}/resources/` (`*.smres.xml` and `head.txt`).
+3. Add overlays for the files that need translation, mirroring the paths in `base/`.
    Only list the fields that differ.
-3. Run the seed tests (see below).
+4. Run the seed tests (see below).
 
 ### Adding or changing a record
 
@@ -168,7 +211,8 @@ baseline diff before committing it.
 
 | Area | Files | Status |
 |---|---|---|
-| — | — | Nothing migrated yet |
+| Locale resources | `cultures/{culture}/resources/*` | Live |
+| All other data | `base/**`, `cultures/{culture}/**` | Exported, not read by the installer yet |
 
 ## Rules for AI agents
 
