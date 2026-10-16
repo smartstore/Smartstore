@@ -5,6 +5,7 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
+using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Logging;
@@ -135,6 +136,23 @@ internal static class InstallationSeedDescriptors
             .Reference<Country>("country", (address, country) => address.Country = country)
             .Reference<StateProvince>("stateProvince", (address, state) => address.StateProvince = state)
             .OnCreated((address, _) => address.CreatedOnUtc = DateTime.UtcNow);
+
+    /// <summary>
+    /// Menus with their items. Titles may reference locale resources. The seed-only field "publishedWhen"
+    /// of an item sets "published" from a condition evaluated at installation time.
+    /// </summary>
+    /// <param name="condition">Evaluates a condition like "manufacturers" or "setting:CatalogSettings.CompareProductsEnabled".</param>
+    public static SeedEntityDescriptor<MenuEntity> Menus(Func<string, bool> condition)
+    {
+        Guard.NotNull(condition);
+
+        var items = new SeedEntityDescriptor<MenuItemEntity>("key")
+            .Bind("publishedWhen", (item, node, _) => item.Published = condition(node.GetValue<string>()));
+
+        return new SeedEntityDescriptor<MenuEntity>("systemName")
+            .FromFiles("core/menus.json")
+            .Child("items", x => x.Items, items);
+    }
 
     /// <summary>
     /// The core file, plus the samples file when sample data is installed.

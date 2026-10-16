@@ -198,6 +198,38 @@ public sealed class SeedDataSource
     }
 
     /// <summary>
+    /// Loads an object file (e.g. "core/settings.json") and merges the culture overlay into it field by field.
+    /// </summary>
+    public JsonObject LoadObject(string relativePath)
+    {
+        Guard.NotEmpty(relativePath);
+
+        var file = Root.GetFile(PathUtility.Join(BaseFolder, relativePath));
+        if (!file.Exists)
+        {
+            throw new SeedDataFormatException($"Seed file '{PathOf(file)}' does not exist.");
+        }
+
+        if (ParseFile(file) is not JsonObject result)
+        {
+            throw new SeedDataFormatException($"{PathOf(file)}: an object file must contain an object.");
+        }
+
+        var overlayFile = GetOverlayFile(file);
+        if (overlayFile != null)
+        {
+            if (ParseFile(overlayFile) is not JsonObject overlay)
+            {
+                throw new SeedDataFormatException($"{PathOf(overlayFile)}: an object overlay must contain an object.");
+            }
+
+            SeedJsonMerger.MergeRecord(result, overlay, null, PathOf(overlayFile));
+        }
+
+        return result;
+    }
+
+    /// <summary>
     /// Gets the overlay file of a culture for a base subpath, or null if there is none.
     /// </summary>
     public IFile GetOverlayFile(IFile baseFile)

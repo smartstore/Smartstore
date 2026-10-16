@@ -92,6 +92,42 @@ public sealed class SeedReferenceResolver
         return entity.Id;
     }
 
+    /// <summary>
+    /// Gets the ID of a saved entity by entity type name and key, e.g. for <c>"$ref:Currency:EUR"</c>.
+    /// </summary>
+    /// <exception cref="SeedDataFormatException">The type or key cannot be resolved or the entity is not saved yet.</exception>
+    public int GetId(string entityTypeName, string key)
+    {
+        Guard.NotEmpty(entityTypeName);
+
+        var type = _entities.Keys.FirstOrDefault(x => x.Name.EqualsNoCase(entityTypeName))
+            ?? throw new SeedDataFormatException($"No {entityTypeName} records have been seeded yet.");
+
+        var entity = Get(type, key);
+        if (entity.Id == 0)
+        {
+            throw new SeedDataFormatException($"{type.Name} '{key}' has not been saved yet, so its ID is unknown.");
+        }
+
+        return entity.Id;
+    }
+
+    private BaseEntity Get(Type type, string key)
+    {
+        var map = _entities[type];
+        if (map.TryGetValue(key, out var entity))
+        {
+            return entity;
+        }
+
+        if (_aliases.TryGetValue(type, out var aliases) && aliases.TryGetValue(key, out var target) && map.TryGetValue(target, out entity))
+        {
+            return entity;
+        }
+
+        throw new SeedDataFormatException($"Unknown {type.Name} key '{key}'.");
+    }
+
     private static Dictionary<string, TValue> GetMap<TValue>(Dictionary<Type, Dictionary<string, TValue>> maps, Type type)
     {
         if (!maps.TryGetValue(type, out var map))

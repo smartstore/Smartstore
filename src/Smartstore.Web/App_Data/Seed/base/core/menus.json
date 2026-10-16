@@ -130,7 +130,7 @@
     "systemName": "HelpAndService",
     "isSystemMenu": true,
     "template": "Dropdown",
-    "title": "@resource:Menu.ServiceMenu",
+    "title": "Service",
     "items": [
       {
         "key": "RecentlyAddedProducts",

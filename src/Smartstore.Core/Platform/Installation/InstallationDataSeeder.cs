@@ -19,6 +19,10 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Theming;
 using Smartstore.Data.Hooks;
 using Smartstore.IO;
+using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace Smartstore.Core.Installation;
 
@@ -129,7 +133,7 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
         await PopulateFromSeedAsync("PopulateCategoryTemplates", InstallationSeedDescriptors.CategoryTemplates());
         await PopulateFromSeedAsync("PopulateManufacturerTemplates", InstallationSeedDescriptors.ManufacturerTemplates());
         await PopulateFromSeedAsync("PopulateScheduleTasks", InstallationSeedDescriptors.TaskDescriptors());
-        await PopulateAsync("PopulateMenus", _data.Menus());
+        await PopulateFromSeedAsync("PopulateMenus", InstallationSeedDescriptors.Menus(EvaluateSeedCondition));
 
         if (_config.SeedSampleData)
         {
@@ -392,13 +396,108 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
 
     private async Task PopulateSettings()
     {
-        var settings = _data.Settings();
+        // All settings classes with their defaults, then the values from the seed files.
+        var settings = EngineContext.Current.Application.TypeScanner.FindTypes<ISettings>()
+            .Select(Activator.CreateInstance)
+            .OfType<ISettings>()
+            .ToList();
+
+        var localizationSettings = settings.OfType<LocalizationSettings>().FirstOrDefault();
+        if (localizationSettings != null)
+        {
+            localizationSettings.DefaultAdminLanguageId = _config.Language.Id;
+        }
+
+        ApplySeedSettings(settings, _seedSource.LoadObject(SettingsFile));
+
         foreach (var setting in settings)
         {
             Type settingType = setting.GetType();
             int storeId = settingType.Equals(typeof(ThemeSettings)) ? _defaultStoreId : 0;
             await SettingFactory.SaveSettingsAsync(Context, setting, storeId: storeId);
         }
+    }
+
+    private const string SettingsFile = "core/settings.json";
+
+    private static readonly JsonSerializerOptions SettingsJsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter() }
+    };
+
+    /// <summary>
+    /// Applies { "TypeName": { "Property": value } } to the settings instances.
+    /// <c>"$ref:{EntityType}:{key}"</c> values are resolved to the ID of a seeded entity.
+    /// </summary>
+    private void ApplySeedSettings(IList<ISettings> settings, JsonObject values)
+    {
+        var settingsByName = settings
+            .GroupBy(x => x.GetType().Name, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(x => x.Key, x => x.First(), StringComparer.OrdinalIgnoreCase);
+
+        foreach (var (typeName, node) in values)
+        {
+            if (!settingsByName.TryGetValue(typeName, out var instance))
+            {
+                throw new SeedDataFormatException($"{SettingsFile}: unknown settings type '{typeName}'.");
+            }
+
+            if (node is not JsonObject properties)
+            {
+                throw new SeedDataFormatException($"{SettingsFile} → {typeName}: expected an object.");
+            }
+
+            foreach (var (propertyName, value) in properties)
+            {
+                var property = instance.GetType().GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                if (property == null || !property.CanWrite)
+                {
+                    throw new SeedDataFormatException($"{SettingsFile} → {typeName}: unknown or read-only property '{propertyName}'.");
+                }
+
+                try
+                {
+                    object converted;
+                    if (value is JsonValue jsonValue && jsonValue.TryGetValue<string>(out var str) && str.StartsWith("$ref:", StringComparison.Ordinal))
+                    {
+                        var parts = str[5..].Split(':', 2);
+                        converted = _seedResolver.GetId(parts[0], parts.Length > 1 ? parts[1] : string.Empty);
+                    }
+                    else
+                    {
+                        converted = value.Deserialize(property.PropertyType, SettingsJsonOptions);
+                    }
+
+                    property.SetValue(instance, converted);
+                }
+                catch (Exception ex) when (ex is JsonException or SeedDataFormatException or ArgumentException)
+                {
+                    throw new SeedDataFormatException($"{SettingsFile} → {typeName} → {propertyName}: {ex.Message}", ex);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Evaluates a seed condition, e.g. "manufacturers" or "setting:CatalogSettings.CompareProductsEnabled".
+    /// </summary>
+    private bool EvaluateSeedCondition(string condition)
+    {
+        if (condition.EqualsNoCase("manufacturers"))
+        {
+            return Context.Manufacturers.Any();
+        }
+
+        if (condition.StartsWith("setting:", StringComparison.OrdinalIgnoreCase))
+        {
+            // A missing setting counts as true, like before.
+            var name = condition["setting:".Length..];
+            var value = Context.Settings.Where(x => x.StoreId == 0 && x.Name == name).Select(x => x.Value).FirstOrDefault();
+            return value == null || value.Convert<bool>();
+        }
+
+        throw new SeedDataFormatException($"Unknown seed condition '{condition}'.");
     }
 
     private async Task PopulateMessageTemplates()

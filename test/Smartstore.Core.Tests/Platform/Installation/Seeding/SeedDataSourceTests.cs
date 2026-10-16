@@ -193,6 +193,28 @@ public class SeedDataSourceTests
     }
 
     [Test]
+    public void LoadObject_merges_culture_overlay_field_by_field()
+    {
+        WriteFile("base/core/settings.json", """{ "TaxSettings": { "TaxBasedOn": "BillingAddress", "EuVatEnabled": false }, "SeoSettings": { "MetaTitle": "Shop" } }""");
+        WriteFile("cultures/de-DE/core/settings.json", """{ "TaxSettings": { "EuVatEnabled": true }, "OrderSettings": { "NumberOfDaysReturnRequestAvailable": 14 } }""");
+
+        var settings = CreateSource().LoadObject("core/settings.json");
+
+        Assert.That((string)settings["TaxSettings"]["TaxBasedOn"], Is.EqualTo("BillingAddress"));
+        Assert.That((bool)settings["TaxSettings"]["EuVatEnabled"], Is.True);
+        Assert.That((string)settings["SeoSettings"]["MetaTitle"], Is.EqualTo("Shop"));
+        Assert.That((int)settings["OrderSettings"]["NumberOfDaysReturnRequestAvailable"], Is.EqualTo(14));
+    }
+
+    [Test]
+    public void LoadObject_requires_an_object()
+    {
+        WriteFile("base/core/settings.json", "[]");
+
+        Assert.Throws<SeedDataFormatException>(() => CreateSource().LoadObject("core/settings.json"));
+    }
+
+    [Test]
     public void Discovers_cultures_with_culture_file()
     {
         WriteFile("cultures/de-DE/culture.json", """{ "name": "Deutsch", "uniqueSeoCode": "de", "flagImageFileName": "de.png" }""");

@@ -61,6 +61,19 @@ public class SeedReferenceResolverTests
     }
 
     [Test]
+    public void GetId_by_type_name_resolves_keys_and_aliases()
+    {
+        var resolver = new SeedReferenceResolver();
+        resolver.Add("standard", new TaxCategory { Id = 4 });
+        resolver.AddAliases<TaxCategory>(new Dictionary<string, string> { ["apparel"] = "standard" });
+
+        Assert.That(resolver.GetId("taxcategory", "STANDARD"), Is.EqualTo(4));
+        Assert.That(resolver.GetId("TaxCategory", "apparel"), Is.EqualTo(4));
+        Assert.Throws<SeedDataFormatException>(() => resolver.GetId("Currency", "EUR"));
+        Assert.Throws<SeedDataFormatException>(() => resolver.GetId("TaxCategory", "missing"));
+    }
+
+    [Test]
     public void GetId_requires_a_saved_entity()
     {
         var resolver = new SeedReferenceResolver();
