@@ -174,6 +174,11 @@ public sealed class SeedDataSource
                 .Select(x => SeedJsonMerger.ApplyDefaults(defaults, x, spec, source))
                 .ToList();
 
+            if (descriptor.BeforeOverlay != null)
+            {
+                merged.Each(descriptor.BeforeOverlay);
+            }
+
             var overlayFile = GetOverlayFile(baseFile);
             if (overlayFile != null)
             {
@@ -227,6 +232,29 @@ public sealed class SeedDataSource
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Loads an object file that only exists for the culture (e.g. "samples/catalog/attribute-value-names.json"),
+    /// or returns null if the culture has none.
+    /// </summary>
+    public JsonObject LoadCultureObject(string relativePath)
+    {
+        Guard.NotEmpty(relativePath);
+
+        if (Culture == null)
+        {
+            return null;
+        }
+
+        var file = Root.GetFile(PathUtility.Join(CulturesFolder, Culture, relativePath));
+        if (!file.Exists)
+        {
+            return null;
+        }
+
+        return ParseFile(file) as JsonObject
+            ?? throw new SeedDataFormatException($"{PathOf(file)}: an object file must contain an object.");
     }
 
     /// <summary>

@@ -162,7 +162,18 @@ seeded yet; the installer guarantees the order.
 | Publish condition | `"publishedWhen": "manufacturers"`, `"publishedWhen": "setting:CatalogSettings.CompareProductsEnabled"` | Menu items: published only if manufacturers exist / the setting is true. |
 | Variant value names | `cultures/de-DE/samples/catalog/attribute-value-names.json`: `{ "black": "Schwarz" }` | Translates all variant attribute values with that alias. A product overlay can still override a single value. |
 
-These conventions are interpreted by the loader once the respective area is migrated.
+### Product records
+
+| Field | Form |
+|---|---|
+| `categories`, `manufacturers` | Key, or `{ "category": key, "displayOrder": n, "isFeaturedProduct": bool, "isSystemMapping": bool }` (display order defaults to 1). |
+| `pictures` | Media reference, optionally with `"displayOrder"` (default 1). `"from": "{sku}"` reuses the media file of that product's picture with the same path instead of creating a new one. |
+| `specifications` | List without keys (the same option may occur twice); an overlay replaces the whole list. |
+| `variantAttributes` | Keyed by `productAttribute` alias; `values` keyed by `alias`. A value `mediaFile` is a picture of the product (by path) or an existing sample picture. |
+| `combinations` | List without keys (SKUs are not unique); `attributes` maps attribute alias to value alias(es). `"pictures": []` stores an empty media list, a missing field none. |
+| `bundleItems` | Keyed by `product` (SKU). Created after all products. |
+| `parentGroupedProduct`, `sampleDownload` | SKU of the grouped product; media path of the sample download. |
+| `groupedProductConfiguration` | Object, e.g. `{ "collapsible": true, "headerFields": [ "image", "sku", "price" ] }`. |
 
 ## Languages
 
@@ -221,6 +232,7 @@ baseline diff before committing it.
 | Specification and product attributes, option sets | `samples/catalog/specification-attributes.json`, `product-attributes.json`, `product-attribute-option-sets.json` | Live |
 | Campaign, rule sets, discounts | `samples/campaigns.json`, `samples/rule-sets.json`, `samples/discounts.json` | Live |
 | Categories and manufacturers (with pictures and slugs) | `samples/catalog/categories.json`, `samples/catalog/manufacturers.json` | Live |
+| Product tags and products (pictures, specifications, tier prices, downloads, grouped and bundle products, variants, combinations) | `samples/catalog/product-tags.json`, `samples/catalog/products/*.json`, `cultures/{culture}/samples/catalog/attribute-value-names.json` | Live |
 
 Pictures referenced by migrated records are still read from `App_Data/Samples` until the sample media
 move to `media/`. Every media reference creates its own media file.

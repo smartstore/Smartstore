@@ -151,11 +151,7 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
             await PopulateFromSeedAsync("PopulateDiscounts", InstallationSeedDescriptors.Discounts());
             await PopulateAsync("PopulateCategories", PopulateCategories);
             await PopulateAsync("PopulateManufacturers", PopulateManufacturers);
-            await PopulateAsync("PopulateProducts", PopulateProducts);
-            await PopulateAsync("PopulateProductBundleItems", _data.ProductBundleItems());
-            await PopulateAsync("PopulateProductVariantAttributes", _data.ProductVariantAttributes());
-            await PopulateAsync("ProductVariantAttributeCombinations", _data.ProductVariantAttributeCombinations());
-            await PopulateAsync("PopulateProductTags", _data.ProductTags());
+            await PopulateProductsFromSeedAsync();
             Populate("FinalizeSamples", _data.FinalizeSamples);
         }
 
@@ -527,25 +523,17 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
     private MediaFile CreateSampleMedia(JsonNode reference)
     {
         var (path, name) = InstallationSeedDescriptors.ParseMediaReference(reference);
+        return CreateSampleMedia(path, name);
+    }
 
+    /// <summary>
+    /// Creates a new media file from a sample file path, with an optional SEO name (without extension).
+    /// </summary>
+    private MediaFile CreateSampleMedia(string path, string name)
+    {
         // Sample media still live in "App_Data/Samples" until they move to "App_Data/Seed/media".
         _sampleMedia ??= new SampleMediaUtility(Context, "/App_Data/Samples");
         return _sampleMedia.CreateMediaFileAsync(path, name).GetAwaiter().GetResult();
-    }
-
-    private async Task PopulateProducts()
-    {
-        var products = _data.Products();
-        await SaveRangeAsync(products);
-
-        _data.AddDownloads(products);
-
-        await PopulateUrlRecordsFor(products);
-
-        _data.AssignGroupedProducts(products);
-
-        // Fix MainPictureId
-        await ProductPictureHelper.FixProductMainPictureIds(Context);
     }
 
     private async Task PopulateTopics()

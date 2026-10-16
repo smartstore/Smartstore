@@ -207,6 +207,36 @@ public class SeedDataSourceTests
     }
 
     [Test]
+    public void BeforeOverlay_runs_between_defaults_and_overlay()
+    {
+        WriteFile("base/core/_defaults.json", """{ "published": true }""");
+        WriteFile("base/core/countries.json", """[ { "twoLetterIsoCode": "DE", "name": "Germany" }, { "twoLetterIsoCode": "AT", "name": "Austria" } ]""");
+        WriteFile("cultures/de-DE/core/countries.json", """{ "AT": { "name": "Österreich" } }""");
+
+        var descriptor = CountryDescriptor().WithDefaults("core/_defaults.json");
+        descriptor.BeforeOverlay = record =>
+        {
+            Assert.That((bool)record["published"], Is.True, "Defaults must already be applied.");
+            record["name"] = "Translated " + record["name"];
+        };
+
+        var records = CreateSource().Load(descriptor).Records;
+
+        Assert.That((string)records[0].Data["name"], Is.EqualTo("Translated Germany"));
+        Assert.That((string)records[1].Data["name"], Is.EqualTo("Österreich"), "The overlay wins over the transformation.");
+    }
+
+    [Test]
+    public void LoadCultureObject_returns_null_without_culture_file()
+    {
+        WriteFile("cultures/de-DE/samples/names.json", """{ "black": "Schwarz" }""");
+
+        Assert.That((string)CreateSource().LoadCultureObject("samples/names.json")["black"], Is.EqualTo("Schwarz"));
+        Assert.That(CreateSource().LoadCultureObject("samples/missing.json"), Is.Null);
+        Assert.That(CreateSource(culture: null).LoadCultureObject("samples/names.json"), Is.Null);
+    }
+
+    [Test]
     public void LoadObject_requires_an_object()
     {
         WriteFile("base/core/settings.json", "[]");

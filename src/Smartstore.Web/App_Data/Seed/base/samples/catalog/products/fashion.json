@@ -3308,6 +3308,7 @@
         "sku": "Fashion-987693502-red-xs",
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
+        "pictures": [],
         "attributes": {
           "color": "red",
           "size": "xs"
@@ -3317,6 +3318,7 @@
         "sku": "Fashion-987693502-red-s",
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
+        "pictures": [],
         "attributes": {
           "color": "red",
           "size": "s"
@@ -3326,6 +3328,7 @@
         "sku": "Fashion-987693502-red-m",
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
+        "pictures": [],
         "attributes": {
           "color": "red",
           "size": "m"
@@ -3335,6 +3338,7 @@
         "sku": "Fashion-987693502-red-l",
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
+        "pictures": [],
         "attributes": {
           "color": "red",
           "size": "l"
@@ -3344,6 +3348,7 @@
         "sku": "Fashion-987693502-red-xl",
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
+        "pictures": [],
         "attributes": {
           "color": "red",
           "size": "xl"
@@ -3353,6 +3358,7 @@
         "sku": "Fashion-987693502-black-xs",
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
+        "pictures": [],
         "attributes": {
           "color": "black",
           "size": "xs"
@@ -3362,6 +3368,7 @@
         "sku": "Fashion-987693502-black-s",
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
+        "pictures": [],
         "attributes": {
           "color": "black",
           "size": "s"
@@ -3371,6 +3378,7 @@
         "sku": "Fashion-987693502-black-m",
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
+        "pictures": [],
         "attributes": {
           "color": "black",
           "size": "m"
@@ -3380,6 +3388,7 @@
         "sku": "Fashion-987693502-black-l",
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
+        "pictures": [],
         "attributes": {
           "color": "black",
           "size": "l"
@@ -3389,6 +3398,7 @@
         "sku": "Fashion-987693502-black-xl",
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
+        "pictures": [],
         "attributes": {
           "color": "black",
           "size": "xl"

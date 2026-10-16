@@ -231,6 +231,9 @@ internal static class InstallationSeedDescriptors
             .References<Discount>("discounts", (manufacturer, discounts) => discounts.Each(manufacturer.AppliedDiscounts.Add));
     }
 
+    public static SeedEntityDescriptor<ProductTag> ProductTags()
+        => new SeedEntityDescriptor<ProductTag>("key").FromFiles("samples/catalog/product-tags.json");
+
     #endregion
 
     /// <summary>

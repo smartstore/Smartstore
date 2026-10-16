@@ -17,7 +17,8 @@
       "Chairs",
       {
         "category": "Sale",
-        "displayOrder": 0
+        "displayOrder": 0,
+        "isSystemMapping": true
       }
     ],
     "pictures": [
@@ -230,7 +231,8 @@
       "Sofas",
       {
         "category": "Sale",
-        "displayOrder": 0
+        "displayOrder": 0,
+        "isSystemMapping": true
       }
     ],
     "pictures": [

@@ -2451,6 +2451,10 @@
     "showOnHomePage": true,
     "metaTitle": "Armchairs and Sofas",
     "sku": "armchairs-sofas-group",
+    "groupedProductConfiguration": {
+      "collapsible": true,
+      "headerFields": [ "image", "sku", "price" ]
+    },
     "taxCategory": "electronics",
     "orderMaximumQuantity": 3,
     "categories": [
@@ -2462,6 +2466,7 @@
     "pictures": [
       {
         "file": "product/ball_chair_black.jpg",
+        "from": "Furniture-ball-chair",
         "displayOrder": 0
       }
     ],

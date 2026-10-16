@@ -106,13 +106,19 @@ public sealed partial class SeedEntityFactory
     /// <summary>
     /// Creates the entity for a single record and registers it in the resolver.
     /// </summary>
-    public T Create<T>(SeedRecord record, SeedEntityDescriptor<T> descriptor) where T : BaseEntity, new()
+    /// <param name="register">
+    /// False to not register the entity, e.g. for records whose keys are not unique and that are never referenced.
+    /// </param>
+    public T Create<T>(SeedRecord record, SeedEntityDescriptor<T> descriptor, bool register = true) where T : BaseEntity, new()
     {
         Guard.NotNull(record);
         Guard.NotNull(descriptor);
 
         var entity = CreateEntity(record.Data, descriptor, new SeedBindingContext(this, record.Key, record.Source));
-        Resolver.Add(record.Key, entity);
+        if (register)
+        {
+            Resolver.Add(record.Key, entity);
+        }
 
         return entity;
     }
@@ -137,6 +143,19 @@ public sealed partial class SeedEntityFactory
         return entity;
     }
 
+    /// <summary>
+    /// Creates an item of a keyless child list. The item is not registered in the resolver.
+    /// </summary>
+    public TChild CreateListItem<TChild>(JsonObject data, SeedEntityDescriptor<TChild> descriptor, SeedBindingContext parent, string field, int index)
+        where TChild : BaseEntity, new()
+    {
+        Guard.NotNull(data);
+        Guard.NotNull(descriptor);
+        Guard.NotNull(parent);
+
+        return CreateEntity(data, descriptor, new SeedBindingContext(this, $"{parent.Key}/{field}[{index}]", parent.Source));
+    }
+
     private T CreateEntity<T>(JsonObject data, SeedEntityDescriptor<T> descriptor, SeedBindingContext context)
         where T : BaseEntity, new()
     {
@@ -144,14 +163,9 @@ public sealed partial class SeedEntityFactory
         var json = (JsonObject)data.DeepClone();
 
         ResolveResources(json, path);
+        ResolveRelativeDates(json);
 
-        // A synthetic key field (e.g. "key") identifies the record only and is not an entity property.
-        if (!SerializerOptions.GetTypeInfo(typeof(T)).Properties.Any(x => x.Name.EqualsNoCase(descriptor.KeyField)))
-        {
-            SeedJson.TryRemove(json, descriptor.KeyField, out _);
-        }
-
-        // Take out all fields that are handled by the descriptor.
+        // Take out all fields that are handled by the descriptor (the key field may be one of them, e.g. a reference).
         var handled = new List<(string Field, Action<T, JsonNode, SeedBindingContext> Handler, JsonNode Value)>();
         foreach (var (field, handler) in descriptor.FieldHandlers)
         {
@@ -159,6 +173,12 @@ public sealed partial class SeedEntityFactory
             {
                 handled.Add((field, handler, value));
             }
+        }
+
+        // A synthetic key field (e.g. "key") identifies the record only and is not an entity property.
+        if (!SerializerOptions.GetTypeInfo(typeof(T)).Properties.Any(x => x.Name.EqualsNoCase(descriptor.KeyField)))
+        {
+            SeedJson.TryRemove(json, descriptor.KeyField, out _);
         }
 
         T entity;
@@ -267,6 +287,43 @@ public sealed partial class SeedEntityFactory
 
     [GeneratedRegex(@"\{@resource:(?<key>[^}]+)\}")]
     private static partial Regex EmbeddedResourceRegex();
+
+    /// <summary>
+    /// Prefix of relative dates, e.g. <c>"@now"</c>, <c>"@now+1M"</c> (months) or <c>"@now-10d"</c> (days).
+    /// </summary>
+    public const string NowDirective = "@now";
+
+    [GeneratedRegex(@"^@now(?:(?<amount>[+-]\d+)(?<unit>[Md]))?$")]
+    private static partial Regex RelativeDateRegex();
+
+    /// <summary>
+    /// Replaces relative date values of top-level fields with UTC dates relative to the current time.
+    /// </summary>
+    private static void ResolveRelativeDates(JsonObject json)
+    {
+        foreach (var (name, value) in json.ToList())
+        {
+            if (value is not JsonValue jsonValue || !jsonValue.TryGetValue<string>(out var str) || !str.StartsWith(NowDirective, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var match = RelativeDateRegex().Match(str);
+            if (!match.Success)
+            {
+                throw new SeedDataFormatException($"Field '{name}': invalid relative date '{str}'. Use \"@now\", \"@now+1M\" or \"@now-10d\".");
+            }
+
+            var date = DateTime.UtcNow;
+            if (match.Groups["amount"].Success)
+            {
+                var amount = int.Parse(match.Groups["amount"].Value, System.Globalization.CultureInfo.InvariantCulture);
+                date = match.Groups["unit"].Value == "M" ? date.AddMonths(amount) : date.AddDays(amount);
+            }
+
+            json[name] = date;
+        }
+    }
 
     private static void ScalarEntityPropertiesOnly(JsonTypeInfo typeInfo)
     {

@@ -234,6 +234,45 @@ public class SeedEntityFactoryTests
     }
 
     [Test]
+    public void Relative_dates_are_resolved()
+    {
+        var before = System.DateTime.UtcNow;
+        var product = _factory.Create(Record("P-1", """{ "sku": "P-1", "specialPriceStartDateTimeUtc": "@now-10d", "specialPriceEndDateTimeUtc": "@now+1M" }"""), new SeedEntityDescriptor<Product>("sku"));
+
+        Assert.That(product.SpecialPriceStartDateTimeUtc, Is.EqualTo(before.AddDays(-10)).Within(System.TimeSpan.FromMinutes(1)));
+        Assert.That(product.SpecialPriceEndDateTimeUtc, Is.EqualTo(before.AddMonths(1)).Within(System.TimeSpan.FromMinutes(1)));
+    }
+
+    [Test]
+    public void Invalid_relative_date_throws()
+        => Assert.Throws<SeedDataFormatException>(() =>
+            _factory.Create(Record("P-1", """{ "sku": "P-1", "specialPriceEndDateTimeUtc": "@now+1y" }"""), new SeedEntityDescriptor<Product>("sku")));
+
+    [Test]
+    public void Key_field_can_be_a_bound_reference()
+    {
+        _resolver.Add("standard", new TaxCategory { Id = 9 });
+        var descriptor = new SeedEntityDescriptor<Product>("taxCategory")
+            .Reference<TaxCategory>("taxCategory", (p, t) => p.TaxCategoryId = t.Id);
+
+        var product = _factory.Create(Record("standard", """{ "taxCategory": "standard", "sku": "P-1" }"""), descriptor);
+
+        Assert.That(product.TaxCategoryId, Is.EqualTo(9));
+    }
+
+    [Test]
+    public void Child_list_allows_duplicates_and_is_not_registered()
+    {
+        var descriptor = new SeedEntityDescriptor<Country>("twoLetterIsoCode")
+            .ChildList("stateProvinces", x => x.StateProvinces, new SeedEntityDescriptor<StateProvince>("abbreviation"));
+
+        var country = _factory.Create(Record("DE", """{ "twoLetterIsoCode": "DE", "stateProvinces": [ { "abbreviation": "BW", "displayOrder": 1 }, { "abbreviation": "BW", "displayOrder": 5 } ] }"""), descriptor);
+
+        Assert.That(country.StateProvinces.Select(x => x.DisplayOrder), Is.EquivalentTo(new[] { 1, 5 }));
+        Assert.That(_resolver.TryGet<StateProvince>("DE/BW", out _), Is.False);
+    }
+
+    [Test]
     public void Binding_a_field_twice_throws()
         => Assert.Throws<System.InvalidOperationException>(() =>
             new SeedEntityDescriptor<Product>("sku").Bind("x", (_, _, _) => { }).Bind("X", (_, _, _) => { }));

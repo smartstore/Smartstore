@@ -512,7 +512,8 @@ internal sealed partial class SeedSnapshotWriter
                             continue;
                         }
 
-                        sb.Append(property.Name).Append('=').Append(NormalizePlain(property)?.ToString(Formatting.None)).Append(';');
+                        // Normalized, so that IDs embedded in strings (e.g. RawAttributes) do not affect the hash.
+                        sb.Append(property.Name).Append('=').Append(Normalize(property)?.ToString(Formatting.None)).Append(';');
                     }
 
                     _contentHash = Hash(sb.ToString());
