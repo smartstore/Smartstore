@@ -10,6 +10,7 @@
 
 ### New Features
 
+- **Category icons:** Added support for assigning icons to categories, with customizable colors, rotation, mirroring and animations. Icons are displayed in the sidebar category navigation, main-menu dropdowns, MegaMenu, mobile menu and admin category tree.
 - (DEV) Added `Smartstore.Packager.Cli` for scriptable packaging of modules and themes, including batch processing and automation-friendly exit codes.
 - (DEV) Added `linux-arm64` builds and lazy deployment support for native ARM64 tools.
 - Enhanced color and image swatches for attributes
