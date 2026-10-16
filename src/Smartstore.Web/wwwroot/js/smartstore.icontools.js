@@ -193,54 +193,25 @@
                 closeCurrent?.();
                 closeCurrent = close;
                 menu = document.createElement('div');
-                menu.className = 'dropdown-menu show icon-tool-color-menu p-2';
+                menu.className = 'dropdown-menu show icon-tool-color-menu p-0';
                 menu.style.visibility = 'hidden';
                 menu.setAttribute('role', 'dialog');
                 menu.setAttribute('aria-label', toggle.getAttribute('aria-label') || 'Color');
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.className = 'form-control form-control-sm';
-                input.placeholder = 'currentColor';
-                input.setAttribute('aria-label', menu.getAttribute('aria-label'));
-                input.value = state.value || '';
-                const field = document.createElement('div');
-                field.className = 'has-icon has-icon-right input-group-sm mb-2';
-                const clear = document.createElement('button');
-                clear.type = 'button';
-                clear.className = 'btn btn-sm btn-plain btn-icon input-group-icon pe-auto bg-transparent border-0 shadow-none';
-                clear.setAttribute('aria-label', window.Res?.['Common.Clear'] || 'Clear');
-                const closeIcon = document.createElement('sm-icon');
-                closeIcon.setAttribute('name', 'close');
-                closeIcon.className = 'icon-xs';
-                closeIcon.setAttribute('aria-hidden', 'true');
-                clear.append(closeIcon);
-                const updateClear = () => clear.classList.toggle('d-none', !input.value);
-                updateClear();
-                clear.addEventListener('click', () => {
-                    picker.colorpicker('setValue', '');
-                    input.value = '';
-                    updateClear();
-                    onChange('');
-                    input.focus();
-                });
-                field.append(clear, input);
-                menu.append(field);
                 const owner = toggle.closest('[data-note-owner]')?.getAttribute('data-note-owner');
                 if (owner) menu.setAttribute('data-note-owner', owner);
                 document.body.append(menu);
                 picker = jQuery(menu);
-                picker.colorpickerWrapper({ inline: true, container: true, popover: false, addon: false });
-                input.addEventListener('input', () => {
-                    updateClear();
-                    if (!input.value) picker.colorpicker('setValue', '');
+                picker.colorpicker({
+                    inline: true, container: true, popover: false, addon: false,
+                    input: false, showInput: true, color: state.value || '',
+                    labels: { color: menu.getAttribute('aria-label') }
                 });
                 picker.on('colorpickerChange.iconTools', event => {
                     const value = event.value || '';
-                    clear.classList.toggle('d-none', !value);
                     if (!value || CSS.supports('color', value)) onChange(value);
                     popper?.scheduleUpdate();
                 });
-                // Palette and preview extensions are appended during this deferred event.
+                // The inline picker is visible before measuring the menu.
                 picker.one('colorpickerCreate.iconTools', () => {
                     if (!menu) return;
                     const bounds = toggle.getBoundingClientRect();
@@ -252,7 +223,7 @@
                         onCreate() {
                             if (!menu) return;
                             menu.style.visibility = '';
-                            input.focus({ preventScroll: true });
+                            menu.querySelector('.colorpicker-input input')?.focus({ preventScroll: true });
                         },
                         modifiers: {
                             offset: { offset: '0, 8' },

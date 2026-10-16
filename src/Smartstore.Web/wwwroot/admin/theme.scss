@@ -38,7 +38,6 @@
 @import "../lib/bootstrap/scss/vendor/rfs";
 @import "../lib/select2/scss/core";
 @import "../lib/aos/scss/aos";
-@import "../lib/colorpicker/scss/colorpicker";
 @import "../lib/datetimepicker/scss/tempusdominus";
 @import "../lib/editors/summernote/scss/summernote";
 @import "../skinning/summernote";
@@ -48,6 +47,7 @@
 // Global / Shared
 // --------------------------------------------------
 
+@import '../shared/colorpicker';
 @import '../shared/spacing';
 @import '../shared/accessibility';
 @import '../shared/fa';

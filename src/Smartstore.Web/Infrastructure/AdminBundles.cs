@@ -51,8 +51,6 @@ internal class AdminBundles : IBundleProvider
             lib + "sortable/jquery-sortable.js",
             lib + "moment/moment.js",
             lib + "datetimepicker/js/tempusdominus-bootstrap-4.js",
-            lib + "colorpicker/js/bootstrap-colorpicker.js",
-            lib + "colorpicker/js/bootstrap-colorpicker-globalinit.js",
             lib + "select2/js/select2.js",
             lib + "pnotify/js/pnotify.js",
             lib + "pnotify/js/pnotify.mobile.js",
@@ -84,6 +82,7 @@ internal class AdminBundles : IBundleProvider
             js + "smartstore.numberinput.js",
             js + "smartstore.tree.js",
             js + "smartstore.media.js",
+            js + "smartstore.colorpicker.js",
             js + "smartstore.editortemplates.js",
             js + "smartstore.offcanvas.js",
             // Admin

@@ -1,0 +1,258 @@
+/// <reference path="references.scss" />
+
+// Shared picker styles for both storefront and administration.
+.colorpicker {
+    --cp-radius: 8px;
+    position: relative;
+    display: none;
+    box-sizing: border-box;
+    width: 240px;
+    padding: 0 16px 16px;
+    background: $white;
+    border-radius: var(--cp-radius);
+    gap: 12px;
+    grid-template-columns: minmax(0, 1fr) 32px;
+    grid-template-rows: 140px 10px 10px;
+
+    &.colorpicker-visible {
+        display: grid;
+    }
+
+    > * {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+
+    .colorpicker-saturation,
+    .colorpicker-hue,
+    .colorpicker-alpha {
+        cursor: pointer;
+        user-select: none;
+        touch-action: none;
+    }
+
+    .colorpicker-guide {
+        position: absolute;
+        display: block;
+        box-sizing: border-box;
+        width: 16px;
+        height: 16px;
+        margin: 0;
+        border: 2px solid $white;
+        border-radius: 50%;
+        box-shadow: 0 0 0 1px rgba($black, 0.15), 0 1px 3px rgba($black, 0.25);
+        transform: translate(-50%, -50%);
+        cursor: pointer;
+    }
+
+    .colorpicker-saturation {
+        grid-column: 1 / -1;
+        grid-row: 1;
+        width: calc(100% + 32px);
+        margin-inline: -16px;
+        overflow: hidden;
+        border-radius: var(--cp-radius) var(--cp-radius) 0 0;
+        background-image: linear-gradient(to bottom, rgba($black, 0), $black),
+            linear-gradient(to right, $white, rgba($white, 0));
+
+        .colorpicker-guide {
+            width: 14px;
+            height: 14px;
+            background: var(--cp-color);
+        }
+    }
+
+    .colorpicker-hue,
+    .colorpicker-alpha {
+        grid-column: 1;
+        border-radius: 999px;
+
+        .colorpicker-guide {
+            width: 16px;
+            height: 16px;
+        }
+
+        // Larger hit area without increasing the visible track thickness.
+        &::before {
+            content: '';
+            position: absolute;
+            inset: -6px 0;
+            border-radius: inherit;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 5px;
+        }
+    }
+
+    .colorpicker-hue {
+        grid-row: 2 / span 2;
+        align-self: center;
+        height: 10px;
+        background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+
+        .colorpicker-guide {
+            background: var(--cp-hue);
+        }
+    }
+
+    &.colorpicker-with-alpha .colorpicker-hue {
+        grid-row: 2;
+        top: 2px;
+    }
+
+    .colorpicker-alpha {
+        @include bg-checkerboard(5px, rgba($black, 0.1), $white);
+        grid-row: 3;
+        top: -2px;
+
+        .colorpicker-guide {
+            background: var(--cp-color);
+        }
+    }
+
+    &:not(.colorpicker-with-alpha) .colorpicker-alpha {
+        display: none;
+    }
+
+    .colorpicker-alpha-color {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+    }
+
+    .colorpicker-preview {
+        @include bg-checkerboard(5px, rgba($black, 0.1), $white);
+        grid-column: 2;
+        grid-row: 2 / span 2;
+        border-radius: 50%;
+        overflow: hidden;
+
+        > div {
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            box-shadow: inset 0 0 0 1px rgba($black, 0.1);
+        }
+    }
+
+    .colorpicker-input {
+        grid-column: 1 / -1;
+        grid-row: 4;
+        height: auto;
+        min-width: 0;
+
+        .form-control {
+            width: 100%;
+            height: auto;
+            padding-block: 2px;
+        }
+    }
+
+    &.colorpicker-with-input .colorpicker-swatches {
+        grid-row: 5;
+    }
+
+    .colorpicker-swatches {
+        grid-column: 1 / -1;
+        grid-row: 4;
+        height: auto;
+        margin: 0;
+        padding: 0;
+    }
+
+    .colorpicker-swatches--inner {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        gap: 5px;
+        padding-top: 12px;
+        border-top: 0;
+
+        &::before {
+            content: '';
+            position: absolute;
+            inset: 0 -16px auto;
+            border-top: 1px solid rgba($black, 0.1);
+        }
+    }
+
+    .colorpicker-swatch {
+        @include bg-checkerboard(5px, rgba($black, 0.1), $white);
+        position: relative;
+        display: block;
+        aspect-ratio: 1;
+        min-height: 14px;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    .colorpicker-swatch--inner {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        box-shadow: inset 0 0 0 1px rgba($black, 0.1);
+
+        &:hover {
+            box-shadow: inset 0 0 0 1px rgba($black, 0.25);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+    }
+
+    &.colorpicker-disabled {
+        &, * { cursor: default !important; }
+
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: rgba($white, 0.33);
+            z-index: 2;
+        }
+
+        .colorpicker-guide { display: none; }
+    }
+}
+
+.popover.colorpicker-popover {
+    border: 0;
+    border-radius: 8px;
+
+    .popover-body {
+        padding: 0;
+    }
+}
+
+.colorpicker-input-addon {
+    position: relative;
+    padding: 0;
+    width: $input-height;
+
+    > i {
+        display: inline-block;
+        cursor: pointer;
+        vertical-align: text-top;
+        height: 24px;
+        width: 24px;
+        position: relative;
+        border: 1px solid rgba($black, 0.2);
+        border-radius: var(--border-radius-sm);
+    }
+
+    &:before {
+        content: "";
+        position: absolute;
+        width: 24px;
+        height: 24px;
+        display: inline-block;
+        vertical-align: text-top;
+        @include bg-checkerboard(5px, rgba($black, 0.1), $white);
+    }
+}
+

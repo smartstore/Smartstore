@@ -10,7 +10,7 @@
         // RangeSlider
         "range": function (el) { $(el).rangeSlider() },
         // ColorBox
-        "color": function (el) { $(el).colorpickerWrapper() },
+        "color": function (el) { $(el).colorpicker() },
         // ColorPalette
         "color-palette": function (el) { $(el).colorPalette() },
         // Select2: AccessPermissions, CustomerRoles, DeliveryTimes, Discounts, Stores
