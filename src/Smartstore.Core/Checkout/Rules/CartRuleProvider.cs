@@ -315,6 +315,13 @@ public class CartRuleProvider : RuleProviderBase, ICartRuleProvider
             },
             new()
             {
+                Name = "CartGiftCard",
+                DisplayName = T("Admin.Rules.FilterDescriptor.GiftCardApplied"),
+                RuleType = RuleType.Boolean,
+                ProcessorType = typeof(GiftCardRule)
+            },
+            new()
+            {
                 Name = "ProductInWishlist",
                 DisplayName = T("Admin.Rules.FilterDescriptor.ProductOnWishlist"),
                 RuleType = RuleType.IntArray,

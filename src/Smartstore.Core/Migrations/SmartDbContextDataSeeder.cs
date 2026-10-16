@@ -390,5 +390,7 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.SelectAttributes",
             "Set the attributes for the combination.",
             "Legen Sie die Attribute für die Kombination fest");
+
+        builder.AddOrUpdate("Admin.Rules.FilterDescriptor.GiftCardApplied", "Gift card applied", "Geschenkgutschein angewendet");
     }
 }
