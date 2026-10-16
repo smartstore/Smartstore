@@ -179,6 +179,14 @@ svg.icon > :is(use, g) {
         --icon-flip-y: -1;
     }
 
+    &.icon-flip-h-reset {
+        --icon-flip-x: 1;
+    }
+
+    &.icon-flip-v-reset {
+        --icon-flip-y: 1;
+    }
+
     &:is(.rotate-90, .rotate-180, .rotate-270, .flip-h, .flip-v, .flip-hv) {
         transform: none;
         translate: var(--icon-shift-x, var(--_icon-shift-x, var(--offset-x, 0))) var(--icon-shift-y, var(--_icon-shift-y, var(--offset-y, 0)));

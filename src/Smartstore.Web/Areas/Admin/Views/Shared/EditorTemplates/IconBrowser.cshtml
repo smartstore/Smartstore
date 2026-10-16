@@ -22,9 +22,10 @@
     var presentation = expression?.Presentation ?? default;
     var selectedAddress = expression?.Address.ToString();
     var selectedLabel = expression?.Address.Name;
-    var selectedIcon = expression.HasValue ? await Icons.GetIconAsync(expression.Value.Address) : null;
+    var area = Model?.Area.NullEmpty() ?? IconAreaResolver.ResolveArea(Context);
+    var selectedIcon = expression.HasValue ? await Icons.GetIconAsync(expression.Value.Address, area) : null;
     var showHiddenKits = Model?.ShowHiddenKits == true;
-    var initialSource = Browser.GetSource(selectedAddress, IconAreaResolver.ResolveArea(Context), showHiddenKits);
+    var initialSource = Browser.GetSource(selectedAddress, area, showHiddenKits);
     // Retain the selected hidden source for label initialization, without listing it.
     var kits = Kits.Kits.Where(x => x.ShowInPicker || showHiddenKits || x.Name == initialSource?.Kit)
         .ToArray();
@@ -35,7 +36,7 @@
 <script src="~/admin/js/smartstore.iconbrowser.js" sm-target-zone="scripts" sm-key="iconbrowser"></script>
 
 <div class="icon-browser" data-search-url="@Url.RouteUrl("IconKit.Browse")"
-     data-icon-presentation="@presentation.ToString()" data-show-provider-indicators="@(Model?.ShowProviderIndicators == true ? "true" : "false")"
+     data-icon-area="@area" data-icon-presentation="@presentation.ToString()" data-show-provider-indicators="@(Model?.ShowProviderIndicators == true ? "true" : "false")"
      data-external-label="@(Model?.ShowProviderIndicators == true ? T("Admin.IconBrowser.External").ToString() : null)" data-size-label="@T("Admin.IconBrowser.Size")" data-visible-options="@((int)visibleOptions)">
     @Html.HiddenFor(x => x.Expression, new { @class = "icon-browser-expression" })
     <div class="row gx-2">
@@ -96,7 +97,7 @@
                     <option></option>
                     @if (selectedAddress.HasValue())
                     {
-                        <option value="@selectedAddress" data-external="@(initialSource?.IsExternal == true ? "true" : "false")" data-supports-stroke-scaling="@(selectedIcon?.SupportsStrokeScaling == true ? "true" : "false")" selected>@selectedLabel</option>
+                        <option value="@selectedAddress" data-external="@(initialSource?.IsExternal == true ? "true" : "false")" attr-data-supports-stroke-scaling='@(selectedIcon?.SupportsStrokeScaling == true, "true")' selected>@selectedLabel</option>
                     }
                 </select>
                 @if (visibleOptions != IconOptionFields.None)

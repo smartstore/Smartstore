@@ -140,6 +140,8 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.IconBrowser.Size", "Size", "Größe");
         builder.Delete("Admin.IconBrowser.Color", "Admin.IconBrowser.FlipHorizontal", "Admin.IconBrowser.FlipVertical", "Admin.IconBrowser.Rotation", "Admin.IconBrowser.Animation", "Admin.IconBrowser.StrokeWidth", "Admin.IconBrowser.NoAnimation");
         builder.AddOrUpdate("Common.MoreOptions", "More options", "Weitere Optionen");
+        builder.AddOrUpdate("Admin.Catalog.Categories.Fields.Icon", "Icon", "Icon");
+
         builder.AddOrUpdate("Admin.Design.Color", "Color", "Farbe");
         builder.AddOrUpdate("Admin.Design.FlipHorizontal", "Flip horizontally", "Horizontal spiegeln");
         builder.AddOrUpdate("Admin.Design.FlipVertical", "Flip vertically", "Vertikal spiegeln");

@@ -234,9 +234,9 @@ public class IconServiceTests
         var service = new Mock<IIconService>(MockBehavior.Strict);
         var renderer = new IconRenderer(service.Object, Mock.Of<IIconKitService>());
         var output = renderer.RenderStack(new Microsoft.AspNetCore.Html.HtmlString("<svg></svg>"),
-            new IconPresentation { Size = "lg", Rotate = 90, FlipHorizontal = true });
-        Assert.That(output.Attributes["class"], Does.Contain("icon-stack").And.Contain("icon-lg"));
-        Assert.That(output.Attributes["style"], Does.Contain("--icon-rotate:90deg").And.Contain("--icon-flip-x:-1"));
+            new IconPresentation { Size = "lg", Rotate = 90, FlipHorizontal = true, FlipVertical = true });
+        Assert.That(output.Attributes["class"], Does.Contain("icon-stack").And.Contain("icon-lg").And.Contain("icon-flip-hv"));
+        Assert.That(output.Attributes["class"], Does.Contain("icon-rotate-90"));
         service.VerifyNoOtherCalls();
     }
 
@@ -768,8 +768,9 @@ public class IconServiceTests
         var kits = new IconKitService(_service, accessor);
         var renderer = new IconRenderer(_service, kits);
         var output = await renderer.RenderAsync(icon, new IconPresentation { StrokeScale = 3 });
-        Assert.That(output.Attributes["data-supports-stroke-scaling"], Is.EqualTo(supported ? "true" : "false"));
-        Assert.That(RenderMarkup(output).Contains("var(--icon-stroke-scale,var(--_icon-stroke-scale,3))"), Is.EqualTo(supported));
+        Assert.That(output.Attributes.TryGetValue("data-supports-stroke-scaling", out var strokeScaling), Is.EqualTo(supported));
+        Assert.That(strokeScaling, Is.EqualTo(supported ? "true" : null));
+        Assert.That(RenderMarkup(output).Contains("--icon-stroke-scale:3;"), Is.EqualTo(supported));
         var browser = new IconBrowser(_service, kits, accessor);
         var page = await browser.SearchAsync(new IconSearchQuery(), "shared");
         Assert.That(page.Items.Single(x => x.Name == "foreign").SupportsStrokeScaling, Is.EqualTo(supported));
@@ -1034,9 +1035,9 @@ public class IconServiceTests
         Assert.That(RenderMarkup(output.InnerHtml), Does.Contain("<use"));
         Assert.That(await renderer.RenderAsync(icon, new IconPresentation { StrokeScale = 1.25 }), Is.Not.Null);
         var reset = await renderer.RenderAsync(icon, new IconPresentation { StrokeScale = 1 });
-        Assert.That(RenderMarkup(reset.InnerHtml), Does.Not.Contain("<use"));
+        Assert.That(RenderMarkup(reset.InnerHtml), Does.Contain("<use"));
         Assert.That(RenderMarkup((await renderer.RenderAsync(await _service.GetIconAsync("thick"), new IconPresentation { StrokeScale = 1 })).InnerHtml),
-            Does.Not.Contain("<use"));
+            Does.Contain("<use"));
 
         var path = await kits.GetSpriteFileAsync("shared", Path.GetFileNameWithoutExtension(reference.Href.Split('#')[0]).Substring("shared-".Length));
         var text = await File.ReadAllTextAsync(path);
@@ -1073,9 +1074,9 @@ public class IconServiceTests
         Assert.That(Path.GetFileName(paths[0]), Is.EqualTo("manifest-" + revision + ".json"));
         using var json = JsonDocument.Parse(await File.ReadAllTextAsync(paths[0]));
         Assert.That(json.RootElement.EnumerateObject().Select(x => x.Name), Is.EquivalentTo(new[] { "schemaVersion", "mirrorInRtl", "areas", "kits" }));
-        Assert.That(json.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(11));
+        Assert.That(json.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(12));
         var shared = json.RootElement.GetProperty("kits").GetProperty("shared");
-        Assert.That(shared.EnumerateObject().Select(x => x.Name), Is.EquivalentTo(new[] { "areas", "url", "defaultLibrary", "defaultVariant", "icons", "duotone", "supportsStrokeScaling", "sources" }));
+        Assert.That(shared.EnumerateObject().Select(x => x.Name), Is.EquivalentTo(new[] { "areas", "url", "defaultLibrary", "defaultVariant", "icons", "duotone", "supportsStrokeScaling", "sources", "transforms" }));
         Assert.That(shared.GetProperty("icons").EnumerateArray().Select(x => x.GetString()), Is.EqualTo(new[] { "cart", "thick" }),
             "Mapping flips and stroke multipliers are baked into kit symbols.");
         Assert.That(shared.GetProperty("url").GetString(), Does.StartWith("icons/shared-"));
@@ -2565,10 +2566,14 @@ public class IconServiceTests
         Assert.That(icon.Transform, Is.EqualTo(new IconTransform(true, true, 90)));
         Assert.That(icon.StrokeScale, Is.EqualTo(1.2));
         var expressionOutput = await renderer.RenderAsync(icon, expression.Presentation);
-        Assert.That(RenderMarkup(expressionOutput.InnerHtml), Does.Contain("rotate(180)").And.Contain("scale(-1 -1)"));
+        Assert.That(RenderMarkup(expressionOutput.InnerHtml), Does.Contain("<use"));
+        Assert.That(expressionOutput.Attributes["class"], Does.Contain("icon-rotate-90"));
+        Assert.That(expressionOutput.Attributes["style"], Does.Contain("--icon-stroke-scale:1.1"));
         var output = await renderer.RenderAsync(icon, expression.Presentation with { Rotate = 0, FlipHorizontal = false, StrokeScale = 1 });
         var drawing = RenderMarkup(output.InnerHtml);
-        Assert.That(drawing, Does.Contain("rotate(0)").And.Contain("scale(1 -1)").And.Not.Contain("<use"));
+        Assert.That(drawing, Does.Contain("<use"));
+        Assert.That(output.Attributes["class"], Does.Contain("icon-flip-h"));
+        Assert.That(output.Attributes["class"], Does.Contain("icon-rotate-90"));
         Assert.That(icon.Transform.Rotation, Is.EqualTo(90), "Rendering must not mutate the resolved identity.");
         Assert.That(kits.GetUrl("shared"), Is.EqualTo(url));
         var direct = IconExpression.Parse("hi:cart-01!/sr?flip=none&rotate=0");
@@ -2591,7 +2596,7 @@ public class IconServiceTests
         var original = source.Content;
         var renderer = new IconRenderer(_service, Mock.Of<IIconKitService>());
         var output = await renderer.RenderAsync(icon, expression.Presentation);
-        var multiplier = "var(--icon-stroke-scale,var(--_icon-stroke-scale," + scale.ToString(System.Globalization.CultureInfo.InvariantCulture) + "))";
+        var multiplier = "var(--icon-stroke-scale,var(--_icon-stroke-scale," + icon.StrokeScale.ToString(System.Globalization.CultureInfo.InvariantCulture) + "))";
         Assert.That(RenderMarkup(output.InnerHtml), Does.Contain("calc(var(--icon-stroke-width,2.4) * " + multiplier + ")")
             .And.Contain("calc(var(--icon-stroke-width,3.2) * " + multiplier + ")"));
         Assert.That(source.Content, Is.EqualTo(original));
@@ -2612,7 +2617,7 @@ public class IconServiceTests
         Write("Icons/kits.json", """{"shared":["cart"]}""");
         var kits = new IconKitService(_service, new HttpContextAccessor());
         var renderer = new IconRenderer(_service, kits);
-        var presentation = new IconPresentation { Size = "3x", Animation = animation, FontScale = 2, ShiftX = 2, AnimationReverse = false };
+        var presentation = new IconPresentation { Size = "3x", Animation = animation, FontScale = 2, ShiftX = 2, AnimationReverse = false, Rotate = 45, FlipHorizontal = true, StrokeScale = 1.5 };
         var options = new IconOptions();
         options.Attributes["style"] = "--icon-size-factor:4";
         var output = await renderer.RenderAsync(await _service.GetIconAsync("cart"), presentation, options);
@@ -2833,7 +2838,7 @@ public class IconServiceTests
 
         var manifestPath = await kits.GetManifestFileAsync(Path.GetFileNameWithoutExtension(kits.GetManifestUrl()));
         using var manifest = JsonDocument.Parse(await File.ReadAllTextAsync(manifestPath));
-        Assert.That(manifest.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(11));
+        Assert.That(manifest.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(12));
         var brands = manifest.RootElement.GetProperty("kits").GetProperty("brands");
         Assert.That(brands.GetProperty("icons").EnumerateArray().Select(x => x.GetString()), Is.EquivalentTo(symbols.Keys),
             "Each concept references its own symbol, including aliases sharing one source.");

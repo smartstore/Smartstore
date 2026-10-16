@@ -164,6 +164,12 @@ public partial class Category :
     public int BadgeStyle { get; set; }
 
     /// <summary>
+    /// Gets or sets the icon expression, including optional presentation modifiers.
+    /// </summary>
+    [StringLength(512)]
+    public string Icon { get; set; }
+
+    /// <summary>
     /// Gets or sets the category alias.
     /// It's an optional key intended for advanced customization.
     /// </summary>

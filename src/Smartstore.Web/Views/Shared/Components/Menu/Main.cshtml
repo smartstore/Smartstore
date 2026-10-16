@@ -52,6 +52,8 @@
             }
         }
 
+        var hasIcons = nodes.Any(x => x.Value.Visible && x.Value.Icon.HasValue());
+
         foreach (var node in nodes.Where(x => x.Value.Visible))
         {
             var item = node.Value;
@@ -71,6 +73,11 @@
 
             <div id="dropdown-item-@item.Id" data-id="@item.Id" attr-class='(node.HasChildren, "dropdown-group")' role="none">
                 <a href="@itemUrl" attrs="@attrs" role="menuitem">
+                    @if (hasIcons)
+                    {
+                        <icon sm-if="item.Icon.HasValue()" name="@item.Icon" area="public" class="icon-fw" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
+                        <span sm-if="item.Icon.IsEmpty()" class="icon icon-fw" aria-hidden="true"></span>
+                    }
                     <span sm-language-attributes-for="item">@item.Text</span>
                 </a>
                 @if (node.HasChildren)

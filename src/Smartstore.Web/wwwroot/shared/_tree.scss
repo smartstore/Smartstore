@@ -49,6 +49,11 @@ $default-state-color: $gray-400;
     position: relative;
     user-select: none;
     margin: 0;
+    border-radius: var(--border-radius-sm);
+
+    &:hover:not(:has(.tree-selected)) {
+        background-color: rgba($black, 0.06);
+    }
 
     .touchevents & {
         pointer-events: none;

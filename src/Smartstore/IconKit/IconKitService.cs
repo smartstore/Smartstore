@@ -115,7 +115,9 @@ public sealed class IconKitService(IconService icons, IHttpContextAccessor httpC
                 ["icons"] = entries.Select(x => x.Concept).ToArray(),
                 ["duotone"] = entries.Where(x => x.Variant.Manifest.IsDuotone).Select(x => x.Concept).ToArray(),
                 ["supportsStrokeScaling"] = entries.Where(x => x.Variant.Manifest.SupportsStrokeScaling).Select(x => x.Concept).ToArray(),
-                ["sources"] = sources
+                ["sources"] = sources,
+                ["transforms"] = entries.Where(x => !x.Mapping.Transform.IsIdentity).ToDictionary(x => x.Concept,
+                    x => FormattableString.Invariant($"{(x.Mapping.Transform.FlipX ? 1 : 0)} {(x.Mapping.Transform.FlipY ? 1 : 0)} {x.Mapping.Transform.Rotation:R}"))
             };
             var external = catalog.ExternalIcons[kit.Name];
             if (external.Count > 0)
@@ -129,7 +131,7 @@ public sealed class IconKitService(IconService icons, IHttpContextAccessor httpC
 
         var content = JsonSerializer.SerializeToUtf8Bytes(new
         {
-            SchemaVersion = 11,
+            SchemaVersion = 12,
             MirrorInRtl = catalog.MirrorInRtl.OrderBy(x => x, StringComparer.Ordinal).ToArray(),
             Areas = catalog.ConceptKits.GroupBy(x => x.Key.Area).ToDictionary(
                 group => group.Key, group => group.ToDictionary(x => x.Key.Concept, x => x.Value.Name)),

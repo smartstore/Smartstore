@@ -12,44 +12,16 @@ namespace Smartstore.Web.Models.Media;
 public class IconBrowserModel : ModelBase
 {
     /// <summary>
-    /// Gets or sets the original address, including optional library, variant and query modifiers.
+    /// Gets or sets the selected icon and all presentation modifiers.
+    /// Null represents an empty selection.
     /// </summary>
-    public string IconAddress { get; set; }
+    public IconExpression? Expression { get; set; }
 
     /// <summary>
-    /// Gets or sets a predefined icon size.
+    /// Gets or sets the icon resolution area. Defaults to the current request area.
     /// </summary>
-    public string Size { get; set; }
-
-    /// <summary>
-    /// Gets or sets an icon animation.
-    /// </summary>
-    public string Animation { get; set; }
-
-    /// <summary>
-    /// Gets or sets the rendering color. Null inherits the icon color.
-    /// </summary>
-    public string Color { get; set; }
-
-    /// <summary>
-    /// Gets or sets horizontal mirroring. Null inherits the address or mapping value.
-    /// </summary>
-    public bool? FlipHorizontal { get; set; }
-
-    /// <summary>
-    /// Gets or sets vertical mirroring. Null inherits the address or mapping value.
-    /// </summary>
-    public bool? FlipVertical { get; set; }
-
-    /// <summary>
-    /// Gets or sets clockwise rotation in degrees. Zero explicitly resets inherited rotation.
-    /// </summary>
-    public int? Rotate { get; set; }
-
-    /// <summary>
-    /// Gets or sets a positive stroke multiplier. Null inherits the address or mapping value.
-    /// </summary>
-    public double? StrokeScale { get; set; }
+    [BindNever, JsonIgnore]
+    public string Area { get; set; }
 
     /// <summary>
     /// Gets or sets editor configuration, independently of persisted presentation values.
@@ -71,25 +43,6 @@ public class IconBrowserModel : ModelBase
     /// </summary>
     [BindNever, JsonIgnore]
     public bool ShowProviderIndicators { get; set; }
-
-    /// <summary>
-    /// Creates an expression, retaining persisted modifiers unless explicitly overridden.
-    /// </summary>
-    public IconExpression ToExpression()
-    {
-        var expression = IconExpression.Parse(IconAddress);
-        var presentation = new IconPresentation
-        {
-            Size = Size,
-            Animation = Animation,
-            Color = Color,
-            FlipHorizontal = FlipHorizontal,
-            FlipVertical = FlipVertical,
-            Rotate = Rotate,
-            StrokeScale = StrokeScale
-        };
-        return expression with { Presentation = presentation.WithDefaults(expression.Presentation) };
-    }
 }
 
 /// <summary>

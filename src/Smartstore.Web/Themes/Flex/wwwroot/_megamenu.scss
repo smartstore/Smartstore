@@ -297,6 +297,11 @@ $mixed-megamenu-bg:             $megamenu-bg;
         text-decoration: none;
         display: inline-block;
         color: $megamenu-heading-color;
+
+        > .icon + span {
+            margin-inline-start: 0.25rem;
+        }
+
         transition: transform 0.2s ease-in-out;
 
         //&:after {
@@ -402,6 +407,22 @@ $mixed-megamenu-bg:             $megamenu-bg;
         flex-flow: column;
         flex-wrap: nowrap;
         gap: 1px;
+
+        .megamenu-subitem {
+            display: flex;
+            align-items: center;
+
+            > .icon,
+            > .badge {
+                flex-shrink: 0;
+            }
+
+            > span:not(.icon):not(.badge) {
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
     }
 }
 
@@ -416,6 +437,11 @@ $mixed-megamenu-bg:             $megamenu-bg;
     font-size: $font-size-sm;
     text-decoration: none;
     color: $megamenu-subitem-color;
+
+    > .icon + span {
+        margin-inline-start: 0.25rem;
+    }
+
     transition: color 0.1s ease;
 
     &:hover {

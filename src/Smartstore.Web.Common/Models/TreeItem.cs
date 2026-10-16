@@ -92,6 +92,12 @@ public partial class TreeItem
     public string Icon { get; set; }
 
     /// <summary>
+    /// Optional area used to resolve the custom icon.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public string IconArea { get; set; }
+
+    /// <summary>
     /// Optional icon URL.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]

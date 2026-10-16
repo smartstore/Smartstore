@@ -219,6 +219,8 @@ public class CategoryController : AdminController
                 var nodeValue = new TreeItem
                 {
                     Name = category.Name,
+                    Icon = category.Icon,
+                    IconArea = category.Icon.HasValue() ? "public" : null,
                     NumChildren = x.Children.Count,
                     NumChildrenDeep = x.Flatten(false).Count(),
                     BadgeText = category.Alias,

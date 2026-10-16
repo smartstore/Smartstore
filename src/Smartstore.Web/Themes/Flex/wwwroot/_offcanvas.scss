@@ -106,6 +106,19 @@
         }
     }
 
+    .ocm-nav.has-icons > .ocm-item:not(.show-current-node) > .ocm-link {
+        display: flex;
+        align-items: center;
+
+        > .icon {
+            flex-shrink: 0;
+        }
+
+        > .icon + span {
+            margin-inline-start: 0.5rem;
+        }
+    }
+
     .ocm-nav .ocm-back {
         padding-inline-start: 0;
 
@@ -129,7 +142,7 @@
         .ocm-link {
             --btn-height: var(--ocm-back-size);
 
-            display: block;
+            display: inline-flex;
             position: absolute;
             inset-inline-start: var(--ocm-item-padding-x);
             top: 50%;

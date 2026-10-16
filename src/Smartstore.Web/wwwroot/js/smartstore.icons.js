@@ -5,8 +5,8 @@
     const namespace = window.Smartstore = window.Smartstore || {};
     const sizes = new Set(['2xs', 'xs', 'sm', 'lg', 'xl', '2xl', ...Array.from({ length: 10 }, (_, i) => `${i + 1}x`)]);
     const animations = new Set(['spin', 'pulse', 'beat', 'fade', 'throb', 'bounce', 'flip', 'shake', 'spin-snap', 'swing', 'wag']);
-    const presentation = ['stroke-scale', 'rotate', 'size', 'font-scale', 'fw', 'color', 'inverse', 'animation', 'animation-duration', 'animation-reverse', 'scale', 'shift-x', 'shift-y', 'mirror-rtl'];
-    const drawing = ['name', 'area', 'lib', 'variant', 'flip-h', 'flip-v'];
+    const presentation = ['flip-h', 'flip-v', 'stroke-scale', 'rotate', 'size', 'font-scale', 'fw', 'color', 'inverse', 'animation', 'animation-duration', 'animation-reverse', 'scale', 'shift-x', 'shift-y', 'mirror-rtl'];
+    const drawing = ['name', 'area', 'lib', 'variant'];
     const cache = new Map();
     const waiting = [];
     let active = 0, manifestPromise, cloneId = 0;
@@ -41,7 +41,7 @@
 
     function prepareManifest(data) {
         // Old cached pages fall back to the endpoint while scripts and manifests roll over.
-        if (data.schemaVersion !== 11) return null;
+        if (data.schemaVersion !== 12) return null;
         const mirrorInRtl = new Set(data.mirrorInRtl);
         const concepts = new Map();
         for (const [kitName, kit] of Object.entries(data.kits)) {
@@ -61,6 +61,7 @@
                 const variant = slash < 0 ? kit.defaultVariant : source.slice(slash + 1);
                 const icon = source.slice(colon + 1, slash < 0 ? source.length : slash);
                 const reference = {
+                    transform: kit.transforms?.[name],
                     supportsStrokeScaling: strokeScaling.has(name),
                     href: url + '#' + encodeURIComponent(name),
                     address: `${library.toLowerCase()}:${icon}/${variant.toLowerCase()}`,
@@ -81,15 +82,22 @@
     // Rendering-only modifiers must not create drawing requests or bypass kit lookup.
     function splitPresentation(name) {
         const separator = name?.indexOf('?') ?? -1;
-        const result = { name, color: null, size: null, animation: null, rotate: null, 'stroke-scale': null };
+        const result = { name, color: null, size: null, animation: null, rotate: null, 'stroke-scale': null, 'flip-h': null, 'flip-v': null };
         if (separator < 0) return result;
         const modifiers = [];
         for (const pair of name.slice(separator + 1).split('&')) {
             const equals = pair.indexOf('=');
             const token = equals < 0 ? pair : pair.slice(0, equals);
             const key = token === 'anim' ? 'animation' : token;
-            if (!['color', 'size', 'animation', 'rotate', 'stroke-scale'].includes(key)) { modifiers.push(pair); continue; }
-            const raw = equals < 0 ? '' : pair.slice(equals + 1);
+            if (key === 'flip') {
+                const value = pair.slice(equals + 1);
+                if (!['x', 'y', 'xy', 'none'].includes(value)) throw new Error('Invalid icon flip.');
+                result['flip-h'] = String(value.includes('x'));
+                result['flip-v'] = String(value.includes('y'));
+                continue;
+            }
+            if (!['color', 'size', 'animation', 'rotate', 'stroke-scale', 'flip-h', 'flip-v'].includes(key)) { modifiers.push(pair); continue; }
+            const raw = equals < 0 ? (key.startsWith('flip-') ? 'true' : '') : pair.slice(equals + 1);
             const value = key === 'color' ? decodeURIComponent(raw) : raw;
             if (result[key] !== null || !value.trim()
                 || (key === 'color' && /[;{}]/.test(value))
@@ -125,8 +133,8 @@
     // Missing, false and true are distinct: false must be able to reset mapping defaults.
     function boolean(value) {
         if (value == null) return undefined;
-        if (value === '' || value.toLowerCase() === 'true') return true;
-        if (value.toLowerCase() === 'false') return false;
+        if (value === '' || value === '1' || value.toLowerCase() === 'true') return true;
+        if (value === '0' || value.toLowerCase() === 'false') return false;
         throw new Error('Expected true or false for icon attribute.');
     }
 
@@ -253,7 +261,7 @@
         disconnectedCallback() { this._sequence++; }
         attributeChangedCallback(name, oldValue, newValue) {
             if (this._rendering || oldValue === newValue) return;
-            if ((name === 'rotate' || name === 'stroke-scale') && this.isConnected) {
+            if (presentation.includes(name) && this.isConnected) {
                 // These attributes change presentation only; preserve the drawing and pending load.
                 try { this.present(this.localName === 'sm-icon-stack'); }
                 catch (error) { this.dispatchEvent(new CustomEvent('icon-error', { detail: { error }, bubbles: true })); }
@@ -306,12 +314,23 @@
                 if (!stack) styles.set('--icon-stroke-scale', String(strokeScale));
             }
             const rotate = number(this.getAttribute('rotate') ?? this._addressPresentation?.rotate);
-            if (rotate !== undefined) styles.set('--icon-rotate', rotate + 'deg');
-            if (stack) {
-                for (const [attr, css] of [['flip-h', '--icon-flip-x'], ['flip-v', '--icon-flip-y']]) {
-                    const value = boolean(this.getAttribute(attr));
-                    if (value !== undefined) styles.set(css, value ? '-1' : '1');
-                }
+            const mapping = stack ? [0, 0, 0] : (this._mapping || [0, 0, 0]);
+            const flips = ['flip-h', 'flip-v'].map((attr, i) => {
+                const value = boolean(this.getAttribute(attr) ?? this._addressPresentation?.[attr]);
+                const changed = value !== undefined && value !== !!mapping[i];
+                if (value !== undefined) classes.push('icon-flip-' + (i ? 'v' : 'h') + (changed ? '' : '-reset'));
+                return changed;
+            });
+            if (flips[0] && flips[1]) {
+                classes.splice(classes.indexOf('icon-flip-h'), 1);
+                classes.splice(classes.indexOf('icon-flip-v'), 1);
+                classes.push('icon-flip-hv');
+            }
+            if (rotate !== undefined || flips[0] !== flips[1]) {
+                const angle = (rotate ?? mapping[2]) - (flips[0] !== flips[1] ? -mapping[2] : mapping[2]);
+                const normalized = (angle % 360 + 360) % 360;
+                if ([90, 180, 270].includes(normalized)) classes.push('icon-rotate-' + normalized);
+                else styles.set('--icon-rotate', angle + 'deg');
             }
             this.render(() => {
                 for (const name of this._generatedClasses) {
@@ -347,20 +366,21 @@
             const parsed = splitPresentation(input.name);
             input.name = parsed.name;
             this._addressPresentation = parsed;
-            this.present(false);
+            this.present(this.localName === 'sm-icon-stack');
             input.area = input.area || document.querySelector('meta[property="sm:icons"]')?.dataset.area || 'public';
             const key = JSON.stringify(input);
             if (this._drawingKey === key) return;
             // Do not show the old icon under a newly requested name while loading.
             this.replaceChildren(); this._drawingKey = null; this._identity = [];
-            this.present(false);
+            this.present(this.localName === 'sm-icon-stack');
             if (!input.name) return;
             const reference = isConcept(input) ? (await manifest())?.get(input.area)?.get(input.name) : null;
             let template;
             if (reference) {
                 template = document.createElementNS(ns, 'svg');
                 template.setAttribute('data-icon', input.name + ' -> ' + reference.address);
-                template.setAttribute('data-supports-stroke-scaling', String(reference.supportsStrokeScaling));
+                if (reference.transform) template.setAttribute('data-icon-mapping', reference.transform);
+                if (reference.supportsStrokeScaling) template.setAttribute('data-supports-stroke-scaling', 'true');
                 template.setAttribute('class', reference.classes.join(' '));
                 const use = document.createElementNS(ns, 'use');
                 use.setAttribute('href', reference.href); template.append(use);
@@ -368,8 +388,9 @@
             if (!this.isConnected || this._sequence !== sequence) return;
             // Manifest hits and endpoint responses carry the same server-resolved identity.
             // The source snapshot excludes the generated presentation on the host.
+            this._mapping = (template.getAttribute('data-icon-mapping') || '0 0 0').split(' ').map(Number);
             this._identity = [...template.classList].filter(name => name.startsWith('icon-'));
-            this.present(false);
+            this.present(this.localName === 'sm-icon-stack');
             this.replaceChildren(cloneDrawing(template));
             this._drawingKey = key;
             if (template.classList.contains('icon-not-found')) {

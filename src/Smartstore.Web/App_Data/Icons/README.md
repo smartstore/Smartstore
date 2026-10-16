@@ -1117,7 +1117,7 @@ manifest contains kit URLs, directly renderable concepts and compact DOM identit
 
 ```json
 {
-  "schemaVersion": 11,
+  "schemaVersion": 12,
   "mirrorInRtl": ["arrow-left", "arrow-right", "chevron-left", "chevron-right", "chevrons-left", "chevrons-right"],
   "kits": {
     "brands": {
@@ -1148,14 +1148,14 @@ classes `icon-bi icon-bi-default`. Library catalogs, resolution rules, SVG drawi
 search tags remain server-side. Each concept appears only in its preferred kit. Unavailable kits are omitted; mapping stroke multipliers are included in the sprites.
 Mapping rotations and flips are already baked into the symbols.
 
-Unknown concepts, explicit library/variant selections, direct names (`!`), query
-modifiers and drawing attributes (`rotate`, `flip-h`, `flip-v`, `stroke-scale`) use
+Unknown concepts, explicit library/variant selections and direct names (`!`) use
 `/icons/render`. The endpoint owns resolution and may return either inline SVG or a
-kit reference. Sizing, color, animation, rotation and stroke scaling stay local.
-Changing the component rotation or stroke scale updates CSS variables without replacing
-its SVG or restarting pending requests. Rotation acts on the resolved drawing, including
-any mapping transform. Stroke scaling overrides the mapping multiplier through an inherited
-CSS variable while preserving the relative widths of individual strokes.
+kit reference. Browser-tool modifiers stay local and do not change the drawing key.
+Changing presentation attributes updates CSS without replacing the SVG or restarting
+pending requests. The manifest's sparse `transforms` map carries baked mapping defaults;
+CSS compensates for them when rotation or flip overrides are explicitly supplied.
+Stroke scaling overrides the mapping multiplier through an inherited CSS variable
+while preserving the relative widths of individual strokes.
 Old or unavailable manifests also fall back to the endpoint while cached pages and
 script bundles roll over during an update.
 Generated manifests live in `App_Data/.cache/icons/kits/manifest-{revision}.json` and are
@@ -1202,8 +1202,7 @@ migrated automatically. Add an `IconBrowserModel` property to your view model an
 // Configure on GET and again when redisplaying a failed POST.
 model.Icon = new IconBrowserModel
 {
-    IconAddress = "cart",
-    Rotate = 90,
+    Expression = IconExpression.Parse("cart?rotate=90"),
     VisibleOptions = IconOptionFields.Size | IconOptionFields.Rotate
 };
 ```
@@ -1213,21 +1212,20 @@ model.Icon = new IconBrowserModel
 ```
 
 `IconBrowserModel` and `IconOptionFields` belong to `Smartstore.Web.Models.Media`.
-`IconAddress` preserves the input expression, including optional library, variant,
-`!` and query modifiers. `Size`, `Animation`, nullable `FlipHorizontal`,
-`FlipVertical`, `Rotate` and `StrokeScale` are posted under the same MVC field prefix.
-Use `model.Icon.ToExpression()` to combine the persisted address and explicit editor values for rendering.
-Null options inherit address/mapping defaults; explicit `false`, `0` and `1` remain
-meaningful overrides. ModelState attempted values take precedence when redisplaying
-an invalid form. Persist the address and option values in your application's storage;
-the editor does not add database fields.
+The nullable `Expression` property contains the address and its complete presentation.
+The form posts one expression string; MVC uses `IconExpression.TryParse` to bind it.
+An empty selection binds to null. Persist `model.Icon.Expression?.ToString()` and parse
+the stored string when preparing the model. Explicit `false`, `0` and `1` remain
+meaningful overrides; modifiers without toolbar controls survive edits.
+ModelState attempted values take precedence when redisplaying an invalid form.
+Restore editor configuration on failed POSTs without replacing the posted expression.
+The editor does not add database fields.
 
 `VisibleOptions` is trusted editor configuration, excluded from form binding and JSON
 serialization. Its default `None` hides the options toolbar; flags or `All` select
 which buttons appear inside the Select2 selection, before the clear action. The
-transparent toolbar currently provides a visual prototype only: Flip H/V state
-buttons and rotation, size, animation and stroke-width menu buttons. Actions and
-popovers are not implemented yet. Temporary button labels are English. At narrow
+transparent toolbar provides color, flip, rotation, size, animation and stroke-width
+controls with localized labels. At narrow
 widths, size, animation and stroke width collapse behind a More button.
 Existing overrides highlight their corresponding buttons; enabled flips appear
 pressed. All option values remain in hidden inputs, including options not offered
@@ -1653,7 +1651,8 @@ The Icon Browser uses this editor; Summernote can use the same API without loadi
 The shared `Smartstore.IconTools.bindColor(toggle, { getState, onChange })` editor uses
 the existing application colorpicker with its palette and alpha support. The host supplies
 `{ name, value }` and receives a CSS color or an empty string to restore inheritance.
-`IconBrowserModel.Color` passes the override to rendering options and developer code output.
+The browser stores this override in its expression's presentation and includes it
+in the posted expression and developer code output.
 
 The Smartstore Summernote `iconPopover` plugin edits selected `sm-icon` elements through
 the shared color, flip and animation tools. Its toolbar belongs to Smartstore; the fork

@@ -262,8 +262,12 @@
             var title = nodeData?.Title ? window.htmlEncode(nodeData.Title) : li.data('title');
             var nodeUrl = nodeData?.Url || li.data('url');
             var badgeText = nodeData?.BadgeText || li.data('badge-text');
-            var icon = nodeData?.Icon || li.data('icon') || opt.defaultCollapsedIcon;
-            var iconUrl = nodeData?.IconUrl || li.data('icon-url') || opt.defaultCollapsedIconUrl;
+            var customIcon = nodeData?.Icon || li.data('icon');
+            var customIconUrl = nodeData?.IconUrl || li.data('icon-url');
+            var icon = customIcon || (customIconUrl ? null : opt.defaultCollapsedIcon);
+            var iconUrl = customIconUrl || opt.defaultCollapsedIconUrl;
+            var iconArea = customIcon ? nodeData?.IconArea || li.data('icon-area') : null;
+            var defaultIconClass = customIcon || customIconUrl ? '' : ' tree-icon-default';
             var dimmed = nodeData ? nodeData.Dimmed : toBool(li.data('dimmed'), false);
             var enabled = nodeData ? nodeData.Enabled : toBool(li.data('enabled'), true);
             var textClass = numChildren == 0 ? 'tree-text tree-leaf-text' : 'tree-text tree-noleaf-text';
@@ -310,10 +314,10 @@
             html += `<label class="tree-label"${!enabled && opt.disabledTitle ? ` title="${opt.disabledTitle}"` : ''}><span class="${contentClass}">`;
 
             if (icon) {
-                html += `<span class="tree-icon"><sm-icon name="${window.htmlEncode(icon)}" fw aria-hidden="true"></sm-icon></span>`;
+                html += `<span class="tree-icon${defaultIconClass}"><sm-icon name="${window.htmlEncode(icon)}"${iconArea ? ` area="${window.htmlEncode(iconArea)}"` : ''} fw aria-hidden="true"></sm-icon></span>`;
             }
             else if (iconUrl) {
-                html += `<span class="tree-icon"><img src="${iconUrl}" alt="${name}" /></span>`;
+                html += `<span class="tree-icon${defaultIconClass}"><img src="${iconUrl}" alt="${name}" /></span>`;
             }
 
             html += `<span class="${textClass}">${labelHtml}</span>`;
@@ -446,10 +450,10 @@
 
             // Toggle node icon.
             if (opt.defaultCollapsedIcon && opt.defaultExpandedIcon) {
-                nodeInner.find('.tree-icon sm-icon').attr('name', expand ? opt.defaultExpandedIcon : opt.defaultCollapsedIcon);
+                nodeInner.find('.tree-icon-default sm-icon').attr('name', expand ? opt.defaultExpandedIcon : opt.defaultCollapsedIcon);
             }
             else if (opt.defaultCollapsedIconUrl && opt.defaultExpandededIconUrl) {
-                nodeInner.find('.tree-icon img').attr('src', expand ? opt.defaultExpandededIconUrl : opt.defaultCollapsedIconUrl);
+                nodeInner.find('.tree-icon-default img').attr('src', expand ? opt.defaultExpandededIconUrl : opt.defaultCollapsedIconUrl);
             }
 
             // Toggle custom expander icons. The default chevron keeps the same element and class

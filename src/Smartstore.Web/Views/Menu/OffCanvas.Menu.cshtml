@@ -13,6 +13,8 @@
         targetNode = targetNode.Parent;
     }
 
+    var hasIcons = targetNode.Children.Any(x => x.Value.Visible && !x.Value.IsGroupHeader && x.Value.Icon.HasValue());
+
     // currentNode represents the current page.
     var currentNode = ViewBag.CurrentNode as TreeNode<MenuItem>;
 }
@@ -29,7 +31,7 @@
         <h5 class="ocm-title text-truncate" sm-language-attributes-for="WorkContext.WorkingLanguage">@targetNode.Value.Text</h5>
     </div>
     
-    <ul class="ocm-nav list-unstyled" role="@(targetNode.Depth > 0 ? "group" : "tree")" id="ocm-nav-@targetNode.Id">
+    <ul class="ocm-nav list-unstyled @(hasIcons ? "has-icons" : null)" role="@(targetNode.Depth > 0 ? "group" : "tree")" id="ocm-nav-@targetNode.Id">
         <li sm-if="targetNode.Depth > 0 && !targetNode.Value.IsVoid" class="show-current-node ocm-item">
             <a href="@targetNode.Value.GenerateUrl(this.Url)" class="ocm-link" data-id="@targetNode.Id" data-ajax="false">
                 @T("Offcanvas.Menu.ShowCurrentCat", targetNode.Value.Text)
@@ -85,6 +87,11 @@
 
             <li attrs="attrs">
                 <a href="@item.GenerateUrl(this.Url)" attrs="linkAttrs">
+                    @if (hasIcons)
+                    {
+                        <icon sm-if="item.Icon.HasValue()" name="@item.Icon" area="public" class="icon-fw" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
+                        <span sm-if="item.Icon.IsEmpty()" class="icon icon-fw" aria-hidden="true"></span>
+                    }
                     <span sm-language-attributes-for="WorkContext.WorkingLanguage">@item.Text</span>
                 </a>
             </li>

@@ -7,6 +7,7 @@
         return this.each(function () {
             const root = $(this);
             if (root.data('iconBrowser')) return;
+            const area = root.attr('data-icon-area');
             const select = root.find('.icon-browser-select');
             const button = root.find('.icon-browser-source-dropdown > button');
             let options = Object.create(null);
@@ -125,6 +126,7 @@
                     // Preserve the chosen source even when its kit belongs to another area.
                     // Unmodified selections and result tiles use that kit's sprite directly.
                     icon = document.createElement('sm-icon');
+                    if (area) icon.setAttribute('area', area);
                     icon.setAttribute('name', isResult ? item.inlineName : (item.previewAddress || item.id));
                     if (!isResult) applyPreviewOptions(icon);
                 } else {
@@ -252,7 +254,7 @@
                         for (const key of ['flip-h', 'flip-v', 'rotate']) {
                             if (options[key] != null) previewOptions[key] = options[key];
                         }
-                        return { name: select.select2('data')[0]?.previewAddress || select.val(), options: previewOptions,
+                        return { area, name: select.select2('data')[0]?.previewAddress || select.val(), options: previewOptions,
                             value: options['stroke-scale'] };
                     },
                     onChange(value) { setOption('stroke-scale', value); }
@@ -269,7 +271,7 @@
                         for (const key of ['flip-h', 'flip-v', 'stroke-scale']) {
                             if (options[key] != null) previewOptions[key] = options[key];
                         }
-                        return { name: select.select2('data')[0]?.previewAddress || select.val(), options: previewOptions,
+                        return { area, name: select.select2('data')[0]?.previewAddress || select.val(), options: previewOptions,
                             value: options['rotate'] };
                     },
                     onChange(value) { setOption('rotate', value); }
@@ -309,7 +311,7 @@
                             previewOptions[key] = value;
                         }
                         return {
-                            name: item?.previewAddress || select.val(), options: previewOptions,
+                            area, name: item?.previewAddress || select.val(), options: previewOptions,
                             value: options['animation']
                         };
                     },

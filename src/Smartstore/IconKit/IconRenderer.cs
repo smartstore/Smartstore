@@ -27,17 +27,15 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
         }
 
         cancelToken.ThrowIfCancellationRequested();
-        var transform = new IconTransform(presentation.FlipHorizontal ?? icon.Transform.FlipX,
-            presentation.FlipVertical ?? icon.Transform.FlipY, presentation.Rotate ?? icon.Transform.Rotation);
+        var transform = icon.Transform;
         var strokeScale = icon.SupportsStrokeScaling ? presentation.StrokeScale ?? icon.StrokeScale : 1;
         if (!double.IsFinite(strokeScale) || strokeScale <= 0)
         {
             throw new ArgumentOutOfRangeException(nameof(presentation), "Stroke scale must be finite and positive.");
         }
 
-        // Kit symbols already contain mapping transforms. Replacing one requires the
-        // original source, not another transform around the existing symbol.
-        var reference = options?.ForceInline == true || transform != icon.Transform || strokeScale != icon.StrokeScale
+        // Presentation overrides retain the original kit symbol.
+        var reference = options?.ForceInline == true
             ? null
             : kits.GetReference(icon);
         var svg = new TagBuilder("svg");
@@ -67,7 +65,7 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
             }
             svg.Attributes["viewBox"] = source.ViewBox;
             // Inherited CSS overrides the mapping default without rebuilding the drawing.
-            var multiplier = "var(--icon-stroke-scale,var(--_icon-stroke-scale," + strokeScale.ToString("R", CultureInfo.InvariantCulture) + "))";
+            var multiplier = "var(--icon-stroke-scale,var(--_icon-stroke-scale," + icon.StrokeScale.ToString("R", CultureInfo.InvariantCulture) + "))";
             var content = icon.SupportsStrokeScaling ? IconSvgParser.ScaleStrokeWidths(source.Content, multiplier) : source.Content;
             if (icon.SupportsStrokeScaling && svg.Attributes.TryGetValue("style", out var rootStyle))
             {
@@ -109,6 +107,22 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
         ApplySizeAndAnimation(svg, presentation.Size, presentation.Animation);
 
         ApplyPresentation(svg, presentation);
+        // Cancel only the baked mapping components overridden by presentation.
+        // CSS applies rotation before scale, so a single-axis flip reverses the baked rotation.
+        var flipX = presentation.FlipHorizontal.HasValue && presentation.FlipHorizontal.Value != transform.FlipX;
+        var flipY = presentation.FlipVertical.HasValue && presentation.FlipVertical.Value != transform.FlipY;
+        ApplyFlip(svg, presentation.FlipHorizontal.HasValue ? flipX : null,
+            presentation.FlipVertical.HasValue ? flipY : null);
+        if (presentation.Rotate.HasValue || flipX != flipY)
+        {
+            ApplyRotation(svg, (presentation.Rotate ?? transform.Rotation)
+                - (flipX != flipY ? -transform.Rotation : transform.Rotation));
+        }
+        if (icon.SupportsStrokeScaling) AddNumber(svg, "--icon-stroke-scale", presentation.StrokeScale);
+        if (!transform.IsIdentity)
+        {
+            svg.Attributes["data-icon-mapping"] = FormattableString.Invariant($"{(transform.FlipX ? 1 : 0)} {(transform.FlipY ? 1 : 0)} {transform.Rotation:R}");
+        }
         if (options != null)
         {
             ApplyAttributes(svg, options);
@@ -130,7 +144,10 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
             svg.AddCssClass("icon-not-found");
         }
 
-        svg.Attributes["data-supports-stroke-scaling"] = icon.SupportsStrokeScaling ? "true" : "false";
+        if (icon.SupportsStrokeScaling)
+        {
+            svg.Attributes["data-supports-stroke-scaling"] = "true";
+        }
         svg.Attributes["data-icon"] = missing && requestedName.HasValue()
             ? $"{requestedName} -> {icon.Address}"
             : icon.ConceptName == null ? icon.Address : $"{icon.ConceptName} -> {icon.Address}";
@@ -173,16 +190,8 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
         var host = new TagBuilder("span");
         ApplySizeAndAnimation(host, presentation.Size, presentation.Animation);
         ApplyPresentation(host, presentation);
-        AddNumber(host, "--icon-rotate", presentation.Rotate, "deg");
-        if (presentation.FlipHorizontal.HasValue)
-        {
-            AddNumber(host, "--icon-flip-x", presentation.FlipHorizontal.Value ? -1 : 1);
-        }
-
-        if (presentation.FlipVertical.HasValue)
-        {
-            AddNumber(host, "--icon-flip-y", presentation.FlipVertical.Value ? -1 : 1);
-        }
+        ApplyRotation(host, presentation.Rotate);
+        ApplyFlip(host, presentation.FlipHorizontal, presentation.FlipVertical);
 
         if (options != null)
         {
@@ -271,6 +280,34 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
         if (presentation.AnimationReverse.HasValue)
         {
             AddStyle(svg, "--icon-animation-direction", presentation.AnimationReverse.Value ? "reverse" : "normal");
+        }
+    }
+
+    private static void ApplyFlip(TagBuilder host, bool? horizontal, bool? vertical)
+    {
+        if (horizontal == true && vertical == true)
+        {
+            host.AddCssClass("icon-flip-hv");
+        }
+        else
+        {
+            if (horizontal.HasValue) host.AddCssClass(horizontal.Value ? "icon-flip-h" : "icon-flip-h-reset");
+            if (vertical.HasValue) host.AddCssClass(vertical.Value ? "icon-flip-v" : "icon-flip-v-reset");
+        }
+    }
+
+    private static void ApplyRotation(TagBuilder host, double? angle)
+    {
+        if (!angle.HasValue) return;
+
+        var normalized = (angle.Value % 360 + 360) % 360;
+        if (normalized is 90 or 180 or 270)
+        {
+            host.AddCssClass("icon-rotate-" + normalized.ToString(CultureInfo.InvariantCulture));
+        }
+        else
+        {
+            AddNumber(host, "--icon-rotate", angle, "deg");
         }
     }
 

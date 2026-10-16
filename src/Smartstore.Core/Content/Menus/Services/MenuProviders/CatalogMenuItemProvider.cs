@@ -84,6 +84,7 @@ public class CatalogMenuItemProvider : MenuItemProviderBase
             MenuItemId = request.Entity.Id,
             MenuId = request.Entity.MenuId,
             Text = name?.Value ?? node.Name,
+            Icon = node.Icon,
             Rtl = name?.CurrentLanguage?.Rtl ?? false,
             BadgeText = node.Id > 0 ? node.GetLocalized(x => x.BadgeText) : null,
             BadgeStyle = node.BadgeStyle,

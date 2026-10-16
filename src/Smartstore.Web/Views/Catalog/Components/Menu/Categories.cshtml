@@ -20,6 +20,8 @@
         ? Model.SelectedNode.Children
         : Model.SelectedNode.Parent.Children;
 
+    var hasIcons = path.Concat(items).Any(x => x.Value.Icon.HasValue());
+
     if (!path.Any() && !items.Any())
     {
         return;
@@ -27,7 +29,7 @@
 }
 
 <div class="block block-catmenu mb-3">
-    <nav class="list-group catmenu" role="menu" aria-orientation="vertical" aria-label="@T("Categories")">
+    <nav class="list-group catmenu @(hasIcons ? "has-icons" : null)" role="menu" aria-orientation="vertical" aria-label="@T("Categories")">
         @if (path.Count > 0)
         {
             foreach (var node in path)
@@ -85,12 +87,18 @@
         if (isSelected)
         {
             <div class="@cssClass" role="menuitem" aria-current="page" aria-disabled="true">
+                <span sm-if="hasIcons" class="list-group-item-icon" aria-hidden="true">
+                    <icon sm-if="node.Value.Icon.HasValue()" name="@node.Value.Icon" area="public" />
+                </span>
                 <span class="has-count" attr-data-count="(node.Value.ElementsCount.HasValue, node.Value.ElementsCount.ToString())">@node.Value.Text</span>
             </div>
         }
         else
         {
             <a class="@cssClass" href="@node.Value.GenerateUrl(this.Url)" role="menuitem">
+                <span sm-if="hasIcons" class="list-group-item-icon" aria-hidden="true">
+                    <icon sm-if="node.Value.Icon.HasValue()" name="@node.Value.Icon" area="public" />
+                </span>
                 <span class="has-count" attr-data-count="(node.Value.ElementsCount.HasValue, node.Value.ElementsCount.ToString())">@node.Value.Text</span>
             </a>
         }

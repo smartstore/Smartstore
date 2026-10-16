@@ -5,6 +5,8 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Seo;
+using Smartstore.IconKit;
+using Smartstore.Web.Models.Media;
 
 namespace Smartstore.Admin.Models.Catalog;
 
@@ -38,6 +40,14 @@ public class CategoryModel : TabbableModel, ILocalizedModel<CategoryLocalizedMod
     [UIHint("BadgeStyles")]
     [AdditionalMetadata("badge-text-resource", "Common.Example")]
     public int BadgeStyle { get; set; }
+
+    [LocalizedDisplay("*Icon")]
+    [UIHint("IconBrowser")]
+    public IconBrowserModel Icon { get; } = new()
+    {
+        Area = "public",
+        VisibleOptions = IconOptionFields.Color | IconOptionFields.Flip | IconOptionFields.Rotate | IconOptionFields.Animation
+    };
 
     [LocalizedDisplay("*Alias")]
     public string Alias { get; set; }
@@ -184,6 +194,10 @@ public partial class CategoryModelValidator : SmartValidator<CategoryModel>
     {
         ApplyEntityRules<Category>(db);
 
+        RuleFor(x => x.Icon == null ? null : x.Icon.Expression.ToString())
+            .MaximumLength(512)
+            .OverridePropertyName("Icon.Expression");
+
         RuleFor(x => x.WithdrawalPeriodDays)
             .GreaterThanOrEqualTo(0)
             .When(x => x.WithdrawalPeriodDays != null);
@@ -201,6 +215,7 @@ public class CategoryMapper :
         to.ParentCategoryId = from.ParentId;
         to.SeName = await from.GetActiveSlugAsync(0, true, false);
         to.PictureId = from.MediaFileId;
+        to.Icon.Expression = IconExpression.TryParse(from.Icon, out var expression) ? expression : null;
     }
 
     public Task MapAsync(CategoryModel from, Category to, dynamic parameters = null)
@@ -208,6 +223,7 @@ public class CategoryMapper :
         MiniMapper.Map(from, to);
         to.ParentId = from.ParentCategoryId;
         to.MediaFileId = from.PictureId.ZeroToNull();
+        to.Icon = from.Icon?.Expression?.ToString().NullEmpty();
 
         return Task.CompletedTask;
     }
