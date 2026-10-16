@@ -1,0 +1,26 @@
+[
+  {
+    "$key": "By Ground",
+    "Description": "Compared to other shipping methods, like by flight or over seas, ground shipping is carried out closer to the earth",
+    "DisplayOrder": 1,
+    "IgnoreCharges": false,
+    "LimitedToStores": false,
+    "Name": "By Ground"
+  },
+  {
+    "$key": "Free shipping",
+    "Description": null,
+    "DisplayOrder": 2,
+    "IgnoreCharges": true,
+    "LimitedToStores": false,
+    "Name": "Free shipping"
+  },
+  {
+    "$key": "In-Store Pickup",
+    "Description": "Pick up your items at the store",
+    "DisplayOrder": 0,
+    "IgnoreCharges": false,
+    "LimitedToStores": false,
+    "Name": "In-Store Pickup"
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "$key": "2-5 Werktage",
+    "ColorHexValue": "#FFFF00",
+    "DisplayLocale": null,
+    "DisplayOrder": 1,
+    "IsDefault": null,
+    "MaxDays": 5,
+    "MinDays": 2,
+    "Name": "2-5 Werktage"
+  },
+  {
+    "$key": "7 Werktage",
+    "ColorHexValue": "#FF9900",
+    "DisplayLocale": null,
+    "DisplayOrder": 2,
+    "IsDefault": null,
+    "MaxDays": 14,
+    "MinDays": 7,
+    "Name": "7 Werktage"
+  },
+  {
+    "$key": "sofort lieferbar",
+    "ColorHexValue": "#008000",
+    "DisplayLocale": null,
+    "DisplayOrder": 0,
+    "IsDefault": null,
+    "MaxDays": 3,
+    "MinDays": 1,
+    "Name": "sofort lieferbar"
+  }
+]

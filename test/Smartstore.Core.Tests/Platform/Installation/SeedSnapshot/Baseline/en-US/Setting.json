@@ -1,0 +1,3530 @@
+[
+  {
+    "$key": "AddressSettings.CityEnabled|0",
+    "Name": "AddressSettings.CityEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "AddressSettings.CityRequired|0",
+    "Name": "AddressSettings.CityRequired",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "AddressSettings.CompanyEnabled|0",
+    "Name": "AddressSettings.CompanyEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "AddressSettings.CompanyRequired|0",
+    "Name": "AddressSettings.CompanyRequired",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "AddressSettings.CountryEnabled|0",
+    "Name": "AddressSettings.CountryEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "AddressSettings.CountryRequired|0",
+    "Name": "AddressSettings.CountryRequired",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "AddressSettings.FaxEnabled|0",
+    "Name": "AddressSettings.FaxEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "AddressSettings.FaxRequired|0",
+    "Name": "AddressSettings.FaxRequired",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "AddressSettings.PhoneEnabled|0",
+    "Name": "AddressSettings.PhoneEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "AddressSettings.PhoneRequired|0",
+    "Name": "AddressSettings.PhoneRequired",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "AddressSettings.SalutationEnabled|0",
+    "Name": "AddressSettings.SalutationEnabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "AddressSettings.Salutations|0",
+    "Name": "AddressSettings.Salutations",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "AddressSettings.StateProvinceEnabled|0",
+    "Name": "AddressSettings.StateProvinceEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "AddressSettings.StateProvinceRequired|0",
+    "Name": "AddressSettings.StateProvinceRequired",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "AddressSettings.StreetAddress2Enabled|0",
+    "Name": "AddressSettings.StreetAddress2Enabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "AddressSettings.StreetAddress2Required|0",
+    "Name": "AddressSettings.StreetAddress2Required",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "AddressSettings.StreetAddressEnabled|0",
+    "Name": "AddressSettings.StreetAddressEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "AddressSettings.StreetAddressRequired|0",
+    "Name": "AddressSettings.StreetAddressRequired",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "AddressSettings.TitleEnabled|0",
+    "Name": "AddressSettings.TitleEnabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "AddressSettings.ValidateEmailAddress|0",
+    "Name": "AddressSettings.ValidateEmailAddress",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "AddressSettings.ZipPostalCodeEnabled|0",
+    "Name": "AddressSettings.ZipPostalCodeEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "AddressSettings.ZipPostalCodeRequired|0",
+    "Name": "AddressSettings.ZipPostalCodeRequired",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "AdminAreaSettings.DisplayProductPictures|0",
+    "Name": "AdminAreaSettings.DisplayProductPictures",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "AdminAreaSettings.GridPageSize|0",
+    "Name": "AdminAreaSettings.GridPageSize",
+    "StoreId": 0,
+    "Value": "25"
+  },
+  {
+    "$key": "BankConnectionSettings.AccountHolder|0",
+    "Name": "BankConnectionSettings.AccountHolder",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "BankConnectionSettings.AccountNumber|0",
+    "Name": "BankConnectionSettings.AccountNumber",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "BankConnectionSettings.Bankcode|0",
+    "Name": "BankConnectionSettings.Bankcode",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "BankConnectionSettings.Bankname|0",
+    "Name": "BankConnectionSettings.Bankname",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "BankConnectionSettings.Bic|0",
+    "Name": "BankConnectionSettings.Bic",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "BankConnectionSettings.Iban|0",
+    "Name": "BankConnectionSettings.Iban",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "CaptchaSettings.Enabled|0",
+    "Name": "CaptchaSettings.Enabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CaptchaSettings.ProviderSystemName|0",
+    "Name": "CaptchaSettings.ProviderSystemName",
+    "StoreId": 0,
+    "Value": "Captcha.GoogleRecaptcha"
+  },
+  {
+    "$key": "CaptchaSettings.ShowOn|0",
+    "Name": "CaptchaSettings.ShowOn",
+    "StoreId": 0,
+    "Value": ""
+  },
+  {
+    "$key": "CatalogSettings.AllowAnonymousUsersToEmailAFriend|0",
+    "Name": "CatalogSettings.AllowAnonymousUsersToEmailAFriend",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.AllowAnonymousUsersToReviewProduct|0",
+    "Name": "CatalogSettings.AllowAnonymousUsersToReviewProduct",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.AllowCustomersToSelectPageSize|0",
+    "Name": "CatalogSettings.AllowCustomersToSelectPageSize",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.AllowDifferingEmailAddressForEmailAFriend|0",
+    "Name": "CatalogSettings.AllowDifferingEmailAddressForEmailAFriend",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.AllowProductSorting|0",
+    "Name": "CatalogSettings.AllowProductSorting",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.AllowProductViewModeChanging|0",
+    "Name": "CatalogSettings.AllowProductViewModeChanging",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.AskQuestionEnabled|0",
+    "Name": "CatalogSettings.AskQuestionEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.AssociatedProductsPageSize|0",
+    "Name": "CatalogSettings.AssociatedProductsPageSize",
+    "StoreId": 0,
+    "Value": "20"
+  },
+  {
+    "$key": "CatalogSettings.AssociatedProductsTitle|0",
+    "Name": "CatalogSettings.AssociatedProductsTitle",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "CatalogSettings.CategoryBreadcrumbEnabled|0",
+    "Name": "CatalogSettings.CategoryBreadcrumbEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.CollapsibleAssociatedProductsHeaders|0",
+    "Name": "CatalogSettings.CollapsibleAssociatedProductsHeaders",
+    "StoreId": 0,
+    "Value": "image,sku,price"
+  },
+  {
+    "$key": "CatalogSettings.CollapsibleAssociatedProducts|0",
+    "Name": "CatalogSettings.CollapsibleAssociatedProducts",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.CompareProductsEnabled|0",
+    "Name": "CatalogSettings.CompareProductsEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.DefaultPageSizeOptions|0",
+    "Name": "CatalogSettings.DefaultPageSizeOptions",
+    "StoreId": 0,
+    "Value": "12,24,36,48,72,120"
+  },
+  {
+    "$key": "CatalogSettings.DefaultProductListPageSize|0",
+    "Name": "CatalogSettings.DefaultProductListPageSize",
+    "StoreId": 0,
+    "Value": "24"
+  },
+  {
+    "$key": "CatalogSettings.DefaultProductRatingValue|0",
+    "Name": "CatalogSettings.DefaultProductRatingValue",
+    "StoreId": 0,
+    "Value": "5"
+  },
+  {
+    "$key": "CatalogSettings.DefaultSortOrder|0",
+    "Name": "CatalogSettings.DefaultSortOrder",
+    "StoreId": 0,
+    "Value": "Relevance"
+  },
+  {
+    "$key": "CatalogSettings.DefaultSwatchShape|0",
+    "Name": "CatalogSettings.DefaultSwatchShape",
+    "StoreId": 0,
+    "Value": "Rounded"
+  },
+  {
+    "$key": "CatalogSettings.DefaultSwatchSize|0",
+    "Name": "CatalogSettings.DefaultSwatchSize",
+    "StoreId": 0,
+    "Value": "Medium"
+  },
+  {
+    "$key": "CatalogSettings.DefaultViewMode|0",
+    "Name": "CatalogSettings.DefaultViewMode",
+    "StoreId": 0,
+    "Value": "grid"
+  },
+  {
+    "$key": "CatalogSettings.DeliveryTimeIdForEmptyStock|0",
+    "Name": "CatalogSettings.DeliveryTimeIdForEmptyStock",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "CatalogSettings.DeliveryTimesInLists|0",
+    "Name": "CatalogSettings.DeliveryTimesInLists",
+    "StoreId": 0,
+    "Value": "DateOnly"
+  },
+  {
+    "$key": "CatalogSettings.DeliveryTimesInProductDetail|0",
+    "Name": "CatalogSettings.DeliveryTimesInProductDetail",
+    "StoreId": 0,
+    "Value": "DateOnly"
+  },
+  {
+    "$key": "CatalogSettings.DisplayAllImagesNumber|0",
+    "Name": "CatalogSettings.DisplayAllImagesNumber",
+    "StoreId": 0,
+    "Value": "6"
+  },
+  {
+    "$key": "CatalogSettings.EmailAFriendEnabled|0",
+    "Name": "CatalogSettings.EmailAFriendEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.EnableHtmlTextCollapser|0",
+    "Name": "CatalogSettings.EnableHtmlTextCollapser",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.FileUploadAllowedExtensions|0",
+    "Name": "CatalogSettings.FileUploadAllowedExtensions",
+    "StoreId": 0,
+    "Value": ""
+  },
+  {
+    "$key": "CatalogSettings.FileUploadMaximumSizeBytes|0",
+    "Name": "CatalogSettings.FileUploadMaximumSizeBytes",
+    "StoreId": 0,
+    "Value": "204800"
+  },
+  {
+    "$key": "CatalogSettings.GridStyleListColumnSpan|0",
+    "Name": "CatalogSettings.GridStyleListColumnSpan",
+    "StoreId": 0,
+    "Value": "Max4Cols"
+  },
+  {
+    "$key": "CatalogSettings.HideBuyButtonInLists|0",
+    "Name": "CatalogSettings.HideBuyButtonInLists",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.HideCategoryDefaultPictures|0",
+    "Name": "CatalogSettings.HideCategoryDefaultPictures",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.HideManufacturerDefaultPictures|0",
+    "Name": "CatalogSettings.HideManufacturerDefaultPictures",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.HideProductDefaultPictures|0",
+    "Name": "CatalogSettings.HideProductDefaultPictures",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.HtmlTextCollapsedHeight|0",
+    "Name": "CatalogSettings.HtmlTextCollapsedHeight",
+    "StoreId": 0,
+    "Value": "260"
+  },
+  {
+    "$key": "CatalogSettings.IgnoreFeaturedProducts|0",
+    "Name": "CatalogSettings.IgnoreFeaturedProducts",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.IncludeFeaturedProductsInNormalLists|0",
+    "Name": "CatalogSettings.IncludeFeaturedProductsInNormalLists",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.IncludeFeaturedProductsInSubPages|0",
+    "Name": "CatalogSettings.IncludeFeaturedProductsInSubPages",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.IncludeFullDescriptionInCompareProducts|0",
+    "Name": "CatalogSettings.IncludeFullDescriptionInCompareProducts",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.IncludeShortDescriptionInCompareProducts|0",
+    "Name": "CatalogSettings.IncludeShortDescriptionInCompareProducts",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.LabelAsNewByAvailableDate|0",
+    "Name": "CatalogSettings.LabelAsNewByAvailableDate",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.LabelAsNewForMaxDays|0",
+    "Name": "CatalogSettings.LabelAsNewForMaxDays",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "CatalogSettings.LegalInfoInLists|0",
+    "Name": "CatalogSettings.LegalInfoInLists",
+    "StoreId": 0,
+    "Value": "All"
+  },
+  {
+    "$key": "CatalogSettings.LegalInfoInProductDetail|0",
+    "Name": "CatalogSettings.LegalInfoInProductDetail",
+    "StoreId": 0,
+    "Value": "All"
+  },
+  {
+    "$key": "CatalogSettings.LinkManufacturerLogoInLists|0",
+    "Name": "CatalogSettings.LinkManufacturerLogoInLists",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.ManufacturerItemsToDisplayInOffcanvasMenu|0",
+    "Name": "CatalogSettings.ManufacturerItemsToDisplayInOffcanvasMenu",
+    "StoreId": 0,
+    "Value": "20"
+  },
+  {
+    "$key": "CatalogSettings.ManufacturerItemsToDisplayOnHomepage|0",
+    "Name": "CatalogSettings.ManufacturerItemsToDisplayOnHomepage",
+    "StoreId": 0,
+    "Value": "18"
+  },
+  {
+    "$key": "CatalogSettings.MaxItemsToDisplayInCatalogMenu|0",
+    "Name": "CatalogSettings.MaxItemsToDisplayInCatalogMenu",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "CatalogSettings.MaximumBackInStockSubscriptions|0",
+    "Name": "CatalogSettings.MaximumBackInStockSubscriptions",
+    "StoreId": 0,
+    "Value": "200"
+  },
+  {
+    "$key": "CatalogSettings.MostRecentlyUsedCategoriesMaxSize|0",
+    "Name": "CatalogSettings.MostRecentlyUsedCategoriesMaxSize",
+    "StoreId": 0,
+    "Value": "6"
+  },
+  {
+    "$key": "CatalogSettings.MostRecentlyUsedManufacturersMaxSize|0",
+    "Name": "CatalogSettings.MostRecentlyUsedManufacturersMaxSize",
+    "StoreId": 0,
+    "Value": "4"
+  },
+  {
+    "$key": "CatalogSettings.NotifyStoreOwnerAboutNewProductReviews|0",
+    "Name": "CatalogSettings.NotifyStoreOwnerAboutNewProductReviews",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.NumberOfBestsellersOnHomepage|0",
+    "Name": "CatalogSettings.NumberOfBestsellersOnHomepage",
+    "StoreId": 0,
+    "Value": "12"
+  },
+  {
+    "$key": "CatalogSettings.NumberOfProductTags|0",
+    "Name": "CatalogSettings.NumberOfProductTags",
+    "StoreId": 0,
+    "Value": "15"
+  },
+  {
+    "$key": "CatalogSettings.ProductReviewsMustBeApproved|0",
+    "Name": "CatalogSettings.ProductReviewsMustBeApproved",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.ProductsAlsoPurchasedEnabled|0",
+    "Name": "CatalogSettings.ProductsAlsoPurchasedEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.ProductsAlsoPurchasedNumber|0",
+    "Name": "CatalogSettings.ProductsAlsoPurchasedNumber",
+    "StoreId": 0,
+    "Value": "12"
+  },
+  {
+    "$key": "CatalogSettings.RecentlyAddedProductsEnabled|0",
+    "Name": "CatalogSettings.RecentlyAddedProductsEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.RecentlyAddedProductsNumber|0",
+    "Name": "CatalogSettings.RecentlyAddedProductsNumber",
+    "StoreId": 0,
+    "Value": "100"
+  },
+  {
+    "$key": "CatalogSettings.RecentlyViewedProductsEnabled|0",
+    "Name": "CatalogSettings.RecentlyViewedProductsEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.RecentlyViewedProductsNumber|0",
+    "Name": "CatalogSettings.RecentlyViewedProductsNumber",
+    "StoreId": 0,
+    "Value": "8"
+  },
+  {
+    "$key": "CatalogSettings.SearchMinAssociatedProductsCount|0",
+    "Name": "CatalogSettings.SearchMinAssociatedProductsCount",
+    "StoreId": 0,
+    "Value": "10"
+  },
+  {
+    "$key": "CatalogSettings.ShippingMetadataInProductDetail|0",
+    "Name": "CatalogSettings.ShippingMetadataInProductDetail",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.ShowBestsellersOnHomepage|0",
+    "Name": "CatalogSettings.ShowBestsellersOnHomepage",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.ShowCategoryProductNumberIncludingSubcategories|0",
+    "Name": "CatalogSettings.ShowCategoryProductNumberIncludingSubcategories",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.ShowCategoryProductNumber|0",
+    "Name": "CatalogSettings.ShowCategoryProductNumber",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.ShowColorSquaresInLists|0",
+    "Name": "CatalogSettings.ShowColorSquaresInLists",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.ShowDefaultDeliveryTime|0",
+    "Name": "CatalogSettings.ShowDefaultDeliveryTime",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.ShowDefaultQuantityUnit|0",
+    "Name": "CatalogSettings.ShowDefaultQuantityUnit",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.ShowDescriptionInSubPages|0",
+    "Name": "CatalogSettings.ShowDescriptionInSubPages",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.ShowDimensions|0",
+    "Name": "CatalogSettings.ShowDimensions",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.ShowGtin|0",
+    "Name": "CatalogSettings.ShowGtin",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.ShowLinkedAttributeValueImage|0",
+    "Name": "CatalogSettings.ShowLinkedAttributeValueImage",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.ShowLinkedAttributeValueQuantity|0",
+    "Name": "CatalogSettings.ShowLinkedAttributeValueQuantity",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.ShowManufacturerInGridStyleLists|0",
+    "Name": "CatalogSettings.ShowManufacturerInGridStyleLists",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.ShowManufacturerInProductDetail|0",
+    "Name": "CatalogSettings.ShowManufacturerInProductDetail",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.ShowManufacturerLogoInLists|0",
+    "Name": "CatalogSettings.ShowManufacturerLogoInLists",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.ShowManufacturerPartNumber|0",
+    "Name": "CatalogSettings.ShowManufacturerPartNumber",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.ShowManufacturerPicturesInProductDetail|0",
+    "Name": "CatalogSettings.ShowManufacturerPicturesInProductDetail",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.ShowManufacturerPictures|0",
+    "Name": "CatalogSettings.ShowManufacturerPictures",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.ShowManufacturersInOffCanvas|0",
+    "Name": "CatalogSettings.ShowManufacturersInOffCanvas",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.ShowManufacturersOnHomepage|0",
+    "Name": "CatalogSettings.ShowManufacturersOnHomepage",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.ShowPopularProductTagsOnHomepage|0",
+    "Name": "CatalogSettings.ShowPopularProductTagsOnHomepage",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.ShowProductCondition|0",
+    "Name": "CatalogSettings.ShowProductCondition",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.ShowProductOptionsInLists|0",
+    "Name": "CatalogSettings.ShowProductOptionsInLists",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.ShowProductReviewsInProductDetail|0",
+    "Name": "CatalogSettings.ShowProductReviewsInProductDetail",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.ShowProductReviewsInProductLists|0",
+    "Name": "CatalogSettings.ShowProductReviewsInProductLists",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.ShowProductSku|0",
+    "Name": "CatalogSettings.ShowProductSku",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.ShowProductTags|0",
+    "Name": "CatalogSettings.ShowProductTags",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.ShowProductsFromSubcategories|0",
+    "Name": "CatalogSettings.ShowProductsFromSubcategories",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.ShowShortDescriptionInGridStyleLists|0",
+    "Name": "CatalogSettings.ShowShortDescriptionInGridStyleLists",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.ShowSubCategoriesInSubPages|0",
+    "Name": "CatalogSettings.ShowSubCategoriesInSubPages",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.ShowVerfiedPurchaseBadge|0",
+    "Name": "CatalogSettings.ShowVerfiedPurchaseBadge",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.ShowWeight|0",
+    "Name": "CatalogSettings.ShowWeight",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.SortAttributesNaturally|0",
+    "Name": "CatalogSettings.SortAttributesNaturally",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CatalogSettings.SortManufacturersAlphabetically|0",
+    "Name": "CatalogSettings.SortManufacturersAlphabetically",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CatalogSettings.SubCategoryDisplayType|0",
+    "Name": "CatalogSettings.SubCategoryDisplayType",
+    "StoreId": 0,
+    "Value": "AboveProductList"
+  },
+  {
+    "$key": "CatalogSettings.UseSmallProductBoxOnHomePage|0",
+    "Name": "CatalogSettings.UseSmallProductBoxOnHomePage",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CommonSettings.AutoUpdateEnabled|0",
+    "Name": "CommonSettings.AutoUpdateEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CommonSettings.DeleteBulkSize|0",
+    "Name": "CommonSettings.DeleteBulkSize",
+    "StoreId": 0,
+    "Value": "1024"
+  },
+  {
+    "$key": "CommonSettings.DisplayJavaScriptDisabledWarning|0",
+    "Name": "CommonSettings.DisplayJavaScriptDisabledWarning",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CommonSettings.EntityPickerPageSize|0",
+    "Name": "CommonSettings.EntityPickerPageSize",
+    "StoreId": 0,
+    "Value": "48"
+  },
+  {
+    "$key": "CommonSettings.HideAdvertisementsOnAdminArea|0",
+    "Name": "CommonSettings.HideAdvertisementsOnAdminArea",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CommonSettings.MaxGuestsRegistrationAgeInMinutes|0",
+    "Name": "CommonSettings.MaxGuestsRegistrationAgeInMinutes",
+    "StoreId": 0,
+    "Value": "1440"
+  },
+  {
+    "$key": "CommonSettings.MaxLogAgeInDays|0",
+    "Name": "CommonSettings.MaxLogAgeInDays",
+    "StoreId": 0,
+    "Value": "7"
+  },
+  {
+    "$key": "CommonSettings.MaxNumberOfScheduleHistoryEntries|0",
+    "Name": "CommonSettings.MaxNumberOfScheduleHistoryEntries",
+    "StoreId": 0,
+    "Value": "100"
+  },
+  {
+    "$key": "CommonSettings.MaxQueuedMessagesAgeInDays|0",
+    "Name": "CommonSettings.MaxQueuedMessagesAgeInDays",
+    "StoreId": 0,
+    "Value": "14"
+  },
+  {
+    "$key": "CommonSettings.MaxScheduleHistoryAgeInDays|0",
+    "Name": "CommonSettings.MaxScheduleHistoryAgeInDays",
+    "StoreId": 0,
+    "Value": "30"
+  },
+  {
+    "$key": "CommonSettings.MinLogLevelToRetain|0",
+    "Name": "CommonSettings.MinLogLevelToRetain",
+    "StoreId": 0,
+    "Value": "Error"
+  },
+  {
+    "$key": "CommonSettings.UseStoredProceduresIfSupported|0",
+    "Name": "CommonSettings.UseStoredProceduresIfSupported",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CommonSettings.UseSystemEmailForContactUsForm|0",
+    "Name": "CommonSettings.UseSystemEmailForContactUsForm",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CompanyInformationSettings.City|0",
+    "Name": "CompanyInformationSettings.City",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "CompanyInformationSettings.CommercialRegister|0",
+    "Name": "CompanyInformationSettings.CommercialRegister",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "CompanyInformationSettings.CompanyManagementDescription|0",
+    "Name": "CompanyInformationSettings.CompanyManagementDescription",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "CompanyInformationSettings.CompanyManagement|0",
+    "Name": "CompanyInformationSettings.CompanyManagement",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "CompanyInformationSettings.CompanyName|0",
+    "Name": "CompanyInformationSettings.CompanyName",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "CompanyInformationSettings.CountryId|0",
+    "Name": "CompanyInformationSettings.CountryId",
+    "StoreId": 0,
+    "Value": "0"
+  },
+  {
+    "$key": "CompanyInformationSettings.Firstname|0",
+    "Name": "CompanyInformationSettings.Firstname",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "CompanyInformationSettings.Lastname|0",
+    "Name": "CompanyInformationSettings.Lastname",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "CompanyInformationSettings.Region|0",
+    "Name": "CompanyInformationSettings.Region",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "CompanyInformationSettings.Salutation|0",
+    "Name": "CompanyInformationSettings.Salutation",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "CompanyInformationSettings.StateName|0",
+    "Name": "CompanyInformationSettings.StateName",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "CompanyInformationSettings.Street2|0",
+    "Name": "CompanyInformationSettings.Street2",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "CompanyInformationSettings.Street|0",
+    "Name": "CompanyInformationSettings.Street",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "CompanyInformationSettings.TaxNumber|0",
+    "Name": "CompanyInformationSettings.TaxNumber",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "CompanyInformationSettings.Title|0",
+    "Name": "CompanyInformationSettings.Title",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "CompanyInformationSettings.VatId|0",
+    "Name": "CompanyInformationSettings.VatId",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "CompanyInformationSettings.ZipCode|0",
+    "Name": "CompanyInformationSettings.ZipCode",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "ContactDataSettings.CompanyEmailAddress|0",
+    "Name": "ContactDataSettings.CompanyEmailAddress",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "ContactDataSettings.CompanyFaxNumber|0",
+    "Name": "ContactDataSettings.CompanyFaxNumber",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "ContactDataSettings.CompanyTelephoneNumber|0",
+    "Name": "ContactDataSettings.CompanyTelephoneNumber",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "ContactDataSettings.ContactEmailAddress|0",
+    "Name": "ContactDataSettings.ContactEmailAddress",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "ContactDataSettings.HotlineTelephoneNumber|0",
+    "Name": "ContactDataSettings.HotlineTelephoneNumber",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "ContactDataSettings.MobileTelephoneNumber|0",
+    "Name": "ContactDataSettings.MobileTelephoneNumber",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "ContactDataSettings.SupportEmailAddress|0",
+    "Name": "ContactDataSettings.SupportEmailAddress",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "ContactDataSettings.WebmasterEmailAddress|0",
+    "Name": "ContactDataSettings.WebmasterEmailAddress",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "CurrencySettings.ActiveExchangeRateProviderSystemName|0",
+    "Name": "CurrencySettings.ActiveExchangeRateProviderSystemName",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "CurrencySettings.AutoUpdateEnabled|0",
+    "Name": "CurrencySettings.AutoUpdateEnabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CurrencySettings.PrimaryCurrencyId|0",
+    "Name": "CurrencySettings.PrimaryCurrencyId",
+    "StoreId": 0,
+    "Value": "Currency:EUR"
+  },
+  {
+    "$key": "CurrencySettings.PrimaryExchangeCurrencyId|0",
+    "Name": "CurrencySettings.PrimaryExchangeCurrencyId",
+    "StoreId": 0,
+    "Value": "Currency:EUR"
+  },
+  {
+    "$key": "CurrencySettings.RoundNetPrices|0",
+    "Name": "CurrencySettings.RoundNetPrices",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CurrencySettings.RoundOrderItemsEnabled|0",
+    "Name": "CurrencySettings.RoundOrderItemsEnabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CurrencySettings.RoundUnitPrices|0",
+    "Name": "CurrencySettings.RoundUnitPrices",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CustomerSettings.AllowCustomersToUploadAvatars|0",
+    "Name": "CustomerSettings.AllowCustomersToUploadAvatars",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.AllowUsersToChangeUsernames|0",
+    "Name": "CustomerSettings.AllowUsersToChangeUsernames",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.AllowViewingProfiles|0",
+    "Name": "CustomerSettings.AllowViewingProfiles",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.CheckUsernameAvailabilityEnabled|0",
+    "Name": "CustomerSettings.CheckUsernameAvailabilityEnabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.CityEnabled|0",
+    "Name": "CustomerSettings.CityEnabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.CityRequired|0",
+    "Name": "CustomerSettings.CityRequired",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.CompanyEnabled|0",
+    "Name": "CustomerSettings.CompanyEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CustomerSettings.CompanyRequired|0",
+    "Name": "CustomerSettings.CompanyRequired",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.CountryEnabled|0",
+    "Name": "CustomerSettings.CountryEnabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.CustomerLoginType|0",
+    "Name": "CustomerSettings.CustomerLoginType",
+    "StoreId": 0,
+    "Value": "UsernameOrEmail"
+  },
+  {
+    "$key": "CustomerSettings.CustomerNameAllowedCharacters|0",
+    "Name": "CustomerSettings.CustomerNameAllowedCharacters",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "CustomerSettings.CustomerNameFormatMaxLength|0",
+    "Name": "CustomerSettings.CustomerNameFormatMaxLength",
+    "StoreId": 0,
+    "Value": "64"
+  },
+  {
+    "$key": "CustomerSettings.CustomerNameFormat|0",
+    "Name": "CustomerSettings.CustomerNameFormat",
+    "StoreId": 0,
+    "Value": "ShowFirstName"
+  },
+  {
+    "$key": "CustomerSettings.CustomerNumberMethod|0",
+    "Name": "CustomerSettings.CustomerNumberMethod",
+    "StoreId": 0,
+    "Value": "Disabled"
+  },
+  {
+    "$key": "CustomerSettings.CustomerNumberVisibility|0",
+    "Name": "CustomerSettings.CustomerNumberVisibility",
+    "StoreId": 0,
+    "Value": "None"
+  },
+  {
+    "$key": "CustomerSettings.DateOfBirthEnabled|0",
+    "Name": "CustomerSettings.DateOfBirthEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CustomerSettings.DefaultPasswordFormat|0",
+    "Name": "CustomerSettings.DefaultPasswordFormat",
+    "StoreId": 0,
+    "Value": "Hashed"
+  },
+  {
+    "$key": "CustomerSettings.DownloadableProductsValidateUser|0",
+    "Name": "CustomerSettings.DownloadableProductsValidateUser",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.FaxEnabled|0",
+    "Name": "CustomerSettings.FaxEnabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.FaxRequired|0",
+    "Name": "CustomerSettings.FaxRequired",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.FirstNameRequired|0",
+    "Name": "CustomerSettings.FirstNameRequired",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.GenderEnabled|0",
+    "Name": "CustomerSettings.GenderEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CustomerSettings.HashedPasswordFormat|0",
+    "Name": "CustomerSettings.HashedPasswordFormat",
+    "StoreId": 0,
+    "Value": "SHA1"
+  },
+  {
+    "$key": "CustomerSettings.HideBackInStockSubscriptionsTab|0",
+    "Name": "CustomerSettings.HideBackInStockSubscriptionsTab",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.HideDownloadableProductsTab|0",
+    "Name": "CustomerSettings.HideDownloadableProductsTab",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.HideMyAccountOrders|0",
+    "Name": "CustomerSettings.HideMyAccountOrders",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.HideNewsletterBlock|0",
+    "Name": "CustomerSettings.HideNewsletterBlock",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.LastNameRequired|0",
+    "Name": "CustomerSettings.LastNameRequired",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.MaxAvatarFileSize|0",
+    "Name": "CustomerSettings.MaxAvatarFileSize",
+    "StoreId": 0,
+    "Value": "10240"
+  },
+  {
+    "$key": "CustomerSettings.NewsletterEnabled|0",
+    "Name": "CustomerSettings.NewsletterEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CustomerSettings.NotifyNewCustomerRegistration|0",
+    "Name": "CustomerSettings.NotifyNewCustomerRegistration",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CustomerSettings.OnlineCustomerMinutes|0",
+    "Name": "CustomerSettings.OnlineCustomerMinutes",
+    "StoreId": 0,
+    "Value": "20"
+  },
+  {
+    "$key": "CustomerSettings.PasswordMinLength|0",
+    "Name": "CustomerSettings.PasswordMinLength",
+    "StoreId": 0,
+    "Value": "6"
+  },
+  {
+    "$key": "CustomerSettings.PasswordRequireDigit|0",
+    "Name": "CustomerSettings.PasswordRequireDigit",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CustomerSettings.PasswordRequireLowercase|0",
+    "Name": "CustomerSettings.PasswordRequireLowercase",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CustomerSettings.PasswordRequireNonAlphanumeric|0",
+    "Name": "CustomerSettings.PasswordRequireNonAlphanumeric",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CustomerSettings.PasswordRequireUppercase|0",
+    "Name": "CustomerSettings.PasswordRequireUppercase",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CustomerSettings.PasswordRequiredUniqueChars|0",
+    "Name": "CustomerSettings.PasswordRequiredUniqueChars",
+    "StoreId": 0,
+    "Value": "1"
+  },
+  {
+    "$key": "CustomerSettings.PhoneEnabled|0",
+    "Name": "CustomerSettings.PhoneEnabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.PhoneRequired|0",
+    "Name": "CustomerSettings.PhoneRequired",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.RegisterCustomerRoleId|0",
+    "Name": "CustomerSettings.RegisterCustomerRoleId",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "CustomerSettings.ShowCustomersJoinDate|0",
+    "Name": "CustomerSettings.ShowCustomersJoinDate",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.ShowCustomersLocation|0",
+    "Name": "CustomerSettings.ShowCustomersLocation",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.StateProvinceEnabled|0",
+    "Name": "CustomerSettings.StateProvinceEnabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.StateProvinceRequired|0",
+    "Name": "CustomerSettings.StateProvinceRequired",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.StoreLastDeviceFamily|0",
+    "Name": "CustomerSettings.StoreLastDeviceFamily",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CustomerSettings.StoreLastUserAgent|0",
+    "Name": "CustomerSettings.StoreLastUserAgent",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CustomerSettings.StoreLastVisitedPage|0",
+    "Name": "CustomerSettings.StoreLastVisitedPage",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "CustomerSettings.StreetAddress2Enabled|0",
+    "Name": "CustomerSettings.StreetAddress2Enabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.StreetAddress2Required|0",
+    "Name": "CustomerSettings.StreetAddress2Required",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.StreetAddressEnabled|0",
+    "Name": "CustomerSettings.StreetAddressEnabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.StreetAddressRequired|0",
+    "Name": "CustomerSettings.StreetAddressRequired",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.TitleEnabled|0",
+    "Name": "CustomerSettings.TitleEnabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.UserRegistrationType|0",
+    "Name": "CustomerSettings.UserRegistrationType",
+    "StoreId": 0,
+    "Value": "Standard"
+  },
+  {
+    "$key": "CustomerSettings.ZipPostalCodeEnabled|0",
+    "Name": "CustomerSettings.ZipPostalCodeEnabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "CustomerSettings.ZipPostalCodeRequired|0",
+    "Name": "CustomerSettings.ZipPostalCodeRequired",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "DataExchangeSettings.ImageDownloadTimeout|0",
+    "Name": "DataExchangeSettings.ImageDownloadTimeout",
+    "StoreId": 0,
+    "Value": "10"
+  },
+  {
+    "$key": "DataExchangeSettings.ImageImportFolder|0",
+    "Name": "DataExchangeSettings.ImageImportFolder",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "DataExchangeSettings.ImportCompletionEmail|0",
+    "Name": "DataExchangeSettings.ImportCompletionEmail",
+    "StoreId": 0,
+    "Value": "Always"
+  },
+  {
+    "$key": "DataExchangeSettings.MaxFileNameLength|0",
+    "Name": "DataExchangeSettings.MaxFileNameLength",
+    "StoreId": 0,
+    "Value": "50"
+  },
+  {
+    "$key": "DateTimeSettings.AllowCustomersToSetTimeZone|0",
+    "Name": "DateTimeSettings.AllowCustomersToSetTimeZone",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "DateTimeSettings.DefaultStoreTimeZoneId|0",
+    "Name": "DateTimeSettings.DefaultStoreTimeZoneId",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "EmailAccountSettings.DefaultEmailAccountId|0",
+    "Name": "EmailAccountSettings.DefaultEmailAccountId",
+    "StoreId": 0,
+    "Value": "EmailAccount:test@mail.com"
+  },
+  {
+    "$key": "EmailAccountSettings.MailSendingDelay|0",
+    "Name": "EmailAccountSettings.MailSendingDelay",
+    "StoreId": 0,
+    "Value": "10"
+  },
+  {
+    "$key": "EmailAccountSettings.PickupDirectoryLocation|0",
+    "Name": "EmailAccountSettings.PickupDirectoryLocation",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "ExternalAuthenticationSettings.ActiveAuthenticationMethodSystemNames|0",
+    "Name": "ExternalAuthenticationSettings.ActiveAuthenticationMethodSystemNames",
+    "StoreId": 0,
+    "Value": ""
+  },
+  {
+    "$key": "GoogleRecaptchaSettings.BadgePosition|0",
+    "Name": "GoogleRecaptchaSettings.BadgePosition",
+    "StoreId": 0,
+    "Value": "bottomright"
+  },
+  {
+    "$key": "GoogleRecaptchaSettings.DefaultAction|0",
+    "Name": "GoogleRecaptchaSettings.DefaultAction",
+    "StoreId": 0,
+    "Value": "submit"
+  },
+  {
+    "$key": "GoogleRecaptchaSettings.HideBadgeV3|0",
+    "Name": "GoogleRecaptchaSettings.HideBadgeV3",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "GoogleRecaptchaSettings.ScoreThreshold|0",
+    "Name": "GoogleRecaptchaSettings.ScoreThreshold",
+    "StoreId": 0,
+    "Value": "0.5"
+  },
+  {
+    "$key": "GoogleRecaptchaSettings.SecretKey|0",
+    "Name": "GoogleRecaptchaSettings.SecretKey",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "GoogleRecaptchaSettings.SiteKey|0",
+    "Name": "GoogleRecaptchaSettings.SiteKey",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "GoogleRecaptchaSettings.Size|0",
+    "Name": "GoogleRecaptchaSettings.Size",
+    "StoreId": 0,
+    "Value": "normal"
+  },
+  {
+    "$key": "GoogleRecaptchaSettings.UseDarkTheme|0",
+    "Name": "GoogleRecaptchaSettings.UseDarkTheme",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "GoogleRecaptchaSettings.VerifyUrl|0",
+    "Name": "GoogleRecaptchaSettings.VerifyUrl",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "GoogleRecaptchaSettings.Version|0",
+    "Name": "GoogleRecaptchaSettings.Version",
+    "StoreId": 0,
+    "Value": "v3"
+  },
+  {
+    "$key": "GoogleRecaptchaSettings.WidgetUrl|0",
+    "Name": "GoogleRecaptchaSettings.WidgetUrl",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "HomePageSettings.MetaDescription|0",
+    "Name": "HomePageSettings.MetaDescription",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "HomePageSettings.MetaKeywords|0",
+    "Name": "HomePageSettings.MetaKeywords",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "HomePageSettings.MetaTitle|0",
+    "Name": "HomePageSettings.MetaTitle",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "LocalizationSettings.DefaultAdminLanguageId|0",
+    "Name": "LocalizationSettings.DefaultAdminLanguageId",
+    "StoreId": 0,
+    "Value": "Language:en-US"
+  },
+  {
+    "$key": "LocalizationSettings.DefaultLanguageRedirectBehaviour|0",
+    "Name": "LocalizationSettings.DefaultLanguageRedirectBehaviour",
+    "StoreId": 0,
+    "Value": "StripSeoCode"
+  },
+  {
+    "$key": "LocalizationSettings.DetectBrowserUserLanguage|0",
+    "Name": "LocalizationSettings.DetectBrowserUserLanguage",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "LocalizationSettings.DisplayRegionInLanguageSelector|0",
+    "Name": "LocalizationSettings.DisplayRegionInLanguageSelector",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "LocalizationSettings.InvalidLanguageRedirectBehaviour|0",
+    "Name": "LocalizationSettings.InvalidLanguageRedirectBehaviour",
+    "StoreId": 0,
+    "Value": "ReturnHttp404"
+  },
+  {
+    "$key": "LocalizationSettings.RedirectFallbackLanguageCode|0",
+    "Name": "LocalizationSettings.RedirectFallbackLanguageCode",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "LocalizationSettings.SeoFriendlyUrlsForLanguagesEnabled|0",
+    "Name": "LocalizationSettings.SeoFriendlyUrlsForLanguagesEnabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "LocalizationSettings.UseImagesForLanguageSelection|0",
+    "Name": "LocalizationSettings.UseImagesForLanguageSelection",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "LocalizationSettings.UseNativeNameInLanguageSelector|0",
+    "Name": "LocalizationSettings.UseNativeNameInLanguageSelector",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "MeasureSettings.BaseDimensionId|0",
+    "Name": "MeasureSettings.BaseDimensionId",
+    "StoreId": 0,
+    "Value": "MeasureDimension:inch"
+  },
+  {
+    "$key": "MeasureSettings.BaseWeightId|0",
+    "Name": "MeasureSettings.BaseWeightId",
+    "StoreId": 0,
+    "Value": "MeasureWeight:lb"
+  },
+  {
+    "$key": "Media.Storage.Provider|0",
+    "Name": "Media.Storage.Provider",
+    "StoreId": 0,
+    "Value": "MediaStorage.SmartStoreDatabase"
+  },
+  {
+    "$key": "MediaSettings.AllowedExtraThumbnailSizes|0",
+    "Name": "MediaSettings.AllowedExtraThumbnailSizes",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "MediaSettings.AppendFileVersionToUrl|0",
+    "Name": "MediaSettings.AppendFileVersionToUrl",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "MediaSettings.AssociatedProductHeaderThumbSize|0",
+    "Name": "MediaSettings.AssociatedProductHeaderThumbSize",
+    "StoreId": 0,
+    "Value": "72"
+  },
+  {
+    "$key": "MediaSettings.AssociatedProductPictureSize|0",
+    "Name": "MediaSettings.AssociatedProductPictureSize",
+    "StoreId": 0,
+    "Value": "680"
+  },
+  {
+    "$key": "MediaSettings.AttributeOptionThumbPictureSize|0",
+    "Name": "MediaSettings.AttributeOptionThumbPictureSize",
+    "StoreId": 0,
+    "Value": "72"
+  },
+  {
+    "$key": "MediaSettings.AudioTypes|0",
+    "Name": "MediaSettings.AudioTypes",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "MediaSettings.AutoGenerateAbsoluteUrls|0",
+    "Name": "MediaSettings.AutoGenerateAbsoluteUrls",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "MediaSettings.AvatarPictureSize|0",
+    "Name": "MediaSettings.AvatarPictureSize",
+    "StoreId": 0,
+    "Value": "256"
+  },
+  {
+    "$key": "MediaSettings.BinTypes|0",
+    "Name": "MediaSettings.BinTypes",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "MediaSettings.BundledProductPictureSize|0",
+    "Name": "MediaSettings.BundledProductPictureSize",
+    "StoreId": 0,
+    "Value": "72"
+  },
+  {
+    "$key": "MediaSettings.CartThumbBundleItemPictureSize|0",
+    "Name": "MediaSettings.CartThumbBundleItemPictureSize",
+    "StoreId": 0,
+    "Value": "32"
+  },
+  {
+    "$key": "MediaSettings.CartThumbPictureSize|0",
+    "Name": "MediaSettings.CartThumbPictureSize",
+    "StoreId": 0,
+    "Value": "256"
+  },
+  {
+    "$key": "MediaSettings.CategoryThumbPictureSize|0",
+    "Name": "MediaSettings.CategoryThumbPictureSize",
+    "StoreId": 0,
+    "Value": "256"
+  },
+  {
+    "$key": "MediaSettings.DefaultImageQuality|0",
+    "Name": "MediaSettings.DefaultImageQuality",
+    "StoreId": 0,
+    "Value": "85"
+  },
+  {
+    "$key": "MediaSettings.DefaultPictureZoomEnabled|0",
+    "Name": "MediaSettings.DefaultPictureZoomEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "MediaSettings.DefaultResamplingMode|0",
+    "Name": "MediaSettings.DefaultResamplingMode",
+    "StoreId": 0,
+    "Value": "Bicubic"
+  },
+  {
+    "$key": "MediaSettings.DefaultThumbnailAspectRatio|0",
+    "Name": "MediaSettings.DefaultThumbnailAspectRatio",
+    "StoreId": 0,
+    "Value": "1"
+  },
+  {
+    "$key": "MediaSettings.DocumentTypes|0",
+    "Name": "MediaSettings.DocumentTypes",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "MediaSettings.GifQuantizationMethod|0",
+    "Name": "MediaSettings.GifQuantizationMethod",
+    "StoreId": 0,
+    "Value": "Octree"
+  },
+  {
+    "$key": "MediaSettings.ImageTypes|0",
+    "Name": "MediaSettings.ImageTypes",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "MediaSettings.JpegColorType|0",
+    "Name": "MediaSettings.JpegColorType",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "MediaSettings.MakeFilesTransientWhenOrphaned|0",
+    "Name": "MediaSettings.MakeFilesTransientWhenOrphaned",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "MediaSettings.ManufacturerThumbPictureSize|0",
+    "Name": "MediaSettings.ManufacturerThumbPictureSize",
+    "StoreId": 0,
+    "Value": "256"
+  },
+  {
+    "$key": "MediaSettings.MaxUploadFileSize|0",
+    "Name": "MediaSettings.MaxUploadFileSize",
+    "StoreId": 0,
+    "Value": "102400"
+  },
+  {
+    "$key": "MediaSettings.MaximumImageSize|0",
+    "Name": "MediaSettings.MaximumImageSize",
+    "StoreId": 0,
+    "Value": "2048"
+  },
+  {
+    "$key": "MediaSettings.MessageProductThumbPictureSize|0",
+    "Name": "MediaSettings.MessageProductThumbPictureSize",
+    "StoreId": 0,
+    "Value": "72"
+  },
+  {
+    "$key": "MediaSettings.MiniCartThumbPictureSize|0",
+    "Name": "MediaSettings.MiniCartThumbPictureSize",
+    "StoreId": 0,
+    "Value": "256"
+  },
+  {
+    "$key": "MediaSettings.MultipleThumbDirectories|0",
+    "Name": "MediaSettings.MultipleThumbDirectories",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "MediaSettings.OffloadEmbeddedImagesOnSave|0",
+    "Name": "MediaSettings.OffloadEmbeddedImagesOnSave",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "MediaSettings.PictureZoomType|0",
+    "Name": "MediaSettings.PictureZoomType",
+    "StoreId": 0,
+    "Value": "window"
+  },
+  {
+    "$key": "MediaSettings.PngCompressionLevel|0",
+    "Name": "MediaSettings.PngCompressionLevel",
+    "StoreId": 0,
+    "Value": "BestCompression"
+  },
+  {
+    "$key": "MediaSettings.PngIgnoreMetadata|0",
+    "Name": "MediaSettings.PngIgnoreMetadata",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "MediaSettings.PngInterlaced|0",
+    "Name": "MediaSettings.PngInterlaced",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "MediaSettings.PngQuantizationMethod|0",
+    "Name": "MediaSettings.PngQuantizationMethod",
+    "StoreId": 0,
+    "Value": "Wu"
+  },
+  {
+    "$key": "MediaSettings.ProductDetailsPictureSize|0",
+    "Name": "MediaSettings.ProductDetailsPictureSize",
+    "StoreId": 0,
+    "Value": "680"
+  },
+  {
+    "$key": "MediaSettings.ProductThumbPictureSizeOnProductDetailsPage|0",
+    "Name": "MediaSettings.ProductThumbPictureSizeOnProductDetailsPage",
+    "StoreId": 0,
+    "Value": "72"
+  },
+  {
+    "$key": "MediaSettings.ProductThumbPictureSize|0",
+    "Name": "MediaSettings.ProductThumbPictureSize",
+    "StoreId": 0,
+    "Value": "256"
+  },
+  {
+    "$key": "MediaSettings.ResponseCacheDuration|0",
+    "Name": "MediaSettings.ResponseCacheDuration",
+    "StoreId": 0,
+    "Value": "604800"
+  },
+  {
+    "$key": "MediaSettings.ResponseCacheLocation|0",
+    "Name": "MediaSettings.ResponseCacheLocation",
+    "StoreId": 0,
+    "Value": "Any"
+  },
+  {
+    "$key": "MediaSettings.ResponseCacheNoStore|0",
+    "Name": "MediaSettings.ResponseCacheNoStore",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "MediaSettings.TextTypes|0",
+    "Name": "MediaSettings.TextTypes",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "MediaSettings.VariantValueThumbPictureSize|0",
+    "Name": "MediaSettings.VariantValueThumbPictureSize",
+    "StoreId": 0,
+    "Value": "72"
+  },
+  {
+    "$key": "MediaSettings.VideoTypes|0",
+    "Name": "MediaSettings.VideoTypes",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "OrderSettings.AnonymousCheckoutAllowed|0",
+    "Name": "OrderSettings.AnonymousCheckoutAllowed",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "OrderSettings.DisableOrderCompletedPage|0",
+    "Name": "OrderSettings.DisableOrderCompletedPage",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "OrderSettings.DisplayOrdersOfAllStores|0",
+    "Name": "OrderSettings.DisplayOrdersOfAllStores",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "OrderSettings.GiftCards_Activated_OrderStatusId|0",
+    "Name": "OrderSettings.GiftCards_Activated_OrderStatusId",
+    "StoreId": 0,
+    "Value": "0"
+  },
+  {
+    "$key": "OrderSettings.GiftCards_Deactivated_OrderStatusId|0",
+    "Name": "OrderSettings.GiftCards_Deactivated_OrderStatusId",
+    "StoreId": 0,
+    "Value": "0"
+  },
+  {
+    "$key": "OrderSettings.IsReOrderAllowed|0",
+    "Name": "OrderSettings.IsReOrderAllowed",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "OrderSettings.MaxMessageOrderAgeInDays|0",
+    "Name": "OrderSettings.MaxMessageOrderAgeInDays",
+    "StoreId": 0,
+    "Value": "180"
+  },
+  {
+    "$key": "OrderSettings.MinimumOrderPlacementInterval|0",
+    "Name": "OrderSettings.MinimumOrderPlacementInterval",
+    "StoreId": 0,
+    "Value": "30"
+  },
+  {
+    "$key": "OrderSettings.MultipleOrderTotalRestrictionsExpandRange|0",
+    "Name": "OrderSettings.MultipleOrderTotalRestrictionsExpandRange",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "OrderSettings.NumberOfDaysReturnRequestAvailable|0",
+    "Name": "OrderSettings.NumberOfDaysReturnRequestAvailable",
+    "StoreId": 0,
+    "Value": "365"
+  },
+  {
+    "$key": "OrderSettings.OrderListPageSize|0",
+    "Name": "OrderSettings.OrderListPageSize",
+    "StoreId": 0,
+    "Value": "10"
+  },
+  {
+    "$key": "OrderSettings.OrderTotalMaximum|0",
+    "Name": "OrderSettings.OrderTotalMaximum",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "OrderSettings.OrderTotalMinimum|0",
+    "Name": "OrderSettings.OrderTotalMinimum",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "OrderSettings.RecurringPaymentListPageSize|0",
+    "Name": "OrderSettings.RecurringPaymentListPageSize",
+    "StoreId": 0,
+    "Value": "10"
+  },
+  {
+    "$key": "OrderSettings.ReturnCaseListPageSize|0",
+    "Name": "OrderSettings.ReturnCaseListPageSize",
+    "StoreId": 0,
+    "Value": "10"
+  },
+  {
+    "$key": "OrderSettings.ReturnRequestActions|0",
+    "Name": "OrderSettings.ReturnRequestActions",
+    "StoreId": 0,
+    "Value": "Refund to original payment method,Replacement shipment,Exchange for another item,Repair,Store credit / voucher,Other"
+  },
+  {
+    "$key": "OrderSettings.ReturnRequestReasons|0",
+    "Name": "OrderSettings.ReturnRequestReasons",
+    "StoreId": 0,
+    "Value": "Wrong item received,Wrong size or variant ordered,Item does not meet expectations,Item does not match the description,Item is faulty or defective,Item arrived damaged,Delivery is incomplete,Ordered by mistake,Other"
+  },
+  {
+    "$key": "OrderSettings.ReturnRequestsEnabled|0",
+    "Name": "OrderSettings.ReturnRequestsEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "PaymentSettings.ActivePaymentMethodSystemNames|0",
+    "Name": "PaymentSettings.ActivePaymentMethodSystemNames",
+    "StoreId": 0,
+    "Value": "Payments.CashOnDelivery,Payments.Manual,Payments.PayInStore,Payments.Prepayment"
+  },
+  {
+    "$key": "PaymentSettings.AllowRePostingPayments|0",
+    "Name": "PaymentSettings.AllowRePostingPayments",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "PaymentSettings.CapturePaymentReason|0",
+    "Name": "PaymentSettings.CapturePaymentReason",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "PaymentSettings.DisplayPaymentMethodIcons|0",
+    "Name": "PaymentSettings.DisplayPaymentMethodIcons",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "PaymentSettings.ProductDetailPaymentMethodSystemNames|0",
+    "Name": "PaymentSettings.ProductDetailPaymentMethodSystemNames",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "PaymentSettings.SkipPaymentSelectionIfSingleOption|0",
+    "Name": "PaymentSettings.SkipPaymentSelectionIfSingleOption",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "PdfSettings.AttachOrderPdfToOrderCompletedEmail|0",
+    "Name": "PdfSettings.AttachOrderPdfToOrderCompletedEmail",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "PdfSettings.AttachOrderPdfToOrderPlacedEmail|0",
+    "Name": "PdfSettings.AttachOrderPdfToOrderPlacedEmail",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "PdfSettings.Enabled|0",
+    "Name": "PdfSettings.Enabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "PdfSettings.LetterPageSizeEnabled|0",
+    "Name": "PdfSettings.LetterPageSizeEnabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "PdfSettings.LogoPictureId|0",
+    "Name": "PdfSettings.LogoPictureId",
+    "StoreId": 0,
+    "Value": "0"
+  },
+  {
+    "$key": "PdfSettings.MaxItemsToPrint|0",
+    "Name": "PdfSettings.MaxItemsToPrint",
+    "StoreId": 0,
+    "Value": "500"
+  },
+  {
+    "$key": "PdfSettings.RenderOrderNotes|0",
+    "Name": "PdfSettings.RenderOrderNotes",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "PerformanceSettings.AlwaysPrefetchTranslations|0",
+    "Name": "PerformanceSettings.AlwaysPrefetchTranslations",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "PerformanceSettings.AlwaysPrefetchUrlSlugs|0",
+    "Name": "PerformanceSettings.AlwaysPrefetchUrlSlugs",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "PerformanceSettings.CacheSegmentSize|0",
+    "Name": "PerformanceSettings.CacheSegmentSize",
+    "StoreId": 0,
+    "Value": "500"
+  },
+  {
+    "$key": "PerformanceSettings.GuestCustomersDeletionBatchSize|0",
+    "Name": "PerformanceSettings.GuestCustomersDeletionBatchSize",
+    "StoreId": 0,
+    "Value": "5000"
+  },
+  {
+    "$key": "PerformanceSettings.GuestCustomersDeletionCommandTimeout|0",
+    "Name": "PerformanceSettings.GuestCustomersDeletionCommandTimeout",
+    "StoreId": 0,
+    "Value": "0"
+  },
+  {
+    "$key": "PerformanceSettings.MaxUnavailableAttributeCombinations|0",
+    "Name": "PerformanceSettings.MaxUnavailableAttributeCombinations",
+    "StoreId": 0,
+    "Value": "10000"
+  },
+  {
+    "$key": "PerformanceSettings.MaxVariantPriceCalculations|0",
+    "Name": "PerformanceSettings.MaxVariantPriceCalculations",
+    "StoreId": 0,
+    "Value": "50"
+  },
+  {
+    "$key": "PerformanceSettings.MediaDupeDetectorMaxCacheSize|0",
+    "Name": "PerformanceSettings.MediaDupeDetectorMaxCacheSize",
+    "StoreId": 0,
+    "Value": "10000"
+  },
+  {
+    "$key": "PerformanceSettings.UseResponseCompression|0",
+    "Name": "PerformanceSettings.UseResponseCompression",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "PriceSettings.AlwaysDisplayRetailPrice|0",
+    "Name": "PriceSettings.AlwaysDisplayRetailPrice",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "PriceSettings.ApplyDiscountsOfLinkedProducts|0",
+    "Name": "PriceSettings.ApplyDiscountsOfLinkedProducts",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "PriceSettings.ApplyPercentageDiscountOnTierPrice|0",
+    "Name": "PriceSettings.ApplyPercentageDiscountOnTierPrice",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "PriceSettings.ApplyPriceRangeFormatInProductDetails|0",
+    "Name": "PriceSettings.ApplyPriceRangeFormatInProductDetails",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "PriceSettings.ApplyTierPricePercentageToAttributePriceAdjustments|0",
+    "Name": "PriceSettings.ApplyTierPricePercentageToAttributePriceAdjustments",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "PriceSettings.BundleItemShowBasePrice|0",
+    "Name": "PriceSettings.BundleItemShowBasePrice",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "PriceSettings.DefaultComparePriceLabelId|0",
+    "Name": "PriceSettings.DefaultComparePriceLabelId",
+    "StoreId": 0,
+    "Value": "PriceLabel:MSRP"
+  },
+  {
+    "$key": "PriceSettings.DefaultRegularPriceLabelId|0",
+    "Name": "PriceSettings.DefaultRegularPriceLabelId",
+    "StoreId": 0,
+    "Value": "PriceLabel:Lowest"
+  },
+  {
+    "$key": "PriceSettings.DisplayTextForZeroPrices|0",
+    "Name": "PriceSettings.DisplayTextForZeroPrices",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "PriceSettings.IgnoreDiscounts|0",
+    "Name": "PriceSettings.IgnoreDiscounts",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "PriceSettings.IgnoreProductDiscountsForSpecialPrices|0",
+    "Name": "PriceSettings.IgnoreProductDiscountsForSpecialPrices",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "PriceSettings.LimitedOfferBadgeLabel|0",
+    "Name": "PriceSettings.LimitedOfferBadgeLabel",
+    "StoreId": 0,
+    "Value": "Limited time deal"
+  },
+  {
+    "$key": "PriceSettings.LimitedOfferBadgeStyle|0",
+    "Name": "PriceSettings.LimitedOfferBadgeStyle",
+    "StoreId": 0,
+    "Value": "dark"
+  },
+  {
+    "$key": "PriceSettings.OfferBadgeLabel|0",
+    "Name": "PriceSettings.OfferBadgeLabel",
+    "StoreId": 0,
+    "Value": "Deal"
+  },
+  {
+    "$key": "PriceSettings.OfferBadgeStyle|0",
+    "Name": "PriceSettings.OfferBadgeStyle",
+    "StoreId": 0,
+    "Value": "dark"
+  },
+  {
+    "$key": "PriceSettings.OfferPriceReplacesRegularPrice|0",
+    "Name": "PriceSettings.OfferPriceReplacesRegularPrice",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "PriceSettings.PriceDisplayType|0",
+    "Name": "PriceSettings.PriceDisplayType",
+    "StoreId": 0,
+    "Value": "LowestPrice"
+  },
+  {
+    "$key": "PriceSettings.RulesCalculateIncludingTax|0",
+    "Name": "PriceSettings.RulesCalculateIncludingTax",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "PriceSettings.ShowBasePriceInProductLists|0",
+    "Name": "PriceSettings.ShowBasePriceInProductLists",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "PriceSettings.ShowLoginForPriceNote|0",
+    "Name": "PriceSettings.ShowLoginForPriceNote",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "PriceSettings.ShowOfferBadgeInLists|0",
+    "Name": "PriceSettings.ShowOfferBadgeInLists",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "PriceSettings.ShowOfferBadge|0",
+    "Name": "PriceSettings.ShowOfferBadge",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "PriceSettings.ShowOfferCountdownRemainingHours|0",
+    "Name": "PriceSettings.ShowOfferCountdownRemainingHours",
+    "StoreId": 0,
+    "Value": "72"
+  },
+  {
+    "$key": "PriceSettings.ShowPriceLabelInLists|0",
+    "Name": "PriceSettings.ShowPriceLabelInLists",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "PriceSettings.ShowRequiredProductPricesWithMainProduct|0",
+    "Name": "PriceSettings.ShowRequiredProductPricesWithMainProduct",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "PriceSettings.ShowRetailPriceSaving|0",
+    "Name": "PriceSettings.ShowRetailPriceSaving",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "PriceSettings.ShowSavingBadgeInLists|0",
+    "Name": "PriceSettings.ShowSavingBadgeInLists",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "PriceSettings.ShowVariantCombinationPriceAdjustment|0",
+    "Name": "PriceSettings.ShowVariantCombinationPriceAdjustment",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "PriceSettings.ValidateDiscountGiftCardsInLists|0",
+    "Name": "PriceSettings.ValidateDiscountGiftCardsInLists",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "PriceSettings.ValidateDiscountLimitationsInLists|0",
+    "Name": "PriceSettings.ValidateDiscountLimitationsInLists",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "PriceSettings.ValidateDiscountRulesInLists|0",
+    "Name": "PriceSettings.ValidateDiscountRulesInLists",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "PrivacySettings.CookieConsentRequirement|0",
+    "Name": "PrivacySettings.CookieConsentRequirement",
+    "StoreId": 0,
+    "Value": "RequiredInEUCountriesOnly"
+  },
+  {
+    "$key": "PrivacySettings.CookieInfos|0",
+    "Name": "PrivacySettings.CookieInfos",
+    "StoreId": 0,
+    "Value": ""
+  },
+  {
+    "$key": "PrivacySettings.DisplayGdprConsentOnForms|0",
+    "Name": "PrivacySettings.DisplayGdprConsentOnForms",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "PrivacySettings.FullNameOnContactUsRequired|0",
+    "Name": "PrivacySettings.FullNameOnContactUsRequired",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "PrivacySettings.FullNameOnProductRequestRequired|0",
+    "Name": "PrivacySettings.FullNameOnProductRequestRequired",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "PrivacySettings.ModalCookieConsent|0",
+    "Name": "PrivacySettings.ModalCookieConsent",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "PrivacySettings.SameSiteMode|0",
+    "Name": "PrivacySettings.SameSiteMode",
+    "StoreId": 0,
+    "Value": "Lax"
+  },
+  {
+    "$key": "PrivacySettings.StoreLastIpAddress|0",
+    "Name": "PrivacySettings.StoreLastIpAddress",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "PrivacySettings.VisitorCookieExpirationDays|0",
+    "Name": "PrivacySettings.VisitorCookieExpirationDays",
+    "StoreId": 0,
+    "Value": "365"
+  },
+  {
+    "$key": "ResiliencySettings.EnableOverloadProtection|0",
+    "Name": "ResiliencySettings.EnableOverloadProtection",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "ResiliencySettings.ForbidNewGuestsIfSubRequest|0",
+    "Name": "ResiliencySettings.ForbidNewGuestsIfSubRequest",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ResiliencySettings.LongTrafficLimitBot|0",
+    "Name": "ResiliencySettings.LongTrafficLimitBot",
+    "StoreId": 0,
+    "Value": "200"
+  },
+  {
+    "$key": "ResiliencySettings.LongTrafficLimitGlobal|0",
+    "Name": "ResiliencySettings.LongTrafficLimitGlobal",
+    "StoreId": 0,
+    "Value": "500"
+  },
+  {
+    "$key": "ResiliencySettings.LongTrafficLimitGuest|0",
+    "Name": "ResiliencySettings.LongTrafficLimitGuest",
+    "StoreId": 0,
+    "Value": "300"
+  },
+  {
+    "$key": "ResiliencySettings.LongTrafficWindow|0",
+    "Name": "ResiliencySettings.LongTrafficWindow",
+    "StoreId": 0,
+    "Value": "00:01:00"
+  },
+  {
+    "$key": "ResiliencySettings.MailSendRateLimit|0",
+    "Name": "ResiliencySettings.MailSendRateLimit",
+    "StoreId": 0,
+    "Value": "500"
+  },
+  {
+    "$key": "ResiliencySettings.MailSendRateWindow|0",
+    "Name": "ResiliencySettings.MailSendRateWindow",
+    "StoreId": 0,
+    "Value": "00:01:00"
+  },
+  {
+    "$key": "ResiliencySettings.PeakTrafficLimitBot|0",
+    "Name": "ResiliencySettings.PeakTrafficLimitBot",
+    "StoreId": 0,
+    "Value": "20"
+  },
+  {
+    "$key": "ResiliencySettings.PeakTrafficLimitGlobal|0",
+    "Name": "ResiliencySettings.PeakTrafficLimitGlobal",
+    "StoreId": 0,
+    "Value": "50"
+  },
+  {
+    "$key": "ResiliencySettings.PeakTrafficLimitGuest|0",
+    "Name": "ResiliencySettings.PeakTrafficLimitGuest",
+    "StoreId": 0,
+    "Value": "30"
+  },
+  {
+    "$key": "ResiliencySettings.PeakTrafficWindow|0",
+    "Name": "ResiliencySettings.PeakTrafficWindow",
+    "StoreId": 0,
+    "Value": "00:00:02"
+  },
+  {
+    "$key": "RewardPointsSettings.Enabled|0",
+    "Name": "RewardPointsSettings.Enabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "RewardPointsSettings.ExchangeRate|0",
+    "Name": "RewardPointsSettings.ExchangeRate",
+    "StoreId": 0,
+    "Value": "1"
+  },
+  {
+    "$key": "RewardPointsSettings.PointsForNewsletterSubscription|0",
+    "Name": "RewardPointsSettings.PointsForNewsletterSubscription",
+    "StoreId": 0,
+    "Value": "0"
+  },
+  {
+    "$key": "RewardPointsSettings.PointsForProductReview|0",
+    "Name": "RewardPointsSettings.PointsForProductReview",
+    "StoreId": 0,
+    "Value": "0"
+  },
+  {
+    "$key": "RewardPointsSettings.PointsForPurchases_Amount|0",
+    "Name": "RewardPointsSettings.PointsForPurchases_Amount",
+    "StoreId": 0,
+    "Value": "10"
+  },
+  {
+    "$key": "RewardPointsSettings.PointsForPurchases_Awarded|0",
+    "Name": "RewardPointsSettings.PointsForPurchases_Awarded",
+    "StoreId": 0,
+    "Value": "Complete"
+  },
+  {
+    "$key": "RewardPointsSettings.PointsForPurchases_Canceled|0",
+    "Name": "RewardPointsSettings.PointsForPurchases_Canceled",
+    "StoreId": 0,
+    "Value": "Cancelled"
+  },
+  {
+    "$key": "RewardPointsSettings.PointsForPurchases_Points|0",
+    "Name": "RewardPointsSettings.PointsForPurchases_Points",
+    "StoreId": 0,
+    "Value": "1"
+  },
+  {
+    "$key": "RewardPointsSettings.PointsForRegistration|0",
+    "Name": "RewardPointsSettings.PointsForRegistration",
+    "StoreId": 0,
+    "Value": "0"
+  },
+  {
+    "$key": "RewardPointsSettings.RoundDownPointsForPurchasedAmount|0",
+    "Name": "RewardPointsSettings.RoundDownPointsForPurchasedAmount",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "RewardPointsSettings.RoundDownRewardPoints|0",
+    "Name": "RewardPointsSettings.RoundDownRewardPoints",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "RewardPointsSettings.ShowPointsForProductPurchase|0",
+    "Name": "RewardPointsSettings.ShowPointsForProductPurchase",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "RewardPointsSettings.ShowPointsForProductReview|0",
+    "Name": "RewardPointsSettings.ShowPointsForProductReview",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "SearchSettings.AvailabilityDisabled|0",
+    "Name": "SearchSettings.AvailabilityDisabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "SearchSettings.AvailabilityDisplayOrder|0",
+    "Name": "SearchSettings.AvailabilityDisplayOrder",
+    "StoreId": 0,
+    "Value": "5"
+  },
+  {
+    "$key": "SearchSettings.BrandDisabled|0",
+    "Name": "SearchSettings.BrandDisabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "SearchSettings.BrandDisplayOrder|0",
+    "Name": "SearchSettings.BrandDisplayOrder",
+    "StoreId": 0,
+    "Value": "1"
+  },
+  {
+    "$key": "SearchSettings.BrandSorting|0",
+    "Name": "SearchSettings.BrandSorting",
+    "StoreId": 0,
+    "Value": "LabelAsc"
+  },
+  {
+    "$key": "SearchSettings.CategorySorting|0",
+    "Name": "SearchSettings.CategorySorting",
+    "StoreId": 0,
+    "Value": "HitsDesc"
+  },
+  {
+    "$key": "SearchSettings.DefaultSortOrder|0",
+    "Name": "SearchSettings.DefaultSortOrder",
+    "StoreId": 0,
+    "Value": "Relevance"
+  },
+  {
+    "$key": "SearchSettings.DeliveryTimeDisabled|0",
+    "Name": "SearchSettings.DeliveryTimeDisabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "SearchSettings.DeliveryTimeDisplayOrder|0",
+    "Name": "SearchSettings.DeliveryTimeDisplayOrder",
+    "StoreId": 0,
+    "Value": "4"
+  },
+  {
+    "$key": "SearchSettings.DeliveryTimeSorting|0",
+    "Name": "SearchSettings.DeliveryTimeSorting",
+    "StoreId": 0,
+    "Value": "DisplayOrder"
+  },
+  {
+    "$key": "SearchSettings.FilterMaxChoicesCount|0",
+    "Name": "SearchSettings.FilterMaxChoicesCount",
+    "StoreId": 0,
+    "Value": "20"
+  },
+  {
+    "$key": "SearchSettings.FilterMinHitCount|0",
+    "Name": "SearchSettings.FilterMinHitCount",
+    "StoreId": 0,
+    "Value": "1"
+  },
+  {
+    "$key": "SearchSettings.IncludeNotAvailable|0",
+    "Name": "SearchSettings.IncludeNotAvailable",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "SearchSettings.InstantSearchEnabled|0",
+    "Name": "SearchSettings.InstantSearchEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "SearchSettings.InstantSearchNumberOfProducts|0",
+    "Name": "SearchSettings.InstantSearchNumberOfProducts",
+    "StoreId": 0,
+    "Value": "10"
+  },
+  {
+    "$key": "SearchSettings.InstantSearchTermMinLength|0",
+    "Name": "SearchSettings.InstantSearchTermMinLength",
+    "StoreId": 0,
+    "Value": "2"
+  },
+  {
+    "$key": "SearchSettings.NewArrivalsDisabled|0",
+    "Name": "SearchSettings.NewArrivalsDisabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "SearchSettings.NewArrivalsDisplayOrder|0",
+    "Name": "SearchSettings.NewArrivalsDisplayOrder",
+    "StoreId": 0,
+    "Value": "6"
+  },
+  {
+    "$key": "SearchSettings.PriceDisabled|0",
+    "Name": "SearchSettings.PriceDisabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "SearchSettings.PriceDisplayOrder|0",
+    "Name": "SearchSettings.PriceDisplayOrder",
+    "StoreId": 0,
+    "Value": "2"
+  },
+  {
+    "$key": "SearchSettings.RatingDisabled|0",
+    "Name": "SearchSettings.RatingDisabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "SearchSettings.RatingDisplayOrder|0",
+    "Name": "SearchSettings.RatingDisplayOrder",
+    "StoreId": 0,
+    "Value": "3"
+  },
+  {
+    "$key": "SearchSettings.SearchFields|0",
+    "Name": "SearchSettings.SearchFields",
+    "StoreId": 0,
+    "Value": "sku,shortdescription,tagname,keyword,manufacturer,category"
+  },
+  {
+    "$key": "SearchSettings.SearchMode|0",
+    "Name": "SearchSettings.SearchMode",
+    "StoreId": 0,
+    "Value": "Contains"
+  },
+  {
+    "$key": "SearchSettings.SearchProductByIdentificationNumber|0",
+    "Name": "SearchSettings.SearchProductByIdentificationNumber",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "SearchSettings.ShowProductImagesInInstantSearch|0",
+    "Name": "SearchSettings.ShowProductImagesInInstantSearch",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "SearchSettings.UseCatalogSearchInBackend|0",
+    "Name": "SearchSettings.UseCatalogSearchInBackend",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "SearchSettings.UseFeaturedSorting|0",
+    "Name": "SearchSettings.UseFeaturedSorting",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "SecuritySettings.AdminAreaAllowedIpAddresses|0",
+    "Name": "SecuritySettings.AdminAreaAllowedIpAddresses",
+    "StoreId": 0,
+    "Value": ""
+  },
+  {
+    "$key": "SecuritySettings.EnableHoneypotProtection|0",
+    "Name": "SecuritySettings.EnableHoneypotProtection",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "SecuritySettings.EncryptionKey|0",
+    "Name": "SecuritySettings.EncryptionKey",
+    "StoreId": 0,
+    "Value": "<random>"
+  },
+  {
+    "$key": "SecuritySettings.HideAdminMenuItemsBasedOnPermissions|0",
+    "Name": "SecuritySettings.HideAdminMenuItemsBasedOnPermissions",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "SecuritySettings.UseSslOnLocalhost|0",
+    "Name": "SecuritySettings.UseSslOnLocalhost",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "SeoSettings.AddAlternateHtmlLinks|0",
+    "Name": "SeoSettings.AddAlternateHtmlLinks",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "SeoSettings.AllowUnicodeCharsInUrls|0",
+    "Name": "SeoSettings.AllowUnicodeCharsInUrls",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "SeoSettings.AppendTrailingSlashToUrls|0",
+    "Name": "SeoSettings.AppendTrailingSlashToUrls",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "SeoSettings.CanonicalHostNameRule|0",
+    "Name": "SeoSettings.CanonicalHostNameRule",
+    "StoreId": 0,
+    "Value": "NoRule"
+  },
+  {
+    "$key": "SeoSettings.CanonicalUrlsEnabled|0",
+    "Name": "SeoSettings.CanonicalUrlsEnabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "SeoSettings.ConvertNonWesternChars|0",
+    "Name": "SeoSettings.ConvertNonWesternChars",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "SeoSettings.ExtraRobotsAllows|0",
+    "Name": "SeoSettings.ExtraRobotsAllows",
+    "StoreId": 0,
+    "Value": ""
+  },
+  {
+    "$key": "SeoSettings.ExtraRobotsDisallows|0",
+    "Name": "SeoSettings.ExtraRobotsDisallows",
+    "StoreId": 0,
+    "Value": ""
+  },
+  {
+    "$key": "SeoSettings.ExtraRobotsLines|0",
+    "Name": "SeoSettings.ExtraRobotsLines",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "SeoSettings.LoadAllUrlAliasesOnStartup|0",
+    "Name": "SeoSettings.LoadAllUrlAliasesOnStartup",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "SeoSettings.MetaDescription|0",
+    "Name": "SeoSettings.MetaDescription",
+    "StoreId": 0,
+    "Value": ""
+  },
+  {
+    "$key": "SeoSettings.MetaKeywords|0",
+    "Name": "SeoSettings.MetaKeywords",
+    "StoreId": 0,
+    "Value": ""
+  },
+  {
+    "$key": "SeoSettings.MetaRobotsContent|0",
+    "Name": "SeoSettings.MetaRobotsContent",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "SeoSettings.MetaTitle|0",
+    "Name": "SeoSettings.MetaTitle",
+    "StoreId": 0,
+    "Value": "Shop"
+  },
+  {
+    "$key": "SeoSettings.PageTitleSeoAdjustment|0",
+    "Name": "SeoSettings.PageTitleSeoAdjustment",
+    "StoreId": 0,
+    "Value": "PagenameAfterStorename"
+  },
+  {
+    "$key": "SeoSettings.PageTitleSeparator|0",
+    "Name": "SeoSettings.PageTitleSeparator",
+    "StoreId": 0,
+    "Value": ". "
+  },
+  {
+    "$key": "SeoSettings.ProductDescriptionPriority|0",
+    "Name": "SeoSettings.ProductDescriptionPriority",
+    "StoreId": 0,
+    "Value": "FullDescription"
+  },
+  {
+    "$key": "SeoSettings.RedirectLegacyTopicUrls|0",
+    "Name": "SeoSettings.RedirectLegacyTopicUrls",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "SeoSettings.SeoNameCharConversion|0",
+    "Name": "SeoSettings.SeoNameCharConversion",
+    "StoreId": 0,
+    "Value": "ä;ae\nö;oe\nü;ue\nı;i\nİ;i\nÄ;Ae\nÖ;Oe\nÜ;Ue\nß;ss"
+  },
+  {
+    "$key": "SeoSettings.TrailingSlashRule|0",
+    "Name": "SeoSettings.TrailingSlashRule",
+    "StoreId": 0,
+    "Value": "Allow"
+  },
+  {
+    "$key": "SeoSettings.XmlSitemapEnabled|0",
+    "Name": "SeoSettings.XmlSitemapEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "SeoSettings.XmlSitemapIncludesAlternateLinks|0",
+    "Name": "SeoSettings.XmlSitemapIncludesAlternateLinks",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "SeoSettings.XmlSitemapIncludesBlog|0",
+    "Name": "SeoSettings.XmlSitemapIncludesBlog",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "SeoSettings.XmlSitemapIncludesCategories|0",
+    "Name": "SeoSettings.XmlSitemapIncludesCategories",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "SeoSettings.XmlSitemapIncludesForum|0",
+    "Name": "SeoSettings.XmlSitemapIncludesForum",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "SeoSettings.XmlSitemapIncludesManufacturers|0",
+    "Name": "SeoSettings.XmlSitemapIncludesManufacturers",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "SeoSettings.XmlSitemapIncludesNews|0",
+    "Name": "SeoSettings.XmlSitemapIncludesNews",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "SeoSettings.XmlSitemapIncludesProducts|0",
+    "Name": "SeoSettings.XmlSitemapIncludesProducts",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "SeoSettings.XmlSitemapIncludesTopics|0",
+    "Name": "SeoSettings.XmlSitemapIncludesTopics",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShippingSettings.ActiveShippingRateComputationMethodSystemNames|0",
+    "Name": "ShippingSettings.ActiveShippingRateComputationMethodSystemNames",
+    "StoreId": 0,
+    "Value": "Shipping.FixedRate"
+  },
+  {
+    "$key": "ShippingSettings.CalculateShippingAtCheckout|0",
+    "Name": "ShippingSettings.CalculateShippingAtCheckout",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "ShippingSettings.ChargeOnlyHighestProductShippingSurcharge|0",
+    "Name": "ShippingSettings.ChargeOnlyHighestProductShippingSurcharge",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "ShippingSettings.DeliveryOnWorkweekDaysOnly|0",
+    "Name": "ShippingSettings.DeliveryOnWorkweekDaysOnly",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShippingSettings.DeliveryTimesDateFormat|0",
+    "Name": "ShippingSettings.DeliveryTimesDateFormat",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "ShippingSettings.DisplayShipmentEventsToCustomers|0",
+    "Name": "ShippingSettings.DisplayShipmentEventsToCustomers",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "ShippingSettings.EstimateShippingEnabled|0",
+    "Name": "ShippingSettings.EstimateShippingEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShippingSettings.FreeShippingCountryIds|0",
+    "Name": "ShippingSettings.FreeShippingCountryIds",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "ShippingSettings.FreeShippingOverXEnabled|0",
+    "Name": "ShippingSettings.FreeShippingOverXEnabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "ShippingSettings.FreeShippingOverXIncludingTax|0",
+    "Name": "ShippingSettings.FreeShippingOverXIncludingTax",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "ShippingSettings.FreeShippingOverXValue|0",
+    "Name": "ShippingSettings.FreeShippingOverXValue",
+    "StoreId": 0,
+    "Value": "0"
+  },
+  {
+    "$key": "ShippingSettings.ReturnValidOptionsIfThereAreAny|0",
+    "Name": "ShippingSettings.ReturnValidOptionsIfThereAreAny",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShippingSettings.ShippingOriginAddressId|0",
+    "Name": "ShippingSettings.ShippingOriginAddressId",
+    "StoreId": 0,
+    "Value": "0"
+  },
+  {
+    "$key": "ShippingSettings.SkipShippingIfSingleOption|0",
+    "Name": "ShippingSettings.SkipShippingIfSingleOption",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "ShippingSettings.TodayShipmentHour|0",
+    "Name": "ShippingSettings.TodayShipmentHour",
+    "StoreId": 0,
+    "Value": "14"
+  },
+  {
+    "$key": "ShippingSettings.UseShippingOriginIfShippingAddressMissing|0",
+    "Name": "ShippingSettings.UseShippingOriginIfShippingAddressMissing",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShoppingCartSettings.AddProductsToBasketInSinglePositions|0",
+    "Name": "ShoppingCartSettings.AddProductsToBasketInSinglePositions",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "ShoppingCartSettings.AllowActivatableCartItems|0",
+    "Name": "ShoppingCartSettings.AllowActivatableCartItems",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShoppingCartSettings.AllowAnonymousUsersToEmailWishlist|0",
+    "Name": "ShoppingCartSettings.AllowAnonymousUsersToEmailWishlist",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "ShoppingCartSettings.AllowOutOfStockItemsToBeAddedToWishlist|0",
+    "Name": "ShoppingCartSettings.AllowOutOfStockItemsToBeAddedToWishlist",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "ShoppingCartSettings.CheckoutProcess|0",
+    "Name": "ShoppingCartSettings.CheckoutProcess",
+    "StoreId": 0,
+    "Value": "Standard"
+  },
+  {
+    "$key": "ShoppingCartSettings.CrossSellsNumber|0",
+    "Name": "ShoppingCartSettings.CrossSellsNumber",
+    "StoreId": 0,
+    "Value": "8"
+  },
+  {
+    "$key": "ShoppingCartSettings.CustomersCanChangePreferredPayment|0",
+    "Name": "ShoppingCartSettings.CustomersCanChangePreferredPayment",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShoppingCartSettings.CustomersCanChangePreferredShipping|0",
+    "Name": "ShoppingCartSettings.CustomersCanChangePreferredShipping",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShoppingCartSettings.DeliveryTimesInShoppingCart|0",
+    "Name": "ShoppingCartSettings.DeliveryTimesInShoppingCart",
+    "StoreId": 0,
+    "Value": "DateOnly"
+  },
+  {
+    "$key": "ShoppingCartSettings.DisplayCartAfterAddingProduct|0",
+    "Name": "ShoppingCartSettings.DisplayCartAfterAddingProduct",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "ShoppingCartSettings.DisplayWishlistAfterAddingProduct|0",
+    "Name": "ShoppingCartSettings.DisplayWishlistAfterAddingProduct",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "ShoppingCartSettings.EmailWishlistEnabled|0",
+    "Name": "ShoppingCartSettings.EmailWishlistEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShoppingCartSettings.MaxQuantityInputDropdownItems|0",
+    "Name": "ShoppingCartSettings.MaxQuantityInputDropdownItems",
+    "StoreId": 0,
+    "Value": "100"
+  },
+  {
+    "$key": "ShoppingCartSettings.MaximumShoppingCartItems|0",
+    "Name": "ShoppingCartSettings.MaximumShoppingCartItems",
+    "StoreId": 0,
+    "Value": "1000"
+  },
+  {
+    "$key": "ShoppingCartSettings.MaximumWishlistItems|0",
+    "Name": "ShoppingCartSettings.MaximumWishlistItems",
+    "StoreId": 0,
+    "Value": "1000"
+  },
+  {
+    "$key": "ShoppingCartSettings.MiniShoppingCartEnabled|0",
+    "Name": "ShoppingCartSettings.MiniShoppingCartEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShoppingCartSettings.MoveItemsFromWishlistToCart|0",
+    "Name": "ShoppingCartSettings.MoveItemsFromWishlistToCart",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShoppingCartSettings.NewsletterSubscription|0",
+    "Name": "ShoppingCartSettings.NewsletterSubscription",
+    "StoreId": 0,
+    "Value": "None"
+  },
+  {
+    "$key": "ShoppingCartSettings.QuickCheckoutEnabled|0",
+    "Name": "ShoppingCartSettings.QuickCheckoutEnabled",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShoppingCartSettings.ShowBasePrice|0",
+    "Name": "ShoppingCartSettings.ShowBasePrice",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShoppingCartSettings.ShowCommentBox|0",
+    "Name": "ShoppingCartSettings.ShowCommentBox",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShoppingCartSettings.ShowConfirmOrderLegalHint|0",
+    "Name": "ShoppingCartSettings.ShowConfirmOrderLegalHint",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "ShoppingCartSettings.ShowDiscountBox|0",
+    "Name": "ShoppingCartSettings.ShowDiscountBox",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShoppingCartSettings.ShowEsdRevocationWaiverBox|0",
+    "Name": "ShoppingCartSettings.ShowEsdRevocationWaiverBox",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShoppingCartSettings.ShowEssentialAttributesInMiniShoppingCart|0",
+    "Name": "ShoppingCartSettings.ShowEssentialAttributesInMiniShoppingCart",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "ShoppingCartSettings.ShowGiftCardBox|0",
+    "Name": "ShoppingCartSettings.ShowGiftCardBox",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShoppingCartSettings.ShowItemsFromWishlistToCartButton|0",
+    "Name": "ShoppingCartSettings.ShowItemsFromWishlistToCartButton",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShoppingCartSettings.ShowLinkedAttributeValueQuantity|0",
+    "Name": "ShoppingCartSettings.ShowLinkedAttributeValueQuantity",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "ShoppingCartSettings.ShowProductBundleImagesOnShoppingCart|0",
+    "Name": "ShoppingCartSettings.ShowProductBundleImagesOnShoppingCart",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShoppingCartSettings.ShowProductBundleImagesOnWishList|0",
+    "Name": "ShoppingCartSettings.ShowProductBundleImagesOnWishList",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShoppingCartSettings.ShowProductImagesInMiniShoppingCart|0",
+    "Name": "ShoppingCartSettings.ShowProductImagesInMiniShoppingCart",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShoppingCartSettings.ShowProductImagesOnShoppingCart|0",
+    "Name": "ShoppingCartSettings.ShowProductImagesOnShoppingCart",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShoppingCartSettings.ShowProductImagesOnWishList|0",
+    "Name": "ShoppingCartSettings.ShowProductImagesOnWishList",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShoppingCartSettings.ShowSecondBuyButtonBelowCart|0",
+    "Name": "ShoppingCartSettings.ShowSecondBuyButtonBelowCart",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShoppingCartSettings.ShowShortDesc|0",
+    "Name": "ShoppingCartSettings.ShowShortDesc",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "ShoppingCartSettings.ShowWeight|0",
+    "Name": "ShoppingCartSettings.ShowWeight",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "ShoppingCartSettings.ThirdPartyEmailHandOverLabel|0",
+    "Name": "ShoppingCartSettings.ThirdPartyEmailHandOverLabel",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "ShoppingCartSettings.ThirdPartyEmailHandOver|0",
+    "Name": "ShoppingCartSettings.ThirdPartyEmailHandOver",
+    "StoreId": 0,
+    "Value": "None"
+  },
+  {
+    "$key": "SocialSettings.BehanceLink|0",
+    "Name": "SocialSettings.BehanceLink",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "SocialSettings.ElloLink|0",
+    "Name": "SocialSettings.ElloLink",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "SocialSettings.FacebookAppId|0",
+    "Name": "SocialSettings.FacebookAppId",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "SocialSettings.FacebookLink|0",
+    "Name": "SocialSettings.FacebookLink",
+    "StoreId": 0,
+    "Value": "#"
+  },
+  {
+    "$key": "SocialSettings.FlickrLink|0",
+    "Name": "SocialSettings.FlickrLink",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "SocialSettings.InstagramLink|0",
+    "Name": "SocialSettings.InstagramLink",
+    "StoreId": 0,
+    "Value": "#"
+  },
+  {
+    "$key": "SocialSettings.LinkedInLink|0",
+    "Name": "SocialSettings.LinkedInLink",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "SocialSettings.PinterestLink|0",
+    "Name": "SocialSettings.PinterestLink",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "SocialSettings.ShowSocialLinksInFooter|0",
+    "Name": "SocialSettings.ShowSocialLinksInFooter",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "SocialSettings.SnapchatLink|0",
+    "Name": "SocialSettings.SnapchatLink",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "SocialSettings.TikTokLink|0",
+    "Name": "SocialSettings.TikTokLink",
+    "StoreId": 0,
+    "Value": "#"
+  },
+  {
+    "$key": "SocialSettings.TumblrLink|0",
+    "Name": "SocialSettings.TumblrLink",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "SocialSettings.TwitterLink|0",
+    "Name": "SocialSettings.TwitterLink",
+    "StoreId": 0,
+    "Value": "#"
+  },
+  {
+    "$key": "SocialSettings.TwitterSite|0",
+    "Name": "SocialSettings.TwitterSite",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "SocialSettings.VimeoLink|0",
+    "Name": "SocialSettings.VimeoLink",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "SocialSettings.XingLink|0",
+    "Name": "SocialSettings.XingLink",
+    "StoreId": 0,
+    "Value": null
+  },
+  {
+    "$key": "SocialSettings.YoutubeLink|0",
+    "Name": "SocialSettings.YoutubeLink",
+    "StoreId": 0,
+    "Value": "#"
+  },
+  {
+    "$key": "StoreInformationSettings.StoreClosedAllowForAdmins|0",
+    "Name": "StoreInformationSettings.StoreClosedAllowForAdmins",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "StoreInformationSettings.StoreClosed|0",
+    "Name": "StoreInformationSettings.StoreClosed",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "TaxSettings.ActiveTaxProviderSystemName|0",
+    "Name": "TaxSettings.ActiveTaxProviderSystemName",
+    "StoreId": 0,
+    "Value": "Tax.FixedRate"
+  },
+  {
+    "$key": "TaxSettings.AllowCustomersToSelectTaxDisplayType|0",
+    "Name": "TaxSettings.AllowCustomersToSelectTaxDisplayType",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "TaxSettings.AuxiliaryServicesTaxingType|0",
+    "Name": "TaxSettings.AuxiliaryServicesTaxingType",
+    "StoreId": 0,
+    "Value": "SpecifiedTaxCategory"
+  },
+  {
+    "$key": "TaxSettings.DefaultTaxAddressId|0",
+    "Name": "TaxSettings.DefaultTaxAddressId",
+    "StoreId": 0,
+    "Value": "0"
+  },
+  {
+    "$key": "TaxSettings.DisplayTaxRates|0",
+    "Name": "TaxSettings.DisplayTaxRates",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "TaxSettings.DisplayTaxSuffix|0",
+    "Name": "TaxSettings.DisplayTaxSuffix",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "TaxSettings.EuVatAllowVatExemption|0",
+    "Name": "TaxSettings.EuVatAllowVatExemption",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "TaxSettings.EuVatEmailAdminWhenNewVatSubmitted|0",
+    "Name": "TaxSettings.EuVatEmailAdminWhenNewVatSubmitted",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "TaxSettings.EuVatEnabled|0",
+    "Name": "TaxSettings.EuVatEnabled",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "TaxSettings.EuVatShopCountryId|0",
+    "Name": "TaxSettings.EuVatShopCountryId",
+    "StoreId": 0,
+    "Value": "0"
+  },
+  {
+    "$key": "TaxSettings.EuVatUseWebService|0",
+    "Name": "TaxSettings.EuVatUseWebService",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "TaxSettings.HideTaxInOrderSummary|0",
+    "Name": "TaxSettings.HideTaxInOrderSummary",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "TaxSettings.HideZeroTax|0",
+    "Name": "TaxSettings.HideZeroTax",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "TaxSettings.PaymentMethodAdditionalFeeIncludesTax|0",
+    "Name": "TaxSettings.PaymentMethodAdditionalFeeIncludesTax",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "TaxSettings.PaymentMethodAdditionalFeeIsTaxable|0",
+    "Name": "TaxSettings.PaymentMethodAdditionalFeeIsTaxable",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "TaxSettings.PaymentMethodAdditionalFeeTaxClassId|0",
+    "Name": "TaxSettings.PaymentMethodAdditionalFeeTaxClassId",
+    "StoreId": 0,
+    "Value": "0"
+  },
+  {
+    "$key": "TaxSettings.PricesIncludeTax|0",
+    "Name": "TaxSettings.PricesIncludeTax",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "TaxSettings.ShippingIsTaxable|0",
+    "Name": "TaxSettings.ShippingIsTaxable",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "TaxSettings.ShippingPriceIncludesTax|0",
+    "Name": "TaxSettings.ShippingPriceIncludesTax",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "TaxSettings.ShippingTaxClassId|0",
+    "Name": "TaxSettings.ShippingTaxClassId",
+    "StoreId": 0,
+    "Value": "0"
+  },
+  {
+    "$key": "TaxSettings.ShowLegalHintsInFooter|0",
+    "Name": "TaxSettings.ShowLegalHintsInFooter",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "TaxSettings.ShowLegalHintsInProductDetails|0",
+    "Name": "TaxSettings.ShowLegalHintsInProductDetails",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "TaxSettings.ShowLegalHintsInProductList|0",
+    "Name": "TaxSettings.ShowLegalHintsInProductList",
+    "StoreId": 0,
+    "Value": "True"
+  },
+  {
+    "$key": "TaxSettings.TaxBasedOn|0",
+    "Name": "TaxSettings.TaxBasedOn",
+    "StoreId": 0,
+    "Value": "BillingAddress"
+  },
+  {
+    "$key": "TaxSettings.TaxDisplayType|0",
+    "Name": "TaxSettings.TaxDisplayType",
+    "StoreId": 0,
+    "Value": "ExcludingTax"
+  },
+  {
+    "$key": "TaxSettings.VatRequired|0",
+    "Name": "TaxSettings.VatRequired",
+    "StoreId": 0,
+    "Value": "False"
+  },
+  {
+    "$key": "ThemeSettings.AllowCustomerToSelectTheme|Store:Your store name",
+    "Name": "ThemeSettings.AllowCustomerToSelectTheme",
+    "StoreId": "Store:Your store name",
+    "Value": "True"
+  },
+  {
+    "$key": "ThemeSettings.AssetCachingEnabled|Store:Your store name",
+    "Name": "ThemeSettings.AssetCachingEnabled",
+    "StoreId": "Store:Your store name",
+    "Value": "2"
+  },
+  {
+    "$key": "ThemeSettings.BundleOptimizationEnabled|Store:Your store name",
+    "Name": "ThemeSettings.BundleOptimizationEnabled",
+    "StoreId": "Store:Your store name",
+    "Value": "0"
+  },
+  {
+    "$key": "ThemeSettings.DefaultTheme|Store:Your store name",
+    "Name": "ThemeSettings.DefaultTheme",
+    "StoreId": "Store:Your store name",
+    "Value": "Flex"
+  },
+  {
+    "$key": "ThemeSettings.SaveThemeChoiceInCookie|Store:Your store name",
+    "Name": "ThemeSettings.SaveThemeChoiceInCookie",
+    "StoreId": "Store:Your store name",
+    "Value": "False"
+  },
+  {
+    "$key": "WidgetSettings.ActiveWidgetSystemNames|0",
+    "Name": "WidgetSettings.ActiveWidgetSystemNames",
+    "StoreId": 0,
+    "Value": ""
+  },
+  {
+    "$key": "tax.taxprovider.fixedrate.taxcategoryid{TaxCategory:Apparel & Shoes}|0",
+    "Name": "tax.taxprovider.fixedrate.taxcategoryid{TaxCategory:Apparel & Shoes}",
+    "StoreId": 0,
+    "Value": "0"
+  },
+  {
+    "$key": "tax.taxprovider.fixedrate.taxcategoryid{TaxCategory:Books}|0",
+    "Name": "tax.taxprovider.fixedrate.taxcategoryid{TaxCategory:Books}",
+    "StoreId": 0,
+    "Value": "0"
+  },
+  {
+    "$key": "tax.taxprovider.fixedrate.taxcategoryid{TaxCategory:Downloadable Products}|0",
+    "Name": "tax.taxprovider.fixedrate.taxcategoryid{TaxCategory:Downloadable Products}",
+    "StoreId": 0,
+    "Value": "0"
+  },
+  {
+    "$key": "tax.taxprovider.fixedrate.taxcategoryid{TaxCategory:Electronics & Software}|0",
+    "Name": "tax.taxprovider.fixedrate.taxcategoryid{TaxCategory:Electronics & Software}",
+    "StoreId": 0,
+    "Value": "0"
+  },
+  {
+    "$key": "tax.taxprovider.fixedrate.taxcategoryid{TaxCategory:Jewelry}|0",
+    "Name": "tax.taxprovider.fixedrate.taxcategoryid{TaxCategory:Jewelry}",
+    "StoreId": 0,
+    "Value": "0"
+  },
+  {
+    "$key": "tax.taxprovider.fixedrate.taxcategoryid{TaxCategory:Tax free}|0",
+    "Name": "tax.taxprovider.fixedrate.taxcategoryid{TaxCategory:Tax free}",
+    "StoreId": 0,
+    "Value": "0"
+  }
+]

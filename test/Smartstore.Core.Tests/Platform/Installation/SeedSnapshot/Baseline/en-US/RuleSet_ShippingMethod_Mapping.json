@@ -1,0 +1,7 @@
+[
+  {
+    "$key": "RuleSetEntity:Major customers|ShippingMethod:Free shipping",
+    "RuleSetEntity_Id": "RuleSetEntity:Major customers",
+    "ShippingMethod_Id": "ShippingMethod:Free shipping"
+  }
+]

@@ -1,0 +1,162 @@
+[
+  {
+    "$key": "ProductTag:Autos|Product:P-1009",
+    "ProductTag_Id": "ProductTag:Autos",
+    "Product_Id": "Product:P-1009"
+  },
+  {
+    "$key": "ProductTag:Autos|Product:P-1010",
+    "ProductTag_Id": "ProductTag:Autos",
+    "Product_Id": "Product:P-1010"
+  },
+  {
+    "$key": "ProductTag:Buch|Product:P-1003",
+    "ProductTag_Id": "ProductTag:Buch",
+    "Product_Id": "Product:P-1003"
+  },
+  {
+    "$key": "ProductTag:Buch|Product:P-1005",
+    "ProductTag_Id": "ProductTag:Buch",
+    "Product_Id": "Product:P-1005"
+  },
+  {
+    "$key": "ProductTag:Buch|Product:P-1007",
+    "ProductTag_Id": "ProductTag:Buch",
+    "Product_Id": "Product:P-1007"
+  },
+  {
+    "$key": "ProductTag:Buch|Product:P-1008",
+    "ProductTag_Id": "ProductTag:Buch",
+    "Product_Id": "Product:P-1008"
+  },
+  {
+    "$key": "ProductTag:Buch|Product:P-1009",
+    "ProductTag_Id": "ProductTag:Buch",
+    "Product_Id": "Product:P-1009"
+  },
+  {
+    "$key": "ProductTag:Buch|Product:P-1010",
+    "ProductTag_Id": "ProductTag:Buch",
+    "Product_Id": "Product:P-1010"
+  },
+  {
+    "$key": "ProductTag:Buch|Product:P-1011",
+    "ProductTag_Id": "ProductTag:Buch",
+    "Product_Id": "Product:P-1011"
+  },
+  {
+    "$key": "ProductTag:Download|Product:P-1016",
+    "ProductTag_Id": "ProductTag:Download",
+    "Product_Id": "Product:P-1016"
+  },
+  {
+    "$key": "ProductTag:Download|Product:P-1017",
+    "ProductTag_Id": "ProductTag:Download",
+    "Product_Id": "Product:P-1017"
+  },
+  {
+    "$key": "ProductTag:Furniture|Product:Furniture-ball-chair",
+    "ProductTag_Id": "ProductTag:Furniture",
+    "Product_Id": "Product:Furniture-ball-chair"
+  },
+  {
+    "$key": "ProductTag:Furniture|Product:Furniture-cube-chair",
+    "ProductTag_Id": "ProductTag:Furniture",
+    "Product_Id": "Product:Furniture-cube-chair"
+  },
+  {
+    "$key": "ProductTag:Furniture|Product:Furniture-lc6",
+    "ProductTag_Id": "ProductTag:Furniture",
+    "Product_Id": "Product:Furniture-lc6"
+  },
+  {
+    "$key": "ProductTag:Furniture|Product:Furniture-lounge-chair",
+    "ProductTag_Id": "ProductTag:Furniture",
+    "Product_Id": "Product:Furniture-lounge-chair"
+  },
+  {
+    "$key": "ProductTag:Furniture|Product:IN 200",
+    "ProductTag_Id": "ProductTag:Furniture",
+    "Product_Id": "Product:IN 200"
+  },
+  {
+    "$key": "ProductTag:Furniture|Product:JH DS/82-1",
+    "ProductTag_Id": "ProductTag:Furniture",
+    "Product_Id": "Product:JH DS/82-1"
+  },
+  {
+    "$key": "ProductTag:Furniture|Product:LC2 DS/23-1",
+    "ProductTag_Id": "ProductTag:Furniture",
+    "Product_Id": "Product:LC2 DS/23-1"
+  },
+  {
+    "$key": "ProductTag:Furniture|Product:LM T/98",
+    "ProductTag_Id": "ProductTag:Furniture",
+    "Product_Id": "Product:LM T/98"
+  },
+  {
+    "$key": "ProductTag:Furniture|Product:LR 556",
+    "ProductTag_Id": "ProductTag:Furniture",
+    "Product_Id": "Product:LR 556"
+  },
+  {
+    "$key": "ProductTag:Geschenk|Product:P-1000",
+    "ProductTag_Id": "ProductTag:Geschenk",
+    "Product_Id": "Product:P-1000"
+  },
+  {
+    "$key": "ProductTag:Geschenk|Product:P-1001",
+    "ProductTag_Id": "ProductTag:Geschenk",
+    "Product_Id": "Product:P-1001"
+  },
+  {
+    "$key": "ProductTag:Geschenk|Product:P-1002",
+    "ProductTag_Id": "ProductTag:Geschenk",
+    "Product_Id": "Product:P-1002"
+  },
+  {
+    "$key": "ProductTag:Geschenk|Product:P-10033",
+    "ProductTag_Id": "ProductTag:Geschenk",
+    "Product_Id": "Product:P-10033"
+  },
+  {
+    "$key": "ProductTag:Kochen|Product:P-1003",
+    "ProductTag_Id": "ProductTag:Kochen",
+    "Product_Id": "Product:P-1003"
+  },
+  {
+    "$key": "ProductTag:Kochen|Product:P-1005",
+    "ProductTag_Id": "ProductTag:Kochen",
+    "Product_Id": "Product:P-1005"
+  },
+  {
+    "$key": "ProductTag:Motorräder|Product:P-1010",
+    "ProductTag_Id": "ProductTag:Motorräder",
+    "Product_Id": "Product:P-1010"
+  },
+  {
+    "$key": "ProductTag:Motorräder|Product:P-1011",
+    "ProductTag_Id": "ProductTag:Motorräder",
+    "Product_Id": "Product:P-1011"
+  },
+  {
+    "$key": "ProductTag:apple|Product:P-2001",
+    "ProductTag_Id": "ProductTag:apple",
+    "Product_Id": "Product:P-2001"
+  },
+  {
+    "$key": "ProductTag:mp3|Product:P-1016",
+    "ProductTag_Id": "ProductTag:mp3",
+    "Product_Id": "Product:P-1016"
+  },
+  {
+    "$key": "ProductTag:mp3|Product:P-1017",
+    "ProductTag_Id": "ProductTag:mp3",
+    "Product_Id": "Product:P-1017"
+  },
+  {
+    "$key": "ProductTag:watches|Product:P-9004",
+    "ProductTag_Id": "ProductTag:watches",
+    "Product_Id": "Product:P-9004"
+  }
+]

@@ -1,0 +1,173 @@
+[
+  {
+    "$key": "Bag",
+    "Description": "Bag",
+    "DisplayLocale": null,
+    "DisplayOrder": 6,
+    "IsDefault": false,
+    "Name": "Bag",
+    "NamePlural": "Bags"
+  },
+  {
+    "$key": "Bar",
+    "Description": "Bar",
+    "DisplayLocale": null,
+    "DisplayOrder": 9,
+    "IsDefault": false,
+    "Name": "Bar",
+    "NamePlural": "Bars"
+  },
+  {
+    "$key": "Barrel",
+    "Description": "Barrel",
+    "DisplayLocale": null,
+    "DisplayOrder": 16,
+    "IsDefault": false,
+    "Name": "Barrel",
+    "NamePlural": "Barrels"
+  },
+  {
+    "$key": "Bottle",
+    "Description": "Bottle",
+    "DisplayLocale": null,
+    "DisplayOrder": 10,
+    "IsDefault": false,
+    "Name": "Bottle",
+    "NamePlural": "Bottles"
+  },
+  {
+    "$key": "Box",
+    "Description": "Box",
+    "DisplayLocale": null,
+    "DisplayOrder": 1,
+    "IsDefault": false,
+    "Name": "Box",
+    "NamePlural": "Boxes"
+  },
+  {
+    "$key": "Bucket",
+    "Description": "Bucket",
+    "DisplayLocale": null,
+    "DisplayOrder": 18,
+    "IsDefault": false,
+    "Name": "Bucket",
+    "NamePlural": "Buckets"
+  },
+  {
+    "$key": "Bunch",
+    "Description": "Bunch",
+    "DisplayLocale": null,
+    "DisplayOrder": 12,
+    "IsDefault": false,
+    "Name": "Bunch",
+    "NamePlural": "Bunches"
+  },
+  {
+    "$key": "Bundle",
+    "Description": "Bundle",
+    "DisplayLocale": null,
+    "DisplayOrder": 15,
+    "IsDefault": false,
+    "Name": "Bundle",
+    "NamePlural": "Bundles"
+  },
+  {
+    "$key": "Can",
+    "Description": "Can",
+    "DisplayLocale": null,
+    "DisplayOrder": 7,
+    "IsDefault": false,
+    "Name": "Can",
+    "NamePlural": "Cans"
+  },
+  {
+    "$key": "Cup",
+    "Description": "Cup",
+    "DisplayLocale": null,
+    "DisplayOrder": 14,
+    "IsDefault": false,
+    "Name": "Cup",
+    "NamePlural": "Cups"
+  },
+  {
+    "$key": "Glass",
+    "Description": "Glass",
+    "DisplayLocale": null,
+    "DisplayOrder": 11,
+    "IsDefault": false,
+    "Name": "Glass",
+    "NamePlural": "Glasses"
+  },
+  {
+    "$key": "Packet",
+    "Description": "Packet",
+    "DisplayLocale": null,
+    "DisplayOrder": 8,
+    "IsDefault": false,
+    "Name": "Packet",
+    "NamePlural": "Packets"
+  },
+  {
+    "$key": "Palette",
+    "Description": "Palette",
+    "DisplayLocale": null,
+    "DisplayOrder": 3,
+    "IsDefault": false,
+    "Name": "Palette",
+    "NamePlural": "Pallets"
+  },
+  {
+    "$key": "Parcel",
+    "Description": "Parcel",
+    "DisplayLocale": null,
+    "DisplayOrder": 2,
+    "IsDefault": false,
+    "Name": "Parcel",
+    "NamePlural": "Parcels"
+  },
+  {
+    "$key": "Piece",
+    "Description": "Piece",
+    "DisplayLocale": null,
+    "DisplayOrder": 0,
+    "IsDefault": true,
+    "Name": "Piece",
+    "NamePlural": "Pieces"
+  },
+  {
+    "$key": "Roll",
+    "Description": "Roll",
+    "DisplayLocale": null,
+    "DisplayOrder": 13,
+    "IsDefault": false,
+    "Name": "Roll",
+    "NamePlural": "Rolls"
+  },
+  {
+    "$key": "Sack",
+    "Description": "Sack",
+    "DisplayLocale": null,
+    "DisplayOrder": 5,
+    "IsDefault": false,
+    "Name": "Sack",
+    "NamePlural": "Sacks"
+  },
+  {
+    "$key": "Set",
+    "Description": "Set",
+    "DisplayLocale": null,
+    "DisplayOrder": 17,
+    "IsDefault": false,
+    "Name": "Set",
+    "NamePlural": "Sets"
+  },
+  {
+    "$key": "Unit",
+    "Description": "Unit",
+    "DisplayLocale": null,
+    "DisplayOrder": 4,
+    "IsDefault": false,
+    "Name": "Unit",
+    "NamePlural": "Units"
+  }
+]

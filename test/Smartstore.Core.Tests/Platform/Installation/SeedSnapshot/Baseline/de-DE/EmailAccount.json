@@ -1,0 +1,14 @@
+[
+  {
+    "$key": "test@mail.com",
+    "DisplayName": "Store name",
+    "Email": "test@mail.com",
+    "EnableSsl": false,
+    "Host": "smtp.mail.com",
+    "Password": "<secret>",
+    "Port": 25,
+    "SecureOption": 1,
+    "UseDefaultCredentials": false,
+    "Username": "123"
+  }
+]

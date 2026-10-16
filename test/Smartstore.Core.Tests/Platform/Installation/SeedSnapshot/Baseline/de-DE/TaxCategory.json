@@ -1,0 +1,17 @@
+[
+  {
+    "$key": "Befreit",
+    "DisplayOrder": 2,
+    "Name": "Befreit"
+  },
+  {
+    "$key": "Ermäßigt",
+    "DisplayOrder": 1,
+    "Name": "Ermäßigt"
+  },
+  {
+    "$key": "Normal",
+    "DisplayOrder": 0,
+    "Name": "Normal"
+  }
+]

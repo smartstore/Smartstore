@@ -1,0 +1,50 @@
+[
+  {
+    "$key": "RuleSetEntity:Inaktive Neukunden|CompletedOrderCount",
+    "DisplayOrder": 0,
+    "Operator": "=",
+    "RuleSetId": "RuleSetEntity:Inaktive Neukunden",
+    "RuleType": "CompletedOrderCount",
+    "Value": "1"
+  },
+  {
+    "$key": "RuleSetEntity:Inaktive Neukunden|LastOrderDateDays",
+    "DisplayOrder": 0,
+    "Operator": ">=",
+    "RuleSetId": "RuleSetEntity:Inaktive Neukunden",
+    "RuleType": "LastOrderDateDays",
+    "Value": "90"
+  },
+  {
+    "$key": "RuleSetEntity:Sale|Discount",
+    "DisplayOrder": 0,
+    "Operator": "=",
+    "RuleSetId": "RuleSetEntity:Sale",
+    "RuleType": "Discount",
+    "Value": "true"
+  },
+  {
+    "$key": "RuleSetEntity:Wichtige Kunden|CartOrderCount",
+    "DisplayOrder": 0,
+    "Operator": ">=",
+    "RuleSetId": "RuleSetEntity:Wichtige Kunden",
+    "RuleType": "CartOrderCount",
+    "Value": "3"
+  },
+  {
+    "$key": "RuleSetEntity:Wichtige Kunden|CartSubtotal",
+    "DisplayOrder": 0,
+    "Operator": ">=",
+    "RuleSetId": "RuleSetEntity:Wichtige Kunden",
+    "RuleType": "CartSubtotal",
+    "Value": "200"
+  },
+  {
+    "$key": "RuleSetEntity:Wochenenden|Weekday",
+    "DisplayOrder": 0,
+    "Operator": "In",
+    "RuleSetId": "RuleSetEntity:Wochenenden",
+    "RuleType": "Weekday",
+    "Value": "0,6"
+  }
+]

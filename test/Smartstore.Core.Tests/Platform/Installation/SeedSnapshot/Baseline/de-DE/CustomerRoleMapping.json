@@ -1,0 +1,44 @@
+[
+  {
+    "$key": "Customer:BackgroundTask|CustomerRole:Guests",
+    "CustomerId": "Customer:BackgroundTask",
+    "CustomerRoleId": "CustomerRole:Guests",
+    "IsSystemMapping": false
+  },
+  {
+    "$key": "Customer:PdfConverter|CustomerRole:Guests",
+    "CustomerId": "Customer:PdfConverter",
+    "CustomerRoleId": "CustomerRole:Guests",
+    "IsSystemMapping": false
+  },
+  {
+    "$key": "Customer:SearchEngine|CustomerRole:Guests",
+    "CustomerId": "Customer:SearchEngine",
+    "CustomerRoleId": "CustomerRole:Guests",
+    "IsSystemMapping": false
+  },
+  {
+    "$key": "Customer:WebhookClient|CustomerRole:Guests",
+    "CustomerId": "Customer:WebhookClient",
+    "CustomerRoleId": "CustomerRole:Guests",
+    "IsSystemMapping": false
+  },
+  {
+    "$key": "Customer:admin@seed-snapshot.test|CustomerRole:Administrators",
+    "CustomerId": "Customer:admin@seed-snapshot.test",
+    "CustomerRoleId": "CustomerRole:Administrators",
+    "IsSystemMapping": false
+  },
+  {
+    "$key": "Customer:admin@seed-snapshot.test|CustomerRole:ForumModerators",
+    "CustomerId": "Customer:admin@seed-snapshot.test",
+    "CustomerRoleId": "CustomerRole:ForumModerators",
+    "IsSystemMapping": false
+  },
+  {
+    "$key": "Customer:admin@seed-snapshot.test|CustomerRole:Registered",
+    "CustomerId": "Customer:admin@seed-snapshot.test",
+    "CustomerRoleId": "CustomerRole:Registered",
+    "IsSystemMapping": false
+  }
+]

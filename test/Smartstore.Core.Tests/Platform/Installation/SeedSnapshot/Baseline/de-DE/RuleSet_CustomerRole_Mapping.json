@@ -1,0 +1,7 @@
+[
+  {
+    "$key": "CustomerRole:InactiveNewCustomers|RuleSetEntity:Inaktive Neukunden",
+    "CustomerRole_Id": "CustomerRole:InactiveNewCustomers",
+    "RuleSetEntity_Id": "RuleSetEntity:Inaktive Neukunden"
+  }
+]

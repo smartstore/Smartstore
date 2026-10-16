@@ -1,0 +1,842 @@
+[
+  {
+    "$key": "Product:Fashion-112355|SpecificationAttributeOption:SpecificationAttribute:Material|cotton",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:Fashion-112355",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|cotton"
+  },
+  {
+    "$key": "Product:Fashion-65986524|SpecificationAttributeOption:SpecificationAttribute:Material|cotton",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:Fashion-65986524",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|cotton"
+  },
+  {
+    "$key": "Product:Fashion-987693502|SpecificationAttributeOption:SpecificationAttribute:Material|cotton",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:Fashion-987693502",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|cotton"
+  },
+  {
+    "$key": "Product:Fashion-JN1107|SpecificationAttributeOption:SpecificationAttribute:Material|polyamide",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:Fashion-JN1107",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|polyamide"
+  },
+  {
+    "$key": "Product:Furniture-ball-chair|SpecificationAttributeOption:SpecificationAttribute:Material|leather",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:Furniture-ball-chair",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|leather"
+  },
+  {
+    "$key": "Product:Furniture-ball-chair|SpecificationAttributeOption:SpecificationAttribute:Material|plastic",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:Furniture-ball-chair",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|plastic"
+  },
+  {
+    "$key": "Product:Furniture-cube-chair|SpecificationAttributeOption:SpecificationAttribute:Material|leather",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:Furniture-cube-chair",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|leather"
+  },
+  {
+    "$key": "Product:Furniture-lc6|SpecificationAttributeOption:SpecificationAttribute:Material|glass",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:Furniture-lc6",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|glass"
+  },
+  {
+    "$key": "Product:Furniture-lc6|SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:Furniture-lc6",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel"
+  },
+  {
+    "$key": "Product:Furniture-lounge-chair|SpecificationAttributeOption:SpecificationAttribute:Material|aluminium",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:Furniture-lounge-chair",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|aluminium"
+  },
+  {
+    "$key": "Product:Furniture-lounge-chair|SpecificationAttributeOption:SpecificationAttribute:Material|leather",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:Furniture-lounge-chair",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|leather"
+  },
+  {
+    "$key": "Product:Furniture-lounge-chair|SpecificationAttributeOption:SpecificationAttribute:Material|wood",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:Furniture-lounge-chair",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|wood"
+  },
+  {
+    "$key": "Product:IN 200|SpecificationAttributeOption:SpecificationAttribute:Material|glass",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:IN 200",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|glass"
+  },
+  {
+    "$key": "Product:IN 200|SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:IN 200",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel"
+  },
+  {
+    "$key": "Product:JH DS/82-1|SpecificationAttributeOption:SpecificationAttribute:Material|glass",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:JH DS/82-1",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|glass"
+  },
+  {
+    "$key": "Product:JH DS/82-1|SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:JH DS/82-1",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel"
+  },
+  {
+    "$key": "Product:LC2 DS/23-1|SpecificationAttributeOption:SpecificationAttribute:Material|glass",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:LC2 DS/23-1",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|glass"
+  },
+  {
+    "$key": "Product:LC2 DS/23-1|SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:LC2 DS/23-1",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel"
+  },
+  {
+    "$key": "Product:LM T/98|SpecificationAttributeOption:SpecificationAttribute:Material|glass",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:LM T/98",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|glass"
+  },
+  {
+    "$key": "Product:LM T/98|SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:LM T/98",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel"
+  },
+  {
+    "$key": "Product:LR 556|SpecificationAttributeOption:SpecificationAttribute:Material|glass",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:LR 556",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|glass"
+  },
+  {
+    "$key": "Product:LR 556|SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:LR 556",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel"
+  },
+  {
+    "$key": "Product:P-1003|SpecificationAttributeOption:SpecificationAttribute:Category|novel",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Category|novel"
+  },
+  {
+    "$key": "Product:P-1003|SpecificationAttributeOption:SpecificationAttribute:Edition|bound",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Edition|bound"
+  },
+  {
+    "$key": "Product:P-1003|SpecificationAttributeOption:SpecificationAttribute:Language|german",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Language|german"
+  },
+  {
+    "$key": "Product:P-1004|SpecificationAttributeOption:SpecificationAttribute:Category|novel",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Category|novel"
+  },
+  {
+    "$key": "Product:P-1004|SpecificationAttributeOption:SpecificationAttribute:Edition|bound",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Edition|bound"
+  },
+  {
+    "$key": "Product:P-1004|SpecificationAttributeOption:SpecificationAttribute:Language|german",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Language|german"
+  },
+  {
+    "$key": "Product:P-1005|SpecificationAttributeOption:SpecificationAttribute:Category|cook and bake",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1005",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Category|cook and bake"
+  },
+  {
+    "$key": "Product:P-1005|SpecificationAttributeOption:SpecificationAttribute:Edition|bound",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1005",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Edition|bound"
+  },
+  {
+    "$key": "Product:P-1005|SpecificationAttributeOption:SpecificationAttribute:Language|english",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1005",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Language|english"
+  },
+  {
+    "$key": "Product:P-1006|SpecificationAttributeOption:SpecificationAttribute:Category|cook and bake",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1006",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Category|cook and bake"
+  },
+  {
+    "$key": "Product:P-1006|SpecificationAttributeOption:SpecificationAttribute:Edition|bound",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1006",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Edition|bound"
+  },
+  {
+    "$key": "Product:P-1006|SpecificationAttributeOption:SpecificationAttribute:Language|english",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1006",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Language|english"
+  },
+  {
+    "$key": "Product:P-1007|SpecificationAttributeOption:SpecificationAttribute:Category|cars",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1007",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Category|cars"
+  },
+  {
+    "$key": "Product:P-1007|SpecificationAttributeOption:SpecificationAttribute:Edition|bound",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1007",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Edition|bound"
+  },
+  {
+    "$key": "Product:P-1007|SpecificationAttributeOption:SpecificationAttribute:Language|german",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1007",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Language|german"
+  },
+  {
+    "$key": "Product:P-1008|SpecificationAttributeOption:SpecificationAttribute:Category|non-fiction",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1008",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Category|non-fiction"
+  },
+  {
+    "$key": "Product:P-1008|SpecificationAttributeOption:SpecificationAttribute:Edition|bound",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1008",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Edition|bound"
+  },
+  {
+    "$key": "Product:P-1008|SpecificationAttributeOption:SpecificationAttribute:Language|german",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1008",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Language|german"
+  },
+  {
+    "$key": "Product:P-1009|SpecificationAttributeOption:SpecificationAttribute:Category|non-fiction",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1009",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Category|non-fiction"
+  },
+  {
+    "$key": "Product:P-1009|SpecificationAttributeOption:SpecificationAttribute:Edition|bound",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1009",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Edition|bound"
+  },
+  {
+    "$key": "Product:P-1009|SpecificationAttributeOption:SpecificationAttribute:Language|german",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1009",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Language|german"
+  },
+  {
+    "$key": "Product:P-1010|SpecificationAttributeOption:SpecificationAttribute:Category|cars",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1010",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Category|cars"
+  },
+  {
+    "$key": "Product:P-1010|SpecificationAttributeOption:SpecificationAttribute:Edition|bound",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1010",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Edition|bound"
+  },
+  {
+    "$key": "Product:P-1010|SpecificationAttributeOption:SpecificationAttribute:Language|german",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1010",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Language|german"
+  },
+  {
+    "$key": "Product:P-1011|SpecificationAttributeOption:SpecificationAttribute:Category|non-fiction",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1011",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Category|non-fiction"
+  },
+  {
+    "$key": "Product:P-1011|SpecificationAttributeOption:SpecificationAttribute:Edition|bound",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1011",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Edition|bound"
+  },
+  {
+    "$key": "Product:P-1011|SpecificationAttributeOption:SpecificationAttribute:Language|german",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-1011",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Language|german"
+  },
+  {
+    "$key": "Product:P-1016|SpecificationAttributeOption:SpecificationAttribute:MP3 quality|320 kbit/s",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:P-1016",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:MP3 quality|320 kbit/s"
+  },
+  {
+    "$key": "Product:P-1016|SpecificationAttributeOption:SpecificationAttribute:Music genre|classical",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:P-1016",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Music genre|classical"
+  },
+  {
+    "$key": "Product:P-1017|SpecificationAttributeOption:SpecificationAttribute:MP3 quality|320 kbit/s",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:P-1017",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:MP3 quality|320 kbit/s"
+  },
+  {
+    "$key": "Product:P-1017|SpecificationAttributeOption:SpecificationAttribute:Music genre|classical",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:P-1017",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Music genre|classical"
+  },
+  {
+    "$key": "Product:P-2001|SpecificationAttributeOption:SpecificationAttribute:Offer|Permanent low price",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:P-2001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Offer|Permanent low price"
+  },
+  {
+    "$key": "Product:P-2001|SpecificationAttributeOption:SpecificationAttribute:Operating System|iOS",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:P-2001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Operating System|iOS"
+  },
+  {
+    "$key": "Product:P-2001|SpecificationAttributeOption:SpecificationAttribute:Storage capacity|128 GB",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:P-2001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Storage capacity|128 GB"
+  },
+  {
+    "$key": "Product:P-2001|SpecificationAttributeOption:SpecificationAttribute:Storage capacity|64 GB",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:P-2001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Storage capacity|64 GB"
+  },
+  {
+    "$key": "Product:P-2002|SpecificationAttributeOption:SpecificationAttribute:Offer|Offer of the day",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:P-2002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Offer|Offer of the day"
+  },
+  {
+    "$key": "Product:P-2002|SpecificationAttributeOption:SpecificationAttribute:Operating System|iOS",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:P-2002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Operating System|iOS"
+  },
+  {
+    "$key": "Product:P-2002|SpecificationAttributeOption:SpecificationAttribute:Storage capacity|32 GB",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:P-2002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Storage capacity|32 GB"
+  },
+  {
+    "$key": "Product:P-2004|SpecificationAttributeOption:SpecificationAttribute:Offer|Promotion",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:P-2004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Offer|Promotion"
+  },
+  {
+    "$key": "Product:P-2004|SpecificationAttributeOption:SpecificationAttribute:Operating System|iOS",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:P-2004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Operating System|iOS"
+  },
+  {
+    "$key": "Product:P-2004|SpecificationAttributeOption:SpecificationAttribute:Storage capacity|128 GB",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:P-2004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Storage capacity|128 GB"
+  },
+  {
+    "$key": "Product:P-2004|SpecificationAttributeOption:SpecificationAttribute:Storage capacity|64 GB",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:P-2004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Storage capacity|64 GB"
+  },
+  {
+    "$key": "Product:P-5001|SpecificationAttributeOption:SpecificationAttribute:Manufacturer|Adidas",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-5001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Manufacturer|Adidas"
+  },
+  {
+    "$key": "Product:P-5001|SpecificationAttributeOption:SpecificationAttribute:Material|leather",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-5001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|leather"
+  },
+  {
+    "$key": "Product:P-5002|SpecificationAttributeOption:SpecificationAttribute:Manufacturer|Adidas",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-5002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Manufacturer|Adidas"
+  },
+  {
+    "$key": "Product:P-5002|SpecificationAttributeOption:SpecificationAttribute:Material|leather",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-5002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|leather"
+  },
+  {
+    "$key": "Product:P-5003|SpecificationAttributeOption:SpecificationAttribute:Manufacturer|Nike",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-5003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Manufacturer|Nike"
+  },
+  {
+    "$key": "Product:P-5003|SpecificationAttributeOption:SpecificationAttribute:Material|leather",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-5003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|leather"
+  },
+  {
+    "$key": "Product:P-5004|SpecificationAttributeOption:SpecificationAttribute:Manufacturer|Nike",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-5004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Manufacturer|Nike"
+  },
+  {
+    "$key": "Product:P-5004|SpecificationAttributeOption:SpecificationAttribute:Material|rubber",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-5004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|rubber"
+  },
+  {
+    "$key": "Product:P-6001|SpecificationAttributeOption:SpecificationAttribute:Category|cars",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-6001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Category|cars"
+  },
+  {
+    "$key": "Product:P-6001|SpecificationAttributeOption:SpecificationAttribute:Edition|bound",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-6001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Edition|bound"
+  },
+  {
+    "$key": "Product:P-6001|SpecificationAttributeOption:SpecificationAttribute:Language|german",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:P-6001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Language|german"
+  },
+  {
+    "$key": "Product:P-9001|SpecificationAttributeOption:SpecificationAttribute:Closure|folding clasp",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:P-9001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Closure|folding clasp"
+  },
+  {
+    "$key": "Product:P-9001|SpecificationAttributeOption:SpecificationAttribute:Diameter|44mm",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:P-9001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Diameter|44mm"
+  },
+  {
+    "$key": "Product:P-9001|SpecificationAttributeOption:SpecificationAttribute:Gender|gentlemen",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:P-9001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Gender|gentlemen"
+  },
+  {
+    "$key": "Product:P-9001|SpecificationAttributeOption:SpecificationAttribute:Manufacturer|Breitling",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:P-9001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Manufacturer|Breitling"
+  },
+  {
+    "$key": "Product:P-9001|SpecificationAttributeOption:SpecificationAttribute:Material|leather",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:P-9001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|leather"
+  },
+  {
+    "$key": "Product:P-9001|SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:P-9001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel"
+  },
+  {
+    "$key": "Product:P-9001|SpecificationAttributeOption:SpecificationAttribute:Movement|mechanical, self winding",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:P-9001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Movement|mechanical, self winding"
+  },
+  {
+    "$key": "Product:P-9001|SpecificationAttributeOption:SpecificationAttribute:Offer|Promotion",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:P-9001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Offer|Promotion"
+  },
+  {
+    "$key": "Product:P-9002|SpecificationAttributeOption:SpecificationAttribute:Closure|thorn close",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:P-9002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Closure|thorn close"
+  },
+  {
+    "$key": "Product:P-9002|SpecificationAttributeOption:SpecificationAttribute:Diameter|44mm",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:P-9002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Diameter|44mm"
+  },
+  {
+    "$key": "Product:P-9002|SpecificationAttributeOption:SpecificationAttribute:Gender|gentlemen",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:P-9002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Gender|gentlemen"
+  },
+  {
+    "$key": "Product:P-9002|SpecificationAttributeOption:SpecificationAttribute:Manufacturer|Tissot",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:P-9002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Manufacturer|Tissot"
+  },
+  {
+    "$key": "Product:P-9002|SpecificationAttributeOption:SpecificationAttribute:Material|silicone",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:P-9002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|silicone"
+  },
+  {
+    "$key": "Product:P-9002|SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:P-9002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel"
+  },
+  {
+    "$key": "Product:P-9002|SpecificationAttributeOption:SpecificationAttribute:Movement|mechanical, self winding",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:P-9002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Movement|mechanical, self winding"
+  },
+  {
+    "$key": "Product:P-9002|SpecificationAttributeOption:SpecificationAttribute:Offer|Best Price",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:P-9002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Offer|Best Price"
+  },
+  {
+    "$key": "Product:P-9003|SpecificationAttributeOption:SpecificationAttribute:Closure|folding clasp",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:P-9003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Closure|folding clasp"
+  },
+  {
+    "$key": "Product:P-9003|SpecificationAttributeOption:SpecificationAttribute:Diameter|44mm",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:P-9003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Diameter|44mm"
+  },
+  {
+    "$key": "Product:P-9003|SpecificationAttributeOption:SpecificationAttribute:Gender|gentlemen",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:P-9003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Gender|gentlemen"
+  },
+  {
+    "$key": "Product:P-9003|SpecificationAttributeOption:SpecificationAttribute:Manufacturer|Seiko",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:P-9003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Manufacturer|Seiko"
+  },
+  {
+    "$key": "Product:P-9003|SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel#1",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:P-9003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel"
+  },
+  {
+    "$key": "Product:P-9003|SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel#2",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:P-9003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel"
+  },
+  {
+    "$key": "Product:P-9003|SpecificationAttributeOption:SpecificationAttribute:Movement|mechanical, self winding",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:P-9003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Movement|mechanical, self winding"
+  },
+  {
+    "$key": "Product:P-9004|SpecificationAttributeOption:SpecificationAttribute:Closure|folding clasp",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:P-9004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Closure|folding clasp"
+  },
+  {
+    "$key": "Product:P-9004|SpecificationAttributeOption:SpecificationAttribute:Diameter|40mm",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:P-9004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Diameter|40mm"
+  },
+  {
+    "$key": "Product:P-9004|SpecificationAttributeOption:SpecificationAttribute:Gender|gentlemen",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:P-9004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Gender|gentlemen"
+  },
+  {
+    "$key": "Product:P-9004|SpecificationAttributeOption:SpecificationAttribute:Manufacturer|Certina",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:P-9004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Manufacturer|Certina"
+  },
+  {
+    "$key": "Product:P-9004|SpecificationAttributeOption:SpecificationAttribute:Material|leather",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:P-9004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|leather"
+  },
+  {
+    "$key": "Product:P-9004|SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:P-9004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel"
+  },
+  {
+    "$key": "Product:P-9004|SpecificationAttributeOption:SpecificationAttribute:Movement|quarz, battery operated",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:P-9004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Movement|quarz, battery operated"
+  }
+]

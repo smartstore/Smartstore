@@ -1,0 +1,13 @@
+[
+  {
+    "$key": "de-DE",
+    "DisplayOrder": 0,
+    "FlagImageFileName": "de.png",
+    "LanguageCulture": "de-DE",
+    "LimitedToStores": false,
+    "Name": "Deutsch",
+    "Published": true,
+    "Rtl": false,
+    "UniqueSeoCode": "de"
+  }
+]

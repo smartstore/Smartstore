@@ -1,0 +1,20 @@
+[
+  {
+    "$key": "admin@myshop.com|Smith|New York",
+    "Address1": "1234 Main Road",
+    "Address2": "",
+    "City": "New York",
+    "Company": "John Smith LLC",
+    "CountryId": "Country:US",
+    "CreatedOnUtc": "<now>",
+    "Email": "admin@myshop.com",
+    "FaxNumber": "",
+    "FirstName": "John",
+    "LastName": "Smith",
+    "PhoneNumber": "12345678",
+    "Salutation": null,
+    "StateProvinceId": "StateProvince:Country:US|AA",
+    "Title": null,
+    "ZipPostalCode": "12212"
+  }
+]

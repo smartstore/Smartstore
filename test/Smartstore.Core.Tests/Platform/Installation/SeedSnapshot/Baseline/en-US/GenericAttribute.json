@@ -1,0 +1,18 @@
+[
+  {
+    "$key": "Customer|Customer:admin@seed-snapshot.test|FirstName",
+    "EntityId": "Customer:admin@seed-snapshot.test",
+    "Key": "FirstName",
+    "KeyGroup": "Customer",
+    "StoreId": 0,
+    "Value": "John"
+  },
+  {
+    "$key": "Customer|Customer:admin@seed-snapshot.test|LastName",
+    "EntityId": "Customer:admin@seed-snapshot.test",
+    "Key": "LastName",
+    "KeyGroup": "Customer",
+    "StoreId": 0,
+    "Value": "Smith"
+  }
+]

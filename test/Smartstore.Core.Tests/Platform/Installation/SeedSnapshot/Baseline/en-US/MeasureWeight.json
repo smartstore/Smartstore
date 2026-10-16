@@ -1,0 +1,44 @@
+[
+  {
+    "$key": "g",
+    "DisplayOrder": 2,
+    "Name": "gram",
+    "Ratio": 453.59237,
+    "SystemKeyword": "g"
+  },
+  {
+    "$key": "kg",
+    "DisplayOrder": 1,
+    "Name": "kg",
+    "Ratio": 0.45359237,
+    "SystemKeyword": "kg"
+  },
+  {
+    "$key": "l",
+    "DisplayOrder": 3,
+    "Name": "liter",
+    "Ratio": 0.45359237,
+    "SystemKeyword": "l"
+  },
+  {
+    "$key": "lb",
+    "DisplayOrder": 6,
+    "Name": "lb",
+    "Ratio": 1.0,
+    "SystemKeyword": "lb"
+  },
+  {
+    "$key": "ml",
+    "DisplayOrder": 4,
+    "Name": "milliliter",
+    "Ratio": 0.45359237,
+    "SystemKeyword": "ml"
+  },
+  {
+    "$key": "oz",
+    "DisplayOrder": 5,
+    "Name": "ounce",
+    "Ratio": 16.0,
+    "SystemKeyword": "oz"
+  }
+]

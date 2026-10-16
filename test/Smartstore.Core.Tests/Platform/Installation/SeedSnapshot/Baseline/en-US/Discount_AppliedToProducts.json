@@ -1,0 +1,12 @@
+[
+  {
+    "$key": "Discount:25% on certain products|Product:Furniture-cube-chair",
+    "Discount_Id": "Discount:25% on certain products",
+    "Product_Id": "Product:Furniture-cube-chair"
+  },
+  {
+    "$key": "Discount:25% on certain products|Product:LC2 DS/23-1",
+    "Discount_Id": "Discount:25% on certain products",
+    "Product_Id": "Product:LC2 DS/23-1"
+  }
+]

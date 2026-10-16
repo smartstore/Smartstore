@@ -1,0 +1,8 @@
+[
+  {
+    "$key": "CategoryTemplate.ProductsInGridOrLines",
+    "DisplayOrder": 1,
+    "Name": "Products in Grid or Lines",
+    "ViewPath": "CategoryTemplate.ProductsInGridOrLines"
+  }
+]

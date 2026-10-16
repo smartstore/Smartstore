@@ -1,0 +1,62 @@
+[
+  {
+    "$key": "Administrators",
+    "Active": true,
+    "FreeShipping": false,
+    "IsSystemRole": true,
+    "Name": "Administratoren",
+    "OrderTotalMaximum": null,
+    "OrderTotalMinimum": null,
+    "SystemName": "Administrators",
+    "TaxDisplayType": null,
+    "TaxExempt": false
+  },
+  {
+    "$key": "ForumModerators",
+    "Active": true,
+    "FreeShipping": false,
+    "IsSystemRole": true,
+    "Name": "Foren Moderatoren",
+    "OrderTotalMaximum": null,
+    "OrderTotalMinimum": null,
+    "SystemName": "ForumModerators",
+    "TaxDisplayType": null,
+    "TaxExempt": false
+  },
+  {
+    "$key": "Guests",
+    "Active": true,
+    "FreeShipping": false,
+    "IsSystemRole": true,
+    "Name": "Gäste",
+    "OrderTotalMaximum": null,
+    "OrderTotalMinimum": null,
+    "SystemName": "Guests",
+    "TaxDisplayType": null,
+    "TaxExempt": false
+  },
+  {
+    "$key": "InactiveNewCustomers",
+    "Active": true,
+    "FreeShipping": false,
+    "IsSystemRole": false,
+    "Name": "Inaktive Neukunden",
+    "OrderTotalMaximum": null,
+    "OrderTotalMinimum": null,
+    "SystemName": "InactiveNewCustomers",
+    "TaxDisplayType": null,
+    "TaxExempt": false
+  },
+  {
+    "$key": "Registered",
+    "Active": true,
+    "FreeShipping": false,
+    "IsSystemRole": true,
+    "Name": "Registriert",
+    "OrderTotalMaximum": null,
+    "OrderTotalMinimum": null,
+    "SystemName": "Registered",
+    "TaxDisplayType": null,
+    "TaxExempt": false
+  }
+]
