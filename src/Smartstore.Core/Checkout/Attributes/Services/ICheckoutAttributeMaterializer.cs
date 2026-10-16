@@ -28,8 +28,9 @@ public partial interface ICheckoutAttributeMaterializer
     /// </summary>
     /// <param name="cart">Shopping cart.</param>
     /// <param name="storeId">Filters checkout attributes by store identifier. 0 to load checkout attributes.</param>
+    /// <param name="matchRules">A value indicating whether to filter checkout attributes by cart rules.</param>
     /// <returns>List of checkout attributes.</returns>
-    Task<List<CheckoutAttribute>> GetCheckoutAttributesAsync(ShoppingCart cart, int storeId = 0);
+    Task<List<CheckoutAttribute>> GetCheckoutAttributesAsync(ShoppingCart cart, int storeId = 0, bool matchRules = true);
 
     /// <summary>
     /// Creates a checkout attribute selection.

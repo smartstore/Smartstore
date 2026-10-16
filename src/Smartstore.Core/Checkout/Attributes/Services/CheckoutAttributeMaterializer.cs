@@ -1,17 +1,26 @@
 ﻿using System.Linq.Dynamic.Core;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Checkout.Rules;
 using Smartstore.Core.Data;
+using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Checkout.Attributes;
 
 public partial class CheckoutAttributeMaterializer : ICheckoutAttributeMaterializer
 {
     private readonly SmartDbContext _db;
+    private readonly Lazy<ICartRuleProvider> _cartRuleProvider;
+    private readonly IStoreContext _storeContext;
 
-    public CheckoutAttributeMaterializer(SmartDbContext db)
+    public CheckoutAttributeMaterializer(
+        SmartDbContext db,
+        Lazy<ICartRuleProvider> cartRuleProvider,
+        IStoreContext storeContext)
     {
         _db = db;
+        _cartRuleProvider = cartRuleProvider;
+        _storeContext = storeContext;
     }
 
     public async Task<List<CheckoutAttribute>> MaterializeCheckoutAttributesAsync(CheckoutAttributeSelection selection)
@@ -66,12 +75,18 @@ public partial class CheckoutAttributeMaterializer : ICheckoutAttributeMateriali
         return values;
     }
 
-    public async Task<List<CheckoutAttribute>> GetCheckoutAttributesAsync(ShoppingCart cart, int storeId = 0)
+    public async Task<List<CheckoutAttribute>> GetCheckoutAttributesAsync(ShoppingCart cart, int storeId = 0, bool matchRules = true)
     {
         Guard.NotNull(cart);
 
-        var checkoutAttributes = await _db.CheckoutAttributes
-            .AsNoTracking()
+        var query = _db.CheckoutAttributes.AsNoTracking();
+
+        if (matchRules)
+        {
+            query = query.Include(x => x.RuleSets);
+        }
+
+        var checkoutAttributes = await query
             .ApplyStandardFilter(false, storeId)
             .ToListAsync();
 
@@ -81,6 +96,24 @@ public partial class CheckoutAttributeMaterializer : ICheckoutAttributeMateriali
             checkoutAttributes = checkoutAttributes
                 .Where(x => !x.ShippableProductRequired)
                 .ToList();
+        }
+
+        if (matchRules)
+        {
+            void contextAction(CartRuleContext context)
+            {
+                context.Customer = cart.Customer;
+                context.ShoppingCart = cart;
+
+                if (storeId > 0 && storeId != context.Store.Id)
+                {
+                    context.Store = _storeContext.GetStoreById(storeId);
+                }
+            }
+
+            return await checkoutAttributes
+                .WhereAwait(async x => await _cartRuleProvider.Value.RuleMatchesAsync(x, contextAction: contextAction))
+                .ToListAsync();
         }
 
         return checkoutAttributes;
