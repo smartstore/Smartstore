@@ -3,6 +3,7 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Logging;
@@ -57,6 +58,30 @@ internal static class InstallationSeedDescriptors
 
     public static SeedEntityDescriptor<ManufacturerTemplate> ManufacturerTemplates()
         => new SeedEntityDescriptor<ManufacturerTemplate>("viewPath").FromFiles("core/manufacturer-templates.json");
+
+    /// <summary>
+    /// Tax categories. The seed-only field "rate" (fixed tax rate, default 0) is collected in <paramref name="rates"/>.
+    /// </summary>
+    /// <param name="rates">
+    /// Receives the rates. Must compare by reference (<see cref="ReferenceEqualityComparer"/>), because entity
+    /// equality depends on the ID, which changes on save.
+    /// </param>
+    public static SeedEntityDescriptor<TaxCategory> TaxCategories(IDictionary<TaxCategory, decimal> rates)
+    {
+        Guard.NotNull(rates);
+
+        return new SeedEntityDescriptor<TaxCategory>("key")
+            .FromFiles("core/tax-categories.json")
+            .Bind("rate", (category, node, _) => rates[category] = node.GetValue<decimal>());
+    }
+
+    /// <summary>
+    /// Countries with their states. States can be referenced as "{countryKey}/{stateKey}", e.g. "DE/BW".
+    /// </summary>
+    public static SeedEntityDescriptor<Country> Countries()
+        => new SeedEntityDescriptor<Country>("twoLetterIsoCode")
+            .FromFiles("core/countries.json")
+            .Child("stateProvinces", x => x.StateProvinces, new SeedEntityDescriptor<StateProvince>("abbreviation"));
 
     /// <summary>
     /// The core file, plus the samples file when sample data is installed.

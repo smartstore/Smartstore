@@ -1,6 +1,7 @@
 ﻿using System.Xml;
 using Smartstore.Caching;
 using Smartstore.Core.Catalog.Products.Utilities;
+using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media.Storage;
@@ -109,7 +110,7 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
         await PopulateFromSeedAsync("PopulateMeasureDimensions", InstallationSeedDescriptors.MeasureDimensions());
         await PopulateFromSeedAsync("PopulateMeasureWeights", InstallationSeedDescriptors.MeasureWeights());
         await PopulateAsync("PopulateTaxCategories", PopulateTaxCategories);
-        await PopulateAsync("PopulateCountriesAndStates", PopulateCountriesAndStates);
+        await PopulateFromSeedAsync("PopulateCountriesAndStates", InstallationSeedDescriptors.Countries());
         await PopulateFromSeedAsync("PopulateShippingMethods", InstallationSeedDescriptors.ShippingMethods(_config.SeedSampleData));
         await PopulateFromSeedAsync("PopulateDeliveryTimes", InstallationSeedDescriptors.DeliveryTimes());
         await PopulateFromSeedAsync("PopulateQuantityUnits", InstallationSeedDescriptors.QuantityUnits());
@@ -173,25 +174,18 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
 
     private async Task PopulateTaxCategories()
     {
-        var taxCategories = _data.TaxCategories();
+        // By reference: entity equality and hash code depend on the ID, which changes on save.
+        var rates = new Dictionary<TaxCategory, decimal>(ReferenceEqualityComparer.Instance);
+        var taxCategories = CreateFromSeed(InstallationSeedDescriptors.TaxCategories(rates));
         await SaveRangeAsync(taxCategories);
 
         // Add tax rates to fixed rate provider
-        int i = 0;
-        var taxIds = taxCategories.OrderBy(x => x.DisplayOrder).Select(x => x.Id).ToList();
-        foreach (var id in taxIds)
+        foreach (var taxCategory in taxCategories.OrderBy(x => x.DisplayOrder))
         {
-            decimal rate = 0;
-            if (_data.FixedTaxRates.Any() && _data.FixedTaxRates.Length > i)
-            {
-                rate = _data.FixedTaxRates[i];
-            }
-            i++;
-
             Context.Settings.Add(new Setting
             {
-                Name = string.Format("Tax.TaxProvider.FixedRate.TaxCategoryId{0}", id).ToLowerInvariant(),
-                Value = rate.Convert<string>(),
+                Name = string.Format("Tax.TaxProvider.FixedRate.TaxCategoryId{0}", taxCategory.Id).ToLowerInvariant(),
+                Value = rates.GetValueOrDefault(taxCategory).Convert<string>(),
             });
         }
 
@@ -265,11 +259,6 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
                     + $" Must be a migration version number of type 'long'. See {nameof(MigrationHistory.Version)}.");
             }
         }
-    }
-
-    private async Task PopulateCountriesAndStates()
-    {
-        await SaveRangeAsync(_data.Countries().Where(x => x != null));
     }
 
     private async Task PopulateCustomersAndUsers(string defaultUserEmail, string defaultUserPassword)
