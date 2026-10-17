@@ -107,16 +107,16 @@ internal static class InstallationSeedDescriptors
     /// <summary>
     /// The default store. URL and SSL are not seed data; they are taken from the current request.
     /// </summary>
-    /// <param name="mediaFileId">Gets the ID of a media file by its path below "media/".</param>
-    public static SeedEntityDescriptor<Store> Stores(Func<string, int> mediaFileId)
+    /// <param name="media">Creates a saved media file for a media reference.</param>
+    public static SeedEntityDescriptor<Store> Stores(Func<JsonNode, MediaFile> media)
     {
-        Guard.NotNull(mediaFileId);
+        Guard.NotNull(media);
 
         return new SeedEntityDescriptor<Store>("key")
             .FromFiles("core/stores.json")
             .Reference<Currency>("defaultCurrency", (store, currency) => store.DefaultCurrencyId = currency.Id)
             .Reference<Currency>("primaryExchangeRateCurrency", (store, currency) => store.PrimaryExchangeRateCurrencyId = currency.Id)
-            .Bind("logoMediaFile", (store, node, _) => store.LogoMediaFileId = mediaFileId(node.GetValue<string>()));
+            .Bind("logoMediaFile", (store, node, _) => store.LogoMediaFileId = media(node).Id);
     }
 
     /// <summary>

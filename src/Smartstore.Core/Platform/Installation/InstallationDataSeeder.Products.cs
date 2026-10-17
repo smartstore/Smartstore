@@ -30,6 +30,7 @@ public partial class InstallationDataSeeder
     {
         // By reference: entity equality depends on the ID, which changes on save.
         public Dictionary<Product, Dictionary<string, MediaFile>> Pictures { get; } = new(ReferenceEqualityComparer.Instance);
+        public Dictionary<string, MediaFile> SeparateMedia { get; } = new(StringComparer.OrdinalIgnoreCase);
         public List<(Product Product, JsonObject Picture)> SharedPictures { get; } = [];
         public List<(Product Product, string Path)> SampleDownloads { get; } = [];
         public List<(Product Product, string ParentSku)> GroupedParents { get; } = [];
@@ -237,7 +238,7 @@ public partial class InstallationDataSeeder
 
     /// <summary>
     /// Media of variant values and combinations: a picture of the product with that path,
-    /// otherwise the existing sample media file with the name derived from the reference.
+    /// otherwise a separate media file that is created once per path.
     /// </summary>
     private MediaFile ResolveProductMedia(Product product, JsonNode reference, ProductSeedState state)
     {
@@ -248,12 +249,13 @@ public partial class InstallationDataSeeder
             return picture;
         }
 
-        var mediaName = name != null
-            ? name + Path.GetExtension(path)
-            : Path.GetFileName(path).ToLowerInvariant().Replace('_', '-');
+        if (!state.SeparateMedia.TryGetValue(path, out var mediaFile))
+        {
+            mediaFile = CreateSampleMedia(path, name);
+            state.SeparateMedia[path] = mediaFile;
+        }
 
-        return Context.MediaFiles.OrderBy(x => x.Id).FirstOrDefault(x => x.Name == mediaName)
-            ?? throw new SeedDataFormatException($"Product '{product.Sku}': no media file '{mediaName}' for '{path}'.");
+        return mediaFile;
     }
 
     /// <summary>

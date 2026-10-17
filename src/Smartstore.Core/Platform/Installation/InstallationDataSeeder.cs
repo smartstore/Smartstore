@@ -32,7 +32,6 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
     private readonly DbMigrator<SmartDbContext> _migrator;
     private readonly IMessageTemplateService _messageTemplateService;
     private readonly SeedDataConfiguration _config;
-    private readonly InvariantSeedData _data;
 
     private readonly SeedReferenceResolver _seedResolver = new();
     private SeedDataSource _seedSource;
@@ -53,12 +52,10 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
         Guard.NotNull(migrator);
         Guard.NotNull(configuration);
         Guard.NotNull(configuration.Language);
-        Guard.NotNull(configuration.Data);
 
         _migrator = migrator;
         _messageTemplateService = messageTemplateService;
         _config = configuration;
-        _data = configuration.Data;
     }
 
     protected IXmlResourceManager XmlResourceManager
@@ -97,17 +94,14 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
             x.Add("Media.Storage.Provider", _config.StoreMediaInDB ? DatabaseMediaStorageProvider.SystemName : FileSystemMediaStorageProvider.SystemName);
         });
 
-        // Initialize seeder AFTER we added "Media.Storage.Provider" key,
-        // because SampleMediaUtility depends on it.
-        _data.Initialize(Context, _config, EngineContext.Current.Application);
-
         // File-based seed data (App_Data/Seed). Resource references become available after the locale resources.
+        // Sample media are created on demand, AFTER we added the "Media.Storage.Provider" key,
+        // because SampleMediaUtility depends on it.
         _seedSource = new SeedDataSource(
             new LocalFileSystem(PathUtility.Join(ApplicationContext.AppDataRoot.Root, SeedDataSource.AppDataFolder)),
             _config.Language.LanguageCulture);
         _seedFactory = new SeedEntityFactory(_seedResolver);
 
-        Populate("PopulatePictures", () => _data.Pictures(_config.SeedSampleData));
         await PopulateFromSeedAsync("PopulateCurrencies", InstallationSeedDescriptors.Currencies());
         await PopulateAsync("PopulateStores", PopulateStores);
         await PopulateAsync("InstallLanguages", () => PopulateLanguage(_config.Language));
@@ -152,7 +146,6 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
             await PopulateAsync("PopulateCategories", PopulateCategories);
             await PopulateAsync("PopulateManufacturers", PopulateManufacturers);
             await PopulateProductsFromSeedAsync();
-            Populate("FinalizeSamples", _data.FinalizeSamples);
         }
 
         // Perf
@@ -171,7 +164,7 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
 
     private async Task PopulateStores()
     {
-        var stores = CreateFromSeed(InstallationSeedDescriptors.Stores(SampleMediaFileId));
+        var stores = CreateFromSeed(InstallationSeedDescriptors.Stores(CreateSampleMedia));
 
         // URL and SSL of the store are taken from the installation request.
         var request = ApplicationContext.Services.Resolve<IHttpContextAccessor>().HttpContext?.Request;
@@ -185,16 +178,6 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
 
         await SaveRangeAsync(stores);
         _defaultStoreId = stores.First().Id;
-    }
-
-    /// <summary>
-    /// Gets the ID of a sample media file that has already been created, by its path below "media/".
-    /// </summary>
-    private int SampleMediaFileId(string path)
-    {
-        // Same naming as SampleMediaUtility without SEO name.
-        var name = Path.GetFileName(path).ToLowerInvariant().Replace('_', '-');
-        return Context.MediaFiles.Where(x => x.Name == name).Select(x => x.Id).FirstOrDefault();
     }
 
     private static readonly SlugifyOptions SeedSlugifyOptions = new()
@@ -544,9 +527,6 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
         await SaveRangeAsync(topics);
         await PopulateUrlRecordsFor(topics, x => CreateUrlRecord(x, slugs.GetValueOrDefault(x), x.SystemName));
     }
-
-    private Task PopulateUrlRecordsFor<T>(IEnumerable<T> entities) where T : BaseEntity, ISlugSupported, new()
-        => PopulateUrlRecordsFor(entities, entity => _data.CreateUrlRecordFor(entity));
 
     #endregion
 }

@@ -169,7 +169,7 @@ seeded yet; the installer guarantees the order.
 | `categories`, `manufacturers` | Key, or `{ "category": key, "displayOrder": n, "isFeaturedProduct": bool, "isSystemMapping": bool }` (display order defaults to 1). |
 | `pictures` | Media reference, optionally with `"displayOrder"` (default 1). `"from": "{sku}"` reuses the media file of that product's picture with the same path instead of creating a new one. |
 | `specifications` | List without keys (the same option may occur twice); an overlay replaces the whole list. |
-| `variantAttributes` | Keyed by `productAttribute` alias; `values` keyed by `alias`. A value `mediaFile` is a picture of the product (by path) or an existing sample picture. |
+| `variantAttributes` | Keyed by `productAttribute` alias; `values` keyed by `alias`. A value `mediaFile` is a picture of the product (by path); any other path creates a separate media file (once per path). |
 | `combinations` | List without keys (SKUs are not unique); `attributes` maps attribute alias to value alias(es). `"pictures": []` stores an empty media list, a missing field none. |
 | `bundleItems` | Keyed by `product` (SKU). Created after all products. |
 | `parentGroupedProduct`, `sampleDownload` | SKU of the grouped product; media path of the sample download. |
