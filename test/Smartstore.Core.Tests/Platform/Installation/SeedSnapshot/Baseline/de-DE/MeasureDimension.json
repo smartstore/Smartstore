@@ -3,21 +3,21 @@
     "$key": "cm",
     "DisplayOrder": 2,
     "Name": "Zentimeter",
-    "Ratio": 0.01,
+    "Ratio": 100.0,
     "SystemKeyword": "cm"
   },
   {
     "$key": "ft",
     "DisplayOrder": 5,
     "Name": "Fuß",
-    "Ratio": 0.3048,
+    "Ratio": 3.2808399,
     "SystemKeyword": "ft"
   },
   {
     "$key": "inch",
     "DisplayOrder": 4,
     "Name": "Zoll",
-    "Ratio": 0.0254,
+    "Ratio": 39.37007874,
     "SystemKeyword": "inch"
   },
   {
@@ -31,7 +31,7 @@
     "$key": "mm",
     "DisplayOrder": 1,
     "Name": "Millimeter",
-    "Ratio": 0.001,
+    "Ratio": 1000.0,
     "SystemKeyword": "mm"
   }
 ]

@@ -9,7 +9,7 @@
   {
     "name": "centimetre",
     "systemKeyword": "cm",
-    "ratio": 0.254,
+    "ratio": 2.54,
     "displayOrder": 2
   },
   {

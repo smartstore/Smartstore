@@ -3,7 +3,7 @@
     "$key": "g",
     "DisplayOrder": 2,
     "Name": "Gramm",
-    "Ratio": 0.001,
+    "Ratio": 1000.0,
     "SystemKeyword": "g"
   },
   {
@@ -24,21 +24,21 @@
     "$key": "lb",
     "DisplayOrder": 10,
     "Name": "Pfund",
-    "Ratio": 0.4536,
+    "Ratio": 2.20462262,
     "SystemKeyword": "lb"
   },
   {
     "$key": "ml",
     "DisplayOrder": 4,
     "Name": "Milliliter",
-    "Ratio": 0.001,
+    "Ratio": 1000.0,
     "SystemKeyword": "ml"
   },
   {
     "$key": "oz",
     "DisplayOrder": 10,
     "Name": "Unze",
-    "Ratio": 0.02835,
+    "Ratio": 35.27396195,
     "SystemKeyword": "oz"
   }
 ]

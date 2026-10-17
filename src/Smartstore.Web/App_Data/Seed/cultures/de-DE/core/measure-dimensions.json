@@ -1,11 +1,11 @@
 {
   "mm": {
     "name": "Millimeter",
-    "ratio": 0.001
+    "ratio": 1000
   },
   "cm": {
     "name": "Zentimeter",
-    "ratio": 0.01
+    "ratio": 100
   },
   "m": {
     "name": "Meter",
@@ -13,10 +13,10 @@
   },
   "inch": {
     "name": "Zoll",
-    "ratio": 0.0254
+    "ratio": 39.37007874
   },
   "ft": {
     "name": "Fuß",
-    "ratio": 0.3048
+    "ratio": 3.2808399
   }
 }

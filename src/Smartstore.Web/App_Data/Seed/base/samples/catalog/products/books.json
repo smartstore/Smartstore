@@ -126,7 +126,7 @@
     "sku": "P-1006",
     "taxCategory": "books",
     "price": 27,
-    "deliveryTime": "2-5-woking-days",
+    "deliveryTime": "2-5-working-days",
     "categories": [
       "Cook and enjoy"
     ],
@@ -326,7 +326,7 @@
     "sku": "P-1011",
     "taxCategory": "books",
     "price": 24.9,
-    "deliveryTime": "2-5-woking-days",
+    "deliveryTime": "2-5-working-days",
     "categories": [
       "Books"
     ],

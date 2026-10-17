@@ -3,7 +3,7 @@
     "$key": "cm",
     "DisplayOrder": 2,
     "Name": "centimetre",
-    "Ratio": 0.254,
+    "Ratio": 2.54,
     "SystemKeyword": "cm"
   },
   {

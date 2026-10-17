@@ -1,13 +1,13 @@
 [
   {
-    "$key": "2-5 woking days",
+    "$key": "2-5 working days",
     "ColorHexValue": "#FFFF00",
     "DisplayLocale": null,
     "DisplayOrder": 1,
     "IsDefault": null,
     "MaxDays": 5,
     "MinDays": 2,
-    "Name": "2-5 woking days"
+    "Name": "2-5 working days"
   },
   {
     "$key": "7 working days",
