@@ -1,0 +1,344 @@
+[
+  {
+    "$key": "AddNewCategory",
+    "Enabled": true,
+    "Name": "Erstellen einer Warengruppe",
+    "SystemKeyword": "AddNewCategory"
+  },
+  {
+    "$key": "AddNewCheckoutAttribute",
+    "Enabled": true,
+    "Name": "Neues Checkout Attribut hinzugefügt",
+    "SystemKeyword": "AddNewCheckoutAttribute"
+  },
+  {
+    "$key": "AddNewCustomer",
+    "Enabled": true,
+    "Name": "Neuen Kunden hinzugefügt",
+    "SystemKeyword": "AddNewCustomer"
+  },
+  {
+    "$key": "AddNewCustomerRole",
+    "Enabled": true,
+    "Name": "Neue Kundengruppe hinzugefügt",
+    "SystemKeyword": "AddNewCustomerRole"
+  },
+  {
+    "$key": "AddNewDiscount",
+    "Enabled": true,
+    "Name": "Neuer Rabatt hinzugefügt",
+    "SystemKeyword": "AddNewDiscount"
+  },
+  {
+    "$key": "AddNewGiftCard",
+    "Enabled": true,
+    "Name": "Neuer Geschenkgutschein hinzugefügt",
+    "SystemKeyword": "AddNewGiftCard"
+  },
+  {
+    "$key": "AddNewManufacturer",
+    "Enabled": true,
+    "Name": "Neuer Hersteller hinzugefügt",
+    "SystemKeyword": "AddNewManufacturer"
+  },
+  {
+    "$key": "AddNewProduct",
+    "Enabled": true,
+    "Name": "Neues Produkt hinzugefügt",
+    "SystemKeyword": "AddNewProduct"
+  },
+  {
+    "$key": "AddNewProductAttribute",
+    "Enabled": true,
+    "Name": "Neues Produktattribut hinzugefügt",
+    "SystemKeyword": "AddNewProductAttribute"
+  },
+  {
+    "$key": "AddNewSetting",
+    "Enabled": true,
+    "Name": "Neue Einstellung hinzugefügt",
+    "SystemKeyword": "AddNewSetting"
+  },
+  {
+    "$key": "AddNewSpecAttribute",
+    "Enabled": true,
+    "Name": "Neues Spezifikationsattribut hinzugefügt",
+    "SystemKeyword": "AddNewSpecAttribute"
+  },
+  {
+    "$key": "AddNewWidget",
+    "Enabled": true,
+    "Name": "Neues Widget hinzugefügt",
+    "SystemKeyword": "AddNewWidget"
+  },
+  {
+    "$key": "DeleteCategory",
+    "Enabled": true,
+    "Name": "Warengruppe gelöscht",
+    "SystemKeyword": "DeleteCategory"
+  },
+  {
+    "$key": "DeleteCheckoutAttribute",
+    "Enabled": true,
+    "Name": "Checkout-Attribut gelöscht",
+    "SystemKeyword": "DeleteCheckoutAttribute"
+  },
+  {
+    "$key": "DeleteCustomer",
+    "Enabled": true,
+    "Name": "Kunde gelöscht",
+    "SystemKeyword": "DeleteCustomer"
+  },
+  {
+    "$key": "DeleteCustomerRole",
+    "Enabled": true,
+    "Name": "Kundengruppe gelöscht",
+    "SystemKeyword": "DeleteCustomerRole"
+  },
+  {
+    "$key": "DeleteDiscount",
+    "Enabled": true,
+    "Name": "Rabatt gelöscht",
+    "SystemKeyword": "DeleteDiscount"
+  },
+  {
+    "$key": "DeleteGiftCard",
+    "Enabled": true,
+    "Name": "Geschenkgutschein gelöscht",
+    "SystemKeyword": "DeleteGiftCard"
+  },
+  {
+    "$key": "DeleteManufacturer",
+    "Enabled": true,
+    "Name": "Hersteller gelöscht",
+    "SystemKeyword": "DeleteManufacturer"
+  },
+  {
+    "$key": "DeleteProduct",
+    "Enabled": true,
+    "Name": "Produkt gelöscht",
+    "SystemKeyword": "DeleteProduct"
+  },
+  {
+    "$key": "DeleteProductAttribute",
+    "Enabled": true,
+    "Name": "Produktattribut gelöscht",
+    "SystemKeyword": "DeleteProductAttribute"
+  },
+  {
+    "$key": "DeleteReturnCase",
+    "Enabled": true,
+    "Name": "Retoure gelöscht",
+    "SystemKeyword": "DeleteReturnCase"
+  },
+  {
+    "$key": "DeleteSetting",
+    "Enabled": true,
+    "Name": "Einstellung gelöscht",
+    "SystemKeyword": "DeleteSetting"
+  },
+  {
+    "$key": "DeleteSpecAttribute",
+    "Enabled": true,
+    "Name": "Spezifikationsattribut gelöscht",
+    "SystemKeyword": "DeleteSpecAttribute"
+  },
+  {
+    "$key": "DeleteWidget",
+    "Enabled": true,
+    "Name": "Widget gelöscht",
+    "SystemKeyword": "DeleteWidget"
+  },
+  {
+    "$key": "EditCategory",
+    "Enabled": true,
+    "Name": "Warengruppe bearbeitet",
+    "SystemKeyword": "EditCategory"
+  },
+  {
+    "$key": "EditCheckoutAttribute",
+    "Enabled": true,
+    "Name": "Checkout-Attribut bearbeitet",
+    "SystemKeyword": "EditCheckoutAttribute"
+  },
+  {
+    "$key": "EditCustomer",
+    "Enabled": true,
+    "Name": "Kunde bearbeitet",
+    "SystemKeyword": "EditCustomer"
+  },
+  {
+    "$key": "EditCustomerRole",
+    "Enabled": true,
+    "Name": "Kundengruppe bearbeitet",
+    "SystemKeyword": "EditCustomerRole"
+  },
+  {
+    "$key": "EditDiscount",
+    "Enabled": true,
+    "Name": "Rabatt bearbeitet",
+    "SystemKeyword": "EditDiscount"
+  },
+  {
+    "$key": "EditGiftCard",
+    "Enabled": true,
+    "Name": "Geschenkgutschein bearbeitet",
+    "SystemKeyword": "EditGiftCard"
+  },
+  {
+    "$key": "EditManufacturer",
+    "Enabled": true,
+    "Name": "Hersteller bearbeitet",
+    "SystemKeyword": "EditManufacturer"
+  },
+  {
+    "$key": "EditOrder",
+    "Enabled": true,
+    "Name": "Auftrag bearbeitet",
+    "SystemKeyword": "EditOrder"
+  },
+  {
+    "$key": "EditProduct",
+    "Enabled": true,
+    "Name": "Produkt bearbeitet",
+    "SystemKeyword": "EditProduct"
+  },
+  {
+    "$key": "EditProductAttribute",
+    "Enabled": true,
+    "Name": "Produktattribut bearbeitet",
+    "SystemKeyword": "EditProductAttribute"
+  },
+  {
+    "$key": "EditPromotionProviders",
+    "Enabled": true,
+    "Name": "Promotion-Provider bearbeiten",
+    "SystemKeyword": "EditPromotionProviders"
+  },
+  {
+    "$key": "EditReturnCase",
+    "Enabled": true,
+    "Name": "Retoure bearbeitet",
+    "SystemKeyword": "EditReturnCase"
+  },
+  {
+    "$key": "EditSettings",
+    "Enabled": true,
+    "Name": "Einstellungen bearbeitet",
+    "SystemKeyword": "EditSettings"
+  },
+  {
+    "$key": "EditSpecAttribute",
+    "Enabled": true,
+    "Name": "Spezifikationsattribut bearbeitet",
+    "SystemKeyword": "EditSpecAttribute"
+  },
+  {
+    "$key": "EditThemeVars",
+    "Enabled": true,
+    "Name": "Theme-Variablen geändert",
+    "SystemKeyword": "EditThemeVars"
+  },
+  {
+    "$key": "EditWidget",
+    "Enabled": true,
+    "Name": "Widget bearbeitet",
+    "SystemKeyword": "EditWidget"
+  },
+  {
+    "$key": "ExportThemeVars",
+    "Enabled": true,
+    "Name": "Theme-Variablen exportiert",
+    "SystemKeyword": "ExportThemeVars"
+  },
+  {
+    "$key": "ImportThemeVars",
+    "Enabled": true,
+    "Name": "Theme-Variablen importiert",
+    "SystemKeyword": "ImportThemeVars"
+  },
+  {
+    "$key": "PublicStore.AddBlogComment",
+    "Enabled": false,
+    "Name": "Öffentlicher Shop. Blogeintrag hinzugefügt",
+    "SystemKeyword": "PublicStore.AddBlogComment"
+  },
+  {
+    "$key": "PublicStore.AddNewsComment",
+    "Enabled": false,
+    "Name": "Öffentlicher Shop. News-Kommentar hinzugefügt",
+    "SystemKeyword": "PublicStore.AddNewsComment"
+  },
+  {
+    "$key": "PublicStore.AddProductReview",
+    "Enabled": false,
+    "Name": "Öffentlicher Shop. Produktrezension hinzugefügt",
+    "SystemKeyword": "PublicStore.AddProductReview"
+  },
+  {
+    "$key": "PublicStore.AddToCompareList",
+    "Enabled": false,
+    "Name": "Öffentlicher Shop. Produkt zur Vergleichsliste hinzugefügt",
+    "SystemKeyword": "PublicStore.AddToCompareList"
+  },
+  {
+    "$key": "PublicStore.AddToShoppingCart",
+    "Enabled": false,
+    "Name": "Öffentlicher Shop. Produkt in den Warenkorb gelegt",
+    "SystemKeyword": "PublicStore.AddToShoppingCart"
+  },
+  {
+    "$key": "PublicStore.AddToWishlist",
+    "Enabled": false,
+    "Name": "Öffentlicher Shop. Produkt zur Wunschliste hinzugefügt",
+    "SystemKeyword": "PublicStore.AddToWishlist"
+  },
+  {
+    "$key": "PublicStore.ContactUs",
+    "Enabled": false,
+    "Name": "Öffentlicher Shop. Kontaktformular benutzt",
+    "SystemKeyword": "PublicStore.ContactUs"
+  },
+  {
+    "$key": "PublicStore.Login",
+    "Enabled": false,
+    "Name": "Öffentlicher Shop. Anmeldung",
+    "SystemKeyword": "PublicStore.Login"
+  },
+  {
+    "$key": "PublicStore.Logout",
+    "Enabled": false,
+    "Name": "Öffentlicher Shop. Abmeldung",
+    "SystemKeyword": "PublicStore.Logout"
+  },
+  {
+    "$key": "PublicStore.PlaceOrder",
+    "Enabled": false,
+    "Name": "Öffentlicher Shop. Hat einen neuen Auftrag erteilt",
+    "SystemKeyword": "PublicStore.PlaceOrder"
+  },
+  {
+    "$key": "PublicStore.ViewCategory",
+    "Enabled": false,
+    "Name": "Öffentlicher Shop. Hat eine Warengruppen-Detailseite angesehen",
+    "SystemKeyword": "PublicStore.ViewCategory"
+  },
+  {
+    "$key": "PublicStore.ViewManufacturer",
+    "Enabled": false,
+    "Name": "Öffentlicher Shop. Hat eine Hersteller-Detailseite angesehen",
+    "SystemKeyword": "PublicStore.ViewManufacturer"
+  },
+  {
+    "$key": "PublicStore.ViewProduct",
+    "Enabled": false,
+    "Name": "Öffentlicher Shop. Hat eine Produkt-Detailseite angesehen",
+    "SystemKeyword": "PublicStore.ViewProduct"
+  },
+  {
+    "$key": "ResetThemeVars",
+    "Enabled": true,
+    "Name": "Theme-Variablen zurückgesetzt",
+    "SystemKeyword": "ResetThemeVars"
+  }
+]

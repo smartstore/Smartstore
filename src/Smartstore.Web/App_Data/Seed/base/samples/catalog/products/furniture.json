@@ -1,0 +1,2475 @@
+// Key field: sku
+[
+  {
+    "name": "Ludwig Mies van der Rohe table Barcelona (1930)",
+    "shortDescription": "Table Barcelona, Designer: Mies van der Rohe, width 90 cm, height 46 cm, depth 90 cm, base: chromed flat steel, table top: glass (12 mm)",
+    "fullDescription": "@file",
+    "metaTitle": "Ludwig Mies van der Rohe table Barcelona (1930)",
+    "sku": "LM T/98",
+    "taxCategory": "electronics",
+    "price": 629,
+    "hasTierPrices": true,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Tables"
+    ],
+    "pictures": [
+      "product/mies_van_der_rohe_tisch_barcelona_1.jpg"
+    ],
+    "tags": [
+      "furniture"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "material/stainless-steel",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 1
+      },
+      {
+        "specificationAttributeOption": "material/glass",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 2
+      }
+    ],
+    "tierPrices": [
+      {
+        "quantity": 2,
+        "price": 597.55
+      },
+      {
+        "quantity": 4,
+        "price": 566.1
+      },
+      {
+        "quantity": 6,
+        "price": 534.65
+      }
+    ]
+  },
+  {
+    "name": "Isamu Noguchi couch table, Coffee Table (1945)",
+    "shortDescription": "Coffee table, Designer: Isamu Noguchi, W x H x D: 128 x 40 x 92.5 cm, base: wood, table top: crystal glass, 15 or 19 mm",
+    "fullDescription": "@file",
+    "metaTitle": "Isamu Noguchi couch table, Coffee Table (1945)",
+    "sku": "IN 200",
+    "taxCategory": "electronics",
+    "price": 499,
+    "hasTierPrices": true,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Tables"
+    ],
+    "pictures": [
+      "product/isamu_noguchi_coffeetable_1.jpg",
+      "product/isamu_noguchi_coffeetable_2.jpg"
+    ],
+    "tags": [
+      "furniture"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "material/stainless-steel",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 1
+      },
+      {
+        "specificationAttributeOption": "material/glass",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 2
+      }
+    ],
+    "tierPrices": [
+      {
+        "quantity": 2,
+        "price": 449.1
+      },
+      {
+        "quantity": 4,
+        "price": 424.15
+      }
+    ]
+  },
+  {
+    "name": "Le Corbusier LC 6 dining table (1929)",
+    "shortDescription": "Dining table LC 6, Designer: Le Corbusier, W x H x D: 225 x 69/74 (adjustable) x 85 cm, substructure: steel pipe, glass plate: Clear or sandblasted, 15 or 19 mm, height-adjustable.",
+    "fullDescription": "@file",
+    "metaTitle": "Le Corbusier LC 6 dining table (1929)",
+    "sku": "Furniture-lc6",
+    "taxCategory": "electronics",
+    "price": 749,
+    "hasTierPrices": true,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Tables"
+    ],
+    "pictures": [
+      "product/corbusier_lc6_table_1.jpg",
+      "product/corbusier_lc6_table_2.jpg",
+      "product/corbusier_lc6_table_3.jpg",
+      "product/corbusier_lc6_table_4.jpg"
+    ],
+    "tags": [
+      "furniture"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "material/stainless-steel",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 1
+      },
+      {
+        "specificationAttributeOption": "material/glass",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 2
+      }
+    ],
+    "tierPrices": [
+      {
+        "quantity": 2,
+        "price": 647.1
+      },
+      {
+        "quantity": 4,
+        "price": 636.65
+      }
+    ],
+    "variantAttributes": [
+      {
+        "productAttribute": "plate",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "displayOrder": 1,
+        "values": [
+          {
+            "name": "Clear glass",
+            "alias": "clear-glass",
+            "isPreSelected": true,
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "Sandblasted glass",
+            "alias": "sandblasted-glass",
+            "displayOrder": 2,
+            "quantity": 1
+          }
+        ]
+      },
+      {
+        "productAttribute": "plate-thickness",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "displayOrder": 2,
+        "values": [
+          {
+            "name": "15 mm",
+            "alias": "15mm",
+            "isPreSelected": true,
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "19 mm",
+            "alias": "19mm",
+            "displayOrder": 2,
+            "quantity": 1
+          }
+        ]
+      }
+    ],
+    "combinations": [
+      {
+        "sku": "Furniture-lc6-clear-15",
+        "price": 749,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "plate": "clear-glass",
+          "plate-thickness": "15mm"
+        }
+      },
+      {
+        "sku": "Furniture-lc6-clear-19",
+        "price": 899,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "plate": "clear-glass",
+          "plate-thickness": "19mm"
+        }
+      },
+      {
+        "sku": "Furniture-lc6-sandblasted-15",
+        "price": 849,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "plate": "sandblasted-glass",
+          "plate-thickness": "15mm"
+        }
+      },
+      {
+        "sku": "Furniture-lc6-sandblasted-19",
+        "price": 999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "plate": "sandblasted-glass",
+          "plate-thickness": "19mm"
+        }
+      }
+    ]
+  },
+  {
+    "parentGroupedProduct": "armchairs-sofas-group",
+    "name": "Eero Aarnio Ball Chair (1966)",
+    "fullDescription": "@file",
+    "metaTitle": "Eero Aarnio Ball Chair (1966)",
+    "sku": "Furniture-ball-chair",
+    "taxCategory": "electronics",
+    "price": 2199,
+    "hasTierPrices": true,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Chairs"
+    ],
+    "pictures": [
+      "product/ball_chair_white.jpg",
+      "product/ball_chair_black.jpg"
+    ],
+    "tags": [
+      "furniture"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "material/plastic",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 1
+      },
+      {
+        "specificationAttributeOption": "material/leather",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 2
+      }
+    ],
+    "tierPrices": [
+      {
+        "quantity": 2,
+        "price": 1979.1
+      },
+      {
+        "quantity": 4,
+        "price": 1869.15
+      }
+    ],
+    "variantAttributes": [
+      {
+        "productAttribute": "material",
+        "isRequired": true,
+        "attributeControlType": "DropdownList",
+        "displayOrder": 1,
+        "values": [
+          {
+            "name": "Leather Special",
+            "alias": "leather-special",
+            "isPreSelected": true,
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "Leather Aniline",
+            "alias": "leather-aniline",
+            "displayOrder": 2,
+            "quantity": 1
+          },
+          {
+            "name": "Mixed Linen",
+            "alias": "mixed-linen",
+            "displayOrder": 3,
+            "quantity": 1
+          }
+        ]
+      },
+      {
+        "productAttribute": "color",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "displayOrder": 2,
+        "values": [
+          {
+            "name": "White",
+            "alias": "white",
+            "color": "#ffffff",
+            "isPreSelected": true,
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "Black",
+            "alias": "black",
+            "color": "#000000",
+            "displayOrder": 2,
+            "quantity": 1
+          }
+        ]
+      },
+      {
+        "productAttribute": "leather-color",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "displayOrder": 3,
+        "values": [
+          {
+            "name": "Black",
+            "alias": "black",
+            "color": "#000000",
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "White",
+            "alias": "white",
+            "color": "#ffffff",
+            "displayOrder": 2,
+            "quantity": 1
+          },
+          {
+            "name": "Anthracite",
+            "alias": "anthracite",
+            "color": "#32312f",
+            "displayOrder": 3,
+            "quantity": 1
+          },
+          {
+            "name": "Fuliginous",
+            "alias": "fuliginous",
+            "color": "#5F5B5C",
+            "displayOrder": 4,
+            "quantity": 1
+          },
+          {
+            "name": "Light grey",
+            "alias": "light-grey",
+            "color": "#e3e3e5",
+            "displayOrder": 5,
+            "quantity": 1
+          },
+          {
+            "name": "Natural",
+            "alias": "natural",
+            "color": "#BBB98B",
+            "displayOrder": 6,
+            "quantity": 1
+          },
+          {
+            "name": "Biscuit",
+            "alias": "biscuit",
+            "color": "#e0ccab",
+            "displayOrder": 7,
+            "quantity": 1
+          },
+          {
+            "name": "Beige",
+            "alias": "beige",
+            "color": "#d1bc8a",
+            "displayOrder": 8,
+            "quantity": 1
+          },
+          {
+            "name": "Hazelnut",
+            "alias": "hazelnut",
+            "color": "#94703e",
+            "displayOrder": 9,
+            "quantity": 1
+          },
+          {
+            "name": "Brown",
+            "alias": "brown",
+            "color": "#755232",
+            "displayOrder": 10,
+            "quantity": 1
+          },
+          {
+            "name": "Dark brown",
+            "alias": "dark-brown",
+            "color": "#27160F",
+            "displayOrder": 11,
+            "quantity": 1
+          },
+          {
+            "name": "Dark green",
+            "alias": "dark-green",
+            "color": "#0a3210",
+            "displayOrder": 12,
+            "quantity": 1
+          },
+          {
+            "name": "Blue",
+            "alias": "blue",
+            "color": "#0000ff",
+            "displayOrder": 13,
+            "quantity": 1
+          },
+          {
+            "name": "Cognac",
+            "alias": "cognac",
+            "color": "#e9aa1b",
+            "displayOrder": 14,
+            "quantity": 1
+          },
+          {
+            "name": "Yellow",
+            "alias": "yellow",
+            "color": "#e6e60c",
+            "displayOrder": 15,
+            "quantity": 1
+          },
+          {
+            "name": "Orange",
+            "alias": "orange",
+            "color": "#ff6501",
+            "displayOrder": 16,
+            "quantity": 1
+          },
+          {
+            "name": "Tomato red",
+            "alias": "tomato-red",
+            "color": "#b10101",
+            "isPreSelected": true,
+            "displayOrder": 17,
+            "quantity": 1
+          },
+          {
+            "name": "Red",
+            "alias": "red",
+            "color": "#fe0000",
+            "displayOrder": 18,
+            "quantity": 1
+          },
+          {
+            "name": "Dark red",
+            "alias": "dark-red",
+            "color": "#5e0000",
+            "displayOrder": 19,
+            "quantity": 1
+          }
+        ]
+      }
+    ],
+    "combinations": [
+      {
+        "sku": "Furniture-ball-chair-white-leather-special-black",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "white",
+          "leather-color": "black"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-special-white",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "white",
+          "leather-color": "white"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-special-anthracite",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "white",
+          "leather-color": "anthracite"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-special-fuliginous",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "white",
+          "leather-color": "fuliginous"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-special-light-grey",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "white",
+          "leather-color": "light-grey"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-special-natural",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "white",
+          "leather-color": "natural"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-special-biscuit",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "white",
+          "leather-color": "biscuit"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-special-beige",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "white",
+          "leather-color": "beige"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-special-hazelnut",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "white",
+          "leather-color": "hazelnut"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-special-brown",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "white",
+          "leather-color": "brown"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-special-dark-brown",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "white",
+          "leather-color": "dark-brown"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-special-dark-green",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "white",
+          "leather-color": "dark-green"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-special-blue",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "white",
+          "leather-color": "blue"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-special-cognac",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "white",
+          "leather-color": "cognac"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-special-yellow",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "white",
+          "leather-color": "yellow"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-special-orange",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "white",
+          "leather-color": "orange"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-special-tomato-red",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "white",
+          "leather-color": "tomato-red"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-special-red",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "white",
+          "leather-color": "red"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-special-dark-red",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "white",
+          "leather-color": "dark-red"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-special-black",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "black",
+          "leather-color": "black"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-special-white",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "black",
+          "leather-color": "white"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-special-anthracite",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "black",
+          "leather-color": "anthracite"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-special-fuliginous",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "black",
+          "leather-color": "fuliginous"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-special-light-grey",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "black",
+          "leather-color": "light-grey"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-special-natural",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "black",
+          "leather-color": "natural"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-special-biscuit",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "black",
+          "leather-color": "biscuit"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-special-beige",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "black",
+          "leather-color": "beige"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-special-hazelnut",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "black",
+          "leather-color": "hazelnut"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-special-brown",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "black",
+          "leather-color": "brown"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-special-dark-brown",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "black",
+          "leather-color": "dark-brown"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-special-dark-green",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "black",
+          "leather-color": "dark-green"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-special-blue",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "black",
+          "leather-color": "blue"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-special-cognac",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "black",
+          "leather-color": "cognac"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-special-yellow",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "black",
+          "leather-color": "yellow"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-special-orange",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "black",
+          "leather-color": "orange"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-special-tomato-red",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "black",
+          "leather-color": "tomato-red"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-special-red",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "black",
+          "leather-color": "red"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-special-dark-red",
+        "price": 2599,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-special",
+          "color": "black",
+          "leather-color": "dark-red"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-aniline-black",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "white",
+          "leather-color": "black"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-aniline-white",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "white",
+          "leather-color": "white"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-aniline-anthracite",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "white",
+          "leather-color": "anthracite"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-aniline-fuliginous",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "white",
+          "leather-color": "fuliginous"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-aniline-light-grey",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "white",
+          "leather-color": "light-grey"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-aniline-natural",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "white",
+          "leather-color": "natural"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-aniline-biscuit",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "white",
+          "leather-color": "biscuit"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-aniline-beige",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "white",
+          "leather-color": "beige"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-aniline-hazelnut",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "white",
+          "leather-color": "hazelnut"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-aniline-brown",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "white",
+          "leather-color": "brown"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-aniline-dark-brown",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "white",
+          "leather-color": "dark-brown"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-aniline-dark-green",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "white",
+          "leather-color": "dark-green"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-aniline-blue",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "white",
+          "leather-color": "blue"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-aniline-cognac",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "white",
+          "leather-color": "cognac"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-aniline-yellow",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "white",
+          "leather-color": "yellow"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-aniline-orange",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "white",
+          "leather-color": "orange"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-aniline-tomato-red",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "white",
+          "leather-color": "tomato-red"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-aniline-red",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "white",
+          "leather-color": "red"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-leather-aniline-dark-red",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "white",
+          "leather-color": "dark-red"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-aniline-black",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "black",
+          "leather-color": "black"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-aniline-white",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "black",
+          "leather-color": "white"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-aniline-anthracite",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "black",
+          "leather-color": "anthracite"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-aniline-fuliginous",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "black",
+          "leather-color": "fuliginous"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-aniline-light-grey",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "black",
+          "leather-color": "light-grey"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-aniline-natural",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "black",
+          "leather-color": "natural"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-aniline-biscuit",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "black",
+          "leather-color": "biscuit"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-aniline-beige",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "black",
+          "leather-color": "beige"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-aniline-hazelnut",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "black",
+          "leather-color": "hazelnut"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-aniline-brown",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "black",
+          "leather-color": "brown"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-aniline-dark-brown",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "black",
+          "leather-color": "dark-brown"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-aniline-dark-green",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "black",
+          "leather-color": "dark-green"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-aniline-blue",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "black",
+          "leather-color": "blue"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-aniline-cognac",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "black",
+          "leather-color": "cognac"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-aniline-yellow",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "black",
+          "leather-color": "yellow"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-aniline-orange",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "black",
+          "leather-color": "orange"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-aniline-tomato-red",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "black",
+          "leather-color": "tomato-red"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-aniline-red",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "black",
+          "leather-color": "red"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-leather-aniline-dark-red",
+        "price": 2999,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "leather-aniline",
+          "color": "black",
+          "leather-color": "dark-red"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-mixed-linen-black",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "white",
+          "leather-color": "black"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-mixed-linen-white",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "white",
+          "leather-color": "white"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-mixed-linen-anthracite",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "white",
+          "leather-color": "anthracite"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-mixed-linen-fuliginous",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "white",
+          "leather-color": "fuliginous"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-mixed-linen-light-grey",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "white",
+          "leather-color": "light-grey"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-mixed-linen-natural",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "white",
+          "leather-color": "natural"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-mixed-linen-biscuit",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "white",
+          "leather-color": "biscuit"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-mixed-linen-beige",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "white",
+          "leather-color": "beige"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-mixed-linen-hazelnut",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "white",
+          "leather-color": "hazelnut"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-mixed-linen-brown",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "white",
+          "leather-color": "brown"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-mixed-linen-dark-brown",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "white",
+          "leather-color": "dark-brown"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-mixed-linen-dark-green",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "white",
+          "leather-color": "dark-green"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-mixed-linen-blue",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "white",
+          "leather-color": "blue"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-mixed-linen-cognac",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "white",
+          "leather-color": "cognac"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-mixed-linen-yellow",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "white",
+          "leather-color": "yellow"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-mixed-linen-orange",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "white",
+          "leather-color": "orange"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-mixed-linen-tomato-red",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "white",
+          "leather-color": "tomato-red"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-mixed-linen-red",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "white",
+          "leather-color": "red"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-white-mixed-linen-dark-red",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "white",
+          "leather-color": "dark-red"
+        },
+        "pictures": [
+          "product/ball_chair_white.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-mixed-linen-black",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "black",
+          "leather-color": "black"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-mixed-linen-white",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "black",
+          "leather-color": "white"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-mixed-linen-anthracite",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "black",
+          "leather-color": "anthracite"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-mixed-linen-fuliginous",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "black",
+          "leather-color": "fuliginous"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-mixed-linen-light-grey",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "black",
+          "leather-color": "light-grey"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-mixed-linen-natural",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "black",
+          "leather-color": "natural"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-mixed-linen-biscuit",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "black",
+          "leather-color": "biscuit"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-mixed-linen-beige",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "black",
+          "leather-color": "beige"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-mixed-linen-hazelnut",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "black",
+          "leather-color": "hazelnut"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-mixed-linen-brown",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "black",
+          "leather-color": "brown"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-mixed-linen-dark-brown",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "black",
+          "leather-color": "dark-brown"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-mixed-linen-dark-green",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "black",
+          "leather-color": "dark-green"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-mixed-linen-blue",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "black",
+          "leather-color": "blue"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-mixed-linen-cognac",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "black",
+          "leather-color": "cognac"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-mixed-linen-yellow",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "black",
+          "leather-color": "yellow"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-mixed-linen-orange",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "black",
+          "leather-color": "orange"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-mixed-linen-tomato-red",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "black",
+          "leather-color": "tomato-red"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-mixed-linen-red",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "black",
+          "leather-color": "red"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      },
+      {
+        "sku": "Furniture-ball-chair-black-mixed-linen-dark-red",
+        "price": 2199,
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "material": "mixed-linen",
+          "color": "black",
+          "leather-color": "dark-red"
+        },
+        "pictures": [
+          "product/ball_chair_black.jpg"
+        ]
+      }
+    ]
+  },
+  {
+    "parentGroupedProduct": "armchairs-sofas-group",
+    "name": "Charles Eames Lounge Chair (1956)",
+    "shortDescription": "Club lounge chair, Designer: Charles Eames, width 80 cm, depth 80 cm, height 60 cm, seat shell: plywood, foot (rotatable): Aluminium casting, cushion (upholstered) with leather cover.",
+    "fullDescription": "@file",
+    "showOnHomePage": true,
+    "metaTitle": "Charles Eames Lounge Chair (1956)",
+    "sku": "Furniture-lounge-chair",
+    "taxCategory": "electronics",
+    "price": 1799,
+    "hasTierPrices": true,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Chairs"
+    ],
+    "pictures": [
+      "product/charles_eames_lounge_chair_white.jpg",
+      "product/charles_eames_lounge_chair_black.jpg"
+    ],
+    "tags": [
+      "furniture"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "material/wood",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 1
+      },
+      {
+        "specificationAttributeOption": "material/leather",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 2
+      },
+      {
+        "specificationAttributeOption": "material/aluminium",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      }
+    ],
+    "tierPrices": [
+      {
+        "quantity": 2,
+        "price": 1709.05
+      },
+      {
+        "quantity": 4,
+        "price": 1664.08
+      },
+      {
+        "quantity": 6,
+        "price": 1619.1
+      }
+    ],
+    "variantAttributes": [
+      {
+        "productAttribute": "material",
+        "isRequired": true,
+        "attributeControlType": "DropdownList",
+        "displayOrder": 1,
+        "values": [
+          {
+            "name": "Leather Special",
+            "alias": "leather-special",
+            "isPreSelected": true,
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "Leather Aniline",
+            "alias": "leather-aniline",
+            "displayOrder": 2,
+            "quantity": 1
+          }
+        ]
+      },
+      {
+        "productAttribute": "seat-shell",
+        "isRequired": true,
+        "attributeControlType": "DropdownList",
+        "displayOrder": 2,
+        "values": [
+          {
+            "name": "Palisander",
+            "alias": "palisander",
+            "isPreSelected": true,
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "Cherry",
+            "alias": "cherry",
+            "displayOrder": 2,
+            "quantity": 1
+          },
+          {
+            "name": "Walnut",
+            "alias": "walnut",
+            "displayOrder": 3,
+            "quantity": 1
+          },
+          {
+            "name": "Wooden black lacquered",
+            "alias": "wooden-black-lacquered",
+            "priceAdjustment": 100,
+            "displayOrder": 4,
+            "quantity": 1
+          }
+        ]
+      },
+      {
+        "productAttribute": "base",
+        "isRequired": true,
+        "attributeControlType": "DropdownList",
+        "displayOrder": 3,
+        "values": [
+          {
+            "name": "Top edge polished",
+            "alias": "top-edge-polished",
+            "isPreSelected": true,
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "Completely polished",
+            "alias": "completely-polished",
+            "priceAdjustment": 150,
+            "displayOrder": 2,
+            "quantity": 1
+          }
+        ]
+      },
+      {
+        "productAttribute": "leather-color",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "displayOrder": 4,
+        "values": [
+          {
+            "name": "Black",
+            "alias": "black",
+            "color": "#000000",
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "White",
+            "alias": "white",
+            "color": "#ffffff",
+            "isPreSelected": true,
+            "displayOrder": 2,
+            "quantity": 1
+          },
+          {
+            "name": "Anthracite",
+            "alias": "anthracite",
+            "color": "#32312f",
+            "displayOrder": 3,
+            "quantity": 1
+          },
+          {
+            "name": "Fuliginous",
+            "alias": "fuliginous",
+            "color": "#5F5B5C",
+            "displayOrder": 4,
+            "quantity": 1
+          },
+          {
+            "name": "Light grey",
+            "alias": "light-grey",
+            "color": "#e3e3e5",
+            "displayOrder": 5,
+            "quantity": 1
+          },
+          {
+            "name": "Natural",
+            "alias": "natural",
+            "color": "#BBB98B",
+            "displayOrder": 6,
+            "quantity": 1
+          },
+          {
+            "name": "Biscuit",
+            "alias": "biscuit",
+            "color": "#e0ccab",
+            "displayOrder": 7,
+            "quantity": 1
+          },
+          {
+            "name": "Beige",
+            "alias": "beige",
+            "color": "#d1bc8a",
+            "displayOrder": 8,
+            "quantity": 1
+          },
+          {
+            "name": "Hazelnut",
+            "alias": "hazelnut",
+            "color": "#94703e",
+            "displayOrder": 9,
+            "quantity": 1
+          },
+          {
+            "name": "Brown",
+            "alias": "brown",
+            "color": "#755232",
+            "displayOrder": 10,
+            "quantity": 1
+          },
+          {
+            "name": "Dark brown",
+            "alias": "dark-brown",
+            "color": "#27160F",
+            "displayOrder": 11,
+            "quantity": 1
+          },
+          {
+            "name": "Dark green",
+            "alias": "dark-green",
+            "color": "#0a3210",
+            "displayOrder": 12,
+            "quantity": 1
+          },
+          {
+            "name": "Blue",
+            "alias": "blue",
+            "color": "#0000ff",
+            "displayOrder": 13,
+            "quantity": 1
+          },
+          {
+            "name": "Cognac",
+            "alias": "cognac",
+            "color": "#e9aa1b",
+            "displayOrder": 14,
+            "quantity": 1
+          },
+          {
+            "name": "Yellow",
+            "alias": "yellow",
+            "color": "#e6e60c",
+            "displayOrder": 15,
+            "quantity": 1
+          },
+          {
+            "name": "Orange",
+            "alias": "orange",
+            "color": "#ff6501",
+            "displayOrder": 16,
+            "quantity": 1
+          },
+          {
+            "name": "Tomato red",
+            "alias": "tomato-red",
+            "color": "#b10101",
+            "displayOrder": 17,
+            "quantity": 1
+          },
+          {
+            "name": "Red",
+            "alias": "red",
+            "color": "#fe0000",
+            "displayOrder": 18,
+            "quantity": 1
+          },
+          {
+            "name": "Dark red",
+            "alias": "dark-red",
+            "color": "#5e0000",
+            "displayOrder": 19,
+            "quantity": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "parentGroupedProduct": "armchairs-sofas-group",
+    "name": "Mies van der Rohe Barcelona - Loveseat sofa (1929)",
+    "shortDescription": "Armchair Barcelona long, Designer: Mies van der Rohe, L x D x H: 147 x 75 x 75 cm, chrome-plated frame of special spring steel, covering: core leather strips, upholstery with polyurethane foam core, cover: leather",
+    "fullDescription": "@file",
+    "metaTitle": "Mies van der Rohe Barcelona - Loveseat sofa (1929)",
+    "sku": "LR 556",
+    "taxCategory": "electronics",
+    "price": 2799,
+    "hasTierPrices": true,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Sofas"
+    ],
+    "pictures": [
+      "product/mies_van_der_rohe_sofa_barcelona_1.jpg"
+    ],
+    "tags": [
+      "furniture"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "material/stainless-steel",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 1
+      },
+      {
+        "specificationAttributeOption": "material/glass",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 2
+      }
+    ],
+    "tierPrices": [
+      {
+        "quantity": 4,
+        "price": 2659.05
+      },
+      {
+        "quantity": 6,
+        "price": 2519.1
+      },
+      {
+        "quantity": 10,
+        "price": 2379.15
+      }
+    ]
+  },
+  {
+    "parentGroupedProduct": "armchairs-sofas-group",
+    "name": "Josef Hoffmann sofa 2-seater Cubus (1910)",
+    "shortDescription": "Sofa Kubus, 2-seater, Designer: Josef Hoffmann, width 166 cm, depth 72 cm, height 77 cm, base frame: solid beech wood, upholstery: solid polyurethane foam (dimensionally stable), cover: leather",
+    "fullDescription": "@file",
+    "metaTitle": "Josef Hoffmann sofa 2-seater Cubus (1910)",
+    "sku": "JH DS/82-1",
+    "taxCategory": "electronics",
+    "price": 3099,
+    "hasTierPrices": true,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Sofas"
+    ],
+    "pictures": [
+      "product/josef_hoffmann_sofa_cubus_1.jpg"
+    ],
+    "tags": [
+      "furniture"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "material/stainless-steel",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 1
+      },
+      {
+        "specificationAttributeOption": "material/glass",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 2
+      }
+    ],
+    "tierPrices": [
+      {
+        "quantity": 2,
+        "price": 2659.05
+      },
+      {
+        "quantity": 4,
+        "price": 2519.1
+      },
+      {
+        "quantity": 6,
+        "price": 2379.15
+      },
+      {
+        "quantity": 10,
+        "price": 2239.2
+      }
+    ]
+  },
+  {
+    "productType": "GroupedProduct",
+    "name": "Armchairs and Sofas",
+    "shortDescription": "Explore comfort and style with our exclusive selection of sofas and chairs! From elegant designs to modern classics, our furniture pieces will transform your home into a haven of luxury. Visit us today and find the perfect pieces to complete your living space!",
+    "fullDescription": "@file",
+    "showOnHomePage": true,
+    "metaTitle": "Armchairs and Sofas",
+    "sku": "armchairs-sofas-group",
+    "groupedProductConfiguration": {
+      "collapsible": true,
+      "headerFields": [ "image", "sku", "price" ]
+    },
+    "taxCategory": "electronics",
+    "orderMaximumQuantity": 3,
+    "categories": [
+      {
+        "category": "Furniture",
+        "displayOrder": 0
+      }
+    ],
+    "pictures": [
+      {
+        "file": "product/ball_chair_black.jpg",
+        "from": "Furniture-ball-chair",
+        "displayOrder": 0
+      }
+    ],
+    "manageInventoryMethod": "DontManageStock"
+  }
+]

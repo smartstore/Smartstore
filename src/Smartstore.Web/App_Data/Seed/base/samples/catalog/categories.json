@@ -1,0 +1,246 @@
+// Key field: alias
+[
+  {
+    "name": "Apple",
+    "alias": "Apple",
+    "metaTitle": "Apple",
+    "mediaFile": "category/apple.png",
+    "showOnHomePage": true,
+    "published": true,
+    "displayOrder": 1
+  },
+  {
+    "name": "Sports",
+    "alias": "Sports",
+    "metaTitle": "Sports",
+    "mediaFile": "category/sports.jpg",
+    "showOnHomePage": true,
+    "published": true,
+    "displayOrder": 1
+  },
+  {
+    "name": "Books",
+    "alias": "Books",
+    "metaTitle": "Books",
+    "mediaFile": {
+      "file": "category/emblem_library.png",
+      "name": "books"
+    },
+    "published": true,
+    "displayOrder": 1
+  },
+  {
+    "name": "Furniture",
+    "alias": "Furniture",
+    "metaTitle": "Furniture",
+    "mediaFile": "category/furniture.jpg",
+    "showOnHomePage": true,
+    "published": true,
+    "displayOrder": 1
+  },
+  {
+    "name": "Digital Products",
+    "alias": "Digital Products",
+    "metaTitle": "Digital Products",
+    "mediaFile": "category/digitalproducts.jpg",
+    "showOnHomePage": true,
+    "published": true,
+    "displayOrder": 6
+  },
+  {
+    "name": "Gaming",
+    "alias": "Gaming",
+    "metaTitle": "Gaming",
+    "mediaFile": {
+      "file": "product/ps4_bundle_minecraft.jpg",
+      "name": "gaming"
+    },
+    "showOnHomePage": true,
+    "published": true,
+    "displayOrder": 3
+  },
+  {
+    "name": "Gift Cards",
+    "alias": "Gift Cards",
+    "metaTitle": "Gift cards",
+    "mediaFile": "category/gift-cards.png",
+    "showOnHomePage": true,
+    "published": true,
+    "displayOrder": 12
+  },
+  {
+    "name": "Fashion",
+    "badgeText": "NEW",
+    "badgeStyle": 4,
+    "alias": "Fashion",
+    "metaTitle": "Fashion",
+    "mediaFile": "category/fashion.jpg",
+    "showOnHomePage": true,
+    "published": true,
+    "displayOrder": 2
+  },
+  {
+    "name": "Watches",
+    "alias": "Watches",
+    "metaTitle": "Watches",
+    "mediaFile": "category/watches.png",
+    "showOnHomePage": true,
+    "published": true,
+    "displayOrder": 10
+  },
+  {
+    "name": "Sale",
+    "badgeText": "%",
+    "badgeStyle": 5,
+    "alias": "Sale",
+    "metaTitle": "Sale",
+    "published": true,
+    "displayOrder": 99,
+    "ruleSets": [
+      "sale"
+    ]
+  },
+  {
+    "parent": "Sports",
+    "name": "Soccer",
+    "alias": "Soccer",
+    "metaTitle": "Soccer",
+    "mediaFile": "category/soccer.png",
+    "showOnHomePage": true,
+    "published": true,
+    "displayOrder": 1
+  },
+  {
+    "parent": "Sports",
+    "name": "Basketball",
+    "alias": "Basketball",
+    "metaTitle": "Basketball",
+    "mediaFile": "category/basketball.png",
+    "showOnHomePage": true,
+    "published": true,
+    "displayOrder": 1
+  },
+  {
+    "parent": "Sports",
+    "name": "Golf",
+    "alias": "Golf",
+    "metaTitle": "Golf",
+    "mediaFile": "category/golf.jpg",
+    "showOnHomePage": true,
+    "published": true,
+    "displayOrder": 1
+  },
+  {
+    "parent": "Books",
+    "name": "SPIEGEL-Bestseller",
+    "alias": "SPIEGEL-Bestseller",
+    "metaTitle": "SPIEGEL-Bestseller",
+    "mediaFile": {
+      "file": "category/0000930_spiegel-bestseller.png",
+      "name": "spiegel-bestseller"
+    },
+    "published": true,
+    "displayOrder": 1
+  },
+  {
+    "parent": "Books",
+    "name": "Cook and enjoy",
+    "alias": "Cook and enjoy",
+    "metaTitle": "Cook and enjoy",
+    "mediaFile": {
+      "file": "category/0000936_kochen-geniesen.jpeg",
+      "name": "cook-and-enjoy"
+    },
+    "published": true,
+    "displayOrder": 2
+  },
+  {
+    "parent": "Gaming",
+    "name": "Gaming Accessories",
+    "alias": "Gaming Accessories",
+    "metaTitle": "Gaming Accessories",
+    "mediaFile": "category/gaming_accessories.png",
+    "published": true,
+    "displayOrder": 2
+  },
+  {
+    "parent": "Gaming",
+    "name": "Games",
+    "alias": "Games",
+    "metaTitle": "Games",
+    "mediaFile": "category/games.jpg",
+    "published": true,
+    "displayOrder": 3
+  },
+  {
+    "parent": "Fashion",
+    "name": "Jackets",
+    "alias": "Jackets",
+    "metaTitle": "Jackets",
+    "mediaFile": "category/jackets.jpg",
+    "showOnHomePage": true,
+    "published": true,
+    "displayOrder": 1
+  },
+  {
+    "parent": "Fashion",
+    "name": "Shoes",
+    "alias": "Shoes",
+    "metaTitle": "Shoes",
+    "mediaFile": "category/shoes.png",
+    "showOnHomePage": true,
+    "published": true,
+    "displayOrder": 1
+  },
+  {
+    "parent": "Fashion",
+    "name": "Trousers",
+    "alias": "Trousers",
+    "metaTitle": "Trousers",
+    "mediaFile": "category/trousers.png",
+    "showOnHomePage": true,
+    "published": true,
+    "displayOrder": 1,
+    "hasDiscountsApplied": true,
+    "discounts": [
+      "20-for-certain-categories"
+    ]
+  },
+  {
+    "parent": "Fashion",
+    "name": "Sunglasses",
+    "alias": "Sunglasses",
+    "metaTitle": "Sunglasses",
+    "mediaFile": "category/glasses.png",
+    "showOnHomePage": true,
+    "published": true,
+    "displayOrder": 1
+  },
+  {
+    "parent": "Furniture",
+    "name": "Chairs",
+    "alias": "Chairs",
+    "metaTitle": "Chairs",
+    "mediaFile": "category/furniture.jpg",
+    "published": true,
+    "displayOrder": 3
+  },
+  {
+    "parent": "Furniture",
+    "name": "Sofas",
+    "alias": "Sofas",
+    "metaTitle": "Sofas",
+    "mediaFile": "category/sofas.jpg",
+    "published": true,
+    "displayOrder": 3
+  },
+  {
+    "parent": "Furniture",
+    "name": "Tables",
+    "alias": "Tables",
+    "metaTitle": "Tables",
+    "mediaFile": "category/tables.jpg",
+    "published": true,
+    "displayOrder": 3
+  }
+]

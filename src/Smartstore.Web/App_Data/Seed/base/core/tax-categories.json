@@ -1,0 +1,32 @@
+// Key field: key
+[
+  {
+    "key": "tax-free",
+    "name": "Tax free"
+  },
+  {
+    "key": "books",
+    "name": "Books",
+    "displayOrder": 1
+  },
+  {
+    "key": "electronics",
+    "name": "Electronics & Software",
+    "displayOrder": 5
+  },
+  {
+    "key": "digital-goods",
+    "name": "Downloadable Products",
+    "displayOrder": 10
+  },
+  {
+    "key": "jewelry",
+    "name": "Jewelry",
+    "displayOrder": 15
+  },
+  {
+    "key": "apparel",
+    "name": "Apparel & Shoes",
+    "displayOrder": 20
+  }
+]

@@ -1,0 +1,272 @@
+// Key field: sku
+[
+  {
+    "parentGroupedProduct": "armchairs-sofas-group",
+    "name": "Josef Hoffmann cube chair (1910)",
+    "shortDescription": "Armchair Cube, Designer: Josef Hoffmann, width 93 cm, depth 72 cm, height 77 cm, basic frame: solid beech wood, upholstery: solid polyurethane foam (shape resistant), Upholstery: leather",
+    "fullDescription": "@file",
+    "showOnHomePage": true,
+    "metaTitle": "Josef Hoffmann cube chair (1910)",
+    "sku": "Furniture-cube-chair",
+    "taxCategory": "electronics",
+    "price": 2299,
+    "hasTierPrices": true,
+    "deliveryTime": "7-working-days",
+    "hasDiscountsApplied": true,
+    "categories": [
+      "Chairs",
+      {
+        "category": "Sale",
+        "displayOrder": 0,
+        "isSystemMapping": true
+      }
+    ],
+    "pictures": [
+      "product/hoffmann_cube_chair_black.jpg"
+    ],
+    "tags": [
+      "furniture"
+    ],
+    "discounts": [
+      "25-on-certain-products"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "material/leather",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 1
+      }
+    ],
+    "tierPrices": [
+      {
+        "quantity": 4,
+        "price": 1899.05
+      },
+      {
+        "quantity": 6,
+        "price": 1799.1
+      }
+    ],
+    "variantAttributes": [
+      {
+        "productAttribute": "material",
+        "isRequired": true,
+        "attributeControlType": "DropdownList",
+        "displayOrder": 1,
+        "values": [
+          {
+            "name": "Leather Special",
+            "alias": "leather-special",
+            "isPreSelected": true,
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "Leather Aniline",
+            "alias": "leather-aniline",
+            "priceAdjustment": 400,
+            "displayOrder": 2,
+            "quantity": 1
+          }
+        ]
+      },
+      {
+        "productAttribute": "leather-color",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "displayOrder": 2,
+        "values": [
+          {
+            "name": "Black",
+            "alias": "black",
+            "color": "#000000",
+            "isPreSelected": true,
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "White",
+            "alias": "white",
+            "color": "#ffffff",
+            "displayOrder": 2,
+            "quantity": 1
+          },
+          {
+            "name": "Anthracite",
+            "alias": "anthracite",
+            "color": "#32312f",
+            "displayOrder": 3,
+            "quantity": 1
+          },
+          {
+            "name": "Fuliginous",
+            "alias": "fuliginous",
+            "color": "#5F5B5C",
+            "displayOrder": 4,
+            "quantity": 1
+          },
+          {
+            "name": "Light grey",
+            "alias": "light-grey",
+            "color": "#e3e3e5",
+            "displayOrder": 5,
+            "quantity": 1
+          },
+          {
+            "name": "Natural",
+            "alias": "natural",
+            "color": "#BBB98B",
+            "displayOrder": 6,
+            "quantity": 1
+          },
+          {
+            "name": "Biscuit",
+            "alias": "biscuit",
+            "color": "#e0ccab",
+            "displayOrder": 7,
+            "quantity": 1
+          },
+          {
+            "name": "Beige",
+            "alias": "beige",
+            "color": "#d1bc8a",
+            "displayOrder": 8,
+            "quantity": 1
+          },
+          {
+            "name": "Hazelnut",
+            "alias": "hazelnut",
+            "color": "#94703e",
+            "displayOrder": 9,
+            "quantity": 1
+          },
+          {
+            "name": "Brown",
+            "alias": "brown",
+            "color": "#755232",
+            "displayOrder": 10,
+            "quantity": 1
+          },
+          {
+            "name": "Dark brown",
+            "alias": "dark-brown",
+            "color": "#27160F",
+            "displayOrder": 11,
+            "quantity": 1
+          },
+          {
+            "name": "Dark green",
+            "alias": "dark-green",
+            "color": "#0a3210",
+            "displayOrder": 12,
+            "quantity": 1
+          },
+          {
+            "name": "Blue",
+            "alias": "blue",
+            "color": "#0000ff",
+            "displayOrder": 13,
+            "quantity": 1
+          },
+          {
+            "name": "Cognac",
+            "alias": "cognac",
+            "color": "#e9aa1b",
+            "displayOrder": 14,
+            "quantity": 1
+          },
+          {
+            "name": "Yellow",
+            "alias": "yellow",
+            "color": "#e6e60c",
+            "displayOrder": 15,
+            "quantity": 1
+          },
+          {
+            "name": "Orange",
+            "alias": "orange",
+            "color": "#ff6501",
+            "displayOrder": 16,
+            "quantity": 1
+          },
+          {
+            "name": "Tomato red",
+            "alias": "tomato-red",
+            "color": "#b10101",
+            "displayOrder": 17,
+            "quantity": 1
+          },
+          {
+            "name": "Red",
+            "alias": "red",
+            "color": "#fe0000",
+            "displayOrder": 18,
+            "quantity": 1
+          },
+          {
+            "name": "Dark red",
+            "alias": "dark-red",
+            "color": "#5e0000",
+            "displayOrder": 19,
+            "quantity": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "parentGroupedProduct": "armchairs-sofas-group",
+    "name": "Le Corbusier LC2 sofa, 3-seater (1929)",
+    "shortDescription": "Sofa 3-seater LC 2, Designer: Le Corbusier, tubular steel frame (chrome), cushions of polyurethane foam and dacron wadding, seat upholstery with down, cover: leather",
+    "fullDescription": "@file",
+    "metaTitle": "Le Corbusier LC2 sofa, 3-seater (1929)",
+    "sku": "LC2 DS/23-1",
+    "taxCategory": "electronics",
+    "price": 1999,
+    "hasTierPrices": true,
+    "deliveryTime": "7-working-days",
+    "hasDiscountsApplied": true,
+    "categories": [
+      "Sofas",
+      {
+        "category": "Sale",
+        "displayOrder": 0,
+        "isSystemMapping": true
+      }
+    ],
+    "pictures": [
+      "product/le_corbusier_lc2_sofa_1.jpg"
+    ],
+    "tags": [
+      "furniture"
+    ],
+    "discounts": [
+      "25-on-certain-products"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "material/stainless-steel",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 1
+      },
+      {
+        "specificationAttributeOption": "material/glass",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 2
+      }
+    ],
+    "tierPrices": [
+      {
+        "quantity": 2,
+        "price": 1799.1
+      },
+      {
+        "quantity": 4,
+        "price": 1699.15
+      }
+    ]
+  }
+]

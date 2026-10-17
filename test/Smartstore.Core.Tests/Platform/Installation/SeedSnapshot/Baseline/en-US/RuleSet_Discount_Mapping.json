@@ -1,0 +1,12 @@
+[
+  {
+    "$key": "Discount:20% order total discount|RuleSetEntity:Major customers",
+    "Discount_Id": "Discount:20% order total discount",
+    "RuleSetEntity_Id": "RuleSetEntity:Major customers"
+  },
+  {
+    "$key": "Discount:5% on weekend orders|RuleSetEntity:Weekends",
+    "Discount_Id": "Discount:5% on weekend orders",
+    "RuleSetEntity_Id": "RuleSetEntity:Weekends"
+  }
+]

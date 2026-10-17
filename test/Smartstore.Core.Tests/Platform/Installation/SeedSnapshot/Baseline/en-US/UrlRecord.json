@@ -1,0 +1,978 @@
+[
+  {
+    "$key": "Category|Category:Apple|0|apple",
+    "EntityId": "Category:Apple",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "apple"
+  },
+  {
+    "$key": "Category|Category:Basketball|0|basketball",
+    "EntityId": "Category:Basketball",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "basketball"
+  },
+  {
+    "$key": "Category|Category:Books|0|books",
+    "EntityId": "Category:Books",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "books"
+  },
+  {
+    "$key": "Category|Category:Chairs|0|chairs",
+    "EntityId": "Category:Chairs",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "chairs"
+  },
+  {
+    "$key": "Category|Category:Cook and enjoy|0|cook-and-enjoy",
+    "EntityId": "Category:Cook and enjoy",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "cook-and-enjoy"
+  },
+  {
+    "$key": "Category|Category:Digital Products|0|digital-products",
+    "EntityId": "Category:Digital Products",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "digital-products"
+  },
+  {
+    "$key": "Category|Category:Fashion|0|fashion",
+    "EntityId": "Category:Fashion",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "fashion"
+  },
+  {
+    "$key": "Category|Category:Furniture|0|furniture",
+    "EntityId": "Category:Furniture",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "furniture"
+  },
+  {
+    "$key": "Category|Category:Games|0|games",
+    "EntityId": "Category:Games",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "games"
+  },
+  {
+    "$key": "Category|Category:Gaming Accessories|0|gaming-accessories",
+    "EntityId": "Category:Gaming Accessories",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "gaming-accessories"
+  },
+  {
+    "$key": "Category|Category:Gaming|0|gaming",
+    "EntityId": "Category:Gaming",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "gaming"
+  },
+  {
+    "$key": "Category|Category:Gift Cards|0|gift-cards",
+    "EntityId": "Category:Gift Cards",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "gift-cards"
+  },
+  {
+    "$key": "Category|Category:Golf|0|golf",
+    "EntityId": "Category:Golf",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "golf"
+  },
+  {
+    "$key": "Category|Category:Jackets|0|jackets",
+    "EntityId": "Category:Jackets",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "jackets"
+  },
+  {
+    "$key": "Category|Category:SPIEGEL-Bestseller|0|spiegel-bestseller",
+    "EntityId": "Category:SPIEGEL-Bestseller",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "spiegel-bestseller"
+  },
+  {
+    "$key": "Category|Category:Sale|0|sale",
+    "EntityId": "Category:Sale",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "sale"
+  },
+  {
+    "$key": "Category|Category:Shoes|0|shoes",
+    "EntityId": "Category:Shoes",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "shoes"
+  },
+  {
+    "$key": "Category|Category:Soccer|0|soccer",
+    "EntityId": "Category:Soccer",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "soccer"
+  },
+  {
+    "$key": "Category|Category:Sofas|0|sofas",
+    "EntityId": "Category:Sofas",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "sofas"
+  },
+  {
+    "$key": "Category|Category:Sports|0|sports",
+    "EntityId": "Category:Sports",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "sports"
+  },
+  {
+    "$key": "Category|Category:Sunglasses|0|sunglasses",
+    "EntityId": "Category:Sunglasses",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "sunglasses"
+  },
+  {
+    "$key": "Category|Category:Tables|0|tables",
+    "EntityId": "Category:Tables",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "tables"
+  },
+  {
+    "$key": "Category|Category:Trousers|0|trousers",
+    "EntityId": "Category:Trousers",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "trousers"
+  },
+  {
+    "$key": "Category|Category:Watches|0|watches",
+    "EntityId": "Category:Watches",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "watches"
+  },
+  {
+    "$key": "Manufacturer|Manufacturer:Adidas|0|adidas",
+    "EntityId": "Manufacturer:Adidas",
+    "EntityName": "Manufacturer",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "adidas"
+  },
+  {
+    "$key": "Manufacturer|Manufacturer:Apple|0|apple-2",
+    "EntityId": "Manufacturer:Apple",
+    "EntityName": "Manufacturer",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "apple-2"
+  },
+  {
+    "$key": "Manufacturer|Manufacturer:Breitling|0|breitling",
+    "EntityId": "Manufacturer:Breitling",
+    "EntityName": "Manufacturer",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "breitling"
+  },
+  {
+    "$key": "Manufacturer|Manufacturer:Certina|0|certina",
+    "EntityId": "Manufacturer:Certina",
+    "EntityName": "Manufacturer",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "certina"
+  },
+  {
+    "$key": "Manufacturer|Manufacturer:EA Sports|0|ea-sports",
+    "EntityId": "Manufacturer:EA Sports",
+    "EntityName": "Manufacturer",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "ea-sports"
+  },
+  {
+    "$key": "Manufacturer|Manufacturer:Festina|0|festina",
+    "EntityId": "Manufacturer:Festina",
+    "EntityName": "Manufacturer",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "festina"
+  },
+  {
+    "$key": "Manufacturer|Manufacturer:Jack-Wolfskin|0|jack-wolfskin",
+    "EntityId": "Manufacturer:Jack-Wolfskin",
+    "EntityName": "Manufacturer",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "jack-wolfskin"
+  },
+  {
+    "$key": "Manufacturer|Manufacturer:Microsoft|0|microsoft",
+    "EntityId": "Manufacturer:Microsoft",
+    "EntityName": "Manufacturer",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "microsoft"
+  },
+  {
+    "$key": "Manufacturer|Manufacturer:Nike|0|nike",
+    "EntityId": "Manufacturer:Nike",
+    "EntityName": "Manufacturer",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "nike"
+  },
+  {
+    "$key": "Manufacturer|Manufacturer:Oakley|0|oakley",
+    "EntityId": "Manufacturer:Oakley",
+    "EntityName": "Manufacturer",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "oakley"
+  },
+  {
+    "$key": "Manufacturer|Manufacturer:Puma|0|puma",
+    "EntityId": "Manufacturer:Puma",
+    "EntityName": "Manufacturer",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "puma"
+  },
+  {
+    "$key": "Manufacturer|Manufacturer:Ray-Ban|0|ray-ban",
+    "EntityId": "Manufacturer:Ray-Ban",
+    "EntityName": "Manufacturer",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "ray-ban"
+  },
+  {
+    "$key": "Manufacturer|Manufacturer:Seiko|0|seiko",
+    "EntityId": "Manufacturer:Seiko",
+    "EntityName": "Manufacturer",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "seiko"
+  },
+  {
+    "$key": "Manufacturer|Manufacturer:Sony|0|sony",
+    "EntityId": "Manufacturer:Sony",
+    "EntityName": "Manufacturer",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "sony"
+  },
+  {
+    "$key": "Manufacturer|Manufacturer:Tissot|0|tissot",
+    "EntityId": "Manufacturer:Tissot",
+    "EntityName": "Manufacturer",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "tissot"
+  },
+  {
+    "$key": "Manufacturer|Manufacturer:Titleist|0|titleist",
+    "EntityId": "Manufacturer:Titleist",
+    "EntityName": "Manufacturer",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "titleist"
+  },
+  {
+    "$key": "Manufacturer|Manufacturer:Ubisoft|0|ubisoft",
+    "EntityId": "Manufacturer:Ubisoft",
+    "EntityName": "Manufacturer",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "ubisoft"
+  },
+  {
+    "$key": "Manufacturer|Manufacturer:Warner Home Video Games|0|warner-home-video-games",
+    "EntityId": "Manufacturer:Warner Home Video Games",
+    "EntityName": "Manufacturer",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "warner-home-video-games"
+  },
+  {
+    "$key": "Product|Product:Adidas-C77124|0|superstar-shoe",
+    "EntityId": "Product:Adidas-C77124",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "superstar-shoe"
+  },
+  {
+    "$key": "Product|Product:Fashion-112355|0|converse-all-star",
+    "EntityId": "Product:Fashion-112355",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "converse-all-star"
+  },
+  {
+    "$key": "Product|Product:Fashion-65986524|0|clark-premium-blue-jeans",
+    "EntityId": "Product:Fashion-65986524",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "clark-premium-blue-jeans"
+  },
+  {
+    "$key": "Product|Product:Fashion-987693502|0|sleeveless-shirt-meccanica",
+    "EntityId": "Product:Fashion-987693502",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "sleeveless-shirt-meccanica"
+  },
+  {
+    "$key": "Product|Product:Fashion-JN1107|0|ladies-sports-jacket",
+    "EntityId": "Product:Fashion-JN1107",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "ladies-sports-jacket"
+  },
+  {
+    "$key": "Product|Product:Furniture-ball-chair|0|eero-aarnio-ball-chair-1966-",
+    "EntityId": "Product:Furniture-ball-chair",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "eero-aarnio-ball-chair-1966-"
+  },
+  {
+    "$key": "Product|Product:Furniture-cube-chair|0|josef-hoffmann-cube-chair-1910-",
+    "EntityId": "Product:Furniture-cube-chair",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "josef-hoffmann-cube-chair-1910-"
+  },
+  {
+    "$key": "Product|Product:Furniture-lc6|0|le-corbusier-lc-6-dining-table-1929-",
+    "EntityId": "Product:Furniture-lc6",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "le-corbusier-lc-6-dining-table-1929-"
+  },
+  {
+    "$key": "Product|Product:Furniture-lounge-chair|0|charles-eames-lounge-chair-1956-",
+    "EntityId": "Product:Furniture-lounge-chair",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "charles-eames-lounge-chair-1956-"
+  },
+  {
+    "$key": "Product|Product:Gaming-Lego-001|0|lego-worlds-playstation-4",
+    "EntityId": "Product:Gaming-Lego-001",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "lego-worlds-playstation-4"
+  },
+  {
+    "$key": "Product|Product:IN 200|0|isamu-noguchi-couch-table-coffee-table-1945-",
+    "EntityId": "Product:IN 200",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "isamu-noguchi-couch-table-coffee-table-1945-"
+  },
+  {
+    "$key": "Product|Product:JH DS/82-1|0|josef-hoffmann-sofa-2-seater-cubus-1910-",
+    "EntityId": "Product:JH DS/82-1",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "josef-hoffmann-sofa-2-seater-cubus-1910-"
+  },
+  {
+    "$key": "Product|Product:LC2 DS/23-1|0|le-corbusier-lc2-sofa-3-seater-1929-",
+    "EntityId": "Product:LC2 DS/23-1",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "le-corbusier-lc2-sofa-3-seater-1929-"
+  },
+  {
+    "$key": "Product|Product:LM T/98|0|ludwig-mies-van-der-rohe-table-barcelona-1930-",
+    "EntityId": "Product:LM T/98",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "ludwig-mies-van-der-rohe-table-barcelona-1930-"
+  },
+  {
+    "$key": "Product|Product:LR 556|0|mies-van-der-rohe-barcelona-loveseat-sofa-1929-",
+    "EntityId": "Product:LR 556",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "mies-van-der-rohe-barcelona-loveseat-sofa-1929-"
+  },
+  {
+    "$key": "Product|Product:Microsoft-xbox1s|0|xbox-one-s-500-gb-konsole",
+    "EntityId": "Product:Microsoft-xbox1s",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "xbox-one-s-500-gb-konsole"
+  },
+  {
+    "$key": "Product|Product:P-1000|0|-10-virtual-gift-card",
+    "EntityId": "Product:P-1000",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "-10-virtual-gift-card"
+  },
+  {
+    "$key": "Product|Product:P-1001|0|-25-virtual-gift-card",
+    "EntityId": "Product:P-1001",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "-25-virtual-gift-card"
+  },
+  {
+    "$key": "Product|Product:P-1002|0|-50-virtual-gift-card",
+    "EntityId": "Product:P-1002",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "-50-virtual-gift-card"
+  },
+  {
+    "$key": "Product|Product:P-10033|0|-100-virtual-gift-card",
+    "EntityId": "Product:P-10033",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "-100-virtual-gift-card"
+  },
+  {
+    "$key": "Product|Product:P-1003|0|ueberman-the-novel",
+    "EntityId": "Product:P-1003",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "ueberman-the-novel"
+  },
+  {
+    "$key": "Product|Product:P-1004|0|the-prisoner-of-heaven-a-novel",
+    "EntityId": "Product:P-1004",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "the-prisoner-of-heaven-a-novel"
+  },
+  {
+    "$key": "Product|Product:P-1005|0|best-grilling-recipes",
+    "EntityId": "Product:P-1005",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "best-grilling-recipes"
+  },
+  {
+    "$key": "Product|Product:P-1006|0|cooking-for-two",
+    "EntityId": "Product:P-1006",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "cooking-for-two"
+  },
+  {
+    "$key": "Product|Product:P-1007|0|cars-of-superlatives-the-strongest-the-first-the-most-beautiful-the-fastest",
+    "EntityId": "Product:P-1007",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "cars-of-superlatives-the-strongest-the-first-the-most-beautiful-the-fastest"
+  },
+  {
+    "$key": "Product|Product:P-1008|0|picture-atlas-motorcycles-with-more-than-350-brilliant-images",
+    "EntityId": "Product:P-1008",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "picture-atlas-motorcycles-with-more-than-350-brilliant-images"
+  },
+  {
+    "$key": "Product|Product:P-1009|0|the-car-book-the-great-history-with-over-1200-models",
+    "EntityId": "Product:P-1009",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "the-car-book-the-great-history-with-over-1200-models"
+  },
+  {
+    "$key": "Product|Product:P-1010|0|fast-cars-image-calendar-2013",
+    "EntityId": "Product:P-1010",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "fast-cars-image-calendar-2013"
+  },
+  {
+    "$key": "Product|Product:P-1011|0|motorcycle-adventures-riding-for-travel-enduros",
+    "EntityId": "Product:P-1011",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "motorcycle-adventures-riding-for-travel-enduros"
+  },
+  {
+    "$key": "Product|Product:P-1016|0|antonio-vivaldi-spring",
+    "EntityId": "Product:P-1016",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "antonio-vivaldi-spring"
+  },
+  {
+    "$key": "Product|Product:P-1017|0|ludwig-van-beethoven-for-elise",
+    "EntityId": "Product:P-1017",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "ludwig-van-beethoven-for-elise"
+  },
+  {
+    "$key": "Product|Product:P-2001|0|iphone-plus",
+    "EntityId": "Product:P-2001",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "iphone-plus"
+  },
+  {
+    "$key": "Product|Product:P-2002|0|watch-series-2",
+    "EntityId": "Product:P-2002",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "watch-series-2"
+  },
+  {
+    "$key": "Product|Product:P-2003|0|airpods",
+    "EntityId": "Product:P-2003",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "airpods"
+  },
+  {
+    "$key": "Product|Product:P-2004|0|9-7-ipad",
+    "EntityId": "Product:P-2004",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "9-7-ipad"
+  },
+  {
+    "$key": "Product|Product:P-2005-Bundle|0|ultimate-apple-pro-hipster-bundle",
+    "EntityId": "Product:P-2005-Bundle",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "ultimate-apple-pro-hipster-bundle"
+  },
+  {
+    "$key": "Product|Product:P-3001|0|radar-ev-prizm-sports-sunglasses",
+    "EntityId": "Product:P-3001",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "radar-ev-prizm-sports-sunglasses"
+  },
+  {
+    "$key": "Product|Product:P-3002|0|custom-flak-sunglasses",
+    "EntityId": "Product:P-3002",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "custom-flak-sunglasses"
+  },
+  {
+    "$key": "Product|Product:P-3003|0|original-wayfarer-at-collection",
+    "EntityId": "Product:P-3003",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "original-wayfarer-at-collection"
+  },
+  {
+    "$key": "Product|Product:P-3004|0|ray-ban-top-bar-rb-3183",
+    "EntityId": "Product:P-3004",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "ray-ban-top-bar-rb-3183"
+  },
+  {
+    "$key": "Product|Product:P-4001|0|evolution-high-school-game-basketball",
+    "EntityId": "Product:P-4001",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "evolution-high-school-game-basketball"
+  },
+  {
+    "$key": "Product|Product:P-4002|0|all-court-basketball",
+    "EntityId": "Product:P-4002",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "all-court-basketball"
+  },
+  {
+    "$key": "Product|Product:P-5001|0|adidas-tango-sala-ball",
+    "EntityId": "Product:P-5001",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "adidas-tango-sala-ball"
+  },
+  {
+    "$key": "Product|Product:P-5002|0|torfabrik-official-game-ball",
+    "EntityId": "Product:P-5002",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "torfabrik-official-game-ball"
+  },
+  {
+    "$key": "Product|Product:P-5003|0|evopower-5-3-trainer-hs-ball",
+    "EntityId": "Product:P-5003",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "evopower-5-3-trainer-hs-ball"
+  },
+  {
+    "$key": "Product|Product:P-5004|0|nike-strike-football",
+    "EntityId": "Product:P-5004",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "nike-strike-football"
+  },
+  {
+    "$key": "Product|Product:P-6001|0|ebook-stone-of-the-wise-in-lorem-ipsum-",
+    "EntityId": "Product:P-6001",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "ebook-stone-of-the-wise-in-lorem-ipsum-"
+  },
+  {
+    "$key": "Product|Product:P-7001|0|titleist-pro-v1x",
+    "EntityId": "Product:P-7001",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "titleist-pro-v1x"
+  },
+  {
+    "$key": "Product|Product:P-7002|0|supreme-golfball",
+    "EntityId": "Product:P-7002",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "supreme-golfball"
+  },
+  {
+    "$key": "Product|Product:P-7003|0|gbb-epic-sub-zero-driver",
+    "EntityId": "Product:P-7003",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "gbb-epic-sub-zero-driver"
+  },
+  {
+    "$key": "Product|Product:P-7004|0|titleist-sm6-tour-chrome",
+    "EntityId": "Product:P-7004",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "titleist-sm6-tour-chrome"
+  },
+  {
+    "$key": "Product|Product:P-9001|0|transocean-chronograph",
+    "EntityId": "Product:P-9001",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "transocean-chronograph"
+  },
+  {
+    "$key": "Product|Product:P-9002|0|tissot-t-touch-expert-solar",
+    "EntityId": "Product:P-9002",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "tissot-t-touch-expert-solar"
+  },
+  {
+    "$key": "Product|Product:P-9003|0|seiko-mechanical-automatic-srpa49k1",
+    "EntityId": "Product:P-9003",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "seiko-mechanical-automatic-srpa49k1"
+  },
+  {
+    "$key": "Product|Product:P-9004|0|certina-ds-podium-big-size",
+    "EntityId": "Product:P-9004",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "certina-ds-podium-big-size"
+  },
+  {
+    "$key": "Product|Product:PD-Fifa17|0|fifa-17-playstation-4",
+    "EntityId": "Product:PD-Fifa17",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "fifa-17-playstation-4"
+  },
+  {
+    "$key": "Product|Product:PD-Minecraft4ps4|0|minecraft-playstation-4-edition",
+    "EntityId": "Product:PD-Minecraft4ps4",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "minecraft-playstation-4-edition"
+  },
+  {
+    "$key": "Product|Product:PD-ZeroDown4PS4|0|horizon-zero-dawn-playstation-4",
+    "EntityId": "Product:PD-ZeroDown4PS4",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "horizon-zero-dawn-playstation-4"
+  },
+  {
+    "$key": "Product|Product:Sony-GroupAccessories|0|accessories-for-unlimited-gaming-experience",
+    "EntityId": "Product:Sony-GroupAccessories",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "accessories-for-unlimited-gaming-experience"
+  },
+  {
+    "$key": "Product|Product:Sony-PS399000|0|playstation-4-pro",
+    "EntityId": "Product:Sony-PS399000",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "playstation-4-pro"
+  },
+  {
+    "$key": "Product|Product:Sony-PS399004|0|dualshock-4-wireless-controller",
+    "EntityId": "Product:Sony-PS399004",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "dualshock-4-wireless-controller"
+  },
+  {
+    "$key": "Product|Product:Sony-PS399105|0|playstation-4-minecraft-bundle",
+    "EntityId": "Product:Sony-PS399105",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "playstation-4-minecraft-bundle"
+  },
+  {
+    "$key": "Product|Product:Sony-PS410034|0|playstation-4",
+    "EntityId": "Product:Sony-PS410034",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "playstation-4"
+  },
+  {
+    "$key": "Product|Product:Sony-PS410040|0|playstation-4-camera",
+    "EntityId": "Product:Sony-PS410040",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "playstation-4-camera"
+  },
+  {
+    "$key": "Product|Product:Sony-PS410099|0|playstation-4-bundle",
+    "EntityId": "Product:Sony-PS410099",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "playstation-4-bundle"
+  },
+  {
+    "$key": "Product|Product:Ubi-princepersia|0|prince-of-persia-the-forgotten-sands-",
+    "EntityId": "Product:Ubi-princepersia",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "prince-of-persia-the-forgotten-sands-"
+  },
+  {
+    "$key": "Product|Product:Wolfskin-4032541|0|coogee-low-m",
+    "EntityId": "Product:Wolfskin-4032541",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "coogee-low-m"
+  },
+  {
+    "$key": "Product|Product:armchairs-sofas-group|0|armchairs-and-sofas",
+    "EntityId": "Product:armchairs-sofas-group",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "armchairs-and-sofas"
+  },
+  {
+    "$key": "Product|Product:jack-1305851|0|kanuka-point-jacket-m",
+    "EntityId": "Product:jack-1305851",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "kanuka-point-jacket-m"
+  },
+  {
+    "$key": "Topic|Topic:AboutUs|0|aboutus",
+    "EntityId": "Topic:AboutUs",
+    "EntityName": "Topic",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "aboutus"
+  },
+  {
+    "$key": "Topic|Topic:CheckoutAsGuestOrRegister|0|checkoutasguestorregister",
+    "EntityId": "Topic:CheckoutAsGuestOrRegister",
+    "EntityName": "Topic",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "checkoutasguestorregister"
+  },
+  {
+    "$key": "Topic|Topic:ConditionsOfUse|0|conditionsofuse",
+    "EntityId": "Topic:ConditionsOfUse",
+    "EntityName": "Topic",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "conditionsofuse"
+  },
+  {
+    "$key": "Topic|Topic:ContactUs|0|contactus",
+    "EntityId": "Topic:ContactUs",
+    "EntityName": "Topic",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "contactus"
+  },
+  {
+    "$key": "Topic|Topic:Disclaimer|0|disclaimer",
+    "EntityId": "Topic:Disclaimer",
+    "EntityName": "Topic",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "disclaimer"
+  },
+  {
+    "$key": "Topic|Topic:HomePageText|0|homepagetext",
+    "EntityId": "Topic:HomePageText",
+    "EntityName": "Topic",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "homepagetext"
+  },
+  {
+    "$key": "Topic|Topic:Imprint|0|imprint",
+    "EntityId": "Topic:Imprint",
+    "EntityName": "Topic",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "imprint"
+  },
+  {
+    "$key": "Topic|Topic:LoginRegistrationInfo|0|loginregistrationinfo",
+    "EntityId": "Topic:LoginRegistrationInfo",
+    "EntityName": "Topic",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "loginregistrationinfo"
+  },
+  {
+    "$key": "Topic|Topic:PaymentInfo|0|paymentinfo",
+    "EntityId": "Topic:PaymentInfo",
+    "EntityName": "Topic",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "paymentinfo"
+  },
+  {
+    "$key": "Topic|Topic:PrivacyInfo|0|privacyinfo",
+    "EntityId": "Topic:PrivacyInfo",
+    "EntityName": "Topic",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "privacyinfo"
+  },
+  {
+    "$key": "Topic|Topic:ShippingInfo|0|shippinginfo",
+    "EntityId": "Topic:ShippingInfo",
+    "EntityName": "Topic",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "shippinginfo"
+  }
+]

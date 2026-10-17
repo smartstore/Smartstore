@@ -1,0 +1,43 @@
+// Key field: key
+[
+  {
+    "key": "gift",
+    "name": "gift"
+  },
+  {
+    "key": "book",
+    "name": "book"
+  },
+  {
+    "key": "cooking",
+    "name": "cooking"
+  },
+  {
+    "key": "cars",
+    "name": "cars"
+  },
+  {
+    "key": "motorbikes",
+    "name": "motorbikes"
+  },
+  {
+    "key": "mp3",
+    "name": "mp3"
+  },
+  {
+    "key": "download",
+    "name": "download"
+  },
+  {
+    "key": "furniture",
+    "name": "Furniture"
+  },
+  {
+    "key": "apple",
+    "name": "apple"
+  },
+  {
+    "key": "watches",
+    "name": "watches"
+  }
+]

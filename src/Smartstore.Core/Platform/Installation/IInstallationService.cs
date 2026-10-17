@@ -33,7 +33,13 @@ public partial interface IInstallationService
 
     IList<InstallationLanguage> GetInstallationLanguages();
 
+    /// <summary>
+    /// Gets the installable app languages, discovered from "App_Data/Seed/cultures/{culture}/culture.json".
+    /// </summary>
     IEnumerable<InstallationAppLanguageMetadata> GetAppLanguages();
 
-    Lazy<InvariantSeedData, InstallationAppLanguageMetadata> GetAppLanguage(string culture);
+    /// <summary>
+    /// Gets the installable app language for <paramref name="culture"/>, or <c>null</c> if there is none.
+    /// </summary>
+    InstallationAppLanguageMetadata GetAppLanguage(string culture);
 }

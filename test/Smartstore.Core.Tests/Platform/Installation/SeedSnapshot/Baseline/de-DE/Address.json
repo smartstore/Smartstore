@@ -1,0 +1,20 @@
+[
+  {
+    "$key": "admin@meineshopurl.de|Mustermann|Musterstadt",
+    "Address1": "Musterweg 1",
+    "Address2": "",
+    "City": "Musterstadt",
+    "Company": "Max Mustermann",
+    "CountryId": "Country:DE",
+    "CreatedOnUtc": "<now>",
+    "Email": "admin@meineshopurl.de",
+    "FaxNumber": "",
+    "FirstName": "Max",
+    "LastName": "Mustermann",
+    "PhoneNumber": "12345678",
+    "Salutation": null,
+    "StateProvinceId": "StateProvince:Country:DE|BW",
+    "Title": null,
+    "ZipPostalCode": "12345"
+  }
+]

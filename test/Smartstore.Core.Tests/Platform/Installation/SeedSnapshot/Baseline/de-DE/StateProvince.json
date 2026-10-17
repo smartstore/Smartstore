@@ -1,0 +1,1010 @@
+[
+  {
+    "$key": "Country:AT|Bgld.",
+    "Abbreviation": "Bgld.",
+    "CountryId": "Country:AT",
+    "DisplayOrder": 1,
+    "Name": "Burgenland",
+    "Published": true
+  },
+  {
+    "$key": "Country:AT|Ktn.",
+    "Abbreviation": "Ktn.",
+    "CountryId": "Country:AT",
+    "DisplayOrder": 1,
+    "Name": "Kärnten",
+    "Published": true
+  },
+  {
+    "$key": "Country:AT|NÖ",
+    "Abbreviation": "NÖ",
+    "CountryId": "Country:AT",
+    "DisplayOrder": 1,
+    "Name": "Niederösterreich",
+    "Published": true
+  },
+  {
+    "$key": "Country:AT|OÖ",
+    "Abbreviation": "OÖ",
+    "CountryId": "Country:AT",
+    "DisplayOrder": 1,
+    "Name": "Oberösterreich",
+    "Published": true
+  },
+  {
+    "$key": "Country:AT|Sbg.",
+    "Abbreviation": "Sbg.",
+    "CountryId": "Country:AT",
+    "DisplayOrder": 1,
+    "Name": "Salzburg",
+    "Published": true
+  },
+  {
+    "$key": "Country:AT|Stmk.",
+    "Abbreviation": "Stmk.",
+    "CountryId": "Country:AT",
+    "DisplayOrder": 1,
+    "Name": "Steiermark",
+    "Published": true
+  },
+  {
+    "$key": "Country:AT|T",
+    "Abbreviation": "T",
+    "CountryId": "Country:AT",
+    "DisplayOrder": 1,
+    "Name": "Tirol",
+    "Published": true
+  },
+  {
+    "$key": "Country:AT|Vbg.",
+    "Abbreviation": "Vbg.",
+    "CountryId": "Country:AT",
+    "DisplayOrder": 1,
+    "Name": "Vorarlberg",
+    "Published": true
+  },
+  {
+    "$key": "Country:AT|W",
+    "Abbreviation": "W",
+    "CountryId": "Country:AT",
+    "DisplayOrder": 1,
+    "Name": "Wien",
+    "Published": true
+  },
+  {
+    "$key": "Country:CA|AB",
+    "Abbreviation": "AB",
+    "CountryId": "Country:CA",
+    "DisplayOrder": 1,
+    "Name": "Alberta",
+    "Published": true
+  },
+  {
+    "$key": "Country:CA|BC",
+    "Abbreviation": "BC",
+    "CountryId": "Country:CA",
+    "DisplayOrder": 1,
+    "Name": "British Columbia",
+    "Published": true
+  },
+  {
+    "$key": "Country:CA|MB",
+    "Abbreviation": "MB",
+    "CountryId": "Country:CA",
+    "DisplayOrder": 1,
+    "Name": "Manitoba",
+    "Published": true
+  },
+  {
+    "$key": "Country:CA|NB",
+    "Abbreviation": "NB",
+    "CountryId": "Country:CA",
+    "DisplayOrder": 1,
+    "Name": "New Brunswick",
+    "Published": true
+  },
+  {
+    "$key": "Country:CA|NL",
+    "Abbreviation": "NL",
+    "CountryId": "Country:CA",
+    "DisplayOrder": 1,
+    "Name": "Newfoundland and Labrador",
+    "Published": true
+  },
+  {
+    "$key": "Country:CA|NS",
+    "Abbreviation": "NS",
+    "CountryId": "Country:CA",
+    "DisplayOrder": 1,
+    "Name": "Nova Scotia",
+    "Published": true
+  },
+  {
+    "$key": "Country:CA|NT",
+    "Abbreviation": "NT",
+    "CountryId": "Country:CA",
+    "DisplayOrder": 1,
+    "Name": "Northwest Territories",
+    "Published": true
+  },
+  {
+    "$key": "Country:CA|NU",
+    "Abbreviation": "NU",
+    "CountryId": "Country:CA",
+    "DisplayOrder": 1,
+    "Name": "Nunavut",
+    "Published": true
+  },
+  {
+    "$key": "Country:CA|ON",
+    "Abbreviation": "ON",
+    "CountryId": "Country:CA",
+    "DisplayOrder": 1,
+    "Name": "Ontario",
+    "Published": true
+  },
+  {
+    "$key": "Country:CA|PE",
+    "Abbreviation": "PE",
+    "CountryId": "Country:CA",
+    "DisplayOrder": 1,
+    "Name": "Prince Edward Island",
+    "Published": true
+  },
+  {
+    "$key": "Country:CA|QC",
+    "Abbreviation": "QC",
+    "CountryId": "Country:CA",
+    "DisplayOrder": 1,
+    "Name": "Quebec",
+    "Published": true
+  },
+  {
+    "$key": "Country:CA|SK",
+    "Abbreviation": "SK",
+    "CountryId": "Country:CA",
+    "DisplayOrder": 1,
+    "Name": "Saskatchewan",
+    "Published": true
+  },
+  {
+    "$key": "Country:CA|YU",
+    "Abbreviation": "YU",
+    "CountryId": "Country:CA",
+    "DisplayOrder": 1,
+    "Name": "Yukon Territory",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|AG",
+    "Abbreviation": "AG",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Aargau",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|AI",
+    "Abbreviation": "AI",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Appenzell Innerrhoden",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|AR",
+    "Abbreviation": "AR",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Appenzell Ausserrhoden",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|BE",
+    "Abbreviation": "BE",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Bern",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|BL",
+    "Abbreviation": "BL",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Basel-Landschaft",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|BS",
+    "Abbreviation": "BS",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Basel-Stadt",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|FR",
+    "Abbreviation": "FR",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Freiburg",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|GE",
+    "Abbreviation": "GE",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Genf",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|GL",
+    "Abbreviation": "GL",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Glarus",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|GR",
+    "Abbreviation": "GR",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Graubünden",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|JU",
+    "Abbreviation": "JU",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Jura",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|LU",
+    "Abbreviation": "LU",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Luzern",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|NE",
+    "Abbreviation": "NE",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Neuenburg",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|OW",
+    "Abbreviation": "OW",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Obwalden",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|SG",
+    "Abbreviation": "SG",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "St. Gallen",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|SH",
+    "Abbreviation": "SH",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Schaffhausen",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|SO",
+    "Abbreviation": "SO",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Solothurn",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|ST",
+    "Abbreviation": "ST",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Nidwalden",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|SZ",
+    "Abbreviation": "SZ",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Schwyz",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|TG",
+    "Abbreviation": "TG",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Thurgau",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|Ti",
+    "Abbreviation": "Ti",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Tessin",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|UR",
+    "Abbreviation": "UR",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Uri",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|VD",
+    "Abbreviation": "VD",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Waadt",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|VS",
+    "Abbreviation": "VS",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Wallis",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|ZG",
+    "Abbreviation": "ZG",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Zug",
+    "Published": true
+  },
+  {
+    "$key": "Country:CH|ZH",
+    "Abbreviation": "ZH",
+    "CountryId": "Country:CH",
+    "DisplayOrder": 1,
+    "Name": "Zürich",
+    "Published": true
+  },
+  {
+    "$key": "Country:DE|BB",
+    "Abbreviation": "BB",
+    "CountryId": "Country:DE",
+    "DisplayOrder": 1,
+    "Name": "Brandenburg",
+    "Published": true
+  },
+  {
+    "$key": "Country:DE|BE",
+    "Abbreviation": "BE",
+    "CountryId": "Country:DE",
+    "DisplayOrder": 1,
+    "Name": "Berlin",
+    "Published": true
+  },
+  {
+    "$key": "Country:DE|BW",
+    "Abbreviation": "BW",
+    "CountryId": "Country:DE",
+    "DisplayOrder": 1,
+    "Name": "Baden-Württemberg",
+    "Published": true
+  },
+  {
+    "$key": "Country:DE|BY",
+    "Abbreviation": "BY",
+    "CountryId": "Country:DE",
+    "DisplayOrder": 1,
+    "Name": "Bayern",
+    "Published": true
+  },
+  {
+    "$key": "Country:DE|HB",
+    "Abbreviation": "HB",
+    "CountryId": "Country:DE",
+    "DisplayOrder": 1,
+    "Name": "Bremen",
+    "Published": true
+  },
+  {
+    "$key": "Country:DE|HE",
+    "Abbreviation": "HE",
+    "CountryId": "Country:DE",
+    "DisplayOrder": 1,
+    "Name": "Hessen",
+    "Published": true
+  },
+  {
+    "$key": "Country:DE|HH",
+    "Abbreviation": "HH",
+    "CountryId": "Country:DE",
+    "DisplayOrder": 1,
+    "Name": "Hamburg",
+    "Published": true
+  },
+  {
+    "$key": "Country:DE|MV",
+    "Abbreviation": "MV",
+    "CountryId": "Country:DE",
+    "DisplayOrder": 1,
+    "Name": "Mecklenburg-Vorpommern",
+    "Published": true
+  },
+  {
+    "$key": "Country:DE|NI",
+    "Abbreviation": "NI",
+    "CountryId": "Country:DE",
+    "DisplayOrder": 1,
+    "Name": "Niedersachsen",
+    "Published": true
+  },
+  {
+    "$key": "Country:DE|NW",
+    "Abbreviation": "NW",
+    "CountryId": "Country:DE",
+    "DisplayOrder": 1,
+    "Name": "Nordrhein-Westfalen",
+    "Published": true
+  },
+  {
+    "$key": "Country:DE|RP",
+    "Abbreviation": "RP",
+    "CountryId": "Country:DE",
+    "DisplayOrder": 1,
+    "Name": "Rheinland-Pfalz",
+    "Published": true
+  },
+  {
+    "$key": "Country:DE|SH",
+    "Abbreviation": "SH",
+    "CountryId": "Country:DE",
+    "DisplayOrder": 1,
+    "Name": "Schleswig-Holstein",
+    "Published": true
+  },
+  {
+    "$key": "Country:DE|SL",
+    "Abbreviation": "SL",
+    "CountryId": "Country:DE",
+    "DisplayOrder": 1,
+    "Name": "Saarland",
+    "Published": true
+  },
+  {
+    "$key": "Country:DE|SN",
+    "Abbreviation": "SN",
+    "CountryId": "Country:DE",
+    "DisplayOrder": 1,
+    "Name": "Sachsen",
+    "Published": true
+  },
+  {
+    "$key": "Country:DE|ST",
+    "Abbreviation": "ST",
+    "CountryId": "Country:DE",
+    "DisplayOrder": 1,
+    "Name": "Sachsen-Anhalt",
+    "Published": true
+  },
+  {
+    "$key": "Country:DE|TH",
+    "Abbreviation": "TH",
+    "CountryId": "Country:DE",
+    "DisplayOrder": 1,
+    "Name": "Thüringen",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|AA",
+    "Abbreviation": "AA",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "AA (Armed Forces Americas)",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|AE",
+    "Abbreviation": "AE",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "AE (Armed Forces Europe)",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|AK",
+    "Abbreviation": "AK",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Alaska",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|AL",
+    "Abbreviation": "AL",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Alabama",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|AP",
+    "Abbreviation": "AP",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "AP (Armed Forces Pacific)",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|AR",
+    "Abbreviation": "AR",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Arkansas",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|AS",
+    "Abbreviation": "AS",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "American Samoa",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|AZ",
+    "Abbreviation": "AZ",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Arizona",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|CA",
+    "Abbreviation": "CA",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "California",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|CO",
+    "Abbreviation": "CO",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Colorado",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|CT",
+    "Abbreviation": "CT",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Connecticut",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|DC",
+    "Abbreviation": "DC",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "District of Columbia",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|DE",
+    "Abbreviation": "DE",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Delaware",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|FL",
+    "Abbreviation": "FL",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Florida",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|FM",
+    "Abbreviation": "FM",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Federated States of Micronesia",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|GA",
+    "Abbreviation": "GA",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Georgia",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|GU",
+    "Abbreviation": "GU",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Guam",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|HI",
+    "Abbreviation": "HI",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Hawaii",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|IA",
+    "Abbreviation": "IA",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Iowa",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|ID",
+    "Abbreviation": "ID",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Idaho",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|IL",
+    "Abbreviation": "IL",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Illinois",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|IN",
+    "Abbreviation": "IN",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Indiana",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|KS",
+    "Abbreviation": "KS",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Kansas",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|KY",
+    "Abbreviation": "KY",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Kentucky",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|LA",
+    "Abbreviation": "LA",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Louisiana",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|MA",
+    "Abbreviation": "MA",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Massachusetts",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|MD",
+    "Abbreviation": "MD",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Maryland",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|ME",
+    "Abbreviation": "ME",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Maine",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|MH",
+    "Abbreviation": "MH",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Marshall Islands",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|MI",
+    "Abbreviation": "MI",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Michigan",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|MN",
+    "Abbreviation": "MN",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Minnesota",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|MO",
+    "Abbreviation": "MO",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Missouri",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|MP",
+    "Abbreviation": "MP",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Northern Mariana Islands",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|MS",
+    "Abbreviation": "MS",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Mississippi",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|MT",
+    "Abbreviation": "MT",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Montana",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|NC",
+    "Abbreviation": "NC",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "North Carolina",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|ND",
+    "Abbreviation": "ND",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "North Dakota",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|NE",
+    "Abbreviation": "NE",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Nebraska",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|NH",
+    "Abbreviation": "NH",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "New Hampshire",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|NJ",
+    "Abbreviation": "NJ",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "New Jersey",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|NM",
+    "Abbreviation": "NM",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "New Mexico",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|NV",
+    "Abbreviation": "NV",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Nevada",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|NY",
+    "Abbreviation": "NY",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "New York",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|OH",
+    "Abbreviation": "OH",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Ohio",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|OK",
+    "Abbreviation": "OK",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Oklahoma",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|OR",
+    "Abbreviation": "OR",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Oregon",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|PA",
+    "Abbreviation": "PA",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Pennsylvania",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|PR",
+    "Abbreviation": "PR",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Puerto Rico",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|PW",
+    "Abbreviation": "PW",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Palau",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|RI",
+    "Abbreviation": "RI",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Rhode Island",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|SC",
+    "Abbreviation": "SC",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "South Carolina",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|SD",
+    "Abbreviation": "SD",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "South Dakota",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|TN",
+    "Abbreviation": "TN",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Tennessee",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|TX",
+    "Abbreviation": "TX",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Texas",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|UT",
+    "Abbreviation": "UT",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Utah",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|VA",
+    "Abbreviation": "VA",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Virginia",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|VI",
+    "Abbreviation": "VI",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Virgin Islands",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|VT",
+    "Abbreviation": "VT",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Vermont",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|WA",
+    "Abbreviation": "WA",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Washington",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|WI",
+    "Abbreviation": "WI",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Wisconsin",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|WV",
+    "Abbreviation": "WV",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "West Virginia",
+    "Published": true
+  },
+  {
+    "$key": "Country:US|WY",
+    "Abbreviation": "WY",
+    "CountryId": "Country:US",
+    "DisplayOrder": 1,
+    "Name": "Wyoming",
+    "Published": true
+  }
+]

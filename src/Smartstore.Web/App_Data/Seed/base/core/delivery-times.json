@@ -1,0 +1,26 @@
+// Key field: key
+[
+  {
+    "key": "available-and-ready-to-ship",
+    "name": "available and ready to ship",
+    "colorHexValue": "#008000",
+    "minDays": 1,
+    "maxDays": 3
+  },
+  {
+    "key": "2-5-working-days",
+    "name": "2-5 working days",
+    "colorHexValue": "#FFFF00",
+    "displayOrder": 1,
+    "minDays": 2,
+    "maxDays": 5
+  },
+  {
+    "key": "7-working-days",
+    "name": "7 working days",
+    "colorHexValue": "#FF9900",
+    "displayOrder": 2,
+    "minDays": 7,
+    "maxDays": 14
+  }
+]

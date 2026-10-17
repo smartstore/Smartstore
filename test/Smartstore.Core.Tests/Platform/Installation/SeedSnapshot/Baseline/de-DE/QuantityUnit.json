@@ -1,0 +1,173 @@
+[
+  {
+    "$key": "Becher",
+    "Description": "Becher",
+    "DisplayLocale": null,
+    "DisplayOrder": 14,
+    "IsDefault": false,
+    "Name": "Becher",
+    "NamePlural": "Becher"
+  },
+  {
+    "$key": "Bund",
+    "Description": "Bund",
+    "DisplayLocale": null,
+    "DisplayOrder": 12,
+    "IsDefault": false,
+    "Name": "Bund",
+    "NamePlural": "Bünde"
+  },
+  {
+    "$key": "Bündel",
+    "Description": "Bündel",
+    "DisplayLocale": null,
+    "DisplayOrder": 15,
+    "IsDefault": false,
+    "Name": "Bündel",
+    "NamePlural": "Bündel"
+  },
+  {
+    "$key": "Dose",
+    "Description": "Dose",
+    "DisplayLocale": null,
+    "DisplayOrder": 7,
+    "IsDefault": false,
+    "Name": "Dose",
+    "NamePlural": "Dosen"
+  },
+  {
+    "$key": "Eimer",
+    "Description": "Eimer",
+    "DisplayLocale": null,
+    "DisplayOrder": 18,
+    "IsDefault": false,
+    "Name": "Eimer",
+    "NamePlural": "Eimer"
+  },
+  {
+    "$key": "Einheit",
+    "Description": "Einheit",
+    "DisplayLocale": null,
+    "DisplayOrder": 4,
+    "IsDefault": false,
+    "Name": "Einheit",
+    "NamePlural": "Einheiten"
+  },
+  {
+    "$key": "Fass",
+    "Description": "Fass",
+    "DisplayLocale": null,
+    "DisplayOrder": 16,
+    "IsDefault": false,
+    "Name": "Fass",
+    "NamePlural": "Fässer"
+  },
+  {
+    "$key": "Flasche",
+    "Description": "Flasche",
+    "DisplayLocale": null,
+    "DisplayOrder": 10,
+    "IsDefault": false,
+    "Name": "Flasche",
+    "NamePlural": "Flaschen"
+  },
+  {
+    "$key": "Glas",
+    "Description": "Glas",
+    "DisplayLocale": null,
+    "DisplayOrder": 11,
+    "IsDefault": false,
+    "Name": "Glas",
+    "NamePlural": "Gläser"
+  },
+  {
+    "$key": "Packung",
+    "Description": "Packung",
+    "DisplayLocale": null,
+    "DisplayOrder": 8,
+    "IsDefault": false,
+    "Name": "Packung",
+    "NamePlural": "Packungen"
+  },
+  {
+    "$key": "Paket",
+    "Description": "Paket",
+    "DisplayLocale": null,
+    "DisplayOrder": 2,
+    "IsDefault": false,
+    "Name": "Paket",
+    "NamePlural": "Pakete"
+  },
+  {
+    "$key": "Palette",
+    "Description": "Palette",
+    "DisplayLocale": null,
+    "DisplayOrder": 3,
+    "IsDefault": false,
+    "Name": "Palette",
+    "NamePlural": "Paletten"
+  },
+  {
+    "$key": "Rolle",
+    "Description": "Rolle",
+    "DisplayLocale": null,
+    "DisplayOrder": 13,
+    "IsDefault": false,
+    "Name": "Rolle",
+    "NamePlural": "Rollen"
+  },
+  {
+    "$key": "Sack",
+    "Description": "Sack",
+    "DisplayLocale": null,
+    "DisplayOrder": 5,
+    "IsDefault": false,
+    "Name": "Sack",
+    "NamePlural": "Säcke"
+  },
+  {
+    "$key": "Schachtel",
+    "Description": "Schachtel",
+    "DisplayLocale": null,
+    "DisplayOrder": 1,
+    "IsDefault": false,
+    "Name": "Schachtel",
+    "NamePlural": "Schachteln"
+  },
+  {
+    "$key": "Set",
+    "Description": "Set",
+    "DisplayLocale": null,
+    "DisplayOrder": 17,
+    "IsDefault": false,
+    "Name": "Set",
+    "NamePlural": "Sets"
+  },
+  {
+    "$key": "Stange",
+    "Description": "Stange",
+    "DisplayLocale": null,
+    "DisplayOrder": 9,
+    "IsDefault": false,
+    "Name": "Stange",
+    "NamePlural": "Stangen"
+  },
+  {
+    "$key": "Stück",
+    "Description": "Stück",
+    "DisplayLocale": null,
+    "DisplayOrder": 0,
+    "IsDefault": true,
+    "Name": "Stück",
+    "NamePlural": "Stück"
+  },
+  {
+    "$key": "Tüte",
+    "Description": "Tüte",
+    "DisplayLocale": null,
+    "DisplayOrder": 6,
+    "IsDefault": false,
+    "Name": "Tüte",
+    "NamePlural": "Tüten"
+  }
+]

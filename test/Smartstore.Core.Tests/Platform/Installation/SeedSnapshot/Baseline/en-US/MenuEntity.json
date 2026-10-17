@@ -1,0 +1,62 @@
+[
+  {
+    "$key": "FooterCompany",
+    "DisplayOrder": 0,
+    "IsSystemMenu": true,
+    "LimitedToStores": false,
+    "Published": true,
+    "SubjectToAcl": false,
+    "SystemName": "FooterCompany",
+    "Template": "LinkList",
+    "Title": "Footer - Company",
+    "WidgetZone": null
+  },
+  {
+    "$key": "FooterInformation",
+    "DisplayOrder": 0,
+    "IsSystemMenu": true,
+    "LimitedToStores": false,
+    "Published": true,
+    "SubjectToAcl": false,
+    "SystemName": "FooterInformation",
+    "Template": "LinkList",
+    "Title": "Footer - Informations",
+    "WidgetZone": null
+  },
+  {
+    "$key": "FooterService",
+    "DisplayOrder": 0,
+    "IsSystemMenu": true,
+    "LimitedToStores": false,
+    "Published": true,
+    "SubjectToAcl": false,
+    "SystemName": "FooterService",
+    "Template": "LinkList",
+    "Title": "Footer - Service",
+    "WidgetZone": null
+  },
+  {
+    "$key": "HelpAndService",
+    "DisplayOrder": 0,
+    "IsSystemMenu": true,
+    "LimitedToStores": false,
+    "Published": true,
+    "SubjectToAcl": false,
+    "SystemName": "HelpAndService",
+    "Template": "Dropdown",
+    "Title": "Service",
+    "WidgetZone": null
+  },
+  {
+    "$key": "Main",
+    "DisplayOrder": 0,
+    "IsSystemMenu": true,
+    "LimitedToStores": false,
+    "Published": true,
+    "SubjectToAcl": false,
+    "SystemName": "Main",
+    "Template": "Navbar",
+    "Title": "Categories",
+    "WidgetZone": null
+  }
+]

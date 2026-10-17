@@ -1,0 +1,27 @@
+{
+  "CurrencySettings": {
+    "PrimaryCurrencyId": "$ref:Currency:EUR",
+    "PrimaryExchangeCurrencyId": "$ref:Currency:EUR"
+  },
+  "EmailAccountSettings": {
+    "DefaultEmailAccountId": "$ref:EmailAccount:default"
+  },
+  "MeasureSettings": {
+    "BaseDimensionId": "$ref:MeasureDimension:inch",
+    "BaseWeightId": "$ref:MeasureWeight:lb"
+  },
+  "PaymentSettings": {
+    "ActivePaymentMethodSystemNames": [
+      "Payments.CashOnDelivery",
+      "Payments.Manual",
+      "Payments.PayInStore",
+      "Payments.Prepayment"
+    ]
+  },
+  "PriceSettings": {
+    "DefaultComparePriceLabelId": "$ref:PriceLabel:msrp",
+    "DefaultRegularPriceLabelId": "$ref:PriceLabel:lowest",
+    "LimitedOfferBadgeLabel": "Limited time deal",
+    "OfferBadgeLabel": "Deal"
+  }
+}

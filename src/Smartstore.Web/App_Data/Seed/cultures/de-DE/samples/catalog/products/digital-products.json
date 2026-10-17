@@ -1,0 +1,14 @@
+{
+  "P-6001": {
+    "shortDescription": "E-Book, 465 Seiten"
+  },
+  "P-1016": {
+    "name": "Antonio Vivaldi: Der Frühling",
+    "fullDescription": "@file"
+  },
+  "P-1017": {
+    "name": "Ludwig van Beethoven: Für Elise",
+    "shortDescription": "Ludwig van Beethoven: Für Elise. Eine von Beethovens populärsten Kompositionen.",
+    "fullDescription": "@file"
+  }
+}

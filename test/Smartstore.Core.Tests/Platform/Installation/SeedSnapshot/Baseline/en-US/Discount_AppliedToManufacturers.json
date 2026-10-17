@@ -1,0 +1,12 @@
+[
+  {
+    "$key": "Discount:10% for certain manufacturers|Manufacturer:Breitling",
+    "Discount_Id": "Discount:10% for certain manufacturers",
+    "Manufacturer_Id": "Manufacturer:Breitling"
+  },
+  {
+    "$key": "Discount:10% for certain manufacturers|Manufacturer:Seiko",
+    "Discount_Id": "Discount:10% for certain manufacturers",
+    "Manufacturer_Id": "Manufacturer:Seiko"
+  }
+]

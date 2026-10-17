@@ -1,0 +1,11 @@
+{
+  "available-and-ready-to-ship": {
+    "name": "sofort lieferbar"
+  },
+  "2-5-working-days": {
+    "name": "2-5 Werktage"
+  },
+  "7-working-days": {
+    "name": "7 Werktage"
+  }
+}

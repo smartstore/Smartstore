@@ -1,0 +1,68 @@
+// Key field: key
+[
+  {
+    "key": "weekends",
+    "name": "Weekends",
+    "rules": [
+      {
+        "ruleType": "Weekday",
+        "operator": "In",
+        "value": "0,6"
+      }
+    ]
+  },
+  {
+    "key": "major-customers",
+    "name": "Major customers",
+    "description": "3 or more orders and current order value at least 200,- Euro.",
+    "rules": [
+      {
+        "ruleType": "CartSubtotal",
+        "operator": ">=",
+        "value": "200"
+      },
+      {
+        "ruleType": "CartOrderCount",
+        "operator": ">=",
+        "value": "3"
+      }
+    ],
+    "shippingMethods": [
+      "free-shipping"
+    ]
+  },
+  {
+    "key": "sale",
+    "name": "Sale",
+    "description": "Products with applied discounts.",
+    "scope": "Product",
+    "rules": [
+      {
+        "ruleType": "Discount",
+        "operator": "=",
+        "value": "true"
+      }
+    ]
+  },
+  {
+    "key": "inactive-new-customers",
+    "name": "Inactive new customers",
+    "description": "One completed order placed at least 90 days ago.",
+    "scope": "Customer",
+    "rules": [
+      {
+        "ruleType": "CompletedOrderCount",
+        "operator": "=",
+        "value": "1"
+      },
+      {
+        "ruleType": "LastOrderDateDays",
+        "operator": ">=",
+        "value": "90"
+      }
+    ],
+    "customerRoles": [
+      "InactiveNewCustomers"
+    ]
+  }
+]

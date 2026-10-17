@@ -1,0 +1,54 @@
+[
+  {
+    "$key": "Inaktive Neukunden",
+    "CreatedOnUtc": "0001-01-01T00:00:00",
+    "Description": "Eine abgeschlossene, mindestens 90 Tage zurückliegende Bestellung.",
+    "IsActive": true,
+    "IsSubGroup": false,
+    "LastProcessedOnUtc": null,
+    "LogicalOperator": "And",
+    "Name": "Inaktive Neukunden",
+    "ProductVariantAttributeId": null,
+    "Scope": "Customer",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "Sale",
+    "CreatedOnUtc": "0001-01-01T00:00:00",
+    "Description": "Produkte mit angewendeten Rabatten.",
+    "IsActive": true,
+    "IsSubGroup": false,
+    "LastProcessedOnUtc": null,
+    "LogicalOperator": "And",
+    "Name": "Sale",
+    "ProductVariantAttributeId": null,
+    "Scope": "Product",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "Wichtige Kunden",
+    "CreatedOnUtc": "0001-01-01T00:00:00",
+    "Description": "3 oder mehr Bestellungen und aktueller Bestellwert mindestens 200,- Euro.",
+    "IsActive": true,
+    "IsSubGroup": false,
+    "LastProcessedOnUtc": null,
+    "LogicalOperator": "And",
+    "Name": "Wichtige Kunden",
+    "ProductVariantAttributeId": null,
+    "Scope": "Cart",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "Wochenenden",
+    "CreatedOnUtc": "0001-01-01T00:00:00",
+    "Description": null,
+    "IsActive": true,
+    "IsSubGroup": false,
+    "LastProcessedOnUtc": null,
+    "LogicalOperator": "And",
+    "Name": "Wochenenden",
+    "ProductVariantAttributeId": null,
+    "Scope": "Cart",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  }
+]
