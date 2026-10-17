@@ -3,8 +3,11 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Text.Json;
+using System.Threading.Channels;
 using Autofac;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
@@ -19,6 +22,7 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Data.Migrations;
+using Smartstore.Core.Data.Migrations.Icons;
 using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.DataExchange.Import;
 using Smartstore.Core.Identity;
@@ -30,6 +34,7 @@ using Smartstore.Data.Caching;
 using Smartstore.Http;
 using Smartstore.Imaging;
 using Smartstore.IO;
+using Smartstore.Json;
 using Smartstore.Scheduling;
 using Smartstore.Threading;
 using Smartstore.Utilities;
@@ -229,6 +234,95 @@ public class MaintenanceController : AdminController
         }
 
         return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [MaintenanceAction]
+    [Permission(Permissions.System.Maintenance.Execute)]
+    public async Task<IActionResult> MigrateIcons(
+        [FromServices] IIconMigrator migrator,
+        [FromServices] IDistributedLockProvider lockProvider)
+    {
+        // This first streaming endpoint owns the run for the lifetime of the HTTP request.
+        // Never leave work using the controller's DbContext running after the request has ended.
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(
+            HttpContext.RequestAborted, _hostApplicationLifetime.ApplicationStopping);
+        var cancelToken = cancellation.Token;
+        var migrationLock = lockProvider.GetLock("maintenance:icon-migration");
+        if (!(await migrationLock.TryAcquireAsync(TimeSpan.Zero, cancelToken)).Out(out var lockHandle))
+        {
+            return Conflict(new { message = "An icon migration is already running." });
+        }
+
+        await using var migrationLockHandle = lockHandle;
+        Response.ContentType = "application/x-ndjson; charset=utf-8";
+        Response.Headers.CacheControl = "no-store";
+        Response.Headers["X-Accel-Buffering"] = "no";
+        HttpContext.Features.Get<IHttpResponseBodyFeature>()?.DisableBuffering();
+
+        // The existing synchronous report callback feeds a queue while the action drains it asynchronously.
+        // No complete report is accumulated here; the channel retains only entries awaiting transmission.
+        var channel = Channel.CreateUnbounded<object>(new UnboundedChannelOptions
+        {
+            SingleReader = true,
+            SingleWriter = false,
+            AllowSynchronousContinuations = false
+        });
+
+        await WriteMessageAsync(new { type = "started" });
+        var migrationTask = ProduceMessagesAsync();
+        try
+        {
+            await foreach (var message in channel.Reader.ReadAllAsync(cancelToken))
+            {
+                await WriteMessageAsync(message);
+            }
+        }
+        catch (OperationCanceledException) when (cancelToken.IsCancellationRequested)
+        {
+            // A disconnected browser cannot receive another message. Persisted batches are not rolled back.
+        }
+        finally
+        {
+            // Also stop the producer if writing to the response fails, and observe it before releasing the scope.
+            await cancellation.CancelAsync();
+            await migrationTask;
+        }
+
+        return new EmptyResult();
+
+        async Task ProduceMessagesAsync()
+        {
+            try
+            {
+                var result = await migrator.MigrateAsync(_db, entry =>
+                {
+                    channel.Writer.TryWrite(new { type = "entry", entry });
+                }, cancelToken);
+                channel.Writer.TryWrite(new { type = "completed", result });
+            }
+            catch (OperationCanceledException) when (cancelToken.IsCancellationRequested)
+            {
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                // Headers may already be sent: report failure inside the stream instead of changing HTTP status.
+                channel.Writer.TryWrite(new { type = "error", message = ex.Message });
+            }
+            finally
+            {
+                channel.Writer.TryComplete();
+            }
+        }
+
+        async Task WriteMessageAsync(object message)
+        {
+            await JsonSerializer.SerializeAsync(Response.Body, message, SmartJsonOptions.CamelCased, cancelToken);
+            await Response.WriteAsync("\n", cancelToken);
+            // Make each entry available to a fetch-stream reader before the migration finishes.
+            await Response.Body.FlushAsync(cancelToken);
+        }
     }
 
     [MaintenanceAction]

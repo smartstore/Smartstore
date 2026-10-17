@@ -112,7 +112,7 @@ public class MenuItemEntity : EntityWithAttributes, ILocalizedEntity, IStoreRest
     /// <summary>
     /// Gets or sets fontawesome icon class.
     /// </summary>
-    [StringLength(100)]
+    [StringLength(512)]
     public string Icon { get; set; }
 
     /// <summary>
