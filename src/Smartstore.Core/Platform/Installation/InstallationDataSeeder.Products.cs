@@ -145,7 +145,7 @@ public partial class InstallationDataSeeder
                         node.AsArray().Select(x => ResolveProductMedia(product, x, state).Id)))
                     .OnCreated((combination, _) => combination.Product = product);
 
-                // Not registered: combination SKUs are not unique (Furniture-ball-chair) and never referenced.
+                // Not registered: combinations are never referenced by other seed records.
                 combinations.AddRange(records.Select(x => _seedFactory.Create(new SeedRecord(x["sku"].GetValue<string>(), x.AsObject(), source), descriptor, register: false)));
             }
 
@@ -183,7 +183,7 @@ public partial class InstallationDataSeeder
             .Bind("pictures", (product, node, _) => AddProductPictures(product, node.AsArray(), state))
             .References<ProductTag>("tags", (product, tags) => tags.Each(product.ProductTags.Add))
             .References<Discount>("discounts", (product, discounts) => discounts.Each(product.AppliedDiscounts.Add))
-            // Keyless: the same option can be assigned twice (P-9003).
+            // Keyless list: an overlay replaces the specifications of a product as a whole.
             .ChildList("specifications", x => x.ProductSpecificationAttributes, new SeedEntityDescriptor<ProductSpecificationAttribute>("specificationAttributeOption")
                 .Reference<SpecificationAttributeOption>("specificationAttributeOption", (psa, option) => psa.SpecificationAttributeOptionId = option.Id))
             .Child("tierPrices", x => x.TierPrices, new SeedEntityDescriptor<TierPrice>("quantity"))
