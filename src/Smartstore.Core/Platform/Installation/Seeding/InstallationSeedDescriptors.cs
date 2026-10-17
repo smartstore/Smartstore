@@ -181,10 +181,16 @@ internal static class InstallationSeedDescriptors
             .Reference<ProductAttribute>("productAttribute", (set, attribute) => set.ProductAttributeId = attribute.Id)
             .Child("options", x => x.ProductAttributeOptions, new SeedEntityDescriptor<ProductAttributeOption>("alias"));
 
-    public static SeedEntityDescriptor<Campaign> Campaigns()
-        => new SeedEntityDescriptor<Campaign>("key")
+    /// <param name="aclRoles">Receives the customer roles of the ACL. The ACL records need the saved campaign ID.</param>
+    public static SeedEntityDescriptor<Campaign> Campaigns(IDictionary<Campaign, IReadOnlyList<CustomerRole>> aclRoles)
+    {
+        Guard.NotNull(aclRoles);
+
+        return new SeedEntityDescriptor<Campaign>("key")
             .FromFiles("samples/campaigns.json")
+            .References<CustomerRole>("aclCustomerRoles", (campaign, roles) => aclRoles[campaign] = roles)
             .OnCreated((campaign, _) => campaign.CreatedOnUtc = DateTime.UtcNow);
+    }
 
     /// <summary>
     /// Rule sets with their rules, and the shipping methods and customer roles they apply to.

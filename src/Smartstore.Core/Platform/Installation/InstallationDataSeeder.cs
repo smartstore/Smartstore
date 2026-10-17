@@ -129,7 +129,6 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
         await PopulateFromSeedAsync("PopulateCategoryTemplates", InstallationSeedDescriptors.CategoryTemplates());
         await PopulateFromSeedAsync("PopulateManufacturerTemplates", InstallationSeedDescriptors.ManufacturerTemplates());
         await PopulateFromSeedAsync("PopulateScheduleTasks", InstallationSeedDescriptors.TaskDescriptors());
-        await PopulateFromSeedAsync("PopulateMenus", InstallationSeedDescriptors.Menus(EvaluateSeedCondition));
 
         if (_config.SeedSampleData)
         {
@@ -140,13 +139,16 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
             await PopulateFromSeedAsync("PopulateSpecificationAttributes", InstallationSeedDescriptors.SpecificationAttributes());
             await PopulateFromSeedAsync("PopulateProductAttributes", InstallationSeedDescriptors.ProductAttributes());
             await PopulateFromSeedAsync("PopulateProductAttributeOptionsSets", InstallationSeedDescriptors.ProductAttributeOptionsSets());
-            await PopulateFromSeedAsync("PopulateCampaigns", InstallationSeedDescriptors.Campaigns());
+            await PopulateAsync("PopulateCampaigns", PopulateCampaigns);
             await PopulateFromSeedAsync("PopulateRuleSets", InstallationSeedDescriptors.RuleSets());
             await PopulateFromSeedAsync("PopulateDiscounts", InstallationSeedDescriptors.Discounts());
             await PopulateAsync("PopulateCategories", PopulateCategories);
             await PopulateAsync("PopulateManufacturers", PopulateManufacturers);
             await PopulateProductsFromSeedAsync();
         }
+
+        // Menus come last, because some menu items are only published if sample data (e.g. manufacturers) exist.
+        await PopulateFromSeedAsync("PopulateMenus", InstallationSeedDescriptors.Menus(EvaluateSeedCondition));
 
         // Perf
         Context.DetachEntities<BaseEntity>();
@@ -483,6 +485,26 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
     private async Task PopulateMessageTemplates()
     {
         await _messageTemplateService.ImportAllTemplatesAsync(_config.Language.LanguageCulture);
+    }
+
+    private async Task PopulateCampaigns()
+    {
+        // By reference: entity equality depends on the ID, which changes on save.
+        var aclRoles = new Dictionary<Campaign, IReadOnlyList<CustomerRole>>(ReferenceEqualityComparer.Instance);
+        var campaigns = CreateFromSeed(InstallationSeedDescriptors.Campaigns(aclRoles));
+        await SaveRangeAsync(campaigns);
+
+        foreach (var (campaign, roles) in aclRoles)
+        {
+            Context.AclRecords.AddRange(roles.Select(role => new AclRecord
+            {
+                EntityId = campaign.Id,
+                EntityName = nameof(Campaign),
+                CustomerRoleId = role.Id
+            }));
+        }
+
+        await Context.SaveChangesAsync();
     }
 
     private async Task PopulateCategories()

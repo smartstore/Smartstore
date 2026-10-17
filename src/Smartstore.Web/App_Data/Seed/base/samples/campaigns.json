@@ -5,6 +5,7 @@
     "name": "Reminder of inactive new customers",
     "subject": "New, exciting products are waiting for you to be discovered.",
     "body": "@file",
-    "subjectToAcl": true
+    "subjectToAcl": true,
+    "aclCustomerRoles": [ "InactiveNewCustomers" ]
   }
 ]

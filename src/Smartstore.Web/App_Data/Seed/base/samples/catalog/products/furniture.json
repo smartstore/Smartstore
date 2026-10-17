@@ -466,7 +466,7 @@
     ],
     "combinations": [
       {
-        "sku": "Furniture-ball-chair-white-leather-special",
+        "sku": "Furniture-ball-chair-white-leather-special-black",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -480,7 +480,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-special",
+        "sku": "Furniture-ball-chair-white-leather-special-white",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -494,7 +494,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-special",
+        "sku": "Furniture-ball-chair-white-leather-special-anthracite",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -508,7 +508,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-special",
+        "sku": "Furniture-ball-chair-white-leather-special-fuliginous",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -522,7 +522,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-special",
+        "sku": "Furniture-ball-chair-white-leather-special-light-grey",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -536,7 +536,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-special",
+        "sku": "Furniture-ball-chair-white-leather-special-natural",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -550,7 +550,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-special",
+        "sku": "Furniture-ball-chair-white-leather-special-biscuit",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -564,7 +564,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-special",
+        "sku": "Furniture-ball-chair-white-leather-special-beige",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -578,7 +578,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-special",
+        "sku": "Furniture-ball-chair-white-leather-special-hazelnut",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -592,7 +592,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-special",
+        "sku": "Furniture-ball-chair-white-leather-special-brown",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -606,7 +606,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-special",
+        "sku": "Furniture-ball-chair-white-leather-special-dark-brown",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -620,7 +620,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-special",
+        "sku": "Furniture-ball-chair-white-leather-special-dark-green",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -634,7 +634,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-special",
+        "sku": "Furniture-ball-chair-white-leather-special-blue",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -648,7 +648,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-special",
+        "sku": "Furniture-ball-chair-white-leather-special-cognac",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -662,7 +662,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-special",
+        "sku": "Furniture-ball-chair-white-leather-special-yellow",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -676,7 +676,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-special",
+        "sku": "Furniture-ball-chair-white-leather-special-orange",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -690,7 +690,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-special",
+        "sku": "Furniture-ball-chair-white-leather-special-tomato-red",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -704,7 +704,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-special",
+        "sku": "Furniture-ball-chair-white-leather-special-red",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -718,7 +718,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-special",
+        "sku": "Furniture-ball-chair-white-leather-special-dark-red",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -732,7 +732,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-special",
+        "sku": "Furniture-ball-chair-black-leather-special-black",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -746,7 +746,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-special",
+        "sku": "Furniture-ball-chair-black-leather-special-white",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -760,7 +760,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-special",
+        "sku": "Furniture-ball-chair-black-leather-special-anthracite",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -774,7 +774,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-special",
+        "sku": "Furniture-ball-chair-black-leather-special-fuliginous",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -788,7 +788,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-special",
+        "sku": "Furniture-ball-chair-black-leather-special-light-grey",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -802,7 +802,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-special",
+        "sku": "Furniture-ball-chair-black-leather-special-natural",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -816,7 +816,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-special",
+        "sku": "Furniture-ball-chair-black-leather-special-biscuit",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -830,7 +830,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-special",
+        "sku": "Furniture-ball-chair-black-leather-special-beige",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -844,7 +844,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-special",
+        "sku": "Furniture-ball-chair-black-leather-special-hazelnut",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -858,7 +858,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-special",
+        "sku": "Furniture-ball-chair-black-leather-special-brown",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -872,7 +872,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-special",
+        "sku": "Furniture-ball-chair-black-leather-special-dark-brown",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -886,7 +886,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-special",
+        "sku": "Furniture-ball-chair-black-leather-special-dark-green",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -900,7 +900,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-special",
+        "sku": "Furniture-ball-chair-black-leather-special-blue",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -914,7 +914,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-special",
+        "sku": "Furniture-ball-chair-black-leather-special-cognac",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -928,7 +928,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-special",
+        "sku": "Furniture-ball-chair-black-leather-special-yellow",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -942,7 +942,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-special",
+        "sku": "Furniture-ball-chair-black-leather-special-orange",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -956,7 +956,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-special",
+        "sku": "Furniture-ball-chair-black-leather-special-tomato-red",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -970,7 +970,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-special",
+        "sku": "Furniture-ball-chair-black-leather-special-red",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -984,7 +984,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-special",
+        "sku": "Furniture-ball-chair-black-leather-special-dark-red",
         "price": 2599,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -998,7 +998,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-aniline",
+        "sku": "Furniture-ball-chair-white-leather-aniline-black",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1012,7 +1012,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-aniline",
+        "sku": "Furniture-ball-chair-white-leather-aniline-white",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1026,7 +1026,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-aniline",
+        "sku": "Furniture-ball-chair-white-leather-aniline-anthracite",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1040,7 +1040,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-aniline",
+        "sku": "Furniture-ball-chair-white-leather-aniline-fuliginous",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1054,7 +1054,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-aniline",
+        "sku": "Furniture-ball-chair-white-leather-aniline-light-grey",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1068,7 +1068,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-aniline",
+        "sku": "Furniture-ball-chair-white-leather-aniline-natural",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1082,7 +1082,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-aniline",
+        "sku": "Furniture-ball-chair-white-leather-aniline-biscuit",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1096,7 +1096,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-aniline",
+        "sku": "Furniture-ball-chair-white-leather-aniline-beige",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1110,7 +1110,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-aniline",
+        "sku": "Furniture-ball-chair-white-leather-aniline-hazelnut",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1124,7 +1124,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-aniline",
+        "sku": "Furniture-ball-chair-white-leather-aniline-brown",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1138,7 +1138,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-aniline",
+        "sku": "Furniture-ball-chair-white-leather-aniline-dark-brown",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1152,7 +1152,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-aniline",
+        "sku": "Furniture-ball-chair-white-leather-aniline-dark-green",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1166,7 +1166,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-aniline",
+        "sku": "Furniture-ball-chair-white-leather-aniline-blue",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1180,7 +1180,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-aniline",
+        "sku": "Furniture-ball-chair-white-leather-aniline-cognac",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1194,7 +1194,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-aniline",
+        "sku": "Furniture-ball-chair-white-leather-aniline-yellow",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1208,7 +1208,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-aniline",
+        "sku": "Furniture-ball-chair-white-leather-aniline-orange",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1222,7 +1222,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-aniline",
+        "sku": "Furniture-ball-chair-white-leather-aniline-tomato-red",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1236,7 +1236,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-aniline",
+        "sku": "Furniture-ball-chair-white-leather-aniline-red",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1250,7 +1250,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-leather-aniline",
+        "sku": "Furniture-ball-chair-white-leather-aniline-dark-red",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1264,7 +1264,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-aniline",
+        "sku": "Furniture-ball-chair-black-leather-aniline-black",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1278,7 +1278,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-aniline",
+        "sku": "Furniture-ball-chair-black-leather-aniline-white",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1292,7 +1292,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-aniline",
+        "sku": "Furniture-ball-chair-black-leather-aniline-anthracite",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1306,7 +1306,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-aniline",
+        "sku": "Furniture-ball-chair-black-leather-aniline-fuliginous",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1320,7 +1320,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-aniline",
+        "sku": "Furniture-ball-chair-black-leather-aniline-light-grey",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1334,7 +1334,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-aniline",
+        "sku": "Furniture-ball-chair-black-leather-aniline-natural",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1348,7 +1348,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-aniline",
+        "sku": "Furniture-ball-chair-black-leather-aniline-biscuit",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1362,7 +1362,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-aniline",
+        "sku": "Furniture-ball-chair-black-leather-aniline-beige",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1376,7 +1376,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-aniline",
+        "sku": "Furniture-ball-chair-black-leather-aniline-hazelnut",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1390,7 +1390,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-aniline",
+        "sku": "Furniture-ball-chair-black-leather-aniline-brown",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1404,7 +1404,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-aniline",
+        "sku": "Furniture-ball-chair-black-leather-aniline-dark-brown",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1418,7 +1418,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-aniline",
+        "sku": "Furniture-ball-chair-black-leather-aniline-dark-green",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1432,7 +1432,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-aniline",
+        "sku": "Furniture-ball-chair-black-leather-aniline-blue",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1446,7 +1446,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-aniline",
+        "sku": "Furniture-ball-chair-black-leather-aniline-cognac",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1460,7 +1460,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-aniline",
+        "sku": "Furniture-ball-chair-black-leather-aniline-yellow",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1474,7 +1474,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-aniline",
+        "sku": "Furniture-ball-chair-black-leather-aniline-orange",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1488,7 +1488,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-aniline",
+        "sku": "Furniture-ball-chair-black-leather-aniline-tomato-red",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1502,7 +1502,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-aniline",
+        "sku": "Furniture-ball-chair-black-leather-aniline-red",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1516,7 +1516,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-leather-aniline",
+        "sku": "Furniture-ball-chair-black-leather-aniline-dark-red",
         "price": 2999,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1530,7 +1530,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-mixed-linen",
+        "sku": "Furniture-ball-chair-white-mixed-linen-black",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1544,7 +1544,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-mixed-linen",
+        "sku": "Furniture-ball-chair-white-mixed-linen-white",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1558,7 +1558,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-mixed-linen",
+        "sku": "Furniture-ball-chair-white-mixed-linen-anthracite",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1572,7 +1572,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-mixed-linen",
+        "sku": "Furniture-ball-chair-white-mixed-linen-fuliginous",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1586,7 +1586,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-mixed-linen",
+        "sku": "Furniture-ball-chair-white-mixed-linen-light-grey",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1600,7 +1600,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-mixed-linen",
+        "sku": "Furniture-ball-chair-white-mixed-linen-natural",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1614,7 +1614,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-mixed-linen",
+        "sku": "Furniture-ball-chair-white-mixed-linen-biscuit",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1628,7 +1628,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-mixed-linen",
+        "sku": "Furniture-ball-chair-white-mixed-linen-beige",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1642,7 +1642,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-mixed-linen",
+        "sku": "Furniture-ball-chair-white-mixed-linen-hazelnut",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1656,7 +1656,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-mixed-linen",
+        "sku": "Furniture-ball-chair-white-mixed-linen-brown",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1670,7 +1670,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-mixed-linen",
+        "sku": "Furniture-ball-chair-white-mixed-linen-dark-brown",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1684,7 +1684,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-mixed-linen",
+        "sku": "Furniture-ball-chair-white-mixed-linen-dark-green",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1698,7 +1698,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-mixed-linen",
+        "sku": "Furniture-ball-chair-white-mixed-linen-blue",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1712,7 +1712,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-mixed-linen",
+        "sku": "Furniture-ball-chair-white-mixed-linen-cognac",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1726,7 +1726,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-mixed-linen",
+        "sku": "Furniture-ball-chair-white-mixed-linen-yellow",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1740,7 +1740,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-mixed-linen",
+        "sku": "Furniture-ball-chair-white-mixed-linen-orange",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1754,7 +1754,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-mixed-linen",
+        "sku": "Furniture-ball-chair-white-mixed-linen-tomato-red",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1768,7 +1768,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-mixed-linen",
+        "sku": "Furniture-ball-chair-white-mixed-linen-red",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1782,7 +1782,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-white-mixed-linen",
+        "sku": "Furniture-ball-chair-white-mixed-linen-dark-red",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1796,7 +1796,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-mixed-linen",
+        "sku": "Furniture-ball-chair-black-mixed-linen-black",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1810,7 +1810,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-mixed-linen",
+        "sku": "Furniture-ball-chair-black-mixed-linen-white",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1824,7 +1824,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-mixed-linen",
+        "sku": "Furniture-ball-chair-black-mixed-linen-anthracite",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1838,7 +1838,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-mixed-linen",
+        "sku": "Furniture-ball-chair-black-mixed-linen-fuliginous",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1852,7 +1852,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-mixed-linen",
+        "sku": "Furniture-ball-chair-black-mixed-linen-light-grey",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1866,7 +1866,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-mixed-linen",
+        "sku": "Furniture-ball-chair-black-mixed-linen-natural",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1880,7 +1880,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-mixed-linen",
+        "sku": "Furniture-ball-chair-black-mixed-linen-biscuit",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1894,7 +1894,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-mixed-linen",
+        "sku": "Furniture-ball-chair-black-mixed-linen-beige",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1908,7 +1908,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-mixed-linen",
+        "sku": "Furniture-ball-chair-black-mixed-linen-hazelnut",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1922,7 +1922,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-mixed-linen",
+        "sku": "Furniture-ball-chair-black-mixed-linen-brown",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1936,7 +1936,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-mixed-linen",
+        "sku": "Furniture-ball-chair-black-mixed-linen-dark-brown",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1950,7 +1950,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-mixed-linen",
+        "sku": "Furniture-ball-chair-black-mixed-linen-dark-green",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1964,7 +1964,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-mixed-linen",
+        "sku": "Furniture-ball-chair-black-mixed-linen-blue",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1978,7 +1978,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-mixed-linen",
+        "sku": "Furniture-ball-chair-black-mixed-linen-cognac",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -1992,7 +1992,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-mixed-linen",
+        "sku": "Furniture-ball-chair-black-mixed-linen-yellow",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -2006,7 +2006,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-mixed-linen",
+        "sku": "Furniture-ball-chair-black-mixed-linen-orange",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -2020,7 +2020,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-mixed-linen",
+        "sku": "Furniture-ball-chair-black-mixed-linen-tomato-red",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -2034,7 +2034,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-mixed-linen",
+        "sku": "Furniture-ball-chair-black-mixed-linen-red",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,
@@ -2048,7 +2048,7 @@
         ]
       },
       {
-        "sku": "Furniture-ball-chair-black-mixed-linen",
+        "sku": "Furniture-ball-chair-black-mixed-linen-dark-red",
         "price": 2199,
         "stockQuantity": 10000,
         "allowOutOfStockOrders": true,

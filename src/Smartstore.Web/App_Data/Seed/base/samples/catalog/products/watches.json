@@ -171,12 +171,6 @@
         "displayOrder": 1
       },
       {
-        "specificationAttributeOption": "material/stainless-steel",
-        "allowFiltering": true,
-        "showOnProductPage": true,
-        "displayOrder": 5
-      },
-      {
         "specificationAttributeOption": "manufacturer/seiko",
         "allowFiltering": true,
         "showOnProductPage": true,

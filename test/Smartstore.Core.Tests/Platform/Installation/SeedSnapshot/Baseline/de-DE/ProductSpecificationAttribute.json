@@ -752,15 +752,7 @@
     "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Hersteller|Seiko"
   },
   {
-    "$key": "Product:P-9003|SpecificationAttributeOption:SpecificationAttribute:Material|Edelstahl#1",
-    "AllowFiltering": true,
-    "DisplayOrder": 5,
-    "ProductId": "Product:P-9003",
-    "ShowOnProductPage": true,
-    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|Edelstahl"
-  },
-  {
-    "$key": "Product:P-9003|SpecificationAttributeOption:SpecificationAttribute:Material|Edelstahl#2",
+    "$key": "Product:P-9003|SpecificationAttributeOption:SpecificationAttribute:Material|Edelstahl",
     "AllowFiltering": true,
     "DisplayOrder": 1,
     "ProductId": "Product:P-9003",

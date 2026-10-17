@@ -760,15 +760,7 @@
     "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Manufacturer|Seiko"
   },
   {
-    "$key": "Product:P-9003|SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel#1",
-    "AllowFiltering": true,
-    "DisplayOrder": 5,
-    "ProductId": "Product:P-9003",
-    "ShowOnProductPage": true,
-    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel"
-  },
-  {
-    "$key": "Product:P-9003|SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel#2",
+    "$key": "Product:P-9003|SpecificationAttributeOption:SpecificationAttribute:Material|stainless steel",
     "AllowFiltering": true,
     "DisplayOrder": 1,
     "ProductId": "Product:P-9003",
