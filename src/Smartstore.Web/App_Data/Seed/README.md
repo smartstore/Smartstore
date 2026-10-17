@@ -5,11 +5,8 @@ mandatory data (currencies, countries, tax categories, settings, …) and the op
 sample catalog (categories, manufacturers, products, …), each in all installable languages.
 
 It replaces the seed data that used to live in C# (`InvariantSeedData`, `EnUSSeedData`,
-`DeDESeedData` in `src/Smartstore.Core/Platform/Installation`).
-
-> **Status: migration in progress.** The data files in `base/` and the overlays are complete,
-> but the installer reads only the areas listed under [Migrated areas](#migrated-areas) from
-> here. All other areas still come from the C# classes until they are migrated.
+`DeDESeedData` in `src/Smartstore.Core/Platform/Installation`). C# only orchestrates the
+installation (`InstallationDataSeeder`) and wires up database IDs; all data lives here.
 
 ## Folder layout
 
@@ -213,29 +210,30 @@ Tests in `test/Smartstore.Core.Tests/Platform/Installation`:
 | `Seeding/*Tests` | Unit tests of merger, data source, factory and resolver. |
 | `SeedSnapshot/InstallationSeedSnapshotTests` | Runs the real installation seeder for `en-US` and `de-DE` against SQLite and compares a normalized snapshot of all seeded tables with `SeedSnapshot/Baseline/{culture}`. |
 
-The snapshot must stay identical while data moves from C# into this folder. To accept an
-**intended** change, run the tests with `SMARTSTORE_UPDATE_SEED_SNAPSHOT=1` and review the
-baseline diff before committing it.
+The snapshot protects against unintended changes. To accept an **intended** change, run the
+tests with `SMARTSTORE_UPDATE_SEED_SNAPSHOT=1` and review the baseline diff before committing it.
 
-## Migrated areas
+## Data files
 
-| Area | Files | Status |
-|---|---|---|
-| Locale resources | `cultures/{culture}/resources/*` | Live |
-| Simple mandatory lists | `core/` `measure-dimensions`, `measure-weights`, `currencies`, `delivery-times`, `quantity-units`, `price-labels`, `shipping-methods` (+ `samples/`), `customer-roles` (+ `samples/`), `email-accounts`, `activity-log-types`, `tasks`, `product-templates`, `category-templates`, `manufacturer-templates` | Live |
-| Tax categories (with `rate`, `$aliases`) | `core/tax-categories.json` | Live |
-| Countries and states | `core/countries.json` | Live |
-| Topics (with `slug` overrides) | `core/topics.json` | Live |
-| Store, system customers, admin address | `core/stores.json`, `core/system-customers.json`, `core/admin-address.json` | Live |
-| Settings (`$ref` values) | `core/settings.json` | Live |
-| Menus (`@resource` titles, `publishedWhen`) | `core/menus.json` | Live |
-| Specification and product attributes, option sets | `samples/catalog/specification-attributes.json`, `product-attributes.json`, `product-attribute-option-sets.json` | Live |
-| Campaign, rule sets, discounts | `samples/campaigns.json`, `samples/rule-sets.json`, `samples/discounts.json` | Live |
-| Categories and manufacturers (with pictures and slugs) | `samples/catalog/categories.json`, `samples/catalog/manufacturers.json` | Live |
-| Product tags and products (pictures, specifications, tier prices, downloads, grouped and bundle products, variants, combinations) | `samples/catalog/product-tags.json`, `samples/catalog/products/*.json`, `cultures/{culture}/samples/catalog/attribute-value-names.json` | Live |
+In installation order. `core/` is always installed, `samples/` only with sample data.
 
-| All other data | `base/**`, `cultures/{culture}/**` | Exported, not read by the installer yet |
+| Area | Files |
+|---|---|
+| Locale resources | `cultures/{culture}/resources/*` |
+| Currencies, store | `core/currencies.json`, `core/stores.json` |
+| Measures, tax categories (with `rate`, `$aliases`), countries and states | `core/measure-dimensions.json`, `core/measure-weights.json`, `core/tax-categories.json`, `core/countries.json` |
+| Shipping, delivery, quantity units | `core/shipping-methods.json` (+ `samples/`), `core/delivery-times.json`, `core/quantity-units.json` |
+| Customer roles, admin address, system customers | `core/customer-roles.json` (+ `samples/`), `core/admin-address.json`, `core/system-customers.json` |
+| Email accounts, topics (with `slug` overrides), price labels | `core/email-accounts.json`, `core/topics.json`, `core/price-labels.json` |
+| Settings (`$ref` values) | `core/settings.json` |
+| Activity log types, templates, scheduled tasks | `core/activity-log-types.json`, `core/product-templates.json`, `core/category-templates.json`, `core/manufacturer-templates.json`, `core/tasks.json` |
+| Menus (`@resource` titles, `publishedWhen`) | `core/menus.json` |
+| Specification and product attributes, option sets | `samples/catalog/specification-attributes.json`, `product-attributes.json`, `product-attribute-option-sets.json` |
+| Campaign, rule sets, discounts | `samples/campaigns.json`, `samples/rule-sets.json`, `samples/discounts.json` |
+| Categories and manufacturers (with pictures and slugs) | `samples/catalog/categories.json`, `samples/catalog/manufacturers.json` |
+| Product tags and products (pictures, specifications, tier prices, downloads, grouped and bundle products, variants, combinations) | `samples/catalog/product-tags.json`, `samples/catalog/products/*.json`, `cultures/{culture}/samples/catalog/attribute-value-names.json` |
 
+Message templates are not part of this folder; they are imported from `App_Data/EmailTemplates`.
 Descriptors (files, keys, references) are defined in
 `src/Smartstore.Core/Platform/Installation/Seeding/InstallationSeedDescriptors.cs`.
 
