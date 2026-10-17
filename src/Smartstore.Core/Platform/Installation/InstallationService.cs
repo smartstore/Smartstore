@@ -1,7 +1,6 @@
 ﻿using System.Data.Common;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text.RegularExpressions;
 using System.Xml;
 using Autofac;
 using Microsoft.AspNetCore.Http;
@@ -24,6 +23,7 @@ namespace Smartstore.Core.Installation;
 public partial class InstallationService : IInstallationService
 {
     const string LanguageCookieName = ".Smart.Installation.Lang";
+    const string InstallationResourcesFileName = "installation.xml";
 
     private List<InstallationLanguage> _installLanguages;
 
@@ -571,22 +571,22 @@ public partial class InstallationService : IInstallationService
         {
             _installLanguages = new List<InstallationLanguage>();
 
-            foreach (var file in _appContext.AppDataRoot.EnumerateFiles("Localization/Installation", "*.xml"))
+            // File location: "App_Data/Seed/cultures/{culture}/installation.xml".
+            // The language code is the unique SEO code from "culture.json", e.g. "de".
+            var seedRoot = new LocalFileSystem(PathUtility.Join(_appContext.AppDataRoot.Root, SeedDataSource.AppDataFolder));
+
+            foreach (var culture in SeedDataSource.DiscoverCultures(seedRoot))
             {
-                var filePath = file.PhysicalPath;
-                var xmlDocument = new XmlDocument();
-                xmlDocument.Load(filePath);
-
-                // Get language code
-                var languageCode = string.Empty;
-
-                // File name format: installation.{languagecode}.xml
-                var r = new Regex(Regex.Escape("installation.") + "(.*?)" + Regex.Escape(".xml"));
-                var matches = r.Matches(file.Name);
-                foreach (Match match in matches)
+                var file = seedRoot.GetFile(PathUtility.Join(SeedDataSource.CulturesFolder, culture.Culture, InstallationResourcesFileName));
+                if (!file.Exists)
                 {
-                    languageCode = match.Groups[1].Value;
+                    continue;
                 }
+
+                var xmlDocument = new XmlDocument();
+                xmlDocument.Load(file.PhysicalPath);
+
+                var languageCode = culture.UniqueSeoCode;
 
                 // Get language friendly name
                 var languageName = xmlDocument.SelectSingleNode(@"//Language").Attributes["Name"].InnerText.Trim();

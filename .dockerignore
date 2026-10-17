@@ -49,7 +49,6 @@ src/Smartstore.Web/Modules/*
 src/Smartstore.Web/App_Data/*
 !src/Smartstore.Web/App_Data/EmailTemplates/*
 !src/Smartstore.Web/App_Data/Geo/*
-!src/Smartstore.Web/App_Data/Localization/*
 !src/Smartstore.Web/App_Data/Seed/*
 !src/Smartstore.Web/App_Data/icons.json
 !src/Smartstore.Web/App_Data/widgetzones.json

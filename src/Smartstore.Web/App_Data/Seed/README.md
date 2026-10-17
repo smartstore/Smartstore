@@ -18,6 +18,7 @@ App_Data/Seed/
 ├── cultures/
 │   └── {culture}/                e.g. de-DE
 │       ├── culture.json          Makes the culture installable (see below)
+│       ├── installation.xml      UI texts of the installer (optional)
 │       ├── resources/            Locale resources (*.smres.xml, head.txt), see below
 │       ├── core/…                Overlays: same relative paths as in base/
 │       └── samples/…
@@ -137,6 +138,11 @@ other data, so that seed records can reference resources (see below).
 > **Release process:** the resource files are updated for each release. They used to live in
 > `App_Data/Localization/App/{de|en}` and now live here.
 
+`cultures/{culture}/installation.xml` holds the texts of the installation wizard itself. A culture
+without it can still be installed, but the wizard is not offered in that language. The language
+code of the wizard is `uniqueSeoCode` from `culture.json`. These texts used to live in
+`App_Data/Localization/Installation/installation.{code}.xml`.
+
 ## Resource references
 
 A string value can reference a locale resource of the installed language:
@@ -187,6 +193,7 @@ of that culture are applied on top of the base data.
 
 1. Create `cultures/{culture}/culture.json`.
 2. Put the locale resources into `cultures/{culture}/resources/` (`*.smres.xml` and `head.txt`).
+   Optionally add `cultures/{culture}/installation.xml` to offer the installation wizard in that language.
 3. Add overlays for the files that need translation, mirroring the paths in `base/`.
    Only list the fields that differ.
 4. Run the seed tests (see below).

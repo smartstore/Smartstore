@@ -159,7 +159,7 @@ public class InstallationSeedSnapshotTests
         }
     }
 
-    private static string FindRepositoryRoot()
+    internal static string FindRepositoryRoot()
     {
         var dir = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
 
