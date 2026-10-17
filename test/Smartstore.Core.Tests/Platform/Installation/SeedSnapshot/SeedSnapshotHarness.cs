@@ -116,7 +116,6 @@ internal sealed class SeedSnapshotHarness : IDisposable
     /// </summary>
     public static async Task<SeedSnapshotHarness> SeedAsync(
         string sampleMediaSourceDir,
-        InvariantSeedData data,
         string culture,
         string languageName,
         string uniqueSeoCode,
@@ -147,7 +146,6 @@ internal sealed class SeedSnapshotHarness : IDisposable
                 DefaultUserPassword = Guid.NewGuid().ToString("N"),
                 SeedSampleData = seedSampleData,
                 StoreMediaInDB = true,
-                Data = data,
                 Language = new Language
                 {
                     Name = languageName,

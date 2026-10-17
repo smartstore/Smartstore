@@ -87,16 +87,9 @@ public class InstallationSeedSnapshotTests
         string uniqueSeoCode,
         string flagImageFileName)
     {
-        InvariantSeedData data = culture switch
-        {
-            "en-US" => new EnUSSeedData(),
-            "de-DE" => new DeDESeedData(),
-            _ => throw new ArgumentOutOfRangeException(nameof(culture))
-        };
-
         var seededAtUtc = DateTime.UtcNow;
 
-        using var harness = await SeedSnapshotHarness.SeedAsync(sampleMediaDir, data, culture, languageName, uniqueSeoCode, flagImageFileName);
+        using var harness = await SeedSnapshotHarness.SeedAsync(sampleMediaDir, culture,languageName, uniqueSeoCode, flagImageFileName);
         return SeedSnapshotWriter.CreateSnapshot(harness.Db, seededAtUtc);
     }
 
