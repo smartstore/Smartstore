@@ -234,8 +234,6 @@ baseline diff before committing it.
 | Categories and manufacturers (with pictures and slugs) | `samples/catalog/categories.json`, `samples/catalog/manufacturers.json` | Live |
 | Product tags and products (pictures, specifications, tier prices, downloads, grouped and bundle products, variants, combinations) | `samples/catalog/product-tags.json`, `samples/catalog/products/*.json`, `cultures/{culture}/samples/catalog/attribute-value-names.json` | Live |
 
-Pictures referenced by migrated records are still read from `App_Data/Samples` until the sample media
-move to `media/`. Every media reference creates its own media file.
 | All other data | `base/**`, `cultures/{culture}/**` | Exported, not read by the installer yet |
 
 Descriptors (files, keys, references) are defined in
@@ -251,5 +249,5 @@ Descriptors (files, keys, references) are defined in
 - After every change, run
   `dotnet test test/Smartstore.Core.Tests --filter "FullyQualifiedName~Installation"`.
   A snapshot diff is only acceptable when the data change was intended.
-- Do not edit `src/Smartstore.Web/App_Data/Samples` for migrated areas; sample media moves
-  to `media/`.
+- Sample images and downloads live in `media/`. Reference them by their path below `media/`.
+  Every media reference creates its own media file.

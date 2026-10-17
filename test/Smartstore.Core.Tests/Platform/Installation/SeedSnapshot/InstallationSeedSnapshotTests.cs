@@ -35,10 +35,10 @@ public class InstallationSeedSnapshotTests
     public async Task Seeded_data_matches_baseline(string culture, string languageName, string uniqueSeoCode, string flagImageFileName)
     {
         var repoRoot = FindRepositoryRoot();
-        var sampleMediaDir = Path.Combine(repoRoot, "src", "Smartstore.Web", "App_Data", "Samples");
+        var seedDir = Path.Combine(repoRoot, "src", "Smartstore.Web", "App_Data", "Seed");
         var baselineDir = Path.Combine(repoRoot, "test", "Smartstore.Core.Tests", "Platform", "Installation", "SeedSnapshot", "Baseline", culture);
 
-        var snapshot = await CreateSnapshotAsync(sampleMediaDir, culture, languageName, uniqueSeoCode, flagImageFileName);
+        var snapshot = await CreateSnapshotAsync(seedDir, culture, languageName, uniqueSeoCode, flagImageFileName);
 
         if (Environment.GetEnvironmentVariable(UpdateVariable) == "1")
         {
@@ -69,10 +69,10 @@ public class InstallationSeedSnapshotTests
     [Test]
     public async Task Snapshot_is_deterministic()
     {
-        var sampleMediaDir = Path.Combine(FindRepositoryRoot(), "src", "Smartstore.Web", "App_Data", "Samples");
+        var seedDir = Path.Combine(FindRepositoryRoot(), "src", "Smartstore.Web", "App_Data", "Seed");
 
-        var first = await CreateSnapshotAsync(sampleMediaDir, "de-DE", "Deutsch", "de", "de.png");
-        var second = await CreateSnapshotAsync(sampleMediaDir, "de-DE", "Deutsch", "de", "de.png");
+        var first = await CreateSnapshotAsync(seedDir, "de-DE", "Deutsch", "de", "de.png");
+        var second = await CreateSnapshotAsync(seedDir, "de-DE", "Deutsch", "de", "de.png");
 
         Assert.That(second.Keys, Is.EqualTo(first.Keys));
 
@@ -81,7 +81,7 @@ public class InstallationSeedSnapshotTests
     }
 
     private static async Task<SortedDictionary<string, string>> CreateSnapshotAsync(
-        string sampleMediaDir,
+        string seedDir,
         string culture,
         string languageName,
         string uniqueSeoCode,
@@ -89,7 +89,7 @@ public class InstallationSeedSnapshotTests
     {
         var seededAtUtc = DateTime.UtcNow;
 
-        using var harness = await SeedSnapshotHarness.SeedAsync(sampleMediaDir, culture,languageName, uniqueSeoCode, flagImageFileName);
+        using var harness = await SeedSnapshotHarness.SeedAsync(seedDir, culture, languageName, uniqueSeoCode, flagImageFileName);
         return SeedSnapshotWriter.CreateSnapshot(harness.Db, seededAtUtc);
     }
 

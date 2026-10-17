@@ -514,8 +514,7 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
     /// </summary>
     private MediaFile CreateSampleMedia(string path, string name)
     {
-        // Sample media still live in "App_Data/Samples" until they move to "App_Data/Seed/media".
-        _sampleMedia ??= new SampleMediaUtility(Context, "/App_Data/Samples");
+        _sampleMedia ??= new SampleMediaUtility(Context, $"/App_Data/{SeedDataSource.AppDataFolder}/{SeedDataSource.MediaFolder}");
         return _sampleMedia.CreateMediaFileAsync(path, name).GetAwaiter().GetResult();
     }
 

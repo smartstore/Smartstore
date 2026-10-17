@@ -60,7 +60,6 @@
 		<!-- Licensed Pro assets are local-only and must not enter publish/deployment output. -->
 		<None Include="App_Data\Icons\**" Exclude="App_Data\Icons\fontawesome-pro\**" CopyToPublishDirectory="PreserveNewest" />
 		<None Include="App_Data\Localization\**" CopyToPublishDirectory="PreserveNewest" />
-		<None Include="App_Data\Samples\**" CopyToPublishDirectory="PreserveNewest" />
 		<None Include="App_Data\Seed\**" Exclude="App_Data\Seed\README.md" CopyToPublishDirectory="PreserveNewest" />
 	</ItemGroup>
 

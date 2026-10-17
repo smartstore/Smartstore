@@ -46,15 +46,18 @@ internal sealed class SeedSnapshotHarness : IDisposable
     private readonly IFileSystem _previousCommonContentRoot;
     private readonly IContainer _container;
 
-    private SeedSnapshotHarness(string sampleMediaSourceDir)
+    private SeedSnapshotHarness(string seedSourceDir)
     {
         _previousEngine = EngineContext.Current;
         _previousCommonContentRoot = CommonHelper.ContentRoot;
 
-        // Isolated content root: only the sample media is needed. Without "App_Data/Localization"
-        // the seeder skips locale resources and never touches the DB migrator.
+        // Isolated content root with the seed folder (data, media and locale resources), but without
+        // "head.txt": pending migration resources need the DB migrator.
         _contentRoot = Path.Combine(Path.GetTempPath(), "SmartstoreSeedSnapshot", Guid.NewGuid().ToString("N"));
-        CopyDirectory(sampleMediaSourceDir, Path.Combine(_contentRoot, "App_Data", "Samples"));
+        CopyDirectory(
+            seedSourceDir,
+            Path.Combine(_contentRoot, "App_Data", SeedDataSource.AppDataFolder),
+            file => Path.GetFileName(file) != "head.txt");
 
         var contentRootFs = new LocalFileSystem(_contentRoot);
         var appDataFs = new LocalFileSystem(Path.Combine(_contentRoot, "App_Data"));
@@ -115,28 +118,14 @@ internal sealed class SeedSnapshotHarness : IDisposable
     /// Seeds a fresh database with the given seed data and returns the harness holding it.
     /// </summary>
     public static async Task<SeedSnapshotHarness> SeedAsync(
-        string sampleMediaSourceDir,
+        string seedSourceDir,
         string culture,
         string languageName,
         string uniqueSeoCode,
         string flagImageFileName,
         bool seedSampleData = true)
     {
-        var harness = new SeedSnapshotHarness(sampleMediaSourceDir);
-
-        // Seed data and locale resources, without "head.txt": pending migration resources need the DB migrator.
-        var seedDir = Path.Combine(Path.GetDirectoryName(sampleMediaSourceDir), SeedDataSource.AppDataFolder);
-        if (Directory.Exists(seedDir))
-        {
-            var targetRoot = Path.Combine(harness._contentRoot, "App_Data", SeedDataSource.AppDataFolder);
-
-            foreach (var file in Directory.EnumerateFiles(seedDir, "*", SearchOption.AllDirectories).Where(x => Path.GetFileName(x) != "head.txt"))
-            {
-                var target = Path.Combine(targetRoot, Path.GetRelativePath(seedDir, file));
-                Directory.CreateDirectory(Path.GetDirectoryName(target));
-                File.Copy(file, target);
-            }
-        }
+        var harness = new SeedSnapshotHarness(seedSourceDir);
 
         try
         {
@@ -190,11 +179,11 @@ internal sealed class SeedSnapshotHarness : IDisposable
         }
     }
 
-    private static void CopyDirectory(string source, string target)
+    private static void CopyDirectory(string source, string target, Func<string, bool> predicate)
     {
         Directory.CreateDirectory(target);
 
-        foreach (var file in Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories))
+        foreach (var file in Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories).Where(predicate))
         {
             var dest = Path.Combine(target, Path.GetRelativePath(source, file));
             Directory.CreateDirectory(Path.GetDirectoryName(dest));
