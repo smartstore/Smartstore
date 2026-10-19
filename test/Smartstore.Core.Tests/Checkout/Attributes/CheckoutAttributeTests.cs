@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Moq;
@@ -7,15 +8,20 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Rules;
+using Smartstore.Core.Checkout.Tax;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Stores;
+using Smartstore.Core.Web;
 using Smartstore.Domain;
+using Smartstore.Test.Common;
 
 namespace Smartstore.Core.Tests.Checkout.Attributes;
 
 [TestFixture]
-public class CheckoutAttributeMaterializerTests : ServiceTestBase
+public class CheckoutAttributeTests : ServiceTestBase
 {
     CheckoutAttributeMaterializer _materializer;
     Mock<ICartRuleProvider> _cartRuleProvider;
@@ -145,7 +151,7 @@ public class CheckoutAttributeMaterializerTests : ServiceTestBase
     }
 
     [Test]
-    public async Task Can_materialize_matching_checkout_attributes_and_values()
+    public async Task Can_materialize_checkout_attributes()
     {
         var selection = new CheckoutAttributeSelection(null);
         selection.AddAttributeValue(_matchingAttributeId, _matchingValueId);
@@ -168,5 +174,83 @@ public class CheckoutAttributeMaterializerTests : ServiceTestBase
             Assert.That(materializedSelection.Attributes.Select(x => x.Id), Does.Not.Contain(_nonMatchingAttributeId));
             Assert.That(materializedSelection.SelectedValues.Select(x => x.Id).ToArray(), Is.EqualTo([_matchingValueId]));
         }
+    }
+
+    [Test]
+    public async Task Can_format_checkout_attributes()
+    {
+        var workContext = new Mock<IWorkContext>();
+        workContext.Setup(x => x.WorkingLanguage).Returns(new Language { Id = 1, LanguageCulture = "en-US" });
+
+        var formatter = new CheckoutAttributeFormatter(
+            Mock.Of<ICurrencyService>(),
+            workContext.Object,
+            Mock.Of<ITaxService>(),
+            Mock.Of<ITaxCalculator>(),
+            Mock.Of<IWebHelper>(),
+            DbContext);
+
+        var unselectedAttribute = new CheckoutAttribute
+        {
+            Id = 1,
+            Name = "Unselected",
+            AttributeControlType = AttributeControlType.TextBox
+        };
+        var selectedAttribute = new CheckoutAttribute
+        {
+            Id = 2,
+            Name = "Selected",
+            AttributeControlType = AttributeControlType.TextBox
+        };
+
+        var selection = new CheckoutAttributeSelection(null);
+        selection.AddAttributeValue(selectedAttribute.Id, "Value");
+
+        var attributes = new MaterializedCheckoutAttributes(
+            new Customer(),
+            selection,
+            [unselectedAttribute, selectedAttribute],
+            []);
+
+        var result = await formatter.FormatAttributesAsync(attributes);
+
+        Assert.That(result, Is.EqualTo("Selected: Value"));
+    }
+
+    [Test]
+    public void Can_remove_shippable_checkout_attributes()
+    {
+        var attributes = new List<CheckoutAttribute>
+        {
+            new()
+            {
+                Id = 1,
+                Name = "Attribute 1",
+                ShippableProductRequired = false,
+            },
+            new()
+            {
+                Id = 2,
+                Name = "Attribute 2",
+                ShippableProductRequired = true,
+            },
+            new()
+            {
+                Id = 3,
+                Name = "Attribute 3",
+                ShippableProductRequired = false,
+            },
+            new()
+            {
+                Id = 4,
+                Name = "Attribute 4",
+                ShippableProductRequired = true,
+            }
+        };
+
+        var filtered = attributes.Where(x => !x.ShippableProductRequired).ToList();
+        filtered.Count.ShouldEqual(2);
+        filtered[0].Id.ShouldEqual(1);
+        filtered[1].Id.ShouldEqual(3);
     }
 }

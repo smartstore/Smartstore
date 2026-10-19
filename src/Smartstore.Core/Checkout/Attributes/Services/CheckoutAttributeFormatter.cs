@@ -54,11 +54,15 @@ public partial class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
         for (var i = 0; i < attributesList.Count; i++)
         {
             var currentAttribute = attributesList[i];
-            var currentAttributeValues = attributes.Selection.GetAttributeValues(currentAttribute.Id)?.ToList() ?? [];
-
-            for (var j = 0; j < currentAttributeValues.Count; j++)
+            var currentValues = attributes.Selection.GetAttributeValues(currentAttribute.Id)?.ToList();
+            if (currentValues.IsNullOrEmpty())
             {
-                var currentValue = currentAttributeValues[j].ToString();
+                continue;
+            }
+
+            for (var j = 0; j < currentValues.Count; j++)
+            {
+                var currentValue = currentValues[j].ToString();
                 var attributeStr = string.Empty;
                 if (!currentAttribute.IsListTypeAttribute)
                 {
@@ -159,7 +163,7 @@ public partial class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
 
                 if (attributeStr.HasValue())
                 {
-                    if (i != 0 || j != 0)
+                    if (sb.Length > 0)
                     {
                         sb.Append(options.ItemSeparator);
                     }
