@@ -1,0 +1,18 @@
+// Key field: key
+[
+  {
+    "key": "admin",
+    "firstName": "John",
+    "lastName": "Smith",
+    "email": "admin@myshop.com",
+    "company": "John Smith LLC",
+    "country": "US",
+    "stateProvince": "US/AA",
+    "city": "New York",
+    "address1": "1234 Main Road",
+    "address2": "",
+    "zipPostalCode": "12212",
+    "phoneNumber": "12345678",
+    "faxNumber": ""
+  }
+]

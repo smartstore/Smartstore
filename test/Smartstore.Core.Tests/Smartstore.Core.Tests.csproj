@@ -34,6 +34,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\Smartstore.Core\Smartstore.Core.csproj" />
 		<ProjectReference Include="..\..\src\Smartstore\Smartstore.csproj" />
+		<ProjectReference Include="..\..\src\Smartstore.Data\Smartstore.Data.Sqlite\Smartstore.Data.Sqlite.csproj" />
 		<ProjectReference Include="..\Smartstore.Test.Common\Smartstore.Test.Common.csproj" />
 	</ItemGroup>
 

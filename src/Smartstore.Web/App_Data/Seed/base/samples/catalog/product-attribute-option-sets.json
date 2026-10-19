@@ -1,0 +1,73 @@
+// Key field: key
+[
+  {
+    "key": "general-colors",
+    "name": "General colors",
+    "productAttribute": "color",
+    "options": [
+      {
+        "name": "Red",
+        "alias": "red",
+        "color": "#ff0000",
+        "displayOrder": 1,
+        "quantity": 1
+      },
+      {
+        "name": "Green",
+        "alias": "green",
+        "color": "#008000",
+        "displayOrder": 2,
+        "quantity": 1
+      },
+      {
+        "name": "Blue",
+        "alias": "blue",
+        "color": "#0000ff",
+        "displayOrder": 3,
+        "quantity": 1
+      },
+      {
+        "name": "Yellow",
+        "alias": "yellow",
+        "color": "#ffff00",
+        "displayOrder": 4,
+        "quantity": 1
+      },
+      {
+        "name": "Black",
+        "alias": "black",
+        "color": "#000000",
+        "displayOrder": 5,
+        "quantity": 1
+      },
+      {
+        "name": "White",
+        "alias": "white",
+        "color": "#ffffff",
+        "displayOrder": 6,
+        "quantity": 1
+      },
+      {
+        "name": "Gray",
+        "alias": "gray",
+        "color": "#808080",
+        "displayOrder": 7,
+        "quantity": 1
+      },
+      {
+        "name": "Silver",
+        "alias": "silver",
+        "color": "#dddfde",
+        "displayOrder": 8,
+        "quantity": 1
+      },
+      {
+        "name": "Brown",
+        "alias": "brown",
+        "color": "#a52a2a",
+        "displayOrder": 9,
+        "quantity": 1
+      }
+    ]
+  }
+]

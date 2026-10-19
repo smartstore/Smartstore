@@ -1,0 +1,9 @@
+// Key field: key
+[
+  {
+    "key": "free-shipping",
+    "name": "Free shipping",
+    "displayOrder": 2,
+    "ignoreCharges": true
+  }
+]

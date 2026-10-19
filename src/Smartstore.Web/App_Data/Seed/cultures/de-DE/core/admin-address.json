@@ -1,0 +1,13 @@
+{
+  "admin": {
+    "firstName": "Max",
+    "lastName": "Mustermann",
+    "email": "admin@meineshopurl.de",
+    "company": "Max Mustermann",
+    "country": "DE",
+    "stateProvince": "DE/BW",
+    "city": "Musterstadt",
+    "address1": "Musterweg 1",
+    "zipPostalCode": "12345"
+  }
+}

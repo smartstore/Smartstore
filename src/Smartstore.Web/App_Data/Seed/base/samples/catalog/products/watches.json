@@ -1,0 +1,274 @@
+// Key field: sku
+[
+  {
+    "name": "TRANSOCEAN CHRONOGRAPH",
+    "shortDescription": "The Transocean Chronograph interprets the factual aesthetics of classic chronographs of the 1950s and 1960s in a decidedly contemporary style.",
+    "fullDescription": "@file",
+    "showOnHomePage": true,
+    "metaTitle": "TRANSOCEAN CHRONOGRAPH",
+    "sku": "P-9001",
+    "taxCategory": "jewelry",
+    "price": 24110,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Watches"
+    ],
+    "manufacturers": [
+      "breitling"
+    ],
+    "pictures": [
+      "product/transocean-chronograph.jpg"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "offer/promotion",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 1
+      },
+      {
+        "specificationAttributeOption": "manufacturer/breitling",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 2
+      },
+      {
+        "specificationAttributeOption": "material/stainless-steel",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 1
+      },
+      {
+        "specificationAttributeOption": "material/leather",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 5
+      },
+      {
+        "specificationAttributeOption": "gender/gentlemen",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 5
+      },
+      {
+        "specificationAttributeOption": "movement/mechanical-self-winding",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 5
+      },
+      {
+        "specificationAttributeOption": "diameter/44mm",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 5
+      },
+      {
+        "specificationAttributeOption": "closure/folding-clasp",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 5
+      }
+    ],
+    "manageInventoryMethod": "DontManageStock"
+  },
+  {
+    "name": "Tissot T-Touch Expert Solar",
+    "shortDescription": "The beam of the Tissot T-Touch Expert Solar on the dial ensures that the Super-LumiNova®-coated indexes and hands illuminate in the dark, and on the other hand, charges the battery of the watch. This model is a force package in every respect.",
+    "fullDescription": "@file",
+    "showOnHomePage": true,
+    "metaTitle": "Tissot T-Touch Expert Solar",
+    "sku": "P-9002",
+    "taxCategory": "jewelry",
+    "price": 969,
+    "comparePrice": 990,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Watches"
+    ],
+    "manufacturers": [
+      "tissot"
+    ],
+    "pictures": [
+      "product/tissot-t-touch-expert-solar.jpg",
+      "product/tissot-t-touch-expert-solar-t091_2.jpg"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "offer/best-price",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 1
+      },
+      {
+        "specificationAttributeOption": "manufacturer/tissot",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 2
+      },
+      {
+        "specificationAttributeOption": "material/stainless-steel",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 1
+      },
+      {
+        "specificationAttributeOption": "material/silicone",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 5
+      },
+      {
+        "specificationAttributeOption": "gender/gentlemen",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 5
+      },
+      {
+        "specificationAttributeOption": "movement/mechanical-self-winding",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 5
+      },
+      {
+        "specificationAttributeOption": "diameter/44mm",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 5
+      },
+      {
+        "specificationAttributeOption": "closure/thorn-close",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 5
+      }
+    ],
+    "manageInventoryMethod": "DontManageStock"
+  },
+  {
+    "name": "Seiko Mechanical Automatic SRPA49K1",
+    "shortDescription": "Seiko Mechanical Automatic SRPA49K1",
+    "fullDescription": "@file",
+    "showOnHomePage": true,
+    "metaTitle": "Seiko Mechanical Automatic SRPA49K1",
+    "sku": "P-9003",
+    "taxCategory": "jewelry",
+    "price": 269,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Watches"
+    ],
+    "manufacturers": [
+      "seiko"
+    ],
+    "pictures": [
+      "product/SeikoSRPA49K1.jpg"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "material/stainless-steel",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 1
+      },
+      {
+        "specificationAttributeOption": "manufacturer/seiko",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 2
+      },
+      {
+        "specificationAttributeOption": "gender/gentlemen",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 5
+      },
+      {
+        "specificationAttributeOption": "movement/mechanical-self-winding",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 5
+      },
+      {
+        "specificationAttributeOption": "closure/folding-clasp",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 5
+      },
+      {
+        "specificationAttributeOption": "diameter/44mm",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 5
+      }
+    ],
+    "manageInventoryMethod": "DontManageStock"
+  },
+  {
+    "name": "Certina DS Podium Big Size",
+    "shortDescription": "C001.617.26.037.00",
+    "fullDescription": "@file",
+    "showOnHomePage": true,
+    "metaTitle": "Certina DS Podium Big Size",
+    "sku": "P-9004",
+    "taxCategory": "jewelry",
+    "price": 479,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Watches"
+    ],
+    "manufacturers": [
+      "certina"
+    ],
+    "pictures": [
+      "product/certina_ds_podium_big.png"
+    ],
+    "tags": [
+      "watches"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "material/stainless-steel",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 1
+      },
+      {
+        "specificationAttributeOption": "material/leather",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 5
+      },
+      {
+        "specificationAttributeOption": "manufacturer/certina",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 2
+      },
+      {
+        "specificationAttributeOption": "gender/gentlemen",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 5
+      },
+      {
+        "specificationAttributeOption": "movement/quarz-battery-operated",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 5
+      },
+      {
+        "specificationAttributeOption": "closure/folding-clasp",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 5
+      },
+      {
+        "specificationAttributeOption": "diameter/40mm",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 5
+      }
+    ],
+    "manageInventoryMethod": "DontManageStock"
+  }
+]

@@ -1,4 +1,4 @@
-﻿@using Smartstore.Admin.Models.Maintenance;
+@using Smartstore.Admin.Models.Maintenance;
 @using Smartstore.Utilities
 @using Smartstore.Collections
 
@@ -107,6 +107,47 @@
             </div>
         </div>
 
+        @* IconMigration *@
+        <div id="icon-migration" class="card mb-4"
+             data-started="@T("Admin.System.Maintenance.Icons.Started")"
+             data-completed="@T("Admin.System.Maintenance.Icons.Completed")"
+             data-migrated="@T("Admin.System.Maintenance.Icons.Migrated")"
+             data-warning="@T("Admin.System.Maintenance.Icons.Warning")"
+             data-not-migrated="@T("Admin.System.Maintenance.Icons.NotMigrated")"
+             data-failed="@T("Admin.System.Maintenance.Icons.Failed")">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="card-title">@T("Admin.System.Maintenance.Icons.Title")</h5>
+                    <button type="button" id="migrate-icons" class="btn btn-secondary btn-to-primary" style="width: 200px"
+                            data-url="@Url.Action("MigrateIcons")">
+                        <icon name="refresh" />
+                        <span>@T("Admin.System.Maintenance.Icons.Start")</span>
+                    </button>
+                </div>
+                <div class="text-muted" style="margin-right: 220px">
+                    @T("Admin.System.Maintenance.Icons.Hint")
+                </div>
+                <div id="icon-migration-status" class="alert alert-info d-none mt-3 mb-0" role="status"></div>
+                <div id="icon-migration-log" class="border rounded bg-light p-3 mt-3 d-none" style="max-height: 300px; overflow-y: auto" role="log">
+                    <table class="table table-sm table-borderless small mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col"></th>
+                                <th scope="col">@T("Admin.System.Maintenance.Icons.Columns.Entity")</th>
+                                <th scope="col">@T("Admin.System.Maintenance.Icons.Columns.RecordId")</th>
+                                <th scope="col">@T("Admin.System.Maintenance.Icons.Columns.Field")</th>
+                                <th scope="col">@T("Admin.System.Maintenance.Icons.Columns.Message")</th>
+                                <th scope="col">@T("Admin.System.Maintenance.Icons.Columns.NewValue")</th>
+                            </tr>
+                        </thead>
+                        <tbody id="icon-migration-rows"></tbody>
+                    </table>
+                </div>
+                <template id="icon-migration-success"><icon name="check" class="text-success" /></template>
+                <template id="icon-migration-failure"><icon name="close" class="text-danger" /></template>
+            </div>
+        </div>
+
         @* TreePaths *@
         <div class="card mb-4">
             <div class="card-body">
@@ -172,3 +213,78 @@
 
     </div>
 </form>
+
+<script sm-target-zone="scripts" sm-minify="true" data-origin="icon-migration">
+    $(function () {
+        const card = $('#icon-migration'), texts = card[0].dataset;
+        const button = $('#migrate-icons'), rows = $('#icon-migration-rows');
+        const log = $('#icon-migration-log'), status = $('#icon-migration-status');
+        const labels = { Migrated: texts.migrated, Warning: texts.warning, NotMigrated: texts.notMigrated };
+        const showStatus = (kind, text) => status.attr('class', `alert alert-${kind} mt-3 mb-0`).text(text);
+
+        function appendEntry(entry) {
+            const icon = document.getElementById(entry.status === 'Migrated' ? 'icon-migration-success' : 'icon-migration-failure');
+            const label = labels[entry.status] || entry.status;
+            const row = $('<tr>').appendTo(rows);
+            $('<td class="text-center text-nowrap">').attr({ title: label, 'aria-label': label })
+                .append(icon.content.cloneNode(true)).appendTo(row);
+            // Report values may contain legacy HTML; render them strictly as text.
+            [entry.entityName, `#${entry.recordId}`, entry.field, entry.message, entry.newValue]
+                .forEach(value => $('<td>').text(value || '').appendTo(row));
+            log.scrollTop(log[0].scrollHeight);
+        }
+
+        button.on('click', async function () {
+            if (this.disabled) return;
+            this.disabled = true;
+            rows.empty();
+            log.removeClass('d-none');
+            showStatus('info', texts.started);
+            const request = new AbortController();
+            let finished = false;
+
+            function receive(line) {
+                if (!line.trim()) return;
+                const { type, entry, result, message } = JSON.parse(line);
+                if (type === 'entry') appendEntry(entry);
+                if (type === 'error') throw new Error(message || texts.failed);
+                if (type === 'completed') {
+                    finished = true;
+                    const counts = [result.checkedRecords, result.migratedIcons, result.notMigratedIcons];
+                    showStatus('success', texts.completed.replace(/\{(\d+)\}/g, (_, i) => counts[i]));
+                }
+            }
+
+            try {
+                const data = new FormData();
+                const token = this.form.elements.__RequestVerificationToken;
+                if (token) data.append(token.name, token.value);
+                const response = await fetch(this.dataset.url, {
+                    method: 'POST', body: data, signal: request.signal,
+                    headers: { Accept: 'application/x-ndjson' }
+                });
+                if (!response.ok || !response.body || !response.headers.get('content-type')?.includes('application/x-ndjson')) {
+                    throw new Error(texts.failed);
+                }
+
+                const reader = response.body.getReader(), decoder = new TextDecoder();
+                let pending = '';
+                // Preserve incomplete JSON lines and UTF-8 characters across network chunks.
+                while (true) {
+                    const { value, done } = await reader.read();
+                    const lines = (pending + decoder.decode(value, { stream: !done })).split('\n');
+                    pending = lines.pop();
+                    lines.forEach(receive);
+                    if (done) break;
+                }
+                receive(pending);
+                if (!finished) throw new Error(texts.failed);
+            } catch (error) {
+                showStatus('danger', error.message || texts.failed);
+            } finally {
+                request.abort();
+                this.disabled = false;
+            }
+        });
+    });
+</script>

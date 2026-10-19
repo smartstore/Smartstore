@@ -23,6 +23,7 @@ using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
+using Smartstore.Core.Data.Migrations.Icons;
 using Smartstore.Data;
 using Smartstore.Data.Caching;
 using Smartstore.Data.Providers;
@@ -117,6 +118,8 @@ internal class CoreStarter : StarterBase
 
     public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
     {
+        builder.RegisterType<IconMigrator>().As<IIconMigrator>().SingleInstance();
+
         builder.RegisterType<LiquidTemplateEngine>().As<ITemplateEngine>().SingleInstance();
 
         builder.RegisterModule(new LoggingModule());

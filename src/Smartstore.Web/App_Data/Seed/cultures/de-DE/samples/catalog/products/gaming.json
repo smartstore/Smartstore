@@ -1,0 +1,53 @@
+{
+  "Sony-PS399000": {
+    "shortDescription": "Die Sony PlayStation 4 Pro ist die Multi-Media-Konsole für die nächste Generation der digitalen Home Entertainment. Es bietet die Blu-ray-Technologie, mit der Sie Filme in High Definition genießen können.",
+    "fullDescription": "@file"
+  },
+  "Sony-PS399105": {
+    "shortDescription": "100GB PlayStation®4 system, 2 × DUALSHOCK®4 wireless controller unf Minecraft für PS4 Edition.",
+    "fullDescription": "@file"
+  },
+  "Sony-PS410034": {
+    "shortDescription": "In Zusammenarbeit mit einigen der kreativsten Köpfe der Industrie entstanden, bietet die PlayStation® 4 atemberaubende und einzigartige Gaming-Erlebnis.",
+    "fullDescription": "@file"
+  },
+  "Sony-PS399004": {
+    "shortDescription": "Durch Kombination klassischer Steuerelemente mit innovativen neuen Möglichkeiten des Spielens, ist der Wireless Controller DUALSHOCK® 4 der evolutionäre Controller für eine neue Ära des Gaming.",
+    "fullDescription": "@file"
+  },
+  "Sony-PS410040": {
+    "name": "PlayStation 4 Kamera",
+    "shortDescription": "Eine Kamera, die die Tiefe der Umgebung vor ihr wahrnehmen kann und die mithilfe der LED-Leuchte die Position des Controllers im dreidimensionalen Raum bestimmen kann.",
+    "fullDescription": "@file"
+  },
+  "Sony-PS410099": {
+    "shortDescription": "PlayStation®4 Console, DUALSHOCK®4 wireless controller und PS4 Kamera.",
+    "fullDescription": "@file",
+    "bundleTitleText": "Produktset besteht aus"
+  },
+  "PD-Minecraft4ps4": {
+    "shortDescription": "Third-Person Action-Abenteuer Titel Set.",
+    "fullDescription": "@file"
+  },
+  "Sony-GroupAccessories": {
+    "name": "Zubehör für unbegrenzte Gaming-Erlebnis",
+    "shortDescription": "Die Zukunft des Gaming ist jetzt mit dynamischen, verbundenen Spiele, starke Grafikleistung und Geschwindigkeit, intelligente Personalisierung, integrierter sozialer Fähigkeiten und innovative Second-Screen-Funktionen. Der geniale Höhepunkt der kreativsten Köpfe in der Industrie, bietet PlayStation® 4 eine einzigartige Spielumgebung, die Ihnen den Atem rauben wird.",
+    "fullDescription": "@file"
+  },
+  "Ubi-princepersia": {
+    "name": "Prince of Persia \"Die vergessene Zeit\"",
+    "shortDescription": "Mit Prince of Persia: Die Vergessene Zeit erscheint eine völlig neue Geschichte aus dem Prince of Persia-Universum. Auf den Spieler warten bisher unbekannte Charaktere und neuartige Kräfte, mit denen die Natur und die Zeit kontrolliert werden können. Die Handlung des Spiels ist zwischen Prince of Persia The Sands of Time und Prince of Persia Warrior Within angesiedelt.",
+    "fullDescription": "@file"
+  },
+  "Gaming-Lego-001": {
+    "shortDescription": "Erleben Sie eine Galaxie von Welten, die ganz aus LEGO-Steinen hergestellt wurden.",
+    "fullDescription": "@file"
+  },
+  "PD-ZeroDown4PS4": {
+    "shortDescription": "Erleben Sie eine lebendige, üppige Welt, die von geheimnisvollen mechanisierten Kreaturen bewohnt wird",
+    "fullDescription": "@file"
+  },
+  "PD-Fifa17": {
+    "fullDescription": "@file"
+  }
+}

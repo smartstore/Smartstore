@@ -1,0 +1,29 @@
+[
+  {
+    "$key": "Niedrigster",
+    "Description": "Es handelt sich um den niedrigsten Preis des Produktes in den letzten 30 Tagen vor der Anwendung der Preisermäßigung.",
+    "DisplayOrder": 0,
+    "DisplayShortNameInLists": true,
+    "IsRetailPrice": false,
+    "Name": "Zuletzt niedrigster Preis",
+    "ShortName": "Niedrigster"
+  },
+  {
+    "$key": "Regulär",
+    "Description": "Es handelt sich um den mittleren Verkaufspreis, den Kunden für ein Produkt in unserem Shop zahlen, ausgenommen Aktionspreise.",
+    "DisplayOrder": 0,
+    "DisplayShortNameInLists": false,
+    "IsRetailPrice": false,
+    "Name": "Regulär",
+    "ShortName": "Regulär"
+  },
+  {
+    "$key": "UVP",
+    "Description": "Die UVP ist der vorgeschlagene oder empfohlene Verkaufspreis eines Produkts, wie er vom Hersteller angegeben und vom Hersteller, einem Lieferanten oder Händler zur Verfügung gestellt wird.",
+    "DisplayOrder": 0,
+    "DisplayShortNameInLists": true,
+    "IsRetailPrice": true,
+    "Name": "Unverb. Preisempf.",
+    "ShortName": "UVP"
+  }
+]

@@ -1,0 +1,936 @@
+// Key field: sku
+[
+  {
+    "name": "Titleist SM6 Tour Chrome",
+    "shortDescription": "For golfers who want maximum impact control and feedback.",
+    "fullDescription": "@file",
+    "metaTitle": "Titleist SM6 Tour Chrome",
+    "sku": "P-7004",
+    "taxCategory": "apparel",
+    "price": 164.95,
+    "comparePrice": 199.95,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Golf"
+    ],
+    "manufacturers": [
+      "titleist"
+    ],
+    "pictures": [
+      "product/titleist_sm6_tour_chrome.jpg"
+    ]
+  },
+  {
+    "name": "Titleist Pro V1x",
+    "shortDescription": "Golf ball with high ball flight",
+    "fullDescription": "​​The top players rely on the new Titleist Pro V1x. High ball flight, soft feel and more spin in the short game are the advantages of the V1x version. Perfect performance from the leading manufacturer. The new Titleist Pro V1 golf ball is exactly defined and promises penetrating ball flight with very soft hit feeling.",
+    "metaTitle": "Titleist Pro V1x",
+    "sku": "P-7001",
+    "taxCategory": "apparel",
+    "price": 2.1,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Golf"
+    ],
+    "manufacturers": [
+      "titleist"
+    ],
+    "pictures": [
+      "product/titleist-pro-v1x.jpg"
+    ]
+  },
+  {
+    "name": "GBB Epic Sub Zero Driver",
+    "shortDescription": "Low spin for good golfing!",
+    "fullDescription": "Your game wins with the GBB Epic Sub Zero Driver. A golf club with an extremely low spin and the phenomenal high-speed characteristic.",
+    "metaTitle": "GBB Epic Sub Zero Driver",
+    "sku": "P-7003",
+    "taxCategory": "apparel",
+    "price": 489,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Golf"
+    ],
+    "manufacturers": [
+      "titleist"
+    ],
+    "pictures": [
+      "product/gbb-epic-sub-zero-driver.jpg"
+    ]
+  },
+  {
+    "name": "Supreme Golfball",
+    "shortDescription": "Training balls with perfect flying characteristics",
+    "fullDescription": "​Perfect golf exercise ball with the characteristics like the 'original', but in a glass-fracture-proof execution. Massive core, an ideal training ball for yard and garden. Colors: white, yellow, orange.",
+    "metaTitle": "Supreme Golfball",
+    "sku": "P-7002",
+    "taxCategory": "apparel",
+    "price": 1.9,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Golf"
+    ],
+    "manufacturers": [
+      "titleist"
+    ],
+    "pictures": [
+      "product/supremeGolfball_1.jpg",
+      "product/supremeGolfball_2.jpg"
+    ]
+  },
+  {
+    "name": "Nike Strike Football",
+    "shortDescription": "GREAT TOUCH. HIGH VISIBILITY.",
+    "fullDescription": "@file",
+    "metaTitle": "Nike Strike Football",
+    "sku": "P-5004",
+    "taxCategory": "apparel",
+    "price": 59.9,
+    "comparePrice": 69.9,
+    "hasTierPrices": true,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Soccer"
+    ],
+    "manufacturers": [
+      "nike"
+    ],
+    "pictures": [
+      "product/nike-strike-football.jpg"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "manufacturer/nike",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      },
+      {
+        "specificationAttributeOption": "material/rubber",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      }
+    ],
+    "tierPrices": [
+      {
+        "quantity": 6,
+        "price": 26.9
+      },
+      {
+        "quantity": 12,
+        "price": 24.9
+      },
+      {
+        "quantity": 24,
+        "price": 22.9
+      }
+    ]
+  },
+  {
+    "name": "Evopower 5.3 Trainer HS Ball",
+    "shortDescription": "Entry level training ball.",
+    "fullDescription": "@file",
+    "metaTitle": "Evopower 5.3 Trainer HS Ball",
+    "sku": "P-5003",
+    "taxCategory": "apparel",
+    "price": 59.9,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Soccer"
+    ],
+    "manufacturers": [
+      "nike"
+    ],
+    "pictures": [
+      "product/nike-vopower-53-trainer-hs-ball.jpg"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "manufacturer/nike",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      },
+      {
+        "specificationAttributeOption": "material/leather",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      }
+    ],
+    "variantAttributes": [
+      {
+        "productAttribute": "ballsize",
+        "isRequired": true,
+        "attributeControlType": "RadioList",
+        "displayOrder": 1,
+        "values": [
+          {
+            "name": "3",
+            "alias": "ballsize-3",
+            "priceAdjustment": 5,
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "4",
+            "alias": "ballsize-4",
+            "priceAdjustment": 10,
+            "isPreSelected": true,
+            "displayOrder": 2,
+            "quantity": 1
+          },
+          {
+            "name": "5",
+            "alias": "ballsize-5",
+            "priceAdjustment": 15,
+            "displayOrder": 3,
+            "quantity": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Torfabrik official game ball",
+    "shortDescription": "Available in different colors",
+    "fullDescription": "",
+    "metaTitle": "Torfabrik official game ball",
+    "sku": "P-5002",
+    "taxCategory": "apparel",
+    "price": 59.9,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Soccer"
+    ],
+    "manufacturers": [
+      "adidas"
+    ],
+    "pictures": [
+      {
+        "file": "product/torfabrik-offizieller-spielball_white.png",
+        "name": "official-game-ball-white"
+      },
+      {
+        "file": "product/torfabrik-offizieller-spielball_red.png",
+        "name": "official-game-ball-red"
+      },
+      {
+        "file": "product/torfabrik-offizieller-spielball_yellow.png",
+        "name": "official-game-ball-yellow"
+      },
+      {
+        "file": "product/torfabrik-offizieller-spielball_blue.png",
+        "name": "official-game-ball-blue"
+      },
+      {
+        "file": "product/torfabrik-offizieller-spielball_green.png",
+        "name": "official-game-ball-green"
+      }
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "manufacturer/adidas",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      },
+      {
+        "specificationAttributeOption": "material/leather",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      }
+    ],
+    "variantAttributes": [
+      {
+        "productAttribute": "color",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "displayOrder": 1,
+        "values": [
+          {
+            "name": "Red",
+            "alias": "red",
+            "color": "#ff0000",
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "Yellow",
+            "alias": "yellow",
+            "color": " #ffff00",
+            "displayOrder": 2,
+            "quantity": 1
+          },
+          {
+            "name": "Green",
+            "alias": "green",
+            "color": "#008000",
+            "displayOrder": 3,
+            "quantity": 1
+          },
+          {
+            "name": "Blue",
+            "alias": "blue",
+            "color": "#0000ff",
+            "displayOrder": 4,
+            "quantity": 1
+          },
+          {
+            "name": "White",
+            "alias": "white",
+            "color": "#ffffff",
+            "isPreSelected": true,
+            "displayOrder": 5,
+            "quantity": 1
+          }
+        ]
+      },
+      {
+        "productAttribute": "size",
+        "isRequired": true,
+        "attributeControlType": "RadioList",
+        "displayOrder": 2,
+        "values": [
+          {
+            "name": "3",
+            "alias": "3",
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "4",
+            "alias": "4",
+            "displayOrder": 2,
+            "quantity": 1
+          },
+          {
+            "name": "5",
+            "alias": "5",
+            "isPreSelected": true,
+            "displayOrder": 3,
+            "quantity": 1
+          }
+        ]
+      }
+    ],
+    "combinations": [
+      {
+        "sku": "P-5002-red-3",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "red",
+          "size": "3"
+        },
+        "pictures": [
+          "product/torfabrik-offizieller-spielball_red.png"
+        ]
+      },
+      {
+        "sku": "P-5002-red-4",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "red",
+          "size": "4"
+        },
+        "pictures": [
+          "product/torfabrik-offizieller-spielball_red.png"
+        ]
+      },
+      {
+        "sku": "P-5002-red-5",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "red",
+          "size": "5"
+        },
+        "pictures": [
+          "product/torfabrik-offizieller-spielball_red.png"
+        ]
+      },
+      {
+        "sku": "P-5002-yellow-3",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "yellow",
+          "size": "3"
+        },
+        "pictures": [
+          "product/torfabrik-offizieller-spielball_yellow.png"
+        ]
+      },
+      {
+        "sku": "P-5002-yellow-4",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "yellow",
+          "size": "4"
+        },
+        "pictures": [
+          "product/torfabrik-offizieller-spielball_yellow.png"
+        ]
+      },
+      {
+        "sku": "P-5002-yellow-5",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "yellow",
+          "size": "5"
+        },
+        "pictures": [
+          "product/torfabrik-offizieller-spielball_yellow.png"
+        ]
+      },
+      {
+        "sku": "P-5002-green-3",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "green",
+          "size": "3"
+        },
+        "pictures": [
+          "product/torfabrik-offizieller-spielball_green.png"
+        ]
+      },
+      {
+        "sku": "P-5002-green-4",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "green",
+          "size": "4"
+        },
+        "pictures": [
+          "product/torfabrik-offizieller-spielball_green.png"
+        ]
+      },
+      {
+        "sku": "P-5002-green-5",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "green",
+          "size": "5"
+        },
+        "pictures": [
+          "product/torfabrik-offizieller-spielball_green.png"
+        ]
+      },
+      {
+        "sku": "P-5002-blue-3",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "blue",
+          "size": "3"
+        },
+        "pictures": [
+          "product/torfabrik-offizieller-spielball_blue.png"
+        ]
+      },
+      {
+        "sku": "P-5002-blue-4",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "blue",
+          "size": "4"
+        },
+        "pictures": [
+          "product/torfabrik-offizieller-spielball_blue.png"
+        ]
+      },
+      {
+        "sku": "P-5002-blue-5",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "blue",
+          "size": "5"
+        },
+        "pictures": [
+          "product/torfabrik-offizieller-spielball_blue.png"
+        ]
+      },
+      {
+        "sku": "P-5002-white-3",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "white",
+          "size": "3"
+        },
+        "pictures": [
+          "product/torfabrik-offizieller-spielball_white.png"
+        ]
+      },
+      {
+        "sku": "P-5002-white-4",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "white",
+          "size": "4"
+        },
+        "pictures": [
+          "product/torfabrik-offizieller-spielball_white.png"
+        ]
+      },
+      {
+        "sku": "P-5002-white-5",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "white",
+          "size": "5"
+        },
+        "pictures": [
+          "product/torfabrik-offizieller-spielball_white.png"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Adidas TANGO SALA BALL",
+    "shortDescription": "In different colors",
+    "fullDescription": "@file",
+    "metaTitle": "Adidas TANGO SALA BALL",
+    "sku": "P-5001",
+    "taxCategory": "apparel",
+    "price": 59.9,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Soccer"
+    ],
+    "manufacturers": [
+      "adidas"
+    ],
+    "pictures": [
+      "product/adidas-tango-pasadena-ball-white.png",
+      "product/adidas-tango-pasadena-ball-yellow.jpg",
+      "product/adidas-tango-pasadena-ball-red.jpg",
+      "product/adidas-tango-pasadena-ball-green.jpg",
+      "product/adidas-tango-pasadena-ball-gray.jpg",
+      "product/adidas-tango-pasadena-ball-brown.jpg",
+      "product/adidas-tango-pasadena-ball-blue.jpg"
+    ],
+    "specifications": [
+      {
+        "specificationAttributeOption": "manufacturer/adidas",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      },
+      {
+        "specificationAttributeOption": "material/leather",
+        "allowFiltering": true,
+        "showOnProductPage": true,
+        "displayOrder": 3
+      }
+    ],
+    "variantAttributes": [
+      {
+        "productAttribute": "color",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "displayOrder": 1,
+        "values": [
+          {
+            "name": "Red",
+            "alias": "red",
+            "color": "#ff0000",
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "Yellow",
+            "alias": "yellow",
+            "color": " #ffff00",
+            "displayOrder": 2,
+            "quantity": 1
+          },
+          {
+            "name": "Green",
+            "alias": "green",
+            "color": "#008000",
+            "displayOrder": 3,
+            "quantity": 1
+          },
+          {
+            "name": "Blue",
+            "alias": "blue",
+            "color": "#0000ff",
+            "displayOrder": 4,
+            "quantity": 1
+          },
+          {
+            "name": "Gray",
+            "alias": "gray",
+            "color": "#808080",
+            "displayOrder": 5,
+            "quantity": 1
+          },
+          {
+            "name": "White",
+            "alias": "white",
+            "color": "#ffffff",
+            "isPreSelected": true,
+            "displayOrder": 6,
+            "quantity": 1
+          },
+          {
+            "name": "Brown",
+            "alias": "brown",
+            "color": "#a52a2a",
+            "displayOrder": 7,
+            "quantity": 1
+          }
+        ]
+      },
+      {
+        "productAttribute": "size",
+        "isRequired": true,
+        "attributeControlType": "RadioList",
+        "displayOrder": 2,
+        "values": [
+          {
+            "name": "3",
+            "alias": "3",
+            "displayOrder": 1,
+            "quantity": 1
+          },
+          {
+            "name": "4",
+            "alias": "4",
+            "displayOrder": 2,
+            "quantity": 1
+          },
+          {
+            "name": "5",
+            "alias": "5",
+            "isPreSelected": true,
+            "displayOrder": 3,
+            "quantity": 1
+          }
+        ]
+      }
+    ],
+    "combinations": [
+      {
+        "sku": "P-5001-red-3",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "red",
+          "size": "3"
+        },
+        "pictures": [
+          "product/adidas-tango-pasadena-ball-red.jpg"
+        ]
+      },
+      {
+        "sku": "P-5001-red-4",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "red",
+          "size": "4"
+        },
+        "pictures": [
+          "product/adidas-tango-pasadena-ball-red.jpg"
+        ]
+      },
+      {
+        "sku": "P-5001-red-5",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "red",
+          "size": "5"
+        },
+        "pictures": [
+          "product/adidas-tango-pasadena-ball-red.jpg"
+        ]
+      },
+      {
+        "sku": "P-5001-yellow-3",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "yellow",
+          "size": "3"
+        },
+        "pictures": [
+          "product/adidas-tango-pasadena-ball-yellow.jpg"
+        ]
+      },
+      {
+        "sku": "P-5001-yellow-4",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "yellow",
+          "size": "4"
+        },
+        "pictures": [
+          "product/adidas-tango-pasadena-ball-yellow.jpg"
+        ]
+      },
+      {
+        "sku": "P-5001-yellow-5",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "yellow",
+          "size": "5"
+        },
+        "pictures": [
+          "product/adidas-tango-pasadena-ball-yellow.jpg"
+        ]
+      },
+      {
+        "sku": "P-5001-green-3",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "green",
+          "size": "3"
+        },
+        "pictures": [
+          "product/adidas-tango-pasadena-ball-green.jpg"
+        ]
+      },
+      {
+        "sku": "P-5001-green-4",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "green",
+          "size": "4"
+        },
+        "pictures": [
+          "product/adidas-tango-pasadena-ball-green.jpg"
+        ]
+      },
+      {
+        "sku": "P-5001-green-5",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "green",
+          "size": "5"
+        },
+        "pictures": [
+          "product/adidas-tango-pasadena-ball-green.jpg"
+        ]
+      },
+      {
+        "sku": "P-5001-blue-3",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "blue",
+          "size": "3"
+        },
+        "pictures": [
+          "product/adidas-tango-pasadena-ball-blue.jpg"
+        ]
+      },
+      {
+        "sku": "P-5001-blue-4",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "blue",
+          "size": "4"
+        },
+        "pictures": [
+          "product/adidas-tango-pasadena-ball-blue.jpg"
+        ]
+      },
+      {
+        "sku": "P-5001-blue-5",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "blue",
+          "size": "5"
+        },
+        "pictures": [
+          "product/adidas-tango-pasadena-ball-blue.jpg"
+        ]
+      },
+      {
+        "sku": "P-5001-gray-3",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "gray",
+          "size": "3"
+        },
+        "pictures": [
+          "product/adidas-tango-pasadena-ball-gray.jpg"
+        ]
+      },
+      {
+        "sku": "P-5001-gray-4",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "gray",
+          "size": "4"
+        },
+        "pictures": [
+          "product/adidas-tango-pasadena-ball-gray.jpg"
+        ]
+      },
+      {
+        "sku": "P-5001-gray-5",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "gray",
+          "size": "5"
+        },
+        "pictures": [
+          "product/adidas-tango-pasadena-ball-gray.jpg"
+        ]
+      },
+      {
+        "sku": "P-5001-white-3",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "white",
+          "size": "3"
+        },
+        "pictures": [
+          "product/adidas-tango-pasadena-ball-white.png"
+        ]
+      },
+      {
+        "sku": "P-5001-white-4",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "white",
+          "size": "4"
+        },
+        "pictures": [
+          "product/adidas-tango-pasadena-ball-white.png"
+        ]
+      },
+      {
+        "sku": "P-5001-white-5",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "white",
+          "size": "5"
+        },
+        "pictures": [
+          "product/adidas-tango-pasadena-ball-white.png"
+        ]
+      },
+      {
+        "sku": "P-5001-brown-3",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "brown",
+          "size": "3"
+        },
+        "pictures": [
+          "product/adidas-tango-pasadena-ball-brown.jpg"
+        ]
+      },
+      {
+        "sku": "P-5001-brown-4",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "brown",
+          "size": "4"
+        },
+        "pictures": [
+          "product/adidas-tango-pasadena-ball-brown.jpg"
+        ]
+      },
+      {
+        "sku": "P-5001-brown-5",
+        "stockQuantity": 10000,
+        "allowOutOfStockOrders": true,
+        "attributes": {
+          "color": "brown",
+          "size": "5"
+        },
+        "pictures": [
+          "product/adidas-tango-pasadena-ball-brown.jpg"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "All-Court Basketball",
+    "shortDescription": "A durable Basketball for all surfaces",
+    "fullDescription": "@file",
+    "metaTitle": "All-Court Basketball",
+    "sku": "P-4002",
+    "taxCategory": "apparel",
+    "price": 25.9,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Basketball"
+    ],
+    "manufacturers": [
+      "adidas"
+    ],
+    "pictures": [
+      "product/all-court-basketball.png"
+    ]
+  },
+  {
+    "name": "Evolution High School Game Basketball",
+    "shortDescription": "For all positions on all levels, match day and every day",
+    "fullDescription": "@file",
+    "metaTitle": "Evolution High School Game Basketball",
+    "sku": "P-4001",
+    "taxCategory": "apparel",
+    "price": 25.9,
+    "comparePrice": 29.9,
+    "hasTierPrices": true,
+    "deliveryTime": "7-working-days",
+    "categories": [
+      "Basketball"
+    ],
+    "manufacturers": [
+      "adidas"
+    ],
+    "pictures": [
+      "product/evolution-high-school-game-basketball.jpg"
+    ],
+    "tierPrices": [
+      {
+        "quantity": 6,
+        "price": 24.9
+      },
+      {
+        "quantity": 12,
+        "price": 22.9
+      },
+      {
+        "quantity": 24,
+        "price": 20.9
+      }
+    ]
+  }
+]

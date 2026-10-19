@@ -1,0 +1,41 @@
+[
+  {
+    "$key": "Product|Product:P-1016|MediaFile:vivaldi-four-seasons-spring.mp3",
+    "Changelog": null,
+    "DownloadGuid": "<guid>",
+    "DownloadUrl": null,
+    "EntityId": "Product:P-1016",
+    "EntityName": "Product",
+    "FileVersion": null,
+    "IsTransient": false,
+    "MediaFileId": "MediaFile:vivaldi-four-seasons-spring.mp3",
+    "UpdatedOnUtc": "<now>",
+    "UseDownloadUrl": false
+  },
+  {
+    "$key": "Product|Product:P-1017|MediaFile:beethoven-fur-elise.mp3",
+    "Changelog": null,
+    "DownloadGuid": "<guid>",
+    "DownloadUrl": null,
+    "EntityId": "Product:P-1017",
+    "EntityName": "Product",
+    "FileVersion": null,
+    "IsTransient": false,
+    "MediaFileId": "MediaFile:beethoven-fur-elise.mp3",
+    "UpdatedOnUtc": "<now>",
+    "UseDownloadUrl": false
+  },
+  {
+    "$key": "Product|Product:P-6001|MediaFile:stone-of-the-wise-preview.pdf",
+    "Changelog": null,
+    "DownloadGuid": "<guid>",
+    "DownloadUrl": null,
+    "EntityId": "Product:P-6001",
+    "EntityName": "Product",
+    "FileVersion": null,
+    "IsTransient": false,
+    "MediaFileId": "MediaFile:stone-of-the-wise-preview.pdf",
+    "UpdatedOnUtc": "<now>",
+    "UseDownloadUrl": false
+  }
+]

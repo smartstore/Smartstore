@@ -1,0 +1,7 @@
+[
+  {
+    "$key": "RuleSetEntity:Wichtige Kunden|ShippingMethod:Kostenloser Versand",
+    "RuleSetEntity_Id": "RuleSetEntity:Wichtige Kunden",
+    "ShippingMethod_Id": "ShippingMethod:Kostenloser Versand"
+  }
+]

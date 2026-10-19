@@ -1,0 +1,23 @@
+[
+  {
+    "$key": "Mein Shop",
+    "AppleTouchIconMediaFileId": null,
+    "ContentDeliveryNetwork": null,
+    "DefaultCurrencyId": "Currency:EUR",
+    "DisplayOrder": 1,
+    "FavIconMediaFileId": null,
+    "ForceSslForAllPages": false,
+    "Hosts": "mein-shop.de,www.mein-shop.de",
+    "HtmlBodyId": null,
+    "LogoMediaFileId": "MediaFile:company-logo.png",
+    "MsTileColor": null,
+    "MsTileImageMediaFileId": null,
+    "Name": "Mein Shop",
+    "PngIconMediaFileId": null,
+    "PrimaryExchangeRateCurrencyId": "Currency:EUR",
+    "SecureUrl": null,
+    "SslEnabled": false,
+    "SslPort": null,
+    "Url": "http://www.yourstore.com/"
+  }
+]

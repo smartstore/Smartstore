@@ -1,0 +1,53 @@
+{
+  "USD": {
+    "rate": 1.0951,
+    "published": false
+  },
+  "GBP": {
+    "name": "Britisches Pfund",
+    "rate": 0.8599,
+    "published": false
+  },
+  "AUD": {
+    "name": "Australischer Dollar",
+    "rate": 1.6369
+  },
+  "CAD": {
+    "name": "Kanadischer Dollar",
+    "rate": 1.4408
+  },
+  "EUR": {
+    "rate": 1,
+    "displayOrder": -10
+  },
+  "CHF": {
+    "name": "Schweizer Franken",
+    "rate": 0.9789,
+    "published": false,
+    "displayOrder": -5
+  },
+  "CNY": {
+    "name": "Chinesischer Yuan",
+    "rate": 7.8976
+  },
+  "HKD": {
+    "name": "Hongkong Dollar",
+    "rate": 8.5782
+  },
+  "JPY": {
+    "name": "Japanischer Yen",
+    "rate": 157.14
+  },
+  "RUB": {
+    "name": "Russischer Rubel",
+    "rate": 93.52
+  },
+  "TRY": {
+    "name": "Türkische Lira",
+    "rate": 28.5192
+  },
+  "SEK": {
+    "name": "Schwedische Krone",
+    "rate": 11.7405
+  }
+}

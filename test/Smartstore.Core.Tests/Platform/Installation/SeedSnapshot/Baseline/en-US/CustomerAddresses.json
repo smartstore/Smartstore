@@ -1,0 +1,7 @@
+[
+  {
+    "$key": "Address:admin@myshop.com|Smith|New York|Customer:admin@seed-snapshot.test",
+    "Address_Id": "Address:admin@myshop.com|Smith|New York",
+    "Customer_Id": "Customer:admin@seed-snapshot.test"
+  }
+]

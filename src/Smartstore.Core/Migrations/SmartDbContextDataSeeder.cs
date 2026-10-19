@@ -96,6 +96,27 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
     public void MigrateLocaleResources(LocaleResourcesBuilder builder)
     {
+        builder.AddOrUpdate("Admin.System.Maintenance.Icons.Title", "Migrate icons", "Icons migrieren");
+        builder.AddOrUpdate("Admin.System.Maintenance.Icons.Start", "Start migration", "Migration starten");
+        builder.AddOrUpdate("Admin.System.Maintenance.Icons.Hint",
+            "Converts legacy Font Awesome icons in menus and HTML content to the new icon format. Already migrated icons remain unchanged. Migration usually takes just a few seconds, but may take several minutes for large datasets. Keep this page open until the migration finishes.",
+            "Überführt bisherige Font-Awesome-Icons in Menüs und HTML-Inhalten in das neue Icon-Format. Bereits migrierte Icons bleiben unverändert. Die Migration dauert meist nur wenige Sekunden, bei großen Datenbeständen auch mehrere Minuten. Lassen Sie diese Seite bis zum Abschluss geöffnet.");
+        builder.AddOrUpdate("Admin.System.Maintenance.Icons.Started", "Icon migration is running…", "Die Icon-Migration läuft…");
+        builder.AddOrUpdate("Admin.System.Maintenance.Icons.Completed",
+            "Completed: {0} records checked, {1} icons migrated, {2} icons not migrated.",
+            "Abgeschlossen: {0} Datensätze geprüft, {1} Icons migriert, {2} Icons nicht migriert.");
+        builder.AddOrUpdate("Admin.System.Maintenance.Icons.Failed",
+            "The migration could not be started or the connection was interrupted. You can start it again.",
+            "Die Migration konnte nicht gestartet werden oder die Verbindung wurde unterbrochen. Sie können sie erneut starten.");
+        builder.AddOrUpdate("Admin.System.Maintenance.Icons.Migrated", "Migrated", "Migriert");
+        builder.AddOrUpdate("Admin.System.Maintenance.Icons.Warning", "Warning", "Hinweis");
+        builder.AddOrUpdate("Admin.System.Maintenance.Icons.NotMigrated", "Not migrated", "Nicht migriert");
+        builder.AddOrUpdate("Admin.System.Maintenance.Icons.Columns.Entity", "Entity", "Entität");
+        builder.AddOrUpdate("Admin.System.Maintenance.Icons.Columns.RecordId", "Record ID", "Datensatz-ID");
+        builder.AddOrUpdate("Admin.System.Maintenance.Icons.Columns.Field", "Field", "Feld");
+        builder.AddOrUpdate("Admin.System.Maintenance.Icons.Columns.Message", "Message", "Meldung");
+        builder.AddOrUpdate("Admin.System.Maintenance.Icons.Columns.NewValue", "New icon value", "Neuer Icon-Wert");
+
         builder.AddOrUpdate("Smartstore.AI.Prompts.UseImagePlaceholders",
             "If an image is to be inserted, output this HTML placeholder: <div class=\"mb-3\"><sm-icon name=\"file-image\" size=\"xl\" class=\"ai-preview-file\" title=\"SECTION_HEADING\"></sm-icon></div>. Replace SECTION_HEADING with the associated section heading, escaped for an HTML attribute. Keep the element names and all other attributes exactly as shown. The sm-icon element must remain empty and have an explicit closing tag; do not replace it with an i, img or svg element or add Font Awesome classes.",
             "Wenn ein Bild einzufügen ist, gib diesen HTML-Platzhalter aus: <div class=\"mb-3\"><sm-icon name=\"file-image\" size=\"xl\" class=\"ai-preview-file\" title=\"ABSCHNITTSÜBERSCHRIFT\"></sm-icon></div>. Ersetze ABSCHNITTSÜBERSCHRIFT durch die zugehörige Abschnittsüberschrift, korrekt für ein HTML-Attribut maskiert. Behalte die Elementnamen und alle anderen Attribute exakt bei. Das sm-icon-Element muss leer bleiben und ein explizites schließendes Tag haben; ersetze es nicht durch ein i-, img- oder svg-Element und ergänze keine Font-Awesome-Klassen.");
@@ -140,7 +161,11 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.IconBrowser.Size", "Size", "Größe");
         builder.Delete("Admin.IconBrowser.Color", "Admin.IconBrowser.FlipHorizontal", "Admin.IconBrowser.FlipVertical", "Admin.IconBrowser.Rotation", "Admin.IconBrowser.Animation", "Admin.IconBrowser.StrokeWidth", "Admin.IconBrowser.NoAnimation");
         builder.AddOrUpdate("Common.MoreOptions", "More options", "Weitere Optionen");
-        builder.AddOrUpdate("Admin.Catalog.Categories.Fields.Icon", "Icon", "Icon");
+        builder.AddOrUpdate("Admin.Catalog.Categories.Fields.Icon",
+            "Icon",
+            "Icon",
+            "The icon appears in the category navigation, in the main menu including dropdowns, in the mobile menu and in the category tree in the administration.",
+            "Das Icon erscheint in der Kategorienavigation, im Hauptmenü einschließlich Dropdowns, im mobilen Menü sowie im Kategoriebaum der Administration.");
 
         builder.AddOrUpdate("Admin.Design.Color", "Color", "Farbe");
         builder.AddOrUpdate("Admin.Design.FlipHorizontal", "Flip horizontally", "Horizontal spiegeln");

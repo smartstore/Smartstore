@@ -1,0 +1,28 @@
+{
+  "$mode": "replace",
+  "$aliases": {
+    "apparel": "standard",
+    "electronics": "standard",
+    "digital-goods": "standard",
+    "jewelry": "standard",
+    "books": "reduced"
+  },
+  "$items": [
+    {
+      "key": "standard",
+      "name": "Normal",
+      "rate": 19
+    },
+    {
+      "key": "reduced",
+      "name": "Ermäßigt",
+      "displayOrder": 1,
+      "rate": 7
+    },
+    {
+      "key": "tax-free",
+      "name": "Befreit",
+      "displayOrder": 2
+    }
+  ]
+}

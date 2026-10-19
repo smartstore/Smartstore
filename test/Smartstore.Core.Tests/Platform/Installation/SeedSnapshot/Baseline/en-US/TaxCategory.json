@@ -1,0 +1,32 @@
+[
+  {
+    "$key": "Apparel & Shoes",
+    "DisplayOrder": 20,
+    "Name": "Apparel & Shoes"
+  },
+  {
+    "$key": "Books",
+    "DisplayOrder": 1,
+    "Name": "Books"
+  },
+  {
+    "$key": "Downloadable Products",
+    "DisplayOrder": 10,
+    "Name": "Downloadable Products"
+  },
+  {
+    "$key": "Electronics & Software",
+    "DisplayOrder": 5,
+    "Name": "Electronics & Software"
+  },
+  {
+    "$key": "Jewelry",
+    "DisplayOrder": 15,
+    "Name": "Jewelry"
+  },
+  {
+    "$key": "Tax free",
+    "DisplayOrder": 0,
+    "Name": "Tax free"
+  }
+]

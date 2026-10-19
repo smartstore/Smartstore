@@ -1,0 +1,8 @@
+[
+  {
+    "$key": "Product",
+    "DisplayOrder": 10,
+    "Name": "Default Product Template",
+    "ViewPath": "Product"
+  }
+]

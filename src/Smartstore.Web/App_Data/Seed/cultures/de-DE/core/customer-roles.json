@@ -1,0 +1,14 @@
+{
+  "Administrators": {
+    "name": "Administratoren"
+  },
+  "ForumModerators": {
+    "name": "Foren Moderatoren"
+  },
+  "Registered": {
+    "name": "Registriert"
+  },
+  "Guests": {
+    "name": "Gäste"
+  }
+}

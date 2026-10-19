@@ -1,0 +1,9 @@
+[
+  {
+    "$key": "Campaign|Campaign:Erinnerung von inaktiven Neukunden|CustomerRole:InactiveNewCustomers",
+    "CustomerRoleId": "CustomerRole:InactiveNewCustomers",
+    "EntityId": "Campaign:Erinnerung von inaktiven Neukunden",
+    "EntityName": "Campaign",
+    "IsIdle": false
+  }
+]

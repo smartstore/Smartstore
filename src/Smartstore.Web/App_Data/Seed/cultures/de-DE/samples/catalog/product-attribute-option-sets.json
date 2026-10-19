@@ -1,0 +1,34 @@
+{
+  "general-colors": {
+    "name": "Allgemeine Farben",
+    "options": {
+      "red": {
+        "name": "Rot"
+      },
+      "green": {
+        "name": "Grün"
+      },
+      "blue": {
+        "name": "Blau"
+      },
+      "yellow": {
+        "name": "Gelb"
+      },
+      "black": {
+        "name": "Schwarz"
+      },
+      "white": {
+        "name": "Weiß"
+      },
+      "gray": {
+        "name": "Grau"
+      },
+      "silver": {
+        "name": "Silber"
+      },
+      "brown": {
+        "name": "Braun"
+      }
+    }
+  }
+}

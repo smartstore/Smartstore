@@ -1,0 +1,12 @@
+{
+  "productType": "SimpleProduct",
+  "productTemplate": "Product",
+  "allowCustomerReviews": true,
+  "isShippingEnabled": true,
+  "stockQuantity": 10000,
+  "notifyAdminForQuantityBelow": 1,
+  "orderMinimumQuantity": 1,
+  "orderMaximumQuantity": 50,
+  "published": true,
+  "manageInventoryMethod": "ManageStock"
+}

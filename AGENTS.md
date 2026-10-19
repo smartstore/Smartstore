@@ -71,6 +71,7 @@ Architecture follows Domain-Driven Design. See
 | Theming & bundling | `dev-docs/compose/theming/`, `dev-docs/compose/theming/asset-bundling.md` |
 | Performance | `dev-docs/advanced/performance-guide.md` |
 | Deployment & build | `dev-docs/getting-started/deployment-and-build.md`, `build/README.md` |
+| Installation seed data | `src/Smartstore.Web/App_Data/Seed/README.md` |
 
 ## Coding conventions
 

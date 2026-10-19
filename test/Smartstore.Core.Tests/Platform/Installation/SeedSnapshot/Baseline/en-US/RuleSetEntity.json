@@ -1,0 +1,54 @@
+[
+  {
+    "$key": "Inactive new customers",
+    "CreatedOnUtc": "0001-01-01T00:00:00",
+    "Description": "One completed order placed at least 90 days ago.",
+    "IsActive": true,
+    "IsSubGroup": false,
+    "LastProcessedOnUtc": null,
+    "LogicalOperator": "And",
+    "Name": "Inactive new customers",
+    "ProductVariantAttributeId": null,
+    "Scope": "Customer",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "Major customers",
+    "CreatedOnUtc": "0001-01-01T00:00:00",
+    "Description": "3 or more orders and current order value at least 200,- Euro.",
+    "IsActive": true,
+    "IsSubGroup": false,
+    "LastProcessedOnUtc": null,
+    "LogicalOperator": "And",
+    "Name": "Major customers",
+    "ProductVariantAttributeId": null,
+    "Scope": "Cart",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "Sale",
+    "CreatedOnUtc": "0001-01-01T00:00:00",
+    "Description": "Products with applied discounts.",
+    "IsActive": true,
+    "IsSubGroup": false,
+    "LastProcessedOnUtc": null,
+    "LogicalOperator": "And",
+    "Name": "Sale",
+    "ProductVariantAttributeId": null,
+    "Scope": "Product",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "Weekends",
+    "CreatedOnUtc": "0001-01-01T00:00:00",
+    "Description": null,
+    "IsActive": true,
+    "IsSubGroup": false,
+    "LastProcessedOnUtc": null,
+    "LogicalOperator": "And",
+    "Name": "Weekends",
+    "ProductVariantAttributeId": null,
+    "Scope": "Cart",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  }
+]

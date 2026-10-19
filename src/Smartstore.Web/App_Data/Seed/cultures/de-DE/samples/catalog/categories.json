@@ -1,0 +1,54 @@
+{
+  "Sports": {
+    "name": "Sport"
+  },
+  "Books": {
+    "name": "Bücher"
+  },
+  "Furniture": {
+    "name": "Möbel"
+  },
+  "Digital Products": {
+    "name": "Digitale Produkte"
+  },
+  "Gift Cards": {
+    "name": "Geschenkgutscheine"
+  },
+  "Fashion": {
+    "name": "Mode",
+    "badgeText": "NEU"
+  },
+  "Watches": {
+    "name": "Uhren"
+  },
+  "Soccer": {
+    "name": "Fußball"
+  },
+  "Cook and enjoy": {
+    "name": "Kochen und Genießen"
+  },
+  "Gaming Accessories": {
+    "name": "Zubehör"
+  },
+  "Games": {
+    "name": "Spiele"
+  },
+  "Jackets": {
+    "name": "Jacken"
+  },
+  "Shoes": {
+    "name": "Schuhe"
+  },
+  "Trousers": {
+    "name": "Hosen"
+  },
+  "Sunglasses": {
+    "name": "Sonnenbrillen"
+  },
+  "Chairs": {
+    "name": "Sessel"
+  },
+  "Tables": {
+    "name": "Tische"
+  }
+}
