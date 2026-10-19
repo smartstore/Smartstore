@@ -50,7 +50,9 @@
                             <div class="col-12 cart-footer-group">
                                 @if (Model.IsEditable)
                                 {
-                                    <partial name="_CheckoutAttributes" model="Model.CheckoutAttributes" view-data="new ViewDataDictionary(ViewData)" />
+                                    <div id="checkout-attributes">
+                                        <partial name="_CheckoutAttributes" model="Model.CheckoutAttributes" view-data="new ViewDataDictionary(ViewData)" />
+                                    </div>
                                 }
 
                                 <zone name="order_summary_totals_before" />

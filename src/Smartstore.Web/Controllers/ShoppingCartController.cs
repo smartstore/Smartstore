@@ -308,6 +308,7 @@ public class ShoppingCartController : PublicController
         var customer = Services.WorkContext.CurrentCustomer;
         var cartType = isWishlist ? ShoppingCartType.Wishlist : ShoppingCartType.ShoppingCart;
         var cartHtml = string.Empty;
+        var checkoutAttributesHtml = string.Empty;
         var totalsHtml = string.Empty;
         var warningsHtml = string.Empty;
         var itemSelectionHtml = string.Empty;
@@ -379,6 +380,7 @@ public class ShoppingCartController : PublicController
             var cartModel = await cart.MapAsync();
 
             cartHtml = await InvokePartialViewAsync("CartItems", cartModel);
+            checkoutAttributesHtml = await InvokePartialViewAsync("_CheckoutAttributes", cartModel.CheckoutAttributes);
             totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
             itemSelectionHtml = GetCartItemSelectionLink(cart);
             warningsHtml = await InvokePartialViewAsync("CartWarnings", cartModel.Warnings);
@@ -403,6 +405,7 @@ public class ShoppingCartController : PublicController
             cartItemCount = cart.Items.Length,
             message,
             cartHtml,
+            checkoutAttributesHtml,
             totalsHtml,
             itemSelectionHtml,
             warningsHtml,
@@ -679,6 +682,7 @@ public class ShoppingCartController : PublicController
         }
 
         var cartHtml = string.Empty;
+        var checkoutAttributesHtml = string.Empty;
         var totalsHtml = string.Empty;
         var message = string.Empty;
         var cartItemCount = 0;
@@ -702,6 +706,7 @@ public class ShoppingCartController : PublicController
                 var model = await cart.MapAsync();
 
                 cartHtml = await InvokePartialViewAsync("CartItems", model);
+                checkoutAttributesHtml = await InvokePartialViewAsync("_CheckoutAttributes", model.CheckoutAttributes);
                 totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
                 message = T("Products.ProductHasBeenAddedToTheWishlist");
             }
@@ -713,6 +718,7 @@ public class ShoppingCartController : PublicController
             wasMoved = _shoppingCartSettings.MoveItemsFromWishlistToCart,
             message,
             cartHtml,
+            checkoutAttributesHtml,
             totalsHtml,
             cartItemCount
         });
@@ -1001,6 +1007,7 @@ public class ShoppingCartController : PublicController
 
         var discountHtml = await InvokePartialViewAsync("_DiscountBox", model.DiscountBox);
         var cartHtml = await InvokePartialViewAsync("CartItems", model);
+        var checkoutAttributesHtml = await InvokePartialViewAsync("_CheckoutAttributes", model.CheckoutAttributes);
         var totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
 
         // Always "success = true" to render discountHtml.
@@ -1008,6 +1015,7 @@ public class ShoppingCartController : PublicController
         {
             success = true,
             cartHtml,
+            checkoutAttributesHtml,
             totalsHtml,
             discountHtml
         });
@@ -1026,12 +1034,14 @@ public class ShoppingCartController : PublicController
 
         var discountHtml = await InvokePartialViewAsync("_DiscountBox", model.DiscountBox);
         var cartHtml = await InvokePartialViewAsync("CartItems", model);
+        var checkoutAttributesHtml = await InvokePartialViewAsync("_CheckoutAttributes", model.CheckoutAttributes);
         var totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
 
         return Json(new
         {
             success = true,
             cartHtml,
+            checkoutAttributesHtml,
             totalsHtml,
             discountHtml,
             message = T("ShoppingCart.DiscountCouponCode.Removed").Value
@@ -1055,11 +1065,13 @@ public class ShoppingCartController : PublicController
         model.GiftCardBox.IsWarning = !success;
 
         var giftCardHtml = await InvokePartialViewAsync("_GiftCardBox", model.GiftCardBox);
+        var checkoutAttributesHtml = await InvokePartialViewAsync("_CheckoutAttributes", model.CheckoutAttributes);
         var totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
 
         return Json(new
         {
             success = true,
+            checkoutAttributesHtml,
             totalsHtml,
             giftCardHtml
         });
@@ -1134,11 +1146,13 @@ public class ShoppingCartController : PublicController
         var model = await cart.MapAsync();
 
         var giftCardHtml = await InvokePartialViewAsync("_GiftCardBox", model.GiftCardBox);
+        var checkoutAttributesHtml = await InvokePartialViewAsync("_CheckoutAttributes", model.CheckoutAttributes);
         var totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
 
         return Json(new
         {
             success = true,
+            checkoutAttributesHtml,
             totalsHtml,
             giftCardHtml,
             message = T("ShoppingCart.GiftCardCouponCode.Removed").Value
@@ -1160,12 +1174,14 @@ public class ShoppingCartController : PublicController
         model.RewardPoints.UseRewardPoints = useRewardPoints;
 
         var rewardPointsHtml = await InvokePartialViewAsync("_RewardPointsBox", model.RewardPoints);
+        var checkoutAttributesHtml = await InvokePartialViewAsync("_CheckoutAttributes", model.CheckoutAttributes);
         var totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
         var message = T(useRewardPoints ? "ShoppingCart.RewardPoints.Applied" : "ShoppingCart.RewardPoints.Removed").Value;
 
         return Json(new
         {
             success = true,
+            checkoutAttributesHtml,
             totalsHtml,
             rewardPointsHtml,
             message
@@ -1216,11 +1232,13 @@ public class ShoppingCartController : PublicController
         }
 
         var estimateShippingHtml = await InvokePartialViewAsync("EstimateShipping", model.EstimateShipping);
+        var checkoutAttributesHtml = await InvokePartialViewAsync("_CheckoutAttributes", model.CheckoutAttributes);
         var totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
 
         return Json(new
         {
             success = true,
+            checkoutAttributesHtml,
             totalsHtml,
             estimateShippingHtml
         });
