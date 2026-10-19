@@ -42,31 +42,6 @@ jQuery(function () {
         });
     }
 
-    // Adjust datetimepicker global defaults
-    const dtp = $.fn.datetimepicker;
-    if (typeof dtp !== 'undefined' && dtp.Constructor && dtp.Constructor.Default) {
-        dtp.Constructor.Default = $.extend({}, dtp.Constructor.Default, {
-            locale: 'glob',
-            keepOpen: false,
-            collapse: true,
-            widgetPositioning: {
-                horizontal: 'right',
-                vertical: 'auto'
-            },
-            icons: {
-                time: 'far fa-clock',
-                date: 'fa fa-calendar',
-                up: 'fa fa-angle-up',
-                down: 'fa fa-angle-down',
-                previous: 'fa fa-angle-left',
-                next: 'fa fa-angle-right',
-                today: 'far fa-calendar-check',
-                clear: 'fa fa-delete',
-                close: 'fa fa-times'
-            }
-        });
-    }
-
     // Adjust Popper global defaults
     if (Popper?.Defaults) {
         Popper.Defaults.modifiers.computeStyle.gpuAcceleration = false;

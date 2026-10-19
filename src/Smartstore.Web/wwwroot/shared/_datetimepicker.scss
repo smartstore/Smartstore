@@ -1,0 +1,345 @@
+.dtpicker {
+    // Geometry and spacing.
+    --dtp-cell-size: 54px;
+    --dtp-day-size: 33px;
+    --dtp-day-cell-size: calc(var(--dtp-day-size) + 2px);
+    --dtp-time-control-size: 44px;
+    --dtp-icon-size: 16px;
+    --dtp-padding-inline: 0.5rem;
+    --dtp-padding-block: 0.5rem;
+    --dtp-header-size: 20px;
+    --dtp-gap: 6px;
+    --dtp-toolbar-padding-block: 5px;
+    --dtp-today-marker-size: 5px;
+
+    // Appearance follows the active theme unless overridden on the picker.
+    --dtp-primary: var(--primary);
+    --dtp-primary-color: var(--white);
+    --dtp-muted-color: var(--gray-500);
+    --dtp-inactive-color: var(--gray-400);
+    --dtp-heading-color: var(--gray-650);
+    --dtp-hover-bg: var(--gray-150);
+    --dtp-selection-ring-width: 3px;
+    --dtp-selection-ring-color: color-mix(in srgb, var(--primary-bg-subtle) 95%, var(--dtp-primary));
+    --dtp-selection-ring-offset: -1px;
+
+    list-style: none;
+
+    &.dropdown-menu {
+        display: block;
+        margin-block: 2px;
+        margin-inline: 0;
+        padding-block: var(--dtp-padding-block);
+        padding-inline: var(--dtp-padding-inline);
+        padding-block-end: calc(var(--dtp-padding-block) * 0.75);
+        max-inline-size: none;
+
+        &:not(.timepicker-sbs) {
+            inline-size: calc(7 * var(--dtp-day-cell-size) + 2 * var(--dtp-padding-inline));
+        }
+
+        &.timepicker-sbs {
+            @include media-breakpoint-up(sm) {
+                inline-size: 38em;
+            }
+        }
+
+        > .arrow {
+            inset-inline-start: 7px;
+            margin: 0;
+        }
+
+        &.dtp-align-end > .arrow {
+            inset-inline-start: auto;
+            inset-inline-end: 7px;
+        }
+    }
+
+    .list-unstyled {
+        margin: 0;
+    }
+
+    [data-action] {
+        cursor: pointer;
+    }
+
+    a[data-action] {
+        --btn-border-width: 0;
+        color: var(--gray-700);
+
+        &:active {
+            box-shadow: none;
+        }
+    }
+
+    .timepicker-part {
+        font-weight: $font-weight-medium;
+        font-size: 1.2em;
+        border-radius: var(--border-radius-sm);
+    }
+
+    table {
+        inline-size: 100%;
+        margin: 0;
+    }
+
+    td,
+    th {
+        text-align: center;
+        border-color: transparent !important;
+        border-radius: var(--border-radius-sm);
+        padding: 0.3rem;
+    }
+
+    th {
+        block-size: var(--dtp-header-size);
+        line-height: var(--dtp-header-size);
+        inline-size: 30px;
+
+        &.picker-switch {
+            inline-size: 145px;
+        }
+
+        &.dow {
+            text-transform: uppercase;
+        }
+
+        &.dtp-step-control {
+            min-inline-size: 1.5rem;
+        }
+    }
+
+    td {
+        inline-size: var(--dtp-cell-size);
+        block-size: var(--dtp-cell-size);
+        line-height: var(--dtp-cell-size);
+
+        &.day {
+            padding: 0;
+            border: 1px solid transparent;
+        }
+
+        &.cw {
+            font-size: 0.8em;
+            block-size: var(--dtp-header-size);
+            line-height: var(--dtp-header-size);
+            color: var(--dtp-muted-color);
+        }
+    }
+
+    .active {
+        background-color: var(--dtp-primary);
+        color: var(--dtp-primary-color);
+    }
+
+    .old,
+    .new {
+        color: var(--dtp-muted-color);
+    }
+
+    .disabled,
+    .disabled:hover {
+        background: none;
+        color: var(--dtp-muted-color);
+        cursor: not-allowed;
+    }
+
+    &.usetwentyfour td.hour {
+        block-size: calc(var(--dtp-cell-size) / 2);
+        line-height: calc(var(--dtp-cell-size) / 2);
+    }
+
+    li.picker-switch td {
+        inline-size: auto;
+        block-size: auto;
+        padding: 0;
+        line-height: inherit;
+    }
+
+    [data-action]:not(.day):not(.active):not(.disabled):hover {
+        background-color: var(--dtp-hover-bg);
+        color: var(--body-color);
+    }
+
+    .datepicker-days > table {
+        inline-size: calc(7 * var(--dtp-day-cell-size));
+        margin-inline: auto;
+    }
+
+    .datepicker-days th.dow {
+        font-weight: $font-weight-medium;
+        color: var(--dtp-heading-color);
+        block-size: var(--dtp-day-cell-size);
+        line-height: var(--dtp-day-cell-size);
+        padding: 0;
+    }
+
+    .datepicker-days td.day:is(.old, .new, .disabled):not(.active) {
+        color: var(--dtp-inactive-color);
+    }
+
+    .datepicker-days td.day {
+        inline-size: var(--dtp-day-cell-size);
+        min-inline-size: var(--dtp-day-cell-size);
+        max-inline-size: var(--dtp-day-cell-size);
+        block-size: var(--dtp-day-cell-size);
+        min-block-size: var(--dtp-day-cell-size);
+        max-block-size: var(--dtp-day-cell-size);
+        line-height: var(--dtp-day-cell-size);
+        vertical-align: middle;
+        border-radius: 0;
+        background: transparent;
+    }
+
+    .datepicker-days .dtp-day {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        inline-size: var(--dtp-day-size);
+        block-size: var(--dtp-day-size);
+        box-sizing: border-box;
+        border: var(--dtp-selection-ring-width) solid transparent;
+        margin: auto;
+        line-height: 1;
+        border-radius: 50%;
+    }
+
+    .datepicker-days td.day:hover > .dtp-day {
+        background: var(--dtp-hover-bg);
+    }
+
+    .datepicker-days td.day.active > .dtp-day,
+    .datepicker-periods span.active {
+        background: var(--dtp-primary);
+        outline: var(--dtp-selection-ring-width) solid var(--dtp-selection-ring-color);
+        outline-offset: var(--dtp-selection-ring-offset);
+    }
+
+    .datepicker-periods tbody td {
+        block-size: auto;
+        padding-block: 2px;
+        padding-inline: 0;
+    }
+
+    .datepicker-periods .dtp-period-grid {
+        display: grid;
+        inline-size: 100%;
+        grid-template-columns: repeat(4, 1fr);
+        row-gap: var(--dtp-gap);
+    }
+
+    .datepicker-periods span[data-action] {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        inline-size: var(--dtp-cell-size);
+        block-size: var(--dtp-cell-size);
+        margin-block: 0;
+        margin-inline: auto;
+        padding: 0;
+        border: var(--dtp-selection-ring-width) solid transparent;
+        border-radius: 50%;
+        line-height: 1;
+    }
+
+    .datepicker-days td.day.disabled > .dtp-day {
+        background: transparent;
+    }
+
+    .datepicker-days td.day.today > .dtp-day::before {
+        content: '';
+        position: absolute;
+        inset-inline-end: var(--dtp-today-marker-size);
+        inset-block-end: var(--dtp-today-marker-size);
+        border: solid transparent;
+        border-block-width: 0 var(--dtp-today-marker-size);
+        border-inline-width: var(--dtp-today-marker-size) 0;
+        border-block-end-color: var(--dtp-primary);
+    }
+
+    .datepicker-days td.day.active.today > .dtp-day::before {
+        border-block-end-color: currentColor;
+    }
+
+    .dtp-icon > sm-icon {
+        --icon-size: var(--dtp-icon-size);
+        --icon-min-size: 0px;
+        --icon-stroke-scale: 1.25;
+        vertical-align: -0.125em;
+    }
+
+    .dtp-step-control > .dtp-icon {
+        font-size: 1.25rem;
+    }
+
+    .dtp-icon {
+        display: inline-block;
+    }
+
+    .timepicker-picker > table {
+        inline-size: auto;
+        margin-inline: auto;
+    }
+
+    .timepicker-picker td {
+        inline-size: var(--dtp-time-control-size);
+        block-size: var(--dtp-time-control-size);
+        padding: 0;
+        border: 0;
+        line-height: 1;
+        vertical-align: middle;
+    }
+
+    .timepicker-picker td.separator {
+        inline-size: 20px;
+    }
+
+    .timepicker-picker [data-action] {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        inline-size: var(--dtp-time-control-size);
+        min-inline-size: var(--dtp-time-control-size);
+        max-inline-size: var(--dtp-time-control-size);
+        block-size: var(--dtp-time-control-size);
+        min-block-size: var(--dtp-time-control-size);
+        max-block-size: var(--dtp-time-control-size);
+        margin-block: 0;
+        margin-inline: auto;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .timepicker-picker [data-action] > .dtp-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        inline-size: var(--dtp-icon-size);
+        block-size: var(--dtp-icon-size);
+        margin: 0;
+        line-height: var(--dtp-icon-size);
+    }
+
+    li.picker-switch {
+        --dtp-icon-size: 18px;
+
+        margin-block-start: var(--dtp-gap);
+    }
+
+    li.picker-switch a[data-action] {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-block: var(--dtp-toolbar-padding-block);
+        padding-inline: 0;
+        border-radius: var(--border-radius-md);
+    }
+
+    li.picker-switch .dtp-icon {
+        block-size: var(--dtp-icon-size);
+        line-height: var(--dtp-icon-size);
+    }
+}
