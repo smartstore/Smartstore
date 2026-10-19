@@ -1,4 +1,6 @@
 ﻿using System.Linq.Dynamic.Core;
+using System.Text;
+using Smartstore.Caching;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Rules;
@@ -9,17 +11,23 @@ namespace Smartstore.Core.Checkout.Attributes;
 
 public partial class CheckoutAttributeMaterializer : ICheckoutAttributeMaterializer
 {
+    // {0} = StoreId, {1} = MatchRules, {2} = ShippingRequired
+    internal readonly static CompositeFormat CheckoutAttributesKey = CompositeFormat.Parse("checkoutattributes:all-{0}-{1}-{2}");
+
     private readonly SmartDbContext _db;
     private readonly Lazy<ICartRuleProvider> _cartRuleProvider;
+    private readonly IRequestCache _requestCache;
     private readonly IStoreContext _storeContext;
 
     public CheckoutAttributeMaterializer(
         SmartDbContext db,
         Lazy<ICartRuleProvider> cartRuleProvider,
+        IRequestCache requestCache,
         IStoreContext storeContext)
     {
         _db = db;
         _cartRuleProvider = cartRuleProvider;
+        _requestCache = requestCache;
         _storeContext = storeContext;
     }
 
@@ -38,25 +46,32 @@ public partial class CheckoutAttributeMaterializer : ICheckoutAttributeMateriali
     {
         Guard.NotNull(cart);
 
-        // INFO: CacheableEntity! Always load tracked to prevent stale RuleSets after changing their mappings.
-        var query = _db.CheckoutAttributes.AsQueryable();
-
-        if (matchRules)
+        var cacheKey = CheckoutAttributesKey.FormatInvariant(storeId, matchRules, cart.IsShippingRequired);
+        var checkoutAttributes = await _requestCache.GetAsync(cacheKey, async () =>
         {
-            query = query.Include(x => x.RuleSets);
-        }
+            // INFO: Always load tracked to prevent stale RuleSets after mapping changes.
+            // Tracked queries bypass the second-level entity cache, hence the request cache above.
+            var query = _db.CheckoutAttributes.AsQueryable();
 
-        var checkoutAttributes = await query
-            .ApplyStandardFilter(false, storeId)
-            .ToListAsync();
+            if (matchRules)
+            {
+                query = query.Include(x => x.RuleSets);
+            }
 
-        if (!cart.IsShippingRequired)
-        {
-            // Remove attributes which require shippable products.
-            checkoutAttributes = checkoutAttributes
-                .Where(x => !x.ShippableProductRequired)
-                .ToList();
-        }
+            var attributes = await query
+                .ApplyStandardFilter(false, storeId)
+                .ToListAsync();
+
+            if (!cart.IsShippingRequired)
+            {
+                // Remove attributes which require shippable products.
+                attributes = attributes
+                    .Where(x => !x.ShippableProductRequired)
+                    .ToList();
+            }
+
+            return attributes;
+        });
 
         if (matchRules)
         {

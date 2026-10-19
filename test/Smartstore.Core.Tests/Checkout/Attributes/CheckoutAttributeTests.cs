@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
+using Smartstore.Caching;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Rules;
@@ -102,6 +104,7 @@ public class CheckoutAttributeTests : ServiceTestBase
         _materializer = new CheckoutAttributeMaterializer(
             DbContext,
             new Lazy<ICartRuleProvider>(() => _cartRuleProvider.Object),
+            NullRequestCache.Instance,
             storeContext.Object);
     }
 
@@ -194,6 +197,45 @@ public class CheckoutAttributeTests : ServiceTestBase
                 await DbContext.SaveChangesAsync();
             }
         }
+    }
+
+    [Test]
+    public async Task Can_cache_checkout_attributes()
+    {
+        using var requestCache = new RequestCache(null);
+        var storeContext = new Mock<IStoreContext>();
+        storeContext.Setup(x => x.CurrentStore).Returns(_store);
+        storeContext.Setup(x => x.GetCachedStores()).Returns(new StoreEntityCache([_store]));
+
+        var materializer = new CheckoutAttributeMaterializer(
+            DbContext,
+            new Lazy<ICartRuleProvider>(() => _cartRuleProvider.Object),
+            requestCache,
+            storeContext.Object);
+
+        await materializer.GetCheckoutAttributesAsync(_cart, _store.Id);
+        await materializer.GetCheckoutAttributesAsync(_cart, _store.Id);
+        Assert.That(requestCache.Items, Has.Count.EqualTo(1));
+
+        await materializer.GetCheckoutAttributesAsync(_cart, _store.Id, false);
+        Assert.That(requestCache.Items, Has.Count.EqualTo(2));
+
+        await materializer.GetCheckoutAttributesAsync(_cart, 0);
+        Assert.That(requestCache.Items, Has.Count.EqualTo(3));
+
+        var otherCart = new ShoppingCart(new Customer { Id = _cart.Customer.Id + 1 }, _store.Id, []);
+        await materializer.GetCheckoutAttributesAsync(otherCart, _store.Id);
+        Assert.That(requestCache.Items, Has.Count.EqualTo(3));
+
+        var shippingCart = new ShoppingCart(_cart.Customer, _store.Id,
+        [
+            new OrganizedShoppingCartItem(new ShoppingCartItem
+            {
+                Product = new Product { IsShippingEnabled = true }
+            })
+        ]);
+        await materializer.GetCheckoutAttributesAsync(shippingCart, _store.Id);
+        Assert.That(requestCache.Items, Has.Count.EqualTo(4));
     }
 
     [Test]
