@@ -496,11 +496,15 @@ jQuery(function () {
         const input = $btn.prev('.form-control')[0];
         if (input?.type == 'text') {
             input.type = 'password';
-            $btn.aria('pressed', 'false').aria('label', Res["Aria.Label.ShowPassword"]);
+            if (typeof $btn.aria === 'function') {
+                $btn.aria('pressed', 'false').aria('label', Res["Aria.Label.ShowPassword"]);
+            }
         }
         else if (input?.type == 'password') {
             input.type = 'text';
-            $btn.aria('pressed', 'true').aria('label', Res["Aria.Label.HidePassword"]);
+            if (typeof $btn.aria === 'function') {
+                $btn.aria('pressed', 'true').aria('label', Res["Aria.Label.HidePassword"]);
+            }
         }
 
         // Refocus input
