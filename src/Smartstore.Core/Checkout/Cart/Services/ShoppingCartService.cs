@@ -709,7 +709,7 @@ public partial class ShoppingCartService : IShoppingCartService
     }
 
     /// <summary>
-    /// Removes invalid checkout attributes. For example if the attribute requires shipping but the cart does not require shipping at all.
+    /// Removes checkout attributes that are not available for the current cart.
     /// </summary>
     protected virtual async Task<int> RemoveInvalidCheckoutAttributesAsync(Customer customer, int storeId)
     {
@@ -719,22 +719,20 @@ public partial class ShoppingCartService : IShoppingCartService
             return 0;
         }
 
-        var idsToRemove = new HashSet<int>();
-        var attributes = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributesAsync(attributeSelection);
-
         var cart = await GetCartAsync(customer, ShoppingCartType.ShoppingCart, storeId);
-        if (!cart.IsShippingRequired)
-        {
-            idsToRemove.AddRange(attributes
-                .Where(x => x.ShippableProductRequired)
-                .Select(x => x.Id));
-        }
 
-        idsToRemove.AddRange(attributes
-            .Where(x => !x.IsActive)
-            .Select(x => x.Id));
+        // INFO: Match cart rules because removing an item can cause a previously matching checkout attribute
+        // (for example one requiring that product to be in the cart) to become invalid. Materializing the
+        // stored selection alone would still return that attribute and retain its obsolete value.
+        var activeAttributeIds = (await _checkoutAttributeMaterializer.GetCheckoutAttributesAsync(cart, storeId))
+            .Select(x => x.Id)
+            .ToHashSet();
+        var idsToRemove = attributeSelection.AttributesMap
+            .Select(x => x.Key)
+            .Where(x => !activeAttributeIds.Contains(x))
+            .ToArray();
 
-        if (idsToRemove.Count > 0)
+        if (idsToRemove.Length > 0)
         {
             attributeSelection.RemoveAttributes(idsToRemove);
             customer.GenericAttributes.CheckoutAttributes = attributeSelection;
@@ -742,7 +740,7 @@ public partial class ShoppingCartService : IShoppingCartService
             await _db.SaveChangesAsync();
         }
 
-        return idsToRemove.Count;
+        return idsToRemove.Length;
     }
 
     protected virtual async Task AddRequiredProductsAsync(ShoppingCart cart, AddToCartContext ctx)

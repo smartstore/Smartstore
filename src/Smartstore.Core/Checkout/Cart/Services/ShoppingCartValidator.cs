@@ -165,26 +165,25 @@ public partial class ShoppingCartValidator : IShoppingCartValidator
             }
         }
 
-        // Validate checkout attributes if defined.
+        // Validate checkout attributes.
         if (validateCheckoutAttributes)
         {
-            var checkoutAttributes = cart?.Customer?.GenericAttributes?.CheckoutAttributes;
+            var checkoutAttributes = cart.Customer?.GenericAttributes?.CheckoutAttributes;
             if (checkoutAttributes != null)
             {
-                var existingAttributesQuery = _db.CheckoutAttributes.ApplyStoreFilter(_storeContext.CurrentStore.Id);
-                if (!cart.IsShippingRequired)
+                var activeAttributes = await _checkoutAttributeMaterializer.GetCheckoutAttributesAsync(cart, cart.StoreId);
+                var activeAttributeIds = activeAttributes.Select(x => x.Id).ToHashSet();
+                var selectedAttributeIds = checkoutAttributes.AttributesMap.Select(x => x.Key).ToHashSet();
+                var invalidAttributeIds = selectedAttributeIds.Where(x => !activeAttributeIds.Contains(x)).ToArray();
+
+                if (invalidAttributeIds.Length > 0)
                 {
-                    // No shipping required. Filter attributes which require shippable products.
-                    existingAttributesQuery = existingAttributesQuery.Where(x => !x.ShippableProductRequired);
+                    checkoutAttributes.RemoveAttributes(invalidAttributeIds);
+                    cart.Customer.GenericAttributes.CheckoutAttributes = checkoutAttributes;
                 }
 
-                var selectedAttributes = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributesAsync(checkoutAttributes);
-                var notSelectedAttributes = await existingAttributesQuery
-                    .Where(x => x.IsRequired && x.IsActive && !selectedAttributes.Contains(x))
-                    .ToListAsync();
-
                 // Check for required attributes.
-                foreach (var attribute in notSelectedAttributes)
+                foreach (var attribute in activeAttributes.Where(x => x.IsRequired && !selectedAttributeIds.Contains(x.Id)))
                 {
                     currentWarnings.Add(GetAttributeRequiredWarning(
                         attribute.AttributeControlType,
