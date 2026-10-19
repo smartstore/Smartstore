@@ -43,6 +43,7 @@ public partial class OrderProcessingService : IOrderProcessingService
     private readonly IShippingService _shippingService;
     private readonly IGiftCardService _giftCardService;
     private readonly INewsletterSubscriptionService _newsletterSubscriptionService;
+    private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
     private readonly ICheckoutAttributeFormatter _checkoutAttributeFormatter;
     private readonly IEncryptor _encryptor;
     private readonly IMessageFactory _messageFactory;
@@ -77,6 +78,7 @@ public partial class OrderProcessingService : IOrderProcessingService
         IShippingService shippingService,
         IGiftCardService giftCardService,
         INewsletterSubscriptionService newsletterSubscriptionService,
+        ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
         ICheckoutAttributeFormatter checkoutAttributeFormatter,
         IEncryptor encryptor,
         IMessageFactory messageFactory,
@@ -108,6 +110,7 @@ public partial class OrderProcessingService : IOrderProcessingService
         _shippingService = shippingService;
         _giftCardService = giftCardService;
         _newsletterSubscriptionService = newsletterSubscriptionService;
+        _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
         _checkoutAttributeFormatter = checkoutAttributeFormatter;
         _encryptor = encryptor;
         _messageFactory = messageFactory;

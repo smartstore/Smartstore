@@ -23,56 +23,15 @@ public partial class CheckoutAttributeMaterializer : ICheckoutAttributeMateriali
         _storeContext = storeContext;
     }
 
-    public async Task<List<CheckoutAttribute>> MaterializeCheckoutAttributesAsync(CheckoutAttributeSelection selection)
+    public async Task<MaterializedCheckoutAttributes> MaterializeCheckoutAttributesAsync(ShoppingCart cart, bool matchRules = true)
     {
-        Guard.NotNull(selection);
+        Guard.NotNull(cart);
 
-        var ids = selection.AttributesMap.Select(x => x.Key).ToArray();
+        var selection = cart.Customer.GenericAttributes.CheckoutAttributes;
+        var attributes = await GetCheckoutAttributesAsync(cart, cart.StoreId, matchRules);
+        var selectedValues = await GetValuesAsync(selection, attributes.Select(x => x.Id).ToArray());
 
-        if (ids.Length == 0)
-        {
-            return [];
-        }
-
-        return await _db.CheckoutAttributes
-            .Include(x => x.CheckoutAttributeValues)
-            .Where(x => ids.Contains(x.Id))
-            .ToListAsync();
-    }
-
-    public async Task<List<CheckoutAttributeValue>> MaterializeCheckoutAttributeValuesAsync(CheckoutAttributeSelection selection)
-    {
-        Guard.NotNull(selection);
-
-        var attributeIds = selection.AttributesMap.Select(x => x.Key).ToArray();
-        if (attributeIds.Length == 0)
-        {
-            return [];
-        }
-
-        // AttributesMap can also contain numeric values of text fields that are not CheckoutAttributeValue IDs!
-        var numericValues = selection.AttributesMap
-            .SelectMany(x => x.Value)
-            .Select(x => x.ToString())
-            .Where(x => x.HasValue())
-            .Select(x => x.ToInt())
-            .Where(x => x != 0)
-            .Distinct()
-            .ToArray();
-
-        if (numericValues.Length == 0)
-        {
-            return [];
-        }
-
-        var values = await _db.CheckoutAttributeValues
-            .AsNoTracking()
-            .Include(x => x.CheckoutAttribute)
-            .Where(x => attributeIds.Contains(x.CheckoutAttributeId) && numericValues.Contains(x.Id) && x.CheckoutAttribute.IsActive)
-            .ApplyListTypeFilter()
-            .ToListAsync();
-
-        return values;
+        return new(cart.Customer, selection, attributes, selectedValues);
     }
 
     public async Task<List<CheckoutAttribute>> GetCheckoutAttributesAsync(ShoppingCart cart, int storeId = 0, bool matchRules = true)
@@ -202,5 +161,37 @@ public partial class CheckoutAttributeMaterializer : ICheckoutAttributeMateriali
         }
 
         return selection;
+    }
+
+    protected virtual async Task<List<CheckoutAttributeValue>> GetValuesAsync(CheckoutAttributeSelection selection, int[] attributeIds)
+    {
+        if (attributeIds.Length == 0)
+        {
+            return [];
+        }
+
+        // AttributesMap can also contain numeric values of text fields that are not CheckoutAttributeValue IDs!
+        var numericValues = selection.AttributesMap
+            .SelectMany(x => x.Value)
+            .Select(x => x.ToString())
+            .Where(x => x.HasValue())
+            .Select(x => x.ToInt())
+            .Where(x => x != 0)
+            .Distinct()
+            .ToArray();
+
+        if (numericValues.Length == 0)
+        {
+            return [];
+        }
+
+        var values = await _db.CheckoutAttributeValues
+            .AsNoTracking()
+            .Include(x => x.CheckoutAttribute)
+            .Where(x => attributeIds.Contains(x.CheckoutAttributeId) && numericValues.Contains(x.Id) && x.CheckoutAttribute.IsActive)
+            .ApplyListTypeFilter()
+            .ToListAsync();
+
+        return values;
     }
 }

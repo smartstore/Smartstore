@@ -70,6 +70,7 @@ public class OrderProcessingServiceTests : ServiceTestBase
         var shoppingCartValidatorMock = new Mock<IShoppingCartValidator>();
         var messageFactoryMock = new Mock<IMessageFactory>();
         var newsletterSubscriptionServiceMock = new Mock<INewsletterSubscriptionService>();
+        var checkoutAttributeMaterializerMock = new Mock<ICheckoutAttributeMaterializer>();
         var checkoutAttributeFormatterMock = new Mock<ICheckoutAttributeFormatter>();
 
         _currency = new Currency { Id = 1, RoundNumDecimals = 3 };
@@ -126,6 +127,7 @@ public class OrderProcessingServiceTests : ServiceTestBase
             shippingServiceMock.Object,
             giftCardServiceMock.Object,
             newsletterSubscriptionServiceMock.Object,
+            checkoutAttributeMaterializerMock.Object,
             checkoutAttributeFormatterMock.Object,
             encryptorMock.Object,
             messageFactoryMock.Object,

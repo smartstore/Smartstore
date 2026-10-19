@@ -45,9 +45,10 @@ public partial interface IShippingService
     /// </summary>
     /// <param name="cart">Shopping cart.</param>
 		/// <param name="includeFreeShippingProducts">A value indicating whether to include products with free shipping.</param>
+    /// <param name="cache">A value indicating whether to cache the result.</param>
     /// <remarks>Includes <see cref="CheckoutAttribute"/> of the customer in the calculations, if available.</remarks>
     /// <returns>Shopping cart total weight.</returns>
-    Task<decimal> GetCartTotalWeightAsync(ShoppingCart cart, bool includeFreeShippingProducts = true);
+    Task<decimal> GetCartTotalWeightAsync(ShoppingCart cart, bool includeFreeShippingProducts = true, bool cache = true);
 
     /// <summary>
     /// Creates a shipping option request.

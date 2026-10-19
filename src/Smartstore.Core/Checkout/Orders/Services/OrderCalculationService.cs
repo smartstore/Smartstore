@@ -723,18 +723,15 @@ public partial class OrderCalculationService : IOrderCalculationService
         // Checkout attributes.
         if (customer != null)
         {
-            var values = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributeValuesAsync(customer.GenericAttributes.CheckoutAttributes);
-            if (values != null)
+            var checkoutAttributes = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributesAsync(cart);
+            foreach (var value in checkoutAttributes.SelectedValues)
             {
-                foreach (var value in values)
-                {
-                    var attributeTax = await _taxCalculator.CalculateCheckoutAttributeTaxAsync(value, customer: customer);
+                var attributeTax = await _taxCalculator.CalculateCheckoutAttributeTaxAsync(value, customer: customer);
 
-                    subtotalWithoutDiscountNet += attributeTax.PriceNet;
-                    subtotalWithoutDiscountGross += attributeTax.PriceGross;
+                subtotalWithoutDiscountNet += attributeTax.PriceNet;
+                subtotalWithoutDiscountGross += attributeTax.PriceGross;
 
-                    result.TaxRates.Add(attributeTax.Rate.Rate, attributeTax.Amount);
-                }
+                result.TaxRates.Add(attributeTax.Rate.Rate, attributeTax.Amount);
             }
         }
 

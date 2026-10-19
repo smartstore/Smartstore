@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Rules;
@@ -24,13 +25,15 @@ public class CheckoutAttributeMaterializerTests : ServiceTestBase
     int _matchingAttributeId;
     int _nonMatchingAttributeId;
     int _multipleRuleSetsAttributeId;
+    int _matchingValueId;
+    int _nonMatchingValueId;
     Action<CartRuleContext> _contextAction;
 
     [OneTimeSetUp]
     public new async Task SetUp()
     {
         _store = new Store { Id = 1, Name = "Test store" };
-        var customer = new Customer { Id = 1 };
+        var customer = new Customer { Id = 92837 };
         _cart = new ShoppingCart(customer, _store.Id, []);
 
         var matchingRuleSet = new RuleSetEntity { Name = "Matching", Scope = RuleScope.Cart };
@@ -38,9 +41,19 @@ public class CheckoutAttributeMaterializerTests : ServiceTestBase
         var alternativeRuleSet = new RuleSetEntity { Name = "Alternative", Scope = RuleScope.Cart };
 
         var unrestrictedAttribute = new CheckoutAttribute { Name = "Unrestricted" };
-        var matchingAttribute = new CheckoutAttribute { Name = "Matching" };
-        var nonMatchingAttribute = new CheckoutAttribute { Name = "Non-matching" };
+        var matchingAttribute = new CheckoutAttribute
+        {
+            Name = "Matching",
+            AttributeControlType = AttributeControlType.DropdownList
+        };
+        var nonMatchingAttribute = new CheckoutAttribute
+        {
+            Name = "Non-matching",
+            AttributeControlType = AttributeControlType.DropdownList
+        };
         var multipleRuleSetsAttribute = new CheckoutAttribute { Name = "Multiple rule sets" };
+        var matchingValue = new CheckoutAttributeValue { Name = "Matching value", CheckoutAttribute = matchingAttribute };
+        var nonMatchingValue = new CheckoutAttributeValue { Name = "Non-matching value", CheckoutAttribute = nonMatchingAttribute };
 
         matchingAttribute.RuleSets.Add(matchingRuleSet);
         nonMatchingAttribute.RuleSets.Add(nonMatchingRuleSet);
@@ -52,6 +65,7 @@ public class CheckoutAttributeMaterializerTests : ServiceTestBase
             matchingAttribute,
             nonMatchingAttribute,
             multipleRuleSetsAttribute);
+        DbContext.CheckoutAttributeValues.AddRange(matchingValue, nonMatchingValue);
 
         await DbContext.SaveChangesAsync();
 
@@ -59,6 +73,8 @@ public class CheckoutAttributeMaterializerTests : ServiceTestBase
         _matchingAttributeId = matchingAttribute.Id;
         _nonMatchingAttributeId = nonMatchingAttribute.Id;
         _multipleRuleSetsAttributeId = multipleRuleSetsAttribute.Id;
+        _matchingValueId = matchingValue.Id;
+        _nonMatchingValueId = nonMatchingValue.Id;
 
         _cartRuleProvider = new Mock<ICartRuleProvider>();
         _cartRuleProvider
@@ -84,7 +100,7 @@ public class CheckoutAttributeMaterializerTests : ServiceTestBase
 
     [TestCase(true, false)]
     [TestCase(false, true)]
-    public async Task Can_load_checkout_attributes(bool matchRules, bool includeNonMatchingAttribute)
+    public async Task Can_get_checkout_attributes(bool matchRules, bool includeNonMatchingAttribute)
     {
         _cartRuleProvider.Invocations.Clear();
         _contextAction = null;
@@ -125,6 +141,32 @@ public class CheckoutAttributeMaterializerTests : ServiceTestBase
             Assert.That(context.Customer, Is.SameAs(_cart.Customer));
             Assert.That(context.ShoppingCart, Is.SameAs(_cart));
             Assert.That(context.Store, Is.SameAs(_store));
+        }
+    }
+
+    [Test]
+    public async Task Can_materialize_matching_checkout_attributes_and_values()
+    {
+        var selection = new CheckoutAttributeSelection(null);
+        selection.AddAttributeValue(_matchingAttributeId, _matchingValueId);
+        selection.AddAttributeValue(_nonMatchingAttributeId, _nonMatchingValueId);
+
+        var customerAttributes = _cart.Customer.GenericAttributes;
+        customerAttributes.CheckoutAttributes = selection;
+        await customerAttributes.SaveChangesAsync();
+
+        var materializedSelection = await _materializer.MaterializeCheckoutAttributesAsync(_cart);
+        customerAttributes.CheckoutAttributes = new CheckoutAttributeSelection(null);
+        await customerAttributes.SaveChangesAsync();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(
+                materializedSelection.Selection.GetAttributeValues(_matchingAttributeId).Select(x => x.ToString()).ToArray(),
+                Is.EqualTo([_matchingValueId.ToString()]));
+            Assert.That(materializedSelection.Attributes.Select(x => x.Id), Does.Contain(_matchingAttributeId));
+            Assert.That(materializedSelection.Attributes.Select(x => x.Id), Does.Not.Contain(_nonMatchingAttributeId));
+            Assert.That(materializedSelection.SelectedValues.Select(x => x.Id).ToArray(), Is.EqualTo([_matchingValueId]));
         }
     }
 }

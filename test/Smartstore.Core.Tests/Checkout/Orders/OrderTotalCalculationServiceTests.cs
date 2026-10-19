@@ -118,6 +118,13 @@ public class OrderTotalCalculationServiceTests : ServiceTestBase
 
         var checkoutAttributeMaterializerMock = new Mock<ICheckoutAttributeMaterializer>();
         _checkoutAttributeMaterializer = checkoutAttributeMaterializerMock.Object;
+        checkoutAttributeMaterializerMock
+            .Setup(x => x.MaterializeCheckoutAttributesAsync(It.IsAny<ShoppingCart>(), true))
+            .Returns((ShoppingCart cart, bool _) => Task.FromResult(new MaterializedCheckoutAttributes(
+                cart.Customer,
+                cart.Customer.GenericAttributes.CheckoutAttributes,
+                [],
+                [])));
 
         _discountServiceMock = new Mock<IDiscountService>();
         _discountService = _discountServiceMock.Object;
@@ -285,8 +292,12 @@ public class OrderTotalCalculationServiceTests : ServiceTestBase
         };
 
         Mock.Get(_checkoutAttributeMaterializer)
-            .Setup(x => x.MaterializeCheckoutAttributeValuesAsync(It.IsAny<CheckoutAttributeSelection>()))
-            .ReturnsAsync([attributeValue]);
+            .Setup(x => x.MaterializeCheckoutAttributesAsync(It.IsAny<ShoppingCart>(), true))
+            .Returns((ShoppingCart cart, bool _) => Task.FromResult(new MaterializedCheckoutAttributes(
+                cart.Customer,
+                cart.Customer.GenericAttributes.CheckoutAttributes,
+                [],
+                [attributeValue])));
 
         var cart = new ShoppingCart(_customer, 0, [new(cartItem)]);
         _productBatchContext = new ProductBatchContext([product], DbContext, LifetimeScope, _store, _customer, false);

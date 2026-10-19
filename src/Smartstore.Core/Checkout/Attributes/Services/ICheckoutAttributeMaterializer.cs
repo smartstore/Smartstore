@@ -1,4 +1,6 @@
-﻿using Smartstore.Core.Catalog.Attributes;
+﻿#nullable enable
+
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Core.Checkout.Attributes;
@@ -9,18 +11,12 @@ namespace Smartstore.Core.Checkout.Attributes;
 public partial interface ICheckoutAttributeMaterializer
 {
     /// <summary>
-    /// Gets a list of checkout attributes.
+    /// Materializes the checkout attribute selection for a shopping cart.
     /// </summary>
-    /// <param name="selection">Checkout attribute selection.</param>
-    /// <returns>List of checkout attributes.</returns>
-    Task<List<CheckoutAttribute>> MaterializeCheckoutAttributesAsync(CheckoutAttributeSelection selection);
-
-    /// <summary>
-    /// Gets a list of checkout attribute values.
-    /// </summary>
-    /// <param name="selection">Checkout attribute selection.</param>
-    /// <returns>List of checkout attribute values.</returns>
-    Task<List<CheckoutAttributeValue>> MaterializeCheckoutAttributeValuesAsync(CheckoutAttributeSelection selection);
+    /// <param name="cart">Shopping cart.</param>
+    /// <param name="matchRules">A value indicating whether to filter checkout attributes by cart rules.</param>
+    /// <returns>The materialized checkout attribute selection.</returns>
+    Task<MaterializedCheckoutAttributes> MaterializeCheckoutAttributesAsync(ShoppingCart cart, bool matchRules = true);
 
     /// <summary>
     /// Gets checkout attributes for a cart.

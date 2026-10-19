@@ -158,9 +158,6 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
         to.ShowProductBundleImages = _shoppingCartSettings.ShowProductBundleImagesOnShoppingCart;
         to.HasItemsWithRecurringPayment = from.ContainsRecurringItem();
 
-        to.CheckoutAttributeInfo = HtmlUtility.ConvertPlainTextToTable(HtmlUtility.ConvertHtmlToPlainText(
-            await _checkoutAttributeFormatter.FormatAttributesAsync(customer.GenericAttributes.CheckoutAttributes, customer)));
-
         // Gift card and gift card boxes.
         to.DiscountBox.Display = _shoppingCartSettings.ShowDiscountBox;
         var discountCouponCode = customer.GenericAttributes.DiscountCouponCode;
@@ -203,9 +200,14 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
 
         #region Checkout attributes
 
-        var checkoutAttributes = await _checkoutAttributeMaterializer.GetCheckoutAttributesAsync(from, store.Id);
+        var checkoutAttributes = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributesAsync(from);
+        var selectedAttributes = checkoutAttributes.Selection;
+        var selectedAttrValues = checkoutAttributes.SelectedValues;
 
-        foreach (var attribute in checkoutAttributes)
+        to.CheckoutAttributeInfo = HtmlUtility.ConvertPlainTextToTable(HtmlUtility.ConvertHtmlToPlainText(
+            await _checkoutAttributeFormatter.FormatAttributesAsync(checkoutAttributes)));
+
+        foreach (var attribute in checkoutAttributes.Attributes)
         {
             var caModel = new ShoppingCartModel.CheckoutAttributeModel
             {
@@ -281,14 +283,13 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
             }
 
             // Set already selected attributes.
-            var selectedCheckoutAttributes = customer.GenericAttributes.CheckoutAttributes;
             switch (attribute.AttributeControlType)
             {
                 case AttributeControlType.DropdownList:
                 case AttributeControlType.RadioList:
                 case AttributeControlType.Boxes:
                 case AttributeControlType.Checkboxes:
-                    if (selectedCheckoutAttributes.AttributesMap.Any())
+                    if (selectedAttributes.AttributesMap.Any())
                     {
                         // Clear default selection.
                         foreach (var item in caModel.Values)
@@ -297,8 +298,7 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
                         }
 
                         // Select new values.
-                        var selectedCaValues = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributeValuesAsync(selectedCheckoutAttributes);
-                        foreach (var caValue in selectedCaValues)
+                        foreach (var caValue in selectedAttrValues)
                         {
                             foreach (var item in caModel.Values)
                             {
@@ -313,9 +313,9 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
 
                 case AttributeControlType.TextBox:
                 case AttributeControlType.MultilineTextbox:
-                    if (selectedCheckoutAttributes.AttributesMap.Any())
+                    if (selectedAttributes.AttributesMap.Any())
                     {
-                        var enteredText = selectedCheckoutAttributes.GetAttributeValues(attribute.Id)?
+                        var enteredText = selectedAttributes.GetAttributeValues(attribute.Id)?
                             .Select(x => x.ToString())
                             .FirstOrDefault();
 
@@ -328,7 +328,7 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
 
                 case AttributeControlType.Datepicker:
                 {
-                    var enteredDate = selectedCheckoutAttributes.AttributesMap
+                    var enteredDate = selectedAttributes.AttributesMap
                         .Where(x => x.Key == attribute.Id)
                         .SelectMany(x => x.Value)
                         .FirstOrDefault()?
@@ -339,9 +339,9 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
                 break;
 
                 case AttributeControlType.FileUpload:
-                    if (selectedCheckoutAttributes.AttributesMap.Any())
+                    if (selectedAttributes.AttributesMap.Any())
                     {
-                        var fileValue = selectedCheckoutAttributes.AttributesMap
+                        var fileValue = selectedAttributes.AttributesMap
                             .Where(x => x.Key == attribute.Id)
                             .Select(x => x.Value.ToString())
                             .FirstOrDefault();

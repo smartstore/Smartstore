@@ -511,6 +511,7 @@ public partial class OrderProcessingService : IOrderProcessingService
             var customerCurrencyId = customer.GenericAttributes.Get<int>(SystemCustomerAttributeNames.CurrencyId, storeId);
             var currencyTmp = await _db.Currencies.FindByIdAsync(customerCurrencyId, false);
             var customerCurrency = (currencyTmp?.Published ?? false) ? currencyTmp : _workingCurrency;
+            var checkoutAttributes = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributesAsync(ctx.Cart);
 
             order.CustomerCurrencyCode = customerCurrency.CurrencyCode;
             order.CurrencyRate = customerCurrency.Rate / _primaryCurrency.Rate;
@@ -522,7 +523,7 @@ public partial class OrderProcessingService : IOrderProcessingService
                 : string.Empty;
 
             order.RawAttributes = customer.GenericAttributes.RawCheckoutAttributes;
-            order.CheckoutAttributeDescription = await _checkoutAttributeFormatter.FormatAttributesAsync(customer.GenericAttributes.CheckoutAttributes, customer);
+            order.CheckoutAttributeDescription = await _checkoutAttributeFormatter.FormatAttributesAsync(checkoutAttributes);
 
             if (ctx.CartRequiresShipping)
             {
