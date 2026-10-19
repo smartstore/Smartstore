@@ -38,7 +38,8 @@ public partial class CheckoutAttributeMaterializer : ICheckoutAttributeMateriali
     {
         Guard.NotNull(cart);
 
-        var query = _db.CheckoutAttributes.AsNoTracking();
+        // INFO: CacheableEntity! Always load tracked to prevent stale RuleSets after changing their mappings.
+        var query = _db.CheckoutAttributes.AsQueryable();
 
         if (matchRules)
         {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
 using Smartstore.Core.Catalog.Attributes;
@@ -91,7 +92,7 @@ public class CheckoutAttributeTests : ServiceTestBase
             .Returns((IRulesContainer entity, LogicalRuleOperator _, Action<CartRuleContext> contextAction) =>
             {
                 _contextAction = contextAction;
-                return Task.FromResult(((BaseEntity)entity).Id != _nonMatchingAttributeId);
+                return Task.FromResult(!entity.RuleSets.Any() || ((BaseEntity)entity).Id != _nonMatchingAttributeId);
             });
 
         var storeContext = new Mock<IStoreContext>();
@@ -147,6 +148,51 @@ public class CheckoutAttributeTests : ServiceTestBase
             Assert.That(context.Customer, Is.SameAs(_cart.Customer));
             Assert.That(context.ShoppingCart, Is.SameAs(_cart));
             Assert.That(context.Store, Is.SameAs(_store));
+        }
+    }
+
+    [Test]
+    public async Task Can_get_checkout_attributes_with_rule()
+    {
+        var attribute = await DbContext.CheckoutAttributes
+            .Include(x => x.RuleSets)
+            .FirstAsync(x => x.Id == _nonMatchingAttributeId);
+        var ruleSetId = attribute.RuleSets.First(x => x.Name == "Non-matching").Id;
+
+        try
+        {
+            attribute.RuleSets.Clear();
+            await DbContext.SaveChangesAsync();
+            DbContext.ChangeTracker.Clear();
+
+            var attributesWithoutMapping = await _materializer.GetCheckoutAttributesAsync(_cart, _store.Id);
+            Assert.That(attributesWithoutMapping.Select(x => x.Id), Does.Contain(_nonMatchingAttributeId));
+
+            attribute = await DbContext.CheckoutAttributes
+                .Include(x => x.RuleSets)
+                .FirstAsync(x => x.Id == _nonMatchingAttributeId);
+
+            var ruleSet = await DbContext.RuleSets.FirstAsync(x => x.Id == ruleSetId);
+            attribute.RuleSets.Add(ruleSet);
+            await DbContext.SaveChangesAsync();
+
+            DbContext.ChangeTracker.Clear();
+
+            var attributesWithMapping = await _materializer.GetCheckoutAttributesAsync(_cart, _store.Id);
+            Assert.That(attributesWithMapping.Select(x => x.Id), Does.Not.Contain(_nonMatchingAttributeId));
+        }
+        finally
+        {
+            attribute = await DbContext.CheckoutAttributes
+                .Include(x => x.RuleSets)
+                .FirstAsync(x => x.Id == _nonMatchingAttributeId);
+
+            if (!attribute.RuleSets.Any(x => x.Id == ruleSetId))
+            {
+                var ruleSet = await DbContext.RuleSets.FirstAsync(x => x.Id == ruleSetId);
+                attribute.RuleSets.Add(ruleSet);
+                await DbContext.SaveChangesAsync();
+            }
         }
     }
 
