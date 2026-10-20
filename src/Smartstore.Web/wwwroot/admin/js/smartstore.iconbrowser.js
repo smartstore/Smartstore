@@ -236,100 +236,21 @@
                 updateToolbarState();
                 select.trigger('change.select2');
             });
-            toolbar.find('[data-option="flip-h"], [data-option="flip-v"]').each(function () {
-                const key = this.dataset.option;
-                Smartstore.IconTools.bindFlip(this, {
-                    getState: () => ({ name: selectedAddress, value: options[key] }),
-                    onChange(value) { setOption(key, value); }
-                });
+            const presentationTools = Smartstore.IconTools.bindToolbar(toolbar[0], {
+                getState(option) {
+                    if (option === 'stroke-scale' && !supportsStrokeScaling) return null;
+                    const previewOptions = {};
+                    for (const [key, value] of Object.entries(options)) {
+                        if (key === option || key === 'size' || key === 'animation'
+                            || (key === 'stroke-scale' && !supportsStrokeScaling)) continue;
+                        previewOptions[key] = value;
+                    }
+                    return { area, name: select.select2('data')[0]?.previewAddress || select.val(),
+                        options: previewOptions, value: options[option], color: options.color };
+                },
+                onChange: setOption
             });
-
-            const strokeToggle = toolbar.find('[data-option="stroke-scale"]')[0];
-            if (strokeToggle) {
-                const strokeTool = Smartstore.IconTools.bindStrokeScale(strokeToggle, {
-                    showPreview: true,
-                    getState() {
-                        if (!supportsStrokeScaling) return null;
-                        const previewOptions = {};
-                        for (const key of ['flip-h', 'flip-v', 'rotate']) {
-                            if (options[key] != null) previewOptions[key] = options[key];
-                        }
-                        return { area, name: select.select2('data')[0]?.previewAddress || select.val(), options: previewOptions,
-                            value: options['stroke-scale'] };
-                    },
-                    onChange(value) { setOption('stroke-scale', value); }
-                });
-                select.on('change.iconTools select2:opening', () => strokeTool.close());
-            }
-
-            const rotateToggle = toolbar.find('[data-option="rotate"]')[0];
-            if (rotateToggle) {
-                const rotateTool = Smartstore.IconTools.bindRotate(rotateToggle, {
-                    showPreview: true,
-                    getState() {
-                        const previewOptions = {};
-                        for (const key of ['flip-h', 'flip-v', 'stroke-scale']) {
-                            if (options[key] != null) previewOptions[key] = options[key];
-                        }
-                        return { area, name: select.select2('data')[0]?.previewAddress || select.val(), options: previewOptions,
-                            value: options['rotate'] };
-                    },
-                    onChange(value) { setOption('rotate', value); }
-                });
-                select.on('change.iconTools select2:opening', () => rotateTool.close());
-            }
-
-            const sizeToggle = toolbar.find('[data-option="size"]')[0];
-            if (sizeToggle) {
-                const sizeTool = Smartstore.IconTools.bindSize(sizeToggle, {
-                    getState: () => ({ name: select.val(), value: options['size'] }),
-                    onChange(value) { setOption('size', value); }
-                });
-                select.on('change.iconTools select2:opening', () => sizeTool.close());
-            }
-
-            const colorToggle = toolbar.find('[data-option="color"]')[0];
-            if (colorToggle) {
-                const colorTool = Smartstore.IconTools.bindColor(colorToggle, {
-                    getState: () => ({ name: select.val(), value: options.color }),
-                    onChange(value) {
-                        setOption('color', value);
-                    }
-                });
-                select.on('change.iconTools select2:opening', () => colorTool.close());
-            }
-
-            const opacityToggle = toolbar.find('[data-option="opacity"]')[0];
-            if (opacityToggle) {
-                const opacityTool = Smartstore.IconTools.bindOpacity(opacityToggle, {
-                    getState: () => ({ name: select.val(), area, options, value: options.opacity, color: options.color }),
-                    onChange(value) { setOption('opacity', value); }
-                });
-                select.on('change.iconTools select2:opening', () => opacityTool.close());
-            }
-
-            const animationToggle = toolbar.find('[data-option="animation"]')[0];
-            if (animationToggle) {
-                const animationTool = Smartstore.IconTools.bindAnimation(animationToggle, {
-                    noneLabel: animationToggle.dataset.noneLabel,
-                    getState() {
-                        const item = select.select2('data')[0];
-                        const previewOptions = {};
-                        for (const [key, value] of Object.entries(options)) {
-                            if (key === 'size' || key === 'animation' || (key === 'stroke-scale' && !supportsStrokeScaling)) continue;
-                            previewOptions[key] = value;
-                        }
-                        return {
-                            area, name: item?.previewAddress || select.val(), options: previewOptions,
-                            value: options['animation']
-                        };
-                    },
-                    onChange(value) {
-                        setOption('animation', value);
-                    }
-                });
-                select.on('change.iconTools select2:opening', () => animationTool.close());
-            }
+            select.on('change.iconTools select2:opening', () => presentationTools.close());
 
             // Select2 detaches its dropdown from the picker. Keep the size variable and
             // controls on that instance's dropdown so multiple browsers remain independent.

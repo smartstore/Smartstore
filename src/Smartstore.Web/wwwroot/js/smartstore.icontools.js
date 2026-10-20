@@ -15,6 +15,27 @@
     }
 
     namespace.IconTools = {
+        // Hosts provide values and optionally a fresh composed preview, never picker internals.
+        bindToolbar(toolbar, { getState, onChange, createPreview }) {
+            const bindings = { color: 'bindColor', opacity: 'bindOpacity',
+                'flip-h': 'bindFlip', 'flip-v': 'bindFlip', rotate: 'bindRotate',
+                size: 'bindSize', animation: 'bindAnimation', 'stroke-scale': 'bindStrokeScale' };
+            const tools = [];
+            for (const button of toolbar?.querySelectorAll('[data-option]') || []) {
+                const option = button.dataset.option;
+                if (!bindings[option]) continue;
+                tools.push(this[bindings[option]](button, {
+                    getState: () => getState(option),
+                    onChange: value => onChange(option, value),
+                    createPreview, showPreview: option === 'rotate' || option === 'stroke-scale',
+                    noneLabel: button.dataset.noneLabel
+                }));
+            }
+            return {
+                close() { tools.forEach(tool => tool.close?.()); },
+                dispose() { tools.forEach(tool => tool.dispose()); }
+            };
+        },
         bindSize(toggle, callbacks) {
             const values = ['xs', 'sm', '', 'lg', 'xl', ...Array.from({ length: 9 }, (_, i) => `${i + 2}x`)];
             return this.bindRange(toggle, callbacks, {
@@ -63,7 +84,7 @@
                 }
             });
         },
-        bindRange(toggle, { getState, onChange, getPlacement }, { values, labels, ticks: tickIndices, normalize, showPreview = false, previewOption = 'stroke-scale', tickLabels, snapTolerance, menuClass = '' }) {
+        bindRange(toggle, { getState, onChange, getPlacement, createPreview }, { values, labels, ticks: tickIndices, normalize, showPreview = false, previewOption = 'stroke-scale', tickLabels, snapTolerance, menuClass = '' }) {
             let menu, popper;
             toggle.setAttribute('aria-haspopup', 'dialog');
             toggle.setAttribute('aria-expanded', 'false');
@@ -83,7 +104,7 @@
                 event.preventDefault(); event.stopPropagation();
                 if (menu) { close(); return; }
                 const state = getState();
-                if (!state?.name || toggle.disabled) return;
+                if (!state || (!state.name && !createPreview) || toggle.disabled) return;
                 closeCurrent?.(); closeCurrent = close;
                 const current = normalize(state.value);
                 const index = Math.max(0, values.indexOf(current));
@@ -146,16 +167,18 @@
                     const holder = document.createElement('div');
                     holder.className = 'd-flex align-items-center justify-content-center flex-shrink-0';
                     holder.style.width = '48px';
-                    preview = document.createElement('sm-icon');
-                    const separator = state.name.indexOf('?');
-                    const query = separator < 0 ? [] : state.name.slice(separator + 1).split('&')
-                        .filter(pair => !['color', 'size', 'animation', previewOption, ...(previewOption === 'opacity' ? ['o'] : [])].includes(pair.split('=', 1)[0]));
-                    preview.setAttribute('name', (separator < 0 ? state.name : state.name.slice(0, separator)) + (query.length ? '?' + query.join('&') : ''));
-                    if (state.area) preview.setAttribute('area', state.area);
-                    for (const key of ['flip-h', 'flip-v', 'rotate', 'stroke-scale']) {
-                        if (key !== previewOption && state.options?.[key]) preview.setAttribute(key, String(state.options[key]).replace(',', '.'));
+                    preview = createPreview ? createPreview(state) : document.createElement('sm-icon');
+                    if (!createPreview) {
+                        const separator = state.name.indexOf('?');
+                        const query = separator < 0 ? [] : state.name.slice(separator + 1).split('&')
+                            .filter(pair => !['color', 'size', 'animation', previewOption, ...(previewOption === 'opacity' ? ['o'] : [])].includes(pair.split('=', 1)[0]));
+                        preview.setAttribute('name', (separator < 0 ? state.name : state.name.slice(0, separator)) + (query.length ? '?' + query.join('&') : ''));
+                        if (state.area) preview.setAttribute('area', state.area);
+                        for (const key of ['flip-h', 'flip-v', 'rotate', 'stroke-scale']) {
+                            if (key !== previewOption && state.options?.[key]) preview.setAttribute(key, String(state.options[key]).replace(',', '.'));
+                        }
+                        if (previewOption === 'opacity' && state.color) preview.setAttribute('color', state.color);
                     }
-                    if (previewOption === 'opacity' && state.color) preview.setAttribute('color', state.color);
                     preview.setAttribute('size', '3x');
                     preview.setAttribute('aria-hidden', 'true');
                     if (previewOption === 'rotate') preview.style.setProperty('--icon-rotate', (state.value || 0) + 'deg');
@@ -202,7 +225,7 @@
             function flip(event) {
                 event.preventDefault(); event.stopPropagation();
                 const state = getState();
-                if (toggle.disabled || !state?.name) return;
+                if (toggle.disabled || !state || (!state.name && !state.options)) return;
                 onChange(String(state.value).toLowerCase() !== 'true');
             }
             toggle.addEventListener('click', flip);
@@ -231,7 +254,7 @@
                 event.preventDefault(); event.stopPropagation();
                 if (menu) { close(); return; }
                 const state = getState();
-                if (!state?.name || toggle.disabled) return;
+                if (!state || (!state.name && !state.options) || toggle.disabled) return;
                 closeCurrent?.();
                 closeCurrent = close;
                 menu = document.createElement('div');
@@ -291,7 +314,7 @@
         },
         // getState returns { name, area, options, value }; onChange receives the selected value.
         // The returned close/dispose methods let hosts clean up when their editor closes.
-        bindAnimation(toggle, { getState, onChange, getPlacement, noneLabel = 'None' }) {
+        bindAnimation(toggle, { getState, onChange, getPlacement, createPreview, noneLabel = 'None' }) {
             let menu, popper;
             toggle.setAttribute('aria-haspopup', 'menu');
             toggle.setAttribute('aria-expanded', 'false');
@@ -314,14 +337,15 @@
                 event.stopPropagation();
                 if (menu) { close(); return; }
                 const state = getState();
-                if (!state?.name || toggle.disabled) return;
+                if (!state || (!state.name && !state.options) || toggle.disabled) return;
                 closeCurrent?.();
                 closeCurrent = close;
                 // Keep animation previews neutral; size, animation and color are not inherited.
-                const separator = state.name.indexOf('?');
-                const query = separator < 0 ? [] : state.name.slice(separator + 1).split('&')
+                const sourceName = state.name || '';
+                const separator = sourceName.indexOf('?');
+                const query = separator < 0 ? [] : sourceName.slice(separator + 1).split('&')
                     .filter(pair => !['size', 'animation', 'color'].includes(pair.split('=', 1)[0]));
-                const name = (separator < 0 ? state.name : state.name.slice(0, separator))
+                const name = (separator < 0 ? sourceName : sourceName.slice(0, separator))
                     + (query.length ? '?' + query.join('&') : '');
                 menu = document.createElement('div');
                 menu.className = 'dropdown-menu show icon-tool-animation-menu p-2';
@@ -339,8 +363,8 @@
                     button.setAttribute('aria-checked', String(value === (state.value || '')));
                     button.classList.toggle('active', value === (state.value || ''));
                     button.tabIndex = value === (state.value || '') ? 0 : -1;
-                    const icon = document.createElement('sm-icon');
-                    icon.setAttribute('name', name);
+                    const icon = createPreview ? createPreview(state) : document.createElement('sm-icon');
+                    if (!createPreview) icon.setAttribute('name', name);
                     if (state.area) icon.setAttribute('area', state.area);
                     for (const [key, setting] of Object.entries(state.options || {})) {
                         if (setting != null && !['name', 'size', 'animation', 'color', 'font-scale', 'scale'].includes(key)) icon.setAttribute(key, setting);

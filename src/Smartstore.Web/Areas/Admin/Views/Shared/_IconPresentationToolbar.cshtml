@@ -1,0 +1,69 @@
+@using Smartstore.Web.Models.Media
+@model IconOptionFields
+
+@* Tools are enabled individually as their shared editors become available. *@
+<div class="icon-browser-toolbar d-inline-flex align-items-center align-self-center flex-shrink-0 order-1 ml-auto d-none" role="group" aria-label="@T("Admin.IconBrowser.Options")">
+    @if (Model.HasFlag(IconOptionFields.Color))
+    {
+        <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron"
+                data-option="color" title="@T("Admin.Design.Color")" aria-label="@T("Admin.Design.Color")" disabled aria-disabled="true">
+            <span class="icon-tool-color-swatch" aria-hidden="true"></span>
+        </button>
+    }
+    @if (Model.HasFlag(IconOptionFields.Opacity))
+    {
+        <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron"
+                data-option="opacity" title="@T("Admin.Design.Opacity")" aria-label="@T("Admin.Design.Opacity")" disabled aria-disabled="true">
+            <icon name="transparency" aria-hidden="true" />
+        </button>
+    }
+    @if (Model.HasFlag(IconOptionFields.Flip))
+    {
+        <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron"
+                data-option="flip-h" title="@T("Admin.Design.FlipHorizontal")" aria-label="@T("Admin.Design.FlipHorizontal")" aria-disabled="true" aria-pressed="false">
+            <icon name="flip-h" aria-hidden="true" />
+        </button>
+    }
+    @if (Model.HasFlag(IconOptionFields.Flip))
+    {
+        <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron"
+                data-option="flip-v" title="@T("Admin.Design.FlipVertical")" aria-label="@T("Admin.Design.FlipVertical")" aria-disabled="true" aria-pressed="false">
+            <icon name="flip-v" aria-hidden="true" />
+        </button>
+    }
+    @if (Model.HasFlag(IconOptionFields.Rotate))
+    {
+        <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron dropdown-toggle"
+                data-option="rotate" title="@T("Admin.Design.Rotation")" aria-label="@T("Admin.Design.Rotation")" aria-disabled="true">
+            <icon name="rotate" aria-hidden="true" />
+        </button>
+    }
+    @if (Model.HasFlag(IconOptionFields.Size))
+    {
+        <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron dropdown-toggle"
+                data-option="size" title="@T("Admin.IconBrowser.Size")" aria-label="@T("Admin.IconBrowser.Size")" aria-disabled="true">
+            <icon name="scaling" aria-hidden="true" />
+        </button>
+    }
+    @if (Model.HasFlag(IconOptionFields.Animation))
+    {
+        <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron dropdown-toggle"
+                data-option="animation" data-none-label="@T("Admin.Design.NoAnimation")" title="@T("Admin.Design.Animation")" aria-label="@T("Admin.Design.Animation")" aria-disabled="true">
+            <icon name="animation" aria-hidden="true" />
+        </button>
+    }
+    @if (Model.HasFlag(IconOptionFields.StrokeScale))
+    {
+        <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron dropdown-toggle"
+                data-option="stroke-scale" title="@T("Admin.Design.StrokeWidth")" aria-label="@T("Admin.Design.StrokeWidth")" aria-disabled="true">
+            <icon name="hi:pencil" aria-hidden="true" />
+        </button>
+    }
+    @if ((Model & (IconOptionFields.Size | IconOptionFields.Animation | IconOptionFields.StrokeScale)) != IconOptionFields.None)
+    {
+        <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron" data-more="true"
+                title="@T("Common.MoreOptions")" aria-label="@T("Common.MoreOptions")" aria-disabled="true">
+            <icon name="ellipsis" aria-hidden="true" />
+        </button>
+    }
+</div>
