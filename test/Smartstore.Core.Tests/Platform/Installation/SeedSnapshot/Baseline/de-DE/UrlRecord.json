@@ -1,11 +1,27 @@
 [
   {
+    "$key": "Category|Category:Apparel|0|mode-2",
+    "EntityId": "Category:Apparel",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "mode-2"
+  },
+  {
     "$key": "Category|Category:Apple|0|apple",
     "EntityId": "Category:Apple",
     "EntityName": "Category",
     "IsActive": true,
     "LanguageId": 0,
     "Slug": "apple"
+  },
+  {
+    "$key": "Category|Category:Armchairs|0|sessel-2",
+    "EntityId": "Category:Armchairs",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "sessel-2"
   },
   {
     "$key": "Category|Category:Basketball|0|basketball",
@@ -32,12 +48,28 @@
     "Slug": "sessel"
   },
   {
+    "$key": "Category|Category:Coffee and Tea|0|kaffee-tee",
+    "EntityId": "Category:Coffee and Tea",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "kaffee-tee"
+  },
+  {
     "$key": "Category|Category:Cook and enjoy|0|kochen-und-geniessen",
     "EntityId": "Category:Cook and enjoy",
     "EntityName": "Category",
     "IsActive": true,
     "LanguageId": 0,
     "Slug": "kochen-und-geniessen"
+  },
+  {
+    "$key": "Category|Category:Delicacies|0|food-delikatessen",
+    "EntityId": "Category:Delicacies",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "food-delikatessen"
   },
   {
     "$key": "Category|Category:Digital Products|0|digitale-produkte",
@@ -48,12 +80,44 @@
     "Slug": "digitale-produkte"
   },
   {
+    "$key": "Category|Category:Digital|0|digital",
+    "EntityId": "Category:Digital",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "digital"
+  },
+  {
+    "$key": "Category|Category:E-Books|0|e-books",
+    "EntityId": "Category:E-Books",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "e-books"
+  },
+  {
     "$key": "Category|Category:Fashion|0|mode",
     "EntityId": "Category:Fashion",
     "EntityName": "Category",
     "IsActive": true,
     "LanguageId": 0,
     "Slug": "mode"
+  },
+  {
+    "$key": "Category|Category:Footwear|0|schuhe-2",
+    "EntityId": "Category:Footwear",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "schuhe-2"
+  },
+  {
+    "$key": "Category|Category:Furniture and Design|0|moebel-design",
+    "EntityId": "Category:Furniture and Design",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "moebel-design"
   },
   {
     "$key": "Category|Category:Furniture|0|moebel",
@@ -96,6 +160,30 @@
     "Slug": "geschenkgutscheine"
   },
   {
+    "$key": "Category|Category:Golf Accessories|0|golfzubehoer",
+    "EntityId": "Category:Golf Accessories",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "golfzubehoer"
+  },
+  {
+    "$key": "Category|Category:Golf Balls|0|golfbaelle",
+    "EntityId": "Category:Golf Balls",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "golfbaelle"
+  },
+  {
+    "$key": "Category|Category:Golf and Sports|0|golf-sport",
+    "EntityId": "Category:Golf and Sports",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "golf-sport"
+  },
+  {
     "$key": "Category|Category:Golf|0|golf",
     "EntityId": "Category:Golf",
     "EntityName": "Category",
@@ -104,12 +192,44 @@
     "Slug": "golf"
   },
   {
+    "$key": "Category|Category:Jackets and Coats|0|jacken-maentel",
+    "EntityId": "Category:Jackets and Coats",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "jacken-maentel"
+  },
+  {
     "$key": "Category|Category:Jackets|0|jacken",
     "EntityId": "Category:Jackets",
     "EntityName": "Category",
     "IsActive": true,
     "LanguageId": 0,
     "Slug": "jacken"
+  },
+  {
+    "$key": "Category|Category:Lighting|0|leuchten",
+    "EntityId": "Category:Lighting",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "leuchten"
+  },
+  {
+    "$key": "Category|Category:Music|0|musik",
+    "EntityId": "Category:Music",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "musik"
+  },
+  {
+    "$key": "Category|Category:Oil and Vinegar|0|oel-essig",
+    "EntityId": "Category:Oil and Vinegar",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "oel-essig"
   },
   {
     "$key": "Category|Category:SPIEGEL-Bestseller|0|spiegel-bestseller",
@@ -152,6 +272,14 @@
     "Slug": "sofas"
   },
   {
+    "$key": "Category|Category:Software|0|software",
+    "EntityId": "Category:Software",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "software"
+  },
+  {
     "$key": "Category|Category:Sports|0|sport",
     "EntityId": "Category:Sports",
     "EntityName": "Category",
@@ -182,6 +310,14 @@
     "IsActive": true,
     "LanguageId": 0,
     "Slug": "hosen"
+  },
+  {
+    "$key": "Category|Category:Vouchers|0|gutscheine",
+    "EntityId": "Category:Vouchers",
+    "EntityName": "Category",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "gutscheine"
   },
   {
     "$key": "Category|Category:Watches|0|uhren",
@@ -216,6 +352,14 @@
     "Slug": "breitling"
   },
   {
+    "$key": "Manufacturer|Manufacturer:Casa Vireluna|0|casa-vireluna",
+    "EntityId": "Manufacturer:Casa Vireluna",
+    "EntityName": "Manufacturer",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "casa-vireluna"
+  },
+  {
     "$key": "Manufacturer|Manufacturer:Certina|0|certina",
     "EntityId": "Manufacturer:Certina",
     "EntityName": "Manufacturer",
@@ -230,6 +374,14 @@
     "IsActive": true,
     "LanguageId": 0,
     "Slug": "ea-sports"
+  },
+  {
+    "$key": "Manufacturer|Manufacturer:Fairway Vennix|0|fairway-vennix",
+    "EntityId": "Manufacturer:Fairway Vennix",
+    "EntityName": "Manufacturer",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "fairway-vennix"
   },
   {
     "$key": "Manufacturer|Manufacturer:Festina|0|festina",
@@ -248,6 +400,14 @@
     "Slug": "jack-wolfskin"
   },
   {
+    "$key": "Manufacturer|Manufacturer:Lindavero|0|lindavero",
+    "EntityId": "Manufacturer:Lindavero",
+    "EntityName": "Manufacturer",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "lindavero"
+  },
+  {
     "$key": "Manufacturer|Manufacturer:Microsoft|0|microsoft",
     "EntityId": "Manufacturer:Microsoft",
     "EntityName": "Manufacturer",
@@ -264,12 +424,28 @@
     "Slug": "nike"
   },
   {
+    "$key": "Manufacturer|Manufacturer:Norlumera|0|norlumera",
+    "EntityId": "Manufacturer:Norlumera",
+    "EntityName": "Manufacturer",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "norlumera"
+  },
+  {
     "$key": "Manufacturer|Manufacturer:Oakley|0|oakley",
     "EntityId": "Manufacturer:Oakley",
     "EntityName": "Manufacturer",
     "IsActive": true,
     "LanguageId": 0,
     "Slug": "oakley"
+  },
+  {
+    "$key": "Manufacturer|Manufacturer:Pixelmoor|0|pixelmoor",
+    "EntityId": "Manufacturer:Pixelmoor",
+    "EntityName": "Manufacturer",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "pixelmoor"
   },
   {
     "$key": "Manufacturer|Manufacturer:Puma|0|puma",

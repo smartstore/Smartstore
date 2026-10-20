@@ -50,5 +50,56 @@
   },
   "Tables": {
     "name": "Tische"
+  },
+  "Delicacies": {
+    "name": "Food & Delikatessen",
+    "description": "<p>Olivenöl, Kaffee und Gewürze aus einer fiktiven mediterranen Speisekammer. Hier sehen Sie Grundpreise (Preis pro Liter oder Kilogramm), Abonnements und Geschenkboxen in der Praxis.</p>"
+  },
+  "Golf and Sports": {
+    "name": "Golf & Sport",
+    "description": "<p>Golfbälle, Handschuhe und Zubehör. Zeigt Staffelpreise, Packungsgrößen, Bundles und Produkte mit Preis auf Anfrage.</p>"
+  },
+  "Apparel": {
+    "name": "Mode",
+    "badgeText": "NEU",
+    "description": "<p>Jacken, Strick und Schuhe mit Farbmustern, Größen und Lagerbeständen. Dazu ein T-Shirt, das Sie mit einem eigenen Aufdruck individualisieren können.</p>"
+  },
+  "Furniture and Design": {
+    "name": "Möbel & Design",
+    "description": "<p>Sessel, Leuchten und eine Wohnzimmer-Serie. Zeigt konfigurierbare Produkte mit Aufpreisen, Lieferzeiten und Gruppenprodukte.</p>"
+  },
+  "Digital": {
+    "description": "<p>E-Books, Musik und Software zum sofortigen Download. Zeigt Download-Vorschauen und Nutzungsvereinbarungen.</p>"
+  },
+  "Vouchers": {
+    "name": "Gutscheine",
+    "description": "<p>Geschenkgutscheine mit festem Wert oder frei wählbarem Betrag sowie ein Spendenprodukt.</p>"
+  },
+  "Oil and Vinegar": {
+    "name": "Öl & Essig"
+  },
+  "Coffee and Tea": {
+    "name": "Kaffee & Tee"
+  },
+  "Golf Balls": {
+    "name": "Golfbälle"
+  },
+  "Golf Accessories": {
+    "name": "Golfzubehör"
+  },
+  "Jackets and Coats": {
+    "name": "Jacken & Mäntel"
+  },
+  "Footwear": {
+    "name": "Schuhe"
+  },
+  "Armchairs": {
+    "name": "Sessel"
+  },
+  "Lighting": {
+    "name": "Leuchten"
+  },
+  "Music": {
+    "name": "Musik"
   }
 }
