@@ -820,8 +820,13 @@ public class PayPalController : PublicController
 
             if (rawRequest.HasValue())
             {
+                if (!await VerifyWebhookRequest(Request, rawRequest))
+                {
+                    Logger.Warn("PayPal webhook signature verification failed.");
+                    return Ok();
+                }
+
                 var webhookEvent = PayPalHelper.Deserialize<WebhookEvent<WebhookResource>>(rawRequest);
-                var response = await VerifyWebhookRequest(Request, webhookEvent);
                 var resource = webhookEvent.Resource;
 
                 var webhookResourceType = webhookEvent.ResourceType?.ToLowerInvariant();
@@ -887,6 +892,7 @@ public class PayPalController : PublicController
         catch (Exception ex)
         {
             Logger.Error(ex, rawRequest);
+            return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
         return Ok();
@@ -949,6 +955,14 @@ public class PayPalController : PublicController
                 break;
 
             case "declined":
+                // A declined attempt must not overwrite a captured payment.
+                if (order.PaymentStatus is PaymentStatus.Paid
+                    or PaymentStatus.PartiallyRefunded
+                    or PaymentStatus.Refunded)
+                {
+                    break;
+                }
+
                 var settings = await Services.SettingFactory.LoadSettingsAsync<PayPalSettings>(order.StoreId);
                 order.CaptureTransactionResult = status;
                 if (settings.Intent == PayPalTransactionType.Authorize)
@@ -1027,9 +1041,9 @@ public class PayPalController : PublicController
         }
     }
 
-    async Task<PayPalResponse> VerifyWebhookRequest(HttpRequest request, WebhookEvent<WebhookResource> webhookEvent)
+    async Task<bool> VerifyWebhookRequest(HttpRequest request, string rawRequest)
     {
-        var verifyRequest = _client.RequestFactory.WebhookVerifySignature(new VerifyWebhookSignature<WebhookResource>
+        var verifyRequest = _client.RequestFactory.WebhookVerifySignature(new VerifyWebhookSignature
         {
             AuthAlgo = request.Headers["PAYPAL-AUTH-ALGO"],
             CertUrl = request.Headers["PAYPAL-CERT-URL"],
@@ -1037,20 +1051,20 @@ public class PayPalController : PublicController
             TransmissionSig = request.Headers["PAYPAL-TRANSMISSION-SIG"],
             TransmissionTime = request.Headers["PAYPAL-TRANSMISSION-TIME"],
             WebhookId = _settings.WebhookId,
-            WebhookEvent = webhookEvent
+            WebhookEvent = rawRequest
         });
 
         var response = await _client.ExecuteRequestAsync(verifyRequest);
 
-        // TODO: (mh) (core) OK ain't enough. The response body must contain a "SUCCESS"
-        // INFO: won't work for mockups that can be sent with PayPal Webhooks simulator as mockups can't be validated.
-        if (response.Status == HttpStatusCode.OK)
-        {
-            return response;
-        }
-        else
+        // Webhook simulator events cannot be verified by PayPal's postback API.
+        var verificationStatus = response.Body<VerifyWebhookSignatureResponse>()?.VerificationStatus;
+
+        if (response.Status != HttpStatusCode.OK
+            || (verificationStatus != "SUCCESS" && verificationStatus != "FAILURE"))
         {
             throw new PayPalException("Could not verify request.");
         }
+
+        return verificationStatus == "SUCCESS";
     }
 }
