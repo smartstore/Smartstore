@@ -18,7 +18,6 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
-using Smartstore.Domain;
 using Smartstore.Test.Common;
 
 namespace Smartstore.Core.Tests.Checkout.Attributes;
@@ -34,6 +33,8 @@ public class CheckoutAttributeTests : ServiceTestBase
     int _matchingAttributeId;
     int _nonMatchingAttributeId;
     int _multipleRuleSetsAttributeId;
+    int _matchingRuleSetId;
+    int _nonMatchingRuleSetId;
     int _matchingValueId;
     int _nonMatchingValueId;
     Action<CartRuleContext> _contextAction;
@@ -82,19 +83,24 @@ public class CheckoutAttributeTests : ServiceTestBase
         _matchingAttributeId = matchingAttribute.Id;
         _nonMatchingAttributeId = nonMatchingAttribute.Id;
         _multipleRuleSetsAttributeId = multipleRuleSetsAttribute.Id;
+        _matchingRuleSetId = matchingRuleSet.Id;
+        _nonMatchingRuleSetId = nonMatchingRuleSet.Id;
         _matchingValueId = matchingValue.Id;
         _nonMatchingValueId = nonMatchingValue.Id;
 
         _cartRuleProvider = new Mock<ICartRuleProvider>();
         _cartRuleProvider
+            .Setup(x => x.CreateExpressionGroupAsync(It.IsAny<int>()))
+            .Returns((int ruleSetId) => Task.FromResult<RuleExpressionGroup>(new() { Id = ruleSetId }));
+        _cartRuleProvider
             .Setup(x => x.RuleMatchesAsync(
-                It.IsAny<IRulesContainer>(),
-                It.IsAny<LogicalRuleOperator>(),
+                It.IsAny<RuleExpression[]>(),
+                LogicalRuleOperator.And,
                 It.IsAny<Action<CartRuleContext>>()))
-            .Returns((IRulesContainer entity, LogicalRuleOperator _, Action<CartRuleContext> contextAction) =>
+            .Returns((RuleExpression[] expressions, LogicalRuleOperator _, Action<CartRuleContext> contextAction) =>
             {
                 _contextAction = contextAction;
-                return Task.FromResult(!entity.RuleSets.Any() || ((BaseEntity)entity).Id != _nonMatchingAttributeId);
+                return Task.FromResult(expressions[0].Id != _nonMatchingRuleSetId);
             });
 
         var storeContext = new Mock<IStoreContext>();
@@ -125,18 +131,13 @@ public class CheckoutAttributeTests : ServiceTestBase
 
         if (!matchRules)
         {
-            _cartRuleProvider.Verify(x => x.RuleMatchesAsync(
-                It.IsAny<IRulesContainer>(),
-                It.IsAny<LogicalRuleOperator>(),
-                It.IsAny<Action<CartRuleContext>>()), Times.Never);
+            _cartRuleProvider.Verify(x => x.CreateExpressionGroupAsync(It.IsAny<int>()), Times.Never);
             Assert.That(_contextAction, Is.Null);
             return;
         }
 
-        _cartRuleProvider.Verify(x => x.RuleMatchesAsync(
-            It.Is<IRulesContainer>(x => ((BaseEntity)x).Id == _multipleRuleSetsAttributeId),
-            LogicalRuleOperator.Or,
-            It.IsAny<Action<CartRuleContext>>()), Times.Once);
+        _cartRuleProvider.Verify(x => x.CreateExpressionGroupAsync(_matchingRuleSetId), Times.Once);
+        _cartRuleProvider.Verify(x => x.CreateExpressionGroupAsync(_nonMatchingRuleSetId), Times.Once);
         Assert.That(_contextAction, Is.Not.Null);
 
         var context = new CartRuleContext(() => 0)

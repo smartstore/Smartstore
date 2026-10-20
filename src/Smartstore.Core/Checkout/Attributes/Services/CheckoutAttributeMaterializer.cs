@@ -86,9 +86,7 @@ public partial class CheckoutAttributeMaterializer : ICheckoutAttributeMateriali
                 }
             }
 
-            return await checkoutAttributes
-                .WhereAwait(async x => await _cartRuleProvider.Value.RuleMatchesAsync(x, contextAction: contextAction))
-                .ToListAsync();
+            return await _cartRuleProvider.Value.FilterByCartRulesAsync(checkoutAttributes, contextAction);
         }
 
         return checkoutAttributes;
