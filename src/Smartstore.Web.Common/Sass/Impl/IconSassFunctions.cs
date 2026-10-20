@@ -28,7 +28,7 @@ internal static class IconSassFunctions
 
         async Task<string> CreateUrlAsync(string address, CancellationToken cancelToken)
         {
-            const string placeholderAddress = "system:not-found!/default";
+            const string placeholderAddress = "system:not-found!/outline";
             var expression = IconExpression.Parse(address);
             var icon = await icons.GetIconAsync(expression.Address, area: area, cancelToken: cancelToken);
             var source = icon == null ? null : await icons.GetSvgAsync(icon, cancelToken);

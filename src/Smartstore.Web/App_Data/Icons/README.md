@@ -477,7 +477,7 @@ Collections never produce sprites and have no library or variant defaults:
 {
   "shared": {
     "icons": ["cart", "search", "not-found"],
-    "sources": { "not-found": "sys:not-found!/default" }
+    "sources": { "not-found": "sys:not-found!/outline" }
   }
 }
 ```
@@ -1435,11 +1435,11 @@ the client manifest fast path and require the render endpoint, even when the sam
 artwork is already included in a kit. Use explicit addresses only when no suitable
 concept exists or a specific source selection is intentional.
 
-Missing icons render the `system:not-found!/default` placeholder from the area's kit with
+Missing icons render the `system:not-found!/outline` placeholder from the area's kit with
 `icon-not-found` and the danger color, shared by Razor, HTML helpers and `sm-icon`. System artwork lives
-in `system/default/icons`. Lookup and search still report missing sources as absent.
+in `system/outline/icons`. Lookup and search still report missing sources as absent.
 The fallback SVG retains the requested identity in `data-icon`, for example
-`missing-name -> sys:not-found/default`. The `sm-icon` host name remains unchanged.
+`missing-name -> sys:not-found/outline`. The `sm-icon` host name remains unchanged.
 Direct renderer callers can supply `IconOptions.RequestedName` when lookup returns null.
 If the placeholder itself is unavailable, rendering returns no output without recursion.
 
@@ -1658,3 +1658,16 @@ The Smartstore Summernote `iconPopover` plugin edits selected `sm-icon` elements
 the shared color, flip and animation tools. Its toolbar belongs to Smartstore; the fork
 only exposes component selection. Changes use Summernote history and authored attributes,
 so undo/redo and source serialization do not persist editor UI or generated SVG markup.
+
+### System library variants
+
+System artwork is grouped into `outline` (stroke scaling enabled) and `fill`
+(stroke scaling disabled). Both variants fall back to each other for names only
+available in the other group. Existing concept names are unchanged; shared source
+addresses select the concrete variant. The former `default` variant is removed;
+custom explicit `/default` references must select `outline` or `fill` instead.
+
+Matching shapes share the same SVG filename across variants (for example,
+`outline/icons/circle.svg` and `fill/icons/circle.svg`). Application concepts
+retain their names: `circle-outline` maps to `sys:circle!/outline`, while
+`circle-fill` maps to `sys:circle!/fill`. Callers keep using those concepts.

@@ -19,7 +19,7 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
         var missing = icon == null;
         if (missing)
         {
-            icon = await icons.GetIconAsync("system:not-found!/default", area: area, cancelToken: cancelToken);
+            icon = await icons.GetIconAsync("system:not-found!/outline", area: area, cancelToken: cancelToken);
             if (icon == null)
             {
                 return null;

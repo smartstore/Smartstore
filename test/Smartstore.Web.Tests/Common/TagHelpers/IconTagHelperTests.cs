@@ -253,7 +253,7 @@ public class IconTagHelperTests
             .ReturnsAsync(found ? icon : null);
         service.Setup(x => x.GetSvgAsync(icon, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new IconSvg { Address = "hi:cart-01/rounded", ViewBox = "0 0 24 24", Content = "<path/>" });
-        service.Setup(x => x.GetIconAsync("system:not-found!/default", null, It.IsAny<CancellationToken>()))
+        service.Setup(x => x.GetIconAsync("system:not-found!/outline", null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(icon);
         var helper = new TestIconTagHelper(service.Object, new IconRenderer(service.Object, Mock.Of<IIconKitService>()))
         {

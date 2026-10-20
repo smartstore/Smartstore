@@ -3,13 +3,25 @@
   "icon": "smartstore",
   "version": "1.0.0",
   "shortName": "sys",
-  "defaultVariant": "default",
+  "defaultVariant": "outline",
   "variants": {
-    "default": {
-      "displayName": "Default",
-      "icon": null,
-      "defaultViewBox": "0 0 16 16",
-      "stroke": "currentColor"
+    "outline": {
+      "displayName": "Outline",
+      "defaultViewBox": "0 0 24 24",
+      "stroke": "currentColor",
+      "supportsStrokeScaling": true,
+      "fallbacks": [
+        "fill"
+      ]
+    },
+    "fill": {
+      "displayName": "Fill",
+      "defaultViewBox": "0 0 24 24",
+      "stroke": "currentColor",
+      "supportsStrokeScaling": false,
+      "fallbacks": [
+        "outline"
+      ]
     }
   }
 }

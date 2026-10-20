@@ -696,9 +696,9 @@ public class IconServiceTests
     [TestCase("admin")]
     public async Task Missing_Icons_Use_Their_Area_Sprite(string area)
     {
-        Write("Icons/system/library.json", """{"defaultVariant":"default","variants":{"default":{}}}""");
-        Write("Icons/system/default/icons/not-found.svg", _svg);
-        Write("Icons/collections.json", """{"shared":{"icons":["not-found"],"sources":{"not-found":"system:not-found!/default"}}}""");
+        Write("Icons/system/library.json", """{"defaultVariant":"outline","variants":{"outline":{}}}""");
+        Write("Icons/system/outline/icons/not-found.svg", _svg);
+        Write("Icons/collections.json", """{"shared":{"icons":["not-found"],"sources":{"not-found":"system:not-found!/outline"}}}""");
         Write("Icons/kits.json", """{"public":{"areas":["public"],"use":["shared"]},"admin":{"areas":["admin"],"use":["shared"]}}""");
         var kits = new IconKitService(_service, new HttpContextAccessor());
         var output = await new IconRenderer(_service, kits).RenderAsync(null, options: new IconOptions { Area = area });
@@ -713,9 +713,9 @@ public class IconServiceTests
     [TestCase(true)]
     public async Task Missing_Icons_Render_System_Placeholder(bool staleIdentity)
     {
-        Write("Icons/system/library.json", """{"defaultVariant":"default","variants":{"default":{"stroke":"currentColor"}}}""");
-        Write("Icons/system/default/icons/not-found.svg", _svg);
-        Write("Icons/kits.json", """{"shared":{"icons":["cart","not-found"],"sources":{"not-found":"system:not-found!/default"}}}""");
+        Write("Icons/system/library.json", """{"defaultVariant":"outline","variants":{"outline":{"stroke":"currentColor"}}}""");
+        Write("Icons/system/outline/icons/not-found.svg", _svg);
+        Write("Icons/kits.json", """{"shared":{"icons":["cart","not-found"],"sources":{"not-found":"system:not-found!/outline"}}}""");
         var icon = staleIdentity
             ? new IconInfo { Name = "missing", LibraryName = "hugeicons", VariantName = "rounded" }
             : await _service.GetIconAsync("missing");
@@ -724,7 +724,7 @@ public class IconServiceTests
         var output = await renderer.RenderAsync(icon, options: staleIdentity ? null : new IconOptions { RequestedName = "missing" });
         Assert.That(output, Is.Not.Null);
         var requestedName = "missing";
-        Assert.That(output.Attributes["data-icon"], Is.EqualTo($"{requestedName} -> system:not-found/default"));
+        Assert.That(output.Attributes["data-icon"], Is.EqualTo($"{requestedName} -> system:not-found/outline"));
         if (staleIdentity)
         {
             Assert.That(icon.Name, Is.EqualTo("missing"));

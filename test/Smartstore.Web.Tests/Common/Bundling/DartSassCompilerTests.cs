@@ -69,7 +69,7 @@ public class DartSassCompilerTests
         var missing = knownIcon ? new IconInfo { Name = "missing" } : null;
         var placeholder = new IconInfo { Name = "not-found" };
         icons.Setup(x => x.GetIconAsync("missing", "public", It.IsAny<CancellationToken>())).ReturnsAsync(missing);
-        icons.Setup(x => x.GetIconAsync("system:not-found!/default", "public", It.IsAny<CancellationToken>())).ReturnsAsync(placeholder);
+        icons.Setup(x => x.GetIconAsync("system:not-found!/outline", "public", It.IsAny<CancellationToken>())).ReturnsAsync(placeholder);
         icons.Setup(x => x.GetSvgAsync(placeholder, It.IsAny<CancellationToken>())).ReturnsAsync(hasPlaceholder
             ? new IconSvg { ViewBox = "0 0 24 24", Content = "<path d=\"M1 1L20 20\" />" }
             : null);
@@ -89,7 +89,7 @@ public class DartSassCompilerTests
         var svg = XElement.Parse(Uri.UnescapeDataString(result.Css[start..end]));
         Assert.That(svg.HasElements, Is.EqualTo(hasPlaceholder));
         Assert.That(result.Css, Does.Contain("color: red"));
-        icons.Verify(x => x.GetIconAsync("system:not-found!/default", "public", It.IsAny<CancellationToken>()), Times.Once);
+        icons.Verify(x => x.GetIconAsync("system:not-found!/outline", "public", It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [TestCase(false)]

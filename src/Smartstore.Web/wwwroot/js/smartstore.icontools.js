@@ -369,6 +369,8 @@
                     for (const [key, setting] of Object.entries(state.options || {})) {
                         if (setting != null && !['name', 'size', 'animation', 'color', 'font-scale', 'scale'].includes(key)) icon.setAttribute(key, setting);
                     }
+                    // Factory previews may carry the current stack size and animation.
+                    for (const attribute of ['size', 'font-scale', 'scale', 'animation']) icon.removeAttribute(attribute);
                     if (value) icon.setAttribute('animation', value);
                     icon.setAttribute('aria-hidden', 'true');
                     const label = document.createElement('span');

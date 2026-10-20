@@ -92,7 +92,7 @@ kit sprite, or its concrete source with modifiers, even across areas.
 ## System library icons
 
 The system library has no separate kit. `not-found`, `smartstore` and
-`stars-tricolor` belong to collection `shared`, each pinned to `sys:<name>!/default`.
+`stars-tricolor` belong to collection `shared`, pinned to their concrete `outline` or `fill` variant.
 Missing icons continue to use an external area-kit sprite symbol in danger color.
 
 ## Legacy Bootstrap assets removed
@@ -110,7 +110,7 @@ BI addresses. The menu-specific `bi-circle` class is independent and remains.
 The shared collection provides `-outline` and `-fill` concepts for `bubble-round`,
 `bubble-square`, `circle`, `diamond`, `hexagon`, `polygon`, `rect`, `seal`,
 `square`, `star` and `triangle`. Each concept pins its source to
-`sys:<concept>!/default`, independently of the configured default library.
+`sys:<shape>!/outline` or `sys:<shape>!/fill` (without the concept suffix), independently of the configured default library.
 The SVG files live in the system library, but these 22 concepts belong only to
 the shared collection. Existing unsuffixed concepts remain unchanged.
 Use, for example, `<icon name="star-outline" />` or `<icon name="star-fill" />`.
@@ -119,7 +119,7 @@ AI and Shopware import stop buttons use `square-fill`. Admin review headings use
 `star-fill`; ProductSpecificationTable uses `star-fill` for earned stars and
 `star-outline` for remaining stars. Legacy PageBuilder icon choices remain unchanged.
 
-The shared collection's `star-half` concept pins `sys:star-half!/default`: the same star geometry
+The shared collection's `star-half` concept pins `sys:star-half!/fill`: the same star geometry
 as `star-outline` and `star-fill`, with a complete outline and the fill clipped to
 the left half of the viewBox. It replaces the former admin-kit membership.
 
@@ -296,7 +296,7 @@ See [README.md](README.md#resolve-missing-icons) for the configuration and prece
 | Source FA icon classes | Target | Concept |
 | --- | --- | --- |
 | `fal fa-address-book` | `address-book` | `address-book` |
-| `fa fa-exclamation-circle`, `fa-circle-exclamation` | `alert-danger` | `sys:alert-danger!/default` |
+| `fa fa-exclamation-circle`, `fa-circle-exclamation` | `alert-danger` | `sys:alert-danger!/outline` |
 | `fa fa-arrow-down` | `arrow-down-02` | `arrow-down` |
 | `far fa-circle-down` | `circle-arrow-down-02` | `arrow-down-circle` |
 | `fa fa-arrow-left` | `arrow-left-02` | `arrow-left` |

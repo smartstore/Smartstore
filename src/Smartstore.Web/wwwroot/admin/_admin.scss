@@ -1898,9 +1898,14 @@ a.editable {
         min-height: 3.75rem;
     }
 
-    .icon {
+    // Size only the preview host; preserve the stack layers' 2x/1x ratio.
+    .icon-tool-animation-grid > .btn > .icon {
         --icon-size: 24px;
         --icon-size-factor: 1;
+    }
+
+    .icon-tool-animation-grid > .btn > .icon-stack {
+        font-size: 12px;
     }
 }
 
