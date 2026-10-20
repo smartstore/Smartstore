@@ -24,6 +24,7 @@
   - #1571 The message templates of returns have been extended to provide shipping information (placeholder `ReturnCase.Shipping.xyz`).
   - #1571 Display shipping and delivery dates in the withdrawal and returns grid and on the edit page, along with whether the associated order has been canceled.
 - #1564 MegaSearch: Added a setting to determine the relevance of a search hit using the best matching field.
+- #1580 Allow checkout attributes to be conditionally displayed using cart rules.
 - Dimension Pricing plugin (commercial module)
 	- Calculates product and shipping prices based on customer-entered dimensions and weight.
 	- Supports formulas, packing rules, girth and volumetric limits, rate tiers and surcharges.
