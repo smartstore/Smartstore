@@ -96,6 +96,99 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
     public void MigrateLocaleResources(LocaleResourcesBuilder builder)
     {
+        builder.Delete(
+            "Admin.Catalog.Products.Fields.Published.Hint",
+            "Admin.Catalog.Products.Fields.QuantityUnit.Hint",
+            "Admin.Catalog.Products.Fields.Weight.Hint",
+            "Admin.Catalog.Products.Fields.Length.Hint",
+            "Admin.Catalog.Products.Fields.Width.Hint",
+            "Admin.Catalog.Products.Fields.Height.Hint",
+            "Admin.Catalog.Products.Groups.RequiredProducts",
+            "Admin.Catalog.Products.Groups.GiftCard",
+            "Admin.Catalog.Products.Groups.Subscription",
+            "Admin.Catalog.Products.Availability.From",
+            "Admin.Catalog.Products.Availability.To");
+
+        builder.AddOrUpdate("Admin.Common.Store.LimitedTo",
+            "Limited to stores",
+            "Auf Shops begrenzt",
+            "Specifies whether the object is only available in certain stores.",
+            "Legt fest, ob das Objekt nur für bestimmte Shops verfügbar ist.");
+
+        builder.AddOrUpdate("Admin.Catalog.Products.Fields.HomePageDisplayOrder", "Homepage display order", "Reihenfolge auf der Homepage");
+        builder.AddOrUpdate("Admin.Catalog.Products.Fields.DisplayOrder",
+            "General sort priority",
+            "Allgemeine Sortierpriorität",
+            "Specifies the order in which associated products of a grouped product are displayed. In addition, this setting determines the order of hits in the search, if sort by recommendation is enabled in the search settings. Lower values are displayed first.",
+            "Legt die Reihenfolge fest, in der verknüpfte Produkte eines Gruppenproduktes angezeigt werden. Zusätzlich legt diese Einstellung die Reihenfolge der Treffer bei der Suche fest, sofern in den Sucheinstellungen die Sortierung nach Empfehlung aktiviert ist. Kleinere Werte werden zuerst angezeigt.");
+        builder.AddOrUpdate("Admin.Catalog.Products.Groups.Restrictions", "Publication and availability", "Veröffentlichung und Verfügbarkeit");
+        builder.AddOrUpdate("Admin.Catalog.Products.Fields.Availability",
+            "Availability",
+            "Verfügbarkeit",
+            "Limits product availability to this period. Leave either field empty to leave that boundary unrestricted.",
+            "Begrenzt die Verfügbarkeit des Produkts auf diesen Zeitraum. Lassen Sie ein Feld leer, um die jeweilige Grenze offen zu lassen.");
+        builder.AddOrUpdate("Admin.Catalog.Products.Groups.Taxes", "Taxes", "Steuern");
+        builder.AddOrUpdate("Admin.Catalog.Products.Groups.SalesOptions", "Sales options", "Verkaufsoptionen");
+        builder.AddOrUpdate("Admin.Catalog.Products.Groups.SalesOptions.Info",
+            "Specify whether additional items must be ordered with this product or whether it is sold as a gift card or subscription. Enable an option to show its settings.",
+            "Hier legen Sie fest, ob zum Produkt weitere Artikel mitbestellt werden müssen oder ob es als Geschenkgutschein oder Abonnement verkauft wird. Aktivieren Sie eine Option, um die zugehörigen Einstellungen einzublenden.");
+        builder.AddOrUpdate("Admin.Catalog.Products.Groups.Shipping", "Shipping, dimensions and units", "Versand, Maße und Einheiten");
+        builder.AddOrUpdate("Admin.Catalog.Products.Groups.Shipping.Info",
+            "The quantity unit specifies how product quantities are labeled in the shop, for example as pieces, packs or pairs. It appears alongside the quantity when ordering and in the cart. Weight and dimensions can affect shipping costs, depending on the shipping provider, and are displayed on the product page when the corresponding catalog settings are enabled.",
+            "Die Verpackungseinheit legt fest, wie Produktmengen im Shop bezeichnet werden, zum Beispiel als Stück, Packung oder Paar. Sie erscheint bei der Mengenauswahl und im Warenkorb neben der Anzahl. Gewicht und Maße können je nach Versandanbieter die Versandkosten beeinflussen und werden bei aktivierten Katalogeinstellungen auf der Produktseite angezeigt.");
+
+        builder.AddOrUpdate("Admin.Catalog.Products.Fields.AllowCustomerReviews",
+            "Allow customer reviews",
+            "Kundenbewertungen erlauben",
+            "Allows customers to review this product. To display reviews on the product page, enable 'Show product reviews in product detail view' in the catalog settings.",
+            "Legt fest, ob Kunden Produktbewertungen vornehmen dürfen. Damit Bewertungen auf der Produktseite angezeigt werden, muss in den Katalogeinstellungen 'Zeige Produktbewertungen in der Produktdetailansicht' aktiviert sein.");
+
+        builder.AddOrUpdate("Admin.Catalog.Products.Fields.Condition",
+            "Item condition",
+            "Artikelzustand",
+            "Condition of the goods offered, e.g. new, used or refurbished. Used for structured product data and supported product exports. Display in the shop is controlled by the catalog settings.",
+            "Zustand der angebotenen Ware, z. B. neu, gebraucht oder generalüberholt. Wird für strukturierte Produktdaten und unterstützte Produktexporte verwendet. Die Anzeige im Shop wird über die Katalogeinstellungen gesteuert.");
+        builder.AddOrUpdate("Admin.Catalog.Products.Fields.CountryOfOriginId",
+            "Country of origin",
+            "Herkunftsland",
+            "Country of origin of the goods. This information is available to integrations and exports. It does not determine tax or shipping costs in the standard implementation.",
+            "Ursprungsland der Ware. Die Angabe steht für Schnittstellen und Exporte zur Verfügung. Sie bestimmt im Standard keine Steuer- oder Versandkosten.");
+        builder.AddOrUpdate("Admin.Catalog.Products.Fields.IsTaxExempt",
+            "Exempt from VAT",
+            "Von der Umsatzsteuer befreit",
+            "No VAT is calculated for this product during checkout.",
+            "Für dieses Produkt wird im Bestellvorgang keine Umsatzsteuer berechnet.");
+        builder.AddOrUpdate("Admin.Catalog.Products.Fields.TaxCategory",
+            "Tax category",
+            "Steuerkategorie",
+            "Select the product's tax category. The tax provider determines the applicable rate based on this category and the tax address.",
+            "Wählen Sie die Steuerkategorie des Produkts. Der Steueranbieter ermittelt daraus und anhand der Steueradresse den anzuwendenden Steuersatz.");
+        builder.AddOrUpdate("Admin.Catalog.Products.Fields.IsEsd",
+            "Electronically supplied service",
+            "Elektronisch erbrachte Dienstleistung",
+            "When EU VAT handling is enabled, the billing address is used as the tax address for EU consumers. This setting does not enable downloadable products.",
+            "Bei aktivierter EU-Umsatzsteuerbehandlung wird für EU-Verbraucher die Rechnungsadresse als Steueradresse verwendet. Diese Einstellung aktiviert keine Downloadbereitstellung.");
+        builder.AddOrUpdate("Admin.Catalog.Products.Fields.RequireOtherProducts",
+            "Additional products must be ordered",
+            "Weitere Produkte müssen mitbestellt werden",
+            "The selected additional products must be ordered together with this product. Enable automatic addition to add them to the cart automatically.",
+            "Die ausgewählten Zusatzprodukte müssen zusammen mit diesem Produkt bestellt werden. Aktivieren Sie das automatische Hinzufügen, um sie automatisch in den Warenkorb zu legen.");
+        builder.AddOrUpdate("Admin.Catalog.Products.Fields.IsGiftCard",
+            "Sell as a gift card",
+            "Als Geschenkgutschein verkaufen",
+            "A gift card is created when this product is ordered. The gift card type determines whether it is virtual or physical.",
+            "Bei Bestellung dieses Produkts wird ein Geschenkgutschein erstellt. Der Gutscheintyp legt fest, ob es sich um einen virtuellen oder physischen Gutschein handelt.");
+        builder.AddOrUpdate("Admin.Catalog.Products.Fields.IsRecurring",
+            "Sell as a subscription",
+            "Als Abonnement verkaufen",
+            "Enables recurring payments for this product. Set the billing interval and number of cycles below. Requires a payment method that supports recurring payments.",
+            "Aktiviert wiederkehrende Zahlungen für dieses Produkt. Legen Sie darunter das Zahlungsintervall und die Anzahl der Zyklen fest. Erfordert eine Zahlungsart, die wiederkehrende Zahlungen unterstützt.");
+        builder.AddOrUpdate("Admin.Catalog.Products.Fields.IsShipEnabled",
+            "Shipping required",
+            "Versand erforderlich",
+            "Enable if this product must be shipped. The product is included in shipping calculations. When disabled, delivery times are hidden in the shop. The quantity unit is independent of this setting.",
+            "Aktivieren, wenn dieses Produkt versendet werden muss. Es wird bei der Versandberechnung berücksichtigt. Bei deaktivierter Option werden Lieferzeiten im Shop ausgeblendet. Die Verpackungseinheit ist davon unabhängig.");
+
         builder.AddOrUpdate("Admin.System.Maintenance.Icons.Title", "Migrate icons", "Icons migrieren");
         builder.AddOrUpdate("Admin.System.Maintenance.Icons.Start", "Start migration", "Migration starten");
         builder.AddOrUpdate("Admin.System.Maintenance.Icons.Hint",

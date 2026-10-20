@@ -19,10 +19,8 @@
             var selectedProductTypeId = $(this).val();
             if (selectedProductTypeId == '@((int)ProductType.SimpleProduct)') {
                 $('#product-type-config').hide();
-                $('#group-required-other-products').show();
-                $('#group-giftcard').show();
+                $('#group-sales-options').show();
                 $('#group-downloads').show();
-                $('#group-recurring').show();
                 $('#group-shipping').show();
                 $('#group-tax').show();
                 $('#group-inventory').show();
@@ -30,10 +28,8 @@
             }
             else if (selectedProductTypeId == '@((int)ProductType.GroupedProduct)') {
                 $('#product-type-config').show();
-                $('#group-required-other-products').hide();
-                $('#group-giftcard').hide();
+                $('#group-sales-options').hide();
                 $('#group-downloads').hide();
-                $('#group-recurring').hide();
                 $('#group-shipping').hide();
                 $('#group-tax').hide();
                 $('#group-inventory').hide();
@@ -103,26 +99,6 @@
                 <span asp-validation-for="Id"></span>
             </div>
         </div>
-        <div sm-if="Model.CreatedOn.HasValue" class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="CreatedOn" />
-            </div>
-            <div class="adminData">
-                <div class="form-control-plaintext">
-                    @Html.DisplayFor(model => model.CreatedOn)
-                </div>
-            </div>
-        </div>
-        <div sm-if="Model.UpdatedOn.HasValue" class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="UpdatedOn" />
-            </div>
-            <div class="adminData">
-                <div class="form-control-plaintext">
-                    @Html.DisplayFor(model => model.UpdatedOn)
-                </div>
-            </div>
-        </div>
         <div class="adminRow">
             <div class="adminTitle">
                 <smart-label asp-for="ProductUrl" />
@@ -135,24 +111,6 @@
         </div>
     }
 
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="Published" />
-        </div>
-        <div class="adminData">
-            <input asp-for="Published" data-toggler-for="#pnlProductVisibility" />
-            <span asp-validation-for="Published"></span>
-        </div>
-    </div>
-    <div class="adminRow" id="pnlProductVisibility">
-        <div class="adminTitle">
-            <smart-label asp-for="Visibility" />
-        </div>
-        <div class="adminData">
-            <select asp-for="Visibility" asp-items="Html.GetLocalizedEnumSelectList(typeof(ProductVisibility))"></select>
-            <span asp-validation-for="Visibility"></span>
-        </div>
-    </div>
     <div class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="ProductTypeId" />
@@ -309,116 +267,30 @@
             <span asp-validation-for="CustomsTariffNumber"></span>
         </div>
     </div>
+</div>
+
+<div class="adminContent" id="group-restrictions">
     <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="DisplayOrder" />
-        </div>
-        <div class="adminData">
-            <editor asp-for="DisplayOrder" />
-            <span asp-validation-for="DisplayOrder"></span>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="Condition" />
-        </div>
-        <div class="adminData">
-            <select asp-for="Condition" asp-items="Model.Condition.ToSelectList()"></select>
-            <span asp-validation-for="Condition"></span>
+        <div class="admin-config-group">
+            <div class="head">@T("Admin.Catalog.Products.Groups.Restrictions")</div>
         </div>
     </div>
     <div class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="CountryOfOriginId" />
+            <smart-label asp-for="Published" />
         </div>
         <div class="adminData">
-            <editor asp-for="CountryOfOriginId" asp-template="Countries" />
-            <span asp-validation-for="CountryOfOriginId"></span>
+            <input asp-for="Published" data-toggler-for="#pnlProductVisibility" />
+            <span asp-validation-for="Published"></span>
         </div>
     </div>
-    <div class="adminRow">
+    <div class="adminRow" id="pnlProductVisibility">
         <div class="adminTitle">
-            <smart-label asp-for="AdminComment" />
+            <smart-label asp-for="Visibility" />
         </div>
         <div class="adminData">
-            <textarea asp-for="AdminComment"></textarea>
-            <span asp-validation-for="AdminComment"></span>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="ProductTagNames" />
-        </div>
-        <div class="adminData">
-            <select asp-for="ProductTagNames" data-icon="tag" asp-items="ViewBag.SelectedProductTags" class="noskin" multiple="multiple" data-tags="true"></select>
-            <span asp-validation-for="ProductTagNames"></span>
-        </div>
-    </div>
-    <div sm-if="@(moduleCatalog.GetModuleByName("Smartstore.Withdrawal") != null)">
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="WithdrawalPeriodDays" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="WithdrawalPeriodDays"
-                        sm-postfix="@T("Time.Days")"
-                        placeholder="@(withdrawalPeriodDays.NullEmpty() ?? T("Common.Unlimited"))" />
-                <span asp-validation-for="WithdrawalPeriodDays"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="AllowWithdrawalBeforeShipping" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="AllowWithdrawalBeforeShipping" placeholder="@T(allowWithdrawalBeforeShipping ? "Common.Yes" : "Common.No")" />
-                <span asp-validation-for="AllowWithdrawalBeforeShipping"></span>
-            </div>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="AvailableStartDateTimeUtc" />
-        </div>
-        <div class="adminData">
-            <editor asp-for="AvailableStartDateTimeUtc" />
-            <span asp-validation-for="AvailableStartDateTimeUtc"></span>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="AvailableEndDateTimeUtc" />
-        </div>
-        <div class="adminData">
-            <editor asp-for="AvailableEndDateTimeUtc" />
-            <span asp-validation-for="AvailableEndDateTimeUtc"></span>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="AllowCustomerReviews" />
-        </div>
-        <div class="adminData">
-            <input asp-for="AllowCustomerReviews" />
-            <span asp-validation-for="AllowCustomerReviews"></span>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="ShowOnHomePage" />
-        </div>
-        <div class="adminData">
-            <input asp-for="ShowOnHomePage" data-toggler-for="#pnlHomePageDisplayOrder" />
-            <span asp-validation-for="ShowOnHomePage"></span>
-        </div>
-    </div>
-    <div class="adminRow" id="pnlHomePageDisplayOrder">
-        <div class="adminTitle">
-            <smart-label asp-for="HomePageDisplayOrder" />
-        </div>
-        <div class="adminData">
-            <editor asp-for="HomePageDisplayOrder" />
-            <span asp-validation-for="HomePageDisplayOrder"></span>
+            <select asp-for="Visibility" asp-items="Html.GetLocalizedEnumSelectList(typeof(ProductVisibility))"></select>
+            <span asp-validation-for="Visibility"></span>
         </div>
     </div>
     <div class="adminRow">
@@ -439,128 +311,32 @@
             <span asp-validation-for="SelectedCustomerRoleIds"></span>
         </div>
     </div>
-</div>
-
-<div class="adminContent" id="group-required-other-products">
-    <div class="adminRow">
-        <div class="adminSeparator">
-            <hr />
-        </div>
-    </div>
     <div class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="RequireOtherProducts" />
+            <smart-label asp-for="AvailableStartDateTimeUtc"
+                         sm-text="@T("Admin.Catalog.Products.Fields.Availability")"
+                         sm-hint="@T("Admin.Catalog.Products.Fields.Availability.Hint")" />
         </div>
         <div class="adminData">
-            <input asp-for="RequireOtherProducts" data-toggler-for="#pnlRequireOtherProducts" />
-            <span asp-validation-for="RequireOtherProducts"></span>
-        </div>
-    </div>
-    <div id="pnlRequireOtherProducts">
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="RequiredProductIds" />
-            </div>
-            <div class="adminData">
-                <div class="row xs-gutters">
-                    <div class="input-group col">
-                        <input asp-for="RequiredProductIds" readonly />
-                        <span class="input-group-append">
-                            <entity-picker button-id="reset-required-productids"
-                                           asp-for="RequiredProductIds"
-                                           icon="plus"
-                                           max-items="10"
-                                           dialog-title="@T("Admin.Catalog.Products.Fields.RequireOtherProducts")" />
-                        </span>
+            <div class="row xs-gutters">
+                <div class="col-12 col-lg-6 mb-2 mb-lg-0">
+                    <div class="d-flex">
+                        <label for="@Html.IdFor(model => model.AvailableStartDateTimeUtc)" class="input-group-text fwb rounded-end-0 border-right-0 mb-0">@T("Common.From")</label>
+                        <div class="flex-grow-1">
+                            <editor asp-for="AvailableStartDateTimeUtc" class="rounded-start-0" aria-label="@T("Admin.Catalog.Products.Fields.AvailableStartDateTime")" />
+                        </div>
                     </div>
-                    <div class="col-auto">
-                        <a class="btn btn-secondary btn-to-danger btn-icon" id="reset-required-productids" title="@T("Admin.Common.Reset")">
-                            <icon name="trash" />
-                        </a>
-                    </div>
+                    <span asp-validation-for="AvailableStartDateTimeUtc"></span>
                 </div>
-                <span asp-validation-for="RequiredProductIds"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="AutomaticallyAddRequiredProducts" />
-            </div>
-            <div class="adminData">
-                <input asp-for="AutomaticallyAddRequiredProducts" />
-                <span asp-validation-for="AutomaticallyAddRequiredProducts"></span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="adminContent" id="group-giftcard">
-    <div class="adminRow">
-        <div class="adminSeparator">
-            <hr />
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="IsGiftCard" />
-        </div>
-        <div class="adminData">
-            <input asp-for="IsGiftCard" data-toggler-for="#pnlGiftCardType" />
-            <span asp-validation-for="IsGiftCard"></span>
-        </div>
-    </div>
-    <div class="adminRow" id="pnlGiftCardType">
-        <div class="adminTitle">
-            <smart-label asp-for="GiftCardTypeId" />
-        </div>
-        <div class="adminData">
-            <select asp-for="GiftCardTypeId" asp-items="Html.GetLocalizedEnumSelectList(typeof(GiftCardType))"></select>
-            <span asp-validation-for="GiftCardTypeId"></span>
-        </div>
-    </div>
-</div>
-
-<div class="adminContent" id="group-recurring">
-    <div class="adminRow">
-        <div class="adminSeparator">
-            <hr />
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="IsRecurring" />
-        </div>
-        <div class="adminData">
-            <input asp-for="IsRecurring" data-toggler-for="#pnlIsRecurring" />
-            <span asp-validation-for="IsRecurring"></span>
-        </div>
-    </div>
-    <div id="pnlIsRecurring">
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="RecurringCycleLength" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="RecurringCycleLength" />
-                <span asp-validation-for="RecurringCycleLength"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="RecurringCyclePeriodId" />
-            </div>
-            <div class="adminData">
-                <select asp-for="RecurringCyclePeriodId" asp-items="Html.GetLocalizedEnumSelectList(typeof(RecurringProductCyclePeriod))"></select>
-                <span asp-validation-for="RecurringCyclePeriodId"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="RecurringTotalCycles" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="RecurringTotalCycles" />
-                <span asp-validation-for="RecurringTotalCycles"></span>
+                <div class="col-12 col-lg-6">
+                    <div class="d-flex">
+                        <label for="@Html.IdFor(model => model.AvailableEndDateTimeUtc)" class="input-group-text fwb rounded-end-0 border-right-0 mb-0">@T("Common.To")</label>
+                        <div class="flex-grow-1">
+                            <editor asp-for="AvailableEndDateTimeUtc" class="rounded-start-0" aria-label="@T("Admin.Catalog.Products.Fields.AvailableEndDateTime")" />
+                        </div>
+                    </div>
+                    <span asp-validation-for="AvailableEndDateTimeUtc"></span>
+                </div>
             </div>
         </div>
     </div>
@@ -568,8 +344,54 @@
 
 <div class="adminContent" id="group-shipping">
     <div class="adminRow">
-        <div class="adminSeparator">
-            <hr />
+        <div class="admin-config-group">
+            <div class="head">@T("Admin.Catalog.Products.Groups.Shipping")</div>
+            <p class="info mb-0">@T("Admin.Catalog.Products.Groups.Shipping.Info")</p>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="QuantityUnitId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="QuantityUnitId" asp-items="ViewBag.AvailableQuantityUnits" asp-placeholder="@T("Common.Unspecified")"></select>
+            <span asp-validation-for="QuantityUnitId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Weight" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Weight" sm-postfix="@Model.BaseWeightIn" />
+            <span asp-validation-for="Weight"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Length" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Length" sm-postfix="@Model.BaseDimensionIn" />
+            <span asp-validation-for="Length"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Width" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Width" sm-postfix="@Model.BaseDimensionIn" />
+            <span asp-validation-for="Width"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Height" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Height" sm-postfix="@Model.BaseDimensionIn" />
+            <span asp-validation-for="Height"></span>
         </div>
     </div>
     <div class="adminRow">
@@ -609,58 +431,13 @@
                 <span asp-validation-for="AdditionalShippingCharge"></span>
             </div>
         </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="QuantityUnitId" />
-            </div>
-            <div class="adminData">
-                <select asp-for="QuantityUnitId" asp-items="ViewBag.AvailableQuantityUnits" asp-placeholder="@T("Common.Unspecified")"></select>
-                <span asp-validation-for="QuantityUnitId"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="Weight" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="Weight" sm-postfix="@Model.BaseWeightIn" />
-                <span asp-validation-for="Weight"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="Length" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="Length" sm-postfix="@Model.BaseDimensionIn" />
-                <span asp-validation-for="Length"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="Width" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="Width" sm-postfix="@Model.BaseDimensionIn" />
-                <span asp-validation-for="Width"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="Height" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="Height" sm-postfix="@Model.BaseDimensionIn" />
-                <span asp-validation-for="Height"></span>
-            </div>
-        </div>
     </div>
 </div>
 
 <div class="adminContent" id="group-tax">
     <div class="adminRow">
-        <div class="adminSeparator">
-            <hr />
+        <div class="admin-config-group">
+            <div class="head">@T("Admin.Catalog.Products.Groups.Taxes")</div>
         </div>
     </div>
     <div class="adminRow">
@@ -689,6 +466,252 @@
             <div class="adminData">
                 <input asp-for="IsEsd" />
                 <span asp-validation-for="IsEsd"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="adminContent" id="group-sales-options">
+    <div class="adminRow">
+        <div class="admin-config-group">
+            <div class="head">@T("Admin.Catalog.Products.Groups.SalesOptions")</div>
+            <p class="info mb-0">@T("Admin.Catalog.Products.Groups.SalesOptions.Info")</p>
+        </div>
+    </div>
+    <div id="group-required-other-products">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="RequireOtherProducts" />
+            </div>
+            <div class="adminData">
+                <input asp-for="RequireOtherProducts" data-toggler-for="#pnlRequireOtherProducts" />
+                <span asp-validation-for="RequireOtherProducts"></span>
+            </div>
+        </div>
+        <div id="pnlRequireOtherProducts">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="RequiredProductIds" />
+                </div>
+                <div class="adminData">
+                    <div class="row xs-gutters">
+                        <div class="input-group col">
+                            <input asp-for="RequiredProductIds" readonly />
+                            <span class="input-group-append">
+                                <entity-picker button-id="reset-required-productids"
+                                               asp-for="RequiredProductIds"
+                                               icon="plus"
+                                               max-items="10"
+                                               dialog-title="@T("Admin.Catalog.Products.Fields.RequireOtherProducts")" />
+                            </span>
+                        </div>
+                        <div class="col-auto">
+                            <a class="btn btn-secondary btn-to-danger btn-icon" id="reset-required-productids" title="@T("Admin.Common.Reset")">
+                                <icon name="trash" />
+                            </a>
+                        </div>
+                    </div>
+                    <span asp-validation-for="RequiredProductIds"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="AutomaticallyAddRequiredProducts" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="AutomaticallyAddRequiredProducts" />
+                    <span asp-validation-for="AutomaticallyAddRequiredProducts"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="group-giftcard">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="IsGiftCard" />
+            </div>
+            <div class="adminData">
+                <input asp-for="IsGiftCard" data-toggler-for="#pnlGiftCardType" />
+                <span asp-validation-for="IsGiftCard"></span>
+            </div>
+        </div>
+        <div class="adminRow" id="pnlGiftCardType">
+            <div class="adminTitle">
+                <smart-label asp-for="GiftCardTypeId" />
+            </div>
+            <div class="adminData">
+                <select asp-for="GiftCardTypeId" asp-items="Html.GetLocalizedEnumSelectList(typeof(GiftCardType))"></select>
+                <span asp-validation-for="GiftCardTypeId"></span>
+            </div>
+        </div>
+    </div>
+    <div id="group-recurring">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="IsRecurring" />
+            </div>
+            <div class="adminData">
+                <input asp-for="IsRecurring" data-toggler-for="#pnlIsRecurring" />
+                <span asp-validation-for="IsRecurring"></span>
+            </div>
+        </div>
+        <div id="pnlIsRecurring">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="RecurringCycleLength" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="RecurringCycleLength" />
+                    <span asp-validation-for="RecurringCycleLength"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="RecurringCyclePeriodId" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="RecurringCyclePeriodId" asp-items="Html.GetLocalizedEnumSelectList(typeof(RecurringProductCyclePeriod))"></select>
+                    <span asp-validation-for="RecurringCyclePeriodId"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="RecurringTotalCycles" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="RecurringTotalCycles" />
+                    <span asp-validation-for="RecurringTotalCycles"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="adminContent" id="group-miscellaneous">
+    <div class="adminRow">
+        <div class="admin-config-group">
+            <div class="head">@T("Common.Misc")</div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="DisplayOrder" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="DisplayOrder" />
+            <span asp-validation-for="DisplayOrder"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="ShowOnHomePage" />
+        </div>
+        <div class="adminData">
+            <input asp-for="ShowOnHomePage" data-toggler-for="#pnlHomePageDisplayOrder" />
+            <span asp-validation-for="ShowOnHomePage"></span>
+        </div>
+    </div>
+    <div class="adminRow" id="pnlHomePageDisplayOrder">
+        <div class="adminTitle">
+            <smart-label asp-for="HomePageDisplayOrder" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="HomePageDisplayOrder" />
+            <span asp-validation-for="HomePageDisplayOrder"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="ProductTagNames" />
+        </div>
+        <div class="adminData">
+            <select asp-for="ProductTagNames" data-icon="tag" asp-items="ViewBag.SelectedProductTags" class="noskin" multiple="multiple" data-tags="true"></select>
+            <span asp-validation-for="ProductTagNames"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Condition" />
+        </div>
+        <div class="adminData">
+            <select asp-for="Condition" asp-items="Model.Condition.ToSelectList()"></select>
+            <span asp-validation-for="Condition"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="AllowCustomerReviews" />
+        </div>
+        <div class="adminData">
+            <input asp-for="AllowCustomerReviews" />
+            <span asp-validation-for="AllowCustomerReviews"></span>
+        </div>
+    </div>
+    <div sm-if="@(moduleCatalog.GetModuleByName("Smartstore.Withdrawal") != null)">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="WithdrawalPeriodDays" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="WithdrawalPeriodDays"
+                        sm-postfix="@T("Time.Days")"
+                        placeholder="@(withdrawalPeriodDays.NullEmpty() ?? T("Common.Unlimited"))" />
+                <span asp-validation-for="WithdrawalPeriodDays"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AllowWithdrawalBeforeShipping" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="AllowWithdrawalBeforeShipping" placeholder="@T(allowWithdrawalBeforeShipping ? "Common.Yes" : "Common.No")" />
+                <span asp-validation-for="AllowWithdrawalBeforeShipping"></span>
+            </div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CountryOfOriginId" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="CountryOfOriginId" asp-template="Countries" />
+            <span asp-validation-for="CountryOfOriginId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="AdminComment" />
+        </div>
+        <div class="adminData">
+            <textarea asp-for="AdminComment"></textarea>
+            <span asp-validation-for="AdminComment"></span>
+        </div>
+    </div>
+</div>
+
+<div sm-if="Model.Id != 0 && (Model.CreatedOn.HasValue || Model.UpdatedOn.HasValue)" class="adminContent">
+    <div class="adminRow">
+        <div class="adminSeparator">
+            <hr />
+        </div>
+    </div>
+    <div sm-if="Model.CreatedOn.HasValue" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CreatedOn" />
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                @Html.DisplayFor(model => model.CreatedOn)
+            </div>
+        </div>
+    </div>
+    <div sm-if="Model.UpdatedOn.HasValue" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="UpdatedOn" />
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                @Html.DisplayFor(model => model.UpdatedOn)
             </div>
         </div>
     </div>
