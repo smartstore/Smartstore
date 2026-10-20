@@ -112,10 +112,12 @@ public class InstallationSeedSnapshotTests
                 continue;
             }
 
-            var expected = File.ReadAllText(path);
-            if (expected != content)
+            // Line endings depend on the checkout (CRLF with core.autocrlf on Windows, LF on Linux CI).
+            var expected = File.ReadAllText(path).ReplaceLineEndings("\n");
+            var actual = content.ReplaceLineEndings("\n");
+            if (expected != actual)
             {
-                differences.Add($"- {name}: {DescribeFirstDifference(expected, content)}");
+                differences.Add($"- {name}: {DescribeFirstDifference(expected, actual)}");
             }
         }
 
@@ -124,8 +126,8 @@ public class InstallationSeedSnapshotTests
 
     private static string DescribeFirstDifference(string expected, string actual)
     {
-        var expectedLines = expected.Split("\r\n");
-        var actualLines = actual.Split("\r\n");
+        var expectedLines = expected.Split('\n');
+        var actualLines = actual.Split('\n');
 
         for (var i = 0; i < Math.Max(expectedLines.Length, actualLines.Length); i++)
         {
