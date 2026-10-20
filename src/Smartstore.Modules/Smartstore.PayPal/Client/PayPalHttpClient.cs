@@ -9,7 +9,6 @@ using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
