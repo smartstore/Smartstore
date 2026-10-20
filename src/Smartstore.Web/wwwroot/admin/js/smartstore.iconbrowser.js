@@ -12,8 +12,8 @@
             const button = root.find('.icon-browser-source-dropdown > button');
             let options = Object.create(null);
             // Razor provides the canonical presentation. Decode it once, never during slider input.
-            const aliases = { anim: 'animation', 'anim-dur': 'animation-duration', 'anim-rev': 'animation-reverse' };
-            const tokens = { animation: 'anim', 'animation-duration': 'anim-dur', 'animation-reverse': 'anim-rev' };
+            const aliases = { o: 'opacity', anim: 'animation', 'anim-dur': 'animation-duration', 'anim-rev': 'animation-reverse' };
+            const tokens = { opacity: 'o', animation: 'anim', 'animation-duration': 'anim-dur', 'animation-reverse': 'anim-rev' };
             for (const pair of (root.attr('data-icon-presentation') || '').slice(1).split('&')) {
                 if (!pair) continue;
                 const equals = pair.indexOf('=');
@@ -297,6 +297,15 @@
                     }
                 });
                 select.on('change.iconTools select2:opening', () => colorTool.close());
+            }
+
+            const opacityToggle = toolbar.find('[data-option="opacity"]')[0];
+            if (opacityToggle) {
+                const opacityTool = Smartstore.IconTools.bindOpacity(opacityToggle, {
+                    getState: () => ({ name: select.val(), area, options, value: options.opacity, color: options.color }),
+                    onChange(value) { setOption('opacity', value); }
+                });
+                select.on('change.iconTools select2:opening', () => opacityTool.close());
             }
 
             const animationToggle = toolbar.find('[data-option="animation"]')[0];

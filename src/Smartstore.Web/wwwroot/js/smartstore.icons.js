@@ -5,7 +5,7 @@
     const namespace = window.Smartstore = window.Smartstore || {};
     const sizes = new Set(['2xs', 'xs', 'sm', 'lg', 'xl', '2xl', ...Array.from({ length: 10 }, (_, i) => `${i + 1}x`)]);
     const animations = new Set(['spin', 'pulse', 'beat', 'fade', 'throb', 'bounce', 'flip', 'shake', 'spin-snap', 'swing', 'wag']);
-    const presentation = ['flip-h', 'flip-v', 'stroke-scale', 'rotate', 'size', 'font-scale', 'fw', 'color', 'inverse', 'animation', 'animation-duration', 'animation-reverse', 'scale', 'shift-x', 'shift-y', 'mirror-rtl'];
+    const presentation = ['opacity', 'flip-h', 'flip-v', 'stroke-scale', 'rotate', 'size', 'font-scale', 'fw', 'color', 'inverse', 'animation', 'animation-duration', 'animation-reverse', 'scale', 'shift-x', 'shift-y', 'mirror-rtl'];
     const drawing = ['name', 'area', 'lib', 'variant'];
     const cache = new Map();
     const waiting = [];
@@ -82,18 +82,24 @@
     // Rendering-only modifiers must not create drawing requests or bypass kit lookup.
     function splitPresentation(name) {
         const separator = name?.indexOf('?') ?? -1;
-        const result = { name, color: null, size: null, animation: null, rotate: null, 'stroke-scale': null, 'flip-h': null, 'flip-v': null };
+        const result = { name, opacity: null, color: null, size: null, animation: null, rotate: null, 'stroke-scale': null, 'flip-h': null, 'flip-v': null };
         if (separator < 0) return result;
         const modifiers = [];
         for (const pair of name.slice(separator + 1).split('&')) {
             const equals = pair.indexOf('=');
             const token = equals < 0 ? pair : pair.slice(0, equals);
-            const key = token === 'anim' ? 'animation' : token;
+            const key = token === 'anim' ? 'animation' : token === 'o' ? 'opacity' : token;
             if (key === 'flip') {
                 const value = pair.slice(equals + 1);
                 if (!['x', 'y', 'xy', 'none'].includes(value)) throw new Error('Invalid icon flip.');
                 result['flip-h'] = String(value.includes('x'));
                 result['flip-v'] = String(value.includes('y'));
+                continue;
+            }
+            // Opacity affects only presentation; invalid values must not suppress the icon.
+            if (key === 'opacity') {
+                const value = equals < 0 ? '' : pair.slice(equals + 1);
+                if (value.trim() && Number.isFinite(Number(value)) && Number(value) >= 0 && Number(value) <= 1) result.opacity = value;
                 continue;
             }
             if (!['color', 'size', 'animation', 'rotate', 'stroke-scale', 'flip-h', 'flip-v'].includes(key)) { modifiers.push(pair); continue; }
@@ -290,6 +296,10 @@
                 if (mirrorRtl) classes.push('icon-mirror-rtl');
             }
             const styles = new Map();
+            const opacityAttribute = this.getAttribute('opacity');
+            const validOpacity = value => value != null && String(value).trim() !== '' && Number.isFinite(Number(value)) && Number(value) >= 0 && Number(value) <= 1;
+            const opacity = validOpacity(opacityAttribute) ? opacityAttribute : this._addressPresentation?.opacity;
+            if (validOpacity(opacity)) styles.set('--icon-opacity', String(Number(opacity)));
             const size = this.getAttribute('size') ?? this._addressPresentation?.size;
             const animation = this.getAttribute('animation') ?? this._addressPresentation?.animation;
             if (size != null) { if (!sizes.has(size)) throw new Error('Unsupported icon size.'); classes.push('icon-' + size); }

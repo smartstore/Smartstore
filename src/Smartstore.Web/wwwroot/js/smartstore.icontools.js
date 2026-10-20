@@ -6,12 +6,34 @@
     let closeCurrent;
     let nextToolId = 0;
 
+    function addArrow(menu) {
+        const arrow = document.createElement('span');
+        arrow.className = 'icon-tool-arrow';
+        arrow.setAttribute('x-arrow', '');
+        arrow.setAttribute('aria-hidden', 'true');
+        menu.append(arrow);
+    }
+
     namespace.IconTools = {
         bindSize(toggle, callbacks) {
             const values = ['xs', 'sm', '', 'lg', 'xl', ...Array.from({ length: 9 }, (_, i) => `${i + 2}x`)];
             return this.bindRange(toggle, callbacks, {
                 values, labels: values.map(value => value || '1x'),
                 normalize: value => value === '1x' ? '' : value === '2xl' ? '2x' : value || ''
+            });
+        },
+        bindOpacity(toggle, callbacks) {
+            const percentages = Array.from({ length: 101 }, (_, i) => i);
+            return this.bindRange(toggle, {
+                ...callbacks, onChange: value => callbacks.onChange(value === '1' ? '' : value)
+            }, {
+                values: percentages.map(value => String(value / 100)),
+                labels: percentages.map(value => `${value} %`), ticks: [],
+                menuClass: 'icon-tool-opacity-menu', showPreview: true, previewOption: 'opacity',
+                normalize(value) {
+                    const number = value == null || value === '' ? 1 : Number(value);
+                    return String(Math.round(Math.max(0, Math.min(1, Number.isFinite(number) ? number : 1)) * 100) / 100);
+                }
             });
         },
         bindStrokeScale(toggle, callbacks) {
@@ -41,7 +63,7 @@
                 }
             });
         },
-        bindRange(toggle, { getState, onChange, getPlacement }, { values, labels, ticks: tickIndices, normalize, showPreview = false, previewOption = 'stroke-scale', tickLabels, snapTolerance }) {
+        bindRange(toggle, { getState, onChange, getPlacement }, { values, labels, ticks: tickIndices, normalize, showPreview = false, previewOption = 'stroke-scale', tickLabels, snapTolerance, menuClass = '' }) {
             let menu, popper;
             toggle.setAttribute('aria-haspopup', 'dialog');
             toggle.setAttribute('aria-expanded', 'false');
@@ -66,7 +88,7 @@
                 const current = normalize(state.value);
                 const index = Math.max(0, values.indexOf(current));
                 menu = document.createElement('div');
-                menu.className = 'dropdown-menu show icon-tool-size-menu p-3';
+                menu.className = 'dropdown-menu show icon-tool-size-menu px-3 py-2 ' + menuClass;
                 menu.setAttribute('role', 'dialog');
                 menu.setAttribute('aria-label', toggle.getAttribute('aria-label'));
                 const slider = document.createElement('div');
@@ -99,10 +121,26 @@
                 bubbleText.className = 'range-value-inner text-nowrap';
                 bubble.append(arrow, bubbleText);
                 slider.append(hidden, input, bubble, ticks);
+                let opacityRow;
+                if (menuClass === 'icon-tool-opacity-menu') {
+                    // Keep the accessible range interaction, with the color picker's alpha-track appearance.
+                    const output = document.createElement('output');
+                    output.className = 'text-right small text-muted text-nowrap';
+                    menu.style.setProperty('--icon-tool-opacity-color', state.color || 'currentColor');
+                    output.textContent = labels[index];
+                    input.addEventListener('input', () => output.textContent = labels[Number(input.value)]);
+                    opacityRow = document.createElement('div');
+                    opacityRow.className = 'd-flex align-items-center gap-2';
+                    slider.classList.add('flex-grow-1');
+                    slider.style.minWidth = '0';
+                    output.classList.add('flex-shrink-0');
+                    opacityRow.append(slider, output);
+                    menu.append(opacityRow);
+                }
                 let preview;
                 if (showPreview) {
-                    const row = document.createElement('div');
-                    row.className = 'd-flex align-items-center gap-3';
+                    const row = opacityRow || document.createElement('div');
+                    if (!opacityRow) row.className = 'd-flex align-items-center gap-3';
                     slider.classList.add('flex-grow-1');
                     slider.style.minWidth = '0';
                     const holder = document.createElement('div');
@@ -111,20 +149,24 @@
                     preview = document.createElement('sm-icon');
                     const separator = state.name.indexOf('?');
                     const query = separator < 0 ? [] : state.name.slice(separator + 1).split('&')
-                        .filter(pair => !['color', 'size', 'animation', previewOption].includes(pair.split('=', 1)[0]));
+                        .filter(pair => !['color', 'size', 'animation', previewOption, ...(previewOption === 'opacity' ? ['o'] : [])].includes(pair.split('=', 1)[0]));
                     preview.setAttribute('name', (separator < 0 ? state.name : state.name.slice(0, separator)) + (query.length ? '?' + query.join('&') : ''));
                     if (state.area) preview.setAttribute('area', state.area);
                     for (const key of ['flip-h', 'flip-v', 'rotate', 'stroke-scale']) {
                         if (key !== previewOption && state.options?.[key]) preview.setAttribute(key, String(state.options[key]).replace(',', '.'));
                     }
+                    if (previewOption === 'opacity' && state.color) preview.setAttribute('color', state.color);
                     preview.setAttribute('size', '3x');
                     preview.setAttribute('aria-hidden', 'true');
                     if (previewOption === 'rotate') preview.style.setProperty('--icon-rotate', (state.value || 0) + 'deg');
                     else if (state.value) preview.setAttribute(previewOption, String(state.value).replace(',', '.'));
-                    holder.append(preview); row.append(slider, holder); menu.append(row);
-                } else menu.append(slider);
+                    holder.append(preview);
+                    if (opacityRow) row.append(holder);
+                    else { row.append(slider, holder); menu.append(row); }
+                } else if (!opacityRow) menu.append(slider);
                 const owner = toggle.closest('[data-note-owner]')?.getAttribute('data-note-owner');
                 if (owner) menu.setAttribute('data-note-owner', owner);
+                addArrow(menu);
                 document.body.append(menu);
                 jQuery(slider).rangeSlider(snapTolerance == null ? undefined : { snapValues: tickIndices, snapTolerance }).on('rangeslider:change', (event, position) => {
                     const i = Number(position);
@@ -199,6 +241,7 @@
                 menu.setAttribute('aria-label', toggle.getAttribute('aria-label') || 'Color');
                 const owner = toggle.closest('[data-note-owner]')?.getAttribute('data-note-owner');
                 if (owner) menu.setAttribute('data-note-owner', owner);
+                addArrow(menu);
                 document.body.append(menu);
                 picker = jQuery(menu);
                 picker.colorpicker({
@@ -216,8 +259,12 @@
                     if (!menu) return;
                     const bounds = toggle.getBoundingClientRect();
                     const availableHeight = Math.max(bounds.top, window.innerHeight - bounds.bottom) - 18;
-                    menu.style.maxHeight = `${Math.max(0, availableHeight)}px`;
-                    menu.style.overflowY = 'auto';
+                    // Scroll the picker contents, leaving the outer arrow unclipped.
+                    const content = menu.querySelector('.colorpicker');
+                    if (content) {
+                        content.style.maxHeight = `${Math.max(0, availableHeight)}px`;
+                        content.style.overflowY = 'auto';
+                    }
                     popper = new Popper(toggle, menu, {
                         placement: getPlacement?.() || 'bottom',
                         onCreate() {
@@ -280,6 +327,9 @@
                 menu.className = 'dropdown-menu show icon-tool-animation-menu p-2';
                 menu.setAttribute('role', 'menu');
                 menu.setAttribute('aria-label', toggle.getAttribute('aria-label') || 'Animation');
+                const grid = document.createElement('div');
+                grid.className = 'icon-tool-animation-grid';
+                menu.append(grid);
                 const values = ['', ...namespace.Icons.animations];
                 for (const value of values) {
                     const button = document.createElement('button');
@@ -306,12 +356,12 @@
                         onChange(value);
                         if (toggle.isConnected) toggle.focus();
                     });
-                    menu.append(button);
+                    grid.append(button);
                 }
                 menu.addEventListener('keydown', event => {
                     if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); close(true); return; }
                     if (event.key === 'Tab') { close(true); return; }
-                    const buttons = [...menu.children];
+                    const buttons = [...menu.querySelectorAll('[role="menuitemradio"]')];
                     const index = buttons.indexOf(document.activeElement);
                     const rtl = getComputedStyle(menu).direction === 'rtl';
                     const step = { ArrowRight: rtl ? -1 : 1, ArrowLeft: rtl ? 1 : -1, ArrowDown: 3, ArrowUp: -3 }[event.key];
@@ -323,6 +373,7 @@
                 });
                 const owner = toggle.closest('[data-note-owner]')?.getAttribute('data-note-owner');
                 if (owner) menu.setAttribute('data-note-owner', owner);
+                addArrow(menu);
                 document.body.append(menu);
                 popper = new Popper(toggle, menu, {
                     placement: getPlacement?.() || 'bottom',

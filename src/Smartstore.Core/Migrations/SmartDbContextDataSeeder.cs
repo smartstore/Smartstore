@@ -261,6 +261,7 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Das Icon erscheint in der Kategorienavigation, im Hauptmenü einschließlich Dropdowns, im mobilen Menü sowie im Kategoriebaum der Administration.");
 
         builder.AddOrUpdate("Admin.Design.Color", "Color", "Farbe");
+        builder.AddOrUpdate("Admin.Design.Opacity", "Opacity", "Deckkraft");
         builder.AddOrUpdate("Admin.Design.FlipHorizontal", "Flip horizontally", "Horizontal spiegeln");
         builder.AddOrUpdate("Admin.Design.FlipVertical", "Flip vertically", "Vertikal spiegeln");
         builder.AddOrUpdate("Admin.Design.Rotation", "Rotation", "Rotation");

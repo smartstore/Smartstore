@@ -32,6 +32,12 @@ public readonly record struct IconPresentation
     public string? Color { get; init; }
 
     /// <summary>
+    /// Gets or sets whole-icon opacity from zero to one. Omission uses full opacity.
+    /// An explicit one resets a lower-priority value. Serialized as the compact modifier o.
+    /// </summary>
+    public double? Opacity { get; init; }
+
+    /// <summary>
     /// Gets or sets whether the inverse foreground color is used.
     /// </summary>
     public bool? Inverse { get; init; }
@@ -102,6 +108,7 @@ public readonly record struct IconPresentation
         FontScale = FontScale ?? fallback.FontScale,
         FixedWidth = FixedWidth ?? fallback.FixedWidth,
         Color = Color ?? fallback.Color,
+        Opacity = Opacity ?? fallback.Opacity,
         Inverse = Inverse ?? fallback.Inverse,
         Animation = Animation ?? fallback.Animation,
         AnimationDuration = AnimationDuration ?? fallback.AnimationDuration,
@@ -136,6 +143,7 @@ public readonly record struct IconPresentation
         if ((Size != null && !IsValidSize(Size))
             || (Animation != null && !IsValidAnimation(Animation))
             || !CssValue(Color) || !CssValue(AnimationDuration)
+            || (Opacity.HasValue && (!Finite(Opacity) || Opacity < 0 || Opacity > 1))
             || !Positive(FontScale) || !Positive(Scale) || !Positive(StrokeScale)
             || !Finite(Rotate) || !Finite(ShiftX) || !Finite(ShiftY))
         {
@@ -201,6 +209,7 @@ public readonly record struct IconPresentation
 
         Add("size", Size);
         Add("font-scale", FontScale?.ToString("R", CultureInfo.InvariantCulture));
+        Add("o", Opacity?.ToString("R", CultureInfo.InvariantCulture));
         AddFlag("fw", FixedWidth);
         Add("color", Color);
         AddFlag("inverse", Inverse);
@@ -257,6 +266,7 @@ public readonly record struct IconPresentation
             var key = separator < 0 ? pair : pair[..separator];
             key = key switch
             {
+                "o" => "opacity",
                 "fw" => "fixed-width",
                 "anim" => "animation",
                 "anim-dur" => "animation-duration",
@@ -285,6 +295,7 @@ public readonly record struct IconPresentation
                 "shift-x" => 8192,
                 "shift-y" => 16384,
                 "stroke-scale" => 32768,
+                "opacity" => 65536,
                 "flip" => 1536,
                 _ => 0
             };
@@ -299,6 +310,9 @@ public readonly record struct IconPresentation
             seen |= flag;
             switch (key)
             {
+                case "opacity" when double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var opacityValue) && double.IsFinite(opacityValue) && opacityValue >= 0 && opacityValue <= 1:
+                    result = result with { Opacity = opacityValue };
+                    break;
                 case "flip" when value is "x" or "y" or "xy" or "none":
                     result = result with { FlipHorizontal = value.Contains('x'), FlipVertical = value.Contains('y') };
                     break;

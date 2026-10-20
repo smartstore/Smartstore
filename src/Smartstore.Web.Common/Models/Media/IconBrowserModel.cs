@@ -87,7 +87,12 @@ public enum IconOptionFields
     Color = 32,
 
     /// <summary>
+    /// Offers whole-icon opacity.
+    /// </summary>
+    Opacity = 64,
+
+    /// <summary>
     /// Offers all supported presentation fields.
     /// </summary>
-    All = Size | Animation | Flip | Rotate | StrokeScale | Color
+    All = Size | Animation | Flip | Rotate | StrokeScale | Color | Opacity
 }

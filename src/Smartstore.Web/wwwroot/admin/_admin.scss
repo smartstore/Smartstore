@@ -1752,12 +1752,120 @@ a.editable {
 
 
 // Shared icon option editors (Icon Browser and editor popovers).
+.icon-tool-arrow {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    pointer-events: none;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: $dropdown-bg;
+        border: $dropdown-border-width solid $dropdown-border-color;
+        transform: rotate(45deg);
+    }
+}
+
+[x-placement^="bottom"] > .icon-tool-arrow {
+    top: -6px;
+    &::before { border-right: 0; border-bottom: 0; }
+}
+
+[x-placement^="top"] > .icon-tool-arrow {
+    bottom: -6px;
+    &::before { border-left: 0; border-top: 0; }
+}
+
+[x-placement^="left"] > .icon-tool-arrow {
+    right: -6px;
+    &::before { border-left: 0; border-bottom: 0; }
+}
+
+[x-placement^="right"] > .icon-tool-arrow {
+    left: -6px;
+    &::before { border-right: 0; border-top: 0; }
+}
 .icon-tool-size-menu {
     width: min(30rem, calc(100vw - 1rem));
     z-index: $zindex-popover + 1;
 
     .range-slider {
         isolation: isolate;
+    }
+}
+
+.icon-tool-opacity-menu {
+    output {
+        font-variant-numeric: tabular-nums;
+    }
+
+    .range-slider {
+        height: 24px;
+
+        // A fixed alpha gradient over the same checkerboard used by the color picker.
+        &::before,
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 7px 8px;
+            border-radius: 999px;
+            pointer-events: none;
+        }
+
+        &::before {
+            @include bg-checkerboard(5px, rgba($black, 0.1), $white);
+        }
+
+        &::after {
+            background: linear-gradient(to right, transparent, var(--icon-tool-opacity-color, currentColor));
+        }
+    }
+
+    .range-ticks,
+    .range-value {
+        display: none;
+    }
+
+    .form-control-range {
+        position: relative;
+        z-index: 1;
+        height: 24px;
+        direction: ltr;
+        background: transparent;
+
+        &::-webkit-slider-runnable-track {
+            height: 10px;
+            background: transparent;
+            border: 0;
+        }
+
+        &::-moz-range-track {
+            height: 10px;
+            background: transparent;
+            border: 0;
+        }
+
+        &::-webkit-slider-thumb {
+            width: 16px;
+            height: 16px;
+            margin-top: -3px;
+            border: 2px solid $white;
+            border-radius: 50%;
+            background: var(--icon-tool-opacity-color, currentColor);
+            box-shadow: 0 0 0 1px rgba($black, 0.15), 0 1px 3px rgba($black, 0.25);
+        }
+
+        &::-moz-range-thumb {
+            box-sizing: border-box;
+            width: 16px;
+            height: 16px;
+            border: 2px solid $white;
+            border-radius: 50%;
+            background: var(--icon-tool-opacity-color, currentColor);
+            box-shadow: 0 0 0 1px rgba($black, 0.15), 0 1px 3px rgba($black, 0.25);
+        }
     }
 }
 
@@ -1774,17 +1882,19 @@ a.editable {
 }
 
 .icon-tool-animation-menu {
-    &.show {
-        display: grid;
-    }
-    grid-template-columns: repeat(3, minmax(0, 1fr));
     width: min(17rem, calc(100vw - 1rem));
-    max-height: calc(100vh - 1rem);
-    overflow-y: auto;
-    gap: 0.125rem;
     z-index: $zindex-popover + 1;
 
-    > .btn {
+    // Only the choices scroll; the outer popover must not clip its arrow.
+    .icon-tool-animation-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        max-height: calc(100vh - 3rem);
+        overflow-y: auto;
+        gap: 0.125rem;
+    }
+
+    .icon-tool-animation-grid > .btn {
         min-height: 3.75rem;
     }
 

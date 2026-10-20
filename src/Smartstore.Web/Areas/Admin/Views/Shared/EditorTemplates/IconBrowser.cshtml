@@ -111,6 +111,13 @@
                                 <span class="icon-tool-color-swatch" aria-hidden="true"></span>
                             </button>
                         }
+                        @if (visibleOptions.HasFlag(IconOptionFields.Opacity))
+                        {
+                            <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron"
+                                    data-option="opacity" title="@T("Admin.Design.Opacity")" aria-label="@T("Admin.Design.Opacity")" disabled aria-disabled="true">
+                                <icon name="transparency" aria-hidden="true" />
+                            </button>
+                        }
                         @if (visibleOptions.HasFlag(IconOptionFields.Flip))
                         {
                             <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron"
@@ -157,7 +164,7 @@
                         {
                             <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron" data-more="true"
                                     title="@T("Common.MoreOptions")" aria-label="@T("Common.MoreOptions")" aria-disabled="true">
-                                <icon name="hi:more-horizontal!/sr" aria-hidden="true" />
+                                <icon name="ellipsis" aria-hidden="true" />
                             </button>
                         }
                     </div>

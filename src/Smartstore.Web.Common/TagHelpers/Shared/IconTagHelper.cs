@@ -21,6 +21,7 @@ public abstract class IconTagHelperBase : SmartTagHelper
     private const string FontScaleAttributeName = "font-scale";
     private const string FixedWidthAttributeName = "fw";
     private const string ColorAttributeName = "color";
+    private const string OpacityAttributeName = "opacity";
     private const string InverseAttributeName = "inverse";
     private const string AnimationAttributeName = "animation";
     private const string AnimationDurationAttributeName = "animation-duration";
@@ -42,6 +43,7 @@ public abstract class IconTagHelperBase : SmartTagHelper
         FontScaleAttributeName,
         FixedWidthAttributeName,
         ColorAttributeName,
+        OpacityAttributeName,
         InverseAttributeName,
         AnimationAttributeName,
         AnimationDurationAttributeName,
@@ -82,6 +84,13 @@ public abstract class IconTagHelperBase : SmartTagHelper
     /// </summary>
     [HtmlAttributeName(ColorAttributeName)]
     public string Color { get; set; }
+
+    /// <summary>
+    /// Gets or sets opacity from zero to one for the whole icon or stack.
+    /// Overrides the expression modifier o; invalid values are ignored.
+    /// </summary>
+    [HtmlAttributeName(OpacityAttributeName)]
+    public double? Opacity { get; set; }
 
     /// <summary>
     /// Gets or sets whether the inverse foreground color is used.
@@ -194,6 +203,7 @@ public abstract class IconTagHelperBase : SmartTagHelper
         FontScale = FontScale,
         FixedWidth = _fixedWidth,
         Color = Color,
+        Opacity = Opacity is >= 0 and <= 1 ? Opacity : null,
         Inverse = _inverse,
         Animation = Animation,
         AnimationDuration = AnimationDuration,

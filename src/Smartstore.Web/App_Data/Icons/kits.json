@@ -249,6 +249,7 @@
       "text-wrap",
       "text-resize",
       "tools",
+      "transparency",
       "trophy",
       "undo",
       "upload",
@@ -267,6 +268,7 @@
       "wrench"
     ],
     "sources": {
+      "transparency": "hi:transparency!/sr",
       "catalog": "hi:delivery-box-01!/sr",
       "customers": "hi:user-group-03!/sr",
       "cms": "hi:layout-dashboard!/sr",

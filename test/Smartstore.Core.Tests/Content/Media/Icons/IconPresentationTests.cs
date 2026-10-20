@@ -7,6 +7,39 @@ namespace Smartstore.Core.Tests.Content.Media.Icons;
 [TestFixture]
 public class IconPresentationTests
 {
+    [TestCase("o=0", 0)]
+    [TestCase("o=0.4", 0.4)]
+    [TestCase("opacity=1", 1)]
+    public void Opacity_RoundTrips_With_Compact_Modifier(string value, double expected)
+    {
+        var expression = IconExpression.Parse("cart?" + value);
+        Assert.That(expression.Presentation.Opacity, Is.EqualTo(expected));
+        Assert.That(expression.ToString(), Does.Contain("?o="));
+        Assert.That(IconExpression.Parse(expression.ToString()), Is.EqualTo(expression));
+    }
+
+    [TestCase("-0.1")]
+    [TestCase("1.1")]
+    [TestCase("NaN")]
+    [TestCase("Infinity")]
+    [TestCase("")]
+    [TestCase("invalid")]
+    public void Invalid_Opacity_Does_Not_Discard_The_Last_Valid_Value(string value)
+    {
+        var expression = IconExpression.Parse("cart?o=0.4&o=" + value);
+        Assert.That(expression.Presentation.Opacity, Is.EqualTo(0.4));
+    }
+
+    [Test]
+    public void Explicit_Full_Opacity_Overrides_Fallback_And_Is_Preserved()
+    {
+        var fallback = new IconPresentation { Opacity = 0.4 };
+        Assert.That(default(IconPresentation).WithDefaults(fallback).Opacity, Is.EqualTo(0.4));
+        var reset = new IconPresentation { Opacity = 1 };
+        Assert.That(reset.WithDefaults(fallback).Opacity, Is.EqualTo(1));
+        Assert.That(reset.ToString(), Is.EqualTo("?o=1"));
+    }
+
     [TestCase("")]
     [TestCase("?")]
     [TestCase("?&&")]

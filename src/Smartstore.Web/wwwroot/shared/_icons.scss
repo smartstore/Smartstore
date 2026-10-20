@@ -27,6 +27,10 @@
     --_icon-shift-x: initial;
     --_icon-shift-y: initial;
     --_icon-color: initial;
+    // Opacity composites the host once. Never inherit its variable onto nested layers.
+    --_icon-opacity: initial;
+    --icon-opacity: initial;
+    opacity: var(--icon-opacity, var(--_icon-opacity, 1));
     --_icon-animation-duration: initial;
     --_icon-animation-direction: initial;
     --_icon-rotate: initial;

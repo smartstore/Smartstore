@@ -54,7 +54,7 @@
                 return String((style.getPropertyValue('--icon-flip-' + axis).trim()
                     || style.getPropertyValue('--_icon-flip-' + axis).trim()) === '-1');
             }
-            return query.get(option) || '';
+            return (option === 'opacity' ? query.get('o') ?? query.get('opacity') : query.get(option)) || '';
         }
         function state(option) {
             const options = {};
@@ -63,7 +63,7 @@
                 if (setting !== '') options[key] = setting;
             }
             return { name: target?.getAttribute('name'), area: target?.getAttribute('area') || 'public',
-                options, value: value(option) };
+                options, value: value(option), color: value('color') };
         }
         function refresh() {
             for (const [option, button] of buttons) {
@@ -104,7 +104,7 @@
                 const name = icon.getAttribute('name') || '';
                 const separator = name.indexOf('?');
                 if (separator >= 0) {
-                    const query = name.slice(separator + 1).split('&').filter(pair => pair.split('=', 1)[0] !== option);
+                    const query = name.slice(separator + 1).split('&').filter(pair => ![option, ...(option === 'opacity' ? ['o'] : [])].includes(pair.split('=', 1)[0]));
                     icon.setAttribute('name', name.slice(0, separator) + (query.length ? '?' + query.join('&') : ''));
                 }
             }
@@ -150,7 +150,7 @@
             const group = $.summernote.ui.toolGroup({ className: 'note-icon-tools' }).render()
                 .attr({ role: 'group', 'aria-label': settings.label }).appendTo(content);
             for (const [option, motif, label] of [
-                ['color', null, settings.color], ['flip-h', 'flip-h', settings.flipHorizontal],
+                ['color', null, settings.color], ['opacity', 'transparency', settings.opacity], ['flip-h', 'flip-h', settings.flipHorizontal],
                 ['flip-v', 'flip-v', settings.flipVertical], ['rotate', 'rotate', settings.rotation], ['size', 'scaling', settings.size], ['animation', 'animation', settings.animation], ['stroke-scale', 'hi:pencil', settings.strokeWidth]
             ]) {
                 const button = $.summernote.ui.button({}).render().attr({ title: label, 'aria-label': label })[0];
@@ -163,7 +163,7 @@
                 button.append(symbol);
                 group.append(button);
                 buttons.set(option, button);
-                const bind = option === 'color' ? 'bindColor' : option === 'animation' ? 'bindAnimation' : option === 'rotate' ? 'bindRotate' : option === 'size' ? 'bindSize' : option === 'stroke-scale' ? 'bindStrokeScale' : 'bindFlip';
+                const bind = option === 'opacity' ? 'bindOpacity' : option === 'color' ? 'bindColor' : option === 'animation' ? 'bindAnimation' : option === 'rotate' ? 'bindRotate' : option === 'size' ? 'bindSize' : option === 'stroke-scale' ? 'bindStrokeScale' : 'bindFlip';
                 tools.push(Smartstore.IconTools[bind](button, {
                     getState: () => state(option), onChange: setting => change(option, setting),
                     noneLabel: settings.noAnimation,
