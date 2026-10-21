@@ -2,9 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Options;
 using Smartstore.Admin.Models.Themes;
-using Smartstore.Collections;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Content.Media.Icons;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
@@ -22,7 +20,6 @@ public class ThemeController : AdminController
     private readonly IThemeVariableService _themeVarService;
     private readonly IThemeContext _themeContext;
     private readonly IBundleCache _bundleCache;
-    private readonly Lazy<IIconExplorer> _iconExplorer;
     private readonly IOptionsMonitorCache<BundlingOptions> _bundlingOptionsCache;
 
     public ThemeController(
@@ -31,7 +28,6 @@ public class ThemeController : AdminController
         IThemeVariableService themeVarService,
         IThemeContext themeContext,
         IBundleCache bundleCache,
-        Lazy<IIconExplorer> iconExplorer,
         IOptionsMonitorCache<BundlingOptions> bundlingOptionsCache)
     {
         _db = db;
@@ -40,7 +36,6 @@ public class ThemeController : AdminController
         _themeContext = themeContext;
         _bundleCache = bundleCache;
         _bundlingOptionsCache = bundlingOptionsCache;
-        _iconExplorer = iconExplorer;
     }
 
     #region Themes
@@ -463,47 +458,4 @@ public class ThemeController : AdminController
 
     #endregion
 
-    #region UI Helpers
-
-    [HttpPost]
-    public JsonResult SearchIcons(string term, string selected = null, int page = 1)
-    {
-        const int pageSize = 250;
-
-        var iconExplorer = _iconExplorer.Value;
-        var icons = iconExplorer.All.AsEnumerable();
-
-        if (term.HasValue())
-        {
-            icons = iconExplorer.FindIcons(term, true);
-        }
-
-        var result = icons.ToPagedList(page - 1, pageSize);
-
-        if (selected.HasValue() && term.IsEmpty())
-        {
-            var selIcon = iconExplorer.GetIconByName(selected);
-            if (!selIcon.IsPro && !result.Contains(selIcon))
-            {
-                result.Insert(0, selIcon);
-            }
-        }
-
-        return Json(new
-        {
-            results = result.AsEnumerable().Select(x => new
-            {
-                id = x.Name,
-                text = x.Name,
-                hasRegularStyle = x.HasRegularStyle,
-                isBrandIcon = x.IsBrandIcon,
-                isPro = x.IsPro,
-                label = x.Label,
-                styles = x.Styles
-            }),
-            pagination = new { more = result.HasNextPage }
-        });
-    }
-
-    #endregion
 }

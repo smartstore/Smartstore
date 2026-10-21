@@ -54,8 +54,7 @@ Shopware import progress and SupportAgent collapse/copy controls.
 
 Use `check` for legacy `circle-check`, `alert-danger` for `exclamation-circle` or
 `circle-exclamation`, `eye-off` for `eye-slash`, and `chevron-*` for `angle-*`.
-These state icons are available in the applicable public/admin kits. The legacy
-PageBuilder IconChooser, the cheatsheet and the independent `confirm2` CSS-class
+These state icons are available in the applicable public/admin kits. The cheatsheet and the independent `confirm2` CSS-class
 contract are excluded from this migration.
 
 ## Select option icons
@@ -66,7 +65,7 @@ same contract, including initial loading and lazy selections (`init.icon`).
 For example, use `data-icon="mail"` or `data-icon='["mail", "lock"]'`.
 Icons render through `sm-icon` in both results and selections; prefer kit concepts
 to avoid individual SVG requests. Icons count as rich content on touch devices.
-Custom formatters, including the legacy FontAwesome chooser, retain their own contracts.
+Custom formatters retain their own contracts.
 
 Export deployment icons use `folder-open`, `mail`, `hi:cloud-server!/sr` (HTTP POST),
 `database-export` (FTP), and `hi:folder-upload!/sr` (public folder).

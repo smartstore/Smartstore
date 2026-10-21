@@ -2,7 +2,7 @@
 
 using Smartstore.IconKit;
 
-namespace Smartstore.Core.Content.Media.Icons;
+namespace Smartstore.Web.Models.Media;
 
 /// <summary>Exposes an icon address together with its presentation.</summary>
 public interface IIcon

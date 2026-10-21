@@ -2,7 +2,6 @@
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Editing;
-using Smartstore.Core.Content.Media.Icons;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Engine.Builders;
@@ -83,9 +82,6 @@ internal class MediaStarter : StarterBase
 
         // Handlers
         builder.RegisterType<ImageHandler>().As<IMediaHandler>().InstancePerLifetimeScope();
-
-        // Icons
-        builder.RegisterType<IconExplorer>().As<IIconExplorer>().SingleInstance();
 
         // Editing
         builder.RegisterType<MediaEditorFactory>().As<IMediaEditorFactory>().InstancePerLifetimeScope();

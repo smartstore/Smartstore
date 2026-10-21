@@ -6,7 +6,6 @@ using Smartstore.IconKit;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Collections;
-using Smartstore.Core.Content.Media.Icons;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Localization;
 

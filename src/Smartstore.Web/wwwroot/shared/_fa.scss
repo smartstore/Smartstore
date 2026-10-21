@@ -4,7 +4,7 @@
 .fal,
 .fa-duotone,
 .fad {
-    // Compatibility styles for the legacy icon chooser and unmigrated markup.
+    // Compatibility styles for unmigrated markup.
     // Copied over from FA's core stylesheet. We don't want to customize the FA core.
     --_fa-family: var(--fa-family, var(--fa-style-family, "#{$fa-font-family-free}"));
     -webkit-font-smoothing: antialiased;
