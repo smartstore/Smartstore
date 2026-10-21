@@ -30,6 +30,21 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
+    "$key": "#0dc80627969d",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:tim@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FS-1001",
+    "Rating": 4,
+    "ReviewText": "Good quality. Sadly black in XL was sold out, so I took olive, which I like a lot too.",
+    "Title": "Solid choice",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "#123456a8dccf",
     "CreatedOnUtc": "<now-1M>",
     "CustomerId": "Customer:anna@example.com",
@@ -57,6 +72,51 @@
     "Rating": 5,
     "ReviewText": "Perfect for beginners: everything in one order and cheaper than buying it separately.",
     "Title": "A great start",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#46f394ea0005",
+    "CreatedOnUtc": "<now-2M>",
+    "CustomerId": "Customer:sophie@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FS-1001",
+    "Rating": 5,
+    "ReviewText": "Stays dry even in heavy rain and does not feel stuffy. The navy is a beautiful colour.",
+    "Title": "Finally dry on the way to work",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#4cdd9c7ac727",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:laura@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": null,
+    "ProductId": "Product:FS-1001",
+    "Rating": 5,
+    "ReviewText": "Light, warm enough with a sweater underneath and the hood stays in place.",
+    "Title": "My favourite jacket",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#52172d4e11e7",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:tim@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FS-1003",
+    "Rating": 4,
+    "ReviewText": "The black and gold version gets a lot of compliments. A bit pricey, though.",
+    "Title": "Limited edition is a real eye-catcher",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
@@ -90,6 +150,21 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
+    "$key": "#5dac472fa7af",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:laura@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": null,
+    "ProductId": "Product:FS-1002",
+    "Rating": 4,
+    "ReviewText": "The grey melange looks great. It is quite wide, as described.",
+    "Title": "Lovely relaxed fit",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "#5eeca8181134",
     "CreatedOnUtc": "<now+0M>",
     "CustomerId": "Customer:laura@example.com",
@@ -102,6 +177,36 @@
     "Rating": 5,
     "ReviewText": "Beautifully packed and a lovely selection. My parents were delighted.",
     "Title": "The perfect gift",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#6c0896dd4192",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:markus@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FS-1006",
+    "Rating": 5,
+    "ReviewText": "Ordered one with the name of our football team. The print is sharp and survives the washing machine.",
+    "Title": "Great gift idea",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#6f38446ae677",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:sophie@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": null,
+    "ProductId": "Product:FS-1003",
+    "Rating": 4,
+    "ReviewText": "Fits true to size. My size was briefly sold out but came back quickly.",
+    "Title": "Good everyday sneaker",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
@@ -150,6 +255,21 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
+    "$key": "#8996ac37cab5",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:jonas@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FS-1003",
+    "Rating": 5,
+    "ReviewText": "Comfortable from day one and the white leather is easy to clean.",
+    "Title": "Goes with everything",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "#8a08210a8fa5",
     "CreatedOnUtc": "<now-1M>",
     "CustomerId": "Customer:tim@example.com",
@@ -180,6 +300,21 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
+    "$key": "#96f34a78619a",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:markus@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FS-1001",
+    "Rating": 4,
+    "ReviewText": "Very well made. I would order one size smaller next time.",
+    "Title": "Good jacket, runs slightly large",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "#a710ba1a7dad",
     "CreatedOnUtc": "<now-1M>",
     "CustomerId": "Customer:tim@example.com",
@@ -192,6 +327,36 @@
     "Rating": 4,
     "ReviewText": "Comfortable leather. Order one size up if you are between sizes.",
     "Title": "Good glove",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#aae9e5f57bba",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:anna@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FS-1002",
+    "Rating": 5,
+    "ReviewText": "I took the merino version and it does not itch at all. Worth the extra money.",
+    "Title": "So soft",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#b84a54454a03",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:anna@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": null,
+    "ProductId": "Product:FS-1003",
+    "Rating": 2,
+    "ReviewText": "Nice look, but too narrow for wide feet. I sent them back.",
+    "Title": "Too narrow for me",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {

@@ -216,6 +216,230 @@
     "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Geschmack|Süß"
   },
   {
+    "$key": "Product:FS-1001|SpecificationAttributeOption:SpecificationAttribute:Material|Polyamid",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FS-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|Polyamid"
+  },
+  {
+    "$key": "Product:FS-1001|SpecificationAttributeOption:SpecificationAttribute:Passform|Normal",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FS-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Passform|Normal"
+  },
+  {
+    "$key": "Product:FS-1001|SpecificationAttributeOption:SpecificationAttribute:Pflege|Maschinenwäsche 30 °C",
+    "AllowFiltering": false,
+    "DisplayOrder": 6,
+    "ProductId": "Product:FS-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Pflege|Maschinenwäsche 30 °C"
+  },
+  {
+    "$key": "Product:FS-1001|SpecificationAttributeOption:SpecificationAttribute:Saison|Herbst/Winter",
+    "AllowFiltering": true,
+    "DisplayOrder": 4,
+    "ProductId": "Product:FS-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Saison|Herbst/Winter"
+  },
+  {
+    "$key": "Product:FS-1001|SpecificationAttributeOption:SpecificationAttribute:Wetterschutz|Wasserdicht",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FS-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Wetterschutz|Wasserdicht"
+  },
+  {
+    "$key": "Product:FS-1001|SpecificationAttributeOption:SpecificationAttribute:Zielgruppe|Unisex",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:FS-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Zielgruppe|Unisex"
+  },
+  {
+    "$key": "Product:FS-1002|SpecificationAttributeOption:SpecificationAttribute:Material|Wolle",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FS-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|Wolle"
+  },
+  {
+    "$key": "Product:FS-1002|SpecificationAttributeOption:SpecificationAttribute:Passform|Weit",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FS-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Passform|Weit"
+  },
+  {
+    "$key": "Product:FS-1002|SpecificationAttributeOption:SpecificationAttribute:Pflege|Handwäsche",
+    "AllowFiltering": false,
+    "DisplayOrder": 5,
+    "ProductId": "Product:FS-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Pflege|Handwäsche"
+  },
+  {
+    "$key": "Product:FS-1002|SpecificationAttributeOption:SpecificationAttribute:Saison|Herbst/Winter",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FS-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Saison|Herbst/Winter"
+  },
+  {
+    "$key": "Product:FS-1002|SpecificationAttributeOption:SpecificationAttribute:Zielgruppe|Damen",
+    "AllowFiltering": true,
+    "DisplayOrder": 4,
+    "ProductId": "Product:FS-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Zielgruppe|Damen"
+  },
+  {
+    "$key": "Product:FS-1003|SpecificationAttributeOption:SpecificationAttribute:Farbe|Schwarz",
+    "AllowFiltering": true,
+    "DisplayOrder": 4,
+    "ProductId": "Product:FS-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Farbe|Schwarz"
+  },
+  {
+    "$key": "Product:FS-1003|SpecificationAttributeOption:SpecificationAttribute:Farbe|Weiß",
+    "AllowFiltering": true,
+    "DisplayOrder": 4,
+    "ProductId": "Product:FS-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Farbe|Weiß"
+  },
+  {
+    "$key": "Product:FS-1003|SpecificationAttributeOption:SpecificationAttribute:Material|Leder",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FS-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|Leder"
+  },
+  {
+    "$key": "Product:FS-1003|SpecificationAttributeOption:SpecificationAttribute:Saison|Ganzjährig",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FS-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Saison|Ganzjährig"
+  },
+  {
+    "$key": "Product:FS-1003|SpecificationAttributeOption:SpecificationAttribute:Zielgruppe|Unisex",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FS-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Zielgruppe|Unisex"
+  },
+  {
+    "$key": "Product:FS-1004|SpecificationAttributeOption:SpecificationAttribute:Material|Merinowolle",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FS-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|Merinowolle"
+  },
+  {
+    "$key": "Product:FS-1004|SpecificationAttributeOption:SpecificationAttribute:Saison|Herbst/Winter",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FS-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Saison|Herbst/Winter"
+  },
+  {
+    "$key": "Product:FS-1004|SpecificationAttributeOption:SpecificationAttribute:Zielgruppe|Unisex",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FS-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Zielgruppe|Unisex"
+  },
+  {
+    "$key": "Product:FS-1005|SpecificationAttributeOption:SpecificationAttribute:Material|Wolle",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FS-1005",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|Wolle"
+  },
+  {
+    "$key": "Product:FS-1005|SpecificationAttributeOption:SpecificationAttribute:Pflege|Handwäsche",
+    "AllowFiltering": false,
+    "DisplayOrder": 4,
+    "ProductId": "Product:FS-1005",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Pflege|Handwäsche"
+  },
+  {
+    "$key": "Product:FS-1005|SpecificationAttributeOption:SpecificationAttribute:Saison|Herbst/Winter",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FS-1005",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Saison|Herbst/Winter"
+  },
+  {
+    "$key": "Product:FS-1005|SpecificationAttributeOption:SpecificationAttribute:Zielgruppe|Unisex",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FS-1005",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Zielgruppe|Unisex"
+  },
+  {
+    "$key": "Product:FS-1006|SpecificationAttributeOption:SpecificationAttribute:Material|100% Bio-Baumwolle",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FS-1006",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|100% Bio-Baumwolle"
+  },
+  {
+    "$key": "Product:FS-1006|SpecificationAttributeOption:SpecificationAttribute:Passform|Normal",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FS-1006",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Passform|Normal"
+  },
+  {
+    "$key": "Product:FS-1006|SpecificationAttributeOption:SpecificationAttribute:Pflege|Maschinenwäsche 40 °C",
+    "AllowFiltering": false,
+    "DisplayOrder": 5,
+    "ProductId": "Product:FS-1006",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Pflege|Maschinenwäsche 40 °C"
+  },
+  {
+    "$key": "Product:FS-1006|SpecificationAttributeOption:SpecificationAttribute:Saison|Ganzjährig",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FS-1006",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Saison|Ganzjährig"
+  },
+  {
+    "$key": "Product:FS-1006|SpecificationAttributeOption:SpecificationAttribute:Zielgruppe|Unisex",
+    "AllowFiltering": true,
+    "DisplayOrder": 4,
+    "ProductId": "Product:FS-1006",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Zielgruppe|Unisex"
+  },
+  {
     "$key": "Product:Fashion-112355|SpecificationAttributeOption:SpecificationAttribute:Material|Baumwolle",
     "AllowFiltering": true,
     "DisplayOrder": 1,

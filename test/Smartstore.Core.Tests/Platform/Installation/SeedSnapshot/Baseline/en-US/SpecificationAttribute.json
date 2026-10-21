@@ -39,6 +39,19 @@
     "ShowOnProductPage": false
   },
   {
+    "$key": "Care",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 32,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Care",
+    "ShowOnProductPage": false
+  },
+  {
     "$key": "Category",
     "Alias": null,
     "AllowFiltering": false,
@@ -192,6 +205,19 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Facial shape",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Fit",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 30,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Fit",
     "ShowOnProductPage": false
   },
   {
@@ -481,6 +507,19 @@
     "ShowOnProductPage": false
   },
   {
+    "$key": "Season",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 31,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Season",
+    "ShowOnProductPage": false
+  },
+  {
     "$key": "Size",
     "Alias": null,
     "AllowFiltering": false,
@@ -582,6 +621,19 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Type of mass-storage",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Water resistance",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 33,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Water resistance",
     "ShowOnProductPage": false
   },
   {

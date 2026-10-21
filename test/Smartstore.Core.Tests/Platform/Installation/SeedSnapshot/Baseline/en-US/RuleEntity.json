@@ -46,5 +46,13 @@
     "RuleSetId": "RuleSetEntity:Weekends",
     "RuleType": "Weekday",
     "Value": "0,6"
+  },
+  {
+    "$key": "RuleSetEntity:|Variant32",
+    "DisplayOrder": 0,
+    "Operator": "In",
+    "RuleSetId": "RuleSetEntity:",
+    "RuleType": "Variant32",
+    "Value": "37"
   }
 ]

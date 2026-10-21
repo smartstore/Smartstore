@@ -352,6 +352,22 @@
     "SwatchSize": null
   },
   {
+    "$key": "print",
+    "Alias": "print",
+    "AllowFiltering": false,
+    "Description": null,
+    "DisplayOrder": 0,
+    "ExportMappings": null,
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Aufdruck",
+    "ShowValueNameInSwatch": false,
+    "SwatchAspectRatio": 1.0,
+    "SwatchPriceDisplay": "None",
+    "SwatchShape": null,
+    "SwatchSize": null
+  },
+  {
     "$key": "processor",
     "Alias": "processor",
     "AllowFiltering": false,

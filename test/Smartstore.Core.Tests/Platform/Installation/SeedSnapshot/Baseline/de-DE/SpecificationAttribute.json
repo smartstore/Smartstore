@@ -442,6 +442,32 @@
     "ShowOnProductPage": false
   },
   {
+    "$key": "Passform",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 30,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Passform",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Pflege",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 32,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Pflege",
+    "ShowOnProductPage": false
+  },
+  {
     "$key": "Röstung",
     "Alias": null,
     "AllowFiltering": false,
@@ -452,6 +478,19 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Röstung",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Saison",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 31,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Saison",
     "ShowOnProductPage": false
   },
   {
@@ -582,6 +621,19 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Verschluss",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Wetterschutz",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 33,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Wetterschutz",
     "ShowOnProductPage": false
   },
   {

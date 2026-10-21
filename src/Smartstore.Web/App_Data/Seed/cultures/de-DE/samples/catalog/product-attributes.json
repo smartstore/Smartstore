@@ -70,5 +70,8 @@
   },
   "grind": {
     "name": "Mahlgrad"
+  },
+  "print": {
+    "name": "Aufdruck"
   }
 }

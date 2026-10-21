@@ -48,6 +48,66 @@
     "ProductId": "Product:FD-1007"
   },
   {
+    "$key": "Product:FS-1001|MediaFile:fjord-rain-jacket-black.jpg",
+    "DisplayOrder": 2,
+    "MediaFileId": "MediaFile:fjord-rain-jacket-black.jpg",
+    "ProductId": "Product:FS-1001"
+  },
+  {
+    "$key": "Product:FS-1001|MediaFile:fjord-rain-jacket-navy.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:fjord-rain-jacket-navy.jpg",
+    "ProductId": "Product:FS-1001"
+  },
+  {
+    "$key": "Product:FS-1001|MediaFile:fjord-rain-jacket-olive.jpg",
+    "DisplayOrder": 3,
+    "MediaFileId": "MediaFile:fjord-rain-jacket-olive.jpg",
+    "ProductId": "Product:FS-1001"
+  },
+  {
+    "$key": "Product:FS-1001|MediaFile:fjord-rain-jacket-sand.jpg",
+    "DisplayOrder": 4,
+    "MediaFileId": "MediaFile:fjord-rain-jacket-sand.jpg",
+    "ProductId": "Product:FS-1001"
+  },
+  {
+    "$key": "Product:FS-1002|MediaFile:ribbed-knit-sweater.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:ribbed-knit-sweater.jpg",
+    "ProductId": "Product:FS-1002"
+  },
+  {
+    "$key": "Product:FS-1003|MediaFile:urban-leather-sneaker-black-gold.jpg",
+    "DisplayOrder": 2,
+    "MediaFileId": "MediaFile:urban-leather-sneaker-black-gold.jpg",
+    "ProductId": "Product:FS-1003"
+  },
+  {
+    "$key": "Product:FS-1003|MediaFile:urban-leather-sneaker-white.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:urban-leather-sneaker-white.jpg",
+    "ProductId": "Product:FS-1003"
+  },
+  {
+    "$key": "Product:FS-1004|MediaFile:merino-beanie.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:merino-beanie.jpg",
+    "ProductId": "Product:FS-1004"
+  },
+  {
+    "$key": "Product:FS-1005|MediaFile:wool-scarf.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:wool-scarf.jpg",
+    "ProductId": "Product:FS-1005"
+  },
+  {
+    "$key": "Product:FS-1006|MediaFile:organic-t-shirt-with-print.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:organic-t-shirt-with-print.jpg",
+    "ProductId": "Product:FS-1006"
+  },
+  {
     "$key": "Product:Fashion-112355|MediaFile:allstar-converse-charcoal.jpg",
     "DisplayOrder": 1,
     "MediaFileId": "MediaFile:allstar-converse-charcoal.jpg",

@@ -1,0 +1,355 @@
+// Key field: sku
+[
+  {
+    "name": "Fjord Rain Jacket",
+    "shortDescription": "Waterproof, breathable jacket with a hood, in four colours.",
+    "fullDescription": "@file",
+    "sku": "FS-1001",
+    "reviews": [
+      { "customer": "sophie", "rating": 5, "title": "Finally dry on the way to work", "reviewText": "Stays dry even in heavy rain and does not feel stuffy. The navy is a beautiful colour.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-50d" },
+      { "customer": "markus", "rating": 4, "title": "Good jacket, runs slightly large", "reviewText": "Very well made. I would order one size smaller next time.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-33d" },
+      { "customer": "laura", "rating": 5, "title": "My favourite jacket", "reviewText": "Light, warm enough with a sweater underneath and the hood stays in place.", "isApproved": true, "createdOnUtc": "@now-19d" },
+      { "customer": "tim", "rating": 4, "title": "Solid choice", "reviewText": "Good quality. Sadly black in XL was sold out, so I took olive, which I like a lot too.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-8d" }
+    ],
+    "taxCategory": "apparel",
+    "price": 189.00,
+    "deliveryTime": "available-and-ready-to-ship",
+    "manageInventoryMethod": "ManageStockByAttributes",
+    "attributeChoiceBehaviour": "GrayOutUnavailable",
+    "displayStockAvailability": true,
+    "showOnHomePage": true,
+    "categories": [ "Jackets and Coats" ],
+    "manufacturers": [ "norlumera" ],
+    "pictures": [
+      { "file": "product/demo-flat-navy.jpg", "name": "fjord-rain-jacket-navy", "displayOrder": 1 },
+      { "file": "product/demo-flat-black.jpg", "name": "fjord-rain-jacket-black", "displayOrder": 2 },
+      { "file": "product/demo-flat-olive.jpg", "name": "fjord-rain-jacket-olive", "displayOrder": 3 },
+      { "file": "product/demo-flat-sand.jpg", "name": "fjord-rain-jacket-sand", "displayOrder": 4 }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "material/polyamide", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "water-resistance/waterproof", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "fit/regular", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 3 },
+      { "specificationAttributeOption": "season/autumn-winter", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 4 },
+      { "specificationAttributeOption": "target-group/unisex", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 5 },
+      { "specificationAttributeOption": "care/machine-30", "allowFiltering": false, "showOnProductPage": true, "displayOrder": 6 }
+    ],
+    "variantAttributes": [
+      {
+        "productAttribute": "color",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "swatchSize": "Large",
+        "swatchShape": "Rounded",
+        "displayOrder": 1,
+        "values": [
+          { "name": "Navy", "alias": "navy", "color": "#24385C", "mediaFile": "product/demo-flat-navy.jpg", "isPreSelected": true, "displayOrder": 1 },
+          { "name": "Black", "alias": "black", "color": "#28292E", "mediaFile": "product/demo-flat-black.jpg", "displayOrder": 2 },
+          { "name": "Olive", "alias": "olive", "color": "#626A42", "mediaFile": "product/demo-flat-olive.jpg", "displayOrder": 3 },
+          { "name": "Sand", "alias": "sand", "color": "#CEBC96", "mediaFile": "product/demo-flat-sand.jpg", "displayOrder": 4 }
+        ]
+      },
+      {
+        "productAttribute": "size",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "swatchSize": "Small",
+        "swatchShape": "Rounded",
+        "showValueNameInSwatch": true,
+        "displayOrder": 2,
+        "values": [
+          { "name": "S", "alias": "s", "displayOrder": 1 },
+          { "name": "M", "alias": "m", "isPreSelected": true, "displayOrder": 2 },
+          { "name": "L", "alias": "l", "displayOrder": 3 },
+          { "name": "XL", "alias": "xl", "displayOrder": 4 },
+          { "name": "XXL", "alias": "xxl", "displayOrder": 5 }
+        ]
+      }
+    ],
+    "combinations": [
+      { "sku": "FS-1001-NVY-S", "stockQuantity": 12, "attributes": { "color": "navy", "size": "s" } },
+      { "sku": "FS-1001-NVY-M", "stockQuantity": 20, "attributes": { "color": "navy", "size": "m" } },
+      { "sku": "FS-1001-NVY-L", "stockQuantity": 18, "attributes": { "color": "navy", "size": "l" } },
+      { "sku": "FS-1001-NVY-XL", "stockQuantity": 9, "attributes": { "color": "navy", "size": "xl" } },
+      { "sku": "FS-1001-NVY-XXL", "stockQuantity": 4, "attributes": { "color": "navy", "size": "xxl" } },
+      { "sku": "FS-1001-BLK-S", "stockQuantity": 10, "attributes": { "color": "black", "size": "s" } },
+      { "sku": "FS-1001-BLK-M", "stockQuantity": 15, "attributes": { "color": "black", "size": "m" } },
+      { "sku": "FS-1001-BLK-L", "stockQuantity": 14, "attributes": { "color": "black", "size": "l" } },
+      { "sku": "FS-1001-BLK-XL", "stockQuantity": 0, "attributes": { "color": "black", "size": "xl" } },
+      { "sku": "FS-1001-BLK-XXL", "stockQuantity": 3, "attributes": { "color": "black", "size": "xxl" } },
+      { "sku": "FS-1001-OLV-S", "stockQuantity": 0, "attributes": { "color": "olive", "size": "s" } },
+      { "sku": "FS-1001-OLV-M", "stockQuantity": 8, "attributes": { "color": "olive", "size": "m" } },
+      { "sku": "FS-1001-OLV-L", "stockQuantity": 7, "attributes": { "color": "olive", "size": "l" } },
+      { "sku": "FS-1001-OLV-XL", "stockQuantity": 5, "attributes": { "color": "olive", "size": "xl" } },
+      { "sku": "FS-1001-OLV-XXL", "stockQuantity": 2, "attributes": { "color": "olive", "size": "xxl" } },
+      { "sku": "FS-1001-SND-S", "stockQuantity": 6, "attributes": { "color": "sand", "size": "s" } },
+      { "sku": "FS-1001-SND-M", "stockQuantity": 9, "attributes": { "color": "sand", "size": "m" } },
+      { "sku": "FS-1001-SND-L", "stockQuantity": 6, "attributes": { "color": "sand", "size": "l" } },
+      { "sku": "FS-1001-SND-XL", "stockQuantity": 3, "attributes": { "color": "sand", "size": "xl" } },
+      { "sku": "FS-1001-SND-XXL", "stockQuantity": 0, "attributes": { "color": "sand", "size": "xxl" } }
+    ]
+  },
+  {
+    "name": "Ribbed Knit Sweater",
+    "shortDescription": "Soft ribbed knit sweater in a relaxed fit, in wool blend or merino wool.",
+    "fullDescription": "@file",
+    "sku": "FS-1002",
+    "reviews": [
+      { "customer": "anna", "rating": 5, "title": "So soft", "reviewText": "I took the merino version and it does not itch at all. Worth the extra money.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-27d" },
+      { "customer": "laura", "rating": 4, "title": "Lovely relaxed fit", "reviewText": "The grey melange looks great. It is quite wide, as described.", "isApproved": true, "createdOnUtc": "@now-12d" }
+    ],
+    "taxCategory": "apparel",
+    "price": 89.00,
+    "deliveryTime": "available-and-ready-to-ship",
+    "stockQuantity": 60,
+    "categories": [ "Apparel" ],
+    "manufacturers": [ "norlumera" ],
+    "pictures": [
+      { "file": "product/demo-flat.jpg", "name": "ribbed-knit-sweater" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "material/wool", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "fit/oversized", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "season/autumn-winter", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 3 },
+      { "specificationAttributeOption": "target-group/women", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 4 },
+      { "specificationAttributeOption": "care/hand-wash", "allowFiltering": false, "showOnProductPage": true, "displayOrder": 5 }
+    ],
+    "variantAttributes": [
+      {
+        "productAttribute": "color",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "swatchSize": "XLarge",
+        "swatchShape": "Rounded",
+        "displayOrder": 1,
+        "values": [
+          { "name": "Grey melange", "alias": "grey-melange", "color": "#9AA0A6", "additionalColors": [ "#E8E8E8" ], "isPreSelected": true, "displayOrder": 1 },
+          { "name": "Navy striped", "alias": "navy-striped", "color": "#24385C", "additionalColors": [ "#FFFFFF" ], "displayOrder": 2 },
+          { "name": "Forest green", "alias": "forest-green", "color": "#2F4F3A", "displayOrder": 3 }
+        ]
+      },
+      {
+        "productAttribute": "size",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "swatchShape": "Rounded",
+        "swatchAspectRatio": 1.6,
+        "showValueNameInSwatch": true,
+        "displayOrder": 2,
+        "values": [
+          { "name": "XS", "alias": "xs", "displayOrder": 1 },
+          { "name": "S", "alias": "s", "displayOrder": 2 },
+          { "name": "M", "alias": "m", "isPreSelected": true, "displayOrder": 3 },
+          { "name": "L", "alias": "l", "displayOrder": 4 },
+          { "name": "XL", "alias": "xl", "displayOrder": 5 }
+        ]
+      },
+      {
+        "productAttribute": "material",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "swatchShape": "Rect",
+        "showValueNameInSwatch": true,
+        "swatchPriceDisplay": "Adjustment",
+        "displayOrder": 3,
+        "values": [
+          { "name": "Wool blend", "alias": "wool-blend", "isPreSelected": true, "displayOrder": 1 },
+          { "name": "Merino wool", "alias": "merino", "priceAdjustment": 20.00, "displayOrder": 2 }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Urban Leather Sneaker",
+    "shortDescription": "Minimalist leather sneaker, also as a limited black and gold edition.",
+    "fullDescription": "@file",
+    "sku": "FS-1003",
+    "reviews": [
+      { "customer": "jonas", "rating": 5, "title": "Goes with everything", "reviewText": "Comfortable from day one and the white leather is easy to clean.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-40d" },
+      { "customer": "tim", "rating": 4, "title": "Limited edition is a real eye-catcher", "reviewText": "The black and gold version gets a lot of compliments. A bit pricey, though.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-22d" },
+      { "customer": "anna", "rating": 2, "title": "Too narrow for me", "reviewText": "Nice look, but too narrow for wide feet. I sent them back.", "isApproved": true, "createdOnUtc": "@now-15d" },
+      { "customer": "sophie", "rating": 4, "title": "Good everyday sneaker", "reviewText": "Fits true to size. My size was briefly sold out but came back quickly.", "isApproved": true, "createdOnUtc": "@now-5d" }
+    ],
+    "taxCategory": "apparel",
+    "price": 89.00,
+    "deliveryTime": "2-5-working-days",
+    "manageInventoryMethod": "ManageStockByAttributes",
+    "attributeChoiceBehaviour": "None",
+    "displayStockAvailability": true,
+    "categories": [ "Footwear" ],
+    "manufacturers": [ "norlumera" ],
+    "pictures": [
+      { "file": "product/demo-flat-sand.jpg", "name": "urban-leather-sneaker-white", "displayOrder": 1 },
+      { "file": "product/demo-flat-black.jpg", "name": "urban-leather-sneaker-black-gold", "displayOrder": 2 }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "material/leather", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "season/all-year", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "target-group/unisex", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 3 },
+      { "specificationAttributeOption": "color/white", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 4 },
+      { "specificationAttributeOption": "color/black", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 4 }
+    ],
+    "variantAttributes": [
+      {
+        "productAttribute": "color",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "swatchSize": "XLarge",
+        "swatchShape": "Rounded",
+        "displayOrder": 1,
+        "values": [
+          { "name": "White", "alias": "white", "color": "#F4F1EA", "mediaFile": "product/demo-flat-sand.jpg", "isPreSelected": true, "displayOrder": 1 },
+          { "name": "Black/gold (limited)", "alias": "black-gold", "color": "#1E1E1E", "additionalColors": [ "#C9A227" ], "mediaFile": "product/demo-flat-black.jpg", "displayOrder": 2 }
+        ]
+      },
+      {
+        "productAttribute": "size",
+        "isRequired": true,
+        "attributeControlType": "DropdownList",
+        "displayOrder": 2,
+        "values": [
+          { "name": "39", "alias": "eu-39", "displayOrder": 1 },
+          { "name": "40", "alias": "eu-40", "displayOrder": 2 },
+          { "name": "41", "alias": "eu-41", "displayOrder": 3 },
+          { "name": "42", "alias": "eu-42", "isPreSelected": true, "displayOrder": 4 },
+          { "name": "43", "alias": "eu-43", "displayOrder": 5 },
+          { "name": "44", "alias": "eu-44", "displayOrder": 6 },
+          { "name": "45", "alias": "eu-45", "displayOrder": 7 }
+        ]
+      }
+    ],
+    "combinations": [
+      { "sku": "FS-1003-WHT-39", "price": 89.00, "stockQuantity": 4, "attributes": { "color": "white", "size": "eu-39" } },
+      { "sku": "FS-1003-WHT-40", "price": 89.00, "stockQuantity": 7, "attributes": { "color": "white", "size": "eu-40" } },
+      { "sku": "FS-1003-WHT-41", "price": 89.00, "stockQuantity": 0, "attributes": { "color": "white", "size": "eu-41" } },
+      { "sku": "FS-1003-WHT-42", "price": 89.00, "stockQuantity": 10, "attributes": { "color": "white", "size": "eu-42" } },
+      { "sku": "FS-1003-WHT-43", "price": 89.00, "stockQuantity": 8, "attributes": { "color": "white", "size": "eu-43" } },
+      { "sku": "FS-1003-WHT-44", "price": 89.00, "stockQuantity": 5, "attributes": { "color": "white", "size": "eu-44" } },
+      { "sku": "FS-1003-WHT-45", "price": 89.00, "stockQuantity": 0, "attributes": { "color": "white", "size": "eu-45" } },
+      { "sku": "FS-1003-BKG-39", "price": 109.00, "stockQuantity": 0, "attributes": { "color": "black-gold", "size": "eu-39" } },
+      { "sku": "FS-1003-BKG-40", "price": 109.00, "stockQuantity": 2, "attributes": { "color": "black-gold", "size": "eu-40" } },
+      { "sku": "FS-1003-BKG-41", "price": 109.00, "stockQuantity": 3, "attributes": { "color": "black-gold", "size": "eu-41" } },
+      { "sku": "FS-1003-BKG-42", "price": 109.00, "stockQuantity": 1, "attributes": { "color": "black-gold", "size": "eu-42" } },
+      { "sku": "FS-1003-BKG-43", "price": 109.00, "stockQuantity": 0, "attributes": { "color": "black-gold", "size": "eu-43" } },
+      { "sku": "FS-1003-BKG-44", "price": 109.00, "stockQuantity": 2, "attributes": { "color": "black-gold", "size": "eu-44" } },
+      { "sku": "FS-1003-BKG-45", "price": 109.00, "stockQuantity": 1, "attributes": { "color": "black-gold", "size": "eu-45" } }
+    ]
+  },
+  {
+    "name": "Merino Beanie",
+    "shortDescription": "Warm, fine-knit beanie made of merino wool, one size.",
+    "fullDescription": "@file",
+    "sku": "FS-1004",
+    "taxCategory": "apparel",
+    "price": 24.90,
+    "createdOnUtc": "@now-5d",
+    "deliveryTime": "available-and-ready-to-ship",
+    "stockQuantity": 45,
+    "categories": [ "Apparel" ],
+    "manufacturers": [ "norlumera" ],
+    "pictures": [
+      { "file": "product/demo-flat-olive.jpg", "name": "merino-beanie" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "material/merino-wool", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "season/autumn-winter", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "target-group/unisex", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 3 }
+    ]
+  },
+  {
+    "name": "Wool Scarf",
+    "shortDescription": "Long, soft scarf made of wool, at a special price for a limited time.",
+    "fullDescription": "@file",
+    "sku": "FS-1005",
+    "taxCategory": "apparel",
+    "price": 39.90,
+    "specialPrice": 29.90,
+    "specialPriceStartDateTimeUtc": "@now-7d",
+    "specialPriceEndDateTimeUtc": "@now+1M",
+    "orderMaximumQuantity": 110,
+    "quantityStep": 1,
+    "deliveryTime": "available-and-ready-to-ship",
+    "stockQuantity": 30,
+    "categories": [ "Apparel" ],
+    "manufacturers": [ "norlumera" ],
+    "pictures": [
+      { "file": "product/demo-flat-navy.jpg", "name": "wool-scarf" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "material/wool", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "season/autumn-winter", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "target-group/unisex", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 3 },
+      { "specificationAttributeOption": "care/hand-wash", "allowFiltering": false, "showOnProductPage": true, "displayOrder": 4 }
+    ]
+  },
+  {
+    "name": "Organic T-Shirt with Your Print",
+    "shortDescription": "Organic cotton T-shirt, plain or with a text of your choice.",
+    "fullDescription": "@file",
+    "sku": "FS-1006",
+    "reviews": [
+      { "customer": "markus", "rating": 5, "title": "Great gift idea", "reviewText": "Ordered one with the name of our football team. The print is sharp and survives the washing machine.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-10d" }
+    ],
+    "taxCategory": "apparel",
+    "price": 19.90,
+    "deliveryTime": "2-5-working-days",
+    "stockQuantity": 200,
+    "categories": [ "Apparel" ],
+    "manufacturers": [ "norlumera" ],
+    "pictures": [
+      { "file": "product/demo-flat.jpg", "name": "organic-t-shirt-with-print" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "material/100-organic-cotton", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "fit/regular", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "season/all-year", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 3 },
+      { "specificationAttributeOption": "target-group/unisex", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 4 },
+      { "specificationAttributeOption": "care/machine-40", "allowFiltering": false, "showOnProductPage": true, "displayOrder": 5 }
+    ],
+    "variantAttributes": [
+      {
+        "productAttribute": "color",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "swatchSize": "Large",
+        "swatchShape": "Circle",
+        "displayOrder": 1,
+        "values": [
+          { "name": "White", "alias": "white", "color": "#FFFFFF", "isPreSelected": true, "displayOrder": 1 },
+          { "name": "Black", "alias": "black", "color": "#28292E", "displayOrder": 2 },
+          { "name": "Navy", "alias": "navy", "color": "#24385C", "displayOrder": 3 }
+        ]
+      },
+      {
+        "productAttribute": "size",
+        "isRequired": true,
+        "attributeControlType": "DropdownList",
+        "displayOrder": 2,
+        "values": [
+          { "name": "S", "alias": "s", "displayOrder": 1 },
+          { "name": "M", "alias": "m", "isPreSelected": true, "displayOrder": 2 },
+          { "name": "L", "alias": "l", "displayOrder": 3 },
+          { "name": "XL", "alias": "xl", "displayOrder": 4 }
+        ]
+      },
+      {
+        "productAttribute": "print",
+        "isRequired": true,
+        "attributeControlType": "RadioList",
+        "displayOrder": 3,
+        "values": [
+          { "name": "Without print", "alias": "print-none", "isPreSelected": true, "displayOrder": 1 },
+          { "name": "With print", "alias": "print-text", "priceAdjustment": 15.00, "displayOrder": 2 }
+        ]
+      },
+      {
+        "productAttribute": "custom-text",
+        "textPrompt": "Your text (max. 20 characters)",
+        "visibleWhen": { "print": [ "print-text" ] },
+        "isRequired": false,
+        "attributeControlType": "TextBox",
+        "displayOrder": 4
+      }
+    ]
+  }
+]

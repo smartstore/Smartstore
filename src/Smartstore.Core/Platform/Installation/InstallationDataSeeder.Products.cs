@@ -11,6 +11,7 @@ using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Installation.Seeding;
 using Smartstore.Core.Seo;
 using Smartstore.Json;
@@ -119,20 +120,29 @@ public partial class InstallationDataSeeder
         await PopulateAsync("PopulateProductVariantAttributes", async () =>
         {
             var attributes = new List<ProductVariantAttribute>();
+            var visibilityRules = new List<(Product Product, ProductVariantAttribute Attribute, JsonObject Conditions)>();
             foreach (var (product, records, source) in state.VariantAttributes)
             {
                 var values = new SeedEntityDescriptor<ProductVariantAttributeValue>("alias")
-                    .Bind("mediaFile", (value, node, _) => value.MediaFileId = ResolveProductMedia(product, node, state).Id);
+                    .Bind("mediaFile", (value, node, _) => value.MediaFileId = ResolveProductMedia(product, node, state).Id)
+                    .Bind("additionalColors", (value, node, _) => value.AdditionalColors = node.Deserialize<string[]>());
 
                 var descriptor = new SeedEntityDescriptor<ProductVariantAttribute>("productAttribute")
                     .Reference<ProductAttribute>("productAttribute", (pva, attribute) => pva.ProductAttribute = attribute)
                     .Child("values", x => x.ProductVariantAttributeValues, values)
+                    .Bind("visibleWhen", (pva, node, _) => visibilityRules.Add((product, pva, node.AsObject())))
                     .OnCreated((pva, _) => pva.Product = product);
 
                 attributes.AddRange(records.Select(x => _seedFactory.Create(ChildRecord(product, x, "productAttribute", source), descriptor)));
             }
 
             await SaveRangeAsync(attributes);
+
+            if (visibilityRules.Count > 0)
+            {
+                Context.RuleSets.AddRange(visibilityRules.Select(x => CreateVisibilityRuleSet(x.Product, x.Attribute, x.Conditions)));
+                await Context.SaveChangesAsync();
+            }
         });
 
         await PopulateAsync("ProductVariantAttributeCombinations", async () =>
@@ -161,6 +171,39 @@ public partial class InstallationDataSeeder
 
             await Context.SaveChangesAsync();
         });
+    }
+
+    /// <summary>
+    /// Creates the rule set that only shows an attribute if other attributes of the product have certain values,
+    /// e.g. <c>"visibleWhen": { "print": [ "print-text" ] }</c>. The rules are evaluated by the AttributeRules module
+    /// and follow its naming ("Variant{ProductAttributeId}"). Without the module they have no effect.
+    /// </summary>
+    private RuleSetEntity CreateVisibilityRuleSet(Product product, ProductVariantAttribute attribute, JsonObject conditions)
+    {
+        var ruleSet = new RuleSetEntity
+        {
+            Scope = RuleScope.ProductAttribute,
+            IsActive = true,
+            LogicalOperator = LogicalRuleOperator.And,
+            ProductVariantAttributeId = attribute.Id
+        };
+
+        var displayOrder = 0;
+        foreach (var (attributeKey, valueKeys) in conditions)
+        {
+            var valueIds = valueKeys.AsArray()
+                .Select(x => _seedResolver.GetId<ProductVariantAttributeValue>($"{product.Sku}/{attributeKey}/{x.GetValue<string>()}"));
+
+            ruleSet.Rules.Add(new RuleEntity
+            {
+                RuleType = $"Variant{_seedResolver.GetId<ProductAttribute>(attributeKey)}",
+                Operator = RuleOperator.In.Operator,
+                Value = string.Join(',', valueIds),
+                DisplayOrder = displayOrder++
+            });
+        }
+
+        return ruleSet;
     }
 
     private SeedEntityDescriptor<Product> ProductDescriptor(ProductSeedState state)

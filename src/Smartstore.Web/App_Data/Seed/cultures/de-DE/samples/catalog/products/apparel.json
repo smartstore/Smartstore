@@ -1,0 +1,54 @@
+{
+  "FS-1001": {
+    "name": "Regenjacke Fjord",
+    "shortDescription": "Wasserdichte, atmungsaktive Jacke mit Kapuze, in vier Farben.",
+    "fullDescription": "@file",
+    "reviews": [
+      { "customer": "sophie", "rating": 5, "title": "Endlich trocken zur Arbeit", "reviewText": "Bleibt auch bei starkem Regen dicht und wirkt nicht stickig. Das Marineblau ist eine schöne Farbe.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-50d" },
+      { "customer": "markus", "rating": 4, "title": "Gute Jacke, fällt etwas groß aus", "reviewText": "Sehr gut verarbeitet. Beim nächsten Mal würde ich eine Größe kleiner bestellen.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-33d" },
+      { "customer": "laura", "rating": 5, "title": "Meine Lieblingsjacke", "reviewText": "Leicht, mit Pullover darunter warm genug, und die Kapuze sitzt.", "isApproved": true, "createdOnUtc": "@now-19d" },
+      { "customer": "tim", "rating": 4, "title": "Solide Wahl", "reviewText": "Gute Qualität. Schwarz in XL war leider ausverkauft, also habe ich Oliv genommen, das mir auch sehr gefällt.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-8d" }
+    ]
+  },
+  "FS-1002": {
+    "name": "Rippstrick-Pullover",
+    "shortDescription": "Weicher Rippstrick-Pullover mit lockerer Passform, aus Wollmischung oder Merinowolle.",
+    "fullDescription": "@file",
+    "reviews": [
+      { "customer": "anna", "rating": 5, "title": "So weich", "reviewText": "Ich habe die Merino-Variante genommen, sie kratzt überhaupt nicht. Den Aufpreis wert.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-27d" },
+      { "customer": "laura", "rating": 4, "title": "Schöne lockere Passform", "reviewText": "Das Grau meliert sieht toll aus. Er ist recht weit geschnitten, wie beschrieben.", "isApproved": true, "createdOnUtc": "@now-12d" }
+    ]
+  },
+  "FS-1003": {
+    "name": "Leder-Sneaker Urban",
+    "shortDescription": "Schlichter Leder-Sneaker, auch als limitierte Edition in Schwarz/Gold.",
+    "fullDescription": "@file",
+    "reviews": [
+      { "customer": "jonas", "rating": 5, "title": "Passt zu allem", "reviewText": "Vom ersten Tag an bequem, und das weiße Leder lässt sich leicht reinigen.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-40d" },
+      { "customer": "tim", "rating": 4, "title": "Die limitierte Edition ist ein Hingucker", "reviewText": "Für die Variante in Schwarz/Gold bekomme ich viele Komplimente. Allerdings etwas teuer.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-22d" },
+      { "customer": "anna", "rating": 2, "title": "Zu schmal für mich", "reviewText": "Schöne Optik, aber für breite Füße zu schmal. Ich habe sie zurückgeschickt.", "isApproved": true, "createdOnUtc": "@now-15d" },
+      { "customer": "sophie", "rating": 4, "title": "Guter Alltags-Sneaker", "reviewText": "Fällt normal aus. Meine Größe war kurz ausverkauft, kam aber schnell wieder.", "isApproved": true, "createdOnUtc": "@now-5d" }
+    ]
+  },
+  "FS-1004": {
+    "name": "Merino-Mütze",
+    "shortDescription": "Warme, fein gestrickte Mütze aus Merinowolle, Einheitsgröße.",
+    "fullDescription": "@file"
+  },
+  "FS-1005": {
+    "name": "Wollschal",
+    "shortDescription": "Langer, weicher Schal aus Wolle, für kurze Zeit zum Sonderpreis.",
+    "fullDescription": "@file"
+  },
+  "FS-1006": {
+    "name": "Bio-T-Shirt mit Wunschaufdruck",
+    "shortDescription": "T-Shirt aus Bio-Baumwolle, schlicht oder mit einem Text Ihrer Wahl.",
+    "fullDescription": "@file",
+    "variantAttributes": {
+      "custom-text": { "textPrompt": "Ihr Text (max. 20 Zeichen)" }
+    },
+    "reviews": [
+      { "customer": "markus", "rating": 5, "title": "Tolle Geschenkidee", "reviewText": "Eines mit dem Namen unserer Fußballmannschaft bestellt. Der Druck ist scharf und übersteht die Waschmaschine.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-10d" }
+    ]
+  }
+}

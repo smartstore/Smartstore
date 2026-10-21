@@ -1600,6 +1600,16 @@
     "SpecificationAttributeId": "SpecificationAttribute:Material"
   },
   {
+    "$key": "SpecificationAttribute:Material|Merinowolle",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 18,
+    "MediaFileId": 0,
+    "Name": "Merinowolle",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Material"
+  },
+  {
     "$key": "SpecificationAttribute:Material|Nylon",
     "Alias": null,
     "Color": null,
@@ -1646,6 +1656,16 @@
     "DisplayOrder": 2,
     "MediaFileId": 0,
     "Name": "Titan",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Material"
+  },
+  {
+    "$key": "SpecificationAttribute:Material|Wolle",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 17,
+    "MediaFileId": 0,
+    "Name": "Wolle",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Material"
   },
@@ -1730,6 +1750,66 @@
     "SpecificationAttributeId": "SpecificationAttribute:Olivensorte"
   },
   {
+    "$key": "SpecificationAttribute:Passform|Normal",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Normal",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Passform"
+  },
+  {
+    "$key": "SpecificationAttribute:Passform|Schmal",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Schmal",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Passform"
+  },
+  {
+    "$key": "SpecificationAttribute:Passform|Weit",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Weit",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Passform"
+  },
+  {
+    "$key": "SpecificationAttribute:Pflege|Handwäsche",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Handwäsche",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Pflege"
+  },
+  {
+    "$key": "SpecificationAttribute:Pflege|Maschinenwäsche 30 °C",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Maschinenwäsche 30 °C",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Pflege"
+  },
+  {
+    "$key": "SpecificationAttribute:Pflege|Maschinenwäsche 40 °C",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Maschinenwäsche 40 °C",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Pflege"
+  },
+  {
     "$key": "SpecificationAttribute:Röstung|Dunkel",
     "Alias": null,
     "Color": null,
@@ -1758,6 +1838,36 @@
     "Name": "Mittel",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Röstung"
+  },
+  {
+    "$key": "SpecificationAttribute:Saison|Frühjahr/Sommer",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Frühjahr/Sommer",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Saison"
+  },
+  {
+    "$key": "SpecificationAttribute:Saison|Ganzjährig",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Ganzjährig",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Saison"
+  },
+  {
+    "$key": "SpecificationAttribute:Saison|Herbst/Winter",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Herbst/Winter",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Saison"
   },
   {
     "$key": "SpecificationAttribute:Scheibenmaterial|Mineral",
@@ -2048,6 +2158,26 @@
     "Name": "Sicherheitsfaltschließe",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Verschluss#2"
+  },
+  {
+    "$key": "SpecificationAttribute:Wetterschutz|Wasserabweisend",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Wasserabweisend",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Wetterschutz"
+  },
+  {
+    "$key": "SpecificationAttribute:Wetterschutz|Wasserdicht",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Wasserdicht",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Wetterschutz"
   },
   {
     "$key": "SpecificationAttribute:Zielgruppe|Damen",

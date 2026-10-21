@@ -100,6 +100,36 @@
     "SpecificationAttributeId": "SpecificationAttribute:CPU-Manufacturer"
   },
   {
+    "$key": "SpecificationAttribute:Care|Hand wash",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Hand wash",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Care"
+  },
+  {
+    "$key": "SpecificationAttribute:Care|Machine wash 30 °C",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Machine wash 30 °C",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Care"
+  },
+  {
+    "$key": "SpecificationAttribute:Care|Machine wash 40 °C",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Machine wash 40 °C",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Care"
+  },
+  {
     "$key": "SpecificationAttribute:Category|adventure",
     "Alias": null,
     "Color": null,
@@ -558,6 +588,36 @@
     "Name": "round",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Facial shape"
+  },
+  {
+    "$key": "SpecificationAttribute:Fit|Oversized",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Oversized",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Fit"
+  },
+  {
+    "$key": "SpecificationAttribute:Fit|Regular",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Regular",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Fit"
+  },
+  {
+    "$key": "SpecificationAttribute:Fit|Slim",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Slim",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Fit"
   },
   {
     "$key": "SpecificationAttribute:Flavour|Fruity",
@@ -1150,6 +1210,16 @@
     "SpecificationAttributeId": "SpecificationAttribute:Material"
   },
   {
+    "$key": "SpecificationAttribute:Material|merino wool",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 18,
+    "MediaFileId": 0,
+    "Name": "merino wool",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Material"
+  },
+  {
     "$key": "SpecificationAttribute:Material|nylon",
     "Alias": null,
     "Color": null,
@@ -1246,6 +1316,16 @@
     "DisplayOrder": 13,
     "MediaFileId": 0,
     "Name": "wood",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Material"
+  },
+  {
+    "$key": "SpecificationAttribute:Material|wool",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 17,
+    "MediaFileId": 0,
+    "Name": "wool",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Material"
   },
@@ -1810,6 +1890,36 @@
     "SpecificationAttributeId": "SpecificationAttribute:Roast"
   },
   {
+    "$key": "SpecificationAttribute:Season|All year",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "All year",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Season"
+  },
+  {
+    "$key": "SpecificationAttribute:Season|Autumn/Winter",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Autumn/Winter",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Season"
+  },
+  {
+    "$key": "SpecificationAttribute:Season|Spring/Summer",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Spring/Summer",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Season"
+  },
+  {
     "$key": "SpecificationAttribute:Size (ext. HDD)|2.5",
     "Alias": null,
     "Color": null,
@@ -2068,6 +2178,26 @@
     "Name": "SSD",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Type of mass-storage"
+  },
+  {
+    "$key": "SpecificationAttribute:Water resistance|Water-repellent",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Water-repellent",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Water resistance"
+  },
+  {
+    "$key": "SpecificationAttribute:Water resistance|Waterproof",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Waterproof",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Water resistance"
   },
   {
     "$key": "SpecificationAttribute:Window material|mineral",

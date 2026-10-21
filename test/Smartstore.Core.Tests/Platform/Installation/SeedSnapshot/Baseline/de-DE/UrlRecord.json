@@ -576,6 +576,54 @@
     "Slug": "weihnachtliche-gewuerzkekse"
   },
   {
+    "$key": "Product|Product:FS-1001|0|regenjacke-fjord",
+    "EntityId": "Product:FS-1001",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "regenjacke-fjord"
+  },
+  {
+    "$key": "Product|Product:FS-1002|0|rippstrick-pullover",
+    "EntityId": "Product:FS-1002",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "rippstrick-pullover"
+  },
+  {
+    "$key": "Product|Product:FS-1003|0|leder-sneaker-urban",
+    "EntityId": "Product:FS-1003",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "leder-sneaker-urban"
+  },
+  {
+    "$key": "Product|Product:FS-1004|0|merino-muetze",
+    "EntityId": "Product:FS-1004",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "merino-muetze"
+  },
+  {
+    "$key": "Product|Product:FS-1005|0|wollschal",
+    "EntityId": "Product:FS-1005",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "wollschal"
+  },
+  {
+    "$key": "Product|Product:FS-1006|0|bio-t-shirt-mit-wunschaufdruck",
+    "EntityId": "Product:FS-1006",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "bio-t-shirt-mit-wunschaufdruck"
+  },
+  {
     "$key": "Product|Product:Fashion-112355|0|converse-all-star",
     "EntityId": "Product:Fashion-112355",
     "EntityName": "Product",

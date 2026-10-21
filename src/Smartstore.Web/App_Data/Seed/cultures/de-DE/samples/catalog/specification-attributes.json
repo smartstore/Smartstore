@@ -103,6 +103,12 @@
       },
       "polyester": {
         "name": "Polyester"
+      },
+      "wool": {
+        "name": "Wolle"
+      },
+      "merino-wool": {
+        "name": "Merinowolle"
       }
     }
   },
@@ -478,6 +484,37 @@
     "options": {
       "stand-bag": { "name": "Standbag" },
       "cart-bag": { "name": "Cartbag" }
+    }
+  },
+  "fit": {
+    "name": "Passform",
+    "options": {
+      "slim": { "name": "Schmal" },
+      "regular": { "name": "Normal" },
+      "oversized": { "name": "Weit" }
+    }
+  },
+  "season": {
+    "name": "Saison",
+    "options": {
+      "spring-summer": { "name": "Frühjahr/Sommer" },
+      "autumn-winter": { "name": "Herbst/Winter" },
+      "all-year": { "name": "Ganzjährig" }
+    }
+  },
+  "care": {
+    "name": "Pflege",
+    "options": {
+      "machine-30": { "name": "Maschinenwäsche 30 °C" },
+      "machine-40": { "name": "Maschinenwäsche 40 °C" },
+      "hand-wash": { "name": "Handwäsche" }
+    }
+  },
+  "water-resistance": {
+    "name": "Wetterschutz",
+    "options": {
+      "water-repellent": { "name": "Wasserabweisend" },
+      "waterproof": { "name": "Wasserdicht" }
     }
   }
 }

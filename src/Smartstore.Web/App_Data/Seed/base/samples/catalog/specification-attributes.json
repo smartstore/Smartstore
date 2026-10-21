@@ -340,6 +340,16 @@
         "key": "polyester",
         "name": "polyester",
         "displayOrder": 16
+      },
+      {
+        "key": "wool",
+        "name": "wool",
+        "displayOrder": 17
+      },
+      {
+        "key": "merino-wool",
+        "name": "merino wool",
+        "displayOrder": 18
       }
     ]
   },
@@ -1140,6 +1150,45 @@
     "options": [
       { "key": "stand-bag", "name": "Stand bag", "displayOrder": 1 },
       { "key": "cart-bag", "name": "Cart bag", "displayOrder": 2 }
+    ]
+  },
+  {
+    "key": "fit",
+    "name": "Fit",
+    "displayOrder": 30,
+    "options": [
+      { "key": "slim", "name": "Slim", "displayOrder": 1 },
+      { "key": "regular", "name": "Regular", "displayOrder": 2 },
+      { "key": "oversized", "name": "Oversized", "displayOrder": 3 }
+    ]
+  },
+  {
+    "key": "season",
+    "name": "Season",
+    "displayOrder": 31,
+    "options": [
+      { "key": "spring-summer", "name": "Spring/Summer", "displayOrder": 1 },
+      { "key": "autumn-winter", "name": "Autumn/Winter", "displayOrder": 2 },
+      { "key": "all-year", "name": "All year", "displayOrder": 3 }
+    ]
+  },
+  {
+    "key": "care",
+    "name": "Care",
+    "displayOrder": 32,
+    "options": [
+      { "key": "machine-30", "name": "Machine wash 30 °C", "displayOrder": 1 },
+      { "key": "machine-40", "name": "Machine wash 40 °C", "displayOrder": 2 },
+      { "key": "hand-wash", "name": "Hand wash", "displayOrder": 3 }
+    ]
+  },
+  {
+    "key": "water-resistance",
+    "name": "Water resistance",
+    "displayOrder": 33,
+    "options": [
+      { "key": "water-repellent", "name": "Water-repellent", "displayOrder": 1 },
+      { "key": "waterproof", "name": "Waterproof", "displayOrder": 2 }
     ]
   }
 ]

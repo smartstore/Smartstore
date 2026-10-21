@@ -1,5 +1,18 @@
 [
   {
+    "$key": "",
+    "CreatedOnUtc": "0001-01-01T00:00:00",
+    "Description": null,
+    "IsActive": true,
+    "IsSubGroup": false,
+    "LastProcessedOnUtc": null,
+    "LogicalOperator": "And",
+    "Name": null,
+    "ProductVariantAttributeId": "ProductVariantAttribute:Product:FS-1006|ProductAttribute:custom-text",
+    "Scope": "ProductAttribute",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "Inactive new customers",
     "CreatedOnUtc": "0001-01-01T00:00:00",
     "Description": "One completed order placed at least 90 days ago.",

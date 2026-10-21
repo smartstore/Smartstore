@@ -576,6 +576,54 @@
     "Slug": "spiced-christmas-cookies"
   },
   {
+    "$key": "Product|Product:FS-1001|0|fjord-rain-jacket",
+    "EntityId": "Product:FS-1001",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "fjord-rain-jacket"
+  },
+  {
+    "$key": "Product|Product:FS-1002|0|ribbed-knit-sweater",
+    "EntityId": "Product:FS-1002",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "ribbed-knit-sweater"
+  },
+  {
+    "$key": "Product|Product:FS-1003|0|urban-leather-sneaker",
+    "EntityId": "Product:FS-1003",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "urban-leather-sneaker"
+  },
+  {
+    "$key": "Product|Product:FS-1004|0|merino-beanie",
+    "EntityId": "Product:FS-1004",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "merino-beanie"
+  },
+  {
+    "$key": "Product|Product:FS-1005|0|wool-scarf",
+    "EntityId": "Product:FS-1005",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "wool-scarf"
+  },
+  {
+    "$key": "Product|Product:FS-1006|0|organic-t-shirt-with-your-print",
+    "EntityId": "Product:FS-1006",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "organic-t-shirt-with-your-print"
+  },
+  {
     "$key": "Product|Product:Fashion-112355|0|converse-all-star",
     "EntityId": "Product:Fashion-112355",
     "EntityName": "Product",

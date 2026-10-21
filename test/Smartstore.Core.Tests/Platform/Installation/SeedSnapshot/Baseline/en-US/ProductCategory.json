@@ -64,6 +64,54 @@
     "ProductId": "Product:FD-1007"
   },
   {
+    "$key": "Product:FS-1001|Category:Jackets and Coats",
+    "CategoryId": "Category:Jackets and Coats",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "IsSystemMapping": false,
+    "ProductId": "Product:FS-1001"
+  },
+  {
+    "$key": "Product:FS-1002|Category:Apparel",
+    "CategoryId": "Category:Apparel",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "IsSystemMapping": false,
+    "ProductId": "Product:FS-1002"
+  },
+  {
+    "$key": "Product:FS-1003|Category:Footwear",
+    "CategoryId": "Category:Footwear",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "IsSystemMapping": false,
+    "ProductId": "Product:FS-1003"
+  },
+  {
+    "$key": "Product:FS-1004|Category:Apparel",
+    "CategoryId": "Category:Apparel",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "IsSystemMapping": false,
+    "ProductId": "Product:FS-1004"
+  },
+  {
+    "$key": "Product:FS-1005|Category:Apparel",
+    "CategoryId": "Category:Apparel",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "IsSystemMapping": false,
+    "ProductId": "Product:FS-1005"
+  },
+  {
+    "$key": "Product:FS-1006|Category:Apparel",
+    "CategoryId": "Category:Apparel",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "IsSystemMapping": false,
+    "ProductId": "Product:FS-1006"
+  },
+  {
     "$key": "Product:Fashion-112355|Category:Shoes",
     "CategoryId": "Category:Shoes",
     "DisplayOrder": 1,

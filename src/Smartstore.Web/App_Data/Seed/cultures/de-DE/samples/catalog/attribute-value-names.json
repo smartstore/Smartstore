@@ -41,5 +41,16 @@
   "balls-12": "12 Bälle",
   "balls-24": "24 Bälle",
   "hand-left": "Linke Hand (für Rechtshänder)",
-  "hand-right": "Rechte Hand (für Linkshänder)"
+  "hand-right": "Rechte Hand (für Linkshänder)",
+  "navy": "Marineblau",
+  "olive": "Oliv",
+  "sand": "Sand",
+  "grey-melange": "Grau meliert",
+  "navy-striped": "Marineblau gestreift",
+  "forest-green": "Waldgrün",
+  "black-gold": "Schwarz/Gold (limitiert)",
+  "wool-blend": "Wollmischung",
+  "merino": "Merinowolle",
+  "print-none": "Ohne Aufdruck",
+  "print-text": "Mit Aufdruck"
 }

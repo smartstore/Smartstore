@@ -1,5 +1,35 @@
 [
   {
+    "$key": "#00bdb2973b97",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:tim@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FS-1001",
+    "Rating": 4,
+    "ReviewText": "Gute Qualität. Schwarz in XL war leider ausverkauft, also habe ich Oliv genommen, das mir auch sehr gefällt.",
+    "Title": "Solide Wahl",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#04af0abc596d",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:jonas@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FS-1003",
+    "Rating": 5,
+    "ReviewText": "Vom ersten Tag an bequem, und das weiße Leder lässt sich leicht reinigen.",
+    "Title": "Passt zu allem",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "#0576276f7c0f",
     "CreatedOnUtc": "<now>",
     "CustomerId": "Customer:jonas@example.com",
@@ -15,6 +45,21 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
+    "$key": "#0675f53558e2",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:markus@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FS-1006",
+    "Rating": 5,
+    "ReviewText": "Eines mit dem Namen unserer Fußballmannschaft bestellt. Der Druck ist scharf und übersteht die Waschmaschine.",
+    "Title": "Tolle Geschenkidee",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "#0db9793a9f1f",
     "CreatedOnUtc": "<now-1M>",
     "CustomerId": "Customer:markus@example.com",
@@ -27,6 +72,21 @@
     "Rating": 5,
     "ReviewText": "Mit dem 24er-Pack deckt man sich am günstigsten für die Saison ein.",
     "Title": "Preiswert in der großen Packung",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#160c40e716d8",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:anna@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FS-1002",
+    "Rating": 5,
+    "ReviewText": "Ich habe die Merino-Variante genommen, sie kratzt überhaupt nicht. Den Aufpreis wert.",
+    "Title": "So weich",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
@@ -135,6 +195,21 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
+    "$key": "#55d514ff2187",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:markus@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FS-1001",
+    "Rating": 4,
+    "ReviewText": "Sehr gut verarbeitet. Beim nächsten Mal würde ich eine Größe kleiner bestellen.",
+    "Title": "Gute Jacke, fällt etwas groß aus",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "#58a20e14ca9c",
     "CreatedOnUtc": "<now-1M>",
     "CustomerId": "Customer:laura@example.com",
@@ -147,6 +222,21 @@
     "Rating": 5,
     "ReviewText": "Ideal für Anfänger: alles in einer Bestellung und günstiger als einzeln gekauft.",
     "Title": "Ein toller Einstieg",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#5a07be09707b",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:tim@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FS-1003",
+    "Rating": 4,
+    "ReviewText": "Für die Variante in Schwarz/Gold bekomme ich viele Komplimente. Allerdings etwas teuer.",
+    "Title": "Die limitierte Edition ist ein Hingucker",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
@@ -225,6 +315,21 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
+    "$key": "#9bb7a514233d",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:laura@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": null,
+    "ProductId": "Product:FS-1001",
+    "Rating": 5,
+    "ReviewText": "Leicht, mit Pullover darunter warm genug, und die Kapuze sitzt.",
+    "Title": "Meine Lieblingsjacke",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "#9ca8dfc4de24",
     "CreatedOnUtc": "<now-1M>",
     "CustomerId": "Customer:tim@example.com",
@@ -237,6 +342,36 @@
     "Rating": 4,
     "ReviewText": "Angenehmes Leder. Wer zwischen zwei Größen liegt, sollte die größere nehmen.",
     "Title": "Guter Handschuh",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#9e7ab88cb055",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:sophie@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": null,
+    "ProductId": "Product:FS-1003",
+    "Rating": 4,
+    "ReviewText": "Fällt normal aus. Meine Größe war kurz ausverkauft, kam aber schnell wieder.",
+    "Title": "Guter Alltags-Sneaker",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#b1d521b55cae",
+    "CreatedOnUtc": "<now-2M>",
+    "CustomerId": "Customer:sophie@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FS-1001",
+    "Rating": 5,
+    "ReviewText": "Bleibt auch bei starkem Regen dicht und wirkt nicht stickig. Das Marineblau ist eine schöne Farbe.",
+    "Title": "Endlich trocken zur Arbeit",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
@@ -300,6 +435,21 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
+    "$key": "#dc8e5439cb65",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:anna@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": null,
+    "ProductId": "Product:FS-1003",
+    "Rating": 2,
+    "ReviewText": "Schöne Optik, aber für breite Füße zu schmal. Ich habe sie zurückgeschickt.",
+    "Title": "Zu schmal für mich",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "#e0d014253ee1",
     "CreatedOnUtc": "<now+0M>",
     "CustomerId": "Customer:sophie@example.com",
@@ -312,6 +462,21 @@
     "Rating": 3,
     "ReviewText": "Schmeckt gut zu Ofengemüse, aber das Glas ist schnell leer.",
     "Title": "Schöne Mischung, kleines Glas",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#e5398a610451",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:laura@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": null,
+    "ProductId": "Product:FS-1002",
+    "Rating": 4,
+    "ReviewText": "Das Grau meliert sieht toll aus. Er ist recht weit geschnitten, wie beschrieben.",
+    "Title": "Schöne lockere Passform",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   }
 ]
