@@ -1,7 +1,12 @@
-﻿namespace Smartstore.Core.Content.Media.Icons;
+#nullable enable
 
+using Smartstore.IconKit;
+
+namespace Smartstore.Core.Content.Media.Icons;
+
+/// <summary>Exposes an icon address together with its presentation.</summary>
 public interface IIcon
 {
-    string Icon { get; }
-    string Style { get; }
+    /// <summary>Gets the icon expression; null represents no icon.</summary>
+    IconExpression? Icon { get; }
 }

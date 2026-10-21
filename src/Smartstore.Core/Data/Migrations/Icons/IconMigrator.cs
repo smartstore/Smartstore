@@ -2,6 +2,7 @@ using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Topics;
+using Smartstore.IconKit;
 using Smartstore.Events;
 
 namespace Smartstore.Core.Data.Migrations.Icons;
@@ -13,9 +14,12 @@ public class IconMigrator : IIconMigrator
 {
     private readonly IEventPublisher _eventPublisher;
 
-    public IconMigrator(IEventPublisher eventPublisher)
+    private readonly IIconService _icons;
+
+    public IconMigrator(IEventPublisher eventPublisher, IIconService icons)
     {
         _eventPublisher = eventPublisher;
+        _icons = icons;
     }
 
     /// <inheritdoc />
@@ -27,7 +31,9 @@ public class IconMigrator : IIconMigrator
         Guard.NotNull(context);
 
         // This service is a singleton: keep the caller-owned DbContext and all run state local.
-        var migrationContext = new IconMigrationContext(context, report);
+        // Reuse the complete immutable name index; no search paging or per-icon metadata allocation is needed.
+        var brandNames = _icons.GetIconNames("fa", "b");
+        var migrationContext = new IconMigrationContext(context, report, new LegacyIconConverter(brandNames));
         var message = new IconMigrationEvent(migrationContext);
         message.Providers.Add(new MenuIconMigrationProvider());
         // Core owns these fields. Installed plugins append their own registrations through the event.

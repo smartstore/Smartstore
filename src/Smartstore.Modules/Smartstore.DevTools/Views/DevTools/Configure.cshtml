@@ -66,11 +66,11 @@
             <div class="adminData wide">
                 <div class="adminContainer">
                     @{
-                        var browserModel = new IconBrowserModel
+                        var browserModel = new Smartstore.Web.Models.Media.IconBrowserModel
                         {
+                            VisibleOptions = Smartstore.Web.Models.Media.IconOptionFields.All,
                             ShowHiddenKits = true,
-                            ShowProviderIndicators = true,
-                            VisibleOptions = IconOptionFields.All
+                            ShowProviderIndicators = true
                         };
                     }
                     <div class="devtools-icon-code">

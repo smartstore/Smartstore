@@ -13,6 +13,17 @@ namespace Smartstore.Core.Data.Migrations.Icons;
 /// </summary>
 public class LegacyIconConverter
 {
+    private readonly IReadOnlySet<string>? _brandIconNames;
+
+    /// <summary>
+    /// Creates a converter with optional legacy brand metadata supplied by the caller.
+    /// No icon catalog or files are loaded by this utility.
+    /// </summary>
+    public LegacyIconConverter(IReadOnlySet<string>? brandIconNames = null)
+    {
+        _brandIconNames = brandIconNames;
+    }
+
     /// <summary>
     /// Converts a Font Awesome name, style and optional theme color to an explicit expression.
     /// Already qualified expressions are returned unchanged.
@@ -38,6 +49,12 @@ public class LegacyIconConverter
         if (name.StartsWith("fa-", StringComparison.Ordinal))
         {
             name = name[3..];
+        }
+
+        // The legacy renderer always used Brands for known brand icons, even with no style or a stale style.
+        if (_brandIconNames?.Contains(name) == true)
+        {
+            style = "brands";
         }
 
         var variant = style?.Trim().ToLowerInvariant() switch

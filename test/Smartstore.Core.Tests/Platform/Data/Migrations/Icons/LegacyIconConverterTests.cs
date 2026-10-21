@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Smartstore.Core.Data.Migrations.Icons;
 using Smartstore.IconKit;
@@ -8,6 +10,21 @@ namespace Smartstore.Core.Tests.Platform.Data.Migrations.Icons;
 public class LegacyIconConverterTests
 {
     private readonly LegacyIconConverter _converter = new();
+
+    [TestCase(null)]
+    [TestCase("")]
+    [TestCase("solid")]
+    [TestCase("regular")]
+    public void Known_brands_override_missing_or_stale_styles(string style)
+    {
+        var converter = new LegacyIconConverter(new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "github" });
+        var result = converter.ConvertIcon("fa-github", style);
+        Assert.That(result.Expression.Value.Address.Variant, Is.EqualTo("b"));
+        Assert.That(converter.ConvertIcon("star", style).Expression.Value.Address.Variant,
+            Is.EqualTo(style == "regular" ? "r" : "s"));
+        Assert.That(converter.ConvertClasses("fa fa-github").Expression.Value.Address.Variant, Is.EqualTo("b"));
+        Assert.That(converter.ConvertIcon("fa:github!/r").Expression.Value.Address.Variant, Is.EqualTo("r"));
+    }
 
     [TestCase("fa-home", "fas", "s")]
     [TestCase("home", "regular", "r")]

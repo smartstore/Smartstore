@@ -14,10 +14,11 @@ public sealed class IconMigrationContext
     /// <summary>
     /// Creates a context using the caller's database and optional report destination.
     /// </summary>
-    public IconMigrationContext(SmartDbContext dbContext, Action<IconMigrationEntry>? report = null)
+    public IconMigrationContext(SmartDbContext dbContext, Action<IconMigrationEntry>? report = null, LegacyIconConverter? converter = null)
     {
         DbContext = Guard.NotNull(dbContext);
         _report = report;
+        Converter = converter ?? new LegacyIconConverter();
     }
 
     /// <summary>
@@ -28,7 +29,7 @@ public sealed class IconMigrationContext
     /// <summary>
     /// Gets the persistence-independent converter shared by providers.
     /// </summary>
-    public LegacyIconConverter Converter { get; } = new();
+    public LegacyIconConverter Converter { get; }
 
     /// <summary>
     /// Gets the HTML field expressions registered for this run.

@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Text.Json.Serialization;
+using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Categories;
@@ -43,10 +45,10 @@ public class CategoryModel : TabbableModel, ILocalizedModel<CategoryLocalizedMod
 
     [LocalizedDisplay("*Icon")]
     [UIHint("IconBrowser")]
-    public IconBrowserModel Icon { get; } = new()
+    public IconBrowserModel IconModel { get; set; } = new()
     {
         Area = "public",
-        VisibleOptions = IconOptionFields.Color | IconOptionFields.Flip | IconOptionFields.Rotate | IconOptionFields.Animation
+        VisibleOptions = IconOptionFields.Animation | IconOptionFields.Color | IconOptionFields.Flip | IconOptionFields.Rotate
     };
 
     [LocalizedDisplay("*Alias")]
@@ -194,9 +196,9 @@ public partial class CategoryModelValidator : SmartValidator<CategoryModel>
     {
         ApplyEntityRules<Category>(db);
 
-        RuleFor(x => x.Icon == null ? null : x.Icon.Expression.ToString())
+        RuleFor(x => x.IconModel.Icon.ToString())
             .MaximumLength(512)
-            .OverridePropertyName("Icon.Expression");
+            .OverridePropertyName("IconModel.Icon");
 
         RuleFor(x => x.WithdrawalPeriodDays)
             .GreaterThanOrEqualTo(0)
@@ -215,7 +217,7 @@ public class CategoryMapper :
         to.ParentCategoryId = from.ParentId;
         to.SeName = await from.GetActiveSlugAsync(0, true, false);
         to.PictureId = from.MediaFileId;
-        to.Icon.Expression = IconExpression.TryParse(from.Icon, out var expression) ? expression : null;
+        to.IconModel.Icon = IconExpression.TryParse(from.Icon, out var expression) ? expression : null;
     }
 
     public Task MapAsync(CategoryModel from, Category to, dynamic parameters = null)
@@ -223,7 +225,7 @@ public class CategoryMapper :
         MiniMapper.Map(from, to);
         to.ParentId = from.ParentCategoryId;
         to.MediaFileId = from.PictureId.ZeroToNull();
-        to.Icon = from.Icon?.Expression?.ToString().NullEmpty();
+        to.Icon = from.IconModel.Icon?.ToString().NullEmpty();
 
         return Task.CompletedTask;
     }

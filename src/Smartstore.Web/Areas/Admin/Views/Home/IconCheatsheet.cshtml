@@ -706,12 +706,11 @@
             <div style="max-width: 600px">
                 @{
                     var browserModel = new Smartstore.Web.Models.Media.IconBrowserModel
-                    {
-                        // Expression = Smartstore.IconKit.IconExpression.Parse("hi:access?rotate=66&size=4x&flip-h"),
-                        ShowHiddenKits = true,
-                        ShowProviderIndicators = true,
-                        VisibleOptions = Smartstore.Web.Models.Media.IconOptionFields.All
-                    };
+                        {
+                            VisibleOptions = Smartstore.Web.Models.Media.IconOptionFields.All,
+                            ShowHiddenKits = true,
+                            ShowProviderIndicators = true
+                        };
                 }
                 @Html.EditorFor(_ => browserModel, "IconBrowser", "BrowserIcon")
             </div>

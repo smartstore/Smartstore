@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -99,6 +100,13 @@ public sealed partial class IconService(IApplicationContext applicationContext, 
     {
         var catalog = Catalog;
         return SelectVariant(catalog, SelectLibrary(catalog, library), variant)?.Names.Count ?? 0;
+    }
+
+    /// <inheritdoc />
+    public IReadOnlySet<string> GetIconNames(string library = null, string variant = null)
+    {
+        var catalog = Catalog;
+        return SelectVariant(catalog, SelectLibrary(catalog, library), variant)?.Names ?? FrozenSet<string>.Empty;
     }
 
     /// <inheritdoc />

@@ -1,3 +1,4 @@
+using Smartstore.Data;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -42,29 +43,20 @@ internal static class HtmlIconMigrationUtility
         var fieldName = property.Name;
         var entityName = typeof(TEntity).Name;
         var source = context.DbContext.Set<TEntity>();
-        var lastId = 0;
         var checkedRecords = 0;
         var migratedIcons = 0;
         var notMigratedIcons = 0;
 
-        while (true)
+        // The broad SQL filter selects candidates; the converter decides which tags can be replaced.
+        var pager = source
+            .Where(x => EF.Property<string>(x, fieldName) != null &&
+                EF.Property<string>(x, fieldName).Contains("fa-"))
+            .ToFastPager(batchSize);
+
+        // FastPager remains stable when converted rows leave the filter. Only ID and HTML are materialized.
+        while ((await pager.ReadNextPageAsync(
+            x => new { x.Id, Html = EF.Property<string>(x, fieldName) }, x => x.Id, cancelToken)).Out(out var batch))
         {
-            // Keyset paging stays stable as converted rows stop matching the filter.
-            // Project only Id and this HTML field: no entity instances enter the change tracker.
-            // The SQL filter is deliberately broad; the converter decides what can actually be replaced.
-            var batch = await source
-                .Where(x => x.Id > lastId && EF.Property<string>(x, fieldName) != null &&
-                    EF.Property<string>(x, fieldName).Contains("fa-"))
-                .OrderBy(x => x.Id)
-                .Select(x => new { x.Id, Html = EF.Property<string>(x, fieldName) })
-                .Take(batchSize)
-                .ToListAsync(cancelToken);
-
-            if (batch.Count == 0)
-            {
-                break;
-            }
-
             foreach (var item in batch)
             {
                 checkedRecords++;
@@ -83,10 +75,8 @@ internal static class HtmlIconMigrationUtility
 
                 // Write only changed fields immediately. Transaction ownership remains with the caller;
                 // no SaveChanges, entity hooks or request-scoped cache invalidation are involved.
-                // TEMPORARY UI PREVIEW: simulate a successful update without writing to the database.
-                // var updated = await source.Where(x => x.Id == item.Id)
-                // .ExecuteUpdateAsync(setter => setter.SetProperty(field, converted.Html), cancelToken);
-                var updated = 1;
+                var updated = await source.Where(x => x.Id == item.Id)
+                    .ExecuteUpdateAsync(setter => setter.SetProperty(field, converted.Html), cancelToken);
                 if (updated > 0)
                 {
                     migratedIcons += converted.ConvertedIcons;
@@ -102,7 +92,6 @@ internal static class HtmlIconMigrationUtility
             }
 
             // Explicit cancellation checkpoint once per batch; database operations also receive the token.
-            lastId = batch[^1].Id;
             cancelToken.ThrowIfCancellationRequested();
         }
 

@@ -1,11 +1,16 @@
 #nullable enable
 
+using System.ComponentModel;
+using System.Text.Json.Serialization;
+
 namespace Smartstore.IconKit;
 
 /// <summary>
 /// An immutable icon address and presentation that round-trips through a persistent string.
 /// Omitted values remain distinct from explicit resets. No library resolution occurs here.
 /// </summary>
+[TypeConverter(typeof(IconExpressionTypeConverter))]
+[JsonConverter(typeof(IconExpressionJsonConverter))]
 public readonly record struct IconExpression
 {
     /// <summary>

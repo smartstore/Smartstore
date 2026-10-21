@@ -1,3 +1,4 @@
+using Smartstore.Data;
 using Smartstore.Core.Content.Menus;
 
 namespace Smartstore.Core.Data.Migrations.Icons;
@@ -15,26 +16,21 @@ internal sealed class MenuIconMigrationProvider : IIconMigrationProvider
         Guard.NotNull(context);
 
         const int batchSize = 500;
-        var lastId = 0;
         var checkedRecords = 0;
         var migratedIcons = 0;
         var notMigratedIcons = 0;
         var converter = context.Converter;
 
-        while (true)
+        var pager = context.DbContext.Set<MenuItemEntity>()
+            .Where(x => x.Icon != null && x.Icon != "")
+            .ToFastPager(batchSize);
+
+        // Project only migration fields; FastPager maintains the cursor without tracking entity instances.
+#pragma warning disable CS0618 // Migration must read the legacy icon style and color.
+        while ((await pager.ReadNextPageAsync(
+            x => new { x.Id, x.Icon, x.Style, x.IconColor }, x => x.Id, cancelToken)).Out(out var items))
+#pragma warning restore CS0618
         {
-            var items = await context.DbContext.Set<MenuItemEntity>()
-                .Where(x => x.Id > lastId && x.Icon != null && x.Icon != "")
-                .OrderBy(x => x.Id)
-                .Select(x => new { x.Id, x.Icon, x.Style, x.IconColor })
-                .Take(batchSize)
-                .ToListAsync(cancelToken);
-
-            if (items.Count == 0)
-            {
-                break;
-            }
-
             foreach (var item in items)
             {
                 checkedRecords++;
@@ -64,12 +60,15 @@ internal sealed class MenuIconMigrationProvider : IIconMigrationProvider
                     continue;
                 }
 
-                // Preserve legacy fields for now. The caller supplies the context; no tracking or SaveChanges is needed.
-                // TEMPORARY UI PREVIEW: simulate a successful update without writing to the database.
-                // var updated = await context.DbContext.Set<MenuItemEntity>()
-                // .Where(x => x.Id == item.Id)
-                // .ExecuteUpdateAsync(setter => setter.SetProperty(x => x.Icon, expression), cancelToken);
-                var updated = 1;
+                // Replace the complete legacy icon representation in one update.
+#pragma warning disable CS0618 // Clear legacy fields after successfully converting their values.
+                var updated = await context.DbContext.Set<MenuItemEntity>()
+                    .Where(x => x.Id == item.Id)
+                    .ExecuteUpdateAsync(setter => setter
+                        .SetProperty(x => x.Icon, expression)
+                        .SetProperty(x => x.Style, (string)null)
+                        .SetProperty(x => x.IconColor, (string)null), cancelToken);
+#pragma warning restore CS0618
 
                 migratedIcons += updated;
                 if (updated > 0)
@@ -89,7 +88,6 @@ internal sealed class MenuIconMigrationProvider : IIconMigrationProvider
                 }
             }
 
-            lastId = items[^1].Id;
             cancelToken.ThrowIfCancellationRequested();
         }
 

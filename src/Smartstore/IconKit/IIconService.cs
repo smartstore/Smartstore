@@ -35,6 +35,15 @@ public interface IIconService
     int GetIconCount(string? library = null, string? variant = null);
 
     /// <summary>
+    /// Gets the complete immutable name index of a variant without loading SVGs or search metadata.
+    /// </summary>
+    /// <param name="library">The library name or short name; null selects the default.</param>
+    /// <param name="variant">The variant name or short name; null selects its default.</param>
+    /// <returns>The cached name set, or an empty set for an unknown library or variant.</returns>
+    IReadOnlySet<string> GetIconNames(string? library = null, string? variant = null);
+
+
+    /// <summary>
     /// Gets an icon after mapping and configured fallbacks, or null if unavailable.
     /// Presentation modifiers are applied separately by the renderer.
     /// </summary>
