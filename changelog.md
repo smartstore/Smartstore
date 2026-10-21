@@ -115,7 +115,9 @@
   - Fixed missing order number in JSON deserialization of `WithdrawalRequest`.
   - "Challenge" instead of "Forbid" for a customer who has already logged in but has not been authorized.
 - Corrected an incorrect regular bundle price when bundle items are discounted.
-- Weight adjustments for preselected products attributes were not taken into account on the product detail page.
+- **Product Details**:
+  - Weight adjustments for preselected products attributes were not taken into account.
+  - The images of linked products displayed for variants were too small and distorted.
 - Negative price adjustments for checkout attributes were not taken into account on the checkout confirm page.  
 - #1575 Newsletter reward points are not awarded during customer registration.
 - MegaSearch: A single letter in the search term may incorrectly result in 0 search results if "Hits contain all searched terms" is enabled.
