@@ -114,6 +114,7 @@
   - #1550 Clearly distinguish between the terms "withdrawal" and "return", and do not use "withdrawal" when referring to returns.
   - Fixed missing order number in JSON deserialization of `WithdrawalRequest`.
   - "Challenge" instead of "Forbid" for a customer who has already logged in but has not been authorized.
+- Corrected an incorrect regular bundle price when bundle items are discounted.
 - Weight adjustments for preselected products attributes were not taken into account on the product detail page.
 - Negative price adjustments for checkout attributes were not taken into account on the checkout confirm page.  
 - #1575 Newsletter reward points are not awarded during customer registration.
