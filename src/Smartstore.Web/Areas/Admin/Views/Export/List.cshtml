@@ -1,4 +1,4 @@
-﻿@model List<ExportProfileModel>
+@model List<ExportProfileModel>
 
 @{
     ViewBag.Title = T("Common.Export").Value;
@@ -143,7 +143,11 @@
 				var imageUrl = option.data('imageurl');
 
 				if (imageUrl) {
-					html += '<div class="col" style="max-width:48px; width:48px"><div class="img-center-container"><img class="img-fluid" src="' + imageUrl + '" /></div></div>';
+					html += '<div class="col" style="max-width:36px; width:36px"><div class="img-center-container"><img class="img-fluid" src="' + imageUrl + '" /></div></div>';
+				}
+				else if (option.attr('data-icon')) {
+					var icon = $('<sm-icon/>').attr('name', option.attr('data-icon')).css('--icon-size', '32px').attr('opacity', '0.5');
+					html += '<div class="col d-flex align-items-center justify-content-center" style="max-width:36px; width:36px">' + icon.prop('outerHTML') + '</div>';
 				}
 
 				html += '<div class="col">';
@@ -172,7 +176,11 @@
 				var imageUrl = option.data('imageurl');
 
 				if (imageUrl) {
-					html += '<div class="col" style="max-width:48px; width:48px"><div class="img-center-container"><img class="img-fluid" src="' + imageUrl + '" /></div></div>';
+					html += '<div class="col" style="max-width:36px; width:36px"><div class="img-center-container"><img class="img-fluid" src="' + imageUrl + '" /></div></div>';
+				}
+				else if (option.attr('data-icon')) {
+					var icon = $('<sm-icon/>').attr('name', option.attr('data-icon')).css('--icon-size', '32px').attr('opacity', '0.5');
+					html += '<div class="col d-flex align-items-center justify-content-center" style="max-width:36px; width:36px">' + icon.prop('outerHTML') + '</div>';
 				}
 
 				html += '<div class="col">';

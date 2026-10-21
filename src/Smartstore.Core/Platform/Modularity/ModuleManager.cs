@@ -175,6 +175,11 @@ public partial class ModuleManager
     {
         Guard.NotNull(metadata);
 
+        if (metadata.Icon.HasValue())
+        {
+            return new ModuleIcon { Address = metadata.Icon };
+        }
+
         return metadata.ModuleDescriptor == null
             ? GetDefaultIcon()
             : GetIcon(metadata.ModuleDescriptor, metadata.SystemName);

@@ -27,6 +27,46 @@ public class ModuleIconTests
         Assert.That(icon.Address, Is.EqualTo(expectedAddress));
     }
 
+    [TestCase("file-csv")]
+    [TestCase("file-xml")]
+    public void Provider_Icon_Takes_Precedence_Over_Module_Artwork(string address)
+    {
+        var manager = new ModuleManager(null, null, null, null, null, null, null, null);
+        var metadata = new ProviderMetadata
+        {
+            SystemName = "P",
+            Icon = address,
+            ModuleDescriptor = CreateDescriptor("icon-P.png,icon.png", "cart")
+        };
+
+        var icon = manager.GetIcon(metadata);
+
+        Assert.That(icon.Address, Is.EqualTo(address));
+        Assert.That(icon.ImageUrl, Is.Null);
+    }
+
+    [Test]
+    public void Provider_Without_Explicit_Icon_Keeps_Its_Image()
+    {
+        var manager = new ModuleManager(null, null, null, null, null, null, null, null);
+        var metadata = new ProviderMetadata
+        {
+            SystemName = "P",
+            ModuleDescriptor = CreateDescriptor("icon-P.png,icon.png", "cart")
+        };
+
+        Assert.That(manager.GetIcon(metadata).ImageUrl, Is.EqualTo("~/Modules/Test/icon-P.png"));
+    }
+
+    [Test]
+    public void Provider_Without_Module_Can_Declare_An_Icon()
+    {
+        var manager = new ModuleManager(null, null, null, null, null, null, null, null);
+        var metadata = new ProviderMetadata { Icon = "file-csv" };
+
+        Assert.That(manager.GetIcon(metadata).Address, Is.EqualTo("file-csv"));
+    }
+
     [Test]
     public void Legacy_Url_Api_Still_Returns_An_Image()
     {

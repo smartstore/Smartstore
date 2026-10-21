@@ -44,7 +44,9 @@
 							@profile.Provider.EntityTypeName.NaIfEmpty()
 						</td>
 						<td class="text-center">
-							<file-icon file-extension="@profile.Provider.FileExtension" show-label="true" />
+							<span class="d-inline-flex align-items-center">
+								<file-icon file-extension="@profile.Provider.FileExtension" show-label="true" />
+							</span>
 						</td>
 						<td id="ExportFileCount@(profile.Id)" class="text-center">
 							<partial name="ProfileFileCount" model="profile.FileCount" />
@@ -64,7 +66,7 @@
 								data-running="@profile.IsTaskRunning.ToString().ToLower()"></div>
 						</td>
                         <td class="omega" style="width: 200px;">
-                            <button type="button" class="btn btn-block btn-sm btn-warning btn-run-task"
+                            <button type="button" class="btn btn-block btn-sm btn-primary btn-run-task"
 								attr-class='(profile.IsTaskRunning || !profile.Enabled, "hide")'
 								data-url="@Url.Action("Execute", "Export", new { area = "Admin", id = profile.Id })"
 								data-task-id="@profile.TaskId">
