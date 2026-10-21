@@ -40,6 +40,11 @@
     - **Riso:** Risograph-inspired cobalt, fluorescent pink and sunflower yellow on white, with DIN-style headings.
     - **Porcelain:** White and soft gray surfaces, graphite typography and precise blue accents with a compact, light header.
   - `.scroll-fade`: reusable responsive edge fades for horizontal and vertical scroll containers.
+- **PageBuilder**
+  - Added three new section dividers (SVG masks that can be selected per block):
+    - **Torn:** A torn paper edge with irregular notches.
+    - **Drip:** Hanging drops with a slight overhang.
+    - **Scallop:** A row of semicircular arcs.
 - #1530 If a product is subsequently added to an order, update all price input controls with the price of the selected attribute combination.
 - Automated tax and total calculations now ensure that gross and net prices, as well as line and order totals, update instantly when editing orders or order items.
 - Enforce `MaxDownloadFileSize` in `DownloadManager` via the global `appsettings.json` setting (default: 50 MB).
