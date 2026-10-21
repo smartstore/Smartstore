@@ -115,6 +115,11 @@
     "Product_Id": "Product:P-1017"
   },
   {
+    "$key": "ProductTag:gift|Product:FD-1005",
+    "ProductTag_Id": "ProductTag:gift",
+    "Product_Id": "Product:FD-1005"
+  },
+  {
     "$key": "ProductTag:gift|Product:P-1000",
     "ProductTag_Id": "ProductTag:gift",
     "Product_Id": "Product:P-1000"

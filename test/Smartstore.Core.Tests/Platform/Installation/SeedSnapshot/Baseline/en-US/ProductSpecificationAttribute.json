@@ -1,5 +1,221 @@
 [
   {
+    "$key": "Product:FD-1001|SpecificationAttributeOption:SpecificationAttribute:Dietary|Organic",
+    "AllowFiltering": true,
+    "DisplayOrder": 4,
+    "ProductId": "Product:FD-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Dietary|Organic"
+  },
+  {
+    "$key": "Product:FD-1001|SpecificationAttributeOption:SpecificationAttribute:Dietary|Vegan",
+    "AllowFiltering": true,
+    "DisplayOrder": 4,
+    "ProductId": "Product:FD-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Dietary|Vegan"
+  },
+  {
+    "$key": "Product:FD-1001|SpecificationAttributeOption:SpecificationAttribute:Flavour|Fruity",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FD-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Flavour|Fruity"
+  },
+  {
+    "$key": "Product:FD-1001|SpecificationAttributeOption:SpecificationAttribute:Olive variety|Coratina",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FD-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Olive variety|Coratina"
+  },
+  {
+    "$key": "Product:FD-1001|SpecificationAttributeOption:SpecificationAttribute:Origin|Italy",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FD-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Origin|Italy"
+  },
+  {
+    "$key": "Product:FD-1002|SpecificationAttributeOption:SpecificationAttribute:Bean|100% Arabica",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FD-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Bean|100% Arabica"
+  },
+  {
+    "$key": "Product:FD-1002|SpecificationAttributeOption:SpecificationAttribute:Coffee type|Filter coffee",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:FD-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Coffee type|Filter coffee"
+  },
+  {
+    "$key": "Product:FD-1002|SpecificationAttributeOption:SpecificationAttribute:Decaffeinated|No",
+    "AllowFiltering": true,
+    "DisplayOrder": 6,
+    "ProductId": "Product:FD-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Decaffeinated|No"
+  },
+  {
+    "$key": "Product:FD-1002|SpecificationAttributeOption:SpecificationAttribute:Intensity|Strong",
+    "AllowFiltering": true,
+    "DisplayOrder": 4,
+    "ProductId": "Product:FD-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Intensity|Strong"
+  },
+  {
+    "$key": "Product:FD-1002|SpecificationAttributeOption:SpecificationAttribute:Origin|Colombia",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FD-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Origin|Colombia"
+  },
+  {
+    "$key": "Product:FD-1002|SpecificationAttributeOption:SpecificationAttribute:Roast|Medium",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FD-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Roast|Medium"
+  },
+  {
+    "$key": "Product:FD-1003|SpecificationAttributeOption:SpecificationAttribute:Bean|100% Arabica",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FD-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Bean|100% Arabica"
+  },
+  {
+    "$key": "Product:FD-1003|SpecificationAttributeOption:SpecificationAttribute:Coffee type|Rarity",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:FD-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Coffee type|Rarity"
+  },
+  {
+    "$key": "Product:FD-1003|SpecificationAttributeOption:SpecificationAttribute:Decaffeinated|No",
+    "AllowFiltering": true,
+    "DisplayOrder": 6,
+    "ProductId": "Product:FD-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Decaffeinated|No"
+  },
+  {
+    "$key": "Product:FD-1003|SpecificationAttributeOption:SpecificationAttribute:Intensity|Mild",
+    "AllowFiltering": true,
+    "DisplayOrder": 4,
+    "ProductId": "Product:FD-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Intensity|Mild"
+  },
+  {
+    "$key": "Product:FD-1003|SpecificationAttributeOption:SpecificationAttribute:Origin|Ethiopia",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FD-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Origin|Ethiopia"
+  },
+  {
+    "$key": "Product:FD-1003|SpecificationAttributeOption:SpecificationAttribute:Roast|Light",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FD-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Roast|Light"
+  },
+  {
+    "$key": "Product:FD-1004|SpecificationAttributeOption:SpecificationAttribute:Dietary|Gluten-free",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FD-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Dietary|Gluten-free"
+  },
+  {
+    "$key": "Product:FD-1004|SpecificationAttributeOption:SpecificationAttribute:Dietary|Vegan",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FD-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Dietary|Vegan"
+  },
+  {
+    "$key": "Product:FD-1004|SpecificationAttributeOption:SpecificationAttribute:Flavour|Savoury",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FD-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Flavour|Savoury"
+  },
+  {
+    "$key": "Product:FD-1004|SpecificationAttributeOption:SpecificationAttribute:Origin|Italy",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FD-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Origin|Italy"
+  },
+  {
+    "$key": "Product:FD-1005|SpecificationAttributeOption:SpecificationAttribute:Occasion|Gift",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FD-1005",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Occasion|Gift"
+  },
+  {
+    "$key": "Product:FD-1006|SpecificationAttributeOption:SpecificationAttribute:Dietary|Vegan",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FD-1006",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Dietary|Vegan"
+  },
+  {
+    "$key": "Product:FD-1006|SpecificationAttributeOption:SpecificationAttribute:Origin|Spain",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FD-1006",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Origin|Spain"
+  },
+  {
+    "$key": "Product:FD-1007|SpecificationAttributeOption:SpecificationAttribute:Flavour|Spicy",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FD-1007",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Flavour|Spicy"
+  },
+  {
+    "$key": "Product:FD-1007|SpecificationAttributeOption:SpecificationAttribute:Flavour|Sweet",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FD-1007",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Flavour|Sweet"
+  },
+  {
+    "$key": "Product:FD-1007|SpecificationAttributeOption:SpecificationAttribute:Occasion|Christmas",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FD-1007",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Occasion|Christmas"
+  },
+  {
     "$key": "Product:Fashion-112355|SpecificationAttributeOption:SpecificationAttribute:Material|cotton",
     "AllowFiltering": true,
     "DisplayOrder": 1,

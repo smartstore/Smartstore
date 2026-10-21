@@ -64,5 +64,11 @@
   },
   "lenstype": {
     "name": "Glas"
+  },
+  "pack-size": {
+    "name": "Packungsgröße"
+  },
+  "grind": {
+    "name": "Mahlgrad"
   }
 }

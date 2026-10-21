@@ -1,0 +1,56 @@
+{
+  "FD-1001": {
+    "reviews": [
+      { "customer": "anna", "rating": 5, "title": "Wunderbares, fruchtiges Öl", "reviewText": "Mild und fruchtig, perfekt für Salate. Die Flasche lässt sich gut ausgießen und nichts tropft.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-40d" },
+      { "customer": "markus", "rating": 5, "title": "Inzwischen unser Standard-Öl", "reviewText": "Wir sind komplett umgestiegen. Schmeckt großartig, schon allein mit frischem Brot.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-25d" },
+      { "customer": "sophie", "rating": 4, "title": "Sehr gut, etwas teuer", "reviewText": "Schmeckt hervorragend. Ich würde mir nur eine größere Flasche mit einem besseren Literpreis wünschen.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-12d" },
+      { "customer": "jonas", "rating": 5, "title": "Absolut empfehlenswert", "reviewText": "Man schmeckt die Qualität. Ich bestelle wieder.", "isApproved": true, "createdOnUtc": "@now-6d" }
+    ],
+    "name": "Natives Olivenöl Extra 500 ml",
+    "shortDescription": "Kaltgepresstes natives Olivenöl extra, 500-ml-Flasche.",
+    "fullDescription": "@file"
+  },
+  "FD-1002": {
+    "reviews": [
+      { "customer": "laura", "rating": 5, "title": "Kräftig und aromatisch", "reviewText": "Noten von Kakao und Haselnuss, genau wie beschrieben. Perfekt für die Filtermaschine.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-30d" },
+      { "customer": "tim", "rating": 4, "title": "Gutes Preis-Leistungs-Verhältnis bei 1 kg", "reviewText": "Die große Packung ist pro Kilogramm deutlich günstiger. Sie braucht nur etwas länger bis zur Lieferung.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-14d" },
+      { "customer": "anna", "rating": 3, "title": "Für mich etwas zu stark", "reviewText": "Gute Qualität, aber ich mag lieber einen milderen Kaffee.", "isApproved": true, "createdOnUtc": "@now-3d" }
+    ],
+    "name": "Röstkaffee",
+    "shortDescription": "Frisch gerösteter Arabica in zwei Packungsgrößen und drei Mahlgraden.",
+    "fullDescription": "@file"
+  },
+  "FD-1003": {
+    "name": "Kaffee-Abo",
+    "shortDescription": "Ihr Lieblingskaffee, jeden Monat frei Haus.",
+    "fullDescription": "@file"
+  },
+  "FD-1004": {
+    "reviews": [
+      { "customer": "sophie", "rating": 3, "title": "Schöne Mischung, kleines Glas", "reviewText": "Schmeckt gut zu Ofengemüse, aber das Glas ist schnell leer.", "isApproved": true, "createdOnUtc": "@now-4d" }
+    ],
+    "name": "Mediterrane Kräutermischung 100 g",
+    "shortDescription": "Oregano, Thymian, Rosmarin und Basilikum im 100-g-Glas.",
+    "fullDescription": "@file"
+  },
+  "FD-1005": {
+    "reviews": [
+      { "customer": "laura", "rating": 5, "title": "Das perfekte Geschenk", "reviewText": "Schön verpackt und eine tolle Auswahl. Meine Eltern haben sich sehr gefreut.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-9d" },
+      { "customer": "jonas", "rating": 5, "title": "Preiswert", "reviewText": "Günstiger als die Einzelkäufe und direkt zum Verschenken.", "isApproved": true, "createdOnUtc": "@now-2d" }
+    ],
+    "name": "Genuss-Geschenkbox",
+    "shortDescription": "Olivenöl und zwei Kräutermischungen in einer Geschenkbox.",
+    "fullDescription": "@file",
+    "bundleTitleText": "Die Box enthält"
+  },
+  "FD-1006": {
+    "name": "Meersalzmühle",
+    "shortDescription": "Keramikmühle, gefüllt mit grobem Meersalz.",
+    "fullDescription": "@file"
+  },
+  "FD-1007": {
+    "name": "Weihnachtliche Gewürzkekse",
+    "shortDescription": "Knusprige Gewürzkekse mit Zimt, Orange und Mandeln, 300 g.",
+    "fullDescription": "@file"
+  }
+}

@@ -1,5 +1,221 @@
 [
   {
+    "$key": "Product:FD-1001|SpecificationAttributeOption:SpecificationAttribute:Ernährung|Bio",
+    "AllowFiltering": true,
+    "DisplayOrder": 4,
+    "ProductId": "Product:FD-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Ernährung|Bio"
+  },
+  {
+    "$key": "Product:FD-1001|SpecificationAttributeOption:SpecificationAttribute:Ernährung|Vegan",
+    "AllowFiltering": true,
+    "DisplayOrder": 4,
+    "ProductId": "Product:FD-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Ernährung|Vegan"
+  },
+  {
+    "$key": "Product:FD-1001|SpecificationAttributeOption:SpecificationAttribute:Geschmack|Fruchtig",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FD-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Geschmack|Fruchtig"
+  },
+  {
+    "$key": "Product:FD-1001|SpecificationAttributeOption:SpecificationAttribute:Herkunft|Italien",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FD-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Herkunft|Italien"
+  },
+  {
+    "$key": "Product:FD-1001|SpecificationAttributeOption:SpecificationAttribute:Olivensorte|Coratina",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FD-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Olivensorte|Coratina"
+  },
+  {
+    "$key": "Product:FD-1002|SpecificationAttributeOption:SpecificationAttribute:Bohne|100 % Arabica",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FD-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Bohne|100 % Arabica"
+  },
+  {
+    "$key": "Product:FD-1002|SpecificationAttributeOption:SpecificationAttribute:Entkoffeiniert|Nein",
+    "AllowFiltering": true,
+    "DisplayOrder": 6,
+    "ProductId": "Product:FD-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Entkoffeiniert|Nein"
+  },
+  {
+    "$key": "Product:FD-1002|SpecificationAttributeOption:SpecificationAttribute:Herkunft|Kolumbien",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FD-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Herkunft|Kolumbien"
+  },
+  {
+    "$key": "Product:FD-1002|SpecificationAttributeOption:SpecificationAttribute:Intensität|Kräftig",
+    "AllowFiltering": true,
+    "DisplayOrder": 4,
+    "ProductId": "Product:FD-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Intensität|Kräftig"
+  },
+  {
+    "$key": "Product:FD-1002|SpecificationAttributeOption:SpecificationAttribute:Kaffeeart|Filterkaffee",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:FD-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Kaffeeart|Filterkaffee"
+  },
+  {
+    "$key": "Product:FD-1002|SpecificationAttributeOption:SpecificationAttribute:Röstung|Mittel",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FD-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Röstung|Mittel"
+  },
+  {
+    "$key": "Product:FD-1003|SpecificationAttributeOption:SpecificationAttribute:Bohne|100 % Arabica",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FD-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Bohne|100 % Arabica"
+  },
+  {
+    "$key": "Product:FD-1003|SpecificationAttributeOption:SpecificationAttribute:Entkoffeiniert|Nein",
+    "AllowFiltering": true,
+    "DisplayOrder": 6,
+    "ProductId": "Product:FD-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Entkoffeiniert|Nein"
+  },
+  {
+    "$key": "Product:FD-1003|SpecificationAttributeOption:SpecificationAttribute:Herkunft|Äthiopien",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FD-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Herkunft|Äthiopien"
+  },
+  {
+    "$key": "Product:FD-1003|SpecificationAttributeOption:SpecificationAttribute:Intensität|Mild",
+    "AllowFiltering": true,
+    "DisplayOrder": 4,
+    "ProductId": "Product:FD-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Intensität|Mild"
+  },
+  {
+    "$key": "Product:FD-1003|SpecificationAttributeOption:SpecificationAttribute:Kaffeeart|Rarität",
+    "AllowFiltering": true,
+    "DisplayOrder": 5,
+    "ProductId": "Product:FD-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Kaffeeart|Rarität"
+  },
+  {
+    "$key": "Product:FD-1003|SpecificationAttributeOption:SpecificationAttribute:Röstung|Hell",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FD-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Röstung|Hell"
+  },
+  {
+    "$key": "Product:FD-1004|SpecificationAttributeOption:SpecificationAttribute:Ernährung|Glutenfrei",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FD-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Ernährung|Glutenfrei"
+  },
+  {
+    "$key": "Product:FD-1004|SpecificationAttributeOption:SpecificationAttribute:Ernährung|Vegan",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FD-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Ernährung|Vegan"
+  },
+  {
+    "$key": "Product:FD-1004|SpecificationAttributeOption:SpecificationAttribute:Geschmack|Würzig-herzhaft",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FD-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Geschmack|Würzig-herzhaft"
+  },
+  {
+    "$key": "Product:FD-1004|SpecificationAttributeOption:SpecificationAttribute:Herkunft|Italien",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FD-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Herkunft|Italien"
+  },
+  {
+    "$key": "Product:FD-1005|SpecificationAttributeOption:SpecificationAttribute:Anlass|Geschenk",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FD-1005",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Anlass|Geschenk"
+  },
+  {
+    "$key": "Product:FD-1006|SpecificationAttributeOption:SpecificationAttribute:Ernährung|Vegan",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FD-1006",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Ernährung|Vegan"
+  },
+  {
+    "$key": "Product:FD-1006|SpecificationAttributeOption:SpecificationAttribute:Herkunft|Spanien",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FD-1006",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Herkunft|Spanien"
+  },
+  {
+    "$key": "Product:FD-1007|SpecificationAttributeOption:SpecificationAttribute:Anlass|Weihnachten",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FD-1007",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Anlass|Weihnachten"
+  },
+  {
+    "$key": "Product:FD-1007|SpecificationAttributeOption:SpecificationAttribute:Geschmack|Gewürzt",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FD-1007",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Geschmack|Gewürzt"
+  },
+  {
+    "$key": "Product:FD-1007|SpecificationAttributeOption:SpecificationAttribute:Geschmack|Süß",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FD-1007",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Geschmack|Süß"
+  },
+  {
     "$key": "Product:Fashion-112355|SpecificationAttributeOption:SpecificationAttribute:Material|Baumwolle",
     "AllowFiltering": true,
     "DisplayOrder": 1,

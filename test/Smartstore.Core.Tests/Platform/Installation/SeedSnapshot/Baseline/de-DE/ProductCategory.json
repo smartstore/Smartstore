@@ -8,6 +8,62 @@
     "ProductId": "Product:Adidas-C77124"
   },
   {
+    "$key": "Product:FD-1001|Category:Oil and Vinegar",
+    "CategoryId": "Category:Oil and Vinegar",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "IsSystemMapping": false,
+    "ProductId": "Product:FD-1001"
+  },
+  {
+    "$key": "Product:FD-1002|Category:Coffee and Tea",
+    "CategoryId": "Category:Coffee and Tea",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "IsSystemMapping": false,
+    "ProductId": "Product:FD-1002"
+  },
+  {
+    "$key": "Product:FD-1003|Category:Coffee and Tea",
+    "CategoryId": "Category:Coffee and Tea",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "IsSystemMapping": false,
+    "ProductId": "Product:FD-1003"
+  },
+  {
+    "$key": "Product:FD-1004|Category:Delicacies",
+    "CategoryId": "Category:Delicacies",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "IsSystemMapping": false,
+    "ProductId": "Product:FD-1004"
+  },
+  {
+    "$key": "Product:FD-1005|Category:Delicacies",
+    "CategoryId": "Category:Delicacies",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "IsSystemMapping": false,
+    "ProductId": "Product:FD-1005"
+  },
+  {
+    "$key": "Product:FD-1006|Category:Delicacies",
+    "CategoryId": "Category:Delicacies",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "IsSystemMapping": false,
+    "ProductId": "Product:FD-1006"
+  },
+  {
+    "$key": "Product:FD-1007|Category:Delicacies",
+    "CategoryId": "Category:Delicacies",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "IsSystemMapping": false,
+    "ProductId": "Product:FD-1007"
+  },
+  {
     "$key": "Product:Fashion-112355|Category:Shoes",
     "CategoryId": "Category:Shoes",
     "DisplayOrder": 1,

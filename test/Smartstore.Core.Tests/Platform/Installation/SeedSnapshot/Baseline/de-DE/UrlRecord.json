@@ -520,6 +520,62 @@
     "Slug": "superstar-schuh"
   },
   {
+    "$key": "Product|Product:FD-1001|0|natives-olivenoel-extra-500-ml",
+    "EntityId": "Product:FD-1001",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "natives-olivenoel-extra-500-ml"
+  },
+  {
+    "$key": "Product|Product:FD-1002|0|roestkaffee",
+    "EntityId": "Product:FD-1002",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "roestkaffee"
+  },
+  {
+    "$key": "Product|Product:FD-1003|0|kaffee-abo",
+    "EntityId": "Product:FD-1003",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "kaffee-abo"
+  },
+  {
+    "$key": "Product|Product:FD-1004|0|mediterrane-kraeutermischung-100-g",
+    "EntityId": "Product:FD-1004",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "mediterrane-kraeutermischung-100-g"
+  },
+  {
+    "$key": "Product|Product:FD-1005|0|genuss-geschenkbox",
+    "EntityId": "Product:FD-1005",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "genuss-geschenkbox"
+  },
+  {
+    "$key": "Product|Product:FD-1006|0|meersalzmuehle",
+    "EntityId": "Product:FD-1006",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "meersalzmuehle"
+  },
+  {
+    "$key": "Product|Product:FD-1007|0|weihnachtliche-gewuerzkekse",
+    "EntityId": "Product:FD-1007",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "weihnachtliche-gewuerzkekse"
+  },
+  {
     "$key": "Product|Product:Fashion-112355|0|converse-all-star",
     "EntityId": "Product:Fashion-112355",
     "EntityName": "Product",

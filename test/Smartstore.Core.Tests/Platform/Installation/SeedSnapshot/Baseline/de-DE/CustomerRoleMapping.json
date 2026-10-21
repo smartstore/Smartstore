@@ -40,5 +40,41 @@
     "CustomerId": "Customer:admin@seed-snapshot.test",
     "CustomerRoleId": "CustomerRole:Registered",
     "IsSystemMapping": false
+  },
+  {
+    "$key": "Customer:anna@example.com|CustomerRole:Registered",
+    "CustomerId": "Customer:anna@example.com",
+    "CustomerRoleId": "CustomerRole:Registered",
+    "IsSystemMapping": false
+  },
+  {
+    "$key": "Customer:jonas@example.com|CustomerRole:Registered",
+    "CustomerId": "Customer:jonas@example.com",
+    "CustomerRoleId": "CustomerRole:Registered",
+    "IsSystemMapping": false
+  },
+  {
+    "$key": "Customer:laura@example.com|CustomerRole:Registered",
+    "CustomerId": "Customer:laura@example.com",
+    "CustomerRoleId": "CustomerRole:Registered",
+    "IsSystemMapping": false
+  },
+  {
+    "$key": "Customer:markus@example.com|CustomerRole:Registered",
+    "CustomerId": "Customer:markus@example.com",
+    "CustomerRoleId": "CustomerRole:Registered",
+    "IsSystemMapping": false
+  },
+  {
+    "$key": "Customer:sophie@example.com|CustomerRole:Registered",
+    "CustomerId": "Customer:sophie@example.com",
+    "CustomerRoleId": "CustomerRole:Registered",
+    "IsSystemMapping": false
+  },
+  {
+    "$key": "Customer:tim@example.com|CustomerRole:Registered",
+    "CustomerId": "Customer:tim@example.com",
+    "CustomerRoleId": "CustomerRole:Registered",
+    "IsSystemMapping": false
   }
 ]

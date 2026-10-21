@@ -10,6 +10,7 @@ using Smartstore.Core.Catalog.Products.Utilities;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Installation.Seeding;
 using Smartstore.Core.Seo;
 using Smartstore.Json;
@@ -140,6 +141,7 @@ public partial class InstallationDataSeeder
             foreach (var (product, records, source) in state.Combinations)
             {
                 var descriptor = new SeedEntityDescriptor<ProductVariantAttributeCombination>("sku")
+                    .Reference<DeliveryTime>("deliveryTime", (combination, deliveryTime) => combination.DeliveryTimeId = deliveryTime.Id)
                     .Bind("attributes", (combination, node, _) => combination.RawAttributes = CreateAttributeSelection(product, node))
                     .Bind("pictures", (combination, node, _) => combination.AssignedMediaFileIds = string.Join(",",
                         node.AsArray().Select(x => ResolveProductMedia(product, x, state).Id)))
@@ -186,12 +188,21 @@ public partial class InstallationDataSeeder
             // Keyless list: an overlay replaces the specifications of a product as a whole.
             .ChildList("specifications", x => x.ProductSpecificationAttributes, new SeedEntityDescriptor<ProductSpecificationAttribute>("specificationAttributeOption")
                 .Reference<SpecificationAttributeOption>("specificationAttributeOption", (psa, option) => psa.SpecificationAttributeOptionId = option.Id))
+            .ChildList("reviews", x => x.ProductReviews, new SeedEntityDescriptor<ProductReview>("title")
+                .Reference<Customer>("customer", (review, customer) => review.CustomerId = customer.Id))
             .Child("tierPrices", x => x.TierPrices, new SeedEntityDescriptor<TierPrice>("quantity"))
             .Bind("sampleDownload", (product, node, _) => state.SampleDownloads.Add((product, node.GetValue<string>())))
             .Bind("parentGroupedProduct", (product, node, _) => state.GroupedParents.Add((product, node.GetValue<string>())))
             .Bind("bundleItems", (product, node, context) => state.BundleItems.Add((product, node.AsArray(), context.Source)))
             .Bind("variantAttributes", (product, node, context) => state.VariantAttributes.Add((product, node.AsArray(), context.Source)))
-            .Bind("combinations", (product, node, context) => state.Combinations.Add((product, node.AsArray(), context.Source)));
+            .Bind("combinations", (product, node, context) => state.Combinations.Add((product, node.AsArray(), context.Source)))
+            // Review counters are maintained by hooks at runtime, which do not run during installation.
+            .OnCreated((product, _) =>
+            {
+                var approved = product.ProductReviews.Where(x => x.IsApproved).ToList();
+                product.ApprovedTotalReviews = approved.Count;
+                product.ApprovedRatingSum = approved.Sum(x => x.Rating);
+            });
 
         // Child collections created after the products: declared for merging only.
         // Combinations are not keyed (SKUs are not unique); an overlay replaces them as a whole.

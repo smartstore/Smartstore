@@ -142,6 +142,7 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
             await PopulateAsync("PopulateCampaigns", PopulateCampaigns);
             await PopulateFromSeedAsync("PopulateRuleSets", InstallationSeedDescriptors.RuleSets());
             await PopulateFromSeedAsync("PopulateDiscounts", InstallationSeedDescriptors.Discounts());
+            await PopulateAsync("PopulateSampleCustomers", PopulateSampleCustomers);
             await PopulateAsync("PopulateCategories", PopulateCategories);
             await PopulateAsync("PopulateManufacturers", PopulateManufacturers);
             await PopulateProductsFromSeedAsync();
@@ -361,6 +362,30 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
             customer.CustomerRoleMappings.Add(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = guestRole.Id });
             await SaveAsync(customer);
         }
+    }
+
+    private async Task PopulateSampleCustomers()
+    {
+        var firstNames = new Dictionary<Customer, string>(ReferenceEqualityComparer.Instance);
+        var lastNames = new Dictionary<Customer, string>(ReferenceEqualityComparer.Instance);
+        var customers = CreateFromSeed(InstallationSeedDescriptors.SampleCustomers(firstNames, lastNames));
+
+        var registeredRole = await Context.CustomerRoles.FirstAsync(x => x.SystemName == SystemCustomerRoleNames.Registered);
+        foreach (var customer in customers)
+        {
+            customer.CustomerRoleMappings.Add(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = registeredRole.Id });
+        }
+
+        await SaveRangeAsync(customers);
+
+        foreach (var customer in customers)
+        {
+            Context.GenericAttributes.AddRange(
+                new GenericAttribute { EntityId = customer.Id, Key = "FirstName", KeyGroup = nameof(Customer), Value = firstNames[customer] },
+                new GenericAttribute { EntityId = customer.Id, Key = "LastName", KeyGroup = nameof(Customer), Value = lastNames[customer] });
+        }
+
+        await Context.SaveChangesAsync();
     }
 
     private async Task HashDefaultCustomerPassword(string defaultUserEmail, string defaultUserPassword)

@@ -441,7 +441,7 @@
     "$key": "CatalogSettings.LabelAsNewForMaxDays|0",
     "Name": "CatalogSettings.LabelAsNewForMaxDays",
     "StoreId": 0,
-    "Value": null
+    "Value": "30"
   },
   {
     "$key": "CatalogSettings.LegalInfoInLists|0",
@@ -711,7 +711,7 @@
     "$key": "CatalogSettings.ShowProductReviewsInProductLists|0",
     "Name": "CatalogSettings.ShowProductReviewsInProductLists",
     "StoreId": 0,
-    "Value": "False"
+    "Value": "True"
   },
   {
     "$key": "CatalogSettings.ShowProductSku|0",

@@ -1,0 +1,51 @@
+// Key field: key
+[
+  {
+    "key": "anna",
+    "email": "anna@example.com",
+    "firstName": "Anna",
+    "lastName": "Weber",
+    "adminComment": "Sample customer and author of sample product reviews. Has no password and cannot sign in.",
+    "active": true
+  },
+  {
+    "key": "markus",
+    "email": "markus@example.com",
+    "firstName": "Markus",
+    "lastName": "Keller",
+    "adminComment": "Sample customer and author of sample product reviews. Has no password and cannot sign in.",
+    "active": true
+  },
+  {
+    "key": "sophie",
+    "email": "sophie@example.com",
+    "firstName": "Sophie",
+    "lastName": "Lang",
+    "adminComment": "Sample customer and author of sample product reviews. Has no password and cannot sign in.",
+    "active": true
+  },
+  {
+    "key": "jonas",
+    "email": "jonas@example.com",
+    "firstName": "Jonas",
+    "lastName": "Brandt",
+    "adminComment": "Sample customer and author of sample product reviews. Has no password and cannot sign in.",
+    "active": true
+  },
+  {
+    "key": "laura",
+    "email": "laura@example.com",
+    "firstName": "Laura",
+    "lastName": "Hartmann",
+    "adminComment": "Sample customer and author of sample product reviews. Has no password and cannot sign in.",
+    "active": true
+  },
+  {
+    "key": "tim",
+    "email": "tim@example.com",
+    "firstName": "Tim",
+    "lastName": "Krause",
+    "adminComment": "Sample customer and author of sample product reviews. Has no password and cannot sign in.",
+    "active": true
+  }
+]

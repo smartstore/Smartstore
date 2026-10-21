@@ -8,5 +8,6 @@
   "orderMinimumQuantity": 1,
   "orderMaximumQuantity": 50,
   "published": true,
+  "createdOnUtc": "@now-60d",
   "manageInventoryMethod": "ManageStock"
 }

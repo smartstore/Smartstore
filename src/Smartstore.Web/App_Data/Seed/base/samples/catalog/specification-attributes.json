@@ -954,5 +954,112 @@
         "displayOrder": 2
       }
     ]
+  },
+  {
+    "key": "origin",
+    "name": "Origin",
+    "essential": true,
+    "displayOrder": 10,
+    "options": [
+      { "key": "italy", "name": "Italy", "displayOrder": 1 },
+      { "key": "greece", "name": "Greece", "displayOrder": 2 },
+      { "key": "spain", "name": "Spain", "displayOrder": 3 },
+      { "key": "colombia", "name": "Colombia", "displayOrder": 4 },
+      { "key": "ethiopia", "name": "Ethiopia", "displayOrder": 5 }
+    ]
+  },
+  {
+    "key": "roast",
+    "name": "Roast",
+    "displayOrder": 11,
+    "options": [
+      { "key": "light", "name": "Light", "displayOrder": 1 },
+      { "key": "medium", "name": "Medium", "displayOrder": 2 },
+      { "key": "dark", "name": "Dark", "displayOrder": 3 }
+    ]
+  },
+  {
+    "key": "dietary",
+    "name": "Dietary",
+    "displayOrder": 12,
+    "options": [
+      { "key": "vegan", "name": "Vegan", "displayOrder": 1 },
+      { "key": "gluten-free", "name": "Gluten-free", "displayOrder": 2 },
+      { "key": "organic", "name": "Organic", "displayOrder": 3 }
+    ]
+  },
+  {
+    "key": "bean",
+    "name": "Bean",
+    "displayOrder": 13,
+    "options": [
+      { "key": "arabica", "name": "100% Arabica", "displayOrder": 1 },
+      { "key": "blend", "name": "Arabica-Robusta blend", "displayOrder": 2 },
+      { "key": "robusta", "name": "100% Robusta", "displayOrder": 3 }
+    ]
+  },
+  {
+    "key": "intensity",
+    "name": "Intensity",
+    "displayOrder": 14,
+    "options": [
+      { "key": "mild", "name": "Mild", "displayOrder": 1 },
+      { "key": "medium", "name": "Medium", "displayOrder": 2 },
+      { "key": "strong", "name": "Strong", "displayOrder": 3 },
+      { "key": "extra-strong", "name": "Extra strong", "displayOrder": 4 }
+    ]
+  },
+  {
+    "key": "coffee-type",
+    "name": "Coffee type",
+    "displayOrder": 15,
+    "options": [
+      { "key": "filter", "name": "Filter coffee", "displayOrder": 1 },
+      { "key": "espresso", "name": "Espresso", "displayOrder": 2 },
+      { "key": "organic", "name": "Organic coffee", "displayOrder": 3 },
+      { "key": "rarity", "name": "Rarity", "displayOrder": 4 }
+    ]
+  },
+  {
+    "key": "decaffeinated",
+    "name": "Decaffeinated",
+    "essential": true,
+    "displayOrder": 16,
+    "options": [
+      { "key": "yes", "name": "Yes", "displayOrder": 1 },
+      { "key": "no", "name": "No", "displayOrder": 2 }
+    ]
+  },
+  {
+    "key": "olive-variety",
+    "name": "Olive variety",
+    "displayOrder": 17,
+    "options": [
+      { "key": "coratina", "name": "Coratina", "displayOrder": 1 },
+      { "key": "picual", "name": "Picual", "displayOrder": 2 },
+      { "key": "koroneiki", "name": "Koroneiki", "displayOrder": 3 }
+    ]
+  },
+  {
+    "key": "flavour",
+    "name": "Flavour",
+    "displayOrder": 18,
+    "options": [
+      { "key": "mild", "name": "Mild", "displayOrder": 1 },
+      { "key": "fruity", "name": "Fruity", "displayOrder": 2 },
+      { "key": "savoury", "name": "Savoury", "displayOrder": 3 },
+      { "key": "sweet", "name": "Sweet", "displayOrder": 4 },
+      { "key": "spicy", "name": "Spicy", "displayOrder": 5 }
+    ]
+  },
+  {
+    "key": "occasion",
+    "name": "Occasion",
+    "displayOrder": 19,
+    "options": [
+      { "key": "everyday", "name": "Everyday", "displayOrder": 1 },
+      { "key": "gift", "name": "Gift", "displayOrder": 2 },
+      { "key": "christmas", "name": "Christmas", "displayOrder": 3 }
+    ]
   }
 ]

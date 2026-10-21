@@ -1,0 +1,243 @@
+// Key field: sku
+[
+  {
+    "name": "Extra Virgin Olive Oil 500 ml",
+    "shortDescription": "Cold-pressed extra virgin olive oil, 500 ml bottle.",
+    "fullDescription": "@file",
+    "sku": "FD-1001",
+    "reviews": [
+      { "customer": "anna", "rating": 5, "title": "Wonderful, fruity oil", "reviewText": "Mild and fruity, perfect for salads. The bottle is easy to pour and nothing drips.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-40d" },
+      { "customer": "markus", "rating": 5, "title": "Our standard oil now", "reviewText": "We have switched completely. Great taste even with just fresh bread.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-25d" },
+      { "customer": "sophie", "rating": 4, "title": "Very good, a little pricey", "reviewText": "Tastes great. I would only wish for a larger bottle with a better price per litre.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-12d" },
+      { "customer": "jonas", "rating": 5, "title": "Highly recommended", "reviewText": "You can taste the quality. Will order again.", "isApproved": true, "createdOnUtc": "@now-6d" }
+    ],
+    "taxCategory": "food",
+    "price": 12.90,
+    "basePriceEnabled": true,
+    "basePriceMeasureUnit": "l",
+    "basePriceAmount": 0.5,
+    "basePriceBaseAmount": 1,
+    "deliveryTime": "available-and-ready-to-ship",
+    "stockQuantity": 120,
+    "displayStockAvailability": true,
+    "showOnHomePage": true,
+    "categories": [ "Oil and Vinegar" ],
+    "manufacturers": [ "casa-vireluna" ],
+    "pictures": [
+      { "file": "product/demo-round.jpg", "name": "extra-virgin-olive-oil" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "origin/italy", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "olive-variety/coratina", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "flavour/fruity", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 3 },
+      { "specificationAttributeOption": "dietary/vegan", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 4 },
+      { "specificationAttributeOption": "dietary/organic", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 4 }
+    ]
+  },
+  {
+    "name": "Roasted Coffee",
+    "shortDescription": "Freshly roasted arabica beans, in two pack sizes and three grinds.",
+    "fullDescription": "@file",
+    "sku": "FD-1002",
+    "reviews": [
+      { "customer": "laura", "rating": 5, "title": "Strong and aromatic", "reviewText": "Notes of cocoa and hazelnut, exactly as described. Perfect in the filter machine.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-30d" },
+      { "customer": "tim", "rating": 4, "title": "Good value in the 1 kg pack", "reviewText": "The large pack is clearly cheaper per kilogram. It just takes a little longer to arrive.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-14d" },
+      { "customer": "anna", "rating": 3, "title": "A bit too strong for me", "reviewText": "Good quality, but I prefer a milder coffee.", "isApproved": true, "createdOnUtc": "@now-3d" }
+    ],
+    "taxCategory": "food",
+    "price": 8.90,
+    "basePriceEnabled": true,
+    "basePriceMeasureUnit": "kg",
+    "basePriceAmount": 0.25,
+    "basePriceBaseAmount": 1,
+    "deliveryTime": "available-and-ready-to-ship",
+    "manageInventoryMethod": "ManageStockByAttributes",
+    "categories": [ "Coffee and Tea" ],
+    "manufacturers": [ "casa-vireluna" ],
+    "pictures": [
+      { "file": "product/demo-box.jpg", "name": "roasted-coffee" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "origin/colombia", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "bean/arabica", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "roast/medium", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 3 },
+      { "specificationAttributeOption": "intensity/strong", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 4 },
+      { "specificationAttributeOption": "coffee-type/filter", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 5 },
+      { "specificationAttributeOption": "decaffeinated/no", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 6 }
+    ],
+    "variantAttributes": [
+      {
+        "productAttribute": "pack-size",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "displayOrder": 1,
+        "values": [
+          { "name": "250 g", "alias": "pack-250g", "isPreSelected": true, "displayOrder": 1 },
+          { "name": "1 kg", "alias": "pack-1kg", "displayOrder": 2 }
+        ]
+      },
+      {
+        "productAttribute": "grind",
+        "isRequired": true,
+        "attributeControlType": "RadioList",
+        "displayOrder": 2,
+        "values": [
+          { "name": "Whole beans", "alias": "grind-whole", "isPreSelected": true, "displayOrder": 1 },
+          { "name": "Fine (espresso)", "alias": "grind-espresso", "displayOrder": 2 },
+          { "name": "Medium (filter)", "alias": "grind-filter", "displayOrder": 3 }
+        ]
+      }
+    ],
+    "combinations": [
+      {
+        "sku": "FD-1002-250-W", "price": 8.90, "stockQuantity": 200, "basePriceAmount": 0.25, "basePriceBaseAmount": 1,
+        "attributes": { "pack-size": "pack-250g", "grind": "grind-whole" }
+      },
+      {
+        "sku": "FD-1002-250-E", "price": 8.90, "stockQuantity": 200, "basePriceAmount": 0.25, "basePriceBaseAmount": 1,
+        "attributes": { "pack-size": "pack-250g", "grind": "grind-espresso" }
+      },
+      {
+        "sku": "FD-1002-250-F", "price": 8.90, "stockQuantity": 200, "basePriceAmount": 0.25, "basePriceBaseAmount": 1,
+        "attributes": { "pack-size": "pack-250g", "grind": "grind-filter" }
+      },
+      {
+        "sku": "FD-1002-1000-W", "price": 29.90, "stockQuantity": 80, "basePriceAmount": 1, "basePriceBaseAmount": 1, "deliveryTime": "2-5-working-days",
+        "attributes": { "pack-size": "pack-1kg", "grind": "grind-whole" }
+      },
+      {
+        "sku": "FD-1002-1000-E", "price": 29.90, "stockQuantity": 80, "basePriceAmount": 1, "basePriceBaseAmount": 1, "deliveryTime": "2-5-working-days",
+        "attributes": { "pack-size": "pack-1kg", "grind": "grind-espresso" }
+      },
+      {
+        "sku": "FD-1002-1000-F", "price": 29.90, "stockQuantity": 80, "basePriceAmount": 1, "basePriceBaseAmount": 1, "deliveryTime": "2-5-working-days",
+        "attributes": { "pack-size": "pack-1kg", "grind": "grind-filter" }
+      }
+    ]
+  },
+  {
+    "name": "Coffee Subscription",
+    "shortDescription": "Your favourite coffee, delivered every month.",
+    "fullDescription": "@file",
+    "sku": "FD-1003",
+    "taxCategory": "food",
+    "price": 8.50,
+    "isRecurring": true,
+    "recurringCycleLength": 1,
+    "recurringCyclePeriod": "Months",
+    "recurringTotalCycles": 12,
+    "deliveryTime": "available-and-ready-to-ship",
+    "categories": [ "Coffee and Tea" ],
+    "manufacturers": [ "casa-vireluna" ],
+    "pictures": [
+      { "file": "product/demo-box.jpg", "name": "coffee-subscription" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "origin/ethiopia", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "bean/arabica", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "roast/light", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 3 },
+      { "specificationAttributeOption": "intensity/mild", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 4 },
+      { "specificationAttributeOption": "coffee-type/rarity", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 5 },
+      { "specificationAttributeOption": "decaffeinated/no", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 6 }
+    ]
+  },
+  {
+    "name": "Mediterranean Herb Mix 100 g",
+    "shortDescription": "Oregano, thyme, rosemary and basil in a 100 g jar.",
+    "fullDescription": "@file",
+    "sku": "FD-1004",
+    "reviews": [
+      { "customer": "sophie", "rating": 3, "title": "Nice mix, small jar", "reviewText": "Tastes good on roast vegetables, but the jar is used up quickly.", "isApproved": true, "createdOnUtc": "@now-4d" }
+    ],
+    "taxCategory": "food",
+    "price": 4.90,
+    "createdOnUtc": "@now-5d",
+    "stockQuantity": 8,
+    "displayStockAvailability": true,
+    "displayStockQuantity": true,
+    "deliveryTime": "2-5-working-days",
+    "categories": [ "Delicacies" ],
+    "manufacturers": [ "casa-vireluna" ],
+    "pictures": [
+      { "file": "product/demo-round.jpg", "name": "mediterranean-herb-mix" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "origin/italy", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "flavour/savoury", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "dietary/vegan", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 3 },
+      { "specificationAttributeOption": "dietary/gluten-free", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 3 }
+    ]
+  },
+  {
+    "productType": "BundledProduct",
+    "name": "Gourmet Gift Box",
+    "shortDescription": "Olive oil and two herb mixes in one gift box.",
+    "fullDescription": "@file",
+    "sku": "FD-1005",
+    "reviews": [
+      { "customer": "laura", "rating": 5, "title": "The perfect gift", "reviewText": "Beautifully packed and a lovely selection. My parents were delighted.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-9d" },
+      { "customer": "jonas", "rating": 5, "title": "Great value", "reviewText": "Cheaper than buying the items separately, and ready to give away.", "isApproved": true, "createdOnUtc": "@now-2d" }
+    ],
+    "taxCategory": "food",
+    "price": 17.03,
+    "createdOnUtc": "@now-5d",
+    "deliveryTime": "available-and-ready-to-ship",
+    "bundleTitleText": "The box contains",
+    "bundlePerItemPricing": true,
+    "showOnHomePage": true,
+    "categories": [ "Delicacies" ],
+    "manufacturers": [ "casa-vireluna" ],
+    "tags": [ "gift" ],
+    "pictures": [
+      { "file": "product/demo-box.jpg", "name": "gourmet-gift-box" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "occasion/gift", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 }
+    ],
+    "bundleItems": [
+      { "product": "FD-1001", "quantity": 1, "discount": 25, "discountPercentage": true, "visible": true, "published": true, "displayOrder": 1 },
+      { "product": "FD-1004", "quantity": 2, "discount": 25, "discountPercentage": true, "visible": true, "published": true, "displayOrder": 2 }
+    ]
+  },
+  {
+    "name": "Sea Salt Mill",
+    "shortDescription": "Ceramic mill filled with coarse sea salt.",
+    "fullDescription": "@file",
+    "sku": "FD-1006",
+    "taxCategory": "food",
+    "price": 14.90,
+    "stockQuantity": 0,
+    "allowBackInStockSubscriptions": true,
+    "displayStockAvailability": true,
+    "deliveryTime": "7-working-days",
+    "categories": [ "Delicacies" ],
+    "manufacturers": [ "casa-vireluna" ],
+    "pictures": [
+      { "file": "product/demo-round.jpg", "name": "sea-salt-mill" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "origin/spain", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "dietary/vegan", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 }
+    ]
+  },
+  {
+    "name": "Spiced Christmas Cookies",
+    "shortDescription": "Crisp spiced cookies with cinnamon, orange and almonds, 300 g.",
+    "fullDescription": "@file",
+    "sku": "FD-1007",
+    "taxCategory": "food",
+    "price": 7.90,
+    "availableStartDateTimeUtc": "@now+2M",
+    "deliveryTime": "2-5-working-days",
+    "categories": [ "Delicacies" ],
+    "manufacturers": [ "casa-vireluna" ],
+    "pictures": [
+      { "file": "product/demo-box.jpg", "name": "spiced-christmas-cookies" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "flavour/sweet", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "flavour/spicy", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "occasion/christmas", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 }
+    ]
+  }
+]

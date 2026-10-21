@@ -100,6 +100,11 @@
     "Product_Id": "Product:LR 556"
   },
   {
+    "$key": "ProductTag:Geschenk|Product:FD-1005",
+    "ProductTag_Id": "ProductTag:Geschenk",
+    "Product_Id": "Product:FD-1005"
+  },
+  {
     "$key": "ProductTag:Geschenk|Product:P-1000",
     "ProductTag_Id": "ProductTag:Geschenk",
     "Product_Id": "Product:P-1000"

@@ -520,6 +520,62 @@
     "Slug": "superstar-shoe"
   },
   {
+    "$key": "Product|Product:FD-1001|0|extra-virgin-olive-oil-500-ml",
+    "EntityId": "Product:FD-1001",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "extra-virgin-olive-oil-500-ml"
+  },
+  {
+    "$key": "Product|Product:FD-1002|0|roasted-coffee",
+    "EntityId": "Product:FD-1002",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "roasted-coffee"
+  },
+  {
+    "$key": "Product|Product:FD-1003|0|coffee-subscription",
+    "EntityId": "Product:FD-1003",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "coffee-subscription"
+  },
+  {
+    "$key": "Product|Product:FD-1004|0|mediterranean-herb-mix-100-g",
+    "EntityId": "Product:FD-1004",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "mediterranean-herb-mix-100-g"
+  },
+  {
+    "$key": "Product|Product:FD-1005|0|gourmet-gift-box",
+    "EntityId": "Product:FD-1005",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "gourmet-gift-box"
+  },
+  {
+    "$key": "Product|Product:FD-1006|0|sea-salt-mill",
+    "EntityId": "Product:FD-1006",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "sea-salt-mill"
+  },
+  {
+    "$key": "Product|Product:FD-1007|0|spiced-christmas-cookies",
+    "EntityId": "Product:FD-1007",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "spiced-christmas-cookies"
+  },
+  {
     "$key": "Product|Product:Fashion-112355|0|converse-all-star",
     "EntityId": "Product:Fashion-112355",
     "EntityName": "Product",

@@ -1,5 +1,35 @@
 [
   {
+    "$key": "Product:FD-1002|ProductAttribute:grind",
+    "AttributeControlTypeId": 2,
+    "CustomData": null,
+    "DisplayOrder": 2,
+    "IsRequired": true,
+    "ProductAttributeId": "ProductAttribute:grind",
+    "ProductId": "Product:FD-1002",
+    "ShowValueNameInSwatch": null,
+    "SwatchAspectRatio": null,
+    "SwatchPriceDisplay": null,
+    "SwatchShape": null,
+    "SwatchSize": null,
+    "TextPrompt": null
+  },
+  {
+    "$key": "Product:FD-1002|ProductAttribute:pack-size",
+    "AttributeControlTypeId": 40,
+    "CustomData": null,
+    "DisplayOrder": 1,
+    "IsRequired": true,
+    "ProductAttributeId": "ProductAttribute:pack-size",
+    "ProductId": "Product:FD-1002",
+    "ShowValueNameInSwatch": null,
+    "SwatchAspectRatio": null,
+    "SwatchPriceDisplay": null,
+    "SwatchShape": null,
+    "SwatchSize": null,
+    "TextPrompt": null
+  },
+  {
     "$key": "Product:Fashion-112355|ProductAttribute:color",
     "AttributeControlTypeId": 40,
     "CustomData": null,

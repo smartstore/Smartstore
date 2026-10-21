@@ -1,5 +1,18 @@
 [
   {
+    "$key": "Bean",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 13,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Bean",
+    "ShowOnProductPage": false
+  },
+  {
     "$key": "CPU-Manufacturer",
     "Alias": null,
     "AllowFiltering": false,
@@ -52,6 +65,19 @@
     "ShowOnProductPage": false
   },
   {
+    "$key": "Coffee type",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 15,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Coffee type",
+    "ShowOnProductPage": false
+  },
+  {
     "$key": "Color",
     "Alias": null,
     "AllowFiltering": false,
@@ -75,6 +101,19 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Computer-type",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Decaffeinated",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 16,
+    "Essential": true,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Decaffeinated",
     "ShowOnProductPage": false
   },
   {
@@ -104,6 +143,19 @@
     "ShowOnProductPage": false
   },
   {
+    "$key": "Dietary",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 12,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Dietary",
+    "ShowOnProductPage": false
+  },
+  {
     "$key": "Edition",
     "Alias": null,
     "AllowFiltering": false,
@@ -127,6 +179,19 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Facial shape",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Flavour",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 18,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Flavour",
     "ShowOnProductPage": false
   },
   {
@@ -166,6 +231,19 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Harddisk capacity",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Intensity",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 14,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Intensity",
     "ShowOnProductPage": false
   },
   {
@@ -247,6 +325,19 @@
     "ShowOnProductPage": false
   },
   {
+    "$key": "Occasion",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 19,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Occasion",
+    "ShowOnProductPage": false
+  },
+  {
     "$key": "Offer",
     "Alias": null,
     "AllowFiltering": false,
@@ -260,6 +351,19 @@
     "ShowOnProductPage": false
   },
   {
+    "$key": "Olive variety",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 17,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Olive variety",
+    "ShowOnProductPage": false
+  },
+  {
     "$key": "Operating System",
     "Alias": null,
     "AllowFiltering": false,
@@ -270,6 +374,19 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Operating System",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Origin",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 10,
+    "Essential": true,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Origin",
     "ShowOnProductPage": false
   },
   {
@@ -296,6 +413,19 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "RAM",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Roast",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 11,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Roast",
     "ShowOnProductPage": false
   },
   {

@@ -13,6 +13,19 @@
     "ShowOnProductPage": false
   },
   {
+    "$key": "Anlass",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 19,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Anlass",
+    "ShowOnProductPage": false
+  },
+  {
     "$key": "Anschluss",
     "Alias": null,
     "AllowFiltering": false,
@@ -65,6 +78,19 @@
     "ShowOnProductPage": false
   },
   {
+    "$key": "Bohne",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 13,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Bohne",
+    "ShowOnProductPage": false
+  },
+  {
     "$key": "CPU-Hersteller",
     "Alias": null,
     "AllowFiltering": false,
@@ -101,6 +127,32 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Durchmesser",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Entkoffeiniert",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 16,
+    "Essential": true,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Entkoffeiniert",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Ernährung",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 12,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Ernährung",
     "ShowOnProductPage": false
   },
   {
@@ -195,6 +247,19 @@
     "ShowOnProductPage": false
   },
   {
+    "$key": "Geschmack",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 18,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Geschmack",
+    "ShowOnProductPage": false
+  },
+  {
     "$key": "Glas",
     "Alias": null,
     "AllowFiltering": false,
@@ -234,6 +299,19 @@
     "ShowOnProductPage": false
   },
   {
+    "$key": "Herkunft",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 10,
+    "Essential": true,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Herkunft",
+    "ShowOnProductPage": false
+  },
+  {
     "$key": "Hersteller",
     "Alias": null,
     "AllowFiltering": false,
@@ -244,6 +322,32 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Hersteller",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Intensität",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 14,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Intensität",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Kaffeeart",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 15,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Kaffeeart",
     "ShowOnProductPage": false
   },
   {
@@ -283,6 +387,32 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Material",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Olivensorte",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 17,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Olivensorte",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Röstung",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 11,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Röstung",
     "ShowOnProductPage": false
   },
   {

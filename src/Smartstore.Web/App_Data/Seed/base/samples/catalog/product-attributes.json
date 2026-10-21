@@ -111,5 +111,13 @@
   {
     "name": "Framecolor",
     "alias": "wayfarerframecolor"
+  },
+  {
+    "name": "Pack size",
+    "alias": "pack-size"
+  },
+  {
+    "name": "Grind",
+    "alias": "grind"
   }
 ]

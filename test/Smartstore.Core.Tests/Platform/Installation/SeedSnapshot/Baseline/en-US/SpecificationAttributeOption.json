@@ -1,5 +1,35 @@
 [
   {
+    "$key": "SpecificationAttribute:Bean|100% Arabica",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "100% Arabica",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Bean"
+  },
+  {
+    "$key": "SpecificationAttribute:Bean|100% Robusta",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "100% Robusta",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Bean"
+  },
+  {
+    "$key": "SpecificationAttribute:Bean|Arabica-Robusta blend",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Arabica-Robusta blend",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Bean"
+  },
+  {
     "$key": "SpecificationAttribute:CPU-Manufacturer|AMD",
     "Alias": null,
     "Color": null,
@@ -200,6 +230,46 @@
     "SpecificationAttributeId": "SpecificationAttribute:Closure"
   },
   {
+    "$key": "SpecificationAttribute:Coffee type|Espresso",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Espresso",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Coffee type"
+  },
+  {
+    "$key": "SpecificationAttribute:Coffee type|Filter coffee",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Filter coffee",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Coffee type"
+  },
+  {
+    "$key": "SpecificationAttribute:Coffee type|Organic coffee",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Organic coffee",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Coffee type"
+  },
+  {
+    "$key": "SpecificationAttribute:Coffee type|Rarity",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 4,
+    "MediaFileId": 0,
+    "Name": "Rarity",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Coffee type"
+  },
+  {
     "$key": "SpecificationAttribute:Color|beige",
     "Alias": null,
     "Color": null,
@@ -310,6 +380,26 @@
     "SpecificationAttributeId": "SpecificationAttribute:Computer-type"
   },
   {
+    "$key": "SpecificationAttribute:Decaffeinated|No",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "No",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Decaffeinated"
+  },
+  {
+    "$key": "SpecificationAttribute:Decaffeinated|Yes",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Yes",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Decaffeinated"
+  },
+  {
     "$key": "SpecificationAttribute:Dial window material type|Mineral",
     "Alias": null,
     "Color": null,
@@ -358,6 +448,36 @@
     "Name": "44mm",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Diameter"
+  },
+  {
+    "$key": "SpecificationAttribute:Dietary|Gluten-free",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Gluten-free",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Dietary"
+  },
+  {
+    "$key": "SpecificationAttribute:Dietary|Organic",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Organic",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Dietary"
+  },
+  {
+    "$key": "SpecificationAttribute:Dietary|Vegan",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Vegan",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Dietary"
   },
   {
     "$key": "SpecificationAttribute:Edition|bound",
@@ -418,6 +538,56 @@
     "Name": "round",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Facial shape"
+  },
+  {
+    "$key": "SpecificationAttribute:Flavour|Fruity",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Fruity",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Flavour"
+  },
+  {
+    "$key": "SpecificationAttribute:Flavour|Mild",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Mild",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Flavour"
+  },
+  {
+    "$key": "SpecificationAttribute:Flavour|Savoury",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Savoury",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Flavour"
+  },
+  {
+    "$key": "SpecificationAttribute:Flavour|Spicy",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 5,
+    "MediaFileId": 0,
+    "Name": "Spicy",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Flavour"
+  },
+  {
+    "$key": "SpecificationAttribute:Flavour|Sweet",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 4,
+    "MediaFileId": 0,
+    "Name": "Sweet",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Flavour"
   },
   {
     "$key": "SpecificationAttribute:For whom|For her",
@@ -518,6 +688,46 @@
     "Name": "750 GB",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Harddisk capacity"
+  },
+  {
+    "$key": "SpecificationAttribute:Intensity|Extra strong",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 4,
+    "MediaFileId": 0,
+    "Name": "Extra strong",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Intensity"
+  },
+  {
+    "$key": "SpecificationAttribute:Intensity|Medium",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Medium",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Intensity"
+  },
+  {
+    "$key": "SpecificationAttribute:Intensity|Mild",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Mild",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Intensity"
+  },
+  {
+    "$key": "SpecificationAttribute:Intensity|Strong",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Strong",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Intensity"
   },
   {
     "$key": "SpecificationAttribute:Language|english",
@@ -1060,6 +1270,36 @@
     "SpecificationAttributeId": "SpecificationAttribute:Music genre"
   },
   {
+    "$key": "SpecificationAttribute:Occasion|Christmas",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Christmas",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Occasion"
+  },
+  {
+    "$key": "SpecificationAttribute:Occasion|Everyday",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Everyday",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Occasion"
+  },
+  {
+    "$key": "SpecificationAttribute:Occasion|Gift",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Gift",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Occasion"
+  },
+  {
     "$key": "SpecificationAttribute:Offer|Best Price",
     "Alias": null,
     "Color": null,
@@ -1138,6 +1378,36 @@
     "Name": "Weekly offer",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Offer"
+  },
+  {
+    "$key": "SpecificationAttribute:Olive variety|Coratina",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Coratina",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Olive variety"
+  },
+  {
+    "$key": "SpecificationAttribute:Olive variety|Koroneiki",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Koroneiki",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Olive variety"
+  },
+  {
+    "$key": "SpecificationAttribute:Olive variety|Picual",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Picual",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Olive variety"
   },
   {
     "$key": "SpecificationAttribute:Operating System|Android 2",
@@ -1228,6 +1498,56 @@
     "Name": "iOS",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Operating System"
+  },
+  {
+    "$key": "SpecificationAttribute:Origin|Colombia",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 4,
+    "MediaFileId": 0,
+    "Name": "Colombia",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Origin"
+  },
+  {
+    "$key": "SpecificationAttribute:Origin|Ethiopia",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 5,
+    "MediaFileId": 0,
+    "Name": "Ethiopia",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Origin"
+  },
+  {
+    "$key": "SpecificationAttribute:Origin|Greece",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Greece",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Origin"
+  },
+  {
+    "$key": "SpecificationAttribute:Origin|Italy",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Italy",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Origin"
+  },
+  {
+    "$key": "SpecificationAttribute:Origin|Spain",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Spain",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Origin"
   },
   {
     "$key": "SpecificationAttribute:Ports|DVI",
@@ -1348,6 +1668,36 @@
     "Name": "8 GB",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:RAM"
+  },
+  {
+    "$key": "SpecificationAttribute:Roast|Dark",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Dark",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Roast"
+  },
+  {
+    "$key": "SpecificationAttribute:Roast|Light",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Light",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Roast"
+  },
+  {
+    "$key": "SpecificationAttribute:Roast|Medium",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Medium",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Roast"
   },
   {
     "$key": "SpecificationAttribute:Size (ext. HDD)|2.5",

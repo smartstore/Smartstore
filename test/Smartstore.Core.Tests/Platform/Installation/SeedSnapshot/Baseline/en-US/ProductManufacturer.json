@@ -7,6 +7,55 @@
     "ProductId": "Product:Adidas-C77124"
   },
   {
+    "$key": "Product:FD-1001|Manufacturer:Casa Vireluna",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "ManufacturerId": "Manufacturer:Casa Vireluna",
+    "ProductId": "Product:FD-1001"
+  },
+  {
+    "$key": "Product:FD-1002|Manufacturer:Casa Vireluna",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "ManufacturerId": "Manufacturer:Casa Vireluna",
+    "ProductId": "Product:FD-1002"
+  },
+  {
+    "$key": "Product:FD-1003|Manufacturer:Casa Vireluna",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "ManufacturerId": "Manufacturer:Casa Vireluna",
+    "ProductId": "Product:FD-1003"
+  },
+  {
+    "$key": "Product:FD-1004|Manufacturer:Casa Vireluna",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "ManufacturerId": "Manufacturer:Casa Vireluna",
+    "ProductId": "Product:FD-1004"
+  },
+  {
+    "$key": "Product:FD-1005|Manufacturer:Casa Vireluna",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "ManufacturerId": "Manufacturer:Casa Vireluna",
+    "ProductId": "Product:FD-1005"
+  },
+  {
+    "$key": "Product:FD-1006|Manufacturer:Casa Vireluna",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "ManufacturerId": "Manufacturer:Casa Vireluna",
+    "ProductId": "Product:FD-1006"
+  },
+  {
+    "$key": "Product:FD-1007|Manufacturer:Casa Vireluna",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "ManufacturerId": "Manufacturer:Casa Vireluna",
+    "ProductId": "Product:FD-1007"
+  },
+  {
     "$key": "Product:Gaming-Lego-001|Manufacturer:Warner Home Video Games",
     "DisplayOrder": 1,
     "IsFeaturedProduct": false,

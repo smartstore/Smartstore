@@ -341,5 +341,85 @@
         "name": "Saphir"
       }
     }
+  },
+  "origin": {
+    "name": "Herkunft",
+    "options": {
+      "italy": { "name": "Italien" },
+      "greece": { "name": "Griechenland" },
+      "spain": { "name": "Spanien" },
+      "colombia": { "name": "Kolumbien" },
+      "ethiopia": { "name": "Äthiopien" }
+    }
+  },
+  "roast": {
+    "name": "Röstung",
+    "options": {
+      "light": { "name": "Hell" },
+      "medium": { "name": "Mittel" },
+      "dark": { "name": "Dunkel" }
+    }
+  },
+  "dietary": {
+    "name": "Ernährung",
+    "options": {
+      "vegan": { "name": "Vegan" },
+      "gluten-free": { "name": "Glutenfrei" },
+      "organic": { "name": "Bio" }
+    }
+  },
+  "bean": {
+    "name": "Bohne",
+    "options": {
+      "arabica": { "name": "100 % Arabica" },
+      "blend": { "name": "Arabica-Robusta-Mischung" },
+      "robusta": { "name": "100 % Robusta" }
+    }
+  },
+  "intensity": {
+    "name": "Intensität",
+    "options": {
+      "mild": { "name": "Mild" },
+      "medium": { "name": "Mittel" },
+      "strong": { "name": "Kräftig" },
+      "extra-strong": { "name": "Extra kräftig" }
+    }
+  },
+  "coffee-type": {
+    "name": "Kaffeeart",
+    "options": {
+      "filter": { "name": "Filterkaffee" },
+      "espresso": { "name": "Espresso" },
+      "organic": { "name": "Bio-Kaffee" },
+      "rarity": { "name": "Rarität" }
+    }
+  },
+  "decaffeinated": {
+    "name": "Entkoffeiniert",
+    "options": {
+      "yes": { "name": "Ja" },
+      "no": { "name": "Nein" }
+    }
+  },
+  "olive-variety": {
+    "name": "Olivensorte"
+  },
+  "flavour": {
+    "name": "Geschmack",
+    "options": {
+      "mild": { "name": "Mild" },
+      "fruity": { "name": "Fruchtig" },
+      "savoury": { "name": "Würzig-herzhaft" },
+      "sweet": { "name": "Süß" },
+      "spicy": { "name": "Gewürzt" }
+    }
+  },
+  "occasion": {
+    "name": "Anlass",
+    "options": {
+      "everyday": { "name": "Alltag" },
+      "gift": { "name": "Geschenk" },
+      "christmas": { "name": "Weihnachten" }
+    }
   }
 }

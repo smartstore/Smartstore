@@ -80,6 +80,36 @@
     "SpecificationAttributeId": "SpecificationAttribute:Angebot"
   },
   {
+    "$key": "SpecificationAttribute:Anlass|Alltag",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Alltag",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Anlass"
+  },
+  {
+    "$key": "SpecificationAttribute:Anlass|Geschenk",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Geschenk",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Anlass"
+  },
+  {
+    "$key": "SpecificationAttribute:Anlass|Weihnachten",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Weihnachten",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Anlass"
+  },
+  {
     "$key": "SpecificationAttribute:Anschluss|DVI",
     "Alias": null,
     "Color": null,
@@ -310,6 +340,36 @@
     "SpecificationAttributeId": "SpecificationAttribute:Betriebssystem"
   },
   {
+    "$key": "SpecificationAttribute:Bohne|100 % Arabica",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "100 % Arabica",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Bohne"
+  },
+  {
+    "$key": "SpecificationAttribute:Bohne|100 % Robusta",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "100 % Robusta",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Bohne"
+  },
+  {
+    "$key": "SpecificationAttribute:Bohne|Arabica-Robusta-Mischung",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Arabica-Robusta-Mischung",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Bohne"
+  },
+  {
     "$key": "SpecificationAttribute:CPU-Hersteller|AMD",
     "Alias": null,
     "Color": null,
@@ -428,6 +488,56 @@
     "Name": "44mm",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Durchmesser"
+  },
+  {
+    "$key": "SpecificationAttribute:Entkoffeiniert|Ja",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Ja",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Entkoffeiniert"
+  },
+  {
+    "$key": "SpecificationAttribute:Entkoffeiniert|Nein",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Nein",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Entkoffeiniert"
+  },
+  {
+    "$key": "SpecificationAttribute:Ernährung|Bio",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Bio",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Ernährung"
+  },
+  {
+    "$key": "SpecificationAttribute:Ernährung|Glutenfrei",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Glutenfrei",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Ernährung"
+  },
+  {
+    "$key": "SpecificationAttribute:Ernährung|Vegan",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Vegan",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Ernährung"
   },
   {
     "$key": "SpecificationAttribute:Farbe|Beige",
@@ -800,6 +910,56 @@
     "SpecificationAttributeId": "SpecificationAttribute:Geschlecht"
   },
   {
+    "$key": "SpecificationAttribute:Geschmack|Fruchtig",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Fruchtig",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Geschmack"
+  },
+  {
+    "$key": "SpecificationAttribute:Geschmack|Gewürzt",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 5,
+    "MediaFileId": 0,
+    "Name": "Gewürzt",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Geschmack"
+  },
+  {
+    "$key": "SpecificationAttribute:Geschmack|Mild",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Mild",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Geschmack"
+  },
+  {
+    "$key": "SpecificationAttribute:Geschmack|Süß",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 4,
+    "MediaFileId": 0,
+    "Name": "Süß",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Geschmack"
+  },
+  {
+    "$key": "SpecificationAttribute:Geschmack|Würzig-herzhaft",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Würzig-herzhaft",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Geschmack"
+  },
+  {
     "$key": "SpecificationAttribute:Glas|Mineral",
     "Alias": null,
     "Color": null,
@@ -898,6 +1058,56 @@
     "Name": "XXL",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Größe"
+  },
+  {
+    "$key": "SpecificationAttribute:Herkunft|Griechenland",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Griechenland",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Herkunft"
+  },
+  {
+    "$key": "SpecificationAttribute:Herkunft|Italien",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Italien",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Herkunft"
+  },
+  {
+    "$key": "SpecificationAttribute:Herkunft|Kolumbien",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 4,
+    "MediaFileId": 0,
+    "Name": "Kolumbien",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Herkunft"
+  },
+  {
+    "$key": "SpecificationAttribute:Herkunft|Spanien",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Spanien",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Herkunft"
+  },
+  {
+    "$key": "SpecificationAttribute:Herkunft|Äthiopien",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 5,
+    "MediaFileId": 0,
+    "Name": "Äthiopien",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Herkunft"
   },
   {
     "$key": "SpecificationAttribute:Hersteller|Adidas",
@@ -1108,6 +1318,86 @@
     "Name": "Tissot",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Hersteller"
+  },
+  {
+    "$key": "SpecificationAttribute:Intensität|Extra kräftig",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 4,
+    "MediaFileId": 0,
+    "Name": "Extra kräftig",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Intensität"
+  },
+  {
+    "$key": "SpecificationAttribute:Intensität|Kräftig",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Kräftig",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Intensität"
+  },
+  {
+    "$key": "SpecificationAttribute:Intensität|Mild",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Mild",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Intensität"
+  },
+  {
+    "$key": "SpecificationAttribute:Intensität|Mittel",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Mittel",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Intensität"
+  },
+  {
+    "$key": "SpecificationAttribute:Kaffeeart|Bio-Kaffee",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Bio-Kaffee",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Kaffeeart"
+  },
+  {
+    "$key": "SpecificationAttribute:Kaffeeart|Espresso",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Espresso",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Kaffeeart"
+  },
+  {
+    "$key": "SpecificationAttribute:Kaffeeart|Filterkaffee",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Filterkaffee",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Kaffeeart"
+  },
+  {
+    "$key": "SpecificationAttribute:Kaffeeart|Rarität",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 4,
+    "MediaFileId": 0,
+    "Name": "Rarität",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Kaffeeart"
   },
   {
     "$key": "SpecificationAttribute:MP3-Qualität|128 kbit/s",
@@ -1328,6 +1618,66 @@
     "Name": "Titan",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Material"
+  },
+  {
+    "$key": "SpecificationAttribute:Olivensorte|Coratina",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Coratina",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Olivensorte"
+  },
+  {
+    "$key": "SpecificationAttribute:Olivensorte|Koroneiki",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Koroneiki",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Olivensorte"
+  },
+  {
+    "$key": "SpecificationAttribute:Olivensorte|Picual",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Picual",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Olivensorte"
+  },
+  {
+    "$key": "SpecificationAttribute:Röstung|Dunkel",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Dunkel",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Röstung"
+  },
+  {
+    "$key": "SpecificationAttribute:Röstung|Hell",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Hell",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Röstung"
+  },
+  {
+    "$key": "SpecificationAttribute:Röstung|Mittel",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Mittel",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Röstung"
   },
   {
     "$key": "SpecificationAttribute:Scheibenmaterial|Mineral",

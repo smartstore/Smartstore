@@ -6,6 +6,48 @@
     "ProductId": "Product:Adidas-C77124"
   },
   {
+    "$key": "Product:FD-1001|MediaFile:extra-virgin-olive-oil.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:extra-virgin-olive-oil.jpg",
+    "ProductId": "Product:FD-1001"
+  },
+  {
+    "$key": "Product:FD-1002|MediaFile:roasted-coffee.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:roasted-coffee.jpg",
+    "ProductId": "Product:FD-1002"
+  },
+  {
+    "$key": "Product:FD-1003|MediaFile:coffee-subscription.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:coffee-subscription.jpg",
+    "ProductId": "Product:FD-1003"
+  },
+  {
+    "$key": "Product:FD-1004|MediaFile:mediterranean-herb-mix.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:mediterranean-herb-mix.jpg",
+    "ProductId": "Product:FD-1004"
+  },
+  {
+    "$key": "Product:FD-1005|MediaFile:gourmet-gift-box.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:gourmet-gift-box.jpg",
+    "ProductId": "Product:FD-1005"
+  },
+  {
+    "$key": "Product:FD-1006|MediaFile:sea-salt-mill.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:sea-salt-mill.jpg",
+    "ProductId": "Product:FD-1006"
+  },
+  {
+    "$key": "Product:FD-1007|MediaFile:spiced-christmas-cookies.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:spiced-christmas-cookies.jpg",
+    "ProductId": "Product:FD-1007"
+  },
+  {
     "$key": "Product:Fashion-112355|MediaFile:allstar-converse-charcoal.jpg",
     "DisplayOrder": 1,
     "MediaFileId": "MediaFile:allstar-converse-charcoal.jpg",

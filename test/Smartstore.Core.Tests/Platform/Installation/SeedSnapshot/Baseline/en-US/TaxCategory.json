@@ -20,6 +20,11 @@
     "Name": "Electronics & Software"
   },
   {
+    "$key": "Food & Beverages",
+    "DisplayOrder": 25,
+    "Name": "Food & Beverages"
+  },
+  {
     "$key": "Jewelry",
     "DisplayOrder": 15,
     "Name": "Jewelry"

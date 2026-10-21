@@ -177,6 +177,7 @@ seeded yet; the installer guarantees the order.
 | `bundleItems` | Keyed by `product` (SKU). Created after all products. |
 | `parentGroupedProduct`, `sampleDownload` | SKU of the grouped product; media path of the sample download. |
 | `groupedProductConfiguration` | Object, e.g. `{ "collapsible": true, "headerFields": [ "image", "sku", "price" ] }`. |
+| `reviews` | List without keys: `customer` (key of a sample customer), `rating` (1-5), `title`, `reviewText`, `isApproved`, optional `isVerifiedPurchase` and `createdOnUtc` (e.g. `@now-12d`). The rating counters of the product are calculated from the approved reviews. An overlay replaces the whole list. |
 
 ## Languages
 
@@ -236,6 +237,7 @@ In installation order. `core/` is always installed, `samples/` only with sample 
 | Activity log types, templates, scheduled tasks | `core/activity-log-types.json`, `core/product-templates.json`, `core/category-templates.json`, `core/manufacturer-templates.json`, `core/tasks.json` |
 | Menus (`@resource` titles, `publishedWhen`) | `core/menus.json` |
 | Specification and product attributes, option sets | `samples/catalog/specification-attributes.json`, `product-attributes.json`, `product-attribute-option-sets.json` |
+| Sample customers (authors of the sample reviews; registered, no password) | `samples/customers.json` |
 | Campaign, rule sets, discounts | `samples/campaigns.json`, `samples/rule-sets.json`, `samples/discounts.json` |
 | Categories and manufacturers (with pictures and slugs) | `samples/catalog/categories.json`, `samples/catalog/manufacturers.json` |
 | Product tags and products (pictures, specifications, tier prices, downloads, grouped and bundle products, variants, combinations) | `samples/catalog/product-tags.json`, `samples/catalog/products/*.json`, `cultures/{culture}/samples/catalog/attribute-value-names.json` |

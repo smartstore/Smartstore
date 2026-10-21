@@ -14,5 +14,101 @@
     "KeyGroup": "Customer",
     "StoreId": 0,
     "Value": "Smith"
+  },
+  {
+    "$key": "Customer|Customer:anna@example.com|FirstName",
+    "EntityId": "Customer:anna@example.com",
+    "Key": "FirstName",
+    "KeyGroup": "Customer",
+    "StoreId": 0,
+    "Value": "Anna"
+  },
+  {
+    "$key": "Customer|Customer:anna@example.com|LastName",
+    "EntityId": "Customer:anna@example.com",
+    "Key": "LastName",
+    "KeyGroup": "Customer",
+    "StoreId": 0,
+    "Value": "Weber"
+  },
+  {
+    "$key": "Customer|Customer:jonas@example.com|FirstName",
+    "EntityId": "Customer:jonas@example.com",
+    "Key": "FirstName",
+    "KeyGroup": "Customer",
+    "StoreId": 0,
+    "Value": "Jonas"
+  },
+  {
+    "$key": "Customer|Customer:jonas@example.com|LastName",
+    "EntityId": "Customer:jonas@example.com",
+    "Key": "LastName",
+    "KeyGroup": "Customer",
+    "StoreId": 0,
+    "Value": "Brandt"
+  },
+  {
+    "$key": "Customer|Customer:laura@example.com|FirstName",
+    "EntityId": "Customer:laura@example.com",
+    "Key": "FirstName",
+    "KeyGroup": "Customer",
+    "StoreId": 0,
+    "Value": "Laura"
+  },
+  {
+    "$key": "Customer|Customer:laura@example.com|LastName",
+    "EntityId": "Customer:laura@example.com",
+    "Key": "LastName",
+    "KeyGroup": "Customer",
+    "StoreId": 0,
+    "Value": "Hartmann"
+  },
+  {
+    "$key": "Customer|Customer:markus@example.com|FirstName",
+    "EntityId": "Customer:markus@example.com",
+    "Key": "FirstName",
+    "KeyGroup": "Customer",
+    "StoreId": 0,
+    "Value": "Markus"
+  },
+  {
+    "$key": "Customer|Customer:markus@example.com|LastName",
+    "EntityId": "Customer:markus@example.com",
+    "Key": "LastName",
+    "KeyGroup": "Customer",
+    "StoreId": 0,
+    "Value": "Keller"
+  },
+  {
+    "$key": "Customer|Customer:sophie@example.com|FirstName",
+    "EntityId": "Customer:sophie@example.com",
+    "Key": "FirstName",
+    "KeyGroup": "Customer",
+    "StoreId": 0,
+    "Value": "Sophie"
+  },
+  {
+    "$key": "Customer|Customer:sophie@example.com|LastName",
+    "EntityId": "Customer:sophie@example.com",
+    "Key": "LastName",
+    "KeyGroup": "Customer",
+    "StoreId": 0,
+    "Value": "Lang"
+  },
+  {
+    "$key": "Customer|Customer:tim@example.com|FirstName",
+    "EntityId": "Customer:tim@example.com",
+    "Key": "FirstName",
+    "KeyGroup": "Customer",
+    "StoreId": 0,
+    "Value": "Tim"
+  },
+  {
+    "$key": "Customer|Customer:tim@example.com|LastName",
+    "EntityId": "Customer:tim@example.com",
+    "Key": "LastName",
+    "KeyGroup": "Customer",
+    "StoreId": 0,
+    "Value": "Krause"
   }
 ]

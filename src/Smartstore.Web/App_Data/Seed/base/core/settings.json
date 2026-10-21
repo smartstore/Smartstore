@@ -23,5 +23,9 @@
     "DefaultRegularPriceLabelId": "$ref:PriceLabel:lowest",
     "LimitedOfferBadgeLabel": "Limited time deal",
     "OfferBadgeLabel": "Deal"
+  },
+  "CatalogSettings": {
+    "LabelAsNewForMaxDays": 30,
+    "ShowProductReviewsInProductLists": true
   }
 }

@@ -1,7 +1,7 @@
 [
   {
     "$key": "2-5 Werktage",
-    "ColorHexValue": "#FFFF00",
+    "ColorHexValue": "#A16207",
     "DisplayLocale": null,
     "DisplayOrder": 1,
     "IsDefault": null,
@@ -11,7 +11,7 @@
   },
   {
     "$key": "7 Werktage",
-    "ColorHexValue": "#FF9900",
+    "ColorHexValue": "#C2410C",
     "DisplayLocale": null,
     "DisplayOrder": 2,
     "IsDefault": null,
