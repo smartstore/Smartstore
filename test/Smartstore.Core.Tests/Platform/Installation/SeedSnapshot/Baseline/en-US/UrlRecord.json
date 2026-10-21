@@ -576,6 +576,62 @@
     "Slug": "spiced-christmas-cookies"
   },
   {
+    "$key": "Product|Product:FN-1001|0|lund-lounge-chair",
+    "EntityId": "Product:FN-1001",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "lund-lounge-chair"
+  },
+  {
+    "$key": "Product|Product:FN-1002|0|arc-floor-lamp",
+    "EntityId": "Product:FN-1002",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "arc-floor-lamp"
+  },
+  {
+    "$key": "Product|Product:FN-1003|0|oslo-living-room-collection",
+    "EntityId": "Product:FN-1003",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "oslo-living-room-collection"
+  },
+  {
+    "$key": "Product|Product:FN-1004|0|oslo-side-table",
+    "EntityId": "Product:FN-1004",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "oslo-side-table"
+  },
+  {
+    "$key": "Product|Product:FN-1005|0|oslo-shelf",
+    "EntityId": "Product:FN-1005",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "oslo-shelf"
+  },
+  {
+    "$key": "Product|Product:FN-1006|0|oslo-footstool",
+    "EntityId": "Product:FN-1006",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "oslo-footstool"
+  },
+  {
+    "$key": "Product|Product:FN-1007|0|led-bulb-e27-dimmable",
+    "EntityId": "Product:FN-1007",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "led-bulb-e27-dimmable"
+  },
+  {
     "$key": "Product|Product:FS-1001|0|fjord-rain-jacket",
     "EntityId": "Product:FS-1001",
     "EntityName": "Product",

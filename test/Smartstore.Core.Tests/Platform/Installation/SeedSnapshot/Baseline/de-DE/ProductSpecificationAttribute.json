@@ -216,6 +216,158 @@
     "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Geschmack|Süß"
   },
   {
+    "$key": "Product:FN-1001|SpecificationAttributeOption:SpecificationAttribute:Material|Holz",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FN-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|Holz"
+  },
+  {
+    "$key": "Product:FN-1001|SpecificationAttributeOption:SpecificationAttribute:Montage|Einfacher Selbstaufbau",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FN-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Montage|Einfacher Selbstaufbau"
+  },
+  {
+    "$key": "Product:FN-1001|SpecificationAttributeOption:SpecificationAttribute:Stil|Skandinavisch",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FN-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Stil|Skandinavisch"
+  },
+  {
+    "$key": "Product:FN-1002|SpecificationAttributeOption:SpecificationAttribute:Dimmbar|Ja",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FN-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Dimmbar|Ja"
+  },
+  {
+    "$key": "Product:FN-1002|SpecificationAttributeOption:SpecificationAttribute:Material|Aluminium",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FN-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|Aluminium"
+  },
+  {
+    "$key": "Product:FN-1002|SpecificationAttributeOption:SpecificationAttribute:Montage|Einfacher Selbstaufbau",
+    "AllowFiltering": true,
+    "DisplayOrder": 4,
+    "ProductId": "Product:FN-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Montage|Einfacher Selbstaufbau"
+  },
+  {
+    "$key": "Product:FN-1002|SpecificationAttributeOption:SpecificationAttribute:Stil|Modern",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FN-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Stil|Modern"
+  },
+  {
+    "$key": "Product:FN-1003|SpecificationAttributeOption:SpecificationAttribute:Material|Holz",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FN-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|Holz"
+  },
+  {
+    "$key": "Product:FN-1003|SpecificationAttributeOption:SpecificationAttribute:Stil|Skandinavisch",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FN-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Stil|Skandinavisch"
+  },
+  {
+    "$key": "Product:FN-1004|SpecificationAttributeOption:SpecificationAttribute:Material|Holz",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FN-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|Holz"
+  },
+  {
+    "$key": "Product:FN-1004|SpecificationAttributeOption:SpecificationAttribute:Montage|Fertig montiert",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FN-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Montage|Fertig montiert"
+  },
+  {
+    "$key": "Product:FN-1004|SpecificationAttributeOption:SpecificationAttribute:Stil|Skandinavisch",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FN-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Stil|Skandinavisch"
+  },
+  {
+    "$key": "Product:FN-1005|SpecificationAttributeOption:SpecificationAttribute:Material|Holz",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FN-1005",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|Holz"
+  },
+  {
+    "$key": "Product:FN-1005|SpecificationAttributeOption:SpecificationAttribute:Montage|Einfacher Selbstaufbau",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FN-1005",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Montage|Einfacher Selbstaufbau"
+  },
+  {
+    "$key": "Product:FN-1005|SpecificationAttributeOption:SpecificationAttribute:Stil|Skandinavisch",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FN-1005",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Stil|Skandinavisch"
+  },
+  {
+    "$key": "Product:FN-1006|SpecificationAttributeOption:SpecificationAttribute:Material|Holz",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FN-1006",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|Holz"
+  },
+  {
+    "$key": "Product:FN-1006|SpecificationAttributeOption:SpecificationAttribute:Montage|Fertig montiert",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FN-1006",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Montage|Fertig montiert"
+  },
+  {
+    "$key": "Product:FN-1006|SpecificationAttributeOption:SpecificationAttribute:Stil|Skandinavisch",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FN-1006",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Stil|Skandinavisch"
+  },
+  {
+    "$key": "Product:FN-1007|SpecificationAttributeOption:SpecificationAttribute:Dimmbar|Ja",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FN-1007",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Dimmbar|Ja"
+  },
+  {
     "$key": "Product:FS-1001|SpecificationAttributeOption:SpecificationAttribute:Material|Polyamid",
     "AllowFiltering": true,
     "DisplayOrder": 1,

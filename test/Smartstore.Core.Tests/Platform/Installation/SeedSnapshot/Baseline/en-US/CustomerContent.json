@@ -270,6 +270,21 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
+    "$key": "#89e9d5e08e8b",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:tim@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FN-1005",
+    "Rating": 4,
+    "ReviewText": "Solid wood, easy to assemble in about twenty minutes.",
+    "Title": "Sturdy shelf",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "#8a08210a8fa5",
     "CreatedOnUtc": "<now-1M>",
     "CustomerId": "Customer:tim@example.com",
@@ -285,6 +300,36 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
+    "$key": "#8b57fc68c5a5",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:jonas@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FN-1002",
+    "Rating": 5,
+    "ReviewText": "The arc reaches far over the sofa. The black version looks very elegant.",
+    "Title": "Lights up the whole sofa corner",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#9184474c17c1",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:laura@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": null,
+    "ProductId": "Product:FN-1005",
+    "Rating": 5,
+    "ReviewText": "Goes perfectly with the side table from the same collection.",
+    "Title": "Matches perfectly",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "#92f675c51f4c",
     "CreatedOnUtc": "<now+0M>",
     "CustomerId": "Customer:sophie@example.com",
@@ -297,6 +342,21 @@
     "Rating": 4,
     "ReviewText": "Tastes great. I would only wish for a larger bottle with a better price per litre.",
     "Title": "Very good, a little pricey",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#96c736a0189a",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:anna@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": null,
+    "ProductId": "Product:FN-1001",
+    "Rating": 5,
+    "ReviewText": "Ordered it straight away with the matching footstool. Perfect combination.",
+    "Title": "Footstool is a must",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
@@ -360,6 +420,21 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
+    "$key": "#bde1636ab9bb",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:markus@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FN-1001",
+    "Rating": 4,
+    "ReviewText": "Excellent quality. Delivery took the full seven working days.",
+    "Title": "Beautiful, but takes a while",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "#c75de204f752",
     "CreatedOnUtc": "<now+0M>",
     "CustomerId": "Customer:jonas@example.com",
@@ -402,6 +477,21 @@
     "Rating": 2,
     "ReviewText": "I prefer a softer ball with a slower swing. Quality is fine, but not for me.",
     "Title": "Too hard for my swing",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#da8f38e949f4",
+    "CreatedOnUtc": "<now-2M>",
+    "CustomerId": "Customer:laura@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FN-1001",
+    "Rating": 5,
+    "ReviewText": "Very comfortable for reading. We chose linen with the oak frame and it looks great.",
+    "Title": "Our favourite spot",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
@@ -477,6 +567,21 @@
     "Rating": 5,
     "ReviewText": "Cheaper than buying the items separately, and ready to give away.",
     "Title": "Great value",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#ff01743fd8c3",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:sophie@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FN-1002",
+    "Rating": 3,
+    "ReviewText": "The brass finish is beautiful, but I had to wait almost two weeks for it.",
+    "Title": "Nice, but brass took long",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   }
 ]

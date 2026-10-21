@@ -52,5 +52,15 @@
   "wool-blend": "Wollmischung",
   "merino": "Merinowolle",
   "print-none": "Ohne Aufdruck",
-  "print-text": "Mit Aufdruck"
+  "print-text": "Mit Aufdruck",
+  "cover-fabric": "Stoff",
+  "cover-linen": "Leinen",
+  "cover-leather": "Leder",
+  "frame-oak": "Eiche",
+  "frame-steel": "Stahl schwarz",
+  "extra-protection": "Fleckschutz-Imprägnierung",
+  "extra-footstool": "Passender Hocker",
+  "finish-black": "Schwarz matt",
+  "finish-white": "Weiß matt",
+  "finish-brass": "Messing"
 }

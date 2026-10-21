@@ -1,5 +1,25 @@
 [
   {
+    "$key": "SpecificationAttribute:Assembly|Delivered assembled",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Delivered assembled",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Assembly"
+  },
+  {
+    "$key": "SpecificationAttribute:Assembly|Easy self-assembly",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Easy self-assembly",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Assembly"
+  },
+  {
     "$key": "SpecificationAttribute:Bag type|Cart bag",
     "Alias": null,
     "Color": null,
@@ -528,6 +548,26 @@
     "Name": "Vegan",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Dietary"
+  },
+  {
+    "$key": "SpecificationAttribute:Dimmable|No",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "No",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Dimmable"
+  },
+  {
+    "$key": "SpecificationAttribute:Dimmable|Yes",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Yes",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Dimmable"
   },
   {
     "$key": "SpecificationAttribute:Edition|bound",
@@ -2078,6 +2118,36 @@
     "Name": "64 GB",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Storage capacity"
+  },
+  {
+    "$key": "SpecificationAttribute:Style|Classic",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Classic",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Style"
+  },
+  {
+    "$key": "SpecificationAttribute:Style|Modern",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Modern",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Style"
+  },
+  {
+    "$key": "SpecificationAttribute:Style|Scandinavian",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Scandinavian",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Style"
   },
   {
     "$key": "SpecificationAttribute:Target group|Kids",

@@ -460,6 +460,26 @@
     "SpecificationAttributeId": "SpecificationAttribute:Computer-Typ"
   },
   {
+    "$key": "SpecificationAttribute:Dimmbar|Ja",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Ja",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Dimmbar"
+  },
+  {
+    "$key": "SpecificationAttribute:Dimmbar|Nein",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Nein",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Dimmbar"
+  },
+  {
     "$key": "SpecificationAttribute:Durchmesser|38mm",
     "Alias": null,
     "Color": null,
@@ -1700,6 +1720,26 @@
     "SpecificationAttributeId": "SpecificationAttribute:Messbereich"
   },
   {
+    "$key": "SpecificationAttribute:Montage|Einfacher Selbstaufbau",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Einfacher Selbstaufbau",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Montage"
+  },
+  {
+    "$key": "SpecificationAttribute:Montage|Fertig montiert",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Fertig montiert",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Montage"
+  },
+  {
     "$key": "SpecificationAttribute:Neigungsfunktion|Ja",
     "Alias": null,
     "Color": null,
@@ -2018,6 +2058,36 @@
     "Name": "Italienisch",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Sprache"
+  },
+  {
+    "$key": "SpecificationAttribute:Stil|Klassisch",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Klassisch",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Stil"
+  },
+  {
+    "$key": "SpecificationAttribute:Stil|Modern",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Modern",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Stil"
+  },
+  {
+    "$key": "SpecificationAttribute:Stil|Skandinavisch",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Skandinavisch",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Stil"
   },
   {
     "$key": "SpecificationAttribute:Taschenart|Cartbag",

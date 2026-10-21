@@ -195,6 +195,21 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
+    "$key": "#46ee332ac663",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:anna@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": null,
+    "ProductId": "Product:FN-1001",
+    "Rating": 5,
+    "ReviewText": "Gleich mit dem passenden Hocker bestellt. Perfekte Kombination.",
+    "Title": "Der Hocker ist ein Muss",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "#55d514ff2187",
     "CreatedOnUtc": "<now-1M>",
     "CustomerId": "Customer:markus@example.com",
@@ -240,6 +255,21 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
+    "$key": "#5cef60fb0e89",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:laura@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": null,
+    "ProductId": "Product:FN-1005",
+    "Rating": 5,
+    "ReviewText": "Passt perfekt zum Beistelltisch aus derselben Serie.",
+    "Title": "Passt perfekt",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "#69eaf8b5a67e",
     "CreatedOnUtc": "<now+0M>",
     "CustomerId": "Customer:sophie@example.com",
@@ -252,6 +282,51 @@
     "Rating": 5,
     "ReviewText": "Steht sicher, der Gurt ist bequem. Guter Preis.",
     "Title": "Toller Bag",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#77d425541d62",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:markus@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FN-1001",
+    "Rating": 4,
+    "ReviewText": "Hervorragende Qualität. Die Lieferung hat die vollen sieben Werktage gedauert.",
+    "Title": "Schön, aber dauert",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#7ad1d6e900b8",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:tim@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FN-1005",
+    "Rating": 4,
+    "ReviewText": "Massivholz, in etwa zwanzig Minuten aufgebaut.",
+    "Title": "Stabiles Regal",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#80e4ca74243c",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:jonas@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FN-1002",
+    "Rating": 5,
+    "ReviewText": "Der Bogen reicht weit über das Sofa. Die schwarze Ausführung wirkt sehr elegant.",
+    "Title": "Erhellt die ganze Sofaecke",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
@@ -282,6 +357,21 @@
     "Rating": 4,
     "ReviewText": "Schmeckt hervorragend. Ich würde mir nur eine größere Flasche mit einem besseren Literpreis wünschen.",
     "Title": "Sehr gut, etwas teuer",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#9065e1472625",
+    "CreatedOnUtc": "<now-2M>",
+    "CustomerId": "Customer:laura@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FN-1001",
+    "Rating": 5,
+    "ReviewText": "Sehr bequem zum Lesen. Wir haben Leinen mit dem Eichengestell gewählt, und es sieht toll aus.",
+    "Title": "Unser Lieblingsplatz",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
@@ -477,6 +567,21 @@
     "Rating": 4,
     "ReviewText": "Das Grau meliert sieht toll aus. Er ist recht weit geschnitten, wie beschrieben.",
     "Title": "Schöne lockere Passform",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#fa46f1655c6f",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:sophie@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FN-1002",
+    "Rating": 3,
+    "ReviewText": "Die Messing-Ausführung ist wunderschön, aber ich musste fast zwei Wochen darauf warten.",
+    "Title": "Schön, aber Messing dauerte",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   }
 ]

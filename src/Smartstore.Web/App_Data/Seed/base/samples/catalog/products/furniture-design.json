@@ -1,0 +1,226 @@
+// Key field: sku
+[
+  {
+    "name": "Lund Lounge Chair",
+    "shortDescription": "Lounge chair with a choice of cover, frame and extras.",
+    "fullDescription": "@file",
+    "sku": "FN-1001",
+    "reviews": [
+      { "customer": "laura", "rating": 5, "title": "Our favourite spot", "reviewText": "Very comfortable for reading. We chose linen with the oak frame and it looks great.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-55d" },
+      { "customer": "markus", "rating": 4, "title": "Beautiful, but takes a while", "reviewText": "Excellent quality. Delivery took the full seven working days.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-31d" },
+      { "customer": "anna", "rating": 5, "title": "Footstool is a must", "reviewText": "Ordered it straight away with the matching footstool. Perfect combination.", "isApproved": true, "createdOnUtc": "@now-13d" }
+    ],
+    "taxCategory": "general",
+    "price": 590.00,
+    "weight": 33.0,
+    "deliveryTime": "7-working-days",
+    "stockQuantity": 15,
+    "showOnHomePage": true,
+    "categories": [ "Armchairs" ],
+    "manufacturers": [ "lindavero" ],
+    "pictures": [
+      { "file": "product/demo-box.jpg", "name": "lund-lounge-chair" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "style/scandinavian", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "material/wood", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "assembly/easy", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 3 }
+    ],
+    "variantAttributes": [
+      {
+        "productAttribute": "cover",
+        "isRequired": true,
+        "attributeControlType": "DropdownList",
+        "displayOrder": 1,
+        "values": [
+          { "name": "Fabric", "alias": "cover-fabric", "isPreSelected": true, "displayOrder": 1 },
+          { "name": "Linen", "alias": "cover-linen", "priceAdjustment": 80.00, "displayOrder": 2 },
+          { "name": "Leather", "alias": "cover-leather", "priceAdjustment": 250.00, "weightAdjustment": 4.4, "displayOrder": 3 }
+        ]
+      },
+      {
+        "productAttribute": "frame",
+        "isRequired": true,
+        "attributeControlType": "RadioList",
+        "displayOrder": 2,
+        "values": [
+          { "name": "Oak", "alias": "frame-oak", "isPreSelected": true, "displayOrder": 1 },
+          { "name": "Black steel", "alias": "frame-steel", "priceAdjustment": -30.00, "displayOrder": 2 }
+        ]
+      },
+      {
+        "productAttribute": "extras",
+        "isRequired": false,
+        "attributeControlType": "Checkboxes",
+        "displayOrder": 3,
+        "values": [
+          { "name": "Stain protection", "alias": "extra-protection", "priceAdjustment": 29.00, "displayOrder": 1 },
+          { "name": "Matching footstool", "alias": "extra-footstool", "valueType": "ProductLinkage", "linkedProduct": "FN-1006", "quantity": 1, "displayOrder": 2 }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Arc Floor Lamp",
+    "shortDescription": "Floor lamp with a wide arc and a dimmable light, in three finishes.",
+    "fullDescription": "@file",
+    "sku": "FN-1002",
+    "reviews": [
+      { "customer": "jonas", "rating": 5, "title": "Lights up the whole sofa corner", "reviewText": "The arc reaches far over the sofa. The black version looks very elegant.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-24d" },
+      { "customer": "sophie", "rating": 3, "title": "Nice, but brass took long", "reviewText": "The brass finish is beautiful, but I had to wait almost two weeks for it.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-6d" }
+    ],
+    "taxCategory": "general",
+    "price": 149.00,
+    "weight": 13.2,
+    "requiredProducts": [ "FN-1007" ],
+    "automaticallyAddRequiredProducts": true,
+    "deliveryTime": "available-and-ready-to-ship",
+    "manageInventoryMethod": "ManageStockByAttributes",
+    "displayStockAvailability": true,
+    "categories": [ "Lighting" ],
+    "manufacturers": [ "lindavero" ],
+    "pictures": [
+      { "file": "product/demo-round.jpg", "name": "arc-floor-lamp" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "style/modern", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "material/aluminium", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "dimmable/yes", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 3 },
+      { "specificationAttributeOption": "assembly/easy", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 4 }
+    ],
+    "variantAttributes": [
+      {
+        "productAttribute": "finish",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "swatchSize": "XLarge",
+        "swatchShape": "Rect",
+        "showValueNameInSwatch": true,
+        "swatchPriceDisplay": "FinalPrice",
+        "displayOrder": 1,
+        "values": [
+          { "name": "Matt black", "alias": "finish-black", "color": "#1E1E1E", "isPreSelected": true, "displayOrder": 1 },
+          { "name": "Matt white", "alias": "finish-white", "color": "#F2F2F2", "displayOrder": 2 },
+          { "name": "Brass", "alias": "finish-brass", "color": "#B08D57", "displayOrder": 3 }
+        ]
+      }
+    ],
+    "combinations": [
+      { "sku": "FN-1002-BLK", "price": 149.00, "weight": 13.2, "stockQuantity": 20, "attributes": { "finish": "finish-black" } },
+      { "sku": "FN-1002-WHT", "price": 149.00, "weight": 13.2, "stockQuantity": 12, "attributes": { "finish": "finish-white" } },
+      { "sku": "FN-1002-BRS", "price": 199.00, "weight": 15.4, "stockQuantity": 5, "deliveryTime": "7-working-days", "attributes": { "finish": "finish-brass" } }
+    ]
+  },
+  {
+    "productType": "GroupedProduct",
+    "name": "Oslo Living Room Collection",
+    "shortDescription": "Side table, shelf and footstool in solid oak, designed to go together.",
+    "fullDescription": "@file",
+    "sku": "FN-1003",
+    "taxCategory": "general",
+    "showOnHomePage": true,
+    "manageInventoryMethod": "DontManageStock",
+    "groupedProductConfiguration": {
+      "collapsible": false,
+      "headerFields": [ "image", "sku", "price" ]
+    },
+    "categories": [ "Furniture and Design" ],
+    "manufacturers": [ "lindavero" ],
+    "pictures": [
+      { "file": "product/demo-box.jpg", "name": "oslo-living-room-collection" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "style/scandinavian", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "material/wood", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 }
+    ]
+  },
+  {
+    "parentGroupedProduct": "FN-1003",
+    "name": "Oslo Side Table",
+    "shortDescription": "Round side table in solid oak, 45 cm diameter.",
+    "fullDescription": "@file",
+    "sku": "FN-1004",
+    "taxCategory": "general",
+    "price": 129.00,
+    "deliveryTime": "2-5-working-days",
+    "stockQuantity": 25,
+    "categories": [ "Furniture and Design" ],
+    "manufacturers": [ "lindavero" ],
+    "pictures": [
+      { "file": "product/demo-round.jpg", "name": "oslo-side-table" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "style/scandinavian", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "material/wood", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "assembly/assembled", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 3 }
+    ]
+  },
+  {
+    "parentGroupedProduct": "FN-1003",
+    "name": "Oslo Shelf",
+    "shortDescription": "Open shelf in solid oak with four compartments.",
+    "fullDescription": "@file",
+    "sku": "FN-1005",
+    "reviews": [
+      { "customer": "tim", "rating": 4, "title": "Sturdy shelf", "reviewText": "Solid wood, easy to assemble in about twenty minutes.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-38d" },
+      { "customer": "laura", "rating": 5, "title": "Matches perfectly", "reviewText": "Goes perfectly with the side table from the same collection.", "isApproved": true, "createdOnUtc": "@now-15d" }
+    ],
+    "taxCategory": "general",
+    "price": 249.00,
+    "hideQuantityControl": true,
+    "deliveryTime": "7-working-days",
+    "stockQuantity": 3,
+    "displayStockAvailability": true,
+    "displayStockQuantity": true,
+    "categories": [ "Furniture and Design" ],
+    "manufacturers": [ "lindavero" ],
+    "pictures": [
+      { "file": "product/demo-box.jpg", "name": "oslo-shelf" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "style/scandinavian", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "material/wood", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "assembly/easy", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 3 }
+    ]
+  },
+  {
+    "parentGroupedProduct": "FN-1003",
+    "name": "Oslo Footstool",
+    "shortDescription": "Upholstered footstool with oak legs.",
+    "fullDescription": "@file",
+    "sku": "FN-1006",
+    "taxCategory": "general",
+    "price": 149.00,
+    "createdOnUtc": "@now-5d",
+    "deliveryTime": "2-5-working-days",
+    "stockQuantity": 18,
+    "categories": [ "Furniture and Design" ],
+    "manufacturers": [ "lindavero" ],
+    "pictures": [
+      { "file": "product/demo-box.jpg", "name": "oslo-footstool" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "style/scandinavian", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "material/wood", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "assembly/assembled", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 3 }
+    ]
+  },
+  {
+    "name": "LED Bulb E27, dimmable",
+    "shortDescription": "Dimmable LED bulb with warm white light, E27 socket.",
+    "fullDescription": "@file",
+    "sku": "FN-1007",
+    "taxCategory": "general",
+    "price": 9.90,
+    "deliveryTime": "available-and-ready-to-ship",
+    "stockQuantity": 300,
+    "categories": [ "Lighting" ],
+    "manufacturers": [ "lindavero" ],
+    "pictures": [
+      { "file": "product/demo-round.jpg", "name": "led-bulb-e27" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "dimmable/yes", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 }
+    ]
+  }
+]

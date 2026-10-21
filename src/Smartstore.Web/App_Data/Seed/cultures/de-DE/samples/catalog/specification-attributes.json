@@ -516,5 +516,27 @@
       "water-repellent": { "name": "Wasserabweisend" },
       "waterproof": { "name": "Wasserdicht" }
     }
+  },
+  "style": {
+    "name": "Stil",
+    "options": {
+      "scandinavian": { "name": "Skandinavisch" },
+      "modern": { "name": "Modern" },
+      "classic": { "name": "Klassisch" }
+    }
+  },
+  "assembly": {
+    "name": "Montage",
+    "options": {
+      "assembled": { "name": "Fertig montiert" },
+      "easy": { "name": "Einfacher Selbstaufbau" }
+    }
+  },
+  "dimmable": {
+    "name": "Dimmbar",
+    "options": {
+      "yes": { "name": "Ja" },
+      "no": { "name": "Nein" }
+    }
   }
 }

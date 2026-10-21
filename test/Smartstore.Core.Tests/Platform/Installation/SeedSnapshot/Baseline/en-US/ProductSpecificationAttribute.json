@@ -216,6 +216,158 @@
     "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Occasion|Christmas"
   },
   {
+    "$key": "Product:FN-1001|SpecificationAttributeOption:SpecificationAttribute:Assembly|Easy self-assembly",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FN-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Assembly|Easy self-assembly"
+  },
+  {
+    "$key": "Product:FN-1001|SpecificationAttributeOption:SpecificationAttribute:Material|wood",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FN-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|wood"
+  },
+  {
+    "$key": "Product:FN-1001|SpecificationAttributeOption:SpecificationAttribute:Style|Scandinavian",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FN-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Style|Scandinavian"
+  },
+  {
+    "$key": "Product:FN-1002|SpecificationAttributeOption:SpecificationAttribute:Assembly|Easy self-assembly",
+    "AllowFiltering": true,
+    "DisplayOrder": 4,
+    "ProductId": "Product:FN-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Assembly|Easy self-assembly"
+  },
+  {
+    "$key": "Product:FN-1002|SpecificationAttributeOption:SpecificationAttribute:Dimmable|Yes",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FN-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Dimmable|Yes"
+  },
+  {
+    "$key": "Product:FN-1002|SpecificationAttributeOption:SpecificationAttribute:Material|aluminium",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FN-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|aluminium"
+  },
+  {
+    "$key": "Product:FN-1002|SpecificationAttributeOption:SpecificationAttribute:Style|Modern",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FN-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Style|Modern"
+  },
+  {
+    "$key": "Product:FN-1003|SpecificationAttributeOption:SpecificationAttribute:Material|wood",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FN-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|wood"
+  },
+  {
+    "$key": "Product:FN-1003|SpecificationAttributeOption:SpecificationAttribute:Style|Scandinavian",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FN-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Style|Scandinavian"
+  },
+  {
+    "$key": "Product:FN-1004|SpecificationAttributeOption:SpecificationAttribute:Assembly|Delivered assembled",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FN-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Assembly|Delivered assembled"
+  },
+  {
+    "$key": "Product:FN-1004|SpecificationAttributeOption:SpecificationAttribute:Material|wood",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FN-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|wood"
+  },
+  {
+    "$key": "Product:FN-1004|SpecificationAttributeOption:SpecificationAttribute:Style|Scandinavian",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FN-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Style|Scandinavian"
+  },
+  {
+    "$key": "Product:FN-1005|SpecificationAttributeOption:SpecificationAttribute:Assembly|Easy self-assembly",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FN-1005",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Assembly|Easy self-assembly"
+  },
+  {
+    "$key": "Product:FN-1005|SpecificationAttributeOption:SpecificationAttribute:Material|wood",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FN-1005",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|wood"
+  },
+  {
+    "$key": "Product:FN-1005|SpecificationAttributeOption:SpecificationAttribute:Style|Scandinavian",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FN-1005",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Style|Scandinavian"
+  },
+  {
+    "$key": "Product:FN-1006|SpecificationAttributeOption:SpecificationAttribute:Assembly|Delivered assembled",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FN-1006",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Assembly|Delivered assembled"
+  },
+  {
+    "$key": "Product:FN-1006|SpecificationAttributeOption:SpecificationAttribute:Material|wood",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FN-1006",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|wood"
+  },
+  {
+    "$key": "Product:FN-1006|SpecificationAttributeOption:SpecificationAttribute:Style|Scandinavian",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FN-1006",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Style|Scandinavian"
+  },
+  {
+    "$key": "Product:FN-1007|SpecificationAttributeOption:SpecificationAttribute:Dimmable|Yes",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FN-1007",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Dimmable|Yes"
+  },
+  {
     "$key": "Product:FS-1001|SpecificationAttributeOption:SpecificationAttribute:Care|Machine wash 30 °C",
     "AllowFiltering": false,
     "DisplayOrder": 6,

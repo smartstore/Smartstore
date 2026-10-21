@@ -127,5 +127,21 @@
   {
     "name": "Print",
     "alias": "print"
+  },
+  {
+    "name": "Cover",
+    "alias": "cover"
+  },
+  {
+    "name": "Frame",
+    "alias": "frame"
+  },
+  {
+    "name": "Extras",
+    "alias": "extras"
+  },
+  {
+    "name": "Finish",
+    "alias": "finish"
   }
 ]

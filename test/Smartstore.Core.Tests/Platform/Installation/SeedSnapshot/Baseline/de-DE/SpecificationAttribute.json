@@ -117,6 +117,19 @@
     "ShowOnProductPage": false
   },
   {
+    "$key": "Dimmbar",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 42,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Dimmbar",
+    "ShowOnProductPage": false
+  },
+  {
     "$key": "Durchmesser",
     "Alias": null,
     "AllowFiltering": false,
@@ -416,6 +429,19 @@
     "ShowOnProductPage": false
   },
   {
+    "$key": "Montage",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 41,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Montage",
+    "ShowOnProductPage": false
+  },
+  {
     "$key": "Neigungsfunktion",
     "Alias": null,
     "AllowFiltering": false,
@@ -556,6 +582,19 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Sprache",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Stil",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 40,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Stil",
     "ShowOnProductPage": false
   },
   {

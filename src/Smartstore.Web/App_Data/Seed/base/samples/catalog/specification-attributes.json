@@ -1190,5 +1190,33 @@
       { "key": "water-repellent", "name": "Water-repellent", "displayOrder": 1 },
       { "key": "waterproof", "name": "Waterproof", "displayOrder": 2 }
     ]
+  },
+  {
+    "key": "style",
+    "name": "Style",
+    "displayOrder": 40,
+    "options": [
+      { "key": "scandinavian", "name": "Scandinavian", "displayOrder": 1 },
+      { "key": "modern", "name": "Modern", "displayOrder": 2 },
+      { "key": "classic", "name": "Classic", "displayOrder": 3 }
+    ]
+  },
+  {
+    "key": "assembly",
+    "name": "Assembly",
+    "displayOrder": 41,
+    "options": [
+      { "key": "assembled", "name": "Delivered assembled", "displayOrder": 1 },
+      { "key": "easy", "name": "Easy self-assembly", "displayOrder": 2 }
+    ]
+  },
+  {
+    "key": "dimmable",
+    "name": "Dimmable",
+    "displayOrder": 42,
+    "options": [
+      { "key": "yes", "name": "Yes", "displayOrder": 1 },
+      { "key": "no", "name": "No", "displayOrder": 2 }
+    ]
   }
 ]

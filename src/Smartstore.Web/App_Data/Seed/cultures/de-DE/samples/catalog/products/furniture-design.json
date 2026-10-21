@@ -1,0 +1,64 @@
+{
+  "FN-1001": {
+    "name": "Loungesessel Lund",
+    "shortDescription": "Loungesessel mit Wahl von Bezug, Gestell und Extras.",
+    "fullDescription": "@file",
+    "weight": 15.0,
+    "variantAttributes": {
+      "cover": {
+        "values": {
+          "cover-leather": { "weightAdjustment": 2.0 }
+        }
+      }
+    },
+    "reviews": [
+      { "customer": "laura", "rating": 5, "title": "Unser Lieblingsplatz", "reviewText": "Sehr bequem zum Lesen. Wir haben Leinen mit dem Eichengestell gewählt, und es sieht toll aus.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-55d" },
+      { "customer": "markus", "rating": 4, "title": "Schön, aber dauert", "reviewText": "Hervorragende Qualität. Die Lieferung hat die vollen sieben Werktage gedauert.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-31d" },
+      { "customer": "anna", "rating": 5, "title": "Der Hocker ist ein Muss", "reviewText": "Gleich mit dem passenden Hocker bestellt. Perfekte Kombination.", "isApproved": true, "createdOnUtc": "@now-13d" }
+    ]
+  },
+  "FN-1002": {
+    "name": "Bogenleuchte Arc",
+    "shortDescription": "Stehleuchte mit weitem Bogen und dimmbarem Licht, in drei Ausführungen.",
+    "fullDescription": "@file",
+    "weight": 6.0,
+    "combinations": [
+      { "sku": "FN-1002-BLK", "price": 149.00, "weight": 6.0, "stockQuantity": 20, "attributes": { "finish": "finish-black" } },
+      { "sku": "FN-1002-WHT", "price": 149.00, "weight": 6.0, "stockQuantity": 12, "attributes": { "finish": "finish-white" } },
+      { "sku": "FN-1002-BRS", "price": 199.00, "weight": 7.0, "stockQuantity": 5, "deliveryTime": "7-working-days", "attributes": { "finish": "finish-brass" } }
+    ],
+    "reviews": [
+      { "customer": "jonas", "rating": 5, "title": "Erhellt die ganze Sofaecke", "reviewText": "Der Bogen reicht weit über das Sofa. Die schwarze Ausführung wirkt sehr elegant.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-24d" },
+      { "customer": "sophie", "rating": 3, "title": "Schön, aber Messing dauerte", "reviewText": "Die Messing-Ausführung ist wunderschön, aber ich musste fast zwei Wochen darauf warten.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-6d" }
+    ]
+  },
+  "FN-1003": {
+    "name": "Wohnzimmer-Serie Oslo",
+    "shortDescription": "Beistelltisch, Regal und Hocker aus massiver Eiche, aufeinander abgestimmt.",
+    "fullDescription": "@file"
+  },
+  "FN-1004": {
+    "name": "Beistelltisch Oslo",
+    "shortDescription": "Runder Beistelltisch aus massiver Eiche, 45 cm Durchmesser.",
+    "fullDescription": "@file"
+  },
+  "FN-1005": {
+    "name": "Regal Oslo",
+    "shortDescription": "Offenes Regal aus massiver Eiche mit vier Fächern.",
+    "fullDescription": "@file",
+    "reviews": [
+      { "customer": "tim", "rating": 4, "title": "Stabiles Regal", "reviewText": "Massivholz, in etwa zwanzig Minuten aufgebaut.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-38d" },
+      { "customer": "laura", "rating": 5, "title": "Passt perfekt", "reviewText": "Passt perfekt zum Beistelltisch aus derselben Serie.", "isApproved": true, "createdOnUtc": "@now-15d" }
+    ]
+  },
+  "FN-1006": {
+    "name": "Hocker Oslo",
+    "shortDescription": "Gepolsterter Hocker mit Beinen aus Eiche.",
+    "fullDescription": "@file"
+  },
+  "FN-1007": {
+    "name": "LED-Leuchtmittel E27, dimmbar",
+    "shortDescription": "Dimmbares LED-Leuchtmittel mit warmweißem Licht, Sockel E27.",
+    "fullDescription": "@file"
+  }
+}

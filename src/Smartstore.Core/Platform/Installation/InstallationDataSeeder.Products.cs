@@ -36,6 +36,7 @@ public partial class InstallationDataSeeder
         public List<(Product Product, JsonObject Picture)> SharedPictures { get; } = [];
         public List<(Product Product, string Path)> SampleDownloads { get; } = [];
         public List<(Product Product, string ParentSku)> GroupedParents { get; } = [];
+        public List<(Product Product, JsonArray Skus)> RequiredProducts { get; } = [];
         public List<(Product Product, JsonArray Items, string Source)> BundleItems { get; } = [];
         public List<(Product Product, JsonArray Attributes, string Source)> VariantAttributes { get; } = [];
         public List<(Product Product, JsonArray Combinations, string Source)> Combinations { get; } = [];
@@ -77,6 +78,13 @@ public partial class InstallationDataSeeder
             foreach (var (product, parentSku) in state.GroupedParents)
             {
                 product.ParentGroupedProductId = _seedResolver.GetId<Product>(parentSku);
+            }
+
+            // Required products. RequireOtherProducts is derived from the list.
+            foreach (var (product, skus) in state.RequiredProducts)
+            {
+                product.RequiredProductIds = string.Join(',', skus.Select(x => _seedResolver.GetId<Product>(x.GetValue<string>())));
+                product.RequireOtherProducts = true;
             }
 
             foreach (var (product, picture) in state.SharedPictures)
@@ -125,7 +133,8 @@ public partial class InstallationDataSeeder
             {
                 var values = new SeedEntityDescriptor<ProductVariantAttributeValue>("alias")
                     .Bind("mediaFile", (value, node, _) => value.MediaFileId = ResolveProductMedia(product, node, state).Id)
-                    .Bind("additionalColors", (value, node, _) => value.AdditionalColors = node.Deserialize<string[]>());
+                    .Bind("additionalColors", (value, node, _) => value.AdditionalColors = node.Deserialize<string[]>())
+                    .Reference<Product>("linkedProduct", (value, linkedProduct) => value.LinkedProductId = linkedProduct.Id);
 
                 var descriptor = new SeedEntityDescriptor<ProductVariantAttribute>("productAttribute")
                     .Reference<ProductAttribute>("productAttribute", (pva, attribute) => pva.ProductAttribute = attribute)
@@ -250,6 +259,7 @@ public partial class InstallationDataSeeder
                 state.SampleDownloads.Add((product, node.GetValue<string>()));
             })
             .Bind("parentGroupedProduct", (product, node, _) => state.GroupedParents.Add((product, node.GetValue<string>())))
+            .Bind("requiredProducts", (product, node, _) => state.RequiredProducts.Add((product, node.AsArray())))
             .Bind("bundleItems", (product, node, context) => state.BundleItems.Add((product, node.AsArray(), context.Source)))
             .Bind("variantAttributes", (product, node, context) => state.VariantAttributes.Add((product, node.AsArray(), context.Source)))
             .Bind("combinations", (product, node, context) => state.Combinations.Add((product, node.AsArray(), context.Source)))

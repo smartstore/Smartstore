@@ -48,6 +48,48 @@
     "ProductId": "Product:FD-1007"
   },
   {
+    "$key": "Product:FN-1001|MediaFile:lund-lounge-chair.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:lund-lounge-chair.jpg",
+    "ProductId": "Product:FN-1001"
+  },
+  {
+    "$key": "Product:FN-1002|MediaFile:arc-floor-lamp.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:arc-floor-lamp.jpg",
+    "ProductId": "Product:FN-1002"
+  },
+  {
+    "$key": "Product:FN-1003|MediaFile:oslo-living-room-collection.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:oslo-living-room-collection.jpg",
+    "ProductId": "Product:FN-1003"
+  },
+  {
+    "$key": "Product:FN-1004|MediaFile:oslo-side-table.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:oslo-side-table.jpg",
+    "ProductId": "Product:FN-1004"
+  },
+  {
+    "$key": "Product:FN-1005|MediaFile:oslo-shelf.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:oslo-shelf.jpg",
+    "ProductId": "Product:FN-1005"
+  },
+  {
+    "$key": "Product:FN-1006|MediaFile:oslo-footstool.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:oslo-footstool.jpg",
+    "ProductId": "Product:FN-1006"
+  },
+  {
+    "$key": "Product:FN-1007|MediaFile:led-bulb-e27.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:led-bulb-e27.jpg",
+    "ProductId": "Product:FN-1007"
+  },
+  {
     "$key": "Product:FS-1001|MediaFile:fjord-rain-jacket-black.jpg",
     "DisplayOrder": 2,
     "MediaFileId": "MediaFile:fjord-rain-jacket-black.jpg",

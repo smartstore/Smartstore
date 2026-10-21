@@ -576,6 +576,62 @@
     "Slug": "weihnachtliche-gewuerzkekse"
   },
   {
+    "$key": "Product|Product:FN-1001|0|loungesessel-lund",
+    "EntityId": "Product:FN-1001",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "loungesessel-lund"
+  },
+  {
+    "$key": "Product|Product:FN-1002|0|bogenleuchte-arc",
+    "EntityId": "Product:FN-1002",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "bogenleuchte-arc"
+  },
+  {
+    "$key": "Product|Product:FN-1003|0|wohnzimmer-serie-oslo",
+    "EntityId": "Product:FN-1003",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "wohnzimmer-serie-oslo"
+  },
+  {
+    "$key": "Product|Product:FN-1004|0|beistelltisch-oslo",
+    "EntityId": "Product:FN-1004",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "beistelltisch-oslo"
+  },
+  {
+    "$key": "Product|Product:FN-1005|0|regal-oslo",
+    "EntityId": "Product:FN-1005",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "regal-oslo"
+  },
+  {
+    "$key": "Product|Product:FN-1006|0|hocker-oslo",
+    "EntityId": "Product:FN-1006",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "hocker-oslo"
+  },
+  {
+    "$key": "Product|Product:FN-1007|0|led-leuchtmittel-e27-dimmbar",
+    "EntityId": "Product:FN-1007",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "led-leuchtmittel-e27-dimmbar"
+  },
+  {
     "$key": "Product|Product:FS-1001|0|regenjacke-fjord",
     "EntityId": "Product:FS-1001",
     "EntityName": "Product",

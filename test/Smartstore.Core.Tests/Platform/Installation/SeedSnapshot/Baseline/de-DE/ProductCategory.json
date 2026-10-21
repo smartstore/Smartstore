@@ -64,6 +64,62 @@
     "ProductId": "Product:FD-1007"
   },
   {
+    "$key": "Product:FN-1001|Category:Armchairs",
+    "CategoryId": "Category:Armchairs",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "IsSystemMapping": false,
+    "ProductId": "Product:FN-1001"
+  },
+  {
+    "$key": "Product:FN-1002|Category:Lighting",
+    "CategoryId": "Category:Lighting",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "IsSystemMapping": false,
+    "ProductId": "Product:FN-1002"
+  },
+  {
+    "$key": "Product:FN-1003|Category:Furniture and Design",
+    "CategoryId": "Category:Furniture and Design",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "IsSystemMapping": false,
+    "ProductId": "Product:FN-1003"
+  },
+  {
+    "$key": "Product:FN-1004|Category:Furniture and Design",
+    "CategoryId": "Category:Furniture and Design",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "IsSystemMapping": false,
+    "ProductId": "Product:FN-1004"
+  },
+  {
+    "$key": "Product:FN-1005|Category:Furniture and Design",
+    "CategoryId": "Category:Furniture and Design",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "IsSystemMapping": false,
+    "ProductId": "Product:FN-1005"
+  },
+  {
+    "$key": "Product:FN-1006|Category:Furniture and Design",
+    "CategoryId": "Category:Furniture and Design",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "IsSystemMapping": false,
+    "ProductId": "Product:FN-1006"
+  },
+  {
+    "$key": "Product:FN-1007|Category:Lighting",
+    "CategoryId": "Category:Lighting",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "IsSystemMapping": false,
+    "ProductId": "Product:FN-1007"
+  },
+  {
     "$key": "Product:FS-1001|Category:Jackets and Coats",
     "CategoryId": "Category:Jackets and Coats",
     "DisplayOrder": 1,

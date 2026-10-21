@@ -73,5 +73,14 @@
   },
   "print": {
     "name": "Aufdruck"
+  },
+  "cover": {
+    "name": "Bezug"
+  },
+  "frame": {
+    "name": "Gestell"
+  },
+  "finish": {
+    "name": "Ausführung"
   }
 }
