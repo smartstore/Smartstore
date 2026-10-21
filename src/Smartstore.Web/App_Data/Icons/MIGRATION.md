@@ -54,8 +54,7 @@ Shopware import progress and SupportAgent collapse/copy controls.
 
 Use `check` for legacy `circle-check`, `alert-danger` for `exclamation-circle` or
 `circle-exclamation`, `eye-off` for `eye-slash`, and `chevron-*` for `angle-*`.
-These state icons are available in the applicable public/admin kits. The cheatsheet and the independent `confirm2` CSS-class
-contract are excluded from this migration.
+These state icons are available in the applicable public/admin kits. The cheatsheet is excluded from this migration.
 
 ## Select option icons
 
@@ -1137,7 +1136,9 @@ Smartstore still renders SVG icons and does not import this font.
 - ConfirmTagHelper and ConfirmModel use Icon addresses instead of IconClass. The
   dialog renders server-side SVGs with existing theme colors and size utilities.
   Defaults are alert-circle and trash; Campaign and PersonalPromo use question-circle
-  and rotate-right. The independent client-side confirm2 API remains unchanged.
+  and rotate-right. Client-side confirm2, alert2 and prompt2 render sm-icon with
+  concept/address names instead of Font Awesome CSS classes. Custom icon names follow
+  the same contract; type colors, size and spacing remain unchanged.
 
 - TreeItem.Icon and data-icon replace IconClass/data-icon-class. The tree renders
   sm-icon and accepts defaultCollapsedIcon/defaultExpandedIcon and
