@@ -325,6 +325,19 @@
     "ShowOnProductPage": false
   },
   {
+    "$key": "Härte",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 20,
+    "Essential": true,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Härte",
+    "ShowOnProductPage": false
+  },
+  {
     "$key": "Intensität",
     "Alias": null,
     "AllowFiltering": false,
@@ -390,6 +403,32 @@
     "ShowOnProductPage": false
   },
   {
+    "$key": "Messbereich",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 25,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Messbereich",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Neigungsfunktion",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 26,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Neigungsfunktion",
+    "ShowOnProductPage": false
+  },
+  {
     "$key": "Olivensorte",
     "Alias": null,
     "AllowFiltering": false,
@@ -429,6 +468,19 @@
     "ShowOnProductPage": false
   },
   {
+    "$key": "Schichten",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 21,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Schichten",
+    "ShowOnProductPage": false
+  },
+  {
     "$key": "Speicherkapazität",
     "Alias": null,
     "AllowFiltering": false,
@@ -439,6 +491,19 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Speicherkapazität",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Spielstärke",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 22,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Spielstärke",
     "ShowOnProductPage": false
   },
   {
@@ -455,6 +520,19 @@
     "ShowOnProductPage": false
   },
   {
+    "$key": "Taschenart",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 27,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Taschenart",
+    "ShowOnProductPage": false
+  },
+  {
     "$key": "Technische Ausführung",
     "Alias": null,
     "AllowFiltering": false,
@@ -465,6 +543,19 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Technische Ausführung",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Tee-Länge",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 24,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Tee-Länge",
     "ShowOnProductPage": false
   },
   {
@@ -491,6 +582,19 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Verschluss",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Zielgruppe",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 23,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Zielgruppe",
     "ShowOnProductPage": false
   }
 ]

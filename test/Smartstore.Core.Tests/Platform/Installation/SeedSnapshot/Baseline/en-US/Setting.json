@@ -3522,6 +3522,12 @@
     "Value": "0"
   },
   {
+    "$key": "tax.taxprovider.fixedrate.taxcategoryid{TaxCategory:General goods}|0",
+    "Name": "tax.taxprovider.fixedrate.taxcategoryid{TaxCategory:General goods}",
+    "StoreId": 0,
+    "Value": "0"
+  },
+  {
     "$key": "tax.taxprovider.fixedrate.taxcategoryid{TaxCategory:Jewelry}|0",
     "Name": "tax.taxprovider.fixedrate.taxcategoryid{TaxCategory:Jewelry}",
     "StoreId": 0,

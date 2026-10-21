@@ -119,5 +119,9 @@
   {
     "name": "Grind",
     "alias": "grind"
+  },
+  {
+    "name": "Hand",
+    "alias": "hand"
   }
 ]

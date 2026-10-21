@@ -99,6 +99,24 @@
     "StoreId": 0
   },
   {
+    "$key": "Product:GF-1001|10||0",
+    "CalculationMethod": "Fixed",
+    "CustomerRoleId": null,
+    "Price": 7.9,
+    "ProductId": "Product:GF-1001",
+    "Quantity": 10,
+    "StoreId": 0
+  },
+  {
+    "$key": "Product:GF-1001|5||0",
+    "CalculationMethod": "Fixed",
+    "CustomerRoleId": null,
+    "Price": 8.9,
+    "ProductId": "Product:GF-1001",
+    "Quantity": 5,
+    "StoreId": 0
+  },
+  {
     "$key": "Product:IN 200|2||0",
     "CalculationMethod": "Fixed",
     "CustomerRoleId": null,

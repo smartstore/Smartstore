@@ -228,6 +228,48 @@
     "ProductId": "Product:Furniture-lounge-chair"
   },
   {
+    "$key": "Product:GF-1001|MediaFile:tour-distance-golf-balls.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:tour-distance-golf-balls.jpg",
+    "ProductId": "Product:GF-1001"
+  },
+  {
+    "$key": "Product:GF-1002|MediaFile:wooden-golf-tees.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:wooden-golf-tees.jpg",
+    "ProductId": "Product:GF-1002"
+  },
+  {
+    "$key": "Product:GF-1003|MediaFile:leather-golf-glove.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:leather-golf-glove.jpg",
+    "ProductId": "Product:GF-1003"
+  },
+  {
+    "$key": "Product:GF-1004|MediaFile:laser-rangefinder-600.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:laser-rangefinder-600.jpg",
+    "ProductId": "Product:GF-1004"
+  },
+  {
+    "$key": "Product:GF-1005|MediaFile:golf-starter-set.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:golf-starter-set.jpg",
+    "ProductId": "Product:GF-1005"
+  },
+  {
+    "$key": "Product:GF-1006|MediaFile:lightweight-stand-bag.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:lightweight-stand-bag.jpg",
+    "ProductId": "Product:GF-1006"
+  },
+  {
+    "$key": "Product:GF-1007|MediaFile:divot-repair-tool.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:divot-repair-tool.jpg",
+    "ProductId": "Product:GF-1007"
+  },
+  {
     "$key": "Product:Gaming-Lego-001|MediaFile:legoworlds.jpg",
     "DisplayOrder": 1,
     "MediaFileId": "MediaFile:legoworlds.jpg",

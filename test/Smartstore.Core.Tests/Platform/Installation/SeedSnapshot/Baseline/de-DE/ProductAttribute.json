@@ -128,6 +128,22 @@
     "SwatchSize": null
   },
   {
+    "$key": "hand",
+    "Alias": "hand",
+    "AllowFiltering": false,
+    "Description": null,
+    "DisplayOrder": 0,
+    "ExportMappings": null,
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Hand",
+    "ShowValueNameInSwatch": false,
+    "SwatchAspectRatio": 1.0,
+    "SwatchPriceDisplay": "None",
+    "SwatchShape": null,
+    "SwatchSize": null
+  },
+  {
     "$key": "hdd",
     "Alias": "hdd",
     "AllowFiltering": false,

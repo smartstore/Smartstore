@@ -640,6 +640,62 @@
     "Slug": "charles-eames-lounge-chair-1956-"
   },
   {
+    "$key": "Product|Product:GF-1001|0|tour-distance-golf-balls",
+    "EntityId": "Product:GF-1001",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "tour-distance-golf-balls"
+  },
+  {
+    "$key": "Product|Product:GF-1002|0|golf-tees-50-pieces",
+    "EntityId": "Product:GF-1002",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "golf-tees-50-pieces"
+  },
+  {
+    "$key": "Product|Product:GF-1003|0|leather-golf-glove",
+    "EntityId": "Product:GF-1003",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "leather-golf-glove"
+  },
+  {
+    "$key": "Product|Product:GF-1004|0|laser-rangefinder-600",
+    "EntityId": "Product:GF-1004",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "laser-rangefinder-600"
+  },
+  {
+    "$key": "Product|Product:GF-1005|0|golf-starter-set",
+    "EntityId": "Product:GF-1005",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "golf-starter-set"
+  },
+  {
+    "$key": "Product|Product:GF-1006|0|lightweight-stand-bag",
+    "EntityId": "Product:GF-1006",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "lightweight-stand-bag"
+  },
+  {
+    "$key": "Product|Product:GF-1007|0|divot-repair-tool",
+    "EntityId": "Product:GF-1007",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "divot-repair-tool"
+  },
+  {
     "$key": "Product|Product:Gaming-Lego-001|0|lego-worlds-playstation-4",
     "EntityId": "Product:Gaming-Lego-001",
     "EntityName": "Product",

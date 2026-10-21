@@ -312,6 +312,150 @@
     "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|wood"
   },
   {
+    "$key": "Product:GF-1001|SpecificationAttributeOption:SpecificationAttribute:Color|white",
+    "AllowFiltering": true,
+    "DisplayOrder": 4,
+    "ProductId": "Product:GF-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Color|white"
+  },
+  {
+    "$key": "Product:GF-1001|SpecificationAttributeOption:SpecificationAttribute:Hardness|Medium",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:GF-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Hardness|Medium"
+  },
+  {
+    "$key": "Product:GF-1001|SpecificationAttributeOption:SpecificationAttribute:Layers|3-piece",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:GF-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Layers|3-piece"
+  },
+  {
+    "$key": "Product:GF-1001|SpecificationAttributeOption:SpecificationAttribute:Skill level|Advanced",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:GF-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Skill level|Advanced"
+  },
+  {
+    "$key": "Product:GF-1002|SpecificationAttributeOption:SpecificationAttribute:Material|wood",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:GF-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|wood"
+  },
+  {
+    "$key": "Product:GF-1002|SpecificationAttributeOption:SpecificationAttribute:Target group|Unisex",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:GF-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Target group|Unisex"
+  },
+  {
+    "$key": "Product:GF-1002|SpecificationAttributeOption:SpecificationAttribute:Tee length|70 mm",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:GF-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Tee length|70 mm"
+  },
+  {
+    "$key": "Product:GF-1003|SpecificationAttributeOption:SpecificationAttribute:Color|white",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:GF-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Color|white"
+  },
+  {
+    "$key": "Product:GF-1003|SpecificationAttributeOption:SpecificationAttribute:Material|leather",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:GF-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|leather"
+  },
+  {
+    "$key": "Product:GF-1003|SpecificationAttributeOption:SpecificationAttribute:Target group|Men",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:GF-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Target group|Men"
+  },
+  {
+    "$key": "Product:GF-1004|SpecificationAttributeOption:SpecificationAttribute:Measuring range|up to 600 m",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:GF-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Measuring range|up to 600 m"
+  },
+  {
+    "$key": "Product:GF-1004|SpecificationAttributeOption:SpecificationAttribute:Slope function|Yes",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:GF-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Slope function|Yes"
+  },
+  {
+    "$key": "Product:GF-1004|SpecificationAttributeOption:SpecificationAttribute:Target group|Unisex",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:GF-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Target group|Unisex"
+  },
+  {
+    "$key": "Product:GF-1005|SpecificationAttributeOption:SpecificationAttribute:Skill level|Beginner",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:GF-1005",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Skill level|Beginner"
+  },
+  {
+    "$key": "Product:GF-1006|SpecificationAttributeOption:SpecificationAttribute:Bag type|Stand bag",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:GF-1006",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Bag type|Stand bag"
+  },
+  {
+    "$key": "Product:GF-1006|SpecificationAttributeOption:SpecificationAttribute:Color|black",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:GF-1006",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Color|black"
+  },
+  {
+    "$key": "Product:GF-1006|SpecificationAttributeOption:SpecificationAttribute:Target group|Unisex",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:GF-1006",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Target group|Unisex"
+  },
+  {
+    "$key": "Product:GF-1007|SpecificationAttributeOption:SpecificationAttribute:Target group|Unisex",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:GF-1007",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Target group|Unisex"
+  },
+  {
     "$key": "Product:IN 200|SpecificationAttributeOption:SpecificationAttribute:Material|glass",
     "AllowFiltering": true,
     "DisplayOrder": 2,

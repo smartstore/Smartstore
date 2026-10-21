@@ -421,5 +421,63 @@
       "gift": { "name": "Geschenk" },
       "christmas": { "name": "Weihnachten" }
     }
+  },
+  "hardness": {
+    "name": "Härte",
+    "options": {
+      "soft": { "name": "Weich" },
+      "medium": { "name": "Mittel" },
+      "hard": { "name": "Hart" }
+    }
+  },
+  "layers": {
+    "name": "Schichten",
+    "options": {
+      "2-piece": { "name": "2-teilig" },
+      "3-piece": { "name": "3-teilig" },
+      "4-piece": { "name": "4-teilig" }
+    }
+  },
+  "level": {
+    "name": "Spielstärke",
+    "options": {
+      "beginner": { "name": "Einsteiger" },
+      "advanced": { "name": "Fortgeschritten" },
+      "pro": { "name": "Profi" }
+    }
+  },
+  "target-group": {
+    "name": "Zielgruppe",
+    "options": {
+      "men": { "name": "Herren" },
+      "women": { "name": "Damen" },
+      "kids": { "name": "Kinder" },
+      "unisex": { "name": "Unisex" }
+    }
+  },
+  "tee-length": {
+    "name": "Tee-Länge"
+  },
+  "measuring-range": {
+    "name": "Messbereich",
+    "options": {
+      "400m": { "name": "bis 400 m" },
+      "600m": { "name": "bis 600 m" },
+      "1000m": { "name": "bis 1000 m" }
+    }
+  },
+  "slope-function": {
+    "name": "Neigungsfunktion",
+    "options": {
+      "yes": { "name": "Ja" },
+      "no": { "name": "Nein" }
+    }
+  },
+  "bag-type": {
+    "name": "Taschenart",
+    "options": {
+      "stand-bag": { "name": "Standbag" },
+      "cart-bag": { "name": "Cartbag" }
+    }
   }
 }

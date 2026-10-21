@@ -1320,6 +1320,36 @@
     "SpecificationAttributeId": "SpecificationAttribute:Hersteller"
   },
   {
+    "$key": "SpecificationAttribute:Härte|Hart",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Hart",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Härte"
+  },
+  {
+    "$key": "SpecificationAttribute:Härte|Mittel",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Mittel",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Härte"
+  },
+  {
+    "$key": "SpecificationAttribute:Härte|Weich",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Weich",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Härte"
+  },
+  {
     "$key": "SpecificationAttribute:Intensität|Extra kräftig",
     "Alias": null,
     "Color": null,
@@ -1620,6 +1650,56 @@
     "SpecificationAttributeId": "SpecificationAttribute:Material"
   },
   {
+    "$key": "SpecificationAttribute:Messbereich|bis 1000 m",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "bis 1000 m",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Messbereich"
+  },
+  {
+    "$key": "SpecificationAttribute:Messbereich|bis 400 m",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "bis 400 m",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Messbereich"
+  },
+  {
+    "$key": "SpecificationAttribute:Messbereich|bis 600 m",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "bis 600 m",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Messbereich"
+  },
+  {
+    "$key": "SpecificationAttribute:Neigungsfunktion|Ja",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Ja",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Neigungsfunktion"
+  },
+  {
+    "$key": "SpecificationAttribute:Neigungsfunktion|Nein",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Nein",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Neigungsfunktion"
+  },
+  {
     "$key": "SpecificationAttribute:Olivensorte|Coratina",
     "Alias": null,
     "Color": null,
@@ -1700,6 +1780,36 @@
     "SpecificationAttributeId": "SpecificationAttribute:Scheibenmaterial"
   },
   {
+    "$key": "SpecificationAttribute:Schichten|2-teilig",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "2-teilig",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Schichten"
+  },
+  {
+    "$key": "SpecificationAttribute:Schichten|3-teilig",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "3-teilig",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Schichten"
+  },
+  {
+    "$key": "SpecificationAttribute:Schichten|4-teilig",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "4-teilig",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Schichten"
+  },
+  {
     "$key": "SpecificationAttribute:Speicherkapazität|128 GB",
     "Alias": null,
     "Color": null,
@@ -1728,6 +1838,36 @@
     "Name": "64 GB",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Speicherkapazität"
+  },
+  {
+    "$key": "SpecificationAttribute:Spielstärke|Einsteiger",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Einsteiger",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Spielstärke"
+  },
+  {
+    "$key": "SpecificationAttribute:Spielstärke|Fortgeschritten",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Fortgeschritten",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Spielstärke"
+  },
+  {
+    "$key": "SpecificationAttribute:Spielstärke|Profi",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Profi",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Spielstärke"
   },
   {
     "$key": "SpecificationAttribute:Sprache|Deutsch",
@@ -1770,6 +1910,26 @@
     "SpecificationAttributeId": "SpecificationAttribute:Sprache"
   },
   {
+    "$key": "SpecificationAttribute:Taschenart|Cartbag",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Cartbag",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Taschenart"
+  },
+  {
+    "$key": "SpecificationAttribute:Taschenart|Standbag",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Standbag",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Taschenart"
+  },
+  {
     "$key": "SpecificationAttribute:Technische Ausführung|Automatik",
     "Alias": null,
     "Color": null,
@@ -1798,6 +1958,36 @@
     "Name": "Quarz, batteriebetrieben",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Technische Ausführung"
+  },
+  {
+    "$key": "SpecificationAttribute:Tee-Länge|54 mm",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "54 mm",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Tee-Länge"
+  },
+  {
+    "$key": "SpecificationAttribute:Tee-Länge|70 mm",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "70 mm",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Tee-Länge"
+  },
+  {
+    "$key": "SpecificationAttribute:Tee-Länge|83 mm",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "83 mm",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Tee-Länge"
   },
   {
     "$key": "SpecificationAttribute:Verschluss#1|Faltverschluss",
@@ -1858,5 +2048,45 @@
     "Name": "Sicherheitsfaltschließe",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Verschluss#2"
+  },
+  {
+    "$key": "SpecificationAttribute:Zielgruppe|Damen",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Damen",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Zielgruppe"
+  },
+  {
+    "$key": "SpecificationAttribute:Zielgruppe|Herren",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Herren",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Zielgruppe"
+  },
+  {
+    "$key": "SpecificationAttribute:Zielgruppe|Kinder",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Kinder",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Zielgruppe"
+  },
+  {
+    "$key": "SpecificationAttribute:Zielgruppe|Unisex",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 4,
+    "MediaFileId": 0,
+    "Name": "Unisex",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Zielgruppe"
   }
 ]

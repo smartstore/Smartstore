@@ -152,6 +152,14 @@ public partial class InstallationDataSeeder
             }
 
             await SaveRangeAsync(combinations);
+
+            // Derived product property, maintained by a hook at runtime that does not run during installation.
+            foreach (var group in combinations.Where(x => x.IsActive && x.Price.HasValue).GroupBy(x => x.Product, ReferenceEqualityComparer.Instance))
+            {
+                ((Product)group.Key).LowestAttributeCombinationPrice = group.Min(x => x.Price);
+            }
+
+            await Context.SaveChangesAsync();
         });
     }
 
@@ -165,6 +173,8 @@ public partial class InstallationDataSeeder
             .Reference<ProductTemplate>("productTemplate", (product, template) => product.ProductTemplateId = template.Id)
             .Reference<TaxCategory>("taxCategory", (product, taxCategory) => product.TaxCategoryId = taxCategory.Id)
             .Reference<DeliveryTime>("deliveryTime", (product, deliveryTime) => product.DeliveryTimeId = deliveryTime.Id)
+            .Reference<QuantityUnit>("quantityUnit", (product, unit) => product.QuantityUnitId = unit.Id)
+            .Reference<PriceLabel>("comparePriceLabel", (product, label) => product.ComparePriceLabelId = label.Id)
             .Bind("categories", (product, node, _) => ForEachAssignment(node, "category", (key, assignment) =>
                 product.ProductCategories.Add(new ProductCategory
                 {
@@ -191,17 +201,23 @@ public partial class InstallationDataSeeder
             .ChildList("reviews", x => x.ProductReviews, new SeedEntityDescriptor<ProductReview>("title")
                 .Reference<Customer>("customer", (review, customer) => review.CustomerId = customer.Id))
             .Child("tierPrices", x => x.TierPrices, new SeedEntityDescriptor<TierPrice>("quantity"))
-            .Bind("sampleDownload", (product, node, _) => state.SampleDownloads.Add((product, node.GetValue<string>())))
+            .Bind("sampleDownload", (product, node, _) =>
+            {
+                product.HasSampleDownload = true;
+                state.SampleDownloads.Add((product, node.GetValue<string>()));
+            })
             .Bind("parentGroupedProduct", (product, node, _) => state.GroupedParents.Add((product, node.GetValue<string>())))
             .Bind("bundleItems", (product, node, context) => state.BundleItems.Add((product, node.AsArray(), context.Source)))
             .Bind("variantAttributes", (product, node, context) => state.VariantAttributes.Add((product, node.AsArray(), context.Source)))
             .Bind("combinations", (product, node, context) => state.Combinations.Add((product, node.AsArray(), context.Source)))
-            // Review counters are maintained by hooks at runtime, which do not run during installation.
+            // Derived product properties are maintained by hooks at runtime, which do not run during installation.
             .OnCreated((product, _) =>
             {
                 var approved = product.ProductReviews.Where(x => x.IsApproved).ToList();
                 product.ApprovedTotalReviews = approved.Count;
                 product.ApprovedRatingSum = approved.Sum(x => x.Rating);
+                product.HasTierPrices = product.TierPrices.Count > 0;
+                product.HasDiscountsApplied = product.AppliedDiscounts.Count > 0;
             });
 
         // Child collections created after the products: declared for merging only.

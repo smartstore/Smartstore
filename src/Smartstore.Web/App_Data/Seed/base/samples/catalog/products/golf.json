@@ -1,0 +1,220 @@
+// Key field: sku
+[
+  {
+    "name": "Tour Distance Golf Balls",
+    "shortDescription": "Three-piece golf balls with a soft feel and good distance, in packs of 3, 12 or 24.",
+    "fullDescription": "@file",
+    "sku": "GF-1001",
+    "reviews": [
+      { "customer": "tim", "rating": 5, "title": "Great feel around the green", "reviewText": "Soft off the putter, yet they still fly far. I now play nothing else.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-45d" },
+      { "customer": "markus", "rating": 5, "title": "Good value in the big pack", "reviewText": "The 24 pack is by far the cheapest way to stock up for the season.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-30d" },
+      { "customer": "laura", "rating": 4, "title": "Solid all-round ball", "reviewText": "Good distance and durable. Hardly any scuffs after a full round.", "isApproved": true, "createdOnUtc": "@now-18d" },
+      { "customer": "jonas", "rating": 4, "title": "Does what it should", "reviewText": "Nothing to complain about, delivery was quick.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-9d" },
+      { "customer": "sophie", "rating": 2, "title": "Too hard for my swing", "reviewText": "I prefer a softer ball with a slower swing. Quality is fine, but not for me.", "isApproved": true, "createdOnUtc": "@now-4d" }
+    ],
+    "taxCategory": "general",
+    "price": 9.90,
+    "weight": 0.33,
+    "deliveryTime": "available-and-ready-to-ship",
+    "stockQuantity": 500,
+    "displayStockAvailability": true,
+    "categories": [ "Golf Balls" ],
+    "manufacturers": [ "fairway-vennix" ],
+    "pictures": [
+      { "file": "product/demo-round.jpg", "name": "tour-distance-golf-balls" }
+    ],
+    "tierPrices": [
+      { "quantity": 5, "price": 8.90 },
+      { "quantity": 10, "price": 7.90 }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "hardness/medium", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "layers/3-piece", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "level/advanced", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 3 },
+      { "specificationAttributeOption": "color/white", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 4 }
+    ],
+    "variantAttributes": [
+      {
+        "productAttribute": "pack-size",
+        "isRequired": true,
+        "attributeControlType": "RadioList",
+        "displayOrder": 1,
+        "values": [
+          { "name": "3 balls", "alias": "balls-3", "isPreSelected": true, "displayOrder": 1 },
+          { "name": "12 balls", "alias": "balls-12", "priceAdjustment": 20.00, "weightAdjustment": 1.0, "displayOrder": 2 },
+          { "name": "24 balls", "alias": "balls-24", "priceAdjustment": 45.00, "weightAdjustment": 2.3, "displayOrder": 3 }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Golf Tees, 50 pieces",
+    "shortDescription": "Small pegs that hold the golf ball for the tee shot. 70 mm, 50 pieces per bag.",
+    "fullDescription": "@file",
+    "sku": "GF-1002",
+    "taxCategory": "general",
+    "price": 2.90,
+    "quantityUnit": "bag",
+    "orderMinimumQuantity": 2,
+    "deliveryTime": "available-and-ready-to-ship",
+    "stockQuantity": 1000,
+    "categories": [ "Golf Accessories" ],
+    "manufacturers": [ "fairway-vennix" ],
+    "pictures": [
+      { "file": "product/demo-box.jpg", "name": "wooden-golf-tees" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "material/wood", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "tee-length/70mm", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "target-group/unisex", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 }
+    ]
+  },
+  {
+    "name": "Leather Golf Glove",
+    "shortDescription": "Soft leather glove for a secure grip, also in wet conditions.",
+    "fullDescription": "@file",
+    "sku": "GF-1003",
+    "reviews": [
+      { "customer": "anna", "rating": 5, "title": "Fits perfectly", "reviewText": "Very comfortable and a secure grip, even when it rains.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-35d" },
+      { "customer": "tim", "rating": 4, "title": "Good glove", "reviewText": "Comfortable leather. Order one size up if you are between sizes.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-20d" },
+      { "customer": "jonas", "rating": 4, "title": "Good for the price", "reviewText": "Wears well after several rounds.", "isApproved": true, "createdOnUtc": "@now-7d" }
+    ],
+    "taxCategory": "general",
+    "price": 14.90,
+    "deliveryTime": "2-5-working-days",
+    "stockQuantity": 40,
+    "displayStockAvailability": true,
+    "displayStockQuantity": true,
+    "categories": [ "Golf Accessories" ],
+    "manufacturers": [ "fairway-vennix" ],
+    "pictures": [
+      { "file": "product/demo-flat.jpg", "name": "leather-golf-glove" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "material/leather", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "target-group/men", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "color/white", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 }
+    ],
+    "variantAttributes": [
+      {
+        "productAttribute": "hand",
+        "isRequired": true,
+        "attributeControlType": "RadioList",
+        "displayOrder": 1,
+        "values": [
+          { "name": "Left hand (for right-handed players)", "alias": "hand-left", "displayOrder": 1 },
+          { "name": "Right hand (for left-handed players)", "alias": "hand-right", "displayOrder": 2 }
+        ]
+      },
+      {
+        "productAttribute": "size",
+        "isRequired": true,
+        "attributeControlType": "DropdownList",
+        "displayOrder": 2,
+        "values": [
+          { "name": "S", "alias": "glove-s", "displayOrder": 1 },
+          { "name": "M", "alias": "glove-m", "displayOrder": 2 },
+          { "name": "L", "alias": "glove-l", "displayOrder": 3 },
+          { "name": "XL", "alias": "glove-xl", "displayOrder": 4 }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Laser Rangefinder 600",
+    "shortDescription": "Compact laser rangefinder with a range of up to 600 m and a slope function.",
+    "fullDescription": "@file",
+    "sku": "GF-1004",
+    "taxCategory": "general",
+    "price": 249.00,
+    "callForPrice": true,
+    "deliveryTime": "7-working-days",
+    "stockQuantity": 12,
+    "categories": [ "Golf Accessories" ],
+    "manufacturers": [ "fairway-vennix" ],
+    "pictures": [
+      { "file": "product/demo-box.jpg", "name": "laser-rangefinder-600" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "measuring-range/600m", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "slope-function/yes", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "target-group/unisex", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 3 }
+    ]
+  },
+  {
+    "productType": "BundledProduct",
+    "name": "Golf Starter Set",
+    "shortDescription": "Golf bag, two bags of tees and a divot repair tool at a special price.",
+    "fullDescription": "@file",
+    "sku": "GF-1005",
+    "reviews": [
+      { "customer": "laura", "rating": 5, "title": "A great start", "reviewText": "Perfect for beginners: everything in one order and cheaper than buying it separately.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-16d" }
+    ],
+    "taxCategory": "general",
+    "price": 84.90,
+    "deliveryTime": "2-5-working-days",
+    "bundleTitleText": "The set contains",
+    "bundlePerItemPricing": false,
+    "showOnHomePage": true,
+    "categories": [ "Golf and Sports" ],
+    "manufacturers": [ "fairway-vennix" ],
+    "pictures": [
+      { "file": "product/demo-box.jpg", "name": "golf-starter-set" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "level/beginner", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 }
+    ],
+    "bundleItems": [
+      { "product": "GF-1006", "quantity": 1, "visible": true, "published": true, "displayOrder": 1 },
+      { "product": "GF-1002", "quantity": 2, "visible": true, "published": true, "displayOrder": 2 },
+      { "product": "GF-1007", "quantity": 1, "visible": true, "published": true, "displayOrder": 3 }
+    ]
+  },
+  {
+    "name": "Lightweight Stand Bag",
+    "shortDescription": "Stand bag with a double carry strap and six compartments.",
+    "fullDescription": "@file",
+    "sku": "GF-1006",
+    "reviews": [
+      { "customer": "markus", "rating": 4, "title": "Light and practical", "reviewText": "Very light for walking the course and the compartments are well planned.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-28d" },
+      { "customer": "sophie", "rating": 5, "title": "Great bag", "reviewText": "Stands firmly, the strap is comfortable. Good price.", "isApproved": true, "createdOnUtc": "@now-11d" }
+    ],
+    "taxCategory": "general",
+    "price": 79.90,
+    "comparePrice": 119.00,
+    "comparePriceLabel": "msrp",
+    "deliveryTime": "available-and-ready-to-ship",
+    "stockQuantity": 2,
+    "displayStockAvailability": true,
+    "displayStockQuantity": true,
+    "categories": [ "Golf Accessories" ],
+    "manufacturers": [ "fairway-vennix" ],
+    "pictures": [
+      { "file": "product/demo-box.jpg", "name": "lightweight-stand-bag" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "bag-type/stand-bag", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "color/black", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "target-group/unisex", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 3 }
+    ]
+  },
+  {
+    "name": "Divot Repair Tool",
+    "shortDescription": "Stainless steel divot repair tool with a magnetic ball marker.",
+    "fullDescription": "@file",
+    "sku": "GF-1007",
+    "taxCategory": "general",
+    "price": 12.90,
+    "createdOnUtc": "@now-5d",
+    "deliveryTime": "available-and-ready-to-ship",
+    "stockQuantity": 25,
+    "categories": [ "Golf Accessories" ],
+    "manufacturers": [ "fairway-vennix" ],
+    "pictures": [
+      { "file": "product/demo-round.jpg", "name": "divot-repair-tool" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "target-group/unisex", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 }
+    ]
+  }
+]

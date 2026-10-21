@@ -25,6 +25,11 @@
     "Name": "Food & Beverages"
   },
   {
+    "$key": "General goods",
+    "DisplayOrder": 30,
+    "Name": "General goods"
+  },
+  {
     "$key": "Jewelry",
     "DisplayOrder": 15,
     "Name": "Jewelry"

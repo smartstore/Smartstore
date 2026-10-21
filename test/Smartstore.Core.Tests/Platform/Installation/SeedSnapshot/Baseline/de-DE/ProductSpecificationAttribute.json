@@ -312,6 +312,150 @@
     "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|Leder"
   },
   {
+    "$key": "Product:GF-1001|SpecificationAttributeOption:SpecificationAttribute:Farbe|Weiß",
+    "AllowFiltering": true,
+    "DisplayOrder": 4,
+    "ProductId": "Product:GF-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Farbe|Weiß"
+  },
+  {
+    "$key": "Product:GF-1001|SpecificationAttributeOption:SpecificationAttribute:Härte|Mittel",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:GF-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Härte|Mittel"
+  },
+  {
+    "$key": "Product:GF-1001|SpecificationAttributeOption:SpecificationAttribute:Schichten|3-teilig",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:GF-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Schichten|3-teilig"
+  },
+  {
+    "$key": "Product:GF-1001|SpecificationAttributeOption:SpecificationAttribute:Spielstärke|Fortgeschritten",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:GF-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Spielstärke|Fortgeschritten"
+  },
+  {
+    "$key": "Product:GF-1002|SpecificationAttributeOption:SpecificationAttribute:Material|Holz",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:GF-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|Holz"
+  },
+  {
+    "$key": "Product:GF-1002|SpecificationAttributeOption:SpecificationAttribute:Tee-Länge|70 mm",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:GF-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Tee-Länge|70 mm"
+  },
+  {
+    "$key": "Product:GF-1002|SpecificationAttributeOption:SpecificationAttribute:Zielgruppe|Unisex",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:GF-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Zielgruppe|Unisex"
+  },
+  {
+    "$key": "Product:GF-1003|SpecificationAttributeOption:SpecificationAttribute:Farbe|Weiß",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:GF-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Farbe|Weiß"
+  },
+  {
+    "$key": "Product:GF-1003|SpecificationAttributeOption:SpecificationAttribute:Material|Leder",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:GF-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Material|Leder"
+  },
+  {
+    "$key": "Product:GF-1003|SpecificationAttributeOption:SpecificationAttribute:Zielgruppe|Herren",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:GF-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Zielgruppe|Herren"
+  },
+  {
+    "$key": "Product:GF-1004|SpecificationAttributeOption:SpecificationAttribute:Messbereich|bis 600 m",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:GF-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Messbereich|bis 600 m"
+  },
+  {
+    "$key": "Product:GF-1004|SpecificationAttributeOption:SpecificationAttribute:Neigungsfunktion|Ja",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:GF-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Neigungsfunktion|Ja"
+  },
+  {
+    "$key": "Product:GF-1004|SpecificationAttributeOption:SpecificationAttribute:Zielgruppe|Unisex",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:GF-1004",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Zielgruppe|Unisex"
+  },
+  {
+    "$key": "Product:GF-1005|SpecificationAttributeOption:SpecificationAttribute:Spielstärke|Einsteiger",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:GF-1005",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Spielstärke|Einsteiger"
+  },
+  {
+    "$key": "Product:GF-1006|SpecificationAttributeOption:SpecificationAttribute:Farbe|Schwarz",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:GF-1006",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Farbe|Schwarz"
+  },
+  {
+    "$key": "Product:GF-1006|SpecificationAttributeOption:SpecificationAttribute:Taschenart|Standbag",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:GF-1006",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Taschenart|Standbag"
+  },
+  {
+    "$key": "Product:GF-1006|SpecificationAttributeOption:SpecificationAttribute:Zielgruppe|Unisex",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:GF-1006",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Zielgruppe|Unisex"
+  },
+  {
+    "$key": "Product:GF-1007|SpecificationAttributeOption:SpecificationAttribute:Zielgruppe|Unisex",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:GF-1007",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Zielgruppe|Unisex"
+  },
+  {
     "$key": "Product:IN 200|SpecificationAttributeOption:SpecificationAttribute:Material|Edelstahl",
     "AllowFiltering": true,
     "DisplayOrder": 1,

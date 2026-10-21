@@ -1,0 +1,66 @@
+{
+  "GF-1001": {
+    "name": "Tour Distance Golfbälle",
+    "shortDescription": "Dreiteilige Golfbälle mit weichem Gefühl und guter Länge, im 3er-, 12er- oder 24er-Pack.",
+    "fullDescription": "@file",
+    "weight": 0.15,
+    "variantAttributes": {
+      "pack-size": {
+        "values": {
+          "balls-12": { "weightAdjustment": 0.45 },
+          "balls-24": { "weightAdjustment": 1.05 }
+        }
+      }
+    },
+    "reviews": [
+      { "customer": "tim", "rating": 5, "title": "Tolles Gefühl rund ums Grün", "reviewText": "Weich beim Putten und fliegen trotzdem weit. Ich spiele inzwischen nichts anderes mehr.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-45d" },
+      { "customer": "markus", "rating": 5, "title": "Preiswert in der großen Packung", "reviewText": "Mit dem 24er-Pack deckt man sich am günstigsten für die Saison ein.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-30d" },
+      { "customer": "laura", "rating": 4, "title": "Solider Allrounder", "reviewText": "Gute Länge und langlebig. Nach einer ganzen Runde kaum Kratzer.", "isApproved": true, "createdOnUtc": "@now-18d" },
+      { "customer": "jonas", "rating": 4, "title": "Macht, was er soll", "reviewText": "Nichts zu beanstanden, die Lieferung war schnell.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-9d" },
+      { "customer": "sophie", "rating": 2, "title": "Zu hart für meinen Schwung", "reviewText": "Bei langsamem Schwung bevorzuge ich einen weicheren Ball. Die Qualität ist in Ordnung, aber nichts für mich.", "isApproved": true, "createdOnUtc": "@now-4d" }
+    ]
+  },
+  "GF-1002": {
+    "name": "Golf-Tees, 50 Stück",
+    "shortDescription": "Aufsteckstifte, auf die der Golfball beim Abschlag gelegt wird. 70 mm, 50 Stück pro Beutel.",
+    "fullDescription": "@file"
+  },
+  "GF-1003": {
+    "name": "Golfhandschuh aus Leder",
+    "shortDescription": "Weicher Lederhandschuh für sicheren Halt, auch bei Nässe.",
+    "fullDescription": "@file",
+    "reviews": [
+      { "customer": "anna", "rating": 5, "title": "Passt perfekt", "reviewText": "Sehr bequem und sicherer Griff, auch bei Regen.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-35d" },
+      { "customer": "tim", "rating": 4, "title": "Guter Handschuh", "reviewText": "Angenehmes Leder. Wer zwischen zwei Größen liegt, sollte die größere nehmen.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-20d" },
+      { "customer": "jonas", "rating": 4, "title": "Gut für den Preis", "reviewText": "Hält auch nach mehreren Runden gut.", "isApproved": true, "createdOnUtc": "@now-7d" }
+    ]
+  },
+  "GF-1004": {
+    "name": "Laser-Entfernungsmesser 600",
+    "shortDescription": "Kompakter Laser-Entfernungsmesser mit bis zu 600 m Reichweite und Neigungsfunktion.",
+    "fullDescription": "@file"
+  },
+  "GF-1005": {
+    "name": "Golf-Starter-Set",
+    "shortDescription": "Standbag, zwei Beutel Tees und ein Pitchgabel-Werkzeug zum Sonderpreis.",
+    "fullDescription": "@file",
+    "bundleTitleText": "Das Set enthält",
+    "reviews": [
+      { "customer": "laura", "rating": 5, "title": "Ein toller Einstieg", "reviewText": "Ideal für Anfänger: alles in einer Bestellung und günstiger als einzeln gekauft.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-16d" }
+    ]
+  },
+  "GF-1006": {
+    "name": "Leichter Standbag",
+    "shortDescription": "Standbag mit doppeltem Tragegurt und sechs Fächern.",
+    "fullDescription": "@file",
+    "reviews": [
+      { "customer": "markus", "rating": 4, "title": "Leicht und praktisch", "reviewText": "Sehr leicht zum Laufen über den Platz, und die Fächer sind gut aufgeteilt.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-28d" },
+      { "customer": "sophie", "rating": 5, "title": "Toller Bag", "reviewText": "Steht sicher, der Gurt ist bequem. Guter Preis.", "isApproved": true, "createdOnUtc": "@now-11d" }
+    ]
+  },
+  "GF-1007": {
+    "name": "Pitchgabel",
+    "shortDescription": "Pitchgabel aus Edelstahl mit magnetischem Ballmarker.",
+    "fullDescription": "@file"
+  }
+}

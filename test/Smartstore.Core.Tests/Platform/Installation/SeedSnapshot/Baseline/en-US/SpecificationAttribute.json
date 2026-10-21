@@ -1,5 +1,18 @@
 [
   {
+    "$key": "Bag type",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 27,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Bag type",
+    "ShowOnProductPage": false
+  },
+  {
     "$key": "Bean",
     "Alias": null,
     "AllowFiltering": false,
@@ -234,6 +247,19 @@
     "ShowOnProductPage": false
   },
   {
+    "$key": "Hardness",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 20,
+    "Essential": true,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Hardness",
+    "ShowOnProductPage": false
+  },
+  {
     "$key": "Intensity",
     "Alias": null,
     "AllowFiltering": false,
@@ -257,6 +283,19 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Language",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Layers",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 21,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Layers",
     "ShowOnProductPage": false
   },
   {
@@ -296,6 +335,19 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Material",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Measuring range",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 25,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Measuring range",
     "ShowOnProductPage": false
   },
   {
@@ -455,6 +507,32 @@
     "ShowOnProductPage": false
   },
   {
+    "$key": "Skill level",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 22,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Skill level",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Slope function",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 26,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Slope function",
+    "ShowOnProductPage": false
+  },
+  {
     "$key": "Storage capacity",
     "Alias": null,
     "AllowFiltering": false,
@@ -465,6 +543,32 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Storage capacity",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Target group",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 23,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Target group",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Tee length",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 24,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Tee length",
     "ShowOnProductPage": false
   },
   {

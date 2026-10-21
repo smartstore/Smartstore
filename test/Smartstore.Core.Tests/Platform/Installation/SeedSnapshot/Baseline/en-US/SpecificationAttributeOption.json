@@ -1,5 +1,25 @@
 [
   {
+    "$key": "SpecificationAttribute:Bag type|Cart bag",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Cart bag",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Bag type"
+  },
+  {
+    "$key": "SpecificationAttribute:Bag type|Stand bag",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Stand bag",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Bag type"
+  },
+  {
     "$key": "SpecificationAttribute:Bean|100% Arabica",
     "Alias": null,
     "Color": null,
@@ -690,6 +710,36 @@
     "SpecificationAttributeId": "SpecificationAttribute:Harddisk capacity"
   },
   {
+    "$key": "SpecificationAttribute:Hardness|Hard",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Hard",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Hardness"
+  },
+  {
+    "$key": "SpecificationAttribute:Hardness|Medium",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Medium",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Hardness"
+  },
+  {
+    "$key": "SpecificationAttribute:Hardness|Soft",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Soft",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Hardness"
+  },
+  {
     "$key": "SpecificationAttribute:Intensity|Extra strong",
     "Alias": null,
     "Color": null,
@@ -768,6 +818,36 @@
     "Name": "italian",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Language"
+  },
+  {
+    "$key": "SpecificationAttribute:Layers|2-piece",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "2-piece",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Layers"
+  },
+  {
+    "$key": "SpecificationAttribute:Layers|3-piece",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "3-piece",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Layers"
+  },
+  {
+    "$key": "SpecificationAttribute:Layers|4-piece",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "4-piece",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Layers"
   },
   {
     "$key": "SpecificationAttribute:MP3 quality|128 kbit/s",
@@ -1168,6 +1248,36 @@
     "Name": "wood",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Material"
+  },
+  {
+    "$key": "SpecificationAttribute:Measuring range|up to 1000 m",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "up to 1000 m",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Measuring range"
+  },
+  {
+    "$key": "SpecificationAttribute:Measuring range|up to 400 m",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "up to 400 m",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Measuring range"
+  },
+  {
+    "$key": "SpecificationAttribute:Measuring range|up to 600 m",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "up to 600 m",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Measuring range"
   },
   {
     "$key": "SpecificationAttribute:Movement|mechanical",
@@ -1780,6 +1890,56 @@
     "SpecificationAttributeId": "SpecificationAttribute:Size"
   },
   {
+    "$key": "SpecificationAttribute:Skill level|Advanced",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Advanced",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Skill level"
+  },
+  {
+    "$key": "SpecificationAttribute:Skill level|Beginner",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Beginner",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Skill level"
+  },
+  {
+    "$key": "SpecificationAttribute:Skill level|Pro",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Pro",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Skill level"
+  },
+  {
+    "$key": "SpecificationAttribute:Slope function|No",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "No",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Slope function"
+  },
+  {
+    "$key": "SpecificationAttribute:Slope function|Yes",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Yes",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Slope function"
+  },
+  {
     "$key": "SpecificationAttribute:Storage capacity|128 GB",
     "Alias": null,
     "Color": null,
@@ -1808,6 +1968,76 @@
     "Name": "64 GB",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Storage capacity"
+  },
+  {
+    "$key": "SpecificationAttribute:Target group|Kids",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Kids",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Target group"
+  },
+  {
+    "$key": "SpecificationAttribute:Target group|Men",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Men",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Target group"
+  },
+  {
+    "$key": "SpecificationAttribute:Target group|Unisex",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 4,
+    "MediaFileId": 0,
+    "Name": "Unisex",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Target group"
+  },
+  {
+    "$key": "SpecificationAttribute:Target group|Women",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "Women",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Target group"
+  },
+  {
+    "$key": "SpecificationAttribute:Tee length|54 mm",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "54 mm",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Tee length"
+  },
+  {
+    "$key": "SpecificationAttribute:Tee length|70 mm",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "70 mm",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Tee length"
+  },
+  {
+    "$key": "SpecificationAttribute:Tee length|83 mm",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "83 mm",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Tee length"
   },
   {
     "$key": "SpecificationAttribute:Type of mass-storage|Flash",

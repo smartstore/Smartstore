@@ -56,6 +56,55 @@
     "ProductId": "Product:FD-1007"
   },
   {
+    "$key": "Product:GF-1001|Manufacturer:Fairway Vennix",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "ManufacturerId": "Manufacturer:Fairway Vennix",
+    "ProductId": "Product:GF-1001"
+  },
+  {
+    "$key": "Product:GF-1002|Manufacturer:Fairway Vennix",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "ManufacturerId": "Manufacturer:Fairway Vennix",
+    "ProductId": "Product:GF-1002"
+  },
+  {
+    "$key": "Product:GF-1003|Manufacturer:Fairway Vennix",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "ManufacturerId": "Manufacturer:Fairway Vennix",
+    "ProductId": "Product:GF-1003"
+  },
+  {
+    "$key": "Product:GF-1004|Manufacturer:Fairway Vennix",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "ManufacturerId": "Manufacturer:Fairway Vennix",
+    "ProductId": "Product:GF-1004"
+  },
+  {
+    "$key": "Product:GF-1005|Manufacturer:Fairway Vennix",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "ManufacturerId": "Manufacturer:Fairway Vennix",
+    "ProductId": "Product:GF-1005"
+  },
+  {
+    "$key": "Product:GF-1006|Manufacturer:Fairway Vennix",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "ManufacturerId": "Manufacturer:Fairway Vennix",
+    "ProductId": "Product:GF-1006"
+  },
+  {
+    "$key": "Product:GF-1007|Manufacturer:Fairway Vennix",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "ManufacturerId": "Manufacturer:Fairway Vennix",
+    "ProductId": "Product:GF-1007"
+  },
+  {
     "$key": "Product:Gaming-Lego-001|Manufacturer:Warner Home Video Games",
     "DisplayOrder": 1,
     "IsFeaturedProduct": false,

@@ -1061,5 +1061,85 @@
       { "key": "gift", "name": "Gift", "displayOrder": 2 },
       { "key": "christmas", "name": "Christmas", "displayOrder": 3 }
     ]
+  },
+  {
+    "key": "hardness",
+    "name": "Hardness",
+    "essential": true,
+    "displayOrder": 20,
+    "options": [
+      { "key": "soft", "name": "Soft", "displayOrder": 1 },
+      { "key": "medium", "name": "Medium", "displayOrder": 2 },
+      { "key": "hard", "name": "Hard", "displayOrder": 3 }
+    ]
+  },
+  {
+    "key": "layers",
+    "name": "Layers",
+    "displayOrder": 21,
+    "options": [
+      { "key": "2-piece", "name": "2-piece", "displayOrder": 1 },
+      { "key": "3-piece", "name": "3-piece", "displayOrder": 2 },
+      { "key": "4-piece", "name": "4-piece", "displayOrder": 3 }
+    ]
+  },
+  {
+    "key": "level",
+    "name": "Skill level",
+    "displayOrder": 22,
+    "options": [
+      { "key": "beginner", "name": "Beginner", "displayOrder": 1 },
+      { "key": "advanced", "name": "Advanced", "displayOrder": 2 },
+      { "key": "pro", "name": "Pro", "displayOrder": 3 }
+    ]
+  },
+  {
+    "key": "target-group",
+    "name": "Target group",
+    "displayOrder": 23,
+    "options": [
+      { "key": "men", "name": "Men", "displayOrder": 1 },
+      { "key": "women", "name": "Women", "displayOrder": 2 },
+      { "key": "kids", "name": "Kids", "displayOrder": 3 },
+      { "key": "unisex", "name": "Unisex", "displayOrder": 4 }
+    ]
+  },
+  {
+    "key": "tee-length",
+    "name": "Tee length",
+    "displayOrder": 24,
+    "options": [
+      { "key": "54mm", "name": "54 mm", "displayOrder": 1 },
+      { "key": "70mm", "name": "70 mm", "displayOrder": 2 },
+      { "key": "83mm", "name": "83 mm", "displayOrder": 3 }
+    ]
+  },
+  {
+    "key": "measuring-range",
+    "name": "Measuring range",
+    "displayOrder": 25,
+    "options": [
+      { "key": "400m", "name": "up to 400 m", "displayOrder": 1 },
+      { "key": "600m", "name": "up to 600 m", "displayOrder": 2 },
+      { "key": "1000m", "name": "up to 1000 m", "displayOrder": 3 }
+    ]
+  },
+  {
+    "key": "slope-function",
+    "name": "Slope function",
+    "displayOrder": 26,
+    "options": [
+      { "key": "yes", "name": "Yes", "displayOrder": 1 },
+      { "key": "no", "name": "No", "displayOrder": 2 }
+    ]
+  },
+  {
+    "key": "bag-type",
+    "name": "Bag type",
+    "displayOrder": 27,
+    "options": [
+      { "key": "stand-bag", "name": "Stand bag", "displayOrder": 1 },
+      { "key": "cart-bag", "name": "Cart bag", "displayOrder": 2 }
+    ]
   }
 ]
