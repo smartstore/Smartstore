@@ -16,7 +16,7 @@ public class CalculatorContext : PriceCalculationContext
     {
         PricingType = pricingType;
         FinalPrice = finalPrice;
-        RegularPrice = context.Product.Price;
+        RegularPrice = finalPrice;
     }
 
     /// <summary>

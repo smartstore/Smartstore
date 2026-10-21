@@ -114,7 +114,9 @@ public class PriceCalculationServiceTests : ServiceTestBase
         _taxCalculator = new TaxCalculator(DbContext, _workContext, _roundingHelper, _taxService, _taxSettings);
 
         // INFO: Create real instance of PriceCalculatorFactory with own instances of Calculators
-        _priceCalculatorFactory = new PriceCalculatorFactory(_requestCache, base.GetPriceCalculators(_priceCalculatorFactory, _discountService, _priceSettings));
+        var calculators = new List<Lazy<IPriceCalculator, PriceCalculatorMetadata>>();
+        _priceCalculatorFactory = new PriceCalculatorFactory(_requestCache, calculators);
+        calculators.AddRange(base.GetPriceCalculators(_priceCalculatorFactory, _discountService, _priceSettings));
 
         _priceCalcService = new PriceCalculationService(
             DbContext,
@@ -292,6 +294,67 @@ public class PriceCalculationServiceTests : ServiceTestBase
         price = await _priceCalcService.CalculatePriceAsync(_priceCalculationContext);
 
         price.FinalPrice.Amount.ShouldEqual(12.34M);
+    }
+
+    [Test]
+    public async Task Can_get_regular_bundle_price_from_item_prices()
+    {
+        var oliveOil = new Product
+        {
+            Id = 2,
+            Price = 12.90M,
+            Published = true,
+            ProductType = ProductType.SimpleProduct
+        };
+        var herbMix = new Product
+        {
+            Id = 3,
+            Price = 4.90M,
+            Published = true,
+            ProductType = ProductType.SimpleProduct
+        };
+
+        _product.ProductType = ProductType.BundledProduct;
+        _product.BundlePerItemPricing = true;
+        _product.Price = 17.03M;
+
+        _priceCalculationContext.BundleItems =
+        [
+            new ProductBundleItem
+            {
+                Product = oliveOil,
+                BundleProduct = _product,
+                Quantity = 1,
+                Discount = 25,
+                DiscountPercentage = true
+            },
+            new ProductBundleItem
+            {
+                Product = herbMix,
+                BundleProduct = _product,
+                Quantity = 2,
+                Discount = 25,
+                DiscountPercentage = true
+            }
+        ];
+
+        _priceCalculationContext.Options.ChildProductsBatchContext = new ProductBatchContext(
+            [oliveOil, herbMix],
+            DbContext,
+            LifetimeScope,
+            _store,
+            _customer,
+            false);
+        _priceCalculationContext.Options.IgnoreDiscounts = false;
+
+        var price = await _priceCalcService.CalculatePriceAsync(_priceCalculationContext);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(price.FinalPrice.Amount, Is.EqualTo(17.025M));
+            Assert.That(price.RegularPrice?.Amount, Is.EqualTo(22.70M));
+            Assert.That(price.Saving.SavingPercent, Is.EqualTo(25));
+        }
     }
 
     [Test]
