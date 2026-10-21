@@ -30,7 +30,7 @@
                 {
                     if (item.SeName.HasValue())
                     {
-                        <a asp-route="Product" asp-route-SeName="@item.SeName" class="choice-item-img">
+                        <a asp-route="Product" asp-route-SeName="@item.SeName" class="choice-item-img choice-item-linked-product-img">
                             <img src="@item.ImageUrl" alt="@item.Name" />
                         </a>
                     }
