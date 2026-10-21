@@ -23,6 +23,21 @@ button:where(.reset) {
 }
 
 
+// Preserve outer corners when buttons are hidden.
+// -----------------------------------------------------
+
+.btn-group {
+    > .btn:nth-child(1 of :is(.btn, .btn-group):not(.hide, .d-none, [hidden])) {
+        margin-inline-start: 0;
+        @include border-left-radius(var(--btn-border-radius));
+    }
+
+    > .btn:nth-last-child(1 of :is(.btn, .btn-group):not(.hide, .d-none, [hidden])) {
+        @include border-right-radius(var(--btn-border-radius));
+    }
+}
+
+
 // Generic input clear button
 // -----------------------------------------------------
 
