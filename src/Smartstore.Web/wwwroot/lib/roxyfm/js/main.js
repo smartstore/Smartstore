@@ -610,8 +610,8 @@ function switchView(t) {
 			$('head').append('<style id="dynStyle" />');
 			var rules = 'ul#pnlFileList.thumbView li{width:' + (parseInt(RoxyFilemanConf.THUMBS_VIEW_WIDTH) + 22) + 'px;}';
 			rules += 'ul#pnlFileList.thumbView li{height:' + (parseInt(RoxyFilemanConf.THUMBS_VIEW_HEIGHT) + 42) + 'px;}';
-			rules += 'ul#pnlFileList.thumbView .icon{width:' + RoxyFilemanConf.THUMBS_VIEW_WIDTH + 'px;}';
-			rules += 'ul#pnlFileList.thumbView .icon{height:' + RoxyFilemanConf.THUMBS_VIEW_HEIGHT + 'px;}';
+			rules += 'ul#pnlFileList.thumbView .file-preview{width:' + RoxyFilemanConf.THUMBS_VIEW_WIDTH + 'px;}';
+			rules += 'ul#pnlFileList.thumbView .file-preview{height:' + RoxyFilemanConf.THUMBS_VIEW_HEIGHT + 'px;}';
 			$('#dynStyle').html(rules);
 		}
 		$('li', pnlFileList).each(function () {
@@ -622,7 +622,7 @@ function switchView(t) {
 				imgUrl = RoxyUtils.AddParam(imgUrl, 'w', RoxyFilemanConf.THUMBS_VIEW_WIDTH);
 				imgUrl = RoxyUtils.AddParam(imgUrl, 'h', RoxyFilemanConf.THUMBS_VIEW_HEIGHT);
 			}
-			$(this).find('> .icon > img').attr('src', imgUrl);
+			$(this).find('> .file-preview > img').attr('src', imgUrl);
 			$(this).tooltip('option', 'show', {
 				delay: 50,
 				duration: 200
@@ -633,7 +633,7 @@ function switchView(t) {
 	else {
 		pnlFileList.removeClass('thumbView');
 		$('li', pnlFileList).each(function () {
-			//$(this).find('> .icon > img').attr('src', $(this).data('icon')).removeClass("thumb");
+			//$(this).find('> .file-preview > img').attr('src', $(this).data('icon')).removeClass("thumb");
 			$(this).tooltip('option', 'show', {
 				delay: 500,
 				duration: 200

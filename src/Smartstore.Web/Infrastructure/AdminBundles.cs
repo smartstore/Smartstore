@@ -158,13 +158,13 @@ internal class AdminBundles : IBundleProvider
             cm + "mode/htmlmixed/htmlmixed.min.js",
             cm + "mode/liquid/liquid.js"));
         // CSS
-        bundles.Add(new StyleBundle("/bundle/css/codemirror.css").Include(
+        bundles.Add(new StyleBundle("/bundle/css/codemirror.css") { IconArea = "admin" }.Include(
             cm + "codemirror.min.css",
             cm + "codemirror.custom.css",
             cm + "addon/hint/show-hint.min.css",
             cm + "addon/display/fullscreen.css",
             cm + "theme/eclipse.min.css",
-            cm + "mode/liquid/liquid.css"));
+            cm + "mode/liquid/liquid.scss"));
 
 
         /* Roxy File Manager--> /bundle/js/filemanager.js
@@ -172,6 +172,7 @@ internal class AdminBundles : IBundleProvider
         var roxy = "/lib/roxyfm/js/";
         // Script
         bundles.Add(new ScriptBundle("/bundle/js/roxyfm.js").Include(
+            js + "smartstore.icons.js",
             roxy + "jquery-2.1.1.min.js",
             roxy + "jquery-ui-1.10.4.custom.min.js",
             roxy + "filetypes.js",

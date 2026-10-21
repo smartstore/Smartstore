@@ -134,7 +134,7 @@
             $(opts.smallIcon).append(window.createCircularSpinner(16, true));
         }
         else if (opts.buttonIcon) {
-            $(opts.buttonIcon).prop('disabled', true).prepend('<i class="fa fa-fw fa-spinner fa-spin"></i>');
+            $(opts.buttonIcon).prop('disabled', true).prepend('<sm-icon name="spinner" animation="spin" class="ajax-button-spinner icon-fw"></sm-icon>');
         }
     }
 
@@ -149,7 +149,7 @@
             $(opts.smallIcon).find('.spinner').remove();
         }
         if (opts.buttonIcon) {
-            $(opts.buttonIcon).prop('disabled', false).find('.fa-spinner').remove();
+            $(opts.buttonIcon).prop('disabled', false).find('.ajax-button-spinner').remove();
         }
     }
 

@@ -44,7 +44,7 @@ ul {
 		background-color: $fi-selected-bg !important;
 	}
 
-	.icon {
+	.file-preview {
 		float: left;
 		margin-right: 4px;
 
@@ -124,7 +124,7 @@ ul {
 			display: none;
 		}
 
-		.icon {
+		.file-preview {
 			display: flex;
 			align-items: center;
 			justify-content: center;

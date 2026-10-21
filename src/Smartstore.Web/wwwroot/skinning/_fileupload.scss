@@ -173,7 +173,8 @@ $file-thumbnail-max-width:          calc(#{$file-thumbnail-min-size} / 9 * 16);
             border: 1px dashed var(--fu-border-color);
 
             .file-icon {
-                color: rgba($black, 0.12);
+                color: $primary-text-emphasis;
+                opacity: 0.25;
             }
         }
 

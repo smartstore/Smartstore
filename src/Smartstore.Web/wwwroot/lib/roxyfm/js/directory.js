@@ -102,7 +102,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 		var dirClass = (this.dirs > 0 ? "" : " invisible");
 
 		var html = '<li data-path="' + this.fullPath + '" data-name="' + this.name + '" data-dirs="' + this.dirs + '" data-files="' + this.files + '" class="directory">';
-		html += '<div class="d-flex flex-row flex-nowrap align-items-center dir-item"><i class="fa fa-chevron-right dirPlus' + dirClass + '"></i>';
+		html += '<div class="d-flex flex-row flex-nowrap align-items-center dir-item"><sm-icon name="chevron-right" area="admin" class="dirPlus' + dirClass + '"></sm-icon>';
 		html += '<img src="' + RoxyUtils.GetAssetPath("images/folder.png") + '" class="dir mr-1"><span class="name">' + this.name + (parseInt(this.files) ? ' (' + this.files + ')' : '') + '</span></div>';
 		html += '</li>';
 		
@@ -193,9 +193,9 @@ function Directory(fullPath, numDirs, numFiles, name) {
 		if (li.find('li').length < 1)
 			chevrons.addClass('invisible');
 		else if (this.IsExpanded())
-			chevrons.removeClass('invisible fa-chevron-right').addClass("fa-chevron-down");
+			chevrons.removeClass('invisible').attr('name', 'chevron-down');
 		else
-			chevrons.removeClass('invisible fa-chevron-down').addClass("fa-chevron-right");
+			chevrons.removeClass('invisible').attr('name', 'chevron-right');
 	};
 	this.Update = function (newPath) {
 		var el = this.GetElement();

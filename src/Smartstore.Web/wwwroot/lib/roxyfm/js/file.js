@@ -101,7 +101,7 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 		];
 		var html = [
 			'<li class="file-item' + (this.IsImage() ? ' file-image loaded' : '') + '" ' + attrs.join(' ') + '>',
-			'<div class="icon"><img class="thumb" src="' + this.thumb + '"><i class="file-icon fa-fw ' + this.icon.name + '" style="color:' + this.icon.color + '"></i></div>',
+			'<div class="file-preview"><img class="thumb" src="' + this.thumb + '"><sm-icon area="admin" class="file-icon icon-fw" name="' + this.icon.name + '" style="color:' + this.icon.color + '"></sm-icon></div>',
 			'<span class="time">' + RoxyUtils.FormatDate(new Date(this.time * 1000)) + '</span>',
 			'<span class="name">' + this.name + '</span>',
 			'<span class="size">' + RoxyUtils.FormatFileSize(this.size) + '</span>',
@@ -177,7 +177,7 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 					var li = $('li[data-path="' + item.fullPath + '"]');
 
 					li.toggleClass('file-image', fileType === 'image');
-					$('.file-icon', li).attr('class', "").addClass('file-icon fa-fw ' + icon.name).css('color', icon.color);
+					$('.file-icon', li).attr('name', icon.name).css('color', icon.color);
 					$('.name', li).text(newName);
 					$('li[data-path="' + newPath + '"]').attr('data-path', newPath);
 					ret = true;
