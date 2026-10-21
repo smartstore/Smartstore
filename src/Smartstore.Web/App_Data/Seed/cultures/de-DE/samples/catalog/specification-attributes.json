@@ -538,5 +538,11 @@
       "yes": { "name": "Ja" },
       "no": { "name": "Nein" }
     }
+  },
+  "file-format": {
+    "name": "Dateiformat"
+  },
+  "platform": {
+    "name": "Plattform"
   }
 }

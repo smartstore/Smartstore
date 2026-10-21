@@ -1,0 +1,98 @@
+// Key field: sku
+[
+  {
+    "name": "The Quiet Harbour (E-Book)",
+    "shortDescription": "A novel about a lighthouse keeper and an unexpected guest. E-book, PDF.",
+    "fullDescription": "@file",
+    "sku": "DG-1001",
+    "reviews": [
+      { "customer": "sophie", "rating": 5, "title": "Could not put it down", "reviewText": "Read it in one weekend. The reading sample convinced me straight away.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-42d" },
+      { "customer": "laura", "rating": 4, "title": "Calm and atmospheric", "reviewText": "A quiet, beautiful story. The download was available right after payment.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-21d" },
+      { "customer": "jonas", "rating": 3, "title": "Nice, but slow", "reviewText": "Well written, but the middle part drags a little.", "isApproved": true, "createdOnUtc": "@now-9d" }
+    ],
+    "taxCategory": "books",
+    "price": 9.99,
+    "isDownload": true,
+    "download": { "file": "download/demo-ebook.pdf", "fileVersion": "1.0" },
+    "sampleDownload": "download/demo-ebook-preview.pdf",
+    "unlimitedDownloads": true,
+    "downloadActivationType": "WhenOrderIsPaid",
+    "isEsd": true,
+    "isShippingEnabled": false,
+    "manageInventoryMethod": "DontManageStock",
+    "categories": [ "E-Books" ],
+    "manufacturers": [ "pixelmoor" ],
+    "pictures": [
+      { "file": "product/demo-box.jpg", "name": "the-quiet-harbour-e-book" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "file-format/pdf", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "language/english", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "category/novel", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 3 }
+    ]
+  },
+  {
+    "name": "Late Night Sessions (Album)",
+    "shortDescription": "Twelve relaxed jazz tracks for the evening. Download as MP3, 320 kbit/s.",
+    "fullDescription": "@file",
+    "sku": "DG-1002",
+    "reviews": [
+      { "customer": "tim", "rating": 5, "title": "Perfect for the evening", "reviewText": "Warm sound and great musicians. Listened to the preview first, then bought it.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-26d" },
+      { "customer": "markus", "rating": 4, "title": "Good album", "reviewText": "Relaxed and well produced. A few more up-tempo tracks would be nice.", "isApproved": true, "createdOnUtc": "@now-8d" }
+    ],
+    "taxCategory": "digital-goods",
+    "price": 11.99,
+    "isDownload": true,
+    "download": { "file": "download/demo-album.zip", "fileVersion": "1.0" },
+    "sampleDownload": "download/demo-album-preview.mp3",
+    "unlimitedDownloads": true,
+    "downloadActivationType": "WhenOrderIsPaid",
+    "isEsd": true,
+    "isShippingEnabled": false,
+    "manageInventoryMethod": "DontManageStock",
+    "categories": [ "Music" ],
+    "manufacturers": [ "pixelmoor" ],
+    "pictures": [
+      { "file": "product/demo-box.jpg", "name": "late-night-sessions-album" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "file-format/mp3", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "mp3-quality/320-kbits", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "music-genre/jazz", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 3 }
+    ]
+  },
+  {
+    "name": "Pixelmoor Photo Studio",
+    "shortDescription": "Photo editing software for Windows, macOS and Linux. Download with licence agreement.",
+    "fullDescription": "@file",
+    "sku": "DG-1003",
+    "reviews": [
+      { "customer": "anna", "rating": 4, "title": "Easy to use", "reviewText": "All the important tools for my holiday photos, without a subscription.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-17d" }
+    ],
+    "taxCategory": "digital-goods",
+    "price": 49.00,
+    "isDownload": true,
+    "download": { "file": "download/demo-software.zip", "fileVersion": "2.4.0" },
+    "maxNumberOfDownloads": 3,
+    "downloadExpirationDays": 30,
+    "downloadActivationType": "WhenOrderIsPaid",
+    "hasUserAgreement": true,
+    "userAgreementText": "@file",
+    "isEsd": true,
+    "isShippingEnabled": false,
+    "manageInventoryMethod": "DontManageStock",
+    "createdOnUtc": "@now-5d",
+    "categories": [ "Software" ],
+    "manufacturers": [ "pixelmoor" ],
+    "pictures": [
+      { "file": "product/demo-box.jpg", "name": "pixelmoor-photo-studio" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "file-format/zip", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "platform/windows", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "platform/macos", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "platform/linux", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "language/english", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 3 }
+    ]
+  }
+]

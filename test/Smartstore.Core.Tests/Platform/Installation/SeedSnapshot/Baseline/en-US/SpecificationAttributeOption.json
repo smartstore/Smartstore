@@ -630,6 +630,46 @@
     "SpecificationAttributeId": "SpecificationAttribute:Facial shape"
   },
   {
+    "$key": "SpecificationAttribute:File format|EPUB",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "EPUB",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:File format"
+  },
+  {
+    "$key": "SpecificationAttribute:File format|MP3",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "MP3",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:File format"
+  },
+  {
+    "$key": "SpecificationAttribute:File format|PDF",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "PDF",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:File format"
+  },
+  {
+    "$key": "SpecificationAttribute:File format|ZIP",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 4,
+    "MediaFileId": 0,
+    "Name": "ZIP",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:File format"
+  },
+  {
     "$key": "SpecificationAttribute:Fit|Oversized",
     "Alias": null,
     "Color": null,
@@ -1778,6 +1818,36 @@
     "Name": "Spain",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Origin"
+  },
+  {
+    "$key": "SpecificationAttribute:Platform|Linux",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Linux",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Platform"
+  },
+  {
+    "$key": "SpecificationAttribute:Platform|Windows",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Windows",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Platform"
+  },
+  {
+    "$key": "SpecificationAttribute:Platform|macOS",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "macOS",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Platform"
   },
   {
     "$key": "SpecificationAttribute:Ports|DVI",

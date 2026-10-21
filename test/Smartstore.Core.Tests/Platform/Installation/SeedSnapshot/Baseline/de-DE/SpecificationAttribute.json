@@ -117,6 +117,19 @@
     "ShowOnProductPage": false
   },
   {
+    "$key": "Dateiformat",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 50,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Dateiformat",
+    "ShowOnProductPage": false
+  },
+  {
     "$key": "Dimmbar",
     "Alias": null,
     "AllowFiltering": false,
@@ -491,6 +504,19 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Pflege",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Plattform",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 51,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Plattform",
     "ShowOnProductPage": false
   },
   {

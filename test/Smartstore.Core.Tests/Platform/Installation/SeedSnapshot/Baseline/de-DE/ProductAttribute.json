@@ -1,5 +1,21 @@
 [
   {
+    "$key": "amount",
+    "Alias": "amount",
+    "AllowFiltering": false,
+    "Description": null,
+    "DisplayOrder": 0,
+    "ExportMappings": null,
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Betrag",
+    "ShowValueNameInSwatch": false,
+    "SwatchAspectRatio": 1.0,
+    "SwatchPriceDisplay": "None",
+    "SwatchShape": null,
+    "SwatchSize": null
+  },
+  {
     "$key": "ballsize",
     "Alias": "ballsize",
     "AllowFiltering": false,
@@ -96,6 +112,22 @@
     "SwatchSize": null
   },
   {
+    "$key": "delivery-notes",
+    "Alias": "delivery-notes",
+    "AllowFiltering": false,
+    "Description": null,
+    "DisplayOrder": 0,
+    "ExportMappings": null,
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Lieferhinweise",
+    "ShowValueNameInSwatch": false,
+    "SwatchAspectRatio": 1.0,
+    "SwatchPriceDisplay": "None",
+    "SwatchShape": null,
+    "SwatchSize": null
+  },
+  {
     "$key": "extras",
     "Alias": "extras",
     "AllowFiltering": false,
@@ -121,6 +153,22 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Ausführung",
+    "ShowValueNameInSwatch": false,
+    "SwatchAspectRatio": 1.0,
+    "SwatchPriceDisplay": "None",
+    "SwatchShape": null,
+    "SwatchSize": null
+  },
+  {
+    "$key": "first-delivery",
+    "Alias": "first-delivery",
+    "AllowFiltering": false,
+    "Description": null,
+    "DisplayOrder": 0,
+    "ExportMappings": null,
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Erste Lieferung am",
     "ShowValueNameInSwatch": false,
     "SwatchAspectRatio": 1.0,
     "SwatchPriceDisplay": "None",

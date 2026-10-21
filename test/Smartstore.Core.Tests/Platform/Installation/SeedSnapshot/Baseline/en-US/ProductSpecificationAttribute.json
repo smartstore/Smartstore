@@ -1,5 +1,93 @@
 [
   {
+    "$key": "Product:DG-1001|SpecificationAttributeOption:SpecificationAttribute:Category|novel",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:DG-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Category|novel"
+  },
+  {
+    "$key": "Product:DG-1001|SpecificationAttributeOption:SpecificationAttribute:File format|PDF",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:DG-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:File format|PDF"
+  },
+  {
+    "$key": "Product:DG-1001|SpecificationAttributeOption:SpecificationAttribute:Language|english",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:DG-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Language|english"
+  },
+  {
+    "$key": "Product:DG-1002|SpecificationAttributeOption:SpecificationAttribute:File format|MP3",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:DG-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:File format|MP3"
+  },
+  {
+    "$key": "Product:DG-1002|SpecificationAttributeOption:SpecificationAttribute:MP3 quality|320 kbit/s",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:DG-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:MP3 quality|320 kbit/s"
+  },
+  {
+    "$key": "Product:DG-1002|SpecificationAttributeOption:SpecificationAttribute:Music genre|jazz",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:DG-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Music genre|jazz"
+  },
+  {
+    "$key": "Product:DG-1003|SpecificationAttributeOption:SpecificationAttribute:File format|ZIP",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:DG-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:File format|ZIP"
+  },
+  {
+    "$key": "Product:DG-1003|SpecificationAttributeOption:SpecificationAttribute:Language|english",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:DG-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Language|english"
+  },
+  {
+    "$key": "Product:DG-1003|SpecificationAttributeOption:SpecificationAttribute:Platform|Linux",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:DG-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Platform|Linux"
+  },
+  {
+    "$key": "Product:DG-1003|SpecificationAttributeOption:SpecificationAttribute:Platform|Windows",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:DG-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Platform|Windows"
+  },
+  {
+    "$key": "Product:DG-1003|SpecificationAttributeOption:SpecificationAttribute:Platform|macOS",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:DG-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Platform|macOS"
+  },
+  {
     "$key": "Product:FD-1001|SpecificationAttributeOption:SpecificationAttribute:Dietary|Organic",
     "AllowFiltering": true,
     "DisplayOrder": 4,

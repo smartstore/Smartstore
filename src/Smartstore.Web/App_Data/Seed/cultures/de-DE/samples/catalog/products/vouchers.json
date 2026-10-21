@@ -1,0 +1,21 @@
+{
+  "GC-1001": {
+    "name": "Geschenkgutschein",
+    "shortDescription": "Digitaler Geschenkgutschein, Versand per E-Mail. Wählen Sie 25, 50 oder 100 €.",
+    "fullDescription": "@file",
+    "reviews": [
+      { "customer": "anna", "rating": 5, "title": "Rettung in letzter Minute", "reviewText": "Kam innerhalb von Minuten per E-Mail an, mit meiner persönlichen Nachricht. Perfekt für einen fast vergessenen Geburtstag.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-29d" },
+      { "customer": "tim", "rating": 5, "title": "Einfach und schnell", "reviewText": "Leicht zu bestellen und leicht einzulösen.", "isApproved": true, "createdOnUtc": "@now-10d" }
+    ]
+  },
+  "GC-1002": {
+    "name": "Geschenkgutschein mit Wunschbetrag",
+    "shortDescription": "Digitaler Geschenkgutschein mit einem Betrag zwischen 10 und 500 €, den Sie selbst eingeben.",
+    "fullDescription": "@file"
+  },
+  "GC-1003": {
+    "name": "Spende: Pflanz einen Baum",
+    "shortDescription": "Unterstützen Sie ein fiktives Aufforstungsprojekt mit einem Betrag Ihrer Wahl.",
+    "fullDescription": "@file"
+  }
+}

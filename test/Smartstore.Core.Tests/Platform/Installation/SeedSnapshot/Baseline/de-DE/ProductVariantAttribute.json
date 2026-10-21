@@ -30,6 +30,36 @@
     "TextPrompt": null
   },
   {
+    "$key": "Product:FD-1003|ProductAttribute:delivery-notes",
+    "AttributeControlTypeId": 10,
+    "CustomData": null,
+    "DisplayOrder": 2,
+    "IsRequired": false,
+    "ProductAttributeId": "ProductAttribute:delivery-notes",
+    "ProductId": "Product:FD-1003",
+    "ShowValueNameInSwatch": null,
+    "SwatchAspectRatio": null,
+    "SwatchPriceDisplay": null,
+    "SwatchShape": null,
+    "SwatchSize": null,
+    "TextPrompt": "Lieferhinweise (optional), z. B. beim Nachbarn abgeben"
+  },
+  {
+    "$key": "Product:FD-1003|ProductAttribute:first-delivery",
+    "AttributeControlTypeId": 20,
+    "CustomData": null,
+    "DisplayOrder": 1,
+    "IsRequired": true,
+    "ProductAttributeId": "ProductAttribute:first-delivery",
+    "ProductId": "Product:FD-1003",
+    "ShowValueNameInSwatch": null,
+    "SwatchAspectRatio": null,
+    "SwatchPriceDisplay": null,
+    "SwatchShape": null,
+    "SwatchSize": null,
+    "TextPrompt": "Wann soll die erste Lieferung ankommen?"
+  },
+  {
     "$key": "Product:FN-1001|ProductAttribute:cover",
     "AttributeControlTypeId": 1,
     "CustomData": null,
@@ -537,6 +567,21 @@
     "SwatchPriceDisplay": null,
     "SwatchShape": null,
     "SwatchSize": null,
+    "TextPrompt": null
+  },
+  {
+    "$key": "Product:GC-1001|ProductAttribute:amount",
+    "AttributeControlTypeId": 40,
+    "CustomData": null,
+    "DisplayOrder": 1,
+    "IsRequired": true,
+    "ProductAttributeId": "ProductAttribute:amount",
+    "ProductId": "Product:GC-1001",
+    "ShowValueNameInSwatch": true,
+    "SwatchAspectRatio": null,
+    "SwatchPriceDisplay": null,
+    "SwatchShape": "Rounded",
+    "SwatchSize": "Large",
     "TextPrompt": null
   },
   {

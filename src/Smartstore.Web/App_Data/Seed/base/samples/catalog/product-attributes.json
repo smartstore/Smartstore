@@ -143,5 +143,17 @@
   {
     "name": "Finish",
     "alias": "finish"
+  },
+  {
+    "name": "Amount",
+    "alias": "amount"
+  },
+  {
+    "name": "First delivery on",
+    "alias": "first-delivery"
+  },
+  {
+    "name": "Delivery notes",
+    "alias": "delivery-notes"
   }
 ]

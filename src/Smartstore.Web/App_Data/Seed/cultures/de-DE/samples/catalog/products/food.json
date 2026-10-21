@@ -21,6 +21,10 @@
     "fullDescription": "@file"
   },
   "FD-1003": {
+    "variantAttributes": {
+      "first-delivery": { "textPrompt": "Wann soll die erste Lieferung ankommen?" },
+      "delivery-notes": { "textPrompt": "Lieferhinweise (optional), z. B. beim Nachbarn abgeben" }
+    },
     "name": "Kaffee-Abo",
     "shortDescription": "Ihr Lieblingskaffee, jeden Monat frei Haus.",
     "fullDescription": "@file"

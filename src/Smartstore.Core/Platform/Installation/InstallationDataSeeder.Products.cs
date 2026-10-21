@@ -35,6 +35,7 @@ public partial class InstallationDataSeeder
         public Dictionary<string, MediaFile> SeparateMedia { get; } = new(StringComparer.OrdinalIgnoreCase);
         public List<(Product Product, JsonObject Picture)> SharedPictures { get; } = [];
         public List<(Product Product, string Path)> SampleDownloads { get; } = [];
+        public List<(Product Product, JsonNode Download)> Downloads { get; } = [];
         public List<(Product Product, string ParentSku)> GroupedParents { get; } = [];
         public List<(Product Product, JsonArray Skus)> RequiredProducts { get; } = [];
         public List<(Product Product, JsonArray Items, string Source)> BundleItems { get; } = [];
@@ -56,6 +57,22 @@ public partial class InstallationDataSeeder
         {
             var products = CreateFromSeed(ProductDescriptor(state));
             await SaveRangeAsync(products);
+
+            // Downloads that customers receive after buying. A string is the media path, an object
+            // can also set the file version: { "file": "download/x.zip", "fileVersion": "1.0" }.
+            foreach (var (product, node) in state.Downloads)
+            {
+                var file = node is JsonObject obj ? obj["file"].GetValue<string>() : node.GetValue<string>();
+                Context.Downloads.Add(new Download
+                {
+                    EntityId = product.Id,
+                    EntityName = nameof(Product),
+                    DownloadGuid = Guid.NewGuid(),
+                    MediaFile = CreateSampleMedia(file, null),
+                    FileVersion = (node as JsonObject)?["fileVersion"]?.GetValue<string>(),
+                    UpdatedOnUtc = DateTime.UtcNow
+                });
+            }
 
             // Sample downloads.
             foreach (var (product, path) in state.SampleDownloads)
@@ -253,6 +270,11 @@ public partial class InstallationDataSeeder
             .ChildList("reviews", x => x.ProductReviews, new SeedEntityDescriptor<ProductReview>("title")
                 .Reference<Customer>("customer", (review, customer) => review.CustomerId = customer.Id))
             .Child("tierPrices", x => x.TierPrices, new SeedEntityDescriptor<TierPrice>("quantity"))
+            .Bind("download", (product, node, _) =>
+            {
+                product.IsDownload = true;
+                state.Downloads.Add((product, node));
+            })
             .Bind("sampleDownload", (product, node, _) =>
             {
                 product.HasSampleDownload = true;

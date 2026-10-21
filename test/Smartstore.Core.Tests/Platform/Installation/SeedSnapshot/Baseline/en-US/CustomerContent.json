@@ -30,6 +30,21 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
+    "$key": "#09e4495291c6",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:anna@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:DG-1003",
+    "Rating": 4,
+    "ReviewText": "All the important tools for my holiday photos, without a subscription.",
+    "Title": "Easy to use",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "#0dc80627969d",
     "CreatedOnUtc": "<now+0M>",
     "CustomerId": "Customer:tim@example.com",
@@ -60,6 +75,21 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
+    "$key": "#232afa667e0e",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:tim@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:DG-1002",
+    "Rating": 5,
+    "ReviewText": "Warm sound and great musicians. Listened to the preview first, then bought it.",
+    "Title": "Perfect for the evening",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "#23ecc614ec08",
     "CreatedOnUtc": "<now-1M>",
     "CustomerId": "Customer:laura@example.com",
@@ -72,6 +102,21 @@
     "Rating": 5,
     "ReviewText": "Perfect for beginners: everything in one order and cheaper than buying it separately.",
     "Title": "A great start",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#34dead78754b",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:anna@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:GC-1001",
+    "Rating": 5,
+    "ReviewText": "Arrived by email within minutes, with my personal message. Perfect for a birthday I almost forgot.",
+    "Title": "Last-minute rescue",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
@@ -177,6 +222,21 @@
     "Rating": 5,
     "ReviewText": "Beautifully packed and a lovely selection. My parents were delighted.",
     "Title": "The perfect gift",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#6ac498f2ef36",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:markus@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": null,
+    "ProductId": "Product:DG-1002",
+    "Rating": 4,
+    "ReviewText": "Relaxed and well produced. A few more up-tempo tracks would be nice.",
+    "Title": "Good album",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
@@ -375,6 +435,21 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
+    "$key": "#97d39bc5eb2f",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:laura@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:DG-1001",
+    "Rating": 4,
+    "ReviewText": "A quiet, beautiful story. The download was available right after payment.",
+    "Title": "Calm and atmospheric",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "#a710ba1a7dad",
     "CreatedOnUtc": "<now-1M>",
     "CustomerId": "Customer:tim@example.com",
@@ -402,6 +477,21 @@
     "Rating": 5,
     "ReviewText": "I took the merino version and it does not itch at all. Worth the extra money.",
     "Title": "So soft",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#b214f8360554",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:tim@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": null,
+    "ProductId": "Product:GC-1001",
+    "Rating": 5,
+    "ReviewText": "Easy to order and easy to redeem.",
+    "Title": "Simple and quick",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
@@ -540,6 +630,21 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
+    "$key": "#ec44c509f35d",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:sophie@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:DG-1001",
+    "Rating": 5,
+    "ReviewText": "Read it in one weekend. The reading sample convinced me straight away.",
+    "Title": "Could not put it down",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "#f7430a0d3b26",
     "CreatedOnUtc": "<now+0M>",
     "CustomerId": "Customer:sophie@example.com",
@@ -552,6 +657,21 @@
     "Rating": 3,
     "ReviewText": "Tastes good on roast vegetables, but the jar is used up quickly.",
     "Title": "Nice mix, small jar",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#f875a78143f5",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:jonas@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": null,
+    "ProductId": "Product:DG-1001",
+    "Rating": 3,
+    "ReviewText": "Well written, but the middle part drags a little.",
+    "Title": "Nice, but slow",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {

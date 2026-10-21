@@ -45,6 +45,21 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
+    "$key": "#065a704a2b87",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:tim@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": null,
+    "ProductId": "Product:GC-1001",
+    "Rating": 5,
+    "ReviewText": "Leicht zu bestellen und leicht einzulösen.",
+    "Title": "Einfach und schnell",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "#0675f53558e2",
     "CreatedOnUtc": "<now+0M>",
     "CustomerId": "Customer:markus@example.com",
@@ -57,6 +72,51 @@
     "Rating": 5,
     "ReviewText": "Eines mit dem Namen unserer Fußballmannschaft bestellt. Der Druck ist scharf und übersteht die Waschmaschine.",
     "Title": "Tolle Geschenkidee",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#08386aaa907d",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:anna@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:DG-1003",
+    "Rating": 4,
+    "ReviewText": "Alle wichtigen Werkzeuge für meine Urlaubsfotos, ohne Abo.",
+    "Title": "Einfach zu bedienen",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#0b3f7d0ac3d4",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:jonas@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": null,
+    "ProductId": "Product:DG-1001",
+    "Rating": 3,
+    "ReviewText": "Gut geschrieben, aber der Mittelteil zieht sich etwas.",
+    "Title": "Schön, aber langsam",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#0d225a8ffc0e",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:markus@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": null,
+    "ProductId": "Product:DG-1002",
+    "Rating": 4,
+    "ReviewText": "Entspannt und gut produziert. Ein paar schnellere Stücke wären schön.",
+    "Title": "Gutes Album",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
@@ -315,6 +375,21 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
+    "$key": "#7ce98c2d2c1b",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:laura@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:DG-1001",
+    "Rating": 4,
+    "ReviewText": "Eine leise, schöne Geschichte. Der Download war direkt nach der Bezahlung verfügbar.",
+    "Title": "Ruhig und atmosphärisch",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "#80e4ca74243c",
     "CreatedOnUtc": "<now-1M>",
     "CustomerId": "Customer:jonas@example.com",
@@ -342,6 +417,21 @@
     "Rating": 5,
     "ReviewText": "Noten von Kakao und Haselnuss, genau wie beschrieben. Perfekt für die Filtermaschine.",
     "Title": "Kräftig und aromatisch",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#857e49d2f3b2",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:tim@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:DG-1002",
+    "Rating": 5,
+    "ReviewText": "Warmer Klang und tolle Musiker. Erst die Hörprobe angehört, dann gekauft.",
+    "Title": "Perfekt für den Abend",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
@@ -525,6 +615,21 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
+    "$key": "#c89eeaaf496f",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:anna@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:GC-1001",
+    "Rating": 5,
+    "ReviewText": "Kam innerhalb von Minuten per E-Mail an, mit meiner persönlichen Nachricht. Perfekt für einen fast vergessenen Geburtstag.",
+    "Title": "Rettung in letzter Minute",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "#dc8e5439cb65",
     "CreatedOnUtc": "<now+0M>",
     "CustomerId": "Customer:anna@example.com",
@@ -567,6 +672,21 @@
     "Rating": 4,
     "ReviewText": "Das Grau meliert sieht toll aus. Er ist recht weit geschnitten, wie beschrieben.",
     "Title": "Schöne lockere Passform",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#f8908d2adcb1",
+    "CreatedOnUtc": "<now-1M>",
+    "CustomerId": "Customer:sophie@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:DG-1001",
+    "Rating": 5,
+    "ReviewText": "An einem Wochenende gelesen. Die Leseprobe hat mich sofort überzeugt.",
+    "Title": "Konnte es nicht weglegen",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {

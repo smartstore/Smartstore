@@ -1,0 +1,85 @@
+// Key field: sku
+[
+  {
+    "name": "Gift Card",
+    "shortDescription": "Digital gift card, sent by email. Choose 25, 50 or 100.",
+    "fullDescription": "@file",
+    "sku": "GC-1001",
+    "reviews": [
+      { "customer": "anna", "rating": 5, "title": "Last-minute rescue", "reviewText": "Arrived by email within minutes, with my personal message. Perfect for a birthday I almost forgot.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-29d" },
+      { "customer": "tim", "rating": 5, "title": "Simple and quick", "reviewText": "Easy to order and easy to redeem.", "isApproved": true, "createdOnUtc": "@now-10d" }
+    ],
+    "isGiftCard": true,
+    "giftCardType": "Virtual",
+    "isEsd": true,
+    "taxCategory": "tax-free",
+    "price": 25.00,
+    "isShippingEnabled": false,
+    "manageInventoryMethod": "DontManageStock",
+    "showOnHomePage": true,
+    "categories": [ "Vouchers" ],
+    "tags": [ "gift" ],
+    "pictures": [
+      { "file": "product/demo-box.jpg", "name": "gift-card" }
+    ],
+    "variantAttributes": [
+      {
+        "productAttribute": "amount",
+        "isRequired": true,
+        "attributeControlType": "Boxes",
+        "swatchSize": "Large",
+        "swatchShape": "Rounded",
+        "showValueNameInSwatch": true,
+        "displayOrder": 1,
+        "values": [
+          { "name": "€25", "alias": "amount-25", "isPreSelected": true, "displayOrder": 1 },
+          { "name": "€50", "alias": "amount-50", "displayOrder": 2 },
+          { "name": "€100", "alias": "amount-100", "displayOrder": 3 }
+        ]
+      }
+    ],
+    "combinations": [
+      { "sku": "GC-1001-25", "price": 25.00, "attributes": { "amount": "amount-25" } },
+      { "sku": "GC-1001-50", "price": 50.00, "attributes": { "amount": "amount-50" } },
+      { "sku": "GC-1001-100", "price": 100.00, "attributes": { "amount": "amount-100" } }
+    ]
+  },
+  {
+    "name": "Gift Card with Amount of Your Choice",
+    "shortDescription": "Digital gift card with an amount between 10 and 500 that you enter yourself.",
+    "fullDescription": "@file",
+    "sku": "GC-1002",
+    "isGiftCard": true,
+    "giftCardType": "Virtual",
+    "isEsd": true,
+    "taxCategory": "tax-free",
+    "price": 30.00,
+    "customerEntersPrice": true,
+    "minimumCustomerEnteredPrice": 10.00,
+    "maximumCustomerEnteredPrice": 500.00,
+    "isShippingEnabled": false,
+    "manageInventoryMethod": "DontManageStock",
+    "categories": [ "Vouchers" ],
+    "tags": [ "gift" ],
+    "pictures": [
+      { "file": "product/demo-box.jpg", "name": "gift-card-amount-of-your-choice" }
+    ]
+  },
+  {
+    "name": "Donation: Plant a Tree",
+    "shortDescription": "Support a fictional reforestation project with an amount of your choice.",
+    "fullDescription": "@file",
+    "sku": "GC-1003",
+    "taxCategory": "tax-free",
+    "price": 5.00,
+    "customerEntersPrice": true,
+    "minimumCustomerEnteredPrice": 1.00,
+    "maximumCustomerEnteredPrice": 1000.00,
+    "isShippingEnabled": false,
+    "manageInventoryMethod": "DontManageStock",
+    "categories": [ "Vouchers" ],
+    "pictures": [
+      { "file": "product/demo-round.jpg", "name": "donation-plant-a-tree" }
+    ]
+  }
+]

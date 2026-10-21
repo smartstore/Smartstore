@@ -7,6 +7,27 @@
     "ProductId": "Product:Adidas-C77124"
   },
   {
+    "$key": "Product:DG-1001|Manufacturer:Pixelmoor",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "ManufacturerId": "Manufacturer:Pixelmoor",
+    "ProductId": "Product:DG-1001"
+  },
+  {
+    "$key": "Product:DG-1002|Manufacturer:Pixelmoor",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "ManufacturerId": "Manufacturer:Pixelmoor",
+    "ProductId": "Product:DG-1002"
+  },
+  {
+    "$key": "Product:DG-1003|Manufacturer:Pixelmoor",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "ManufacturerId": "Manufacturer:Pixelmoor",
+    "ProductId": "Product:DG-1003"
+  },
+  {
     "$key": "Product:FD-1001|Manufacturer:Casa Vireluna",
     "DisplayOrder": 1,
     "IsFeaturedProduct": false,

@@ -62,5 +62,8 @@
   "extra-footstool": "Passender Hocker",
   "finish-black": "Schwarz matt",
   "finish-white": "Weiß matt",
-  "finish-brass": "Messing"
+  "finish-brass": "Messing",
+  "amount-25": "25 €",
+  "amount-50": "50 €",
+  "amount-100": "100 €"
 }

@@ -120,6 +120,22 @@
     "shortDescription": "Your favourite coffee, delivered every month.",
     "fullDescription": "@file",
     "sku": "FD-1003",
+    "variantAttributes": [
+      {
+        "productAttribute": "first-delivery",
+        "textPrompt": "When should the first delivery arrive?",
+        "isRequired": true,
+        "attributeControlType": "Datepicker",
+        "displayOrder": 1
+      },
+      {
+        "productAttribute": "delivery-notes",
+        "textPrompt": "Delivery notes (optional), e.g. leave with a neighbour",
+        "isRequired": false,
+        "attributeControlType": "MultilineTextbox",
+        "displayOrder": 2
+      }
+    ],
     "taxCategory": "food",
     "price": 8.50,
     "isRecurring": true,

@@ -520,6 +520,30 @@
     "Slug": "superstar-shoe"
   },
   {
+    "$key": "Product|Product:DG-1001|0|the-quiet-harbour-e-book-",
+    "EntityId": "Product:DG-1001",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "the-quiet-harbour-e-book-"
+  },
+  {
+    "$key": "Product|Product:DG-1002|0|late-night-sessions-album-",
+    "EntityId": "Product:DG-1002",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "late-night-sessions-album-"
+  },
+  {
+    "$key": "Product|Product:DG-1003|0|pixelmoor-photo-studio",
+    "EntityId": "Product:DG-1003",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "pixelmoor-photo-studio"
+  },
+  {
     "$key": "Product|Product:FD-1001|0|extra-virgin-olive-oil-500-ml",
     "EntityId": "Product:FD-1001",
     "EntityName": "Product",
@@ -742,6 +766,30 @@
     "IsActive": true,
     "LanguageId": 0,
     "Slug": "charles-eames-lounge-chair-1956-"
+  },
+  {
+    "$key": "Product|Product:GC-1001|0|gift-card",
+    "EntityId": "Product:GC-1001",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "gift-card"
+  },
+  {
+    "$key": "Product|Product:GC-1002|0|gift-card-with-amount-of-your-choice",
+    "EntityId": "Product:GC-1002",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "gift-card-with-amount-of-your-choice"
+  },
+  {
+    "$key": "Product|Product:GC-1003|0|donation-plant-a-tree",
+    "EntityId": "Product:GC-1003",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "donation-plant-a-tree"
   },
   {
     "$key": "Product|Product:GF-1001|0|tour-distance-golf-balls",

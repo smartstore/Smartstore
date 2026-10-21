@@ -1218,5 +1218,26 @@
       { "key": "yes", "name": "Yes", "displayOrder": 1 },
       { "key": "no", "name": "No", "displayOrder": 2 }
     ]
+  },
+  {
+    "key": "file-format",
+    "name": "File format",
+    "displayOrder": 50,
+    "options": [
+      { "key": "pdf", "name": "PDF", "displayOrder": 1 },
+      { "key": "epub", "name": "EPUB", "displayOrder": 2 },
+      { "key": "mp3", "name": "MP3", "displayOrder": 3 },
+      { "key": "zip", "name": "ZIP", "displayOrder": 4 }
+    ]
+  },
+  {
+    "key": "platform",
+    "name": "Platform",
+    "displayOrder": 51,
+    "options": [
+      { "key": "windows", "name": "Windows", "displayOrder": 1 },
+      { "key": "macos", "name": "macOS", "displayOrder": 2 },
+      { "key": "linux", "name": "Linux", "displayOrder": 3 }
+    ]
   }
 ]

@@ -1,5 +1,93 @@
 [
   {
+    "$key": "Product:DG-1001|SpecificationAttributeOption:SpecificationAttribute:Dateiformat|PDF",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:DG-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Dateiformat|PDF"
+  },
+  {
+    "$key": "Product:DG-1001|SpecificationAttributeOption:SpecificationAttribute:Genre#2|Roman",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:DG-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Genre#2|Roman"
+  },
+  {
+    "$key": "Product:DG-1001|SpecificationAttributeOption:SpecificationAttribute:Sprache|Englisch",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:DG-1001",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Sprache|Englisch"
+  },
+  {
+    "$key": "Product:DG-1002|SpecificationAttributeOption:SpecificationAttribute:Dateiformat|MP3",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:DG-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Dateiformat|MP3"
+  },
+  {
+    "$key": "Product:DG-1002|SpecificationAttributeOption:SpecificationAttribute:Genre#1|Jazz",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:DG-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Genre#1|Jazz"
+  },
+  {
+    "$key": "Product:DG-1002|SpecificationAttributeOption:SpecificationAttribute:MP3-Qualität|320 kbit/s",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:DG-1002",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:MP3-Qualität|320 kbit/s"
+  },
+  {
+    "$key": "Product:DG-1003|SpecificationAttributeOption:SpecificationAttribute:Dateiformat|ZIP",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:DG-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Dateiformat|ZIP"
+  },
+  {
+    "$key": "Product:DG-1003|SpecificationAttributeOption:SpecificationAttribute:Plattform|Linux",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:DG-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Plattform|Linux"
+  },
+  {
+    "$key": "Product:DG-1003|SpecificationAttributeOption:SpecificationAttribute:Plattform|Windows",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:DG-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Plattform|Windows"
+  },
+  {
+    "$key": "Product:DG-1003|SpecificationAttributeOption:SpecificationAttribute:Plattform|macOS",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:DG-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Plattform|macOS"
+  },
+  {
+    "$key": "Product:DG-1003|SpecificationAttributeOption:SpecificationAttribute:Sprache|Englisch",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:DG-1003",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Sprache|Englisch"
+  },
+  {
     "$key": "Product:FD-1001|SpecificationAttributeOption:SpecificationAttribute:Ernährung|Bio",
     "AllowFiltering": true,
     "DisplayOrder": 4,

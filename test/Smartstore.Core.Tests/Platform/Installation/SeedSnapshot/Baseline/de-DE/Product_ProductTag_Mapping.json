@@ -105,6 +105,16 @@
     "Product_Id": "Product:FD-1005"
   },
   {
+    "$key": "ProductTag:Geschenk|Product:GC-1001",
+    "ProductTag_Id": "ProductTag:Geschenk",
+    "Product_Id": "Product:GC-1001"
+  },
+  {
+    "$key": "ProductTag:Geschenk|Product:GC-1002",
+    "ProductTag_Id": "ProductTag:Geschenk",
+    "Product_Id": "Product:GC-1002"
+  },
+  {
     "$key": "ProductTag:Geschenk|Product:P-1000",
     "ProductTag_Id": "ProductTag:Geschenk",
     "Product_Id": "Product:P-1000"

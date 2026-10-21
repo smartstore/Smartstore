@@ -82,5 +82,14 @@
   },
   "finish": {
     "name": "Ausführung"
+  },
+  "amount": {
+    "name": "Betrag"
+  },
+  "first-delivery": {
+    "name": "Erste Lieferung am"
+  },
+  "delivery-notes": {
+    "name": "Lieferhinweise"
   }
 }

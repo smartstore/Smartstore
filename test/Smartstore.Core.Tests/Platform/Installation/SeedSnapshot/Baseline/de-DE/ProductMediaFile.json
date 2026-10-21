@@ -6,6 +6,24 @@
     "ProductId": "Product:Adidas-C77124"
   },
   {
+    "$key": "Product:DG-1001|MediaFile:the-quiet-harbour-e-book.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:the-quiet-harbour-e-book.jpg",
+    "ProductId": "Product:DG-1001"
+  },
+  {
+    "$key": "Product:DG-1002|MediaFile:late-night-sessions-album.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:late-night-sessions-album.jpg",
+    "ProductId": "Product:DG-1002"
+  },
+  {
+    "$key": "Product:DG-1003|MediaFile:pixelmoor-photo-studio.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:pixelmoor-photo-studio.jpg",
+    "ProductId": "Product:DG-1003"
+  },
+  {
     "$key": "Product:FD-1001|MediaFile:extra-virgin-olive-oil.jpg",
     "DisplayOrder": 1,
     "MediaFileId": "MediaFile:extra-virgin-olive-oil.jpg",
@@ -328,6 +346,24 @@
     "DisplayOrder": 1,
     "MediaFileId": "MediaFile:charles-eames-lounge-chair-white.jpg",
     "ProductId": "Product:Furniture-lounge-chair"
+  },
+  {
+    "$key": "Product:GC-1001|MediaFile:gift-card.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:gift-card.jpg",
+    "ProductId": "Product:GC-1001"
+  },
+  {
+    "$key": "Product:GC-1002|MediaFile:gift-card-amount-of-your-choice.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:gift-card-amount-of-your-choice.jpg",
+    "ProductId": "Product:GC-1002"
+  },
+  {
+    "$key": "Product:GC-1003|MediaFile:donation-plant-a-tree.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:donation-plant-a-tree.jpg",
+    "ProductId": "Product:GC-1003"
   },
   {
     "$key": "Product:GF-1001|MediaFile:tour-distance-golf-balls.jpg",

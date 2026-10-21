@@ -234,6 +234,19 @@
     "ShowOnProductPage": false
   },
   {
+    "$key": "File format",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 50,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "File format",
+    "ShowOnProductPage": false
+  },
+  {
     "$key": "Fit",
     "Alias": null,
     "AllowFiltering": false,
@@ -491,6 +504,19 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Origin",
+    "ShowOnProductPage": false
+  },
+  {
+    "$key": "Platform",
+    "Alias": null,
+    "AllowFiltering": false,
+    "CollectionGroupMappingId": null,
+    "DisplayOrder": 51,
+    "Essential": false,
+    "FacetSorting": "HitsDesc",
+    "FacetTemplateHint": "Checkboxes",
+    "IndexOptionNames": false,
+    "Name": "Platform",
     "ShowOnProductPage": false
   },
   {

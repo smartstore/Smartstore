@@ -460,6 +460,46 @@
     "SpecificationAttributeId": "SpecificationAttribute:Computer-Typ"
   },
   {
+    "$key": "SpecificationAttribute:Dateiformat|EPUB",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "EPUB",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Dateiformat"
+  },
+  {
+    "$key": "SpecificationAttribute:Dateiformat|MP3",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "MP3",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Dateiformat"
+  },
+  {
+    "$key": "SpecificationAttribute:Dateiformat|PDF",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "PDF",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Dateiformat"
+  },
+  {
+    "$key": "SpecificationAttribute:Dateiformat|ZIP",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 4,
+    "MediaFileId": 0,
+    "Name": "ZIP",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Dateiformat"
+  },
+  {
     "$key": "SpecificationAttribute:Dimmbar|Ja",
     "Alias": null,
     "Color": null,
@@ -1848,6 +1888,36 @@
     "Name": "Maschinenwäsche 40 °C",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Pflege"
+  },
+  {
+    "$key": "SpecificationAttribute:Plattform|Linux",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 3,
+    "MediaFileId": 0,
+    "Name": "Linux",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Plattform"
+  },
+  {
+    "$key": "SpecificationAttribute:Plattform|Windows",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 1,
+    "MediaFileId": 0,
+    "Name": "Windows",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Plattform"
+  },
+  {
+    "$key": "SpecificationAttribute:Plattform|macOS",
+    "Alias": null,
+    "Color": null,
+    "DisplayOrder": 2,
+    "MediaFileId": 0,
+    "Name": "macOS",
+    "NumberValue": 0.0,
+    "SpecificationAttributeId": "SpecificationAttribute:Plattform"
   },
   {
     "$key": "SpecificationAttribute:Röstung|Dunkel",
