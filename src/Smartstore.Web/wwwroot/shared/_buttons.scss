@@ -23,20 +23,49 @@ button:where(.reset) {
 }
 
 
-// Preserve outer corners when buttons are hidden.
+// Preserve outer corners when buttons are hidden. Let Bootstrap handle nested groups.
 // -----------------------------------------------------
 
-.btn-group {
-    > .btn:nth-child(1 of :is(.btn, .btn-group):not(.hide, .d-none, [hidden])) {
+.btn-group:not(:where(.btn-group .btn-group)) {
+    > .btn:nth-child(1 of :is(.btn, .btn-group):not(.hide, .d-none, [hidden])),
+    > .btn-group:nth-child(1 of :is(.btn, .btn-group):not(.hide, .d-none, [hidden])) > .btn:first-of-type {
         margin-inline-start: 0;
         @include border-left-radius(var(--btn-border-radius));
     }
 
-    > .btn:nth-last-child(1 of :is(.btn, .btn-group):not(.hide, .d-none, [hidden])) {
+    > .btn:nth-last-child(1 of :is(.btn, .btn-group):not(.hide, .d-none, [hidden])),
+    > .btn-group:nth-last-child(1 of :is(.btn, .btn-group):not(.hide, .d-none, [hidden])) > .btn:last-of-type {
         @include border-right-radius(var(--btn-border-radius));
     }
 }
 
+
+.btn-flagged {
+    --btn-flag-color: var(--success);
+    --btn-flag-size: 5px;
+    --btn-flag-offset: 4px;
+    position: relative;
+
+    @each $color, $value in $theme-colors {
+        @if $color != "light" and $color != "secondary" {
+            &.btn-#{$color} {
+                --btn-flag-color: currentColor;
+            }
+        }
+    }
+
+    &::before {
+        content: "";
+        position: absolute;
+        top: var(--btn-flag-offset);
+        inset-inline-end: var(--btn-flag-offset);
+        width: var(--btn-flag-size);
+        height: var(--btn-flag-size);
+        border-radius: 50%;
+        background-color: var(--btn-flag-color);
+        pointer-events: none;
+    }
+}
 
 // Generic input clear button
 // -----------------------------------------------------

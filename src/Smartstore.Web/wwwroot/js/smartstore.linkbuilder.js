@@ -203,7 +203,7 @@
             btn.prepend(icon);
             btn.attr('title', name);
 
-            cnt.find('.btn-query-string').toggle(type !== 'url');
+            cnt.find('.link-query-string-container').toggleClass('hide', type === 'url');
         },
 
         _tryHideTypeContainer: function (hasQueryString) {
@@ -225,17 +225,13 @@
         },
 
         _updateQueryStringIcon: function (hasQueryString) {
-            $(this.element).find('.btn-query-string > :is(.icon, sm-icon)')
-                .removeClass('text-muted text-success')
-                .addClass(hasQueryString ? 'text-success' : 'text-muted');
+            $(this.element).find('.btn-query-string').toggleClass('btn-flagged', hasQueryString);
         },
 
         _updateLinkTargetCtrl: function (target) {
             var hasLinkTarget = !_.isEmpty(target);
 
-            $(this.element).find('.btn-link-target > :is(.icon, sm-icon)')
-                .removeClass('text-muted text-success')
-                .addClass(hasLinkTarget ? 'text-success' : 'text-muted');
+            $(this.element).find('.btn-link-target').toggleClass('btn-flagged', hasLinkTarget);
 
             $(this.element).find('.dropdown-item').removeClass('checked');
             $(this.element).find('.dropdown-item[data-value="' + target + '"]').addClass("checked");

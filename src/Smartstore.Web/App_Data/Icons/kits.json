@@ -96,6 +96,7 @@
       "wallet",
       "wardrobe",
       "watch",
+      "question-mark",
       "wrench",
       "yoga-mat"
     ],
@@ -269,6 +270,7 @@
       "view-tiles",
       "browser",
       "wink",
+      "question-mark",
       "wrench"
     ],
     "sources": {

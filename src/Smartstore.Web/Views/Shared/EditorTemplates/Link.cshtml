@@ -132,13 +132,13 @@
                 </button>
                 <div sm-if="!hideLinkTarget" class="btn-group">
                     <button type="button"
-                            class="btn btn-secondary btn-icon btn-link-target dropdown-toggle"
+                            class="btn btn-secondary btn-icon btn-link-target dropdown-toggle@(linkTarget.HasValue() ? " btn-flagged" : "")"
                             attr-class='(size.HasValue(), "btn-" + size)'
                             title="@T("LinkBuilder.LinkTarget")"
                             data-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="false">
-                        <icon name="browser" class="@(linkTarget.HasValue() ? "text-success" : "text-muted")" />
+                        <icon name="browser" />
                     </button>
                     <div class="dropdown-menu dropdown-menu-check dropdown-menu-right dropdown-link-target">
                         <a class="dropdown-item" href="#" data-value="" attr-class='(linkTarget.IsNullOrEmpty(), "checked")'>@T("Common.Unspecified")</a>
@@ -149,16 +149,15 @@
                     </div>
                 </div>
 
-                <div sm-if="!hideQueryString" class="btn-group dropdown-container dropdown-focus">
+                <div sm-if="!hideQueryString" class="btn-group dropdown-container dropdown-focus link-query-string-container" attr-class='(expression.Schema == "url", "hide")'>
                     <button type="button"
-                            class="btn btn-secondary btn-icon btn-query-string dropdown-toggle@(size.HasValue() ? " btn-" + size : "")"
-                            attr-class='(expression.Schema == "url", "hide")'
+                            class="btn btn-secondary btn-icon btn-query-string dropdown-toggle@(expression.Query.HasValue() ? " btn-flagged" : "")@(size.HasValue() ? " btn-" + size : "")"
                             title="@T("Common.QueryString")"
                             data-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="false"
                             data-boundary="window">
-                        <icon name="question-circle" class="@(expression.Query.HasValue() ? "text-success" : "text-muted")" />
+                        <icon name="question-mark" />
                     </button>
                     <div class="dropdown-menu dropdown-menu-right">
                         <div class="px-2">
