@@ -117,6 +117,8 @@
     "defaultLibrary": null,
     "defaultVariant": null,
     "icons": [
+      "float-right",
+      "float-left",
       "animation",
       "arrow-down-circle",
       "arrow-up-circle",
@@ -268,6 +270,8 @@
       "wrench"
     ],
     "sources": {
+      "float-right": "hi:text-firstline-left!",
+      "float-left": "hi:text-firstline-right!",
       "transparency": "hi:transparency!/sr",
       "catalog": "hi:delivery-box-01!/sr",
       "customers": "hi:user-group-03!/sr",
