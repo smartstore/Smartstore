@@ -1,4 +1,4 @@
-/// <reference path="references.scss" />
+﻿/// <reference path="references.scss" />
 
 
 // General
@@ -39,11 +39,6 @@
 	.nav-link > :is(.icon, .icon-stack) {
         position: relative;
 		color: var(--nav-link-icon-color);
-	}
-
-    .nav-link:hover > :is(.icon, .icon-stack),
-    .nav-link.active > :is(.icon, .icon-stack) {
-		color: inherit;
 	}
 
 	.nav-link > .chevron {
@@ -257,12 +252,13 @@
         --nav-link-padding-x: 1.25rem;
         --nav-link-padding-y: 0.625rem;
         --nav-link-color: #{$gray-700};
+        --nav-link-icon-color: var(--body-color);
         @include rfs($font-size-sm, --nav-link-font-size);
 
         max-width: 250px;
         min-height: 100%;
 
-	    .nav-link > :is(.icon, .icon-stack) {
+        .nav-link > :is(.icon, .icon-stack) {
             // Move icon slightly away from label if tabs are placed on left or right
             //inset-inline-start: -0.25em;
             margin-inline: 0.25em;
