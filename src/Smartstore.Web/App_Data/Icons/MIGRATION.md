@@ -6,6 +6,41 @@ The current system default is HugeIcons (`hi`), variant `stroke-rounded` (`sr`).
 These tables contain names and mappings only; they do not depend on a diagnostic
 Razor view, generated SVG output or temporary import reports.
 
+## Bundled Page Builder story templates
+
+The shipped `.story` archives use the current `Icon` and `ButtonIcon` models.
+These bundled archives were updated offline; the runtime converter remains unchanged.
+Active icons retain their size, color and display settings. Inactive legacy icon
+selections and empty FontAwesome models are removed; picture content is preserved.
+
+| Legacy FA name | Template concept | Hugeicons source |
+| --- | --- | --- |
+| percent | discount | badge-percent |
+| headphones | headphones | headphones |
+| signal | wifi | wifi-02 |
+| envelope-open | mail-open | mail-open-01 |
+| camera | camera | camera-01 |
+| internet-explorer | globe | globe-02 |
+| hdd | hard-drive | hard-drive |
+| clock | clock | clock-04 |
+| headset | headset | headset |
+| bolt | bolt | zap |
+| question-circle | question-circle | circle-question-mark |
+| certificate | certificate | certificate-01 |
+| star | star | star |
+| credit-card | creditcard | credit-card |
+
+The Internet tile now uses a generic globe instead of a browser brand; the Wi-Fi
+tile uses a WLAN symbol instead of signal bars. These are intentional semantic
+replacements. Concepts resolve through the Public kit without a fixed variant.
+Inactive `500px`/`fa-500px`, `mobile-alt`, `sun` and button `globe` values are removed.
+
+User templates and uploaded story archives additionally migrate legacy HTML-block icon
+data on temporary extracted copies before the import writes any records. Nested stories
+are included. Bundled templates skip this step. Existing converters preserve FA SVG
+sources and styles for user content; they do not apply the curated mappings above.
+Source archives remain unchanged, and conversion errors identify the story and block.
+
 ## Typed resolution and presentation
 
 - `Html.IconAsync` accepts an `IconExpression` or its string representation, plus optional

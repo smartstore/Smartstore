@@ -98,7 +98,11 @@
       "watch",
       "question-mark",
       "wrench",
-      "yoga-mat"
+      "yoga-mat",
+      "discount",
+      "headset",
+      "star",
+      "wifi"
     ],
     "sources": {
       "plus-circle": "bi:plus-circle",

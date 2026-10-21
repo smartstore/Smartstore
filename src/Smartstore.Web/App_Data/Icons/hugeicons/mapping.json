@@ -389,5 +389,7 @@
   "usb-stick": "usb-memory-01",
   "wardrobe": "wardrobe-01",
   "watch": "watch-01",
-  "yoga-mat": "yoga-mat"
+  "yoga-mat": "yoga-mat",
+  "wifi": "wifi-02",
+  "headset": "headset"
 }
