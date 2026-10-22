@@ -280,8 +280,9 @@ public sealed partial class IconService(IApplicationContext applicationContext, 
         info.ConceptName = address.SkipMapping ? null : address.Name;
         info.SelectionLibraryName = library.Manifest.SystemName;
         info.SelectionVariantName = variant.Manifest.Name;
-        info.Transform = selected.Mapping.Transform;
-        info.StrokeScale = info.SupportsStrokeScaling ? selected.Mapping.StrokeScale : 1;
+        var presentation = useSource ? kit.SourcePresentations.GetValueOrDefault(address.Name) : default;
+        info.Transform = presentation.Apply(selected.Mapping.Transform);
+        info.StrokeScale = info.SupportsStrokeScaling ? presentation.StrokeScale ?? selected.Mapping.StrokeScale : 1;
         info.MirrorInRtl = !address.SkipMapping && address.Library == null && address.Variant == null
             && catalog.MirrorInRtl.Contains(address.Name);
         return info;

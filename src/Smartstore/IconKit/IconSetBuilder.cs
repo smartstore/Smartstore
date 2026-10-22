@@ -20,10 +20,10 @@ public sealed class IconSetBuilder
     /// Adds a concept. Identical contributions are idempotent; conflicting provider sources are errors.
     /// </summary>
     /// <param name="concept">The unqualified concept name.</param>
-    /// <param name="source">Optional concrete source address. Omission uses normal library mapping.</param>
+    /// <param name="source">Optional concrete source expression with mapping transforms. Omission uses normal library mapping.</param>
     public IconSetBuilder Add(string concept, string source = null)
     {
-        if (!IconAddress.IsName(concept) || source != null && !IconAddress.TryParse(source, out _))
+        if (!IconAddress.IsName(concept) || source != null && !IconExpression.TryParse(source, out _))
         {
             throw new InvalidDataException($"Invalid icon contribution '{concept}' to '{_name}'.");
         }

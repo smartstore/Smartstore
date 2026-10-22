@@ -21,13 +21,11 @@ variants of this library. Conceptual mappings belong in `../../mapping.json`.
 See [the icon library concept](../../../README.md) for configuration, supported
 SVG content, discovery and metadata conventions.
 
-## Included corrections
+## Local icons at a glance
 
-- hierarchy-square-02.svg: derived from the archived HI drawing with three lower
-  nodes instead of two. The lower nodes retain the original rounded contour at a
-  smaller size; the top node and 1.5-unit stroke are preserved. Used by nodes.
-
-- row-insert.svg and column-insert.svg: retain the archived HI contours and middle
-  arrow, with a dashed top row or left column marking the existing block.
-  The inserted bottom/right block is solid. The htmledit concepts mirror these
-  drawings for insertion above or before.
+| Icon | Why it is here |
+| --- | --- |
+| `cancel-01.svg` | Replaces the original strokes with one closed, rounded shape for cleaner rendering at small sizes. |
+| `column-insert.svg` | Adds the required column-insertion depiction: existing column dashed, inserted column solid. |
+| `row-insert.svg` | Adds the required row-insertion depiction: existing row dashed, inserted row solid. |
+| `question-mark.svg` | Adds a standalone question mark without a surrounding circle. |

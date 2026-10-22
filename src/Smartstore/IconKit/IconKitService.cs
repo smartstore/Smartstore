@@ -78,6 +78,7 @@ public sealed class IconKitService(IconService icons, IHttpContextAccessor httpC
             // Every concept has its own symbol, even when several concepts share artwork.
             // Mapping transforms and stroke multipliers are baked into symbols.
             var entries = index.Entries[kit.Name]
+                .Where(entry => entry.Variant.Names.Contains(entry.Mapping.Name))
                 .ToArray();
             if (entries.Length == 0 || !index.CanGenerate(kit.Name))
             {
@@ -279,7 +280,7 @@ public sealed class IconKitService(IconService icons, IHttpContextAccessor httpC
         await sprite.PublishAsync(path, cancelToken);
 
         // Search the selected kit, not global concept precedence. Empty searches load no tags.
-        var page = IconService.FindPage(query, index.Entries[kitName], (entry, word) =>
+        var page = IconService.FindPage(query, index.Entries[kitName].Where(entry => entry.Variant.Names.Contains(entry.Mapping.Name)).ToArray(), (entry, word) =>
             entry.Concept.Contains(word, StringComparison.OrdinalIgnoreCase)
             || entry.Mapping.Name.Contains(word, StringComparison.OrdinalIgnoreCase)
             || (entry.Library.Tags.GetValueOrDefault(entry.Mapping.Name) ?? [])

@@ -33,7 +33,7 @@ internal sealed class IconSprite
     {
         _catalog = catalog;
         // Bump the sprite version whenever symbol preparation changes.
-        var fingerprint = new StringBuilder("sprite-8:").Append(IconSvgParser.Revision);
+        var fingerprint = new StringBuilder("sprite-9:").Append(IconSvgParser.Revision);
         // System identities prevent ambiguous flat filenames and distinguish empty kits.
         foreach (var identity in new[] { library.Manifest.SystemName, variant.Manifest.Name, kit })
         {
@@ -41,8 +41,12 @@ internal sealed class IconSprite
         }
         foreach (var entry in entries)
         {
-            var source = entry.Variant.GetSource(entry.Info.Name)
-                ?? throw new InvalidDataException($"Icon kit '{kit}': concept '{entry.Concept}' targets missing icon '{entry.Info.Name}' in {entry.Info.LibraryName}/{entry.Variant.Manifest.Name}.");
+            var source = entry.Variant.GetSource(entry.Info.Name);
+            if (source == null)
+            {
+                // One missing mapping must not prevent valid symbols from being published.
+                continue;
+            }
             var info = entry.Info;
             _entries.Add((entry.Concept, info, entry.Variant, source));
             fingerprint.Append('|').Append(entry.Concept.Length).Append(':').Append(entry.Concept)

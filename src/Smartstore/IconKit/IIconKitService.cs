@@ -100,22 +100,25 @@ public sealed class IconKit
 
         var addresses = new Dictionary<string, IconAddress>(StringComparer.Ordinal);
         var sourceValues = new Dictionary<string, string>(StringComparer.Ordinal);
+        var presentations = new Dictionary<string, IconPresentation>(StringComparer.Ordinal);
         if (sources != null)
         {
             foreach (var pair in sources)
             {
-                if (!names.Contains(pair.Key) || !IconAddress.TryParse(pair.Value, out var address))
+                if (!names.Contains(pair.Key) || !IconExpression.TryParse(pair.Value, out var expression))
                 {
                     throw new InvalidDataException($"Invalid source '{pair.Key}' in kit '{name}'. Source keys must belong to icons and values must be icon addresses.");
                 }
 
                 sourceValues.Add(pair.Key, pair.Value);
-                addresses.Add(pair.Key, address);
+                addresses.Add(pair.Key, expression.Address);
+                presentations.Add(pair.Key, expression.Presentation);
             }
         }
 
         Sources = new ReadOnlyDictionary<string, string>(sourceValues);
         SourceAddresses = addresses;
+        SourcePresentations = presentations;
         DefaultLibrary = defaultLibrary;
         DefaultVariant = defaultVariant;
         Icon = icon;
@@ -161,6 +164,8 @@ public sealed class IconKit
     /// Gets source addresses parsed once per definition, keyed by the public concept and symbol name.
     /// </summary>
     internal IReadOnlyDictionary<string, IconAddress> SourceAddresses { get; }
+
+    internal IReadOnlyDictionary<string, IconPresentation> SourcePresentations { get; }
 
     /// <summary>
     /// Gets the optional library system name overriding the global default.

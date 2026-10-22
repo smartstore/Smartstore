@@ -6,7 +6,7 @@ namespace Smartstore.IconKit;
 /// </summary>
 internal sealed class IconKitIndex
 {
-    // A candidate kit may be incomplete in an explicitly selected alternate library.
+    // A kit can remain usable even when some mapped sources are missing.
     // Check once per generation, not once per rendered icon.
     private readonly Dictionary<string, Lazy<bool>> _availability = new(StringComparer.Ordinal);
 
@@ -46,17 +46,22 @@ internal sealed class IconKitIndex
                 var resolved = IconService.Resolve(catalog, entryLibrary, entryVariant, pinned ? address.Name : concept, pinned, indexOnly: true);
                 if (resolved is { } source)
                 {
-                    return new Entry(concept, source.Library, source.Variant, source.Mapping, pinned);
+                    var presentation = pinned ? kit.SourcePresentations.GetValueOrDefault(concept) : default;
+                    var sourceMapping = source.Mapping with
+                    {
+                        Transform = presentation.Apply(source.Mapping.Transform),
+                        StrokeScale = presentation.StrokeScale ?? source.Mapping.StrokeScale
+                    };
+                    return new Entry(concept, source.Library, source.Variant, sourceMapping, pinned);
                 }
 
-                // Retain missing entries for the existing kit diagnostics. CanGenerate prevents
-                // advertising incomplete sprites in the manifest or using them from the renderer.
+                // Retain missing entries for resolution; sprite and browser output skip them.
                 var mapping = pinned ? new IconMapping(address.Name, default)
                     : entryLibrary.Mapping.GetValueOrDefault(concept) ?? new IconMapping(concept, default);
                 return new Entry(concept, entryLibrary, entryVariant, mapping, pinned);
             }).ToArray();
             Entries.Add(kit.Name, entries);
-            _availability.Add(kit.Name, new Lazy<bool>(() => entries.All(x => x.Variant.Names.Contains(x.Mapping.Name))));
+            _availability.Add(kit.Name, new Lazy<bool>(() => entries.Any(x => x.Variant.Names.Contains(x.Mapping.Name))));
             foreach (var entry in entries)
             {
                 // Mixed kits can contain identical names from different libraries or variants.

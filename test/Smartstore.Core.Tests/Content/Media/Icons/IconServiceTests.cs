@@ -32,6 +32,41 @@ public class IconServiceTests
     private readonly List<IContainer> _providerContainers = [];
 
     [Test]
+    public async Task Provider_Source_Rotation_Resolves_And_Browses_Without_Changing_The_Name()
+    {
+        Write("Icons/kits.json", """{"admin":[]}""");
+        var provider = new Mock<IIconProvider>();
+        provider.Setup(x => x.Configure(It.IsAny<IconKitBuilder>())).Callback<IconKitBuilder>(b =>
+            b.Kit("admin").Add("shade", "hi:cart-01/sr?rotate=45"));
+        var service = CreateProviderService(provider.Object);
+        var info = await service.GetIconAsync("shade", area: "admin");
+        Assert.That(info.Name, Is.EqualTo("cart-01"));
+        Assert.That(info.Transform.Rotation, Is.EqualTo(45));
+        var kits = new IconKitService(service, new HttpContextAccessor());
+        var browser = new IconBrowser(service, kits, new HttpContextAccessor());
+        var result = await browser.SearchAsync(new IconSearchQuery(), "admin");
+        Assert.That(result.Items.Single().PreviewAddress, Does.Contain("rotate=45"));
+    }
+
+    [Test]
+    public async Task Missing_Kit_Target_Does_Not_Break_Valid_Sprite_Or_Browser_Items()
+    {
+        Write("Icons/kits.json", """{"shared":["cart","missing"]}""");
+        var kits = new IconKitService(_service, new HttpContextAccessor());
+        var url = kits.GetUrl("shared");
+        Assert.That(url, Is.Not.Null);
+        var path = await kits.GetSpriteFileAsync("shared", Path.GetFileNameWithoutExtension(url).Substring("shared-".Length));
+        var svg = await File.ReadAllTextAsync(path);
+        Assert.That(svg, Does.Contain("id=\"cart\""));
+        Assert.That(svg, Does.Not.Contain("id=\"missing\""));
+        var browser = new IconBrowser(_service, kits, new HttpContextAccessor());
+        var result = await browser.SearchAsync(new IconSearchQuery(), "shared");
+        Assert.That(result.TotalCount, Is.EqualTo(1));
+        Assert.That(await _service.GetIconAsync("missing"), Is.Null);
+    }
+
+
+    [Test]
     public async Task Uninstalled_Application_Loads_Local_Icons_Without_Provider_Discovery()
     {
         _context.SetupGet(x => x.IsInstalled).Returns(false);
@@ -1119,17 +1154,17 @@ public class IconServiceTests
     }
 
     /// <summary>
-    /// An incomplete preferred kit must not advertise a lower-priority source for the same concept.
+    /// An incomplete preferred kit retains valid concepts without substituting lower-priority sources.
     /// </summary>
     [Test]
-    public async Task Browser_Manifest_Omits_Concepts_From_Unavailable_Preferred_Kits()
+    public async Task Browser_Manifest_Retains_Valid_Concepts_From_Incomplete_Preferred_Kits()
     {
         Write("Icons/kits.json", """{"shared":["cart","missing"],"admin":{"icons":["cart"],"sources":{"cart":"hi:direct/sr"}}}""");
         var kits = new IconKitService(_service, new HttpContextAccessor());
         var path = await kits.GetManifestFileAsync(Path.GetFileNameWithoutExtension(kits.GetManifestUrl()));
         using var json = JsonDocument.Parse(await File.ReadAllTextAsync(path));
         Assert.That(json.RootElement.GetProperty("areas").GetProperty("public").GetProperty("cart").GetString(), Is.EqualTo("shared"));
-        Assert.That(json.RootElement.GetProperty("kits").TryGetProperty("shared", out _), Is.False);
+        Assert.That(json.RootElement.GetProperty("kits").GetProperty("shared").GetProperty("icons").GetArrayLength(), Is.EqualTo(1));
         Assert.That((await _service.GetIconAsync("cart")).Name, Is.EqualTo("cart-01"));
         _cache.VerifyNoOtherCalls();
     }
@@ -2901,7 +2936,6 @@ public class IconServiceTests
     [TestCase("{\"orphan\":\"hi:cart-01/sr\"}")]
     [TestCase("{\"cart\":\"missing:cart-01\"}")]
     [TestCase("{\"cart\":\"hi:cart-01/missing\"}")]
-    [TestCase("{\"cart\":\"hi:cart-01/sr?flip=x\"}")]
     [TestCase("{\"cart\":null}")]
     public void Kit_Sources_Must_Target_Registered_Selections_And_Declared_Members(string sources)
     {
@@ -3108,14 +3142,14 @@ public class IconServiceTests
     /// One matching alternate-library icon must not force generation of an incomplete kit.
     /// </summary>
     [Test]
-    public async Task Incomplete_Alternate_Kit_Falls_Back_To_Individual_Rendering()
+    public async Task Incomplete_Alternate_Kit_Retains_Valid_Symbols()
     {
         WriteLibrary("other", "ot", "rd");
         WriteZip("other", "rounded", ("cart", _svg), ("foreign", _svg));
         Write("Icons/kits.json", """{"brands":{"defaultLibrary":"other","defaultVariant":"rounded","icons":["cart","foreign"]}}""");
         var kits = new IconKitService(_service, new HttpContextAccessor());
         var selected = await _service.GetIconAsync("hi:cart/sr");
-        Assert.That(kits.GetReference(selected), Is.Null);
+        Assert.That(kits.GetReference(selected)?.Href, Does.EndWith("#cart"));
         var normal = await _service.GetIconAsync("cart");
         Assert.That(kits.GetReference(normal), Is.Not.Null);
         _cache.VerifyNoOtherCalls();
@@ -3423,7 +3457,7 @@ public class IconServiceTests
         Write("Icons/kits.json", """{"shared":{"icons":["cart"],"sources":{"cart":"ot:direct/r"}}}""");
         SignalChanges();
         Assert.That(await _service.GetIconAsync("cart"), Is.Null);
-        Assert.Throws<InvalidDataException>(() => kits.GetUrl("shared"));
+        Assert.That(kits.GetUrl("shared"), Is.Not.Null);
     }
 
     /// <summary>
