@@ -418,12 +418,7 @@ button:where(.reset) {
             transition: opacity 0.2s ease-out;
             transform: translate(var(--btn-animate-icon-offset-x), var(--btn-animate-icon-offset-y));
 
-            &:before {
-                position: absolute;
-                inset-inline-start: 50%;
-                top: 50%;
-                transform: translate(-50%, -50%);
-            }
+            margin-block: auto;
         }
     }
 

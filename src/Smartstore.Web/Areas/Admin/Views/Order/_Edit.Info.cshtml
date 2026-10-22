@@ -42,7 +42,7 @@
                         id="cancelorder" 
                         name="cancelorder" 
                         value="@T("Admin.Orders.Fields.OrderStatus.Cancel")"
-                        class="btn btn-sm btn-danger confirm2"
+                        class="btn btn-sm btn-secondary btn-destructive confirm2"
                         data-confirm-message="@askToProceed">
                     <span>@T("Admin.Orders.Fields.OrderStatus.Cancel")</span>
                 </button>
@@ -52,7 +52,7 @@
                         name="completeorder" 
                         value="@T("Enums.OrderStatus.Complete")"
                         data-confirm-message="@(Model.IsPaid ? askToProceed : T("Admin.Orders.CompleteUnpaidOrder", Model.PaymentStatusString))"
-                        class="btn btn-sm btn-warning confirm2">
+                        class="btn btn-sm btn-primary confirm2">
                     <icon name="check"  />
                     <span>@T("Enums.OrderStatus.Complete")</span>
                 </button>
