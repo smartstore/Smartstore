@@ -24,8 +24,8 @@
         new SelectListItem { Text = T("Plugins.Smartstore.PayPal.ButtonColor.Black"), Value = "black", Selected = Model.ButtonColor == "black" }
     };
 
-    var successCssClasses = "fa-check text-success";
-    var errorCssClasses = "fa-exclamation-triangle text-danger";
+    var successCssClasses = "text-success";
+    var errorCssClasses = "text-danger";
 }
 
 @await Component.InvokeAsync("StoreScope")
@@ -117,7 +117,8 @@
                                 $("#@Html.NameFor(x => x.Secret)").val(response.clientSecret);
                                 $("#@Html.NameFor(x => x.PayerId)").val(response.payerId);
 
-                                $("#hint-credentials > i")
+                                $("#hint-credentials > sm-icon")
+                                    .attr("name", "check")
                                     .removeClass("@errorCssClasses")
                                     .addClass("@successCssClasses");
 
@@ -143,7 +144,8 @@
                         success: function (response) {
                             if (response.success) {
                                 if (response.primaryEmailConfirmed) {
-                                    $("#hint-email-confirmed > i")
+                                    $("#hint-email-confirmed > sm-icon")
+                                        .attr("name", "check")
                                         .removeClass("@errorCssClasses")
                                         .addClass("@successCssClasses");
 
@@ -151,7 +153,8 @@
                                 }
 
                                 if (response.paymentsReceivable) {
-                                    $("#hint-payments-receivable > i")
+                                    $("#hint-payments-receivable > sm-icon")
+                                        .attr("name", "check")
                                         .removeClass("@errorCssClasses")
                                         .addClass("@successCssClasses");
 
@@ -174,21 +177,21 @@
                 </a>
             </div>
             <div class="adminData wide">
-                <ul class="fa-ul">
-                    <li id="hint-credentials" class="pb-2">
-                        <i class="fa-li fa @(Model.HasCredentials ? successCssClasses : errorCssClasses)"></i>
+                <ul class="list-unstyled">
+                    <li id="hint-credentials" class="d-flex align-items-center gap-2 pb-2">
+                        <sm-icon name="@(Model.HasCredentials ? "check" : "warning")" class="icon-fw @(Model.HasCredentials ? successCssClasses : errorCssClasses)"></sm-icon>
                         <span>@T("Plugins.Smartstore.PayPal.HasCredentials." + Model.HasCredentials.ToString())</span>
                     </li>
-                    <li id="hint-email-confirmed" class="pb-2">
-                        <i class="fa-li fa @(Model.PrimaryEmailConfirmed ? successCssClasses : errorCssClasses)"></i>
+                    <li id="hint-email-confirmed" class="d-flex align-items-center gap-2 pb-2">
+                        <sm-icon name="@(Model.PrimaryEmailConfirmed ? "check" : "warning")" class="icon-fw @(Model.PrimaryEmailConfirmed ? successCssClasses : errorCssClasses)"></sm-icon>
                         <span>@T("Plugins.Smartstore.PayPal.PrimaryEmailConfirmed." + Model.PrimaryEmailConfirmed.ToString())</span>
                     </li>
-                    <li id="hint-payments-receivable" class="pb-2">
-                        <i class="fa-li fa @(Model.PaymentsReceivable ? successCssClasses : errorCssClasses)"></i>
+                    <li id="hint-payments-receivable" class="d-flex align-items-center gap-2 pb-2">
+                        <sm-icon name="@(Model.PaymentsReceivable ? "check" : "warning")" class="icon-fw @(Model.PaymentsReceivable ? successCssClasses : errorCssClasses)"></sm-icon>
                         <span>@T("Plugins.Smartstore.PayPal.PaymentsReceivable." + Model.PaymentsReceivable.ToString())</span>
                     </li>
-                    <li id="hint-webhook-created" class="pb-2">
-                        <i class="fa-li fa @(Model.WebHookCreated ? successCssClasses : errorCssClasses)"></i>
+                    <li id="hint-webhook-created" class="d-flex align-items-center gap-2 pb-2">
+                        <sm-icon name="@(Model.WebHookCreated ? "check" : "warning")" class="icon-fw @(Model.WebHookCreated ? successCssClasses : errorCssClasses)"></sm-icon>
                         <span>@T("Plugins.Smartstore.PayPal.WebHookCreated." + Model.WebHookCreated.ToString())</span>
                     </li>
                 </ul>
