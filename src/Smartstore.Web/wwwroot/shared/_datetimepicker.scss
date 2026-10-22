@@ -10,7 +10,6 @@
     --dtp-header-size: 20px;
     --dtp-gap: 6px;
     --dtp-toolbar-padding-block: 5px;
-    --dtp-today-marker-size: 5px;
 
     // Appearance follows the active theme unless overridden on the picker.
     --dtp-primary: var(--primary);
@@ -248,19 +247,12 @@
         background: transparent;
     }
 
-    .datepicker-days td.day.today > .dtp-day::before {
-        content: '';
-        position: absolute;
-        inset-inline-end: var(--dtp-today-marker-size);
-        inset-block-end: var(--dtp-today-marker-size);
-        border: solid transparent;
-        border-block-width: 0 var(--dtp-today-marker-size);
-        border-inline-width: var(--dtp-today-marker-size) 0;
-        border-block-end-color: var(--dtp-primary);
-    }
-
-    .datepicker-days td.day.active.today > .dtp-day::before {
-        border-block-end-color: currentColor;
+    .datepicker-days td.day.today > .dtp-day {
+        font-weight: $font-weight-medium;
+        text-decoration-line: underline;
+        text-decoration-color: var(--warning);
+        text-decoration-thickness: 2px;
+        text-underline-offset: 4px;
     }
 
     .dtp-icon > sm-icon {
