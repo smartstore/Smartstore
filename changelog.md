@@ -59,6 +59,9 @@
 
 ### Improvements
 
+- **PageBuilder**:
+  - Redesigned the button configuration UI with compact controls, compatible style combinations and a live preview.
+  - Various UI refinements throughout the editor improve clarity, consistency and ease of use.
 - SSRF guard for media downloads.
 - **Withdrawal**: 
   - Case-insensitive email check.
