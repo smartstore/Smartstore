@@ -22,7 +22,9 @@ using Smartstore.Data.Hooks;
 using Smartstore.IO;
 using System.Reflection;
 using System.Text.Json;
+using System.Globalization;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using System.Text.Json.Serialization;
 
 namespace Smartstore.Core.Installation;
@@ -415,14 +417,20 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
             localizationSettings.DefaultAdminLanguageId = _config.Language.Id;
         }
 
-        ApplySeedSettings(settings, _seedSource.LoadObject(SettingsFile));
+        var seedSettings = _seedSource.LoadObject(SettingsFile);
+        var rawSettings = seedSettings[RawSettingsKey] as JsonObject;
+        seedSettings.Remove(RawSettingsKey);
 
+        ApplySeedSettings(settings, seedSettings);
         foreach (var setting in settings)
         {
             Type settingType = setting.GetType();
             int storeId = settingType.Equals(typeof(ThemeSettings)) ? _defaultStoreId : 0;
             await SettingFactory.SaveSettingsAsync(Context, setting, storeId: storeId);
         }
+
+        Context.Settings.AddRange(CreateRawSettings(rawSettings));
+        await Context.SaveChangesAsync();
     }
 
     private const string SettingsFile = "core/settings.json";
@@ -434,7 +442,33 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
     };
 
     /// <summary>
-    /// Applies { "TypeName": { "Property": value } } to the settings instances.
+    /// Settings that do not belong to a settings class, e.g. because their key contains an entity ID.
+    /// Placeholders <c>{$ref:{EntityType}:{key}}</c> in a key are replaced by the ID of a seeded entity.
+    /// </summary>
+    private const string RawSettingsKey = "$keys";
+
+    private List<Setting> CreateRawSettings(JsonObject values)
+    {
+        var result = new List<Setting>();
+        if (values == null)
+        {
+            return result;
+        }
+
+        foreach (var (key, value) in values)
+        {
+            var name = RawSettingRefRegex().Replace(key, m => _seedResolver.GetId(m.Groups[1].Value, m.Groups[2].Value).ToString(CultureInfo.InvariantCulture));
+            var str = value is JsonValue jsonValue && jsonValue.TryGetValue<string>(out var s) ? s : value?.ToJsonString();
+
+            result.Add(new Setting { Name = name, Value = str, StoreId = 0 });
+        }
+
+        return result;
+    }
+
+    [GeneratedRegex(@"\{\$ref:([^:}]+):([^}]+)\}")]
+    private static partial Regex RawSettingRefRegex();
+
     /// <c>"$ref:{EntityType}:{key}"</c> values are resolved to the ID of a seeded entity.
     /// </summary>
     private void ApplySeedSettings(IList<ISettings> settings, JsonObject values)

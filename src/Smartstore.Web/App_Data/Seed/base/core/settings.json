@@ -27,5 +27,8 @@
   "CatalogSettings": {
     "LabelAsNewForMaxDays": 30,
     "ShowProductReviewsInProductLists": true
+  },
+  "$keys": {
+    "ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{$ref:ShippingMethod:by-ground}": 4.90
   }
 }

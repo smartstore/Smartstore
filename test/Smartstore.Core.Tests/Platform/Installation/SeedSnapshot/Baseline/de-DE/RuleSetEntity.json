@@ -39,6 +39,19 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
+    "$key": "Warenkorb-Zwischensumme ab 50",
+    "CreatedOnUtc": "0001-01-01T00:00:00",
+    "Description": "Die Zwischensumme des Warenkorbs beträgt mindestens 50.",
+    "IsActive": true,
+    "IsSubGroup": false,
+    "LastProcessedOnUtc": null,
+    "LogicalOperator": "And",
+    "Name": "Warenkorb-Zwischensumme ab 50",
+    "ProductVariantAttributeId": null,
+    "Scope": "Cart",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "Wichtige Kunden",
     "CreatedOnUtc": "0001-01-01T00:00:00",
     "Description": "3 oder mehr Bestellungen und aktueller Bestellwert mindestens 200,- Euro.",

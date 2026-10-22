@@ -39,5 +39,25 @@
   {
     "key": "watches",
     "name": "watches"
+  },
+  {
+    "key": "sustainable",
+    "name": "sustainable"
+  },
+  {
+    "key": "bestseller",
+    "name": "bestseller"
+  },
+  {
+    "key": "limited-edition",
+    "name": "limited edition"
+  },
+  {
+    "key": "outdoor",
+    "name": "outdoor"
+  },
+  {
+    "key": "cosy",
+    "name": "cosy"
   }
 ]

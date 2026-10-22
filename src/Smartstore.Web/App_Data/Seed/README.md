@@ -30,6 +30,10 @@ It lists only values that differ from the defaults of the settings class. Values
 the ID of a seed record are written as `"$ref:{EntityType}:{key}"`, e.g. `"$ref:Currency:EUR"`.
 Its overlay has the same shape and is merged field by field.
 
+Settings that do not belong to a settings class, e.g. because their key contains an entity ID, go into the
+special object `"$keys"`. Placeholders `{$ref:{EntityType}:{key}}` in a key are replaced by the ID:
+`{ "$keys": { "ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{$ref:ShippingMethod:by-ground}": 4.90 } }`.
+
 - **Base files** are JSON **arrays** of records.
 - **Overlay files** are JSON **objects** and live under the same relative path as their
   base file, e.g. `base/core/currencies.json` ↔ `cultures/de-DE/core/currencies.json`.

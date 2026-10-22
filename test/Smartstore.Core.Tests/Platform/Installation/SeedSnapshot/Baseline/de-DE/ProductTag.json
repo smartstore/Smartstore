@@ -5,6 +5,11 @@
     "Published": true
   },
   {
+    "$key": "Bestseller",
+    "Name": "Bestseller",
+    "Published": true
+  },
+  {
     "$key": "Buch",
     "Name": "Buch",
     "Published": true
@@ -20,6 +25,11 @@
     "Published": true
   },
   {
+    "$key": "Gemütlich",
+    "Name": "Gemütlich",
+    "Published": true
+  },
+  {
     "$key": "Geschenk",
     "Name": "Geschenk",
     "Published": true
@@ -30,8 +40,23 @@
     "Published": true
   },
   {
+    "$key": "Limitiert",
+    "Name": "Limitiert",
+    "Published": true
+  },
+  {
     "$key": "Motorräder",
     "Name": "Motorräder",
+    "Published": true
+  },
+  {
+    "$key": "Nachhaltig",
+    "Name": "Nachhaltig",
+    "Published": true
+  },
+  {
+    "$key": "Outdoor",
+    "Name": "Outdoor",
     "Published": true
   },
   {

@@ -16,6 +16,22 @@
     "UsePercentage": true
   },
   {
+    "$key": "20 % auf Jacken und Mäntel",
+    "CouponCode": null,
+    "DiscountAmount": 0.0,
+    "DiscountLimitationId": 0,
+    "DiscountPercentage": 20.0,
+    "DiscountTypeId": 5,
+    "EndDateUtc": "<now+1M>",
+    "LimitationTimes": 0,
+    "Name": "20 % auf Jacken und Mäntel",
+    "OfferBadgeLabel": null,
+    "RequiresCouponCode": false,
+    "ShowCountdownRemainingHours": null,
+    "StartDateUtc": "<now+0M>",
+    "UsePercentage": true
+  },
+  {
     "$key": "20% auf den Bestellwert",
     "CouponCode": null,
     "DiscountAmount": 0.0,
@@ -94,5 +110,53 @@
     "ShowCountdownRemainingHours": null,
     "StartDateUtc": null,
     "UsePercentage": false
+  },
+  {
+    "$key": "Saison-Sale: 15 % auf ausgewählte Artikel",
+    "CouponCode": null,
+    "DiscountAmount": 0.0,
+    "DiscountLimitationId": 0,
+    "DiscountPercentage": 15.0,
+    "DiscountTypeId": 2,
+    "EndDateUtc": "<now+1M>",
+    "LimitationTimes": 0,
+    "Name": "Saison-Sale: 15 % auf ausgewählte Artikel",
+    "OfferBadgeLabel": null,
+    "RequiresCouponCode": false,
+    "ShowCountdownRemainingHours": null,
+    "StartDateUtc": "<now+0M>",
+    "UsePercentage": true
+  },
+  {
+    "$key": "Versandkostenfrei ab 50",
+    "CouponCode": null,
+    "DiscountAmount": 0.0,
+    "DiscountLimitationId": 0,
+    "DiscountPercentage": 100.0,
+    "DiscountTypeId": 10,
+    "EndDateUtc": null,
+    "LimitationTimes": 0,
+    "Name": "Versandkostenfrei ab 50",
+    "OfferBadgeLabel": null,
+    "RequiresCouponCode": false,
+    "ShowCountdownRemainingHours": null,
+    "StartDateUtc": null,
+    "UsePercentage": true
+  },
+  {
+    "$key": "Willkommensrabatt: 10 % mit dem Gutscheincode WELCOME10",
+    "CouponCode": "WELCOME10",
+    "DiscountAmount": 0.0,
+    "DiscountLimitationId": 0,
+    "DiscountPercentage": 10.0,
+    "DiscountTypeId": 20,
+    "EndDateUtc": null,
+    "LimitationTimes": 0,
+    "Name": "Willkommensrabatt: 10 % mit dem Gutscheincode WELCOME10",
+    "OfferBadgeLabel": null,
+    "RequiresCouponCode": true,
+    "ShowCountdownRemainingHours": null,
+    "StartDateUtc": null,
+    "UsePercentage": true
   }
 ]

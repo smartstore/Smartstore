@@ -16,5 +16,20 @@
   },
   "download": {
     "name": "Download"
+  },
+  "sustainable": {
+    "name": "Nachhaltig"
+  },
+  "bestseller": {
+    "name": "Bestseller"
+  },
+  "limited-edition": {
+    "name": "Limitiert"
+  },
+  "outdoor": {
+    "name": "Outdoor"
+  },
+  "cosy": {
+    "name": "Gemütlich"
   }
 }

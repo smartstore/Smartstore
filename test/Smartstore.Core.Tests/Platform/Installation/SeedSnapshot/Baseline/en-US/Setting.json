@@ -2862,6 +2862,12 @@
     "Value": "True"
   },
   {
+    "$key": "ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{ShippingMethod:By Ground}|0",
+    "Name": "ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{ShippingMethod:By Ground}",
+    "StoreId": 0,
+    "Value": "4.90"
+  },
+  {
     "$key": "ShippingSettings.ActiveShippingRateComputationMethodSystemNames|0",
     "Name": "ShippingSettings.ActiveShippingRateComputationMethodSystemNames",
     "StoreId": 0,

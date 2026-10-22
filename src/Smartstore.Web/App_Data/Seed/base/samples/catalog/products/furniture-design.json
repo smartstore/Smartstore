@@ -5,6 +5,7 @@
     "shortDescription": "Lounge chair with a choice of cover, frame and extras.",
     "fullDescription": "@file",
     "sku": "FN-1001",
+    "tags": [ "cosy" ],
     "reviews": [
       { "customer": "laura", "rating": 5, "title": "Our favourite spot", "reviewText": "Very comfortable for reading. We chose linen with the oak frame and it looks great.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-55d" },
       { "customer": "markus", "rating": 4, "title": "Beautiful, but takes a while", "reviewText": "Excellent quality. Delivery took the full seven working days.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-31d" },
@@ -140,11 +141,12 @@
     "shortDescription": "Round side table in solid oak, 45 cm diameter.",
     "fullDescription": "@file",
     "sku": "FN-1004",
+    "discounts": [ "season-sale-15" ],
     "taxCategory": "general",
     "price": 129.00,
     "deliveryTime": "2-5-working-days",
     "stockQuantity": 25,
-    "categories": [ "Furniture and Design" ],
+    "categories": [ { "category": "Sale", "displayOrder": 0, "isSystemMapping": true }, "Furniture and Design" ],
     "manufacturers": [ "lindavero" ],
     "pictures": [
       { "file": "product/demo-round.jpg", "name": "oslo-side-table" }

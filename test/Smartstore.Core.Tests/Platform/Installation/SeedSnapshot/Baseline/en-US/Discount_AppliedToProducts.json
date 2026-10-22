@@ -8,5 +8,25 @@
     "$key": "Discount:25% on certain products|Product:LC2 DS/23-1",
     "Discount_Id": "Discount:25% on certain products",
     "Product_Id": "Product:LC2 DS/23-1"
+  },
+  {
+    "$key": "Discount:Season sale: 15% off selected items|Product:DG-1002",
+    "Discount_Id": "Discount:Season sale: 15% off selected items",
+    "Product_Id": "Product:DG-1002"
+  },
+  {
+    "$key": "Discount:Season sale: 15% off selected items|Product:FN-1004",
+    "Discount_Id": "Discount:Season sale: 15% off selected items",
+    "Product_Id": "Product:FN-1004"
+  },
+  {
+    "$key": "Discount:Season sale: 15% off selected items|Product:FS-1002",
+    "Discount_Id": "Discount:Season sale: 15% off selected items",
+    "Product_Id": "Product:FS-1002"
+  },
+  {
+    "$key": "Discount:Season sale: 15% off selected items|Product:GF-1003",
+    "Discount_Id": "Discount:Season sale: 15% off selected items",
+    "Product_Id": "Product:GF-1003"
   }
 ]

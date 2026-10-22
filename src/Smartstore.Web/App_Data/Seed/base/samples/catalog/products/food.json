@@ -5,6 +5,7 @@
     "shortDescription": "Cold-pressed extra virgin olive oil, 500 ml bottle.",
     "fullDescription": "@file",
     "sku": "FD-1001",
+    "tags": [ "sustainable" ],
     "reviews": [
       { "customer": "anna", "rating": 5, "title": "Wonderful, fruity oil", "reviewText": "Mild and fruity, perfect for salads. The bottle is easy to pour and nothing drips.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-40d" },
       { "customer": "markus", "rating": 5, "title": "Our standard oil now", "reviewText": "We have switched completely. Great taste even with just fresh bread.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-25d" },
@@ -39,6 +40,7 @@
     "shortDescription": "Freshly roasted arabica beans, in two pack sizes and three grinds.",
     "fullDescription": "@file",
     "sku": "FD-1002",
+    "tags": [ "bestseller" ],
     "reviews": [
       { "customer": "laura", "rating": 5, "title": "Strong and aromatic", "reviewText": "Notes of cocoa and hazelnut, exactly as described. Perfect in the filter machine.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-30d" },
       { "customer": "tim", "rating": 4, "title": "Good value in the 1 kg pack", "reviewText": "The large pack is clearly cheaper per kilogram. It just takes a little longer to arrive.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-14d" },
@@ -241,6 +243,7 @@
     "shortDescription": "Crisp spiced cookies with cinnamon, orange and almonds, 300 g.",
     "fullDescription": "@file",
     "sku": "FD-1007",
+    "tags": [ "limited-edition" ],
     "taxCategory": "food",
     "price": 7.90,
     "availableStartDateTimeUtc": "@now+2M",

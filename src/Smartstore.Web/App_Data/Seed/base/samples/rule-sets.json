@@ -64,5 +64,18 @@
     "customerRoles": [
       "InactiveNewCustomers"
     ]
+  },
+  {
+    "key": "cart-subtotal-50",
+    "name": "Cart subtotal from 50",
+    "description": "The subtotal of the shopping cart is at least 50.",
+    "scope": "Cart",
+    "rules": [
+      {
+        "ruleType": "CartSubtotal",
+        "operator": ">=",
+        "value": "50"
+      }
+    ]
   }
 ]

@@ -36,6 +36,7 @@
     "shortDescription": "Twelve relaxed jazz tracks for the evening. Download as MP3, 320 kbit/s.",
     "fullDescription": "@file",
     "sku": "DG-1002",
+    "discounts": [ "season-sale-15" ],
     "reviews": [
       { "customer": "tim", "rating": 5, "title": "Perfect for the evening", "reviewText": "Warm sound and great musicians. Listened to the preview first, then bought it.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-26d" },
       { "customer": "markus", "rating": 4, "title": "Good album", "reviewText": "Relaxed and well produced. A few more up-tempo tracks would be nice.", "isApproved": true, "createdOnUtc": "@now-8d" }
@@ -50,7 +51,7 @@
     "isEsd": true,
     "isShippingEnabled": false,
     "manageInventoryMethod": "DontManageStock",
-    "categories": [ "Music" ],
+    "categories": [ { "category": "Sale", "displayOrder": 0, "isSystemMapping": true }, "Music" ],
     "manufacturers": [ "pixelmoor" ],
     "pictures": [
       { "file": "product/demo-box.jpg", "name": "late-night-sessions-album" }

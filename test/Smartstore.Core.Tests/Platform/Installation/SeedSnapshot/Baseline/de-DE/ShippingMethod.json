@@ -2,7 +2,7 @@
   {
     "$key": "Abholung",
     "Description": "Holen Sie Ihre Bestellung direkt bei uns ab.",
-    "DisplayOrder": 0,
+    "DisplayOrder": 1,
     "IgnoreCharges": false,
     "LimitedToStores": false,
     "Name": "Abholung"
@@ -18,7 +18,7 @@
   {
     "$key": "Versand",
     "Description": "Ihre Bestellung wird Ihnen durch unsere Versandpartner zugestellt.",
-    "DisplayOrder": 1,
+    "DisplayOrder": 0,
     "IgnoreCharges": false,
     "LimitedToStores": false,
     "Name": "Versand"

@@ -241,7 +241,9 @@ internal static class InstallationSeedDescriptors
             .Reference<Category>("parent", (category, parent) => category.Parent = parent)
             .Bind("mediaFile", (category, node, _) => category.MediaFile = media(node))
             .References<RuleSetEntity>("ruleSets", (category, ruleSets) => ruleSets.Each(category.RuleSets.Add))
-            .References<Discount>("discounts", (category, discounts) => discounts.Each(category.AppliedDiscounts.Add));
+            .References<Discount>("discounts", (category, discounts) => discounts.Each(category.AppliedDiscounts.Add))
+            // Derived property, maintained by the discount service at runtime.
+            .OnCreated((category, _) => category.HasDiscountsApplied = category.AppliedDiscounts.Count > 0);
     }
 
     /// <summary>
@@ -255,7 +257,9 @@ internal static class InstallationSeedDescriptors
         return new SeedEntityDescriptor<Manufacturer>("key")
             .FromFiles("samples/catalog/manufacturers.json")
             .Bind("mediaFile", (manufacturer, node, _) => manufacturer.MediaFile = media(node))
-            .References<Discount>("discounts", (manufacturer, discounts) => discounts.Each(manufacturer.AppliedDiscounts.Add));
+            .References<Discount>("discounts", (manufacturer, discounts) => discounts.Each(manufacturer.AppliedDiscounts.Add))
+            // Derived property, maintained by the discount service at runtime.
+            .OnCreated((manufacturer, _) => manufacturer.HasDiscountsApplied = manufacturer.AppliedDiscounts.Count > 0);
     }
 
     public static SeedEntityDescriptor<ProductTag> ProductTags()

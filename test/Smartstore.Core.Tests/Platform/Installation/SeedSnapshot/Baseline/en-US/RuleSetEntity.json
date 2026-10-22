@@ -13,6 +13,19 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
+    "$key": "Cart subtotal from 50",
+    "CreatedOnUtc": "0001-01-01T00:00:00",
+    "Description": "The subtotal of the shopping cart is at least 50.",
+    "IsActive": true,
+    "IsSubGroup": false,
+    "LastProcessedOnUtc": null,
+    "LogicalOperator": "And",
+    "Name": "Cart subtotal from 50",
+    "ProductVariantAttributeId": null,
+    "Scope": "Cart",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "Inactive new customers",
     "CreatedOnUtc": "0001-01-01T00:00:00",
     "Description": "One completed order placed at least 90 days ago.",

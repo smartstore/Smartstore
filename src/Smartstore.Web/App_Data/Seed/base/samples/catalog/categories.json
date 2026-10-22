@@ -341,6 +341,7 @@
     "parent": "Apparel",
     "name": "Jackets & Coats",
     "alias": "Jackets and Coats",
+    "discounts": [ "jackets-20" ],
     "mediaFile": { "file": "category/demo-category.jpg", "name": "jackets-and-coats" },
     "published": true,
     "displayOrder": 1

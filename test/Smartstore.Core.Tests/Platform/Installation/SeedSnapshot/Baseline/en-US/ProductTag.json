@@ -10,6 +10,11 @@
     "Published": true
   },
   {
+    "$key": "bestseller",
+    "Name": "bestseller",
+    "Published": true
+  },
+  {
     "$key": "book",
     "Name": "book",
     "Published": true
@@ -25,6 +30,11 @@
     "Published": true
   },
   {
+    "$key": "cosy",
+    "Name": "cosy",
+    "Published": true
+  },
+  {
     "$key": "download",
     "Name": "download",
     "Published": true
@@ -35,6 +45,11 @@
     "Published": true
   },
   {
+    "$key": "limited edition",
+    "Name": "limited edition",
+    "Published": true
+  },
+  {
     "$key": "motorbikes",
     "Name": "motorbikes",
     "Published": true
@@ -42,6 +57,16 @@
   {
     "$key": "mp3",
     "Name": "mp3",
+    "Published": true
+  },
+  {
+    "$key": "outdoor",
+    "Name": "outdoor",
+    "Published": true
+  },
+  {
+    "$key": "sustainable",
+    "Name": "sustainable",
     "Published": true
   },
   {

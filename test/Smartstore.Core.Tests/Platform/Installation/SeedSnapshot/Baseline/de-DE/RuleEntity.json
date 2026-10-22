@@ -24,6 +24,14 @@
     "Value": "true"
   },
   {
+    "$key": "RuleSetEntity:Warenkorb-Zwischensumme ab 50|CartSubtotal",
+    "DisplayOrder": 0,
+    "Operator": ">=",
+    "RuleSetId": "RuleSetEntity:Warenkorb-Zwischensumme ab 50",
+    "RuleType": "CartSubtotal",
+    "Value": "50"
+  },
+  {
     "$key": "RuleSetEntity:Wichtige Kunden|CartOrderCount",
     "DisplayOrder": 0,
     "Operator": ">=",

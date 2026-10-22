@@ -32,6 +32,22 @@
     "UsePercentage": true
   },
   {
+    "$key": "20% off jackets and coats",
+    "CouponCode": null,
+    "DiscountAmount": 0.0,
+    "DiscountLimitationId": 0,
+    "DiscountPercentage": 20.0,
+    "DiscountTypeId": 5,
+    "EndDateUtc": "<now+1M>",
+    "LimitationTimes": 0,
+    "Name": "20% off jackets and coats",
+    "OfferBadgeLabel": null,
+    "RequiresCouponCode": false,
+    "ShowCountdownRemainingHours": null,
+    "StartDateUtc": "<now+0M>",
+    "UsePercentage": true
+  },
+  {
     "$key": "20% order total discount",
     "CouponCode": null,
     "DiscountAmount": 0.0,
@@ -80,6 +96,22 @@
     "UsePercentage": true
   },
   {
+    "$key": "Free shipping from 50",
+    "CouponCode": null,
+    "DiscountAmount": 0.0,
+    "DiscountLimitationId": 0,
+    "DiscountPercentage": 100.0,
+    "DiscountTypeId": 10,
+    "EndDateUtc": null,
+    "LimitationTimes": 0,
+    "Name": "Free shipping from 50",
+    "OfferBadgeLabel": null,
+    "RequiresCouponCode": false,
+    "ShowCountdownRemainingHours": null,
+    "StartDateUtc": null,
+    "UsePercentage": true
+  },
+  {
     "$key": "Sample discount with coupon code",
     "CouponCode": "123",
     "DiscountAmount": 10.0,
@@ -94,5 +126,37 @@
     "ShowCountdownRemainingHours": null,
     "StartDateUtc": null,
     "UsePercentage": false
+  },
+  {
+    "$key": "Season sale: 15% off selected items",
+    "CouponCode": null,
+    "DiscountAmount": 0.0,
+    "DiscountLimitationId": 0,
+    "DiscountPercentage": 15.0,
+    "DiscountTypeId": 2,
+    "EndDateUtc": "<now+1M>",
+    "LimitationTimes": 0,
+    "Name": "Season sale: 15% off selected items",
+    "OfferBadgeLabel": null,
+    "RequiresCouponCode": false,
+    "ShowCountdownRemainingHours": null,
+    "StartDateUtc": "<now+0M>",
+    "UsePercentage": true
+  },
+  {
+    "$key": "Welcome discount: 10% with coupon code WELCOME10",
+    "CouponCode": "WELCOME10",
+    "DiscountAmount": 0.0,
+    "DiscountLimitationId": 0,
+    "DiscountPercentage": 10.0,
+    "DiscountTypeId": 20,
+    "EndDateUtc": null,
+    "LimitationTimes": 0,
+    "Name": "Welcome discount: 10% with coupon code WELCOME10",
+    "OfferBadgeLabel": null,
+    "RequiresCouponCode": true,
+    "ShowCountdownRemainingHours": null,
+    "StartDateUtc": null,
+    "UsePercentage": true
   }
 ]

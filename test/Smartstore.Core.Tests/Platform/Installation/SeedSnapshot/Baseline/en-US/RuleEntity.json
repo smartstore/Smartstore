@@ -1,5 +1,13 @@
 [
   {
+    "$key": "RuleSetEntity:Cart subtotal from 50|CartSubtotal",
+    "DisplayOrder": 0,
+    "Operator": ">=",
+    "RuleSetId": "RuleSetEntity:Cart subtotal from 50",
+    "RuleType": "CartSubtotal",
+    "Value": "50"
+  },
+  {
     "$key": "RuleSetEntity:Inactive new customers|CompletedOrderCount",
     "DisplayOrder": 0,
     "Operator": "=",

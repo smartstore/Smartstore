@@ -2,7 +2,7 @@
   {
     "$key": "By Ground",
     "Description": "Compared to other shipping methods, like by flight or over seas, ground shipping is carried out closer to the earth",
-    "DisplayOrder": 1,
+    "DisplayOrder": 0,
     "IgnoreCharges": false,
     "LimitedToStores": false,
     "Name": "By Ground"
@@ -18,7 +18,7 @@
   {
     "$key": "In-Store Pickup",
     "Description": "Pick up your items at the store",
-    "DisplayOrder": 0,
+    "DisplayOrder": 1,
     "IgnoreCharges": false,
     "LimitedToStores": false,
     "Name": "In-Store Pickup"

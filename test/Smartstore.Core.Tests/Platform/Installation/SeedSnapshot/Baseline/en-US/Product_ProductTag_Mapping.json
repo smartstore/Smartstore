@@ -50,6 +50,21 @@
     "Product_Id": "Product:P-2001"
   },
   {
+    "$key": "ProductTag:bestseller|Product:FD-1002",
+    "ProductTag_Id": "ProductTag:bestseller",
+    "Product_Id": "Product:FD-1002"
+  },
+  {
+    "$key": "ProductTag:bestseller|Product:FS-1001",
+    "ProductTag_Id": "ProductTag:bestseller",
+    "Product_Id": "Product:FS-1001"
+  },
+  {
+    "$key": "ProductTag:bestseller|Product:GF-1001",
+    "ProductTag_Id": "ProductTag:bestseller",
+    "Product_Id": "Product:GF-1001"
+  },
+  {
     "$key": "ProductTag:book|Product:P-1003",
     "ProductTag_Id": "ProductTag:book",
     "Product_Id": "Product:P-1003"
@@ -105,6 +120,21 @@
     "Product_Id": "Product:P-1005"
   },
   {
+    "$key": "ProductTag:cosy|Product:FN-1001",
+    "ProductTag_Id": "ProductTag:cosy",
+    "Product_Id": "Product:FN-1001"
+  },
+  {
+    "$key": "ProductTag:cosy|Product:FS-1002",
+    "ProductTag_Id": "ProductTag:cosy",
+    "Product_Id": "Product:FS-1002"
+  },
+  {
+    "$key": "ProductTag:cosy|Product:FS-1004",
+    "ProductTag_Id": "ProductTag:cosy",
+    "Product_Id": "Product:FS-1004"
+  },
+  {
     "$key": "ProductTag:download|Product:P-1016",
     "ProductTag_Id": "ProductTag:download",
     "Product_Id": "Product:P-1016"
@@ -120,6 +150,16 @@
     "Product_Id": "Product:FD-1005"
   },
   {
+    "$key": "ProductTag:gift|Product:FS-1004",
+    "ProductTag_Id": "ProductTag:gift",
+    "Product_Id": "Product:FS-1004"
+  },
+  {
+    "$key": "ProductTag:gift|Product:FS-1006",
+    "ProductTag_Id": "ProductTag:gift",
+    "Product_Id": "Product:FS-1006"
+  },
+  {
     "$key": "ProductTag:gift|Product:GC-1001",
     "ProductTag_Id": "ProductTag:gift",
     "Product_Id": "Product:GC-1001"
@@ -128,6 +168,11 @@
     "$key": "ProductTag:gift|Product:GC-1002",
     "ProductTag_Id": "ProductTag:gift",
     "Product_Id": "Product:GC-1002"
+  },
+  {
+    "$key": "ProductTag:gift|Product:GF-1005",
+    "ProductTag_Id": "ProductTag:gift",
+    "Product_Id": "Product:GF-1005"
   },
   {
     "$key": "ProductTag:gift|Product:P-1000",
@@ -150,6 +195,16 @@
     "Product_Id": "Product:P-10033"
   },
   {
+    "$key": "ProductTag:limited edition|Product:FD-1007",
+    "ProductTag_Id": "ProductTag:limited edition",
+    "Product_Id": "Product:FD-1007"
+  },
+  {
+    "$key": "ProductTag:limited edition|Product:FS-1003",
+    "ProductTag_Id": "ProductTag:limited edition",
+    "Product_Id": "Product:FS-1003"
+  },
+  {
     "$key": "ProductTag:motorbikes|Product:P-1010",
     "ProductTag_Id": "ProductTag:motorbikes",
     "Product_Id": "Product:P-1010"
@@ -168,6 +223,36 @@
     "$key": "ProductTag:mp3|Product:P-1017",
     "ProductTag_Id": "ProductTag:mp3",
     "Product_Id": "Product:P-1017"
+  },
+  {
+    "$key": "ProductTag:outdoor|Product:FS-1001",
+    "ProductTag_Id": "ProductTag:outdoor",
+    "Product_Id": "Product:FS-1001"
+  },
+  {
+    "$key": "ProductTag:outdoor|Product:GF-1006",
+    "ProductTag_Id": "ProductTag:outdoor",
+    "Product_Id": "Product:GF-1006"
+  },
+  {
+    "$key": "ProductTag:sustainable|Product:FD-1001",
+    "ProductTag_Id": "ProductTag:sustainable",
+    "Product_Id": "Product:FD-1001"
+  },
+  {
+    "$key": "ProductTag:sustainable|Product:FS-1006",
+    "ProductTag_Id": "ProductTag:sustainable",
+    "Product_Id": "Product:FS-1006"
+  },
+  {
+    "$key": "ProductTag:sustainable|Product:GC-1003",
+    "ProductTag_Id": "ProductTag:sustainable",
+    "Product_Id": "Product:GC-1003"
+  },
+  {
+    "$key": "ProductTag:sustainable|Product:GF-1002",
+    "ProductTag_Id": "ProductTag:sustainable",
+    "Product_Id": "Product:GF-1002"
   },
   {
     "$key": "ProductTag:watches|Product:P-9004",

@@ -5,6 +5,7 @@
     "shortDescription": "Three-piece golf balls with a soft feel and good distance, in packs of 3, 12 or 24.",
     "fullDescription": "@file",
     "sku": "GF-1001",
+    "tags": [ "bestseller" ],
     "reviews": [
       { "customer": "tim", "rating": 5, "title": "Great feel around the green", "reviewText": "Soft off the putter, yet they still fly far. I now play nothing else.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-45d" },
       { "customer": "markus", "rating": 5, "title": "Good value in the big pack", "reviewText": "The 24 pack is by far the cheapest way to stock up for the season.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-30d" },
@@ -52,6 +53,7 @@
     "shortDescription": "Small pegs that hold the golf ball for the tee shot. 70 mm, 50 pieces per bag.",
     "fullDescription": "@file",
     "sku": "GF-1002",
+    "tags": [ "sustainable" ],
     "taxCategory": "general",
     "price": 2.90,
     "quantityUnit": "bag",
@@ -74,6 +76,7 @@
     "shortDescription": "Soft leather glove for a secure grip, also in wet conditions.",
     "fullDescription": "@file",
     "sku": "GF-1003",
+    "discounts": [ "season-sale-15" ],
     "reviews": [
       { "customer": "anna", "rating": 5, "title": "Fits perfectly", "reviewText": "Very comfortable and a secure grip, even when it rains.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-35d" },
       { "customer": "tim", "rating": 4, "title": "Good glove", "reviewText": "Comfortable leather. Order one size up if you are between sizes.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-20d" },
@@ -85,7 +88,7 @@
     "stockQuantity": 40,
     "displayStockAvailability": true,
     "displayStockQuantity": true,
-    "categories": [ "Golf Accessories" ],
+    "categories": [ { "category": "Sale", "displayOrder": 0, "isSystemMapping": true }, "Golf Accessories" ],
     "manufacturers": [ "fairway-vennix" ],
     "pictures": [
       { "file": "product/demo-flat.jpg", "name": "leather-golf-glove" }
@@ -147,6 +150,7 @@
     "shortDescription": "Golf bag, two bags of tees and a divot repair tool at a special price.",
     "fullDescription": "@file",
     "sku": "GF-1005",
+    "tags": [ "gift" ],
     "reviews": [
       { "customer": "laura", "rating": 5, "title": "A great start", "reviewText": "Perfect for beginners: everything in one order and cheaper than buying it separately.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-16d" }
     ],
@@ -175,6 +179,7 @@
     "shortDescription": "Stand bag with a double carry strap and six compartments.",
     "fullDescription": "@file",
     "sku": "GF-1006",
+    "tags": [ "outdoor" ],
     "reviews": [
       { "customer": "markus", "rating": 4, "title": "Light and practical", "reviewText": "Very light for walking the course and the compartments are well planned.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-28d" },
       { "customer": "sophie", "rating": 5, "title": "Great bag", "reviewText": "Stands firmly, the strap is comfortable. Good price.", "isApproved": true, "createdOnUtc": "@now-11d" }

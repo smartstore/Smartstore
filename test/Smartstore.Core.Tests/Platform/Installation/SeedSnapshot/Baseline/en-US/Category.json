@@ -915,7 +915,7 @@
     "DisplayOrder": 1,
     "ExternalLink": null,
     "FullName": null,
-    "HasDiscountsApplied": false,
+    "HasDiscountsApplied": true,
     "Icon": null,
     "IgnoreInMenus": false,
     "LimitedToStores": false,
