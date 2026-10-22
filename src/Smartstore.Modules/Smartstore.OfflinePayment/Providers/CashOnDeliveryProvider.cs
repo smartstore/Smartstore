@@ -8,6 +8,7 @@ namespace Smartstore.OfflinePayment;
 
 [SystemName("Payments.CashOnDelivery")]
 [FriendlyName("Cash On Delivery (COD)")]
+[Icon("money")]
 [Order(100)]
 public class CashOnDeliveryProvider : OfflinePaymentProviderBase<CashOnDeliveryPaymentSettings>, IConfigurable
 {

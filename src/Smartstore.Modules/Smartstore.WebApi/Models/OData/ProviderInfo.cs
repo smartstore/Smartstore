@@ -45,6 +45,11 @@ public partial class ProviderInfo<TProvider> where TProvider : new()
     public string IconUrl { get; set; }
 
     /// <summary>
+    /// The provider's icon name or serialized icon expression, if available.
+    /// </summary>
+    public string Icon { get; set; }
+
+    /// <summary>
     /// Provides infos about the module.
     /// </summary>
     public ModuleInfo Module { get; set; } = new();

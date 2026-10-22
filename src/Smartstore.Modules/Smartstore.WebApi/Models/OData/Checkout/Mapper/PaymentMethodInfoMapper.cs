@@ -27,6 +27,7 @@ public class PaymentMethodInfoMapper(ModuleManager moduleManager, IUrlHelper url
         if (metadata != null)
         {
             MiniMapper.Map(metadata, to);
+            to.Icon = _moduleManager.GetIcon(metadata).Address;
 
             to.Provider.PaymentMethodType = metadata.PaymentMethodType;
             to.FriendlyName = _moduleManager.GetLocalizedFriendlyName(metadata, languageId).NullEmpty() ?? metadata.FriendlyName;
