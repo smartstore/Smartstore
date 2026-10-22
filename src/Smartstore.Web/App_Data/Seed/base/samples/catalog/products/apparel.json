@@ -167,6 +167,8 @@
     "shortDescription": "Minimalist leather sneaker, also as a limited black and gold edition.",
     "fullDescription": "@file",
     "sku": "FS-1003",
+    "manufacturerPartNumber": "NL-URBAN-01",
+    "durabilityGuaranteeDurationYears": 3,
     "tags": [ "limited-edition" ],
     "reviews": [
       { "customer": "jonas", "rating": 5, "title": "Goes with everything", "reviewText": "Comfortable from day one and the white leather is easy to clean.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-40d" },

@@ -66,6 +66,8 @@
     "shortDescription": "Floor lamp with a wide arc and a dimmable light, in three finishes.",
     "fullDescription": "@file",
     "sku": "FN-1002",
+    "manufacturerPartNumber": "LV-ARC-150",
+    "durabilityGuaranteeDurationYears": 5,
     "reviews": [
       { "customer": "jonas", "rating": 5, "title": "Lights up the whole sofa corner", "reviewText": "The arc reaches far over the sofa. The black version looks very elegant.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-24d" },
       { "customer": "sophie", "rating": 3, "title": "Nice, but brass took long", "reviewText": "The brass finish is beautiful, but I had to wait almost two weeks for it.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-6d" }
