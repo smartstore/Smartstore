@@ -408,6 +408,19 @@ $icon-animations: (
     --icon-min-size: 20px;
 }
 
+// Flag legacy webfont markup in projects that have not migrated to SVG icons.
+:is(.fa, .fas, .far, .fal, .fab, .fad) {
+    display: inline-block;
+    font-style: normal;
+    line-height: 1;
+
+    &::before {
+        @include icon-mask("sys:not-found!/outline");
+        background-color: var(--danger, #dc3545) !important;
+        vertical-align: -0.125em;
+    }
+}
+
 // Missing-icon color remains independent of caller presentation.
 .icon-not-found {
     color: var(--danger) !important;

@@ -866,10 +866,13 @@ PNotify uses the custom smartstore styling preset: status icons reuse alert mask
 close uses the close mask, and pin/unpin retain the pause/play motifs as SVG masks.
 The HP theme inherits this preset. Vendor scripts remain unchanged.
 
-Legacy Font Awesome styles now always use the bundled Free webfonts. The Pro theme
-switch, hosted CSS kit loading, unused thin shim and group/overlay styles were removed.
-Light/regular fallbacks and the legacy chooser's duotone shim remain until their
-callers are migrated. Pro SVG libraries use library replacement independently.
+Font Awesome webfonts, their CSS/Sass packages, stylesheet includes and font preloads
+have been removed. The shared `_icons.scss` deliberately retains the legacy base
+selectors `.fa`, `.fas`, `.far`, `.fal`, `.fab` and `.fad`: they render the red
+`sys:not-found!/outline` SVG mask to expose unmigrated markup in external projects.
+This is a migration indicator, not a webfont compatibility layer. Replace affected
+markup with icon concepts or explicit SVG addresses. The Font Awesome SVG library
+and legacy import conversion remain available independently.
 
 ## MediaManager kit icons
 
