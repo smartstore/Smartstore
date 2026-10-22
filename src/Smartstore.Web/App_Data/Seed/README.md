@@ -125,6 +125,8 @@ base/samples/catalog/products/sports/P-7004.fullDescription.html
 - `@file` in nested fields is an error.
 
 Rule of thumb: HTML longer than one line or about 200 characters goes into its own file.
+Format these files so that people can edit them: every block element (`<p>`, `<ul>`, `<li>`, ...) on its own line,
+content indented by two spaces, one sentence per line. No one-line HTML.
 
 ## Locale resources
 
