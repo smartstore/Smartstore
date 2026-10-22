@@ -34,6 +34,9 @@
       "award",
       "ban",
       "basket",
+      "bell",
+      "bell-fill",
+      "bell-off",
       "blog",
       "bolt",
       "braces",
@@ -86,6 +89,7 @@
       "file-text",
       "file-video",
       "folder-open",
+      "folder-transfer",
       "file-stack",
       "folder-stack",
       "folder-open-stack",
@@ -161,6 +165,7 @@
       "warning"
     ],
     "sources": {
+      "bell-fill": "sys:bell!/fill",
       "file-stack": "sys:file-stack!/outline",
       "folder-stack": "sys:folder-stack!/outline",
       "folder-open-stack": "sys:folder-open-stack!/outline",
