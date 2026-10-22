@@ -1009,7 +1009,10 @@ legend {
         }
 
         .nav-link {
-            > img.icon { opacity: 0.8; }
+            > img.icon {
+                height: auto;
+                opacity: 0.8;
+            }
 
             &:hover,
             &.active {

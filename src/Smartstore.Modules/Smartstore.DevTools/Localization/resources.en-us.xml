@@ -37,7 +37,7 @@
                 <Value>
                     <![CDATA[
                         No widget zones are currently enabled.
-                        By clicking the <i class="fa fa-power-off px-1"></i> icon, you can activate the widget zones.
+                        By clicking the <sm-icon name="power" class="px-1"></sm-icon> icon, you can activate the widget zones.
                     ]]>
                 </Value>
             </LocaleResource>

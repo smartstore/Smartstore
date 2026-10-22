@@ -94,7 +94,7 @@
         }
 
         &.has-children.animating:after {
-            animation: fa-spin .6s infinite linear;
+            animation: spin .6s infinite linear;
             transform: none;
             transform-origin: center;
             mask-image: icon-url("spinner");

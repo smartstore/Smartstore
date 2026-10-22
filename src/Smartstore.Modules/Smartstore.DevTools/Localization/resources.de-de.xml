@@ -37,7 +37,7 @@
                 <Value>
                     <![CDATA[
                         Momentan sind keine Widget-Zonen eingeschaltet.
-                        Mit Klick auf das <i class="fa fa-power-off px-1"></i> Symbol können Sie die Widget-Zonen aktivieren.
+                        Mit Klick auf das <sm-icon name="power" class="px-1"></sm-icon> Symbol können Sie die Widget-Zonen aktivieren.
                     ]]>
                 </Value>
             </LocaleResource>
