@@ -472,6 +472,8 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
     [GeneratedRegex(@"\{\$ref:([^:}]+):([^}]+)\}")]
     private static partial Regex RawSettingRefRegex();
 
+    /// <summary>
+    /// Applies { "TypeName": { "Property": value } } to the settings instances.
     /// <c>"$ref:{EntityType}:{key}"</c> values are resolved to the ID of a seeded entity.
     /// </summary>
     private void ApplySeedSettings(IList<ISettings> settings, JsonObject values)
