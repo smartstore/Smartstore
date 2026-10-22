@@ -583,7 +583,7 @@ public class ProductAttributeController : AdminController
             model.PriceAdjustmentString = option.ValueType == ProductVariantAttributeValueType.Simple ? option.PriceAdjustment.ToString("G29") : string.Empty;
             model.WeightAdjustmentString = option.ValueType == ProductVariantAttributeValueType.Simple ? option.WeightAdjustment.ToString("G29") : string.Empty;
             model.TypeName = Services.Localization.GetLocalizedEnum(option.ValueType);
-            model.TypeNameClass = option.ValueType == ProductVariantAttributeValueType.ProductLinkage ? "fa fa-link mr-2" : "d-none hide hidden-xs-up";
+            model.TypeNameIcon = option.ValueType == ProductVariantAttributeValueType.ProductLinkage ? "link" : null;
 
             if (option.LinkedProductId != 0)
             {

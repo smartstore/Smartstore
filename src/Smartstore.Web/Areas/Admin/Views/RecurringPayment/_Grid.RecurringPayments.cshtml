@@ -46,7 +46,7 @@
         <column for="NextPaymentDate" sortable="false">
             <display-template>
                 <div class="dg-cell-value">
-                    <i :class="item.row.NextPaymentLabelClass"></i>
+                    <sm-icon :name="item.row.NextPaymentIcon" class="icon-fw" :class="item.row.NextPaymentLabelClass"></sm-icon>
                     <span class="text-truncate" :title="item.row.NextPaymentDateString">{{ item.row.NextPaymentDateFriendly }}</span>
                 </div>
             </display-template>

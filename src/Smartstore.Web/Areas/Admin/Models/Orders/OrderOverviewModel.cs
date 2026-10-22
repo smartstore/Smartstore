@@ -49,7 +49,7 @@ public class OrderOverviewModel : TabbableModel
                 OrderStatus.Pending => "fw-600",
                 OrderStatus.Processing => "",
                 OrderStatus.Complete => "text-success",
-                OrderStatus.Cancelled => "muted",
+                OrderStatus.Cancelled => "text-muted",
                 _ => string.Empty,
             };
         }
@@ -61,18 +61,31 @@ public class OrderOverviewModel : TabbableModel
     public bool IsPaid
         => PaymentStatus == PaymentStatus.Paid;
 
+    /// <summary>
+    /// Gets the icon concept for the payment status.
+    /// </summary>
+    [LocalizedDisplay("*PaymentStatus")]
+    public string PaymentStatusIcon => PaymentStatus switch
+    {
+        PaymentStatus.Pending or PaymentStatus.Authorized => "circle-fill",
+        PaymentStatus.Paid => "check",
+        PaymentStatus.PartiallyRefunded or PaymentStatus.Refunded => "refund",
+        PaymentStatus.Voided => "ban",
+        _ => null
+    };
+
     public string PaymentStatusLabelClass
     {
         get
         {
             return PaymentStatus switch
             {
-                PaymentStatus.Pending => "fa fa-fw fa-circle text-danger",
-                PaymentStatus.Authorized => "fa fa-fw fa-circle text-warning",
-                PaymentStatus.Paid => "fa fa-fw fa-check text-success",
-                PaymentStatus.PartiallyRefunded => "fa fa-fw fa-right-left text-warning",
-                PaymentStatus.Refunded => "fa fa-fw fa-right-left text-success",
-                PaymentStatus.Voided => "fa fa-fw fa-ban muted",
+                PaymentStatus.Pending => "text-danger",
+                PaymentStatus.Authorized => "text-warning",
+                PaymentStatus.Paid => "text-success",
+                PaymentStatus.PartiallyRefunded => "text-warning",
+                PaymentStatus.Refunded => "text-success",
+                PaymentStatus.Voided => "text-muted",
                 _ => string.Empty,
             };
         }
@@ -95,17 +108,31 @@ public class OrderOverviewModel : TabbableModel
     public bool IsShippable
         => ShippingStatus != ShippingStatus.ShippingNotRequired;
 
+    /// <summary>
+    /// Gets the icon concept for the shipping status.
+    /// </summary>
+    [LocalizedDisplay("*ShippingStatus")]
+    public string ShippingStatusIcon => ShippingStatus switch
+    {
+        ShippingStatus.ShippingNotRequired => "download",
+        ShippingStatus.NotYetShipped => "circle-fill",
+        ShippingStatus.PartiallyShipped => "truck",
+        ShippingStatus.Shipped => "shipped",
+        ShippingStatus.Delivered => "check",
+        _ => null
+    };
+
     public string ShippingStatusLabelClass
     {
         get
         {
             return ShippingStatus switch
             {
-                ShippingStatus.ShippingNotRequired => "fa fa-fw fa-download muted mr-1",
-                ShippingStatus.NotYetShipped => "fa fa-fw fa-circle text-danger mr-1",
-                ShippingStatus.PartiallyShipped => "fa fa-fw fa-truck fa-flip-horizontal text-warning mr-1",
-                ShippingStatus.Shipped => "fa fa-fw fa-truck fa-flip-horizontal text-success mr-1",
-                ShippingStatus.Delivered => "fa fa-fw fa-check text-success mr-1",
+                ShippingStatus.ShippingNotRequired => "text-muted mr-1",
+                ShippingStatus.NotYetShipped => "text-danger mr-1",
+                ShippingStatus.PartiallyShipped => "flip-h text-warning mr-1",
+                ShippingStatus.Shipped => "flip-h text-success mr-1",
+                ShippingStatus.Delivered => "text-success mr-1",
                 _ => string.Empty,
             };
         }

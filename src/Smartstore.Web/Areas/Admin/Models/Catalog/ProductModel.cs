@@ -636,7 +636,11 @@ public class ProductModel : ProductOverviewModel, ILocalizedModel<ProductLocaliz
 
         [LocalizedDisplay("*ValueTypeId")]
         public string TypeName { get; set; }
-        public string TypeNameClass { get; set; }
+        /// <summary>
+        /// Gets or sets the icon concept for the attribute value type.
+        /// </summary>
+        [LocalizedDisplay("*ValueTypeId")]
+        public string TypeNameIcon { get; set; }
 
         [LocalizedDisplay("*LinkedProduct")]
         public int LinkedProductId { get; set; }

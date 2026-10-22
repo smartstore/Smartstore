@@ -160,7 +160,7 @@ public static class VueSlotTemplateExtensions
     public static IHtmlContent VariantAttributeValueName(this IHtmlHelper _)
     {
         var builder = new SmartHtmlContentBuilder();
-        builder.AppendHtml("<i :class='item.row.TypeNameClass' :title='item.row.TypeName'></i>");
+        builder.AppendHtml("<sm-icon v-if='item.row.TypeNameIcon' :name='item.row.TypeNameIcon' class='mr-2' :title='item.row.TypeName'></sm-icon>");
         builder.AppendHtml(_.ColorPalette());
         builder.AppendHtml("<span><a href='javascript:;' class='edit-variant-attribute-value' :data-key='item.row.Id'>{{ item.value }} {{ item.row.QuantityInfo }}</a></span>");
 

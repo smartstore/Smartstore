@@ -665,7 +665,7 @@ public partial class ProductController : AdminController
                 DisplayOrder = x.DisplayOrder,
                 ValueTypeId = x.ValueTypeId,
                 TypeName = Services.Localization.GetLocalizedEnum(x.ValueType),
-                TypeNameClass = x.ValueType == ProductVariantAttributeValueType.ProductLinkage ? "fa fa-link mr-2" : "d-none hide hidden-xs-up",
+                TypeNameIcon = x.ValueType == ProductVariantAttributeValueType.ProductLinkage ? "link" : null,
                 LinkedProductId = x.LinkedProductId,
                 Quantity = x.Quantity
             };
@@ -885,7 +885,7 @@ public partial class ProductController : AdminController
             DisplayOrder = pvav.DisplayOrder,
             ValueTypeId = pvav.ValueTypeId,
             TypeName = Services.Localization.GetLocalizedEnum(pvav.ValueType),
-            TypeNameClass = pvav.ValueType == ProductVariantAttributeValueType.ProductLinkage ? "fa fa-link mr-2" : "d-none hide hidden-xs-up",
+            TypeNameIcon = pvav.ValueType == ProductVariantAttributeValueType.ProductLinkage ? "link" : null,
             LinkedProductId = pvav.LinkedProductId,
             Quantity = pvav.Quantity
         };

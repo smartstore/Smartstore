@@ -84,7 +84,7 @@
         <column for="ShippingStatus" entity-member="ShippingStatusId" title="@T("Admin.Orders.Shipment")">
             <display-template>
                 <div class="dg-cell-value">
-                    <i :class="item.row.ShippingStatusLabelClass" :title="item.row.ShippingStatusString"></i>
+                    <sm-icon v-if="item.row.ShippingStatusIcon" :name="item.row.ShippingStatusIcon" class="icon-fw" :class="item.row.ShippingStatusLabelClass" :title="item.row.ShippingStatusString"></sm-icon>
                     <span v-if="item.row.IsShippable" class="text-truncate">{{ item.row.ShippingAddressString }}</span>
                     <div v-if="item.row.IsShippable" class="text-muted text-truncate">{{ item.row.ViaShippingMethod }}</div>
                     <span v-if="!item.row.IsShippable" class="text-muted text-truncate">{{ item.row.ShippingStatusString }}</span>
@@ -110,7 +110,7 @@
                 <div class="dg-cell-value text-right">
                     <div class="d-flex align-items-center justify-content-end gap-1 text-truncate">
                         <big class="fwm">{{ item.row.OrderTotalString }}</big>
-                        <i :class="item.row.PaymentStatusLabelClass" :title="item.row.PaymentStatusString"></i>
+                        <sm-icon v-if="item.row.PaymentStatusIcon" :name="item.row.PaymentStatusIcon" class="icon-fw" :class="item.row.PaymentStatusLabelClass" :title="item.row.PaymentStatusString"></sm-icon>
                     </div>
                     <div v-if="item.row.HasPaymentMethod" class="pr-2 text-muted text-truncate">{{ item.row.WithPaymentMethod }}</div>
                 </div>
@@ -167,7 +167,7 @@
             @T("Admin.Orders.Fields.ShippingStatus")
         </div>
         <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "ship" })"@Html.Raw(key)>
-            <icon name="truck" class="icon-fw flip-h" />
+            <icon name="shipped" class="icon-fw" />
             <span class="order-process-title">@T("Enums.ShippingStatus.Shipped")</span>
         </a>
         <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "deliver" })"@Html.Raw(key)>

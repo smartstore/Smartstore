@@ -70,7 +70,7 @@
                 :paging="{ enabled: false }" 
                 :sorting="{ enabled: false }">
                 <template v-slot:display-name="item">
-                    <i :class='item.row.TypeNameClass' :title='item.row.TypeName'></i>
+                    <sm-icon v-if='item.row.TypeNameIcon' :name='item.row.TypeNameIcon' class='mr-2' :title='item.row.TypeName'></sm-icon>
                     @Html.ColorPalette()
                     <a href="#" class="text-truncate edit-attribute-option" :data-key="item.row.Id" :data-setid="item.row.ProductAttributeOptionsSetId">{{ item.value }} {{ item.row.QuantityInfo }}</a>
                 </template>

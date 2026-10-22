@@ -37,7 +37,7 @@
         <column for="ShippingStatus">
             <display-template>
                 <div class="dg-cell-value">
-                    <i :class="item.row.ShippingStatusLabelClass" :title="item.row.ShippingStatusString"></i>
+                    <sm-icon v-if="item.row.ShippingStatusIcon" :name="item.row.ShippingStatusIcon" class="icon-fw" :class="item.row.ShippingStatusLabelClass" :title="item.row.ShippingStatusString"></sm-icon>
                     <span class="text-truncate">{{ item.row.ShippingStatusString }}</span>
                 </div>
             </display-template>
@@ -50,7 +50,7 @@
         <column for="PaymentStatus">
             <display-template>
                 <div class="dg-cell-value">
-                    <i :class="item.row.PaymentStatusLabelClass" :title="item.row.PaymentStatusString"></i>
+                    <sm-icon v-if="item.row.PaymentStatusIcon" :name="item.row.PaymentStatusIcon" class="icon-fw" :class="item.row.PaymentStatusLabelClass" :title="item.row.PaymentStatusString"></sm-icon>
                     <span class="text-truncate">{{ item.row.PaymentStatusString }}</span>
                 </div>
             </display-template>
