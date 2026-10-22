@@ -5,9 +5,7 @@
     "electronics": "standard",
     "digital-goods": "standard",
     "jewelry": "standard",
-    "books": "reduced",
-    "food": "reduced",
-    "general": "standard"
+    "books": "reduced"
   },
   "$items": [
     {

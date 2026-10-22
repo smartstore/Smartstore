@@ -207,6 +207,37 @@ public class SeedDataSourceTests
     }
 
     [Test]
+    public void Sample_overlays_of_core_files_only_apply_with_sample_data()
+    {
+        WriteFile("base/core/countries.json", """[ { "twoLetterIsoCode": "US", "name": "United States" }, { "twoLetterIsoCode": "DE", "name": "Germany" } ]""");
+        WriteFile("cultures/de-DE/core/countries.json", """{ "DE": { "name": "Deutschland" } }""");
+        WriteFile("base/samples/core/countries.json", """{ "US": { "published": false } }""");
+        WriteFile("cultures/de-DE/samples/core/countries.json", """{ "DE": { "name": "Deutschland (Demo)" } }""");
+
+        var withSamples = new SeedDataSource(new LocalFileSystem(_root), "de-DE") { IncludeSamples = true }.Load(CountryDescriptor());
+        Assert.That((bool)withSamples.Records[0].Data["published"], Is.False);
+        Assert.That((string)withSamples.Records[1].Data["name"], Is.EqualTo("Deutschland (Demo)"));
+
+        var withoutSamples = CreateSource().Load(CountryDescriptor());
+        Assert.That(withoutSamples.Records[0].Data["published"], Is.Null);
+        Assert.That((string)withoutSamples.Records[1].Data["name"], Is.EqualTo("Deutschland"));
+    }
+
+    [Test]
+    public void LoadObject_applies_sample_overlay_only_with_sample_data()
+    {
+        WriteFile("base/core/settings.json", """{ "PriceSettings": { "OfferBadgeLabel": "Deal" } }""");
+        WriteFile("base/samples/core/settings.json", """{ "PriceSettings": { "PriceDisplayType": "PreSelectedPrice" } }""");
+
+        var withSamples = new SeedDataSource(new LocalFileSystem(_root), "de-DE") { IncludeSamples = true }.LoadObject("core/settings.json");
+        Assert.That((string)withSamples["PriceSettings"]["PriceDisplayType"], Is.EqualTo("PreSelectedPrice"));
+        Assert.That((string)withSamples["PriceSettings"]["OfferBadgeLabel"], Is.EqualTo("Deal"));
+
+        var withoutSamples = CreateSource().LoadObject("core/settings.json");
+        Assert.That(withoutSamples["PriceSettings"]["PriceDisplayType"], Is.Null);
+    }
+
+    [Test]
     public void BeforeOverlay_runs_between_defaults_and_overlay()
     {
         WriteFile("base/core/_defaults.json", """{ "published": true }""");

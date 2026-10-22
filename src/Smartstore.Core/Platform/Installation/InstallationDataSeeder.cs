@@ -101,7 +101,10 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
         // because SampleMediaUtility depends on it.
         _seedSource = new SeedDataSource(
             new LocalFileSystem(PathUtility.Join(ApplicationContext.AppDataRoot.Root, SeedDataSource.AppDataFolder)),
-            _config.Language.LanguageCulture);
+            _config.Language.LanguageCulture)
+        {
+            IncludeSamples = _config.SeedSampleData
+        };
         _seedFactory = new SeedEntityFactory(_seedResolver);
 
         await PopulateFromSeedAsync("PopulateCurrencies", InstallationSeedDescriptors.Currencies());
@@ -445,7 +448,7 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
     /// Settings that do not belong to a settings class, e.g. because their key contains an entity ID.
     /// Placeholders <c>{$ref:{EntityType}:{key}}</c> in a key are replaced by the ID of a seeded entity.
     /// </summary>
-    private const string RawSettingsKey = "$keys";
+    private const string RawSettingsKey = "SettingKeys";
 
     private List<Setting> CreateRawSettings(JsonObject values)
     {

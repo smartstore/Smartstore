@@ -24,6 +24,18 @@
     "TaxExempt": false
   },
   {
+    "$key": "GolfClubMembers",
+    "Active": true,
+    "FreeShipping": false,
+    "IsSystemRole": false,
+    "Name": "Golf club members",
+    "OrderTotalMaximum": null,
+    "OrderTotalMinimum": null,
+    "SystemName": "GolfClubMembers",
+    "TaxDisplayType": null,
+    "TaxExempt": false
+  },
+  {
     "$key": "Guests",
     "Active": true,
     "FreeShipping": false,

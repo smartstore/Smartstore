@@ -1,0 +1,9 @@
+// Sample overlay of core/shipping-methods.json: shipping is the default method in the demo shop.
+{
+  "by-ground": {
+    "displayOrder": 0
+  },
+  "in-store-pickup": {
+    "displayOrder": 1
+  }
+}

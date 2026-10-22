@@ -2199,7 +2199,7 @@
     "$key": "PriceSettings.PriceDisplayType|0",
     "Name": "PriceSettings.PriceDisplayType",
     "StoreId": 0,
-    "Value": "LowestPrice"
+    "Value": "PreSelectedPrice"
   },
   {
     "$key": "PriceSettings.RulesCalculateIncludingTax|0",

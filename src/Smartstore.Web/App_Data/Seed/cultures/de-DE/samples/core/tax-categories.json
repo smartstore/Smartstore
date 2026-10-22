@@ -1,0 +1,7 @@
+// Sample overlay of the German tax categories: the demo catalog's categories map to the German rates.
+{
+  "$aliases": {
+    "food": "reduced",
+    "general": "standard"
+  }
+}

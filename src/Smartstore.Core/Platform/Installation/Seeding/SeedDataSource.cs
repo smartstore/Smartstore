@@ -98,6 +98,13 @@ public sealed class SeedDataSource
 
     public IFileSystem Root { get; }
 
+    /// <summary>
+    /// Whether sample data is installed. Then the sample overlays of core files are applied:
+    /// "base/samples/core/{file}" and "cultures/{culture}/samples/core/{file}". They change core data
+    /// (e.g. settings or shipping methods) only for the demo shop, never for an installation without sample data.
+    /// </summary>
+    public bool IncludeSamples { get; init; }
+
     public string Culture { get; }
 
     /// <summary>
@@ -179,11 +186,15 @@ public sealed class SeedDataSource
                 merged.Each(descriptor.BeforeOverlay);
             }
 
-            var overlayFile = GetOverlayFile(baseFile);
-            if (overlayFile != null)
+            // Order: sample overlay of the base, culture overlay, sample overlay of the culture.
+            var (sampleFile, cultureSampleFile) = GetSampleOverlayFiles(baseFile);
+            foreach (var file in new[] { sampleFile, GetOverlayFile(baseFile), cultureSampleFile })
             {
-                var overlay = ParseOverlay(overlayFile, spec);
-                merged = SeedJsonMerger.ApplyOverlay(merged, overlay, spec, PathOf(overlayFile), aliases);
+                if (file != null)
+                {
+                    var overlay = ParseOverlay(file, spec);
+                    merged = SeedJsonMerger.ApplyOverlay(merged, overlay, spec, PathOf(file), aliases);
+                }
             }
 
             foreach (var record in merged)
@@ -220,9 +231,14 @@ public sealed class SeedDataSource
             throw new SeedDataFormatException($"{PathOf(file)}: an object file must contain an object.");
         }
 
-        var overlayFile = GetOverlayFile(file);
-        if (overlayFile != null)
+        var (sampleFile, cultureSampleFile) = GetSampleOverlayFiles(file);
+        foreach (var overlayFile in new[] { sampleFile, GetOverlayFile(file), cultureSampleFile })
         {
+            if (overlayFile == null)
+            {
+                continue;
+            }
+
             if (ParseFile(overlayFile) is not JsonObject overlay)
             {
                 throw new SeedDataFormatException($"{PathOf(overlayFile)}: an object overlay must contain an object.");
@@ -271,6 +287,26 @@ public sealed class SeedDataSource
         var file = Root.GetFile(PathUtility.Join(CulturesFolder, Culture, relativePath));
 
         return file.Exists ? file : null;
+    }
+
+    /// <summary>
+    /// Gets the sample overlay files of a core base file, or nulls if sample data is not installed or there are none.
+    /// </summary>
+    private (IFile Base, IFile Culture) GetSampleOverlayFiles(IFile baseFile)
+    {
+        const string coreFolder = "core/";
+
+        var relativePath = PathOf(baseFile)[(BaseFolder.Length + 1)..];
+        if (!IncludeSamples || !relativePath.StartsWith(coreFolder, StringComparison.OrdinalIgnoreCase))
+        {
+            return (null, null);
+        }
+
+        var samplePath = PathUtility.Join("samples", relativePath);
+        var sampleFile = Root.GetFile(PathUtility.Join(BaseFolder, samplePath));
+        var cultureFile = Culture != null ? Root.GetFile(PathUtility.Join(CulturesFolder, Culture, samplePath)) : null;
+
+        return (sampleFile.Exists ? sampleFile : null, cultureFile?.Exists == true ? cultureFile : null);
     }
 
     private JsonObject LoadDefaults(SeedEntityDescriptor descriptor)

@@ -1,0 +1,15 @@
+// Sample overlay of core/tax-categories.json: tax categories used by the demo catalog.
+{
+  "$add": [
+    {
+      "key": "food",
+      "name": "Food & Beverages",
+      "displayOrder": 25
+    },
+    {
+      "key": "general",
+      "name": "General goods",
+      "displayOrder": 30
+    }
+  ]
+}

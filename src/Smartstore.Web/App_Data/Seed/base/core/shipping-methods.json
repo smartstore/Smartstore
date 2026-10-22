@@ -3,13 +3,12 @@
   {
     "key": "in-store-pickup",
     "name": "In-Store Pickup",
-    "description": "Pick up your items at the store",
-    "displayOrder": 1
+    "description": "Pick up your items at the store"
   },
   {
     "key": "by-ground",
     "name": "By Ground",
     "description": "Compared to other shipping methods, like by flight or over seas, ground shipping is carried out closer to the earth",
-    "displayOrder": 0
+    "displayOrder": 1
   }
 ]

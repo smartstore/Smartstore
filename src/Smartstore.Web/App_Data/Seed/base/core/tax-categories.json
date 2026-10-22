@@ -28,15 +28,5 @@
     "key": "apparel",
     "name": "Apparel & Shoes",
     "displayOrder": 20
-  },
-  {
-    "key": "food",
-    "name": "Food & Beverages",
-    "displayOrder": 25
-  },
-  {
-    "key": "general",
-    "name": "General goods",
-    "displayOrder": 30
   }
 ]

@@ -31,8 +31,8 @@ the ID of a seed record are written as `"$ref:{EntityType}:{key}"`, e.g. `"$ref:
 Its overlay has the same shape and is merged field by field.
 
 Settings that do not belong to a settings class, e.g. because their key contains an entity ID, go into the
-special object `"$keys"`. Placeholders `{$ref:{EntityType}:{key}}` in a key are replaced by the ID:
-`{ "$keys": { "ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{$ref:ShippingMethod:by-ground}": 4.90 } }`.
+special object `"SettingKeys"`. Placeholders `{$ref:{EntityType}:{key}}` in a key are replaced by the ID:
+`{ "SettingKeys": { "ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{$ref:ShippingMethod:by-ground}": 4.90 } }`.
 
 - **Base files** are JSON **arrays** of records.
 - **Overlay files** are JSON **objects** and live under the same relative path as their
@@ -111,6 +111,26 @@ Example — Germany gets German tax categories, but products keep referring to `
   ]
 }
 ```
+
+## Sample overlays of core files
+
+Core data and settings apply to every installation, and the defaults of settings are defined in code.
+Changes that are only wanted in the demo shop therefore never go into `base/core/` itself, but into a
+sample overlay that is only applied when sample data is installed:
+
+```
+base/samples/core/{file}                 e.g. base/samples/core/settings.json
+cultures/{culture}/samples/core/{file}   e.g. cultures/de-DE/samples/core/tax-categories.json
+```
+
+They have the same format as culture overlays. Order, lowest first:
+
+```
+base/core  →  base/samples/core  →  cultures/{culture}/core  →  cultures/{culture}/samples/core
+```
+
+Examples: the demo shop's catalog settings and price display, shipping as default shipping method with a
+shipping rate, and the tax categories of the demo catalog.
 
 ## Long texts (`@file`)
 

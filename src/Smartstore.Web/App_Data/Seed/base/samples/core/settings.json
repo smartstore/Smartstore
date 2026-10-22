@@ -1,0 +1,13 @@
+// Sample overlay of core/settings.json: only applied when sample data is installed.
+{
+  "CatalogSettings": {
+    "LabelAsNewForMaxDays": 30,
+    "ShowProductReviewsInProductLists": true
+  },
+  "PriceSettings": {
+    "PriceDisplayType": "PreSelectedPrice"
+  },
+  "SettingKeys": {
+    "ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{$ref:ShippingMethod:by-ground}": 4.90
+  }
+}
