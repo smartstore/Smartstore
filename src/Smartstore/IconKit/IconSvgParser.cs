@@ -31,7 +31,7 @@ internal static partial class IconSvgParser
     /// <summary>
     /// The preparation format version included in cache revisions independently of source content.
     /// </summary>
-    internal const string Revision = "17";
+    internal const string Revision = "19";
     private const string _svgNamespace = "http://www.w3.org/2000/svg";
     // Support static icon graphics only. This is deliberately not a general SVG document
     // renderer: executable content, external resources and arbitrary source CSS are excluded.
@@ -168,16 +168,24 @@ internal static partial class IconSvgParser
             attribute.Remove();
         }
 
-        foreach (var element in root.Descendants())
+        foreach (var element in root.DescendantsAndSelf())
         {
-            var stroke = element.Attribute("stroke");
-            if (stroke != null && !stroke.Value.Equals("none", StringComparison.OrdinalIgnoreCase)
-                && !stroke.Value.Equals("inherit", StringComparison.OrdinalIgnoreCase))
+            foreach (var property in new[] { "stroke", "fill" })
             {
-                // A missing manifest override preserves the source color. Deliberately
-                // unstroked shapes stay unstroked even when the caller sets --icon-stroke.
-                var fallback = variant.Stroke ?? stroke.Value;
-                AppendVariableStyle(element, "stroke", fallback);
+                // Apply the configured stroke-library color to filled outlines as well.
+                // Duotone fills retain their separate layer colors.
+                if (property == "fill" && (variant.Stroke == null || variant.IsDuotone))
+                {
+                    continue;
+                }
+
+                var paint = (string)element.Attribute(property);
+                if (paint != null && !paint.Equals("none", StringComparison.OrdinalIgnoreCase)
+                    && !paint.Equals("inherit", StringComparison.OrdinalIgnoreCase)
+                    && !paint.StartsWith("url(", StringComparison.OrdinalIgnoreCase))
+                {
+                    AppendVariableStyle(element, property, variant.Stroke ?? paint);
+                }
             }
 
             // Scale declarations, not effective values: children inherit the already scaled

@@ -85,16 +85,17 @@ body {
 .page-main {
     --sticky-header-left: 0;
     --sticky-header-right: 0;
+    --navbar-height: 72px;
     --header-height: 72px;
     --device-height: 100vh; // for clients that do not support dvh
     --device-height: 100dvh;
-    --content-top: calc(72px + var(--header-height));
+    --content-top: calc(var(--navbar-height) + var(--header-height));
     --content-height: calc(var(--device-height) - var(--content-top) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
     --content-row: minmax(var(--content-height), auto);
     position: relative;
     display: grid;
     grid-template-columns: 100%;
-    grid-template-rows: 72px var(--header-height) var(--content-row);
+    grid-template-rows: var(--navbar-height) var(--header-height) var(--content-row);
 
     @include media-breakpoint-up(sm) {
         --sticky-header-left: var(--content-padding-x);
@@ -421,6 +422,15 @@ body {
         margin-block: 0.5rem;
     }
 
+    .navbar-tools {
+        --navbar-tool-margin-y: 14px;
+        gap: 1px;
+
+        > .nav-item > .dropdown-menu {
+            margin-top: calc(2px - var(--navbar-tool-margin-y));
+        }
+    }
+
     .nav-item {
         .nav-link {
             max-width: 100px;
@@ -462,7 +472,10 @@ body {
         .navbar-tool {
             padding-left: 0.625rem !important;
             padding-right: 0.625rem !important;
-            height: 72px;
+            height: calc(var(--navbar-height) - 2 * var(--navbar-tool-margin-y));
+            margin-block: var(--navbar-tool-margin-y);
+            padding-block: 10px !important;
+            border-radius: var(--border-radius-sm);
             display: flex;
 
             > * {
