@@ -136,6 +136,14 @@
 
         applyCommonPlugins($("body"));
 
+        // Refresh adaptive panes after an alert has been removed from the layout.
+        $(document).on('close.bs.alert', '.alert', function () {
+            // The closed event fires on the detached alert, so bind directly.
+            $(this).one('closed.bs.alert', function () {
+                $('.tab-pane-adaptive:visible').trigger('layout:refresh');
+            });
+        });
+
         // Handle panel toggling
         $(document).on('change', 'input[type=checkbox][data-toggler-for]', (e) => {
             Smartstore.Admin.togglePanel(e.target, true);

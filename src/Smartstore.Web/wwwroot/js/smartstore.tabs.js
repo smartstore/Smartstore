@@ -125,11 +125,14 @@
             }
 
             if (!pane.data('is-height-adapted')) {
-                $(window).on('resize', function () {
+                function refreshPaneHeight() {
                     if (pane.is(':visible')) {
                         adaptPaneHeight();
                     }
-                });
+                }
+
+                $(window).on('resize', refreshPaneHeight);
+                pane.on('layout:refresh', refreshPaneHeight);
             }
 
             pane.data('is-height-adapted', true);

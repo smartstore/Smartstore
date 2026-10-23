@@ -5,6 +5,7 @@
 }
 
 <div class="alert alert-info alert-dismissible">
+    <button class="btn-close" data-dismiss="alert"></button>
     <div class="mb-2">
         <a href="http://www.google.com/merchants/" rel="nofollow" target="_blank">
             <img class="img-fluid alert-branding" src="@Url.Content("~/Modules/Smartstore.Google.MerchantCenter/branding.png")" style="max-width: 250px" alt="Google Merchant Center" />
@@ -15,7 +16,6 @@
             @Html.Raw(@T("Plugins.Feed.Froogle.AdminInstruction"))
         </div>
     </div>
-    <button class="btn-close" data-dismiss="alert"></button>
 </div>
 
 <tabstrip id="gmc-config" sm-nav-style="Material" sm-nav-position="Top">
