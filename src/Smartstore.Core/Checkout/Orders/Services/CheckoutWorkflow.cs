@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Globalization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Template;
 using Smartstore.Core.Checkout.Cart;
@@ -23,6 +24,7 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
     internal const string CustomerCommentKey = "CustomerComment";
     internal const string SubscribeToNewsletterKey = "SubscribeToNewsletter";
     internal const string AcceptThirdPartyEmailHandOverKey = "AcceptThirdPartyEmailHandOver";
+    internal const string EsdRevocationWaiverFormKey = "AgreeEsdRevocationWaiver";
 
     private readonly SmartDbContext _db;
     private readonly IStoreContext _storeContext;
@@ -306,6 +308,8 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
             paymentRequest.CustomerId = customer.Id;
             paymentRequest.PaymentMethodSystemName = paymentMethod;
 
+            customer.GenericAttributes.CheckoutOrderData = GetCheckoutOrderData(context);
+
             var provider = await _paymentService.LoadPaymentProviderBySystemNameAsync(paymentMethod);
             if (provider == null || !provider.Value.RequiresConfirmation)
             {
@@ -331,8 +335,6 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
             {
                 return new(true);
             }
-
-            customer.GenericAttributes.CheckoutOrderData = GetCheckoutOrderData(context);
 
             return new(new RedirectResult(url), confirmStep.ViewPath, true);
         }
@@ -550,14 +552,30 @@ public partial class CheckoutWorkflow : ICheckoutWorkflow
         return new(RedirectToCheckout(CheckoutActionNames.Completed), step.ViewPath, true);
     }
 
-    private static Dictionary<string, string> GetCheckoutOrderData(CheckoutContext context)
+    private Dictionary<string, string> GetCheckoutOrderData(CheckoutContext context)
     {
-        return new()
+        var result = new Dictionary<string, string>
         {
             [CustomerCommentKey] = context.GetFormValue<string>("customercommenthidden"),
             [SubscribeToNewsletterKey] = context.GetFormValue<string>(SubscribeToNewsletterKey),
             [AcceptThirdPartyEmailHandOverKey] = context.GetFormValue<string>(AcceptThirdPartyEmailHandOverKey)
         };
+
+        if (_shoppingCartSettings.ShowEsdRevocationWaiverBox)
+        {
+            var form = context.HttpContext.Request.Form;
+            var acceptedOn = DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture);
+
+            foreach (var productId in context.Cart.Items
+                .Where(x => x.Item.Product?.IsEsd == true && form.ContainsKey(EsdRevocationWaiverFormKey + x.Item.ProductId.ToStringInvariant()))
+                .Select(x => x.Item.ProductId)
+                .Distinct())
+            {
+                result[OrderProcessingService.GetWithdrawalWaiverAcceptedOnKey(productId)] = acceptedOn;
+            }
+        }
+
+        return result;
     }
 
     /// <summary>

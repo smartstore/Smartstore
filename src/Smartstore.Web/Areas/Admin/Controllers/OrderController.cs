@@ -2191,6 +2191,10 @@ public class OrderController : AdminController
             model.ProductTypeLabelHint = product.ProductTypeLabelHint;
             model.IsDownload = product.IsDownload;
             model.DownloadActivationType = product.DownloadActivationType;
+            model.IsEsd = product.IsEsd;
+            model.WithdrawalWaiverAcceptedOn = item.WithdrawalWaiverAcceptedOn != null
+                ? Services.DateTimeHelper.ConvertToUserTime(item.WithdrawalWaiverAcceptedOn.Value, DateTimeKind.Utc)
+                : null;
             model.UnitPriceInclTaxString = Format(item.UnitPriceInclTax, true, true);
             model.UnitPriceExclTaxString = Format(item.UnitPriceExclTax, false, true);
             model.PriceInclTaxString = Format(item.PriceInclTax, true, true);

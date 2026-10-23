@@ -140,6 +140,11 @@ public partial class OrderItem : BaseEntity, IAttributeAware
     public int? LicenseDownloadId { get; set; }
 
     /// <summary>
+    /// Gets or sets the date and time (UTC) when the customer accepted the withdrawal waiver.
+    /// </summary>
+    public DateTime? WithdrawalWaiverAcceptedOn { get; set; }
+
+    /// <summary>
     /// Gets or sets the total weight of one item
     /// It's nullable for compatibility with the previous version where was no such property
     /// </summary>

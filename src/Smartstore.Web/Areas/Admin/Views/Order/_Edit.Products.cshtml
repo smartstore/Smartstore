@@ -103,6 +103,17 @@
                                 <div sm-if="item.Sku.HasValue()" class="small">
                                     <span>@T("Order.Product(s).SKU")</span>: <span>@item.Sku</span>
                                 </div>
+                                <div sm-if="item.IsEsd || item.WithdrawalWaiverAcceptedOn != null" class="small">
+                                    <span title="@T("Admin.Orders.Products.WithdrawalWaiver.Hint")">@T("Admin.Orders.Products.WithdrawalWaiver")</span>:
+                                    @if (item.WithdrawalWaiverAcceptedOn != null)
+                                    {
+                                        <span>@T("Admin.Common.Yes"), @item.WithdrawalWaiverAcceptedOn.Value.ToString("g")</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@T("Admin.Common.No")</span>
+                                    }
+                                </div>
                                 <div sm-if="item.ProductType == ProductType.BundledProduct && item.BundleItems != null">
                                     <div class="bundle-items-container well mb-0 mt-2 vstack gap-2">
                                         @foreach (var bi in item.BundleItems.OrderBy(x => x.DisplayOrder))

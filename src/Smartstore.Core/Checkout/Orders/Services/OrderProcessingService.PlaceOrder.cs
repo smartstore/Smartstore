@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Catalog.Attributes;
+﻿using System.Globalization;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
@@ -302,6 +303,14 @@ public partial class OrderProcessingService : IOrderProcessingService
                     warnings.AddRange(ctx.Warnings);
                     return (warnings, cart);
                 }
+            }
+
+            if (_shoppingCartSettings.ShowEsdRevocationWaiverBox
+                && cart.Items.Any(x => x.Item.Product?.IsEsd == true
+                    && customer.GenericAttributes.CheckoutOrderData?.ContainsKey(GetWithdrawalWaiverAcceptedOnKey(x.Item.ProductId)) != true))
+            {
+                warnings.Add(T("Checkout.EsdRevocationWaiverConfirmation.PleaseAgree"));
+                return (warnings, cart);
             }
 
             // Order total validation.
@@ -866,6 +875,12 @@ public partial class OrderProcessingService : IOrderProcessingService
                     DisplayDeliveryTime = displayDeliveryTime
                 };
 
+                if (ctx.CheckoutOrderData.TryGetValue(GetWithdrawalWaiverAcceptedOnKey(item.ProductId), out var rawAcceptedOn)
+                    && DateTime.TryParseExact(rawAcceptedOn, "O", CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var acceptedOn))
+                {
+                    orderItem.WithdrawalWaiverAcceptedOn = acceptedOn.ToUniversalTime();
+                }
+
                 if (product.ProductType == ProductType.BundledProduct && cartItem.ChildItems != null)
                 {
                     var bundleItemDataList = new List<ProductBundleItemOrderData>();
@@ -951,6 +966,7 @@ public partial class OrderProcessingService : IOrderProcessingService
                     DiscountAmountExclTax = oi.DiscountAmountExclTax,
                     DownloadCount = 0,
                     IsDownloadActivated = false,
+                    WithdrawalWaiverAcceptedOn = oi.WithdrawalWaiverAcceptedOn,
                     LicenseDownloadId = 0,
                     ItemWeight = oi.ItemWeight,
                     BundleData = oi.BundleData,
@@ -996,6 +1012,9 @@ public partial class OrderProcessingService : IOrderProcessingService
 
         // INFO: CheckOrderStatus performs commit.
     }
+
+    internal static string GetWithdrawalWaiverAcceptedOnKey(int productId)
+        => "WithdrawalWaiverAcceptedOn:" + productId.ToStringInvariant();
 
     private async Task AddAssociatedData(PlaceOrderContext ctx)
     {
