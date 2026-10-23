@@ -1207,6 +1207,8 @@ legend {
 
 .theme-editor {
     .themevar-chain-info {
+        display: inline-flex;
+        align-items: center;
         color: $gray-600;
         margin-left: 0.75rem;
         white-space: nowrap;

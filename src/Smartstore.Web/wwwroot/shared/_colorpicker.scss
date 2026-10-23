@@ -252,6 +252,7 @@
         height: 24px;
         display: inline-block;
         vertical-align: text-top;
+        border-radius: var(--border-radius-sm);
         @include bg-checkerboard(5px, rgba($black, 0.1), $white);
     }
 }

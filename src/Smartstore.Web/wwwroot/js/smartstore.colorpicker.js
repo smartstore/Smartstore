@@ -165,7 +165,7 @@
             this._bind();
             instances.set(element, this);
             element.classList.add('colorpicker-element');
-            const initial = this.options.color !== false ? this.options.color : this.input?.value || this.options.fallbackColor || '';
+            const initial = this.options.color !== false ? this.options.color : this.input?.value || '';
             this.setValue(initial, false);
             this._resolveAlpha();
             this._update();
@@ -432,6 +432,10 @@
         }
 
         _update(syncInput = true) {
+            // Inherited colors are previews only; an empty value must stay empty.
+            const previewColor = this.color || (!this.value && this.options.fallbackColor
+                ? this.resolver.parse(String(this.options.fallbackColor)) : null);
+            if (!this.value && previewColor) this.hsv = previewColor.toHsv();
             const { h, s, v, a } = this.hsv;
             const { saturation, hue, alpha } = this.controls;
             const position = (control, x, y = 0) => {
@@ -446,7 +450,7 @@
             const hueColor = Color.fromHsv(h, 1, 1).toHexString();
             saturation.style.backgroundColor = hueColor;
             this.picker.style.setProperty('--cp-hue', hueColor);
-            this.picker.style.setProperty('--cp-color', this.color?.toRgbString() || 'transparent');
+            this.picker.style.setProperty('--cp-color', previewColor?.toRgbString() || 'transparent');
             const opaque = Color.fromHsv(h, s, v);
             alpha.querySelector('.colorpicker-alpha-color').style.backgroundImage = `linear-gradient(to right, ${new Color(opaque.r, opaque.g, opaque.b, 0).toRgbString()}, ${opaque.toRgbString()})`;
             for (const [control, max, value] of [[hue, 360, h], [alpha, 100, a * 100]]) {
@@ -464,7 +468,7 @@
                 if ((syncInput || input !== this.editingInput) && input.value !== this.value) input.value = this.value;
             }
             if (this.pickerInput) this.pickerInput.disabled = this.disabled;
-            const cssColor = this.color?.toRgbString() || '';
+            const cssColor = previewColor?.toRgbString() || '';
             if (this.preview) {
                 this.preview.style.backgroundColor = cssColor;
                 this.preview.textContent = this.options.showText ? this.value : '';
