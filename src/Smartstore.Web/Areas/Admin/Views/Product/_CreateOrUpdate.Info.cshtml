@@ -321,7 +321,9 @@
             <div class="row xs-gutters">
                 <div class="col-12 col-lg-6 mb-2 mb-lg-0">
                     <div class="d-flex">
-                        <label for="@Html.IdFor(model => model.AvailableStartDateTimeUtc)" class="input-group-text fwb rounded-end-0 border-right-0 mb-0">@T("Common.From")</label>
+                        <label for="@Html.IdFor(model => model.AvailableStartDateTimeUtc)" class="input-group-text fwm rounded-end-0 border-right-0 mb-0">
+                            @T("Common.From")
+                        </label>
                         <div class="flex-grow-1">
                             <editor asp-for="AvailableStartDateTimeUtc" class="rounded-start-0" aria-label="@T("Admin.Catalog.Products.Fields.AvailableStartDateTime")" />
                         </div>
@@ -330,7 +332,9 @@
                 </div>
                 <div class="col-12 col-lg-6">
                     <div class="d-flex">
-                        <label for="@Html.IdFor(model => model.AvailableEndDateTimeUtc)" class="input-group-text fwb rounded-end-0 border-right-0 mb-0">@T("Common.To")</label>
+                        <label for="@Html.IdFor(model => model.AvailableEndDateTimeUtc)" class="input-group-text fwm rounded-end-0 border-right-0 mb-0">
+                            @T("Common.To")
+                        </label>
                         <div class="flex-grow-1">
                             <editor asp-for="AvailableEndDateTimeUtc" class="rounded-start-0" aria-label="@T("Admin.Catalog.Products.Fields.AvailableEndDateTime")" />
                         </div>
