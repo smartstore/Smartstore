@@ -41,7 +41,7 @@
                         <div class="col" role="listitem">
                             <div class="card card-body address-list-item">
                                 <div class="address-item">
-                                    <button class="btn btn-warning btn-block select-billing-address-button"
+                                    <button class="btn btn-primary btn-block select-billing-address-button"
                                             data-url="@Url.Action("SelectBillingAddress", new { addressId = item.Id })"
                                             aria-label="@T("Checkout.BillToThisAddress"): @(item.FormattedAddress.Replace("<br>", ", ").RemoveHtml())">
                                         <span>@T("Checkout.BillToThisAddress")</span>

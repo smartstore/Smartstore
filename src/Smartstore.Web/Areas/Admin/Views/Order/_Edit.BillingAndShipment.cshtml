@@ -35,7 +35,7 @@
                 </div>
             </div>
             <div class="card-footer py-2">
-                <a asp-action="AddressEdit" asp-route-addressId="@billTo.Id" asp-route-orderId="@Model.Id" class="btn btn-warning btn-flat">
+                <a asp-action="AddressEdit" asp-route-addressId="@billTo.Id" asp-route-orderId="@Model.Id" class="btn btn-light btn-flat">
                     <icon name="edit"  />
                     <span>@T("Admin.Common.Edit")</span>
                 </a>
@@ -63,11 +63,11 @@
                     </div>
                 </div>
                 <div class="card-footer py-2">
-                    <a asp-action="AddressEdit" asp-route-addressId="@shipTo.Id" asp-route-orderId="@Model.Id" class="btn btn-warning btn-flat">
+                    <a asp-action="AddressEdit" asp-route-addressId="@shipTo.Id" asp-route-orderId="@Model.Id" class="btn btn-light btn-flat">
                         <icon name="edit"  />
                         <span>@T("Admin.Common.Edit")</span>
                     </a>
-                    <a href="@Html.Raw(Model.ShippingAddressGoogleMapsUrl)" class="btn btn-warning btn-flat" target="_blank">
+                    <a href="@Html.Raw(Model.ShippingAddressGoogleMapsUrl)" class="btn btn-light btn-flat" target="_blank">
                         <icon name="google"  />
                         <span>@T("Admin.Orders.Fields.ShippingAddress.ViewOnGoogleMaps")</span>
                     </a>

@@ -5,7 +5,7 @@
     	$('#Username').on('input propertychange paste', function (e) {
     		$('#username-availabilty').text('');
     		$('#check-availability-button')
-				.removeClass("btn-success btn-warning")
+				.removeClass("btn-success")
 				.addClass("btn-secondary")
 				.find("sm-icon").attr("name", "question-circle");
         });
@@ -25,8 +25,8 @@
                     success: function (data) {
                         btn.removeAttr('disabled');
                         btn
-                            .removeClass("btn-success btn-warning btn-secondary")
-                            .addClass(data.Available ? "btn-success" : "btn-warning")
+                            .removeClass("btn-success btn-secondary")
+                            .addClass(data.Available ? "btn-success" : "btn-secondary")
                             .find("sm-icon").attr("name", data.Available ? "check" : "alert-danger");
 
                         displayNotification(data.Text, data.Available ? "success" : "error");

@@ -76,7 +76,7 @@
                                 if (language.IsInstalled)
                                 {
                                     <a href="@Url.Action("Download", new { setId = language.Id })"
-                                       class="btn btn-sm btn-warning confirm download-language@(language.IsDownloadRunning ? " d-none" : "")">
+                                       class="btn btn-sm btn-outline-secondary confirm download-language@(language.IsDownloadRunning ? " d-none" : "")">
                                         <icon name="refresh"  />
                                         <span>@T("Common.Refresh")</span>
                                     </a>

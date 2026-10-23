@@ -293,7 +293,7 @@
 
                             <input type="submit" id="btnEditOrderItem@(item.Id)" name="btnEditOrderItem@(item.Id)"
                                    value="@T("Admin.Common.Edit")"
-                                   class="btn btn-sm btn-warning btn-edit-orderitem"
+                                   class="btn btn-sm btn-light btn-edit-orderitem"
                                    data-id="@(item.Id)" />
 
                             <input type="button" id="btnDeleteOrderItem@(item.Id)" name="btnDeleteOrderItem@(item.Id)"
@@ -304,7 +304,7 @@
 
                             <input type="button" id="btnSaveOrderItem@(item.Id)" name="btnSaveOrderItem@(item.Id)"
                                    value="@T("Admin.Common.Save")"
-                                   class="btn btn-sm btn-warning btn-save-orderitem d-none"
+                                   class="btn btn-sm btn-primary btn-save-orderitem d-none"
                                    data-id="@(item.Id)"
                                    data-url="@Url.Action("EditOrderItem")" />
 
