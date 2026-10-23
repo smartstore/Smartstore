@@ -9,108 +9,12 @@
     "alias": "custom-text"
   },
   {
-    "name": "HDD",
-    "alias": "hdd"
-  },
-  {
-    "name": "OS",
-    "alias": "os"
-  },
-  {
-    "name": "Processor",
-    "alias": "processor"
-  },
-  {
-    "name": "RAM",
-    "alias": "ram"
-  },
-  {
     "name": "Size",
     "alias": "size"
   },
   {
-    "name": "Software",
-    "alias": "software"
-  },
-  {
-    "name": "Game",
-    "alias": "game"
-  },
-  {
-    "name": "Color",
-    "alias": "iphone-color"
-  },
-  {
-    "name": "Color",
-    "alias": "ipad-color"
-  },
-  {
-    "name": "Memory capacity",
-    "alias": "memory-capacity"
-  },
-  {
-    "name": "Width",
-    "alias": "width"
-  },
-  {
-    "name": "Length",
-    "alias": "length"
-  },
-  {
-    "name": "Plate",
-    "alias": "plate"
-  },
-  {
-    "name": "Plate Thickness",
-    "alias": "plate-thickness"
-  },
-  {
-    "name": "Ballsize",
-    "alias": "ballsize"
-  },
-  {
-    "name": "Leather color",
-    "alias": "leather-color"
-  },
-  {
-    "name": "Seat Shell",
-    "alias": "seat-shell"
-  },
-  {
-    "name": "Base",
-    "alias": "base"
-  },
-  {
     "name": "Material",
     "alias": "material"
-  },
-  {
-    "name": "Style",
-    "alias": "style"
-  },
-  {
-    "name": "Controller",
-    "alias": "controller"
-  },
-  {
-    "name": "Framecolor",
-    "alias": "framecolor"
-  },
-  {
-    "name": "Lenscolor",
-    "alias": "lenscolor"
-  },
-  {
-    "name": "Lenstype",
-    "alias": "lenstype"
-  },
-  {
-    "name": "Lenscolor",
-    "alias": "wayfarerlenscolor"
-  },
-  {
-    "name": "Framecolor",
-    "alias": "wayfarerframecolor"
   },
   {
     "name": "Pack size",

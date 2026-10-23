@@ -61,7 +61,7 @@ are named after the target without an `Id` suffix:
 
 ```jsonc
 "taxCategory": "standard",
-"categories": [ "golf", "sports" ]
+"categories": [ "Coffee and Tea", "Delicacies" ]
 ```
 
 The descriptor declares which fields are references. An unknown key fails the installation
@@ -138,8 +138,8 @@ A **top-level** string field with the value `"@file"` is replaced by the content
 `{jsonFileName}/{key}.{field}.html` next to the JSON file that sets the value:
 
 ```
-base/samples/catalog/products/sports.json            "fullDescription": "@file"
-base/samples/catalog/products/sports/P-7004.fullDescription.html
+base/samples/catalog/products/food.json              "fullDescription": "@file"
+base/samples/catalog/products/food/FD-1001.fullDescription.html
 ```
 
 - `"@file:relative/path.html"` names the file explicitly (relative to the JSON file).
@@ -187,7 +187,7 @@ seeded yet; the installer guarantees the order.
 | Convention | Example | Meaning |
 |---|---|---|
 | Relative date | `"specialPriceEndDateTimeUtc": "@now+1M"` | Installation time plus/minus months (`M`) or days (`d`). |
-| Media reference | `"product/allstar_converse.jpg"` or `{ "file": "…", "name": "allstar-converse-charcoal" }` | Path below `media/`. `name` sets the media file name (SEO name) when it differs from the name derived from the path. |
+| Media reference | `"product/demo-round.jpg"` or `{ "file": "…", "name": "extra-virgin-olive-oil" }` | Path below `media/`. `name` sets the media file name (SEO name) when it differs from the name derived from the path. |
 | Publish condition | `"publishedWhen": "manufacturers"`, `"publishedWhen": "setting:CatalogSettings.CompareProductsEnabled"` | Menu items: published only if manufacturers exist / the setting is true. |
 | Variant value names | `cultures/de-DE/samples/catalog/attribute-value-names.json`: `{ "black": "Schwarz" }` | Translates all variant attribute values with that alias. A product overlay can still override a single value. |
 
@@ -256,7 +256,7 @@ In installation order. `core/` is always installed, `samples/` only with sample 
 | Locale resources | `cultures/{culture}/resources/*` |
 | Currencies, store | `core/currencies.json`, `core/stores.json` |
 | Measures, tax categories (with `rate`, `$aliases`), countries and states | `core/measure-dimensions.json`, `core/measure-weights.json`, `core/tax-categories.json`, `core/countries.json` |
-| Shipping, delivery, quantity units | `core/shipping-methods.json` (+ `samples/`), `core/delivery-times.json`, `core/quantity-units.json` |
+| Shipping, delivery, quantity units | `core/shipping-methods.json`, `core/delivery-times.json`, `core/quantity-units.json` |
 | Customer roles, admin address, system customers | `core/customer-roles.json` (+ `samples/`), `core/admin-address.json`, `core/system-customers.json` |
 | Email accounts, topics (with `slug` overrides), price labels | `core/email-accounts.json`, `core/topics.json`, `core/price-labels.json` |
 | Settings (`$ref` values) | `core/settings.json` |

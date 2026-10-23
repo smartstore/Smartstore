@@ -1,15 +1,5 @@
 [
   {
-    "$key": "Discount:25% auf bestimmte Produkte|Product:Furniture-cube-chair",
-    "Discount_Id": "Discount:25% auf bestimmte Produkte",
-    "Product_Id": "Product:Furniture-cube-chair"
-  },
-  {
-    "$key": "Discount:25% auf bestimmte Produkte|Product:LC2 DS/23-1",
-    "Discount_Id": "Discount:25% auf bestimmte Produkte",
-    "Product_Id": "Product:LC2 DS/23-1"
-  },
-  {
     "$key": "Discount:Saison-Sale: 15 % auf ausgewählte Artikel|Product:DG-1002",
     "Discount_Id": "Discount:Saison-Sale: 15 % auf ausgewählte Artikel",
     "Product_Id": "Product:DG-1002"

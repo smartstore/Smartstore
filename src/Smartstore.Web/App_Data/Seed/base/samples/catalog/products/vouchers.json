@@ -16,7 +16,7 @@
     "price": 25.00,
     "isShippingEnabled": false,
     "manageInventoryMethod": "DontManageStock",
-    "showOnHomePage": true,
+    "showOnHomePage": false,
     "categories": [ "Vouchers" ],
     "tags": [ "gift" ],
     "pictures": [

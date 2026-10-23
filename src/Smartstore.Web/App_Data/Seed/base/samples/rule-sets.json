@@ -1,37 +1,6 @@
 // Key field: key
 [
   {
-    "key": "weekends",
-    "name": "Weekends",
-    "rules": [
-      {
-        "ruleType": "Weekday",
-        "operator": "In",
-        "value": "0,6"
-      }
-    ]
-  },
-  {
-    "key": "major-customers",
-    "name": "Major customers",
-    "description": "3 or more orders and current order value at least 200,- Euro.",
-    "rules": [
-      {
-        "ruleType": "CartSubtotal",
-        "operator": ">=",
-        "value": "200"
-      },
-      {
-        "ruleType": "CartOrderCount",
-        "operator": ">=",
-        "value": "3"
-      }
-    ],
-    "shippingMethods": [
-      "free-shipping"
-    ]
-  },
-  {
     "key": "sale",
     "name": "Sale",
     "description": "Products with applied discounts.",

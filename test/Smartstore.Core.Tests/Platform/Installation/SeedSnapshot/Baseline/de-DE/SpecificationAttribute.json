@@ -1,18 +1,5 @@
 [
   {
-    "$key": "Angebot",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 22,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Angebot",
-    "ShowOnProductPage": false
-  },
-  {
     "$key": "Anlass",
     "Alias": null,
     "AllowFiltering": false,
@@ -26,58 +13,6 @@
     "ShowOnProductPage": false
   },
   {
-    "$key": "Anschluss",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 6,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Anschluss",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Arbeitsspeicher",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 4,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Arbeitsspeicher",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Ausgabe",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 13,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Ausgabe",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Betriebssystem",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 5,
-    "Essential": true,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Betriebssystem",
-    "ShowOnProductPage": false
-  },
-  {
     "$key": "Bohne",
     "Alias": null,
     "AllowFiltering": false,
@@ -88,32 +23,6 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Bohne",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "CPU-Hersteller",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 1,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "CPU-Hersteller",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Computer-Typ",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 15,
-    "Essential": true,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Computer-Typ",
     "ShowOnProductPage": false
   },
   {
@@ -140,19 +49,6 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Dimmbar",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Durchmesser",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 24,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Durchmesser",
     "ShowOnProductPage": false
   },
   {
@@ -195,45 +91,6 @@
     "ShowOnProductPage": false
   },
   {
-    "$key": "Festplatten-Kapazität",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 3,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Festplatten-Kapazität",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Form",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 26,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Form",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Für wen",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 21,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Für wen",
-    "ShowOnProductPage": false
-  },
-  {
     "$key": "Genre#1",
     "Alias": null,
     "AllowFiltering": false,
@@ -260,19 +117,6 @@
     "ShowOnProductPage": false
   },
   {
-    "$key": "Geschlecht",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 7,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Geschlecht",
-    "ShowOnProductPage": false
-  },
-  {
     "$key": "Geschmack",
     "Alias": null,
     "AllowFiltering": false,
@@ -286,45 +130,6 @@
     "ShowOnProductPage": false
   },
   {
-    "$key": "Glas",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 11,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Glas",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Größe",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 23,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Größe",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Größe (externe HDD)",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 17,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Größe (externe HDD)",
-    "ShowOnProductPage": false
-  },
-  {
     "$key": "Herkunft",
     "Alias": null,
     "AllowFiltering": false,
@@ -335,19 +140,6 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Herkunft",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Hersteller",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 20,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Hersteller",
     "ShowOnProductPage": false
   },
   {
@@ -400,19 +192,6 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "MP3-Qualität",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Massenspeicher-Typ",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 16,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Massenspeicher-Typ",
     "ShowOnProductPage": false
   },
   {
@@ -546,19 +325,6 @@
     "ShowOnProductPage": false
   },
   {
-    "$key": "Scheibenmaterial",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 28,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Scheibenmaterial",
-    "ShowOnProductPage": false
-  },
-  {
     "$key": "Schichten",
     "Alias": null,
     "AllowFiltering": false,
@@ -569,19 +335,6 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Schichten",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Speicherkapazität",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 27,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Speicherkapazität",
     "ShowOnProductPage": false
   },
   {
@@ -637,19 +390,6 @@
     "ShowOnProductPage": false
   },
   {
-    "$key": "Technische Ausführung",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 9,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Technische Ausführung",
-    "ShowOnProductPage": false
-  },
-  {
     "$key": "Tee-Länge",
     "Alias": null,
     "AllowFiltering": false,
@@ -660,32 +400,6 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Tee-Länge",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Verschluss#1",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 25,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Verschluss",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Verschluss#2",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 10,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Verschluss",
     "ShowOnProductPage": false
   },
   {

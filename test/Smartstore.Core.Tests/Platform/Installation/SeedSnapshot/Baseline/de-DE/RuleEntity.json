@@ -32,35 +32,11 @@
     "Value": "50"
   },
   {
-    "$key": "RuleSetEntity:Wichtige Kunden|CartOrderCount",
-    "DisplayOrder": 0,
-    "Operator": ">=",
-    "RuleSetId": "RuleSetEntity:Wichtige Kunden",
-    "RuleType": "CartOrderCount",
-    "Value": "3"
-  },
-  {
-    "$key": "RuleSetEntity:Wichtige Kunden|CartSubtotal",
-    "DisplayOrder": 0,
-    "Operator": ">=",
-    "RuleSetId": "RuleSetEntity:Wichtige Kunden",
-    "RuleType": "CartSubtotal",
-    "Value": "200"
-  },
-  {
-    "$key": "RuleSetEntity:Wochenenden|Weekday",
-    "DisplayOrder": 0,
-    "Operator": "In",
-    "RuleSetId": "RuleSetEntity:Wochenenden",
-    "RuleType": "Weekday",
-    "Value": "0,6"
-  },
-  {
-    "$key": "RuleSetEntity:|Variant32",
+    "$key": "RuleSetEntity:|Variant8",
     "DisplayOrder": 0,
     "Operator": "In",
     "RuleSetId": "RuleSetEntity:",
-    "RuleType": "Variant32",
+    "RuleType": "Variant8",
     "Value": "37"
   }
 ]

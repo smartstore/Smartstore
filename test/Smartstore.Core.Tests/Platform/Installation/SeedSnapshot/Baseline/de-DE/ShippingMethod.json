@@ -8,14 +8,6 @@
     "Name": "Abholung"
   },
   {
-    "$key": "Kostenloser Versand",
-    "Description": null,
-    "DisplayOrder": 2,
-    "IgnoreCharges": true,
-    "LimitedToStores": false,
-    "Name": "Kostenloser Versand"
-  },
-  {
     "$key": "Versand",
     "Description": "Ihre Bestellung wird Ihnen durch unsere Versandpartner zugestellt.",
     "DisplayOrder": 0,

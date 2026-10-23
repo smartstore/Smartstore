@@ -24,22 +24,6 @@
     "Value": "90"
   },
   {
-    "$key": "RuleSetEntity:Major customers|CartOrderCount",
-    "DisplayOrder": 0,
-    "Operator": ">=",
-    "RuleSetId": "RuleSetEntity:Major customers",
-    "RuleType": "CartOrderCount",
-    "Value": "3"
-  },
-  {
-    "$key": "RuleSetEntity:Major customers|CartSubtotal",
-    "DisplayOrder": 0,
-    "Operator": ">=",
-    "RuleSetId": "RuleSetEntity:Major customers",
-    "RuleType": "CartSubtotal",
-    "Value": "200"
-  },
-  {
     "$key": "RuleSetEntity:Sale|Discount",
     "DisplayOrder": 0,
     "Operator": "=",
@@ -48,19 +32,11 @@
     "Value": "true"
   },
   {
-    "$key": "RuleSetEntity:Weekends|Weekday",
-    "DisplayOrder": 0,
-    "Operator": "In",
-    "RuleSetId": "RuleSetEntity:Weekends",
-    "RuleType": "Weekday",
-    "Value": "0,6"
-  },
-  {
-    "$key": "RuleSetEntity:|Variant32",
+    "$key": "RuleSetEntity:|Variant8",
     "DisplayOrder": 0,
     "Operator": "In",
     "RuleSetId": "RuleSetEntity:",
-    "RuleType": "Variant32",
+    "RuleType": "Variant8",
     "Value": "37"
   }
 ]

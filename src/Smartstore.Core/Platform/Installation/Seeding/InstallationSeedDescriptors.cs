@@ -43,8 +43,8 @@ internal static class InstallationSeedDescriptors
     public static SeedEntityDescriptor<PriceLabel> PriceLabels()
         => new SeedEntityDescriptor<PriceLabel>("key").FromFiles("core/price-labels.json");
 
-    public static SeedEntityDescriptor<ShippingMethod> ShippingMethods(bool includeSamples)
-        => new SeedEntityDescriptor<ShippingMethod>("key").FromFiles(WithSamples("shipping-methods.json", includeSamples));
+    public static SeedEntityDescriptor<ShippingMethod> ShippingMethods()
+        => new SeedEntityDescriptor<ShippingMethod>("key").FromFiles("core/shipping-methods.json");
 
     public static SeedEntityDescriptor<CustomerRole> CustomerRoles(bool includeSamples)
         => new SeedEntityDescriptor<CustomerRole>("systemName").FromFiles(WithSamples("customer-roles.json", includeSamples));

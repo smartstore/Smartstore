@@ -119,7 +119,7 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
         await PopulateFromSeedAsync("PopulateMeasureWeights", InstallationSeedDescriptors.MeasureWeights());
         await PopulateAsync("PopulateTaxCategories", PopulateTaxCategories);
         await PopulateFromSeedAsync("PopulateCountriesAndStates", InstallationSeedDescriptors.Countries());
-        await PopulateFromSeedAsync("PopulateShippingMethods", InstallationSeedDescriptors.ShippingMethods(_config.SeedSampleData));
+        await PopulateFromSeedAsync("PopulateShippingMethods", InstallationSeedDescriptors.ShippingMethods());
         await PopulateFromSeedAsync("PopulateDeliveryTimes", InstallationSeedDescriptors.DeliveryTimes());
         await PopulateFromSeedAsync("PopulateQuantityUnits", InstallationSeedDescriptors.QuantityUnits());
         await PopulateAsync("PopulateCustomersAndUsers", async () => await PopulateCustomersAndUsers(_config.DefaultUserName, _config.DefaultUserPassword));

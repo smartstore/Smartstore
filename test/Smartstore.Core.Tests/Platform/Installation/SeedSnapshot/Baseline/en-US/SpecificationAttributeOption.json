@@ -20,16 +20,6 @@
     "SpecificationAttributeId": "SpecificationAttribute:Assembly"
   },
   {
-    "$key": "SpecificationAttribute:Bag type|Cart bag",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "Cart bag",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Bag type"
-  },
-  {
     "$key": "SpecificationAttribute:Bag type|Stand bag",
     "Alias": null,
     "Color": null,
@@ -48,76 +38,6 @@
     "Name": "100% Arabica",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Bean"
-  },
-  {
-    "$key": "SpecificationAttribute:Bean|100% Robusta",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "100% Robusta",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Bean"
-  },
-  {
-    "$key": "SpecificationAttribute:Bean|Arabica-Robusta blend",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "Arabica-Robusta blend",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Bean"
-  },
-  {
-    "$key": "SpecificationAttribute:CPU-Manufacturer|AMD",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "AMD",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:CPU-Manufacturer"
-  },
-  {
-    "$key": "SpecificationAttribute:CPU-Manufacturer|ARM",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "ARM",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:CPU-Manufacturer"
-  },
-  {
-    "$key": "SpecificationAttribute:CPU-Manufacturer|Apple",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 5,
-    "MediaFileId": 0,
-    "Name": "Apple",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:CPU-Manufacturer"
-  },
-  {
-    "$key": "SpecificationAttribute:CPU-Manufacturer|Intel",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "Intel",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:CPU-Manufacturer"
-  },
-  {
-    "$key": "SpecificationAttribute:CPU-Manufacturer|Samsung",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 4,
-    "MediaFileId": 0,
-    "Name": "Samsung",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:CPU-Manufacturer"
   },
   {
     "$key": "SpecificationAttribute:Care|Hand wash",
@@ -150,76 +70,6 @@
     "SpecificationAttributeId": "SpecificationAttribute:Care"
   },
   {
-    "$key": "SpecificationAttribute:Category|adventure",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "adventure",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Category"
-  },
-  {
-    "$key": "SpecificationAttribute:Category|cars",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 6,
-    "MediaFileId": 0,
-    "Name": "cars",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Category"
-  },
-  {
-    "$key": "SpecificationAttribute:Category|cook and bake",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 8,
-    "MediaFileId": 0,
-    "Name": "cook and bake",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Category"
-  },
-  {
-    "$key": "SpecificationAttribute:Category|fantasy & science fiction",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "fantasy & science fiction",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Category"
-  },
-  {
-    "$key": "SpecificationAttribute:Category|history",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "history",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Category"
-  },
-  {
-    "$key": "SpecificationAttribute:Category|internet & computer",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 4,
-    "MediaFileId": 0,
-    "Name": "internet & computer",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Category"
-  },
-  {
-    "$key": "SpecificationAttribute:Category|non-fiction",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 9,
-    "MediaFileId": 0,
-    "Name": "non-fiction",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Category"
-  },
-  {
     "$key": "SpecificationAttribute:Category|novel",
     "Alias": null,
     "Color": null,
@@ -230,102 +80,12 @@
     "SpecificationAttributeId": "SpecificationAttribute:Category"
   },
   {
-    "$key": "SpecificationAttribute:Category|thriller",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 5,
-    "MediaFileId": 0,
-    "Name": "thriller",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Category"
-  },
-  {
-    "$key": "SpecificationAttribute:Clasp|folding clasp",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "folding clasp",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Clasp"
-  },
-  {
-    "$key": "SpecificationAttribute:Clasp|glidelock",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "glidelock",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Clasp"
-  },
-  {
-    "$key": "SpecificationAttribute:Clasp|thorn close",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "thorn close",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Clasp"
-  },
-  {
-    "$key": "SpecificationAttribute:Closure|folding clasp",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "folding clasp",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Closure"
-  },
-  {
-    "$key": "SpecificationAttribute:Closure|snap closure",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "snap closure",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Closure"
-  },
-  {
-    "$key": "SpecificationAttribute:Closure|thorn close",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "thorn close",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Closure"
-  },
-  {
-    "$key": "SpecificationAttribute:Coffee type|Espresso",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "Espresso",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Coffee type"
-  },
-  {
     "$key": "SpecificationAttribute:Coffee type|Filter coffee",
     "Alias": null,
     "Color": null,
     "DisplayOrder": 1,
     "MediaFileId": 0,
     "Name": "Filter coffee",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Coffee type"
-  },
-  {
-    "$key": "SpecificationAttribute:Coffee type|Organic coffee",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "Organic coffee",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Coffee type"
   },
@@ -340,52 +100,12 @@
     "SpecificationAttributeId": "SpecificationAttribute:Coffee type"
   },
   {
-    "$key": "SpecificationAttribute:Color|beige",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "beige",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Color"
-  },
-  {
     "$key": "SpecificationAttribute:Color|black",
     "Alias": null,
     "Color": null,
     "DisplayOrder": 2,
     "MediaFileId": 0,
     "Name": "black",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Color"
-  },
-  {
-    "$key": "SpecificationAttribute:Color|blue",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 5,
-    "MediaFileId": 0,
-    "Name": "blue",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Color"
-  },
-  {
-    "$key": "SpecificationAttribute:Color|green",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 6,
-    "MediaFileId": 0,
-    "Name": "green",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Color"
-  },
-  {
-    "$key": "SpecificationAttribute:Color|red",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 4,
-    "MediaFileId": 0,
-    "Name": "red",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Color"
   },
@@ -400,56 +120,6 @@
     "SpecificationAttributeId": "SpecificationAttribute:Color"
   },
   {
-    "$key": "SpecificationAttribute:Color|yellow",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 7,
-    "MediaFileId": 0,
-    "Name": "yellow",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Color"
-  },
-  {
-    "$key": "SpecificationAttribute:Computer-type|all-in-one",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "all-in-one",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Computer-type"
-  },
-  {
-    "$key": "SpecificationAttribute:Computer-type|desktop",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "desktop",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Computer-type"
-  },
-  {
-    "$key": "SpecificationAttribute:Computer-type|laptop",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "laptop",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Computer-type"
-  },
-  {
-    "$key": "SpecificationAttribute:Computer-type|tablet",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 4,
-    "MediaFileId": 0,
-    "Name": "tablet",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Computer-type"
-  },
-  {
     "$key": "SpecificationAttribute:Decaffeinated|No",
     "Alias": null,
     "Color": null,
@@ -458,66 +128,6 @@
     "Name": "No",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Decaffeinated"
-  },
-  {
-    "$key": "SpecificationAttribute:Decaffeinated|Yes",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "Yes",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Decaffeinated"
-  },
-  {
-    "$key": "SpecificationAttribute:Dial window material type|Mineral",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "Mineral",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Dial window material type"
-  },
-  {
-    "$key": "SpecificationAttribute:Dial window material type|Sapphire",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "Sapphire",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Dial window material type"
-  },
-  {
-    "$key": "SpecificationAttribute:Diameter|38mm",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "38mm",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Diameter"
-  },
-  {
-    "$key": "SpecificationAttribute:Diameter|40mm",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "40mm",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Diameter"
-  },
-  {
-    "$key": "SpecificationAttribute:Diameter|44mm",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "44mm",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Diameter"
   },
   {
     "$key": "SpecificationAttribute:Dietary|Gluten-free",
@@ -550,16 +160,6 @@
     "SpecificationAttributeId": "SpecificationAttribute:Dietary"
   },
   {
-    "$key": "SpecificationAttribute:Dimmable|No",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "No",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Dimmable"
-  },
-  {
     "$key": "SpecificationAttribute:Dimmable|Yes",
     "Alias": null,
     "Color": null,
@@ -568,76 +168,6 @@
     "Name": "Yes",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Dimmable"
-  },
-  {
-    "$key": "SpecificationAttribute:Edition|bound",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "bound",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Edition"
-  },
-  {
-    "$key": "SpecificationAttribute:Edition|paperback",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "paperback",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Edition"
-  },
-  {
-    "$key": "SpecificationAttribute:Facial shape|angular",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 4,
-    "MediaFileId": 0,
-    "Name": "angular",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Facial shape"
-  },
-  {
-    "$key": "SpecificationAttribute:Facial shape|heart shaped",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "heart shaped",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Facial shape"
-  },
-  {
-    "$key": "SpecificationAttribute:Facial shape|oval",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "oval",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Facial shape"
-  },
-  {
-    "$key": "SpecificationAttribute:Facial shape|round",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "round",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Facial shape"
-  },
-  {
-    "$key": "SpecificationAttribute:File format|EPUB",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "EPUB",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:File format"
   },
   {
     "$key": "SpecificationAttribute:File format|MP3",
@@ -690,32 +220,12 @@
     "SpecificationAttributeId": "SpecificationAttribute:Fit"
   },
   {
-    "$key": "SpecificationAttribute:Fit|Slim",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "Slim",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Fit"
-  },
-  {
     "$key": "SpecificationAttribute:Flavour|Fruity",
     "Alias": null,
     "Color": null,
     "DisplayOrder": 2,
     "MediaFileId": 0,
     "Name": "Fruity",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Flavour"
-  },
-  {
-    "$key": "SpecificationAttribute:Flavour|Mild",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "Mild",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Flavour"
   },
@@ -750,116 +260,6 @@
     "SpecificationAttributeId": "SpecificationAttribute:Flavour"
   },
   {
-    "$key": "SpecificationAttribute:For whom|For her",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "For her",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:For whom"
-  },
-  {
-    "$key": "SpecificationAttribute:For whom|For him",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "For him",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:For whom"
-  },
-  {
-    "$key": "SpecificationAttribute:Gender|gentlemen",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "gentlemen",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Gender"
-  },
-  {
-    "$key": "SpecificationAttribute:Gender|ladies",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "ladies",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Gender"
-  },
-  {
-    "$key": "SpecificationAttribute:Gender|unisex",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "unisex",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Gender"
-  },
-  {
-    "$key": "SpecificationAttribute:Harddisk capacity|1000 GB",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 4,
-    "MediaFileId": 0,
-    "Name": "1000 GB",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Harddisk capacity"
-  },
-  {
-    "$key": "SpecificationAttribute:Harddisk capacity|1500 GB",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 5,
-    "MediaFileId": 0,
-    "Name": "1500 GB",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Harddisk capacity"
-  },
-  {
-    "$key": "SpecificationAttribute:Harddisk capacity|250 GB",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "250 GB",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Harddisk capacity"
-  },
-  {
-    "$key": "SpecificationAttribute:Harddisk capacity|500 GB",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "500 GB",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Harddisk capacity"
-  },
-  {
-    "$key": "SpecificationAttribute:Harddisk capacity|750 GB",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "750 GB",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Harddisk capacity"
-  },
-  {
-    "$key": "SpecificationAttribute:Hardness|Hard",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "Hard",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Hardness"
-  },
-  {
     "$key": "SpecificationAttribute:Hardness|Medium",
     "Alias": null,
     "Color": null,
@@ -868,36 +268,6 @@
     "Name": "Medium",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Hardness"
-  },
-  {
-    "$key": "SpecificationAttribute:Hardness|Soft",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "Soft",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Hardness"
-  },
-  {
-    "$key": "SpecificationAttribute:Intensity|Extra strong",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 4,
-    "MediaFileId": 0,
-    "Name": "Extra strong",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Intensity"
-  },
-  {
-    "$key": "SpecificationAttribute:Intensity|Medium",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "Medium",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Intensity"
   },
   {
     "$key": "SpecificationAttribute:Intensity|Mild",
@@ -930,46 +300,6 @@
     "SpecificationAttributeId": "SpecificationAttribute:Language"
   },
   {
-    "$key": "SpecificationAttribute:Language|french",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "french",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Language"
-  },
-  {
-    "$key": "SpecificationAttribute:Language|german",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "german",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Language"
-  },
-  {
-    "$key": "SpecificationAttribute:Language|italian",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 4,
-    "MediaFileId": 0,
-    "Name": "italian",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Language"
-  },
-  {
-    "$key": "SpecificationAttribute:Layers|2-piece",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "2-piece",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Layers"
-  },
-  {
     "$key": "SpecificationAttribute:Layers|3-piece",
     "Alias": null,
     "Color": null,
@@ -980,36 +310,6 @@
     "SpecificationAttributeId": "SpecificationAttribute:Layers"
   },
   {
-    "$key": "SpecificationAttribute:Layers|4-piece",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "4-piece",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Layers"
-  },
-  {
-    "$key": "SpecificationAttribute:MP3 quality|128 kbit/s",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "128 kbit/s",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:MP3 quality"
-  },
-  {
-    "$key": "SpecificationAttribute:MP3 quality|256 kbit/s",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "256 kbit/s",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:MP3 quality"
-  },
-  {
     "$key": "SpecificationAttribute:MP3 quality|320 kbit/s",
     "Alias": null,
     "Color": null,
@@ -1018,216 +318,6 @@
     "Name": "320 kbit/s",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:MP3 quality"
-  },
-  {
-    "$key": "SpecificationAttribute:Manufacturer|Adidas",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 19,
-    "MediaFileId": 0,
-    "Name": "Adidas",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Manufacturer"
-  },
-  {
-    "$key": "SpecificationAttribute:Manufacturer|Apple",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "Apple",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Manufacturer"
-  },
-  {
-    "$key": "SpecificationAttribute:Manufacturer|Blackberry",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 8,
-    "MediaFileId": 0,
-    "Name": "Blackberry",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Manufacturer"
-  },
-  {
-    "$key": "SpecificationAttribute:Manufacturer|Breitling",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 18,
-    "MediaFileId": 0,
-    "Name": "Breitling",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Manufacturer"
-  },
-  {
-    "$key": "SpecificationAttribute:Manufacturer|Canon",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 11,
-    "MediaFileId": 0,
-    "Name": "Canon",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Manufacturer"
-  },
-  {
-    "$key": "SpecificationAttribute:Manufacturer|Casio",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 12,
-    "MediaFileId": 0,
-    "Name": "Casio",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Manufacturer"
-  },
-  {
-    "$key": "SpecificationAttribute:Manufacturer|Certina",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 14,
-    "MediaFileId": 0,
-    "Name": "Certina",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Manufacturer"
-  },
-  {
-    "$key": "SpecificationAttribute:Manufacturer|Festina",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 15,
-    "MediaFileId": 0,
-    "Name": "Festina",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Manufacturer"
-  },
-  {
-    "$key": "SpecificationAttribute:Manufacturer|HP",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 10,
-    "MediaFileId": 0,
-    "Name": "HP",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Manufacturer"
-  },
-  {
-    "$key": "SpecificationAttribute:Manufacturer|HTC",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "HTC",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Manufacturer"
-  },
-  {
-    "$key": "SpecificationAttribute:Manufacturer|LG",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 4,
-    "MediaFileId": 0,
-    "Name": "LG",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Manufacturer"
-  },
-  {
-    "$key": "SpecificationAttribute:Manufacturer|Microsoft",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 9,
-    "MediaFileId": 0,
-    "Name": "Microsoft",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Manufacturer"
-  },
-  {
-    "$key": "SpecificationAttribute:Manufacturer|Motorola",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 5,
-    "MediaFileId": 0,
-    "Name": "Motorola",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Manufacturer"
-  },
-  {
-    "$key": "SpecificationAttribute:Manufacturer|Nike",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 20,
-    "MediaFileId": 0,
-    "Name": "Nike",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Manufacturer"
-  },
-  {
-    "$key": "SpecificationAttribute:Manufacturer|Nokia",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 6,
-    "MediaFileId": 0,
-    "Name": "Nokia",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Manufacturer"
-  },
-  {
-    "$key": "SpecificationAttribute:Manufacturer|Panasonic",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 13,
-    "MediaFileId": 0,
-    "Name": "Panasonic",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Manufacturer"
-  },
-  {
-    "$key": "SpecificationAttribute:Manufacturer|Puma",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 21,
-    "MediaFileId": 0,
-    "Name": "Puma",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Manufacturer"
-  },
-  {
-    "$key": "SpecificationAttribute:Manufacturer|Samsung",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "Samsung",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Manufacturer"
-  },
-  {
-    "$key": "SpecificationAttribute:Manufacturer|Seiko",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 16,
-    "MediaFileId": 0,
-    "Name": "Seiko",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Manufacturer"
-  },
-  {
-    "$key": "SpecificationAttribute:Manufacturer|Sony",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 7,
-    "MediaFileId": 0,
-    "Name": "Sony",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Manufacturer"
-  },
-  {
-    "$key": "SpecificationAttribute:Manufacturer|Tissot",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 17,
-    "MediaFileId": 0,
-    "Name": "Tissot",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Manufacturer"
   },
   {
     "$key": "SpecificationAttribute:Material|100% organic cotton",
@@ -1246,36 +336,6 @@
     "DisplayOrder": 4,
     "MediaFileId": 0,
     "Name": "aluminium",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Material"
-  },
-  {
-    "$key": "SpecificationAttribute:Material|ceramic",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 8,
-    "MediaFileId": 0,
-    "Name": "ceramic",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Material"
-  },
-  {
-    "$key": "SpecificationAttribute:Material|cotton",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 9,
-    "MediaFileId": 0,
-    "Name": "cotton",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Material"
-  },
-  {
-    "$key": "SpecificationAttribute:Material|glass",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 14,
-    "MediaFileId": 0,
-    "Name": "glass",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Material"
   },
@@ -1300,92 +360,12 @@
     "SpecificationAttributeId": "SpecificationAttribute:Material"
   },
   {
-    "$key": "SpecificationAttribute:Material|nylon",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 6,
-    "MediaFileId": 0,
-    "Name": "nylon",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Material"
-  },
-  {
-    "$key": "SpecificationAttribute:Material|plastic",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "plastic",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Material"
-  },
-  {
     "$key": "SpecificationAttribute:Material|polyamide",
     "Alias": null,
     "Color": null,
     "DisplayOrder": 11,
     "MediaFileId": 0,
     "Name": "polyamide",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Material"
-  },
-  {
-    "$key": "SpecificationAttribute:Material|polyester",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 16,
-    "MediaFileId": 0,
-    "Name": "polyester",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Material"
-  },
-  {
-    "$key": "SpecificationAttribute:Material|rubber",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 12,
-    "MediaFileId": 0,
-    "Name": "rubber",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Material"
-  },
-  {
-    "$key": "SpecificationAttribute:Material|silicone",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 7,
-    "MediaFileId": 0,
-    "Name": "silicone",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Material"
-  },
-  {
-    "$key": "SpecificationAttribute:Material|spandex",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 15,
-    "MediaFileId": 0,
-    "Name": "spandex",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Material"
-  },
-  {
-    "$key": "SpecificationAttribute:Material|stainless steel",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "stainless steel",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Material"
-  },
-  {
-    "$key": "SpecificationAttribute:Material|titanium",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "titanium",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Material"
   },
@@ -1410,26 +390,6 @@
     "SpecificationAttributeId": "SpecificationAttribute:Material"
   },
   {
-    "$key": "SpecificationAttribute:Measuring range|up to 1000 m",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "up to 1000 m",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Measuring range"
-  },
-  {
-    "$key": "SpecificationAttribute:Measuring range|up to 400 m",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "up to 400 m",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Measuring range"
-  },
-  {
     "$key": "SpecificationAttribute:Measuring range|up to 600 m",
     "Alias": null,
     "Color": null,
@@ -1440,102 +400,12 @@
     "SpecificationAttributeId": "SpecificationAttribute:Measuring range"
   },
   {
-    "$key": "SpecificationAttribute:Movement|mechanical",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "mechanical",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Movement"
-  },
-  {
-    "$key": "SpecificationAttribute:Movement|mechanical, self winding",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "mechanical, self winding",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Movement"
-  },
-  {
-    "$key": "SpecificationAttribute:Movement|quarz, battery operated",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "quarz, battery operated",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Movement"
-  },
-  {
-    "$key": "SpecificationAttribute:Music genre|R&B",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 7,
-    "MediaFileId": 0,
-    "Name": "R&B",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Music genre"
-  },
-  {
-    "$key": "SpecificationAttribute:Music genre|blues",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "blues",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Music genre"
-  },
-  {
-    "$key": "SpecificationAttribute:Music genre|classical",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 6,
-    "MediaFileId": 0,
-    "Name": "classical",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Music genre"
-  },
-  {
-    "$key": "SpecificationAttribute:Music genre|disco",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "disco",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Music genre"
-  },
-  {
-    "$key": "SpecificationAttribute:Music genre|funk",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 5,
-    "MediaFileId": 0,
-    "Name": "funk",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Music genre"
-  },
-  {
     "$key": "SpecificationAttribute:Music genre|jazz",
     "Alias": null,
     "Color": null,
     "DisplayOrder": 2,
     "MediaFileId": 0,
     "Name": "jazz",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Music genre"
-  },
-  {
-    "$key": "SpecificationAttribute:Music genre|pop",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 4,
-    "MediaFileId": 0,
-    "Name": "pop",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Music genre"
   },
@@ -1550,16 +420,6 @@
     "SpecificationAttributeId": "SpecificationAttribute:Occasion"
   },
   {
-    "$key": "SpecificationAttribute:Occasion|Everyday",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "Everyday",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Occasion"
-  },
-  {
     "$key": "SpecificationAttribute:Occasion|Gift",
     "Alias": null,
     "Color": null,
@@ -1570,86 +430,6 @@
     "SpecificationAttributeId": "SpecificationAttribute:Occasion"
   },
   {
-    "$key": "SpecificationAttribute:Offer|Best Price",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 8,
-    "MediaFileId": 0,
-    "Name": "Best Price",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Offer"
-  },
-  {
-    "$key": "SpecificationAttribute:Offer|Clearance",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "Clearance",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Offer"
-  },
-  {
-    "$key": "SpecificationAttribute:Offer|Offer of the day",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 6,
-    "MediaFileId": 0,
-    "Name": "Offer of the day",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Offer"
-  },
-  {
-    "$key": "SpecificationAttribute:Offer|Permanent low price",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "Permanent low price",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Offer"
-  },
-  {
-    "$key": "SpecificationAttribute:Offer|Promotion",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "Promotion",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Offer"
-  },
-  {
-    "$key": "SpecificationAttribute:Offer|Reduced price",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 4,
-    "MediaFileId": 0,
-    "Name": "Reduced price",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Offer"
-  },
-  {
-    "$key": "SpecificationAttribute:Offer|Special Buy",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 5,
-    "MediaFileId": 0,
-    "Name": "Special Buy",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Offer"
-  },
-  {
-    "$key": "SpecificationAttribute:Offer|Weekly offer",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 7,
-    "MediaFileId": 0,
-    "Name": "Weekly offer",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Offer"
-  },
-  {
     "$key": "SpecificationAttribute:Olive variety|Coratina",
     "Alias": null,
     "Color": null,
@@ -1658,116 +438,6 @@
     "Name": "Coratina",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Olive variety"
-  },
-  {
-    "$key": "SpecificationAttribute:Olive variety|Koroneiki",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "Koroneiki",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Olive variety"
-  },
-  {
-    "$key": "SpecificationAttribute:Olive variety|Picual",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "Picual",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Olive variety"
-  },
-  {
-    "$key": "SpecificationAttribute:Operating System|Android 2",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 7,
-    "MediaFileId": 0,
-    "Name": "Android 2",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Operating System"
-  },
-  {
-    "$key": "SpecificationAttribute:Operating System|Android 4",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 8,
-    "MediaFileId": 0,
-    "Name": "Android 4",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Operating System"
-  },
-  {
-    "$key": "SpecificationAttribute:Operating System|Linux",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 5,
-    "MediaFileId": 0,
-    "Name": "Linux",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Operating System"
-  },
-  {
-    "$key": "SpecificationAttribute:Operating System|Mac OS",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 6,
-    "MediaFileId": 0,
-    "Name": "Mac OS",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Operating System"
-  },
-  {
-    "$key": "SpecificationAttribute:Operating System|Windows 7 32 Bit",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "Windows 7 32 Bit",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Operating System"
-  },
-  {
-    "$key": "SpecificationAttribute:Operating System|Windows 7 64 Bit",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "Windows 7 64 Bit",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Operating System"
-  },
-  {
-    "$key": "SpecificationAttribute:Operating System|Windows 8 32 Bit",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "Windows 8 32 Bit",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Operating System"
-  },
-  {
-    "$key": "SpecificationAttribute:Operating System|Windows 8 64 Bit",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 4,
-    "MediaFileId": 0,
-    "Name": "Windows 8 64 Bit",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Operating System"
-  },
-  {
-    "$key": "SpecificationAttribute:Operating System|iOS",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 9,
-    "MediaFileId": 0,
-    "Name": "iOS",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Operating System"
   },
   {
     "$key": "SpecificationAttribute:Origin|Colombia",
@@ -1786,16 +456,6 @@
     "DisplayOrder": 5,
     "MediaFileId": 0,
     "Name": "Ethiopia",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Origin"
-  },
-  {
-    "$key": "SpecificationAttribute:Origin|Greece",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "Greece",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Origin"
   },
@@ -1850,136 +510,6 @@
     "SpecificationAttributeId": "SpecificationAttribute:Platform"
   },
   {
-    "$key": "SpecificationAttribute:Ports|DVI",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 5,
-    "MediaFileId": 0,
-    "Name": "DVI",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Ports"
-  },
-  {
-    "$key": "SpecificationAttribute:Ports|Ethernet/RJ45",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 7,
-    "MediaFileId": 0,
-    "Name": "Ethernet/RJ45",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Ports"
-  },
-  {
-    "$key": "SpecificationAttribute:Ports|Firewire",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "Firewire",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Ports"
-  },
-  {
-    "$key": "SpecificationAttribute:Ports|HDMI",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 4,
-    "MediaFileId": 0,
-    "Name": "HDMI",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Ports"
-  },
-  {
-    "$key": "SpecificationAttribute:Ports|USB 2.0",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "USB 2.0",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Ports"
-  },
-  {
-    "$key": "SpecificationAttribute:Ports|USB 3.0",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "USB 3.0",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Ports"
-  },
-  {
-    "$key": "SpecificationAttribute:Ports|VGA",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 6,
-    "MediaFileId": 0,
-    "Name": "VGA",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Ports"
-  },
-  {
-    "$key": "SpecificationAttribute:RAM|13 GB",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "13 GB",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:RAM"
-  },
-  {
-    "$key": "SpecificationAttribute:RAM|1500 GB",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 5,
-    "MediaFileId": 0,
-    "Name": "1500 GB",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:RAM"
-  },
-  {
-    "$key": "SpecificationAttribute:RAM|2 GB",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 4,
-    "MediaFileId": 0,
-    "Name": "2 GB",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:RAM"
-  },
-  {
-    "$key": "SpecificationAttribute:RAM|4 GB",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "4 GB",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:RAM"
-  },
-  {
-    "$key": "SpecificationAttribute:RAM|8 GB",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "8 GB",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:RAM"
-  },
-  {
-    "$key": "SpecificationAttribute:Roast|Dark",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "Dark",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Roast"
-  },
-  {
     "$key": "SpecificationAttribute:Roast|Light",
     "Alias": null,
     "Color": null,
@@ -2020,96 +550,6 @@
     "SpecificationAttributeId": "SpecificationAttribute:Season"
   },
   {
-    "$key": "SpecificationAttribute:Season|Spring/Summer",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "Spring/Summer",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Season"
-  },
-  {
-    "$key": "SpecificationAttribute:Size (ext. HDD)|2.5",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "2.5",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Size (ext. HDD)"
-  },
-  {
-    "$key": "SpecificationAttribute:Size (ext. HDD)|3.5",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "3.5",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Size (ext. HDD)"
-  },
-  {
-    "$key": "SpecificationAttribute:Size|L",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 4,
-    "MediaFileId": 0,
-    "Name": "L",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Size"
-  },
-  {
-    "$key": "SpecificationAttribute:Size|M",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "M",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Size"
-  },
-  {
-    "$key": "SpecificationAttribute:Size|S",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "S",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Size"
-  },
-  {
-    "$key": "SpecificationAttribute:Size|XL",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 5,
-    "MediaFileId": 0,
-    "Name": "XL",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Size"
-  },
-  {
-    "$key": "SpecificationAttribute:Size|XS",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "XS",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Size"
-  },
-  {
-    "$key": "SpecificationAttribute:Size|XXL",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 6,
-    "MediaFileId": 0,
-    "Name": "XXL",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Size"
-  },
-  {
     "$key": "SpecificationAttribute:Skill level|Advanced",
     "Alias": null,
     "Color": null,
@@ -2130,26 +570,6 @@
     "SpecificationAttributeId": "SpecificationAttribute:Skill level"
   },
   {
-    "$key": "SpecificationAttribute:Skill level|Pro",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "Pro",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Skill level"
-  },
-  {
-    "$key": "SpecificationAttribute:Slope function|No",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "No",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Slope function"
-  },
-  {
     "$key": "SpecificationAttribute:Slope function|Yes",
     "Alias": null,
     "Color": null,
@@ -2158,46 +578,6 @@
     "Name": "Yes",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Slope function"
-  },
-  {
-    "$key": "SpecificationAttribute:Storage capacity|128 GB",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "128 GB",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Storage capacity"
-  },
-  {
-    "$key": "SpecificationAttribute:Storage capacity|32 GB",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "32 GB",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Storage capacity"
-  },
-  {
-    "$key": "SpecificationAttribute:Storage capacity|64 GB",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "64 GB",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Storage capacity"
-  },
-  {
-    "$key": "SpecificationAttribute:Style|Classic",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "Classic",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Style"
   },
   {
     "$key": "SpecificationAttribute:Style|Modern",
@@ -2218,16 +598,6 @@
     "Name": "Scandinavian",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Style"
-  },
-  {
-    "$key": "SpecificationAttribute:Target group|Kids",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "Kids",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Target group"
   },
   {
     "$key": "SpecificationAttribute:Target group|Men",
@@ -2260,16 +630,6 @@
     "SpecificationAttributeId": "SpecificationAttribute:Target group"
   },
   {
-    "$key": "SpecificationAttribute:Tee length|54 mm",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "54 mm",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Tee length"
-  },
-  {
     "$key": "SpecificationAttribute:Tee length|70 mm",
     "Alias": null,
     "Color": null,
@@ -2280,56 +640,6 @@
     "SpecificationAttributeId": "SpecificationAttribute:Tee length"
   },
   {
-    "$key": "SpecificationAttribute:Tee length|83 mm",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "83 mm",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Tee length"
-  },
-  {
-    "$key": "SpecificationAttribute:Type of mass-storage|Flash",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "Flash",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Type of mass-storage"
-  },
-  {
-    "$key": "SpecificationAttribute:Type of mass-storage|HDD",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "HDD",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Type of mass-storage"
-  },
-  {
-    "$key": "SpecificationAttribute:Type of mass-storage|SSD",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "SSD",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Type of mass-storage"
-  },
-  {
-    "$key": "SpecificationAttribute:Water resistance|Water-repellent",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "Water-repellent",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Water resistance"
-  },
-  {
     "$key": "SpecificationAttribute:Water resistance|Waterproof",
     "Alias": null,
     "Color": null,
@@ -2338,25 +648,5 @@
     "Name": "Waterproof",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Water resistance"
-  },
-  {
-    "$key": "SpecificationAttribute:Window material|mineral",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 1,
-    "MediaFileId": 0,
-    "Name": "mineral",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Window material"
-  },
-  {
-    "$key": "SpecificationAttribute:Window material|sapphire",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "sapphire",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Window material"
   }
 ]

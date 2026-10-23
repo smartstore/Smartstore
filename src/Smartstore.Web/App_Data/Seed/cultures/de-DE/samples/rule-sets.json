@@ -1,11 +1,4 @@
 {
-  "weekends": {
-    "name": "Wochenenden"
-  },
-  "major-customers": {
-    "name": "Wichtige Kunden",
-    "description": "3 oder mehr Bestellungen und aktueller Bestellwert mindestens 200,- Euro."
-  },
   "sale": {
     "description": "Produkte mit angewendeten Rabatten."
   },

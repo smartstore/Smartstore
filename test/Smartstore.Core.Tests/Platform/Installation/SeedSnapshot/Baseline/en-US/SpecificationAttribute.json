@@ -39,19 +39,6 @@
     "ShowOnProductPage": false
   },
   {
-    "$key": "CPU-Manufacturer",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 1,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "CPU-Manufacturer",
-    "ShowOnProductPage": false
-  },
-  {
     "$key": "Care",
     "Alias": null,
     "AllowFiltering": false,
@@ -75,32 +62,6 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Category",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Clasp",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 10,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Clasp",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Closure",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 25,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Closure",
     "ShowOnProductPage": false
   },
   {
@@ -130,19 +91,6 @@
     "ShowOnProductPage": false
   },
   {
-    "$key": "Computer-type",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 15,
-    "Essential": true,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Computer-type",
-    "ShowOnProductPage": false
-  },
-  {
     "$key": "Decaffeinated",
     "Alias": null,
     "AllowFiltering": false,
@@ -153,32 +101,6 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Decaffeinated",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Dial window material type",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 28,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Dial window material type",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Diameter",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 24,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Diameter",
     "ShowOnProductPage": false
   },
   {
@@ -205,32 +127,6 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Dimmable",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Edition",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 13,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Edition",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Facial shape",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 26,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Facial shape",
     "ShowOnProductPage": false
   },
   {
@@ -270,45 +166,6 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Flavour",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "For whom",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 21,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "For whom",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Gender",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 7,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Gender",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Harddisk capacity",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 3,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Harddisk capacity",
     "ShowOnProductPage": false
   },
   {
@@ -377,19 +234,6 @@
     "ShowOnProductPage": false
   },
   {
-    "$key": "Manufacturer",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 20,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Manufacturer",
-    "ShowOnProductPage": false
-  },
-  {
     "$key": "Material",
     "Alias": null,
     "AllowFiltering": false,
@@ -413,19 +257,6 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Measuring range",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Movement",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 9,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Movement",
     "ShowOnProductPage": false
   },
   {
@@ -455,19 +286,6 @@
     "ShowOnProductPage": false
   },
   {
-    "$key": "Offer",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 22,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Offer",
-    "ShowOnProductPage": false
-  },
-  {
     "$key": "Olive variety",
     "Alias": null,
     "AllowFiltering": false,
@@ -478,19 +296,6 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Olive variety",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Operating System",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 5,
-    "Essential": true,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Operating System",
     "ShowOnProductPage": false
   },
   {
@@ -520,32 +325,6 @@
     "ShowOnProductPage": false
   },
   {
-    "$key": "Ports",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 6,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Ports",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "RAM",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 4,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "RAM",
-    "ShowOnProductPage": false
-  },
-  {
     "$key": "Roast",
     "Alias": null,
     "AllowFiltering": false,
@@ -572,32 +351,6 @@
     "ShowOnProductPage": false
   },
   {
-    "$key": "Size",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 23,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Size",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Size (ext. HDD)",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 17,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Size (ext. HDD)",
-    "ShowOnProductPage": false
-  },
-  {
     "$key": "Skill level",
     "Alias": null,
     "AllowFiltering": false,
@@ -621,19 +374,6 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Slope function",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Storage capacity",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 27,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Storage capacity",
     "ShowOnProductPage": false
   },
   {
@@ -676,19 +416,6 @@
     "ShowOnProductPage": false
   },
   {
-    "$key": "Type of mass-storage",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 16,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Type of mass-storage",
-    "ShowOnProductPage": false
-  },
-  {
     "$key": "Water resistance",
     "Alias": null,
     "AllowFiltering": false,
@@ -699,19 +426,6 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Water resistance",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Window material",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 11,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Window material",
     "ShowOnProductPage": false
   }
 ]

@@ -2,21 +2,6 @@
   "gift": {
     "name": "Geschenk"
   },
-  "book": {
-    "name": "Buch"
-  },
-  "cooking": {
-    "name": "Kochen"
-  },
-  "cars": {
-    "name": "Autos"
-  },
-  "motorbikes": {
-    "name": "Motorräder"
-  },
-  "download": {
-    "name": "Download"
-  },
   "sustainable": {
     "name": "Nachhaltig"
   },

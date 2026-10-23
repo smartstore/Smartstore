@@ -1,65 +1,6 @@
 // Key field: key
 [
   {
-    "key": "sample-discount-with-coupon-code",
-    "name": "Sample discount with coupon code",
-    "discountType": "AssignedToOrderSubTotal",
-    "discountAmount": 10,
-    "requiresCouponCode": true,
-    "couponCode": "123"
-  },
-  {
-    "key": "20-order-total-discount",
-    "name": "20% order total discount",
-    "discountType": "AssignedToOrderTotal",
-    "usePercentage": true,
-    "discountPercentage": 20,
-    "startDateUtc": "2020-02-01T00:00:00",
-    "endDateUtc": "2020-02-10T00:00:00",
-    "ruleSets": [
-      "major-customers"
-    ]
-  },
-  {
-    "key": "5-on-weekend-orders",
-    "name": "5% on weekend orders",
-    "discountType": "AssignedToOrderSubTotal",
-    "usePercentage": true,
-    "discountPercentage": 5,
-    "startDateUtc": "2020-03-01T00:00:00",
-    "endDateUtc": "2020-03-10T00:00:00",
-    "ruleSets": [
-      "weekends"
-    ]
-  },
-  {
-    "key": "10-for-certain-manufacturers",
-    "name": "10% for certain manufacturers",
-    "discountType": "AssignedToManufacturers",
-    "usePercentage": true,
-    "discountPercentage": 10,
-    "startDateUtc": "2020-04-05T00:00:00",
-    "endDateUtc": "2020-04-10T00:00:00"
-  },
-  {
-    "key": "20-for-certain-categories",
-    "name": "20% for certain categories",
-    "discountType": "AssignedToCategories",
-    "usePercentage": true,
-    "discountPercentage": 20,
-    "startDateUtc": "2020-06-01T00:00:00",
-    "endDateUtc": "2020-06-30T00:00:00"
-  },
-  {
-    "key": "25-on-certain-products",
-    "name": "25% on certain products",
-    "discountType": "AssignedToSkus",
-    "usePercentage": true,
-    "discountPercentage": 25,
-    "startDateUtc": "2020-05-10T00:00:00",
-    "endDateUtc": "2020-05-15T00:00:00"
-  },
-  {
     "key": "season-sale-15",
     "name": "Season sale: 15% off selected items",
     "discountType": "AssignedToSkus",

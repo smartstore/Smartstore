@@ -1,15 +1,5 @@
 [
   {
-    "$key": "Discount:20% auf den Bestellwert|RuleSetEntity:Wichtige Kunden",
-    "Discount_Id": "Discount:20% auf den Bestellwert",
-    "RuleSetEntity_Id": "RuleSetEntity:Wichtige Kunden"
-  },
-  {
-    "$key": "Discount:5% bei Bestellungen am Wochenende|RuleSetEntity:Wochenenden",
-    "Discount_Id": "Discount:5% bei Bestellungen am Wochenende",
-    "RuleSetEntity_Id": "RuleSetEntity:Wochenenden"
-  },
-  {
     "$key": "Discount:Versandkostenfrei ab 50|RuleSetEntity:Warenkorb-Zwischensumme ab 50",
     "Discount_Id": "Discount:Versandkostenfrei ab 50",
     "RuleSetEntity_Id": "RuleSetEntity:Warenkorb-Zwischensumme ab 50"

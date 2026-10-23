@@ -5,65 +5,8 @@
   "custom-text": {
     "name": "Eigener Text"
   },
-  "os": {
-    "name": "Betriebssystem"
-  },
-  "processor": {
-    "name": "Prozessor"
-  },
-  "ram": {
-    "name": "Arbeitsspeicher"
-  },
   "size": {
     "name": "Größe"
-  },
-  "game": {
-    "name": "Spiel"
-  },
-  "iphone-color": {
-    "name": "Farbe"
-  },
-  "ipad-color": {
-    "name": "Farbe"
-  },
-  "memory-capacity": {
-    "name": "Speicherkapazität"
-  },
-  "width": {
-    "name": "Weite"
-  },
-  "length": {
-    "name": "Länge"
-  },
-  "plate": {
-    "name": "Tischplatte"
-  },
-  "plate-thickness": {
-    "name": "Stärke der Tischplatte"
-  },
-  "ballsize": {
-    "name": "Ballgröße"
-  },
-  "leather-color": {
-    "name": "Lederfarbe"
-  },
-  "seat-shell": {
-    "name": "Sitzschale"
-  },
-  "base": {
-    "name": "Fußgestell"
-  },
-  "style": {
-    "name": "Ausführung"
-  },
-  "framecolor": {
-    "name": "Rahmenfarbe"
-  },
-  "lenscolor": {
-    "name": "Glasfarbe"
-  },
-  "lenstype": {
-    "name": "Glas"
   },
   "pack-size": {
     "name": "Packungsgröße"

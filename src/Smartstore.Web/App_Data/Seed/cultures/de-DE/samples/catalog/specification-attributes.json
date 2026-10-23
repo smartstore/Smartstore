@@ -1,87 +1,22 @@
 {
-  "cpu-manufacturer": {
-    "name": "CPU-Hersteller"
-  },
   "color": {
     "name": "Farbe",
-    "options": {
+    "options":  {
       "white": {
         "name": "Weiß"
       },
       "black": {
         "name": "Schwarz"
-      },
-      "beige": {
-        "name": "Beige"
-      },
-      "red": {
-        "name": "Rot"
-      },
-      "blue": {
-        "name": "Blau"
-      },
-      "green": {
-        "name": "Grün"
-      },
-      "yellow": {
-        "name": "Gelb"
-      }
-    }
-  },
-  "harddisk-capacity": {
-    "name": "Festplatten-Kapazität"
-  },
-  "ram": {
-    "name": "Arbeitsspeicher"
-  },
-  "operating-system": {
-    "name": "Betriebssystem"
-  },
-  "ports": {
-    "name": "Anschluss"
-  },
-  "gender": {
-    "name": "Geschlecht",
-    "options": {
-      "gentlemen": {
-        "name": "Herren"
-      },
-      "ladies": {
-        "name": "Damen"
-      },
-      "unisex": {
-        "name": "Unisex"
       }
     }
   },
   "material": {
-    "options": {
-      "stainless-steel": {
-        "name": "Edelstahl"
-      },
-      "titanium": {
-        "name": "Titan"
-      },
-      "plastic": {
-        "name": "Kunststoff"
-      },
+    "options":  {
       "aluminium": {
         "name": "Aluminium"
       },
       "leather": {
         "name": "Leder"
-      },
-      "nylon": {
-        "name": "Nylon"
-      },
-      "silicone": {
-        "name": "Silikon"
-      },
-      "ceramic": {
-        "name": "Keramik"
-      },
-      "cotton": {
-        "name": "Baumwolle"
       },
       "100-organic-cotton": {
         "name": "100% Bio-Baumwolle"
@@ -89,20 +24,8 @@
       "polyamide": {
         "name": "Polyamid"
       },
-      "rubber": {
-        "name": "Gummi"
-      },
       "wood": {
         "name": "Holz"
-      },
-      "glass": {
-        "name": "Glas"
-      },
-      "spandex": {
-        "name": "Elasthan"
-      },
-      "polyester": {
-        "name": "Polyester"
       },
       "wool": {
         "name": "Wolle"
@@ -112,247 +35,37 @@
       }
     }
   },
-  "movement": {
-    "name": "Technische Ausführung",
-    "options": {
-      "mechanical-self-winding": {
-        "name": "Automatik, selbstaufziehend"
-      },
-      "mechanical": {
-        "name": "Automatik"
-      },
-      "quarz-battery-operated": {
-        "name": "Quarz, batteriebetrieben"
-      }
-    }
-  },
-  "clasp": {
-    "name": "Verschluss",
-    "options": {
-      "glidelock": {
-        "name": "Faltschließe"
-      },
-      "folding-clasp": {
-        "name": "Sicherheitsfaltschließe"
-      },
-      "thorn-close": {
-        "name": "Dornschließe"
-      }
-    }
-  },
-  "window-material": {
-    "name": "Glas",
-    "options": {
-      "mineral": {
-        "name": "Mineral"
-      },
-      "sapphire": {
-        "name": "Saphir"
-      }
-    }
-  },
   "language": {
     "name": "Sprache",
-    "options": {
-      "german": {
-        "name": "Deutsch"
-      },
+    "options":  {
       "english": {
         "name": "Englisch"
-      },
-      "french": {
-        "name": "Französisch"
-      },
-      "italian": {
-        "name": "Italienisch"
-      }
-    }
-  },
-  "edition": {
-    "name": "Ausgabe",
-    "options": {
-      "bound": {
-        "name": "Gebunden"
-      },
-      "paperback": {
-        "name": "Taschenbuch"
       }
     }
   },
   "category": {
     "name": "Genre",
-    "options": {
-      "adventure": {
-        "name": "Abenteuer"
-      },
-      "fantasy-and-science-fiction": {
-        "name": "Science-Fiction"
-      },
-      "history": {
-        "name": "Geschichte"
-      },
-      "internet-and-computer": {
-        "name": "Internet & Computer"
-      },
-      "thriller": {
-        "name": "Krimi"
-      },
-      "cars": {
-        "name": "Autos"
-      },
+    "options":  {
       "novel": {
         "name": "Roman"
-      },
-      "cook-and-bake": {
-        "name": "Kochen & Backen"
-      },
-      "non-fiction": {
-        "name": "Sachbuch"
       }
     }
-  },
-  "computer-type": {
-    "name": "Computer-Typ",
-    "options": {
-      "desktop": {
-        "name": "Desktop"
-      },
-      "all-in-one": {
-        "name": "All-in-One"
-      },
-      "laptop": {
-        "name": "Laptop"
-      },
-      "tablet": {
-        "name": "Tablet"
-      }
-    }
-  },
-  "type-of-mass-storage": {
-    "name": "Massenspeicher-Typ"
-  },
-  "size-ext-hdd-": {
-    "name": "Größe (externe HDD)"
   },
   "mp3-quality": {
     "name": "MP3-Qualität"
   },
   "music-genre": {
     "name": "Genre",
-    "options": {
-      "blues": {
-        "name": "Blues"
-      },
+    "options":  {
       "jazz": {
         "name": "Jazz"
-      },
-      "disco": {
-        "name": "Disko"
-      },
-      "pop": {
-        "name": "Pop"
-      },
-      "funk": {
-        "name": "Funk"
-      },
-      "classical": {
-        "name": "Klassik"
-      }
-    }
-  },
-  "manufacturer": {
-    "name": "Hersteller"
-  },
-  "for-whom": {
-    "name": "Für wen",
-    "options": {
-      "for-him": {
-        "name": "Für ihn"
-      },
-      "for-her": {
-        "name": "Für sie"
-      }
-    }
-  },
-  "offer": {
-    "name": "Angebot",
-    "options": {
-      "clearance": {
-        "name": "Räumung"
-      },
-      "permanent-low-price": {
-        "name": "Permanent günstigster Preis"
-      },
-      "promotion": {
-        "name": "Aktion"
-      },
-      "reduced-price": {
-        "name": "Preisreduzierung"
-      },
-      "special-buy": {
-        "name": "Angebotspreis"
-      },
-      "offer-of-the-day": {
-        "name": "Tagesangebot"
-      },
-      "weekly-offer": {
-        "name": "Wochenangebot"
-      }
-    }
-  },
-  "size": {
-    "name": "Größe"
-  },
-  "diameter": {
-    "name": "Durchmesser"
-  },
-  "closure": {
-    "name": "Verschluss",
-    "options": {
-      "snap-closure": {
-        "name": "Schnappverschluss"
-      },
-      "folding-clasp": {
-        "name": "Faltverschluss"
-      },
-      "thorn-close": {
-        "name": "Stechverschluss"
-      }
-    }
-  },
-  "facial-shape": {
-    "name": "Form",
-    "options": {
-      "oval": {
-        "name": "Oval"
-      },
-      "round": {
-        "name": "Rund"
-      },
-      "heart-shaped": {
-        "name": "Herzförmig"
-      },
-      "angular": {
-        "name": "Winkelförmig"
-      }
-    }
-  },
-  "storage-capacity": {
-    "name": "Speicherkapazität"
-  },
-  "dial-window-material-type": {
-    "name": "Scheibenmaterial",
-    "options": {
-      "sapphire": {
-        "name": "Saphir"
       }
     }
   },
   "origin": {
     "name": "Herkunft",
-    "options": {
+    "options":  {
       "italy": { "name": "Italien" },
-      "greece": { "name": "Griechenland" },
       "spain": { "name": "Spanien" },
       "colombia": { "name": "Kolumbien" },
       "ethiopia": { "name": "Äthiopien" }
@@ -360,15 +73,14 @@
   },
   "roast": {
     "name": "Röstung",
-    "options": {
+    "options":  {
       "light": { "name": "Hell" },
-      "medium": { "name": "Mittel" },
-      "dark": { "name": "Dunkel" }
+      "medium": { "name": "Mittel" }
     }
   },
   "dietary": {
     "name": "Ernährung",
-    "options": {
+    "options":  {
       "vegan": { "name": "Vegan" },
       "gluten-free": { "name": "Glutenfrei" },
       "organic": { "name": "Bio" }
@@ -376,34 +88,27 @@
   },
   "bean": {
     "name": "Bohne",
-    "options": {
-      "arabica": { "name": "100 % Arabica" },
-      "blend": { "name": "Arabica-Robusta-Mischung" },
-      "robusta": { "name": "100 % Robusta" }
+    "options":  {
+      "arabica": { "name": "100 % Arabica" }
     }
   },
   "intensity": {
     "name": "Intensität",
-    "options": {
+    "options":  {
       "mild": { "name": "Mild" },
-      "medium": { "name": "Mittel" },
-      "strong": { "name": "Kräftig" },
-      "extra-strong": { "name": "Extra kräftig" }
+      "strong": { "name": "Kräftig" }
     }
   },
   "coffee-type": {
     "name": "Kaffeeart",
-    "options": {
+    "options":  {
       "filter": { "name": "Filterkaffee" },
-      "espresso": { "name": "Espresso" },
-      "organic": { "name": "Bio-Kaffee" },
       "rarity": { "name": "Rarität" }
     }
   },
   "decaffeinated": {
     "name": "Entkoffeiniert",
-    "options": {
-      "yes": { "name": "Ja" },
+    "options":  {
       "no": { "name": "Nein" }
     }
   },
@@ -412,8 +117,7 @@
   },
   "flavour": {
     "name": "Geschmack",
-    "options": {
-      "mild": { "name": "Mild" },
+    "options":  {
       "fruity": { "name": "Fruchtig" },
       "savoury": { "name": "Würzig-herzhaft" },
       "sweet": { "name": "Süß" },
@@ -422,42 +126,35 @@
   },
   "occasion": {
     "name": "Anlass",
-    "options": {
-      "everyday": { "name": "Alltag" },
+    "options":  {
       "gift": { "name": "Geschenk" },
       "christmas": { "name": "Weihnachten" }
     }
   },
   "hardness": {
     "name": "Härte",
-    "options": {
-      "soft": { "name": "Weich" },
-      "medium": { "name": "Mittel" },
-      "hard": { "name": "Hart" }
+    "options":  {
+      "medium": { "name": "Mittel" }
     }
   },
   "layers": {
     "name": "Schichten",
-    "options": {
-      "2-piece": { "name": "2-teilig" },
-      "3-piece": { "name": "3-teilig" },
-      "4-piece": { "name": "4-teilig" }
+    "options":  {
+      "3-piece": { "name": "3-teilig" }
     }
   },
   "level": {
     "name": "Spielstärke",
-    "options": {
+    "options":  {
       "beginner": { "name": "Einsteiger" },
-      "advanced": { "name": "Fortgeschritten" },
-      "pro": { "name": "Profi" }
+      "advanced": { "name": "Fortgeschritten" }
     }
   },
   "target-group": {
     "name": "Zielgruppe",
-    "options": {
+    "options":  {
       "men": { "name": "Herren" },
       "women": { "name": "Damen" },
-      "kids": { "name": "Kinder" },
       "unisex": { "name": "Unisex" }
     }
   },
@@ -466,45 +163,39 @@
   },
   "measuring-range": {
     "name": "Messbereich",
-    "options": {
-      "400m": { "name": "bis 400 m" },
-      "600m": { "name": "bis 600 m" },
-      "1000m": { "name": "bis 1000 m" }
+    "options":  {
+      "600m": { "name": "bis 600 m" }
     }
   },
   "slope-function": {
     "name": "Neigungsfunktion",
-    "options": {
-      "yes": { "name": "Ja" },
-      "no": { "name": "Nein" }
+    "options":  {
+      "yes": { "name": "Ja" }
     }
   },
   "bag-type": {
     "name": "Taschenart",
-    "options": {
-      "stand-bag": { "name": "Standbag" },
-      "cart-bag": { "name": "Cartbag" }
+    "options":  {
+      "stand-bag": { "name": "Standbag" }
     }
   },
   "fit": {
     "name": "Passform",
-    "options": {
-      "slim": { "name": "Schmal" },
+    "options":  {
       "regular": { "name": "Normal" },
       "oversized": { "name": "Weit" }
     }
   },
   "season": {
     "name": "Saison",
-    "options": {
-      "spring-summer": { "name": "Frühjahr/Sommer" },
+    "options":  {
       "autumn-winter": { "name": "Herbst/Winter" },
       "all-year": { "name": "Ganzjährig" }
     }
   },
   "care": {
     "name": "Pflege",
-    "options": {
+    "options":  {
       "machine-30": { "name": "Maschinenwäsche 30 °C" },
       "machine-40": { "name": "Maschinenwäsche 40 °C" },
       "hand-wash": { "name": "Handwäsche" }
@@ -512,31 +203,28 @@
   },
   "water-resistance": {
     "name": "Wetterschutz",
-    "options": {
-      "water-repellent": { "name": "Wasserabweisend" },
+    "options":  {
       "waterproof": { "name": "Wasserdicht" }
     }
   },
   "style": {
     "name": "Stil",
-    "options": {
+    "options":  {
       "scandinavian": { "name": "Skandinavisch" },
-      "modern": { "name": "Modern" },
-      "classic": { "name": "Klassisch" }
+      "modern": { "name": "Modern" }
     }
   },
   "assembly": {
     "name": "Montage",
-    "options": {
+    "options":  {
       "assembled": { "name": "Fertig montiert" },
       "easy": { "name": "Einfacher Selbstaufbau" }
     }
   },
   "dimmable": {
     "name": "Dimmbar",
-    "options": {
-      "yes": { "name": "Ja" },
-      "no": { "name": "Nein" }
+    "options":  {
+      "yes": { "name": "Ja" }
     }
   },
   "file-format": {

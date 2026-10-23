@@ -1,15 +1,5 @@
 [
   {
-    "$key": "Discount:20% order total discount|RuleSetEntity:Major customers",
-    "Discount_Id": "Discount:20% order total discount",
-    "RuleSetEntity_Id": "RuleSetEntity:Major customers"
-  },
-  {
-    "$key": "Discount:5% on weekend orders|RuleSetEntity:Weekends",
-    "Discount_Id": "Discount:5% on weekend orders",
-    "RuleSetEntity_Id": "RuleSetEntity:Weekends"
-  },
-  {
     "$key": "Discount:Free shipping from 50|RuleSetEntity:Cart subtotal from 50",
     "Discount_Id": "Discount:Free shipping from 50",
     "RuleSetEntity_Id": "RuleSetEntity:Cart subtotal from 50"
