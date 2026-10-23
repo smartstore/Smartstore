@@ -417,6 +417,8 @@ public class CatalogSettings : ISettings
     /// </summary>
     public List<string> FileUploadAllowedExtensions { get; set; } = [];
 
+    // TODO: Move these text collapsing settings to general presentation settings with a settings migration.
+    // They also apply to topics and admin content and do not belong in CatalogSettings.
     /// <summary>
     /// Gets or sets a value indicating if html long text should be collapsed
     /// </summary>

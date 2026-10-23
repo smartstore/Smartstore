@@ -32,7 +32,7 @@
             <smart-label asp-for="DisplayAllImagesNumber" />
         </div>
         <div class="adminData">
-            <editor asp-for="DisplayAllImagesNumber" placeholder="@CatalogSettings.DisplayAllImagesNumber" />
+            <editor asp-for="DisplayAllImagesNumber" placeholder="@CatalogSettings.DisplayAllImagesNumber" sm-postfix="@T("Admin.Catalog.Products.Pictures")" />
             <span asp-validation-for="DisplayAllImagesNumber"></span>
         </div>
     </div>

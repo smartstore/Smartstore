@@ -96,6 +96,225 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
     public void MigrateLocaleResources(LocaleResourcesBuilder builder)
     {
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowManufacturersOnHomepage", "Show manufacturers on the homepage", "Hersteller auf der Startseite anzeigen");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ManufacturerItemsToDisplayOnHomepage",
+            "Maximum number of manufacturers on the homepage",
+            "Maximale Herstelleranzahl auf der Startseite",
+            "Specifies the maximum number of manufacturers displayed on the homepage.",
+            "Legt fest, wie viele Hersteller höchstens auf der Startseite angezeigt werden.");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowManufacturersInOffCanvas",
+            "Show manufacturers in the OffCanvas menu",
+            "Hersteller im OffCanvas-Menü anzeigen",
+            "Specifies whether manufacturers are displayed in the OffCanvas menu. This is the navigation menu that slides in from the side and that customers open using the menu button on mobile devices.",
+            "Legt fest, ob Hersteller im OffCanvas-Menü angezeigt werden. Das ist das seitlich eingeblendete Navigationsmenü, das Kunden über die Menü-Schaltfläche auf mobilen Endgeräten öffnen.");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ManufacturerItemsToDisplayInOffcanvasMenu",
+            "Maximum number of manufacturers in the OffCanvas menu",
+            "Maximale Herstelleranzahl im OffCanvas-Menü",
+            "Specifies the maximum number of manufacturers displayed in the OffCanvas menu.",
+            "Legt fest, wie viele Hersteller höchstens im OffCanvas-Menü angezeigt werden.");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowManufacturerPictures.Hint",
+            "Specifies whether manufacturer images are displayed in manufacturer lists on the homepage and in the OffCanvas menu.",
+            "Legt fest, ob Herstellerbilder in den Herstellerlisten auf der Startseite und im OffCanvas-Menü angezeigt werden.");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.HideManufacturerDefaultPictures", "Hide manufacturer placeholder images", "Hersteller-Platzhalterbilder ausblenden");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.SortManufacturersAlphabetically", "Sort manufacturer overview alphabetically", "Herstellerübersicht alphabetisch sortieren");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.AllowDifferingEmailAddressForEmailAFriend",
+            "Allow a different email address",
+            "Abweichende E-Mail-Adresse erlauben",
+            "Specifies whether customers can change their own email address in the product recommendation form. Otherwise, the address from their customer account is used and cannot be edited. Enable this option also if guests are allowed to recommend products by email.",
+            "Legt fest, ob Kunden ihre eigene E-Mail-Adresse im Weiterempfehlungsformular ändern dürfen. Andernfalls wird die Adresse aus dem Kundenkonto verwendet und kann nicht bearbeitet werden. Aktivieren Sie diese Option auch, wenn Gäste Produkte per E-Mail weiterempfehlen dürfen.");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.NotifyStoreOwnerAboutNewProductReviews",
+            "Notify about new reviews by email",
+            "Über neue Bewertungen per E-Mail informieren",
+            "Specifies whether the store owner is notified by email when a new product review is submitted.",
+            "Legt fest, ob der Shop-Betreiber bei einer neuen Produktbewertung per E-Mail benachrichtigt wird.");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ReviewsDisplay", "Show reviews…", "Bewertungen anzeigen…");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowProductReviewsInProductLists", "In product lists", "In Produktlisten");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowProductReviewsInProductDetail", "On the product detail page", "Auf der Produktdetailseite");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ProductReviewsGroup", "Product reviews", "Produktbewertungen");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ProductContactGroup", "Product inquiries & recommendations", "Produktanfragen & Weiterempfehlungen");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.EmailAFriendEnabled",
+            "Enable product recommendations by email",
+            "Weiterempfehlung per E-Mail aktivieren",
+            "Specifies whether customers can recommend a product by email.",
+            "Legt fest, ob Kunden ein Produkt per E-Mail weiterempfehlen können.");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Price.ShowOfferCountdownRemainingHours",
+            "Show countdown before offer ends",
+            "Countdown vor Angebotsende anzeigen",
+            "Specifies how many hours before an offer ends a countdown is displayed on the product detail page and in the shopping cart. A value of 72 hours displays it during the last three days. Only applies to offers with an end date. Leave the field empty to disable the countdown. A setting on the discount takes precedence.",
+            "Legt fest, wie viele Stunden vor Angebotsende ein Countdown auf der Produktdetailseite und im Warenkorb angezeigt wird. Bei 72 Stunden erscheint er während der letzten drei Tage. Gilt nur für Angebote mit Enddatum. Lassen Sie das Feld leer, um den Countdown zu deaktivieren. Eine eigene Einstellung am Rabatt hat Vorrang.");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Price.ApplyTierPricePercentageToAttributePriceAdjustments",
+            "Apply tier discount to variant surcharges and reductions",
+            "Staffelrabatt auf Variantenauf- und -abschläge anwenden",
+            "Specifies whether percentage tier discounts also apply to price surcharges and reductions for variant options. For example, a 10% tier discount reduces a variant surcharge from €5.00 to €4.50. Applies to order quantities greater than 1 and not to variant options linked to products.",
+            "Legt fest, ob prozentuale Staffelermäßigungen auch auf Preisaufschläge und Preisabschläge von Variantenoptionen angewendet werden. Beispielsweise reduziert eine Staffelermäßigung von 10 % einen Variantenaufschlag von 5,00 € auf 4,50 €. Gilt für Bestellmengen größer als 1 und nicht für Variantenoptionen mit Produktverknüpfung.");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Price.CheckListPrices", "Check when displaying list prices…", "Bei Listenpreisen prüfen…");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Price.ValidateDiscountLimitationsInLists", "Discount usage limits", "Rabatt-Nutzungsgrenzen");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Price.ValidateDiscountRulesInLists", "Cart rules for discounts", "Warenkorbregeln von Rabatten");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Price.ValidateDiscountGiftCardsInLists",
+            "Gift cards in the cart",
+            "Geschenkgutscheine im Warenkorb",
+            "Checks for gift card products in the cart. The current implementation only rejects discounts on the order total or subtotal when gift cards are present. Regular product list price calculation processes product, category and manufacturer discounts, so this check currently has no effect there. This does not refer to redeemed coupon codes.",
+            "Prüft auf Geschenkgutschein-Produkte im Warenkorb. Der vorhandene Code schließt dabei nur Rabatte auf die Bestell- oder Zwischensumme aus. Da die normale Produktlistenberechnung Produkt-, Warengruppen- und Markenrabatte verarbeitet, hat diese Prüfung dort derzeit keine Wirkung. Gemeint sind keine eingelösten Rabattcodes.");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Price.IgnoreDiscounts",
+            "Disable discounts",
+            "Rabatte deaktivieren",
+            "Specifies whether configured discounts are disregarded during price calculation. Special prices, tier prices and discounts on bundle items are not affected.",
+            "Legt fest, ob eingerichtete Rabatte bei der Preisberechnung unberücksichtigt bleiben. Aktionspreise, Staffelpreise und Rabatte auf Bundle-Bestandteile sind davon nicht betroffen.");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Price.ShowLoginForPriceNote.Hint",
+            "Specifies whether the product detail page displays the message 'Prices are displayed after login.' when the visitor is not allowed to see prices. To display prices only to logged-in customers, revoke the price display permission for the 'Guests' customer group under 'Access control' and grant it to registered customers.",
+            "Legt fest, ob auf der Produktdetailseite der Hinweis „Preise werden nach Anmeldung angezeigt.“ erscheint, wenn der Besucher keine Preise sehen darf. Um Preise nur angemeldeten Kunden anzuzeigen, entziehen Sie der Kundengruppe „Gäste“ unter „Zugriffsrechte“ das Recht zur Preisanzeige und erlauben es für registrierte Kunden.");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Price.ShowVariantCombinationPriceAdjustment",
+            "Show surcharges and reductions for variants",
+            "Auf- und Abschläge bei Varianten anzeigen",
+            "Specifies whether price surcharges and reductions are displayed for variant options, for example 'Extra large (+ €5.00)'. This setting only affects the display; surcharges and reductions are still included in the product price.",
+            "Legt fest, ob Preisaufschläge und Preisabschläge bei Variantenoptionen angezeigt werden, beispielsweise „Extra groß (+ 5,00 €)“. Die Einstellung betrifft nur die Anzeige; die Auf- und Abschläge werden weiterhin im Produktpreis berücksichtigt.");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ProductsAlsoPurchasedEnabled",
+            "Enable 'Also purchased'",
+            "„Auch gekauft“ aktivieren",
+            "Specifies whether products ordered together with this product are displayed on the product detail page.",
+            "Legt fest, ob auf der Produktdetailseite Produkte angezeigt werden, die zusammen mit diesem Produkt bestellt wurden.");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ProductsAlsoPurchasedNumber",
+            "Maximum number of products",
+            "Maximale Produktanzahl",
+            "Specifies the maximum number of products displayed in the 'Also purchased' section.",
+            "Legt fest, wie viele Produkte im Bereich „Auch gekauft“ höchstens angezeigt werden.");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.RecentlyViewedProductsEnabled",
+            "Enable 'Recently viewed'",
+            "„Zuletzt angesehen“ aktivieren",
+            "Specifies whether customers can see their recently viewed products on a dedicated overview page and in additional product overviews throughout the store.",
+            "Legt fest, ob Kunden ihre zuletzt angesehenen Produkte auf einer eigenen Übersichtsseite und in ergänzenden Produktübersichten im Shop sehen können.");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.RecentlyViewedProductsNumber",
+            "Maximum number of products",
+            "Maximale Produktanzahl",
+            "Specifies the maximum number of products displayed in the 'Recently viewed' section.",
+            "Legt fest, wie viele Produkte im Bereich „Zuletzt angesehen“ höchstens angezeigt werden.");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.RecentlyAddedProductsEnabled",
+            "Enable 'New arrivals'",
+            "„Neu eingetroffen“ aktivieren",
+            "Specifies whether customers can view the most recently added products on the 'New arrivals' page.",
+            "Legt fest, ob Kunden die zuletzt hinzugefügten Produkte auf der Seite „Neu eingetroffen“ ansehen können.");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.RecentlyAddedProductsNumber",
+            "Maximum number of products",
+            "Maximale Produktanzahl",
+            "Specifies the maximum number of products displayed in the 'New arrivals' section.",
+            "Legt fest, wie viele Produkte im Bereich „Neu eingetroffen“ höchstens angezeigt werden.");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowLinkedAttributeValueQuantity",
+            "Show product quantity in variant selection",
+            "Produktmenge in der Variantenauswahl anzeigen",
+            "Specifies whether variant options linked to a product display the configured quantity before the name, for example '2 x spare battery'. The quantity is only displayed when it is greater than 1 and the customer is allowed to see prices.",
+            "Legt fest, ob bei Variantenoptionen mit Produktverknüpfung die hinterlegte Stückzahl vor dem Namen angezeigt wird, beispielsweise „2 x Ersatzakku“. Die Angabe erscheint nur bei Mengen größer als 1 und wenn der Kunde Preise sehen darf.");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowLinkedAttributeValueImage",
+            "Show product image in variant selection",
+            "Produktbild in der Variantenauswahl anzeigen",
+            "Specifies whether variant options linked to a product use the linked product's first image as a thumbnail. The display depends on the variant attribute's control type.",
+            "Legt fest, ob bei Variantenoptionen mit Produktverknüpfung das erste Bild des verknüpften Produkts als Vorschaubild verwendet wird. Die Darstellung hängt vom Auswahltyp des Variantenattributs ab.");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.AdditionalProductOverviews", "Additional product overviews", "Weitere Produktübersichten");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowProductCondition", "Item condition", "Artikelzustand");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowProductTags", "Tags", "Tags");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowManufacturerInProductDetail", "Manufacturer/brand", "Hersteller/Marke");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowManufacturerPicturesInProductDetail", "Brand logo", "Markenlogo");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowShortDescriptionInGridStyleLists", "Short description", "Kurzbeschreibung");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowManufacturerInGridStyleLists", "Manufacturer/brand", "Hersteller/Marke");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowProductOptionsInLists", "Variant names", "Variantnamen");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowColorSquaresInLists", "Color variants", "Farbvarianten");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowManufacturerLogoInLists", "Brand logo instead of brand name", "Markenlogo statt Markenname");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.LinkManufacturerLogoInLists", "Link brand logo", "Markenlogo verlinken");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.IgnoreFeaturedProducts",
+            "Hide featured products block",
+            "Top-Produkte-Block ausblenden",
+            "Disables the separate featured products block on category and manufacturer pages. Whether featured products appear in the regular product list is controlled by 'Show featured products in lists'.",
+            "Deaktiviert den separaten Top-Produkte-Block auf Warengruppen- und Markenseiten. Ob Top-Produkte in der normalen Produktliste erscheinen, wird durch „Top-Produkte in Listen anzeigen“ festgelegt.");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.IncludeInCompareProducts", "Include in product comparisons…", "Beim Produktvergleich einbeziehen…");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.IncludeShortDescriptionInCompareProducts", "Short description", "Kurzbeschreibung");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.IncludeFullDescriptionInCompareProducts", "Full description", "Komplette Beschreibung");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowProductInformation", "Show product information…", "Produktinformationen anzeigen…");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowProductSku",
+            "SKU",
+            "Artikelnummer",
+            "Specifies whether SKUs are displayed on product detail pages, in the list view of product lists, in product comparisons, in the shopping cart, on the wishlist and during checkout. Also applies to order and shipment details and printed orders and packing slips.",
+            "Legt fest, ob Artikelnummern auf Produktdetailseiten, in der Listenansicht von Produktlisten, im Produktvergleich, im Warenkorb, auf der Merkliste und im Bestellvorgang angezeigt werden. Die Einstellung gilt auch für Bestell- und Versanddetails sowie die Druckansicht von Bestellungen und Lieferscheinen.");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowManufacturerPartNumber",
+            "Manufacturer part number",
+            "Herstellerartikelnummer",
+            "Check the box to show manufacturer part numbers in public store.",
+            "Legt fest, ob die Hersteller-Produktnummer im Shop angezeigt werden soll.");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowGtin",
+            "GTIN",
+            "GTIN",
+            "Check the box to show GTIN in public store.",
+            "Legt fest, ob die EAN Nummer im Shop angezeigt werden soll.");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowWeight",
+            "Weight",
+            "Gewicht",
+            "Specifies whether the product weight is displayed on the product detail page, in the list view of product lists and in product comparisons. Weight display in the shopping cart is configured separately in the shopping cart settings.",
+            "Legt fest, ob das Produktgewicht auf der Produktdetailseite, in der Listenansicht von Produktlisten und im Produktvergleich angezeigt wird. Die Gewichtsanzeige im Warenkorb wird separat in den Warenkorb-Einstellungen festgelegt.");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowDimensions",
+            "Dimensions",
+            "Abmessungen",
+            "Specifies whether width, height and length are displayed on the product detail page, in the list view of product lists and in product comparisons.",
+            "Legt fest, ob Breite, Höhe und Länge auf der Produktdetailseite, in der Listenansicht von Produktlisten und im Produktvergleich angezeigt werden.");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowDefaultQuantityUnit",
+            "Use default quantity unit",
+            "Standard-Verpackungseinheit verwenden",
+            "Specifies whether the default quantity unit is used when no quantity unit is assigned to the product.",
+            "Legt fest, ob die Standard-Verpackungseinheit verwendet wird, wenn dem Produkt keine Verpackungseinheit zugewiesen ist.");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowDefaultDeliveryTime",
+            "Use default delivery time",
+            "Standard-Lieferzeit verwenden",
+            "Specifies whether the default delivery time is used when no delivery time is assigned to the product.",
+            "Legt fest, ob die Standard-Lieferzeit verwendet wird, wenn dem Produkt keine Lieferzeit zugewiesen ist.");
+
+        builder.AddOrUpdate("Admin.CatalogSettings.ProductDisplay", "Shared product settings", "Übergreifende Produkteinstellungen");
+        builder.AddOrUpdate("Admin.CatalogSettings.ProductDisplay.Info",
+            "These settings are used in multiple places in the store. For example, the SKU display setting also controls its display on orders; the placeholder image setting applies to products and the shopping cart, among other places.",
+            "Diese Einstellungen werden an mehreren Stellen im Shop verwendet. Beispielsweise steuert die Artikelnummer-Anzeige auch die Darstellung bei Bestellungen; die Einstellung für Platzhalterbilder wirkt unter anderem bei Produkten und im Warenkorb.");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.DefaultProductListPageSize",
+            "Products per page",
+            "Produkte pro Seite",
+            "Specifies how many products are displayed on a product list page.",
+            "Legt fest, wie viele Produkte auf einer Produktlistenseite angezeigt werden.");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ProductTileContent", "Product tile content", "Inhalt der Produktkacheln");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.AllowProductViewModeChanging.Hint",
+            "Displays a switch between grid and list views in product lists for customers. The initial view is set with 'Default view mode'.",
+            "Zeigt Kunden einen Umschalter zwischen Raster- und Listenansicht in Produktlisten an. Die anfängliche Darstellung legen Sie mit „Standardansicht“ fest.");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.KeepOnSubPages",
+            "Keep when paging and filtering…",
+            "Beim Blättern und Filtern beibehalten…",
+            "Specifies which content remains visible from page 2 of the product list onwards and when filters are active.",
+            "Legt fest, welche Inhalte ab Seite 2 der Produktliste und bei aktiven Filtern weiterhin angezeigt werden.");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.IncludeFeaturedProductsInSubPages", "Featured products", "Top-Produkte");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowSubCategoriesInSubPages",
+            "Subcategories",
+            "Unterwarengruppen",
+            "Keeps subcategories visible from page 2 onwards and when filters are active. Only applies when subcategories are displayed above the product list.",
+            "Zeigt Unterwarengruppen auch ab Seite 2 der Produktliste und bei aktiven Filtern an. Gilt nur für die Anzeige oberhalb der Produktliste.");
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowDescriptionInSubPages",
+            "Page descriptions",
+            "Seitenbeschreibungen",
+            "Keeps category and manufacturer descriptions visible from page 2 onwards and when filters are active.",
+            "Zeigt Beschreibungen von Warengruppen und Marken auch ab Seite 2 der Produktliste und bei aktiven Filtern an.");
+
         builder.Delete(
             "Admin.Catalog.Products.Fields.Published.Hint",
             "Admin.Catalog.Products.Fields.QuantityUnit.Hint",
@@ -140,8 +359,8 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.Catalog.Products.Fields.AllowCustomerReviews",
             "Allow customer reviews",
             "Kundenbewertungen erlauben",
-            "Allows customers to review this product. To display reviews on the product page, enable 'Show product reviews in product detail view' in the catalog settings.",
-            "Legt fest, ob Kunden Produktbewertungen vornehmen dürfen. Damit Bewertungen auf der Produktseite angezeigt werden, muss in den Katalogeinstellungen 'Zeige Produktbewertungen in der Produktdetailansicht' aktiviert sein.");
+            "Allows customers to review this product. To display reviews on the product page, enable 'On the product detail page' under 'Show reviews…' in the catalog settings.",
+            "Legt fest, ob Kunden Produktbewertungen vornehmen dürfen. Damit Bewertungen auf der Produktseite angezeigt werden, muss in den Katalogeinstellungen unter „Bewertungen anzeigen…“ die Option „Auf der Produktdetailseite“ aktiviert sein.");
 
         builder.AddOrUpdate("Admin.Catalog.Products.Fields.Condition",
             "Item condition",
@@ -385,10 +604,10 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Bestimmen Sie hier die Seitengrößen, die Kunden in Produktlisten auswählen können.");
 
         builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.DisplayAllImagesNumber",
-            "Only show selected variant images from this number of images",
-            "Ab dieser Bildanzahl nur Bilder der gewählten Variante anzeigen",
-            "Once this number of images has been reached, only the product images of the selected variant are displayed. If fewer images are available, all the product images are shown.",
-            "Sobald diese Bildanzahl erreicht ist, werden nur noch die Produktbilder der gewählten Variante angezeigt. Bei weniger Bildern werden hingegen alle Produktbilder angezeigt.");
+            "Show all product images up to",
+            "Alle Produktbilder anzeigen bis",
+            "Specifies the total number of product images up to which all images are displayed. When there are more images, the gallery only shows images of the selected variant and images not assigned to any variant. The limit can be set individually for each product.",
+            "Legt fest, bis zu welcher Gesamtzahl alle Produktbilder angezeigt werden. Bei mehr Bildern zeigt die Galerie nur Bilder der gewählten Variante und Bilder ohne Variantenzuordnung. Die Grenze kann für jedes Produkt individuell festgelegt werden.");
 
         builder.AddOrUpdate("Order.PlaceOrderError",
             "The order could not be completed due to an unexpected error. Customer ID: {0}.",
