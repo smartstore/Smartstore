@@ -122,6 +122,7 @@
   - #1550 Clearly distinguish between the terms "withdrawal" and "return", and do not use "withdrawal" when referring to returns.
   - Fixed missing order number in JSON deserialization of `WithdrawalRequest`.
   - "Challenge" instead of "Forbid" for a customer who has already logged in but has not been authorized.
+  - A digital product cannot be withdrawn if the buyer is given direct access to it and expressly waives their right of withdrawal.
 - Corrected an incorrect regular bundle price when bundle items are discounted.
 - **Product Details**:
   - Weight adjustments for preselected products attributes were not taken into account.
