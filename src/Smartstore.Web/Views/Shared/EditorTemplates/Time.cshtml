@@ -32,6 +32,7 @@
 
 @{
     var id = Html.IdForModel();
+    TryGetMetadata<string>("prefix", out var prefix);
     var value = string.Empty;
     if (Value.HasValue && Value.Value > DateTime.MinValue)
     {
@@ -42,6 +43,12 @@
 }
 
 <div class="input-group date datetimepicker-group" id="@id-parent" data-date="@value" data-target-input="nearest">
+    @if (prefix.HasValue())
+    {
+        <div class="input-group-prepend input-addon-plain">
+            <label for="@id" class="input-group-text">@prefix</label>
+        </div>
+    }
     <input asp-for="@Model"
            attrs="attributes"
            value="@value"

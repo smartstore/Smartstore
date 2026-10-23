@@ -167,8 +167,8 @@
                 <div class="input-group">
                     <input asp-for="VatNumber" aria-labelledby="vat-number-label vat-number-status" aria-describedby="vat-number-note" />
                     <div class="input-group-append"><span class="input-group-text">@Model.VatNumberStatusNote</span></div>
-                    <span id="vat-number-status" class="sr-only"> @Model.VatNumberStatusNote</span>
                 </div>
+                <span id="vat-number-status" class="sr-only"> @Model.VatNumberStatusNote</span>
                 <div id="vat-number-note" class="form-text text-muted vat-note">
                     @T("Account.Fields.VatNumber.Note")
                 </div>

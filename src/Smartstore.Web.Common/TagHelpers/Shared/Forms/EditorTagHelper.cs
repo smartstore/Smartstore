@@ -15,6 +15,7 @@ public class EditorTagHelper : BaseFormTagHelper
     const string AdditionalViewDataAttributeName = "asp-additional-viewdata";
     //const string ValueAttributeName = "asp-value";
     const string PostfixAttributeName = "sm-postfix";
+    const string PrefixAttributeName = "sm-prefix";
 
     // TODO: (mh) (core) Find a way to propagate "required" metadata to template, 'cause FluentValidation obviously does not provide this info to MVC metadata.
 
@@ -37,6 +38,12 @@ public class EditorTagHelper : BaseFormTagHelper
     public string Postfix { get; set; }
 
     /// <summary>
+    /// The text displayed before the input by editor templates that support a prefix.
+    /// </summary>
+    [HtmlAttributeName(PrefixAttributeName)]
+    public string Prefix { get; set; }
+
+    /// <summary>
     /// An anonymous <see cref="object"/> or <see cref="System.Collections.Generic.IDictionary{String, Object}"/>
     /// that can contain additional view data that will be merged into the
     /// <see cref="ViewDataDictionary{TModel}"/> instance created for the template.
@@ -49,6 +56,11 @@ public class EditorTagHelper : BaseFormTagHelper
         output.SuppressOutput();
 
         var viewData = ConvertUtility.ObjectToDictionary(AdditionalViewData);
+
+        if (Prefix != null)
+        {
+            viewData["prefix"] = Prefix;
+        }
 
         if (Postfix != null)
         {

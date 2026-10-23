@@ -25,6 +25,7 @@
     }
 
     var id = Html.IdForModel();
+    TryGetMetadata<string>("prefix", out var prefix);
     if (!TryGetMetadata<string>("format", out var format))
     {
         format = picktime ? "L LT" : "L";
@@ -34,6 +35,12 @@
 }
 
 <div class="@cssClass" id="@id-parent" data-date="@valueStr" data-target-input="nearest" data-keep-open="false">
+    @if (prefix.HasValue())
+    {
+        <div class="input-group-prepend input-addon-plain">
+            <label for="@id" class="input-group-text">@prefix</label>
+        </div>
+    }
     <input asp-for="@Model"
            attrs="attributes"
            class="datetimepicker-input edit-control"

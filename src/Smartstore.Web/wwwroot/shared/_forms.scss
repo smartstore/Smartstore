@@ -176,6 +176,72 @@ fieldset.content-group {
 }
 
 
+// Plain addons visually extend the adjacent input without affecting other addons.
+.input-group {
+    // Match the input background and mute the addon text.
+    > .input-addon-plain > .input-group-text {
+        background-color: $input-bg;
+        color: var(--muted);
+        @include transition($input-transition);
+    }
+
+    // Remove the inner end border at each plain addon/input seam.
+    > .input-group-prepend.input-addon-plain > .input-group-text,
+    > .form-control:has(+ .input-group-append.input-addon-plain) {
+        border-inline-end: 0;
+    }
+
+    // Remove the matching inner start border.
+    > .input-group-prepend.input-addon-plain + .form-control,
+    > .input-group-append.input-addon-plain > .input-group-text {
+        border-inline-start: 0;
+    }
+
+    // Keep only the addon's padding between its label and the input text.
+    > .input-group-prepend.input-addon-plain + .form-control {
+        padding-inline-start: 0;
+    }
+
+    > .form-control:has(+ .input-group-append.input-addon-plain) {
+        padding-inline-end: 0;
+    }
+
+    // Number editors wrap their input and steppers in a separate group.
+    > .input-group-prepend.input-addon-plain + .numberinput-group {
+        flex: 1 1 0;
+        min-width: 0;
+        width: 0;
+
+        > .numberinput,
+        > .numberinput-formatted {
+            padding-inline-start: 0;
+        }
+
+        > .numberinput {
+            border-inline-start: 0;
+            border-start-start-radius: 0 !important;
+            border-end-start-radius: 0 !important;
+        }
+    }
+
+    // Extend the adjacent input focus border across the plain addon.
+    > .input-group-prepend.input-addon-plain:has(+ .form-control:focus, + .numberinput-group > .form-control:focus),
+    > .form-control:focus + .input-group-append.input-addon-plain {
+        > .input-group-text {
+            background-color: $input-focus-bg;
+            border-color: $input-focus-border-color;
+        }
+    }
+
+    // Match the adjacent disabled input background.
+    > .input-group-prepend.input-addon-plain:has(+ .form-control:disabled, + .numberinput-group > .form-control:disabled),
+    > .form-control:disabled + .input-group-append.input-addon-plain {
+        > .input-group-text {
+            background-color: $input-disabled-bg;
+        }
+    }
+}
+
 // Input inline addon (button):
 // Absolutely positioned input inset button
 // ------------------------------------------------------

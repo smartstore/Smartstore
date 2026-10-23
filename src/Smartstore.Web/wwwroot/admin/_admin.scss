@@ -1221,7 +1221,7 @@ legend {
 // --------------------------------------------------
 
 .datetimepicker-group {
-    .input-group-text {
+    > .input-group-append > .input-group-text {
         padding-left: 0 !important;
         padding-right: 0 !important;
         width: $input-height;
@@ -1231,11 +1231,11 @@ legend {
         }
     }
 
-    &.input-group-sm .input-group-text {
+    &.input-group-sm > .input-group-append > .input-group-text {
         width: $input-height-sm;
     }
 
-    &.input-group-lg .input-group-text {
+    &.input-group-lg > .input-group-append > .input-group-text {
         width: $input-height-lg;
     }
 }
