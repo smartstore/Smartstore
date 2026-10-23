@@ -17,6 +17,7 @@ public abstract class IconTagHelperBase : SmartTagHelper
     private bool? _flipVertical;
     private bool? _mirrorRtl;
 
+    private const string PositionAttributeName = "position";
     private const string SizeAttributeName = "size";
     private const string FontScaleAttributeName = "font-scale";
     private const string FixedWidthAttributeName = "fw";
@@ -40,6 +41,7 @@ public abstract class IconTagHelperBase : SmartTagHelper
     {
         ClassAttributeName, StyleAttributeName,
         SizeAttributeName,
+        PositionAttributeName,
         FontScaleAttributeName,
         FixedWidthAttributeName,
         ColorAttributeName,
@@ -58,6 +60,15 @@ public abstract class IconTagHelperBase : SmartTagHelper
     };
 
     /// <summary>
+    /// Gets or sets the position within a stack: start-start, start-center, start-end,
+    /// center-start, center-end, end-start, end-center, or end-end.
+    /// The block axis comes first, followed by the inline axis. Omission centers the
+    /// icon within the stack area. Has no positioning effect outside a stack.
+    /// </summary>
+    [HtmlAttributeName(PositionAttributeName)]
+    public string Position { get; set; }
+
+    /// <summary>
     /// Gets or sets a predefined size: 2xs, xs, sm, lg, xl, 2xl, or 1x through 10x.
     /// </summary>
     [HtmlAttributeName(SizeAttributeName)]
@@ -67,7 +78,7 @@ public abstract class IconTagHelperBase : SmartTagHelper
     /// Gets or sets a custom size multiplier taking precedence over Size.
     /// </summary>
     [HtmlAttributeName(FontScaleAttributeName)]
-    public float? FontScale { get; set; }
+    public double? FontScale { get; set; }
 
     /// <summary>
     /// Gets or sets whether the icon occupies a fixed-width slot.
@@ -165,19 +176,19 @@ public abstract class IconTagHelperBase : SmartTagHelper
     /// Gets or sets the drawing scale without changing its layout size.
     /// </summary>
     [HtmlAttributeName(ScaleAttributeName)]
-    public float? Scale { get; set; }
+    public double? Scale { get; set; }
 
     /// <summary>
     /// Gets or sets the horizontal offset in sixteenths of an em. Positive values move right.
     /// </summary>
     [HtmlAttributeName(ShiftXAttributeName)]
-    public float? ShiftX { get; set; }
+    public double? ShiftX { get; set; }
 
     /// <summary>
     /// Gets or sets the vertical offset in sixteenths of an em. Positive values move down.
     /// </summary>
     [HtmlAttributeName(ShiftYAttributeName)]
-    public float? ShiftY { get; set; }
+    public double? ShiftY { get; set; }
 
     /// <summary>
     /// Gets or sets additional CSS classes.
@@ -236,6 +247,10 @@ public abstract class IconTagHelperBase : SmartTagHelper
         // as well for helpers invoked directly, and pass each value exactly once.
         var cssClass = CssClass ?? output.Attributes[ClassAttributeName]?.ValueAsString();
         var style = Style ?? output.Attributes[StyleAttributeName]?.ValueAsString();
+        if (!string.IsNullOrEmpty(Position))
+        {
+            cssClass = string.IsNullOrEmpty(cssClass) ? "icon-pos-" + Position : cssClass + " icon-pos-" + Position;
+        }
         if (cssClass != null)
         {
             options.Attributes[ClassAttributeName] = cssClass;

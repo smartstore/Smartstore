@@ -948,7 +948,23 @@ HTML host; each layer keeps its own coordinate system:
 </span>
 ```
 
-The stack defaults to 2.5em by 2em. Layers are centered and paint in DOM order
+Place a position class on the overlay layer to align it with the stack edges.
+Alternatively, set `position="end-end"` on `<icon>` or `<sm-icon>` to generate
+`icon-pos-end-end`. The string attribute is appended to `icon-pos-` without value validation;
+omission adds no class, and unknown positions have no matching positioning rule. Changing or removing the
+Web Component attribute updates the generated class without reloading the SVG.
+Without a position class, the layer remains centered. Start and end follow the
+text direction. Class names specify the block axis first, then the inline axis.
+Existing CSS variables for sizing and offsets remain available.
+
+| Block start | Block center | Block end |
+| --- | --- | --- |
+| `icon-pos-start-start` | `icon-pos-center-start` | `icon-pos-end-start` |
+| `icon-pos-start-center` | No class | `icon-pos-end-center` |
+| `icon-pos-start-end` | `icon-pos-center-end` | `icon-pos-end-end` |
+
+The stack defaults to 2em by 2em. Use `icon-stack-sm` on the stack host for
+a 1em by 1em area; layer sizes are unchanged. Layers are centered and paint in DOM order
 unless given `--icon-stack-z-index`. Scale or animate the host for the entire
 stack, or individual layers for independent effects. The existing BI helper's
 single-SVG stack output is not automatically converted to this HTML structure.
@@ -968,7 +984,7 @@ single-SVG stack output is not automatically converted to this HTML structure.
 | `--icon-flip-x`, `--icon-flip-y` | Axis multipliers, `1`; use `-1` to mirror |
 | `--icon-shift-x`, `--icon-shift-y` | Visual displacement as CSS lengths, `0` |
 | `--icon-li-margin`, `--icon-li-width` | List indent and marker width, `2.5em` and `2em` |
-| `--icon-stack-width`, `--icon-stack-height` | Stack dimensions, `2.5em` and `2em` |
+| `--icon-stack-width`, `--icon-stack-height` | Stack dimensions, `2em` and `2em` |
 | `--icon-stack-align`, `--icon-stack-z-index` | Stack alignment and layer order, `middle` and `auto` |
 | `--icon-inverse` | Inverse color, defaults to the theme's `$yiq-text-light` |
 

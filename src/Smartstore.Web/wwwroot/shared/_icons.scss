@@ -128,7 +128,7 @@ svg.icon > :is(use, g) {
 .icon-stack {
     position: relative;
     isolation: isolate;
-    width: var(--icon-stack-width, 2.5em);
+    width: var(--icon-stack-width, 2em);
     height: var(--icon-stack-height, 2em);
     vertical-align: var(--icon-stack-align, middle);
 
@@ -150,12 +150,29 @@ svg.icon > :is(use, g) {
     }
 }
 
+.icon-stack-sm {
+    --icon-stack-width: 1em;
+    --icon-stack-height: 1em;
+}
+
 .icon-stack > .icon-stack-1x {
     --icon-size-factor: 1;
 }
 
 .icon-stack > .icon-stack-2x {
     --icon-size-factor: 2;
+}
+
+// Position stack layers at logical edges; no utility keeps the centered default.
+@each $block, $block-margin in (start: 0 auto, center: auto, end: auto 0) {
+    @each $inline, $inline-margin in (start: 0 auto, center: auto, end: auto 0) {
+        @if $block != center or $inline != center {
+            .icon-stack > .icon-pos-#{$block}-#{$inline} {
+                margin-block: $block-margin;
+                margin-inline: $inline-margin;
+            }
+        }
+    }
 }
 
 .icon-inverse {

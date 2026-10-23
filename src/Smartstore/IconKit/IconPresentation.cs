@@ -19,7 +19,7 @@ public readonly record struct IconPresentation
     /// <summary>
     /// Gets or sets a custom size multiplier taking precedence over Size.
     /// </summary>
-    public float? FontScale { get; init; }
+    public double? FontScale { get; init; }
 
     /// <summary>
     /// Gets or sets whether the icon occupies a fixed-width slot.
@@ -81,17 +81,17 @@ public readonly record struct IconPresentation
     /// <summary>
     /// Gets or sets the drawing scale without changing its layout size.
     /// </summary>
-    public float? Scale { get; init; }
+    public double? Scale { get; init; }
 
     /// <summary>
     /// Gets or sets the horizontal offset in sixteenths of an em. Positive values move right.
     /// </summary>
-    public float? ShiftX { get; init; }
+    public double? ShiftX { get; init; }
 
     /// <summary>
     /// Gets or sets the vertical offset in sixteenths of an em. Positive values move down.
     /// </summary>
-    public float? ShiftY { get; init; }
+    public double? ShiftY { get; init; }
 
     /// <summary>
     /// Gets or sets a positive stroke multiplier, replacing the address or mapping multiplier.
@@ -319,7 +319,7 @@ public readonly record struct IconPresentation
                 case "size" when IconPresentation.IsValidSize(value):
                     result = result with { Size = value.ToString() };
                     break;
-                case "font-scale" when float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var fontScaleValue) && float.IsFinite(fontScaleValue) && fontScaleValue > 0:
+                case "font-scale" when double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var fontScaleValue) && double.IsFinite(fontScaleValue) && fontScaleValue > 0:
                     result = result with { FontScale = fontScaleValue };
                     break;
                 case "fixed-width" when TryParseBoolean(value, out var fixedWidthValue):
@@ -352,13 +352,13 @@ public readonly record struct IconPresentation
                 case "mirror-rtl" when TryParseBoolean(value, out var mirrorRtlValue):
                     result = result with { MirrorRtl = mirrorRtlValue };
                     break;
-                case "scale" when float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var scaleValue) && float.IsFinite(scaleValue) && scaleValue > 0:
+                case "scale" when double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var scaleValue) && double.IsFinite(scaleValue) && scaleValue > 0:
                     result = result with { Scale = scaleValue };
                     break;
-                case "shift-x" when float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var shiftXValue) && float.IsFinite(shiftXValue):
+                case "shift-x" when double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var shiftXValue) && double.IsFinite(shiftXValue):
                     result = result with { ShiftX = shiftXValue };
                     break;
-                case "shift-y" when float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var shiftYValue) && float.IsFinite(shiftYValue):
+                case "shift-y" when double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var shiftYValue) && double.IsFinite(shiftYValue):
                     result = result with { ShiftY = shiftYValue };
                     break;
                 case "stroke-scale" when double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var strokeScaleValue) && double.IsFinite(strokeScaleValue) && strokeScaleValue > 0:

@@ -209,9 +209,9 @@
                                         @if (theme.IsConfigurable)
                                         {
                                             <a class="btn btn-outline-secondary tooltip-toggle" href='@Url.Action("Configure", "Theme", new { theme = theme.Name, storeId = Model.StoreId })' title="@T("Admin.Common.Configure")">
-                                                <icon-stack style="--icon-stack-width: 1.25em; --icon-stack-height: 1em;">
-                                                    <icon name="palette" style="--icon-shift-x: -0.15em; --icon-shift-y: -0.1em;" />
-                                                    <icon name="pen" style="--icon-size-factor: 0.8; --icon-shift-x: 0.35em; --icon-shift-y: 0.3em;" />
+                                                <icon-stack class="icon-stack-sm">
+                                                    <icon name="palette" />
+                                                    <icon name="pen" position="end-end" stroke-scale="1.25" font-scale="0.8" shift-x="7.5" shift-y="5" />
                                                 </icon-stack>
                                             </a>
                                         }

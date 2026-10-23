@@ -5,7 +5,7 @@
     const namespace = window.Smartstore = window.Smartstore || {};
     const sizes = new Set(['2xs', 'xs', 'sm', 'lg', 'xl', '2xl', ...Array.from({ length: 10 }, (_, i) => `${i + 1}x`)]);
     const animations = new Set(['spin', 'pulse', 'beat', 'fade', 'throb', 'bounce', 'flip', 'shake', 'spin-snap', 'swing', 'wag']);
-    const presentation = ['opacity', 'flip-h', 'flip-v', 'stroke-scale', 'rotate', 'size', 'font-scale', 'fw', 'color', 'inverse', 'animation', 'animation-duration', 'animation-reverse', 'scale', 'shift-x', 'shift-y', 'mirror-rtl'];
+    const presentation = ['position', 'opacity', 'flip-h', 'flip-v', 'stroke-scale', 'rotate', 'size', 'font-scale', 'fw', 'color', 'inverse', 'animation', 'animation-duration', 'animation-reverse', 'scale', 'shift-x', 'shift-y', 'mirror-rtl'];
     const drawing = ['name', 'area', 'lib', 'variant'];
     const cache = new Map();
     const waiting = [];
@@ -295,6 +295,12 @@
                 if (index >= 0) classes.splice(index, 1);
                 if (mirrorRtl) classes.push('icon-mirror-rtl');
             }
+            // Stack position: start-start, start-center, start-end, center-start,
+            // center-end, end-start, end-center, end-end. Omission centers the layer.
+            const position = this.getAttribute('position');
+            if (position) {
+                classes.push('icon-pos-' + position);
+            }
             const styles = new Map();
             const opacityAttribute = this.getAttribute('opacity');
             const validOpacity = value => value != null && String(value).trim() !== '' && Number.isFinite(Number(value)) && Number(value) >= 0 && Number(value) <= 1;
@@ -314,7 +320,11 @@
             }
             for (const [attribute, css] of [['color', '--icon-color'], ['animation-duration', '--icon-animation-duration']]) {
                 const value = this.getAttribute(attribute) ?? (attribute === 'color' ? this._addressPresentation?.color : null);
-                if (value != null) { if (/[;{}]/.test(value)) throw new Error('Invalid CSS value.'); styles.set(css, value); }
+                if (value != null) {
+                    if (/[;{}]/.test(value)) throw new Error('Invalid CSS value.');
+                    // In a custom property, inherit inherits the variable, not the text color.
+                    styles.set(css, attribute === 'color' && value.trim().toLowerCase() === 'inherit' ? 'currentColor' : value);
+                }
             }
             const reverse = boolean(this.getAttribute('animation-reverse'));
             if (reverse !== undefined) styles.set('--icon-animation-direction', reverse ? 'reverse' : 'normal');

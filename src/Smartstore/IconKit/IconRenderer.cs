@@ -275,7 +275,10 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
         AddNumber(svg, "--icon-scale", presentation.Scale);
         AddNumber(svg, "--icon-shift-x", presentation.ShiftX / 16, "em");
         AddNumber(svg, "--icon-shift-y", presentation.ShiftY / 16, "em");
-        AddStyle(svg, "--icon-color", presentation.Color);
+        // currentColor on the color property inherits text color without inheriting the custom property.
+        AddStyle(svg, "--icon-color", string.Equals(presentation.Color?.Trim(), "inherit", StringComparison.OrdinalIgnoreCase)
+            ? "currentColor"
+            : presentation.Color);
         AddNumber(svg, "--icon-opacity", presentation.Opacity);
         AddStyle(svg, "--icon-animation-duration", presentation.AnimationDuration);
         if (presentation.AnimationReverse.HasValue)
