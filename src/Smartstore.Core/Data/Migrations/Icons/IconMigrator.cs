@@ -3,8 +3,9 @@ using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Topics;
-using Smartstore.IconKit;
 using Smartstore.Events;
+using Smartstore.IconKit;
+using MsLogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace Smartstore.Core.Data.Migrations.Icons;
 
@@ -101,8 +102,9 @@ public class IconMigrator : IIconMigrator
 
         void ReportEntry(IconMigrationEntry entry)
         {
-            var level = entry.Status is "Warning" or "NotMigrated" ? LogLevel.Warning : LogLevel.Information;
+            var level = entry.Status is "Warning" or "NotMigrated" ? MsLogLevel.Warning : MsLogLevel.Information;
             _logger.Log(level, "Icon migration {RunId}: {@Entry}", runId, entry);
+
             report?.Invoke(entry);
         }
     }
