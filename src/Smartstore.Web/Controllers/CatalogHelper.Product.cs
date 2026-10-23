@@ -337,7 +337,7 @@ public partial class CatalogHelper
                     Icon = "download",
                     Href = _urlHelper.Action("Sample", "Download", new { productId = model.Id }),
                     IsPrimary = true,
-                    PrimaryActionColor = "danger"
+                    PrimaryActionColor = "light"
                 };
             }
 

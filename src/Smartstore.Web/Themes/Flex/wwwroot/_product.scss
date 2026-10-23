@@ -364,8 +364,9 @@ $pd-offer-spacing:              math.div($grid-gutter-width, 2);
 }
 
 .pd-promoprice-tip {
+    display: inline-flex;
     margin-inline-start: 0.5rem;
-    color: $gray-600 !important;
+    color: var(--gray-600) !important;
 }
 
 .pd-promosaving {

@@ -78,9 +78,10 @@ $mixed-megamenu-bg:             $megamenu-bg;
 
         > .badge {
             position: absolute;
-            inset-inline-start: 3px;
-            top: calc((var(--mm-nav-padding-y) * -1) + 3px);
-            font-size: $font-size-xs;
+            top: calc((var(--mm-nav-padding-y) * -1) + 1px);
+            font-size: 10px;
+            inset-inline-start: 50%;
+            translate: -50%;
         }
 
         > .badge-important {

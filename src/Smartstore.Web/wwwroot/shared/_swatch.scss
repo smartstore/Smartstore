@@ -12,8 +12,8 @@
     --swatch-border-radius: var(--border-radius-md);
     --swatch-border-color: transparent;
     --swatch-border-color-selected: #fff;
-    --swatch-outline-width: 2px;
-    --swatch-outline-offset: 2px;
+    --swatch-outline-width: 1px;
+    --swatch-outline-offset: 1px;
     --swatch-outline-color: rgba(0, 0, 0, 0.125);
     --swatch-outline-color-hover: rgba(0, 0, 0, 0.25);
     --swatch-outline-color-selected: #{$focus-ring-color};
@@ -309,6 +309,7 @@
 
 .swatch-input:checked + :is(.swatch-label, .swatch-content) {
     .swatch-element {
+        --swatch-outline-width: 2px;
         box-shadow: 0 0 0 var(--swatch-outline-offset) var(--swatch-border-color-selected);
         outline-color: var(--swatch-outline-color-selected);
         // TODO: Hmmm, not sure about this

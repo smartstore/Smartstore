@@ -43,7 +43,7 @@ button:where(.reset) {
 .btn-flagged {
     --btn-flag-color: var(--success);
     --btn-flag-size: 5px;
-    --btn-flag-offset: 4px;
+    --btn-flag-offset: .375em;
     position: relative;
 
     @each $color, $value in $theme-colors {
@@ -178,17 +178,25 @@ button:where(.reset) {
         //display: none;
     }
     &.dropdown-toggle:not(.no-chevron):not(.dropdown-toggle-split) {
-        padding-inline-end: 8px;
-
         &::after {
+            @include caret-down();
             position: absolute;
-            inset-inline-end: 3px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 12px;
-            height: 12px;
+            inset-inline-end: .325em;
+            top: auto;
+            bottom: .325em;
+            transform: none;
+            width: 0;
+            height: 0;
             margin: 0;
+            background: none;
+            mask: none;
+            opacity: .25;
         }
+
+        .show > &::after {
+            opacity: .4;
+        }
+
     }
 
     &.btn-sm {
