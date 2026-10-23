@@ -142,7 +142,7 @@ public class CatalogSettingsModel : ILocalizedModel<PriceSettingsLocalizedModel>
     public int DefaultProductListPageSize { get; set; }
 
     [LocalizedDisplay("*DefaultPageSizeOptions")]
-    public string DefaultPageSizeOptions { get; set; }
+    public int[] DefaultPageSizeOptions { get; set; } = [];
 
     [LocalizedDisplay("*GridStyleListColumnSpan")]
     public GridColumnSpan GridStyleListColumnSpan { get; set; }
@@ -326,6 +326,12 @@ public partial class CatalogSettingsValidator : SettingModelValidator<CatalogSet
             .GreaterThan(0);
 
         RuleFor(x => x.DefaultProductListPageSize)
+            .GreaterThan(0);
+
+        RuleFor(x => x.DefaultPageSizeOptions)
+            .NotEmpty();
+
+        RuleForEach(x => x.DefaultPageSizeOptions)
             .GreaterThan(0);
 
         RuleFor(x => x.NumberOfProductTags)

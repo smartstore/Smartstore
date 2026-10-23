@@ -364,7 +364,13 @@
                         <smart-label asp-for="DefaultPageSizeOptions" />
                     </div>
                     <div class="adminData">
-                        <setting-editor asp-for="DefaultPageSizeOptions"></setting-editor>
+                        <setting-editor asp-for="DefaultPageSizeOptions">
+                            <select asp-for="DefaultPageSizeOptions"
+                                    asp-items="new MultiSelectList(Model.DefaultPageSizeOptions)"
+                                    multiple="multiple"
+                                    data-tags="true">
+                            </select>
+                        </setting-editor>
                         <span asp-validation-for="DefaultPageSizeOptions"></span>
                     </div>
                 </div>

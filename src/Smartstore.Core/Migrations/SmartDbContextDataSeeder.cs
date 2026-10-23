@@ -378,6 +378,12 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "I want to return the following items:",
             "Ich möchte die folgenden Artikel zurücksenden:");
 
+        builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.DefaultPageSizeOptions",
+            "Page size options",
+            "Auswahlmöglichkeiten für Seitengröße",
+            "Specify the page sizes customers can select in product lists.",
+            "Bestimmen Sie hier die Seitengrößen, die Kunden in Produktlisten auswählen können.");
+
         builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.DisplayAllImagesNumber",
             "Only show selected variant images from this number of images",
             "Ab dieser Bildanzahl nur Bilder der gewählten Variante anzeigen",
