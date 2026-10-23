@@ -151,6 +151,10 @@ base/samples/catalog/products/food/FD-1001.fullDescription.html
 Rule of thumb: HTML longer than one line or about 200 characters goes into its own file.
 Format these files so that people can edit them: every block element (`<p>`, `<ul>`, `<li>`, ...) on its own line,
 content indented by two spaces, one sentence per line. No one-line HTML.
+Every mention of another product or category is a link to `/{slug}/`
+(e.g. `<a href="/arc-floor-lamp/">Arc floor lamp</a>`). Slugs are
+derived from the name in the installed language; look them up in the snapshot (`UrlRecord.json`) and update the
+links when a name changes.
 
 ## Locale resources
 
