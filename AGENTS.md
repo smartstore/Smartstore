@@ -72,6 +72,7 @@ Architecture follows Domain-Driven Design. See
 | Performance | `dev-docs/advanced/performance-guide.md` |
 | Deployment & build | `dev-docs/getting-started/deployment-and-build.md`, `build/README.md` |
 | Installation seed data | `src/Smartstore.Web/App_Data/Seed/README.md` |
+| Demo catalog (sample data) | `src/Smartstore.Web/App_Data/Seed/CATALOG.md` |
 
 ## Coding conventions
 

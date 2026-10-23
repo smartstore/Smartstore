@@ -4,6 +4,9 @@ This folder holds the data that the installer writes into a new shop database:
 mandatory data (currencies, countries, tax categories, settings, …) and the optional
 sample catalog (categories, manufacturers, products, …), each in all installable languages.
 
+The sample catalog itself (brands, SKUs, which product shows which feature) is described in
+[CATALOG.md](CATALOG.md).
+
 It replaces the seed data that used to live in C# (`InvariantSeedData`, `EnUSSeedData`,
 `DeDESeedData` in `src/Smartstore.Core/Platform/Installation`). C# only orchestrates the
 installation (`InstallationDataSeeder`) and wires up database IDs; all data lives here.
@@ -278,6 +281,8 @@ Descriptors (files, keys, references) are defined in
 
 ## Rules for AI agents
 
+- When a new catalog feature should be visible in the demo shop, follow `CATALOG.md` (extend an existing product
+  first, keep the table there up to date).
 - Never translate or rename keys. They are referenced from other files and cultures.
 - Put translations only into `cultures/{culture}/…`. Base files are English.
 - Do not add a field to an overlay that is not in the base record unless the entity really
