@@ -59,6 +59,7 @@
 
 ### Improvements
 
+- **Catalog administration:** Streamlined the catalog settings and product editor with clearer grouping, labels and help texts, making options easier to find and understand.
 - **PageBuilder**:
   - Redesigned the button configuration UI with compact controls, compatible style combinations and a live preview.
   - Various UI refinements throughout the editor improve clarity, consistency and ease of use.
