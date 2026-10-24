@@ -5,8 +5,9 @@
 ### Breaking Changes
 
 - (DEV) Removed the obsolete `win-x86` build target.
-- (DEV) Removed the Fontastic icon font and its `.icm` / `.icm-*` CSS classes, as well as the `<bootstrap-icon>` TagHelper. Migrate affected themes, modules and views to the new IconKit system.
+- (DEV) Removed Font Awesome from the storefront and administration in favor of the new IconKit system. The Fontastic icon font, its `.icm` / `.icm-*` CSS classes and the `<bootstrap-icon>` TagHelper have also been removed. Migrate affected themes, modules and views to IconKit.
 - (DEV) Custom bundling configuration must use `EnableCssTranspilation` instead of `EnableAutoprefixer` and `CssTranspiler:Targets` (a Browserslist query string) instead of `Autoprefixer:Browsers`. The old Autoprefixer-specific switches have been removed.
+- (DEV) `Category.BadgeStyle` changed from `int` to a nullable `string` containing a badge expression. The `BadgeStyle` enum was removed; badge APIs now accept strings. Existing values are migrated on SQL Server, PostgreSQL and MySQL. SQLite upgrades are not supported for this schema change; recreate SQLite test databases.
 
 ### New Features
 
@@ -39,6 +40,7 @@
     - **Lumen:** Bright white with iris-blue, lavender and petrol accents.
     - **Riso:** Risograph-inspired cobalt, fluorescent pink and sunflower yellow on white, with DIN-style headings.
     - **Porcelain:** White and soft gray surfaces, graphite typography and precise blue accents with a compact, light header.
+  - **Badge styling:** Added a compact editor with live previews and configurable Subtle, Outline, Ring and Pill modifiers for category and promotional badges.
   - `.scroll-fade`: reusable responsive edge fades for horizontal and vertical scroll containers.
 - **PageBuilder**
   - Added three new section dividers (SVG masks that can be selected per block):
