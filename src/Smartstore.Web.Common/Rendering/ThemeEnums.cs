@@ -12,18 +12,6 @@ public enum ThemeColor
     Dark
 }
 
-public enum BadgeStyle
-{
-    Secondary,
-    Primary,
-    Success,
-    Info,
-    Warning,
-    Danger,
-    Light,
-    Dark
-}
-
 public enum ButtonStyle
 {
     Secondary,

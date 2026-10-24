@@ -31,7 +31,7 @@ internal static partial class IconSvgParser
     /// <summary>
     /// The preparation format version included in cache revisions independently of source content.
     /// </summary>
-    internal const string Revision = "19";
+    internal const string Revision = "20";
     private const string _svgNamespace = "http://www.w3.org/2000/svg";
     // Support static icon graphics only. This is deliberately not a general SVG document
     // renderer: executable content, external resources and arbitrary source CSS are excluded.
@@ -179,10 +179,12 @@ internal static partial class IconSvgParser
                     continue;
                 }
 
+                // Explicit theme variables own their colors, including multicolor artwork.
                 var paint = (string)element.Attribute(property);
                 if (paint != null && !paint.Equals("none", StringComparison.OrdinalIgnoreCase)
                     && !paint.Equals("inherit", StringComparison.OrdinalIgnoreCase)
-                    && !paint.StartsWith("url(", StringComparison.OrdinalIgnoreCase))
+                    && !paint.StartsWith("url(", StringComparison.OrdinalIgnoreCase)
+                    && !paint.TrimStart().StartsWith("var(", StringComparison.OrdinalIgnoreCase))
                 {
                     AppendVariableStyle(element, property, variant.Stroke ?? paint);
                 }

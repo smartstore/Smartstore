@@ -26,7 +26,7 @@
                     options[aliases[key] || key] = value;
                 }
             }
-            const toolbar = root.find('.icon-browser-toolbar');
+            const toolbar = root.find('.select2-selection-toolbar');
             const expressionField = root.find('.icon-browser-expression');
             let supportsStrokeScaling = false;
             let selectedAddress = select.val() || '';
@@ -171,41 +171,17 @@
                 return $(row);
             }
 
-            // Decorate the regular single selection so the toolbar survives Select2 updates.
-            // Keep the standard placeholder, clear button and relayed selection events.
-            const amd = $.fn.select2.amd;
-            const utils = amd.require('select2/utils');
-            let selectionAdapter = amd.require('select2/selection/single');
-            for (const decorator of ['placeholder', 'allowClear', 'eventRelay']) {
-                selectionAdapter = utils.Decorate(selectionAdapter, amd.require('select2/selection/' + decorator));
-            }
-            function ToolbarSelection() {}
-            ToolbarSelection.prototype.update = function (decorated, data) {
-                const item = data[0];
-                supportsStrokeScaling = !!item?.id && (item.supportsStrokeScaling ?? item.element?.dataset.supportsStrokeScaling === 'true');
-                updateToolbarState();
-                toolbar.detach();
-                decorated.call(this, data);
-                if (toolbar.length) {
-                    this.$selection.addClass('icon-browser-selection-with-tools d-flex align-items-center');
-                    this.$selection.find('.select2-selection__clear').addClass('flex-shrink-0 ml-2');
-                    this.$selection.find('.select2-selection__rendered').addClass('w-100').append(toolbar.removeClass('d-none'));
-                }
-            };
-            selectionAdapter = utils.Decorate(selectionAdapter, ToolbarSelection);
-            toolbar.on('mousedown click dblclick', event => event.stopPropagation());
-            toolbar.on('keydown', event => {
-                event.stopPropagation();
-                if (event.key === 'Enter' || event.key === ' ') event.preventDefault();
-            });
-
-            select.select2({
-                selectionAdapter,
+            select.selectWrapper({
+                selectionToolbar: toolbar,
                 width: '100%', allowClear: true, minimumInputLength: 0, minimumResultsForSearch: 0,
                 placeholder: select.data('placeholder'),
                 dropdownCssClass: 'icon-browser-dropdown',
                 templateResult: item => format(item, true),
-                templateSelection: item => format(item, false),
+                templateSelection: item => {
+                    supportsStrokeScaling = !!item?.id && (item.supportsStrokeScaling ?? item.element?.dataset.supportsStrokeScaling === 'true');
+                    updateToolbarState();
+                    return format(item, false);
+                },
                 ajax: {
                     delay: 250,
                     data: params => ({ term: params.term || '', page: params.page || 1 }),

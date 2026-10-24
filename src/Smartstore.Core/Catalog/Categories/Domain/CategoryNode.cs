@@ -26,7 +26,7 @@ public interface ICategoryNode : ILocalizedEntity, ISlugSupported, IAclRestricte
     int DisplayOrder { get; }
     DateTime UpdatedOnUtc { get; }
     string BadgeText { get; }
-    int BadgeStyle { get; }
+    string BadgeStyle { get; }
 }
 
 public class CategoryNode : ICategoryNode, IKeyedNode
@@ -48,7 +48,7 @@ public class CategoryNode : ICategoryNode, IKeyedNode
     public int DisplayOrder { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public int BadgeStyle { get; set; }
+    public string BadgeStyle { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool SubjectToAcl { get; set; }

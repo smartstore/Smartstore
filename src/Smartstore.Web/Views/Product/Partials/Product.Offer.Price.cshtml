@@ -1,4 +1,5 @@
-﻿@using Smartstore.Web.Models.Catalog
+﻿@using Smartstore.Web.Rendering
+@using Smartstore.Web.Models.Catalog
 
 @model ProductDetailsModel
 
@@ -80,7 +81,7 @@
                 <div sm-if="pm.Badges.Count > 0" class="pd-promobadges">
                     @foreach (var badge in pm.Badges.OrderBy(x => x.DisplayOrder))
                     {
-                        <span class="badge badge-@badge.Style">@Html.Raw(badge.Label)</span>
+                        <span class="@BadgeExpression.ToCssClasses(badge.Style)">@Html.Raw(badge.Label)</span>
                     }
                 </div>
 

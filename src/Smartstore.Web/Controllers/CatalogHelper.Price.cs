@@ -498,7 +498,7 @@ public partial class CatalogHelper
             badges.Add(new ProductBadgeModel
             {
                 Label = label,
-                Style = (style.IsNumeric() ? Enum.Parse<BadgeStyle>(style).ToString().ToLower() : style) ?? "dark",
+                Style = (style.IsNumeric() ? Enum.Parse<ThemeColor>(style).ToString().ToLower() : style) ?? "dark",
                 DisplayOrder = 10
             });
         }

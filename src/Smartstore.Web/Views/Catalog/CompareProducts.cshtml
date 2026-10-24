@@ -1,4 +1,5 @@
-﻿@using Smartstore.Web.Models.Catalog
+﻿@using Smartstore.Web.Rendering
+@using Smartstore.Web.Models.Catalog
 @using Smartstore.Core.Checkout.Cart
 
 @model ProductSummaryModel
@@ -118,7 +119,7 @@
                                     <div sm-if="product.Badges.Count > 0" class="art-badges">
                                         @foreach (var badge in product.Badges.OrderBy(x => x.DisplayOrder))
                                         {
-                                            <span class="art-badge badge badge-@badge.Style">@Html.Raw(badge.Label)</span>
+                                            <span class="art-badge @BadgeExpression.ToCssClasses(badge.Style)">@Html.Raw(badge.Label)</span>
                                         }
                                     </div>
                                     <a sm-if="product.Image.HasImage()" class="art-picture img-center-container" href="@product.DetailUrl">

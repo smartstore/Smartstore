@@ -115,7 +115,7 @@
                     </a>
                     @if (item.BadgeText.HasValue())
                     {
-                        <span class="badge badge-@(((BadgeStyle)item.BadgeStyle).ToString().ToLower())" attrs="item.BadgeHtmlAttributes" style="--badge-content-shift: 0px">
+                        <span class="@BadgeExpression.ToCssClasses(item.BadgeStyle)" attrs="item.BadgeHtmlAttributes" style="--badge-content-shift: 0px">
                             @item.BadgeText
                         </span>
                     }

@@ -2,7 +2,7 @@
 @model IconOptionFields
 
 @* Tools are enabled individually as their shared editors become available. *@
-<div class="icon-browser-toolbar d-inline-flex align-items-center align-self-center flex-shrink-0 order-1 ml-auto d-none" role="group" aria-label="@T("Admin.IconBrowser.Options")">
+<div class="select2-selection-toolbar d-none" role="group" aria-label="@T("Admin.IconBrowser.Options")">
     @if (Model.HasFlag(IconOptionFields.Color))
     {
         <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron"

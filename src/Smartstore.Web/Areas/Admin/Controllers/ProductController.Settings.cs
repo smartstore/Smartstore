@@ -121,8 +121,6 @@ public partial class ProductController : AdminController
             });
         }
 
-        ViewBag.LimitedOfferBadgeStyles = AddBadgeStyles(model.PriceSettings.LimitedOfferBadgeStyle);
-        ViewBag.OfferBadgeStyles = AddBadgeStyles(model.PriceSettings.OfferBadgeStyle);
         ViewBag.AssociatedProductsHeaderFields = CreateAssociatedProductsHeaderFieldsList(settings.CollapsibleAssociatedProductsHeaders, T);
         ViewBag.AvailableProductSortings = CreateProductSortingsList(model.DefaultSortOrder, Services);
 
@@ -151,11 +149,6 @@ public partial class ProductController : AdminController
         ViewData[nameof(CatalogSettingsModel.DefaultSwatchSize) + "RangeTicks"] = Enum.GetValues<SwatchSize>()
             .Select(x => localization.GetLocalizedEnum(x))
             .ToList();
-
-        static List<SelectListItem> AddBadgeStyles(string value)
-        {
-            return [.. Enum.GetNames<BadgeStyle>().Select(x => new SelectListItem { Text = x, Value = x.ToLower(), Selected = value.EqualsNoCase(x) })];
-        }
     }
 
     internal static List<SelectListItem> CreateProductSortingsList(ProductSortingEnum selectedSorting, ICommonServices services)

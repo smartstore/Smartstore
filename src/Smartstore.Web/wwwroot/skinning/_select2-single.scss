@@ -63,3 +63,37 @@
         color: var(--select2-placeholder-color);
     }
 }
+.select2-selection-with-toolbar {
+    .select2-selection__rendered {
+        overflow: visible;
+    }
+
+    .select2-option,
+    .select2-selection__placeholder {
+        flex: 1 1 0;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+// Shared tools for single selections, including icon and badge editors.
+.select2-selection-toolbar {
+    display: inline-flex;
+    align-items: center;
+    align-self: center;
+    flex-shrink: 0;
+    order: 1;
+    margin-inline-start: auto;
+    gap: 2px;
+
+    > .btn {
+        --btn-height: 26px;
+        --btn-font-size: 0.875rem;
+        --btn-color: var(--gray-650);
+        --btn-box-shadow: none;
+        --btn-hover-shadow: none;
+        --btn-active-shadow: none;
+        --btn-focus-box-shadow: none;
+    }
+}

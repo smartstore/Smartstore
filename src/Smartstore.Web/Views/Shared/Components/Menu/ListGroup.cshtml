@@ -55,7 +55,7 @@
 
             @if (item.BadgeText.HasValue())
             {
-                <span class="badge badge-pill badge-counter badge-@(((BadgeStyle)item.BadgeStyle).ToString().ToLower()) ml-auto" attrs="item.BadgeHtmlAttributes">
+                <span class="badge-pill badge-counter @BadgeExpression.ToCssClasses(item.BadgeStyle) ml-auto" attrs="item.BadgeHtmlAttributes">
                     @Html.Raw(item.BadgeText)
                 </span>
             }

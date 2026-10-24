@@ -151,7 +151,7 @@ public class TabFactory
             Ajax = item.Ajax,
             Title = item.Text,
             Name = item.Name,
-            BadgeStyle = (BadgeStyle)item.BadgeStyle,
+            BadgeStyle = item.BadgeStyle,
             BadgeText = item.BadgeText,
             Icon = item.Icon,
             IconClass = item.IconClass,

@@ -23,7 +23,7 @@
             <span>@item.Text</span>
             @if (item.BadgeText != null)
             {
-                <span class="badge badge-@(((BadgeStyle)item.BadgeStyle).ToString().ToLower())" attrs="item.BadgeHtmlAttributes">
+                <span class="@BadgeExpression.ToCssClasses(item.BadgeStyle)" attrs="item.BadgeHtmlAttributes">
                     @item.BadgeText
                 </span>
             }

@@ -132,7 +132,7 @@ public class TabTagHelper : SmartTagHelper
     /// Badge style.
     /// </summary>
     [HtmlAttributeName(BadgeStyleAttributeName)]
-    public BadgeStyle BadgeStyle { get; set; }
+    public string BadgeStyle { get; set; } = "secondary";
 
     /// <summary>
     /// Image URL.

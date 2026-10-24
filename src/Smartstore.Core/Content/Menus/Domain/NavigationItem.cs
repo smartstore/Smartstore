@@ -91,7 +91,7 @@ public abstract class NavigationItem : INavigatable, IHideObjectMembers
 
     public string BadgeText { get; set; }
 
-    public int BadgeStyle { get; set; }
+    public string BadgeStyle { get; set; } = "secondary";
 
     [DefaultValue(true)]
     public bool Visible { get; set; } = true;

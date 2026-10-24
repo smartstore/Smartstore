@@ -63,7 +63,7 @@ public class AccountDropdownViewComponent(CustomerSettings customerSettings) : S
                 .Icon("heart")
                 .IconClass("icon-fw")
                 .Text(T("Wishlist"))
-                .Badge(model.WishlistItems.ToString(), BadgeStyle.Success)
+                .Badge(model.WishlistItems.ToString(), "success")
                 .BadgeHtmlAttributes("class", "wishlist-qty " + (model.WishlistItems > 0 ? "label-success" : "d-none"))
                 .AsItem());
         }
@@ -76,7 +76,7 @@ public class AccountDropdownViewComponent(CustomerSettings customerSettings) : S
                 .Icon("basket")
                 .IconClass("icon-fw")
                 .Text(T("ShoppingCart"))
-                .Badge(model.ShoppingCartItems.ToString(), BadgeStyle.Success)
+                .Badge(model.ShoppingCartItems.ToString(), "success")
                 .BadgeHtmlAttributes("class", "cart-qty " + (model.ShoppingCartItems > 0 ? "label-success" : "d-none"))
                 .AsItem());
         }

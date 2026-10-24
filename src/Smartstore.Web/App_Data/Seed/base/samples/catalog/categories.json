@@ -3,7 +3,7 @@
   {
     "name": "Sale",
     "badgeText": "%",
-    "badgeStyle": 5,
+    "badgeStyle": "danger",
     "alias": "Sale",
     "metaTitle": "Sale",
     "published": true,
@@ -35,7 +35,7 @@
   {
     "name": "Apparel",
     "badgeText": "NEW",
-    "badgeStyle": 4,
+    "badgeStyle": "primary outline",
     "alias": "Apparel",
     "description": "<p>Jackets, knitwear and shoes with colour swatches, sizes and stock levels. Includes a T-shirt that you can personalise with your own print.</p>",
     "icon": "hi:t-shirt!/sr",

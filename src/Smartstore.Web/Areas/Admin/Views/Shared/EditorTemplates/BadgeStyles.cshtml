@@ -1,10 +1,18 @@
-﻿@using Smartstore.Utilities
+﻿@model string
+@using Smartstore.Utilities
 
 @{
     var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
-    var isNullable = ViewData.ModelMetadata.IsNullableValueType;
-    var items = Html.GetLocalizedEnumSelectList(typeof(BadgeStyle));
-    var placeholder = attributes.Get("placeholder") ?? GetMetadata<string>("placeholder");
+    var items = BadgeExpression.GetColors().Select(color =>
+    {
+        var name = color.Titleize();
+        var label = T("Enums.ThemeColor." + name);
+        return new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+        {
+            Value = color,
+            Text = label.IsResourceNotFound ? name : label.ToString()
+        };
+    });
 
     // INFO: We can specify the sample text to be displayed in several ways:
     // 1. As an attribute (badge-text-resource) in the editor tag which contains the resource key.
@@ -18,27 +26,31 @@
         badgeText = T("Common.Example");
     }
 
-    if (isNullable && placeholder.IsEmpty())
-    {
-        <select asp-for="@Model" asp-items="items" asp-placeholder="@T("Common.Unspecified")" attrs="attributes" class="noskin"></select>
-    }
-    else
-    {
-        <select asp-for="@Model" asp-items="items" attrs="attributes" class="badge-chooser noskin"></select>
-    }
+    <input asp-for="@Model" type="hidden" id="@(Html.IdFor(x => x))-expression" />
+    <select id="@Html.IdFor(x => x)" asp-items="items" attrs="attributes"
+            data-expression-field="@(Html.IdFor(x => x))-expression" class="badge-chooser noskin"></select>
 }
 
-<script>
+<script src="~/admin/js/smartstore.badgestyles.js" sm-target-zone="scripts" sm-key="badgestyles"></script>
+<script sm-target-zone="scripts" sm-key="badgestyles-init">
     $(function () {
-        $('#@Html.IdFor(x => x)').selectWrapper({
-            templateResult: formatOption,
-            templateSelection: formatOption
-        });
-
-        function formatOption(option) {
-            let html = $('<span class="select2-option w-100">' + option.text + '<span class="badge badge-' + option.text.toLowerCase() + ' ml-auto">@badgeText</span></span>');
-            //let html = $('<span class="select2-option"><span class="badge badge-' + option.text.toLowerCase() + '">' + option.text + '</span></span>');
-            return html;
-        }
+        $('.badge-chooser').badgeStyles();
     });
 </script>
+
+<template id="@(Html.IdFor(x => x))-tools" data-badge-text="@badgeText">
+    <div class="select2-selection-toolbar" role="group" aria-label="Badge modifiers">
+        <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron" data-modifier="subtle" aria-pressed="false" title="Subtle" aria-label="Subtle">
+            <icon name="sun-medium" aria-hidden="true" />
+        </button>
+        <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron" data-modifier="outline" aria-pressed="false" title="Outline" aria-label="Outline">
+            <icon name="square" aria-hidden="true" />
+        </button>
+        <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron" data-modifier="ring" aria-pressed="false" title="Ring" aria-label="Ring">
+            <icon name="squircle-dashed" aria-hidden="true" />
+        </button>
+        <button type="button" class="btn btn-plain btn-flat btn-icon no-chevron" data-modifier="pill" aria-pressed="false" title="Pill" aria-label="Pill">
+            <icon name="pill" rotate="45" aria-hidden="true" />
+        </button>
+    </div>
+</template>

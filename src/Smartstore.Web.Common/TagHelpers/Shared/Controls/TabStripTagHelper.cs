@@ -597,8 +597,8 @@ public class TabStripTagHelper : SmartTagHelper
     {
         if (tab.BadgeText.HasValue())
         {
-            var temp = "ml-2 badge";
-            temp += " badge-" + tab.BadgeStyle.ToString().ToLower();
+            var temp = "ml-2";
+            temp += " " + BadgeExpression.ToCssClasses(tab.BadgeStyle);
             if (Position == TabsPosition.Left)
             {
                 temp += " float-right"; // looks nicer 

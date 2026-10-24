@@ -208,6 +208,42 @@
         }
     );
 
+    // Keep a caller-owned toolbar inside a single selection across Select2 updates.
+    function ToolbarSelection(decorated, $element, options) {
+        const toolbar = $(options.get('selectionToolbar'))[0];
+        this.toolbarTemplate = toolbar instanceof HTMLTemplateElement;
+        // Instantiate templates once; preserve caller-owned elements for reuse.
+        this.$toolbar = this.toolbarTemplate
+            ? $(toolbar.content.cloneNode(true)).children()
+            : $(toolbar);
+        decorated.call(this, $element, options);
+    }
+
+    ToolbarSelection.prototype.bind = function (decorated, container, $container) {
+        decorated.call(this, container, $container);
+        this.$toolbar.on('mousedown.selectToolbar click.selectToolbar dblclick.selectToolbar keydown.selectToolbar', event => {
+            event.stopPropagation();
+        });
+    };
+
+    ToolbarSelection.prototype.update = function (decorated, data) {
+        this.$toolbar.detach();
+        decorated.call(this, data);
+        this.$selection.addClass('select2-selection-with-toolbar d-flex align-items-center');
+        this.$selection.find('.select2-selection__clear').addClass('flex-shrink-0 ml-2');
+        this.$selection.find('.select2-selection__rendered').addClass('w-100').append(this.$toolbar.removeClass('d-none'));
+    };
+
+    ToolbarSelection.prototype.destroy = function (decorated) {
+        this.$toolbar.off('.selectToolbar');
+        if (this.toolbarTemplate) {
+            this.$toolbar.remove();
+        } else {
+            this.$toolbar.addClass('d-none').insertAfter(this.$element);
+        }
+        decorated.call(this);
+    };
+
     $.fn.selectWrapper = function (options) {
         if (options && options.resetDataUrl?.hasValue() && lists[options.resetDataUrl]) {
             lists[options.resetDataUrl] = null;
@@ -265,7 +301,7 @@
             // Select-level fallback also covers AJAX results and newly created tags.
             const defaultIcon = sel.attr("data-icon");
 
-            if (window.touchable && !sel.hasClass("skin") && !sel.data("select-url") && !sel.data("remote-url")) {
+            if (!options.selectionToolbar && window.touchable && !sel.hasClass("skin") && !sel.data("select-url") && !sel.data("remote-url")) {
                 if (!defaultIcon && sel.find('option[data-color], option[data-imageurl], option[data-icon]').length === 0
                     || (sel.data("tags") && window.document.documentElement.classList.contains("mobile-device"))) {
                     // Skip skinning if device is mobile and no rich content exists (color, image & icon)
@@ -527,6 +563,13 @@
             else if (opts.ajax && opts.init && opts.init.text && sel.find('option[value="' + opts.init.text + '"]').length === 0) {
                 // In AJAX mode: add initial option when missing
                 sel.append('<option value="' + opts.init.id + '" selected>' + opts.init.text + '</option>');
+            }
+
+            // Resolve Select2's standard decorators before adding the optional toolbar.
+            if (opts.selectionToolbar && !sel.prop('multiple')) {
+                const utils = $.fn.select2.amd.require('select2/utils');
+                const adapter = $.fn.select2.defaults.apply(opts).selectionAdapter;
+                opts.selectionAdapter = utils.Decorate(adapter, ToolbarSelection);
             }
 
             sel.select2(opts);

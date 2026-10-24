@@ -941,6 +941,9 @@ public class IconServiceTests
     [TestCase("#141B34", true)]
     [TestCase("#ff0000", true)]
     [TestCase("none", false)]
+    [TestCase("var(--primary)", false)]
+    [TestCase("var(--success)", false)]
+    [TestCase("var(--warning)", false)]
     public async Task Configured_Stroke_Color_Applies_To_Filled_Outlines(string fill, bool recolored)
     {
         Write("Icons/hugeicons/library.json", """{"defaultVariant":"rounded","variants":{"rounded":{"stroke":"currentColor"}}}""");
@@ -951,6 +954,19 @@ public class IconServiceTests
         var outline = tree.Element("g");
         Assert.That(((string)outline.Attribute("style"))?.Contains("fill:var(--icon-fill,currentColor);") == true, Is.EqualTo(recolored));
         Assert.That((string)outline.Attribute("fill"), Is.EqualTo(recolored ? null : fill));
+    }
+
+    [Test]
+    public async Task Configured_Stroke_Color_Preserves_Tricolor_Theme_Fills()
+    {
+        Write("Icons/hugeicons/library.json", """{"defaultVariant":"rounded","variants":{"rounded":{"stroke":"currentColor"}}}""");
+        Write("Icons/hugeicons/rounded/icons/stars-tricolor.svg",
+            """<svg viewBox="0 0 16 16"><path fill="var(--primary)"/><path fill="var(--success)"/><path fill="var(--warning)"/></svg>""");
+        var svg = await _service.GetSvgAsync("stars-tricolor");
+        var tree = XElement.Parse("<svg>" + svg.Content + "</svg>");
+        Assert.That(tree.Elements().Select(x => (string)x.Attribute("fill")),
+            Is.EqualTo(new[] { "var(--primary)", "var(--success)", "var(--warning)" }));
+        Assert.That(tree.Descendants().Attributes("style"), Is.Empty);
     }
 
     private const string _svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"-1 -2 24 25\" width=\"24\" height=\"25\" fill=\"none\"><path d=\"M0 0L1 1\" stroke=\"currentColor\" stroke-width=\"1\" stroke-linecap=\"butt\"/></svg>";

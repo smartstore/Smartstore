@@ -152,16 +152,17 @@ public partial class Category :
     public string ExternalLink { get; set; }
 
     /// <summary>
-		/// Gets or sets a text displayed in a badge next to the category within menus.
-		/// </summary>
+	/// Gets or sets a text displayed in a badge next to the category within menus.
+	/// </summary>
     [StringLength(400)]
     [LocalizedProperty]
     public string BadgeText { get; set; }
 
     /// <summary>
-		/// Gets or sets the type of the badge within menus.
-		/// </summary>
-    public int BadgeStyle { get; set; }
+	/// Gets or sets the type of the badge within menus.
+	/// </summary>
+    [StringLength(100)]
+    public string BadgeStyle { get; set; }
 
     /// <summary>
     /// Gets or sets the icon expression, including optional presentation modifiers.

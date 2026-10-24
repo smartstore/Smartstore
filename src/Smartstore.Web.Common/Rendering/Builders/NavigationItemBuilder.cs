@@ -180,12 +180,12 @@ public abstract class NavigationItemBuilder<TItem, TBuilder> : IHideObjectMember
         return (this as TBuilder);
     }
 
-    public TBuilder Badge(string value, BadgeStyle style = BadgeStyle.Secondary, bool condition = true)
+    public TBuilder Badge(string value, string style = "secondary", bool condition = true)
     {
         if (condition)
         {
             Item.BadgeText = value;
-            Item.BadgeStyle = (int)style;
+            Item.BadgeStyle = style;
         }
         return (this as TBuilder);
     }

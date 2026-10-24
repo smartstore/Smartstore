@@ -41,7 +41,7 @@ public class CategoryModel : TabbableModel, ILocalizedModel<CategoryLocalizedMod
     [LocalizedDisplay("*BadgeStyle")]
     [UIHint("BadgeStyles")]
     [AdditionalMetadata("badge-text-resource", "Common.Example")]
-    public int BadgeStyle { get; set; }
+    public string BadgeStyle { get; set; }
 
     [LocalizedDisplay("*Icon")]
     [UIHint("IconBrowser")]
