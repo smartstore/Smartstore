@@ -103,10 +103,6 @@
       "star",
       "wifi"
     ],
-    "sources": {
-      "plus-circle": "bi:plus-circle",
-      "phone": "bi:telephone"
-    },
     "areas": [
       "public"
     ],

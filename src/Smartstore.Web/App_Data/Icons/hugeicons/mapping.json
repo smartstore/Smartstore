@@ -1,4 +1,8 @@
 {
+  "circle-check": "checkmark-circle-02",
+  "alarm-clock": "alarm-clock",
+  "message-outgoing": "message-outgoing-01",
+  "bell-plus": "bell-plus",
   "cookie": "cookie",
   "strikethrough": "text-strikethrough",
   "subscript": "text-subscript",
@@ -102,7 +106,7 @@
   "creditcard": "credit-card",
   "css3": "css-3",
   "cube": "cube",
-  "curreny": "coins-02",
+  "currency": "coins-02",
   "database": "database",
   "database-add": "database-add",
   "database-export": "database-export",
