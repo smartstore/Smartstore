@@ -411,7 +411,8 @@
                     }
                 });
                 toggle.setAttribute('aria-expanded', 'true');
-                menu.querySelector('[tabindex="0"]')?.focus();
+                // Popper positions asynchronously; focusing must not scroll to the initial menu position.
+                menu.querySelector('[tabindex="0"]')?.focus({ preventScroll: true });
                 document.addEventListener('mousedown', outside, true);
                 document.addEventListener('focusin', outside, true);
             }

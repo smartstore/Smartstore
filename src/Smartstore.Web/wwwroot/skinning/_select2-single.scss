@@ -88,6 +88,7 @@
     gap: 2px;
 
     > .btn {
+        --btn-border-radius: 6px;
         --btn-height: 26px;
         --btn-font-size: 0.875rem;
         --btn-color: var(--gray-650);

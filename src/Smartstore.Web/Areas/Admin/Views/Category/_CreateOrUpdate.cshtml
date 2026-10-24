@@ -126,6 +126,12 @@
 		        <div class="adminRow description-container">
 			        <div class="adminTitle">
                         <smart-label asp-for="Locales[item].Description" />
+                        <div>
+                            <button type="button" class="btn btn-secondary btn-sm description-toggle-button">
+                                <icon name="arrow-up-down" />
+                                <span>@T("Admin.Catalog.Categories.DescriptionToggle")</span>
+                            </button>
+                        </div>
 			        </div>
                     <div class="adminData wide">
                         <html-editor asp-for="Locales[item].Description" 
@@ -136,6 +142,12 @@
 		        <div class="adminRow description-container d-none">
 			        <div class="adminTitle">
                         <smart-label asp-for="Locales[item].BottomDescription" />
+                        <div>
+                            <button type="button" class="btn btn-secondary btn-sm description-toggle-button">
+                                <icon name="arrow-up-down" />
+                                <span>@T("Admin.Catalog.Categories.DescriptionToggle")</span>
+                            </button>
+                        </div>
 			        </div>
                     <div class="adminData wide">
                         <html-editor asp-for="Locales[item].BottomDescription" 
@@ -143,17 +155,6 @@
                         <span asp-validation-for="Locales[item].BottomDescription"></span>
                     </div>
 		        </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        &nbsp;
-                    </div>
-                    <div class="adminData">
-                        <button type="button" class="btn btn-secondary description-toggle-button">
-                            <icon name="exchange"  />
-                            <span>@T("Admin.Catalog.Categories.DescriptionToggle")</span>
-                        </button>
-                    </div>
-                </div>
 		        <div class="adminRow">
 			        <div class="adminTitle">
                         <smart-label asp-for="Locales[item].BadgeText" />
@@ -189,6 +190,12 @@
 		        <div class="adminRow description-container">
 			        <div class="adminTitle">
                         <smart-label asp-for="Description" />
+                        <div>
+                            <button type="button" class="btn btn-secondary btn-sm description-toggle-button">
+                                <icon name="arrow-up-down" />
+                                <span>@T("Admin.Catalog.Categories.DescriptionToggle")</span>
+                            </button>
+                        </div>
 			        </div>
                     <div class="adminData wide">
                         <ai-rich-text asp-for="Description"
@@ -204,6 +211,12 @@
 		        <div class="adminRow description-container d-none">
 			        <div class="adminTitle">
                         <smart-label asp-for="BottomDescription" />
+                        <div>
+                            <button type="button" class="btn btn-secondary btn-sm description-toggle-button">
+                                <icon name="arrow-up-down" />
+                                <span>@T("Admin.Catalog.Categories.DescriptionToggle")</span>
+                            </button>
+                        </div>
 			        </div>
                     <div class="adminData wide">
                         <ai-rich-text asp-for="BottomDescription"
@@ -217,17 +230,6 @@
                         <span asp-validation-for="BottomDescription"></span>
                     </div>
 		        </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        &nbsp;
-                    </div>
-                    <div class="adminData">
-                        <button type="button" class="btn btn-secondary description-toggle-button">
-                            <icon name="exchange"  />
-                            <span>@T("Admin.Catalog.Categories.DescriptionToggle")</span>
-                        </button>
-                    </div>
-                </div>
 		        <div class="adminRow">
 			        <div class="adminTitle">
                         <smart-label asp-for="BadgeText" />
@@ -584,9 +586,11 @@
             }
         }).trigger('change');
 
-        // Toggle top\bottom description.
-		$('.description-toggle-button').on('click', function() {
-			$('.description-container').toggleClass('d-none');
+        // Switch descriptions within the current language and keep focus on the visible toggle.
+        $('.description-toggle-button').on('click', function() {
+            const descriptions = $(this).closest('.adminContent').children('.description-container');
+            descriptions.toggleClass('d-none');
+            descriptions.filter(':not(.d-none)').find('.description-toggle-button')[0]?.focus({ preventScroll: true });
         });
 
         // Reapply rules.
