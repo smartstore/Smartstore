@@ -84,8 +84,10 @@ public class MeasureController : AdminController
     }
 
     [Permission(Permissions.Configuration.Measure.Create)]
-    public IActionResult CreateWeightPopup(string btnId, string formId)
+    public async Task<IActionResult> CreateWeightPopup(string btnId, string formId)
     {
+        ViewBag.BaseWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
+
         var model = new MeasureWeightModel();
         AddLocales(model.Locales);
 
@@ -99,6 +101,8 @@ public class MeasureController : AdminController
     [Permission(Permissions.Configuration.Measure.Create)]
     public async Task<IActionResult> CreateWeightPopup(MeasureWeightModel model, string btnId, string formId)
     {
+        ViewBag.BaseWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
+
         if (ModelState.IsValid)
         {
             try
@@ -136,6 +140,8 @@ public class MeasureController : AdminController
     [Permission(Permissions.Configuration.Measure.Read)]
     public async Task<IActionResult> EditWeightPopup(int id, string btnId, string formId)
     {
+        ViewBag.BaseWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
+
         var measureWeight = await _db.MeasureWeights.FindByIdAsync(id, false);
         if (measureWeight == null)
         {
@@ -160,6 +166,8 @@ public class MeasureController : AdminController
     [Permission(Permissions.Configuration.Measure.Update)]
     public async Task<IActionResult> EditWeightPopup(MeasureWeightModel model, string btnId, string formId)
     {
+        ViewBag.BaseWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
+
         var measureWeight = await _db.MeasureWeights.FindByIdAsync(model.Id);
         if (measureWeight == null)
         {
@@ -311,8 +319,10 @@ public class MeasureController : AdminController
     }
 
     [Permission(Permissions.Configuration.Measure.Create)]
-    public IActionResult CreateDimensionPopup(string btnId, string formId)
+    public async Task<IActionResult> CreateDimensionPopup(string btnId, string formId)
     {
+        ViewBag.BaseDimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId, false);
+
         var model = new MeasureDimensionModel();
         AddLocales(model.Locales);
 
@@ -326,6 +336,8 @@ public class MeasureController : AdminController
     [Permission(Permissions.Configuration.Measure.Create)]
     public async Task<IActionResult> CreateDimensionPopup(MeasureDimensionModel model, string btnId, string formId)
     {
+        ViewBag.BaseDimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId, false);
+
         if (ModelState.IsValid)
         {
             try
@@ -363,6 +375,8 @@ public class MeasureController : AdminController
     [Permission(Permissions.Configuration.Measure.Read)]
     public async Task<IActionResult> EditDimensionPopup(int id, string btnId, string formId)
     {
+        ViewBag.BaseDimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId, false);
+
         var measureDimension = await _db.MeasureDimensions.FindByIdAsync(id, false);
         if (measureDimension == null)
         {
@@ -387,6 +401,8 @@ public class MeasureController : AdminController
     [Permission(Permissions.Configuration.Measure.Update)]
     public async Task<IActionResult> EditDimensionPopup(MeasureDimensionModel model, string btnId, string formId)
     {
+        ViewBag.BaseDimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId, false);
+
         var measureDimension = await _db.MeasureDimensions.FindByIdAsync(model.Id);
         if (measureDimension == null)
         {

@@ -5,6 +5,10 @@
 
 @{
     var cultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures).ToSelectListItems();
+    string unspecified = T("Common.Unspecified").Value;
+    var exchangeCurrency = CommonServices.CurrencyService.PrimaryExchangeCurrency;
+    bool showRateEquation = exchangeCurrency != null && Model.Id != exchangeCurrency.Id;
+    string ratePrefix = showRateEquation ? $"1 {exchangeCurrency.CurrencyCode} =" : null;
 }
 
 <div asp-validation-summary="All"></div>
@@ -56,7 +60,7 @@
                     <smart-label asp-for="Rate" />
                 </div>
                 <div class="adminData">
-                    <editor asp-for="Rate" />
+                    <editor asp-for="Rate" sm-prefix="@ratePrefix" sm-postfix="@(showRateEquation ? Html.Encode(Model.CurrencyCode.NullEmpty() ?? unspecified) : null)" />
                     <span asp-validation-for="Rate"></span>
                 </div>
             </div>
@@ -261,6 +265,12 @@
 
 <script sm-target-zone="scripts" sm-minify="true" data-origin="currency-edit">
     $(function () {
+        $('#@Html.IdFor(x => x.CurrencyCode)').on('input', function () {
+            const currencyCode = this.value.trim() || @Json.Serialize(unspecified);
+            const rateGroup = $('#@Html.IdFor(x => x.Rate)').closest('.numberinput-group');
+            rateGroup.find('.numberinput-postfix').text(currencyCode);
+        });
+
         $('#@(Html.IdFor(x => x.RoundOrderItemsEnabled))').change(function () {
             var val = $(this).val().toLowerCase();
             $('#round-order-items').toggle(val === 'true');

@@ -23,6 +23,7 @@ public enum NumberInputStyle
 [HtmlTargetElement("input", Attributes = "[type=number]")]
 public class NumberInputTagHelper : SmartTagHelper
 {
+    const string PrefixAttributeName = "sm-prefix";
     const string PostfixAttributeName = "sm-postfix";
     const string DecimalsAttributeName = "sm-decimals";
     const string StyleAttributeName = "sm-numberinput-style";
@@ -38,6 +39,12 @@ public class NumberInputTagHelper : SmartTagHelper
 
     // Must come before FormControlTagHelper because of sizing issues.
     public override int Order => 0;
+
+    /// <summary>
+    /// The text which will be displayed before the number input as a plain addon.
+    /// </summary>
+    [HtmlAttributeName(PrefixAttributeName)]
+    public string Prefix { get; set; }
 
     /// <summary>
     /// The text which will be displayed inside the number input as a post fix.
@@ -147,21 +154,54 @@ public class NumberInputTagHelper : SmartTagHelper
             group.AppendCssClass("has-postfix");
         }
 
+        string sizeClass = null;
+
         if (context.AllAttributes.TryGetAttribute("sm-control-size", out var controlSizeAttr))
         {
             var controlSize = controlSizeAttr.Value.Convert<ControlSize?>();
             if (controlSize.HasValue && controlSize != ControlSize.Medium)
             {
-                group.AppendCssClass("input-group-" + (controlSize == ControlSize.Small ? "sm" : "lg"));
+                sizeClass = "input-group-" + (controlSize == ControlSize.Small ? "sm" : "lg");
             }
 
             context.Items.Add("IsNumberInput", true);
         }
         else if (ViewContext.ViewData.TryGetValue("size", out var size) && size is string sizeStr)
         {
-            group.AppendCssClass($"input-group-{sizeStr}");
+            sizeClass = $"input-group-{sizeStr}";
+        }
+
+        if (sizeClass.HasValue())
+        {
+            group.AppendCssClass(sizeClass);
         }
 
         output.WrapElementWith(group);
+
+        if (Prefix.HasValue())
+        {
+            var prefixGroup = new TagBuilder("div");
+            prefixGroup.AddCssClass("input-group flex-nowrap");
+            if (sizeClass.HasValue())
+            {
+                prefixGroup.AddCssClass(sizeClass);
+            }
+
+            var prepend = new TagBuilder("div");
+            prepend.AddCssClass("input-group-prepend input-addon-plain");
+
+            string inputId = output.Attributes["id"]?.ValueAsString();
+            var label = new TagBuilder(inputId.HasValue() ? "label" : "span");
+            label.AddCssClass("input-group-text");
+            if (inputId.HasValue())
+            {
+                label.Attributes["for"] = inputId;
+            }
+            label.InnerHtml.Append(Prefix);
+
+            prepend.InnerHtml.AppendHtml(label);
+            prefixGroup.InnerHtml.AppendHtml(prepend);
+            output.WrapElementWith(prefixGroup);
+        }
     }
 }

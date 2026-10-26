@@ -9,6 +9,7 @@
        asp-for="@Model"
        attrs="attributes"
        sm-decimals="@(GetMetadata<uint?>("decimals") ?? 0)"
+       sm-prefix="@(GetMetadata<string>("prefix"))"
        sm-postfix="@(GetMetadata<string>("postfix"))"
        placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.Empty").Value)"
        min="@(GetMetadata<byte?>("min") ?? 0)"

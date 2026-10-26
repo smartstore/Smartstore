@@ -49,12 +49,7 @@
                 </div>
                 <div class="adminData">
                     <setting-editor asp-for="ExchangeRate">
-                        <div class="input-group">
-                            <div class="input-group-prepend input-addon-plain">
-                                <span class="input-group-text">@T("Admin.Configuration.Settings.RewardPoints.ExchangeRate.Hint2")</span>
-                            </div>
-                            <editor asp-for="ExchangeRate" sm-postfix="@primaryCurrencyCode" />
-                        </div>
+                        <editor asp-for="ExchangeRate" sm-prefix="@T("Admin.Configuration.Settings.RewardPoints.ExchangeRate.Hint2")" sm-postfix="@primaryCurrencyCode" />
                     </setting-editor>
                     <span asp-validation-for="ExchangeRate"></span>
                 </div>
@@ -116,11 +111,15 @@
                 <div class="adminData">
                     <div class="form-row flex-nowrap">
                         <div class="col w-50">
-                            <setting-editor asp-for="PointsForPurchases_Amount" sm-postfix="@primaryCurrencyCode" placeholder="@T("RewardPoints.OrderAmount")"></setting-editor>
+                            <setting-editor asp-for="PointsForPurchases_Amount">
+                                <editor asp-for="PointsForPurchases_Amount" sm-prefix="@T("RewardPoints.OrderAmount")" sm-postfix="@primaryCurrencyCode" placeholder="@T("RewardPoints.OrderAmount")" />
+                            </setting-editor>
                             <span asp-validation-for="PointsForPurchases_Amount"></span>
                         </div>
                         <div class="col w-50">
-                            <setting-editor asp-for="PointsForPurchases_Points" placeholder="@T("RewardPoints.Fields.Points")"></setting-editor>
+                            <setting-editor asp-for="PointsForPurchases_Points">
+                                <editor asp-for="PointsForPurchases_Points" sm-prefix="@T("RewardPoints.Fields.Points")" placeholder="@T("RewardPoints.Fields.Points")" />
+                            </setting-editor>
                             <span asp-validation-for="PointsForPurchases_Points"></span>
                         </div>
                     </div>

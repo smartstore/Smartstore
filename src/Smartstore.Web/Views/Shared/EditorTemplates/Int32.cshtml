@@ -10,6 +10,7 @@
        asp-for="@Model"
        attrs="attributes"
        sm-decimals="@(GetMetadata<uint?>("decimals") ?? 0)"
+       sm-prefix="@(GetMetadata<string>("prefix"))"
        sm-postfix="@(GetMetadata<string>("postfix"))"
        min="@(GetMetadata<int?>("min"))"
        max="@(GetMetadata<int?>("max"))"
