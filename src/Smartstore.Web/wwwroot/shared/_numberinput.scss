@@ -88,8 +88,7 @@
     flex-wrap: nowrap;
     z-index: 6;
     background-color: transparent;
-    color: inherit;
-    opacity: 0.5;
+    color: var(--muted);
     font-size: var(--ni-font-size);
     line-height: var(--ni-line-height);
     cursor: default;

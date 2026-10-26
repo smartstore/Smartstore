@@ -314,7 +314,7 @@ public static class HtmlHelperRenderingExtensions
             $"<div class='input-group colorpicker-component edit-control' data-swatches='{swatches.ToString().ToLower()}' data-fallback-color='{defaultColor}' data-editor='color'>");
 
         builder.AppendHtml(helper.TextBox(name, isDefault ? string.Empty : color, new { @class = "form-control", placeholder = defaultColor }));
-        builder.AppendFormat("<div class='input-group-append'><button type='button' class='input-group-text colorpicker-input-addon btn btn-light'><i class='thecolor' style='{0}'>&nbsp;</i></button></div>", defaultColor.HasValue() ? "background-color: " + defaultColor : string.Empty);
+        builder.AppendFormat("<div class='input-group-append'><button type='button' class='input-group-text colorpicker-input-addon btn btn-light'><span class='bg-checkerboard' style='--checkerboard-size: 10px'><i class='thecolor' style='{0}'>&nbsp;</i></span></button></div>", defaultColor.HasValue() ? "background-color: " + defaultColor : string.Empty);
 
         builder.AppendHtml("</div>");
 

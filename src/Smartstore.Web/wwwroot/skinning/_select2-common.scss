@@ -63,6 +63,7 @@ img.choice-item-img {
 
     &::placeholder {
         color: var(--select2-placeholder-color);
+        opacity: 1;
     }
 }
 

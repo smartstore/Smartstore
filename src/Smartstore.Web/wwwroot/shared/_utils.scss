@@ -124,6 +124,8 @@
 img[src*="/images/flags/"] {
     width: 20px;
     min-height: 10px;
+    max-height: 16px;
+    object-fit: cover;
     border-radius: 3px;
     border: 1px solid rgba(#000, 0.125);
 }

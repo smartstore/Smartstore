@@ -234,26 +234,21 @@
     padding: 0;
     width: $input-height;
 
-    > i {
+    > span {
         display: inline-block;
         cursor: pointer;
         vertical-align: text-top;
         height: 24px;
         width: 24px;
-        position: relative;
-        border: 1px solid rgba($black, 0.2);
         border-radius: var(--border-radius-sm);
-    }
 
-    &:before {
-        content: "";
-        position: absolute;
-        width: 24px;
-        height: 24px;
-        display: inline-block;
-        vertical-align: text-top;
-        border-radius: var(--border-radius-sm);
-        @include bg-checkerboard(5px, rgba($black, 0.1), $white);
+        > i {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border: 1px solid rgba($black, 0.2);
+            border-radius: inherit;
+        }
     }
 }
 
