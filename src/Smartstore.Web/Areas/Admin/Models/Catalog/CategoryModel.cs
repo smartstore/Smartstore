@@ -84,7 +84,7 @@ public class CategoryModel : TabbableModel, ILocalizedModel<CategoryLocalizedMod
     public bool? AllowCustomersToSelectPageSize { get; set; }
 
     [LocalizedDisplay("*PageSizeOptions")]
-    public string PageSizeOptions { get; set; }
+    public int[] PageSizeOptions { get; set; } = [];
 
     [LocalizedDisplay("*Published")]
     public bool Published { get; set; }
@@ -203,6 +203,9 @@ public partial class CategoryModelValidator : SmartValidator<CategoryModel>
         RuleFor(x => x.WithdrawalPeriodDays)
             .GreaterThanOrEqualTo(0)
             .When(x => x.WithdrawalPeriodDays != null);
+
+        RuleForEach(x => x.PageSizeOptions)
+            .GreaterThan(0);
     }
 }
 
@@ -214,6 +217,7 @@ public class CategoryMapper :
     public async Task MapAsync(Category from, CategoryModel to, dynamic parameters = null)
     {
         MiniMapper.Map(from, to);
+        to.PageSizeOptions ??= [];
         to.ParentCategoryId = from.ParentId;
         to.SeName = await from.GetActiveSlugAsync(0, true, false);
         to.PictureId = from.MediaFileId;

@@ -597,6 +597,18 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "I want to return the following items:",
             "Ich möchte die folgenden Artikel zurücksenden:");
 
+        builder.AddOrUpdate("Admin.Catalog.Categories.Fields.PageSizeOptions",
+            "Page size options",
+            "Optionen für die Listengröße",
+            "Specify the page sizes customers can select in product lists for this category. Leave empty to use the catalog settings.",
+            "Bestimmen Sie hier die Seitengrößen, die Kunden in Produktlisten dieser Warengruppe auswählen können. Lassen Sie das Feld leer, um die Katalog-Einstellungen zu verwenden.");
+
+        builder.AddOrUpdate("Admin.Catalog.Manufacturers.Fields.PageSizeOptions",
+            "Page size options",
+            "Optionen für die Listengröße",
+            "Specify the page sizes customers can select in product lists for this manufacturer. Leave empty to use the catalog settings.",
+            "Bestimmen Sie hier die Seitengrößen, die Kunden in Produktlisten dieses Herstellers auswählen können. Lassen Sie das Feld leer, um die Katalog-Einstellungen zu verwenden.");
+
         builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.DefaultPageSizeOptions",
             "Page size options",
             "Auswahlmöglichkeiten für Seitengröße",

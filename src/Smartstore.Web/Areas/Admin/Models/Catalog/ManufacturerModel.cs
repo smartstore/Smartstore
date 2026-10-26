@@ -50,7 +50,7 @@ public class ManufacturerModel : TabbableModel, ILocalizedModel<ManufacturerLoca
     public bool? AllowCustomersToSelectPageSize { get; set; }
 
     [LocalizedDisplay("*PageSizeOptions")]
-    public string PageSizeOptions { get; set; }
+    public int[] PageSizeOptions { get; set; } = [];
 
     [LocalizedDisplay("*Published")]
     public bool Published { get; set; }
@@ -131,6 +131,9 @@ public partial class ManufacturerValidator : SmartValidator<ManufacturerModel>
     public ManufacturerValidator(SmartDbContext db)
     {
         ApplyEntityRules<Manufacturer>(db);
+
+        RuleForEach(x => x.PageSizeOptions)
+            .GreaterThan(0);
     }
 }
 
@@ -142,6 +145,7 @@ public class ManufacturerMapper :
     public async Task MapAsync(Manufacturer from, ManufacturerModel to, dynamic parameters = null)
     {
         MiniMapper.Map(from, to);
+        to.PageSizeOptions ??= [];
         to.SeName = await from.GetActiveSlugAsync(0, true, false);
         to.PictureId = from.MediaFileId;
     }
