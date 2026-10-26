@@ -860,6 +860,36 @@ It also supports these attributes:
 
 </details>
 
+## String list editor template
+
+Use the `StringList` editor template for a `string[]` property when entries need individual text fields. It supports adding and removing single-line text fields and optional ordering with move buttons.
+
+```csharp
+[LocalizedDisplay("*Reasons")]
+[UIHint("StringList"), AdditionalMetadata("sortable", true)]
+public string[] Reasons { get; set; } = [];
+```
+
+```cshtml
+<editor asp-for="Reasons" />
+```
+
+Use `<setting-editor asp-for="Reasons"></setting-editor>` for shop-specific settings. The editor supports localized field prefixes and disables editing when the shop override is unchecked.
+
+Configure these optional values with `AdditionalMetadata` or editor view data:
+
+| Option | Default | Purpose |
+| --- | --- | --- |
+| `sortable` | `false` | Show buttons to move entries up or down. |
+| `minItems` | `0` | Minimum number of fields in the editor. |
+| `maxItems` | No limit | Disable adding entries at this limit. Existing entries are retained. |
+| `maxLength` | No limit | Set the maximum input length per entry. |
+| `readOnly` | `false` | Allow viewing and copying without editing the list. |
+
+These options constrain the UI. Validate domain constraints on the server as well. Duplicate entries are allowed, and entries are posted in their displayed order.
+
+Storage is independent of the editor. Store new list settings directly as JSON arrays using the existing JSON serialization APIs. Legacy comma-separated return request reasons and actions are handled specifically by `OrderSettingsExtensions`; this compatibility behavior is not part of the editor.
+
 ## Further Reading
 
 If you are interested in writing your own `TagHelper` or learning more about them, follow this [Microsoft Tag Helper tutorial](https://learn.microsoft.com/en-us/aspnet/core/mvc/views/tag-helpers/intro?view=aspnetcore-6.0).

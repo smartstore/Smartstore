@@ -1,8 +1,10 @@
+using System.Text.Json;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Theming;
 using Smartstore.Data.Migrations;
+using Smartstore.Json;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Data.Migrations;
@@ -43,6 +45,16 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         {
             await context.SaveChangesAsync(cancelToken);
         }
+
+        await context.Settings
+            .Where(x => x.Name == "OrderSettings.ReturnRequestReasons" || x.Name == "OrderSettings.ReturnRequestActions")
+            .Where(x => x.Value != null && x.Value.Trim() != "" && !x.Value.TrimStart().StartsWith("["))
+            .ForEachAsync(x => x.Value = JsonSerializer.Serialize(x.Value.SplitSafe(','), SmartJsonOptions.Default), cancelToken);
+        await context.LocalizedProperties
+            .Where(x => x.LocaleKeyGroup == "OrderSettings" && (x.LocaleKey == "ReturnRequestReasons" || x.LocaleKey == "ReturnRequestActions"))
+            .Where(x => x.LocaleValue != null && x.LocaleValue.Trim() != "" && !x.LocaleValue.TrimStart().StartsWith("["))
+            .ForEachAsync(x => x.LocaleValue = JsonSerializer.Serialize(x.LocaleValue.SplitSafe(','), SmartJsonOptions.Default), cancelToken);
+        await context.SaveChangesAsync(cancelToken);
 
         async Task MigrateLegalInfo(List<Setting> oldSettings, string newName)
         {
@@ -596,6 +608,18 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("ReturnCase.ReturnItems",
             "I want to return the following items:",
             "Ich möchte die folgenden Artikel zurücksenden:");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Order.ReturnRequestReasons",
+            "Available return reasons",
+            "Retourengründe",
+            "Specify the reasons customers can select when submitting a return request. Add a separate entry for each reason.",
+            "Legen Sie die Gründe fest, die Kunden bei einem Retourenantrag auswählen können. Fügen Sie für jeden Grund einen eigenen Eintrag hinzu.");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Order.ReturnRequestActions",
+            "Available return actions",
+            "Gewünschte Aktion für Retoure",
+            "Specify the actions customers can select when submitting a return request. Add a separate entry for each action. These actions are not used for legal withdrawal.",
+            "Legen Sie die Aktionen fest, die Kunden bei einem Retourenantrag auswählen können. Fügen Sie für jede Aktion einen eigenen Eintrag hinzu. Diese Aktionen werden nicht für den gesetzlichen Widerruf verwendet.");
 
         builder.AddOrUpdate("Admin.Catalog.Categories.Fields.PageSizeOptions",
             "Page size options",

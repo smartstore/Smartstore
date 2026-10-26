@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using System.Text.Json;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Seo.Routing;
+using Smartstore.Json;
 using Smartstore.Web.Models.Customers;
 using Smartstore.Web.Models.Orders;
 
@@ -158,13 +160,11 @@ public class ReturnCaseController : PublicController
         string returnReasons = _orderSettings.GetLocalizedSetting(x => x.ReturnRequestReasons, order.CustomerLanguageId, order.StoreId, true, false);
         string returnActions = _orderSettings.GetLocalizedSetting(x => x.ReturnRequestActions, order.CustomerLanguageId, order.StoreId, true, false);
 
-        ViewBag.AvailableReturnReasons = returnReasons
-            .SplitSafe(',')
+        ViewBag.AvailableReturnReasons = (returnReasons.HasValue() ? JsonSerializer.Deserialize<string[]>(returnReasons, SmartJsonOptions.Default) ?? [] : [])
             .Select(x => new SelectListItem { Text = x, Value = x })
             .ToList();
 
-        ViewBag.AvailableReturnActions = returnActions
-            .SplitSafe(',')
+        ViewBag.AvailableReturnActions = (returnActions.HasValue() ? JsonSerializer.Deserialize<string[]>(returnActions, SmartJsonOptions.Default) ?? [] : [])
             .Select(x => new SelectListItem { Text = x, Value = x })
             .ToList();
     }

@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Linq.Dynamic.Core;
 using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Catalog;
@@ -30,6 +31,7 @@ using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
+using Smartstore.Json;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Models.Common;
@@ -1820,12 +1822,7 @@ public class OrderController : AdminController
     [LoadSetting]
     public async Task<IActionResult> OrderSettings(int storeScope, OrderSettings settings)
     {
-        var allStores = Services.StoreContext.GetAllStores();
-        var store = storeScope == 0 ? Services.StoreContext.CurrentStore : allStores.FirstOrDefault(x => x.Id == storeScope);
         var model = await MapperFactory.MapAsync<OrderSettings, OrderSettingsModel>(settings);
-
-        model.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
-        model.StoreCount = allStores.Count;
 
         if (settings.GiftCards_Activated_OrderStatusId > 0)
         {
@@ -1839,13 +1836,23 @@ public class OrderController : AdminController
 
         AddLocales(model.Locales, (locale, languageId) =>
         {
-            locale.ReturnRequestActions = settings.GetLocalizedSetting(x => x.ReturnRequestActions, languageId, storeScope, false, false);
-            locale.ReturnRequestReasons = settings.GetLocalizedSetting(x => x.ReturnRequestReasons, languageId, storeScope, false, false);
+            string returnRequestActions = settings.GetLocalizedSetting(x => x.ReturnRequestActions, languageId, storeScope, false, false);
+            string returnRequestReasons = settings.GetLocalizedSetting(x => x.ReturnRequestReasons, languageId, storeScope, false, false);
+            locale.ReturnRequestActions = returnRequestActions.HasValue() ? JsonSerializer.Deserialize<string[]>(returnRequestActions, SmartJsonOptions.Default) ?? [] : [];
+            locale.ReturnRequestReasons = returnRequestReasons.HasValue() ? JsonSerializer.Deserialize<string[]>(returnRequestReasons, SmartJsonOptions.Default) ?? [] : [];
         });
 
         model.OrderIdent = _db.DataProvider.GetTableIdent<Order>();
+        PrepareOrderSettingsModel(model);
 
         return View(model);
+    }
+
+    private void PrepareOrderSettingsModel(OrderSettingsModel model)
+    {
+        model.OrderIdent ??= _db.DataProvider.GetTableIdent<Order>();
+        model.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
+        model.StoreCount = Services.StoreContext.GetAllStores().Count;
     }
 
     [Permission(Permissions.Configuration.Setting.Update)]
@@ -1854,7 +1861,8 @@ public class OrderController : AdminController
     {
         if (!ModelState.IsValid)
         {
-            return await OrderSettings(storeScope, settings);
+            PrepareOrderSettingsModel(model);
+            return View(model);
         }
 
         ModelState.Clear();
@@ -1865,8 +1873,10 @@ public class OrderController : AdminController
 
         foreach (var localized in model.Locales)
         {
-            await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.ReturnRequestActions, localized.ReturnRequestActions, localized.LanguageId, storeScope);
-            await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.ReturnRequestReasons, localized.ReturnRequestReasons, localized.LanguageId, storeScope);
+            var returnRequestActions = localized.ReturnRequestActions?.Where(x => x.HasValue()).Select(x => x.Trim()).ToArray() ?? [];
+            var returnRequestReasons = localized.ReturnRequestReasons?.Where(x => x.HasValue()).Select(x => x.Trim()).ToArray() ?? [];
+            await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.ReturnRequestActions, returnRequestActions.Length > 0 ? JsonSerializer.Serialize(returnRequestActions, SmartJsonOptions.Default) : string.Empty, localized.LanguageId, storeScope);
+            await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.ReturnRequestReasons, returnRequestReasons.Length > 0 ? JsonSerializer.Serialize(returnRequestReasons, SmartJsonOptions.Default) : string.Empty, localized.LanguageId, storeScope);
         }
 
         await _db.SaveChangesAsync();

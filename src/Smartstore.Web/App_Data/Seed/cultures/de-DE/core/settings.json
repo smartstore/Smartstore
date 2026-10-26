@@ -5,8 +5,8 @@
   },
   "OrderSettings": {
     "NumberOfDaysReturnRequestAvailable": 14,
-    "ReturnRequestActions": "Erstattung auf ursprüngliche Zahlart,Ersatzlieferung,Umtausch gegen anderen Artikel,Reparatur,Gutschrift/Gutschein,Sonstiges",
-    "ReturnRequestReasons": "Falschen Artikel erhalten,Falsche Größe oder Variante bestellt,Artikel gefällt nicht,Artikel entspricht nicht der Beschreibung,Ware fehlerhaft oder defekt,Ware beschädigt erhalten,Lieferung unvollständig,Falsch bestellt,Sonstiges"
+    "ReturnRequestActions": "[\"Erstattung auf ursprüngliche Zahlart\",\"Ersatzlieferung\",\"Umtausch gegen anderen Artikel\",\"Reparatur\",\"Gutschrift/Gutschein\",\"Sonstiges\"]",
+    "ReturnRequestReasons": "[\"Falschen Artikel erhalten\",\"Falsche Größe oder Variante bestellt\",\"Artikel gefällt nicht\",\"Artikel entspricht nicht der Beschreibung\",\"Ware fehlerhaft oder defekt\",\"Ware beschädigt erhalten\",\"Lieferung unvollständig\",\"Falsch bestellt\",\"Sonstiges\"]"
   },
   "PriceSettings": {
     "LimitedOfferBadgeLabel": "Befristetes Angebot"

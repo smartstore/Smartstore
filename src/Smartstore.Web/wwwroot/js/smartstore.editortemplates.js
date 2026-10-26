@@ -13,6 +13,8 @@
         "color": function (el) { $(el).colorpicker() },
         // ColorPalette
         "color-palette": function (el) { $(el).colorPalette() },
+        // StringList
+        "string-list": function (el) { $(el).stringList() },
         // Select2: AccessPermissions, CustomerRoles, DeliveryTimes, Discounts, Stores
         "select": function (el) {
             if ($.fn.select2 === undefined || $.fn.selectWrapper === undefined)

@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Linq.Dynamic.Core;
+using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Orders;
@@ -15,6 +16,7 @@ using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
+using Smartstore.Json;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
 
@@ -536,12 +538,12 @@ public class ReturnCaseController : AdminController
             string returnActions = _orderSettings.GetLocalizedSetting(x => x.ReturnRequestActions, order?.CustomerLanguageId, store?.Id, true, false);
             string unspec = T("Common.Unspecified");
 
-            var reasonForReturn = returnReasons.SplitSafe(',')
+            var reasonForReturn = (returnReasons.HasValue() ? JsonSerializer.Deserialize<string[]>(returnReasons, SmartJsonOptions.Default) ?? [] : [])
                 .Select(x => new SelectListItem { Text = x, Value = x, Selected = x == returnCase.ReasonForReturn })
                 .ToList();
             reasonForReturn.Insert(0, new SelectListItem { Text = unspec, Value = string.Empty });
 
-            var actionsForReturn = returnActions.SplitSafe(',')
+            var actionsForReturn = (returnActions.HasValue() ? JsonSerializer.Deserialize<string[]>(returnActions, SmartJsonOptions.Default) ?? [] : [])
                 .Select(x => new SelectListItem { Text = x, Value = x, Selected = x == returnCase.RequestedAction })
                 .ToList();
             actionsForReturn.Insert(0, new SelectListItem { Text = unspec, Value = string.Empty });
