@@ -25,6 +25,7 @@
 
             @if (item.ImageUrl.HasValue())
             {
+                @* INFO: An intentionally tiny thumbnail that does not further increase the height of the choice row. *@
                 if (item.SeName.HasValue())
                 {
                     <a asp-route="Product" asp-route-SeName="@item.SeName" class="choice-item-img choice-item-linked-product-img">
