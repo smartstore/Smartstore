@@ -122,7 +122,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 2048,
+    "Height": 1850,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -130,12 +130,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "coffee-subscription.jpg",
-    "PixelSize": 4194304,
-    "Size": 430194,
+    "PixelSize": 3422500,
+    "Size": 524057,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 2048
+    "Width": 1850
   },
   {
     "$key": "company-logo.png",
@@ -352,7 +352,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 2048,
+    "Height": 1248,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -360,12 +360,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "divot-repair-tool.jpg",
-    "PixelSize": 4194304,
-    "Size": 329929,
+    "PixelSize": 1557504,
+    "Size": 266469,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 2048
+    "Width": 1248
   },
   {
     "$key": "donation-plant-a-tree.jpg",
@@ -421,7 +421,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 2048,
+    "Height": 1835,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -429,12 +429,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "extra-virgin-olive-oil.jpg",
-    "PixelSize": 4194304,
-    "Size": 200172,
+    "PixelSize": 3367225,
+    "Size": 209959,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 2048
+    "Width": 1835
   },
   {
     "$key": "fairway-vennix.jpg",
@@ -743,7 +743,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 2048,
+    "Height": 2022,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -751,12 +751,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "golf-starter-set.jpg",
-    "PixelSize": 4194304,
-    "Size": 265324,
+    "PixelSize": 4088484,
+    "Size": 407544,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 2048
+    "Width": 2022
   },
   {
     "$key": "gourmet-gift-box.jpg",
@@ -766,7 +766,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 2048,
+    "Height": 1658,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -774,12 +774,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "gourmet-gift-box.jpg",
-    "PixelSize": 4194304,
-    "Size": 634591,
+    "PixelSize": 2748964,
+    "Size": 930340,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 2048
+    "Width": 1658
   },
   {
     "$key": "jackets-and-coats.jpg",
@@ -812,7 +812,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 2048,
+    "Height": 1200,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -820,12 +820,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "laser-rangefinder-600.jpg",
-    "PixelSize": 4194304,
-    "Size": 203595,
+    "PixelSize": 1440000,
+    "Size": 194721,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 2048
+    "Width": 1200
   },
   {
     "$key": "leather-golf-glove.jpg",
@@ -835,7 +835,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 2048,
+    "Height": 1933,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -843,12 +843,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "leather-golf-glove.jpg",
-    "PixelSize": 4194304,
-    "Size": 310990,
+    "PixelSize": 3736489,
+    "Size": 452676,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 2048
+    "Width": 1933
   },
   {
     "$key": "led-bulb-e27.jpg",
@@ -904,7 +904,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 2048,
+    "Height": 1813,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -912,12 +912,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "lightweight-stand-bag.jpg",
-    "PixelSize": 4194304,
-    "Size": 271128,
+    "PixelSize": 3286969,
+    "Size": 358180,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 2048
+    "Width": 1813
   },
   {
     "$key": "lindavero.jpg",
@@ -973,7 +973,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 2048,
+    "Height": 1584,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -981,12 +981,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "mediterranean-herb-mix.jpg",
-    "PixelSize": 4194304,
-    "Size": 448129,
+    "PixelSize": 2509056,
+    "Size": 614984,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 2048
+    "Width": 1584
   },
   {
     "$key": "merino-beanie.jpg",
@@ -1249,7 +1249,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 2048,
+    "Height": 1898,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -1257,12 +1257,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "roasted-coffee-1-kg.jpg",
-    "PixelSize": 4194304,
-    "Size": 186284,
+    "PixelSize": 3602404,
+    "Size": 251380,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 2048
+    "Width": 1898
   },
   {
     "$key": "roasted-coffee.jpg",
@@ -1272,7 +1272,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 2048,
+    "Height": 1898,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -1280,12 +1280,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "roasted-coffee.jpg",
-    "PixelSize": 4194304,
-    "Size": 201160,
+    "PixelSize": 3602404,
+    "Size": 191794,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 2048
+    "Width": 1898
   },
   {
     "$key": "sea-salt-mill.jpg",
@@ -1295,7 +1295,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 2048,
+    "Height": 1640,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -1303,12 +1303,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "sea-salt-mill.jpg",
-    "PixelSize": 4194304,
-    "Size": 193556,
+    "PixelSize": 2689600,
+    "Size": 160434,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 2048
+    "Width": 1640
   },
   {
     "$key": "software.jpg",
@@ -1341,7 +1341,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 2048,
+    "Height": 2026,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -1349,12 +1349,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "spiced-christmas-cookies.jpg",
-    "PixelSize": 4194304,
-    "Size": 376150,
+    "PixelSize": 4104676,
+    "Size": 638377,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 2048
+    "Width": 2026
   },
   {
     "$key": "the-quiet-harbour-e-book.jpg",
@@ -1387,7 +1387,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 2048,
+    "Height": 1882,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -1395,12 +1395,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "tour-distance-golf-balls.jpg",
-    "PixelSize": 4194304,
-    "Size": 220045,
+    "PixelSize": 3541924,
+    "Size": 332813,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 2048
+    "Width": 1882
   },
   {
     "$key": "urban-leather-sneaker-black-gold.jpg",
@@ -1479,7 +1479,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 2048,
+    "Height": 2061,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -1487,12 +1487,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "wooden-golf-tees.jpg",
-    "PixelSize": 4194304,
-    "Size": 292250,
+    "PixelSize": 4247721,
+    "Size": 454900,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 2048
+    "Width": 2061
   },
   {
     "$key": "wool-scarf.jpg",
