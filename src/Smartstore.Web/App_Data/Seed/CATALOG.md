@@ -85,4 +85,4 @@ Some products also show features of optional modules. Their texts say so in a se
    derives most of them, see `InstallationDataSeeder.Products.cs`.
 5. Run the seed tests, review the snapshot diff and update the table above.
 
-Pictures of the Food group are final product photos (`media/product/fd-*.jpg`). All other groups still use placeholders (`media/product/demo-*.jpg`) until their final pictures exist.
+Pictures of the Food and Golf groups are final product photos (`media/product/fd-*.jpg`, `gf-*.jpg`). All other groups still use placeholders (`media/product/demo-*.jpg`) until their final pictures exist.

@@ -352,7 +352,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 800,
+    "Height": 2048,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -360,12 +360,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "divot-repair-tool.jpg",
-    "PixelSize": 640000,
-    "Size": 18331,
+    "PixelSize": 4194304,
+    "Size": 329929,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 800
+    "Width": 2048
   },
   {
     "$key": "donation-plant-a-tree.jpg",
@@ -743,7 +743,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 800,
+    "Height": 2048,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -751,12 +751,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "golf-starter-set.jpg",
-    "PixelSize": 640000,
-    "Size": 19500,
+    "PixelSize": 4194304,
+    "Size": 265324,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 800
+    "Width": 2048
   },
   {
     "$key": "gourmet-gift-box.jpg",
@@ -812,7 +812,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 800,
+    "Height": 2048,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -820,12 +820,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "laser-rangefinder-600.jpg",
-    "PixelSize": 640000,
-    "Size": 19500,
+    "PixelSize": 4194304,
+    "Size": 203595,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 800
+    "Width": 2048
   },
   {
     "$key": "leather-golf-glove.jpg",
@@ -835,7 +835,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 800,
+    "Height": 2048,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -843,12 +843,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "leather-golf-glove.jpg",
-    "PixelSize": 640000,
-    "Size": 17436,
+    "PixelSize": 4194304,
+    "Size": 310990,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 800
+    "Width": 2048
   },
   {
     "$key": "led-bulb-e27.jpg",
@@ -904,7 +904,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 800,
+    "Height": 2048,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -912,12 +912,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "lightweight-stand-bag.jpg",
-    "PixelSize": 640000,
-    "Size": 19500,
+    "PixelSize": 4194304,
+    "Size": 271128,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 800
+    "Width": 2048
   },
   {
     "$key": "lindavero.jpg",
@@ -1387,7 +1387,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 800,
+    "Height": 2048,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -1395,12 +1395,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "tour-distance-golf-balls.jpg",
-    "PixelSize": 640000,
-    "Size": 18331,
+    "PixelSize": 4194304,
+    "Size": 220045,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 800
+    "Width": 2048
   },
   {
     "$key": "urban-leather-sneaker-black-gold.jpg",
@@ -1479,7 +1479,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 800,
+    "Height": 2048,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -1487,12 +1487,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "wooden-golf-tees.jpg",
-    "PixelSize": 640000,
-    "Size": 19500,
+    "PixelSize": 4194304,
+    "Size": 292250,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 800
+    "Width": 2048
   },
   {
     "$key": "wool-scarf.jpg",

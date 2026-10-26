@@ -22,7 +22,7 @@
     "categories": [ "Golf Balls" ],
     "manufacturers": [ "fairway-vennix" ],
     "pictures": [
-      { "file": "product/demo-round.jpg", "name": "tour-distance-golf-balls" }
+      { "file": "product/gf-1001.jpg", "name": "tour-distance-golf-balls" }
     ],
     "tierPrices": [
       { "quantity": 5, "price": 8.90 },
@@ -63,7 +63,7 @@
     "categories": [ "Golf Accessories" ],
     "manufacturers": [ "fairway-vennix" ],
     "pictures": [
-      { "file": "product/demo-box.jpg", "name": "wooden-golf-tees" }
+      { "file": "product/gf-1002.jpg", "name": "wooden-golf-tees" }
     ],
     "specifications": [
       { "specificationAttributeOption": "material/wood", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
@@ -91,7 +91,7 @@
     "categories": [ { "category": "Sale", "displayOrder": 0, "isSystemMapping": true }, "Golf Accessories" ],
     "manufacturers": [ "fairway-vennix" ],
     "pictures": [
-      { "file": "product/demo-flat.jpg", "name": "leather-golf-glove" }
+      { "file": "product/gf-1003.jpg", "name": "leather-golf-glove" }
     ],
     "specifications": [
       { "specificationAttributeOption": "material/leather", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
@@ -136,7 +136,7 @@
     "categories": [ "Golf Accessories" ],
     "manufacturers": [ "fairway-vennix" ],
     "pictures": [
-      { "file": "product/demo-box.jpg", "name": "laser-rangefinder-600" }
+      { "file": "product/gf-1004.jpg", "name": "laser-rangefinder-600" }
     ],
     "specifications": [
       { "specificationAttributeOption": "measuring-range/600m", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
@@ -163,7 +163,7 @@
     "categories": [ "Golf and Sports" ],
     "manufacturers": [ "fairway-vennix" ],
     "pictures": [
-      { "file": "product/demo-box.jpg", "name": "golf-starter-set" }
+      { "file": "product/gf-1005.jpg", "name": "golf-starter-set" }
     ],
     "specifications": [
       { "specificationAttributeOption": "level/beginner", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 }
@@ -195,7 +195,7 @@
     "categories": [ "Golf Accessories" ],
     "manufacturers": [ "fairway-vennix" ],
     "pictures": [
-      { "file": "product/demo-box.jpg", "name": "lightweight-stand-bag" }
+      { "file": "product/gf-1006.jpg", "name": "lightweight-stand-bag" }
     ],
     "specifications": [
       { "specificationAttributeOption": "bag-type/stand-bag", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
@@ -216,7 +216,7 @@
     "categories": [ "Golf Accessories" ],
     "manufacturers": [ "fairway-vennix" ],
     "pictures": [
-      { "file": "product/demo-round.jpg", "name": "divot-repair-tool" }
+      { "file": "product/gf-1007.jpg", "name": "divot-repair-tool" }
     ],
     "specifications": [
       { "specificationAttributeOption": "target-group/unisex", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 }
