@@ -104,6 +104,8 @@
             const grid = $('#deleted-products-grid').parent().data('datagrid');
             grid.read();
             grid.selectedRows = {};
+
+            $('.dg-commands-toggle.show > .dropdown-toggle').dropdown('hide');
         }
     });
 </script>
