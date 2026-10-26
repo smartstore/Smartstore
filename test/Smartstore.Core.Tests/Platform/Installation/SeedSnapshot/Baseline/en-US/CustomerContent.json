@@ -75,21 +75,6 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
-    "$key": "#232afa667e0e",
-    "CreatedOnUtc": "<now-1M>",
-    "CustomerId": "Customer:tim@example.com",
-    "HelpfulNoTotal": 0,
-    "HelpfulYesTotal": 0,
-    "IpAddress": null,
-    "IsApproved": true,
-    "IsVerifiedPurchase": true,
-    "ProductId": "Product:DG-1002",
-    "Rating": 5,
-    "ReviewText": "Warm sound and great musicians. Listened to the preview first, then bought it.",
-    "Title": "Perfect for the evening",
-    "UpdatedOnUtc": "0001-01-01T00:00:00"
-  },
-  {
     "$key": "#23ecc614ec08",
     "CreatedOnUtc": "<now-1M>",
     "CustomerId": "Customer:laura@example.com",
@@ -222,21 +207,6 @@
     "Rating": 5,
     "ReviewText": "Beautifully packed and a lovely selection. My parents were delighted.",
     "Title": "The perfect gift",
-    "UpdatedOnUtc": "0001-01-01T00:00:00"
-  },
-  {
-    "$key": "#6ac498f2ef36",
-    "CreatedOnUtc": "<now+0M>",
-    "CustomerId": "Customer:markus@example.com",
-    "HelpfulNoTotal": 0,
-    "HelpfulYesTotal": 0,
-    "IpAddress": null,
-    "IsApproved": true,
-    "IsVerifiedPurchase": null,
-    "ProductId": "Product:DG-1002",
-    "Rating": 4,
-    "ReviewText": "Relaxed and well produced. A few more up-tempo tracks would be nice.",
-    "Title": "Good album",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {

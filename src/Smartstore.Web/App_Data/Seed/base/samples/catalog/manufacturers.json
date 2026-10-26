@@ -35,7 +35,7 @@
   {
     "key": "pixelmoor",
     "name": "Pixelmoor",
-    "description": "<p>Fictional brand of the demo shop for digital products such as e-books, music and software.</p>",
+    "description": "<p>Fictional brand of the demo shop for digital products such as e-books and software.</p>",
     "mediaFile": { "file": "brand/demo-brand.jpg", "name": "pixelmoor" },
     "published": true,
     "displayOrder": 5

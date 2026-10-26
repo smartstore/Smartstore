@@ -170,16 +170,6 @@
     "SpecificationAttributeId": "SpecificationAttribute:Dimmable"
   },
   {
-    "$key": "SpecificationAttribute:File format|MP3",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "MP3",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:File format"
-  },
-  {
     "$key": "SpecificationAttribute:File format|PDF",
     "Alias": null,
     "Color": null,
@@ -310,16 +300,6 @@
     "SpecificationAttributeId": "SpecificationAttribute:Layers"
   },
   {
-    "$key": "SpecificationAttribute:MP3 quality|320 kbit/s",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "320 kbit/s",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:MP3 quality"
-  },
-  {
     "$key": "SpecificationAttribute:Material|100% organic cotton",
     "Alias": null,
     "Color": null,
@@ -398,16 +378,6 @@
     "Name": "up to 600 m",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Measuring range"
-  },
-  {
-    "$key": "SpecificationAttribute:Music genre|jazz",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "jazz",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Music genre"
   },
   {
     "$key": "SpecificationAttribute:Occasion|Christmas",

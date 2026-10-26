@@ -9,15 +9,6 @@
       { "customer": "jonas", "rating": 3, "title": "Schön, aber langsam", "reviewText": "Gut geschrieben, aber der Mittelteil zieht sich etwas.", "isApproved": true, "createdOnUtc": "@now-9d" }
     ]
   },
-  "DG-1002": {
-    "name": "Late Night Sessions (Album)",
-    "shortDescription": "Zwölf entspannte Jazz-Stücke für den Abend. Download als MP3, 320 kbit/s.",
-    "fullDescription": "@file",
-    "reviews": [
-      { "customer": "tim", "rating": 5, "title": "Perfekt für den Abend", "reviewText": "Warmer Klang und tolle Musiker. Erst die Hörprobe angehört, dann gekauft.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-26d" },
-      { "customer": "markus", "rating": 4, "title": "Gutes Album", "reviewText": "Entspannt und gut produziert. Ein paar schnellere Stücke wären schön.", "isApproved": true, "createdOnUtc": "@now-8d" }
-    ]
-  },
   "DG-1003": {
     "name": "Pixelmoor Photo Studio",
     "shortDescription": "Bildbearbeitung für Windows, macOS und Linux. Download mit Lizenzvereinbarung.",

@@ -6,12 +6,6 @@
     "ProductId": "Product:DG-1001"
   },
   {
-    "$key": "Product:DG-1002|MediaFile:late-night-sessions-album.jpg",
-    "DisplayOrder": 1,
-    "MediaFileId": "MediaFile:late-night-sessions-album.jpg",
-    "ProductId": "Product:DG-1002"
-  },
-  {
     "$key": "Product:DG-1003|MediaFile:pixelmoor-photo-studio.jpg",
     "DisplayOrder": 1,
     "MediaFileId": "MediaFile:pixelmoor-photo-studio.jpg",

@@ -97,7 +97,7 @@
     "BottomDescription": null,
     "CreatedOnUtc": "0001-01-01T00:00:00",
     "Deleted": false,
-    "Description": "<p>Fictional brand of the demo shop for digital products such as e-books, music and software.</p>",
+    "Description": "<p>Fictional brand of the demo shop for digital products such as e-books and software.</p>",
     "DisplayOrder": 5,
     "HasDiscountsApplied": false,
     "LimitedToStores": false,

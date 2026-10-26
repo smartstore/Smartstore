@@ -17,7 +17,7 @@
     "description": "<p>Sessel, Leuchten und eine Wohnzimmer-Serie. Zeigt konfigurierbare Produkte mit Aufpreisen, Lieferzeiten und Gruppenprodukte.</p>"
   },
   "Digital": {
-    "description": "<p>E-Books, Musik und Software zum sofortigen Download. Zeigt Download-Vorschauen und Nutzungsvereinbarungen.</p>"
+    "description": "<p>E-Books und Software zum sofortigen Download. Zeigt Download-Vorschauen und Nutzungsvereinbarungen.</p>"
   },
   "Vouchers": {
     "name": "Gutscheine",
@@ -46,8 +46,5 @@
   },
   "Lighting": {
     "name": "Leuchten"
-  },
-  "Music": {
-    "name": "Musik"
   }
 }

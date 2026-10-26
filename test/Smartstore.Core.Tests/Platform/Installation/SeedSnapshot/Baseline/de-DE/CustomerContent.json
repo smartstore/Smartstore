@@ -105,21 +105,6 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
-    "$key": "#0d225a8ffc0e",
-    "CreatedOnUtc": "<now+0M>",
-    "CustomerId": "Customer:markus@example.com",
-    "HelpfulNoTotal": 0,
-    "HelpfulYesTotal": 0,
-    "IpAddress": null,
-    "IsApproved": true,
-    "IsVerifiedPurchase": null,
-    "ProductId": "Product:DG-1002",
-    "Rating": 4,
-    "ReviewText": "Entspannt und gut produziert. Ein paar schnellere Stücke wären schön.",
-    "Title": "Gutes Album",
-    "UpdatedOnUtc": "0001-01-01T00:00:00"
-  },
-  {
     "$key": "#0db9793a9f1f",
     "CreatedOnUtc": "<now-1M>",
     "CustomerId": "Customer:markus@example.com",
@@ -417,21 +402,6 @@
     "Rating": 5,
     "ReviewText": "Noten von Kakao und Haselnuss, genau wie beschrieben. Perfekt für die Filtermaschine.",
     "Title": "Kräftig und aromatisch",
-    "UpdatedOnUtc": "0001-01-01T00:00:00"
-  },
-  {
-    "$key": "#857e49d2f3b2",
-    "CreatedOnUtc": "<now-1M>",
-    "CustomerId": "Customer:tim@example.com",
-    "HelpfulNoTotal": 0,
-    "HelpfulYesTotal": 0,
-    "IpAddress": null,
-    "IsApproved": true,
-    "IsVerifiedPurchase": true,
-    "ProductId": "Product:DG-1002",
-    "Rating": 5,
-    "ReviewText": "Warmer Klang und tolle Musiker. Erst die Hörprobe angehört, dann gekauft.",
-    "Title": "Perfekt für den Abend",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {

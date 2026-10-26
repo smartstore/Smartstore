@@ -30,16 +30,6 @@
     "SpecificationAttributeId": "SpecificationAttribute:Bohne"
   },
   {
-    "$key": "SpecificationAttribute:Dateiformat|MP3",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "MP3",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Dateiformat"
-  },
-  {
     "$key": "SpecificationAttribute:Dateiformat|PDF",
     "Alias": null,
     "Color": null,
@@ -130,24 +120,14 @@
     "SpecificationAttributeId": "SpecificationAttribute:Farbe"
   },
   {
-    "$key": "SpecificationAttribute:Genre#1|Jazz",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 2,
-    "MediaFileId": 0,
-    "Name": "Jazz",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Genre#1"
-  },
-  {
-    "$key": "SpecificationAttribute:Genre#2|Roman",
+    "$key": "SpecificationAttribute:Genre|Roman",
     "Alias": null,
     "Color": null,
     "DisplayOrder": 7,
     "MediaFileId": 0,
     "Name": "Roman",
     "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:Genre#2"
+    "SpecificationAttributeId": "SpecificationAttribute:Genre"
   },
   {
     "$key": "SpecificationAttribute:Geschmack|Fruchtig",
@@ -278,16 +258,6 @@
     "Name": "Rarität",
     "NumberValue": 0.0,
     "SpecificationAttributeId": "SpecificationAttribute:Kaffeeart"
-  },
-  {
-    "$key": "SpecificationAttribute:MP3-Qualität|320 kbit/s",
-    "Alias": null,
-    "Color": null,
-    "DisplayOrder": 3,
-    "MediaFileId": 0,
-    "Name": "320 kbit/s",
-    "NumberValue": 0.0,
-    "SpecificationAttributeId": "SpecificationAttribute:MP3-Qualität"
   },
   {
     "$key": "SpecificationAttribute:Material|100% Bio-Baumwolle",

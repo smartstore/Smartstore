@@ -51,17 +51,6 @@
       }
     }
   },
-  "mp3-quality": {
-    "name": "MP3-Qualität"
-  },
-  "music-genre": {
-    "name": "Genre",
-    "options":  {
-      "jazz": {
-        "name": "Jazz"
-      }
-    }
-  },
   "origin": {
     "name": "Herkunft",
     "options":  {

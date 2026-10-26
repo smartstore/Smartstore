@@ -104,14 +104,6 @@
     "Slug": "leuchten"
   },
   {
-    "$key": "Category|Category:Music|0|musik",
-    "EntityId": "Category:Music",
-    "EntityName": "Category",
-    "IsActive": true,
-    "LanguageId": 0,
-    "Slug": "musik"
-  },
-  {
     "$key": "Category|Category:Oil and Vinegar|0|oel-essig",
     "EntityId": "Category:Oil and Vinegar",
     "EntityName": "Category",
@@ -190,14 +182,6 @@
     "IsActive": true,
     "LanguageId": 0,
     "Slug": "der-stille-hafen-e-book-"
-  },
-  {
-    "$key": "Product|Product:DG-1002|0|late-night-sessions-album-",
-    "EntityId": "Product:DG-1002",
-    "EntityName": "Product",
-    "IsActive": true,
-    "LanguageId": 0,
-    "Slug": "late-night-sessions-album-"
   },
   {
     "$key": "Product|Product:DG-1003|0|pixelmoor-photo-studio",

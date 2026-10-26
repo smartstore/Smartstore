@@ -1,10 +1,5 @@
 [
   {
-    "$key": "Discount:Season sale: 15% off selected items|Product:DG-1002",
-    "Discount_Id": "Discount:Season sale: 15% off selected items",
-    "Product_Id": "Product:DG-1002"
-  },
-  {
     "$key": "Discount:Season sale: 15% off selected items|Product:FN-1004",
     "Discount_Id": "Discount:Season sale: 15% off selected items",
     "Product_Id": "Product:FN-1004"

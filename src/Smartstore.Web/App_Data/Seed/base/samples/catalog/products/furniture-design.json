@@ -31,22 +31,30 @@
       {
         "productAttribute": "cover",
         "isRequired": true,
-        "attributeControlType": "DropdownList",
+        "attributeControlType": "Boxes",
+        "swatchSize": "Large",
+        "swatchShape": "Rounded",
+        "showValueNameInSwatch": true,
+        "swatchPriceDisplay": "Adjustment",
         "displayOrder": 1,
         "values": [
-          { "name": "Fabric", "alias": "cover-fabric", "isPreSelected": true, "displayOrder": 1 },
-          { "name": "Linen", "alias": "cover-linen", "priceAdjustment": 80.00, "displayOrder": 2 },
-          { "name": "Leather", "alias": "cover-leather", "priceAdjustment": 250.00, "weightAdjustment": 4.4, "displayOrder": 3 }
+          { "name": "Fabric", "alias": "cover-fabric", "mediaFile": "product/demo-flat-olive.jpg", "isPreSelected": true, "displayOrder": 1 },
+          { "name": "Linen", "alias": "cover-linen", "mediaFile": "product/demo-flat-sand.jpg", "priceAdjustment": 80.00, "displayOrder": 2 },
+          { "name": "Leather", "alias": "cover-leather", "mediaFile": "product/demo-flat-black.jpg", "priceAdjustment": 250.00, "weightAdjustment": 4.4, "displayOrder": 3 }
         ]
       },
       {
         "productAttribute": "frame",
         "isRequired": true,
-        "attributeControlType": "RadioList",
+        "attributeControlType": "Boxes",
+        "swatchSize": "Large",
+        "swatchShape": "Rounded",
+        "showValueNameInSwatch": true,
+        "swatchPriceDisplay": "Adjustment",
         "displayOrder": 2,
         "values": [
-          { "name": "Oak", "alias": "frame-oak", "isPreSelected": true, "displayOrder": 1 },
-          { "name": "Black steel", "alias": "frame-steel", "priceAdjustment": -30.00, "displayOrder": 2 }
+          { "name": "Oak", "alias": "frame-oak", "mediaFile": "product/demo-flat-sand.jpg", "isPreSelected": true, "displayOrder": 1 },
+          { "name": "Black steel", "alias": "frame-steel", "mediaFile": "product/demo-flat-navy.jpg", "priceAdjustment": -30.00, "displayOrder": 2 }
         ]
       },
       {
@@ -124,7 +132,7 @@
     "showOnHomePage": true,
     "manageInventoryMethod": "DontManageStock",
     "groupedProductConfiguration": {
-      "collapsible": false,
+      "collapsible": true,
       "headerFields": [ "image", "sku", "price" ]
     },
     "categories": [ "Furniture and Design" ],

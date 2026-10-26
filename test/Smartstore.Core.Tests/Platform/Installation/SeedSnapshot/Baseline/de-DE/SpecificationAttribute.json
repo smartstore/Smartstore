@@ -91,20 +91,7 @@
     "ShowOnProductPage": false
   },
   {
-    "$key": "Genre#1",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 19,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "Genre",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "Genre#2",
+    "$key": "Genre",
     "Alias": null,
     "AllowFiltering": false,
     "CollectionGroupMappingId": null,
@@ -179,19 +166,6 @@
     "FacetTemplateHint": "Checkboxes",
     "IndexOptionNames": false,
     "Name": "Kaffeeart",
-    "ShowOnProductPage": false
-  },
-  {
-    "$key": "MP3-Qualität",
-    "Alias": null,
-    "AllowFiltering": false,
-    "CollectionGroupMappingId": null,
-    "DisplayOrder": 18,
-    "Essential": false,
-    "FacetSorting": "HitsDesc",
-    "FacetTemplateHint": "Checkboxes",
-    "IndexOptionNames": false,
-    "Name": "MP3-Qualität",
     "ShowOnProductPage": false
   },
   {

@@ -6,6 +6,7 @@
     "badgeStyle": "danger",
     "alias": "Sale",
     "metaTitle": "Sale",
+    "icon": "hi:sale-tag-01!/sr",
     "published": true,
     "displayOrder": 99,
     "ruleSets": [
@@ -57,7 +58,7 @@
   {
     "name": "Digital",
     "alias": "Digital",
-    "description": "<p>E-books, music and software for immediate download. Shows download previews and licence agreements.</p>",
+    "description": "<p>E-books and software for immediate download. Shows download previews and licence agreements.</p>",
     "icon": "hi:download-02!/sr",
     "mediaFile": { "file": "category/demo-category.jpg", "name": "digital" },
     "showOnHomePage": true,
@@ -146,14 +147,6 @@
     "mediaFile": { "file": "category/demo-category.jpg", "name": "e-books" },
     "published": true,
     "displayOrder": 1
-  },
-  {
-    "parent": "Digital",
-    "name": "Music",
-    "alias": "Music",
-    "mediaFile": { "file": "category/demo-category.jpg", "name": "music" },
-    "published": true,
-    "displayOrder": 2
   },
   {
     "parent": "Digital",

@@ -63,7 +63,6 @@ SKUs are `{prefix}{number}`, starting at 1001, e.g. `FN-1002`. Combinations appe
 | FN-1004–FN-1006 | Oslo side table, shelf, footstool | Items of the grouped product; shelf without quantity control |
 | FN-1007 | LED bulb | Required by the floor lamp, added to the cart automatically |
 | DG-1001 | E-book | Download after payment, sample download, reduced tax rate |
-| DG-1002 | Music album | Download with audio preview |
 | DG-1003 | Photo software | Download with licence agreement, download limit and expiry, file version |
 | GC-1001 | Gift card | Virtual gift card, amount as combination price |
 | GC-1002 | Gift card with amount of your choice | Price entered by the customer |

@@ -8,22 +8,6 @@
     "ProductId": "Product:DG-1001"
   },
   {
-    "$key": "Product:DG-1002|Category:Music",
-    "CategoryId": "Category:Music",
-    "DisplayOrder": 1,
-    "IsFeaturedProduct": false,
-    "IsSystemMapping": false,
-    "ProductId": "Product:DG-1002"
-  },
-  {
-    "$key": "Product:DG-1002|Category:Sale",
-    "CategoryId": "Category:Sale",
-    "DisplayOrder": 0,
-    "IsFeaturedProduct": false,
-    "IsSystemMapping": true,
-    "ProductId": "Product:DG-1002"
-  },
-  {
     "$key": "Product:DG-1003|Category:Software",
     "CategoryId": "Category:Software",
     "DisplayOrder": 1,

@@ -61,17 +61,17 @@
   },
   {
     "$key": "Product:FN-1001|ProductAttribute:cover",
-    "AttributeControlTypeId": 1,
+    "AttributeControlTypeId": 40,
     "CustomData": null,
     "DisplayOrder": 1,
     "IsRequired": true,
     "ProductAttributeId": "ProductAttribute:cover",
     "ProductId": "Product:FN-1001",
-    "ShowValueNameInSwatch": null,
+    "ShowValueNameInSwatch": true,
     "SwatchAspectRatio": null,
-    "SwatchPriceDisplay": null,
-    "SwatchShape": null,
-    "SwatchSize": null,
+    "SwatchPriceDisplay": "Adjustment",
+    "SwatchShape": "Rounded",
+    "SwatchSize": "Large",
     "TextPrompt": null
   },
   {
@@ -91,17 +91,17 @@
   },
   {
     "$key": "Product:FN-1001|ProductAttribute:frame",
-    "AttributeControlTypeId": 2,
+    "AttributeControlTypeId": 40,
     "CustomData": null,
     "DisplayOrder": 2,
     "IsRequired": true,
     "ProductAttributeId": "ProductAttribute:frame",
     "ProductId": "Product:FN-1001",
-    "ShowValueNameInSwatch": null,
+    "ShowValueNameInSwatch": true,
     "SwatchAspectRatio": null,
-    "SwatchPriceDisplay": null,
-    "SwatchShape": null,
-    "SwatchSize": null,
+    "SwatchPriceDisplay": "Adjustment",
+    "SwatchShape": "Rounded",
+    "SwatchSize": "Large",
     "TextPrompt": null
   },
   {
@@ -176,7 +176,7 @@
     "SwatchAspectRatio": null,
     "SwatchPriceDisplay": "Adjustment",
     "SwatchShape": "Rect",
-    "SwatchSize": null,
+    "SwatchSize": "Large",
     "TextPrompt": null
   },
   {

@@ -24,30 +24,6 @@
     "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Language|english"
   },
   {
-    "$key": "Product:DG-1002|SpecificationAttributeOption:SpecificationAttribute:File format|MP3",
-    "AllowFiltering": true,
-    "DisplayOrder": 1,
-    "ProductId": "Product:DG-1002",
-    "ShowOnProductPage": true,
-    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:File format|MP3"
-  },
-  {
-    "$key": "Product:DG-1002|SpecificationAttributeOption:SpecificationAttribute:MP3 quality|320 kbit/s",
-    "AllowFiltering": true,
-    "DisplayOrder": 2,
-    "ProductId": "Product:DG-1002",
-    "ShowOnProductPage": true,
-    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:MP3 quality|320 kbit/s"
-  },
-  {
-    "$key": "Product:DG-1002|SpecificationAttributeOption:SpecificationAttribute:Music genre|jazz",
-    "AllowFiltering": true,
-    "DisplayOrder": 3,
-    "ProductId": "Product:DG-1002",
-    "ShowOnProductPage": true,
-    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Music genre|jazz"
-  },
-  {
     "$key": "Product:DG-1003|SpecificationAttributeOption:SpecificationAttribute:File format|ZIP",
     "AllowFiltering": true,
     "DisplayOrder": 1,

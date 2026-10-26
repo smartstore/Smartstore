@@ -8,12 +8,12 @@
     "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Dateiformat|PDF"
   },
   {
-    "$key": "Product:DG-1001|SpecificationAttributeOption:SpecificationAttribute:Genre#2|Roman",
+    "$key": "Product:DG-1001|SpecificationAttributeOption:SpecificationAttribute:Genre|Roman",
     "AllowFiltering": true,
     "DisplayOrder": 3,
     "ProductId": "Product:DG-1001",
     "ShowOnProductPage": true,
-    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Genre#2|Roman"
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Genre|Roman"
   },
   {
     "$key": "Product:DG-1001|SpecificationAttributeOption:SpecificationAttribute:Sprache|Englisch",
@@ -22,30 +22,6 @@
     "ProductId": "Product:DG-1001",
     "ShowOnProductPage": true,
     "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Sprache|Englisch"
-  },
-  {
-    "$key": "Product:DG-1002|SpecificationAttributeOption:SpecificationAttribute:Dateiformat|MP3",
-    "AllowFiltering": true,
-    "DisplayOrder": 1,
-    "ProductId": "Product:DG-1002",
-    "ShowOnProductPage": true,
-    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Dateiformat|MP3"
-  },
-  {
-    "$key": "Product:DG-1002|SpecificationAttributeOption:SpecificationAttribute:Genre#1|Jazz",
-    "AllowFiltering": true,
-    "DisplayOrder": 3,
-    "ProductId": "Product:DG-1002",
-    "ShowOnProductPage": true,
-    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Genre#1|Jazz"
-  },
-  {
-    "$key": "Product:DG-1002|SpecificationAttributeOption:SpecificationAttribute:MP3-Qualität|320 kbit/s",
-    "AllowFiltering": true,
-    "DisplayOrder": 2,
-    "ProductId": "Product:DG-1002",
-    "ShowOnProductPage": true,
-    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:MP3-Qualität|320 kbit/s"
   },
   {
     "$key": "Product:DG-1003|SpecificationAttributeOption:SpecificationAttribute:Dateiformat|ZIP",

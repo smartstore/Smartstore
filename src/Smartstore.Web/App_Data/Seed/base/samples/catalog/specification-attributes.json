@@ -86,30 +86,6 @@
     ]
   },
   {
-    "key": "mp3-quality",
-    "name": "MP3 quality",
-    "displayOrder": 18,
-    "options":  [
-      {
-        "key": "320-kbits",
-        "name": "320 kbit/s",
-        "displayOrder": 3
-      }
-    ]
-  },
-  {
-    "key": "music-genre",
-    "name": "Music genre",
-    "displayOrder": 19,
-    "options":  [
-      {
-        "key": "jazz",
-        "name": "jazz",
-        "displayOrder": 2
-      }
-    ]
-  },
-  {
     "key": "origin",
     "name": "Origin",
     "essential": true,
@@ -339,7 +315,6 @@
     "displayOrder": 50,
     "options":  [
       { "key": "pdf", "name": "PDF", "displayOrder": 1 },
-      { "key": "mp3", "name": "MP3", "displayOrder": 3 },
       { "key": "zip", "name": "ZIP", "displayOrder": 4 }
     ]
   },
