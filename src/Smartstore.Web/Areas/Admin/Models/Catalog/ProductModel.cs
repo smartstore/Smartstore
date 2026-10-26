@@ -203,7 +203,7 @@ public class ProductModel : ProductOverviewModel, ILocalizedModel<ProductLocaliz
     public bool HideQuantityControl { get; set; }
 
     [LocalizedDisplay("*AllowedQuantities")]
-    public string AllowedQuantities { get; set; }
+    public int[] AllowedQuantities { get; set; } = [];
 
     [LocalizedDisplay("*DisableBuyButton")]
     public bool DisableBuyButton { get; set; }
@@ -739,6 +739,7 @@ public partial class ProductModelValidator : SmartValidator<ProductModel>
         {
             RuleFor(x => x.OrderMinimumQuantity).GreaterThan(0); // dont't remove "Admin.Validation.ValueGreaterZero" resource. It is used elsewhere.
             RuleFor(x => x.OrderMaximumQuantity).GreaterThan(0);
+            RuleForEach(x => x.AllowedQuantities).GreaterThan(0);
         });
 
         // validate PAnGV
@@ -801,6 +802,7 @@ public class ProductMapper : IMapper<Product, ProductModel>
     public async Task MapAsync(Product from, ProductModel to, dynamic parameters = null)
     {
         MiniMapper.Map(from, to);
+        to.AllowedQuantities ??= [];
         to.SeName = await from.GetActiveSlugAsync(0, true, false);
     }
 }

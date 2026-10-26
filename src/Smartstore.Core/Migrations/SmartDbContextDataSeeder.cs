@@ -615,6 +615,18 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Specify the page sizes customers can select in product lists.",
             "Bestimmen Sie hier die Seitengrößen, die Kunden in Produktlisten auswählen können.");
 
+        builder.AddOrUpdate("Admin.Catalog.Products.Fields.AllowedQuantities",
+            "Custom quantities",
+            "Benutzerdefinierte Mengenliste",
+            "Specify the order quantities customers can select for this product. If this field is populated, the minimum, maximum and step settings are ignored.",
+            "Bestimmen Sie hier die Bestellmengen, die Kunden für dieses Produkt auswählen können. Wenn dieses Feld befüllt ist, werden die Einstellungen für Mindestmenge, Höchstmenge und Mengenschritt ignoriert.");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.Salutations",
+            "Salutations",
+            "Anreden",
+            "Specify the entries available for salutation selection when entering an address.",
+            "Bestimmen Sie hier die Einträge, die bei der Adresserfassung als Anrede ausgewählt werden können.");
+
         builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.DisplayAllImagesNumber",
             "Show all product images up to",
             "Alle Produktbilder anzeigen bis",

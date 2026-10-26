@@ -190,7 +190,7 @@ public partial class CustomerUserSettingsModel : ModelBase, ILocalizedModel<Cust
         public bool SalutationEnabled { get; set; }
 
         [LocalizedDisplay("*Salutations")]
-        public string Salutations { get; set; }
+        public string[] Salutations { get; set; } = [];
 
         [LocalizedDisplay("*TitleEnabled")]
         public bool TitleEnabled { get; set; }
@@ -282,7 +282,7 @@ public class CustomerUserSettingsLocalizedModel : ILocalizedLocaleModel
     public int LanguageId { get; set; }
 
     [LocalizedDisplay("Admin.Configuration.Settings.CustomerUser.Salutations")]
-    public string Salutations { get; set; }
+    public string[] Salutations { get; set; } = [];
 }
 
 [LocalizedDisplay("Admin.Configuration.Settings.CustomerUser.Privacy.CookieInfo.")]

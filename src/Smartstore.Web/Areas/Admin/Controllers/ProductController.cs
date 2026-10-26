@@ -2245,7 +2245,7 @@ public partial class ProductController : AdminController
         p.OrderMaximumQuantity = m.OrderMaximumQuantity;
         p.QuantityStep = m.QuantityStep;
         p.HideQuantityControl = m.HideQuantityControl;
-        p.AllowedQuantities = m.AllowedQuantities;
+        p.AllowedQuantities = string.Join(',', m.AllowedQuantities ?? []);
         p.QuantityPerParentUnit = m.QuantityPerParentUnit;
     }
 

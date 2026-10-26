@@ -1479,10 +1479,15 @@ public class CustomerController : AdminController
         await MapperFactory.MapAsync(customerSettings, model.CustomerSettings);
         await MapperFactory.MapAsync(addressSettings, model.AddressSettings);
         await MapperFactory.MapAsync(privacySettings, model.PrivacySettings);
+        model.AddressSettings.Salutations ??= [];
 
         AddLocales(model.Locales, (locale, languageId) =>
         {
-            locale.Salutations = addressSettings.GetLocalizedSetting(x => x.Salutations, languageId, storeScope, false, false);
+            locale.Salutations = addressSettings
+                .GetLocalizedSetting(x => x.Salutations, languageId, storeScope, false, false)
+                .Value
+                .SplitSafe(',')
+                .ToArray();
         });
 
         return View(model);
@@ -1534,7 +1539,12 @@ public class CustomerController : AdminController
 
         foreach (var localized in model.Locales)
         {
-            await _localizedEntityService.ApplyLocalizedSettingAsync(addressSettings, x => x.Salutations, localized.Salutations, localized.LanguageId, storeScope);
+            await _localizedEntityService.ApplyLocalizedSettingAsync(
+                addressSettings,
+                x => x.Salutations,
+                string.Join(',', localized.Salutations ?? []),
+                localized.LanguageId,
+                storeScope);
         }
 
         await _db.SaveChangesAsync();
