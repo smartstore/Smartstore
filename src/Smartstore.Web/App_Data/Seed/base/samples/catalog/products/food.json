@@ -25,7 +25,7 @@
     "categories": [ "Oil and Vinegar" ],
     "manufacturers": [ "casa-vireluna" ],
     "pictures": [
-      { "file": "product/demo-round.jpg", "name": "extra-virgin-olive-oil" }
+      { "file": "product/fd-1001.jpg", "name": "extra-virgin-olive-oil" }
     ],
     "specifications": [
       { "specificationAttributeOption": "origin/italy", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
@@ -57,7 +57,8 @@
     "categories": [ "Coffee and Tea" ],
     "manufacturers": [ "casa-vireluna" ],
     "pictures": [
-      { "file": "product/demo-box.jpg", "name": "roasted-coffee" }
+      { "file": "product/fd-1002.jpg", "name": "roasted-coffee", "displayOrder": 1 },
+      { "file": "product/fd-1002-1kg.jpg", "name": "roasted-coffee-1-kg", "displayOrder": 2 }
     ],
     "specifications": [
       { "specificationAttributeOption": "origin/colombia", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
@@ -93,26 +94,32 @@
     "combinations": [
       {
         "sku": "FD-1002-250-W", "price": 8.90, "stockQuantity": 200, "basePriceAmount": 0.25, "basePriceBaseAmount": 1,
+        "pictures": [ "product/fd-1002.jpg" ],
         "attributes": { "pack-size": "pack-250g", "grind": "grind-whole" }
       },
       {
         "sku": "FD-1002-250-E", "price": 8.90, "stockQuantity": 200, "basePriceAmount": 0.25, "basePriceBaseAmount": 1,
+        "pictures": [ "product/fd-1002.jpg" ],
         "attributes": { "pack-size": "pack-250g", "grind": "grind-espresso" }
       },
       {
         "sku": "FD-1002-250-F", "price": 8.90, "stockQuantity": 200, "basePriceAmount": 0.25, "basePriceBaseAmount": 1,
+        "pictures": [ "product/fd-1002.jpg" ],
         "attributes": { "pack-size": "pack-250g", "grind": "grind-filter" }
       },
       {
         "sku": "FD-1002-1000-W", "price": 29.90, "stockQuantity": 80, "basePriceAmount": 1, "basePriceBaseAmount": 1, "deliveryTime": "2-5-working-days",
+        "pictures": [ "product/fd-1002-1kg.jpg" ],
         "attributes": { "pack-size": "pack-1kg", "grind": "grind-whole" }
       },
       {
         "sku": "FD-1002-1000-E", "price": 29.90, "stockQuantity": 80, "basePriceAmount": 1, "basePriceBaseAmount": 1, "deliveryTime": "2-5-working-days",
+        "pictures": [ "product/fd-1002-1kg.jpg" ],
         "attributes": { "pack-size": "pack-1kg", "grind": "grind-espresso" }
       },
       {
         "sku": "FD-1002-1000-F", "price": 29.90, "stockQuantity": 80, "basePriceAmount": 1, "basePriceBaseAmount": 1, "deliveryTime": "2-5-working-days",
+        "pictures": [ "product/fd-1002-1kg.jpg" ],
         "attributes": { "pack-size": "pack-1kg", "grind": "grind-filter" }
       }
     ]
@@ -148,7 +155,7 @@
     "categories": [ "Coffee and Tea" ],
     "manufacturers": [ "casa-vireluna" ],
     "pictures": [
-      { "file": "product/demo-box.jpg", "name": "coffee-subscription" }
+      { "file": "product/fd-1003.jpg", "name": "coffee-subscription" }
     ],
     "specifications": [
       { "specificationAttributeOption": "origin/ethiopia", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
@@ -177,7 +184,7 @@
     "categories": [ "Delicacies" ],
     "manufacturers": [ "casa-vireluna" ],
     "pictures": [
-      { "file": "product/demo-round.jpg", "name": "mediterranean-herb-mix" }
+      { "file": "product/fd-1004.jpg", "name": "mediterranean-herb-mix" }
     ],
     "specifications": [
       { "specificationAttributeOption": "origin/italy", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
@@ -207,7 +214,7 @@
     "manufacturers": [ "casa-vireluna" ],
     "tags": [ "gift" ],
     "pictures": [
-      { "file": "product/demo-box.jpg", "name": "gourmet-gift-box" }
+      { "file": "product/fd-1005.jpg", "name": "gourmet-gift-box" }
     ],
     "specifications": [
       { "specificationAttributeOption": "occasion/gift", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 }
@@ -231,7 +238,7 @@
     "categories": [ "Delicacies" ],
     "manufacturers": [ "casa-vireluna" ],
     "pictures": [
-      { "file": "product/demo-round.jpg", "name": "sea-salt-mill" }
+      { "file": "product/fd-1006.jpg", "name": "sea-salt-mill" }
     ],
     "specifications": [
       { "specificationAttributeOption": "origin/spain", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
@@ -251,7 +258,7 @@
     "categories": [ "Delicacies" ],
     "manufacturers": [ "casa-vireluna" ],
     "pictures": [
-      { "file": "product/demo-box.jpg", "name": "spiced-christmas-cookies" }
+      { "file": "product/fd-1007.jpg", "name": "spiced-christmas-cookies" }
     ],
     "specifications": [
       { "specificationAttributeOption": "flavour/sweet", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },

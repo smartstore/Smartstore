@@ -38,7 +38,7 @@ SKUs are `{prefix}{number}`, starting at 1001, e.g. `FN-1002`. Combinations appe
 | SKU | Product | Shows |
 |---|---|---|
 | FD-1001 | Extra virgin olive oil 500 ml | Base price per litre, reduced tax rate, specifications |
-| FD-1002 | Roasted coffee | Combinations with own SKU, price, base price and delivery time |
+| FD-1002 | Roasted coffee | Combinations with own SKU, price, base price and delivery time; picture per pack size (assigned to the combinations) |
 | FD-1003 | Coffee subscription | Recurring product, date picker, multi-line text box |
 | FD-1004 | Mediterranean herb mix | Simple product, specification filters, low stock, new |
 | FD-1005 | Gourmet gift box | Bundle with per-item pricing and item discounts, new |
@@ -85,4 +85,4 @@ Some products also show features of optional modules. Their texts say so in a se
    derives most of them, see `InstallationDataSeeder.Products.cs`.
 5. Run the seed tests, review the snapshot diff and update the table above.
 
-Pictures are placeholders (`media/product/demo-*.jpg`) until the final product pictures exist.
+Pictures of the Food group are final product photos (`media/product/fd-*.jpg`). All other groups still use placeholders (`media/product/demo-*.jpg`) until their final pictures exist.

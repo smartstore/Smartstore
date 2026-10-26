@@ -1683,7 +1683,7 @@
     "$key": "MediaSettings.DefaultImageQuality|0",
     "Name": "MediaSettings.DefaultImageQuality",
     "StoreId": 0,
-    "Value": "85"
+    "Value": "95"
   },
   {
     "$key": "MediaSettings.DefaultPictureZoomEnabled|0",
@@ -1725,7 +1725,7 @@
     "$key": "MediaSettings.JpegColorType|0",
     "Name": "MediaSettings.JpegColorType",
     "StoreId": 0,
-    "Value": null
+    "Value": "YCbCrRatio444"
   },
   {
     "$key": "MediaSettings.MakeFilesTransientWhenOrphaned|0",

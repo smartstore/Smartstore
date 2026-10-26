@@ -2,7 +2,7 @@
   {
     "$key": "FD-1002-1000-E",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:roasted-coffee-1-kg.jpg",
     "BasePriceAmount": 1.0,
     "BasePriceBaseAmount": 1,
     "ComparePrice": null,
@@ -25,7 +25,7 @@
   {
     "$key": "FD-1002-1000-F",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:roasted-coffee-1-kg.jpg",
     "BasePriceAmount": 1.0,
     "BasePriceBaseAmount": 1,
     "ComparePrice": null,
@@ -48,7 +48,7 @@
   {
     "$key": "FD-1002-1000-W",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:roasted-coffee-1-kg.jpg",
     "BasePriceAmount": 1.0,
     "BasePriceBaseAmount": 1,
     "ComparePrice": null,
@@ -71,7 +71,7 @@
   {
     "$key": "FD-1002-250-E",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:roasted-coffee.jpg",
     "BasePriceAmount": 0.25,
     "BasePriceBaseAmount": 1,
     "ComparePrice": null,
@@ -94,7 +94,7 @@
   {
     "$key": "FD-1002-250-F",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:roasted-coffee.jpg",
     "BasePriceAmount": 0.25,
     "BasePriceBaseAmount": 1,
     "ComparePrice": null,
@@ -117,7 +117,7 @@
   {
     "$key": "FD-1002-250-W",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:roasted-coffee.jpg",
     "BasePriceAmount": 0.25,
     "BasePriceBaseAmount": 1,
     "ComparePrice": null,

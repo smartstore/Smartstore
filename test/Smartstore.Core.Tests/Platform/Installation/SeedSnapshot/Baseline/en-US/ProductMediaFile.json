@@ -18,6 +18,12 @@
     "ProductId": "Product:FD-1001"
   },
   {
+    "$key": "Product:FD-1002|MediaFile:roasted-coffee-1-kg.jpg",
+    "DisplayOrder": 2,
+    "MediaFileId": "MediaFile:roasted-coffee-1-kg.jpg",
+    "ProductId": "Product:FD-1002"
+  },
+  {
     "$key": "Product:FD-1002|MediaFile:roasted-coffee.jpg",
     "DisplayOrder": 1,
     "MediaFileId": "MediaFile:roasted-coffee.jpg",
