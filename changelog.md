@@ -59,6 +59,9 @@
   - #1541 Add a cart rule to check whether discount code(s) have been applied.
   - #1542 Add a cart rule to check whether gift card code(s) have been applied.
 
+- **Editable List:** Added an admin editor for adding, removing and reordering text entries.
+- (DEV) Added property-level `TypeConverterAttribute` support to `ConvertUtility` and `MiniMapper`.
+
 ### Improvements
 
 - **Catalog administration:** Streamlined the catalog settings and product editor with clearer grouping, labels and help texts, making options easier to find and understand.
