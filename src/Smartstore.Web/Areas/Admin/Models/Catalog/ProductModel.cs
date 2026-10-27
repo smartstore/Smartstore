@@ -742,6 +742,9 @@ public partial class ProductModelValidator : SmartValidator<ProductModel>
         {
             RuleFor(x => x.OrderMinimumQuantity).GreaterThan(0); // dont't remove "Admin.Validation.ValueGreaterZero" resource. It is used elsewhere.
             RuleFor(x => x.OrderMaximumQuantity).GreaterThan(0);
+            RuleFor(x => string.Join(',', x.AllowedQuantities ?? Array.Empty<int>()))
+                .MaximumLength(1000)
+                .OverridePropertyName(nameof(ProductModel.AllowedQuantities));
             RuleForEach(x => x.AllowedQuantities).GreaterThan(0);
         });
 

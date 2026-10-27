@@ -207,6 +207,10 @@ public partial class CategoryModelValidator : SmartValidator<CategoryModel>
             .GreaterThanOrEqualTo(0)
             .When(x => x.WithdrawalPeriodDays != null);
 
+        RuleFor(x => string.Join(',', x.PageSizeOptions ?? Array.Empty<int>()))
+            .MaximumLength(200)
+            .OverridePropertyName(nameof(CategoryModel.PageSizeOptions));
+
         RuleForEach(x => x.PageSizeOptions)
             .GreaterThan(0);
     }

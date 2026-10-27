@@ -135,6 +135,10 @@ public partial class ManufacturerValidator : SmartValidator<ManufacturerModel>
     {
         ApplyEntityRules<Manufacturer>(db);
 
+        RuleFor(x => string.Join(',', x.PageSizeOptions ?? Array.Empty<int>()))
+            .MaximumLength(200)
+            .OverridePropertyName(nameof(ManufacturerModel.PageSizeOptions));
+
         RuleForEach(x => x.PageSizeOptions)
             .GreaterThan(0);
     }
