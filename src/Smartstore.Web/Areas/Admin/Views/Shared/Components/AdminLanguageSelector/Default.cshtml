@@ -6,12 +6,12 @@
         <input type="hidden" name="customerlanguage" id="customerlanguage" value="@ViewBag.CurrentLanguage.Id" />
     </form>
 
-    <li class="nav-item dropdown d-none d-md-block">
-        <a class="nav-link dropdown-toggle navbar-tool" href="javascript:void(0)" title='@ViewBag.CurrentLanguage.Name' data-toggle="dropdown">
-            <icon name="earth" class="navbar-icon" stroke-scale="0.85" />
-            <span class="pl-2">@ViewBag.CurrentLanguage.UniqueSeoCode.ToUpper()</span>
-        </a>
-        <div id="language-selector" class="dropdown-menu dropdown-menu-right">
+    <div class="dropdown-group">
+        <button type="button" class="dropdown-item" aria-haspopup="true" aria-expanded="false" aria-controls="language-selector">
+            <icon name="earth" class="icon-fw" />
+            @T("Admin.Configuration.Languages")
+        </button>
+        <div id="language-selector" class="dropdown-menu">
             @foreach (var language in ViewBag.AvailableLanguages)
             {
                 <a href="javascript:void(0)" data-lang-id='@language.Id' class="dropdown-item" attr-class='(language.Id == ViewBag.CurrentLanguage.Id, "disabled")'>
@@ -26,7 +26,7 @@
                 @T("Admin.Configuration.ManageLanguages")
             </a>
         </div>
-    </li>
+    </div>
 
     <script sm-target-zone="scripts" data-origin="vc-language-selector">
         $(function() {

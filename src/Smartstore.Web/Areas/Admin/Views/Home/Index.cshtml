@@ -1,12 +1,22 @@
+@inject Smartstore.Core.Localization.ILocalizationService DashboardLocalization
+
 @{
     Layout = "_AdminLayout";
-    Assets.BodyAttributes.AppendCssClass("minimal-admin");
+    Assets.BodyAttributes.AppendCssClass("admin-dashboard-layout");
+    string customizeDashboardLabel = DashboardLocalization.GetResource("Admin.Dashboard.Customize", logIfNotFound: false,
+        defaultValue: WorkContext.WorkingLanguage.UniqueSeoCode.EqualsNoCase("de") ? "Dashboard anpassen" : "Customize dashboard");
 }
 
 <div class="section-header">
     <div class="title">
-        <icon name="chart-bar" />
+        <icon name="home" class="d-flex" />
         @T("Admin.Dashboard.StoreStatistics")
+    </div>
+    <div class="options">
+        <button type="button" class="btn btn-secondary">
+            <icon name="edit" />
+            <span>@customizeDashboardLabel</span>
+        </button>
     </div>
 </div>
 

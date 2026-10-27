@@ -1,10 +1,10 @@
-﻿@using Smartstore.Core.Stores;
+﻿@inject Smartstore.Core.Localization.ILocalizationService SidebarLocalization
+@using Smartstore.Core.Stores;
 @using Smartstore.Core.Packaging;
 
 @{
     var currentCustomer = this.WorkContext.CurrentCustomer;
     var currentLanguage = this.WorkContext.WorkingLanguage;
-    var userName = (string)ViewBag.UserName;
     var stores = ((ICollection<Store>)ViewBag.Stores) ?? new List<Store>();
     string currentLanguageCode = currentLanguage.UniqueSeoCode.EmptyNull().ToLower();
     string communityUrl = (currentLanguageCode == "de" ?
@@ -12,40 +12,101 @@
         "http://community.smartstore.com/index.php?/&k=880ea6a14ea49e853634fbdc5015a024&setlanguage=1&cal_id=&langid=1");
     string docsUrl = Display.GenerateHelpUrl("");
     var checkUpdateResult = ViewBag.CheckUpdateResult as CheckUpdateResult;
+    string expandSidebarLabel = SidebarLocalization.GetResource("Admin.Header.ExpandNavigation", logIfNotFound: false,
+        defaultValue: currentLanguageCode == "de" ? "Navigation ausklappen" : "Expand navigation");
+    string collapseSidebarLabel = SidebarLocalization.GetResource("Admin.Header.CollapseNavigation", logIfNotFound: false,
+        defaultValue: currentLanguageCode == "de" ? "Navigation einklappen" : "Collapse navigation");
+    string expandSidebarText = SidebarLocalization.GetResource("Admin.Header.ExpandNavigation.Short", logIfNotFound: false,
+        defaultValue: currentLanguageCode == "de" ? "Ausklappen" : "Expand");
+    string collapseSidebarText = SidebarLocalization.GetResource("Admin.Header.CollapseNavigation.Short", logIfNotFound: false,
+        defaultValue: currentLanguageCode == "de" ? "Einklappen" : "Collapse");
 }
 
 <link sm-target-zone="head_links" as="image" rel="preload" href="~/images/smartstore.svg" />
 
-<nav id="navbar" class="navbar navbar-slide navbar-dark navbar-expand">
-    <a class="navbar-brand mx-0 mr-2 mr-sm-3" asp-action="Index" asp-controller="Home" asp-area="Admin">
-        <img class="navbar-img d-none d-lg-block" src="~/images/smartstore.svg" alt="Smartstore" />
-        <img class="navbar-img d-lg-none" src="~/images/smartstore-icon.svg" alt="Smartstore" />
+<nav id="navbar" class="navbar navbar-slide navbar-dark navbar-expand navbar-sidebar" data-submenu-back-label="@T("Common.Back")" data-expand-label="@expandSidebarLabel" data-collapse-label="@collapseSidebarLabel" data-expand-text="@expandSidebarText" data-collapse-text="@collapseSidebarText">
+    <a class="navbar-brand" asp-action="Index" asp-controller="Home" asp-area="Admin">
+        <span class="navbar-brand-symbol">
+            <img src="~/images/smartstore.svg" alt="Smartstore" width="140" height="25" />
+        </span>
+        <span class="navbar-brand-wordmark" aria-hidden="true">
+            <img src="~/images/smartstore.svg" alt="" width="140" height="25" />
+        </span>
     </a>
 
-    <div id="navbar-menu" class="collapse navbar-collapse mr-auto">
+    <div id="navbar-menu" class="navbar-collapse">
         <zone name="admin_menu_before"></zone>
         <menu name="Admin" template="Admin" />
         <zone name="admin_menu_after"></zone>
     </div>
 
-    <div class="collapse navbar-collapse ml-auto">
-        <ul class="navbar-nav navbar-tools ml-auto">
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle navbar-tool" href="javascript:;" title='@T("Admin.Common.Actions")' data-toggle="dropdown">
+    <div class="navbar-footer">
+        <button id="navbar-sidebar-toggle" type="button" class="navbar-sidebar-toggle nav-link"
+                aria-controls="navbar-menu" aria-expanded="false" aria-label="@expandSidebarLabel" title="@expandSidebarLabel">
+            <icon name="chevron-right" class="navbar-icon navbar-toggle-icon" />
+            <span class="navbar-label" aria-hidden="true">@expandSidebarText</span>
+        </button>
+
+        <div class="navbar-account">
+            <div class="nav-item dropdown">
+                <button id="current-user" type="button" class="nav-link dropdown-toggle navbar-tool"
+                        data-toggle="dropdown" title="@T("Admin.Common.Actions")" aria-label="@T("Admin.Common.Actions")" aria-haspopup="true" aria-expanded="false">
                     <icon name="gear" class="navbar-icon" stroke-scale="0.85" />
-                </a>
-                <div class="dropdown-menu dropdown-menu-right">
-                    @foreach (var store in stores)
-                    {
-                        <a class="dropdown-item" href="@store.GetBaseUrl()" title="@T("Admin.Header.PublicStore") - @store.Name">
+                    <span class="navbar-label" aria-hidden="true">@T("Admin.Common.Actions")</span>
+                    <span sm-if="checkUpdateResult != null && checkUpdateResult.UpdateAvailable" class="reddot"></span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-compact">
+                    <div class="dropdown-group">
+                        <button type="button" class="dropdown-item" aria-haspopup="true" aria-expanded="false" aria-controls="account-shops-menu">
                             <icon name="store" class="icon-fw" />
-                            @store.Name.Truncate(32, "…")
+                            @T("Admin.Common.Stores")
+                        </button>
+                        <div id="account-shops-menu" class="dropdown-menu">
+                            @foreach (var store in stores)
+                            {
+                                <a class="dropdown-item" href="@store.GetBaseUrl()" title="@T("Admin.Header.PublicStore") - @store.Name">
+                                    <icon name="store" class="icon-fw" />
+                                    @store.Name.Truncate(32, "…")
+                                </a>
+                            }
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href='@Url.Action("Preview", "Theme")'>
+                                <icon name="eye" class="icon-fw" />
+                                @T("Admin.Configuration.Themes.PreviewMode")
+                            </a>
+                        </div>
+                    </div>
+                    @await Component.InvokeAsync("AdminLanguageSelector")
+                    <div class="dropdown-group">
+                        <button type="button" class="dropdown-item" aria-haspopup="true" aria-expanded="false" aria-controls="account-help-menu">
+                            <icon name="question-circle" class="icon-fw" />
+                            @T("Admin.Help")
+                        </button>
+                        <div id="account-help-menu" class="dropdown-menu">
+                            <a class="dropdown-item" href="@docsUrl" data-lang="@currentLanguageCode" target="help">
+                                <icon name="question-circle" class="icon-fw" />
+                                @T("Admin.Help.Documentation")
+                            </a>
+                            <a class="dropdown-item" href="@communityUrl" data-lang="@currentLanguageCode" target="help">
+                                <icon name="comment" class="icon-fw" />
+                                @T("Admin.Help.Forums")
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" asp-action="About" asp-controller="Home">
+                                <icon name="info-circle" class="icon-fw" />
+                                @T("Admin.Common.About")
+                            </a>
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    @if (currentCustomer != null && currentCustomer.IsRegistered())
+                    {
+                        <a class="dropdown-item" asp-action="Edit" asp-controller="Customer" asp-route-id="@currentCustomer.Id">
+                            <icon name="user-circle" class="icon-fw" />
+                            <span>@T("Admin.Header.Account")</span>
+                            <small class="text-muted ml-2">@currentCustomer.Username.Truncate(40, "…")</small>
                         </a>
                     }
-                    <a class="dropdown-item" href='@Url.Action("Preview", "Theme")'>
-                        <icon name="eye" class="icon-fw" />
-                        @T("Admin.Configuration.Themes.PreviewMode")
-                    </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" id="clear-cache" href="javascript:;" data-url="@Url.Action("ClearCache", "Maintenance", new { area = "Admin", silent = true })">
                         <icon name="clean" class="icon-fw" />
@@ -60,17 +121,6 @@
                         <icon name="power" class="icon-fw" />
                         @T("Admin.Header.RestartApplication")
                     </a>
-                </div>
-            </li>
-
-            @await Component.InvokeAsync("AdminLanguageSelector")
-
-            <li id="navtool-help" class="nav-item dropdown d-none d-md-block">
-                <a class="nav-link dropdown-toggle navbar-tool" href="javascript:;" title='@T("Admin.Help")' data-toggle="dropdown">
-                    <icon name="question-circle" class="navbar-icon" stroke-scale="0.85" />
-                    <span sm-if="checkUpdateResult != null && checkUpdateResult.UpdateAvailable" class="reddot" style="top: 25px; right: 7px"></span>
-                </a>
-                <div class="dropdown-menu dropdown-menu-right">
                     @if (checkUpdateResult != null && checkUpdateResult.UpdateAvailable)
                     {
                         <a class="dropdown-item" asp-controller="Maintenance" asp-action="CheckUpdate">
@@ -79,45 +129,256 @@
                             <span class="reddot" style="margin-left: 6px"></span>
                         </a>
                     }
-                    <a class="dropdown-item" href="@docsUrl" data-lang="@currentLanguageCode" target="help">
-                        <icon name="question-circle" class="icon-fw" />
-                        @T("Admin.Help.Documentation")
-                    </a>
-                    <a class="dropdown-item" href="@communityUrl" data-lang="@currentLanguageCode" target="help">
-                        <icon name="comment" class="icon-fw" />
-                        @T("Admin.Help.Forums")
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" asp-action="About" asp-controller="Home">
-                        <icon name="info-circle" class="icon-fw" />
-                        @T("Admin.Common.About")
-                    </a>
+                    @if (currentCustomer != null && currentCustomer.IsRegistered())
+                    {
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" asp-route="Logout">
+                            <icon name="logout" class="icon-fw" />
+                            @T("Admin.Header.Logout")
+                        </a>
+                    }
                 </div>
-            </li>
-
-            <li sm-if="currentCustomer != null && currentCustomer.IsRegistered()" class="nav-item dropdown ml-md-3">
-                <a id="current-user" class="nav-link dropdown-toggle navbar-tool" data-toggle="dropdown" title="@userName" asp-action="Edit" asp-controller="Customer" asp-route-id="@currentCustomer.Id">
-                    <icon name="user-circle" class="navbar-icon" stroke-scale="0.85" />
-                </a>
-                <div class="dropdown-menu dropdown-menu-right">
-                    <a class="dropdown-item" asp-action="Edit" asp-controller="Customer" asp-route-id="@currentCustomer.Id">
-                        <icon name="user-circle" class="icon-fw" />
-                        <span>@T("Admin.Header.Account")</span> 
-                        <small class="text-muted ml-2">@currentCustomer.Username.Truncate(40, "…")</small>
-                    </a>
-                    <a class="dropdown-item" asp-route="Logout">
-                        <icon name="logout" class="icon-fw" />
-                        @T("Admin.Header.Logout")
-                    </a>
-                </div>
-            </li>
-
-        </ul>
+            </div>
+        </div>
     </div>
 </nav>
 
 <script sm-target-zone="scripts" data-origin="admin-navbar">
     $(function () {
+        const navbar = $("#navbar");
+        const sidebarToggle = document.getElementById('navbar-sidebar-toggle');
+        const sidebarDesktop = window.matchMedia('(min-width: 992px)');
+        const sidebarStorageKey = 'smartstore.admin.sidebar';
+
+        const sidebarTooltipTargets = navbar.find('#navbar-menu > .navbar-nav > .nav-item > .nav-link, #current-user, #navbar-sidebar-toggle');
+        const sidebarTooltipBlocked = new WeakSet();
+        let sidebarTooltipTransitionTimer = 0;
+        let sidebarTooltipTarget = null;
+        let sidebarTooltipVisible = null;
+        let sidebarChanging = false;
+        let sidebarDropdownOpening = false;
+
+        function sidebarTooltipsAllowed() {
+            return !(sidebarDesktop.matches && document.body.classList.contains('admin-sidebar-expanded'))
+                && !sidebarChanging && !sidebarDropdownOpening && !navbar.find('.nav-item.dropdown.show').length;
+        }
+
+        function hideSidebarTooltip() {
+            sidebarTooltipTarget = null;
+            if (sidebarTooltipVisible) {
+                const tooltip = $(sidebarTooltipVisible);
+                sidebarTooltipVisible = null;
+                const instance = tooltip.data('bs.tooltip');
+                if (instance) {
+                    // Drain the entrance callback before reusing the tip; dismissal never waits for a fade.
+                    $(instance.getTipElement()).trigger('transitionend').removeClass('fade');
+                }
+                tooltip.tooltip('hide');
+            }
+        }
+
+        function suspendSidebarTooltips() {
+            sidebarChanging = true;
+            hideSidebarTooltip();
+            requestAnimationFrame(() => {
+                clearTimeout(sidebarTooltipTransitionTimer);
+                const duration = parseFloat(getComputedStyle(navbar[0]).transitionDuration) * 1000;
+                sidebarTooltipTransitionTimer = setTimeout(() => sidebarChanging = false, duration + 16);
+            });
+        }
+
+        // Manual intent handling starts the Bootstrap entrance animation immediately.
+        sidebarTooltipTargets.tooltip({
+            trigger: 'manual',
+            delay: 0,
+            template: '<div class="tooltip sidebar-tooltip" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>',
+            placement: 'right',
+            fallbackPlacement: ['right'],
+            boundary: 'viewport',
+            container: 'body',
+            animation: true,
+            html: false,
+            title: function () { return this.getAttribute('aria-label'); }
+        }).on('show.bs.tooltip.sidebarTooltip', function (e) {
+            if (!sidebarTooltipsAllowed() || sidebarTooltipTarget !== this || sidebarTooltipBlocked.has(this)) {
+                e.preventDefault();
+            }
+        }).on('mouseenter.sidebarTooltip focusin.sidebarTooltip', function (e) {
+            if (e.type === 'mouseenter') sidebarTooltipBlocked.delete(this);
+            if (sidebarTooltipBlocked.has(this)) return;
+            hideSidebarTooltip();
+            if (!sidebarTooltipsAllowed()) return;
+            sidebarTooltipTarget = this;
+            sidebarTooltipVisible = this;
+            $(this).tooltip('show');
+        }).on('mouseleave.sidebarTooltip focusout.sidebarTooltip', function (e) {
+            if (e.type === 'mouseleave' || !navbar.find('.nav-item.dropdown.show').length) {
+                sidebarTooltipBlocked.delete(this);
+            }
+            if (sidebarTooltipTarget === this || sidebarTooltipVisible === this) hideSidebarTooltip();
+        }).on('pointerdown.sidebarTooltip click.sidebarTooltip keydown.sidebarTooltip', function () {
+            sidebarTooltipBlocked.add(this);
+            hideSidebarTooltip();
+        });
+
+        function closeSidebarMenus() {
+            navbar.find('.nav-item.dropdown.show > [data-toggle="dropdown"]').each(function () {
+                $(this).dropdown('hide').attr('aria-expanded', 'false');
+            });
+        }
+
+        function updateSidebarToggle() {
+            const expanded = sidebarDesktop.matches && document.body.classList.contains('admin-sidebar-expanded');
+            const label = navbar[0].dataset[expanded ? 'collapseLabel' : 'expandLabel'];
+            sidebarToggle.disabled = !sidebarDesktop.matches;
+            sidebarToggle.setAttribute('aria-expanded', String(expanded));
+            sidebarToggle.setAttribute('aria-label', label);
+            sidebarToggle.removeAttribute('title');
+            sidebarToggle.setAttribute('data-original-title', label);
+            sidebarTooltipTargets.tooltip(expanded ? 'disable' : 'enable');
+            sidebarToggle.querySelector('.navbar-label').textContent = navbar[0].dataset[expanded ? 'collapseText' : 'expandText'];
+        }
+
+        sidebarToggle.addEventListener('click', function () {
+            suspendSidebarTooltips();
+            closeSidebarMenus();
+            const expanded = document.body.classList.toggle('admin-sidebar-expanded');
+            try {
+                localStorage.setItem(sidebarStorageKey, expanded ? 'expanded' : 'compact');
+            }
+            catch { /* Storage may be unavailable in restricted browser contexts. */ }
+            updateSidebarToggle();
+            // Existing editors also need a resize notification when sidebar geometry changes.
+            requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
+        });
+        navbar[0].addEventListener('transitionend', function (e) {
+            if (e.target === this && e.propertyName === 'width') {
+                clearTimeout(sidebarTooltipTransitionTimer);
+                sidebarChanging = false;
+                window.dispatchEvent(new Event('resize'));
+            }
+        });
+        sidebarDesktop.addEventListener('change', function () {
+            suspendSidebarTooltips();
+            closeSidebarMenus();
+            updateSidebarToggle();
+        });
+        updateSidebarToggle();
+        requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add('admin-sidebar-ready')));
+
+        function positionSidebarMenu(dropdown) {
+            const toggle = dropdown.querySelector(':scope > [data-toggle="dropdown"]');
+            const menu = dropdown.querySelector(':scope > .dropdown-menu');
+            if (!toggle || !menu) return;
+
+            const viewportHeight = document.documentElement.clientHeight;
+            const trigger = toggle.getBoundingClientRect();
+            const opensAbove = dropdown.closest('.navbar-account') !== null;
+            const left = opensAbove ? Math.max(8, trigger.left) : navbar[0].getBoundingClientRect().right;
+            const bottom = opensAbove ? trigger.top - 4 : viewportHeight - 8;
+            const availableHeight = Math.max(0, bottom - 8);
+            menu.style.setProperty('--sidebar-menu-left', `${left}px`);
+            menu.style.setProperty('--sidebar-menu-max-width', `${Math.max(0, document.documentElement.clientWidth - left - 8)}px`);
+            menu.style.setProperty('--sidebar-menu-max-height', `${availableHeight}px`);
+            const borderHeight = menu.offsetHeight - menu.clientHeight;
+            menu.classList.toggle('sidebar-menu-scrollable', menu.offsetHeight >= availableHeight - 1 && menu.scrollHeight + borderHeight > availableHeight);
+            const height = menu.getBoundingClientRect().height;
+            // The account menu ends above its trigger; other menus only shift by their bottom overflow.
+            const overflow = Math.max(0, trigger.top + height - bottom);
+            const top = opensAbove ? bottom - height : trigger.top - overflow;
+            menu.style.setProperty('--sidebar-menu-top', `${Math.max(8, top)}px`);
+        }
+
+        function positionOpenSidebarMenus() {
+            navbar.find('.nav-item.dropdown.show').each(function () {
+                positionSidebarMenu(this);
+            });
+        }
+
+        const menuObserver = new ResizeObserver(positionOpenSidebarMenus);
+        menuObserver.observe(navbar[0]);
+        navbar.find('.nav-item.dropdown').on('show.bs.dropdown shown.bs.dropdown', function (e) {
+            hideSidebarTooltip();
+            if (e.type === 'show') {
+                sidebarDropdownOpening = true;
+                const trigger = this.querySelector(':scope > [data-toggle="dropdown"]');
+                if (trigger) sidebarTooltipBlocked.add(trigger);
+                queueMicrotask(() => sidebarDropdownOpening = false);
+            }
+            positionSidebarMenu(this);
+            if (e.type === 'shown') {
+                menuObserver.observe(this.querySelector(':scope > .dropdown-menu'));
+            }
+        }).on('hidden.bs.dropdown', function () {
+            hideSidebarTooltip();
+            const trigger = this.querySelector(':scope > [data-toggle="dropdown"]');
+            if (trigger) {
+                // Closing a menu must not immediately reshow a tooltip on restored or retained focus.
+                sidebarTooltipBlocked.add(trigger);
+                queueMicrotask(() => {
+                    if (document.activeElement !== trigger && !trigger.matches(':hover')) sidebarTooltipBlocked.delete(trigger);
+                });
+            }
+            const menu = this.querySelector(':scope > .dropdown-menu');
+            if (menu) {
+                menuObserver.unobserve(menu);
+                closeDrop($(menu).find('.dropdown-group'));
+                menu.scrollTop = 0;
+            }
+        });
+
+        navbar.on('click', '.sidebar-submenu-back', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const group = $(this).closest('.dropdown-group');
+            closeDrop(group);
+            group.children('.dropdown-item').trigger('focus');
+        });
+
+        navbar.on('keydown', '.dropdown-group > .dropdown-item', function (e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                e.stopPropagation();
+                const group = $(this).parent();
+                clearTimeout(group.data('closeTimeout'));
+                navbar.find('.dropdown-group.show').each(function () {
+                    if (!$.contains(this, group[0]) && !$.contains(group[0], this) && this !== group[0]) {
+                        closeDrop($(this));
+                    }
+                });
+                const focusFirst = () => group.find('> .dropdown-menu .dropdown-item:not(.disabled):visible').first().trigger('focus');
+                if (!group.hasClass('show')) {
+                    showDrop(group, focusFirst);
+                }
+                else {
+                    focusFirst();
+                }
+            }
+        });
+
+        navbar.on('keydown', '.dropdown-group > .dropdown-menu', function (e) {
+            const group = $(this).parent();
+            if (e.key === 'Escape' || e.key === 'ArrowLeft') {
+                e.preventDefault();
+                e.stopPropagation();
+                closeDrop(group);
+                group.children('.dropdown-item').trigger('focus');
+            }
+            else if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) {
+                e.preventDefault();
+                e.stopPropagation();
+                const items = $(this).find('.dropdown-item:not(.disabled):visible');
+                let index = items.index(document.activeElement);
+                if (e.key === 'Home') index = 0;
+                else if (e.key === 'End') index = items.length - 1;
+                else index = Math.max(0, Math.min(items.length - 1, index + (e.key === 'ArrowDown' ? 1 : -1)));
+                items.eq(index).trigger('focus');
+            }
+        });
+
+        $(window).on('resize', positionOpenSidebarMenus);
+        $('#navbar-menu').on('scroll', positionOpenSidebarMenus);
+
 		$("#clear-database-cache, #clear-cache").on('click', function () {
             $({}).ajax({
                 url: $(this).data("url"),

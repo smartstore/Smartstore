@@ -182,43 +182,42 @@
             }
         });
 
-        // Sticky section-header
+        // Legacy fixed section-header for popups and specialized layouts.
         var navbar = $("#navbar");
-        var navbarHeight = navbar.height() || 1;
+        var navbarHeight = navbar.hasClass("navbar-sidebar") ? 1 : (navbar.height() || 1);
         var sectionHeader = $('.section-header');
         var sectionHeaderHasButtons = undefined;
 
-        navbar.find('.dropdown').on('show.bs.dropdown hidden.bs.dropdown', function (e) {
-            const toggle = e.relatedTarget;
-            const menu = toggle.nextElementSibling;
-
-            if (menu && !menu.classList.contains('dropdown-menu-right')) {
-                if (e.type == 'hidden') {
-                    menu.classList.remove('overflown');
-                    menu.style.removeProperty('--menu-offset');
-                    menu.style.removeProperty("left");
-                }
-                else {
-                    // Reset any previous adjustment before measuring
-                    menu.classList.remove('overflown');
-                    menu.style.left = "0px";
-                    menu.style.removeProperty('--menu-offset');
-
-                    requestAnimationFrame(() => {
-                        const rect = menu.getBoundingClientRect();
-                        const overflow = rect.right - document.documentElement.clientWidth;
-
-                        if (overflow > 0) {
-                            menu.classList.add('overflown');
-                            menu.style.setProperty('--menu-offset', `-${overflow + 4}px`);
-                            menu.style.removeProperty("left");
-                        }
-                    });
+        const headerScrollRoots = new Set([document.scrollingElement]);
+        sectionHeader.each(function () {
+            for (let parent = this.parentElement; parent && parent !== document.body; parent = parent.parentElement) {
+                if (/^(auto|scroll|overlay)$/.test(window.getComputedStyle(parent).overflowY)) {
+                    headerScrollRoots.add(parent);
                 }
             }
         });
 
-        if (!sectionHeader.hasClass('nofix')) {
+        let headerScrollFrame = 0;
+        function updateHeaderAppearance() {
+            headerScrollFrame = 0;
+            const scrolled = Array.from(headerScrollRoots).some(root => root && root.scrollTop > 0);
+            document.body.classList.toggle('section-header-scrolled', scrolled);
+        }
+        function scheduleHeaderAppearance() {
+            if (!headerScrollFrame) {
+                headerScrollFrame = requestAnimationFrame(updateHeaderAppearance);
+            }
+        }
+        document.addEventListener('scroll', function (e) {
+            if (e.target === document || headerScrollRoots.has(e.target)) {
+                scheduleHeaderAppearance();
+            }
+        }, { capture: true, passive: true });
+        window.addEventListener('pageshow', updateHeaderAppearance);
+        updateHeaderAppearance();
+
+        const cssStickyHeader = document.body.matches('.admin-sidebar-layout:not(.popup):not(.spa-layout):not(.has-left-sidebar)');
+        if (!cssStickyHeader && !sectionHeader.hasClass('nofix')) {
             $(window).on("scroll resize", function (e) {
                 if (sectionHeaderHasButtons === undefined) {
                     sectionHeaderHasButtons = sectionHeader.find(".options").children().length > 0;

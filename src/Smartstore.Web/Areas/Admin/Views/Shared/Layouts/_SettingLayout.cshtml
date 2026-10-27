@@ -1,11 +1,7 @@
 ﻿@{
     Layout = "_AdminLayout";
+    Assets.BodyAttributes.AppendCssClass("admin-settings-layout");
 }
-
-@* Desktop menu *@
-<widget target-zone="sidebar_left">
-    <menu name="Settings" template="Settings" />
-</widget>
 
 @* Mobile menu *@
 <div class="d-md-none">
@@ -22,4 +18,11 @@
     </div>
 </div>
 
-@RenderBody()
+<div class="settings-shell">
+    <nav class="settings-navigation d-none d-md-flex" aria-label="@T("Admin.Configuration.Settings")">
+        <menu name="Settings" template="Settings" />
+    </nav>
+    <div class="settings-content">
+        @RenderBody()
+    </div>
+</div>

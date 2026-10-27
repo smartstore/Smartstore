@@ -27,7 +27,18 @@
 }
 
 <div class="settings-menu list-group list-group-flush has-icons m-md-2 mr-md-0" data-menu-name="settings">
-    @{
+    <div class="settings-menu-items custom-scrollbar scrollbar-thin list-group list-group-flush has-icons">
+        @{ await RenderItems(false); }
+    </div>
+    <div sm-if='root.Children.Any(x => x.Value.Visible && x.Value.Id == "all")' class="settings-menu-footer list-group list-group-flush has-icons">
+        <hr class="my-2" />
+        @{ await RenderItems(true); }
+    </div>
+</div>
+
+@{
+    async Task RenderItems(bool footer)
+    {
         var isCurrent = false;
         var colorIndex = 0;
 
@@ -51,30 +62,36 @@
             var itemText = node.GetItemText(T);
             var itemUrl = GetNodeLink(node);
 
-            if (node.Next == null)
+            var iconColor = iconColors[colorIndex % iconColors.Length];
+            if (item.Icon.HasValue())
             {
-                <hr class="my-2 ml-md-n2" />
+                colorIndex++;
+            }
+
+            if ((item.Id == "all") != footer)
+            {
+                continue;
             }
 
             <a class="list-group-item list-group-item-action rounded-pill" attr-class='(isSelected, "active")' href="@itemUrl">
                 <span class="list-group-item-icon">
                     @if (item.Icon.HasValue())
                     {
-                        if (colorIndex >= iconColors.Length)
+                        if (isSelected)
                         {
-                            colorIndex = 0;
+                            <icon-stack>
+                                <icon name="circle-fill" class="menu-color-dot" scale="2" color="@($"var(--{iconColor})")" />
+                                <icon name="@item.Icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)' color="#fff" />
+                            </icon-stack>
                         }
-
-                        <icon-stack>
-                            <icon name="circle-fill" class="menu-color-dot" scale="2" color="@(isSelected ? $"var(--{iconColors[colorIndex]})" : "var(--gray-300)")" />
-                            <icon name="@item.Icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)' color="@(isSelected ? "#fff" : "currentColor")" />
-                        </icon-stack>
-
-                        colorIndex++;
+                        else
+                        {
+                            <icon name="@item.Icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
+                        }
                     }
                 </span>
-                <span class="fwm">@itemText</span>
+                <span class="font-weight-normal">@itemText</span>
             </a>
         }
     }
-</div>
+}

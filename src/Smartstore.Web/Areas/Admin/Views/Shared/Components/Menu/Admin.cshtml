@@ -38,7 +38,7 @@
             }
 
         <li data-id="nav-@item.Id" class="nav-item@(node.HasChildren ? " dropdown" : "")@(item.Id == "dashboard" ? " dropdown d-none d-md-block" : "")">
-            <a class="nav-link@(node.HasChildren ? " dropdown-toggle" : "")" href="@itemUrl" attr-data-toggle='(node.HasChildren, "dropdown")'>
+            <a class="nav-link@(node.HasChildren ? " dropdown-toggle" : "")" href="@itemUrl" title="@itemText" aria-label="@itemText" attr-aria-haspopup='(node.HasChildren, "true")' attr-aria-expanded='(node.HasChildren, "false")' attr-data-toggle='(node.HasChildren, "dropdown")'>
                 @if (item.Icon.HasValue())
                 {
                     <icon name="@item.Icon" class="navbar-icon" stroke-scale="0.85" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
@@ -47,7 +47,7 @@
                 {
                     <img class="icon" src="@Url.Content(imageUrl)" alt="" />
                 }
-                <span class="navbar-label d-none d-lg-block">@itemText</span>
+                <span class="navbar-label" aria-hidden="true">@itemText</span>
             </a>
             @if (node.HasChildren)
             {

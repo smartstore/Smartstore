@@ -1,0 +1,484 @@
+/// <reference path="references.scss" />
+
+.admin-sidebar-layout:not(.popup) {
+    --admin-sidebar-width: 64px;
+    --admin-sidebar-icon-size: 20px;
+    --admin-sidebar-icon-color: currentColor;
+    --admin-sidebar-label-width: 0px;
+    --admin-sidebar-label-opacity: 0;
+    --admin-sidebar-label-shift: -8px;
+    --admin-sidebar-brand-width: 140px;
+    --admin-sidebar-wordmark-width: 0px;
+    --admin-sidebar-toggle-rotation: 0deg;
+    --admin-sidebar-motion: 0s;
+
+    &.admin-sidebar-ready {
+        --admin-sidebar-motion: 200ms;
+    }
+
+    @include media-breakpoint-up(lg) {
+        &.admin-sidebar-expanded {
+            --admin-sidebar-width: 176px;
+            --admin-sidebar-icon-size: 16px;
+            --admin-sidebar-icon-color: #fff;
+            --admin-sidebar-label-width: 120px;
+            --admin-sidebar-label-opacity: 1;
+            --admin-sidebar-label-shift: 0px;
+            --admin-sidebar-wordmark-width: calc(var(--admin-sidebar-brand-width) * 0.8);
+            --admin-sidebar-toggle-rotation: 180deg;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &.admin-sidebar-ready {
+            --admin-sidebar-motion: 0s;
+        }
+    }
+
+    .page-main {
+        --navbar-height: 0px;
+        --sticky-header-left: var(--admin-sidebar-width);
+        --sticky-header-right: 0;
+        margin-left: var(--admin-sidebar-width);
+        transition: margin-left var(--admin-sidebar-motion) ease,
+                    opacity $offcanvas-duration $offcanvas-easing,
+                    transform $offcanvas-duration $offcanvas-easing;
+    }
+
+    #content {
+        margin-inline: 0;
+        padding-inline: 0;
+        border-radius: 0;
+
+        > .cph {
+            padding-inline: var(--admin-content-padding-x, var(--content-padding-x));
+        }
+    }
+
+    #header {
+        background: transparent;
+    }
+
+    @include media-breakpoint-up(md) {
+        &.has-left-sidebar .page-main {
+            --sticky-header-left: calc(var(--admin-sidebar-width) + 206px);
+        }
+    }
+}
+
+.admin-sidebar-layout:not(.popup):not(.spa-layout):not(.has-left-sidebar) {
+    --section-header-padding-y: calc(var(--content-padding-y) * 0.8);
+
+    #content:has(.section-header:not(.nofix)) {
+        padding-top: 0;
+        --content-offset: var(--section-header-height);
+    }
+
+    // A header-only wrapper must stick with its header, otherwise its short box
+    // prevents the header from following the rest of the page during scrolling.
+    #content > .cph > :has(> .section-header:not(.nofix)):not(:has(> :not(.section-header, input[type="hidden"], script))),
+    #content .settings-content > :has(> .section-header:not(.nofix)):not(:has(> :not(.section-header, input[type="hidden"], script))) {
+        position: sticky;
+        top: 0;
+        z-index: $zindex-sticky;
+    }
+
+    .section-header:not(.nofix) {
+        position: sticky;
+        top: 0;
+        inset-inline: auto;
+        z-index: $zindex-sticky;
+        margin-inline: calc(-1 * var(--content-padding-x));
+        padding: var(--section-header-padding-y) var(--content-padding-x);
+    }
+}
+
+.admin-settings-layout:not(.popup) {
+    --settings-navigation-width: 220px;
+    --settings-navigation-gap: 24px;
+
+    .settings-shell {
+        --settings-navigation-top: calc(var(--content-offset) + var(--section-header-spacing));
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        align-items: start;
+    }
+
+    .settings-content {
+        min-width: 0;
+    }
+
+    .settings-navigation {
+        --scrollbar-size: 8px;
+        --scrollbar-thumb-padding: 2px;
+        display: flex;
+        flex-direction: column;
+        position: sticky;
+        top: var(--settings-navigation-top);
+        z-index: $zindex-sticky - 1;
+        margin-top: var(--settings-navigation-top);
+        padding: 8px;
+        border-radius: var(--border-radius-lg);
+        background: $gray-150;
+        height: max(0px, calc(100dvh - var(--settings-navigation-top) - var(--settings-navigation-gap)));
+        overflow: hidden;
+
+        .settings-menu-items,
+        .settings-menu-footer {
+            --list-group-item-padding-y: 8px;
+        }
+
+        .settings-menu {
+            flex: 1 1 auto;
+            min-height: 0;
+            margin: 0 !important;
+        }
+
+        .settings-menu-items {
+            flex: 1 1 auto;
+            min-height: 0;
+            overscroll-behavior: contain;
+            scrollbar-color: var(--scrollbar-thumb-color) transparent;
+        }
+
+        .settings-menu-footer,
+        .list-group-item {
+            flex-shrink: 0;
+        }
+
+        .list-group-item-icon {
+            margin-inline-end: calc(1rem - 3px);
+        }
+
+        .list-group-item {
+            border-radius: var(--border-radius-md) !important;
+
+            &.active {
+                --settings-active-radius: calc(0.5lh + var(--list-group-item-padding-y));
+                border-radius: var(--settings-active-radius) var(--border-radius-md) var(--border-radius-md) var(--settings-active-radius) !important;
+
+                > .list-group-item-icon {
+                    transform: translateX(calc(var(--settings-active-radius) - var(--list-group-item-padding-x) - 50%));
+                }
+            }
+        }
+    }
+
+    @include media-breakpoint-up(md) {
+        #content {
+            padding-bottom: var(--settings-navigation-gap);
+        }
+
+        #content > .cph {
+            padding-inline-start: var(--settings-navigation-gap);
+        }
+
+        .settings-shell {
+            grid-template-columns: var(--settings-navigation-width) minmax(0, 1fr);
+            column-gap: var(--settings-navigation-gap);
+        }
+
+        #content .settings-content .section-header:not(.nofix) {
+            margin-inline-start: calc(-1 * (var(--settings-navigation-width) + 2 * var(--settings-navigation-gap)));
+        }
+    }
+}
+
+#navbar.navbar-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: $zindex-fixed;
+    width: var(--admin-sidebar-width, 64px);
+    transition: width var(--admin-sidebar-motion) ease;
+    padding: 12px 8px;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 12px;
+    background: $indigo;
+
+    .navbar-brand {
+        position: relative;
+        flex: 0 0 48px;
+        width: 100%;
+        margin: 0;
+        padding: 8px 0 12px;
+    }
+
+    .navbar-brand-symbol,
+    .navbar-brand-wordmark {
+        position: absolute;
+        top: 8px;
+        height: 29px;
+        overflow: hidden;
+        transform: translateX(calc(var(--admin-sidebar-brand-width) * -0.0988));
+
+        > img {
+            display: block;
+            width: var(--admin-sidebar-brand-width);
+            max-width: none;
+            height: auto;
+            margin-top: calc((29px - var(--admin-sidebar-brand-width) * 0.1792) / 2);
+        }
+    }
+
+    // The symbol spans x=0.6..48.8 in the original 250-unit viewBox; its center is 24.7 / 250.
+    // Anchor that drawn center at 24px inside the 8px sidebar inset, in both modes.
+    .navbar-brand-symbol {
+        left: 24px;
+        width: calc(var(--admin-sidebar-brand-width) * 0.2);
+    }
+
+    .navbar-brand-wordmark {
+        left: calc(24px + var(--admin-sidebar-brand-width) * 0.2);
+        width: var(--admin-sidebar-wordmark-width);
+        transition: width var(--admin-sidebar-motion) ease;
+
+        > img {
+            margin-left: calc(var(--admin-sidebar-brand-width) * -0.2);
+            opacity: var(--admin-sidebar-label-opacity);
+            transform: translateX(var(--admin-sidebar-label-shift));
+            transition: opacity var(--admin-sidebar-motion) ease, transform var(--admin-sidebar-motion) ease;
+        }
+    }
+
+    .navbar-sidebar-toggle {
+        flex: 0 0 44px;
+        color: mix($indigo, #fff, 22%);
+        cursor: pointer;
+
+        &:disabled {
+            opacity: 0.4;
+            cursor: default;
+        }
+    }
+
+    .navbar-toggle-icon {
+        transform: rotate(var(--admin-sidebar-toggle-rotation));
+        transition: transform var(--admin-sidebar-motion) ease;
+    }
+
+    .nav-item .navbar-label,
+    .navbar-sidebar-toggle .navbar-label {
+        display: block;
+        min-width: 0;
+        max-width: var(--admin-sidebar-label-width);
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        text-align: left;
+        font-size: 13px;
+        padding: 0;
+        opacity: var(--admin-sidebar-label-opacity);
+        transform: translateX(var(--admin-sidebar-label-shift));
+        transition: max-width var(--admin-sidebar-motion) ease, opacity var(--admin-sidebar-motion) ease,
+                    transform var(--admin-sidebar-motion) ease;
+    }
+
+    #navbar-menu {
+        flex: 1 1 auto;
+        min-height: 0;
+        width: 100%;
+        overflow-y: auto;
+        scrollbar-width: none;
+        align-items: flex-start;
+    }
+
+    .navbar-nav {
+        width: 100%;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .navbar-footer {
+        display: flex;
+        flex: 0 0 auto;
+        flex-direction: column;
+        width: 100%;
+        gap: 2px;
+    }
+
+    .navbar-account {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+
+    .nav-item {
+        width: 100%;
+        position: static;
+    }
+
+    .nav-item > .nav-link,
+    .navbar-sidebar-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        column-gap: 0;
+        width: 100%;
+        max-width: none;
+        height: 44px;
+        padding: 0 !important;
+        margin: 0;
+        border: 0;
+        border-radius: var(--border-radius-md);
+        background: transparent;
+
+        &:focus-visible {
+            outline: 2px solid #fff;
+            outline-offset: -2px;
+        }
+    }
+
+    .nav-item {
+        > .nav-link:hover,
+        > .nav-link:focus-visible,
+        > .nav-link:active,
+        > .nav-link.active,
+        > .nav-link[aria-current="page"],
+        &.active > .nav-link,
+        &.show > .nav-link {
+            color: #fff;
+            background: rgba(#fff, 0.16);
+            box-shadow: inset 0 0 0 1px rgba(#fff, 0.1);
+            -webkit-backdrop-filter: blur(6px);
+            backdrop-filter: blur(6px);
+        }
+
+        > .nav-link:active,
+        > .nav-link.active,
+        > .nav-link[aria-current="page"],
+        &.active > .nav-link,
+        &.show > .nav-link {
+            background: rgba(#fff, 0.25);
+            box-shadow: inset 0 0 0 1px rgba(#fff, 0.16);
+        }
+    }
+
+    .navbar-sidebar-toggle:hover:not(:disabled),
+    .navbar-sidebar-toggle:focus-visible {
+        color: #fff;
+        background: rgba(#fff, 0.16);
+    }
+
+    .navbar-sidebar-toggle:active:not(:disabled) {
+        background: rgba(#fff, 0.25);
+    }
+
+    .navbar-icon.icon, .nav-link > img {
+        --icon-size: var(--admin-sidebar-icon-size);
+        color: var(--admin-sidebar-icon-color);
+        flex: 0 0 auto;
+        width: var(--admin-sidebar-icon-size);
+        height: var(--admin-sidebar-icon-size);
+        margin-inline: calc((48px - var(--admin-sidebar-icon-size)) / 2) 10px;
+        transition: width var(--admin-sidebar-motion) ease, height var(--admin-sidebar-motion) ease,
+                    margin-inline-start var(--admin-sidebar-motion) ease, transform var(--admin-sidebar-motion) ease,
+                    color var(--admin-sidebar-motion) ease;
+    }
+
+    .dropdown-menu-compact,
+    .dropdown-menu-compact .dropdown-menu {
+        --dropdown-padding-x: 6px;
+        --dropdown-padding-y: 6px;
+        --dropdown-item-padding-x: 10px;
+        --dropdown-item-padding-y: 6px;
+        --dropdown-icon-item-padding-x: 10px;
+        --dropdown-icon-item-gap: 10px;
+
+        .dropdown-item {
+            gap: var(--dropdown-icon-item-gap);
+            font-weight: $font-weight-normal;
+        }
+
+        .dropdown-group > .dropdown-item {
+            padding-inline-end: calc(var(--dropdown-item-padding-x) + 1rem);
+        }
+
+        .dropdown-divider {
+            margin-block: 6px;
+        }
+    }
+
+    .navbar-account .reddot {
+        bottom: 46px;
+        right: 10px;
+    }
+
+    .dropdown-menu {
+        will-change: auto;
+        transform: translateX(var(--sidebar-menu-slide-x, calc(-1 * var(--sidebar-menu-slide-distance, 16px))));
+        transition: transform 0.2s ease, opacity 0.275s ease-out, visibility 0s 0.275s;
+        pointer-events: none;
+
+        &.show {
+            transform: none;
+            transition-delay: 0s;
+            pointer-events: auto;
+        }
+    }
+
+    .navbar-account > .nav-item > .dropdown-menu:not(.show) {
+        transform: translateY(var(--sidebar-menu-slide-distance, 16px));
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        --sidebar-menu-slide-distance: 0px;
+
+        .dropdown-menu {
+            transition: none;
+        }
+    }
+
+    .nav-item > .dropdown-menu {
+        position: fixed;
+        top: var(--sidebar-menu-top, 8px);
+        left: var(--sidebar-menu-left, var(--admin-sidebar-width, 64px)) !important;
+        right: auto;
+        margin: 0;
+        max-width: var(--sidebar-menu-max-width, calc(100vw - var(--sidebar-menu-left, var(--admin-sidebar-width, 64px)) - 8px));
+        max-height: var(--sidebar-menu-max-height, calc(100dvh - 16px));
+
+        &::before, &::after {
+            display: none;
+        }
+
+        &.sidebar-menu-scrollable {
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+    }
+
+    #navbar-menu .nav-item > .dropdown-menu {
+        &::before, &::after {
+            display: none;
+        }
+    }
+
+    .dropdown-group > .dropdown-menu {
+        width: max-content;
+        max-height: calc(100dvh - 16px);
+        overflow-y: auto;
+    }
+
+    .sidebar-submenu-back {
+        display: none;
+    }
+
+    .sidebar-submenu-overlap > .sidebar-submenu-back {
+        display: flex;
+    }
+
+    .sidebar-submenu-back-icon {
+        @include icon-mask(var(--icon-mask-chevron-left), 1rem);
+    }
+
+    .dropdown-item {
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+}
+
+.sidebar-tooltip.fade {
+    @include transition(opacity 80ms ease-out);
+}

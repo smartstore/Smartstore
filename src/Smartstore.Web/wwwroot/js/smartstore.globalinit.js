@@ -201,22 +201,69 @@ jQuery(function () {
     (function () {
         let currentDrop, closeTimeout;
 
+        function positionSidebarSubmenu(group, menu) {
+            const reference = group[0].getBoundingClientRect();
+            const viewport = document.documentElement;
+            menu.css('max-width', Math.max(0, viewport.clientWidth - 16));
+            if (!menu.children('.sidebar-submenu-back').length) {
+                $('<button>', { type: 'button', class: 'dropdown-item sidebar-submenu-back' })
+                    .append($('<span>', { class: 'sidebar-submenu-back-icon', 'aria-hidden': 'true' }))
+                    .append($('<span>').text(group.closest('#navbar').attr('data-submenu-back-label')))
+                    .prependTo(menu);
+            }
+
+            const width = menu[0].offsetWidth;
+            const fitsRight = reference.right + width <= viewport.clientWidth - 8;
+            const fitsLeft = reference.left - width >= 8;
+            const opensLeft = !fitsRight && fitsLeft;
+            const overlaps = !fitsRight && !fitsLeft;
+            menu.toggleClass('sidebar-submenu-overlap', overlaps);
+            const left = opensLeft ? reference.left - width : Math.min(reference.right, viewport.clientWidth - width - 8);
+            const top = Math.min(reference.top, viewport.clientHeight - menu[0].offsetHeight - 8);
+            menu.css({
+                position: 'fixed',
+                left: Math.max(8, left),
+                top: Math.max(8, top)
+            });
+            const slideSpace = opensLeft ? viewport.clientWidth - left - width - 8 : left - 8;
+            const slideDistance = `min(var(--sidebar-menu-slide-distance, 16px), ${Math.max(0, slideSpace)}px)`;
+            menu[0].style.setProperty('--sidebar-menu-slide-x', opensLeft ? slideDistance : `calc(-1 * ${slideDistance})`);
+        }
+
         function showDrop(group, fn) {
             let menu = group.find('> .dropdown-menu');
             if (menu.length) {
-                let popper = new Popper(group[0], menu[0], {
-                    placement: (rtl ? 'left' : 'right') + '-start',
-                    modifiers: {
-                        computeStyle: { gpuAcceleration: false },
-                    },
-                    preventOverflow: {
-                        boundariesElement: 'viewport'
+                const inSidebar = group.closest('#navbar.navbar-sidebar').length > 0;
+                clearTimeout(group.data('slideTimeout'));
+                if (inSidebar) {
+                    const movingParent = group.parents('.dropdown-menu').toArray()
+                        .some(parent => getComputedStyle(parent).transform !== 'none');
+                    if (movingParent) {
+                        // A transformed parent establishes a temporary containing block for fixed flyouts.
+                        group.data('slideTimeout', setTimeout(() => {
+                            if (group.closest('.nav-item.dropdown').hasClass('show')) {
+                                showDrop(group, fn);
+                            }
+                        }, 20));
+                        return;
                     }
-                });
+                    // Measure the untransformed box and set its final position before starting the slide.
+                    positionSidebarSubmenu(group, menu);
+                }
+                else {
+                    let popper = new Popper(group[0], menu[0], {
+                        placement: (rtl ? 'left' : 'right') + '-start',
+                        modifiers: {
+                            computeStyle: { gpuAcceleration: false },
+                        },
+                        preventOverflow: {
+                            boundariesElement: 'viewport'
+                        }
+                    });
+                    group.data('popper', popper);
+                }
 
-                group.data('popper', popper);
-
-                group.addClass('show');
+                group.addClass('show').children('[aria-expanded]').attr('aria-expanded', 'true');
                 menu.addClass('show');
 
                 // Show any parent groups
@@ -232,6 +279,8 @@ jQuery(function () {
                 el.removeClass('show');
 
                 if (el.is('.dropdown-group')) {
+                    clearTimeout(el.data('slideTimeout'));
+                    el.children('[aria-expanded]').attr('aria-expanded', 'false');
                     // Destroy and remove Popper instance
                     let popper = el.data('popper');
                     if (popper) {
@@ -243,6 +292,27 @@ jQuery(function () {
 
             if (_.isFunction(fn)) fn();
         }
+
+        function updateSidebarSubmenus() {
+            $('#navbar.navbar-sidebar .dropdown-group.show').each(function () {
+                const group = $(this);
+                const parent = group.closest('.dropdown-menu')[0].getBoundingClientRect();
+                const reference = this.getBoundingClientRect();
+                if (reference.bottom <= parent.top || reference.top >= parent.bottom) {
+                    closeDrop(group);
+                }
+                else {
+                    positionSidebarSubmenu(group, group.children('.dropdown-menu'));
+                }
+            });
+        }
+
+        $(window).on('resize', () => requestAnimationFrame(updateSidebarSubmenus));
+        document.addEventListener('scroll', function (e) {
+            if ($(e.target).is('#navbar.navbar-sidebar .dropdown-menu, #navbar-menu')) {
+                requestAnimationFrame(updateSidebarSubmenus);
+            }
+        }, true);
 
         window.showDrop = showDrop;
         window.closeDrop = closeDrop;
@@ -263,6 +333,7 @@ jQuery(function () {
         }
 
         function handleLeave(group, leaveDelay) {
+            clearTimeout(group.data('slideTimeout'));
             let closeTimeout = setTimeout(() => {
                 // Ensure child dropdowns are also closed
                 group.find('.dropdown-group.show').addBack().each(function () {

@@ -1,5 +1,16 @@
 /// <reference path="references.scss" />
 
+.admin-dashboard-layout {
+    #content {
+        background-color: $gray-150;
+        box-shadow: none;
+    }
+
+    .report.sticky-report {
+        top: calc(var(--content-offset) + var(--section-header-spacing));
+    }
+}
+
 .chart-colors {
     --chart-color-danger: #{$chart-color-danger};
     --chart-color-warning: #{$chart-color-warning};

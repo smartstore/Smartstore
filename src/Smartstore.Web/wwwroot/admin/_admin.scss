@@ -3,6 +3,7 @@
 $section-header-height: 70px;
 
 :root {
+    --section-header-spacing: 16px;
     --content-padding-x: #{$content-padding-x / 2};
     --content-padding-y: #{$content-padding-y};
     // Adjust to medium button height
@@ -87,6 +88,7 @@ body {
     --sticky-header-right: 0;
     --navbar-height: 72px;
     --header-height: 72px;
+    --section-header-height: calc(var(--section-header-size) + 2 * var(--section-header-padding-y, var(--content-padding-y)) + 1px);
     --device-height: 100vh; // for clients that do not support dvh
     --device-height: 100dvh;
     --content-top: calc(var(--navbar-height) + var(--header-height));
@@ -123,7 +125,7 @@ body {
     margin: 0;
     padding-left: var(--content-padding-x);
     padding-right: var(--content-padding-x);
-    padding-top: $section-header-height;
+    padding-top: calc(#{$section-header-height} + var(--section-header-spacing));
     padding-bottom: var(--content-padding-x);
     box-shadow: $box-shadow-sm;
     border-radius: 0;
@@ -178,6 +180,7 @@ body {
     @include make-row();
     flex-wrap: nowrap;
     margin-inline: 0;
+    margin-block-end: var(--section-header-spacing);
 
     .title, .options {
         @include make-col-ready();
@@ -206,7 +209,6 @@ body {
             display: none; // Turn off for now, seems to look nicer
             --icon-size: 28px;
             vertical-align: text-top;
-            margin-inline-end: 0.5rem;
             color: $text-muted;
         }
 
@@ -263,6 +265,27 @@ body {
     }
 }
 
+#content .section-header {
+    background: #fff;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    border-bottom: 1px solid transparent;
+    transition: none;
+
+    .section-header-scrolled & {
+        border-bottom-color: $border-color;
+    }
+
+    @supports ((backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px))) {
+        .section-header-scrolled & {
+            background: rgba(#fff, 0.65);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+    }
+}
+
 .popup .section-header.sticky {
     left: 0;
     right: 0;
@@ -286,6 +309,18 @@ body {
         .locale-editor {
             max-width: calc(100dvw - var(--sticky-header-left) - (var(--content-padding-x) * 2));
         }
+    }
+}
+
+// Content geometry is independent of viewport sizing and internal scrolling.
+.admin-content-canvas {
+    --admin-content-padding-x: 0px;
+    --admin-content-radius: 0px;
+
+    #content {
+        margin-inline: 0;
+        padding: 0;
+        border-radius: var(--admin-content-radius);
     }
 }
 
@@ -499,7 +534,9 @@ body {
 // Settings Menu
 // --------------------------------------------------------------
 
-.settings-menu {
+.settings-menu,
+.settings-menu-items,
+.settings-menu-footer {
     --list-group-bg: transparent;
     --list-group-border-width: 0;
     --list-group-border-radius: 0;

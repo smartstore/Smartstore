@@ -2,6 +2,7 @@
 
 @{
     Layout = "_AdminRoot";
+    Assets.BodyAttributes.AppendCssClass("admin-sidebar-layout");
 }
 
 @if (ViewBag.RefreshPage == true)
@@ -34,6 +35,13 @@
 		}
     </script>
 }
+
+<script data-origin="admin-sidebar-state">
+    try {
+        document.body.classList.toggle('admin-sidebar-expanded', localStorage.getItem('smartstore.admin.sidebar') === 'expanded');
+    }
+    catch { /* Keep the compact default when storage is unavailable. */ }
+</script>
 
 <div id="page">
     <div class="canvas-blocker canvas-slidable"></div>
