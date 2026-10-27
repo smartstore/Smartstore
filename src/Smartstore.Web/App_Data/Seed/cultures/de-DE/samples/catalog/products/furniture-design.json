@@ -21,12 +21,6 @@
     "name": "Bogenleuchte Arc",
     "shortDescription": "Stehleuchte mit weitem Bogen und dimmbarem Licht, in drei Ausführungen.",
     "fullDescription": "@file",
-    "weight": 6.0,
-    "combinations": [
-      { "sku": "FN-1002-BLK", "price": 149.00, "weight": 6.0, "stockQuantity": 20, "attributes": { "finish": "finish-black" } },
-      { "sku": "FN-1002-WHT", "price": 149.00, "weight": 6.0, "stockQuantity": 12, "attributes": { "finish": "finish-white" } },
-      { "sku": "FN-1002-BRS", "price": 199.00, "weight": 7.0, "stockQuantity": 5, "deliveryTime": "7-working-days", "attributes": { "finish": "finish-brass" } }
-    ],
     "reviews": [
       { "customer": "jonas", "rating": 5, "title": "Erhellt die ganze Sofaecke", "reviewText": "Der Bogen reicht weit über das Sofa. Die schwarze Ausführung wirkt sehr elegant.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-24d" },
       { "customer": "sophie", "rating": 3, "title": "Schön, aber Messing dauerte", "reviewText": "Die Messing-Ausführung ist wunderschön, aber ich musste fast zwei Wochen darauf warten.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-6d" }

@@ -22,10 +22,10 @@
     "categories": [ "Jackets and Coats" ],
     "manufacturers": [ "norlumera" ],
     "pictures": [
-      { "file": "product/demo-flat-navy.jpg", "name": "fjord-rain-jacket-navy", "displayOrder": 1 },
-      { "file": "product/demo-flat-black.jpg", "name": "fjord-rain-jacket-black", "displayOrder": 2 },
-      { "file": "product/demo-flat-olive.jpg", "name": "fjord-rain-jacket-olive", "displayOrder": 3 },
-      { "file": "product/demo-flat-sand.jpg", "name": "fjord-rain-jacket-sand", "displayOrder": 4 }
+      { "file": "product/fs-1001-navy.jpg", "name": "fjord-rain-jacket-navy", "displayOrder": 1 },
+      { "file": "product/fs-1001-black.jpg", "name": "fjord-rain-jacket-black", "displayOrder": 2 },
+      { "file": "product/fs-1001-olive.jpg", "name": "fjord-rain-jacket-olive", "displayOrder": 3 },
+      { "file": "product/fs-1001-sand.jpg", "name": "fjord-rain-jacket-sand", "displayOrder": 4 }
     ],
     "specifications": [
       { "specificationAttributeOption": "material/polyamide", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
@@ -44,10 +44,10 @@
         "swatchShape": "Rounded",
         "displayOrder": 1,
         "values": [
-          { "name": "Navy", "alias": "navy", "color": "#24385C", "mediaFile": "product/demo-flat-navy.jpg", "isPreSelected": true, "displayOrder": 1 },
-          { "name": "Black", "alias": "black", "color": "#28292E", "mediaFile": "product/demo-flat-black.jpg", "displayOrder": 2 },
-          { "name": "Olive", "alias": "olive", "color": "#626A42", "mediaFile": "product/demo-flat-olive.jpg", "displayOrder": 3 },
-          { "name": "Sand", "alias": "sand", "color": "#CEBC96", "mediaFile": "product/demo-flat-sand.jpg", "displayOrder": 4 }
+          { "name": "Navy", "alias": "navy", "color": "#24385C", "mediaFile": "product/fs-1001-navy.jpg", "isPreSelected": true, "displayOrder": 1 },
+          { "name": "Black", "alias": "black", "color": "#28292E", "mediaFile": "product/fs-1001-black.jpg", "displayOrder": 2 },
+          { "name": "Olive", "alias": "olive", "color": "#626A42", "mediaFile": "product/fs-1001-olive.jpg", "displayOrder": 3 },
+          { "name": "Sand", "alias": "sand", "color": "#CEBC96", "mediaFile": "product/fs-1001-sand.jpg", "displayOrder": 4 }
         ]
       },
       {
@@ -68,26 +68,26 @@
       }
     ],
     "combinations": [
-      { "sku": "FS-1001-NVY-S", "stockQuantity": 12, "attributes": { "color": "navy", "size": "s" } },
-      { "sku": "FS-1001-NVY-M", "stockQuantity": 20, "attributes": { "color": "navy", "size": "m" } },
-      { "sku": "FS-1001-NVY-L", "stockQuantity": 18, "attributes": { "color": "navy", "size": "l" } },
-      { "sku": "FS-1001-NVY-XL", "stockQuantity": 9, "attributes": { "color": "navy", "size": "xl" } },
-      { "sku": "FS-1001-NVY-XXL", "stockQuantity": 4, "attributes": { "color": "navy", "size": "xxl" } },
-      { "sku": "FS-1001-BLK-S", "stockQuantity": 10, "attributes": { "color": "black", "size": "s" } },
-      { "sku": "FS-1001-BLK-M", "stockQuantity": 15, "attributes": { "color": "black", "size": "m" } },
-      { "sku": "FS-1001-BLK-L", "stockQuantity": 14, "attributes": { "color": "black", "size": "l" } },
-      { "sku": "FS-1001-BLK-XL", "stockQuantity": 0, "attributes": { "color": "black", "size": "xl" } },
-      { "sku": "FS-1001-BLK-XXL", "stockQuantity": 3, "attributes": { "color": "black", "size": "xxl" } },
-      { "sku": "FS-1001-OLV-S", "stockQuantity": 0, "attributes": { "color": "olive", "size": "s" } },
-      { "sku": "FS-1001-OLV-M", "stockQuantity": 8, "attributes": { "color": "olive", "size": "m" } },
-      { "sku": "FS-1001-OLV-L", "stockQuantity": 7, "attributes": { "color": "olive", "size": "l" } },
-      { "sku": "FS-1001-OLV-XL", "stockQuantity": 5, "attributes": { "color": "olive", "size": "xl" } },
-      { "sku": "FS-1001-OLV-XXL", "stockQuantity": 2, "attributes": { "color": "olive", "size": "xxl" } },
-      { "sku": "FS-1001-SND-S", "stockQuantity": 6, "attributes": { "color": "sand", "size": "s" } },
-      { "sku": "FS-1001-SND-M", "stockQuantity": 9, "attributes": { "color": "sand", "size": "m" } },
-      { "sku": "FS-1001-SND-L", "stockQuantity": 6, "attributes": { "color": "sand", "size": "l" } },
-      { "sku": "FS-1001-SND-XL", "stockQuantity": 3, "attributes": { "color": "sand", "size": "xl" } },
-      { "sku": "FS-1001-SND-XXL", "stockQuantity": 0, "attributes": { "color": "sand", "size": "xxl" } }
+      { "sku": "FS-1001-NVY-S", "stockQuantity": 12, "pictures": [ "product/fs-1001-navy.jpg" ], "attributes": { "color": "navy", "size": "s" } },
+      { "sku": "FS-1001-NVY-M", "stockQuantity": 20, "pictures": [ "product/fs-1001-navy.jpg" ], "attributes": { "color": "navy", "size": "m" } },
+      { "sku": "FS-1001-NVY-L", "stockQuantity": 18, "pictures": [ "product/fs-1001-navy.jpg" ], "attributes": { "color": "navy", "size": "l" } },
+      { "sku": "FS-1001-NVY-XL", "stockQuantity": 9, "pictures": [ "product/fs-1001-navy.jpg" ], "attributes": { "color": "navy", "size": "xl" } },
+      { "sku": "FS-1001-NVY-XXL", "stockQuantity": 4, "pictures": [ "product/fs-1001-navy.jpg" ], "attributes": { "color": "navy", "size": "xxl" } },
+      { "sku": "FS-1001-BLK-S", "stockQuantity": 10, "pictures": [ "product/fs-1001-black.jpg" ], "attributes": { "color": "black", "size": "s" } },
+      { "sku": "FS-1001-BLK-M", "stockQuantity": 15, "pictures": [ "product/fs-1001-black.jpg" ], "attributes": { "color": "black", "size": "m" } },
+      { "sku": "FS-1001-BLK-L", "stockQuantity": 14, "pictures": [ "product/fs-1001-black.jpg" ], "attributes": { "color": "black", "size": "l" } },
+      { "sku": "FS-1001-BLK-XL", "stockQuantity": 0, "pictures": [ "product/fs-1001-black.jpg" ], "attributes": { "color": "black", "size": "xl" } },
+      { "sku": "FS-1001-BLK-XXL", "stockQuantity": 3, "pictures": [ "product/fs-1001-black.jpg" ], "attributes": { "color": "black", "size": "xxl" } },
+      { "sku": "FS-1001-OLV-S", "stockQuantity": 0, "pictures": [ "product/fs-1001-olive.jpg" ], "attributes": { "color": "olive", "size": "s" } },
+      { "sku": "FS-1001-OLV-M", "stockQuantity": 8, "pictures": [ "product/fs-1001-olive.jpg" ], "attributes": { "color": "olive", "size": "m" } },
+      { "sku": "FS-1001-OLV-L", "stockQuantity": 7, "pictures": [ "product/fs-1001-olive.jpg" ], "attributes": { "color": "olive", "size": "l" } },
+      { "sku": "FS-1001-OLV-XL", "stockQuantity": 5, "pictures": [ "product/fs-1001-olive.jpg" ], "attributes": { "color": "olive", "size": "xl" } },
+      { "sku": "FS-1001-OLV-XXL", "stockQuantity": 2, "pictures": [ "product/fs-1001-olive.jpg" ], "attributes": { "color": "olive", "size": "xxl" } },
+      { "sku": "FS-1001-SND-S", "stockQuantity": 6, "pictures": [ "product/fs-1001-sand.jpg" ], "attributes": { "color": "sand", "size": "s" } },
+      { "sku": "FS-1001-SND-M", "stockQuantity": 9, "pictures": [ "product/fs-1001-sand.jpg" ], "attributes": { "color": "sand", "size": "m" } },
+      { "sku": "FS-1001-SND-L", "stockQuantity": 6, "pictures": [ "product/fs-1001-sand.jpg" ], "attributes": { "color": "sand", "size": "l" } },
+      { "sku": "FS-1001-SND-XL", "stockQuantity": 3, "pictures": [ "product/fs-1001-sand.jpg" ], "attributes": { "color": "sand", "size": "xl" } },
+      { "sku": "FS-1001-SND-XXL", "stockQuantity": 0, "pictures": [ "product/fs-1001-sand.jpg" ], "attributes": { "color": "sand", "size": "xxl" } }
     ]
   },
   {
@@ -108,7 +108,7 @@
     "categories": [ { "category": "Sale", "displayOrder": 0, "isSystemMapping": true }, "Apparel" ],
     "manufacturers": [ "norlumera" ],
     "pictures": [
-      { "file": "product/demo-flat.jpg", "name": "ribbed-knit-sweater" }
+      { "file": "product/fs-1002.jpg", "name": "ribbed-knit-sweater" }
     ],
     "specifications": [
       { "specificationAttributeOption": "material/wool", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
@@ -151,7 +151,7 @@
         "productAttribute": "material",
         "isRequired": true,
         "attributeControlType": "Boxes",
-        "swatchSize": "Large",
+        "swatchSize": "XLarge",
         "swatchShape": "Rect",
         "showValueNameInSwatch": true,
         "swatchPriceDisplay": "Adjustment",
@@ -186,8 +186,8 @@
     "categories": [ "Footwear" ],
     "manufacturers": [ "norlumera" ],
     "pictures": [
-      { "file": "product/demo-flat-sand.jpg", "name": "urban-leather-sneaker-white", "displayOrder": 1 },
-      { "file": "product/demo-flat-black.jpg", "name": "urban-leather-sneaker-black-gold", "displayOrder": 2 }
+      { "file": "product/fs-1003-white.jpg", "name": "urban-leather-sneaker-white", "displayOrder": 1 },
+      { "file": "product/fs-1003-black-gold.jpg", "name": "urban-leather-sneaker-black-gold", "displayOrder": 2 }
     ],
     "specifications": [
       { "specificationAttributeOption": "material/leather", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
@@ -205,8 +205,8 @@
         "swatchShape": "Rounded",
         "displayOrder": 1,
         "values": [
-          { "name": "White", "alias": "white", "color": "#F4F1EA", "mediaFile": "product/demo-flat-sand.jpg", "isPreSelected": true, "displayOrder": 1 },
-          { "name": "Black/gold (limited)", "alias": "black-gold", "color": "#1E1E1E", "additionalColors": [ "#C9A227" ], "mediaFile": "product/demo-flat-black.jpg", "displayOrder": 2 }
+          { "name": "White", "alias": "white", "color": "#F4F1EA", "mediaFile": "product/fs-1003-white.jpg", "isPreSelected": true, "displayOrder": 1 },
+          { "name": "Black/gold (limited)", "alias": "black-gold", "color": "#1E1E1E", "additionalColors": [ "#C9A227" ], "mediaFile": "product/fs-1003-black-gold.jpg", "displayOrder": 2 }
         ]
       },
       {
@@ -226,20 +226,20 @@
       }
     ],
     "combinations": [
-      { "sku": "FS-1003-WHT-39", "price": 89.00, "stockQuantity": 4, "attributes": { "color": "white", "size": "eu-39" } },
-      { "sku": "FS-1003-WHT-40", "price": 89.00, "stockQuantity": 7, "attributes": { "color": "white", "size": "eu-40" } },
-      { "sku": "FS-1003-WHT-41", "price": 89.00, "stockQuantity": 0, "attributes": { "color": "white", "size": "eu-41" } },
-      { "sku": "FS-1003-WHT-42", "price": 89.00, "stockQuantity": 10, "attributes": { "color": "white", "size": "eu-42" } },
-      { "sku": "FS-1003-WHT-43", "price": 89.00, "stockQuantity": 8, "attributes": { "color": "white", "size": "eu-43" } },
-      { "sku": "FS-1003-WHT-44", "price": 89.00, "stockQuantity": 5, "attributes": { "color": "white", "size": "eu-44" } },
-      { "sku": "FS-1003-WHT-45", "price": 89.00, "stockQuantity": 0, "attributes": { "color": "white", "size": "eu-45" } },
-      { "sku": "FS-1003-BKG-39", "price": 109.00, "stockQuantity": 0, "attributes": { "color": "black-gold", "size": "eu-39" } },
-      { "sku": "FS-1003-BKG-40", "price": 109.00, "stockQuantity": 2, "attributes": { "color": "black-gold", "size": "eu-40" } },
-      { "sku": "FS-1003-BKG-41", "price": 109.00, "stockQuantity": 3, "attributes": { "color": "black-gold", "size": "eu-41" } },
-      { "sku": "FS-1003-BKG-42", "price": 109.00, "stockQuantity": 1, "attributes": { "color": "black-gold", "size": "eu-42" } },
-      { "sku": "FS-1003-BKG-43", "price": 109.00, "stockQuantity": 0, "attributes": { "color": "black-gold", "size": "eu-43" } },
-      { "sku": "FS-1003-BKG-44", "price": 109.00, "stockQuantity": 2, "attributes": { "color": "black-gold", "size": "eu-44" } },
-      { "sku": "FS-1003-BKG-45", "price": 109.00, "stockQuantity": 1, "attributes": { "color": "black-gold", "size": "eu-45" } }
+      { "sku": "FS-1003-WHT-39", "price": 89.00, "stockQuantity": 4, "pictures": [ "product/fs-1003-white.jpg" ], "attributes": { "color": "white", "size": "eu-39" } },
+      { "sku": "FS-1003-WHT-40", "price": 89.00, "stockQuantity": 7, "pictures": [ "product/fs-1003-white.jpg" ], "attributes": { "color": "white", "size": "eu-40" } },
+      { "sku": "FS-1003-WHT-41", "price": 89.00, "stockQuantity": 0, "pictures": [ "product/fs-1003-white.jpg" ], "attributes": { "color": "white", "size": "eu-41" } },
+      { "sku": "FS-1003-WHT-42", "price": 89.00, "stockQuantity": 10, "pictures": [ "product/fs-1003-white.jpg" ], "attributes": { "color": "white", "size": "eu-42" } },
+      { "sku": "FS-1003-WHT-43", "price": 89.00, "stockQuantity": 8, "pictures": [ "product/fs-1003-white.jpg" ], "attributes": { "color": "white", "size": "eu-43" } },
+      { "sku": "FS-1003-WHT-44", "price": 89.00, "stockQuantity": 5, "pictures": [ "product/fs-1003-white.jpg" ], "attributes": { "color": "white", "size": "eu-44" } },
+      { "sku": "FS-1003-WHT-45", "price": 89.00, "stockQuantity": 0, "pictures": [ "product/fs-1003-white.jpg" ], "attributes": { "color": "white", "size": "eu-45" } },
+      { "sku": "FS-1003-BKG-39", "price": 109.00, "stockQuantity": 0, "pictures": [ "product/fs-1003-black-gold.jpg" ], "attributes": { "color": "black-gold", "size": "eu-39" } },
+      { "sku": "FS-1003-BKG-40", "price": 109.00, "stockQuantity": 2, "pictures": [ "product/fs-1003-black-gold.jpg" ], "attributes": { "color": "black-gold", "size": "eu-40" } },
+      { "sku": "FS-1003-BKG-41", "price": 109.00, "stockQuantity": 3, "pictures": [ "product/fs-1003-black-gold.jpg" ], "attributes": { "color": "black-gold", "size": "eu-41" } },
+      { "sku": "FS-1003-BKG-42", "price": 109.00, "stockQuantity": 1, "pictures": [ "product/fs-1003-black-gold.jpg" ], "attributes": { "color": "black-gold", "size": "eu-42" } },
+      { "sku": "FS-1003-BKG-43", "price": 109.00, "stockQuantity": 0, "pictures": [ "product/fs-1003-black-gold.jpg" ], "attributes": { "color": "black-gold", "size": "eu-43" } },
+      { "sku": "FS-1003-BKG-44", "price": 109.00, "stockQuantity": 2, "pictures": [ "product/fs-1003-black-gold.jpg" ], "attributes": { "color": "black-gold", "size": "eu-44" } },
+      { "sku": "FS-1003-BKG-45", "price": 109.00, "stockQuantity": 1, "pictures": [ "product/fs-1003-black-gold.jpg" ], "attributes": { "color": "black-gold", "size": "eu-45" } }
     ]
   },
   {
@@ -256,7 +256,7 @@
     "categories": [ "Apparel" ],
     "manufacturers": [ "norlumera" ],
     "pictures": [
-      { "file": "product/demo-flat-olive.jpg", "name": "merino-beanie" }
+      { "file": "product/fs-1004.jpg", "name": "merino-beanie" }
     ],
     "specifications": [
       { "specificationAttributeOption": "material/merino-wool", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
@@ -281,7 +281,7 @@
     "categories": [ "Apparel" ],
     "manufacturers": [ "norlumera" ],
     "pictures": [
-      { "file": "product/demo-flat-navy.jpg", "name": "wool-scarf" }
+      { "file": "product/fs-1005.jpg", "name": "wool-scarf" }
     ],
     "specifications": [
       { "specificationAttributeOption": "material/wool", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
@@ -306,7 +306,7 @@
     "categories": [ "Apparel" ],
     "manufacturers": [ "norlumera" ],
     "pictures": [
-      { "file": "product/demo-flat.jpg", "name": "organic-t-shirt-with-print" }
+      { "file": "product/fs-1006.jpg", "name": "organic-t-shirt-with-print" }
     ],
     "specifications": [
       { "specificationAttributeOption": "material/100-organic-cotton", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },

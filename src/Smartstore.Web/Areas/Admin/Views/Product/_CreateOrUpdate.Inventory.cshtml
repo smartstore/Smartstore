@@ -134,11 +134,7 @@
             <smart-label asp-for="AllowedQuantities" />
         </div>
         <div class="adminData">
-            <select asp-for="AllowedQuantities"
-                    asp-items="new MultiSelectList(Model.AllowedQuantities ?? [])"
-                    multiple="multiple"
-                    data-tags="true">
-            </select>
+            <editor asp-for="AllowedQuantities" />
             <span asp-validation-for="AllowedQuantities"></span>
         </div>
     </div>

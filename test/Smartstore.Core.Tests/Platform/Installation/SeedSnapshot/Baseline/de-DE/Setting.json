@@ -1953,13 +1953,13 @@
     "$key": "OrderSettings.ReturnRequestActions|0",
     "Name": "OrderSettings.ReturnRequestActions",
     "StoreId": 0,
-    "Value": "Erstattung auf ursprüngliche Zahlart,Ersatzlieferung,Umtausch gegen anderen Artikel,Reparatur,Gutschrift/Gutschein,Sonstiges"
+    "Value": "[\"Erstattung auf ursprüngliche Zahlart\",\"Ersatzlieferung\",\"Umtausch gegen anderen Artikel\",\"Reparatur\",\"Gutschrift/Gutschein\",\"Sonstiges\"]"
   },
   {
     "$key": "OrderSettings.ReturnRequestReasons|0",
     "Name": "OrderSettings.ReturnRequestReasons",
     "StoreId": 0,
-    "Value": "Falschen Artikel erhalten,Falsche Größe oder Variante bestellt,Artikel gefällt nicht,Artikel entspricht nicht der Beschreibung,Ware fehlerhaft oder defekt,Ware beschädigt erhalten,Lieferung unvollständig,Falsch bestellt,Sonstiges"
+    "Value": "[\"Falschen Artikel erhalten\",\"Falsche Größe oder Variante bestellt\",\"Artikel gefällt nicht\",\"Artikel entspricht nicht der Beschreibung\",\"Ware fehlerhaft oder defekt\",\"Ware beschädigt erhalten\",\"Lieferung unvollständig\",\"Falsch bestellt\",\"Sonstiges\"]"
   },
   {
     "$key": "OrderSettings.ReturnRequestsEnabled|0",

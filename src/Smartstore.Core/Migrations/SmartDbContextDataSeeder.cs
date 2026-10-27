@@ -615,6 +615,9 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "I want to return the following items:",
             "Ich möchte die folgenden Artikel zurücksenden:");
 
+        builder.AddOrUpdate("Admin.Common.AddEntry", "Add entry…", "Eintrag hinzufügen…");
+        builder.AddOrUpdate("Admin.Common.Reorder", "Reorder (Up/Down arrow keys)", "Reihenfolge ändern (Pfeiltasten hoch/runter)");
+
         builder.AddOrUpdate("Admin.Configuration.Settings.Order.ReturnRequestReasons",
             "Available return reasons",
             "Retourengründe",
@@ -629,21 +632,21 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
         builder.AddOrUpdate("Admin.Catalog.Categories.Fields.PageSizeOptions",
             "Page size options",
-            "Optionen für die Listengröße",
-            "Specify the page sizes customers can select in product lists for this category. Leave empty to use the catalog settings.",
-            "Bestimmen Sie hier die Seitengrößen, die Kunden in Produktlisten dieser Warengruppe auswählen können. Lassen Sie das Feld leer, um die Katalog-Einstellungen zu verwenden.");
+            "Seitengrößen",
+            "Specify the page sizes customers can select in this category's product list. Leave empty to use the page sizes from the catalog settings.",
+            "Legt die auswählbaren Seitengrößen der Produktliste dieser Warengruppe fest. Lassen Sie das Feld leer, um die Seitengrößen der Katalog-Einstellungen zu verwenden.");
 
         builder.AddOrUpdate("Admin.Catalog.Manufacturers.Fields.PageSizeOptions",
             "Page size options",
-            "Optionen für die Listengröße",
-            "Specify the page sizes customers can select in product lists for this manufacturer. Leave empty to use the catalog settings.",
-            "Bestimmen Sie hier die Seitengrößen, die Kunden in Produktlisten dieses Herstellers auswählen können. Lassen Sie das Feld leer, um die Katalog-Einstellungen zu verwenden.");
+            "Seitengrößen",
+            "Specify the page sizes customers can select in this manufacturer's product list. Leave empty to use the page sizes from the catalog settings.",
+            "Legt die auswählbaren Seitengrößen der Produktliste dieses Herstellers fest. Lassen Sie das Feld leer, um die Seitengrößen der Katalog-Einstellungen zu verwenden.");
 
         builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.DefaultPageSizeOptions",
             "Page size options",
-            "Auswahlmöglichkeiten für Seitengröße",
+            "Seitengrößen",
             "Specify the page sizes customers can select in product lists.",
-            "Bestimmen Sie hier die Seitengrößen, die Kunden in Produktlisten auswählen können.");
+            "Legt die auswählbaren Seitengrößen in Produktlisten fest.");
 
         builder.AddOrUpdate("Admin.Catalog.Products.Fields.AllowedQuantities",
             "Custom quantities",

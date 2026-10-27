@@ -202,6 +202,9 @@ public class ProductModel : ProductOverviewModel, ILocalizedModel<ProductLocaliz
     [LocalizedDisplay("*HideQuantityControl")]
     public bool HideQuantityControl { get; set; }
 
+    [UIHint("SelectList")]
+    [AdditionalMetadata("multiple", true)]
+    [AdditionalMetadata("data_tags", true)]
     [LocalizedDisplay("*AllowedQuantities")]
     public int[] AllowedQuantities { get; set; } = [];
 
@@ -739,7 +742,13 @@ public partial class ProductModelValidator : SmartValidator<ProductModel>
         {
             RuleFor(x => x.OrderMinimumQuantity).GreaterThan(0); // dont't remove "Admin.Validation.ValueGreaterZero" resource. It is used elsewhere.
             RuleFor(x => x.OrderMaximumQuantity).GreaterThan(0);
-            RuleForEach(x => x.AllowedQuantities).GreaterThan(0);
+            RuleFor(x => string.Join(',', x.AllowedQuantities ?? Array.Empty<int>()))
+                .MaximumLength(1000)
+                .OverridePropertyName(nameof(ProductModel.AllowedQuantities));
+            RuleForEach(x => x.AllowedQuantities)
+                // Associate item errors with the AllowedQuantities field.
+                .OverrideIndexer((_, _, _, _) => string.Empty)
+                .GreaterThan(0);
         });
 
         // validate PAnGV

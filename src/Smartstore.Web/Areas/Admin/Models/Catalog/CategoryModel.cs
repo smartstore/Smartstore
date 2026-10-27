@@ -83,6 +83,9 @@ public class CategoryModel : TabbableModel, ILocalizedModel<CategoryLocalizedMod
     [LocalizedDisplay("*AllowCustomersToSelectPageSize")]
     public bool? AllowCustomersToSelectPageSize { get; set; }
 
+    [UIHint("SelectList")]
+    [AdditionalMetadata("multiple", true)]
+    [AdditionalMetadata("data_tags", true)]
     [LocalizedDisplay("*PageSizeOptions")]
     public int[] PageSizeOptions { get; set; } = [];
 
@@ -204,7 +207,13 @@ public partial class CategoryModelValidator : SmartValidator<CategoryModel>
             .GreaterThanOrEqualTo(0)
             .When(x => x.WithdrawalPeriodDays != null);
 
+        RuleFor(x => string.Join(',', x.PageSizeOptions ?? Array.Empty<int>()))
+            .MaximumLength(200)
+            .OverridePropertyName(nameof(CategoryModel.PageSizeOptions));
+
         RuleForEach(x => x.PageSizeOptions)
+            // Associate item errors with the PageSizeOptions field.
+            .OverrideIndexer((_, _, _, _) => string.Empty)
             .GreaterThan(0);
     }
 }

@@ -1953,13 +1953,13 @@
     "$key": "OrderSettings.ReturnRequestActions|0",
     "Name": "OrderSettings.ReturnRequestActions",
     "StoreId": 0,
-    "Value": "Refund to original payment method,Replacement shipment,Exchange for another item,Repair,Store credit / voucher,Other"
+    "Value": "[\n    \"Refund to original payment method\",\n    \"Replacement shipment\",\n    \"Exchange for another item\",\n    \"Repair\",\n    \"Store credit / voucher\",\n    \"Other\"\n]"
   },
   {
     "$key": "OrderSettings.ReturnRequestReasons|0",
     "Name": "OrderSettings.ReturnRequestReasons",
     "StoreId": 0,
-    "Value": "Wrong item received,Wrong size or variant ordered,Item does not meet expectations,Item does not match the description,Item is faulty or defective,Item arrived damaged,Delivery is incomplete,Ordered by mistake,Other"
+    "Value": "[\n    \"Wrong item received\",\n    \"Wrong size or variant ordered\",\n    \"Item does not meet expectations\",\n    \"Item does not match the description\",\n    \"Item is faulty or defective\",\n    \"Item arrived damaged\",\n    \"Delivery is incomplete\",\n    \"Ordered by mistake\",\n    \"Other\"\n]"
   },
   {
     "$key": "OrderSettings.ReturnRequestsEnabled|0",

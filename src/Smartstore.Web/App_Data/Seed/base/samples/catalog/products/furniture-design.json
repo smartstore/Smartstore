@@ -20,7 +20,12 @@
     "categories": [ "Armchairs" ],
     "manufacturers": [ "lindavero" ],
     "pictures": [
-      { "file": "product/demo-box.jpg", "name": "lund-lounge-chair" }
+      { "file": "product/fn-1001.jpg", "name": "lund-lounge-chair", "displayOrder": 1 },
+      { "file": "product/fn-1001-linen-oak.jpg", "name": "lund-lounge-chair-linen-oak", "displayOrder": 2 },
+      { "file": "product/fn-1001-leather-oak.jpg", "name": "lund-lounge-chair-leather-oak", "displayOrder": 3 },
+      { "file": "product/fn-1001-fabric-steel.jpg", "name": "lund-lounge-chair-fabric-steel", "displayOrder": 4 },
+      { "file": "product/fn-1001-linen-steel.jpg", "name": "lund-lounge-chair-linen-steel", "displayOrder": 5 },
+      { "file": "product/fn-1001-leather-steel.jpg", "name": "lund-lounge-chair-leather-steel", "displayOrder": 6 }
     ],
     "specifications": [
       { "specificationAttributeOption": "style/scandinavian", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
@@ -32,29 +37,29 @@
         "productAttribute": "cover",
         "isRequired": true,
         "attributeControlType": "Boxes",
-        "swatchSize": "Large",
+        "swatchSize": "XLarge",
         "swatchShape": "Rounded",
         "showValueNameInSwatch": true,
         "swatchPriceDisplay": "Adjustment",
         "displayOrder": 1,
         "values": [
-          { "name": "Fabric", "alias": "cover-fabric", "mediaFile": "product/demo-flat-olive.jpg", "isPreSelected": true, "displayOrder": 1 },
-          { "name": "Linen", "alias": "cover-linen", "mediaFile": "product/demo-flat-sand.jpg", "priceAdjustment": 80.00, "displayOrder": 2 },
-          { "name": "Leather", "alias": "cover-leather", "mediaFile": "product/demo-flat-black.jpg", "priceAdjustment": 250.00, "weightAdjustment": 4.4, "displayOrder": 3 }
+          { "name": "Fabric", "alias": "cover-fabric", "mediaFile": "product/fn-1001-cover-fabric.jpg", "isPreSelected": true, "displayOrder": 1 },
+          { "name": "Linen", "alias": "cover-linen", "mediaFile": "product/fn-1001-cover-linen.jpg", "priceAdjustment": 80.00, "displayOrder": 2 },
+          { "name": "Leather", "alias": "cover-leather", "mediaFile": "product/fn-1001-cover-leather.jpg", "priceAdjustment": 250.00, "weightAdjustment": 4.4, "displayOrder": 3 }
         ]
       },
       {
         "productAttribute": "frame",
         "isRequired": true,
         "attributeControlType": "Boxes",
-        "swatchSize": "Large",
+        "swatchSize": "XLarge",
         "swatchShape": "Rounded",
         "showValueNameInSwatch": true,
         "swatchPriceDisplay": "Adjustment",
         "displayOrder": 2,
         "values": [
-          { "name": "Oak", "alias": "frame-oak", "mediaFile": "product/demo-flat-sand.jpg", "isPreSelected": true, "displayOrder": 1 },
-          { "name": "Black steel", "alias": "frame-steel", "mediaFile": "product/demo-flat-navy.jpg", "priceAdjustment": -30.00, "displayOrder": 2 }
+          { "name": "Oak", "alias": "frame-oak", "mediaFile": "product/fn-1001-frame-oak.jpg", "isPreSelected": true, "displayOrder": 1 },
+          { "name": "Black steel", "alias": "frame-steel", "mediaFile": "product/fn-1001-frame-steel.jpg", "priceAdjustment": -30.00, "displayOrder": 2 }
         ]
       },
       {
@@ -67,6 +72,32 @@
           { "name": "Matching footstool", "alias": "extra-footstool", "valueType": "ProductLinkage", "linkedProduct": "FN-1006", "quantity": 1, "displayOrder": 2 }
         ]
       }
+    ],
+    "combinations": [
+      { "sku": "FN-1001-FAB-OAK", "pictures": [ "product/fn-1001.jpg" ], "attributes": { "cover": "cover-fabric", "frame": "frame-oak" } },
+      { "sku": "FN-1001-FAB-OAK-P", "pictures": [ "product/fn-1001.jpg" ], "attributes": { "cover": "cover-fabric", "frame": "frame-oak", "extras": "extra-protection" } },
+      { "sku": "FN-1001-FAB-OAK-F", "pictures": [ "product/fn-1001.jpg" ], "attributes": { "cover": "cover-fabric", "frame": "frame-oak", "extras": "extra-footstool" } },
+      { "sku": "FN-1001-FAB-OAK-PF", "pictures": [ "product/fn-1001.jpg" ], "attributes": { "cover": "cover-fabric", "frame": "frame-oak", "extras": [ "extra-protection", "extra-footstool" ] } },
+      { "sku": "FN-1001-FAB-STL", "pictures": [ "product/fn-1001-fabric-steel.jpg" ], "attributes": { "cover": "cover-fabric", "frame": "frame-steel" } },
+      { "sku": "FN-1001-FAB-STL-P", "pictures": [ "product/fn-1001-fabric-steel.jpg" ], "attributes": { "cover": "cover-fabric", "frame": "frame-steel", "extras": "extra-protection" } },
+      { "sku": "FN-1001-FAB-STL-F", "pictures": [ "product/fn-1001-fabric-steel.jpg" ], "attributes": { "cover": "cover-fabric", "frame": "frame-steel", "extras": "extra-footstool" } },
+      { "sku": "FN-1001-FAB-STL-PF", "pictures": [ "product/fn-1001-fabric-steel.jpg" ], "attributes": { "cover": "cover-fabric", "frame": "frame-steel", "extras": [ "extra-protection", "extra-footstool" ] } },
+      { "sku": "FN-1001-LIN-OAK", "pictures": [ "product/fn-1001-linen-oak.jpg" ], "attributes": { "cover": "cover-linen", "frame": "frame-oak" } },
+      { "sku": "FN-1001-LIN-OAK-P", "pictures": [ "product/fn-1001-linen-oak.jpg" ], "attributes": { "cover": "cover-linen", "frame": "frame-oak", "extras": "extra-protection" } },
+      { "sku": "FN-1001-LIN-OAK-F", "pictures": [ "product/fn-1001-linen-oak.jpg" ], "attributes": { "cover": "cover-linen", "frame": "frame-oak", "extras": "extra-footstool" } },
+      { "sku": "FN-1001-LIN-OAK-PF", "pictures": [ "product/fn-1001-linen-oak.jpg" ], "attributes": { "cover": "cover-linen", "frame": "frame-oak", "extras": [ "extra-protection", "extra-footstool" ] } },
+      { "sku": "FN-1001-LIN-STL", "pictures": [ "product/fn-1001-linen-steel.jpg" ], "attributes": { "cover": "cover-linen", "frame": "frame-steel" } },
+      { "sku": "FN-1001-LIN-STL-P", "pictures": [ "product/fn-1001-linen-steel.jpg" ], "attributes": { "cover": "cover-linen", "frame": "frame-steel", "extras": "extra-protection" } },
+      { "sku": "FN-1001-LIN-STL-F", "pictures": [ "product/fn-1001-linen-steel.jpg" ], "attributes": { "cover": "cover-linen", "frame": "frame-steel", "extras": "extra-footstool" } },
+      { "sku": "FN-1001-LIN-STL-PF", "pictures": [ "product/fn-1001-linen-steel.jpg" ], "attributes": { "cover": "cover-linen", "frame": "frame-steel", "extras": [ "extra-protection", "extra-footstool" ] } },
+      { "sku": "FN-1001-LEA-OAK", "pictures": [ "product/fn-1001-leather-oak.jpg" ], "attributes": { "cover": "cover-leather", "frame": "frame-oak" } },
+      { "sku": "FN-1001-LEA-OAK-P", "pictures": [ "product/fn-1001-leather-oak.jpg" ], "attributes": { "cover": "cover-leather", "frame": "frame-oak", "extras": "extra-protection" } },
+      { "sku": "FN-1001-LEA-OAK-F", "pictures": [ "product/fn-1001-leather-oak.jpg" ], "attributes": { "cover": "cover-leather", "frame": "frame-oak", "extras": "extra-footstool" } },
+      { "sku": "FN-1001-LEA-OAK-PF", "pictures": [ "product/fn-1001-leather-oak.jpg" ], "attributes": { "cover": "cover-leather", "frame": "frame-oak", "extras": [ "extra-protection", "extra-footstool" ] } },
+      { "sku": "FN-1001-LEA-STL", "pictures": [ "product/fn-1001-leather-steel.jpg" ], "attributes": { "cover": "cover-leather", "frame": "frame-steel" } },
+      { "sku": "FN-1001-LEA-STL-P", "pictures": [ "product/fn-1001-leather-steel.jpg" ], "attributes": { "cover": "cover-leather", "frame": "frame-steel", "extras": "extra-protection" } },
+      { "sku": "FN-1001-LEA-STL-F", "pictures": [ "product/fn-1001-leather-steel.jpg" ], "attributes": { "cover": "cover-leather", "frame": "frame-steel", "extras": "extra-footstool" } },
+      { "sku": "FN-1001-LEA-STL-PF", "pictures": [ "product/fn-1001-leather-steel.jpg" ], "attributes": { "cover": "cover-leather", "frame": "frame-steel", "extras": [ "extra-protection", "extra-footstool" ] } }
     ]
   },
   {
@@ -91,7 +122,9 @@
     "categories": [ "Lighting" ],
     "manufacturers": [ "lindavero" ],
     "pictures": [
-      { "file": "product/demo-round.jpg", "name": "arc-floor-lamp" }
+      { "file": "product/fn-1002-black.jpg", "name": "arc-floor-lamp-black", "displayOrder": 1 },
+      { "file": "product/fn-1002-white.jpg", "name": "arc-floor-lamp-white", "displayOrder": 2 },
+      { "file": "product/fn-1002-brass.jpg", "name": "arc-floor-lamp-brass", "displayOrder": 3 }
     ],
     "specifications": [
       { "specificationAttributeOption": "style/modern", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
@@ -117,9 +150,9 @@
       }
     ],
     "combinations": [
-      { "sku": "FN-1002-BLK", "price": 149.00, "weight": 13.2, "stockQuantity": 20, "attributes": { "finish": "finish-black" } },
-      { "sku": "FN-1002-WHT", "price": 149.00, "weight": 13.2, "stockQuantity": 12, "attributes": { "finish": "finish-white" } },
-      { "sku": "FN-1002-BRS", "price": 199.00, "weight": 15.4, "stockQuantity": 5, "deliveryTime": "7-working-days", "attributes": { "finish": "finish-brass" } }
+      { "sku": "FN-1002-BLK", "price": 149.00, "weight": 13.2, "stockQuantity": 20, "pictures": [ "product/fn-1002-black.jpg" ], "attributes": { "finish": "finish-black" } },
+      { "sku": "FN-1002-WHT", "price": 149.00, "weight": 13.2, "stockQuantity": 12, "pictures": [ "product/fn-1002-white.jpg" ], "attributes": { "finish": "finish-white" } },
+      { "sku": "FN-1002-BRS", "price": 199.00, "weight": 15.4, "stockQuantity": 5, "deliveryTime": "7-working-days", "pictures": [ "product/fn-1002-brass.jpg" ], "attributes": { "finish": "finish-brass" } }
     ]
   },
   {
@@ -138,7 +171,7 @@
     "categories": [ "Furniture and Design" ],
     "manufacturers": [ "lindavero" ],
     "pictures": [
-      { "file": "product/demo-box.jpg", "name": "oslo-living-room-collection" }
+      { "file": "product/fn-1003.jpg", "name": "oslo-living-room-collection" }
     ],
     "specifications": [
       { "specificationAttributeOption": "style/scandinavian", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
@@ -159,7 +192,7 @@
     "categories": [ { "category": "Sale", "displayOrder": 0, "isSystemMapping": true }, "Furniture and Design" ],
     "manufacturers": [ "lindavero" ],
     "pictures": [
-      { "file": "product/demo-round.jpg", "name": "oslo-side-table" }
+      { "file": "product/fn-1004.jpg", "name": "oslo-side-table" }
     ],
     "specifications": [
       { "specificationAttributeOption": "style/scandinavian", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
@@ -187,7 +220,7 @@
     "categories": [ "Furniture and Design" ],
     "manufacturers": [ "lindavero" ],
     "pictures": [
-      { "file": "product/demo-box.jpg", "name": "oslo-shelf" }
+      { "file": "product/fn-1005.jpg", "name": "oslo-shelf" }
     ],
     "specifications": [
       { "specificationAttributeOption": "style/scandinavian", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
@@ -209,7 +242,7 @@
     "categories": [ "Furniture and Design" ],
     "manufacturers": [ "lindavero" ],
     "pictures": [
-      { "file": "product/demo-box.jpg", "name": "oslo-footstool" }
+      { "file": "product/fn-1006.jpg", "name": "oslo-footstool" }
     ],
     "specifications": [
       { "specificationAttributeOption": "style/scandinavian", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
@@ -229,7 +262,7 @@
     "categories": [ "Lighting" ],
     "manufacturers": [ "lindavero" ],
     "pictures": [
-      { "file": "product/demo-round.jpg", "name": "led-bulb-e27" }
+      { "file": "product/fn-1007.jpg", "name": "led-bulb-e27" }
     ],
     "specifications": [
       { "specificationAttributeOption": "dimmable/yes", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 }

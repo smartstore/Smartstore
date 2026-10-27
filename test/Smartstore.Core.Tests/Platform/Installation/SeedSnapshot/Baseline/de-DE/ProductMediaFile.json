@@ -1,8 +1,8 @@
 [
   {
-    "$key": "Product:DG-1001|MediaFile:the-quiet-harbour-e-book.jpg",
+    "$key": "Product:DG-1001|MediaFile:der-stille-hafen-e-book.jpg",
     "DisplayOrder": 1,
-    "MediaFileId": "MediaFile:the-quiet-harbour-e-book.jpg",
+    "MediaFileId": "MediaFile:der-stille-hafen-e-book.jpg",
     "ProductId": "Product:DG-1001"
   },
   {
@@ -60,15 +60,57 @@
     "ProductId": "Product:FD-1007"
   },
   {
+    "$key": "Product:FN-1001|MediaFile:lund-lounge-chair-fabric-steel.jpg",
+    "DisplayOrder": 4,
+    "MediaFileId": "MediaFile:lund-lounge-chair-fabric-steel.jpg",
+    "ProductId": "Product:FN-1001"
+  },
+  {
+    "$key": "Product:FN-1001|MediaFile:lund-lounge-chair-leather-oak.jpg",
+    "DisplayOrder": 3,
+    "MediaFileId": "MediaFile:lund-lounge-chair-leather-oak.jpg",
+    "ProductId": "Product:FN-1001"
+  },
+  {
+    "$key": "Product:FN-1001|MediaFile:lund-lounge-chair-leather-steel.jpg",
+    "DisplayOrder": 6,
+    "MediaFileId": "MediaFile:lund-lounge-chair-leather-steel.jpg",
+    "ProductId": "Product:FN-1001"
+  },
+  {
+    "$key": "Product:FN-1001|MediaFile:lund-lounge-chair-linen-oak.jpg",
+    "DisplayOrder": 2,
+    "MediaFileId": "MediaFile:lund-lounge-chair-linen-oak.jpg",
+    "ProductId": "Product:FN-1001"
+  },
+  {
+    "$key": "Product:FN-1001|MediaFile:lund-lounge-chair-linen-steel.jpg",
+    "DisplayOrder": 5,
+    "MediaFileId": "MediaFile:lund-lounge-chair-linen-steel.jpg",
+    "ProductId": "Product:FN-1001"
+  },
+  {
     "$key": "Product:FN-1001|MediaFile:lund-lounge-chair.jpg",
     "DisplayOrder": 1,
     "MediaFileId": "MediaFile:lund-lounge-chair.jpg",
     "ProductId": "Product:FN-1001"
   },
   {
-    "$key": "Product:FN-1002|MediaFile:arc-floor-lamp.jpg",
+    "$key": "Product:FN-1002|MediaFile:arc-floor-lamp-black.jpg",
     "DisplayOrder": 1,
-    "MediaFileId": "MediaFile:arc-floor-lamp.jpg",
+    "MediaFileId": "MediaFile:arc-floor-lamp-black.jpg",
+    "ProductId": "Product:FN-1002"
+  },
+  {
+    "$key": "Product:FN-1002|MediaFile:arc-floor-lamp-brass.jpg",
+    "DisplayOrder": 3,
+    "MediaFileId": "MediaFile:arc-floor-lamp-brass.jpg",
+    "ProductId": "Product:FN-1002"
+  },
+  {
+    "$key": "Product:FN-1002|MediaFile:arc-floor-lamp-white.jpg",
+    "DisplayOrder": 2,
+    "MediaFileId": "MediaFile:arc-floor-lamp-white.jpg",
     "ProductId": "Product:FN-1002"
   },
   {
@@ -162,15 +204,27 @@
     "ProductId": "Product:FS-1006"
   },
   {
-    "$key": "Product:GC-1001|MediaFile:gift-card.jpg",
-    "DisplayOrder": 1,
-    "MediaFileId": "MediaFile:gift-card.jpg",
+    "$key": "Product:GC-1001|MediaFile:geschenkgutschein-100.jpg",
+    "DisplayOrder": 3,
+    "MediaFileId": "MediaFile:geschenkgutschein-100.jpg",
     "ProductId": "Product:GC-1001"
   },
   {
-    "$key": "Product:GC-1002|MediaFile:gift-card-amount-of-your-choice.jpg",
+    "$key": "Product:GC-1001|MediaFile:geschenkgutschein-25.jpg",
     "DisplayOrder": 1,
-    "MediaFileId": "MediaFile:gift-card-amount-of-your-choice.jpg",
+    "MediaFileId": "MediaFile:geschenkgutschein-25.jpg",
+    "ProductId": "Product:GC-1001"
+  },
+  {
+    "$key": "Product:GC-1001|MediaFile:geschenkgutschein-50.jpg",
+    "DisplayOrder": 2,
+    "MediaFileId": "MediaFile:geschenkgutschein-50.jpg",
+    "ProductId": "Product:GC-1001"
+  },
+  {
+    "$key": "Product:GC-1002|MediaFile:geschenkgutschein-wunschbetrag.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:geschenkgutschein-wunschbetrag.jpg",
     "ProductId": "Product:GC-1002"
   },
   {

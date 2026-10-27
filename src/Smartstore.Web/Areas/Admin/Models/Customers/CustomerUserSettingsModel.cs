@@ -189,6 +189,9 @@ public partial class CustomerUserSettingsModel : ModelBase, ILocalizedModel<Cust
         [LocalizedDisplay("*SalutationEnabled")]
         public bool SalutationEnabled { get; set; }
 
+        [UIHint("SelectList")]
+        [AdditionalMetadata("multiple", true)]
+        [AdditionalMetadata("data_tags", true)]
         [LocalizedDisplay("*Salutations")]
         public string[] Salutations { get; set; } = [];
 
@@ -281,6 +284,9 @@ public class CustomerUserSettingsLocalizedModel : ILocalizedLocaleModel
 {
     public int LanguageId { get; set; }
 
+    [UIHint("SelectList")]
+    [AdditionalMetadata("multiple", true)]
+    [AdditionalMetadata("data_tags", true)]
     [LocalizedDisplay("Admin.Configuration.Settings.CustomerUser.Salutations")]
     public string[] Salutations { get; set; } = [];
 }

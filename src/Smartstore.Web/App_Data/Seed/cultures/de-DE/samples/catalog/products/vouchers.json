@@ -6,12 +6,25 @@
     "reviews": [
       { "customer": "anna", "rating": 5, "title": "Rettung in letzter Minute", "reviewText": "Kam innerhalb von Minuten per E-Mail an, mit meiner persönlichen Nachricht. Perfekt für einen fast vergessenen Geburtstag.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-29d" },
       { "customer": "tim", "rating": 5, "title": "Einfach und schnell", "reviewText": "Leicht zu bestellen und leicht einzulösen.", "isApproved": true, "createdOnUtc": "@now-10d" }
+    ],
+    "pictures": [
+      { "file": "product/gc-1001-25-de.jpg", "name": "geschenkgutschein-25", "displayOrder": 1 },
+      { "file": "product/gc-1001-50-de.jpg", "name": "geschenkgutschein-50", "displayOrder": 2 },
+      { "file": "product/gc-1001-100-de.jpg", "name": "geschenkgutschein-100", "displayOrder": 3 }
+    ],
+    "combinations": [
+      { "sku": "GC-1001-25", "price": 25.00, "pictures": [ "product/gc-1001-25-de.jpg" ], "attributes": { "amount": "amount-25" } },
+      { "sku": "GC-1001-50", "price": 50.00, "pictures": [ "product/gc-1001-50-de.jpg" ], "attributes": { "amount": "amount-50" } },
+      { "sku": "GC-1001-100", "price": 100.00, "pictures": [ "product/gc-1001-100-de.jpg" ], "attributes": { "amount": "amount-100" } }
     ]
   },
   "GC-1002": {
     "name": "Geschenkgutschein mit Wunschbetrag",
     "shortDescription": "Digitaler Geschenkgutschein mit einem Betrag zwischen 10 und 500 €, den Sie selbst eingeben.",
-    "fullDescription": "@file"
+    "fullDescription": "@file",
+    "pictures": [
+      { "file": "product/gc-1002-de.jpg", "name": "geschenkgutschein-wunschbetrag" }
+    ]
   },
   "GC-1003": {
     "name": "Spende: Pflanz einen Baum",
