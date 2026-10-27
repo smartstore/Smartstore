@@ -20,7 +20,9 @@
     "categories": [ "Vouchers" ],
     "tags": [ "gift" ],
     "pictures": [
-      { "file": "product/demo-box.jpg", "name": "gift-card" }
+      { "file": "product/gc-1001-25.jpg", "name": "gift-card-25", "displayOrder": 1 },
+      { "file": "product/gc-1001-50.jpg", "name": "gift-card-50", "displayOrder": 2 },
+      { "file": "product/gc-1001-100.jpg", "name": "gift-card-100", "displayOrder": 3 }
     ],
     "variantAttributes": [
       {
@@ -39,9 +41,9 @@
       }
     ],
     "combinations": [
-      { "sku": "GC-1001-25", "price": 25.00, "attributes": { "amount": "amount-25" } },
-      { "sku": "GC-1001-50", "price": 50.00, "attributes": { "amount": "amount-50" } },
-      { "sku": "GC-1001-100", "price": 100.00, "attributes": { "amount": "amount-100" } }
+      { "sku": "GC-1001-25", "price": 25.00, "pictures": [ "product/gc-1001-25.jpg" ], "attributes": { "amount": "amount-25" } },
+      { "sku": "GC-1001-50", "price": 50.00, "pictures": [ "product/gc-1001-50.jpg" ], "attributes": { "amount": "amount-50" } },
+      { "sku": "GC-1001-100", "price": 100.00, "pictures": [ "product/gc-1001-100.jpg" ], "attributes": { "amount": "amount-100" } }
     ]
   },
   {
@@ -62,7 +64,7 @@
     "categories": [ "Vouchers" ],
     "tags": [ "gift" ],
     "pictures": [
-      { "file": "product/demo-box.jpg", "name": "gift-card-amount-of-your-choice" }
+      { "file": "product/gc-1002.jpg", "name": "gift-card-amount-of-your-choice" }
     ]
   },
   {
@@ -80,7 +82,7 @@
     "manageInventoryMethod": "DontManageStock",
     "categories": [ "Vouchers" ],
     "pictures": [
-      { "file": "product/demo-round.jpg", "name": "donation-plant-a-tree" }
+      { "file": "product/gc-1003.jpg", "name": "donation-plant-a-tree" }
     ]
   }
 ]

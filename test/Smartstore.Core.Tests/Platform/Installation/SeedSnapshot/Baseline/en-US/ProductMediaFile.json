@@ -204,9 +204,21 @@
     "ProductId": "Product:FS-1006"
   },
   {
-    "$key": "Product:GC-1001|MediaFile:gift-card.jpg",
+    "$key": "Product:GC-1001|MediaFile:gift-card-100.jpg",
+    "DisplayOrder": 3,
+    "MediaFileId": "MediaFile:gift-card-100.jpg",
+    "ProductId": "Product:GC-1001"
+  },
+  {
+    "$key": "Product:GC-1001|MediaFile:gift-card-25.jpg",
     "DisplayOrder": 1,
-    "MediaFileId": "MediaFile:gift-card.jpg",
+    "MediaFileId": "MediaFile:gift-card-25.jpg",
+    "ProductId": "Product:GC-1001"
+  },
+  {
+    "$key": "Product:GC-1001|MediaFile:gift-card-50.jpg",
+    "DisplayOrder": 2,
+    "MediaFileId": "MediaFile:gift-card-50.jpg",
     "ProductId": "Product:GC-1001"
   },
   {

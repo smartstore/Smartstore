@@ -1543,7 +1543,7 @@
   {
     "$key": "GC-1001-100",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:gift-card-100.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -1566,7 +1566,7 @@
   {
     "$key": "GC-1001-25",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:gift-card-25.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -1589,7 +1589,7 @@
   {
     "$key": "GC-1001-50",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:gift-card-50.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
