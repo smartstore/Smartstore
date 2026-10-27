@@ -49,6 +49,9 @@ public class ManufacturerModel : TabbableModel, ILocalizedModel<ManufacturerLoca
     [LocalizedDisplay("*AllowCustomersToSelectPageSize")]
     public bool? AllowCustomersToSelectPageSize { get; set; }
 
+    [UIHint("SelectList")]
+    [AdditionalMetadata("multiple", true)]
+    [AdditionalMetadata("data_tags", true)]
     [LocalizedDisplay("*PageSizeOptions")]
     public int[] PageSizeOptions { get; set; } = [];
 

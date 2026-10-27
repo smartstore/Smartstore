@@ -202,6 +202,9 @@ public class ProductModel : ProductOverviewModel, ILocalizedModel<ProductLocaliz
     [LocalizedDisplay("*HideQuantityControl")]
     public bool HideQuantityControl { get; set; }
 
+    [UIHint("SelectList")]
+    [AdditionalMetadata("multiple", true)]
+    [AdditionalMetadata("data_tags", true)]
     [LocalizedDisplay("*AllowedQuantities")]
     public int[] AllowedQuantities { get; set; } = [];
 

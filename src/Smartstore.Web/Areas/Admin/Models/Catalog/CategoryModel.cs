@@ -83,6 +83,9 @@ public class CategoryModel : TabbableModel, ILocalizedModel<CategoryLocalizedMod
     [LocalizedDisplay("*AllowCustomersToSelectPageSize")]
     public bool? AllowCustomersToSelectPageSize { get; set; }
 
+    [UIHint("SelectList")]
+    [AdditionalMetadata("multiple", true)]
+    [AdditionalMetadata("data_tags", true)]
     [LocalizedDisplay("*PageSizeOptions")]
     public int[] PageSizeOptions { get; set; } = [];
 

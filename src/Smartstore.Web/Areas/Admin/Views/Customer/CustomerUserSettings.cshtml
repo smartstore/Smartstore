@@ -522,13 +522,7 @@
                                 @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
                                 <input type="hidden" asp-for="Locales[item].LanguageId" />
 
-                                <setting-editor asp-for="Locales[item].Salutations">
-                                    <select asp-for="Locales[item].Salutations"
-                                            asp-items="new MultiSelectList(Model.Locales[item].Salutations ?? [])"
-                                            multiple="multiple"
-                                            data-tags="true">
-                                    </select>
-                                </setting-editor>
+                                <setting-editor asp-for="Locales[item].Salutations"></setting-editor>
                                 <span asp-validation-for="Locales[item].Salutations"></span>
                             </div>
                         </div>
@@ -540,13 +534,7 @@
                                 <smart-label asp-for="AddressSettings.Salutations" />
                             </div>
                             <div class="adminData">
-                                <setting-editor asp-for="AddressSettings.Salutations">
-                                    <select asp-for="AddressSettings.Salutations"
-                                            asp-items="new MultiSelectList(Model.AddressSettings.Salutations ?? [])"
-                                            multiple="multiple"
-                                            data-tags="true">
-                                    </select>
-                                </setting-editor>
+                                <setting-editor asp-for="AddressSettings.Salutations"></setting-editor>
                                 <span asp-validation-for="AddressSettings.Salutations"></span>
                             </div>
                         </div>

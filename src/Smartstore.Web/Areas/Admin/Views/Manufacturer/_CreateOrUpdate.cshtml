@@ -181,11 +181,7 @@
                     <smart-label asp-for="PageSizeOptions" />
                 </div>
                 <div class="adminData">
-                    <select asp-for="PageSizeOptions"
-                            asp-items="new MultiSelectList(Model.PageSizeOptions ?? [])"
-                            multiple="multiple"
-                            data-tags="true">
-                    </select>
+                    <editor asp-for="PageSizeOptions" />
                     <span asp-validation-for="PageSizeOptions"></span>
                 </div>
             </div>

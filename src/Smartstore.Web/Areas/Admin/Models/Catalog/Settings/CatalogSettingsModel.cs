@@ -141,6 +141,9 @@ public class CatalogSettingsModel : ILocalizedModel<PriceSettingsLocalizedModel>
     [LocalizedDisplay("*DefaultProductListPageSize")]
     public int DefaultProductListPageSize { get; set; }
 
+    [UIHint("SelectList")]
+    [AdditionalMetadata("multiple", true)]
+    [AdditionalMetadata("data_tags", true)]
     [LocalizedDisplay("*DefaultPageSizeOptions")]
     public int[] DefaultPageSizeOptions { get; set; } = [];
 
