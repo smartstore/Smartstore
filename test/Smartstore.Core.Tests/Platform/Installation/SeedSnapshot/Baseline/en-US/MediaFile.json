@@ -1364,7 +1364,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 800,
+    "Height": 1548,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -1372,12 +1372,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "pixelmoor-photo-studio.jpg",
-    "PixelSize": 640000,
-    "Size": 19500,
+    "PixelSize": 2396304,
+    "Size": 298824,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 800
+    "Width": 1548
   },
   {
     "$key": "pixelmoor.jpg",
@@ -1548,7 +1548,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 800,
+    "Height": 1639,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -1556,12 +1556,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "the-quiet-harbour-e-book.jpg",
-    "PixelSize": 640000,
-    "Size": 19500,
+    "PixelSize": 2686321,
+    "Size": 502759,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 800
+    "Width": 1639
   },
   {
     "$key": "tour-distance-golf-balls.jpg",

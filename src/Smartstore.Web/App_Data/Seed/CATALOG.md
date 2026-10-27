@@ -85,4 +85,4 @@ Some products also show features of optional modules. Their texts say so in a se
    derives most of them, see `InstallationDataSeeder.Products.cs`.
 5. Run the seed tests, review the snapshot diff and update the table above.
 
-Pictures of the Food, Golf, Apparel and Furniture groups are final product photos (`media/product/fd-*.jpg`, `gf-*.jpg`, `fs-*.jpg`, `fn-*.jpg`). All other groups still use placeholders (`media/product/demo-*.jpg`) until their final pictures exist.
+Pictures of the Food, Golf, Apparel, Furniture and Digital groups are final product images (`media/product/fd-*.jpg`, `gf-*.jpg`, `fs-*.jpg`, `fn-*.jpg`, `dg-*.jpg`). The e-book cover exists once per language (`dg-1001.jpg`, `dg-1001-de.jpg`, set by the de-DE overlay). Gift vouchers still use placeholders (`media/product/demo-*.jpg`) until their final pictures exist.

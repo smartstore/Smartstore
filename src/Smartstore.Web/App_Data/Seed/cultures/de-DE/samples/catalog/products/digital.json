@@ -3,6 +3,9 @@
     "name": "Der stille Hafen (E-Book)",
     "shortDescription": "Ein Roman über einen Leuchtturmwärter und einen unerwarteten Gast. E-Book, PDF.",
     "fullDescription": "@file",
+    "pictures": [
+      { "file": "product/dg-1001-de.jpg", "name": "der-stille-hafen-e-book" }
+    ],
     "reviews": [
       { "customer": "sophie", "rating": 5, "title": "Konnte es nicht weglegen", "reviewText": "An einem Wochenende gelesen. Die Leseprobe hat mich sofort überzeugt.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-42d" },
       { "customer": "laura", "rating": 4, "title": "Ruhig und atmosphärisch", "reviewText": "Eine leise, schöne Geschichte. Der Download war direkt nach der Bezahlung verfügbar.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-21d" },

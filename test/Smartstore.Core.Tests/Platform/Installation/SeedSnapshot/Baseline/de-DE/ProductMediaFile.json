@@ -1,8 +1,8 @@
 [
   {
-    "$key": "Product:DG-1001|MediaFile:the-quiet-harbour-e-book.jpg",
+    "$key": "Product:DG-1001|MediaFile:der-stille-hafen-e-book.jpg",
     "DisplayOrder": 1,
-    "MediaFileId": "MediaFile:the-quiet-harbour-e-book.jpg",
+    "MediaFileId": "MediaFile:der-stille-hafen-e-book.jpg",
     "ProductId": "Product:DG-1001"
   },
   {

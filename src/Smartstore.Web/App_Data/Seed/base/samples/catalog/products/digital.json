@@ -23,7 +23,7 @@
     "categories": [ "E-Books" ],
     "manufacturers": [ "pixelmoor" ],
     "pictures": [
-      { "file": "product/demo-box.jpg", "name": "the-quiet-harbour-e-book" }
+      { "file": "product/dg-1001.jpg", "name": "the-quiet-harbour-e-book" }
     ],
     "specifications": [
       { "specificationAttributeOption": "file-format/pdf", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
@@ -55,7 +55,7 @@
     "categories": [ "Software" ],
     "manufacturers": [ "pixelmoor" ],
     "pictures": [
-      { "file": "product/demo-box.jpg", "name": "pixelmoor-photo-studio" }
+      { "file": "product/dg-1003.jpg", "name": "pixelmoor-photo-studio" }
     ],
     "specifications": [
       { "specificationAttributeOption": "file-format/zip", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
