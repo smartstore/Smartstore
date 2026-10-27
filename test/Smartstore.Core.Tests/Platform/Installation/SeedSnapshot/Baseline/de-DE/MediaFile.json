@@ -467,7 +467,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 800,
+    "Height": 1895,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -475,12 +475,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "fjord-rain-jacket-black.jpg",
-    "PixelSize": 640000,
-    "Size": 18297,
+    "PixelSize": 3591025,
+    "Size": 392705,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 800
+    "Width": 1895
   },
   {
     "$key": "fjord-rain-jacket-navy.jpg",
@@ -490,7 +490,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 800,
+    "Height": 1896,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -498,12 +498,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "fjord-rain-jacket-navy.jpg",
-    "PixelSize": 640000,
-    "Size": 18973,
+    "PixelSize": 3594816,
+    "Size": 431084,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 800
+    "Width": 1896
   },
   {
     "$key": "fjord-rain-jacket-olive.jpg",
@@ -513,7 +513,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 800,
+    "Height": 1894,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -521,12 +521,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "fjord-rain-jacket-olive.jpg",
-    "PixelSize": 640000,
-    "Size": 17920,
+    "PixelSize": 3587236,
+    "Size": 393332,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 800
+    "Width": 1894
   },
   {
     "$key": "fjord-rain-jacket-sand.jpg",
@@ -536,7 +536,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 800,
+    "Height": 1894,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -544,12 +544,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "fjord-rain-jacket-sand.jpg",
-    "PixelSize": 640000,
-    "Size": 16130,
+    "PixelSize": 3587236,
+    "Size": 375969,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 800
+    "Width": 1894
   },
   {
     "$key": "food-and-delicacies.jpg",
@@ -996,7 +996,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 800,
+    "Height": 1524,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -1004,12 +1004,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "merino-beanie.jpg",
-    "PixelSize": 640000,
-    "Size": 17920,
+    "PixelSize": 2322576,
+    "Size": 895445,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 800
+    "Width": 1524
   },
   {
     "$key": "norlumera.jpg",
@@ -1065,7 +1065,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 800,
+    "Height": 1797,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -1073,12 +1073,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "organic-t-shirt-with-print.jpg",
-    "PixelSize": 640000,
-    "Size": 17436,
+    "PixelSize": 3229209,
+    "Size": 413599,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 800
+    "Width": 1797
   },
   {
     "$key": "oslo-footstool.jpg",
@@ -1226,7 +1226,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 800,
+    "Height": 2066,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -1234,12 +1234,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "ribbed-knit-sweater.jpg",
-    "PixelSize": 640000,
-    "Size": 17436,
+    "PixelSize": 4268356,
+    "Size": 1435406,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 800
+    "Width": 2066
   },
   {
     "$key": "roasted-coffee-1-kg.jpg",
@@ -1410,7 +1410,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 800,
+    "Height": 1860,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -1418,12 +1418,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "urban-leather-sneaker-black-gold.jpg",
-    "PixelSize": 640000,
-    "Size": 18297,
+    "PixelSize": 3459600,
+    "Size": 343111,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 800
+    "Width": 1860
   },
   {
     "$key": "urban-leather-sneaker-white.jpg",
@@ -1433,7 +1433,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 800,
+    "Height": 1847,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -1441,12 +1441,12 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "urban-leather-sneaker-white.jpg",
-    "PixelSize": 640000,
-    "Size": 16130,
+    "PixelSize": 3411409,
+    "Size": 241164,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 800
+    "Width": 1847
   },
   {
     "$key": "vouchers.jpg",
@@ -1502,7 +1502,7 @@
     "Deleted": false,
     "Extension": "jpg",
     "FolderId": null,
-    "Height": 800,
+    "Height": 1984,
     "Hidden": false,
     "IsTransient": false,
     "MediaStorageId": null,
@@ -1510,11 +1510,11 @@
     "Metadata": null,
     "MimeType": "image/jpeg",
     "Name": "wool-scarf.jpg",
-    "PixelSize": 640000,
-    "Size": 18973,
+    "PixelSize": 3936256,
+    "Size": 602400,
     "Title": null,
     "UpdatedOnUtc": "<now>",
     "Version": 1,
-    "Width": 800
+    "Width": 1984
   }
 ]

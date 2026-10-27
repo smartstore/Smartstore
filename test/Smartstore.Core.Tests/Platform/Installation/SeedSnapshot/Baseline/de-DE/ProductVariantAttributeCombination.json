@@ -209,7 +209,7 @@
   {
     "$key": "FS-1001-BLK-L",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:fjord-rain-jacket-black.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -232,7 +232,7 @@
   {
     "$key": "FS-1001-BLK-M",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:fjord-rain-jacket-black.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -255,7 +255,7 @@
   {
     "$key": "FS-1001-BLK-S",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:fjord-rain-jacket-black.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -278,7 +278,7 @@
   {
     "$key": "FS-1001-BLK-XL",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:fjord-rain-jacket-black.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -301,7 +301,7 @@
   {
     "$key": "FS-1001-BLK-XXL",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:fjord-rain-jacket-black.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -324,7 +324,7 @@
   {
     "$key": "FS-1001-NVY-L",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:fjord-rain-jacket-navy.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -347,7 +347,7 @@
   {
     "$key": "FS-1001-NVY-M",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:fjord-rain-jacket-navy.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -370,7 +370,7 @@
   {
     "$key": "FS-1001-NVY-S",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:fjord-rain-jacket-navy.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -393,7 +393,7 @@
   {
     "$key": "FS-1001-NVY-XL",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:fjord-rain-jacket-navy.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -416,7 +416,7 @@
   {
     "$key": "FS-1001-NVY-XXL",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:fjord-rain-jacket-navy.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -439,7 +439,7 @@
   {
     "$key": "FS-1001-OLV-L",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:fjord-rain-jacket-olive.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -462,7 +462,7 @@
   {
     "$key": "FS-1001-OLV-M",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:fjord-rain-jacket-olive.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -485,7 +485,7 @@
   {
     "$key": "FS-1001-OLV-S",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:fjord-rain-jacket-olive.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -508,7 +508,7 @@
   {
     "$key": "FS-1001-OLV-XL",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:fjord-rain-jacket-olive.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -531,7 +531,7 @@
   {
     "$key": "FS-1001-OLV-XXL",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:fjord-rain-jacket-olive.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -554,7 +554,7 @@
   {
     "$key": "FS-1001-SND-L",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:fjord-rain-jacket-sand.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -577,7 +577,7 @@
   {
     "$key": "FS-1001-SND-M",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:fjord-rain-jacket-sand.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -600,7 +600,7 @@
   {
     "$key": "FS-1001-SND-S",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:fjord-rain-jacket-sand.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -623,7 +623,7 @@
   {
     "$key": "FS-1001-SND-XL",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:fjord-rain-jacket-sand.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -646,7 +646,7 @@
   {
     "$key": "FS-1001-SND-XXL",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:fjord-rain-jacket-sand.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -669,7 +669,7 @@
   {
     "$key": "FS-1003-BKG-39",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:urban-leather-sneaker-black-gold.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -692,7 +692,7 @@
   {
     "$key": "FS-1003-BKG-40",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:urban-leather-sneaker-black-gold.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -715,7 +715,7 @@
   {
     "$key": "FS-1003-BKG-41",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:urban-leather-sneaker-black-gold.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -738,7 +738,7 @@
   {
     "$key": "FS-1003-BKG-42",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:urban-leather-sneaker-black-gold.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -761,7 +761,7 @@
   {
     "$key": "FS-1003-BKG-43",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:urban-leather-sneaker-black-gold.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -784,7 +784,7 @@
   {
     "$key": "FS-1003-BKG-44",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:urban-leather-sneaker-black-gold.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -807,7 +807,7 @@
   {
     "$key": "FS-1003-BKG-45",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:urban-leather-sneaker-black-gold.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -830,7 +830,7 @@
   {
     "$key": "FS-1003-WHT-39",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:urban-leather-sneaker-white.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -853,7 +853,7 @@
   {
     "$key": "FS-1003-WHT-40",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:urban-leather-sneaker-white.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -876,7 +876,7 @@
   {
     "$key": "FS-1003-WHT-41",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:urban-leather-sneaker-white.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -899,7 +899,7 @@
   {
     "$key": "FS-1003-WHT-42",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:urban-leather-sneaker-white.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -922,7 +922,7 @@
   {
     "$key": "FS-1003-WHT-43",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:urban-leather-sneaker-white.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -945,7 +945,7 @@
   {
     "$key": "FS-1003-WHT-44",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:urban-leather-sneaker-white.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
@@ -968,7 +968,7 @@
   {
     "$key": "FS-1003-WHT-45",
     "AllowOutOfStockOrders": false,
-    "AssignedMediaFileIds": null,
+    "AssignedMediaFileIds": "MediaFile:urban-leather-sneaker-white.jpg",
     "BasePriceAmount": null,
     "BasePriceBaseAmount": null,
     "ComparePrice": null,
