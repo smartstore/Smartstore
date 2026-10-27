@@ -1,0 +1,77 @@
+@using Smartstore.Utilities
+
+@model string[]
+
+@{
+    var minItems = Math.Max(0, GetMetadata<int>("minItems", 0));
+    var maxItems = Math.Max(minItems, GetMetadata<int>("maxItems", int.MaxValue));
+    var maxLength = GetMetadata<int>("maxLength", 0);
+    var sortable = GetMetadata<bool>("sortable", false);
+    var readOnly = GetMetadata<bool>("readOnly", false);
+    var name = ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
+    var id = Html.GenerateIdFromName(name);
+    var items = Model ?? [];
+    var newItem = string.Empty;
+    var label = ViewData.ModelMetadata.GetDisplayName();
+    var attributes = new AttributeDictionary()
+        .Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+
+    if (maxLength > 0)
+    {
+        attributes.Merge("maxlength", maxLength.ToStringInvariant(), true);
+    }
+
+    if (readOnly)
+    {
+        attributes.Merge("readonly", "readonly", true);
+    }
+}
+
+<div id="editable-list-@id" class="editable-list edit-control"
+     data-editor="editable-list" data-field-name="@name" data-field-id="@id" data-field-label="@label"
+     data-min-items="@minItems" data-max-items="@maxItems" data-read-only='@(readOnly ? "true" : "false")' data-sortable='@(sortable ? "true" : "false")'>
+    <div class="editable-list-empty text-muted mb-2" attr-class='(items.Length > 0 || minItems > 0, "d-none")' role="status">
+        @T("Common.ListIsEmpty")
+    </div>
+    <div class="editable-list-items">
+        @for (var i = 0; i < items.Length; i++)
+        {
+            <div class="editable-list-item mb-2">
+                <div class="input-group flex-nowrap">
+                    <div sm-if="sortable" class="input-group-prepend input-addon-plain">
+                        <button type="button" class="input-group-text editable-list-handle" title="@T("Admin.Common.Reorder")" aria-label="@T("Admin.Common.Reorder")" disabled="@readOnly">
+                            <icon name="grip-v" />
+                        </button>
+                    </div>
+                    <input asp-for="@Model[i]" attrs="attributes" type="text" class="editable-list-value"
+                           id="@(i == 0 ? id : id + "_" + i)" aria-label="@(label + " " + (i + 1))" />
+                    <div class="input-group-append input-addon-plain">
+                        <button type="button" class="input-group-text editable-list-remove" title="@T("Common.Remove")" aria-label="@T("Common.Remove")" disabled="@readOnly">
+                            <icon name="trash" />
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <input asp-for="@newItem" attrs="attributes" type="text" name="" id="@(id)_add" class="editable-list-add bg-light"
+           placeholder="@T("Admin.Common.AddEntry")" aria-label="@T("Admin.Common.AddEntry")" autocomplete="off" disabled="@readOnly" />
+    <template class="editable-list-template">
+        <div class="editable-list-item mb-2">
+            <div class="input-group flex-nowrap">
+                <div sm-if="sortable" class="input-group-prepend input-addon-plain">
+                    <button type="button" class="input-group-text editable-list-handle" title="@T("Admin.Common.Reorder")" aria-label="@T("Admin.Common.Reorder")">
+                        <icon name="grip-v" />
+                    </button>
+                </div>
+                <input asp-for="@newItem" attrs="attributes" type="text" class="editable-list-value" id="@(id)_template" />
+                <div class="input-group-append input-addon-plain">
+                    <button type="button" class="input-group-text editable-list-remove" title="@T("Common.Remove")" aria-label="@T("Common.Remove")">
+                        <icon name="trash" />
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+</div>
+<script src="~/js/smartstore.editablelist.js" asp-append-version="true" sm-target-zone="scripts" sm-key="editablelist"></script>

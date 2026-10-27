@@ -30,11 +30,11 @@ public class OrderSettingsModel : TabbableModel, ILocalizedModel<OrderSettingsLo
     public bool ReturnRequestsEnabled { get; set; }
 
     [LocalizedDisplay("*ReturnRequestReasons")]
-    [UIHint("StringList"), AdditionalMetadata("sortable", true)]
+    [UIHint("EditableList"), AdditionalMetadata("sortable", true)]
     public string[] ReturnRequestReasons { get; set; } = [];
 
     [LocalizedDisplay("*ReturnRequestActions")]
-    [UIHint("StringList"), AdditionalMetadata("sortable", true)]
+    [UIHint("EditableList"), AdditionalMetadata("sortable", true)]
     public string[] ReturnRequestActions { get; set; } = [];
 
     [LocalizedDisplay("*NumberOfDaysReturnRequestAvailable")]
@@ -71,11 +71,11 @@ public class OrderSettingsLocalizedModel : ILocalizedLocaleModel
     public int LanguageId { get; set; }
 
     [LocalizedDisplay("*ReturnRequestReasons")]
-    [UIHint("StringList"), AdditionalMetadata("sortable", true)]
+    [UIHint("EditableList"), AdditionalMetadata("sortable", true)]
     public string[] ReturnRequestReasons { get; set; } = [];
 
     [LocalizedDisplay("*ReturnRequestActions")]
-    [UIHint("StringList"), AdditionalMetadata("sortable", true)]
+    [UIHint("EditableList"), AdditionalMetadata("sortable", true)]
     public string[] ReturnRequestActions { get; set; } = [];
 }
 

@@ -609,6 +609,9 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "I want to return the following items:",
             "Ich möchte die folgenden Artikel zurücksenden:");
 
+        builder.AddOrUpdate("Admin.Common.AddEntry", "Add entry…", "Eintrag hinzufügen …");
+        builder.AddOrUpdate("Admin.Common.Reorder", "Reorder (Up/Down arrow keys)", "Reihenfolge ändern (Pfeiltasten hoch/runter)");
+
         builder.AddOrUpdate("Admin.Configuration.Settings.Order.ReturnRequestReasons",
             "Available return reasons",
             "Retourengründe",
