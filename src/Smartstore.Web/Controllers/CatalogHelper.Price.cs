@@ -495,10 +495,14 @@ public partial class CatalogHelper
 
         if (label.HasValue())
         {
+            var normalizedStyle = Enum.TryParse<ThemeColor>(style, true, out var legacyStyle)
+                ? legacyStyle.ToString().ToLowerInvariant()
+                : style;
+
             badges.Add(new ProductBadgeModel
             {
                 Label = label,
-                Style = (style.IsNumeric() ? Enum.Parse<ThemeColor>(style).ToString().ToLower() : style) ?? "dark",
+                Style = normalizedStyle ?? "dark",
                 DisplayOrder = 10
             });
         }
