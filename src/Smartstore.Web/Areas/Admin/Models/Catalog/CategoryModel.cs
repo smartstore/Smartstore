@@ -212,6 +212,8 @@ public partial class CategoryModelValidator : SmartValidator<CategoryModel>
             .OverridePropertyName(nameof(CategoryModel.PageSizeOptions));
 
         RuleForEach(x => x.PageSizeOptions)
+            // Associate item errors with the PageSizeOptions field.
+            .OverrideIndexer((_, _, _, _) => string.Empty)
             .GreaterThan(0);
     }
 }

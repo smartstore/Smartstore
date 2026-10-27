@@ -745,7 +745,10 @@ public partial class ProductModelValidator : SmartValidator<ProductModel>
             RuleFor(x => string.Join(',', x.AllowedQuantities ?? Array.Empty<int>()))
                 .MaximumLength(1000)
                 .OverridePropertyName(nameof(ProductModel.AllowedQuantities));
-            RuleForEach(x => x.AllowedQuantities).GreaterThan(0);
+            RuleForEach(x => x.AllowedQuantities)
+                // Associate item errors with the AllowedQuantities field.
+                .OverrideIndexer((_, _, _, _) => string.Empty)
+                .GreaterThan(0);
         });
 
         // validate PAnGV

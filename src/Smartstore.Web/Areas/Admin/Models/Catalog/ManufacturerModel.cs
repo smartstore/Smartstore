@@ -140,6 +140,8 @@ public partial class ManufacturerValidator : SmartValidator<ManufacturerModel>
             .OverridePropertyName(nameof(ManufacturerModel.PageSizeOptions));
 
         RuleForEach(x => x.PageSizeOptions)
+            // Associate item errors with the PageSizeOptions field.
+            .OverrideIndexer((_, _, _, _) => string.Empty)
             .GreaterThan(0);
     }
 }

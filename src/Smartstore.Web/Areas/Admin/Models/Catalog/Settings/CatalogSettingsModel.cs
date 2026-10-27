@@ -335,6 +335,8 @@ public partial class CatalogSettingsValidator : SettingModelValidator<CatalogSet
             .NotEmpty();
 
         RuleForEach(x => x.DefaultPageSizeOptions)
+            // Associate item errors with the DefaultPageSizeOptions field.
+            .OverrideIndexer((_, _, _, _) => string.Empty)
             .GreaterThan(0);
 
         RuleFor(x => x.NumberOfProductTags)
