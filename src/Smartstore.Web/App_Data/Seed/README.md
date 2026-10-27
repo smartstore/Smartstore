@@ -194,7 +194,7 @@ seeded yet; the installer guarantees the order.
 | Convention | Example | Meaning |
 |---|---|---|
 | Relative date | `"specialPriceEndDateTimeUtc": "@now+1M"` | Installation time plus/minus months (`M`) or days (`d`). |
-| Media reference | `"product/demo-round.jpg"` or `{ "file": "…", "name": "extra-virgin-olive-oil" }` | Path below `media/`. `name` sets the media file name (SEO name) when it differs from the name derived from the path. |
+| Media reference | `"product/fd-1001.jpg"` or `{ "file": "…", "name": "extra-virgin-olive-oil" }` | Path below `media/`. `name` sets the media file name (SEO name) when it differs from the name derived from the path. |
 | Publish condition | `"publishedWhen": "manufacturers"`, `"publishedWhen": "setting:CatalogSettings.CompareProductsEnabled"` | Menu items: published only if manufacturers exist / the setting is true. |
 | Variant value names | `cultures/de-DE/samples/catalog/attribute-value-names.json`: `{ "black": "Schwarz" }` | Translates all variant attribute values with that alias. A product overlay can still override a single value. |
 
