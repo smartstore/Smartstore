@@ -1,17 +1,22 @@
 using System.Globalization;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using Smartstore.Json;
 
 namespace Smartstore.ComponentModel.TypeConverters;
 
-internal class JsonTypeConverter : DefaultTypeConverter
+/// <summary>
+/// Converts values of <typeparamref name="T"/> to and from JSON strings.
+/// </summary>
+/// <typeparam name="T">The serialized value type.</typeparam>
+public class JsonTypeConverter<T> : DefaultTypeConverter
 {
-    private readonly Type _type;
-
-    public JsonTypeConverter(Type type)
-        : base(type)
+    /// <summary>
+    /// Initializes a converter for <typeparamref name="T"/>.
+    /// </summary>
+    public JsonTypeConverter()
+        : base(typeof(T))
     {
-        _type = type;
     }
 
     public override bool CanConvertFrom(Type type)
@@ -29,12 +34,20 @@ internal class JsonTypeConverter : DefaultTypeConverter
 
         var json = value as string;
         var result = json.HasValue()
-            ? JsonSerializer.Deserialize(json, _type, SmartJsonOptions.Default)
+            ? JsonSerializer.Deserialize(json, typeof(T), SmartJsonOptions.Default)
             : null;
 
-        return result == null && _type.IsArray
-            ? Array.CreateInstance(_type.GetElementType(), 0)
-            : result;
+        // Let the configured JSON contract distinguish sequences from dictionaries, strings
+        // and custom scalar representations. Deserializing [] also lets the serializer choose
+        // the concrete collection and comparer, or reject a type it cannot populate.
+        if (result == null && SmartJsonOptions.Default.GetTypeInfo(typeof(T)).Kind == JsonTypeInfoKind.Enumerable)
+        {
+            return JsonSerializer.Deserialize("[]", typeof(T), SmartJsonOptions.Default);
+        }
+
+        // Byte arrays have a Base64 JSON contract rather than an enumerable contract.
+        // Preserve their existing empty-input behavior without treating other scalars as sequences.
+        return result == null && typeof(T) == typeof(byte[]) ? Array.Empty<byte>() : result;
     }
 
     public override object ConvertTo(CultureInfo culture, string format, object value, Type to)
@@ -44,8 +57,16 @@ internal class JsonTypeConverter : DefaultTypeConverter
             return base.ConvertTo(culture, format, value, to);
         }
 
-        return value == null || value is Array { Length: 0 }
+        if (value == null || typeof(T) == typeof(byte[]) && value is byte[] { Length: 0 })
+        {
+            return string.Empty;
+        }
+
+        // Serialize once instead of probing an enumerable before serialization: a source may
+        // only support one traversal. Inspect the JSON result to normalize empty sequences.
+        var json = JsonSerializer.Serialize(value, typeof(T), SmartJsonOptions.Default);
+        return json == "[]" && SmartJsonOptions.Default.GetTypeInfo(typeof(T)).Kind == JsonTypeInfoKind.Enumerable
             ? string.Empty
-            : JsonSerializer.Serialize(value, _type, SmartJsonOptions.Default);
+            : json;
     }
 }

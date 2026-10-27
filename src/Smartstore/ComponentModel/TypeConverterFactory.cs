@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Reflection;
 using Smartstore.ComponentModel.TypeConverters;
 
 namespace Smartstore.ComponentModel;
@@ -7,6 +8,7 @@ public static class TypeConverterFactory
 {
     private static readonly List<ITypeConverterProvider> _providers = [];
     private static readonly ConcurrentDictionary<Type, ITypeConverter> _typeConverters = new();
+    private static readonly ConcurrentDictionary<PropertyInfo, ITypeConverter> _propertyConverters = new();
 
     static TypeConverterFactory()
     {
@@ -38,29 +40,15 @@ public static class TypeConverterFactory
         return GetConverter(component.GetType());
     }
 
-    internal static ITypeConverter GetConverter(FastProperty fromProperty, FastProperty toProperty, out bool convertTo)
+    /// <summary>
+    /// Gets the converter declared on a property, or null if no converter is declared.
+    /// Supports both Smartstore and System.ComponentModel converters.
+    /// </summary>
+    public static ITypeConverter GetConverter(PropertyInfo property)
     {
-        convertTo = false;
-        var fromType = fromProperty.Property.PropertyType;
-        var toType = toProperty.Property.PropertyType;
+        Guard.NotNull(property);
 
-        if (fromType == toType)
-        {
-            return null;
-        }
-
-        if (fromType == typeof(string) && fromProperty.Property.HasAttribute<JsonSerializedPropertyAttribute>(true))
-        {
-            return new JsonTypeConverter(toType);
-        }
-
-        if (toType == typeof(string) && toProperty.Property.HasAttribute<JsonSerializedPropertyAttribute>(true))
-        {
-            convertTo = true;
-            return new JsonTypeConverter(fromType);
-        }
-
-        return null;
+        return _propertyConverters.GetOrAdd(property, AttributedTypeConverterProvider.GetAttributedConverter);
     }
 
     public static ITypeConverter GetConverter(Type type)

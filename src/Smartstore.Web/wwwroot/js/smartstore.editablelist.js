@@ -27,15 +27,20 @@
                 animation: 150
             }).sortable("widget") : null;
 
+            function getRows() {
+                return $items.children(":not(.editable-list-removing)");
+            }
+
             function isDisabled() {
                 return inputDisabled || readOnly || ($override.length > 0 && !$override.prop("checked"));
             }
 
             // Keep array binding indices, labels and available actions in sync with the current rows.
             function update() {
-                const $rows = $items.children(":not(.editable-list-removing)");
+                const $rows = getRows();
                 const disabled = isDisabled();
                 const storeDisabled = $override.length > 0 && !$override.prop("checked");
+                const dragDisabled = disabled || $rows.length < 2;
 
                 $empty.toggleClass("d-none", $rows.length > 0);
 
@@ -50,34 +55,28 @@
                     // Read-only values remain selectable; only disabled or inherited values are excluded from posting.
                     $input.prop("disabled", inputDisabled || storeDisabled);
                     $row.find(".editable-list-remove").prop("disabled", disabled || $rows.length <= minItems);
-                    $row.find(".editable-list-handle").prop("disabled", disabled || $rows.length < 2)
-                        .css("cursor", disabled || $rows.length < 2 ? "default" : "move");
+                    $row.find(".editable-list-handle").prop("disabled", dragDisabled)
+                        .css("cursor", dragDisabled ? "default" : "move");
                 });
 
                 $add.prop("disabled", disabled || $rows.length >= maxItems);
 
-                if (sorter) {
-                    sorter.option("disabled", disabled);
-                }
+                sorter?.option("disabled", disabled);
             }
 
             // Commit the unbound add field. Enter keeps input focus; blur must not move focus back.
             function addItem(focus) {
-                if (isDisabled() || $items.children(":not(.editable-list-removing)").length >= maxItems) {
+                if (isDisabled() || getRows().length >= maxItems) {
                     return;
                 }
-                    
+
                 const value = $add.val().trim();
                 if (!value) {
                     return;
                 }
 
-                const $duplicate = $items
-                    .children(":not(.editable-list-removing)")
-                    .find(".editable-list-value")
-                    .filter(function () {
-                        return this.value.trim().toLowerCase() === value.toLowerCase();
-                    }).first();
+                const $duplicate = getRows().find(".editable-list-value")
+                    .filter((_, input) => input.value.trim().toLowerCase() === value.toLowerCase()).first();
 
                 if ($duplicate.length) {
                     $add.val("");
@@ -88,11 +87,7 @@
                 }
 
                 $items.append(template.content.cloneNode(true));
-                const $input = $items
-                    .children()
-                    .last()
-                    .find(".editable-list-value")
-                    .val(value);
+                const $input = $items.children().last().find(".editable-list-value").val(value);
 
                 $add.val("");
                 update();
@@ -122,7 +117,7 @@
                 }
 
                 const $row = $(e.currentTarget).closest(".editable-list-item");
-                const $rows = $items.children(":not(.editable-list-removing)");
+                const $rows = getRows();
 
                 if ($row.hasClass("editable-list-removing") || $rows.length <= minItems) {
                     return;
@@ -138,7 +133,7 @@
                 $row.slideUp(150, () => $row.remove());
                 update();
 
-                const $next = $items.children(":not(.editable-list-removing)").eq(Math.min(index, $rows.length - 2));
+                const $next = getRows().eq(Math.min(index, $rows.length - 2));
                 ($next.length ? $next.find(".editable-list-value") : $add).trigger("focus");
                 $editor.trigger("change");
             });

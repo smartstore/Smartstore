@@ -48,13 +48,6 @@ public static class MiniMapper
         MapComplex(from, to, from.GetType(), culture ?? CultureInfo.CurrentCulture);
     }
 
-    private static bool TryMap(object from, Type fromType, Type toType, CultureInfo culture, out object result, ITypeConverter converter, bool convertTo)
-    {
-        return converter != null
-            ? ConvertUtility.TryConvert(from, toType, culture, converter, convertTo, out result)
-            : TryMap(from, fromType, toType, culture, out result);
-    }
-
     private static bool TryMap(object from, Type fromType, Type toType, CultureInfo culture, out object result)
     {
         if (ConvertUtility.TryConvert(from, toType, culture, out result))
@@ -62,6 +55,14 @@ public static class MiniMapper
             return true;
         }
 
+        return TryMapComplex(from, fromType, toType, culture, out result);
+    }
+
+    private static bool TryMapComplex(object from, Type fromType, Type toType, CultureInfo culture, out object result)
+    {
+        // Conversion has already failed. Reuse the original value for recursive mapping
+        // without repeating conversion or reading the source property again.
+        result = null;
         if (fromType.IsPlainObjectType() && toType.IsPlainObjectType())
         {
             result = Activator.CreateInstance(toType);
@@ -94,7 +95,10 @@ public static class MiniMapper
 
             var fromPropType = fromProp.PropertyType;
             var toPropType = toProp.Property.PropertyType;
-            var sourceValue = fromProp.GetValue(from);
+
+            // Conversion owns property access and converter selection. Reuse its source value
+            // below because FK normalization and recursive mapping are mapper-specific rules.
+            bool converted = ConvertUtility.TryConvert(from, fromProp, toProp.Property, culture, out var targetValue, out var sourceValue);
 
             if (isEntityMapping && (fromPropType == typeof(int) || fromPropType == typeof(int?)) && toPropType == typeof(int?) && Equals(0, sourceValue) && toProp.Name.EndsWith("Id"))
             {
@@ -104,7 +108,7 @@ public static class MiniMapper
                 // after mapping model > entity.
                 toProp.SetValue(to, null);
             }
-            else if (TryMap(sourceValue, fromPropType, toPropType, culture, out var targetValue, TypeConverterFactory.GetConverter(new FastProperty(fromProp), toProp, out var convertTo), convertTo))
+            else if (converted || TryMapComplex(sourceValue, fromPropType, toPropType, culture, out targetValue))
             {
                 // Set it
                 toProp.SetValue(to, targetValue);

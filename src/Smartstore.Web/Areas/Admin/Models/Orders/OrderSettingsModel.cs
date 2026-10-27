@@ -1,5 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using Smartstore.ComponentModel.TypeConverters;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Localization;
 
@@ -31,10 +33,12 @@ public class OrderSettingsModel : TabbableModel, ILocalizedModel<OrderSettingsLo
 
     [LocalizedDisplay("*ReturnRequestReasons")]
     [UIHint("EditableList"), AdditionalMetadata("sortable", true)]
+    [TypeConverter(typeof(JsonTypeConverter<string[]>))]
     public string[] ReturnRequestReasons { get; set; } = [];
 
     [LocalizedDisplay("*ReturnRequestActions")]
     [UIHint("EditableList"), AdditionalMetadata("sortable", true)]
+    [TypeConverter(typeof(JsonTypeConverter<string[]>))]
     public string[] ReturnRequestActions { get; set; } = [];
 
     [LocalizedDisplay("*NumberOfDaysReturnRequestAvailable")]
@@ -72,10 +76,12 @@ public class OrderSettingsLocalizedModel : ILocalizedLocaleModel
 
     [LocalizedDisplay("*ReturnRequestReasons")]
     [UIHint("EditableList"), AdditionalMetadata("sortable", true)]
+    [TypeConverter(typeof(JsonTypeConverter<string[]>))]
     public string[] ReturnRequestReasons { get; set; } = [];
 
     [LocalizedDisplay("*ReturnRequestActions")]
     [UIHint("EditableList"), AdditionalMetadata("sortable", true)]
+    [TypeConverter(typeof(JsonTypeConverter<string[]>))]
     public string[] ReturnRequestActions { get; set; } = [];
 }
 

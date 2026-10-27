@@ -3,6 +3,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Dynamic;
 using System.Globalization;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -91,7 +92,47 @@ public static class ConvertUtility
         CultureInfo? culture,
         [MaybeNullWhen(false)] out object? convertedValue)
     {
-        ArgumentNullException.ThrowIfNull(to);
+        return TryConvertCore(value, to, culture, out convertedValue, null, null);
+    }
+
+    /// <summary>
+    /// Reads a source property once and tries to convert its value for a destination property,
+    /// preferring property converters over type-level converters.
+    /// </summary>
+    /// <param name="source">The instance containing the source property.</param>
+    /// <param name="fromProperty">The property whose value is read.</param>
+    /// <param name="toProperty">The destination property; its value is not read or written.</param>
+    /// <param name="culture">The conversion culture, or null for the invariant culture.</param>
+    /// <param name="convertedValue">The converted value on success.</param>
+    /// <param name="sourceValue">The original property value, also available when conversion fails.</param>
+    /// <returns>Whether conversion succeeded. Exceptions from the source getter propagate.</returns>
+    public static bool TryConvert(
+        object source,
+        PropertyInfo fromProperty,
+        PropertyInfo toProperty,
+        CultureInfo? culture,
+        [MaybeNullWhen(false)] out object? convertedValue,
+        out object? sourceValue)
+    {
+        Guard.NotNull(source);
+        Guard.NotNull(fromProperty);
+        Guard.NotNull(toProperty);
+
+        // Return the same value used for conversion so mapping rules and recursive fallback
+        // can reuse it without invoking a potentially stateful getter a second time.
+        sourceValue = fromProperty.GetValue(source);
+        return TryConvertCore(sourceValue, toProperty.PropertyType, culture, out convertedValue, fromProperty, toProperty);
+    }
+
+    private static bool TryConvertCore(
+        object? value,
+        Type to,
+        CultureInfo? culture,
+        out object? convertedValue,
+        PropertyInfo? fromProperty,
+        PropertyInfo? toProperty)
+    {
+        Guard.NotNull(to);
 
         // Default.
         convertedValue = null;
@@ -113,8 +154,26 @@ public static class ConvertUtility
         culture ??= CultureInfo.InvariantCulture;
         Type from = value.GetType();
 
+        // Null and assignable values need no converter lookup. Keeping resolution here also
+        // leaves property metadata out of the ordinary value-based conversion path.
+        var fromConverter = fromProperty == null ? null : TypeConverterFactory.GetConverter(fromProperty);
+        var toConverter = toProperty == null ? null : TypeConverterFactory.GetConverter(toProperty);
+
         try
         {
+            // Explicit property converters take precedence over type-level defaults.
+            if (toConverter is not null && toConverter.CanConvertFrom(from))
+            {
+                convertedValue = toConverter.ConvertFrom(culture, value);
+                return true;
+            }
+
+            if (fromConverter is not null && fromConverter.CanConvertTo(to))
+            {
+                convertedValue = fromConverter.ConvertTo(culture, null, value, to);
+                return true;
+            }
+
             // Prefer converter for destination type (value -> to)
             var converter = TypeConverterFactory.GetConverter(to);
             if (converter is not null && converter.CanConvertFrom(from))
@@ -137,46 +196,6 @@ public static class ConvertUtility
         }
 
         return false;
-    }
-
-    /// <summary>
-    /// Tries to convert a value using the specified converter or automatic converter selection.
-    /// </summary>
-    /// <param name="value">The value to convert.</param>
-    /// <param name="to">The destination type.</param>
-    /// <param name="culture">The culture to use, or null for the invariant culture.</param>
-    /// <param name="converter">The explicit converter, or null to select one automatically.</param>
-    /// <param name="convertTo">True to call ConvertTo; false to call ConvertFrom. Ignored when converter is null.</param>
-    /// <param name="convertedValue">The converted value on success.</param>
-    /// <returns>Whether the conversion succeeded.</returns>
-    public static bool TryConvert(
-        object? value,
-        Type to,
-        CultureInfo? culture,
-        ITypeConverter? converter,
-        bool convertTo,
-        [MaybeNullWhen(false)] out object? convertedValue)
-    {
-        if (converter == null)
-        {
-            return TryConvert(value, to, culture, out convertedValue);
-        }
-
-        ArgumentNullException.ThrowIfNull(to);
-        culture ??= CultureInfo.InvariantCulture;
-        convertedValue = null;
-
-        try
-        {
-            convertedValue = convertTo
-                ? converter.ConvertTo(culture, null, value, to)
-                : converter.ConvertFrom(culture, value);
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
     }
 
     public static ExpandoObject ToExpando(object value)
