@@ -1867,6 +1867,9 @@ public class OrderController : AdminController
 
         ModelState.Clear();
 
+        model.ReturnRequestReasons = model.ReturnRequestReasons?.Where(x => x.HasValue()).Select(x => x.Trim()).ToArray() ?? [];
+        model.ReturnRequestActions = model.ReturnRequestActions?.Where(x => x.HasValue()).Select(x => x.Trim()).ToArray() ?? [];
+
         await MapperFactory.MapAsync(model, settings);
         settings.GiftCards_Activated_OrderStatusId = Convert.ToInt32(model.GiftCardsActivatedOrderStatusId);
         settings.GiftCards_Deactivated_OrderStatusId = Convert.ToInt32(model.GiftCardsDeactivatedOrderStatusId);

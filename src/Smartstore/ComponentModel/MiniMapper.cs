@@ -48,6 +48,13 @@ public static class MiniMapper
         MapComplex(from, to, from.GetType(), culture ?? CultureInfo.CurrentCulture);
     }
 
+    private static bool TryMap(object from, Type fromType, Type toType, CultureInfo culture, out object result, ITypeConverter converter, bool convertTo)
+    {
+        return converter != null
+            ? ConvertUtility.TryConvert(from, toType, culture, converter, convertTo, out result)
+            : TryMap(from, fromType, toType, culture, out result);
+    }
+
     private static bool TryMap(object from, Type fromType, Type toType, CultureInfo culture, out object result)
     {
         if (ConvertUtility.TryConvert(from, toType, culture, out result))
@@ -97,7 +104,7 @@ public static class MiniMapper
                 // after mapping model > entity.
                 toProp.SetValue(to, null);
             }
-            else if (TryMap(sourceValue, fromPropType, toPropType, culture, out var targetValue))
+            else if (TryMap(sourceValue, fromPropType, toPropType, culture, out var targetValue, TypeConverterFactory.GetConverter(new FastProperty(fromProp), toProp, out var convertTo), convertTo))
             {
                 // Set it
                 toProp.SetValue(to, targetValue);

@@ -1,10 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json;
 using FluentValidation;
-using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Localization;
-using Smartstore.Json;
 
 namespace Smartstore.Admin.Models.Orders;
 
@@ -98,53 +95,5 @@ public partial class OrderSettingsValidator : SettingModelValidator<OrderSetting
         RuleFor(x => x.OrderIdent).GreaterThan(0);
         RuleFor(x => x.NumberOfDaysReturnRequestAvailable).GreaterThanOrEqualTo(0);
         RuleFor(x => x.MaxMessageOrderAgeInDays).GreaterThanOrEqualTo(0);
-    }
-}
-
-/// <summary>
-/// Maps return option lists between the editor model and their JSON settings representation.
-/// </summary>
-[Mapper(Lifetime = ServiceLifetime.Singleton)]
-public class OrderSettingsMapper :
-    IMapper<OrderSettings, OrderSettingsModel>,
-    IMapper<OrderSettingsModel, OrderSettings>
-{
-    /// <inheritdoc/>
-    public Task MapAsync(OrderSettings from, OrderSettingsModel to, dynamic parameters = null)
-    {
-        MiniMapper.Map(from, to);
-
-        to.ReturnRequestReasons = from.ReturnRequestReasons.HasValue()
-            ? JsonSerializer.Deserialize<string[]>(from.ReturnRequestReasons, SmartJsonOptions.Default) ?? []
-            : [];
-        to.ReturnRequestActions = from.ReturnRequestActions.HasValue()
-            ? JsonSerializer.Deserialize<string[]>(from.ReturnRequestActions, SmartJsonOptions.Default) ?? []
-            : [];
-
-        return Task.CompletedTask;
-    }
-
-    /// <inheritdoc/>
-    public Task MapAsync(OrderSettingsModel from, OrderSettings to, dynamic parameters = null)
-    {
-        MiniMapper.Map(from, to);
-
-        var returnRequestReasons = from.ReturnRequestReasons
-            ?.Where(x => x.HasValue())
-            .Select(x => x.Trim())
-            .ToArray() ?? [];
-        var returnRequestActions = from.ReturnRequestActions
-            ?.Where(x => x.HasValue())
-            .Select(x => x.Trim())
-            .ToArray() ?? [];
-
-        to.ReturnRequestReasons = returnRequestReasons.Length > 0
-            ? JsonSerializer.Serialize(returnRequestReasons, SmartJsonOptions.Default)
-            : string.Empty;
-        to.ReturnRequestActions = returnRequestActions.Length > 0
-            ? JsonSerializer.Serialize(returnRequestActions, SmartJsonOptions.Default)
-            : string.Empty;
-
-        return Task.CompletedTask;
     }
 }

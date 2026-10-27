@@ -38,6 +38,31 @@ public static class TypeConverterFactory
         return GetConverter(component.GetType());
     }
 
+    internal static ITypeConverter GetConverter(FastProperty fromProperty, FastProperty toProperty, out bool convertTo)
+    {
+        convertTo = false;
+        var fromType = fromProperty.Property.PropertyType;
+        var toType = toProperty.Property.PropertyType;
+
+        if (fromType == toType)
+        {
+            return null;
+        }
+
+        if (fromType == typeof(string) && fromProperty.Property.HasAttribute<JsonSerializedPropertyAttribute>(true))
+        {
+            return new JsonTypeConverter(toType);
+        }
+
+        if (toType == typeof(string) && toProperty.Property.HasAttribute<JsonSerializedPropertyAttribute>(true))
+        {
+            convertTo = true;
+            return new JsonTypeConverter(fromType);
+        }
+
+        return null;
+    }
+
     public static ITypeConverter GetConverter(Type type)
     {
         Guard.NotNull(type);

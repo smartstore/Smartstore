@@ -139,6 +139,46 @@ public static class ConvertUtility
         return false;
     }
 
+    /// <summary>
+    /// Tries to convert a value using the specified converter or automatic converter selection.
+    /// </summary>
+    /// <param name="value">The value to convert.</param>
+    /// <param name="to">The destination type.</param>
+    /// <param name="culture">The culture to use, or null for the invariant culture.</param>
+    /// <param name="converter">The explicit converter, or null to select one automatically.</param>
+    /// <param name="convertTo">True to call ConvertTo; false to call ConvertFrom. Ignored when converter is null.</param>
+    /// <param name="convertedValue">The converted value on success.</param>
+    /// <returns>Whether the conversion succeeded.</returns>
+    public static bool TryConvert(
+        object? value,
+        Type to,
+        CultureInfo? culture,
+        ITypeConverter? converter,
+        bool convertTo,
+        [MaybeNullWhen(false)] out object? convertedValue)
+    {
+        if (converter == null)
+        {
+            return TryConvert(value, to, culture, out convertedValue);
+        }
+
+        ArgumentNullException.ThrowIfNull(to);
+        culture ??= CultureInfo.InvariantCulture;
+        convertedValue = null;
+
+        try
+        {
+            convertedValue = convertTo
+                ? converter.ConvertTo(culture, null, value, to)
+                : converter.ConvertFrom(culture, value);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     public static ExpandoObject ToExpando(object value)
     {
         Guard.NotNull(value);

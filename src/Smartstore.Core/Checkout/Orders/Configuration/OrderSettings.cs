@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Catalog.Products;
+﻿using Smartstore.ComponentModel;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Localization;
 
@@ -45,7 +46,7 @@ public class OrderSettings : ISettings
     /// <summary>
     /// Gets or sets a list of return request reasons.
     /// </summary>
-    [LocalizedProperty]
+    [LocalizedProperty, JsonSerializedProperty]
     public string ReturnRequestReasons { get; set; } = """
         [
             "Wrong item received",
@@ -63,7 +64,7 @@ public class OrderSettings : ISettings
     /// <summary>
     /// Gets or sets a list of return request actions.
     /// </summary>
-    [LocalizedProperty]
+    [LocalizedProperty, JsonSerializedProperty]
     public string ReturnRequestActions { get; set; } = """
         [
             "Refund to original payment method",
