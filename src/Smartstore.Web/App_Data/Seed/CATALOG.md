@@ -57,7 +57,7 @@ SKUs are `{prefix}{number}`, starting at 1001, e.g. `FN-1002`. Combinations appe
 | FS-1004 | Merino beanie | "New" label |
 | FS-1005 | Wool scarf | Special price with end date, quantity input instead of a dropdown |
 | FS-1006 | Organic T-shirt with print | Personalisation with a text box shown only for "With print" |
-| FN-1001 | Lounge chair | Configurator: surcharges, price reduction, weight adjustment, checkboxes, linked product |
+| FN-1001 | Lounge chair | Configurator: surcharges, price reduction, weight adjustment, checkboxes, linked product; picture per cover and frame (combinations for every extras state) |
 | FN-1002 | Arc floor lamp | Final price in swatches, combination with own price, weight and delivery time, required product |
 | FN-1003 | Oslo collection | Grouped product |
 | FN-1004–FN-1006 | Oslo side table, shelf, footstool | Items of the grouped product; shelf without quantity control |
@@ -85,4 +85,4 @@ Some products also show features of optional modules. Their texts say so in a se
    derives most of them, see `InstallationDataSeeder.Products.cs`.
 5. Run the seed tests, review the snapshot diff and update the table above.
 
-Pictures of the Food, Golf and Apparel groups are final product photos (`media/product/fd-*.jpg`, `gf-*.jpg`, `fs-*.jpg`). All other groups still use placeholders (`media/product/demo-*.jpg`) until their final pictures exist.
+Pictures of the Food, Golf, Apparel and Furniture groups are final product photos (`media/product/fd-*.jpg`, `gf-*.jpg`, `fs-*.jpg`, `fn-*.jpg`). All other groups still use placeholders (`media/product/demo-*.jpg`) until their final pictures exist.

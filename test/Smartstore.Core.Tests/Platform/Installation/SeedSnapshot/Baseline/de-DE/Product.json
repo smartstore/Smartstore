@@ -1268,7 +1268,7 @@
     "LimitedToStores": false,
     "LowStockActivityId": 0,
     "LowestAttributeCombinationPrice": 149.0,
-    "MainPictureId": "MediaFile:arc-floor-lamp.jpg",
+    "MainPictureId": "MediaFile:arc-floor-lamp-black.jpg",
     "ManageInventoryMethodId": 2,
     "ManufacturerPartNumber": "LV-ARC-150",
     "MaxNumberOfDownloads": 0,
@@ -1315,7 +1315,7 @@
     "UserAgreementText": null,
     "Visibility": "Full",
     "VisibleIndividually": false,
-    "Weight": 6.0,
+    "Weight": 13.2,
     "Width": 0.0,
     "WithdrawalPeriodDays": null
   },
