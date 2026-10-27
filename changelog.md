@@ -139,6 +139,7 @@
 - **Warranty**:
   - Labels disappeared after `UpdateProductDetails` was called when switching a variant.
   - The manufacturer is displayed on the product detail page even though the catalog setting is disabled.
+  - Fixed layout shifts and inaccessible warranty dialogs after changing product variants.
 - JsonLd:
   - Removed duplicate reference of the *Product* entity.
   - Restored application of `SeoSettings.ProductDescriptionPriority`.
