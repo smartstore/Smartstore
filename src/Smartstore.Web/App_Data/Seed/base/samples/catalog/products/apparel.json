@@ -150,15 +150,11 @@
       {
         "productAttribute": "material",
         "isRequired": true,
-        "attributeControlType": "Boxes",
-        "swatchSize": "XLarge",
-        "swatchShape": "Rect",
-        "showValueNameInSwatch": true,
-        "swatchPriceDisplay": "Adjustment",
+        "attributeControlType": "RadioList",
         "displayOrder": 3,
         "values": [
-          { "name": "Wool blend", "alias": "wool-blend", "color": "#A9A39A", "isPreSelected": true, "displayOrder": 1 },
-          { "name": "Merino wool", "alias": "merino", "color": "#E3DBCB", "priceAdjustment": 20.00, "displayOrder": 2 }
+          { "name": "Wool blend", "alias": "wool-blend", "isPreSelected": true, "displayOrder": 1 },
+          { "name": "Merino wool", "alias": "merino", "priceAdjustment": 20.00, "displayOrder": 2 }
         ]
       }
     ]

@@ -2,7 +2,9 @@
 {
   "CatalogSettings": {
     "LabelAsNewForMaxDays": 30,
-    "ShowProductReviewsInProductLists": true
+    "ShowProductReviewsInProductLists": true,
+    // The roasted coffee text asks the visitor to watch the article number change with the pack size.
+    "ShowProductSku": true
   },
   "PriceSettings": {
     "PriceDisplayType": "PreSelectedPrice"

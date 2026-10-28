@@ -166,17 +166,17 @@
   },
   {
     "$key": "Product:FS-1002|ProductAttribute:material",
-    "AttributeControlTypeId": 40,
+    "AttributeControlTypeId": 2,
     "CustomData": null,
     "DisplayOrder": 3,
     "IsRequired": true,
     "ProductAttributeId": "ProductAttribute:material",
     "ProductId": "Product:FS-1002",
-    "ShowValueNameInSwatch": true,
+    "ShowValueNameInSwatch": null,
     "SwatchAspectRatio": null,
-    "SwatchPriceDisplay": "Adjustment",
-    "SwatchShape": "Rect",
-    "SwatchSize": "XLarge",
+    "SwatchPriceDisplay": null,
+    "SwatchShape": null,
+    "SwatchSize": null,
     "TextPrompt": null
   },
   {

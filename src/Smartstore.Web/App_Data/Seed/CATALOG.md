@@ -52,7 +52,7 @@ SKUs are `{prefix}{number}`, starting at 1001, e.g. `FN-1002`. Combinations appe
 | GF-1006 | Lightweight stand bag | Compare price with price label, low stock |
 | GF-1007 | Divot repair tool | Simple accessory, bundle item, new |
 | FS-1001 | Rain jacket | Colour swatches with pictures, combinations, greying out sold-out combinations |
-| FS-1002 | Ribbed knit sweater | Multicolour swatches, swatch sizes and aspect ratio, surcharge in the swatch |
+| FS-1002 | Ribbed knit sweater | Multicolour swatches, swatch sizes and aspect ratio, radio buttons for the material (no colour, so that it is not mistaken for the colour attribute) with a surcharge |
 | FS-1003 | Leather sneaker | Fixed price per combination, sold-out sizes without greying out |
 | FS-1004 | Merino beanie | "New" label |
 | FS-1005 | Wool scarf | Special price with end date, quantity input instead of a dropdown |

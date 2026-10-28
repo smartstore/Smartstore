@@ -717,7 +717,7 @@
     "$key": "CatalogSettings.ShowProductSku|0",
     "Name": "CatalogSettings.ShowProductSku",
     "StoreId": 0,
-    "Value": "False"
+    "Value": "True"
   },
   {
     "$key": "CatalogSettings.ShowProductTags|0",
