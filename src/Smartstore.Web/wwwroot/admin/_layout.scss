@@ -1,0 +1,971 @@
+/// <reference path="references.scss" />
+
+//
+// Layout
+// -----------------------------------------------------
+
+html {
+    height: 100%;
+}
+
+body {
+    background-color: $gray-150;
+
+    &.popup {
+        background-color: #fff;
+    }
+
+    &.popup .dispensable {
+        display: none !important;
+    }
+}
+
+#page {
+    position: relative;
+    margin: 0;
+    padding: 0;
+}
+
+.page-main {
+    --sticky-header-left: 0;
+    --sticky-header-right: 0;
+    --navbar-height: 72px;
+    --header-height: 72px;
+    --section-header-height: calc(var(--section-header-size) + 2 * var(--section-header-padding-y, var(--content-padding-y)) + 1px);
+    --device-height: 100dvh;
+    --content-top: calc(var(--navbar-height) + var(--header-height));
+    --content-height: calc(var(--device-height) - var(--content-top) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    --content-row: minmax(var(--content-height), auto);
+    position: relative;
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: var(--navbar-height) var(--header-height) var(--content-row);
+
+    @include media-breakpoint-up(sm) {
+        --sticky-header-left: var(--content-padding-x);
+        --sticky-header-right: var(--content-padding-x);
+    }
+}
+
+#header {
+    @include gradient-bg($indigo);
+    grid-column: 1 / -1;
+    grid-row: 1 / span 2;
+}
+
+.sidebar-left {
+    grid-column: 1 / 2;
+}
+
+.popup {
+    // Larger padding-x in popups
+    --content-padding-x: #{$content-padding-x};
+}
+
+#content {
+    position: relative;
+    margin: 0;
+    padding-left: var(--content-padding-x);
+    padding-right: var(--content-padding-x);
+    padding-top: calc(#{$section-header-height} + var(--section-header-spacing));
+    padding-bottom: var(--content-padding-x);
+    box-shadow: $box-shadow-sm;
+    border-radius: 0;
+    background-color: #fff;
+    grid-column: 1 / -1;
+    grid-row: 2 / -1;
+    z-index: 9;
+
+    @include media-breakpoint-up(sm) {
+        margin: 0 var(--content-padding-x);
+        border-radius: 0.75rem 0.75rem 0 0;
+    }
+
+    .popup & {
+        margin: 0;
+        border: 0;
+        box-shadow: none;
+        border-radius: 0;
+        grid-row: 1 / -1;
+    }
+}
+
+.cph {
+    display: flex;
+    flex-flow: column;
+}
+
+.popup.bare {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    #page,
+    #content,
+    .cph {
+        height: 100%;
+        padding: 0;
+    }
+}
+
+.section-header {
+    position: absolute;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
+    top: 0;
+    padding-inline: var(--content-padding-x);
+    padding-block: var(--content-padding-y);
+    transition: box-shadow 0.25s ease;
+
+    @include make-row();
+    flex-wrap: nowrap;
+    margin-inline: 0;
+    margin-block-end: var(--section-header-spacing);
+
+    .title, .options {
+        @include make-col-ready();
+    }
+
+    .title {
+        font-family: $headings-font-family;
+        font-weight: $font-weight-medium;
+        font-size: $h4-font-size;
+        line-height: var(--section-header-size);
+        min-height: var(--section-header-size);
+        vertical-align: middle;
+        @include text-truncate();
+        padding-inline: 0 5px;
+        color: inherit;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        // mimic .col
+        flex-basis: 0;
+        flex-grow: 1;
+        max-width: 100%;
+
+        > :is(.icon, .icon-stack) {
+            display: none; // Turn off for now, seems to look nicer
+            --icon-size: 28px;
+            vertical-align: text-top;
+            color: $text-muted;
+        }
+
+        > img {
+            max-height: var(--section-header-size);
+            max-width: 120px;
+            vertical-align: top;
+        }
+
+        a:not(.btn):not(.dropdown-item) {
+            text-decoration: none;
+            font-family: $font-family-sans-serif;
+            font-size: 12px;
+            font-weight: normal;
+            padding-inline-start: 5px;
+        }
+    }
+    // .title
+    .options {
+        // mimic .col-auto
+        flex: 0 0 auto;
+        width: auto;
+        max-width: none; // Reset earlier grid tiers
+        padding-inline: 5px 0;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+
+        &.btn-toolbar {
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            // hide action button labels on small screens
+            .btn > span:not(:only-child) {
+                display: none;
+            }
+        }
+    }
+
+    &.sticky {
+        position: fixed;
+        z-index: $zindex-sticky;
+        inset-inline-start: var(--sticky-header-left);
+        inset-inline-end: var(--sticky-header-right);
+        padding: calc(var(--content-padding-y) / 2) var(--content-padding-x);
+        background: #fff;
+        box-shadow: 0 10px 30px 0 rgba($black, .05);
+
+        .modal-open & {
+            // add the killed scrollbar width
+            margin-inline-end: 17px !important;
+        }
+    }
+}
+
+#content .section-header {
+    background: #fff;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    border-bottom: 1px solid transparent;
+    transition: none;
+
+    .section-header-scrolled & {
+        box-shadow: 0 2px 5px -3px rgba($black, 0.16);
+    }
+
+    @supports ((backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px))) {
+        .section-header-scrolled & {
+            background: rgba(#fff, 0.65);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+    }
+}
+
+@include media-breakpoint-up(md) {
+    .has-left-sidebar {
+        .page-main {
+            grid-template-columns: 206px 1fr;
+            --sticky-header-left: 206px;
+            --sticky-header-right: 0;
+        }
+
+        #content {
+            grid-column: 2 / -1;
+            margin-inline: 0;
+            border-start-end-radius: 0;
+        }
+
+        .locale-editor {
+            max-width: calc(100dvw - var(--sticky-header-left) - (var(--content-padding-x) * 2));
+        }
+    }
+}
+
+// Content geometry is independent of viewport sizing and internal scrolling.
+.admin-content-canvas {
+    --admin-content-padding-x: 0px;
+    --admin-content-radius: 0px;
+
+    #content {
+        margin-inline: 0;
+        padding: 0;
+        border-radius: var(--admin-content-radius);
+    }
+}
+
+.spa-layout {
+    height: 100%;
+    overflow: hidden;
+
+    #page {
+        height: 100%;
+    }
+
+    .page-main {
+        height: 100%;
+        grid-template-columns: 1fr minmax(380px, 20%);
+        --content-row: var(--content-height);
+    }
+
+    .cph {
+        height: 100%;
+    }
+
+    .spa-stretch {
+        overflow: hidden;
+        display: flex;
+        flex-flow: column;
+    }
+}
+
+@include media-breakpoint-up(md) {
+    .spa-layout.has-left-sidebar .page-main {
+        grid-template-columns: 206px minmax(100px, 1fr) !important;
+    }
+}
+
+//
+// Minimal admin layout
+// --------------------------------------------------------------
+
+.minimal-admin {
+    #content {
+        background-color: transparent;
+        box-shadow: none;
+        margin: 0;
+        padding-top: 0;
+
+        .section-header {
+            display: none;
+        }
+    }
+}
+
+
+// Sidebar page geometry and CSS-sticky headers.
+.admin-sidebar-layout:not(.popup) {
+    .page-main {
+        --navbar-height: 0px;
+        --sticky-header-left: var(--admin-sidebar-width);
+        --sticky-header-right: 0;
+        margin-left: var(--admin-sidebar-width);
+        transition: margin-left var(--admin-sidebar-motion) ease,
+                    opacity $offcanvas-duration $offcanvas-easing,
+                    transform $offcanvas-duration $offcanvas-easing;
+    }
+
+    #content {
+        margin-inline: 0;
+        padding-inline: 0;
+        border-radius: 0;
+
+        > .cph {
+            padding-inline: var(--admin-content-padding-x, var(--content-padding-x));
+        }
+    }
+
+    #header {
+        background: transparent;
+    }
+
+    @include media-breakpoint-up(md) {
+        &.has-left-sidebar .page-main {
+            --sticky-header-left: calc(var(--admin-sidebar-width) + 206px);
+        }
+    }
+}
+
+.admin-sidebar-layout:not(.popup):not(.spa-layout):not(.has-left-sidebar),
+.popup:not(.bare) {
+    --section-header-padding-y: 10px;
+
+    #content:has(.section-header:not(.nofix)) {
+        padding-top: 0;
+        --content-offset: var(--section-header-height);
+    }
+
+    // A header-only wrapper must stick with its header, otherwise its short box
+    // prevents the header from following the rest of the page during scrolling.
+    #content > .cph > :has(> .section-header:not(.nofix)):not(:has(> :not(.section-header, input[type="hidden"], script))),
+    #content .settings-content > :has(> .section-header:not(.nofix)):not(:has(> :not(.section-header, input[type="hidden"], script))) {
+        position: sticky;
+        top: 0;
+        z-index: $zindex-sticky;
+    }
+
+    .section-header:not(.nofix) {
+        position: sticky;
+        top: 0;
+        inset-inline: auto;
+        z-index: $zindex-sticky;
+        margin-inline: calc(-1 * var(--content-padding-x));
+        padding: var(--section-header-padding-y) var(--content-padding-x);
+    }
+}
+
+.admin-sidebar-layout:not(.popup) {
+    --admin-sidebar-width: 64px;
+    --admin-sidebar-icon-size: 20px;
+    --admin-sidebar-item-padding-y: 9px;
+    --admin-sidebar-item-padding-x: 12px;
+    --admin-sidebar-label-gap: 0px;
+    --admin-sidebar-label-width: 0px;
+    --admin-sidebar-label-opacity: 0;
+    --admin-sidebar-label-shift: -8px;
+    --admin-sidebar-brand-width: 140px;
+    --admin-sidebar-wordmark-width: 0px;
+    --admin-sidebar-expand-icon-display: inline-block;
+    --admin-sidebar-collapse-icon-display: none;
+    --admin-sidebar-motion: 0s;
+
+    &.admin-sidebar-ready {
+        --admin-sidebar-motion: 200ms;
+    }
+
+    @include media-breakpoint-up(lg) {
+        &.admin-sidebar-expanded {
+            --admin-sidebar-width: 180px;
+            --admin-sidebar-label-width: 120px;
+            --admin-sidebar-label-gap: 10px;
+            --admin-sidebar-label-opacity: 1;
+            --admin-sidebar-label-shift: 0px;
+            --admin-sidebar-wordmark-width: calc(var(--admin-sidebar-brand-width) * 0.8);
+            --admin-sidebar-expand-icon-display: none;
+            --admin-sidebar-collapse-icon-display: inline-block;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &.admin-sidebar-ready {
+            --admin-sidebar-motion: 0s;
+        }
+    }
+
+}
+
+#navbar.navbar-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: $zindex-fixed;
+    width: var(--admin-sidebar-width, 64px);
+    transition: width var(--admin-sidebar-motion) ease;
+    padding: 12px 8px;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 12px;
+    background: $indigo;
+
+    #navbar-menu {
+        --dropdown-icon-item-padding-x: 1rem;
+        --dropdown-icon-item-gap: 10px;
+    }
+
+    .dropdown-toggle::after {
+        display: none;
+    }
+
+    .dropdown-menu {
+        --dropdown-padding-x: 0.5rem;
+        --dropdown-padding-y: 0.5rem;
+        --dropdown-item-padding-x: 1rem;
+        --dropdown-item-padding-y: 0.5rem;
+        --dropdown-divider-margin-y: 0.5rem;
+        --dropdown-border-radius: var(--border-radius-lg);
+        --shadow-intensity: 0.7;
+        --dropdown-box-shadow: #{$box-shadow-lg};
+    }
+
+    [data-id="nav-modules"] li:not([data-id="modules-manage"]) .dropdown-item {
+        font-weight: $font-weight-normal;
+    }
+
+    .dropdown-item {
+        font-weight: $font-weight-medium;
+        gap: 1rem;
+    }
+
+    .dropdown-header {
+        font-size: $font-size-xs;
+        text-transform: uppercase;
+    }
+
+    .dropdown-divider {
+        margin-block: 0.5rem;
+    }
+
+    .reddot {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: $red;
+        color: #fff;
+    }
+
+    .navbar-brand {
+        position: relative;
+        flex: 0 0 48px;
+        width: 100%;
+        margin: 0;
+        padding: 8px 0 12px;
+    }
+
+    .navbar-brand-symbol,
+    .navbar-brand-wordmark {
+        position: absolute;
+        top: 8px;
+        height: 29px;
+        overflow: hidden;
+        transform: translateX(calc(var(--admin-sidebar-brand-width) * -0.0988));
+
+        > img {
+            display: block;
+            width: var(--admin-sidebar-brand-width);
+            max-width: none;
+            height: auto;
+            margin-top: calc((29px - var(--admin-sidebar-brand-width) * 0.1792) / 2);
+        }
+    }
+
+    // The symbol spans x=0.6..48.8 in the original 250-unit viewBox; its center is 24.7 / 250.
+    // Anchor that drawn center at 24px inside the 8px sidebar inset, in both modes.
+    .navbar-brand-symbol {
+        left: 24px;
+        width: calc(var(--admin-sidebar-brand-width) * 0.2);
+    }
+
+    .navbar-brand-wordmark {
+        left: calc(24px + var(--admin-sidebar-brand-width) * 0.2);
+        width: var(--admin-sidebar-wordmark-width);
+        transition: width var(--admin-sidebar-motion) ease;
+
+        > img {
+            margin-left: calc(var(--admin-sidebar-brand-width) * -0.2);
+            opacity: var(--admin-sidebar-label-opacity);
+            transform: translateX(var(--admin-sidebar-label-shift));
+            transition: opacity var(--admin-sidebar-motion) ease, transform var(--admin-sidebar-motion) ease;
+        }
+    }
+
+    .navbar-sidebar-toggle {
+        flex: 0 0 auto;
+        color: mix($indigo, #fff, 22%);
+        cursor: pointer;
+
+        &:disabled {
+            opacity: 0.4;
+            cursor: default;
+        }
+    }
+
+    .navbar-toggle-expand {
+        display: var(--admin-sidebar-expand-icon-display);
+    }
+
+    .navbar-toggle-collapse {
+        display: var(--admin-sidebar-collapse-icon-display);
+    }
+
+    .nav-item .navbar-label,
+    .navbar-sidebar-toggle .navbar-label {
+        display: block;
+        min-width: 0;
+        max-width: var(--admin-sidebar-label-width);
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        text-align: left;
+        margin-inline-start: var(--admin-sidebar-label-gap);
+        padding: 0;
+        opacity: var(--admin-sidebar-label-opacity);
+        transform: translateX(var(--admin-sidebar-label-shift));
+        transition: max-width var(--admin-sidebar-motion) ease, opacity var(--admin-sidebar-motion) ease,
+                    margin-inline-start var(--admin-sidebar-motion) ease, transform var(--admin-sidebar-motion) ease;
+    }
+
+    #navbar-menu {
+        flex: 1 1 auto;
+        min-height: 0;
+        width: 100%;
+        overflow-y: auto;
+        scrollbar-width: none;
+        align-items: flex-start;
+    }
+
+    .navbar-nav {
+        width: 100%;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .navbar-footer {
+        display: flex;
+        flex: 0 0 auto;
+        flex-direction: column;
+        width: 100%;
+        gap: 2px;
+    }
+
+    .navbar-account {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+
+    .nav-item {
+        width: 100%;
+        position: static;
+    }
+
+    .nav-item > .nav-link,
+    .navbar-sidebar-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        column-gap: 0;
+        width: calc(100% - 4px);
+        padding: var(--admin-sidebar-item-padding-y) var(--admin-sidebar-item-padding-x);
+        color: mix($indigo, #fff, 22%);
+        transition: color 0.1s linear, opacity 0.1s linear, background-color 0.1s linear;
+        margin: 0 2px;
+        border: 0;
+        box-shadow: none;
+        border-radius: var(--border-radius-md);
+        background: transparent;
+
+        &:focus-visible {
+            outline: none;
+        }
+    }
+
+    .nav-item {
+        > .nav-link:hover,
+        > .nav-link:focus-visible,
+        > .nav-link:active,
+        > .nav-link.active,
+        > .nav-link[aria-current="page"],
+        &.active > .nav-link,
+        &.show > .nav-link {
+            color: #fff;
+            background: rgba(#fff, 0.09);
+            -webkit-backdrop-filter: blur(6px);
+            backdrop-filter: blur(6px);
+        }
+
+        > .nav-link:active,
+        > .nav-link.active,
+        > .nav-link[aria-current="page"],
+        &.active > .nav-link,
+        &.show > .nav-link {
+            background: rgba(#fff, 0.15);
+        }
+    }
+
+    .navbar-sidebar-toggle:hover:not(:disabled),
+    .navbar-sidebar-toggle:focus-visible {
+        color: #fff;
+        background: rgba(#fff, 0.09);
+    }
+
+    .navbar-sidebar-toggle:active:not(:disabled) {
+        background: rgba(#fff, 0.15);
+    }
+
+    .navbar-icon.icon, .nav-link > img {
+        --icon-size: var(--admin-sidebar-icon-size);
+        color: inherit;
+        flex: 0 0 auto;
+        width: var(--admin-sidebar-icon-size);
+        height: var(--admin-sidebar-icon-size);
+        margin-inline: 0;
+    }
+
+    .dropdown-menu-compact,
+    .dropdown-menu-compact .dropdown-menu {
+        --dropdown-padding-x: 6px;
+        --dropdown-padding-y: 6px;
+        --dropdown-item-padding-x: 10px;
+        --dropdown-item-padding-y: 6px;
+        --dropdown-icon-item-padding-x: 10px;
+        --dropdown-icon-item-gap: 10px;
+
+        .dropdown-item {
+            gap: var(--dropdown-icon-item-gap);
+            font-weight: $font-weight-normal;
+        }
+
+        .dropdown-group > .dropdown-item {
+            padding-inline-end: calc(var(--dropdown-item-padding-x) + 1rem);
+        }
+
+        .dropdown-divider {
+            margin-block: 6px;
+        }
+    }
+
+    .navbar-account-name {
+        min-width: 0;
+        max-width: 8rem;
+    }
+
+    .navbar-language-flag {
+        margin-inline-end: 2px;
+    }
+
+    .navbar-account .reddot {
+        bottom: calc(1lh + 2 * var(--admin-sidebar-item-padding-y) + 2px);
+        right: 10px;
+    }
+
+    .dropdown-menu {
+        will-change: auto;
+        transform: translateX(var(--sidebar-menu-slide-x, calc(-1 * var(--sidebar-menu-slide-distance, 16px))));
+        transition: transform 0.2s ease, opacity 0.275s ease-out, visibility 0s 0.275s;
+        pointer-events: none;
+
+        &.show {
+            transform: none;
+            transition-delay: 0s;
+            pointer-events: auto;
+        }
+    }
+
+    .navbar-account > .nav-item > .dropdown-menu:not(.show) {
+        transform: translateY(var(--sidebar-menu-slide-distance, 16px));
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        --sidebar-menu-slide-distance: 0px;
+
+        .dropdown-menu,
+        .sidebar-menu-arrow {
+            transition: none;
+        }
+    }
+
+    .nav-item > .dropdown-menu {
+        position: fixed;
+        top: var(--sidebar-menu-top, 8px);
+        left: var(--sidebar-menu-left, var(--admin-sidebar-width, 64px)) !important;
+        right: auto;
+        margin: 0;
+        max-width: var(--sidebar-menu-max-width, calc(100vw - var(--sidebar-menu-left, var(--admin-sidebar-width, 64px)) - 8px));
+        max-height: var(--sidebar-menu-max-height, calc(100dvh - 16px));
+
+        &.sidebar-menu-scrollable {
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+    }
+
+    // Keep the arrow outside the menu's scrollable surface so overflow cannot clip it.
+    .sidebar-menu-arrow {
+        position: fixed;
+        z-index: $zindex-dropdown;
+        left: calc(var(--sidebar-menu-arrow-x, var(--admin-sidebar-width)) - 8px);
+        top: calc(var(--sidebar-menu-arrow-y, 0px) - 8px);
+        width: 0;
+        height: 0;
+        border-top: 8px solid transparent;
+        border-bottom: 8px solid transparent;
+        border-right: 8px solid var(--sidebar-menu-arrow-border-color, #{$dropdown-border-color});
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translateX(var(--sidebar-menu-slide-x, calc(-1 * var(--sidebar-menu-slide-distance, 16px))));
+        transition: transform 0.2s ease, opacity 0.275s ease-out, visibility 0s 0.275s;
+
+        &::after {
+            content: '';
+            position: absolute;
+            left: 1px;
+            top: -7px;
+            border-top: 7px solid transparent;
+            border-bottom: 7px solid transparent;
+            border-right: 7px solid var(--sidebar-menu-arrow-bg, #{$dropdown-bg});
+        }
+    }
+
+    .nav-item.show > .sidebar-menu-arrow {
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        transition-delay: 0s;
+    }
+
+    .dropdown-group > .dropdown-menu {
+        width: max-content;
+        max-height: calc(100dvh - 16px);
+        overflow-y: auto;
+    }
+
+    .sidebar-submenu-back {
+        display: none;
+    }
+
+    .sidebar-submenu-overlap > .sidebar-submenu-back {
+        display: flex;
+    }
+
+    .sidebar-submenu-back-icon {
+        @include icon-mask(var(--icon-mask-chevron-left), 1rem);
+    }
+
+    .dropdown-item {
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+}
+
+.sidebar-tooltip {
+    > .tooltip-inner {
+        background-color: var(--dark);
+    }
+
+    &.bs-tooltip-right > .arrow::before {
+        border-right-color: var(--dark);
+    }
+
+    // Preserve the shared tooltip scaling and add a small directional entrance.
+    translate: -4px 0;
+
+    &.show {
+        translate: 0 0;
+    }
+
+    &.fade {
+        @include transition(transform 140ms ease-out, translate 140ms ease-out, opacity 140ms ease-out);
+    }
+}
+
+//
+// Settings Menu
+// --------------------------------------------------------------
+
+.settings-menu,
+.settings-menu-items,
+.settings-menu-footer {
+    --list-group-bg: transparent;
+    --list-group-border-width: 0;
+    --list-group-border-radius: 0;
+    --list-group-item-padding-x: 12px;
+    --list-group-item-padding-y: 10px;
+    --list-group-action-color: var(--gray-700);
+    --list-group-action-hover-color: var(--gray-900);
+    --list-group-action-hover-bg: var(--gray-300);
+    --list-group-action-active-color: var(--list-group-action-hover-color);
+    --list-group-action-active-bg: var(--gray-400);
+    --list-group-active-bg: var(--list-group-action-hover-bg);
+
+    gap: 1px;
+
+    .list-group-item {
+        @include rfs($font-size-sm);
+        align-items: center !important;
+        transition: background-color 0.12s ease;
+
+        &:before {
+            display: none !important;
+        }
+
+        > .list-group-item-icon {
+            margin-inline-end: 1rem;
+
+            > :is(.icon, .icon-stack) {
+                max-width: 16px;
+            }
+        }
+
+        &:active:not(.active) {
+            .menu-color-dot {
+                fill: transparent;
+            }
+        }
+    }
+}
+
+
+.admin-settings-layout:not(.popup) {
+    --section-header-spacing: 8px;
+    --settings-navigation-width: 220px;
+    --settings-navigation-gap: 24px;
+
+    .settings-shell {
+        --settings-navigation-top: calc(var(--content-offset) + var(--section-header-spacing));
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        align-items: start;
+    }
+
+    .settings-content {
+        min-width: 0;
+    }
+
+    .settings-navigation {
+        --scrollbar-size: 8px;
+        --scrollbar-thumb-padding: 2px;
+        display: flex;
+        flex-direction: column;
+        position: sticky;
+        top: var(--settings-navigation-top);
+        z-index: $zindex-sticky - 1;
+        margin-top: var(--settings-navigation-top);
+        padding-block: 8px;
+        border-radius: var(--border-radius-lg);
+        background: var(--gray-150);
+        height: max(0px, calc(100dvh - var(--settings-navigation-top) - var(--settings-navigation-gap)));
+        overflow: hidden;
+
+        .settings-menu-items,
+        .settings-menu-footer {
+            --list-group-item-padding-y: 8px;
+            padding-inline: 8px;
+        }
+
+        .settings-menu {
+            flex: 1 1 auto;
+            min-height: 0;
+            margin: 0 !important;
+        }
+
+        .settings-menu-items {
+            flex: 1 1 auto;
+            min-height: 0;
+            overscroll-behavior: contain;
+            scrollbar-color: var(--scrollbar-thumb-color) transparent;
+        }
+
+        .settings-menu-footer,
+        .list-group-item {
+            flex-shrink: 0;
+        }
+
+        .list-group-item-icon {
+            margin-inline-end: calc(1rem - 3px);
+        }
+
+        .list-group-item {
+            border-radius: var(--border-radius-md) !important;
+
+            &.active {
+                --settings-active-radius: calc(0.5lh + var(--list-group-item-padding-y));
+                border-radius: var(--settings-active-radius) var(--border-radius-md) var(--border-radius-md) var(--settings-active-radius) !important;
+
+                > .list-group-item-icon {
+                    transform: translateX(calc(var(--settings-active-radius) - var(--list-group-item-padding-x) - 50%));
+                }
+            }
+        }
+    }
+
+    @include media-breakpoint-up(md) {
+        #content {
+            padding-bottom: var(--settings-navigation-gap);
+        }
+
+        #content > .cph {
+            padding-inline-start: var(--settings-navigation-gap);
+        }
+
+        .settings-shell {
+            grid-template-columns: var(--settings-navigation-width) minmax(0, 1fr);
+            column-gap: var(--settings-navigation-gap);
+        }
+
+        #content .settings-content .section-header:not(.nofix) {
+            margin-inline-start: calc(-1 * (var(--settings-navigation-width) + 2 * var(--settings-navigation-gap)));
+        }
+    }
+}
+
+// Installation navbar: standard Bootstrap controls with the installer logo and icon sizing.
+#navbar:where(:not(.navbar-sidebar)) {
+    .navbar-brand > .navbar-img {
+        width: 33px;
+        height: 28px;
+        object-fit: contain;
+
+        @include media-breakpoint-up(lg) {
+            width: 160px;
+        }
+    }
+
+    .navbar-tool {
+        display: flex;
+        align-items: center;
+        padding: 0.625rem;
+    }
+
+    .navbar-icon {
+        --icon-size: 24px;
+    }
+
+    .dropdown-toggle::after {
+        display: none;
+    }
+}

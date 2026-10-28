@@ -110,8 +110,8 @@
                 showThrobber: function (message = null) {
                     $.throbber.show({
                         message: `
-                            <div id="install-message">${message || Res['Installing']}</div>
-                            <div id="install-progress" style="font-size: 16px; font-weight: 400; margin: 10px 0 30px 0">${progressMessage}</div>`
+                            <div id="install-message" class="fwb">${message || Res['Installing']}</div>
+                            <div id="install-progress" class="fwn" style="font-size: 16px; margin: 10px 0 30px 0">${progressMessage}</div>`
                     });
                 },
 

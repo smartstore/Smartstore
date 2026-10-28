@@ -32,11 +32,6 @@
             var itemText = node.GetItemText(T);
             var itemUrl = GetNodeLink(node);
 
-            if (ViewBag.SelectedMenuItem == itemText)
-            {
-                //item.Selected = true;
-            }
-
         <li data-id="nav-@item.Id" class="nav-item@(node.HasChildren ? " dropdown" : "")@(item.Id == "dashboard" ? " dropdown d-none d-md-block" : "")">
             <a class="nav-link@(node.HasChildren ? " dropdown-toggle" : "")" href="@itemUrl" title="@itemText" aria-label="@itemText" attr-aria-haspopup='(node.HasChildren, "true")' attr-aria-expanded='(node.HasChildren, "false")' attr-data-toggle='(node.HasChildren, "dropdown")'>
                 @if (item.Icon.HasValue())
@@ -51,7 +46,7 @@
             </a>
             @if (node.HasChildren)
             {
-                await CreateDropdown(node.Children, true);
+                await CreateDropdown(node.Children);
                 <span class="sidebar-menu-arrow" aria-hidden="true"></span>
             }
         </li>
@@ -70,7 +65,7 @@
         return node.Value.GenerateUrl(this.ViewContext);
     }
 
-    async Task CreateDropdown(IEnumerable<TreeNode<MenuItem>> nodes, bool isRoot)
+    async Task CreateDropdown(IEnumerable<TreeNode<MenuItem>> nodes)
     {
         var isFirst = true;
         var hasIcons = nodes.Any(x => x.Value.Icon.HasValue());
@@ -112,7 +107,7 @@
                     </a>
                     @if (node.HasChildren)
                     {
-                        await CreateDropdown(node.Children, false);
+                        await CreateDropdown(node.Children);
                     }
                 </li>
 

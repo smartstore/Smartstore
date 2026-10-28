@@ -86,6 +86,7 @@ internal class AdminBundles : IBundleProvider
             js + "smartstore.offcanvas.js",
             // Admin
             adminJs + "admin.common.js",
+            adminJs + "admin.layout.js",
             adminJs + "admin.media.js",
             adminJs + "admin.globalinit.js",
             adminJs + "admin.ai.js"));
