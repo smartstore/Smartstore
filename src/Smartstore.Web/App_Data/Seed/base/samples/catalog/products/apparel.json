@@ -277,7 +277,7 @@
     "orderMaximumQuantity": 110,
     "quantityStep": 1,
     "deliveryTime": "available-and-ready-to-ship",
-    "stockQuantity": 30,
+    "stockQuantity": 250,
     "categories": [ "Apparel" ],
     "manufacturers": [ "norlumera" ],
     "pictures": [

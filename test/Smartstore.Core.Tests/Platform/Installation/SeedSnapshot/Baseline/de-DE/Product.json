@@ -2517,7 +2517,7 @@
     "SpecialPrice": 29.9,
     "SpecialPriceEndDateTimeUtc": "<now+1M>",
     "SpecialPriceStartDateTimeUtc": "<now+0M>",
-    "StockQuantity": 30,
+    "StockQuantity": 250,
     "SubjectToAcl": false,
     "SystemName": null,
     "TaxCategoryId": "TaxCategory:Normal",
