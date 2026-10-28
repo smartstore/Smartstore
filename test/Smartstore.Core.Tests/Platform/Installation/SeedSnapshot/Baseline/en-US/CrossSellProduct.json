@@ -5,11 +5,6 @@
     "ProductId2": "Product:FD-1006"
   },
   {
-    "$key": "Product:FD-1002|Product:FD-1007",
-    "ProductId1": "Product:FD-1002",
-    "ProductId2": "Product:FD-1007"
-  },
-  {
     "$key": "Product:FN-1001|Product:FN-1002",
     "ProductId1": "Product:FN-1001",
     "ProductId2": "Product:FN-1002"

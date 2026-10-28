@@ -43,7 +43,7 @@ SKUs are `{prefix}{number}`, starting at 1001, e.g. `FN-1002`. Combinations appe
 | FD-1004 | Mediterranean herb mix | Simple product, specification filters, low stock, new |
 | FD-1005 | Gourmet gift box | Bundle with per-item pricing and item discounts, new |
 | FD-1006 | Sea salt mill | Out of stock with back-in-stock notification |
-| FD-1007 | Spiced Christmas cookies | Available from a future date |
+| FD-1007 | Spiced Christmas cookies | Available from a future date; hidden in lists and search, reachable through the related products of FD-1002 and FD-1005 |
 | GF-1001 | Golf balls | Pack size variant with price and weight adjustment, tier prices |
 | GF-1002 | Golf tees, 50 pieces | Quantity unit and minimum order quantity |
 | GF-1003 | Leather golf glove | Required variants without preselection (radio list and dropdown) |
@@ -72,7 +72,7 @@ Across the catalog: reviews with different ratings, delivery times, stock levels
 filtering (essential ones are also shown in the checkout), product tags, category icons and badges, a sale category,
 a product discount, a category discount, a coupon code (`WELCOME10`) and free shipping from a cart subtotal.
 
-Related products ("similar products" on the product page) and cross-sell products (suggestions in the shopping cart) are set on FD-1001, FD-1002, FD-1004, GF-1001, GF-1002, FS-1001, FS-1002, FS-1004 (related products) and additionally FN-1001 (cross-sell: the floor lamp; furniture has no related products because they do not fit the feature). Example: the olive oil lists the herb mix, the sea salt mill and the gourmet gift box as related products and suggests the mill in the cart; the rain jacket suggests the beanie and the scarf.
+Related products ("similar products" on the product page) and cross-sell products (suggestions in the shopping cart) are set on FD-1001, FD-1002, FD-1004, FD-1005, FD-1007, GF-1001, GF-1002, FS-1001, FS-1002, FS-1004 (related products) and additionally FN-1001 (cross-sell: the floor lamp; furniture has no related products because they do not fit the feature). Example: the olive oil lists the herb mix, the sea salt mill and the gourmet gift box as related products and suggests the mill in the cart (the cookies are only a related product, because they cannot be put into the cart yet); the rain jacket suggests the beanie and the scarf.
 
 Some products also show features of optional modules. Their texts say so in a separate paragraph
 ("The plugin <strong>…</strong> …"), and the module seeds its own data during the installation.

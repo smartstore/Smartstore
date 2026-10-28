@@ -1004,7 +1004,7 @@
     "DownloadExpirationDays": null,
     "DownloadId": 0,
     "DurabilityGuaranteeDurationYears": null,
-    "FullDescription": "<p>\n  Knusprige Gewürzkekse mit Zimt, Orange und Mandeln, in kleinen Mengen gebacken.\n</p>\n<p>\n  <strong>Was dieses Produkt zeigt:</strong> Ein Produkt, das noch nicht verfügbar ist.\n  Ein Datum in den Produkteinstellungen („verfügbar ab“) steuert, ab wann bestellt werden kann.\n  Bis dahin können Kunden das Produkt ansehen, aber nicht in den Warenkorb legen.\n  Nützlich für Neuheiten und saisonale Artikel.\n</p>\n",
+    "FullDescription": "<p>\n  Knusprige Gewürzkekse mit Zimt, Orange und Mandeln, in kleinen Mengen gebacken.\n</p>\n<p>\n  <strong>Was dieses Produkt zeigt:</strong> Ein Produkt, das noch nicht verfügbar ist.\n  Ein Datum in den Produkteinstellungen („verfügbar ab“) steuert, ab wann bestellt werden kann.\n  Bis dahin können Kunden die Produktseite öffnen, aber nicht in den Warenkorb legen.\n  Wegen des Datums ist das Produkt in Kategorien, Suche und Tag-Listen ausgeblendet; erreichbar ist es über die ähnlichen Produkte des Röstkaffees und der Genuss-Geschenkbox.\n  Nützlich für Neuheiten und saisonale Artikel.\n</p>\n",
     "GiftCardTypeId": 0,
     "GroupedProductConfiguration": null,
     "Gtin": null,
