@@ -21,6 +21,8 @@
     "displayStockAvailability": true,
     "categories": [ "Golf Balls" ],
     "manufacturers": [ "fairway-vennix" ],
+    "relatedProducts": [ "GF-1002", "GF-1007", "GF-1003" ],
+    "crossSellProducts": [ "GF-1002", "GF-1007" ],
     "pictures": [
       { "file": "product/gf-1001.jpg", "name": "tour-distance-golf-balls" }
     ],
@@ -62,6 +64,7 @@
     "stockQuantity": 1000,
     "categories": [ "Golf Accessories" ],
     "manufacturers": [ "fairway-vennix" ],
+    "relatedProducts": [ "GF-1001", "GF-1007" ],
     "pictures": [
       { "file": "product/gf-1002.jpg", "name": "wooden-golf-tees" }
     ],

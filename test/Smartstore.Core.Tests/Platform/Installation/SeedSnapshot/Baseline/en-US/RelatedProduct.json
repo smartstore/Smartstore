@@ -1,0 +1,128 @@
+[
+  {
+    "$key": "Product:FD-1001|Product:FD-1004",
+    "DisplayOrder": 1,
+    "ProductId1": "Product:FD-1001",
+    "ProductId2": "Product:FD-1004"
+  },
+  {
+    "$key": "Product:FD-1001|Product:FD-1005",
+    "DisplayOrder": 3,
+    "ProductId1": "Product:FD-1001",
+    "ProductId2": "Product:FD-1005"
+  },
+  {
+    "$key": "Product:FD-1001|Product:FD-1006",
+    "DisplayOrder": 2,
+    "ProductId1": "Product:FD-1001",
+    "ProductId2": "Product:FD-1006"
+  },
+  {
+    "$key": "Product:FD-1002|Product:FD-1003",
+    "DisplayOrder": 1,
+    "ProductId1": "Product:FD-1002",
+    "ProductId2": "Product:FD-1003"
+  },
+  {
+    "$key": "Product:FD-1002|Product:FD-1007",
+    "DisplayOrder": 2,
+    "ProductId1": "Product:FD-1002",
+    "ProductId2": "Product:FD-1007"
+  },
+  {
+    "$key": "Product:FD-1004|Product:FD-1001",
+    "DisplayOrder": 1,
+    "ProductId1": "Product:FD-1004",
+    "ProductId2": "Product:FD-1001"
+  },
+  {
+    "$key": "Product:FD-1004|Product:FD-1006",
+    "DisplayOrder": 2,
+    "ProductId1": "Product:FD-1004",
+    "ProductId2": "Product:FD-1006"
+  },
+  {
+    "$key": "Product:FS-1001|Product:FS-1002",
+    "DisplayOrder": 1,
+    "ProductId1": "Product:FS-1001",
+    "ProductId2": "Product:FS-1002"
+  },
+  {
+    "$key": "Product:FS-1001|Product:FS-1004",
+    "DisplayOrder": 2,
+    "ProductId1": "Product:FS-1001",
+    "ProductId2": "Product:FS-1004"
+  },
+  {
+    "$key": "Product:FS-1001|Product:FS-1005",
+    "DisplayOrder": 3,
+    "ProductId1": "Product:FS-1001",
+    "ProductId2": "Product:FS-1005"
+  },
+  {
+    "$key": "Product:FS-1002|Product:FS-1001",
+    "DisplayOrder": 1,
+    "ProductId1": "Product:FS-1002",
+    "ProductId2": "Product:FS-1001"
+  },
+  {
+    "$key": "Product:FS-1002|Product:FS-1004",
+    "DisplayOrder": 2,
+    "ProductId1": "Product:FS-1002",
+    "ProductId2": "Product:FS-1004"
+  },
+  {
+    "$key": "Product:FS-1002|Product:FS-1005",
+    "DisplayOrder": 3,
+    "ProductId1": "Product:FS-1002",
+    "ProductId2": "Product:FS-1005"
+  },
+  {
+    "$key": "Product:FS-1004|Product:FS-1001",
+    "DisplayOrder": 3,
+    "ProductId1": "Product:FS-1004",
+    "ProductId2": "Product:FS-1001"
+  },
+  {
+    "$key": "Product:FS-1004|Product:FS-1002",
+    "DisplayOrder": 2,
+    "ProductId1": "Product:FS-1004",
+    "ProductId2": "Product:FS-1002"
+  },
+  {
+    "$key": "Product:FS-1004|Product:FS-1005",
+    "DisplayOrder": 1,
+    "ProductId1": "Product:FS-1004",
+    "ProductId2": "Product:FS-1005"
+  },
+  {
+    "$key": "Product:GF-1001|Product:GF-1002",
+    "DisplayOrder": 1,
+    "ProductId1": "Product:GF-1001",
+    "ProductId2": "Product:GF-1002"
+  },
+  {
+    "$key": "Product:GF-1001|Product:GF-1003",
+    "DisplayOrder": 3,
+    "ProductId1": "Product:GF-1001",
+    "ProductId2": "Product:GF-1003"
+  },
+  {
+    "$key": "Product:GF-1001|Product:GF-1007",
+    "DisplayOrder": 2,
+    "ProductId1": "Product:GF-1001",
+    "ProductId2": "Product:GF-1007"
+  },
+  {
+    "$key": "Product:GF-1002|Product:GF-1001",
+    "DisplayOrder": 1,
+    "ProductId1": "Product:GF-1002",
+    "ProductId2": "Product:GF-1001"
+  },
+  {
+    "$key": "Product:GF-1002|Product:GF-1007",
+    "DisplayOrder": 2,
+    "ProductId1": "Product:GF-1002",
+    "ProductId2": "Product:GF-1007"
+  }
+]

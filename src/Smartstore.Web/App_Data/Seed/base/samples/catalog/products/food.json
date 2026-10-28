@@ -24,6 +24,8 @@
     "showOnHomePage": true,
     "categories": [ "Oil and Vinegar" ],
     "manufacturers": [ "casa-vireluna" ],
+    "relatedProducts": [ "FD-1004", "FD-1006", "FD-1005" ],
+    "crossSellProducts": [ "FD-1006" ],
     "pictures": [
       { "file": "product/fd-1001.jpg", "name": "extra-virgin-olive-oil" }
     ],
@@ -56,6 +58,8 @@
     "manageInventoryMethod": "ManageStockByAttributes",
     "categories": [ "Coffee and Tea" ],
     "manufacturers": [ "casa-vireluna" ],
+    "relatedProducts": [ "FD-1003", "FD-1007" ],
+    "crossSellProducts": [ "FD-1007" ],
     "pictures": [
       { "file": "product/fd-1002.jpg", "name": "roasted-coffee", "displayOrder": 1 },
       { "file": "product/fd-1002-1kg.jpg", "name": "roasted-coffee-1-kg", "displayOrder": 2 }
@@ -183,6 +187,7 @@
     "deliveryTime": "2-5-working-days",
     "categories": [ "Delicacies" ],
     "manufacturers": [ "casa-vireluna" ],
+    "relatedProducts": [ "FD-1001", "FD-1006" ],
     "pictures": [
       { "file": "product/fd-1004.jpg", "name": "mediterranean-herb-mix" }
     ],

@@ -36,6 +36,7 @@ internal sealed partial class SeedSnapshotWriter
         ["Country"] = r => r.Get("TwoLetterIsoCode"),
         ["Currency"] = r => r.Get("CurrencyCode"),
         ["Customer"] = r => r.First("SystemName", "Email"),
+        ["CrossSellProduct"] = r => r.Join("ProductId1", "ProductId2"),
         ["CustomerRole"] = r => r.Get("SystemName"),
         ["CustomerRoleMapping"] = r => r.Join("CustomerId", "CustomerRoleId"),
         ["DeliveryTime"] = r => r.Get("Name"),
@@ -67,6 +68,7 @@ internal sealed partial class SeedSnapshotWriter
         ["ProductVariantAttributeCombination"] = r => r.Get("Sku"),
         ["ProductVariantAttributeValue"] = r => r.Join("ProductVariantAttributeId", "Alias", "Name"),
         ["QuantityUnit"] = r => r.Get("Name"),
+        ["RelatedProduct"] = r => r.Join("ProductId1", "ProductId2"),
         ["RuleEntity"] = r => r.Join("RuleSetId", "RuleType"),
         ["RuleSetEntity"] = r => r.Get("Name"),
         ["Setting"] = r => r.Join("Name", "StoreId"),
@@ -301,6 +303,9 @@ internal sealed partial class SeedSnapshotWriter
 
     private Table FindConventionTable(string propertyName)
     {
+        // Numbered references like "ProductId1" and "ProductId2" of related and cross-sell products.
+        propertyName = propertyName.TrimEnd('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
+
         if (!propertyName.EndsWith("Id", StringComparison.OrdinalIgnoreCase))
         {
             return null;

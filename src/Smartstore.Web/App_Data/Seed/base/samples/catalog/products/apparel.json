@@ -21,6 +21,8 @@
     "showOnHomePage": true,
     "categories": [ "Jackets and Coats" ],
     "manufacturers": [ "norlumera" ],
+    "relatedProducts": [ "FS-1002", "FS-1004", "FS-1005" ],
+    "crossSellProducts": [ "FS-1004", "FS-1005" ],
     "pictures": [
       { "file": "product/fs-1001-navy.jpg", "name": "fjord-rain-jacket-navy", "displayOrder": 1 },
       { "file": "product/fs-1001-black.jpg", "name": "fjord-rain-jacket-black", "displayOrder": 2 },
@@ -107,6 +109,7 @@
     "stockQuantity": 60,
     "categories": [ { "category": "Sale", "displayOrder": 0, "isSystemMapping": true }, "Apparel" ],
     "manufacturers": [ "norlumera" ],
+    "relatedProducts": [ "FS-1001", "FS-1004", "FS-1005" ],
     "pictures": [
       { "file": "product/fs-1002.jpg", "name": "ribbed-knit-sweater" }
     ],
@@ -251,6 +254,7 @@
     "stockQuantity": 45,
     "categories": [ "Apparel" ],
     "manufacturers": [ "norlumera" ],
+    "relatedProducts": [ "FS-1005", "FS-1002", "FS-1001" ],
     "pictures": [
       { "file": "product/fs-1004.jpg", "name": "merino-beanie" }
     ],

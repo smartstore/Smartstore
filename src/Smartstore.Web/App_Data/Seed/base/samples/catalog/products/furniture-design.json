@@ -19,6 +19,7 @@
     "showOnHomePage": true,
     "categories": [ "Armchairs" ],
     "manufacturers": [ "lindavero" ],
+    "crossSellProducts": [ "FN-1002" ],
     "pictures": [
       { "file": "product/fn-1001.jpg", "name": "lund-lounge-chair", "displayOrder": 1 },
       { "file": "product/fn-1001-linen-oak.jpg", "name": "lund-lounge-chair-linen-oak", "displayOrder": 2 },

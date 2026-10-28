@@ -3507,12 +3507,12 @@
     "$key": "tax.taxprovider.fixedrate.taxcategoryid{TaxCategory:Ermäßigt}|0",
     "Name": "tax.taxprovider.fixedrate.taxcategoryid{TaxCategory:Ermäßigt}",
     "StoreId": 0,
-    "Value": "7"
+    "Value": "<missing TaxCategory:7>"
   },
   {
     "$key": "tax.taxprovider.fixedrate.taxcategoryid{TaxCategory:Normal}|0",
     "Name": "tax.taxprovider.fixedrate.taxcategoryid{TaxCategory:Normal}",
     "StoreId": 0,
-    "Value": "19"
+    "Value": "<missing TaxCategory:19>"
   }
 ]

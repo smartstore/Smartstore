@@ -208,6 +208,7 @@ seeded yet; the installer guarantees the order.
 | `variantAttributes` | Keyed by `productAttribute` alias; `values` keyed by `alias`. A value `mediaFile` is a picture of the product (by path); any other path creates a separate media file (once per path). |
 | `combinations` | List without keys; give every combination its own SKU; `attributes` maps attribute alias to value alias(es). `"pictures": []` stores an empty media list, a missing field none. |
 | `bundleItems` | Keyed by `product` (SKU). Created after all products. |
+| `relatedProducts`, `crossSellProducts` | List of SKUs, resolved after all products have been saved. Related products ("similar products" on the product page) are shown in the list order; cross-sell products are suggested in the shopping cart. The links are one-way: list the SKU on both products if the relation should be mutual. An overlay replaces the whole list. |
 | `parentGroupedProduct`, `sampleDownload` | SKU of the grouped product; media path of the sample download. |
 | `groupedProductConfiguration` | Object, e.g. `{ "collapsible": true, "headerFields": [ "image", "sku", "price" ] }`. |
 | `reviews` | List without keys: `customer` (key of a sample customer), `rating` (1-5), `title`, `reviewText`, `isApproved`, optional `isVerifiedPurchase` and `createdOnUtc` (e.g. `@now-12d`). The rating counters of the product are calculated from the approved reviews. An overlay replaces the whole list. |

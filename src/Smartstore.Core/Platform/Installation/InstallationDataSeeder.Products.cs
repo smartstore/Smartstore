@@ -38,6 +38,8 @@ public partial class InstallationDataSeeder
         public List<(Product Product, JsonNode Download)> Downloads { get; } = [];
         public List<(Product Product, string ParentSku)> GroupedParents { get; } = [];
         public List<(Product Product, JsonArray Skus)> RequiredProducts { get; } = [];
+        public List<(Product Product, JsonArray Skus)> RelatedProducts { get; } = [];
+        public List<(Product Product, JsonArray Skus)> CrossSellProducts { get; } = [];
         public List<(Product Product, JsonArray Items, string Source)> BundleItems { get; } = [];
         public List<(Product Product, JsonArray Attributes, string Source)> VariantAttributes { get; } = [];
         public List<(Product Product, JsonArray Combinations, string Source)> Combinations { get; } = [];
@@ -102,6 +104,34 @@ public partial class InstallationDataSeeder
             {
                 product.RequiredProductIds = string.Join(',', skus.Select(x => _seedResolver.GetId<Product>(x.GetValue<string>())));
                 product.RequireOtherProducts = true;
+            }
+
+            // Related products ("similar products" on the product page) and cross-sell products (suggested in the shopping cart).
+            // The order in the list is the display order of related products.
+            foreach (var (product, skus) in state.RelatedProducts)
+            {
+                var displayOrder = 1;
+                foreach (var sku in skus)
+                {
+                    Context.RelatedProducts.Add(new RelatedProduct
+                    {
+                        ProductId1 = product.Id,
+                        ProductId2 = _seedResolver.GetId<Product>(sku.GetValue<string>()),
+                        DisplayOrder = displayOrder++
+                    });
+                }
+            }
+
+            foreach (var (product, skus) in state.CrossSellProducts)
+            {
+                foreach (var sku in skus)
+                {
+                    Context.CrossSellProducts.Add(new CrossSellProduct
+                    {
+                        ProductId1 = product.Id,
+                        ProductId2 = _seedResolver.GetId<Product>(sku.GetValue<string>())
+                    });
+                }
             }
 
             foreach (var (product, picture) in state.SharedPictures)
@@ -282,6 +312,8 @@ public partial class InstallationDataSeeder
             })
             .Bind("parentGroupedProduct", (product, node, _) => state.GroupedParents.Add((product, node.GetValue<string>())))
             .Bind("requiredProducts", (product, node, _) => state.RequiredProducts.Add((product, node.AsArray())))
+            .Bind("relatedProducts", (product, node, _) => state.RelatedProducts.Add((product, node.AsArray())))
+            .Bind("crossSellProducts", (product, node, _) => state.CrossSellProducts.Add((product, node.AsArray())))
             .Bind("bundleItems", (product, node, context) => state.BundleItems.Add((product, node.AsArray(), context.Source)))
             .Bind("variantAttributes", (product, node, context) => state.VariantAttributes.Add((product, node.AsArray(), context.Source)))
             .Bind("combinations", (product, node, context) => state.Combinations.Add((product, node.AsArray(), context.Source)))
