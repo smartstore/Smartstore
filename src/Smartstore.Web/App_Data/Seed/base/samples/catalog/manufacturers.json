@@ -4,7 +4,7 @@
     "key": "casa-vireluna",
     "name": "Casa Vireluna",
     "description": "<p>Fictional brand of the demo shop for Mediterranean delicacies, coffee and spices.</p>",
-    "mediaFile": { "file": "brand/demo-brand.jpg", "name": "casa-vireluna" },
+    "mediaFile": { "file": "brand/casa-vireluna.png", "name": "casa-vireluna" },
     "published": true,
     "displayOrder": 1
   },
@@ -12,7 +12,7 @@
     "key": "fairway-vennix",
     "name": "Fairway Vennix",
     "description": "<p>Fictional brand of the demo shop for golf and sports equipment.</p>",
-    "mediaFile": { "file": "brand/demo-brand.jpg", "name": "fairway-vennix" },
+    "mediaFile": { "file": "brand/fairway-vennix.png", "name": "fairway-vennix" },
     "published": true,
     "displayOrder": 2
   },
@@ -20,7 +20,7 @@
     "key": "norlumera",
     "name": "Norlumera",
     "description": "<p>Fictional brand of the demo shop for jackets, knitwear, shoes and accessories.</p>",
-    "mediaFile": { "file": "brand/demo-brand.jpg", "name": "norlumera" },
+    "mediaFile": { "file": "brand/norlumera.png", "name": "norlumera" },
     "published": true,
     "displayOrder": 3
   },
@@ -28,7 +28,7 @@
     "key": "lindavero",
     "name": "Lindavero",
     "description": "<p>Fictional brand of the demo shop for furniture and lighting.</p>",
-    "mediaFile": { "file": "brand/demo-brand.jpg", "name": "lindavero" },
+    "mediaFile": { "file": "brand/lindavero.png", "name": "lindavero" },
     "published": true,
     "displayOrder": 4
   },
@@ -36,7 +36,7 @@
     "key": "pixelmoor",
     "name": "Pixelmoor",
     "description": "<p>Fictional brand of the demo shop for digital products such as e-books and software.</p>",
-    "mediaFile": { "file": "brand/demo-brand.jpg", "name": "pixelmoor" },
+    "mediaFile": { "file": "brand/pixelmoor.png", "name": "pixelmoor" },
     "published": true,
     "displayOrder": 5
   }

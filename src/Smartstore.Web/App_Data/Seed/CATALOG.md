@@ -85,4 +85,4 @@ Some products also show features of optional modules. Their texts say so in a se
    derives most of them, see `InstallationDataSeeder.Products.cs`.
 5. Run the seed tests, review the snapshot diff and update the table above.
 
-All pictures are final product images (`media/product/fd-*.jpg`, `gf-*.jpg`, `fs-*.jpg`, `fn-*.jpg`, `dg-*.jpg`, `gc-*.jpg`). Pictures with printed text exist once per language: the e-book cover (`dg-1001.jpg`, `dg-1001-de.jpg`) and the gift cards (`gc-1001-25.jpg` and `gc-1001-25-de.jpg`, …); the de-DE overlay sets the German ones, including the pictures of the combinations of the gift card.
+All pictures are final images (brand logos `media/brand/*.png`, category images `media/category/*.jpg` as text-free scenes without products, so that they do not repeat the product pictures in lists, `media/product/fd-*.jpg`, `gf-*.jpg`, `fs-*.jpg`, `fn-*.jpg`, `dg-*.jpg`, `gc-*.jpg`). Pictures with printed text exist once per language: the e-book cover (`dg-1001.jpg`, `dg-1001-de.jpg`) and the gift cards (`gc-1001-25.jpg` and `gc-1001-25-de.jpg`, …); the de-DE overlay sets the German ones, including the pictures of the combinations of the gift card.

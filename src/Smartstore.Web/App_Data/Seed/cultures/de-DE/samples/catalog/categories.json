@@ -21,6 +21,7 @@
   },
   "Vouchers": {
     "name": "Gutscheine",
+    "mediaFile": { "file": "category/vouchers-de.jpg", "name": "gutscheine" },
     "description": "<p>Geschenkgutscheine mit festem Wert oder frei wählbarem Betrag sowie ein Spendenprodukt.</p>"
   },
   "Oil and Vinegar": {
