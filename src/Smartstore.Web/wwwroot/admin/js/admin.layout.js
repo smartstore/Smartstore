@@ -1,6 +1,16 @@
 $(function () {
     // Header appearance also follows nested scrolling containers.
     const sectionHeader = $('.section-header');
+    const contentScrollport = document.getElementById('content');
+    if (contentScrollport) {
+        // Keep the native scrollbar opaque without tracking the scroll position.
+        const updateScrollbarWidth = () => {
+            contentScrollport.style.setProperty('--content-scrollbar-width',
+                Math.max(0, contentScrollport.offsetWidth - contentScrollport.clientWidth) + 'px');
+        };
+        new ResizeObserver(updateScrollbarWidth).observe(contentScrollport);
+        updateScrollbarWidth();
+    }
 
     const headerScrollRoots = new Set([document.scrollingElement]);
     sectionHeader.each(function () {
@@ -174,7 +184,10 @@ $(function () {
         requestAnimationFrame(() => {
             clearTimeout(sidebarTooltipTransitionTimer);
             const duration = parseFloat(getComputedStyle(navbar[0]).transitionDuration) * 1000;
-            sidebarTooltipTransitionTimer = setTimeout(() => sidebarChanging = false, duration + 16);
+            sidebarTooltipTransitionTimer = setTimeout(() => {
+                sidebarChanging = false;
+                updateSidebarToggleIcon();
+            }, duration + 16);
         });
     }
 
@@ -218,6 +231,11 @@ $(function () {
         });
     }
 
+    function updateSidebarToggleIcon() {
+        sidebarToggle.classList.toggle('is-expanded', sidebarDesktop.matches
+            && document.body.classList.contains('admin-sidebar-expanded'));
+    }
+
     function updateSidebarToggle() {
         const expanded = sidebarDesktop.matches && document.body.classList.contains('admin-sidebar-expanded');
         const label = navbar[0].dataset[expanded ? 'collapseLabel' : 'expandLabel'];
@@ -246,6 +264,7 @@ $(function () {
         if (e.target === this && e.propertyName === 'width') {
             clearTimeout(sidebarTooltipTransitionTimer);
             sidebarChanging = false;
+            updateSidebarToggleIcon();
             window.dispatchEvent(new Event('resize'));
         }
     });
@@ -255,6 +274,7 @@ $(function () {
         updateSidebarToggle();
     });
     updateSidebarToggle();
+    updateSidebarToggleIcon();
     requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add('admin-sidebar-ready')));
 
     function positionSidebarMenu(dropdown) {

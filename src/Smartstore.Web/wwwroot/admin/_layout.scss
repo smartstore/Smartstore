@@ -31,7 +31,7 @@ body {
     --sticky-header-right: 0;
     --navbar-height: 72px;
     --header-height: 72px;
-    --section-header-height: calc(var(--section-header-size) + 2 * var(--section-header-padding-y, var(--content-padding-y)) + 1px);
+    --section-header-height: calc(var(--section-header-size) + var(--section-header-padding-y) + var(--section-header-padding-bottom));
     --device-height: 100dvh;
     --content-top: calc(var(--navbar-height) + var(--header-height));
     --content-height: calc(var(--device-height) - var(--content-top) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
@@ -62,12 +62,16 @@ body {
     --content-padding-x: #{$content-padding-x};
 }
 
+.popup:not(.bare) {
+    --section-header-spacing: 16px;
+}
+
 #content {
     position: relative;
     margin: 0;
     padding-left: var(--content-padding-x);
     padding-right: var(--content-padding-x);
-    padding-top: calc(#{$section-header-height} + var(--section-header-spacing));
+    padding-top: calc(var(--section-header-height) + var(--section-header-spacing));
     padding-bottom: var(--content-padding-x);
     box-shadow: $box-shadow-sm;
     border-radius: 0;
@@ -114,7 +118,7 @@ body {
     inset-inline-end: 0;
     top: 0;
     padding-inline: var(--content-padding-x);
-    padding-block: var(--content-padding-y);
+    padding-block: var(--section-header-padding-y) var(--section-header-padding-bottom);
     transition: box-shadow 0.25s ease;
 
     @include make-row();
@@ -193,7 +197,6 @@ body {
         z-index: $zindex-sticky;
         inset-inline-start: var(--sticky-header-left);
         inset-inline-end: var(--sticky-header-right);
-        padding: calc(var(--content-padding-y) / 2) var(--content-padding-x);
         background: #fff;
         box-shadow: 0 10px 30px 0 rgba($black, .05);
 
@@ -205,23 +208,53 @@ body {
 }
 
 #content .section-header {
-    background: #fff;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
+    background: var(--section-header-background, #fff);
     box-shadow: none;
-    border-bottom: 1px solid transparent;
+    border-bottom: 0;
     transition: none;
+}
 
-    .section-header-scrolled & {
-        box-shadow: 0 2px 5px -3px rgba($black, 0.16);
+// The mask is anchored to the scrollport; the content scrolls beneath it.
+.admin-sidebar-layout:not(.spa-layout):not(.bare) {
+    height: 100dvh;
+    overflow: hidden;
+
+    #page {
+        height: 100%;
     }
 
-    @supports ((backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px))) {
-        .section-header-scrolled & {
-            background: rgba(#fff, 0.65);
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-        }
+    .page-main {
+        --navbar-height: 0px;
+        --header-height: 0px;
+        height: 100%;
+        min-height: 0;
+        grid-template-rows: minmax(0, 1fr);
+        background-color: var(--admin-content-background, #fff);
+    }
+
+    #header {
+        grid-row: 1;
+    }
+
+    #content {
+        grid-row: 1;
+        min-height: 0;
+        overflow-y: auto;
+    }
+
+    &.section-header-scrolled #content {
+        mask-image: linear-gradient(to bottom,
+            #000 var(--content-offset),
+            transparent var(--content-offset),
+            #000 calc(var(--content-offset) + var(--section-header-spacing))), linear-gradient(#000, #000);
+        mask-size: 100% 100%, var(--content-scrollbar-width, 0px) 100%;
+        mask-position: 0 0, 100% 0;
+        mask-repeat: no-repeat;
+        mask-composite: add;
+    }
+
+    &:dir(rtl).section-header-scrolled #content {
+        mask-position: 0 0, 0 0;
     }
 }
 
@@ -258,6 +291,7 @@ body {
 }
 
 .spa-layout {
+    --section-header-spacing: var(--section-header-padding-y);
     height: 100%;
     overflow: hidden;
 
@@ -339,10 +373,8 @@ body {
     }
 }
 
-.admin-sidebar-layout:not(.popup):not(.spa-layout):not(.has-left-sidebar),
+.admin-sidebar-layout:not(.popup):not(.spa-layout),
 .popup:not(.bare) {
-    --section-header-padding-y: 10px;
-
     #content:has(.section-header:not(.nofix)) {
         padding-top: 0;
         --content-offset: var(--section-header-height);
@@ -363,7 +395,7 @@ body {
         inset-inline: auto;
         z-index: $zindex-sticky;
         margin-inline: calc(-1 * var(--content-padding-x));
-        padding: var(--section-header-padding-y) var(--content-padding-x);
+        margin-block-end: var(--section-header-spacing);
     }
 }
 
@@ -378,8 +410,6 @@ body {
     --admin-sidebar-label-shift: -8px;
     --admin-sidebar-brand-width: 140px;
     --admin-sidebar-wordmark-width: 0px;
-    --admin-sidebar-expand-icon-display: inline-block;
-    --admin-sidebar-collapse-icon-display: none;
     --admin-sidebar-motion: 0s;
 
     &.admin-sidebar-ready {
@@ -394,8 +424,6 @@ body {
             --admin-sidebar-label-opacity: 1;
             --admin-sidebar-label-shift: 0px;
             --admin-sidebar-wordmark-width: calc(var(--admin-sidebar-brand-width) * 0.8);
-            --admin-sidebar-expand-icon-display: none;
-            --admin-sidebar-collapse-icon-display: inline-block;
         }
     }
 
@@ -524,12 +552,22 @@ body {
         }
     }
 
+    .navbar-sidebar-toggle.is-expanded {
+        .navbar-toggle-expand {
+            display: none;
+        }
+
+        .navbar-toggle-collapse {
+            display: inline-block;
+        }
+    }
+
     .navbar-toggle-expand {
-        display: var(--admin-sidebar-expand-icon-display);
+        display: inline-block;
     }
 
     .navbar-toggle-collapse {
-        display: var(--admin-sidebar-collapse-icon-display);
+        display: none;
     }
 
     .nav-item .navbar-label,
@@ -851,7 +889,6 @@ body {
 
 
 .admin-settings-layout:not(.popup) {
-    --section-header-spacing: 8px;
     --settings-navigation-width: 220px;
     --settings-navigation-gap: 24px;
 

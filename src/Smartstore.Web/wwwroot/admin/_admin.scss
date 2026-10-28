@@ -1,9 +1,9 @@
 /// <reference path="references.scss" />
 
-$section-header-height: 70px;
-
 :root {
-    --section-header-spacing: 0px;
+    --section-header-spacing: 24px;
+    --section-header-padding-y: 10px;
+    --section-header-padding-bottom: 0px;
     --content-padding-x: #{$content-padding-x / 2};
     --content-padding-y: #{$content-padding-y};
     // Adjust to medium button height

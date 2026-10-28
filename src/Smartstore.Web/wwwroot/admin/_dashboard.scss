@@ -1,7 +1,10 @@
 /// <reference path="references.scss" />
 
 .admin-dashboard-layout {
-    --section-header-spacing: 16px;
+    --admin-content-background: var(--gray-150);
+    --section-header-background: var(--admin-content-background);
+    --section-header-padding-y: 16px;
+    --section-header-spacing: var(--section-header-padding-y);
 
     #content {
         background-color: $gray-150;
@@ -91,7 +94,7 @@
 
 .report {
     background-color: white;
-    border-radius: var(--border-radius-md);
+    border-radius: var(--border-radius-lg);
     box-shadow: $box-shadow-sm;
     height: 100%;
     overflow: hidden;
