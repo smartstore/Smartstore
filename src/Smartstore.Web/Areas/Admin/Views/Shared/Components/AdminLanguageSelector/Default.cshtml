@@ -10,6 +10,7 @@
         <button type="button" class="dropdown-item" aria-haspopup="true" aria-expanded="false" aria-controls="language-selector">
             <icon name="earth" class="icon-fw" />
             @T("Admin.Configuration.Languages")
+            <img src='@Url.Content("~/images/flags/" + ViewBag.CurrentLanguage.FlagImageFileName)' class="navbar-language-flag ml-auto flex-shrink-0" alt="@ViewBag.CurrentLanguage.Name" />
         </button>
         <div id="language-selector" class="dropdown-menu">
             @foreach (var language in ViewBag.AvailableLanguages)
@@ -23,6 +24,7 @@
             <div class="dropdown-divider"></div>
 
             <a asp-action="List" asp-controller="Language" class="dropdown-item manage-languages">
+                <icon name="gear" class="icon-fw" />
                 @T("Admin.Configuration.ManageLanguages")
             </a>
         </div>

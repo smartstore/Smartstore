@@ -150,6 +150,12 @@ Beyond formatting:
 - The asset pipeline is dynamic. Do not assume a static stylesheet `<link>` — CSS is
   generated at runtime. Reference generated asset manifests, pipeline helpers, or
   runtime-injected links instead.
+- In development, module file providers resolve `Views` and `wwwroot` from the module's
+  source directory, including resolved `-sym` targets (see `ModuleDescriptor.SourcePhysicalPath`).
+  JavaScript, Sass and Razor source edits normally do not require a module rebuild.
+  If changes are missing at runtime, check file-provider resolution and bundle caching
+  before recommending a build. Stale copies under `Smartstore.Web/Modules/` do not
+  establish which files the running application serves.
 
 ## Modules
 

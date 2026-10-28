@@ -3,7 +3,7 @@
 $section-header-height: 70px;
 
 :root {
-    --section-header-spacing: 16px;
+    --section-header-spacing: 0px;
     --content-padding-x: #{$content-padding-x / 2};
     --content-padding-y: #{$content-padding-y};
     // Adjust to medium button height
@@ -22,7 +22,7 @@ $section-header-height: 70px;
     background-color: $gray-100;
     padding: 1rem;
     margin-bottom: $alert-margin-bottom;
-    border-radius: var(--border-radius-md);
+    border-radius: var(--border-radius-lg);
 }
 
 
@@ -274,7 +274,7 @@ body {
     transition: none;
 
     .section-header-scrolled & {
-        border-bottom-color: $border-color;
+        box-shadow: 0 2px 5px -3px rgba($black, 0.16);
     }
 
     @supports ((backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px))) {
@@ -370,6 +370,12 @@ body {
             display: none;
         }
     }
+}
+
+
+// Balance the visual spacing of dropdown items with a leading icon.
+.dropdown-item:has(> :is(.icon, .icon-stack)):not(.dropdown-group > .dropdown-item) {
+    padding-inline-end: calc(var(--dropdown-item-padding-x) + var(--dropdown-icon-item-gap, 10px));
 }
 
 
@@ -598,7 +604,7 @@ legend {
 
 .ctl-label {
     position: relative;
-    padding-right: 2.5rem;
+    padding-right: var(--field-gutter, 2.5rem);
     display: inline-block;
 
     > label {
@@ -613,7 +619,7 @@ legend {
         display: block;
         position: absolute;
         cursor: default;
-        width: 2.5rem;
+        width: var(--field-gutter, 2.5rem);
         right: 0;
         top: 0;
         text-decoration: none;
@@ -647,6 +653,11 @@ legend {
 //
 // Multi-store settings
 // --------------------------------------------------
+
+.multi-store-scope {
+    display: flow-root;
+    padding: 0;
+}
 
 .multi-store-setting-control > input[type=checkbox] {
     position: relative;
@@ -781,8 +792,8 @@ legend {
 
 .adminContent {
     --adminRow-width: 1000px;
-    --adminTitle-width: 0.4;
-    --adminContent-width: 0.6;
+    --adminTitle-width: 0.35;
+    --adminContent-width: 0.65;
     --adminRow-margin-y: 0.8rem;
 
     display: block;
@@ -813,6 +824,7 @@ legend {
 }
 
 .adminTitle {
+    --field-gutter: 2.5rem;
     margin-bottom: 0;
 }
 
@@ -834,7 +846,12 @@ legend {
         > .adminTitle {
             flex: 0 0 33.333333%;
             max-width: 33.333333%;
+            text-align: end;
             padding-inline-end: 0 !important;
+
+            .adminTitle-addon {
+                margin-inline-end: var(--field-gutter);
+            }
 
             .ctl-label > :is(label, .hint) {
                 // actually is '.col-form-label', @extend is not possible here.

@@ -43,7 +43,8 @@
     <div class="navbar-footer">
         <button id="navbar-sidebar-toggle" type="button" class="navbar-sidebar-toggle nav-link"
                 aria-controls="navbar-menu" aria-expanded="false" aria-label="@expandSidebarLabel" title="@expandSidebarLabel">
-            <icon name="chevron-right" class="navbar-icon navbar-toggle-icon" />
+            <icon name="sidebar-expand" class="navbar-icon navbar-toggle-expand" />
+            <icon name="sidebar-collapse" class="navbar-icon navbar-toggle-collapse" />
             <span class="navbar-label" aria-hidden="true">@expandSidebarText</span>
         </button>
 
@@ -51,11 +52,11 @@
             <div class="nav-item dropdown">
                 <button id="current-user" type="button" class="nav-link dropdown-toggle navbar-tool"
                         data-toggle="dropdown" title="@T("Admin.Common.Actions")" aria-label="@T("Admin.Common.Actions")" aria-haspopup="true" aria-expanded="false">
-                    <icon name="gear" class="navbar-icon" stroke-scale="0.85" />
+                    <icon name="gear" class="navbar-icon" />
                     <span class="navbar-label" aria-hidden="true">@T("Admin.Common.Actions")</span>
                     <span sm-if="checkUpdateResult != null && checkUpdateResult.UpdateAvailable" class="reddot"></span>
                 </button>
-                <div class="dropdown-menu dropdown-menu-compact">
+                <div class="dropdown-menu dropdown-menu-compact dropdown-menu-light-icons">
                     <div class="dropdown-group">
                         <button type="button" class="dropdown-item" aria-haspopup="true" aria-expanded="false" aria-controls="account-shops-menu">
                             <icon name="store" class="icon-fw" />
@@ -104,7 +105,7 @@
                         <a class="dropdown-item" asp-action="Edit" asp-controller="Customer" asp-route-id="@currentCustomer.Id">
                             <icon name="user-circle" class="icon-fw" />
                             <span>@T("Admin.Header.Account")</span>
-                            <small class="text-muted ml-2">@currentCustomer.Username.Truncate(40, "…")</small>
+                            <small class="navbar-account-name text-muted text-truncate ml-auto" title="@currentCustomer.Username">@currentCustomer.Username</small>
                         </a>
                     }
                     <div class="dropdown-divider"></div>
@@ -113,7 +114,7 @@
                         @T("Admin.Header.ClearCache")
                     </a>
                     <a class="dropdown-item" id="clear-database-cache" href="javascript:;" data-url="@Url.Action("ClearDatabaseCache", "Maintenance", new { area = "Admin", silent = true })">
-                        <span class="icon icon-fw" aria-hidden="true"></span>
+                        <icon name="database-cache-clear" class="icon-fw" />
                         @T("Admin.Header.ClearDbCache")
                     </a>
                     <div class="dropdown-divider"></div>
@@ -274,6 +275,7 @@
             const viewportHeight = document.documentElement.clientHeight;
             const trigger = toggle.getBoundingClientRect();
             const opensAbove = dropdown.closest('.navbar-account') !== null;
+            const menuStyle = getComputedStyle(menu);
             const left = opensAbove ? Math.max(8, trigger.left) : navbar[0].getBoundingClientRect().right;
             const bottom = opensAbove ? trigger.top - 4 : viewportHeight - 8;
             const availableHeight = Math.max(0, bottom - 8);
@@ -287,6 +289,14 @@
             const overflow = Math.max(0, trigger.top + height - bottom);
             const top = opensAbove ? bottom - height : trigger.top - overflow;
             menu.style.setProperty('--sidebar-menu-top', `${Math.max(8, top)}px`);
+
+            const arrow = dropdown.querySelector(':scope > .sidebar-menu-arrow');
+            if (arrow) {
+                arrow.style.setProperty('--sidebar-menu-arrow-x', `${left + parseFloat(menuStyle.borderLeftWidth)}px`);
+                arrow.style.setProperty('--sidebar-menu-arrow-y', `${trigger.top + trigger.height / 2}px`);
+                arrow.style.setProperty('--sidebar-menu-arrow-bg', menuStyle.backgroundColor);
+                arrow.style.setProperty('--sidebar-menu-arrow-border-color', menuStyle.borderLeftColor);
+            }
         }
 
         function positionOpenSidebarMenus() {

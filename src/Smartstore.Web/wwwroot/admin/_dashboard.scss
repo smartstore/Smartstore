@@ -1,6 +1,8 @@
 /// <reference path="references.scss" />
 
 .admin-dashboard-layout {
+    --section-header-spacing: 16px;
+
     #content {
         background-color: $gray-150;
         box-shadow: none;

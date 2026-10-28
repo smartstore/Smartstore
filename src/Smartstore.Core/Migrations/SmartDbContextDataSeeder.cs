@@ -109,6 +109,7 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
     public void MigrateLocaleResources(LocaleResourcesBuilder builder)
     {
         builder.AddOrUpdate("Admin.Dashboard.Customize", "Customize dashboard", "Dashboard anpassen");
+        builder.AddOrUpdate("Admin.Header.Account", "Account", "Konto");
         builder.AddOrUpdate("Admin.Header.ExpandNavigation", "Expand navigation", "Navigation ausklappen");
         builder.AddOrUpdate("Admin.Header.CollapseNavigation", "Collapse navigation", "Navigation einklappen");
         builder.AddOrUpdate("Admin.Header.ExpandNavigation.Short", "Expand", "Ausklappen");

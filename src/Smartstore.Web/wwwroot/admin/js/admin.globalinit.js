@@ -182,7 +182,7 @@
             }
         });
 
-        // Legacy fixed section-header for popups and specialized layouts.
+        // Track header appearance and retain the legacy fixed header for specialized layouts.
         var navbar = $("#navbar");
         var navbarHeight = navbar.hasClass("navbar-sidebar") ? 1 : (navbar.height() || 1);
         var sectionHeader = $('.section-header');
@@ -216,7 +216,7 @@
         window.addEventListener('pageshow', updateHeaderAppearance);
         updateHeaderAppearance();
 
-        const cssStickyHeader = document.body.matches('.admin-sidebar-layout:not(.popup):not(.spa-layout):not(.has-left-sidebar)');
+        const cssStickyHeader = document.body.matches('.admin-sidebar-layout:not(.popup):not(.spa-layout):not(.has-left-sidebar), .popup:not(.bare)');
         if (!cssStickyHeader && !sectionHeader.hasClass('nofix')) {
             $(window).on("scroll resize", function (e) {
                 if (sectionHeaderHasButtons === undefined) {

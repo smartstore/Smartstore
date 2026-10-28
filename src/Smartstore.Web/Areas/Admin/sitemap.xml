@@ -60,7 +60,7 @@
             <siteMapNode id="topics" icon="file-pen" title="Pages &amp; Topics" resKey="Admin.ContentManagement.Topics" permissionNames="cms.topic" controller="Topic" action="List" area="Admin" />
             <siteMapNode id="menus" icon="menu-button" title="Menus" resKey="Admin.ContentManagement.Menus" permissionNames="cms.menu" controller="Menu" action="List" area="Admin" />
             <siteMapNode id="message-templates" icon="mail-open" title="Message templates" resKey="Admin.ContentManagement.MessageTemplates" permissionNames="cms.messagetemplate" controller="MessageTemplate" action="List" area="Admin" />
-            <siteMapNode id="widgets" icon="dashboard" title="Widgets" resKey="Admin.ContentManagement.Widgets" permissionNames="cms.widget" controller="Widget" action="Providers" area="Admin" />
+            <siteMapNode id="widgets" icon="widgets" title="Widgets" resKey="Admin.ContentManagement.Widgets" permissionNames="cms.widget" controller="Widget" action="Providers" area="Admin" />
         </siteMapNode>
 
 
