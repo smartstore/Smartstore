@@ -14,11 +14,12 @@
         <div class="options">
             <zone name="admin_button_toolbar_before" />
 
-            <button type="submit" name="preview" value="preview" class="btn btn-secondary"
+            <button type="submit" name="preview" value="preview" class="btn btn-outline-secondary"
                 onclick="javascript:openWindow('@Model.CategoryUrl', 1000, 600, true); return false;">
                 <icon name="eye" />
                 <span>@T("Admin.Common.Preview")</span>
             </button>
+            <span class="vr"></span>
             <button type="submit" name="save" value="save" class="btn btn-primary">
                 <icon name="check" />
                 <span>@T("Admin.Common.Save")</span>

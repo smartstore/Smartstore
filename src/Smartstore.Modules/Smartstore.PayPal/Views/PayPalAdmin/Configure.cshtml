@@ -1,4 +1,4 @@
-﻿@model ConfigurationModel
+@model ConfigurationModel
 
 @{
     Layout = "_ConfigureProvider";
@@ -169,12 +169,14 @@
             </script>
 
             <div class="adminTitle">
-                <a href="@Html.Raw(url)" target="_blank"
-                   data-paypal-onboard-complete="onboardedCallback" 
-                   data-paypal-button="PPLtBlue" 
-                   class="btn btn-primary pb-0 pl-0">
-                    @T("Plugins.Smartstore.PayPal.Onboarding")
-                </a>
+                <div class="adminTitle-addon d-table ml-auto">
+                    <a href="@Html.Raw(url)" target="_blank"
+                       data-paypal-onboard-complete="onboardedCallback"
+                       data-paypal-button="PPLtBlue"
+                       class="btn btn-primary pb-0 pl-0" style="line-height: normal;">
+                        @T("Plugins.Smartstore.PayPal.Onboarding")
+                    </a>
+                </div>
             </div>
             <div class="adminData wide">
                 <ul class="list-unstyled">
