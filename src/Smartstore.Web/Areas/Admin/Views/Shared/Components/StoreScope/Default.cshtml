@@ -9,15 +9,21 @@
                 @Html.SmartLabel("store-scope-configuration", T("Admin.Configuration.Settings.StoreScope"))
             </div>
             <div class="adminData">
-                <select id="store-scope-configuration" asp-items="Model.AllStores" onchange="setLocation(this.value);"></select>
-            </div>
-        </div>
-        <div sm-if="Model.StoreId > 0" class="adminRow">
-            <div class="adminTitle">&nbsp;</div>
-            <div class="adminData wide">
-                <div class="form-check form-switch">
-                    <input type="checkbox" class="form-check-input" id="override-settings" onclick="Smartstore.Admin.checkAllOverriddenStoreValue(this)">
-                    <label class="form-check-label" for="override-settings">@T("Admin.Configuration.Settings.StoreScope.CheckAll.Hint")</label>
+                <select id="store-scope-configuration" class="form-control noskin" onchange="setLocation(this.value);">
+                    @for (int i = 0; i < Model.AllStores.Count; i++)
+                    {
+                        var store = Model.AllStores[i];
+                        <option value="@store.Value" selected="@store.Selected" attr-data-icon='(i > 0, "store")'>@store.Text</option>
+                    }
+                </select>
+                <div sm-if="Model.StoreId > 0" id="store-scope-tools" class="select2-selection-toolbar d-none" role="group" aria-label="@T("Admin.Configuration.Settings.StoreScope")">
+                    <input type="checkbox" class="d-none" id="override-settings" onclick="Smartstore.Admin.checkAllOverriddenStoreValue(this)">
+                    <button type="button" id="store-scope-own-values" class="btn btn-plain btn-flat" aria-pressed="false"
+                            aria-label="@T("Admin.Configuration.Settings.StoreScope.OwnValues")"
+                            title="@T("Admin.Configuration.Settings.StoreScope.OwnValues.Hint")">
+                        <icon name="layers-plus" />
+                        <span>@T("Admin.Configuration.Settings.StoreScope.OwnValues")</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -25,7 +31,23 @@
 </div>
 
 <script>
-	$(function () {
-		$('#store-scope-configuration').selectWrapper();
-	});
+    $(function () {
+        // Keep the bulk override action inside Select2's existing toolbar instead of adding a form row.
+        // Retain the original checkbox as the state carrier for override helpers and editable-list listeners.
+        const toolbar = document.getElementById('store-scope-tools');
+        $('#store-scope-configuration').selectWrapper({ selectionToolbar: toolbar });
+        if (!toolbar) return;
+
+        const checkbox = document.getElementById('override-settings');
+        const button = $('#store-scope-own-values');
+        function syncButton() {
+            button.toggleClass('active', checkbox.checked).attr('aria-pressed', String(checkbox.checked));
+        }
+        button.on('click', function () {
+            $(checkbox).trigger('click');
+            syncButton();
+        });
+        $(checkbox).on('change', syncButton);
+        syncButton();
+    });
 </script>

@@ -257,6 +257,7 @@
       "tax",
       "text-wrap",
       "text-resize",
+      "layers-plus",
       "tools",
       "transparency",
       "trophy",
@@ -279,6 +280,7 @@
       "wrench"
     ],
     "sources": {
+      "layers-plus": "hi:layers-plus!/sr",
       "float-right": "hi:text-firstline-left!",
       "float-left": "hi:text-firstline-right!",
       "transparency": "hi:transparency!/sr",

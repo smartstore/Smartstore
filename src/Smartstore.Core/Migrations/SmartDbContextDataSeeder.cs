@@ -115,6 +115,11 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.Header.CollapseNavigation", "Collapse navigation", "Navigation einklappen");
         builder.AddOrUpdate("Admin.Header.ExpandNavigation.Short", "Expand", "Ausklappen");
         builder.AddOrUpdate("Admin.Header.CollapseNavigation.Short", "Collapse", "Einklappen");
+        builder.AddOrUpdate("Admin.Configuration.Settings.StoreScope.OwnValues",
+            "Break inheritance",
+            "Vererbung aufheben",
+            "Use separate values for all settings on this page in this store.",
+            "Alle Einstellungen dieser Seite für diesen Shop separat festlegen.");
 
         builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowManufacturersOnHomepage", "Show manufacturers on the homepage", "Hersteller auf der Startseite anzeigen");
         builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ManufacturerItemsToDisplayOnHomepage",

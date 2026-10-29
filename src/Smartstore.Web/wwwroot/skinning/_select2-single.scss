@@ -48,6 +48,8 @@
         .select2-option {
             --choice-item-line-height: var(--select2-line-height);
 
+            // Toolbar buttons can increase the selection height; keep its icon and text centered together.
+            align-items: center;
             padding-inline-end: 0.5em;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -90,7 +92,11 @@
     > .btn {
         --btn-border-radius: 6px;
         --btn-height: 26px;
-        --btn-font-size: 0.875rem;
+        --btn-font-size: 0.8125rem;
+        --btn-font-weight: #{$font-weight-normal};
+        --btn-line-height: 1.25;
+        --btn-padding-x: 0.375rem;
+        --btn-padding-y: 0;
         --btn-color: var(--gray-650);
         --btn-box-shadow: none;
         --btn-hover-shadow: none;
