@@ -2306,7 +2306,8 @@ public class IconServiceTests
         Assert.That((string)children[1].Attribute("stroke"), Is.EqualTo("none"));
         Assert.That((string)children[1].Attribute("style") ?? string.Empty, Does.Not.Contain("stroke:var"));
         Assert.That(children[2].Attribute("stroke"), Is.Null);
-        Assert.That((string)children[2].Attribute("fill"), Is.EqualTo("red"));
+        Assert.That(children[2].Attribute("fill"), Is.Null);
+        Assert.That((string)children[2].Attribute("style"), Does.Contain("fill:var(--icon-fill,currentColor)"));
         Assert.That((string)children[3].Attribute("style"), Does.Contain("stroke-width:var(--icon-stroke-width,3.2)"));
     }
 
