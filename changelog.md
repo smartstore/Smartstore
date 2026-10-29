@@ -134,7 +134,8 @@
 - **Product Details**:
   - Weight adjustments for preselected products attributes were not taken into account.
   - The images of linked products displayed for variants were too small and distorted.
-- Negative price adjustments for checkout attributes were not taken into account on the checkout confirm page.  
+- Negative price adjustments for checkout attributes were not taken into account on the checkout confirm page.
+- Percentage product discounts must also be taken into account when applying the displayed variant price adjustment.
 - #1575 Newsletter reward points are not awarded during customer registration.
 - MegaSearch: A single letter in the search term may incorrectly result in 0 search results if "Hits contain all searched terms" is enabled.
 - Currency: Edit page did not select/display the saved denominator for order total rounding.
