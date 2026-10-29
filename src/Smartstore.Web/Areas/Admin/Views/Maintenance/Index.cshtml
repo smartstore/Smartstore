@@ -23,7 +23,7 @@
         @* ImageCache *@
         <div class="card mb-4">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="hstack justify-content-between mb-2">
                     <h5 class="card-title">
                         @T("Admin.System.Maintenance.DeleteImageCache")
                     </h5>
@@ -49,7 +49,7 @@
         @* DeleteGuests *@
         <div class="card mb-4">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="hstack justify-content-between mb-2">
                     <h5 class="card-title">
                         @T("Admin.System.Maintenance.DeleteGuests")
                     </h5>
@@ -83,7 +83,7 @@
         @* DeleteExportedFiles *@
         <div class="card mb-4">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="hstack justify-content-between mb-2">
                     <h5 class="card-title">
                         @T("Admin.System.Maintenance.DeleteExportedFiles")
                     </h5>
@@ -116,7 +116,7 @@
              data-not-migrated="@T("Admin.System.Maintenance.Icons.NotMigrated")"
              data-failed="@T("Admin.System.Maintenance.Icons.Failed")">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="hstack justify-content-between mb-2">
                     <h5 class="card-title">@T("Admin.System.Maintenance.Icons.Title")</h5>
                     <button type="button" id="migrate-icons" class="btn btn-secondary btn-to-primary" style="width: 200px"
                             data-url="@Url.Action("MigrateIcons")">
@@ -151,7 +151,7 @@
         @* TreePaths *@
         <div class="card mb-4">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="hstack justify-content-between mb-2">
                     <h5 class="card-title">
                         @T("Admin.System.Maintenance.TreePaths.Title")
                     </h5>
@@ -198,7 +198,7 @@
         @* SqlQueryExecute *@
         <div sm-if="Model.CanExecuteSql" class="card mb-4">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="hstack justify-content-between mb-3">
                     <h5 class="card-title">
                         @T("Admin.System.Maintenance.SqlQueryTitle")
                     </h5>

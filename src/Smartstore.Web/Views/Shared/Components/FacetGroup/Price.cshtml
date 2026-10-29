@@ -36,7 +36,7 @@
         string value = customRangeFacet.Value.Value != null ? customRangeFacet.Value.Value.ToString() : string.Empty;
         string upperValue = customRangeFacet.Value.UpperValue != null ? customRangeFacet.Value.UpperValue.ToString() : string.Empty;
 
-        <fieldset class="facet-range-container d-flex align-items-center mt-2">
+        <fieldset class="facet-range-container hstack mt-2">
             <legend class="sr-only">@T("Aria.Label.PriceRange")</legend>
             <div class="flex-grow-1 pr-2">
                 <label for="price-range-from" class="sr-only">@T("Search.PriceRange.From")</label>

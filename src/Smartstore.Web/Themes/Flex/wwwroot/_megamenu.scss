@@ -79,7 +79,6 @@ $mixed-megamenu-bg:             $megamenu-bg;
         > .badge {
             position: absolute;
             top: calc((var(--mm-nav-padding-y) * -1) + 1px);
-            font-size: 10px;
             inset-inline-start: 50%;
             translate: -50%;
         }
@@ -296,12 +295,11 @@ $mixed-megamenu-bg:             $megamenu-bg;
         font-weight: $font-weight-medium;
         //line-height: 1.4rem;
         text-decoration: none;
-        display: inline-block;
+        display: inline-flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        gap: 0.375rem;
         color: $megamenu-heading-color;
-
-        > .icon + span {
-            margin-inline-start: 0.25rem;
-        }
 
         transition: transform 0.2s ease-in-out;
 

@@ -28,7 +28,9 @@
     }
 
     .sysmetric {
-        display: inline-block;
+        display: inline-flex;
+        flex-flow: row nowrap;
+        align-items: center;
         min-width: 80px;
         margin-right: 10px;
     }
@@ -179,10 +181,10 @@
         </div>
         <div class="adminData">
             <div class="form-control-plaintext">
-                <span class="sysmetric">
+                <span class="sysmetric gap-1">
                     <span id="used-ram" data-raw="@Model.UsedMemorySize.ToStringInvariant()">@Model.UsedMemorySizeString.NaIfEmpty()</span>
-                    <icon name="arrow-up" id="used-ram-up" class="text-danger pl-1" style="display: none" />
-                    <icon name="arrow-down" id="used-ram-down" class="text-success pl-1" style="display: none" />
+                    <icon name="arrow-up" id="used-ram-up" class="text-danger" style="display: none" />
+                    <icon name="arrow-down" id="used-ram-down" class="text-success" style="display: none" />
                 </span>
                 <a href='@Url.Action("GarbageCollect")' class="fwm">@T("Admin.System.SystemInfo.GarbageCollect")</a>
             </div>

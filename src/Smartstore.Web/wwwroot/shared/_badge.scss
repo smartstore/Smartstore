@@ -111,6 +111,17 @@
 
 
 //
+// Extra-small badge
+// -----------------------------------------------------
+
+.badge-xs {
+    --badge-font-size: 10px;
+    // Bypass the base badge rule's 12px minimum font size.
+    font-size: var(--badge-font-size);
+}
+
+
+//
 // Slightly larger Badge/Label
 // -----------------------------------------------------
 

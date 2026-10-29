@@ -36,7 +36,7 @@
         </column>
         <column for="ShortMessage" hideable="false">
             <display-template>
-                <div class="dg-cell-value d-flex align-items-center">
+                <div class="dg-cell-value hstack">
                     <span :class="'mr-2 level-badge badge badge-subtle badge-ring badge-' + item.row.LogLevelHint">{{ item.row.LogLevel }}</span>
 
                     <div class="flex-grow-1 overflow-hidden" style="min-width: 0;">

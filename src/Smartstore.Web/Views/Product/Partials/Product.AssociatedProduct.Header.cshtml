@@ -126,7 +126,7 @@
                         }
                     </div>
                 </div>
-                <div class="col d-flex align-items-center text-truncate">
+                <div class="col hstack text-truncate">
                     <div class="pd-assoc-name text-truncate" title="@Model.Name">
                         @Html.Raw(Model.Name)
                     </div>
@@ -156,7 +156,7 @@
         </div>
 
         @* Cart *@
-        <div class="col-@(hasDataCol ? 6 : 12) col-sm-@colSmSizeCart col-md-@colMdSizeCart col-lg-@colLgSizeCart col-xl-@colXlSizeCart d-flex align-items-center">
+        <div class="col-@(hasDataCol ? 6 : 12) col-sm-@colSmSizeCart col-md-@colMdSizeCart col-lg-@colLgSizeCart col-xl-@colXlSizeCart hstack">
             <div class="pd-assoc-actions">
                 <div sm-if="!Model.AddToCart.HideQuantityControl" class="pd-qty-input-container pd-interaction">
                     @Html.EditorFor(x => Model.AddToCart, "QtyInput", new { size = ControlSize.Medium })

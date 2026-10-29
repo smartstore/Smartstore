@@ -13,7 +13,7 @@
 
 <div attr-class='(Model.MultiFile || !Model.HasTemplatePreview, "dropzone-container")'>
     <div class="dropzone-target" role="button" tabindex="0" aria-labelledby="@(Model.Name)-msg">
-        <div class="dropzone-file-info d-flex align-items-center">
+        <div class="dropzone-file-info hstack">
             <icon name="cloud-upload" class="fu-upload-icon icon-xl" aria-hidden="true" />
             <div id="@(Model.Name)-msg" class="fu-message text-truncate empty" title="@Model.UploadText">
                 @if (Model.UploadText.HasValue())
@@ -96,7 +96,7 @@
     {
         <span class="main-pic-badge badge badge-success badge-pill m-2">@T("FileUploader.MultiFiles.MainMediaFile")</span>
 
-        <figure class="file-figure d-flex m-0 align-items-center justify-content-center file-thumb show loaded" data-type="@dataType">
+        <figure class="file-figure hstack m-0 justify-content-center file-thumb show loaded" data-type="@dataType">
             <sm-icon class="file-icon show d-none" fw aria-hidden="true"></sm-icon>
             @*Append number of ticks because otherwise when an image is updated via API or import, the old image will still be displayed.*@
             <img class="file-img" data-dz-thumbnail attr-src='(previewUrl.HasValue(), previewUrl + "&num=" + DateTime.UtcNow.Ticks)' alt="@fileName" />
@@ -107,7 +107,7 @@
             <div class="drag-gripper align-middle">
                 <icon name="grip-v" class="drag-icon icon-lg text-white p-2 text-center" />
             </div>
-            <div class="fu-file-info h-100 w-100 d-flex position-absolute justify-content-center align-items-center">
+            <div class="fu-file-info h-100 w-100 hstack position-absolute justify-content-center">
                 <div class="fu-file-info-name text-white font-weight-medium text-center">@fileName</div>
             </div>
             <div class="fu-preview-control-menu w-100 d-flex flex-wrap justify-content-between px-2 pb-2 pt-0">

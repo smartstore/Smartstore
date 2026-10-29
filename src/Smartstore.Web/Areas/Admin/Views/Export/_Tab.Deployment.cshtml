@@ -109,7 +109,7 @@
 							<div>
                                 <a asp-action="EditDeployment" asp-route-id="@deployment.Id">@deployment.Name</a>
 							</div>
-							<div class="muted">
+							<div class="muted hstack gap-1">
                                 <icon name="@(deploymentTypeIcons.GetValueOrDefault(deployment.DeploymentType))" />
                                 <span>@deployment.DeploymentTypeName</span>
 							</div>

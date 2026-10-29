@@ -144,6 +144,9 @@ a.pretty-link {
     @extend .link-transition;
     @extend .link-dnn;
 
+    display: inline-flex;
+    flex-flow: row nowrap;
+    align-items: center;
     font-weight: $font-weight-medium;
 
     > :is(.icon, .icon-stack) { margin-inline-end: 1.2rem; }

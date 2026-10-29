@@ -54,7 +54,7 @@
                 {
                     var availableSearchTypes = (IEnumerable<SelectListItem>)ViewBag.AvailableCustomerSearchTypes;
 
-                    <div class="d-flex align-items-center">
+                    <div class="hstack">
                         <label asp-for="CustomerSearchType" class="form-label text-nowrap mr-2 mb-0"></label>
                         <select asp-for="CustomerSearchType" asp-items="availableSearchTypes" class="entpicker-searchtype"></select>
                     </div>

@@ -8,7 +8,7 @@
 
     async Task FeatureLabel(bool active, string label)
     {
-        <div attr-class='(!active, "text-muted")'>
+        <div class="hstack gap-2" attr-class='(!active, "text-muted")'>
             @if (active)
             {
                 <icon name="check" class="icon-fw text-success" />
@@ -17,7 +17,7 @@
             {
                 <icon name="minus" class="icon-fw" />
             }
-            <span class="pl-2">@Html.Raw(label)</span>
+            <span>@Html.Raw(label)</span>
         </div>
     }
 }

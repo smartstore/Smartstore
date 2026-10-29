@@ -512,8 +512,10 @@ $pd-offer-spacing:              math.div($grid-gutter-width, 2);
 
 .delivery-time,
 .delivery-date-block {
-    display: inline-block;
-    vertical-align: middle;
+    display: inline-flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    gap: 0.2em;
     max-width: 100%;
     @include text-truncate();
 }

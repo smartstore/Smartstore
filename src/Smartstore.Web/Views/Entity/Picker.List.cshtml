@@ -24,12 +24,12 @@
                         }
                         <span>@Model.HighlightTitle(item.Title)</span>
                     </div>
-                    <div class="text-truncate">
+                    <div class="hstack text-truncate">
                         @if (item.Published.HasValue)
                         {
-                            <icon name="@(item.Published.Value ? "globe" : "eye-slash")" class="published @(item.Published.Value ? "is-published" : "is-unpublished")" title="@T(item.Published.Value ? "Common.Published" : "Common.Unpublished")" />
+                            <icon name="@(item.Published.Value ? "globe" : "eye-slash")" class="published flex-shrink-0 @(item.Published.Value ? "is-published" : "is-unpublished")" title="@T(item.Published.Value ? "Common.Published" : "Common.Unpublished")" />
                         }
-                        <span class="summary" title="@item.SummaryTitle">@item.Summary</span>
+                        <span class="summary text-truncate" title="@item.SummaryTitle">@item.Summary</span>
                     </div>
                 </div>
             </div>

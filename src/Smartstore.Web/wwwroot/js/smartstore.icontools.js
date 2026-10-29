@@ -151,7 +151,7 @@
                     output.textContent = labels[index];
                     input.addEventListener('input', () => output.textContent = labels[Number(input.value)]);
                     opacityRow = document.createElement('div');
-                    opacityRow.className = 'd-flex align-items-center gap-2';
+                    opacityRow.className = 'hstack gap-2';
                     slider.classList.add('flex-grow-1');
                     slider.style.minWidth = '0';
                     output.classList.add('flex-shrink-0');
@@ -161,11 +161,11 @@
                 let preview;
                 if (showPreview) {
                     const row = opacityRow || document.createElement('div');
-                    if (!opacityRow) row.className = 'd-flex align-items-center gap-3';
+                    if (!opacityRow) row.className = 'hstack gap-3';
                     slider.classList.add('flex-grow-1');
                     slider.style.minWidth = '0';
                     const holder = document.createElement('div');
-                    holder.className = 'd-flex align-items-center justify-content-center flex-shrink-0';
+                    holder.className = 'hstack justify-content-center flex-shrink-0';
                     holder.style.width = '48px';
                     preview = createPreview ? createPreview(state) : document.createElement('sm-icon');
                     if (!createPreview) {

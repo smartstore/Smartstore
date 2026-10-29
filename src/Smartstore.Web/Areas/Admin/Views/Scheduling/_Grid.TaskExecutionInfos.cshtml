@@ -46,9 +46,9 @@
         <column for="Duration" sortable="false" />
         <column for="Succeeded" sortable="false" width="2fr" hideable="false">
             <display-template>
-                <div v-if="item.row.Succeeded" class="dg-cell-value">
-                    <icon name="check" class="icon-fw icon-active-true" />
-                    <span class="ml-1 text-truncate">@T("Common.Succeeded")</span>
+                <div v-if="item.row.Succeeded" class="dg-cell-value hstack gap-1">
+                    <icon name="check" class="icon-fw icon-active-true flex-shrink-0" />
+                    <span class="text-truncate">@T("Common.Succeeded")</span>
                 </div>
                 <div v-if="!item.row.Succeeded" class="dg-cell-value">
                     <div class="text-danger text-truncate font-weight-medium">@T("Common.Error"):</div>

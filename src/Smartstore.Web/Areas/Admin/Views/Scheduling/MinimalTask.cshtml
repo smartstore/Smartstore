@@ -6,7 +6,7 @@
     var canExecute = ViewBag.CanExecute == true;
 }
 
-<div class="d-inline-flex align-items-center py-1">
+<div class="hstack-inline py-1">
     <span class="badge mr-1 @(Model.Enabled ? "badge-warning" : "badge-secondary")">@T(Model.Enabled ? "Common.Scheduled" : "Common.Unscheduled")</span>
 	@if (Model.Enabled)
 	{

@@ -157,6 +157,20 @@ Beyond formatting:
   before recommending a build. Stale copies under `Smartstore.Web/Modules/` do not
   establish which files the running application serves.
 
+### Admin icon kit
+
+- For Hugeicons icons, when asked to add an icon to the Admin kit, register its existing library name unchanged.
+- For Hugeicons icons, do not invent a concept alias or add a library mapping unless the user explicitly requests that mapping. Admin kit additions do not imply library-switching support.
+- Do not add redundant Hugeicons identity mappings (for example, `layers-plus` to `layers-plus` or `transparency` to `transparency`).
+- Exception: Admin icons from libraries other than Hugeicons require a library-qualified source mapping. Add or preserve that mapping without a separate mapping request, even when the concept and source names match (for example, `braces-asterisk` to `bi:braces-asterisk`). Do not replace the chosen icon with a Hugeicons substitute to avoid a mapping.
+- An explicitly requested mapping applies only to that icon; it does not authorize mapping other Admin kit additions.
+
+### Public icon kit
+
+- The Admin kit restrictions above do not apply to the Public kit.
+- When the user names an icon for the Public kit, adding it to that kit and providing the corresponding library mappings are implicitly part of the request; do not require a separate mapping instruction.
+- Public kit icons must use library-independent concepts so that the frontend icon library can be switched. Preserve the intended visual meaning when choosing mappings.
+
 ## Modules
 
 A module lives in `src/Smartstore.Modules/<Name>` and contains at minimum a

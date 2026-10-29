@@ -109,7 +109,7 @@ public class TaxPairTagHelper : SmartTagHelper
         output.TagMode = TagMode.StartTagAndEndTag;
 
         var isVertical = Align == TaxPairAlignment.Vertical;
-        var containerClass = isVertical ? "d-flex align-items-center" : "row g-1 flex-nowrap";
+        var containerClass = isVertical ? "hstack" : "row g-1 flex-nowrap";
         var inputsWrapperClass = isVertical ? "d-flex flex-column gap-1 flex-grow-1" : "row g-1 flex-nowrap";
 
         // Clear all existing attributes. We apply them on the editors.

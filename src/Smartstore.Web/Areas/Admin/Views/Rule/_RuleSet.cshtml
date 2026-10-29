@@ -31,14 +31,14 @@
     <div class="ruleset-header hstack justify-content-between">
         <div class="ruleset-operator">
             <input type="hidden" asp-for="LogicalOperator" />
-            <div class="ruleset-op-one align-items-center justify-content-stretch @(Model.LogicalOperator == LogicalRuleOperator.And ? "hide" : "d-flex")">
+            <div class="ruleset-op-one justify-content-stretch @(Model.LogicalOperator == LogicalRuleOperator.And ? "hide" : "hstack")">
                 @Html.Raw(oneCondition)
             </div>
-            <div class="ruleset-op-all align-items-center justify-content-stretch @(Model.LogicalOperator == LogicalRuleOperator.And ? "d-flex" : "hide")">
+            <div class="ruleset-op-all justify-content-stretch @(Model.LogicalOperator == LogicalRuleOperator.And ? "hstack" : "hide")">
                 @Html.Raw(allCondition)
             </div>
         </div>
-        <div sm-if="Model.RefRuleId == 0" class="d-flex align-items-center">
+        <div sm-if="Model.RefRuleId == 0" class="hstack">
             <button type="button" class="btn btn-light btn-icon ruleset-save" title="@T("Admin.Rules.SaveConditions")" disabled>
                 <icon name="disk"  />
             </button>

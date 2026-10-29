@@ -6,31 +6,31 @@
             </a>
             <div class="dg-tools-dropdown dropdown-menu dropdown-menu-right" v-on:click="$event.stopPropagation()">
                 <div class="dg-tools-group px-3 pt-1">
-                    <label class="d-flex align-items-center justify-content-between m-0">
+                    <label class="hstack justify-content-between m-0">
                         <span>{{ T.vborders }}</span>
                         <div class="form-check form-check-warning form-switch m-0">
                             <input type="checkbox" class="form-check-input m-0" v-model="options.vborders">
                         </div>
                     </label>
-                    <label class="d-flex align-items-center justify-content-between m-0">
+                    <label class="hstack justify-content-between m-0">
                         <span>{{ T.hborders }}</span>
                         <div class="form-check form-check-warning form-switch m-0">
                             <input type="checkbox" class="form-check-input m-0" v-model="options.hborders">
                         </div>
                     </label>
-                    <label class="d-flex align-items-center justify-content-between m-0">
+                    <label class="hstack justify-content-between m-0">
                         <span>{{ T.striped }}</span>
                         <div class="form-check form-check-warning form-switch m-0">
                             <input type="checkbox" class="form-check-input m-0" v-model="options.striped">
                         </div>
                     </label>
-                    <label class="d-flex align-items-center justify-content-between m-0">
+                    <label class="hstack justify-content-between m-0">
                         <span>{{ T.hover }}</span>
                         <div class="form-check form-check-warning form-switch m-0">
                             <input type="checkbox" class="form-check-input m-0" v-model="options.hover">
                         </div>
                     </label>
-                    <label v-if="paging.enabled" class="d-flex align-items-center justify-content-between m-0">
+                    <label v-if="paging.enabled" class="hstack justify-content-between m-0">
                         <span>{{ T.pagerPos }}</span>
                         <select class="form-control form-control-sm noskin w-auto" v-model="paging.position">
                             <option value="top">{{ T.pagerTop }}</option>

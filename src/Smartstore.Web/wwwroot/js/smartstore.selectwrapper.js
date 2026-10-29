@@ -229,7 +229,7 @@
     ToolbarSelection.prototype.update = function (decorated, data) {
         this.$toolbar.detach();
         decorated.call(this, data);
-        this.$selection.addClass('select2-selection-with-toolbar d-flex align-items-center');
+        this.$selection.addClass('select2-selection-with-toolbar hstack');
         this.$selection.find('.select2-selection__clear').addClass('flex-shrink-0 ml-2');
         this.$selection.find('.select2-selection__rendered').addClass('w-100').append(this.$toolbar.removeClass('d-none'));
     };
@@ -434,7 +434,7 @@
                                 .css('--icon-size', defaultIcon ? '16px' : null)
                                 .attr('fw', '')
                                 .addClass('mr-1')
-                                .appendTo($('<span class="d-inline-flex align-items-center flex-shrink-0"/>')
+                                .appendTo($('<span class="hstack-inline flex-shrink-0"/>')
                                     .css('height', '1lh')
                                     .appendTo(result));
                         }
