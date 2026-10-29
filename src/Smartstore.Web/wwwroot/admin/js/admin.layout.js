@@ -1,6 +1,75 @@
 $(function () {
-    // Header appearance also follows nested scrolling containers.
+    // Responsive section-header actions: at SM and smaller, move eligible buttons into a single More menu
+    // to leave room for the page title. At MD and larger, restore their original toolbar positions and styles.
+    // Up to two icon buttons stay visible in button-only toolbars; input groups and existing dropdowns stay intact.
     const sectionHeader = $('.section-header');
+    // The toolkit reads Sass-generated breakpoint variables; CSS and behavior must use the same tiers.
+    const viewport = ResponsiveBootstrapToolkit;
+    const compactHeader = () => !viewport.is('>=md');
+
+    // Collect header actions centrally so individual Razor views do not need responsive markup.
+    sectionHeader.each(function () {
+        const options = this.querySelector('.options');
+        if (!options) return;
+
+        // Input groups and existing dropdowns own their buttons and must remain intact.
+        const actions = Array.from(options.querySelectorAll('button.btn, a.btn, .vr'))
+            .filter(button => !button.closest('.dropdown-menu, .input-group') && !button.matches('[data-toggle="dropdown"]'))
+            .map(button => {
+                // Retain each original position, including separators and nested toolbar containers.
+                const placeholder = document.createComment('Header action');
+                button.before(placeholder);
+                const divider = button.classList.contains('vr');
+                const icons = Array.from(button.children).filter(child => child.matches('.icon, .icon-stack, sm-icon, sm-icon-stack'));
+                // Reserve the same icon column for every menu item, including actions without artwork.
+                const fixedWidthIcons = icons.filter(icon => !icon.classList.contains('icon-fw'));
+                const spacer = divider || icons.length ? null : Object.assign(document.createElement('span'), { className: 'icon icon-fw' });
+                spacer?.setAttribute('aria-hidden', 'true');
+                return { button, placeholder, divider, fixedWidthIcons, spacer, classes: Array.from(button.classList).filter(name => name === 'vr' || name === 'btn' || name.startsWith('btn-')) };
+            });
+        const buttons = actions.filter(action => !action.divider);
+        // Other controls also need space, so the two-icon exception only applies to button-only toolbars.
+        // Separators do not count toward the overflow threshold.
+        const hasOtherControls = options.querySelector('.input-group, input:not([type="hidden"]), select, textarea, [data-toggle="dropdown"]') !== null;
+        if (!buttons.length || (!hasOtherControls && buttons.length <= 2 && buttons.every(action => !action.spacer))) return;
+
+        const dropdown = $('<div class="dropdown section-header-actions" hidden></div>').appendTo(options);
+        const toggle = $('<button type="button" class="btn btn-secondary btn-icon dropdown-toggle no-chevron" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>')
+            .attr('aria-label', document.body.dataset.headerActionsLabel)
+            .append($(document.createElement('sm-icon')).attr('name', 'ellipsis'))
+            .appendTo(dropdown);
+        const menu = $('<div class="dropdown-menu dropdown-menu-right"></div>').appendTo(dropdown)[0];
+
+        function updateHeaderActions() {
+            // Close Bootstrap's dropdown before moving its contents across a breakpoint.
+            toggle.dropdown('hide');
+            dropdown.prop('hidden', !compactHeader());
+            actions.forEach(({ button, placeholder, divider, fixedWidthIcons, spacer, classes }) => {
+                if (compactHeader()) {
+                    // Move the original nodes within the same form to preserve handlers and submit values.
+                    // Replace presentation classes only; functional classes and attributes stay attached.
+                    button.classList.remove(...classes);
+                    button.classList.add(divider ? 'dropdown-divider' : 'dropdown-item');
+                    fixedWidthIcons.forEach(icon => icon.classList.add('icon-fw'));
+                    if (spacer) button.prepend(spacer);
+                    menu.append(button);
+                }
+                else {
+                    // Restore only our temporary changes, keeping pre-existing fixed-width icons intact.
+                    button.classList.remove(divider ? 'dropdown-divider' : 'dropdown-item');
+                    button.classList.add(...classes);
+                    fixedWidthIcons.forEach(icon => icon.classList.remove('icon-fw'));
+                    spacer?.remove();
+                    placeholder.after(button);
+                }
+            });
+        }
+
+        EventBroker.subscribe('page.gridtierchanged', updateHeaderActions);
+        updateHeaderActions();
+    });
+    // Keep the header's fade mask off the native scrollbar. Measure its width when the scrollport resizes,
+    // so the mask stays fixed during scrolling and does not fade or flicker over the scrollbar.
     const contentScrollport = document.getElementById('content');
     if (contentScrollport) {
         // Keep the native scrollbar opaque without tracking the scroll position.
@@ -12,6 +81,8 @@ $(function () {
         updateScrollbarWidth();
     }
 
+    // Activate the section-header fade mask once page content has been scrolled, including nested scrollports.
+    // Only the scrolled state changes here; CSS keeps the content mask anchored to the scrollport.
     const headerScrollRoots = new Set([document.scrollingElement]);
     sectionHeader.each(function () {
         for (let parent = this.parentElement; parent && parent !== document.body; parent = parent.parentElement) {
@@ -40,7 +111,8 @@ $(function () {
     window.addEventListener('pageshow', updateHeaderAppearance);
     updateHeaderAppearance();
 
-    // SPA and module layouts may still reserve an absolute header outside their scrollable content.
+    // Keep absolutely positioned section headers visible when SPA or module pages scroll the document.
+    // Reserve their height to prevent content jumps; headers using native CSS sticky are excluded.
     const fixedSectionHeaders = sectionHeader.filter(function () {
         return !this.classList.contains('nofix') && getComputedStyle(this).position === 'absolute';
     });
@@ -62,7 +134,8 @@ $(function () {
         });
     });
 
-    // Pane resizer
+    // Let users resize adjacent panes by dragging their separator, preserving pixel or percentage sizing.
+    // Notify the affected pane when dragging ends so its contents can adapt to the new width.
     $(document).on('mousedown', '.resizer', function (e) {
         var resizer = this;
         var resizeNext = resizer.classList.contains('resize-next');
@@ -125,7 +198,8 @@ $(function () {
         addEventListener('mouseup', onMouseUp);
     });
 
-    // Popup toggle
+    // Open links marked as popup toggles in the shared modal instead of navigating away from the page.
+    // This variant uses compact, scrollable popup content with an invisible backdrop.
     $(document).on('click', '.popup-toggle', function (e) {
         e.preventDefault();
         openPopup({
@@ -142,15 +216,69 @@ $(function () {
     });
 
 
+    // Control the main admin navigation: persist desktop expansion, expose a mobile overlay and manage flyouts.
+    // Popup and other layouts without the main sidebar still use the header logic above but skip this section.
     const navbar = $("#navbar");
     const sidebarToggle = document.getElementById('navbar-sidebar-toggle');
     if (!navbar.length || !sidebarToggle) {
         return;
     }
 
-    const sidebarDesktop = window.matchMedia('(min-width: 992px)');
+    const sidebarDesktop = () => viewport.is('>=lg');
+    const sidebarMobile = () => viewport.is('xs');
+    const sidebarMobileToggle = document.getElementById('navbar-mobile-toggle');
+    const sidebarMobileClose = document.getElementById('navbar-mobile-close');
     const sidebarStorageKey = 'smartstore.admin.sidebar';
 
+    // Place the mobile navigation toggle in the section-header title so navigation is reachable on small screens.
+    // Reuse the centrally rendered button. CSS reveals it after placement via admin-sidebar-ready.
+    // Headerless pages keep the button at its original position above the content.
+    const headerTitle = sectionHeader.first().find('.title')[0];
+    if (sidebarMobileToggle && headerTitle) {
+        headerTitle.prepend(sidebarMobileToggle);
+    }
+
+    // Open the existing sidebar over the page at XS, keeping its focus and accessibility state in sync.
+    // Closing the overlay must not change the user's saved desktop sidebar preference.
+    function setMobileSidebarOpen(open, restoreFocus = true) {
+        // The mobile overlay is transient and never overwrites the persisted desktop expansion state.
+        open = sidebarMobile() && open;
+        closeSidebarMenus();
+        hideSidebarTooltip();
+        document.body.classList.toggle('admin-sidebar-mobile-open', open);
+        // Offscreen navigation must not remain reachable by keyboard or assistive technology.
+        navbar[0].inert = sidebarMobile() && !open;
+        sidebarMobileToggle?.setAttribute('aria-expanded', String(open));
+        if (open) {
+            navbar[0].querySelector('a[href]')?.focus({ preventScroll: true });
+        }
+        else if (restoreFocus && sidebarMobile()) {
+            sidebarMobileToggle?.focus({ preventScroll: true });
+        }
+    }
+
+    // Provide mobile open/close controls and dismiss the overlay on outside interaction or Escape.
+    // Explicit close actions return focus to the toggle; outside interaction keeps focus on its target.
+    sidebarMobileToggle?.addEventListener('click', function () {
+        setMobileSidebarOpen(!document.body.classList.contains('admin-sidebar-mobile-open'));
+    });
+    sidebarMobileClose?.addEventListener('click', () => setMobileSidebarOpen(false));
+    // Pointer events cover mouse, pen and touch. Let the outside target retain its normal focus/action.
+    document.addEventListener('pointerdown', function (e) {
+        if (document.body.classList.contains('admin-sidebar-mobile-open')
+            && !navbar[0].contains(e.target) && !sidebarMobileToggle?.contains(e.target)) {
+            setMobileSidebarOpen(false, false);
+        }
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && document.body.classList.contains('admin-sidebar-mobile-open')) {
+            e.preventDefault();
+            setMobileSidebarOpen(false);
+        }
+    });
+
+    // Compact navigation needs labels as tooltips; expanded/mobile navigation already shows the text.
+    // Block a recently activated trigger until pointer intent changes, preventing tooltip flashes.
     const sidebarTooltipTargets = navbar.find('#navbar-menu > .navbar-nav > .nav-item > .nav-link, #current-user, #navbar-sidebar-toggle');
     const sidebarTooltipBlocked = new WeakSet();
     let sidebarTooltipTransitionTimer = 0;
@@ -160,7 +288,7 @@ $(function () {
     let sidebarDropdownOpening = false;
 
     function sidebarTooltipsAllowed() {
-        return !(sidebarDesktop.matches && document.body.classList.contains('admin-sidebar-expanded'))
+        return !sidebarMobile() && !(sidebarDesktop() && document.body.classList.contains('admin-sidebar-expanded'))
             && !sidebarChanging && !sidebarDropdownOpening && !navbar.find('.nav-item.dropdown.show').length;
     }
 
@@ -179,6 +307,7 @@ $(function () {
     }
 
     function suspendSidebarTooltips() {
+        // The timeout also updates the icon when reduced motion or missing transitions suppress transitionend.
         sidebarChanging = true;
         hideSidebarTooltip();
         requestAnimationFrame(() => {
@@ -232,22 +361,23 @@ $(function () {
     }
 
     function updateSidebarToggleIcon() {
-        sidebarToggle.classList.toggle('is-expanded', sidebarDesktop.matches
+        sidebarToggle.classList.toggle('is-expanded', sidebarDesktop()
             && document.body.classList.contains('admin-sidebar-expanded'));
     }
 
     function updateSidebarToggle() {
-        const expanded = sidebarDesktop.matches && document.body.classList.contains('admin-sidebar-expanded');
+        const expanded = sidebarDesktop() && document.body.classList.contains('admin-sidebar-expanded');
         const label = navbar[0].dataset[expanded ? 'collapseLabel' : 'expandLabel'];
-        sidebarToggle.disabled = !sidebarDesktop.matches;
+        sidebarToggle.disabled = !sidebarDesktop();
         sidebarToggle.setAttribute('aria-expanded', String(expanded));
         sidebarToggle.setAttribute('aria-label', label);
         sidebarToggle.removeAttribute('title');
         sidebarToggle.setAttribute('data-original-title', label);
         sidebarTooltipTargets.tooltip(expanded ? 'disable' : 'enable');
-        sidebarToggle.querySelector('.navbar-label').textContent = navbar[0].dataset[expanded ? 'collapseText' : 'expandText'];
     }
 
+    // Toggle and persist the desktop sidebar width. Keep menus closed during the transition and update
+    // the toggle icon only after the animation, then notify editors that their available width has changed.
     sidebarToggle.addEventListener('click', function () {
         suspendSidebarTooltips();
         closeSidebarMenus();
@@ -261,6 +391,7 @@ $(function () {
         requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
     });
     navbar[0].addEventListener('transitionend', function (e) {
+        // Keep the current toggle icon stable until the sidebar's width animation has completed.
         if (e.target === this && e.propertyName === 'width') {
             clearTimeout(sidebarTooltipTransitionTimer);
             sidebarChanging = false;
@@ -268,15 +399,22 @@ $(function () {
             window.dispatchEvent(new Event('resize'));
         }
     });
-    sidebarDesktop.addEventListener('change', function () {
+    // Adapt sidebar controls when the Sass-defined viewport tier changes, closing transient mobile navigation.
+    EventBroker.subscribe('page.gridtierchanged', function () {
+        // Discard transient menus when CSS switches layout tiers; preserve the desktop preference.
         suspendSidebarTooltips();
         closeSidebarMenus();
+        setMobileSidebarOpen(false, false);
         updateSidebarToggle();
     });
+    // Apply the initial sidebar state before CSS enables transitions and reveals the mobile toggle.
+    navbar[0].inert = sidebarMobile();
     updateSidebarToggle();
     updateSidebarToggleIcon();
     requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add('admin-sidebar-ready')));
 
+    // Position root flyouts beside their trigger, shifting upward only as needed to fit the viewport.
+    // The account menu opens above its trigger; separate arrows remain aligned with the trigger center.
     function positionSidebarMenu(dropdown) {
         const toggle = dropdown.querySelector(':scope > [data-toggle="dropdown"]');
         const menu = dropdown.querySelector(':scope > .dropdown-menu');
@@ -286,7 +424,9 @@ $(function () {
         const trigger = toggle.getBoundingClientRect();
         const opensAbove = dropdown.closest('.navbar-account') !== null;
         const menuStyle = getComputedStyle(menu);
-        const left = opensAbove ? Math.max(8, trigger.left) : navbar[0].getBoundingClientRect().right;
+        // Sass supplies the mobile inward offset; desktop menus align with the sidebar's outer edge.
+        const left = opensAbove ? Math.max(8, trigger.left)
+            : navbar[0].getBoundingClientRect().right + (parseFloat(menuStyle.getPropertyValue('--sidebar-menu-offset-x')) || 0);
         const bottom = opensAbove ? trigger.top - 4 : viewportHeight - 8;
         const availableHeight = Math.max(0, bottom - 8);
         menu.style.setProperty('--sidebar-menu-left', `${left}px`);
@@ -302,6 +442,7 @@ $(function () {
 
         const arrow = dropdown.querySelector(':scope > .sidebar-menu-arrow');
         if (arrow) {
+            // The arrow is a sibling outside the scrolling menu and always points to the trigger center.
             arrow.style.setProperty('--sidebar-menu-arrow-x', `${left + parseFloat(menuStyle.borderLeftWidth)}px`);
             arrow.style.setProperty('--sidebar-menu-arrow-y', `${trigger.top + trigger.height / 2}px`);
             arrow.style.setProperty('--sidebar-menu-arrow-bg', menuStyle.backgroundColor);
@@ -315,6 +456,8 @@ $(function () {
         });
     }
 
+    // Keep open flyouts within the viewport as sidebar geometry or menu content changes.
+    // Bootstrap lifecycle events also suppress conflicting tooltips and reset closed submenu state.
     const menuObserver = new ResizeObserver(positionOpenSidebarMenus);
     menuObserver.observe(navbar[0]);
     navbar.find('.nav-item.dropdown').on('show.bs.dropdown shown.bs.dropdown', function (e) {
@@ -347,6 +490,7 @@ $(function () {
         }
     });
 
+    // Let users return from an overlapping submenu to its parent without closing the whole navigation.
     navbar.on('click', '.sidebar-submenu-back', function (e) {
         e.preventDefault();
         e.stopPropagation();
@@ -355,6 +499,7 @@ $(function () {
         group.children('.dropdown-item').trigger('focus');
     });
 
+    // Open submenus with Right Arrow or Space and move keyboard focus to their first available action.
     navbar.on('keydown', '.dropdown-group > .dropdown-item', function (e) {
         if (e.key === 'ArrowRight' || e.key === ' ') {
             e.preventDefault();
@@ -376,6 +521,7 @@ $(function () {
         }
     });
 
+    // Navigate submenu actions with arrow/Home/End keys and return to the parent with Escape or Left Arrow.
     navbar.on('keydown', '.dropdown-group > .dropdown-menu', function (e) {
         const group = $(this).parent();
         if (e.key === 'Escape' || e.key === 'ArrowLeft') {
@@ -396,9 +542,11 @@ $(function () {
         }
     });
 
+    // Keep flyouts attached to their triggers while the viewport or the scrollable navigation changes.
     $(window).on('resize', positionOpenSidebarMenus);
     $('#navbar-menu').on('scroll', positionOpenSidebarMenus);
 
+    // Run the sidebar's cache-clearing actions without leaving the page, then reload to show fresh content.
     $("#clear-database-cache, #clear-cache").on('click', function () {
         $({}).ajax({
             url: $(this).data("url"),

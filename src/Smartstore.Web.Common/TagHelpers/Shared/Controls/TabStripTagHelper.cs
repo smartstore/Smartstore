@@ -528,11 +528,6 @@ public class TabStripTagHelper : SmartTagHelper
                 }
             }
 
-            if (tab.BadgeText.HasValue())
-            {
-                a.AppendCssClass("clearfix");
-            }
-
             // Icon/Image
             if (hasIcons)
             {
@@ -597,12 +592,8 @@ public class TabStripTagHelper : SmartTagHelper
     {
         if (tab.BadgeText.HasValue())
         {
-            var temp = "ml-2";
+            var temp = Position == TabsPosition.Left ? "ml-auto flex-shrink-0" : "ml-2";
             temp += " " + BadgeExpression.ToCssClasses(tab.BadgeStyle);
-            if (Position == TabsPosition.Left)
-            {
-                temp += " float-right"; // looks nicer 
-            }
 
             TagBuilder span = new("span");
             span.AddCssClass(temp);

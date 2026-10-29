@@ -32,7 +32,7 @@
             var itemText = node.GetItemText(T);
             var itemUrl = GetNodeLink(node);
 
-        <li data-id="nav-@item.Id" class="nav-item@(node.HasChildren ? " dropdown" : "")@(item.Id == "dashboard" ? " dropdown d-none d-md-block" : "")">
+        <li data-id="nav-@item.Id" class="nav-item@(node.HasChildren ? " dropdown" : "")">
             <a class="nav-link@(node.HasChildren ? " dropdown-toggle" : "")" href="@itemUrl" title="@itemText" aria-label="@itemText" attr-aria-haspopup='(node.HasChildren, "true")' attr-aria-expanded='(node.HasChildren, "false")' attr-data-toggle='(node.HasChildren, "dropdown")'>
                 @if (item.Icon.HasValue())
                 {

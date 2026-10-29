@@ -184,7 +184,33 @@ body {
             margin: 0;
         }
 
-        @media (max-width: 768px) {
+        .section-header-actions .dropdown-divider {
+            display: block;
+        }
+
+        @include media-breakpoint-down(lg) {
+            // Keep mixed action bars on one line while reserving space for the title and navigation controls.
+            &:has(input:not([type="hidden"]), select, textarea) {
+                flex-shrink: 1;
+                min-width: 0;
+                max-width: 75%;
+
+                > :is(.input-group, .has-icon, .form-control, .form-select) {
+                    flex-shrink: 1;
+                    min-width: 0;
+                    max-width: 100%;
+                }
+
+                .form-control {
+                    min-width: 0;
+                    max-width: 100%;
+                }
+
+                > :is(.btn, .dropdown) {
+                    flex-shrink: 0;
+                }
+            }
+
             // hide action button labels on small screens
             .btn > span:not(:only-child) {
                 display: none;
@@ -410,6 +436,7 @@ body {
     --admin-sidebar-label-shift: -8px;
     --admin-sidebar-brand-width: 140px;
     --admin-sidebar-wordmark-width: 0px;
+    --admin-sidebar-chevron-display: none;
     --admin-sidebar-motion: 0s;
 
     &.admin-sidebar-ready {
@@ -424,6 +451,7 @@ body {
             --admin-sidebar-label-opacity: 1;
             --admin-sidebar-label-shift: 0px;
             --admin-sidebar-wordmark-width: calc(var(--admin-sidebar-brand-width) * 0.8);
+            --admin-sidebar-chevron-display: inline-block;
         }
     }
 
@@ -458,14 +486,13 @@ body {
         display: none;
     }
 
-    @include media-breakpoint-up(lg) {
-        .admin-sidebar-expanded & .nav-item > .dropdown-toggle::after {
-            @include icon-mask(var(--icon-mask-chevron-right), 1rem);
-            flex: 0 0 auto;
-            margin-inline: auto -4px;
-            border: 0;
-            opacity: 0.5;
-        }
+    #navbar-menu .nav-item > .dropdown-toggle::after {
+        @include icon-mask(var(--icon-mask-chevron-right), 1rem);
+        display: var(--admin-sidebar-chevron-display);
+        flex: 0 0 auto;
+        margin-inline: auto -4px;
+        border: 0;
+        opacity: 0.5;
     }
 
     .dropdown-menu {
@@ -898,6 +925,58 @@ body {
 }
 
 
+.navbar-mobile-toggle {
+    display: none;
+}
+
+@include media-breakpoint-down(xs) {
+    .admin-sidebar-layout:not(.popup) {
+        --admin-sidebar-width: 180px;
+        --admin-sidebar-label-width: 120px;
+        --admin-sidebar-label-gap: 10px;
+        --admin-sidebar-label-opacity: 1;
+        --admin-sidebar-label-shift: 0px;
+        --admin-sidebar-wordmark-width: calc(var(--admin-sidebar-brand-width) * 0.8);
+        --admin-sidebar-chevron-display: inline-block;
+
+        #navbar-menu {
+            --sidebar-menu-offset-x: -32px;
+        }
+
+        .page-main {
+            --sticky-header-left: 0px;
+            margin-left: 0;
+        }
+
+        &.admin-sidebar-ready .navbar-mobile-toggle {
+            display: inline-flex;
+            flex: 0 0 auto;
+        }
+
+        .section-header .title > .navbar-mobile-toggle:has(+ a.btn) {
+            margin-inline-end: -0.375rem;
+        }
+
+        #content > .cph > .navbar-mobile-toggle {
+            align-self: flex-start;
+            margin-block: var(--section-header-padding-y) var(--section-header-spacing);
+        }
+
+        #navbar.navbar-sidebar {
+            visibility: hidden;
+            transform: translateX(-100%);
+            transition: transform var(--admin-sidebar-motion) ease,
+                        visibility 0s var(--admin-sidebar-motion);
+        }
+
+        &.admin-sidebar-mobile-open #navbar.navbar-sidebar {
+            visibility: visible;
+            transform: none;
+            transition-delay: 0s;
+        }
+    }
+}
+
 .admin-settings-layout:not(.popup) {
     --settings-navigation-width: 220px;
     --settings-navigation-gap: 24px;
@@ -966,6 +1045,21 @@ body {
                 > .list-group-item-icon {
                     transform: translateX(calc(var(--settings-active-radius) - var(--list-group-item-padding-x) - 50%));
                 }
+            }
+        }
+    }
+
+    @include media-breakpoint-down(sm) {
+        .settings-content:has(.section-header) {
+            display: flex;
+            flex-direction: column;
+
+            > form {
+                display: contents;
+            }
+
+            .section-header {
+                order: -1;
             }
         }
     }

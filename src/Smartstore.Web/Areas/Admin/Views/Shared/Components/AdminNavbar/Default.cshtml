@@ -13,13 +13,12 @@
     var checkUpdateResult = ViewBag.CheckUpdateResult as CheckUpdateResult;
     string expandSidebarLabel = T("Admin.Header.ExpandNavigation");
     string collapseSidebarLabel = T("Admin.Header.CollapseNavigation");
-    string expandSidebarText = T("Admin.Header.ExpandNavigation.Short");
     string collapseSidebarText = T("Admin.Header.CollapseNavigation.Short");
 }
 
 <link sm-target-zone="head_links" as="image" rel="preload" href="~/images/smartstore.svg" />
 
-<nav id="navbar" class="navbar navbar-slide navbar-dark navbar-expand navbar-sidebar" data-submenu-back-label="@T("Common.Back")" data-expand-label="@expandSidebarLabel" data-collapse-label="@collapseSidebarLabel" data-expand-text="@expandSidebarText" data-collapse-text="@collapseSidebarText">
+<nav id="navbar" class="navbar navbar-slide navbar-dark navbar-expand navbar-sidebar" data-submenu-back-label="@T("Common.Back")" data-expand-label="@expandSidebarLabel" data-collapse-label="@collapseSidebarLabel">
     <a class="navbar-brand" asp-action="Index" asp-controller="Home" asp-area="Admin">
         <span class="navbar-brand-symbol">
             <img src="~/images/smartstore.svg" alt="Smartstore" width="140" height="25" />
@@ -36,11 +35,15 @@
     </div>
 
     <div class="navbar-footer">
-        <button id="navbar-sidebar-toggle" type="button" class="navbar-sidebar-toggle nav-link"
+        <button id="navbar-mobile-close" type="button" class="navbar-sidebar-toggle nav-link d-sm-none" aria-label="@T("Common.Close")">
+            <icon name="close" class="navbar-icon" />
+            <span class="navbar-label" aria-hidden="true">@T("Common.Close")</span>
+        </button>
+        <button id="navbar-sidebar-toggle" type="button" class="navbar-sidebar-toggle nav-link d-none d-sm-flex"
                 aria-controls="navbar-menu" aria-expanded="false" aria-label="@expandSidebarLabel" title="@expandSidebarLabel">
             <icon name="sidebar-expand" class="navbar-icon navbar-toggle-expand" />
             <icon name="sidebar-collapse" class="navbar-icon navbar-toggle-collapse" />
-            <span class="navbar-label" aria-hidden="true">@expandSidebarText</span>
+            <span class="navbar-label" aria-hidden="true">@collapseSidebarText</span>
         </button>
 
         <div class="navbar-account">

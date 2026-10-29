@@ -371,6 +371,13 @@ jQuery(function () {
         // Handle nested dropdown menus
         $(document).on('mouseenter mouseleave click', '.dropdown-group', function (e) {
             let group = $(this);
+            // On small sidebar layouts, opening on hover can place a flyout link under the pending click.
+            // Require explicit activation, using the same Sass-defined tier as the sidebar styles.
+            const mobileSidebar = group.closest('#navbar.navbar-sidebar').length > 0
+                && ResponsiveBootstrapToolkit.is('xs');
+            if (mobileSidebar && e.type !== 'click') {
+                return;
+            }
             let type;
             let leaveDelay = 250;
 
@@ -382,6 +389,10 @@ jQuery(function () {
                     item.trigger("blur");
                     e.preventDefault();
                     e.stopPropagation();
+                    if (mobileSidebar && type === 'leave') {
+                        closeDrop(group);
+                        return;
+                    }
                 }
             }
 

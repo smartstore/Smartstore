@@ -830,6 +830,10 @@ legend {
         display: contents;
     }
 
+    .module-group:first-child > .module-group-header {
+        margin-top: 0;
+    }
+
     .module-group-header {
         grid-column: 1 / -1;
         color: $text-muted;
