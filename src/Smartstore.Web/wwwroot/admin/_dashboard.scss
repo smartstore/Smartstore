@@ -306,7 +306,7 @@
         background: rgba(#000, 0.8);
         color: $light;
         border-radius: var(--border-radius-sm);
-        transition: all 0.2s ease-in-out;
+        transition: opacity 0.2s ease-in-out;
         pointer-events: none;
         transform: translateX(-50%);
         z-index: 10;

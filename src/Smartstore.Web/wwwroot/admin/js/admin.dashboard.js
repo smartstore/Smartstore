@@ -10,13 +10,12 @@ Smartstore.Admin.Charts = {
 
         const customTooltip = function (tooltip) {
             const canvas = this._chart.canvas;
-            const chartElement = canvas.closest('.report');
-            // Get tooltip of chart element
-            let tooltipEl = document.getElementById(chartElement.id).querySelector('.chart-tooltip');
+            const tooltipContainer = canvas.closest('.canvas-container');
+            let tooltipEl = tooltipContainer.querySelector('.chart-tooltip');
             if (!tooltipEl) {
                 tooltipEl = document.createElement('div');
                 tooltipEl.classList.add('chart-tooltip');
-                chartElement.append(tooltipEl);
+                tooltipContainer.append(tooltipEl);
             }
 
             // Hide if no tooltip visible
@@ -59,11 +58,9 @@ Smartstore.Admin.Charts = {
             }
 
             // Display tooltip and set position
-            const position = canvas.getBoundingClientRect();
-            const canvasHeight = parseInt(getComputedStyle(canvas).getPropertyValue('height'));
             tooltipEl.style.opacity = 1;
-            tooltipEl.style.left = position.left + tooltip.caretX + 'px';
-            tooltipEl.style.marginTop = tooltip.caretY - canvasHeight + 'px';
+            tooltipEl.style.left = tooltip.caretX + 'px';
+            tooltipEl.style.top = tooltip.caretY + 'px';
         };
 
         const chartToggleListener = function (el, setChartData) {
