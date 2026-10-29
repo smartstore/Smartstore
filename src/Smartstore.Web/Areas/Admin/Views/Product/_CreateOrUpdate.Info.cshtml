@@ -60,30 +60,6 @@
             return false;
         });
 
-        $('#@Html.IdFor(model => model.ProductTagNames)').selectWrapper({
-            ajax: {
-                url: '@ViewBag.ProductTagsUrl',
-                delay: 300,
-                cache: true,
-                dataType: 'json',
-                global: false,
-                data: function (params) {
-                    var query = {
-                        term: params.term || "",
-                        page: params.page || 1
-                    }
-                    return query;
-                },
-                processResults: function (data, params) {
-                    params.page = params.page || 1;
-
-                    return {
-                        results: data.results,
-                        pagination: data.pagination
-                    };
-                }
-            }
-        });
 	});
 </script>
 
@@ -615,7 +591,12 @@
             <smart-label asp-for="ProductTagNames" />
         </div>
         <div class="adminData">
-            <select asp-for="ProductTagNames" data-icon="tag" asp-items="ViewBag.SelectedProductTags" class="noskin" multiple="multiple" data-tags="true"></select>
+            <select asp-for="ProductTagNames"
+                    asp-items="ViewBag.SelectedProductTags"
+                    data-icon="tag"
+                    data-remote-url="@ViewBag.ProductTagsUrl"
+                    multiple="multiple"
+                    data-tags="true"></select>
             <span asp-validation-for="ProductTagNames"></span>
         </div>
     </div>

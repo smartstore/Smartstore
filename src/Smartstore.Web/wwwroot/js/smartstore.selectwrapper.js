@@ -559,6 +559,12 @@
                 }
 
                 opts.dataAdapter = $.fn.select2.amd.require('select2/data/remoteAdapter');
+
+                if (sel.data('tags')) {
+                    const utils = $.fn.select2.amd.require('select2/utils');
+                    const tags = $.fn.select2.amd.require('select2/data/tags');
+                    opts.dataAdapter = utils.Decorate(opts.dataAdapter, tags);
+                }
             }
             else if (opts.ajax && opts.init && opts.init.text && sel.find('option[value="' + opts.init.text + '"]').length === 0) {
                 // In AJAX mode: add initial option when missing

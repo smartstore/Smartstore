@@ -956,17 +956,17 @@ public class ExportController : AdminController
                     .ApplyStandardFilter(true)
                     .ToListAsync();
 
-                var productTags = await _db.ProductTags
-                    .AsNoTracking()
-                    .ToListAsync();
-
                 ViewBag.Manufacturers = manufacturers
                     .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })
                     .ToList();
 
-                ViewBag.ProductTags = productTags
-                    .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })
-                    .ToList();
+                ViewBag.ProductTags = model.Filter.ProductTagId != null
+                    ? await _db.ProductTags
+                        .AsNoTracking()
+                        .Where(x => x.Id == model.Filter.ProductTagId.Value)
+                        .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString(), Selected = true })
+                        .ToListAsync()
+                    : [];
 
                 ViewBag.PriceTypes = PriceDisplayType.LowestPrice
                     .ToSelectList(false)
@@ -980,7 +980,7 @@ public class ExportController : AdminController
                     ? await _categoryService.GetCategoryTreeAsync(0, true)
                     : null;
 
-                ViewBag.SelectedCategoryId = CreateSelectedCategoriesList(new[] { model.Filter.CategoryId ?? 0 }, categoryTree);
+                ViewBag.SelectedCategoryId = CreateSelectedCategoriesList([model.Filter.CategoryId ?? 0], categoryTree);
                 ViewBag.SelectedCategoryIds = CreateSelectedCategoriesList(model.Filter.CategoryIds, categoryTree);
             }
             else if (model.Provider.EntityType == ExportEntityType.Customer)

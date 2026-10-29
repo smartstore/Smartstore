@@ -21,7 +21,7 @@
             <smart-label asp-for="Filter.StoreId" />
         </div>
         <div class="adminData">
-            <editor asp-for="Filter.StoreId" />
+            <editor asp-for="Filter.StoreId" data-placeholder="@allString" />
             <span asp-validation-for="Filter.StoreId"></span>
         </div>
     </div>
@@ -39,7 +39,7 @@
             <smart-label asp-for="Filter.IsPublished" />
         </div>
         <div class="adminData">
-            <editor asp-for="Filter.IsPublished" />
+            <editor asp-for="Filter.IsPublished" data-placeholder="@allString" />
             <span asp-validation-for="Filter.IsPublished"></span>
         </div>
     </div>
@@ -111,7 +111,11 @@
             <smart-label asp-for="Filter.ProductTagId" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.ProductTagId" data-icon="tag" asp-items="ViewBag.ProductTags" asp-placeholder="@allString"></select>
+            <select asp-for="Filter.ProductTagId"
+                    asp-items="ViewBag.ProductTags"
+                    asp-placeholder="@allString"
+                    data-icon="tag"
+                    data-remote-url="@Url.Action("AllProductTags", "Product", new { sourceFieldName = "id", selectedValues = Model.Filter.ProductTagId?.ToStringInvariant() })"></select>
             <span asp-validation-for="Filter.ProductTagId"></span>
         </div>
     </div>
@@ -120,7 +124,7 @@
             <smart-label asp-for="Filter.FeaturedProducts" />
         </div>
         <div class="adminData">
-            <editor asp-for="Filter.FeaturedProducts" />
+            <editor asp-for="Filter.FeaturedProducts" data-placeholder="@allString" />
             <span asp-validation-for="Filter.FeaturedProducts"></span>
         </div>
     </div>
@@ -130,7 +134,7 @@
             <smart-label asp-for="Filter.WithoutManufacturers" />
         </div>
         <div class="adminData">
-            <editor asp-for="Filter.WithoutManufacturers" />
+            <editor asp-for="Filter.WithoutManufacturers" data-placeholder="@allString" />
             <span asp-validation-for="Filter.WithoutManufacturers"></span>
         </div>
     </div>
@@ -149,7 +153,7 @@
             <smart-label asp-for="Filter.WithoutCategories" />
         </div>
         <div class="adminData">
-            <editor asp-for="Filter.WithoutCategories" />
+            <editor asp-for="Filter.WithoutCategories" data-placeholder="@allString" />
             <span asp-validation-for="Filter.WithoutCategories"></span>
         </div>
     </div>
@@ -223,7 +227,7 @@
             <smart-label asp-for="Filter.IsActiveCustomer" />
         </div>
         <div class="adminData">
-            <editor asp-for="Filter.IsActiveCustomer" />
+            <editor asp-for="Filter.IsActiveCustomer" data-placeholder="@allString" />
             <span asp-validation-for="Filter.IsActiveCustomer"></span>
         </div>
     </div>
@@ -232,7 +236,7 @@
             <smart-label asp-for="Filter.IsTaxExempt" />
         </div>
         <div class="adminData">
-            <editor asp-for="Filter.IsTaxExempt" />
+            <editor asp-for="Filter.IsTaxExempt" data-placeholder="@allString" />
             <span asp-validation-for="Filter.IsTaxExempt"></span>
         </div>
     </div>
@@ -241,7 +245,7 @@
             <smart-label asp-for="Filter.CustomerRoleIds" />
         </div>
         <div class="adminData">
-            <editor asp-for="Filter.CustomerRoleIds" />
+            <editor asp-for="Filter.CustomerRoleIds" data-placeholder="@allString" />
             <span asp-validation-for="Filter.CustomerRoleIds"></span>
         </div>
     </div>
@@ -250,7 +254,7 @@
             <smart-label asp-for="Filter.BillingCountryIds" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.BillingCountryIds" asp-items="@(new MultiSelectList(countries, "Value", "Text"))" multiple="multiple"></select>
+            <select asp-for="Filter.BillingCountryIds" asp-items="@(new MultiSelectList(countries, "Value", "Text"))" multiple="multiple" data-placeholder="@allString"></select>
             <span asp-validation-for="Filter.BillingCountryIds"></span>
         </div>
     </div>
@@ -259,7 +263,7 @@
             <smart-label asp-for="Filter.ShippingCountryIds" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.ShippingCountryIds" asp-items="@(new MultiSelectList(countries, "Value", "Text"))" multiple="multiple"></select>
+            <select asp-for="Filter.ShippingCountryIds" asp-items="@(new MultiSelectList(countries, "Value", "Text"))" multiple="multiple" data-placeholder="@allString"></select>
             <span asp-validation-for="Filter.ShippingCountryIds"></span>
         </div>
     </div>
@@ -307,7 +311,7 @@
             <smart-label asp-for="Filter.StoreId" />
         </div>
         <div class="adminData">
-            <editor asp-for="Filter.StoreId" />
+            <editor asp-for="Filter.StoreId" data-placeholder="@allString" />
             <span asp-validation-for="Filter.StoreId"></span>
         </div>
     </div>
@@ -316,7 +320,7 @@
             <smart-label asp-for="Filter.IsPublished" />
         </div>
         <div class="adminData">
-            <editor asp-for="Filter.IsPublished" />
+            <editor asp-for="Filter.IsPublished" data-placeholder="@allString" />
             <span asp-validation-for="Filter.IsPublished"></span>
         </div>
     </div>
@@ -343,7 +347,7 @@
             <smart-label asp-for="Filter.OrderStatusIds" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.OrderStatusIds" asp-items="Html.GetLocalizedEnumSelectList(typeof(OrderStatus))" multiple="multiple"></select>
+            <select asp-for="Filter.OrderStatusIds" asp-items="Html.GetLocalizedEnumSelectList(typeof(OrderStatus))" multiple="multiple" data-placeholder="@allString"></select>
             <span asp-validation-for="Filter.OrderStatusIds"></span>
         </div>
     </div>
@@ -352,7 +356,7 @@
             <smart-label asp-for="Filter.PaymentStatusIds" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.PaymentStatusIds" asp-items="Html.GetLocalizedEnumSelectList(typeof(PaymentStatus))" multiple="multiple"></select>
+            <select asp-for="Filter.PaymentStatusIds" asp-items="Html.GetLocalizedEnumSelectList(typeof(PaymentStatus))" multiple="multiple" data-placeholder="@allString"></select>
             <span asp-validation-for="Filter.PaymentStatusIds"></span>
         </div>
     </div>
@@ -361,7 +365,7 @@
             <smart-label asp-for="Filter.ShippingStatusIds" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.ShippingStatusIds" asp-items="Html.GetLocalizedEnumSelectList(typeof(ShippingStatus))" multiple="multiple"></select>
+            <select asp-for="Filter.ShippingStatusIds" asp-items="Html.GetLocalizedEnumSelectList(typeof(ShippingStatus))" multiple="multiple" data-placeholder="@allString"></select>
             <span asp-validation-for="Filter.ShippingStatusIds"></span>
         </div>
     </div>
@@ -370,7 +374,7 @@
             <smart-label asp-for="Filter.CustomerRoleIds" />
         </div>
         <div class="adminData">
-            <editor asp-for="Filter.CustomerRoleIds" />
+            <editor asp-for="Filter.CustomerRoleIds" data-placeholder="@allString" />
             <span asp-validation-for="Filter.CustomerRoleIds"></span>
         </div>
     </div>
@@ -382,7 +386,7 @@
             <smart-label asp-for="Filter.IsActiveSubscriber" />
         </div>
         <div class="adminData">
-            <editor asp-for="Filter.IsActiveSubscriber" />
+            <editor asp-for="Filter.IsActiveSubscriber" data-placeholder="@allString" />
             <span asp-validation-for="Filter.IsActiveSubscriber"></span>
         </div>
     </div>
@@ -391,7 +395,7 @@
             <smart-label asp-for="Filter.CustomerRoleIds" />
         </div>
         <div class="adminData">
-            <editor asp-for="Filter.CustomerRoleIds" />
+            <editor asp-for="Filter.CustomerRoleIds" data-placeholder="@allString" />
             <span asp-validation-for="Filter.CustomerRoleIds"></span>
         </div>
     </div>
@@ -400,7 +404,7 @@
             <smart-label asp-for="Filter.WorkingLanguageId" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.WorkingLanguageId" asp-items="ViewBag.Languages" asp-placeholder="@T("Common.Unspecified")"></select>
+            <select asp-for="Filter.WorkingLanguageId" asp-items="ViewBag.Languages" asp-placeholder="@allString"></select>
             <span asp-validation-for="Filter.WorkingLanguageId"></span>
         </div>
     </div>
@@ -430,7 +434,7 @@
             <smart-label asp-for="Filter.StoreId" />
         </div>
         <div class="adminData">
-            <editor asp-for="Filter.StoreId" />
+            <editor asp-for="Filter.StoreId" data-placeholder="@allString" />
             <span asp-validation-for="Filter.StoreId"></span>
         </div>
     </div>
@@ -439,7 +443,7 @@
             <smart-label asp-for="Filter.IsPublished" />
         </div>
         <div class="adminData">
-            <editor asp-for="Filter.IsPublished" />
+            <editor asp-for="Filter.IsPublished" data-placeholder="@allString" />
             <span asp-validation-for="Filter.IsPublished"></span>
         </div>
     </div>
@@ -466,7 +470,7 @@
             <smart-label asp-for="Filter.IsActiveCustomer" />
         </div>
         <div class="adminData">
-            <editor asp-for="Filter.IsActiveCustomer" />
+            <editor asp-for="Filter.IsActiveCustomer" data-placeholder="@allString" />
             <span asp-validation-for="Filter.IsActiveCustomer"></span>
         </div>
     </div>
@@ -475,7 +479,7 @@
             <smart-label asp-for="Filter.IsTaxExempt" />
         </div>
         <div class="adminData">
-            <editor asp-for="Filter.IsTaxExempt" />
+            <editor asp-for="Filter.IsTaxExempt" data-placeholder="@allString" />
             <span asp-validation-for="Filter.IsTaxExempt"></span>
         </div>
     </div>
@@ -484,7 +488,7 @@
             <smart-label asp-for="Filter.CustomerRoleIds" />
         </div>
         <div class="adminData">
-            <editor asp-for="Filter.CustomerRoleIds" />
+            <editor asp-for="Filter.CustomerRoleIds" data-placeholder="@allString" />
             <span asp-validation-for="Filter.CustomerRoleIds"></span>
         </div>
     </div>

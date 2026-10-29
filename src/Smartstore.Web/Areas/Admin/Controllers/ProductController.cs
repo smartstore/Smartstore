@@ -3,6 +3,7 @@ using System.Net;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Admin.Models.Catalog;
+using Smartstore.Admin.Models.Common;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
@@ -1398,40 +1399,45 @@ public partial class ProductController : AdminController
     /// <summary>
     /// (AJAX) Gets a paged list of product tags.
     /// </summary>
-    /// <param name="selectedNames">Names of selected tags.</param>
-    public async Task<IActionResult> AllProductTags(string term, string selectedNames, int page = 1)
+    /// <param name="model">Query model.</param>
+    public async Task<IActionResult> AllProductTags(EntityQueryModel model)
     {
         const int pageSize = 500;
-        var skip = page * pageSize;
+        var page = Math.Max(model.Page, 0);
+        var isIdSource = model.SourceFieldName.EqualsNoCase("Id");
         var unpublishedStr = T("Common.Unpublished").Value;
+        var selectedValues = model.SelectedValues.SplitSafe(',').ToList();
 
         var query = _db.ProductTags.AsNoTracking();
-
-        if (term.HasValue())
+        if (model.Term.HasValue())
         {
-            query = query.ApplySearchFilterFor(x => x.Name, term);
+            query = query.ApplySearchFilterFor(x => x.Name, model.Term);
         }
 
         var tags = await query
             .OrderBy(x => x.Name)
-            .ToPagedList(page - 1, pageSize)
+            .ToPagedList(page, pageSize)
             .LoadAsync();
 
         var results = tags
-            .Select(x => new ChoiceListItem
+            .Select(x =>
             {
-                Id = x.Name,
-                Text = x.Name,
-                Selected = selectedNames?.Contains(x.Name) ?? false,
-                Title = !x.Published ? unpublishedStr : null,
-                CssClass = !x.Published ? "choice-item-unavailable" : null
+                var value = isIdSource ? x.Id.ToString() : x.Name;
+                return new ChoiceListItem
+                {
+                    Id = value,
+                    Text = x.Name,
+                    Selected = selectedValues.Contains(value),
+                    Title = !x.Published ? unpublishedStr : null,
+                    CssClass = !x.Published ? "choice-item-unavailable" : null
+                };
             })
             .ToList();
 
         return new JsonResult(new
         {
             results,
-            pagination = new { more = tags.HasNextPage }
+            hasMoreData = tags.HasNextPage
         });
     }
 
@@ -1751,7 +1757,7 @@ public partial class ProductController : AdminController
                 .Select(x => new SelectListItem { Value = x, Text = x, Selected = true })
                 .ToList();
 
-            ViewBag.ProductTagsUrl = Url.Action(nameof(AllProductTags), new { selectedNames = string.Join(',', model.ProductTagNames.Select(x => x)) });
+            ViewBag.ProductTagsUrl = Url.Action(nameof(AllProductTags), new { selectedValues = string.Join(',', model.ProductTagNames.Select(x => x)) });
             ViewBag.NumberOfAttributeCombinations = await _db.ProductVariantAttributeCombinations.CountAsync(x => x.ProductId == product.Id);
         }
         else
