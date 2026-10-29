@@ -22,7 +22,6 @@
                         <span sm-language-attributes-for="Model.ProductName">@Model.ProductName</span>
                     </a>
                     <input type="hidden" id="SelectedAttributes" name="SelectedAttributes" value="@Html.Raw(Model.SelectedAttributes)">
-                    <input type="hidden" id="IsQuoteRequest" name="IsQuoteRequest" value="@Html.Raw(Model.IsQuoteRequest)">
                 </legend>
                 <p class="fwm fs-h5">@Html.Raw(Model.SelectedAttributes)</p>
 
@@ -50,9 +49,9 @@
 
                 <div class="form-group">
                     <label asp-for="Question" class="col-form-label required"></label>
-                    <textarea asp-for="Question" 
+                    <textarea asp-for="Question"
                               sm-required="true"
-                              placeholder="@T("Products.EmailAFriend.PersonalMessage.Hint")" 
+                              placeholder="@T(Model.IsQuoteRequest ? "Products.AskQuestion.Question.QuoteRequest" : "Products.AskQuestion.Question.GeneralInquiry", Model.ProductName)"
                               class="personal-message"></textarea>
                     <span asp-validation-for="Question"></span>
                 </div>

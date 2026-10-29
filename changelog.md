@@ -108,6 +108,7 @@
 - Improved server-side JavaScript minification with `NUglify`, correct block-scoped const handling, and automatic bundle cache invalidation. Files that fail minification now retain their original content with file-specific diagnostics.
 - #1565 Added settings for timeout and batch size when deleting guest accounts.
 - #1554 Validate/normalize the product search request parameters (especially those for pagination).
+- #1599 Required "Question" field is bypassed by auto-filled default text in product ask question form.
 - (DEV) Updated **Vue** from 2.6 to 3.5 and migrated the DataGrid and MediaManager integrations to the Vue 3 application API.
 - (DEV) `Wildcard`: Matching is culture-invariant by default (override via `Wildcard.DefaultOptions`), number ranges no longer capture, and a match timeout can be passed for untrusted input.
 - (DEV) Refactored shopping cart total calculation options into `ShoppingCartTotalOptions` and marked the legacy overload as obsolete.

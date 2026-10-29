@@ -788,7 +788,7 @@ public partial class ProductController : PublicController
                 HtmlUtility.ConvertPlainTextToHtml(model.Question.HtmlEncode()),
                 HtmlUtility.ConvertPlainTextToHtml(model.SelectedAttributes.HtmlEncode()),
                 absoluteProductUrl,
-                model.IsQuoteRequest);
+                product.CallForPrice);
 
             if (msg?.Email?.Id != null)
             {
@@ -829,8 +829,7 @@ public partial class ProductController : PublicController
             SelectedAttributes = string.Empty,
             //ProductUrl = await _productUrlHelper.Value.GetAbsoluteProductUrlAsync(product.Id, slug, selection),
             ProductUrl = await _productUrlHelper.Value.GetProductPathAsync(product.Id, slug, selection),
-            IsQuoteRequest = product.CallForPrice,
-            Question = T(product.CallForPrice ? "Products.AskQuestion.Question.QuoteRequest" : "Products.AskQuestion.Question.GeneralInquiry", name)
+            IsQuoteRequest = product.CallForPrice
         };
 
         if (selection.HasAttributes)
