@@ -336,9 +336,15 @@ body {
     }
 
     .spa-stretch {
+        flex: 1 1 auto;
         overflow: hidden;
         display: flex;
         flex-flow: column;
+
+        // Let grids use the remaining space instead of shrinking adjacent controls to fit their rows.
+        > .datagrid-root {
+            flex-basis: 0;
+        }
     }
 }
 
@@ -892,12 +898,17 @@ body {
     --list-group-item-padding-y: 10px;
     --list-group-action-color: var(--gray-700);
     --list-group-action-hover-color: var(--gray-900);
-    --list-group-action-hover-bg: var(--gray-300);
+    --list-group-action-hover-bg: rgb(0 0 0 / 0.06);
     --list-group-action-active-color: var(--list-group-action-hover-color);
-    --list-group-action-active-bg: var(--gray-400);
-    --list-group-active-bg: var(--list-group-action-hover-bg);
+    --list-group-action-active-bg: rgb(0 0 0 / 0.10);
+    --list-group-active-bg: rgb(0 0 0 / 0.08);
 
     gap: 1px;
+
+    hr {
+        border-color: rgb(0 0 0 / 0.06);
+        opacity: 1;
+    }
 
     .list-group-item {
         @include rfs($font-size-sm);
@@ -982,10 +993,17 @@ body {
     --settings-navigation-gap: 24px;
 
     .settings-shell {
-        --settings-navigation-top: calc(var(--content-offset) + var(--section-header-spacing));
+        --settings-navigation-top: 0px;
+        flex: 1 1 auto;
+        min-height: 0;
         display: grid;
         grid-template-columns: minmax(0, 1fr);
-        align-items: start;
+        grid-template-rows: minmax(0, 1fr);
+
+        // An in-flow header needs space above the menu; a header rendered before the shell does not.
+        &:has(.section-header) {
+            --settings-navigation-top: calc(var(--content-offset) + var(--section-header-spacing));
+        }
     }
 
     .settings-content {
@@ -1003,8 +1021,9 @@ body {
         margin-top: var(--settings-navigation-top);
         padding-block: 8px;
         border-radius: var(--border-radius-lg);
-        background: var(--gray-150);
+        background: oklch(from color-mix(in srgb, var(--primary-bg-subtle) 35%, var(--white)) l calc(c * 0.7) h);
         height: max(0px, calc(100dvh - var(--settings-navigation-top) - var(--settings-navigation-gap)));
+        max-height: 100%;
         overflow: hidden;
 
         .settings-menu-items,

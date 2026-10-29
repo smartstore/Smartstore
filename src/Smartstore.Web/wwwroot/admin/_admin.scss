@@ -1245,6 +1245,8 @@ a.editable {
 // --------------------------------------------------------------
 
 .search-expression-toggle {
+    display: inline-flex;
+    align-items: center;
     color: $text-muted;
     text-decoration: none;
     transition: color 0.12s ease;
