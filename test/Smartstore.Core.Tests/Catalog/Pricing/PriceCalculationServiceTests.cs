@@ -357,31 +357,66 @@ public class PriceCalculationServiceTests : ServiceTestBase
         }
     }
 
-    [Test]
-    public async Task Can_get_negative_attribute_price_adjustment()
+    [TestCase(null, 0, 20, 20, 100)]
+    [TestCase(true, 15, 20, 17, 85)]
+    [TestCase(false, 10, 20, 20, 90)]
+    [TestCase(null, 0, -2, -2, 100)]
+    public async Task Can_get_attribute_price_adjustment(
+        bool? usePercentage,
+        decimal discountValue,
+        decimal adjustment,
+        decimal expectedAdjustment,
+        decimal expectedPrice)
     {
-        var productAttribute = new ProductAttribute { Name = "Attribute" };
-        var variantAttribute = new ProductVariantAttribute
+        _product.Price = 100m;
+
+        var attribute = new ProductVariantAttribute
         {
             Product = _product,
-            ProductAttribute = productAttribute
+            ProductAttribute = new ProductAttribute { Name = "Attribute" }
         };
-        variantAttribute.ProductVariantAttributeValues.Add(new()
+        var attributeValue = new ProductVariantAttributeValue
         {
+            ProductVariantAttribute = attribute,
             Name = "Value",
-            PriceAdjustment = -2m
-        });
-        _product.ProductVariantAttributes.Add(variantAttribute);
+            PriceAdjustment = adjustment
+        };
+        attribute.ProductVariantAttributeValues.Add(attributeValue);
+        _product.ProductVariantAttributes.Add(attribute);
+
+        if (usePercentage.HasValue)
+        {
+            var discount = new Discount
+            {
+                Id = 1,
+                Name = "Discount",
+                DiscountType = DiscountType.AssignedToSkus,
+                UsePercentage = usePercentage.Value,
+                DiscountPercentage = usePercentage.Value ? discountValue : 0m,
+                DiscountAmount = usePercentage.Value ? 0m : discountValue,
+                DiscountLimitation = DiscountLimitationType.Unlimited
+            };
+
+            discount.AppliedToProducts.Add(_product);
+            _product.AppliedDiscounts.Add(discount);
+            _product.HasDiscountsApplied = true;
+            DbContext.Discounts.Add(discount);
+        }
 
         DbContext.Products.Add(_product);
         await DbContext.SaveChangesAsync();
 
         _priceCalculationContext.Options.DeterminePriceAdjustments = true;
+        _priceCalculationContext.Options.IgnoreDiscounts = false;
+        _priceCalculationContext.Options.DiscountValidationFlags = DiscountValidationFlags.None;
 
         var price = await _priceCalcService.CalculatePriceAsync(_priceCalculationContext);
 
-        price.AttributePriceAdjustments.Single().Price.Amount.ShouldEqual(-2m);
-        price.FinalPrice.Amount.ShouldEqual(12.34m);
+        using (Assert.EnterMultipleScope())
+        {
+            price.AttributePriceAdjustments.Single().Price.Amount.ShouldEqual(expectedAdjustment);
+            price.FinalPrice.Amount.ShouldEqual(expectedPrice);
+        }
     }
 
     [Test]

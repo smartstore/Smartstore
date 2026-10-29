@@ -1,5 +1,6 @@
 ﻿using System.Linq.Dynamic.Core;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Tax;
@@ -401,7 +402,11 @@ public partial class PriceCalculationService : IPriceCalculationService
         }
 
         // Convert attribute price adjustments.
-        context.AttributePriceAdjustments.Each(x => x.Price = ConvertPriceAdjustment(x.RawPriceAdjustment, context, taxRate));
+        context.AttributePriceAdjustments.Each(x =>
+        {
+            var adjustment = GetEffectivePriceAdjustment(x.RawPriceAdjustment, context);
+            x.Price = ConvertPriceAdjustment(adjustment, context, taxRate);
+        });
 
         // Detect retail & regular price.
         DetectComparePrices(context, result, taxRate);
@@ -435,6 +440,21 @@ public partial class PriceCalculationService : IPriceCalculationService
         }
 
         return result;
+    }
+
+    protected virtual decimal GetEffectivePriceAdjustment(decimal adjustment, CalculatorContext context)
+    {
+        // INFO: Discounts calculated exclusively for a tier price do not reduce attribute price adjustments.
+        // A single fixed-amount discount does not change the price difference between the variants.
+        var percentageDiscounts = context.AppliedDiscounts
+            .Where(x => x.UsePercentage && !context.CalculatedDiscounts.Any(y => y.Discount == x));
+
+        foreach (var discount in percentageDiscounts)
+        {
+            adjustment -= discount.GetDiscountAmount(adjustment);
+        }
+
+        return adjustment;
     }
 
     protected virtual Money ConvertPriceAdjustment(decimal amount, CalculatorContext context, TaxRate taxRate)
