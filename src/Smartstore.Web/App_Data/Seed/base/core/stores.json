@@ -6,7 +6,7 @@
     "hosts": "yourstore.com,www.yourstore.com",
     "logoMediaFile": "company-logo.png",
     "displayOrder": 1,
-    "defaultCurrency": "EUR",
-    "primaryExchangeRateCurrency": "EUR"
+    "defaultCurrency": "USD",
+    "primaryExchangeRateCurrency": "USD"
   }
 ]

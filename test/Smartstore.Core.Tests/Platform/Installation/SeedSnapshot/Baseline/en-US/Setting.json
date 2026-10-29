@@ -1023,13 +1023,13 @@
     "$key": "CurrencySettings.PrimaryCurrencyId|0",
     "Name": "CurrencySettings.PrimaryCurrencyId",
     "StoreId": 0,
-    "Value": "Currency:EUR"
+    "Value": "Currency:USD"
   },
   {
     "$key": "CurrencySettings.PrimaryExchangeCurrencyId|0",
     "Name": "CurrencySettings.PrimaryExchangeCurrencyId",
     "StoreId": 0,
-    "Value": "Currency:EUR"
+    "Value": "Currency:USD"
   },
   {
     "$key": "CurrencySettings.RoundNetPrices|0",

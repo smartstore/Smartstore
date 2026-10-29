@@ -1,7 +1,7 @@
 {
   "CurrencySettings": {
-    "PrimaryCurrencyId": "$ref:Currency:EUR",
-    "PrimaryExchangeCurrencyId": "$ref:Currency:EUR"
+    "PrimaryCurrencyId": "$ref:Currency:USD",
+    "PrimaryExchangeCurrencyId": "$ref:Currency:USD"
   },
   "EmailAccountSettings": {
     "DefaultEmailAccountId": "$ref:EmailAccount:default"

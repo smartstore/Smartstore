@@ -1,4 +1,8 @@
 {
+  "CurrencySettings": {
+    "PrimaryCurrencyId": "$ref:Currency:EUR",
+    "PrimaryExchangeCurrencyId": "$ref:Currency:EUR"
+  },
   "MeasureSettings": {
     "BaseDimensionId": "$ref:MeasureDimension:m",
     "BaseWeightId": "$ref:MeasureWeight:kg"
