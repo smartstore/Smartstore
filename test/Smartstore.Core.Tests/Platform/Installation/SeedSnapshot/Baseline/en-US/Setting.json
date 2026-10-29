@@ -399,7 +399,7 @@
     "$key": "CatalogSettings.HtmlTextCollapsedHeight|0",
     "Name": "CatalogSettings.HtmlTextCollapsedHeight",
     "StoreId": 0,
-    "Value": "260"
+    "Value": "230"
   },
   {
     "$key": "CatalogSettings.IgnoreFeaturedProducts|0",

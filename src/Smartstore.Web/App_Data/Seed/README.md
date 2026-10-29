@@ -197,6 +197,7 @@ seeded yet; the installer guarantees the order.
 | Media reference | `"product/fd-1001.jpg"` or `{ "file": "…", "name": "extra-virgin-olive-oil" }` | Path below `media/`. `name` sets the media file name (SEO name) when it differs from the name derived from the path. |
 | Publish condition | `"publishedWhen": "manufacturers"`, `"publishedWhen": "setting:CatalogSettings.CompareProductsEnabled"` | Menu items: published only if manufacturers exist / the setting is true. |
 | Variant value names | `cultures/de-DE/samples/catalog/attribute-value-names.json`: `{ "black": "Schwarz" }` | Translates all variant attribute values with that alias. A product overlay can still override a single value. |
+| Icon | `"icon": "cheese"` | Concept name from the public icon kit (`App_Data/Icons/kits.json`), so that the icon comes from the shared sprite. Do not use direct SVG addresses such as `hi:cheese!/sr`, they bypass the sprite. If a concept is missing, add it to the `public` kit and map it to the HugeIcons icon in `App_Data/Icons/hugeicons/mapping.json`. |
 
 ### Product records
 
