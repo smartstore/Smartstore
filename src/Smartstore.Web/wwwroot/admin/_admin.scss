@@ -392,25 +392,65 @@ legend {
 // --------------------------------------------------
 
 .admin-table {
-    $tbcolor: darken($table-border-color, 5%);
-    border: 1px solid $tbcolor;
+    --table-border-radius: var(--border-radius-md);
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid $table-border-color;
+    border-radius: var(--table-border-radius);
 
     .table-toolbar {
         caption-side: top;
         padding: 0.375rem;
         background-color: $table-head-bg;
-        border: 1px solid $tbcolor;
+        border: 1px solid $table-border-color;
         border-bottom: 0;
+        border-start-start-radius: var(--table-border-radius);
+        border-start-end-radius: var(--table-border-radius);
     }
 
-    thead {
+    > thead {
+        background-color: transparent;
+    }
+
+    > thead > tr > th {
+        padding-block: 0.5rem;
         background-color: $table-head-bg;
+        line-height: 1.75rem;
+        border-bottom: 2px solid $table-border-color;
+        border-top-color: $table-border-color;
     }
 
-    thead th {
-        line-height: 1.75rem;
-        border-bottom-width: 1px;
-        border-top-color: $tbcolor;
+    > thead + tbody > tr:first-child > :is(th, td) {
+        border-top: 0;
+    }
+
+    > :is(thead, tbody):first-child > tr:first-child > :is(th, td) {
+        border-top: 0;
+    }
+
+    > :is(thead, tbody):first-child > tr:first-child > :first-child {
+        border-start-start-radius: var(--table-border-radius);
+    }
+
+    > :is(thead, tbody):first-child > tr:first-child > :last-child {
+        border-start-end-radius: var(--table-border-radius);
+    }
+
+    > :is(tbody, tfoot):last-child > tr:last-child > :first-child {
+        border-end-start-radius: var(--table-border-radius);
+    }
+
+    > :is(tbody, tfoot):last-child > tr:last-child > :last-child {
+        border-end-end-radius: var(--table-border-radius);
+    }
+
+    &:has(> .table-toolbar) {
+        border-start-start-radius: 0;
+        border-start-end-radius: 0;
+
+        > thead > tr:first-child > th {
+            border-top: 0;
+        }
     }
 
     td, th {

@@ -427,7 +427,7 @@ public class CatalogSettings : ISettings
     /// <summary>
     /// Gets or sets the height of collapsed text
     /// </summary>
-    public int HtmlTextCollapsedHeight { get; set; } = 260;
+    public int HtmlTextCollapsedHeight { get; set; } = 230;
 
     /// <summary>
     /// Gets or sets the identifier of a delivery time displayed when the stock is empty.

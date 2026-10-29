@@ -1,5 +1,13 @@
 /// <reference path="references.scss" />
 
+.collapse-chevron {
+    @include transition(rotate var(--collapse-duration, .2s) var(--collapse-easing, ease-out));
+
+    [aria-expanded="true"] > & {
+        --icon-rotate: 180deg;
+    }
+}
+
 @mixin nav-toggler() {
     position: relative;
 

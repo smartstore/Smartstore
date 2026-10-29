@@ -3,6 +3,10 @@
 (function ($, window, document, undefined) {
 
     var _commonPluginFactories = [
+        // Text expanders, including dynamically loaded admin content.
+        function (ctx) {
+            ctx.find('.text-expander, .more-less').textExpander();
+        },
         // panel toggling
         function (ctx) {
             ctx.find('input[type=checkbox][data-toggler-for]').each((i, el) => {

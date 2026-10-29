@@ -458,6 +458,16 @@ body {
         display: none;
     }
 
+    @include media-breakpoint-up(lg) {
+        .admin-sidebar-expanded & .nav-item > .dropdown-toggle::after {
+            @include icon-mask(var(--icon-mask-chevron-right), 1rem);
+            flex: 0 0 auto;
+            margin-inline: auto -4px;
+            border: 0;
+            opacity: 0.5;
+        }
+    }
+
     .dropdown-menu {
         --dropdown-padding-x: 0.5rem;
         --dropdown-padding-y: 0.5rem;

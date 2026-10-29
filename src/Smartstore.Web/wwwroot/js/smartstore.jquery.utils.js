@@ -253,11 +253,13 @@
                     }
                 }
 
+                const viewport = inner.wrap('<div class="text-expander-viewport"></div>').parent();
+
                 function getActualHeight() {
                     return inner.outerHeight(false);
                 }
 
-                const maxHeight = el.data('max-height') || 260;
+                const maxHeight = el.data('max-height') || 230;
                 const innerId = inner.attr('id')
                     || (el.attr('id') ? el.attr('id') + '-content' : 'text-expander-content-' + (++textExpanderId));
                 var expanded = false;
@@ -295,7 +297,7 @@
 
                 inner.on('focusin.textExpander', function (e) {
                     if (!expanded && el.hasClass('collapsed')) {
-                        const containerRect = el[0].getBoundingClientRect();
+                        const containerRect = viewport[0].getBoundingClientRect();
                         const targetRect = e.target.getBoundingClientRect();
 
                         if (targetRect.top < containerRect.top || targetRect.bottom > containerRect.bottom) {

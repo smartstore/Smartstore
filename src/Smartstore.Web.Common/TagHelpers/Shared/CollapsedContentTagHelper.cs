@@ -41,6 +41,11 @@ public class CollapsedContentTagHelper : TagHelper
             outer.Attributes.Add("class", classes);
             outer.Attributes.Add("data-max-height", maxHeight.ToString());
 
+            if (output.Attributes.TryGetAttribute("style", out var style))
+            {
+                outer.Attributes.Add("style", style.Value.ToString());
+            }
+
             var inner = new TagBuilder("div");
             inner.Attributes.Add("id", id + "-content");
             inner.Attributes.Add("class", "text-expander-content");

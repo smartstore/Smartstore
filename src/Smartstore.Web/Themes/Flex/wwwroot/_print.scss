@@ -17,8 +17,11 @@
     }
 
     .text-expander {
-        max-height: none !important;
-        > .text-expander-content { mask-image: none !important; }
+        > .text-expander-viewport {
+            max-height: none !important;
+            overflow: visible !important;
+            mask-image: none !important;
+        }
         .text-expander-toggle { display: none !important; }
     }
 }
