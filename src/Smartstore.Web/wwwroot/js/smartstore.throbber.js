@@ -60,7 +60,7 @@
                 }
 
                 self.throbberContent = self.throbber.find(".throbber-content");
-                var spinner = window.createCircularSpinner(opts.small ? 50 : 100, true, 3);
+                var spinner = window.createCircularSpinner(opts.small ? 50 : 100, true, 5);
                 spinner.insertAfter(self.throbberContent);
 
                 self.initialized = true;

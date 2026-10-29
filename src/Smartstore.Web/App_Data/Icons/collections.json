@@ -120,6 +120,7 @@
       "pause",
       "pen",
       "play",
+      "play-fill",
       "plus",
       "plus-square",
       "polygon-fill",
@@ -165,6 +166,7 @@
       "warning"
     ],
     "sources": {
+      "play-fill": "fa:play!/s",
       "bell-fill": "sys:bell!/fill",
       "file-stack": "sys:file-stack!/outline",
       "folder-stack": "sys:folder-stack!/outline",

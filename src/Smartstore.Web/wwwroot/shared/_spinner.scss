@@ -9,6 +9,9 @@
 }
 
 .spinner {
+    --progress-track-color: #fff;
+    --progress-text-color: inherit;
+
     position: relative;
     text-align: center;
     vertical-align: middle;
@@ -51,11 +54,23 @@
 	stroke-linecap: round;
 	stroke-dasharray: 200.96;
     stroke-dashoffset: 58px;
-    animation: spinner-dash 1.333s linear infinite, spinner-colors 10.644s linear infinite;
+    animation: spinner-dash 1.333s linear infinite;
 	
      html.ie & {
          stroke-dashoffset: 80px;
      }       
+}
+
+.spinner-rainbow {
+    mask .circle {
+        stroke: #fff;
+    }
+
+    .spinner-color {
+        width: 64px;
+        height: 64px;
+        background: conic-gradient(#F7A833, #307ABE, #44B284, #64C1C7, #F7A833);
+    }
 }
 
 @keyframes spinner-dash {
@@ -82,30 +97,14 @@
     100%    { transform: rotate(720deg); }
 }
 
-@keyframes spinner-colors {
-    0%      { stroke: #3F51B5; }
-    20%     { stroke: #09b7bf; }
-    40%     { stroke: #90d36b; }
-    60%     { stroke: #F44336; }
-    80%     { stroke: #f90; }
-    100%    { stroke: #3F51B5; }
-}
-@-webkit-keyframes spinner-colors {
-    0%      { stroke: #3F51B5; }
-    20%     { stroke: #09b7bf; }
-    40%     { stroke: #90d36b; }
-    60%     { stroke: #F44336; }
-    80%     { stroke: #f90; }
-    100%    { stroke: #3F51B5; }
-}
-
 .spinner.white .circle {
     stroke: #fff;
-    animation-name: spinner-dash, spinner-rotate;
+    animation: spinner-dash 1.333s linear infinite, spinner-rotate 10.644s linear infinite;
 }
 
 .circular-progress {
     .wrapper {
+        line-height: 0;
         transform: rotate(-90deg);
     }
 
@@ -118,19 +117,18 @@
     }
 
     .circle-below {
-        stroke: #ccc;
+        stroke: var(--progress-track-color);
     } 
     
     .progress-text {
         position: absolute;
-        top: 50%;
-        bottom: 0;
-        left: 0;
-        right: 0;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-weight: 600;
-        font-size: 10px;
-        color: $gray-600;
-        transform: translateY(-50%);
-        line-height: 1rem;
+        font-size: var(--progress-text-size, 10px);
+        color: var(--progress-text-color, inherit);
+        line-height: 1;
     }
 }

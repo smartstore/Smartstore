@@ -43,7 +43,7 @@
     }
 
     &.show[data-type=video]:after {
-        @include icon-mask("play", 1em);
+        @include icon-mask("play-fill", 1em);
         position: absolute;
         left: 50%;
         top: 50%;

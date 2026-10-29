@@ -1,6 +1,7 @@
 /// <reference path="references.scss" />
 
 :root {
+    --iceblue: oklch(from color-mix(in srgb, var(--primary-bg-subtle) 35%, var(--white)) l calc(c * 0.7) h);
     --section-header-spacing: 24px;
     --section-header-padding-y: 10px;
     --section-header-padding-bottom: 0px;
@@ -39,6 +40,11 @@ b, strong {
 
 .text-primary-darkest {
     color: $sm-violet !important;
+}
+
+
+.bg-iceblue {
+    background-color: var(--iceblue) !important;
 }
 
 

@@ -1,4 +1,4 @@
-﻿(function ($, window, document) {
+(function ($, window, document) {
     
     window.setLocation = function (url) {
         window.location.href = url;
@@ -213,17 +213,28 @@
             .format(size,
                 32 - strokeWidth,
                 strokeWidth,
-                isProgress ? '<circle class="circle-below" cx="32" cy="32" r="{0:D}" fill="none" stroke-width="{1:D}"></circle>'.format(32 - strokeWidth, strokeWidth) : "" // SVG markup must be complete before turned into dom object
+                isProgress ? '<circle class="circle-below" cx="32" cy="32" r="{0:D}" fill="none" stroke-width="{1:D}"></circle>'.format(32 - strokeWidth, Math.max(0.5, strokeWidth - 2 * 64 / size)) : "" // Keep the track two display pixels thinner; create complete SVG markup before parsing it.
             ));
+
+        // Keep the existing arc and rotation animations; use the arc as a mask for the fixed brand gradient.
+        // Each spinner needs its own mask ID because several sizes can appear on the same page.
+        if (!white) {
+            var maskId = _.uniqueId('spinner-mask-');
+            var circleMarkup = svg.find('.circle')[0].outerHTML;
+            var trackMarkup = isProgress ? svg.find('.circle-below')[0].outerHTML : '';
+            spinner.addClass('spinner-rainbow');
+            svg.html('<defs><mask id="' + maskId + '" x="0" y="0" width="64" height="64" maskUnits="userSpaceOnUse" style="mask-type:alpha">' + circleMarkup + '</mask></defs>' +
+                trackMarkup + '<foreignObject x="0" y="0" width="64" height="64" mask="url(#' + maskId + ')"><div xmlns="http://www.w3.org/1999/xhtml" class="spinner-color"></div></foreignObject>');
+        }
 
         spinner.append($(svg));
 
         if (isProgress) {
+            spinner.css('--progress-text-size', Math.max(10, size * 0.24) + 'px');
             svg.wrap('<div class="wrapper"></div>');
 
             if (showtext) {
                 spinner.append('<div class="progress-text">0</div>');
-                // TODO: set font-size according to size param :-/ maybe subtract a fixed value???
             }
 
             var circle = svg.find(".circle");

@@ -1021,7 +1021,7 @@ body {
         margin-top: var(--settings-navigation-top);
         padding-block: 8px;
         border-radius: var(--border-radius-lg);
-        background: oklch(from color-mix(in srgb, var(--primary-bg-subtle) 35%, var(--white)) l calc(c * 0.7) h);
+        background: var(--iceblue);
         height: max(0px, calc(100dvh - var(--settings-navigation-top) - var(--settings-navigation-gap)));
         max-height: 100%;
         overflow: hidden;
